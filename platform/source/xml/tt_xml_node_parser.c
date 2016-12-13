@@ -224,6 +224,11 @@ tt_result_t tt_xmlnp_final(IN tt_xmlnp_t *xnp, OUT void *reserved)
 {
     TT_ASSERT(xnp != NULL);
 
+    if (tt_ptrstack_top(&xnp->xnode) != NULL) {
+        TT_ERROR("some elements are not terminated");
+        return TT_FAIL;
+    }
+
     return tt_xmlparser_final(&xnp->xp, reserved);
 }
 
@@ -268,7 +273,7 @@ tt_result_t __xps_on_text(IN struct tt_xmlparser_s *parser,
         return TT_FAIL;
     }
 
-    xnp->cb.on_node(xnp->cb_param, xn, TT_TRUE);
+    xnp->cb.on_node(xnp->cb_param, xn);
 
     return TT_SUCCESS;
 }
@@ -280,10 +285,6 @@ tt_result_t __xps_on_stag(IN struct tt_xmlparser_s *parser,
     tt_xmlnp_t *xnp = TT_CONTAINER(parser, tt_xmlnp_t, xp);
     tt_char_t *name;
     tt_xnode_t *xn;
-
-    if (xnp->cb.on_node == NULL) {
-        return TT_SUCCESS;
-    }
 
     // name need be escaped
     name = tt_xp_chdec_len(xnp->xm, (tt_char_t *)value, value_len);
@@ -311,10 +312,6 @@ tt_result_t __xps_on_stag_complete(IN struct tt_xmlparser_s *parser)
     tt_xmlnp_t *xnp = TT_CONTAINER(parser, tt_xmlnp_t, xp);
     tt_xnode_t *xn;
 
-    if (xnp->cb.on_node == NULL) {
-        return TT_SUCCESS;
-    }
-
     xn = tt_ptrstack_top(&xnp->xnode);
     if (xn == NULL) {
         TT_ERROR("must have start tag");
@@ -325,8 +322,9 @@ tt_result_t __xps_on_stag_complete(IN struct tt_xmlparser_s *parser)
         __parse_ns(xnp, xn);
     }
 
-    // mark xnode is still being parsed
-    xnp->cb.on_node(xnp->cb_param, xn, TT_FALSE);
+    if (xnp->cb.on_node_start != NULL) {
+        xnp->cb.on_node_start(xnp->cb_param, xn);
+    }
 
     return TT_SUCCESS;
 }
@@ -335,10 +333,6 @@ tt_result_t __xps_on_stag_end(IN struct tt_xmlparser_s *parser)
 {
     tt_xmlnp_t *xnp = TT_CONTAINER(parser, tt_xmlnp_t, xp);
     tt_xnode_t *xn;
-
-    if (xnp->cb.on_node == NULL) {
-        return TT_SUCCESS;
-    }
 
     xn = __pop_xnode(xnp);
     if (xn == NULL) {
@@ -350,7 +344,11 @@ tt_result_t __xps_on_stag_end(IN struct tt_xmlparser_s *parser)
         __parse_ns(xnp, xn);
     }
 
-    xnp->cb.on_node(xnp->cb_param, xn, TT_TRUE);
+    if (xnp->cb.on_node != NULL) {
+        xnp->cb.on_node(xnp->cb_param, xn);
+    } else {
+        tt_xnode_destroy(xn);
+    }
 
     return TT_SUCCESS;
 }
@@ -363,10 +361,6 @@ tt_result_t __xps_on_etag(IN struct tt_xmlparser_s *parser,
     tt_char_t *name;
     tt_xnode_t *xn;
     tt_bool_t match;
-
-    if (xnp->cb.on_node == NULL) {
-        return TT_SUCCESS;
-    }
 
     // name need be escaped
     name = tt_xp_chdec_len(xnp->xm, (tt_char_t *)value, value_len);
@@ -405,7 +399,11 @@ tt_result_t __xps_on_etag(IN struct tt_xmlparser_s *parser,
         return TT_FAIL;
     }
 
-    xnp->cb.on_node(xnp->cb_param, xn, TT_TRUE);
+    if (xnp->cb.on_node_end != NULL) {
+        xnp->cb.on_node_end(xnp->cb_param, xn);
+    } else {
+        tt_xnode_destroy(xn);
+    }
 
     return TT_SUCCESS;
 }
@@ -419,10 +417,6 @@ tt_result_t __xps_on_attr(IN struct tt_xmlparser_s *parser,
     tt_xmlnp_t *xnp = TT_CONTAINER(parser, tt_xmlnp_t, xp);
     tt_char_t *a_name = NULL, *a_val = NULL;
     tt_xnode_t *xn, *parent;
-
-    if (xnp->cb.on_node == NULL) {
-        return TT_SUCCESS;
-    }
 
     a_name = tt_xp_chdec_len(xnp->xm, (tt_char_t *)name, name_len);
     if (a_name == NULL) {
@@ -470,7 +464,7 @@ tt_result_t __xps_on_pi(IN struct tt_xmlparser_s *parser,
     tt_char_t *pi_name = NULL, *pi_val = NULL;
     tt_xnode_t *xn;
 
-    if ((xnp->cb.on_node == NULL) && (!xnp->ignore_pi)) {
+    if ((xnp->cb.on_node == NULL) || xnp->ignore_pi) {
         return TT_SUCCESS;
     }
 
@@ -494,7 +488,7 @@ tt_result_t __xps_on_pi(IN struct tt_xmlparser_s *parser,
         return TT_FAIL;
     }
 
-    xnp->cb.on_node(xnp->cb_param, xn, TT_TRUE);
+    xnp->cb.on_node(xnp->cb_param, xn);
 
     return TT_SUCCESS;
 }
@@ -507,7 +501,7 @@ tt_result_t __xps_on_cdata(IN struct tt_xmlparser_s *parser,
     tt_char_t *cdata;
     tt_xnode_t *xn;
 
-    if ((xnp->cb.on_node == NULL) && (!xnp->ignore_cdata)) {
+    if ((xnp->cb.on_node == NULL) || xnp->ignore_cdata) {
         return TT_SUCCESS;
     }
 
@@ -523,7 +517,7 @@ tt_result_t __xps_on_cdata(IN struct tt_xmlparser_s *parser,
         return TT_FAIL;
     }
 
-    xnp->cb.on_node(xnp->cb_param, xn, TT_TRUE);
+    xnp->cb.on_node(xnp->cb_param, xn);
 
     return TT_SUCCESS;
 }
@@ -536,7 +530,7 @@ tt_result_t __xps_on_comment(IN struct tt_xmlparser_s *parser,
     tt_char_t *comm;
     tt_xnode_t *xn;
 
-    if ((xnp->cb.on_node == NULL) && (!xnp->ignore_comment)) {
+    if ((xnp->cb.on_node == NULL) || xnp->ignore_comment) {
         return TT_SUCCESS;
     }
 
@@ -552,7 +546,7 @@ tt_result_t __xps_on_comment(IN struct tt_xmlparser_s *parser,
         return TT_FAIL;
     }
 
-    xnp->cb.on_node(xnp->cb_param, xn, TT_TRUE);
+    xnp->cb.on_node(xnp->cb_param, xn);
 
     return TT_SUCCESS;
 }

@@ -44,21 +44,24 @@ struct tt_xmlmem_s;
 struct tt_xmlns_s;
 struct tt_xmlns_mgr_s;
 
-// - @ref end indicate a node is terminated. each time the parser
-//   sees "<element ", it set @ref end to false, and true when sees
-//   "/>" or "</element>"
-// - if @ref end is false, data of xn may be changed during parsing
-//   until @ref end is true, but the pointer is always valid
-// - if @ref end is true, app is taking the ownership of xn, otherwise
-//   app can not destroy returned xn
-typedef void (*tt_xmlnp_on_node_t)(IN void *param,
-                                   IN tt_xnode_t *xn,
-                                   IN tt_bool_t end);
+// - called when it sees "<tag>"
+// - do not destroy xn returned as it's still referenced by xmlnp
+typedef void (*tt_xmlnp_on_node_start_t)(IN void *param, IN tt_xnode_t *xn);
+
+// - called when it sees "</tag>"
+// - app is taking the ownership of xn
+typedef void (*tt_xmlnp_on_node_end_t)(IN void *param, IN tt_xnode_t *xn);
+
+// - called when it sees "<tag/>"
+// - app is taking the ownership of xn
+typedef void (*tt_xmlnp_on_node_t)(IN void *param, IN tt_xnode_t *xn);
 
 typedef void (*tt_xmlnp_on_error_t)(IN void *param, IN tt_u32_t reserved);
 
 typedef struct
 {
+    tt_xmlnp_on_node_start_t on_node_start;
+    tt_xmlnp_on_node_end_t on_node_end;
     tt_xmlnp_on_node_t on_node;
     tt_xmlnp_on_error_t on_error;
 } tt_xmlnp_cb_t;
