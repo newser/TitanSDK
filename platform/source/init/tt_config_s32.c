@@ -1,0 +1,242 @@
+/* Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+////////////////////////////////////////////////////////////
+// import header files
+////////////////////////////////////////////////////////////
+
+#include <init/tt_config_s32.h>
+
+#include <algorithm/tt_buffer_format.h>
+
+////////////////////////////////////////////////////////////
+// internal macro
+////////////////////////////////////////////////////////////
+
+// one byte for sign
+#define __MAX_S32_LEN 11
+
+////////////////////////////////////////////////////////////
+// extern declaration
+////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////
+// global variant
+////////////////////////////////////////////////////////////
+
+static void __cfgs32_on_destroy(IN tt_cfgnode_t *cnode, IN tt_bool_t committed);
+
+static tt_cfgnode_itf_t __cs32_itf_g = {
+    __cfgs32_on_destroy,
+    NULL,
+    NULL,
+    tt_cfgs32_ls,
+    tt_cfgs32_get,
+    NULL,
+    tt_cfgs32_check,
+    NULL,
+};
+
+static tt_cfgnode_itf_t __cs32_itf_gs = {
+    __cfgs32_on_destroy,
+    NULL,
+    NULL,
+    tt_cfgs32_ls,
+    tt_cfgs32_get,
+    tt_cfgs32_set,
+    tt_cfgs32_check,
+    tt_cfgs32_commit,
+};
+
+////////////////////////////////////////////////////////////
+// interface declaration
+////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////
+// interface implementation
+////////////////////////////////////////////////////////////
+
+tt_cfgnode_t *tt_cfgs32_create(IN const tt_char_t *name,
+                               IN OPT tt_cfgnode_itf_t *itf,
+                               IN OPT void *opaque,
+                               IN tt_s32_t *val_ptr,
+                               IN OPT tt_cfgs32_cb_t *cb,
+                               IN OPT tt_cfgs32_attr_t *attr)
+{
+    tt_cfgs32_attr_t cs32_attr;
+    tt_cfgnode_t *cnode;
+    tt_cfgs32_t *cs32;
+
+    if (attr == NULL) {
+        tt_cfgs32_attr_default(&cs32_attr);
+        attr = &cs32_attr;
+    }
+
+    if (itf == NULL) {
+        if (attr->mode == TT_CFGVAL_MODE_GS) {
+            itf = &__cs32_itf_gs;
+        } else {
+            itf = &__cs32_itf_g;
+        }
+    }
+
+    cnode = tt_cfgnode_create(sizeof(tt_cfgs32_t),
+                              TT_CFGNODE_TYPE_S32,
+                              name,
+                              itf,
+                              opaque,
+                              &attr->cnode_attr);
+    if (cnode == NULL) {
+        return NULL;
+    }
+
+    cs32 = TT_CFGNODE_CAST(cnode, tt_cfgs32_t);
+
+    cs32->val_ptr = val_ptr;
+    cs32->new_val = 0;
+
+    cs32->cb = cb;
+
+    return cnode;
+}
+
+void tt_cfgs32_attr_default(IN tt_cfgs32_attr_t *attr)
+{
+    TT_ASSERT(attr != NULL);
+
+    tt_cfgnode_attr_default(&attr->cnode_attr);
+
+    attr->mode = TT_CFGS32_MODE_G;
+}
+
+tt_result_t tt_cfgs32_ls(IN tt_cfgnode_t *cnode,
+                         IN const tt_char_t *seperator,
+                         OUT tt_buf_t *output)
+{
+    tt_u32_t n;
+
+    // 1st line
+    TT_DO(tt_buf_put_cstr(output, "PERM    TYPE    NAME"));
+
+    n = (tt_u32_t)tt_strlen(cnode->name) + 4;
+    n = TT_MAX(n, 8);
+    TT_DO(tt_buf_put_rep(output, ' ', n - 4));
+
+    TT_DO(tt_buf_put_cstr(output, "DESCRIPTION"));
+    TT_DO(tt_buf_put_cstr(output, TT_COND(seperator != NULL, seperator, "\n")));
+
+    return tt_cfgnode_describe(cnode, n - 4, output);
+}
+
+tt_result_t tt_cfgs32_get(IN tt_cfgnode_t *cnode, OUT tt_buf_t *output)
+{
+    tt_cfgs32_t *cs32 = TT_CFGNODE_CAST(cnode, tt_cfgs32_t);
+    tt_char_t buf[32] = {0};
+
+    if (cnode->modified) {
+        tt_snprintf(buf, sizeof(buf) - 1, "%d", *cs32->val_ptr);
+        TT_DO(tt_buf_put_cstr(output, buf));
+
+        TT_DO(tt_buf_put_cstr(output, " --> "));
+
+        tt_snprintf(buf, sizeof(buf) - 1, "%d", cs32->new_val);
+        TT_DO(tt_buf_put_cstr(output, buf));
+
+        return TT_SUCCESS;
+    } else {
+        tt_snprintf(buf, sizeof(buf) - 1, "%d", *cs32->val_ptr);
+        return tt_buf_put_cstr(output, buf);
+    }
+}
+
+tt_result_t tt_cfgs32_set(IN tt_cfgnode_t *cnode, IN tt_blob_t *val)
+{
+    tt_cfgs32_t *cs32 = TT_CFGNODE_CAST(cnode, tt_cfgs32_t);
+    tt_u8_t buf[__MAX_S32_LEN + 1] = {0};
+    tt_s32_t s32_val;
+
+    if (val->len == 0) {
+        return TT_BAD_PARAM;
+    } else if (val->len > __MAX_S32_LEN) {
+        return TT_BAD_PARAM;
+    }
+
+    tt_memcpy(buf, val->addr, val->len);
+    if (!TT_OK(tt_strtos32((const char *)buf, NULL, 0, &s32_val))) {
+        return TT_BAD_PARAM;
+    }
+    cs32->new_val = s32_val;
+
+    if (*cs32->val_ptr == s32_val) {
+        cnode->modified = TT_FALSE;
+    } else {
+        cnode->modified = TT_TRUE;
+    }
+
+    return TT_SUCCESS;
+}
+
+tt_result_t tt_cfgs32_check(IN tt_cfgnode_t *cnode, IN tt_blob_t *val)
+{
+    tt_cfgs32_t *cs32 = TT_CFGNODE_CAST(cnode, tt_cfgs32_t);
+    tt_u8_t buf[__MAX_S32_LEN + 1] = {0};
+    tt_s32_t s32_val;
+
+    if (val->len == 0) {
+        return TT_BAD_PARAM;
+    } else if (val->len > __MAX_S32_LEN) {
+        return TT_BAD_PARAM;
+    }
+
+    tt_memcpy(buf, val->addr, val->len);
+    if (!TT_OK(tt_strtos32((const char *)buf, NULL, 0, &s32_val))) {
+        return TT_BAD_PARAM;
+    }
+    return TT_SUCCESS;
+}
+
+tt_result_t tt_cfgs32_commit(IN tt_cfgnode_t *cnode)
+{
+    tt_cfgs32_t *cs32 = TT_CFGNODE_CAST(cnode, tt_cfgs32_t);
+
+    if (!cnode->modified) {
+        return TT_SUCCESS;
+    }
+
+    TT_ASSERT(cs32->new_val != *cs32->val_ptr);
+    *cs32->val_ptr = cs32->new_val;
+    cnode->modified = TT_FALSE;
+
+    if ((cs32->cb != NULL) && (cs32->cb->on_set != NULL) &&
+        cs32->cb->on_set(cnode, cs32->new_val)) {
+        return TT_END;
+    }
+
+    return TT_SUCCESS;
+}
+
+void __cfgs32_on_destroy(IN tt_cfgnode_t *cnode, IN tt_bool_t committed)
+{
+    tt_cfgs32_t *cs32 = TT_CFGNODE_CAST(cnode, tt_cfgs32_t);
+
+    if (!committed) {
+        return;
+    }
+
+    if ((cs32->cb != NULL) && (cs32->cb->on_destroy != NULL)) {
+        cs32->cb->on_destroy(cnode, TT_TRUE);
+    }
+}

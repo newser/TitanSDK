@@ -1,0 +1,197 @@
+#include <tt_platform.h>
+
+#include <tt_cstd_api.h>
+
+#include "app_unit_test_process.h"
+
+//#include <locale.h>
+
+extern tt_result_t __utc_on_init(IN struct tt_evcenter_s *evc,
+                                 IN void *on_init_param);
+extern tt_u32_t __cli_mode;
+
+extern tt_result_t tt_cli_demo_run();
+
+tt_buf_t console_output;
+
+tt_result_t __console_ev_handler(IN void *console_param,
+                                 IN tt_cons_ev_t ev,
+                                 IN tt_cons_ev_data_t *ev_data)
+{
+#if 0
+    if (ev == TT_CONS_EV_KEY) {
+        tt_cli_t *cli = (tt_cli_t *)console_param;
+        tt_cons_ev_data_t output_data;
+
+        if (ev_data->key.key[0] == TT_CONS_EXTKEY_CTRLC) {
+            tt_u8_t cli_key = TT_CLI_EXTKEY_CTRLC;
+            tt_cli_input(cli, &cli_key, 1, &console_output);
+        } else if (ev_data->key.key[0] == TT_CONS_EXTKEY_UP) {
+            tt_u8_t cli_key = TT_CLI_EXTKEY_UP;
+            tt_cli_input(cli, &cli_key, 1, &console_output);
+        } else if (ev_data->key.key[0] == TT_CONS_EXTKEY_DOWN) {
+            tt_u8_t cli_key = TT_CLI_EXTKEY_DOWN;
+            tt_cli_input(cli, &cli_key, 1, &console_output);
+        } else if (ev_data->key.key[0] == TT_CONS_EXTKEY_RIGHT) {
+            tt_u8_t cli_key = TT_CLI_EXTKEY_RIGHT;
+            tt_cli_input(cli, &cli_key, 1, &console_output);
+        } else if (ev_data->key.key[0] == TT_CONS_EXTKEY_LEFT) {
+            tt_u8_t cli_key = TT_CLI_EXTKEY_LEFT;
+            tt_cli_input(cli, &cli_key, 1, &console_output);
+        } else {
+            tt_cli_input(cli,
+                         ev_data->key.key,
+                         ev_data->key.key_num,
+                         &console_output);
+        }
+
+        output_data.key.key = TT_BUF_RPOS(&console_output);
+        output_data.key.key_num = TT_BUF_RLEN(&console_output);
+        tt_console_send(TT_CONS_EV_KEY, &output_data);
+        tt_buf_reset_rwp(&console_output);
+    }
+#else
+    tt_console_send(ev, ev_data);
+    if (ev_data->key.key[0] == TT_CONS_EXTKEY_CTRLD) {
+        TT_DETAIL("exit console 1");
+        TT_DETAIL("exit console 2");
+        TT_DETAIL("exit console 3");
+        return TT_END;
+    }
+#endif
+
+    return TT_SUCCESS;
+}
+
+int main(int argc, char *argv[])
+{
+    int i;
+
+    // setlocale(LC_ALL, "chs");
+
+    for (i = 0; i < argc; ++i) {
+        printf("argv[%d]: %s\n", i, argv[i]);
+    }
+
+    if (argc > 1) {
+        if (strcmp(argv[1], "process") == 0) {
+            return app_ut_process(argc, argv);
+        } else if (strcmp(argv[1], "ipc") == 0) {
+            tt_evcenter_t evc;
+            tt_evc_attr_t evc_attr;
+
+            if (argc < 3) {
+                printf("app unit test ipc need at least 3 args\n");
+                return -1;
+            }
+
+            // init platform
+            tt_platform_init(NULL);
+
+            // create a local thread
+            tt_thread_create_local("tsk ut", NULL);
+
+            // run
+            tt_evc_attr_default(&evc_attr);
+            evc_attr.on_init = __utc_on_init;
+            evc_attr.on_init_param = argv[2];
+            evc_attr.evp_thread_attr.local_run = TT_TRUE;
+
+            tt_evc_create(&evc, TT_TRUE, &evc_attr);
+
+            tt_evc_wait(&evc);
+
+            // while(1) {
+            while (0) {
+                tt_sleep(10000);
+            }
+            return 0;
+        } else if (strcmp(argv[1], "ipc_stress") == 0) {
+            tt_evcenter_t evc;
+            tt_evc_attr_t evc_attr;
+
+            if (argc < 3) {
+                printf("app unit test ipc need at least 3 args\n");
+                return -1;
+            }
+
+            // init platform
+            tt_platform_init(NULL);
+
+            // create a local thread
+            tt_thread_create_local("tsk ut", NULL);
+
+            // run
+            tt_evc_attr_default(&evc_attr);
+            evc_attr.on_init = __utc_on_init;
+            evc_attr.on_init_param = argv[2];
+            evc_attr.evp_thread_attr.local_run = TT_TRUE;
+
+            __cli_mode = 1;
+
+            tt_evc_create(&evc, TT_TRUE, &evc_attr);
+
+            tt_evc_wait(&evc);
+
+            // while(1)
+            while (0) {
+                tt_sleep(10000);
+            }
+            return 0;
+        } // haniu
+        else {
+            printf("unknown process arg: %s\n", argv[1]);
+
+            // must return so as to infinitely creating process
+            return -1;
+        }
+    }
+
+    // init platform
+    tt_platform_init(NULL);
+
+    // create a local thread
+    tt_thread_create_local("tsk ut", NULL);
+
+// run
+#define AUT_MODE 0
+
+#if AUT_MODE == 0
+    tt_test_framework_init(0);
+    tt_test_unit_init(NULL);
+    tt_test_unit_run(NULL);
+    tt_test_unit_list(NULL);
+
+    tt_page_os_stat_show(0);
+    tt_skt_stat_show(0);
+    tt_ssl_stat_show(0);
+#elif AUT_MODE == 1
+    {
+        tt_console_run(__console_ev_handler, NULL, TT_TRUE);
+    }
+#elif AUT_MODE == 2
+    {
+        tt_cfgsh_t sh;
+
+        tt_console_cfgsh_create(&sh, TT_CLI_MODE_DEFAUTL, NULL);
+
+        tt_console_cfgsh_run(&sh, TT_TRUE);
+    }
+#else
+    tt_cli_demo_run();
+#endif
+
+#ifdef TT_WINDOWS_CRT_DUMP
+    _CrtDumpMemoryLeaks();
+#endif
+
+#if TT_ENV_OS_IS_WINDOWS
+    while (1) {
+#else
+    while (0) {
+#endif
+        tt_sleep(10000);
+    }
+
+    return 0;
+}
