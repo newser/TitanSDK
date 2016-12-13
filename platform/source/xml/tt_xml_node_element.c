@@ -42,12 +42,8 @@ static tt_result_t __xnelmt_create(IN struct tt_xnode_s *xn);
 
 static void __xnelmt_destroy(IN struct tt_xnode_s *xn);
 
-static tt_list_t *__xnelmt_child_list(IN struct tt_xnode_s *xn);
-
-static tt_list_t *__xnelmt_attr_list(IN struct tt_xnode_s *xn);
-
 tt_xnode_itf_t tt_g_xnode_elmt_itf = {
-    __xnelmt_create, __xnelmt_destroy, __xnelmt_child_list, __xnelmt_attr_list,
+    __xnelmt_create, __xnelmt_destroy,
 };
 
 ////////////////////////////////////////////////////////////
@@ -92,18 +88,4 @@ void __xnelmt_destroy(IN struct tt_xnode_s *xn)
     while ((node = tt_list_pophead(list)) != NULL) {
         tt_xnode_destroy(TT_CONTAINER(node, tt_xnode_t, node));
     }
-}
-
-tt_list_t *__xnelmt_child_list(IN struct tt_xnode_s *xn)
-{
-    tt_xnode_elmt_t *xnelmt = TT_XNODE_CAST(xn, tt_xnode_elmt_t);
-
-    return &xnelmt->child;
-}
-
-tt_list_t *__xnelmt_attr_list(IN struct tt_xnode_s *xn)
-{
-    tt_xnode_elmt_t *xnelmt = TT_XNODE_CAST(xn, tt_xnode_elmt_t);
-
-    return &xnelmt->attr;
 }

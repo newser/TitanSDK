@@ -20,7 +20,7 @@
 
 #include <xml/tt_xml_document.h>
 
-#include <xml/tt_xml_node_doc.h>
+#include <xml/tt_xml_node_element.h>
 
 ////////////////////////////////////////////////////////////
 // internal macro
@@ -135,7 +135,7 @@ tt_result_t tt_xmldoc_update(IN tt_xmldoc_t *xdoc,
             return TT_FAIL;
         }
 
-        if (!TT_OK(tt_xmlnp_create(xdoc->xnp,
+        if (!TT_OK(tt_xmlnp_create(xnp,
                                    &xdoc->xm,
                                    &xdoc->xns_mgr,
                                    &tt_s_xdoc_cb,

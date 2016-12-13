@@ -251,6 +251,7 @@ extern "C" {
 #include <xml/parse/tt_xmlparse_state_text.h>
 #include <xml/parse/tt_xmlparse_state_waitattr.h>
 #include <xml/tt_xml_def.h>
+#include <xml/tt_xml_document.h>
 #include <xml/tt_xml_memory.h>
 #include <xml/tt_xml_namespace.h>
 #include <xml/tt_xml_node.h>

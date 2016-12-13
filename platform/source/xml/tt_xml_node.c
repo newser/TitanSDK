@@ -23,7 +23,6 @@
 #include <misc/tt_assert.h>
 #include <xml/parse/tt_xml_parser.h>
 #include <xml/tt_xml_memory.h>
-#include <xml/tt_xml_node_doc.h>
 #include <xml/tt_xml_node_element.h>
 
 #include <tt_cstd_api.h>
@@ -56,11 +55,11 @@
 ////////////////////////////////////////////////////////////
 
 static tt_xnode_itf_t tt_g_xnode_generic_itf = {
-    NULL, NULL, NULL, NULL,
+    NULL, NULL,
 };
 
 static tt_xnode_itf_t *tt_s_xnode_itf[TT_XNODE_TYPE_NUM] = {
-    &tt_g_xnode_doc_itf, // TT_XNODE_TYPE_DOC,
+    &tt_g_xnode_elmt_itf, // TT_XNODE_TYPE_DOC,
     &tt_g_xnode_elmt_itf, // TT_XNODE_TYPE_ELEMENT
     &tt_g_xnode_generic_itf, // TT_XNODE_TYPE_ATTR
     &tt_g_xnode_generic_itf, // TT_XNODE_TYPE_TEXT
@@ -175,21 +174,36 @@ void tt_xnode_set_value(IN tt_xnode_t *xn, IN tt_char_t *value)
     xn->value = value;
 }
 
+tt_xnode_t *tt_xnode_parent(IN tt_xnode_t *xn)
+{
+    tt_xnode_elmt_t *parent;
+
+    if (xn->node.lst == NULL) {
+        return NULL;
+    }
+
+    // only element node could have child
+    if (xn->type != TT_XNODE_TYPE_ATTR) {
+        parent = TT_CONTAINER(xn->node.lst, tt_xnode_elmt_t, child);
+    } else {
+        parent = TT_CONTAINER(xn->node.lst, tt_xnode_elmt_t, attr);
+    }
+    TT_ASSERT(TT_XNODE_OF(parent)->type == TT_XNODE_TYPE_ELEMENT);
+    return TT_XNODE_OF(parent);
+}
+
 tt_xnode_t *tt_xnode_first_child(IN tt_xnode_t *xn)
 {
-    tt_xnode_itf_t *itf;
-    tt_list_t *child_list;
+    tt_xnode_elmt_t *xelmt;
     tt_lnode_t *lnode;
 
-    itf = tt_s_xnode_itf[xn->type];
-    if (itf->child_list == NULL) {
+    if (xn->type != TT_XNODE_TYPE_ELEMENT) {
         TT_ERROR("node[%d] does not have child list", xn->type);
         return NULL;
     }
-    child_list = itf->child_list(xn);
-    TT_ASSERT(child_list != NULL);
+    xelmt = TT_XNODE_CAST(xn, tt_xnode_elmt_t);
 
-    lnode = tt_list_head(child_list);
+    lnode = tt_list_head(&xelmt->child);
     if (lnode == NULL) {
         return NULL;
     }
@@ -198,19 +212,16 @@ tt_xnode_t *tt_xnode_first_child(IN tt_xnode_t *xn)
 
 tt_xnode_t *tt_xnode_last_child(IN tt_xnode_t *xn)
 {
-    tt_xnode_itf_t *itf;
-    tt_list_t *child_list;
+    tt_xnode_elmt_t *xelmt;
     tt_lnode_t *lnode;
 
-    itf = tt_s_xnode_itf[xn->type];
-    if (itf->child_list == NULL) {
+    if (xn->type != TT_XNODE_TYPE_ELEMENT) {
         TT_ERROR("node[%d] does not have child list", xn->type);
         return NULL;
     }
-    child_list = itf->child_list(xn);
-    TT_ASSERT(child_list != NULL);
+    xelmt = TT_XNODE_CAST(xn, tt_xnode_elmt_t);
 
-    lnode = tt_list_tail(child_list);
+    lnode = tt_list_tail(&xelmt->child);
     if (lnode == NULL) {
         return NULL;
     }
@@ -219,19 +230,16 @@ tt_xnode_t *tt_xnode_last_child(IN tt_xnode_t *xn)
 
 tt_xnode_t *tt_xnode_first_attr(IN tt_xnode_t *xn)
 {
-    tt_xnode_itf_t *itf;
-    tt_list_t *attr_list;
+    tt_xnode_elmt_t *xelmt;
     tt_lnode_t *lnode;
 
-    itf = tt_s_xnode_itf[xn->type];
-    if (itf->attr_list == NULL) {
+    if (xn->type != TT_XNODE_TYPE_ELEMENT) {
         TT_ERROR("node[%d] does not have attr list", xn->type);
         return NULL;
     }
-    attr_list = itf->attr_list(xn);
-    TT_ASSERT(attr_list != NULL);
+    xelmt = TT_XNODE_CAST(xn, tt_xnode_elmt_t);
 
-    lnode = tt_list_head(attr_list);
+    lnode = tt_list_head(&xelmt->attr);
     if (lnode == NULL) {
         return NULL;
     }
@@ -240,19 +248,16 @@ tt_xnode_t *tt_xnode_first_attr(IN tt_xnode_t *xn)
 
 tt_xnode_t *tt_xnode_last_attr(IN tt_xnode_t *xn)
 {
-    tt_xnode_itf_t *itf;
-    tt_list_t *attr_list;
+    tt_xnode_elmt_t *xelmt;
     tt_lnode_t *lnode;
 
-    itf = tt_s_xnode_itf[xn->type];
-    if (itf->attr_list == NULL) {
+    if (xn->type != TT_XNODE_TYPE_ELEMENT) {
         TT_ERROR("node[%d] does not have attr list", xn->type);
         return NULL;
     }
-    attr_list = itf->attr_list(xn);
-    TT_ASSERT(attr_list != NULL);
+    xelmt = TT_XNODE_CAST(xn, tt_xnode_elmt_t);
 
-    lnode = tt_list_tail(attr_list);
+    lnode = tt_list_tail(&xelmt->attr);
     if (lnode == NULL) {
         return NULL;
     }
@@ -261,34 +266,28 @@ tt_xnode_t *tt_xnode_last_attr(IN tt_xnode_t *xn)
 
 tt_result_t tt_xnode_add_child(IN tt_xnode_t *xn, IN tt_xnode_t *child)
 {
-    tt_xnode_itf_t *itf;
-    tt_list_t *child_list;
+    tt_xnode_elmt_t *xelmt;
 
-    itf = tt_s_xnode_itf[xn->type];
-    if (itf->child_list == NULL) {
+    if (xn->type != TT_XNODE_TYPE_ELEMENT) {
         TT_ERROR("node[%d] does not have child list", xn->type);
-        return TT_FAIL;
+        return NULL;
     }
-    child_list = itf->child_list(xn);
-    TT_ASSERT(child_list != NULL);
+    xelmt = TT_XNODE_CAST(xn, tt_xnode_elmt_t);
 
-    tt_list_addtail(child_list, &child->node);
+    tt_list_addtail(&xelmt->child, &child->node);
     return TT_SUCCESS;
 }
 
 tt_result_t tt_xnode_add_attr(IN tt_xnode_t *xn, IN tt_xnode_t *attr)
 {
-    tt_xnode_itf_t *itf;
-    tt_list_t *attr_list;
+    tt_xnode_elmt_t *xelmt;
 
-    itf = tt_s_xnode_itf[xn->type];
-    if (itf->attr_list == NULL) {
+    if (xn->type != TT_XNODE_TYPE_ELEMENT) {
         TT_ERROR("node[%d] does not have attr list", xn->type);
-        return TT_FAIL;
+        return NULL;
     }
-    attr_list = itf->attr_list(xn);
-    TT_ASSERT(attr_list != NULL);
+    xelmt = TT_XNODE_CAST(xn, tt_xnode_elmt_t);
 
-    tt_list_addtail(attr_list, &attr->node);
+    tt_list_addtail(&xelmt->attr, &attr->node);
     return TT_SUCCESS;
 }

@@ -63,16 +63,10 @@ typedef tt_result_t (*tt_xnode_create_t)(IN struct tt_xnode_s *xn);
 
 typedef void (*tt_xnode_destroy_t)(IN struct tt_xnode_s *xn);
 
-typedef tt_list_t *(*tt_xnode_child_list_t)(IN struct tt_xnode_s *xn);
-
-typedef tt_list_t *(*tt_xnode_attr_list_t)(IN struct tt_xnode_s *xn);
-
 typedef struct
 {
     tt_xnode_create_t create;
     tt_xnode_destroy_t desetroy;
-    tt_xnode_child_list_t child_list;
-    tt_xnode_attr_list_t attr_list;
 } tt_xnode_itf_t;
 
 typedef struct tt_xnode_s
@@ -142,12 +136,7 @@ extern void tt_xnode_set_name(IN tt_xnode_t *xn, IN TO tt_char_t *name);
 
 extern void tt_xnode_set_value(IN tt_xnode_t *xn, IN TO tt_char_t *value);
 
-tt_inline tt_xnode_t *tt_xnode_parent(IN tt_xnode_t *xn)
-{
-    return TT_COND(xn->node.lst != NULL,
-                   TT_CONTAINER(xn->node.lst, tt_xnode_t, node),
-                   NULL);
-}
+extern tt_xnode_t *tt_xnode_parent(IN tt_xnode_t *xn);
 
 tt_inline tt_xnode_t *tt_xnode_next(IN tt_xnode_t *xn)
 {
