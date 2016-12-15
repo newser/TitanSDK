@@ -446,7 +446,7 @@ tt_result_t __xps_on_attr(IN struct tt_xmlparser_s *parser,
     }
 
     // actually this should always succeed
-    if (!TT_OK(tt_xnode_add_attr(parent, xn))) {
+    if (!TT_OK(tt_xnode_addtail_attr(parent, xn))) {
         tt_xnode_destroy(xn);
         return TT_FAIL;
     }

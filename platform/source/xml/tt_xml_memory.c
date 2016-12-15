@@ -69,3 +69,13 @@ void tt_xmlmem_attr_default(IN tt_xmlmem_attr_t *attr)
 
     tt_memset(attr, 0, sizeof(tt_xmlmem_attr_t));
 }
+
+tt_char_t *tt_xm_copycstr(IN OPT tt_xmlmem_t *xm, IN const tt_char_t *cstr)
+{
+    tt_u32_t len = (tt_u32_t)tt_strlen(cstr);
+    tt_char_t *new_cstr = tt_xm_alloc(xm, len + 1);
+    if (new_cstr != NULL) {
+        tt_memcpy(new_cstr, cstr, len + 1);
+    }
+    return new_cstr;
+}

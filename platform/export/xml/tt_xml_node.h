@@ -63,10 +63,13 @@ typedef tt_result_t (*tt_xnode_create_t)(IN struct tt_xnode_s *xn);
 
 typedef void (*tt_xnode_destroy_t)(IN struct tt_xnode_s *xn);
 
+typedef struct tt_xnode_s *(*tt_xnode_clone_t)(IN struct tt_xnode_s *xn);
+
 typedef struct
 {
     tt_xnode_create_t create;
     tt_xnode_destroy_t desetroy;
+    tt_xnode_clone_t clone;
 } tt_xnode_itf_t;
 
 typedef struct tt_xnode_s
@@ -132,9 +135,9 @@ tt_inline tt_xnode_t *tt_xnode_pi_create(IN struct tt_xmlmem_s *xm,
 
 extern void tt_xnode_destroy(IN tt_xnode_t *xn);
 
-extern void tt_xnode_set_name(IN tt_xnode_t *xn, IN TO tt_char_t *name);
+extern tt_result_t tt_xnode_set_name(IN tt_xnode_t *xn, IN tt_char_t *name);
 
-extern void tt_xnode_set_value(IN tt_xnode_t *xn, IN TO tt_char_t *value);
+extern tt_result_t tt_xnode_set_value(IN tt_xnode_t *xn, IN tt_char_t *value);
 
 extern tt_xnode_t *tt_xnode_parent(IN tt_xnode_t *xn);
 
@@ -160,8 +163,63 @@ extern tt_xnode_t *tt_xnode_first_attr(IN tt_xnode_t *xn);
 
 extern tt_xnode_t *tt_xnode_last_attr(IN tt_xnode_t *xn);
 
-extern tt_result_t tt_xnode_add_child(IN tt_xnode_t *xn, IN tt_xnode_t *child);
+extern tt_result_t tt_xnode_addhead_child(IN tt_xnode_t *xn,
+                                          IN tt_xnode_t *child);
 
-extern tt_result_t tt_xnode_add_attr(IN tt_xnode_t *xn, IN tt_xnode_t *attr);
+extern tt_result_t tt_xnode_addtail_child(IN tt_xnode_t *xn,
+                                          IN tt_xnode_t *child);
+
+extern tt_result_t tt_xnode_addhead_attr(IN tt_xnode_t *xn,
+                                         IN tt_xnode_t *attr);
+
+extern tt_result_t tt_xnode_addtail_attr(IN tt_xnode_t *xn,
+                                         IN tt_xnode_t *attr);
+
+extern tt_xnode_t *tt_xnode_child_byname(IN tt_xnode_t *xn,
+                                         IN const tt_char_t *name);
+
+extern tt_xnode_t *tt_xnode_attr_byname(IN tt_xnode_t *xn,
+                                        IN const tt_char_t *name);
+
+extern tt_xnode_t *tt_xnode_next_byname(IN tt_xnode_t *xn,
+                                        IN const tt_char_t *name);
+
+// - return text of first text child node if xn is an element
+// - return value if xn is an text node
+// - return NULL otherwise
+extern tt_char_t *tt_xnode_get_text(IN tt_xnode_t *xn);
+
+extern tt_result_t tt_xnode_set_text(IN tt_xnode_t *xn, IN tt_char_t *text);
+
+extern tt_result_t tt_xnode_add_text(IN tt_xnode_t *xn, IN tt_char_t *text);
+
+// - return value of attr of xn if xn is an element
+// - return NULL otherwise
+extern const tt_char_t *tt_xnode_get_attrval(IN tt_xnode_t *xn,
+                                             IN const tt_char_t *attr_name);
+
+// new attr would be added if no matching name
+extern tt_result_t tt_xnode_set_attrval(IN tt_xnode_t *xn,
+                                        IN const tt_char_t *attr_name,
+                                        IN tt_char_t *attr_value);
+
+extern void tt_xnode_remove(IN tt_xnode_t *xn);
+
+extern void tt_xnode_remove_attr(IN tt_xnode_t *xn,
+                                 IN const tt_char_t *attr_name);
+
+extern void tt_xnode_replace(IN tt_xnode_t *xn, IN tt_xnode_t *with_xn);
+
+tt_inline void tt_xnode_insert_next(IN tt_xnode_t *xn, IN tt_xnode_t *new_xn)
+{
+    tt_list_insert_next(&xn->node, &new_xn->node);
+}
+
+tt_inline void tt_xnode_insert_prev(IN tt_xnode_t *xn, IN tt_xnode_t *new_xn)
+{
+    tt_list_insert_prev(&xn->node, &new_xn->node);
+}
+
+extern tt_xnode_t *tt_xnode_clone(IN tt_xnode_t *xn);
 
 #endif /* __TT_XML_NODE__ */

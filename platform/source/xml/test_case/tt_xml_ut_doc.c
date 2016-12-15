@@ -137,6 +137,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_doc_basic)
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_xmldoc_t xdoc;
     tt_result_t ret;
+    tt_u32_t n, len, i;
 
     TT_TEST_CASE_ENTER()
     // test start
@@ -149,6 +150,47 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_doc_basic)
 
     ret = tt_xmldoc_final(&xdoc, NULL);
     TT_TEST_CHECK_SUCCESS(ret, "");
+
+    // update segments
+    {
+        tt_xmldoc_reset(&xdoc, 0);
+
+        for (n = 0; n < sizeof((__tdb_xml1));) {
+            len = sizeof(__tdb_xml1) - n;
+            if (len > 5) {
+                len = tt_rand_u32() % 5; // 0-4
+            }
+            ret = tt_xmldoc_update(&xdoc, (tt_u8_t *)&__tdb_xml1[n], len);
+            TT_TEST_CHECK_SUCCESS(ret, "");
+            n += len;
+        }
+        TT_ASSERT(n == sizeof(__tdb_xml1));
+
+        ret = tt_xmldoc_final(&xdoc, NULL);
+        TT_TEST_CHECK_SUCCESS(ret, "");
+    }
+
+    // random test
+    {
+        tt_xmldoc_reset(&xdoc, 0);
+
+        for (i = 0; i < sizeof((__tdb_xml1));) {
+            tt_u32_t len = sizeof(__tdb_xml1) - i, j;
+            tt_u8_t buf[5];
+            if (len > 5) {
+                len = tt_rand_u32() % 5; // 0-9
+            }
+
+            tt_memcpy(buf, &__tdb_xml1[i], len);
+            for (j = 0; j < len; ++j) {
+                __tdb_xml1[i + j] = (tt_u8_t)tt_rand_u32();
+            }
+            tt_xmldoc_update(&xdoc, (tt_u8_t *)__tdb_xml1, sizeof(__tdb_xml1));
+            tt_memcpy(&__tdb_xml1[i], buf, len);
+
+            i += len;
+        }
+    }
 
     tt_xmldoc_destroy(&xdoc);
 

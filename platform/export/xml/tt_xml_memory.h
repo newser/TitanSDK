@@ -74,11 +74,12 @@ tt_inline void tt_xm_free(IN void *p)
     tt_mem_free(p);
 }
 
-tt_inline void tt_xm_free_safe(IN void *p)
+tt_inline tt_xmlmem_t *tt_xm_xmlmem(IN void *p)
 {
-    if (p != NULL) {
-        tt_mem_free(p);
-    }
+    return NULL;
 }
+
+extern tt_char_t *tt_xm_copycstr(IN OPT tt_xmlmem_t *xm,
+                                 IN const tt_char_t *cstr);
 
 #endif /* __TT_XML_MEMORY__ */

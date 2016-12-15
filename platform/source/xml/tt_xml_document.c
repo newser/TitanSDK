@@ -202,7 +202,7 @@ void __xdoc_on_node_start(IN void *param, IN tt_xnode_t *xn)
     tt_result_t result;
 
     TT_ASSERT(xdoc->current != NULL);
-    result = tt_xnode_add_child(xdoc->current, xn);
+    result = tt_xnode_addtail_child(xdoc->current, xn);
     TT_ASSERT(TT_OK(result));
 
     xdoc->current = xn;
@@ -224,7 +224,7 @@ void __xdoc_on_node(IN void *param, IN tt_xnode_t *xn)
     tt_xmldoc_t *xdoc = (tt_xmldoc_t *)param;
 
     TT_ASSERT(xdoc->current != NULL);
-    tt_xnode_add_child(xdoc->current, xn);
+    tt_xnode_addtail_child(xdoc->current, xn);
 }
 
 void __xdoc_on_error(IN void *param, IN tt_u32_t reserved)
