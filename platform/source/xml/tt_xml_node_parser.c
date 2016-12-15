@@ -260,6 +260,10 @@ tt_result_t __xps_on_text(IN struct tt_xmlparser_s *parser,
         return TT_SUCCESS;
     }
 
+    if ((value[0] == 0) || (value_len == 0)) {
+        return TT_SUCCESS;
+    }
+
     // text need be escaped
     text = tt_xp_chdec_len(xnp->xm, (tt_char_t *)value, value_len);
     if (text == NULL) {

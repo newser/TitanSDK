@@ -63,6 +63,15 @@ tt_xnode_t *tt_xnode_elmt_create(IN tt_xmlmem_t *xm, IN OPT TO tt_char_t *name)
                            NULL);
 }
 
+tt_xnode_t *tt_xnode_doc_create(IN struct tt_xmlmem_s *xm)
+{
+    return tt_xnode_create(xm,
+                           sizeof(tt_xnode_elmt_t),
+                           TT_XNODE_TYPE_DOC,
+                           NULL,
+                           NULL);
+}
+
 tt_result_t __xnelmt_create(IN struct tt_xnode_s *xn)
 {
     tt_xnode_elmt_t *xnelmt = TT_XNODE_CAST(xn, tt_xnode_elmt_t);

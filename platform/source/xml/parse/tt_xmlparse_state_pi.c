@@ -50,10 +50,7 @@ static tt_result_t __xpsst_pi_update(IN struct tt_xmlparser_s *parser,
                                      OUT tt_xmlparse_state_t *next_state);
 
 tt_xmlpsst_itf_t tt_g_xmlpsst_pi_itf = {
-    __xpsst_pi_enter,
-    NULL,
-
-    __xpsst_pi_update,
+    __xpsst_pi_enter, NULL, __xpsst_pi_update,
 };
 
 ////////////////////////////////////////////////////////////

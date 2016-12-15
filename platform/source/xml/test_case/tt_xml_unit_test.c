@@ -55,7 +55,7 @@ TT_XML_UT_DECLARE(XML_UT_PSST_DOC)
 ////////////////////////////////////////////////////////////
 
 tt_test_unit_t *tt_g_xml_ut_list[XML_UT_NUM] = {
-#if 0
+#if 1
     &TT_MAKE_TEST_UNIT_NAME(XML_UT_PSST_INIT),
     &TT_MAKE_TEST_UNIT_NAME(XML_UT_PSST_PARSE),
     &TT_MAKE_TEST_UNIT_NAME(XML_UT_PSST_NODE_PARSE),

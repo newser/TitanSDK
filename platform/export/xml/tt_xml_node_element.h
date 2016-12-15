@@ -59,9 +59,6 @@ extern tt_xnode_itf_t tt_g_xnode_elmt_itf;
 extern tt_xnode_t *tt_xnode_elmt_create(IN struct tt_xmlmem_s *xm,
                                         IN OPT TO tt_char_t *name);
 
-tt_inline tt_xnode_t *tt_xnode_doc_create(IN struct tt_xmlmem_s *xm)
-{
-    return tt_xnode_elmt_create(xm, NULL);
-}
+extern tt_xnode_t *tt_xnode_doc_create(IN struct tt_xmlmem_s *xm);
 
 #endif /* __TT_XML_NODE_ELEMENT__ */

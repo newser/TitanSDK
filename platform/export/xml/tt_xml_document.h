@@ -83,4 +83,9 @@ extern tt_result_t tt_xmldoc_final(IN tt_xmldoc_t *xdoc, OUT void *reserved);
 
 extern void tt_xmldoc_reset(IN tt_xmldoc_t *xdoc, IN tt_u32_t flag);
 
+tt_inline tt_xnode_t *tt_xmldoc_root(IN tt_xmldoc_t *xdoc)
+{
+    return xdoc->root;
+}
+
 #endif /* __TT_XML_DOCUMENT__ */
