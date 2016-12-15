@@ -141,7 +141,7 @@ static tt_u32_t __chkxdoc_err_line;
         if (!(e)) {                                                            \
             __chkxdoc_ret = TT_FAIL;                                           \
             __chkxdoc_err_line = __LINE__;                                     \
-            return false;                                                      \
+            return TT_FALSE;                                                      \
         }                                                                      \
     } while (0)
 
