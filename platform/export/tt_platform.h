@@ -237,7 +237,6 @@ extern "C" {
 #include <unit_test/tt_test_framework.h>
 #include <unit_test/tt_unit_test.h>
 #include <xml/parse/tt_xml_parser.h>
-#include <xml/parse/tt_xmlparse_char_decode.h>
 #include <xml/parse/tt_xmlparse_state.h>
 #include <xml/parse/tt_xmlparse_state_attr.h>
 #include <xml/parse/tt_xmlparse_state_cdata.h>
@@ -250,6 +249,9 @@ extern "C" {
 #include <xml/parse/tt_xmlparse_state_tag.h>
 #include <xml/parse/tt_xmlparse_state_text.h>
 #include <xml/parse/tt_xmlparse_state_waitattr.h>
+#include <xml/render/tt_xml_render.h>
+#include <xml/tt_xml_char_decode.h>
+#include <xml/tt_xml_char_encode.h>
 #include <xml/tt_xml_def.h>
 #include <xml/tt_xml_document.h>
 #include <xml/tt_xml_memory.h>

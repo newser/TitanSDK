@@ -18,52 +18,29 @@
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <unit_test/tt_unit_test.h>
+#include <xml/tt_xml_char_encode.h>
+
+#include <algorithm/tt_buffer.h>
+#include <algorithm/tt_buffer_format.h>
 
 ////////////////////////////////////////////////////////////
 // internal macro
 ////////////////////////////////////////////////////////////
 
-#define TT_XML_UT_DECLARE(name)                                                \
-    extern tt_test_unit_t TT_MAKE_TEST_UNIT_NAME(name);
+#define __SHOULD_ESC(c)                                                        \
+    ((c == '"') || (c == '\'') || (c == '<') || (c == '>') || (c == '&'))
 
 ////////////////////////////////////////////////////////////
 // internal type
 ////////////////////////////////////////////////////////////
 
-typedef enum {
-    XML_UT_BEGIN = 0,
-
-    XML_UT_PSST_INIT,
-    XML_UT_PSST_PARSE,
-    XML_UT_PSST_NODE_PARSE,
-
-    XML_UT_NUM // number of test units
-} tt_xml_ut_id_t;
-
 ////////////////////////////////////////////////////////////
 // extern declaration
 ////////////////////////////////////////////////////////////
 
-TT_XML_UT_DECLARE(XML_UT_PSST_INIT)
-TT_XML_UT_DECLARE(XML_UT_PSST_PARSE)
-TT_XML_UT_DECLARE(XML_UT_PSST_NODE_PARSE)
-TT_XML_UT_DECLARE(XML_UT_PSST_DOC)
-TT_XML_UT_DECLARE(XML_UT_RENDER)
-
 ////////////////////////////////////////////////////////////
 // global variant
 ////////////////////////////////////////////////////////////
-
-tt_test_unit_t *tt_g_xml_ut_list[XML_UT_NUM] = {
-#if 0
-    &TT_MAKE_TEST_UNIT_NAME(XML_UT_PSST_INIT),
-    &TT_MAKE_TEST_UNIT_NAME(XML_UT_PSST_PARSE),
-    &TT_MAKE_TEST_UNIT_NAME(XML_UT_PSST_NODE_PARSE),
-    &TT_MAKE_TEST_UNIT_NAME(XML_UT_PSST_DOC),
-#endif
-    &TT_MAKE_TEST_UNIT_NAME(XML_UT_RENDER),
-};
 
 ////////////////////////////////////////////////////////////
 // interface declaration
@@ -73,22 +50,44 @@ tt_test_unit_t *tt_g_xml_ut_list[XML_UT_NUM] = {
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-tt_result_t tt_xml_ut_init(IN tt_ptr_t reserved)
+tt_inline const tt_char_t *__char_esc(IN tt_char_t c)
 {
-    tt_xml_ut_id_t unit_id = XML_UT_BEGIN;
-    while (unit_id < XML_UT_NUM) {
-        tt_result_t result = TT_FAIL;
-
-        if (tt_g_xml_ut_list[unit_id] != NULL) {
-            result = tt_test_unit_to_class(tt_g_xml_ut_list[unit_id]);
-            if (!TT_OK(result)) {
-                return TT_FAIL;
-            }
-        }
-
-        // next
-        ++unit_id;
+    switch (c) {
+        case '"':
+            return "&quot;";
+        case '\'':
+            return "&apos;";
+        case '<':
+            return "&lt;";
+        case '>':
+            return "&gt;";
+        case '&':
+            return "&amp;";
+        default:
+            return "";
     }
+}
+
+tt_result_t tt_xml_chenc_len(IN const tt_char_t *s,
+                             IN tt_u32_t s_len,
+                             OUT struct tt_buf_s *outbuf)
+{
+    tt_u8_t *prev, *pos, *end;
+
+    prev = (tt_u8_t *)s;
+    pos = (tt_u8_t *)s;
+    end = (tt_u8_t *)s + s_len;
+    while (pos < end) {
+        if (__SHOULD_ESC(*pos)) {
+            TT_DO(tt_buf_put(outbuf, prev, (tt_u32_t)(pos - prev)));
+            TT_DO(tt_buf_put_cstr(outbuf, __char_esc(*pos)));
+            ++pos;
+            prev = pos;
+        } else {
+            ++pos;
+        }
+    }
+    TT_DO(tt_buf_put(outbuf, prev, (tt_u32_t)(pos - prev)));
 
     return TT_SUCCESS;
 }

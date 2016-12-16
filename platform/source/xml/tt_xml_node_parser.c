@@ -20,7 +20,7 @@
 
 #include <xml/tt_xml_node_parser.h>
 
-#include <xml/parse/tt_xmlparse_char_decode.h>
+#include <xml/tt_xml_char_decode.h>
 #include <xml/tt_xml_memory.h>
 #include <xml/tt_xml_namespace.h>
 #include <xml/tt_xml_node_element.h>
@@ -265,7 +265,7 @@ tt_result_t __xps_on_text(IN struct tt_xmlparser_s *parser,
     }
 
     // text need be escaped
-    text = tt_xp_chdec_len(xnp->xm, (tt_char_t *)value, value_len);
+    text = tt_xml_chdec_len(xnp->xm, (tt_char_t *)value, value_len);
     if (text == NULL) {
         TT_ERROR("no mem for data xnode");
         return TT_FAIL;
@@ -291,7 +291,7 @@ tt_result_t __xps_on_stag(IN struct tt_xmlparser_s *parser,
     tt_xnode_t *xn;
 
     // name need be escaped
-    name = tt_xp_chdec_len(xnp->xm, (tt_char_t *)value, value_len);
+    name = tt_xml_chdec_len(xnp->xm, (tt_char_t *)value, value_len);
     if (name == NULL) {
         TT_ERROR("no mem for xnode tag name");
         return TT_FAIL;
@@ -367,7 +367,7 @@ tt_result_t __xps_on_etag(IN struct tt_xmlparser_s *parser,
     tt_bool_t match;
 
     // name need be escaped
-    name = tt_xp_chdec_len(xnp->xm, (tt_char_t *)value, value_len);
+    name = tt_xml_chdec_len(xnp->xm, (tt_char_t *)value, value_len);
     if (name == NULL) {
         TT_ERROR("no mem for xnode tag name");
         return TT_FAIL;
@@ -422,13 +422,13 @@ tt_result_t __xps_on_attr(IN struct tt_xmlparser_s *parser,
     tt_char_t *a_name = NULL, *a_val = NULL;
     tt_xnode_t *xn, *parent;
 
-    a_name = tt_xp_chdec_len(xnp->xm, (tt_char_t *)name, name_len);
+    a_name = tt_xml_chdec_len(xnp->xm, (tt_char_t *)name, name_len);
     if (a_name == NULL) {
         TT_ERROR("no mem for attr xnode name");
         return TT_FAIL;
     }
 
-    a_val = tt_xp_chdec_len(xnp->xm, (tt_char_t *)value, value_len);
+    a_val = tt_xml_chdec_len(xnp->xm, (tt_char_t *)value, value_len);
     if (a_val == NULL) {
         TT_ERROR("no mem for attr xnode value");
         tt_xm_free(a_name);

@@ -18,7 +18,7 @@
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <xml/parse/tt_xmlparse_char_decode.h>
+#include <xml/tt_xml_char_decode.h>
 
 #include <misc/tt_util.h>
 #include <xml/tt_xml_memory.h>
@@ -71,9 +71,9 @@ static void __utf8_enc(IN tt_u32_t val, IN OUT tt_char_t **p_opos);
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-tt_char_t *tt_xp_chdec_len(IN tt_xmlmem_t *xm,
-                           IN const tt_char_t *s,
-                           IN tt_u32_t s_len)
+tt_char_t *tt_xml_chdec_len(IN tt_xmlmem_t *xm,
+                            IN const tt_char_t *s,
+                            IN tt_u32_t s_len)
 {
     tt_char_t *dec;
 

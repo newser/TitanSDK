@@ -15,14 +15,14 @@
  */
 
 /**
-@file tt_xmlparse_char_decode.h
-@brief xml parse char decoding
+@file tt_xml_char_decode.h
+@brief xml char decoding
 
-this file defines xml parser char decoding
+this file defines xml char decoding
 */
 
-#ifndef __TT_XMLPARSE_CHAR_DECODE__
-#define __TT_XMLPARSE_CHAR_DECODE__
+#ifndef __TT_XML_CHAR_DECODE__
+#define __TT_XML_CHAR_DECODE__
 
 ////////////////////////////////////////////////////////////
 // import header files
@@ -52,14 +52,14 @@ struct tt_xmlmem_s;
 
 // - s_len will be recalculated if it is longer than length,
 // - returned string should be freed by tt_xm_free
-extern tt_char_t *tt_xp_chdec_len(IN struct tt_xmlmem_s *xm,
-                                  IN const tt_char_t *s,
-                                  IN tt_u32_t s_len);
+extern tt_char_t *tt_xml_chdec_len(IN struct tt_xmlmem_s *xm,
+                                   IN const tt_char_t *s,
+                                   IN tt_u32_t s_len);
 
-tt_inline tt_char_t *tt_xp_chdec(IN struct tt_xmlmem_s *xm,
-                                 IN const tt_char_t *s)
+tt_inline tt_char_t *tt_xml_chdec(IN struct tt_xmlmem_s *xm,
+                                  IN const tt_char_t *s)
 {
-    return tt_xp_chdec_len(xm, s, (tt_u32_t)tt_strlen(s));
+    return tt_xml_chdec_len(xm, s, (tt_u32_t)tt_strlen(s));
 }
 
-#endif /* __TT_XMLPARSE_CHAR_DECODE__ */
+#endif /* __TT_XML_CHAR_DECODE__ */
