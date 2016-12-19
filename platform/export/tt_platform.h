@@ -257,7 +257,9 @@ extern "C" {
 #include <xml/tt_xml_memory.h>
 #include <xml/tt_xml_namespace.h>
 #include <xml/tt_xml_node.h>
+#include <xml/tt_xml_node_element.h>
 #include <xml/tt_xml_node_parser.h>
+#include <xml/tt_xml_node_render.h>
 
 #ifdef __cplusplus
 }

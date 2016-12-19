@@ -192,8 +192,10 @@ void tt_xmldoc_reset(IN tt_xmldoc_t *xdoc, IN tt_u32_t flag)
     xdoc->well_formed = TT_TRUE;
 
     // note xdoc->root can only be destroyed after resetting xdoc->xnp
-    tt_xnode_destroy(xdoc->root);
-    xdoc->root = NULL;
+    if (xdoc->root != NULL) {
+        tt_xnode_destroy(xdoc->root);
+        xdoc->root = NULL;
+    }
 }
 
 void __xdoc_on_node_start(IN void *param, IN tt_xnode_t *xn)

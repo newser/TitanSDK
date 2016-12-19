@@ -38,13 +38,14 @@
 
 // === routine declarations ================
 TT_TEST_ROUTINE_DECLARE(tt_unit_test_doc_basic)
+TT_TEST_ROUTINE_DECLARE(tt_unit_test_doc_render)
 // =========================================
 
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(xdoc_case)
 
 TT_TEST_CASE("tt_unit_test_doc_basic",
-             "xml node parse: basic doc",
+             "xml doc parse: basic doc",
              tt_unit_test_doc_basic,
              NULL,
              NULL,
@@ -52,6 +53,15 @@ TT_TEST_CASE("tt_unit_test_doc_basic",
              NULL,
              NULL)
 ,
+
+    TT_TEST_CASE("tt_unit_test_doc_render",
+                 "xml doc render: basic doc",
+                 tt_unit_test_doc_render,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL),
 
     TT_TEST_CASE_LIST_DEFINE_END(xdoc_case)
     // =========================================
@@ -67,7 +77,7 @@ TT_TEST_CASE("tt_unit_test_doc_basic",
     ////////////////////////////////////////////////////////////
 
     /*
-     TT_TEST_ROUTINE_DEFINE(tt_unit_test_doc_basic)
+     TT_TEST_ROUTINE_DEFINE(tt_unit_test_doc_render)
      {
      //tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
      tt_xmldoc_t xdoc;
@@ -141,7 +151,7 @@ static tt_u32_t __chkxdoc_err_line;
         if (!(e)) {                                                            \
             __chkxdoc_ret = TT_FAIL;                                           \
             __chkxdoc_err_line = __LINE__;                                     \
-            return TT_FALSE;                                                      \
+            return TT_FALSE;                                                   \
         }                                                                      \
     } while (0)
 
@@ -324,6 +334,277 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_doc_basic)
     }
 
     tt_xmldoc_destroy(&xdoc);
+
+    // test end
+    TT_TEST_CASE_LEAVE()
+}
+
+static tt_u32_t __utdr_err_line;
+
+static tt_bool_t __utdr_1(tt_xmldoc_t *xdoc, tt_xmlnr_t *xnr)
+{
+    tt_u8_t utdr_in[] =
+        "text1\n"
+        "  <tag1/>\n";
+    tt_u8_t utdr_out1[] =
+        "<tag1 a2=\"v2\" a3=\"v3\" a4=\"v4\" a1=\"\" a5=\"v5\"/>\n";
+    tt_u8_t utdr_out2[] =
+        "<tag1 a2=\"v2\" a3=\"v3\" a4=\"v4\" a1=\"\" a5=\"v5\">text1</tag1>\n";
+    tt_u8_t utdr_out3[] =
+        "<tag1 a2=\"v2\" a3=\"v3\" a4=\"v4\" a1=\"\" a5=\"v5\"></tag1>\n";
+    tt_u8_t utdr_out4[] = "<tag1 a3=\"v3\" a1=\"\"></tag1>\n";
+
+    tt_u8_t *ut_out;
+    tt_u32_t ut_out_len;
+
+    tt_xnode_t *r2, *tmp;
+    tt_result_t ret;
+
+    tt_xmldoc_reset(xdoc, 0);
+    tt_xmlnr_reset(xnr, 0);
+
+    if (!TT_OK(tt_xmldoc_update(xdoc, utdr_in, sizeof(utdr_in)))) {
+        __utdr_err_line = __LINE__;
+        return TT_FALSE;
+    }
+    if (!TT_OK(tt_xmldoc_final(xdoc, NULL))) {
+        __utdr_err_line = __LINE__;
+        return TT_FALSE;
+    }
+
+    r2 = tt_xnode_first_child(xdoc->root);
+    r2 = tt_xnode_next(r2);
+    if (r2 == NULL || (r2->type != TT_XNODE_TYPE_ELEMENT)) {
+        __utdr_err_line = __LINE__;
+        return TT_FALSE;
+    }
+
+    // attributes
+    if (tt_xnode_attr_num(r2) != 0) {
+        __utdr_err_line = __LINE__;
+        return TT_FALSE;
+    }
+
+    ret = tt_xnode_addtail_attr(r2, tt_xnode_attr_create(&xdoc->xm, "a1", ""));
+    if (!TT_OK(ret)) {
+        __utdr_err_line = __LINE__;
+        return TT_FALSE;
+    }
+
+    ret =
+        tt_xnode_addhead_attr(r2, tt_xnode_attr_create(&xdoc->xm, "a2", "v2"));
+    if (!TT_OK(ret)) {
+        __utdr_err_line = __LINE__;
+        return TT_FALSE;
+    }
+
+    tmp = tt_xnode_attr_byname(r2, "a1");
+    if (tmp == NULL) {
+        __utdr_err_line = __LINE__;
+        return TT_FALSE;
+    }
+    tt_xnode_insert_prev(tmp, tt_xnode_attr_create(&xdoc->xm, "a3", "v3"));
+
+    tmp = tt_xnode_attr_byname(r2, "a3");
+    if (tmp == NULL) {
+        __utdr_err_line = __LINE__;
+        return TT_FALSE;
+    }
+    tt_xnode_insert_next(tmp, tt_xnode_attr_create(&xdoc->xm, "a4", "v4"));
+    // a2, a3, a4, a1
+
+    if (!TT_OK(tt_xnode_set_attrval(r2, "a5", "v5"))) {
+        __utdr_err_line = __LINE__;
+        return TT_FALSE;
+    }
+
+    if (!TT_OK(tt_xmlnr_render(xnr, r2))) {
+        __utdr_err_line = __LINE__;
+        return TT_FALSE;
+    }
+    tt_xmlnr_data(xnr, &ut_out, &ut_out_len);
+    if (ut_out_len != sizeof(utdr_out1) - 1 ||
+        tt_memcmp(ut_out, utdr_out1, ut_out_len) != 0) {
+        __utdr_err_line = __LINE__;
+        return TT_FALSE;
+    }
+
+    // text
+    if (tt_xnode_get_text(r2) != NULL) {
+        __utdr_err_line = __LINE__;
+        return TT_FALSE;
+    }
+
+    tt_xnode_set_text(r2, "text1");
+
+    tt_xmlnr_reset(xnr, 0);
+    if (!TT_OK(tt_xmlnr_render(xnr, r2))) {
+        __utdr_err_line = __LINE__;
+        return TT_FALSE;
+    }
+    tt_xmlnr_data(xnr, &ut_out, &ut_out_len);
+    if (ut_out_len != sizeof(utdr_out2) - 1 ||
+        tt_memcmp(ut_out, utdr_out2, ut_out_len) != 0) {
+        __utdr_err_line = __LINE__;
+        return TT_FALSE;
+    }
+
+    tt_xnode_set_text(r2, "");
+
+    tt_xmlnr_reset(xnr, 0);
+    if (!TT_OK(tt_xmlnr_render(xnr, r2))) {
+        __utdr_err_line = __LINE__;
+        return TT_FALSE;
+    }
+    tt_xmlnr_data(xnr, &ut_out, &ut_out_len);
+    if (ut_out_len != sizeof(utdr_out3) - 1 ||
+        tt_memcmp(ut_out, utdr_out3, ut_out_len) != 0) {
+        __utdr_err_line = __LINE__;
+        return TT_FALSE;
+    }
+
+    tt_xnode_remove_attr(r2, "a5");
+    tt_xnode_remove_attr(r2, "a4");
+    tt_xnode_remove_attr(r2, "a2");
+    tt_xmlnr_reset(xnr, 0);
+    if (!TT_OK(tt_xmlnr_render(xnr, r2))) {
+        __utdr_err_line = __LINE__;
+        return TT_FALSE;
+    }
+    tt_xmlnr_data(xnr, &ut_out, &ut_out_len);
+    if (ut_out_len != sizeof(utdr_out4) - 1 ||
+        tt_memcmp(ut_out, utdr_out4, ut_out_len) != 0) {
+        __utdr_err_line = __LINE__;
+        return TT_FALSE;
+    }
+
+    return TT_TRUE;
+}
+
+static tt_bool_t __utdr_2(tt_xmldoc_t *xdoc, tt_xmlnr_t *xnr)
+{
+    tt_u8_t utdr_in[] =
+        "text1\n"
+        "  <tag1/>\n";
+    tt_u8_t utdr_out1[] =
+        "<tag1>\n  <c2/>\n  <c1>\nc1 text1\n  </c1>\n  <c3/>\nroot "
+        "text1\n</tag1>\n";
+    tt_u8_t utdr_out2[] =
+        "<tag1>\n  <c1>\nc1 text1\n  </c1>\nroot text1\n</tag1>\n";
+
+    tt_u8_t *ut_out;
+    tt_u32_t ut_out_len;
+
+    tt_xnode_t *r2, *tmp;
+    tt_result_t ret;
+
+    tt_xmldoc_reset(xdoc, 0);
+    tt_xmlnr_reset(xnr, 0);
+
+    if (!TT_OK(tt_xmldoc_update(xdoc, utdr_in, sizeof(utdr_in)))) {
+        __utdr_err_line = __LINE__;
+        return TT_FALSE;
+    }
+    if (!TT_OK(tt_xmldoc_final(xdoc, NULL))) {
+        __utdr_err_line = __LINE__;
+        return TT_FALSE;
+    }
+
+    r2 = tt_xnode_first_child(xdoc->root);
+    r2 = tt_xnode_next(r2);
+    if (r2 == NULL || (r2->type != TT_XNODE_TYPE_ELEMENT)) {
+        __utdr_err_line = __LINE__;
+        return TT_FALSE;
+    }
+
+    tmp = tt_xnode_elmt_create(&xdoc->xm, "c1");
+    tt_xnode_set_text(tmp, "");
+    tt_xnode_add_text(tmp, "c1 text1\n");
+    tt_xnode_addtail_child(r2, tmp);
+
+    tmp = tt_xnode_elmt_create(&xdoc->xm, "c2");
+    tt_xnode_addhead_child(r2, tmp);
+
+    tmp = tt_xnode_elmt_create(&xdoc->xm, "c3");
+    tt_xnode_addtail_child(r2, tmp);
+
+    tt_xnode_add_text(r2, "root text1\n");
+
+    tt_xmlnr_reset(xnr, 0);
+    if (!TT_OK(tt_xmlnr_render(xnr, r2))) {
+        __utdr_err_line = __LINE__;
+        return TT_FALSE;
+    }
+    tt_xmlnr_data(xnr, &ut_out, &ut_out_len);
+    if (ut_out_len != sizeof(utdr_out1) - 1 ||
+        tt_memcmp(ut_out, utdr_out1, ut_out_len) != 0) {
+        __utdr_err_line = __LINE__;
+        return TT_FALSE;
+    }
+
+    // remove
+    tt_xnode_destroy(tt_xnode_remove_child(r2, "c3"));
+    tt_xnode_destroy(tt_xnode_remove_child(r2, "c2"));
+    tt_xmlnr_reset(xnr, 0);
+    if (!TT_OK(tt_xmlnr_render(xnr, r2))) {
+        __utdr_err_line = __LINE__;
+        return TT_FALSE;
+    }
+    tt_xmlnr_data(xnr, &ut_out, &ut_out_len);
+    if (ut_out_len != sizeof(utdr_out2) - 1 ||
+        tt_memcmp(ut_out, utdr_out2, ut_out_len) != 0) {
+        __utdr_err_line = __LINE__;
+        return TT_FALSE;
+    }
+
+    return TT_TRUE;
+}
+
+TT_TEST_ROUTINE_DEFINE(tt_unit_test_doc_render)
+{
+    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+    tt_xmldoc_t xdoc;
+    tt_result_t ret;
+    tt_xmlnr_t xnr;
+    tt_bool_t b_ret;
+
+    TT_TEST_CASE_ENTER()
+    // test start
+
+    ret = tt_xmldoc_create(&xdoc, NULL);
+    TT_TEST_CHECK_SUCCESS(ret, "");
+
+    ret = tt_xmlnr_create(&xnr, NULL);
+    TT_TEST_CHECK_SUCCESS(ret, "");
+
+    {
+        tt_xnode_t *r2;
+
+        tt_xmldoc_reset(&xdoc, 0);
+        tt_xmlnr_reset(&xnr, 0);
+
+        ret = tt_xmldoc_update(&xdoc, __tdb_xml1, sizeof(__tdb_xml1));
+        TT_TEST_CHECK_SUCCESS(ret, "");
+        TT_TEST_CHECK_EQUAL(__check_doc(&xdoc), TT_TRUE, "");
+
+        ret = tt_xmldoc_final(&xdoc, NULL);
+        TT_TEST_CHECK_SUCCESS(ret, "");
+
+        r2 = tt_xnode_clone(xdoc.root);
+        TT_TEST_CHECK_NOT_EQUAL(r2, NULL, "");
+
+        ret = tt_xmlnr_render(&xnr, xdoc.root);
+        TT_TEST_CHECK_SUCCESS(ret, "");
+    }
+
+    b_ret = __utdr_1(&xdoc, &xnr);
+    TT_TEST_CHECK_EQUAL(b_ret, TT_TRUE, "");
+
+    b_ret = __utdr_2(&xdoc, &xnr);
+    TT_TEST_CHECK_EQUAL(b_ret, TT_TRUE, "");
+
+    tt_xmldoc_destroy(&xdoc);
+    tt_xmlnr_destroy(&xnr);
 
     // test end
     TT_TEST_CASE_LEAVE()

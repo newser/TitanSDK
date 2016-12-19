@@ -47,6 +47,10 @@ typedef struct
 
     const tt_u8_t *indent;
     tt_u32_t indent_len;
+
+    tt_bool_t ignore_cdata : 1;
+    tt_bool_t ignore_comment : 1;
+    tt_bool_t ignore_pi : 1;
 } tt_xmlrender_attr_t;
 
 typedef struct tt_xmlrender_s
@@ -60,6 +64,10 @@ typedef struct tt_xmlrender_s
 
     const tt_u8_t *indent;
     tt_u32_t indent_len;
+
+    tt_bool_t ignore_cdata : 1;
+    tt_bool_t ignore_comment : 1;
+    tt_bool_t ignore_pi : 1;
 } tt_xmlrender_t;
 
 ////////////////////////////////////////////////////////////

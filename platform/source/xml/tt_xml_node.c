@@ -79,16 +79,60 @@ static tt_xnode_itf_t *tt_s_xnode_itf[TT_XNODE_TYPE_NUM] = {
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-tt_xnode_t *tt_xnode_create(IN tt_xmlmem_t *xm,
+tt_xnode_t *tt_xnode_create(IN struct tt_xmlmem_s *xm,
                             IN tt_u32_t size,
                             IN tt_xnode_type_t type,
-                            IN OPT TO tt_char_t *name,
-                            IN OPT TO tt_char_t *value)
+                            IN OPT tt_char_t *name,
+                            IN OPT tt_char_t *value)
+{
+    tt_char_t *new_name = NULL, *new_value = NULL;
+    tt_xnode_t *xn;
+
+    if (name != NULL) {
+        new_name = tt_xm_copycstr(xm, name);
+        if (new_name == NULL) {
+            TT_ERROR("no mem for xnode name");
+            goto cfail;
+        }
+    }
+
+    if (value != NULL) {
+        new_value = tt_xm_copycstr(xm, value);
+        if (new_value == NULL) {
+            TT_ERROR("no mem for xnode value");
+            goto cfail;
+        }
+    }
+
+    xn = tt_xnode_create_nocopy(xm, size, type, new_name, new_value);
+    if (xn == NULL) {
+        goto cfail;
+    }
+
+    return xn;
+
+cfail:
+
+    if (new_name != NULL) {
+        tt_xm_free(new_name);
+    }
+
+    if (new_value != NULL) {
+        tt_xm_free(new_value);
+    }
+
+    return NULL;
+}
+
+tt_xnode_t *tt_xnode_create_nocopy(IN tt_xmlmem_t *xm,
+                                   IN tt_u32_t size,
+                                   IN tt_xnode_type_t type,
+                                   IN OPT TO tt_char_t *name,
+                                   IN OPT TO tt_char_t *value)
 {
     tt_xnode_t *xn;
     tt_xnode_itf_t *itf;
 
-    TT_ASSERT(xm != NULL);
     TT_ASSERT(TT_XNODE_TYPE_VALID(type));
 
     xn = (tt_xnode_t *)tt_xm_alloc(xm, sizeof(tt_xnode_t) + size);
@@ -253,6 +297,19 @@ tt_xnode_t *tt_xnode_last_child(IN tt_xnode_t *xn)
     return TT_CONTAINER(lnode, tt_xnode_t, node);
 }
 
+tt_u32_t tt_xnode_child_num(IN tt_xnode_t *xn)
+{
+    tt_xnode_elmt_t *xelmt;
+    tt_lnode_t *lnode;
+
+    if (!__HAS_CHILD(xn->type)) {
+        return 0;
+    }
+    xelmt = TT_XNODE_CAST(xn, tt_xnode_elmt_t);
+
+    return tt_list_count(&xelmt->child);
+}
+
 tt_xnode_t *tt_xnode_first_attr(IN tt_xnode_t *xn)
 {
     tt_xnode_elmt_t *xelmt;
@@ -287,6 +344,19 @@ tt_xnode_t *tt_xnode_last_attr(IN tt_xnode_t *xn)
         return NULL;
     }
     return TT_CONTAINER(lnode, tt_xnode_t, node);
+}
+
+tt_u32_t tt_xnode_attr_num(IN tt_xnode_t *xn)
+{
+    tt_xnode_elmt_t *xelmt;
+    tt_lnode_t *lnode;
+
+    if (!__HAS_ATTR(xn->type)) {
+        return 0;
+    }
+    xelmt = TT_XNODE_CAST(xn, tt_xnode_elmt_t);
+
+    return tt_list_count(&xelmt->attr);
 }
 
 tt_result_t tt_xnode_addhead_child(IN tt_xnode_t *xn, IN tt_xnode_t *child)
@@ -432,7 +502,7 @@ tt_result_t tt_xnode_add_text(IN tt_xnode_t *xn, IN tt_char_t *text)
         return TT_FAIL;
     }
 
-    c = tt_xnode_text_create(xm, new_text);
+    c = tt_xnode_text_create_nocopy(xm, new_text);
     if (c == NULL) {
         tt_xm_free(new_text);
         return TT_FAIL;
@@ -479,7 +549,7 @@ tt_result_t tt_xnode_set_attrval(IN tt_xnode_t *xn,
             return TT_FAIL;
         }
 
-        a = tt_xnode_attr_create(xm, new_name, new_val);
+        a = tt_xnode_attr_create_nocopy(xm, new_name, new_val);
         if (a == NULL) {
             tt_xm_free(new_name);
             tt_xm_free(new_val);
@@ -491,18 +561,24 @@ tt_result_t tt_xnode_set_attrval(IN tt_xnode_t *xn,
     }
 }
 
-void tt_xnode_remove(IN tt_xnode_t *xn)
+tt_xnode_t *tt_xnode_remove_child(IN tt_xnode_t *xn,
+                                  IN const tt_char_t *child_name)
 {
-    tt_list_remove(&xn->node);
-    tt_xnode_destroy(xn);
+    tt_xnode_t *c = tt_xnode_child_byname(xn, child_name);
+    if (c != NULL) {
+        tt_xnode_remove(c);
+    }
+    return c;
 }
 
-void tt_xnode_remove_attr(IN tt_xnode_t *xn, IN const tt_char_t *attr_name)
+tt_xnode_t *tt_xnode_remove_attr(IN tt_xnode_t *xn,
+                                 IN const tt_char_t *attr_name)
 {
     tt_xnode_t *a = tt_xnode_attr_byname(xn, attr_name);
     if (a != NULL) {
         tt_xnode_remove(a);
     }
+    return a;
 }
 
 void tt_xnode_replace(IN tt_xnode_t *xn, IN tt_xnode_t *with_xn)
@@ -527,28 +603,44 @@ tt_xnode_t *tt_xnode_clone(IN tt_xnode_t *xn)
 tt_xnode_t *__xn_clone_generic(IN tt_xnode_t *xn)
 {
     tt_xmlmem_t *xm = tt_xm_xmlmem(xn);
-    tt_char_t *new_name, *new_val;
-    tt_xnode_t *new_xn;
+    tt_char_t *new_name = NULL, *new_val = NULL;
+    tt_xnode_t *new_xn = NULL;
 
-    new_name = tt_xm_copycstr(xm, xn->name);
-    if (new_name == NULL) {
-        TT_ERROR("no mem for new name");
-        return NULL;
+    if (xn->name != NULL) {
+        new_name = tt_xm_copycstr(xm, xn->name);
+        if (new_name == NULL) {
+            TT_ERROR("no mem for new name");
+            goto cfail;
+        }
     }
 
-    new_val = tt_xm_copycstr(xm, xn->value);
-    if (new_name == NULL) {
-        TT_ERROR("no mem for new value");
-        tt_xm_free(new_name);
-        return NULL;
+    if (xn->value != NULL) {
+        new_val = tt_xm_copycstr(xm, xn->value);
+        if (new_val == NULL) {
+            TT_ERROR("no mem for new value");
+            goto cfail;
+        }
     }
 
-    new_xn = tt_xnode_create(xm, 0, xn->type, new_name, new_val);
+    new_xn = tt_xnode_create_nocopy(xm, 0, xn->type, new_name, new_val);
     if (new_xn == NULL) {
-        tt_xm_free(new_name);
-        tt_xm_free(new_val);
-        return NULL;
+        goto cfail;
     }
 
     return new_xn;
+
+cfail:
+
+    if (new_xn != NULL) {
+        tt_xnode_destroy(new_xn);
+    } else {
+        if (new_name != NULL) {
+            tt_xm_free(new_name);
+        }
+        if (new_val != NULL) {
+            tt_xm_free(new_val);
+        }
+    }
+
+    return NULL;
 }

@@ -71,6 +71,10 @@ tt_result_t tt_xmlrender_create(IN tt_xmlrender_t *xr,
     xr->indent = attr->indent;
     xr->indent_len = attr->indent_len;
 
+    xr->ignore_cdata = attr->ignore_cdata;
+    xr->ignore_comment = attr->ignore_comment;
+    xr->ignore_pi = attr->ignore_pi;
+
     return TT_SUCCESS;
 }
 
@@ -207,6 +211,10 @@ tt_result_t tt_xmlrender_pi(IN tt_xmlrender_t *xr,
         return TT_FAIL;
     }
 
+    if (xr->ignore_pi) {
+        return TT_SUCCESS;
+    }
+
     TT_DO(__xr_indent(xr));
 
     TT_DO(tt_buf_put(buf, (tt_u8_t *)"<?", 2));
@@ -227,6 +235,10 @@ tt_result_t tt_xmlrender_comment(IN tt_xmlrender_t *xr,
 {
     tt_buf_t *buf = &xr->buf;
 
+    if (xr->ignore_comment) {
+        return TT_SUCCESS;
+    }
+
     TT_DO(__xr_indent(xr));
 
     TT_DO(tt_buf_put(buf, (tt_u8_t *)"<!-- ", 5));
@@ -241,6 +253,10 @@ tt_result_t tt_xmlrender_comment(IN tt_xmlrender_t *xr,
 tt_result_t tt_xmlrender_cdata(IN tt_xmlrender_t *xr, IN const tt_char_t *cdata)
 {
     tt_buf_t *buf = &xr->buf;
+
+    if (xr->ignore_cdata) {
+        return TT_SUCCESS;
+    }
 
     TT_DO(__xr_indent(xr));
 

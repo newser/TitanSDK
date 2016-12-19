@@ -271,7 +271,7 @@ tt_result_t __xps_on_text(IN struct tt_xmlparser_s *parser,
         return TT_FAIL;
     }
 
-    xn = tt_xnode_text_create(xnp->xm, text);
+    xn = tt_xnode_text_create_nocopy(xnp->xm, text);
     if (xn == NULL) {
         tt_xm_free(text);
         return TT_FAIL;
@@ -297,7 +297,7 @@ tt_result_t __xps_on_stag(IN struct tt_xmlparser_s *parser,
         return TT_FAIL;
     }
 
-    xn = tt_xnode_elmt_create(xnp->xm, name);
+    xn = tt_xnode_elmt_create_nocopy(xnp->xm, name);
     if (xn == NULL) {
         tt_xm_free(name);
         return TT_FAIL;
@@ -435,7 +435,7 @@ tt_result_t __xps_on_attr(IN struct tt_xmlparser_s *parser,
         return TT_FAIL;
     }
 
-    xn = tt_xnode_attr_create(xnp->xm, a_name, a_val);
+    xn = tt_xnode_attr_create_nocopy(xnp->xm, a_name, a_val);
     if (xn == NULL) {
         tt_xm_free(a_val);
         tt_xm_free(a_name);
@@ -485,7 +485,7 @@ tt_result_t __xps_on_pi(IN struct tt_xmlparser_s *parser,
         return TT_FAIL;
     }
 
-    xn = tt_xnode_pi_create(xnp->xm, pi_name, pi_val);
+    xn = tt_xnode_pi_create_nocopy(xnp->xm, pi_name, pi_val);
     if (xn == NULL) {
         tt_mem_free(pi_val);
         tt_mem_free(pi_name);
@@ -515,7 +515,7 @@ tt_result_t __xps_on_cdata(IN struct tt_xmlparser_s *parser,
         return TT_FAIL;
     }
 
-    xn = tt_xnode_cdata_create(xnp->xm, cdata);
+    xn = tt_xnode_cdata_create_nocopy(xnp->xm, cdata);
     if (xn == NULL) {
         tt_mem_free(cdata);
         return TT_FAIL;
@@ -544,7 +544,7 @@ tt_result_t __xps_on_comment(IN struct tt_xmlparser_s *parser,
         return TT_FAIL;
     }
 
-    xn = tt_xnode_comment_create(xnp->xm, comm);
+    xn = tt_xnode_comment_create_nocopy(xnp->xm, comm);
     if (xn == NULL) {
         tt_mem_free(comm);
         return TT_FAIL;

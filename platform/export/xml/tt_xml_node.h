@@ -59,7 +59,7 @@ typedef enum {
 } tt_xnode_type_t;
 #define TT_XNODE_TYPE_VALID(t) ((t) < TT_XNODE_TYPE_NUM)
 
-typedef tt_result_t (*tt_xnode_create_t)(IN struct tt_xnode_s *xn);
+typedef tt_result_t (*tt_xnode_create_nocopy_t)(IN struct tt_xnode_s *xn);
 
 typedef void (*tt_xnode_destroy_t)(IN struct tt_xnode_s *xn);
 
@@ -67,7 +67,7 @@ typedef struct tt_xnode_s *(*tt_xnode_clone_t)(IN struct tt_xnode_s *xn);
 
 typedef struct
 {
-    tt_xnode_create_t create;
+    tt_xnode_create_nocopy_t create;
     tt_xnode_destroy_t desetroy;
     tt_xnode_clone_t clone;
 } tt_xnode_itf_t;
@@ -98,39 +98,77 @@ typedef tt_xnode_t tt_xnode_pi_t;
 extern tt_xnode_t *tt_xnode_create(IN struct tt_xmlmem_s *xm,
                                    IN tt_u32_t size,
                                    IN tt_xnode_type_t type,
-                                   IN OPT TO tt_char_t *name,
-                                   IN OPT TO tt_char_t *value);
+                                   IN OPT tt_char_t *name,
+                                   IN OPT tt_char_t *value);
+
+extern tt_xnode_t *tt_xnode_create_nocopy(IN struct tt_xmlmem_s *xm,
+                                          IN tt_u32_t size,
+                                          IN tt_xnode_type_t type,
+                                          IN OPT TO tt_char_t *name,
+                                          IN OPT TO tt_char_t *value);
 
 tt_inline tt_xnode_t *tt_xnode_text_create(IN struct tt_xmlmem_s *xm,
-                                           IN OPT TO tt_char_t *data)
+                                           IN OPT tt_char_t *data)
 {
     return tt_xnode_create(xm, 0, TT_XNODE_TYPE_TEXT, NULL, data);
 }
 
+tt_inline tt_xnode_t *tt_xnode_text_create_nocopy(IN struct tt_xmlmem_s *xm,
+                                                  IN OPT TO tt_char_t *data)
+{
+    return tt_xnode_create_nocopy(xm, 0, TT_XNODE_TYPE_TEXT, NULL, data);
+}
+
 tt_inline tt_xnode_t *tt_xnode_cdata_create(IN struct tt_xmlmem_s *xm,
-                                            IN OPT TO tt_char_t *cdata)
+                                            IN OPT tt_char_t *cdata)
 {
     return tt_xnode_create(xm, 0, TT_XNODE_TYPE_CDATA, NULL, cdata);
 }
 
+tt_inline tt_xnode_t *tt_xnode_cdata_create_nocopy(IN struct tt_xmlmem_s *xm,
+                                                   IN OPT TO tt_char_t *cdata)
+{
+    return tt_xnode_create_nocopy(xm, 0, TT_XNODE_TYPE_CDATA, NULL, cdata);
+}
+
 tt_inline tt_xnode_t *tt_xnode_comment_create(IN struct tt_xmlmem_s *xm,
-                                              IN OPT TO tt_char_t *comment)
+                                              IN OPT tt_char_t *comment)
 {
     return tt_xnode_create(xm, 0, TT_XNODE_TYPE_COMMENT, NULL, comment);
 }
 
+tt_inline tt_xnode_t *tt_xnode_comment_create_nocopy(
+    IN struct tt_xmlmem_s *xm, IN OPT TO tt_char_t *comment)
+{
+    return tt_xnode_create_nocopy(xm, 0, TT_XNODE_TYPE_COMMENT, NULL, comment);
+}
+
 tt_inline tt_xnode_t *tt_xnode_attr_create(IN struct tt_xmlmem_s *xm,
-                                           IN OPT TO tt_char_t *name,
-                                           IN OPT TO tt_char_t *value)
+                                           IN OPT tt_char_t *name,
+                                           IN OPT tt_char_t *value)
 {
     return tt_xnode_create(xm, 0, TT_XNODE_TYPE_ATTR, name, value);
 }
 
+tt_inline tt_xnode_t *tt_xnode_attr_create_nocopy(IN struct tt_xmlmem_s *xm,
+                                                  IN OPT TO tt_char_t *name,
+                                                  IN OPT TO tt_char_t *value)
+{
+    return tt_xnode_create_nocopy(xm, 0, TT_XNODE_TYPE_ATTR, name, value);
+}
+
 tt_inline tt_xnode_t *tt_xnode_pi_create(IN struct tt_xmlmem_s *xm,
-                                         IN OPT TO tt_char_t *name,
-                                         IN OPT TO tt_char_t *value)
+                                         IN OPT tt_char_t *name,
+                                         IN OPT tt_char_t *value)
 {
     return tt_xnode_create(xm, 0, TT_XNODE_TYPE_PI, name, value);
+}
+
+tt_inline tt_xnode_t *tt_xnode_pi_create_nocopy(IN struct tt_xmlmem_s *xm,
+                                                IN OPT TO tt_char_t *name,
+                                                IN OPT TO tt_char_t *value)
+{
+    return tt_xnode_create_nocopy(xm, 0, TT_XNODE_TYPE_PI, name, value);
 }
 
 extern void tt_xnode_destroy(IN tt_xnode_t *xn);
@@ -159,9 +197,13 @@ extern tt_xnode_t *tt_xnode_first_child(IN tt_xnode_t *xn);
 
 extern tt_xnode_t *tt_xnode_last_child(IN tt_xnode_t *xn);
 
+extern tt_u32_t tt_xnode_child_num(IN tt_xnode_t *xn);
+
 extern tt_xnode_t *tt_xnode_first_attr(IN tt_xnode_t *xn);
 
 extern tt_xnode_t *tt_xnode_last_attr(IN tt_xnode_t *xn);
+
+extern tt_u32_t tt_xnode_attr_num(IN tt_xnode_t *xn);
 
 extern tt_result_t tt_xnode_addhead_child(IN tt_xnode_t *xn,
                                           IN tt_xnode_t *child);
@@ -203,10 +245,16 @@ extern tt_result_t tt_xnode_set_attrval(IN tt_xnode_t *xn,
                                         IN const tt_char_t *attr_name,
                                         IN tt_char_t *attr_value);
 
-extern void tt_xnode_remove(IN tt_xnode_t *xn);
+tt_inline void tt_xnode_remove(IN tt_xnode_t *xn)
+{
+    tt_list_remove(&xn->node);
+}
 
-extern void tt_xnode_remove_attr(IN tt_xnode_t *xn,
-                                 IN const tt_char_t *attr_name);
+extern tt_xnode_t *tt_xnode_remove_child(IN tt_xnode_t *xn,
+                                         IN const tt_char_t *child_name);
+
+extern tt_xnode_t *tt_xnode_remove_attr(IN tt_xnode_t *xn,
+                                        IN const tt_char_t *attr_name);
 
 extern void tt_xnode_replace(IN tt_xnode_t *xn, IN tt_xnode_t *with_xn);
 
