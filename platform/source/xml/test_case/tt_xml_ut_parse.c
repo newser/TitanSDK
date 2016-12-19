@@ -1632,21 +1632,21 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xp_decode)
     TT_TEST_CHECK_SUCCESS(ret, "");
 
     // empty
-    dec = tt_xp_chdec_len(&xm, "", 0);
+    dec = tt_xml_chdec_len(&xm, "", 0);
     TT_TEST_CHECK_NOT_EQUAL(dec, NULL, "");
     cmp_ret = tt_strcmp(dec, "");
     TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
     tt_xm_free(dec);
 
     // empty, long len
-    dec = tt_xp_chdec_len(&xm, "", 10);
+    dec = tt_xml_chdec_len(&xm, "", 10);
     TT_TEST_CHECK_NOT_EQUAL(dec, NULL, "");
     cmp_ret = tt_strcmp(dec, "");
     TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
     tt_xm_free(dec);
 
     // basic
-    dec = tt_xp_chdec_len(
+    dec = tt_xml_chdec_len(
         &xm, "&quot;&apos;&lt;&gt;&amp;&#0038;&#xA2;&#x20AC;&#x10348;", 10000);
     TT_TEST_CHECK_NOT_EQUAL(dec, NULL, "");
     cmp_ret = tt_strcmp(dec, "\"'<>&&\xc2\xa2\xe2\x82\xac\xf0\x90\x8d\x88");
@@ -1654,18 +1654,18 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xp_decode)
     tt_xm_free(dec);
 
     // mixed
-    dec = tt_xp_chdec_len(&xm,
-                          "1111&quot;22222&apos;33&#0038;444&#x10348;",
-                          10000);
+    dec = tt_xml_chdec_len(&xm,
+                           "1111&quot;22222&apos;33&#0038;444&#x10348;",
+                           10000);
     TT_TEST_CHECK_NOT_EQUAL(dec, NULL, "");
     cmp_ret = tt_strcmp(dec, "1111\"22222'33&444\xf0\x90\x8d\x88");
     TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
     tt_xm_free(dec);
 
     // mixed
-    dec = tt_xp_chdec_len(&xm,
-                          "&quot;22222&apos;33&#0038;444&#x10348;5555",
-                          10000);
+    dec = tt_xml_chdec_len(&xm,
+                           "&quot;22222&apos;33&#0038;444&#x10348;5555",
+                           10000);
     TT_TEST_CHECK_NOT_EQUAL(dec, NULL, "");
     cmp_ret = tt_strcmp(dec,
                         "\"22222'33&444\xf0\x90\x8d\x88"
@@ -1674,42 +1674,42 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xp_decode)
     tt_xm_free(dec);
 
     // see &, but not valid
-    dec = tt_xp_chdec(&xm, "&");
+    dec = tt_xml_chdec(&xm, "&");
     TT_TEST_CHECK_NOT_EQUAL(dec, NULL, "");
     cmp_ret = tt_strcmp(dec, "&");
     TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
     tt_xm_free(dec);
 
     // see &, but not valid
-    dec = tt_xp_chdec(&xm, "&&&");
+    dec = tt_xml_chdec(&xm, "&&&");
     TT_TEST_CHECK_NOT_EQUAL(dec, NULL, "");
     cmp_ret = tt_strcmp(dec, "&&&");
     TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
     tt_xm_free(dec);
 
     // not terminated
-    dec = tt_xp_chdec(&xm, "12345&quot");
+    dec = tt_xml_chdec(&xm, "12345&quot");
     TT_TEST_CHECK_NOT_EQUAL(dec, NULL, "");
     cmp_ret = tt_strcmp(dec, "12345&quot");
     TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
     tt_xm_free(dec);
 
     // invalid escape
-    dec = tt_xp_chdec(&xm, "&;ending");
+    dec = tt_xml_chdec(&xm, "&;ending");
     TT_TEST_CHECK_NOT_EQUAL(dec, NULL, "");
     cmp_ret = tt_strcmp(dec, "&;ending");
     TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
     tt_xm_free(dec);
 
     // invalid escape
-    dec = tt_xp_chdec(&xm, "begin&unknown;ending");
+    dec = tt_xml_chdec(&xm, "begin&unknown;ending");
     TT_TEST_CHECK_NOT_EQUAL(dec, NULL, "");
     cmp_ret = tt_strcmp(dec, "begin&unknown;ending");
     TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
     tt_xm_free(dec);
 
     // hex: 1
-    dec = tt_xp_chdec(&xm, "&#x1;ending");
+    dec = tt_xml_chdec(&xm, "&#x1;ending");
     TT_TEST_CHECK_NOT_EQUAL(dec, NULL, "");
     cmp_ret = tt_strcmp(dec,
                         "\x1"
@@ -1718,7 +1718,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xp_decode)
     tt_xm_free(dec);
 
     // hex: max
-    dec = tt_xp_chdec(&xm, "&#x7FFFFFFF;ending");
+    dec = tt_xml_chdec(&xm, "&#x7FFFFFFF;ending");
     TT_TEST_CHECK_NOT_EQUAL(dec, NULL, "");
     cmp_ret = tt_strcmp(dec,
                         "\xfd\xbf\xbf\xbf\xbf\xbf"
@@ -1727,19 +1727,19 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xp_decode)
     tt_xm_free(dec);
 
     // hex: max, not verify encoded value
-    dec = tt_xp_chdec(&xm, "&#xFFFFFFFF;ending");
+    dec = tt_xml_chdec(&xm, "&#xFFFFFFFF;ending");
     TT_TEST_CHECK_NOT_EQUAL(dec, NULL, "");
     tt_xm_free(dec);
 
     // hex: invalid
-    dec = tt_xp_chdec(&xm, "&#x1FFFFFFFF;ending");
+    dec = tt_xml_chdec(&xm, "&#x1FFFFFFFF;ending");
     TT_TEST_CHECK_NOT_EQUAL(dec, NULL, "");
     cmp_ret = tt_strcmp(dec, "&#x1FFFFFFFF;ending");
     TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
     tt_xm_free(dec);
 
     // decimal: 1
-    dec = tt_xp_chdec(&xm, "&#1;ending");
+    dec = tt_xml_chdec(&xm, "&#1;ending");
     TT_TEST_CHECK_NOT_EQUAL(dec, NULL, "");
     cmp_ret = tt_strcmp(dec,
                         "\x1"
@@ -1748,7 +1748,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xp_decode)
     tt_xm_free(dec);
 
     // decimal: max
-    dec = tt_xp_chdec(&xm, "begin&#2147483647;");
+    dec = tt_xml_chdec(&xm, "begin&#2147483647;");
     TT_TEST_CHECK_NOT_EQUAL(dec, NULL, "");
     cmp_ret = tt_strcmp(dec,
                         "begin"
@@ -1757,12 +1757,12 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xp_decode)
     tt_xm_free(dec);
 
     // decimal: max, no verify
-    dec = tt_xp_chdec(&xm, "begin&#4294967295;");
+    dec = tt_xml_chdec(&xm, "begin&#4294967295;");
     TT_TEST_CHECK_NOT_EQUAL(dec, NULL, "");
     tt_xm_free(dec);
 
     // decimal: invalid
-    dec = tt_xp_chdec(&xm, "begin&#4294967296;");
+    dec = tt_xml_chdec(&xm, "begin&#4294967296;");
     TT_TEST_CHECK_NOT_EQUAL(dec, NULL, "");
     cmp_ret = tt_strcmp(dec, "begin&#4294967296;");
     TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");

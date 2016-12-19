@@ -9,7 +9,7 @@
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either exmress or implied.
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
@@ -18,13 +18,17 @@
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <xml/tt_xml_node_doc.h>
+#include <xml/tt_xml_char_encode.h>
 
-#include <xml/tt_xml_memory.h>
+#include <algorithm/tt_buffer.h>
+#include <algorithm/tt_buffer_format.h>
 
 ////////////////////////////////////////////////////////////
 // internal macro
 ////////////////////////////////////////////////////////////
+
+#define __SHOULD_ESC(c)                                                        \
+    ((c == '"') || (c == '\'') || (c == '<') || (c == '>') || (c == '&'))
 
 ////////////////////////////////////////////////////////////
 // internal type
@@ -38,16 +42,6 @@
 // global variant
 ////////////////////////////////////////////////////////////
 
-static tt_result_t __xndoc_create(IN struct tt_xnode_s *xn);
-
-static void __xndoc_destroy(IN struct tt_xnode_s *xn);
-
-static tt_list_t *__xndoc_child_list(IN struct tt_xnode_s *xn);
-
-tt_xnode_itf_t tt_g_xnode_doc_itf = {
-    __xndoc_create, __xndoc_destroy, __xndoc_child_list, NULL,
-};
-
 ////////////////////////////////////////////////////////////
 // interface declaration
 ////////////////////////////////////////////////////////////
@@ -56,38 +50,44 @@ tt_xnode_itf_t tt_g_xnode_doc_itf = {
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-tt_xnode_t *tt_xnode_doc_create(IN tt_xmlmem_t *xm)
+tt_inline const tt_char_t *__char_esc(IN tt_char_t c)
 {
-    return tt_xnode_create(xm,
-                           sizeof(tt_xnode_doc_t),
-                           TT_XNODE_TYPE_DOC,
-                           NULL,
-                           NULL);
-}
-
-tt_result_t __xndoc_create(IN struct tt_xnode_s *xn)
-{
-    tt_xnode_doc_t *xndoc = TT_XNODE_CAST(xn, tt_xnode_doc_t);
-
-    tt_list_init(&xndoc->child);
-
-    return TT_SUCCESS;
-}
-
-void __xndoc_destroy(IN struct tt_xnode_s *xn)
-{
-    tt_xnode_doc_t *xndoc = TT_XNODE_CAST(xn, tt_xnode_doc_t);
-    tt_list_t *child_list = &xndoc->child;
-    tt_lnode_t *node;
-
-    while ((node = tt_list_pophead(child_list)) != NULL) {
-        tt_xnode_destroy(TT_CONTAINER(node, tt_xnode_t, node));
+    switch (c) {
+        case '"':
+            return "&quot;";
+        case '\'':
+            return "&apos;";
+        case '<':
+            return "&lt;";
+        case '>':
+            return "&gt;";
+        case '&':
+            return "&amp;";
+        default:
+            return "";
     }
 }
 
-tt_list_t *__xndoc_child_list(IN struct tt_xnode_s *xn)
+tt_result_t tt_xml_chenc_len(IN const tt_char_t *s,
+                             IN tt_u32_t s_len,
+                             OUT struct tt_buf_s *outbuf)
 {
-    tt_xnode_doc_t *xndoc = TT_XNODE_CAST(xn, tt_xnode_doc_t);
+    tt_u8_t *prev, *pos, *end;
 
-    return &xndoc->child;
+    prev = (tt_u8_t *)s;
+    pos = (tt_u8_t *)s;
+    end = (tt_u8_t *)s + s_len;
+    while (pos < end) {
+        if (__SHOULD_ESC(*pos)) {
+            TT_DO(tt_buf_put(outbuf, prev, (tt_u32_t)(pos - prev)));
+            TT_DO(tt_buf_put_cstr(outbuf, __char_esc(*pos)));
+            ++pos;
+            prev = pos;
+        } else {
+            ++pos;
+        }
+    }
+    TT_DO(tt_buf_put(outbuf, prev, (tt_u32_t)(pos - prev)));
+
+    return TT_SUCCESS;
 }

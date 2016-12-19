@@ -57,10 +57,7 @@ static tt_result_t __xpsst_exclm_update(IN struct tt_xmlparser_s *parser,
                                         OUT tt_xmlparse_state_t *next_state);
 
 tt_xmlpsst_itf_t tt_g_xmlpsst_exclm_itf = {
-    __xpsst_exclm_enter,
-    NULL,
-
-    __xpsst_exclm_update,
+    __xpsst_exclm_enter, NULL, __xpsst_exclm_update,
 };
 
 ////////////////////////////////////////////////////////////

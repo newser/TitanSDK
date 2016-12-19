@@ -15,20 +15,22 @@
  */
 
 /**
-@file tt_xml_memory.h
-@brief xml memory
+@file tt_xml_char_encode.h
+@brief xml char encoding
 
-this file defines xml memory api
+this file defines xml char encoding
 */
 
-#ifndef __TT_XML_MEMORY__
-#define __TT_XML_MEMORY__
+#ifndef __TT_XML_CHAR_ENCODE__
+#define __TT_XML_CHAR_ENCODE__
 
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <memory/tt_memory_alloc.h>
+#include <tt_basic_type.h>
+
+#include <tt_cstd_api.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
@@ -38,15 +40,7 @@ this file defines xml memory api
 // type definition
 ////////////////////////////////////////////////////////////
 
-typedef struct
-{
-    tt_u32_t reserved;
-} tt_xmlmem_attr_t;
-
-typedef struct tt_xmlmem_s
-{
-    tt_u32_t reserved;
-} tt_xmlmem_t;
+struct tt_buf_s;
 
 ////////////////////////////////////////////////////////////
 // global variants
@@ -56,30 +50,14 @@ typedef struct tt_xmlmem_s
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern tt_result_t tt_xmlmem_create(IN tt_xmlmem_t *xm,
-                                    IN OPT tt_xmlmem_attr_t *attr);
+extern tt_result_t tt_xml_chenc_len(IN const tt_char_t *s,
+                                    IN tt_u32_t s_len,
+                                    OUT struct tt_buf_s *outbuf);
 
-extern void tt_xmlmem_destroy(IN tt_xmlmem_t *xm);
-
-extern void tt_xmlmem_attr_default(IN tt_xmlmem_attr_t *attr);
-
-// if xm is NULL, use default mem allocator
-tt_inline void *tt_xm_alloc(IN OPT tt_xmlmem_t *xm, IN tt_u32_t size)
+tt_inline tt_result_t tt_xml_chenc(IN const tt_char_t *s,
+                                   OUT struct tt_buf_s *outbuf)
 {
-    return tt_mem_alloc(size);
+    return tt_xml_chenc_len(s, (tt_u32_t)tt_strlen(s), outbuf);
 }
 
-tt_inline void tt_xm_free(IN void *p)
-{
-    tt_mem_free(p);
-}
-
-tt_inline tt_xmlmem_t *tt_xm_xmlmem(IN void *p)
-{
-    return NULL;
-}
-
-extern tt_char_t *tt_xm_copycstr(IN OPT tt_xmlmem_t *xm,
-                                 IN const tt_char_t *cstr);
-
-#endif /* __TT_XML_MEMORY__ */
+#endif /* __TT_XML_CHAR_ENCODE__ */

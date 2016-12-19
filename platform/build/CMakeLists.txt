@@ -113,6 +113,7 @@ tscm_add_group_src(${TSCM_PLATFORM_PATH}/source/math/mp/test_case mp SRC_FILE)
 
 tscm_add_group_src(${TSCM_PLATFORM_PATH}/source/xml xml SRC_FILE)
 tscm_add_group_src(${TSCM_PLATFORM_PATH}/source/xml/parse xml SRC_FILE)
+tscm_add_group_src(${TSCM_PLATFORM_PATH}/source/xml/render xml SRC_FILE)
 tscm_add_group_src(${TSCM_PLATFORM_PATH}/source/xml/test_case xml SRC_FILE)
 
 tscm_add_group_src(${TSCM_PLATFORM_PATH}/source/cli cli SRC_FILE)

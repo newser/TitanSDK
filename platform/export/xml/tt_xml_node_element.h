@@ -44,6 +44,8 @@ typedef struct tt_xnode_elmt_s
     tt_list_t attr;
 } tt_xnode_elmt_t;
 
+typedef tt_xnode_elmt_t tt_xnode_doc_t;
+
 ////////////////////////////////////////////////////////////
 // global variants
 ////////////////////////////////////////////////////////////
@@ -55,6 +57,11 @@ extern tt_xnode_itf_t tt_g_xnode_elmt_itf;
 ////////////////////////////////////////////////////////////
 
 extern tt_xnode_t *tt_xnode_elmt_create(IN struct tt_xmlmem_s *xm,
-                                        IN OPT TO tt_char_t *name);
+                                        IN OPT tt_char_t *name);
+
+extern tt_xnode_t *tt_xnode_elmt_create_nocopy(IN struct tt_xmlmem_s *xm,
+                                               IN OPT TO tt_char_t *name);
+
+extern tt_xnode_t *tt_xnode_doc_create(IN struct tt_xmlmem_s *xm);
 
 #endif /* __TT_XML_NODE_ELEMENT__ */

@@ -15,20 +15,23 @@
  */
 
 /**
-@file tt_xml_memory.h
-@brief xml memory
+@file tt_xml_document.h
+@brief xml document
 
-this file defines xml memory api
+this file defines xml document api
 */
 
-#ifndef __TT_XML_MEMORY__
-#define __TT_XML_MEMORY__
+#ifndef __TT_XML_DOCUMENT__
+#define __TT_XML_DOCUMENT__
 
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <memory/tt_memory_alloc.h>
+#include <xml/tt_xml_memory.h>
+#include <xml/tt_xml_namespace.h>
+#include <xml/tt_xml_node.h>
+#include <xml/tt_xml_node_parser.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
@@ -40,13 +43,22 @@ this file defines xml memory api
 
 typedef struct
 {
-    tt_u32_t reserved;
-} tt_xmlmem_attr_t;
+    tt_xmlmem_attr_t xm_attr;
+    tt_xmlnp_attr_t xnp_attr;
+} tt_xmldoc_attr_t;
 
-typedef struct tt_xmlmem_s
+typedef struct tt_xmldoc_s
 {
-    tt_u32_t reserved;
-} tt_xmlmem_t;
+    tt_xmlmem_t xm;
+    tt_xmlns_mgr_t xns_mgr;
+
+    tt_xmlnp_attr_t xnp_attr;
+    tt_xmlnp_t *xnp;
+    tt_xnode_t *current;
+    tt_bool_t well_formed;
+
+    tt_xnode_t *root;
+} tt_xmldoc_t;
 
 ////////////////////////////////////////////////////////////
 // global variants
@@ -56,30 +68,24 @@ typedef struct tt_xmlmem_s
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern tt_result_t tt_xmlmem_create(IN tt_xmlmem_t *xm,
-                                    IN OPT tt_xmlmem_attr_t *attr);
+extern tt_result_t tt_xmldoc_create(IN tt_xmldoc_t *xdoc,
+                                    IN OPT tt_xmldoc_attr_t *attr);
 
-extern void tt_xmlmem_destroy(IN tt_xmlmem_t *xm);
+extern void tt_xmldoc_destroy(IN tt_xmldoc_t *xdoc);
 
-extern void tt_xmlmem_attr_default(IN tt_xmlmem_attr_t *attr);
+extern void tt_xmldoc_attr_default(IN tt_xmldoc_attr_t *attr);
 
-// if xm is NULL, use default mem allocator
-tt_inline void *tt_xm_alloc(IN OPT tt_xmlmem_t *xm, IN tt_u32_t size)
+extern tt_result_t tt_xmldoc_update(IN tt_xmldoc_t *xdoc,
+                                    IN tt_u8_t *data,
+                                    IN tt_u32_t data_len);
+
+extern tt_result_t tt_xmldoc_final(IN tt_xmldoc_t *xdoc, OUT void *reserved);
+
+extern void tt_xmldoc_reset(IN tt_xmldoc_t *xdoc, IN tt_u32_t flag);
+
+tt_inline tt_xnode_t *tt_xmldoc_root(IN tt_xmldoc_t *xdoc)
 {
-    return tt_mem_alloc(size);
+    return xdoc->root;
 }
 
-tt_inline void tt_xm_free(IN void *p)
-{
-    tt_mem_free(p);
-}
-
-tt_inline tt_xmlmem_t *tt_xm_xmlmem(IN void *p)
-{
-    return NULL;
-}
-
-extern tt_char_t *tt_xm_copycstr(IN OPT tt_xmlmem_t *xm,
-                                 IN const tt_char_t *cstr);
-
-#endif /* __TT_XML_MEMORY__ */
+#endif /* __TT_XML_DOCUMENT__ */
