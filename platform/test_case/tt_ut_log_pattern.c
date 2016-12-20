@@ -39,6 +39,12 @@
 
 // === routine declarations ================
 TT_TEST_ROUTINE_DECLARE(tt_unit_test_lpatn_sn)
+TT_TEST_ROUTINE_DECLARE(tt_unit_test_lpatn_time)
+TT_TEST_ROUTINE_DECLARE(tt_unit_test_lpatn_logger)
+TT_TEST_ROUTINE_DECLARE(tt_unit_test_lpatn_level)
+TT_TEST_ROUTINE_DECLARE(tt_unit_test_lpatn_content)
+TT_TEST_ROUTINE_DECLARE(tt_unit_test_lpatn_func)
+TT_TEST_ROUTINE_DECLARE(tt_unit_test_lpatn_line)
 // =========================================
 
 // === test case list ======================
@@ -53,6 +59,56 @@ TT_TEST_CASE("tt_unit_test_lpatn_sn",
              NULL,
              NULL)
 ,
+
+    TT_TEST_CASE("tt_unit_test_lpatn_time",
+                 "testing log pattern: time",
+                 tt_unit_test_lpatn_time,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL)
+    ,
+
+    TT_TEST_CASE("tt_unit_test_lpatn_logger",
+                 "testing log pattern: logger",
+                 tt_unit_test_lpatn_logger,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL)
+    ,
+
+    TT_TEST_CASE("tt_unit_test_lpatn_content",
+                 "testing log pattern: content",
+                 tt_unit_test_lpatn_content,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL)
+    ,
+
+    TT_TEST_CASE("tt_unit_test_lpatn_func",
+                 "testing log pattern: function",
+                 tt_unit_test_lpatn_func,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL)
+    ,
+
+    TT_TEST_CASE("tt_unit_test_lpatn_line",
+                 "testing log pattern: line",
+                 tt_unit_test_lpatn_line,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL)
+    ,
 
     TT_TEST_CASE_LIST_DEFINE_END(lpatn_case)
     // =========================================
@@ -94,6 +150,7 @@ TT_TEST_CASE("tt_unit_test_lpatn_sn",
     tt_char_t f04[] = "{seq_num";
     tt_char_t f05[] = "{seq_num:";
     tt_char_t f06[] = "{seq_num}";
+    tt_char_t f07[] = "{seq_num1}";
     tt_char_t f1[] = "{seq_num:}";
     tt_char_t f2[] = "{seq_num:%+04d}";
 
@@ -116,6 +173,11 @@ TT_TEST_CASE("tt_unit_test_lpatn_sn",
 
     ret = tt_lpfld_check(&f05[0], &f05[sizeof(f05) - 2]);
     TT_TEST_CHECK_FAIL(ret, "");
+
+    ret = tt_lpfld_check(&f07[0], &f07[sizeof(f07) - 2]);
+    TT_TEST_CHECK_FAIL(ret, "");
+    lpf = tt_lpfld_create(&f07[0], &f07[sizeof(f07) - 2]);
+    TT_TEST_CHECK_EQUAL(lpf, NULL, "");
 
     // {seq_num}
     ret = tt_lpfld_check(&f06[0], &f06[sizeof(f06) - 2]);
@@ -219,3 +281,637 @@ TT_TEST_CASE("tt_unit_test_lpatn_sn",
     // test end
     TT_TEST_CASE_LEAVE()
 }
+
+TT_TEST_ROUTINE_DEFINE(tt_unit_test_lpatn_time)
+{
+    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+    tt_lpfld_t *lpf;
+    tt_result_t ret;
+    tt_buf_t buf;
+
+    // at least 3 chars
+    tt_char_t f04[] = "{time";
+    tt_char_t f05[] = "{time:";
+    tt_char_t f06[] = "{time}";
+    tt_char_t f07[] = "{time }";
+    tt_char_t f1[] = "{time:}";
+    tt_char_t f2[] = "{time:%Y-%m-%d-%H-%M-S}";
+
+    TT_TEST_CASE_ENTER()
+    // test start
+
+    tt_buf_init(&buf, NULL);
+
+    ret = tt_lpfld_check(&f04[0], &f04[sizeof(f04) - 2]);
+    TT_TEST_CHECK_FAIL(ret, "");
+
+    ret = tt_lpfld_check(&f05[0], &f05[sizeof(f05) - 2]);
+    TT_TEST_CHECK_FAIL(ret, "");
+
+    ret = tt_lpfld_check(&f07[0], &f07[sizeof(f07) - 2]);
+    TT_TEST_CHECK_FAIL(ret, "");
+    lpf = tt_lpfld_create(&f07[0], &f07[sizeof(f07) - 2]);
+    TT_TEST_CHECK_EQUAL(lpf, NULL, "");
+
+    // {time}
+    ret = tt_lpfld_check(&f06[0], &f06[sizeof(f06) - 2]);
+    TT_TEST_CHECK_SUCCESS(ret, "");
+
+    {
+        tt_char_t tmp[100] = {0};
+        
+        lpf = tt_lpfld_create(&f06[0], &f06[sizeof(f06) - 2]);
+        TT_TEST_CHECK_NOT_EQUAL(lpf, NULL, "");
+
+        tt_buf_clear(&buf);
+
+        ret = tt_lpfld_output_cstr(lpf, "123", &buf);
+        TT_TEST_CHECK_FAIL(ret, "");
+        TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&buf), 0, "");
+
+        ret = tt_lpfld_output_s32(lpf, 0, &buf);
+        TT_TEST_CHECK_FAIL(ret, "");
+        TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&buf), 0, "");
+
+        ret = tt_lpfld_output(lpf, &buf);
+        TT_TEST_CHECK_SUCCESS(ret, "");
+
+        // default format: "%Y-%m-%d %H:%M:%S"
+        tt_time_localfmt(tmp, sizeof(tmp), "%Y-%m-%d %H:%M:%S");
+        TT_TEST_CHECK_EQUAL(tt_buf_cmp_cstr(&buf, tmp), 0, "");
+        
+        tt_lpfld_destroy(lpf);
+    }
+
+    // {time:}
+    ret = tt_lpfld_check(&f1[0], &f1[sizeof(f1) - 2]);
+    TT_TEST_CHECK_SUCCESS(ret, "");
+
+    {
+        tt_char_t tmp[100] = {0};
+        
+        lpf = tt_lpfld_create(&f1[0], &f1[sizeof(f1) - 2]);
+        TT_TEST_CHECK_NOT_EQUAL(lpf, NULL, "");
+
+        tt_buf_clear(&buf);
+
+        ret = tt_lpfld_output_cstr(lpf, "123", &buf);
+        TT_TEST_CHECK_FAIL(ret, "");
+        TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&buf), 0, "");
+
+        ret = tt_lpfld_output_s32(lpf, 0, &buf);
+        TT_TEST_CHECK_FAIL(ret, "");
+        TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&buf), 0, "");
+
+        ret = tt_lpfld_output(lpf, &buf);
+        TT_TEST_CHECK_SUCCESS(ret, "");
+
+        // default format: "%Y-%m-%d %H:%M:%S"
+        tt_time_localfmt(tmp, sizeof(tmp), "%Y-%m-%d %H:%M:%S");
+        TT_TEST_CHECK_EQUAL(tt_buf_cmp_cstr(&buf, tmp), 0, "");
+        
+        tt_lpfld_destroy(lpf);
+    }
+
+    // {time:%Y-%m-%d-%H-%M-S}
+    ret = tt_lpfld_check(&f2[0], &f2[sizeof(f2) - 2]);
+    TT_TEST_CHECK_SUCCESS(ret, "");
+
+    {
+        tt_char_t tmp[100] = {0};
+        
+        lpf = tt_lpfld_create(&f2[0], &f2[sizeof(f2) - 2]);
+        TT_TEST_CHECK_NOT_EQUAL(lpf, NULL, "");
+
+        tt_buf_clear(&buf);
+
+        ret = tt_lpfld_output_cstr(lpf, "123", &buf);
+        TT_TEST_CHECK_FAIL(ret, "");
+        TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&buf), 0, "");
+
+        ret = tt_lpfld_output_s32(lpf, 0, &buf);
+        TT_TEST_CHECK_FAIL(ret, "");
+        TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&buf), 0, "");
+
+        ret = tt_lpfld_output(lpf, &buf);
+        TT_TEST_CHECK_SUCCESS(ret, "");
+
+        // format: "%Y-%m-%d-%H-%M-S"
+        tt_time_localfmt(tmp, sizeof(tmp), "%Y-%m-%d-%H-%M-S");
+        TT_TEST_CHECK_EQUAL(tt_buf_cmp_cstr(&buf, tmp), 0, "");
+        
+        tt_lpfld_destroy(lpf);
+    }
+
+    tt_buf_destroy(&buf);
+
+    // test end
+    TT_TEST_CASE_LEAVE()
+}
+
+TT_TEST_ROUTINE_DEFINE(tt_unit_test_lpatn_logger)
+{
+    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+    tt_lpfld_t *lpf;
+    tt_result_t ret;
+    tt_buf_t buf;
+
+    // at least 3 chars
+    tt_char_t f04[] = "{logger";
+    tt_char_t f05[] = "{logger:";
+    tt_char_t f06[] = "{logger}";
+    tt_char_t f07[] = "{logger-}";
+    tt_char_t f1[] = "{logger:}";
+    tt_char_t f2[] = "{logger:at least 7 char: [%07s]. end}";
+
+    TT_TEST_CASE_ENTER()
+    // test start
+
+    tt_buf_init(&buf, NULL);
+
+    ret = tt_lpfld_check(&f04[0], &f04[sizeof(f04) - 2]);
+    TT_TEST_CHECK_FAIL(ret, "");
+
+    ret = tt_lpfld_check(&f05[0], &f05[sizeof(f05) - 2]);
+    TT_TEST_CHECK_FAIL(ret, "");
+
+    ret = tt_lpfld_check(&f07[0], &f07[sizeof(f07) - 2]);
+    TT_TEST_CHECK_FAIL(ret, "");
+    lpf = tt_lpfld_create(&f07[0], &f07[sizeof(f07) - 2]);
+    TT_TEST_CHECK_EQUAL(lpf, NULL, "");
+
+    // {logger}
+    ret = tt_lpfld_check(&f06[0], &f06[sizeof(f06) - 2]);
+    TT_TEST_CHECK_SUCCESS(ret, "");
+
+    {
+        lpf = tt_lpfld_create(&f06[0], &f06[sizeof(f06) - 2]);
+        TT_TEST_CHECK_NOT_EQUAL(lpf, NULL, "");
+
+        tt_buf_clear(&buf);
+
+        ret = tt_lpfld_output_s32(lpf, 0, &buf);
+        TT_TEST_CHECK_FAIL(ret, "");
+        TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&buf), 0, "");
+
+        ret = tt_lpfld_output(lpf, &buf);
+        TT_TEST_CHECK_FAIL(ret, "");
+
+        ret = tt_lpfld_output_cstr(lpf, "123", &buf);
+        TT_TEST_CHECK_SUCCESS(ret, "");
+        TT_TEST_CHECK_EQUAL(tt_buf_cmp_cstr(&buf, "123"), 0, "");
+        
+        tt_lpfld_destroy(lpf);
+    }
+
+    // {logger:}
+    ret = tt_lpfld_check(&f1[0], &f1[sizeof(f1) - 2]);
+    TT_TEST_CHECK_SUCCESS(ret, "");
+
+    {
+        lpf = tt_lpfld_create(&f1[0], &f1[sizeof(f1) - 2]);
+        TT_TEST_CHECK_NOT_EQUAL(lpf, NULL, "");
+
+        tt_buf_clear(&buf);
+
+        ret = tt_lpfld_output_s32(lpf, 0, &buf);
+        TT_TEST_CHECK_FAIL(ret, "");
+        TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&buf), 0, "");
+
+        ret = tt_lpfld_output(lpf, &buf);
+        TT_TEST_CHECK_FAIL(ret, "");
+
+        ret = tt_lpfld_output_cstr(lpf, "", &buf);
+        TT_TEST_CHECK_SUCCESS(ret, "");
+        TT_TEST_CHECK_EQUAL(tt_buf_cmp_cstr(&buf, ""), 0, "");
+        
+        tt_lpfld_destroy(lpf);
+    }
+
+    // {logger:%07s}
+    ret = tt_lpfld_check(&f2[0], &f2[sizeof(f2) - 2]);
+    TT_TEST_CHECK_SUCCESS(ret, "");
+
+    {
+        lpf = tt_lpfld_create(&f2[0], &f2[sizeof(f2) - 2]);
+        TT_TEST_CHECK_NOT_EQUAL(lpf, NULL, "");
+
+        tt_buf_clear(&buf);
+
+        ret = tt_lpfld_output_s32(lpf, 0, &buf);
+        TT_TEST_CHECK_FAIL(ret, "");
+        TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&buf), 0, "");
+
+        ret = tt_lpfld_output(lpf, &buf);
+        TT_TEST_CHECK_FAIL(ret, "");
+
+        tt_buf_clear(&buf);
+        ret = tt_lpfld_output_cstr(lpf, "", &buf);
+		TT_TEST_CHECK_SUCCESS(ret, "");
+        TT_TEST_CHECK_EQUAL(tt_buf_cmp_cstr(&buf, "at least 7 char: [0000000]. end"), 0, "");
+
+        tt_buf_clear(&buf);
+        ret = tt_lpfld_output_cstr(lpf, "1", &buf);
+        TT_TEST_CHECK_SUCCESS(ret, "");
+        TT_TEST_CHECK_EQUAL(tt_buf_cmp_cstr(&buf, "at least 7 char: [0000001]. end"), 0, "");
+
+        tt_buf_clear(&buf);
+        ret = tt_lpfld_output_cstr(lpf, "12345678", &buf);
+        TT_TEST_CHECK_SUCCESS(ret, "");
+        TT_TEST_CHECK_EQUAL(tt_buf_cmp_cstr(&buf, "at least 7 char: [12345678]. end"), 0, "");
+        
+        tt_lpfld_destroy(lpf);
+    }
+
+    tt_buf_destroy(&buf);
+
+    // test end
+    TT_TEST_CASE_LEAVE()
+}
+
+TT_TEST_ROUTINE_DEFINE(tt_unit_test_lpatn_content)
+{
+    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+    tt_lpfld_t *lpf;
+    tt_result_t ret;
+    tt_buf_t buf;
+
+    // at least 3 chars
+    tt_char_t f04[] = "{content";
+    tt_char_t f05[] = "{content:";
+    tt_char_t f06[] = "{content}";
+    tt_char_t f07[] = "{content-}";
+    tt_char_t f1[] = "{content:}";
+    tt_char_t f2[] = "{content:at least 7 char: [%07s]. end}";
+
+    TT_TEST_CASE_ENTER()
+    // test start
+
+    tt_buf_init(&buf, NULL);
+
+    ret = tt_lpfld_check(&f04[0], &f04[sizeof(f04) - 2]);
+    TT_TEST_CHECK_FAIL(ret, "");
+
+    ret = tt_lpfld_check(&f05[0], &f05[sizeof(f05) - 2]);
+    TT_TEST_CHECK_FAIL(ret, "");
+
+    ret = tt_lpfld_check(&f07[0], &f07[sizeof(f07) - 2]);
+    TT_TEST_CHECK_FAIL(ret, "");
+    lpf = tt_lpfld_create(&f07[0], &f07[sizeof(f07) - 2]);
+    TT_TEST_CHECK_EQUAL(lpf, NULL, "");
+
+    // {content}
+    ret = tt_lpfld_check(&f06[0], &f06[sizeof(f06) - 2]);
+    TT_TEST_CHECK_SUCCESS(ret, "");
+
+    {
+        lpf = tt_lpfld_create(&f06[0], &f06[sizeof(f06) - 2]);
+        TT_TEST_CHECK_NOT_EQUAL(lpf, NULL, "");
+
+        tt_buf_clear(&buf);
+
+        ret = tt_lpfld_output_s32(lpf, 0, &buf);
+        TT_TEST_CHECK_FAIL(ret, "");
+        TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&buf), 0, "");
+
+        ret = tt_lpfld_output(lpf, &buf);
+        TT_TEST_CHECK_FAIL(ret, "");
+
+        ret = tt_lpfld_output_cstr(lpf, "123", &buf);
+        TT_TEST_CHECK_SUCCESS(ret, "");
+        TT_TEST_CHECK_EQUAL(tt_buf_cmp_cstr(&buf, "123"), 0, "");
+        
+        tt_lpfld_destroy(lpf);
+    }
+
+    // {content:}
+    ret = tt_lpfld_check(&f1[0], &f1[sizeof(f1) - 2]);
+    TT_TEST_CHECK_SUCCESS(ret, "");
+
+    {
+        lpf = tt_lpfld_create(&f1[0], &f1[sizeof(f1) - 2]);
+        TT_TEST_CHECK_NOT_EQUAL(lpf, NULL, "");
+
+        tt_buf_clear(&buf);
+
+        ret = tt_lpfld_output_s32(lpf, 0, &buf);
+        TT_TEST_CHECK_FAIL(ret, "");
+        TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&buf), 0, "");
+
+        ret = tt_lpfld_output(lpf, &buf);
+        TT_TEST_CHECK_FAIL(ret, "");
+
+        ret = tt_lpfld_output_cstr(lpf, "", &buf);
+        TT_TEST_CHECK_SUCCESS(ret, "");
+        TT_TEST_CHECK_EQUAL(tt_buf_cmp_cstr(&buf, ""), 0, "");
+        
+        tt_lpfld_destroy(lpf);
+    }
+
+    // {content:%07s}
+    ret = tt_lpfld_check(&f2[0], &f2[sizeof(f2) - 2]);
+    TT_TEST_CHECK_SUCCESS(ret, "");
+
+    {
+        lpf = tt_lpfld_create(&f2[0], &f2[sizeof(f2) - 2]);
+        TT_TEST_CHECK_NOT_EQUAL(lpf, NULL, "");
+
+        tt_buf_clear(&buf);
+
+        ret = tt_lpfld_output_s32(lpf, 0, &buf);
+        TT_TEST_CHECK_FAIL(ret, "");
+        TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&buf), 0, "");
+
+        ret = tt_lpfld_output(lpf, &buf);
+        TT_TEST_CHECK_FAIL(ret, "");
+
+        tt_buf_clear(&buf);
+        ret = tt_lpfld_output_cstr(lpf, "", &buf);
+		TT_TEST_CHECK_SUCCESS(ret, "");
+        TT_TEST_CHECK_EQUAL(tt_buf_cmp_cstr(&buf, "at least 7 char: [0000000]. end"), 0, "");
+
+        tt_buf_clear(&buf);
+        ret = tt_lpfld_output_cstr(lpf, "1", &buf);
+        TT_TEST_CHECK_SUCCESS(ret, "");
+        TT_TEST_CHECK_EQUAL(tt_buf_cmp_cstr(&buf, "at least 7 char: [0000001]. end"), 0, "");
+
+        tt_buf_clear(&buf);
+        ret = tt_lpfld_output_cstr(lpf, "12345678", &buf);
+        TT_TEST_CHECK_SUCCESS(ret, "");
+        TT_TEST_CHECK_EQUAL(tt_buf_cmp_cstr(&buf, "at least 7 char: [12345678]. end"), 0, "");
+        
+        tt_lpfld_destroy(lpf);
+    }
+
+    tt_buf_destroy(&buf);
+
+    // test end
+    TT_TEST_CASE_LEAVE()
+}
+
+TT_TEST_ROUTINE_DEFINE(tt_unit_test_lpatn_func)
+{
+    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+    tt_lpfld_t *lpf;
+    tt_result_t ret;
+    tt_buf_t buf;
+
+    // at least 3 chars
+    tt_char_t f04[] = "{function";
+    tt_char_t f05[] = "{function:";
+    tt_char_t f06[] = "{function}";
+    tt_char_t f07[] = "{function-}";
+    tt_char_t f1[] = "{function:}";
+    tt_char_t f2[] = "{function:at least 7 char: [%07s]. end}";
+
+    TT_TEST_CASE_ENTER()
+    // test start
+
+    tt_buf_init(&buf, NULL);
+
+    ret = tt_lpfld_check(&f04[0], &f04[sizeof(f04) - 2]);
+    TT_TEST_CHECK_FAIL(ret, "");
+
+    ret = tt_lpfld_check(&f05[0], &f05[sizeof(f05) - 2]);
+    TT_TEST_CHECK_FAIL(ret, "");
+
+    ret = tt_lpfld_check(&f07[0], &f07[sizeof(f07) - 2]);
+    TT_TEST_CHECK_FAIL(ret, "");
+    lpf = tt_lpfld_create(&f07[0], &f07[sizeof(f07) - 2]);
+    TT_TEST_CHECK_EQUAL(lpf, NULL, "");
+
+    // {func}
+    ret = tt_lpfld_check(&f06[0], &f06[sizeof(f06) - 2]);
+    TT_TEST_CHECK_SUCCESS(ret, "");
+
+    {
+        lpf = tt_lpfld_create(&f06[0], &f06[sizeof(f06) - 2]);
+        TT_TEST_CHECK_NOT_EQUAL(lpf, NULL, "");
+
+        tt_buf_clear(&buf);
+
+        ret = tt_lpfld_output_s32(lpf, 0, &buf);
+        TT_TEST_CHECK_FAIL(ret, "");
+        TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&buf), 0, "");
+
+        ret = tt_lpfld_output(lpf, &buf);
+        TT_TEST_CHECK_FAIL(ret, "");
+
+        ret = tt_lpfld_output_cstr(lpf, "123", &buf);
+        TT_TEST_CHECK_SUCCESS(ret, "");
+        TT_TEST_CHECK_EQUAL(tt_buf_cmp_cstr(&buf, "123"), 0, "");
+        
+        tt_lpfld_destroy(lpf);
+    }
+
+    // {func:}
+    ret = tt_lpfld_check(&f1[0], &f1[sizeof(f1) - 2]);
+    TT_TEST_CHECK_SUCCESS(ret, "");
+
+    {
+        lpf = tt_lpfld_create(&f1[0], &f1[sizeof(f1) - 2]);
+        TT_TEST_CHECK_NOT_EQUAL(lpf, NULL, "");
+
+        tt_buf_clear(&buf);
+
+        ret = tt_lpfld_output_s32(lpf, 0, &buf);
+        TT_TEST_CHECK_FAIL(ret, "");
+        TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&buf), 0, "");
+
+        ret = tt_lpfld_output(lpf, &buf);
+        TT_TEST_CHECK_FAIL(ret, "");
+
+        ret = tt_lpfld_output_cstr(lpf, "", &buf);
+        TT_TEST_CHECK_SUCCESS(ret, "");
+        TT_TEST_CHECK_EQUAL(tt_buf_cmp_cstr(&buf, ""), 0, "");
+        
+        tt_lpfld_destroy(lpf);
+    }
+
+    // {func:%07s}
+    ret = tt_lpfld_check(&f2[0], &f2[sizeof(f2) - 2]);
+    TT_TEST_CHECK_SUCCESS(ret, "");
+
+    {
+        lpf = tt_lpfld_create(&f2[0], &f2[sizeof(f2) - 2]);
+        TT_TEST_CHECK_NOT_EQUAL(lpf, NULL, "");
+
+        tt_buf_clear(&buf);
+
+        ret = tt_lpfld_output_s32(lpf, 0, &buf);
+        TT_TEST_CHECK_FAIL(ret, "");
+        TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&buf), 0, "");
+
+        ret = tt_lpfld_output(lpf, &buf);
+        TT_TEST_CHECK_FAIL(ret, "");
+
+        tt_buf_clear(&buf);
+        ret = tt_lpfld_output_cstr(lpf, "", &buf);
+		TT_TEST_CHECK_SUCCESS(ret, "");
+        TT_TEST_CHECK_EQUAL(tt_buf_cmp_cstr(&buf, "at least 7 char: [0000000]. end"), 0, "");
+
+        tt_buf_clear(&buf);
+        ret = tt_lpfld_output_cstr(lpf, "1", &buf);
+        TT_TEST_CHECK_SUCCESS(ret, "");
+        TT_TEST_CHECK_EQUAL(tt_buf_cmp_cstr(&buf, "at least 7 char: [0000001]. end"), 0, "");
+
+        tt_buf_clear(&buf);
+        ret = tt_lpfld_output_cstr(lpf, "12345678", &buf);
+        TT_TEST_CHECK_SUCCESS(ret, "");
+        TT_TEST_CHECK_EQUAL(tt_buf_cmp_cstr(&buf, "at least 7 char: [12345678]. end"), 0, "");
+        
+        tt_lpfld_destroy(lpf);
+    }
+
+    tt_buf_destroy(&buf);
+
+    // test end
+    TT_TEST_CASE_LEAVE()
+}
+
+TT_TEST_ROUTINE_DEFINE(tt_unit_test_lpatn_line)
+{
+    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+    tt_lpfld_t *lpf;
+    tt_result_t ret;
+    tt_buf_t buf;
+
+    // at least 3 chars
+    tt_char_t f01[] = "{ }";
+    tt_char_t f02[] = "{:}";
+    tt_char_t f03[] = "{::";
+    tt_char_t f04[] = "{line";
+    tt_char_t f05[] = "{line:";
+    tt_char_t f06[] = "{line}";
+    tt_char_t f07[] = "{line1}";
+    tt_char_t f1[] = "{line:}";
+    tt_char_t f2[] = "{line:%+04d}";
+
+    TT_TEST_CASE_ENTER()
+    // test start
+
+    tt_buf_init(&buf, NULL);
+
+    ret = tt_lpfld_check(&f01[0], &f01[sizeof(f01) - 2]);
+    TT_TEST_CHECK_FAIL(ret, "");
+
+    ret = tt_lpfld_check(&f02[0], &f02[sizeof(f02) - 2]);
+    TT_TEST_CHECK_FAIL(ret, "");
+
+    ret = tt_lpfld_check(&f03[0], &f03[sizeof(f03) - 2]);
+    TT_TEST_CHECK_FAIL(ret, "");
+
+    ret = tt_lpfld_check(&f04[0], &f04[sizeof(f04) - 2]);
+    TT_TEST_CHECK_FAIL(ret, "");
+
+    ret = tt_lpfld_check(&f05[0], &f05[sizeof(f05) - 2]);
+    TT_TEST_CHECK_FAIL(ret, "");
+
+    ret = tt_lpfld_check(&f07[0], &f07[sizeof(f07) - 2]);
+    TT_TEST_CHECK_FAIL(ret, "");
+    lpf = tt_lpfld_create(&f07[0], &f07[sizeof(f07) - 2]);
+    TT_TEST_CHECK_EQUAL(lpf, NULL, "");
+
+    // {line}
+    ret = tt_lpfld_check(&f06[0], &f06[sizeof(f06) - 2]);
+    TT_TEST_CHECK_SUCCESS(ret, "");
+
+    {
+        lpf = tt_lpfld_create(&f06[0], &f06[sizeof(f06) - 2]);
+        TT_TEST_CHECK_NOT_EQUAL(lpf, NULL, "");
+
+        tt_buf_clear(&buf);
+
+        ret = tt_lpfld_output(lpf, &buf);
+        TT_TEST_CHECK_FAIL(ret, "");
+        TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&buf), 0, "");
+
+        ret = tt_lpfld_output_cstr(lpf, "123", &buf);
+        TT_TEST_CHECK_FAIL(ret, "");
+        TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&buf), 0, "");
+
+        ret = tt_lpfld_output_s32(lpf, 0, &buf);
+        TT_TEST_CHECK_SUCCESS(ret, "");
+        TT_TEST_CHECK_EQUAL(tt_buf_cmp_cstr(&buf, "0"), 0, "");
+
+        tt_lpfld_destroy(lpf);
+    }
+
+    // {line:}
+    ret = tt_lpfld_check(&f1[0], &f1[sizeof(f1) - 2]);
+    TT_TEST_CHECK_SUCCESS(ret, "");
+
+    {
+        lpf = tt_lpfld_create(&f1[0], &f1[sizeof(f1) - 2]);
+        TT_TEST_CHECK_NOT_EQUAL(lpf, NULL, "");
+
+        tt_buf_clear(&buf);
+
+        ret = tt_lpfld_output(lpf, &buf);
+        TT_TEST_CHECK_FAIL(ret, "");
+        TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&buf), 0, "");
+
+        ret = tt_lpfld_output_cstr(lpf, "123", &buf);
+        TT_TEST_CHECK_FAIL(ret, "");
+        TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&buf), 0, "");
+
+        tt_buf_clear(&buf);
+        ret = tt_lpfld_output_s32(lpf, 2147483647, &buf);
+        TT_TEST_CHECK_SUCCESS(ret, "");
+        TT_TEST_CHECK_EQUAL(tt_buf_cmp_cstr(&buf, "2147483647"), 0, "");
+
+        tt_buf_clear(&buf);
+        ret = tt_lpfld_output_s32(lpf, -2147483648, &buf);
+        TT_TEST_CHECK_SUCCESS(ret, "");
+        TT_TEST_CHECK_EQUAL(tt_buf_cmp_cstr(&buf, "-2147483648"), 0, "");
+
+        tt_buf_clear(&buf);
+        ret = tt_lpfld_output_s32(lpf, 100, &buf);
+        TT_TEST_CHECK_SUCCESS(ret, "");
+        TT_TEST_CHECK_EQUAL(tt_buf_cmp_cstr(&buf, "100"), 0, "");
+
+        tt_lpfld_destroy(lpf);
+    }
+
+    // {line:%+04x}
+    ret = tt_lpfld_check(&f2[0], &f2[sizeof(f2) - 2]);
+    TT_TEST_CHECK_SUCCESS(ret, "");
+
+    {
+        lpf = tt_lpfld_create(&f2[0], &f2[sizeof(f2) - 2]);
+        TT_TEST_CHECK_NOT_EQUAL(lpf, NULL, "");
+
+        tt_buf_clear(&buf);
+
+        ret = tt_lpfld_output(lpf, &buf);
+        TT_TEST_CHECK_FAIL(ret, "");
+        TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&buf), 0, "");
+
+        ret = tt_lpfld_output_cstr(lpf, "123", &buf);
+        TT_TEST_CHECK_FAIL(ret, "");
+        TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&buf), 0, "");
+
+        tt_buf_clear(&buf);
+        ret = tt_lpfld_output_s32(lpf, 1, &buf);
+        TT_TEST_CHECK_SUCCESS(ret, "");
+        TT_TEST_CHECK_EQUAL(tt_buf_cmp_cstr(&buf, "+001"), 0, "");
+
+        tt_buf_clear(&buf);
+        ret = tt_lpfld_output_s32(lpf, -2147483648, &buf);
+        TT_TEST_CHECK_SUCCESS(ret, "");
+        TT_TEST_CHECK_EQUAL(tt_buf_cmp_cstr(&buf, "-2147483648"), 0, "");
+
+        tt_buf_clear(&buf);
+        ret = tt_lpfld_output_s32(lpf, 10, &buf);
+        TT_TEST_CHECK_SUCCESS(ret, "");
+        TT_TEST_CHECK_EQUAL(tt_buf_cmp_cstr(&buf, "+010"), 0, "");
+
+        tt_lpfld_destroy(lpf);
+    }
+
+    tt_buf_destroy(&buf);
+
+    // test end
+    TT_TEST_CASE_LEAVE()
+}
+

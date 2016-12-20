@@ -382,7 +382,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xnp_basic)
     tt_xmlnp_t xnp;
     tt_result_t ret;
     tt_xmlnp_cb_t cb = {0};
-    tt_u32_t i, n;
+    tt_u32_t i;
     tt_xmlmem_t xm;
 
     TT_TEST_CASE_ENTER()
@@ -635,7 +635,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xnp_ns)
     tt_xmlnp_t xnp;
     tt_result_t ret;
     tt_xmlnp_cb_t cb = {0};
-    tt_u32_t i, n;
+    tt_u32_t i;
     tt_xmlmem_t xm;
     tt_xmlns_mgr_t xnmgr;
 
@@ -727,7 +727,6 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xnp_ns_etag)
     tt_xmlnp_t xnp;
     tt_result_t ret;
     tt_xmlnp_cb_t cb = {0};
-    tt_u32_t i, n;
     tt_xmlmem_t xm;
     tt_xmlns_mgr_t xnmgr;
 
@@ -861,8 +860,6 @@ static void __4_xnp_on_node_1(IN void *param, IN tt_xnode_t *xn)
 
 static void __4_xnp_on_node_2(IN void *param, IN tt_xnode_t *xn)
 {
-    tt_xnode_t *attr;
-
     if (__ut_xnp_seq == 0 || __ut_xnp_seq == 3) {
         if (tt_strcmp(xn->name, "tag1") != 0) {
             __4XON_FAIL;
@@ -923,8 +920,6 @@ static void __4_xnp_on_node_2(IN void *param, IN tt_xnode_t *xn)
 
 static void __4_xnp_on_node_3(IN void *param, IN tt_xnode_t *xn)
 {
-    tt_xnode_t *attr;
-
     if (__ut_xnp_seq == 0) {
         if (tt_strcmp(xn->name, ":tag1") != 0) {
             __4XON_FAIL;
@@ -956,7 +951,6 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xnp_ns_invalid)
     tt_xmlnp_t xnp;
     tt_result_t ret;
     tt_xmlnp_cb_t cb = {0};
-    tt_u32_t i, n;
     tt_xmlmem_t xm;
     tt_xmlns_mgr_t xnmgr;
 

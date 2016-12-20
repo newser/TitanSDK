@@ -169,7 +169,7 @@ tt_xnode_t *tt_xnode_create_nocopy(IN tt_xmlmem_t *xm,
             tt_xm_free(xn->value);
         }
         tt_xm_free(xn);
-        return TT_FAIL;
+        return NULL;
     }
 
     return xn;
@@ -300,7 +300,6 @@ tt_xnode_t *tt_xnode_last_child(IN tt_xnode_t *xn)
 tt_u32_t tt_xnode_child_num(IN tt_xnode_t *xn)
 {
     tt_xnode_elmt_t *xelmt;
-    tt_lnode_t *lnode;
 
     if (!__HAS_CHILD(xn->type)) {
         return 0;
@@ -349,7 +348,6 @@ tt_xnode_t *tt_xnode_last_attr(IN tt_xnode_t *xn)
 tt_u32_t tt_xnode_attr_num(IN tt_xnode_t *xn)
 {
     tt_xnode_elmt_t *xelmt;
-    tt_lnode_t *lnode;
 
     if (!__HAS_ATTR(xn->type)) {
         return 0;

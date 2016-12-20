@@ -43,13 +43,13 @@ typedef void (*__lpf_destroy_t)(IN tt_lpfld_t *lpf);
 typedef tt_result_t (*__lpf_check_t)(IN const tt_char_t *fmt_start,
                                      IN const tt_char_t *fmt_end);
 
-typedef tt_u32_t (*__lpf_output_t)(IN tt_lpfld_t *lpf, OUT tt_buf_t *outbuf);
+typedef tt_result_t (*__lpf_output_t)(IN tt_lpfld_t *lpf, OUT tt_buf_t *outbuf);
 
-typedef tt_u32_t (*__lpf_output_cstr_t)(IN tt_lpfld_t *lpf,
+typedef tt_result_t (*__lpf_output_cstr_t)(IN tt_lpfld_t *lpf,
                                         IN const tt_char_t *cstr_val,
                                         OUT tt_buf_t *outbuf);
 
-typedef tt_u32_t (*__lpf_output_s32_t)(IN tt_lpfld_t *lpf,
+typedef tt_result_t (*__lpf_output_s32_t)(IN tt_lpfld_t *lpf,
                                        IN tt_s32_t s32_val,
                                        OUT tt_buf_t *outbuf);
 
@@ -224,7 +224,8 @@ tt_lpfld_t *tt_lpfld_create(IN const tt_char_t *start, IN const tt_char_t *end)
         tt_u32_t name_len = (tt_u32_t)tt_strlen(lpfe->name);
 
         if ((name_len <= flen) &&
-            (tt_strncmp(start, lpfe->name, name_len) == 0)) {
+            (tt_strncmp(start, lpfe->name, name_len) == 0) &&
+            TT_OK(lpfe->check(start + name_len, end))) {
             return lpfe->create(lpfe->type, start + name_len, end);
         }
     }
@@ -269,7 +270,7 @@ tt_result_t tt_lpfld_output(IN tt_lpfld_t *lpf, OUT struct tt_buf_s *outbuf)
 {
     __lpf_entry_t *lpfe = &__lpf_table[lpf->type];
 
-    return TT_COND(lpfe->output_cstr != NULL,
+    return TT_COND(lpfe->output != NULL,
                    lpfe->output(lpf, outbuf),
                    TT_FAIL);
 }
