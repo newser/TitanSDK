@@ -114,6 +114,7 @@ typedef enum {
     TEST_UNIT_BEGIN = 0,
 
     TEST_UNIT_LOG = TEST_UNIT_BEGIN, // id for tt_trace
+    TEST_UNIT_LOG_PATTERN,
     TEST_UNIT_ATOMIC,
     TEST_UNIT_SPIN_LOCK,
     TEST_UNIT_BASIC_ALG, // id for tt_basic_algorithm
