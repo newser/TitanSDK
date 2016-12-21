@@ -67,8 +67,7 @@ TT_TEST_CASE("tt_unit_test_lpatn_sn",
                  NULL,
                  NULL,
                  NULL,
-                 NULL)
-    ,
+                 NULL),
 
     TT_TEST_CASE("tt_unit_test_lpatn_logger",
                  "testing log pattern: logger",
@@ -77,8 +76,7 @@ TT_TEST_CASE("tt_unit_test_lpatn_sn",
                  NULL,
                  NULL,
                  NULL,
-                 NULL)
-    ,
+                 NULL),
 
     TT_TEST_CASE("tt_unit_test_lpatn_content",
                  "testing log pattern: content",
@@ -87,8 +85,7 @@ TT_TEST_CASE("tt_unit_test_lpatn_sn",
                  NULL,
                  NULL,
                  NULL,
-                 NULL)
-    ,
+                 NULL),
 
     TT_TEST_CASE("tt_unit_test_lpatn_func",
                  "testing log pattern: function",
@@ -97,8 +94,7 @@ TT_TEST_CASE("tt_unit_test_lpatn_sn",
                  NULL,
                  NULL,
                  NULL,
-                 NULL)
-    ,
+                 NULL),
 
     TT_TEST_CASE("tt_unit_test_lpatn_line",
                  "testing log pattern: line",
@@ -107,8 +103,7 @@ TT_TEST_CASE("tt_unit_test_lpatn_sn",
                  NULL,
                  NULL,
                  NULL,
-                 NULL)
-    ,
+                 NULL),
 
     TT_TEST_CASE_LIST_DEFINE_END(lpatn_case)
     // =========================================
@@ -139,9 +134,10 @@ TT_TEST_CASE("tt_unit_test_lpatn_sn",
     TT_TEST_ROUTINE_DEFINE(tt_unit_test_lpatn_sn)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
-    tt_lpfld_t *lpf;
+    tt_logfld_t *lpf;
     tt_result_t ret;
     tt_buf_t buf;
+    tt_log_entry_t entry = {0};
 
     // at least 3 chars
     tt_char_t f01[] = "{ }";
@@ -159,121 +155,104 @@ TT_TEST_CASE("tt_unit_test_lpatn_sn",
 
     tt_buf_init(&buf, NULL);
 
-    ret = tt_lpfld_check(&f01[0], &f01[sizeof(f01) - 2]);
+    ret = tt_logfld_check(&f01[0], &f01[sizeof(f01) - 2]);
     TT_TEST_CHECK_FAIL(ret, "");
 
-    ret = tt_lpfld_check(&f02[0], &f02[sizeof(f02) - 2]);
+    ret = tt_logfld_check(&f02[0], &f02[sizeof(f02) - 2]);
     TT_TEST_CHECK_FAIL(ret, "");
 
-    ret = tt_lpfld_check(&f03[0], &f03[sizeof(f03) - 2]);
+    ret = tt_logfld_check(&f03[0], &f03[sizeof(f03) - 2]);
     TT_TEST_CHECK_FAIL(ret, "");
 
-    ret = tt_lpfld_check(&f04[0], &f04[sizeof(f04) - 2]);
+    ret = tt_logfld_check(&f04[0], &f04[sizeof(f04) - 2]);
     TT_TEST_CHECK_FAIL(ret, "");
 
-    ret = tt_lpfld_check(&f05[0], &f05[sizeof(f05) - 2]);
+    ret = tt_logfld_check(&f05[0], &f05[sizeof(f05) - 2]);
     TT_TEST_CHECK_FAIL(ret, "");
 
-    ret = tt_lpfld_check(&f07[0], &f07[sizeof(f07) - 2]);
+    ret = tt_logfld_check(&f07[0], &f07[sizeof(f07) - 2]);
     TT_TEST_CHECK_FAIL(ret, "");
-    lpf = tt_lpfld_create(&f07[0], &f07[sizeof(f07) - 2]);
+    lpf = tt_logfld_create(&f07[0], &f07[sizeof(f07) - 2]);
     TT_TEST_CHECK_EQUAL(lpf, NULL, "");
 
     // {seq_num}
-    ret = tt_lpfld_check(&f06[0], &f06[sizeof(f06) - 2]);
+    ret = tt_logfld_check(&f06[0], &f06[sizeof(f06) - 2]);
     TT_TEST_CHECK_SUCCESS(ret, "");
 
     {
-        lpf = tt_lpfld_create(&f06[0], &f06[sizeof(f06) - 2]);
+        lpf = tt_logfld_create(&f06[0], &f06[sizeof(f06) - 2]);
         TT_TEST_CHECK_NOT_EQUAL(lpf, NULL, "");
 
         tt_buf_clear(&buf);
 
-        ret = tt_lpfld_output(lpf, &buf);
-        TT_TEST_CHECK_FAIL(ret, "");
-        TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&buf), 0, "");
-
-        ret = tt_lpfld_output_cstr(lpf, "123", &buf);
-        TT_TEST_CHECK_FAIL(ret, "");
-        TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&buf), 0, "");
-
-        ret = tt_lpfld_output_s32(lpf, 0, &buf);
+        entry.seq_num = 123456;
+        ret = tt_logfld_output(lpf, &entry, &buf);
         TT_TEST_CHECK_SUCCESS(ret, "");
-        TT_TEST_CHECK_EQUAL(tt_buf_cmp_cstr(&buf, "0"), 0, "");
+        TT_TEST_CHECK_EQUAL(tt_buf_cmp_cstr(&buf, "123456"), 0, "");
 
-        tt_lpfld_destroy(lpf);
+        tt_logfld_destroy(lpf);
     }
 
     // {seq_num:}
-    ret = tt_lpfld_check(&f1[0], &f1[sizeof(f1) - 2]);
+    ret = tt_logfld_check(&f1[0], &f1[sizeof(f1) - 2]);
     TT_TEST_CHECK_SUCCESS(ret, "");
 
     {
-        lpf = tt_lpfld_create(&f1[0], &f1[sizeof(f1) - 2]);
+        lpf = tt_logfld_create(&f1[0], &f1[sizeof(f1) - 2]);
         TT_TEST_CHECK_NOT_EQUAL(lpf, NULL, "");
 
         tt_buf_clear(&buf);
 
-        ret = tt_lpfld_output(lpf, &buf);
-        TT_TEST_CHECK_FAIL(ret, "");
-        TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&buf), 0, "");
-
-        ret = tt_lpfld_output_cstr(lpf, "123", &buf);
-        TT_TEST_CHECK_FAIL(ret, "");
-        TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&buf), 0, "");
-
         tt_buf_clear(&buf);
-        ret = tt_lpfld_output_s32(lpf, 2147483647, &buf);
+        entry.seq_num = 2147483647;
+        ret = tt_logfld_output(lpf, &entry, &buf);
         TT_TEST_CHECK_SUCCESS(ret, "");
         TT_TEST_CHECK_EQUAL(tt_buf_cmp_cstr(&buf, "2147483647"), 0, "");
 
         tt_buf_clear(&buf);
-        ret = tt_lpfld_output_s32(lpf, -2147483648, &buf);
+        entry.seq_num = -2147483648;
+        ret = tt_logfld_output(lpf, &entry, &buf);
         TT_TEST_CHECK_SUCCESS(ret, "");
         TT_TEST_CHECK_EQUAL(tt_buf_cmp_cstr(&buf, "-2147483648"), 0, "");
 
         tt_buf_clear(&buf);
-        ret = tt_lpfld_output_s32(lpf, 100, &buf);
+        entry.seq_num = 100;
+        ret = tt_logfld_output(lpf, &entry, &buf);
         TT_TEST_CHECK_SUCCESS(ret, "");
         TT_TEST_CHECK_EQUAL(tt_buf_cmp_cstr(&buf, "100"), 0, "");
 
-        tt_lpfld_destroy(lpf);
+        tt_logfld_destroy(lpf);
     }
 
     // {seq_num:%+04x}
-    ret = tt_lpfld_check(&f2[0], &f2[sizeof(f2) - 2]);
+    ret = tt_logfld_check(&f2[0], &f2[sizeof(f2) - 2]);
     TT_TEST_CHECK_SUCCESS(ret, "");
 
     {
-        lpf = tt_lpfld_create(&f2[0], &f2[sizeof(f2) - 2]);
+        lpf = tt_logfld_create(&f2[0], &f2[sizeof(f2) - 2]);
         TT_TEST_CHECK_NOT_EQUAL(lpf, NULL, "");
 
         tt_buf_clear(&buf);
 
-        ret = tt_lpfld_output(lpf, &buf);
-        TT_TEST_CHECK_FAIL(ret, "");
-        TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&buf), 0, "");
-
-        ret = tt_lpfld_output_cstr(lpf, "123", &buf);
-        TT_TEST_CHECK_FAIL(ret, "");
-        TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&buf), 0, "");
-
         tt_buf_clear(&buf);
-        ret = tt_lpfld_output_s32(lpf, 1, &buf);
+        entry.seq_num = 1;
+        ret = tt_logfld_output(lpf, &entry, &buf);
         TT_TEST_CHECK_SUCCESS(ret, "");
         TT_TEST_CHECK_EQUAL(tt_buf_cmp_cstr(&buf, "+001"), 0, "");
 
         tt_buf_clear(&buf);
-        ret = tt_lpfld_output_s32(lpf, -2147483648, &buf);
+        entry.seq_num = -2147483648;
+        ret = tt_logfld_output(lpf, &entry, &buf);
         TT_TEST_CHECK_SUCCESS(ret, "");
         TT_TEST_CHECK_EQUAL(tt_buf_cmp_cstr(&buf, "-2147483648"), 0, "");
 
         tt_buf_clear(&buf);
-        ret = tt_lpfld_output_s32(lpf, 10, &buf);
+        entry.seq_num = 10;
+        ret = tt_logfld_output(lpf, &entry, &buf);
         TT_TEST_CHECK_SUCCESS(ret, "");
         TT_TEST_CHECK_EQUAL(tt_buf_cmp_cstr(&buf, "+010"), 0, "");
 
-        tt_lpfld_destroy(lpf);
+        tt_logfld_destroy(lpf);
     }
 
     tt_buf_destroy(&buf);
@@ -285,9 +264,10 @@ TT_TEST_CASE("tt_unit_test_lpatn_sn",
 TT_TEST_ROUTINE_DEFINE(tt_unit_test_lpatn_time)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
-    tt_lpfld_t *lpf;
+    tt_logfld_t *lpf;
     tt_result_t ret;
     tt_buf_t buf;
+    tt_log_entry_t entry = {0};
 
     // at least 3 chars
     tt_char_t f04[] = "{time";
@@ -302,105 +282,81 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_lpatn_time)
 
     tt_buf_init(&buf, NULL);
 
-    ret = tt_lpfld_check(&f04[0], &f04[sizeof(f04) - 2]);
+    ret = tt_logfld_check(&f04[0], &f04[sizeof(f04) - 2]);
     TT_TEST_CHECK_FAIL(ret, "");
 
-    ret = tt_lpfld_check(&f05[0], &f05[sizeof(f05) - 2]);
+    ret = tt_logfld_check(&f05[0], &f05[sizeof(f05) - 2]);
     TT_TEST_CHECK_FAIL(ret, "");
 
-    ret = tt_lpfld_check(&f07[0], &f07[sizeof(f07) - 2]);
+    ret = tt_logfld_check(&f07[0], &f07[sizeof(f07) - 2]);
     TT_TEST_CHECK_FAIL(ret, "");
-    lpf = tt_lpfld_create(&f07[0], &f07[sizeof(f07) - 2]);
+    lpf = tt_logfld_create(&f07[0], &f07[sizeof(f07) - 2]);
     TT_TEST_CHECK_EQUAL(lpf, NULL, "");
 
     // {time}
-    ret = tt_lpfld_check(&f06[0], &f06[sizeof(f06) - 2]);
+    ret = tt_logfld_check(&f06[0], &f06[sizeof(f06) - 2]);
     TT_TEST_CHECK_SUCCESS(ret, "");
 
     {
         tt_char_t tmp[100] = {0};
-        
-        lpf = tt_lpfld_create(&f06[0], &f06[sizeof(f06) - 2]);
+
+        lpf = tt_logfld_create(&f06[0], &f06[sizeof(f06) - 2]);
         TT_TEST_CHECK_NOT_EQUAL(lpf, NULL, "");
 
         tt_buf_clear(&buf);
 
-        ret = tt_lpfld_output_cstr(lpf, "123", &buf);
-        TT_TEST_CHECK_FAIL(ret, "");
-        TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&buf), 0, "");
-
-        ret = tt_lpfld_output_s32(lpf, 0, &buf);
-        TT_TEST_CHECK_FAIL(ret, "");
-        TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&buf), 0, "");
-
-        ret = tt_lpfld_output(lpf, &buf);
+        ret = tt_logfld_output(lpf, &entry, &buf);
         TT_TEST_CHECK_SUCCESS(ret, "");
 
         // default format: "%Y-%m-%d %H:%M:%S"
         tt_time_localfmt(tmp, sizeof(tmp), "%Y-%m-%d %H:%M:%S");
         TT_TEST_CHECK_EQUAL(tt_buf_cmp_cstr(&buf, tmp), 0, "");
-        
-        tt_lpfld_destroy(lpf);
+
+        tt_logfld_destroy(lpf);
     }
 
     // {time:}
-    ret = tt_lpfld_check(&f1[0], &f1[sizeof(f1) - 2]);
+    ret = tt_logfld_check(&f1[0], &f1[sizeof(f1) - 2]);
     TT_TEST_CHECK_SUCCESS(ret, "");
 
     {
         tt_char_t tmp[100] = {0};
-        
-        lpf = tt_lpfld_create(&f1[0], &f1[sizeof(f1) - 2]);
+
+        lpf = tt_logfld_create(&f1[0], &f1[sizeof(f1) - 2]);
         TT_TEST_CHECK_NOT_EQUAL(lpf, NULL, "");
 
         tt_buf_clear(&buf);
 
-        ret = tt_lpfld_output_cstr(lpf, "123", &buf);
-        TT_TEST_CHECK_FAIL(ret, "");
-        TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&buf), 0, "");
-
-        ret = tt_lpfld_output_s32(lpf, 0, &buf);
-        TT_TEST_CHECK_FAIL(ret, "");
-        TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&buf), 0, "");
-
-        ret = tt_lpfld_output(lpf, &buf);
+        ret = tt_logfld_output(lpf, &entry, &buf);
         TT_TEST_CHECK_SUCCESS(ret, "");
 
         // default format: "%Y-%m-%d %H:%M:%S"
         tt_time_localfmt(tmp, sizeof(tmp), "%Y-%m-%d %H:%M:%S");
         TT_TEST_CHECK_EQUAL(tt_buf_cmp_cstr(&buf, tmp), 0, "");
-        
-        tt_lpfld_destroy(lpf);
+
+        tt_logfld_destroy(lpf);
     }
 
     // {time:%Y-%m-%d-%H-%M-S}
-    ret = tt_lpfld_check(&f2[0], &f2[sizeof(f2) - 2]);
+    ret = tt_logfld_check(&f2[0], &f2[sizeof(f2) - 2]);
     TT_TEST_CHECK_SUCCESS(ret, "");
 
     {
         tt_char_t tmp[100] = {0};
-        
-        lpf = tt_lpfld_create(&f2[0], &f2[sizeof(f2) - 2]);
+
+        lpf = tt_logfld_create(&f2[0], &f2[sizeof(f2) - 2]);
         TT_TEST_CHECK_NOT_EQUAL(lpf, NULL, "");
 
         tt_buf_clear(&buf);
 
-        ret = tt_lpfld_output_cstr(lpf, "123", &buf);
-        TT_TEST_CHECK_FAIL(ret, "");
-        TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&buf), 0, "");
-
-        ret = tt_lpfld_output_s32(lpf, 0, &buf);
-        TT_TEST_CHECK_FAIL(ret, "");
-        TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&buf), 0, "");
-
-        ret = tt_lpfld_output(lpf, &buf);
+        ret = tt_logfld_output(lpf, &entry, &buf);
         TT_TEST_CHECK_SUCCESS(ret, "");
 
         // format: "%Y-%m-%d-%H-%M-S"
         tt_time_localfmt(tmp, sizeof(tmp), "%Y-%m-%d-%H-%M-S");
         TT_TEST_CHECK_EQUAL(tt_buf_cmp_cstr(&buf, tmp), 0, "");
-        
-        tt_lpfld_destroy(lpf);
+
+        tt_logfld_destroy(lpf);
     }
 
     tt_buf_destroy(&buf);
@@ -412,9 +368,10 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_lpatn_time)
 TT_TEST_ROUTINE_DEFINE(tt_unit_test_lpatn_logger)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
-    tt_lpfld_t *lpf;
+    tt_logfld_t *lpf;
     tt_result_t ret;
     tt_buf_t buf;
+    tt_log_entry_t entry = {0};
 
     // at least 3 chars
     tt_char_t f04[] = "{logger";
@@ -429,98 +386,116 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_lpatn_logger)
 
     tt_buf_init(&buf, NULL);
 
-    ret = tt_lpfld_check(&f04[0], &f04[sizeof(f04) - 2]);
+    ret = tt_logfld_check(&f04[0], &f04[sizeof(f04) - 2]);
     TT_TEST_CHECK_FAIL(ret, "");
 
-    ret = tt_lpfld_check(&f05[0], &f05[sizeof(f05) - 2]);
+    ret = tt_logfld_check(&f05[0], &f05[sizeof(f05) - 2]);
     TT_TEST_CHECK_FAIL(ret, "");
 
-    ret = tt_lpfld_check(&f07[0], &f07[sizeof(f07) - 2]);
+    ret = tt_logfld_check(&f07[0], &f07[sizeof(f07) - 2]);
     TT_TEST_CHECK_FAIL(ret, "");
-    lpf = tt_lpfld_create(&f07[0], &f07[sizeof(f07) - 2]);
+    lpf = tt_logfld_create(&f07[0], &f07[sizeof(f07) - 2]);
     TT_TEST_CHECK_EQUAL(lpf, NULL, "");
 
     // {logger}
-    ret = tt_lpfld_check(&f06[0], &f06[sizeof(f06) - 2]);
+    ret = tt_logfld_check(&f06[0], &f06[sizeof(f06) - 2]);
     TT_TEST_CHECK_SUCCESS(ret, "");
 
     {
-        lpf = tt_lpfld_create(&f06[0], &f06[sizeof(f06) - 2]);
+        lpf = tt_logfld_create(&f06[0], &f06[sizeof(f06) - 2]);
         TT_TEST_CHECK_NOT_EQUAL(lpf, NULL, "");
 
         tt_buf_clear(&buf);
 
-        ret = tt_lpfld_output_s32(lpf, 0, &buf);
-        TT_TEST_CHECK_FAIL(ret, "");
+        entry.logger = NULL;
+        ret = tt_logfld_output(lpf, &entry, &buf);
+        TT_TEST_CHECK_SUCCESS(ret, "");
         TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&buf), 0, "");
 
-        ret = tt_lpfld_output(lpf, &buf);
-        TT_TEST_CHECK_FAIL(ret, "");
+        entry.logger = "";
+        ret = tt_logfld_output(lpf, &entry, &buf);
+        TT_TEST_CHECK_SUCCESS(ret, "");
+        TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&buf), 0, "");
 
-        ret = tt_lpfld_output_cstr(lpf, "123", &buf);
+        entry.logger = "123";
+        ret = tt_logfld_output(lpf, &entry, &buf);
         TT_TEST_CHECK_SUCCESS(ret, "");
         TT_TEST_CHECK_EQUAL(tt_buf_cmp_cstr(&buf, "123"), 0, "");
-        
-        tt_lpfld_destroy(lpf);
+
+        tt_logfld_destroy(lpf);
     }
 
     // {logger:}
-    ret = tt_lpfld_check(&f1[0], &f1[sizeof(f1) - 2]);
+    ret = tt_logfld_check(&f1[0], &f1[sizeof(f1) - 2]);
     TT_TEST_CHECK_SUCCESS(ret, "");
 
     {
-        lpf = tt_lpfld_create(&f1[0], &f1[sizeof(f1) - 2]);
+        lpf = tt_logfld_create(&f1[0], &f1[sizeof(f1) - 2]);
         TT_TEST_CHECK_NOT_EQUAL(lpf, NULL, "");
 
         tt_buf_clear(&buf);
 
-        ret = tt_lpfld_output_s32(lpf, 0, &buf);
-        TT_TEST_CHECK_FAIL(ret, "");
+        entry.logger = NULL;
+        ret = tt_logfld_output(lpf, &entry, &buf);
+        TT_TEST_CHECK_SUCCESS(ret, "");
         TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&buf), 0, "");
 
-        ret = tt_lpfld_output(lpf, &buf);
-        TT_TEST_CHECK_FAIL(ret, "");
-
-        ret = tt_lpfld_output_cstr(lpf, "", &buf);
+        entry.logger = "";
+        ret = tt_logfld_output(lpf, &entry, &buf);
         TT_TEST_CHECK_SUCCESS(ret, "");
-        TT_TEST_CHECK_EQUAL(tt_buf_cmp_cstr(&buf, ""), 0, "");
-        
-        tt_lpfld_destroy(lpf);
+        TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&buf), 0, "");
+
+        entry.logger = "123";
+        ret = tt_logfld_output(lpf, &entry, &buf);
+        TT_TEST_CHECK_SUCCESS(ret, "");
+        TT_TEST_CHECK_EQUAL(tt_buf_cmp_cstr(&buf, "123"), 0, "");
+
+        tt_logfld_destroy(lpf);
     }
 
     // {logger:%07s}
-    ret = tt_lpfld_check(&f2[0], &f2[sizeof(f2) - 2]);
+    ret = tt_logfld_check(&f2[0], &f2[sizeof(f2) - 2]);
     TT_TEST_CHECK_SUCCESS(ret, "");
 
     {
-        lpf = tt_lpfld_create(&f2[0], &f2[sizeof(f2) - 2]);
+        lpf = tt_logfld_create(&f2[0], &f2[sizeof(f2) - 2]);
         TT_TEST_CHECK_NOT_EQUAL(lpf, NULL, "");
 
         tt_buf_clear(&buf);
 
-        ret = tt_lpfld_output_s32(lpf, 0, &buf);
-        TT_TEST_CHECK_FAIL(ret, "");
+        entry.logger = NULL;
+        ret = tt_logfld_output(lpf, &entry, &buf);
+        TT_TEST_CHECK_SUCCESS(ret, "");
         TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&buf), 0, "");
 
-        ret = tt_lpfld_output(lpf, &buf);
-        TT_TEST_CHECK_FAIL(ret, "");
-
+        entry.logger = "";
         tt_buf_clear(&buf);
-        ret = tt_lpfld_output_cstr(lpf, "", &buf);
-		TT_TEST_CHECK_SUCCESS(ret, "");
-        TT_TEST_CHECK_EQUAL(tt_buf_cmp_cstr(&buf, "at least 7 char: [0000000]. end"), 0, "");
-
-        tt_buf_clear(&buf);
-        ret = tt_lpfld_output_cstr(lpf, "1", &buf);
+        ret = tt_logfld_output(lpf, &entry, &buf);
         TT_TEST_CHECK_SUCCESS(ret, "");
-        TT_TEST_CHECK_EQUAL(tt_buf_cmp_cstr(&buf, "at least 7 char: [0000001]. end"), 0, "");
+        TT_TEST_CHECK_EQUAL(tt_buf_cmp_cstr(&buf,
+                                            "at least 7 char: [0000000]. end"),
+                            0,
+                            "");
 
+        entry.logger = "1";
         tt_buf_clear(&buf);
-        ret = tt_lpfld_output_cstr(lpf, "12345678", &buf);
+        ret = tt_logfld_output(lpf, &entry, &buf);
         TT_TEST_CHECK_SUCCESS(ret, "");
-        TT_TEST_CHECK_EQUAL(tt_buf_cmp_cstr(&buf, "at least 7 char: [12345678]. end"), 0, "");
-        
-        tt_lpfld_destroy(lpf);
+        TT_TEST_CHECK_EQUAL(tt_buf_cmp_cstr(&buf,
+                                            "at least 7 char: [0000001]. end"),
+                            0,
+                            "");
+
+        entry.logger = "12345678";
+        tt_buf_clear(&buf);
+        ret = tt_logfld_output(lpf, &entry, &buf);
+        TT_TEST_CHECK_SUCCESS(ret, "");
+        TT_TEST_CHECK_EQUAL(tt_buf_cmp_cstr(&buf,
+                                            "at least 7 char: [12345678]. end"),
+                            0,
+                            "");
+
+        tt_logfld_destroy(lpf);
     }
 
     tt_buf_destroy(&buf);
@@ -532,9 +507,10 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_lpatn_logger)
 TT_TEST_ROUTINE_DEFINE(tt_unit_test_lpatn_content)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
-    tt_lpfld_t *lpf;
+    tt_logfld_t *lpf;
     tt_result_t ret;
     tt_buf_t buf;
+    tt_log_entry_t entry = {0};
 
     // at least 3 chars
     tt_char_t f04[] = "{content";
@@ -549,98 +525,116 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_lpatn_content)
 
     tt_buf_init(&buf, NULL);
 
-    ret = tt_lpfld_check(&f04[0], &f04[sizeof(f04) - 2]);
+    ret = tt_logfld_check(&f04[0], &f04[sizeof(f04) - 2]);
     TT_TEST_CHECK_FAIL(ret, "");
 
-    ret = tt_lpfld_check(&f05[0], &f05[sizeof(f05) - 2]);
+    ret = tt_logfld_check(&f05[0], &f05[sizeof(f05) - 2]);
     TT_TEST_CHECK_FAIL(ret, "");
 
-    ret = tt_lpfld_check(&f07[0], &f07[sizeof(f07) - 2]);
+    ret = tt_logfld_check(&f07[0], &f07[sizeof(f07) - 2]);
     TT_TEST_CHECK_FAIL(ret, "");
-    lpf = tt_lpfld_create(&f07[0], &f07[sizeof(f07) - 2]);
+    lpf = tt_logfld_create(&f07[0], &f07[sizeof(f07) - 2]);
     TT_TEST_CHECK_EQUAL(lpf, NULL, "");
 
     // {content}
-    ret = tt_lpfld_check(&f06[0], &f06[sizeof(f06) - 2]);
+    ret = tt_logfld_check(&f06[0], &f06[sizeof(f06) - 2]);
     TT_TEST_CHECK_SUCCESS(ret, "");
 
     {
-        lpf = tt_lpfld_create(&f06[0], &f06[sizeof(f06) - 2]);
+        lpf = tt_logfld_create(&f06[0], &f06[sizeof(f06) - 2]);
         TT_TEST_CHECK_NOT_EQUAL(lpf, NULL, "");
 
         tt_buf_clear(&buf);
 
-        ret = tt_lpfld_output_s32(lpf, 0, &buf);
-        TT_TEST_CHECK_FAIL(ret, "");
+        entry.content = NULL;
+        ret = tt_logfld_output(lpf, &entry, &buf);
+        TT_TEST_CHECK_SUCCESS(ret, "");
         TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&buf), 0, "");
 
-        ret = tt_lpfld_output(lpf, &buf);
-        TT_TEST_CHECK_FAIL(ret, "");
+        entry.content = "";
+        ret = tt_logfld_output(lpf, &entry, &buf);
+        TT_TEST_CHECK_SUCCESS(ret, "");
+        TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&buf), 0, "");
 
-        ret = tt_lpfld_output_cstr(lpf, "123", &buf);
+        entry.content = "123";
+        ret = tt_logfld_output(lpf, &entry, &buf);
         TT_TEST_CHECK_SUCCESS(ret, "");
         TT_TEST_CHECK_EQUAL(tt_buf_cmp_cstr(&buf, "123"), 0, "");
-        
-        tt_lpfld_destroy(lpf);
+
+        tt_logfld_destroy(lpf);
     }
 
     // {content:}
-    ret = tt_lpfld_check(&f1[0], &f1[sizeof(f1) - 2]);
+    ret = tt_logfld_check(&f1[0], &f1[sizeof(f1) - 2]);
     TT_TEST_CHECK_SUCCESS(ret, "");
 
     {
-        lpf = tt_lpfld_create(&f1[0], &f1[sizeof(f1) - 2]);
+        lpf = tt_logfld_create(&f1[0], &f1[sizeof(f1) - 2]);
         TT_TEST_CHECK_NOT_EQUAL(lpf, NULL, "");
 
         tt_buf_clear(&buf);
 
-        ret = tt_lpfld_output_s32(lpf, 0, &buf);
-        TT_TEST_CHECK_FAIL(ret, "");
+        entry.content = NULL;
+        ret = tt_logfld_output(lpf, &entry, &buf);
+        TT_TEST_CHECK_SUCCESS(ret, "");
         TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&buf), 0, "");
 
-        ret = tt_lpfld_output(lpf, &buf);
-        TT_TEST_CHECK_FAIL(ret, "");
-
-        ret = tt_lpfld_output_cstr(lpf, "", &buf);
+        entry.content = "";
+        ret = tt_logfld_output(lpf, &entry, &buf);
         TT_TEST_CHECK_SUCCESS(ret, "");
-        TT_TEST_CHECK_EQUAL(tt_buf_cmp_cstr(&buf, ""), 0, "");
-        
-        tt_lpfld_destroy(lpf);
+        TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&buf), 0, "");
+
+        entry.content = "123";
+        ret = tt_logfld_output(lpf, &entry, &buf);
+        TT_TEST_CHECK_SUCCESS(ret, "");
+        TT_TEST_CHECK_EQUAL(tt_buf_cmp_cstr(&buf, "123"), 0, "");
+
+        tt_logfld_destroy(lpf);
     }
 
     // {content:%07s}
-    ret = tt_lpfld_check(&f2[0], &f2[sizeof(f2) - 2]);
+    ret = tt_logfld_check(&f2[0], &f2[sizeof(f2) - 2]);
     TT_TEST_CHECK_SUCCESS(ret, "");
 
     {
-        lpf = tt_lpfld_create(&f2[0], &f2[sizeof(f2) - 2]);
+        lpf = tt_logfld_create(&f2[0], &f2[sizeof(f2) - 2]);
         TT_TEST_CHECK_NOT_EQUAL(lpf, NULL, "");
 
         tt_buf_clear(&buf);
 
-        ret = tt_lpfld_output_s32(lpf, 0, &buf);
-        TT_TEST_CHECK_FAIL(ret, "");
+        entry.content = NULL;
+        ret = tt_logfld_output(lpf, &entry, &buf);
+        TT_TEST_CHECK_SUCCESS(ret, "");
         TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&buf), 0, "");
 
-        ret = tt_lpfld_output(lpf, &buf);
-        TT_TEST_CHECK_FAIL(ret, "");
-
         tt_buf_clear(&buf);
-        ret = tt_lpfld_output_cstr(lpf, "", &buf);
-		TT_TEST_CHECK_SUCCESS(ret, "");
-        TT_TEST_CHECK_EQUAL(tt_buf_cmp_cstr(&buf, "at least 7 char: [0000000]. end"), 0, "");
-
-        tt_buf_clear(&buf);
-        ret = tt_lpfld_output_cstr(lpf, "1", &buf);
+        entry.content = "";
+        ret = tt_logfld_output(lpf, &entry, &buf);
         TT_TEST_CHECK_SUCCESS(ret, "");
-        TT_TEST_CHECK_EQUAL(tt_buf_cmp_cstr(&buf, "at least 7 char: [0000001]. end"), 0, "");
+        TT_TEST_CHECK_EQUAL(tt_buf_cmp_cstr(&buf,
+                                            "at least 7 char: [0000000]. end"),
+                            0,
+                            "");
 
         tt_buf_clear(&buf);
-        ret = tt_lpfld_output_cstr(lpf, "12345678", &buf);
+        entry.content = "1";
+        ret = tt_logfld_output(lpf, &entry, &buf);
         TT_TEST_CHECK_SUCCESS(ret, "");
-        TT_TEST_CHECK_EQUAL(tt_buf_cmp_cstr(&buf, "at least 7 char: [12345678]. end"), 0, "");
-        
-        tt_lpfld_destroy(lpf);
+        TT_TEST_CHECK_EQUAL(tt_buf_cmp_cstr(&buf,
+                                            "at least 7 char: [0000001]. end"),
+                            0,
+                            "");
+
+        tt_buf_clear(&buf);
+        entry.content = "12345678";
+        ret = tt_logfld_output(lpf, &entry, &buf);
+        TT_TEST_CHECK_SUCCESS(ret, "");
+        TT_TEST_CHECK_EQUAL(tt_buf_cmp_cstr(&buf,
+                                            "at least 7 char: [12345678]. end"),
+                            0,
+                            "");
+
+        tt_logfld_destroy(lpf);
     }
 
     tt_buf_destroy(&buf);
@@ -652,9 +646,10 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_lpatn_content)
 TT_TEST_ROUTINE_DEFINE(tt_unit_test_lpatn_func)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
-    tt_lpfld_t *lpf;
+    tt_logfld_t *lpf;
     tt_result_t ret;
     tt_buf_t buf;
+    tt_log_entry_t entry = {0};
 
     // at least 3 chars
     tt_char_t f04[] = "{function";
@@ -669,98 +664,116 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_lpatn_func)
 
     tt_buf_init(&buf, NULL);
 
-    ret = tt_lpfld_check(&f04[0], &f04[sizeof(f04) - 2]);
+    ret = tt_logfld_check(&f04[0], &f04[sizeof(f04) - 2]);
     TT_TEST_CHECK_FAIL(ret, "");
 
-    ret = tt_lpfld_check(&f05[0], &f05[sizeof(f05) - 2]);
+    ret = tt_logfld_check(&f05[0], &f05[sizeof(f05) - 2]);
     TT_TEST_CHECK_FAIL(ret, "");
 
-    ret = tt_lpfld_check(&f07[0], &f07[sizeof(f07) - 2]);
+    ret = tt_logfld_check(&f07[0], &f07[sizeof(f07) - 2]);
     TT_TEST_CHECK_FAIL(ret, "");
-    lpf = tt_lpfld_create(&f07[0], &f07[sizeof(f07) - 2]);
+    lpf = tt_logfld_create(&f07[0], &f07[sizeof(f07) - 2]);
     TT_TEST_CHECK_EQUAL(lpf, NULL, "");
 
-    // {func}
-    ret = tt_lpfld_check(&f06[0], &f06[sizeof(f06) - 2]);
+    // {function}
+    ret = tt_logfld_check(&f06[0], &f06[sizeof(f06) - 2]);
     TT_TEST_CHECK_SUCCESS(ret, "");
 
     {
-        lpf = tt_lpfld_create(&f06[0], &f06[sizeof(f06) - 2]);
+        lpf = tt_logfld_create(&f06[0], &f06[sizeof(f06) - 2]);
         TT_TEST_CHECK_NOT_EQUAL(lpf, NULL, "");
 
         tt_buf_clear(&buf);
 
-        ret = tt_lpfld_output_s32(lpf, 0, &buf);
-        TT_TEST_CHECK_FAIL(ret, "");
+        entry.function = NULL;
+        ret = tt_logfld_output(lpf, &entry, &buf);
+        TT_TEST_CHECK_SUCCESS(ret, "");
         TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&buf), 0, "");
 
-        ret = tt_lpfld_output(lpf, &buf);
-        TT_TEST_CHECK_FAIL(ret, "");
+        entry.function = "";
+        ret = tt_logfld_output(lpf, &entry, &buf);
+        TT_TEST_CHECK_SUCCESS(ret, "");
+        TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&buf), 0, "");
 
-        ret = tt_lpfld_output_cstr(lpf, "123", &buf);
+        entry.function = "123";
+        ret = tt_logfld_output(lpf, &entry, &buf);
         TT_TEST_CHECK_SUCCESS(ret, "");
         TT_TEST_CHECK_EQUAL(tt_buf_cmp_cstr(&buf, "123"), 0, "");
-        
-        tt_lpfld_destroy(lpf);
+
+        tt_logfld_destroy(lpf);
     }
 
-    // {func:}
-    ret = tt_lpfld_check(&f1[0], &f1[sizeof(f1) - 2]);
+    // {function:}
+    ret = tt_logfld_check(&f1[0], &f1[sizeof(f1) - 2]);
     TT_TEST_CHECK_SUCCESS(ret, "");
 
     {
-        lpf = tt_lpfld_create(&f1[0], &f1[sizeof(f1) - 2]);
+        lpf = tt_logfld_create(&f1[0], &f1[sizeof(f1) - 2]);
         TT_TEST_CHECK_NOT_EQUAL(lpf, NULL, "");
 
         tt_buf_clear(&buf);
 
-        ret = tt_lpfld_output_s32(lpf, 0, &buf);
-        TT_TEST_CHECK_FAIL(ret, "");
+        entry.function = NULL;
+        ret = tt_logfld_output(lpf, &entry, &buf);
+        TT_TEST_CHECK_SUCCESS(ret, "");
         TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&buf), 0, "");
 
-        ret = tt_lpfld_output(lpf, &buf);
-        TT_TEST_CHECK_FAIL(ret, "");
-
-        ret = tt_lpfld_output_cstr(lpf, "", &buf);
+        entry.function = "";
+        ret = tt_logfld_output(lpf, &entry, &buf);
         TT_TEST_CHECK_SUCCESS(ret, "");
-        TT_TEST_CHECK_EQUAL(tt_buf_cmp_cstr(&buf, ""), 0, "");
-        
-        tt_lpfld_destroy(lpf);
+        TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&buf), 0, "");
+
+        entry.function = "123";
+        ret = tt_logfld_output(lpf, &entry, &buf);
+        TT_TEST_CHECK_SUCCESS(ret, "");
+        TT_TEST_CHECK_EQUAL(tt_buf_cmp_cstr(&buf, "123"), 0, "");
+
+        tt_logfld_destroy(lpf);
     }
 
-    // {func:%07s}
-    ret = tt_lpfld_check(&f2[0], &f2[sizeof(f2) - 2]);
+    // {function:%07s}
+    ret = tt_logfld_check(&f2[0], &f2[sizeof(f2) - 2]);
     TT_TEST_CHECK_SUCCESS(ret, "");
 
     {
-        lpf = tt_lpfld_create(&f2[0], &f2[sizeof(f2) - 2]);
+        lpf = tt_logfld_create(&f2[0], &f2[sizeof(f2) - 2]);
         TT_TEST_CHECK_NOT_EQUAL(lpf, NULL, "");
 
         tt_buf_clear(&buf);
 
-        ret = tt_lpfld_output_s32(lpf, 0, &buf);
-        TT_TEST_CHECK_FAIL(ret, "");
+        entry.function = NULL;
+        ret = tt_logfld_output(lpf, &entry, &buf);
+        TT_TEST_CHECK_SUCCESS(ret, "");
         TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&buf), 0, "");
 
-        ret = tt_lpfld_output(lpf, &buf);
-        TT_TEST_CHECK_FAIL(ret, "");
-
         tt_buf_clear(&buf);
-        ret = tt_lpfld_output_cstr(lpf, "", &buf);
-		TT_TEST_CHECK_SUCCESS(ret, "");
-        TT_TEST_CHECK_EQUAL(tt_buf_cmp_cstr(&buf, "at least 7 char: [0000000]. end"), 0, "");
-
-        tt_buf_clear(&buf);
-        ret = tt_lpfld_output_cstr(lpf, "1", &buf);
+        entry.function = "";
+        ret = tt_logfld_output(lpf, &entry, &buf);
         TT_TEST_CHECK_SUCCESS(ret, "");
-        TT_TEST_CHECK_EQUAL(tt_buf_cmp_cstr(&buf, "at least 7 char: [0000001]. end"), 0, "");
+        TT_TEST_CHECK_EQUAL(tt_buf_cmp_cstr(&buf,
+                                            "at least 7 char: [0000000]. end"),
+                            0,
+                            "");
 
         tt_buf_clear(&buf);
-        ret = tt_lpfld_output_cstr(lpf, "12345678", &buf);
+        entry.function = "1";
+        ret = tt_logfld_output(lpf, &entry, &buf);
         TT_TEST_CHECK_SUCCESS(ret, "");
-        TT_TEST_CHECK_EQUAL(tt_buf_cmp_cstr(&buf, "at least 7 char: [12345678]. end"), 0, "");
-        
-        tt_lpfld_destroy(lpf);
+        TT_TEST_CHECK_EQUAL(tt_buf_cmp_cstr(&buf,
+                                            "at least 7 char: [0000001]. end"),
+                            0,
+                            "");
+
+        tt_buf_clear(&buf);
+        entry.function = "12345678";
+        ret = tt_logfld_output(lpf, &entry, &buf);
+        TT_TEST_CHECK_SUCCESS(ret, "1");
+        TT_TEST_CHECK_EQUAL(tt_buf_cmp_cstr(&buf,
+                                            "at least 7 char: [12345678]. end"),
+                            0,
+                            "");
+
+        tt_logfld_destroy(lpf);
     }
 
     tt_buf_destroy(&buf);
@@ -772,9 +785,10 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_lpatn_func)
 TT_TEST_ROUTINE_DEFINE(tt_unit_test_lpatn_line)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
-    tt_lpfld_t *lpf;
+    tt_logfld_t *lpf;
     tt_result_t ret;
     tt_buf_t buf;
+    tt_log_entry_t entry = {0};
 
     // at least 3 chars
     tt_char_t f01[] = "{ }";
@@ -792,121 +806,102 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_lpatn_line)
 
     tt_buf_init(&buf, NULL);
 
-    ret = tt_lpfld_check(&f01[0], &f01[sizeof(f01) - 2]);
+    ret = tt_logfld_check(&f01[0], &f01[sizeof(f01) - 2]);
     TT_TEST_CHECK_FAIL(ret, "");
 
-    ret = tt_lpfld_check(&f02[0], &f02[sizeof(f02) - 2]);
+    ret = tt_logfld_check(&f02[0], &f02[sizeof(f02) - 2]);
     TT_TEST_CHECK_FAIL(ret, "");
 
-    ret = tt_lpfld_check(&f03[0], &f03[sizeof(f03) - 2]);
+    ret = tt_logfld_check(&f03[0], &f03[sizeof(f03) - 2]);
     TT_TEST_CHECK_FAIL(ret, "");
 
-    ret = tt_lpfld_check(&f04[0], &f04[sizeof(f04) - 2]);
+    ret = tt_logfld_check(&f04[0], &f04[sizeof(f04) - 2]);
     TT_TEST_CHECK_FAIL(ret, "");
 
-    ret = tt_lpfld_check(&f05[0], &f05[sizeof(f05) - 2]);
+    ret = tt_logfld_check(&f05[0], &f05[sizeof(f05) - 2]);
     TT_TEST_CHECK_FAIL(ret, "");
 
-    ret = tt_lpfld_check(&f07[0], &f07[sizeof(f07) - 2]);
+    ret = tt_logfld_check(&f07[0], &f07[sizeof(f07) - 2]);
     TT_TEST_CHECK_FAIL(ret, "");
-    lpf = tt_lpfld_create(&f07[0], &f07[sizeof(f07) - 2]);
+    lpf = tt_logfld_create(&f07[0], &f07[sizeof(f07) - 2]);
     TT_TEST_CHECK_EQUAL(lpf, NULL, "");
 
     // {line}
-    ret = tt_lpfld_check(&f06[0], &f06[sizeof(f06) - 2]);
+    ret = tt_logfld_check(&f06[0], &f06[sizeof(f06) - 2]);
     TT_TEST_CHECK_SUCCESS(ret, "");
 
     {
-        lpf = tt_lpfld_create(&f06[0], &f06[sizeof(f06) - 2]);
+        lpf = tt_logfld_create(&f06[0], &f06[sizeof(f06) - 2]);
         TT_TEST_CHECK_NOT_EQUAL(lpf, NULL, "");
 
         tt_buf_clear(&buf);
 
-        ret = tt_lpfld_output(lpf, &buf);
-        TT_TEST_CHECK_FAIL(ret, "");
-        TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&buf), 0, "");
-
-        ret = tt_lpfld_output_cstr(lpf, "123", &buf);
-        TT_TEST_CHECK_FAIL(ret, "");
-        TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&buf), 0, "");
-
-        ret = tt_lpfld_output_s32(lpf, 0, &buf);
+        entry.line = 0;
+        ret = tt_logfld_output(lpf, &entry, &buf);
         TT_TEST_CHECK_SUCCESS(ret, "");
         TT_TEST_CHECK_EQUAL(tt_buf_cmp_cstr(&buf, "0"), 0, "");
 
-        tt_lpfld_destroy(lpf);
+        tt_logfld_destroy(lpf);
     }
 
     // {line:}
-    ret = tt_lpfld_check(&f1[0], &f1[sizeof(f1) - 2]);
+    ret = tt_logfld_check(&f1[0], &f1[sizeof(f1) - 2]);
     TT_TEST_CHECK_SUCCESS(ret, "");
 
     {
-        lpf = tt_lpfld_create(&f1[0], &f1[sizeof(f1) - 2]);
+        lpf = tt_logfld_create(&f1[0], &f1[sizeof(f1) - 2]);
         TT_TEST_CHECK_NOT_EQUAL(lpf, NULL, "");
 
         tt_buf_clear(&buf);
-
-        ret = tt_lpfld_output(lpf, &buf);
-        TT_TEST_CHECK_FAIL(ret, "");
-        TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&buf), 0, "");
-
-        ret = tt_lpfld_output_cstr(lpf, "123", &buf);
-        TT_TEST_CHECK_FAIL(ret, "");
-        TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&buf), 0, "");
-
-        tt_buf_clear(&buf);
-        ret = tt_lpfld_output_s32(lpf, 2147483647, &buf);
+        entry.line = 2147483647;
+        ret = tt_logfld_output(lpf, &entry, &buf);
         TT_TEST_CHECK_SUCCESS(ret, "");
         TT_TEST_CHECK_EQUAL(tt_buf_cmp_cstr(&buf, "2147483647"), 0, "");
 
         tt_buf_clear(&buf);
-        ret = tt_lpfld_output_s32(lpf, -2147483648, &buf);
+        entry.line = -2147483648;
+        ret = tt_logfld_output(lpf, &entry, &buf);
         TT_TEST_CHECK_SUCCESS(ret, "");
         TT_TEST_CHECK_EQUAL(tt_buf_cmp_cstr(&buf, "-2147483648"), 0, "");
 
         tt_buf_clear(&buf);
-        ret = tt_lpfld_output_s32(lpf, 100, &buf);
+        entry.line = 100;
+        ret = tt_logfld_output(lpf, &entry, &buf);
         TT_TEST_CHECK_SUCCESS(ret, "");
         TT_TEST_CHECK_EQUAL(tt_buf_cmp_cstr(&buf, "100"), 0, "");
 
-        tt_lpfld_destroy(lpf);
+        tt_logfld_destroy(lpf);
     }
 
     // {line:%+04x}
-    ret = tt_lpfld_check(&f2[0], &f2[sizeof(f2) - 2]);
+    ret = tt_logfld_check(&f2[0], &f2[sizeof(f2) - 2]);
     TT_TEST_CHECK_SUCCESS(ret, "");
 
     {
-        lpf = tt_lpfld_create(&f2[0], &f2[sizeof(f2) - 2]);
+        lpf = tt_logfld_create(&f2[0], &f2[sizeof(f2) - 2]);
         TT_TEST_CHECK_NOT_EQUAL(lpf, NULL, "");
 
         tt_buf_clear(&buf);
 
-        ret = tt_lpfld_output(lpf, &buf);
-        TT_TEST_CHECK_FAIL(ret, "");
-        TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&buf), 0, "");
-
-        ret = tt_lpfld_output_cstr(lpf, "123", &buf);
-        TT_TEST_CHECK_FAIL(ret, "");
-        TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&buf), 0, "");
-
         tt_buf_clear(&buf);
-        ret = tt_lpfld_output_s32(lpf, 1, &buf);
+        entry.line = 1;
+        ret = tt_logfld_output(lpf, &entry, &buf);
         TT_TEST_CHECK_SUCCESS(ret, "");
         TT_TEST_CHECK_EQUAL(tt_buf_cmp_cstr(&buf, "+001"), 0, "");
 
         tt_buf_clear(&buf);
-        ret = tt_lpfld_output_s32(lpf, -2147483648, &buf);
+        entry.line = -2147483648;
+        ret = tt_logfld_output(lpf, &entry, &buf);
         TT_TEST_CHECK_SUCCESS(ret, "");
         TT_TEST_CHECK_EQUAL(tt_buf_cmp_cstr(&buf, "-2147483648"), 0, "");
 
         tt_buf_clear(&buf);
-        ret = tt_lpfld_output_s32(lpf, 10, &buf);
+        entry.line = 10;
+        ret = tt_logfld_output(lpf, &entry, &buf);
         TT_TEST_CHECK_SUCCESS(ret, "");
         TT_TEST_CHECK_EQUAL(tt_buf_cmp_cstr(&buf, "+010"), 0, "");
 
-        tt_lpfld_destroy(lpf);
+        tt_logfld_destroy(lpf);
     }
 
     tt_buf_destroy(&buf);
@@ -914,4 +909,3 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_lpatn_line)
     // test end
     TT_TEST_CASE_LEAVE()
 }
-

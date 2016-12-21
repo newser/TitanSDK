@@ -46,7 +46,6 @@ this file defines log layout pattern
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern tt_loglyt_t *tt_loglyt_pattern_create(IN OPT const tt_char_t *logger,
-                                             IN const tt_char_t *pattern);
+extern tt_loglyt_t *tt_loglyt_pattern_create(IN const tt_char_t *pattern);
 
 #endif /* __TT_LOG_LAYOUT_PATTERN__ */

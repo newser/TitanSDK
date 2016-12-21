@@ -32,7 +32,7 @@ this file provided some basic utilities for platform usage
 #include <init/tt_platform_info.h>
 #include <misc/tt_assert.h>
 
-#include <tt_system_type.h>
+#include <tt_cstd_api.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition

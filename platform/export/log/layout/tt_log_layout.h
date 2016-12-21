@@ -28,15 +28,13 @@ this file defines log layout
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <tt_basic_type.h>
-
-#include <tt_cstd_api.h>
+#include <log/tt_log_def.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
 ////////////////////////////////////////////////////////////
 
-#define TT_LOGLYT_CAST(lyt, type) TT_PTR_INC(type, lyt, sizeof(tt_loglyt_t))
+#define TT_LOGLYT_CAST(ll, type) TT_PTR_INC(type, ll, sizeof(tt_loglyt_t))
 
 ////////////////////////////////////////////////////////////
 // type definition
@@ -45,16 +43,13 @@ this file defines log layout
 struct tt_loglyt_s;
 struct tt_buf_s;
 
-typedef tt_result_t (*tt_loglyt_create_t)(IN struct tt_loglyt_s *lyt);
+typedef tt_result_t (*tt_loglyt_create_t)(IN struct tt_loglyt_s *ll);
 
-typedef void (*tt_loglyt_destroy_t)(IN struct tt_loglyt_s *lyt);
+typedef void (*tt_loglyt_destroy_t)(IN struct tt_loglyt_s *ll);
 
-typedef tt_result_t (*tt_loglyt_format_t)(IN struct tt_loglyt_s *lyt,
-                                          OUT struct tt_buf_s *outbuf,
-                                          IN const tt_char_t *func,
-                                          IN tt_u32_t line,
-                                          IN const tt_char_t *format,
-                                          IN va_list ap);
+typedef tt_result_t (*tt_loglyt_format_t)(IN struct tt_loglyt_s *ll,
+                                          IN tt_log_entry_t *entry,
+                                          OUT struct tt_buf_s *outbuf);
 
 typedef struct
 {
@@ -65,7 +60,6 @@ typedef struct
 
 typedef struct tt_loglyt_s
 {
-    const tt_char_t *logger;
     tt_loglyt_itf_t *itf;
 } tt_loglyt_t;
 
@@ -77,20 +71,15 @@ typedef struct tt_loglyt_s
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern tt_loglyt_t *tt_loglyt_create(IN tt_u32_t size,
-                                     IN OPT const tt_char_t *logger,
-                                     IN tt_loglyt_itf_t *itf);
+extern tt_loglyt_t *tt_loglyt_create(IN tt_u32_t size, IN tt_loglyt_itf_t *itf);
 
-extern void tt_loglyt_destroy(IN tt_loglyt_t *lyt);
+extern void tt_loglyt_destroy(IN tt_loglyt_t *ll);
 
-tt_inline tt_result_t tt_loglyt_format(IN tt_loglyt_t *lyt,
-                                       OUT struct tt_buf_s *outbuf,
-                                       IN const tt_char_t *func,
-                                       IN tt_u32_t line,
-                                       IN const tt_char_t *format,
-                                       IN va_list ap)
+tt_inline tt_result_t tt_loglyt_format(IN tt_loglyt_t *ll,
+                                       IN tt_log_entry_t *entry,
+                                       OUT struct tt_buf_s *outbuf)
 {
-    return lyt->itf->format(lyt, outbuf, func, line, format, ap);
+    return ll->itf->format(ll, entry, outbuf);
 }
 
 #endif /* __TT_LOG_LAYOUT__ */

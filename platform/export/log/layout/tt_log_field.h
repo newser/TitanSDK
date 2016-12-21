@@ -15,32 +15,25 @@
  */
 
 /**
-@file tt_log_pattern_field.h
-@brief field of log pattern
+@file tt_log_field.h
+@brief log field
 
-this file defines log pattern field
+this file defines log field
 */
 
-#ifndef __TT_LOG_PATTERN_FIELD__
-#define __TT_LOG_PATTERN_FIELD__
+#ifndef __TT_LOG_FIELD__
+#define __TT_LOG_FIELD__
 
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
 #include <algorithm/tt_list.h>
+#include <log/tt_log_def.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
 ////////////////////////////////////////////////////////////
-
-#define TT_LPFLD_SEQ_NUM_KEY "seq_num"
-#define TT_LPFLD_TIME_KEY "time"
-#define TT_LPFLD_LOGGER_KEY "logger"
-#define TT_LPFLD_LEVEL_KEY "level"
-#define TT_LPFLD_CONTENT_KEY "content"
-#define TT_LPFLD_FUNC_KEY "function"
-#define TT_LPFLD_LINE_KEY "line"
 
 ////////////////////////////////////////////////////////////
 // type definition
@@ -48,25 +41,12 @@ this file defines log pattern field
 
 struct tt_buf_s;
 
-typedef enum {
-    TT_LPFLD_SEQ_NUM,
-    TT_LPFLD_TIME,
-    TT_LPFLD_LOGGER,
-    TT_LPFLD_LEVEL,
-    TT_LPFLD_CONTENT,
-    TT_LPFLD_FUNC,
-    TT_LPFLD_LINE,
-
-    TT_LPFLD_TYPE_NUM,
-} tt_lpfld_type_t;
-#define TT_LPFLD_TYPE_VALID(t) ((t) < TT_LPFLD_TYPE_NUM)
-
-typedef struct tt_lpfld_s
+typedef struct tt_logfld_s
 {
     tt_lnode_t node;
-    tt_lpfld_type_t type;
+    tt_logfld_type_t type;
     tt_char_t *format;
-} tt_lpfld_t;
+} tt_logfld_t;
 
 ////////////////////////////////////////////////////////////
 // global variants
@@ -77,23 +57,16 @@ typedef struct tt_lpfld_s
 ////////////////////////////////////////////////////////////
 
 // a log field must be reentrant
-extern tt_lpfld_t *tt_lpfld_create(IN const tt_char_t *start,
+extern tt_logfld_t *tt_logfld_create(IN const tt_char_t *start,
+                                     IN const tt_char_t *end);
+
+extern void tt_logfld_destroy(IN tt_logfld_t *lf);
+
+extern tt_result_t tt_logfld_check(IN const tt_char_t *start,
                                    IN const tt_char_t *end);
 
-extern void tt_lpfld_destroy(IN tt_lpfld_t *lpf);
+extern tt_result_t tt_logfld_output(IN tt_logfld_t *lf,
+                                    IN tt_log_entry_t *entry,
+                                    OUT struct tt_buf_s *outbuf);
 
-extern tt_result_t tt_lpfld_check(IN const tt_char_t *start,
-                                  IN const tt_char_t *end);
-
-extern tt_result_t tt_lpfld_output(IN tt_lpfld_t *lpf,
-                                   OUT struct tt_buf_s *outbuf);
-
-extern tt_result_t tt_lpfld_output_cstr(IN tt_lpfld_t *lpf,
-                                        IN const tt_char_t *cstr_val,
-                                        OUT struct tt_buf_s *outbuf);
-
-extern tt_result_t tt_lpfld_output_s32(IN tt_lpfld_t *lpf,
-                                       IN tt_s32_t s32_val,
-                                       OUT struct tt_buf_s *outbuf);
-
-#endif /* __TT_LOG_PATTERN_FIELD__ */
+#endif /* __TT_LOG_FIELD__ */

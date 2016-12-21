@@ -20,8 +20,9 @@
 
 #include <log/layout/tt_log_layout_pattern.h>
 
+#include <algorithm/tt_buffer.h>
 #include <algorithm/tt_list.h>
-#include <log/layout/tt_log_pattern_field.h>
+#include <log/layout/tt_log_field.h>
 #include <memory/tt_memory_alloc.h>
 #include <misc/tt_util.h>
 
@@ -38,12 +39,7 @@ typedef struct
     tt_char_t *patn;
     tt_u32_t patn_len; // including ending 0
     tt_list_t fields;
-    tt_u32_t seq_num;
 } tt_loglyt_patn_t;
-
-typedef tt_result_t (*__lytpatn_on_field_t)(IN tt_loglyt_patn_t *lytpatn,
-                                            IN const tt_char_t *start,
-                                            IN const tt_char_t *end);
 
 ////////////////////////////////////////////////////////////
 // extern declaration
@@ -53,95 +49,115 @@ typedef tt_result_t (*__lytpatn_on_field_t)(IN tt_loglyt_patn_t *lytpatn,
 // global variant
 ////////////////////////////////////////////////////////////
 
-static void __lytpatn_destroy(IN tt_loglyt_t *lyt);
+static void __llp_destroy(IN tt_loglyt_t *ll);
 
-static tt_result_t __lytpatn_format(IN tt_loglyt_t *lyt,
-                                    OUT struct tt_buf_s *outbuf,
-                                    IN const tt_char_t *func,
-                                    IN tt_u32_t line,
-                                    IN const tt_char_t *format,
-                                    IN va_list ap);
+static tt_result_t __llp_format(IN struct tt_loglyt_s *ll,
+                                IN tt_log_entry_t *entry,
+                                OUT tt_buf_t *outbuf);
 
-static tt_loglyt_itf_t __lytpatn_itf = {
-    NULL, __lytpatn_destroy, __lytpatn_format,
+static tt_loglyt_itf_t __llp_itf = {
+    NULL, __llp_destroy, __llp_format,
 };
 
 ////////////////////////////////////////////////////////////
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-static tt_result_t __lytpatn_parse(IN tt_loglyt_patn_t *lp,
-                                   IN const tt_char_t *pattern,
-                                   IN __lytpatn_on_field_t on_field,
-                                   IN OPT tt_char_t *out,
-                                   IN OPT tt_u32_t *out_len);
-static tt_result_t __lytpatn_on_field(IN tt_loglyt_patn_t *lp,
+static tt_result_t __llp_parse(IN tt_loglyt_patn_t *llp,
+                               IN const tt_char_t *pattern,
+                               IN OPT tt_char_t *out,
+                               IN OPT tt_u32_t *out_len);
+
+static tt_result_t __llp_create_field(IN tt_loglyt_patn_t *llp,
                                       IN const tt_char_t *start,
                                       IN const tt_char_t *end);
+
+static void __llp_fields_destroy(IN tt_list_t *fields);
 
 ////////////////////////////////////////////////////////////
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-tt_loglyt_t *tt_loglyt_pattern_create(IN OPT const tt_char_t *logger,
-                                      IN const tt_char_t *pattern)
+tt_loglyt_t *tt_loglyt_pattern_create(IN const tt_char_t *pattern)
 {
-    tt_loglyt_t *lyt;
-    tt_loglyt_patn_t *lp;
+    tt_loglyt_t *ll;
+    tt_loglyt_patn_t *llp;
 
     TT_ASSERT(pattern != NULL);
 
-    lyt = tt_loglyt_create(sizeof(tt_loglyt_patn_t), logger, &__lytpatn_itf);
-    if (lyt == NULL) {
+    ll = tt_loglyt_create(sizeof(tt_loglyt_patn_t), &__llp_itf);
+    if (ll == NULL) {
         return NULL;
     }
 
-    lp = TT_LOGLYT_CAST(lyt, tt_loglyt_patn_t);
+    llp = TT_LOGLYT_CAST(ll, tt_loglyt_patn_t);
 
-    lp->patn = tt_mem_alloc((tt_u32_t)tt_strlen(pattern) + 1);
-    if (lp->patn == NULL) {
+    llp->patn = tt_mem_alloc((tt_u32_t)tt_strlen(pattern) + 1);
+    if (llp->patn == NULL) {
         TT_ERROR("fail to copy pattern");
-        tt_mem_free(lyt);
+        tt_mem_free(ll);
         return NULL;
     }
-    lp->patn_len = 0;
-    tt_list_init(&lp->fields);
-    lp->seq_num = 0;
+    llp->patn_len = 0;
+    tt_list_init(&llp->fields);
     // init done, can use tt_loglyt_destroy() now
 
-    if (!TT_OK(__lytpatn_parse(lp,
-                               pattern,
-                               __lytpatn_on_field,
-                               lp->patn,
-                               &lp->patn_len))) {
-        TT_ERROR("invalid log field");
-        tt_loglyt_destroy(lyt);
+    if (!TT_OK(__llp_parse(llp, pattern, llp->patn, &llp->patn_len))) {
+        tt_loglyt_destroy(ll);
         return NULL;
     }
 
-    return lyt;
+    return ll;
 }
 
-void __lytpatn_destroy(IN tt_loglyt_t *lyt)
+void __llp_destroy(IN tt_loglyt_t *ll)
 {
-    tt_loglyt_patn_t *lp = TT_LOGLYT_CAST(lyt, tt_loglyt_patn_t);
+    tt_loglyt_patn_t *llp = TT_LOGLYT_CAST(ll, tt_loglyt_patn_t);
+
+    __llp_fields_destroy(&llp->fields);
+    tt_mem_free(llp->patn);
 }
 
-tt_result_t __lytpatn_format(IN tt_loglyt_t *lyt,
-                             OUT struct tt_buf_s *outbuf,
-                             IN const tt_char_t *func,
-                             IN tt_u32_t line,
-                             IN const tt_char_t *format,
-                             IN va_list ap)
+tt_result_t __llp_format(IN struct tt_loglyt_s *ll,
+                         IN tt_log_entry_t *entry,
+                         OUT tt_buf_t *outbuf)
 {
+    tt_loglyt_patn_t *llp = TT_LOGLYT_CAST(ll, tt_loglyt_patn_t);
+    tt_char_t *pos, *prev_pos, *end;
+    tt_lnode_t *fnode;
+
+    pos = llp->patn;
+    prev_pos = pos;
+    end = pos + llp->patn_len;
+    fnode = tt_list_head(&llp->fields);
+
+    while (pos < end) {
+        if (*pos != 0) {
+            ++pos;
+            continue;
+        }
+
+        TT_DO(
+            tt_buf_put(outbuf, (tt_u8_t)prev_pos, (tt_u32_t)(pos - prev_pos)));
+        ++pos;
+        prev_pos = pos;
+
+        if (fnode != NULL) {
+            tt_logfld_output(TT_CONTAINER(fnode, tt_logfld_t, node),
+                             entry,
+                             outbuf);
+            fnode = fnode->next;
+        }
+    }
+    TT_DO(tt_buf_put(outbuf, (tt_u8_t)prev_pos, (tt_u32_t)(pos - prev_pos)));
+
     return TT_SUCCESS;
 }
 
-tt_result_t __lytpatn_parse(IN tt_loglyt_patn_t *lp,
-                            IN const tt_char_t *pattern,
-                            IN __lytpatn_on_field_t on_field,
-                            IN OPT tt_char_t *out,
-                            IN OPT tt_u32_t *out_len)
+tt_result_t __llp_parse(IN tt_loglyt_patn_t *llp,
+                        IN const tt_char_t *pattern,
+                        IN OPT tt_char_t *out,
+                        IN OPT tt_u32_t *out_len)
 {
     const tt_char_t *p = pattern;
     tt_char_t c;
@@ -175,7 +191,7 @@ tt_result_t __lytpatn_parse(IN tt_loglyt_patn_t *lp,
                     //  - each field is converted to a '\0', so pattern:
                     //    "aaa${field1}bb${field2}${field3}\0" is converted
                     //    to "aaa\0bb\0\0\0"
-                    //  - lyt->pattern has size of the raw pattern, which
+                    //  - ll->pattern has size of the raw pattern, which
                     //    is always larger than size to store converted
                     //    pattern, so in this function, size is not checked.
                     //    stack overflow??
@@ -198,7 +214,7 @@ tt_result_t __lytpatn_parse(IN tt_loglyt_patn_t *lp,
                     state = __LPP_INIT;
                     f_end = p;
 
-                    if (!TT_OK(on_field(lp, f_start, f_end))) {
+                    if (!TT_OK(__llp_create_field(llp, f_start, f_end))) {
                         return TT_FAIL;
                     }
 
@@ -237,23 +253,23 @@ tt_result_t __lytpatn_parse(IN tt_loglyt_patn_t *lp,
     return TT_SUCCESS;
 }
 
-tt_result_t __lytpatn_on_field(IN tt_loglyt_patn_t *lytpatn,
+tt_result_t __llp_create_field(IN tt_loglyt_patn_t *llp,
                                IN const tt_char_t *start,
                                IN const tt_char_t *end)
 {
-    tt_lpfld_t *lpfld = tt_lpfld_create(start, end);
-    if (lpfld != NULL) {
-        tt_list_addtail(&lytpatn->fields, &lpfld->node);
+    tt_logfld_t *lfld = tt_logfld_create(start, end);
+    if (lfld != NULL) {
+        tt_list_addtail(&llp->fields, &lfld->node);
         return TT_SUCCESS;
     } else {
         return TT_FAIL;
     }
 }
 
-void __lytpatn_list_destroy(IN tt_list_t *lfld_list)
+void __llp_fields_destroy(IN tt_list_t *fields)
 {
     tt_lnode_t *node;
-    while ((node = tt_list_pophead(lfld_list)) != NULL) {
+    while ((node = tt_list_pophead(fields)) != NULL) {
         tt_logfld_destroy(TT_CONTAINER(node, tt_logfld_t, node));
     }
 }

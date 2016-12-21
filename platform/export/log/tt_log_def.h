@@ -14,44 +14,81 @@
  * limitations under the License.
  */
 
+/**
+@file tt_log_def.h
+@brief log definition
+
+this file declare log definition
+*/
+
+#ifndef __TT_LOG_DEF__
+#define __TT_LOG_DEF__
+
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <log/tt_log_field_time.h>
-
-#include <log/tt_log_field.h>
-
-#include <timer/tt_time_util.h>
+#include <tt_basic_type.h>
 
 ////////////////////////////////////////////////////////////
-// internal macro
+// macro definition
 ////////////////////////////////////////////////////////////
 
-////////////////////////////////////////////////////////////
-// internal type
-////////////////////////////////////////////////////////////
+#define TT_LOGFLD_SEQ_NUM_KEY "seq_num"
+#define TT_LOGFLD_TIME_KEY "time"
+#define TT_LOGFLD_LOGGER_KEY "logger"
+#define TT_LOGFLD_LEVEL_KEY "level"
+#define TT_LOGFLD_CONTENT_KEY "content"
+#define TT_LOGFLD_FUNC_KEY "function"
+#define TT_LOGFLD_LINE_KEY "line"
 
 ////////////////////////////////////////////////////////////
-// extern declaration
+// type definition
 ////////////////////////////////////////////////////////////
 
+typedef enum {
+    TT_LOG_DEBUG,
+    TT_LOG_INFO,
+    TT_LOG_WARN,
+    TT_LOG_ERROR,
+    TT_LOG_FATAL,
+
+    TT_LOG_LEVEL_NUM
+} tt_log_level_t;
+#define TT_LOG_LEVEL_VALID(l) ((l) < TT_LOG_LEVEL_NUM)
+
+typedef enum {
+    TT_LOGFLD_SEQ_NUM,
+    TT_LOGFLD_TIME,
+    TT_LOGFLD_LOGGER,
+    TT_LOGFLD_LEVEL,
+    TT_LOGFLD_CONTENT,
+    TT_LOGFLD_FUNC,
+    TT_LOGFLD_LINE,
+
+    TT_LOGFLD_TYPE_NUM,
+} tt_logfld_type_t;
+#define TT_LOGFLD_TYPE_VALID(t) ((t) < TT_LOGFLD_TYPE_NUM)
+
+typedef struct
+{
+    tt_u32_t seq_num;
+    // todo: time
+    const tt_char_t *logger;
+    tt_log_level_t level;
+    const tt_char_t *content;
+    const tt_char_t *function;
+    tt_u32_t line;
+} tt_log_entry_t;
+
 ////////////////////////////////////////////////////////////
-// global variant
+// global variants
 ////////////////////////////////////////////////////////////
+
+extern const tt_char_t *tt_g_log_level_name[TT_LOG_LEVEL_NUM];
 
 ////////////////////////////////////////////////////////////
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-////////////////////////////////////////////////////////////
-// interface implementation
-////////////////////////////////////////////////////////////
-
-tt_u32_t tt_logfld_time_output(IN tt_logfld_t *lfld,
-                               IN OUT tt_char_t *pos,
-                               IN OUT tt_u32_t left_len,
-                               IN struct tt_logfmt_s *lfmt)
-{
-    return tt_time_localfmt(pos, left_len, lfld->format);
-}
+#endif /* __TT_LOG_DEF__ */

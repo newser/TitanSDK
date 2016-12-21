@@ -47,40 +47,37 @@
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-tt_loglyt_t *tt_loglyt_create(IN tt_u32_t size,
-                              IN OPT const tt_char_t *logger,
-                              IN tt_loglyt_itf_t *itf)
+tt_loglyt_t *tt_loglyt_create(IN tt_u32_t size, IN tt_loglyt_itf_t *itf)
 {
-    tt_loglyt_t *lyt;
+    tt_loglyt_t *ll;
 
     TT_ASSERT(itf != NULL);
     TT_ASSERT(itf->format != NULL);
 
-    lyt = tt_mem_alloc(sizeof(tt_loglyt_t) + size);
-    if (lyt == NULL) {
+    ll = tt_mem_alloc(sizeof(tt_loglyt_t) + size);
+    if (ll == NULL) {
         TT_ERROR("no mem for log layout");
         return NULL;
     }
 
-    lyt->logger = logger;
-    lyt->itf = itf;
+    ll->itf = itf;
 
-    if ((lyt->itf->create != NULL) && !TT_OK(lyt->itf->create(lyt))) {
+    if ((ll->itf->create != NULL) && !TT_OK(ll->itf->create(ll))) {
         TT_ERROR("fail to create log layout");
-        tt_mem_free(lyt);
+        tt_mem_free(ll);
         return NULL;
     }
 
-    return lyt;
+    return ll;
 }
 
-void tt_loglyt_destroy(IN tt_loglyt_t *lyt)
+void tt_loglyt_destroy(IN tt_loglyt_t *ll)
 {
-    TT_ASSERT(lyt != NULL);
+    TT_ASSERT(ll != NULL);
 
-    if (lyt->itf->destroy != NULL) {
-        lyt->itf->destroy(lyt);
+    if (ll->itf->destroy != NULL) {
+        ll->itf->destroy(ll);
     }
 
-    tt_mem_free(lyt);
+    tt_mem_free(ll);
 }

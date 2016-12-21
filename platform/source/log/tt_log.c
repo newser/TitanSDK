@@ -24,8 +24,7 @@
 #include <init/tt_config_u32.h>
 #include <init/tt_init_config.h>
 #include <init/tt_profile.h>
-#include <log/tt_log_field.h>
-#include <log/tt_log_format.h>
+#include <log/tt_log_io.h>
 #include <log/tt_log_io_std.h>
 #include <os/tt_spinlock.h>
 
@@ -47,7 +46,7 @@
 // global variant
 ////////////////////////////////////////////////////////////
 
-tt_logmgr_t tt_g_logmgr;
+// tt_logmgr_t tt_g_logmgr;
 
 // log io
 static tt_logio_t *tt_s_logio_std;
@@ -134,6 +133,7 @@ tt_result_t __log_component_init(IN tt_component_t *comp,
 {
     tt_result_t result;
 
+#if 0
     // log manager
     result = tt_logmgr_create(&tt_g_logmgr, NULL);
     if (!TT_OK(result)) {
@@ -159,6 +159,7 @@ tt_result_t __log_component_init(IN tt_component_t *comp,
 
     // enable all log level
     tt_logmgr_enable(&tt_g_logmgr, TT_LOG_LEVEL_DETAIL);
+#endif
 
     return TT_SUCCESS;
 }
@@ -213,7 +214,7 @@ tt_result_t __create_log_fmt(IN tt_profile_t *profile)
     // todo: make decision by profile
 
     tt_result_t result;
-
+#if 0
     // detail log format
     result = tt_logmgr_create_format(&tt_g_logmgr,
                                      TT_LOG_LEVEL_DETAIL,
@@ -270,7 +271,7 @@ tt_result_t __create_log_fmt(IN tt_profile_t *profile)
         TT_PRINTF("fail to create fatal lfmt\n");
         return TT_FAIL;
     }
-
+#endif
     return TT_SUCCESS;
 }
 
@@ -288,11 +289,13 @@ tt_result_t __create_log_io(IN tt_profile_t *profile)
 
 tt_result_t __install_log_io(IN tt_profile_t *profile)
 {
+#if 0
     if (!TT_OK(
             tt_logmgr_add_io(&tt_g_logmgr, TT_LOG_LEVEL_NUM, tt_s_logio_std))) {
         TT_PRINTF("fail to install std lio\n");
         return TT_FAIL;
     }
+#endif
 
     return TT_SUCCESS;
 }
@@ -301,6 +304,7 @@ tt_result_t __enable_sync_log(IN tt_profile_t *profile)
 {
     tt_u32_t i;
 
+#if 0
     // lock of log format
     for (i = 0; i < TT_LOG_LEVEL_NUM; ++i) {
         tt_logfmt_t *lfmt = tt_g_logmgr.lfmt[i];
@@ -313,6 +317,7 @@ tt_result_t __enable_sync_log(IN tt_profile_t *profile)
     if (!TT_OK(tt_logio_enable_lock(tt_s_logio_std))) {
         return TT_FAIL;
     }
+#endif
 
     return TT_SUCCESS;
 }
