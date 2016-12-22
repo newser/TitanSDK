@@ -15,14 +15,14 @@
  */
 
 /**
-@file tt_log_io_std.h
-@brief log source string
+@file tt_log_io_standard.h
+@brief log io standard
 
-this file defines log standard output
+this file defines log io standard output
 */
 
-#ifndef __TT_LOG_IO_STD__
-#define __TT_LOG_IO_STD__
+#ifndef __TT_LOG_IO_STANDARD__
+#define __TT_LOG_IO_STANDARD__
 
 ////////////////////////////////////////////////////////////
 // import header files
@@ -62,4 +62,4 @@ extern struct tt_logio_s *tt_logio_std_create(IN OPT tt_logio_std_attr_t *attr);
 
 extern void tt_logio_std_attr_default(IN tt_logio_std_attr_t *attr);
 
-#endif /* __TT_LOG_IO_STD__ */
+#endif /* __TT_LOG_IO_STANDARD__ */

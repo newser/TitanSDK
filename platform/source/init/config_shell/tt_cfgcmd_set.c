@@ -72,7 +72,7 @@ tt_u32_t __set_run(IN tt_cfgsh_t *sh,
     tt_result_t result;
 
     if (argc < 2) {
-        tt_buf_vput(output, "usage: set name value");
+        tt_buf_putf(output, "usage: set name value");
         return TT_CLIOC_OUT;
     }
 
@@ -80,7 +80,7 @@ tt_u32_t __set_run(IN tt_cfgsh_t *sh,
     path_blob.len = (tt_u32_t)tt_strlen(argv[0]);
     cnode = tt_cfgpath_p2n(sh->root, sh->current, &path_blob);
     if (cnode == NULL) {
-        tt_buf_vput(output, "can not find: %s", argv[0]);
+        tt_buf_putf(output, "can not find: %s", argv[0]);
         return TT_CLIOC_OUT;
     }
 
@@ -88,7 +88,7 @@ tt_u32_t __set_run(IN tt_cfgsh_t *sh,
     val_blob.len = (tt_u32_t)tt_strlen(argv[1]);
 
     if (!TT_OK(tt_cfgnode_check(cnode, &val_blob))) {
-        tt_buf_vput(output, "bad value: %s", argv[1]);
+        tt_buf_putf(output, "bad value: %s", argv[1]);
         return TT_CLIOC_OUT;
     }
 
@@ -99,9 +99,9 @@ tt_u32_t __set_run(IN tt_cfgsh_t *sh,
     } else {
         tt_buf_restore_rwp(output, &rp, &wp);
         if (result == TT_BAD_PARAM) {
-            tt_buf_vput(output, "not supported operation");
+            tt_buf_putf(output, "not supported operation");
         } else {
-            tt_buf_vput(output, "internal error");
+            tt_buf_putf(output, "internal error");
         }
         return TT_CLIOC_OUT;
     }

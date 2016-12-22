@@ -24,8 +24,8 @@
 #include <init/tt_config_u32.h>
 #include <init/tt_init_config.h>
 #include <init/tt_profile.h>
-#include <log/tt_log_io.h>
-#include <log/tt_log_io_std.h>
+#include <log/io/tt_log_io.h>
+#include <log/io/tt_log_io_standard.h>
 #include <os/tt_spinlock.h>
 
 #include <tt_cstd_api.h>

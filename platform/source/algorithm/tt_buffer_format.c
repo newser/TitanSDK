@@ -90,7 +90,8 @@ tt_result_t tt_buf_put_hex2cstr(IN tt_buf_t *buf,
     return TT_SUCCESS;
 }
 
-tt_result_t tt_buf_vput(IN tt_buf_t *buf, IN const tt_char_t *format, ...)
+#if 0
+tt_result_t tt_buf_putf(IN tt_buf_t *buf, IN const tt_char_t *format, ...)
 {
     tt_u8_t *p;
     tt_u32_t len, n;
@@ -105,6 +106,50 @@ again:
     va_start(args, format);
     n = tt_vsnprintf((char *)p, len, format, args);
     va_end(args);
+    if ((n + 1) >= len) {
+        if (retry && TT_OK(tt_buf_expand(buf, 0))) {
+            retry = TT_FALSE;
+            goto again;
+        } else {
+            result = TT_FAIL;
+        }
+    } else {
+        // n is the bytes put, not including 0
+        tt_buf_inc_wp(buf, n);
+    }
+
+    return result;
+}
+#else
+tt_result_t tt_buf_putf(IN tt_buf_t *buf, IN const tt_char_t *format, ...)
+{
+    va_list args;
+    tt_result_t result;
+
+    va_start(args, format);
+    result = tt_buf_putv(buf, format, args);
+    va_end(args);
+
+    return result;
+}
+#endif
+
+tt_result_t tt_buf_putv(IN tt_buf_t *buf,
+                        IN const tt_char_t *format,
+                        IN va_list ap)
+{
+    tt_u8_t *p;
+    tt_u32_t len, n;
+    va_list args;
+    tt_bool_t retry = TT_TRUE;
+    tt_result_t result = TT_SUCCESS;
+
+again:
+    p = TT_BUF_WPOS(buf);
+    len = TT_BUF_WLEN(buf);
+    va_copy(args, ap);
+
+    n = tt_vsnprintf((char *)p, len, format, args);
     if ((n + 1) >= len) {
         if (retry && TT_OK(tt_buf_expand(buf, 0))) {
             retry = TT_FALSE;

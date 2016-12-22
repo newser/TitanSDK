@@ -22,8 +22,6 @@
 
 #include <algorithm/tt_buffer_format.h>
 #include <memory/tt_memory_alloc.h>
-#include <misc/tt_assert.h>
-#include <misc/tt_util.h>
 #include <timer/tt_time_util.h>
 
 ////////////////////////////////////////////////////////////
@@ -223,8 +221,6 @@ void tt_logfld_destroy(IN tt_logfld_t *lf)
 {
     __lf_entry_t *lfe;
 
-    TT_ASSERT(TT_LOGFLD_TYPE_VALID(lf->type));
-
     lfe = &__lf_table[lf->type];
     lfe->destroy(lf);
 }
@@ -234,7 +230,9 @@ tt_result_t tt_logfld_check(IN const tt_char_t *start, IN const tt_char_t *end)
     tt_u32_t flen;
     tt_u32_t i;
 
-    TT_ASSERT(start < (end - 1));
+    if (start >= (end - 1)) {
+        return TT_FAIL;
+    }
     flen = (tt_u32_t)(tt_ptrdiff_t)(end - start);
 
     // discard {}
@@ -297,8 +295,6 @@ tt_logfld_t *__lf_create(IN tt_logfld_type_t type,
 
 void __lf_destroy(IN tt_logfld_t *lf)
 {
-    TT_ASSERT(lf->node.lst == NULL);
-
     tt_mem_free(lf);
 }
 
@@ -320,7 +316,7 @@ tt_result_t __lf_output_seq_num(IN tt_logfld_t *lf,
                                 IN tt_log_entry_t *entry,
                                 OUT tt_buf_t *outbuf)
 {
-    return tt_buf_vput(outbuf, lf->format, entry->seq_num);
+    return tt_buf_putf(outbuf, lf->format, entry->seq_num);
 }
 
 tt_result_t __lf_output_time(IN tt_logfld_t *lf,
@@ -348,7 +344,7 @@ tt_result_t __lf_output_logger(IN tt_logfld_t *lf,
                                OUT tt_buf_t *outbuf)
 {
     if (entry->logger != NULL) {
-        return tt_buf_vput(outbuf, lf->format, entry->logger);
+        return tt_buf_putf(outbuf, lf->format, entry->logger);
     } else {
         return TT_SUCCESS;
     }
@@ -358,8 +354,7 @@ tt_result_t __lf_output_level(IN tt_logfld_t *lf,
                               IN tt_log_entry_t *entry,
                               OUT tt_buf_t *outbuf)
 {
-    TT_ASSERT(TT_LOG_LEVEL_VALID(entry->level));
-    return tt_buf_vput(outbuf, lf->format, tt_g_log_level_name[entry->level]);
+    return tt_buf_putf(outbuf, lf->format, tt_g_log_level_name[entry->level]);
 }
 
 tt_result_t __lf_output_content(IN tt_logfld_t *lf,
@@ -367,7 +362,7 @@ tt_result_t __lf_output_content(IN tt_logfld_t *lf,
                                 OUT tt_buf_t *outbuf)
 {
     if (entry->content != NULL) {
-        return tt_buf_vput(outbuf, lf->format, entry->content);
+        return tt_buf_putf(outbuf, lf->format, entry->content);
     } else {
         return TT_SUCCESS;
     }
@@ -378,7 +373,7 @@ tt_result_t __lf_output_func(IN tt_logfld_t *lf,
                              OUT tt_buf_t *outbuf)
 {
     if (entry->function != NULL) {
-        return tt_buf_vput(outbuf, lf->format, entry->function);
+        return tt_buf_putf(outbuf, lf->format, entry->function);
     } else {
         return TT_SUCCESS;
     }
@@ -388,5 +383,5 @@ tt_result_t __lf_output_line(IN tt_logfld_t *lf,
                              IN tt_log_entry_t *entry,
                              OUT tt_buf_t *outbuf)
 {
-    return tt_buf_vput(outbuf, lf->format, entry->line);
+    return tt_buf_putf(outbuf, lf->format, entry->line);
 }

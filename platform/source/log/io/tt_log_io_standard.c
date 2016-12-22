@@ -18,9 +18,9 @@
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <log/tt_log_io_std.h>
+#include <log/io/tt_log_io_standard.h>
 
-#include <log/tt_log_io.h>
+#include <log/io/tt_log_io.h>
 #include <misc/tt_util.h>
 
 #include <tt_cstd_api.h>
@@ -41,29 +41,32 @@
 // global variant
 ////////////////////////////////////////////////////////////
 
+static tt_u32_t __lio_std_output(IN tt_logio_t *lio,
+                                 IN const tt_char_t *data,
+                                 IN tt_u32_t data_len);
+
+static tt_logio_itf_t tt_s_logio_std_itf = {
+    TT_LOGIO_STANDARD,
+
+    NULL,
+    NULL,
+    __lio_std_output,
+};
+
 ////////////////////////////////////////////////////////////
 // interface declaration
 ////////////////////////////////////////////////////////////
-
-static tt_u32_t __lio_std_output(IN struct tt_logio_s *lio,
-                                 IN tt_u8_t *data,
-                                 IN tt_u32_t data_len);
-static void __lio_std_destroy(IN struct tt_logio_s *lio);
 
 ////////////////////////////////////////////////////////////
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-struct tt_logio_s *tt_logio_std_create(IN OPT tt_logio_std_attr_t *attr)
+tt_logio_t *tt_logio_std_create(IN OPT tt_logio_std_attr_t *attr)
 {
-    tt_logio_itf_t itf;
     tt_logio_t *lio;
     tt_logio_std_t *lio_std;
 
-    itf.output = __lio_std_output;
-    itf.destroy = __lio_std_destroy;
-
-    lio = tt_logio_create(sizeof(tt_logio_std_t), TT_LOGIO_TYPE_STD, &itf);
+    lio = tt_logio_create(sizeof(tt_logio_std_t), &tt_s_logio_std_itf);
     if (lio == NULL) {
         return NULL;
     }
@@ -84,14 +87,9 @@ void tt_logio_std_attr_default(IN tt_logio_std_attr_t *attr)
     attr->reserved = 0;
 }
 
-// returned account does not include terminating null
-tt_u32_t __lio_std_output(IN struct tt_logio_s *lio,
-                          IN tt_u8_t *data,
+tt_u32_t __lio_std_output(IN tt_logio_t *lio,
+                          IN const tt_char_t *data,
                           IN tt_u32_t data_len)
 {
     return printf("%s", data);
-}
-
-void __lio_std_destroy(IN struct tt_logio_s *lio)
-{
 }

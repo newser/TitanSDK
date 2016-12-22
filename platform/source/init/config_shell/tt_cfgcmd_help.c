@@ -157,7 +157,7 @@ tt_u32_t __help_single(IN tt_cfgsh_t *sh,
         return TT_CLIOC_OUT;
     }
 
-    tt_buf_vput(output, "can not find: %s", name);
+    tt_buf_putf(output, "can not find: %s", name);
     return TT_CLIOC_OUT;
 }
 

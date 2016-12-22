@@ -74,8 +74,8 @@ TT_TEST_UNIT_DECLARE(TEST_UNIT_LOG_PATTERN)
 ////////////////////////////////////////////////////////////
 
 tt_test_unit_t *tt_g_test_unit_list[TEST_UNIT_NUM] = {
-    //&TT_MAKE_TEST_UNIT_NAME(TEST_UNIT_LOG),
-    &TT_MAKE_TEST_UNIT_NAME(TEST_UNIT_LOG_PATTERN),
+    //&TT_MAKE_TEST_UNIT_NAME(TEST_UNIT_LOG_PATTERN),
+    &TT_MAKE_TEST_UNIT_NAME(TEST_UNIT_LOG),
 
 #if 0
     &TT_MAKE_TEST_UNIT_NAME(TEST_UNIT_BASIC_ALG),

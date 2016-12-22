@@ -69,7 +69,7 @@ tt_u32_t __pwd_run(IN tt_cfgsh_t *sh,
     tt_u32_t rp, wp;
 
     if (sh->current == NULL) {
-        tt_buf_vput(output, "internal error");
+        tt_buf_putf(output, "internal error");
         return TT_CLIOC_OUT;
     }
 
@@ -78,7 +78,7 @@ tt_u32_t __pwd_run(IN tt_cfgsh_t *sh,
     if (!TT_OK(tt_cfgpath_n2p(sh->root, sh->current, output))) {
         tt_buf_restore_rwp(output, &rp, &wp);
 
-        tt_buf_vput(output, "internal error");
+        tt_buf_putf(output, "internal error");
         return TT_CLIOC_OUT;
     }
 

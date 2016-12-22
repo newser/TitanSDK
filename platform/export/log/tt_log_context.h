@@ -15,62 +15,48 @@
  */
 
 /**
-@file tt_log_io.h
-@brief log io
+@file tt_log_context.h
+@brief log context
 
-this file defines log io
+this file declare log context
 */
 
-#ifndef __TT_LOG_IO__
-#define __TT_LOG_IO__
+#ifndef __TT_LOG_CONTEXT__
+#define __TT_LOG_CONTEXT__
 
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <tt_cstd_api.h>
+#include <algorithm/tt_buffer.h>
+#include <algorithm/tt_reference_list.h>
+#include <log/tt_log_def.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
 ////////////////////////////////////////////////////////////
 
-#define TT_LOGIO_CAST(lio, type) TT_PTR_INC(type, lio, sizeof(tt_logio_t))
-
 ////////////////////////////////////////////////////////////
 // type definition
 ////////////////////////////////////////////////////////////
 
+struct tt_loglyt_s;
 struct tt_logio_s;
-
-typedef enum {
-    TT_LOGIO_TYPE_STD,
-
-    TT_LOGIO_TYPE_NUM
-} tt_logio_type_t;
-#define TT_LOGIO_TYPE_VALID(t) ((t) < TT_LOGIO_TYPE_NUM)
-
-// return how many bytes sent
-typedef tt_u32_t (*tt_logio_output_t)(IN struct tt_logio_s *lio,
-                                      IN tt_u8_t *data,
-                                      IN tt_u32_t data_len);
-
-typedef void (*tt_logio_destroy_t)(IN struct tt_logio_s *lio);
 
 typedef struct
 {
-    tt_logio_output_t output;
-    tt_logio_destroy_t destroy;
-} tt_logio_itf_t;
+    tt_buf_attr_t buf_attr;
+} tt_logctx_attr_t;
 
-// usage of log destination is to transfer log data, and it
-// may copy log data until data is transferred or confirmed
-typedef struct tt_logio_s
+typedef struct
 {
-    tt_logio_type_t type;
-    struct tt_spinlock_s *lock;
+    tt_log_level_t level;
+    struct tt_loglyt_s *lyt;
 
-    tt_logio_itf_t itf;
-} tt_logio_t;
+    tt_u32_t seq_num;
+    tt_buf_t buf;
+    tt_reflist_t io_list;
+} tt_logctx_t;
 
 ////////////////////////////////////////////////////////////
 // global variants
@@ -80,17 +66,19 @@ typedef struct tt_logio_s
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-// size does not count sizeof(tt_logio_t)
-extern tt_logio_t *tt_logio_create(IN tt_u32_t size,
-                                   IN tt_logio_type_t type,
-                                   IN tt_logio_itf_t *itf);
+extern tt_result_t tt_logctx_create(IN tt_logctx_t *lctx,
+                                    IN tt_log_level_t level,
+                                    IN struct tt_loglyt_s *lyt,
+                                    IN OPT tt_logctx_attr_t *attr);
 
-extern void tt_logio_destroy(IN tt_logio_t *lio);
+extern void tt_logctx_destroy(IN tt_logctx_t *lctx);
 
-extern tt_u32_t tt_logio_output(IN tt_logio_t *lio,
-                                IN tt_u8_t *data,
-                                IN tt_u32_t data_len);
+extern void tt_logctx_attr_default(IN tt_logctx_attr_t *attr);
 
-extern tt_result_t tt_logio_enable_lock(IN tt_logio_t *lio);
+extern tt_result_t tt_logctx_append_io(IN tt_logctx_t *lctx,
+                                       IN struct tt_logio_s *lio);
 
-#endif /* __TT_LOG_IO__ */
+extern tt_result_t tt_logctx_input(IN tt_logctx_t *lctx,
+                                   IN tt_log_entry_t *entry);
+
+#endif /* __TT_LOG_CONTEXT__ */

@@ -15,87 +15,76 @@
  */
 
 /**
-@file tt_log_def.h
-@brief log definition
+@file tt_log_io.h
+@brief log io
 
-this file declare log definition
+this file defines log io
 */
 
-#ifndef __TT_LOG_DEF__
-#define __TT_LOG_DEF__
+#ifndef __TT_LOG_IO__
+#define __TT_LOG_IO__
 
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <tt_basic_type.h>
+#include <algorithm/tt_list.h>
+#include <log/tt_log_def.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
 ////////////////////////////////////////////////////////////
 
-#define TT_LOGFLD_SEQ_NUM_KEY "seq_num"
-#define TT_LOGFLD_TIME_KEY "time"
-#define TT_LOGFLD_LOGGER_KEY "logger"
-#define TT_LOGFLD_LEVEL_KEY "level"
-#define TT_LOGFLD_CONTENT_KEY "content"
-#define TT_LOGFLD_FUNC_KEY "function"
-#define TT_LOGFLD_LINE_KEY "line"
+#define TT_LOGIO_CAST(lio, type) TT_PTR_INC(type, lio, sizeof(tt_logio_t))
 
 ////////////////////////////////////////////////////////////
 // type definition
 ////////////////////////////////////////////////////////////
 
-typedef enum {
-    TT_LOG_DEBUG,
-    TT_LOG_INFO,
-    TT_LOG_WARN,
-    TT_LOG_ERROR,
-    TT_LOG_FATAL,
+struct tt_logio_s;
 
-    TT_LOG_LEVEL_NUM
-} tt_log_level_t;
-#define TT_LOG_LEVEL_VALID(l) ((l) < TT_LOG_LEVEL_NUM)
+typedef tt_result_t (*tt_logio_create_t)(IN struct tt_logio_s *lio);
 
-typedef enum {
-    TT_LOGIO_STANDARD,
+typedef void (*tt_logio_destroy_t)(IN struct tt_logio_s *lio);
 
-    TT_LOGIO_NUM
-} tt_logio_type_t;
-#define TT_LOGIO_TYPE_VALID(t) ((t) < TT_LOGIO_NUM)
-
-typedef enum {
-    TT_LOGFLD_SEQ_NUM,
-    TT_LOGFLD_TIME,
-    TT_LOGFLD_LOGGER,
-    TT_LOGFLD_LEVEL,
-    TT_LOGFLD_CONTENT,
-    TT_LOGFLD_FUNC,
-    TT_LOGFLD_LINE,
-
-    TT_LOGFLD_TYPE_NUM,
-} tt_logfld_type_t;
-#define TT_LOGFLD_TYPE_VALID(t) ((t) < TT_LOGFLD_TYPE_NUM)
+// - data must be null terminated string, len equals tt_strlen(data)
+// - return how many bytes are outputted
+typedef tt_u32_t (*tt_logio_output_t)(IN struct tt_logio_s *lio,
+                                      IN const tt_char_t *data,
+                                      IN tt_u32_t len);
 
 typedef struct
 {
-    tt_u32_t seq_num;
-    // todo: time
-    const tt_char_t *logger;
-    tt_log_level_t level;
-    const tt_char_t *content;
-    const tt_char_t *function;
-    tt_u32_t line;
-} tt_log_entry_t;
+    tt_logio_type_t type;
+
+    tt_logio_create_t create;
+    tt_logio_destroy_t destroy;
+    tt_logio_output_t output;
+} tt_logio_itf_t;
+
+typedef struct tt_logio_s
+{
+    tt_logio_itf_t *itf;
+} tt_logio_t;
 
 ////////////////////////////////////////////////////////////
 // global variants
 ////////////////////////////////////////////////////////////
 
-extern const tt_char_t *tt_g_log_level_name[TT_LOG_LEVEL_NUM];
-
 ////////////////////////////////////////////////////////////
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-#endif /* __TT_LOG_DEF__ */
+// size does not count sizeof(tt_logio_t)
+extern tt_logio_t *tt_logio_create(IN tt_u32_t size, IN tt_logio_itf_t *itf);
+
+extern void tt_logio_destroy(IN tt_logio_t *lio);
+
+tt_inline tt_u32_t tt_logio_output(IN tt_logio_t *lio,
+                                   IN const tt_char_t *data,
+                                   IN tt_u32_t len)
+{
+    return lio->itf->output(lio, data, len);
+}
+
+#endif /* __TT_LOG_IO__ */

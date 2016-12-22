@@ -83,7 +83,9 @@ tt_loglyt_t *tt_loglyt_pattern_create(IN const tt_char_t *pattern)
     tt_loglyt_t *ll;
     tt_loglyt_patn_t *llp;
 
-    TT_ASSERT(pattern != NULL);
+    if (pattern == NULL) {
+        return NULL;
+    }
 
     ll = tt_loglyt_create(sizeof(tt_loglyt_patn_t), &__llp_itf);
     if (ll == NULL) {

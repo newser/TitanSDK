@@ -21,7 +21,6 @@
 #include <log/layout/tt_log_layout.h>
 
 #include <memory/tt_memory_alloc.h>
-#include <misc/tt_assert.h>
 
 ////////////////////////////////////////////////////////////
 // internal macro
@@ -51,8 +50,9 @@ tt_loglyt_t *tt_loglyt_create(IN tt_u32_t size, IN tt_loglyt_itf_t *itf)
 {
     tt_loglyt_t *ll;
 
-    TT_ASSERT(itf != NULL);
-    TT_ASSERT(itf->format != NULL);
+    if ((itf == NULL) || (itf->format == NULL)) {
+        return NULL;
+    }
 
     ll = tt_mem_alloc(sizeof(tt_loglyt_t) + size);
     if (ll == NULL) {
@@ -71,7 +71,9 @@ tt_loglyt_t *tt_loglyt_create(IN tt_u32_t size, IN tt_loglyt_itf_t *itf)
 
 void tt_loglyt_destroy(IN tt_loglyt_t *ll)
 {
-    TT_ASSERT(ll != NULL);
+    if (ll == NULL) {
+        return;
+    }
 
     if (ll->itf->destroy != NULL) {
         ll->itf->destroy(ll);

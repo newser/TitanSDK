@@ -15,13 +15,13 @@
  */
 
 /**
-@file tt_ptrlist.h
+@file tt_list_single_link.h
 @brief simple list
 this file defines apis of simple list data structure.
 */
 
-#ifndef __TT_PTRLIST__
-#define __TT_PTRLIST__
+#ifndef __TT_LIST_SINGLE_LINK__
+#define __TT_LIST_SINGLE_LINK__
 
 ////////////////////////////////////////////////////////////
 // import header files
@@ -37,12 +37,12 @@ this file defines apis of simple list data structure.
 // type definition
 ////////////////////////////////////////////////////////////
 
-typedef tt_ptr_t tt_plnode_t;
+typedef tt_ptr_t tt_slnode_t;
 
-typedef struct tt_ptrlist_s
+typedef struct tt_slist_s
 {
-    tt_plnode_t *head;
-} tt_ptrlist_t;
+    tt_slnode_t *head;
+} tt_slist_t;
 
 ////////////////////////////////////////////////////////////
 // global variants
@@ -52,81 +52,81 @@ typedef struct tt_ptrlist_s
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-tt_inline void tt_ptrlist_init(IN tt_ptrlist_t *list)
+tt_inline void tt_slist_init(IN tt_slist_t *list)
 {
     list->head = NULL;
 }
 
-tt_inline void tt_plnode_init(IN tt_plnode_t *node)
+tt_inline void tt_plnode_init(IN tt_slnode_t *node)
 {
     *node = NULL;
 }
 
-tt_inline tt_u32_t tt_ptrlist_count(IN tt_ptrlist_t *list)
+tt_inline tt_u32_t tt_slist_count(IN tt_slist_t *list)
 {
     tt_u32_t count = 0;
-    tt_plnode_t *node = NULL;
+    tt_slnode_t *node = NULL;
 
     node = list->head;
     while (node != NULL) {
         ++count;
-        node = *(tt_plnode_t **)node;
+        node = *(tt_slnode_t **)node;
     }
     return count;
 }
 
-tt_inline tt_plnode_t *tt_ptrlist_head(IN tt_ptrlist_t *list)
+tt_inline tt_slnode_t *tt_slist_head(IN tt_slist_t *list)
 {
     return list->head;
 }
 
-tt_inline tt_plnode_t *tt_ptrlist_next(IN tt_plnode_t *node)
+tt_inline tt_slnode_t *tt_slist_next(IN tt_slnode_t *node)
 {
-    return *(tt_plnode_t **)node;
+    return *(tt_slnode_t **)node;
 }
 
-tt_inline tt_bool_t tt_ptrlist_empty(IN tt_ptrlist_t *list)
+tt_inline tt_bool_t tt_slist_empty(IN tt_slist_t *list)
 {
-    return tt_ptrlist_head((list)) == NULL ? TT_TRUE : TT_FALSE;
+    return tt_slist_head((list)) == NULL ? TT_TRUE : TT_FALSE;
 }
 
-tt_inline void tt_ptrlist_pushhead(IN tt_ptrlist_t *list, IN tt_plnode_t *node)
+tt_inline void tt_slist_pushhead(IN tt_slist_t *list, IN tt_slnode_t *node)
 {
     *node = list->head;
     list->head = node;
 }
 
-tt_inline tt_plnode_t *tt_ptrlist_pophead(IN tt_ptrlist_t *list)
+tt_inline tt_slnode_t *tt_slist_pophead(IN tt_slist_t *list)
 {
-    tt_plnode_t *head = NULL;
+    tt_slnode_t *head = NULL;
 
     if (list->head != NULL) {
         head = list->head;
-        list->head = *(tt_plnode_t **)head;
+        list->head = *(tt_slnode_t **)head;
     }
 
     return head;
 }
 
 // if prev_node is NULL, then the node to be removed is the head
-tt_inline void tt_ptrlist_remove(IN tt_ptrlist_t *list,
-                                 IN tt_plnode_t *node,
-                                 IN tt_plnode_t *prev_node)
+tt_inline void tt_slist_remove(IN tt_slist_t *list,
+                               IN tt_slnode_t *node,
+                               IN tt_slnode_t *prev_node)
 {
     if (prev_node == NULL) {
-        list->head = *(tt_plnode_t **)node;
+        list->head = *(tt_slnode_t **)node;
     } else {
         *prev_node = *node;
     }
 }
 
-tt_inline void tt_ptrlist_merge(IN tt_ptrlist_t *dst, IN tt_ptrlist_t *src)
+tt_inline void tt_slist_merge(IN tt_slist_t *dst, IN tt_slist_t *src)
 {
-    tt_plnode_t *node = NULL;
+    tt_slnode_t *node = NULL;
 
     node = src->head;
     while (node != NULL) {
-        tt_plnode_t *next = *(tt_plnode_t **)node;
+        tt_slnode_t *next = *(tt_slnode_t **)node;
 
         *node = dst->head;
         dst->head = node;
@@ -136,16 +136,16 @@ tt_inline void tt_ptrlist_merge(IN tt_ptrlist_t *dst, IN tt_ptrlist_t *src)
     src->head = NULL;
 }
 
-tt_inline tt_u32_t tt_ptrlist_merge_n(IN tt_ptrlist_t *dst,
-                                      IN tt_ptrlist_t *src,
-                                      IN tt_u32_t count)
+tt_inline tt_u32_t tt_slist_merge_n(IN tt_slist_t *dst,
+                                    IN tt_slist_t *src,
+                                    IN tt_u32_t count)
 {
-    tt_plnode_t *node = NULL;
+    tt_slnode_t *node = NULL;
     tt_u32_t merged_count = 0;
 
     node = src->head;
     while ((node != NULL) && (merged_count < count)) {
-        tt_plnode_t *next = *(tt_plnode_t **)node;
+        tt_slnode_t *next = *(tt_slnode_t **)node;
 
         *node = dst->head;
         dst->head = node;
@@ -160,13 +160,13 @@ tt_inline tt_u32_t tt_ptrlist_merge_n(IN tt_ptrlist_t *dst,
     return merged_count;
 }
 
-tt_inline void tt_ptrlist_swap(IN tt_ptrlist_t *l, IN tt_ptrlist_t *r)
+tt_inline void tt_slist_swap(IN tt_slist_t *l, IN tt_slist_t *r)
 {
-    tt_plnode_t *l_head = NULL;
+    tt_slnode_t *l_head = NULL;
 
     l_head = l->head;
     l->head = r->head;
     r->head = l_head;
 }
 
-#endif /* __TT_PTRLIST__ */
+#endif /* __TT_LIST_SINGLE_LINK__ */

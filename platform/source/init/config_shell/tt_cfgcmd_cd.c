@@ -77,12 +77,12 @@ tt_u32_t __cd_run(IN tt_cfgsh_t *sh,
     path.len = (tt_u32_t)tt_strlen(argv[0]);
     cnode = tt_cfgpath_p2n(sh->root, sh->current, &path);
     if (cnode == NULL) {
-        tt_buf_vput(output, "can not find: %s", path.addr);
+        tt_buf_putf(output, "can not find: %s", path.addr);
         return TT_CLIOC_OUT;
     }
 
     if (cnode->type != TT_CFGNODE_TYPE_GROUP) {
-        tt_buf_vput(output, "not a group: %s", path.addr);
+        tt_buf_putf(output, "not a group: %s", path.addr);
         return TT_CLIOC_OUT;
     }
 

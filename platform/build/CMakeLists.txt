@@ -93,6 +93,7 @@ tscm_add_group_src(${TSCM_PLATFORM_PATH}/test_case test_case SRC_FILE)
 
 tscm_add_group_src(${TSCM_PLATFORM_PATH}/source/log log SRC_FILE)
 tscm_add_group_src(${TSCM_PLATFORM_PATH}/source/log/layout log SRC_FILE)
+tscm_add_group_src(${TSCM_PLATFORM_PATH}/source/log/io log SRC_FILE)
 
 tscm_add_group_src(${TSCM_PLATFORM_PATH}/source/network network SRC_FILE)
 tscm_add_group_src(${TSCM_PLATFORM_PATH}/source/network/adns adns SRC_FILE)
