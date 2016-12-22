@@ -197,7 +197,9 @@ tt_logfld_t *tt_logfld_create(IN const tt_char_t *start,
     tt_u32_t flen;
     tt_u32_t i;
 
-    TT_ASSERT(start < (end - 1));
+    if (start >= (end - 1)) {
+        return NULL;
+    }
     flen = (tt_u32_t)(tt_ptrdiff_t)(end - start);
 
     // discard {}

@@ -56,14 +56,12 @@ tt_loglyt_t *tt_loglyt_create(IN tt_u32_t size, IN tt_loglyt_itf_t *itf)
 
     ll = tt_mem_alloc(sizeof(tt_loglyt_t) + size);
     if (ll == NULL) {
-        TT_ERROR("no mem for log layout");
         return NULL;
     }
 
     ll->itf = itf;
 
     if ((ll->itf->create != NULL) && !TT_OK(ll->itf->create(ll))) {
-        TT_ERROR("fail to create log layout");
         tt_mem_free(ll);
         return NULL;
     }

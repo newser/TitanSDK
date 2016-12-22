@@ -45,6 +45,7 @@ TT_TEST_ROUTINE_DECLARE(tt_unit_test_lpatn_level)
 TT_TEST_ROUTINE_DECLARE(tt_unit_test_lpatn_content)
 TT_TEST_ROUTINE_DECLARE(tt_unit_test_lpatn_func)
 TT_TEST_ROUTINE_DECLARE(tt_unit_test_lpatn_line)
+TT_TEST_ROUTINE_DECLARE(tt_unit_test_log_pattern)
 // =========================================
 
 // === test case list ======================
@@ -105,6 +106,15 @@ TT_TEST_CASE("tt_unit_test_lpatn_sn",
                  NULL,
                  NULL),
 
+    TT_TEST_CASE("tt_unit_test_log_pattern",
+                 "testing log pattern",
+                 tt_unit_test_log_pattern,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL),
+
     TT_TEST_CASE_LIST_DEFINE_END(lpatn_case)
     // =========================================
 
@@ -119,7 +129,7 @@ TT_TEST_CASE("tt_unit_test_lpatn_sn",
     ////////////////////////////////////////////////////////////
 
     /*
-    TT_TEST_ROUTINE_DEFINE(tt_unit_test_lpatn_sn)
+    TT_TEST_ROUTINE_DEFINE(tt_unit_test_log_pattern)
     {
         //tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
 
@@ -902,6 +912,82 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_lpatn_line)
         TT_TEST_CHECK_EQUAL(tt_buf_cmp_cstr(&buf, "+010"), 0, "");
 
         tt_logfld_destroy(lpf);
+    }
+
+    tt_buf_destroy(&buf);
+
+    // test end
+    TT_TEST_CASE_LEAVE()
+}
+
+TT_TEST_ROUTINE_DEFINE(tt_unit_test_log_pattern)
+{
+    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+    tt_loglyt_t *ll;
+    tt_result_t ret;
+    tt_log_entry_t entry = {0};
+    tt_buf_t buf;
+    tt_s32_t cmp_ret;
+
+    TT_TEST_CASE_ENTER()
+    // test start
+
+    tt_buf_init(&buf, NULL);
+
+    entry.seq_num = 100;
+    entry.level = TT_LOG_FATAL;
+    entry.function = __FUNCTION__;
+    entry.content = "log content";
+    entry.logger = "me";
+    entry.line = 1234;
+
+    // basic
+    {
+        ll = tt_loglyt_pattern_create(
+            "$${seq_num:%6d} $ ${level:%.2s} $}${function:} ${content}"
+            "${logger:$$%s} ${line}\n");
+        TT_TEST_CHECK_NOT_EQUAL(ll, NULL, "");
+
+        tt_buf_clear(&buf);
+        ret = tt_loglyt_format(ll, &entry, &buf);
+        TT_TEST_CHECK_SUCCESS(ret, "");
+        cmp_ret = tt_buf_cmp_cstr(&buf,
+                                  "$   100 $ FA "
+                                  "$}tt_unit_test_log_pattern log "
+                                  "content$$me "
+                                  "1234\n");
+        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+
+        tt_loglyt_destroy(ll);
+    }
+
+    // wront format
+    ret = tt_loglyt_pattern_create("${content} {${level:%d}\n");
+    TT_TEST_CHECK_FAIL(ret, "");
+
+    ret = tt_loglyt_pattern_create("-- ${level} ${ function}\n");
+    TT_TEST_CHECK_FAIL(ret, "");
+
+    ret = tt_loglyt_pattern_create("-- ${level} ${}\n");
+    TT_TEST_CHECK_FAIL(ret, "");
+
+    ret = tt_loglyt_pattern_create("${level } ${function}\n");
+    TT_TEST_CHECK_FAIL(ret, "");
+
+    {
+        ll = tt_loglyt_pattern_create(
+            "$${level} $${function:{${}{}} $${content} 1234");
+        TT_TEST_CHECK_NOT_EQUAL(ll, NULL, "");
+
+        tt_buf_clear(&buf);
+        ret = tt_loglyt_format(ll, &entry, &buf);
+        TT_TEST_CHECK_SUCCESS(ret, "");
+        TT_TEST_CHECK_EQUAL(tt_buf_cmp_cstr(&buf,
+                                            "$FATAL ${${{}} $log content 1234"),
+                            0,
+                            "");
+
+        tt_loglyt_destroy(ll);
     }
 
     tt_buf_destroy(&buf);

@@ -94,7 +94,6 @@ tt_loglyt_t *tt_loglyt_pattern_create(IN const tt_char_t *pattern)
 
     llp->patn = tt_mem_alloc((tt_u32_t)tt_strlen(pattern) + 1);
     if (llp->patn == NULL) {
-        TT_ERROR("fail to copy pattern");
         tt_mem_free(ll);
         return NULL;
     }
@@ -137,8 +136,9 @@ tt_result_t __llp_format(IN struct tt_loglyt_s *ll,
             continue;
         }
 
-        TT_DO(
-            tt_buf_put(outbuf, (tt_u8_t)prev_pos, (tt_u32_t)(pos - prev_pos)));
+        TT_DO(tt_buf_put(outbuf,
+                         (tt_u8_t *)prev_pos,
+                         (tt_u32_t)(pos - prev_pos)));
         ++pos;
         prev_pos = pos;
 
@@ -149,7 +149,7 @@ tt_result_t __llp_format(IN struct tt_loglyt_s *ll,
             fnode = fnode->next;
         }
     }
-    TT_DO(tt_buf_put(outbuf, (tt_u8_t)prev_pos, (tt_u32_t)(pos - prev_pos)));
+    TT_DO(tt_buf_put(outbuf, (tt_u8_t *)prev_pos, (tt_u32_t)(pos - prev_pos)));
 
     return TT_SUCCESS;
 }
@@ -234,7 +234,6 @@ tt_result_t __llp_parse(IN tt_loglyt_patn_t *llp,
 
     if (state == __LPP_FIELD) {
         // partial field: ${...\0
-        TT_ERROR("invalid log field");
         return TT_FAIL;
     }
 
