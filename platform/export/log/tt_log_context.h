@@ -53,7 +53,6 @@ typedef struct
     tt_log_level_t level;
     struct tt_loglyt_s *lyt;
 
-    tt_u32_t seq_num;
     tt_buf_t buf;
     tt_reflist_t io_list;
 } tt_logctx_t;
@@ -68,7 +67,7 @@ typedef struct
 
 extern tt_result_t tt_logctx_create(IN tt_logctx_t *lctx,
                                     IN tt_log_level_t level,
-                                    IN struct tt_loglyt_s *lyt,
+                                    IN OPT struct tt_loglyt_s *lyt,
                                     IN OPT tt_logctx_attr_t *attr);
 
 extern void tt_logctx_destroy(IN tt_logctx_t *lctx);

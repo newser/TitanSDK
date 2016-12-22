@@ -125,6 +125,7 @@ extern "C" {
 #include <log/layout/tt_log_layout_pattern.h>
 #include <log/tt_log.h>
 #include <log/tt_log_context.h>
+#include <log/tt_log_manager.h>
 #include <math/mp/tt_mpn.h>
 #include <math/mp/tt_mpn_add.h>
 #include <math/mp/tt_mpn_cache.h>

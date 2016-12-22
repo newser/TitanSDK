@@ -51,12 +51,12 @@
 
 tt_result_t tt_logctx_create(IN tt_logctx_t *lctx,
                              IN tt_log_level_t level,
-                             IN tt_loglyt_t *lyt,
+                             IN OPT tt_loglyt_t *lyt,
                              IN OPT tt_logctx_attr_t *attr)
 {
     tt_logctx_attr_t __attr;
 
-    if ((lctx == NULL) || !TT_LOG_LEVEL_VALID(level) || (lyt == NULL)) {
+    if ((lctx == NULL) || !TT_LOG_LEVEL_VALID(level)) {
         return TT_FAIL;
     }
 
@@ -68,7 +68,6 @@ tt_result_t tt_logctx_create(IN tt_logctx_t *lctx,
     lctx->level = level;
     lctx->lyt = lyt;
 
-    lctx->seq_num = 0;
     tt_buf_init(&lctx->buf, &attr->buf_attr);
     tt_reflist_init(&lctx->io_list);
 
@@ -112,7 +111,7 @@ tt_result_t tt_logctx_input(IN tt_logctx_t *lctx, IN tt_log_entry_t *entry)
     tt_refnode_t *node;
     tt_result_t result = TT_SUCCESS;
 
-    if ((lctx == NULL) || (entry == NULL)) {
+    if ((lctx == NULL) || (lctx->lyt == NULL) || (entry == NULL)) {
         return TT_FAIL;
     }
     buf = &lctx->buf;
