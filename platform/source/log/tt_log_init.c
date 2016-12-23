@@ -53,16 +53,14 @@ static tt_loglyt_t *tt_s_loglyt[TT_LOG_LEVEL_NUM];
 // log io
 static tt_logio_t *tt_s_logio_std;
 
-static tt_u32_t tt_g_log_level;
-
 ////////////////////////////////////////////////////////////
 // interface declaration
 ////////////////////////////////////////////////////////////
 
 static tt_result_t __logmgr_component_init(IN tt_component_t *comp,
                                            IN tt_profile_t *profile);
-static tt_result_t __log_config_component_init(IN tt_component_t *comp,
-                                               IN tt_profile_t *profile);
+static tt_result_t __logmgr_config_component_init(IN tt_component_t *comp,
+                                                  IN tt_profile_t *profile);
 
 static tt_result_t __create_log_layout(IN tt_profile_t *profile);
 static tt_result_t __install_log_layout(IN tt_profile_t *profile);
@@ -97,17 +95,17 @@ void tt_logmgr_component_register()
     tt_component_register(&comp);
 }
 
-void tt_log_config_component_register()
+void tt_logmgr_config_component_register()
 {
     static tt_component_t comp;
 
     tt_component_itf_t itf = {
-        __log_config_component_init,
+        __logmgr_config_component_init,
     };
 
     // init component
     tt_component_init(&comp,
-                      TT_COMPONENT_LOG_CONFIG,
+                      TT_COMPONENT_LOGMGR_CONFIG,
                       "Log Configuration",
                       NULL,
                       &itf);
@@ -145,8 +143,8 @@ tt_result_t __logmgr_component_init(IN tt_component_t *comp,
     return TT_SUCCESS;
 }
 
-tt_result_t __log_config_component_init(IN tt_component_t *comp,
-                                        IN tt_profile_t *profile)
+tt_result_t __logmgr_config_component_init(IN tt_component_t *comp,
+                                           IN tt_profile_t *profile)
 {
     tt_cfgnode_t *cnode;
     tt_cfgu32_attr_t attr;
@@ -161,8 +159,12 @@ tt_result_t __log_config_component_init(IN tt_component_t *comp,
     attr.cnode_attr.detail = "todo";
     attr.mode = TT_CFGVAL_MODE_GS;
 
-    cnode =
-        tt_cfgu32_create("log-level", NULL, NULL, &tt_g_log_level, NULL, &attr);
+    cnode = tt_cfgu32_create("log-level",
+                             NULL,
+                             NULL,
+                             &tt_g_logmgr.level,
+                             NULL,
+                             &attr);
     if (cnode == NULL) {
         TT_ERROR("fail to create config node: log-level");
         return TT_FAIL;

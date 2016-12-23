@@ -50,7 +50,6 @@ typedef enum {
 
     // config
     TT_COMPONENT_CONFIG,
-    TT_COMPONENT_LOG_CONFIG,
 
     // version
     TT_COMPONENT_VERSION_INFO,
@@ -102,6 +101,7 @@ typedef enum {
 
     // log manager
     TT_COMPONENT_LOG_MANAGER,
+    TT_COMPONENT_LOGMGR_CONFIG,
 
     TT_COMPONENT_NUM
 } tt_component_id_t;

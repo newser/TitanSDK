@@ -58,6 +58,6 @@ extern void tt_log_component_register();
 
 extern void tt_logmgr_component_register();
 
-extern void tt_log_config_component_register();
+extern void tt_logmgr_config_component_register();
 
 #endif /* __TT_LOG_INIT__ */

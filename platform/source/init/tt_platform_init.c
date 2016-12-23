@@ -71,7 +71,7 @@ tt_result_t tt_platform_init(IN OPT const tt_char_t *profile_path)
     // log
     tt_log_component_register();
     tt_logmgr_component_register();
-    tt_log_config_component_register();
+    tt_logmgr_config_component_register();
 
     // config
     tt_config_component_register();
