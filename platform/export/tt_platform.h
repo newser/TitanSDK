@@ -141,6 +141,7 @@ extern "C" {
 #include <memory/tt_memory_alloc.h>
 #include <memory/tt_memory_alloc.h>
 #include <memory/tt_memory_pool.h>
+#include <memory/tt_memory_spring.h>
 #include <memory/tt_page.h>
 #include <memory/tt_slab.h>
 #include <misc/tt_asn1_def.h>
