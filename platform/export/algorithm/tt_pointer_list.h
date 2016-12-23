@@ -16,12 +16,12 @@
 
 /**
  @file tt_reference_list.h
- @brief reference list
- this file defines apis of reference list data structure.
+ @brief pointer list
+ this file defines apis of pointer list data structure.
  */
 
-#ifndef __TT_REFERENCE_LIST__
-#define __TT_REFERENCE_LIST__
+#ifndef __TT_POINTER_LIST__
+#define __TT_POINTER_LIST__
 
 ////////////////////////////////////////////////////////////
 // import header files
@@ -39,16 +39,16 @@
 // type definition
 ////////////////////////////////////////////////////////////
 
-typedef struct tt_refnode_s
+typedef struct tt_ptrnode_s
 {
-    struct tt_refnode_s *prev;
-    struct tt_refnode_s *next;
+    struct tt_ptrnode_s *prev;
+    struct tt_ptrnode_s *next;
     void *p;
-} tt_refnode_t;
+} tt_ptrnode_t;
 
-typedef tt_refnode_t tt_reflist_t;
-#define __REFLIST_HEAD(rl) ((rl)->next)
-#define __REFLIST_TAIL(rl) ((rl)->prev)
+typedef tt_ptrnode_t tt_ptrlist_t;
+#define __PTRLIST_HEAD(rl) ((rl)->next)
+#define __PTRLIST_TAIL(rl) ((rl)->prev)
 
 ////////////////////////////////////////////////////////////
 // global variants
@@ -58,22 +58,22 @@ typedef tt_refnode_t tt_reflist_t;
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-tt_inline void tt_reflist_init(IN tt_reflist_t *list)
+tt_inline void tt_ptrlist_init(IN tt_ptrlist_t *list)
 {
-    __REFLIST_HEAD(list) = list;
-    __REFLIST_TAIL(list) = list;
+    __PTRLIST_HEAD(list) = list;
+    __PTRLIST_TAIL(list) = list;
 }
 
-tt_inline void tt_refnode_init(IN tt_refnode_t *node)
+tt_inline void tt_ptrnode_init(IN tt_ptrnode_t *node)
 {
     node->prev = NULL;
     node->next = NULL;
 }
 
-tt_inline tt_u32_t tt_reflist_count(IN tt_reflist_t *list)
+tt_inline tt_u32_t tt_ptrlist_count(IN tt_ptrlist_t *list)
 {
     tt_u32_t count = 0;
-    tt_refnode_t *node = __REFLIST_HEAD(list);
+    tt_ptrnode_t *node = __PTRLIST_HEAD(list);
 
     // never use while (node != NULL)
     while (node != list) {
@@ -83,74 +83,72 @@ tt_inline tt_u32_t tt_reflist_count(IN tt_reflist_t *list)
     return count;
 }
 
-tt_inline tt_bool_t tt_reflist_empty(IN tt_reflist_t *list)
+tt_inline tt_bool_t tt_ptrlist_empty(IN tt_ptrlist_t *list)
 {
-    return __REFLIST_HEAD((list)) == (list) ? TT_TRUE : TT_FALSE;
+    return __PTRLIST_HEAD((list)) == (list) ? TT_TRUE : TT_FALSE;
 }
 
-tt_inline tt_refnode_t *tt_reflist_head(IN tt_reflist_t *list)
+tt_inline tt_ptrnode_t *tt_ptrlist_head(IN tt_ptrlist_t *list)
 {
-    return tt_reflist_empty(list) ? NULL : __REFLIST_HEAD(list);
+    return tt_ptrlist_empty(list) ? NULL : __PTRLIST_HEAD(list);
 }
 
-tt_inline tt_refnode_t *tt_reflist_tail(IN tt_reflist_t *list)
+tt_inline tt_ptrnode_t *tt_ptrlist_tail(IN tt_ptrlist_t *list)
 {
-    return tt_reflist_empty(list) ? NULL : __REFLIST_TAIL(list);
+    return tt_ptrlist_empty(list) ? NULL : __PTRLIST_TAIL(list);
 }
 
-tt_inline tt_refnode_t *tt_reflist_next(IN tt_reflist_t *list,
-                                        IN tt_refnode_t *node)
+tt_inline tt_ptrnode_t *tt_ptrlist_next(IN tt_ptrlist_t *list,
+                                        IN tt_ptrnode_t *node)
 {
     return node->next == list ? NULL : node->next;
 }
 
-tt_inline tt_result_t tt_reflist_pushhead(IN tt_reflist_t *list, IN void *p)
+tt_inline tt_result_t tt_ptrlist_pushhead(IN tt_ptrlist_t *list, IN void *p)
 {
-    tt_refnode_t *node = tt_mem_alloc(sizeof(tt_refnode_t));
+    tt_ptrnode_t *node = tt_mem_alloc(sizeof(tt_ptrnode_t));
     if (node == NULL) {
-        TT_ERROR("no mem for ref node");
         return TT_FAIL;
     }
     node->p = p;
 
     // later nodes
-    __REFLIST_HEAD(list)->prev = node;
-    node->next = __REFLIST_HEAD(list);
+    __PTRLIST_HEAD(list)->prev = node;
+    node->next = __PTRLIST_HEAD(list);
 
     // former nodes
     node->prev = list;
-    __REFLIST_HEAD(list) = node;
+    __PTRLIST_HEAD(list) = node;
 
     return TT_SUCCESS;
 }
 
-tt_inline tt_result_t tt_reflist_pushtail(IN tt_reflist_t *list, IN void *p)
+tt_inline tt_result_t tt_ptrlist_pushtail(IN tt_ptrlist_t *list, IN void *p)
 {
-    tt_refnode_t *node = tt_mem_alloc(sizeof(tt_refnode_t));
+    tt_ptrnode_t *node = tt_mem_alloc(sizeof(tt_ptrnode_t));
     if (node == NULL) {
-        TT_ERROR("no mem for ref node");
         return TT_FAIL;
     }
     node->p = p;
 
     // later nodes
-    __REFLIST_TAIL(list)->next = node;
-    node->prev = __REFLIST_TAIL(list);
+    __PTRLIST_TAIL(list)->next = node;
+    node->prev = __PTRLIST_TAIL(list);
 
     // former nodes
     node->next = list;
-    __REFLIST_TAIL(list) = node;
+    __PTRLIST_TAIL(list) = node;
 
     return TT_SUCCESS;
 }
 
 // return false if no more node
-tt_inline tt_bool_t tt_reflist_pophead(IN tt_reflist_t *list, OUT OPT void **pp)
+tt_inline tt_bool_t tt_ptrlist_pophead(IN tt_ptrlist_t *list, OUT OPT void **pp)
 {
-    tt_refnode_t *head = tt_reflist_head(list);
+    tt_ptrnode_t *head = tt_ptrlist_head(list);
     if (head != NULL) {
         head->next->prev = head->prev; // = list;
-        __REFLIST_HEAD(list) = head->next;
+        __PTRLIST_HEAD(list) = head->next;
 
         TT_SAFE_ASSIGN(pp, head->p);
         tt_mem_free(head);
@@ -158,12 +156,12 @@ tt_inline tt_bool_t tt_reflist_pophead(IN tt_reflist_t *list, OUT OPT void **pp)
     return TT_BOOL(head != NULL);
 }
 
-tt_inline tt_bool_t tt_reflist_poptail(IN tt_reflist_t *list, OUT OPT void **pp)
+tt_inline tt_bool_t tt_ptrlist_poptail(IN tt_ptrlist_t *list, OUT OPT void **pp)
 {
-    tt_refnode_t *tail = tt_reflist_tail(list);
+    tt_ptrnode_t *tail = tt_ptrlist_tail(list);
     if (tail != NULL) {
         tail->prev->next = tail->next; // = list;
-        __REFLIST_TAIL(list) = tail->prev;
+        __PTRLIST_TAIL(list) = tail->prev;
 
         TT_SAFE_ASSIGN(pp, tail->p);
         tt_mem_free(tail);
@@ -171,26 +169,26 @@ tt_inline tt_bool_t tt_reflist_poptail(IN tt_reflist_t *list, OUT OPT void **pp)
     return TT_BOOL(tail != NULL);
 }
 
-tt_inline void tt_reflist_remove(IN tt_refnode_t *node)
+tt_inline void tt_ptrlist_remove(IN tt_ptrnode_t *node)
 {
     node->next->prev = node->prev;
     node->prev->next = node->next;
     tt_mem_free(node);
 }
 
-tt_inline void tt_reflist_merge(IN tt_reflist_t *dst, IN tt_reflist_t *src)
+tt_inline void tt_ptrlist_merge(IN tt_ptrlist_t *dst, IN tt_ptrlist_t *src)
 {
-    if (tt_reflist_empty(src)) {
+    if (tt_ptrlist_empty(src)) {
         return;
     }
 
-    __REFLIST_TAIL(dst)->next = __REFLIST_HEAD(src);
-    __REFLIST_HEAD(src)->prev = __REFLIST_TAIL(dst);
+    __PTRLIST_TAIL(dst)->next = __PTRLIST_HEAD(src);
+    __PTRLIST_HEAD(src)->prev = __PTRLIST_TAIL(dst);
 
-    __REFLIST_TAIL(dst) = __REFLIST_TAIL(src);
-    __REFLIST_TAIL(src)->next = dst;
+    __PTRLIST_TAIL(dst) = __PTRLIST_TAIL(src);
+    __PTRLIST_TAIL(src)->next = dst;
 
-    tt_reflist_init(src);
+    tt_ptrlist_init(src);
 }
 
-#endif /* __TT_REFERENCE_LIST__ */
+#endif /* __TT_POINTER_LIST__ */

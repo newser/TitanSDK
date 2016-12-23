@@ -306,7 +306,7 @@ tt_char_t *tt_adns_name_parse(IN tt_buf_t *buf,
     if (name_len != NULL) {
         *name_len = __name_len;
     }
-    // TT_DETAIL("parsed domain: %s", name);
+    // TT_DEBUG("parsed domain: %s", name);
     return name;
 }
 

@@ -15,42 +15,24 @@
  */
 
 /**
-@file tt_sys_error.h
-@brief show system error information
+@file tt_log_init.h
+@brief log init
 
-APIs to show system error information
+this file declare APIs for init log
 */
 
-#ifndef __TT_SYS_ERROR__
-#define __TT_SYS_ERROR__
+#ifndef __TT_LOG_INIT__
+#define __TT_LOG_INIT__
 
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <log/tt_log.h>
 #include <log/tt_log_manager.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
 ////////////////////////////////////////////////////////////
-
-#define TT_ERROR_NTV(...)                                                      \
-    do {                                                                       \
-        TT_ERROR(__VA_ARGS__);                                                 \
-        tt_last_error_show(__FUNCTION__);                                      \
-    } while (0)
-
-#define TT_NET_ERROR_NTV TT_ERROR_NTV
-
-#define TT_ERROR_NTV_DUMP(ptr, owner, member, dump_func, dump_opt, ...)        \
-    do {                                                                       \
-        TT_ERROR(__VA_ARGS__);                                                 \
-        tt_last_error_show(__FUNCTION__);                                      \
-        if (ptr != NULL) {                                                     \
-            dump_func(TT_CONTAINER((ptr), owner, member), (dump_opt));         \
-        }                                                                      \
-    } while (0)
 
 ////////////////////////////////////////////////////////////
 // type definition
@@ -60,10 +42,22 @@ APIs to show system error information
 // global variants
 ////////////////////////////////////////////////////////////
 
+extern tt_logmgr_t tt_g_logmgr;
+
+extern tt_bool_t tt_g_logmgr_ok;
+
 ////////////////////////////////////////////////////////////
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern void tt_last_error_show(IN const tt_char_t *function);
+/**
+@fn void tt_log_component_register()
+register ts log component
+*/
+extern void tt_log_component_register();
 
-#endif /* __TT_SYS_ERROR__ */
+extern void tt_logmgr_component_register();
+
+extern void tt_log_config_component_register();
+
+#endif /* __TT_LOG_INIT__ */

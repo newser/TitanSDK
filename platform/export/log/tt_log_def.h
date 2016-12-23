@@ -88,6 +88,9 @@ typedef struct
     tt_u32_t line;
 } tt_log_entry_t;
 
+// return false if the entry should be discarded
+typedef tt_bool_t (*tt_log_filter_t)(IN OUT tt_log_entry_t *entry);
+
 ////////////////////////////////////////////////////////////
 // global variants
 ////////////////////////////////////////////////////////////

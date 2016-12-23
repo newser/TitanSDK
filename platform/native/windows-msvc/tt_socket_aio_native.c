@@ -1845,7 +1845,7 @@ tt_result_t __do_skt_send_io_ssl(IN __skt_send_t *aio,
         return TT_END;
     }
 
-    // TT_DETAIL("sent[%d]", last_io_bytes);
+    // TT_DEBUG("sent[%d]", last_io_bytes);
     sys_ssl->output_pos += last_io_bytes;
     TT_ASSERT_SKTAIO(sys_ssl->output_pos <= sys_ssl->output_data_len);
     if (sys_ssl->output_pos < sys_ssl->output_data_len) {
@@ -1885,7 +1885,7 @@ tt_result_t __do_skt_send_io_ssl(IN __skt_send_t *aio,
         Buffer.len = sys_ssl->output_data_len;
     }
 
-    // TT_DETAIL("encrypted[%d]", Buffer.len);
+    // TT_DEBUG("encrypted[%d]", Buffer.len);
     if ((WSASend(sys_skt->s,
                  &Buffer,
                  1,

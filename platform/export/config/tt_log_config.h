@@ -40,7 +40,7 @@ this file includes definitions in macros for ts log system
 @def TT_LOG_ENABLE
 enable trace
 */
-//#define TT_LOG_ENABLE
+#define TT_LOG_ENABLE
 
 /**
 @def TT_LOG_SYNC

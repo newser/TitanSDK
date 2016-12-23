@@ -260,14 +260,14 @@ tt_result_t tt_sslcache_add(IN tt_sslcache_t *sslcache,
         // update peer's timestamp
         sslpeer->last_updated = tt_time_ref();
 
-        // TT_DETAIL("ssl peer[%s] is updated", sslpeer->peer_id);
+        // TT_DEBUG("ssl peer[%s] is updated", sslpeer->peer_id);
     } else {
         sslpeer = (tt_sslpeer_t *)tt_mem_alloc(sizeof(tt_sslpeer_t));
         if (sslpeer != NULL) {
             __peer_init(sslpeer, peer_id, peer_id_len, sys_peer);
             tt_hashmap_add(&sslcache->peer_map, &sslpeer->hnode);
 
-            // TT_DETAIL("ssl peer[%s] is created", sslpeer->peer_id);
+            // TT_DEBUG("ssl peer[%s] is created", sslpeer->peer_id);
         }
     }
 

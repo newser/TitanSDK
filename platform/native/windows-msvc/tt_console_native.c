@@ -205,7 +205,7 @@ tt_result_t tt_console_recv_ntv(OUT tt_cons_ev_t *ev,
     if (NumberOfEventsRead == 0) {
         return TT_PROCEEDING;
     }
-    // TT_DETAIL("%d console events", NumberOfEventsRead);
+    // TT_DEBUG("%d console events", NumberOfEventsRead);
 
     key_num = 0;
     for (i = 0; i < NumberOfEventsRead; ++i) {

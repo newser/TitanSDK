@@ -20,8 +20,6 @@
 
 #include <tt_platform.h>
 
-#include <init/tt_profile.h>
-
 ////////////////////////////////////////////////////////////
 // internal macro
 ////////////////////////////////////////////////////////////
@@ -72,11 +70,11 @@ tt_result_t tt_platform_init(IN OPT const tt_char_t *profile_path)
 
     // log
     tt_log_component_register();
-    tt_sync_log_component_register();
+    tt_logmgr_component_register();
+    tt_log_config_component_register();
 
     // config
     tt_config_component_register();
-    tt_log_config_component_register();
 
     // version information
     tt_ver_component_register();

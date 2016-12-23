@@ -134,7 +134,24 @@ tt_result_t tt_logmgr_set_layout(IN tt_logmgr_t *lmgr,
     } else if (level == TT_LOG_LEVEL_NUM) {
         tt_u32_t i;
         for (i = 0; i < TT_LOG_LEVEL_NUM; ++i) {
-            lmgr->ctx[i].lyt = lyt;
+            tt_logctx_set_layout(&lmgr->ctx[i], lyt);
+        }
+        return TT_SUCCESS;
+    } else {
+        return TT_FAIL;
+    }
+}
+
+tt_result_t tt_logmgr_append_filter(IN tt_logmgr_t *lmgr,
+                                    IN tt_log_level_t level,
+                                    IN tt_log_filter_t filter)
+{
+    if (TT_LOG_LEVEL_VALID(level)) {
+        return tt_logctx_append_filter(&lmgr->ctx[level], filter);
+    } else if (level == TT_LOG_LEVEL_NUM) {
+        tt_u32_t i;
+        for (i = 0; i < TT_LOG_LEVEL_NUM; ++i) {
+            tt_logctx_append_filter(&lmgr->ctx[i], filter);
         }
         return TT_SUCCESS;
     } else {
@@ -159,17 +176,16 @@ tt_result_t tt_logmgr_append_io(IN tt_logmgr_t *lmgr,
     }
 }
 
-tt_result_t tt_logmgr_input(IN tt_logmgr_t *lmgr,
-                            IN tt_log_level_t level,
-                            IN const tt_char_t *func,
-                            IN tt_u32_t line,
-                            IN const tt_char_t *format,
-                            ...)
+tt_result_t tt_logmgr_inputv(IN tt_logmgr_t *lmgr,
+                             IN tt_log_level_t level,
+                             IN const tt_char_t *func,
+                             IN tt_u32_t line,
+                             IN const tt_char_t *format,
+                             IN va_list ap)
 {
     tt_log_entry_t entry = {0};
     tt_buf_t *buf = &lmgr->buf;
-    va_list ap;
-    tt_result_t result = TT_SUCCESS;
+    tt_result_t result = TT_FAIL;
 
     if (level < lmgr->level) {
         return TT_SUCCESS;
@@ -184,10 +200,8 @@ tt_result_t tt_logmgr_input(IN tt_logmgr_t *lmgr,
     tt_spinlock_acquire(&lmgr->lock);
 
     tt_buf_clear(buf);
-    va_start(ap, format);
-    result = tt_buf_putv(&lmgr->buf, format, ap);
-    va_end(ap);
-    if (TT_OK(result) && TT_OK(tt_buf_put_u8(buf, 0))) {
+    if (TT_OK(tt_buf_putv(&lmgr->buf, format, ap)) &&
+        TT_OK(tt_buf_put_u8(buf, 0))) {
         entry.content = (tt_char_t *)TT_BUF_RPOS(buf);
 
         result = tt_logctx_input(&lmgr->ctx[level], &entry);

@@ -42,11 +42,11 @@ extern "C" {
 #include <algorithm/tt_list.h>
 #include <algorithm/tt_list_double_link.h>
 #include <algorithm/tt_list_single_link.h>
+#include <algorithm/tt_pointer_list.h>
 #include <algorithm/tt_quick_sort.h>
 #include <algorithm/tt_rand.h>
 #include <algorithm/tt_rand_xorshift.h>
 #include <algorithm/tt_red_black_tree.h>
-#include <algorithm/tt_reference_list.h>
 #include <algorithm/tt_stack.h>
 #include <algorithm/tt_string.h>
 #include <algorithm/tt_string_common.h>
@@ -125,6 +125,7 @@ extern "C" {
 #include <log/layout/tt_log_layout_pattern.h>
 #include <log/tt_log.h>
 #include <log/tt_log_context.h>
+#include <log/tt_log_init.h>
 #include <log/tt_log_manager.h>
 #include <math/mp/tt_mpn.h>
 #include <math/mp/tt_mpn_add.h>

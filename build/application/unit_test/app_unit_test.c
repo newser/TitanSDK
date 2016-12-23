@@ -53,9 +53,9 @@ tt_result_t __console_ev_handler(IN void *console_param,
 #else
     tt_console_send(ev, ev_data);
     if (ev_data->key.key[0] == TT_CONS_EXTKEY_CTRLD) {
-        TT_DETAIL("exit console 1");
-        TT_DETAIL("exit console 2");
-        TT_DETAIL("exit console 3");
+        TT_DEBUG("exit console 1");
+        TT_DEBUG("exit console 2");
+        TT_DEBUG("exit console 3");
         return TT_END;
     }
 #endif

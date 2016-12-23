@@ -65,9 +65,6 @@ typedef enum {
     TT_COMPONENT_NUMA,
     TT_COMPONENT_PROCESS,
 
-    // synchronous log, require spinlock
-    TT_COMPONENT_SYNC_LOG,
-
     // memory
     TT_COMPONENT_PAGE,
     TT_COMPONENT_MEMORY_POOL,
@@ -102,6 +99,9 @@ typedef enum {
 
     // network
     TT_COMPONENT_MODULE_ADNS,
+
+    // log manager
+    TT_COMPONENT_LOG_MANAGER,
 
     TT_COMPONENT_NUM
 } tt_component_id_t;

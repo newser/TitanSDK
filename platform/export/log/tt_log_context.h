@@ -29,7 +29,7 @@ this file declare log context
 ////////////////////////////////////////////////////////////
 
 #include <algorithm/tt_buffer.h>
-#include <algorithm/tt_reference_list.h>
+#include <algorithm/tt_pointer_list.h>
 #include <log/tt_log_def.h>
 
 ////////////////////////////////////////////////////////////
@@ -54,7 +54,8 @@ typedef struct
     struct tt_loglyt_s *lyt;
 
     tt_buf_t buf;
-    tt_reflist_t io_list;
+    tt_ptrlist_t filter_list;
+    tt_ptrlist_t io_list;
 } tt_logctx_t;
 
 ////////////////////////////////////////////////////////////
@@ -73,6 +74,15 @@ extern tt_result_t tt_logctx_create(IN tt_logctx_t *lctx,
 extern void tt_logctx_destroy(IN tt_logctx_t *lctx);
 
 extern void tt_logctx_attr_default(IN tt_logctx_attr_t *attr);
+
+tt_inline void tt_logctx_set_layout(IN tt_logctx_t *lctx,
+                                    IN struct tt_loglyt_s *lyt)
+{
+    lctx->lyt = lyt;
+}
+
+extern tt_result_t tt_logctx_append_filter(IN tt_logctx_t *lctx,
+                                           IN tt_log_filter_t filter);
 
 extern tt_result_t tt_logctx_append_io(IN tt_logctx_t *lctx,
                                        IN struct tt_logio_s *lio);

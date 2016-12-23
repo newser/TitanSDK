@@ -41,7 +41,7 @@ this file provided some basic utilities for platform usage
 
 #define TT_CF_REF_SHOW(var)                                                    \
     do {                                                                       \
-        TT_DETAIL(#var " ref[%d]", CFGetRetainCount(var));                     \
+        TT_DEBUG(#var " ref[%d]", CFGetRetainCount(var));                      \
     } while (0)
 
 // continue if interrupted

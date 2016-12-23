@@ -665,7 +665,7 @@ void __fa1_on_fseek(IN tt_file_t *file,
                     IN tt_faioctx_t *aioctx,
                     IN tt_u64_t position)
 {
-    TT_DETAIL("position: %d", position);
+    TT_DEBUG("position: %d", position);
 
     if (!TT_OK(aioctx->result)) {
         __fa1_ret = TT_FAIL;

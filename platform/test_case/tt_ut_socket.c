@@ -1705,7 +1705,7 @@ void __a1_on_destroy(IN tt_skt_t *skt, IN void *cb_param)
     tt_result_t ret;
 
 #ifdef __DBG_SKT_AIO_UT
-    TT_DETAIL("%p, server: %p, client: %p", skt, &__a1_server, &__a1_client);
+    TT_DEBUG("%p, server: %p, client: %p", skt, &__a1_server, &__a1_client);
 #endif
 
     if ((tt_evc_current() != &__a1_client_evc) &&
@@ -1749,7 +1749,7 @@ void __a1_on_send(IN tt_skt_t *skt,
     tt_result_t ret;
 
 #ifdef __DBG_SKT_AIO_UT
-    TT_DETAIL("%d", (int)(tt_ptrdiff_t)aioctx->cb_param);
+    TT_DEBUG("%d", (int)(tt_ptrdiff_t)aioctx->cb_param);
 #endif
 
     if (aioctx->result != TT_SUCCESS) {
@@ -1796,7 +1796,7 @@ void __a1_on_recv(IN tt_skt_t *skt,
     int i, j;
 
 #ifdef __DBG_SKT_AIO_UT
-    TT_DETAIL("%d", (int)(tt_ptrdiff_t)aioctx->cb_param);
+    TT_DEBUG("%d", (int)(tt_ptrdiff_t)aioctx->cb_param);
 #endif
 
     if (__a1_svr_cnt != (int)(tt_ptrdiff_t)aioctx->cb_param) {
@@ -1875,7 +1875,7 @@ void __a1_on_accept(IN tt_skt_t *listening_skt,
     int i, j;
 
 #ifdef __DBG_SKT_AIO_UT
-    TT_DETAIL("accept");
+    TT_DEBUG("accept");
 #endif
 
     if (aioctx->result != TT_SUCCESS) {
@@ -2014,7 +2014,7 @@ void __a1_on_cli_recv(IN tt_skt_t *skt,
     int i, j, n;
 
 #ifdef __DBG_SKT_AIO_UT
-    TT_DETAIL("%d", (int)(tt_ptrdiff_t)aioctx->cb_param);
+    TT_DEBUG("%d", (int)(tt_ptrdiff_t)aioctx->cb_param);
 #endif
 
     if (aioctx->result == TT_END) {
@@ -2087,7 +2087,7 @@ void __a1_on_cli_send(IN tt_skt_t *skt,
     int i;
 
 #ifdef __DBG_SKT_AIO_UT
-    TT_DETAIL("%d", (int)(tt_ptrdiff_t)aioctx->cb_param);
+    TT_DEBUG("%d", (int)(tt_ptrdiff_t)aioctx->cb_param);
 #endif
 
     if (__a1_cli_cnt != (int)(tt_ptrdiff_t)aioctx->cb_param) {
@@ -2155,7 +2155,7 @@ void __a1_on_connect(IN tt_skt_t *skt,
     tt_result_t ret;
 
 #ifdef __DBG_SKT_AIO_UT
-    TT_DETAIL("%d", (int)(tt_ptrdiff_t)aioctx->cb_param);
+    TT_DEBUG("%d", (int)(tt_ptrdiff_t)aioctx->cb_param);
 #endif
 
     if (aioctx->result != TT_SUCCESS) {
@@ -2406,10 +2406,10 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_tcp_async_ipv6)
 void __a2_on_destroy(IN tt_skt_t *skt, IN void *cb_param)
 {
 #ifdef __DBG_SKT_AIO_UT
-    TT_DETAIL("__a2_on_destroy: %p, cli[%p], svr[%p]",
-              skt,
-              &__a1_client,
-              &__a1_server);
+    TT_DEBUG("__a2_on_destroy: %p, cli[%p], svr[%p]",
+             skt,
+             &__a1_client,
+             &__a1_server);
 #endif
 
     tt_evc_exit(TT_LOCAL_EVC);
@@ -2425,7 +2425,7 @@ void __a2_svr_on_sendto(IN tt_skt_t *skt,
 // int i,j, n;
 
 #ifdef __DBG_SKT_AIO_UT
-    TT_DETAIL("%d", (int)(tt_ptrdiff_t)aioctx->cb_param);
+    TT_DEBUG("%d", (int)(tt_ptrdiff_t)aioctx->cb_param);
 #endif
 
     if (aioctx->result != TT_SUCCESS) {
@@ -2465,7 +2465,7 @@ void __a2_svr_on_recvfrom(IN tt_skt_t *skt,
     int i, j, n;
 
 #ifdef __DBG_SKT_AIO_UT
-    TT_DETAIL("%d", (int)(tt_ptrdiff_t)aioctx->cb_param);
+    TT_DEBUG("%d", (int)(tt_ptrdiff_t)aioctx->cb_param);
 #endif
 
     if ((tt_evc_current() != &__a1_client_evc) &&
@@ -2619,7 +2619,7 @@ static void __a2_cli_on_recvfrom(IN tt_skt_t *skt,
     int i, j, n;
 
 #ifdef __DBG_SKT_AIO_UT
-    TT_DETAIL("%d", (int)(tt_ptrdiff_t)aioctx->cb_param);
+    TT_DEBUG("%d", (int)(tt_ptrdiff_t)aioctx->cb_param);
 #endif
 
     if ((tt_evc_current() != &__a1_client_evc) &&
@@ -2659,7 +2659,7 @@ static void __a2_cli_on_recvfrom(IN tt_skt_t *skt,
     }
 
 #ifdef __DBG_SKT_AIO_UT
-// TT_DETAIL("%d", (int)(tt_ptrdiff_t)aioctx->cb_param);
+// TT_DEBUG("%d", (int)(tt_ptrdiff_t)aioctx->cb_param);
 #endif
     if ((int)(tt_ptrdiff_t)aioctx->cb_param == (__a1_hs_num - 1)) {
         tt_async_skt_destroy(skt, TT_FALSE);
@@ -2708,7 +2708,7 @@ static void __a2_cli_on_sendto(IN tt_skt_t *skt,
     tt_blob_t bufs[__a1_buf_num];
 
 #ifdef __DBG_SKT_AIO_UT
-    TT_DETAIL("%d", (int)(tt_ptrdiff_t)aioctx->cb_param);
+    TT_DEBUG("%d", (int)(tt_ptrdiff_t)aioctx->cb_param);
 #endif
 
     if (__a1_cli_cnt != (int)(tt_ptrdiff_t)aioctx->cb_param) {
@@ -4569,17 +4569,17 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_ab)
 
     while (1) {
         tt_sleep(10 * 1000);
-        TT_DETAIL("socket num: now: %d, peek: %d, sys: %d. fail position: %d",
-                  tt_atomic_s32_get(&__ab_skt_num),
-                  tt_atomic_s32_get(&__ab_peek_num),
-                  tt_atomic_s32_get(&__ab_sys_skt_num),
-                  __ab_fail_line);
+        TT_DEBUG("socket num: now: %d, peek: %d, sys: %d. fail position: %d",
+                 tt_atomic_s32_get(&__ab_skt_num),
+                 tt_atomic_s32_get(&__ab_peek_num),
+                 tt_atomic_s32_get(&__ab_sys_skt_num),
+                 __ab_fail_line);
     }
 
     // wait svr thread
     ret = tt_thread_wait(&svr);
     TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
-    TT_DETAIL("server thread exited");
+    TT_DEBUG("server thread exited");
 
     // test end
     TT_TEST_CASE_LEAVE()
@@ -4602,7 +4602,7 @@ void __dimm_on_destroy(IN tt_skt_t *skt, IN void *cb_param)
 {
     tt_u32_t *n = (tt_u32_t *)cb_param;
     *n -= 1;
-    TT_DETAIL("left aio: %d", *n);
+    TT_DEBUG("left aio: %d", *n);
 }
 
 void __dimm_on_connect(IN struct tt_skt_s *skt,
@@ -4616,7 +4616,7 @@ void __dimm_on_connect(IN struct tt_skt_s *skt,
     }
 
     --__dimm_cli_cnt;
-    TT_DETAIL("left client aio: %d", __dimm_cli_cnt);
+    TT_DEBUG("left client aio: %d", __dimm_cli_cnt);
 }
 
 void __dimm_on_accept(IN tt_skt_t *listening_skt,
@@ -4630,7 +4630,7 @@ void __dimm_on_accept(IN tt_skt_t *listening_skt,
     }
 
     --__dimm_svr_cnt;
-    TT_DETAIL("left server aio: %d", __dimm_svr_cnt);
+    TT_DEBUG("left server aio: %d", __dimm_svr_cnt);
 }
 
 static tt_result_t __dimm_server_on_init(IN tt_evcenter_t *evc,
