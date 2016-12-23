@@ -15,46 +15,48 @@
  */
 
 /**
-@file tt_sys_error.h
-@brief show system error information
+@file tt_log_context.h
+@brief log context
 
-APIs to show system error information
+this file declare log context
 */
 
-#ifndef __TT_SYS_ERROR__
-#define __TT_SYS_ERROR__
+#ifndef __TT_LOG_CONTEXT__
+#define __TT_LOG_CONTEXT__
 
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <log/tt_log.h>
-#include <log/tt_log_manager.h>
+#include <algorithm/tt_buffer.h>
+#include <algorithm/tt_pointer_list.h>
+#include <log/tt_log_def.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
 ////////////////////////////////////////////////////////////
 
-#define TT_ERROR_NTV(...)                                                      \
-    do {                                                                       \
-        TT_ERROR(__VA_ARGS__);                                                 \
-        tt_last_error_show(__FUNCTION__);                                      \
-    } while (0)
-
-#define TT_NET_ERROR_NTV TT_ERROR_NTV
-
-#define TT_ERROR_NTV_DUMP(ptr, owner, member, dump_func, dump_opt, ...)        \
-    do {                                                                       \
-        TT_ERROR(__VA_ARGS__);                                                 \
-        tt_last_error_show(__FUNCTION__);                                      \
-        if (ptr != NULL) {                                                     \
-            dump_func(TT_CONTAINER((ptr), owner, member), (dump_opt));         \
-        }                                                                      \
-    } while (0)
-
 ////////////////////////////////////////////////////////////
 // type definition
 ////////////////////////////////////////////////////////////
+
+struct tt_loglyt_s;
+struct tt_logio_s;
+
+typedef struct
+{
+    tt_buf_attr_t buf_attr;
+} tt_logctx_attr_t;
+
+typedef struct
+{
+    tt_log_level_t level;
+    struct tt_loglyt_s *lyt;
+
+    tt_buf_t buf;
+    tt_ptrlist_t filter_list;
+    tt_ptrlist_t io_list;
+} tt_logctx_t;
 
 ////////////////////////////////////////////////////////////
 // global variants
@@ -64,6 +66,28 @@ APIs to show system error information
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern void tt_last_error_show(IN const tt_char_t *function);
+extern tt_result_t tt_logctx_create(IN tt_logctx_t *lctx,
+                                    IN tt_log_level_t level,
+                                    IN OPT struct tt_loglyt_s *lyt,
+                                    IN OPT tt_logctx_attr_t *attr);
 
-#endif /* __TT_SYS_ERROR__ */
+extern void tt_logctx_destroy(IN tt_logctx_t *lctx);
+
+extern void tt_logctx_attr_default(IN tt_logctx_attr_t *attr);
+
+tt_inline void tt_logctx_set_layout(IN tt_logctx_t *lctx,
+                                    IN struct tt_loglyt_s *lyt)
+{
+    lctx->lyt = lyt;
+}
+
+extern tt_result_t tt_logctx_append_filter(IN tt_logctx_t *lctx,
+                                           IN tt_log_filter_t filter);
+
+extern tt_result_t tt_logctx_append_io(IN tt_logctx_t *lctx,
+                                       IN struct tt_logio_s *lio);
+
+extern tt_result_t tt_logctx_input(IN tt_logctx_t *lctx,
+                                   IN tt_log_entry_t *entry);
+
+#endif /* __TT_LOG_CONTEXT__ */

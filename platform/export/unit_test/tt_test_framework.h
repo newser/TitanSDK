@@ -44,7 +44,7 @@ test framework
 
 #define TT_TEST_CLASS_NAME_LEN (32)
 
-#define TT_TEST_DETAIL TT_DETAIL
+#define TT_TEST_DETAIL TT_DEBUG
 #define TT_TEST_INFO TT_INFO
 #define TT_TEST_ERROR TT_ERROR
 

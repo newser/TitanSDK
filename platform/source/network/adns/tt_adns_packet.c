@@ -323,28 +323,28 @@ tt_result_t tt_adns_pkt_parse_prepare(IN tt_buf_t *buf)
         TT_ERROR("qdcount[%d] exceeds limit[%d]", qdcount, __MAX_QD_NUM);
         return TT_FAIL;
     }
-    TT_DETAIL("qdcount: %d", qdcount);
+    TT_DEBUG("qdcount: %d", qdcount);
 
     TT_DO(tt_buf_get_u16_h(buf, &ancount));
     if (ancount > __MAX_AN_NUM) {
         TT_ERROR("ancount[%d] exceeds limit[%d]", ancount, __MAX_AN_NUM);
         return TT_FAIL;
     }
-    TT_DETAIL("ancount: %d", ancount);
+    TT_DEBUG("ancount: %d", ancount);
 
     TT_DO(tt_buf_get_u16_h(buf, &nscount));
     if (nscount > __MAX_NS_NUM) {
         TT_ERROR("nscount[%d] exceeds limit[%d]", nscount, __MAX_NS_NUM);
         return TT_FAIL;
     }
-    TT_DETAIL("nscount: %d", nscount);
+    TT_DEBUG("nscount: %d", nscount);
 
     TT_DO(tt_buf_get_u16_h(buf, &arcount));
     if (arcount > __MAX_AR_NUM) {
         TT_ERROR("arcount[%d] exceeds limit[%d]", arcount, __MAX_AR_NUM);
         return TT_FAIL;
     }
-    TT_DETAIL("arcount: %d", arcount);
+    TT_DEBUG("arcount: %d", arcount);
 
     // qdcount
     for (i = 0; i < qdcount; ++i) {

@@ -15,26 +15,26 @@
  */
 
 /**
-@file tt_log_field.h
-@brief a log field
+@file tt_log_def.h
+@brief log definition
 
-this file defines log field
+this file declare log definition
 */
 
-#ifndef __TT_LOGFLD__
-#define __TT_LOGFLD__
+#ifndef __TT_LOG_DEF__
+#define __TT_LOG_DEF__
 
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <algorithm/tt_list.h>
+#include <tt_basic_type.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
 ////////////////////////////////////////////////////////////
 
-#define TT_LOGFLD_SEQ_NO_KEY "seq_no"
+#define TT_LOGFLD_SEQ_NUM_KEY "seq_num"
 #define TT_LOGFLD_TIME_KEY "time"
 #define TT_LOGFLD_LOGGER_KEY "logger"
 #define TT_LOGFLD_LEVEL_KEY "level"
@@ -46,10 +46,26 @@ this file defines log field
 // type definition
 ////////////////////////////////////////////////////////////
 
-struct tt_logfmt_s;
+typedef enum {
+    TT_LOG_DEBUG,
+    TT_LOG_INFO,
+    TT_LOG_WARN,
+    TT_LOG_ERROR,
+    TT_LOG_FATAL,
+
+    TT_LOG_LEVEL_NUM
+} tt_log_level_t;
+#define TT_LOG_LEVEL_VALID(l) ((l) < TT_LOG_LEVEL_NUM)
 
 typedef enum {
-    TT_LOGFLD_SEQ_NO,
+    TT_LOGIO_STANDARD,
+
+    TT_LOGIO_NUM
+} tt_logio_type_t;
+#define TT_LOGIO_TYPE_VALID(t) ((t) < TT_LOGIO_NUM)
+
+typedef enum {
+    TT_LOGFLD_SEQ_NUM,
     TT_LOGFLD_TIME,
     TT_LOGFLD_LOGGER,
     TT_LOGFLD_LEVEL,
@@ -61,34 +77,28 @@ typedef enum {
 } tt_logfld_type_t;
 #define TT_LOGFLD_TYPE_VALID(t) ((t) < TT_LOGFLD_TYPE_NUM)
 
-typedef struct tt_logfld_s
+typedef struct
 {
-    tt_lnode_t node;
-    tt_logfld_type_t type;
-    const tt_char_t *format;
-} tt_logfld_t;
+    tt_u32_t seq_num;
+    // todo: time
+    const tt_char_t *logger;
+    tt_log_level_t level;
+    const tt_char_t *content;
+    const tt_char_t *function;
+    tt_u32_t line;
+} tt_log_entry_t;
+
+// return false if the entry should be discarded
+typedef tt_bool_t (*tt_log_filter_t)(IN OUT tt_log_entry_t *entry);
 
 ////////////////////////////////////////////////////////////
 // global variants
 ////////////////////////////////////////////////////////////
 
+extern const tt_char_t *tt_g_log_level_name[TT_LOG_LEVEL_NUM];
+
 ////////////////////////////////////////////////////////////
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern tt_logfld_t *tt_logfld_create(IN struct tt_logfmt_s *lfmt,
-                                     IN const tt_char_t *start,
-                                     IN const tt_char_t *end);
-
-extern void tt_logfld_destroy(IN tt_logfld_t *lfld);
-
-extern tt_result_t tt_logfld_validate(IN struct tt_logfmt_s *lfmt,
-                                      IN const tt_char_t *start,
-                                      IN const tt_char_t *end);
-
-extern tt_u32_t tt_logfld_output(IN tt_logfld_t *lfld,
-                                 IN OUT tt_char_t *pos,
-                                 IN OUT tt_u32_t left_len,
-                                 IN struct tt_logfmt_s *lfmt);
-
-#endif /* __TT_LOGFLD__ */
+#endif /* __TT_LOG_DEF__ */

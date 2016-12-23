@@ -77,7 +77,7 @@ tt_char_t *tt_xml_chdec_len(IN tt_xmlmem_t *xm,
 {
     tt_char_t *dec;
 
-    s_len = tt_strnlen(s, s_len);
+    s_len = (tt_u32_t)tt_strnlen(s, s_len);
 
     // orginal string would always be longer then decoded:
     //  - &#x0 (4B) => 1B utf8

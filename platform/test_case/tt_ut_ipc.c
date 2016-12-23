@@ -243,7 +243,7 @@ static void __utb_on_recv(IN struct tt_ipc_s *ipc,
     }
 
     __utb_recv_num += ev_num;
-    // TT_DETAIL("recv [%d] msg", __utb_recv_num);
+    // TT_DEBUG("recv [%d] msg", __utb_recv_num);
 
     for (i = 0; i < ev_num; ++i) {
         tt_ev_t *new_ev;
@@ -304,7 +304,7 @@ static void __utb_on_destroy(IN struct tt_ipc_s *ipc, IN void *cb_param)
         tt_async_ipc_destroy(&__utb_lis_ipc, TT_FALSE);
     } else if (__cli_mode == 1) {
         ++__cli_closed;
-        TT_DETAIL("closed[%d]", __cli_closed);
+        TT_DEBUG("closed[%d]", __cli_closed);
         if (__cli_closed == __cli_num) {
             tt_async_ipc_destroy(&__utb_lis_ipc, TT_FALSE);
         }
@@ -420,7 +420,7 @@ static void __cli_ipc_on_recv(IN struct tt_ipc_s *ipc,
 
     __cli_recv_num += ev_num;
     if (__cli_recv_num % 1000 == 0) {
-        TT_DETAIL("recv [%d] msg", __cli_recv_num);
+        TT_DEBUG("recv [%d] msg", __cli_recv_num);
     }
 
     // we left the final ev, which would be destroyed by ipc aio
@@ -458,7 +458,7 @@ static void __cli_ipc_on_recv(IN struct tt_ipc_s *ipc,
                     tt_evc_exit(TT_LOCAL_EVC);
                     return;
                 }
-                // TT_DETAIL("2. sent ipc ev[%d] bytes", ev->data_size);
+                // TT_DEBUG("2. sent ipc ev[%d] bytes", ev->data_size);
             }
         } else {
             // ipc messages recved in round 2 must be more than round 1
@@ -473,12 +473,12 @@ static void __cli_ipc_on_recv(IN struct tt_ipc_s *ipc,
 
             __cli_total_send_num += __cli_to_send_num;
             if (__cli_total_send_num % 1000 == 0) {
-                TT_DETAIL("this round: %d msg, total: %d msg",
-                          __cli_to_send_num,
-                          __cli_total_send_num);
+                TT_DEBUG("this round: %d msg, total: %d msg",
+                         __cli_to_send_num,
+                         __cli_total_send_num);
             }
             if (__cli_total_send_num >= __cli_max_ipc_num) {
-                TT_DETAIL("------------- cli ipc exit");
+                TT_DEBUG("------------- cli ipc exit");
                 tt_evc_exit(TT_LOCAL_EVC);
                 return;
             }
@@ -503,7 +503,7 @@ static void __cli_ipc_on_recv(IN struct tt_ipc_s *ipc,
                     tt_evc_exit(TT_LOCAL_EVC);
                     return;
                 }
-                // TT_DETAIL("2. sent ipc ev[%d] bytes", ev->data_size);
+                // TT_DEBUG("2. sent ipc ev[%d] bytes", ev->data_size);
             }
         } else {
             // else keep receiving
@@ -528,7 +528,7 @@ static void __cli_ipc_on_send(IN struct tt_ipc_s *ipc,
     }
 
     ++__cli_send_num;
-    // TT_DETAIL("send [%d] msg", __cli_send_num);
+    // TT_DEBUG("send [%d] msg", __cli_send_num);
 
     if (__cli_mode == 0) {
         // mode 0: deliver a new recv once it reports sending done
@@ -581,7 +581,7 @@ static void __cli_ipc_on_connect(IN struct tt_ipc_s *ipc,
             tt_evc_exit(TT_LOCAL_EVC);
             return;
         }
-        TT_DETAIL("sent ipc ev[%d] bytes", ev->data_size);
+        TT_DEBUG("sent ipc ev[%d] bytes", ev->data_size);
     }
 }
 

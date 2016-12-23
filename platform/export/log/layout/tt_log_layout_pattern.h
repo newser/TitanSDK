@@ -15,42 +15,24 @@
  */
 
 /**
-@file tt_sys_error.h
-@brief show system error information
+@file tt_log_layout_pattern.h
+@brief log layout pattern
 
-APIs to show system error information
+this file defines log layout pattern
 */
 
-#ifndef __TT_SYS_ERROR__
-#define __TT_SYS_ERROR__
+#ifndef __TT_LOG_LAYOUT_PATTERN__
+#define __TT_LOG_LAYOUT_PATTERN__
 
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <log/tt_log.h>
-#include <log/tt_log_manager.h>
+#include <log/layout/tt_log_layout.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
 ////////////////////////////////////////////////////////////
-
-#define TT_ERROR_NTV(...)                                                      \
-    do {                                                                       \
-        TT_ERROR(__VA_ARGS__);                                                 \
-        tt_last_error_show(__FUNCTION__);                                      \
-    } while (0)
-
-#define TT_NET_ERROR_NTV TT_ERROR_NTV
-
-#define TT_ERROR_NTV_DUMP(ptr, owner, member, dump_func, dump_opt, ...)        \
-    do {                                                                       \
-        TT_ERROR(__VA_ARGS__);                                                 \
-        tt_last_error_show(__FUNCTION__);                                      \
-        if (ptr != NULL) {                                                     \
-            dump_func(TT_CONTAINER((ptr), owner, member), (dump_opt));         \
-        }                                                                      \
-    } while (0)
 
 ////////////////////////////////////////////////////////////
 // type definition
@@ -64,6 +46,6 @@ APIs to show system error information
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern void tt_last_error_show(IN const tt_char_t *function);
+extern tt_loglyt_t *tt_loglyt_pattern_create(IN const tt_char_t *pattern);
 
-#endif /* __TT_SYS_ERROR__ */
+#endif /* __TT_LOG_LAYOUT_PATTERN__ */

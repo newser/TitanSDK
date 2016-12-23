@@ -18,11 +18,12 @@
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <init/config_shell/tt_cfgcmd_pwd.h>
+#include <log/io/tt_log_io_standard.h>
 
-#include <algorithm/tt_buffer_format.h>
-#include <init/config_shell/tt_config_shell.h>
-#include <init/tt_config_path.h>
+#include <log/io/tt_log_io.h>
+#include <misc/tt_util.h>
+
+#include <tt_cstd_api.h>
 
 ////////////////////////////////////////////////////////////
 // internal macro
@@ -40,17 +41,16 @@
 // global variant
 ////////////////////////////////////////////////////////////
 
-static const tt_char_t __cd_info[] = "change group";
+static tt_u32_t __lio_std_output(IN tt_logio_t *lio,
+                                 IN const tt_char_t *data,
+                                 IN tt_u32_t data_len);
 
-static const tt_char_t __cd_usage[] = "testing change group";
+static tt_logio_itf_t tt_s_logio_std_itf = {
+    TT_LOGIO_STANDARD,
 
-static tt_u32_t __cd_run(IN tt_cfgsh_t *sh,
-                         IN tt_u32_t argc,
-                         IN tt_char_t *arv[],
-                         OUT tt_buf_t *output);
-
-tt_cfgcmd_t tt_g_cfgcmd_cd = {
-    TT_CFGCMD_NAME_CD, __cd_info, __cd_usage, __cd_run,
+    NULL,
+    NULL,
+    __lio_std_output,
 };
 
 ////////////////////////////////////////////////////////////
@@ -61,39 +61,35 @@ tt_cfgcmd_t tt_g_cfgcmd_cd = {
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-tt_u32_t __cd_run(IN tt_cfgsh_t *sh,
-                  IN tt_u32_t argc,
-                  IN tt_char_t *argv[],
-                  OUT tt_buf_t *output)
+tt_logio_t *tt_logio_std_create(IN OPT tt_logio_std_attr_t *attr)
 {
-    tt_blob_t path;
-    tt_cfgnode_t *cnode;
+    tt_logio_t *lio;
+    tt_logio_std_t *lio_std;
 
-    if (argc == 0) {
-        return TT_CLIOC_NOOUT;
+    lio = tt_logio_create(sizeof(tt_logio_std_t), &tt_s_logio_std_itf);
+    if (lio == NULL) {
+        return NULL;
     }
 
-    path.addr = (tt_u8_t *)argv[0];
-    path.len = (tt_u32_t)tt_strlen(argv[0]);
-    cnode = tt_cfgpath_p2n(sh->root, sh->current, &path);
-    if (cnode == NULL) {
-        tt_buf_putf(output, "can not find: %s", path.addr);
-        return TT_CLIOC_OUT;
+    lio_std = TT_LOGIO_CAST(lio, tt_logio_std_t);
+
+    if (attr != NULL) {
+        tt_memcpy(&lio_std->attr, attr, sizeof(tt_logio_std_attr_t));
+    } else {
+        tt_logio_std_attr_default(&lio_std->attr);
     }
 
-    if (cnode->type != TT_CFGNODE_TYPE_GROUP) {
-        tt_buf_putf(output, "not a group: %s", path.addr);
-        return TT_CLIOC_OUT;
-    }
+    return lio;
+}
 
-    sh->current = cnode;
-    tt_cli_refresh_prefix(&sh->cli, NULL, cnode->name, 0);
+void tt_logio_std_attr_default(IN tt_logio_std_attr_t *attr)
+{
+    attr->reserved = 0;
+}
 
-#if 0
-    tt_buf_put_cstr(output, "cd: /");
-    tt_cfgpath_n2p(sh->root, sh->current, output);
-    return TT_CLIOC_OUT;
-#else
-    return TT_CLIOC_NOOUT;
-#endif
+tt_u32_t __lio_std_output(IN tt_logio_t *lio,
+                          IN const tt_char_t *data,
+                          IN tt_u32_t data_len)
+{
+    return printf("%s", data);
 }

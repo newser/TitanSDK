@@ -20,7 +20,7 @@
 
 #include <log/tt_log_manager.h>
 
-#include <tt_cstd_api.h>
+#include <algorithm/tt_buffer_format.h>
 
 ////////////////////////////////////////////////////////////
 // internal macro
@@ -47,14 +47,44 @@
 ////////////////////////////////////////////////////////////
 
 tt_result_t tt_logmgr_create(IN tt_logmgr_t *lmgr,
+                             IN OPT const tt_char_t *logger,
                              IN OPT tt_logmgr_attr_t *attr)
 {
-    tt_memset(lmgr, 0, sizeof(tt_logmgr_t));
+    tt_logmgr_attr_t __attr;
+    tt_u32_t i;
 
-    if (attr != NULL) {
-        tt_memcpy(&lmgr->attr, attr, sizeof(tt_logmgr_attr_t));
-    } else {
-        tt_logmgr_attr_default(&lmgr->attr);
+    if (lmgr == NULL) {
+        return TT_FAIL;
+    }
+
+    if (attr == NULL) {
+        tt_logmgr_attr_default(&__attr);
+        attr = &__attr;
+    }
+
+    lmgr->logger = TT_COND(logger != NULL, logger, "");
+
+    // default level
+    lmgr->level = TT_LOG_WARN;
+
+    if (!TT_OK(tt_spinlock_create(&lmgr->lock, &attr->lock_attr))) {
+        return TT_FAIL;
+    }
+
+    lmgr->seq_num = 0;
+
+    tt_buf_init(&lmgr->buf, &attr->buf_attr);
+
+    for (i = 0; i < TT_LOG_LEVEL_NUM; ++i) {
+        if (!TT_OK(
+                tt_logctx_create(&lmgr->ctx[i], i, NULL, &attr->ctx_attr[i]))) {
+            tt_u32_t j;
+            for (j = 0; j < i; ++j) {
+                tt_logctx_destroy(&lmgr->ctx[j]);
+            }
+            tt_spinlock_destroy(&lmgr->lock);
+            return TT_FAIL;
+        }
     }
 
     return TT_SUCCESS;
@@ -64,87 +94,120 @@ void tt_logmgr_destroy(IN tt_logmgr_t *lmgr)
 {
     tt_u32_t i;
 
+    if (lmgr == NULL) {
+        return;
+    }
+
+    tt_spinlock_destroy(&lmgr->lock);
+
+    tt_buf_destroy(&lmgr->buf);
+
     for (i = 0; i < TT_LOG_LEVEL_NUM; ++i) {
-        if (lmgr->lfmt[i] != NULL) {
-            tt_logfmt_destroy(lmgr->lfmt[i]);
-            tt_free(lmgr->lfmt[i]);
-        }
+        tt_logctx_destroy(&lmgr->ctx[i]);
     }
 }
 
 void tt_logmgr_attr_default(IN tt_logmgr_attr_t *attr)
 {
-    attr->reserved = 0;
-}
-
-void tt_logmgr_enable(IN tt_logmgr_t *lmgr, IN tt_log_level_t level)
-{
     tt_u32_t i;
 
-    // lower level formats are disabled
-    for (i = TT_LOG_LEVEL_DETAIL; i < (tt_u32_t)level; ++i) {
-        if (lmgr->lfmt[i] != NULL) {
-            tt_logfmt_disable(lmgr->lfmt[i]);
-        }
+    if (attr == NULL) {
+        return;
     }
 
-    // higher level formats are enabled
-    for (; i < TT_LOG_LEVEL_NUM; ++i) {
-        if (lmgr->lfmt[i] != NULL) {
-            tt_logfmt_enable(lmgr->lfmt[i]);
-        }
+    tt_spinlock_attr_default(&attr->lock_attr);
+
+    tt_buf_attr_default(&attr->buf_attr);
+
+    for (i = 0; i < TT_LOG_LEVEL_NUM; ++i) {
+        tt_logctx_attr_default(&attr->ctx_attr[i]);
     }
 }
 
-tt_result_t tt_logmgr_create_format(IN tt_logmgr_t *lmgr,
-                                    IN tt_log_level_t level,
-                                    IN const tt_char_t *pattern,
-                                    IN OPT tt_u32_t buf_size,
-                                    IN OPT const tt_char_t *logger)
-{
-    tt_logfmt_t *lfmt;
-
-    if (!TT_LOG_LEVEL_VALID(level)) {
-        return TT_FAIL;
-    }
-
-    if (lmgr->lfmt[level] != NULL) {
-        return TT_FAIL;
-    }
-
-    lfmt = tt_malloc(sizeof(tt_logfmt_t));
-    if (lfmt == NULL) {
-        return TT_FAIL;
-    }
-
-    if (!TT_OK(tt_logfmt_create(lfmt, level, pattern, buf_size, logger))) {
-        return TT_FAIL;
-    }
-    lmgr->lfmt[level] = lfmt;
-
-    return TT_SUCCESS;
-}
-
-tt_result_t tt_logmgr_add_io(IN tt_logmgr_t *lmgr,
-                             IN tt_log_level_t level,
-                             IN tt_logio_t *lio)
+tt_result_t tt_logmgr_set_layout(IN tt_logmgr_t *lmgr,
+                                 IN tt_log_level_t level,
+                                 IN struct tt_loglyt_s *lyt)
 {
     if (TT_LOG_LEVEL_VALID(level)) {
-        tt_logfmt_t *lfmt = lmgr->lfmt[level];
-        if (lfmt != NULL) {
-            return tt_logfmt_add_io(lfmt, lio);
-        } else {
-            return TT_FAIL;
-        }
-    } else {
+        lmgr->ctx[level].lyt = lyt;
+        return TT_SUCCESS;
+    } else if (level == TT_LOG_LEVEL_NUM) {
         tt_u32_t i;
         for (i = 0; i < TT_LOG_LEVEL_NUM; ++i) {
-            tt_logfmt_t *lfmt = lmgr->lfmt[i];
-            if ((lfmt != NULL) &&
-                !TT_OK(tt_logfmt_add_io(lmgr->lfmt[i], lio))) {
-                return TT_FAIL;
-            }
+            tt_logctx_set_layout(&lmgr->ctx[i], lyt);
         }
         return TT_SUCCESS;
+    } else {
+        return TT_FAIL;
     }
+}
+
+tt_result_t tt_logmgr_append_filter(IN tt_logmgr_t *lmgr,
+                                    IN tt_log_level_t level,
+                                    IN tt_log_filter_t filter)
+{
+    if (TT_LOG_LEVEL_VALID(level)) {
+        return tt_logctx_append_filter(&lmgr->ctx[level], filter);
+    } else if (level == TT_LOG_LEVEL_NUM) {
+        tt_u32_t i;
+        for (i = 0; i < TT_LOG_LEVEL_NUM; ++i) {
+            tt_logctx_append_filter(&lmgr->ctx[i], filter);
+        }
+        return TT_SUCCESS;
+    } else {
+        return TT_FAIL;
+    }
+}
+
+tt_result_t tt_logmgr_append_io(IN tt_logmgr_t *lmgr,
+                                IN tt_log_level_t level,
+                                IN struct tt_logio_s *lio)
+{
+    if (TT_LOG_LEVEL_VALID(level)) {
+        return tt_logctx_append_io(&lmgr->ctx[level], lio);
+    } else if (level == TT_LOG_LEVEL_NUM) {
+        tt_u32_t i;
+        for (i = 0; i < TT_LOG_LEVEL_NUM; ++i) {
+            tt_logctx_append_io(&lmgr->ctx[i], lio);
+        }
+        return TT_SUCCESS;
+    } else {
+        return TT_FAIL;
+    }
+}
+
+tt_result_t tt_logmgr_inputv(IN tt_logmgr_t *lmgr,
+                             IN tt_log_level_t level,
+                             IN const tt_char_t *func,
+                             IN tt_u32_t line,
+                             IN const tt_char_t *format,
+                             IN va_list ap)
+{
+    tt_log_entry_t entry = {0};
+    tt_buf_t *buf = &lmgr->buf;
+    tt_result_t result = TT_FAIL;
+
+    if (level < lmgr->level) {
+        return TT_SUCCESS;
+    }
+
+    entry.seq_num = lmgr->seq_num++;
+    entry.logger = lmgr->logger;
+    entry.level = level;
+    entry.function = func;
+    entry.line = line;
+
+    tt_spinlock_acquire(&lmgr->lock);
+
+    tt_buf_clear(buf);
+    if (TT_OK(tt_buf_putv(&lmgr->buf, format, ap)) &&
+        TT_OK(tt_buf_put_u8(buf, 0))) {
+        entry.content = (tt_char_t *)TT_BUF_RPOS(buf);
+
+        result = tt_logctx_input(&lmgr->ctx[level], &entry);
+    }
+
+    tt_spinlock_release(&lmgr->lock);
+
+    return result;
 }

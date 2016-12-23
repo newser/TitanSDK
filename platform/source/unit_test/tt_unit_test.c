@@ -67,12 +67,14 @@ TT_TEST_UNIT_DECLARE(TEST_UNIT_STRING)
 TT_TEST_UNIT_DECLARE(TEST_UNIT_CFGNODE)
 TT_TEST_UNIT_DECLARE(TEST_UNIT_CFGPATH)
 TT_TEST_UNIT_DECLARE(TEST_UNIT_CFGSHELL)
+TT_TEST_UNIT_DECLARE(TEST_UNIT_LOG_PATTERN)
 
 ////////////////////////////////////////////////////////////
 // global variant
 ////////////////////////////////////////////////////////////
 
 tt_test_unit_t *tt_g_test_unit_list[TEST_UNIT_NUM] = {
+    //&TT_MAKE_TEST_UNIT_NAME(TEST_UNIT_LOG_PATTERN),
     &TT_MAKE_TEST_UNIT_NAME(TEST_UNIT_LOG),
 
 #if 0
@@ -181,7 +183,7 @@ tt_result_t tt_test_unit_init(IN tt_ptr_t reserved)
     } while (0);
 #endif
 
-#if 1
+#if 0
     do {
         tt_result_t tt_xml_ut_init(IN tt_ptr_t reserved);
         tt_xml_ut_init(0);

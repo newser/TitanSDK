@@ -14,44 +14,70 @@
  * limitations under the License.
  */
 
-/**
-@file tt_log_field_time.h
-@brief log field: time
-
-this file defines time log field
-*/
-
-#ifndef __TT_LOG_FIELD_TIME__
-#define __TT_LOG_FIELD_TIME__
-
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <tt_basic_type.h>
+#include <log/layout/tt_log_layout.h>
+
+#include <memory/tt_memory_alloc.h>
 
 ////////////////////////////////////////////////////////////
-// macro definition
+// internal macro
 ////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////
-// type definition
+// internal type
 ////////////////////////////////////////////////////////////
 
-struct tt_logfld_s;
-struct tt_logfmt_s;
+////////////////////////////////////////////////////////////
+// extern declaration
+////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////
-// global variants
+// global variant
 ////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern tt_u32_t tt_logfld_time_output(IN struct tt_logfld_s *lfld,
-                                      IN OUT tt_char_t *pos,
-                                      IN OUT tt_u32_t left_len,
-                                      IN struct tt_logfmt_s *lfmt);
+////////////////////////////////////////////////////////////
+// interface implementation
+////////////////////////////////////////////////////////////
 
-#endif /* __TT_LOG_FIELD_TIME__ */
+tt_loglyt_t *tt_loglyt_create(IN tt_u32_t size, IN tt_loglyt_itf_t *itf)
+{
+    tt_loglyt_t *ll;
+
+    if ((itf == NULL) || (itf->format == NULL)) {
+        return NULL;
+    }
+
+    ll = tt_mem_alloc(sizeof(tt_loglyt_t) + size);
+    if (ll == NULL) {
+        return NULL;
+    }
+
+    ll->itf = itf;
+
+    if ((ll->itf->create != NULL) && !TT_OK(ll->itf->create(ll))) {
+        tt_mem_free(ll);
+        return NULL;
+    }
+
+    return ll;
+}
+
+void tt_loglyt_destroy(IN tt_loglyt_t *ll)
+{
+    if (ll == NULL) {
+        return;
+    }
+
+    if (ll->itf->destroy != NULL) {
+        ll->itf->destroy(ll);
+    }
+
+    tt_mem_free(ll);
+}

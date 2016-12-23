@@ -50,7 +50,6 @@ typedef enum {
 
     // config
     TT_COMPONENT_CONFIG,
-    TT_COMPONENT_LOG_CONFIG,
 
     // version
     TT_COMPONENT_VERSION_INFO,
@@ -64,9 +63,6 @@ typedef enum {
     TT_COMPONENT_SPINLOCK,
     TT_COMPONENT_NUMA,
     TT_COMPONENT_PROCESS,
-
-    // synchronous log, require spinlock
-    TT_COMPONENT_SYNC_LOG,
 
     // memory
     TT_COMPONENT_PAGE,
@@ -102,6 +98,10 @@ typedef enum {
 
     // network
     TT_COMPONENT_MODULE_ADNS,
+
+    // log manager
+    TT_COMPONENT_LOG_MANAGER,
+    TT_COMPONENT_LOGMGR_CONFIG,
 
     TT_COMPONENT_NUM
 } tt_component_id_t;

@@ -28,7 +28,9 @@ this file defines config node
 // import header files
 ////////////////////////////////////////////////////////////
 
+#include <algorithm/tt_list.h>
 #include <init/tt_config_node_def.h>
+#include <log/tt_log.h>
 #include <misc/tt_assert.h>
 #include <misc/tt_util.h>
 

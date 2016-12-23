@@ -41,7 +41,7 @@
 #define TT_ASSERT_SSL TT_ASSERT
 
 #if 0
-#define TT_SSL_DETAIL(...) TT_DETAIL(__VA_ARGS__)
+#define TT_SSL_DETAIL(...) TT_DEBUG(__VA_ARGS__)
 #else
 #define TT_SSL_DETAIL(...)
 #endif

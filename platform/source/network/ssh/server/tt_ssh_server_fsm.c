@@ -91,9 +91,9 @@ tt_result_t tt_sshsvr_fsm(IN struct tt_sshsvrconn_s *svrconn,
 enter_fsm:
 
     state = svrconn->state;
-    TT_DETAIL("ssh fsm state: [%s], event[%s]",
-              tt_sshsvr_state_name[state],
-              tt_sshsvr_event_name[event]);
+    TT_DEBUG("ssh fsm state: [%s], event[%s]",
+             tt_sshsvr_state_name[state],
+             tt_sshsvr_event_name[event]);
 
     TT_ASSERT(TT_SSHSVR_STATE_VALID(state));
     TT_ASSERT(__state_evhdlr_table[state] != NULL);

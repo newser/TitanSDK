@@ -15,46 +15,57 @@
  */
 
 /**
-@file tt_sys_error.h
-@brief show system error information
+@file tt_log_io.h
+@brief log io
 
-APIs to show system error information
+this file defines log io
 */
 
-#ifndef __TT_SYS_ERROR__
-#define __TT_SYS_ERROR__
+#ifndef __TT_LOG_IO__
+#define __TT_LOG_IO__
 
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <log/tt_log.h>
-#include <log/tt_log_manager.h>
+#include <algorithm/tt_list.h>
+#include <log/tt_log_def.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
 ////////////////////////////////////////////////////////////
 
-#define TT_ERROR_NTV(...)                                                      \
-    do {                                                                       \
-        TT_ERROR(__VA_ARGS__);                                                 \
-        tt_last_error_show(__FUNCTION__);                                      \
-    } while (0)
-
-#define TT_NET_ERROR_NTV TT_ERROR_NTV
-
-#define TT_ERROR_NTV_DUMP(ptr, owner, member, dump_func, dump_opt, ...)        \
-    do {                                                                       \
-        TT_ERROR(__VA_ARGS__);                                                 \
-        tt_last_error_show(__FUNCTION__);                                      \
-        if (ptr != NULL) {                                                     \
-            dump_func(TT_CONTAINER((ptr), owner, member), (dump_opt));         \
-        }                                                                      \
-    } while (0)
+#define TT_LOGIO_CAST(lio, type) TT_PTR_INC(type, lio, sizeof(tt_logio_t))
 
 ////////////////////////////////////////////////////////////
 // type definition
 ////////////////////////////////////////////////////////////
+
+struct tt_logio_s;
+
+typedef tt_result_t (*tt_logio_create_t)(IN struct tt_logio_s *lio);
+
+typedef void (*tt_logio_destroy_t)(IN struct tt_logio_s *lio);
+
+// - data must be null terminated string, len equals tt_strlen(data)
+// - return how many bytes are outputted
+typedef tt_u32_t (*tt_logio_output_t)(IN struct tt_logio_s *lio,
+                                      IN const tt_char_t *data,
+                                      IN tt_u32_t len);
+
+typedef struct
+{
+    tt_logio_type_t type;
+
+    tt_logio_create_t create;
+    tt_logio_destroy_t destroy;
+    tt_logio_output_t output;
+} tt_logio_itf_t;
+
+typedef struct tt_logio_s
+{
+    tt_logio_itf_t *itf;
+} tt_logio_t;
 
 ////////////////////////////////////////////////////////////
 // global variants
@@ -64,6 +75,16 @@ APIs to show system error information
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern void tt_last_error_show(IN const tt_char_t *function);
+// size does not count sizeof(tt_logio_t)
+extern tt_logio_t *tt_logio_create(IN tt_u32_t size, IN tt_logio_itf_t *itf);
 
-#endif /* __TT_SYS_ERROR__ */
+extern void tt_logio_destroy(IN tt_logio_t *lio);
+
+tt_inline tt_u32_t tt_logio_output(IN tt_logio_t *lio,
+                                   IN const tt_char_t *data,
+                                   IN tt_u32_t len)
+{
+    return lio->itf->output(lio, data, len);
+}
+
+#endif /* __TT_LOG_IO__ */

@@ -39,7 +39,7 @@
 
 #define __RRS_NEW_STATE(rrs, new_state)                                        \
     do {                                                                       \
-        TT_DETAIL("adns rrs[%p]: [%d] => [%d]", rrs, rrs->state, new_state);   \
+        TT_DEBUG("adns rrs[%p]: [%d] => [%d]", rrs, rrs->state, new_state);    \
         rrs->state = new_state;                                                \
     } while (0)
 
@@ -464,7 +464,7 @@ void __adns_rrs_fsm(IN tt_adns_rrset_t *rrs,
     tt_adns_dmgr_t *dmgr = rrs->dm->dmgr;
     tt_adns_tmr_attr_t *tmr_attr = &dmgr->attr.tmr_attr;
 
-    TT_DETAIL("rrs fsm state[%d], ev[%d], param[%p]", rrs->state, ev, param);
+    TT_DEBUG("rrs fsm state[%d], ev[%d], param[%p]", rrs->state, ev, param);
 
     if (ev == __RRS_EV_TIMER) {
         __rrs_tmr_event_t tmr_ev = (__rrs_tmr_event_t)param;
@@ -472,7 +472,7 @@ void __adns_rrs_fsm(IN tt_adns_rrset_t *rrs,
             case TT_ADNS_RRS_INIT: {
                 // ignored events
                 if (tmr_ev != __RRS_TMR_EV_QUERY) {
-                    TT_DETAIL("ingored tmr ev[%d]", tmr_ev);
+                    TT_DEBUG("ingored tmr ev[%d]", tmr_ev);
                     break;
                 }
 
@@ -534,7 +534,7 @@ void __adns_rrs_fsm(IN tt_adns_rrset_t *rrs,
             case TT_ADNS_RRS_QUERYING: {
                 // ignored events
                 if (tmr_ev != __RRS_TMR_EV_QUERY) {
-                    TT_DETAIL("ingored tmr ev[%d]", tmr_ev);
+                    TT_DEBUG("ingored tmr ev[%d]", tmr_ev);
                     break;
                 }
 
@@ -571,7 +571,7 @@ void __adns_rrs_fsm(IN tt_adns_rrset_t *rrs,
             case TT_ADNS_RRS_READY: {
                 // ignored events
                 if (tmr_ev != __RRS_TMR_EV_EXPIRE) {
-                    TT_DETAIL("ingored tmr ev[%d]", tmr_ev);
+                    TT_DEBUG("ingored tmr ev[%d]", tmr_ev);
                     break;
                 }
 
@@ -590,7 +590,7 @@ void __adns_rrs_fsm(IN tt_adns_rrset_t *rrs,
             case TT_ADNS_RRS_UNAVAIL: {
                 // ignored events
                 if (tmr_ev != __RRS_TMR_EV_DESTROY) {
-                    TT_DETAIL("ingored tmr ev[%d]", tmr_ev);
+                    TT_DEBUG("ingored tmr ev[%d]", tmr_ev);
                     break;
                 }
 
@@ -601,7 +601,7 @@ void __adns_rrs_fsm(IN tt_adns_rrset_t *rrs,
             } break;
 
             default: {
-                TT_DETAIL("ignored ev[%d] in state[%d]", ev, rrs->state);
+                TT_DEBUG("ignored ev[%d] in state[%d]", ev, rrs->state);
             } break;
         }
     } else if (ev == __RRS_EV_QUERY) {
@@ -621,7 +621,7 @@ void __adns_rrs_fsm(IN tt_adns_rrset_t *rrs,
 
             // ignore query req in other state
             default: {
-                TT_DETAIL("ignored ev[%d] in state[%d]", ev, rrs->state);
+                TT_DEBUG("ignored ev[%d] in state[%d]", ev, rrs->state);
             } break;
         }
     } else if (ev == __RRS_EV_PACKET) {
@@ -820,13 +820,13 @@ __calc_exp:
         if (min_ttl > (dmgr->resolver_num * tmr_cfg->total_retrans)) {
             *next_expire =
                 min_ttl - (dmgr->resolver_num * tmr_cfg->total_retrans);
-            TT_DETAIL("next expire is set to %d", *next_expire);
+            TT_DEBUG("next expire is set to %d", *next_expire);
         } else if (min_ttl > tmr_cfg->total_retrans) {
             *next_expire = min_ttl - tmr_cfg->total_retrans;
-            TT_DETAIL("next expire is set to %d", *next_expire);
+            TT_DEBUG("next expire is set to %d", *next_expire);
         } else {
             *next_expire = 0;
-            TT_DETAIL("next expire is set to 0");
+            TT_DEBUG("next expire is set to 0");
         }
 
         return TT_SUCCESS;

@@ -139,13 +139,13 @@ tt_u32_t __cfgsh_on_cmd(IN struct tt_cli_s *cli,
 
     sh->arg_idx = 0;
     if (!TT_OK(__parse_arg(sh, (tt_char_t *)line)) || (sh->arg_idx == 0)) {
-        tt_buf_vput(output, "bad input: ", line);
+        tt_buf_putf(output, "bad input: ", line);
         return TT_CLIOC_OUT;
     }
 
     cmd = tt_cfgcmd_find(sh->arg[0]);
     if (cmd == NULL) {
-        tt_buf_vput(output, "command not found: %s", sh->arg[0]);
+        tt_buf_putf(output, "command not found: %s", sh->arg[0]);
         return TT_CLIOC_OUT;
     }
 

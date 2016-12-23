@@ -496,7 +496,6 @@ static tt_bool_t __utdr_2(tt_xmldoc_t *xdoc, tt_xmlnr_t *xnr)
     tt_u32_t ut_out_len;
 
     tt_xnode_t *r2, *tmp;
-    tt_result_t ret;
 
     tt_xmldoc_reset(xdoc, 0);
     tt_xmlnr_reset(xnr, 0);

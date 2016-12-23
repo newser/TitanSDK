@@ -207,8 +207,12 @@ tt_inline tt_result_t tt_buf_put_csubstr(IN tt_buf_t *buf,
     return tt_buf_put(buf, (tt_u8_t *)cstr, TT_MIN(len, n));
 }
 
-extern tt_result_t tt_buf_vput(IN tt_buf_t *buf,
+extern tt_result_t tt_buf_putf(IN tt_buf_t *buf,
                                IN const tt_char_t *format,
                                ...);
+
+extern tt_result_t tt_buf_putv(IN tt_buf_t *buf,
+                               IN const tt_char_t *format,
+                               IN va_list ap);
 
 #endif /* __TT_BUFFER_FORMAT__ */

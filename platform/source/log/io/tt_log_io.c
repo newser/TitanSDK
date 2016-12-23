@@ -18,12 +18,9 @@
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <log/tt_log_io_std.h>
+#include <log/io/tt_log_io.h>
 
-#include <log/tt_log_io.h>
-#include <misc/tt_util.h>
-
-#include <tt_cstd_api.h>
+#include <memory/tt_memory_alloc.h>
 
 ////////////////////////////////////////////////////////////
 // internal macro
@@ -45,53 +42,34 @@
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-static tt_u32_t __lio_std_output(IN struct tt_logio_s *lio,
-                                 IN tt_u8_t *data,
-                                 IN tt_u32_t data_len);
-static void __lio_std_destroy(IN struct tt_logio_s *lio);
-
 ////////////////////////////////////////////////////////////
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-struct tt_logio_s *tt_logio_std_create(IN OPT tt_logio_std_attr_t *attr)
+tt_logio_t *tt_logio_create(IN tt_u32_t size, IN tt_logio_itf_t *itf)
 {
-    tt_logio_itf_t itf;
     tt_logio_t *lio;
-    tt_logio_std_t *lio_std;
 
-    itf.output = __lio_std_output;
-    itf.destroy = __lio_std_destroy;
-
-    lio = tt_logio_create(sizeof(tt_logio_std_t), TT_LOGIO_TYPE_STD, &itf);
+    lio = (tt_logio_t *)tt_mem_alloc(sizeof(tt_logio_t) + size);
     if (lio == NULL) {
         return NULL;
     }
 
-    lio_std = TT_LOGIO_CAST(lio, tt_logio_std_t);
+    lio->itf = itf;
 
-    if (attr != NULL) {
-        tt_memcpy(&lio_std->attr, attr, sizeof(tt_logio_std_attr_t));
-    } else {
-        tt_logio_std_attr_default(&lio_std->attr);
+    if ((lio->itf->create != NULL) && !TT_OK(lio->itf->create(lio))) {
+        tt_mem_free(lio);
+        return NULL;
     }
 
     return lio;
 }
 
-void tt_logio_std_attr_default(IN tt_logio_std_attr_t *attr)
+void tt_logio_destroy(IN tt_logio_t *lio)
 {
-    attr->reserved = 0;
-}
+    if (lio->itf->destroy != NULL) {
+        lio->itf->destroy(lio);
+    }
 
-// returned account does not include terminating null
-tt_u32_t __lio_std_output(IN struct tt_logio_s *lio,
-                          IN tt_u8_t *data,
-                          IN tt_u32_t data_len)
-{
-    return printf("%s", data);
-}
-
-void __lio_std_destroy(IN struct tt_logio_s *lio)
-{
+    tt_mem_free(lio);
 }

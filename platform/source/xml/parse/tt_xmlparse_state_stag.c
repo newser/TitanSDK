@@ -122,8 +122,9 @@ tt_result_t __xpsst_stag_update(IN struct tt_xmlparser_s *parser,
             return TT_FAIL;
         }
 
-        if (complete_cb && (parser->cb.on_start_tag_complete != NULL) &&
-            !TT_OK(parser->cb.on_start_tag_complete(parser))) {
+        on_start_tag_complete = parser->cb.on_start_tag_complete;
+        if (complete_cb && (on_start_tag_complete != NULL) &&
+            !TT_OK(on_start_tag_complete(parser))) {
             return TT_FAIL;
         }
     }

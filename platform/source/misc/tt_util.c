@@ -278,7 +278,7 @@ tt_char_t *tt_cstr_copy_n(IN const tt_char_t *cstr, IN tt_u32_t len)
 {
     tt_char_t *new_cstr;
 
-    len = tt_strnlen(cstr, len);
+    len = (tt_u32_t)tt_strnlen(cstr, len);
 
     new_cstr = tt_mem_alloc(len + 1);
     if (new_cstr != NULL) {

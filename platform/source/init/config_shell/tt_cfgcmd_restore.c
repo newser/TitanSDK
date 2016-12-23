@@ -95,7 +95,7 @@ tt_u32_t __restore_current(IN tt_cfgsh_t *sh, OUT tt_buf_t *output)
 
     cnode = sh->current;
     if (cnode == NULL) {
-        tt_buf_vput(output, "internal error");
+        tt_buf_putf(output, "internal error");
         return TT_CLIOC_OUT;
     }
 
@@ -114,7 +114,7 @@ tt_u32_t __restore_single(IN tt_cfgsh_t *sh,
     path_blob.len = (tt_u32_t)tt_strlen(path);
     cnode = tt_cfgpath_p2n(sh->root, sh->current, &path_blob);
     if (cnode == NULL) {
-        tt_buf_vput(output, "can not find: %s", path);
+        tt_buf_putf(output, "can not find: %s", path);
         return TT_CLIOC_OUT;
     }
 

@@ -15,46 +15,38 @@
  */
 
 /**
-@file tt_sys_error.h
-@brief show system error information
+@file tt_log_field.h
+@brief log field
 
-APIs to show system error information
+this file defines log field
 */
 
-#ifndef __TT_SYS_ERROR__
-#define __TT_SYS_ERROR__
+#ifndef __TT_LOG_FIELD__
+#define __TT_LOG_FIELD__
 
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <log/tt_log.h>
-#include <log/tt_log_manager.h>
+#include <algorithm/tt_list.h>
+#include <log/tt_log_def.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
 ////////////////////////////////////////////////////////////
 
-#define TT_ERROR_NTV(...)                                                      \
-    do {                                                                       \
-        TT_ERROR(__VA_ARGS__);                                                 \
-        tt_last_error_show(__FUNCTION__);                                      \
-    } while (0)
-
-#define TT_NET_ERROR_NTV TT_ERROR_NTV
-
-#define TT_ERROR_NTV_DUMP(ptr, owner, member, dump_func, dump_opt, ...)        \
-    do {                                                                       \
-        TT_ERROR(__VA_ARGS__);                                                 \
-        tt_last_error_show(__FUNCTION__);                                      \
-        if (ptr != NULL) {                                                     \
-            dump_func(TT_CONTAINER((ptr), owner, member), (dump_opt));         \
-        }                                                                      \
-    } while (0)
-
 ////////////////////////////////////////////////////////////
 // type definition
 ////////////////////////////////////////////////////////////
+
+struct tt_buf_s;
+
+typedef struct tt_logfld_s
+{
+    tt_lnode_t node;
+    tt_logfld_type_t type;
+    tt_char_t *format;
+} tt_logfld_t;
 
 ////////////////////////////////////////////////////////////
 // global variants
@@ -64,6 +56,17 @@ APIs to show system error information
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern void tt_last_error_show(IN const tt_char_t *function);
+// a log field must be reentrant
+extern tt_logfld_t *tt_logfld_create(IN const tt_char_t *start,
+                                     IN const tt_char_t *end);
 
-#endif /* __TT_SYS_ERROR__ */
+extern void tt_logfld_destroy(IN tt_logfld_t *lf);
+
+extern tt_result_t tt_logfld_check(IN const tt_char_t *start,
+                                   IN const tt_char_t *end);
+
+extern tt_result_t tt_logfld_output(IN tt_logfld_t *lf,
+                                    IN tt_log_entry_t *entry,
+                                    OUT struct tt_buf_s *outbuf);
+
+#endif /* __TT_LOG_FIELD__ */

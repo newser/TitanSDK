@@ -22,8 +22,6 @@
 #include <unit_test/tt_unit_test.h>
 
 #include <log/tt_log.h>
-#include <log/tt_log_io_std.h>
-#include <os/tt_spinlock.h>
 #include <tt_platform.h>
 
 ////////////////////////////////////////////////////////////

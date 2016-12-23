@@ -18,7 +18,7 @@
 @file tt_log_manager.h
 @brief log manager
 
-this file defines log manager
+this file declare log manager
 */
 
 #ifndef __TT_LOG_MANAGER__
@@ -28,9 +28,9 @@ this file defines log manager
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <log/tt_log_field.h>
-#include <log/tt_log_format.h>
-#include <log/tt_log_io.h>
+#include <algorithm/tt_buffer.h>
+#include <log/tt_log_context.h>
+#include <os/tt_spinlock.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
@@ -40,18 +40,24 @@ this file defines log manager
 // type definition
 ////////////////////////////////////////////////////////////
 
-struct tt_spinlock_s;
+struct tt_loglyt_s;
+struct tt_logio_s;
 
-typedef struct tt_logmgr_attr_s
+typedef struct
 {
-    tt_u32_t reserved;
+    tt_spinlock_attr_t lock_attr;
+    tt_buf_attr_t buf_attr;
+    tt_logctx_attr_t ctx_attr[TT_LOG_LEVEL_NUM];
 } tt_logmgr_attr_t;
 
 typedef struct tt_logmgr_s
 {
-    tt_logmgr_attr_t attr;
-
-    tt_logfmt_t *lfmt[TT_LOG_LEVEL_NUM];
+    const tt_char_t *logger;
+    tt_log_level_t level;
+    tt_spinlock_t lock;
+    tt_u32_t seq_num;
+    tt_buf_t buf;
+    tt_logctx_t ctx[TT_LOG_LEVEL_NUM];
 } tt_logmgr_t;
 
 ////////////////////////////////////////////////////////////
@@ -63,24 +69,62 @@ typedef struct tt_logmgr_s
 ////////////////////////////////////////////////////////////
 
 extern tt_result_t tt_logmgr_create(IN tt_logmgr_t *lmgr,
+                                    IN const tt_char_t *logger,
                                     IN OPT tt_logmgr_attr_t *attr);
 
 extern void tt_logmgr_destroy(IN tt_logmgr_t *lmgr);
 
 extern void tt_logmgr_attr_default(IN tt_logmgr_attr_t *attr);
 
-// set level to TT_LOG_LEVEL_DETAIL to enable all, or TT_LOG_LEVEL_NUM
-// to disable all
-extern void tt_logmgr_enable(IN tt_logmgr_t *lmgr, IN tt_log_level_t level);
+// set level to TT_LOG_LEVEL_NUM to disable all
+tt_inline tt_result_t tt_logmgr_set_level(IN tt_logmgr_t *lmgr,
+                                          IN tt_log_level_t level)
+{
+    if (TT_LOG_LEVEL_VALID(level) || (level == TT_LOG_LEVEL_NUM)) {
+        lmgr->level = level;
+        return TT_SUCCESS;
+    } else {
+        return TT_FAIL;
+    }
+}
 
-extern tt_result_t tt_logmgr_create_format(IN tt_logmgr_t *lmgr,
+// set level to TT_LOG_LEVEL_NUM to set all
+extern tt_result_t tt_logmgr_set_layout(IN tt_logmgr_t *lmgr,
+                                        IN tt_log_level_t level,
+                                        IN struct tt_loglyt_s *lyt);
+
+// set level to TT_LOG_LEVEL_NUM to set all
+extern tt_result_t tt_logmgr_append_filter(IN tt_logmgr_t *lmgr,
                                            IN tt_log_level_t level,
-                                           IN const tt_char_t *pattern,
-                                           IN OPT tt_u32_t buf_size,
-                                           IN OPT const tt_char_t *logger);
+                                           IN tt_log_filter_t filter);
 
-extern tt_result_t tt_logmgr_add_io(IN tt_logmgr_t *lmgr,
+// set level to TT_LOG_LEVEL_NUM to set all
+extern tt_result_t tt_logmgr_append_io(IN tt_logmgr_t *lmgr,
+                                       IN tt_log_level_t level,
+                                       IN struct tt_logio_s *lio);
+
+extern tt_result_t tt_logmgr_inputv(IN tt_logmgr_t *lmgr,
                                     IN tt_log_level_t level,
-                                    IN struct tt_logio_s *lio);
+                                    IN const tt_char_t *func,
+                                    IN tt_u32_t line,
+                                    IN const tt_char_t *format,
+                                    IN va_list ap);
+
+tt_inline tt_result_t tt_logmgr_inputf(IN tt_logmgr_t *lmgr,
+                                       IN tt_log_level_t level,
+                                       IN const tt_char_t *func,
+                                       IN tt_u32_t line,
+                                       IN const tt_char_t *format,
+                                       ...)
+{
+    va_list ap;
+    tt_result_t result;
+
+    va_start(ap, format);
+    result = tt_logmgr_inputv(lmgr, level, func, line, format, ap);
+    va_end(ap);
+
+    return result;
+}
 
 #endif /* __TT_LOG_MANAGER__ */
