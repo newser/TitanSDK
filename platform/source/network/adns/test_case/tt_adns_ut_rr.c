@@ -198,7 +198,7 @@ TT_TEST_CASE("tt_adns_ut_rr_basic",
 
     // change name
     do {
-        tt_char_t *nn = tt_mem_alloc(sizeof("12345"));
+        tt_char_t *nn = tt_malloc(sizeof("12345"));
         TT_TEST_CHECK_NOT_EQUAL(nn, NULL, "");
 
         tt_memcpy(nn, "12345", sizeof("12345"));
@@ -690,7 +690,7 @@ __parse : {
         goto __parse;
     }
 
-    tt_mem_free(pos);
+    tt_free(pos);
     tt_adns_pkt_release(pkt);
 
     // test end

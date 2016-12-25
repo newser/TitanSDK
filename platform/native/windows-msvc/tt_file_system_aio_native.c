@@ -727,12 +727,12 @@ tt_result_t tt_fwrite_async_ntv(IN tt_file_t *file,
     if (blob_num <= __INLINE_FBLOB_NUM) {
         fblob_state->blob = aio->fblob;
     } else {
-        fblob_state->blob = (tt_blob_t *)tt_mem_alloc(__FBLOB_SIZE(blob_num));
+        fblob_state->blob = (tt_blob_t *)tt_malloc(__FBLOB_SIZE(blob_num));
         if (fblob_state->blob == NULL) {
             TT_ERROR("no mem for buf array");
 
             // can not use tt_ev_destroy, as ev data is not consistent now
-            tt_mem_free(ev);
+            tt_free(ev);
             return TT_FAIL;
         }
     }
@@ -829,11 +829,11 @@ tt_result_t tt_fread_async_ntv(IN tt_file_t *file,
     if (blob_num <= __INLINE_FBLOB_NUM) {
         fblob_state->blob = aio->fblob;
     } else {
-        fblob_state->blob = (tt_blob_t *)tt_mem_alloc(__FBLOB_SIZE(blob_num));
+        fblob_state->blob = (tt_blob_t *)tt_malloc(__FBLOB_SIZE(blob_num));
         if (fblob_state->blob == NULL) {
             TT_ERROR("no mem for buf array");
 
-            tt_mem_free(ev);
+            tt_free(ev);
             return TT_FAIL;
         }
     }
@@ -1558,7 +1558,7 @@ void __fwrite_on_destroy(IN struct tt_ev_s *ev)
     __fblob_state_t *fblob_state = &aio->fblob_state;
 
     if (fblob_state->blob != (tt_blob_t *)aio->fblob) {
-        tt_mem_free(fblob_state->blob);
+        tt_free(fblob_state->blob);
     }
 }
 
@@ -1667,7 +1667,7 @@ void __fread_on_destroy(IN struct tt_ev_s *ev)
     __fblob_state_t *fblob_state = &aio->fblob_state;
 
     if (fblob_state->blob != (tt_blob_t *)aio->fblob) {
-        tt_mem_free(fblob_state->blob);
+        tt_free(fblob_state->blob);
     }
 }
 

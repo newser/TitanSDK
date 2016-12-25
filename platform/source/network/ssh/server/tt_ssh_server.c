@@ -77,7 +77,7 @@ tt_sshsvr_t *tt_sshsvr_create(IN tt_sktaddr_t *address,
     TT_ASSERT(address != NULL);
     TT_ASSERT(sshch_cb != NULL);
 
-    sshsvr = (tt_sshsvr_t *)tt_mem_alloc(sizeof(tt_sshsvr_t));
+    sshsvr = (tt_sshsvr_t *)tt_malloc(sizeof(tt_sshsvr_t));
     if (sshsvr == NULL) {
         TT_ERROR("no mem for sshsvr");
         return NULL;
@@ -164,7 +164,7 @@ sfail:
     }
 
     if (__done & __SSVR_MEM) {
-        tt_mem_free(sshsvr);
+        tt_free(sshsvr);
     }
 
     return NULL;
@@ -191,7 +191,7 @@ void tt_sshsvr_destroy(IN tt_sshsvr_t *sshsvr, IN tt_bool_t brute)
         // rsa key
         tt_sshsvr_destroy_rsa(sshsvr);
 
-        tt_mem_free(sshsvr);
+        tt_free(sshsvr);
     } else {
         tt_lnode_t *node;
 
@@ -253,7 +253,7 @@ tt_result_t tt_sshsvr_create_rsa(IN tt_sshsvr_t *sshsvr)
     ssh_attr = &sshsvr->attr;
 
     // rsa public
-    rsa = (tt_rsa_t *)tt_mem_alloc(sizeof(tt_rsa_t));
+    rsa = (tt_rsa_t *)tt_malloc(sizeof(tt_rsa_t));
     if (rsa == NULL) {
         TT_ERROR("no mem for ssh rsa");
         return TT_FAIL;
@@ -264,18 +264,18 @@ tt_result_t tt_sshsvr_create_rsa(IN tt_sshsvr_t *sshsvr)
                              TT_RSA_TYPE_PUBLIC,
                              &ssh_attr->rsapub_key_data,
                              &ssh_attr->rsapub_attr))) {
-        tt_mem_free(rsa);
+        tt_free(rsa);
         return TT_FAIL;
     }
     sshsvr->rsapub = rsa;
 
     // rsa private
-    rsa = (tt_rsa_t *)tt_mem_alloc(sizeof(tt_rsa_t));
+    rsa = (tt_rsa_t *)tt_malloc(sizeof(tt_rsa_t));
     if (rsa == NULL) {
         TT_ERROR("no mem for ssh rsa priv");
 
         tt_rsa_destroy(sshsvr->rsapub);
-        tt_mem_free(sshsvr->rsapub);
+        tt_free(sshsvr->rsapub);
         sshsvr->rsapub = NULL;
         return TT_FAIL;
     }
@@ -285,10 +285,10 @@ tt_result_t tt_sshsvr_create_rsa(IN tt_sshsvr_t *sshsvr)
                              TT_RSA_TYPE_PRIVATE,
                              &ssh_attr->rsapriv_key_data,
                              &ssh_attr->rsapriv_attr))) {
-        tt_mem_free(rsa);
+        tt_free(rsa);
 
         tt_rsa_destroy(sshsvr->rsapub);
-        tt_mem_free(sshsvr->rsapub);
+        tt_free(sshsvr->rsapub);
         sshsvr->rsapub = NULL;
         return TT_FAIL;
     }
@@ -305,13 +305,13 @@ void tt_sshsvr_destroy_rsa(IN tt_sshsvr_t *sshsvr)
 
     if (sshsvr->rsapub != NULL) {
         tt_rsa_destroy(sshsvr->rsapub);
-        tt_mem_free(sshsvr->rsapub);
+        tt_free(sshsvr->rsapub);
         sshsvr->rsapub = NULL;
     }
 
     if (sshsvr->rsapriv != NULL) {
         tt_rsa_destroy(sshsvr->rsapriv);
-        tt_mem_free(sshsvr->rsapriv);
+        tt_free(sshsvr->rsapriv);
         sshsvr->rsapriv = NULL;
     }
 }
@@ -399,5 +399,5 @@ void __sshsvr_destroy(IN tt_sshsvr_t *sshsvr)
     // rsa key
     tt_sshsvr_destroy_rsa(sshsvr);
 
-    tt_mem_free(sshsvr);
+    tt_free(sshsvr);
 }

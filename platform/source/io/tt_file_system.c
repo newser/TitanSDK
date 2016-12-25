@@ -358,7 +358,7 @@ tt_result_t tt_fcontent(IN const tt_char_t *path, OUT tt_blob_t *content)
     }
 
     // alloc and read
-    p = (tt_u8_t *)tt_mem_alloc((tt_u32_t)file_len);
+    p = (tt_u8_t *)tt_malloc((tt_u32_t)file_len);
     if (p == NULL) {
         TT_ERROR("no mem for reading file");
         goto f2b_fail;
@@ -384,7 +384,7 @@ tt_result_t tt_fcontent(IN const tt_char_t *path, OUT tt_blob_t *content)
 f2b_fail:
 
     if (__done & __P2F_TALLOC) {
-        tt_mem_free(p);
+        tt_free(p);
     }
 
     if (__done & __P2F_FOPEN) {

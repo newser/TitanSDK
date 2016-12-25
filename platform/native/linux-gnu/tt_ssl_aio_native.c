@@ -540,7 +540,7 @@ void __ssl_on_destroy(IN tt_skt_t *skt, IN void *cb_param)
     exit->on_destroy(ssl, exit->cb_param);
 
     if (from_alloc) {
-        tt_mem_free(ssl);
+        tt_free(ssl);
     }
 }
 

@@ -154,7 +154,7 @@ tt_result_t tt_hmac_create_ntv(IN tt_hmac_ntv_t *sys_hmac,
     }
     TT_ASSERT(size != 0);
 
-    p = tt_mem_alloc(size);
+    p = tt_malloc(size);
     if (p == NULL) {
         TT_ERROR("no mem for hmac obj");
         return TT_FAIL;
@@ -165,7 +165,7 @@ tt_result_t tt_hmac_create_ntv(IN tt_hmac_ntv_t *sys_hmac,
     if (ntst != STATUS_SUCCESS) {
         TT_ERROR("fail to create hmac obj");
 
-        tt_mem_free(p);
+        tt_free(p);
         return TT_FAIL;
     }
 
@@ -173,7 +173,7 @@ tt_result_t tt_hmac_create_ntv(IN tt_hmac_ntv_t *sys_hmac,
         TT_ERROR("fail to save hmac key");
 
         BCryptDestroyHash(h_hmac);
-        tt_mem_free(p);
+        tt_free(p);
         return TT_FAIL;
     }
 
@@ -186,7 +186,7 @@ tt_result_t tt_hmac_create_ntv(IN tt_hmac_ntv_t *sys_hmac,
 void tt_hmac_destroy_ntv(IN tt_hmac_ntv_t *sys_hmac)
 {
     BCryptDestroyHash(sys_hmac->h_hmac);
-    tt_mem_free(sys_hmac->mem);
+    tt_free(sys_hmac->mem);
 
     tt_blob_destroy(&sys_hmac->key);
 }

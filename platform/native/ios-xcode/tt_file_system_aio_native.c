@@ -722,12 +722,12 @@ tt_result_t tt_fwrite_async_ntv(IN tt_file_t *file,
     if (iov_num <= __INLINE_FBUF_NUM) {
         fbuf_state->iov = (struct iovec *)aio->fbuf;
     } else {
-        fbuf_state->iov = (struct iovec *)tt_mem_alloc(__FBUF_SIZE(iov_num));
+        fbuf_state->iov = (struct iovec *)tt_malloc(__FBUF_SIZE(iov_num));
         if (fbuf_state->iov == NULL) {
             TT_ERROR("no mem for buf array");
 
             // can not use tt_ev_destroy, as ev data is not consistent now
-            tt_mem_free(ev);
+            tt_free(ev);
             return TT_FAIL;
         }
     }
@@ -823,11 +823,11 @@ tt_result_t tt_fread_async_ntv(IN tt_file_t *file,
     if (iov_num <= __INLINE_FBUF_NUM) {
         fbuf_state->iov = (struct iovec *)aio->fbuf;
     } else {
-        fbuf_state->iov = (struct iovec *)tt_mem_alloc(__FBUF_SIZE(iov_num));
+        fbuf_state->iov = (struct iovec *)tt_malloc(__FBUF_SIZE(iov_num));
         if (fbuf_state->iov == NULL) {
             TT_ERROR("no mem for buf array");
 
-            tt_mem_free(ev);
+            tt_free(ev);
             return TT_FAIL;
         }
     }
@@ -1445,7 +1445,7 @@ void __fwrite_on_destroy(IN struct tt_ev_s *ev)
     __fbuf_state_t *fbuf_state = &aio->fbuf_state;
 
     if (fbuf_state->iov != (struct iovec *)aio->fbuf) {
-        tt_mem_free(fbuf_state->iov);
+        tt_free(fbuf_state->iov);
     }
 }
 
@@ -1576,7 +1576,7 @@ void __fread_on_destroy(IN struct tt_ev_s *ev)
     __fbuf_state_t *fbuf_state = &aio->fbuf_state;
 
     if (fbuf_state->iov != (struct iovec *)aio->fbuf) {
-        tt_mem_free(fbuf_state->iov);
+        tt_free(fbuf_state->iov);
     }
 }
 

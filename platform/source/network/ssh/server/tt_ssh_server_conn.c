@@ -121,7 +121,7 @@ tt_sshsvrconn_t *tt_sshsvrconn_create(IN tt_sshsvr_t *server)
 
     size = sizeof(tt_sshsvrconn_t);
     size += sizeof(tt_sshch_t *) * server->attr.channel_per_conn;
-    svrconn = tt_mem_alloc(size);
+    svrconn = tt_malloc(size);
     if (svrconn == NULL) {
         TT_ERROR("no mem for server connection");
         return NULL;
@@ -216,7 +216,7 @@ scfail:
     }
 
     if (__done & __SCO_MEM) {
-        tt_mem_free(svrconn);
+        tt_free(svrconn);
     }
 
     return NULL;
@@ -418,7 +418,7 @@ void __svrconn_on_destroy(IN tt_skt_t *skt, IN void *cb_param)
     TT_ASSERT(svrconn->server != NULL);
     server = svrconn->server;
 
-    tt_mem_free(svrconn);
+    tt_free(svrconn);
 
     if (server->skt_destroyed && tt_list_empty(&server->conn_list)) {
         __sshsvr_destroy(server);

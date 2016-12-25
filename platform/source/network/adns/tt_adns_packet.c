@@ -81,7 +81,7 @@ tt_adns_pkt_t *tt_adns_pkt_create(IN tt_u16_t __id,
     tt_adns_pkt_t *pkt;
     tt_buf_attr_t buf_attr;
 
-    pkt = (tt_adns_pkt_t *)tt_mem_alloc(sizeof(tt_adns_pkt_t));
+    pkt = (tt_adns_pkt_t *)tt_malloc(sizeof(tt_adns_pkt_t));
     if (pkt == NULL) {
         TT_ERROR("no mem for adns pkt");
         return NULL;
@@ -96,7 +96,7 @@ tt_adns_pkt_t *tt_adns_pkt_create(IN tt_u16_t __id,
     if (!TT_OK(tt_buf_create(&pkt->buf, 0, &buf_attr))) {
         TT_ERROR("fail to create adns pkt buf");
 
-        tt_mem_free(pkt);
+        tt_free(pkt);
         return NULL;
     }
 
@@ -133,7 +133,7 @@ void __adns_pkt_destroy(IN tt_adns_pkt_t *pkt)
 
     tt_buf_destroy(&pkt->buf);
 
-    tt_mem_free(pkt);
+    tt_free(pkt);
 
     __ADNS_PKT_NUM_DEC();
 }

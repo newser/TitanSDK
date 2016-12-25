@@ -93,7 +93,7 @@ tt_result_t tt_process_create_ntv(IN tt_process_ntv_t *sys_proc,
 
         // utf8 string
         utf8_len = len + 1;
-        utf8_cli = (tt_char_t *)tt_mem_alloc(utf8_len);
+        utf8_cli = (tt_char_t *)tt_malloc(utf8_len);
         if (utf8_cli == NULL) {
             TT_ERROR("no mem for utf8 cmd line");
             goto __pc_out;
@@ -111,7 +111,7 @@ tt_result_t tt_process_create_ntv(IN tt_process_ntv_t *sys_proc,
 
         // to wchar string
         lpCommandLine = tt_wchar_create(utf8_cli, NULL);
-        tt_mem_free(utf8_cli);
+        tt_free(utf8_cli);
         if (lpCommandLine == NULL) {
             TT_ERROR("no mem for process cmd line");
             goto __pc_out;

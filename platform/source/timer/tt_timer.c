@@ -71,7 +71,7 @@ tt_tmr_t *tt_tmr_create(IN OPT IN struct tt_tmr_mgr_s *mgr,
     }
 
     // alloc timer
-    tmr = (tt_tmr_t *)tt_mem_alloc(sizeof(tt_tmr_t));
+    tmr = (tt_tmr_t *)tt_malloc(sizeof(tt_tmr_t));
     if (tmr == NULL) {
         TT_ERROR("no mem for creating timer");
         return NULL;
@@ -108,7 +108,7 @@ void tt_tmr_destroy(IN tt_tmr_t *tmr)
 
     if (tmr->heap_idx == TT_ARHEAP_NODE_NULL) {
         // not in heap
-        tt_mem_free(tmr);
+        tt_free(tmr);
     } else {
 #if 1
         // keep it in heap could avoid rebuilding heap
@@ -116,7 +116,7 @@ void tt_tmr_destroy(IN tt_tmr_t *tmr)
 #else
         // or free it, which could make more memory available
         tt_arheap_remove(&tmr->mgr->tmr_heap, tmr->heap_idx);
-        tt_mem_free(tmr);
+        tt_free(tmr);
 #endif
     }
 }

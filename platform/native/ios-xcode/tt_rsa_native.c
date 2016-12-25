@@ -65,7 +65,7 @@
             __len -= 1;                                                        \
         }                                                                      \
                                                                                \
-        __addr = (tt_u8_t *)tt_mem_alloc(__len);                               \
+        __addr = (tt_u8_t *)tt_malloc(__len);                                  \
         if (__addr == NULL) {                                                  \
             TT_ERROR("no mem");                                                \
             goto fail_label;                                                   \
@@ -605,7 +605,7 @@ CFDataRef __pkcs1_public(IN tt_blob_t *key_data, IN tt_bool_t pem_armor)
 p1pub_out:
 
     if (pem_armor) {
-        tt_mem_free(der);
+        tt_free(der);
     }
 
     return pkcs1_cfdata;
@@ -692,7 +692,7 @@ CFDataRef __pkcs1_private(IN tt_blob_t *key_data, IN tt_bool_t pem_armor)
     pkcs1_cfdata = CFDataCreate(NULL, der, der_len);
 
     if (pem_armor) {
-        tt_mem_free(der);
+        tt_free(der);
     }
 
     return pkcs1_cfdata;
@@ -733,7 +733,7 @@ CFDataRef __pkcs8_bsafe(IN tt_blob_t *key_data, IN tt_bool_t pem_armor)
         TT_ERROR("fail to create pkcs8 decode stream");
 
         if (pem_armor) {
-            tt_mem_free(der);
+            tt_free(der);
         }
         return NULL;
     }
@@ -764,7 +764,7 @@ p8_out:
     tt_buf_destroy(&buf);
 
     if (pem_armor) {
-        tt_mem_free(der);
+        tt_free(der);
     }
 
     return bsafe_cfdata;

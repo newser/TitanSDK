@@ -66,7 +66,7 @@ wchar_t *tt_wchar_create(IN const tt_char_t *utf8_str,
     }
 
     byte_num = char_num * sizeof(wchar_t);
-    wchar_str = (wchar_t *)tt_mem_alloc(char_num * sizeof(wchar_t));
+    wchar_str = (wchar_t *)tt_malloc(char_num * sizeof(wchar_t));
     if (wchar_str == NULL) {
         TT_ERROR("no mem for wchar string");
         return NULL;
@@ -77,7 +77,7 @@ wchar_t *tt_wchar_create(IN const tt_char_t *utf8_str,
     if (char_num == 0) {
         TT_ERROR_NTV("fail to convert to wchar");
 
-        tt_mem_free(wchar_str);
+        tt_free(wchar_str);
         return NULL;
     }
 
@@ -108,7 +108,7 @@ wchar_t *tt_wchar_create_ex(IN const tt_char_t *utf8_str,
     }
 
     byte_num = char_num * sizeof(wchar_t);
-    wchar_str = (wchar_t *)tt_mem_alloc(byte_num);
+    wchar_str = (wchar_t *)tt_malloc(byte_num);
     if (wchar_str == NULL) {
         TT_ERROR("no mem for wchar string");
         return NULL;
@@ -120,7 +120,7 @@ wchar_t *tt_wchar_create_ex(IN const tt_char_t *utf8_str,
     if (char_num == 0) {
         TT_ERROR_NTV("fail to convert to wchar");
 
-        tt_mem_free(wchar_str);
+        tt_free(wchar_str);
         return NULL;
     }
 
@@ -130,7 +130,7 @@ wchar_t *tt_wchar_create_ex(IN const tt_char_t *utf8_str,
 
 void tt_wchar_destroy(IN wchar_t *wchar_str)
 {
-    tt_mem_free(wchar_str);
+    tt_free(wchar_str);
 }
 
 tt_char_t *tt_utf8_create(IN wchar_t *wchar_str, OUT OPT tt_u32_t *utf8_bytes)
@@ -149,7 +149,7 @@ tt_char_t *tt_utf8_create(IN wchar_t *wchar_str, OUT OPT tt_u32_t *utf8_bytes)
         return NULL;
     }
 
-    utf8_str = (tt_char_t *)tt_mem_alloc(char_num);
+    utf8_str = (tt_char_t *)tt_malloc(char_num);
     if (utf8_str == NULL) {
         TT_ERROR("no mem for utf8 string");
         return NULL;
@@ -166,7 +166,7 @@ tt_char_t *tt_utf8_create(IN wchar_t *wchar_str, OUT OPT tt_u32_t *utf8_bytes)
     if (char_num == 0) {
         TT_ERROR_NTV("fail to convert to wchar");
 
-        tt_mem_free(utf8_str);
+        tt_free(utf8_str);
         return NULL;
     }
 
@@ -176,5 +176,5 @@ tt_char_t *tt_utf8_create(IN wchar_t *wchar_str, OUT OPT tt_u32_t *utf8_bytes)
 
 void tt_utf8_destroy(IN tt_char_t *utf8_str)
 {
-    tt_mem_free(utf8_str);
+    tt_free(utf8_str);
 }

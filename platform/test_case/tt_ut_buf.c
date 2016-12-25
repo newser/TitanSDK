@@ -380,7 +380,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_buf_get_rand)
 
     for (i = 0; i < test_num; ++i) {
         test_buf_size = tt_rand_u32() % 4000 + 1;
-        test_buf = tt_mem_alloc(test_buf_size);
+        test_buf = tt_malloc(test_buf_size);
         TT_TEST_CHECK_NOT_EQUAL(test_buf, NULL, "");
 
         for (j = 0; j < test_buf_size; ++j) {
@@ -400,7 +400,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_buf_get_rand)
 
             ret = tt_buf_create_copy(&strm, test_buf, test_buf_size, NULL);
             TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
-            tt_mem_free(test_buf);
+            tt_free(test_buf);
 
             while (1) {
                 tt_u32_t __n = tt_rand_u32() % 5;
@@ -803,7 +803,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_bufp_str_rand)
     // test start
     
     buf_size = tt_rand_u32() % 1000;
-    buf = (tt_u8_t*)tt_mem_alloc(buf_size);
+    buf = (tt_u8_t*)tt_malloc(buf_size);
     TT_TEST_CHECK_NOT_EQUAL(buf, NULL, "");
     
     for (i = 0; i < buf_size; ++i)

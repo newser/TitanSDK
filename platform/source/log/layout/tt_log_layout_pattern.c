@@ -94,9 +94,9 @@ tt_loglyt_t *tt_loglyt_pattern_create(IN const tt_char_t *pattern)
 
     llp = TT_LOGLYT_CAST(ll, tt_loglyt_patn_t);
 
-    llp->patn = tt_mem_alloc((tt_u32_t)tt_strlen(pattern) + 1);
+    llp->patn = tt_malloc((tt_u32_t)tt_strlen(pattern) + 1);
     if (llp->patn == NULL) {
-        tt_mem_free(ll);
+        tt_free(ll);
         return NULL;
     }
     llp->patn_len = 0;
@@ -116,7 +116,7 @@ void __llp_destroy(IN tt_loglyt_t *ll)
     tt_loglyt_patn_t *llp = TT_LOGLYT_CAST(ll, tt_loglyt_patn_t);
 
     __llp_fields_destroy(&llp->fields);
-    tt_mem_free(llp->patn);
+    tt_free(llp->patn);
 }
 
 tt_result_t __llp_format(IN struct tt_loglyt_s *ll,

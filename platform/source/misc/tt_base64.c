@@ -176,7 +176,7 @@ tt_result_t tt_base64_decode_alloc(IN tt_u8_t *data,
         return TT_SUCCESS;
     }
 
-    __decoded = (tt_u8_t *)tt_mem_alloc(__decoded_len);
+    __decoded = (tt_u8_t *)tt_malloc(__decoded_len);
     if (__decoded == NULL) {
         TT_ERROR("no mem for base64 decoding");
         return TT_FAIL;
@@ -187,7 +187,7 @@ tt_result_t tt_base64_decode_alloc(IN tt_u8_t *data,
                                 attr,
                                 __decoded,
                                 &__decoded_len))) {
-        tt_mem_free(__decoded);
+        tt_free(__decoded);
         return TT_FAIL;
     }
 

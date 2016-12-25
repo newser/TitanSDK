@@ -226,8 +226,8 @@ tt_result_t __mpn_reserve(IN tt_mpn_t *a, IN tt_u32_t val_byte)
     TT_ASSERT_MPN(a->unit_size < val_byte);
 
     // allocate new units
-    val_byte = tt_mem_size(val_byte);
-    new_unit = (tt_mpn_unit_t *)tt_mem_alloc(val_byte);
+    val_byte = tt_msize(val_byte);
+    new_unit = (tt_mpn_unit_t *)tt_malloc(val_byte);
     if (new_unit == NULL) {
         TT_ERROR("no mem for a reserving");
         return TT_FAIL;
@@ -262,7 +262,7 @@ void tt_mpn_show(IN const tt_char_t *prefix, IN tt_mpn_t *a, IN tt_u32_t flag)
     buf_size += a->unit_num * (TT_MPN_USIZE * 2 + 2); // number
     buf_size += 10; // some extra space
 
-    buf = (tt_char_t *)tt_mem_alloc(buf_size + 1);
+    buf = (tt_char_t *)tt_malloc(buf_size + 1);
     if (buf == NULL) {
         TT_ERROR("no mem to print a");
         return;
@@ -317,7 +317,7 @@ prt:
     // todo: make adaptive log buf size
     TT_INFO("%s%s", prefix, buf);
 
-    tt_mem_free(buf);
+    tt_free(buf);
 }
 
 tt_u32_t tt_mpn_bitnum(IN tt_mpn_t *mpn)
@@ -659,7 +659,7 @@ tt_result_t __mpn_create_decimal(IN tt_mpn_t *a,
 void __mpn_free(IN tt_mpn_t *a)
 {
     if (a->unit != &a->unit_inline) {
-        tt_mem_free(a->unit);
+        tt_free(a->unit);
     }
 }
 
@@ -679,8 +679,8 @@ void __mpn_shrink(IN tt_mpn_t *a)
         TT_ASSERT(a->unit_num == 1);
         a->unit_inline = a->unit[0];
     } else {
-        new_size = tt_mem_size(new_size);
-        new_unit = (tt_mpn_unit_t *)tt_mem_alloc(new_size);
+        new_size = tt_msize(new_size);
+        new_unit = (tt_mpn_unit_t *)tt_malloc(new_size);
         if (new_unit) {
             TT_WARN("fail to refine a");
             return;

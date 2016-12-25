@@ -15,29 +15,14 @@
  */
 
 /**
- @file tt_algorithm_commmon.h
- @brief algorithm commmon definitions
+@file tt_memory_spring.h
+@brief memory spring APIs
 
- this file algorithm commmon definitions
- <hr>
+APIs to extend/compress memory
+*/
 
- <b>API FORMAT</b><br>
- not all api are mandatory
- - create(container, comparer, key2node, ...)
- - destroy(container)
- - insert(container, pos, node)
- - add(container, node)
- - remove(container, node)
- - find(container, key, key_len)
- - empty(container)
- - count(container)/len(container)
- - push(container, node)/pop(container, node)
- - head(container)/tail(container)
- - clear(container)
- */
-
-#ifndef __TT_ALGORITHM_COMMON__
-#define __TT_ALGORITHM_COMMON__
+#ifndef __TT_MEMORY_SPRING__
+#define __TT_MEMORY_SPRING__
 
 ////////////////////////////////////////////////////////////
 // import header files
@@ -53,38 +38,12 @@
 // type definition
 ////////////////////////////////////////////////////////////
 
-/**
-@typedef tt_s32_t (*tt_cmp_t)(IN void* l, IN void* r)
-a compare function type
-
-@param [IN] l left operator
-@param [IN] r right operator
-
-@return
-- 1 if "l" > "r"
-- 0 if "l" == "r"
-- -1 if "l" < "r"
-*/
-typedef tt_s32_t (*tt_cmp_t)(IN void *l, IN void *r);
-
-/**
-@typedef tt_s32_t (*tt_cmpkey_t)(IN void* n,
-                                       IN const tt_u8_t *key,
-                                       IN tt_u32_t key_len)
-compare node with key
-
-@param [IN] n node in container
-@param [IN] key key
-@param [IN] key_len length of key in bytes
-
-@return
-- 1 if "n" > "key"
-- 0 if "n" == "key"
-- -1 if "n" < "key"
-*/
-typedef tt_s32_t (*tt_cmpkey_t)(IN void *n,
-                                IN const tt_u8_t *key,
-                                IN tt_u32_t key_len);
+typedef struct
+{
+    tt_u32_t min_extend;
+    tt_u32_t max_extend;
+    tt_u32_t max_limit;
+} tt_memspg_t;
 
 ////////////////////////////////////////////////////////////
 // global variants
@@ -94,4 +53,20 @@ typedef tt_s32_t (*tt_cmpkey_t)(IN void *n,
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-#endif /* __TT_ALGORITHM_COMMON__ */
+// must: 0 < min_extend < max_extend < max_limit <= (1 << 30)
+extern void tt_memspg_init(IN tt_memspg_t *mspg,
+                           IN tt_u32_t min_extend,
+                           IN tt_u32_t max_extend,
+                           IN tt_u32_t max_limit);
+
+extern tt_result_t tt_memspg_extend(IN tt_memspg_t *mspg,
+                                    IN OUT tt_u8_t **p,
+                                    IN OUT tt_u32_t *size,
+                                    IN tt_u32_t to_size);
+
+extern tt_result_t tt_memspg_compress(IN tt_memspg_t *mspg,
+                                      IN OUT tt_u8_t **p,
+                                      IN OUT tt_u32_t *size,
+                                      IN tt_u32_t to_size);
+
+#endif // __TT_MEMORY_SPRING__

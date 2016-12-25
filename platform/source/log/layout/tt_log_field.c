@@ -278,7 +278,7 @@ tt_logfld_t *__lf_create(IN tt_logfld_type_t type,
         fmt_len = (tt_u32_t)tt_strlen(__lf_table[type].default_format);
     }
 
-    lf = (tt_logfld_t *)tt_mem_alloc(sizeof(tt_logfld_t) + fmt_len + 1);
+    lf = (tt_logfld_t *)tt_malloc(sizeof(tt_logfld_t) + fmt_len + 1);
     if (lf != NULL) {
         tt_lnode_init(&lf->node);
         lf->type = type;
@@ -295,7 +295,7 @@ tt_logfld_t *__lf_create(IN tt_logfld_type_t type,
 
 void __lf_destroy(IN tt_logfld_t *lf)
 {
-    tt_mem_free(lf);
+    tt_free(lf);
 }
 
 tt_result_t __lf_check(IN const tt_char_t *start, IN const tt_char_t *end)

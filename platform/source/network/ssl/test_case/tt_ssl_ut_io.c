@@ -1948,8 +1948,8 @@ static void __st1_acc_on_destroy(IN struct tt_ssl_s *ssl, IN void *cb_param)
     }
 
     do {
-        tt_ssl_t *new_ssl = tt_mem_alloc(sizeof(tt_ssl_t));
-        tt_skt_t *new_skt = tt_mem_alloc(sizeof(tt_skt_t));
+        tt_ssl_t *new_ssl = tt_malloc(sizeof(tt_ssl_t));
+        tt_skt_t *new_skt = tt_malloc(sizeof(tt_skt_t));
         tt_skt_attr_t skt_attr;
         tt_ssl_attr_t ssl_attr;
         tt_ssl_exit_t acc_ssl_de = {__st1_acc_on_destroy,
@@ -2000,8 +2000,8 @@ static void __st1_con_on_destroy(IN struct tt_ssl_s *ssl, IN void *cb_param)
     }
 
     do {
-        tt_ssl_t *new_ssl = tt_mem_alloc(sizeof(tt_ssl_t));
-        tt_skt_t *new_skt = tt_mem_alloc(sizeof(tt_skt_t));
+        tt_ssl_t *new_ssl = tt_malloc(sizeof(tt_ssl_t));
+        tt_skt_t *new_skt = tt_malloc(sizeof(tt_skt_t));
         tt_skt_attr_t skt_attr;
         tt_ssl_attr_t ssl_attr;
         tt_skt_exit_t skt_de = {__sut_skt_on_destroy,
@@ -2269,8 +2269,8 @@ static tt_result_t __st1_evc_on_init(IN struct tt_evcenter_s *evc,
 
 #if 1 // disable code below to act as a tls client
     for (i = 0; i < __ST1_CONCURRENT_NUM; ++i) {
-        tt_ssl_t *new_ssl = tt_mem_alloc(sizeof(tt_ssl_t));
-        tt_skt_t *new_skt = tt_mem_alloc(sizeof(tt_skt_t));
+        tt_ssl_t *new_ssl = tt_malloc(sizeof(tt_ssl_t));
+        tt_skt_t *new_skt = tt_malloc(sizeof(tt_skt_t));
         tt_skt_attr_t skt_attr;
         tt_ssl_attr_t ssl_attr;
 
@@ -2298,8 +2298,8 @@ static tt_result_t __st1_evc_on_init(IN struct tt_evcenter_s *evc,
 
 #if 1 // disable code below to act as a tls server
     for (i = 0; i < __ST1_CONCURRENT_NUM; ++i) {
-        tt_ssl_t *new_ssl = tt_mem_alloc(sizeof(tt_ssl_t));
-        tt_skt_t *new_skt = tt_mem_alloc(sizeof(tt_skt_t));
+        tt_ssl_t *new_ssl = tt_malloc(sizeof(tt_ssl_t));
+        tt_skt_t *new_skt = tt_malloc(sizeof(tt_skt_t));
         tt_skt_attr_t skt_attr;
         tt_ssl_attr_t ssl_attr;
 

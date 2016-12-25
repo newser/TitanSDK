@@ -34,11 +34,14 @@ APIs to allocate/free memory
 // macro definition
 ////////////////////////////////////////////////////////////
 
-#define tt_mem_alloc tt_malloc
+#define tt_malloc tt_c_malloc
 
-#define tt_mem_free tt_free
+#define tt_xmalloc tt_malloc
 
-#define tt_mem_size(s) (s)
+#define tt_free tt_c_free
+
+// real size to be allocated when caller is requiring s bytes
+#define tt_msize(s) (s)
 
 ////////////////////////////////////////////////////////////
 // type definition

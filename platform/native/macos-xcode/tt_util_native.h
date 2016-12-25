@@ -138,7 +138,7 @@ extern tt_result_t __skt_kevent(IN int kq,
                                 IN uint16_t flags,
                                 IN uint64_t udata);
 
-// remember use tt_mem_free to free the return value
+// remember use tt_free to free the return value
 extern char *tt_cfstring_ptr(IN CFStringRef cfstr, OUT OPT tt_u32_t *len);
 
 extern void tt_osstatus_show(IN OSStatus osst);

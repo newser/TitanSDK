@@ -76,7 +76,7 @@ tt_cfgnode_t *tt_cfgnode_create(IN tt_u32_t len,
         return NULL;
     }
 
-    cnode = (tt_cfgnode_t *)tt_mem_alloc(sizeof(tt_cfgnode_t) + len);
+    cnode = (tt_cfgnode_t *)tt_malloc(sizeof(tt_cfgnode_t) + len);
     if (cnode == NULL) {
         TT_ERROR("no mem for cfg node");
         return NULL;
@@ -113,7 +113,7 @@ void tt_cfgnode_destroy(IN tt_cfgnode_t *cnode, IN tt_bool_t committed)
         cnode->itf->on_destroy(cnode, committed);
     }
 
-    tt_mem_free(cnode);
+    tt_free(cnode);
 }
 
 void tt_cfgnode_attr_default(IN tt_cfgnode_attr_t *attr)

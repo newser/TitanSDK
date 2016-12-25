@@ -153,7 +153,7 @@ tt_result_t tt_arheap_destroy(IN tt_arheap_t *heap)
             return TT_FAIL;
         }
 
-        tt_mem_free(heap->node);
+        tt_free(heap->node);
     }
 
     return TT_SUCCESS;
@@ -177,8 +177,8 @@ tt_result_t tt_arheap_add(IN tt_arheap_t *heap,
 
     // check if allocated
     if (heap->node == NULL) {
-        tt_u32_t allocated = tt_mem_size(__AH_INIT_SIZE(heap));
-        void *node_array = tt_mem_alloc(allocated);
+        tt_u32_t allocated = tt_msize(__AH_INIT_SIZE(heap));
+        void *node_array = tt_malloc(allocated);
         if (node_array == NULL) {
             TT_ERROR("fail to allocate array heap");
             return TT_FAIL;
@@ -195,8 +195,8 @@ tt_result_t tt_arheap_add(IN tt_arheap_t *heap,
 
     // check if should expand
     if (heap->tail_idx == heap->node_num) {
-        tt_u32_t allocated = tt_mem_size(__AH_SIZE(heap) * 2);
-        void *node_array = tt_mem_alloc(allocated);
+        tt_u32_t allocated = tt_msize(__AH_SIZE(heap) * 2);
+        void *node_array = tt_malloc(allocated);
         if (node_array == NULL) {
             TT_ERROR("fail to expand array heap");
             return TT_FAIL;
@@ -204,7 +204,7 @@ tt_result_t tt_arheap_add(IN tt_arheap_t *heap,
         tt_memset(node_array, 0, __AH_SIZE(heap) * 2);
         tt_memcpy(node_array, heap->node, __AH_SIZE(heap));
 
-        tt_mem_free(heap->node);
+        tt_free(heap->node);
         heap->node = node_array;
 
         // heap->node_num = heap->node_num * 2;

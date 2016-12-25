@@ -391,7 +391,7 @@ tt_result_t tt_ipc_connect_async_ntv(IN tt_ipc_ntv_t *sys_ipc,
 
     // init aio
     if (!TT_OK(__mk_pipe_name(remote_addr, &aio->remote_addr))) {
-        tt_mem_free(ev);
+        tt_free(ev);
         return TT_FAIL;
     }
 
@@ -689,7 +689,7 @@ tt_result_t __mk_pipe_name(IN const tt_char_t *raw_name,
         TT_WARN("windows ipc name can only be at most 256 chars");
     }
 
-    name = (tt_char_t *)tt_mem_alloc(name_len);
+    name = (tt_char_t *)tt_malloc(name_len);
     if (name == NULL) {
         TT_ERROR("no mem for ipc pipe name");
         return TT_FAIL;
@@ -758,7 +758,7 @@ void __destroy_ipc(IN tt_ipc_ntv_t *sys_ipc,
     }
 
     if (sys_ipc->local_addr != NULL) {
-        tt_mem_free(sys_ipc->local_addr);
+        tt_free(sys_ipc->local_addr);
     }
 
     if (sys_ipc->aio_ev != NULL) {
@@ -787,7 +787,7 @@ void __destroy_ipc(IN tt_ipc_ntv_t *sys_ipc,
     // do not access aio->ipc from now on as application may freed aio->ipc
 
     if (check_free && from_alloc) {
-        tt_mem_free(ipc);
+        tt_free(ipc);
     }
 }
 
@@ -926,7 +926,7 @@ void __ipc_connect_on_destroy(IN struct tt_ev_s *ev)
 {
     __ipc_connect_t *aio = TT_EV_DATA(ev, __ipc_connect_t);
     if (aio->remote_addr != NULL) {
-        tt_mem_free(aio->remote_addr);
+        tt_free(aio->remote_addr);
     }
 }
 
@@ -953,7 +953,7 @@ tt_bool_t __do_ipc_accept(IN __ipc_accept_t *aio, IN tt_result_t iocp_result)
         }
 
         if (new_sys_ipc->local_addr != NULL) {
-            tt_mem_free(new_sys_ipc->local_addr);
+            tt_free(new_sys_ipc->local_addr);
         }
 
         TT_ASSERT_IPCAIO(tt_list_empty(&new_sys_ipc->read_q));
@@ -1010,7 +1010,7 @@ void __do_ipc_accept_cb(IN __ipc_accept_t *aio)
     aio->on_accept(aio->listening_ipc, new_ipc, &aioctx);
 
     if (!TT_OK(aioctx.result) && from_alloc) {
-        tt_mem_free(new_ipc);
+        tt_free(new_ipc);
     }
 }
 
@@ -1223,7 +1223,7 @@ calc_done:
     data_ev_size = sizeof(tt_ev_t *) * data_ev_num;
     data_ev_num = 0;
 
-    data_ev = (tt_ev_t **)tt_mem_alloc(data_ev_size);
+    data_ev = (tt_ev_t **)tt_malloc(data_ev_size);
     if (data_ev == NULL) {
         TT_ERROR("no mem for ipc tev array");
         return TT_FAIL;
@@ -1253,7 +1253,7 @@ calc_done:
 extract_done:
 
     if (data_ev_num == 0) {
-        tt_mem_free(data_ev);
+        tt_free(data_ev);
         return TT_PROCEEDING;
     }
 
@@ -1276,7 +1276,7 @@ void __ipc_recv_on_destroy(IN struct tt_ev_s *ev)
 {
     __ipc_recv_t *aio = TT_EV_DATA(ev, __ipc_recv_t);
     if (aio->data_ev != NULL) {
-        tt_mem_free(aio->data_ev);
+        tt_free(aio->data_ev);
     }
 }
 

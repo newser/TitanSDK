@@ -426,7 +426,7 @@ tt_result_t __sslctx_add_cert(IN tt_sslctx_ntv_t *ctx,
     tt_sslctx_node_t *sctx_node;
     tt_result_t result;
 
-    sctx_node = (tt_sslctx_node_t *)tt_mem_alloc(sizeof(tt_sslctx_node_t));
+    sctx_node = (tt_sslctx_node_t *)tt_malloc(sizeof(tt_sslctx_node_t));
     if (sctx_node == NULL) {
         TT_ERROR("no mem for ctx node");
         return TT_FAIL;
@@ -468,7 +468,7 @@ tt_result_t __sslctx_add_ca(IN tt_sslctx_ntv_t *ctx,
     tt_sslctx_node_t *sctx_node;
     tt_result_t result;
 
-    sctx_node = (tt_sslctx_node_t *)tt_mem_alloc(sizeof(tt_sslctx_node_t));
+    sctx_node = (tt_sslctx_node_t *)tt_malloc(sizeof(tt_sslctx_node_t));
     if (sctx_node == NULL) {
         TT_ERROR("no mem for ctx node");
         return TT_FAIL;
@@ -546,7 +546,7 @@ tt_result_t __cert_import(IN tt_ssl_cert_format_t cert_fmt,
                 break;
             }
 
-            der = (tt_u8_t *)tt_mem_alloc(der_len);
+            der = (tt_u8_t *)tt_malloc(der_len);
             if (der == NULL) {
                 TT_ERROR("no mem to do base64 decode");
                 result = TT_FAIL;
@@ -561,7 +561,7 @@ tt_result_t __cert_import(IN tt_ssl_cert_format_t cert_fmt,
 
             // import cert
             result = __cert_import_x509der(der, der_len, cert_ar);
-            tt_mem_free(der);
+            tt_free(der);
             if (!TT_OK(result)) {
                 break;
             }
@@ -839,7 +839,7 @@ void __sslctx_node_destroy(IN tt_sslctx_node_t *sctx_node)
 {
     __sslctx_node_clean(sctx_node);
 
-    tt_mem_free(sctx_node);
+    tt_free(sctx_node);
 }
 
 void __sslctx_node_show(IN tt_sslctx_node_t *sctx_node,
@@ -904,10 +904,10 @@ tt_bool_t __cert_array_show(IN CFArrayRef ar, IN const tt_char_t *prefix)
         TT_INFO("%s [%s] issued by [%s]", prefix, subject_ptr, issuer_ptr);
 
         if (subject_ptr != NULL) {
-            tt_mem_free(subject_ptr);
+            tt_free(subject_ptr);
         }
         if (issuer_ptr != NULL) {
-            tt_mem_free(issuer_ptr);
+            tt_free(issuer_ptr);
         }
 
         if (release_cert) {

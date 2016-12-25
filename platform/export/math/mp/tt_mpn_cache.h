@@ -77,7 +77,7 @@ tt_inline tt_mpn_t *tt_mpn_alloc(IN tt_mpn_cache_t *mpnc, IN tt_u32_t reserved)
         }
     }
 #else
-    tt_mpn_t *p = (tt_mpn_t *)tt_mem_alloc(sizeof(tt_mpn_t));
+    tt_mpn_t *p = (tt_mpn_t *)tt_malloc(sizeof(tt_mpn_t));
     if (p != NULL) {
         tt_mpn_init(p);
     }
@@ -94,7 +94,7 @@ tt_inline void tt_mpn_free(IN tt_mpn_cache_t *mpnc, IN tt_mpn_t *p)
 #else
     if (p != NULL) {
         tt_mpn_destroy(p);
-        tt_mem_free(p);
+        tt_free(p);
     }
 #endif
 }

@@ -115,7 +115,7 @@ tt_result_t tt_adrr_cname_set_cname(IN struct tt_adns_rr_s *rr,
         cname_len = (tt_u32_t)tt_strlen(cname) + 1;
     }
 
-    new_cname = (tt_char_t *)tt_mem_alloc(cname_len);
+    new_cname = (tt_char_t *)tt_malloc(cname_len);
     if (new_cname == NULL) {
         TT_ERROR("fail to alloc new cname");
         return TT_FAIL;
@@ -123,7 +123,7 @@ tt_result_t tt_adrr_cname_set_cname(IN struct tt_adns_rr_s *rr,
     tt_memcpy(new_cname, cname, cname_len);
 
     if (rdata->cname != NULL) {
-        tt_free(rdata->cname);
+        tt_c_free(rdata->cname);
     }
     rdata->cname = new_cname;
     rdata->cname_len = cname_len;
@@ -136,7 +136,7 @@ void __cname_destroy(IN struct tt_adns_rr_s *rr)
     tt_adrr_cname_t *rdata = TT_ADRR_CAST(rr, tt_adrr_cname_t);
 
     if (rdata->cname != NULL) {
-        tt_mem_free(rdata->cname);
+        tt_free(rdata->cname);
     }
 }
 
@@ -188,7 +188,7 @@ tt_result_t __cname_parse(OUT struct tt_adns_rr_s *rr,
     }
 
     if (rdata->cname != NULL) {
-        tt_mem_free(rdata->cname);
+        tt_free(rdata->cname);
     }
     rdata->cname = cname;
     rdata->cname_len = cname_len;

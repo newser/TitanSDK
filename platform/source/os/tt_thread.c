@@ -109,7 +109,7 @@ tt_thread_t *tt_thread_create(IN const tt_char_t *name,
     tt_bool_t detached;
     tt_result_t result;
 
-    thread = tt_malloc(sizeof(tt_thread_t));
+    thread = tt_c_malloc(sizeof(tt_thread_t));
     if (thread == NULL) {
         TT_ERROR("no mem for new thread");
         return NULL;
@@ -175,7 +175,7 @@ tt_thread_t *tt_thread_create(IN const tt_char_t *name,
 tc_fail:
 
     if (thread != NULL) {
-        tt_free(thread);
+        tt_c_free(thread);
     }
 
     return NULL;
@@ -216,7 +216,7 @@ tt_result_t tt_thread_wait(IN tt_thread_t *thread)
         return TT_FAIL;
     }
 
-    tt_free(thread);
+    tt_c_free(thread);
     return TT_SUCCESS;
 }
 
@@ -257,7 +257,7 @@ tt_result_t __thread_on_exit(IN tt_thread_t *thread)
     // for non-detached and non-local_run thread, the struct will
     // be freed in tt_thread_wait
     if (thread->attr.detached || thread->attr.local_run) {
-        tt_free(thread);
+        tt_c_free(thread);
     }
 
     return TT_SUCCESS;

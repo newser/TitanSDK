@@ -146,7 +146,7 @@ tt_adns_dmgr_t *tt_adns_dmgr_create(IN struct tt_evcenter_s *evc,
     dmgr_size += sizeof(tt_adns_resolver_t) * server_num;
 
     // alloc
-    dmgr = (tt_adns_dmgr_t *)tt_mem_alloc(dmgr_size);
+    dmgr = (tt_adns_dmgr_t *)tt_malloc(dmgr_size);
     if (dmgr == NULL) {
         TT_ERROR("no mem for adns cache");
         return NULL;
@@ -228,7 +228,7 @@ __acc_fail:
     }
 
     if (__done & __ADC_MEM) {
-        tt_mem_free(dmgr);
+        tt_free(dmgr);
     }
 
     if (__done & __ADC_SVR_ADDR) {
@@ -255,7 +255,7 @@ void tt_adns_dmgr_destroy(IN tt_adns_dmgr_t *dmgr)
     // tt_adns_dmgr_clear()
     TT_ASSERT(tt_rbtree_empty(&dmgr->trx_tree));
 
-    tt_mem_free(dmgr);
+    tt_free(dmgr);
 }
 
 void tt_adns_dmgr_attr_default(IN tt_adns_dmgr_attr_t *attr)
@@ -350,7 +350,7 @@ tt_result_t tt_adns_dmgr_query(IN tt_adns_dmgr_t *dmgr,
     }
     name_len += 1;
 
-    q_name = (tt_char_t *)tt_mem_alloc(name_len);
+    q_name = (tt_char_t *)tt_malloc(name_len);
     if (q_name == NULL) {
         TT_ERROR("no mem for q_name");
         return TT_NO_RESOURCE;
@@ -363,7 +363,7 @@ tt_result_t tt_adns_dmgr_query(IN tt_adns_dmgr_t *dmgr,
 
     __admgr_query(dmgr, q_name, name_len, type, flag, qryctx);
 
-    tt_mem_free(q_name);
+    tt_free(q_name);
     return qryctx->result;
 }
 

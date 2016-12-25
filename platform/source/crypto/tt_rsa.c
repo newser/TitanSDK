@@ -121,7 +121,7 @@ tt_result_t tt_rsa_create(IN tt_rsa_t *rsa,
         tt_u32_t dec_len, dec_data_len;
 
         dec_len = key_data->len;
-        dec_buf = (tt_u8_t *)tt_mem_alloc(dec_len);
+        dec_buf = (tt_u8_t *)tt_malloc(dec_len);
         if (dec_buf == NULL) {
             TT_ERROR("no mem to decrypt rsa pksc8 priv key");
             return TT_FAIL;
@@ -131,7 +131,7 @@ tt_result_t tt_rsa_create(IN tt_rsa_t *rsa,
         result =
             __rsa_pkcs8_decrypt(key_data, &rsa->attr, dec_buf, &dec_data_len);
         if (!TT_OK(result)) {
-            tt_mem_free(dec_buf);
+            tt_free(dec_buf);
             return TT_FAIL;
         }
 
@@ -147,7 +147,7 @@ tt_result_t tt_rsa_create(IN tt_rsa_t *rsa,
                                    key_type,
                                    &__key_data,
                                    &rsa->attr);
-        tt_mem_free(dec_buf);
+        tt_free(dec_buf);
     } else {
         // remember to set rsa->size
         result = tt_rsa_create_ntv(&rsa->sys_rsa,
@@ -593,7 +593,7 @@ tt_result_t __rsa_pkcs8_decrypt(IN tt_blob_t *encrypted,
         tt_base64_decode_attr_t attr;
 
         der_len = encrypted->len;
-        der_buf = (tt_u8_t *)tt_mem_alloc(der_len);
+        der_buf = (tt_u8_t *)tt_malloc(der_len);
         if (der_buf == NULL) {
             TT_ERROR("no mem for base64 decoding");
             return TT_FAIL;
@@ -612,7 +612,7 @@ tt_result_t __rsa_pkcs8_decrypt(IN tt_blob_t *encrypted,
         if (!TT_OK(result)) {
             TT_ERROR("rsa pkcs8 base64 decoding fail");
 
-            tt_mem_free(der_buf);
+            tt_free(der_buf);
             return TT_FAIL;
         }
         // tt_hex_dump(der_buf, der_data_len, 16);
@@ -621,7 +621,7 @@ tt_result_t __rsa_pkcs8_decrypt(IN tt_blob_t *encrypted,
         der_data.len = der_data_len;
         result =
             tt_pkcs8_decrypt(&der_data, &password, decrypted, decrypted_len);
-        tt_mem_free(der_buf);
+        tt_free(der_buf);
 
         return result;
     } else {

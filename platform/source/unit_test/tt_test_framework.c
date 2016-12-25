@@ -89,7 +89,7 @@ tt_result_t tt_test_class_create(IN const tt_char_t *name,
         return TT_FAIL;
     }
 
-    created_class = (tt_test_class_t *)tt_malloc(sizeof(tt_test_class_t));
+    created_class = (tt_test_class_t *)tt_c_malloc(sizeof(tt_test_class_t));
     if (created_class == NULL) {
         TT_TEST_ERROR("no memory for creating test class struct");
         return TT_FAIL;
@@ -119,7 +119,7 @@ tt_result_t tt_test_item_add(IN tt_test_class_t *test_class,
         return TT_FAIL;
     }
 
-    created_item = (tt_test_item_t *)tt_malloc(sizeof(tt_test_item_t));
+    created_item = (tt_test_item_t *)tt_c_malloc(sizeof(tt_test_item_t));
     if (created_item == NULL) {
         TT_TEST_ERROR("no memory for creating test item struct");
         return TT_FAIL;

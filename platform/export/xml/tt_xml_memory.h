@@ -66,12 +66,12 @@ extern void tt_xmlmem_attr_default(IN tt_xmlmem_attr_t *attr);
 // if xm is NULL, use default mem allocator
 tt_inline void *tt_xm_alloc(IN OPT tt_xmlmem_t *xm, IN tt_u32_t size)
 {
-    return tt_mem_alloc(size);
+    return tt_malloc(size);
 }
 
 tt_inline void tt_xm_free(IN void *p)
 {
-    tt_mem_free(p);
+    tt_free(p);
 }
 
 tt_inline tt_xmlmem_t *tt_xm_xmlmem(IN void *p)

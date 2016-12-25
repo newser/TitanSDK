@@ -182,7 +182,7 @@ tt_result_t tt_aes_create_ntv(IN tt_aes_ntv_t *sys_aes,
     }
 
     // create aes key
-    sys_aes->key_mem = (tt_u8_t *)tt_mem_alloc(tt_s_crypt_aes_size);
+    sys_aes->key_mem = (tt_u8_t *)tt_malloc(tt_s_crypt_aes_size);
     if (sys_aes->key_mem == NULL) {
         TT_ERROR("no mem for aes key");
         return TT_FAIL;
@@ -210,7 +210,7 @@ tt_result_t tt_aes_create_ntv(IN tt_aes_ntv_t *sys_aes,
 void tt_aes_destroy_ntv(IN tt_aes_ntv_t *sys_aes)
 {
     BCryptDestroyKey(sys_aes->key);
-    tt_mem_free(sys_aes->key_mem);
+    tt_free(sys_aes->key_mem);
 }
 
 tt_result_t tt_aes_encrypt_ntv(IN tt_aes_ntv_t *sys_aes,

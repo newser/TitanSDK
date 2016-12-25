@@ -416,7 +416,7 @@ tt_result_t __sslctx_add_cert(IN tt_sslctx_ntv_t *ctx,
 {
     tt_sslctx_node_t *sctx_node;
 
-    sctx_node = (tt_sslctx_node_t *)tt_mem_alloc(sizeof(tt_sslctx_node_t));
+    sctx_node = (tt_sslctx_node_t *)tt_malloc(sizeof(tt_sslctx_node_t));
     if (sctx_node == NULL) {
         TT_ERROR("no mem for ctx node");
         return TT_FAIL;
@@ -458,7 +458,7 @@ tt_result_t __sslctx_add_ca(IN tt_sslctx_ntv_t *ctx,
     tt_sslctx_node_t *sctx_node;
     tt_result_t result;
 
-    sctx_node = (tt_sslctx_node_t *)tt_mem_alloc(sizeof(tt_sslctx_node_t));
+    sctx_node = (tt_sslctx_node_t *)tt_malloc(sizeof(tt_sslctx_node_t));
     if (sctx_node == NULL) {
         TT_ERROR("no mem for ctx node");
         return TT_FAIL;
@@ -882,7 +882,7 @@ void __sslctx_node_destroy(IN tt_sslctx_node_t *sctx_node)
 {
     __sslctx_node_clean(sctx_node);
 
-    tt_mem_free(sctx_node);
+    tt_free(sctx_node);
 }
 
 void __sslctx_commit_clean(IN tt_sslctx_ntv_t *ctx)
@@ -996,10 +996,10 @@ tt_bool_t __cert_array_show(IN CFArrayRef ar, IN const tt_char_t *prefix)
         TT_INFO("%s [%s] issued by [%s]", prefix, subject_ptr, issuer_ptr);
 
         if (subject_ptr != NULL) {
-            tt_mem_free(subject_ptr);
+            tt_free(subject_ptr);
         }
         if (issuer_ptr != NULL) {
-            tt_mem_free(issuer_ptr);
+            tt_free(issuer_ptr);
         }
 
         if (release_cert) {

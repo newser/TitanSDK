@@ -148,7 +148,7 @@ tt_result_t tt_netif_group_refresh_ntv(IN struct tt_netif_group_s *group,
         }
     }
 
-    tt_mem_free(adpt);
+    tt_free(adpt);
     return TT_SUCCESS;
 }
 
@@ -180,7 +180,7 @@ tt_result_t __load_adpt(IN struct tt_netif_group_s *group,
 
 retry:
     TT_ASSERT(size != 0);
-    AdapterAddresses = (PIP_ADAPTER_ADDRESSES)tt_mem_alloc(size);
+    AdapterAddresses = (PIP_ADAPTER_ADDRESSES)tt_malloc(size);
     if (AdapterAddresses == NULL) {
         TT_ERROR("fail to alloc adpt addr");
         return TT_FAIL;
@@ -193,7 +193,7 @@ retry:
         return TT_SUCCESS;
     } else if ((ret == ERROR_BUFFER_OVERFLOW) && !retried) {
         if (AdapterAddresses != NULL) {
-            tt_mem_free(AdapterAddresses);
+            tt_free(AdapterAddresses);
         }
 
         size = (tt_u32_t)req_size;
@@ -205,7 +205,7 @@ retry:
         TT_ERROR("fail to get adapters addresses");
 
         if (AdapterAddresses != NULL) {
-            tt_mem_free(AdapterAddresses);
+            tt_free(AdapterAddresses);
         }
 
         return TT_FAIL;

@@ -573,7 +573,7 @@ static void __fa1_on_fwrite2(IN tt_file_t *file,
     write_num += tlen;
 
     for (i = 0; i < buf_num; ++i)
-        tt_mem_free(buf_array[i].addr);
+        tt_free(buf_array[i].addr);
 
     if (TT_OK(aioctx->result))
         TT_ASSERT(write_len > 0);
@@ -616,7 +616,7 @@ static void __fa1_on_fwrite2(IN tt_file_t *file,
                 int j, j2 = 1; // rand()%8 + 1;
 
                 for (j = 0; j < j2; ++j) {
-                    char *buf = (char *)tt_mem_alloc(100);
+                    char *buf = (char *)tt_malloc(100);
                     tbuf[j].addr = (tt_u8_t *)buf;
                     tbuf[j].len = 100;
                 }
@@ -699,7 +699,7 @@ static void __fa1_on_fwrite(IN tt_file_t *file,
     tt_u32_t i;
 
     for (i = 0; i < buf_num; ++i)
-        tt_mem_free(buf_array[i].addr);
+        tt_free(buf_array[i].addr);
 
     if (TT_OK(aioctx->result))
         TT_ASSERT(write_len > 0);
@@ -741,7 +741,7 @@ static void __fa1_on_fwrite(IN tt_file_t *file,
                     int j, j2 = rand() % 8 + 1;
 
                     for (j = 0; j < j2; ++j) {
-                        char *buf = (char *)tt_mem_alloc(200 + 1);
+                        char *buf = (char *)tt_malloc(200 + 1);
                         tbuf[j].addr = (tt_u8_t *)buf;
                         tbuf[j].len = 201;
                     }
@@ -835,7 +835,7 @@ static void __fa1_on_fwrite(IN tt_file_t *file,
         tt_result_t ret;
 
         for (k = 0; k < k2; ++k) {
-            char *buf1 = (char *)tt_mem_alloc(101);
+            char *buf1 = (char *)tt_malloc(101);
             int len, i;
 
             if (!buf1) {
@@ -897,7 +897,7 @@ static void __fa1_on_fopen(IN tt_file_t *file,
             tt_result_t ret;
 
             for (k = 0; k < k2; ++k) {
-                char *buf1 = (char *)tt_mem_alloc(101);
+                char *buf1 = (char *)tt_malloc(101);
                 int len, i;
 
                 if (!buf1) {
@@ -936,7 +936,7 @@ static void __fa1_on_fopen(IN tt_file_t *file,
     } else {
         while (n < __fa1_fwrite1_num) {
             int len = 100, i;
-            char *buf = (char *)tt_mem_alloc(len);
+            char *buf = (char *)tt_malloc(len);
             tt_result_t ret;
             tt_blob_t tbuf[1];
 
@@ -1091,7 +1091,7 @@ static void __fa1_on_fread2(IN tt_file_t *file,
 
 out:
     for (j = 0; j < buf_num; ++j) {
-        tt_mem_free(buf_array[j].addr);
+        tt_free(buf_array[j].addr);
     }
     if (exit_evc)
         tt_evc_exit(TT_LOCAL_EVC);
@@ -1168,7 +1168,7 @@ static void __fa1_on_fread(IN tt_file_t *file,
 
 out:
     for (k = 0; k < buf_num; ++k) {
-        tt_mem_free(buf_array[k].addr);
+        tt_free(buf_array[k].addr);
     }
     return;
 }
@@ -1304,7 +1304,7 @@ static void __fa2_on_fread(IN tt_file_t *file,
         TT_ASSERT(read_len == 0);
 
     for (k = 0; k < buf_num; ++k) {
-        tt_mem_free(buf_array[k].addr);
+        tt_free(buf_array[k].addr);
     }
 
     __fa2_action(file, level + 1);
@@ -1326,7 +1326,7 @@ static void __fa2_on_fwrite(IN tt_file_t *file,
         TT_ASSERT(write_len == 0);
 
     for (k = 0; k < buf_num; ++k) {
-        tt_mem_free(buf_array[k].addr);
+        tt_free(buf_array[k].addr);
     }
 
     __fa2_action(file, level + 1);
@@ -1368,7 +1368,7 @@ static void __fa2_action(IN tt_file_t *file, int level)
                 tt_u8_t *buf;
 
                 _size = (((rand() % 10) + 1) * 100);
-                buf = tt_mem_alloc(_size);
+                buf = tt_malloc(_size);
                 if (buf == NULL)
                     return;
 
@@ -1639,7 +1639,7 @@ static void __fa3_on_fwrite_ba(IN tt_file_t *file,
 
 #ifndef __fa3_static_mem
     for (n = 0; n < buf_num; ++n)
-        tt_mem_free(buf_array[n].addr);
+        tt_free(buf_array[n].addr);
 #endif
 
     if (!TT_OK(aioctx->result)) {
@@ -1671,7 +1671,7 @@ static void __fa3_on_fwrite_c(IN tt_file_t *file,
         return;
     }
 
-    tt_mem_free(buf_array[0].addr);
+    tt_free(buf_array[0].addr);
 
     if (!TT_OK(aioctx->result)) {
         tt_evc_exit(TT_LOCAL_EVC);
@@ -1700,7 +1700,7 @@ static void __fa3_on_fwrite_s(IN tt_file_t *file,
         return;
     }
 
-    tt_mem_free(buf_array[0].addr);
+    tt_free(buf_array[0].addr);
 
     if (!TT_OK(aioctx->result)) {
         tt_evc_exit(TT_LOCAL_EVC);
@@ -1712,7 +1712,7 @@ static void __fa3_on_fwrite_s(IN tt_file_t *file,
         // all done
         tt_fclose_async(file, __fa3_on_fclose, NULL);
     } else {
-        char *buf = (char *)tt_mem_alloc(__fa3_unit);
+        char *buf = (char *)tt_malloc(__fa3_unit);
         tt_result_t ret;
         tt_blob_t tbuf[1];
 
@@ -1753,7 +1753,7 @@ static void __fa3_on_fopen(IN tt_file_t *file,
 
     if (__fa3_mode == 1) {
         do {
-            char *buf = (char *)tt_mem_alloc(__fa3_unit);
+            char *buf = (char *)tt_malloc(__fa3_unit);
             tt_result_t ret;
             tt_blob_t tbuf[1];
 
@@ -1785,7 +1785,7 @@ static void __fa3_on_fopen(IN tt_file_t *file,
             tbuf[n].addr = __fa3_buf_array[n];
             tbuf[n].len = __fa3_unit;
 #else
-            char *buf = (char *)tt_mem_alloc(__fa3_unit);
+            char *buf = (char *)tt_malloc(__fa3_unit);
 
             if (!buf) {
                 tt_evc_exit(TT_LOCAL_EVC);
@@ -1809,7 +1809,7 @@ static void __fa3_on_fopen(IN tt_file_t *file,
             }
         } while (++n < __fa3_fwrite1_num);
     } else {
-        char *buf = (char *)tt_mem_alloc(__fa3_unit);
+        char *buf = (char *)tt_malloc(__fa3_unit);
         tt_result_t ret;
         tt_blob_t tbuf[1];
 

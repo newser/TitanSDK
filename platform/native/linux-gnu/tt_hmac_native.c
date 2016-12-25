@@ -86,7 +86,7 @@ tt_result_t tt_hmac_create_ntv(IN tt_hmac_ntv_t *sys_hmac,
     HMAC_CTX *hmac = NULL;
 
 #if OPENSSL_VERSION_NUMBER < 0x10100000L
-    hmac = (HMAC_CTX *)tt_mem_alloc(sizeof(HMAC_CTX));
+    hmac = (HMAC_CTX *)tt_malloc(sizeof(HMAC_CTX));
     if (hmac == NULL) {
         TT_ERROR("no mem for hmac ctx");
         return TT_FAIL;
@@ -136,7 +136,7 @@ h_fail:
     if (hmac != NULL) {
 #if OPENSSL_VERSION_NUMBER < 0x10100000L
         HMAC_CTX_cleanup(hmac);
-        tt_mem_free(hmac);
+        tt_free(hmac);
 #else
         HMAC_CTX_free(hmac);
 #endif
@@ -149,7 +149,7 @@ void tt_hmac_destroy_ntv(IN tt_hmac_ntv_t *sys_hmac)
 {
 #if OPENSSL_VERSION_NUMBER < 0x10100000L
     HMAC_CTX_cleanup(sys_hmac->hmac);
-    tt_mem_free(sys_hmac->hmac);
+    tt_free(sys_hmac->hmac);
 #else
     HMAC_CTX_free(sys_hmac->hmac);
 #endif

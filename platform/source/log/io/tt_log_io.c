@@ -50,7 +50,7 @@ tt_logio_t *tt_logio_create(IN tt_u32_t size, IN tt_logio_itf_t *itf)
 {
     tt_logio_t *lio;
 
-    lio = (tt_logio_t *)tt_mem_alloc(sizeof(tt_logio_t) + size);
+    lio = (tt_logio_t *)tt_malloc(sizeof(tt_logio_t) + size);
     if (lio == NULL) {
         return NULL;
     }
@@ -58,7 +58,7 @@ tt_logio_t *tt_logio_create(IN tt_u32_t size, IN tt_logio_itf_t *itf)
     lio->itf = itf;
 
     if ((lio->itf->create != NULL) && !TT_OK(lio->itf->create(lio))) {
-        tt_mem_free(lio);
+        tt_free(lio);
         return NULL;
     }
 
@@ -71,5 +71,5 @@ void tt_logio_destroy(IN tt_logio_t *lio)
         lio->itf->destroy(lio);
     }
 
-    tt_mem_free(lio);
+    tt_free(lio);
 }

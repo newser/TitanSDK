@@ -105,7 +105,7 @@ tt_result_t tt_md5_create_ntv(IN tt_md5_ntv_t *sys_md5)
     BCRYPT_HASH_HANDLE h_md5;
 
     TT_ASSERT(tt_s_crypt_md5_size != 0);
-    p = tt_mem_alloc(tt_s_crypt_md5_size);
+    p = tt_malloc(tt_s_crypt_md5_size);
     if (p == NULL) {
         TT_ERROR("no mem for md5 obj");
         return TT_FAIL;
@@ -121,7 +121,7 @@ tt_result_t tt_md5_create_ntv(IN tt_md5_ntv_t *sys_md5)
     if (ntst != STATUS_SUCCESS) {
         TT_ERROR("fail to create md5 obj");
 
-        tt_mem_free(p);
+        tt_free(p);
         return TT_FAIL;
     }
 
@@ -133,7 +133,7 @@ tt_result_t tt_md5_create_ntv(IN tt_md5_ntv_t *sys_md5)
 void tt_md5_destroy_ntv(IN tt_md5_ntv_t *sys_md5)
 {
     BCryptDestroyHash(sys_md5->h_md5);
-    tt_mem_free(sys_md5->mem);
+    tt_free(sys_md5->mem);
 }
 
 tt_result_t tt_md5_update_ntv(IN tt_md5_ntv_t *sys_md5,
