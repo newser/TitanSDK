@@ -32,6 +32,7 @@ developer only need include this file to use ts platform APIs
 extern "C" {
 #endif
 
+#include <algorithm/tt_algorithm_def.h>
 #include <algorithm/tt_array_heap.h>
 #include <algorithm/tt_binary_search.h>
 #include <algorithm/tt_buffer.h>

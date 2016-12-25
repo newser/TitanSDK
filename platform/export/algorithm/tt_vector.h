@@ -61,10 +61,10 @@ typedef struct
 {
     tt_cmp_t cmp;
 
-    tt_u32_t min_extent;
-    tt_u32_t max_extent;
-    tt_u32_t max_limit;
-} tt_vector_attr_t;
+    tt_u32_t min_extent_num;
+    tt_u32_t max_extent_num;
+    tt_u32_t max_limit_num;
+} tt_vec_attr_t;
 
 typedef struct
 {
@@ -75,7 +75,7 @@ typedef struct
     tt_u32_t obj_size;
     tt_u32_t count;
     tt_u32_t capacity;
-} tt_vector_t;
+} tt_vec_t;
 
 ////////////////////////////////////////////////////////////
 // global variants
@@ -85,16 +85,88 @@ typedef struct
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern void tt_vector_init(IN tt_vector_t *vec,
-                           IN tt_u32_t obj_size,
-                           IN tt_vector_attr_t *attr);
+extern void tt_vec_init(IN tt_vec_t *vec,
+                        IN tt_u32_t obj_size,
+                        IN tt_vec_attr_t *attr);
 
-extern void tt_vector_destroy(IN tt_vector_t *vec);
+extern void tt_vec_destroy(IN tt_vec_t *vec);
 
-extern void tt_vector_attr_default(IN tt_vector_attr_t *attr);
+extern void tt_vec_attr_default(IN tt_vec_attr_t *attr);
 
-extern tt_result_t tt_vector_add(IN tt_vector_t *vec, IN void *obj);
+extern tt_result_t __vec_reserve(IN tt_vec_t *vec, IN tt_u32_t count);
 
-extern tt_result_t tt_vector_insert(IN tt_vector_t *vec, IN void *obj);
+tt_inline tt_result_t tt_vec_reserve(IN tt_vec_t *vec, IN tt_u32_t count)
+{
+    if ((vec->count + count) <= vec->capacity) {
+        return TT_SUCCESS;
+    } else {
+        return __vec_reserve(vec, count);
+    }
+}
+
+extern tt_result_t tt_vec_push_head(IN tt_vec_t *vec, IN void *obj);
+
+extern tt_result_t tt_vec_push_tail(IN tt_vec_t *vec, IN void *obj);
+
+extern tt_result_t tt_vec_pop_head(IN tt_vec_t *vec, OUT void *obj);
+
+extern tt_result_t tt_vec_pop_tail(IN tt_vec_t *vec, OUT void *obj);
+
+extern void *tt_vec_head(IN tt_vec_t *vec);
+
+extern void *tt_vec_tail(IN tt_vec_t *vec);
+
+extern tt_result_t tt_vec_insert(IN tt_vec_t *vec,
+                                 IN tt_u32_t idx,
+                                 IN void *obj);
+
+extern tt_result_t tt_vec_move_all(IN tt_vec_t *dst, IN tt_vec_t *src);
+
+extern tt_result_t tt_vec_move_from(IN tt_vec_t *dst,
+                                    IN tt_vec_t *src,
+                                    IN tt_u32_t from_idx);
+
+extern tt_result_t tt_vec_move_range(IN tt_vec_t *dst,
+                                     IN tt_vec_t *src,
+                                     IN tt_u32_t from_idx,
+                                     IN tt_u32_t to_idx);
+
+extern tt_u32_t tt_vec_capacity(IN tt_vec_t *vec);
+
+extern tt_u32_t tt_vec_count(IN tt_vec_t *vec);
+
+extern tt_bool_t tt_vec_empty(IN tt_vec_t *vec);
+
+extern void tt_vec_clear(IN tt_vec_t *vec);
+
+extern tt_bool_t tt_vec_comtain(IN tt_vec_t *vec, IN void *obj);
+
+extern tt_bool_t tt_vec_comtain_all(IN tt_vec_t *vec, IN tt_vec_t *sub_vec);
+
+extern void *tt_vec_get(IN tt_vec_t *vec, IN tt_u32_t idx);
+
+extern tt_result_t tt_vec_set(IN tt_vec_t *vec, IN tt_u32_t idx, IN void *obj);
+
+extern tt_u32_t tt_vec_find(IN tt_vec_t *vec, IN void *obj);
+
+extern tt_u32_t tt_vec_find_from(IN tt_vec_t *vec,
+                                 IN void *obj,
+                                 IN tt_u32_t from_idx);
+
+extern tt_u32_t tt_vec_find_range(IN tt_vec_t *vec,
+                                  IN void *obj,
+                                  IN tt_u32_t from_idx,
+                                  IN tt_u32_t to_idx);
+
+extern void tt_vec_remove(IN tt_vec_t *vec, IN tt_u32_t idx);
+
+// return removed idx
+extern tt_u32_t tt_vec_remove_equal(IN tt_vec_t *vec, IN void *obj);
+
+extern void tt_vec_remove_range(IN tt_vec_t *vec,
+                                IN tt_u32_t from_idx,
+                                IN tt_u32_t to_idx);
+
+extern void tt_vec_trim(IN tt_vec_t *vec);
 
 #endif /* __TT_VECTOR__ */

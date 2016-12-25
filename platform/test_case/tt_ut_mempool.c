@@ -627,47 +627,57 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_mem_spg)
 
     // expand
     p = NULL;
-    size = ~0;
-    ret = tt_memspg_extend(&mspg, &p, &size);
+    size = ~0 - 1;
+    ret = tt_memspg_extend(&mspg, &p, &size, ~0);
     TT_TEST_CHECK_FAIL(ret, "");
 
     size = 0;
-    ret = tt_memspg_extend(&mspg, &p, &size);
+    ret = tt_memspg_extend(&mspg, &p, &size, 1);
     TT_TEST_CHECK_SUCCESS(ret, "");
     TT_TEST_CHECK_NOT_EQUAL(p, NULL, "");
     TT_TEST_CHECK_EQUAL(size, 5, "");
 
-    ret = tt_memspg_extend(&mspg, &p, &size);
+    ret = tt_memspg_extend(&mspg, &p, &size, 6);
     TT_TEST_CHECK_SUCCESS(ret, "");
     TT_TEST_CHECK_NOT_EQUAL(p, NULL, "");
     TT_TEST_CHECK_EQUAL(size, 10, "");
 
-    ret = tt_memspg_extend(&mspg, &p, &size);
+    ret = tt_memspg_extend(&mspg, &p, &size, 11);
     TT_TEST_CHECK_SUCCESS(ret, "");
     TT_TEST_CHECK_NOT_EQUAL(p, NULL, "");
     TT_TEST_CHECK_EQUAL(size, 20, "");
 
-    ret = tt_memspg_extend(&mspg, &p, &size);
+    ret = tt_memspg_extend(&mspg, &p, &size, 21);
     TT_TEST_CHECK_SUCCESS(ret, "");
     TT_TEST_CHECK_NOT_EQUAL(p, NULL, "");
     TT_TEST_CHECK_EQUAL(size, 32, "");
 
+    ret = tt_memspg_extend(&mspg, &p, &size, 55);
+    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_TEST_CHECK_NOT_EQUAL(p, NULL, "");
+    TT_TEST_CHECK_EQUAL(size, 56, "");
+
+    ret = tt_memspg_extend(&mspg, &p, &size, 80);
+    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_TEST_CHECK_NOT_EQUAL(p, NULL, "");
+    TT_TEST_CHECK_EQUAL(size, 80, "");
+
     ret = tt_memspg_compress(&mspg, &p, &size, size - 5);
     TT_TEST_CHECK_SUCCESS(ret, "");
     TT_TEST_CHECK_NOT_EQUAL(p, NULL, "");
-    TT_TEST_CHECK_EQUAL(size, 27, "");
+    TT_TEST_CHECK_EQUAL(size, 75, "");
 
-    ret = tt_memspg_compress(&mspg, &p, &size, size - 10);
+    ret = tt_memspg_compress(&mspg, &p, &size, size - 20);
     TT_TEST_CHECK_SUCCESS(ret, "");
     TT_TEST_CHECK_NOT_EQUAL(p, NULL, "");
-    TT_TEST_CHECK_EQUAL(size, 17, "");
+    TT_TEST_CHECK_EQUAL(size, 55, "");
 
-    ret = tt_memspg_compress(&mspg, &p, &size, size - 10);
+    ret = tt_memspg_compress(&mspg, &p, &size, size - 40);
     TT_TEST_CHECK_SUCCESS(ret, "");
     TT_TEST_CHECK_NOT_EQUAL(p, NULL, "");
-    TT_TEST_CHECK_EQUAL(size, 7, "");
+    TT_TEST_CHECK_EQUAL(size, 15, "");
 
-    ret = tt_memspg_compress(&mspg, &p, &size, size - 7);
+    ret = tt_memspg_compress(&mspg, &p, &size, size - 15);
     TT_TEST_CHECK_SUCCESS(ret, "");
     TT_TEST_CHECK_EQUAL(p, NULL, "");
     TT_TEST_CHECK_EQUAL(size, 0, "");

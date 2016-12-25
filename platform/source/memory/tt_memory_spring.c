@@ -68,16 +68,22 @@ void tt_memspg_init(IN tt_memspg_t *mspg,
 
 tt_result_t tt_memspg_extend(IN tt_memspg_t *mspg,
                              IN OUT tt_u8_t **p,
-                             IN OUT tt_u32_t *size)
+                             IN OUT tt_u32_t *size,
+                             IN tt_u32_t to_size)
 {
     tt_u32_t new_size;
     tt_u8_t *new_p;
 
-    new_size = __memspg_next_size(mspg, *size);
-    if (new_size == 0) {
-        return TT_FAIL;
-    }
-    TT_ASSERT(new_size > *size);
+    TT_ASSERT_ALWAYS(to_size > *size);
+
+    new_size = *size;
+    do {
+        new_size = __memspg_next_size(mspg, new_size);
+        if (new_size == 0) {
+            return TT_FAIL;
+        }
+        TT_ASSERT(new_size > *size);
+    } while (new_size < to_size);
 
     new_p = tt_malloc(new_size);
     if (new_p == NULL) {
