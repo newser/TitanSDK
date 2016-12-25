@@ -136,14 +136,14 @@ tt_result_t tt_sshctx_kex_create(IN tt_sshctx_t *sshctx)
         return TT_FAIL;
     }
 
-    kex = (tt_sshkex_t *)tt_mem_alloc(sizeof(tt_sshkex_t));
+    kex = (tt_sshkex_t *)tt_malloc(sizeof(tt_sshkex_t));
     if (kex == NULL) {
         TT_ERROR("no mem for sshctx kex");
         return TT_FAIL;
     }
 
     if (!TT_OK(tt_sshkex_create(kex))) {
-        tt_mem_free(kex);
+        tt_free(kex);
         return TT_FAIL;
     }
 
@@ -391,7 +391,7 @@ tt_result_t tt_sshctx_pubk_create(IN tt_sshctx_t *sshctx)
         return TT_FAIL;
     }
 
-    pubk = (tt_sshpubk_t *)tt_mem_alloc(sizeof(tt_sshpubk_t));
+    pubk = (tt_sshpubk_t *)tt_malloc(sizeof(tt_sshpubk_t));
     if (pubk == NULL) {
         TT_ERROR("no mem for sshctx pubk");
         return TT_FAIL;

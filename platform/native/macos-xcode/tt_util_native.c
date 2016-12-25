@@ -83,14 +83,14 @@ char *tt_cfstring_ptr(IN CFStringRef cfstr, OUT OPT tt_u32_t *len)
     max_len = CFStringGetMaximumSizeForEncoding(__len, kCFStringEncodingUTF8);
     // kCFStringEncodingUTF8 or kCFStringEncodingASCII?
 
-    ptr = tt_mem_alloc(max_len);
+    ptr = tt_malloc(max_len);
     if (ptr == NULL) {
         return NULL;
     }
 
     tt_memset(ptr, 0, max_len);
     if (!CFStringGetCString(cfstr, ptr, max_len, kCFStringEncodingUTF8)) {
-        tt_mem_free(ptr);
+        tt_free(ptr);
         return NULL;
     }
 
@@ -122,7 +122,7 @@ void tt_osstatus_show(IN OSStatus osst)
 __out:
 
     if (cstr != NULL) {
-        tt_mem_free(cstr);
+        tt_free(cstr);
     }
 
     if (s != NULL) {

@@ -215,7 +215,7 @@ TT_TEST_ROUTINE_DEFINE(tt_adns_ut_dm_name_render_parse_basic)
                                 "");
             TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&ds), 0, "");
 
-            tt_mem_free(parsed);
+            tt_free(parsed);
         } else {
             tt_u32_t n;
             tt_char_t *new_p;
@@ -224,7 +224,7 @@ TT_TEST_ROUTINE_DEFINE(tt_adns_ut_dm_name_render_parse_basic)
             n = tt_adns_name_parse_len(&ds, TT_BUF_RPOS(&ds), TT_BUF_RLEN(&ds));
             TT_TEST_CHECK_EQUAL(n, strlen(__case->p) + 1, "");
 
-            new_p = (tt_char_t *)tt_mem_alloc(n + 10);
+            new_p = (tt_char_t *)tt_malloc(n + 10);
             TT_TEST_CHECK_NOT_EQUAL(new_p, NULL, "");
 
             tt_buf_reset_rp(&ds);
@@ -243,7 +243,7 @@ TT_TEST_ROUTINE_DEFINE(tt_adns_ut_dm_name_render_parse_basic)
                                 "");
             TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&ds), 0, "");
 
-            tt_mem_free(parsed);
+            tt_free(parsed);
         }
 
         tt_buf_reset_rwp(&ds);
@@ -292,21 +292,21 @@ TT_TEST_ROUTINE_DEFINE(tt_adns_ut_dm_name_parse_ptr)
     TT_TEST_CHECK_NOT_EQUAL(ret, NULL, "");
     TT_TEST_CHECK_EQUAL(ret_len, 9, "");
     TT_TEST_CHECK_EQUAL(tt_memcmp(ret, "aaaa.com", ret_len), 0, "");
-    tt_mem_free(ret);
+    tt_free(ret);
 
     // continue parsing: b.aaaa.com
     ret = tt_adns_name_parse(&ds, NULL, &ret_len, b1.addr, b1.len);
     TT_TEST_CHECK_NOT_EQUAL(ret, NULL, "");
     TT_TEST_CHECK_EQUAL(ret_len, 11, "");
     TT_TEST_CHECK_EQUAL(tt_memcmp(ret, "b.aaaa.com", ret_len), 0, "");
-    tt_mem_free(ret);
+    tt_free(ret);
 
     // continue parsing: cc.b.aaaa.com
     ret = tt_adns_name_parse(&ds, NULL, &ret_len, b1.addr, b1.len);
     TT_TEST_CHECK_NOT_EQUAL(ret, NULL, "");
     TT_TEST_CHECK_EQUAL(ret_len, 14, "");
     TT_TEST_CHECK_EQUAL(tt_memcmp(ret, "cc.b.aaaa.com", ret_len), 0, "");
-    tt_mem_free(ret);
+    tt_free(ret);
 
     tt_buf_destroy(&ds);
 
@@ -358,7 +358,7 @@ TT_TEST_ROUTINE_DEFINE(tt_adns_ut_dm_name_parse_ptr)
         TT_TEST_CHECK_NOT_EQUAL(ret, NULL, "");
         TT_TEST_CHECK_EQUAL(strlen(ret) + 1, ret_len, "");
         TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&ds), 0, "");
-        tt_mem_free(ret);
+        tt_free(ret);
     }
 
     // test end

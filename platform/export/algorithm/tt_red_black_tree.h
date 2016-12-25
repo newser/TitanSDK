@@ -28,7 +28,7 @@ this file defines red black tree data structure and related operations
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <algorithm/tt_algorithm_common.h>
+#include <algorithm/tt_compare.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition

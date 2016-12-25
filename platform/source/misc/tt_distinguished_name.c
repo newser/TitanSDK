@@ -66,7 +66,7 @@ void tt_distname_destroy(IN tt_distname_t *dn)
     while ((node = tt_list_pophead(&dn->rdn_list)) != NULL) {
         tt_rdn_t *attr = TT_CONTAINER(node, tt_rdn_t, node);
 
-        tt_mem_free(attr);
+        tt_free(attr);
     }
 }
 
@@ -82,7 +82,7 @@ tt_result_t tt_distname_add_rdn(IN tt_distname_t *dn,
     TT_ASSERT(value != NULL);
 
     len = (tt_u32_t)tt_strlen(value) + 1;
-    rdn = (tt_rdn_t *)tt_mem_alloc(sizeof(tt_rdn_t) + len);
+    rdn = (tt_rdn_t *)tt_malloc(sizeof(tt_rdn_t) + len);
     if (rdn == NULL) {
         TT_ERROR("no mem for dn attr");
         return TT_FAIL;

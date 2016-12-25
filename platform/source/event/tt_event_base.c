@@ -56,7 +56,7 @@ tt_ev_t *tt_ev_create(IN tt_u32_t ev_id,
 {
     tt_ev_t *ev;
 
-    ev = tt_mem_alloc(sizeof(tt_ev_t) + hdr_size + data_size);
+    ev = tt_malloc(sizeof(tt_ev_t) + hdr_size + data_size);
     if (ev == NULL) {
         TT_ERROR("fail to alloc ev");
         return NULL;
@@ -79,7 +79,7 @@ void tt_ev_destroy(IN tt_ev_t *ev)
         ev->itf->on_destroy(ev);
     }
 
-    tt_mem_free(ev);
+    tt_free(ev);
 }
 
 tt_ev_t *tt_ev_copy(IN tt_ev_t *ev)
@@ -88,7 +88,7 @@ tt_ev_t *tt_ev_copy(IN tt_ev_t *ev)
     tt_ev_t *new_ev;
 
     size = sizeof(tt_ev_t) + ev->hdr_size + ev->data_size;
-    new_ev = (tt_ev_t *)tt_mem_alloc(size);
+    new_ev = (tt_ev_t *)tt_malloc(size);
     if (new_ev == NULL) {
         TT_ERROR("no mem to copy ev");
         return NULL;
@@ -102,7 +102,7 @@ tt_ev_t *tt_ev_copy(IN tt_ev_t *ev)
         if (TT_OK(ev->itf->on_copy(new_ev, ev))) {
             return new_ev;
         } else {
-            tt_mem_free(new_ev);
+            tt_free(new_ev);
             return NULL;
         }
     } else {

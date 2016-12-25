@@ -79,7 +79,7 @@ void *tt_page_alloc(IN tt_u32_t size)
 
     TT_U32_ALIGN_INC_PAGE(size);
 #ifdef TT_PAGE_BY_MALLOC
-    p = tt_malloc(size);
+    p = tt_c_malloc(size);
 #else
     p = tt_page_alloc_ntv(size);
 #endif
@@ -101,7 +101,7 @@ void tt_page_free(IN void *addr, IN tt_u32_t size)
 {
     if (addr != NULL) {
 #ifdef TT_PAGE_BY_MALLOC
-        tt_free(addr);
+        tt_c_free(addr);
 #else
         TT_U32_ALIGN_INC_PAGE(size);
         tt_page_free_ntv(addr, size);
@@ -116,7 +116,7 @@ void *tt_page_alloc_aligned(IN tt_u32_t size_order, OUT tt_uintptr_t *handle)
 
     size_order = TT_MAX(size_order, tt_g_page_size_order);
 #ifdef TT_PAGE_BY_MALLOC
-    p = tt_malloc((tt_u32_t)(1 << (size_order + 1)));
+    p = tt_c_malloc((tt_u32_t)(1 << (size_order + 1)));
     if (p != NULL) {
         *handle = (tt_uintptr_t)p;
         TT_PTR_ALIGN_INC(p, size_order);
@@ -144,7 +144,7 @@ void tt_page_free_aligned(IN void *addr,
                           IN tt_uintptr_t handle)
 {
 #ifdef TT_PAGE_BY_MALLOC
-    tt_free((void *)handle);
+    tt_c_free((void *)handle);
 #else
     size_order = TT_MAX(size_order, tt_g_page_size_order);
     tt_page_free_aligned_ntv(addr, size_order, handle);

@@ -148,7 +148,7 @@ tt_result_t tt_sha_create_ntv(IN tt_sha_ntv_t *sys_sha, IN tt_sha_ver_t version)
     }
     TT_ASSERT(size != 0);
 
-    p = tt_mem_alloc(size);
+    p = tt_malloc(size);
     if (p == NULL) {
         TT_ERROR("no mem for sha obj");
         return TT_FAIL;
@@ -158,7 +158,7 @@ tt_result_t tt_sha_create_ntv(IN tt_sha_ntv_t *sys_sha, IN tt_sha_ver_t version)
     if (ntst != STATUS_SUCCESS) {
         TT_ERROR("fail to create sha obj");
 
-        tt_mem_free(p);
+        tt_free(p);
         return TT_FAIL;
     }
 
@@ -171,7 +171,7 @@ tt_result_t tt_sha_create_ntv(IN tt_sha_ntv_t *sys_sha, IN tt_sha_ver_t version)
 void tt_sha_destroy_ntv(IN tt_sha_ntv_t *sys_sha)
 {
     BCryptDestroyHash(sys_sha->h_sha);
-    tt_mem_free(sys_sha->mem);
+    tt_free(sys_sha->mem);
 }
 
 tt_result_t tt_sha_update_ntv(IN tt_sha_ntv_t *sys_sha,
@@ -197,7 +197,7 @@ tt_result_t tt_sha1_ntv(IN tt_u8_t *data,
     NTSTATUS ntst;
     BCRYPT_HASH_HANDLE h_sha;
 
-    p = (tt_u8_t *)tt_mem_alloc(tt_s_crypt_sha1_size);
+    p = (tt_u8_t *)tt_malloc(tt_s_crypt_sha1_size);
     if (p == NULL) {
         TT_ERROR("fail to alloc sha obj");
         return TT_FAIL;
@@ -214,7 +214,7 @@ tt_result_t tt_sha1_ntv(IN tt_u8_t *data,
     if (ntst != STATUS_SUCCESS) {
         TT_ERROR("fail to create sha obj");
 
-        tt_mem_free(p);
+        tt_free(p);
         return TT_FAIL;
     }
 
@@ -224,14 +224,14 @@ tt_result_t tt_sha1_ntv(IN tt_u8_t *data,
         TT_ERROR("fail to update sha1 data");
 
         BCryptDestroyHash(h_sha);
-        tt_mem_free(p);
+        tt_free(p);
         return TT_FAIL;
     }
 
     // final
     ntst = BCryptFinishHash(h_sha, hash_val, TT_SHA1_DIGEST_LENGTH, 0);
     BCryptDestroyHash(h_sha);
-    tt_mem_free(p);
+    tt_free(p);
     if (ntst != STATUS_SUCCESS) {
         TT_ERROR("fail to calc sha1 data hash val");
         return TT_FAIL;

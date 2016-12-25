@@ -20,22 +20,21 @@
 
 this file includes vector api
 
- - pushtail/pushhead/poptail/pophead
+ - reserve
+ - push_tail/push_head/pop_tail/pop_head
  - head/tail
  - insert
- - move
+ - move_all/move_from/move_range
  - capacity/count/empty
  - clear
- - contain/contain_n
+ - contain/contain_all
  - get(idx)/set(idx)
- - indexof
- - indexof/indexof_from/indexof_last
- - remove/remove_eq/remove_range
- - refine/reserve/expand
+ - find/find_from/find_last
+ - remove(idx)/remove_equal/remove_range(idx)
+ - trim
 
- optional:
+ todo:
  - clone
- - equal
  - sort
  -
  */
@@ -47,7 +46,8 @@ this file includes vector api
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <tt_basic_type.h>
+#include <algorithm/tt_compare.h>
+#include <memory/tt_memory_spring.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
@@ -59,19 +59,22 @@ this file includes vector api
 
 typedef struct
 {
-    tt_u32_t min_expand_order;
-    tt_u32_t max_expand_order;
+    tt_cmp_t cmp;
 
-    tt_u32_t max_size_order;
-#define TT_VECTOR_MAX_SIZE_ORDER (30) // 1G
-
+    tt_u32_t min_extent;
+    tt_u32_t max_extent;
+    tt_u32_t max_limit;
 } tt_vector_attr_t;
 
 typedef struct
 {
-    tt_vector_attr_t attr;
-
-    tt_u8_t *mem;
+    tt_u8_t *p;
+    tt_cmp_t cmp;
+    tt_u32_t size;
+    tt_memspg_t mspg;
+    tt_u32_t obj_size;
+    tt_u32_t count;
+    tt_u32_t capacity;
 } tt_vector_t;
 
 ////////////////////////////////////////////////////////////

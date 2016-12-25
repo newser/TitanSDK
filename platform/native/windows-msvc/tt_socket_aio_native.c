@@ -1008,13 +1008,13 @@ tt_result_t tt_skt_send_async_ntv(IN tt_skt_t *skt,
     if (blob_num <= __INLINE_SBUF_NUM) {
         sbuf_state->wbuf = (WSABUF *)aio->sbuf;
     } else {
-        sbuf_state->wbuf = (WSABUF *)tt_mem_alloc(__SBUF_SIZE(blob_num));
+        sbuf_state->wbuf = (WSABUF *)tt_malloc(__SBUF_SIZE(blob_num));
         if (sbuf_state->wbuf == NULL) {
             TT_ERROR("no mem for buf array");
 
             // do not call tt_ev_destroy, as aio has not finished
             // initialization
-            tt_mem_free(ev);
+            tt_free(ev);
             return TT_FAIL;
         }
     }
@@ -1125,13 +1125,13 @@ tt_result_t tt_skt_recv_async_ntv(IN tt_skt_t *skt,
     if (blob_num <= __INLINE_SBUF_NUM) {
         sbuf_state->wbuf = (WSABUF *)aio->sbuf;
     } else {
-        sbuf_state->wbuf = (WSABUF *)tt_mem_alloc(__SBUF_SIZE(blob_num));
+        sbuf_state->wbuf = (WSABUF *)tt_malloc(__SBUF_SIZE(blob_num));
         if (sbuf_state->wbuf == NULL) {
             TT_ERROR("no mem for buf array");
 
             // do not call tt_ev_destroy, as aio has not finished
             // initialization
-            tt_mem_free(ev);
+            tt_free(ev);
             return TT_FAIL;
         }
     }
@@ -1256,13 +1256,13 @@ tt_result_t tt_skt_sendto_async_ntv(IN tt_skt_t *skt,
     if (blob_num <= __INLINE_SBUF_NUM) {
         sbuf_state->wbuf = (WSABUF *)aio->sbuf;
     } else {
-        sbuf_state->wbuf = (WSABUF *)tt_mem_alloc(__SBUF_SIZE(blob_num));
+        sbuf_state->wbuf = (WSABUF *)tt_malloc(__SBUF_SIZE(blob_num));
         if (sbuf_state->wbuf == NULL) {
             TT_ERROR("no mem for buf array");
 
             // do not call tt_ev_destroy, as aio has not finished
             // initialization
-            tt_mem_free(ev);
+            tt_free(ev);
             return TT_FAIL;
         }
     }
@@ -1384,13 +1384,13 @@ tt_result_t tt_skt_recvfrom_async_ntv(IN tt_skt_t *skt,
     if (blob_num <= __INLINE_SBUF_NUM) {
         sbuf_state->wbuf = (WSABUF *)aio->sbuf;
     } else {
-        sbuf_state->wbuf = (WSABUF *)tt_mem_alloc(__SBUF_SIZE(blob_num));
+        sbuf_state->wbuf = (WSABUF *)tt_malloc(__SBUF_SIZE(blob_num));
         if (sbuf_state->wbuf == NULL) {
             TT_ERROR("no mem for buf array");
 
             // do not call tt_ev_destroy, as aio has not finished
             // initialization
-            tt_mem_free(ev);
+            tt_free(ev);
             return TT_FAIL;
         }
     }
@@ -1743,7 +1743,7 @@ void __do_skt_accept_cb(IN __skt_accept_t *aio)
     aio->on_accept(aio->listening_skt, aio->new_skt, &aioctx);
 
     if (!TT_OK(aioctx.result) && from_alloc) {
-        tt_mem_free(new_skt);
+        tt_free(new_skt);
     }
 }
 
@@ -1935,7 +1935,7 @@ void __skt_send_on_destroy(IN struct tt_ev_s *ev)
     __sbuf_state_t *sbuf_state = &aio->sbuf_state;
 
     if (sbuf_state->wbuf != (WSABUF *)aio->sbuf) {
-        tt_mem_free(sbuf_state->wbuf);
+        tt_free(sbuf_state->wbuf);
     }
 }
 
@@ -2112,7 +2112,7 @@ void __skt_recv_on_destroy(IN struct tt_ev_s *ev)
     __sbuf_state_t *sbuf_state = &aio->sbuf_state;
 
     if (sbuf_state->wbuf != (WSABUF *)aio->sbuf) {
-        tt_mem_free(sbuf_state->wbuf);
+        tt_free(sbuf_state->wbuf);
     }
 }
 
@@ -2217,7 +2217,7 @@ void __skt_sendto_on_destroy(IN struct tt_ev_s *ev)
     __sbuf_state_t *sbuf_state = &aio->sbuf_state;
 
     if (sbuf_state->wbuf != (WSABUF *)aio->sbuf) {
-        tt_mem_free(sbuf_state->wbuf);
+        tt_free(sbuf_state->wbuf);
     }
 }
 
@@ -2335,7 +2335,7 @@ void __skt_recvfrom_on_destroy(IN struct tt_ev_s *ev)
     __sbuf_state_t *sbuf_state = &aio->sbuf_state;
 
     if (sbuf_state->wbuf != (WSABUF *)aio->sbuf) {
-        tt_mem_free(sbuf_state->wbuf);
+        tt_free(sbuf_state->wbuf);
     }
 }
 
@@ -2674,7 +2674,7 @@ void __destroy_skt(IN tt_skt_t *skt,
     // it should guarantee skt is not accessed after on_destroy
 
     if (from_alloc) {
-        tt_mem_free(skt);
+        tt_free(skt);
     }
 }
 

@@ -305,8 +305,8 @@ tt_result_t test_thread(IN tt_thread_t *thread, IN void *param)
 
     {
         tt_u32_t s = rand() % (1 << 20);
-        void *p = tt_mem_alloc(s);
-        tt_mem_free(p);
+        void *p = tt_malloc(s);
+        tt_free(p);
     }
 
     if (n & 1) {
@@ -376,8 +376,8 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_thread_size2alloc)
     // test start
 
     // generate tcache
-    p = tt_mem_alloc(1);
-    tt_mem_free(p);
+    p = tt_malloc(1);
+    tt_free(p);
     tc = tt_current_thread()->tcache;
     TT_TEST_CHECK_NOT_EQUAL(tc, NULL, "");
 
@@ -424,7 +424,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_thread_size2alloc)
         r = tt_rand_u32() % no_tag_size + 1;
         r += last_size;
 
-        allocated = tt_mem_size(r);
+        allocated = tt_msize(r);
         TT_TEST_CHECK_EQUAL(allocated + (tt_u32_t)sizeof(tt_tcache_bin_tag_t) +
                                 (1 << tt_g_cpu_align_order),
                             size,
@@ -437,7 +437,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_thread_size2alloc)
     }
     // now size > tc->max_slice_size
     size += tt_rand_u32() & 0xFFFF;
-    allocated = tt_mem_size(size);
+    allocated = tt_msize(size);
     size += (tt_u32_t)sizeof(tt_tcache_bin_tag_t) + (1 << tt_g_cpu_align_order);
     TT_U32_ALIGN_INC_PAGE(size);
     TT_TEST_CHECK_EQUAL(allocated + (tt_u32_t)sizeof(tt_tcache_bin_tag_t) +

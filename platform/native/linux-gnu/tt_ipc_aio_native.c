@@ -232,7 +232,7 @@ void tt_async_ipc_destroy_ntv(IN tt_ipc_ntv_t *sys_ipc, IN tt_bool_t immediate)
         // do not access aio->ipc from now on as application may freed aio->ipc
 
         if (from_alloc) {
-            tt_mem_free(ipc);
+            tt_free(ipc);
         }
     } else {
         tt_ev_t *ev;
@@ -317,8 +317,8 @@ tt_result_t tt_ipc_connect_async_ntv(IN tt_ipc_ntv_t *sys_ipc,
     aio = TT_EV_DATA(ev, __ipc_connect_t);
 
     if (!TT_OK(__init_ipc_addr(&aio->remote_addr, remote_addr))) {
-        // ev is not well initialized, so use tt_mem_free
-        tt_mem_free(ev);
+        // ev is not well initialized, so use tt_free
+        tt_free(ev);
         return TT_FAIL;
     }
 
@@ -331,7 +331,7 @@ conn_ag:
         } else if (errno != EINPROGRESS) {
             TT_ERROR_NTV("fail to connect");
 
-            tt_mem_free(ev);
+            tt_free(ev);
             return TT_FAIL;
         }
     }
@@ -864,7 +864,7 @@ void __do_ipc_accept_cb(IN __ipc_accept_t *aio)
     aio->on_accept(aio->listening_ipc, new_ipc, &aioctx);
 
     if (!TT_OK(aioctx.result) && from_alloc) {
-        tt_mem_free(new_ipc);
+        tt_free(new_ipc);
     }
 }
 
@@ -1116,7 +1116,7 @@ calc_done:
     data_ev_size = sizeof(tt_ev_t *) * data_ev_num;
     data_ev_num = 0;
 
-    data_ev = (tt_ev_t **)tt_mem_alloc(data_ev_size);
+    data_ev = (tt_ev_t **)tt_malloc(data_ev_size);
     if (data_ev == NULL) {
         TT_ERROR("no mem for ipc tev array");
         return TT_FAIL;
@@ -1146,7 +1146,7 @@ calc_done:
 extract_done:
 
     if (data_ev_num == 0) {
-        tt_mem_free(data_ev);
+        tt_free(data_ev);
         return TT_PROCEEDING;
     }
 
@@ -1169,7 +1169,7 @@ void __ipc_recv_on_destroy(IN struct tt_ev_s *ev)
 {
     __ipc_recv_t *aio = TT_EV_DATA(ev, __ipc_recv_t);
     if (aio->data_ev != NULL) {
-        tt_mem_free(aio->data_ev);
+        tt_free(aio->data_ev);
     }
 }
 
@@ -1190,7 +1190,7 @@ void __do_ipc_destroy(IN __ipc_destroy_t *aio)
     // do not access aio->ipc from now on as application may freed aio->ipc
 
     if (from_alloc) {
-        tt_mem_free(ipc);
+        tt_free(ipc);
     }
 }
 

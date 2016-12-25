@@ -1783,7 +1783,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_alg_hash_collision)
     for (i = 0; i < __h2_num; ++i) {
         tt_u32_t len = rand() % 100 + 1;
 
-        __h2_cases[i].key = (tt_u8_t *)tt_mem_alloc(len);
+        __h2_cases[i].key = (tt_u8_t *)tt_malloc(len);
         for (j = 0; j < len; ++j) {
             __h2_cases[i].key[j] = (tt_u8_t)rand();
         }
@@ -1851,7 +1851,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_alg_hash_collision)
     }
 
     for (i = 0; i < __h2_num; ++i) {
-        tt_mem_free(__h2_cases[i].key);
+        tt_free(__h2_cases[i].key);
     }
 
     ret = tt_hashmap_destroy(&hmap);

@@ -27,6 +27,8 @@
 // internal macro
 ////////////////////////////////////////////////////////////
 
+#define __MEMSPG_MAX_LIMIT (1 << 30)
+
 ////////////////////////////////////////////////////////////
 // internal type
 ////////////////////////////////////////////////////////////
@@ -57,7 +59,7 @@ void tt_memspg_init(IN tt_memspg_t *mspg,
     TT_ASSERT(min_extend > 0);
     TT_ASSERT(min_extend < max_extend);
     TT_ASSERT(max_extend < max_limit);
-    TT_ASSERT(max_limit <= (1 << 30));
+    TT_ASSERT(max_limit <= __MEMSPG_MAX_LIMIT);
 
     mspg->min_extend = min_extend;
     mspg->max_extend = max_extend;
@@ -77,7 +79,7 @@ tt_result_t tt_memspg_extend(IN tt_memspg_t *mspg,
     }
     TT_ASSERT(new_size > *size);
 
-    new_p = tt_mem_alloc(new_size);
+    new_p = tt_malloc(new_size);
     if (new_p == NULL) {
         TT_ERROR("no mem to extend");
         return TT_FAIL;
@@ -85,7 +87,7 @@ tt_result_t tt_memspg_extend(IN tt_memspg_t *mspg,
 
     if (*p != NULL) {
         tt_memcpy(new_p, *p, *size);
-        tt_mem_free(*p);
+        tt_free(*p);
     }
     *p = new_p;
     *size = new_size;
@@ -104,7 +106,7 @@ tt_result_t tt_memspg_compress(IN tt_memspg_t *mspg,
     TT_ASSERT(to_size < *size);
 
     if (to_size != 0) {
-        new_p = tt_mem_alloc(to_size);
+        new_p = tt_malloc(to_size);
         if (new_p == NULL) {
             TT_ERROR("no mem to compress");
             return TT_FAIL;
@@ -112,7 +114,7 @@ tt_result_t tt_memspg_compress(IN tt_memspg_t *mspg,
         tt_memcpy(new_p, *p, to_size);
     }
 
-    tt_mem_free(*p);
+    tt_free(*p);
     *p = new_p;
     *size = to_size;
 

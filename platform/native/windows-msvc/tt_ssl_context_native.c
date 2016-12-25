@@ -790,7 +790,7 @@ tt_result_t __cert_import_x509(IN tt_blob_t *cert,
                                                    __cur_cert_der.len,
                                                    CERT_STORE_ADD_NEW,
                                                    NULL);
-            tt_mem_free(__cur_cert_der.addr);
+            tt_free(__cur_cert_der.addr);
             if (!ret) {
                 TT_ERROR_NTV("fail to add cert to store");
                 goto __xi_fail;
@@ -880,7 +880,7 @@ tt_result_t __cert_import_pkcs7(IN tt_blob_t *cert,
                                    &__store,
                                    NULL,
                                    NULL);
-            tt_mem_free(__cur_cert_der.addr);
+            tt_free(__cur_cert_der.addr);
 
             if (ret && (__store != NULL)) {
                 __cert_store_show(__store, "");
@@ -1211,7 +1211,7 @@ tt_result_t __base64_decode(IN tt_blob_t *base64_data,
         return TT_FAIL;
     }
 
-    pbBinary = (BYTE *)tt_mem_alloc(cbBinary);
+    pbBinary = (BYTE *)tt_malloc(cbBinary);
     if (pbBinary == NULL) {
         TT_ERROR("no memory for binary content");
         return TT_FAIL;

@@ -418,7 +418,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_base64_dec)
         TT_TEST_CHECK_EQUAL(tt_memcmp(decoded, tv->decoded, decoded_len),
                             0,
                             "");
-        tt_mem_free(decoded);
+        tt_free(decoded);
 
         ++tv;
     }

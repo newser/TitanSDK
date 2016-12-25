@@ -68,16 +68,16 @@ wrapped c memmove()
 #define tt_memmove memmove
 
 /**
-@def tt_malloc
+@def tt_c_malloc
 wrapped c malloc()
 */
-#define tt_malloc malloc
+#define tt_c_malloc malloc
 
 /**
-@def tt_free
+@def tt_c_free
 wrapped c free()
 */
-#define tt_free free
+#define tt_c_free free
 
 /**
 @def tt_strncpy

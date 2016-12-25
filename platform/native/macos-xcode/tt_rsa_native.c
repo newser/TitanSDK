@@ -61,7 +61,7 @@
             __len -= 1;                                                        \
         }                                                                      \
                                                                                \
-        __addr = (tt_u8_t *)tt_mem_alloc(__len);                               \
+        __addr = (tt_u8_t *)tt_malloc(__len);                                  \
         if (__addr == NULL) {                                                  \
             TT_ERROR("no mem");                                                \
             goto fail_label;                                                   \

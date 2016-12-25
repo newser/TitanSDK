@@ -15,20 +15,18 @@
  */
 
 /**
-@file tt_quick_sort.h
-@brief quick sort algorithm
+@file tt_compare
+@brief compare type
+ */
 
-this file defines quick sort algorithm APIs
-*/
-
-#ifndef __TT_QUICK_SORT__
-#define __TT_QUICK_SORT__
+#ifndef __TT_COMPARE__
+#define __TT_COMPARE__
 
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <algorithm/tt_compare.h>
+#include <tt_basic_type.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
@@ -38,6 +36,39 @@ this file defines quick sort algorithm APIs
 // type definition
 ////////////////////////////////////////////////////////////
 
+/**
+ @typedef tt_s32_t (*tt_cmp_t)(IN void* l, IN void* r)
+ a compare function type
+
+ @param [IN] l left object
+ @param [IN] r right object
+
+ @return
+ - >0 if "l" > "r"
+ - 0 if "l" == "r"
+ - <0 if "l" < "r"
+ */
+typedef tt_s32_t (*tt_cmp_t)(IN void *l, IN void *r);
+
+/**
+ @typedef tt_s32_t (*tt_cmpkey_t)(IN void* n,
+ IN const tt_u8_t *key,
+ IN tt_u32_t key_len)
+ compare node with key
+
+ @param [IN] n node in container
+ @param [IN] key key
+ @param [IN] key_len length of key in bytes
+
+ @return
+ - >0 if "n" > "key"
+ - 0 if "n" == "key"
+ - <0 if "n" < "key"
+ */
+typedef tt_s32_t (*tt_cmpkey_t)(IN void *n,
+                                IN const tt_u8_t *key,
+                                IN tt_u32_t key_len);
+
 ////////////////////////////////////////////////////////////
 // global variants
 ////////////////////////////////////////////////////////////
@@ -46,24 +77,4 @@ this file defines quick sort algorithm APIs
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-/**
-@fn void tt_qsort(IN void *base,
-                       IN tt_u32_t num,
-                       IN tt_u32_t width,
-                       IN tt_cmp_t cmp)
-sort a element array
-
-@param [in] base start address of element
-@param [in] num number of elements
-@param [in] width size in bytes of an element
-@param [in] cmp the cmp
-
-@return
-void
-*/
-extern void tt_qsort(IN void *base,
-                     IN tt_u32_t num,
-                     IN tt_u32_t width,
-                     IN tt_cmp_t cmp);
-
-#endif /* __TT_QUICK_SORT__ */
+#endif /* __TT_COMPARE__ */

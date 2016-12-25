@@ -676,7 +676,7 @@ void __ssl_on_destroy(IN tt_skt_t *skt, IN void *cb_param)
     exit->on_destroy(ssl, exit->cb_param);
 
     if (from_alloc) {
-        tt_mem_free(ssl);
+        tt_free(ssl);
     }
 }
 
@@ -1135,7 +1135,7 @@ tt_result_t __ssl_do_verify_leaf(IN CERT_CONTEXT *cert,
         }
         cn_size = sizeof(wchar_t) * (cn_len + 2);
 
-        cn = (wchar_t *)tt_mem_alloc(cn_size);
+        cn = (wchar_t *)tt_malloc(cn_size);
         if (cn == NULL) {
             TT_ERROR("fail to alloc cn mem");
             return TT_FAIL;
@@ -1151,19 +1151,19 @@ tt_result_t __ssl_do_verify_leaf(IN CERT_CONTEXT *cert,
 
         w_v_cn = tt_wchar_create(ssl_verify->common_name, NULL);
         if (w_v_cn == NULL) {
-            tt_mem_free(cn);
+            tt_free(cn);
             return TT_FAIL;
         }
 
         // these two strings should already be null terminated
         if (wcscmp(w_v_cn, cn) != 0) {
-            tt_mem_free(w_v_cn);
-            tt_mem_free(cn);
+            tt_free(w_v_cn);
+            tt_free(cn);
             return TT_FAIL;
         }
 
-        tt_mem_free(w_v_cn);
-        tt_mem_free(cn);
+        tt_free(w_v_cn);
+        tt_free(cn);
     }
 
     return TT_SUCCESS;
@@ -1185,14 +1185,14 @@ tt_result_t __ssl_input_expand(IN tt_ssl_ntv_t *sys_ssl)
 {
     tt_blob_t *ibuf = &sys_ssl->input;
     if (ibuf->len < __SSL_BUF_MAX_SIZE) {
-        tt_u8_t *new_buf = (tt_u8_t *)tt_mem_alloc(__SSL_BUF_MAX_SIZE);
+        tt_u8_t *new_buf = (tt_u8_t *)tt_malloc(__SSL_BUF_MAX_SIZE);
         if (new_buf == NULL) {
             TT_ERROR("fail to enlarge ssl input buf");
             return TT_FAIL;
         }
         tt_memcpy(new_buf, ibuf->addr, ibuf->len);
 
-        tt_mem_free(ibuf->addr);
+        tt_free(ibuf->addr);
         ibuf->addr = new_buf;
         ibuf->len = __SSL_BUF_MAX_SIZE;
         return TT_SUCCESS;
@@ -1226,14 +1226,14 @@ tt_result_t __ssl_input_resize(IN tt_ssl_ntv_t *sys_ssl, IN tt_u32_t size)
         return TT_SUCCESS;
     }
 
-    new_buf = (tt_u8_t *)tt_mem_alloc(size);
+    new_buf = (tt_u8_t *)tt_malloc(size);
     if (new_buf == NULL) {
         TT_ERROR("fail to resize ssl input buf");
         return TT_FAIL;
     }
     tt_memcpy(new_buf, ibuf->addr, ibuf->len);
 
-    tt_mem_free(ibuf->addr);
+    tt_free(ibuf->addr);
     ibuf->addr = new_buf;
     ibuf->len = size;
     return TT_SUCCESS;
@@ -1313,14 +1313,14 @@ tt_result_t __ssl_output_expand(IN tt_ssl_ntv_t *sys_ssl)
 {
     tt_blob_t *obuf = &sys_ssl->output;
     if (obuf->len < __SSL_BUF_MAX_SIZE) {
-        tt_u8_t *new_buf = (tt_u8_t *)tt_mem_alloc(__SSL_BUF_MAX_SIZE);
+        tt_u8_t *new_buf = (tt_u8_t *)tt_malloc(__SSL_BUF_MAX_SIZE);
         if (new_buf == NULL) {
             TT_ERROR("fail to enlarge ssl output buf");
             return TT_FAIL;
         }
         // tt_memcpy(new_buf, obuf->addr, obuf->len);
 
-        tt_mem_free(obuf->addr);
+        tt_free(obuf->addr);
         obuf->addr = new_buf;
         obuf->len = __SSL_BUF_MAX_SIZE;
         return TT_SUCCESS;
@@ -1354,14 +1354,14 @@ tt_result_t __ssl_output_resize(IN tt_ssl_ntv_t *sys_ssl, IN tt_u32_t size)
         return TT_SUCCESS;
     }
 
-    new_buf = (tt_u8_t *)tt_mem_alloc(size);
+    new_buf = (tt_u8_t *)tt_malloc(size);
     if (new_buf == NULL) {
         TT_ERROR("fail to resize ssl output buf");
         return TT_FAIL;
     }
     tt_memcpy(new_buf, obuf->addr, obuf->len);
 
-    tt_mem_free(obuf->addr);
+    tt_free(obuf->addr);
     obuf->addr = new_buf;
     obuf->len = size;
     return TT_SUCCESS;

@@ -238,7 +238,7 @@ void tt_dh_destroy_ntv(IN tt_dh_ntv_t *sys_dh)
     DH_free(sys_dh->dh);
 
     if (sys_dh->secret != NULL) {
-        tt_mem_free(sys_dh->secret);
+        tt_free(sys_dh->secret);
     }
 }
 
@@ -252,7 +252,7 @@ tt_result_t tt_dh_compute_ntv(IN tt_dh_ntv_t *sys_dh,
     int s_len;
 
     s_memlen = DH_size(sys_dh->dh);
-    s = tt_mem_alloc(s_memlen);
+    s = tt_malloc(s_memlen);
     if (s == NULL) {
         TT_ERROR("no mem for DH secret");
         return TT_FAIL;
@@ -271,7 +271,7 @@ tt_result_t tt_dh_compute_ntv(IN tt_dh_ntv_t *sys_dh,
     }
 
     if (sys_dh->secret != NULL) {
-        tt_mem_free(sys_dh->secret);
+        tt_free(sys_dh->secret);
     }
     sys_dh->secret = s;
     sys_dh->secret_len = (tt_u32_t)s_len;
@@ -287,7 +287,7 @@ dhc_fail:
     }
 
     if (s != NULL) {
-        tt_mem_free(s);
+        tt_free(s);
     }
 
     return TT_FAIL;

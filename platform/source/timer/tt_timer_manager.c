@@ -154,7 +154,7 @@ tt_s64_t tt_tmr_mgr_run(IN tt_tmr_mgr_t *mgr)
                 } break;
                 case __TMR_ORPHAN: {
                     // return unused timer to slab
-                    tt_mem_free(head);
+                    tt_free(head);
                 } break;
                 default: {
                     TT_ERROR("invalid timer status: %d", head->status);

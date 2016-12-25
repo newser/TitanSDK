@@ -265,7 +265,7 @@ tt_result_t tt_rsa_generate_ntv(OUT tt_rsa_ntv_t *sys_rsa,
             TT_ERROR("fail to set rsa oaep padding");
 
             BCryptDestroyKey(rsa);
-            tt_mem_free(rsa, tt_s_crypt_rsa_size);
+            tt_free(rsa, tt_s_crypt_rsa_size);
             
             return TT_FAIL;
         }
@@ -489,7 +489,7 @@ tt_result_t __rsa_public(IN tt_rsa_ntv_t *sys_rsa,
         key_blob = NULL;
     }
     if (attr->pem_armor) {
-        tt_mem_free(key_data_der.addr);
+        tt_free(key_data_der.addr);
         key_data_der.addr = NULL;
         key_data_der.len = 0;
     }
@@ -529,7 +529,7 @@ rpub_fail:
     }
 
     if (attr->pem_armor && (key_data_der.addr != NULL)) {
-        tt_mem_free(key_data_der.addr);
+        tt_free(key_data_der.addr);
     }
 
     return TT_FAIL;
@@ -577,7 +577,7 @@ tt_result_t __rsa_private_pkcs1(IN tt_rsa_ntv_t *sys_rsa,
         goto rpriv_fail;
     }
     if (attr->pem_armor) {
-        tt_mem_free(key_data_der.addr);
+        tt_free(key_data_der.addr);
         key_data_der.addr = NULL;
         key_data_der.len = 0;
     }
@@ -613,7 +613,7 @@ rpriv_fail:
     }
 
     if (attr->pem_armor && (key_data_der.addr != NULL)) {
-        tt_mem_free(key_data_der.addr);
+        tt_free(key_data_der.addr);
     }
 
     return TT_FAIL;
@@ -660,7 +660,7 @@ tt_result_t __rsa_private_pkcs8(IN tt_rsa_ntv_t *sys_rsa,
                 8);
 #endif
     if (attr->pem_armor) {
-        tt_mem_free(key_data_der.addr);
+        tt_free(key_data_der.addr);
         key_data_der.addr = NULL;
         key_data_der.len = 0;
     }
@@ -715,7 +715,7 @@ rpriv_fail:
     }
 
     if (attr->pem_armor && (key_data_der.addr != NULL)) {
-        tt_mem_free(key_data_der.addr);
+        tt_free(key_data_der.addr);
     }
 
     return TT_FAIL;
@@ -1101,7 +1101,7 @@ tt_result_t __rsa_number_get_public(IN BCRYPT_KEY_HANDLE rsa,
     }
 
     key_blob_size = n;
-    key_blob = (BCRYPT_RSAKEY_BLOB *)tt_mem_alloc(key_blob_size);
+    key_blob = (BCRYPT_RSAKEY_BLOB *)tt_malloc(key_blob_size);
     if (key_blob == NULL) {
         TT_ERROR("no mem for exporting rsa pub key");
         goto gp_fail;
@@ -1145,22 +1145,22 @@ tt_result_t __rsa_number_get_public(IN BCRYPT_KEY_HANDLE rsa,
         goto gp_fail;
     }
 
-    tt_mem_free(key_blob);
+    tt_free(key_blob);
 
     return TT_SUCCESS;
 
 gp_fail:
 
     if (pub_n->modulus.addr != NULL) {
-        tt_mem_free(pub_n->modulus.addr);
+        tt_free(pub_n->modulus.addr);
     }
 
     if (pub_n->pub_exp.addr != NULL) {
-        tt_mem_free(pub_n->pub_exp.addr);
+        tt_free(pub_n->pub_exp.addr);
     }
 
     if (key_blob != NULL) {
-        tt_mem_free(key_blob);
+        tt_free(key_blob);
     }
 
     return TT_FAIL;
@@ -1197,42 +1197,42 @@ tt_result_t __rsa_number_get_private(IN BCRYPT_KEY_HANDLE rsa,
 
     if (priv_n->modulus.addr != NULL)
     {
-        tt_mem_free(priv_n->modulus.addr, priv_n->modulus.len);
+        tt_free(priv_n->modulus.addr, priv_n->modulus.len);
     }
 
     if (priv_n->pub_exp.addr != NULL)
     {
-        tt_mem_free(priv_n->pub_exp.addr, priv_n->pub_exp.len);
+        tt_free(priv_n->pub_exp.addr, priv_n->pub_exp.len);
     }
 
     if (priv_n->priv_exp.addr != NULL)
     {
-        tt_mem_free(priv_n->priv_exp.addr, priv_n->priv_exp.len);
+        tt_free(priv_n->priv_exp.addr, priv_n->priv_exp.len);
     }
 
     if (priv_n->prime1.addr != NULL)
     {
-        tt_mem_free(priv_n->prime1.addr, priv_n->prime1.len);
+        tt_free(priv_n->prime1.addr, priv_n->prime1.len);
     }
 
     if (priv_n->prime2.addr != NULL)
     {
-        tt_mem_free(priv_n->prime2.addr, priv_n->prime2.len);
+        tt_free(priv_n->prime2.addr, priv_n->prime2.len);
     }
 
     if (priv_n->exp1.addr != NULL)
     {
-        tt_mem_free(priv_n->exp1.addr, priv_n->exp1.len);
+        tt_free(priv_n->exp1.addr, priv_n->exp1.len);
     }
 
     if (priv_n->exp2.addr != NULL)
     {
-        tt_mem_free(priv_n->exp2.addr, priv_n->exp2.len);
+        tt_free(priv_n->exp2.addr, priv_n->exp2.len);
     }
 
     if (priv_n->coefficient.addr != NULL)
     {
-        tt_mem_free(priv_n->coefficient.addr, priv_n->coefficient.len);
+        tt_free(priv_n->coefficient.addr, priv_n->coefficient.len);
     }
 
     return TT_FAIL;
@@ -1260,7 +1260,7 @@ tt_result_t __base64_decode(IN tt_blob_t *base64_data,
         return TT_FAIL;
     }
 
-    pbBinary = (BYTE *)tt_mem_alloc(cbBinary);
+    pbBinary = (BYTE *)tt_malloc(cbBinary);
     if (pbBinary == NULL) {
         TT_ERROR("no memory for binary content");
         return TT_FAIL;

@@ -110,7 +110,7 @@ void tt_cfgsh_destroy(IN tt_cfgsh_t *sh)
     TT_ASSERT(sh != NULL);
 
     if (sh->arg != sh->i_arg) {
-        tt_mem_free(sh->arg);
+        tt_free(sh->arg);
     }
 
     tt_cli_destroy(&sh->cli);
@@ -278,7 +278,7 @@ tt_result_t __expand_arg(IN tt_cfgsh_t *sh)
 
     num = sh->arg_num + TT_CFGSH_ARG_NUM;
     size = num * sizeof(tt_char_t *);
-    new_arg = (tt_char_t **)tt_mem_alloc(size);
+    new_arg = (tt_char_t **)tt_malloc(size);
     if (new_arg == NULL) {
         return TT_FAIL;
     }
@@ -286,7 +286,7 @@ tt_result_t __expand_arg(IN tt_cfgsh_t *sh)
     tt_memcpy(new_arg, sh->arg, sh->arg_num * sizeof(tt_char_t *));
 
     if (sh->arg != sh->i_arg) {
-        tt_mem_free(sh->arg);
+        tt_free(sh->arg);
     }
     sh->arg = new_arg;
     sh->arg_num = num;

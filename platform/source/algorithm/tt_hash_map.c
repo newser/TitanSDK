@@ -259,7 +259,7 @@ tt_result_t __la_create(IN tt_hslot_t *hslot)
     list_num = size / sizeof(tt_list_t);
 
     // hslot
-    list = (tt_list_t *)tt_mem_alloc(size);
+    list = (tt_list_t *)tt_malloc(size);
     if (list == NULL) {
         TT_ERROR("no memory");
         return TT_NO_RESOURCE;
@@ -296,7 +296,7 @@ tt_result_t __la_destroy(IN tt_hslot_t *hslot)
         }
     }
 
-    tt_mem_free(list);
+    tt_free(list);
 
     return TT_SUCCESS;
 }

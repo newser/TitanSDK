@@ -48,7 +48,7 @@
         }                                                                      \
                                                                                \
         len = BN_num_bytes((bn));                                              \
-        p = (tt_u8_t *)tt_mem_alloc(len);                                      \
+        p = (tt_u8_t *)tt_malloc(len);                                         \
         if (p == NULL) {                                                       \
             TT_ERROR("no mem for " #bn);                                       \
             goto fail_label;                                                   \
@@ -860,11 +860,11 @@ tt_result_t __rsa_number_get_public(IN RSA *openssl_rsa,
 gp_fail:
 
     if (pub_n->modulus.addr != NULL) {
-        tt_mem_free(pub_n->modulus.addr);
+        tt_free(pub_n->modulus.addr);
     }
 
     if (pub_n->pub_exp.addr != NULL) {
-        tt_mem_free(pub_n->pub_exp.addr);
+        tt_free(pub_n->pub_exp.addr);
     }
 
     return TT_FAIL;
@@ -921,35 +921,35 @@ tt_result_t __rsa_number_get_private(IN RSA *openssl_rsa,
 gp_fail:
 
     if (priv_n->modulus.addr != NULL) {
-        tt_mem_free(priv_n->modulus.addr);
+        tt_free(priv_n->modulus.addr);
     }
 
     if (priv_n->pub_exp.addr != NULL) {
-        tt_mem_free(priv_n->pub_exp.addr);
+        tt_free(priv_n->pub_exp.addr);
     }
 
     if (priv_n->priv_exp.addr != NULL) {
-        tt_mem_free(priv_n->priv_exp.addr);
+        tt_free(priv_n->priv_exp.addr);
     }
 
     if (priv_n->prime1.addr != NULL) {
-        tt_mem_free(priv_n->prime1.addr);
+        tt_free(priv_n->prime1.addr);
     }
 
     if (priv_n->prime2.addr != NULL) {
-        tt_mem_free(priv_n->prime2.addr);
+        tt_free(priv_n->prime2.addr);
     }
 
     if (priv_n->exp1.addr != NULL) {
-        tt_mem_free(priv_n->exp1.addr);
+        tt_free(priv_n->exp1.addr);
     }
 
     if (priv_n->exp2.addr != NULL) {
-        tt_mem_free(priv_n->exp2.addr);
+        tt_free(priv_n->exp2.addr);
     }
 
     if (priv_n->coefficient.addr != NULL) {
-        tt_mem_free(priv_n->coefficient.addr);
+        tt_free(priv_n->coefficient.addr);
     }
 
     return TT_FAIL;

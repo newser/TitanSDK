@@ -468,7 +468,7 @@ tt_result_t __fs_dopen(OUT tt_dir_ntv_t *dir,
         return TT_FAIL;
     }
 
-    path_buf = (wchar_t *)tt_mem_alloc(path_buf_size);
+    path_buf = (wchar_t *)tt_malloc(path_buf_size);
     if (path_buf == NULL) {
         TT_ERROR("fail to alloc buf for path");
         return TT_FAIL;
@@ -502,7 +502,7 @@ tt_result_t __fs_dopen(OUT tt_dir_ntv_t *dir,
     dir->closing = TT_FALSE;
 
     // return path buf
-    tt_mem_free(path_buf);
+    tt_free(path_buf);
 
     return TT_SUCCESS;
 
@@ -513,7 +513,7 @@ dop_fail:
     }
 
     if (path_buf != NULL) {
-        tt_mem_free(path_buf);
+        tt_free(path_buf);
     }
 
     return TT_FAIL;

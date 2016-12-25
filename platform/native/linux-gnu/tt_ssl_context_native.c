@@ -401,7 +401,7 @@ tt_result_t __sslctx_add_cert(IN tt_sslctx_ntv_t *ctx,
     tt_sslctx_node_t *sctx_node;
     tt_result_t result;
 
-    sctx_node = (tt_sslctx_node_t *)tt_mem_alloc(sizeof(tt_sslctx_node_t));
+    sctx_node = (tt_sslctx_node_t *)tt_malloc(sizeof(tt_sslctx_node_t));
     if (sctx_node == NULL) {
         TT_ERROR("no mem for ctx node");
         return TT_FAIL;
@@ -918,7 +918,7 @@ void __sslctx_node_clean(IN tt_sslctx_node_t *sctx_node)
 void __sslctx_node_destroy(IN tt_sslctx_node_t *sctx_node)
 {
     __sslctx_node_clean(sctx_node);
-    tt_mem_free(sctx_node);
+    tt_free(sctx_node);
 }
 
 void __sslctx_node_show(IN tt_sslctx_node_t *sctx_node,
@@ -1065,7 +1065,7 @@ static tt_result_t __ssl_verify_leaf(IN STACK_OF(X509) * cert_chain,
             return TT_FAIL;
         }
 
-        cn = tt_mem_alloc(cn_len + 2);
+        cn = tt_malloc(cn_len + 2);
         if (cn == NULL) {
             TT_ERROR("fail to alloc cn mem");
             return TT_FAIL;
@@ -1079,11 +1079,11 @@ static tt_result_t __ssl_verify_leaf(IN STACK_OF(X509) * cert_chain,
 
         // these two strings should already be null terminated
         if (strcmp(ssl_verify->common_name, cn) != 0) {
-            tt_mem_free(cn);
+            tt_free(cn);
             return TT_FAIL;
         }
 
-        tt_mem_free(cn);
+        tt_free(cn);
     }
 
     // all verified

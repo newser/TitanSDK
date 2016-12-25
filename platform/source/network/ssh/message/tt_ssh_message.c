@@ -95,7 +95,7 @@ tt_sshmsg_t *tt_sshmsg_create(IN tt_u32_t msg_id,
     TT_ASSERT(itf->parse != NULL);
 
     msg_len += sizeof(tt_sshmsg_t);
-    msg = (tt_sshmsg_t *)tt_mem_alloc(msg_len);
+    msg = (tt_sshmsg_t *)tt_malloc(msg_len);
     tt_memset(msg, 0, msg_len);
 
     if (msg != NULL) {
@@ -110,7 +110,7 @@ tt_sshmsg_t *tt_sshmsg_create(IN tt_u32_t msg_id,
 
         if ((msg->itf->create != NULL) && !TT_OK(msg->itf->create(msg))) {
             tt_buf_destroy(&msg->buf);
-            tt_mem_free(msg);
+            tt_free(msg);
             return NULL;
         }
     }
@@ -128,7 +128,7 @@ void __sshmsg_destroy(IN tt_sshmsg_t *msg)
     }
 
     tt_buf_destroy(&msg->buf);
-    tt_mem_free(msg);
+    tt_free(msg);
 }
 
 void tt_sshmsg_dump(IN tt_sshmsg_t *msg)

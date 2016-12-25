@@ -54,7 +54,7 @@ tt_loglyt_t *tt_loglyt_create(IN tt_u32_t size, IN tt_loglyt_itf_t *itf)
         return NULL;
     }
 
-    ll = tt_mem_alloc(sizeof(tt_loglyt_t) + size);
+    ll = tt_malloc(sizeof(tt_loglyt_t) + size);
     if (ll == NULL) {
         return NULL;
     }
@@ -62,7 +62,7 @@ tt_loglyt_t *tt_loglyt_create(IN tt_u32_t size, IN tt_loglyt_itf_t *itf)
     ll->itf = itf;
 
     if ((ll->itf->create != NULL) && !TT_OK(ll->itf->create(ll))) {
-        tt_mem_free(ll);
+        tt_free(ll);
         return NULL;
     }
 
@@ -79,5 +79,5 @@ void tt_loglyt_destroy(IN tt_loglyt_t *ll)
         ll->itf->destroy(ll);
     }
 
-    tt_mem_free(ll);
+    tt_free(ll);
 }

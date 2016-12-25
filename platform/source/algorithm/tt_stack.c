@@ -86,7 +86,7 @@ tt_result_t tt_stack_create(IN tt_stack_t *stack,
     }
     stack->frame_size = sizeof(tt_stack_frame_t);
     stack->frame_size += stack->obj_size_aligned * obj_num;
-    stack->frame_size = tt_mem_size(stack->frame_size);
+    stack->frame_size = tt_msize(stack->frame_size);
 
     tt_list_init(&stack->frame_list);
     stack->current_frame = NULL;
@@ -137,7 +137,7 @@ tt_result_t tt_stack_destroy(IN tt_stack_t *stack)
         }
 
         // free frame
-        tt_mem_free(frame);
+        tt_free(frame);
     }
 
     return result;
@@ -232,7 +232,7 @@ tt_result_t tt_stack_pop(IN tt_stack_t *stack,
                 TT_ASSERT_STACK(tail_frame->idx == (frame->idx + 2));
 
                 // free the tail frame
-                tt_mem_free(tail_frame);
+                tt_free(tail_frame);
             }
         }
         // else the stack has only an emtpy frame
@@ -282,7 +282,7 @@ tt_u8_t *tt_stack_top(IN tt_stack_t *stack)
                 TT_ASSERT_STACK(tail_frame->idx == (frame->idx + 2));
 
                 // free the tail frame
-                tt_mem_free(tail_frame);
+                tt_free(tail_frame);
             }
         }
         // else the stack has only an emtpy frame
@@ -307,7 +307,7 @@ void tt_stack_clear(IN tt_stack_t *stack)
 
     while (tt_list_count(frame_list) > 1) {
         node = tt_list_poptail(frame_list);
-        tt_mem_free(TT_CONTAINER(node, tt_stack_frame_t, node));
+        tt_free(TT_CONTAINER(node, tt_stack_frame_t, node));
     }
 
     node = tt_list_head(frame_list);
@@ -319,8 +319,7 @@ void tt_stack_clear(IN tt_stack_t *stack)
 
 tt_stack_frame_t *__stack_expand(IN tt_stack_t *stack)
 {
-    tt_stack_frame_t *frame =
-        (tt_stack_frame_t *)tt_mem_alloc(stack->frame_size);
+    tt_stack_frame_t *frame = (tt_stack_frame_t *)tt_malloc(stack->frame_size);
     if (frame != NULL) {
         tt_u32_t frame_st_size = sizeof(tt_stack_frame_t);
 

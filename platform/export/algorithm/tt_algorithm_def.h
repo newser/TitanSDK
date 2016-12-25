@@ -15,29 +15,14 @@
  */
 
 /**
- @file tt_algorithm_commmon.h
+ @file tt_algorithm_def.h
  @brief algorithm commmon definitions
 
  this file algorithm commmon definitions
- <hr>
-
- <b>API FORMAT</b><br>
- not all api are mandatory
- - create(container, comparer, key2node, ...)
- - destroy(container)
- - insert(container, pos, node)
- - add(container, node)
- - remove(container, node)
- - find(container, key, key_len)
- - empty(container)
- - count(container)/len(container)
- - push(container, node)/pop(container, node)
- - head(container)/tail(container)
- - clear(container)
  */
 
-#ifndef __TT_ALGORITHM_COMMON__
-#define __TT_ALGORITHM_COMMON__
+#ifndef __TT_ALGORITHM_DEF__
+#define __TT_ALGORITHM_DEF__
 
 ////////////////////////////////////////////////////////////
 // import header files
@@ -49,42 +34,11 @@
 // macro definition
 ////////////////////////////////////////////////////////////
 
+#define TT_POS_NULL (~0)
+
 ////////////////////////////////////////////////////////////
 // type definition
 ////////////////////////////////////////////////////////////
-
-/**
-@typedef tt_s32_t (*tt_cmp_t)(IN void* l, IN void* r)
-a compare function type
-
-@param [IN] l left operator
-@param [IN] r right operator
-
-@return
-- 1 if "l" > "r"
-- 0 if "l" == "r"
-- -1 if "l" < "r"
-*/
-typedef tt_s32_t (*tt_cmp_t)(IN void *l, IN void *r);
-
-/**
-@typedef tt_s32_t (*tt_cmpkey_t)(IN void* n,
-                                       IN const tt_u8_t *key,
-                                       IN tt_u32_t key_len)
-compare node with key
-
-@param [IN] n node in container
-@param [IN] key key
-@param [IN] key_len length of key in bytes
-
-@return
-- 1 if "n" > "key"
-- 0 if "n" == "key"
-- -1 if "n" < "key"
-*/
-typedef tt_s32_t (*tt_cmpkey_t)(IN void *n,
-                                IN const tt_u8_t *key,
-                                IN tt_u32_t key_len);
 
 ////////////////////////////////////////////////////////////
 // global variants
@@ -94,4 +48,4 @@ typedef tt_s32_t (*tt_cmpkey_t)(IN void *n,
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-#endif /* __TT_ALGORITHM_COMMON__ */
+#endif /* __TT_ALGORITHM_DEF__ */

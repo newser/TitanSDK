@@ -125,15 +125,14 @@ TT_TEST_CASE("tt_unit_test_mempool_basic",
                  NULL),
 #endif
 
-TT_TEST_CASE("tt_unit_test_mem_spg",
-             "testing memory spring",
-             tt_unit_test_mem_spg,
-             NULL,
-             NULL,
-             NULL,
-             NULL,
-             NULL)
-,
+    TT_TEST_CASE("tt_unit_test_mem_spg",
+                 "testing memory spring",
+                 tt_unit_test_mem_spg,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL),
 
     TT_TEST_CASE_LIST_DEFINE_END(mempool_case)
     // =========================================

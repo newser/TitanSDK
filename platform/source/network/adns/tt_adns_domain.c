@@ -217,7 +217,7 @@ void __adns_domain_destroy(IN tt_adns_domain_t *dm)
 
     tt_hashmap_remove(&dm->dmgr->domain_map, &dm->dmgr_node);
 
-    tt_mem_free(dm);
+    tt_free(dm);
 }
 
 void tt_adns_domain_query(IN tt_adns_domain_t *dm, IN tt_adns_rr_type_t type)
@@ -309,7 +309,7 @@ tt_adns_domain_t *__adns_dm_create(IN const tt_char_t *name,
     tt_adns_domain_t *dm;
     tt_u32_t i;
 
-    dm = (tt_adns_domain_t *)tt_mem_alloc(sizeof(tt_adns_domain_t) + name_len);
+    dm = (tt_adns_domain_t *)tt_malloc(sizeof(tt_adns_domain_t) + name_len);
     if (dm == NULL) {
         TT_ERROR("no mem for dm");
         return NULL;
@@ -360,7 +360,7 @@ tt_adns_rrset_t *__adns_rrs_create(IN tt_adns_rr_type_t type,
 {
     tt_adns_rrset_t *rrs;
 
-    rrs = (tt_adns_rrset_t *)tt_mem_alloc(sizeof(tt_adns_rrset_t));
+    rrs = (tt_adns_rrset_t *)tt_malloc(sizeof(tt_adns_rrset_t));
     if (rrs == NULL) {
         TT_ERROR("fail to create rrs");
         return NULL;

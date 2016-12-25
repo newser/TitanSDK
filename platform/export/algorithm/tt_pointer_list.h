@@ -106,7 +106,7 @@ tt_inline tt_ptrnode_t *tt_ptrlist_next(IN tt_ptrlist_t *list,
 
 tt_inline tt_result_t tt_ptrlist_pushhead(IN tt_ptrlist_t *list, IN void *p)
 {
-    tt_ptrnode_t *node = tt_mem_alloc(sizeof(tt_ptrnode_t));
+    tt_ptrnode_t *node = tt_malloc(sizeof(tt_ptrnode_t));
     if (node == NULL) {
         return TT_FAIL;
     }
@@ -125,7 +125,7 @@ tt_inline tt_result_t tt_ptrlist_pushhead(IN tt_ptrlist_t *list, IN void *p)
 
 tt_inline tt_result_t tt_ptrlist_pushtail(IN tt_ptrlist_t *list, IN void *p)
 {
-    tt_ptrnode_t *node = tt_mem_alloc(sizeof(tt_ptrnode_t));
+    tt_ptrnode_t *node = tt_malloc(sizeof(tt_ptrnode_t));
     if (node == NULL) {
         return TT_FAIL;
     }
@@ -151,7 +151,7 @@ tt_inline tt_bool_t tt_ptrlist_pophead(IN tt_ptrlist_t *list, OUT OPT void **pp)
         __PTRLIST_HEAD(list) = head->next;
 
         TT_SAFE_ASSIGN(pp, head->p);
-        tt_mem_free(head);
+        tt_free(head);
     }
     return TT_BOOL(head != NULL);
 }
@@ -164,7 +164,7 @@ tt_inline tt_bool_t tt_ptrlist_poptail(IN tt_ptrlist_t *list, OUT OPT void **pp)
         __PTRLIST_TAIL(list) = tail->prev;
 
         TT_SAFE_ASSIGN(pp, tail->p);
-        tt_mem_free(tail);
+        tt_free(tail);
     }
     return TT_BOOL(tail != NULL);
 }
@@ -173,7 +173,7 @@ tt_inline void tt_ptrlist_remove(IN tt_ptrnode_t *node)
 {
     node->next->prev = node->prev;
     node->prev->next = node->next;
-    tt_mem_free(node);
+    tt_free(node);
 }
 
 tt_inline void tt_ptrlist_merge(IN tt_ptrlist_t *dst, IN tt_ptrlist_t *src)

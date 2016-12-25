@@ -92,8 +92,8 @@ tt_result_t tt_buf_create(IN tt_buf_t *buf,
             return TT_FAIL;
         }
 
-        size = tt_mem_size(size);
-        buf->addr = (tt_u8_t *)tt_mem_alloc(size);
+        size = tt_msize(size);
+        buf->addr = (tt_u8_t *)tt_malloc(size);
         if (buf->addr == NULL) {
             TT_ERROR("no mem for buf buf");
             return TT_NO_RESOURCE;
@@ -165,7 +165,7 @@ void tt_buf_destroy(IN tt_buf_t *buf)
 
     TT_ASSERT_BUF(buf->addr != NULL);
     if ((buf->addr != buf->buf_inline) && !buf->attr.not_copied) {
-        tt_mem_free(buf->addr);
+        tt_free(buf->addr);
     }
 }
 
@@ -185,7 +185,7 @@ void tt_buf_print_hexstr(IN tt_buf_t *buf, IN tt_u32_t flag)
         return;
     }
 
-    hs = tt_mem_alloc(len + 1);
+    hs = tt_malloc(len + 1);
     if (hs == NULL) {
         return;
     }
@@ -193,7 +193,7 @@ void tt_buf_print_hexstr(IN tt_buf_t *buf, IN tt_u32_t flag)
     len = tt_buf_get_hexstr(buf, hs, len);
     hs[len] = 0;
     TT_INFO("%s", hs);
-    tt_mem_free(hs);
+    tt_free(hs);
 }
 
 void tt_buf_print_cstr(IN tt_buf_t *buf, IN tt_u32_t flag)
@@ -249,14 +249,14 @@ tt_result_t tt_buf_expand(IN tt_buf_t *buf, IN OPT tt_u32_t expand_size)
         return TT_FAIL;
     }
 
-    new_size = tt_mem_size(new_size);
+    new_size = tt_msize(new_size);
     TT_ASSERT_BUF(new_size > buf->size);
     // note here new_size is enlarged again, and may exceed
     // limitation: 1 << buf->attr.max_size_order. but this
     // is not a big problem, expanding will be prohibited the
     // next time it tries to expand
 
-    new_buf = (tt_u8_t *)tt_mem_alloc(new_size);
+    new_buf = (tt_u8_t *)tt_malloc(new_size);
     if (new_buf == NULL) {
         TT_ERROR("no mem for expanding");
         return TT_NO_RESOURCE;
@@ -271,7 +271,7 @@ tt_result_t tt_buf_expand(IN tt_buf_t *buf, IN OPT tt_u32_t expand_size)
                   buf->wr_pos - buf->rd_pos);
 
         if (buf->addr != buf->buf_inline) {
-            tt_mem_free(buf->addr);
+            tt_free(buf->addr);
         }
     }
 
@@ -308,7 +308,7 @@ tt_result_t tt_buf_shrink(IN tt_buf_t *buf)
         tt_memmove(buf->buf_inline, TT_BUF_RPOS(buf), len);
 
         if (buf->addr != buf->buf_inline) {
-            tt_mem_free(buf->addr);
+            tt_free(buf->addr);
         }
         buf->addr = buf->buf_inline;
         buf->size = TT_BUF_INLINE_SIZE;
@@ -323,10 +323,10 @@ tt_result_t tt_buf_shrink(IN tt_buf_t *buf)
 
         new_size = len;
         __buf_size_align(&buf->attr, &new_size);
-        new_size = tt_mem_size(new_size);
+        new_size = tt_msize(new_size);
         TT_ASSERT_BUF(new_size >= len);
 
-        new_buf = (tt_u8_t *)tt_mem_alloc(new_size);
+        new_buf = (tt_u8_t *)tt_malloc(new_size);
         if (new_buf == NULL) {
             TT_ERROR("no mem for shrinking");
             return TT_NO_RESOURCE;
@@ -334,7 +334,7 @@ tt_result_t tt_buf_shrink(IN tt_buf_t *buf)
         tt_memcpy(new_buf, TT_BUF_RPOS(buf), len);
 
         if (buf->addr != buf->buf_inline) {
-            tt_mem_free(buf->addr);
+            tt_free(buf->addr);
         }
         buf->addr = new_buf;
         buf->size = new_size;

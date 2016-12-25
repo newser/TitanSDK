@@ -260,7 +260,7 @@ tt_char_t *tt_adns_name_parse(IN tt_buf_t *buf,
 
     // alloc domain name
     if (name == NULL) {
-        name = (tt_char_t *)tt_mem_alloc(__name_len);
+        name = (tt_char_t *)tt_malloc(__name_len);
         if (name == NULL) {
             TT_ERROR("no mem for domain name");
             return NULL;

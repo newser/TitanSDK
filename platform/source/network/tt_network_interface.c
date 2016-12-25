@@ -218,7 +218,7 @@ tt_netif_t *__netif_create(IN const tt_char_t *netif_name)
         return NULL;
     }
 
-    netif = (tt_netif_t *)tt_mem_alloc(sizeof(tt_netif_t));
+    netif = (tt_netif_t *)tt_malloc(sizeof(tt_netif_t));
     if (netif == NULL) {
         TT_ERROR("no mem for new netif");
         return NULL;
@@ -229,7 +229,7 @@ tt_netif_t *__netif_create(IN const tt_char_t *netif_name)
     netif->internal_flag = 0;
 
     if (!TT_OK(tt_netif_create_ntv(&netif->sys_netif))) {
-        tt_mem_free(netif);
+        tt_free(netif);
         return NULL;
     }
 
@@ -250,7 +250,7 @@ void __netif_destroy(IN tt_netif_t *netif)
         __netif_addr_destroy(TT_CONTAINER(node, tt_netif_addr_t, node));
     }
 
-    tt_mem_free(netif);
+    tt_free(netif);
 }
 
 tt_netif_t *__netif_find(IN tt_netif_group_t *group,
@@ -375,7 +375,7 @@ tt_netif_addr_t *__netif_addr_create(IN tt_net_family_t family)
 {
     tt_netif_addr_t *addr;
 
-    addr = (tt_netif_addr_t *)tt_mem_alloc(sizeof(tt_netif_addr_t));
+    addr = (tt_netif_addr_t *)tt_malloc(sizeof(tt_netif_addr_t));
     if (addr == NULL) {
         TT_ERROR("no mem for new netif addr");
         return NULL;
@@ -394,7 +394,7 @@ void __netif_addr_destroy(IN tt_netif_addr_t *netif_addr)
 {
     TT_ASSERT(netif_addr != NULL);
 
-    tt_mem_free(netif_addr);
+    tt_free(netif_addr);
 }
 
 void __netif_addr_dump(IN tt_netif_addr_t *netif_addr,

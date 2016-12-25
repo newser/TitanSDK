@@ -112,7 +112,7 @@ tt_adns_rr_t *tt_adns_rr_create(IN tt_u32_t extra_size,
     }
 
     // alloc
-    rr = (tt_adns_rr_t *)tt_mem_alloc(rr_len);
+    rr = (tt_adns_rr_t *)tt_malloc(rr_len);
     if (rr == NULL) {
         TT_ERROR("no mem for adns rr");
         return NULL;
@@ -136,11 +136,11 @@ tt_adns_rr_t *tt_adns_rr_create(IN tt_u32_t extra_size,
         TT_ASSERT(name_ownership == TT_ADNS_RR_COPY_NAME);
         TT_ASSERT(name != NULL);
 
-        rr->name = (tt_char_t *)tt_mem_alloc(name_len);
+        rr->name = (tt_char_t *)tt_malloc(name_len);
         if (rr->name == NULL) {
             TT_ERROR("no memory for rr name");
 
-            tt_mem_free(rr);
+            tt_free(rr);
             return NULL;
         }
         tt_memcpy((void *)rr->name, name, name_len);
@@ -156,9 +156,9 @@ tt_adns_rr_t *tt_adns_rr_create(IN tt_u32_t extra_size,
 
     if ((rr->itf->create != NULL) && !TT_OK(rr->itf->create(rr))) {
         if (rr->name_owner) {
-            tt_mem_free((void *)rr->name);
+            tt_free((void *)rr->name);
         }
-        tt_free(rr);
+        tt_c_free(rr);
         return NULL;
     }
 
@@ -173,10 +173,10 @@ void tt_adns_rr_destroy(IN tt_adns_rr_t *rr)
     }
 
     if (rr->name_owner) {
-        tt_mem_free((void *)rr->name);
+        tt_free((void *)rr->name);
     }
 
-    tt_mem_free(rr);
+    tt_free(rr);
 
     __ADRR_NUM_DEC();
 }
@@ -204,7 +204,7 @@ tt_result_t tt_adns_rr_set_name(IN tt_adns_rr_t *rr,
     if (name_ownership == TT_ADNS_RR_TAKE_NAME) {
         if (rr->name_owner) {
             TT_ASSERT(rr->name != NULL);
-            tt_mem_free((void *)rr->name);
+            tt_free((void *)rr->name);
         }
 
         rr->name = name;
@@ -215,7 +215,7 @@ tt_result_t tt_adns_rr_set_name(IN tt_adns_rr_t *rr,
     } else if (name_ownership == TT_ADNS_RR_REF_NAME) {
         if (rr->name_owner) {
             TT_ASSERT(rr->name != NULL);
-            tt_mem_free((void *)rr->name);
+            tt_free((void *)rr->name);
         }
 
         rr->name = name;
@@ -229,7 +229,7 @@ tt_result_t tt_adns_rr_set_name(IN tt_adns_rr_t *rr,
         TT_ASSERT(name_ownership == TT_ADNS_RR_COPY_NAME);
         TT_ASSERT(name != NULL);
 
-        new_name = (tt_char_t *)tt_mem_alloc(name_len);
+        new_name = (tt_char_t *)tt_malloc(name_len);
         if (new_name == NULL) {
             TT_ERROR("no mem for new adns rr name");
             return TT_FAIL;
@@ -237,7 +237,7 @@ tt_result_t tt_adns_rr_set_name(IN tt_adns_rr_t *rr,
 
         if (rr->name_owner) {
             TT_ASSERT(rr->name != NULL);
-            tt_mem_free((void *)rr->name);
+            tt_free((void *)rr->name);
         }
 
         tt_memcpy(new_name, name, name_len);
@@ -255,7 +255,7 @@ tt_adns_rr_t *tt_adns_rr_copy(IN tt_adns_rr_t *rr)
 
     TT_ASSERT(rr != NULL);
 
-    new_rr = (tt_adns_rr_t *)tt_mem_alloc(rr->rr_len);
+    new_rr = (tt_adns_rr_t *)tt_malloc(rr->rr_len);
     if (new_rr == NULL) {
         TT_ERROR("no mem for copying adns rr");
         return NULL;
@@ -268,11 +268,11 @@ tt_adns_rr_t *tt_adns_rr_copy(IN tt_adns_rr_t *rr)
     if (rr->name_owner) {
         TT_ASSERT(new_rr->name_owner);
 
-        new_rr->name = (tt_char_t *)tt_mem_alloc(rr->name_len);
+        new_rr->name = (tt_char_t *)tt_malloc(rr->name_len);
         if (new_rr->name == NULL) {
             TT_ERROR("no mem for copying adns rr name");
 
-            tt_mem_free(new_rr);
+            tt_free(new_rr);
             return NULL;
         }
         tt_memcpy((tt_char_t *)new_rr->name, rr->name, rr->name_len);
@@ -280,9 +280,9 @@ tt_adns_rr_t *tt_adns_rr_copy(IN tt_adns_rr_t *rr)
 
     if ((new_rr->itf->copy != NULL) && !TT_OK(new_rr->itf->copy(new_rr, rr))) {
         if (new_rr->name_owner) {
-            tt_mem_free((void *)new_rr->name);
+            tt_free((void *)new_rr->name);
         }
-        tt_mem_free(new_rr);
+        tt_free(new_rr);
         return NULL;
     }
 
@@ -557,7 +557,7 @@ tt_adns_rr_t *tt_adns_rr_parse(IN struct tt_buf_s *buf,
         } break;
     }
     if (rr == NULL) {
-        tt_mem_free((void *)name);
+        tt_free((void *)name);
         return NULL;
     }
 

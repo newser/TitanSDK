@@ -92,7 +92,7 @@ tt_sshch_t *tt_sshch_create(IN tt_ssh_chtype_t type,
     TT_ASSERT(cb != NULL);
     TT_ASSERT(chmgr != NULL);
 
-    ch = (tt_sshch_t *)tt_mem_alloc(sizeof(tt_sshch_t));
+    ch = (tt_sshch_t *)tt_malloc(sizeof(tt_sshch_t));
     if (ch == NULL) {
         TT_ERROR("no mem for ssh svr ch");
         return NULL;
@@ -113,7 +113,7 @@ tt_sshch_t *tt_sshch_create(IN tt_ssh_chtype_t type,
                                       &ch->head_mac_size,
                                       &ch->block_size))) {
         tt_buf_destroy(&ch->send_buf);
-        tt_mem_free(ch);
+        tt_free(ch);
         return NULL;
     }
     TT_ASSERT(ch->head_mac_size != 0);
@@ -127,7 +127,7 @@ void tt_sshch_destroy(IN tt_sshch_t *ch)
     tt_sshchmgr_on_ch_destroy(ch->chmgr, ch);
 
     tt_buf_destroy(&ch->send_buf);
-    tt_mem_free(ch);
+    tt_free(ch);
 }
 
 void tt_sshch_shutdown(IN tt_sshch_t *ch)

@@ -366,7 +366,7 @@ void tt_async_skt_destroy_ntv(IN tt_skt_t *skt, IN tt_bool_t immediate)
         // do not access skt from now on as application may freed it
 
         if (from_alloc) {
-            tt_mem_free(skt);
+            tt_free(skt);
         }
     } else {
         tt_evcenter_t *evc = sys_skt->evc;
@@ -888,11 +888,11 @@ tt_result_t tt_skt_send_async_ntv(IN tt_skt_t *skt,
     if (blob_num <= __INLINE_SBUF_NUM) {
         sbuf_state->iov = (struct iovec *)aio->sbuf;
     } else {
-        sbuf_state->iov = (struct iovec *)tt_mem_alloc(__SBUF_SIZE(blob_num));
+        sbuf_state->iov = (struct iovec *)tt_malloc(__SBUF_SIZE(blob_num));
         if (sbuf_state->iov == NULL) {
             TT_ERROR("no mem for buf array");
 
-            tt_mem_free(ev);
+            tt_free(ev);
             return TT_FAIL;
         }
     }
@@ -991,11 +991,11 @@ tt_result_t tt_skt_recv_async_ntv(IN tt_skt_t *skt,
     if (blob_num <= __INLINE_SBUF_NUM) {
         sbuf_state->iov = (struct iovec *)aio->sbuf;
     } else {
-        sbuf_state->iov = (struct iovec *)tt_mem_alloc(__SBUF_SIZE(blob_num));
+        sbuf_state->iov = (struct iovec *)tt_malloc(__SBUF_SIZE(blob_num));
         if (sbuf_state->iov == NULL) {
             TT_ERROR("no mem for buf array");
 
-            tt_mem_free(ev);
+            tt_free(ev);
             return TT_FAIL;
         }
     }
@@ -1122,11 +1122,11 @@ tt_result_t tt_skt_sendto_async_ntv(IN tt_skt_t *skt,
     if (blob_num <= __INLINE_SBUF_NUM) {
         sbuf_state->iov = (struct iovec *)aio->sbuf;
     } else {
-        sbuf_state->iov = (struct iovec *)tt_mem_alloc(__SBUF_SIZE(blob_num));
+        sbuf_state->iov = (struct iovec *)tt_malloc(__SBUF_SIZE(blob_num));
         if (sbuf_state->iov == NULL) {
             TT_ERROR("no mem for buf array");
 
-            tt_mem_free(ev);
+            tt_free(ev);
             return TT_FAIL;
         }
     }
@@ -1225,11 +1225,11 @@ tt_result_t tt_skt_recvfrom_async_ntv(IN tt_skt_t *skt,
     if (blob_num <= __INLINE_SBUF_NUM) {
         sbuf_state->iov = (struct iovec *)aio->sbuf;
     } else {
-        sbuf_state->iov = (struct iovec *)tt_mem_alloc(__SBUF_SIZE(blob_num));
+        sbuf_state->iov = (struct iovec *)tt_malloc(__SBUF_SIZE(blob_num));
         if (sbuf_state->iov == NULL) {
             TT_ERROR("no mem for buf array");
 
-            tt_mem_free(ev);
+            tt_free(ev);
             return TT_FAIL;
         }
     }
@@ -1493,7 +1493,7 @@ tt_bool_t __do_skt_shutdown_wr(IN __skt_shutdown_t *aio,
         on_destroy(aio->skt, sys_skt->on_destroy_param);
 
         if (from_alloc) {
-            tt_mem_free(aio->skt);
+            tt_free(aio->skt);
         }
     }
 
@@ -1574,7 +1574,7 @@ tt_bool_t __do_skt_shutdown_rd(IN __skt_shutdown_t *aio,
         on_destroy(aio->skt, sys_skt->on_destroy_param);
 
         if (from_alloc) {
-            tt_mem_free(aio->skt);
+            tt_free(aio->skt);
         }
     }
 
@@ -1667,7 +1667,7 @@ void __do_skt_accept_cb(IN __skt_accept_t *aio)
     aio->on_accept(aio->listening_skt, aio->new_skt, &aioctx);
 
     if (!TT_OK(aioctx.result) && from_alloc) {
-        tt_mem_free(new_skt);
+        tt_free(new_skt);
     }
 }
 
@@ -1864,7 +1864,7 @@ void __skt_send_on_destroy(IN struct tt_ev_s *ev)
     __sbuf_state_t *sbuf_state = &aio->sbuf_state;
 
     if (sbuf_state->iov != (struct iovec *)aio->sbuf) {
-        tt_mem_free(sbuf_state->iov);
+        tt_free(sbuf_state->iov);
     }
 }
 
@@ -2054,7 +2054,7 @@ void __skt_recv_on_destroy(IN struct tt_ev_s *ev)
     __sbuf_state_t *sbuf_state = &aio->sbuf_state;
 
     if (sbuf_state->iov != (struct iovec *)aio->sbuf) {
-        tt_mem_free(sbuf_state->iov);
+        tt_free(sbuf_state->iov);
     }
 }
 
@@ -2181,7 +2181,7 @@ void __skt_sendto_on_destroy(IN struct tt_ev_s *ev)
     __sbuf_state_t *sbuf_state = &aio->sbuf_state;
 
     if (sbuf_state->iov != (struct iovec *)aio->sbuf) {
-        tt_mem_free(sbuf_state->iov);
+        tt_free(sbuf_state->iov);
     }
 }
 
@@ -2300,7 +2300,7 @@ void __skt_recvfrom_on_destroy(IN struct tt_ev_s *ev)
     __sbuf_state_t *sbuf_state = &aio->sbuf_state;
 
     if (sbuf_state->iov != (struct iovec *)aio->sbuf) {
-        tt_mem_free(sbuf_state->iov);
+        tt_free(sbuf_state->iov);
     }
 }
 
@@ -2320,7 +2320,7 @@ void __do_skt_destroy(IN __skt_destroy_t *aio)
     // do not access aio->skt from now on as application may freed aio->skt
 
     if (from_alloc) {
-        tt_mem_free(skt);
+        tt_free(skt);
     }
 }
 

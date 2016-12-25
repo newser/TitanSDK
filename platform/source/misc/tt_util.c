@@ -217,7 +217,7 @@ tt_result_t tt_blob_create(OUT tt_blob_t *blob,
     TT_ASSERT(blob != NULL);
     TT_ASSERT(len != 0);
 
-    p = (tt_u8_t *)tt_mem_alloc(len);
+    p = (tt_u8_t *)tt_malloc(len);
     if (p == NULL) {
         return TT_FAIL;
     }
@@ -236,7 +236,7 @@ void tt_blob_destroy(IN tt_blob_t *blob)
     TT_ASSERT(blob != NULL);
 
     if (blob->addr != NULL) {
-        tt_mem_free(blob->addr);
+        tt_free(blob->addr);
     }
 }
 
@@ -267,7 +267,7 @@ tt_char_t tt_h2c(IN tt_u8_t h, IN tt_u8_t c_if_fail)
 tt_char_t *tt_cstr_copy(IN const tt_char_t *cstr)
 {
     tt_u32_t len = (tt_u32_t)tt_strlen(cstr);
-    tt_char_t *new_cstr = tt_mem_alloc(len + 1);
+    tt_char_t *new_cstr = tt_malloc(len + 1);
     if (new_cstr != NULL) {
         tt_memcpy(new_cstr, cstr, len + 1);
     }
@@ -280,7 +280,7 @@ tt_char_t *tt_cstr_copy_n(IN const tt_char_t *cstr, IN tt_u32_t len)
 
     len = (tt_u32_t)tt_strnlen(cstr, len);
 
-    new_cstr = tt_mem_alloc(len + 1);
+    new_cstr = tt_malloc(len + 1);
     if (new_cstr != NULL) {
         tt_memcpy(new_cstr, cstr, len);
         new_cstr[len] = 0;
