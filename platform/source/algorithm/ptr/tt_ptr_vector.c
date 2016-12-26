@@ -295,7 +295,7 @@ tt_u32_t tt_ptrvec_find(IN tt_ptrvec_t *pvec, IN tt_ptr_t p)
 tt_u32_t tt_ptrvec_find_last(IN tt_ptrvec_t *pvec, IN tt_ptr_t p)
 {
     tt_u32_t i;
-    
+
     if (pvec->cmp != NULL) {
         for (i = pvec->count - 1; i != ~0; --i) {
             if (pvec->cmp(pvec->ptr[i], p) == 0) {
@@ -309,7 +309,7 @@ tt_u32_t tt_ptrvec_find_last(IN tt_ptrvec_t *pvec, IN tt_ptr_t p)
             }
         }
     }
-    
+
     return TT_POS_NULL;
 }
 
@@ -386,7 +386,7 @@ void tt_ptrvec_remove(IN tt_ptrvec_t *pvec, IN tt_u32_t idx)
 }
 
 // return removed idx
-tt_u32_t tt_ptrvec_remove_equal(IN tt_ptrvec_t *pvec, IN tt_ptr_t *p)
+tt_u32_t tt_ptrvec_remove_equal(IN tt_ptrvec_t *pvec, IN tt_ptr_t p)
 {
     tt_u32_t idx = tt_ptrvec_find(pvec, p);
     if (idx != TT_POS_NULL) {

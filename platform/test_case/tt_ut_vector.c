@@ -44,21 +44,31 @@
 ////////////////////////////////////////////////////////////
 
 // === routine declarations ================
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_vector_basic)
+TT_TEST_ROUTINE_DECLARE(tt_unit_test_vector)
+TT_TEST_ROUTINE_DECLARE(tt_unit_test_ptr_vector)
 // =========================================
 
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(vec_case)
 
-TT_TEST_CASE("tt_unit_test_vector_basic",
+TT_TEST_CASE("tt_unit_test_vector",
              "testing vector basic api",
-             tt_unit_test_vector_basic,
+             tt_unit_test_vector,
              NULL,
              NULL,
              NULL,
              NULL,
              NULL)
 ,
+
+    TT_TEST_CASE("tt_unit_test_ptr_vector",
+                 "testing pointer vector",
+                 tt_unit_test_ptr_vector,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL),
 
     TT_TEST_CASE_LIST_DEFINE_END(vec_case)
     // =========================================
@@ -74,7 +84,7 @@ TT_TEST_CASE("tt_unit_test_vector_basic",
     ////////////////////////////////////////////////////////////
 
     /*
-    TT_TEST_ROUTINE_DEFINE(tt_unit_test_vector_basic)
+    TT_TEST_ROUTINE_DEFINE(tt_unit_test_vector)
     {
         //tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
 
@@ -508,11 +518,11 @@ static tt_bool_t __utv_test_u16_123(IN tt_vec_t *v)
         __utv_fail_false();
     }
     tt_vec_pop_tail(v, NULL);
-    
+
     return TT_TRUE;
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_vector_basic)
+TT_TEST_ROUTINE_DEFINE(tt_unit_test_vector)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_vec_t v_u16, v2;
@@ -616,6 +626,494 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_vector_basic)
     }
 
     tt_vec_destroy(&v_u16);
+
+    // test end
+    TT_TEST_CASE_LEAVE()
+}
+
+static tt_u16_t pv1, pv2, pv3, pv4, pv5, pv6;
+
+static tt_bool_t __utv_test_ptr_0(IN tt_ptrvec_t *v)
+{
+    tt_u16_t tmp = 0;
+
+    if (tt_ptrvec_head(v) != NULL)
+        __utv_fail_false();
+    if (tt_ptrvec_tail(v) != NULL)
+        __utv_fail_false();
+    if (tt_ptrvec_count(v) != 0)
+        __utv_fail_false();
+    if (tt_ptrvec_empty(v) != TT_TRUE)
+        __utv_fail_false();
+
+    if (tt_ptrvec_pop_head(v) != NULL) {
+        __utv_fail_false();
+    }
+    if (tt_ptrvec_pop_tail(v) != NULL) {
+        __utv_fail_false();
+    }
+
+    if (!TT_OK(tt_ptrvec_push_head(v, &tmp))) {
+        __utv_fail_false();
+    }
+    if (tt_ptrvec_pop_head(v) != &tmp) {
+        __utv_fail_false();
+    }
+    if (!tt_ptrvec_empty(v))
+        __utv_fail_false();
+
+    if (!TT_OK(tt_ptrvec_push_tail(v, &tmp))) {
+        __utv_fail_false();
+    }
+    if (tt_ptrvec_pop_tail(v) != &tmp) {
+        __utv_fail_false();
+    }
+    if (!tt_ptrvec_empty(v))
+        __utv_fail_false();
+
+    if (tt_ptrvec_comtain(v, &tmp)) {
+        __utv_fail_false();
+    }
+
+    if (tt_ptrvec_get(v, 0) != NULL) {
+        __utv_fail_false();
+    }
+
+    if (TT_OK(tt_ptrvec_set(v, 0, &tmp))) {
+        __utv_fail_false();
+    }
+
+    if (tt_ptrvec_find(v, &tmp) != TT_POS_NULL) {
+        __utv_fail_false();
+    }
+    if (tt_ptrvec_find_last(v, &tmp) != TT_POS_NULL) {
+        __utv_fail_false();
+    }
+    if (tt_ptrvec_find_from(v, 0, &tmp) != TT_POS_NULL) {
+        __utv_fail_false();
+    }
+    if (tt_ptrvec_find_from(v, &tmp, ~0) != TT_POS_NULL) {
+        __utv_fail_false();
+    }
+    if (tt_ptrvec_find_range(v, &tmp, 0, 0) != TT_POS_NULL) {
+        __utv_fail_false();
+    }
+    if (tt_ptrvec_find_range(v, &tmp, 0, ~0) != TT_POS_NULL) {
+        __utv_fail_false();
+    }
+
+    tt_ptrvec_remove(v, 0);
+    tt_ptrvec_remove(v, ~0);
+    if (tt_ptrvec_remove_equal(v, &tmp) != TT_POS_NULL) {
+        __utv_fail_false();
+    }
+    tt_ptrvec_remove_range(v, 0, 0);
+    tt_ptrvec_remove_range(v, 0, ~0);
+
+    return TT_TRUE;
+}
+
+static tt_bool_t __utv_test_ptr_1(IN tt_ptrvec_t *v)
+{
+    if (tt_ptrvec_head(v) != &pv1)
+        __utv_fail_false();
+    if (tt_ptrvec_tail(v) != &pv1)
+        __utv_fail_false();
+    if (tt_ptrvec_count(v) != 1)
+        __utv_fail_false();
+    if (tt_ptrvec_empty(v))
+        __utv_fail_false();
+
+    if (tt_ptrvec_pop_head(v) != &pv1) {
+        __utv_fail_false();
+    }
+    tt_ptrvec_push_head(v, &pv1);
+
+    if (tt_ptrvec_pop_tail(v) != &pv1) {
+        __utv_fail_false();
+    }
+    tt_ptrvec_push_tail(v, &pv1);
+
+    if (!TT_OK(tt_ptrvec_push_head(v, &pv2))) {
+        __utv_fail_false();
+    }
+    if (tt_ptrvec_head(v) != &pv2) {
+        __utv_fail_false();
+    }
+    if (tt_ptrvec_tail(v) != &pv1) {
+        __utv_fail_false();
+    }
+    if (tt_ptrvec_pop_head(v) != &pv2) {
+        __utv_fail_false();
+    }
+
+    if (!TT_OK(tt_ptrvec_push_tail(v, &pv2))) {
+        __utv_fail_false();
+    }
+    if (tt_ptrvec_head(v) != &pv1) {
+        __utv_fail_false();
+    }
+    if (tt_ptrvec_tail(v) != &pv2) {
+        __utv_fail_false();
+    }
+    if (tt_ptrvec_pop_tail(v) != &pv2) {
+        __utv_fail_false();
+    }
+
+    if (tt_ptrvec_comtain(v, &pv3)) {
+        __utv_fail_false();
+    }
+    if (!tt_ptrvec_comtain(v, &pv1)) {
+        __utv_fail_false();
+    }
+
+    if (tt_ptrvec_get(v, 0) != &pv1) {
+        __utv_fail_false();
+    }
+    if (tt_ptrvec_get(v, 1) != NULL) {
+        __utv_fail_false();
+    }
+    if (tt_ptrvec_get(v, ~0) != NULL) {
+        __utv_fail_false();
+    }
+
+    if (!TT_OK(tt_ptrvec_set(v, 0, &pv2)) || (tt_ptrvec_get(v, 0) != &pv2)) {
+        __utv_fail_false();
+    }
+    if (!TT_OK(tt_ptrvec_set(v, 0, &pv1)) || (tt_ptrvec_get(v, 0) != &pv1)) {
+        __utv_fail_false();
+    }
+    if (TT_OK(tt_ptrvec_set(v, 1, &pv3)) || TT_OK(tt_ptrvec_set(v, ~0, &pv3))) {
+        __utv_fail_false();
+    }
+
+    if (tt_ptrvec_find(v, &pv2) != TT_POS_NULL) {
+        __utv_fail_false();
+    }
+    if (tt_ptrvec_find_last(v, &pv2) != TT_POS_NULL) {
+        __utv_fail_false();
+    }
+    if (tt_ptrvec_find_from(v, &pv2, 0) != TT_POS_NULL) {
+        __utv_fail_false();
+    }
+    if (tt_ptrvec_find_from(v, &pv2, ~0) != TT_POS_NULL) {
+        __utv_fail_false();
+    }
+    if (tt_ptrvec_find_range(v, &pv2, 0, 0) != TT_POS_NULL) {
+        __utv_fail_false();
+    }
+    if (tt_ptrvec_find_range(v, &pv2, 0, ~0) != TT_POS_NULL) {
+        __utv_fail_false();
+    }
+
+    if (tt_ptrvec_find(v, &pv1) != 0) {
+        __utv_fail_false();
+    }
+    if (tt_ptrvec_find_last(v, &pv1) != 0) {
+        __utv_fail_false();
+    }
+    if (tt_ptrvec_find_from(v, &pv1, 0) != 0) {
+        __utv_fail_false();
+    }
+    if (tt_ptrvec_find_from(v, &pv1, 1) != TT_POS_NULL) {
+        __utv_fail_false();
+    }
+    if (tt_ptrvec_find_from(v, &pv1, ~0) != TT_POS_NULL) {
+        __utv_fail_false();
+    }
+    if (tt_ptrvec_find_range(v, &pv1, 0, 0) != TT_POS_NULL) {
+        __utv_fail_false();
+    }
+    if (tt_ptrvec_find_range(v, &pv1, 0, ~0) != 0) {
+        __utv_fail_false();
+    }
+
+    tt_ptrvec_remove(v, 0);
+    if (tt_ptrvec_get(v, 0) != NULL) {
+        __utv_fail_false();
+    }
+    tt_ptrvec_push_tail(v, &pv1);
+
+    tt_vec_remove(v, ~0);
+    if (tt_ptrvec_get(v, 0) != &pv1) {
+        __utv_fail_false();
+    }
+
+    if (tt_ptrvec_remove_equal(v, &pv2) != TT_POS_NULL) {
+        __utv_fail_false();
+    }
+    if (tt_ptrvec_remove_equal(v, &pv1) != 0) {
+        __utv_fail_false();
+    }
+    tt_ptrvec_push_tail(v, &pv1);
+
+    tt_ptrvec_remove_range(v, 0, 0);
+    if (tt_ptrvec_get(v, 0) == NULL) {
+        __utv_fail_false();
+    }
+
+    tt_ptrvec_remove_range(v, 0, ~0);
+    if (tt_ptrvec_get(v, 0) != NULL) {
+        __utv_fail_false();
+    }
+    tt_ptrvec_push_tail(v, &pv1);
+
+    return TT_TRUE;
+}
+
+static tt_bool_t __utv_test_ptr_123(IN tt_vec_t *v)
+{
+    if (tt_ptrvec_head(v) != &pv1)
+        __utv_fail_false();
+    if (tt_ptrvec_tail(v) != &pv3)
+        __utv_fail_false();
+    if (tt_ptrvec_count(v) != 3)
+        __utv_fail_false();
+    if (tt_ptrvec_empty(v))
+        __utv_fail_false();
+
+    if (tt_ptrvec_pop_head(v) != &pv1) {
+        __utv_fail_false();
+    }
+    tt_ptrvec_push_head(v, &pv1);
+
+    if (tt_ptrvec_pop_tail(v) != &pv3) {
+        __utv_fail_false();
+    }
+    tt_ptrvec_push_tail(v, &pv3);
+
+    if (!TT_OK(tt_ptrvec_push_head(v, &pv4))) {
+        __utv_fail_false();
+    }
+    // 4,1,2,3
+    if (tt_ptrvec_head(v) != &pv4) {
+        __utv_fail_false();
+    }
+    if (tt_ptrvec_tail(v) != &pv3) {
+        __utv_fail_false();
+    }
+    if (tt_ptrvec_pop_head(v) != &pv4) {
+        __utv_fail_false();
+    }
+
+    if (!TT_OK(tt_ptrvec_push_tail(v, &pv4))) {
+        __utv_fail_false();
+    }
+    // 1,2,3,4
+    if (tt_ptrvec_head(v) != &pv1) {
+        __utv_fail_false();
+    }
+    if (tt_ptrvec_tail(v) != &pv4) {
+        __utv_fail_false();
+    }
+    if (tt_ptrvec_pop_tail(v) != &pv4) {
+        __utv_fail_false();
+    }
+
+    if (tt_ptrvec_comtain(v, &pv4)) {
+        __utv_fail_false();
+    }
+    if (!tt_ptrvec_comtain(v, &pv2)) {
+        __utv_fail_false();
+    }
+
+    if (tt_ptrvec_get(v, 0) != &pv1) {
+        __utv_fail_false();
+    }
+    if (tt_ptrvec_get(v, 1) != &pv2) {
+        __utv_fail_false();
+    }
+    if (tt_ptrvec_get(v, 3) != NULL) {
+        __utv_fail_false();
+    }
+    if (tt_ptrvec_get(v, ~0) != NULL) {
+        __utv_fail_false();
+    }
+
+    if (!TT_OK(tt_ptrvec_set(v, 2, &pv6)) || (tt_ptrvec_get(v, 2) != &pv6)) {
+        __utv_fail_false();
+    }
+    if (!TT_OK(tt_ptrvec_set(v, 2, &pv3)) || (tt_ptrvec_get(v, 2) != &pv3)) {
+        __utv_fail_false();
+    }
+    if (TT_OK(tt_ptrvec_set(v, 4, &pv6)) || TT_OK(tt_ptrvec_set(v, ~0, &pv6))) {
+        __utv_fail_false();
+    }
+
+    // 1,2,3
+    if (tt_ptrvec_find(v, &pv2) != 1) {
+        __utv_fail_false();
+    }
+    if (tt_ptrvec_find_last(v, &pv2) != 1) {
+        __utv_fail_false();
+    }
+    if (tt_ptrvec_find_from(v, &pv2, 0) != 1) {
+        __utv_fail_false();
+    }
+    if (tt_ptrvec_find_from(v, &pv2, 1) != 1) {
+        __utv_fail_false();
+    }
+    if (tt_ptrvec_find_from(v, &pv2, 2) != TT_POS_NULL) {
+        __utv_fail_false();
+    }
+    if (tt_ptrvec_find_from(v, &pv2, ~0) != TT_POS_NULL) {
+        __utv_fail_false();
+    }
+    if (tt_ptrvec_find_range(v, &pv2, 0, 0) != TT_POS_NULL) {
+        __utv_fail_false();
+    }
+    if (tt_ptrvec_find_range(v, &pv2, 0, 1) != TT_POS_NULL) {
+        __utv_fail_false();
+    }
+    if (tt_ptrvec_find_range(v, &pv2, 1, 2) != 1) {
+        __utv_fail_false();
+    }
+    if (tt_ptrvec_find_range(v, &pv2, 2, 3) != TT_POS_NULL) {
+        __utv_fail_false();
+    }
+    if (tt_ptrvec_find_range(v, &pv2, 0, ~0) != 1) {
+        __utv_fail_false();
+    }
+
+    tt_ptrvec_remove(v, 1);
+    // 1, 3
+    if (tt_ptrvec_get(v, 2) != NULL) {
+        __utv_fail_false();
+    }
+    tt_ptrvec_insert(v, 1, &pv2);
+
+    tt_ptrvec_remove(v, ~0);
+    if (tt_ptrvec_get(v, 2) != &pv3) {
+        __utv_fail_false();
+    }
+
+    if (tt_ptrvec_remove_equal(v, &pv5) != TT_POS_NULL) {
+        __utv_fail_false();
+    }
+    if (tt_ptrvec_remove_equal(v, &pv2) != 1) {
+        __utv_fail_false();
+    }
+    tt_ptrvec_insert(v, 1, &pv2);
+
+    tt_ptrvec_remove_range(v, 0, 0);
+    if (tt_ptrvec_get(v, 2) != &pv3) {
+        __utv_fail_false();
+    }
+
+    tt_ptrvec_remove_range(v, 0, ~0);
+    if (!tt_ptrvec_empty(v)) {
+        __utv_fail_false();
+    }
+    tt_ptrvec_push_tail(v, &pv1);
+    tt_ptrvec_push_tail(v, &pv2);
+    tt_ptrvec_push_tail(v, &pv3);
+
+    tt_ptrvec_push_tail(v, &pv2);
+    if (tt_ptrvec_find_last(v, &pv2) != 3) {
+        __utv_fail_false();
+    }
+    tt_ptrvec_pop_tail(v);
+
+    return TT_TRUE;
+}
+
+TT_TEST_ROUTINE_DEFINE(tt_unit_test_ptr_vector)
+{
+    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+    tt_ptrvec_t pv, v2;
+    tt_result_t ret;
+    tt_bool_t b_ret;
+
+    TT_TEST_CASE_ENTER()
+    // test start
+
+    tt_ptrvec_init(&pv, NULL);
+    tt_ptrvec_trim(&pv);
+    tt_ptrvec_destroy(&pv);
+
+    tt_ptrvec_init(&pv, NULL);
+
+    // empty
+    {
+        b_ret = __utv_test_ptr_0(&pv);
+        TT_TEST_CHECK_EQUAL(b_ret, TT_SUCCESS, "");
+    }
+
+    // 1 element
+    {
+        ret = tt_ptrvec_push_tail(&pv, &pv1);
+        TT_TEST_CHECK_SUCCESS(ret, "");
+
+        b_ret = __utv_test_ptr_1(&pv);
+        TT_TEST_CHECK_EQUAL(b_ret, TT_SUCCESS, "");
+    }
+
+    // 3 element
+    {
+        ret = tt_ptrvec_push_tail(&pv, &pv2);
+        TT_TEST_CHECK_SUCCESS(ret, "");
+        ret = tt_ptrvec_push_tail(&pv, &pv3);
+        TT_TEST_CHECK_SUCCESS(ret, "");
+
+        b_ret = __utv_test_ptr_123(&pv);
+        TT_TEST_CHECK_EQUAL(b_ret, TT_SUCCESS, "");
+
+        TT_TEST_CHECK_EQUAL(tt_ptrvec_count(&pv), 3, "");
+    }
+
+    // move
+    {
+        tt_ptrvec_init(&v2, NULL);
+
+        ret = tt_ptrvec_move_all(&pv, &v2);
+        TT_TEST_CHECK_SUCCESS(ret, "");
+        TT_TEST_CHECK_EQUAL(tt_ptrvec_count(&pv), 3, "");
+
+        ret = tt_ptrvec_move_from(&pv, &v2, 0);
+        TT_TEST_CHECK_SUCCESS(ret, "");
+        TT_TEST_CHECK_EQUAL(tt_ptrvec_count(&pv), 3, "");
+
+        ret = tt_ptrvec_move_from(&pv, &v2, ~0);
+        TT_TEST_CHECK_SUCCESS(ret, "");
+        TT_TEST_CHECK_EQUAL(tt_ptrvec_count(&pv), 3, "");
+
+        ret = tt_ptrvec_move_range(&pv, &v2, 0, 0);
+        TT_TEST_CHECK_SUCCESS(ret, "");
+        TT_TEST_CHECK_EQUAL(tt_ptrvec_count(&pv), 3, "");
+
+        ret = tt_ptrvec_move_range(&pv, &v2, 0, ~0);
+        TT_TEST_CHECK_SUCCESS(ret, "");
+        TT_TEST_CHECK_EQUAL(tt_ptrvec_count(&pv), 3, "");
+
+        tt_ptrvec_push_tail(&v2, &pv4);
+        tt_ptrvec_push_tail(&v2, &pv5);
+        tt_ptrvec_push_tail(&v2, &pv6);
+
+        tt_ptrvec_trim(&pv);
+
+        // 1,2,3 <= 4,5,6
+        tt_ptrvec_move_from(&pv, &v2, 2);
+        // 1,2,3,6 <= 4,5
+        TT_TEST_CHECK_EQUAL(tt_ptrvec_count(&pv), 4, "");
+        TT_TEST_CHECK_EQUAL(tt_ptrvec_get(&pv, 3), &pv6, "");
+
+        // 1,2,3,6 <= 4,5
+        tt_ptrvec_move_range(&pv, &v2, 1, ~0);
+        // 1,2,3,6,5 <= 4
+        TT_TEST_CHECK_EQUAL(tt_ptrvec_count(&pv), 5, "");
+        TT_TEST_CHECK_EQUAL(tt_ptrvec_get(&pv, 4), &pv5, "");
+
+        tt_ptrvec_move_all(&pv, &v2);
+        // 1,2,3,6,5,4
+        TT_TEST_CHECK_EQUAL(tt_ptrvec_count(&pv), 6, "");
+        TT_TEST_CHECK_EQUAL(tt_ptrvec_get(&pv, 5), &pv4, "");
+        TT_TEST_CHECK_EQUAL(tt_ptrvec_count(&v2), 0, "");
+
+        tt_ptrvec_trim(&v2);
+        tt_ptrvec_destroy(&v2);
+    }
+
+    tt_ptrvec_destroy(&pv);
 
     // test end
     TT_TEST_CASE_LEAVE()

@@ -142,7 +142,7 @@ extern tt_u32_t tt_ptrvec_find_range(IN tt_ptrvec_t *pvec,
 extern void tt_ptrvec_remove(IN tt_ptrvec_t *pvec, IN tt_u32_t idx);
 
 // return removed idx
-extern tt_u32_t tt_ptrvec_remove_equal(IN tt_ptrvec_t *pvec, IN tt_ptr_t *p);
+extern tt_u32_t tt_ptrvec_remove_equal(IN tt_ptrvec_t *pvec, IN tt_ptr_t p);
 
 // [from_idx, to_idx)
 extern void tt_ptrvec_remove_range(IN tt_ptrvec_t *pvec,
