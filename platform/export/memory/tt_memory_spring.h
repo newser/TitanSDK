@@ -53,7 +53,7 @@ typedef struct
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-// must: 0 < min_extend < max_extend < max_limit <= (1 << 30)
+// must: 0 < min_extend < max_extend < max_limit, or max_limit equals 0
 extern void tt_memspg_init(IN tt_memspg_t *mspg,
                            IN tt_u32_t min_extend,
                            IN tt_u32_t max_extend,

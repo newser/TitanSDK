@@ -625,6 +625,15 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_mem_spg)
     size = __memspg_next_size(&mspg, ~0 - 1);
     TT_TEST_CHECK_EQUAL(size, 0, "");
 
+    // no max limit
+    tt_memspg_init(&mspg, 5, 12, 0);
+
+    size = __memspg_next_size(&mspg, ~0 - 12);
+    TT_TEST_CHECK_EQUAL(size, ~0, "");
+
+    size = __memspg_next_size(&mspg, ~0 - 11);
+    TT_TEST_CHECK_EQUAL(size, 0, "");
+
     // expand
     p = NULL;
     size = ~0 - 1;

@@ -68,7 +68,11 @@ typedef struct
 
 typedef struct
 {
-    tt_u8_t *p;
+    union
+    {
+        tt_u8_t *p;
+        void **ptr;
+    };
     tt_cmp_t cmp;
     tt_u32_t size;
     tt_memspg_t mspg;
@@ -126,22 +130,39 @@ extern tt_result_t tt_vec_move_from(IN tt_vec_t *dst,
                                     IN tt_vec_t *src,
                                     IN tt_u32_t from_idx);
 
+// [from_idx, to_idx)
 extern tt_result_t tt_vec_move_range(IN tt_vec_t *dst,
                                      IN tt_vec_t *src,
                                      IN tt_u32_t from_idx,
                                      IN tt_u32_t to_idx);
 
-extern tt_u32_t tt_vec_capacity(IN tt_vec_t *vec);
+tt_inline tt_u32_t tt_vec_capacity(IN tt_vec_t *vec)
+{
+    return vec->capacity;
+}
 
-extern tt_u32_t tt_vec_count(IN tt_vec_t *vec);
+tt_inline tt_u32_t tt_vec_count(IN tt_vec_t *vec)
+{
+    return vec->count;
+}
 
-extern tt_bool_t tt_vec_empty(IN tt_vec_t *vec);
+tt_inline tt_bool_t tt_vec_empty(IN tt_vec_t *vec)
+{
+    if (vec->count != 0) {
+        return TT_FALSE;
+    } else {
+        return TT_TRUE;
+    }
+}
 
-extern void tt_vec_clear(IN tt_vec_t *vec);
+tt_inline void tt_vec_clear(IN tt_vec_t *vec)
+{
+    vec->count = 0;
+}
 
 extern tt_bool_t tt_vec_comtain(IN tt_vec_t *vec, IN void *obj);
 
-extern tt_bool_t tt_vec_comtain_all(IN tt_vec_t *vec, IN tt_vec_t *sub_vec);
+extern tt_bool_t tt_vec_comtain_all(IN tt_vec_t *vec, IN tt_vec_t *vec2);
 
 extern void *tt_vec_get(IN tt_vec_t *vec, IN tt_u32_t idx);
 
@@ -163,6 +184,7 @@ extern void tt_vec_remove(IN tt_vec_t *vec, IN tt_u32_t idx);
 // return removed idx
 extern tt_u32_t tt_vec_remove_equal(IN tt_vec_t *vec, IN void *obj);
 
+// [from_idx, to_idx)
 extern void tt_vec_remove_range(IN tt_vec_t *vec,
                                 IN tt_u32_t from_idx,
                                 IN tt_u32_t to_idx);
