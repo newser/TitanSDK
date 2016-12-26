@@ -112,9 +112,9 @@ extern tt_result_t tt_vec_push_head(IN tt_vec_t *vec, IN void *obj);
 
 extern tt_result_t tt_vec_push_tail(IN tt_vec_t *vec, IN void *obj);
 
-extern tt_result_t tt_vec_pop_head(IN tt_vec_t *vec, OUT void *obj);
+extern tt_result_t tt_vec_pop_head(IN tt_vec_t *vec, OUT OPT void *obj);
 
-extern tt_result_t tt_vec_pop_tail(IN tt_vec_t *vec, OUT void *obj);
+extern tt_result_t tt_vec_pop_tail(IN tt_vec_t *vec, OUT OPT void *obj);
 
 extern void *tt_vec_head(IN tt_vec_t *vec);
 

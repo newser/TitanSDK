@@ -33,6 +33,7 @@ extern "C" {
 #endif
 
 #include <algorithm/tt_algorithm_def.h>
+#include <algorithm/tt_algorithm_def.h>
 #include <algorithm/tt_array_heap.h>
 #include <algorithm/tt_binary_search.h>
 #include <algorithm/tt_buffer.h>
@@ -51,6 +52,7 @@ extern "C" {
 #include <algorithm/tt_stack.h>
 #include <algorithm/tt_string.h>
 #include <algorithm/tt_string_common.h>
+#include <algorithm/tt_vector.h>
 #include <cli/tt_cli.h>
 #include <cli/tt_cli_def.h>
 #include <cli/tt_cli_line.h>

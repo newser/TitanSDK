@@ -32,12 +32,7 @@
 ////////////////////////////////////////////////////////////
 
 #define __V_OBJ(v, idx) TT_PTR_INC(void *, (v)->p, (v)->obj_size *(idx))
-
 #define __V_SIZE(v, num) ((v)->obj_size * num)
-
-#define __V_CAP(v) __V_SIZE(v, (v)->capacity)
-
-#define __V_CNT(v) __V_SIZE(v, (v)->count)
 
 ////////////////////////////////////////////////////////////
 // internal type
@@ -90,7 +85,9 @@ void tt_vec_destroy(IN tt_vec_t *vec)
 {
     TT_ASSERT(vec != NULL);
 
-    tt_memspg_compress(&vec->mspg, &vec->p, &vec->size, 0);
+    if (vec->p != NULL) {
+        tt_memspg_compress(&vec->mspg, &vec->p, &vec->size, 0);
+    }
 }
 
 void tt_vec_attr_default(IN tt_vec_attr_t *attr)
@@ -101,7 +98,7 @@ void tt_vec_attr_default(IN tt_vec_attr_t *attr)
 
     attr->min_extent_num = 16;
     attr->max_extent_num = 128;
-    attr->max_limit_num = (1 << 20);
+    attr->max_limit_num = 0;
 }
 
 tt_result_t __vec_reserve(IN tt_vec_t *vec, IN tt_u32_t count)
@@ -109,7 +106,7 @@ tt_result_t __vec_reserve(IN tt_vec_t *vec, IN tt_u32_t count)
     TT_DO(tt_memspg_extend(&vec->mspg,
                            &vec->p,
                            &vec->size,
-                           (vec->count + count) * vec->obj_size));
+                           (vec->capacity + count) * vec->obj_size));
     vec->capacity = vec->size / vec->obj_size;
 
     return TT_SUCCESS;
@@ -119,8 +116,8 @@ tt_result_t tt_vec_push_head(IN tt_vec_t *vec, IN void *obj)
 {
     TT_DO(tt_vec_reserve(vec, 1));
     tt_memmove(__V_OBJ(vec, 1), vec->p, __V_SIZE(vec, vec->count));
-    ++vec->count;
     tt_memcpy(vec->p, obj, vec->obj_size);
+    ++vec->count;
 
     return TT_SUCCESS;
 }
@@ -134,45 +131,51 @@ tt_result_t tt_vec_push_tail(IN tt_vec_t *vec, IN void *obj)
     return TT_SUCCESS;
 }
 
-tt_result_t tt_vec_pop_head(IN tt_vec_t *vec, OUT void *obj)
+tt_result_t tt_vec_pop_head(IN tt_vec_t *vec, OUT OPT void *obj)
 {
-    if (vec->count > 0) {
-        tt_memcpy(obj, vec->p, vec->obj_size);
-        --vec->count;
-        tt_memcpy(vec->p, __V_OBJ(vec, 1), __V_SIZE(vec, vec->count));
-        return TT_SUCCESS;
-    } else {
+    if (vec->count == 0) {
         return TT_FAIL;
     }
+
+    if (obj != NULL) {
+        tt_memcpy(obj, vec->p, vec->obj_size);
+    }
+    tt_memmove(vec->p, __V_OBJ(vec, 1), __V_SIZE(vec, vec->count - 1));
+    --vec->count;
+
+    return TT_SUCCESS;
 }
 
-tt_result_t tt_vec_pop_tail(IN tt_vec_t *vec, OUT void *obj)
+tt_result_t tt_vec_pop_tail(IN tt_vec_t *vec, OUT OPT void *obj)
 {
-    if (vec->count > 0) {
-        --vec->count;
-        tt_memcpy(obj, __V_OBJ(vec, vec->count), vec->obj_size);
-        return TT_SUCCESS;
-    } else {
+    if (vec->count == 0) {
         return TT_FAIL;
     }
+
+    if (obj != NULL) {
+        tt_memcpy(obj, __V_OBJ(vec, vec->count - 1), vec->obj_size);
+    }
+    --vec->count;
+
+    return TT_SUCCESS;
 }
 
 void *tt_vec_head(IN tt_vec_t *vec)
 {
-    if (vec->count > 0) {
-        return vec->p;
-    } else {
+    if (vec->count == 0) {
         return NULL;
     }
+
+    return vec->p;
 }
 
 void *tt_vec_tail(IN tt_vec_t *vec)
 {
-    if (vec->count > 0) {
-        return __V_OBJ(vec, vec->count - 1);
-    } else {
+    if (vec->count == 0) {
         return NULL;
     }
+
+    return __V_OBJ(vec, vec->count - 1);
 }
 
 tt_result_t tt_vec_insert(IN tt_vec_t *vec, IN tt_u32_t idx, IN void *obj)
@@ -182,17 +185,18 @@ tt_result_t tt_vec_insert(IN tt_vec_t *vec, IN tt_u32_t idx, IN void *obj)
     }
 
     TT_DO(tt_vec_reserve(vec, 1));
-    tt_memmove(__V_OBJ(vec, idx),
-               __V_OBJ(vec, idx + 1),
+    tt_memmove(__V_OBJ(vec, idx + 1),
+               __V_OBJ(vec, idx),
                __V_SIZE(vec, vec->count - idx));
-    ++vec->count;
     tt_memcpy(__V_OBJ(vec, idx), obj, vec->obj_size);
+    ++vec->count;
 
     return TT_SUCCESS;
 }
 
 tt_result_t tt_vec_move_all(IN tt_vec_t *dst, IN tt_vec_t *src)
 {
+    TT_ASSERT_ALWAYS(dst != src);
     TT_ASSERT_ALWAYS(dst->obj_size == src->obj_size);
 
     TT_DO(tt_vec_reserve(dst, src->count));
@@ -210,6 +214,7 @@ tt_result_t tt_vec_move_from(IN tt_vec_t *dst,
 {
     tt_u32_t n;
 
+    TT_ASSERT_ALWAYS(dst != src);
     TT_ASSERT_ALWAYS(dst->obj_size == src->obj_size);
 
     if (from_idx >= src->count) {
@@ -235,6 +240,7 @@ tt_result_t tt_vec_move_range(IN tt_vec_t *dst,
 {
     tt_u32_t n;
 
+    TT_ASSERT_ALWAYS(dst != src);
     TT_ASSERT_ALWAYS(dst->obj_size == src->obj_size);
     TT_ASSERT_ALWAYS(from_idx <= to_idx);
 
@@ -269,7 +275,7 @@ tt_bool_t tt_vec_comtain_all(IN tt_vec_t *vec, IN tt_vec_t *vec2)
 {
     tt_u32_t i;
     for (i = 0; i < vec2->count; ++i) {
-        if (tt_vec_find(vec2, __V_OBJ(vec2, i)) == TT_POS_NULL) {
+        if (tt_vec_find(vec, __V_OBJ(vec2, i)) == TT_POS_NULL) {
             return TT_FALSE;
         }
     }
@@ -278,21 +284,21 @@ tt_bool_t tt_vec_comtain_all(IN tt_vec_t *vec, IN tt_vec_t *vec2)
 
 void *tt_vec_get(IN tt_vec_t *vec, IN tt_u32_t idx)
 {
-    if (idx < vec->count) {
-        return __V_OBJ(vec, idx);
-    } else {
+    if (idx >= vec->count) {
         return NULL;
     }
+
+    return __V_OBJ(vec, idx);
 }
 
 tt_result_t tt_vec_set(IN tt_vec_t *vec, IN tt_u32_t idx, IN void *obj)
 {
-    if (idx < vec->count) {
-        tt_memcpy(__V_OBJ(vec, idx), obj, vec->obj_size);
-        return TT_SUCCESS;
-    } else {
+    if (idx >= vec->count) {
         return TT_FAIL;
     }
+
+    tt_memcpy(__V_OBJ(vec, idx), obj, vec->obj_size);
+    return TT_SUCCESS;
 }
 
 tt_u32_t tt_vec_find(IN tt_vec_t *vec, IN void *obj)
@@ -374,7 +380,6 @@ tt_u32_t tt_vec_find_range(IN tt_vec_t *vec,
     return TT_POS_NULL;
 }
 
-
 void tt_vec_remove(IN tt_vec_t *vec, IN tt_u32_t idx)
 {
     if (idx >= vec->count) {
@@ -384,6 +389,7 @@ void tt_vec_remove(IN tt_vec_t *vec, IN tt_u32_t idx)
     tt_memmove(__V_OBJ(vec, idx),
                __V_OBJ(vec, idx + 1),
                __V_SIZE(vec, vec->count - idx - 1));
+    --vec->count;
 }
 
 // return removed idx
@@ -417,8 +423,11 @@ void tt_vec_remove_range(IN tt_vec_t *vec,
 
 void tt_vec_trim(IN tt_vec_t *vec)
 {
-    tt_memspg_compress(&vec->mspg,
-                       &vec->p,
-                       &vec->size,
-                       __V_SIZE(vec, vec->count));
+    if (vec->count < vec->capacity) {
+        tt_memspg_compress(&vec->mspg,
+                           &vec->p,
+                           &vec->size,
+                           __V_SIZE(vec, vec->count));
+        vec->capacity = vec->size / vec->obj_size;
+    }
 }
