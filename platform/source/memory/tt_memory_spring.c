@@ -27,8 +27,6 @@
 // internal macro
 ////////////////////////////////////////////////////////////
 
-#define __MEMSPG_MAX_LIMIT (1 << 30)
-
 ////////////////////////////////////////////////////////////
 // internal type
 ////////////////////////////////////////////////////////////
@@ -58,8 +56,7 @@ void tt_memspg_init(IN tt_memspg_t *mspg,
 {
     TT_ASSERT(min_extend > 0);
     TT_ASSERT(min_extend < max_extend);
-    TT_ASSERT(max_extend < max_limit);
-    TT_ASSERT(max_limit <= __MEMSPG_MAX_LIMIT);
+    TT_ASSERT((max_limit == 0) || (max_extend < max_limit));
 
     mspg->min_extend = min_extend;
     mspg->max_extend = max_extend;
@@ -149,7 +146,7 @@ tt_u32_t __memspg_next_size(IN tt_memspg_t *mspg, IN tt_u32_t size)
         TT_ERROR("overflowed: %u", size);
         return 0;
     }
-    if (next_size <= mspg->max_limit) {
+    if ((mspg->max_limit == 0) || (next_size <= mspg->max_limit)) {
         return next_size;
     }
 
