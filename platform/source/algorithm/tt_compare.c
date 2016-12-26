@@ -14,69 +14,37 @@
  * limitations under the License.
  */
 
-/**
-@file tt_compare
-@brief compare type
- */
-
-#ifndef __TT_COMPARE__
-#define __TT_COMPARE__
-
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <tt_basic_type.h>
+#include <algorithm/tt_compare.h>
 
 ////////////////////////////////////////////////////////////
-// macro definition
+// internal macro
 ////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////
-// type definition
+// internal type
 ////////////////////////////////////////////////////////////
 
-/**
- @typedef tt_s32_t (*tt_cmp_t)(IN void* l, IN void* r)
- a compare function type
-
- @param [IN] l left object
- @param [IN] r right object
-
- @return
- - >0 if "l" > "r"
- - 0 if "l" == "r"
- - <0 if "l" < "r"
- */
-typedef tt_s32_t (*tt_cmp_t)(IN void *l, IN void *r);
-
-/**
- @typedef tt_s32_t (*tt_cmpkey_t)(IN void* n,
- IN const tt_u8_t *key,
- IN tt_u32_t key_len)
- compare node with key
-
- @param [IN] n node in container
- @param [IN] key key
- @param [IN] key_len length of key in bytes
-
- @return
- - >0 if "n" > "key"
- - 0 if "n" == "key"
- - <0 if "n" < "key"
- */
-typedef tt_s32_t (*tt_cmpkey_t)(IN void *n,
-                                IN const tt_u8_t *key,
-                                IN tt_u32_t key_len);
+////////////////////////////////////////////////////////////
+// extern declaration
+////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////
-// global variants
+// global variant
 ////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern tt_s32_t tt_cmp_ptr(IN void *l, IN void *r);
+////////////////////////////////////////////////////////////
+// interface implementation
+////////////////////////////////////////////////////////////
 
-#endif /* __TT_COMPARE__ */
+tt_s32_t tt_cmp_ptr(IN void *l, IN void *r)
+{
+    return *((tt_ptr_t *)l) - *((tt_ptr_t *)r);
+}

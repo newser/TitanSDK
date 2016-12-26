@@ -170,6 +170,8 @@ extern tt_result_t tt_vec_set(IN tt_vec_t *vec, IN tt_u32_t idx, IN void *obj);
 
 extern tt_u32_t tt_vec_find(IN tt_vec_t *vec, IN void *obj);
 
+extern tt_u32_t tt_vec_find_last(IN tt_vec_t *vec, IN void *obj);
+
 extern tt_u32_t tt_vec_find_from(IN tt_vec_t *vec,
                                  IN void *obj,
                                  IN tt_u32_t from_idx);

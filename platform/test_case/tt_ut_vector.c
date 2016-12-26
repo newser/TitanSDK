@@ -149,6 +149,9 @@ static tt_bool_t __utv_test_u16_0(IN tt_vec_t *v)
     if (tt_vec_find(v, &val) != TT_POS_NULL) {
         __utv_fail_false();
     }
+    if (tt_vec_find_last(v, &val) != TT_POS_NULL) {
+        __utv_fail_false();
+    }
     if (tt_vec_find_from(v, 0, &val) != TT_POS_NULL) {
         __utv_fail_false();
     }
@@ -260,6 +263,9 @@ static tt_bool_t __utv_test_u16_1(IN tt_vec_t *v)
     if (tt_vec_find(v, &val) != TT_POS_NULL) {
         __utv_fail_false();
     }
+    if (tt_vec_find_last(v, &val) != TT_POS_NULL) {
+        __utv_fail_false();
+    }
     if (tt_vec_find_from(v, &val, 0) != TT_POS_NULL) {
         __utv_fail_false();
     }
@@ -275,6 +281,9 @@ static tt_bool_t __utv_test_u16_1(IN tt_vec_t *v)
 
     val = 1;
     if (tt_vec_find(v, &val) != 0) {
+        __utv_fail_false();
+    }
+    if (tt_vec_find_last(v, &val) != 0) {
         __utv_fail_false();
     }
     if (tt_vec_find_from(v, &val, 0) != 0) {
@@ -422,6 +431,9 @@ static tt_bool_t __utv_test_u16_123(IN tt_vec_t *v)
     if (tt_vec_find(v, &val) != 1) {
         __utv_fail_false();
     }
+    if (tt_vec_find_last(v, &val) != 1) {
+        __utv_fail_false();
+    }
     if (tt_vec_find_from(v, &val, 0) != 1) {
         __utv_fail_false();
     }
@@ -490,6 +502,13 @@ static tt_bool_t __utv_test_u16_123(IN tt_vec_t *v)
     val = 3;
     tt_vec_push_tail(v, &val);
 
+    val = 2;
+    tt_vec_push_tail(v, &val);
+    if (tt_vec_find_last(v, &val) != 3) {
+        __utv_fail_false();
+    }
+    tt_vec_pop_tail(v, NULL);
+    
     return TT_TRUE;
 }
 

@@ -322,6 +322,27 @@ tt_u32_t tt_vec_find(IN tt_vec_t *vec, IN void *obj)
     return TT_POS_NULL;
 }
 
+tt_u32_t tt_vec_find_last(IN tt_vec_t *vec, IN void *obj)
+{
+    tt_u32_t i;
+    
+    if (vec->cmp != NULL) {
+        for (i = vec->count - 1; i != ~0; --i) {
+            if (vec->cmp(__V_OBJ(vec, i), obj) == 0) {
+                return i;
+            }
+        }
+    } else {
+        for (i = vec->count - 1; i != ~0; --i) {
+            if (tt_memcmp(__V_OBJ(vec, i), obj, vec->obj_size) == 0) {
+                return i;
+            }
+        }
+    }
+    
+    return TT_POS_NULL;
+}
+
 tt_u32_t tt_vec_find_from(IN tt_vec_t *vec, IN void *obj, IN tt_u32_t from_idx)
 {
     tt_u32_t i;

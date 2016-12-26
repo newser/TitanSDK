@@ -77,6 +77,8 @@ include_directories(${TSCM_PLATFORM_PATH}/native/${TSCM_ENV_CPU})
 
 # source code
 tscm_add_group_src(${TSCM_PLATFORM_PATH}/source/algorithm algorithm SRC_FILE)
+tscm_add_group_src(${TSCM_PLATFORM_PATH}/source/algorithm/ptr algorithm SRC_FILE)
+
 tscm_add_group_src(${TSCM_PLATFORM_PATH}/source/event event SRC_FILE)
 tscm_add_group_src(${TSCM_PLATFORM_PATH}/source/init init SRC_FILE)
 tscm_add_group_src(${TSCM_PLATFORM_PATH}/source/init/config_shell config_shell SRC_FILE)

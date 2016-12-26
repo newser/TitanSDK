@@ -53,6 +53,7 @@ extern "C" {
 #include <algorithm/tt_string.h>
 #include <algorithm/tt_string_common.h>
 #include <algorithm/tt_vector.h>
+#include <algorithm/ptr/tt_ptr_vector.h>
 #include <cli/tt_cli.h>
 #include <cli/tt_cli_def.h>
 #include <cli/tt_cli_line.h>
