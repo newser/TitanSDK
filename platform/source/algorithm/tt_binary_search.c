@@ -26,6 +26,8 @@
 // internal macro
 ////////////////////////////////////////////////////////////
 
+#define __SHORT_THRESHOLD 8
+
 ////////////////////////////////////////////////////////////
 // internal type
 ////////////////////////////////////////////////////////////
@@ -70,8 +72,8 @@ void *tt_bsearch(IN void *key,
                  IN tt_u32_t width,
                  IN tt_cmp_t cmp)
 {
-    tt_u8_t *cur_start, *cur_end, *cur_middle;
-    tt_u32_t cur_num;
+    tt_u8_t *start, *end, *middle;
+    tt_u32_t n;
 
     TT_ASSERT(key != NULL);
     TT_ASSERT(base != NULL);
@@ -79,44 +81,39 @@ void *tt_bsearch(IN void *key,
     TT_ASSERT(width != 0);
     TT_ASSERT(cmp != NULL);
 
-    cur_start = (tt_u8_t *)base;
-    cur_end = cur_start + (num - 1) * width;
-    cur_middle = NULL;
+    start = (tt_u8_t *)base;
+    end = start + (num - 1) * width;
+    middle = NULL;
 
-sub_bsearch:
+sub_search:
+    n = (tt_u32_t)((end - start) / width + 1);
 
-    cur_num = (tt_u32_t)((cur_end - cur_start) / width + 1);
-
-#define SHORT_BSEARCH_THRESHOLD 8
-
-    if (cur_num <= SHORT_BSEARCH_THRESHOLD) {
+    if (n <= __SHORT_THRESHOLD) {
         return __short_bsearch(key, base, num, width, cmp);
     } else {
-        tt_s32_t comp_ret = 0;
+        tt_s32_t cmp_ret = 0;
 
-        cur_middle = cur_start + (cur_num >> 1) * width;
+        middle = start + (n >> 1) * width;
 
-        comp_ret = cmp(key, cur_middle);
-        if (comp_ret < 0) {
-            if (cur_start < cur_middle) {
-                cur_end = cur_middle - width;
-                goto sub_bsearch;
+        cmp_ret = cmp(key, middle);
+        if (cmp_ret < 0) {
+            if (start < middle) {
+                end = middle - width;
+                goto sub_search;
             } else {
                 return NULL;
             }
-        } else if (comp_ret > 0) {
-            if (cur_middle < cur_end) {
-                cur_start = cur_middle + width;
-                goto sub_bsearch;
+        } else if (cmp_ret > 0) {
+            if (middle < end) {
+                start = middle + width;
+                goto sub_search;
             } else {
                 return NULL;
             }
         } else {
-            return cur_middle;
+            return middle;
         }
     }
-
-#undef SHORT_BSEARCH_THRESHOLD
 }
 
 void *tt_bsearch_upper(IN void *key,
@@ -125,8 +122,8 @@ void *tt_bsearch_upper(IN void *key,
                        IN tt_u32_t width,
                        IN tt_cmp_t cmp)
 {
-    tt_u8_t *cur_start, *cur_end, *cur_middle;
-    tt_u32_t cur_num;
+    tt_u8_t *start, *end, *middle;
+    tt_u32_t n;
 
     TT_ASSERT(key != NULL);
     TT_ASSERT(base != NULL);
@@ -134,48 +131,43 @@ void *tt_bsearch_upper(IN void *key,
     TT_ASSERT(width != 0);
     TT_ASSERT(cmp != NULL);
 
-    cur_start = (tt_u8_t *)base;
-    cur_end = cur_start + (num - 1) * width;
-    cur_middle = NULL;
+    start = (tt_u8_t *)base;
+    end = start + (num - 1) * width;
+    middle = NULL;
 
-sub_bsearch_min_larger:
+sub_search:
+    n = (tt_u32_t)((end - start) / width + 1);
 
-    cur_num = (tt_u32_t)((cur_end - cur_start) / width + 1);
-
-#define SHORT_BSEARCH_MIN_LARGER_THRESHOLD 8
-
-    if (cur_num <= SHORT_BSEARCH_MIN_LARGER_THRESHOLD) {
+    if (n <= __SHORT_THRESHOLD) {
         return __short_bsearch_upper(key, base, num, width, cmp);
     } else {
-        tt_s32_t comp_ret = 0;
+        tt_s32_t cmp_ret = 0;
 
-        cur_middle = cur_start + (cur_num >> 1) * width;
+        middle = start + (n >> 1) * width;
 
-        comp_ret = cmp(key, cur_middle);
-        if (comp_ret < 0) {
-            if (cur_start < cur_middle) {
-                cur_end = cur_middle - width;
-                if (cmp(key, cur_end) > 0) {
-                    return cur_middle;
+        cmp_ret = cmp(key, middle);
+        if (cmp_ret < 0) {
+            if (start < middle) {
+                end = middle - width;
+                if (cmp(key, end) > 0) {
+                    return middle;
                 }
 
-                goto sub_bsearch_min_larger;
+                goto sub_search;
             } else {
-                return cur_middle;
+                return middle;
             }
-        } else if (comp_ret > 0) {
-            if (cur_middle < cur_end) {
-                cur_start = cur_middle + width;
-                goto sub_bsearch_min_larger;
+        } else if (cmp_ret > 0) {
+            if (middle < end) {
+                start = middle + width;
+                goto sub_search;
             } else {
                 return NULL;
             }
         } else {
-            return cur_middle;
+            return middle;
         }
     }
-
-#undef SHORT_BSEARCH_MIN_LARGER_THRESHOLD
 }
 
 void *tt_bsearch_lower(IN void *key,
@@ -184,8 +176,8 @@ void *tt_bsearch_lower(IN void *key,
                        IN tt_u32_t width,
                        IN tt_cmp_t cmp)
 {
-    tt_u8_t *cur_start, *cur_end, *cur_middle;
-    tt_u32_t cur_num;
+    tt_u8_t *start, *end, *middle;
+    tt_u32_t n;
 
     TT_ASSERT(key != NULL);
     TT_ASSERT(base != NULL);
@@ -193,47 +185,42 @@ void *tt_bsearch_lower(IN void *key,
     TT_ASSERT(width != 0);
     TT_ASSERT(cmp != NULL);
 
-    cur_start = (tt_u8_t *)base;
-    cur_end = cur_start + (num - 1) * width;
-    cur_middle = NULL;
+    start = (tt_u8_t *)base;
+    end = start + (num - 1) * width;
+    middle = NULL;
 
-sub_bsearch_max_less:
+sub_search:
+    n = (tt_u32_t)((end - start) / width + 1);
 
-    cur_num = (tt_u32_t)((cur_end - cur_start) / width + 1);
-
-#define SHORT_BSEARCH_MAX_LESS_THRESHOLD 8
-
-    if (cur_num <= SHORT_BSEARCH_MAX_LESS_THRESHOLD) {
+    if (n <= __SHORT_THRESHOLD) {
         return __short_bsearch_lower(key, base, num, width, cmp);
     } else {
-        tt_s32_t comp_ret = 0;
+        tt_s32_t cmp_ret = 0;
 
-        cur_middle = cur_start + (cur_num >> 1) * width;
+        middle = start + (n >> 1) * width;
 
-        comp_ret = cmp(key, cur_middle);
-        if (comp_ret < 0) {
-            if (cur_start < cur_middle) {
-                cur_end = cur_middle - width;
-                goto sub_bsearch_max_less;
+        cmp_ret = cmp(key, middle);
+        if (cmp_ret < 0) {
+            if (start < middle) {
+                end = middle - width;
+                goto sub_search;
             } else {
                 return NULL;
             }
-        } else if (comp_ret > 0) {
-            if (cur_middle < cur_end) {
-                cur_start = cur_middle + width;
-                if (cmp(key, cur_start) < 0) {
-                    return cur_middle;
+        } else if (cmp_ret > 0) {
+            if (middle < end) {
+                start = middle + width;
+                if (cmp(key, start) < 0) {
+                    return middle;
                 }
-                goto sub_bsearch_max_less;
+                goto sub_search;
             } else {
-                return cur_middle;
+                return middle;
             }
         } else {
-            return cur_middle;
+            return middle;
         }
     }
-
-#undef SHORT_BSEARCH_MAX_LESS_THRESHOLD
 }
 
 void *__short_bsearch(IN void *key,
@@ -243,8 +230,6 @@ void *__short_bsearch(IN void *key,
                       IN tt_cmp_t cmp)
 {
     tt_u8_t *start, *end, *pos;
-
-    TT_ASSERT(num > 0);
 
     start = (tt_u8_t *)base;
     end = start + (num - 1) * width;
@@ -266,8 +251,6 @@ void *__short_bsearch_upper(IN void *key,
 {
     tt_u8_t *start, *end, *pos;
 
-    TT_ASSERT(num > 0);
-
     start = (tt_u8_t *)base;
     end = start + (num - 1) * width;
 
@@ -287,8 +270,6 @@ void *__short_bsearch_lower(IN void *key,
                             IN tt_cmp_t cmp)
 {
     tt_u8_t *start, *end, *pos;
-
-    TT_ASSERT(num > 0);
 
     start = (tt_u8_t *)base;
     end = start + (num - 1) * width;
