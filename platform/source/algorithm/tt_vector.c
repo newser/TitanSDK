@@ -54,7 +54,10 @@
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-void tt_vec_init(IN tt_vec_t *vec, IN tt_u32_t obj_size, IN tt_vec_attr_t *attr)
+void tt_vec_init(IN tt_vec_t *vec,
+                 IN tt_u32_t obj_size,
+                 IN OPT tt_cmp_t cmp,
+                 IN OPT tt_vec_attr_t *attr)
 {
     tt_vec_attr_t __attr;
 
@@ -70,7 +73,7 @@ void tt_vec_init(IN tt_vec_t *vec, IN tt_u32_t obj_size, IN tt_vec_attr_t *attr)
     TT_ASSERT_ALWAYS(!TT_U32_MUL_WOULD_OVFL(obj_size, attr->max_limit_num));
 
     vec->p = NULL;
-    vec->cmp = attr->cmp;
+    vec->cmp = cmp;
     vec->size = 0;
     tt_memspg_init(&vec->mspg,
                    attr->min_extent_num * obj_size,
@@ -93,8 +96,6 @@ void tt_vec_destroy(IN tt_vec_t *vec)
 void tt_vec_attr_default(IN tt_vec_attr_t *attr)
 {
     TT_ASSERT(attr != NULL);
-
-    attr->cmp = NULL;
 
     attr->min_extent_num = 16;
     attr->max_extent_num = 128;
@@ -325,7 +326,7 @@ tt_u32_t tt_vec_find(IN tt_vec_t *vec, IN void *obj)
 tt_u32_t tt_vec_find_last(IN tt_vec_t *vec, IN void *obj)
 {
     tt_u32_t i;
-    
+
     if (vec->cmp != NULL) {
         for (i = vec->count - 1; i != ~0; --i) {
             if (vec->cmp(__V_OBJ(vec, i), obj) == 0) {
@@ -339,7 +340,7 @@ tt_u32_t tt_vec_find_last(IN tt_vec_t *vec, IN void *obj)
             }
         }
     }
-    
+
     return TT_POS_NULL;
 }
 

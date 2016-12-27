@@ -275,17 +275,10 @@ tt_u32_t tt_ptrvec_find(IN tt_ptrvec_t *pvec, IN tt_ptr_t p)
 {
     tt_u32_t i;
 
-    if (pvec->cmp != NULL) {
-        for (i = 0; i < pvec->count; ++i) {
-            if (pvec->cmp(pvec->ptr[i], p) == 0) {
-                return i;
-            }
-        }
-    } else {
-        for (i = 0; i < pvec->count; ++i) {
-            if (pvec->ptr[i] == p) {
-                return i;
-            }
+    TT_ASSERT(pvec->cmp != NULL);
+    for (i = 0; i < pvec->count; ++i) {
+        if (pvec->cmp(pvec->ptr[i], p) == 0) {
+            return i;
         }
     }
 
@@ -296,17 +289,10 @@ tt_u32_t tt_ptrvec_find_last(IN tt_ptrvec_t *pvec, IN tt_ptr_t p)
 {
     tt_u32_t i;
 
-    if (pvec->cmp != NULL) {
-        for (i = pvec->count - 1; i != ~0; --i) {
-            if (pvec->cmp(pvec->ptr[i], p) == 0) {
-                return i;
-            }
-        }
-    } else {
-        for (i = pvec->count - 1; i != ~0; --i) {
-            if (pvec->ptr[i] == p) {
-                return i;
-            }
+    TT_ASSERT(pvec->cmp != NULL);
+    for (i = pvec->count - 1; i != ~0; --i) {
+        if (pvec->cmp(pvec->ptr[i], p) == 0) {
+            return i;
         }
     }
 
@@ -323,17 +309,10 @@ tt_u32_t tt_ptrvec_find_from(IN tt_ptrvec_t *pvec,
         return TT_POS_NULL;
     }
 
-    if (pvec->cmp != NULL) {
-        for (i = from_idx; i < pvec->count; ++i) {
-            if (pvec->cmp(pvec->ptr[i], p) == 0) {
-                return i;
-            }
-        }
-    } else {
-        for (i = from_idx; i < pvec->count; ++i) {
-            if (pvec->ptr[i] == p) {
-                return i;
-            }
+    TT_ASSERT(pvec->cmp != NULL);
+    for (i = from_idx; i < pvec->count; ++i) {
+        if (pvec->cmp(pvec->ptr[i], p) == 0) {
+            return i;
         }
     }
 
@@ -356,17 +335,10 @@ tt_u32_t tt_ptrvec_find_range(IN tt_ptrvec_t *pvec,
         to_idx = pvec->count;
     }
 
-    if (pvec->cmp != NULL) {
-        for (i = from_idx; i < to_idx; ++i) {
-            if (pvec->cmp(pvec->ptr[i], p) == 0) {
-                return i;
-            }
-        }
-    } else {
-        for (i = from_idx; i < to_idx; ++i) {
-            if (pvec->ptr[i] == p) {
-                return i;
-            }
+    TT_ASSERT(pvec->cmp != NULL);
+    for (i = from_idx; i < to_idx; ++i) {
+        if (pvec->cmp(pvec->ptr[i], p) == 0) {
+            return i;
         }
     }
 

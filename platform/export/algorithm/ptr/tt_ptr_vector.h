@@ -46,9 +46,14 @@ typedef tt_vec_t tt_ptrvec_t;
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-tt_inline void tt_ptrvec_init(IN tt_ptrvec_t *pvec, IN tt_vec_attr_t *attr)
+tt_inline void tt_ptrvec_init(IN tt_ptrvec_t *pvec,
+                              IN tt_cmp_t cmp,
+                              IN OPT tt_vec_attr_t *attr)
 {
-    tt_vec_init(pvec, sizeof(tt_ptr_t), attr);
+    tt_vec_init(pvec,
+                sizeof(tt_ptr_t),
+                TT_COND(cmp != NULL, cmp, tt_cmp_ptr),
+                attr);
 }
 
 tt_inline void tt_ptrvec_destroy(IN tt_ptrvec_t *pvec)
@@ -60,11 +65,9 @@ extern tt_result_t __ptrvec_reserve(IN tt_ptrvec_t *pvec, IN tt_u32_t count);
 
 tt_inline tt_result_t tt_ptrvec_reserve(IN tt_ptrvec_t *pvec, IN tt_u32_t count)
 {
-    if ((pvec->count + count) <= pvec->capacity) {
-        return TT_SUCCESS;
-    } else {
-        return __ptrvec_reserve(pvec, count);
-    }
+    return TT_COND((pvec->count + count) <= pvec->capacity,
+                   TT_SUCCESS,
+                   __ptrvec_reserve(pvec, count));
 }
 
 extern tt_result_t tt_ptrvec_push_head(IN tt_ptrvec_t *pvec, IN tt_ptr_t p);

@@ -48,6 +48,7 @@ this file includes vector api
 
 #include <algorithm/tt_compare.h>
 #include <memory/tt_memory_spring.h>
+#include <misc/tt_util.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
@@ -59,8 +60,6 @@ this file includes vector api
 
 typedef struct
 {
-    tt_cmp_t cmp;
-
     tt_u32_t min_extent_num;
     tt_u32_t max_extent_num;
     tt_u32_t max_limit_num;
@@ -91,7 +90,8 @@ typedef struct
 
 extern void tt_vec_init(IN tt_vec_t *vec,
                         IN tt_u32_t obj_size,
-                        IN tt_vec_attr_t *attr);
+                        IN OPT tt_cmp_t cmp,
+                        IN OPT tt_vec_attr_t *attr);
 
 extern void tt_vec_destroy(IN tt_vec_t *vec);
 
@@ -101,11 +101,9 @@ extern tt_result_t __vec_reserve(IN tt_vec_t *vec, IN tt_u32_t count);
 
 tt_inline tt_result_t tt_vec_reserve(IN tt_vec_t *vec, IN tt_u32_t count)
 {
-    if ((vec->count + count) <= vec->capacity) {
-        return TT_SUCCESS;
-    } else {
-        return __vec_reserve(vec, count);
-    }
+    return TT_COND((vec->count + count) <= vec->capacity,
+                   TT_SUCCESS,
+                   __vec_reserve(vec, count));
 }
 
 extern tt_result_t tt_vec_push_head(IN tt_vec_t *vec, IN void *obj);
@@ -148,11 +146,7 @@ tt_inline tt_u32_t tt_vec_count(IN tt_vec_t *vec)
 
 tt_inline tt_bool_t tt_vec_empty(IN tt_vec_t *vec)
 {
-    if (vec->count != 0) {
-        return TT_FALSE;
-    } else {
-        return TT_TRUE;
-    }
+    return TT_BOOL(vec->count == 0);
 }
 
 tt_inline void tt_vec_clear(IN tt_vec_t *vec)
