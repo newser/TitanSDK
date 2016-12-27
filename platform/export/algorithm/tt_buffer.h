@@ -36,8 +36,6 @@ this file defines buffer APIs
 // macro definition
 ////////////////////////////////////////////////////////////
 
-#define TT_BUFPOS_NUM (~0)
-
 // should be power of 2
 #define TT_BUF_INLINE_SIZE 16
 

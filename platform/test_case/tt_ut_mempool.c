@@ -590,8 +590,8 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_mem_spg)
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_memspg_t mspg;
     tt_result_t ret;
-    tt_u32_t size;
-    tt_u8_t *p;
+    tt_u32_t size, i;
+    tt_u8_t *p, val[4] = {0, 1, 2, 3};
 
     TT_TEST_CASE_ENTER()
     // test start
@@ -690,6 +690,31 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_mem_spg)
     TT_TEST_CHECK_SUCCESS(ret, "");
     TT_TEST_CHECK_EQUAL(p, NULL, "");
     TT_TEST_CHECK_EQUAL(size, 0, "");
+
+    // set to zero
+    p = val;
+    size = sizeof(val);
+    ret = tt_memspg_extend_ex(&mspg,
+                              &p,
+                              &size,
+                              20,
+                              TT_MSPGEXT_NOFREE | TT_MSPGEXT_ZERO);
+    TT_TEST_CHECK_SUCCESS(ret, "");
+    for (i = 0; i < sizeof(val); ++i) {
+        TT_TEST_CHECK_EQUAL(p[i], val[i], "");
+    }
+    for (; i < size; ++i) {
+        TT_TEST_CHECK_EQUAL(p[i], 0, "");
+    }
+
+    ret = tt_memspg_extend_ex(&mspg, &p, &size, 30, TT_MSPGEXT_ZERO);
+    TT_TEST_CHECK_SUCCESS(ret, "");
+    for (i = 0; i < sizeof(val); ++i) {
+        TT_TEST_CHECK_EQUAL(p[i], val[i], "");
+    }
+    for (; i < size; ++i) {
+        TT_TEST_CHECK_EQUAL(p[i], 0, "");
+    }
 
     // test end
     TT_TEST_CASE_LEAVE()

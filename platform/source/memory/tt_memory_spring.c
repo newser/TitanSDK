@@ -22,6 +22,7 @@
 
 #include <memory/tt_memory_alloc.h>
 #include <misc/tt_assert.h>
+#include <misc/tt_util.h>
 
 ////////////////////////////////////////////////////////////
 // internal macro
@@ -63,10 +64,11 @@ void tt_memspg_init(IN tt_memspg_t *mspg,
     mspg->max_limit = max_limit;
 }
 
-tt_result_t tt_memspg_extend(IN tt_memspg_t *mspg,
-                             IN OUT tt_u8_t **p,
-                             IN OUT tt_u32_t *size,
-                             IN tt_u32_t to_size)
+tt_result_t tt_memspg_extend_ex(IN tt_memspg_t *mspg,
+                                IN OUT tt_u8_t **p,
+                                IN OUT tt_u32_t *size,
+                                IN tt_u32_t to_size,
+                                IN tt_u32_t flag)
 {
     tt_u32_t new_size;
     tt_u8_t *new_p;
@@ -90,7 +92,14 @@ tt_result_t tt_memspg_extend(IN tt_memspg_t *mspg,
 
     if (*p != NULL) {
         tt_memcpy(new_p, *p, *size);
-        tt_free(*p);
+
+        if (flag & TT_MSPGEXT_ZERO) {
+            tt_memset(TT_PTR_INC(void, new_p, *size), 0, new_size - *size);
+        }
+
+        if (!(flag & TT_MSPGEXT_NOFREE)) {
+            tt_free(*p);
+        }
     }
     *p = new_p;
     *size = new_size;

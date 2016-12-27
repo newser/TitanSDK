@@ -59,10 +59,21 @@ extern void tt_memspg_init(IN tt_memspg_t *mspg,
                            IN tt_u32_t max_extend,
                            IN tt_u32_t max_limit);
 
-extern tt_result_t tt_memspg_extend(IN tt_memspg_t *mspg,
-                                    IN OUT tt_u8_t **p,
-                                    IN OUT tt_u32_t *size,
-                                    IN tt_u32_t to_size);
+extern tt_result_t tt_memspg_extend_ex(IN tt_memspg_t *mspg,
+                                       IN OUT tt_u8_t **p,
+                                       IN OUT tt_u32_t *size,
+                                       IN tt_u32_t to_size,
+                                       IN tt_u32_t flag);
+#define TT_MSPGEXT_ZERO (1 << 0)
+#define TT_MSPGEXT_NOFREE (1 << 1)
+
+tt_inline tt_result_t tt_memspg_extend(IN tt_memspg_t *mspg,
+                                       IN OUT tt_u8_t **p,
+                                       IN OUT tt_u32_t *size,
+                                       IN tt_u32_t to_size)
+{
+    return tt_memspg_extend_ex(mspg, p, size, to_size, 0);
+}
 
 extern tt_result_t tt_memspg_compress(IN tt_memspg_t *mspg,
                                       IN OUT tt_u8_t **p,
