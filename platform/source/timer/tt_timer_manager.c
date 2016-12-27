@@ -93,12 +93,7 @@ tt_result_t tt_tmr_mgr_create(IN tt_tmr_mgr_t *mgr, IN tt_tmr_mgr_attr_t *attr)
     }
 
     // timer heap
-    result =
-        tt_arheap_create(&mgr->tmr_heap, __tmr_cmp, &mgr->attr.tmr_heap_attr);
-    if (!TT_OK(result)) {
-        TT_ERROR("fail to create timer heap");
-        return TT_FAIL;
-    }
+    tt_ptrheap_init(&mgr->tmr_heap, __tmr_cmp, &mgr->attr.tmr_heap_attr);
 
     return TT_SUCCESS;
 }
@@ -108,17 +103,14 @@ void tt_tmr_mgr_destroy(IN tt_tmr_mgr_t *mgr)
     TT_ASSERT(mgr != NULL);
 
     // the heap would check whether there are still some timer running
-    if (!TT_OK(tt_arheap_destroy(&mgr->tmr_heap))) {
-        TT_FATAL("fail to destroy timer heap");
-        return;
-    }
+    tt_ptrheap_destroy(&mgr->tmr_heap);
 }
 
 void tt_tmr_mgr_attr_default(IN tt_tmr_mgr_attr_t *attr)
 {
     TT_ASSERT(attr != NULL);
 
-    tt_arheap_attr_default(&attr->tmr_heap_attr);
+    tt_ptrheap_attr_default(&attr->tmr_heap_attr);
 }
 
 tt_s64_t tt_tmr_mgr_run(IN tt_tmr_mgr_t *mgr)
@@ -134,14 +126,14 @@ tt_s64_t tt_tmr_mgr_run(IN tt_tmr_mgr_t *mgr)
         now = tt_time_ref();
 
     recheck:
-        head = (tt_tmr_t *)tt_arheap_head(&mgr->tmr_heap);
+        head = (tt_tmr_t *)tt_ptrheap_head(&mgr->tmr_heap);
         // to process a timer if
         //  - timer is not active: remove it or release it
         //  - timer is active and expired now
         if ((head != NULL) && ((head->status != __TMR_ACTIVE) ||
                                (head->absolute_expire_time <= now))) {
             some_tmr_expired = TT_TRUE;
-            head = (tt_tmr_t *)tt_arheap_pophead(&mgr->tmr_heap);
+            head = (tt_tmr_t *)tt_ptrheap_pop(&mgr->tmr_heap);
 
             // process expired timer
             switch (head->status) {

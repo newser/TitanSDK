@@ -477,7 +477,7 @@ tt_result_t __evp_timer_basic_on_uni(IN struct tt_evcenter_s *evc,
     if (ne != TT_TIME_INFINITE) {
         TT_ERROR(
             "should be no timer left, but %d, total created: %d, wait: %ld",
-            evc->tmr_mgr.tmr_heap.tail_idx,
+            evc->tmr_mgr.tmr_heap.count,
             created_timer_num,
             ne);
         __t3_ret = TT_FAIL;

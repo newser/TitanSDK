@@ -533,11 +533,11 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_vector)
     TT_TEST_CASE_ENTER()
     // test start
 
-    tt_vec_init(&v_u16, sizeof(tt_u16_t), NULL);
+    tt_vec_init(&v_u16, sizeof(tt_u16_t), NULL, NULL);
     tt_vec_trim(&v_u16);
     tt_vec_destroy(&v_u16);
 
-    tt_vec_init(&v_u16, sizeof(tt_u16_t), NULL);
+    tt_vec_init(&v_u16, sizeof(tt_u16_t), NULL, NULL);
 
     // empty
     {
@@ -572,7 +572,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_vector)
 
     // move
     {
-        tt_vec_init(&v2, sizeof(tt_u16_t), NULL);
+        tt_vec_init(&v2, sizeof(tt_u16_t), NULL, NULL);
 
         ret = tt_vec_move_all(&v_u16, &v2);
         TT_TEST_CHECK_SUCCESS(ret, "");
@@ -1027,11 +1027,11 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_ptr_vector)
     TT_TEST_CASE_ENTER()
     // test start
 
-    tt_ptrvec_init(&pv, NULL);
+    tt_ptrvec_init(&pv, NULL, NULL);
     tt_ptrvec_trim(&pv);
     tt_ptrvec_destroy(&pv);
 
-    tt_ptrvec_init(&pv, NULL);
+    tt_ptrvec_init(&pv, NULL, NULL);
 
     // empty
     {
@@ -1063,7 +1063,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_ptr_vector)
 
     // move
     {
-        tt_ptrvec_init(&v2, NULL);
+        tt_ptrvec_init(&v2, NULL, NULL);
 
         ret = tt_ptrvec_move_all(&pv, &v2);
         TT_TEST_CHECK_SUCCESS(ret, "");

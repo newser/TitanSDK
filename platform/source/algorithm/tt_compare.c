@@ -46,5 +46,12 @@
 
 tt_s32_t tt_cmp_ptr(IN void *l, IN void *r)
 {
-    return *((tt_ptr_t *)l) - *((tt_ptr_t *)r);
+    // returning (l - r) may lose sign
+    if (l < r) {
+        return -1;
+    } else if (l == r) {
+        return 0;
+    } else {
+        return 1;
+    }
 }
