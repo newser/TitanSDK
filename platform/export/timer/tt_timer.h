@@ -79,7 +79,7 @@ typedef struct tt_tmr_s
 #define __TMR_ACTIVE 1
 #define __TMR_ORPHAN 2
 
-    tt_s32_t heap_idx;
+    tt_u32_t heap_idx;
     struct tt_tmr_mgr_s *mgr;
     tt_s64_t absolute_expire_time;
 } tt_tmr_t;

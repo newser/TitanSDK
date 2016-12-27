@@ -21,7 +21,8 @@
 #include "tt_unit_test_case_config.h"
 #include <unit_test/tt_unit_test.h>
 
-#include <algorithm/tt_array_heap.h>
+#include <algorithm/ptr/tt_ptr_heap.h>
+#include <algorithm/tt_algorithm_def.h>
 #include <algorithm/tt_red_black_tree.h>
 #include <timer/tt_time_reference.h>
 
@@ -46,17 +47,17 @@
 ////////////////////////////////////////////////////////////
 
 // === routine declarations ================
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_arheap_basic)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_arheap_correct)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_arheap_perf)
+TT_TEST_ROUTINE_DECLARE(tt_unit_test_ptrheap_basic)
+TT_TEST_ROUTINE_DECLARE(tt_unit_test_ptrheap_correct)
+TT_TEST_ROUTINE_DECLARE(tt_unit_test_ptrheap_perf)
 // =========================================
 
 // === test case list ======================
-TT_TEST_CASE_LIST_DEFINE_BEGIN(aheap_case)
+TT_TEST_CASE_LIST_DEFINE_BEGIN(heap_case)
 
-TT_TEST_CASE("tt_unit_test_arheap_basic",
-             "testing array heap basic api",
-             tt_unit_test_arheap_basic,
+TT_TEST_CASE("tt_unit_test_ptrheap_basic",
+             "testing ptr heap basic api",
+             tt_unit_test_ptrheap_basic,
              NULL,
              NULL,
              NULL,
@@ -64,28 +65,28 @@ TT_TEST_CASE("tt_unit_test_arheap_basic",
              NULL)
 ,
 
-    TT_TEST_CASE("tt_unit_test_arheap_correct",
-                 "testing aheap correctness",
-                 tt_unit_test_arheap_correct,
+    TT_TEST_CASE("tt_unit_test_ptrheap_correct",
+                 "testing ptr heap correctness",
+                 tt_unit_test_ptrheap_correct,
                  NULL,
                  NULL,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_arheap_perf",
-                 "testing aheap performance",
-                 tt_unit_test_arheap_perf,
+    TT_TEST_CASE("tt_unit_test_ptrheap_perf",
+                 "testing ptr heap performance",
+                 tt_unit_test_ptrheap_perf,
                  NULL,
                  NULL,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE_LIST_DEFINE_END(aheap_case)
+    TT_TEST_CASE_LIST_DEFINE_END(heap_case)
     // =========================================
 
-    TT_TEST_UNIT_DEFINE(TEST_UNIT_ARRAY_HEAP, 0, aheap_case)
+    TT_TEST_UNIT_DEFINE(TEST_UNIT_HEAP, 0, heap_case)
 
     ////////////////////////////////////////////////////////////
     // interface declaration
@@ -108,87 +109,78 @@ TT_TEST_CASE("tt_unit_test_arheap_basic",
     }
     */
 
-    static tt_s32_t ah_comparer(IN void *l, IN void *r)
-{
-    if ((tt_u32_t)(tt_uintptr_t)l < (tt_u32_t)(tt_uintptr_t)r)
-        return -1;
-    else if ((tt_u32_t)(tt_uintptr_t)l == (tt_u32_t)(tt_uintptr_t)r)
-        return 0;
-    else
-        return 1;
-}
-
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_arheap_basic)
+    TT_TEST_ROUTINE_DEFINE(tt_unit_test_ptrheap_basic)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
-    tt_arheap_t ah;
-    tt_arheap_attr_t attr;
+    tt_ptrheap_t ph;
+    tt_ptrheap_attr_t attr;
     tt_result_t ret;
-    tt_s32_t h;
+    tt_u32_t h, h0;
 
     TT_TEST_CASE_ENTER()
     // test start
 
-    tt_arheap_attr_default(&attr);
+    tt_ptrheap_attr_default(&attr);
 
-    ret = tt_arheap_create(&ah, ah_comparer, NULL);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
-    TT_TEST_CHECK_EQUAL(tt_arheap_pophead(&ah), NULL, "");
-    TT_TEST_CHECK_EQUAL(tt_arheap_head(&ah), NULL, "");
+    tt_ptrheap_init(&ph, NULL, NULL);
+    TT_TEST_CHECK_EQUAL(tt_ptrheap_pop(&ph), NULL, "");
+    TT_TEST_CHECK_EQUAL(tt_ptrheap_head(&ph), NULL, "");
+    TT_TEST_CHECK_EQUAL(tt_ptrheap_count(&ph), 0, "");
+    TT_TEST_CHECK_EQUAL(tt_ptrheap_empty(&ph), TT_TRUE, "");
+    tt_ptrheap_clear(&ph);
+    TT_TEST_CHECK_EQUAL(tt_ptrheap_contain(&ph, (tt_ptr_t)0), TT_FALSE, "");
+    tt_ptrheap_destroy(&ph);
 
-    ret = tt_arheap_destroy(&ah);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    tt_ptrheap_init(&ph, NULL, &attr);
 
-    attr.initial_node_num = 1;
-    ret = tt_arheap_create(&ah, ah_comparer, &attr);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
-
-    ret = tt_arheap_add(&ah, (tt_ptr_t)1, &h);
+    ret = tt_ptrheap_add(&ph, (tt_ptr_t)1, &h);
     TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
     TT_TEST_CHECK_EQUAL(h, 0, "");
-    TT_TEST_CHECK_EQUAL(tt_arheap_head(&ah), (tt_ptr_t)1, "");
-    TT_TEST_CHECK_EQUAL(tt_arheap_pophead(&ah), (tt_ptr_t)1, "");
-    TT_TEST_CHECK_EQUAL(h, TT_ARHEAP_NODE_NULL, "");
-    TT_TEST_CHECK_EQUAL(tt_arheap_pophead(&ah), NULL, "");
-    TT_TEST_CHECK_EQUAL(h, TT_ARHEAP_NODE_NULL, "");
+    TT_TEST_CHECK_EQUAL(tt_ptrheap_head(&ph), (tt_ptr_t)1, "");
+    TT_TEST_CHECK_EQUAL(tt_ptrheap_count(&ph), 1, "");
+    TT_TEST_CHECK_EQUAL(tt_ptrheap_empty(&ph), TT_FALSE, "");
+    TT_TEST_CHECK_EQUAL(tt_ptrheap_contain(&ph, (tt_ptr_t)1), TT_TRUE, "");
+    TT_TEST_CHECK_EQUAL(tt_ptrheap_pop(&ph), (tt_ptr_t)1, "");
+    TT_TEST_CHECK_EQUAL(h, TT_POS_NULL, "");
+    TT_TEST_CHECK_EQUAL(tt_ptrheap_pop(&ph), NULL, "");
+    TT_TEST_CHECK_EQUAL(h, TT_POS_NULL, "");
 
-    ret = tt_arheap_add(&ah, (tt_ptr_t)2, NULL);
+    ret = tt_ptrheap_add(&ph, NULL, NULL);
+    TT_TEST_CHECK_FAIL(ret, "");
+
+    ret = tt_ptrheap_add(&ph, (tt_ptr_t)3, NULL);
     TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
-    ret = tt_arheap_add(&ah, (tt_ptr_t)1, &h);
+    ret = tt_ptrheap_add(&ph, (tt_ptr_t)2, &h);
     TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
-    ret = tt_arheap_add(&ah, (tt_ptr_t)1, &h);
+    ret = tt_ptrheap_add(&ph, (tt_ptr_t)1, &h0);
     TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
-    ret = tt_arheap_add(&ah, (tt_ptr_t)3, &h);
+    ret = tt_ptrheap_add(&ph, (tt_ptr_t)3, &h);
     TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
-    ret = tt_arheap_add(&ah, (tt_ptr_t)~0, &h);
+    ret = tt_ptrheap_add(&ph, (tt_ptr_t)~0, &h);
     TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
-    ret = tt_arheap_add(&ah, (tt_ptr_t)~0, &h);
+    ret = tt_ptrheap_add(&ph, (tt_ptr_t)~0, &h);
     TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
 
-    TT_TEST_CHECK_EQUAL(tt_arheap_head(&ah), (tt_ptr_t)~0, "");
-    TT_TEST_CHECK_EQUAL(tt_arheap_pophead(&ah), (tt_ptr_t)~0, "");
-    TT_TEST_CHECK_EQUAL(tt_arheap_pophead(&ah), (tt_ptr_t)~0, "");
-    TT_TEST_CHECK_EQUAL(tt_arheap_pophead(&ah), (tt_ptr_t)3, "");
-    TT_TEST_CHECK_EQUAL(tt_arheap_pophead(&ah), (tt_ptr_t)2, "");
+    TT_TEST_CHECK_EQUAL(tt_ptrheap_count(&ph), 6, "");
+    TT_TEST_CHECK_EQUAL(tt_ptrheap_empty(&ph), TT_FALSE, "");
+    TT_TEST_CHECK_EQUAL(tt_ptrheap_contain(&ph, (tt_ptr_t)~0), TT_TRUE, "");
 
-    ret = tt_arheap_destroy(&ah);
-    TT_TEST_CHECK_EQUAL(ret, TT_FAIL, "");
+    TT_TEST_CHECK_EQUAL(tt_ptrheap_head(&ph), (tt_ptr_t)~0, "");
+    TT_TEST_CHECK_EQUAL(tt_ptrheap_pop(&ph), (tt_ptr_t)~0, "");
+    TT_TEST_CHECK_EQUAL(tt_ptrheap_pop(&ph), (tt_ptr_t)~0, "");
+    TT_TEST_CHECK_EQUAL(tt_ptrheap_pop(&ph), (tt_ptr_t)3, "");
 
+    tt_ptrheap_remove(&ph, h0);
+    TT_TEST_CHECK_EQUAL(tt_ptrheap_count(&ph), 2, "");
+    TT_TEST_CHECK_EQUAL(tt_ptrheap_head(&ph), (tt_ptr_t)3, "");
 
-    TT_TEST_CHECK_EQUAL(tt_arheap_pophead(&ah), (tt_ptr_t)1, "");
-    TT_TEST_CHECK_EQUAL(tt_arheap_head(&ah), (tt_ptr_t)1, "");
-    TT_TEST_CHECK_EQUAL(tt_arheap_pophead(&ah), (tt_ptr_t)1, "");
-    TT_TEST_CHECK_EQUAL(tt_arheap_pophead(&ah), NULL, "");
-    TT_TEST_CHECK_EQUAL(tt_arheap_pophead(&ah), NULL, "");
-
-    ret = tt_arheap_destroy(&ah);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    tt_ptrheap_destroy(&ph);
 
     // test end
     TT_TEST_CASE_LEAVE()
 }
 
-#define __t2_num 10000
+#define __t2_num 100000
 struct trb_t
 {
     tt_rbnode_t n;
@@ -218,13 +210,13 @@ tt_s32_t rb_key_comparer(IN void *n, IN const tt_u8_t *key, IN tt_u32_t key_len)
         return 1;
 }
 
-static tt_s32_t _dh[__t2_num];
+static tt_u32_t _dh[__t2_num];
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_arheap_correct)
+TT_TEST_ROUTINE_DEFINE(tt_unit_test_ptrheap_correct)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
-    tt_arheap_t ah;
-    tt_arheap_attr_t attr;
+    tt_ptrheap_t ph;
+    tt_ptrheap_attr_t attr;
     tt_result_t ret;
 
     tt_rbtree_t rbt;
@@ -237,11 +229,10 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_arheap_correct)
     TT_TEST_CASE_ENTER()
     // test start
 
-    // create aheap
-    tt_arheap_attr_default(&attr);
+    // create ptr heap
+    tt_ptrheap_attr_default(&attr);
 
-    ret = tt_arheap_create(&ah, ah_comparer, NULL);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    tt_ptrheap_init(&ph, NULL, NULL);
 
     // create a rbtree
     tt_rbtree_init(&rbt, rb_comparer, rb_key_comparer);
@@ -262,7 +253,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_arheap_correct)
 
     begin = tt_time_ref();
     for (i = 0; i < sizeof(trb) / sizeof(struct trb_t); ++i) {
-        tt_arheap_add(&ah, (tt_ptr_t)(tt_uintptr_t)trb[i].v, NULL);
+        tt_ptrheap_add(&ph, (tt_ptr_t)(tt_uintptr_t)trb[i].v, NULL);
     }
     end = tt_time_ref();
     t2 = (tt_s32_t)tt_time_ref2ms(end - begin);
@@ -272,32 +263,31 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_arheap_correct)
     // cmp
     for (i = 0; i < sizeof(trb) / sizeof(struct trb_t); ++i) {
         tt_rbnode_t *pn = tt_rbtree_max(rbt.root);
-        int pv = (int)(tt_uintptr_t)tt_arheap_head(&ah);
+        int pv = (int)(tt_uintptr_t)tt_ptrheap_head(&ph);
         TT_TEST_CHECK_EQUAL(((struct trb_t *)pn)->v, pv, "");
 
         tt_rbtree_remove(pn);
-        tt_arheap_pophead(&ah);
+        tt_ptrheap_pop(&ph);
     }
 
-    TT_TEST_CHECK_EQUAL(tt_arheap_head(&ah), NULL, "");
-    TT_TEST_CHECK_EQUAL(tt_arheap_pophead(&ah), NULL, "");
-    TT_TEST_CHECK_EQUAL(ah.tail_idx, 0, "");
+    TT_TEST_CHECK_EQUAL(tt_ptrheap_head(&ph), NULL, "");
+    TT_TEST_CHECK_EQUAL(tt_ptrheap_pop(&ph), NULL, "");
+    TT_TEST_CHECK_EQUAL(ph.count, 0, "");
 
     // test remove
     for (i = 0; i < sizeof(trb) / sizeof(struct trb_t); ++i) {
-        tt_arheap_add(&ah, (tt_ptr_t)(tt_uintptr_t)trb[i].v, &_dh[i]);
+        tt_ptrheap_add(&ph, (tt_ptr_t)(tt_uintptr_t)trb[i].v, &_dh[i]);
     }
     for (i = 0; i < sizeof(trb) / sizeof(struct trb_t); ++i) {
         trb[i].v = rand();
-        tt_arheap_fix(&ah, _dh[i]);
+        tt_ptrheap_fix(&ph, _dh[i]);
     }
     for (i = 0; i < sizeof(trb) / sizeof(struct trb_t); ++i) {
-        tt_arheap_remove(&ah, _dh[i]);
-        TT_TEST_CHECK_EQUAL(_dh[i], TT_ARHEAP_NODE_NULL, "");
+        tt_ptrheap_remove(&ph, _dh[i]);
+        TT_TEST_CHECK_EQUAL(_dh[i], TT_POS_NULL, "");
     }
 
-    ret = tt_arheap_destroy(&ah);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    tt_ptrheap_destroy(&ph);
 
     // test end
     TT_TEST_CASE_LEAVE()
@@ -315,11 +305,11 @@ void foo1(int v)
     ++i;
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_arheap_perf)
+TT_TEST_ROUTINE_DEFINE(tt_unit_test_ptrheap_perf)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
-    tt_arheap_t ah;
-    tt_arheap_attr_t attr;
+    tt_ptrheap_t ph;
+    tt_ptrheap_attr_t attr;
     tt_result_t ret;
 
     tt_rbtree_t rbt;
@@ -333,10 +323,9 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_arheap_perf)
 
     srand((tt_u32_t)time(NULL));
 
-    // create aheap
-    tt_arheap_attr_default(&attr);
-    ret = tt_arheap_create(&ah, ah_comparer, NULL);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    // create ptr heap
+    tt_ptrheap_attr_default(&attr);
+    tt_ptrheap_init(&ph, NULL, NULL);
 
     // create a rbtree
     tt_rbtree_init(&rbt, rb_comparer, rb_key_comparer);
@@ -379,25 +368,24 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_arheap_perf)
     begin = tt_time_ref();
     for (i = 0; i < sizeof(trb) / sizeof(struct trb_t); ++i) {
         if (_act[i] == 0) {
-            int n1 = (int)(tt_uintptr_t)tt_arheap_head(&ah);
+            int n1 = (int)(tt_uintptr_t)tt_ptrheap_head(&ph);
             if (n1 != 0)
                 foo1(n1);
         } else if (_act[i] == 1) {
-            tt_arheap_add(&ah, (tt_ptr_t)(tt_uintptr_t)_act_val[i], NULL);
+            tt_ptrheap_add(&ph, (tt_ptr_t)(tt_uintptr_t)_act_val[i], NULL);
         } else {
-            tt_arheap_pophead(&ah);
+            tt_ptrheap_pop(&ph);
         }
     }
     end = tt_time_ref();
     t2 = (tt_s32_t)tt_time_ref2ms(end - begin);
 
-    TT_RECORD_INFO("aheap: %dms, rbtree: %dms", t2, t1);
+    TT_RECORD_INFO("ptr heap: %dms, rbtree: %dms", t2, t1);
 
-    while (!tt_arheap_empty(&ah)) {
-        tt_arheap_pophead(&ah);
+    while (!tt_ptrheap_empty(&ph)) {
+        tt_ptrheap_pop(&ph);
     }
-    ret = tt_arheap_destroy(&ah);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    tt_ptrheap_destroy(&ph);
 
     // test end
     TT_TEST_CASE_LEAVE()

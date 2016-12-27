@@ -28,7 +28,7 @@ this file specifies interfaces of timer container
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <algorithm/tt_array_heap.h>
+#include <algorithm/ptr/tt_ptr_heap.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
@@ -42,14 +42,14 @@ struct tt_tmr_s;
 
 typedef struct
 {
-    tt_arheap_attr_t tmr_heap_attr;
+    tt_ptrheap_attr_t tmr_heap_attr;
 } tt_tmr_mgr_attr_t;
 
 typedef struct tt_tmr_mgr_s
 {
     tt_tmr_mgr_attr_t attr;
 
-    tt_arheap_t tmr_heap;
+    tt_ptrheap_t tmr_heap;
 } tt_tmr_mgr_t;
 
 ////////////////////////////////////////////////////////////
@@ -80,7 +80,7 @@ extern tt_s64_t tt_tmr_mgr_run(IN tt_tmr_mgr_t *mgr);
 
 tt_inline struct tt_tmr_s *tt_tmr_mgr_head(IN tt_tmr_mgr_t *mgr)
 {
-    return (struct tt_tmr_s *)tt_arheap_head(&mgr->tmr_heap);
+    return (struct tt_tmr_s *)tt_ptrheap_head(&mgr->tmr_heap);
 }
 
 #endif /* __TT_TIMER_CONTAINER__ */

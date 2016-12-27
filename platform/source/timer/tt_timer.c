@@ -20,7 +20,8 @@
 
 #include <timer/tt_timer.h>
 
-#include <algorithm/tt_array_heap.h>
+#include <algorithm/ptr/tt_ptr_heap.h>
+#include <algorithm/tt_algorithm_def.h>
 #include <event/tt_event_center.h>
 #include <memory/tt_memory_alloc.h>
 #include <misc/tt_assert.h>
@@ -91,7 +92,7 @@ tt_tmr_t *tt_tmr_create(IN OPT IN struct tt_tmr_mgr_s *mgr,
 
     tmr->status = __TMR_INACTIVE;
 
-    tmr->heap_idx = TT_ARHEAP_NODE_NULL;
+    tmr->heap_idx = TT_POS_NULL;
     tmr->mgr = mgr;
     tmr->absolute_expire_time = 0;
 
@@ -106,7 +107,7 @@ void tt_tmr_destroy(IN tt_tmr_t *tmr)
         tmr->cb(tmr, tmr->cb_param, TT_TMR_CB_DESTROYED);
     }
 
-    if (tmr->heap_idx == TT_ARHEAP_NODE_NULL) {
+    if (tmr->heap_idx == TT_POS_NULL) {
         // not in heap
         tt_free(tmr);
     } else {
@@ -115,7 +116,7 @@ void tt_tmr_destroy(IN tt_tmr_t *tmr)
         tmr->status = __TMR_ORPHAN;
 #else
         // or free it, which could make more memory available
-        tt_arheap_remove(&tmr->mgr->tmr_heap, tmr->heap_idx);
+        tt_ptrheap_remove(&tmr->mgr->tmr_heap, tmr->heap_idx);
         tt_free(tmr);
 #endif
     }
@@ -149,10 +150,10 @@ tt_result_t tt_tmr_start(IN tt_tmr_t *tmr)
 
     tmr->status = __TMR_ACTIVE;
 
-    if (tmr->heap_idx == TT_ARHEAP_NODE_NULL) {
-        return tt_arheap_add(&mgr->tmr_heap, tmr, &tmr->heap_idx);
+    if (tmr->heap_idx == TT_POS_NULL) {
+        return tt_ptrheap_add(&mgr->tmr_heap, tmr, &tmr->heap_idx);
     } else {
-        tt_arheap_fix(&mgr->tmr_heap, tmr->heap_idx);
+        tt_ptrheap_fix(&mgr->tmr_heap, tmr->heap_idx);
         return TT_SUCCESS;
     }
 }
