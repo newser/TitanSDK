@@ -347,7 +347,7 @@ tt_result_t __utf32le_to_utf16le(IN tt_u8_t *input,
     TT_ASSERT_CS(pos == end);
 
     TT_ASSERT_CS(opos < oend);
-    tt_buf_setptr_wr(output, opos);
+    tt_buf_set_wptr(output, opos);
 
     return TT_SUCCESS;
 }
@@ -399,7 +399,7 @@ tt_result_t __utf32be_to_utf16le(IN tt_u8_t *input,
     TT_ASSERT_CS(pos == end);
 
     TT_ASSERT_CS(opos < oend);
-    tt_buf_setptr_wr(output, opos);
+    tt_buf_set_wptr(output, opos);
 
     return TT_SUCCESS;
 }
@@ -459,7 +459,7 @@ tt_result_t __utf16le_to_utf32le(IN tt_u8_t *input,
     TT_ASSERT_CS(pos == end);
 
     TT_ASSERT_CS(opos < oend);
-    tt_buf_setptr_wr(output, opos);
+    tt_buf_set_wptr(output, opos);
 
     return TT_SUCCESS;
 }
@@ -520,7 +520,7 @@ tt_result_t __utf16le_to_utf32be(IN tt_u8_t *input,
     TT_ASSERT_CS(pos == end);
 
     TT_ASSERT_CS(opos < oend);
-    tt_buf_setptr_wr(output, opos);
+    tt_buf_set_wptr(output, opos);
 
     return TT_SUCCESS;
 }

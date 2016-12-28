@@ -51,7 +51,7 @@ extern void tt_buf_swap(IN tt_buf_t *a, IN tt_buf_t *b);
 // return 0 if equal, otherwise non 0 value is returned
 extern tt_s32_t tt_buf_cmp(IN tt_buf_t *a, IN tt_buf_t *b);
 
-extern tt_s32_t tt_buf_cmp_cstr(IN tt_buf_t *a, IN const tt_char_t *b);
+extern tt_s32_t tt_buf_cmp_cstr(IN tt_buf_t *a, IN const tt_char_t *cstr);
 
 tt_inline tt_result_t tt_buf_copy(IN tt_buf_t *dst, IN tt_buf_t *src)
 {
@@ -61,12 +61,12 @@ tt_inline tt_result_t tt_buf_copy(IN tt_buf_t *dst, IN tt_buf_t *src)
 
 extern void tt_buf_remove(IN tt_buf_t *buf, IN tt_u32_t pos);
 
-extern void tt_buf_remove_n(IN tt_buf_t *buf,
-                            IN tt_u32_t start,
-                            IN tt_u32_t len);
+extern void tt_buf_remove_range(IN tt_buf_t *buf,
+                                IN tt_u32_t from,
+                                IN tt_u32_t to);
 
 extern tt_result_t tt_buf_insert(IN tt_buf_t *buf,
-                                 IN tt_u32_t pos,
+                                 IN tt_u32_t idx,
                                  IN tt_u8_t *data,
                                  IN tt_u32_t data_len);
 
@@ -77,7 +77,7 @@ extern tt_result_t tt_buf_tok(IN tt_buf_t *buf,
                               OUT tt_u8_t **last,
                               OUT tt_u32_t *last_len);
 // flag
-#define TT_BUFTOK_IGNORE_EMPTY (1 << 0)
+#define TT_BUFTOK_NOEMPTY (1 << 0)
 
 extern void tt_buf_trim_sp(IN tt_buf_t *buf);
 

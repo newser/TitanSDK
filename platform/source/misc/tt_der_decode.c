@@ -262,7 +262,7 @@ tt_result_t tt_der_decode_s32(IN tt_buf_t *buf,
     }
 
     if (!(flag & TT_DER_PASS_CONTENT)) {
-        buf->rd_pos -= len;
+        buf->rpos -= len;
     }
 
     return TT_SUCCESS;

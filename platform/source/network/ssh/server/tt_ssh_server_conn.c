@@ -275,7 +275,7 @@ tt_result_t tt_sshsvrconn_recv(IN tt_sshsvrconn_t *svrconn)
         return TT_END;
     }
 
-    tt_buf_getptr_wpblob(recv_buf, &recv_blob);
+    tt_buf_get_wblob(recv_buf, &recv_blob);
     if (!TT_OK(tt_skt_recv_async(&svrconn->skt,
                                  &recv_blob,
                                  1,
@@ -309,7 +309,7 @@ tt_result_t tt_sshsvrconn_send(IN tt_sshsvrconn_t *svrconn,
         return TT_FAIL;
     }
 
-    tt_buf_getptr_rpblob(&sshmsg->buf, &data_blob);
+    tt_buf_get_rblob(&sshmsg->buf, &data_blob);
     if (!TT_OK(tt_skt_send_async(&svrconn->skt,
                                  &data_blob,
                                  1,
@@ -596,7 +596,7 @@ tt_result_t __svrconn_decrypt(IN tt_sshsvrconn_t *svrconn,
 
     // decrypt the first block
     if (svrconn->plaintext_len == 0) {
-        if ((recv_buf->rd_pos + block_len) > recv_buf->wr_pos) {
+        if ((recv_buf->rpos + block_len) > recv_buf->wpos) {
             // less than 1 block
             return TT_BUFFER_INCOMPLETE;
         }

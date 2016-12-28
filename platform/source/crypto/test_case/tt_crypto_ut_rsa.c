@@ -1107,7 +1107,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_rsa_2048_sign_pkcs1)
                         256);
     TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
 
-    output.addr[tt_rand_u32() % 256] += 1;
+    output.p[tt_rand_u32() % 256] += 1;
     ret = tt_rsa_verify(&pub,
                         (tt_u8_t *)__rsa_1024_in,
                         n,
@@ -1132,7 +1132,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_rsa_2048_sign_pkcs1)
                         256);
     TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
 
-    output.addr[tt_rand_u32() % 256] += 1;
+    output.p[tt_rand_u32() % 256] += 1;
     ret = tt_rsa_verify(&pub,
                         (tt_u8_t *)__rsa_1024_in,
                         n,
@@ -1157,7 +1157,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_rsa_2048_sign_pkcs1)
                         256);
     TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
 
-    output.addr[tt_rand_u32() % 256] += 1;
+    output.p[tt_rand_u32() % 256] += 1;
     ret = tt_rsa_verify(&pub,
                         (tt_u8_t *)__rsa_1024_in,
                         n,
@@ -1179,7 +1179,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_rsa_2048_sign_pkcs1)
                         256);
     TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
 
-    output.addr[tt_rand_u32() % 256] += 1;
+    output.p[tt_rand_u32() % 256] += 1;
     ret = tt_rsa_verify(&pub,
                         (tt_u8_t *)__rsa_1024_in,
                         n,

@@ -201,7 +201,7 @@ tt_u32_t tt_string_rfind_c(IN tt_string_t *s, IN tt_char_t c)
     return (tt_u32_t)(pos - TT_BUF_RPOS(buf));
 }
 
-void tt_string_remove(IN tt_string_t *s, IN tt_u32_t from, IN tt_u32_t len)
+void tt_string_remove_range(IN tt_string_t *s, IN tt_u32_t from, IN tt_u32_t to)
 {
     tt_u32_t n;
 
@@ -210,25 +210,25 @@ void tt_string_remove(IN tt_string_t *s, IN tt_u32_t from, IN tt_u32_t len)
     if (from >= n) {
         return;
     }
-    if ((from + len) >= n) {
-        len = n - from;
+    if (to >= n) {
+        to = n;
     }
 
-    tt_buf_remove_n(&s->buf, from, len);
+    tt_buf_remove_range(&s->buf, from, to);
 }
 
 tt_result_t tt_string_append(IN OUT tt_string_t *s, IN const tt_char_t *substr)
 {
     tt_buf_t *buf = &s->buf;
 
-    TT_ASSERT(buf->wr_pos > 0);
-    --buf->wr_pos;
+    TT_ASSERT(buf->wpos > 0);
+    --buf->wpos;
     if (TT_OK(tt_buf_put(buf,
                          (tt_u8_t *)substr,
                          (tt_u32_t)tt_strlen(substr) + 1))) {
         return TT_SUCCESS;
     } else {
-        ++buf->wr_pos;
+        ++buf->wpos;
         return TT_FAIL;
     }
 }
@@ -244,10 +244,10 @@ tt_result_t tt_string_append_c(IN OUT tt_string_t *s, IN tt_char_t c)
 
     TT_DO(tt_buf_reserve(buf, 1));
 
-    TT_ASSERT(buf->wr_pos > 0);
-    buf->addr[buf->wr_pos - 1] = c;
-    buf->addr[buf->wr_pos] = 0;
-    ++buf->wr_pos;
+    TT_ASSERT(buf->wpos > 0);
+    buf->p[buf->wpos - 1] = c;
+    buf->p[buf->wpos] = 0;
+    ++buf->wpos;
     return TT_SUCCESS;
 }
 
@@ -262,8 +262,8 @@ tt_result_t tt_string_append_cn(IN OUT tt_string_t *s,
         return TT_SUCCESS;
     }
 
-    TT_ASSERT(buf->wr_pos > 0);
-    --buf->wr_pos;
+    TT_ASSERT(buf->wpos > 0);
+    --buf->wpos;
     TT_DO(tt_buf_put_rep(buf, c, c_num));
     TT_DO(tt_buf_put_u8(buf, 0));
     return TT_SUCCESS;
@@ -280,8 +280,8 @@ tt_result_t tt_string_append_sub(IN OUT tt_string_t *s,
 
     tt_buf_backup_rwp(buf, &rp, &wp);
 
-    TT_ASSERT(buf->wr_pos > 0);
-    --buf->wr_pos;
+    TT_ASSERT(buf->wpos > 0);
+    --buf->wpos;
     if (TT_OK(tt_buf_put(buf, (tt_u8_t *)substr, len)) &&
         TT_OK(tt_buf_put_u8(buf, 0))) {
         return TT_SUCCESS;
@@ -359,7 +359,7 @@ void tt_string_tolower(IN OUT tt_string_t *s)
 {
     tt_char_t *p;
 
-    if (s->buf.attr.not_copied) {
+    if (s->buf.readonly) {
         TT_ERROR("can not change not copied string");
         return;
     }
@@ -375,7 +375,7 @@ void tt_string_toupper(IN OUT tt_string_t *s)
 {
     tt_char_t *p;
 
-    if (s->buf.attr.not_copied) {
+    if (s->buf.readonly) {
         TT_ERROR("can not change not copied string");
         return;
     }
@@ -393,7 +393,7 @@ void tt_string_trim(IN OUT tt_string_t *s)
     tt_u32_t len;
     tt_buf_t *buf = &s->buf;
 
-    if (s->buf.attr.not_copied) {
+    if (s->buf.readonly) {
         TT_ERROR("can not change not copied string");
         return;
     }
@@ -419,7 +419,7 @@ void tt_string_trim(IN OUT tt_string_t *s)
     }
     TT_BUF_RPOS(buf)[len] = 0;
     ++len;
-    buf->wr_pos = buf->rd_pos + len;
+    buf->wpos = buf->rpos + len;
 }
 
 tt_result_t tt_string_insert(IN OUT tt_string_t *s,

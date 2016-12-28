@@ -465,7 +465,7 @@ tt_result_t __cli_flush(IN struct tt_cli_s *cli)
                             TT_BUF_RLEN(outbuf)));
         tt_buf_clear(outbuf);
     }
-    TT_ASSERT(outbuf->rd_pos == 0);
+    TT_ASSERT(outbuf->rpos == 0);
 
     return TT_SUCCESS;
 }

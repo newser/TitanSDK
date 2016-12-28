@@ -196,9 +196,9 @@ void tt_adns_resolver_attr_default(IN tt_adns_resolver_attr_t *attr)
     attr->init_buf_size = __RSLVR_INIT_BUF_SIZE;
 
     tt_buf_attr_default(&attr->buf_attr);
-    attr->buf_attr.min_expand_order = __RSLVR_DATA_MIN_EXPAND_ORDER;
-    attr->buf_attr.max_expand_order = __RSLVR_DATA_MAX_EXPAND_ORDER;
-    attr->buf_attr.max_size_order = __RSLVR_DATA_MAX_SIZE_ORDER;
+    attr->buf_attr.min_extend = __RSLVR_DATA_MIN_EXPAND_ORDER;
+    attr->buf_attr.max_extend = __RSLVR_DATA_MAX_EXPAND_ORDER;
+    attr->buf_attr.max_limit = __RSLVR_DATA_MAX_SIZE_ORDER;
 
     tt_memset(&attr->local_addr, 0, sizeof(tt_sktaddr_t));
     attr->has_local_addr = TT_FALSE;
@@ -212,7 +212,7 @@ void tt_adns_resolver_send(IN tt_adns_resolver_t *rslvr,
     TT_ASSERT(rslvr != NULL);
     TT_ASSERT(pkt != NULL);
 
-    tt_buf_getptr_rpblob(&pkt->buf, &blob);
+    tt_buf_get_rblob(&pkt->buf, &blob);
     if (rslvr->ns_addr.protocol == TT_NET_PROTO_UDP) {
         tt_adns_pkt_ref(pkt);
         if (!TT_OK(tt_skt_sendto_async(&rslvr->skt,
@@ -275,7 +275,7 @@ tt_result_t __adr_udp_create(IN tt_adns_resolver_t *rslvr)
     rslvr->state = TT_ADRSLVR_CONNECTED;
 
     // start receiving
-    tt_buf_getptr_wpblob(&rslvr->data_buf, &blob);
+    tt_buf_get_wblob(&rslvr->data_buf, &blob);
     if (!TT_OK(tt_skt_recvfrom_async(&rslvr->skt,
                                      &blob,
                                      1,
@@ -431,7 +431,7 @@ void __adr_skt_on_connect(IN tt_skt_t *skt,
 
     rslvr->state = TT_ADRSLVR_CONNECTED;
 
-    tt_buf_getptr_wpblob(&rslvr->data_buf, &blob);
+    tt_buf_get_wblob(&rslvr->data_buf, &blob);
     tt_skt_recv_async(&rslvr->skt, &blob, 1, __adr_on_recv, rslvr);
 }
 
@@ -533,7 +533,7 @@ void __adr_on_recvfrom(IN tt_skt_t *skt,
         tt_buf_reset_rwp(data_buf);
     }
 
-    tt_buf_getptr_wpblob(data_buf, &b);
+    tt_buf_get_wblob(data_buf, &b);
     tt_skt_recvfrom_async(&rslvr->skt, &b, 1, __adr_on_recvfrom, rslvr);
 }
 
@@ -593,7 +593,7 @@ void __adr_on_recv(IN tt_skt_t *skt,
         tt_buf_reset_rwp(data_buf);
     }
 
-    tt_buf_getptr_wpblob(data_buf, &b);
+    tt_buf_get_wblob(data_buf, &b);
     tt_skt_recv_async(&rslvr->skt, &b, 1, __adr_on_recv, rslvr);
 }
 

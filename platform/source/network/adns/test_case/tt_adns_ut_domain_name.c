@@ -193,7 +193,7 @@ TT_TEST_ROUTINE_DEFINE(tt_adns_ut_dm_name_render_parse_basic)
                                  0);
         TT_TEST_CHECK_EQUAL(st, TT_SUCCESS, "");
         TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&ds), l, "");
-        TT_TEST_CHECK_EQUAL(tt_memcmp(ds.addr, __case->rendered, l), 0, "");
+        TT_TEST_CHECK_EQUAL(tt_memcmp(ds.p, __case->rendered, l), 0, "");
 
         st = tt_adns_name_parse_prepare(&ds);
         TT_TEST_CHECK_EQUAL(st, TT_SUCCESS, "");

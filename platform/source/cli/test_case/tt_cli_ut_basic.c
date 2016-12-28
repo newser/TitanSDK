@@ -649,7 +649,7 @@ tt_result_t __ut_cli_send_ac(IN struct tt_cli_s *cli,
             __ac_cursor = 0;
         } else if (e == TT_CLI_EV_DELETE) {
             TT_ASSERT(__ac_cursor > 0);
-            tt_string_remove(&__ac_string, __ac_cursor, 1);
+            tt_string_remove_range(&__ac_string, __ac_cursor, 1);
             --__ac_cursor;
         }
     }

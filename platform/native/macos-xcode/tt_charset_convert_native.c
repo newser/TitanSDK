@@ -167,7 +167,7 @@ ag:
         output_len += (n - outbytesleft);
         // wrpos of output should only been updated when returning TT_SUCCESS
 
-        TT_DO(tt_buf_expand(output, 0));
+        TT_DO(tt_buf_reserve(output, 0));
         goto ag;
     } else {
         TT_ERROR_NTV("iconv failed");

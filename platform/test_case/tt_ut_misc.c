@@ -622,45 +622,45 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_der_enc)
     do {
         tt_buf_reset_rwp(&buf);
         tt_der_encode_sequence(&buf, 127, 0);
-        TT_TEST_CHECK_EQUAL(buf.addr[buf.rd_pos + 1], 0x7f, "");
+        TT_TEST_CHECK_EQUAL(buf.p[buf.rpos + 1], 0x7f, "");
 
         tt_buf_reset_rwp(&buf);
         tt_der_encode_sequence(&buf, 128, 0);
-        TT_TEST_CHECK_EQUAL(buf.addr[buf.rd_pos + 1], 0x81, "");
-        TT_TEST_CHECK_EQUAL(buf.addr[buf.rd_pos + 2], 0x80, "");
+        TT_TEST_CHECK_EQUAL(buf.p[buf.rpos + 1], 0x81, "");
+        TT_TEST_CHECK_EQUAL(buf.p[buf.rpos + 2], 0x80, "");
 
         tt_buf_reset_rwp(&buf);
         tt_der_encode_sequence(&buf, 0x1234, 0);
-        TT_TEST_CHECK_EQUAL(buf.addr[buf.rd_pos + 1], 0x82, "");
-        TT_TEST_CHECK_EQUAL(buf.addr[buf.rd_pos + 2], 0x12, "");
-        TT_TEST_CHECK_EQUAL(buf.addr[buf.rd_pos + 3], 0x34, "");
+        TT_TEST_CHECK_EQUAL(buf.p[buf.rpos + 1], 0x82, "");
+        TT_TEST_CHECK_EQUAL(buf.p[buf.rpos + 2], 0x12, "");
+        TT_TEST_CHECK_EQUAL(buf.p[buf.rpos + 3], 0x34, "");
 
         tt_buf_reset_rwp(&buf);
         tt_der_encode_sequence(&buf, 0x123456, 0);
-        TT_TEST_CHECK_EQUAL(buf.addr[buf.rd_pos + 1], 0x83, "");
-        TT_TEST_CHECK_EQUAL(buf.addr[buf.rd_pos + 2], 0x12, "");
-        TT_TEST_CHECK_EQUAL(buf.addr[buf.rd_pos + 3], 0x34, "");
-        TT_TEST_CHECK_EQUAL(buf.addr[buf.rd_pos + 4], 0x56, "");
+        TT_TEST_CHECK_EQUAL(buf.p[buf.rpos + 1], 0x83, "");
+        TT_TEST_CHECK_EQUAL(buf.p[buf.rpos + 2], 0x12, "");
+        TT_TEST_CHECK_EQUAL(buf.p[buf.rpos + 3], 0x34, "");
+        TT_TEST_CHECK_EQUAL(buf.p[buf.rpos + 4], 0x56, "");
 
         tt_buf_reset_rwp(&buf);
         tt_der_encode_sequence(&buf, 0x12345678, 0);
-        TT_TEST_CHECK_EQUAL(buf.addr[buf.rd_pos + 1], 0x84, "");
-        TT_TEST_CHECK_EQUAL(buf.addr[buf.rd_pos + 2], 0x12, "");
-        TT_TEST_CHECK_EQUAL(buf.addr[buf.rd_pos + 3], 0x34, "");
-        TT_TEST_CHECK_EQUAL(buf.addr[buf.rd_pos + 4], 0x56, "");
-        TT_TEST_CHECK_EQUAL(buf.addr[buf.rd_pos + 5], 0x78, "");
+        TT_TEST_CHECK_EQUAL(buf.p[buf.rpos + 1], 0x84, "");
+        TT_TEST_CHECK_EQUAL(buf.p[buf.rpos + 2], 0x12, "");
+        TT_TEST_CHECK_EQUAL(buf.p[buf.rpos + 3], 0x34, "");
+        TT_TEST_CHECK_EQUAL(buf.p[buf.rpos + 4], 0x56, "");
+        TT_TEST_CHECK_EQUAL(buf.p[buf.rpos + 5], 0x78, "");
     } while (0);
 
     // bit string
     do {
         tt_buf_reset_rwp(&buf);
         tt_der_encode_bitstr(&buf, NULL, 126, 0, 0);
-        TT_TEST_CHECK_EQUAL(buf.addr[buf.rd_pos + 1], 0x7f, "");
+        TT_TEST_CHECK_EQUAL(buf.p[buf.rpos + 1], 0x7f, "");
 
         tt_buf_reset_rwp(&buf);
         tt_der_encode_bitstr(&buf, NULL, 127, 0, 0);
-        TT_TEST_CHECK_EQUAL(buf.addr[buf.rd_pos + 1], 0x81, "");
-        TT_TEST_CHECK_EQUAL(buf.addr[buf.rd_pos + 2], 0x80, "");
+        TT_TEST_CHECK_EQUAL(buf.p[buf.rpos + 1], 0x81, "");
+        TT_TEST_CHECK_EQUAL(buf.p[buf.rpos + 2], 0x80, "");
     } while (0);
 
     // test end

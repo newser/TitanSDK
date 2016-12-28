@@ -199,7 +199,7 @@ tt_result_t tt_rsa_create_number(IN tt_rsa_t *rsa,
         tt_blob_t key_data;
         tt_rsa_attr_t __attr;
 
-        tt_buf_getptr_rpblob(&buf, &key_data);
+        tt_buf_get_rblob(&buf, &key_data);
 
         if (attr == NULL) {
             tt_rsa_attr_default(&__attr);

@@ -291,7 +291,7 @@ TT_TEST_ROUTINE_DEFINE(tt_adns_ut_rr_question)
     st = tt_adns_quest_render(rr, &ds);
     TT_TEST_CHECK_EQUAL(st, TT_SUCCESS, "");
     TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&ds), expect_len, "");
-    TT_TEST_CHECK_EQUAL(tt_memcmp(ds.addr, raw_data, expect_len), 0, "");
+    TT_TEST_CHECK_EQUAL(tt_memcmp(ds.p, raw_data, expect_len), 0, "");
 
     tt_adns_rr_destroy(rr);
 
@@ -356,7 +356,7 @@ TT_TEST_ROUTINE_DEFINE(tt_adns_ut_rr_a_in)
     st = tt_adns_rr_render(rr, &ds);
     TT_TEST_CHECK_EQUAL(st, TT_SUCCESS, "");
     TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&ds), expect_len, "");
-    TT_TEST_CHECK_EQUAL(tt_memcmp(ds.addr, raw_data, expect_len), 0, "");
+    TT_TEST_CHECK_EQUAL(tt_memcmp(ds.p, raw_data, expect_len), 0, "");
 
     tt_adns_rr_destroy(rr);
 
@@ -431,7 +431,7 @@ TT_TEST_ROUTINE_DEFINE(tt_adns_ut_rr_aaaa_in)
     st = tt_adns_rr_render(rr, &ds);
     TT_TEST_CHECK_EQUAL(st, TT_SUCCESS, "");
     TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&ds), expect_len, "");
-    TT_TEST_CHECK_EQUAL(tt_memcmp(ds.addr, raw_data, expect_len), 0, "");
+    TT_TEST_CHECK_EQUAL(tt_memcmp(ds.p, raw_data, expect_len), 0, "");
 
     tt_adns_rr_destroy(rr);
 
@@ -508,7 +508,7 @@ TT_TEST_ROUTINE_DEFINE(tt_adns_ut_rr_cname_in)
     st = tt_adns_rr_render(rr, &ds);
     TT_TEST_CHECK_EQUAL(st, TT_SUCCESS, "");
     TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&ds), expect_len, "");
-    TT_TEST_CHECK_EQUAL(tt_memcmp(ds.addr, raw_data, expect_len), 0, "");
+    TT_TEST_CHECK_EQUAL(tt_memcmp(ds.p, raw_data, expect_len), 0, "");
 
     tt_adns_rr_destroy(rr);
 
@@ -676,12 +676,12 @@ __parse : {
     if (!rendered) {
         TT_TEST_CHECK_EQUAL(tt_adns_pkt_generate(pkt), TT_SUCCESS, "");
 
-        pos = pkt->buf.addr;
+        pos = pkt->buf.p;
         len = TT_BUF_RLEN(&pkt->buf);
 
         // hack
-        pkt->buf.addr = pkt->buf.buf_inline;
-        pkt->buf.size = TT_BUF_INLINE_SIZE;
+        pkt->buf.p = pkt->buf.initbuf;
+        pkt->buf.size = TT_BUF_INIT_SIZE;
         tt_buf_reset_rwp(&pkt->buf);
 
         rendered = TT_TRUE;

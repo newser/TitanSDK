@@ -80,4 +80,13 @@ extern tt_result_t tt_memspg_compress(IN tt_memspg_t *mspg,
                                       IN OUT tt_u32_t *size,
                                       IN tt_u32_t to_size);
 
+extern tt_result_t tt_memspg_compress_range(IN tt_memspg_t *mspg,
+                                            IN OUT tt_u8_t **p,
+                                            IN OUT tt_u32_t *size,
+                                            IN tt_u32_t from,
+                                            IN tt_u32_t to);
+
+// return 0 if exceeding limit
+extern tt_u32_t tt_memspg_next_size(IN tt_memspg_t *mspg, IN tt_u32_t size);
+
 #endif // __TT_MEMORY_SPRING__

@@ -44,8 +44,6 @@
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-tt_u32_t __memspg_next_size(IN tt_memspg_t *mspg, IN tt_u32_t size);
-
 ////////////////////////////////////////////////////////////
 // interface implementation
 ////////////////////////////////////////////////////////////
@@ -77,7 +75,7 @@ tt_result_t tt_memspg_extend_ex(IN tt_memspg_t *mspg,
 
     new_size = *size;
     do {
-        new_size = __memspg_next_size(mspg, new_size);
+        new_size = tt_memspg_next_size(mspg, new_size);
         if (new_size == 0) {
             return TT_FAIL;
         }
@@ -115,7 +113,7 @@ tt_result_t tt_memspg_compress(IN tt_memspg_t *mspg,
     tt_u8_t *new_p = NULL;
 
     TT_ASSERT(*p != NULL);
-    TT_ASSERT(to_size < *size);
+    TT_ASSERT_ALWAYS(to_size < *size);
 
     if (to_size != 0) {
         new_p = tt_malloc(to_size);
@@ -133,7 +131,36 @@ tt_result_t tt_memspg_compress(IN tt_memspg_t *mspg,
     return TT_SUCCESS;
 }
 
-tt_u32_t __memspg_next_size(IN tt_memspg_t *mspg, IN tt_u32_t size)
+tt_result_t tt_memspg_compress_range(IN tt_memspg_t *mspg,
+                                     IN OUT tt_u8_t **p,
+                                     IN OUT tt_u32_t *size,
+                                     IN tt_u32_t from,
+                                     IN tt_u32_t to)
+{
+    tt_u8_t *new_p = NULL;
+    tt_u32_t new_size = to - from;
+
+    TT_ASSERT(*p != NULL);
+    TT_ASSERT_ALWAYS(from <= to);
+    TT_ASSERT_ALWAYS(to <= *size);
+
+    if (new_size != 0) {
+        new_p = tt_malloc(new_size);
+        if (new_p == NULL) {
+            TT_ERROR("no mem to compress");
+            return TT_FAIL;
+        }
+        tt_memcpy(new_p, *p + from, new_size);
+    }
+
+    tt_free(*p);
+    *p = new_p;
+    *size = new_size;
+
+    return TT_SUCCESS;
+}
+
+tt_u32_t tt_memspg_next_size(IN tt_memspg_t *mspg, IN tt_u32_t size)
 {
     tt_u32_t next_size;
 

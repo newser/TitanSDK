@@ -479,8 +479,8 @@ tt_result_t tt_sshctx_kdf(IN tt_sshctx_t *sshctx)
     sign_key_len = tt_ssh_mac_key_len(sshctx->sign_alg);
     verify_key_len = tt_ssh_mac_key_len(sshctx->verify_alg);
 
-    tt_buf_getptr_rpblob(&kex->k, &k_blob);
-    tt_buf_getptr_rpblob(&kex->h, &h_blob);
+    tt_buf_get_rblob(&kex->k, &k_blob);
+    tt_buf_get_rblob(&kex->h, &h_blob);
     result = tt_sshkdf_run(&kdf,
                            &k_blob,
                            &h_blob,

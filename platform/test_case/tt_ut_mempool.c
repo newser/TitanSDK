@@ -583,7 +583,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_ptr_stack)
 }
 #endif
 
-extern tt_u32_t __memspg_next_size(IN tt_memspg_t *mspg, IN tt_u32_t size);
+extern tt_u32_t tt_memspg_next_size(IN tt_memspg_t *mspg, IN tt_u32_t size);
 
 TT_TEST_ROUTINE_DEFINE(tt_unit_test_mem_spg)
 {
@@ -598,40 +598,40 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_mem_spg)
 
     tt_memspg_init(&mspg, 5, 12, 1 << 30);
 
-    size = __memspg_next_size(&mspg, 0);
+    size = tt_memspg_next_size(&mspg, 0);
     TT_TEST_CHECK_EQUAL(size, 5, "");
 
-    size = __memspg_next_size(&mspg, 5);
+    size = tt_memspg_next_size(&mspg, 5);
     TT_TEST_CHECK_EQUAL(size, 10, "");
 
-    size = __memspg_next_size(&mspg, 6);
+    size = tt_memspg_next_size(&mspg, 6);
     TT_TEST_CHECK_EQUAL(size, 12, "");
 
-    size = __memspg_next_size(&mspg, 11);
+    size = tt_memspg_next_size(&mspg, 11);
     TT_TEST_CHECK_EQUAL(size, 22, "");
 
-    size = __memspg_next_size(&mspg, 12);
+    size = tt_memspg_next_size(&mspg, 12);
     TT_TEST_CHECK_EQUAL(size, 24, "");
 
-    size = __memspg_next_size(&mspg, 13);
+    size = tt_memspg_next_size(&mspg, 13);
     TT_TEST_CHECK_EQUAL(size, 25, "");
 
-    size = __memspg_next_size(&mspg, (1 << 30));
+    size = tt_memspg_next_size(&mspg, (1 << 30));
     TT_TEST_CHECK_EQUAL(size, 0, "");
 
-    size = __memspg_next_size(&mspg, ~0);
+    size = tt_memspg_next_size(&mspg, ~0);
     TT_TEST_CHECK_EQUAL(size, 0, "");
 
-    size = __memspg_next_size(&mspg, ~0 - 1);
+    size = tt_memspg_next_size(&mspg, ~0 - 1);
     TT_TEST_CHECK_EQUAL(size, 0, "");
 
     // no max limit
     tt_memspg_init(&mspg, 5, 12, 0);
 
-    size = __memspg_next_size(&mspg, ~0 - 12);
+    size = tt_memspg_next_size(&mspg, ~0 - 12);
     TT_TEST_CHECK_EQUAL(size, ~0, "");
 
-    size = __memspg_next_size(&mspg, ~0 - 11);
+    size = tt_memspg_next_size(&mspg, ~0 - 11);
     TT_TEST_CHECK_EQUAL(size, 0, "");
 
     // expand
@@ -671,10 +671,18 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_mem_spg)
     TT_TEST_CHECK_NOT_EQUAL(p, NULL, "");
     TT_TEST_CHECK_EQUAL(size, 80, "");
 
-    ret = tt_memspg_compress(&mspg, &p, &size, size - 5);
+    for (i = 0; i < 80; ++i) {
+        p[i] = i;
+    }
+    ret = tt_memspg_compress_range(&mspg, &p, &size, 3, 78);
     TT_TEST_CHECK_SUCCESS(ret, "");
     TT_TEST_CHECK_NOT_EQUAL(p, NULL, "");
     TT_TEST_CHECK_EQUAL(size, 75, "");
+    TT_TEST_CHECK_EQUAL(p[0], 3, "");
+    TT_TEST_CHECK_EQUAL(p[1], 4, "");
+    TT_TEST_CHECK_EQUAL(p[20], 23, "");
+    TT_TEST_CHECK_EQUAL(p[50], 53, "");
+    TT_TEST_CHECK_EQUAL(p[74], 77, "");
 
     ret = tt_memspg_compress(&mspg, &p, &size, size - 20);
     TT_TEST_CHECK_SUCCESS(ret, "");
