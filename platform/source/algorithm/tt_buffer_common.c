@@ -44,30 +44,28 @@
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-static tt_result_t __buf_size_align(IN tt_buf_attr_t *attr,
-                                    IN OUT tt_u32_t *new_size);
-
 ////////////////////////////////////////////////////////////
 // interface implementation
 ////////////////////////////////////////////////////////////
 
 void tt_buf_swap(IN tt_buf_t *a, IN tt_buf_t *b)
 {
-    TT_ASSERT(!a->attr.not_copied);
-    TT_ASSERT(!b->attr.not_copied);
+    TT_ASSERT(!a->readonly && !b->readonly);
 
-    TT_SWAP(tt_u8_t *, a->addr, b->addr);
+    TT_SWAP(tt_u8_t *, a->p, b->p);
     TT_SWAP_U32(a->size, b->size);
-    TT_SWAP_U32(a->wr_pos, b->wr_pos);
-    TT_SWAP_U32(a->rd_pos, b->rd_pos);
+    TT_SWAP_U32(a->wpos, b->wpos);
+    TT_SWAP_U32(a->rpos, b->rpos);
+    // mspg is not changed, so it's possible that swapping may
+    // make buf size exceed the max_limit
 
-    if ((a->addr == b->buf_inline) || (b->addr == a->buf_inline)) {
-        tt_swap(a->buf_inline, b->buf_inline, TT_BUF_INLINE_SIZE);
-        if (a->addr == b->buf_inline) {
-            a->addr = a->buf_inline;
+    if ((a->p == b->initbuf) || (b->p == a->initbuf)) {
+        tt_swap(a->initbuf, b->initbuf, TT_BUF_INIT_SIZE);
+        if (a->p == b->initbuf) {
+            a->p = a->initbuf;
         }
-        if (b->addr == a->buf_inline) {
-            b->addr = b->buf_inline;
+        if (b->p == a->initbuf) {
+            b->p = b->initbuf;
         }
     }
 }
@@ -89,56 +87,69 @@ tt_s32_t tt_buf_cmp(IN tt_buf_t *a, IN tt_buf_t *b)
     return tt_memcmp(TT_BUF_RPOS(a), TT_BUF_RPOS(b), a_len);
 }
 
-tt_s32_t tt_buf_cmp_cstr(IN tt_buf_t *a, IN const tt_char_t *b)
+tt_s32_t tt_buf_cmp_cstr(IN tt_buf_t *a, IN const tt_char_t *cstr)
 {
-    tt_u32_t a_len, b_len;
+    tt_u32_t a_len, cstr_len;
 
     a_len = TT_BUF_RLEN(a);
-    b_len = (tt_u32_t)tt_strlen(b);
-    if ((a_len != b_len) || (a_len == 0)) {
-        return (tt_s32_t)(a_len - b_len);
+    cstr_len = (tt_u32_t)tt_strlen(cstr);
+    if ((a_len != cstr_len) || (a_len == 0)) {
+        return (tt_s32_t)(a_len - cstr_len);
     }
 
-    return tt_memcmp(TT_BUF_RPOS(a), b, a_len);
+    return tt_memcmp(TT_BUF_RPOS(a), cstr, a_len);
 }
 
-void tt_buf_remove(IN tt_buf_t *buf, IN tt_u32_t pos)
+void tt_buf_remove(IN tt_buf_t *buf, IN tt_u32_t idx)
 {
-    tt_buf_remove_n(buf, pos, 1);
+    tt_buf_remove_range(buf, idx, idx + 1);
 }
 
-void tt_buf_remove_n(IN tt_buf_t *buf, IN tt_u32_t start, IN tt_u32_t len)
+void tt_buf_remove_range(IN tt_buf_t *buf, IN tt_u32_t from, IN tt_u32_t to)
 {
-    // care overflow...
-    if ((buf->rd_pos + start) >= buf->wr_pos) {
+    tt_u32_t len = TT_BUF_RLEN(buf);
+
+    TT_ASSERT_ALWAYS(from <= to);
+
+    if ((buf->rpos + from) > from) {
+        TT_ERROR("overflow");
         return;
     }
-    if ((buf->rd_pos + start + len) > buf->wr_pos) {
-        len = buf->wr_pos - buf->rd_pos - start;
+
+    if (from >= len) {
+        return;
+    }
+    if (to >= len) {
+        to = len;
     }
 
-    tt_memmove(&buf->addr[buf->rd_pos + start],
-               &buf->addr[buf->rd_pos + start + len],
-               buf->wr_pos - buf->rd_pos - start - len);
-    buf->wr_pos -= len;
+    tt_memmove(&buf->p[buf->rpos + from], &buf->p[buf->rpos + to], len - to);
+    buf->wpos -= (to - from);
 }
 
 tt_result_t tt_buf_insert(IN tt_buf_t *buf,
-                          IN tt_u32_t pos,
+                          IN tt_u32_t idx,
                           IN tt_u8_t *data,
                           IN tt_u32_t data_len)
 {
-    if ((buf->rd_pos + pos) > buf->wr_pos) {
-        TT_ERROR("invalid pos: %u", pos);
+    tt_u32_t len = TT_BUF_RLEN(buf);
+
+    if ((buf->rpos + idx) > idx) {
+        TT_ERROR("overflow");
+        return TT_FAIL;
+    }
+
+    if (idx > len) {
+        TT_ERROR("invalid idx: %u", idx);
         return TT_FAIL;
     }
 
     TT_DO(tt_buf_reserve(buf, data_len));
-    tt_memmove(&buf->addr[buf->rd_pos + pos + data_len],
-               &buf->addr[buf->rd_pos + pos],
-               buf->wr_pos - buf->rd_pos - pos);
-    tt_memcpy(&buf->addr[buf->rd_pos + pos], data, data_len);
-    buf->wr_pos += data_len;
+    tt_memmove(&buf->p[buf->rpos + idx + data_len],
+               &buf->p[buf->rpos + idx],
+               len - idx);
+    tt_memcpy(&buf->p[buf->rpos + idx], data, data_len);
+    buf->wpos += data_len;
 
     return TT_SUCCESS;
 }
@@ -156,9 +167,6 @@ tt_result_t tt_buf_tok(IN tt_buf_t *buf,
     TT_ASSERT(last_len != NULL);
 
     end = TT_BUF_WPOS(buf);
-    if (end == NULL) {
-        return TT_END;
-    }
 
     if (*last != NULL) {
         pos = *last;
@@ -182,7 +190,7 @@ tt_result_t tt_buf_tok(IN tt_buf_t *buf,
         TT_ASSERT_BUF(i <= sep_num);
         if (i < sep_num) {
             TT_ASSERT_BUF(pos >= tstart);
-            if ((pos > tstart) || !(flag & TT_BUFTOK_IGNORE_EMPTY)) {
+            if ((pos > tstart) || !(flag & TT_BUFTOK_NOEMPTY)) {
                 *last = tstart;
                 *last_len = (tt_u32_t)(pos - tstart);
                 return TT_SUCCESS;
@@ -197,7 +205,7 @@ tt_result_t tt_buf_tok(IN tt_buf_t *buf,
 
     TT_ASSERT_BUF(pos == end);
     TT_ASSERT_BUF(pos >= tstart);
-    if ((pos > tstart) || !(flag & TT_BUFTOK_IGNORE_EMPTY)) {
+    if ((pos > tstart) || !(flag & TT_BUFTOK_NOEMPTY)) {
         *last = tstart;
         *last_len = (tt_u32_t)(pos - tstart);
         return TT_SUCCESS;
@@ -210,20 +218,20 @@ void tt_buf_trim_sp(IN tt_buf_t *buf)
     tt_u8_t pos;
 
     // trim head
-    if (buf->rd_pos < buf->wr_pos) {
-        pos = buf->rd_pos;
-        while ((pos < buf->wr_pos) && tt_isspace(buf->addr[pos])) {
+    if (buf->rpos < buf->wpos) {
+        pos = buf->rpos;
+        while ((pos < buf->wpos) && tt_isspace(buf->p[pos])) {
             ++pos;
         }
-        buf->rd_pos = pos;
+        buf->rpos = pos;
     }
 
     // trim tail
-    if (buf->rd_pos < buf->wr_pos) {
-        pos = buf->wr_pos - 1;
-        while ((pos > buf->rd_pos) && tt_isspace(buf->addr[pos])) {
+    if (buf->rpos < buf->wpos) {
+        pos = buf->wpos - 1;
+        while ((pos > buf->rpos) && tt_isspace(buf->p[pos])) {
             --pos;
         }
-        buf->wr_pos = pos + 1;
+        buf->wpos = pos + 1;
     }
 }

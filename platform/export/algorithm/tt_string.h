@@ -42,7 +42,7 @@ this file defines string APIs
     do {                                                                       \
         TT_BUF_CHECK(&(str)->buf);                                             \
         TT_ASSERT(TT_BUF_RLEN(&(str)->buf) > 0);                               \
-        TT_ASSERT((str)->buf.addr[TT_BUF_RLEN(&(str)->buf) - 1] == 0);         \
+        TT_ASSERT((str)->buf.p[TT_BUF_RLEN(&(str)->buf) - 1] == 0);            \
     } while (0)
 
 ////////////////////////////////////////////////////////////

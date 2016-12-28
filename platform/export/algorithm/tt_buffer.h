@@ -28,6 +28,7 @@ this file defines buffer APIs
 // import header files
 ////////////////////////////////////////////////////////////
 
+#include <memory/tt_memory_spring.h>
 #include <misc/tt_util.h>
 
 #include <tt_buffer_native.h>
@@ -37,7 +38,7 @@ this file defines buffer APIs
 ////////////////////////////////////////////////////////////
 
 // should be power of 2
-#define TT_BUF_INLINE_SIZE 16
+#define TT_BUF_INIT_SIZE 16
 
 #define tt_hton16 tt_hton16_ntv
 #define tt_ntoh16 tt_ntoh16_ntv
@@ -55,22 +56,22 @@ this file defines buffer APIs
 #endif
 
 // return pointer to read/write address
-#define TT_BUF_RPOS(buf) TT_PTR_INC(tt_u8_t, (buf)->addr, (buf)->rd_pos)
-#define TT_BUF_RLEN(buf) ((buf)->wr_pos - (buf)->rd_pos)
+#define TT_BUF_RPOS(buf) TT_PTR_INC(tt_u8_t, (buf)->p, (buf)->rpos)
+#define TT_BUF_RLEN(buf) ((buf)->wpos - (buf)->rpos)
 
-#define TT_BUF_WPOS(buf) TT_PTR_INC(tt_u8_t, (buf)->addr, (buf)->wr_pos)
-#define TT_BUF_WLEN(buf) ((buf)->size - (buf)->wr_pos)
+#define TT_BUF_WPOS(buf) TT_PTR_INC(tt_u8_t, (buf)->p, (buf)->wpos)
+#define TT_BUF_WLEN(buf) ((buf)->size - (buf)->wpos)
 
-#define TT_BUF_EPOS(buf) TT_PTR_INC(tt_u8_t, (buf)->addr, (buf)->size)
+#define TT_BUF_EPOS(buf) TT_PTR_INC(tt_u8_t, (buf)->p, (buf)->size)
 
 // size that can be refined
-#define TT_BUF_REFINABLE(buf) ((buf)->rd_pos)
+#define TT_BUF_REFINABLE(buf) ((buf)->rpos)
 
 #define TT_BUF_CHECK(buf)                                                      \
     do {                                                                       \
-        TT_ASSERT((buf)->addr != NULL);                                        \
-        TT_ASSERT((buf)->rd_pos <= (buf)->wr_pos);                             \
-        TT_ASSERT((buf)->wr_pos <= (buf)->size);                               \
+        TT_ASSERT((buf)->p != NULL);                                           \
+        TT_ASSERT((buf)->rpos <= (buf)->wpos);                                 \
+        TT_ASSERT((buf)->wpos <= (buf)->size);                                 \
     } while (0)
 
 ////////////////////////////////////////////////////////////
@@ -79,30 +80,21 @@ this file defines buffer APIs
 
 typedef struct
 {
-    // - if current < (1<<min_order), next size would be directly set
-    //   to (1<<min_order)
-    // - if current > (1<<max_order), next size would current plusing
-    //   (1<<max_order)
-    // - otherwise, next size would be twice as large as current value
-    tt_u32_t min_expand_order;
-    tt_u32_t max_expand_order;
-
-    tt_u32_t max_size_order;
-#define TT_BUF_MAX_SIZE_ORDER (30) // 1G
-
-    tt_bool_t not_copied : 1;
-
+    tt_u32_t min_extend;
+    tt_u32_t max_extend;
+    tt_u32_t max_limit;
 } tt_buf_attr_t;
 
 typedef struct tt_buf_s
 {
-    tt_u8_t *addr;
+    tt_u8_t *p;
     tt_u32_t size;
-    tt_u32_t wr_pos;
-    tt_u32_t rd_pos;
-    tt_u8_t buf_inline[TT_BUF_INLINE_SIZE];
+    tt_memspg_t mspg;
+    tt_u32_t wpos;
+    tt_u32_t rpos;
+    tt_u8_t initbuf[TT_BUF_INIT_SIZE];
 
-    tt_buf_attr_t attr;
+    tt_bool_t readonly : 1;
 } tt_buf_t;
 
 ////////////////////////////////////////////////////////////
@@ -117,10 +109,12 @@ typedef struct tt_buf_s
 extern tt_result_t tt_buf_create(IN tt_buf_t *buf,
                                  IN tt_u32_t size,
                                  IN OPT tt_buf_attr_t *attr);
+
 extern tt_result_t tt_buf_create_copy(IN tt_buf_t *buf,
                                       IN tt_u8_t *data,
                                       IN tt_u32_t data_len,
                                       IN OPT tt_buf_attr_t *attr);
+
 // always success unless attr is invalid
 extern tt_result_t tt_buf_create_nocopy(IN tt_buf_t *buf,
                                         IN const tt_u8_t *data,
@@ -150,93 +144,132 @@ extern tt_result_t tt_buf_set(IN tt_buf_t *buf,
 // memory operation
 // ========================================
 
-// increase size by expand_size
-// set new_size to 0 to let function make decision itself
-extern tt_result_t tt_buf_expand(IN tt_buf_t *buf, IN OPT tt_u32_t expand_size);
+extern tt_result_t __buf_extend(IN tt_buf_t *buf, IN tt_u32_t size);
 
-// set new size to new_size if current size is less than it
-tt_inline tt_result_t tt_buf_resize(IN tt_buf_t *buf, IN tt_u32_t new_size)
+// set size to 0 to expand buf, the buf will determine the new size
+tt_inline tt_result_t tt_buf_reserve(IN tt_buf_t *buf, IN OPT tt_u32_t size)
 {
-    if (new_size <= buf->size) {
-        // to shrink?
+    if ((size != 0) && (TT_BUF_WLEN(buf) >= size)) {
         return TT_SUCCESS;
     }
-
-    return tt_buf_expand(buf, new_size - buf->size);
+    return __buf_extend(buf, buf->size + TT_COND(size != 0, size, 1));
 }
 
-// to make sure the buf has reserve_size available bytes
-extern tt_result_t tt_buf_reserve(IN tt_buf_t *buf, IN tt_u32_t reserve_size);
+tt_inline tt_result_t tt_buf_extend(IN tt_buf_t *buf)
+{
+    return __buf_extend(buf, buf->size + 1);
+}
 
-extern tt_result_t tt_buf_shrink(IN tt_buf_t *buf);
+extern tt_result_t tt_buf_compress(IN tt_buf_t *buf);
 
 // ========================================
 // position operation
 // ========================================
 
-extern void tt_buf_getptr_rp(IN tt_buf_t *buf,
-                             OUT OPT tt_u8_t **p,
-                             OUT OPT tt_u32_t *len);
-
-tt_inline void tt_buf_getptr_rpblob(IN tt_buf_t *buf, OUT tt_blob_t *blob)
+tt_inline void tt_buf_get_rptr(IN tt_buf_t *buf,
+                               OUT OPT tt_u8_t **p,
+                               OUT OPT tt_u32_t *len)
 {
-    tt_buf_getptr_rp(buf, &blob->addr, &blob->len);
+    TT_SAFE_ASSIGN(p, TT_BUF_RPOS(buf));
+    TT_SAFE_ASSIGN(len, TT_BUF_RLEN(buf));
 }
 
-// rd_ptr could be in [buf start, wr_pos)
-extern tt_result_t tt_buf_setptr_rp(IN tt_buf_t *buf, IN tt_u8_t *rd_ptr);
+tt_inline void tt_buf_get_rblob(IN tt_buf_t *buf, OUT tt_blob_t *blob)
+{
+    tt_buf_get_rptr(buf, &blob->addr, &blob->len);
+}
 
-extern tt_result_t tt_buf_inc_rp(IN tt_buf_t *buf, IN tt_u32_t num);
+// rd_ptr could be in [buf start, wpos)
+tt_inline void tt_buf_set_rptr(IN tt_buf_t *buf, IN tt_u8_t *rptr)
+{
+    TT_ASSERT_ALWAYS((rptr >= buf->p) && (rptr <= TT_BUF_WPOS(buf)));
+    buf->rpos = (tt_u32_t)(rptr - buf->p);
+}
 
-extern tt_result_t tt_buf_dec_rp(IN tt_buf_t *buf, IN tt_u32_t num);
+tt_inline tt_result_t tt_buf_inc_rp(IN tt_buf_t *buf, IN tt_u32_t num)
+{
+    if (num <= TT_BUF_RLEN(buf)) {
+        buf->rpos += num;
+        return TT_SUCCESS;
+    } else {
+        return TT_FAIL;
+    }
+}
+
+tt_inline tt_result_t tt_buf_dec_rp(IN tt_buf_t *buf, IN tt_u32_t num)
+{
+    if (num <= buf->rpos) {
+        buf->rpos -= num;
+        return TT_SUCCESS;
+    } else {
+        return TT_FAIL;
+    }
+}
 
 tt_inline void tt_buf_reset_rp(IN tt_buf_t *buf)
 {
-    buf->rd_pos = 0;
+    buf->rpos = 0;
 }
 
-extern void tt_buf_getptr_wp(IN tt_buf_t *buf,
-                             OUT OPT tt_u8_t **p,
-                             OUT OPT tt_u32_t *len);
-
-tt_inline void tt_buf_getptr_wpblob(IN tt_buf_t *buf, OUT tt_blob_t *blob)
+tt_inline void tt_buf_get_wptr(IN tt_buf_t *buf,
+                               OUT OPT tt_u8_t **p,
+                               OUT OPT tt_u32_t *len)
 {
-    tt_buf_getptr_wp(buf, &blob->addr, &blob->len);
+    TT_SAFE_ASSIGN(p, TT_BUF_WPOS(buf));
+    TT_SAFE_ASSIGN(len, TT_BUF_WLEN(buf));
 }
 
-extern tt_result_t tt_buf_setptr_wr(IN tt_buf_t *buf, IN tt_u8_t *wr_ptr);
+tt_inline void tt_buf_get_wblob(IN tt_buf_t *buf, OUT tt_blob_t *blob)
+{
+    tt_buf_get_wptr(buf, &blob->addr, &blob->len);
+}
 
-extern tt_result_t tt_buf_inc_wp(IN tt_buf_t *buf, IN tt_u32_t num);
+tt_inline void tt_buf_set_wptr(IN tt_buf_t *buf, IN tt_u8_t *wptr)
+{
+    TT_ASSERT_ALWAYS((wptr >= TT_BUF_RPOS(buf)) && (wptr <= TT_BUF_EPOS(buf)));
+    buf->wpos = (tt_u32_t)(wptr - buf->p);
+}
 
-extern tt_result_t tt_buf_dec_wp(IN tt_buf_t *buf, IN tt_u32_t num);
+tt_inline tt_result_t tt_buf_inc_wp(IN tt_buf_t *buf, IN tt_u32_t num)
+{
+    if (num <= TT_BUF_WLEN(buf)) {
+        buf->wpos += num;
+        return TT_SUCCESS;
+    } else {
+        return TT_FAIL;
+    }
+}
+
+tt_inline tt_result_t tt_buf_dec_wp(IN tt_buf_t *buf, IN tt_u32_t num)
+{
+    if (num <= TT_BUF_RLEN(buf)) {
+        buf->wpos -= num;
+        return TT_SUCCESS;
+    } else {
+        return TT_FAIL;
+    }
+}
 
 tt_inline void tt_buf_reset_rwp(IN tt_buf_t *buf)
 {
-    // this function should be called at a proper point. if one has
-    // ever passed wr_pos to some other async read calls, and later he
-    // found rd_pos meet wr_pos and do reset_pos() before async io
-    // notification, then the buf status becomes inconsistent when
-    // async io is done: the rd_pos and wr_pos are 0 but data read by
-    // the async read call are put at original wr_pos. so be sure
-    // there is no pending async io when you try to reset pos.
-
-    buf->rd_pos = 0;
-    buf->wr_pos = 0;
+    buf->rpos = 0;
+    buf->wpos = 0;
 }
 
 tt_inline void tt_buf_backup_rwp(IN tt_buf_t *buf,
-                                 OUT tt_u32_t *rd_pos,
-                                 OUT tt_u32_t *wr_pos)
+                                 OUT tt_u32_t *rpos,
+                                 OUT tt_u32_t *wpos)
 {
-    *wr_pos = buf->wr_pos;
-    *rd_pos = buf->rd_pos;
+    *wpos = buf->wpos;
+    *rpos = buf->rpos;
 }
+
 tt_inline void tt_buf_restore_rwp(IN tt_buf_t *buf,
-                                  IN tt_u32_t *rd_pos,
-                                  IN tt_u32_t *wr_pos)
+                                  IN tt_u32_t *rpos,
+                                  IN tt_u32_t *wpos)
 {
-    buf->wr_pos = *wr_pos;
-    buf->rd_pos = *rd_pos;
+    buf->wpos = *wpos;
+    buf->rpos = *rpos;
 }
 
 extern tt_u32_t tt_buf_refine(IN tt_buf_t *buf);
@@ -263,24 +296,22 @@ extern tt_result_t tt_buf_put_rand(IN tt_buf_t *buf, IN tt_u32_t len);
 // note get() return fail when size of data in buf
 // is less than buf_len, rather than putting partial
 // data to the buf
-extern tt_result_t tt_buf_get(IN tt_buf_t *buf,
-                              IN tt_u8_t *addr,
-                              IN tt_u32_t len);
+extern tt_result_t tt_buf_get(IN tt_buf_t *buf, IN tt_u8_t *p, IN tt_u32_t len);
 
-// returned addr is from buf, the pointer is for temporarily usage
+// returned p is from buf, the pointer is for temporarily usage
 // once buf is extended, the pointer becomes a wild pointer
-extern tt_result_t tt_buf_getptr(IN tt_buf_t *buf,
-                                 OUT tt_u8_t **addr,
-                                 IN tt_u32_t len);
+extern tt_result_t tt_buf_get_nocopy(IN tt_buf_t *buf,
+                                     OUT tt_u8_t **p,
+                                     IN tt_u32_t len);
 
-// return number of bytes written to addr, this function won't append the
+// return number of bytes written to p, this function won't append the
 // terminating null
 extern tt_u32_t tt_buf_get_hexstr(IN tt_buf_t *buf,
-                                  OUT OPT tt_char_t *addr,
+                                  OUT OPT tt_char_t *p,
                                   IN OUT tt_u32_t addr_len);
 
 extern tt_result_t tt_buf_peek(IN tt_buf_t *buf,
-                               IN tt_u8_t *addr,
+                               IN tt_u8_t *p,
                                IN tt_u32_t len);
 
 #endif /* __TT_BUFFER__ */

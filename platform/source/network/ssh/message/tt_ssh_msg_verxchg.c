@@ -256,7 +256,7 @@ tt_result_t __verxchg_parse(IN struct tt_sshmsg_s *msg, IN tt_buf_t *data)
     pos = 0;
     end_pos = data_len - 4;
     while (pos <= end_pos) {
-        if (tt_memcmp(&data->addr[pos], "SSH-", 4) == 0) {
+        if (tt_memcmp(&data->p[pos], "SSH-", 4) == 0) {
             break;
         }
         ++pos;
@@ -264,7 +264,7 @@ tt_result_t __verxchg_parse(IN struct tt_sshmsg_s *msg, IN tt_buf_t *data)
     if (pos > end_pos) {
         return TT_COND(data_len < 1000, TT_BUFFER_INCOMPLETE, TT_FAIL);
     }
-    vx_pos = (tt_char_t *)&data->addr[pos];
+    vx_pos = (tt_char_t *)&data->p[pos];
     pos += 4;
 
 #if 0
@@ -272,7 +272,7 @@ tt_result_t __verxchg_parse(IN struct tt_sshmsg_s *msg, IN tt_buf_t *data)
     end_pos = data_len - 2;
     while (pos <= end_pos)
     {
-        if (tt_memcmp(&data->addr[pos], "\r\n", 2) == 0)
+        if (tt_memcmp(&data->p[pos], "\r\n", 2) == 0)
         {
             break;
         }
@@ -282,13 +282,13 @@ tt_result_t __verxchg_parse(IN struct tt_sshmsg_s *msg, IN tt_buf_t *data)
     {
         return TT_COND(data_len < 1000, TT_BUFFER_INCOMPLETE, TT_FAIL);
     }
-    data->addr[pos] = 0;
-    vx_end = (tt_char_t*)&data->addr[pos + 2];
+    data->p[pos] = 0;
+    vx_end = (tt_char_t*)&data->p[pos + 2];
 #else
     // find "\n"
     end_pos = data_len - 1;
     while (pos <= end_pos) {
-        if (data->addr[pos] == '\n') {
+        if (data->p[pos] == '\n') {
             break;
         }
         ++pos;
@@ -296,8 +296,8 @@ tt_result_t __verxchg_parse(IN struct tt_sshmsg_s *msg, IN tt_buf_t *data)
     if (pos > end_pos) {
         return TT_COND(data_len < 1000, TT_BUFFER_INCOMPLETE, TT_FAIL);
     }
-    data->addr[pos] = 0;
-    vx_end = (tt_char_t *)&data->addr[pos + 1];
+    data->p[pos] = 0;
+    vx_end = (tt_char_t *)&data->p[pos + 1];
 #endif
 
     // protocol version
@@ -321,15 +321,15 @@ tt_result_t __verxchg_parse(IN struct tt_sshmsg_s *msg, IN tt_buf_t *data)
     // comments
     // ignored
 
-    tt_buf_setptr_rp(data, (tt_u8_t *)vx_end);
+    tt_buf_set_rptr(data, (tt_u8_t *)vx_end);
     result = TT_SUCCESS;
 
 p_out:
 
 #if 0
-    data->addr[pos] = '\r';
+    data->p[pos] = '\r';
 #else
-    data->addr[pos] = '\n';
+    data->p[pos] = '\n';
 #endif
 
     return result;

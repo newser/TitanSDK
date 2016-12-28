@@ -285,7 +285,7 @@ tt_result_t __def_on_delete(IN tt_cline_t *cline)
 
     // update line
     --cline->cursor;
-    tt_string_remove(line, cline->cursor, 1);
+    tt_string_remove_range(line, cline->cursor, 1);
 
     // update output:
     // delete char left to cursor

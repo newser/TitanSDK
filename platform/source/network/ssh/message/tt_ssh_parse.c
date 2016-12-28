@@ -64,7 +64,7 @@ tt_result_t tt_ssh_string_parse(IN tt_buf_t *buf,
     tt_u32_t len;
 
     TT_DO(tt_buf_get_u32_h(buf, &len));
-    TT_DO(tt_buf_getptr(buf, string_val, len));
+    TT_DO(tt_buf_get_nocopy(buf, string_val, len));
     *string_len = len;
 
     return TT_SUCCESS;

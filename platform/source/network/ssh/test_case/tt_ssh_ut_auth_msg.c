@@ -244,16 +244,16 @@ TT_TEST_CASE("tt_unit_test_sshmsg_usrauthreq_pkey",
 
     i = 0;
     while (i < TT_BUF_RLEN(&msg->buf)) {
-        tt_u8_t bak = msg->buf.addr[msg->buf.rd_pos + i];
+        tt_u8_t bak = msg->buf.p[msg->buf.rpos + i];
 
-        msg->buf.addr[msg->buf.rd_pos + i] = (tt_u8_t)tt_rand_u32();
+        msg->buf.p[msg->buf.rpos + i] = (tt_u8_t)tt_rand_u32();
         tt_buf_backup_rwp(&msg->buf, &rp, &wp);
         ret = tt_sshmsg_parse(&msg->buf, &out_msg);
         tt_buf_restore_rwp(&msg->buf, &rp, &wp);
         if (TT_OK(ret)) {
             tt_sshmsg_release(out_msg);
         }
-        msg->buf.addr[msg->buf.rd_pos + i] = bak;
+        msg->buf.p[msg->buf.rpos + i] = bak;
 
         i += 1;
     }
@@ -371,16 +371,16 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_sshmsg_usrauthreq_pwd)
 
     i = 0;
     while (i < TT_BUF_RLEN(&msg->buf)) {
-        tt_u8_t bak = msg->buf.addr[msg->buf.rd_pos + i];
+        tt_u8_t bak = msg->buf.p[msg->buf.rpos + i];
 
-        msg->buf.addr[msg->buf.rd_pos + i] = (tt_u8_t)tt_rand_u32();
+        msg->buf.p[msg->buf.rpos + i] = (tt_u8_t)tt_rand_u32();
         tt_buf_backup_rwp(&msg->buf, &rp, &wp);
         ret = tt_sshmsg_parse(&msg->buf, &out_msg);
         tt_buf_restore_rwp(&msg->buf, &rp, &wp);
         if (TT_OK(ret)) {
             tt_sshmsg_release(out_msg);
         }
-        msg->buf.addr[msg->buf.rd_pos + i] = bak;
+        msg->buf.p[msg->buf.rpos + i] = bak;
 
         i += 1;
     }
@@ -419,16 +419,16 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_sshmsg_usrauth_success)
 
     i = 0;
     while (i < TT_BUF_RLEN(&msg->buf)) {
-        tt_u8_t bak = msg->buf.addr[msg->buf.rd_pos + i];
+        tt_u8_t bak = msg->buf.p[msg->buf.rpos + i];
 
-        msg->buf.addr[msg->buf.rd_pos + i] = (tt_u8_t)tt_rand_u32();
+        msg->buf.p[msg->buf.rpos + i] = (tt_u8_t)tt_rand_u32();
         tt_buf_backup_rwp(&msg->buf, &rp, &wp);
         ret = tt_sshmsg_parse(&msg->buf, &out_msg);
         tt_buf_restore_rwp(&msg->buf, &rp, &wp);
         if (TT_OK(ret)) {
             tt_sshmsg_release(out_msg);
         }
-        msg->buf.addr[msg->buf.rd_pos + i] = bak;
+        msg->buf.p[msg->buf.rpos + i] = bak;
 
         i += 1;
     }
@@ -485,16 +485,16 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_sshmsg_usrauth_fail)
 
     i = 0;
     while (i < TT_BUF_RLEN(&msg->buf)) {
-        tt_u8_t bak = msg->buf.addr[msg->buf.rd_pos + i];
+        tt_u8_t bak = msg->buf.p[msg->buf.rpos + i];
 
-        msg->buf.addr[msg->buf.rd_pos + i] = (tt_u8_t)tt_rand_u32();
+        msg->buf.p[msg->buf.rpos + i] = (tt_u8_t)tt_rand_u32();
         tt_buf_backup_rwp(&msg->buf, &rp, &wp);
         ret = tt_sshmsg_parse(&msg->buf, &out_msg);
         tt_buf_restore_rwp(&msg->buf, &rp, &wp);
         if (TT_OK(ret)) {
             tt_sshmsg_release(out_msg);
         }
-        msg->buf.addr[msg->buf.rd_pos + i] = bak;
+        msg->buf.p[msg->buf.rpos + i] = bak;
 
         i += 1;
     }
@@ -550,16 +550,16 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_sshmsg_usrauth_banner)
 
     i = 0;
     while (i < TT_BUF_RLEN(&msg->buf)) {
-        tt_u8_t bak = msg->buf.addr[msg->buf.rd_pos + i];
+        tt_u8_t bak = msg->buf.p[msg->buf.rpos + i];
 
-        msg->buf.addr[msg->buf.rd_pos + i] = (tt_u8_t)tt_rand_u32();
+        msg->buf.p[msg->buf.rpos + i] = (tt_u8_t)tt_rand_u32();
         tt_buf_backup_rwp(&msg->buf, &rp, &wp);
         ret = tt_sshmsg_parse(&msg->buf, &out_msg);
         tt_buf_restore_rwp(&msg->buf, &rp, &wp);
         if (TT_OK(ret)) {
             tt_sshmsg_release(out_msg);
         }
-        msg->buf.addr[msg->buf.rd_pos + i] = bak;
+        msg->buf.p[msg->buf.rpos + i] = bak;
 
         i += 1;
     }

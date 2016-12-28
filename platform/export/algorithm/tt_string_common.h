@@ -72,9 +72,9 @@ extern tt_u32_t tt_string_findfrom_c(IN tt_string_t *s,
 
 extern tt_u32_t tt_string_rfind_c(IN tt_string_t *s, IN tt_char_t c);
 
-extern void tt_string_remove(IN tt_string_t *s,
-                             IN tt_u32_t from,
-                             IN tt_u32_t len);
+extern void tt_string_remove_range(IN tt_string_t *s,
+                                   IN tt_u32_t from,
+                                   IN tt_u32_t to);
 
 extern tt_result_t tt_string_append(IN OUT tt_string_t *s,
                                     IN const tt_char_t *substr);

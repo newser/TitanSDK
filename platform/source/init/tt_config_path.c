@@ -125,7 +125,7 @@ tt_result_t tt_cfgpath_n2p(IN OPT tt_cfgnode_t *root,
         return TT_SUCCESS;
     }
 
-    pos = path->wr_pos;
+    pos = path->wpos;
     TT_DO(tt_buf_insert(path,
                         pos,
                         (tt_u8_t *)current->name,

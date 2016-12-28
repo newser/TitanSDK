@@ -320,7 +320,7 @@ tt_bool_t __status_val(IN tt_cfgnode_t *cnode,
         // NAME
         if (cnode == root) {
             len = (tt_u32_t)tt_strlen(cnode->name);
-            TT_DO(tt_buf_put_csubstr(output, cnode->name, len));
+            TT_DO(tt_buf_put_subcstr(output, cnode->name, len));
         } else {
             tt_buf_clear(buf);
             tt_cfgpath_n2p(root, cnode, buf);

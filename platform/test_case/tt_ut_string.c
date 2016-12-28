@@ -505,19 +505,19 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_str_cpswap)
     TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
 
     // test come remove api
-    tt_string_remove(&s, 0, 1);
+    tt_string_remove_range(&s, 0, 1);
     cmp_ret = tt_string_cmp(&s, "");
     TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
 
-    tt_string_remove(&s, 0, 0);
+    tt_string_remove_range(&s, 0, 0);
     cmp_ret = tt_string_cmp(&s, "");
     TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
 
-    tt_string_remove(&s, 100, 1);
+    tt_string_remove_range(&s, 100, 1);
     cmp_ret = tt_string_cmp(&s, "");
     TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
 
-    tt_string_remove(&s, 100, 0);
+    tt_string_remove_range(&s, 100, 0);
     cmp_ret = tt_string_cmp(&s, "");
     TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
 
@@ -555,23 +555,23 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_str_cpswap)
     TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
 
     // test some removing op
-    tt_string_remove(&s, 0, 1);
+    tt_string_remove_range(&s, 0, 1);
     cmp_ret = tt_string_cmp(&s, "234567890abcedf");
     TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
 
-    tt_string_remove(&s, tt_string_len(&s), 1);
+    tt_string_remove_range(&s, tt_string_len(&s), 1);
     cmp_ret = tt_string_cmp(&s, "234567890abcedf");
     TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
 
-    tt_string_remove(&s, 9, 3);
+    tt_string_remove_range(&s, 9, 3);
     cmp_ret = tt_string_cmp(&s, "234567890edf");
     TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
 
-    tt_string_remove(&s, 9, 100);
+    tt_string_remove_range(&s, 9, 100);
     cmp_ret = tt_string_cmp(&s, "234567890");
     TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
 
-    tt_string_remove(&s, 0, 100);
+    tt_string_remove_range(&s, 0, 100);
     cmp_ret = tt_string_cmp(&s, "");
     TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
 

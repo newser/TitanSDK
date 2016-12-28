@@ -88,9 +88,9 @@ tt_adns_pkt_t *tt_adns_pkt_create(IN tt_u16_t __id,
     }
 
     tt_buf_attr_default(&buf_attr);
-    buf_attr.min_expand_order = 9; // 512B
-    buf_attr.max_expand_order = 10; // 1K
-    buf_attr.max_size_order = 16; // 64K
+    buf_attr.min_extend = 9; // 512B
+    buf_attr.max_extend = 10; // 1K
+    buf_attr.max_limit = 16; // 64K
     // 512 -> 1k -> 2k -> 3k, ...
 
     if (!TT_OK(tt_buf_create(&pkt->buf, 0, &buf_attr))) {
@@ -386,7 +386,7 @@ tt_adns_pkt_t *tt_adns_pkt_parse(IN tt_buf_t *buf, IN tt_u32_t parse_flag)
     tt_u16_t nscount;
     tt_u16_t arcount;
 
-    tt_buf_getptr_rpblob(buf, &pkt_data);
+    tt_buf_get_rblob(buf, &pkt_data);
 
     // id
     TT_DO_R(NULL, tt_buf_get_u16_h(buf, &__id));

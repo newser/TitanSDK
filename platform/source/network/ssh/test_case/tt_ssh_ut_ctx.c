@@ -379,7 +379,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_sshkex_dh)
     ret = tt_sshctx_kexdh_load_e(&ctx);
     TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
     pbuf = &ctx.kex->alg_u.kexdh.e;
-    TT_TEST_CHECK_NOT_EQUAL(pbuf->addr, NULL, "");
+    TT_TEST_CHECK_NOT_EQUAL(pbuf->p, NULL, "");
     TT_TEST_CHECK_NOT_EQUAL(TT_BUF_RLEN(pbuf), 0, "");
 
     // set f
@@ -404,7 +404,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_sshkex_dh)
 
         ret = tt_sshctx_kex_calc_h(&ctx);
         TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
-        TT_TEST_CHECK_NOT_EQUAL(ctx.kex->h.addr, NULL, "");
+        TT_TEST_CHECK_NOT_EQUAL(ctx.kex->h.p, NULL, "");
         TT_TEST_CHECK_NOT_EQUAL(TT_BUF_RLEN(&ctx.kex->h), 0, "");
 
         ret = tt_sshctx_load_session_id(&ctx);
@@ -421,7 +421,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_sshkex_dh)
     ret = tt_sshctx_kexdh_load_f(&ctx);
     TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
     pbuf = &ctx.kex->alg_u.kexdh.f;
-    TT_TEST_CHECK_NOT_EQUAL(pbuf->addr, NULL, "");
+    TT_TEST_CHECK_NOT_EQUAL(pbuf->p, NULL, "");
     TT_TEST_CHECK_NOT_EQUAL(TT_BUF_RLEN(pbuf), 0, "");
 
     // set e
@@ -446,7 +446,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_sshkex_dh)
 
         ret = tt_sshctx_kex_calc_h(&ctx);
         TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
-        TT_TEST_CHECK_NOT_EQUAL(ctx.kex->h.addr, NULL, "");
+        TT_TEST_CHECK_NOT_EQUAL(ctx.kex->h.p, NULL, "");
         TT_TEST_CHECK_NOT_EQUAL(TT_BUF_RLEN(&ctx.kex->h), 0, "");
 
         ret = tt_sshctx_load_session_id(&ctx);

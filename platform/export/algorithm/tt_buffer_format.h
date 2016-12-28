@@ -47,7 +47,7 @@ this file defines buffer format APIs
 ////////////////////////////////////////////////////////////
 
 // ========================================
-// u64 operation
+// u64
 // ========================================
 
 tt_inline tt_result_t tt_buf_put_u64(IN tt_buf_t *buf, IN tt_u64_t val_u64)
@@ -81,7 +81,7 @@ tt_inline tt_result_t tt_buf_get_u64_h(IN tt_buf_t *buf, IN tt_u64_t *val_u64)
 }
 
 // ========================================
-// u32 operation
+// u32
 // ========================================
 
 tt_inline tt_result_t tt_buf_put_u32(IN tt_buf_t *buf, IN tt_u32_t val_u32)
@@ -134,7 +134,7 @@ tt_inline tt_result_t tt_buf_peek_u32_h(IN tt_buf_t *buf, IN tt_u32_t *val_u32)
 }
 
 // ========================================
-// u16 operation
+// u16
 // ========================================
 
 tt_inline tt_result_t tt_buf_put_u16(IN tt_buf_t *buf, IN tt_u16_t val_u16)
@@ -168,7 +168,7 @@ tt_inline tt_result_t tt_buf_get_u16_h(IN tt_buf_t *buf, IN tt_u16_t *val_u16)
 }
 
 // ========================================
-// u8 operation
+// u8
 // ========================================
 
 tt_inline tt_result_t tt_buf_put_u8(IN tt_buf_t *buf, IN tt_u8_t val_u8)
@@ -199,7 +199,7 @@ tt_inline tt_result_t tt_buf_put_cstr(IN tt_buf_t *buf,
     return tt_buf_put(buf, (tt_u8_t *)cstr, (tt_u32_t)tt_strlen(cstr));
 }
 
-tt_inline tt_result_t tt_buf_put_csubstr(IN tt_buf_t *buf,
+tt_inline tt_result_t tt_buf_put_subcstr(IN tt_buf_t *buf,
                                          IN const tt_char_t *cstr,
                                          IN tt_u32_t len)
 {

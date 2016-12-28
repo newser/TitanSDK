@@ -164,12 +164,12 @@ tt_result_t tt_cfgnode_describe(IN tt_cfgnode_t *cnode,
             TT_DO(tt_buf_put_rep(output, '?', max_name_len));
         } else {
             TT_DO(tt_buf_put_cstr(output, cnode->name));
-            TT_DO(tt_buf_put_csubstr(output, "/", slash_len));
+            TT_DO(tt_buf_put_subcstr(output, "/", slash_len));
             TT_DO(tt_buf_put_rep(output, ' ', max_name_len - name_len));
         }
     } else {
         TT_DO(tt_buf_put_cstr(output, cnode->name));
-        TT_DO(tt_buf_put_csubstr(output, "/", slash_len));
+        TT_DO(tt_buf_put_subcstr(output, "/", slash_len));
     }
     TT_DO(tt_buf_put_rep(output, ' ', 4));
 

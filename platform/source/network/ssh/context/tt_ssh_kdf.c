@@ -256,7 +256,7 @@ tt_result_t __sshkdf_sha1_n(IN tt_blob_t *k,
     for (i = 1; i < n; ++i) {
         tt_blob_t tail;
 
-        tt_buf_getptr_rpblob(key, &tail);
+        tt_buf_get_rblob(key, &tail);
         result = __sshkdf_sha1_1(k, h, 0, &tail, TT_BUF_WPOS(key));
         if (!TT_OK(result)) {
             return TT_FAIL;

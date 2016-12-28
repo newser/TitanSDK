@@ -179,15 +179,15 @@ void tt_string_clear(IN tt_string_t *str)
 {
     tt_buf_t *buf = &str->buf;
 
-    if (buf->attr.not_copied) {
+    if (buf->readonly) {
         TT_FATAL("not copied string");
         return;
     }
 
     TT_ASSERT_STR(buf->size > 0);
-    buf->rd_pos = 0;
-    buf->wr_pos = 1;
-    buf->addr[0] = 0;
+    buf->rpos = 0;
+    buf->wpos = 1;
+    buf->p[0] = 0;
 }
 
 void tt_string_print(IN tt_string_t *str, IN tt_u32_t flag)

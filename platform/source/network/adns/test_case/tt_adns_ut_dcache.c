@@ -456,7 +456,7 @@ void __ad2_on_recvfrom(IN tt_skt_t *skt,
         tt_adns_pkt_t *resp = __ad2_pkt_proc(pkt, idx);
         if (resp != NULL) {
             tt_blob_t sbuf;
-            tt_buf_getptr_rpblob(&resp->buf, &sbuf);
+            tt_buf_get_rblob(&resp->buf, &sbuf);
             if (sbuf.len > 1)
                 --sbuf.len; // to let tcp send valid result
             if (tt_skt_sendto_async(skt,
