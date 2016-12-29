@@ -15,7 +15,7 @@
  */
 
 /**
-@file tt_list_single_link.h
+@file tt_single_linked_list.h
 @brief simple list
 this file defines apis of simple list data structure.
 */

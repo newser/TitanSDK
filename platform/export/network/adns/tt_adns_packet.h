@@ -29,7 +29,7 @@ this file defines async dns pkt APIs
 ////////////////////////////////////////////////////////////
 
 #include <algorithm/tt_buffer.h>
-#include <algorithm/tt_list_double_link.h>
+#include <algorithm/tt_double_linked_list.h>
 #include <misc/tt_reference_counter.h>
 #include <network/adns/tt_adns_rr.h>
 
@@ -110,28 +110,28 @@ extern void __adns_pkt_destroy(IN tt_adns_pkt_t *pkt);
 tt_inline void tt_adns_pkt_add_question(IN tt_adns_pkt_t *pkt,
                                         IN tt_adns_rr_t *rr)
 {
-    tt_dlist_pushtail(&pkt->question, &rr->node);
+    tt_dlist_push_tail(&pkt->question, &rr->node);
     ++pkt->question_num;
 }
 
 tt_inline void tt_adns_pkt_add_answer(IN tt_adns_pkt_t *pkt,
                                       IN tt_adns_rr_t *rr)
 {
-    tt_dlist_pushtail(&pkt->answer, &rr->node);
+    tt_dlist_push_tail(&pkt->answer, &rr->node);
     ++pkt->answer_num;
 }
 
 tt_inline void tt_adns_pkt_add_authority(IN tt_adns_pkt_t *pkt,
                                          IN tt_adns_rr_t *rr)
 {
-    tt_dlist_pushtail(&pkt->authority, &rr->node);
+    tt_dlist_push_tail(&pkt->authority, &rr->node);
     ++pkt->authority_num;
 }
 
 tt_inline void tt_adns_pkt_add_additional(IN tt_adns_pkt_t *pkt,
                                           IN tt_adns_rr_t *rr)
 {
-    tt_dlist_pushtail(&pkt->additional, &rr->node);
+    tt_dlist_push_tail(&pkt->additional, &rr->node);
     ++pkt->additional_num;
 }
 

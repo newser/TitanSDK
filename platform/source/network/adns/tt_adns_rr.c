@@ -327,11 +327,11 @@ tt_result_t tt_adns_rrlist_copy(IN tt_dlist_t *dst,
                 tt_adns_rrlist_destroy(&tmp_list);
                 return TT_FAIL;
             }
-            tt_dlist_pushtail(&tmp_list, &new_rr->node);
+            tt_dlist_push_tail(&tmp_list, &new_rr->node);
         }
 
         tt_adns_rrlist_clear(dst);
-        tt_dlist_merge(dst, &tmp_list);
+        tt_dlist_move(dst, &tmp_list);
         return TT_SUCCESS;
     } else {
         tt_dnode_t *cur_node = tt_dlist_head(src);
@@ -340,7 +340,7 @@ tt_result_t tt_adns_rrlist_copy(IN tt_dlist_t *dst,
         new_rr = tt_adns_rr_copy(cur_rr);
         if (new_rr != NULL) {
             tt_adns_rrlist_clear(dst);
-            tt_dlist_pushtail(dst, &new_rr->node);
+            tt_dlist_push_tail(dst, &new_rr->node);
             return TT_SUCCESS;
         } else {
             return TT_FAIL;
@@ -354,7 +354,7 @@ void tt_adns_rrlist_destroy(IN tt_dlist_t *rrlist)
 
     TT_ASSERT(rrlist != NULL);
 
-    while ((cur_node = tt_dlist_pophead(rrlist)) != NULL) {
+    while ((cur_node = tt_dlist_pop_head(rrlist)) != NULL) {
         tt_adns_rr_destroy(TT_CONTAINER(cur_node, tt_adns_rr_t, node));
     }
 }
@@ -428,7 +428,7 @@ void tt_adns_rrlist_filter(IN tt_dlist_t *in_rrlist,
         }
 
         tt_dlist_remove(&rr->node);
-        tt_dlist_pushtail(out_rrlist, &rr->node);
+        tt_dlist_push_tail(out_rrlist, &rr->node);
     }
 }
 
