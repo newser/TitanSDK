@@ -28,7 +28,7 @@ this file defines event native common types
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <algorithm/ptr/tt_ptrlist.h>
+#include <algorithm/tt_pointer_list.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
