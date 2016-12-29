@@ -293,7 +293,7 @@ tt_result_t tt_adns_domain_subscribe(IN tt_adns_domain_t *dm,
         dm->rr_set[type] = rrs;
     }
 
-    tt_list_addtail(&rrs->subscriber_q, subscriber);
+    tt_list_push_tail(&rrs->subscriber_q, subscriber);
     return TT_SUCCESS;
 }
 

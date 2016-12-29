@@ -160,7 +160,7 @@ tt_u32_t __restore_node(IN tt_cfgnode_t *cnode)
         }
 
         // remove added children
-        while ((node = tt_list_pophead(&cgrp->new_child)) != NULL) {
+        while ((node = tt_list_pop_head(&cgrp->new_child)) != NULL) {
             tt_cfgnode_destroy(TT_CONTAINER(node, tt_cfgnode_t, node),
                                TT_FALSE);
         }

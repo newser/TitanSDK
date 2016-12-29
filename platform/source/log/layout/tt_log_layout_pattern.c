@@ -260,7 +260,7 @@ tt_result_t __llp_create_field(IN tt_loglyt_patn_t *llp,
 {
     tt_logfld_t *lfld = tt_logfld_create(start, end);
     if (lfld != NULL) {
-        tt_list_addtail(&llp->fields, &lfld->node);
+        tt_list_push_tail(&llp->fields, &lfld->node);
         return TT_SUCCESS;
     } else {
         return TT_FAIL;
@@ -270,7 +270,7 @@ tt_result_t __llp_create_field(IN tt_loglyt_patn_t *llp,
 void __llp_fields_destroy(IN tt_list_t *fields)
 {
     tt_lnode_t *node;
-    while ((node = tt_list_pophead(fields)) != NULL) {
+    while ((node = tt_list_pop_head(fields)) != NULL) {
         tt_logfld_destroy(TT_CONTAINER(node, tt_logfld_t, node));
     }
 }

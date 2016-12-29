@@ -185,7 +185,7 @@ tt_result_t __netif_update(IN tt_netif_t *netif, IN struct ifaddrs *ifa)
             return TT_FAIL;
         }
 
-        tt_list_addtail(&netif->addr_list, &netif_addr->node);
+        tt_list_push_tail(&netif->addr_list, &netif_addr->node);
     }
 
     // update status

@@ -260,12 +260,12 @@ extern void tt_xnode_replace(IN tt_xnode_t *xn, IN tt_xnode_t *with_xn);
 
 tt_inline void tt_xnode_insert_next(IN tt_xnode_t *xn, IN tt_xnode_t *new_xn)
 {
-    tt_list_insert_next(&xn->node, &new_xn->node);
+    tt_list_insert_after(&xn->node, &new_xn->node);
 }
 
 tt_inline void tt_xnode_insert_prev(IN tt_xnode_t *xn, IN tt_xnode_t *new_xn)
 {
-    tt_list_insert_prev(&xn->node, &new_xn->node);
+    tt_list_insert_before(&xn->node, &new_xn->node);
 }
 
 extern tt_xnode_t *tt_xnode_clone(IN tt_xnode_t *xn);

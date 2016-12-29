@@ -169,15 +169,15 @@ tt_result_t tt_cfggrp_add(IN tt_cfgnode_t *cnode, IN tt_cfgnode_t *child)
                 TT_ERROR("duplicate node name");
                 return TT_FAIL;
             } else if (cmp < 0) {
-                tt_list_insert_prev(node, &child->node);
+                tt_list_insert_before(node, &child->node);
                 return TT_SUCCESS;
             }
             // else continue
         }
         if (node != NULL) {
-            tt_list_insert_prev(node, &child->node);
+            tt_list_insert_before(node, &child->node);
         } else {
-            tt_list_addtail(&cgrp->child, &child->node);
+            tt_list_push_tail(&cgrp->child, &child->node);
         }
     } else {
         tt_lnode_t *node;
@@ -191,7 +191,7 @@ tt_result_t tt_cfggrp_add(IN tt_cfgnode_t *cnode, IN tt_cfgnode_t *child)
         }
 
         if (node == NULL) {
-            tt_list_addtail(&cgrp->child, &child->node);
+            tt_list_push_tail(&cgrp->child, &child->node);
             return TT_SUCCESS;
         }
 
@@ -205,12 +205,12 @@ tt_result_t tt_cfggrp_add(IN tt_cfgnode_t *cnode, IN tt_cfgnode_t *child)
                 TT_ERROR("duplicate node name");
                 return TT_FAIL;
             } else if (cmp < 0) {
-                tt_list_insert_prev(node, &child->node);
+                tt_list_insert_before(node, &child->node);
                 return TT_SUCCESS;
             }
             // else continue
         }
-        tt_list_addtail(&cgrp->child, &child->node);
+        tt_list_push_tail(&cgrp->child, &child->node);
     }
 
     return TT_SUCCESS;
@@ -284,7 +284,7 @@ tt_result_t tt_cfggrp_add_child(IN tt_cfgnode_t *cnode,
         return TT_BAD_PARAM;
     }
 
-    tt_list_addtail(&cgrp->new_child, &child->node);
+    tt_list_push_tail(&cgrp->new_child, &child->node);
 
     cnode->modified = TT_TRUE;
 
@@ -358,7 +358,7 @@ tt_result_t tt_cfggrp_commit(IN tt_cfgnode_t *cnode)
     tt_result_t result = TT_SUCCESS;
 
     // add new children
-    while ((node = tt_list_pophead(&cgrp->new_child)) != NULL) {
+    while ((node = tt_list_pop_head(&cgrp->new_child)) != NULL) {
         tt_cfgnode_t *child = TT_CONTAINER(node, tt_cfgnode_t, node);
 
         tt_cfggrp_add(cnode, child);
@@ -403,11 +403,11 @@ void __cgrp_on_destroy(IN tt_cfgnode_t *cnode, IN tt_bool_t committed)
     TT_ASSERT(cnode->node.lst == NULL);
 
     // destroy uncommited first
-    while ((node = tt_list_poptail(&cgrp->new_child)) != NULL) {
+    while ((node = tt_list_pop_tail(&cgrp->new_child)) != NULL) {
         tt_cfgnode_destroy(TT_CONTAINER(node, tt_cfgnode_t, node), TT_FALSE);
     }
 
-    while ((node = tt_list_poptail(&cgrp->child)) != NULL) {
+    while ((node = tt_list_pop_tail(&cgrp->child)) != NULL) {
         tt_cfgnode_destroy(TT_CONTAINER(node, tt_cfgnode_t, node), TT_FALSE);
     }
 }

@@ -499,7 +499,7 @@ __mp_area_t *__mp_expand(IN tt_mempool_t *mp)
     new_area->total_free_size = first_blk->size;
 
     // add area to pool
-    tt_list_addtail(&mp->area_list, &new_area->node);
+    tt_list_push_tail(&mp->area_list, &new_area->node);
 
     return new_area;
 }

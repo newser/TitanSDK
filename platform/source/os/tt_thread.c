@@ -238,7 +238,7 @@ void tt_sleep(IN tt_u32_t millisec)
 tt_result_t __thread_on_create(IN tt_thread_t *thread)
 {
     __LOCK_THREAD_LIST();
-    tt_list_addtail(&tt_s_thread_list, &thread->thread_lst_node);
+    tt_list_push_tail(&tt_s_thread_list, &thread->thread_lst_node);
     __UNLOCK_THREAD_LIST();
 
     return TT_SUCCESS;

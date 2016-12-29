@@ -732,7 +732,7 @@ tt_result_t tt_skt_accept_async_ntv(IN tt_skt_t *listening_skt,
     aio->cb_param = cb_param;
 
     // add request
-    tt_list_addtail(&sys_skt->read_q, &tev->node);
+    tt_list_push_tail(&sys_skt->read_q, &tev->node);
 
     // start epoll if it's head aio
     if ((tt_list_count(&sys_skt->read_q) == 1) &&
@@ -818,7 +818,7 @@ conn_ag:
     aio->cb_param = cb_param;
 
     // add request
-    tt_list_addtail(&sys_skt->write_q, &tev->node);
+    tt_list_push_tail(&sys_skt->write_q, &tev->node);
 
     // start epoll if it's head aio
     if ((tt_list_count(&sys_skt->write_q) == 1) &&
@@ -923,7 +923,7 @@ tt_result_t tt_skt_send_async_ntv(IN tt_skt_t *skt,
     aio->cb_param = cb_param;
 
     // add request
-    tt_list_addtail(&sys_skt->write_q, &tev->node);
+    tt_list_push_tail(&sys_skt->write_q, &tev->node);
 
     // start epoll if it's head aio
     if ((tt_list_count(&sys_skt->write_q) == 1) &&
@@ -1028,7 +1028,7 @@ tt_result_t tt_skt_recv_async_ntv(IN tt_skt_t *skt,
     __SKTAIO_DEBUG_FLAG_SET(aio, 0);
 
     // add request
-    tt_list_addtail(&sys_skt->read_q, &tev->node);
+    tt_list_push_tail(&sys_skt->read_q, &tev->node);
 
     // start epoll if it's head aio
     if (tt_list_count(&sys_skt->read_q) == 1) {
@@ -1149,7 +1149,7 @@ tt_result_t tt_skt_sendto_async_ntv(IN tt_skt_t *skt,
     aio->cb_param = cb_param;
 
     // add request
-    tt_list_addtail(&sys_skt->write_q, &tev->node);
+    tt_list_push_tail(&sys_skt->write_q, &tev->node);
 
     // start epoll if it's head aio
     if ((tt_list_count(&sys_skt->write_q) == 1) &&
@@ -1251,7 +1251,7 @@ tt_result_t tt_skt_recvfrom_async_ntv(IN tt_skt_t *skt,
     aio->cb_param = cb_param;
 
     // add request
-    tt_list_addtail(&sys_skt->read_q, &tev->node);
+    tt_list_push_tail(&sys_skt->read_q, &tev->node);
 
     // start epoll if it's head aio
     if ((tt_list_count(&sys_skt->read_q) == 1) &&
@@ -1447,7 +1447,7 @@ tt_result_t __skt_shutdown_wr(IN tt_skt_t *skt)
     aio->skt = skt;
 
     // add request
-    tt_list_addtail(&sys_skt->write_q, &tev->node);
+    tt_list_push_tail(&sys_skt->write_q, &tev->node);
     sys_skt->wr_closing = TT_TRUE;
 
     // start epoll if it's head aio
@@ -1550,7 +1550,7 @@ tt_result_t __skt_shutdown_rd(IN tt_skt_t *skt)
     aio->skt = skt;
 
     // add request
-    tt_list_addtail(&sys_skt->read_q, &tev->node);
+    tt_list_push_tail(&sys_skt->read_q, &tev->node);
     sys_skt->rd_closing = TT_TRUE;
 
     // start epoll if it's head aio
@@ -2421,7 +2421,8 @@ void __do_skt_aio_q(IN tt_skt_ntv_t *sys_skt,
                 } else {
                     TT_ASSERT_SKTAIO(
                         tt_list_count(&aio->skt->sys_socket.write_q) == 0);
-                    tt_list_addtail(&aio->skt->sys_socket.write_q, &tev->node);
+                    tt_list_push_tail(&aio->skt->sys_socket.write_q,
+                                      &tev->node);
                 }
                 return;
             } break;

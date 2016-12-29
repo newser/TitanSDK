@@ -220,10 +220,10 @@ void *tt_slab_alloc_tag(IN tt_slab_t *slab
     tt_spinlock_acquire(&slab->lock);
 
     // allocate
-    obj = (tt_u8_t *)tt_list_pophead(&slab->free_obj_list);
+    obj = (tt_u8_t *)tt_list_pop_head(&slab->free_obj_list);
     if (obj == NULL) {
         __slab_expand(slab);
-        obj = (tt_u8_t *)tt_list_pophead(&slab->free_obj_list);
+        obj = (tt_u8_t *)tt_list_pop_head(&slab->free_obj_list);
     }
 
     if (obj != NULL) {
@@ -273,7 +273,7 @@ void tt_slab_free(IN void *obj)
 
     // free to slab
     tt_lnode_init((tt_lnode_t *)obj);
-    tt_list_addhead(&slab->free_obj_list, (tt_lnode_t *)obj);
+    tt_list_push_head(&slab->free_obj_list, (tt_lnode_t *)obj);
 
     tt_spinlock_release(&slab->lock);
 }
@@ -321,7 +321,7 @@ tt_result_t __slab_expand(IN tt_slab_t *slab)
     area->parent_slab = slab;
     area->ref_counter = 0;
 
-    tt_list_addtail(&slab->area_list, &area->node);
+    tt_list_push_tail(&slab->area_list, &area->node);
 
     // pass area size, do not use sizeof(__slab_area_t)
     pos = TT_PTR_INC(tt_u8_t, area, tt_s_areadesc_size);
@@ -341,7 +341,7 @@ tt_result_t __slab_expand(IN tt_slab_t *slab)
 
         node = TT_PTR_INC(tt_lnode_t, objtag, sizeof(__slab_objtag_t));
         tt_lnode_init(node);
-        tt_list_addtail(&slab->free_obj_list, node);
+        tt_list_push_tail(&slab->free_obj_list, node);
 
         pos += obj_size;
     }

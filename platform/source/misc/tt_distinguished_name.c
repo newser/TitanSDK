@@ -63,7 +63,7 @@ void tt_distname_destroy(IN tt_distname_t *dn)
 
     TT_ASSERT(dn != NULL);
 
-    while ((node = tt_list_pophead(&dn->rdn_list)) != NULL) {
+    while ((node = tt_list_pop_head(&dn->rdn_list)) != NULL) {
         tt_rdn_t *attr = TT_CONTAINER(node, tt_rdn_t, node);
 
         tt_free(attr);

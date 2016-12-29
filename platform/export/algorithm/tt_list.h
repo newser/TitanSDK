@@ -19,6 +19,16 @@
 @brief list data structure
 
 this file defines list data structure and related operations.
+
+ - push_tail/push_head/pop_tail/pop_head
+ - head/tail
+ - insert_before/insert_after
+ - count/empty
+ - clear
+ - contain/contain_all
+ - find/find_from/find_last
+ - remove(node)/remove_equal
+
 */
 
 #ifndef __TT_LIST__
@@ -28,7 +38,7 @@ this file defines list data structure and related operations.
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <tt_basic_type.h>
+#include <algorithm/tt_compare.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
@@ -48,22 +58,8 @@ typedef struct tt_lnode_s
 {
     __TT_PRIVATE__
 
-    /**
-    @var lst
-    pointer to list which own such node
-    */
     struct tt_list_s *lst;
-
-    /**
-    @var prev
-    previous node
-    */
     struct tt_lnode_s *prev;
-
-    /**
-    @var next
-    next node
-    */
     struct tt_lnode_s *next;
 } tt_lnode_t;
 
@@ -75,23 +71,9 @@ typedef struct tt_list_s
 {
     __TT_PRIVATE__
 
-    /**
-    @var node_num
-    number of nodes in list, 0 if list is empty
-    */
-    tt_u32_t node_num;
-
-    /**
-    @var head
-    head node in list, NULL if list is empty
-    */
     tt_lnode_t *head;
-
-    /**
-    @var tail
-    tail node in list, NULL if list is empty
-    */
     tt_lnode_t *tail;
+    tt_u32_t count;
 } tt_list_t;
 
 ////////////////////////////////////////////////////////////
@@ -146,7 +128,7 @@ extern void tt_lnode_init(IN tt_lnode_t *node);
  */
 tt_inline tt_u32_t tt_list_count(IN tt_list_t *lst)
 {
-    return lst->node_num;
+    return lst->count;
 }
 
 /**
@@ -166,6 +148,8 @@ tt_inline tt_bool_t tt_list_empty(IN tt_list_t *lst)
 {
     return tt_list_count(lst) == 0 ? TT_TRUE : TT_FALSE;
 }
+
+extern void tt_list_clear(IN tt_list_t *lst);
 
 /**
  @def tt_list_head(lst)
@@ -206,7 +190,7 @@ tt_inline tt_lnode_t *tt_list_tail(IN tt_list_t *lst)
 }
 
 /**
-@fn void tt_list_addhead(IN tt_list_t *lst,
+@fn void tt_list_push_head(IN tt_list_t *lst,
                           IN tt_lnode_t *node)
 add a node to the head of the list
 
@@ -216,10 +200,10 @@ add a node to the head of the list
 @return
 void
 */
-extern void tt_list_addhead(IN tt_list_t *lst, IN tt_lnode_t *node);
+extern void tt_list_push_head(IN tt_list_t *lst, IN tt_lnode_t *node);
 
 /**
-@fn void tt_list_addtail(IN tt_list_t *lst,
+@fn void tt_list_push_tail(IN tt_list_t *lst,
                           IN tt_lnode_t *node)
 add a node to the tail of the list
 
@@ -229,48 +213,10 @@ add a node to the tail of the list
 @return
 void
 */
-extern void tt_list_addtail(IN tt_list_t *lst, IN tt_lnode_t *node);
+extern void tt_list_push_tail(IN tt_list_t *lst, IN tt_lnode_t *node);
 
 /**
-@fn void tt_list_insert_prev(IN tt_lnode_t *pos,
-                               IN tt_lnode_t *node)
-insert a node to the list before node pointed by pos
-
-@param [in] pos pointer to a node before which new node would be inserted
-@param [in] node new node would be inserted
-
-@return
-void
-*/
-extern void tt_list_insert_prev(IN tt_lnode_t *pos, IN tt_lnode_t *node);
-
-/**
-@fn void tt_list_insert_next(IN tt_lnode_t *pos,
-                              IN tt_lnode_t *node)
-insert a node to the list after node pointed by pos
-
-@param [in] pos pointer to a node after which new node would be inserted
-@param [in] node new node would be inserted
-
-@return
-void
-*/
-extern void tt_list_insert_next(IN tt_lnode_t *pos, IN tt_lnode_t *node);
-
-/**
-@fn tt_lnode_t* tt_list_remove(IN tt_lnode_t *node)
-remove the node in the list
-
-@param [in] node pointer to a node to be removed
-
-@return
-- the node next to the pos just removed
-- NULL if the pos is the tail
-*/
-extern tt_lnode_t *tt_list_remove(IN tt_lnode_t *node);
-
-/**
-@fn tt_lnode_t* tt_list_pophead(IN tt_list_t *lst)
+@fn tt_lnode_t* tt_list_pop_head(IN tt_list_t *lst)
 pop the head node in the list
 
 @param [in] lst pointer to a tt_list_t
@@ -279,10 +225,10 @@ pop the head node in the list
 - head node if list is not empty
 - NULL otherwise
 */
-extern tt_lnode_t *tt_list_pophead(IN tt_list_t *lst);
+extern tt_lnode_t *tt_list_pop_head(IN tt_list_t *lst);
 
 /**
-@fn tt_lnode_t* tt_list_poptail(IN tt_list_t *lst)
+@fn tt_lnode_t* tt_list_pop_tail(IN tt_list_t *lst)
 pop the tail node in the list
 
 @param [in] lst pointer to a tt_list_t
@@ -291,6 +237,44 @@ pop the tail node in the list
 - tail node if list is not empty
 - NULL otherwise
 */
-extern tt_lnode_t *tt_list_poptail(IN tt_list_t *lst);
+extern tt_lnode_t *tt_list_pop_tail(IN tt_list_t *lst);
+
+/**
+ @fn void tt_list_insert_before(IN tt_lnode_t *pos,
+ IN tt_lnode_t *node)
+ insert a node to the list before node pointed by pos
+
+ @param [in] pos pointer to a node before which new node would be inserted
+ @param [in] node new node would be inserted
+
+ @return
+ void
+ */
+extern void tt_list_insert_before(IN tt_lnode_t *pos, IN tt_lnode_t *node);
+
+/**
+ @fn void tt_list_insert_after(IN tt_lnode_t *pos,
+ IN tt_lnode_t *node)
+ insert a node to the list after node pointed by pos
+
+ @param [in] pos pointer to a node after which new node would be inserted
+ @param [in] node new node would be inserted
+
+ @return
+ void
+ */
+extern void tt_list_insert_after(IN tt_lnode_t *pos, IN tt_lnode_t *node);
+
+/**
+ @fn tt_lnode_t* tt_list_remove(IN tt_lnode_t *node)
+ remove the node in the list
+
+ @param [in] node pointer to a node to be removed
+
+ @return
+ - the node next to the pos just removed
+ - NULL if the pos is the tail
+ */
+extern tt_lnode_t *tt_list_remove(IN tt_lnode_t *node);
 
 #endif /* __TT_LIST__ */

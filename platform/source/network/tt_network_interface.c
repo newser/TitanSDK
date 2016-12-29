@@ -104,7 +104,7 @@ void tt_netif_group_destroy(IN tt_netif_group_t *group)
 
     TT_ASSERT(group != NULL);
 
-    while ((node = tt_list_pophead(&group->netif_list)) != NULL) {
+    while ((node = tt_list_pop_head(&group->netif_list)) != NULL) {
         __netif_destroy(TT_CONTAINER(node, tt_netif_t, node));
     }
 }
@@ -128,7 +128,7 @@ tt_result_t tt_netif_group_add(IN tt_netif_group_t *group,
         return TT_FAIL;
     }
 
-    tt_list_addtail(&group->netif_list, &netif->node);
+    tt_list_push_tail(&group->netif_list, &netif->node);
 
     return TT_SUCCESS;
 }
@@ -246,7 +246,7 @@ void __netif_destroy(IN tt_netif_t *netif)
 
     tt_netif_destroy_ntv(&netif->sys_netif);
 
-    while ((node = tt_list_pophead(&netif->addr_list)) != NULL) {
+    while ((node = tt_list_pop_head(&netif->addr_list)) != NULL) {
         __netif_addr_destroy(TT_CONTAINER(node, tt_netif_addr_t, node));
     }
 

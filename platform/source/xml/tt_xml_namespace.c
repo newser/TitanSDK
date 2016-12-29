@@ -63,7 +63,7 @@ void tt_xmlns_mgr_destroy(IN tt_xmlns_mgr_t *xns_mgr)
 
     TT_ASSERT(xns_mgr != NULL);
 
-    while ((node = tt_list_pophead(&xns_mgr->ns_list)) != NULL) {
+    while ((node = tt_list_pop_head(&xns_mgr->ns_list)) != NULL) {
         tt_xmlns_destroy(TT_CONTAINER(node, tt_xmlns_t, node));
     }
 }
@@ -74,7 +74,7 @@ void tt_xmlns_mgr_reset(IN tt_xmlns_mgr_t *xns_mgr)
 
     TT_ASSERT(xns_mgr != NULL);
 
-    while ((node = tt_list_pophead(&xns_mgr->ns_list)) != NULL) {
+    while ((node = tt_list_pop_head(&xns_mgr->ns_list)) != NULL) {
         tt_xmlns_destroy(TT_CONTAINER(node, tt_xmlns_t, node));
     }
 }

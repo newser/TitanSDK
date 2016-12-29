@@ -606,9 +606,9 @@ __ssl_accept_t *__ssl_accept_pop(IN tt_skt_ntv_t *sys_skt)
     TT_ASSERT_SSL(sys_skt->ssl_want_rd || sys_skt->ssl_want_wr);
 
     if (sys_skt->ssl_want_rd) {
-        node = tt_list_pophead(&sys_skt->read_q);
+        node = tt_list_pop_head(&sys_skt->read_q);
     } else {
-        node = tt_list_pophead(&sys_skt->write_q);
+        node = tt_list_pop_head(&sys_skt->write_q);
     }
     TT_ASSERT_SSL(node != NULL);
 
@@ -714,7 +714,7 @@ tt_result_t __ssl_accept_io(IN __ssl_accept_t *aio, IN tt_skt_ntv_t *sys_skt)
         int err = SSL_get_error(ssl, ret);
         switch (err) {
             case SSL_ERROR_WANT_READ: {
-                tt_list_addhead(&sys_skt->read_q, &tev->node);
+                tt_list_push_head(&sys_skt->read_q, &tev->node);
                 sys_skt->ssl_want_rd = TT_TRUE;
                 sys_skt->ssl_want_wr = TT_FALSE;
 
@@ -722,7 +722,7 @@ tt_result_t __ssl_accept_io(IN __ssl_accept_t *aio, IN tt_skt_ntv_t *sys_skt)
                 return TT_PROCEEDING;
             } break;
             case SSL_ERROR_WANT_WRITE: {
-                tt_list_addhead(&sys_skt->write_q, &tev->node);
+                tt_list_push_head(&sys_skt->write_q, &tev->node);
                 sys_skt->ssl_want_rd = TT_FALSE;
                 sys_skt->ssl_want_wr = TT_TRUE;
 
@@ -799,9 +799,9 @@ __ssl_connect_t *__ssl_connect_pop(IN tt_skt_ntv_t *sys_skt)
     TT_ASSERT_SSL(sys_skt->ssl_want_rd || sys_skt->ssl_want_wr);
 
     if (sys_skt->ssl_want_rd) {
-        node = tt_list_pophead(&sys_skt->read_q);
+        node = tt_list_pop_head(&sys_skt->read_q);
     } else {
-        node = tt_list_pophead(&sys_skt->write_q);
+        node = tt_list_pop_head(&sys_skt->write_q);
     }
     TT_ASSERT_SSL(node != NULL);
 
@@ -887,7 +887,7 @@ tt_result_t __ssl_connect_io(IN __ssl_connect_t *aio, IN tt_skt_ntv_t *sys_skt)
         int err = SSL_get_error(ssl, ret);
         switch (err) {
             case SSL_ERROR_WANT_READ: {
-                tt_list_addhead(&sys_skt->read_q, &tev->node);
+                tt_list_push_head(&sys_skt->read_q, &tev->node);
                 sys_skt->ssl_want_rd = TT_TRUE;
                 sys_skt->ssl_want_wr = TT_FALSE;
 
@@ -895,7 +895,7 @@ tt_result_t __ssl_connect_io(IN __ssl_connect_t *aio, IN tt_skt_ntv_t *sys_skt)
                 return TT_PROCEEDING;
             } break;
             case SSL_ERROR_WANT_WRITE: {
-                tt_list_addhead(&sys_skt->write_q, &tev->node);
+                tt_list_push_head(&sys_skt->write_q, &tev->node);
                 sys_skt->ssl_want_rd = TT_FALSE;
                 sys_skt->ssl_want_wr = TT_TRUE;
 

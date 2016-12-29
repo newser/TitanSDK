@@ -640,7 +640,7 @@ void __ssl_on_accept(IN tt_skt_t *listening_skt,
 
     // start ssl handshake
 
-    tt_list_addhead(&new_sys_skt->read_q, &tev->node);
+    tt_list_push_head(&new_sys_skt->read_q, &tev->node);
     new_sys_skt->ssl_rd_handshaking = TT_TRUE;
     new_sys_skt->ssl_wr_handshaking = TT_TRUE;
 
@@ -754,7 +754,7 @@ void __ssl_on_connect(IN tt_skt_t *skt,
 
     // start ssl handshake
 
-    tt_list_addhead(&sys_skt->read_q, &tev->node);
+    tt_list_push_head(&sys_skt->read_q, &tev->node);
     sys_skt->ssl_rd_handshaking = TT_TRUE;
     sys_skt->ssl_wr_handshaking = TT_TRUE;
 

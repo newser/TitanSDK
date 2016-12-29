@@ -192,9 +192,9 @@ void tt_xmlnp_destroy(IN tt_xmlnp_t *xnp)
     tt_xmlparser_destroy(&xnp->xp);
 
     // the namespaces does not belong to xnp
-    while ((node = tt_list_pophead(&xnp->ns)) != NULL)
+    while ((node = tt_list_pop_head(&xnp->ns)) != NULL)
         ;
-    while ((node = tt_list_pophead(&xnp->def_ns)) != NULL)
+    while ((node = tt_list_pop_head(&xnp->def_ns)) != NULL)
         ;
 
     tt_ptrstack_destroy(&xnp->xnode);
@@ -240,9 +240,9 @@ void tt_xmlnp_reset(IN tt_xmlnp_t *xnp, IN tt_u32_t flag)
 
     tt_xmlparser_reset(&xnp->xp, flag);
 
-    while ((node = tt_list_pophead(&xnp->ns)) != NULL)
+    while ((node = tt_list_pop_head(&xnp->ns)) != NULL)
         ;
-    while ((node = tt_list_pophead(&xnp->def_ns)) != NULL)
+    while ((node = tt_list_pop_head(&xnp->def_ns)) != NULL)
         ;
 
     tt_ptrstack_clear(&xnp->xnode);
@@ -695,7 +695,7 @@ void __parse_prefix_name(IN const tt_char_t *value,
 
 void __push_ns(IN tt_xmlnp_t *xnp, IN tt_xmlns_t *xns)
 {
-    tt_list_addtail(&xnp->ns, &xns->u.parse_node);
+    tt_list_push_tail(&xnp->ns, &xns->u.parse_node);
 }
 
 tt_xmlns_t *__find_ns(IN tt_xmlnp_t *xnp, IN tt_blob_t *prefix)
@@ -717,7 +717,7 @@ tt_xmlns_t *__find_ns(IN tt_xmlnp_t *xnp, IN tt_blob_t *prefix)
 
 void __push_def_ns(IN tt_xmlnp_t *xnp, IN tt_xmlns_t *xns)
 {
-    tt_list_addtail(&xnp->def_ns, &xns->u.parse_node);
+    tt_list_push_tail(&xnp->def_ns, &xns->u.parse_node);
 }
 
 tt_xmlns_t *__top_def_ns(IN tt_xmlnp_t *xnp)

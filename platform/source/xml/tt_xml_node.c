@@ -367,7 +367,7 @@ tt_result_t tt_xnode_addhead_child(IN tt_xnode_t *xn, IN tt_xnode_t *child)
     }
     xelmt = TT_XNODE_CAST(xn, tt_xnode_elmt_t);
 
-    tt_list_addhead(&xelmt->child, &child->node);
+    tt_list_push_head(&xelmt->child, &child->node);
     return TT_SUCCESS;
 }
 
@@ -381,7 +381,7 @@ tt_result_t tt_xnode_addtail_child(IN tt_xnode_t *xn, IN tt_xnode_t *child)
     }
     xelmt = TT_XNODE_CAST(xn, tt_xnode_elmt_t);
 
-    tt_list_addtail(&xelmt->child, &child->node);
+    tt_list_push_tail(&xelmt->child, &child->node);
     return TT_SUCCESS;
 }
 
@@ -395,7 +395,7 @@ tt_result_t tt_xnode_addhead_attr(IN tt_xnode_t *xn, IN tt_xnode_t *attr)
     }
     xelmt = TT_XNODE_CAST(xn, tt_xnode_elmt_t);
 
-    tt_list_addhead(&xelmt->attr, &attr->node);
+    tt_list_push_head(&xelmt->attr, &attr->node);
     return TT_SUCCESS;
 }
 
@@ -409,7 +409,7 @@ tt_result_t tt_xnode_addtail_attr(IN tt_xnode_t *xn, IN tt_xnode_t *attr)
     }
     xelmt = TT_XNODE_CAST(xn, tt_xnode_elmt_t);
 
-    tt_list_addtail(&xelmt->attr, &attr->node);
+    tt_list_push_tail(&xelmt->attr, &attr->node);
     return TT_SUCCESS;
 }
 
@@ -581,7 +581,7 @@ tt_xnode_t *tt_xnode_remove_attr(IN tt_xnode_t *xn,
 
 void tt_xnode_replace(IN tt_xnode_t *xn, IN tt_xnode_t *with_xn)
 {
-    tt_list_insert_next(&xn->node, &with_xn->node);
+    tt_list_insert_after(&xn->node, &with_xn->node);
     tt_list_remove(&xn->node);
 }
 

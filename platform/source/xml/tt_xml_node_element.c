@@ -114,12 +114,12 @@ void __xnelmt_destroy(IN struct tt_xnode_s *xn)
     tt_lnode_t *node;
 
     list = &xnelmt->child;
-    while ((node = tt_list_pophead(list)) != NULL) {
+    while ((node = tt_list_pop_head(list)) != NULL) {
         tt_xnode_destroy(TT_CONTAINER(node, tt_xnode_t, node));
     }
 
     list = &xnelmt->attr;
-    while ((node = tt_list_pophead(list)) != NULL) {
+    while ((node = tt_list_pop_head(list)) != NULL) {
         tt_xnode_destroy(TT_CONTAINER(node, tt_xnode_t, node));
     }
 }

@@ -563,7 +563,7 @@ void __copy_dm_name(IN tt_char_t *dst, IN const tt_char_t *src, IN tt_u32_t len)
 void __adns_rrs_notify(IN tt_adns_rrset_t *rrs)
 {
     tt_lnode_t *node;
-    while ((node = tt_list_pophead(&rrs->subscriber_q)) != NULL) {
+    while ((node = tt_list_pop_head(&rrs->subscriber_q)) != NULL) {
         tt_ev_t *ev = TT_EV_OF(TT_CONTAINER(node, tt_thread_ev_t, node));
         __admgr_query_req_t *req = TT_EV_DATA(ev, __admgr_query_req_t);
         tt_adns_qryctx_t *qryctx = &req->qryctx;
@@ -591,7 +591,7 @@ void __adns_rrs_notify(IN tt_adns_rrset_t *rrs)
 void __adns_rrs_unsubscribe(IN tt_adns_rrset_t *rrs)
 {
     tt_lnode_t *node;
-    while ((node = tt_list_pophead(&rrs->subscriber_q)) != NULL) {
+    while ((node = tt_list_pop_head(&rrs->subscriber_q)) != NULL) {
         tt_ev_t *ev = TT_EV_OF(TT_CONTAINER(node, tt_thread_ev_t, node));
         __admgr_query_req_t *req = TT_EV_DATA(ev, __admgr_query_req_t);
         TT_ASSERT(req->type == rrs->type);
