@@ -15,20 +15,22 @@
  */
 
 /**
-@file tt_quick_sort.h
-@brief quick sort algorithm
+ @file tt_sort.h
+ @brief sort
 
-this file defines quick sort algorithm APIs
-*/
+ this file sort definitions
+ */
 
-#ifndef __TT_QUICK_SORT__
-#define __TT_QUICK_SORT__
+#ifndef __TT_SORT__
+#define __TT_SORT__
 
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
 #include <algorithm/tt_compare.h>
+
+#include <tt_cstd_api.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
@@ -46,24 +48,13 @@ this file defines quick sort algorithm APIs
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-/**
-@fn void tt_qsort(IN void *base,
-                       IN tt_u32_t num,
-                       IN tt_u32_t width,
-                       IN tt_cmp_t cmp)
-sort a element array
+tt_inline void tt_qsort(IN void *p,
+                        IN tt_u32_t obj_num,
+                        IN tt_u32_t obj_width,
+                        IN tt_cmp_t cmp)
+{
+    typedef int (*compar_t)(const void *, const void *);
+    qsort(p, obj_num, obj_width, (compar_t)cmp);
+}
 
-@param [in] base start address of element
-@param [in] num number of elements
-@param [in] width size in bytes of an element
-@param [in] cmp the cmp
-
-@return
-void
-*/
-extern void tt_qsort(IN void *base,
-                     IN tt_u32_t num,
-                     IN tt_u32_t width,
-                     IN tt_cmp_t cmp);
-
-#endif /* __TT_QUICK_SORT__ */
+#endif /* __TT_SORT__ */

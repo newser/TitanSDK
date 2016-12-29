@@ -35,7 +35,6 @@ extern "C" {
 #include <algorithm/ptr/tt_ptr_heap.h>
 #include <algorithm/ptr/tt_ptr_vector.h>
 #include <algorithm/tt_algorithm_def.h>
-#include <algorithm/tt_algorithm_def.h>
 #include <algorithm/tt_binary_search.h>
 #include <algorithm/tt_buffer.h>
 #include <algorithm/tt_buffer_common.h>
@@ -45,11 +44,11 @@ extern "C" {
 #include <algorithm/tt_hash_map.h>
 #include <algorithm/tt_list.h>
 #include <algorithm/tt_pointer_list.h>
-#include <algorithm/tt_quick_sort.h>
 #include <algorithm/tt_rand.h>
 #include <algorithm/tt_rand_xorshift.h>
 #include <algorithm/tt_red_black_tree.h>
 #include <algorithm/tt_single_linked_list.h>
+#include <algorithm/tt_sort.h>
 #include <algorithm/tt_stack.h>
 #include <algorithm/tt_string.h>
 #include <algorithm/tt_string_common.h>

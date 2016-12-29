@@ -11,8 +11,8 @@ extern "C" {
 #include <algorithm/tt_binary_search.h>
 #include <algorithm/tt_hash_map.h>
 #include <algorithm/tt_list.h>
-#include <algorithm/tt_quick_sort.h>
 #include <algorithm/tt_red_black_tree.h>
+#include <algorithm/tt_sort.h>
 #include <algorithm/tt_stack.h>
 #include <log/tt_log.h>
 #include <memory/tt_memory_alloc.h>
@@ -273,6 +273,19 @@ TT_TEST_CASE("tt_unit_test_basic_alg_qsort",
     TT_TEST_CASE_LEAVE()
 }
 
+static int c_cmp(const void *l, const void *r)
+{
+    tt_u32_t lv = *((tt_u32_t *)l);
+    tt_u32_t rv = *((tt_u32_t *)r);
+
+    if (lv < rv)
+        return -1;
+    else if (lv == rv)
+        return 0;
+    else
+        return 1;
+}
+
 TT_TEST_ROUTINE_DEFINE(tt_unit_test_basic_alg_qsort_random)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
@@ -298,11 +311,14 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_basic_alg_qsort_random)
 
         // use qsort
         tt_qsort(test_array1, array_len, sizeof(tt_u32_t), test_comparer);
-        __short_sort(test_array2, array_len, sizeof(tt_u32_t), test_comparer);
+        tt_c_qsort(test_array2, array_len, sizeof(tt_u32_t), c_cmp);
 
         // should got same result
         for (index = 0; index < array_len; ++index) {
             TT_TEST_CHECK_EQUAL(test_array1[index], test_array2[index], "");
+        }
+        for (index = 0; index < array_len - 1; ++index) {
+            TT_TEST_CHECK_EXP(test_array1[index] <= test_array1[index + 1], "");
         }
 
         ++test;
