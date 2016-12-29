@@ -46,8 +46,8 @@ extern "C" {
 #include <algorithm/tt_list.h>
 #include <algorithm/tt_pointer_list.h>
 #include <algorithm/tt_quick_sort.h>
-#include <algorithm/tt_rand.h>
-#include <algorithm/tt_rand_xorshift.h>
+#include <algorithm/tt_rng.h>
+#include <algorithm/tt_rng_xorshift.h>
 #include <algorithm/tt_red_black_tree.h>
 #include <algorithm/tt_single_linked_list.h>
 #include <algorithm/tt_stack.h>
