@@ -339,7 +339,7 @@ conn_ag:
     aio->cb_param = cb_param;
 
     // add request
-    tt_list_addtail(&sys_ipc->write_q, &tev->node);
+    tt_list_push_tail(&sys_ipc->write_q, &tev->node);
 
     // start kqueue if it's head aio
     if ((tt_list_count(&sys_ipc->write_q) == 1) &&
@@ -406,7 +406,7 @@ tt_result_t tt_ipc_accept_async_ntv(IN tt_ipc_ntv_t *sys_ipc,
     aio->cb_param = cb_param;
 
     // add request
-    tt_list_addtail(&sys_ipc->read_q, &tev->node);
+    tt_list_push_tail(&sys_ipc->read_q, &tev->node);
 
     // start kqueue if it's head aio
     if ((tt_list_count(&sys_ipc->read_q) == 1) &&
@@ -464,7 +464,7 @@ tt_result_t tt_ipc_send_async_ntv(IN tt_ipc_ntv_t *sys_ipc,
     aio->cb_param = cb_param;
 
     // add request
-    tt_list_addtail(&sys_ipc->write_q, &tev->node);
+    tt_list_push_tail(&sys_ipc->write_q, &tev->node);
 
     // start kqueue if it's head aio
     if ((tt_list_count(&sys_ipc->write_q) == 1) &&
@@ -521,7 +521,7 @@ tt_result_t tt_ipc_recv_async_ntv(IN tt_ipc_ntv_t *sys_ipc,
     aio->cb_param = cb_param;
 
     // add request
-    tt_list_addtail(&sys_ipc->read_q, &tev->node);
+    tt_list_push_tail(&sys_ipc->read_q, &tev->node);
 
     // start kqueue if it's head aio
     if ((tt_list_count(&sys_ipc->read_q) == 1) &&

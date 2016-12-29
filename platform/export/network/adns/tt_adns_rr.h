@@ -28,7 +28,7 @@ this file defines async dns resource record
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <algorithm/tt_list_double_link.h>
+#include <algorithm/tt_double_linked_list.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition

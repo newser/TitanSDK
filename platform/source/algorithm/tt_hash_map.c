@@ -59,7 +59,7 @@ static tt_hnode_t *__la_find(IN tt_hslot_t *hslot,
                              IN tt_u32_t key_len,
                              IN tt_hnode_t *cur_lst_node);
 static void __la_foreach(IN tt_hslot_t *hslot,
-                         IN tt_hnode_action_t action,
+                         IN tt_hnode_do_t action,
                          IN void *param);
 static tt_hashmap_itf_t __s_la_itf = {__la_create,
                                       __la_destroy,
@@ -77,12 +77,12 @@ static void __load_hslot_op(IN tt_hashmap_t *hmap,
                             IN tt_hslot_type_t hslot_type);
 
 // hash functions
-static tt_hashval_t __hash_murmur3(IN const tt_u8_t *key,
-                                   IN tt_u32_t key_len,
-                                   IN tt_hashctx_t *hctx);
-static tt_hashval_t __hash_fnv1a(IN const tt_u8_t *key,
-                                 IN tt_u32_t key_len,
-                                 IN tt_hashctx_t *hctx);
+static tt_hashcode_t __hash_murmur3(IN const tt_u8_t *key,
+                                    IN tt_u32_t key_len,
+                                    IN tt_hashctx_t *hctx);
+static tt_hashcode_t __hash_fnv1a(IN const tt_u8_t *key,
+                                  IN tt_u32_t key_len,
+                                  IN tt_hashctx_t *hctx);
 
 ////////////////////////////////////////////////////////////
 // interface implementation
@@ -111,13 +111,13 @@ tt_result_t tt_hashmap_create(IN tt_hashmap_t *hmap,
     }
 
     switch (hmap->attr.hashalg) {
-        case TT_HASHALG_MURMUR3: {
+        case TT_HASHFUNC_MURMUR3: {
             hmap->hash = __hash_murmur3;
             hmap->hashctx.seed = tt_rand_u32();
             // although tt_rand_u32() is not applicable out of
             // ts thread
         } break;
-        case TT_HASHALG_FNV1A: {
+        case TT_HASHFUNC_FNV1A: {
             hmap->hash = __hash_fnv1a;
             hmap->hashctx.seed = tt_rand_u32();
             // although tt_rand_u32() is not applicable out of
@@ -139,7 +139,7 @@ void tt_hashmap_attr_default(IN tt_hashmap_attr_t *attr)
 {
     TT_ASSERT(attr != NULL);
 
-    attr->hashalg = TT_HASHALG_MURMUR3;
+    attr->hashalg = TT_HASHFUNC_MURMUR3;
 
     attr->hslot_type = TT_HSLOT_TYPE_LIST_ARRAY;
 }
@@ -166,9 +166,9 @@ void __load_hslot_op(IN tt_hashmap_t *hmap, IN tt_hslot_type_t hslot_type)
 // hash functions
 // ========================================
 
-tt_hashval_t __hash_murmur3(IN const tt_u8_t *key,
-                            IN tt_u32_t key_len,
-                            IN tt_hashctx_t *hctx)
+tt_hashcode_t __hash_murmur3(IN const tt_u8_t *key,
+                             IN tt_u32_t key_len,
+                             IN tt_hashctx_t *hctx)
 {
     static const tt_u32_t c1 = 0xcc9e2d51;
     static const tt_u32_t c2 = 0x1b873593;
@@ -223,13 +223,13 @@ tt_hashval_t __hash_murmur3(IN const tt_u8_t *key,
     return hash;
 }
 
-tt_hashval_t __hash_fnv1a(IN const tt_u8_t *key,
-                          IN tt_u32_t key_len,
-                          IN tt_hashctx_t *hctx)
+tt_hashcode_t __hash_fnv1a(IN const tt_u8_t *key,
+                           IN tt_u32_t key_len,
+                           IN tt_hashctx_t *hctx)
 {
     tt_u8_t *bp = (tt_u8_t *)key;
     tt_u8_t *be = TT_PTR_INC(tt_u8_t, key, key_len);
-    tt_hashval_t hval = hctx->seed;
+    tt_hashcode_t hval = hctx->seed;
 
     while (bp < be) {
         hval ^= (tt_u32_t)(*bp++);
@@ -306,7 +306,7 @@ tt_result_t __la_add(IN tt_hslot_t *hslot, IN tt_hnode_t *node)
     tt_hashmap_t *hmap = TT_CONTAINER(hslot, tt_hashmap_t, hslot);
     const tt_u8_t *key = NULL;
     tt_u32_t key_len = 0;
-    tt_hashval_t hval = 0;
+    tt_hashcode_t hval = 0;
     tt_list_t *list = NULL;
 
     // get key
@@ -322,7 +322,7 @@ tt_result_t __la_add(IN tt_hslot_t *hslot, IN tt_hnode_t *node)
 
     // add to slot
     tt_lnode_init(&node->list_node);
-    tt_list_addhead(list, &node->list_node);
+    tt_list_push_head(list, &node->list_node);
 
     return TT_SUCCESS;
 }
@@ -334,7 +334,7 @@ tt_result_t __la_adduniq(IN tt_hslot_t *hslot,
     tt_hashmap_t *hmap = TT_CONTAINER(hslot, tt_hashmap_t, hslot);
     const tt_u8_t *key = NULL;
     tt_u32_t key_len = 0;
-    tt_hashval_t hval = 0;
+    tt_hashcode_t hval = 0;
     tt_list_t *list = NULL;
 
     tt_hnode2key_t hnode2key = hmap->hnode2key;
@@ -383,7 +383,7 @@ tt_result_t __la_adduniq(IN tt_hslot_t *hslot,
 
     // add to slot
     tt_lnode_init(&node->list_node);
-    tt_list_addhead(list, &node->list_node);
+    tt_list_push_head(list, &node->list_node);
 
     return TT_SUCCESS;
 }
@@ -400,7 +400,7 @@ tt_hnode_t *__la_find(IN tt_hslot_t *hslot,
                       IN tt_hnode_t *cur_node)
 {
     tt_hashmap_t *hmap = TT_CONTAINER(hslot, tt_hashmap_t, hslot);
-    tt_hashval_t hval = 0;
+    tt_hashcode_t hval = 0;
     tt_list_t *list = NULL;
     tt_hnode2key_t hnode2key = NULL;
     tt_lnode_t *cur_lst_node = NULL;
@@ -452,9 +452,7 @@ tt_hnode_t *__la_find(IN tt_hslot_t *hslot,
     }
 }
 
-void __la_foreach(IN tt_hslot_t *hslot,
-                  IN tt_hnode_action_t action,
-                  IN void *param)
+void __la_foreach(IN tt_hslot_t *hslot, IN tt_hnode_do_t action, IN void *param)
 {
     tt_hslot_list_array_t *lbi = &hslot->list_array;
     tt_u32_t l_idx;

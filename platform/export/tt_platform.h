@@ -41,15 +41,15 @@ extern "C" {
 #include <algorithm/tt_buffer_common.h>
 #include <algorithm/tt_buffer_format.h>
 #include <algorithm/tt_compare.h>
+#include <algorithm/tt_double_linked_list.h>
 #include <algorithm/tt_hash_map.h>
 #include <algorithm/tt_list.h>
-#include <algorithm/tt_list_double_link.h>
-#include <algorithm/tt_list_single_link.h>
 #include <algorithm/tt_pointer_list.h>
 #include <algorithm/tt_quick_sort.h>
 #include <algorithm/tt_rand.h>
 #include <algorithm/tt_rand_xorshift.h>
 #include <algorithm/tt_red_black_tree.h>
+#include <algorithm/tt_single_linked_list.h>
 #include <algorithm/tt_stack.h>
 #include <algorithm/tt_string.h>
 #include <algorithm/tt_string_common.h>

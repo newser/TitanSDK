@@ -222,7 +222,7 @@ static tt_result_t test_routine_1(IN tt_thread_t *thread, IN void *param)
         ++cnt;
 
         if (thread_node.lst == NULL) {
-            tt_list_addhead(&__test_list, &thread_node);
+            tt_list_push_head(&__test_list, &thread_node);
         } else {
             tt_list_remove(&thread_node);
         }

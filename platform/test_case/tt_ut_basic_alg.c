@@ -941,7 +941,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_alg_rbtree_random)
         tt_qsort(lst_array, array_num, sizeof(lst_item), test_lst_comparer);
         for (i = 0; i < array_num; ++i) {
             tt_lnode_init(&lst_array[i].node);
-            tt_list_addtail(&lst, &lst_array[i].node);
+            tt_list_push_tail(&lst, &lst_array[i].node);
         }
 
         // min larger
@@ -1022,7 +1022,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_alg_rbtree_random)
             }
         }
 
-        TT_TEST_CHECK_EQUAL(lst.node_num, tree.node_num, "");
+        TT_TEST_CHECK_EQUAL(lst.count, tree.node_num, "");
         lst_pos = tt_list_head(&lst);
         rb_pos = tt_rbtree_min(tree.root);
 
@@ -1663,7 +1663,7 @@ struct __h1_case
     const tt_char_t *key;
     tt_u32_t key_len;
     tt_u32_t seed;
-    tt_hashval_t hash;
+    tt_hashcode_t hash;
 };
 
 struct __h1_case __h1_murmur3[] = {
@@ -1695,13 +1695,13 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_alg_hash_calc)
     tt_hashmap_attr_default(&attr);
 
     // test murmur3
-    attr.hashalg = TT_HASHALG_MURMUR3;
+    attr.hashalg = TT_HASHFUNC_MURMUR3;
 
     ret = tt_hashmap_create(&hmap, 1, __h1_node2key, &attr);
     TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
 
     for (i = 0; i < sizeof(__h1_murmur3) / sizeof(struct __h1_case); ++i) {
-        tt_hashval_t hash;
+        tt_hashcode_t hash;
 
         // hack for test
         hmap.hashctx.seed = __h1_murmur3[i].seed;
@@ -1715,9 +1715,9 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_alg_hash_calc)
     // two same inputs generate same key
     do {
         char __ccc[] = "123456789abcdef";
-        tt_hashval_t v1 =
+        tt_hashcode_t v1 =
             tt_hashmap_hash(&hmap, (tt_u8_t *)__ccc, sizeof(__ccc));
-        tt_hashval_t v2 =
+        tt_hashcode_t v2 =
             tt_hashmap_hash(&hmap, (tt_u8_t *)__ccc, sizeof(__ccc));
         TT_TEST_CHECK_EQUAL(v1, v2, "");
     } while (0);
@@ -1773,7 +1773,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_alg_hash_collision)
 
     tt_hashmap_attr_default(&attr);
 
-    attr.hashalg = TT_HASHALG_MURMUR3;
+    attr.hashalg = TT_HASHFUNC_MURMUR3;
     // attr.hashalg = TT_hashfunc_FNV1A;
 
     // 10000 => 97 slots
@@ -1820,8 +1820,8 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_alg_hash_collision)
     // check max collision
     j = 0;
     for (i = 0; i < hmap.hslot.list_array.list_num; ++i) {
-        if (hmap.hslot.list_array.list[i].node_num > j) {
-            j = hmap.hslot.list_array.list[i].node_num;
+        if (hmap.hslot.list_array.list[i].count > j) {
+            j = hmap.hslot.list_array.list[i].count;
         }
     }
 

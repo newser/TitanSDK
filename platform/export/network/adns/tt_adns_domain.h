@@ -28,9 +28,9 @@ this file defines async dns dm
 // import header files
 ////////////////////////////////////////////////////////////
 
+#include <algorithm/tt_double_linked_list.h>
 #include <algorithm/tt_hash_map.h>
 #include <algorithm/tt_list.h>
-#include <algorithm/tt_list_double_link.h>
 #include <algorithm/tt_red_black_tree.h>
 #include <misc/tt_reference_counter.h>
 #include <network/adns/tt_adns_rr.h>

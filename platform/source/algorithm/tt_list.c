@@ -21,6 +21,7 @@
 #include <algorithm/tt_list.h>
 
 #include <misc/tt_assert.h>
+#include <misc/tt_util.h>
 
 ////////////////////////////////////////////////////////////
 // internal macro
@@ -56,91 +57,128 @@
 
 void tt_list_init(IN tt_list_t *lst)
 {
-    TT_ASSERT_LST(lst != NULL);
-
-    lst->node_num = 0;
     lst->head = NULL;
     lst->tail = NULL;
+    lst->count = 0;
 }
 
 void tt_lnode_init(IN tt_lnode_t *node)
 {
-    TT_ASSERT_LST(node != NULL);
-
     node->lst = NULL;
     node->prev = NULL;
     node->next = NULL;
 }
 
-void tt_list_addhead(IN tt_list_t *lst, IN tt_lnode_t *node)
+void tt_list_clear(IN tt_list_t *lst)
 {
-    TT_ASSERT_LST(lst != NULL);
-    TT_ASSERT_LST(node != NULL);
-    TT_ASSERT_LST(node->lst == NULL);
+    while (tt_list_pop_head(lst) != NULL)
+        ;
+}
+
+void tt_list_push_head(IN tt_list_t *lst, IN tt_lnode_t *node)
+{
+    TT_ASSERT_ALWAYS(node->lst == NULL);
 
     if (lst->head != NULL) {
-        // set node data
         node->next = lst->head;
         node->lst = lst;
 
-        // link it into list
+        // link
         lst->head->prev = node;
         lst->head = node;
-        lst->node_num++;
+        lst->count++;
     } else {
-        // set node data
         node->lst = lst;
 
-        // link it into list
+        // link
         lst->head = node;
         lst->tail = node;
-        lst->node_num++;
+        lst->count++;
     }
 }
 
-void tt_list_addtail(IN tt_list_t *lst, IN tt_lnode_t *node)
+void tt_list_push_tail(IN tt_list_t *lst, IN tt_lnode_t *node)
 {
-    TT_ASSERT_LST(lst != NULL);
-    TT_ASSERT_LST(node != NULL);
-    TT_ASSERT_LST(node->lst == NULL);
+    TT_ASSERT_ALWAYS(node->lst == NULL);
 
     if (lst->tail != NULL) {
-        // set node data
         node->prev = lst->tail;
         node->lst = lst;
 
-        // link it into list
+        // link
         lst->tail->next = node;
         lst->tail = node;
-        lst->node_num++;
+        lst->count++;
     } else {
-        // set node data
         node->lst = lst;
 
-        // link it into list
+        // link
         lst->head = node;
         lst->tail = node;
-        lst->node_num++;
+        lst->count++;
     }
 }
 
-void tt_list_insert_prev(IN tt_lnode_t *pos, IN tt_lnode_t *node)
+tt_lnode_t *tt_list_pop_head(IN tt_list_t *lst)
 {
-    tt_list_t *lst = NULL;
+    tt_lnode_t *head = lst->head;
+    if (head != NULL) {
+        TT_ASSERT_LST(lst->count > 0);
 
-    TT_ASSERT_LST(pos != NULL);
-    TT_ASSERT_LST(node != NULL);
-    TT_ASSERT_LST(node->lst == NULL);
+        lst->head = head->next;
+        --lst->count;
+
+        if (head->next != NULL) {
+            head->next->prev = NULL;
+        } else {
+            lst->tail = NULL;
+        }
+
+        head->lst = NULL;
+        head->prev = NULL;
+        head->next = NULL;
+    }
+
+    return head;
+}
+
+tt_lnode_t *tt_list_pop_tail(IN tt_list_t *lst)
+{
+    tt_lnode_t *tail = lst->tail;
+    if (tail != NULL) {
+        // a consistency check
+        TT_ASSERT_LST(lst->count > 0);
+
+        lst->tail = tail->prev;
+        --lst->count;
+
+        if (tail->prev != NULL) {
+            tail->prev->next = NULL;
+        } else {
+            lst->head = NULL;
+        }
+
+        tail->lst = NULL;
+        tail->prev = NULL;
+        tail->next = NULL;
+    }
+
+    return tail;
+}
+
+void tt_list_insert_before(IN tt_lnode_t *pos, IN tt_lnode_t *node)
+{
+    tt_list_t *lst;
+
+    TT_ASSERT(node->lst == NULL);
 
     lst = pos->lst;
     TT_ASSERT_LST(lst != NULL);
 
-    // set node data
     node->next = pos;
     node->prev = pos->prev;
     node->lst = lst;
 
-    // link it
     if (pos->prev != NULL) {
         pos->prev->next = node;
         pos->prev = node;
@@ -148,26 +186,22 @@ void tt_list_insert_prev(IN tt_lnode_t *pos, IN tt_lnode_t *node)
         pos->prev = node;
         lst->head = node;
     }
-    lst->node_num++;
+    ++lst->count;
 }
 
-void tt_list_insert_next(IN tt_lnode_t *pos, IN tt_lnode_t *node)
+void tt_list_insert_after(IN tt_lnode_t *pos, IN tt_lnode_t *node)
 {
-    tt_list_t *lst = NULL;
+    tt_list_t *lst;
 
-    TT_ASSERT_LST(pos != NULL);
-    TT_ASSERT_LST(node != NULL);
     TT_ASSERT_LST(node->lst == NULL);
 
     lst = pos->lst;
     TT_ASSERT_LST(lst != NULL);
 
-    // set node data
     node->prev = pos;
     node->next = pos->next;
     node->lst = lst;
 
-    // link it
     if (pos->next != NULL) {
         pos->next->prev = node;
         pos->next = node;
@@ -175,18 +209,15 @@ void tt_list_insert_next(IN tt_lnode_t *pos, IN tt_lnode_t *node)
         pos->next = node;
         lst->tail = node;
     }
-    lst->node_num++;
+    ++lst->count;
 }
 
 tt_lnode_t *tt_list_remove(IN tt_lnode_t *node)
 {
-    tt_list_t *lst = NULL;
-    tt_lnode_t *next = NULL;
-
-    TT_ASSERT_LST(node != NULL);
+    tt_list_t *lst;
+    tt_lnode_t *next;
 
     lst = node->lst;
-    // TT_ASSERT_LST(lst != NULL);
     if (lst == NULL) {
         return NULL;
     }
@@ -205,70 +236,11 @@ tt_lnode_t *tt_list_remove(IN tt_lnode_t *node)
         lst->tail = node->prev;
     }
 
-    lst->node_num--;
+    --lst->count;
 
-    // set node data
     node->lst = NULL;
     node->prev = NULL;
     node->next = NULL;
 
     return next;
-}
-
-tt_lnode_t *tt_list_pophead(IN tt_list_t *lst)
-{
-    tt_lnode_t *head = lst->head;
-
-    TT_ASSERT_LST(lst != NULL);
-
-    if (head != NULL) {
-        // a consistency check
-        TT_ASSERT_LST(lst->node_num > 0);
-
-        lst->head = head->next;
-
-        if (head->next != NULL) {
-            head->next->prev = NULL;
-        } else {
-            lst->tail = NULL;
-        }
-
-        lst->node_num--;
-
-        // set node data
-        head->lst = NULL;
-        head->prev = NULL;
-        head->next = NULL;
-    }
-
-    return head;
-}
-
-tt_lnode_t *tt_list_poptail(IN tt_list_t *lst)
-{
-    tt_lnode_t *tail = lst->tail;
-
-    TT_ASSERT_LST(lst != NULL);
-
-    if (tail != NULL) {
-        // a consistency check
-        TT_ASSERT_LST(lst->node_num > 0);
-
-        if (tail->prev != NULL) {
-            tail->prev->next = NULL;
-        } else {
-            lst->head = NULL;
-        }
-
-        lst->tail = tail->prev;
-
-        lst->node_num--;
-
-        // set node data
-        tail->lst = NULL;
-        tail->prev = NULL;
-        tail->next = NULL;
-    }
-
-    return tail;
 }

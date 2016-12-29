@@ -579,7 +579,7 @@ tt_result_t tt_fclose_async_ntv(IN tt_file_t *file,
     aio->cb_param = cb_param;
 
     // add to q
-    tt_list_addtail(&sys_f->aio_q, &tev->node);
+    tt_list_push_tail(&sys_f->aio_q, &tev->node);
 
     // notify to process
     if ((tt_list_count(&sys_f->aio_q) == 1) &&
@@ -647,7 +647,7 @@ tt_result_t tt_fseek_async_ntv(IN tt_file_t *file,
     aio->position = -1;
 
     // add to q
-    tt_list_addtail(&sys_f->aio_q, &tev->node);
+    tt_list_push_tail(&sys_f->aio_q, &tev->node);
 
     // notify to process
     if ((tt_list_count(&sys_f->aio_q) == 1) &&
@@ -748,7 +748,7 @@ tt_result_t tt_fwrite_async_ntv(IN tt_file_t *file,
     __FSAIO_DEBUG_FLAG_SET(aio, 0);
 
     // add to q
-    tt_list_addtail(&sys_f->aio_q, &tev->node);
+    tt_list_push_tail(&sys_f->aio_q, &tev->node);
 
     // notify to process
     if ((tt_list_count(&sys_f->aio_q) == 1) &&
@@ -848,7 +848,7 @@ tt_result_t tt_fread_async_ntv(IN tt_file_t *file,
     __FSAIO_DEBUG_FLAG_SET(aio, 0);
 
     // add to q
-    tt_list_addtail(&sys_f->aio_q, &tev->node);
+    tt_list_push_tail(&sys_f->aio_q, &tev->node);
 
     // notify to process
     if ((tt_list_count(&sys_f->aio_q) == 1) &&
@@ -1107,7 +1107,7 @@ tt_result_t tt_dclose_async_ntv(IN tt_dir_t *dir,
     aio->cb_param = cb_param;
 
     // add to q
-    tt_list_addtail(&sys_d->aio_q, &tev->node);
+    tt_list_push_tail(&sys_d->aio_q, &tev->node);
 
     // notify to process
     if ((tt_list_count(&sys_d->aio_q) == 1) &&
@@ -1181,7 +1181,7 @@ tt_result_t tt_dread_async_ntv(IN tt_dir_t *dir,
     aio->read_num = 0;
 
     // add to q
-    tt_list_addtail(&sys_d->aio_q, &tev->node);
+    tt_list_push_tail(&sys_d->aio_q, &tev->node);
 
     // notify to process
     if ((tt_list_count(&sys_d->aio_q) == 1) &&
@@ -1644,7 +1644,7 @@ void __do_faio_q(IN tt_file_ntv_t *sys_f)
 void __free_faio_q(IN tt_file_ntv_t *sys_f)
 {
     tt_lnode_t *node;
-    while ((node = tt_list_pophead(&sys_f->aio_q)) != NULL) {
+    while ((node = tt_list_pop_head(&sys_f->aio_q)) != NULL) {
         tt_ev_destroy(TT_EV_OF(TT_CONTAINER(node, tt_thread_ev_t, node)));
     }
 }
@@ -1792,7 +1792,7 @@ void __do_daio_q(IN tt_dir_ntv_t *sys_d)
 void __free_daio_q(IN tt_dir_ntv_t *sys_d)
 {
     tt_lnode_t *node;
-    while ((node = tt_list_pophead(&sys_d->aio_q)) != NULL) {
+    while ((node = tt_list_pop_head(&sys_d->aio_q)) != NULL) {
         tt_ev_destroy(TT_EV_OF(TT_CONTAINER(node, tt_thread_ev_t, node)));
     }
 }

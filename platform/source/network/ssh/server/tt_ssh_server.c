@@ -177,7 +177,7 @@ void tt_sshsvr_destroy(IN tt_sshsvr_t *sshsvr, IN tt_bool_t brute)
     if (brute) {
         tt_lnode_t *node;
 
-        while ((node = tt_list_pophead(&sshsvr->conn_list)) != NULL) {
+        while ((node = tt_list_pop_head(&sshsvr->conn_list)) != NULL) {
             tt_sshsvrconn_destroy(TT_CONTAINER(node, tt_sshsvrconn_t, node),
                                   TT_TRUE);
         }

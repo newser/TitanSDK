@@ -171,8 +171,8 @@ TT_TEST_CASE("tt_adns_ut_rr_basic",
     tt_dlist_init(&l1);
     tt_dlist_init(&l2);
 
-    tt_dlist_pushtail(&l1, &rr->node);
-    tt_dlist_pushtail(&l1, &rr1->node);
+    tt_dlist_push_tail(&l1, &rr->node);
+    tt_dlist_push_tail(&l1, &rr1->node);
 
     // change name
     TT_TEST_CHECK_EQUAL(tt_adns_rr_set_name(rr1,
@@ -245,7 +245,7 @@ TT_TEST_CASE("tt_adns_ut_rr_basic",
             tt_adns_rr_t *__rr2 = TT_CONTAINER(node, tt_adns_rr_t, node);
             TT_TEST_CHECK_EQUAL(strcmp(__rr2->name, "example.com"), 0, "");
             TT_TEST_CHECK_EQUAL(__rr2->name_len, strlen("example.com") + 1, "");
-            node = node->dnext;
+            node = node->next;
         }
     } while (0);
     tt_adns_rrlist_destroy(&l2);

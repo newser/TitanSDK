@@ -470,7 +470,7 @@ tt_result_t __sslctx_add_cert(IN tt_sslctx_ntv_t *ctx,
     }
 
     // add to cert list
-    tt_list_addtail(&ctx->cert_list, &sctx_node->node);
+    tt_list_push_tail(&ctx->cert_list, &sctx_node->node);
 
     return TT_SUCCESS;
 
@@ -846,7 +846,7 @@ tt_result_t __privkey_import_pkcs8(IN tt_blob_t *privkey_der,
 void __sslctx_list_clean(IN tt_list_t *sc_list)
 {
     tt_lnode_t *node;
-    while ((node = tt_list_pophead(sc_list)) != NULL) {
+    while ((node = tt_list_pop_head(sc_list)) != NULL) {
         tt_sslctx_node_t *sctx_node =
             TT_CONTAINER(node, tt_sslctx_node_t, node);
 

@@ -19,6 +19,14 @@
 @brief hash
 
 this file specifies hash map APIs
+
+ - clear
+ - hash
+ - contain_key/contain_value
+ - find(key)/insert(k,v)
+ - empty/count
+ - remove(key)/remove_kv(key, value)
+ - replace/replace_kv
 */
 
 #ifndef __TT_HASH_MAP__
@@ -47,23 +55,23 @@ struct tt_hashmap_s;
 // ========================================
 
 typedef enum {
-    TT_HASHALG_MURMUR3,
-    TT_HASHALG_FNV1A,
+    TT_HASHFUNC_MURMUR3,
+    TT_HASHFUNC_FNV1A,
 
-    TT_HASHALG_NUM
+    TT_HASHFUNC_NUM
 } tt_hashalg_t;
-#define TT_HASHALG_VALID(t) ((t) < TT_HASHALG_NUM)
+#define TT_HASHFUNC_VALID(t) ((t) < TT_HASHFUNC_NUM)
 
-typedef tt_u32_t tt_hashval_t;
+typedef tt_u32_t tt_hashcode_t;
 
 typedef union
 {
     tt_u32_t seed;
 } tt_hashctx_t;
 
-typedef tt_hashval_t (*tt_hash_t)(IN const tt_u8_t *key,
-                                  IN tt_u32_t key_len,
-                                  IN tt_hashctx_t *hctx);
+typedef tt_hashcode_t (*tt_hashfunc_t)(IN const tt_u8_t *key,
+                                       IN tt_u32_t key_len,
+                                       IN tt_hashctx_t *hctx);
 
 // ========================================
 // hash node
@@ -81,9 +89,9 @@ typedef void (*tt_hnode2key_t)(IN tt_hnode_t *node,
                                OUT const tt_u8_t **key,
                                OUT tt_u32_t *key_len);
 
-typedef void (*tt_hnode_action_t)(IN struct tt_hashmap_s *hmap,
-                                  IN tt_hnode_t *hnode,
-                                  IN void *param);
+typedef void (*tt_hnode_do_t)(IN struct tt_hashmap_s *hmap,
+                              IN tt_hnode_t *hnode,
+                              IN void *param);
 
 // ========================================
 // hash hslot
@@ -131,7 +139,7 @@ typedef tt_hnode_t *(*tt_hslot_find_t)(IN tt_hslot_t *hslot,
                                        IN tt_hnode_t *cur_node);
 
 typedef void (*tt_hslot_foreach_t)(IN tt_hslot_t *hslot,
-                                   IN tt_hnode_action_t action,
+                                   IN tt_hnode_do_t action,
                                    IN void *param);
 
 // ========================================
@@ -163,7 +171,7 @@ typedef struct tt_hashmap_s
     tt_hnode2key_t hnode2key;
     tt_hashmap_attr_t attr;
 
-    tt_hash_t hash;
+    tt_hashfunc_t hash;
     tt_hashctx_t hashctx;
     tt_hashmap_itf_t *itf;
 } tt_hashmap_t;
@@ -218,15 +226,15 @@ tt_inline tt_hnode_t *tt_hashmap_find(IN tt_hashmap_t *hmap,
 }
 
 tt_inline void tt_hashmap_foreach(IN tt_hashmap_t *hmap,
-                                  IN tt_hnode_action_t action,
+                                  IN tt_hnode_do_t action,
                                   IN void *param)
 {
     hmap->itf->foreach (&hmap->hslot, action, param);
 }
 
-tt_inline tt_hashval_t tt_hashmap_hash(IN tt_hashmap_t *hmap,
-                                       IN tt_u8_t *key,
-                                       IN tt_u32_t len)
+tt_inline tt_hashcode_t tt_hashmap_hash(IN tt_hashmap_t *hmap,
+                                        IN tt_u8_t *key,
+                                        IN tt_u32_t len)
 {
     return hmap->hash(key, len, &hmap->hashctx);
 }

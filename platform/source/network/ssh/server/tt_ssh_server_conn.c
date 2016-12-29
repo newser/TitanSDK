@@ -196,7 +196,7 @@ tt_sshsvrconn_t *tt_sshsvrconn_create(IN tt_sshsvr_t *server)
     }
 
     // add to server conn list
-    tt_list_addtail(&server->conn_list, &svrconn->node);
+    tt_list_push_tail(&server->conn_list, &svrconn->node);
     __done |= __SCO_LINKED;
 
     return svrconn;

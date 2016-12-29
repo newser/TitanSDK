@@ -132,7 +132,7 @@ tt_result_t tt_evc_sendto_thread_ntv(IN struct tt_evcenter_s *dst_evc,
     __EVC_LOCK_EVQ(dst_evc);
 
     // add to q
-    tt_list_addtail(&dst_evc->ev_q, &tev->node);
+    tt_list_push_tail(&dst_evc->ev_q, &tev->node);
 
 // notify evcenter
 __retry_wr:
@@ -161,7 +161,7 @@ tt_ev_t *tt_evc_recvfrom_thread_ntv(IN struct tt_evcenter_s *evc)
     tt_thread_ev_t *tev = NULL;
 
     __EVC_LOCK_EVQ(evc);
-    node = tt_list_pophead(&evc->ev_q);
+    node = tt_list_pop_head(&evc->ev_q);
     if (node != NULL) {
         tev = TT_CONTAINER(node, tt_thread_ev_t, node);
     }

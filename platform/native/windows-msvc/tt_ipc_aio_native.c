@@ -403,7 +403,7 @@ tt_result_t tt_ipc_connect_async_ntv(IN tt_ipc_ntv_t *sys_ipc,
     aio->cb_param = cb_param;
 
     // add request
-    tt_list_addtail(&sys_ipc->write_q, &tev->node);
+    tt_list_push_tail(&sys_ipc->write_q, &tev->node);
 
     // 1. CreateFileA can run locally, sending ev and execute CreateFileA
     //    asynchronous is to keep consistent with other platforms
@@ -492,7 +492,7 @@ tt_result_t tt_ipc_accept_async_ntv(IN tt_ipc_ntv_t *sys_ipc,
     // sys_ipc as CompletionKey is binded to the pipe handle
     // of new_sys_ipc in __create_server_pipe() called by
     // __do_ipc_accept_io()
-    tt_list_addtail(&new_sys_ipc->read_q, &tev->node);
+    tt_list_push_tail(&new_sys_ipc->read_q, &tev->node);
 
     // sending sys_ipc->aio_ev rather than ev is to give an oppotunity
     // for caller to tt_async_ipc_destroy_ntv immediately
@@ -556,7 +556,7 @@ tt_result_t tt_ipc_send_async_ntv(IN tt_ipc_ntv_t *sys_ipc,
     aio->cb_param = cb_param;
 
     // add request
-    tt_list_addtail(&sys_ipc->write_q, &tev->node);
+    tt_list_push_tail(&sys_ipc->write_q, &tev->node);
 
     // start iocp if it's head aio
     if ((tt_list_count(&sys_ipc->write_q) == 1) &&
@@ -614,7 +614,7 @@ tt_result_t tt_ipc_recv_async_ntv(IN tt_ipc_ntv_t *sys_ipc,
     aio->cb_param = cb_param;
 
     // add request
-    tt_list_addtail(&sys_ipc->read_q, &tev->node);
+    tt_list_push_tail(&sys_ipc->read_q, &tev->node);
 
     // start iocp if it's head aio
     if ((tt_list_count(&sys_ipc->read_q) == 1) &&
@@ -1484,7 +1484,7 @@ tt_result_t __ipc_destroy_read(IN tt_ipc_t *ipc)
     aio->ipc = ipc;
 
     // add request
-    tt_list_addtail(&sys_ipc->read_q, &tev->node);
+    tt_list_push_tail(&sys_ipc->read_q, &tev->node);
 
     // start iocp if it's head aio
     if ((tt_list_count(&sys_ipc->read_q) == 1) &&
@@ -1547,7 +1547,7 @@ tt_result_t __ipc_destroy_write(IN tt_ipc_t *ipc)
     aio->ipc = ipc;
 
     // add request
-    tt_list_addtail(&sys_ipc->write_q, &tev->node);
+    tt_list_push_tail(&sys_ipc->write_q, &tev->node);
 
     // start iocp if it's head aio
     if ((tt_list_count(&sys_ipc->write_q) == 1) &&

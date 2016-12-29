@@ -293,7 +293,7 @@ tt_result_t tt_adns_domain_subscribe(IN tt_adns_domain_t *dm,
         dm->rr_set[type] = rrs;
     }
 
-    tt_list_addtail(&rrs->subscriber_q, subscriber);
+    tt_list_push_tail(&rrs->subscriber_q, subscriber);
     return TT_SUCCESS;
 }
 
@@ -759,7 +759,7 @@ tt_result_t __adns_rrs_pkt_handler(IN tt_adns_rrset_t *rrs,
                              &cname_rrlist);
 
 __cn_ag:
-    while ((node = tt_dlist_pophead(&cname_rrlist)) != NULL) {
+    while ((node = tt_dlist_pop_head(&cname_rrlist)) != NULL) {
         tt_adns_rr_t *rr = TT_CONTAINER(node, tt_adns_rr_t, node);
         tt_adrr_cname_t *cname = TT_ADRR_CAST(rr, tt_adrr_cname_t);
 
@@ -785,7 +785,7 @@ __cn_ag:
     TT_ASSERT(tt_dlist_empty(&cname_rrlist));
     if (!tt_dlist_empty(&cname_rrlist2) &&
         (cname_loop_level++ < __RRS_MAX_CNAME_LOOP)) {
-        tt_dlist_merge(&cname_rrlist, &cname_rrlist2);
+        tt_dlist_move(&cname_rrlist, &cname_rrlist2);
         TT_ASSERT(tt_dlist_empty(&cname_rrlist2));
 
         goto __cn_ag;
@@ -803,7 +803,7 @@ __calc_exp:
         tt_adns_rrlist_set_name(&rrlist, NULL, 0, TT_ADNS_RR_REF_NAME);
 
         tt_adns_rrlist_clear(&rrs->rrlist);
-        tt_dlist_merge(&rrs->rrlist, &rrlist);
+        tt_dlist_move(&rrs->rrlist, &rrlist);
 
         // calculate next expiration
         node = tt_dlist_head(&rrs->rrlist);

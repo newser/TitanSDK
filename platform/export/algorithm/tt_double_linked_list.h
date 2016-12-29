@@ -15,19 +15,28 @@
  */
 
 /**
-@file tt_list_double_link.h
+@file tt_double_linked_list.h
 @brief doulbe linked list
 this file defines apis of doulbe linked list data structure.
+
+ - push_tail/push_head/pop_tail/pop_head
+ - head/tail
+ - insert_before/insert_after
+ - move
+ - empty
+ - clear
+ - remove(node)
+
 */
 
-#ifndef __TT_LIST_DOUBLE_LINK__
-#define __TT_LIST_DOUBLE_LINK__
+#ifndef __TT_DOUBLE_LINKED_LIST__
+#define __TT_DOUBLE_LINKED_LIST__
 
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <tt_basic_type.h>
+#include <misc/tt_util.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
@@ -39,13 +48,13 @@ this file defines apis of doulbe linked list data structure.
 
 typedef struct tt_dnode_s
 {
-    struct tt_dnode_s *dprev;
-    struct tt_dnode_s *dnext;
+    struct tt_dnode_s *prev;
+    struct tt_dnode_s *next;
 } tt_dnode_t;
 
 typedef tt_dnode_t tt_dlist_t;
-#define __DLIST_HEAD(dl) ((dl)->dnext)
-#define __DLIST_TAIL(dl) ((dl)->dprev)
+#define __DLIST_HEAD(dl) ((dl)->next)
+#define __DLIST_TAIL(dl) ((dl)->prev)
 
 ////////////////////////////////////////////////////////////
 // global variants
@@ -63,8 +72,8 @@ tt_inline void tt_dlist_init(IN tt_dlist_t *list)
 
 tt_inline void tt_dnode_init(IN tt_dnode_t *node)
 {
-    node->dprev = NULL;
-    node->dnext = NULL;
+    node->prev = NULL;
+    node->next = NULL;
 }
 
 tt_inline tt_u32_t tt_dlist_count(IN tt_dlist_t *list)
@@ -75,7 +84,7 @@ tt_inline tt_u32_t tt_dlist_count(IN tt_dlist_t *list)
     // never use while (node != NULL)
     while (node != list) {
         ++count;
-        node = node->dnext;
+        node = node->next;
     }
     return count;
 }
@@ -97,76 +106,108 @@ tt_inline tt_dnode_t *tt_dlist_tail(IN tt_dlist_t *list)
 
 tt_inline tt_dnode_t *tt_dlist_next(IN tt_dlist_t *list, IN tt_dnode_t *node)
 {
-    return node->dnext == list ? NULL : node->dnext;
+    return node->next == list ? NULL : node->next;
 }
 
-tt_inline void tt_dlist_pushhead(IN tt_dlist_t *list, IN tt_dnode_t *node)
+tt_inline void tt_dlist_push_head(IN tt_dlist_t *list, IN tt_dnode_t *node)
 {
-    // later nodes
-    __DLIST_HEAD(list)->dprev = node;
-    node->dnext = __DLIST_HEAD(list);
+    // update next
+    __DLIST_HEAD(list)->prev = node;
+    node->next = __DLIST_HEAD(list);
 
-    // former nodes
-    node->dprev = list;
+    // update prev
+    node->prev = list;
     __DLIST_HEAD(list) = node;
 }
 
-tt_inline void tt_dlist_pushtail(IN tt_dlist_t *list, IN tt_dnode_t *node)
+tt_inline void tt_dlist_push_tail(IN tt_dlist_t *list, IN tt_dnode_t *node)
 {
-    // later nodes
-    __DLIST_TAIL(list)->dnext = node;
-    node->dprev = __DLIST_TAIL(list);
+    // update prev
+    __DLIST_TAIL(list)->next = node;
+    node->prev = __DLIST_TAIL(list);
 
-    // former nodes
-    node->dnext = list;
+    // update next
+    node->next = list;
     __DLIST_TAIL(list) = node;
 }
 
-tt_inline tt_dnode_t *tt_dlist_pophead(IN tt_dlist_t *list)
+tt_inline tt_dnode_t *tt_dlist_pop_head(IN tt_dlist_t *list)
 {
     tt_dnode_t *head = NULL;
 
     if (!tt_dlist_empty(list)) {
         head = __DLIST_HEAD(list);
-        head->dnext->dprev = head->dprev; // = list;
-        __DLIST_HEAD(list) = head->dnext;
+        head->next->prev = head->prev; // = list;
+        __DLIST_HEAD(list) = head->next;
     }
 
     return head;
 }
 
-tt_inline tt_dnode_t *tt_dlist_poptail(IN tt_dlist_t *list)
+tt_inline tt_dnode_t *tt_dlist_pop_tail(IN tt_dlist_t *list)
 {
     tt_dnode_t *tail = NULL;
 
     if (!tt_dlist_empty(list)) {
         tail = __DLIST_TAIL(list);
-        tail->dprev->dnext = tail->dnext; // = list;
-        __DLIST_TAIL(list) = tail->dprev;
+        tail->prev->next = tail->next; // = list;
+        __DLIST_TAIL(list) = tail->prev;
     }
 
     return tail;
 }
 
-tt_inline void tt_dlist_remove(IN tt_dnode_t *node)
+tt_inline void tt_dlist_clear(IN tt_dlist_t *list)
 {
-    node->dnext->dprev = node->dprev;
-    node->dprev->dnext = node->dnext;
+    while (tt_dlist_pop_head(list) != NULL)
+        ;
 }
 
-tt_inline void tt_dlist_merge(IN tt_dlist_t *dst, IN tt_dlist_t *src)
+tt_inline void tt_dlist_remove(IN tt_dnode_t *node)
+{
+    if (node->next == NULL) {
+        return;
+    }
+
+    node->next->prev = node->prev;
+    node->prev->next = node->next;
+}
+
+tt_inline void tt_dlist_move(IN tt_dlist_t *dst, IN tt_dlist_t *src)
 {
     if (tt_dlist_empty(src)) {
         return;
     }
 
-    __DLIST_TAIL(dst)->dnext = __DLIST_HEAD(src);
-    __DLIST_HEAD(src)->dprev = __DLIST_TAIL(dst);
+    __DLIST_TAIL(dst)->next = __DLIST_HEAD(src);
+    __DLIST_HEAD(src)->prev = __DLIST_TAIL(dst);
 
     __DLIST_TAIL(dst) = __DLIST_TAIL(src);
-    __DLIST_TAIL(src)->dnext = dst;
+    __DLIST_TAIL(src)->next = dst;
 
     tt_dlist_init(src);
 }
 
-#endif /* __TT_LIST_DOUBLE_LINK__ */
+tt_inline void tt_dlist_insert_before(IN tt_dnode_t *pos, IN tt_dnode_t *node)
+{
+    TT_ASSERT((node->prev == NULL) && (node->next == NULL));
+
+    pos->prev->next = node;
+    node->prev = pos->prev;
+
+    node->next = pos;
+    pos->prev = node;
+}
+
+tt_inline void tt_dlist_insert_after(IN tt_dnode_t *pos, IN tt_dnode_t *node)
+{
+    TT_ASSERT((node->prev == NULL) && (node->next == NULL));
+
+    pos->next->prev = node;
+    node->next = pos->next;
+
+    node->prev = pos;
+    pos->next = node;
+}
+
+#endif /* __TT_DOUBLE_LINKED_LIST__ */

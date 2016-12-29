@@ -117,7 +117,7 @@ tt_result_t tt_stack_destroy(IN tt_stack_t *stack)
     TT_ASSERT(stack != NULL);
 
     // destroy each frame, begin with the last frame
-    while ((node = tt_list_poptail(&stack->frame_list)) != NULL) {
+    while ((node = tt_list_pop_tail(&stack->frame_list)) != NULL) {
         tt_stack_frame_t *frame = TT_CONTAINER(node, tt_stack_frame_t, node);
         tt_stack_obj_destroy_t obj_destroy = stack->attr.obj_destroy;
 
@@ -225,7 +225,7 @@ tt_result_t tt_stack_pop(IN tt_stack_t *stack,
             if ((tt_list_count(&stack->frame_list) > 2) &&
                 (frame->idx < (tt_list_count(&stack->frame_list) - 2))) {
                 tt_stack_frame_t *tail_frame =
-                    TT_CONTAINER(tt_list_poptail(&stack->frame_list),
+                    TT_CONTAINER(tt_list_pop_tail(&stack->frame_list),
                                  tt_stack_frame_t,
                                  node);
                 TT_ASSERT_STACK(tail_frame->top == 0);
@@ -275,7 +275,7 @@ tt_u8_t *tt_stack_top(IN tt_stack_t *stack)
             if ((tt_list_count(&stack->frame_list) > 2) &&
                 (frame->idx < (tt_list_count(&stack->frame_list) - 2))) {
                 tt_stack_frame_t *tail_frame =
-                    TT_CONTAINER(tt_list_poptail(&stack->frame_list),
+                    TT_CONTAINER(tt_list_pop_tail(&stack->frame_list),
                                  tt_stack_frame_t,
                                  node);
                 TT_ASSERT_STACK(tail_frame->top == 0);
@@ -306,7 +306,7 @@ void tt_stack_clear(IN tt_stack_t *stack)
     }
 
     while (tt_list_count(frame_list) > 1) {
-        node = tt_list_poptail(frame_list);
+        node = tt_list_pop_tail(frame_list);
         tt_free(TT_CONTAINER(node, tt_stack_frame_t, node));
     }
 
@@ -340,7 +340,7 @@ tt_stack_frame_t *__stack_expand(IN tt_stack_t *stack)
         TT_ASSERT_STACK(
             (stack->current_frame == NULL) ||
             (&stack->current_frame->node == tt_list_tail(&stack->frame_list)));
-        tt_list_addtail(&stack->frame_list, &frame->node);
+        tt_list_push_tail(&stack->frame_list, &frame->node);
         stack->current_frame = frame;
     }
 
