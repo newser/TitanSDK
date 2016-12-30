@@ -18,10 +18,11 @@
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <algorithm/tt_rand.h>
+#include <algorithm/tt_rng.h>
 
 #include <init/tt_component.h>
 #include <init/tt_profile.h>
+#include <memory/tt_memory_alloc.h>
 
 #include <tt_rand_native.h>
 
@@ -71,14 +72,40 @@ void tt_rng_component_register()
     tt_component_register(&comp);
 }
 
+tt_rng_t *tt_rng_create(IN tt_u32_t size, IN tt_rng_itf_t *itf)
+{
+    tt_rng_t *rng;
+    
+    TT_ASSERT(itf != NULL);
+    TT_ASSERT(itf->rng_u64 != NULL);
+
+    rng = tt_malloc(sizeof(tt_rng_t) + size);
+    if (rng == NULL) {
+        TT_ERROR("no mem for rng");
+        return NULL;
+    }
+
+    rng->itf = itf;
+
+    return rng;
+}
+
+void tt_rng_destroy(IN tt_rng_t *rng)
+{
+    TT_ASSERT(rng != NULL);
+
+    if (rng->itf->destroy != NULL) {
+        rng->itf->destroy(rng);
+    }
+
+    tt_free(rng);
+}
+
 tt_result_t __rng_component_init(IN tt_component_t *comp,
                                  IN tt_profile_t *profile)
 {
-    tt_result_t result = TT_FAIL;
-
     // init platform specific
-    result = tt_rng_component_init_ntv();
-    if (!TT_OK(result)) {
+    if (!TT_OK(tt_rng_component_init_ntv())) {
         return TT_FAIL;
     }
 

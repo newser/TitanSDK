@@ -9,6 +9,7 @@ extern "C" {
 #include <unit_test/tt_unit_test.h>
 
 #include <algorithm/tt_binary_search.h>
+#include <algorithm/tt_rng_xorshift.h>
 #include <algorithm/tt_hash_map.h>
 #include <algorithm/tt_list.h>
 #include <algorithm/tt_red_black_tree.h>
@@ -103,6 +104,8 @@ TT_TEST_ROUTINE_DECLARE(tt_unit_test_alg_ptr_stack)
 
 TT_TEST_ROUTINE_DECLARE(tt_unit_test_alg_hash_calc)
 TT_TEST_ROUTINE_DECLARE(tt_unit_test_alg_hash_collision)
+
+TT_TEST_ROUTINE_DECLARE(tt_unit_test_alg_rng)
 // =========================================
 
 // === test case list ======================
@@ -226,6 +229,15 @@ TT_TEST_CASE("tt_unit_test_basic_alg_qsort",
                  NULL,
                  NULL),
 
+    TT_TEST_CASE("tt_unit_test_alg_rng",
+                 "testing random num generator",
+                 tt_unit_test_alg_rng,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL),
+
     TT_TEST_CASE_LIST_DEFINE_END(basic_alg_case)
     // =========================================
 
@@ -237,7 +249,7 @@ TT_TEST_CASE("tt_unit_test_basic_alg_qsort",
 
 
     /*
-    TT_TEST_ROUTINE_DEFINE(name)
+    TT_TEST_ROUTINE_DEFINE(tt_unit_test_alg_rng)
     {
         //tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
 
@@ -1876,3 +1888,43 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_alg_hash_collision)
     // test end
     TT_TEST_CASE_LEAVE()
 }
+
+#define __RAND_SIZE 100000
+TT_TEST_ROUTINE_DEFINE(tt_unit_test_alg_rng)
+{
+    //tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+    static tt_u32_t num[__RAND_SIZE];
+    tt_s64_t start, end, t;
+    tt_u32_t i, min_n, max_n;
+    tt_rng_t *rng;
+    
+    TT_TEST_CASE_ENTER()
+    // test start
+
+    // xorshift
+    rng = tt_rng_xorshift_create();
+    for (i = 0; i < __RAND_SIZE; ++i) {
+        num[i] = 0;
+    }
+    min_n = ~0;
+    max_n = 0;
+    
+    start = tt_time_ref();
+    for (i = 0; i < __RAND_SIZE; ++i) {
+        num[tt_rand_u64()%__RAND_SIZE] += 1;
+    }
+    end = tt_time_ref();
+    t = tt_time_ref2ms(end - start);
+
+    for (i = 0; i < __RAND_SIZE; ++i) {
+        if (num[i] < min_n) min_n = num[i];
+        if (num[i] >= max_n) max_n = num[i];
+    }
+    TT_RECORD_INFO("xorshift, time: %dms, min: %d, max: %d", t, min_n, max_n);
+    
+    tt_rng_destroy(rng);
+    
+    // test end
+    TT_TEST_CASE_LEAVE()
+}
+

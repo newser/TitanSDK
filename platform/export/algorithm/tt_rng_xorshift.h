@@ -28,7 +28,7 @@ this file defines xorshift pseudo random generator
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <tt_rand_native.h>
+#include <algorithm/tt_rng.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
@@ -51,19 +51,6 @@ typedef struct
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-tt_inline void tt_rng_xorshift_init(IN tt_rng_xorshift_t *gen)
-{
-    tt_rng_ntv((tt_u8_t *)&gen->s[0], sizeof(gen->s[0]));
-    tt_rng_ntv((tt_u8_t *)&gen->s[1], sizeof(gen->s[1]));
-}
-
-tt_inline tt_u64_t tt_rng_xorshift_u64(IN tt_rng_xorshift_t *gen)
-{
-    tt_u64_t s1 = gen->s[0];
-    const tt_u64_t s0 = gen->s[1];
-    gen->s[0] = s0;
-    s1 ^= s1 << 23;
-    return (gen->s[1] = (s1 ^ s0 ^ (s1 >> 17) ^ (s0 >> 26))) + s0;
-}
+extern tt_rng_t *tt_rng_xorshift_create();
 
 #endif /* __TT_RNG_XORSHIFT__ */
