@@ -59,11 +59,11 @@ tt_rng_t *tt_rng_xorshift_create()
     rng = tt_rng_create(sizeof(tt_rng_xorshift_t), &__rx_itf);
     if (rng != NULL) {
         tt_rng_xorshift_t *rx = TT_RNG_CAST(rng, tt_rng_xorshift_t);
-        
+
         tt_rng_ntv((tt_u8_t *)&rx->s[0], sizeof(rx->s[0]));
         tt_rng_ntv((tt_u8_t *)&rx->s[1], sizeof(rx->s[1]));
     }
-    
+
     return rng;
 }
 
@@ -77,4 +77,3 @@ tt_u64_t __rx_u64(IN tt_rng_t *rng)
     s1 ^= s1 << 23;
     return (rx->s[1] = (s1 ^ s0 ^ (s1 >> 17) ^ (s0 >> 26))) + s0;
 }
-

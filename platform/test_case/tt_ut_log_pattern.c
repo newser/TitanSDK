@@ -962,17 +962,17 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_log_pattern)
     }
 
     // wront format
-	ll = tt_loglyt_pattern_create("${content} ${level:%d\n");
+    ll = tt_loglyt_pattern_create("${content} ${level:%d\n");
     TT_TEST_CHECK_EQUAL(ll, NULL, "");
 
-	ll = tt_loglyt_pattern_create("-- ${level} ${ function}\n");
-	TT_TEST_CHECK_EQUAL(ll, NULL, "");
+    ll = tt_loglyt_pattern_create("-- ${level} ${ function}\n");
+    TT_TEST_CHECK_EQUAL(ll, NULL, "");
 
-	ll = tt_loglyt_pattern_create("-- ${level} ${}\n");
-	TT_TEST_CHECK_EQUAL(ll, NULL, "");
+    ll = tt_loglyt_pattern_create("-- ${level} ${}\n");
+    TT_TEST_CHECK_EQUAL(ll, NULL, "");
 
-	ll = tt_loglyt_pattern_create("${level } ${function}\n");
-	TT_TEST_CHECK_EQUAL(ll, NULL, "");
+    ll = tt_loglyt_pattern_create("${level } ${function}\n");
+    TT_TEST_CHECK_EQUAL(ll, NULL, "");
 
     {
         ll = tt_loglyt_pattern_create(

@@ -160,7 +160,7 @@ tt_result_t __logmgr_config_component_init(IN tt_component_t *comp,
     cnode = tt_cfgu32_create("log-level",
                              NULL,
                              NULL,
-                             (tt_u32_t*)&tt_g_logmgr.level,
+                             (tt_u32_t *)&tt_g_logmgr.level,
                              NULL,
                              &attr);
     if (cnode == NULL) {

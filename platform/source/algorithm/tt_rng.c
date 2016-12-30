@@ -75,7 +75,7 @@ void tt_rng_component_register()
 tt_rng_t *tt_rng_create(IN tt_u32_t size, IN tt_rng_itf_t *itf)
 {
     tt_rng_t *rng;
-    
+
     TT_ASSERT(itf != NULL);
     TT_ASSERT(itf->rng_u64 != NULL);
 

@@ -149,7 +149,7 @@ tt_thread_t *tt_thread_create(IN const tt_char_t *name,
     if (thread->rng == NULL) {
         goto tc_fail;
     }
-    
+
     // create system thread
     if (thread->attr.local_run) {
         if (tt_current_thread() != NULL) {
