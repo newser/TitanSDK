@@ -29,8 +29,8 @@ this file defines async dns dm
 ////////////////////////////////////////////////////////////
 
 #include <algorithm/tt_double_linked_list.h>
-#include <algorithm/tt_hash_map.h>
 #include <algorithm/tt_list.h>
+#include <algorithm/tt_map.h>
 #include <algorithm/tt_red_black_tree.h>
 #include <misc/tt_reference_counter.h>
 #include <network/adns/tt_adns_rr.h>
@@ -83,7 +83,7 @@ typedef struct tt_adns_domain_s
     tt_u32_t name_len; // including terminating null
 
     struct tt_adns_dmgr_s *dmgr;
-    tt_hnode_t dmgr_node;
+    tt_mnode_t dmgr_node;
     tt_atomic_s32_t ref;
 
     tt_adns_rrset_t *rr_set[TT_ADNS_RR_TYPE_NUM];
@@ -136,7 +136,7 @@ extern void tt_adns_domain_copy_rr(IN tt_adns_domain_t *dm,
 extern tt_dlist_t *tt_adns_domain_get_rrlist(IN tt_adns_domain_t *dm,
                                              IN tt_adns_rr_type_t type);
 
-extern void tt_adns_domain_hnode2key(IN tt_hnode_t *node,
+extern void tt_adns_domain_hnode2key(IN tt_mnode_t *node,
                                      OUT const tt_u8_t **key,
                                      OUT tt_u32_t *key_len);
 

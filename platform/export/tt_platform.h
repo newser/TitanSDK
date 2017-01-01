@@ -41,8 +41,9 @@ extern "C" {
 #include <algorithm/tt_buffer_format.h>
 #include <algorithm/tt_compare.h>
 #include <algorithm/tt_double_linked_list.h>
-#include <algorithm/tt_hash_map.h>
+#include <algorithm/tt_hash.h>
 #include <algorithm/tt_list.h>
+#include <algorithm/tt_map.h>
 #include <algorithm/tt_pointer_list.h>
 #include <algorithm/tt_red_black_tree.h>
 #include <algorithm/tt_rng.h>
