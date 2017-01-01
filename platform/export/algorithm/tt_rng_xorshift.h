@@ -15,20 +15,20 @@
  */
 
 /**
-@file tt_quick_sort.h
-@brief quick sort algorithm
+@file tt_rng_xorshit.h
+@brief pseudo random generator: xorshift
 
-this file defines quick sort algorithm APIs
+this file defines xorshift pseudo random generator
 */
 
-#ifndef __TT_QUICK_SORT__
-#define __TT_QUICK_SORT__
+#ifndef __TT_RNG_XORSHIFT__
+#define __TT_RNG_XORSHIFT__
 
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <algorithm/tt_compare.h>
+#include <algorithm/tt_rng.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
@@ -38,6 +38,11 @@ this file defines quick sort algorithm APIs
 // type definition
 ////////////////////////////////////////////////////////////
 
+typedef struct
+{
+    tt_u64_t s[2];
+} tt_rng_xorshift_t;
+
 ////////////////////////////////////////////////////////////
 // global variants
 ////////////////////////////////////////////////////////////
@@ -46,24 +51,6 @@ this file defines quick sort algorithm APIs
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-/**
-@fn void tt_qsort(IN void *base,
-                       IN tt_u32_t num,
-                       IN tt_u32_t width,
-                       IN tt_cmp_t cmp)
-sort a element array
+extern tt_rng_t *tt_rng_xorshift_create();
 
-@param [in] base start address of element
-@param [in] num number of elements
-@param [in] width size in bytes of an element
-@param [in] cmp the cmp
-
-@return
-void
-*/
-extern void tt_qsort(IN void *base,
-                     IN tt_u32_t num,
-                     IN tt_u32_t width,
-                     IN tt_cmp_t cmp);
-
-#endif /* __TT_QUICK_SORT__ */
+#endif /* __TT_RNG_XORSHIFT__ */

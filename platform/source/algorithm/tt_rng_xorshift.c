@@ -14,73 +14,66 @@
  * limitations under the License.
  */
 
-/**
-@file tt_rand.h
-@brief pseudo random rngerator
-
-this file includes pseudo random rngerator
-*/
-
-#ifndef __TT_RAND__
-#define __TT_RAND__
-
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <algorithm/tt_rand_xorshift.h>
+#include <algorithm/tt_rng_xorshift.h>
+
+#include <tt_rand_native.h>
 
 ////////////////////////////////////////////////////////////
-// macro definition
+// internal macro
 ////////////////////////////////////////////////////////////
 
-#define TT_RNG_XORSHIFT 0
-
-// use macro to choose random number rngerator
-#define TT_RNG TT_RNG_XORSHIFT
-
 ////////////////////////////////////////////////////////////
-// type definition
+// internal type
 ////////////////////////////////////////////////////////////
 
-typedef union
-{
-    tt_rng_xorshift_t xorshift;
-} tt_rng_t;
+////////////////////////////////////////////////////////////
+// extern declaration
+////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////
-// global variants
+// global variant
 ////////////////////////////////////////////////////////////
+
+static tt_u64_t __rx_u64(IN tt_rng_t *rng);
+
+static tt_rng_itf_t __rx_itf = {
+    __rx_u64, NULL,
+};
 
 ////////////////////////////////////////////////////////////
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern void tt_rng_component_register();
+////////////////////////////////////////////////////////////
+// interface implementation
+////////////////////////////////////////////////////////////
 
-// ========================================
-// choose rngerator
-// ========================================
-
-#if (TT_RNG == TT_RNG_XORSHIFT)
-// xorshift
-
-tt_inline void tt_rng_init(IN tt_rng_t *rng)
+tt_rng_t *tt_rng_xorshift_create()
 {
-    tt_rng_xorshift_init(&rng->xorshift);
+    tt_rng_t *rng;
+
+    rng = tt_rng_create(sizeof(tt_rng_xorshift_t), &__rx_itf);
+    if (rng != NULL) {
+        tt_rng_xorshift_t *rx = TT_RNG_CAST(rng, tt_rng_xorshift_t);
+
+        tt_rng_ntv((tt_u8_t *)&rx->s[0], sizeof(rx->s[0]));
+        tt_rng_ntv((tt_u8_t *)&rx->s[1], sizeof(rx->s[1]));
+    }
+
+    return rng;
 }
 
-tt_inline tt_u64_t tt_rng_u64(IN tt_rng_t *rng)
+tt_u64_t __rx_u64(IN tt_rng_t *rng)
 {
-    return tt_rng_xorshift_u64(&rng->xorshift);
+    tt_rng_xorshift_t *rx = TT_RNG_CAST(rng, tt_rng_xorshift_t);
+    tt_u64_t s1 = rx->s[0];
+    const tt_u64_t s0 = rx->s[1];
+
+    rx->s[0] = s0;
+    s1 ^= s1 << 23;
+    return (rx->s[1] = (s1 ^ s0 ^ (s1 >> 17) ^ (s0 >> 26))) + s0;
 }
-#define tt_rng_u32(r) ((tt_u32_t)tt_rng_u64((r)))
-
-#else
-// unknown
-
-#error unknown random number rngerator
-
-#endif
-
-#endif /* __TT_RAND__ */

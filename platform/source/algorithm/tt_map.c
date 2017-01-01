@@ -18,12 +18,9 @@
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <algorithm/tt_rand.h>
+#include <algorithm/tt_map.h>
 
-#include <init/tt_component.h>
-#include <init/tt_profile.h>
-
-#include <tt_rand_native.h>
+#include <misc/tt_assert.h>
 
 ////////////////////////////////////////////////////////////
 // internal macro
@@ -45,40 +42,67 @@
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-static tt_result_t __rng_component_init(IN tt_component_t *comp,
-                                        IN tt_profile_t *profile);
+static tt_result_t __check_map_itf(IN tt_map_itf_t *itf);
 
 ////////////////////////////////////////////////////////////
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-void tt_rng_component_register()
+tt_map_t *tt_map_create(IN tt_u32_t size, IN tt_map_itf_t *itf)
 {
-    static tt_component_t comp;
+    tt_map_t *map;
 
-    tt_component_itf_t itf = {
-        __rng_component_init,
-    };
+    TT_ASSERT(itf != NULL);
 
-    // init component
-    tt_component_init(&comp,
-                      TT_COMPONENT_RAND,
-                      "Random Number Generator",
-                      NULL,
-                      &itf);
+    if (!TT_OK(__check_map_itf(itf))) {
+        return NULL;
+    }
 
-    // register component
-    tt_component_register(&comp);
+    map = tt_malloc(sizeof(tt_map_t) + size);
+    if (map == NULL) {
+        TT_ERROR("no mem to create map");
+        return NULL;
+    }
+
+    map->itf = itf;
+
+    if ((map->itf->create != NULL) && !TT_OK(map->itf->create(map))) {
+        tt_free(map);
+        return NULL;
+    }
+
+    return map;
 }
 
-tt_result_t __rng_component_init(IN tt_component_t *comp,
-                                 IN tt_profile_t *profile)
+tt_result_t __check_map_itf(IN tt_map_itf_t *itf)
 {
-    tt_result_t result = TT_FAIL;
+    if (itf->add == NULL) {
+        TT_ERROR("no itf->add");
+        return TT_FAIL;
+    }
 
-    // init platform specific
-    result = tt_rng_component_init_ntv();
-    if (!TT_OK(result)) {
+    if (itf->clear == NULL) {
+        TT_ERROR("no itf->clear");
+        return TT_FAIL;
+    }
+
+    if (itf->count == NULL) {
+        TT_ERROR("no itf->count");
+        return TT_FAIL;
+    }
+
+    if (itf->find == NULL) {
+        TT_ERROR("no itf->find");
+        return TT_FAIL;
+    }
+
+    if (itf->foreach == NULL) {
+        TT_ERROR("no itf->foreach");
+        return TT_FAIL;
+    }
+
+    if (itf->remove == NULL) {
+        TT_ERROR("no itf->remove");
         return TT_FAIL;
     }
 

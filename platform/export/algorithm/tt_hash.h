@@ -15,20 +15,20 @@
  */
 
 /**
-@file tt_rng_xorshit.h
-@brief pseudo random generator: xorshift
+ @file tt_hash.h
+ @brief hash
 
-this file defines xorshift pseudo random generator
-*/
+ this file hash definitions
+ */
 
-#ifndef __TT_RNG_XORSHIFT__
-#define __TT_RNG_XORSHIFT__
+#ifndef __TT_HASH__
+#define __TT_HASH__
 
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <tt_rand_native.h>
+#include <tt_basic_type.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
@@ -38,10 +38,24 @@ this file defines xorshift pseudo random generator
 // type definition
 ////////////////////////////////////////////////////////////
 
-typedef struct
+typedef enum {
+    TT_HASH_ALG_MURMUR3,
+    TT_HASH_ALG_FNV1A,
+
+    TT_HASH_ALG_NUM
+} tt_hash_alg_t;
+#define TT_HASH_ALG_VALID(t) ((t) < TT_HASH_ALG_NUM)
+
+typedef tt_u32_t tt_hashcode_t;
+
+typedef union
 {
-    tt_u64_t s[2];
-} tt_rng_xorshift_t;
+    tt_u32_t seed;
+} tt_hashctx_t;
+
+typedef tt_hashcode_t (*tt_hash_t)(IN const tt_u8_t *key,
+                                   IN tt_u32_t key_len,
+                                   IN tt_hashctx_t *hctx);
 
 ////////////////////////////////////////////////////////////
 // global variants
@@ -51,19 +65,14 @@ typedef struct
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-tt_inline void tt_rng_xorshift_init(IN tt_rng_xorshift_t *gen)
-{
-    tt_rng_ntv((tt_u8_t *)&gen->s[0], sizeof(gen->s[0]));
-    tt_rng_ntv((tt_u8_t *)&gen->s[1], sizeof(gen->s[1]));
-}
+extern void tt_hashctx_init(IN tt_hashctx_t *hctx);
 
-tt_inline tt_u64_t tt_rng_xorshift_u64(IN tt_rng_xorshift_t *gen)
-{
-    tt_u64_t s1 = gen->s[0];
-    const tt_u64_t s0 = gen->s[1];
-    gen->s[0] = s0;
-    s1 ^= s1 << 23;
-    return (gen->s[1] = (s1 ^ s0 ^ (s1 >> 17) ^ (s0 >> 26))) + s0;
-}
+extern tt_hashcode_t tt_hash_murmur3(IN const tt_u8_t *key,
+                                     IN tt_u32_t key_len,
+                                     IN tt_hashctx_t *hctx);
 
-#endif /* __TT_RNG_XORSHIFT__ */
+extern tt_hashcode_t tt_hash_fnv1a(IN const tt_u8_t *key,
+                                   IN tt_u32_t key_len,
+                                   IN tt_hashctx_t *hctx);
+
+#endif /* __TT_HASH__ */

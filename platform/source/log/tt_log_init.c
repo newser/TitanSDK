@@ -117,8 +117,6 @@ void tt_logmgr_config_component_register()
 tt_result_t __logmgr_component_init(IN tt_component_t *comp,
                                     IN tt_profile_t *profile)
 {
-    tt_result_t result;
-
     if (!TT_OK(tt_logmgr_create(&tt_g_logmgr, NULL, NULL))) {
         TT_ERROR("fail to create global log manager");
         return TT_FAIL;
@@ -162,7 +160,7 @@ tt_result_t __logmgr_config_component_init(IN tt_component_t *comp,
     cnode = tt_cfgu32_create("log-level",
                              NULL,
                              NULL,
-                             &tt_g_logmgr.level,
+                             (tt_u32_t *)&tt_g_logmgr.level,
                              NULL,
                              &attr);
     if (cnode == NULL) {

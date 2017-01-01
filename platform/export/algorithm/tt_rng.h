@@ -15,28 +15,47 @@
  */
 
 /**
-@file tt_event_base_native.h
-@brief event common native definitions
+@file tt_rng.h
+@brief pseudo random number genrator
 
-this file defines event native common types
+this file includes pseudo random number genrator
 */
 
-#ifndef __TT_EVENT_BASE_NATIVE__
-#define __TT_EVENT_BASE_NATIVE__
+#ifndef __TT_RNG__
+#define __TT_RNG__
 
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <algorithm/tt_pointer_list.h>
+#include <misc/tt_util.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
 ////////////////////////////////////////////////////////////
 
+#define TT_RNG_CAST(rng, type) TT_PTR_INC(type, rng, sizeof(tt_rng_t))
+
 ////////////////////////////////////////////////////////////
 // type definition
 ////////////////////////////////////////////////////////////
+
+struct tt_rng_s;
+
+typedef tt_u64_t (*tt_rng_u64_t)(IN struct tt_rng_s *rng);
+
+typedef void (*tt_rng_destroy_t)(IN struct tt_rng_s *rng);
+
+typedef struct
+{
+    tt_rng_u64_t rng_u64;
+    tt_rng_destroy_t destroy;
+} tt_rng_itf_t;
+
+typedef struct tt_rng_s
+{
+    tt_rng_itf_t *itf;
+} tt_rng_t;
 
 ////////////////////////////////////////////////////////////
 // global variants
@@ -46,4 +65,15 @@ this file defines event native common types
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-#endif /* __TT_EVENT_BASE_NATIVE__ */
+extern void tt_rng_component_register();
+
+extern tt_rng_t *tt_rng_create(IN tt_u32_t size, IN tt_rng_itf_t *itf);
+
+extern void tt_rng_destroy(IN tt_rng_t *rng);
+
+tt_inline tt_u64_t tt_rng_u64(IN tt_rng_t *rng)
+{
+    return rng->itf->rng_u64(rng);
+}
+
+#endif /* __TT_RNG__ */

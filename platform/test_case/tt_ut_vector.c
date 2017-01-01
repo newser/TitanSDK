@@ -162,7 +162,7 @@ static tt_bool_t __utv_test_u16_0(IN tt_vec_t *v)
     if (tt_vec_find_last(v, &val) != TT_POS_NULL) {
         __utv_fail_false();
     }
-    if (tt_vec_find_from(v, 0, &val) != TT_POS_NULL) {
+    if (tt_vec_find_from(v, &val, 0) != TT_POS_NULL) {
         __utv_fail_false();
     }
     if (tt_vec_find_from(v, &val, ~0) != TT_POS_NULL) {
@@ -689,7 +689,7 @@ static tt_bool_t __utv_test_ptr_0(IN tt_ptrvec_t *v)
     if (tt_ptrvec_find_last(v, &tmp) != TT_POS_NULL) {
         __utv_fail_false();
     }
-    if (tt_ptrvec_find_from(v, 0, &tmp) != TT_POS_NULL) {
+    if (tt_ptrvec_find_from(v, &tmp, 0) != TT_POS_NULL) {
         __utv_fail_false();
     }
     if (tt_ptrvec_find_from(v, &tmp, ~0) != TT_POS_NULL) {

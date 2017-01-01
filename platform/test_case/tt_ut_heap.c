@@ -217,7 +217,6 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_ptrheap_correct)
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_ptrheap_t ph;
     tt_ptrheap_attr_t attr;
-    tt_result_t ret;
 
     tt_rbtree_t rbt;
     int i;
@@ -310,7 +309,6 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_ptrheap_perf)
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_ptrheap_t ph;
     tt_ptrheap_attr_t attr;
-    tt_result_t ret;
 
     tt_rbtree_t rbt;
     int i;

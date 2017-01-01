@@ -28,7 +28,7 @@ this file defines ssl cache APIs
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <algorithm/tt_hash_map.h>
+#include <algorithm/tt_map_hashlist.h>
 #include <io/tt_socket_addr.h>
 #include <misc/tt_reference_counter.h>
 #include <os/tt_spinlock.h>
@@ -57,7 +57,7 @@ struct tt_sslctx_s;
 
 typedef struct
 {
-    tt_hnode_t hnode;
+    tt_mnode_t hnode;
 
     tt_char_t peer_id[TT_SSL_PEER_ID_LEN];
     tt_u32_t peer_id_len;
@@ -71,7 +71,7 @@ typedef struct
 typedef struct
 {
     tt_u32_t peer_map_slot_num;
-    tt_hashmap_attr_t peer_map_attr;
+    tt_map_hl_attr_t peer_map_attr;
     tt_s64_t peer_expire_ms;
 
     tt_spinlock_attr_t lock_attr;
@@ -83,7 +83,7 @@ typedef struct
 {
     tt_sslcache_attr_t attr;
 
-    tt_hashmap_t peer_map;
+    tt_map_t *peer_map;
     tt_spinlock_t lock;
 } tt_sslcache_t;
 

@@ -20,6 +20,7 @@
 
 #include <os/tt_thread.h>
 
+#include <algorithm/tt_rng_xorshift.h>
 #include <init/tt_component.h>
 #include <init/tt_profile.h>
 #include <log/tt_log.h>
@@ -144,7 +145,10 @@ tt_thread_t *tt_thread_create(IN const tt_char_t *name,
 
     thread->evp = NULL;
 
-    tt_rng_init(&thread->rng);
+    thread->rng = tt_rng_xorshift_create();
+    if (thread->rng == NULL) {
+        goto tc_fail;
+    }
 
     // create system thread
     if (thread->attr.local_run) {
@@ -173,6 +177,10 @@ tt_thread_t *tt_thread_create(IN const tt_char_t *name,
     }
 
 tc_fail:
+
+    if (thread->rng != NULL) {
+        tt_rng_destroy(thread->rng);
+    }
 
     if (thread != NULL) {
         tt_c_free(thread);
@@ -217,6 +225,7 @@ tt_result_t tt_thread_wait(IN tt_thread_t *thread)
     }
 
     tt_c_free(thread);
+
     return TT_SUCCESS;
 }
 
@@ -253,6 +262,10 @@ tt_result_t __thread_on_exit(IN tt_thread_t *thread)
     __LOCK_THREAD_LIST();
     tt_list_remove(&thread->thread_lst_node);
     __UNLOCK_THREAD_LIST();
+
+    if (thread->rng != NULL) {
+        tt_rng_destroy(thread->rng);
+    }
 
     // for non-detached and non-local_run thread, the struct will
     // be freed in tt_thread_wait

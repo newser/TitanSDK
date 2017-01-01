@@ -36,6 +36,7 @@ this file defines apis of simple list data structure.
 ////////////////////////////////////////////////////////////
 
 #include <misc/tt_assert.h>
+#include <misc/tt_util.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
@@ -223,7 +224,7 @@ tt_inline tt_u32_t tt_slist_move_count(IN tt_slist_t *dst,
 
 tt_inline void tt_slist_swap(IN tt_slist_t *l, IN tt_slist_t *r)
 {
-    TT_SWAP(tt_ptr_t, l->next, r->next);
+    TT_SWAP(tt_snode_t *, l->next, r->next);
 }
 
 #endif /* __TT_SINGLE_LINKED_LIST__ */

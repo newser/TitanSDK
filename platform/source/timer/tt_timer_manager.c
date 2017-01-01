@@ -82,8 +82,6 @@ tt_result_t __tmr_mgr_component_init(IN tt_component_t *comp,
 
 tt_result_t tt_tmr_mgr_create(IN tt_tmr_mgr_t *mgr, IN tt_tmr_mgr_attr_t *attr)
 {
-    tt_result_t result;
-
     TT_ASSERT(mgr != NULL);
 
     if (attr != NULL) {

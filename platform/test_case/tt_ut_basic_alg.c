@@ -9,10 +9,11 @@ extern "C" {
 #include <unit_test/tt_unit_test.h>
 
 #include <algorithm/tt_binary_search.h>
-#include <algorithm/tt_hash_map.h>
 #include <algorithm/tt_list.h>
-#include <algorithm/tt_quick_sort.h>
+#include <algorithm/tt_map.h>
 #include <algorithm/tt_red_black_tree.h>
+#include <algorithm/tt_rng_xorshift.h>
+#include <algorithm/tt_sort.h>
 #include <algorithm/tt_stack.h>
 #include <log/tt_log.h>
 #include <memory/tt_memory_alloc.h>
@@ -103,6 +104,8 @@ TT_TEST_ROUTINE_DECLARE(tt_unit_test_alg_ptr_stack)
 
 TT_TEST_ROUTINE_DECLARE(tt_unit_test_alg_hash_calc)
 TT_TEST_ROUTINE_DECLARE(tt_unit_test_alg_hash_collision)
+
+TT_TEST_ROUTINE_DECLARE(tt_unit_test_alg_rng)
 // =========================================
 
 // === test case list ======================
@@ -226,6 +229,15 @@ TT_TEST_CASE("tt_unit_test_basic_alg_qsort",
                  NULL,
                  NULL),
 
+    TT_TEST_CASE("tt_unit_test_alg_rng",
+                 "testing random num generator",
+                 tt_unit_test_alg_rng,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL),
+
     TT_TEST_CASE_LIST_DEFINE_END(basic_alg_case)
     // =========================================
 
@@ -237,7 +249,7 @@ TT_TEST_CASE("tt_unit_test_basic_alg_qsort",
 
 
     /*
-    TT_TEST_ROUTINE_DEFINE(name)
+    TT_TEST_ROUTINE_DEFINE(tt_unit_test_alg_rng)
     {
         //tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
 
@@ -273,6 +285,19 @@ TT_TEST_CASE("tt_unit_test_basic_alg_qsort",
     TT_TEST_CASE_LEAVE()
 }
 
+static int c_cmp(const void *l, const void *r)
+{
+    tt_u32_t lv = *((tt_u32_t *)l);
+    tt_u32_t rv = *((tt_u32_t *)r);
+
+    if (lv < rv)
+        return -1;
+    else if (lv == rv)
+        return 0;
+    else
+        return 1;
+}
+
 TT_TEST_ROUTINE_DEFINE(tt_unit_test_basic_alg_qsort_random)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
@@ -298,11 +323,14 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_basic_alg_qsort_random)
 
         // use qsort
         tt_qsort(test_array1, array_len, sizeof(tt_u32_t), test_comparer);
-        __short_sort(test_array2, array_len, sizeof(tt_u32_t), test_comparer);
+        tt_c_qsort(test_array2, array_len, sizeof(tt_u32_t), c_cmp);
 
         // should got same result
         for (index = 0; index < array_len; ++index) {
             TT_TEST_CHECK_EQUAL(test_array1[index], test_array2[index], "");
+        }
+        for (index = 0; index < array_len - 1; ++index) {
+            TT_TEST_CHECK_EXP(test_array1[index] <= test_array1[index + 1], "");
         }
 
         ++test;
@@ -1658,204 +1686,42 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_alg_ptr_stack)
     TT_TEST_CASE_LEAVE()
 }
 
-struct __h1_case
-{
-    const tt_char_t *key;
-    tt_u32_t key_len;
-    tt_u32_t seed;
-    tt_hashcode_t hash;
-};
-
-struct __h1_case __h1_murmur3[] = {
-    {"exfcm", 5, 0x2ba3a788, 0x39a853b6},
-    {"zehwxw", 6, 0x5e26585b, 0x16fa4c03},
-    {"ruoyadfvd", 9, 0x4d501d6a, 0xebb727cd},
-    {"zr", 2, 0x339448a9, 0x3edb7ca5},
-    {"qjf", 3, 0xe7546e8, 0xcf67c742},
-};
-
-void __h1_node2key(IN tt_hnode_t *node,
-                   OUT const tt_u8_t **key,
-                   OUT tt_u32_t *key_len)
-{
-    // dummy function
-}
-
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_alg_hash_calc)
+#define __RAND_SIZE 100000
+TT_TEST_ROUTINE_DEFINE(tt_unit_test_alg_rng)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
-    tt_hashmap_t hmap;
-    tt_hashmap_attr_t attr;
-    tt_result_t ret;
-    tt_u32_t i;
+    static tt_u32_t num[__RAND_SIZE];
+    tt_s64_t start, end, t;
+    tt_u32_t i, min_n, max_n;
+    tt_rng_t *rng;
 
     TT_TEST_CASE_ENTER()
     // test start
 
-    tt_hashmap_attr_default(&attr);
-
-    // test murmur3
-    attr.hashalg = TT_HASHFUNC_MURMUR3;
-
-    ret = tt_hashmap_create(&hmap, 1, __h1_node2key, &attr);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
-
-    for (i = 0; i < sizeof(__h1_murmur3) / sizeof(struct __h1_case); ++i) {
-        tt_hashcode_t hash;
-
-        // hack for test
-        hmap.hashctx.seed = __h1_murmur3[i].seed;
-
-        hash = tt_hashmap_hash(&hmap,
-                               (tt_u8_t *)__h1_murmur3[i].key,
-                               __h1_murmur3[i].key_len);
-        TT_TEST_CHECK_EQUAL(__h1_murmur3[i].hash, hash, "");
+    // xorshift
+    rng = tt_rng_xorshift_create();
+    for (i = 0; i < __RAND_SIZE; ++i) {
+        num[i] = 0;
     }
+    min_n = ~0;
+    max_n = 0;
 
-    // two same inputs generate same key
-    do {
-        char __ccc[] = "123456789abcdef";
-        tt_hashcode_t v1 =
-            tt_hashmap_hash(&hmap, (tt_u8_t *)__ccc, sizeof(__ccc));
-        tt_hashcode_t v2 =
-            tt_hashmap_hash(&hmap, (tt_u8_t *)__ccc, sizeof(__ccc));
-        TT_TEST_CHECK_EQUAL(v1, v2, "");
-    } while (0);
-
-    ret = tt_hashmap_destroy(&hmap);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
-
-    // test end
-    TT_TEST_CASE_LEAVE()
-}
-
-#define __h2_num 10000
-
-struct __h2_case_t
-{
-    tt_hnode_t hnode;
-
-    tt_u8_t *key;
-    tt_u32_t key_len;
-} __h2_cases[__h2_num];
-
-void __h2_node2key(IN tt_hnode_t *node,
-                   OUT const tt_u8_t **key,
-                   OUT tt_u32_t *key_len)
-{
-    struct __h2_case_t *h = TT_CONTAINER(node, struct __h2_case_t, hnode);
-
-    *key = h->key;
-    *key_len = h->key_len;
-}
-
-void __hm_count(IN struct tt_hashmap_s *hmap,
-                IN tt_hnode_t *hnode,
-                IN void *param)
-{
-    tt_u32_t *pi = (tt_u32_t *)param;
-    *pi += 1;
-}
-
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_alg_hash_collision)
-{
-    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
-    tt_hashmap_t hmap;
-    tt_hashmap_attr_t attr;
-    tt_result_t ret;
-    tt_u32_t i, j;
-
-    TT_TEST_CASE_ENTER()
-    // test start
-
-    srand((unsigned int)time(NULL));
-    // srand(0);
-
-    tt_hashmap_attr_default(&attr);
-
-    attr.hashalg = TT_HASHFUNC_MURMUR3;
-    // attr.hashalg = TT_hashfunc_FNV1A;
-
-    // 10000 => 97 slots
-    ret = tt_hashmap_create(&hmap, 97, __h2_node2key, &attr);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
-
-    for (i = 0; i < __h2_num; ++i) {
-        tt_u32_t len = rand() % 100 + 1;
-
-        __h2_cases[i].key = (tt_u8_t *)tt_malloc(len);
-        for (j = 0; j < len; ++j) {
-            __h2_cases[i].key[j] = (tt_u8_t)rand();
-        }
-
-        __h2_cases[i].key_len = len;
-
-        tt_hnode_init(&__h2_cases[i].hnode);
-
-        // insert
-        tt_hashmap_add(&hmap, &__h2_cases[i].hnode);
+    start = tt_time_ref();
+    for (i = 0; i < __RAND_SIZE; ++i) {
+        num[tt_rand_u64() % __RAND_SIZE] += 1;
     }
+    end = tt_time_ref();
+    t = tt_time_ref2ms(end - start);
 
-    // for each
-    i = 0;
-    tt_hashmap_foreach(&hmap, __hm_count, &i);
-    TT_TEST_CHECK_EQUAL(i, __h2_num, "");
-
-    for (i = 0; i < __h2_num; ++i) {
-        tt_hnode_t *hnode = tt_hashmap_find(&hmap,
-                                            __h2_cases[i].key,
-                                            __h2_cases[i].key_len,
-                                            NULL);
-        while ((hnode != &__h2_cases[i].hnode) && (hnode != NULL)) {
-            hnode = tt_hashmap_find(&hmap,
-                                    __h2_cases[i].key,
-                                    __h2_cases[i].key_len,
-                                    hnode);
-        }
-
-        // must be able to find a node
-        TT_TEST_CHECK_NOT_EQUAL(hnode, NULL, "");
+    for (i = 0; i < __RAND_SIZE; ++i) {
+        if (num[i] < min_n)
+            min_n = num[i];
+        if (num[i] >= max_n)
+            max_n = num[i];
     }
+    TT_RECORD_INFO("xorshift, time: %dms, min: %d, max: %d", t, min_n, max_n);
 
-    // check max collision
-    j = 0;
-    for (i = 0; i < hmap.hslot.list_array.list_num; ++i) {
-        if (hmap.hslot.list_array.list[i].count > j) {
-            j = hmap.hslot.list_array.list[i].count;
-        }
-    }
-
-    TT_RECORD_INFO("hslot num: %d, max collision: %f%%, %d/%d",
-                   hmap.hslot.list_array.list_num,
-                   (float)j / (float)__h2_num * 100,
-                   j,
-                   __h2_num);
-
-    for (i = 0; i < __h2_num; ++i) {
-        tt_hashmap_remove(&hmap, &__h2_cases[i].hnode);
-    }
-
-    // insert uniq
-    {
-        tt_hnode_t *hnode = NULL;
-
-        i = tt_rand_u32() % __h2_num;
-
-        tt_hashmap_add(&hmap, &__h2_cases[i].hnode);
-
-        ret = tt_hashmap_adduniq(&hmap, &__h2_cases[i].hnode, &hnode);
-        TT_TEST_CHECK_EQUAL(ret, TT_ALREADY_EXIST, "");
-        TT_TEST_CHECK_EQUAL(hnode, &__h2_cases[i].hnode, "");
-
-        tt_hashmap_remove(&hmap, hnode);
-    }
-
-    for (i = 0; i < __h2_num; ++i) {
-        tt_free(__h2_cases[i].key);
-    }
-
-    ret = tt_hashmap_destroy(&hmap);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    tt_rng_destroy(rng);
 
     // test end
     TT_TEST_CASE_LEAVE()

@@ -29,7 +29,7 @@ this thread defines APIs wrapped system thread functions
 ////////////////////////////////////////////////////////////
 
 #include <algorithm/tt_list.h>
-#include <algorithm/tt_rand.h>
+#include <algorithm/tt_rng.h>
 
 #include <tt_cstd_api.h>
 #include <tt_thread_native.h>
@@ -44,7 +44,6 @@ this thread defines APIs wrapped system thread functions
 
 struct tt_thread_s;
 struct tt_evpoller_s;
-struct tt_tcache_s;
 
 /**
  * @typedef tt_result_t (*tt_thread_routine_t)(IN void *param,
@@ -123,7 +122,7 @@ typedef struct tt_thread_s
     @var result
     thread's random number generator
     */
-    tt_rng_t rng;
+    tt_rng_t *rng;
 
     /**
      @var sys_thread
@@ -242,7 +241,7 @@ extern void tt_sleep(IN tt_u32_t millisec);
 // can only be used in tt thread
 tt_inline tt_u64_t tt_rand_u64()
 {
-    return tt_rng_u64(&(tt_current_thread()->rng));
+    return tt_rng_u64(tt_current_thread()->rng);
 }
 #define tt_rand_u32() ((tt_u32_t)tt_rand_u64())
 

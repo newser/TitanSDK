@@ -15,20 +15,22 @@
  */
 
 /**
-@file tt_event_base_native.h
-@brief event common native definitions
+ @file tt_sort.h
+ @brief sort
 
-this file defines event native common types
-*/
+ this file sort definitions
+ */
 
-#ifndef __TT_EVENT_BASE_NATIVE__
-#define __TT_EVENT_BASE_NATIVE__
+#ifndef __TT_SORT__
+#define __TT_SORT__
 
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <algorithm/tt_pointer_list.h>
+#include <algorithm/tt_compare.h>
+
+#include <tt_cstd_api.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
@@ -46,4 +48,13 @@ this file defines event native common types
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-#endif /* __TT_EVENT_BASE_NATIVE__ */
+tt_inline void tt_qsort(IN void *p,
+                        IN tt_u32_t obj_num,
+                        IN tt_u32_t obj_width,
+                        IN tt_cmp_t cmp)
+{
+    typedef int (*compar_t)(const void *, const void *);
+    qsort(p, obj_num, obj_width, (compar_t)cmp);
+}
+
+#endif /* __TT_SORT__ */

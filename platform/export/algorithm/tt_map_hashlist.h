@@ -15,20 +15,21 @@
  */
 
 /**
-@file tt_event_base_native.h
-@brief event common native definitions
+ @file tt_map_hashlist.h
+ @brief map: hash list implementation
 
-this file defines event native common types
-*/
+ this file map: hash list implementation
+ */
 
-#ifndef __TT_EVENT_BASE_NATIVE__
-#define __TT_EVENT_BASE_NATIVE__
+#ifndef __TT_MAP_HASHLIST__
+#define __TT_MAP_HASHLIST__
 
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <algorithm/tt_pointer_list.h>
+#include <algorithm/tt_hash.h>
+#include <algorithm/tt_map.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
@@ -38,6 +39,22 @@ this file defines event native common types
 // type definition
 ////////////////////////////////////////////////////////////
 
+typedef struct
+{
+    tt_hash_alg_t hash_alg;
+    tt_bool_t uniq_key : 1;
+} tt_map_hl_attr_t;
+
+typedef struct
+{
+    tt_dlist_t *dll;
+    tt_hash_t hash;
+    tt_mnode_key_t get_key;
+    tt_hashctx_t hashctx;
+    tt_u32_t dll_num;
+    tt_bool_t uniq_key : 1;
+} tt_map_hl_t;
+
 ////////////////////////////////////////////////////////////
 // global variants
 ////////////////////////////////////////////////////////////
@@ -46,4 +63,10 @@ this file defines event native common types
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-#endif /* __TT_EVENT_BASE_NATIVE__ */
+extern tt_map_t *tt_map_hashlist_create(IN tt_mnode_key_t get_key,
+                                        IN tt_u32_t list_num,
+                                        IN OPT tt_map_hl_attr_t *attr);
+
+extern void tt_map_hashlist_attr_default(IN tt_map_hl_attr_t *attr);
+
+#endif /* __TT_MAP_HASHLIST__ */

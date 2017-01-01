@@ -64,16 +64,16 @@ tt_atomic_s32_t tt_g_ssl_peer_num;
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-static void __peer_map_node2key(IN tt_hnode_t *node,
+static void __peer_map_node2key(IN tt_mnode_t *node,
                                 OUT const tt_u8_t **key,
                                 OUT tt_u32_t *key_len);
 
-static void __peer_map_node_release(IN struct tt_hashmap_s *hmap,
-                                    IN tt_hnode_t *hnode,
+static void __peer_map_node_release(IN struct tt_map_s *hmap,
+                                    IN tt_mnode_t *hnode,
                                     IN void *param);
 
-static void __peer_check_expire(IN struct tt_hashmap_s *hmap,
-                                IN tt_hnode_t *hnode,
+static void __peer_check_expire(IN struct tt_map_s *hmap,
+                                IN tt_mnode_t *hnode,
                                 IN void *param);
 
 // this function assumes size of buffer peer_id
@@ -115,10 +115,10 @@ tt_result_t tt_sslcache_create(IN tt_sslcache_t *sslcache,
     }
 
     // peer map
-    if (!TT_OK(tt_hashmap_create(&sslcache->peer_map,
-                                 attr->peer_map_slot_num,
-                                 __peer_map_node2key,
-                                 &attr->peer_map_attr))) {
+    sslcache->peer_map = tt_map_hashlist_create(__peer_map_node2key,
+                                                attr->peer_map_slot_num,
+                                                &attr->peer_map_attr);
+    if (sslcache->peer_map == NULL) {
         goto __scc_fail;
     }
     __done |= __SCC_MAP;
@@ -140,7 +140,7 @@ __scc_fail:
     }
 
     if (__done & __SCC_MAP) {
-        tt_hashmap_destroy(&sslcache->peer_map);
+        tt_map_destroy(sslcache->peer_map);
     }
 
     return TT_FAIL;
@@ -151,7 +151,7 @@ void tt_sslcache_destroy(IN tt_sslcache_t *sslcache)
     TT_ASSERT(sslcache != NULL);
 
     tt_sslcache_clear(sslcache);
-    tt_hashmap_destroy(&sslcache->peer_map);
+    tt_map_destroy(sslcache->peer_map);
 
     if (sslcache->attr.multi_thread) {
         tt_spinlock_destroy(&sslcache->lock);
@@ -161,7 +161,7 @@ void tt_sslcache_destroy(IN tt_sslcache_t *sslcache)
 void tt_sslcache_attr_default(IN tt_sslcache_attr_t *attr)
 {
     attr->peer_map_slot_num = 16;
-    tt_hashmap_attr_default(&attr->peer_map_attr);
+    tt_map_hashlist_attr_default(&attr->peer_map_attr);
     attr->peer_expire_ms = TT_SSL_PEER_EXPIRE;
 
     tt_spinlock_attr_default(&attr->lock_attr);
@@ -171,16 +171,16 @@ void tt_sslcache_attr_default(IN tt_sslcache_attr_t *attr)
 
 void tt_sslcache_clear(IN tt_sslcache_t *sslcache)
 {
-    tt_hashmap_foreach(&sslcache->peer_map, __peer_map_node_release, NULL);
+    tt_map_foreach(sslcache->peer_map, __peer_map_node_release, NULL);
 }
 
 void tt_sslcache_scan(IN tt_sslcache_t *sslcache)
 {
     tt_s64_t time_now = tt_time_ref();
 
-    tt_hashmap_foreach(&sslcache->peer_map,
-                       __peer_check_expire,
-                       (void *)(tt_uintptr_t)time_now);
+    tt_map_foreach(sslcache->peer_map,
+                   __peer_check_expire,
+                   (void *)(tt_uintptr_t)time_now);
 }
 
 tt_sslpeer_t *tt_sslcache_find(IN tt_sslcache_t *sslcache,
@@ -191,7 +191,7 @@ tt_sslpeer_t *tt_sslcache_find(IN tt_sslcache_t *sslcache,
 {
     tt_char_t peer_id[TT_SSL_PEER_ID_LEN];
     tt_u32_t peer_id_len;
-    tt_hnode_t *hnode;
+    tt_mnode_t *hnode;
     tt_sslpeer_t *sslpeer = NULL;
 
     if ((local_addr == NULL) && (peer_addr == NULL)) {
@@ -206,10 +206,8 @@ tt_sslpeer_t *tt_sslcache_find(IN tt_sslcache_t *sslcache,
     }
 
     // try find
-    hnode = tt_hashmap_find(&sslcache->peer_map,
-                            (tt_u8_t *)peer_id,
-                            peer_id_len,
-                            NULL);
+    hnode =
+        tt_map_find(sslcache->peer_map, (tt_u8_t *)peer_id, peer_id_len, NULL);
     if (hnode != NULL) {
         sslpeer = TT_CONTAINER(hnode, tt_sslpeer_t, hnode);
         tt_sslpeer_ref(sslpeer);
@@ -231,7 +229,7 @@ tt_result_t tt_sslcache_add(IN tt_sslcache_t *sslcache,
 {
     tt_char_t peer_id[TT_SSL_PEER_ID_LEN];
     tt_u32_t peer_id_len;
-    tt_hnode_t *hnode;
+    tt_mnode_t *hnode;
     tt_sslpeer_t *sslpeer = NULL;
 
     if ((local_addr == NULL) && (peer_addr == NULL)) {
@@ -246,10 +244,8 @@ tt_result_t tt_sslcache_add(IN tt_sslcache_t *sslcache,
     }
 
     // try find
-    hnode = tt_hashmap_find(&sslcache->peer_map,
-                            (tt_u8_t *)peer_id,
-                            peer_id_len,
-                            NULL);
+    hnode =
+        tt_map_find(sslcache->peer_map, (tt_u8_t *)peer_id, peer_id_len, NULL);
     if (hnode != NULL) {
         sslpeer = TT_CONTAINER(hnode, tt_sslpeer_t, hnode);
 
@@ -265,7 +261,7 @@ tt_result_t tt_sslcache_add(IN tt_sslcache_t *sslcache,
         sslpeer = (tt_sslpeer_t *)tt_malloc(sizeof(tt_sslpeer_t));
         if (sslpeer != NULL) {
             __peer_init(sslpeer, peer_id, peer_id_len, sys_peer);
-            tt_hashmap_add(&sslcache->peer_map, &sslpeer->hnode);
+            tt_map_add(sslcache->peer_map, &sslpeer->hnode);
 
             // TT_DEBUG("ssl peer[%s] is created", sslpeer->peer_id);
         }
@@ -294,7 +290,7 @@ tt_u32_t tt_sslpeer_num()
     return tt_atomic_s32_get(&tt_g_ssl_peer_num);
 }
 
-void __peer_map_node2key(IN tt_hnode_t *node,
+void __peer_map_node2key(IN tt_mnode_t *node,
                          OUT const tt_u8_t **key,
                          OUT tt_u32_t *key_len)
 {
@@ -304,21 +300,21 @@ void __peer_map_node2key(IN tt_hnode_t *node,
     *key_len = peer->peer_id_len;
 }
 
-void __peer_map_node_release(IN struct tt_hashmap_s *hmap,
-                             IN tt_hnode_t *hnode,
+void __peer_map_node_release(IN struct tt_map_s *hmap,
+                             IN tt_mnode_t *hnode,
                              IN void *param)
 {
     tt_sslpeer_t *peer = TT_CONTAINER(hnode, tt_sslpeer_t, hnode);
 
-    tt_hashmap_remove(hmap, hnode);
+    tt_map_remove(hmap, hnode);
     tt_sslpeer_release(peer);
     // the map has only 1 ref of the peer. if ref of peer is greater than 1,
     // then there must be someone called tt_sslcache_find, the peer would
     // be destroyed when that caller released the ref
 }
 
-void __peer_check_expire(IN struct tt_hashmap_s *hmap,
-                         IN tt_hnode_t *hnode,
+void __peer_check_expire(IN struct tt_map_s *hmap,
+                         IN tt_mnode_t *hnode,
                          IN void *param)
 {
     tt_sslpeer_t *sslpeer = TT_CONTAINER(hnode, tt_sslpeer_t, hnode);
@@ -329,7 +325,7 @@ void __peer_check_expire(IN struct tt_hashmap_s *hmap,
     time_val = tt_time_ref2ms(time_val - sslpeer->last_updated);
     TT_ASSERT(time_val >= 0);
     if (time_val >= sslcache->attr.peer_expire_ms) {
-        tt_hashmap_remove(hmap, hnode);
+        tt_map_remove(hmap, hnode);
         tt_sslpeer_release(sslpeer);
     }
 }
@@ -466,7 +462,7 @@ void __peer_init(IN tt_sslpeer_t *sslpeer,
                  IN tt_u32_t peer_id_len,
                  IN OPT tt_sslpeer_ntv_t *sys_peer)
 {
-    tt_hnode_init(&sslpeer->hnode);
+    tt_mnode_init(&sslpeer->hnode);
 
     TT_ASSERT(peer_id_len < TT_SSL_PEER_ID_LEN);
     tt_memcpy(sslpeer->peer_id, peer_id, peer_id_len);
