@@ -171,7 +171,7 @@ tt_result_t tt_adns_pkt_render_prepare(IN tt_adns_pkt_t *pkt, OUT tt_u32_t *len)
         tt_adns_rr_t *rr;
 
         rr = TT_CONTAINER(node, tt_adns_rr_t, node);
-        node = tt_dlist_next(&pkt->question, node);
+        node = node->next;
 
         if (!TT_OK(tt_adns_quest_render_prepare(rr, &n))) {
             return TT_FAIL;
@@ -185,7 +185,7 @@ tt_result_t tt_adns_pkt_render_prepare(IN tt_adns_pkt_t *pkt, OUT tt_u32_t *len)
         tt_adns_rr_t *rr;
 
         rr = TT_CONTAINER(node, tt_adns_rr_t, node);
-        node = tt_dlist_next(&pkt->answer, node);
+        node = node->next;
 
         if (!TT_OK(tt_adns_rr_render_prepare(rr, &n))) {
             return TT_FAIL;
@@ -199,7 +199,7 @@ tt_result_t tt_adns_pkt_render_prepare(IN tt_adns_pkt_t *pkt, OUT tt_u32_t *len)
         tt_adns_rr_t *rr;
 
         rr = TT_CONTAINER(node, tt_adns_rr_t, node);
-        node = tt_dlist_next(&pkt->authority, node);
+        node = node->next;
 
         if (!TT_OK(tt_adns_rr_render_prepare(rr, &n))) {
             return TT_FAIL;
@@ -213,7 +213,7 @@ tt_result_t tt_adns_pkt_render_prepare(IN tt_adns_pkt_t *pkt, OUT tt_u32_t *len)
         tt_adns_rr_t *rr;
 
         rr = TT_CONTAINER(node, tt_adns_rr_t, node);
-        node = tt_dlist_next(&pkt->additional, node);
+        node = node->next;
 
         if (!TT_OK(tt_adns_rr_render_prepare(rr, &n))) {
             return TT_FAIL;
@@ -249,7 +249,7 @@ tt_result_t tt_adns_pkt_render(IN tt_adns_pkt_t *pkt, OUT tt_buf_t *buf)
         tt_adns_rr_t *rr;
 
         rr = TT_CONTAINER(node, tt_adns_rr_t, node);
-        node = tt_dlist_next(&pkt->question, node);
+        node = node->next;
 
         TT_DO(tt_adns_quest_render(rr, buf));
     }
@@ -260,7 +260,7 @@ tt_result_t tt_adns_pkt_render(IN tt_adns_pkt_t *pkt, OUT tt_buf_t *buf)
         tt_adns_rr_t *rr;
 
         rr = TT_CONTAINER(node, tt_adns_rr_t, node);
-        node = tt_dlist_next(&pkt->answer, node);
+        node = node->next;
 
         TT_DO(tt_adns_rr_render(rr, buf));
     }
@@ -271,7 +271,7 @@ tt_result_t tt_adns_pkt_render(IN tt_adns_pkt_t *pkt, OUT tt_buf_t *buf)
         tt_adns_rr_t *rr;
 
         rr = TT_CONTAINER(node, tt_adns_rr_t, node);
-        node = tt_dlist_next(&pkt->authority, node);
+        node = node->next;
 
         TT_DO(tt_adns_rr_render(rr, buf));
     }
@@ -282,7 +282,7 @@ tt_result_t tt_adns_pkt_render(IN tt_adns_pkt_t *pkt, OUT tt_buf_t *buf)
         tt_adns_rr_t *rr;
 
         rr = TT_CONTAINER(node, tt_adns_rr_t, node);
-        node = tt_dlist_next(&pkt->additional, node);
+        node = node->next;
 
         TT_DO(tt_adns_rr_render(rr, buf));
     }

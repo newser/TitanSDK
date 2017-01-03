@@ -16,15 +16,15 @@
 
 /**
 @file tt_single_linked_list.h
-@brief simple list
-this file defines apis of simple list data structure.
+@brief simple sl
+this file defines apis of simple sl data structure.
 
  - push_head/push_tail/pop_head/pop_tail
- - next/tail
+ - head/tail
  - insert_before/insert_after
  - empty
  - clear
- - remove(node)
+ - remove(sn)
  - swap
 */
 
@@ -51,7 +51,10 @@ typedef struct tt_snode_s
     struct tt_snode_s *next;
 } tt_snode_t;
 
-typedef tt_snode_t tt_slist_t;
+typedef struct
+{
+    tt_snode_t *head;
+} tt_slist_t;
 
 ////////////////////////////////////////////////////////////
 // global variants
@@ -61,139 +64,150 @@ typedef tt_snode_t tt_slist_t;
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-tt_inline void tt_slist_init(IN tt_slist_t *list)
+tt_inline void tt_snode_init(IN tt_snode_t *sn)
 {
-    list->next = NULL;
+    sn->next = NULL;
 }
 
-tt_inline void tt_snode_init(IN tt_snode_t *node)
+tt_inline void tt_slist_init(IN tt_slist_t *sl)
 {
-    node->next = NULL;
+    sl->head = NULL;
 }
 
-tt_inline tt_u32_t tt_slist_count(IN tt_slist_t *list)
+tt_inline tt_snode_t *tt_slist_head(IN tt_slist_t *sl)
+{
+    return sl->head;
+}
+
+tt_inline tt_snode_t *tt_slist_tail(IN tt_slist_t *sl)
+{
+    tt_snode_t *sn = sl->head;
+    if (sn != NULL) {
+        while (sn->next != NULL) {
+            sn = sn->next;
+        }
+    }
+    return sn;
+}
+
+tt_inline tt_u32_t tt_slist_count(IN tt_slist_t *sl)
 {
     tt_u32_t count = 0;
-    tt_snode_t *node;
-
-    node = list->next;
-    while (node != NULL) {
+    tt_snode_t *sn = sl->head;
+    while (sn != NULL) {
         ++count;
-        node = node->next;
+        sn = sn->next;
     }
     return count;
 }
 
-tt_inline void tt_slist_clear(IN tt_slist_t *list)
+tt_inline void tt_slist_clear(IN tt_slist_t *sl)
 {
-    tt_snode_t *node = list->next;
-    while (node != NULL) {
-        tt_snode_t *next = node->next;
-        node->next = NULL;
-        node = next;
+    tt_snode_t *sn = sl->head;
+    while (sn != NULL) {
+        tt_snode_t *next = sn->next;
+        sn->next = NULL;
+        sn = next;
     }
-    list->next = NULL;
+    sl->head = NULL;
 }
 
-tt_inline tt_bool_t tt_slist_empty(IN tt_slist_t *list)
+tt_inline tt_bool_t tt_slist_empty(IN tt_slist_t *sl)
 {
-    return list->next == NULL ? TT_TRUE : TT_FALSE;
+    return sl->head == NULL ? TT_TRUE : TT_FALSE;
 }
 
-tt_inline tt_snode_t *tt_slist_head(IN tt_slist_t *list)
+tt_inline void tt_slist_push_head(IN tt_slist_t *sl, IN tt_snode_t *sn)
 {
-    return list->next;
+    TT_ASSERT(sn->next == NULL);
+
+    sn->next = sl->head;
+    sl->head = sn;
 }
 
-tt_inline tt_snode_t *tt_slist_tail(IN tt_slist_t *list)
+tt_inline void tt_slist_push_tail(IN tt_slist_t *sl, IN tt_snode_t *sn)
 {
-    tt_snode_t *tail = list->next;
+    tt_snode_t *tail = tt_slist_tail(sl);
+    TT_ASSERT(sn->next == NULL);
     if (tail != NULL) {
-        while (tail->next != NULL) {
-            tail = tail->next;
-        }
-    }
-    return tail;
-}
-
-tt_inline void tt_slist_push_head(IN tt_slist_t *list, IN tt_snode_t *node)
-{
-    TT_ASSERT(node->next == NULL);
-
-    node->next = list->next;
-    list->next = node;
-}
-
-tt_inline void tt_slist_push_tail(IN tt_slist_t *list, IN tt_snode_t *node)
-{
-    TT_ASSERT(node->next == NULL);
-
-    if (list->next != NULL) {
-        tt_slist_tail(list)->next = node;
+        tail->next = sn;
     } else {
-        list->next = node;
+        sl->head = sn;
     }
 }
 
-tt_inline tt_snode_t *tt_slist_pop_head(IN tt_slist_t *list)
+tt_inline tt_snode_t *tt_slist_pop_head(IN tt_slist_t *sl)
 {
-    tt_snode_t *next = NULL;
-
-    if (list->next != NULL) {
-        next = list->next;
-        list->next = next->next;
-        next->next = NULL;
+    tt_snode_t *head = sl->head;
+    if (head != NULL) {
+        sl->head = head->next;
+        head->next = NULL;
     }
-
-    return next;
+    return head;
 }
 
-tt_inline tt_snode_t *tt_slist_pop_tail(IN tt_slist_t *list)
+tt_inline tt_snode_t *tt_slist_pop_tail(IN tt_slist_t *sl)
 {
-    tt_snode_t *tail = list->next;
-    if (tail == NULL) {
+    tt_snode_t *sn = sl->head;
+    if (sn == NULL) {
         return NULL;
-    } else if (tail->next == NULL) {
-        list->next = NULL;
-        return tail;
+    } else if (sn->next == NULL) {
+        sl->head = NULL;
+        return sn;
     } else {
         tt_snode_t *prev;
         do {
-            prev = tail;
-            tail = tail->next;
-        } while (tail->next != NULL);
+            prev = sn;
+            sn = sn->next;
+        } while (sn->next != NULL);
         prev->next = NULL;
 
-        tail->next = NULL;
-        return tail;
+        sn->next = NULL;
+        return sn;
     }
 }
 
-tt_inline void tt_slist_insert_after(IN tt_snode_t *pos, IN tt_snode_t *node)
+tt_inline void tt_slist_insert_after(IN tt_snode_t *pos, IN tt_snode_t *sn)
 {
-    TT_ASSERT(node->next == NULL);
+    TT_ASSERT(sn->next == NULL);
 
-    node->next = pos->next;
-    pos->next = node;
+    sn->next = pos->next;
+    pos->next = sn;
 }
 
-// if prev_node is NULL, then the node to be removed is the next
-tt_inline void tt_slist_remove(IN tt_snode_t *prev, IN tt_snode_t *node)
+tt_inline void tt_slist_remove(IN tt_slist_t *sl, IN tt_snode_t *sn)
 {
-    TT_ASSERT(prev->next == node);
+    tt_snode_t *node = sl->head;
+    if (node == sn) {
+        sl->head = node->next;
+    } else {
+        while ((node != NULL) && (node->next != sn)) {
+            node = node->next;
+        }
+        if (node != NULL) {
+            node->next = sn->next;
+        }
+    }
+    sn->next = NULL;
+}
 
-    prev->next = node->next;
-    node->next = NULL;
+tt_inline void tt_slist_fast_remove(IN tt_snode_t *prev, IN tt_snode_t *sn)
+{
+    TT_ASSERT(prev->next == sn);
+
+    prev->next = sn->next;
+    sn->next = NULL;
 }
 
 tt_inline void tt_slist_move(IN tt_slist_t *dst, IN tt_slist_t *src)
 {
-    if (dst->next == NULL) {
-        dst->next = src->next;
+    tt_snode_t *tail = tt_slist_tail(dst);
+    if (tail != NULL) {
+        tail->next = src->head;
     } else {
-        tt_slist_tail(dst)->next = src->next;
+        dst->head = src->head;
     }
-    src->next = NULL;
+    src->head = NULL;
 }
 
 // returns how many nodes are moved to dst
@@ -204,27 +218,34 @@ tt_inline tt_u32_t tt_slist_move_count(IN tt_slist_t *dst,
     tt_snode_t *prev, *node;
     tt_u32_t n = 0;
 
-    prev = src;
-    node = src->next;
-    while ((node != NULL) && (n++ < count)) {
+    if (dst == src) {
+        return 0;
+    }
+
+    prev = NULL;
+    node = src->head;
+    while ((node != NULL) && (n < count)) {
         prev = node;
         node = node->next;
+        ++n;
     }
-    prev->next = NULL;
 
-    if (dst->next == NULL) {
-        dst->next = src->next;
-    } else {
-        tt_slist_tail(dst)->next = src->next;
+    if (prev != NULL) {
+        if (dst->head != NULL) {
+            tt_slist_tail(dst)->next = src->head;
+        } else {
+            dst->head = src->head;
+        }
+        src->head = prev->next;
+        prev->next = NULL;
     }
-    src->next = node;
 
     return n;
 }
 
 tt_inline void tt_slist_swap(IN tt_slist_t *l, IN tt_slist_t *r)
 {
-    TT_SWAP(tt_snode_t *, l->next, r->next);
+    TT_SWAP(tt_snode_t *, l->head, r->head);
 }
 
 #endif /* __TT_SINGLE_LINKED_LIST__ */

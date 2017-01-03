@@ -232,7 +232,7 @@ TT_TEST_CASE("tt_adns_ut_rr_basic",
             TT_TEST_CHECK_EQUAL(strcmp(__rr2->name, "example.com"), 0, "");
             TT_TEST_CHECK_EQUAL(__rr2->name_len, strlen("example.com") + 1, "");
 
-            node = tt_dlist_next(&l2, node);
+            node = node->next;
         }
     } while (0);
     tt_adns_rrlist_destroy(&l2);
@@ -241,7 +241,7 @@ TT_TEST_CASE("tt_adns_ut_rr_basic",
     tt_adns_rrlist_copy(&l2, &l1, 0);
     do {
         tt_dnode_t *node = tt_dlist_head(&l2);
-        while (node != &l2) {
+        while (node != NULL) {
             tt_adns_rr_t *__rr2 = TT_CONTAINER(node, tt_adns_rr_t, node);
             TT_TEST_CHECK_EQUAL(strcmp(__rr2->name, "example.com"), 0, "");
             TT_TEST_CHECK_EQUAL(__rr2->name_len, strlen("example.com") + 1, "");

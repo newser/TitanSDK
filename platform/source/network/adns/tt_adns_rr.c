@@ -318,7 +318,7 @@ tt_result_t tt_adns_rrlist_copy(IN tt_dlist_t *dst,
         cur_node = tt_dlist_head(src);
         while (cur_node != NULL) {
             cur_rr = TT_CONTAINER(cur_node, tt_adns_rr_t, node);
-            cur_node = tt_dlist_next(src, cur_node);
+            cur_node = cur_node->next;
 
             new_rr = tt_adns_rr_copy(cur_rr);
             if (new_rr == NULL) {
@@ -371,7 +371,7 @@ tt_result_t tt_adns_rrlist_set_name(IN tt_dlist_t *rrlist,
         tt_adns_rr_t *cur_rr;
 
         cur_rr = TT_CONTAINER(cur_node, tt_adns_rr_t, node);
-        cur_node = tt_dlist_next(rrlist, cur_node);
+        cur_node = cur_node->next;
 
         if (!TT_OK(
                 tt_adns_rr_set_name(cur_rr, name, name_len, name_ownership))) {
@@ -392,7 +392,7 @@ void tt_adns_rrlist_dump(IN tt_dlist_t *rrlist)
         tt_adns_rr_t *cur_rr;
 
         cur_rr = TT_CONTAINER(cur_node, tt_adns_rr_t, node);
-        cur_node = tt_dlist_next(rrlist, cur_node);
+        cur_node = cur_node->next;
 
         if (cur_rr->itf->dump != NULL) {
             cur_rr->itf->dump(cur_rr);
@@ -413,7 +413,7 @@ void tt_adns_rrlist_filter(IN tt_dlist_t *in_rrlist,
     node = tt_dlist_head(in_rrlist);
     while (node != NULL) {
         tt_adns_rr_t *rr = TT_CONTAINER(node, tt_adns_rr_t, node);
-        node = tt_dlist_next(in_rrlist, node);
+        node = node->next;
 
         if (filter->has_name &&
             ((filter->name_len != rr->name_len) ||
@@ -427,7 +427,7 @@ void tt_adns_rrlist_filter(IN tt_dlist_t *in_rrlist,
             continue;
         }
 
-        tt_dlist_remove(&rr->node);
+        tt_dlist_remove(in_rrlist, &rr->node);
         tt_dlist_push_tail(out_rrlist, &rr->node);
     }
 }

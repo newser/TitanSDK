@@ -813,7 +813,7 @@ __calc_exp:
                 min_ttl = rr->ttl;
             }
 
-            node = tt_dlist_next(&rrs->rrlist, node);
+            node = node->next;
         }
         min_ttl *= 1000;
 

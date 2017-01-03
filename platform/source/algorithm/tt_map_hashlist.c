@@ -182,7 +182,7 @@ tt_result_t __hl_add(IN tt_map_t *map, IN tt_mnode_t *mnode)
                 return TT_FAIL;
             }
 
-            dnode = tt_dlist_next(dll, dnode);
+            dnode = dnode->next;
         }
     }
     tt_dnode_init(&mnode->dnode);
@@ -191,72 +191,9 @@ tt_result_t __hl_add(IN tt_map_t *map, IN tt_mnode_t *mnode)
     return TT_SUCCESS;
 }
 
-#if 0
-tt_result_t __hl_adduniq(IN tt_map_t *map,
-                         IN tt_mnode_t *mnode,
-                         OUT tt_mnode_t **exist)
-{
-    tt_map_t *hmap = TT_CONTAINER(hslot, tt_map_t, hslot);
-    const tt_u8_t *key = NULL;
-    tt_u32_t key_len = 0;
-    tt_hashcode_t hval = 0;
-    tt_list_t *list = NULL;
-    
-    tt_hnode2key_t mnode2key = hmap->mnode2key;
-    tt_lnode_t *cur_mnode = NULL;
-    
-    // get key
-    mnode2key(mnode, &key, &key_len);
-    TT_ASSERT_HL(key != NULL);
-    TT_ASSERT_HL(key_len != 0);
-    
-    // calc hash value
-    hval = hmap->hash(key, key_len, &hmap->hashctx);
-    
-    // find dllot by index
-    list = &hslot->list_array.list[hval % hslot->list_array.list_num];
-    
-    // check uniqueness
-    cur_mnode = tt_list_head(list);
-    while (cur_mnode != NULL) {
-        const tt_u8_t *cur_key = NULL;
-        tt_u32_t cur_key_len = 0;
-        
-        // get mnode key
-        mnode2key(TT_CONTAINER(cur_mnode, tt_mnode_t, list_node),
-                  &cur_key,
-                  &cur_key_len);
-        TT_ASSERT_HL(cur_key != NULL);
-        TT_ASSERT_HL(cur_key_len != 0);
-        
-        // compare key
-        if ((key_len == cur_key_len) &&
-            (tt_memcmp(cur_key, key, key_len) == 0)) {
-            // found
-            break;
-        }
-        
-        // next mnode
-        cur_mnode = cur_mnode->next;
-    }
-    if (cur_mnode != NULL) {
-        if (exist != NULL) {
-            *exist = TT_CONTAINER(cur_mnode, tt_mnode_t, list_node);
-        }
-        return TT_ALREADY_EXIST;
-    }
-    
-    // add to dllot
-    tt_lnode_init(&mnode->list_node);
-    tt_list_push_head(list, &mnode->list_node);
-    
-    return TT_SUCCESS;
-}
-#endif
-
 void __hl_remove(IN tt_map_t *map, IN tt_mnode_t *mnode)
 {
-    tt_dlist_remove(&mnode->dnode);
+    // tt_dlist_remove(&mnode->dnode);
 }
 
 tt_mnode_t *__hl_find(IN tt_map_t *map,
@@ -268,9 +205,8 @@ tt_mnode_t *__hl_find(IN tt_map_t *map,
 
     tt_hashcode_t hashcode = hl->hash(key, key_len, &hl->hashctx);
     tt_dlist_t *dll = &hl->dll[hashcode % hl->dll_num];
-    tt_dnode_t *dnode = TT_COND(pos == NULL,
-                                tt_dlist_head(dll),
-                                tt_dlist_next(dll, &pos->dnode));
+    tt_dnode_t *dnode =
+        TT_COND(pos == NULL, tt_dlist_head(dll), pos->dnode.next);
 
     while (dnode != NULL) {
         const tt_u8_t *k;
@@ -280,7 +216,7 @@ tt_mnode_t *__hl_find(IN tt_map_t *map,
             break;
         }
 
-        dnode = tt_dlist_next(dll, dnode);
+        dnode = dnode->next;
     }
     return TT_COND(dnode != NULL, TT_CONTAINER(dnode, tt_mnode_t, dnode), NULL);
 }
@@ -294,7 +230,7 @@ void __hl_foreach(IN tt_map_t *map, IN tt_mnode_action_t action, IN void *param)
         tt_dnode_t *dnode = tt_dlist_head(&hl->dll[i]);
         while (dnode != NULL) {
             action(map, TT_CONTAINER(dnode, tt_mnode_t, dnode), param);
-            dnode = tt_dlist_next(&hl->dll[i], dnode);
+            dnode = dnode->next;
         }
     }
 }
