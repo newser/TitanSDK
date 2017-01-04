@@ -153,7 +153,7 @@ tt_adns_domain_t *tt_adns_domain_create(IN const tt_char_t *name,
                                         IN OPT tt_adns_rr_type_t *type,
                                         IN tt_u32_t type_num)
 {
-    tt_mnode_t *hnode;
+    tt_hnode_t *hnode;
     tt_adns_domain_t *dm;
 
     TT_ASSERT(name != NULL);
@@ -161,7 +161,7 @@ tt_adns_domain_t *tt_adns_domain_create(IN const tt_char_t *name,
     TT_ASSERT(dmgr != NULL);
 
     // find if exist
-    hnode = tt_map_find(dmgr->domain_map, (tt_u8_t *)name, name_len, NULL);
+    hnode = tt_hmap_find(&dmgr->domain_map, (tt_u8_t *)name, name_len);
     if (hnode != NULL) {
         dm = TT_CONTAINER(hnode, tt_adns_domain_t, dmgr_node);
         tt_adns_domain_ref(dm);
@@ -175,7 +175,10 @@ tt_adns_domain_t *tt_adns_domain_create(IN const tt_char_t *name,
     }
 
     // add to cache
-    if (!TT_OK(tt_map_add(dmgr->domain_map, &dm->dmgr_node))) {
+    if (!TT_OK(tt_hmap_add(&dmgr->domain_map,
+                           (tt_u8_t *)name,
+                           name_len,
+                           &dm->dmgr_node))) {
         __adns_domain_destroy(dm);
         return NULL;
     }
@@ -215,7 +218,7 @@ void __adns_domain_destroy(IN tt_adns_domain_t *dm)
         }
     }
 
-    tt_map_remove(dm->dmgr->domain_map, &dm->dmgr_node);
+    tt_hmap_remove(&dm->dmgr->domain_map, &dm->dmgr_node);
 
     tt_free(dm);
 }
@@ -264,7 +267,7 @@ tt_dlist_t *tt_adns_domain_get_rrlist(IN tt_adns_domain_t *dm,
     }
 }
 
-void tt_adns_domain_hnode2key(IN tt_mnode_t *node,
+void tt_adns_domain_hnode2key(IN tt_hnode_t *node,
                               OUT const tt_u8_t **key,
                               OUT tt_u32_t *key_len)
 {

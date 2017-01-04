@@ -85,9 +85,10 @@ static tt_s32_t __trx_cmpkey(IN void *n,
                              IN const tt_u8_t *key,
                              IN tt_u32_t key_len);
 
-static void __adns_dm_entry_destroy(IN struct tt_map_s *hmap,
-                                    IN tt_mnode_t *hnode,
-                                    IN void *param);
+static tt_bool_t __adns_dm_entry_destroy(IN tt_u8_t *key,
+                                         IN tt_u32_t key_len,
+                                         IN tt_hnode_t *mnode,
+                                         IN void *param);
 
 static tt_bool_t __do_admgr_query(IN __admgr_query_req_t *req,
                                   IN tt_adns_dmgr_t *dmgr);
@@ -173,10 +174,9 @@ tt_adns_dmgr_t *tt_adns_dmgr_create(IN struct tt_evcenter_s *evc,
     dmgr->evc = evc;
 
     // domain map
-    dmgr->domain_map = tt_map_hashlist_create(tt_adns_domain_hnode2key,
-                                              attr->domain_map_slot_num,
-                                              &attr->domain_map_attr);
-    if (dmgr->domain_map == NULL) {
+    if (TT_OK(tt_hmap_create(&dmgr->domain_map,
+                             attr->domain_map_slot_num,
+                             &attr->domain_map_attr))) {
         TT_ERROR("fail to create adns dmgr domain map");
         goto __acc_fail;
     }
@@ -223,7 +223,7 @@ __acc_fail:
     }
 
     if (__done & __ADC_HASHMAP) {
-        tt_map_destroy(dmgr->domain_map);
+        tt_hmap_destroy(&dmgr->domain_map);
     }
 
     if (__done & __ADC_MEM) {
@@ -248,7 +248,7 @@ void tt_adns_dmgr_destroy(IN tt_adns_dmgr_t *dmgr)
     }
 
     tt_adns_dmgr_clear(dmgr);
-    tt_map_destroy(dmgr->domain_map);
+    tt_hmap_destroy(&dmgr->domain_map);
 
     // all transactions should have been destroyed in
     // tt_adns_dmgr_clear()
@@ -259,7 +259,7 @@ void tt_adns_dmgr_destroy(IN tt_adns_dmgr_t *dmgr)
 
 void tt_adns_dmgr_attr_default(IN tt_adns_dmgr_attr_t *attr)
 {
-    tt_map_hl_attr_t *domain_map_attr;
+    tt_hmap_attr_t *domain_map_attr;
     tt_adns_tmr_attr_t *tmr_attr;
 
     TT_ASSERT(attr != NULL);
@@ -268,7 +268,7 @@ void tt_adns_dmgr_attr_default(IN tt_adns_dmgr_attr_t *attr)
     attr->domain_map_slot_num = 32;
 
     domain_map_attr = &attr->domain_map_attr;
-    tt_map_hashlist_attr_default(domain_map_attr);
+    tt_hmap_attr_default(domain_map_attr);
 
     // timer
     tmr_attr = &attr->tmr_attr;
@@ -284,7 +284,7 @@ void tt_adns_dmgr_clear(IN tt_adns_dmgr_t *dmgr)
 {
     TT_ASSERT(dmgr != NULL);
 
-    tt_map_foreach(dmgr->domain_map, __adns_dm_entry_destroy, dmgr);
+    tt_hmap_foreach(&dmgr->domain_map, __adns_dm_entry_destroy, dmgr);
 }
 
 tt_result_t tt_adns_dmgr_tev_handler(IN tt_evpoller_t *evp, IN tt_ev_t *ev)
@@ -473,12 +473,15 @@ tt_s32_t __trx_cmpkey(IN void *n, IN const tt_u8_t *key, IN tt_u32_t key_len)
     return (tt_s32_t)rrs->trx_id - trx_id;
 }
 
-void __adns_dm_entry_destroy(IN struct tt_map_s *hmap,
-                             IN tt_mnode_t *hnode,
-                             IN void *param)
+tt_bool_t __adns_dm_entry_destroy(IN tt_u8_t *key,
+                                  IN tt_u32_t key_len,
+                                  IN tt_hnode_t *mnode,
+                                  IN void *param)
 {
-    tt_adns_domain_t *dm = TT_CONTAINER(hnode, tt_adns_domain_t, dmgr_node);
+    tt_adns_domain_t *dm = TT_CONTAINER(mnode, tt_adns_domain_t, dmgr_node);
     tt_adns_domain_release(dm);
+
+    return TT_TRUE;
 }
 
 tt_bool_t __do_admgr_query(IN __admgr_query_req_t *req, IN tt_adns_dmgr_t *dmgr)
@@ -515,12 +518,12 @@ tt_adns_domain_t *__admgr_query(IN tt_adns_dmgr_t *dmgr,
                                 IN tt_u32_t flag,
                                 OUT tt_adns_qryctx_t *qryctx)
 {
-    tt_mnode_t *hnode;
+    tt_hnode_t *hnode;
     tt_adns_domain_t *dm = NULL;
 
     // this function assumes qryctx had been initialized
 
-    hnode = tt_map_find(dmgr->domain_map, (tt_u8_t *)name, name_len, NULL);
+    hnode = tt_hmap_find(&dmgr->domain_map, (tt_u8_t *)name, name_len);
     if (hnode != NULL) {
         dm = TT_CONTAINER(hnode, tt_adns_domain_t, dmgr_node);
         qryctx->rrlist = tt_adns_domain_get_rrlist(dm, type);

@@ -175,28 +175,38 @@ tt_inline void tt_slist_insert_after(IN tt_snode_t *pos, IN tt_snode_t *sn)
     pos->next = sn;
 }
 
-tt_inline void tt_slist_remove(IN tt_slist_t *sl, IN tt_snode_t *sn)
+tt_inline tt_snode_t *tt_slist_remove(IN tt_slist_t *sl, IN tt_snode_t *sn)
 {
     tt_snode_t *node = sl->head;
+    tt_snode_t *next = sn->next;
     if (node == sn) {
-        sl->head = node->next;
+        sl->head = next;
     } else {
         while ((node != NULL) && (node->next != sn)) {
             node = node->next;
         }
         if (node != NULL) {
-            node->next = sn->next;
+            node->next = next;
         }
     }
     sn->next = NULL;
+    return next;
 }
 
-tt_inline void tt_slist_fast_remove(IN tt_snode_t *prev, IN tt_snode_t *sn)
+tt_inline tt_snode_t *tt_slist_fast_remove(IN tt_slist_t *sl,
+                                           IN tt_snode_t *prev,
+                                           IN tt_snode_t *sn)
 {
-    TT_ASSERT(prev->next == sn);
-
-    prev->next = sn->next;
+    tt_snode_t *next = sn->next;
+    if (prev != NULL) {
+        TT_ASSERT(prev->next == sn);
+        prev->next = next;
+    } else {
+        TT_ASSERT(sl->head == sn);
+        sl->head = next;
+    }
     sn->next = NULL;
+    return next;
 }
 
 tt_inline void tt_slist_move(IN tt_slist_t *dst, IN tt_slist_t *src)

@@ -9,8 +9,8 @@ extern "C" {
 #include <unit_test/tt_unit_test.h>
 
 #include <algorithm/tt_binary_search.h>
+#include <algorithm/tt_hashmap.h>
 #include <algorithm/tt_list.h>
-#include <algorithm/tt_map.h>
 #include <algorithm/tt_red_black_tree.h>
 #include <algorithm/tt_rng_xorshift.h>
 #include <algorithm/tt_sort.h>

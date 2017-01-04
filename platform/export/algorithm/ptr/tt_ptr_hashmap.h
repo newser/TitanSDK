@@ -48,7 +48,7 @@ this file specifies hash map APIs
 // type definition
 ////////////////////////////////////////////////////////////
 
-// return true if want to stop
+// return false if want to stop
 typedef tt_bool_t (*tt_ptrhmap_action_t)(IN tt_u8_t *key,
                                          IN tt_u32_t key_len,
                                          IN tt_ptr_t ptr,

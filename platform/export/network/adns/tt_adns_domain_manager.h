@@ -28,7 +28,7 @@ this file defines async dns domain manager
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <algorithm/tt_map_hashlist.h>
+#include <algorithm/tt_hashmap.h>
 #include <algorithm/tt_red_black_tree.h>
 #include <network/adns/tt_adns_domain.h>
 #include <network/adns/tt_adns_query.h>
@@ -50,7 +50,7 @@ struct tt_ev_s;
 typedef struct
 {
     tt_u32_t domain_map_slot_num;
-    tt_map_hl_attr_t domain_map_attr;
+    tt_hmap_attr_t domain_map_attr;
 
     tt_adns_tmr_attr_t tmr_attr;
 } tt_adns_dmgr_attr_t;
@@ -61,7 +61,7 @@ typedef struct tt_adns_dmgr_s
     tt_u32_t flag;
 
     struct tt_evcenter_s *evc;
-    tt_map_t *domain_map;
+    tt_hashmap_t domain_map;
     tt_rbtree_t trx_tree;
 
     struct tt_adns_resolver_s *resolver;

@@ -668,7 +668,7 @@ __parse : {
             status |= 4;
         }
 
-        node = tt_dlist_next(&pkt->answer, node);
+        node = node->next;
     }
     TT_TEST_CHECK_EQUAL(status, 3, "");
 

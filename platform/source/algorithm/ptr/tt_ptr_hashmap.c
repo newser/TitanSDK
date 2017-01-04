@@ -27,6 +27,9 @@
 // internal macro
 ////////////////////////////////////////////////////////////
 
+#define __KEQ(pn, k, klen)                                                     \
+    (((klen) == (pn)->key_len) && (tt_memcmp((k), (pn)->key, (klen)) == 0))
+
 ////////////////////////////////////////////////////////////
 // internal type
 ////////////////////////////////////////////////////////////
@@ -51,15 +54,20 @@ typedef struct
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-static void __phm_fill_cache(IN tt_ptrhmap_t *phm);
-
-static __phmnode_t *__phm_find(IN tt_ptrhmap_t *phm,
-                               IN tt_u8_t *key,
-                               IN tt_u32_t key_len);
+static __phmnode_t *__find_node(IN tt_ptrhmap_t *phm,
+                                IN tt_u8_t *key,
+                                IN tt_u32_t key_len);
 
 ////////////////////////////////////////////////////////////
 // interface implementation
 ////////////////////////////////////////////////////////////
+
+tt_inline tt_slist_t *__find_sll(IN tt_ptrhmap_t *phm,
+                                 IN tt_u8_t *key,
+                                 IN tt_u32_t key_len)
+{
+    return &phm->sll[phm->hash(key, key_len, &phm->hashctx) % phm->sll_num];
+}
 
 tt_result_t tt_ptrhmap_create(IN tt_ptrhmap_t *phm,
                               IN tt_u32_t slot_num,
@@ -153,7 +161,7 @@ tt_ptr_t tt_ptrhmap_find(IN tt_ptrhmap_t *phm,
                          IN tt_u8_t *key,
                          IN tt_u32_t key_len)
 {
-    __phmnode_t *pn = __phm_find(phm, key, key_len);
+    __phmnode_t *pn = __find_node(phm, key, key_len);
     return TT_COND(pn != NULL, pn->ptr, NULL);
 }
 
@@ -177,18 +185,17 @@ tt_result_t tt_ptrhmap_add(IN tt_ptrhmap_t *phm,
                            IN tt_u32_t key_len,
                            IN tt_ptr_t ptr)
 {
-    tt_hashcode_t hashcode;
     tt_slist_t *sll;
     tt_snode_t *sn;
-    __phmnode_t *phmn;
+    __phmnode_t *pn;
 
-    hashcode = phm->hash(key, key_len, &phm->hashctx);
-    sll = &phm->sll[hashcode % phm->sll_num];
+    TT_ASSERT(ptr != NULL);
+
+    sll = __find_sll(phm, key, key_len);
     sn = tt_slist_head(sll);
     while (sn != NULL) {
-        __phmnode_t *phmn = TT_CONTAINER(sn, __phmnode_t, snode);
-        if ((phmn->key_len == key_len) &&
-            (tt_memcmp(phmn->key, key, key_len) == 0)) {
+        __phmnode_t *pn = TT_CONTAINER(sn, __phmnode_t, snode);
+        if (__KEQ(pn, key, key_len)) {
             break;
         }
 
@@ -200,19 +207,20 @@ tt_result_t tt_ptrhmap_add(IN tt_ptrhmap_t *phm,
     }
 
     sn = tt_slist_pop_head(&phm->cache);
-    if (sn == NULL) {
-        __phm_fill_cache(phm);
-    }
-    sn = tt_slist_pop_head(&phm->cache);
-    if (sn == NULL) {
-        TT_ERROR("no mem for new node");
-        return TT_FAIL;
+    if (sn != NULL) {
+        pn = TT_CONTAINER(sn, __phmnode_t, snode);
+    } else {
+        pn = tt_malloc(sizeof(__phmnode_t));
+        if (pn == NULL) {
+            TT_ERROR("no mem for new node");
+            return TT_FAIL;
+        }
     }
 
-    phmn = TT_CONTAINER(sn, __phmnode_t, snode);
-    phmn->key = key;
-    phmn->key_len = key_len;
-    phmn->ptr = ptr;
+    pn->key = key;
+    pn->key_len = key_len;
+    pn->ptr = ptr;
+    tt_snode_init(&pn->snode);
     tt_slist_push_head(sll, sn);
     return TT_SUCCESS;
 }
@@ -221,13 +229,47 @@ tt_bool_t tt_ptrhmap_remove_key(IN tt_ptrhmap_t *phm,
                                 IN tt_u8_t *key,
                                 IN tt_u32_t key_len)
 {
-    __phmnode_t *pn = __phm_find(phm, key, key_len);
-    if (pn != NULL) {
+    tt_slist_t *sll;
+    tt_snode_t *prev, *sn;
+
+    sll = __find_sll(phm, key, key_len);
+    prev = NULL;
+    sn = tt_slist_head(sll);
+    while (sn != NULL) {
+        __phmnode_t *pn = TT_CONTAINER(sn, __phmnode_t, snode);
+        if (__KEQ(pn, key, key_len)) {
+            break;
+        }
+
+        prev = sn;
+        sn = sn->next;
+    }
+
+    if (sn != NULL) {
+        tt_slist_fast_remove(sll, prev, sn);
+        return TT_TRUE;
+    } else {
+        return TT_FALSE;
     }
 }
 
 tt_bool_t tt_ptrhmap_remove_ptr(IN tt_ptrhmap_t *phm, IN tt_ptr_t ptr)
 {
+    tt_u32_t i;
+    for (i = 0; i < phm->sll_num; ++i) {
+        tt_snode_t *prev = NULL;
+        tt_snode_t *sn = tt_slist_head(&phm->sll[i]);
+        while (sn != NULL) {
+            if (TT_CONTAINER(sn, __phmnode_t, snode)->ptr == ptr) {
+                tt_slist_fast_remove(&phm->sll[i], prev, sn);
+                return TT_TRUE;
+            }
+
+            prev = sn;
+            sn = sn->next;
+        }
+    }
+    return TT_FALSE;
 }
 
 tt_bool_t tt_ptrhmap_remove_pair(IN tt_ptrhmap_t *phm,
@@ -235,16 +277,53 @@ tt_bool_t tt_ptrhmap_remove_pair(IN tt_ptrhmap_t *phm,
                                  IN tt_u32_t key_len,
                                  IN tt_ptr_t ptr)
 {
+    tt_u32_t i;
+    for (i = 0; i < phm->sll_num; ++i) {
+        tt_snode_t *prev = NULL;
+        tt_snode_t *sn = tt_slist_head(&phm->sll[i]);
+        while (sn != NULL) {
+            __phmnode_t *pn = TT_CONTAINER(sn, __phmnode_t, snode);
+            if ((pn->ptr == ptr) && __KEQ(pn, key, key_len)) {
+                tt_slist_fast_remove(&phm->sll[i], prev, sn);
+                return TT_TRUE;
+            }
+
+            prev = sn;
+            sn = sn->next;
+        }
+    }
+    return TT_FALSE;
 }
 
 void tt_ptrhmap_foreach(IN tt_ptrhmap_t *phm,
                         IN tt_ptrhmap_action_t action,
                         IN void *param)
 {
+    tt_u32_t i;
+    for (i = 0; i < phm->sll_num; ++i) {
+        tt_snode_t *sn = tt_slist_head(&phm->sll[i]);
+        while (sn != NULL) {
+            __phmnode_t *pn = TT_CONTAINER(sn, __phmnode_t, snode);
+            if (!action(pn->key, pn->key_len, pn->ptr, param)) {
+                return;
+            }
+
+            sn = sn->next;
+        }
+    }
 }
 
 void tt_ptrhmap_move(IN tt_ptrhmap_t *dst, IN tt_ptrhmap_t *src)
 {
+    tt_u32_t i;
+    for (i = 0; i < src->sll_num; ++i) {
+        tt_snode_t *sn;
+        while ((sn = tt_slist_pop_head(&src->sll[i])) != NULL) {
+            __phmnode_t *pn = TT_CONTAINER(sn, __phmnode_t, snode);
+            tt_slist_push_head(__find_sll(dst, pn->key, pn->key_len),
+                               &pn->snode);
+        }
+    }
 }
 
 tt_bool_t tt_ptrhmap_replace(IN tt_ptrhmap_t *phm,
@@ -252,6 +331,14 @@ tt_bool_t tt_ptrhmap_replace(IN tt_ptrhmap_t *phm,
                              IN tt_u32_t key_len,
                              IN tt_ptr_t new_ptr)
 {
+    __phmnode_t *pn = __find_node(phm, key, key_len);
+    TT_ASSERT(new_ptr != NULL);
+    if (pn != NULL) {
+        pn->ptr = new_ptr;
+        return TT_TRUE;
+    } else {
+        return TT_FALSE;
+    }
 }
 
 tt_bool_t tt_ptrhmap_replace_equal(IN tt_ptrhmap_t *phm,
@@ -260,44 +347,29 @@ tt_bool_t tt_ptrhmap_replace_equal(IN tt_ptrhmap_t *phm,
                                    IN tt_ptr_t old_ptr,
                                    IN tt_ptr_t new_ptr)
 {
-}
-
-void __phm_fill_cache(IN tt_ptrhmap_t *phm)
-{
-    while (phm->cache_count < phm->cache_threshold) {
-        __phmnode_t *node = tt_malloc(sizeof(__phmnode_t));
-        if (node == NULL) {
-            return;
-        }
-        node->key = NULL;
-        node->key_len = 0;
-        node->ptr = NULL;
-        tt_snode_init(&node->snode);
-
-        tt_slist_push_head(&phm->cache, &node->snode);
-        ++phm->count;
+    __phmnode_t *pn = __find_node(phm, key, key_len);
+    TT_ASSERT(new_ptr != NULL);
+    if ((pn != NULL) && (pn->ptr == old_ptr)) {
+        pn->ptr = new_ptr;
+        return TT_TRUE;
+    } else {
+        return TT_FALSE;
     }
 }
 
-__phmnode_t *__phm_find(IN tt_ptrhmap_t *phm,
-                        IN tt_u8_t *key,
-                        IN tt_u32_t key_len)
+__phmnode_t *__find_node(IN tt_ptrhmap_t *phm,
+                         IN tt_u8_t *key,
+                         IN tt_u32_t key_len)
 {
-    tt_hashcode_t hashcode;
-    tt_slist_t *sll;
-    tt_snode_t *sn;
-
-    hashcode = phm->hash(key, key_len, &phm->hashctx);
-    sll = &phm->sll[hashcode % phm->sll_num];
-    sn = tt_slist_head(sll);
-    while (sn != NULL) {
-        __phmnode_t *phmn = TT_CONTAINER(sn, __phmnode_t, snode);
-        if ((phmn->key_len == key_len) &&
-            (tt_memcmp(phmn->key, key, key_len) == 0)) {
-            return TT_CONTAINER(sn, __phmnode_t, snode);
+    tt_slist_t *sll = __find_sll(phm, key, key_len);
+    tt_snode_t *node = tt_slist_head(sll);
+    while (node != NULL) {
+        __phmnode_t *pn = TT_CONTAINER(node, __phmnode_t, snode);
+        if (__KEQ(pn, key, key_len)) {
+            return pn;
         }
 
-        sn = sn->next;
+        node = node->next;
     }
     return NULL;
 }

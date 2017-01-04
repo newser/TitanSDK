@@ -180,28 +180,32 @@ tt_inline tt_bool_t tt_dlist_contain(IN tt_dlist_t *dl, IN tt_dnode_t *dn)
     return TT_FALSE;
 }
 
-tt_inline void tt_dlist_remove(IN tt_dlist_t *dl, IN tt_dnode_t *dn)
+tt_inline tt_dnode_t *tt_dlist_remove(IN tt_dlist_t *dl, IN tt_dnode_t *dn)
 {
-    if ((dn->next == NULL) && (dn->prev == NULL) && (dl->head != dn)) {
+    tt_dnode_t *next = dn->next;
+
+    if ((next == NULL) && (dn->prev == NULL) && (dl->head != dn)) {
         // this may be a removed node
-        return;
+        return NULL;
     }
     TT_ASSERT_DL(tt_dlist_contain(dl, dn));
 
-    if (dn->next != NULL) {
-        dn->next->prev = dn->prev;
+    if (next != NULL) {
+        next->prev = dn->prev;
     } else {
         dl->tail = dn->prev;
     }
 
     if (dn->prev != NULL) {
-        dn->prev->next = dn->next;
+        dn->prev->next = next;
     } else {
-        dl->head = dn->next;
+        dl->head = next;
     }
 
     dn->next = NULL;
     dn->prev = NULL;
+
+    return next;
 }
 
 tt_inline void tt_dlist_move(IN tt_dlist_t *dst, IN tt_dlist_t *src)
