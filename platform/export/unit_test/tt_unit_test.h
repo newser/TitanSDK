@@ -117,6 +117,7 @@ typedef enum {
     TEST_UNIT_LOG_PATTERN,
     TEST_UNIT_ATOMIC,
     TEST_UNIT_LIST,
+    TEST_UNIT_QUEUE,
     TEST_UNIT_SPIN_LOCK,
     TEST_UNIT_BASIC_ALG, // id for tt_basic_algorithm
     TEST_UNIT_THREAD, // id for tt_thread
