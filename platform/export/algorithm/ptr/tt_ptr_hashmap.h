@@ -133,8 +133,6 @@ extern void tt_ptrhmap_foreach(IN tt_ptrhmap_t *phm,
                                IN tt_ptrhmap_action_t action,
                                IN void *param);
 
-extern void tt_ptrhmap_move(IN tt_ptrhmap_t *dst, IN tt_ptrhmap_t *src);
-
 extern tt_bool_t tt_ptrhmap_replace(IN tt_ptrhmap_t *phm,
                                     IN tt_u8_t *key,
                                     IN tt_u32_t key_len,

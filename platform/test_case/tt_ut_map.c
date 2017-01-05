@@ -43,6 +43,7 @@
 TT_TEST_ROUTINE_DECLARE(tt_unit_test_hash)
 TT_TEST_ROUTINE_DECLARE(tt_unit_test_map_basic)
 TT_TEST_ROUTINE_DECLARE(tt_unit_test_map_share_key)
+TT_TEST_ROUTINE_DECLARE(tt_unit_test_ptrmap)
 // =========================================
 
 // === test case list ======================
@@ -70,6 +71,15 @@ TT_TEST_CASE("tt_unit_test_hash",
     TT_TEST_CASE("tt_unit_test_map_share_key",
                  "testing map, sharing key",
                  tt_unit_test_map_share_key,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL),
+
+    TT_TEST_CASE("tt_unit_test_ptrmap",
+                 "testing ptrmap",
+                 tt_unit_test_ptrmap,
                  NULL,
                  NULL,
                  NULL,
@@ -482,6 +492,193 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_map_share_key)
     TT_TEST_CHECK_EQUAL(tt_hmap_empty(&hmap), TT_TRUE, "");
 
     tt_hmap_destroy(&hmap);
+
+    // test end
+    TT_TEST_CASE_LEAVE()
+}
+
+tt_bool_t __pm_count(IN tt_u8_t *key,
+                     IN tt_u32_t key_len,
+                     IN tt_ptr_t p,
+                     IN void *param)
+{
+    tt_u32_t *pi = (tt_u32_t *)param;
+    *pi += 1;
+
+    return TT_TRUE;
+}
+
+TT_TEST_ROUTINE_DEFINE(tt_unit_test_ptrmap)
+{
+    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+    tt_ptrhmap_t hmap, h2;
+    tt_result_t ret;
+    tt_u32_t i, j, base;
+    tt_ptrhmap_attr_t attr;
+
+    TT_TEST_CASE_ENTER()
+    // test start
+
+    tt_ptrhmap_attr_default(&attr);
+
+    // 10000 => 97 slots
+    ret = tt_ptrhmap_create(&hmap, 97, &attr);
+    TT_TEST_CHECK_SUCCESS(ret, "");
+    tt_ptrhmap_clear((&hmap));
+    TT_TEST_CHECK_EQUAL(tt_ptrhmap_count(&hmap), 0, "");
+    TT_TEST_CHECK_EQUAL(tt_ptrhmap_empty(&hmap), TT_TRUE, "");
+    TT_TEST_CHECK_EQUAL(tt_ptrhmap_find(&hmap, (tt_u8_t *)&i, 1), NULL, "");
+
+    base = tt_rand_u32() % 100 + 1;
+    for (i = 0; i < __h2_num; ++i) {
+        tt_u32_t len = base + i;
+        // each key has different length
+
+        __h2_cases[i].key = (tt_u8_t *)tt_malloc(len);
+        for (j = 0; j < len; ++j) {
+            __h2_cases[i].key[j] = (tt_u8_t)rand();
+        }
+
+        __h2_cases[i].key_len = len;
+
+        if (i % 91 == 0) {
+            TT_TEST_CHECK_EQUAL(tt_ptrhmap_contain_ptr(&hmap, &__h2_cases[i]),
+                                TT_FALSE,
+                                "");
+            TT_TEST_CHECK_EQUAL(tt_ptrhmap_contain_key(&hmap,
+                                                       __h2_cases[i].key,
+                                                       __h2_cases[i].key_len),
+                                TT_FALSE,
+                                "");
+        }
+
+        // insert
+        ret = tt_ptrhmap_add(&hmap,
+                             __h2_cases[i].key,
+                             __h2_cases[i].key_len,
+                             &__h2_cases[i]);
+        TT_TEST_CHECK_SUCCESS(ret, "");
+        if (i % 100 == 0) {
+            struct __h2_case_t *p = NULL;
+
+            TT_TEST_CHECK_EQUAL(tt_ptrhmap_count(&hmap), i + 1, "");
+            TT_TEST_CHECK_EQUAL(tt_ptrhmap_empty(&hmap), TT_FALSE, "");
+            TT_TEST_CHECK_EQUAL(tt_ptrhmap_contain_key(&hmap,
+                                                       __h2_cases[i].key,
+                                                       __h2_cases[i].key_len),
+                                TT_TRUE,
+                                "");
+            TT_TEST_CHECK_EQUAL(tt_ptrhmap_contain_ptr(&hmap, &__h2_cases[i]),
+                                TT_TRUE,
+                                "");
+
+            p = (struct __h2_case_t *)tt_ptrhmap_find(&hmap,
+                                                      __h2_cases[i].key,
+                                                      __h2_cases[i].key_len);
+            TT_TEST_CHECK_NOT_EQUAL(p, NULL, "");
+            TT_TEST_CHECK_EQUAL(p - &__h2_cases[0], i, "");
+
+            // adding a duplicate key would fail
+            ret = tt_ptrhmap_add(&hmap,
+                                 __h2_cases[i].key,
+                                 __h2_cases[i].key_len,
+                                 &__h2_cases[i]);
+            TT_TEST_CHECK_FAIL(ret, "");
+        }
+    }
+
+    // for each
+    i = 0;
+    tt_ptrhmap_foreach(&hmap, __pm_count, &i);
+    TT_TEST_CHECK_EQUAL(i, __h2_num, "");
+    TT_TEST_CHECK_EQUAL(tt_ptrhmap_count(&hmap), __h2_num, "");
+
+    for (i = 0; i < __h2_num; ++i) {
+        tt_hnode_t *hnode =
+            tt_ptrhmap_find(&hmap, __h2_cases[i].key, __h2_cases[i].key_len);
+
+        // must be able to find a node
+        TT_TEST_CHECK_NOT_EQUAL(hnode, NULL, "");
+    }
+
+    // remove
+    for (i = 0; (i < __h2_num) && (i % 10 == 0); ++i) {
+        tt_bool_t b = tt_ptrhmap_remove_key(&hmap,
+                                            __h2_cases[i].key,
+                                            __h2_cases[i].key_len);
+        TT_TEST_CHECK_EQUAL(b, TT_TRUE, "");
+        TT_TEST_CHECK_EQUAL(tt_ptrhmap_contain_ptr(&hmap, &__h2_cases[i]),
+                            TT_FALSE,
+                            "");
+    }
+    for (i = 1; (i < __h2_num) && (i % 9 == 0); ++i) {
+        tt_bool_t b = tt_ptrhmap_remove_ptr(&hmap, &__h2_cases[i]);
+        TT_TEST_CHECK_EQUAL(b, TT_TRUE, "");
+        TT_TEST_CHECK_EQUAL(tt_ptrhmap_contain_key(&hmap,
+                                                   __h2_cases[i].key,
+                                                   __h2_cases[i].key_len),
+                            TT_FALSE,
+                            "");
+    }
+    for (i = 1; (i < __h2_num) && (i % 9 == 0); ++i) {
+        tt_bool_t b = tt_ptrhmap_remove_pair(&hmap,
+                                             __h2_cases[i].key,
+                                             __h2_cases[i].key_len,
+                                             &__h2_cases[i]);
+        TT_TEST_CHECK_EQUAL(b, TT_TRUE, "");
+        TT_TEST_CHECK_EQUAL(tt_ptrhmap_contain_key(&hmap,
+                                                   __h2_cases[i].key,
+                                                   __h2_cases[i].key_len),
+                            TT_FALSE,
+                            "");
+    }
+
+    // replace
+    for (i = 1; (i < __h2_num) && (i % 13 == 0); ++i) {
+        // &__h2_cases[i] => &ret
+        tt_bool_t b = tt_ptrhmap_replace(&hmap,
+                                         __h2_cases[i].key,
+                                         __h2_cases[i].key_len,
+                                         &ret);
+        TT_TEST_CHECK_EQUAL(b, TT_TRUE, "");
+        TT_TEST_CHECK_EQUAL(tt_ptrhmap_contain_ptr(&hmap, &ret), TT_FALSE, "");
+        TT_TEST_CHECK_EQUAL(tt_ptrhmap_find(&hmap,
+                                            __h2_cases[i].key,
+                                            __h2_cases[i].key_len),
+                            &ret,
+                            "");
+        TT_TEST_CHECK_EQUAL(tt_ptrhmap_contain_ptr(&hmap, &__h2_cases[i]),
+                            TT_FALSE,
+                            "");
+
+        // &ret => &__h2_cases[i]
+        b = tt_ptrhmap_replace_equal(&hmap,
+                                     __h2_cases[i].key,
+                                     __h2_cases[i].key_len,
+                                     &ret,
+                                     &__h2_cases[i]);
+        TT_TEST_CHECK_EQUAL(b, TT_TRUE, "");
+        TT_TEST_CHECK_EQUAL(tt_ptrhmap_find(&hmap,
+                                            __h2_cases[i].key,
+                                            __h2_cases[i].key_len),
+                            &__h2_cases[i],
+                            "");
+    }
+
+    ret = tt_ptrhmap_create(&h2, 197, NULL);
+    TT_TEST_CHECK_SUCCESS(ret, "");
+
+    tt_ptrhmap_clear(&hmap);
+    TT_TEST_CHECK_EQUAL(tt_ptrhmap_count(&hmap), 0, "");
+    TT_TEST_CHECK_EQUAL(tt_ptrhmap_empty(&hmap), TT_TRUE, "");
+    TT_TEST_CHECK_EQUAL(tt_slist_count(&hmap.cache), hmap.cache_count, "");
+
+    for (i = 0; i < __h2_num; ++i) {
+        tt_free(__h2_cases[i].key);
+    }
+
+    tt_ptrhmap_destroy(&hmap);
+    tt_ptrhmap_destroy(&h2);
 
     // test end
     TT_TEST_CASE_LEAVE()

@@ -32,6 +32,7 @@ developer only need include this file to use ts platform APIs
 extern "C" {
 #endif
 
+#include <algorithm/ptr/tt_ptr_hashmap.h>
 #include <algorithm/ptr/tt_ptr_heap.h>
 #include <algorithm/ptr/tt_ptr_vector.h>
 #include <algorithm/tt_algorithm_def.h>

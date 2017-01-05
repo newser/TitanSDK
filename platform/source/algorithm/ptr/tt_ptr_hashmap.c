@@ -120,12 +120,12 @@ void tt_ptrhmap_destroy(IN tt_ptrhmap_t *phm)
 
     for (i = 0; i < phm->sll_num; ++i) {
         while ((sn = tt_slist_pop_head(&phm->sll[i])) != NULL) {
-            tt_free(sn);
+            tt_free(TT_CONTAINER(sn, __phmnode_t, snode));
         }
     }
 
     while ((sn = tt_slist_pop_head(&phm->cache)) != NULL) {
-        tt_free(sn);
+        tt_free(TT_CONTAINER(sn, __phmnode_t, snode));
     }
 
     tt_free(phm->sll);
@@ -151,7 +151,7 @@ void tt_ptrhmap_clear(IN tt_ptrhmap_t *phm)
                 tt_slist_push_head(&phm->cache, sn);
                 ++phm->cache_count;
             } else {
-                tt_free(sn);
+                tt_free(TT_CONTAINER(sn, __phmnode_t, snode));
             }
         }
     }
@@ -221,7 +221,9 @@ tt_result_t tt_ptrhmap_add(IN tt_ptrhmap_t *phm,
     pn->key_len = key_len;
     pn->ptr = ptr;
     tt_snode_init(&pn->snode);
-    tt_slist_push_head(sll, sn);
+
+    tt_slist_push_head(sll, &pn->snode);
+    ++phm->count;
     return TT_SUCCESS;
 }
 
@@ -247,6 +249,15 @@ tt_bool_t tt_ptrhmap_remove_key(IN tt_ptrhmap_t *phm,
 
     if (sn != NULL) {
         tt_slist_fast_remove(sll, prev, sn);
+        --phm->count;
+
+        if (phm->cache_count < phm->cache_threshold) {
+            tt_slist_push_head(&phm->cache, sn);
+            ++phm->cache_count;
+        } else {
+            tt_free(TT_CONTAINER(sn, __phmnode_t, snode));
+        }
+
         return TT_TRUE;
     } else {
         return TT_FALSE;
@@ -262,6 +273,15 @@ tt_bool_t tt_ptrhmap_remove_ptr(IN tt_ptrhmap_t *phm, IN tt_ptr_t ptr)
         while (sn != NULL) {
             if (TT_CONTAINER(sn, __phmnode_t, snode)->ptr == ptr) {
                 tt_slist_fast_remove(&phm->sll[i], prev, sn);
+                --phm->count;
+
+                if (phm->cache_count < phm->cache_threshold) {
+                    tt_slist_push_head(&phm->cache, sn);
+                    ++phm->cache_count;
+                } else {
+                    tt_free(TT_CONTAINER(sn, __phmnode_t, snode));
+                }
+
                 return TT_TRUE;
             }
 
@@ -285,6 +305,15 @@ tt_bool_t tt_ptrhmap_remove_pair(IN tt_ptrhmap_t *phm,
             __phmnode_t *pn = TT_CONTAINER(sn, __phmnode_t, snode);
             if ((pn->ptr == ptr) && __KEQ(pn, key, key_len)) {
                 tt_slist_fast_remove(&phm->sll[i], prev, sn);
+                --phm->count;
+
+                if (phm->cache_count < phm->cache_threshold) {
+                    tt_slist_push_head(&phm->cache, sn);
+                    ++phm->cache_count;
+                } else {
+                    tt_free(TT_CONTAINER(sn, __phmnode_t, snode));
+                }
+
                 return TT_TRUE;
             }
 
@@ -309,19 +338,6 @@ void tt_ptrhmap_foreach(IN tt_ptrhmap_t *phm,
             }
 
             sn = sn->next;
-        }
-    }
-}
-
-void tt_ptrhmap_move(IN tt_ptrhmap_t *dst, IN tt_ptrhmap_t *src)
-{
-    tt_u32_t i;
-    for (i = 0; i < src->sll_num; ++i) {
-        tt_snode_t *sn;
-        while ((sn = tt_slist_pop_head(&src->sll[i])) != NULL) {
-            __phmnode_t *pn = TT_CONTAINER(sn, __phmnode_t, snode);
-            tt_slist_push_head(__find_sll(dst, pn->key, pn->key_len),
-                               &pn->snode);
         }
     }
 }
