@@ -172,6 +172,77 @@ tt_ptr_t tt_ptrq_pop(IN tt_ptrq_t *pq)
     return p;
 }
 
+tt_ptr_t tt_ptrq_head(IN tt_ptrq_t *pq)
+{
+    tt_dnode_t *dnode;
+    __q_frame_t *frame;
+
+    dnode = tt_dlist_head(&pq->frame);
+    if (dnode == NULL) {
+        return NULL;
+    }
+
+    frame = TT_CONTAINER(dnode, __q_frame_t, node);
+    TT_ASSERT(frame->start < frame->end);
+    return __F_PTR(frame, frame->start);
+}
+
+tt_ptr_t tt_ptrq_tail(IN tt_ptrq_t *pq)
+{
+    tt_dnode_t *dnode;
+    __q_frame_t *frame;
+
+    dnode = tt_dlist_tail(&pq->frame);
+    if (dnode == NULL) {
+        return NULL;
+    }
+
+    frame = TT_CONTAINER(dnode, __q_frame_t, node);
+    TT_ASSERT(frame->start < frame->end);
+    return __F_PTR(frame, frame->end - 1);
+}
+
+void tt_ptrq_iter(IN tt_ptrq_t *pq, OUT tt_pqiter_t *iter)
+{
+    tt_dnode_t *node;
+
+    iter->pq = pq;
+
+    node = tt_dlist_head(&pq->frame);
+    if (node != NULL) {
+        iter->frame = TT_CONTAINER(node, __q_frame_t, node);
+    } else {
+        iter->frame = NULL;
+    }
+
+    iter->idx = 0;
+}
+
+tt_ptr_t tt_pqiter_next(IN OUT tt_pqiter_t *iter)
+{
+    __q_frame_t *frame = iter->frame;
+    tt_ptr_t p;
+
+    if (frame == NULL) {
+        return NULL;
+    }
+
+    TT_ASSERT((frame->start + iter->idx) <= frame->end);
+    if ((frame->start + iter->idx) == frame->end) {
+        if (frame->node.next != NULL) {
+            frame = TT_CONTAINER(frame->node.next, __q_frame_t, node);
+            iter->frame = frame;
+            iter->idx = 0;
+        } else {
+            return NULL;
+        }
+    }
+
+    p = __F_PTR(frame, frame->start + iter->idx);
+    ++iter->idx;
+    return p;
+}
+
 __q_frame_t *__alloc_frame(IN tt_ptrq_t *pq)
 {
     __q_frame_t *frame;

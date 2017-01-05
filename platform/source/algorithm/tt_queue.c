@@ -26,8 +26,8 @@
 // internal macro
 ////////////////////////////////////////////////////////////
 
-#define __F_OBJ(a, q, idx)                                                     \
-    TT_PTR_INC(void, (a), sizeof(__q_frame_t) + ((q)->obj_size * (idx)))
+#define __F_OBJ(f, q, idx)                                                     \
+    TT_PTR_INC(void, (f), sizeof(__q_frame_t) + ((q)->obj_size * (idx)))
 
 ////////////////////////////////////////////////////////////
 // internal type
@@ -111,12 +111,15 @@ void tt_queue_clear(IN tt_queue_t *q)
     while ((dnode = tt_dlist_pop_head(&q->frame)) != NULL) {
         __free_frame(q, TT_CONTAINER(dnode, __q_frame_t, node));
     }
+    q->count = 0;
 }
 
 tt_result_t tt_queue_push(IN tt_queue_t *q, IN void *obj)
 {
     tt_dnode_t *dnode;
     __q_frame_t *frame;
+
+    TT_ASSERT(obj != NULL);
 
     dnode = tt_dlist_tail(&q->frame);
     if (dnode != NULL) {
@@ -167,6 +170,77 @@ tt_result_t tt_queue_pop(IN tt_queue_t *q, OUT void *obj)
     --q->count;
 
     return TT_SUCCESS;
+}
+
+void *tt_queue_head(IN tt_queue_t *q)
+{
+    tt_dnode_t *dnode;
+    __q_frame_t *frame;
+
+    dnode = tt_dlist_head(&q->frame);
+    if (dnode == NULL) {
+        return NULL;
+    }
+
+    frame = TT_CONTAINER(dnode, __q_frame_t, node);
+    TT_ASSERT(frame->start < frame->end);
+    return __F_OBJ(frame, q, frame->start);
+}
+
+void *tt_queue_tail(IN tt_queue_t *q)
+{
+    tt_dnode_t *dnode;
+    __q_frame_t *frame;
+
+    dnode = tt_dlist_tail(&q->frame);
+    if (dnode == NULL) {
+        return NULL;
+    }
+
+    frame = TT_CONTAINER(dnode, __q_frame_t, node);
+    TT_ASSERT(frame->start < frame->end);
+    return __F_OBJ(frame, q, frame->end - 1);
+}
+
+void tt_queue_iter(IN tt_queue_t *q, OUT tt_qiter_t *iter)
+{
+    tt_dnode_t *node;
+
+    iter->q = q;
+
+    node = tt_dlist_head(&q->frame);
+    if (node != NULL) {
+        iter->frame = TT_CONTAINER(node, __q_frame_t, node);
+    } else {
+        iter->frame = NULL;
+    }
+
+    iter->idx = 0;
+}
+
+void *tt_qiter_next(IN OUT tt_qiter_t *iter)
+{
+    __q_frame_t *frame = iter->frame;
+    void *obj;
+
+    if (frame == NULL) {
+        return NULL;
+    }
+
+    TT_ASSERT((frame->start + iter->idx) <= frame->end);
+    if ((frame->start + iter->idx) == frame->end) {
+        if (frame->node.next != NULL) {
+            frame = TT_CONTAINER(frame->node.next, __q_frame_t, node);
+            iter->frame = frame;
+            iter->idx = 0;
+        } else {
+            return NULL;
+        }
+    }
+
+    obj = __F_OBJ(frame, iter->q, frame->start + iter->idx);
+    ++iter->idx;
+    return obj;
 }
 
 __q_frame_t *__alloc_frame(IN tt_queue_t *q)
