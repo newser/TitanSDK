@@ -41,6 +41,7 @@
 
 // === routine declarations ================
 TT_TEST_ROUTINE_DECLARE(tt_unit_test_queue)
+TT_TEST_ROUTINE_DECLARE(tt_unit_test_ptr_queue)
 // =========================================
 
 // === test case list ======================
@@ -55,6 +56,15 @@ TT_TEST_CASE("tt_unit_test_queue",
              NULL,
              NULL)
 ,
+
+    TT_TEST_CASE("tt_unit_test_ptr_queue",
+                 "testing ptr queue",
+                 tt_unit_test_ptr_queue,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL),
 
     TT_TEST_CASE_LIST_DEFINE_END(queue_case)
     // =========================================
@@ -143,8 +153,69 @@ TT_TEST_ROUTINE_DEFINE(name)
     TT_TEST_CHECK_EQUAL(tt_queue_count(&q), __qf_size, "");
 
     tt_queue_clear(&q);
+    ret = tt_queue_pop(&q, &i);
+    TT_TEST_CHECK_FAIL(ret, "");
 
     tt_queue_destroy(&q);
+
+    // test end
+    TT_TEST_CASE_LEAVE()
+}
+
+TT_TEST_ROUTINE_DEFINE(tt_unit_test_ptr_queue)
+{
+    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+    tt_u32_t v[__q_size] = {0};
+    tt_u32_t i, n, val;
+    tt_result_t ret;
+    tt_ptrq_t q;
+    tt_ptrq_attr_t attr;
+
+    TT_TEST_CASE_ENTER()
+    // test start
+
+    for (i = 0; i < __q_size; ++i) {
+        v[i] = i;
+    }
+
+    tt_ptrq_init(&q, NULL);
+    tt_ptrq_clear(&q);
+    TT_TEST_CHECK_EQUAL(tt_ptrq_count(&q), 0, "");
+    TT_TEST_CHECK_EQUAL(tt_ptrq_empty(&q), TT_TRUE, "");
+
+    TT_TEST_CHECK_EQUAL(tt_ptrq_pop(&q), NULL, "");
+
+    for (i = 0; i < __q_size; ++i) {
+        ret = tt_ptrq_push(&q, &v[i]);
+        TT_TEST_CHECK_SUCCESS(ret, "");
+    }
+    TT_TEST_CHECK_EQUAL(tt_ptrq_count(&q), __q_size, "");
+
+    n = tt_rand_u32() % __q_size;
+    for (i = 0; i < n; ++i) {
+        TT_TEST_CHECK_EQUAL(tt_ptrq_pop(&q), &v[i], "");
+    }
+    TT_TEST_CHECK_EQUAL(tt_ptrq_count(&q), __q_size - n, "");
+
+    for (i = 0; i < n; ++i) {
+        ret = tt_ptrq_push(&q, &v[i]);
+        TT_TEST_CHECK_SUCCESS(ret, "");
+    }
+    TT_TEST_CHECK_EQUAL(tt_ptrq_count(&q), __q_size, "");
+
+    for (i = 0; i < __q_size - q.ptr_per_frame; ++i) {
+        if (i < (__q_size - n)) {
+            TT_TEST_CHECK_EQUAL(tt_ptrq_pop(&q), &v[i + n], "");
+        } else {
+            TT_TEST_CHECK_EQUAL(tt_ptrq_pop(&q), &v[i + n - __q_size], "");
+        }
+    }
+    TT_TEST_CHECK_EQUAL(tt_ptrq_count(&q), q.ptr_per_frame, "");
+
+    tt_ptrq_clear(&q);
+    TT_TEST_CHECK_EQUAL(tt_ptrq_pop(&q), NULL, "");
+
+    tt_ptrq_destroy(&q);
 
     // test end
     TT_TEST_CASE_LEAVE()

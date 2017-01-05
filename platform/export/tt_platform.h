@@ -34,6 +34,7 @@ extern "C" {
 
 #include <algorithm/ptr/tt_ptr_hashmap.h>
 #include <algorithm/ptr/tt_ptr_heap.h>
+#include <algorithm/ptr/tt_ptr_queue.h>
 #include <algorithm/ptr/tt_ptr_vector.h>
 #include <algorithm/tt_algorithm_def.h>
 #include <algorithm/tt_binary_search.h>
