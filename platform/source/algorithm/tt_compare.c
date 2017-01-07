@@ -55,3 +55,18 @@ tt_s32_t tt_cmp_ptr(IN void *l, IN void *r)
         return 1;
     }
 }
+
+tt_s32_t tt_cmp_u32(IN void *l, IN void *r)
+{
+    tt_u32_t lv = *((tt_u32_t *)l);
+    tt_u32_t rv = *((tt_u32_t *)r);
+
+    // returning (lv - rv) may lose sign
+    if (lv < rv) {
+        return -1;
+    } else if (lv == rv) {
+        return 0;
+    } else {
+        return 1;
+    }
+}

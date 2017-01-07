@@ -49,19 +49,19 @@ extern void *__short_bsearch(IN void *key,
                              IN tt_u32_t elem_num,
                              IN tt_u32_t elem_size,
                              IN tt_cmp_t comparer);
-extern void *__short_bsearch_upper(IN void *key,
-                                   IN void *elem_start,
-                                   IN tt_u32_t elem_num,
-                                   IN tt_u32_t elem_size,
-                                   IN tt_cmp_t comparer);
-extern void *__short_bsearch_lower(IN void *key,
-                                   IN void *elem_start,
-                                   IN tt_u32_t elem_num,
-                                   IN tt_u32_t elem_size,
-                                   IN tt_cmp_t comparer);
+extern void *__short_bsearch_gteq(IN void *key,
+                                  IN void *elem_start,
+                                  IN tt_u32_t elem_num,
+                                  IN tt_u32_t elem_size,
+                                  IN tt_cmp_t comparer);
+extern void *__short_bsearch_lteq(IN void *key,
+                                  IN void *elem_start,
+                                  IN tt_u32_t elem_num,
+                                  IN tt_u32_t elem_size,
+                                  IN tt_cmp_t comparer);
 
-extern tt_result_t __rbtree_expensive_check(IN tt_rbnode_t *node,
-                                            IN OUT tt_u32_t *black_node_num);
+extern tt_result_t __rbt_expensive_check(IN tt_rbnode_t *node,
+                                         IN OUT tt_u32_t *black_node_num);
 
 static tt_s32_t test_rb_key_comparer(IN void *l,
                                      IN const tt_u8_t *key,
@@ -102,9 +102,6 @@ TT_TEST_ROUTINE_DECLARE(tt_unit_test_alg_rbtree_mt)
 TT_TEST_ROUTINE_DECLARE(tt_unit_test_alg_stack)
 TT_TEST_ROUTINE_DECLARE(tt_unit_test_alg_ptr_stack)
 
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_alg_hash_calc)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_alg_hash_collision)
-
 TT_TEST_ROUTINE_DECLARE(tt_unit_test_alg_rng)
 // =========================================
 
@@ -140,7 +137,7 @@ TT_TEST_CASE("tt_unit_test_basic_alg_qsort",
                  NULL),
 
     TT_TEST_CASE("tt_unit_test_basic_alg_min_larger",
-                 "testing tt_bsearch_upper()",
+                 "testing tt_bsearch_gteq()",
                  tt_unit_test_basic_alg_min_larger,
                  NULL,
                  NULL,
@@ -149,7 +146,7 @@ TT_TEST_CASE("tt_unit_test_basic_alg_qsort",
                  NULL),
 
     TT_TEST_CASE("tt_unit_test_basic_alg_max_less",
-                 "testing tt_bsearch_lower()",
+                 "testing tt_bsearch_lteq()",
                  tt_unit_test_basic_alg_max_less,
                  NULL,
                  NULL,
@@ -166,35 +163,6 @@ TT_TEST_CASE("tt_unit_test_basic_alg_qsort",
                  NULL,
                  NULL),
 
-#if 1
-    TT_TEST_CASE("tt_unit_test_alg_rbtree_random",
-                 "testing apis of red black tree randomly",
-                 tt_unit_test_alg_rbtree_random,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
-
-    TT_TEST_CASE("tt_unit_test_alg_rbtree_single",
-                 "testing apis of red black by a single case",
-                 tt_unit_test_alg_rbtree_single,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
-
-    TT_TEST_CASE("tt_unit_test_alg_rbtree_mt",
-                 "testing apis of red black in multi thread",
-                 tt_unit_test_alg_rbtree_mt,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
-#endif
-
     TT_TEST_CASE("tt_unit_test_alg_stack",
                  "testing apis of stack operations",
                  tt_unit_test_alg_stack,
@@ -206,23 +174,6 @@ TT_TEST_CASE("tt_unit_test_basic_alg_qsort",
     TT_TEST_CASE("tt_unit_test_alg_ptr_stack",
                  "testing apis of pointer stack operations",
                  tt_unit_test_alg_ptr_stack,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
-
-    TT_TEST_CASE("tt_unit_test_alg_hash_calc",
-                 "testing apis of hash calculation",
-                 tt_unit_test_alg_hash_calc,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
-    TT_TEST_CASE("tt_unit_test_alg_hash_collision",
-                 "testing apis of hash collision",
-                 tt_unit_test_alg_hash_collision,
                  NULL,
                  NULL,
                  NULL,
@@ -323,7 +274,8 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_basic_alg_qsort_random)
 
         // use qsort
         tt_qsort(test_array1, array_len, sizeof(tt_u32_t), test_comparer);
-        tt_c_qsort(test_array2, array_len, sizeof(tt_u32_t), c_cmp);
+        // tt_c_qsort(test_array2, array_len, sizeof(tt_u32_t), c_cmp);
+        tt_qsort(test_array2, array_len, sizeof(tt_u32_t), tt_cmp_u32);
 
         // should got same result
         for (index = 0; index < array_len; ++index) {
@@ -466,62 +418,62 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_basic_alg_min_larger)
 
     // general search
     key = 121;
-    result = (tt_u8_t *)tt_bsearch_upper(&key,
-                                         test_array1,
-                                         32,
-                                         sizeof(tt_u8_t),
-                                         test_u8_comparer);
+    result = (tt_u8_t *)tt_bsearch_gteq(&key,
+                                        test_array1,
+                                        32,
+                                        sizeof(tt_u8_t),
+                                        test_u8_comparer);
     TT_TEST_CHECK_EQUAL(*result, 122, "");
-    result = (tt_u8_t *)__short_bsearch_upper(&key,
-                                              test_array1,
-                                              32,
-                                              sizeof(tt_u8_t),
-                                              test_u8_comparer);
+    result = (tt_u8_t *)__short_bsearch_gteq(&key,
+                                             test_array1,
+                                             32,
+                                             sizeof(tt_u8_t),
+                                             test_u8_comparer);
     TT_TEST_CHECK_EQUAL(*result, 122, "");
 
     // general search
     key = 122;
-    result = (tt_u8_t *)tt_bsearch_upper(&key,
-                                         test_array1,
-                                         32,
-                                         sizeof(tt_u8_t),
-                                         test_u8_comparer);
+    result = (tt_u8_t *)tt_bsearch_gteq(&key,
+                                        test_array1,
+                                        32,
+                                        sizeof(tt_u8_t),
+                                        test_u8_comparer);
     TT_TEST_CHECK_EQUAL(*result, 122, "");
-    result = (tt_u8_t *)__short_bsearch_upper(&key,
-                                              test_array1,
-                                              32,
-                                              sizeof(tt_u8_t),
-                                              test_u8_comparer);
+    result = (tt_u8_t *)__short_bsearch_gteq(&key,
+                                             test_array1,
+                                             32,
+                                             sizeof(tt_u8_t),
+                                             test_u8_comparer);
     TT_TEST_CHECK_EQUAL(*result, 122, "");
 
     // no matching key
     key = 99;
-    result = (tt_u8_t *)tt_bsearch_upper(&key,
-                                         test_array1,
-                                         32,
-                                         sizeof(tt_u8_t),
-                                         test_u8_comparer);
+    result = (tt_u8_t *)tt_bsearch_gteq(&key,
+                                        test_array1,
+                                        32,
+                                        sizeof(tt_u8_t),
+                                        test_u8_comparer);
     TT_TEST_CHECK_EQUAL(*result, 100, "");
-    result = (tt_u8_t *)__short_bsearch_upper(&key,
-                                              test_array1,
-                                              32,
-                                              sizeof(tt_u8_t),
-                                              test_u8_comparer);
+    result = (tt_u8_t *)__short_bsearch_gteq(&key,
+                                             test_array1,
+                                             32,
+                                             sizeof(tt_u8_t),
+                                             test_u8_comparer);
     TT_TEST_CHECK_EQUAL(*result, 100, "");
 
     // no matching key
     key = 250;
-    result = (tt_u8_t *)tt_bsearch_upper(&key,
-                                         test_array1,
-                                         32,
-                                         sizeof(tt_u8_t),
-                                         test_u8_comparer);
+    result = (tt_u8_t *)tt_bsearch_gteq(&key,
+                                        test_array1,
+                                        32,
+                                        sizeof(tt_u8_t),
+                                        test_u8_comparer);
     TT_TEST_CHECK_EQUAL(result, NULL, "");
-    result = (tt_u8_t *)__short_bsearch_upper(&key,
-                                              test_array1,
-                                              32,
-                                              sizeof(tt_u8_t),
-                                              test_u8_comparer);
+    result = (tt_u8_t *)__short_bsearch_gteq(&key,
+                                             test_array1,
+                                             32,
+                                             sizeof(tt_u8_t),
+                                             test_u8_comparer);
     TT_TEST_CHECK_EQUAL(result, NULL, "");
 
     // random test
@@ -544,16 +496,16 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_basic_alg_min_larger)
         tt_qsort(test_array2, array_len, sizeof(tt_u32_t), test_comparer);
 
         key = test_array2[rand() % array_len] - 1;
-        result = (tt_u32_t *)tt_bsearch_upper((void *)&key,
-                                              test_array2,
-                                              array_len,
-                                              sizeof(tt_u32_t),
-                                              test_comparer);
-        result2 = (tt_u32_t *)__short_bsearch_upper((void *)&key,
-                                                    test_array2,
-                                                    array_len,
-                                                    sizeof(tt_u32_t),
-                                                    test_comparer);
+        result = (tt_u32_t *)tt_bsearch_gteq((void *)&key,
+                                             test_array2,
+                                             array_len,
+                                             sizeof(tt_u32_t),
+                                             test_comparer);
+        result2 = (tt_u32_t *)__short_bsearch_gteq((void *)&key,
+                                                   test_array2,
+                                                   array_len,
+                                                   sizeof(tt_u32_t),
+                                                   test_comparer);
         TT_TEST_CHECK_EQUAL(*result, *result2, "");
 
         ++test;
@@ -583,62 +535,62 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_basic_alg_max_less)
 
     // general search
     key = 121;
-    result = (tt_u8_t *)tt_bsearch_lower(&key,
-                                         test_array1,
-                                         32,
-                                         sizeof(tt_u8_t),
-                                         test_u8_comparer);
+    result = (tt_u8_t *)tt_bsearch_lteq(&key,
+                                        test_array1,
+                                        32,
+                                        sizeof(tt_u8_t),
+                                        test_u8_comparer);
     TT_TEST_CHECK_EQUAL(*result, 120, "");
-    result = (tt_u8_t *)__short_bsearch_lower(&key,
-                                              test_array1,
-                                              32,
-                                              sizeof(tt_u8_t),
-                                              test_u8_comparer);
+    result = (tt_u8_t *)__short_bsearch_lteq(&key,
+                                             test_array1,
+                                             32,
+                                             sizeof(tt_u8_t),
+                                             test_u8_comparer);
     TT_TEST_CHECK_EQUAL(*result, 120, "");
 
     // general search
     key = 122;
-    result = (tt_u8_t *)tt_bsearch_lower(&key,
-                                         test_array1,
-                                         32,
-                                         sizeof(tt_u8_t),
-                                         test_u8_comparer);
+    result = (tt_u8_t *)tt_bsearch_lteq(&key,
+                                        test_array1,
+                                        32,
+                                        sizeof(tt_u8_t),
+                                        test_u8_comparer);
     TT_TEST_CHECK_EQUAL(*result, 122, "");
-    result = (tt_u8_t *)__short_bsearch_lower(&key,
-                                              test_array1,
-                                              32,
-                                              sizeof(tt_u8_t),
-                                              test_u8_comparer);
+    result = (tt_u8_t *)__short_bsearch_lteq(&key,
+                                             test_array1,
+                                             32,
+                                             sizeof(tt_u8_t),
+                                             test_u8_comparer);
     TT_TEST_CHECK_EQUAL(*result, 122, "");
 
     // no matching key
     key = 99;
-    result = (tt_u8_t *)tt_bsearch_lower(&key,
-                                         test_array1,
-                                         32,
-                                         sizeof(tt_u8_t),
-                                         test_u8_comparer);
+    result = (tt_u8_t *)tt_bsearch_lteq(&key,
+                                        test_array1,
+                                        32,
+                                        sizeof(tt_u8_t),
+                                        test_u8_comparer);
     TT_TEST_CHECK_EQUAL(result, NULL, "");
-    result = (tt_u8_t *)__short_bsearch_lower(&key,
-                                              test_array1,
-                                              32,
-                                              sizeof(tt_u8_t),
-                                              test_u8_comparer);
+    result = (tt_u8_t *)__short_bsearch_lteq(&key,
+                                             test_array1,
+                                             32,
+                                             sizeof(tt_u8_t),
+                                             test_u8_comparer);
     TT_TEST_CHECK_EQUAL(result, NULL, "");
 
     // no matching key
     key = 250;
-    result = (tt_u8_t *)tt_bsearch_lower(&key,
-                                         test_array1,
-                                         32,
-                                         sizeof(tt_u8_t),
-                                         test_u8_comparer);
+    result = (tt_u8_t *)tt_bsearch_lteq(&key,
+                                        test_array1,
+                                        32,
+                                        sizeof(tt_u8_t),
+                                        test_u8_comparer);
     TT_TEST_CHECK_EQUAL(*result, 162, "");
-    result = (tt_u8_t *)__short_bsearch_lower(&key,
-                                              test_array1,
-                                              32,
-                                              sizeof(tt_u8_t),
-                                              test_u8_comparer);
+    result = (tt_u8_t *)__short_bsearch_lteq(&key,
+                                             test_array1,
+                                             32,
+                                             sizeof(tt_u8_t),
+                                             test_u8_comparer);
     TT_TEST_CHECK_EQUAL(*result, 162, "");
 
     // random test
@@ -660,499 +612,20 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_basic_alg_max_less)
         tt_qsort(test_array2, array_len, sizeof(tt_u32_t), test_comparer);
 
         key = test_array2[rand() % array_len] + 1;
-        result = (tt_u32_t *)tt_bsearch_lower((void *)&key,
-                                              test_array2,
-                                              array_len,
-                                              sizeof(tt_u32_t),
-                                              test_comparer);
-        result2 = (tt_u32_t *)__short_bsearch_lower((void *)&key,
-                                                    test_array2,
-                                                    array_len,
-                                                    sizeof(tt_u32_t),
-                                                    test_comparer);
+        result = (tt_u32_t *)tt_bsearch_lteq((void *)&key,
+                                             test_array2,
+                                             array_len,
+                                             sizeof(tt_u32_t),
+                                             test_comparer);
+        result2 = (tt_u32_t *)__short_bsearch_lteq((void *)&key,
+                                                   test_array2,
+                                                   array_len,
+                                                   sizeof(tt_u32_t),
+                                                   test_comparer);
         TT_TEST_CHECK_EQUAL(*result, *result2, "");
 
         ++test;
     }
-
-    // test end
-    TT_TEST_CASE_LEAVE()
-}
-
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_alg_rbtree)
-{
-    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
-    tt_u32_t array_num = 0;
-    tt_u32_t *array = NULL;
-    rb_item *rb_array = NULL;
-    tt_rbtree_t tree;
-
-    tt_u32_t black_num = 0;
-    tt_result_t ret;
-
-    TT_TEST_CASE_ENTER()
-    // test start
-
-    srand((tt_u32_t)time(NULL));
-
-    do {
-        tt_u32_t i = 0;
-
-        array_num = rand() % 100000;
-        // array_num = 20;
-
-        array = (tt_u32_t *)malloc(sizeof(tt_u32_t) * array_num);
-
-        rb_array = (rb_item *)malloc(sizeof(rb_item) * array_num);
-        tt_memset(rb_array, 0, sizeof(rb_item) * array_num);
-
-        tt_rbtree_init(&tree, test_rb_comparer, test_rb_key_comparer);
-        TT_TEST_CHECK_EQUAL(tt_rbtree_min(tree.root), NULL, "");
-        TT_TEST_CHECK_EQUAL(tt_rbtree_max(tree.root), NULL, "");
-
-        array[0] = 18265;
-        array[1] = 13217;
-        array[2] = 17844;
-        array[3] = 15016;
-        array[4] = 2674;
-        array[5] = 322;
-        array[6] = 99999;
-        array[7] = 20321;
-        array[8] = 2133;
-        array[9] = 25999;
-        array[10] = 555660;
-        array[11] = 23142654;
-        array[12] = 45646;
-        array[13] = 78913;
-        array[14] = 4563103;
-        array[15] = 456479;
-        array[16] = 6;
-        array[17] = 123455;
-        array[18] = 5679846;
-        array[19] = 12397946;
-
-        // each time remove min
-        for (i = 0; i < array_num; ++i) {
-            // array[i] = rand();
-
-            rb_array[i].val = array[i];
-            tt_rbnode_init(&rb_array[i].node);
-
-            tt_rbtree_add(&tree, &rb_array[i].node);
-        }
-
-        black_num = 0;
-        ret = __rbtree_expensive_check(tt_rbtree_root(&tree), &black_num);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
-
-        tt_qsort(array, array_num, sizeof(tt_u32_t), test_comparer);
-        for (i = 0; i < array_num; ++i) {
-            tt_rbnode_t *node_max = NULL;
-            rb_item *item_max = NULL;
-            tt_rbnode_t *node_min = NULL;
-            rb_item *item_min = NULL;
-
-            node_min = tt_rbtree_min(tree.root);
-            item_min = TT_CONTAINER(node_min, rb_item, node);
-            TT_TEST_CHECK_EQUAL(array[i], item_min->val, "");
-
-            node_max = tt_rbtree_max(tree.root);
-            item_max = TT_CONTAINER(node_max, rb_item, node);
-            TT_TEST_CHECK_EQUAL(array[array_num - 1], item_max->val, "");
-
-            tt_rbtree_remove(node_min);
-        }
-
-        // each time remove max
-        for (i = 0; i < array_num; ++i) {
-            // array[i] = rand();
-
-            rb_array[i].val = array[i];
-            tt_rbnode_init(&rb_array[i].node);
-
-            tt_rbtree_add(&tree, &rb_array[i].node);
-        }
-        tt_qsort(array, array_num, sizeof(tt_u32_t), test_comparer);
-        for (i = 0; i < array_num; ++i) {
-            tt_rbnode_t *node_max = NULL;
-            rb_item *item_max = NULL;
-            tt_rbnode_t *node_min = NULL;
-            rb_item *item_min = NULL;
-
-            node_min = tt_rbtree_min(tree.root);
-            item_min = TT_CONTAINER(node_min, rb_item, node);
-            TT_TEST_CHECK_EQUAL(array[0], item_min->val, "");
-
-            node_max = tt_rbtree_max(tree.root);
-            item_max = TT_CONTAINER(node_max, rb_item, node);
-            TT_TEST_CHECK_EQUAL(array[array_num - i - 1], item_max->val, "");
-
-            tt_rbtree_remove(node_max);
-        }
-
-        // delete from middle node to end
-        for (i = 0; i < array_num; ++i) {
-            // array[i] = rand();
-
-            rb_array[i].val = array[i];
-            tt_rbnode_init(&rb_array[i].node);
-
-            tt_rbtree_add(&tree, &rb_array[i].node);
-        }
-        tt_qsort(array, array_num, sizeof(tt_u32_t), test_comparer);
-        for (i = 2; i < array_num - 1; ++i) {
-            tt_rbnode_t *node_max = NULL;
-            rb_item *item_max = NULL;
-            tt_rbnode_t *node_min = NULL;
-            rb_item *item_min = NULL;
-
-            tt_rbnode_t *skey_node = NULL;
-            tt_rbnode_t *node_del = NULL;
-            rb_item item_del = {0};
-
-            // delete a node
-            item_del.val = array[i];
-            node_del = tt_rbtree_find(tree.root, &item_del.node);
-            skey_node = tt_rbtree_find_k(tree.root,
-                                         (tt_u8_t *)&array[i],
-                                         sizeof(tt_u32_t));
-            TT_TEST_CHECK_EQUAL(node_del, skey_node, "");
-
-            tt_rbtree_remove(node_del);
-            node_del = tt_rbtree_find(tree.root, &item_del.node);
-            // TT_TEST_CHECK_EQUAL(node_del, NULL, "");
-            // not always null, maybe some nodes has same key value
-            skey_node = tt_rbtree_find_k(tree.root,
-                                         (tt_u8_t *)&array[i],
-                                         sizeof(tt_u32_t));
-            TT_TEST_CHECK_EQUAL(skey_node, node_del, "");
-
-            node_min = tt_rbtree_min(tree.root);
-            item_min = TT_CONTAINER(node_min, rb_item, node);
-            TT_TEST_CHECK_EQUAL(array[0], item_min->val, "");
-
-            node_max = tt_rbtree_max(tree.root);
-            item_max = TT_CONTAINER(node_max, rb_item, node);
-            TT_TEST_CHECK_EQUAL(array[array_num - 1], item_max->val, "");
-        }
-        // clear tree
-        for (i = 0; i < array_num; ++i) {
-            tt_rbnode_init(&rb_array[i].node);
-        }
-        tt_rbtree_init(&tree, test_rb_comparer, test_rb_key_comparer);
-
-        // delete from middle node to begin
-        for (i = 0; i < array_num; ++i) {
-            // array[i] = rand();
-
-            rb_array[i].val = array[i];
-            tt_rbnode_init(&rb_array[i].node);
-
-            tt_rbtree_add(&tree, &rb_array[i].node);
-        }
-        tt_qsort(array, array_num, sizeof(tt_u32_t), test_comparer);
-        for (i = 7; i > 1; --i) {
-            tt_rbnode_t *node_max = NULL;
-            rb_item *item_max = NULL;
-            tt_rbnode_t *node_min = NULL;
-            rb_item *item_min = NULL;
-
-            tt_rbnode_t *skey_node = NULL;
-            tt_rbnode_t *node_del = NULL;
-            rb_item item_del = {0};
-
-            // delete a node
-            item_del.val = array[i];
-            node_del = tt_rbtree_find(tree.root, &item_del.node);
-            skey_node = tt_rbtree_find_k(tree.root,
-                                         (tt_u8_t *)&array[i],
-                                         sizeof(tt_u32_t));
-            TT_TEST_CHECK_EQUAL(node_del, skey_node, "");
-
-            tt_rbtree_remove(node_del);
-
-            node_del = tt_rbtree_find(tree.root, &item_del.node);
-            // TT_TEST_CHECK_EQUAL(node_del, NULL, "");
-            skey_node = tt_rbtree_find_k(tree.root,
-                                         (tt_u8_t *)&array[i],
-                                         sizeof(tt_u32_t));
-            TT_TEST_CHECK_EQUAL(node_del, skey_node, "");
-
-            node_min = tt_rbtree_min(tree.root);
-            item_min = TT_CONTAINER(node_min, rb_item, node);
-            TT_TEST_CHECK_EQUAL(array[0], item_min->val, "");
-
-            node_max = tt_rbtree_max(tree.root);
-            item_max = TT_CONTAINER(node_max, rb_item, node);
-            TT_TEST_CHECK_EQUAL(array[array_num - 1], item_max->val, "");
-        }
-        // clear tree
-        for (i = 0; i < array_num; ++i) {
-            tt_rbnode_init(&rb_array[i].node);
-        }
-        tt_rbtree_init(&tree, test_rb_comparer, test_rb_key_comparer);
-
-
-        free(array);
-        free(rb_array);
-    } while (0);
-
-    // test end
-    TT_TEST_CASE_LEAVE()
-}
-
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_alg_rbtree_random)
-{
-    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
-    tt_u32_t array_num = 10000;
-    lst_item *lst_array = NULL;
-    rb_item *rb_array = NULL;
-    tt_rbtree_t tree;
-
-    lst_item *lst_array_bk = NULL;
-    tt_u32_t *del_bk = NULL;
-    tt_u32_t del_bk_num = 0;
-
-    tt_u32_t test_num = 10;
-
-    TT_TEST_CASE_ENTER()
-// test start
-
-#if (TT_UNIT_TEST_CASE_FAST & TT_UNIT_TEST_ALG_FAST)
-    TT_TEST_CASE_LEAVE()
-#endif
-
-    srand((tt_u32_t)time(NULL));
-
-    do {
-        tt_u32_t i = 0;
-        tt_list_t lst;
-
-        tt_rbnode_t *rb_pos = NULL;
-        tt_rbnode_t *skey_node = NULL;
-        tt_lnode_t *lst_pos = NULL;
-
-        tt_rbnode_t *search_rb = NULL;
-        rb_item key_rb;
-        tt_lnode_t *search_lst = NULL;
-        lst_item key_lst;
-
-        lst_array = (lst_item *)malloc(sizeof(lst_item) * array_num);
-        tt_memset(lst_array, 0, sizeof(lst_item) * array_num);
-        tt_list_init(&lst);
-
-        lst_array_bk = (lst_item *)malloc(sizeof(lst_item) * array_num);
-        tt_memset(lst_array_bk, 0, sizeof(lst_item) * array_num);
-        del_bk = (tt_u32_t *)malloc(sizeof(tt_u32_t) * array_num);
-        tt_memset(del_bk, 0xFF, sizeof(tt_u32_t) * array_num);
-        del_bk_num = 0;
-
-        rb_array = (rb_item *)malloc(sizeof(rb_item) * array_num);
-        tt_memset(rb_array, 0, sizeof(rb_item) * array_num);
-        tt_rbtree_init(&tree, test_rb_comparer, test_rb_key_comparer);
-
-        for (i = 0; i < array_num; ++i) {
-            lst_array[i].val = rand();
-
-            rb_array[i].val = lst_array[i].val;
-            tt_rbnode_init(&rb_array[i].node);
-            tt_rbtree_add(&tree, &rb_array[i].node);
-        }
-
-        TT_TEST_CHECK_EQUAL(__rbtree_expensive_check(tt_rbtree_root(&tree),
-                                                     NULL),
-                            TT_SUCCESS,
-                            "");
-
-        tt_memcpy(lst_array_bk, lst_array, sizeof(lst_item) * array_num);
-
-        tt_qsort(lst_array, array_num, sizeof(lst_item), test_lst_comparer);
-        for (i = 0; i < array_num; ++i) {
-            tt_lnode_init(&lst_array[i].node);
-            tt_list_push_tail(&lst, &lst_array[i].node);
-        }
-
-        // min larger
-        tt_rbnode_init(&key_rb.node);
-        key_rb.val = rand();
-        search_rb = tt_rbtree_find_upper(tree.root, &key_rb.node);
-
-        skey_node = tt_rbtree_find_upper_k(tree.root,
-                                           (tt_u8_t *)&key_rb.val,
-                                           sizeof(tt_u32_t));
-        TT_TEST_CHECK_EQUAL(search_rb, skey_node, "");
-
-        tt_lnode_init(&key_lst.node);
-        key_lst.val = key_rb.val;
-        search_lst = (tt_lnode_t *)tt_bsearch_upper(&key_lst,
-                                                    lst_array,
-                                                    array_num,
-                                                    sizeof(lst_item),
-                                                    test_lst_comparer);
-        if ((search_rb == NULL) || (search_lst == NULL)) {
-            TT_TEST_CHECK_EQUAL((void *)search_rb, (void *)search_lst, "");
-        } else {
-            rb_item *search_rb_item = TT_CONTAINER(search_rb, rb_item, node);
-            lst_item *search_lst_item = (lst_item *)search_lst;
-
-            TT_TEST_CHECK_EQUAL(search_rb_item->val, search_lst_item->val, "");
-            TT_TEST_CHECK_EXP(key_rb.val <= search_rb_item->val, "");
-        }
-
-        // max less
-        tt_rbnode_init(&key_rb.node);
-        key_rb.val = rand();
-        search_rb = tt_rbtree_find_lower(tree.root, &key_rb.node);
-
-        skey_node = tt_rbtree_find_lower_k(tree.root,
-                                           (tt_u8_t *)&key_rb.val,
-                                           sizeof(tt_u32_t));
-        TT_TEST_CHECK_EQUAL(search_rb, skey_node, "");
-
-        tt_lnode_init(&key_lst.node);
-        key_lst.val = key_rb.val;
-        search_lst = (tt_lnode_t *)tt_bsearch_lower(&key_lst,
-                                                    lst_array,
-                                                    array_num,
-                                                    sizeof(lst_item),
-                                                    test_lst_comparer);
-        if ((search_rb == NULL) || (search_lst == NULL)) {
-            TT_TEST_CHECK_EQUAL((void *)search_rb, (void *)search_lst, "");
-        } else {
-            rb_item *search_rb_item = TT_CONTAINER(search_rb, rb_item, node);
-            lst_item *search_lst_item = (lst_item *)search_lst;
-
-            TT_TEST_CHECK_EQUAL(search_rb_item->val, search_lst_item->val, "");
-            TT_TEST_CHECK_EXP(key_rb.val >= search_rb_item->val, "");
-        }
-
-        // delete randomly
-        for (i = 0; i < array_num / 2; ++i) {
-            tt_u32_t j = rand() % array_num;
-            lst_item *li = &lst_array[j];
-            tt_rbnode_t *del_node = NULL;
-            rb_item ri = {0};
-
-            if (li->node.lst == &lst) {
-                del_bk[del_bk_num++] = j;
-
-                tt_list_remove(&li->node);
-
-                ri.val = li->val;
-                del_node = tt_rbtree_find(tree.root, &ri.node);
-
-                skey_node = tt_rbtree_find_k(tree.root,
-                                             (tt_u8_t *)&ri.val,
-                                             sizeof(tt_u32_t));
-                TT_TEST_CHECK_EQUAL(skey_node, del_node, "");
-
-                tt_rbtree_remove(del_node);
-            }
-        }
-
-        TT_TEST_CHECK_EQUAL(lst.count, tree.node_num, "");
-        lst_pos = tt_list_head(&lst);
-        rb_pos = tt_rbtree_min(tree.root);
-
-        while (lst_pos != NULL) {
-            lst_item *comp_lst = TT_CONTAINER(lst_pos, lst_item, node);
-            rb_item *comp_rb = TT_CONTAINER(rb_pos, rb_item, node);
-
-            TT_TEST_CHECK_EQUAL(comp_lst->val, comp_rb->val, "");
-
-            lst_pos = lst_pos->next;
-            rb_pos = tt_rbtree_next(rb_pos);
-        }
-
-        free(lst_array);
-        free(rb_array);
-
-        free(lst_array_bk);
-        free(del_bk);
-    } while (test_num--);
-
-    // test end
-    TT_TEST_CASE_LEAVE()
-}
-
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_alg_rbtree_single)
-{
-    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
-    tt_u32_t array_num = 6;
-    rb_item rb_array[6];
-    tt_rbtree_t tree;
-
-    tt_u32_t del[6] = {0};
-    tt_u32_t del_num = 2;
-
-    tt_rbnode_t *rb_pos = NULL;
-    rb_item *ri = NULL;
-
-    TT_TEST_CASE_ENTER()
-    // test start
-
-    memset(&rb_array, 0, sizeof(rb_array));
-    do {
-        tt_u32_t i = 0;
-
-        rb_array[0].val = 4135;
-        rb_array[1].val = 23632;
-        rb_array[2].val = 150;
-        rb_array[3].val = 12400;
-        rb_array[4].val = 26123;
-        rb_array[5].val = 25649;
-
-        del[0] = 1;
-        del[1] = 2;
-
-        tt_rbtree_init(&tree, test_rb_comparer, test_rb_key_comparer);
-
-        for (i = 0; i < array_num; ++i) {
-            tt_rbnode_init(&rb_array[i].node);
-            tt_rbtree_add(&tree, &rb_array[i].node);
-        }
-
-        // delete
-        for (i = 0; i < del_num; ++i) {
-            tt_rbnode_t *del_node = NULL;
-            tt_rbnode_t *skey_node = NULL;
-            rb_item ri = {0};
-
-            ri.val = rb_array[del[i]].val;
-            del_node = tt_rbtree_find(tree.root, &ri.node);
-            skey_node = tt_rbtree_find_k(tree.root,
-                                         (tt_u8_t *)&ri.val,
-                                         sizeof(tt_u32_t));
-            TT_TEST_CHECK_EQUAL(skey_node, del_node, "");
-
-            tt_rbtree_remove(del_node);
-
-            del_node = tt_rbtree_find(tree.root, &ri.node);
-            skey_node = tt_rbtree_find_k(tree.root,
-                                         (tt_u8_t *)&ri.val,
-                                         sizeof(tt_u32_t));
-            TT_TEST_CHECK_EQUAL(skey_node, del_node, "");
-        }
-    } while (0);
-
-    rb_pos = tt_rbtree_min(tree.root);
-    ri = TT_CONTAINER(rb_pos, rb_item, node);
-    TT_TEST_CHECK_EQUAL(ri->val, 4135, "");
-
-    rb_pos = tt_rbtree_next(rb_pos);
-    ri = TT_CONTAINER(rb_pos, rb_item, node);
-    TT_TEST_CHECK_EQUAL(ri->val, 12400, "");
-
-    rb_pos = tt_rbtree_next(rb_pos);
-    ri = TT_CONTAINER(rb_pos, rb_item, node);
-    TT_TEST_CHECK_EQUAL(ri->val, 25649, "");
-
-    rb_pos = tt_rbtree_next(rb_pos);
-    ri = TT_CONTAINER(rb_pos, rb_item, node);
-    TT_TEST_CHECK_EQUAL(ri->val, 26123, "");
-
-    rb_pos = tt_rbtree_next(rb_pos);
-    TT_TEST_CHECK_EQUAL(rb_pos, NULL, "");
 
     // test end
     TT_TEST_CASE_LEAVE()
@@ -1241,7 +714,10 @@ static tt_result_t test_routine_rb(IN tt_thread_t *thread, IN void *param)
 
             if (mt)
                 tt_spinlock_acquire(&__lock);
-            tt_rbtree_add(&__rbtree, &prbi[i].node);
+            tt_rbtree_add(&__rbtree,
+                          (tt_u8_t *)&prbi[i].val,
+                          sizeof(&prbi[i].val),
+                          &prbi[i].node);
             if (mt)
                 tt_spinlock_release(&__lock);
         } else {
@@ -1249,7 +725,7 @@ static tt_result_t test_routine_rb(IN tt_thread_t *thread, IN void *param)
                 if (prbi[j].val != 0) {
                     if (mt)
                         tt_spinlock_acquire(&__lock);
-                    tt_rbtree_remove(&prbi[j].node);
+                    tt_rbtree_remove(&__rbtree, &prbi[j].node);
                     if (mt)
                         tt_spinlock_release(&__lock);
                     prbi[j].val = 0;
@@ -1264,7 +740,7 @@ static tt_result_t test_routine_rb(IN tt_thread_t *thread, IN void *param)
         if (prbi[i].val != 0) {
             if (mt)
                 tt_spinlock_acquire(&__lock);
-            tt_rbtree_remove(&prbi[i].node);
+            tt_rbtree_remove(&__rbtree, &prbi[i].node);
             if (mt)
                 tt_spinlock_release(&__lock);
             prbi[i].val = 0;
@@ -1455,7 +931,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_alg_rbtree_mt)
     TT_TEST_CASE_ENTER()
     // test start
 
-    tt_rbtree_init(&__rbtree, test_rb_comparer, test_rb_key_comparer);
+    tt_rbtree_init(&__rbtree, NULL);
     tt_spinlock_create(&__lock, NULL);
 
     srand((int)time(NULL));

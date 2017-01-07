@@ -433,7 +433,7 @@ void __adns_rrs_reset(IN tt_adns_rrset_t *rrs)
     rrs->cur_rslvr = NULL;
     rrs->state = TT_ADNS_RRS_INIT;
 
-    tt_rbtree_remove(&rrs->trx_node);
+    tt_rbtree_remove(&rrs->dm->dmgr->trx_tree, &rrs->trx_node);
     rrs->trx_id = 0;
 
     if (rrs->query_pkt != NULL) {
@@ -483,9 +483,12 @@ void __adns_rrs_fsm(IN tt_adns_rrset_t *rrs,
                 if (rrs->cur_rslvr != NULL) {
                     __RRS_NEW_STATE(rrs, TT_ADNS_RRS_QUERYING);
 
-                    tt_rbtree_remove(&rrs->trx_node);
+                    tt_rbtree_remove(&dmgr->trx_tree, &rrs->trx_node);
                     rrs->trx_id = (tt_u16_t)tt_rand_u32();
-                    tt_rbtree_add(&dmgr->trx_tree, &rrs->trx_node);
+                    tt_rbtree_add(&dmgr->trx_tree,
+                                  (tt_u8_t *)&rrs->trx_id,
+                                  sizeof(rrs->trx_id),
+                                  &rrs->trx_node);
 
                     if (rrs->query_pkt != NULL) {
                         tt_adns_pkt_release(rrs->query_pkt);
@@ -518,7 +521,7 @@ void __adns_rrs_fsm(IN tt_adns_rrset_t *rrs,
 
                     __RRS_NEW_STATE(rrs, TT_ADNS_RRS_UNAVAIL);
 
-                    tt_rbtree_remove(&rrs->trx_node);
+                    tt_rbtree_remove(&rrs->dm->dmgr->trx_tree, &rrs->trx_node);
 
                     if (rrs->query_pkt != NULL) {
                         tt_adns_pkt_release(rrs->query_pkt);
@@ -639,7 +642,7 @@ void __adns_rrs_fsm(IN tt_adns_rrset_t *rrs,
 
         // the response could match an ongoing query, so destroy
         // the existing trasaction
-        tt_rbtree_remove(&rrs->trx_node);
+        tt_rbtree_remove(&rrs->dm->dmgr->trx_tree, &rrs->trx_node);
 
         if (rrs->query_pkt != NULL) {
             tt_adns_pkt_release(rrs->query_pkt);

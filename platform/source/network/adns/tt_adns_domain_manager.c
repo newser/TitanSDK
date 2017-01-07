@@ -183,7 +183,7 @@ tt_adns_dmgr_t *tt_adns_dmgr_create(IN struct tt_evcenter_s *evc,
     __done |= __ADC_HASHMAP;
 
     // transaction tree
-    tt_rbtree_init(&dmgr->trx_tree, __trx_cmp, __trx_cmpkey);
+    tt_rbtree_init(&dmgr->trx_tree, NULL);
 
     // name server
     dmgr->resolver =
@@ -316,9 +316,9 @@ void tt_adns_dmgr_pkt_handler(IN tt_adns_dmgr_t *dmgr, IN tt_adns_pkt_t *pkt)
     TT_ASSERT(dmgr != NULL);
     TT_ASSERT(pkt != NULL);
 
-    rbt_node = tt_rbtree_find_k(dmgr->trx_tree.root,
-                                (tt_u8_t *)&pkt->__id,
-                                sizeof(pkt->__id));
+    rbt_node = tt_rbtree_find(&dmgr->trx_tree,
+                              (tt_u8_t *)&pkt->__id,
+                              sizeof(pkt->__id));
     if (rbt_node != NULL) {
         tt_adns_rrset_t *rrs =
             TT_CONTAINER(rbt_node, tt_adns_rrset_t, trx_node);

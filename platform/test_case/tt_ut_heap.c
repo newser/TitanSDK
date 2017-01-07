@@ -234,7 +234,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_ptrheap_correct)
     tt_ptrheap_init(&ph, NULL, NULL);
 
     // create a rbtree
-    tt_rbtree_init(&rbt, rb_comparer, rb_key_comparer);
+    tt_rbtree_init(&rbt, NULL);
 
     seed = 1413209774;
     srand(seed);
@@ -245,7 +245,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_ptrheap_correct)
 
     begin = tt_time_ref();
     for (i = 0; i < sizeof(trb) / sizeof(struct trb_t); ++i) {
-        tt_rbtree_add(&rbt, &trb[i].n);
+        tt_rbtree_add(&rbt, (tt_u8_t *)&trb[i].v, sizeof(trb[i].v), &trb[i].n);
     }
     end = tt_time_ref();
     t1 = (tt_s32_t)tt_time_ref2ms(end - begin);
@@ -261,11 +261,11 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_ptrheap_correct)
 
     // cmp
     for (i = 0; i < sizeof(trb) / sizeof(struct trb_t); ++i) {
-        tt_rbnode_t *pn = tt_rbtree_max(rbt.root);
+        tt_rbnode_t *pn = tt_rbtree_max(&rbt);
         int pv = (int)(tt_uintptr_t)tt_ptrheap_head(&ph);
         TT_TEST_CHECK_EQUAL(((struct trb_t *)pn)->v, pv, "");
 
-        tt_rbtree_remove(pn);
+        tt_rbtree_remove(&rbt, pn);
         tt_ptrheap_pop(&ph);
     }
 
@@ -326,7 +326,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_ptrheap_perf)
     tt_ptrheap_init(&ph, NULL, NULL);
 
     // create a rbtree
-    tt_rbtree_init(&rbt, rb_comparer, rb_key_comparer);
+    tt_rbtree_init(&rbt, NULL);
     for (i = 0; i < sizeof(trb) / sizeof(struct trb_t); ++i) {
         tt_rbnode_init(&trb[i].n);
     }
@@ -348,16 +348,19 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_ptrheap_perf)
     begin = tt_time_ref();
     for (i = 0; i < aperf_num; ++i) {
         if (_act[i] == 0) {
-            tt_rbnode_t *n1 = tt_rbtree_max(rbt.root);
+            tt_rbnode_t *n1 = tt_rbtree_max(&rbt);
             if (n1 != NULL)
                 foo1(((struct trb_t *)n1)->v);
         } else if (_act[i] == 1) {
             trb2[i].v = _act_val[i];
-            tt_rbtree_add(&rbt, &trb2[i].n);
+            tt_rbtree_add(&rbt,
+                          (tt_u8_t *)&trb2[i].v,
+                          sizeof(trb2[i].v),
+                          &trb2[i].n);
         } else {
-            tt_rbnode_t *n1 = tt_rbtree_max(rbt.root);
+            tt_rbnode_t *n1 = tt_rbtree_max(&rbt);
             if (n1 != NULL)
-                tt_rbtree_remove(n1);
+                tt_rbtree_remove(&rbt, n1);
         }
     }
     end = tt_time_ref();

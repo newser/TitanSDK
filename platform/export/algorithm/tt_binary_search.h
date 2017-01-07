@@ -77,7 +77,7 @@ extern void *tt_bsearch(IN void *key,
                         IN tt_cmp_t cmp);
 
 /**
-@fn void* tt_bsearch_upper(IN void *key,
+@fn void* tt_bsearch_gteq(IN void *key,
                                 IN void *base,
                                 IN tt_u32_t num,
                                 IN tt_u32_t width,
@@ -102,14 +102,14 @@ search the first element with key value larger than the "key"
 - if there is an element with key equaling "key", then its
   position would be returned
 */
-extern void *tt_bsearch_upper(IN void *key,
-                              IN void *base,
-                              IN tt_u32_t num,
-                              IN tt_u32_t width,
-                              IN tt_cmp_t cmp);
+extern void *tt_bsearch_gteq(IN void *key,
+                             IN void *base,
+                             IN tt_u32_t num,
+                             IN tt_u32_t width,
+                             IN tt_cmp_t cmp);
 
 /**
-@fn void* tt_bsearch_lower(IN void *key,
+@fn void* tt_bsearch_lteq(IN void *key,
                               IN void *base,
                               IN tt_u32_t num,
                               IN tt_u32_t width,
@@ -134,10 +134,10 @@ search the last element with key value less than "key"
 - if there is an element with key equaling "key", then its
   position would be returned
 */
-extern void *tt_bsearch_lower(IN void *key,
-                              IN void *base,
-                              IN tt_u32_t num,
-                              IN tt_u32_t width,
-                              IN tt_cmp_t cmp);
+extern void *tt_bsearch_lteq(IN void *key,
+                             IN void *base,
+                             IN tt_u32_t num,
+                             IN tt_u32_t width,
+                             IN tt_cmp_t cmp);
 
 #endif /* __TT_BINARY_SEARCH__ */

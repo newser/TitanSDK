@@ -50,17 +50,17 @@ void *__short_bsearch(IN void *key,
                       IN tt_u32_t width,
                       IN tt_cmp_t cmp);
 
-void *__short_bsearch_upper(IN void *key,
-                            IN void *base,
-                            IN tt_u32_t num,
-                            IN tt_u32_t width,
-                            IN tt_cmp_t cmp);
+void *__short_bsearch_gteq(IN void *key,
+                           IN void *base,
+                           IN tt_u32_t num,
+                           IN tt_u32_t width,
+                           IN tt_cmp_t cmp);
 
-void *__short_bsearch_lower(IN void *key,
-                            IN void *base,
-                            IN tt_u32_t num,
-                            IN tt_u32_t width,
-                            IN tt_cmp_t cmp);
+void *__short_bsearch_lteq(IN void *key,
+                           IN void *base,
+                           IN tt_u32_t num,
+                           IN tt_u32_t width,
+                           IN tt_cmp_t cmp);
 
 ////////////////////////////////////////////////////////////
 // interface implementation
@@ -116,11 +116,11 @@ sub_search:
     }
 }
 
-void *tt_bsearch_upper(IN void *key,
-                       IN void *base,
-                       IN tt_u32_t num,
-                       IN tt_u32_t width,
-                       IN tt_cmp_t cmp)
+void *tt_bsearch_gteq(IN void *key,
+                      IN void *base,
+                      IN tt_u32_t num,
+                      IN tt_u32_t width,
+                      IN tt_cmp_t cmp)
 {
     tt_u8_t *start, *end, *middle;
     tt_u32_t n;
@@ -139,7 +139,7 @@ sub_search:
     n = (tt_u32_t)((end - start) / width + 1);
 
     if (n <= __SHORT_THRESHOLD) {
-        return __short_bsearch_upper(key, base, num, width, cmp);
+        return __short_bsearch_gteq(key, base, num, width, cmp);
     } else {
         tt_s32_t cmp_ret = 0;
 
@@ -170,11 +170,11 @@ sub_search:
     }
 }
 
-void *tt_bsearch_lower(IN void *key,
-                       IN void *base,
-                       IN tt_u32_t num,
-                       IN tt_u32_t width,
-                       IN tt_cmp_t cmp)
+void *tt_bsearch_lteq(IN void *key,
+                      IN void *base,
+                      IN tt_u32_t num,
+                      IN tt_u32_t width,
+                      IN tt_cmp_t cmp)
 {
     tt_u8_t *start, *end, *middle;
     tt_u32_t n;
@@ -193,7 +193,7 @@ sub_search:
     n = (tt_u32_t)((end - start) / width + 1);
 
     if (n <= __SHORT_THRESHOLD) {
-        return __short_bsearch_lower(key, base, num, width, cmp);
+        return __short_bsearch_lteq(key, base, num, width, cmp);
     } else {
         tt_s32_t cmp_ret = 0;
 
@@ -243,11 +243,11 @@ void *__short_bsearch(IN void *key,
     return NULL;
 }
 
-void *__short_bsearch_upper(IN void *key,
-                            IN void *base,
-                            IN tt_u32_t num,
-                            IN tt_u32_t width,
-                            IN tt_cmp_t cmp)
+void *__short_bsearch_gteq(IN void *key,
+                           IN void *base,
+                           IN tt_u32_t num,
+                           IN tt_u32_t width,
+                           IN tt_cmp_t cmp)
 {
     tt_u8_t *start, *end, *pos;
 
@@ -263,11 +263,11 @@ void *__short_bsearch_upper(IN void *key,
     return NULL;
 }
 
-void *__short_bsearch_lower(IN void *key,
-                            IN void *base,
-                            IN tt_u32_t num,
-                            IN tt_u32_t width,
-                            IN tt_cmp_t cmp)
+void *__short_bsearch_lteq(IN void *key,
+                           IN void *base,
+                           IN tt_u32_t num,
+                           IN tt_u32_t width,
+                           IN tt_cmp_t cmp)
 {
     tt_u8_t *start, *end, *pos;
 
