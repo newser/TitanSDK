@@ -141,7 +141,7 @@ TT_TEST_CASE("tt_unit_test_str_null",
     TT_TEST_CASE_LIST_DEFINE_END(string_case)
     // =========================================
 
-    TT_TEST_UNIT_DEFINE(TEST_UNIT_STRING, 0, string_case)
+    TT_TEST_UNIT_DEFINE(ALG_UT_STRING, 0, string_case)
 
     ////////////////////////////////////////////////////////////
     // interface declaration
@@ -563,7 +563,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_str_cpswap)
     cmp_ret = tt_string_cmp(&s, "234567890abcedf");
     TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
 
-    tt_string_remove_range(&s, 9, 3);
+    tt_string_remove_range(&s, 9, 12);
     cmp_ret = tt_string_cmp(&s, "234567890edf");
     TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
 

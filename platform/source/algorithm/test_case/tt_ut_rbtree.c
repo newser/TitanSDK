@@ -18,7 +18,6 @@
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include "tt_unit_test_case_config.h"
 #include <unit_test/tt_unit_test.h>
 
 #include <tt_platform.h>
@@ -59,7 +58,7 @@ TT_TEST_CASE("tt_unit_test_rbtree",
     TT_TEST_CASE_LIST_DEFINE_END(rbtree_case)
     // =========================================
 
-    TT_TEST_UNIT_DEFINE(TEST_UNIT_RBTREE, 0, rbtree_case)
+    TT_TEST_UNIT_DEFINE(ALG_UT_RBTREE, 0, rbtree_case)
 
     ////////////////////////////////////////////////////////////
     // interface declaration
@@ -92,7 +91,7 @@ typedef struct
     tt_u32_t val;
 } __rb_item_t;
 
-tt_s32_t __rb_cmpkey(IN void *p, IN tt_u8_t *key, IN tt_u32_t key_len)
+static tt_s32_t __rb_cmpkey(IN void *p, IN tt_u8_t *key, IN tt_u32_t key_len)
 {
     __rb_item_t *i = (__rb_item_t *)p;
     tt_u32_t v = *(tt_u32_t *)key;

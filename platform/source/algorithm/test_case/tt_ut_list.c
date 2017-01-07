@@ -18,7 +18,6 @@
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include "tt_unit_test_case_config.h"
 #include <unit_test/tt_unit_test.h>
 
 #include <tt_platform.h>
@@ -79,7 +78,7 @@ TT_TEST_CASE("tt_unit_test_list",
     TT_TEST_CASE_LIST_DEFINE_END(list_case)
     // =========================================
 
-    TT_TEST_UNIT_DEFINE(TEST_UNIT_LIST, 0, list_case)
+    TT_TEST_UNIT_DEFINE(ALG_UT_LIST, 0, list_case)
 
     ////////////////////////////////////////////////////////////
     // interface declaration

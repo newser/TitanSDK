@@ -133,7 +133,7 @@ TT_TEST_CASE("tt_unit_test_buf_null",
     TT_TEST_CASE_LIST_DEFINE_END(buf_case)
     // =========================================
 
-    TT_TEST_UNIT_DEFINE(TEST_UNIT_BUF, 0, buf_case)
+    TT_TEST_UNIT_DEFINE(ALG_UT_BUF, 0, buf_case)
 
     ////////////////////////////////////////////////////////////
     // interface declaration

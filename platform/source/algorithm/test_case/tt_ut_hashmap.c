@@ -18,7 +18,6 @@
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include "tt_unit_test_case_config.h"
 #include <unit_test/tt_unit_test.h>
 
 #include <tt_platform.h>
@@ -47,7 +46,7 @@ TT_TEST_ROUTINE_DECLARE(tt_unit_test_ptrmap)
 // =========================================
 
 // === test case list ======================
-TT_TEST_CASE_LIST_DEFINE_BEGIN(map_case)
+TT_TEST_CASE_LIST_DEFINE_BEGIN(hmap_case)
 
 TT_TEST_CASE("tt_unit_test_hash",
              "testing hash algorithms",
@@ -86,10 +85,10 @@ TT_TEST_CASE("tt_unit_test_hash",
                  NULL,
                  NULL),
 
-    TT_TEST_CASE_LIST_DEFINE_END(map_case)
+    TT_TEST_CASE_LIST_DEFINE_END(hmap_case)
     // =========================================
 
-    TT_TEST_UNIT_DEFINE(TEST_UNIT_MAP, 0, map_case)
+    TT_TEST_UNIT_DEFINE(ALG_UT_HASHMAP, 0, hmap_case)
 
     ////////////////////////////////////////////////////////////
     // interface declaration

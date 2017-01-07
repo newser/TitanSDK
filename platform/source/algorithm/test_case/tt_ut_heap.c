@@ -18,7 +18,6 @@
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include "tt_unit_test_case_config.h"
 #include <unit_test/tt_unit_test.h>
 
 #include <algorithm/ptr/tt_ptr_heap.h>
@@ -86,7 +85,7 @@ TT_TEST_CASE("tt_unit_test_ptrheap_basic",
     TT_TEST_CASE_LIST_DEFINE_END(heap_case)
     // =========================================
 
-    TT_TEST_UNIT_DEFINE(TEST_UNIT_HEAP, 0, heap_case)
+    TT_TEST_UNIT_DEFINE(ALG_UT_HEAP, 0, heap_case)
 
     ////////////////////////////////////////////////////////////
     // interface declaration
@@ -199,7 +198,9 @@ static tt_s32_t rb_comparer(IN void *l, IN void *r)
         return 1;
 }
 
-tt_s32_t rb_key_comparer(IN void *n, IN const tt_u8_t *key, IN tt_u32_t key_len)
+static tt_s32_t rb_key_comparer(IN void *n,
+                                IN tt_u8_t *key,
+                                IN tt_u32_t key_len)
 {
     struct trb_t *ll = (struct trb_t *)n;
     if (ll->v < *(int *)key)
@@ -217,6 +218,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_ptrheap_correct)
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_ptrheap_t ph;
     tt_ptrheap_attr_t attr;
+    tt_rbtree_attr_t rbattr;
 
     tt_rbtree_t rbt;
     int i;
@@ -234,7 +236,9 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_ptrheap_correct)
     tt_ptrheap_init(&ph, NULL, NULL);
 
     // create a rbtree
-    tt_rbtree_init(&rbt, NULL);
+    tt_rbtree_attr_default(&rbattr);
+    rbattr.cmpkey = rb_key_comparer;
+    tt_rbtree_init(&rbt, &rbattr);
 
     seed = 1413209774;
     srand(seed);

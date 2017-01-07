@@ -5,7 +5,6 @@
 extern "C" {
 #endif
 
-#include "tt_unit_test_case_config.h"
 #include <unit_test/tt_unit_test.h>
 
 #include <algorithm/tt_binary_search.h>
@@ -154,15 +153,6 @@ TT_TEST_CASE("tt_unit_test_basic_alg_qsort",
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_alg_rbtree",
-                 "testing apis of red black tree",
-                 tt_unit_test_alg_rbtree,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
-
     TT_TEST_CASE("tt_unit_test_alg_stack",
                  "testing apis of stack operations",
                  tt_unit_test_alg_stack,
@@ -192,7 +182,7 @@ TT_TEST_CASE("tt_unit_test_basic_alg_qsort",
     TT_TEST_CASE_LIST_DEFINE_END(basic_alg_case)
     // =========================================
 
-    TT_TEST_UNIT_DEFINE(TEST_UNIT_BASIC_ALG, 0, basic_alg_case)
+    TT_TEST_UNIT_DEFINE(ALG_UT_BASIC_ALG, 0, basic_alg_case)
 
     /*
      * interface implementation
