@@ -54,7 +54,7 @@ typedef struct
     tt_ptrq_t *pq;
     void *frame;
     tt_u32_t idx;
-} tt_pqiter_t;
+} tt_ptrq_iter_t;
 
 ////////////////////////////////////////////////////////////
 // global variants
@@ -90,8 +90,8 @@ extern tt_ptr_t tt_ptrq_head(IN tt_ptrq_t *pq);
 
 extern tt_ptr_t tt_ptrq_tail(IN tt_ptrq_t *pq);
 
-extern void tt_ptrq_iter(IN tt_ptrq_t *pq, OUT tt_pqiter_t *iter);
+extern void tt_ptrq_iter(IN tt_ptrq_t *pq, OUT tt_ptrq_iter_t *iter);
 
-extern tt_ptr_t tt_pqiter_next(IN OUT tt_pqiter_t *iter);
+extern tt_ptr_t tt_ptrq_iter_next(IN OUT tt_ptrq_iter_t *iter);
 
 #endif /* __TT_PTR_QUEUE__ */

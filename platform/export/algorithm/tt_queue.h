@@ -55,7 +55,7 @@ typedef struct
     tt_queue_t *q;
     void *frame;
     tt_u32_t idx;
-} tt_qiter_t;
+} tt_queue_iter_t;
 
 ////////////////////////////////////////////////////////////
 // global variants
@@ -93,8 +93,8 @@ extern void *tt_queue_head(IN tt_queue_t *q);
 
 extern void *tt_queue_tail(IN tt_queue_t *q);
 
-extern void tt_queue_iter(IN tt_queue_t *q, OUT tt_qiter_t *iter);
+extern void tt_queue_iter(IN tt_queue_t *q, OUT tt_queue_iter_t *iter);
 
-extern void *tt_qiter_next(IN OUT tt_qiter_t *iter);
+extern void *tt_queue_iter_next(IN OUT tt_queue_iter_t *iter);
 
 #endif /* __TT_QUEUE__ */

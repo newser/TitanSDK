@@ -202,7 +202,7 @@ void *tt_queue_tail(IN tt_queue_t *q)
     return __F_OBJ(frame, q, frame->end - 1);
 }
 
-void tt_queue_iter(IN tt_queue_t *q, OUT tt_qiter_t *iter)
+void tt_queue_iter(IN tt_queue_t *q, OUT tt_queue_iter_t *iter)
 {
     tt_dnode_t *node;
 
@@ -218,7 +218,7 @@ void tt_queue_iter(IN tt_queue_t *q, OUT tt_qiter_t *iter)
     iter->idx = 0;
 }
 
-void *tt_qiter_next(IN OUT tt_qiter_t *iter)
+void *tt_queue_iter_next(IN OUT tt_queue_iter_t *iter)
 {
     __q_frame_t *frame = iter->frame;
     void *obj;

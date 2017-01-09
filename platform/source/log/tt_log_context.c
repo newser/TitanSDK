@@ -126,7 +126,7 @@ tt_result_t tt_logctx_append_io(IN tt_logctx_t *lctx, IN tt_logio_t *lio)
 tt_result_t tt_logctx_input(IN tt_logctx_t *lctx, IN tt_log_entry_t *entry)
 {
     tt_buf_t *buf;
-    tt_pqiter_t iter;
+    tt_ptrq_iter_t iter;
     tt_log_filter_t filter;
     tt_logio_t *lio;
     tt_result_t result = TT_SUCCESS;
@@ -140,7 +140,7 @@ tt_result_t tt_logctx_input(IN tt_logctx_t *lctx, IN tt_log_entry_t *entry)
 
     // filter
     tt_ptrq_iter(&lctx->filter_q, &iter);
-    while ((filter = tt_pqiter_next(&iter)) != NULL) {
+    while ((filter = tt_ptrq_iter_next(&iter)) != NULL) {
         if (!filter(entry)) {
             return TT_SUCCESS;
         }
@@ -155,7 +155,7 @@ tt_result_t tt_logctx_input(IN tt_logctx_t *lctx, IN tt_log_entry_t *entry)
 
     // output
     tt_ptrq_iter(&lctx->io_q, &iter);
-    while ((lio = tt_pqiter_next(&iter)) != NULL) {
+    while ((lio = tt_ptrq_iter_next(&iter)) != NULL) {
         if (!TT_OK(tt_logio_output(lio,
                                    (tt_char_t *)TT_BUF_RPOS(buf),
                                    TT_BUF_RLEN(buf)))) {

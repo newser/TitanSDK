@@ -90,6 +90,6 @@ extern tt_ptr_t tt_ptrstk_top(IN tt_ptrstk_t *pstk);
 
 extern void tt_ptrstk_iter(IN tt_ptrstk_t *pstk, OUT tt_ptrstk_iter_t *iter);
 
-extern tt_ptr_t tt_ptrstk_next(IN OUT tt_ptrstk_iter_t *iter);
+extern tt_ptr_t tt_ptrstk_iter_next(IN OUT tt_ptrstk_iter_t *iter);
 
 #endif /* __TT_PTR_STACK__ */

@@ -93,6 +93,6 @@ extern void *tt_stack_top(IN tt_stack_t *stk);
 
 extern void tt_stack_iter(IN tt_stack_t *stk, OUT tt_stack_iter_t *iter);
 
-extern void *tt_stack_next(IN OUT tt_stack_iter_t *iter);
+extern void *tt_stack_iter_next(IN OUT tt_stack_iter_t *iter);
 
 #endif /* __TT_STACK__ */

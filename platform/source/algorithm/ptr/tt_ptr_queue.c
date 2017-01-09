@@ -202,7 +202,7 @@ tt_ptr_t tt_ptrq_tail(IN tt_ptrq_t *pq)
     return __F_PTR(frame, frame->end - 1);
 }
 
-void tt_ptrq_iter(IN tt_ptrq_t *pq, OUT tt_pqiter_t *iter)
+void tt_ptrq_iter(IN tt_ptrq_t *pq, OUT tt_ptrq_iter_t *iter)
 {
     tt_dnode_t *node;
 
@@ -218,7 +218,7 @@ void tt_ptrq_iter(IN tt_ptrq_t *pq, OUT tt_pqiter_t *iter)
     iter->idx = 0;
 }
 
-tt_ptr_t tt_pqiter_next(IN OUT tt_pqiter_t *iter)
+tt_ptr_t tt_ptrq_iter_next(IN OUT tt_ptrq_iter_t *iter)
 {
     __q_frame_t *frame = iter->frame;
     tt_ptr_t p;

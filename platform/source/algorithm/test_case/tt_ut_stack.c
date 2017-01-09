@@ -127,7 +127,7 @@ TT_TEST_ROUTINE_DEFINE(name)
         tt_stack_iter(&q, &pos);
         tt_u32_t *pu32;
         i = 0;
-        while ((pu32 = tt_stack_next(&pos)) != NULL) {
+        while ((pu32 = tt_stack_iter_next(&pos)) != NULL) {
             TT_TEST_CHECK_EQUAL(*pu32, v[i++], "");
         }
         TT_TEST_CHECK_EQUAL(i, 0, "");
@@ -145,7 +145,7 @@ TT_TEST_ROUTINE_DEFINE(name)
         tt_stack_iter(&q, &pos);
         tt_u32_t *pu32;
         i = 0;
-        while ((pu32 = tt_stack_next(&pos)) != NULL) {
+        while ((pu32 = tt_stack_iter_next(&pos)) != NULL) {
             TT_TEST_CHECK_EQUAL(*pu32, v[i++], "");
         }
         TT_TEST_CHECK_EQUAL(i, __q_size, "");
@@ -215,7 +215,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_ptr_stack)
         tt_ptrstk_iter_t pos;
         tt_ptrstk_iter(&q, &pos);
         i = 0;
-        while (tt_ptrstk_next(&pos) != NULL) {
+        while (tt_ptrstk_iter_next(&pos) != NULL) {
             ++i;
         }
         TT_TEST_CHECK_EQUAL(i, 0, "");
@@ -233,7 +233,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_ptr_stack)
         tt_ptrstk_iter(&q, &pos);
         tt_ptr_t p;
         i = 0;
-        while ((p = tt_ptrstk_next(&pos)) != NULL) {
+        while ((p = tt_ptrstk_iter_next(&pos)) != NULL) {
             TT_TEST_CHECK_EQUAL(p, &v[i++], "");
         }
         TT_TEST_CHECK_EQUAL(i, __q_size, "");

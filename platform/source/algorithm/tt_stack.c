@@ -202,7 +202,7 @@ void tt_stack_iter(IN tt_stack_t *stk, OUT tt_stack_iter_t *iter)
     iter->idx = 0;
 }
 
-void *tt_stack_next(IN OUT tt_stack_iter_t *iter)
+void *tt_stack_iter_next(IN OUT tt_stack_iter_t *iter)
 {
     __frame_t *frame = iter->frame;
     void *obj;

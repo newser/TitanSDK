@@ -202,7 +202,7 @@ void tt_ptrstk_iter(IN tt_ptrstk_t *pstk, OUT tt_ptrstk_iter_t *iter)
     iter->idx = 0;
 }
 
-tt_ptr_t tt_ptrstk_next(IN OUT tt_ptrstk_iter_t *iter)
+tt_ptr_t tt_ptrstk_iter_next(IN OUT tt_ptrstk_iter_t *iter)
 {
     __frame_t *frame = iter->frame;
     tt_ptr_t p;
