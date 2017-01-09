@@ -127,7 +127,7 @@ tt_result_t tt_xmlnp_create(IN tt_xmlnp_t *xnp,
                             IN OPT tt_xmlnp_attr_t *attr)
 {
     tt_xmlnp_attr_t __attr;
-    tt_stack_attr_t stack_attr;
+    tt_ptrstk_attr_t stack_attr;
 
     tt_u32_t __done = 0;
 #define __XC_XP (1 << 0)
@@ -151,11 +151,11 @@ tt_result_t tt_xmlnp_create(IN tt_xmlnp_t *xnp,
     tt_list_init(&xnp->ns);
     tt_list_init(&xnp->def_ns);
 
-    tt_stack_attr_default(&stack_attr);
-    stack_attr.obj_destroy = __xn_destroy;
-    if (!TT_OK(tt_ptrstack_create(&xnp->xnode, 128, NULL))) {
-        goto xc_fail;
-    }
+    tt_ptrstk_attr_default(&stack_attr);
+    // stack_attr.obj_destroy = __xn_destroy;
+    stack_attr.ptr_per_frame = 128;
+
+    tt_ptrstk_init(&xnp->xnode, &stack_attr);
     __done |= __XC_XNODE;
 
     if (cb != NULL) {
@@ -173,7 +173,7 @@ tt_result_t tt_xmlnp_create(IN tt_xmlnp_t *xnp,
 xc_fail:
 
     if (__done & __XC_XNODE) {
-        tt_ptrstack_destroy(&xnp->xnode);
+        tt_ptrstk_destroy(&xnp->xnode);
     }
 
     if (__done & __XC_XP) {
@@ -197,7 +197,7 @@ void tt_xmlnp_destroy(IN tt_xmlnp_t *xnp)
     while ((node = tt_list_pop_head(&xnp->def_ns)) != NULL)
         ;
 
-    tt_ptrstack_destroy(&xnp->xnode);
+    tt_ptrstk_destroy(&xnp->xnode);
 }
 
 void tt_xmlnp_attr_default(IN tt_xmlnp_attr_t *attr)
@@ -224,7 +224,7 @@ tt_result_t tt_xmlnp_final(IN tt_xmlnp_t *xnp, OUT void *reserved)
 {
     TT_ASSERT(xnp != NULL);
 
-    if (tt_ptrstack_top(&xnp->xnode) != NULL) {
+    if (tt_ptrstk_top(&xnp->xnode) != NULL) {
         TT_ERROR("some elements are not terminated");
         return TT_FAIL;
     }
@@ -245,7 +245,7 @@ void tt_xmlnp_reset(IN tt_xmlnp_t *xnp, IN tt_u32_t flag)
     while ((node = tt_list_pop_head(&xnp->def_ns)) != NULL)
         ;
 
-    tt_ptrstack_clear(&xnp->xnode);
+    tt_ptrstk_clear(&xnp->xnode);
 }
 
 tt_result_t __xps_on_text(IN struct tt_xmlparser_s *parser,
@@ -303,7 +303,7 @@ tt_result_t __xps_on_stag(IN struct tt_xmlparser_s *parser,
         return TT_FAIL;
     }
 
-    if (!TT_OK(tt_ptrstack_push(&xnp->xnode, xn))) {
+    if (!TT_OK(tt_ptrstk_push(&xnp->xnode, xn))) {
         tt_xnode_destroy(xn);
         return TT_FAIL;
     }
@@ -316,7 +316,7 @@ tt_result_t __xps_on_stag_complete(IN struct tt_xmlparser_s *parser)
     tt_xmlnp_t *xnp = TT_CONTAINER(parser, tt_xmlnp_t, xp);
     tt_xnode_t *xn;
 
-    xn = tt_ptrstack_top(&xnp->xnode);
+    xn = tt_ptrstk_top(&xnp->xnode);
     if (xn == NULL) {
         TT_ERROR("must have start tag");
         return TT_FAIL;
@@ -442,7 +442,7 @@ tt_result_t __xps_on_attr(IN struct tt_xmlparser_s *parser,
         return TT_FAIL;
     }
 
-    parent = tt_ptrstack_top(&xnp->xnode);
+    parent = tt_ptrstk_top(&xnp->xnode);
     if (parent == NULL) {
         TT_ERROR("must have parent element");
         tt_xnode_destroy(xn);
@@ -730,7 +730,7 @@ tt_xmlns_t *__top_def_ns(IN tt_xmlnp_t *xnp)
 
 tt_xnode_t *__pop_xnode(IN tt_xmlnp_t *xnp)
 {
-    tt_xnode_t *xn = tt_ptrstack_pop(&xnp->xnode);
+    tt_xnode_t *xn = tt_ptrstk_pop(&xnp->xnode);
     if (xn != NULL) {
         tt_lnode_t *node;
         // pop its namespaces

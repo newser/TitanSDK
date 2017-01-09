@@ -15,12 +15,12 @@
  */
 
 /**
-@file tt_stack.h
-@brief queue
+@file tt_ptr_stack.h
+@brief ptr stack
  */
 
-#ifndef __TT_STACK__
-#define __TT_STACK__
+#ifndef __TT_PTR_STACK__
+#define __TT_PTR_STACK__
 
 ////////////////////////////////////////////////////////////
 // import header files
@@ -38,24 +38,23 @@
 
 typedef struct
 {
-    tt_u32_t obj_per_frame;
-} tt_stack_attr_t;
+    tt_u32_t ptr_per_frame;
+} tt_ptrstk_attr_t;
 
-typedef struct tt_stack_s
+typedef struct tt_ptrstk_s
 {
     tt_dlist_t frame;
     void *cached_frame;
     tt_u32_t count;
-    tt_u32_t obj_size;
-    tt_u32_t obj_per_frame;
-} tt_stack_t;
+    tt_u32_t ptr_per_frame;
+} tt_ptrstk_t;
 
 typedef struct
 {
-    tt_stack_t *stk;
+    tt_ptrstk_t *pstk;
     void *frame;
     tt_u32_t idx;
-} tt_stack_iter_t;
+} tt_ptrstk_iter_t;
 
 ////////////////////////////////////////////////////////////
 // global variants
@@ -65,34 +64,32 @@ typedef struct
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern void tt_stack_init(IN tt_stack_t *stk,
-                          IN tt_u32_t obj_size,
-                          IN OPT tt_stack_attr_t *attr);
+extern void tt_ptrstk_init(IN tt_ptrstk_t *pstk, IN OPT tt_ptrstk_attr_t *attr);
 
-extern void tt_stack_destroy(IN tt_stack_t *stk);
+extern void tt_ptrstk_destroy(IN tt_ptrstk_t *pstk);
 
-extern void tt_stack_attr_default(IN tt_stack_attr_t *attr);
+extern void tt_ptrstk_attr_default(IN tt_ptrstk_attr_t *attr);
 
-tt_inline tt_u32_t tt_stack_count(IN tt_stack_t *stk)
+tt_inline tt_u32_t tt_ptrstk_count(IN tt_ptrstk_t *pstk)
 {
-    return stk->count;
+    return pstk->count;
 }
 
-tt_inline tt_bool_t tt_stack_empty(IN tt_stack_t *stk)
+tt_inline tt_bool_t tt_ptrstk_empty(IN tt_ptrstk_t *pstk)
 {
-    return stk->count == 0 ? TT_TRUE : TT_FALSE;
+    return pstk->count == 0 ? TT_TRUE : TT_FALSE;
 }
 
-extern void tt_stack_clear(IN tt_stack_t *stk);
+extern void tt_ptrstk_clear(IN tt_ptrstk_t *pstk);
 
-extern tt_result_t tt_stack_push(IN tt_stack_t *stk, IN void *obj);
+extern tt_result_t tt_ptrstk_push(IN tt_ptrstk_t *pstk, IN tt_ptr_t p);
 
-extern tt_result_t tt_stack_pop(IN tt_stack_t *stk, OUT void *obj);
+extern tt_ptr_t tt_ptrstk_pop(IN tt_ptrstk_t *pstk);
 
-extern void *tt_stack_top(IN tt_stack_t *stk);
+extern tt_ptr_t tt_ptrstk_top(IN tt_ptrstk_t *pstk);
 
-extern void tt_stack_iter(IN tt_stack_t *stk, OUT tt_stack_iter_t *iter);
+extern void tt_ptrstk_iter(IN tt_ptrstk_t *pstk, OUT tt_ptrstk_iter_t *iter);
 
-extern void *tt_stack_next(IN OUT tt_stack_iter_t *iter);
+extern tt_ptr_t tt_ptrstk_next(IN OUT tt_ptrstk_iter_t *iter);
 
-#endif /* __TT_STACK__ */
+#endif /* __TT_PTR_STACK__ */

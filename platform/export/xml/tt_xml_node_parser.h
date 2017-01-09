@@ -28,7 +28,7 @@ this file defines xml node parser API
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <algorithm/tt_stack.h>
+#include <algorithm/ptr/tt_ptr_stack.h>
 #include <xml/parse/tt_xml_parser.h>
 #include <xml/tt_xml_node.h>
 
@@ -82,7 +82,7 @@ typedef struct tt_xmlnp_s
     struct tt_xmlns_mgr_s *xns_mgr;
     tt_list_t ns;
     tt_list_t def_ns;
-    tt_ptrstack_t xnode;
+    tt_ptrstk_t xnode;
 
     tt_xmlnp_cb_t cb;
     void *cb_param;

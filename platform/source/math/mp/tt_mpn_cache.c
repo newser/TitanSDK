@@ -60,8 +60,8 @@ tt_result_t tt_mpn_cache_create(IN tt_mpn_cache_t *mpnc)
 {
     tt_slab_t *slab;
     tt_slab_attr_t slab_attr;
-    tt_ptrstack_t *stack;
-    tt_stack_attr_t stack_attr;
+    tt_ptrstk_t *stack;
+    tt_ptrstk_attr_t stack_attr;
     tt_result_t result;
 
     TT_ASSERT(mpnc != NULL);
@@ -81,17 +81,12 @@ tt_result_t tt_mpn_cache_create(IN tt_mpn_cache_t *mpnc)
     // bn stack
     stack = &mpnc->stack;
 
-    tt_stack_attr_default(&stack_attr);
-    stack_attr.destroy_obj_when_push_fail = TT_TRUE;
-    stack_attr.obj_destroy = __mpn_instk_destroy;
+    tt_ptrstk_attr_default(&stack_attr);
+    // stack_attr.destroy_obj_when_push_fail = TT_TRUE;
+    // stack_attr.obj_destroy = __mpn_instk_destroy;
+    stack_attr.ptr_per_frame = __MPN_CACHE_BULK;
 
-    result = tt_ptrstack_create(stack, __MPN_CACHE_BULK, &stack_attr);
-    if (!TT_OK(result)) {
-        TT_ERROR("fail to create bn stack");
-
-        tt_slab_destroy(slab, TT_FALSE);
-        return TT_FAIL;
-    }
+    tt_ptrstk_init(stack, &stack_attr);
 
     return TT_SUCCESS;
 }
@@ -101,7 +96,7 @@ void tt_mpn_cache_destroy(IN tt_mpn_cache_t *mpnc)
     TT_ASSERT(mpnc != NULL);
 
     // must destroy stack before the slab
-    tt_ptrstack_destroy(&mpnc->stack);
+    tt_ptrstk_destroy(&mpnc->stack);
 
     tt_slab_destroy(&mpnc->slab, TT_FALSE);
 }
