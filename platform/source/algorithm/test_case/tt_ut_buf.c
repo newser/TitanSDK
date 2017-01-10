@@ -52,6 +52,8 @@ TT_TEST_ROUTINE_DECLARE(tt_unit_test_buf_put_basic)
 TT_TEST_ROUTINE_DECLARE(tt_unit_test_buf_put_rand)
 
 TT_TEST_ROUTINE_DECLARE(tt_unit_test_buf_remove)
+
+TT_TEST_ROUTINE_DECLARE(tt_unit_test_iobuf)
 // =========================================
 
 // === test case list ======================
@@ -130,6 +132,15 @@ TT_TEST_CASE("tt_unit_test_buf_null",
                  NULL,
                  NULL),
 
+    TT_TEST_CASE("tt_unit_test_iobuf",
+                 "testing io buf",
+                 tt_unit_test_iobuf,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL),
+
     TT_TEST_CASE_LIST_DEFINE_END(buf_case)
     // =========================================
 
@@ -144,7 +155,7 @@ TT_TEST_CASE("tt_unit_test_buf_null",
     ////////////////////////////////////////////////////////////
 
     /*
-    TT_TEST_ROUTINE_DEFINE(tt_unit_test_buftok)
+    TT_TEST_ROUTINE_DEFINE(tt_unit_test_iobuf)
     {
         //tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
 
@@ -170,6 +181,8 @@ TT_TEST_CASE("tt_unit_test_buf_null",
 
     tt_buf_init(&buf, NULL);
     tt_buf_init(&buf2, NULL);
+
+    TT_TEST_CHECK_EQUAL(tt_buf_empty(&buf), TT_TRUE, "");
 
     // rp
     tt_buf_get_rptr(&buf, &p, &n);
@@ -221,9 +234,16 @@ TT_TEST_CASE("tt_unit_test_buf_null",
     // format
     ret = tt_buf_put_cstr2hex(&buf, "");
     TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_TEST_CHECK_EQUAL(tt_buf_empty(&buf), TT_TRUE, "");
 
     ret = tt_buf_put_hex2cstr(&buf, bn, 0);
     TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+
+    tt_buf_clear(&buf);
+    TT_TEST_CHECK_EQUAL(tt_buf_empty(&buf), TT_TRUE, "");
+
+    tt_buf_try_refine(&buf, 0);
+    TT_TEST_CHECK_EQUAL(tt_buf_empty(&buf), TT_TRUE, "");
 
     tt_buf_destroy(&buf);
     tt_buf_destroy(&buf2);
@@ -241,128 +261,128 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_buf_get_basic)
     tt_u8_t v8_ret[sizeof(v8)];
 
     tt_result_t ret;
-    tt_buf_t strm;
+    tt_buf_t buf;
 
     TT_TEST_CASE_ENTER()
     // test start
 
     // u32
-    ret = tt_buf_create_copy(&strm, (tt_u8_t *)&v32, sizeof(v32), NULL);
+    ret = tt_buf_create_copy(&buf, (tt_u8_t *)&v32, sizeof(v32), NULL);
     TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
-    ret = tt_buf_get_u32(&strm, &v32_ret);
+    ret = tt_buf_get_u32(&buf, &v32_ret);
     TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
     TT_TEST_CHECK_EQUAL(v32_ret, v32, "");
-    TT_TEST_CHECK_EQUAL(strm.wpos, sizeof(v32), "");
-    TT_TEST_CHECK_EQUAL(strm.rpos, sizeof(v32), "");
-    TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&strm), 0, "");
+    TT_TEST_CHECK_EQUAL(buf.wpos, sizeof(v32), "");
+    TT_TEST_CHECK_EQUAL(buf.rpos, sizeof(v32), "");
+    TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&buf), 0, "");
 
-    ret = tt_buf_dec_rp(&strm, sizeof(tt_u32_t) * 2);
+    ret = tt_buf_dec_rp(&buf, sizeof(tt_u32_t) * 2);
     TT_TEST_CHECK_NOT_EQUAL(ret, TT_SUCCESS, "");
-    ret = tt_buf_dec_rp(&strm, sizeof(tt_u32_t));
+    ret = tt_buf_dec_rp(&buf, sizeof(tt_u32_t));
     TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
-    ret = tt_buf_get_u32(&strm, &v32_ret);
+    ret = tt_buf_get_u32(&buf, &v32_ret);
     TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
     TT_TEST_CHECK_EQUAL(v32_ret, v32, "");
-    TT_TEST_CHECK_EQUAL(strm.wpos, sizeof(v32), "");
-    TT_TEST_CHECK_EQUAL(strm.rpos, sizeof(v32), "");
-    TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&strm), 0, "");
+    TT_TEST_CHECK_EQUAL(buf.wpos, sizeof(v32), "");
+    TT_TEST_CHECK_EQUAL(buf.rpos, sizeof(v32), "");
+    TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&buf), 0, "");
 
     // no data
-    ret = tt_buf_get_u32(&strm, &v32_ret);
+    ret = tt_buf_get_u32(&buf, &v32_ret);
     TT_TEST_CHECK_EQUAL(ret, TT_BUFFER_INCOMPLETE, "");
-    TT_TEST_CHECK_EQUAL(strm.wpos, sizeof(v32), "");
-    TT_TEST_CHECK_EQUAL(strm.rpos, sizeof(v32), "");
+    TT_TEST_CHECK_EQUAL(buf.wpos, sizeof(v32), "");
+    TT_TEST_CHECK_EQUAL(buf.rpos, sizeof(v32), "");
 
-    tt_buf_destroy(&strm);
+    tt_buf_destroy(&buf);
 
     // invalid u32
-    ret = tt_buf_create_copy(&strm, (tt_u8_t *)&v32, sizeof(v32) - 1, NULL);
+    ret = tt_buf_create_copy(&buf, (tt_u8_t *)&v32, sizeof(v32) - 1, NULL);
     TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
-    ret = tt_buf_get_u32(&strm, &v32_ret);
+    ret = tt_buf_get_u32(&buf, &v32_ret);
     TT_TEST_CHECK_EQUAL(ret, TT_BUFFER_INCOMPLETE, "");
-    TT_TEST_CHECK_EQUAL(strm.wpos, sizeof(v32) - 1, "");
-    TT_TEST_CHECK_EQUAL(strm.rpos, 0, "");
-    tt_buf_destroy(&strm);
+    TT_TEST_CHECK_EQUAL(buf.wpos, sizeof(v32) - 1, "");
+    TT_TEST_CHECK_EQUAL(buf.rpos, 0, "");
+    tt_buf_destroy(&buf);
 
     // u32_h
-    ret = tt_buf_create_copy(&strm, (tt_u8_t *)&v32, sizeof(v32), NULL);
+    ret = tt_buf_create_copy(&buf, (tt_u8_t *)&v32, sizeof(v32), NULL);
     TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
-    ret = tt_buf_get_u32_h(&strm, &v32_ret);
+    ret = tt_buf_get_u32_h(&buf, &v32_ret);
     TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
     TT_TEST_CHECK_EQUAL(v32_ret, tt_ntoh32(v32), "");
-    TT_TEST_CHECK_EQUAL(strm.wpos, sizeof(v32), "");
-    TT_TEST_CHECK_EQUAL(strm.rpos, sizeof(v32), "");
-    TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&strm), 0, "");
-    tt_buf_destroy(&strm);
+    TT_TEST_CHECK_EQUAL(buf.wpos, sizeof(v32), "");
+    TT_TEST_CHECK_EQUAL(buf.rpos, sizeof(v32), "");
+    TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&buf), 0, "");
+    tt_buf_destroy(&buf);
 
     // invalid u32
-    ret = tt_buf_create_copy(&strm, (tt_u8_t *)&v32, sizeof(v32) - 1, NULL);
+    ret = tt_buf_create_copy(&buf, (tt_u8_t *)&v32, sizeof(v32) - 1, NULL);
     TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
-    ret = tt_buf_get_u32_h(&strm, &v32_ret);
+    ret = tt_buf_get_u32_h(&buf, &v32_ret);
     TT_TEST_CHECK_EQUAL(ret, TT_BUFFER_INCOMPLETE, "");
-    TT_TEST_CHECK_EQUAL(strm.wpos, sizeof(v32) - 1, "");
-    TT_TEST_CHECK_EQUAL(strm.rpos, 0, "");
-    tt_buf_destroy(&strm);
+    TT_TEST_CHECK_EQUAL(buf.wpos, sizeof(v32) - 1, "");
+    TT_TEST_CHECK_EQUAL(buf.rpos, 0, "");
+    tt_buf_destroy(&buf);
 
     // u16
-    ret = tt_buf_create_copy(&strm, (tt_u8_t *)&v16, sizeof(v16), NULL);
+    ret = tt_buf_create_copy(&buf, (tt_u8_t *)&v16, sizeof(v16), NULL);
     TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
-    ret = tt_buf_get_u16(&strm, &v16_ret);
+    ret = tt_buf_get_u16(&buf, &v16_ret);
     TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
     TT_TEST_CHECK_EQUAL(v16_ret, (v16), "");
-    TT_TEST_CHECK_EQUAL(strm.wpos, sizeof(v16), "");
-    TT_TEST_CHECK_EQUAL(strm.rpos, sizeof(v16), "");
-    TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&strm), 0, "");
-    tt_buf_destroy(&strm);
+    TT_TEST_CHECK_EQUAL(buf.wpos, sizeof(v16), "");
+    TT_TEST_CHECK_EQUAL(buf.rpos, sizeof(v16), "");
+    TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&buf), 0, "");
+    tt_buf_destroy(&buf);
 
     // invalid u16
-    ret = tt_buf_create_copy(&strm, (tt_u8_t *)&v16, sizeof(v16) - 1, NULL);
+    ret = tt_buf_create_copy(&buf, (tt_u8_t *)&v16, sizeof(v16) - 1, NULL);
     TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
-    ret = tt_buf_get_u16(&strm, &v16_ret);
+    ret = tt_buf_get_u16(&buf, &v16_ret);
     TT_TEST_CHECK_EQUAL(ret, TT_BUFFER_INCOMPLETE, "");
-    TT_TEST_CHECK_EQUAL(strm.wpos, sizeof(v16) - 1, "");
-    TT_TEST_CHECK_EQUAL(strm.rpos, 0, "");
-    tt_buf_destroy(&strm);
+    TT_TEST_CHECK_EQUAL(buf.wpos, sizeof(v16) - 1, "");
+    TT_TEST_CHECK_EQUAL(buf.rpos, 0, "");
+    tt_buf_destroy(&buf);
 
     // u16
-    ret = tt_buf_create_copy(&strm, (tt_u8_t *)&v16, sizeof(v16), NULL);
+    ret = tt_buf_create_copy(&buf, (tt_u8_t *)&v16, sizeof(v16), NULL);
     TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
-    ret = tt_buf_get_u16_h(&strm, &v16_ret);
+    ret = tt_buf_get_u16_h(&buf, &v16_ret);
     TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
     TT_TEST_CHECK_EQUAL(v16_ret, tt_ntoh16(v16), "");
-    TT_TEST_CHECK_EQUAL(strm.wpos, sizeof(v16), "");
-    TT_TEST_CHECK_EQUAL(strm.rpos, sizeof(v16), "");
-    TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&strm), 0, "");
-    tt_buf_destroy(&strm);
+    TT_TEST_CHECK_EQUAL(buf.wpos, sizeof(v16), "");
+    TT_TEST_CHECK_EQUAL(buf.rpos, sizeof(v16), "");
+    TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&buf), 0, "");
+    tt_buf_destroy(&buf);
 
     // invalid u16
-    ret = tt_buf_create_copy(&strm, (tt_u8_t *)&v16, sizeof(v16) - 1, NULL);
+    ret = tt_buf_create_copy(&buf, (tt_u8_t *)&v16, sizeof(v16) - 1, NULL);
     TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
-    ret = tt_buf_get_u16_h(&strm, &v16_ret);
+    ret = tt_buf_get_u16_h(&buf, &v16_ret);
     TT_TEST_CHECK_EQUAL(ret, TT_BUFFER_INCOMPLETE, "");
-    TT_TEST_CHECK_EQUAL(strm.wpos, sizeof(v16) - 1, "");
-    TT_TEST_CHECK_EQUAL(strm.rpos, 0, "");
-    tt_buf_destroy(&strm);
+    TT_TEST_CHECK_EQUAL(buf.wpos, sizeof(v16) - 1, "");
+    TT_TEST_CHECK_EQUAL(buf.rpos, 0, "");
+    tt_buf_destroy(&buf);
 
     // u8
-    ret = tt_buf_create_copy(&strm, v8, sizeof(v8), NULL);
+    ret = tt_buf_create_copy(&buf, v8, sizeof(v8), NULL);
     TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
-    ret = tt_buf_get(&strm, v8_ret, sizeof(v8));
+    ret = tt_buf_get(&buf, v8_ret, sizeof(v8));
     TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
     TT_TEST_CHECK_EQUAL(tt_memcmp(v8, v8_ret, sizeof(v8)), 0, "");
-    TT_TEST_CHECK_EQUAL(strm.wpos, sizeof(v8), "");
-    TT_TEST_CHECK_EQUAL(strm.rpos, sizeof(v8), "");
-    TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&strm), 0, "");
-    tt_buf_destroy(&strm);
+    TT_TEST_CHECK_EQUAL(buf.wpos, sizeof(v8), "");
+    TT_TEST_CHECK_EQUAL(buf.rpos, sizeof(v8), "");
+    TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&buf), 0, "");
+    tt_buf_destroy(&buf);
 
     // invalid u8
-    ret = tt_buf_create_copy(&strm, v8, sizeof(v8) - 1, NULL);
+    ret = tt_buf_create_copy(&buf, v8, sizeof(v8) - 1, NULL);
     TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
-    ret = tt_buf_get(&strm, v8_ret, sizeof(v8));
+    ret = tt_buf_get(&buf, v8_ret, sizeof(v8));
     TT_TEST_CHECK_EQUAL(ret, TT_BUFFER_INCOMPLETE, "");
-    TT_TEST_CHECK_EQUAL(strm.wpos, sizeof(v8) - 1, "");
-    TT_TEST_CHECK_EQUAL(strm.rpos, 0, "");
-    tt_buf_destroy(&strm);
+    TT_TEST_CHECK_EQUAL(buf.wpos, sizeof(v8) - 1, "");
+    TT_TEST_CHECK_EQUAL(buf.rpos, 0, "");
+    tt_buf_destroy(&buf);
 
     // test end
     TT_TEST_CASE_LEAVE()
@@ -388,7 +408,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_buf_get_rand)
         }
 
         do {
-            tt_buf_t strm;
+            tt_buf_t buf;
             tt_result_t ret;
 
             tt_u32_t __r_u32;
@@ -398,68 +418,58 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_buf_get_rand)
             tt_u32_t org_rd_pos;
             tt_u32_t org_len;
 
-            ret = tt_buf_create_copy(&strm, test_buf, test_buf_size, NULL);
+            ret = tt_buf_create_copy(&buf, test_buf, test_buf_size, NULL);
             TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
             tt_free(test_buf);
 
             while (1) {
                 tt_u32_t __n = tt_rand_u32() % 5;
 
-                org_rd_pos = strm.rpos;
-                org_len = TT_BUF_RLEN(&strm);
+                org_rd_pos = buf.rpos;
+                org_len = TT_BUF_RLEN(&buf);
 
                 switch (__n) {
                     case 0:
-                        ret = tt_buf_get_u32(&strm, &__r_u32);
+                        ret = tt_buf_get_u32(&buf, &__r_u32);
                         if (!TT_OK(ret)) {
                             goto __gr_out;
                         }
 
-                        TT_TEST_CHECK_EQUAL(strm.rpos, org_rd_pos + 4, "");
-                        TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&strm),
-                                            org_len - 4,
-                                            "");
+                        TT_TEST_CHECK_EQUAL(buf.rpos, org_rd_pos + 4, "");
+                        TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&buf), org_len - 4, "");
                         break;
                     case 1:
-                        ret = tt_buf_get_u32_h(&strm, &__r_u32);
+                        ret = tt_buf_get_u32_h(&buf, &__r_u32);
                         if (!TT_OK(ret))
                             goto __gr_out;
 
-                        TT_TEST_CHECK_EQUAL(strm.rpos, org_rd_pos + 4, "");
-                        TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&strm),
-                                            org_len - 4,
-                                            "");
+                        TT_TEST_CHECK_EQUAL(buf.rpos, org_rd_pos + 4, "");
+                        TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&buf), org_len - 4, "");
                         break;
                     case 2:
-                        ret = tt_buf_get_u16(&strm, &__r_u16);
+                        ret = tt_buf_get_u16(&buf, &__r_u16);
                         if (!TT_OK(ret))
                             goto __gr_out;
 
-                        TT_TEST_CHECK_EQUAL(strm.rpos, org_rd_pos + 2, "");
-                        TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&strm),
-                                            org_len - 2,
-                                            "");
+                        TT_TEST_CHECK_EQUAL(buf.rpos, org_rd_pos + 2, "");
+                        TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&buf), org_len - 2, "");
                         break;
                     case 3:
-                        ret = tt_buf_get_u16_h(&strm, &__r_u16);
+                        ret = tt_buf_get_u16_h(&buf, &__r_u16);
                         if (!TT_OK(ret))
                             goto __gr_out;
 
-                        TT_TEST_CHECK_EQUAL(strm.rpos, org_rd_pos + 2, "");
-                        TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&strm),
-                                            org_len - 2,
-                                            "");
+                        TT_TEST_CHECK_EQUAL(buf.rpos, org_rd_pos + 2, "");
+                        TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&buf), org_len - 2, "");
                         break;
                     case 4: {
                         tt_u32_t __r_len = tt_rand_u32() % 99 + 1;
-                        ret = tt_buf_get(&strm, __r_u8, __r_len);
+                        ret = tt_buf_get(&buf, __r_u8, __r_len);
                         if (!TT_OK(ret))
                             goto __gr_out;
 
-                        TT_TEST_CHECK_EQUAL(strm.rpos,
-                                            org_rd_pos + __r_len,
-                                            "");
-                        TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&strm),
+                        TT_TEST_CHECK_EQUAL(buf.rpos, org_rd_pos + __r_len, "");
+                        TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&buf),
                                             org_len - __r_len,
                                             "");
                     } break;
@@ -469,10 +479,10 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_buf_get_rand)
                 }
             }
         __gr_out:
-            TT_TEST_CHECK_EXP(strm.rpos <= strm.wpos, "");
-            TT_TEST_CHECK_EXP(strm.wpos <= strm.size, "");
+            TT_TEST_CHECK_EXP(buf.rpos <= buf.wpos, "");
+            TT_TEST_CHECK_EXP(buf.wpos <= buf.size, "");
 
-            tt_buf_destroy(&strm);
+            tt_buf_destroy(&buf);
         } while (0);
     }
 
@@ -492,108 +502,109 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_buf_put_basic)
     tt_u8_t v8_ret[sizeof(v8)];
 
     tt_result_t ret;
-    tt_buf_t strm;
+    tt_buf_t buf;
 
     TT_TEST_CASE_ENTER()
     // test start
 
     // u32
-    ret = tt_buf_create(&strm, 0, NULL);
+    ret = tt_buf_create(&buf, 0, NULL);
     TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
-    ret = tt_buf_put_u32(&strm, v32);
+    ret = tt_buf_put_u32(&buf, v32);
     TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
-    TT_TEST_CHECK_EQUAL(strm.wpos, sizeof(v32), "");
-    TT_TEST_CHECK_EQUAL(strm.rpos, 0, "");
-    TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&strm), sizeof(v32), "");
-    ret = tt_buf_get_u32(&strm, &v32_ret);
+    TT_TEST_CHECK_EQUAL(buf.wpos, sizeof(v32), "");
+    TT_TEST_CHECK_EQUAL(buf.rpos, 0, "");
+    TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&buf), sizeof(v32), "");
+    ret = tt_buf_get_u32(&buf, &v32_ret);
     TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
     TT_TEST_CHECK_EQUAL(v32_ret, v32, "");
-    TT_TEST_CHECK_EQUAL(strm.wpos, sizeof(v32), "");
-    TT_TEST_CHECK_EQUAL(strm.rpos, sizeof(v32), "");
+    TT_TEST_CHECK_EQUAL(buf.wpos, sizeof(v32), "");
+    TT_TEST_CHECK_EQUAL(buf.rpos, sizeof(v32), "");
 
-    ret = tt_buf_dec_wp(&strm, 1);
+    ret = tt_buf_dec_wp(&buf, 1);
     TT_TEST_CHECK_NOT_EQUAL(ret, TT_SUCCESS, "");
 
     // put, dec, put
-    tt_buf_reset_rwp(&strm);
-    ret = tt_buf_put_u32(&strm, v32);
+    tt_buf_reset_rwp(&buf);
+    ret = tt_buf_put_u32(&buf, v32);
     TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
-    TT_TEST_CHECK_EQUAL(strm.wpos, sizeof(v32), "");
-    TT_TEST_CHECK_EQUAL(strm.rpos, 0, "");
-    TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&strm), sizeof(v32), "");
-    ret = tt_buf_dec_wp(&strm, sizeof(tt_u32_t));
+    TT_TEST_CHECK_EQUAL(buf.wpos, sizeof(v32), "");
+    TT_TEST_CHECK_EQUAL(buf.rpos, 0, "");
+    TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&buf), sizeof(v32), "");
+    TT_TEST_CHECK_EQUAL(tt_buf_empty(&buf), TT_FALSE, "");
+    ret = tt_buf_dec_wp(&buf, sizeof(tt_u32_t));
     TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
-    ret = tt_buf_put_u32(&strm, v32);
+    ret = tt_buf_put_u32(&buf, v32);
     TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
-    TT_TEST_CHECK_EQUAL(strm.wpos, sizeof(v32), "");
-    TT_TEST_CHECK_EQUAL(strm.rpos, 0, "");
-    TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&strm), sizeof(v32), "");
-    ret = tt_buf_get_u32(&strm, &v32_ret);
+    TT_TEST_CHECK_EQUAL(buf.wpos, sizeof(v32), "");
+    TT_TEST_CHECK_EQUAL(buf.rpos, 0, "");
+    TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&buf), sizeof(v32), "");
+    ret = tt_buf_get_u32(&buf, &v32_ret);
     TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
     TT_TEST_CHECK_EQUAL(v32_ret, v32, "");
-    TT_TEST_CHECK_EQUAL(strm.wpos, sizeof(v32), "");
-    TT_TEST_CHECK_EQUAL(strm.rpos, sizeof(v32), "");
-    tt_buf_destroy(&strm);
+    TT_TEST_CHECK_EQUAL(buf.wpos, sizeof(v32), "");
+    TT_TEST_CHECK_EQUAL(buf.rpos, sizeof(v32), "");
+    tt_buf_destroy(&buf);
 
     // u32_n
-    ret = tt_buf_create(&strm, 0, NULL);
+    ret = tt_buf_create(&buf, 0, NULL);
     TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
-    ret = tt_buf_put_u32_n(&strm, v32);
+    ret = tt_buf_put_u32_n(&buf, v32);
     TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
-    TT_TEST_CHECK_EQUAL(strm.wpos, sizeof(v32), "");
-    TT_TEST_CHECK_EQUAL(strm.rpos, 0, "");
-    TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&strm), sizeof(v32), "");
-    ret = tt_buf_get_u32(&strm, &v32_ret);
+    TT_TEST_CHECK_EQUAL(buf.wpos, sizeof(v32), "");
+    TT_TEST_CHECK_EQUAL(buf.rpos, 0, "");
+    TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&buf), sizeof(v32), "");
+    ret = tt_buf_get_u32(&buf, &v32_ret);
     TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
     TT_TEST_CHECK_EQUAL(v32_ret, tt_hton32(v32), "");
-    TT_TEST_CHECK_EQUAL(strm.wpos, sizeof(v32), "");
-    TT_TEST_CHECK_EQUAL(strm.rpos, sizeof(v32), "");
-    tt_buf_destroy(&strm);
+    TT_TEST_CHECK_EQUAL(buf.wpos, sizeof(v32), "");
+    TT_TEST_CHECK_EQUAL(buf.rpos, sizeof(v32), "");
+    tt_buf_destroy(&buf);
 
     // u16
-    ret = tt_buf_create(&strm, 0, NULL);
+    ret = tt_buf_create(&buf, 0, NULL);
     TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
-    ret = tt_buf_put_u16(&strm, v16);
+    ret = tt_buf_put_u16(&buf, v16);
     TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
-    TT_TEST_CHECK_EQUAL(strm.wpos, sizeof(v16), "");
-    TT_TEST_CHECK_EQUAL(strm.rpos, 0, "");
-    TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&strm), sizeof(v16), "");
-    ret = tt_buf_get_u16(&strm, &v16_ret);
+    TT_TEST_CHECK_EQUAL(buf.wpos, sizeof(v16), "");
+    TT_TEST_CHECK_EQUAL(buf.rpos, 0, "");
+    TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&buf), sizeof(v16), "");
+    ret = tt_buf_get_u16(&buf, &v16_ret);
     TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
     TT_TEST_CHECK_EQUAL(v16_ret, v16, "");
-    TT_TEST_CHECK_EQUAL(strm.wpos, sizeof(v16), "");
-    TT_TEST_CHECK_EQUAL(strm.rpos, sizeof(v16), "");
-    tt_buf_destroy(&strm);
+    TT_TEST_CHECK_EQUAL(buf.wpos, sizeof(v16), "");
+    TT_TEST_CHECK_EQUAL(buf.rpos, sizeof(v16), "");
+    tt_buf_destroy(&buf);
 
     // u16_n
-    ret = tt_buf_create(&strm, 0, NULL);
+    ret = tt_buf_create(&buf, 0, NULL);
     TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
-    ret = tt_buf_put_u16_n(&strm, v16);
+    ret = tt_buf_put_u16_n(&buf, v16);
     TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
-    TT_TEST_CHECK_EQUAL(strm.wpos, sizeof(v16), "");
-    TT_TEST_CHECK_EQUAL(strm.rpos, 0, "");
-    TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&strm), sizeof(v16), "");
-    ret = tt_buf_get_u16(&strm, &v16_ret);
+    TT_TEST_CHECK_EQUAL(buf.wpos, sizeof(v16), "");
+    TT_TEST_CHECK_EQUAL(buf.rpos, 0, "");
+    TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&buf), sizeof(v16), "");
+    ret = tt_buf_get_u16(&buf, &v16_ret);
     TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
     TT_TEST_CHECK_EQUAL(v16_ret, tt_hton16(v16), "");
-    TT_TEST_CHECK_EQUAL(strm.wpos, sizeof(v16), "");
-    TT_TEST_CHECK_EQUAL(strm.rpos, sizeof(v16), "");
-    tt_buf_destroy(&strm);
+    TT_TEST_CHECK_EQUAL(buf.wpos, sizeof(v16), "");
+    TT_TEST_CHECK_EQUAL(buf.rpos, sizeof(v16), "");
+    tt_buf_destroy(&buf);
 
     // u8
-    ret = tt_buf_create(&strm, 0, NULL);
+    ret = tt_buf_create(&buf, 0, NULL);
     TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
-    ret = tt_buf_put(&strm, v8, sizeof(v8));
+    ret = tt_buf_put(&buf, v8, sizeof(v8));
     TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
-    TT_TEST_CHECK_EQUAL(strm.wpos, sizeof(v8), "");
-    TT_TEST_CHECK_EQUAL(strm.rpos, 0, "");
-    TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&strm), sizeof(v8), "");
-    ret = tt_buf_get(&strm, v8_ret, sizeof(v8_ret));
+    TT_TEST_CHECK_EQUAL(buf.wpos, sizeof(v8), "");
+    TT_TEST_CHECK_EQUAL(buf.rpos, 0, "");
+    TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&buf), sizeof(v8), "");
+    ret = tt_buf_get(&buf, v8_ret, sizeof(v8_ret));
     TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
     TT_TEST_CHECK_EQUAL(tt_memcmp(v8, v8_ret, sizeof(v8)), 0, "");
-    TT_TEST_CHECK_EQUAL(strm.wpos, sizeof(v8), "");
-    TT_TEST_CHECK_EQUAL(strm.rpos, sizeof(v8), "");
-    tt_buf_destroy(&strm);
+    TT_TEST_CHECK_EQUAL(buf.wpos, sizeof(v8), "");
+    TT_TEST_CHECK_EQUAL(buf.rpos, sizeof(v8), "");
+    tt_buf_destroy(&buf);
 
     // test end
     TT_TEST_CASE_LEAVE()
@@ -609,7 +620,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_buf_put_rand)
 
     for (i = 0; i < test_num; ++i) {
         do {
-            tt_buf_t strm;
+            tt_buf_t buf;
             tt_result_t ret;
             tt_buf_attr_t attr;
 
@@ -623,63 +634,61 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_buf_put_rand)
             attr.max_extend = 8;
             attr.max_limit = 12; // max 4k
 
-            ret = tt_buf_create(&strm, 0, &attr);
+            ret = tt_buf_create(&buf, 0, &attr);
             TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
 
             while (1) {
                 tt_u32_t __n = tt_rand_u32() % 6;
 
-                org_wr_pos = strm.wpos;
-                org_len = TT_BUF_WLEN(&strm);
+                org_wr_pos = buf.wpos;
+                org_len = TT_BUF_WLEN(&buf);
 
                 switch (__n) {
                     case 0:
-                        ret = tt_buf_put_u32(&strm, org_len);
+                        ret = tt_buf_put_u32(&buf, org_len);
                         if (!TT_OK(ret))
                             goto __gr_out;
 
-                        TT_TEST_CHECK_EQUAL(strm.wpos, org_wr_pos + 4, "");
+                        TT_TEST_CHECK_EQUAL(buf.wpos, org_wr_pos + 4, "");
                         break;
                     case 1:
-                        ret = tt_buf_put_u32_n(&strm, org_len);
+                        ret = tt_buf_put_u32_n(&buf, org_len);
                         if (!TT_OK(ret))
                             goto __gr_out;
 
-                        TT_TEST_CHECK_EQUAL(strm.wpos, org_wr_pos + 4, "");
+                        TT_TEST_CHECK_EQUAL(buf.wpos, org_wr_pos + 4, "");
                         break;
                     case 2:
-                        ret = tt_buf_put_u16(&strm, (tt_u16_t)org_len);
+                        ret = tt_buf_put_u16(&buf, (tt_u16_t)org_len);
                         if (!TT_OK(ret))
                             goto __gr_out;
 
-                        TT_TEST_CHECK_EQUAL(strm.wpos, org_wr_pos + 2, "");
+                        TT_TEST_CHECK_EQUAL(buf.wpos, org_wr_pos + 2, "");
                         break;
                     case 3:
-                        ret = tt_buf_put_u16_n(&strm, (tt_u16_t)org_len);
+                        ret = tt_buf_put_u16_n(&buf, (tt_u16_t)org_len);
                         if (!TT_OK(ret))
                             goto __gr_out;
 
-                        TT_TEST_CHECK_EQUAL(strm.wpos, org_wr_pos + 2, "");
+                        TT_TEST_CHECK_EQUAL(buf.wpos, org_wr_pos + 2, "");
                         break;
                     case 4: {
                         tt_u32_t __r_len = tt_rand_u32() % 99 + 1;
-                        ret = tt_buf_put(&strm, __r_u8, __r_len);
+                        ret = tt_buf_put(&buf, __r_u8, __r_len);
                         if (!TT_OK(ret))
                             goto __gr_out;
 
-                        TT_TEST_CHECK_EQUAL(strm.wpos,
-                                            org_wr_pos + __r_len,
-                                            "");
+                        TT_TEST_CHECK_EQUAL(buf.wpos, org_wr_pos + __r_len, "");
                         break;
                     } break;
                     case 5: {
-                        tt_u32_t n = TT_BUF_RLEN(&strm);
+                        tt_u32_t n = TT_BUF_RLEN(&buf);
 
-                        ret = tt_buf_compress(&strm);
+                        ret = tt_buf_compress(&buf);
                         TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
-                        TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&strm), n, "");
-                        TT_TEST_CHECK_EQUAL(strm.rpos, 0, "");
-                        TT_TEST_CHECK_EQUAL(strm.wpos, n, "");
+                        TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&buf), n, "");
+                        TT_TEST_CHECK_EQUAL(buf.rpos, 0, "");
+                        TT_TEST_CHECK_EQUAL(buf.wpos, n, "");
                     } break;
 
                     default:
@@ -688,10 +697,10 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_buf_put_rand)
             }
         __gr_out:
             TT_INFO("put out");
-            TT_TEST_CHECK_EXP(strm.rpos <= strm.wpos, "");
-            TT_TEST_CHECK_EXP(strm.wpos <= strm.size, "");
+            TT_TEST_CHECK_EXP(buf.rpos <= buf.wpos, "");
+            TT_TEST_CHECK_EXP(buf.wpos <= buf.size, "");
 
-            tt_buf_destroy(&strm);
+            tt_buf_destroy(&buf);
         } while (0);
     }
 
@@ -1392,6 +1401,157 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_buftok)
     TT_TEST_CHECK_EQUAL(i, 0, "");
 
     tt_buf_destroy(&buf);
+
+    // test end
+    TT_TEST_CASE_LEAVE()
+}
+
+// this impl a transform strip 2 leading and 3 trailing chars when received 10
+// chars
+static tt_u32_t __ut_iob_prepare(IN tt_u8_t *data,
+                                 IN tt_u32_t len,
+                                 IN void *param)
+{
+    TT_ASSERT(len != 0);
+    if (len >= 10) {
+        return 5;
+    } else {
+        return 0;
+    }
+}
+
+static tt_u32_t __ut_iob_transform(IN tt_u8_t *data,
+                                   IN tt_u32_t len,
+                                   OUT tt_u8_t *outbuf,
+                                   IN tt_u32_t outbuf_len,
+                                   IN void *param)
+{
+    TT_ASSERT(len >= 10);
+    TT_ASSERT(outbuf_len >= 5);
+    tt_memcpy(outbuf, data + 2, 5);
+    return 10;
+}
+
+static tt_bool_t __ut_iob_cleared;
+void __ut_iob_clear(IN void *param)
+{
+    __ut_iob_cleared = TT_TRUE;
+}
+
+TT_TEST_ROUTINE_DEFINE(tt_unit_test_iobuf)
+{
+    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+    tt_iobuf_t iob;
+    tt_result_t ret;
+    tt_iobuf_attr_t attr;
+    tt_iobuf_itf_t itf = {0};
+    tt_u8_t *data, *out;
+    tt_u32_t len, olen, i, n;
+
+    TT_TEST_CASE_ENTER()
+    // test start
+
+    itf.prepare = __ut_iob_prepare;
+    itf.transform = __ut_iob_transform;
+    itf.clear = __ut_iob_clear;
+
+    tt_iobuf_attr_default(&attr);
+
+    tt_iobuf_init(&iob, &itf, (void *)1, &attr);
+
+    len = tt_rand_u32() % 1000 + 1;
+    data = tt_malloc(len);
+    TT_TEST_CHECK_NOT_EQUAL(data, NULL, "");
+    for (i = 0; i < len; ++i) {
+        data[i] = i % 10; // 0-9
+    }
+
+    olen = tt_rand_u32() % 100 + 1;
+    out = tt_malloc(olen);
+    TT_TEST_CHECK_NOT_EQUAL(out, NULL, "");
+
+    ret = tt_iobuf_get(&iob, out, olen);
+    TT_TEST_CHECK_FAIL(ret, "");
+
+    __ut_iob_cleared = TT_FALSE;
+    tt_iobuf_clear(&iob);
+    ret = tt_iobuf_get(&iob, out, olen);
+    TT_TEST_CHECK_FAIL(ret, "");
+    TT_TEST_CHECK_EQUAL(__ut_iob_cleared, TT_TRUE, "");
+
+    // put something complete
+    ret = tt_iobuf_put(&iob, data, 20);
+    TT_TEST_CHECK_SUCCESS(ret, "");
+    ret = tt_iobuf_get(&iob, out, 10);
+    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_TEST_CHECK_EQUAL(out[0], 2, "");
+    TT_TEST_CHECK_EQUAL(out[4], 6, "");
+    TT_TEST_CHECK_EQUAL(out[5], 2, "");
+    TT_TEST_CHECK_EQUAL(out[9], 6, "");
+    TT_TEST_CHECK_EQUAL(tt_buf_empty(&iob.obuf), TT_TRUE, "");
+
+    // put something incomplete
+    ret = tt_iobuf_put(&iob, data, 11);
+    TT_TEST_CHECK_SUCCESS(ret, "");
+    ret = tt_iobuf_get(&iob, out, 5);
+    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_TEST_CHECK_EQUAL(out[0], 2, "");
+    TT_TEST_CHECK_EQUAL(out[4], 6, "");
+
+    ret = tt_iobuf_put(&iob, data + 11, 1);
+    TT_TEST_CHECK_SUCCESS(ret, "");
+    ret = tt_iobuf_get(&iob, out, 5);
+    TT_TEST_CHECK_FAIL(ret, "");
+
+    ret = tt_iobuf_put(&iob, data + 12, 1);
+    TT_TEST_CHECK_SUCCESS(ret, "");
+    ret = tt_iobuf_get(&iob, out, 5);
+    TT_TEST_CHECK_FAIL(ret, "");
+
+    ret = tt_iobuf_put(&iob, data + 13, 4);
+    TT_TEST_CHECK_SUCCESS(ret, "");
+    ret = tt_iobuf_get(&iob, out, 5);
+    TT_TEST_CHECK_FAIL(ret, "");
+
+    ret = tt_iobuf_put(&iob, data + 17, 2);
+    TT_TEST_CHECK_SUCCESS(ret, "");
+    ret = tt_iobuf_get(&iob, out, 5);
+    TT_TEST_CHECK_FAIL(ret, "");
+
+    ret = tt_iobuf_put(&iob, data + 19, 22);
+    TT_TEST_CHECK_SUCCESS(ret, "");
+    ret = tt_iobuf_get(&iob, out, 5);
+    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_TEST_CHECK_EQUAL(out[0], 2, "");
+    TT_TEST_CHECK_EQUAL(out[4], 6, "");
+
+    tt_iobuf_clear(&iob);
+    i = 0;
+    while (i < len) {
+        n = tt_rand_u32() % 20; // 0-19bytes
+        if ((i + n) > len) {
+            n = len - i;
+        }
+        tt_iobuf_put(&iob, data + i, n);
+        i += n;
+
+        if (TT_OK(tt_iobuf_get(&iob, out, olen))) {
+            static tt_u32_t val = 2;
+            tt_u32_t k;
+            for (k = 0; k < olen; ++k) {
+                // out[k] varies from 2-6
+                TT_TEST_CHECK_EQUAL(out[k], val, "");
+                ++val;
+                if (val == 7) {
+                    val = 2;
+                }
+            }
+        }
+    }
+
+    tt_free(data);
+    tt_free(out);
+    tt_iobuf_destroy(&iob);
 
     // test end
     TT_TEST_CASE_LEAVE()

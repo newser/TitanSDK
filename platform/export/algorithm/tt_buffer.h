@@ -272,11 +272,25 @@ tt_inline void tt_buf_restore_rwp(IN tt_buf_t *buf,
     buf->rpos = *rpos;
 }
 
-extern tt_u32_t tt_buf_refine(IN tt_buf_t *buf);
-
 tt_inline void tt_buf_clear(IN tt_buf_t *buf)
 {
     tt_buf_reset_rwp(buf);
+}
+
+tt_inline tt_bool_t tt_buf_empty(IN tt_buf_t *buf)
+{
+    return TT_BOOL(buf->rpos == buf->wpos);
+}
+
+extern tt_u32_t tt_buf_refine(IN tt_buf_t *buf);
+
+tt_inline tt_u32_t tt_buf_try_refine(IN tt_buf_t *buf, IN tt_u32_t threshold)
+{
+    if (tt_buf_empty(buf) || (TT_BUF_REFINABLE(buf) >= threshold)) {
+        return tt_buf_refine(buf);
+    } else {
+        return 0;
+    }
 }
 
 // ========================================

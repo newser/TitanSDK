@@ -68,18 +68,18 @@ TT_ALG_UT_DECLARE(ALG_UT_STACK)
 ////////////////////////////////////////////////////////////
 
 tt_test_unit_t *tt_g_alg_ut_list[ALG_UT_NUM] = {
+    &TT_MAKE_TEST_UNIT_NAME(ALG_UT_BUF),
 #if 0
     &TT_MAKE_TEST_UNIT_NAME(ALG_UT_BASIC_ALG),
     &TT_MAKE_TEST_UNIT_NAME(ALG_UT_HEAP),
-    &TT_MAKE_TEST_UNIT_NAME(ALG_UT_BUF),
     &TT_MAKE_TEST_UNIT_NAME(ALG_UT_VECTOR),
     &TT_MAKE_TEST_UNIT_NAME(ALG_UT_LIST),
     &TT_MAKE_TEST_UNIT_NAME(ALG_UT_HASHMAP),
     &TT_MAKE_TEST_UNIT_NAME(ALG_UT_QUEUE),
     &TT_MAKE_TEST_UNIT_NAME(ALG_UT_RBTREE),
     &TT_MAKE_TEST_UNIT_NAME(ALG_UT_STRING),
-#endif
     &TT_MAKE_TEST_UNIT_NAME(ALG_UT_STACK),
+#endif
 };
 
 ////////////////////////////////////////////////////////////
