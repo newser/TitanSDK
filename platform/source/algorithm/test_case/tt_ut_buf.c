@@ -54,6 +54,8 @@ TT_TEST_ROUTINE_DECLARE(tt_unit_test_buf_put_rand)
 TT_TEST_ROUTINE_DECLARE(tt_unit_test_buf_remove)
 
 TT_TEST_ROUTINE_DECLARE(tt_unit_test_iobuf)
+TT_TEST_ROUTINE_DECLARE(tt_unit_test_iobuf_format)
+TT_TEST_ROUTINE_DECLARE(tt_unit_test_iobuf_format_cp)
 // =========================================
 
 // === test case list ======================
@@ -135,6 +137,24 @@ TT_TEST_CASE("tt_unit_test_buf_null",
     TT_TEST_CASE("tt_unit_test_iobuf",
                  "testing io buf",
                  tt_unit_test_iobuf,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL),
+
+    TT_TEST_CASE("tt_unit_test_iobuf_format",
+                 "testing io buf format",
+                 tt_unit_test_iobuf_format,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL),
+
+    TT_TEST_CASE("tt_unit_test_iobuf_format_cp",
+                 "testing io buf format copy",
+                 tt_unit_test_iobuf_format_cp,
                  NULL,
                  NULL,
                  NULL,
@@ -1459,14 +1479,14 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_iobuf)
 
     tt_iobuf_init(&iob, &itf, (void *)1, &attr);
 
-    len = tt_rand_u32() % 1000 + 1;
+    len = tt_rand_u32() % 1000 + 22;
     data = tt_malloc(len);
     TT_TEST_CHECK_NOT_EQUAL(data, NULL, "");
     for (i = 0; i < len; ++i) {
         data[i] = i % 10; // 0-9
     }
 
-    olen = tt_rand_u32() % 100 + 1;
+    olen = tt_rand_u32() % 100 + 10;
     out = tt_malloc(olen);
     TT_TEST_CHECK_NOT_EQUAL(out, NULL, "");
 
@@ -1518,7 +1538,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_iobuf)
     ret = tt_iobuf_get(&iob, out, 5);
     TT_TEST_CHECK_FAIL(ret, "");
 
-    ret = tt_iobuf_put(&iob, data + 19, 22);
+    ret = tt_iobuf_put(&iob, data + 19, 3);
     TT_TEST_CHECK_SUCCESS(ret, "");
     ret = tt_iobuf_get(&iob, out, 5);
     TT_TEST_CHECK_SUCCESS(ret, "");
@@ -1551,6 +1571,242 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_iobuf)
 
     tt_free(data);
     tt_free(out);
+    tt_iobuf_destroy(&iob);
+
+    // test end
+    TT_TEST_CASE_LEAVE()
+}
+
+// clang-format off
+// test encoding: len/big endian/value/last byte of value
+static tt_u8_t __ut_iobf_in[] =
+{
+    0x1,0x1,0x9,0x9,
+    0x1,0x0,0x8,0x8,
+    0x2,0x1,0x1,0x2,0x2,
+    0x2,0x0,0x3,0x6,0x6,
+    0x4,0x1,0x1,0x2,0x3,0x4,0x4,
+    0x4,0x0,0x3,0x4,0x5,0x6,0x6,
+    0x8,0x1,0x1,0x2,0x3,0x4,0x1,0x2,0x3,0x4,0x4,
+    0x8,0x0,0x3,0x4,0x5,0x6,0x3,0x4,0x5,0x6,0x6,
+};
+// clang-format on
+
+static tt_u32_t __ut_iobf_prepare(IN tt_u8_t *data,
+                                  IN tt_u32_t len,
+                                  IN void *param)
+{
+    tt_u32_t n;
+
+    TT_ASSERT(len != 0);
+    n = data[0];
+    if (len >= (n + 3)) {
+        TT_ASSERT(data[n + 1] == data[n + 2]);
+        return n;
+    } else {
+        return 0;
+    }
+}
+
+static tt_u32_t __ut_iobf_transform(IN tt_u8_t *data,
+                                    IN tt_u32_t len,
+                                    OUT tt_u8_t *outbuf,
+                                    IN tt_u32_t outbuf_len,
+                                    IN void *param)
+{
+    tt_u32_t n;
+
+    TT_ASSERT(len != 0);
+    n = data[0];
+    TT_ASSERT(data[n + 1] == data[n + 2]);
+
+    tt_memcpy(outbuf, data + 2, n);
+    return n + 3;
+}
+
+TT_TEST_ROUTINE_DEFINE(tt_unit_test_iobuf_format)
+{
+    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+    tt_iobuf_t iob;
+    tt_result_t ret;
+    tt_iobuf_attr_t attr;
+    tt_iobuf_itf_t itf = {0};
+    tt_u32_t len, i, n, no = 0, v32;
+    tt_u8_t v8;
+    tt_u16_t v16;
+    tt_u64_t v64;
+
+    TT_TEST_CASE_ENTER()
+    // test start
+
+    itf.prepare = __ut_iobf_prepare;
+    itf.transform = __ut_iobf_transform;
+    itf.clear = __ut_iob_clear;
+
+    tt_iobuf_attr_default(&attr);
+
+    tt_iobuf_init(&iob, &itf, (void *)1, &attr);
+
+    tt_iobuf_clear(&iob);
+    i = 0;
+    while (i < sizeof(__ut_iobf_in)) {
+        n = tt_rand_u32() % 3 + 1; // 1-3bytes
+        if ((i + n) > sizeof(__ut_iobf_in)) {
+            n = sizeof(__ut_iobf_in) - i;
+        }
+        tt_iobuf_put(&iob, &__ut_iobf_in[i], n);
+        i += n;
+
+        switch (no) {
+            case 0:
+                if (TT_OK(tt_iobuf_get_u8(&iob, &v8))) {
+                    TT_TEST_CHECK_EQUAL(v8, 0x9, "");
+                    ++no;
+                }
+                break;
+
+            case 1:
+                if (TT_OK(tt_iobuf_get_u8(&iob, &v8))) {
+                    TT_TEST_CHECK_EQUAL(v8, 0x8, "");
+                    ++no;
+                }
+                break;
+
+            case 2:
+                if (TT_OK(tt_iobuf_get_u16(&iob, &v16))) {
+                    TT_TEST_CHECK_EQUAL(v16, 0x0201, "");
+                    ++no;
+                }
+                break;
+
+            case 3:
+                if (TT_OK(tt_iobuf_get_u16_h(&iob, &v16))) {
+                    TT_TEST_CHECK_EQUAL(v16, 0x0306, "");
+                    ++no;
+                }
+                break;
+
+            case 4:
+                if (TT_OK(tt_iobuf_get_u32(&iob, &v32))) {
+                    TT_TEST_CHECK_EQUAL(v32, 0x04030201, "");
+                    ++no;
+                }
+                break;
+
+            case 5:
+                if (TT_OK(tt_iobuf_get_u32_h(&iob, &v32))) {
+                    TT_TEST_CHECK_EQUAL(v32, 0x03040506, "");
+                    ++no;
+                }
+                break;
+
+            case 6:
+                if (TT_OK(tt_iobuf_get_u64(&iob, &v64))) {
+                    TT_TEST_CHECK_EQUAL(v64, 0x0403020104030201, "");
+                    ++no;
+                }
+                break;
+
+            case 7:
+                if (TT_OK(tt_iobuf_get_u64_h(&iob, &v64))) {
+                    TT_TEST_CHECK_EQUAL(v64, 0x0304050603040506, "");
+                    ++no;
+                }
+                break;
+
+            default:
+                break;
+        }
+    }
+
+    tt_iobuf_destroy(&iob);
+
+    // test end
+    TT_TEST_CASE_LEAVE()
+}
+
+static tt_u32_t __ut_iob_cp_prepare(IN tt_u8_t *data,
+                                    IN tt_u32_t len,
+                                    IN void *param)
+{
+    return len;
+}
+
+static tt_u32_t __ut_iob_cp_transform(IN tt_u8_t *data,
+                                      IN tt_u32_t len,
+                                      OUT tt_u8_t *outbuf,
+                                      IN tt_u32_t outbuf_len,
+                                      IN void *param)
+{
+    tt_memcpy(outbuf, data, len);
+    return len;
+}
+
+TT_TEST_ROUTINE_DEFINE(tt_unit_test_iobuf_format_cp)
+{
+    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+    tt_iobuf_t iob;
+    tt_result_t ret;
+    tt_iobuf_attr_t attr;
+    tt_iobuf_itf_t itf = {0};
+    tt_u32_t v32;
+    tt_u8_t v8;
+    tt_u16_t v16;
+    tt_u64_t v64;
+
+    TT_TEST_CASE_ENTER()
+    // test start
+
+    itf.prepare = __ut_iob_cp_prepare;
+    itf.transform = __ut_iob_cp_transform;
+    itf.clear = __ut_iob_clear;
+
+    tt_iobuf_attr_default(&attr);
+
+    tt_iobuf_init(&iob, &itf, (void *)1, &attr);
+
+    tt_iobuf_clear(&iob);
+
+    ret = tt_iobuf_put_u8(&iob, 0x7f);
+    TT_TEST_CHECK_SUCCESS(ret, "");
+    ret = tt_iobuf_put_u16(&iob, 0x0102);
+    TT_TEST_CHECK_SUCCESS(ret, "");
+    ret = tt_iobuf_put_u16_n(&iob, 0x0304);
+    TT_TEST_CHECK_SUCCESS(ret, "");
+    ret = tt_iobuf_put_u32(&iob, 0x01020304);
+    TT_TEST_CHECK_SUCCESS(ret, "");
+    ret = tt_iobuf_put_u32_n(&iob, 0x03040506);
+    TT_TEST_CHECK_SUCCESS(ret, "");
+    ret = tt_iobuf_put_u64(&iob, 0x0102030401020304);
+    TT_TEST_CHECK_SUCCESS(ret, "");
+    ret = tt_iobuf_put_u64_n(&iob, 0x0304050603040506);
+    TT_TEST_CHECK_SUCCESS(ret, "");
+
+    ret = tt_iobuf_get_u8(&iob, &v8);
+    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_TEST_CHECK_EQUAL(v8, 0x7f, "");
+
+    ret = tt_iobuf_get_u16(&iob, &v16);
+    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_TEST_CHECK_EQUAL(v16, 0x0102, "");
+    ret = tt_iobuf_get_u16_h(&iob, &v16);
+    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_TEST_CHECK_EQUAL(v16, 0x0304, "");
+
+    ret = tt_iobuf_get_u32(&iob, &v32);
+    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_TEST_CHECK_EQUAL(v32, 0x01020304, "");
+    ret = tt_iobuf_get_u32_h(&iob, &v32);
+    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_TEST_CHECK_EQUAL(v32, 0x03040506, "");
+
+    ret = tt_iobuf_get_u64(&iob, &v64);
+    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_TEST_CHECK_EQUAL(v64, 0x0102030401020304, "");
+    ret = tt_iobuf_get_u64_h(&iob, &v64);
+    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_TEST_CHECK_EQUAL(v64, 0x0304050603040506, "");
+
     tt_iobuf_destroy(&iob);
 
     // test end

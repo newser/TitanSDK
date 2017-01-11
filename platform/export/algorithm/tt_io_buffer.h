@@ -29,6 +29,7 @@ this file defines io iobfer APIs
 ////////////////////////////////////////////////////////////
 
 #include <algorithm/tt_buffer.h>
+#include <algorithm/tt_buffer_format.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
@@ -103,5 +104,100 @@ extern tt_result_t tt_iobuf_get(IN tt_iobuf_t *iob,
                                 IN tt_u32_t len);
 
 extern void tt_iobuf_clear(IN tt_iobuf_t *iob);
+
+// ========================================
+// format
+// ========================================
+
+tt_inline tt_result_t tt_iobuf_put_u64(IN tt_iobuf_t *iob, IN tt_u64_t val_u64)
+{
+    return tt_iobuf_put(iob, (tt_u8_t *)&val_u64, sizeof(tt_u64_t));
+}
+
+tt_inline tt_result_t tt_iobuf_put_u64_n(IN tt_iobuf_t *iob,
+                                         IN tt_u64_t val_u64)
+{
+    val_u64 = tt_hton64(val_u64);
+    return tt_iobuf_put(iob, (tt_u8_t *)&val_u64, sizeof(tt_u64_t));
+}
+
+tt_inline tt_result_t tt_iobuf_get_u64(IN tt_iobuf_t *iob, IN tt_u64_t *val_u64)
+{
+    return tt_buf_get_u64(&iob->obuf, val_u64);
+}
+
+tt_inline tt_result_t tt_iobuf_get_u64_h(IN tt_iobuf_t *iob,
+                                         IN tt_u64_t *val_u64)
+{
+    return tt_buf_get_u64_h(&iob->obuf, val_u64);
+}
+
+tt_inline tt_result_t tt_iobuf_put_u32(IN tt_iobuf_t *iob, IN tt_u32_t val_u32)
+{
+    return tt_iobuf_put(iob, (tt_u8_t *)&val_u32, sizeof(tt_u32_t));
+}
+
+tt_inline tt_result_t tt_iobuf_put_u32_n(IN tt_iobuf_t *iob,
+                                         IN tt_u32_t val_u32)
+{
+    val_u32 = tt_hton32(val_u32);
+    return tt_iobuf_put(iob, (tt_u8_t *)&val_u32, sizeof(tt_u32_t));
+}
+
+tt_inline tt_result_t tt_iobuf_get_u32(IN tt_iobuf_t *iob, IN tt_u32_t *val_u32)
+{
+    return tt_buf_get_u32(&iob->obuf, val_u32);
+}
+
+tt_inline tt_result_t tt_iobuf_get_u32_h(IN tt_iobuf_t *iob,
+                                         IN tt_u32_t *val_u32)
+{
+    return tt_buf_get_u32_h(&iob->obuf, val_u32);
+}
+
+tt_inline tt_result_t tt_iobuf_peek_u32(IN tt_iobuf_t *iob,
+                                        IN tt_u32_t *val_u32)
+{
+    return tt_buf_peek_u32(&iob->obuf, val_u32);
+}
+
+tt_inline tt_result_t tt_iobuf_peek_u32_h(IN tt_iobuf_t *iob,
+                                          IN tt_u32_t *val_u32)
+{
+    return tt_buf_peek_u32_h(&iob->obuf, val_u32);
+}
+
+tt_inline tt_result_t tt_iobuf_put_u16(IN tt_iobuf_t *iob, IN tt_u16_t val_u16)
+{
+    return tt_iobuf_put(iob, (tt_u8_t *)&val_u16, sizeof(tt_u16_t));
+}
+
+tt_inline tt_result_t tt_iobuf_put_u16_n(IN tt_iobuf_t *iob,
+                                         IN tt_u16_t val_u16)
+{
+    val_u16 = tt_hton16(val_u16);
+    return tt_iobuf_put(iob, (tt_u8_t *)&val_u16, sizeof(tt_u16_t));
+}
+
+tt_inline tt_result_t tt_iobuf_get_u16(IN tt_iobuf_t *iob, IN tt_u16_t *val_u16)
+{
+    return tt_buf_get_u16(&iob->obuf, val_u16);
+}
+
+tt_inline tt_result_t tt_iobuf_get_u16_h(IN tt_iobuf_t *iob,
+                                         IN tt_u16_t *val_u16)
+{
+    return tt_buf_get_u16_h(&iob->obuf, val_u16);
+}
+
+tt_inline tt_result_t tt_iobuf_put_u8(IN tt_iobuf_t *iob, IN tt_u8_t val_u8)
+{
+    return tt_iobuf_put(iob, &val_u8, sizeof(tt_u8_t));
+}
+
+tt_inline tt_result_t tt_iobuf_get_u8(IN tt_iobuf_t *iob, IN tt_u8_t *val_u8)
+{
+    return tt_buf_get_u8(&iob->obuf, val_u8);
+}
 
 #endif /* __TT_IO_BUFFER__ */
