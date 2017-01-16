@@ -146,13 +146,12 @@ extern tt_result_t tt_buf_set(IN tt_buf_t *buf,
 
 extern tt_result_t __buf_extend(IN tt_buf_t *buf, IN tt_u32_t size);
 
-// set size to 0 to expand buf, the buf will determine the new size
 tt_inline tt_result_t tt_buf_reserve(IN tt_buf_t *buf, IN OPT tt_u32_t size)
 {
-    if ((size != 0) && (TT_BUF_WLEN(buf) >= size)) {
+    if (TT_BUF_WLEN(buf) >= size) {
         return TT_SUCCESS;
     }
-    return __buf_extend(buf, buf->size + TT_COND(size != 0, size, 1));
+    return __buf_extend(buf, buf->size + size);
 }
 
 tt_inline tt_result_t tt_buf_extend(IN tt_buf_t *buf)
@@ -192,7 +191,7 @@ tt_inline tt_result_t tt_buf_inc_rp(IN tt_buf_t *buf, IN tt_u32_t num)
         buf->rpos += num;
         return TT_SUCCESS;
     } else {
-        return TT_FAIL;
+        return TT_BUFFER_INCOMPLETE;
     }
 }
 
@@ -236,7 +235,7 @@ tt_inline tt_result_t tt_buf_inc_wp(IN tt_buf_t *buf, IN tt_u32_t num)
         buf->wpos += num;
         return TT_SUCCESS;
     } else {
-        return TT_FAIL;
+        return TT_BUFFER_INCOMPLETE;
     }
 }
 

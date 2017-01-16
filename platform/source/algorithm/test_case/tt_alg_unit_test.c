@@ -44,6 +44,7 @@ typedef enum {
     ALG_UT_LIST,
     ALG_UT_HEAP,
     ALG_UT_STACK,
+    ALG_UT_RBUF,
 
     ALG_UT_NUM // number of test units
 } tt_alg_ut_id_t;
@@ -62,13 +63,13 @@ TT_ALG_UT_DECLARE(ALG_UT_RBTREE)
 TT_ALG_UT_DECLARE(ALG_UT_STRING)
 TT_ALG_UT_DECLARE(ALG_UT_HEAP)
 TT_ALG_UT_DECLARE(ALG_UT_STACK)
+TT_ALG_UT_DECLARE(ALG_UT_RBUF)
 
 ////////////////////////////////////////////////////////////
 // global variant
 ////////////////////////////////////////////////////////////
 
 tt_test_unit_t *tt_g_alg_ut_list[ALG_UT_NUM] = {
-    &TT_MAKE_TEST_UNIT_NAME(ALG_UT_BUF),
 #if 0
     &TT_MAKE_TEST_UNIT_NAME(ALG_UT_BASIC_ALG),
     &TT_MAKE_TEST_UNIT_NAME(ALG_UT_HEAP),
@@ -79,7 +80,9 @@ tt_test_unit_t *tt_g_alg_ut_list[ALG_UT_NUM] = {
     &TT_MAKE_TEST_UNIT_NAME(ALG_UT_RBTREE),
     &TT_MAKE_TEST_UNIT_NAME(ALG_UT_STRING),
     &TT_MAKE_TEST_UNIT_NAME(ALG_UT_STACK),
+    &TT_MAKE_TEST_UNIT_NAME(ALG_UT_BUF),
 #endif
+    &TT_MAKE_TEST_UNIT_NAME(ALG_UT_RBUF),
 };
 
 ////////////////////////////////////////////////////////////

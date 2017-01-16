@@ -95,7 +95,7 @@ void tt_rbuf_attr_default(IN tt_rbuf_attr_t *attr)
     attr->refine_threshold = 1024;
 }
 
-tt_result_t tt_rbuf_inc_rp(IN tt_rbuf_t *rbuf, IN tt_u32_t num)
+tt_result_t tt_rbuf_inc_wp(IN tt_rbuf_t *rbuf, IN tt_u32_t num)
 {
     tt_buf_t *data;
 
@@ -196,7 +196,9 @@ tt_result_t __rbuf_parse(IN tt_rbuf_t *rbuf, IN tt_buf_t *data)
         // now len indicates how many bytes in raw would be decoded
 
         result = p_itf->parse(data, len, &parse_ret, p_param);
-        if (result == TT_PROCEEDING) {
+        if (TT_OK(result)) {
+            p_itf->done(parse_ret, p_param);
+        } else if (result == TT_PROCEEDING) {
             // ignore len bytes in data
             tt_buf_restore_rwp(data, &rp, &wp);
             tt_buf_inc_rp(data, len);
@@ -204,8 +206,6 @@ tt_result_t __rbuf_parse(IN tt_rbuf_t *rbuf, IN tt_buf_t *data)
             return TT_FAIL;
         }
         has_parse = TT_TRUE;
-
-        p_itf->done(parse_ret, p_param);
     }
 
     if (has_parse) {

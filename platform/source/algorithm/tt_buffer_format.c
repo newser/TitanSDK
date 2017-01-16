@@ -119,7 +119,7 @@ again:
 
     n = tt_vsnprintf((char *)p, len, format, args);
     if ((n + 1) >= len) {
-        if ((retry != 0) && TT_OK(tt_buf_reserve(buf, 0))) {
+        if ((retry != 0) && TT_OK(tt_buf_extend(buf))) {
             --retry;
             goto again;
         } else {

@@ -128,13 +128,23 @@ tt_inline tt_result_t tt_rbuf_reserve(IN tt_rbuf_t *rbuf, IN tt_u32_t size)
     return tt_buf_reserve(&rbuf->raw, size);
 }
 
-tt_inline void tt_rbuf_get_rptr(IN tt_rbuf_t *rbuf,
+tt_inline void tt_rbuf_clear(IN tt_rbuf_t *rbuf)
+{
+    tt_buf_clear(&rbuf->raw);
+    tt_buf_clear(&rbuf->dec);
+}
+
+// ========================================
+// put data to rbuf
+// ========================================
+
+tt_inline void tt_rbuf_get_wptr(IN tt_rbuf_t *rbuf,
                                 IN tt_u8_t **p,
                                 IN tt_u32_t *len)
 {
-    return tt_buf_get_rptr(&rbuf->raw, p, len);
+    return tt_buf_get_wptr(&rbuf->raw, p, len);
 }
 
-extern tt_result_t tt_rbuf_inc_rp(IN tt_rbuf_t *rbuf, IN tt_u32_t num);
+extern tt_result_t tt_rbuf_inc_wp(IN tt_rbuf_t *rbuf, IN tt_u32_t num);
 
 #endif /* __TT_READ_BUFFER__ */
