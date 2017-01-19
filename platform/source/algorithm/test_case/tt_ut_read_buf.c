@@ -42,11 +42,14 @@
 TT_TEST_ROUTINE_DECLARE(tt_unit_test_rbuf)
 TT_TEST_ROUTINE_DECLARE(tt_unit_test_rbuf_stress)
 TT_TEST_ROUTINE_DECLARE(tt_unit_test_rbuf_excep)
+TT_TEST_ROUTINE_DECLARE(tt_unit_test_wbuf)
+TT_TEST_ROUTINE_DECLARE(tt_unit_test_rwbuf)
+TT_TEST_ROUTINE_DECLARE(tt_unit_test_rwbuf_raw)
 // =========================================
 
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(rbuf_case)
-
+#if 1
 TT_TEST_CASE("tt_unit_test_rbuf",
              "testing read buffer",
              tt_unit_test_rbuf,
@@ -69,6 +72,34 @@ TT_TEST_CASE("tt_unit_test_rbuf",
     TT_TEST_CASE("tt_unit_test_rbuf_excep",
                  "testing read buffer exceptional test",
                  tt_unit_test_rbuf_excep,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL),
+
+    TT_TEST_CASE("tt_unit_test_wbuf",
+                 "testing write buffer",
+                 tt_unit_test_wbuf,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL),
+
+    TT_TEST_CASE("tt_unit_test_rwbuf",
+                 "testing read write buffer",
+                 tt_unit_test_rwbuf,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL),
+#endif
+
+    TT_TEST_CASE("tt_unit_test_rwbuf_raw",
+                 "testing read write buffer, no enc/dec",
+                 tt_unit_test_rwbuf_raw,
                  NULL,
                  NULL,
                  NULL,
@@ -450,6 +481,341 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_rbuf_excep)
     tt_rbuf_destroy(&rbuf);
     tt_buf_destroy(&raw);
     tt_buf_destroy(&enc);
+
+    // test end
+    TT_TEST_CASE_LEAVE()
+}
+
+static tt_u32_t __ut_rdr_pre(IN void *to_render, IN void *param)
+{
+    tt_u32_t v = (tt_uintptr_t)to_render;
+    TT_ASSERT(v <= 0xff);
+    TT_ASSERT(param == (void *)0x4);
+    return v + 3; // len, two magic
+}
+
+static tt_result_t __ut_rdr(IN tt_buf_t *buf,
+                            IN tt_u32_t len,
+                            IN void *to_render,
+                            IN void *param)
+{
+    tt_u8_t v = (tt_u8_t)(tt_uintptr_t)to_render;
+
+    TT_ASSERT(param == (void *)0x4);
+
+    TT_ASSERT(len == (v + 3));
+    tt_buf_put_u8(buf, v); // data len
+    tt_buf_put_u8(buf, 0xaa); // magic
+    tt_buf_put_rep(buf, v, v); // data
+    tt_buf_put_u8(buf, 0xbb); // magic
+
+    return TT_SUCCESS;
+}
+
+static tt_bool_t enc_all;
+
+static tt_result_t __ut_enc_pre(IN tt_buf_t *raw,
+                                OUT tt_u32_t *len,
+                                IN void *param)
+{
+    tt_u32_t s;
+
+    TT_ASSERT(param == (void *)0x3);
+
+    if (enc_all) {
+        s = TT_BUF_RLEN(raw);
+    } else {
+        s = tt_rand_u32() % 20 + 1;
+    }
+
+    if (TT_BUF_RLEN(raw) >= s) {
+        *len = s;
+        return TT_SUCCESS;
+    } else {
+        return TT_BUFFER_INCOMPLETE;
+    }
+}
+
+static tt_result_t __ut_enc(IN tt_buf_t *raw,
+                            IN tt_u32_t len,
+                            OUT tt_buf_t *enc,
+                            IN void *param)
+{
+    TT_ASSERT(param == (void *)0x3);
+    TT_ASSERT(TT_BUF_RLEN(raw) >= len);
+
+    tt_buf_put_u8(enc, len);
+    tt_buf_put(enc, TT_BUF_RPOS(raw), len);
+
+    tt_buf_inc_rp(raw, len);
+
+    return TT_SUCCESS;
+}
+
+TT_TEST_ROUTINE_DEFINE(tt_unit_test_wbuf)
+{
+    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+    tt_rbuf_t rbuf;
+    tt_rbuf_decode_itf_t d_itf = {__ut_dec_pre, __ut_dec};
+    tt_rbuf_parse_itf_t p_itf = {__ut_par_pre, __ut_par, __ut_par_done};
+    tt_result_t ret;
+    tt_u32_t i, len, n, wlen;
+    tt_u8_t *p, *wp;
+
+    tt_wbuf_t wbuf;
+    tt_wbuf_encode_itf_t e_itf = {__ut_enc_pre, __ut_enc};
+    tt_wbuf_render_itf_t r_itf = {__ut_rdr_pre, __ut_rdr};
+
+    TT_TEST_CASE_ENTER()
+    // test start
+
+    tt_rbuf_init(&rbuf, &d_itf, (void *)1, &p_itf, (void *)2, NULL);
+
+    /*
+    for (i = 0; i < 100; ++i) {
+        __gen_rbuf(&raw, i, i);
+    }
+    __enc_rbuf(&raw, &enc);
+    */
+    tt_wbuf_init(&wbuf, &e_itf, (void *)0x3, &r_itf, (void *)0x4, NULL);
+
+    ret = tt_wbuf_reserve(&wbuf, 20);
+    TT_TEST_CHECK_SUCCESS(ret, "");
+
+    enc_all = TT_FALSE;
+    for (i = 0; i < 100; ++i) {
+        tt_u8_t *rendered;
+        tt_u32_t r_len;
+        if (i == 99) {
+            enc_all = TT_TRUE;
+        }
+        ret = tt_wbuf_render(&wbuf, (void *)(tt_uintptr_t)i, &rendered, &len);
+        if (TT_OK(ret)) {
+            TT_TEST_CHECK_EQUAL(len, i + 3, "");
+            TT_TEST_CHECK_EQUAL(rendered[0], i, "");
+            TT_TEST_CHECK_EQUAL(rendered[1], 0xaa, "");
+            TT_TEST_CHECK_EQUAL(rendered[len - 1], 0xbb, "");
+            if (len > 3) {
+                TT_TEST_CHECK_EQUAL(rendered[len - 2], i, "");
+            }
+        } else {
+            TT_TEST_CHECK_EQUAL(ret, TT_BUFFER_INCOMPLETE, "");
+        }
+    }
+
+    tt_wbuf_get_rptr(&wbuf, &wp, &wlen);
+
+    ret = tt_rbuf_reserve(&rbuf, wlen);
+    TT_TEST_CHECK_SUCCESS(ret, "");
+
+    tt_rbuf_get_wptr(&rbuf, &p, NULL);
+    tt_memcpy(p, wp, wlen);
+
+    __ut_ret = TT_SUCCESS;
+    __ut_seq = 0;
+
+    ret = tt_rbuf_inc_wp(&rbuf, wlen);
+    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_TEST_CHECK_SUCCESS(__ut_ret, "");
+
+    // again
+
+    __ut_ret = TT_SUCCESS;
+    __ut_seq = 0;
+    len = wlen;
+    i = 0;
+    while (i < len) {
+        tt_u32_t s = tt_rand_u32() % 10;
+        if (i + s > len) {
+            s = len - i;
+        }
+
+        ret = tt_rbuf_reserve(&rbuf, s);
+        TT_TEST_CHECK_SUCCESS(ret, "");
+
+        tt_rbuf_get_wptr(&rbuf, &p, &n);
+        tt_memcpy(p, wp + i, s);
+        ret = tt_rbuf_inc_wp(&rbuf, s);
+        if (ret != TT_SUCCESS && ret != TT_BUFFER_INCOMPLETE) {
+            TT_TEST_CHECK_EXP(TT_OK(ret) || (ret == TT_BUFFER_INCOMPLETE), "");
+        }
+
+        i += s;
+    }
+    TT_TEST_CHECK_SUCCESS(__ut_ret, "");
+
+    tt_rbuf_destroy(&rbuf);
+    tt_wbuf_destroy(&wbuf);
+
+    // test end
+    TT_TEST_CASE_LEAVE()
+}
+
+TT_TEST_ROUTINE_DEFINE(tt_unit_test_rwbuf)
+{
+    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+    tt_rbuf_t rbuf;
+    tt_rbuf_decode_itf_t d_itf = {__ut_dec_pre, __ut_dec};
+    tt_rbuf_parse_itf_t p_itf = {__ut_par_pre, __ut_par, __ut_par_done};
+    tt_result_t ret;
+    tt_u32_t i, len, n, wlen;
+    tt_u8_t *p, *wp;
+
+    tt_wbuf_t wbuf;
+    tt_wbuf_encode_itf_t e_itf = {__ut_enc_pre, __ut_enc};
+    tt_wbuf_render_itf_t r_itf = {__ut_rdr_pre, __ut_rdr};
+
+    TT_TEST_CASE_ENTER()
+    // test start
+
+    tt_rbuf_init(&rbuf, &d_itf, (void *)1, &p_itf, (void *)2, NULL);
+
+    /*
+     for (i = 0; i < 100; ++i) {
+     __gen_rbuf(&raw, i, i);
+     }
+     __enc_rbuf(&raw, &enc);
+     */
+    tt_wbuf_init(&wbuf, &e_itf, (void *)0x3, &r_itf, (void *)0x4, NULL);
+
+    ret = tt_wbuf_reserve(&wbuf, 20);
+    TT_TEST_CHECK_SUCCESS(ret, "");
+
+    __ut_ret = TT_SUCCESS;
+    __ut_seq = 0;
+    enc_all = TT_FALSE;
+    for (i = 0; i < 100; ++i) {
+        tt_u8_t *rendered;
+        tt_u32_t r_len;
+        if (i == 99) {
+            enc_all = TT_TRUE;
+        }
+        ret = tt_wbuf_render(&wbuf, (void *)(tt_uintptr_t)i, &rendered, &len);
+        if (TT_OK(ret)) {
+            TT_TEST_CHECK_EQUAL(len, i + 3, "");
+            TT_TEST_CHECK_EQUAL(rendered[0], i, "");
+            TT_TEST_CHECK_EQUAL(rendered[1], 0xaa, "");
+            TT_TEST_CHECK_EQUAL(rendered[len - 1], 0xbb, "");
+            if (len > 3) {
+                TT_TEST_CHECK_EQUAL(rendered[len - 2], i, "");
+            }
+
+            // each time wbuf has data, pass to rbuf
+            tt_wbuf_get_rptr(&wbuf, &wp, &wlen);
+
+            ret = tt_rbuf_reserve(&rbuf, wlen);
+            TT_TEST_CHECK_SUCCESS(ret, "");
+
+            tt_rbuf_get_wptr(&rbuf, &p, NULL);
+            tt_memcpy(p, wp, wlen);
+
+            ret = tt_rbuf_inc_wp(&rbuf, wlen);
+            TT_TEST_CHECK_EXP(TT_OK(ret) || (ret == TT_BUFFER_INCOMPLETE), "");
+            TT_TEST_CHECK_SUCCESS(__ut_ret, "");
+
+            // after data in wbuf is processed, inc rp
+            tt_wbuf_inc_rp(&wbuf, wlen);
+        } else {
+            TT_TEST_CHECK_EQUAL(ret, TT_BUFFER_INCOMPLETE, "");
+        }
+    }
+
+    tt_rbuf_destroy(&rbuf);
+    tt_wbuf_destroy(&wbuf);
+
+    // test end
+    TT_TEST_CASE_LEAVE()
+}
+
+TT_TEST_ROUTINE_DEFINE(tt_unit_test_rwbuf_raw)
+{
+    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+    tt_rbuf_t rbuf;
+    tt_rbuf_parse_itf_t p_itf = {__ut_par_pre, __ut_par, __ut_par_done};
+    tt_result_t ret;
+    tt_u32_t i, len, n, wlen;
+    tt_u8_t *p, *wp;
+    tt_buf_t saved;
+
+    tt_wbuf_t wbuf;
+    tt_wbuf_render_itf_t r_itf = {__ut_rdr_pre, __ut_rdr};
+
+    TT_TEST_CASE_ENTER()
+    // test start
+
+    tt_rbuf_init(&rbuf, NULL, (void *)1, &p_itf, (void *)2, NULL);
+    tt_buf_init(&saved, NULL);
+
+    /*
+     for (i = 0; i < 100; ++i) {
+     __gen_rbuf(&raw, i, i);
+     }
+     __enc_rbuf(&raw, &enc);
+     */
+    tt_wbuf_init(&wbuf, NULL, (void *)0x3, &r_itf, (void *)0x4, NULL);
+
+    ret = tt_wbuf_reserve(&wbuf, 20);
+    TT_TEST_CHECK_SUCCESS(ret, "");
+
+    __ut_ret = TT_SUCCESS;
+    __ut_seq = 0;
+    enc_all = TT_FALSE;
+    for (i = 0; i < 100; ++i) {
+        tt_u8_t *rendered;
+        tt_u32_t r_len;
+        if (i == 99) {
+            enc_all = TT_TRUE;
+        }
+        ret = tt_wbuf_render(&wbuf, (void *)(tt_uintptr_t)i, &rendered, &len);
+        if (TT_OK(ret)) {
+            TT_TEST_CHECK_EQUAL(len, i + 3, "");
+            TT_TEST_CHECK_EQUAL(rendered[0], i, "");
+            TT_TEST_CHECK_EQUAL(rendered[1], 0xaa, "");
+            TT_TEST_CHECK_EQUAL(rendered[len - 1], 0xbb, "");
+            if (len > 3) {
+                TT_TEST_CHECK_EQUAL(rendered[len - 2], i, "");
+            }
+            tt_buf_put(&saved, rendered, len);
+
+            // each time wbuf has data, pass to rbuf
+            tt_wbuf_get_rptr(&wbuf, &wp, &wlen);
+
+            ret = tt_rbuf_reserve(&rbuf, wlen);
+            TT_TEST_CHECK_SUCCESS(ret, "");
+
+            tt_rbuf_get_wptr(&rbuf, &p, NULL);
+            tt_memcpy(p, wp, wlen);
+
+            ret = tt_rbuf_inc_wp(&rbuf, wlen);
+            TT_TEST_CHECK_EXP(TT_OK(ret) || (ret == TT_BUFFER_INCOMPLETE), "");
+            TT_TEST_CHECK_SUCCESS(__ut_ret, "");
+
+            // after data in wbuf is processed, inc rp
+            tt_wbuf_inc_rp(&wbuf, wlen);
+        } else {
+            TT_TEST_CHECK_EQUAL(ret, TT_BUFFER_INCOMPLETE, "");
+        }
+    }
+
+    // verify saved data
+    tt_wbuf_put(&wbuf, TT_BUF_RPOS(&saved), TT_BUF_RLEN(&saved));
+    tt_wbuf_get_rptr(&wbuf, &wp, &wlen);
+
+    ret = tt_rbuf_reserve(&rbuf, wlen);
+    TT_TEST_CHECK_SUCCESS(ret, "");
+
+    tt_rbuf_get_wptr(&rbuf, &p, NULL);
+    tt_memcpy(p, wp, wlen);
+
+    __ut_ret = TT_SUCCESS;
+    __ut_seq = 0;
+    ret = tt_rbuf_inc_wp(&rbuf, wlen);
+    TT_TEST_CHECK_EXP(TT_OK(ret) || (ret == TT_BUFFER_INCOMPLETE), "");
+    TT_TEST_CHECK_SUCCESS(__ut_ret, "");
+
+    tt_rbuf_destroy(&rbuf);
+    tt_wbuf_destroy(&wbuf);
+    tt_buf_destroy(&saved);
 
     // test end
     TT_TEST_CASE_LEAVE()

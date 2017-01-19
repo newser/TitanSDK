@@ -29,7 +29,6 @@ this file defines io read buffer APIs
 ////////////////////////////////////////////////////////////
 
 #include <algorithm/tt_buffer.h>
-#include <algorithm/tt_buffer_format.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
@@ -41,14 +40,19 @@ this file defines io read buffer APIs
 
 // - return success if len is set indicating how many bytes would be decoded,
 // - incomplete if should wait for more data,
-// - fail if data in raw is invalid
+// - fail if data in raw is invalid, note if it failed, data would still be
+//   cached in raw
 typedef tt_result_t (*tt_rbuf_decode_prepare_t)(IN tt_buf_t *raw,
                                                 OUT tt_u32_t *len,
                                                 IN void *param);
 
 // - return success if data in raw has be decoded to dec
-// - return proceeding if len bytes data in raw should be ignored
-// - return fail if decoding failed
+// - return proceeding if len bytes data in raw should be ignored, and
+// tt_rbuf_inc_wp
+//   would return success to let app continue
+// - return fail if decoding failed, note if it failed, data would be also
+// ignored and
+//   tt_rbuf_inc_wp would return fail
 // - if success is returned, func should precise set pos of raw and dec
 typedef tt_result_t (*tt_rbuf_decode_t)(IN tt_buf_t *raw,
                                         IN tt_u32_t len,
@@ -63,14 +67,19 @@ typedef struct
 
 // - return success if len is set indicating how many bytes would be parsed,
 // - incomplete if should wait for more data,
-// - fail if data in buf is invalid
+// - fail if data in buf is invalid, note if it failed, data would still be
+//   cached in raw
 typedef tt_result_t (*tt_rbuf_parse_prepare_t)(IN tt_buf_t *buf,
                                                OUT tt_u32_t *len,
                                                IN void *param);
 
 // - return success if data in dec has be parsed and parse_ret is set
-// - return proceeding if len bytes data in buf should be ignored
-// - return fail if parsing failed
+// - return proceeding if len bytes data in buf should be ignored, and
+// tt_rbuf_inc_wp
+//   would return success to let app continue
+// - return fail if parsing failed, note if it failed, data would also be
+// ignored and
+//   tt_rbuf_inc_wp would return fail
 // - if success is returned, func should precise set buf pos
 typedef tt_result_t (*tt_rbuf_parse_t)(IN tt_buf_t *buf,
                                        IN tt_u32_t len,
@@ -135,7 +144,7 @@ tt_inline void tt_rbuf_clear(IN tt_rbuf_t *rbuf)
 }
 
 // ========================================
-// put data to rbuf
+// write rbuf
 // ========================================
 
 tt_inline void tt_rbuf_get_wptr(IN tt_rbuf_t *rbuf,

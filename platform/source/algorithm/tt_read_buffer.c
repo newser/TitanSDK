@@ -99,14 +99,11 @@ tt_result_t tt_rbuf_inc_wp(IN tt_rbuf_t *rbuf, IN tt_u32_t num)
 {
     tt_buf_t *data;
 
-    // update raw buf
     tt_buf_inc_wp(&rbuf->raw, num);
 
-    // decode
     TT_DO(__rbuf_decode(rbuf, &data));
     TT_ASSERT(data != NULL);
 
-    // parse
     TT_DO(__rbuf_parse(rbuf, data));
 
     return TT_SUCCESS;
@@ -149,14 +146,16 @@ tt_result_t __rbuf_decode(IN tt_rbuf_t *rbuf, OUT tt_buf_t **data)
 
         tt_buf_backup_rwp(dec, &d_rp, &d_wp);
         result = d_itf->decode(raw, len, dec, d_param);
-        if (result == TT_PROCEEDING) {
+        if (!TT_OK(result)) {
             // ignore data in raw
             tt_buf_restore_rwp(raw, &rp, &wp);
             tt_buf_inc_rp(raw, len);
 
             tt_buf_restore_rwp(dec, &d_rp, &d_wp);
-        } else if (!TT_OK(result)) {
-            return TT_FAIL;
+
+            if (result != TT_PROCEEDING) {
+                return TT_FAIL;
+            }
         }
         has_dec = TT_TRUE;
     }
@@ -198,12 +197,14 @@ tt_result_t __rbuf_parse(IN tt_rbuf_t *rbuf, IN tt_buf_t *data)
         result = p_itf->parse(data, len, &parse_ret, p_param);
         if (TT_OK(result)) {
             p_itf->done(parse_ret, p_param);
-        } else if (result == TT_PROCEEDING) {
+        } else {
             // ignore len bytes in data
             tt_buf_restore_rwp(data, &rp, &wp);
             tt_buf_inc_rp(data, len);
-        } else if (!TT_OK(result)) {
-            return TT_FAIL;
+
+            if (result != TT_PROCEEDING) {
+                return TT_FAIL;
+            }
         }
         has_parse = TT_TRUE;
     }
