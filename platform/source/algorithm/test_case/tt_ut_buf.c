@@ -56,6 +56,8 @@ TT_TEST_ROUTINE_DECLARE(tt_unit_test_buf_remove)
 TT_TEST_ROUTINE_DECLARE(tt_unit_test_iobuf)
 TT_TEST_ROUTINE_DECLARE(tt_unit_test_iobuf_format)
 TT_TEST_ROUTINE_DECLARE(tt_unit_test_iobuf_format_cp)
+
+TT_TEST_ROUTINE_DECLARE(tt_unit_test_blob)
 // =========================================
 
 // === test case list ======================
@@ -134,6 +136,15 @@ TT_TEST_CASE("tt_unit_test_buf_null",
                  NULL,
                  NULL),
 
+    TT_TEST_CASE("tt_unit_test_blob",
+                 "testing blob api",
+                 tt_unit_test_blob,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL),
+
     TT_TEST_CASE_LIST_DEFINE_END(buf_case)
     // =========================================
 
@@ -148,7 +159,7 @@ TT_TEST_CASE("tt_unit_test_buf_null",
     ////////////////////////////////////////////////////////////
 
     /*
-    TT_TEST_ROUTINE_DEFINE(tt_unit_test_iobuf)
+    TT_TEST_ROUTINE_DEFINE(tt_unit_test_blob)
     {
         //tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
 
@@ -1394,6 +1405,46 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_buftok)
     TT_TEST_CHECK_EQUAL(i, 0, "");
 
     tt_buf_destroy(&buf);
+
+    // test end
+    TT_TEST_CASE_LEAVE()
+}
+
+TT_TEST_ROUTINE_DEFINE(tt_unit_test_blob)
+{
+    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+    tt_blob_t b, b2;
+    tt_result_t ret;
+    char c[] = "123";
+
+    TT_TEST_CASE_ENTER()
+    // test start
+
+    tt_blob_init(&b);
+    tt_blob_destroy(&b);
+
+    ret = tt_blob_create(&b, NULL, tt_strlen(c));
+    TT_TEST_CHECK_SUCCESS(ret, "");
+
+    tt_memcpy(b.addr, c, tt_strlen(c));
+    TT_TEST_CHECK_EQUAL(tt_strncmp((tt_char_t *)b.addr, c, 3), 0, "");
+    TT_TEST_CHECK_EQUAL(tt_blob_strcmp(&b, c), 0, "");
+    TT_TEST_CHECK_EXP(tt_blob_strcmp(&b, "") > 0, "");
+    TT_TEST_CHECK_EXP(tt_blob_strcmp(&b, "1234") < 0, "");
+
+    ret = tt_blob_create(&b2, (tt_u8_t *)"", 0);
+    TT_TEST_CHECK_EXP(tt_blob_cmp(&b, &b2) > 0, "");
+    tt_blob_destroy(&b2);
+
+    ret = tt_blob_create(&b2, (tt_u8_t *)"1234", 4);
+    TT_TEST_CHECK_EXP(tt_blob_cmp(&b, &b2) < 0, "");
+    tt_blob_destroy(&b2);
+
+    ret = tt_blob_create(&b2, (tt_u8_t *)"123", 3);
+    TT_TEST_CHECK_EXP(tt_blob_cmp(&b, &b2) == 0, "");
+    tt_blob_destroy(&b2);
+
+    tt_blob_destroy(&b);
 
     // test end
     TT_TEST_CASE_LEAVE()

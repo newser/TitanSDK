@@ -438,40 +438,6 @@ extern void tt_hex_dump(IN tt_u8_t *buf,
                         IN tt_u32_t buf_len,
                         IN tt_u32_t num_per_line);
 
-// if addr is NULL, it only allocated memory of size len
-extern tt_result_t tt_blob_create(OUT tt_blob_t *blob,
-                                  IN OPT tt_u8_t *addr,
-                                  IN tt_u32_t len);
-extern void tt_blob_destroy(IN tt_blob_t *blob);
-
-tt_inline void tt_blob_init(IN tt_blob_t *blob)
-{
-    blob->addr = NULL;
-    blob->len = 0;
-}
-
-tt_inline tt_s32_t tt_blob_cmp(IN tt_blob_t *a, IN tt_blob_t *b)
-{
-    if (a == b) {
-        return 0;
-    } else if (a->len != b->len) {
-        return a->len - b->len;
-    } else {
-        return tt_memcmp(a->addr, b->addr, a->len);
-    }
-}
-
-tt_inline tt_bool_t tt_blob_cmpcstr(IN tt_blob_t *blob,
-                                    IN const tt_char_t *cstr)
-{
-    tt_u32_t n = (tt_u32_t)tt_strlen(cstr);
-    if ((blob->len == n) && (tt_memcmp(blob->addr, cstr, n) == 0)) {
-        return TT_TRUE;
-    } else {
-        return TT_FALSE;
-    }
-}
-
 extern tt_u8_t tt_c2h(IN tt_char_t c, IN tt_u8_t h_if_fail);
 
 extern tt_char_t tt_h2c(IN tt_u8_t h, IN tt_u8_t c_if_fail);

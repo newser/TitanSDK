@@ -158,9 +158,9 @@ tt_result_t tt_cfgbool_set(IN tt_cfgnode_t *cnode, IN tt_blob_t *val)
 {
     tt_cfgbool_t *cbool = TT_CFGNODE_CAST(cnode, tt_cfgbool_t);
 
-    if (tt_blob_cmpcstr(val, "true")) {
+    if (tt_blob_strcmp(val, "true") == 0) {
         cbool->new_val = TT_TRUE;
-    } else if (tt_blob_cmpcstr(val, "false")) {
+    } else if (tt_blob_strcmp(val, "false") == 0) {
         cbool->new_val = TT_FALSE;
     } else {
         return TT_BAD_PARAM;
@@ -177,9 +177,9 @@ tt_result_t tt_cfgbool_set(IN tt_cfgnode_t *cnode, IN tt_blob_t *val)
 
 tt_result_t tt_cfgbool_check(IN tt_cfgnode_t *cnode, IN tt_blob_t *val)
 {
-    if (tt_blob_cmpcstr(val, "true")) {
+    if (tt_blob_strcmp(val, "true") == 0) {
         return TT_SUCCESS;
-    } else if (tt_blob_cmpcstr(val, "false")) {
+    } else if (tt_blob_strcmp(val, "false") == 0) {
         return TT_SUCCESS;
     } else {
         return TT_BAD_PARAM;

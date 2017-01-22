@@ -319,9 +319,9 @@ tt_cfgnode_t *__cfgnode_goto(IN tt_cfgnode_t *root,
                              IN tt_cfgnode_t *current,
                              IN tt_blob_t *name)
 {
-    if (tt_blob_cmpcstr(name, ".")) {
+    if (tt_blob_strcmp(name, ".") == 0) {
         return current;
-    } else if (tt_blob_cmpcstr(name, "..")) {
+    } else if (tt_blob_strcmp(name, "..") == 0) {
         return __cfgnode_parent(current);
     } else {
         return tt_cfggrp_find_blob(current, name);

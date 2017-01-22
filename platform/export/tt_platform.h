@@ -38,6 +38,7 @@ extern "C" {
 #include <algorithm/ptr/tt_ptr_vector.h>
 #include <algorithm/tt_algorithm_def.h>
 #include <algorithm/tt_binary_search.h>
+#include <algorithm/tt_blob.h>
 #include <algorithm/tt_buffer.h>
 #include <algorithm/tt_buffer_common.h>
 #include <algorithm/tt_buffer_format.h>

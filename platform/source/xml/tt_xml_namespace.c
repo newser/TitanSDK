@@ -93,7 +93,7 @@ tt_xmlns_t *tt_xmlns_mgr_find_prefix(IN tt_xmlns_mgr_t *xns_mgr,
 
         node = node->next;
 
-        if (tt_blob_cmpcstr(prefix, xns->prefix)) {
+        if (tt_blob_strcmp(prefix, xns->prefix) == 0) {
             return xns;
         }
     }
@@ -113,7 +113,7 @@ tt_xmlns_t *tt_xmlns_mgr_find_uri(IN tt_xmlns_mgr_t *xns_mgr, IN tt_blob_t *uri)
 
         node = node->next;
 
-        if (tt_blob_cmpcstr(uri, xns->uri)) {
+        if (tt_blob_strcmp(uri, xns->uri) == 0) {
             return xns;
         }
     }

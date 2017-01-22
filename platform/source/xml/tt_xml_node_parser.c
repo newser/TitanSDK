@@ -20,6 +20,7 @@
 
 #include <xml/tt_xml_node_parser.h>
 
+#include <algorithm/tt_blob.h>
 #include <xml/tt_xml_char_decode.h>
 #include <xml/tt_xml_memory.h>
 #include <xml/tt_xml_namespace.h>
@@ -385,8 +386,8 @@ tt_result_t __xps_on_etag(IN struct tt_xmlparser_s *parser,
         tt_blob_t pb, nb;
 
         __parse_prefix_name(name, &pb, &nb);
-        if ((pb.addr != NULL) && tt_blob_cmpcstr(&pb, xn->ns->prefix) &&
-            tt_blob_cmpcstr(&nb, xn->name)) {
+        if ((pb.addr != NULL) && (tt_blob_strcmp(&pb, xn->ns->prefix) == 0) &&
+            (tt_blob_strcmp(&nb, xn->name) == 0)) {
             match = TT_TRUE;
         }
     } else if (tt_strcmp(xn->name, name) == 0) {
@@ -708,7 +709,7 @@ tt_xmlns_t *__find_ns(IN tt_xmlnp_t *xnp, IN tt_blob_t *prefix)
 
         node = node->prev;
 
-        if (tt_blob_cmpcstr(prefix, xns->prefix)) {
+        if (tt_blob_strcmp(prefix, xns->prefix) == 0) {
             return xns;
         }
     }

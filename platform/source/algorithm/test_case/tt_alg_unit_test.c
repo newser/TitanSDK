@@ -80,9 +80,9 @@ tt_test_unit_t *tt_g_alg_ut_list[ALG_UT_NUM] = {
     &TT_MAKE_TEST_UNIT_NAME(ALG_UT_RBTREE),
     &TT_MAKE_TEST_UNIT_NAME(ALG_UT_STRING),
     &TT_MAKE_TEST_UNIT_NAME(ALG_UT_STACK),
-    &TT_MAKE_TEST_UNIT_NAME(ALG_UT_BUF),
-#endif
     &TT_MAKE_TEST_UNIT_NAME(ALG_UT_RBUF),
+#endif
+    &TT_MAKE_TEST_UNIT_NAME(ALG_UT_BUF),
 };
 
 ////////////////////////////////////////////////////////////

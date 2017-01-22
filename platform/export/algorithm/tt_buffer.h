@@ -28,6 +28,7 @@ this file defines buffer APIs
 // import header files
 ////////////////////////////////////////////////////////////
 
+#include <algorithm/tt_blob.h>
 #include <memory/tt_memory_spring.h>
 #include <misc/tt_util.h>
 
