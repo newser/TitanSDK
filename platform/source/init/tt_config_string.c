@@ -163,7 +163,7 @@ tt_result_t tt_cfgstr_set(IN tt_cfgnode_t *cnode, IN tt_blob_t *val)
     tt_string_t *new_val = &cfgstr->new_val;
 
     tt_string_clear(new_val);
-    TT_DO(tt_string_append_sub(new_val, (tt_char_t *)val->addr, val->len));
+    TT_DO(tt_string_append_sub(new_val, (tt_char_t *)val->addr, 0, val->len));
 
     if (tt_string_cmp(cfgstr->val_ptr, tt_string_cstr(&cfgstr->new_val)) != 0) {
         cnode->modified = TT_TRUE;
