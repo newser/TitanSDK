@@ -28,6 +28,7 @@ this file defines AES native APIs
 // import header files
 ////////////////////////////////////////////////////////////
 
+#include <algorithm/tt_blob.h>
 #include <crypto/tt_aes_def.h>
 
 #ifdef TSCM_PLATFORM_CRYPTO_ENABLE

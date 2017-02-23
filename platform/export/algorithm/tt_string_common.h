@@ -49,7 +49,16 @@ this file defines string common APIs
 // return 0 if out of bounds
 extern tt_char_t tt_string_getchar(IN tt_string_t *s, IN tt_u32_t pos);
 
-extern tt_s32_t tt_string_cmp(IN tt_string_t *a, IN const tt_char_t *b);
+tt_inline tt_s32_t tt_string_cmp(IN tt_string_t *a, IN const tt_char_t *b)
+{
+    return tt_strcmp(tt_string_cstr(a), b);
+}
+
+// return false if [from, from+len) exceed either a or b
+extern tt_bool_t tt_string_equal_range(IN tt_string_t *a,
+                                       IN const tt_char_t *b,
+                                       IN tt_u32_t from,
+                                       IN tt_u32_t len);
 
 extern tt_s32_t tt_string_ncasecmp(IN tt_string_t *a, IN const tt_char_t *b);
 
@@ -74,20 +83,21 @@ extern tt_u32_t tt_string_rfind_c(IN tt_string_t *s, IN tt_char_t c);
 
 extern void tt_string_remove_range(IN tt_string_t *s,
                                    IN tt_u32_t from,
-                                   IN tt_u32_t to);
+                                   IN tt_u32_t len);
 
 extern tt_result_t tt_string_append(IN OUT tt_string_t *s,
                                     IN const tt_char_t *substr);
 
 extern tt_result_t tt_string_append_c(IN OUT tt_string_t *s, IN tt_char_t c);
 
-extern tt_result_t tt_string_append_cn(IN OUT tt_string_t *s,
-                                       IN tt_char_t c,
-                                       IN tt_u32_t c_num);
+extern tt_result_t tt_string_append_rep(IN OUT tt_string_t *s,
+                                        IN tt_char_t c,
+                                        IN tt_u32_t c_num);
 
 extern tt_result_t tt_string_append_sub(IN OUT tt_string_t *s,
                                         IN const tt_char_t *substr,
-                                        IN tt_u32_t num);
+                                        IN tt_u32_t from,
+                                        IN tt_u32_t len);
 
 extern tt_bool_t tt_string_startwith(IN tt_string_t *s,
                                      IN const tt_char_t *substr);

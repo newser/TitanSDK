@@ -28,8 +28,8 @@ this file declare log context
 // import header files
 ////////////////////////////////////////////////////////////
 
+#include <algorithm/ptr/tt_ptr_queue.h>
 #include <algorithm/tt_buffer.h>
-#include <algorithm/tt_pointer_list.h>
 #include <log/tt_log_def.h>
 
 ////////////////////////////////////////////////////////////
@@ -46,6 +46,8 @@ struct tt_logio_s;
 typedef struct
 {
     tt_buf_attr_t buf_attr;
+    tt_ptrq_attr_t filter_q_attr;
+    tt_ptrq_attr_t io_q_attr;
 } tt_logctx_attr_t;
 
 typedef struct
@@ -54,8 +56,8 @@ typedef struct
     struct tt_loglyt_s *lyt;
 
     tt_buf_t buf;
-    tt_ptrlist_t filter_list;
-    tt_ptrlist_t io_list;
+    tt_ptrq_t filter_q;
+    tt_ptrq_t io_q;
 } tt_logctx_t;
 
 ////////////////////////////////////////////////////////////

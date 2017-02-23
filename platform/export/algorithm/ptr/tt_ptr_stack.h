@@ -15,21 +15,18 @@
  */
 
 /**
- @file tt_map_hashlist.h
- @brief map: hash list implementation
-
- this file map: hash list implementation
+@file tt_ptr_stack.h
+@brief ptr stack
  */
 
-#ifndef __TT_MAP_HASHLIST__
-#define __TT_MAP_HASHLIST__
+#ifndef __TT_PTR_STACK__
+#define __TT_PTR_STACK__
 
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <algorithm/tt_hash.h>
-#include <algorithm/tt_map.h>
+#include <algorithm/tt_double_linked_list.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
@@ -41,19 +38,23 @@
 
 typedef struct
 {
-    tt_hash_alg_t hash_alg;
-    tt_bool_t uniq_key : 1;
-} tt_map_hl_attr_t;
+    tt_u32_t ptr_per_frame;
+} tt_ptrstk_attr_t;
+
+typedef struct tt_ptrstk_s
+{
+    tt_dlist_t frame;
+    void *cached_frame;
+    tt_u32_t count;
+    tt_u32_t ptr_per_frame;
+} tt_ptrstk_t;
 
 typedef struct
 {
-    tt_dlist_t *dll;
-    tt_hash_t hash;
-    tt_mnode_key_t get_key;
-    tt_hashctx_t hashctx;
-    tt_u32_t dll_num;
-    tt_bool_t uniq_key : 1;
-} tt_map_hl_t;
+    tt_ptrstk_t *pstk;
+    void *frame;
+    tt_u32_t idx;
+} tt_ptrstk_iter_t;
 
 ////////////////////////////////////////////////////////////
 // global variants
@@ -63,10 +64,32 @@ typedef struct
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern tt_map_t *tt_map_hashlist_create(IN tt_mnode_key_t get_key,
-                                        IN tt_u32_t list_num,
-                                        IN OPT tt_map_hl_attr_t *attr);
+extern void tt_ptrstk_init(IN tt_ptrstk_t *pstk, IN OPT tt_ptrstk_attr_t *attr);
 
-extern void tt_map_hashlist_attr_default(IN tt_map_hl_attr_t *attr);
+extern void tt_ptrstk_destroy(IN tt_ptrstk_t *pstk);
 
-#endif /* __TT_MAP_HASHLIST__ */
+extern void tt_ptrstk_attr_default(IN tt_ptrstk_attr_t *attr);
+
+tt_inline tt_u32_t tt_ptrstk_count(IN tt_ptrstk_t *pstk)
+{
+    return pstk->count;
+}
+
+tt_inline tt_bool_t tt_ptrstk_empty(IN tt_ptrstk_t *pstk)
+{
+    return pstk->count == 0 ? TT_TRUE : TT_FALSE;
+}
+
+extern void tt_ptrstk_clear(IN tt_ptrstk_t *pstk);
+
+extern tt_result_t tt_ptrstk_push(IN tt_ptrstk_t *pstk, IN tt_ptr_t p);
+
+extern tt_ptr_t tt_ptrstk_pop(IN tt_ptrstk_t *pstk);
+
+extern tt_ptr_t tt_ptrstk_top(IN tt_ptrstk_t *pstk);
+
+extern void tt_ptrstk_iter(IN tt_ptrstk_t *pstk, OUT tt_ptrstk_iter_t *iter);
+
+extern tt_ptr_t tt_ptrstk_iter_next(IN OUT tt_ptrstk_iter_t *iter);
+
+#endif /* __TT_PTR_STACK__ */

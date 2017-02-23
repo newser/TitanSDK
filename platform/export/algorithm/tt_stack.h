@@ -16,10 +16,8 @@
 
 /**
 @file tt_stack.h
-@brief stack
-
-this file specifies stack APIs
-*/
+@brief queue
+ */
 
 #ifndef __TT_STACK__
 #define __TT_STACK__
@@ -28,8 +26,7 @@ this file specifies stack APIs
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <algorithm/tt_list.h>
-#include <misc/tt_util.h>
+#include <algorithm/tt_double_linked_list.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
@@ -39,38 +36,26 @@ this file specifies stack APIs
 // type definition
 ////////////////////////////////////////////////////////////
 
-typedef void (*tt_stack_obj_destroy_t)(IN void *obj);
-
-typedef struct tt_stack_frame_s
-{
-    tt_u32_t idx;
-
-    tt_u8_t *data;
-    tt_u32_t max_num;
-    tt_u32_t top;
-    // top point to an available slot
-
-    tt_lnode_t node;
-} tt_stack_frame_t;
-
 typedef struct
 {
-    tt_stack_obj_destroy_t obj_destroy;
-
-    tt_bool_t destroy_obj_when_push_fail : 1;
+    tt_u32_t obj_per_frame;
 } tt_stack_attr_t;
 
 typedef struct tt_stack_s
 {
+    tt_dlist_t frame;
+    void *cached_frame;
+    tt_u32_t count;
     tt_u32_t obj_size;
-    tt_u32_t obj_size_aligned;
-
-    tt_u32_t frame_size;
-    tt_list_t frame_list;
-    tt_stack_frame_t *current_frame;
-
-    tt_stack_attr_t attr;
+    tt_u32_t obj_per_frame;
 } tt_stack_t;
+
+typedef struct
+{
+    tt_stack_t *stk;
+    void *frame;
+    tt_u32_t idx;
+} tt_stack_iter_t;
 
 ////////////////////////////////////////////////////////////
 // global variants
@@ -80,74 +65,34 @@ typedef struct tt_stack_s
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-// set obj_num to 0 to use default value
-extern tt_result_t tt_stack_create(IN tt_stack_t *stack,
-                                   IN tt_u32_t obj_size,
-                                   IN OPT tt_u32_t obj_num,
-                                   IN OPT tt_stack_attr_t *attr);
+extern void tt_stack_init(IN tt_stack_t *stk,
+                          IN tt_u32_t obj_size,
+                          IN OPT tt_stack_attr_t *attr);
 
-extern tt_result_t tt_stack_destroy(IN tt_stack_t *stack);
+extern void tt_stack_destroy(IN tt_stack_t *stk);
 
 extern void tt_stack_attr_default(IN tt_stack_attr_t *attr);
 
-// - no data type check, so the 3rd param is for checking that
-// - only return fail when no memory, but this rarely happen
-// - the obj is "copied" into stack
-extern tt_result_t tt_stack_push(IN tt_stack_t *stack,
-                                 IN tt_u8_t *obj,
-                                 IN tt_u32_t obj_size);
-
-extern tt_result_t tt_stack_pop(IN tt_stack_t *stack,
-                                OUT tt_u8_t *obj,
-                                IN tt_u32_t obj_size);
-
-extern tt_u8_t *tt_stack_top(IN tt_stack_t *stack);
-
-extern void tt_stack_clear(IN tt_stack_t *stack);
-
-// ========================================
-// pointer stack
-// ========================================
-
-typedef tt_stack_t tt_ptrstack_t;
-
-tt_inline tt_result_t tt_ptrstack_create(IN tt_ptrstack_t *stack,
-                                         IN OPT tt_u32_t ptr_num,
-                                         IN OPT tt_stack_attr_t *attr)
+tt_inline tt_u32_t tt_stack_count(IN tt_stack_t *stk)
 {
-    return tt_stack_create(stack, sizeof(tt_ptr_t), ptr_num, attr);
+    return stk->count;
 }
 
-tt_inline tt_result_t tt_ptrstack_destroy(IN tt_ptrstack_t *stack)
+tt_inline tt_bool_t tt_stack_empty(IN tt_stack_t *stk)
 {
-    return tt_stack_destroy(stack);
+    return stk->count == 0 ? TT_TRUE : TT_FALSE;
 }
 
-tt_inline tt_result_t tt_ptrstack_push(IN tt_stack_t *stack, IN void *obj)
-{
-    return tt_stack_push(stack, (void *)&obj, sizeof(void *));
-}
+extern void tt_stack_clear(IN tt_stack_t *stk);
 
-tt_inline void *tt_ptrstack_pop(IN tt_stack_t *stack)
-{
-    void *ptr = NULL;
-    tt_stack_pop(stack, (void *)&ptr, sizeof(void *));
-    return ptr;
-}
+extern tt_result_t tt_stack_push(IN tt_stack_t *stk, IN void *obj);
 
-tt_inline void *tt_ptrstack_top(IN tt_stack_t *stack)
-{
-    void **p = (void **)tt_stack_top(stack);
-    return TT_COND(p != NULL, *p, NULL);
-}
+extern tt_result_t tt_stack_pop(IN tt_stack_t *stk, OUT void *obj);
 
-tt_inline void tt_ptrstack_clear(IN tt_ptrstack_t *stack)
-{
-    tt_stack_clear(stack);
-}
+extern void *tt_stack_top(IN tt_stack_t *stk);
 
-// ========================================
-// other stack ...
-// ========================================
+extern void tt_stack_iter(IN tt_stack_t *stk, OUT tt_stack_iter_t *iter);
+
+extern void *tt_stack_iter_next(IN OUT tt_stack_iter_t *iter);
 
 #endif /* __TT_STACK__ */

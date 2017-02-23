@@ -34,8 +34,6 @@ this file defines string APIs
 // macro definition
 ////////////////////////////////////////////////////////////
 
-#define TT_STRPOS_NULL (~0)
-
 #define TT_ASSERT_STR TT_ASSERT
 
 #define TT_STR_CHECK(str)                                                      \
@@ -67,16 +65,17 @@ typedef struct tt_string_s
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-// size could 0, then the str won't alloc mem initially
+// size could be 0, then the str won't alloc mem initially
 extern tt_result_t tt_string_create(IN tt_string_t *str,
                                     IN const tt_char_t *cstr,
                                     IN OPT tt_string_attr_t *attr);
 
-// if len is larger than length of cstr, then same as tt_string_create
-extern tt_result_t tt_string_create_n(IN tt_string_t *str,
-                                      IN const tt_char_t *cstr,
-                                      IN tt_u32_t len,
-                                      IN OPT tt_string_attr_t *attr);
+// create string from intersection of [from, to) and cstr
+extern tt_result_t tt_string_create_sub(IN tt_string_t *str,
+                                        IN const tt_char_t *cstr,
+                                        IN tt_u32_t from,
+                                        IN tt_u32_t len,
+                                        IN OPT tt_string_attr_t *attr);
 
 extern tt_result_t tt_string_create_nocopy(IN tt_string_t *str,
                                            IN const tt_char_t *cstr,
@@ -90,9 +89,10 @@ extern void tt_string_attr_default(IN tt_string_attr_t *attr);
 
 extern tt_result_t tt_string_set(IN tt_string_t *str, IN const tt_char_t *cstr);
 
-extern tt_result_t tt_string_set_n(IN tt_string_t *str,
-                                   IN const tt_char_t *cstr,
-                                   IN tt_u32_t len);
+extern tt_result_t tt_string_set_sub(IN tt_string_t *str,
+                                     IN const tt_char_t *cstr,
+                                     IN tt_u32_t from,
+                                     IN tt_u32_t len);
 
 extern tt_result_t tt_string_setfrom(IN tt_string_t *str,
                                      IN tt_u32_t from,
@@ -106,10 +106,21 @@ extern void tt_string_clear(IN tt_string_t *str);
 
 extern void tt_string_print(IN tt_string_t *str, IN tt_u32_t flag);
 
-extern tt_u32_t tt_string_len(IN tt_string_t *str);
+tt_inline tt_u32_t tt_string_len(IN tt_string_t *str)
+{
+    return TT_BUF_RLEN(&str->buf) - 1;
+}
+
+tt_inline tt_bool_t tt_string_empty(IN tt_string_t *str)
+{
+    return TT_BUF_RLEN(&str->buf) == 1 ? TT_TRUE : TT_FALSE;
+}
 
 // never return NULL
-extern const tt_char_t *tt_string_cstr(IN tt_string_t *str);
+tt_inline const tt_char_t *tt_string_cstr(IN tt_string_t *str)
+{
+    return (tt_char_t *)TT_BUF_RPOS(&str->buf);
+}
 
 // return NULL only when from is invalid
 extern const tt_char_t *tt_string_subcstr(IN tt_string_t *str,

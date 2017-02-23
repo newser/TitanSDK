@@ -18,7 +18,6 @@
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include "tt_unit_test_case_config.h"
 #include <unit_test/tt_unit_test.h>
 
 #include <algorithm/ptr/tt_ptr_heap.h>
@@ -86,7 +85,7 @@ TT_TEST_CASE("tt_unit_test_ptrheap_basic",
     TT_TEST_CASE_LIST_DEFINE_END(heap_case)
     // =========================================
 
-    TT_TEST_UNIT_DEFINE(TEST_UNIT_HEAP, 0, heap_case)
+    TT_TEST_UNIT_DEFINE(ALG_UT_HEAP, 0, heap_case)
 
     ////////////////////////////////////////////////////////////
     // interface declaration
@@ -199,7 +198,9 @@ static tt_s32_t rb_comparer(IN void *l, IN void *r)
         return 1;
 }
 
-tt_s32_t rb_key_comparer(IN void *n, IN const tt_u8_t *key, IN tt_u32_t key_len)
+static tt_s32_t rb_key_comparer(IN void *n,
+                                IN tt_u8_t *key,
+                                IN tt_u32_t key_len)
 {
     struct trb_t *ll = (struct trb_t *)n;
     if (ll->v < *(int *)key)
@@ -217,6 +218,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_ptrheap_correct)
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_ptrheap_t ph;
     tt_ptrheap_attr_t attr;
+    tt_rbtree_attr_t rbattr;
 
     tt_rbtree_t rbt;
     int i;
@@ -234,7 +236,9 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_ptrheap_correct)
     tt_ptrheap_init(&ph, NULL, NULL);
 
     // create a rbtree
-    tt_rbtree_init(&rbt, rb_comparer, rb_key_comparer);
+    tt_rbtree_attr_default(&rbattr);
+    rbattr.cmpkey = rb_key_comparer;
+    tt_rbtree_init(&rbt, &rbattr);
 
     seed = 1413209774;
     srand(seed);
@@ -245,7 +249,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_ptrheap_correct)
 
     begin = tt_time_ref();
     for (i = 0; i < sizeof(trb) / sizeof(struct trb_t); ++i) {
-        tt_rbtree_add(&rbt, &trb[i].n);
+        tt_rbtree_add(&rbt, (tt_u8_t *)&trb[i].v, sizeof(trb[i].v), &trb[i].n);
     }
     end = tt_time_ref();
     t1 = (tt_s32_t)tt_time_ref2ms(end - begin);
@@ -261,11 +265,11 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_ptrheap_correct)
 
     // cmp
     for (i = 0; i < sizeof(trb) / sizeof(struct trb_t); ++i) {
-        tt_rbnode_t *pn = tt_rbtree_max(rbt.root);
+        tt_rbnode_t *pn = tt_rbtree_max(&rbt);
         int pv = (int)(tt_uintptr_t)tt_ptrheap_head(&ph);
         TT_TEST_CHECK_EQUAL(((struct trb_t *)pn)->v, pv, "");
 
-        tt_rbtree_remove(pn);
+        tt_rbtree_remove(&rbt, pn);
         tt_ptrheap_pop(&ph);
     }
 
@@ -326,7 +330,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_ptrheap_perf)
     tt_ptrheap_init(&ph, NULL, NULL);
 
     // create a rbtree
-    tt_rbtree_init(&rbt, rb_comparer, rb_key_comparer);
+    tt_rbtree_init(&rbt, NULL);
     for (i = 0; i < sizeof(trb) / sizeof(struct trb_t); ++i) {
         tt_rbnode_init(&trb[i].n);
     }
@@ -348,16 +352,19 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_ptrheap_perf)
     begin = tt_time_ref();
     for (i = 0; i < aperf_num; ++i) {
         if (_act[i] == 0) {
-            tt_rbnode_t *n1 = tt_rbtree_max(rbt.root);
+            tt_rbnode_t *n1 = tt_rbtree_max(&rbt);
             if (n1 != NULL)
                 foo1(((struct trb_t *)n1)->v);
         } else if (_act[i] == 1) {
             trb2[i].v = _act_val[i];
-            tt_rbtree_add(&rbt, &trb2[i].n);
+            tt_rbtree_add(&rbt,
+                          (tt_u8_t *)&trb2[i].v,
+                          sizeof(trb2[i].v),
+                          &trb2[i].n);
         } else {
-            tt_rbnode_t *n1 = tt_rbtree_max(rbt.root);
+            tt_rbnode_t *n1 = tt_rbtree_max(&rbt);
             if (n1 != NULL)
-                tt_rbtree_remove(n1);
+                tt_rbtree_remove(&rbt, n1);
         }
     }
     end = tt_time_ref();

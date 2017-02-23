@@ -85,6 +85,26 @@ typedef struct tt_list_s
 ////////////////////////////////////////////////////////////
 
 /**
+ @fn void tt_lnode_init(IN tt_lnode_t *node)
+ initialize a tt_lnode_t structure pointed by node
+
+ @param [in] node pointer to a tt_lnode_t
+
+ @return
+ void
+
+ @note
+ there is no memory operation in such function, it only initialize
+ the struct passed in by param
+ */
+tt_inline void tt_lnode_init(IN tt_lnode_t *node)
+{
+    node->lst = NULL;
+    node->prev = NULL;
+    node->next = NULL;
+}
+
+/**
  @fn void tt_list_init(IN tt_list_t *lst)
  initialize a tt_list_t structure pointed by lst
 
@@ -97,22 +117,12 @@ typedef struct tt_list_s
  there is no memory operation in such function, it only initialize
  the struct passed in by param
  */
-extern void tt_list_init(IN tt_list_t *lst);
-
-/**
-@fn void tt_lnode_init(IN tt_lnode_t *node)
-initialize a tt_lnode_t structure pointed by node
-
-@param [in] node pointer to a tt_lnode_t
-
-@return
-void
-
-@note
-there is no memory operation in such function, it only initialize
-the struct passed in by param
-*/
-extern void tt_lnode_init(IN tt_lnode_t *node);
+tt_inline void tt_list_init(IN tt_list_t *lst)
+{
+    lst->head = NULL;
+    lst->tail = NULL;
+    lst->count = 0;
+}
 
 /**
  @def tt_list_count(lst)
@@ -148,8 +158,6 @@ tt_inline tt_bool_t tt_list_empty(IN tt_list_t *lst)
 {
     return tt_list_count(lst) == 0 ? TT_TRUE : TT_FALSE;
 }
-
-extern void tt_list_clear(IN tt_list_t *lst);
 
 /**
  @def tt_list_head(lst)
@@ -238,6 +246,12 @@ pop the tail node in the list
 - NULL otherwise
 */
 extern tt_lnode_t *tt_list_pop_tail(IN tt_list_t *lst);
+
+tt_inline void tt_list_clear(IN tt_list_t *lst)
+{
+    while (tt_list_pop_head(lst) != NULL)
+        ;
+}
 
 /**
  @fn void tt_list_insert_before(IN tt_lnode_t *pos,

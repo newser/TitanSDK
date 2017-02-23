@@ -18,92 +18,96 @@
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <algorithm/tt_map.h>
-
-#include <misc/tt_assert.h>
+#include <unit_test/tt_unit_test.h>
 
 ////////////////////////////////////////////////////////////
 // internal macro
 ////////////////////////////////////////////////////////////
 
+#define TT_ALG_UT_DECLARE(name)                                                \
+    extern tt_test_unit_t TT_MAKE_TEST_UNIT_NAME(name);
+
 ////////////////////////////////////////////////////////////
 // internal type
 ////////////////////////////////////////////////////////////
+
+typedef enum {
+    ALG_UT_BEGIN = 0,
+
+    ALG_UT_BASIC_ALG,
+    ALG_UT_BUF,
+    ALG_UT_VECTOR,
+    ALG_UT_HASHMAP,
+    ALG_UT_QUEUE,
+    ALG_UT_RBTREE,
+    ALG_UT_STRING,
+    ALG_UT_LIST,
+    ALG_UT_HEAP,
+    ALG_UT_STACK,
+    ALG_UT_RBUF,
+
+    ALG_UT_NUM // number of test units
+} tt_alg_ut_id_t;
 
 ////////////////////////////////////////////////////////////
 // extern declaration
 ////////////////////////////////////////////////////////////
 
+TT_ALG_UT_DECLARE(ALG_UT_BASIC_ALG)
+TT_ALG_UT_DECLARE(ALG_UT_BUF)
+TT_ALG_UT_DECLARE(ALG_UT_VECTOR)
+TT_ALG_UT_DECLARE(ALG_UT_LIST)
+TT_ALG_UT_DECLARE(ALG_UT_HASHMAP)
+TT_ALG_UT_DECLARE(ALG_UT_QUEUE)
+TT_ALG_UT_DECLARE(ALG_UT_RBTREE)
+TT_ALG_UT_DECLARE(ALG_UT_STRING)
+TT_ALG_UT_DECLARE(ALG_UT_HEAP)
+TT_ALG_UT_DECLARE(ALG_UT_STACK)
+TT_ALG_UT_DECLARE(ALG_UT_RBUF)
+
 ////////////////////////////////////////////////////////////
 // global variant
 ////////////////////////////////////////////////////////////
+
+tt_test_unit_t *tt_g_alg_ut_list[ALG_UT_NUM] = {
+#if 0
+    &TT_MAKE_TEST_UNIT_NAME(ALG_UT_BASIC_ALG),
+    &TT_MAKE_TEST_UNIT_NAME(ALG_UT_HEAP),
+    &TT_MAKE_TEST_UNIT_NAME(ALG_UT_VECTOR),
+    &TT_MAKE_TEST_UNIT_NAME(ALG_UT_LIST),
+    &TT_MAKE_TEST_UNIT_NAME(ALG_UT_HASHMAP),
+    &TT_MAKE_TEST_UNIT_NAME(ALG_UT_QUEUE),
+    &TT_MAKE_TEST_UNIT_NAME(ALG_UT_RBTREE),
+    &TT_MAKE_TEST_UNIT_NAME(ALG_UT_STACK),
+    &TT_MAKE_TEST_UNIT_NAME(ALG_UT_RBUF),
+    &TT_MAKE_TEST_UNIT_NAME(ALG_UT_BUF),
+#endif
+    &TT_MAKE_TEST_UNIT_NAME(ALG_UT_STRING),
+};
 
 ////////////////////////////////////////////////////////////
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-static tt_result_t __check_map_itf(IN tt_map_itf_t *itf);
-
 ////////////////////////////////////////////////////////////
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-tt_map_t *tt_map_create(IN tt_u32_t size, IN tt_map_itf_t *itf)
+tt_result_t tt_alg_ut_init(IN tt_ptr_t reserved)
 {
-    tt_map_t *map;
+    tt_alg_ut_id_t unit_id = ALG_UT_BEGIN;
+    while (unit_id < ALG_UT_NUM) {
+        tt_result_t result = TT_FAIL;
 
-    TT_ASSERT(itf != NULL);
+        if (tt_g_alg_ut_list[unit_id] != NULL) {
+            result = tt_test_unit_to_class(tt_g_alg_ut_list[unit_id]);
+            if (!TT_OK(result)) {
+                return TT_FAIL;
+            }
+        }
 
-    if (!TT_OK(__check_map_itf(itf))) {
-        return NULL;
-    }
-
-    map = tt_malloc(sizeof(tt_map_t) + size);
-    if (map == NULL) {
-        TT_ERROR("no mem to create map");
-        return NULL;
-    }
-
-    map->itf = itf;
-
-    if ((map->itf->create != NULL) && !TT_OK(map->itf->create(map))) {
-        tt_free(map);
-        return NULL;
-    }
-
-    return map;
-}
-
-tt_result_t __check_map_itf(IN tt_map_itf_t *itf)
-{
-    if (itf->add == NULL) {
-        TT_ERROR("no itf->add");
-        return TT_FAIL;
-    }
-
-    if (itf->clear == NULL) {
-        TT_ERROR("no itf->clear");
-        return TT_FAIL;
-    }
-
-    if (itf->count == NULL) {
-        TT_ERROR("no itf->count");
-        return TT_FAIL;
-    }
-
-    if (itf->find == NULL) {
-        TT_ERROR("no itf->find");
-        return TT_FAIL;
-    }
-
-    if (itf->foreach == NULL) {
-        TT_ERROR("no itf->foreach");
-        return TT_FAIL;
-    }
-
-    if (itf->remove == NULL) {
-        TT_ERROR("no itf->remove");
-        return TT_FAIL;
+        // next
+        ++unit_id;
     }
 
     return TT_SUCCESS;

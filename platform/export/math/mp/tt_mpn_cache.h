@@ -30,7 +30,7 @@ this file includes multiple precision integer cache
 
 #include <math/mp/tt_mpn.h>
 
-#include <algorithm/tt_stack.h>
+#include <algorithm/ptr/tt_ptr_stack.h>
 #include <memory/tt_memory_alloc.h>
 #include <memory/tt_slab.h>
 
@@ -49,7 +49,7 @@ struct tt_profile_s;
 typedef struct
 {
     tt_slab_t slab;
-    tt_ptrstack_t stack;
+    tt_ptrstk_t stack;
 } tt_mpn_cache_t;
 
 ////////////////////////////////////////////////////////////
@@ -69,7 +69,7 @@ extern void tt_mpn_cache_destroy(IN tt_mpn_cache_t *mpnc);
 tt_inline tt_mpn_t *tt_mpn_alloc(IN tt_mpn_cache_t *mpnc, IN tt_u32_t reserved)
 {
 #ifdef TT_MPN_CACHE_ENABLE
-    tt_mpn_t *p = tt_ptrstack_pop(&mpnc->stack);
+    tt_mpn_t *p = tt_ptrstk_pop(&mpnc->stack);
     if (p == NULL) {
         p = tt_slab_alloc(&mpnc->slab);
         if (p != NULL) {
@@ -89,7 +89,7 @@ tt_inline void tt_mpn_free(IN tt_mpn_cache_t *mpnc, IN tt_mpn_t *p)
 {
 #ifdef TT_MPN_CACHE_ENABLE
     if (p != NULL) {
-        tt_ptrstack_push(&mpnc->stack, p);
+        tt_ptrstk_push(&mpnc->stack, p);
     }
 #else
     if (p != NULL) {

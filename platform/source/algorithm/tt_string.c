@@ -52,36 +52,8 @@ tt_result_t tt_string_create(IN tt_string_t *str,
                              IN OPT tt_string_attr_t *attr)
 {
     tt_buf_t *buf = &str->buf;
-    tt_u32_t len = (tt_u32_t)tt_strlen(cstr);
+    tt_u32_t n = (tt_u32_t)tt_strlen(cstr);
     tt_string_attr_t __attr;
-
-    if (attr == NULL) {
-        tt_string_attr_default(&__attr);
-        attr = &__attr;
-    }
-
-    if (!TT_OK(tt_buf_create_copy(buf,
-                                  (tt_u8_t *)cstr,
-                                  len + 1,
-                                  &attr->buf_attr))) {
-        return TT_FAIL;
-    }
-
-    return TT_SUCCESS;
-}
-
-tt_result_t tt_string_create_n(IN tt_string_t *str,
-                               IN const tt_char_t *cstr,
-                               IN tt_u32_t len,
-                               IN OPT tt_string_attr_t *attr)
-{
-    tt_buf_t *buf = &str->buf;
-    tt_u32_t cstr_len = (tt_u32_t)tt_strlen(cstr);
-    tt_string_attr_t __attr;
-
-    if (len > cstr_len) {
-        len = cstr_len;
-    }
 
     if (attr == NULL) {
         tt_string_attr_default(&__attr);
@@ -89,7 +61,40 @@ tt_result_t tt_string_create_n(IN tt_string_t *str,
     }
 
     if (!TT_OK(
-            tt_buf_create_copy(buf, (tt_u8_t *)cstr, len, &attr->buf_attr))) {
+            tt_buf_create_copy(buf, (tt_u8_t *)cstr, n + 1, &attr->buf_attr))) {
+        return TT_FAIL;
+    }
+
+    return TT_SUCCESS;
+}
+
+tt_result_t tt_string_create_sub(IN tt_string_t *str,
+                                 IN const tt_char_t *cstr,
+                                 IN tt_u32_t from,
+                                 IN tt_u32_t len,
+                                 IN OPT tt_string_attr_t *attr)
+{
+    tt_buf_t *buf = &str->buf;
+    tt_u32_t n = (tt_u32_t)tt_strlen(cstr);
+    tt_string_attr_t __attr;
+
+    if (from > n) {
+        TT_ERROR("invalid from[%u], len[%u]", from, n);
+        return TT_FAIL;
+    }
+    if ((from + len) > n) {
+        len = n - from;
+    }
+
+    if (attr == NULL) {
+        tt_string_attr_default(&__attr);
+        attr = &__attr;
+    }
+
+    if (!TT_OK(tt_buf_create_copy(buf,
+                                  (tt_u8_t *)cstr + from,
+                                  len,
+                                  &attr->buf_attr))) {
         return TT_FAIL;
     }
     if (!TT_OK(tt_buf_put_u8(buf, 0))) {
@@ -105,7 +110,7 @@ tt_result_t tt_string_create_nocopy(IN tt_string_t *str,
                                     IN OPT tt_string_attr_t *attr)
 {
     tt_buf_t *buf = &str->buf;
-    tt_u32_t len = (tt_u32_t)tt_strlen(cstr);
+    tt_u32_t n = (tt_u32_t)tt_strlen(cstr);
     tt_string_attr_t __attr;
 
     if (attr == NULL) {
@@ -113,14 +118,7 @@ tt_result_t tt_string_create_nocopy(IN tt_string_t *str,
         attr = &__attr;
     }
 
-    if (!TT_OK(tt_buf_create_nocopy(buf,
-                                    (tt_u8_t *)cstr,
-                                    len + 1,
-                                    &attr->buf_attr))) {
-        return TT_FAIL;
-    }
-
-    return TT_SUCCESS;
+    return tt_buf_create_nocopy(buf, (tt_u8_t *)cstr, n + 1, &attr->buf_attr);
 }
 
 void tt_string_init(IN tt_string_t *str, IN OPT tt_string_attr_t *attr)
@@ -147,32 +145,58 @@ tt_result_t tt_string_set(IN tt_string_t *str, IN const tt_char_t *cstr)
                       (tt_u32_t)tt_strlen(cstr) + 1);
 }
 
+tt_result_t tt_string_set_sub(IN tt_string_t *str,
+                              IN const tt_char_t *cstr,
+                              IN tt_u32_t from,
+                              IN tt_u32_t len)
+{
+    tt_buf_t *buf = &str->buf;
+    tt_u32_t n = (tt_u32_t)tt_strlen(cstr);
+
+    if (from > n) {
+        TT_ERROR("invalid from[%u], len[%u]", from, n);
+        return TT_FAIL;
+    }
+    if ((from + len) > n) {
+        len = n - from;
+    }
+
+    tt_buf_clear(buf);
+    TT_DO(tt_buf_put(buf, (tt_u8_t *)cstr + from, len));
+    TT_DO(tt_buf_put_u8(buf, 0));
+    return TT_SUCCESS;
+}
+
 tt_result_t tt_string_setfrom(IN tt_string_t *str,
                               IN tt_u32_t from,
                               IN const tt_char_t *cstr)
 {
-    tt_u32_t len, n;
+    tt_buf_t *buf = &str->buf;
+    tt_u32_t len, rp, wp;
 
     len = tt_string_len(str);
-    n = (tt_u32_t)tt_strlen(cstr);
-    if ((from > len) || ((from + n) > len)) {
+    if (from > len) {
         TT_ERROR("invalid from[%u] and len[%u]", from, len);
         return TT_FAIL;
     }
 
-    return tt_buf_set(&str->buf, from, (tt_u8_t *)cstr, n);
+    str->buf.wpos = str->buf.rpos + from;
+    return tt_buf_put(buf, (tt_u8_t *)cstr, (tt_u32_t)tt_strlen(cstr) + 1);
 }
 
 tt_result_t tt_string_setfrom_c(IN tt_string_t *str,
                                 IN tt_u32_t from,
                                 IN tt_char_t c)
 {
+    tt_buf_t *buf = &str->buf;
+
     if (from >= tt_string_len(str)) {
         TT_ERROR("invalid from[%u]", from);
         return TT_FAIL;
     }
+    TT_BUF_RPOS(buf)[from] = c;
 
-    return tt_buf_set(&str->buf, from, (tt_u8_t *)&c, 1);
+    return TT_SUCCESS;
 }
 
 void tt_string_clear(IN tt_string_t *str)
@@ -193,18 +217,6 @@ void tt_string_clear(IN tt_string_t *str)
 void tt_string_print(IN tt_string_t *str, IN tt_u32_t flag)
 {
     TT_INFO("%s", TT_BUF_RPOS(&str->buf));
-}
-
-tt_u32_t tt_string_len(IN tt_string_t *str)
-{
-    tt_u32_t len = TT_BUF_RLEN(&str->buf);
-    TT_ASSERT_STR(len > 0);
-    return len - 1;
-}
-
-const tt_char_t *tt_string_cstr(IN tt_string_t *str)
-{
-    return (tt_char_t *)TT_BUF_RPOS(&str->buf);
 }
 
 const tt_char_t *tt_string_subcstr(IN tt_string_t *str,

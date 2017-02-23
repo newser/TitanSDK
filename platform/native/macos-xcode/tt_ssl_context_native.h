@@ -28,6 +28,7 @@ this file defines ssl context native APIs
 // import header files
 ////////////////////////////////////////////////////////////
 
+#include <algorithm/tt_blob.h>
 #include <algorithm/tt_list.h>
 #include <network/ssl/tt_ssl_def.h>
 

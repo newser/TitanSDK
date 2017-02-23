@@ -208,38 +208,6 @@ void tt_hex_dump(IN tt_u8_t *buf, IN tt_u32_t buf_len, IN tt_u32_t num_per_line)
     printf("\n");
 }
 
-tt_result_t tt_blob_create(OUT tt_blob_t *blob,
-                           IN OPT tt_u8_t *addr,
-                           IN tt_u32_t len)
-{
-    tt_u8_t *p;
-
-    TT_ASSERT(blob != NULL);
-    TT_ASSERT(len != 0);
-
-    p = (tt_u8_t *)tt_malloc(len);
-    if (p == NULL) {
-        return TT_FAIL;
-    }
-
-    if (addr != NULL) {
-        tt_memcpy(p, addr, len);
-    }
-    blob->addr = p;
-    blob->len = len;
-
-    return TT_SUCCESS;
-}
-
-void tt_blob_destroy(IN tt_blob_t *blob)
-{
-    TT_ASSERT(blob != NULL);
-
-    if (blob->addr != NULL) {
-        tt_free(blob->addr);
-    }
-}
-
 tt_u8_t tt_c2h(IN tt_char_t c, IN tt_u8_t h_if_fail)
 {
     if ((c >= '0') && (c <= '9')) {

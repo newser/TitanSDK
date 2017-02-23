@@ -227,7 +227,7 @@ tt_cfgnode_t *tt_cfggrp_find_blob(IN tt_cfgnode_t *cnode, IN tt_blob_t *name)
     for (node = tt_list_head(&cgrp->child); node != NULL; node = node->next) {
         tt_cfgnode_t *child = TT_CONTAINER(node, tt_cfgnode_t, node);
 
-        if (tt_blob_cmpcstr(name, child->name)) {
+        if (tt_blob_strcmp(name, child->name) == 0) {
             return child;
         }
     }

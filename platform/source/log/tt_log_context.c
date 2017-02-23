@@ -69,8 +69,8 @@ tt_result_t tt_logctx_create(IN tt_logctx_t *lctx,
     lctx->lyt = lyt;
 
     tt_buf_init(&lctx->buf, &attr->buf_attr);
-    tt_ptrlist_init(&lctx->filter_list);
-    tt_ptrlist_init(&lctx->io_list);
+    tt_ptrq_init(&lctx->filter_q, &attr->filter_q_attr);
+    tt_ptrq_init(&lctx->io_q, &attr->io_q_attr);
 
     return TT_SUCCESS;
 }
@@ -83,9 +83,9 @@ void tt_logctx_destroy(IN tt_logctx_t *lctx)
 
     tt_buf_destroy(&lctx->buf);
 
-    while (tt_ptrlist_pophead(&lctx->filter_list, NULL))
+    while (tt_ptrq_pop(&lctx->filter_q))
         ;
-    while (tt_ptrlist_pophead(&lctx->io_list, NULL))
+    while (tt_ptrq_pop(&lctx->io_q))
         ;
 }
 
@@ -96,6 +96,12 @@ void tt_logctx_attr_default(IN tt_logctx_attr_t *attr)
     }
 
     tt_buf_attr_default(&attr->buf_attr);
+
+    tt_ptrq_attr_default(&attr->filter_q_attr);
+    attr->filter_q_attr.ptr_per_frame = 8;
+
+    tt_ptrq_attr_default(&attr->io_q_attr);
+    attr->io_q_attr.ptr_per_frame = 8;
 }
 
 tt_result_t tt_logctx_append_filter(IN tt_logctx_t *lctx,
@@ -105,7 +111,7 @@ tt_result_t tt_logctx_append_filter(IN tt_logctx_t *lctx,
         return TT_FAIL;
     }
 
-    return tt_ptrlist_pushtail(&lctx->filter_list, filter);
+    return tt_ptrq_push(&lctx->filter_q, filter);
 }
 
 tt_result_t tt_logctx_append_io(IN tt_logctx_t *lctx, IN tt_logio_t *lio)
@@ -114,35 +120,30 @@ tt_result_t tt_logctx_append_io(IN tt_logctx_t *lctx, IN tt_logio_t *lio)
         return TT_FAIL;
     }
 
-    return tt_ptrlist_pushtail(&lctx->io_list, lio);
+    return tt_ptrq_push(&lctx->io_q, lio);
 }
 
 tt_result_t tt_logctx_input(IN tt_logctx_t *lctx, IN tt_log_entry_t *entry)
 {
     tt_buf_t *buf;
-    tt_ptrlist_t *filter_list;
-    tt_ptrlist_t *io_list;
-    tt_ptrnode_t *node;
+    tt_ptrq_iter_t iter;
+    tt_log_filter_t filter;
+    tt_logio_t *lio;
     tt_result_t result = TT_SUCCESS;
 
     if ((lctx == NULL) || (lctx->lyt == NULL) || (entry == NULL)) {
         return TT_FAIL;
     }
     buf = &lctx->buf;
-    filter_list = &lctx->filter_list;
-    io_list = &lctx->io_list;
 
     entry->level = lctx->level;
 
     // filter
-    node = tt_ptrlist_head(filter_list);
-    while (node != NULL) {
-        tt_log_filter_t filter = node->p;
+    tt_ptrq_iter(&lctx->filter_q, &iter);
+    while ((filter = tt_ptrq_iter_next(&iter)) != NULL) {
         if (!filter(entry)) {
             return TT_SUCCESS;
         }
-
-        node = tt_ptrlist_next(filter_list, node);
     }
 
     // fomat
@@ -153,17 +154,15 @@ tt_result_t tt_logctx_input(IN tt_logctx_t *lctx, IN tt_log_entry_t *entry)
     }
 
     // output
-    node = tt_ptrlist_head(io_list);
-    while (node != NULL) {
-        if (!TT_OK(tt_logio_output(node->p,
+    tt_ptrq_iter(&lctx->io_q, &iter);
+    while ((lio = tt_ptrq_iter_next(&iter)) != NULL) {
+        if (!TT_OK(tt_logio_output(lio,
                                    (tt_char_t *)TT_BUF_RPOS(buf),
                                    TT_BUF_RLEN(buf)))) {
             // continue even one of logio failed, but this function would
             // finally return TT_FAIL
             result = TT_FAIL;
         }
-
-        node = tt_ptrlist_next(io_list, node);
     }
 
     return result;

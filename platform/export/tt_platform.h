@@ -32,19 +32,23 @@ developer only need include this file to use ts platform APIs
 extern "C" {
 #endif
 
+#include <algorithm/ptr/tt_ptr_hashmap.h>
 #include <algorithm/ptr/tt_ptr_heap.h>
+#include <algorithm/ptr/tt_ptr_queue.h>
 #include <algorithm/ptr/tt_ptr_vector.h>
 #include <algorithm/tt_algorithm_def.h>
 #include <algorithm/tt_binary_search.h>
+#include <algorithm/tt_blob.h>
 #include <algorithm/tt_buffer.h>
 #include <algorithm/tt_buffer_common.h>
 #include <algorithm/tt_buffer_format.h>
 #include <algorithm/tt_compare.h>
 #include <algorithm/tt_double_linked_list.h>
 #include <algorithm/tt_hash.h>
+#include <algorithm/tt_hashmap.h>
 #include <algorithm/tt_list.h>
-#include <algorithm/tt_map.h>
-#include <algorithm/tt_pointer_list.h>
+#include <algorithm/tt_queue.h>
+#include <algorithm/tt_read_buffer.h>
 #include <algorithm/tt_red_black_tree.h>
 #include <algorithm/tt_rng.h>
 #include <algorithm/tt_rng_xorshift.h>
@@ -54,6 +58,7 @@ extern "C" {
 #include <algorithm/tt_string.h>
 #include <algorithm/tt_string_common.h>
 #include <algorithm/tt_vector.h>
+#include <algorithm/tt_write_buffer.h>
 #include <cli/tt_cli.h>
 #include <cli/tt_cli_def.h>
 #include <cli/tt_cli_line.h>

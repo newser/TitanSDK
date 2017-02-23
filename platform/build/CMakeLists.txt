@@ -91,7 +91,6 @@ tscm_add_group_src(${TSCM_PLATFORM_PATH}/source/misc misc SRC_FILE)
 tscm_add_group_src(${TSCM_PLATFORM_PATH}/source/unit_test unit_test SRC_FILE)
 tscm_add_group_src(${TSCM_PLATFORM_PATH}/native/${TSCM_ENV} native SRC_FILE)
 tscm_add_group_src(${TSCM_PLATFORM_PATH}/native/${TSCM_CPU} cpu SRC_FILE)
-tscm_add_group_src(${TSCM_PLATFORM_PATH}/test_case test_case SRC_FILE)
 
 tscm_add_group_src(${TSCM_PLATFORM_PATH}/source/log log SRC_FILE)
 tscm_add_group_src(${TSCM_PLATFORM_PATH}/source/log/layout log SRC_FILE)
@@ -99,30 +98,34 @@ tscm_add_group_src(${TSCM_PLATFORM_PATH}/source/log/io log SRC_FILE)
 
 tscm_add_group_src(${TSCM_PLATFORM_PATH}/source/network network SRC_FILE)
 tscm_add_group_src(${TSCM_PLATFORM_PATH}/source/network/adns adns SRC_FILE)
-tscm_add_group_src(${TSCM_PLATFORM_PATH}/source/network/adns/test_case adns SRC_FILE)
 tscm_add_group_src(${TSCM_PLATFORM_PATH}/source/network/ssl ssl SRC_FILE)
-tscm_add_group_src(${TSCM_PLATFORM_PATH}/source/network/ssl/test_case ssl SRC_FILE)
 
 tscm_add_group_src(${TSCM_PLATFORM_PATH}/source/network/ssh ssh SRC_FILE)
 tscm_add_group_src(${TSCM_PLATFORM_PATH}/source/network/ssh/message ssh SRC_FILE)
 tscm_add_group_src(${TSCM_PLATFORM_PATH}/source/network/ssh/client ssh SRC_FILE)
 tscm_add_group_src(${TSCM_PLATFORM_PATH}/source/network/ssh/server ssh SRC_FILE)
 tscm_add_group_src(${TSCM_PLATFORM_PATH}/source/network/ssh/context ssh SRC_FILE)
-tscm_add_group_src(${TSCM_PLATFORM_PATH}/source/network/ssh/test_case ssh SRC_FILE)
 
 tscm_add_group_src(${TSCM_PLATFORM_PATH}/source/crypto crypto SRC_FILE)
-tscm_add_group_src(${TSCM_PLATFORM_PATH}/source/crypto/test_case crypto SRC_FILE)
 
 tscm_add_group_src(${TSCM_PLATFORM_PATH}/source/math/mp mp SRC_FILE)
-tscm_add_group_src(${TSCM_PLATFORM_PATH}/source/math/mp/test_case mp SRC_FILE)
 
 tscm_add_group_src(${TSCM_PLATFORM_PATH}/source/xml xml SRC_FILE)
 tscm_add_group_src(${TSCM_PLATFORM_PATH}/source/xml/parse xml SRC_FILE)
 tscm_add_group_src(${TSCM_PLATFORM_PATH}/source/xml/render xml SRC_FILE)
-tscm_add_group_src(${TSCM_PLATFORM_PATH}/source/xml/test_case xml SRC_FILE)
 
 tscm_add_group_src(${TSCM_PLATFORM_PATH}/source/cli cli SRC_FILE)
+
+# test cases
+tscm_add_group_src(${TSCM_PLATFORM_PATH}/source/algorithm/test_case test_case SRC_FILE)
+tscm_add_group_src(${TSCM_PLATFORM_PATH}/test_case test_case SRC_FILE)
 tscm_add_group_src(${TSCM_PLATFORM_PATH}/source/cli/test_case cli SRC_FILE)
+tscm_add_group_src(${TSCM_PLATFORM_PATH}/source/xml/test_case xml SRC_FILE)
+tscm_add_group_src(${TSCM_PLATFORM_PATH}/source/crypto/test_case crypto SRC_FILE)
+tscm_add_group_src(${TSCM_PLATFORM_PATH}/source/network/ssh/test_case ssh SRC_FILE)
+tscm_add_group_src(${TSCM_PLATFORM_PATH}/source/network/ssl/test_case ssl SRC_FILE)
+tscm_add_group_src(${TSCM_PLATFORM_PATH}/source/math/mp/test_case mp SRC_FILE)
+tscm_add_group_src(${TSCM_PLATFORM_PATH}/source/network/adns/test_case adns SRC_FILE)
 
 #
 # build

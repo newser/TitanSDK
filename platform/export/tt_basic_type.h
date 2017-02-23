@@ -148,16 +148,6 @@ bool type, can only be TT_TRUE or TT_FALSE
 */
 typedef tt_u8_t tt_bool_t;
 
-/**
-@struct tt_buf_t
-buffer information
-*/
-typedef struct
-{
-    tt_u8_t *addr;
-    tt_u32_t len;
-} tt_blob_t;
-
 ////////////////////////////////////////////////////////////
 // global variants
 ////////////////////////////////////////////////////////////

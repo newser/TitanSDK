@@ -28,6 +28,7 @@ this file defines diffie-hellman mpn APIs
 // import header files
 ////////////////////////////////////////////////////////////
 
+#include <algorithm/tt_blob.h>
 #include <math/mp/tt_mpn.h>
 #include <math/mp/tt_mpn_cache.h>
 
