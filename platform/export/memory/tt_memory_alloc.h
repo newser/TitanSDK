@@ -28,7 +28,7 @@ APIs to allocate/free memory
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <tt_cstd_api.h>
+#include <misc/tt_util.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
@@ -54,5 +54,35 @@ APIs to allocate/free memory
 ////////////////////////////////////////////////////////////
 // interface declaration
 ////////////////////////////////////////////////////////////
+
+tt_inline void *tt_malloc_align(IN tt_size_t size, IN tt_u32_t order)
+{
+    void *p = tt_malloc(size + (1 << (order + 1)) + sizeof(tt_uintptr_t));
+    if (p != NULL) {
+        void *org = p;
+        p = TT_PTR_INC(void, p, sizeof(tt_uintptr_t));
+        TT_PTR_ALIGN_INC(p, order);
+        *TT_PTR_DEC(tt_uintptr_t, p, sizeof(tt_uintptr_t)) = org;
+    }
+    return p;
+}
+
+tt_inline void tt_free_align(IN void *p)
+{
+    tt_free(*TT_PTR_DEC(tt_uintptr_t, p, sizeof(tt_uintptr_t)));
+}
+
+tt_inline void *tt_xmalloc_align(IN tt_size_t size, IN tt_u32_t order)
+{
+    void *p, *org;
+
+    p = tt_xmalloc(size + (1 << (order + 1)) + sizeof(tt_uintptr_t));
+    org = p;
+    p = TT_PTR_INC(void, p, sizeof(tt_uintptr_t));
+    TT_PTR_ALIGN_INC(p, order);
+    *TT_PTR_DEC(tt_uintptr_t, p, sizeof(tt_uintptr_t)) = org;
+
+    return p;
+}
 
 #endif // __TT_MEMORY_ALLOC__

@@ -25,6 +25,7 @@
 #include <log/tt_log.h>
 #include <memory/tt_memory_pool.h>
 #include <memory/tt_memory_spring.h>
+#include <memory/tt_page.h>
 #include <os/tt_mutex.h>
 #include <os/tt_thread.h>
 #include <timer/tt_time_reference.h>
@@ -72,12 +73,13 @@ TT_TEST_ROUTINE_DECLARE(tt_unit_test_mempool_mt_nonaligned)
 
 TT_TEST_ROUTINE_DECLARE(tt_unit_test_ptr_stack)
 TT_TEST_ROUTINE_DECLARE(tt_unit_test_mem_spg)
+TT_TEST_ROUTINE_DECLARE(tt_unit_test_mem_page)
 // =========================================
 
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(mempool_case)
 
-#if 1
+#if 0
 TT_TEST_CASE("tt_unit_test_mempool_basic",
              "testing mempool basic operation",
              tt_unit_test_mempool_basic,
@@ -123,16 +125,26 @@ TT_TEST_CASE("tt_unit_test_mempool_basic",
                  NULL,
                  NULL,
                  NULL),
+
+TT_TEST_CASE("tt_unit_test_mem_spg",
+             "testing memory spring",
+             tt_unit_test_mem_spg,
+             NULL,
+             NULL,
+             NULL,
+             NULL,
+             NULL),
 #endif
 
-    TT_TEST_CASE("tt_unit_test_mem_spg",
-                 "testing memory spring",
-                 tt_unit_test_mem_spg,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+TT_TEST_CASE("tt_unit_test_mem_page",
+             "testing memory page",
+             tt_unit_test_mem_page,
+             NULL,
+             NULL,
+             NULL,
+             NULL,
+             NULL)
+,
 
     TT_TEST_CASE_LIST_DEFINE_END(mempool_case)
     // =========================================
@@ -148,7 +160,7 @@ TT_TEST_CASE("tt_unit_test_mempool_basic",
     ////////////////////////////////////////////////////////////
 
     /*
-    TT_TEST_ROUTINE_DEFINE(tt_unit_test_mem_spg)
+    TT_TEST_ROUTINE_DEFINE(tt_unit_test_mem_page)
     {
         //tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
 
@@ -655,6 +667,81 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_mem_spg)
     for (; i < size; ++i) {
         TT_TEST_CHECK_EQUAL(p[i], 0, "");
     }
+
+    // test end
+    TT_TEST_CASE_LEAVE()
+}
+
+TT_TEST_ROUTINE_DEFINE(tt_unit_test_mem_page)
+{
+    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+    tt_u8_t *p, *cmp_p;
+    tt_uintptr_t h;
+
+    TT_TEST_CASE_ENTER()
+    // test start
+
+    p = tt_page_alloc(0);
+    TT_TEST_CHECK_NOT_EQUAL(p, NULL, "");
+    tt_page_free(p, 0);
+
+    p = tt_page_alloc(1);
+    TT_TEST_CHECK_NOT_EQUAL(p, NULL, "");
+    tt_page_free(p, 1);
+
+    p = tt_page_alloc(12345);
+    TT_TEST_CHECK_NOT_EQUAL(p, NULL, "");
+    tt_page_free(p, 12345);
+
+    // page align
+    p = tt_page_alloc_align(0, &h);
+    TT_TEST_CHECK_NOT_EQUAL(p, NULL, "");
+    cmp_p = p;
+    TT_PTR_ALIGN_INC(cmp_p, tt_g_page_size_order);
+    TT_TEST_CHECK_EQUAL(p, cmp_p, "");
+    tt_page_free_align(p, 0, h);
+
+    p = tt_page_alloc_align(1, &h);
+    TT_TEST_CHECK_NOT_EQUAL(p, NULL, "");
+    cmp_p = p;
+    TT_PTR_ALIGN_INC(cmp_p, tt_g_page_size_order);
+    TT_TEST_CHECK_EQUAL(p, cmp_p, "");
+    tt_page_free_align(p, 1, h);
+
+    p = tt_page_alloc_align(tt_g_page_size_order + 3, &h);
+    TT_TEST_CHECK_NOT_EQUAL(p, NULL, "");
+    cmp_p = p;
+    TT_PTR_ALIGN_INC(cmp_p, tt_g_page_size_order + 3);
+    TT_TEST_CHECK_EQUAL(p, cmp_p, "");
+    tt_page_free_align(p, 0, h);
+
+    // malloc align
+    p = tt_malloc_align(1, 0);
+    TT_TEST_CHECK_NOT_EQUAL(p, NULL, "");
+    tt_free_align(p);
+
+    p = tt_malloc_align(1, 4);
+    TT_TEST_CHECK_NOT_EQUAL(p, NULL, "");
+    cmp_p = p;
+    TT_PTR_ALIGN_INC(cmp_p, 4);
+    TT_TEST_CHECK_EQUAL(p, cmp_p, "");
+    tt_free_align(p);
+
+    p = tt_malloc_align(100, 8);
+    TT_TEST_CHECK_NOT_EQUAL(p, NULL, "");
+    cmp_p = p;
+    TT_PTR_ALIGN_INC(cmp_p, 8);
+    TT_TEST_CHECK_EQUAL(p, cmp_p, "");
+    TT_PTR_ALIGNED(p, 8);
+    tt_free_align(p);
+
+    p = tt_xmalloc_align(200, 12);
+    TT_TEST_CHECK_NOT_EQUAL(p, NULL, "");
+    cmp_p = p;
+    TT_PTR_ALIGN_INC(cmp_p, 12);
+    TT_TEST_CHECK_EQUAL(p, cmp_p, "");
+    TT_PTR_ALIGNED(p, 12);
+    tt_free_align(p);
 
     // test end
     TT_TEST_CASE_LEAVE()

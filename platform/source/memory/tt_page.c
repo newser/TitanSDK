@@ -25,7 +25,7 @@
 #include <os/tt_atomic.h>
 
 #include <tt_cstd_api.h>
-#include <tt_page_os_native.h>
+#include <tt_page_native.h>
 
 ////////////////////////////////////////////////////////////
 // internal macro
@@ -43,9 +43,9 @@
 // global variant
 ////////////////////////////////////////////////////////////
 
-static tt_atomic_s64_t tt_stat_page_os_alloc;
+static tt_atomic_s64_t tt_stat_page_alloc;
 
-static tt_atomic_s64_t tt_stat_page_os_peak;
+static tt_atomic_s64_t tt_stat_page_peak;
 
 ////////////////////////////////////////////////////////////
 // interface declaration
@@ -86,12 +86,13 @@ void *tt_page_alloc(IN tt_u32_t size)
     if (p != NULL) {
         tt_s64_t val;
 
-        tt_atomic_s64_add(&tt_stat_page_os_alloc, size);
+        tt_atomic_s64_add(&tt_stat_page_alloc, size);
 
-        // updating peak value is not atomic
-        val = tt_atomic_s64_get(&tt_stat_page_os_alloc);
-        if (val > tt_atomic_s64_get(&tt_stat_page_os_peak)) {
-            tt_atomic_s64_set(&tt_stat_page_os_peak, val);
+        // updating peak value is not atomic, it's not accurate
+        // but only for reference
+        val = tt_atomic_s64_get(&tt_stat_page_alloc);
+        if (val > tt_atomic_s64_get(&tt_stat_page_peak)) {
+            tt_atomic_s64_set(&tt_stat_page_peak, val);
         }
     }
     return p;
@@ -106,11 +107,11 @@ void tt_page_free(IN void *addr, IN tt_u32_t size)
         TT_U32_ALIGN_INC_PAGE(size);
         tt_page_free_ntv(addr, size);
 #endif
-        tt_atomic_s64_sub(&tt_stat_page_os_alloc, size);
+        tt_atomic_s64_sub(&tt_stat_page_alloc, size);
     }
 }
 
-void *tt_page_alloc_aligned(IN tt_u32_t size_order, OUT tt_uintptr_t *handle)
+void *tt_page_alloc_align(IN tt_u32_t size_order, OUT tt_uintptr_t *handle)
 {
     void *p;
 
@@ -122,66 +123,43 @@ void *tt_page_alloc_aligned(IN tt_u32_t size_order, OUT tt_uintptr_t *handle)
         TT_PTR_ALIGN_INC(p, size_order);
     }
 #else
-    p = tt_page_alloc_aligned_ntv(size_order, handle);
+    p = tt_page_alloc_align_ntv(size_order, handle);
 #endif
     if (p != NULL) {
         tt_s64_t val;
 
         val = (tt_s64_t)1 << size_order;
-        tt_atomic_s64_add(&tt_stat_page_os_alloc, val);
+        tt_atomic_s64_add(&tt_stat_page_alloc, val);
 
-        // updating peak value is not atomic
-        val = tt_atomic_s64_get(&tt_stat_page_os_alloc);
-        if (val > tt_atomic_s64_get(&tt_stat_page_os_peak)) {
-            tt_atomic_s64_set(&tt_stat_page_os_peak, val);
+        // updating peak value is not atomic, it's not accurate
+        // but only for reference
+        val = tt_atomic_s64_get(&tt_stat_page_alloc);
+        if (val > tt_atomic_s64_get(&tt_stat_page_peak)) {
+            tt_atomic_s64_set(&tt_stat_page_peak, val);
         }
     }
     return p;
 }
 
-void tt_page_free_aligned(IN void *addr,
-                          IN tt_u32_t size_order,
-                          IN tt_uintptr_t handle)
+void tt_page_free_align(IN void *addr,
+                        IN tt_u32_t size_order,
+                        IN tt_uintptr_t handle)
 {
 #ifdef TT_PAGE_BY_MALLOC
     tt_c_free((void *)handle);
 #else
     size_order = TT_MAX(size_order, tt_g_page_size_order);
-    tt_page_free_aligned_ntv(addr, size_order, handle);
+    tt_page_free_align_ntv(addr, size_order, handle);
 #endif
-    tt_atomic_s64_sub(&tt_stat_page_os_alloc, 1 << size_order);
-}
-
-tt_u32_t tt_page_size2alloc(IN tt_u32_t size)
-{
-    // - whatever portlayer do, we consider size allocated is
-    //   aligned with page size(portlayer may allocate more)
-    // - return 0 if size is 0
-
-    TT_U32_ALIGN_INC_PAGE(size);
-    return size;
-}
-
-void tt_page_os_stat_show(IN tt_u32_t flag)
-{
-    TT_INFO("-------------------------------------");
-    TT_INFO("[PAGE OS] statistic");
-
-    TT_INFO("- memory: ");
-    TT_INFO("    current allocated: %ld bytes",
-            tt_atomic_s64_get(&tt_stat_page_os_alloc));
-    TT_INFO("    peak allocated: %ld bytes",
-            tt_atomic_s64_get(&tt_stat_page_os_peak));
-
-    TT_INFO("-------------------------------------");
+    tt_atomic_s64_sub(&tt_stat_page_alloc, 1 << size_order);
 }
 
 tt_result_t __page_component_init(IN tt_component_t *comp,
                                   IN tt_profile_t *profile)
 {
-    tt_atomic_s64_init(&tt_stat_page_os_alloc, 0);
+    tt_atomic_s64_init(&tt_stat_page_alloc, 0);
 
-    tt_atomic_s64_init(&tt_stat_page_os_peak, 0);
+    tt_atomic_s64_init(&tt_stat_page_peak, 0);
 
     return TT_SUCCESS;
 }
