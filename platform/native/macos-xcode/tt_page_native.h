@@ -15,7 +15,7 @@
  */
 
 /**
-@file tt_page_os_native.h
+@file tt_page_native.h
 @brief memory page APIs
 
 memory page APIs
@@ -46,8 +46,8 @@ memory page APIs
 // use posix_memalign, does all platform support this function?
 #define __APA_POSIX_MEMALIGN 3
 
-//#define __ALLOC_PAGE_ALIGNED __APA_POSIX_MEMALIGN
-#define __ALLOC_PAGE_ALIGNED __APA_REDUNDANT
+//#define __ALLOC_PAGE_ALIGN __APA_POSIX_MEMALIGN
+#define __ALLOC_PAGE_ALIGN __APA_REDUNDANT
 
 // ========================================
 // numa api switchers
@@ -134,7 +134,7 @@ tt_inline void tt_page_free_ntv(IN void *page_begin, IN tt_u32_t size)
 }
 
 /**
-@fn void *tt_page_alloc_aligned_ntv(IN tt_u32_t size_order,
+@fn void *tt_page_alloc_align_ntv(IN tt_u32_t size_order,
                                     OUT tt_uintptr_t *handle)
 allocate pages from a specific node, the returned address is aligned with size
 
@@ -152,10 +152,10 @@ allocate pages from a specific node, the returned address is aligned with size
 - known API like VirtualAllocExNuma() or mmap()+mbind() are all
   thread safe
 */
-tt_inline void *tt_page_alloc_aligned_ntv(IN tt_u32_t size_order,
-                                          OUT tt_uintptr_t *handle)
+tt_inline void *tt_page_alloc_align_ntv(IN tt_u32_t size_order,
+                                        OUT tt_uintptr_t *handle)
 {
-#if (__ALLOC_PAGE_ALIGNED == __APA_REDUNDANT)
+#if (__ALLOC_PAGE_ALIGN == __APA_REDUNDANT)
 
     void *reserve_addr = NULL;
     tt_u32_t reserve_size = 1 << (size_order + 1);
@@ -192,7 +192,7 @@ tt_inline void *tt_page_alloc_aligned_ntv(IN tt_u32_t size_order,
     *handle = (tt_uintptr_t)reserve_addr;
     return commit_addr;
 
-#elif (__ALLOC_PAGE_ALIGNED == __APA_POSIX_MEMALIGN)
+#elif (__ALLOC_PAGE_ALIGN == __APA_POSIX_MEMALIGN)
 
     void *p = NULL;
     tt_u32_t size = 1 << size_order;
@@ -220,7 +220,7 @@ tt_inline void *tt_page_alloc_aligned_ntv(IN tt_u32_t size_order,
 }
 
 /**
-@fn void tt_page_free_aligned_ntv(IN void *page_begin,
+@fn void tt_page_free_align_ntv(IN void *page_begin,
                                   IN tt_u32_t size_order,
                                   IN tt_uintptr_t handle)
 free pages to a specific node
@@ -235,17 +235,17 @@ free pages to a specific node
   such condition, use an internal lock to protect it
 - known API like VirtualFree() or numa_free() are all thread safe
 */
-tt_inline void tt_page_free_aligned_ntv(IN void *page_begin,
-                                        IN tt_u32_t size_order,
-                                        IN tt_uintptr_t handle)
+tt_inline void tt_page_free_align_ntv(IN void *page_begin,
+                                      IN tt_u32_t size_order,
+                                      IN tt_uintptr_t handle)
 {
-#if (__ALLOC_PAGE_ALIGNED == __APA_REDUNDANT)
+#if (__ALLOC_PAGE_ALIGN == __APA_REDUNDANT)
 
     if (munmap((tt_ptr_t)handle, 1 << (size_order + 1)) != 0) {
         TT_ERROR_NTV("fail to release pages");
     }
 
-#elif (__ALLOC_PAGE_ALIGNED == __APA_POSIX_MEMALIGN)
+#elif (__ALLOC_PAGE_ALIGN == __APA_POSIX_MEMALIGN)
 
     free(page_begin);
 

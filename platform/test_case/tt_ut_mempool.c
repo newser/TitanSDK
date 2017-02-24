@@ -25,12 +25,10 @@
 #include <log/tt_log.h>
 #include <memory/tt_memory_pool.h>
 #include <memory/tt_memory_spring.h>
+#include <memory/tt_page.h>
 #include <os/tt_mutex.h>
 #include <os/tt_thread.h>
 #include <timer/tt_time_reference.h>
-
-// portlayer header files
-#include <tt_cstd_api.h>
 
 #include <time.h>
 
@@ -42,23 +40,9 @@
 // internal type
 ////////////////////////////////////////////////////////////
 
-typedef struct _test_tt_mempool_blockdesc_t
-{
-    tt_u32_t prev_size;
-    tt_u32_t size;
-    void *area;
-
-#ifdef TT_MEMORY_TAG_ENABLE
-    const tt_char_t *function;
-    tt_u32_t line;
-#endif
-} test_tt_mempool_blockdesc_t;
-
 ////////////////////////////////////////////////////////////
 // extern declaration
 ////////////////////////////////////////////////////////////
-
-extern tt_u32_t tt_s_blockdesc_size_aligned;
 
 ////////////////////////////////////////////////////////////
 // global variant
@@ -67,11 +51,11 @@ extern tt_u32_t tt_s_blockdesc_size_aligned;
 // === routine declarations ================
 TT_TEST_ROUTINE_DECLARE(tt_unit_test_mempool_basic)
 TT_TEST_ROUTINE_DECLARE(tt_unit_test_mempool_alloc_free)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_mempool_mt_aligned)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_mempool_mt_nonaligned)
+TT_TEST_ROUTINE_DECLARE(tt_unit_test_mempool_sanity)
 
 TT_TEST_ROUTINE_DECLARE(tt_unit_test_ptr_stack)
 TT_TEST_ROUTINE_DECLARE(tt_unit_test_mem_spg)
+TT_TEST_ROUTINE_DECLARE(tt_unit_test_mem_page)
 // =========================================
 
 // === test case list ======================
@@ -97,27 +81,18 @@ TT_TEST_CASE("tt_unit_test_mempool_basic",
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_mempool_mt_aligned",
-                 "testing mempool in multi-thread env",
-                 tt_unit_test_mempool_mt_aligned,
+    TT_TEST_CASE("tt_unit_test_mempool_sanity",
+                 "testing mempool sanity test",
+                 tt_unit_test_mempool_sanity,
                  NULL,
                  NULL,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_mempool_mt_aligned",
-                 "testing mempool in multi-thread no aligned",
-                 tt_unit_test_mempool_mt_nonaligned,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
-
-    TT_TEST_CASE("tt_unit_test_ptr_stack",
-                 "testing ptr pool",
-                 tt_unit_test_ptr_stack,
+    TT_TEST_CASE("tt_unit_test_mem_spg",
+                 "testing memory spring",
+                 tt_unit_test_mem_spg,
                  NULL,
                  NULL,
                  NULL,
@@ -125,9 +100,9 @@ TT_TEST_CASE("tt_unit_test_mempool_basic",
                  NULL),
 #endif
 
-    TT_TEST_CASE("tt_unit_test_mem_spg",
-                 "testing memory spring",
-                 tt_unit_test_mem_spg,
+    TT_TEST_CASE("tt_unit_test_mem_page",
+                 "testing memory page",
+                 tt_unit_test_mem_page,
                  NULL,
                  NULL,
                  NULL,
@@ -148,7 +123,7 @@ TT_TEST_CASE("tt_unit_test_mempool_basic",
     ////////////////////////////////////////////////////////////
 
     /*
-    TT_TEST_ROUTINE_DEFINE(tt_unit_test_mem_spg)
+    TT_TEST_ROUTINE_DEFINE(tt_unit_test_mem_page)
     {
         //tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
 
@@ -175,48 +150,36 @@ TT_TEST_CASE("tt_unit_test_mempool_basic",
     //// test mempool create/destroy 1
 
     tt_mempool_attr_default(&pool_attr);
-    pool_attr.hwcache_align = TT_TRUE;
-    pool_attr.sync = TT_TRUE;
+    pool_attr.max_pool_size = 0;
 
     // create a pool
-    result = tt_mempool_create(&pool, 8000, &pool_attr);
-    TT_TEST_CHECK_EQUAL(result, TT_SUCCESS, "");
+    tt_mempool_init(&pool, 8000, &pool_attr);
 
-    p1 = tt_mempool_alloc(&pool, 100);
+    p1 = tt_mp_alloc(&pool, 0);
+    TT_TEST_CHECK_EQUAL(p1, NULL, "");
+    p1 = tt_mp_alloc(&pool, 100);
     TT_TEST_CHECK_NOT_EQUAL(p1, NULL, "");
-    p2 = tt_mempool_alloc(&pool, 8000);
+    p2 = tt_mp_alloc(&pool, 8000);
     TT_TEST_CHECK_NOT_EQUAL(p2, NULL, "");
-    p3 = tt_mempool_alloc(&pool, 10000);
+    p3 = tt_mp_alloc(&pool, 8001);
     TT_TEST_CHECK_EQUAL(p3, NULL, "");
 
-    tt_mempool_free(p1);
-    tt_mempool_free(p2);
-    tt_mempool_free(p3);
-
     // destroy
-    tt_mempool_destroy(&pool, TT_FALSE);
+    tt_mempool_destroy(&pool);
 
     //// test mempool create/destroy 2
 
     // all default
-    result = tt_mempool_create(&pool, 2000, NULL);
-    TT_TEST_CHECK_EQUAL(result, TT_SUCCESS, "");
+    tt_mempool_init(&pool, 2000, NULL);
 
-    p1 = tt_mempool_alloc(&pool, 100);
+    p1 = tt_mp_alloc(&pool, 100);
     TT_TEST_CHECK_NOT_EQUAL(p1, NULL, "");
-    p2 = tt_mempool_alloc(&pool, 2000);
+    p2 = tt_mp_alloc(&pool, 2000);
     TT_TEST_CHECK_NOT_EQUAL(p2, NULL, "");
-    p3 = tt_mempool_alloc(&pool, 500);
+    p3 = tt_mp_alloc(&pool, 500);
     TT_TEST_CHECK_NOT_EQUAL(p3, NULL, "");
 
-    tt_mempool_free(p2);
-    tt_mempool_free(p3);
-    // destroy fail
-    tt_mempool_destroy(&pool, TT_FALSE);
-
-    tt_mempool_free(p1);
-    // destroy ok
-    tt_mempool_destroy(&pool, TT_FALSE);
+    tt_mempool_destroy(&pool);
 
     // test end
     TT_TEST_CASE_LEAVE()
@@ -239,283 +202,80 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_mempool_alloc_free)
 
     // create a pool
     tt_mempool_attr_default(&pool_attr);
-    pool_attr.sync = TT_TRUE;
-    pool_attr.max_area_num = 1; // only one area
-    result = tt_mempool_create(&pool, 9000, &pool_attr);
-    TT_TEST_CHECK_EQUAL(result, TT_SUCCESS, "");
+    pool_attr.max_pool_size = 18000;
+    tt_mempool_init(&pool, 9000, &pool_attr);
+    TT_TEST_CHECK_EQUAL(pool.max_frame_num, 2, "");
 
     //// start alloc free test
 
     // exceeding limitation
-    p1 = tt_mempool_alloc(&pool, 8999);
+    p1 = tt_mp_alloc(&pool, 8999);
     TT_TEST_CHECK_NOT_EQUAL(p1, NULL, "");
-    p2 = tt_mempool_alloc(&pool, 9001);
+    p2 = tt_mp_alloc(&pool, 9001);
     TT_TEST_CHECK_EQUAL(p2, NULL, "");
-    tt_mempool_free(p1);
 
     // about 128b
-    p1 = tt_mempool_alloc(&pool, 100);
+    p1 = tt_mp_alloc(&pool, 100);
     TT_TEST_CHECK_NOT_EQUAL(p1, NULL, "");
     // about 256b
-    p2 = tt_mempool_alloc(&pool, 200);
+    p2 = tt_mp_alloc(&pool, 200);
     TT_TEST_CHECK_NOT_EQUAL(p2, NULL, "");
     // all left
-    p3 = tt_mempool_alloc(&pool, 7500);
+    p3 = tt_mp_alloc(&pool, 7500);
     TT_TEST_CHECK_NOT_EQUAL(p3, NULL, "");
-    tt_mempool_show(&pool);
-    // free 256b
-    tt_mempool_free(p2);
-    tt_mempool_show(&pool);
+
     // allocate in 256b
     // about 128b
-    p2 = tt_mempool_alloc(&pool, 100);
+    p2 = tt_mp_alloc(&pool, 100);
     TT_TEST_CHECK_NOT_EQUAL(p2, NULL, "");
-    tt_mempool_show(&pool);
-    tt_mempool_free(p1);
-    // about 128b
-    p4 = tt_mempool_alloc(&pool, 100);
+    p4 = tt_mp_alloc(&pool, 100);
     TT_TEST_CHECK_NOT_EQUAL(p4, NULL, "");
-    tt_mempool_show(&pool);
+    // now should about 1000bytes left
+    p4 = tt_mp_alloc(&pool, 900);
+    TT_TEST_CHECK_NOT_EQUAL(p4, NULL, "");
+    p4 = tt_mp_alloc(&pool, 100);
+    TT_TEST_CHECK_EQUAL(p4, NULL, "");
 
-    // free
-    // now: p4 p2 free p3
-    tt_mempool_free(p4);
-    tt_mempool_free(p3);
-    tt_mempool_free(p2);
-    tt_mempool_show(&pool);
-    tt_mempool_destroy(&pool, TT_FALSE);
+    tt_mempool_destroy(&pool);
 
     // test end
     TT_TEST_CASE_LEAVE()
 }
 
-#define __SLOT_NUM 10000
-
-static tt_thread_t *test_threads[4];
-static tt_mempool_t __mpool;
-static void *__aptr[sizeof(test_threads) / sizeof(tt_thread_t *)][__SLOT_NUM];
-tt_u32_t __seed;
-
-extern tt_u32_t tt_s_blockdesc_size;
-
-static tt_result_t test_routine_1(IN tt_thread_t *thread, IN void *param)
-{
-    tt_ptrdiff_t idx = (tt_ptrdiff_t)param;
-    int i = 0;
-    int j = 0;
-    // tt_result_t ret = TT_FAIL;
-
-    void **aptr = __aptr[idx];
-
-    // TT_ASSERT(thread == test_threads[idx]);
-
-    srand(__seed);
-
-    for (i = 0; i < __SLOT_NUM; ++i) {
-        int op = rand() % 3;
-        // 1/3 free, 2/3 alloc
-
-        if (op) {
-            tt_u32_t asize = 0;
-
-            while (asize == 0) {
-                asize = rand() & (1 << (tt_g_page_size_order - 3));
-            }
-            // 1/8 page size per allocation
-
-            aptr[i] = tt_mempool_alloc(&__mpool, asize);
-            if (aptr[i]) {
-                test_tt_mempool_blockdesc_t *block =
-                    TT_PTR_DEC(test_tt_mempool_blockdesc_t,
-                               aptr[i],
-                               tt_s_blockdesc_size);
-                TT_ASSERT(block->size & 1);
-                TT_ASSERT(((block->size & ~1) - tt_s_blockdesc_size) >= asize);
-
-                tt_memset(aptr[i], 0xff, asize);
-            }
-        } else {
-            for (; j < i; ++j) {
-                if (aptr[j]) {
-                    tt_mempool_free(aptr[j]);
-                    aptr[j] = NULL;
-                    break;
-                }
-            }
-        }
-    }
-
-    // free all
-    for (i = 0; i < __SLOT_NUM; ++i) {
-        if (aptr[i]) {
-            tt_mempool_free(aptr[i]);
-            aptr[i] = NULL;
-        }
-    }
-
-    return TT_SUCCESS;
-}
-
-static tt_result_t test_routine_sysmalloc(IN tt_thread_t *thread,
-                                          IN void *param)
-{
-    tt_ptrdiff_t idx = (tt_ptrdiff_t)param;
-    int i = 0;
-    int j = 0;
-    // tt_result_t ret = TT_FAIL;
-
-    void **aptr = __aptr[idx];
-
-    // TT_ASSERT(thread == test_threads[idx]);
-
-    srand(__seed);
-
-    for (i = 0; i < __SLOT_NUM; ++i) {
-        int op = rand() % 3;
-        // 1/3 free, 2/3 alloc
-
-        if (op) {
-            tt_u32_t asize = 0;
-
-            while (asize == 0) {
-                asize = rand() >> (tt_g_page_size_order - 3);
-            }
-            // 1/8 page size per allocation
-
-            aptr[i] = malloc(asize);
-            // TT_ASSERT(aptr[i] != NULL);
-        } else {
-            for (; j < i; ++j) {
-                if (aptr[j]) {
-                    free(aptr[j]);
-                    aptr[j] = NULL;
-                    break;
-                }
-            }
-        }
-    }
-
-    // free all
-    for (i = 0; i < __SLOT_NUM; ++i) {
-        if (aptr[i]) {
-            free(aptr[i]);
-            aptr[i] = NULL;
-        }
-    }
-
-    return TT_SUCCESS;
-}
-
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_mempool_mt_aligned)
+TT_TEST_ROUTINE_DEFINE(tt_unit_test_mempool_sanity)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+    tt_mempool_t pool;
+    tt_mempool_attr_t pool_attr;
+    void *p;
 
     tt_result_t result = TT_FAIL;
-    tt_ptrdiff_t i;
-    tt_s64_t start_time, end_time;
-    tt_u32_t pool_time, smalloc_time;
-
-    tt_mempool_attr_t pool_attr;
-    // tt_memory_env_t *env = &numa_node->memory_env;
 
     TT_TEST_CASE_ENTER()
     // test start
 
-
     //// test mempool create/destroy 1
 
     tt_mempool_attr_default(&pool_attr);
-    pool_attr.hwcache_align = TT_TRUE;
-    pool_attr.sync = TT_TRUE;
+    pool_attr.max_pool_size = tt_rand_u32() % (1 << 17);
 
     // create a pool
-    result = tt_mempool_create(&__mpool, 800000, &pool_attr);
-    TT_TEST_CHECK_EQUAL(result, TT_SUCCESS, "");
+    tt_mempool_init(&pool, 8000, &pool_attr);
 
-    srand((int)time(NULL));
-    __seed = rand();
+    do {
+        tt_u32_t size = tt_rand_u32() % (1 << 8) + 1;
+        p = tt_mp_alloc(&pool, size);
+        if (p != NULL) {
+            tt_memset(p, 0xcf, size);
+        }
+    } while (p != NULL);
 
-    tt_memset(__aptr, 0, sizeof(__aptr));
-    start_time = tt_time_ref();
-    for (i = 0; i < sizeof(test_threads) / sizeof(tt_thread_t *); ++i) {
-        test_threads[i] =
-            tt_thread_create(NULL, test_routine_1, (void *)i, NULL);
-    }
-    for (i = 0; i < sizeof(test_threads) / sizeof(tt_thread_t *); ++i) {
-        tt_thread_wait(test_threads[i]);
-    }
-    end_time = tt_time_ref();
-    pool_time = (tt_u32_t)tt_time_ref2ms(end_time - start_time);
-
-    tt_memset(__aptr, 0, sizeof(__aptr));
-    start_time = tt_time_ref();
-    for (i = 0; i < sizeof(test_threads) / sizeof(tt_thread_t *); ++i) {
-        test_threads[i] =
-            tt_thread_create(NULL, test_routine_sysmalloc, (void *)i, NULL);
-    }
-    for (i = 0; i < sizeof(test_threads) / sizeof(tt_thread_t *); ++i) {
-        tt_thread_wait(test_threads[i]);
-    }
-    end_time = tt_time_ref();
-    smalloc_time = (tt_u32_t)tt_time_ref2ms(end_time - start_time);
-
-    TT_RECORD_INFO("time consumed: %d ms, sys malloc: %d ms",
-                   pool_time,
-                   smalloc_time);
-
-    tt_mempool_destroy(&__mpool, TT_FALSE);
+    // destroy
+    tt_mempool_destroy(&pool);
 
     // test end
     TT_TEST_CASE_LEAVE()
 }
-
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_mempool_mt_nonaligned)
-{
-    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
-
-    tt_result_t result = TT_FAIL;
-    tt_ptrdiff_t i;
-    tt_s64_t start_time, end_time;
-
-    tt_mempool_attr_t pool_attr;
-
-    TT_TEST_CASE_ENTER()
-    // test start
-
-
-    //// test mempool create/destroy 1
-
-    tt_mempool_attr_default(&pool_attr);
-    // pool_attr.flag |= TT_MEMPOOL_HWCACHELINE_ALIGN;
-    pool_attr.sync = TT_TRUE;
-
-    // create a pool
-    result = tt_mempool_create(&__mpool, 800000, &pool_attr);
-    TT_TEST_CHECK_EQUAL(result, TT_SUCCESS, "");
-
-    srand((int)time(NULL));
-
-    tt_memset(__aptr, 0, sizeof(__aptr));
-    start_time = tt_time_ref();
-    for (i = 0; i < sizeof(test_threads) / sizeof(tt_thread_t *); ++i) {
-        test_threads[i] =
-            tt_thread_create(NULL, test_routine_1, (void *)i, NULL);
-    }
-    for (i = 0; i < sizeof(test_threads) / sizeof(tt_thread_t *); ++i) {
-        tt_thread_wait(test_threads[i]);
-    }
-    end_time = tt_time_ref();
-    TT_RECORD_INFO("time consumed: %d ms",
-                   (tt_u32_t)tt_time_ref2ms(end_time - start_time));
-
-    tt_mempool_destroy(&__mpool, TT_FALSE);
-
-
-    // test end
-    TT_TEST_CASE_LEAVE()
-}
-
-extern tt_u32_t tt_memspg_next_size(IN tt_memspg_t *mspg, IN tt_u32_t size);
 
 TT_TEST_ROUTINE_DEFINE(tt_unit_test_mem_spg)
 {
@@ -655,6 +415,81 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_mem_spg)
     for (; i < size; ++i) {
         TT_TEST_CHECK_EQUAL(p[i], 0, "");
     }
+
+    // test end
+    TT_TEST_CASE_LEAVE()
+}
+
+TT_TEST_ROUTINE_DEFINE(tt_unit_test_mem_page)
+{
+    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+    tt_u8_t *p, *cmp_p;
+    tt_uintptr_t h;
+
+    TT_TEST_CASE_ENTER()
+    // test start
+
+    p = tt_page_alloc(0);
+    TT_TEST_CHECK_NOT_EQUAL(p, NULL, "");
+    tt_page_free(p, 0);
+
+    p = tt_page_alloc(1);
+    TT_TEST_CHECK_NOT_EQUAL(p, NULL, "");
+    tt_page_free(p, 1);
+
+    p = tt_page_alloc(12345);
+    TT_TEST_CHECK_NOT_EQUAL(p, NULL, "");
+    tt_page_free(p, 12345);
+
+    // page align
+    p = tt_page_alloc_align(0, &h);
+    TT_TEST_CHECK_NOT_EQUAL(p, NULL, "");
+    cmp_p = p;
+    TT_PTR_ALIGN_INC(cmp_p, tt_g_page_size_order);
+    TT_TEST_CHECK_EQUAL(p, cmp_p, "");
+    tt_page_free_align(p, 0, h);
+
+    p = tt_page_alloc_align(1, &h);
+    TT_TEST_CHECK_NOT_EQUAL(p, NULL, "");
+    cmp_p = p;
+    TT_PTR_ALIGN_INC(cmp_p, tt_g_page_size_order);
+    TT_TEST_CHECK_EQUAL(p, cmp_p, "");
+    tt_page_free_align(p, 1, h);
+
+    p = tt_page_alloc_align(tt_g_page_size_order + 3, &h);
+    TT_TEST_CHECK_NOT_EQUAL(p, NULL, "");
+    cmp_p = p;
+    TT_PTR_ALIGN_INC(cmp_p, tt_g_page_size_order + 3);
+    TT_TEST_CHECK_EQUAL(p, cmp_p, "");
+    tt_page_free_align(p, 0, h);
+
+    // malloc align
+    p = tt_malloc_align(1, 0);
+    TT_TEST_CHECK_NOT_EQUAL(p, NULL, "");
+    tt_free_align(p);
+
+    p = tt_malloc_align(1, 4);
+    TT_TEST_CHECK_NOT_EQUAL(p, NULL, "");
+    cmp_p = p;
+    TT_PTR_ALIGN_INC(cmp_p, 4);
+    TT_TEST_CHECK_EQUAL(p, cmp_p, "");
+    tt_free_align(p);
+
+    p = tt_malloc_align(100, 8);
+    TT_TEST_CHECK_NOT_EQUAL(p, NULL, "");
+    cmp_p = p;
+    TT_PTR_ALIGN_INC(cmp_p, 8);
+    TT_TEST_CHECK_EQUAL(p, cmp_p, "");
+    TT_PTR_ALIGNED(p, 8);
+    tt_free_align(p);
+
+    p = tt_xmalloc_align(200, 12);
+    TT_TEST_CHECK_NOT_EQUAL(p, NULL, "");
+    cmp_p = p;
+    TT_PTR_ALIGN_INC(cmp_p, 12);
+    TT_TEST_CHECK_EQUAL(p, cmp_p, "");
+    TT_PTR_ALIGNED(p, 12);
+    tt_free_align(p);
 
     // test end
     TT_TEST_CASE_LEAVE()

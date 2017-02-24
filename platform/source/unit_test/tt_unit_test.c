@@ -82,8 +82,8 @@ tt_test_unit_t *tt_g_test_unit_list[TEST_UNIT_NUM] = {
     &TT_MAKE_TEST_UNIT_NAME(TEST_UNIT_THREAD),
 #endif
 
-#if 0
     &TT_MAKE_TEST_UNIT_NAME(TEST_UNIT_SLAB),
+#if 0
     &TT_MAKE_TEST_UNIT_NAME(TEST_UNIT_MEMPOOL),
 #endif
 
@@ -137,10 +137,12 @@ tt_result_t tt_test_unit_init(IN tt_ptr_t reserved)
         ++unit_id;
     }
 
+#if 0
     do {
         tt_result_t tt_alg_ut_init(IN tt_ptr_t reserved);
         tt_alg_ut_init(0);
     } while (0);
+#endif
 
 #if 0
     do {

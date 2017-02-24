@@ -80,7 +80,7 @@ free pages, start address of pages is specified by param
 extern void tt_page_free(IN void *addr, IN tt_u32_t size);
 
 /**
-@fn void *tt_page_alloc_aligned(IN tt_u32_t size_order,
+@fn void *tt_page_alloc_align(IN tt_u32_t size_order,
                                 OUT tt_uintptr_t *handle)
 allocate pages, number of pages is specified as param and
 address returned would be aligned with total size required
@@ -97,11 +97,11 @@ as an example, if size_order is 14, meaning required (1 << 14) bytes,
 then allocated page would always begin with some address aligned with
 (1 << 14)
 */
-extern void *tt_page_alloc_aligned(IN tt_u32_t size_order,
-                                   OUT tt_uintptr_t *handle);
+extern void *tt_page_alloc_align(IN tt_u32_t size_order,
+                                 OUT tt_uintptr_t *handle);
 
 /**
-@fn void tt_page_free_aligned(IN void *page_begin,
+@fn void tt_page_free_align(IN void *page_begin,
                               IN tt_u32_t size_order,
                               IN tt_uintptr_t handle)
 free pages, start address of pages is specified by param
@@ -111,16 +111,12 @@ free pages, start address of pages is specified by param
 @param [in] handle handle returned by alloc_aligned()
 
 @note
-- the address in param must be allocated by tt_page_alloc_aligned
-- page_num_order must be same as passed to tt_page_alloc_aligned
+- the address in param must be allocated by tt_page_alloc_align
+- page_num_order must be same as passed to tt_page_alloc_align
 - if freeing fails, just an error trace would be printed
 */
-extern void tt_page_free_aligned(IN void *addr,
-                                 IN tt_u32_t size_order,
-                                 IN tt_uintptr_t handle);
-
-extern tt_u32_t tt_page_size2alloc(IN tt_u32_t size);
-
-extern void tt_page_os_stat_show(IN tt_u32_t flag);
+extern void tt_page_free_align(IN void *addr,
+                               IN tt_u32_t size_order,
+                               IN tt_uintptr_t handle);
 
 #endif // __TT_PAGE_OS__

@@ -33,9 +33,36 @@ memory page APIs
 
 #include <tt_sys_error.h>
 
+#include <stdlib.h>
+#include <sys/mman.h>
+
 ////////////////////////////////////////////////////////////
 // macro definition
 ////////////////////////////////////////////////////////////
+
+// allocate more virtual space to get an aligned address, this method
+// is less likely fail but some virtual space are wasted
+#define __APA_REDUNDANT 2
+// use posix_memalign, does all platform support this function?
+#define __APA_POSIX_MEMALIGN 3
+
+//#define __ALLOC_PAGE_ALIGN __APA_POSIX_MEMALIGN
+#define __ALLOC_PAGE_ALIGN __APA_REDUNDANT
+
+// ========================================
+// numa api switchers
+// ========================================
+
+#define __PAGE_ALLOC_ONNODE(size, numa_node_id_memory)                         \
+    mmap(NULL, (size), PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANON, -1, 0)
+#define __PAGE_FREE_ONNODE(page_begin, size, numa_node_id_memory)              \
+    munmap((page_begin), (size))
+
+#define __PAGE_TONODE_MEMORY(p, size, numa_node_id_memory)
+
+#define __PAGE_ALLOC(size)                                                     \
+    mmap(NULL, (size), PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANON, -1, 0)
+#define __PAGE_FREE(page_begin, size) munmap((page_begin), (size))
 
 ////////////////////////////////////////////////////////////
 // type definition
@@ -72,14 +99,9 @@ tt_inline void *tt_page_alloc_ntv(IN tt_u32_t size)
     void *p = NULL;
 
     if (tt_g_numa_node_id_memory != TT_NUMA_NODE_ID_UNSPECIFIED) {
-        p = VirtualAllocExNuma(GetCurrentProcess(),
-                               NULL,
-                               size,
-                               MEM_COMMIT | MEM_RESERVE,
-                               PAGE_READWRITE,
-                               tt_g_numa_node_id_memory);
+        p = __PAGE_ALLOC_ONNODE(size, tt_g_numa_node_id_memory);
     } else {
-        p = VirtualAlloc(NULL, size, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
+        p = __PAGE_ALLOC(size);
     }
     if (p == NULL) {
         TT_ERROR("fail to allocate pages");
@@ -105,18 +127,14 @@ free pages to a specific node
 tt_inline void tt_page_free_ntv(IN void *page_begin, IN tt_u32_t size)
 {
     if (tt_g_numa_node_id_memory != TT_NUMA_NODE_ID_UNSPECIFIED) {
-        if (!VirtualFreeEx(GetCurrentProcess(), page_begin, 0, MEM_RELEASE)) {
-            TT_ERROR_NTV("fail to free pages at %p", page_begin);
-        }
+        __PAGE_FREE_ONNODE(page_begin, size, tt_g_numa_node_id_memory);
     } else {
-        if (!VirtualFree(page_begin, 0, MEM_RELEASE)) {
-            TT_ERROR_NTV("fail to free pages at %p", page_begin);
-        }
+        __PAGE_FREE(page_begin, size);
     }
 }
 
 /**
-@fn void *tt_page_alloc_aligned_ntv(IN tt_u32_t size_order,
+@fn void *tt_page_alloc_align_ntv(IN tt_u32_t size_order,
                                     OUT tt_uintptr_t *handle)
 allocate pages from a specific node, the returned address is aligned with size
 
@@ -134,9 +152,11 @@ allocate pages from a specific node, the returned address is aligned with size
 - known API like VirtualAllocExNuma() or mmap()+mbind() are all
   thread safe
 */
-tt_inline void *tt_page_alloc_aligned_ntv(IN tt_u32_t size_order,
-                                          OUT tt_uintptr_t *handle)
+tt_inline void *tt_page_alloc_align_ntv(IN tt_u32_t size_order,
+                                        OUT tt_uintptr_t *handle)
 {
+#if (__ALLOC_PAGE_ALIGN == __APA_REDUNDANT)
+
     void *reserve_addr = NULL;
     tt_u32_t reserve_size = 1 << (size_order + 1);
     // each time reserve twice virtual address as required, then there must
@@ -145,60 +165,62 @@ tt_inline void *tt_page_alloc_aligned_ntv(IN tt_u32_t size_order,
     void *commit_addr = NULL;
     tt_u32_t commit_size = 1 << size_order;
 
-    void *ret = NULL;
-
-    // reserve
-
-    if (tt_g_numa_node_id_memory != TT_NUMA_NODE_ID_UNSPECIFIED) {
-        reserve_addr = VirtualAllocExNuma(GetCurrentProcess(),
-                                          NULL,
-                                          reserve_size,
-                                          MEM_RESERVE,
-                                          PAGE_NOACCESS,
-                                          tt_g_numa_node_id_memory);
-    } else {
-        reserve_addr =
-            VirtualAlloc(NULL, reserve_size, MEM_RESERVE, PAGE_NOACCESS);
-    }
+    reserve_addr =
+        mmap(NULL, reserve_size, PROT_NONE, MAP_PRIVATE | MAP_ANON, -1, 0);
     if (reserve_addr == NULL) {
         TT_ERROR_NTV("fail to reserve pages");
         return NULL;
     }
 
-    // commit
-
     commit_addr = reserve_addr;
     TT_PTR_ALIGN_INC(commit_addr, size_order);
+    if (mprotect(commit_addr, commit_size, PROT_READ | PROT_WRITE) != 0) {
+        TT_ERROR_NTV("fail to change pages to read/write");
+        munmap(reserve_addr, reserve_size);
 
-    if (tt_g_numa_node_id_memory != TT_NUMA_NODE_ID_UNSPECIFIED) {
-        ret = VirtualAllocExNuma(GetCurrentProcess(),
-                                 commit_addr,
-                                 commit_size,
-                                 MEM_COMMIT,
-                                 PAGE_READWRITE,
-                                 tt_g_numa_node_id_memory);
-    } else {
-        ret =
-            VirtualAlloc(commit_addr, commit_size, MEM_COMMIT, PAGE_READWRITE);
-    }
-    if ((ret == NULL) || (ret != commit_addr)) {
-        if (tt_g_numa_node_id_memory != TT_NUMA_NODE_ID_UNSPECIFIED) {
-            VirtualFreeEx(GetCurrentProcess(), reserve_addr, 0, MEM_RELEASE);
-        } else {
-            VirtualFree(reserve_addr, 0, MEM_RELEASE);
-        }
-
-        TT_ERROR_NTV("fail to commit pages");
         return NULL;
+    }
+
+    // bind to numa node
+    if (tt_g_numa_node_id_memory != TT_NUMA_NODE_ID_UNSPECIFIED) {
+        __PAGE_TONODE_MEMORY(commit_addr,
+                             commit_size,
+                             tt_g_numa_node_id_memory);
     }
 
     // all done
     *handle = (tt_uintptr_t)reserve_addr;
-    return ret;
+    return commit_addr;
+
+#elif (__ALLOC_PAGE_ALIGN == __APA_POSIX_MEMALIGN)
+
+    void *p = NULL;
+    tt_u32_t size = 1 << size_order;
+    int ret = posix_memalign(&p, size, size);
+
+    if ((ret != 0) || (p == NULL)) {
+        TT_ERROR_NTV("fail to allocated aligned memory");
+        return NULL;
+    }
+
+    // bind to node,
+    if (tt_g_numa_node_id_memory != TT_NUMA_NODE_ID_UNSPECIFIED) {
+        __PAGE_TONODE_MEMORY(p, size, tt_g_numa_node_id_memory);
+    }
+
+    // handle is not used
+    *handle = (tt_uintptr_t)NULL;
+    return p;
+
+#else
+
+#error how to allocate address aligned pages?
+
+#endif
 }
 
 /**
-@fn void tt_page_free_aligned_ntv(IN void *page_begin,
+@fn void tt_page_free_align_ntv(IN void *page_begin,
                                   IN tt_u32_t size_order,
                                   IN tt_uintptr_t handle)
 free pages to a specific node
@@ -213,15 +235,25 @@ free pages to a specific node
   such condition, use an internal lock to protect it
 - known API like VirtualFree() or numa_free() are all thread safe
 */
-tt_inline void tt_page_free_aligned_ntv(IN void *page_begin,
-                                        IN tt_u32_t size_order,
-                                        IN tt_uintptr_t handle)
+tt_inline void tt_page_free_align_ntv(IN void *page_begin,
+                                      IN tt_u32_t size_order,
+                                      IN tt_uintptr_t handle)
 {
-    if (tt_g_numa_node_id_memory != TT_NUMA_NODE_ID_UNSPECIFIED) {
-        VirtualFreeEx(GetCurrentProcess(), (void *)handle, 0, MEM_RELEASE);
-    } else {
-        VirtualFree((void *)handle, 0, MEM_RELEASE);
+#if (__ALLOC_PAGE_ALIGN == __APA_REDUNDANT)
+
+    if (munmap((tt_ptr_t)handle, 1 << (size_order + 1)) != 0) {
+        TT_ERROR_NTV("fail to release pages");
     }
+
+#elif (__ALLOC_PAGE_ALIGN == __APA_POSIX_MEMALIGN)
+
+    free(page_begin);
+
+#else
+
+#error how to free address aligned pages?
+
+#endif
 }
 
 #endif // __TT_PAGE_OS_NATIVE__
