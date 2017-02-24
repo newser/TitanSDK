@@ -137,10 +137,12 @@ tt_result_t tt_test_unit_init(IN tt_ptr_t reserved)
         ++unit_id;
     }
 
+#if 0
     do {
         tt_result_t tt_alg_ut_init(IN tt_ptr_t reserved);
         tt_alg_ut_init(0);
     } while (0);
+#endif
 
 #if 0
     do {
