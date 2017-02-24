@@ -82,10 +82,10 @@ tt_test_unit_t *tt_g_test_unit_list[TEST_UNIT_NUM] = {
     &TT_MAKE_TEST_UNIT_NAME(TEST_UNIT_THREAD),
 #endif
 
-#if 0
     &TT_MAKE_TEST_UNIT_NAME(TEST_UNIT_SLAB),
-#endif
+#if 0
     &TT_MAKE_TEST_UNIT_NAME(TEST_UNIT_MEMPOOL),
+#endif
 
 #if 0
     &TT_MAKE_TEST_UNIT_NAME(TEST_UNIT_TIME_REF),

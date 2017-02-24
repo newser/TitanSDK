@@ -28,8 +28,7 @@ slab allocator
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <algorithm/tt_list.h>
-#include <os/tt_spinlock.h>
+#include <algorithm/tt_double_linked_list.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
@@ -54,8 +53,6 @@ the address of allocated object
 // type definition
 ////////////////////////////////////////////////////////////
 
-struct tt_slab_s;
-
 /**
 @struct tt_slab_t
 attributes of slab memory cache
@@ -63,23 +60,23 @@ attributes of slab memory cache
 typedef struct
 {
     /**
-    @var objnum_per_expand
+    @var bulk_num
     the least object number that the slab would buffered
 
     @note
     if the number is too small, slab may change it
     */
-    tt_u32_t objnum_per_expand;
+    tt_u32_t bulk_num;
 
     /**
-    @var align_with_hwcache
+    @var cache_align
     set to TT_TRUE to make object aligned with hardware cache line.
 
     when it's turned on (set to TR_TRUE)
     - advantage would be improving performance because false sharing is avoided
     - disadvantage is there may be considerable memory wasted
     */
-    tt_bool_t hwcache_align : 1;
+    tt_bool_t cache_align : 1;
 } tt_slab_attr_t;
 
 /**
@@ -88,21 +85,16 @@ memory cache that store memory objects of fixed size
 */
 typedef struct tt_slab_s
 {
-    /** slab attributes */
-    tt_slab_attr_t attr;
-
+    /** list of free objects */
+    tt_dlist_t obj_list;
+    /** allocated pages */
+    tt_dlist_t frame_list;
     /** object size */
     tt_u32_t obj_size;
-    /** list of free objects */
-    tt_list_t free_obj_list;
-
-    /** area size */
-    tt_u32_t area_size;
-    /** allocated pages */
-    tt_list_t area_list;
-
-    /** lock */
-    tt_spinlock_t lock;
+    tt_u32_t obj_num;
+    /** frame size */
+    tt_u32_t frame_size;
+    tt_bool_t cache_align : 1;
 } tt_slab_t;
 
 ////////////////////////////////////////////////////////////
@@ -153,7 +145,7 @@ destroy a slab memory cache
 this function is executed without any lock, so be sure no other thread is still
 operating on this slab
 */
-extern void tt_slab_destroy(IN tt_slab_t *slab, IN tt_bool_t brute);
+extern void tt_slab_destroy(IN tt_slab_t *slab);
 
 /**
  @fn void tt_slab_attr_default(OUT tt_slab_attr_t *attr)

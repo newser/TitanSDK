@@ -45,27 +45,6 @@ typedef struct
     tt_u32_t len;
 } __mp_frame_t;
 
-typedef struct __mp_block_s
-{
-    // total size of previous block including overheads
-    //  - if allocated, it includes size of overheads
-    //  - if free, total size of available segment
-    tt_u32_t prev_size;
-
-    // total size of this block including overheads
-    //  - if allocated, it includes size of overheads
-    //  - if free, total size of available segment
-    tt_u32_t size;
-    // the least significant 2 bits of the prev_size/size can be reused
-
-    __mp_frame_t *frame;
-
-#ifdef TT_MEMORY_TAG_ENABLE
-    const tt_char_t *func;
-    tt_u32_t line;
-#endif
-} __mp_block_t;
-
 ////////////////////////////////////////////////////////////
 // extern declaration
 ////////////////////////////////////////////////////////////
@@ -116,6 +95,7 @@ void tt_mempool_init(IN tt_mempool_t *mp,
     tt_u32_t size;
 
     TT_ASSERT(mp != NULL);
+    TT_ASSERT(max_block_size != 0);
 
     if (attr == NULL) {
         tt_mempool_attr_default(&__attr);

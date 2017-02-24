@@ -70,7 +70,7 @@ tt_result_t tt_mpn_cache_create(IN tt_mpn_cache_t *mpnc)
     slab = &mpnc->slab;
 
     tt_slab_attr_default(&slab_attr);
-    slab_attr.objnum_per_expand = __MPN_CACHE_BULK;
+    slab_attr.bulk_num = __MPN_CACHE_BULK;
 
     result = tt_slab_create(slab, sizeof(tt_mpn_t), &slab_attr);
     if (!TT_OK(result)) {
@@ -98,7 +98,7 @@ void tt_mpn_cache_destroy(IN tt_mpn_cache_t *mpnc)
     // must destroy stack before the slab
     tt_ptrstk_destroy(&mpnc->stack);
 
-    tt_slab_destroy(&mpnc->slab, TT_FALSE);
+    tt_slab_destroy(&mpnc->slab);
 }
 
 void __mpn_instk_destroy(IN void *obj)
