@@ -162,7 +162,7 @@ tt_result_t tt_thread_create_ntv(IN struct tt_thread_s *thread)
     return TT_SUCCESS;
 }
 
-tt_result_t tt_thread_local_run_ntv(IN struct tt_thread_s *thread)
+tt_result_t tt_thread_create_local_ntv(IN struct tt_thread_s *thread)
 {
     tt_thread_ntv_t *sys_thread = &thread->sys_thread;
     sigset_t mask, org_mask;

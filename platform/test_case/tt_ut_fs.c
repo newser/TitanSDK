@@ -2357,7 +2357,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_fs_daio_basic)
 
 static tt_result_t __dae_ret;
 
-tt_result_t __dae_thread(IN tt_thread_t *thread, IN void *param)
+tt_result_t __dae_thread(IN void *param)
 {
     __dae_ret = TT_SUCCESS;
     return TT_SUCCESS;
@@ -2374,7 +2374,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_dir_excep)
     // test start
 
     __dae_ret = TT_FAIL;
-    thread = tt_thread_create("", __dae_thread, NULL, NULL);
+    thread = tt_thread_create(__dae_thread, NULL, NULL);
     TT_TEST_CHECK_NOT_EQUAL(thread, NULL, "");
 
     ret = tt_thread_wait(thread);

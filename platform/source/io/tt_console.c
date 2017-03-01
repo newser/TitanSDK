@@ -57,8 +57,7 @@ static tt_result_t __console_component_init(IN tt_component_t *comp,
                                             IN tt_profile_t *profile);
 
 static void __console_run();
-static tt_result_t __console_thread(IN struct tt_thread_s *thread,
-                                    IN void *param);
+static tt_result_t __console_thread(IN void *param);
 
 ////////////////////////////////////////////////////////////
 // interface implementation
@@ -117,13 +116,12 @@ void tt_console_run(IN tt_console_ev_handler_t ev_handler,
     if (local) {
         __console_run();
     } else {
-        tt_thread_attr_t thread_attr;
+        tt_thread_attr_t attr;
 
-        tt_thread_attr_default(&thread_attr);
-        thread_attr.detached = TT_TRUE;
+        tt_thread_attr_default(&attr);
+        attr.detached = TT_TRUE;
 
-        if (tt_thread_create("console", __console_thread, NULL, &thread_attr) ==
-            NULL) {
+        if (tt_thread_create(__console_thread, NULL, &attr) == NULL) {
             TT_ERROR("fail to craete console thread");
         }
     }
@@ -167,7 +165,7 @@ void __console_run()
     tt_atomic_s32_set(&tt_s_console_running, 0);
 }
 
-tt_result_t __console_thread(IN struct tt_thread_s *thread, IN void *param)
+tt_result_t __console_thread(IN void *param)
 {
     __console_run();
     return TT_SUCCESS;

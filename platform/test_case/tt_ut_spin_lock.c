@@ -21,6 +21,7 @@
 #include "tt_unit_test_case_config.h"
 #include <unit_test/tt_unit_test.h>
 
+#include <algorithm/tt_list.h>
 #include <log/tt_log.h>
 #include <os/tt_spinlock.h>
 #include <os/tt_thread.h>
@@ -203,7 +204,7 @@ unsigned char act[sizeof(test_threads) / sizeof(tt_thread_t *)][__ACT_NUM];
 
 tt_list_t __test_list;
 
-static tt_result_t test_routine_1(IN tt_thread_t *thread, IN void *param)
+static tt_result_t test_routine_1(IN void *param)
 {
     tt_ptrdiff_t idx = (tt_ptrdiff_t)param;
     int i = 0;
@@ -300,8 +301,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_spin_lock_mt)
 
     start_time = tt_time_ref();
     for (i = 0; i < sizeof(test_threads) / sizeof(tt_thread_t *); ++i) {
-        test_threads[i] =
-            tt_thread_create(NULL, test_routine_1, (void *)i, NULL);
+        test_threads[i] = tt_thread_create(test_routine_1, (void *)i, NULL);
     }
 
     for (i = 0; i < sizeof(test_threads) / sizeof(tt_thread_t *); ++i) {

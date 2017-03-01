@@ -21,8 +21,6 @@
  */
 // == macro
 
-extern tt_atomic_s32_t tt_s_thread_list_lock;
-
 #define __LOCK_THREAD_LIST()                                                   \
     while (!TT_OK(tt_atomic_s32_cas(&tt_s_thread_list_lock, 0, 1)))
 #define __UNLOCK_THREAD_LIST()                                                 \
@@ -30,13 +28,13 @@ extern tt_atomic_s32_t tt_s_thread_list_lock;
 
 // == extern declaration
 
-extern tt_atomic_s32_t tt_s_thread_list_lock;
+tt_atomic_s32_t tt_s_thread_list_lock;
 tt_list_t tt_s_thread_list;
 
 // == global variant
 
 // == interface declaration
-tt_result_t test_thread(IN tt_thread_t *thread, IN void *param);
+tt_result_t test_thread(IN void *param);
 
 // === routine declarations ================
 TT_TEST_ROUTINE_DECLARE(tt_unit_test_thread_basic)
@@ -65,7 +63,7 @@ TT_TEST_CASE("tt_unit_test_thread_basic",
              NULL,
              NULL)
 ,
-#if 0
+#if 1
     TT_TEST_CASE("tt_unit_test_thread_pressure",
                  "thread pressure test",
                  tt_unit_test_thread_pressure,
@@ -76,7 +74,7 @@ TT_TEST_CASE("tt_unit_test_thread_basic",
                  NULL),
 #endif
 
-#if 0
+#if 1
     TT_TEST_CASE("tt_unit_test_thread_sleep",
                  "thread sleep api",
                  tt_unit_test_thread_sleep,
@@ -95,17 +93,6 @@ TT_TEST_CASE("tt_unit_test_thread_basic",
                  NULL,
                  NULL,
                  NULL),
-
-#ifdef TT_THREAD_CACHE_ENABLE
-    TT_TEST_CASE("tt_unit_test_thread_size2alloc",
-                 "thread cache size2allocated",
-                 tt_unit_test_thread_size2alloc,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
-#endif
 
     TT_TEST_CASE("tt_unit_test_dll",
                  "dll operations",
@@ -159,7 +146,7 @@ TT_TEST_CASE("tt_unit_test_thread_basic",
     TT_TEST_CASE_ENTER()
     // test start
 
-    thread = tt_thread_create("test", test_thread, NULL, NULL);
+    thread = tt_thread_create(test_thread, NULL, NULL);
     tt_thread_wait(thread);
 
     numa_enabled = tt_platform_numa_enabled();
@@ -170,6 +157,8 @@ TT_TEST_CASE("tt_unit_test_thread_basic",
     // test end
     TT_TEST_CASE_LEAVE()
 }
+
+tt_u32_t t_num;
 
 #if 1
 TT_TEST_ROUTINE_DEFINE(tt_unit_test_thread_pressure)
@@ -198,59 +187,29 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_thread_pressure)
     tt_thread_attr_default(&attr);
     attr.detached = TT_TRUE;
 
+    t_num = 3;
+
     // first do some simple test
-    thread1[0] = tt_thread_create("t1", test_thread, NULL, &attr);
-    TT_TEST_CHECK_NOT_EQUAL(thread1[0], NULL, "");
+    thread1[0] = tt_thread_create(test_thread, NULL, &attr);
+    TT_TEST_CHECK_EQUAL(thread1[0], (void *)1, "");
 
     // null name is acceptable
-    thread1[1] = tt_thread_create(NULL, test_thread, NULL, &attr);
-    TT_TEST_CHECK_NOT_EQUAL(thread1[1], NULL, "");
+    thread1[1] = tt_thread_create(test_thread, NULL, &attr);
+    TT_TEST_CHECK_EQUAL(thread1[0], (void *)1, "");
 
-    thread1[2] = tt_thread_create(NULL, test_thread, NULL, &attr);
-    TT_TEST_CHECK_NOT_EQUAL(thread1[2], NULL, "");
-
-    // wait for all terminated
-    while (1) {
-        tt_u32_t num = 0;
-
-        __LOCK_THREAD_LIST();
-        num = tt_list_count(&tt_s_thread_list);
-        __UNLOCK_THREAD_LIST();
-
-        if (num == org_num) {
-            break;
-        }
-
-        tt_sleep((rand() % 10) * 100);
-    }
-
-    srand((tt_u32_t)time(NULL));
+    thread1[2] = tt_thread_create(test_thread, NULL, &attr);
+    TT_TEST_CHECK_EQUAL(thread1[0], (void *)1, "");
 
     thread_num = 0;
     while (thread_num < 50) {
         // create a thread
-        thread[thread_num] = tt_thread_create(NULL,
-                                              test_thread,
+        thread[thread_num] = tt_thread_create(test_thread,
                                               (void *)(tt_ptrdiff_t)thread_num,
                                               NULL);
 
         tt_sleep((rand() % 10) * 10);
 
         ++thread_num;
-    }
-
-    while (1) {
-        tt_u32_t num = 0;
-
-        __LOCK_THREAD_LIST();
-        num = tt_list_count(&tt_s_thread_list);
-        __UNLOCK_THREAD_LIST();
-
-        if (num == org_num) {
-            break;
-        }
-
-        tt_sleep((rand() % 10) * 100);
     }
 
     for (i = 0; i < sizeof(thread) / sizeof(thread[0]); ++i) {
@@ -261,32 +220,12 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_thread_pressure)
     // detached
     thread_num = 0;
     while (thread_num < 50) {
-        if (thread_num % 5 == 0) {
-            attr.local_run = TT_TRUE;
-        } else {
-            attr.local_run = TT_FALSE;
-        }
-
         // create a thread
-        thread[thread_num] = tt_thread_create(NULL, test_thread, NULL, &attr);
+        thread[thread_num] = tt_thread_create(test_thread, NULL, &attr);
 
         tt_sleep((rand() % 10) * 10);
 
         ++thread_num;
-    }
-
-    while (1) {
-        tt_u32_t num = 0;
-
-        __LOCK_THREAD_LIST();
-        num = tt_list_count(&tt_s_thread_list);
-        __UNLOCK_THREAD_LIST();
-
-        if (num == org_num) {
-            break;
-        }
-
-        tt_sleep((rand() % 10) * 100);
     }
 
     // test end
@@ -295,7 +234,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_thread_pressure)
 
 #endif
 
-tt_result_t test_thread(IN tt_thread_t *thread, IN void *param)
+tt_result_t test_thread(IN void *param)
 {
     tt_u32_t n = (tt_u32_t)(tt_ptrdiff_t)param;
 
@@ -317,9 +256,9 @@ tt_result_t test_thread(IN tt_thread_t *thread, IN void *param)
     return 0;
 }
 
-tt_result_t test_thread_sleep(IN tt_thread_t *thread, IN void *param)
+tt_result_t test_thread_sleep(IN void *param)
 {
-    tt_sleep(40);
+    tt_sleep(10);
 
     return 0;
 }
@@ -329,14 +268,17 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_thread_sleep)
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
 
     tt_thread_t *thread;
-
+    tt_s64_t s, e;
     TT_TEST_CASE_ENTER()
     // test start
 
-    thread = tt_thread_create(NULL, test_thread_sleep, NULL, NULL);
-    tt_thread_wait(thread);
 
-    TT_RECORD_INFO("%s", "");
+    thread = tt_thread_create(test_thread_sleep, NULL, NULL);
+    s = tt_time_ref();
+    tt_thread_wait(thread);
+    e = tt_time_ref();
+
+    TT_RECORD_INFO("slept: %d", tt_time_ref2ms(e - s));
 
     // test end
     TT_TEST_CASE_LEAVE()

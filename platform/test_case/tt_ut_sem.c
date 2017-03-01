@@ -195,7 +195,7 @@ static tt_thread_t *test_threads[10];
 static tt_sem_t sem;
 static int cnt;
 
-static tt_result_t test_routine_1(IN tt_thread_t *thread, IN void *param)
+static tt_result_t test_routine_1(IN void *param)
 {
     tt_ptrdiff_t idx = (tt_ptrdiff_t)param;
     int i = 0;
@@ -232,8 +232,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_sem_mt)
     cnt = 0;
 
     for (i = 0; i < sizeof(test_threads) / sizeof(tt_thread_t *); ++i) {
-        test_threads[i] =
-            tt_thread_create(NULL, test_routine_1, (void *)i, NULL);
+        test_threads[i] = tt_thread_create(test_routine_1, (void *)i, NULL);
     }
 
     for (i = 0; i < sizeof(test_threads) / sizeof(tt_thread_t *); ++i) {
@@ -254,7 +253,7 @@ static tt_thread_t *test_consumer_thread;
 
 #define __PRODUCER_CAP 10000
 
-static tt_result_t test_producer(IN tt_thread_t *thread, IN void *param)
+static tt_result_t test_producer(IN void *param)
 {
     tt_ptrdiff_t idx = (tt_ptrdiff_t)param;
     int i = 0;
@@ -269,7 +268,7 @@ static tt_result_t test_producer(IN tt_thread_t *thread, IN void *param)
     return TT_SUCCESS;
 }
 
-static tt_result_t test_consumer(IN tt_thread_t *thread, IN void *param)
+static tt_result_t test_consumer(IN void *param)
 {
     int i = 0;
     tt_result_t ret;
@@ -304,13 +303,12 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_sem_pc)
     tt_thread_attr_default(&tattr);
     tattr.detached = TT_TRUE;
     for (i = 0; i < sizeof(test_threads) / sizeof(tt_thread_t *); ++i) {
-        test_threads[i] =
-            tt_thread_create(NULL, test_producer, (void *)i, &tattr);
+        test_threads[i] = tt_thread_create(test_producer, (void *)i, &tattr);
         TT_INFO("%d thread created", i);
     }
 
     // start consumer
-    test_consumer_thread = tt_thread_create(NULL, test_consumer, NULL, NULL);
+    test_consumer_thread = tt_thread_create(test_consumer, NULL, NULL);
     tt_thread_wait(test_consumer_thread);
 
     tt_sem_destroy(&sem);

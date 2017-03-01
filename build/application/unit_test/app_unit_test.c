@@ -89,13 +89,12 @@ int main(int argc, char *argv[])
             tt_platform_init(NULL);
 
             // create a local thread
-            tt_thread_create_local("tsk ut", NULL);
+            tt_thread_create_local(NULL);
 
             // run
             tt_evc_attr_default(&evc_attr);
             evc_attr.on_init = __utc_on_init;
             evc_attr.on_init_param = argv[2];
-            evc_attr.evp_thread_attr.local_run = TT_TRUE;
 
             tt_evc_create(&evc, TT_TRUE, &evc_attr);
 
@@ -119,13 +118,12 @@ int main(int argc, char *argv[])
             tt_platform_init(NULL);
 
             // create a local thread
-            tt_thread_create_local("tsk ut", NULL);
+            tt_thread_create_local(NULL);
 
             // run
             tt_evc_attr_default(&evc_attr);
             evc_attr.on_init = __utc_on_init;
             evc_attr.on_init_param = argv[2];
-            evc_attr.evp_thread_attr.local_run = TT_TRUE;
 
             __cli_mode = 1;
 
@@ -151,7 +149,7 @@ int main(int argc, char *argv[])
     tt_platform_init(NULL);
 
     // create a local thread
-    tt_thread_create_local("tsk ut", NULL);
+    tt_thread_create_local(NULL);
 
 // run
 #define AUT_MODE 0

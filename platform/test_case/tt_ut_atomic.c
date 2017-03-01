@@ -248,7 +248,7 @@ static tt_thread_t *test_threads[100];
 static tt_atomic_s32_t test_counter;
 static tt_atomic_s64_t test_counter_2;
 
-static tt_result_t test_routine_1(IN tt_thread_t *thread, IN void *param)
+static tt_result_t test_routine_1(IN void *param)
 {
     tt_ptrdiff_t idx = (tt_ptrdiff_t)param;
     int i = 0;
@@ -286,8 +286,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_atomic_mt)
     tt_atomic_s64_init(&test_counter_2, 0);
 
     for (i = 0; i < sizeof(test_threads) / sizeof(tt_thread_t *); ++i) {
-        test_threads[i] =
-            tt_thread_create(NULL, test_routine_1, (void *)i, NULL);
+        test_threads[i] = tt_thread_create(test_routine_1, (void *)i, NULL);
     }
 
     for (i = 0; i < sizeof(test_threads) / sizeof(tt_thread_t *); ++i) {
@@ -312,7 +311,7 @@ static tt_u32_t test_v1 = 0;
 static tt_u32_t test_v1_64 = 0;
 static const int loop_num = 1000;
 
-static tt_result_t test_routine_2(IN tt_thread_t *thread, IN void *param)
+static tt_result_t test_routine_2(IN void *param)
 {
     tt_ptrdiff_t idx = (tt_ptrdiff_t)param;
     int i;
@@ -354,8 +353,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_atomic_cas)
     tt_atomic_s64_init(&test_counter_2, 0x12345678ababababLL);
 
     for (i = 0; i < sizeof(test_threads) / sizeof(tt_thread_t *); ++i) {
-        test_threads[i] =
-            tt_thread_create(NULL, test_routine_2, (void *)i, NULL);
+        test_threads[i] = tt_thread_create(test_routine_2, (void *)i, NULL);
     }
 
     for (i = 0; i < sizeof(test_threads) / sizeof(tt_thread_t *); ++i) {
@@ -391,7 +389,7 @@ static test_node_t *test_head;
 static test_node_t test_node[sizeof(test_threads) / sizeof(tt_thread_t *)]
                             [1000];
 
-static tt_result_t test_routine_ptr_xchg(IN tt_thread_t *thread, IN void *param)
+static tt_result_t test_routine_ptr_xchg(IN void *param)
 {
     tt_ptrdiff_t idx = (tt_ptrdiff_t)param;
     int i;
@@ -409,7 +407,7 @@ static tt_result_t test_routine_ptr_xchg(IN tt_thread_t *thread, IN void *param)
     return TT_SUCCESS;
 }
 
-static tt_result_t test_routine_ptr_cas(IN tt_thread_t *thread, IN void *param)
+static tt_result_t test_routine_ptr_cas(IN void *param)
 {
     tt_ptrdiff_t idx = (tt_ptrdiff_t)param;
     int i;
@@ -479,7 +477,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_atomic_ptr)
 
     for (i = 0; i < sizeof(test_threads) / sizeof(tt_thread_t *); ++i) {
         test_threads[i] =
-            tt_thread_create(NULL, test_routine_ptr_xchg, (void *)i, NULL);
+            tt_thread_create(test_routine_ptr_xchg, (void *)i, NULL);
     }
 
     for (i = 0; i < sizeof(test_threads) / sizeof(tt_thread_t *); ++i) {
@@ -499,7 +497,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_atomic_ptr)
 
     for (i = 0; i < sizeof(test_threads) / sizeof(tt_thread_t *); ++i) {
         test_threads[i] =
-            tt_thread_create(NULL, test_routine_ptr_cas, (void *)i, NULL);
+            tt_thread_create(test_routine_ptr_cas, (void *)i, NULL);
     }
 
     for (i = 0; i < sizeof(test_threads) / sizeof(tt_thread_t *); ++i) {

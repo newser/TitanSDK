@@ -96,7 +96,7 @@ extern tt_result_t tt_thread_create_ntv(IN struct tt_thread_s *thread);
 
 /**
 @fn
-tt_result_t tt_thread_local_run_ntv(IN struct tt_thread_s *thread)
+tt_result_t tt_thread_create_local_ntv(IN struct tt_thread_s *thread)
 simulate running a thread
 
 @param thread [inout] ts thread
@@ -105,7 +105,7 @@ simulate running a thread
 - TT_SUCCESS the thread has run and exited
 - TT_FAIL the thread has not run due to some error
 */
-extern tt_result_t tt_thread_local_run_ntv(IN struct tt_thread_s *thread);
+extern tt_result_t tt_thread_create_local_ntv(IN struct tt_thread_s *thread);
 
 /**
 @fn tt_result_t tt_thread_wait_ntv(IN struct tt_thread_s *thread)

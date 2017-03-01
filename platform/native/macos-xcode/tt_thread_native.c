@@ -20,11 +20,9 @@
 
 #include <tt_thread_native.h>
 
-#include <log/tt_log.h>
 #include <misc/tt_assert.h>
 #include <os/tt_thread.h>
 
-#include <tt_cstd_api.h>
 #include <tt_sys_error.h>
 
 #include <signal.h>
@@ -32,10 +30,6 @@
 ////////////////////////////////////////////////////////////
 // internal macro
 ////////////////////////////////////////////////////////////
-
-#define __THREAD_INITIALIZING 0
-#define __THREAD_CREATING 1
-#define __THREAD_RUNNING 2
 
 ////////////////////////////////////////////////////////////
 // internal type
@@ -62,8 +56,6 @@ static void __thread_on_exit_ntv(void *arg);
 
 static void *__thread_routine_wrapper(IN void *param);
 
-static void __thread_exit_ntv(IN tt_thread_t *thread);
-
 ////////////////////////////////////////////////////////////
 // interface implementation
 ////////////////////////////////////////////////////////////
@@ -84,57 +76,36 @@ tt_result_t tt_thread_component_init_ntv()
 tt_result_t tt_thread_create_ntv(IN struct tt_thread_s *thread)
 {
     tt_thread_ntv_t *sys_thread = &thread->sys_thread;
-    tt_bool_t detached = thread->attr.detached;
-
-    int ret = 0;
+    int ret;
     pthread_attr_t pthread_attr;
 
-    tt_memset(sys_thread, 0, sizeof(tt_thread_ntv_t));
-
-    // init
-    sys_thread->magic = __THREAD_MAGIC;
-    sys_thread->status = __THREAD_INITIALIZING;
-
-    // construct thread attributes
     ret = pthread_attr_init(&pthread_attr);
     if (ret != 0) {
         TT_ERROR("fail to init thread attribute: %d[%s]", ret, strerror(ret));
         return TT_FAIL;
     }
 
-    // detach state
-    if (thread->attr.detached) {
-        ret =
-            pthread_attr_setdetachstate(&pthread_attr, PTHREAD_CREATE_DETACHED);
-        if (ret != 0) {
-            TT_ERROR("fail to set thread detach state: %d[%s]",
-                     ret,
-                     strerror(ret));
-            pthread_attr_destroy(&pthread_attr);
-            return TT_FAIL;
-        }
-    } else {
-        ret =
-            pthread_attr_setdetachstate(&pthread_attr, PTHREAD_CREATE_JOINABLE);
-        if (ret != 0) {
-            TT_ERROR("fail to set thread detach state: %d[%s]",
-                     ret,
-                     strerror(ret));
-            pthread_attr_destroy(&pthread_attr);
-            return TT_FAIL;
-        }
+    ret = pthread_attr_setdetachstate(&pthread_attr,
+                                      TT_COND(thread->detached,
+                                              PTHREAD_CREATE_DETACHED,
+                                              PTHREAD_CREATE_JOINABLE));
+    if (ret != 0) {
+        TT_ERROR("fail to set thread detach state: %d[%s]", ret, strerror(ret));
+        pthread_attr_destroy(&pthread_attr);
+        return TT_FAIL;
     }
 
-    ret = pthread_create(&sys_thread->thread_handle,
+    ret = pthread_create(&sys_thread->handle,
                          &pthread_attr,
                          __thread_routine_wrapper,
                          thread);
     pthread_attr_destroy(&pthread_attr);
     if (ret != 0) {
         TT_FATAL("fail to create thread: %d[%s]", ret, strerror(ret));
-        // return TT_FAIL;
+        return TT_FAIL;
     }
 
+#if 0
     // steps of thread creating between parent/child:
     //  - parent create child thread and could continue changing thread
     //    fields and set sys_thread->status to __THREAD_CREATING and wait
@@ -158,47 +129,35 @@ tt_result_t tt_thread_create_ntv(IN struct tt_thread_s *thread)
                                              __THREAD_RUNNING))
             ;
     }
+#endif
 
     return TT_SUCCESS;
 }
 
-tt_result_t tt_thread_local_run_ntv(IN struct tt_thread_s *thread)
+tt_result_t tt_thread_create_local_ntv(IN struct tt_thread_s *thread)
 {
-    tt_thread_ntv_t *sys_thread = &thread->sys_thread;
     sigset_t mask, org_mask;
 
-    tt_memset(sys_thread, 0, sizeof(tt_thread_ntv_t));
-
-    // init
-    sys_thread->magic = __THREAD_MAGIC;
-    sys_thread->status = __THREAD_INITIALIZING;
-
-    // block all signals, except: SIGINT
-    if ((sigfillset(&mask) != 0) || (sigdelset(&mask, SIGINT) != 0) ||
-        (pthread_sigmask(SIG_BLOCK, &mask, &org_mask) != 0)) {
-        TT_ERROR_NTV("fail to block signals");
-    }
-
     if (pthread_setspecific(tt_g_thread_key, thread) != 0) {
-        TT_ERROR_NTV("fail to set thread specific data");
+        TT_ERROR("fail to set thread specific data");
         return TT_FAIL;
     }
 
+    if ((sigfillset(&mask) != 0) || (sigdelset(&mask, SIGINT) != 0) ||
+        (pthread_sigmask(SIG_BLOCK, &mask, &org_mask) != 0)) {
+        TT_ERROR("fail to block signals");
+    }
+
     __thread_on_create(thread);
-    sys_thread->status = __THREAD_RUNNING;
 
     return TT_SUCCESS;
 }
 
 tt_result_t tt_thread_wait_ntv(IN struct tt_thread_s *thread)
 {
-    tt_thread_attr_t *attr = &thread->attr;
-    int ret = 0;
+    int ret;
 
-    TT_ASSERT(!attr->detached);
-
-    // wait untill the thread ends
-    ret = pthread_join(thread->sys_thread.thread_handle, NULL);
+    ret = pthread_join(thread->sys_thread.handle, NULL);
     if (ret != 0) {
         TT_ERROR("fail to wait thread: %d[%s]", ret, strerror(ret));
         return TT_FAIL;
@@ -207,40 +166,57 @@ tt_result_t tt_thread_wait_ntv(IN struct tt_thread_s *thread)
     return TT_SUCCESS;
 }
 
-void tt_thread_exit_ntv()
+tt_result_t tt_sleep_ntv(IN tt_u32_t millisec)
 {
-    tt_thread_t *thread = (tt_thread_t *)pthread_getspecific(tt_g_thread_key);
+    struct timespec req = {0};
+    struct timespec rem = {0};
 
-    __thread_exit_ntv(thread);
+    req.tv_sec = millisec / 1000;
+    req.tv_nsec = (millisec % 1000) * 1000000;
+    do {
+        if (nanosleep(&req, &rem) == 0) {
+            break;
+        } else if (errno == EINTR) {
+            req.tv_sec = rem.tv_sec;
+            req.tv_nsec = rem.tv_nsec;
+            // give a warning?
+
+            continue;
+        } else {
+            TT_ERROR_NTV("thread fails to sleep");
+            return TT_FAIL;
+        }
+    } while (1);
+
+    return TT_SUCCESS;
 }
 
 void __thread_on_exit_ntv(void *arg)
 {
     tt_thread_t *thread = (tt_thread_t *)arg;
 
-    if (thread != NULL) {
+    TT_ASSERT(thread != NULL);
+
 #if 0
-        // restore sigset for local running thread
-        if (pthread_sigmask(SIG_SETMASK, &org_mask, NULL) != 0)
-        {
-            TT_ERROR_NTV("fail to restore signals");
-        }
+    // restore sigset for local running thread
+    if (pthread_sigmask(SIG_SETMASK, &org_mask, NULL) != 0)
+    {
+        TT_ERROR("fail to restore signals");
+    }
 #endif
 
-        __thread_on_exit(thread);
-    }
+    __thread_on_exit(thread);
+    // __thread_on_exit may free the thread structure
 }
 
 void *__thread_routine_wrapper(IN void *param)
 {
     tt_thread_t *thread = (tt_thread_t *)param;
     tt_thread_ntv_t *sys_thread = &thread->sys_thread;
-
-    int ret = 0;
-    tt_result_t thread_result = TT_SUCCESS;
     sigset_t mask;
 
-    // note it's not safe to access sys_thread->thread_handle
+#if 0
+    // note it's not safe to access sys_thread->handle
 
     // wait for creater's done
     while (!__sync_bool_compare_and_swap(&sys_thread->status,
@@ -250,42 +226,29 @@ void *__thread_routine_wrapper(IN void *param)
 
     // memory barrier is inserted by __sync_bool_compare_and_swap()
     // now it's safe to access member of tt_thread_t
+#endif
 
-    // block all signals
     if ((sigfillset(&mask) != 0) || (sigdelset(&mask, SIGINT) != 0) ||
         (pthread_sigmask(SIG_BLOCK, &mask, NULL) != 0)) {
-        TT_ERROR_NTV("fail to block signals");
+        TT_ERROR("fail to block signals");
     }
 
-    ret = pthread_setspecific(tt_g_thread_key, thread);
-    if (ret != 0) {
-        TT_ERROR_NTV("fail to set thread specific data");
+    if (pthread_setspecific(tt_g_thread_key, thread) != 0) {
+        TT_ERROR("fail to set thread specific data");
         return NULL;
     }
 
     // something may be needed from upper layer
     __thread_on_create(thread);
 
+#if 0
     // notify creater
     TT_ASSERT_ALWAYS(__sync_bool_compare_and_swap(&sys_thread->status,
                                                   __THREAD_CREATING,
                                                   __THREAD_RUNNING));
+#endif
 
-    // run routine
-    thread_result = thread->routine(thread, thread->param);
-    (void)thread_result;
+    thread->routine(thread->param);
 
     return NULL;
-}
-
-void __thread_exit_ntv(IN tt_thread_t *thread)
-{
-    tt_thread_ntv_t *sys_thread = &thread->sys_thread;
-
-    if (sys_thread->magic != __THREAD_MAGIC) {
-        TT_ERROR("not a ts thread");
-        return;
-    }
-
-    pthread_exit(NULL);
 }

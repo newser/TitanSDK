@@ -102,16 +102,6 @@ enable alignment check
 */
 #define TT_ATOMIC_ALIGNMENT_CHECK
 
-// ========================================
-// thread
-// ========================================
-
-/**
-@def TT_MAX_THREAD_NAME_LEN
-the max length of thread name
-*/
-#define TT_MAX_THREAD_NAME_LEN (16)
-
 ////////////////////////////////////////////////////////////
 // type definition
 ////////////////////////////////////////////////////////////
