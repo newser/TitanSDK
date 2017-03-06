@@ -229,7 +229,7 @@ static tt_u32_t __ques[FIBER_NUM], __ans[FIBER_NUM], __waiting[FIBER_NUM];
 
 static tt_result_t __fiber_2(IN void *param)
 {
-    tt_u32_t idx = (tt_u32_t)param;
+    tt_u32_t idx = (tt_u32_t)(tt_uintptr_t)param;
 
     while (1) {
         // tt_sleep(tt_rand_u32() % 5);

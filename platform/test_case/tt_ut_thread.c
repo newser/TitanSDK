@@ -171,14 +171,8 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_thread_pressure)
     tt_result_t result = TT_FAIL;
     tt_thread_attr_t attr;
 
-    tt_u32_t org_num;
-
     TT_TEST_CASE_ENTER()
     // test start
-
-    __LOCK_THREAD_LIST();
-    org_num = tt_list_count(&tt_s_thread_list);
-    __UNLOCK_THREAD_LIST();
 
 #if (TT_UNIT_TEST_CASE_FAST & TT_UNIT_TEST_THREAD_FAST)
     TT_TEST_CASE_LEAVE()
