@@ -26,7 +26,10 @@
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <tt_basic_type.h>
+#include <algorithm/tt_double_linked_list.h>
+#include <os/tt_thread.h>
+
+#include <fcontext/tt_fiber_wrapper.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
@@ -36,15 +39,19 @@
 // type definition
 ////////////////////////////////////////////////////////////
 
-typedef void (*tt_fiber_routine_t)(IN void *param);
+struct tt_fiber_s;
+
+typedef tt_result_t (*tt_fiber_routine_t)(IN void *param);
 
 // ========================================
 // fiber scheduler
 // ========================================
 
-typedef struct
+typedef struct tt_fiber_sched_s
 {
-    tt_u32_t reserved;
+    tt_dlist_t fiber_list;
+    struct tt_fiber_s *main_f;
+    struct tt_fiber_s *current;
 } tt_fiber_sched_t;
 
 typedef struct
@@ -56,14 +63,18 @@ typedef struct
 // fiber
 // ========================================
 
-typedef struct
+typedef struct tt_fiber_s
 {
-    tt_u32_t reserved;
+    tt_dnode_t node;
+    tt_fiber_routine_t routine;
+    void *param;
+    tt_fiber_wrap_t wrap_f;
+    tt_bool_t can_yield : 1;
 } tt_fiber_t;
 
-typedef struct
+typedef struct tt_fiber_attr_s
 {
-    tt_u32_t reserved;
+    tt_u32_t stack_size;
 } tt_fiber_attr_t;
 
 ////////////////////////////////////////////////////////////
@@ -85,6 +96,12 @@ extern void tt_fiber_sched_destroy(IN tt_fiber_sched_t *fs);
 
 extern void tt_fiber_sched_attr_default(IN tt_fiber_sched_attr_t *attr);
 
+tt_inline tt_fiber_sched_t *tt_current_fiber_sched()
+{
+    tt_thread_t *t = tt_current_thread();
+    return TT_COND(t != NULL, t->fiber_sched, NULL);
+}
+
 // ========================================
 // fiber
 // ========================================
@@ -100,5 +117,17 @@ extern void tt_fiber_attr_default(IN tt_fiber_attr_t *attr);
 extern void tt_fiber_yield();
 
 extern void tt_fiber_resume(IN tt_fiber_t *fiber);
+
+tt_inline tt_fiber_t *tt_current_fiber()
+{
+    tt_fiber_sched_t *fs = tt_current_fiber_sched();
+    return TT_COND(fs != NULL, fs->current, NULL);
+}
+
+tt_inline tt_bool_t tt_fiber_can_yield()
+{
+    tt_fiber_t *f = tt_current_fiber();
+    return TT_COND(f != NULL, f->can_yield, TT_FALSE);
+}
 
 #endif /* __TT_FIBER__ */

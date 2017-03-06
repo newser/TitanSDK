@@ -24,12 +24,12 @@ cmake_minimum_required(VERSION 3.0)
 #
 
 # set paths
-set(TSCM_ROOT_PATH ${CMAKE_CURRENT_LIST_DIR})
+set(TTCM_ROOT_PATH ${CMAKE_CURRENT_LIST_DIR})
 
-# TSCM_BUILD_PATH is the directory storing cmake helpers
-set(TSCM_BUILD_PATH ${TSCM_ROOT_PATH}/build)
-include(${TSCM_BUILD_PATH}/environment.tscm)
-include(${TSCM_BUILD_PATH}/${TSCM_ENV}.tscm)
+# TTCM_BUILD_PATH is the directory storing cmake helpers
+set(TTCM_BUILD_PATH ${TTCM_ROOT_PATH}/build)
+include(${TTCM_BUILD_PATH}/environment.cmake)
+include(${TTCM_BUILD_PATH}/${TTCM_ENV}.cmake)
 
 # applications to build
 set(APP_UNIT_TEST 1 CACHE BOOL "app: unit test")
@@ -40,8 +40,8 @@ set(APP_COMMAND_LINE 0 CACHE BOOL "app: command line")
 #
 
 # platform
-set(TSCM_PLATFORM_PATH ${TSCM_ROOT_PATH}/platform)
-add_subdirectory(${TSCM_PLATFORM_PATH}/build platform)
+set(TTCM_PLATFORM_PATH ${TTCM_ROOT_PATH}/platform)
+add_subdirectory(${TTCM_PLATFORM_PATH}/build platform)
 
 #
 # header file path
@@ -56,10 +56,10 @@ add_subdirectory(${TSCM_PLATFORM_PATH}/build platform)
 #
 
 if (APP_UNIT_TEST)
-  if (TSCM_ENV STREQUAL ios-xcode)
-    add_subdirectory(${TSCM_BUILD_PATH}/application/ios_unit_test unit_test)
+  if (TTCM_ENV STREQUAL ios-xcode)
+    add_subdirectory(${TTCM_BUILD_PATH}/application/ios_unit_test unit_test)
   else ()
-    add_subdirectory(${TSCM_BUILD_PATH}/application/unit_test unit_test)
+    add_subdirectory(${TTCM_BUILD_PATH}/application/unit_test unit_test)
   endif()
 endif ()
 

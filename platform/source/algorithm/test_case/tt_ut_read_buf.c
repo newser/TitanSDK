@@ -242,7 +242,7 @@ static tt_result_t __ut_par(IN tt_buf_t *buf,
 
     if (v % 5 != 0) {
         ret = (tt_uintptr_t)v;
-        *parse_ret = ret;
+        *parse_ret = (void*)ret;
         return TT_SUCCESS;
     } else {
         return TT_PROCEEDING;
@@ -254,7 +254,7 @@ static tt_uintptr_t __ut_seq;
 
 static void __ut_par_done(IN void *parse_ret, IN void *param)
 {
-    tt_uintptr_t v = parse_ret;
+    tt_uintptr_t v = (tt_uintptr_t)parse_ret;
     if (__ut_seq % 5 == 0) {
         ++__ut_seq;
     }
@@ -338,7 +338,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_rbuf)
 
 static void __ut_par_done2(IN void *parse_ret, IN void *param)
 {
-    tt_u32_t v = (tt_u32_t)parse_ret;
+    tt_u32_t v = (tt_u32_t)(tt_uintptr_t)parse_ret;
     (void)v;
     // TT_INFO("parsed: %d", v);
 }

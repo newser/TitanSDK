@@ -62,14 +62,14 @@ tt_inline void *tt_malloc_align(IN tt_size_t size, IN tt_u32_t order)
         void *org = p;
         p = TT_PTR_INC(void, p, sizeof(tt_uintptr_t));
         TT_PTR_ALIGN_INC(p, order);
-        *TT_PTR_DEC(tt_uintptr_t, p, sizeof(tt_uintptr_t)) = org;
+        *TT_PTR_DEC(void*, p, sizeof(tt_uintptr_t)) = org;
     }
     return p;
 }
 
 tt_inline void tt_free_align(IN void *p)
 {
-    tt_free(*TT_PTR_DEC(tt_uintptr_t, p, sizeof(tt_uintptr_t)));
+    tt_free(*TT_PTR_DEC(void*, p, sizeof(tt_uintptr_t)));
 }
 
 tt_inline void *tt_xmalloc_align(IN tt_size_t size, IN tt_u32_t order)
@@ -80,7 +80,7 @@ tt_inline void *tt_xmalloc_align(IN tt_size_t size, IN tt_u32_t order)
     org = p;
     p = TT_PTR_INC(void, p, sizeof(tt_uintptr_t));
     TT_PTR_ALIGN_INC(p, order);
-    *TT_PTR_DEC(tt_uintptr_t, p, sizeof(tt_uintptr_t)) = org;
+    *TT_PTR_DEC(void*, p, sizeof(tt_uintptr_t)) = org;
 
     return p;
 }

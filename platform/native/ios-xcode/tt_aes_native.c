@@ -26,7 +26,7 @@
 
 #include <tt_cstd_api.h>
 
-#ifdef TSCM_PLATFORM_CRYPTO_ENABLE
+#ifdef TTCM_PLATFORM_CRYPTO_ENABLE
 
 ////////////////////////////////////////////////////////////
 // internal macro

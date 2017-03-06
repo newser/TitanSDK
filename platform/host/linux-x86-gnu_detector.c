@@ -2,7 +2,7 @@
 
 #include <sys/utsname.h>
 
-// - "option" is defined in environment.tscm
+// - "option" is defined in environment.ttcm
 // - output of __ENTRY_IMPL is defined in tt_environment_def.h or in
 //   tt_environment_def_native.h
 
@@ -10,13 +10,13 @@
 
 // os
 
-__ENTRY_IMPL(TSCM_ENV_OS_DETAIL)
+__ENTRY_IMPL(TTCM_ENV_OS_DETAIL)
 {
     printf("TT_ENV_OS_LINUX");
     return 0;
 }
 
-__ENTRY_IMPL(TSCM_ENV_OS_VER_DETAIL)
+__ENTRY_IMPL(TTCM_ENV_OS_VER_DETAIL)
 {
     struct utsname name;
     int v, v1, v2, v3;
@@ -37,7 +37,7 @@ __ENTRY_IMPL(TSCM_ENV_OS_VER_DETAIL)
     return 0;
 }
 
-__ENTRY_IMPL(TSCM_ENV_OS_FEATURE_DETAIL)
+__ENTRY_IMPL(TTCM_ENV_OS_FEATURE_DETAIL)
 {
     printf("(0");
 
@@ -54,13 +54,13 @@ __ENTRY_IMPL(TSCM_ENV_OS_FEATURE_DETAIL)
 
 // cpu
 
-__ENTRY_IMPL(TSCM_ENV_CPU_DETAIL)
+__ENTRY_IMPL(TTCM_ENV_CPU_DETAIL)
 {
     printf("TT_ENV_CPU_X86");
     return 0;
 }
 
-__ENTRY_IMPL(TSCM_ENV_CPU_FEATURE_DETAIL)
+__ENTRY_IMPL(TTCM_ENV_CPU_FEATURE_DETAIL)
 {
     printf("(0");
 
@@ -77,13 +77,13 @@ __ENTRY_IMPL(TSCM_ENV_CPU_FEATURE_DETAIL)
 
 // toolchain
 
-__ENTRY_IMPL(TSCM_ENV_TOOLCHAIN_DETAIL)
+__ENTRY_IMPL(TTCM_ENV_TOOLCHAIN_DETAIL)
 {
     printf("TT_ENV_TOOLCHAIN_GNU");
     return 0;
 }
 
-__ENTRY_IMPL(TSCM_ENV_TOOLCHAIN_VER_DETAIL)
+__ENTRY_IMPL(TTCM_ENV_TOOLCHAIN_VER_DETAIL)
 {
     int v = (__GNUC__ << 16) | (__GNUC_MINOR__ << 8) | 0;
     printf("0x%x", v);
@@ -113,15 +113,15 @@ int main(int argc, char *argv[])
     }
 
     // os
-    __ENTRY_START(TSCM_ENV_OS_DETAIL)
-    __ENTRY_START(TSCM_ENV_OS_VER_DETAIL)
-    __ENTRY_START(TSCM_ENV_OS_FEATURE_DETAIL)
+    __ENTRY_START(TTCM_ENV_OS_DETAIL)
+    __ENTRY_START(TTCM_ENV_OS_VER_DETAIL)
+    __ENTRY_START(TTCM_ENV_OS_FEATURE_DETAIL)
 
     // cpu
-    __ENTRY_START(TSCM_ENV_CPU_DETAIL)
-    __ENTRY_START(TSCM_ENV_CPU_FEATURE_DETAIL)
+    __ENTRY_START(TTCM_ENV_CPU_DETAIL)
+    __ENTRY_START(TTCM_ENV_CPU_FEATURE_DETAIL)
 
     // toolchain
-    __ENTRY_START(TSCM_ENV_TOOLCHAIN_DETAIL)
-    __ENTRY_START(TSCM_ENV_TOOLCHAIN_VER_DETAIL)
+    __ENTRY_START(TTCM_ENV_TOOLCHAIN_DETAIL)
+    __ENTRY_START(TTCM_ENV_TOOLCHAIN_VER_DETAIL)
 }

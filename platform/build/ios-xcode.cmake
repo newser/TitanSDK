@@ -25,31 +25,34 @@
 # linker options
 #
 
-set(TSCM_PLATFORM_DEP_LIB iconv PARENT_SCOPE)
+set(TTCM_PLATFORM_DEP_LIB iconv PARENT_SCOPE)
 
 # libraries required by platform
-function(tscm_platform_link_libraries)
+function(ttcm_platform_link_libraries)
   # charset
   target_link_libraries(platform iconv)
 
+  # as it may switch between ios and ios simulator, we need do
+  # finding path every time
+
   # security
-  if (TSCM_PLATFORM_SSL_ENABLE)
+  if (TTCM_PLATFORM_SSL_ENABLE)
     target_link_libraries(platform "-framework Security")
   endif()
 
   # crypto
-  if (TSCM_PLATFORM_CRYPTO_ENABLE)
+  if (TTCM_PLATFORM_CRYPTO_ENABLE)
     target_link_libraries(platform "-framework Security")
   endif()
 
   # core foundation
   target_link_libraries(platform "-framework CoreFoundation")
   
-endfunction(tscm_platform_link_libraries)
+endfunction(ttcm_platform_link_libraries)
 
 # platform properties
-function(tscm_platform_set_properties)
-  if (TSCM_PLATFORM_BUILD_DYNAMIC)
+function(ttcm_platform_set_properties)
+  if (TTCM_PLATFORM_BUILD_DYNAMIC)
     # TitanSDK.framework
     set_target_properties(platform PROPERTIES FRAMEWORK TRUE)
     set_target_properties(platform PROPERTIES OUTPUT_NAME TitanSDK)
@@ -60,6 +63,6 @@ function(tscm_platform_set_properties)
 
   # version
   set_target_properties(platform PROPERTIES 
-                        VERSION ${TSCM_VERSION_MAJOR}.${TSCM_VERSION_MINOR})
+                        VERSION ${TTCM_VERSION_MAJOR}.${TTCM_VERSION_MINOR})
 
-endfunction(tscm_platform_set_properties)
+endfunction(ttcm_platform_set_properties)

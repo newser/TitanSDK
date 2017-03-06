@@ -27,7 +27,7 @@
 #include <misc/tt_der_decode.h>
 #include <os/tt_atomic.h>
 
-#ifdef TSCM_PLATFORM_CRYPTO_ENABLE
+#ifdef TTCM_PLATFORM_CRYPTO_ENABLE
 
 #include <CommonCrypto/CommonDigest.h>
 

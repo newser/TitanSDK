@@ -46,7 +46,7 @@ struct tt_rsa_number_s;
 
 typedef struct
 {
-#ifdef TSCM_PLATFORM_CRYPTO_ENABLE
+#ifdef TTCM_PLATFORM_CRYPTO_ENABLE
     BCRYPT_KEY_HANDLE rsa;
 #endif
 

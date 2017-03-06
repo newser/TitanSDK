@@ -13,9 +13,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# this file only helps environment.tscm to construct environment name,
+# this file only helps environment.cmake to construct environment name,
 # more things like complier flags, sysroot path are defined in
-# ios-xcode.tscm
+# ios-xcode.cmake
 
 # system
 set(CMAKE_SYSTEM_NAME iOS)

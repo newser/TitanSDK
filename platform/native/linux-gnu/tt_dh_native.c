@@ -24,7 +24,7 @@
 #include <memory/tt_memory_alloc.h>
 #include <misc/tt_assert.h>
 
-#ifdef TSCM_PLATFORM_CRYPTO_ENABLE
+#ifdef TTCM_PLATFORM_CRYPTO_ENABLE
 
 ////////////////////////////////////////////////////////////
 // internal macro

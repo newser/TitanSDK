@@ -30,8 +30,9 @@ this file defines HMAC port layer APIs
 
 #include <crypto/tt_hmac_def.h>
 #include <tt_basic_type.h>
+#include <algorithm/tt_blob.h>
 
-#ifdef TSCM_PLATFORM_CRYPTO_ENABLE
+#ifdef TTCM_PLATFORM_CRYPTO_ENABLE
 #include <openssl/hmac.h>
 #endif
 
@@ -47,7 +48,7 @@ struct tt_profile_s;
 
 typedef struct
 {
-#ifdef TSCM_PLATFORM_CRYPTO_ENABLE
+#ifdef TTCM_PLATFORM_CRYPTO_ENABLE
     HMAC_CTX *hmac;
 #else
     tt_u32_t reserved;

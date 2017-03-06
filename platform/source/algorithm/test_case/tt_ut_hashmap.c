@@ -379,7 +379,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_map_share_key)
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_hashmap_t hmap;
     tt_result_t ret;
-    tt_u32_t i, j, base;
+    tt_u32_t i, j;
     tt_hmap_attr_t attr;
 #define __knum 1000
     tt_u32_t key[__knum] = {0};
@@ -411,7 +411,6 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_map_share_key)
     TT_TEST_CHECK_EQUAL(tt_hmap_empty(&hmap), TT_TRUE, "");
     TT_TEST_CHECK_EQUAL(tt_hmap_find(&hmap, (tt_u8_t *)&i, 1), NULL, "");
 
-    base = tt_rand_u32() % 100 + 1;
     TT_ASSERT(__knum <= __h2_num);
     for (i = 0; i < __knum; ++i) {
         tt_mnode_init(&__h2_cases[i].hnode);

@@ -23,7 +23,7 @@
 #include <crypto/tt_sha.h>
 #include <misc/tt_util.h>
 
-#ifdef TSCM_PLATFORM_CRYPTO_ENABLE
+#ifdef TTCM_PLATFORM_CRYPTO_ENABLE
 
 #include <CommonCrypto/CommonCrypto.h>
 

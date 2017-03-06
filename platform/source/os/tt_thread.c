@@ -24,6 +24,7 @@
 #include <init/tt_component.h>
 #include <init/tt_profile.h>
 #include <misc/tt_assert.h>
+#include <os/tt_fiber.h>
 
 #include <tt_cstd_api.h>
 
@@ -105,9 +106,12 @@ tt_thread_t *tt_thread_create(IN tt_thread_routine_t routine,
         goto tc_fail;
     }
 
+    thread->fiber_sched = NULL;
+
     thread->last_error = TT_SUCCESS;
     thread->detached = detached;
     thread->local = TT_FALSE;
+    thread->enable_fiber = attr->enable_fiber;
 
     if (!TT_OK(tt_thread_create_ntv(thread))) {
         goto tc_fail;
@@ -167,6 +171,8 @@ tt_result_t tt_thread_create_local(IN OPT tt_thread_attr_t *attr)
         goto tcl_fail;
     }
 
+    thread->fiber_sched = NULL;
+
     thread->last_error = TT_SUCCESS;
     thread->detached = TT_FALSE;
     thread->local = TT_TRUE;
@@ -193,6 +199,8 @@ void tt_thread_attr_default(IN tt_thread_attr_t *attr)
     attr->name = __THREAD_NAME_DEFAULT;
 
     attr->detached = TT_FALSE;
+
+    attr->enable_fiber = TT_FALSE;
 }
 
 tt_result_t tt_thread_wait(IN tt_thread_t *thread)
@@ -222,6 +230,12 @@ tt_result_t __thread_component_init(IN tt_component_t *comp,
 
 tt_result_t __thread_on_create(IN tt_thread_t *thread)
 {
+    // must be created in new thread context
+    if (thread->enable_fiber &&
+        ((thread->fiber_sched = tt_fiber_sched_create(NULL)) == NULL)) {
+        return TT_FAIL;
+    }
+
     return TT_SUCCESS;
 }
 
@@ -231,6 +245,10 @@ void __thread_on_exit(IN tt_thread_t *thread)
 
     if (thread->rng != NULL) {
         tt_rng_destroy(thread->rng);
+    }
+
+    if (thread->fiber_sched != NULL) {
+        tt_fiber_sched_destroy(thread->fiber_sched);
     }
 
     // for non-detached and non-local thread, the struct will

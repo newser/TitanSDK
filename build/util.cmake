@@ -19,7 +19,7 @@ include(CheckCCompilerFlag)
 #  @dir: source file directory
 #  @group: group name
 #  @src_list: source file list
-function(tscm_add_group_src dir group src_list)
+function(ttcm_add_group_src dir group src_list)
   # collect files
   aux_source_directory(${dir} FILE)
 
@@ -28,7 +28,7 @@ function(tscm_add_group_src dir group src_list)
 
   # add to source list
   set(${src_list} ${${src_list}} ${FILE} PARENT_SCOPE)
-endfunction(tscm_add_group_src)
+endfunction(ttcm_add_group_src)
 
 # choose option from "option_list" and add to "compiler_flag"
 #  @compiler_flag: choosed flag
@@ -37,7 +37,7 @@ endfunction(tscm_add_group_src)
 #  - former option has higher priority]
 #  - do not add quotes around option list, use this function like
 #    choose_compiler_flag(CMAKE_C_FLAGS TRUE -opt1 -opt2) but not "-opt1 -opt2"
-function(tscm_choose_compiler_flag compiler_flag mandatory option_list)
+function(ttcm_choose_compiler_flag compiler_flag mandatory option_list)
   set(__one_ok FALSE)
   foreach(option ${option_list})
     check_c_compiler_flag(${option} has_${option})
@@ -55,5 +55,5 @@ function(tscm_choose_compiler_flag compiler_flag mandatory option_list)
   if (${mandatory} AND NOT __one_ok)
     message(FATAL_ERROR "all compiler flag are not supported[${option_list}]")
   endif ()
-endfunction(tscm_choose_compiler_flag)
+endfunction(ttcm_choose_compiler_flag)
 
