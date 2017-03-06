@@ -98,7 +98,11 @@ void tt_fiber_sched_destroy(IN tt_fiber_sched_t *fs)
         tt_fiber_destroy(TT_CONTAINER(node, tt_fiber_t, node));
     }
 
+<<<<<<< HEAD
     __fiber_destroy_main(fs->main_f);
+=======
+    __fiber_destroy_main(fs->main);
+>>>>>>> 900e84640af53755b77a6a46f2930505cbcde612
 
     tt_free(fs);
 }
@@ -172,22 +176,38 @@ void tt_fiber_yield()
     tt_fiber_sched_t *cfs = tt_current_fiber_sched();
     tt_fiber_t *cf = cfs->current;
 
+<<<<<<< HEAD
     TT_ASSERT(cf != cfs->main_f);
     TT_ASSERT(cf->can_yield);
 
     cfs->current = cfs->main_f;
     tt_fiber_switch_wrap(cfs, cf, cfs->main_f);
+=======
+    TT_ASSERT(cf != cfs->main);
+    TT_ASSERT(cf->can_yield);
+
+    cfs->current = cfs->main;
+    tt_fiber_switch_wrap(cfs, cf, cfs->main);
+>>>>>>> 900e84640af53755b77a6a46f2930505cbcde612
 }
 
 void tt_fiber_resume(IN tt_fiber_t *fiber)
 {
     tt_fiber_sched_t *cfs = tt_current_fiber_sched();
 
+<<<<<<< HEAD
     TT_ASSERT(cfs->current == cfs->main_f);
     TT_ASSERT(fiber != cfs->main_f);
 
     cfs->current = fiber;
     tt_fiber_switch_wrap(cfs, cfs->main_f, fiber);
+=======
+    TT_ASSERT(cfs->current == cfs->main);
+    TT_ASSERT(fiber != cfs->main);
+
+    cfs->current = fiber;
+    tt_fiber_switch_wrap(cfs, cfs->main, fiber);
+>>>>>>> 900e84640af53755b77a6a46f2930505cbcde612
 }
 
 tt_fiber_t *__fiber_create_main()
