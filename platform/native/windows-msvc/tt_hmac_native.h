@@ -29,7 +29,7 @@ this file defines HMAC native APIs
 ////////////////////////////////////////////////////////////
 
 #include <crypto/tt_hmac_def.h>
-#include <tt_basic_type.h>
+#include <algorithm/tt_blob.h>
 
 #ifdef TTCM_PLATFORM_CRYPTO_ENABLE
 #include <bcrypt.h>

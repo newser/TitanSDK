@@ -140,7 +140,6 @@ void __h1_node2key(IN tt_hnode_t *node,
 TT_TEST_ROUTINE_DEFINE(tt_unit_test_hash)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
-    tt_result_t ret;
     tt_u32_t i;
     tt_hashctx_t hctx;
     tt_u32_t *num;

@@ -13,19 +13,32 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-enable_language(ASM)
-
 # collect files
 set(SRC tt_fiber_wrapper.c)
 
 if (TTCM_ENV_OS STREQUAL macos)
+  enable_language(ASM)
+
   set(SRC ${SRC} source/latest/jump_x86_64_sysv_macho_gas.S source/latest/make_x86_64_sysv_macho_gas.S)
+
 elseif (TTCM_ENV_OS STREQUAL linux)
+  enable_language(ASM)
+
   if (CMAKE_SIZEOF_VOID_P EQUAL 8)
     set(SRC ${SRC} source/latest/jump_x86_64_sysv_elf_gas.S source/latest/make_x86_64_sysv_elf_gas.S)
   else ()
     set(SRC ${SRC} source/latest/jump_i386_sysv_elf_gas.S source/latest/make_i386_sysv_elf_gas.S)
   endif ()
+
+elseif (TTCM_ENV_OS STREQUAL windows)
+  enable_language(ASM_MASM)
+
+  if (CMAKE_SIZEOF_VOID_P EQUAL 8)
+    set(SRC ${SRC} source/latest/jump_x86_64_ms_pe_masm.asm source/latest/make_x86_64_ms_pe_masm.asm )
+  else ()
+    set(SRC ${SRC} source/latest/jump_i386_ms_pe_masm.asm  source/latest/make_i386_ms_pe_masm.asm )
+  endif ()
+
 endif ()
 
 # add to library

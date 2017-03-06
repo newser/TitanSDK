@@ -172,7 +172,7 @@ tt_result_t tt_string_setfrom(IN tt_string_t *str,
                               IN const tt_char_t *cstr)
 {
     tt_buf_t *buf = &str->buf;
-    tt_u32_t len, rp, wp;
+    tt_u32_t len;
 
     len = tt_string_len(str);
     if (from > len) {

@@ -191,10 +191,9 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_ptr_stack)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_u32_t v[__q_size] = {0};
-    tt_u32_t i, n, val;
+    tt_u32_t i, n;
     tt_result_t ret;
     tt_ptrstk_t q;
-    tt_ptrstk_attr_t attr;
 
     TT_TEST_CASE_ENTER()
     // test start

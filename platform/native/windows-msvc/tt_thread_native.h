@@ -34,27 +34,15 @@ this file specifies interfaces for system specific thread operations.
 // macro definition
 ////////////////////////////////////////////////////////////
 
-/**
-@def __THREAD_MAGIC
-sys thread type identifier
-*/
-#define __THREAD_MAGIC (0xEFCCEFCC)
-
 ////////////////////////////////////////////////////////////
 // type definition
 ////////////////////////////////////////////////////////////
 
 struct tt_thread_s;
-struct tt_thread_attr_s;
 
 typedef struct
 {
-    __TT_PRIVATE__
-
     HANDLE thread_handle;
-
-    tt_u32_t magic;
-    LONG status;
 } tt_thread_ntv_t;
 
 ////////////////////////////////////////////////////////////

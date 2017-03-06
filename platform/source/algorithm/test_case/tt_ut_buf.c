@@ -1423,7 +1423,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_blob)
     tt_blob_init(&b);
     tt_blob_destroy(&b);
 
-    ret = tt_blob_create(&b, NULL, tt_strlen(c));
+    ret = tt_blob_create(&b, NULL, (tt_u32_t)tt_strlen(c));
     TT_TEST_CHECK_SUCCESS(ret, "");
 
     tt_memcpy(b.addr, c, tt_strlen(c));

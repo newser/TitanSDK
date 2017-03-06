@@ -20,9 +20,6 @@
 
 #include <tt_thread_native.h>
 
-#include <init/tt_platform_info.h>
-#include <log/tt_log.h>
-#include <memory/tt_memory_alloc.h>
 #include <misc/tt_assert.h>
 #include <os/tt_thread.h>
 
@@ -35,10 +32,6 @@
 ////////////////////////////////////////////////////////////
 // internal macro
 ////////////////////////////////////////////////////////////
-
-#define __THREAD_INITIALIZING 0
-#define __THREAD_CREATING 1
-#define __THREAD_RUNNING 2
 
 ////////////////////////////////////////////////////////////
 // internal type
@@ -90,13 +83,7 @@ tt_result_t tt_thread_create_ntv(IN struct tt_thread_s *thread)
 {
     tt_thread_ntv_t *sys_thread = &thread->sys_thread;
 
-    tt_memset(sys_thread, 0, sizeof(tt_thread_ntv_t));
-
-    // init
-    sys_thread->magic = __THREAD_MAGIC;
-    sys_thread->status = __THREAD_INITIALIZING;
-
-    if (thread->attr.detached) {
+    if (thread->detached) {
         sys_thread->thread_handle =
             (HANDLE)_beginthread(detached_routine_wrapper, 0, thread);
         if ((sys_thread->thread_handle == 0) ||
@@ -104,14 +91,6 @@ tt_result_t tt_thread_create_ntv(IN struct tt_thread_s *thread)
             TT_ERROR_NTV("fail to create detached thread");
             return TT_FAIL;
         }
-
-        TT_ASSERT_ALWAYS(InterlockedCompareExchange(&sys_thread->status,
-                                                    __THREAD_CREATING,
-                                                    __THREAD_INITIALIZING) ==
-                         __THREAD_INITIALIZING);
-
-        // if child thread is detached, now the thread structure may have
-        // been freed
 
         // remember to _endthread
         return TT_SUCCESS;
@@ -123,28 +102,6 @@ tt_result_t tt_thread_create_ntv(IN struct tt_thread_s *thread)
             return TT_FAIL;
         }
 
-        // steps of thread creating between parent/child:
-        //  - parent create child thread and could continue changing thread
-        //    fields and set sys_thread->status to __THREAD_CREATING and wait
-        //    until sys_thread->status becomes __THREAD_RUNNING
-        //  - child thread should wait until sys_thread->status becomes
-        //    __THREAD_CREATING, now parent thread have set all fields of
-        //    thread and child thread could changing thread fields now and
-        //    set sys_thread->status to __THREAD_RUNNING
-        //  - now all thread fields are updated and parent have got a
-        //    consistent thread structure and could return it
-
-        TT_ASSERT_ALWAYS(InterlockedCompareExchange(&sys_thread->status,
-                                                    __THREAD_CREATING,
-                                                    __THREAD_INITIALIZING) ==
-                         __THREAD_INITIALIZING);
-
-        // wait for thread update content sys_thread
-        while (InterlockedCompareExchange(&sys_thread->status,
-                                          __THREAD_RUNNING,
-                                          __THREAD_RUNNING) != __THREAD_RUNNING)
-            ;
-
         // remember to _endthreadex
         return TT_SUCCESS;
     }
@@ -153,12 +110,6 @@ tt_result_t tt_thread_create_ntv(IN struct tt_thread_s *thread)
 tt_result_t tt_thread_create_local_ntv(IN struct tt_thread_s *thread)
 {
     tt_thread_ntv_t *sys_thread = &thread->sys_thread;
-
-    tt_memset(sys_thread, 0, sizeof(tt_thread_ntv_t));
-
-    // init
-    sys_thread->magic = __THREAD_MAGIC;
-    sys_thread->status = __THREAD_INITIALIZING;
 
     if (tt_g_numa_node_id_thread != TT_NUMA_NODE_ID_UNSPECIFIED) {
         __thread_bind_numa_node(GetCurrentThread(),
@@ -171,7 +122,6 @@ tt_result_t tt_thread_create_local_ntv(IN struct tt_thread_s *thread)
     }
 
     __thread_on_create(thread);
-    sys_thread->status = __THREAD_RUNNING;
 
     return TT_SUCCESS;
 }
@@ -180,17 +130,12 @@ tt_result_t tt_thread_wait_ntv(IN struct tt_thread_s *thread)
 {
     tt_thread_ntv_t *sys_thread = &thread->sys_thread;
 
-    TT_ASSERT(sys_thread->thread_handle != NULL);
-    TT_ASSERT(!thread->attr.detached);
-
-    // wait untill the thread ends
     if (WaitForSingleObject(sys_thread->thread_handle, INFINITE) !=
         WAIT_OBJECT_0) {
         TT_ERROR_NTV("fail to wait joint thread");
         return TT_FAIL;
     }
 
-    // close thread handle
     if (!CloseHandle(sys_thread->thread_handle)) {
         TT_ERROR_NTV("fail to close thread handle");
         return TT_FAIL;
@@ -221,16 +166,6 @@ void __cdecl detached_routine_wrapper(IN void *param)
     tt_thread_ntv_t *sys_thread = &thread->sys_thread;
     tt_result_t result;
 
-    // note it's not safe to access sys_thread->thread_handle
-
-    // wait for creater's done
-    while (InterlockedCompareExchange(&sys_thread->status,
-                                      __THREAD_CREATING,
-                                      __THREAD_CREATING) != __THREAD_CREATING)
-        ;
-    // memory barrier is inserted by InterlockedCompareExchange()
-    // now it's safe to access member of tt_thread_t
-
     if (tt_g_numa_node_id_thread != TT_NUMA_NODE_ID_UNSPECIFIED) {
         __thread_bind_numa_node(sys_thread->thread_handle,
                                 (USHORT)tt_g_numa_node_id_thread);
@@ -243,13 +178,7 @@ void __cdecl detached_routine_wrapper(IN void *param)
 
     __thread_on_create(thread);
 
-    // notify creater
-    TT_ASSERT_ALWAYS(InterlockedCompareExchange(&sys_thread->status,
-                                                __THREAD_RUNNING,
-                                                __THREAD_CREATING) ==
-                     __THREAD_CREATING);
-
-    result = thread->routine(thread, thread->param);
+    result = thread->routine(thread->param);
 }
 
 unsigned __stdcall joint_routine_wrapper(IN void *param)
@@ -257,16 +186,6 @@ unsigned __stdcall joint_routine_wrapper(IN void *param)
     tt_thread_t *thread = (tt_thread_t *)param;
     tt_thread_ntv_t *sys_thread = &thread->sys_thread;
     tt_result_t result;
-
-    // note it's not safe to access sys_thread->thread_handle
-
-    // wait for creater's done
-    while (InterlockedCompareExchange(&sys_thread->status,
-                                      __THREAD_CREATING,
-                                      __THREAD_CREATING) != __THREAD_CREATING)
-        ;
-    // memory barrier is inserted by InterlockedCompareExchange()
-    // now it's safe to access member of tt_thread_t
 
     if (tt_g_numa_node_id_thread != TT_NUMA_NODE_ID_UNSPECIFIED) {
         __thread_bind_numa_node(sys_thread->thread_handle,
@@ -280,13 +199,7 @@ unsigned __stdcall joint_routine_wrapper(IN void *param)
 
     __thread_on_create(thread);
 
-    // notify creater
-    TT_ASSERT_ALWAYS(InterlockedCompareExchange(&sys_thread->status,
-                                                __THREAD_RUNNING,
-                                                __THREAD_CREATING) ==
-                     __THREAD_CREATING);
-
-    result = thread->routine(thread, thread->param);
+    result = thread->routine(thread->param);
 
     return TT_SUCCESS;
 }
@@ -295,28 +208,12 @@ void __thread_exit_ntv(IN tt_thread_t *thread)
 {
     tt_thread_ntv_t *sys_thread = &thread->sys_thread;
 
-    if (sys_thread->magic != __THREAD_MAGIC) {
-        TT_ERROR("not a ts thread");
-        return;
-    }
-
-    // sys_thread->thread_handle is null when exiting a local running thread
-    // TT_ASSERT(sys_thread->thread_handle != NULL);
-
-    if (thread->attr.detached) {
+    if (thread->detached) {
         _endthread();
-        // memory barrier is inserted by _endthread()
-        // do not change anything of tt_thread_t from now on
-
-        return;
     } else {
         _endthreadex(TT_SUCCESS);
-        // memory barrier is inserted by _endthreadex()
-        // do not change anything of tt_thread_t from now on
-
-        // CloseHandle() should be done by tt_thread_wait_ntv()
-        return;
     }
+    return;
 }
 
 tt_result_t __thread_bind_numa_node(IN HANDLE hThread, IN USHORT Node)
