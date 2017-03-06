@@ -17,8 +17,8 @@
 # definition
 #
 
-if (NOT DEFINED TSCM_PLATFORM_PATH)
-    message(FATAL_ERROR "TSCM_PLATFORM_PATH undefined")
+if (NOT DEFINED TTCM_PLATFORM_PATH)
+    message(FATAL_ERROR "TTCM_PLATFORM_PATH undefined")
 endif ()
 
 #
@@ -30,9 +30,9 @@ endif ()
 #
 
 # platform
-include_directories(${TSCM_PLATFORM_PATH}/export)
-include_directories(${TSCM_PLATFORM_PATH}/native/${TSCM_ENV})
-include_directories(${TSCM_PLATFORM_PATH}/native/${TSCM_ENV_CPU})
+include_directories(${TTCM_PLATFORM_PATH}/export)
+include_directories(${TTCM_PLATFORM_PATH}/native/${TTCM_ENV})
+include_directories(${TTCM_PLATFORM_PATH}/native/${TTCM_ENV_CPU})
 
 #
 # source file

@@ -26,10 +26,10 @@
 #
 
 # windows libraries
-set(TSCM_PLATFORM_DEP_LIB winmm.lib ws2_32.lib iphlpapi.lib PARENT_SCOPE)
+set(TTCM_PLATFORM_DEP_LIB winmm.lib ws2_32.lib iphlpapi.lib PARENT_SCOPE)
 
 # libraries required by platform
-function(tscm_platform_link_libraries)
+function(ttcm_platform_link_libraries)
   # multimedia
   target_link_libraries(platform winmm)
   
@@ -39,7 +39,7 @@ function(tscm_platform_link_libraries)
   # network interface
   target_link_libraries(platform iphlpapi)
 
-  if (TSCM_PLATFORM_SSL_ENABLE)
+  if (TTCM_PLATFORM_SSL_ENABLE)
     # crypt
     target_link_libraries(platform crypt32)
 
@@ -47,7 +47,7 @@ function(tscm_platform_link_libraries)
     target_link_libraries(platform Ncrypt)
   endif ()
 
-  if (TSCM_PLATFORM_CRYPTO_ENABLE)
+  if (TTCM_PLATFORM_CRYPTO_ENABLE)
     # crypt
     target_link_libraries(platform crypt32)
 
@@ -55,10 +55,10 @@ function(tscm_platform_link_libraries)
     target_link_libraries(platform Ncrypt)
   endif ()
 
-endfunction(tscm_platform_link_libraries)
+endfunction(ttcm_platform_link_libraries)
 
 # platform properties
-function(tscm_platform_set_properties)
+function(ttcm_platform_set_properties)
   # define TS_PLATFORM_DYNAMIC_LIB_BUILDING during building
   set_target_properties(platform PROPERTIES
                         COMPILE_FLAGS -DTS_PLATFORM_DYNAMIC_LIB_BUILDING)
@@ -68,8 +68,8 @@ function(tscm_platform_set_properties)
 
   # version
   #set_target_properties(platform PROPERTIES 
-  #                      VERSION ${TSCM_VERSION_MAJOR}.${TSCM_VERSION_MINOR})
+  #                      VERSION ${TTCM_VERSION_MAJOR}.${TTCM_VERSION_MINOR})
   set_target_properties(platform PROPERTIES 
-                        LINK_FLAGS "/VERSION:\"${TSCM_VERSION_MAJOR}.${TSCM_VERSION_MINOR}\"")
+                        LINK_FLAGS "/VERSION:\"${TTCM_VERSION_MAJOR}.${TTCM_VERSION_MINOR}\"")
 
-endfunction(tscm_platform_set_properties)
+endfunction(ttcm_platform_set_properties)

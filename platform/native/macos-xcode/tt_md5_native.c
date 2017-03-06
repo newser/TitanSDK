@@ -20,7 +20,7 @@
 
 #include <tt_md5_native.h>
 
-#ifdef TSCM_PLATFORM_CRYPTO_ENABLE
+#ifdef TTCM_PLATFORM_CRYPTO_ENABLE
 
 ////////////////////////////////////////////////////////////
 // internal macro

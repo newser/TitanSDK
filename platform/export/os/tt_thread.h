@@ -41,6 +41,7 @@ this thread defines APIs wrapped system thread functions
 ////////////////////////////////////////////////////////////
 
 struct tt_evpoller_s;
+struct tt_fiber_sched_s;
 
 /**
  @typedef tt_result_t (*tt_thread_routine_t)(IN void *param)
@@ -61,6 +62,7 @@ typedef struct tt_thread_attr_s
 {
     const tt_char_t *name;
     tt_bool_t detached : 1;
+    tt_bool_t enable_fiber : 1;
 } tt_thread_attr_t;
 
 /**
@@ -82,12 +84,15 @@ typedef struct tt_thread_s
     /** random number generator */
     tt_rng_t *rng;
 
+    struct tt_fiber_sched_s *fiber_sched;
+
     /** system thread handle */
     tt_thread_ntv_t sys_thread;
 
     tt_result_t last_error;
     tt_bool_t detached : 1;
     tt_bool_t local : 1;
+    tt_bool_t enable_fiber : 1;
 } tt_thread_t;
 
 ////////////////////////////////////////////////////////////

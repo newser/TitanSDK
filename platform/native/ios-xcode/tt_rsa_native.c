@@ -31,7 +31,7 @@
 
 #include <tt_util_native.h>
 
-#ifdef TSCM_PLATFORM_CRYPTO_ENABLE
+#ifdef TTCM_PLATFORM_CRYPTO_ENABLE
 
 #include <CommonCrypto/CommonDigest.h>
 

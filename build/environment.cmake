@@ -18,28 +18,28 @@
 #
 
 # toolchain
-set(TSCM_TOOLCHAIN "" 
+set(TTCM_TOOLCHAIN "" 
     CACHE FILEPATH "specified toolchain file")
-mark_as_advanced(TSCM_TOOLCHAIN)
+mark_as_advanced(TTCM_TOOLCHAIN)
 
-set(TSCM_TOOLCHAIN_IOS_XCODE 0 
+set(TTCM_TOOLCHAIN_IOS_XCODE 0 
     CACHE BOOL  "use predefined ios-xcode toolchain")
 
 # choose toolchain
-if (TSCM_TOOLCHAIN STREQUAL "")
-  if (TSCM_TOOLCHAIN_IOS_XCODE)
-    set(TSCM_TOOLCHAIN "ios-xcode.toolchain.tscm")
+if (TTCM_TOOLCHAIN STREQUAL "")
+  if (TTCM_TOOLCHAIN_IOS_XCODE)
+    set(TTCM_TOOLCHAIN "ios-xcode.toolchain.cmake")
   endif ()
 endif()
 
 # check and load toolchain
-if (TSCM_TOOLCHAIN)
-  if (EXISTS ${TSCM_BUILD_PATH}/${TSCM_TOOLCHAIN})
-    include(${TSCM_BUILD_PATH}/${TSCM_TOOLCHAIN})
+if (TTCM_TOOLCHAIN)
+  if (EXISTS ${TTCM_BUILD_PATH}/${TTCM_TOOLCHAIN})
+    include(${TTCM_BUILD_PATH}/${TTCM_TOOLCHAIN})
   else ()
     message(FATAL_ERROR "toolchain does not exist")
   endif ()
-endif (TSCM_TOOLCHAIN)
+endif (TTCM_TOOLCHAIN)
 
 # get application os
 function(get_app_os app_os)
@@ -111,42 +111,42 @@ message(STATUS "DETECTING ENVIRONMENT ...")
 
 # app running os
 message(STATUS "detecting app running os")
-get_app_os(TSCM_ENV_OS)
-set(TSCM_ENV_OS ${TSCM_ENV_OS} CACHE INTERNAL "app running os")
-message(STATUS "app running os: ${TSCM_ENV_OS}")
+get_app_os(TTCM_ENV_OS)
+set(TTCM_ENV_OS ${TTCM_ENV_OS} CACHE INTERNAL "app running os")
+message(STATUS "app running os: ${TTCM_ENV_OS}")
 
 # app running cpu
 message(STATUS "detecting app running cpu")
-get_app_cpu(TSCM_ENV_CPU)
-if (TSCM_IOS_SIMULATOR)
-  set(TSCM_ENV_CPU x86)
+get_app_cpu(TTCM_ENV_CPU)
+if (TTCM_IOS_SIMULATOR)
+  set(TTCM_ENV_CPU x86)
 endif ()
-set(TSCM_ENV_CPU ${TSCM_ENV_CPU} CACHE INTERNAL "app running cpu")
-message(STATUS "app running cpu: ${TSCM_ENV_CPU}")
+set(TTCM_ENV_CPU ${TTCM_ENV_CPU} CACHE INTERNAL "app running cpu")
+message(STATUS "app running cpu: ${TTCM_ENV_CPU}")
 
 # app building toolchain
 message(STATUS "detecting app building toochain")
-get_app_toolchain(TSCM_ENV_TOOLCHAIN)
-set(TSCM_ENV_TOOLCHAIN ${TSCM_ENV_TOOLCHAIN} CACHE INTERNAL "app building toochain")
-message(STATUS "app building toochain: ${TSCM_ENV_TOOLCHAIN}")
+get_app_toolchain(TTCM_ENV_TOOLCHAIN)
+set(TTCM_ENV_TOOLCHAIN ${TTCM_ENV_TOOLCHAIN} CACHE INTERNAL "app building toochain")
+message(STATUS "app building toochain: ${TTCM_ENV_TOOLCHAIN}")
 
 # app building host
 message(STATUS "detecting app building host")
-get_host_os(TSCM_ENV_HOST)
-set(TSCM_ENV_HOST ${TSCM_ENV_HOST} CACHE INTERNAL "app building host")
-message(STATUS "app building host: ${TSCM_ENV_HOST}")
+get_host_os(TTCM_ENV_HOST)
+set(TTCM_ENV_HOST ${TTCM_ENV_HOST} CACHE INTERNAL "app building host")
+message(STATUS "app building host: ${TTCM_ENV_HOST}")
 
 # make env name
-#if (TSCM_ENV_OS STREQUAL TSCM_ENV_HOST)
-#  set(TSCM_ENV "${TSCM_ENV_OS}-${TSCM_ENV_CPU}-${TSCM_ENV_TOOLCHAIN}")
+#if (TTCM_ENV_OS STREQUAL TTCM_ENV_HOST)
+#  set(TTCM_ENV "${TTCM_ENV_OS}-${TTCM_ENV_CPU}-${TTCM_ENV_TOOLCHAIN}")
 #else ()
-#  set(TSCM_ENV "${TSCM_ENV_OS}-${TSCM_ENV_CPU}-${TSCM_ENV_TOOLCHAIN}--${TSCM_ENV_HOST}")
+#  set(TTCM_ENV "${TTCM_ENV_OS}-${TTCM_ENV_CPU}-${TTCM_ENV_TOOLCHAIN}--${TTCM_ENV_HOST}")
 #endif ()
 # the toolchain implies host platform, e.g. vs implies building on windows
-#set(TSCM_ENV "${TSCM_ENV_OS}-${TSCM_ENV_CPU}-${TSCM_ENV_TOOLCHAIN}")
-set(TSCM_ENV "${TSCM_ENV_OS}-${TSCM_ENV_TOOLCHAIN}")
+#set(TTCM_ENV "${TTCM_ENV_OS}-${TTCM_ENV_CPU}-${TTCM_ENV_TOOLCHAIN}")
+set(TTCM_ENV "${TTCM_ENV_OS}-${TTCM_ENV_TOOLCHAIN}")
 
-message(STATUS "DETECTING ENVIRONMENT DONE: ${TSCM_ENV}")
+message(STATUS "DETECTING ENVIRONMENT DONE: ${TTCM_ENV}")
 
 #
 # detect environment detail
@@ -157,7 +157,7 @@ function(detect_env_detail param_name param_val)
   try_run(__run_result
           __compile_result 
           ${CMAKE_BINARY_DIR}
-          ${TSCM_ROOT_PATH}/platform/host/${TSCM_ENV}_detector.c
+          ${TTCM_ROOT_PATH}/platform/host/${TTCM_ENV}_detector.c
           COMPILE_OUTPUT_VARIABLE __compiler_output
           RUN_OUTPUT_VARIABLE __run_output
           ARGS ${param_name})
@@ -188,46 +188,46 @@ macro(detect_env_detail_helper param description)
 endmacro(detect_env_detail_helper)
 
 # detecting detail depends on configuration
-set(TSCM_ENV_DETECT_DETAIL 0 
+set(TTCM_ENV_DETECT_DETAIL 0 
     CACHE BOOL "detecting environment detail for optimization")
-if (TSCM_ENV_DETECT_DETAIL)
+if (TTCM_ENV_DETECT_DETAIL)
   message(STATUS "DETECTING ENVIRONMENT DETAIL ...")
 
   # detect app running os detail
-  detect_env_detail_helper(TSCM_ENV_OS_DETAIL "app running os detail")
-  detect_env_detail_helper(TSCM_ENV_OS_VER_DETAIL "app running os version detail")
-  detect_env_detail_helper(TSCM_ENV_OS_FEATURE_DETAIL "app running os feature detail")
+  detect_env_detail_helper(TTCM_ENV_OS_DETAIL "app running os detail")
+  detect_env_detail_helper(TTCM_ENV_OS_VER_DETAIL "app running os version detail")
+  detect_env_detail_helper(TTCM_ENV_OS_FEATURE_DETAIL "app running os feature detail")
   
   # detect app running cpu detail
-  detect_env_detail_helper(TSCM_ENV_CPU_DETAIL "app running cpu detail")
-  detect_env_detail_helper(TSCM_ENV_CPU_FEATURE_DETAIL "app running cpu feature detail")
+  detect_env_detail_helper(TTCM_ENV_CPU_DETAIL "app running cpu detail")
+  detect_env_detail_helper(TTCM_ENV_CPU_FEATURE_DETAIL "app running cpu feature detail")
 
   # detect toolchain
-  detect_env_detail_helper(TSCM_ENV_TOOLCHAIN_DETAIL "app building toolchain detail")
-  detect_env_detail_helper(TSCM_ENV_TOOLCHAIN_VER_DETAIL "app building toolchain version detail")
+  detect_env_detail_helper(TTCM_ENV_TOOLCHAIN_DETAIL "app building toolchain detail")
+  detect_env_detail_helper(TTCM_ENV_TOOLCHAIN_VER_DETAIL "app building toolchain version detail")
   
   # host inforamtion are for cmake usage, no need to pass to application
   
   message(STATUS "DETECTING ENVIRONMENT DETAIL DONE")
-else (TSCM_ENV_DETECT_DETAIL)
+else (TTCM_ENV_DETECT_DETAIL)
   # should assign a numberical value
-  set(TSCM_ENV_OS_DETAIL TS_ENV_UNKNOWN_VAL)
-  set(TSCM_ENV_OS_VER_DETAIL TS_ENV_UNKNOWN_VAL)
-  set(TSCM_ENV_OS_FEATURE_DETAIL TS_ENV_UNKNOWN_VAL)
+  set(TTCM_ENV_OS_DETAIL TS_ENV_UNKNOWN_VAL)
+  set(TTCM_ENV_OS_VER_DETAIL TS_ENV_UNKNOWN_VAL)
+  set(TTCM_ENV_OS_FEATURE_DETAIL TS_ENV_UNKNOWN_VAL)
 
-  set(TSCM_ENV_CPU_DETAIL TS_ENV_UNKNOWN_VAL)
-  set(TSCM_ENV_CPU_FEATURE_DETAIL TS_ENV_UNKNOWN_VAL)
+  set(TTCM_ENV_CPU_DETAIL TS_ENV_UNKNOWN_VAL)
+  set(TTCM_ENV_CPU_FEATURE_DETAIL TS_ENV_UNKNOWN_VAL)
     
-  set(TSCM_ENV_TOOLCHAIN_DETAIL TS_ENV_UNKNOWN_VAL)
-  set(TSCM_ENV_TOOLCHAIN_VER_DETAIL TS_ENV_UNKNOWN_VAL)    
-endif (TSCM_ENV_DETECT_DETAIL)
+  set(TTCM_ENV_TOOLCHAIN_DETAIL TS_ENV_UNKNOWN_VAL)
+  set(TTCM_ENV_TOOLCHAIN_VER_DETAIL TS_ENV_UNKNOWN_VAL)    
+endif (TTCM_ENV_DETECT_DETAIL)
 
 #
 # configuration
 #
 
 # generate header file
-configure_file(${TSCM_ROOT_PATH}/platform/export/config/tt_environment_config.h.in
-               ${TSCM_ROOT_PATH}/platform/export/config/tt_environment_config.h
+configure_file(${TTCM_ROOT_PATH}/platform/export/config/tt_environment_config.h.in
+               ${TTCM_ROOT_PATH}/platform/export/config/tt_environment_config.h
                @ONLY)
 
