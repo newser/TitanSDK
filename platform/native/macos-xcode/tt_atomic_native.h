@@ -401,7 +401,7 @@ tt_inline void tt_atomic_ptr_set_ntv(IN OUT tt_ptr_t *a, IN tt_ptr_t val)
     __atomic_store_n(a, val, __ATOMIC_SEQ_CST);
 }
 
-tt_inline tt_s64_t tt_atomic_ptr_swap_ntv(IN OUT tt_ptr_t *a, IN tt_ptr_t val)
+tt_inline tt_ptr_t tt_atomic_ptr_swap_ntv(IN OUT tt_ptr_t *a, IN tt_ptr_t val)
 {
 #ifdef TT_ATOMIC_ALIGNMENT_CHECK
 #if TT_ENV_IS_64BIT
