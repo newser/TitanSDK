@@ -134,7 +134,6 @@ TT_TEST_CASE("tt_unit_test_atomic_basic",
     tt_s32_t ret32;
     tt_atomic_s64_t v64;
     tt_s64_t ret64;
-    tt_result_t ret;
     tt_bool_t b_ret;
 
     TT_TEST_CASE_ENTER()
@@ -445,7 +444,6 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_atomic_ptr)
 {
     tt_ptr_t ptr;
     tt_ptr_t ret_ptr;
-    tt_result_t ret;
     tt_ptrdiff_t i, v1, v2;
     tt_bool_t b_ret;
 
@@ -584,7 +582,6 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_atomic_fence)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_ptrdiff_t i = 0;
-    tt_thread_attr_t tattr;
 
     TT_TEST_CASE_ENTER()
     // test start
