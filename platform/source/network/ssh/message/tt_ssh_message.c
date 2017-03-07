@@ -101,7 +101,7 @@ tt_sshmsg_t *tt_sshmsg_create(IN tt_u32_t msg_id,
     if (msg != NULL) {
         msg->msg_id = msg_id;
         msg->msg_private = 0;
-        tt_atomic_s32_init(&msg->ref, 1);
+        tt_atomic_s32_set(&msg->ref, 1);
 
         tt_buf_init(&msg->buf, NULL);
         msg->itf = itf;

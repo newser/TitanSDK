@@ -251,7 +251,7 @@ static CFDataRef __rsa_data_get(IN tt_rsa_ntv_t *sys_rsa);
 
 tt_result_t tt_rsa_component_init_ntv(IN tt_profile_t *profile)
 {
-    tt_atomic_s64_init(&tt_s_rsa_key_tag, 0);
+    tt_atomic_s64_set(&tt_s_rsa_key_tag, 0);
 
     return TT_SUCCESS;
 }

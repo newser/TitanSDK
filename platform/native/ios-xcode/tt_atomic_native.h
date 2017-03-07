@@ -82,15 +82,15 @@ extern tt_result_t tt_atomic_component_init_ntv(
     IN struct tt_profile_s *profile);
 
 /**
-@fn void tt_atomic_s32_init_ntv(IN OUT tt_atomic_s32_t *a,
+@fn void tt_atomic_s32_set_ntv(IN OUT tt_atomic_s32_t *a,
                                 IN tt_s32_t val)
 initialize a 32bit atomic var
 
 @param [in] atomic the atomic variant to be initialized
 @param [in] val initial value
 */
-tt_inline void tt_atomic_s32_init_ntv(IN OUT tt_atomic_s32_ntv_t *a,
-                                      IN tt_s32_t val)
+tt_inline void tt_atomic_s32_set_ntv(IN OUT tt_atomic_s32_ntv_t *a,
+                                     IN tt_s32_t val)
 {
     tt_atomic_s32_ntv_t last_val;
 
@@ -221,15 +221,15 @@ tt_inline tt_result_t tt_atomic_s32_cas_ntv(IN OUT tt_atomic_s32_ntv_t *a,
 }
 
 /**
-@fn void tt_atomic_s64_init_ntv(IN OUT tt_atomic_s64_ntv_t *a,
+@fn void tt_atomic_s64_set_ntv(IN OUT tt_atomic_s64_ntv_t *a,
                                 IN tt_s64_t val)
 initialize a 64bit atomic variant
 
 @param [in] atomic atomic variant to be initialized
 @param [in] val initial value
 */
-tt_inline void tt_atomic_s64_init_ntv(IN OUT tt_atomic_s64_ntv_t *a,
-                                      IN tt_s64_t val)
+tt_inline void tt_atomic_s64_set_ntv(IN OUT tt_atomic_s64_ntv_t *a,
+                                     IN tt_s64_t val)
 {
     tt_atomic_s64_ntv_t last_val;
 

@@ -124,7 +124,7 @@ tt_result_t tt_evc_create(IN tt_evcenter_t *evc,
 
     // thread event
     tt_list_init(&evc->ev_q);
-    tt_atomic_s32_init(&evc->ev_q_lock, 0);
+    tt_atomic_s32_set(&evc->ev_q_lock, 0);
 
     // adns would be created in poller thread
     evc->adns_dmgr = NULL;

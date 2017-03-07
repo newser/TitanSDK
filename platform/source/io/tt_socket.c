@@ -612,8 +612,8 @@ tt_result_t __skt_component_init(IN tt_component_t *comp,
         return TT_FAIL;
     }
 
-    tt_atomic_s64_init(&tt_stat_socket_num, 0);
-    tt_atomic_s64_init(&tt_stat_socket_peek, 0);
+    tt_atomic_s64_set(&tt_stat_socket_num, 0);
+    tt_atomic_s64_set(&tt_stat_socket_peek, 0);
 
     return TT_SUCCESS;
 }

@@ -101,7 +101,7 @@ tt_adns_pkt_t *tt_adns_pkt_create(IN tt_u16_t __id,
     }
 
     // add ref: creator
-    tt_atomic_s32_init(&pkt->ref, 1);
+    tt_atomic_s32_set(&pkt->ref, 1);
 
     pkt->__id = __id;
     pkt->opcode = opcode;

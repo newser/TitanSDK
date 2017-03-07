@@ -157,9 +157,9 @@ void tt_page_free_align(IN void *addr,
 tt_result_t __page_component_init(IN tt_component_t *comp,
                                   IN tt_profile_t *profile)
 {
-    tt_atomic_s64_init(&tt_stat_page_alloc, 0);
+    tt_atomic_s64_set(&tt_stat_page_alloc, 0);
 
-    tt_atomic_s64_init(&tt_stat_page_peak, 0);
+    tt_atomic_s64_set(&tt_stat_page_peak, 0);
 
     return TT_SUCCESS;
 }
