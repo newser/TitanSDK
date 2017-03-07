@@ -60,7 +60,7 @@ tt_fiber_sched_t *tt_fiber_sched_create(IN OPT tt_fiber_sched_attr_t *attr)
 {
     tt_fiber_sched_attr_t __attr;
     tt_fiber_sched_t *fs;
-    tt_fiber_t *main_f;
+    tt_fiber_t *main_fiber;
 
     if (attr == NULL) {
         tt_fiber_sched_attr_default(&__attr);
@@ -73,17 +73,17 @@ tt_fiber_sched_t *tt_fiber_sched_create(IN OPT tt_fiber_sched_attr_t *attr)
         return NULL;
     }
 
-    main_f = __fiber_create_main(NULL);
-    if (main_f == NULL) {
+    main_fiber = __fiber_create_main(NULL);
+    if (main_fiber == NULL) {
         tt_free(fs);
         return NULL;
     }
 
     tt_dlist_init(&fs->fiber_list);
-    fs->main_f = main_f;
-    fs->current = main_f;
+    fs->main_fiber = main_fiber;
+    fs->current = main_fiber;
 
-    // the main_f fiber should not be added to fiber list
+    // the main_fiber fiber should not be added to fiber list
 
     return fs;
 }
@@ -98,7 +98,7 @@ void tt_fiber_sched_destroy(IN tt_fiber_sched_t *fs)
         tt_fiber_destroy(TT_CONTAINER(node, tt_fiber_t, node));
     }
 
-    __fiber_destroy_main(fs->main_f);
+    __fiber_destroy_main(fs->main_fiber);
 
     tt_free(fs);
 }
@@ -114,7 +114,7 @@ tt_fiber_t *tt_fiber_create(IN tt_fiber_routine_t routine,
 {
     tt_fiber_sched_t *fs;
     tt_fiber_attr_t __attr;
-    tt_fiber_t *f;
+    tt_fiber_t *fb;
 
     TT_ASSERT(routine != NULL);
 
@@ -129,33 +129,33 @@ tt_fiber_t *tt_fiber_create(IN tt_fiber_routine_t routine,
         attr = &__attr;
     }
 
-    f = tt_malloc(sizeof(tt_fiber_t));
-    if (f == NULL) {
+    fb = tt_malloc(sizeof(tt_fiber_t));
+    if (fb == NULL) {
         TT_ERROR("no mem for new fiber");
         return NULL;
     }
 
-    tt_dnode_init(&f->node);
-    f->routine = routine;
-    f->param = param;
+    tt_dnode_init(&fb->node);
+    fb->routine = routine;
+    fb->param = param;
 
-    if (!TT_OK(tt_fiber_create_wrap(&f->wrap_f, attr->stack_size))) {
-        tt_free(f);
+    if (!TT_OK(tt_fiber_create_wrap(&fb->wrap_fb, attr->stack_size))) {
+        tt_free(fb);
         return NULL;
     }
 
-    f->can_yield = TT_TRUE;
+    fb->can_yield = TT_TRUE;
 
-    tt_dlist_push_tail(&fs->fiber_list, &f->node);
+    tt_dlist_push_tail(&fs->fiber_list, &fb->node);
 
-    return f;
+    return fb;
 }
 
 void tt_fiber_destroy(IN tt_fiber_t *fiber)
 {
     TT_ASSERT(fiber != NULL);
 
-    tt_fiber_destroy_wrap(&fiber->wrap_f);
+    tt_fiber_destroy_wrap(&fiber->wrap_fb);
 
     tt_free(fiber);
 }
@@ -170,43 +170,45 @@ void tt_fiber_attr_default(IN tt_fiber_attr_t *attr)
 void tt_fiber_yield()
 {
     tt_fiber_sched_t *cfs = tt_current_fiber_sched();
-    tt_fiber_t *cf = cfs->current;
+    tt_fiber_t *cfb = cfs->current;
 
-    TT_ASSERT(cf != cfs->main_f);
-    TT_ASSERT(cf->can_yield);
+    TT_ASSERT(cfs != NULL);
+    TT_ASSERT(cfb != cfs->main_fiber);
+    TT_ASSERT(cfb->can_yield);
 
-    cfs->current = cfs->main_f;
-    tt_fiber_switch_wrap(cfs, cf, cfs->main_f);
+    cfs->current = cfs->main_fiber;
+    tt_fiber_switch_wrap(cfs, cfb, cfs->main_fiber);
 }
 
 void tt_fiber_resume(IN tt_fiber_t *fiber)
 {
     tt_fiber_sched_t *cfs = tt_current_fiber_sched();
 
-    TT_ASSERT(cfs->current == cfs->main_f);
-    TT_ASSERT(fiber != cfs->main_f);
+    TT_ASSERT(cfs != NULL);
+    TT_ASSERT(cfs->current == cfs->main_fiber);
+    TT_ASSERT(fiber != cfs->main_fiber);
 
     cfs->current = fiber;
-    tt_fiber_switch_wrap(cfs, cfs->main_f, fiber);
+    tt_fiber_switch_wrap(cfs, cfs->main_fiber, fiber);
 }
 
 tt_fiber_t *__fiber_create_main()
 {
-    tt_fiber_t *f;
+    tt_fiber_t *fb;
 
-    f = tt_malloc(sizeof(tt_fiber_t));
-    if (f == NULL) {
+    fb = tt_malloc(sizeof(tt_fiber_t));
+    if (fb == NULL) {
         TT_ERROR("no mem for new fiber");
         return NULL;
     }
 
-    tt_dnode_init(&f->node);
-    f->routine = NULL;
-    f->param = NULL;
-    tt_memset(&f->wrap_f, 0, sizeof(tt_fiber_wrap_t));
-    f->can_yield = TT_TRUE;
+    tt_dnode_init(&fb->node);
+    fb->routine = NULL;
+    fb->param = NULL;
+    tt_memset(&fb->wrap_fb, 0, sizeof(tt_fiber_wrap_t));
+    fb->can_yield = TT_TRUE;
 
-    return f;
+    return fb;
 }
 
 void __fiber_destroy_main(IN tt_fiber_t *fiber)

@@ -53,9 +53,9 @@
 
 .text
 .align  2
-.global jump_fcontext
-.type   jump_fcontext, %function
-jump_fcontext:
+.global tt_jump_fcontext
+.type   tt_jump_fcontext, %function
+tt_jump_fcontext:
     # prepare stack for GP + FPU
     sub  sp, sp, #0xb0
 
@@ -96,8 +96,8 @@ jump_fcontext:
     ldp  x27, x28, [sp, #0x80]
     ldp  x29, x30, [sp, #0x90]
 
-    # return transfer_t from jump
-    # pass transfer_t as first arg in context function
+    # return tt_transfer_t from jump
+    # pass tt_transfer_t as first arg in context function
     # X0 == FCTX, X1 == DATA
     mov x0, x4
 
@@ -108,6 +108,6 @@ jump_fcontext:
     add  sp, sp, #0xb0
 
     ret x4
-.size   jump_fcontext,.-jump_fcontext
+.size   tt_jump_fcontext,.-tt_jump_fcontext
 # Mark that we don't need executable stack.
 .section .note.GNU-stack,"",%progbits

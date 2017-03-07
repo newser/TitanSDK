@@ -24,7 +24,7 @@
 .model flat, c
 .code
 
-jump_fcontext PROC BOOST_CONTEXT_EXPORT
+tt_jump_fcontext PROC BOOST_CONTEXT_EXPORT
     ; prepare stack
     lea  esp, [esp-02ch]
 
@@ -61,7 +61,7 @@ jump_fcontext PROC BOOST_CONTEXT_EXPORT
     ; store ESP (pointing to context-data) in EAX
     mov  eax, esp
 
-    ; firstarg of jump_fcontext() == fcontext to jump to
+    ; firstarg of tt_jump_fcontext() == fcontext to jump to
     mov  ecx, [esp+030h]
     
     ; restore ESP (pointing to context-data) from ECX
@@ -102,11 +102,11 @@ jump_fcontext PROC BOOST_CONTEXT_EXPORT
     ; prepare stack
     lea  esp, [esp+030h]
 
-    ; return transfer_t
+    ; return tt_transfer_t
     ; FCTX == EAX, DATA == EDX
     mov  edx, [eax+034h]
 
     ; jump to context
     jmp ecx
-jump_fcontext ENDP
+tt_jump_fcontext ENDP
 END

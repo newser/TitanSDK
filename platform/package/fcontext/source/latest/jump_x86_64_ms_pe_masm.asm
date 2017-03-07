@@ -84,7 +84,7 @@
 
 .code
 
-jump_fcontext PROC EXPORT FRAME
+tt_jump_fcontext PROC EXPORT FRAME
     .endprolog
 
     ; prepare stack
@@ -187,7 +187,7 @@ jump_fcontext PROC EXPORT FRAME
     pop  r10
 
     ; transport_t returned in RAX
-    ; return parent fcontext_t
+    ; return parent tt_fcontext_t
     mov  [rax], r9
     ; return data
     mov  [rax+08h], r8
@@ -197,5 +197,5 @@ jump_fcontext PROC EXPORT FRAME
 
     ; indirect jump to context
     jmp  r10
-jump_fcontext ENDP
+tt_jump_fcontext ENDP
 END

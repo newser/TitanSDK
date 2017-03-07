@@ -50,7 +50,7 @@ typedef tt_result_t (*tt_fiber_routine_t)(IN void *param);
 typedef struct tt_fiber_sched_s
 {
     tt_dlist_t fiber_list;
-    struct tt_fiber_s *main_f;
+    struct tt_fiber_s *main_fiber;
     struct tt_fiber_s *current;
 } tt_fiber_sched_t;
 
@@ -68,7 +68,7 @@ typedef struct tt_fiber_s
     tt_dnode_t node;
     tt_fiber_routine_t routine;
     void *param;
-    tt_fiber_wrap_t wrap_f;
+    tt_fiber_wrap_t wrap_fb;
     tt_bool_t can_yield : 1;
 } tt_fiber_t;
 

@@ -172,7 +172,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_thread_pressure)
     tt_thread_attr_t attr;
 
     TT_TEST_CASE_ENTER()
-    // test start
+// test start
 
 #if (TT_UNIT_TEST_CASE_FAST & TT_UNIT_TEST_THREAD_FAST)
     TT_TEST_CASE_LEAVE()

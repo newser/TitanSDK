@@ -28,8 +28,8 @@ this file defines RSA native APIs
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <crypto/tt_rsa_def.h>
 #include <algorithm/tt_blob.h>
+#include <crypto/tt_rsa_def.h>
 
 #include <bcrypt.h>
 

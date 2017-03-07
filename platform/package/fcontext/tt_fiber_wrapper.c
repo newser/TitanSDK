@@ -20,9 +20,8 @@
 
 #include <fcontext/tt_fiber_wrapper.h>
 
-#include <fcontext/source/latest/fcontext.h>
-#include <os/tt_fiber.h>
 #include <memory/tt_memory_alloc.h>
+#include <os/tt_fiber.h>
 
 ////////////////////////////////////////////////////////////
 // internal macro
@@ -44,66 +43,71 @@
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-static void __fiber_routine_wrapper(IN transfer_t t);
+static void __fiber_routine_wrapper(IN tt_transfer_t t);
 
 ////////////////////////////////////////////////////////////
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-tt_result_t tt_fiber_create_wrap(IN tt_fiber_wrap_t *wrap_f,
+tt_result_t tt_fiber_create_wrap(IN tt_fiber_wrap_t *wrap_fb,
                                  IN tt_u32_t stack_size)
 {
-    wrap_f->fctx = NULL;
-    wrap_f->from = NULL;
+    void *stack;
 
-    wrap_f->stack = tt_malloc(stack_size);
-    if (wrap_f->stack == NULL) {
+    TT_U32_ALIGN_INC_PAGE(stack_size);
+
+    wrap_fb->fctx = NULL;
+    wrap_fb->from = NULL;
+
+    stack = tt_malloc(stack_size);
+    if (stack == NULL) {
         TT_ERROR("no mem for fiber stack");
         return TT_FAIL;
     }
-    wrap_f->stack = TT_PTR_INC(void, wrap_f->stack, stack_size);
-    wrap_f->stack_size = stack_size;
+    wrap_fb->stack = TT_PTR_INC(void, stack, stack_size);
+    wrap_fb->stack_size = stack_size;
 
     return TT_SUCCESS;
 }
 
-void tt_fiber_destroy_wrap(IN tt_fiber_wrap_t *wrap_f)
+void tt_fiber_destroy_wrap(IN tt_fiber_wrap_t *wrap_fb)
 {
-    tt_free(TT_PTR_DEC(void, wrap_f->stack, wrap_f->stack_size));
+    tt_free(TT_PTR_DEC(void, wrap_fb->stack, wrap_fb->stack_size));
 }
 
 void tt_fiber_switch_wrap(IN tt_fiber_sched_t *fs,
                           IN tt_fiber_t *from,
                           IN tt_fiber_t *to)
 {
-    tt_fiber_wrap_t *w_to = &to->wrap_f;
-    transfer_t t;
+    tt_fiber_wrap_t *wrap_to = &to->wrap_fb;
+    tt_transfer_t t;
 
-    if (w_to->fctx == NULL) {
-        w_to->fctx = make_fcontext(w_to->stack,
-                                   w_to->stack_size,
-                                   __fiber_routine_wrapper);
+    if (wrap_to->fctx == NULL) {
+        wrap_to->fctx = tt_make_fcontext(wrap_to->stack,
+                                         wrap_to->stack_size,
+                                         __fiber_routine_wrapper);
     }
 
-    w_to->from = from;
-    t = jump_fcontext(w_to->fctx, to);
+    wrap_to->from = from;
+    t = tt_jump_fcontext(wrap_to->fctx, to);
     if (t.data != NULL) {
-        w_to->fctx = t.fctx;
+        // must save to's context
+        wrap_to->fctx = t.fctx;
     } else {
         tt_dlist_remove(&fs->fiber_list, &to->node);
         tt_fiber_destroy(to);
     }
 }
 
-void __fiber_routine_wrapper(IN transfer_t t)
+void __fiber_routine_wrapper(IN tt_transfer_t t)
 {
-    tt_fiber_t *cf = t.data;
+    tt_fiber_t *cfb = t.data;
 
-    // save from's context
-    cf->wrap_f.from->wrap_f.fctx = t.fctx;
+    // must save from's context
+    cfb->wrap_fb.from->wrap_fb.fctx = t.fctx;
 
-    cf->routine(cf->param);
+    cfb->routine(cfb->param);
 
     // note return NULL indicating the fiber is terminated
-    jump_fcontext(t.fctx, NULL);
+    tt_jump_fcontext(t.fctx, NULL);
 }

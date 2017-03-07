@@ -28,7 +28,7 @@
 
 #include <tt_basic_type.h>
 
-#include <fcontext/source/latest/fcontext.h>
+#include <fcontext/source/latest/tt_fcontext.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
@@ -43,7 +43,7 @@ struct tt_fiber_sched_s;
 
 typedef struct tt_fiber_wrap_s
 {
-    fcontext_t fctx;
+    tt_fcontext_t fctx;
     struct tt_fiber_s *from;
     void *stack;
     tt_u32_t stack_size;
@@ -57,10 +57,10 @@ typedef struct tt_fiber_wrap_s
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern tt_result_t tt_fiber_create_wrap(IN tt_fiber_wrap_t *wrap_f,
+extern tt_result_t tt_fiber_create_wrap(IN tt_fiber_wrap_t *wrap_fb,
                                         IN tt_u32_t stack_size);
 
-extern void tt_fiber_destroy_wrap(IN tt_fiber_wrap_t *wrap_f);
+extern void tt_fiber_destroy_wrap(IN tt_fiber_wrap_t *wrap_fb);
 
 extern void tt_fiber_switch_wrap(IN struct tt_fiber_sched_s *fs,
                                  IN struct tt_fiber_s *from,

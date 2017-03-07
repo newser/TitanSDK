@@ -39,10 +39,10 @@
  *******************************************************/
 
 .text
-.globl jump_fcontext
+.globl tt_jump_fcontext
 .align 2
-.type jump_fcontext,%function
-jump_fcontext:
+.type tt_jump_fcontext,%function
+tt_jump_fcontext:
     @ save LR as PC
     push {lr}
     @ save hidden,V1-V8,LR
@@ -71,16 +71,16 @@ jump_fcontext:
     @ restore hidden,V1-V8,LR
     pop {a4,v1-v8,lr}
 
-    @ return transfer_t from jump
+    @ return tt_transfer_t from jump
     str  a1, [a4, #0]
     str  a3, [a4, #4]
-    @ pass transfer_t as first arg in context function
+    @ pass tt_transfer_t as first arg in context function
     @ A1 == FCTX, A2 == DATA
     mov  a2, a3
 
     @ restore PC
     pop {pc}
-.size jump_fcontext,.-jump_fcontext
+.size tt_jump_fcontext,.-tt_jump_fcontext
 
 @ Mark that we don't need executable stack.
 .section .note.GNU-stack,"",%progbits

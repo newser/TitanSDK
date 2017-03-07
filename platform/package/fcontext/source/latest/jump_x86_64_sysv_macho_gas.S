@@ -25,9 +25,9 @@
  ****************************************************************************************/
 
 .text
-.globl _jump_fcontext
+.globl _tt_jump_fcontext
 .align 8
-_jump_fcontext:
+_tt_jump_fcontext:
     leaq  -0x38(%rsp), %rsp /* prepare stack */
 
     stmxcsr  (%rsp)     /* save MMX control- and status-word */
@@ -60,10 +60,10 @@ _jump_fcontext:
 
     leaq  0x40(%rsp), %rsp /* prepare stack */
 
-    /* return transfer_t from jump */
+    /* return tt_transfer_t from jump */
     /* RAX == fctx, RDX == data */
     movq  %rsi, %rdx
-    /* pass transfer_t as first arg in context function */
+    /* pass tt_transfer_t as first arg in context function */
     /* RDI == fctx, RSI == data */
     movq  %rax, %rdi
 

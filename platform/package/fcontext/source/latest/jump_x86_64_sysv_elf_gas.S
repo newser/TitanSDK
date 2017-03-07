@@ -25,10 +25,10 @@
  ****************************************************************************************/
 
 .text
-.globl jump_fcontext
-.type jump_fcontext,@function
+.globl tt_jump_fcontext
+.type tt_jump_fcontext,@function
 .align 16
-jump_fcontext:
+tt_jump_fcontext:
     leaq  -0x38(%rsp), %rsp /* prepare stack */
 
     stmxcsr  (%rsp)     /* save MMX control- and status-word */
@@ -61,16 +61,16 @@ jump_fcontext:
 
     leaq  0x40(%rsp), %rsp /* prepare stack */
 
-    /* return transfer_t from jump */
+    /* return tt_transfer_t from jump */
     /* RAX == fctx, RDX == data */
     movq  %rsi, %rdx
-    /* pass transfer_t as first arg in context function */
+    /* pass tt_transfer_t as first arg in context function */
     /* RDI == fctx, RSI == data */
     movq  %rax, %rdi
 
     /* indirect jump to context */
     jmp  *%r8
-.size jump_fcontext,.-jump_fcontext
+.size tt_jump_fcontext,.-tt_jump_fcontext
 
 /* Mark that we don't need executable stack.  */
 .section .note.GNU-stack,"",%progbits

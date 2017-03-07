@@ -28,8 +28,8 @@ this file defines RSA port layer APIs
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <crypto/tt_rsa_def.h>
 #include <algorithm/tt_blob.h>
+#include <crypto/tt_rsa_def.h>
 
 #ifdef TTCM_PLATFORM_CRYPTO_ENABLE
 #include <openssl/rsa.h>

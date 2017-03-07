@@ -381,8 +381,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_rwlock_mt)
     // compare with cs with spin
     begin = tt_time_ref();
     for (i = 0; i < sizeof(test_threads) / sizeof(tt_thread_t *); ++i) {
-        test_threads[i] =
-            tt_thread_create(test_routine_2, (void *)i, NULL);
+        test_threads[i] = tt_thread_create(test_routine_2, (void *)i, NULL);
     }
     for (i = 0; i < sizeof(test_threads) / sizeof(tt_thread_t *); ++i) {
         tt_thread_wait(test_threads[i]);

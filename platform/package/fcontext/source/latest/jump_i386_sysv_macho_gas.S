@@ -25,9 +25,9 @@
  ****************************************************************************************/
 
 .text
-.globl _jump_fcontext
+.globl _tt_jump_fcontext
 .align 2
-_jump_fcontext:
+_tt_jump_fcontext:
     leal  -0x18(%esp), %esp  /* prepare stack */
 
     stmxcsr  (%esp)     /* save MMX control- and status-word */
@@ -41,10 +41,10 @@ _jump_fcontext:
     /* store ESP (pointing to context-data) in ECX */
     movl  %esp, %ecx
 
-    /* first arg of jump_fcontext() == fcontext to jump to */
+    /* first arg of tt_jump_fcontext() == fcontext to jump to */
     movl  0x20(%esp), %eax
 
-    /* second arg of jump_fcontext() == data to be transferred */
+    /* second arg of tt_jump_fcontext() == data to be transferred */
     movl  0x24(%esp), %edx
 
     /* restore ESP (pointing to context-data) from EAX */
@@ -52,7 +52,7 @@ _jump_fcontext:
 
     /* address of returned transport_t */
     movl 0x1c(%esp), %eax
-    /* return parent fcontext_t */
+    /* return parent tt_fcontext_t */
     movl  %ecx, (%eax)
     /* return data */
     movl %edx, 0x4(%eax)

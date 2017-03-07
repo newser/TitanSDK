@@ -28,9 +28,9 @@ this file defines HMAC port layer APIs
 // import header files
 ////////////////////////////////////////////////////////////
 
+#include <algorithm/tt_blob.h>
 #include <crypto/tt_hmac_def.h>
 #include <tt_basic_type.h>
-#include <algorithm/tt_blob.h>
 
 #ifdef TTCM_PLATFORM_CRYPTO_ENABLE
 #include <openssl/hmac.h>

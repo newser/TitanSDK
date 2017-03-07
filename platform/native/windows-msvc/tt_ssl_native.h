@@ -28,8 +28,8 @@ this file defines ts ssl native
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <tt_basic_type.h>
 #include <algorithm/tt_blob.h>
+#include <tt_basic_type.h>
 
 #ifdef TT_PLATFORM_SSL_ENABLE
 // required by sspi.h

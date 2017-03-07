@@ -242,7 +242,7 @@ static tt_result_t __ut_par(IN tt_buf_t *buf,
 
     if (v % 5 != 0) {
         ret = (tt_uintptr_t)v;
-        *parse_ret = (void*)ret;
+        *parse_ret = (void *)ret;
         return TT_SUCCESS;
     } else {
         return TT_PROCEEDING;

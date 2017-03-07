@@ -254,6 +254,10 @@ static tt_result_t __test_fiber_2(IN void *param)
     tt_u32_t i, num = 0;
 
     for (i = 0; i < FIBER_NUM; ++i) {
+        tt_fiber_attr_t fattr;
+        tt_fiber_attr_default(&fattr);
+        fattr.stack_size = tt_rand_u32() % (1 << 6);
+
         __fb_ar[i] = tt_fiber_create(__fiber_2, (void *)(tt_uintptr_t)i, NULL);
         if (__fb_ar[i] == NULL) {
             __err_line = __LINE__;

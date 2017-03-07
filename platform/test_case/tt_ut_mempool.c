@@ -23,8 +23,8 @@
 
 #include <algorithm/tt_stack.h>
 #include <log/tt_log.h>
-#include <memory/tt_memory_pool.h>
 #include <memory/tt_memory_alloc.h>
+#include <memory/tt_memory_pool.h>
 #include <memory/tt_memory_spring.h>
 #include <memory/tt_page.h>
 #include <os/tt_mutex.h>
