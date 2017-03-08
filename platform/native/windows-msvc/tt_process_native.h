@@ -68,4 +68,6 @@ extern tt_result_t tt_process_wait_ntv(IN tt_process_ntv_t *sys_proc,
 
 extern void tt_process_exit_ntv(IN tt_u8_t exit_code);
 
+extern tt_char_t *tt_process_path_ntv(IN OPT tt_process_ntv_t *sys_proc);
+
 #endif /* __TT_PROCESS_NATIVE__ */

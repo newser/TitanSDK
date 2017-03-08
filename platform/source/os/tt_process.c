@@ -21,6 +21,7 @@
 #include <os/tt_process.h>
 
 #include <misc/tt_assert.h>
+#include <misc/tt_util.h>
 
 #include <tt_cstd_api.h>
 
@@ -57,16 +58,17 @@ tt_result_t tt_process_create(IN tt_process_t *proc,
                               IN OPT tt_char_t *const arg[],
                               IN OPT tt_process_attr_t *attr)
 {
+    tt_process_attr_t __attr;
+    
     TT_ASSERT(proc != NULL);
     TT_ASSERT(path != NULL);
 
-    if (attr != NULL) {
-        tt_memcpy(&proc->attr, attr, sizeof(tt_process_attr_t));
-    } else {
-        tt_process_attr_default(&proc->attr);
+    if (attr == NULL) {
+        tt_process_attr_default(&__attr);
+        attr = &__attr;
     }
 
-    return tt_process_create_ntv(&proc->sys_process, path, arg, &proc->attr);
+    return tt_process_create_ntv(&proc->sys_proc, path, arg, attr);
 }
 
 tt_result_t tt_process_wait(IN tt_process_t *proc,
@@ -75,17 +77,23 @@ tt_result_t tt_process_wait(IN tt_process_t *proc,
 {
     TT_ASSERT(proc != NULL);
 
-    return tt_process_wait_ntv(&proc->sys_process, block, exit_code);
+    return tt_process_wait_ntv(&proc->sys_proc, block, exit_code);
 }
 
 void tt_process_attr_default(IN tt_process_attr_t *attr)
 {
     TT_ASSERT(attr != NULL);
 
-    tt_memset(attr, 0, sizeof(tt_process_attr_t));
+    attr->reserved = 0;
 }
 
 void tt_process_exit(IN tt_u8_t exit_code)
 {
     tt_process_exit_ntv(exit_code);
 }
+
+tt_char_t *tt_process_path(IN OPT tt_process_t *proc)
+{
+    return tt_process_path_ntv(TT_COND(proc != NULL, &proc->sys_proc, NULL));
+}
+
