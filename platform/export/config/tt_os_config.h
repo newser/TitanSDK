@@ -85,12 +85,12 @@ if enabled, name of the function who locked the spinlock would be recorded
 @def TT_RWLOCK_DEBUG_OPT
 read write lock debug options
 */
-#define TT_RWLOCK_DEBUG_OPT (TT_RWLOCK_LOCKER_DEBUG)
+#define TT_RWLOCK_DEBUG_OPT (TT_RWLOCK_DEBUG_TAG)
 /**
-@def TT_RWLOCK_LOCKER_DEBUG
+@def TT_RWLOCK_DEBUG_TAG
 if enabled, name of the function who locked the rwlock would be recorded
 */
-#define TT_RWLOCK_LOCKER_DEBUG (1 << 0)
+#define TT_RWLOCK_DEBUG_TAG (1 << 0)
 
 // ========================================
 // atomic
