@@ -26,10 +26,10 @@
 #include <tt_sys_error.h>
 
 #include <errno.h>
+#include <mach-o/dyld.h>
 #include <stdlib.h>
 #include <sys/types.h>
 #include <sys/wait.h>
-#include <mach-o/dyld.h>
 
 ////////////////////////////////////////////////////////////
 // internal macro
@@ -124,26 +124,26 @@ tt_char_t *tt_process_path_ntv(IN OPT tt_process_ntv_t *sys_proc)
 {
     uint32_t len = 0;
     tt_char_t *path;
-    
-    _NSGetExecutablePath((char*)&path, &len);
+
+    _NSGetExecutablePath((char *)&path, &len);
     if (len == 0) {
         TT_ERROR("fail to get path len");
         return NULL;
     }
     // returned len including terminating null
-    
+
     path = tt_malloc(len);
     if (path == NULL) {
         TT_ERROR("no mem for path");
         return NULL;
     }
-    
+
     if (_NSGetExecutablePath(path, &len) != 0) {
         TT_ERROR("fail to get path");
         tt_free(path);
         return NULL;
     }
     // path is already null-terminated
-    
+
     return path;
 }

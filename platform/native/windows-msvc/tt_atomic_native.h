@@ -199,8 +199,8 @@ compare atomic with comparand, if equal, assign val to p
 - TT_FAIL, otherwise
 */
 tt_inline tt_bool_t tt_atomic_s32_cas_ntv(IN OUT tt_atomic_s32_ntv_t *a,
-                                            IN tt_s32_t comparand,
-                                            IN tt_s32_t val)
+                                          IN tt_s32_t comparand,
+                                          IN tt_s32_t val)
 {
 #ifdef TT_ATOMIC_ALIGNMENT_CHECK
     TT_PTR_ALIGNED(a, 2);
@@ -340,14 +340,15 @@ compare p with comparand, if equal, exchange p with val
 - TT_FAIL, otherwise
 */
 tt_inline tt_bool_t tt_atomic_s64_cas_ntv(IN OUT tt_atomic_s64_ntv_t *a,
-                                            IN tt_s64_t comparand,
-                                            IN tt_s64_t val)
+                                          IN tt_s64_t comparand,
+                                          IN tt_s64_t val)
 {
 #ifdef TT_ATOMIC_ALIGNMENT_CHECK
     TT_PTR_ALIGNED(a, 3);
 #endif
 
-    return TT_BOOL(InterlockedCompareExchange64(a, val, comparand) == comparand);
+    return TT_BOOL(InterlockedCompareExchange64(a, val, comparand) ==
+                   comparand);
 }
 
 /**
@@ -383,8 +384,7 @@ exchange atomic pointer with new value
 @return
 the original value
 */
-tt_inline void tt_atomic_ptr_set_ntv(IN OUT tt_ptr_t *a,
-                                         IN tt_ptr_t val)
+tt_inline void tt_atomic_ptr_set_ntv(IN OUT tt_ptr_t *a, IN tt_ptr_t val)
 {
 #ifdef TT_ATOMIC_ALIGNMENT_CHECK
 #if TT_ENV_IS_64BIT
@@ -425,8 +425,8 @@ compare p with comparand, if equal, exchange p with val
 - TT_FAIL, otherwise
 */
 tt_inline tt_bool_t tt_atomic_ptr_cas_ntv(IN OUT tt_ptr_t *a,
-                                            IN tt_ptr_t comparand,
-                                            IN tt_ptr_t val)
+                                          IN tt_ptr_t comparand,
+                                          IN tt_ptr_t val)
 {
 #ifdef TT_ATOMIC_ALIGNMENT_CHECK
 #if TT_ENV_IS_64BIT
@@ -436,7 +436,8 @@ tt_inline tt_bool_t tt_atomic_ptr_cas_ntv(IN OUT tt_ptr_t *a,
 #endif
 #endif
 
-    return TT_BOOL(InterlockedCompareExchangePointer(a, val, comparand) == comparand);
+    return TT_BOOL(InterlockedCompareExchangePointer(a, val, comparand) ==
+                   comparand);
 }
 
 #endif /* __TT_ATOMIC_NATIVE__ */

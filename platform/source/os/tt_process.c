@@ -59,7 +59,7 @@ tt_result_t tt_process_create(IN tt_process_t *proc,
                               IN OPT tt_process_attr_t *attr)
 {
     tt_process_attr_t __attr;
-    
+
     TT_ASSERT(proc != NULL);
     TT_ASSERT(path != NULL);
 
@@ -96,4 +96,3 @@ tt_char_t *tt_process_path(IN OPT tt_process_t *proc)
 {
     return tt_process_path_ntv(TT_COND(proc != NULL, &proc->sys_proc, NULL));
 }
-

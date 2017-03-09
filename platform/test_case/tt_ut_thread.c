@@ -460,9 +460,9 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_process_basic)
     tt_u8_t ec = 0;
 
     tt_char_t *argv[20] = {0};
-	tt_char_t *path;
+    tt_char_t *path;
 
-	TT_TEST_CASE_ENTER()
+    TT_TEST_CASE_ENTER()
 
     path = tt_process_path(NULL);
     TT_TEST_CHECK_NOT_EQUAL(path, NULL, "");

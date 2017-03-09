@@ -185,7 +185,7 @@ tt_char_t *tt_process_path_ntv(IN OPT tt_process_ntv_t *sys_proc)
 {
     HANDLE hProcess;
     tt_u32_t nc;
-	wchar_t wc_path[1024] = {0} ;
+    wchar_t wc_path[1024] = {0};
     tt_char_t *path;
 
     if (sys_proc != NULL) {
@@ -193,12 +193,9 @@ tt_char_t *tt_process_path_ntv(IN OPT tt_process_ntv_t *sys_proc)
     } else {
         hProcess = GetCurrentProcess();
     }
-    
-    nc = (tt_u32_t)sizeof(wc_path)/sizeof(wchar_t);
-    if (!QueryFullProcessImageNameW(hProcess,
-                                    0,
-                                    wc_path,
-                                    &nc)) {
+
+    nc = (tt_u32_t)sizeof(wc_path) / sizeof(wchar_t);
+    if (!QueryFullProcessImageNameW(hProcess, 0, wc_path, &nc)) {
         TT_ERROR_NTV("fail to get process name");
         return NULL;
     }
@@ -210,7 +207,7 @@ tt_char_t *tt_process_path_ntv(IN OPT tt_process_ntv_t *sys_proc)
         return NULL;
     }
     // nc includes the terminating 0 if using -1
-    
+
     path = tt_malloc(nc);
     if (path == NULL) {
         TT_ERROR_NTV("no mem for process path");
@@ -221,4 +218,3 @@ tt_char_t *tt_process_path_ntv(IN OPT tt_process_ntv_t *sys_proc)
     // path is null-terminated when using -1
     return path;
 }
-
