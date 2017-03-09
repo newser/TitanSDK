@@ -47,18 +47,22 @@
 tt_result_t tt_rwlock_create_ntv(IN tt_rwlock_ntv_t *sys_rwlock,
                                  IN struct tt_rwlock_attr_s *attr)
 {
-    int ret = pthread_rwlock_init(&sys_rwlock->rwlock, NULL);
-    if (ret == 0) {
-        return TT_SUCCESS;
-    } else {
+    int ret;
+
+    ret = pthread_rwlock_init(&sys_rwlock->rwlock, NULL);
+    if (ret != 0) {
         TT_ERROR("fail to create system rwlock: %d[%s]", ret, strerror(ret));
         return TT_FAIL;
     }
+
+    return TT_SUCCESS;
 }
 
 void tt_rwlock_destroy_ntv(IN tt_rwlock_ntv_t *sys_rwlock)
 {
-    int ret = pthread_rwlock_destroy(&sys_rwlock->rwlock);
+    int ret;
+
+    ret = pthread_rwlock_destroy(&sys_rwlock->rwlock);
     if (ret != 0) {
         TT_ERROR("fail to destroy system rwlock: %d[%s]", ret, strerror(ret));
     }
