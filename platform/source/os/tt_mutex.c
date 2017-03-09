@@ -20,10 +20,6 @@
 
 #include <os/tt_mutex.h>
 
-#include <misc/tt_assert.h>
-
-#include <tt_cstd_api.c>
-
 ////////////////////////////////////////////////////////////
 // internal macro
 ////////////////////////////////////////////////////////////
@@ -52,21 +48,18 @@ void tt_mutex_component_register()
 {
 }
 
-tt_result_t tt_mutex_create(IN tt_mutex_t *mutex, IN tt_mutex_attr_t *attr)
+tt_result_t tt_mutex_create(IN tt_mutex_t *mutex, IN OPT tt_mutex_attr_t *attr)
 {
+    tt_mutex_attr_t __attr;
+
     TT_ASSERT(mutex != NULL);
 
-    if (attr != NULL) {
-        tt_memcpy(&mutex->attr, attr, sizeof(tt_mutex_attr_t));
-    } else {
-        tt_mutex_attr_default(&mutex->attr);
+    if (attr == NULL) {
+        tt_mutex_attr_default(&__attr);
+        attr = &__attr;
     }
 
-    if (!TT_OK(tt_mutex_create_ntv(&mutex->sys_mutex, &mutex->attr))) {
-        return TT_FAIL;
-    }
-
-    return TT_SUCCESS;
+    return tt_mutex_create_ntv(&mutex->sys_mutex, attr);
 }
 
 void tt_mutex_destroy(IN tt_mutex_t *mutex)
@@ -81,53 +74,5 @@ void tt_mutex_attr_default(IN tt_mutex_attr_t *attr)
     TT_ASSERT(attr != NULL);
 
     attr->config_recursive = TT_FALSE;
-
     attr->recursive = TT_FALSE;
-}
-
-void __mutex_acquire(IN tt_mutex_t *mutex
-#if (TT_MUTEX_DEBUG_OPT & TT_MUTEX_LOCKER_DEBUG)
-                     ,
-                     IN const tt_char_t *function,
-                     IN tt_u32_t line
-#endif
-                     )
-{
-    tt_result_t result;
-
-    TT_ASSERT(mutex != NULL);
-
-    result = tt_mutex_acquire_ntv(&mutex->sys_mutex);
-    TT_ASSERT_ALWAYS(TT_OK(result));
-}
-
-tt_result_t __mutex_try_acquire(IN tt_mutex_t *mutex
-#if (TT_MUTEX_DEBUG_OPT & TT_MUTEX_LOCKER_DEBUG)
-                                ,
-                                IN const tt_char_t *function,
-                                IN tt_u32_t line
-#endif
-                                )
-{
-    tt_result_t result;
-
-    TT_ASSERT(mutex != NULL);
-
-    result = tt_mutex_try_acquire_ntv(&mutex->sys_mutex);
-    if (!TT_OK(result)) {
-        TT_ASSERT_ALWAYS(result == TT_TIME_OUT);
-        return TT_TIME_OUT;
-    }
-
-    return TT_SUCCESS;
-}
-
-void tt_mutex_release(IN tt_mutex_t *mutex)
-{
-    tt_result_t result;
-
-    TT_ASSERT(mutex != NULL);
-
-    result = tt_mutex_release_ntv(&mutex->sys_mutex);
-    TT_ASSERT_ALWAYS(TT_OK(result));
 }

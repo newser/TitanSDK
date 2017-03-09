@@ -25,7 +25,6 @@ else
   FLIST=$(git status -s $FPATH | awk '/\.h$/{if ($1 != "D") print $NF}')
   FLIST=$FLIST" "$(git status -s $FPATH | awk '/\.c$/{if ($1 != "D") print $NF}')
 fi
-echo $FLIST
 
 # check clang-format
 clang-format -h &> /dev/null

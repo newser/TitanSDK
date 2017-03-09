@@ -34,19 +34,19 @@ this file specifies interfaces of mutex
 // macro definition
 ////////////////////////////////////////////////////////////
 
-#if (TT_MUTEX_DEBUG_OPT & TT_MUTEX_LOCKER_DEBUG)
+#if (TT_MUTEX_DEBUG_OPT & TT_MUTEX_DEBUG_TAG)
 
 /**
  @def tt_mutex_acquire(m)
- acquire a mutex, wrapper of @ref __mutex_acquire
+ acquire a mutex, wrapper of @ref tt_mutex_acquire_tag
 
  @param [in] m the mutex to be acquired
  */
-#define tt_mutex_acquire(m) __mutex_acquire(m, __FUNCTION__, __LINE__)
+#define tt_mutex_acquire(m) tt_mutex_acquire_tag(m, __FUNCTION__, __LINE__)
 
 /**
- @def __mutex_try_acquire(m)
- try to acquire a mutex, wrapper of @ref __mutex_try_acquire
+ @def tt_mutex_try_acquire_tag(m)
+ try to acquire a mutex, wrapper of @ref tt_mutex_try_acquire_tag
 
  @param [in] m the mutex to be acquired
 
@@ -54,13 +54,14 @@ this file specifies interfaces of mutex
  - TT_SUCCESS, if locking done
  - TT_TIMEOUT, if mutex is held by another thread
  */
-#define tt_mutex_try_acquire(m) __mutex_try_acquire(m, __FUNCTION__, __LINE__)
+#define tt_mutex_try_acquire(m)                                                \
+    tt_mutex_try_acquire_tag(m, __FUNCTION__, __LINE__)
 
 #else
 
-#define tt_mutex_acquire(m) __mutex_acquire(m)
+#define tt_mutex_acquire(m) tt_mutex_acquire_tag(m)
 
-#define tt_mutex_try_acquire(m) __mutex_try_acquire(m)
+#define tt_mutex_try_acquire(m) tt_mutex_try_acquire_tag(m)
 
 #endif
 
@@ -75,7 +76,6 @@ mutex attribute
 typedef struct tt_mutex_attr_s
 {
     tt_bool_t config_recursive : 1;
-
     tt_bool_t recursive : 1;
 } tt_mutex_attr_t;
 
@@ -85,18 +85,7 @@ mutex struct
 */
 typedef struct tt_mutex_s
 {
-    __TT_PRIVATE__
-
-    /**
-    @var attr
-    mutex attribute
-    */
-    tt_mutex_attr_t attr;
-
-    /**
-    @var sys_mutex
-    the real system mutex
-    */
+    /** native mutex */
     tt_mutex_ntv_t sys_mutex;
 } tt_mutex_t;
 
@@ -146,21 +135,24 @@ extern void tt_mutex_destroy(IN tt_mutex_t *mutex);
 void tt_mutex_attr_default(IN tt_mutex_attr_t *attr);
 
 /**
-@fn void __mutex_acquire(IN tt_mutex_t *mutex)
+@fn void tt_mutex_acquire_tag(IN tt_mutex_t *mutex)
 acquire a mutex
 
 @param [in] mutex the mutex to be acquired
 */
-extern void __mutex_acquire(IN tt_mutex_t *mutex
-#if (TT_MUTEX_DEBUG_OPT & TT_MUTEX_LOCKER_DEBUG)
-                            ,
-                            IN const tt_char_t *function,
-                            IN tt_u32_t line
+tt_inline void tt_mutex_acquire_tag(IN tt_mutex_t *mutex
+#if (TT_MUTEX_DEBUG_OPT & TT_MUTEX_DEBUG_TAG)
+                                    ,
+                                    IN const tt_char_t *function,
+                                    IN tt_u32_t line
 #endif
-                            );
+                                    )
+{
+    tt_mutex_acquire_ntv(&mutex->sys_mutex);
+}
 
 /**
-@fn void __mutex_try_acquire(IN tt_mutex_t *mutex)
+@fn void tt_mutex_try_acquire_tag(IN tt_mutex_t *mutex)
 acquire a mutex
 
 @param [in] mutex the mutex to be acquired
@@ -169,13 +161,16 @@ acquire a mutex
 - TT_SUCCESS, if locking done
 - TT_TIME_OUT, if can not lock now
 */
-extern tt_result_t __mutex_try_acquire(IN tt_mutex_t *mutex
-#if (TT_MUTEX_DEBUG_OPT & TT_MUTEX_LOCKER_DEBUG)
-                                       ,
-                                       IN const tt_char_t *function,
-                                       IN tt_u32_t line
+tt_inline tt_result_t tt_mutex_try_acquire_tag(IN tt_mutex_t *mutex
+#if (TT_MUTEX_DEBUG_OPT & TT_MUTEX_DEBUG_TAG)
+                                               ,
+                                               IN const tt_char_t *function,
+                                               IN tt_u32_t line
 #endif
-                                       );
+                                               )
+{
+    return tt_mutex_try_acquire_ntv(&mutex->sys_mutex);
+}
 
 /**
 @fn void tt_mutex_release(IN tt_mutex_t *mutex)
@@ -183,6 +178,9 @@ release a mutex
 
 @param [in] mutex the mutex to be unlocked
 */
-extern void tt_mutex_release(IN tt_mutex_t *mutex);
+tt_inline void tt_mutex_release(IN tt_mutex_t *mutex)
+{
+    tt_mutex_release_ntv(&mutex->sys_mutex);
+}
 
 #endif /* __TT_MUTEX__ */

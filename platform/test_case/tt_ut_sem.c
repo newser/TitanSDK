@@ -135,6 +135,16 @@ TT_TEST_CASE("tt_unit_test_sem_basic",
 
     tt_sem_destroy(&lock);
 
+    // with large count
+    ret = tt_sem_create(&lock, ~0, NULL);
+    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+
+    // lock, wait for 100ms
+    ret = tt_sem_acquire(&lock, TT_TIME_INFINITE);
+    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+
+    tt_sem_destroy(&lock);
+
     // create with counter value 2
     tt_memset(&attr, 0, sizeof(tt_sem_attr_t));
     ret = tt_sem_create(&lock, 2, &attr);

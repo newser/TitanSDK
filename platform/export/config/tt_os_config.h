@@ -40,12 +40,12 @@ this file includes definitions in macros for ts os
 @def TT_MUTEX_DEBUG_OPT
 mutex debug options
 */
-#define TT_MUTEX_DEBUG_OPT (TT_MUTEX_LOCKER_DEBUG)
+#define TT_MUTEX_DEBUG_OPT (TT_MUTEX_DEBUG_TAG)
 /**
-@def TT_MUTEX_LOCKER_DEBUG
+@def TT_MUTEX_DEBUG_TAG
 if enabled, name of the function who locked the mutex would be recorded
 */
-#define TT_MUTEX_LOCKER_DEBUG (1 << 0)
+#define TT_MUTEX_DEBUG_TAG (1 << 0)
 
 // ========================================
 // semaphore
@@ -55,12 +55,12 @@ if enabled, name of the function who locked the mutex would be recorded
 @def TT_SEM_DEBUG_OPT
 semaphore debug options
 */
-#define TT_SEM_DEBUG_OPT (TT_SEM_LOCKER_DEBUG)
+#define TT_SEM_DEBUG_OPT (TT_SEM_DEBUG_TAG)
 /**
-@def TT_SEM_LOCKER_DEBUG
+@def TT_SEM_DEBUG_TAG
 if enabled, each semaphore would record the locker name
 */
-#define TT_SEM_LOCKER_DEBUG (1 << 1)
+#define TT_SEM_DEBUG_TAG (1 << 1)
 
 // ========================================
 // spinlock
