@@ -389,7 +389,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_lpatn_logger)
     tt_char_t f06[] = "{logger}";
     tt_char_t f07[] = "{logger-}";
     tt_char_t f1[] = "{logger:}";
-    tt_char_t f2[] = "{logger:at least 7 char: [%07s]. end}";
+    tt_char_t f2[] = "{logger:at least 7 char: [%7s]. end}";
 
     TT_TEST_CASE_ENTER()
     // test start
@@ -483,7 +483,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_lpatn_logger)
         ret = tt_logfld_output(lpf, &entry, &buf);
         TT_TEST_CHECK_SUCCESS(ret, "");
         TT_TEST_CHECK_EQUAL(tt_buf_cmp_cstr(&buf,
-                                            "at least 7 char: [0000000]. end"),
+                                            "at least 7 char: [       ]. end"),
                             0,
                             "");
 
@@ -492,7 +492,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_lpatn_logger)
         ret = tt_logfld_output(lpf, &entry, &buf);
         TT_TEST_CHECK_SUCCESS(ret, "");
         TT_TEST_CHECK_EQUAL(tt_buf_cmp_cstr(&buf,
-                                            "at least 7 char: [0000001]. end"),
+                                            "at least 7 char: [      1]. end"),
                             0,
                             "");
 
@@ -528,7 +528,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_lpatn_content)
     tt_char_t f06[] = "{content}";
     tt_char_t f07[] = "{content-}";
     tt_char_t f1[] = "{content:}";
-    tt_char_t f2[] = "{content:at least 7 char: [%07s]. end}";
+    tt_char_t f2[] = "{content:at least 7 char: [%7s]. end}";
 
     TT_TEST_CASE_ENTER()
     // test start
@@ -622,7 +622,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_lpatn_content)
         ret = tt_logfld_output(lpf, &entry, &buf);
         TT_TEST_CHECK_SUCCESS(ret, "");
         TT_TEST_CHECK_EQUAL(tt_buf_cmp_cstr(&buf,
-                                            "at least 7 char: [0000000]. end"),
+                                            "at least 7 char: [       ]. end"),
                             0,
                             "");
 
@@ -631,7 +631,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_lpatn_content)
         ret = tt_logfld_output(lpf, &entry, &buf);
         TT_TEST_CHECK_SUCCESS(ret, "");
         TT_TEST_CHECK_EQUAL(tt_buf_cmp_cstr(&buf,
-                                            "at least 7 char: [0000001]. end"),
+                                            "at least 7 char: [      1]. end"),
                             0,
                             "");
 
@@ -667,7 +667,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_lpatn_func)
     tt_char_t f06[] = "{function}";
     tt_char_t f07[] = "{function-}";
     tt_char_t f1[] = "{function:}";
-    tt_char_t f2[] = "{function:at least 7 char: [%07s]. end}";
+    tt_char_t f2[] = "{function:at least 7 char: [%7s]. end}";
 
     TT_TEST_CASE_ENTER()
     // test start
@@ -761,7 +761,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_lpatn_func)
         ret = tt_logfld_output(lpf, &entry, &buf);
         TT_TEST_CHECK_SUCCESS(ret, "");
         TT_TEST_CHECK_EQUAL(tt_buf_cmp_cstr(&buf,
-                                            "at least 7 char: [0000000]. end"),
+                                            "at least 7 char: [       ]. end"),
                             0,
                             "");
 
@@ -770,7 +770,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_lpatn_func)
         ret = tt_logfld_output(lpf, &entry, &buf);
         TT_TEST_CHECK_SUCCESS(ret, "");
         TT_TEST_CHECK_EQUAL(tt_buf_cmp_cstr(&buf,
-                                            "at least 7 char: [0000001]. end"),
+                                            "at least 7 char: [      1]. end"),
                             0,
                             "");
 
