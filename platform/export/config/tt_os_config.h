@@ -70,12 +70,12 @@ if enabled, each semaphore would record the locker name
 @def TT_SPINLOCK_DEBUG_OPT
 spinlock debug options
 */
-#define TT_SPINLOCK_DEBUG_OPT (TT_SPINLOCK_LOCKER_DEBUG)
+#define TT_SPINLOCK_DEBUG_OPT (TT_SPINLOCK_DEBUG_TAG)
 /**
-@def TT_SPINLOCK_LOCKER_DEBUG
+@def TT_SPINLOCK_DEBUG_TAG
 if enabled, name of the function who locked the spinlock would be recorded
 */
-#define TT_SPINLOCK_LOCKER_DEBUG (1 << 0)
+#define TT_SPINLOCK_DEBUG_TAG (1 << 0)
 
 // ========================================
 // read write lock

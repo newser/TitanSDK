@@ -24,8 +24,6 @@
 #include <init/tt_profile.h>
 #include <misc/tt_assert.h>
 
-#include <tt_cstd_api.h>
-
 ////////////////////////////////////////////////////////////
 // internal macro
 ////////////////////////////////////////////////////////////
@@ -79,28 +77,25 @@ tt_result_t __spinlock_component_init(IN tt_component_t *comp,
 }
 
 tt_result_t tt_spinlock_create(IN tt_spinlock_t *slock,
-                               IN tt_spinlock_attr_t *attr)
+                               IN OPT tt_spinlock_attr_t *attr)
 {
+    tt_spinlock_attr_t __attr;
+
     TT_ASSERT(slock != NULL);
 
     if (attr != NULL) {
-        tt_memcpy(&slock->attr, attr, sizeof(tt_spinlock_attr_t));
-    } else {
-        tt_spinlock_attr_default(&slock->attr);
+        tt_spinlock_attr_default(&__attr);
+        attr = &__attr;
     }
 
-    if (!TT_OK(tt_spinlock_create_ntv(&slock->sys_spinlock, &slock->attr))) {
-        return TT_FAIL;
-    }
-
-    return TT_SUCCESS;
+    return tt_spinlock_create_ntv(&slock->sys_lock, attr);
 }
 
 void tt_spinlock_destroy(IN tt_spinlock_t *slock)
 {
     TT_ASSERT(slock != NULL);
 
-    tt_spinlock_destroy_ntv(&slock->sys_spinlock);
+    tt_spinlock_destroy_ntv(&slock->sys_lock);
 }
 
 void tt_spinlock_attr_default(IN tt_spinlock_attr_t *attr)
@@ -108,48 +103,4 @@ void tt_spinlock_attr_default(IN tt_spinlock_attr_t *attr)
     TT_ASSERT(attr != NULL);
 
     attr->reserved = 0;
-}
-
-void __spinlock_acquire(IN tt_spinlock_t *slock
-#if (TT_SPINLOCK_DEBUG_OPT & TT_SPINLOCK_LOCKER_DEBUG)
-                        ,
-                        IN const tt_char_t *function,
-                        IN tt_u32_t line
-#endif
-                        )
-{
-    tt_result_t result;
-
-    TT_ASSERT(slock != NULL);
-
-    result = tt_spinlock_acquire_ntv(&slock->sys_spinlock);
-    TT_ASSERT_ALWAYS(TT_OK(result));
-}
-
-tt_result_t __spinlock_try_acquire(IN tt_spinlock_t *slock
-#if (TT_SPINLOCK_DEBUG_OPT & TT_SPINLOCK_LOCKER_DEBUG)
-                                   ,
-                                   IN const tt_char_t *function,
-                                   IN tt_u32_t line
-#endif
-                                   )
-{
-    tt_result_t result;
-
-    TT_ASSERT(slock != NULL);
-
-    result = tt_spinlock_try_acquire_ntv(&slock->sys_spinlock);
-    if (!TT_OK(result)) {
-        TT_ASSERT_ALWAYS(result == TT_TIME_OUT);
-        return TT_TIME_OUT;
-    }
-
-    return TT_SUCCESS;
-}
-
-void tt_spinlock_release(IN tt_spinlock_t *slock)
-{
-    TT_ASSERT(slock != NULL);
-
-    tt_spinlock_release_ntv(&slock->sys_spinlock);
 }

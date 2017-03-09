@@ -16,9 +16,9 @@
 
 /**
 @file tt_spin_lock_native.h
-@brief spin lock implemented by windows critical section
+@brief spin lk implemented by windows critical section
 
-this files defines system APIs of spin lock implemented by windows critical
+this files defines system APIs of spin lk implemented by windows critical
 section
 */
 
@@ -29,12 +29,19 @@ section
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <tt_basic_type.h>
+#include <misc/tt_util.h>
 
 #include <errno.h>
-#include <libkern/OSAtomic.h>
 #include <pthread.h>
 #include <string.h>
+
+#include <Availability.h>
+
+#ifdef __MAC_10_12 // 10.12 and later
+#include <os/lock.h>
+#else
+#include <libkern/OSAtomic.h>
+#endif
 
 ////////////////////////////////////////////////////////////
 // macro definition
@@ -49,7 +56,11 @@ struct tt_spinlock_attr_s;
 
 typedef struct
 {
-    OSSpinLock spinlock;
+#ifdef __MAC_10_12
+    os_unfair_lock lk;
+#else
+    OSSpinLock lk;
+#endif
 } tt_spinlock_ntv_t;
 
 ////////////////////////////////////////////////////////////
@@ -66,35 +77,47 @@ tt_spinlock_component_init_ntv(IN struct tt_profile_s *profile)
     return TT_SUCCESS;
 }
 
-tt_inline tt_result_t tt_spinlock_create_ntv(IN tt_spinlock_ntv_t *lock,
+tt_inline tt_result_t tt_spinlock_create_ntv(IN tt_spinlock_ntv_t *slock,
                                              IN struct tt_spinlock_attr_s *attr)
 {
-    lock->spinlock = OS_SPINLOCK_INIT;
+#ifdef __MAC_10_12
+    slock->lk = OS_UNFAIR_LOCK_INIT;
+#else
+    slock->lk = OS_SPINLOCK_INIT;
+#endif
+
     return TT_SUCCESS;
 }
 
-tt_inline void tt_spinlock_destroy_ntv(IN tt_spinlock_ntv_t *lock)
+tt_inline void tt_spinlock_destroy_ntv(IN tt_spinlock_ntv_t *slock)
 {
 }
 
-tt_inline tt_result_t tt_spinlock_acquire_ntv(IN tt_spinlock_ntv_t *lock)
+tt_inline void tt_spinlock_acquire_ntv(IN tt_spinlock_ntv_t *slock)
 {
-    OSSpinLockLock(&lock->spinlock);
-    return TT_SUCCESS;
+#ifdef __MAC_10_12
+    os_unfair_lock_lock(&slock->lk);
+#else
+    OSSpinLockLock(&slock->lk);
+#endif
 }
 
-tt_inline tt_result_t tt_spinlock_try_acquire_ntv(IN tt_spinlock_ntv_t *lock)
+tt_inline tt_result_t tt_spinlock_try_acquire_ntv(IN tt_spinlock_ntv_t *slock)
 {
-    if (OSSpinLockTry(&lock->spinlock)) {
-        return TT_SUCCESS;
-    } else {
-        return TT_TIME_OUT;
-    }
+#ifdef __MAC_10_12
+    return TT_COND(os_unfair_lock_trylock(&slock->lk), TT_SUCCESS, TT_TIME_OUT);
+#else
+    return TT_COND(OSSpinLockTry(&slock->lk), TT_SUCCESS, TT_TIME_OUT);
+#endif
 }
 
-tt_inline void tt_spinlock_release_ntv(IN tt_spinlock_ntv_t *lock)
+tt_inline void tt_spinlock_release_ntv(IN tt_spinlock_ntv_t *slock)
 {
-    OSSpinLockUnlock(&lock->spinlock);
+#ifdef __MAC_10_12
+    os_unfair_lock_unlock(&slock->lk);
+#else
+    OSSpinLockUnlock(&slock->lk);
+#endif
 }
 
 #endif // __TT_SPIN_LOCK_NATIVE__

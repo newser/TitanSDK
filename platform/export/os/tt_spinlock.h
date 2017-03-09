@@ -34,18 +34,19 @@ this files defines spin lock APIs
 // macro definition
 ////////////////////////////////////////////////////////////
 
-#if (TT_SPINLOCK_DEBUG_OPT & TT_SPINLOCK_LOCKER_DEBUG)
+#if (TT_SPINLOCK_DEBUG_OPT & TT_SPINLOCK_DEBUG_TAG)
 
-#define tt_spinlock_acquire(s) __spinlock_acquire((s), __FUNCTION__, __LINE__)
+#define tt_spinlock_acquire(s)                                                 \
+    tt_spinlock_acquire_tag((s), __FUNCTION__, __LINE__)
 
 #define tt_spinlock_try_acquire(s)                                             \
-    __spinlock_try_acquire((s), __FUNCTION__, __LINE__)
+    tt_spinlock_try_acquire_tag((s), __FUNCTION__, __LINE__)
 
 #else
 
-#define tt_spinlock_acquire(s) __spinlock_acquire((s))
+#define tt_spinlock_acquire(s) tt_spinlock_acquire_tag((s))
 
-#define tt_spinlock_try_acquire(s) __spinlock_try_acquire((s))
+#define tt_spinlock_try_acquire(s) tt_spinlock_try_acquire_tag((s))
 
 #endif
 
@@ -59,10 +60,7 @@ attribute of spin lock
 */
 typedef struct tt_spinlock_attr_s
 {
-    /**
-    @var flag
-    reserved
-    */
+    /** reserved */
     tt_u32_t reserved;
 } tt_spinlock_attr_t;
 
@@ -72,9 +70,7 @@ type of spin lock
 */
 typedef struct tt_spinlock_s
 {
-    tt_spinlock_attr_t attr;
-
-    tt_spinlock_ntv_t sys_spinlock;
+    tt_spinlock_ntv_t sys_lock;
 } tt_spinlock_t;
 
 ////////////////////////////////////////////////////////////
@@ -100,7 +96,7 @@ create a spin lock
 - TT_FAIL, some error occurs
 */
 extern tt_result_t tt_spinlock_create(IN tt_spinlock_t *slock,
-                                      IN tt_spinlock_attr_t *attr);
+                                      IN OPT tt_spinlock_attr_t *attr);
 
 /**
 @fn void tt_spinlock_destroy(IN tt_spinlock_t *slock)
@@ -133,16 +129,19 @@ lock a spin lock
   compatibility with all platforms
 - NEVER acquire a spinlock which has already been acquired by same thread
 */
-extern void __spinlock_acquire(IN tt_spinlock_t *slock
-#if (TT_SPINLOCK_DEBUG_OPT & TT_SPINLOCK_LOCKER_DEBUG)
-                               ,
-                               IN const tt_char_t *function,
-                               IN tt_u32_t line
+tt_inline void tt_spinlock_acquire_tag(IN tt_spinlock_t *slock
+#if (TT_SPINLOCK_DEBUG_OPT & TT_SPINLOCK_DEBUG_TAG)
+                                       ,
+                                       IN const tt_char_t *function,
+                                       IN tt_u32_t line
 #endif
-                               );
+                                       )
+{
+    tt_spinlock_acquire_ntv(&slock->sys_lock);
+}
 
 /**
-@fn tt_result_t __spinlock_try_acquire(IN tt_spinlock_t *slock)
+@fn tt_result_t tt_spinlock_try_acquire_tag(IN tt_spinlock_t *slock)
 try to lock a spin lock
 
 @param [in] slock pointer to a spin lock to be locked
@@ -154,20 +153,26 @@ try to lock a spin lock
 @note
 - NEVER acquire a spinlock which has already been acquired by same thread
 */
-extern tt_result_t __spinlock_try_acquire(IN tt_spinlock_t *slock
-#if (TT_SPINLOCK_DEBUG_OPT & TT_SPINLOCK_LOCKER_DEBUG)
-                                          ,
-                                          IN const tt_char_t *function,
-                                          IN tt_u32_t line
+tt_inline tt_result_t tt_spinlock_try_acquire_tag(IN tt_spinlock_t *slock
+#if (TT_SPINLOCK_DEBUG_OPT & TT_SPINLOCK_DEBUG_TAG)
+                                                  ,
+                                                  IN const tt_char_t *function,
+                                                  IN tt_u32_t line
 #endif
-                                          );
+                                                  )
+{
+    return tt_spinlock_try_acquire_ntv(&slock->sys_lock);
+}
 
 /**
-@fn tt_result_t tt_spinlock_release(IN tt_spinlock_t *slock)
+@fn void tt_spinlock_release(IN tt_spinlock_t *slock)
 unlock a spin lock
 
 @param [in] slock pointer to a spin lock to be unlocked
 */
-extern void tt_spinlock_release(IN tt_spinlock_t *slock);
+tt_inline void tt_spinlock_release(IN tt_spinlock_t *slock)
+{
+    tt_spinlock_release_ntv(&slock->sys_lock);
+}
 
 #endif /* __TT_SPINLOCK__ */
