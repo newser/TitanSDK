@@ -132,7 +132,7 @@ tt_result_t tt_sem_acquire_ntv(IN tt_sem_ntv_t *sys_sem, IN tt_u32_t wait_ms)
             }
         } else {
             struct timespec abstime;
-            
+
             clock_gettime(CLOCK_MONOTONIC, &abstime);
             abstime.tv_sec += wait_ms / 1000;
             abstime.tv_nsec += (wait_ms % 1000) * 1000000;
@@ -224,4 +224,3 @@ void tt_sem_release_ntv(IN tt_sem_ntv_t *sys_sem)
         return;
     }
 }
-

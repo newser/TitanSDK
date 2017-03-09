@@ -20,9 +20,9 @@
 
 #include <tt_process_native.h>
 
+#include <memory/tt_memory_alloc.h>
 #include <misc/tt_util.h>
 #include <os/tt_process.h>
-#include <memory/tt_memory_alloc.h>
 
 #include <tt_sys_error.h>
 
@@ -127,7 +127,7 @@ tt_char_t *tt_process_path_ntv(IN OPT tt_process_ntv_t *sys_proc)
     char link[1024];
     ssize_t len;
     tt_char_t *path;
-    
+
     pid = getpid();
     sprintf(link_path, "/proc/%d/exe", pid);
     len = readlink(link_path, link, sizeof(link) - 1);
@@ -143,6 +143,6 @@ tt_char_t *tt_process_path_ntv(IN OPT tt_process_ntv_t *sys_proc)
     }
     tt_memcpy(path, link, len);
     path[len] = 0;
-    
+
     return path;
 }

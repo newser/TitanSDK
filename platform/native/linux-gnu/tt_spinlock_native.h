@@ -103,9 +103,7 @@ tt_inline tt_result_t tt_spinlock_try_acquire_ntv(IN tt_spinlock_ntv_t *slock)
     } else if (ret == EBUSY) {
         return TT_TIME_OUT;
     } else {
-        TT_FATAL("fail to try slock system lock: %d[%s]",
-                 ret,
-                 strerror(ret));
+        TT_FATAL("fail to try slock system lock: %d[%s]", ret, strerror(ret));
         tt_throw_exception_ntv(NULL);
         return TT_FAIL;
     }
