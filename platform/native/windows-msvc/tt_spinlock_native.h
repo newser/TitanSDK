@@ -18,92 +18,34 @@
 @file tt_spinlock_native_cs.h
 @brief spin lock implemented by windows critical section
 
-this files defines system APIs of spin lock implemented by windows critical
-section
+this files defines system APIs of spin lock implemented by windows spin
+critical section
 */
 
-#ifndef __TT_SPINLOCK_NATIVE__
-#define __TT_SPINLOCK_NATIVE__
+#ifndef __TT_SPINLOCK_NATIVE_CS__
+#define __TT_SPINLOCK_NATIVE_CS__
 
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
+#include <tt_sys_error.h>
+
 ////////////////////////////////////////////////////////////
 // macro definition
 ////////////////////////////////////////////////////////////
 
-// ========================================
-// configuration
-// ========================================
-
-// these configurations would not be put to tt_platform_config.h
-
-/**
-@def TT_SPINLOCK_NTV_TYPE_CS
-spin lock is implemented as a windows critical section
-*/
-#define TT_SPINLOCK_NTV_TYPE_CS 1
-/**
-@def TT_SPINLOCK_NTV_TYPE_UL
-spin lock is implemented by pure spinning at user level
-*/
-#define TT_SPINLOCK_NTV_TYPE_UL 2
-
-/**
-@def TT_SPINLOCK_NTV_TYPE
-this macro determines the spin lock implementation, currently it could be:
-- TT_SPINLOCK_NTV_TYPE_CS
-- TT_SPINLOCK_NTV_TYPE_UL
-
-@note
-"ul" runs much fast then "cs" after compiler optimizing it
-*/
-#define TT_SPINLOCK_NTV_TYPE TT_SPINLOCK_NTV_TYPE_UL
-
-// ========================================
-// macro wrappers
-// ========================================
-
-#if (TT_SPINLOCK_NTV_TYPE == TT_SPINLOCK_NTV_TYPE_CS)
-
-#include <tt_spinlock_native_cs.h>
-
-#define tt_spinlock_ntv_t tt_spinlock_ntv_cs_t
-
-#define tt_spinlock_component_init_ntv tt_spinlock_component_init_ntv_cs
-
-#define tt_spinlock_create_ntv tt_spinlock_create_ntv_cs
-#define tt_spinlock_destroy_ntv tt_spinlock_destroy_ntv_cs
-
-#define tt_spinlock_acquire_ntv tt_spinlock_acquire_ntv_cs
-#define tt_spinlock_try_acquire_ntv tt_spinlock_try_acquire_ntv_cs
-#define tt_spinlock_release_ntv tt_spinlock_release_ntv_cs
-
-#elif (TT_SPINLOCK_NTV_TYPE == TT_SPINLOCK_NTV_TYPE_UL)
-
-#include <tt_spinlock_native_ul.h>
-
-#define tt_spinlock_ntv_t tt_spinlock_ntv_ul_t
-
-#define tt_spinlock_component_init_ntv tt_spinlock_component_init_ntv_ul
-
-#define tt_spinlock_create_ntv tt_spinlock_create_ntv_ul
-#define tt_spinlock_destroy_ntv tt_spinlock_destroy_ntv_ul
-
-#define tt_spinlock_acquire_ntv tt_spinlock_acquire_ntv_ul
-#define tt_spinlock_try_acquire_ntv tt_spinlock_try_acquire_ntv_ul
-#define tt_spinlock_release_ntv tt_spinlock_release_ntv_ul
-
-#else
-
-#error "unknown spin lock implementation"
-
-#endif
-
 ////////////////////////////////////////////////////////////
 // type definition
 ////////////////////////////////////////////////////////////
+
+struct tt_profile_s;
+struct tt_spinlock_attr_s;
+
+typedef struct
+{
+    CRITICAL_SECTION cs;
+} tt_spinlock_ntv_cs_t;
 
 ////////////////////////////////////////////////////////////
 // global variants
@@ -113,4 +55,36 @@ this macro determines the spin lock implementation, currently it could be:
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-#endif // __TT_SPINLOCK_NATIVE__
+tt_inline tt_result_t
+tt_spinlock_component_init_ntv_cs(IN struct tt_profile_s *profile)
+{
+    return TT_SUCCESS;
+}
+
+extern tt_result_t tt_spinlock_create_ntv_cs(
+    IN tt_spinlock_ntv_cs_t *lock, IN struct tt_spinlock_attr_s *attr);
+
+extern void tt_spinlock_destroy_ntv_cs(IN tt_spinlock_ntv_cs_t *lock);
+
+tt_inline tt_result_t tt_spinlock_acquire_ntv_cs(IN tt_spinlock_ntv_cs_t *lock)
+{
+    EnterCriticalSection(&lock->cs);
+    return TT_SUCCESS;
+}
+
+tt_inline tt_result_t
+tt_spinlock_try_acquire_ntv_cs(IN tt_spinlock_ntv_cs_t *lock)
+{
+    if (TryEnterCriticalSection(&lock->cs)) {
+        return TT_SUCCESS;
+    } else {
+        return TT_TIME_OUT;
+    }
+}
+
+tt_inline void tt_spinlock_release_ntv_cs(IN tt_spinlock_ntv_cs_t *lock)
+{
+    LeaveCriticalSection(&lock->cs);
+}
+
+#endif /* __TT_SPINLOCK_NATIVE_CS__ */
