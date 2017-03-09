@@ -74,7 +74,7 @@ TT_TEST_CASE("tt_unit_test_thread_basic",
                  NULL),
 #endif
 
-#if 0
+#if 1
     TT_TEST_CASE("tt_unit_test_thread_sleep",
                  "thread sleep api",
                  tt_unit_test_thread_sleep,
@@ -474,7 +474,8 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_process_basic)
 #define __app_file get_app_path()
 #define __app_file_sc get_app_path()
 #else
-#define __app_file "./app_unit_test"
+//#define __app_file "./app_unit_test"
+#define __app_file path
 #define __app_file_sc "./测试"
 #endif
 

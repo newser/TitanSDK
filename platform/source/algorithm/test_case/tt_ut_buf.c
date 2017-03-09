@@ -1413,7 +1413,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_buftok)
 TT_TEST_ROUTINE_DEFINE(tt_unit_test_blob)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
-    tt_blob_t b, b2;
+    tt_blob_t b, b2 = {0};
     tt_result_t ret;
     char c[] = "123";
 
