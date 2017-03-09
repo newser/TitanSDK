@@ -133,7 +133,7 @@ static tt_result_t __test_fiber_1(IN void *param)
     last_num = __ut_num;
 
     while (__ut_num < 100) {
-        tt_fiber_resume(f1);
+        tt_fiber_switch(f1);
 
         if (__ut_num != (last_num + 1)) {
             __ut_ret = TT_FAIL;
@@ -178,7 +178,7 @@ static tt_result_t __test_fiber_1_1(IN void *param)
     last_num = __ut_num;
 
     while (__ut_num < 101) {
-        tt_fiber_resume(f1);
+        tt_fiber_switch(f1);
 
         if (__ut_num != (last_num + 1)) {
             __ut_ret = TT_FAIL;
@@ -263,7 +263,7 @@ static tt_result_t __test_fiber_2(IN void *param)
             __err_line = __LINE__;
             return TT_FAIL;
         }
-        tt_fiber_resume(__fb_ar[i]);
+        tt_fiber_switch(__fb_ar[i]);
     }
 
     __ques[0] = 1314;
@@ -276,7 +276,7 @@ static tt_result_t __test_fiber_2(IN void *param)
             // tt_sleep(tt_rand_u32()%10);
             __ans[idx] = __ques[idx] + 1;
             __waiting[idx] = 0;
-            tt_fiber_resume(__fb_ar[idx]);
+            tt_fiber_switch(__fb_ar[idx]);
 
             if (__err_line != 0) {
                 return TT_FAIL;

@@ -114,9 +114,12 @@ extern void tt_fiber_destroy(IN tt_fiber_t *fiber);
 
 extern void tt_fiber_attr_default(IN tt_fiber_attr_t *attr);
 
+// back to main fiber
 extern void tt_fiber_yield();
 
-extern void tt_fiber_resume(IN tt_fiber_t *fiber);
+// - the caller must be main fiber
+// - @fiber must be created by main fiber
+extern void tt_fiber_switch(IN tt_fiber_t *fiber);
 
 tt_inline tt_fiber_t *tt_current_fiber()
 {

@@ -180,7 +180,7 @@ void tt_fiber_yield()
     tt_fiber_switch_wrap(cfs, cfb, cfs->main_fiber);
 }
 
-void tt_fiber_resume(IN tt_fiber_t *fiber)
+void tt_fiber_switch(IN tt_fiber_t *fiber)
 {
     tt_fiber_sched_t *cfs = tt_current_fiber_sched();
 
