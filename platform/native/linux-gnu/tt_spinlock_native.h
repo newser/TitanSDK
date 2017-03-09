@@ -29,7 +29,7 @@ section
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <tt_basic_type.h>
+#include <misc/tt_assert.h>
 #include <tt_sys_error.h>
 
 #include <errno.h>
@@ -49,7 +49,7 @@ struct tt_spinlock_attr_s;
 
 typedef struct
 {
-    pthread_spinlock_t spinlock;
+    pthread_spinlock_t lk;
 } tt_spinlock_ntv_t;
 
 ////////////////////////////////////////////////////////////
@@ -66,57 +66,57 @@ tt_spinlock_component_init_ntv(IN struct tt_profile_s *profile)
     return TT_SUCCESS;
 }
 
-tt_inline tt_result_t tt_spinlock_create_ntv(IN tt_spinlock_ntv_t *lock,
+tt_inline tt_result_t tt_spinlock_create_ntv(IN tt_spinlock_ntv_t *slock,
                                              IN struct tt_spinlock_attr_s *attr)
 {
-    int ret = pthread_spin_init(&lock->spinlock, PTHREAD_PROCESS_PRIVATE);
+    int ret = pthread_spin_init(&slock->lk, PTHREAD_PROCESS_PRIVATE);
     if (ret == 0) {
         return TT_SUCCESS;
     } else {
-        TT_ERROR("fail to create system spinlock: %d[%s]", ret, strerror(ret));
+        TT_ERROR("fail to create system lock: %d[%s]", ret, strerror(ret));
         return TT_FAIL;
     }
 }
 
-tt_inline void tt_spinlock_destroy_ntv(IN tt_spinlock_ntv_t *lock)
+tt_inline void tt_spinlock_destroy_ntv(IN tt_spinlock_ntv_t *slock)
 {
-    int ret = pthread_spin_destroy(&lock->spinlock);
+    int ret = pthread_spin_destroy(&slock->lk);
     if (ret != 0) {
-        TT_ERROR("fail to destroy system spinlock: %d[%s]", ret, strerror(ret));
+        TT_ERROR("fail to destroy system lock: %d[%s]", ret, strerror(ret));
     }
 }
 
-tt_inline tt_result_t tt_spinlock_acquire_ntv(IN tt_spinlock_ntv_t *lock)
+tt_inline void tt_spinlock_acquire_ntv(IN tt_spinlock_ntv_t *slock)
 {
-    int ret = pthread_spin_lock(&lock->spinlock);
-    if (ret == 0) {
-        return TT_SUCCESS;
-    } else {
-        TT_ERROR("fail to lock system spinlock: %d[%s]", ret, strerror(ret));
-        return TT_FAIL;
+    int ret = pthread_spin_lock(&slock->lk);
+    if (ret != 0) {
+        TT_FATAL("fail to slock system lock: %d[%s]", ret, strerror(ret));
+        tt_throw_exception_ntv(NULL);
     }
 }
 
-tt_inline tt_result_t tt_spinlock_try_acquire_ntv(IN tt_spinlock_ntv_t *lock)
+tt_inline tt_result_t tt_spinlock_try_acquire_ntv(IN tt_spinlock_ntv_t *slock)
 {
-    int ret = pthread_spin_trylock(&lock->spinlock);
+    int ret = pthread_spin_trylock(&slock->lk);
     if (ret == 0) {
         return TT_SUCCESS;
     } else if (ret == EBUSY) {
         return TT_TIME_OUT;
     } else {
-        TT_ERROR("fail to try lock system spinlock: %d[%s]",
+        TT_FATAL("fail to try slock system lock: %d[%s]",
                  ret,
                  strerror(ret));
+        tt_throw_exception_ntv(NULL);
         return TT_FAIL;
     }
 }
 
-tt_inline void tt_spinlock_release_ntv(IN tt_spinlock_ntv_t *lock)
+tt_inline void tt_spinlock_release_ntv(IN tt_spinlock_ntv_t *slock)
 {
-    int ret = pthread_spin_unlock(&lock->spinlock);
+    int ret = pthread_spin_unlock(&slock->lk);
     if (ret != 0) {
-        TT_ERROR("fail to unlock system spinlock: %d[%s]", ret, strerror(ret));
+        TT_FATAL("fail to unlock system lock: %d[%s]", ret, strerror(ret));
+        tt_throw_exception_ntv(NULL);
     }
 }
 
