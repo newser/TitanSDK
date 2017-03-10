@@ -102,12 +102,12 @@ tt_inline void tt_spinlock_acquire_ntv(IN tt_spinlock_ntv_t *slock)
 #endif
 }
 
-tt_inline tt_result_t tt_spinlock_try_acquire_ntv(IN tt_spinlock_ntv_t *slock)
+tt_inline tt_bool_t tt_spinlock_try_acquire_ntv(IN tt_spinlock_ntv_t *slock)
 {
 #ifdef __MAC_10_12
-    return TT_COND(os_unfair_lock_trylock(&slock->lk), TT_SUCCESS, TT_TIME_OUT);
+    return TT_BOOL(os_unfair_lock_trylock(&slock->lk));
 #else
-    return TT_COND(OSSpinLockTry(&slock->lk), TT_SUCCESS, TT_TIME_OUT);
+    return TT_BOOL(OSSpinLockTry(&slock->lk));
 #endif
 }
 

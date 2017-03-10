@@ -100,8 +100,8 @@ wait a system semaphore
 - TT_TIME_OUT, if the time specified expires
 - TT_FAIL, otherwise
 */
-extern tt_result_t tt_sem_acquire_ntv(IN tt_sem_ntv_t *sys_sem,
-                                      IN tt_u32_t wait_ms);
+extern tt_bool_t tt_sem_acquire_ntv(IN tt_sem_ntv_t *sys_sem,
+                                    IN tt_u32_t wait_ms);
 
 /**
 @fn tt_result_t tt_sem_try_acquire_ntv(IN tt_sem_ntv_t *sys_sem)
@@ -116,7 +116,7 @@ wait a system semaphore
 - TT_TIME_OUT, if sema can not be waited now
 - TT_FAIL, otherwise
 */
-extern tt_result_t tt_sem_try_acquire_ntv(IN tt_sem_ntv_t *sys_sem);
+extern tt_bool_t tt_sem_try_acquire_ntv(IN tt_sem_ntv_t *sys_sem);
 
 /**
 @fn tt_result_t tt_sem_release_ntv(IN tt_sem_ntv_t *sys_sem)

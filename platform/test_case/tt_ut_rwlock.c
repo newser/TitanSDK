@@ -109,6 +109,7 @@ TT_TEST_CASE("tt_unit_test_rwlock_basic",
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_rwlock_t lock;
     tt_result_t ret;
+    tt_bool_t b_ret;
 
     TT_TEST_CASE_ENTER()
     // test start
@@ -126,8 +127,8 @@ TT_TEST_CASE("tt_unit_test_rwlock_basic",
     ret = tt_rwlock_try_acquire_r(&lock);
 
     // try write acquire
-    ret = tt_rwlock_try_acquire_w(&lock);
-    TT_TEST_CHECK_EQUAL(ret, TT_TIME_OUT, "");
+    b_ret = tt_rwlock_try_acquire_w(&lock);
+    TT_TEST_CHECK_EQUAL(b_ret, TT_FALSE, "");
 
     // read release
     tt_rwlock_release_r(&lock);
@@ -135,8 +136,8 @@ TT_TEST_CASE("tt_unit_test_rwlock_basic",
     tt_rwlock_release_r(&lock);
 
     // try write acquire
-    ret = tt_rwlock_try_acquire_w(&lock);
-    TT_TEST_CHECK_EQUAL(ret, TT_TIME_OUT, "");
+    b_ret = tt_rwlock_try_acquire_w(&lock);
+    TT_TEST_CHECK_EQUAL(b_ret, TT_FALSE, "");
 
     // read release
     tt_rwlock_release_r(&lock);

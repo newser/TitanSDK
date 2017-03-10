@@ -116,6 +116,7 @@ TT_TEST_CASE("tt_unit_test_spin_lock_basic_mp",
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_spinlock_t lock;
     tt_result_t ret = TT_FAIL;
+    tt_bool_t b_ret;
 
     TT_TEST_CASE_ENTER()
     // test start
@@ -127,15 +128,15 @@ TT_TEST_CASE("tt_unit_test_spin_lock_basic_mp",
     tt_spinlock_acquire(&lock);
 
     // trylock
-    ret = tt_spinlock_try_acquire(&lock);
-    TT_TEST_CHECK_EQUAL(ret, TT_TIME_OUT, "");
+    b_ret = tt_spinlock_try_acquire(&lock);
+    TT_TEST_CHECK_EQUAL(b_ret, TT_FALSE, "");
 
     // unlock
     tt_spinlock_release(&lock);
 
     // trylock
-    ret = tt_spinlock_try_acquire(&lock);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    b_ret = tt_spinlock_try_acquire(&lock);
+    TT_TEST_CHECK_EQUAL(ret, TT_TRUE, "");
 
     // unlock
     tt_spinlock_release(&lock);
@@ -154,6 +155,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_spin_lock_basic_sp)
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_spinlock_t lock;
     tt_result_t ret = TT_FAIL;
+    tt_bool_t b_ret;
 
     // tt_u32_t real_cpu_num = tt_g_cpu_num;
 
@@ -170,15 +172,15 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_spin_lock_basic_sp)
     tt_spinlock_acquire(&lock);
 
     // trylock
-    ret = tt_spinlock_try_acquire(&lock);
-    TT_TEST_CHECK_EQUAL(ret, TT_TIME_OUT, "");
+    b_ret = tt_spinlock_try_acquire(&lock);
+    TT_TEST_CHECK_EQUAL(b_ret, TT_FALSE, "");
 
     // unlock
     tt_spinlock_release(&lock);
 
     // trylock
-    ret = tt_spinlock_try_acquire(&lock);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    b_ret = tt_spinlock_try_acquire(&lock);
+    TT_TEST_CHECK_EQUAL(ret, TT_TRUE, "");
 
     // unlock
     tt_spinlock_release(&lock);
