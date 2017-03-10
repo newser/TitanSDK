@@ -37,8 +37,8 @@ this file load customization definitions
 @def TT_PLATFORM_DEBUG_ENABLE
 defined if debug mode is enabled
 */
-#define TSCM_PLATFORM_DEBUG_ENABLE
-#ifdef TSCM_PLATFORM_DEBUG_ENABLE
+#define PLATFORM_DEBUG_ENABLE
+#ifdef PLATFORM_DEBUG_ENABLE
 #define TT_PLATFORM_DEBUG_ENABLE
 #endif
 
@@ -46,8 +46,8 @@ defined if debug mode is enabled
 @def TT_PLATFORM_DYNAMIC_LIB
 defined if build platform as a shared library
 */
-/* #undef TSCM_PLATFORM_BUILD_DYNAMIC */
-#ifdef TSCM_PLATFORM_BUILD_DYNAMIC
+/* #undef PLATFORM_BUILD_DYNAMIC */
+#ifdef PLATFORM_BUILD_DYNAMIC
 #define TT_PLATFORM_DYNAMIC_LIB
 #endif
 
@@ -55,8 +55,8 @@ defined if build platform as a shared library
 @def TT_PLATFORM_SSL_ENABLE
 defined if SSL is enabled
 */
-/* #undef TSCM_PLATFORM_SSL_ENABLE */
-#ifdef TSCM_PLATFORM_SSL_ENABLE
+/* #undef PLATFORM_SSL_ENABLE */
+#ifdef PLATFORM_SSL_ENABLE
 #define TT_PLATFORM_SSL_ENABLE
 #endif
 
@@ -64,8 +64,8 @@ defined if SSL is enabled
 @def TT_PLATFORM_NUMA_ENABLE
 defined if NUMA is enabled
 */
-/* #undef TSCM_PLATFORM_NUMA_ENABLE */
-#ifdef TSCM_PLATFORM_NUMA_ENABLE
+/* #undef PLATFORM_NUMA_ENABLE */
+#ifdef PLATFORM_NUMA_ENABLE
 #define TT_PLATFORM_NUMA_ENABLE
 #endif
 
@@ -73,8 +73,8 @@ defined if NUMA is enabled
 @def TT_PLATFORM_CRYPTO_ENABLE
 defined if CRYPTO is enabled
 */
-/* #undef TSCM_PLATFORM_CRYPTO_ENABLE */
-#ifdef TSCM_PLATFORM_CRYPTO_ENABLE
+/* #undef PLATFORM_CRYPTO_ENABLE */
+#ifdef PLATFORM_CRYPTO_ENABLE
 #define TT_PLATFORM_CRYPTO_ENABLE
 #endif
 

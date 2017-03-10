@@ -102,14 +102,12 @@ acquire a system rwlock to read
 return value MUST be checked, lock operation is implemented based on
 system call which is out of ts control
 */
-tt_inline tt_result_t tt_rwlock_acquire_r_ntv(IN tt_rwlock_ntv_t *sys_rwlock)
+tt_inline void tt_rwlock_acquire_r_ntv(IN tt_rwlock_ntv_t *sys_rwlock)
 {
     int ret = pthread_rwlock_rdlock(&sys_rwlock->rwlock);
-    if (ret == 0) {
-        return TT_SUCCESS;
-    } else {
-        TT_ERROR("fail to readlock system rwlock: %d[%s]", ret, strerror(ret));
-        return TT_FAIL;
+    if (ret != 0) {
+        TT_FATAL("fail to readlock system rwlock: %d[%s]", ret, strerror(ret));
+        tt_throw_exception_ntv(NULL);
     }
 }
 
@@ -127,19 +125,19 @@ try to acquire a system rwlock to read
 return value MUST be checked, lock operation is implemented based on
 system call which is out of ts control
 */
-tt_inline tt_result_t
-tt_rwlock_try_acquire_r_ntv(IN tt_rwlock_ntv_t *sys_rwlock)
+tt_inline tt_bool_t tt_rwlock_try_acquire_r_ntv(IN tt_rwlock_ntv_t *sys_rwlock)
 {
     int ret = pthread_rwlock_tryrdlock(&sys_rwlock->rwlock);
     if (ret == 0) {
-        return TT_SUCCESS;
+        return TT_TRUE;
     } else if (ret == EBUSY) {
-        return TT_TIME_OUT;
+        return TT_FALSE;
     } else {
-        TT_ERROR("fail to try readlock system rwlock: %d[%s]",
+        TT_FATAL("fail to try readlock system rwlock: %d[%s]",
                  ret,
                  strerror(ret));
-        return TT_FAIL;
+        tt_throw_exception_ntv(NULL);
+        return TT_FALSE;
     }
 }
 
@@ -153,14 +151,12 @@ release a system rwlock after reading
 - TT_SUCCESS, if unlocking done
 - TT_FAIL, otherwise
 */
-tt_inline tt_result_t tt_rwlock_release_r_ntv(IN tt_rwlock_ntv_t *sys_rwlock)
+tt_inline void tt_rwlock_release_r_ntv(IN tt_rwlock_ntv_t *sys_rwlock)
 {
     int ret = pthread_rwlock_unlock(&sys_rwlock->rwlock);
-    if (ret == 0) {
-        return TT_SUCCESS;
-    } else {
-        TT_ERROR("fail to unlock system rwlock: %d[%s]", ret, strerror(ret));
-        return TT_FAIL;
+    if (ret != 0) {
+        TT_FATAL("fail to unlock system rwlock: %d[%s]", ret, strerror(ret));
+        tt_throw_exception_ntv(NULL);
     }
 }
 
@@ -178,14 +174,12 @@ acquire a system rwlock to write
 return value MUST be checked, lock operation is implemented based on
 system call which is out of ts control
 */
-tt_inline tt_result_t tt_rwlock_acquire_w_ntv(IN tt_rwlock_ntv_t *sys_rwlock)
+tt_inline void tt_rwlock_acquire_w_ntv(IN tt_rwlock_ntv_t *sys_rwlock)
 {
     int ret = pthread_rwlock_wrlock(&sys_rwlock->rwlock);
-    if (ret == 0) {
-        return TT_SUCCESS;
-    } else {
-        TT_ERROR("fail to writelock system rwlock: %d[%s]", ret, strerror(ret));
-        return TT_FAIL;
+    if (ret != 0) {
+        TT_FATAL("fail to writelock system rwlock: %d[%s]", ret, strerror(ret));
+        tt_throw_exception_ntv(NULL);
     }
 }
 
@@ -203,19 +197,19 @@ try to acquire a system rwlock to write
 return value MUST be checked, lock operation is implemented based on
 system call which is out of ts control
 */
-tt_inline tt_result_t
-tt_rwlock_try_acquire_w_ntv(IN tt_rwlock_ntv_t *sys_rwlock)
+tt_inline tt_bool_t tt_rwlock_try_acquire_w_ntv(IN tt_rwlock_ntv_t *sys_rwlock)
 {
     int ret = pthread_rwlock_trywrlock(&sys_rwlock->rwlock);
     if (ret == 0) {
-        return TT_SUCCESS;
+        return TT_TRUE;
     } else if (ret == EBUSY) {
-        return TT_TIME_OUT;
+        return TT_FALSE;
     } else {
-        TT_ERROR("fail to try readlock system rwlock: %d[%s]",
+        TT_FATAL("fail to try readlock system rwlock: %d[%s]",
                  ret,
                  strerror(ret));
-        return TT_FAIL;
+        tt_throw_exception_ntv(NULL);
+        return TT_FALSE;
     }
 }
 
@@ -229,14 +223,12 @@ release a system rwlock after writing
 - TT_SUCCESS, if unlocking done
 - TT_FAIL, otherwise
 */
-tt_inline tt_result_t tt_rwlock_release_w_ntv(IN tt_rwlock_ntv_t *sys_rwlock)
+tt_inline void tt_rwlock_release_w_ntv(IN tt_rwlock_ntv_t *sys_rwlock)
 {
     int ret = pthread_rwlock_unlock(&sys_rwlock->rwlock);
-    if (ret == 0) {
-        return TT_SUCCESS;
-    } else {
-        TT_ERROR("fail to unlock system rwlock: %d[%s]", ret, strerror(ret));
-        return TT_FAIL;
+    if (ret != 0) {
+        TT_FATAL("fail to unlock system rwlock: %d[%s]", ret, strerror(ret));
+        tt_throw_exception_ntv(NULL);
     }
 }
 

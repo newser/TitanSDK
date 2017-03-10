@@ -20,6 +20,8 @@
 
 #include <tt_atomic_native.h>
 
+#include <init/tt_profile.h>
+
 ////////////////////////////////////////////////////////////
 // internal macro
 ////////////////////////////////////////////////////////////
@@ -44,7 +46,7 @@
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-tt_result_t tt_atomic_component_init_ntv()
+tt_result_t tt_atomic_component_init_ntv(IN tt_profile_t *profile)
 {
     if (sizeof(tt_atomic_s32_ntv_t) != 4) {
         TT_ERROR("sizeof(tt_atomic_s32_ntv_t) is %d, expecting 4bytes",

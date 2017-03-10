@@ -82,30 +82,6 @@ extern tt_result_t tt_atomic_component_init_ntv(
     IN struct tt_profile_s *profile);
 
 /**
-@fn void tt_atomic_s32_init_ntv(IN OUT tt_atomic_s32_t *a,
-                                IN tt_s32_t val)
-initialize a 32bit atomic var
-
-@param [in] atomic the atomic variant to be initialized
-@param [in] val initial value
-*/
-tt_inline void tt_atomic_s32_init_ntv(IN OUT tt_atomic_s32_ntv_t *a,
-                                      IN tt_s32_t val)
-{
-    tt_atomic_s32_ntv_t last_val;
-
-#ifdef TT_ATOMIC_ALIGNMENT_CHECK
-    TT_PTR_ALIGNED(a, 2);
-#endif
-
-    do {
-        last_val = __sync_add_and_fetch(a, 0);
-    } while (!__sync_bool_compare_and_swap(a, last_val, val));
-    // like gcc, llvm does not provide atomic set api, and setting value by
-    // __sync_lock_test_and_set can be guarateed atomic only when value is 1
-}
-
-/**
 @fn tt_s32_t tt_atomic_s32_get_ntv(IN tt_atomic_s32_ntv_t *a)
 read value of an atomic variant
 
@@ -120,38 +96,59 @@ tt_inline tt_s32_t tt_atomic_s32_get_ntv(IN tt_atomic_s32_ntv_t *a)
     TT_PTR_ALIGNED(a, 2);
 #endif
 
-    return __sync_add_and_fetch(a, 0);
+    return __atomic_load_n(a, __ATOMIC_SEQ_CST);
 }
 
 /**
 @fn tt_s32_t tt_atomic_s32_set_ntv( \
                                    IN OUT tt_atomic_s32_ntv_t *a,
-                                   IN tt_s32_t new_val)
+                                   IN tt_s32_t val)
 write value to an atomic variant and reutrn original value
 
 @param [in] atomic the atomic variant
-@param [in] new_val the new value to be written to atomic
+@param [in] val the new value to be written to atomic
 
 @return
 the original value
 */
-tt_inline tt_s32_t tt_atomic_s32_set_ntv(IN OUT tt_atomic_s32_ntv_t *a,
-                                         IN tt_s32_t new_val)
+tt_inline void tt_atomic_s32_set_ntv(IN OUT tt_atomic_s32_ntv_t *a,
+                                     IN tt_s32_t val)
 {
-    tt_atomic_s32_ntv_t last_val;
-
 #ifdef TT_ATOMIC_ALIGNMENT_CHECK
     TT_PTR_ALIGNED(a, 2);
 #endif
 
-    do {
-        last_val = __sync_add_and_fetch(a, 0);
-    } while (!__sync_bool_compare_and_swap(a, last_val, new_val));
-    // - like gcc, llvm does not provide atomic set api, and setting value by
-    //   __sync_lock_test_and_set can be guarateed atomic only when value is 1
-    // - ABA issue is not cared here, this function only guarantee value is set
+    __atomic_store_n(a, val, __ATOMIC_SEQ_CST);
+}
 
-    return last_val;
+tt_inline tt_s32_t tt_atomic_s32_swap_ntv(IN OUT tt_atomic_s32_ntv_t *a,
+                                          IN tt_s32_t val)
+{
+#ifdef TT_ATOMIC_ALIGNMENT_CHECK
+    TT_PTR_ALIGNED(a, 2);
+#endif
+
+    return __atomic_exchange_n(a, val, __ATOMIC_SEQ_CST);
+}
+
+tt_inline tt_s32_t tt_atomic_s32_add_ntv(IN tt_atomic_s32_ntv_t *a,
+                                         IN tt_s32_t val)
+{
+#ifdef TT_ATOMIC_ALIGNMENT_CHECK
+    TT_PTR_ALIGNED(a, 2);
+#endif
+
+    return __atomic_fetch_add(a, val, __ATOMIC_SEQ_CST);
+}
+
+tt_inline tt_s32_t tt_atomic_s32_sub_ntv(IN tt_atomic_s32_ntv_t *a,
+                                         IN tt_s32_t val)
+{
+#ifdef TT_ATOMIC_ALIGNMENT_CHECK
+    TT_PTR_ALIGNED(a, 2);
+#endif
+
+    return __atomic_fetch_sub(a, val, __ATOMIC_SEQ_CST);
 }
 
 /**
@@ -169,7 +166,7 @@ tt_inline tt_s32_t tt_atomic_s32_inc_ntv(IN OUT tt_atomic_s32_ntv_t *a)
     TT_PTR_ALIGNED(a, 2);
 #endif
 
-    return __sync_add_and_fetch(a, 1);
+    return __atomic_add_fetch(a, 1, __ATOMIC_SEQ_CST);
 }
 
 /**
@@ -187,62 +184,38 @@ tt_inline tt_s32_t tt_atomic_s32_dec_ntv(IN OUT tt_atomic_s32_ntv_t *a)
     TT_PTR_ALIGNED(a, 2);
 #endif
 
-    return __sync_sub_and_fetch(a, 1);
+    return __atomic_sub_fetch(a, 1, __ATOMIC_SEQ_CST);
 }
 
 /**
 @fn tt_result_t tt_atomic_s32_cas_ntv( \
                                     IN OUT tt_atomic_s32_ntv_t *a,
                                     IN tt_s32_t comparand,
-                                    IN tt_s32_t new_val)
-compare atomic with comparand, if equal, assign new_val to p
+                                    IN tt_s32_t val)
+compare atomic with comparand, if equal, assign val to p
 
 @param [inout] atomic pointer to the variant
 @param [in] comparand value to be compared
-@param [inout] new_val value to be exchanged with p, if p equals comparand
+@param [inout] val value to be exchanged with p, if p equals comparand
 
 @return
 - TT_SUCCESS, if exchanging done
 - TT_FAIL, otherwise
 */
-tt_inline tt_result_t tt_atomic_s32_cas_ntv(IN OUT tt_atomic_s32_ntv_t *a,
-                                            IN tt_s32_t comparand,
-                                            IN tt_s32_t new_val)
+tt_inline tt_bool_t tt_atomic_s32_cas_ntv(IN OUT tt_atomic_s32_ntv_t *a,
+                                          IN tt_s32_t comparand,
+                                          IN tt_s32_t val)
 {
 #ifdef TT_ATOMIC_ALIGNMENT_CHECK
     TT_PTR_ALIGNED(a, 2);
 #endif
 
-    if (__sync_bool_compare_and_swap(a, comparand, new_val)) {
-        return TT_SUCCESS;
-    } else {
-        return TT_FAIL;
-    }
-}
-
-/**
-@fn void tt_atomic_s64_init_ntv(IN OUT tt_atomic_s64_ntv_t *a,
-                                IN tt_s64_t val)
-initialize a 64bit atomic variant
-
-@param [in] atomic atomic variant to be initialized
-@param [in] val initial value
-*/
-tt_inline void tt_atomic_s64_init_ntv(IN OUT tt_atomic_s64_ntv_t *a,
-                                      IN tt_s64_t val)
-{
-    tt_atomic_s64_ntv_t last_val;
-
-#ifdef TT_ATOMIC_ALIGNMENT_CHECK
-    TT_PTR_ALIGNED(a, 3);
-#endif
-
-    do {
-        last_val = __sync_add_and_fetch(a, 0);
-    } while (!__sync_bool_compare_and_swap(a, last_val, val));
-    // - like gcc, llvm does not provide atomic set api, and setting value by
-    //   __sync_lock_test_and_set can be guarateed atomic only when value is 1
-    // - ABA issue is not cared here, this function only guarantee value is set
+    return TT_BOOL(__atomic_compare_exchange_n(a,
+                                               &comparand,
+                                               val,
+                                               0,
+                                               __ATOMIC_SEQ_CST,
+                                               __ATOMIC_SEQ_CST));
 }
 
 /**
@@ -260,37 +233,58 @@ tt_inline tt_s64_t tt_atomic_s64_get_ntv(IN tt_atomic_s64_ntv_t *a)
     TT_PTR_ALIGNED(a, 3);
 #endif
 
-    return __sync_add_and_fetch(a, 0);
+    return __atomic_load_n(a, __ATOMIC_SEQ_CST);
 }
 
 /**
 @fn tt_s64_t tt_atomic_s64_set_ntv(IN OUT tt_atomic_s64_ntv_t *a,
-                                     IN tt_s64_t new_val)
+                                     IN tt_s64_t val)
 write value to an atomic variant and return the original value
 
 @param [in] atomic the atomic variant
-@param [in] new_val the new value to be written to atomic
+@param [in] val the new value to be written to atomic
 
 @return
 the original value
 */
-tt_inline tt_s64_t tt_atomic_s64_set_ntv(IN OUT tt_atomic_s64_ntv_t *a,
-                                         IN tt_s64_t new_val)
+tt_inline void tt_atomic_s64_set_ntv(IN OUT tt_atomic_s64_ntv_t *a,
+                                     IN tt_s64_t val)
 {
-    tt_atomic_s64_ntv_t last_val;
-
 #ifdef TT_ATOMIC_ALIGNMENT_CHECK
     TT_PTR_ALIGNED(a, 3);
 #endif
 
-    do {
-        last_val = __sync_add_and_fetch(a, 0);
-    } while (!__sync_bool_compare_and_swap(a, last_val, new_val));
-    // - like gcc, llvm does not provide atomic set api, and setting value by
-    //   __sync_lock_test_and_set can be guarateed atomic only when value is 1
-    // - ABA issue is not cared here, this function only guarantee value is set
+    __atomic_store_n(a, val, __ATOMIC_SEQ_CST);
+}
 
-    return last_val;
+tt_inline tt_s64_t tt_atomic_s64_swap_ntv(IN OUT tt_atomic_s64_ntv_t *a,
+                                          IN tt_s64_t val)
+{
+#ifdef TT_ATOMIC_ALIGNMENT_CHECK
+    TT_PTR_ALIGNED(a, 2);
+#endif
+
+    return __atomic_exchange_n(a, val, __ATOMIC_SEQ_CST);
+}
+
+tt_inline tt_s64_t tt_atomic_s64_add_ntv(IN tt_atomic_s64_ntv_t *a,
+                                         IN tt_s64_t val)
+{
+#ifdef TT_ATOMIC_ALIGNMENT_CHECK
+    TT_PTR_ALIGNED(a, 3);
+#endif
+
+    return __atomic_fetch_add(a, val, __ATOMIC_SEQ_CST);
+}
+
+tt_inline tt_s64_t tt_atomic_s64_sub_ntv(IN tt_atomic_s64_ntv_t *a,
+                                         IN tt_s64_t val)
+{
+#ifdef TT_ATOMIC_ALIGNMENT_CHECK
+    TT_PTR_ALIGNED(a, 3);
+#endif
+
+    return __atomic_fetch_sub(a, val, __ATOMIC_SEQ_CST);
 }
 
 /**
@@ -309,7 +303,7 @@ tt_inline tt_s64_t tt_atomic_s64_inc_ntv(IN OUT tt_atomic_s64_ntv_t *a)
     TT_PTR_ALIGNED(a, 3);
 #endif
 
-    return __sync_add_and_fetch(a, 1);
+    return __atomic_add_fetch(a, 1, __ATOMIC_SEQ_CST);
 }
 
 /**
@@ -327,37 +321,38 @@ tt_inline tt_s64_t tt_atomic_s64_dec_ntv(IN OUT tt_atomic_s64_ntv_t *a)
     TT_PTR_ALIGNED(a, 3);
 #endif
 
-    return __sync_sub_and_fetch(a, 1);
+    return __atomic_sub_fetch(a, 1, __ATOMIC_SEQ_CST);
 }
 
 /**
 @fn tt_result_t tt_atomic_s64_cas_ntv( \
                                IN OUT tt_atomic_s64_ntv_t *a,
                                IN tt_s64_t comparand,
-                               IN tt_s64_t new_val)
-compare p with comparand, if equal, exchange p with new_val
+                               IN tt_s64_t val)
+compare p with comparand, if equal, exchange p with val
 
 @param [inout] atomic pointer to the variant
 @param [in] comparand value to be compared
-@param [inout] new_val value to be exchanged with p, if p equals comparand
+@param [inout] val value to be exchanged with p, if p equals comparand
 
 @return
-- TT_SUCCESS, if p equals comparand and has been exchanged with new_val
+- TT_SUCCESS, if p equals comparand and has been exchanged with val
 - TT_FAIL, otherwise
 */
-tt_inline tt_result_t tt_atomic_s64_cas_ntv(IN OUT tt_atomic_s64_ntv_t *a,
-                                            IN tt_s64_t comparand,
-                                            IN tt_s64_t new_val)
+tt_inline tt_bool_t tt_atomic_s64_cas_ntv(IN OUT tt_atomic_s64_ntv_t *a,
+                                          IN tt_s64_t comparand,
+                                          IN tt_s64_t val)
 {
 #ifdef TT_ATOMIC_ALIGNMENT_CHECK
     TT_PTR_ALIGNED(a, 3);
 #endif
 
-    if (__sync_bool_compare_and_swap(a, comparand, new_val)) {
-        return TT_SUCCESS;
-    } else {
-        return TT_FAIL;
-    }
+    return TT_BOOL(__atomic_compare_exchange_n(a,
+                                               &comparand,
+                                               val,
+                                               0,
+                                               __ATOMIC_SEQ_CST,
+                                               __ATOMIC_SEQ_CST));
 }
 
 /**
@@ -379,25 +374,22 @@ tt_inline tt_ptr_t tt_atomic_ptr_get_ntv(IN tt_ptr_t *a)
 #endif
 #endif
 
-    return __sync_add_and_fetch(a, 0);
+    return __atomic_load_n(a, __ATOMIC_SEQ_CST);
 }
 
 /**
 @fn tt_s32_t tt_atomic_ptr_set_ntv(IN OUT tt_ptr_t *a,
-                                           IN tt_ptr_t new_ptr)
+                                           IN tt_ptr_t val)
 exchange atomic pointer with new value
 
 @param [inout] atomic the atomic pointer
-@param [in] new_ptr the new value to be written to atomic
+@param [in] val the new value to be written to atomic
 
 @return
 the original value
 */
-tt_inline tt_ptr_t tt_atomic_ptr_set_ntv(IN OUT tt_ptr_t *a,
-                                         IN tt_ptr_t new_ptr)
+tt_inline void tt_atomic_ptr_set_ntv(IN OUT tt_ptr_t *a, IN tt_ptr_t val)
 {
-    tt_ptr_t last_val;
-
 #ifdef TT_ATOMIC_ALIGNMENT_CHECK
 #if TT_ENV_IS_64BIT
     TT_PTR_ALIGNED(a, 3);
@@ -406,33 +398,39 @@ tt_inline tt_ptr_t tt_atomic_ptr_set_ntv(IN OUT tt_ptr_t *a,
 #endif
 #endif
 
-    do {
-        last_val = __sync_add_and_fetch(a, 0);
-    } while (!__sync_bool_compare_and_swap(a, last_val, new_ptr));
-    // - like gcc, llvm does not provide atomic set api, and setting value by
-    //   __sync_lock_test_and_set can be guarateed atomic only when value is 1
-    // - ABA issue is not cared here, this function only guarantee value is set
+    __atomic_store_n(a, val, __ATOMIC_SEQ_CST);
+}
 
-    return last_val;
+tt_inline tt_ptr_t tt_atomic_ptr_swap_ntv(IN OUT tt_ptr_t *a, IN tt_ptr_t val)
+{
+#ifdef TT_ATOMIC_ALIGNMENT_CHECK
+#if TT_ENV_IS_64BIT
+    TT_PTR_ALIGNED(a, 3);
+#else
+    TT_PTR_ALIGNED(a, 2);
+#endif
+#endif
+
+    return __atomic_exchange_n(a, val, __ATOMIC_SEQ_CST);
 }
 
 /**
 @fn tt_result_t tt_atomic_ptr_cas_ntv(IN OUT tt_ptr_t *a,
                                             IN tt_ptr_t comparand,
-                                            IN tt_ptr_t new_ptr)
-compare p with comparand, if equal, exchange p with new_ptr
+                                            IN tt_ptr_t val)
+compare p with comparand, if equal, exchange p with val
 
 @param [inout] atomic pointer
 @param [in] comparand value to be compared
-@param [inout] new_ptr value to be exchanged with p, if p equals comparand
+@param [inout] val value to be exchanged with p, if p equals comparand
 
 @return
-- TT_SUCCESS, if p equals comparand and has been exchanged with new_val
+- TT_SUCCESS, if p equals comparand and has been exchanged with val
 - TT_FAIL, otherwise
 */
-tt_inline tt_result_t tt_atomic_ptr_cas_ntv(IN OUT tt_ptr_t *a,
-                                            IN tt_ptr_t comparand,
-                                            IN tt_ptr_t new_ptr)
+tt_inline tt_bool_t tt_atomic_ptr_cas_ntv(IN OUT tt_ptr_t *a,
+                                          IN tt_ptr_t comparand,
+                                          IN tt_ptr_t val)
 {
 #ifdef TT_ATOMIC_ALIGNMENT_CHECK
 #if TT_ENV_IS_64BIT
@@ -442,11 +440,12 @@ tt_inline tt_result_t tt_atomic_ptr_cas_ntv(IN OUT tt_ptr_t *a,
 #endif
 #endif
 
-    if (__sync_bool_compare_and_swap(a, comparand, new_ptr)) {
-        return TT_SUCCESS;
-    } else {
-        return TT_FAIL;
-    }
+    return TT_BOOL(__atomic_compare_exchange_n(a,
+                                               &comparand,
+                                               val,
+                                               0,
+                                               __ATOMIC_SEQ_CST,
+                                               __ATOMIC_SEQ_CST));
 }
 
 #endif /* __TT_ATOMIC_NATIVE__ */

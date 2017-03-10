@@ -26,7 +26,7 @@
 #include <log/tt_log.h>
 #include <memory/tt_memory_alloc.h>
 
-#ifdef TSCM_PLATFORM_CRYPTO_ENABLE
+#ifdef PLATFORM_CRYPTO_ENABLE
 
 #include <openssl/bio.h>
 #include <openssl/err.h>

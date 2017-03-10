@@ -82,24 +82,6 @@ extern tt_result_t tt_atomic_component_init_ntv(
     IN struct tt_profile_s *profile);
 
 /**
-@fn tvoid tt_atomic_s32_init_ntv(IN OUT tt_atomic_s32_t *a,
-                                 IN tt_s32_t val)
-initialize a 32bit atomic var
-
-@param [in] atomic the atomic variant to be initialized
-@param [in] val initial value
-*/
-tt_inline void tt_atomic_s32_init_ntv(IN OUT tt_atomic_s32_ntv_t *a,
-                                      IN tt_s32_t val)
-{
-#ifdef TT_ATOMIC_ALIGNMENT_CHECK
-    TT_PTR_ALIGNED(a, 2);
-#endif
-
-    InterlockedExchange(a, val);
-}
-
-/**
 @fn tt_s32_t tt_atomic_s32_get_ntv(IN tt_atomic_s32_ntv_t *a)
 read value of an atomic variant
 
@@ -118,25 +100,51 @@ tt_inline tt_s32_t tt_atomic_s32_get_ntv(IN tt_atomic_s32_ntv_t *a)
 }
 
 /**
-@fn tt_s32_t tt_atomic_s32_set_ntv( \
-                                   IN OUT tt_atomic_s32_ntv_t *a,
-                                   IN tt_s32_t new_val)
-write value to an atomic variant and reutrn original value
+@fn tvoid tt_atomic_s32_set_ntv(IN OUT tt_atomic_s32_t *a,
+                                 IN tt_s32_t val)
+initialize a 32bit atomic var
 
-@param [in] atomic the atomic variant
-@param [in] new_val the new value to be written to atomic
-
-@return
-the original value
+@param [in] atomic the atomic variant to be initialized
+@param [in] val initial value
 */
-tt_inline tt_s32_t tt_atomic_s32_set_ntv(IN OUT tt_atomic_s32_ntv_t *a,
-                                         IN tt_s32_t new_val)
+tt_inline void tt_atomic_s32_set_ntv(IN OUT tt_atomic_s32_ntv_t *a,
+                                     IN tt_s32_t val)
 {
 #ifdef TT_ATOMIC_ALIGNMENT_CHECK
     TT_PTR_ALIGNED(a, 2);
 #endif
 
-    return InterlockedExchange(a, new_val);
+    InterlockedExchange(a, val);
+}
+
+tt_inline tt_s32_t tt_atomic_s32_swap_ntv(IN OUT tt_atomic_s32_ntv_t *a,
+                                          IN tt_s32_t val)
+{
+#ifdef TT_ATOMIC_ALIGNMENT_CHECK
+    TT_PTR_ALIGNED(a, 2);
+#endif
+
+    return InterlockedExchange(a, val);
+}
+
+tt_inline tt_s32_t tt_atomic_s32_add_ntv(IN tt_atomic_s32_ntv_t *a,
+                                         IN tt_s32_t val)
+{
+#ifdef TT_ATOMIC_ALIGNMENT_CHECK
+    TT_PTR_ALIGNED(a, 2);
+#endif
+
+    return InterlockedExchangeAdd(a, val);
+}
+
+tt_inline tt_s32_t tt_atomic_s32_sub_ntv(IN tt_atomic_s32_ntv_t *a,
+                                         IN tt_s32_t val)
+{
+#ifdef TT_ATOMIC_ALIGNMENT_CHECK
+    TT_PTR_ALIGNED(a, 2);
+#endif
+
+    return InterlockedExchangeAdd(a, -val);
 }
 
 /**
@@ -179,48 +187,26 @@ tt_inline tt_s32_t tt_atomic_s32_dec_ntv(IN OUT tt_atomic_s32_ntv_t *a)
 @fn tt_result_t tt_atomic_s32_cas_ntv( \
                                     IN OUT tt_atomic_s32_ntv_t *a,
                                     IN tt_s32_t comparand,
-                                    IN tt_s32_t new_val)
-compare atomic with comparand, if equal, assign new_val to p
+                                    IN tt_s32_t val)
+compare atomic with comparand, if equal, assign val to p
 
 @param [inout] atomic pointer to the variant
 @param [in] comparand value to be compared
-@param [inout] new_val value to be exchanged with p, if p equals comparand
+@param [inout] val value to be exchanged with p, if p equals comparand
 
 @return
 - TT_SUCCESS, if exchanging done
 - TT_FAIL, otherwise
 */
-tt_inline tt_result_t tt_atomic_s32_cas_ntv(IN OUT tt_atomic_s32_ntv_t *a,
-                                            IN tt_s32_t comparand,
-                                            IN tt_s32_t new_val)
+tt_inline tt_bool_t tt_atomic_s32_cas_ntv(IN OUT tt_atomic_s32_ntv_t *a,
+                                          IN tt_s32_t comparand,
+                                          IN tt_s32_t val)
 {
 #ifdef TT_ATOMIC_ALIGNMENT_CHECK
     TT_PTR_ALIGNED(a, 2);
 #endif
 
-    if (InterlockedCompareExchange(a, new_val, comparand) == comparand) {
-        return TT_SUCCESS;
-    } else {
-        return TT_FAIL;
-    }
-}
-
-/**
-@fn void tt_atomic_s64_init_ntv(IN OUT tt_atomic_s64_ntv_t *a,
-                                IN tt_s64_t val)
-initialize a 64bit atomic variant
-
-@param [in] atomic atomic variant to be initialized
-@param [in] val initial value
-*/
-tt_inline void tt_atomic_s64_init_ntv(IN OUT tt_atomic_s64_ntv_t *a,
-                                      IN tt_s64_t val)
-{
-#ifdef TT_ATOMIC_ALIGNMENT_CHECK
-    TT_PTR_ALIGNED(a, 3);
-#endif
-
-    InterlockedExchange64(a, val);
+    return TT_BOOL(InterlockedCompareExchange(a, val, comparand) == comparand);
 }
 
 /**
@@ -242,25 +228,63 @@ tt_inline tt_s64_t tt_atomic_s64_get_ntv(IN tt_atomic_s64_ntv_t *a)
 }
 
 /**
-@fn tt_s64_t tt_atomic_s64_set_ntv( \
-                                   IN OUT tt_atomic_s64_ntv_t *a,
-                                   IN tt_s64_t new_val)
-write value to an atomic variant and return the original value
+@fn void tt_atomic_s64_set_ntv(IN OUT tt_atomic_s64_ntv_t *a,
+                                IN tt_s64_t val)
+initialize a 64bit atomic variant
 
-@param [in] atomic the atomic variant
-@param [in] new_val the new value to be written to atomic
-
-@return
-the original value
+@param [in] atomic atomic variant to be initialized
+@param [in] val initial value
 */
-tt_inline tt_s64_t tt_atomic_s64_set_ntv(IN OUT tt_atomic_s64_ntv_t *a,
-                                         IN tt_s64_t new_val)
+tt_inline void tt_atomic_s64_set_ntv(IN OUT tt_atomic_s64_ntv_t *a,
+                                     IN tt_s64_t val)
 {
 #ifdef TT_ATOMIC_ALIGNMENT_CHECK
     TT_PTR_ALIGNED(a, 3);
 #endif
 
-    return InterlockedExchange64(a, new_val);
+    InterlockedExchange64(a, val);
+}
+
+/**
+@fn tt_s64_t tt_atomic_s64_set_ntv( \
+                                   IN OUT tt_atomic_s64_ntv_t *a,
+                                   IN tt_s64_t val)
+write value to an atomic variant and return the original value
+
+@param [in] atomic the atomic variant
+@param [in] val the new value to be written to atomic
+
+@return
+the original value
+*/
+tt_inline tt_s64_t tt_atomic_s64_swap_ntv(IN OUT tt_atomic_s64_ntv_t *a,
+                                          IN tt_s64_t val)
+{
+#ifdef TT_ATOMIC_ALIGNMENT_CHECK
+    TT_PTR_ALIGNED(a, 3);
+#endif
+
+    return InterlockedExchange64(a, val);
+}
+
+tt_inline tt_s64_t tt_atomic_s64_add_ntv(IN tt_atomic_s64_ntv_t *a,
+                                         IN tt_s64_t val)
+{
+#ifdef TT_ATOMIC_ALIGNMENT_CHECK
+    TT_PTR_ALIGNED(a, 3);
+#endif
+
+    return InterlockedExchangeAdd64(a, val);
+}
+
+tt_inline tt_s64_t tt_atomic_s64_sub_ntv(IN tt_atomic_s64_ntv_t *a,
+                                         IN tt_s64_t val)
+{
+#ifdef TT_ATOMIC_ALIGNMENT_CHECK
+    TT_PTR_ALIGNED(a, 3);
+#endif
+
+    return InterlockedExchangeAdd64(a, -val);
 }
 
 /**
@@ -304,30 +328,27 @@ tt_inline tt_s64_t tt_atomic_s64_dec_ntv(IN OUT tt_atomic_s64_ntv_t *a)
 @fn tt_result_t tt_atomic_s64_cas_ntv( \
                                IN OUT tt_atomic_s64_ntv_t *a,
                                IN tt_s64_t comparand,
-                               IN tt_s64_t new_val)
-compare p with comparand, if equal, exchange p with new_val
+                               IN tt_s64_t val)
+compare p with comparand, if equal, exchange p with val
 
 @param [inout] atomic pointer to the variant
 @param [in] comparand value to be compared
-@param [inout] new_val value to be exchanged with p, if p equals comparand
+@param [inout] val value to be exchanged with p, if p equals comparand
 
 @return
-- TT_SUCCESS, if p equals comparand and has been exchanged with new_val
+- TT_SUCCESS, if p equals comparand and has been exchanged with val
 - TT_FAIL, otherwise
 */
-tt_inline tt_result_t tt_atomic_s64_cas_ntv(IN OUT tt_atomic_s64_ntv_t *a,
-                                            IN tt_s64_t comparand,
-                                            IN tt_s64_t new_val)
+tt_inline tt_bool_t tt_atomic_s64_cas_ntv(IN OUT tt_atomic_s64_ntv_t *a,
+                                          IN tt_s64_t comparand,
+                                          IN tt_s64_t val)
 {
 #ifdef TT_ATOMIC_ALIGNMENT_CHECK
     TT_PTR_ALIGNED(a, 3);
 #endif
 
-    if (InterlockedCompareExchange64(a, new_val, comparand) == comparand) {
-        return TT_SUCCESS;
-    } else {
-        return TT_FAIL;
-    }
+    return TT_BOOL(InterlockedCompareExchange64(a, val, comparand) ==
+                   comparand);
 }
 
 /**
@@ -354,17 +375,16 @@ tt_inline tt_ptr_t tt_atomic_ptr_get_ntv(IN tt_ptr_t *a)
 
 /**
 @fn tt_s32_t tt_atomic_ptr_set_ntv(IN OUT tt_ptr_t *a,
-                                           IN tt_ptr_t new_ptr)
+                                           IN tt_ptr_t val)
 exchange atomic pointer with new value
 
 @param [inout] atomic the atomic pointer
-@param [in] new_ptr the new value to be written to atomic
+@param [in] val the new value to be written to atomic
 
 @return
 the original value
 */
-tt_inline tt_ptr_t tt_atomic_ptr_set_ntv(IN OUT tt_ptr_t *a,
-                                         IN tt_ptr_t new_ptr)
+tt_inline void tt_atomic_ptr_set_ntv(IN OUT tt_ptr_t *a, IN tt_ptr_t val)
 {
 #ifdef TT_ATOMIC_ALIGNMENT_CHECK
 #if TT_ENV_IS_64BIT
@@ -374,26 +394,39 @@ tt_inline tt_ptr_t tt_atomic_ptr_set_ntv(IN OUT tt_ptr_t *a,
 #endif
 #endif
 
-    return InterlockedExchangePointer(a, new_ptr);
+    InterlockedExchangePointer(a, val);
+}
+
+tt_inline tt_ptr_t tt_atomic_ptr_swap_ntv(IN OUT tt_ptr_t *a, IN tt_ptr_t val)
+{
+#ifdef TT_ATOMIC_ALIGNMENT_CHECK
+#if TT_ENV_IS_64BIT
+    TT_PTR_ALIGNED(a, 3);
+#else
+    TT_PTR_ALIGNED(a, 2);
+#endif
+#endif
+
+    return InterlockedExchangePointer(a, val);
 }
 
 /**
 @fn tt_result_t tt_atomic_ptr_cas_ntv(IN OUT tt_ptr_t *a,
                                       IN tt_ptr_t comparand,
-                                      IN tt_ptr_t new_ptr)
-compare p with comparand, if equal, exchange p with new_ptr
+                                      IN tt_ptr_t val)
+compare p with comparand, if equal, exchange p with val
 
 @param [inout] atomic pointer
 @param [in] comparand value to be compared
-@param [inout] new_ptr value to be exchanged with p, if p equals comparand
+@param [inout] val value to be exchanged with p, if p equals comparand
 
 @return
-- TT_SUCCESS, if p equals comparand and has been exchanged with new_val
+- TT_SUCCESS, if p equals comparand and has been exchanged with val
 - TT_FAIL, otherwise
 */
-tt_inline tt_result_t tt_atomic_ptr_cas_ntv(IN OUT tt_ptr_t *a,
-                                            IN tt_ptr_t comparand,
-                                            IN tt_ptr_t new_ptr)
+tt_inline tt_bool_t tt_atomic_ptr_cas_ntv(IN OUT tt_ptr_t *a,
+                                          IN tt_ptr_t comparand,
+                                          IN tt_ptr_t val)
 {
 #ifdef TT_ATOMIC_ALIGNMENT_CHECK
 #if TT_ENV_IS_64BIT
@@ -403,11 +436,8 @@ tt_inline tt_result_t tt_atomic_ptr_cas_ntv(IN OUT tt_ptr_t *a,
 #endif
 #endif
 
-    if (InterlockedCompareExchangePointer(a, new_ptr, comparand) == comparand) {
-        return TT_SUCCESS;
-    } else {
-        return TT_FAIL;
-    }
+    return TT_BOOL(InterlockedCompareExchangePointer(a, val, comparand) ==
+                   comparand);
 }
 
 #endif /* __TT_ATOMIC_NATIVE__ */

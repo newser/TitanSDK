@@ -53,22 +53,19 @@ void tt_sem_component_register()
 }
 
 tt_result_t tt_sem_create(IN tt_sem_t *sem,
-                          IN tt_u32_t init_count,
-                          IN tt_sem_attr_t *attr)
+                          IN tt_u32_t count,
+                          IN OPT tt_sem_attr_t *attr)
 {
+    tt_sem_attr_t __attr;
+
     TT_ASSERT(sem != NULL);
 
     if (attr != NULL) {
-        tt_memcpy(&sem->attr, attr, sizeof(tt_sem_attr_t));
-    } else {
-        tt_sem_attr_default(&sem->attr);
+        tt_sem_attr_default(&__attr);
+        attr = &__attr;
     }
 
-    if (!TT_OK(tt_sem_create_ntv(&sem->sys_sem, init_count, &sem->attr))) {
-        return TT_FAIL;
-    }
-
-    return TT_SUCCESS;
+    return tt_sem_create_ntv(&sem->sys_sem, count, attr);
 }
 
 void tt_sem_destroy(IN tt_sem_t *sem)
@@ -83,57 +80,4 @@ void tt_sem_attr_default(IN tt_sem_attr_t *attr)
     TT_ASSERT(attr != NULL);
 
     attr->reserved = 0;
-}
-
-tt_result_t __sem_acquire(IN tt_sem_t *sem,
-                          IN tt_u32_t wait_ms
-#if (TT_SEM_DEBUG_OPT & TT_SEM_LOCKER_DEBUG)
-                          ,
-                          IN const tt_char_t *function,
-                          IN tt_u32_t line
-#endif
-                          )
-{
-    tt_result_t result;
-
-    TT_ASSERT(sem != NULL);
-
-    result = tt_sem_acquire_ntv(&sem->sys_sem, wait_ms);
-    if (!TT_OK(result)) {
-        TT_ASSERT_ALWAYS(result == TT_TIME_OUT);
-        return TT_TIME_OUT;
-    }
-
-    return TT_SUCCESS;
-}
-
-tt_result_t __sem_try_acquire(IN tt_sem_t *sem
-#if (TT_SEM_DEBUG_OPT & TT_SEM_LOCKER_DEBUG)
-                              ,
-                              IN const tt_char_t *function,
-                              IN tt_u32_t line
-#endif
-                              )
-{
-    tt_result_t result;
-
-    TT_ASSERT(sem != NULL);
-
-    result = tt_sem_try_acquire_ntv(&sem->sys_sem);
-    if (!TT_OK(result)) {
-        TT_ASSERT_ALWAYS(result == TT_TIME_OUT);
-        return TT_TIME_OUT;
-    }
-
-    return TT_SUCCESS;
-}
-
-void tt_sem_release(IN tt_sem_t *sem)
-{
-    tt_result_t result;
-
-    TT_ASSERT(sem != NULL);
-
-    result = tt_sem_release_ntv(&sem->sys_sem);
-    TT_ASSERT_ALWAYS(TT_OK(result));
 }

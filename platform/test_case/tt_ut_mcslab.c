@@ -22,6 +22,7 @@
 #include <unit_test/tt_unit_test.h>
 
 #include <log/tt_log.h>
+#include <memory/tt_memory_alloc.h>
 #include <memory/tt_slab.h>
 #include <misc/tt_util.h>
 #include <os/tt_thread.h>

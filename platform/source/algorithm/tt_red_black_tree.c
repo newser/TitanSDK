@@ -616,8 +616,6 @@ tt_result_t __rbt_expensive_check(IN tt_rbtree_t *tree,
 // this function is for debugging purpose
 tt_u32_t __rbt_count(IN tt_rbtree_t *rbt, IN tt_rbnode_t *node)
 {
-    tt_u32_t n;
-
     if (node == &rbt->tnil) {
         return 0;
     }

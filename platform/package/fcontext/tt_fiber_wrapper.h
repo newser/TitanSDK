@@ -15,21 +15,20 @@
  */
 
 /**
-@file tt_spinlock_native_cs.h
-@brief spin lock implemented by windows critical section
-
-this files defines system APIs of spin lock implemented by windows spin
-critical section
+@file tt_fiber_wrapper.h
+@brief fiber wrapper
 */
 
-#ifndef __TT_SPINLOCK_NATIVE_CS__
-#define __TT_SPINLOCK_NATIVE_CS__
+#ifndef __TT_FIBER_WRAPPER__
+#define __TT_FIBER_WRAPPER__
 
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <tt_sys_error.h>
+#include <tt_basic_type.h>
+
+#include <fcontext/source/latest/tt_fcontext.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
@@ -39,13 +38,16 @@ critical section
 // type definition
 ////////////////////////////////////////////////////////////
 
-struct tt_profile_s;
-struct tt_spinlock_attr_s;
+struct tt_fiber_s;
+struct tt_fiber_sched_s;
 
-typedef struct
+typedef struct tt_fiber_wrap_s
 {
-    CRITICAL_SECTION cs;
-} tt_spinlock_ntv_cs_t;
+    tt_fcontext_t fctx;
+    struct tt_fiber_s *from;
+    void *stack;
+    tt_u32_t stack_size;
+} tt_fiber_wrap_t;
 
 ////////////////////////////////////////////////////////////
 // global variants
@@ -55,36 +57,13 @@ typedef struct
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-tt_inline tt_result_t
-tt_spinlock_component_init_ntv_cs(IN struct tt_profile_s *profile)
-{
-    return TT_SUCCESS;
-}
+extern tt_result_t tt_fiber_create_wrap(IN tt_fiber_wrap_t *wrap_fb,
+                                        IN tt_u32_t stack_size);
 
-extern tt_result_t tt_spinlock_create_ntv_cs(
-    IN tt_spinlock_ntv_cs_t *lock, IN struct tt_spinlock_attr_s *attr);
+extern void tt_fiber_destroy_wrap(IN tt_fiber_wrap_t *wrap_fb);
 
-extern void tt_spinlock_destroy_ntv_cs(IN tt_spinlock_ntv_cs_t *lock);
+extern void tt_fiber_switch_wrap(IN struct tt_fiber_sched_s *fs,
+                                 IN struct tt_fiber_s *from,
+                                 IN struct tt_fiber_s *to);
 
-tt_inline tt_result_t tt_spinlock_acquire_ntv_cs(IN tt_spinlock_ntv_cs_t *lock)
-{
-    EnterCriticalSection(&lock->cs);
-    return TT_SUCCESS;
-}
-
-tt_inline tt_result_t
-tt_spinlock_try_acquire_ntv_cs(IN tt_spinlock_ntv_cs_t *lock)
-{
-    if (TryEnterCriticalSection(&lock->cs)) {
-        return TT_SUCCESS;
-    } else {
-        return TT_TIME_OUT;
-    }
-}
-
-tt_inline void tt_spinlock_release_ntv_cs(IN tt_spinlock_ntv_cs_t *lock)
-{
-    LeaveCriticalSection(&lock->cs);
-}
-
-#endif /* __TT_SPINLOCK_NATIVE_CS__ */
+#endif /* __TT_FIBER_WRAPPER__ */

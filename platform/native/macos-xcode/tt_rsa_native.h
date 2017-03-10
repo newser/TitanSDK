@@ -31,7 +31,7 @@ this file defines RSA native APIs
 #include <algorithm/tt_blob.h>
 #include <crypto/tt_rsa_def.h>
 
-#ifdef TSCM_PLATFORM_CRYPTO_ENABLE
+#ifdef PLATFORM_CRYPTO_ENABLE
 #include <Security/Security.h>
 #endif
 
@@ -49,7 +49,7 @@ struct tt_rsa_number_s;
 
 typedef struct
 {
-#ifdef TSCM_PLATFORM_CRYPTO_ENABLE
+#ifdef PLATFORM_CRYPTO_ENABLE
     // on mac os, TT_RSA_TYPE_PRIVATE may have both pub_key and
     // priv_key. while TT_RSA_TYPE_PUBLIC only has pub_key
     SecKeyRef pub_key;

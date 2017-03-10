@@ -109,6 +109,7 @@ TT_TEST_CASE("tt_unit_test_rwlock_basic",
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_rwlock_t lock;
     tt_result_t ret;
+    tt_bool_t b_ret;
 
     TT_TEST_CASE_ENTER()
     // test start
@@ -126,8 +127,8 @@ TT_TEST_CASE("tt_unit_test_rwlock_basic",
     ret = tt_rwlock_try_acquire_r(&lock);
 
     // try write acquire
-    ret = tt_rwlock_try_acquire_w(&lock);
-    TT_TEST_CHECK_EQUAL(ret, TT_TIME_OUT, "");
+    b_ret = tt_rwlock_try_acquire_w(&lock);
+    TT_TEST_CHECK_EQUAL(b_ret, TT_FALSE, "");
 
     // read release
     tt_rwlock_release_r(&lock);
@@ -135,8 +136,8 @@ TT_TEST_CASE("tt_unit_test_rwlock_basic",
     tt_rwlock_release_r(&lock);
 
     // try write acquire
-    ret = tt_rwlock_try_acquire_w(&lock);
-    TT_TEST_CHECK_EQUAL(ret, TT_TIME_OUT, "");
+    b_ret = tt_rwlock_try_acquire_w(&lock);
+    TT_TEST_CHECK_EQUAL(b_ret, TT_FALSE, "");
 
     // read release
     tt_rwlock_release_r(&lock);
@@ -175,7 +176,7 @@ static tt_u32_t write_counter;
 
 // static LONG _comp_lock;
 
-static tt_result_t test_routine_1(IN tt_thread_t *thread, IN void *param)
+static tt_result_t test_routine_1(IN void *param)
 {
     tt_ptrdiff_t idx = (tt_ptrdiff_t)param;
     int i = 0;
@@ -207,7 +208,7 @@ static tt_result_t test_routine_1(IN tt_thread_t *thread, IN void *param)
 #ifdef _WIN32
 static CRITICAL_SECTION __cs1;
 
-static tt_result_t test_routine_2(IN tt_thread_t *thread, IN void *param)
+static tt_result_t test_routine_2(IN void *param)
 {
     tt_ptrdiff_t idx = (tt_ptrdiff_t)param;
     int i = 0;
@@ -238,7 +239,7 @@ static tt_result_t test_routine_2(IN tt_thread_t *thread, IN void *param)
 
 static tt_mutex_t __mutex1;
 
-static tt_result_t test_routine_3(IN tt_thread_t *thread, IN void *param)
+static tt_result_t test_routine_3(IN void *param)
 {
     tt_ptrdiff_t idx = (tt_ptrdiff_t)param;
     int i = 0;
@@ -269,7 +270,7 @@ static tt_result_t test_routine_3(IN tt_thread_t *thread, IN void *param)
 
 static tt_spinlock_t __spinlock;
 
-static tt_result_t test_routine_4(IN tt_thread_t *thread, IN void *param)
+static tt_result_t test_routine_4(IN void *param)
 {
     tt_ptrdiff_t idx = (tt_ptrdiff_t)param;
     int i = 0;
@@ -300,7 +301,7 @@ static tt_result_t test_routine_4(IN tt_thread_t *thread, IN void *param)
 
 static tt_sem_t __sem;
 
-static tt_result_t test_routine_5(IN tt_thread_t *thread, IN void *param)
+static tt_result_t test_routine_5(IN void *param)
 {
     tt_ptrdiff_t idx = (tt_ptrdiff_t)param;
     int i = 0;
@@ -367,8 +368,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_rwlock_mt)
 
     begin = tt_time_ref();
     for (i = 0; i < sizeof(test_threads) / sizeof(tt_thread_t *); ++i) {
-        test_threads[i] =
-            tt_thread_create(NULL, test_routine_1, (void *)i, NULL);
+        test_threads[i] = tt_thread_create(test_routine_1, (void *)i, NULL);
     }
     for (i = 0; i < sizeof(test_threads) / sizeof(tt_thread_t *); ++i) {
         tt_thread_wait(test_threads[i]);
@@ -382,8 +382,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_rwlock_mt)
     // compare with cs with spin
     begin = tt_time_ref();
     for (i = 0; i < sizeof(test_threads) / sizeof(tt_thread_t *); ++i) {
-        test_threads[i] =
-            tt_thread_create(NULL, test_routine_2, (void *)i, NULL);
+        test_threads[i] = tt_thread_create(test_routine_2, (void *)i, NULL);
     }
     for (i = 0; i < sizeof(test_threads) / sizeof(tt_thread_t *); ++i) {
         tt_thread_wait(test_threads[i]);
@@ -397,8 +396,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_rwlock_mt)
     // compare with mutex
     begin = tt_time_ref();
     for (i = 0; i < sizeof(test_threads) / sizeof(tt_thread_t *); ++i) {
-        test_threads[i] =
-            tt_thread_create(NULL, test_routine_3, (void *)i, NULL);
+        test_threads[i] = tt_thread_create(test_routine_3, (void *)i, NULL);
     }
     for (i = 0; i < sizeof(test_threads) / sizeof(tt_thread_t *); ++i) {
         tt_thread_wait(test_threads[i]);
@@ -409,8 +407,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_rwlock_mt)
     // compare with spin lock
     begin = tt_time_ref();
     for (i = 0; i < sizeof(test_threads) / sizeof(tt_thread_t *); ++i) {
-        test_threads[i] =
-            tt_thread_create(NULL, test_routine_4, (void *)i, NULL);
+        test_threads[i] = tt_thread_create(test_routine_4, (void *)i, NULL);
     }
     for (i = 0; i < sizeof(test_threads) / sizeof(tt_thread_t *); ++i) {
         tt_thread_wait(test_threads[i]);
@@ -421,8 +418,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_rwlock_mt)
     // compare with semaphore
     begin = tt_time_ref();
     for (i = 0; i < sizeof(test_threads) / sizeof(tt_thread_t *); ++i) {
-        test_threads[i] =
-            tt_thread_create(NULL, test_routine_5, (void *)i, NULL);
+        test_threads[i] = tt_thread_create(test_routine_5, (void *)i, NULL);
     }
     for (i = 0; i < sizeof(test_threads) / sizeof(tt_thread_t *); ++i) {
         tt_thread_wait(test_threads[i]);

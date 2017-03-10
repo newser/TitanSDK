@@ -34,27 +34,15 @@ this file specifies interfaces for system specific thread operations.
 // macro definition
 ////////////////////////////////////////////////////////////
 
-/**
-@def __THREAD_MAGIC
-sys thread type identifier
-*/
-#define __THREAD_MAGIC (0xEFCCEFCC)
-
 ////////////////////////////////////////////////////////////
 // type definition
 ////////////////////////////////////////////////////////////
 
 struct tt_thread_s;
-struct tt_thread_attr_s;
 
 typedef struct
 {
-    __TT_PRIVATE__
-
     HANDLE thread_handle;
-
-    tt_u32_t magic;
-    LONG status;
 } tt_thread_ntv_t;
 
 ////////////////////////////////////////////////////////////
@@ -96,7 +84,7 @@ extern tt_result_t tt_thread_create_ntv(IN struct tt_thread_s *thread);
 
 /**
 @fn
-tt_result_t tt_thread_local_run_ntv(IN struct tt_thread_s *thread)
+tt_result_t tt_thread_create_local_ntv(IN struct tt_thread_s *thread)
 simulate running a thread
 
 @param thread [inout] ts thread
@@ -105,7 +93,7 @@ simulate running a thread
 - TT_SUCCESS the thread has run and exited
 - TT_FAIL the thread has not run due to some error
 */
-extern tt_result_t tt_thread_local_run_ntv(IN struct tt_thread_s *thread);
+extern tt_result_t tt_thread_create_local_ntv(IN struct tt_thread_s *thread);
 
 /**
 @fn tt_result_t tt_thread_wait_ntv(IN struct tt_thread_s *thread)

@@ -61,7 +61,7 @@ extern void __evc_on_exit(IN tt_evcenter_t *evc);
 static tt_result_t __evp_component_init(IN tt_component_t *comp,
                                         IN tt_profile_t *profile);
 
-static tt_result_t __evp_routine(IN struct tt_thread_s *thread, IN void *param);
+static tt_result_t __evp_routine(IN void *param);
 
 static void __evp_destroy(IN tt_evpoller_t *evp);
 
@@ -161,19 +161,10 @@ tt_result_t tt_evp_create(IN tt_evpoller_t *evp, IN tt_bool_t local_run)
             goto __ec_fail;
         }
 
-        __evp_routine(thread, evp);
+        __evp_routine(evp);
     } else {
-        tt_char_t poller_name[TT_MAX_THREAD_NAME_LEN + 1] = {0};
-
-        tt_snprintf(poller_name,
-                    TT_MAX_THREAD_NAME_LEN,
-                    "%s poller",
-                    evc_attr->evc_name);
-
-        evp->thread = tt_thread_create(poller_name,
-                                       __evp_routine,
-                                       evp,
-                                       &evc_attr->evp_thread_attr);
+        evp->thread =
+            tt_thread_create(__evp_routine, evp, &evc_attr->evp_thread_attr);
         if (evp->thread == NULL) {
             TT_ERROR("fail to create evp thread");
             goto __ec_fail;
@@ -238,11 +229,12 @@ tt_result_t __evp_component_init(IN tt_component_t *comp,
     return TT_SUCCESS;
 }
 
-tt_result_t __evp_routine(IN struct tt_thread_s *thread, IN void *param)
+tt_result_t __evp_routine(IN void *param)
 {
     tt_evpoller_t *evp = (tt_evpoller_t *)param;
     tt_evcenter_t *evc = evp->evc;
     tt_result_t result = TT_SUCCESS;
+    tt_thread_t *thread = tt_current_thread();
 
     TT_ASSERT(thread->evp == NULL);
     thread->evp = evp;

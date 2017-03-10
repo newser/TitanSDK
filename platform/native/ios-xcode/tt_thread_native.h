@@ -32,17 +32,10 @@ this file specifies interfaces for system specific thread operations.
 
 #include <errno.h>
 #include <pthread.h>
-#include <string.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
 ////////////////////////////////////////////////////////////
-
-/**
-@def __THREAD_MAGIC
-sys thread type identifier
-*/
-#define __THREAD_MAGIC (0xEFCCEFCC)
 
 ////////////////////////////////////////////////////////////
 // type definition
@@ -52,12 +45,7 @@ struct tt_thread_s;
 
 typedef struct
 {
-    __TT_PRIVATE__
-
-    pthread_t thread_handle;
-
-    tt_u32_t magic;
-    tt_u32_t status;
+    pthread_t handle;
 } tt_thread_ntv_t;
 
 ////////////////////////////////////////////////////////////
@@ -99,7 +87,7 @@ extern tt_result_t tt_thread_create_ntv(IN struct tt_thread_s *thread);
 
 /**
 @fn
-tt_result_t tt_thread_local_run_ntv(IN struct tt_thread_s *thread)
+tt_result_t tt_thread_create_local_ntv(IN struct tt_thread_s *thread)
 simulate running a thread
 
 @param sys_thread [inout] ts system thread
@@ -111,7 +99,7 @@ simulate running a thread
 - TT_SUCCESS the thread has run and exited
 - TT_FAIL the thread has not run due to some error
 */
-extern tt_result_t tt_thread_local_run_ntv(IN struct tt_thread_s *thread);
+extern tt_result_t tt_thread_create_local_ntv(IN struct tt_thread_s *thread);
 
 /**
 @fn tt_result_t tt_thread_wait_ntv(IN struct tt_thread_s *thread)
@@ -139,7 +127,10 @@ exit current thread
 - this function has no parameter, so it can only be used to exit current
   thread
 */
-extern void tt_thread_exit_ntv();
+tt_inline void tt_thread_exit_ntv()
+{
+    pthread_exit(NULL);
+}
 
 /**
 @fn tt_result_t tt_sleep_ntv(IN tt_u32_t millisec)
@@ -153,30 +144,7 @@ put current thread into sleeping
 - TT_SUCCESS if sleeping done
 - TT_FAIL if some error occurs
 */
-tt_inline tt_result_t tt_sleep_ntv(IN tt_u32_t millisec)
-{
-    struct timespec req = {0};
-    struct timespec rem = {0};
-
-    req.tv_sec = millisec / 1000;
-    req.tv_nsec = (millisec % 1000) * 1000000;
-    do {
-        if (nanosleep(&req, &rem) == 0) {
-            break;
-        } else if (errno == EINTR) {
-            req.tv_sec = rem.tv_sec;
-            req.tv_nsec = rem.tv_nsec;
-            // give a warning?
-
-            continue;
-        } else {
-            TT_ERROR_NTV("thread fails to sleep");
-            return TT_FAIL;
-        }
-    } while (1);
-
-    return TT_SUCCESS;
-}
+extern tt_result_t tt_sleep_ntv(IN tt_u32_t millisec);
 
 /**
 @fn tt_thread_native_t *tt_current_thread_ntv()

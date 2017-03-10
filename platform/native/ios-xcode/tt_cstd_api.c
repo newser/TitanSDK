@@ -194,3 +194,31 @@ tt_result_t tt_strtos32(IN const char *str,
     *val = (tt_s32_t)l_val;
     return TT_SUCCESS;
 }
+
+char *tt_strrstr(const char *haystack, const char *needle)
+{
+    size_t nlen, hlen;
+    const char *p;
+    char *sss1;
+    char *sss2;
+
+    nlen = strlen(needle);
+    if (nlen == 0) {
+        return (char *)haystack;
+    }
+
+    hlen = strlen(haystack);
+    if (hlen < nlen) {
+        return NULL;
+    }
+
+    p = haystack + hlen - nlen;
+    while (p >= haystack) {
+        if (memcmp(p, needle, nlen) == 0) {
+            return (char *)p;
+        }
+        --p;
+    }
+
+    return NULL;
+}

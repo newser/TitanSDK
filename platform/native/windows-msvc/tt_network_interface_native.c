@@ -99,7 +99,7 @@ static tt_result_t __netif_addr_update(IN tt_netif_addr_t *netif_addr,
 
 tt_result_t tt_network_interface_init_ntv()
 {
-    tt_atomic_s32_init(&tt_s_adpt_size, __INIT_ADPT_ADDR_SIZE);
+    tt_atomic_s32_set(&tt_s_adpt_size, __INIT_ADPT_ADDR_SIZE);
 
     return TT_SUCCESS;
 }

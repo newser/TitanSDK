@@ -484,7 +484,7 @@ void __peer_init(IN tt_sslpeer_t *sslpeer,
     sslpeer->peer_id_len = peer_id_len;
 
     // ref of owner, generally the hash map hold this ref
-    tt_atomic_s32_init(&sslpeer->ref, 1);
+    tt_atomic_s32_set(&sslpeer->ref, 1);
 
     sslpeer->last_updated = tt_time_ref();
 

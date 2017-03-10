@@ -151,7 +151,7 @@ tt_inline void tt_rbuf_get_wptr(IN tt_rbuf_t *rbuf,
                                 IN tt_u8_t **p,
                                 IN tt_u32_t *len)
 {
-    return tt_buf_get_wptr(&rbuf->raw, p, len);
+    tt_buf_get_wptr(&rbuf->raw, p, len);
 }
 
 extern tt_result_t tt_rbuf_inc_wp(IN tt_rbuf_t *rbuf, IN tt_u32_t num);

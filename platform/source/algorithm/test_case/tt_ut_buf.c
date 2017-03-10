@@ -1413,7 +1413,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_buftok)
 TT_TEST_ROUTINE_DEFINE(tt_unit_test_blob)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
-    tt_blob_t b, b2;
+    tt_blob_t b, b2 = {0};
     tt_result_t ret;
     char c[] = "123";
 
@@ -1423,7 +1423,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_blob)
     tt_blob_init(&b);
     tt_blob_destroy(&b);
 
-    ret = tt_blob_create(&b, NULL, tt_strlen(c));
+    ret = tt_blob_create(&b, NULL, (tt_u32_t)tt_strlen(c));
     TT_TEST_CHECK_SUCCESS(ret, "");
 
     tt_memcpy(b.addr, c, tt_strlen(c));

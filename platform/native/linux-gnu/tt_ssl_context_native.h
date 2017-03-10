@@ -28,6 +28,7 @@ this file defines ssl context portlayer APIs
 // import header files
 ////////////////////////////////////////////////////////////
 
+#include <algorithm/tt_blob.h>
 #include <algorithm/tt_list.h>
 //#include <misc/tt_distinguished_name.h>
 #include <network/ssl/tt_ssl_def.h>

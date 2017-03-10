@@ -28,7 +28,7 @@ this file implements mutex apis in system level
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <log/tt_log.h>
+#include <misc/tt_assert.h>
 
 #include <errno.h>
 #include <pthread.h>
@@ -59,7 +59,7 @@ typedef struct
 
 /**
 @fn tt_result_t tt_mutex_create_ntv(IN tt_mutex_ntv_t *sys_mutex,
-                                    IN struct tt_mutex_attr_s *attr)
+                                    IN tt_mutex_attr_portlayer_t *attr)
 create a system mutex
 
 @param [inout] sys_mutex system mutex to be created
@@ -89,7 +89,7 @@ message
 extern void tt_mutex_destroy_ntv(IN tt_mutex_ntv_t *sys_mutex);
 
 /**
-@fn tt_result_t tt_mutex_acquire_ntv(tt_mutex_ntv_t *sys_mutex)
+@fn tt_result_t tt_mutex_acquire_portlayer(tt_mutex_ntv_t *sys_mutex)
 acquire a system mutex
 
 @param [in] sys_mutex mutex to be acquired
@@ -102,14 +102,12 @@ acquire a system mutex
 return value MUST be checked, lock operation is implemented based on
 system call which is out of ts control
 */
-tt_inline tt_result_t tt_mutex_acquire_ntv(tt_mutex_ntv_t *sys_mutex)
+tt_inline void tt_mutex_acquire_ntv(tt_mutex_ntv_t *sys_mutex)
 {
     int ret = pthread_mutex_lock(&sys_mutex->mutex);
-    if (ret == 0) {
-        return TT_SUCCESS;
-    } else {
-        TT_ERROR("fail to lock system mutex: %d[%s]", ret, strerror(ret));
-        return TT_FAIL;
+    if (ret != 0) {
+        TT_FATAL("fail to lock system mutex: %d[%s]", ret, strerror(ret));
+        tt_throw_exception_ntv(NULL);
     }
 }
 
@@ -128,16 +126,17 @@ try to acquire a system mutex
 return value MUST be checked, lock operation is implemented based on
 system call which is out of ts control
 */
-tt_inline tt_result_t tt_mutex_try_acquire_ntv(IN tt_mutex_ntv_t *sys_mutex)
+tt_inline tt_bool_t tt_mutex_try_acquire_ntv(IN tt_mutex_ntv_t *sys_mutex)
 {
     int ret = pthread_mutex_trylock(&sys_mutex->mutex);
     if (ret == 0) {
-        return TT_SUCCESS;
+        return TT_TRUE;
     } else if (ret == EBUSY) {
-        return TT_TIME_OUT;
+        return TT_FALSE;
     } else {
-        TT_ERROR("fail to try lock system mutex: %d[%s]", ret, strerror(ret));
-        return TT_FAIL;
+        TT_FATAL("fail to try lock system mutex: %d[%s]", ret, strerror(ret));
+        tt_throw_exception_ntv(NULL);
+        return TT_FALSE;
     }
 }
 
@@ -151,14 +150,12 @@ release a system mutex
 - TT_SUCCESS, if unlocking done
 - TT_FAIL, otherwise
 */
-tt_inline tt_result_t tt_mutex_release_ntv(IN tt_mutex_ntv_t *sys_mutex)
+tt_inline void tt_mutex_release_ntv(IN tt_mutex_ntv_t *sys_mutex)
 {
     int ret = pthread_mutex_unlock(&sys_mutex->mutex);
-    if (ret == 0) {
-        return TT_SUCCESS;
-    } else {
-        TT_ERROR("fail to unlock system mutex: %d[%s]", ret, strerror(ret));
-        return TT_FAIL;
+    if (ret != 0) {
+        TT_FATAL("fail to unlock system mutex: %d[%s]", ret, strerror(ret));
+        tt_throw_exception_ntv(NULL);
     }
 }
 

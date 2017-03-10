@@ -22,7 +22,6 @@
 
 #include <init/tt_component.h>
 #include <init/tt_profile.h>
-#include <misc/tt_assert.h>
 
 ////////////////////////////////////////////////////////////
 // internal macro
@@ -69,10 +68,7 @@ void tt_atomic_component_register()
 tt_result_t __atomic_component_init(IN tt_component_t *comp,
                                     IN tt_profile_t *profile)
 {
-    tt_result_t result = TT_FAIL;
-
-    result = tt_atomic_component_init_ntv(profile);
-    if (!TT_OK(result)) {
+    if (!TT_OK(tt_atomic_component_init_ntv(profile))) {
         return TT_FAIL;
     }
 

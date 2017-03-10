@@ -28,6 +28,7 @@ this file defines RSA native APIs
 // import header files
 ////////////////////////////////////////////////////////////
 
+#include <algorithm/tt_blob.h>
 #include <crypto/tt_rsa_def.h>
 
 #include <bcrypt.h>
@@ -46,7 +47,7 @@ struct tt_rsa_number_s;
 
 typedef struct
 {
-#ifdef TSCM_PLATFORM_CRYPTO_ENABLE
+#ifdef PLATFORM_CRYPTO_ENABLE
     BCRYPT_KEY_HANDLE rsa;
 #endif
 

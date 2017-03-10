@@ -86,7 +86,7 @@ features from those macros and assemble them into this file.
 @def TT_ENV_OS
 app running os id
 */
-#define TT_ENV_OS @TSCM_ENV_OS_DETAIL@
+#define TT_ENV_OS @PLATFORM_ENV_OS_DETAIL@
 
 // if detail checking is not enabled, use macro to detect
 #if (TT_ENV_OS == TT_ENV_UNKNOWN_VAL)
@@ -114,13 +114,13 @@ app running os id
 @def TT_ENV_OS_VER
 app running os version
 */
-#define TT_ENV_OS_VER @TSCM_ENV_OS_VER_DETAIL@
+#define TT_ENV_OS_VER @PLATFORM_ENV_OS_VER_DETAIL@
 
 /**
 @def TT_ENV_OS_FEATURE
 app running os features
 */
-#define TT_ENV_OS_FEATURE @TSCM_ENV_OS_FEATURE_DETAIL@
+#define TT_ENV_OS_FEATURE @PLATFORM_ENV_OS_FEATURE_DETAIL@
 
 // ========================================
 // app building toochain
@@ -130,7 +130,7 @@ app running os features
 @def TT_ENV_TOOLCHAIN
 app building toochain
 */
-#define TT_ENV_TOOLCHAIN @TSCM_ENV_TOOLCHAIN_DETAIL@
+#define TT_ENV_TOOLCHAIN @PLATFORM_ENV_TOOLCHAIN_DETAIL@
 
 // if detail checking is not enabled, set default toolchain
 #if (TT_ENV_TOOLCHAIN == TT_ENV_UNKNOWN_VAL)
@@ -152,7 +152,7 @@ app building toochain
 @def TT_ENV_TOOLCHAIN_VER
 app building toochain version
 */
-#define TT_ENV_TOOLCHAIN_VER @TSCM_ENV_TOOLCHAIN_VER_DETAIL@
+#define TT_ENV_TOOLCHAIN_VER @PLATFORM_ENV_TOOLCHAIN_VER_DETAIL@
 
 // ========================================
 // app running cpu
@@ -162,7 +162,7 @@ app building toochain version
 @def TT_ENV_CPU
 app running cpu
 */
-#define TT_ENV_CPU @TSCM_ENV_CPU_DETAIL@
+#define TT_ENV_CPU @PLATFORM_ENV_CPU_DETAIL@
 
 // if detail checking is not enabled, use macro to detect
 #if (TT_ENV_CPU == TT_ENV_UNKNOWN_VAL)
@@ -199,7 +199,7 @@ app running cpu
 @def TT_ENV_CPU_FEATURE
 app running cpu feature
 */
-#define TT_ENV_CPU_FEATURE @TSCM_ENV_CPU_FEATURE_DETAIL@
+#define TT_ENV_CPU_FEATURE @PLATFORM_ENV_CPU_FEATURE_DETAIL@
 
 // ========================================
 // misc

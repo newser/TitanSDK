@@ -884,7 +884,7 @@ static tt_result_t __echo_svr(tt_skt_t *svr_skt)
     return TT_SUCCESS;
 }
 
-static tt_result_t __tcp_thread_c(IN tt_thread_t *thread, IN void *param)
+static tt_result_t __tcp_thread_c(IN void *param)
 {
     tt_skt_t sk4;
     tt_u16_t port = (tt_u16_t)(tt_ptrdiff_t)param;
@@ -963,7 +963,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_tcp_server)
 
     ////////////////////
 
-    tthd = tt_thread_create("", __tcp_thread_c, (void *)__TPORT, NULL);
+    tthd = tt_thread_create(__tcp_thread_c, (void *)__TPORT, NULL);
     TT_TEST_CHECK_NOT_EQUAL(tthd, NULL, "");
 
     // block untill new connection comes
@@ -993,7 +993,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_tcp_server)
     TT_TEST_CASE_LEAVE()
 }
 
-static tt_result_t __tcp_thread_c6(IN tt_thread_t *thread, IN void *param)
+static tt_result_t __tcp_thread_c6(IN void *param)
 {
     tt_skt_t sk6;
     tt_u16_t port = (tt_u16_t)(tt_ptrdiff_t)param;
@@ -1055,7 +1055,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_tcp_server6)
 
     ////////////////////
 
-    tthd = tt_thread_create("", __tcp_thread_c6, (void *)(__TPORT + 1), NULL);
+    tthd = tt_thread_create(__tcp_thread_c6, (void *)(__TPORT + 1), NULL);
     TT_TEST_CHECK_NOT_EQUAL(tthd, NULL, "");
 
     // block untill new connection comes
@@ -1075,7 +1075,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_tcp_server6)
 
     // ipv4 client, ipv6 server
 
-    tthd = tt_thread_create("", __tcp_thread_c, (void *)(__TPORT + 1), NULL);
+    tthd = tt_thread_create(__tcp_thread_c, (void *)(__TPORT + 1), NULL);
     TT_TEST_CHECK_NOT_EQUAL(tthd, NULL, "");
 
     // block untill new connection comes
@@ -1203,7 +1203,7 @@ static tt_result_t __echo_svr_udp(tt_skt_t *svr_skt)
     return TT_SUCCESS;
 }
 
-static tt_result_t __udp_thread_c(IN tt_thread_t *thread, IN void *param)
+static tt_result_t __udp_thread_c(IN void *param)
 {
     tt_skt_t sk4;
     tt_u16_t port = (tt_u16_t)(tt_ptrdiff_t)param;
@@ -1266,7 +1266,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_udp_server)
 
     ////////////////////
 
-    tthd = tt_thread_create("", __udp_thread_c, (void *)(__TPORT + 2), NULL);
+    tthd = tt_thread_create(__udp_thread_c, (void *)(__TPORT + 2), NULL);
     TT_TEST_CHECK_NOT_EQUAL(tthd, NULL, "");
 
     // an echo server
@@ -1290,7 +1290,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_udp_server)
     TT_TEST_CASE_LEAVE()
 }
 
-static tt_result_t __udp_thread_c6(IN tt_thread_t *thread, IN void *param)
+static tt_result_t __udp_thread_c6(IN void *param)
 {
     tt_skt_t sk6;
     tt_u16_t port = (tt_u16_t)(tt_ptrdiff_t)param;
@@ -1353,7 +1353,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_udp_server6)
     ////////////////////
 
     // ipv4 client
-    tthd = tt_thread_create("", __udp_thread_c, (void *)(__TPORT + 3), NULL);
+    tthd = tt_thread_create(__udp_thread_c, (void *)(__TPORT + 3), NULL);
     TT_TEST_CHECK_NOT_EQUAL(tthd, NULL, "");
 
     // an echo server
@@ -1366,7 +1366,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_udp_server6)
     /////////////////////
 
     // ipv6 client
-    tthd = tt_thread_create("", __udp_thread_c6, (void *)(__TPORT + 3), NULL);
+    tthd = tt_thread_create(__udp_thread_c6, (void *)(__TPORT + 3), NULL);
     TT_TEST_CHECK_NOT_EQUAL(tthd, NULL, "");
 
     // an echo server
@@ -1408,7 +1408,7 @@ static tt_sktaddr_addr_t __mc_addr6;
 #define ___mcast_itf NULL
 #endif
 
-static tt_result_t __mc_thread_4(IN tt_thread_t *thread, IN void *param)
+static tt_result_t __mc_thread_4(IN void *param)
 {
     tt_skt_t sk4;
     tt_u16_t port = (tt_u16_t)(tt_ptrdiff_t)param;
@@ -1464,7 +1464,7 @@ static tt_result_t __mc_thread_4(IN tt_thread_t *thread, IN void *param)
     return TT_SUCCESS;
 }
 
-static tt_result_t __mc_thread_6(IN tt_thread_t *thread, IN void *param)
+static tt_result_t __mc_thread_6(IN void *param)
 {
     tt_skt_t sk6;
     tt_u16_t port = (tt_u16_t)(tt_ptrdiff_t)param;
@@ -1566,7 +1566,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_udp_multicast)
     TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
 
     // create client thread to send multicast packet
-    tthd = tt_thread_create("", __mc_thread_4, (void *)___mulc_port4, NULL);
+    tthd = tt_thread_create(__mc_thread_4, (void *)___mulc_port4, NULL);
     TT_TEST_CHECK_NOT_EQUAL(tthd, NULL, "");
 
     // recv
@@ -1628,7 +1628,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_udp_multicast)
     TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
 
     // create client thread to send multicast packet
-    tthd = tt_thread_create("", __mc_thread_6, (void *)___mulc_port6, NULL);
+    tthd = tt_thread_create(__mc_thread_6, (void *)___mulc_port6, NULL);
     TT_TEST_CHECK_NOT_EQUAL(tthd, NULL, "");
 
     // recv

@@ -20,6 +20,7 @@
 
 #include <tt_process_native.h>
 
+#include <memory/tt_memory_alloc.h>
 #include <misc/tt_util.h>
 #include <os/tt_process.h>
 
@@ -117,4 +118,31 @@ __wait_ag:
 void tt_process_exit_ntv(IN tt_u8_t exit_code)
 {
     exit((int)exit_code);
+}
+
+tt_char_t *tt_process_path_ntv(IN OPT tt_process_ntv_t *sys_proc)
+{
+    pid_t pid;
+    char link_path[32];
+    char link[1024];
+    ssize_t len;
+    tt_char_t *path;
+
+    pid = getpid();
+    sprintf(link_path, "/proc/%d/exe", pid);
+    len = readlink(link_path, link, sizeof(link) - 1);
+    if (len <= 0) {
+        TT_ERROR_NTV("fail to read %s", link_path);
+        return NULL;
+    }
+
+    path = tt_malloc(len + 1);
+    if (path == NULL) {
+        TT_ERROR("no mem for path");
+        return NULL;
+    }
+    tt_memcpy(path, link, len);
+    path[len] = 0;
+
+    return path;
 }

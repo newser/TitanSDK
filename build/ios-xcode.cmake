@@ -13,14 +13,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-include(${TSCM_BUILD_PATH}/util.tscm)
+include(${PLATFORM_BUILD_PATH}/util.cmake)
 
 #
 # xcode specific
 #
 
-set(TSCM_IOS_SIMULATOR 0 CACHE BOOL "build for iphone simulator")
-set(TSCM_IOS_SDK_VERSION Latest CACHE STRING "ios sdk version, set to 0 to use latest")
+set(PLATFORM_IOS_SIMULATOR 0 CACHE BOOL "build for iphone simulator")
+set(PLATFORM_IOS_SDK_VERSION Latest CACHE STRING "ios sdk version, set to 0 to use latest")
+set(PLATFORM_ARM_ARCH arm64 CACHE STRING "build for arm arch: arm64/armv7s/armv7")
 
 # xcode path
 set(__xcode_path)
@@ -36,10 +37,10 @@ message(STATUS "xcode path: ${__xcode_path}")
 set(__ios_dev_root)
 set(__ios_sdk_root)
 set(__ios_sdk_ver 0.0)
-if (TSCM_IOS_SIMULATOR)
+if (PLATFORM_IOS_SIMULATOR)
   set(__ios_dev_root "${__xcode_path}/Platforms/iPhoneSimulator.platform/Developer")
 
-  if ("${TSCM_IOS_SDK_VERSION}" STREQUAL "Latest")
+  if ("${PLATFORM_IOS_SDK_VERSION}" STREQUAL "Latest")
     file(GLOB __ios_installed_sdk ${__ios_dev_root}/SDKs/*)
     foreach(__file "${__ios_installed_sdk}")
       string(REGEX MATCH "[0-9]+\\.[0-9]+" __sdk_ver ${__file})
@@ -48,7 +49,7 @@ if (TSCM_IOS_SIMULATOR)
       endif ()
     endforeach()
   else()
-    set(__ios_sdk_ver ${TSCM_IOS_SDK_VERSION})
+    set(__ios_sdk_ver ${PLATFORM_IOS_SDK_VERSION})
   endif()
   set(__ios_sdk_root "${__ios_dev_root}/SDKs/iPhoneSimulator${__ios_sdk_ver}.sdk")
 
@@ -59,7 +60,7 @@ if (TSCM_IOS_SIMULATOR)
 else ()
   set(__ios_dev_root "${__xcode_path}/Platforms/iPhoneOS.platform/Developer")
 
-  if ("${TSCM_IOS_SDK_VERSION}" STREQUAL "Latest")
+  if ("${PLATFORM_IOS_SDK_VERSION}" STREQUAL "Latest")
     file(GLOB __ios_installed_sdk ${__ios_dev_root}/SDKs/*)
     foreach(__file "${__ios_installed_sdk}")
       string(REGEX MATCH "[0-9]+\\.[0-9]+" __sdk_ver ${__file})
@@ -68,7 +69,7 @@ else ()
       endif ()
     endforeach()
   else()
-    set(__ios_sdk_ver ${TSCM_IOS_SDK_VERSION})
+    set(__ios_sdk_ver ${PLATFORM_IOS_SDK_VERSION})
   endif()
   set(__ios_sdk_root "${__ios_dev_root}/SDKs/iPhoneOS${__ios_sdk_ver}.sdk")
 
@@ -92,27 +93,10 @@ set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
 set(CMAKE_FIND_ROOT_PATH_MODE_PACKAGE ONLY)
 
 # arch
-set(__ios_arch)
-if (TSCM_IOS_SIMULATOR)
-    set(CMAKE_OSX_ARCHITECTURES x86_64)
-    #set(CMAKE_OSX_ARCHITECTURES i386)  
+if (PLATFORM_IOS_SIMULATOR)
+  set(CMAKE_OSX_ARCHITECTURES x86_64)
 else ()
-
-  if (${__ios_sdk_ver} VERSION_EQUAL "5.0" OR ${__ios_sdk_ver} VERSION_GREATER "5.0")
-    set(CMAKE_OSX_ARCHITECTURES armv6 armv7)
-    set(__ios_arch "-arch armv6 -arch armv7")
-  endif()
-
-  if (${__ios_sdk_ver} VERSION_EQUAL "6.0" OR ${__ios_sdk_ver} VERSION_GREATER "6.0")
-    set(CMAKE_OSX_ARCHITECTURES armv7 armv7s)
-    set(__ios_arch "-arch armv7 -arch armv7s")
-  endif()
-
-  if (${__ios_sdk_ver} VERSION_EQUAL "7.0" OR ${__ios_sdk_ver} VERSION_GREATER "7.0")
-    set(CMAKE_OSX_ARCHITECTURES armv7 armv7s arm64)
-    set(__ios_arch "-arch armv7 -arch armv7s -arch arm64")
-  endif()
-
+  set(CMAKE_OSX_ARCHITECTURES ${PLATFORM_ARM_ARCH})
 endif()
 
 #
@@ -124,40 +108,27 @@ endif()
 #
 
 # disable c++ exception and rtti
-tscm_choose_compiler_flag(CMAKE_CXX_FLAGS FALSE -fno-exceptions)
-tscm_choose_compiler_flag(CMAKE_CXX_FLAGS FALSE -fno-rtti)
+ttcm_choose_compiler_flag(CMAKE_CXX_FLAGS FALSE -fno-exceptions)
+ttcm_choose_compiler_flag(CMAKE_CXX_FLAGS FALSE -fno-rtti)
 
 # warn setting
-tscm_choose_compiler_flag(CMAKE_C_FLAGS FALSE -Wall)
-tscm_choose_compiler_flag(CMAKE_C_FLAGS FALSE -Werror)
-tscm_choose_compiler_flag(CMAKE_C_FLAGS FALSE -Wno-unused-function)
-tscm_choose_compiler_flag(CMAKE_C_FLAGS FALSE -Wno-unused-variable)
+ttcm_choose_compiler_flag(CMAKE_C_FLAGS FALSE -Wall)
+ttcm_choose_compiler_flag(CMAKE_C_FLAGS FALSE -Werror)
+ttcm_choose_compiler_flag(CMAKE_C_FLAGS FALSE -Wno-unused-function)
+ttcm_choose_compiler_flag(CMAKE_C_FLAGS FALSE -Wno-unused-variable)
 
-tscm_choose_compiler_flag(CMAKE_CXX_FLAGS FALSE -Wall)
-tscm_choose_compiler_flag(CMAKE_CXX_FLAGS FALSE -Werror)
-tscm_choose_compiler_flag(CMAKE_CXX_FLAGS FALSE -Wno-unused-function)
-tscm_choose_compiler_flag(CMAKE_CXX_FLAGS FALSE -Wno-unused-variable)
-
-# atomic instrucitons need specify -march
-#if (TSCM_ENV_DETECT_DETAIL)
-#  set(__march_flags -march=native)
-#else ()
-#  if (CMAKE_SIZEOF_VOID_P EQUAL 8)
-#    set(__march_flags -march=x86-64)
-#  else ()
-#    set(__march_flags -march=i686)
-#  endif ()
-#endif ()
-#tscm_choose_compiler_flag(CMAKE_C_FLAGS TRUE ${__march_flags})
-#tscm_choose_compiler_flag(CMAKE_CXX_FLAGS TRUE ${__march_flags})
+ttcm_choose_compiler_flag(CMAKE_CXX_FLAGS FALSE -Wall)
+ttcm_choose_compiler_flag(CMAKE_CXX_FLAGS FALSE -Werror)
+ttcm_choose_compiler_flag(CMAKE_CXX_FLAGS FALSE -Wno-unused-function)
+ttcm_choose_compiler_flag(CMAKE_CXX_FLAGS FALSE -Wno-unused-variable)
 
 # always use -O2 rather than -O3 in release mode
 #string(REPLACE "-O3" "-O2" CMAKE_C_FLAGS_RELEASE ${CMAKE_C_FLAGS_RELEASE})
 #string(REPLACE "-O3" "-O2" CMAKE_CXX_FLAGS_RELEASE ${CMAKE_CXX_FLAGS_RELEASE})
 
 # enable inline function
-tscm_choose_compiler_flag(CMAKE_C_FLAGS_RELEASE FALSE -finline-functions)
-tscm_choose_compiler_flag(CMAKE_CXX_FLAGS_RELEASE FALSE -finline-functions)
+ttcm_choose_compiler_flag(CMAKE_C_FLAGS_RELEASE FALSE -finline-functions)
+ttcm_choose_compiler_flag(CMAKE_CXX_FLAGS_RELEASE FALSE -finline-functions)
 
 #
 # linker options

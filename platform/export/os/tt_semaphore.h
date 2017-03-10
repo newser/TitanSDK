@@ -28,19 +28,17 @@ this file specifies interfaces of sem.
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <tt_basic_type.h>
-
 #include <tt_semaphore_native.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
 ////////////////////////////////////////////////////////////
 
-#if (TT_SEM_DEBUG_OPT & TT_SEM_LOCKER_DEBUG)
+#if (TT_SEM_DEBUG_OPT & TT_SEM_DEBUG_TAG)
 
 /**
  @def tt_sem_acquire(s, t)
- wrapper of @ref __sem_acquire
+ wrapper of @ref tt_sem_acquire_tag
 
  @param [in] s the semaphore to be acquired
  @param [in] t the wait time in millisecond
@@ -53,11 +51,12 @@ this file specifies interfaces of sem.
  @note
  - NENVER acquire a semaphore which has already been acquired by same thread
  */
-#define tt_sem_acquire(s, t) __sem_acquire((s), (t), __FUNCTION__, __LINE__)
+#define tt_sem_acquire(s, t)                                                   \
+    tt_sem_acquire_tag((s), (t), __FUNCTION__, __LINE__)
 
 /**
  @def tt_sem_try_acquire(s, t)
- wrapper of @ref __sem_try_acquire
+ wrapper of @ref tt_sem_try_acquire_tag
 
  @param [in] s the semaphore to be waited
 
@@ -68,13 +67,14 @@ this file specifies interfaces of sem.
  @note
  - NENVER acquire a semaphore which has already been acquired by same thread
  */
-#define tt_sem_try_acquire(s) __sem_try_acquire((s), __FUNCTION__, __LINE__)
+#define tt_sem_try_acquire(s)                                                  \
+    tt_sem_try_acquire_tag((s), __FUNCTION__, __LINE__)
 
 #else
 
-#define tt_sem_acquire(s, t) __sem_acquire((s), (t))
+#define tt_sem_acquire(s, t) tt_sem_acquire_tag((s), (t))
 
-#define tt_sem_try_acquire(s) __sem_try_acquire((s))
+#define tt_sem_try_acquire(s) tt_sem_try_acquire_tag((s))
 
 #endif
 
@@ -97,18 +97,7 @@ semaphore struct
 */
 typedef struct
 {
-    __TT_PRIVATE__
-
-    /**
-    @var attr
-    semaphore attribute, reserved
-    */
-    tt_sem_attr_t attr;
-
-    /**
-    @var sys_sem
-    system semaphore
-    */
+    /** system semaphore */
     tt_sem_ntv_t sys_sem;
 } tt_sem_t;
 
@@ -139,8 +128,8 @@ create a semaphore
 - TT_FAIL, otherwise
 */
 extern tt_result_t tt_sem_create(IN tt_sem_t *sem,
-                                 IN tt_u32_t init_count,
-                                 IN tt_sem_attr_t *attr);
+                                 IN tt_u32_t count,
+                                 IN OPT tt_sem_attr_t *attr);
 
 /**
 @fn void tt_sem_destroy(IN tt_sem_t *sem)
@@ -163,7 +152,7 @@ extern void tt_sem_destroy(IN tt_sem_t *sem);
 extern void tt_sem_attr_default(IN tt_sem_attr_t *attr);
 
 /**
-@fn tt_result_t __sem_acquire(IN tt_sem_t *sem,
+@fn tt_result_t tt_sem_acquire_tag(IN tt_sem_t *sem,
                                    IN tt_u32_t wait_ms)
 wait a semaphore
 
@@ -179,17 +168,20 @@ wait a semaphore
 - TT_SUCCESS, if the semaphore is waited successfully
 - TT_TIME_OUT, if the semaphore is not waited and time specified expires
 */
-extern tt_result_t __sem_acquire(IN tt_sem_t *sem,
-                                 IN tt_u32_t wait_ms
-#if (TT_SEM_DEBUG_OPT & TT_SEM_LOCKER_DEBUG)
-                                 ,
-                                 IN const tt_char_t *function,
-                                 IN tt_u32_t line
+tt_inline tt_bool_t tt_sem_acquire_tag(IN tt_sem_t *sem,
+                                       IN tt_u32_t wait_ms
+#if (TT_SEM_DEBUG_OPT & TT_SEM_DEBUG_TAG)
+                                       ,
+                                       IN const tt_char_t *function,
+                                       IN tt_u32_t line
 #endif
-                                 );
+                                       )
+{
+    return tt_sem_acquire_ntv(&sem->sys_sem, wait_ms);
+}
 
 /**
-@fn tt_result_t __sem_try_acquire(IN tt_sem_t *sem)
+@fn tt_result_t tt_sem_try_acquire_tag(IN tt_sem_t *sem)
 wait a semaphore
 
 @param [in] sem the semaphore to be waited
@@ -198,13 +190,16 @@ wait a semaphore
 - TT_SUCCESS, if the semaphore is waited successfully
 - TT_TIME_OUT, if the semaphore can not be acquired
 */
-extern tt_result_t __sem_try_acquire(IN tt_sem_t *sem
-#if (TT_SEM_DEBUG_OPT & TT_SEM_LOCKER_DEBUG)
-                                     ,
-                                     IN const tt_char_t *function,
-                                     IN tt_u32_t line
+tt_inline tt_bool_t tt_sem_try_acquire_tag(IN tt_sem_t *sem
+#if (TT_SEM_DEBUG_OPT & TT_SEM_DEBUG_TAG)
+                                           ,
+                                           IN const tt_char_t *function,
+                                           IN tt_u32_t line
 #endif
-                                     );
+                                           )
+{
+    return tt_sem_try_acquire_ntv(&sem->sys_sem);
+}
 
 /**
 @fn void tt_sem_release(IN tt_sem_t *sem)
@@ -212,6 +207,9 @@ post a semaphore
 
 @param [in] sem the semaphore to be posted
 */
-extern void tt_sem_release(IN tt_sem_t *sem);
+tt_inline void tt_sem_release(IN tt_sem_t *sem)
+{
+    tt_sem_release_ntv(&sem->sys_sem);
+}
 
 #endif /* __TT_SEMAPHORE__ */

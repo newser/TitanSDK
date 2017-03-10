@@ -14,33 +14,21 @@ int app_ut_process(int argc, char *argv[])
         return 0;
     } else if (strcmp(argv[2], "proc_to") == 0) {
         printf("test case: proc time out\n");
-#if TT_ENV_OS_IS_WINDOWS
-        Sleep(3000);
-#else
-        sleep(1);
-#endif
+        tt_sleep(3000);
         return 0;
     } else if (strcmp(argv[2], "proc_exit") == 0) {
         tt_u8_t ec;
         ec = atoi(argv[3]);
 
         printf("test case: proc exit[%d]\n", ec);
-#if TT_ENV_OS_IS_WINDOWS
-        ExitThread((UINT)ec);
-#else
-        exit(ec);
-#endif
+        tt_process_exit(ec);
         return 0;
     } else if (strcmp(argv[2], "proc_args") == 0) {
         int i;
         if (argc != 16) {
             printf("argc != 16\n");
-#if TT_ENV_OS_IS_WINDOWS
-            Sleep(50000);
-#else
-            sleep(5);
-#endif
-            exit(TT_PROCESS_EXIT_FAILURE);
+            tt_sleep(5000);
+            tt_process_exit(TT_PROCESS_EXIT_FAILURE);
         }
         for (i = 3; i < 16; ++i) {
             if ((strlen(argv[i]) != 1) ||
@@ -48,19 +36,11 @@ int app_ut_process(int argc, char *argv[])
                 printf("argv[%d][0] != %c\n",
                        i,
                        ((i > 9 ? 'a' + i - 10 : '0' + i)));
-#if TT_ENV_OS_IS_WINDOWS
-                Sleep(50000);
-#else
-                sleep(5);
-#endif
-                exit(TT_PROCESS_EXIT_FAILURE);
+                tt_sleep(5000);
+                tt_process_exit(TT_PROCESS_EXIT_FAILURE);
             }
         }
-#if TT_ENV_OS_IS_WINDOWS
-        ExitThread((UINT)105);
-#else
-        exit(105);
-#endif
+        tt_process_exit(105);
         return 0;
     }
 

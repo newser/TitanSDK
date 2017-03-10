@@ -23,24 +23,16 @@
 #include <algorithm/tt_rng_xorshift.h>
 #include <init/tt_component.h>
 #include <init/tt_profile.h>
-#include <log/tt_log.h>
 #include <misc/tt_assert.h>
-#include <misc/tt_util.h>
-#include <os/tt_atomic.h>
+#include <os/tt_fiber.h>
 
 #include <tt_cstd_api.h>
-#include <tt_thread_native.h>
 
 ////////////////////////////////////////////////////////////
 // internal macro
 ////////////////////////////////////////////////////////////
 
-#define TT_THREAD_DEFAULT_NAME "anonymous"
-
-#define __LOCK_THREAD_LIST()                                                   \
-    while (!TT_OK(tt_atomic_s32_cas(&tt_s_thread_list_lock, 0, 1)))
-#define __UNLOCK_THREAD_LIST()                                                 \
-    TT_ASSERT_ALWAYS(TT_OK(tt_atomic_s32_cas(&tt_s_thread_list_lock, 1, 0)))
+#define __THREAD_NAME_DEFAULT "anonymous"
 
 ////////////////////////////////////////////////////////////
 // internal type
@@ -54,17 +46,12 @@
 // global variant
 ////////////////////////////////////////////////////////////
 
-tt_atomic_s32_t tt_s_thread_list_lock;
-tt_list_t tt_s_thread_list;
-
 ////////////////////////////////////////////////////////////
 // interface declaration
 ////////////////////////////////////////////////////////////
 
 static tt_result_t __thread_component_init(IN tt_component_t *comp,
                                            IN tt_profile_t *profile);
-
-static tt_result_t tt_thread_routine_entry(IN void *param);
 
 ////////////////////////////////////////////////////////////
 // interface implementation
@@ -85,63 +72,32 @@ void tt_thread_component_register()
     tt_component_register(&comp);
 }
 
-tt_result_t __thread_component_init(IN tt_component_t *comp,
-                                    IN tt_profile_t *profile)
-{
-    tt_result_t result = TT_FAIL;
-
-    result = tt_thread_component_init_ntv();
-    if (!TT_OK(result)) {
-        return TT_FAIL;
-    }
-
-    tt_atomic_s32_init(&tt_s_thread_list_lock, 0);
-    tt_list_init(&tt_s_thread_list);
-
-    return TT_SUCCESS;
-}
-
-tt_thread_t *tt_thread_create(IN const tt_char_t *name,
-                              IN tt_thread_routine_t routine,
-                              IN void *routine_param,
-                              IN tt_thread_attr_t *attr)
+tt_thread_t *tt_thread_create(IN tt_thread_routine_t routine,
+                              IN void *param,
+                              IN OPT tt_thread_attr_t *attr)
 {
     tt_thread_t *thread;
+    tt_thread_attr_t __attr;
     tt_bool_t detached;
-    tt_result_t result;
+
+    TT_ASSERT(routine != NULL);
+
+    if (attr == NULL) {
+        tt_thread_attr_default(&__attr);
+        attr = &__attr;
+    }
+    detached = attr->detached;
 
     thread = tt_c_malloc(sizeof(tt_thread_t));
     if (thread == NULL) {
         TT_ERROR("no mem for new thread");
         return NULL;
     }
-
     tt_memset(thread, 0, sizeof(tt_thread_t));
 
-    // name
-    if (name != NULL) {
-        tt_strncpy(thread->name, name, TT_MAX_THREAD_NAME_LEN);
-    } else {
-        tt_strncpy(thread->name,
-                   TT_THREAD_DEFAULT_NAME,
-                   TT_MAX_THREAD_NAME_LEN);
-    }
-
-    // routine
     thread->routine = routine;
-    thread->param = routine_param;
-
-    // attribute
-    if (attr != NULL) {
-        tt_memcpy(&thread->attr, attr, sizeof(tt_thread_attr_t));
-    } else {
-        tt_thread_attr_default(&thread->attr);
-    }
-    detached = thread->attr.detached;
-
-    tt_lnode_init(&thread->thread_lst_node);
-
-    thread->last_error = TT_SUCCESS;
+    thread->param = param;
+    thread->name = attr->name;
 
     thread->evp = NULL;
 
@@ -150,24 +106,19 @@ tt_thread_t *tt_thread_create(IN const tt_char_t *name,
         goto tc_fail;
     }
 
-    // create system thread
-    if (thread->attr.local_run) {
-        if (tt_current_thread() != NULL) {
-            TT_ERROR("can not local run in tt thread");
-            goto tc_fail;
-        }
+    thread->fiber_sched = NULL;
 
-        result = tt_thread_local_run_ntv(thread);
-    } else {
-        TT_ASSERT(thread->routine != NULL);
-        result = tt_thread_create_ntv(thread);
-    }
-    if (!TT_OK(result)) {
+    thread->last_error = TT_SUCCESS;
+    thread->detached = detached;
+    thread->local = TT_FALSE;
+    thread->enable_fiber = attr->enable_fiber;
+
+    if (!TT_OK(tt_thread_create_ntv(thread))) {
         goto tc_fail;
     }
-    // from now on, do not change content of "thread" in this
-    // function or it may be missed by the created thread that
-    // is already running
+    // now the thread is created, and it may be running or even
+    // terminate, so accessing the "thread", either reading or
+    // writing is unsafe
 
     if (detached) {
         // do not return the thread to caller
@@ -182,43 +133,81 @@ tc_fail:
         tt_rng_destroy(thread->rng);
     }
 
-    if (thread != NULL) {
-        tt_c_free(thread);
-    }
+    tt_c_free(thread);
 
     return NULL;
 }
 
-tt_thread_t *tt_thread_create_local(IN const tt_char_t *name,
-                                    IN OPT tt_thread_attr_t *attr)
+tt_result_t tt_thread_create_local(IN OPT tt_thread_attr_t *attr)
 {
+    tt_thread_t *thread;
     tt_thread_attr_t __attr;
+
+    if (tt_current_thread() != NULL) {
+        TT_ERROR("can not local run in tt thread");
+        return TT_FAIL;
+    }
 
     if (attr == NULL) {
         tt_thread_attr_default(&__attr);
         attr = &__attr;
     }
-    attr->local_run = TT_TRUE;
 
-    return tt_thread_create(name, NULL, NULL, attr);
+    thread = tt_c_malloc(sizeof(tt_thread_t));
+    if (thread == NULL) {
+        TT_ERROR("no mem for new thread");
+        return TT_FAIL;
+    }
+    tt_memset(thread, 0, sizeof(tt_thread_t));
+
+    thread->routine = NULL;
+    thread->param = NULL;
+    thread->name = attr->name;
+
+    thread->evp = NULL;
+
+    thread->rng = tt_rng_xorshift_create();
+    if (thread->rng == NULL) {
+        goto tcl_fail;
+    }
+
+    thread->fiber_sched = NULL;
+
+    thread->last_error = TT_SUCCESS;
+    thread->detached = TT_FALSE;
+    thread->local = TT_TRUE;
+
+    if (!TT_OK(tt_thread_create_local_ntv(thread))) {
+        goto tcl_fail;
+    }
+
+    return TT_SUCCESS;
+
+tcl_fail:
+
+    if (thread->rng != NULL) {
+        tt_rng_destroy(thread->rng);
+    }
+
+    tt_c_free(thread);
+
+    return TT_FAIL;
 }
 
 void tt_thread_attr_default(IN tt_thread_attr_t *attr)
 {
+    attr->name = __THREAD_NAME_DEFAULT;
+
     attr->detached = TT_FALSE;
-    attr->local_run = TT_FALSE;
+
+    attr->enable_fiber = TT_FALSE;
 }
 
 tt_result_t tt_thread_wait(IN tt_thread_t *thread)
 {
     // 1 is some detached thread
     TT_ASSERT((thread != NULL) && (thread != (tt_thread_t *)1));
-    TT_ASSERT(!thread->attr.detached);
-
-    if (thread->attr.local_run) {
-        TT_ERROR("can not wait a local running thread");
-        return TT_FAIL;
-    }
+    TT_ASSERT(!thread->detached && !thread->local);
 
     if (!TT_OK(tt_thread_wait_ntv(thread))) {
         return TT_FAIL;
@@ -229,49 +218,42 @@ tt_result_t tt_thread_wait(IN tt_thread_t *thread)
     return TT_SUCCESS;
 }
 
-void tt_thread_exit()
+tt_result_t __thread_component_init(IN tt_component_t *comp,
+                                    IN tt_profile_t *profile)
 {
-    tt_thread_exit_ntv();
-}
-
-tt_thread_t *tt_current_thread()
-{
-    return tt_current_thread_ntv();
-}
-
-void tt_sleep(IN tt_u32_t millisec)
-{
-    tt_sleep_ntv(millisec);
-}
-
-tt_result_t __thread_on_create(IN tt_thread_t *thread)
-{
-    __LOCK_THREAD_LIST();
-    tt_list_push_tail(&tt_s_thread_list, &thread->thread_lst_node);
-    __UNLOCK_THREAD_LIST();
+    if (!TT_OK(tt_thread_component_init_ntv())) {
+        return TT_FAIL;
+    }
 
     return TT_SUCCESS;
 }
 
-tt_result_t __thread_on_exit(IN tt_thread_t *thread)
+tt_result_t __thread_on_create(IN tt_thread_t *thread)
 {
-    // event poller
-    thread->evp = NULL;
+    // must be created in new thread context
+    if (thread->enable_fiber &&
+        ((thread->fiber_sched = tt_fiber_sched_create(NULL)) == NULL)) {
+        return TT_FAIL;
+    }
 
-    // remove from numa node thread list
-    __LOCK_THREAD_LIST();
-    tt_list_remove(&thread->thread_lst_node);
-    __UNLOCK_THREAD_LIST();
+    return TT_SUCCESS;
+}
+
+void __thread_on_exit(IN tt_thread_t *thread)
+{
+    thread->evp = NULL;
 
     if (thread->rng != NULL) {
         tt_rng_destroy(thread->rng);
     }
 
-    // for non-detached and non-local_run thread, the struct will
-    // be freed in tt_thread_wait
-    if (thread->attr.detached || thread->attr.local_run) {
-        tt_c_free(thread);
+    if (thread->fiber_sched != NULL) {
+        tt_fiber_sched_destroy(thread->fiber_sched);
     }
 
-    return TT_SUCCESS;
+    // for non-detached and non-local thread, the struct will
+    // be freed in tt_thread_wait
+    if (thread->detached || thread->local) {
+        tt_c_free(thread);
+    }
 }

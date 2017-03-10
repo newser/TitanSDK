@@ -34,11 +34,11 @@ this file specifies interfaces of read write lock
 // macro definition
 ////////////////////////////////////////////////////////////
 
-#if (TT_RWLOCK_DEBUG_OPT & TT_RWLOCK_LOCKER_DEBUG)
+#if (TT_RWLOCK_DEBUG_OPT & TT_RWLOCK_DEBUG_TAG)
 
 /**
  @def tt_rwlock_acquire_r(m)
- acquire a rwlock, wrapper of @ref __rwlock_acquire_r
+ acquire a rwlock, wrapper of @ref tt_rwlock_acquire_r_tag
 
  @param [in] m the rwlock to be acquired
 
@@ -49,11 +49,12 @@ this file specifies interfaces of read write lock
  @note
  - NEVER read acquire a rwlock which has already been acquired by same thread
  */
-#define tt_rwlock_acquire_r(m) __rwlock_acquire_r(m, __FUNCTION__, __LINE__)
+#define tt_rwlock_acquire_r(m)                                                 \
+    tt_rwlock_acquire_r_tag(m, __FUNCTION__, __LINE__)
 
 /**
  @def tt_rwlock_try_acquire_r(m)
- try to acquire a rwlock, wrapper of @ref __rwlock_try_acquire_r
+ try to acquire a rwlock, wrapper of @ref tt_rwlock_try_acquire_r_tag
 
  @param [in] m the rwlock to be acquired
 
@@ -65,7 +66,7 @@ this file specifies interfaces of read write lock
  - NEVER read acquire a rwlock which has already been acquired by same thread
  */
 #define tt_rwlock_try_acquire_r(m)                                             \
-    __rwlock_try_acquire_r(m, __FUNCTION__, __LINE__)
+    tt_rwlock_try_acquire_r_tag(m, __FUNCTION__, __LINE__)
 
 /**
  @def tt_rwlock_acquire_w(m)
@@ -80,11 +81,12 @@ this file specifies interfaces of read write lock
  @note
  - NEVER write acquire a rwlock which has already been acquired by same thread
  */
-#define tt_rwlock_acquire_w(m) __rwlock_acquire_w(m, __FUNCTION__, __LINE__)
+#define tt_rwlock_acquire_w(m)                                                 \
+    tt_rwlock_acquire_w_tag(m, __FUNCTION__, __LINE__)
 
 /**
  @def tt_rwlock_try_acquire_w(m)
- try to acquire a rwlock, wrapper of @ref __rwlock_try_acquire_w
+ try to acquire a rwlock, wrapper of @ref tt_rwlock_try_acquire_w_tag
 
  @param [in] m the rwlock to be acquired
 
@@ -96,17 +98,17 @@ this file specifies interfaces of read write lock
  - NEVER write acquire a rwlock which has already been acquired by same thread
  */
 #define tt_rwlock_try_acquire_w(m)                                             \
-    __rwlock_try_acquire_w(m, __FUNCTION__, __LINE__)
+    tt_rwlock_try_acquire_w_tag(m, __FUNCTION__, __LINE__)
 
 #else
 
-#define tt_rwlock_acquire_r(m) __rwlock_acquire_r(m)
+#define tt_rwlock_acquire_r(m) tt_rwlock_acquire_r_tag(m)
 
-#define tt_rwlock_try_acquire_r(m) __rwlock_try_acquire_r(m)
+#define tt_rwlock_try_acquire_r(m) tt_rwlock_try_acquire_r_tag(m)
 
-#define tt_rwlock_acquire_w(m) __rwlock_acquire_w(m)
+#define tt_rwlock_acquire_w(m) tt_rwlock_acquire_w_tag(m)
 
-#define tt_rwlock_try_acquire_w(m) __rwlock_try_acquire_w(m)
+#define tt_rwlock_try_acquire_w(m) tt_rwlock_try_acquire_w_tag(m)
 
 #endif
 
@@ -129,18 +131,7 @@ rwlock struct
 */
 typedef struct
 {
-    __TT_PRIVATE__
-
-    /**
-    @var attr
-    rwlock attribute
-    */
-    tt_rwlock_attr_t attr;
-
-    /**
-    @var sys_rwlock
-    the real system rwlock
-    */
+    /** system rwlock */
     tt_rwlock_ntv_t sys_rwlock;
 } tt_rwlock_t;
 
@@ -171,7 +162,7 @@ create a rwlock
 - TT_FAIL, otherwise
 */
 extern tt_result_t tt_rwlock_create(IN tt_rwlock_t *rwlock,
-                                    IN tt_rwlock_attr_t *attr);
+                                    IN OPT tt_rwlock_attr_t *attr);
 
 /**
 @fn void tt_rwlock_destroy(IN tt_rwlock_t *rwlock)
@@ -194,21 +185,24 @@ extern void tt_rwlock_destroy(IN tt_rwlock_t *rwlock);
 extern void tt_rwlock_attr_default(IN tt_rwlock_attr_t *attr);
 
 /**
-@fn void __rwlock_acquire_r(IN tt_rwlock_t *rwlock)
+@fn void tt_rwlock_acquire_r_tag(IN tt_rwlock_t *rwlock)
 acquire a rwlock to read
 
 @param [in] rwlock the rwlock to be acquired
 */
-extern void __rwlock_acquire_r(IN tt_rwlock_t *rwlock
-#if (TT_RWLOCK_DEBUG_OPT & TT_RWLOCK_LOCKER_DEBUG)
-                               ,
-                               IN const tt_char_t *function,
-                               IN tt_u32_t line
+tt_inline void tt_rwlock_acquire_r_tag(IN tt_rwlock_t *rwlock
+#if (TT_RWLOCK_DEBUG_OPT & TT_RWLOCK_DEBUG_TAG)
+                                       ,
+                                       IN const tt_char_t *function,
+                                       IN tt_u32_t line
 #endif
-                               );
+                                       )
+{
+    tt_rwlock_acquire_r_ntv(&rwlock->sys_rwlock);
+}
 
 /**
-@fn void __rwlock_try_acquire_r(IN tt_rwlock_t *rwlock)
+@fn void tt_rwlock_try_acquire_r_tag(IN tt_rwlock_t *rwlock)
 try to acquire a rwlock to read
 
 @param [in] rwlock the rwlock to be acquired
@@ -220,13 +214,16 @@ try to acquire a rwlock to read
 @note
 - NEVER read acquire a rwlock which has already been acquired by same thread
 */
-extern tt_result_t __rwlock_try_acquire_r(IN tt_rwlock_t *rwlock
-#if (TT_RWLOCK_DEBUG_OPT & TT_RWLOCK_LOCKER_DEBUG)
-                                          ,
-                                          IN const tt_char_t *function,
-                                          IN tt_u32_t line
+tt_inline tt_result_t tt_rwlock_try_acquire_r_tag(IN tt_rwlock_t *rwlock
+#if (TT_RWLOCK_DEBUG_OPT & TT_RWLOCK_DEBUG_TAG)
+                                                  ,
+                                                  IN const tt_char_t *function,
+                                                  IN tt_u32_t line
 #endif
-                                          );
+                                                  )
+{
+    return tt_rwlock_try_acquire_r_ntv(&rwlock->sys_rwlock);
+}
 
 /**
 @fn void tt_rwlock_release_r(IN tt_rwlock_t *rwlock)
@@ -234,24 +231,30 @@ release a rwlock after reading
 
 @param [in] rwlock the rwlock to be unlocked
 */
-extern void tt_rwlock_release_r(IN tt_rwlock_t *rwlock);
+tt_inline void tt_rwlock_release_r(IN tt_rwlock_t *rwlock)
+{
+    tt_rwlock_release_r_ntv(&rwlock->sys_rwlock);
+}
 
 /**
-@fn void __rwlock_acquire_w(IN tt_rwlock_t *rwlock)
+@fn void tt_rwlock_acquire_w_tag(IN tt_rwlock_t *rwlock)
 acquire a rwlock to write
 
 @param [in] rwlock the rwlock to be acquired
 */
-extern void __rwlock_acquire_w(IN tt_rwlock_t *rwlock
-#if (TT_RWLOCK_DEBUG_OPT & TT_RWLOCK_LOCKER_DEBUG)
-                               ,
-                               IN const tt_char_t *function,
-                               IN tt_u32_t line
+tt_inline void tt_rwlock_acquire_w_tag(IN tt_rwlock_t *rwlock
+#if (TT_RWLOCK_DEBUG_OPT & TT_RWLOCK_DEBUG_TAG)
+                                       ,
+                                       IN const tt_char_t *function,
+                                       IN tt_u32_t line
 #endif
-                               );
+                                       )
+{
+    tt_rwlock_acquire_w_ntv(&rwlock->sys_rwlock);
+}
 
 /**
-@fn void __rwlock_try_acquire_w(IN tt_rwlock_t *rwlock)
+@fn void tt_rwlock_try_acquire_w_tag(IN tt_rwlock_t *rwlock)
 try to acquire a rwlock to write
 
 @param [in] rwlock the rwlock to be acquired
@@ -263,13 +266,16 @@ try to acquire a rwlock to write
 @note
 - NEVER write acquire a rwlock which has already been acquired by same thread
 */
-extern tt_result_t __rwlock_try_acquire_w(IN tt_rwlock_t *rwlock
-#if (TT_RWLOCK_DEBUG_OPT & TT_RWLOCK_LOCKER_DEBUG)
-                                          ,
-                                          IN const tt_char_t *function,
-                                          IN tt_u32_t line
+tt_inline tt_result_t tt_rwlock_try_acquire_w_tag(IN tt_rwlock_t *rwlock
+#if (TT_RWLOCK_DEBUG_OPT & TT_RWLOCK_DEBUG_TAG)
+                                                  ,
+                                                  IN const tt_char_t *function,
+                                                  IN tt_u32_t line
 #endif
-                                          );
+                                                  )
+{
+    return tt_rwlock_try_acquire_w_ntv(&rwlock->sys_rwlock);
+}
 
 /**
 @fn void tt_rwlock_release_w(IN tt_rwlock_t *rwlock)
@@ -277,6 +283,9 @@ release a rwlock after writeing
 
 @param [in] rwlock the rwlock to be unlocked
 */
-extern void tt_rwlock_release_w(IN tt_rwlock_t *rwlock);
+tt_inline void tt_rwlock_release_w(IN tt_rwlock_t *rwlock)
+{
+    tt_rwlock_release_w_ntv(&rwlock->sys_rwlock);
+}
 
 #endif /* __TT_RWLOCK__ */

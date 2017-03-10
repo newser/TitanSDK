@@ -242,7 +242,7 @@ static tt_result_t __ut_par(IN tt_buf_t *buf,
 
     if (v % 5 != 0) {
         ret = (tt_uintptr_t)v;
-        *parse_ret = ret;
+        *parse_ret = (void *)ret;
         return TT_SUCCESS;
     } else {
         return TT_PROCEEDING;
@@ -254,7 +254,7 @@ static tt_uintptr_t __ut_seq;
 
 static void __ut_par_done(IN void *parse_ret, IN void *param)
 {
-    tt_uintptr_t v = parse_ret;
+    tt_uintptr_t v = (tt_uintptr_t)parse_ret;
     if (__ut_seq % 5 == 0) {
         ++__ut_seq;
     }
@@ -338,7 +338,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_rbuf)
 
 static void __ut_par_done2(IN void *parse_ret, IN void *param)
 {
-    tt_u32_t v = (tt_u32_t)parse_ret;
+    tt_u32_t v = (tt_u32_t)(tt_uintptr_t)parse_ret;
     (void)v;
     // TT_INFO("parsed: %d", v);
 }
@@ -488,7 +488,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_rbuf_excep)
 
 static tt_u32_t __ut_rdr_pre(IN void *to_render, IN void *param)
 {
-    tt_u32_t v = (tt_uintptr_t)to_render;
+    tt_u32_t v = (tt_u32_t)(tt_uintptr_t)to_render;
     TT_ASSERT(v <= 0xff);
     TT_ASSERT(param == (void *)0x4);
     return v + 3; // len, two magic
@@ -585,7 +585,6 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_wbuf)
     enc_all = TT_FALSE;
     for (i = 0; i < 100; ++i) {
         tt_u8_t *rendered;
-        tt_u32_t r_len;
         if (i == 99) {
             enc_all = TT_TRUE;
         }
@@ -658,7 +657,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_rwbuf)
     tt_rbuf_decode_itf_t d_itf = {__ut_dec_pre, __ut_dec};
     tt_rbuf_parse_itf_t p_itf = {__ut_par_pre, __ut_par, __ut_par_done};
     tt_result_t ret;
-    tt_u32_t i, len, n, wlen;
+    tt_u32_t i, len, wlen;
     tt_u8_t *p, *wp;
 
     tt_wbuf_t wbuf;
@@ -686,7 +685,6 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_rwbuf)
     enc_all = TT_FALSE;
     for (i = 0; i < 100; ++i) {
         tt_u8_t *rendered;
-        tt_u32_t r_len;
         if (i == 99) {
             enc_all = TT_TRUE;
         }
@@ -733,7 +731,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_rwbuf_raw)
     tt_rbuf_t rbuf;
     tt_rbuf_parse_itf_t p_itf = {__ut_par_pre, __ut_par, __ut_par_done};
     tt_result_t ret;
-    tt_u32_t i, len, n, wlen;
+    tt_u32_t i, len, wlen;
     tt_u8_t *p, *wp;
     tt_buf_t saved;
 
@@ -762,7 +760,6 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_rwbuf_raw)
     enc_all = TT_FALSE;
     for (i = 0; i < 100; ++i) {
         tt_u8_t *rendered;
-        tt_u32_t r_len;
         if (i == 99) {
             enc_all = TT_TRUE;
         }

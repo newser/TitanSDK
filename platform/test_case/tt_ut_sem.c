@@ -114,6 +114,7 @@ TT_TEST_CASE("tt_unit_test_sem_basic",
     tt_sem_t lock;
     tt_result_t ret = TT_FAIL;
     tt_sem_attr_t attr;
+    tt_bool_t b_ret;
 
     tt_s64_t begin, end;
     tt_s32_t t;
@@ -126,12 +127,22 @@ TT_TEST_CASE("tt_unit_test_sem_basic",
 
     // lock, wait for 100ms
     begin = tt_time_ref();
-    ret = tt_sem_acquire(&lock, 100);
+    b_ret = tt_sem_acquire(&lock, 100);
     end = tt_time_ref();
-    TT_TEST_CHECK_EQUAL(ret, TT_TIME_OUT, "");
+    TT_TEST_CHECK_EQUAL(b_ret, TT_FALSE, "");
 
     t = (tt_s32_t)tt_time_ref2ms(end - begin);
     TT_TEST_CHECK_EXP(abs(t - 100) < 10, "");
+
+    tt_sem_destroy(&lock);
+
+    // with large count
+    ret = tt_sem_create(&lock, ~0, NULL);
+    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+
+    // lock, wait for 100ms
+    b_ret = tt_sem_acquire(&lock, TT_TIME_INFINITE);
+    TT_TEST_CHECK_EQUAL(b_ret, TT_TRUE, "");
 
     tt_sem_destroy(&lock);
 
@@ -141,10 +152,10 @@ TT_TEST_CASE("tt_unit_test_sem_basic",
     TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
 
     // lock for two times
-    ret = tt_sem_acquire(&lock, TT_TIME_INFINITE);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
-    ret = tt_sem_acquire(&lock, TT_TIME_INFINITE);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    b_ret = tt_sem_acquire(&lock, TT_TIME_INFINITE);
+    TT_TEST_CHECK_EQUAL(b_ret, TT_TRUE, "");
+    b_ret = tt_sem_acquire(&lock, TT_TIME_INFINITE);
+    TT_TEST_CHECK_EQUAL(b_ret, TT_TRUE, "");
 
     // test wait infinite
     // ret = tt_sem_acquire(&lock, TT_TIME_INFINITE);
@@ -155,16 +166,16 @@ TT_TEST_CASE("tt_unit_test_sem_basic",
 
     // unlock, relock
     tt_sem_release(&lock);
-    ret = tt_sem_acquire(&lock, TT_TIME_INFINITE);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    b_ret = tt_sem_acquire(&lock, TT_TIME_INFINITE);
+    TT_TEST_CHECK_EQUAL(b_ret, TT_TRUE, "");
 
     // unlock all
     tt_sem_release(&lock);
     tt_sem_release(&lock);
 
     // trylock
-    ret = tt_sem_try_acquire(&lock);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    b_ret = tt_sem_try_acquire(&lock);
+    TT_TEST_CHECK_EQUAL(b_ret, TT_TRUE, "");
 
     // unlock
     tt_sem_release(&lock);
@@ -178,10 +189,10 @@ TT_TEST_CASE("tt_unit_test_sem_basic",
     ret = tt_sem_create(&lock, 0, NULL);
     TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
     // with time specified
-    ret = tt_sem_acquire(&lock, 100);
-    TT_TEST_CHECK_EQUAL(ret, TT_TIME_OUT, "");
-    ret = tt_sem_acquire(&lock, 100);
-    TT_TEST_CHECK_EQUAL(ret, TT_TIME_OUT, "");
+    b_ret = tt_sem_acquire(&lock, 100);
+    TT_TEST_CHECK_EQUAL(b_ret, TT_FALSE, "");
+    b_ret = tt_sem_acquire(&lock, 100);
+    TT_TEST_CHECK_EQUAL(b_ret, TT_FALSE, "");
     tt_sem_release(&lock);
     tt_sem_acquire(&lock, 100);
     // destroy
@@ -195,17 +206,17 @@ static tt_thread_t *test_threads[10];
 static tt_sem_t sem;
 static int cnt;
 
-static tt_result_t test_routine_1(IN tt_thread_t *thread, IN void *param)
+static tt_result_t test_routine_1(IN void *param)
 {
     tt_ptrdiff_t idx = (tt_ptrdiff_t)param;
     int i = 0;
-    tt_result_t ret;
+    tt_bool_t ret;
 
     // TT_ASSERT(thread == test_threads[idx]);
 
     for (i = 0; i < 10000; ++i) {
         ret = tt_sem_acquire(&sem, 10);
-        if (ret == TT_TIME_OUT) {
+        if (!ret) {
             --i;
             continue;
         }
@@ -232,8 +243,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_sem_mt)
     cnt = 0;
 
     for (i = 0; i < sizeof(test_threads) / sizeof(tt_thread_t *); ++i) {
-        test_threads[i] =
-            tt_thread_create(NULL, test_routine_1, (void *)i, NULL);
+        test_threads[i] = tt_thread_create(test_routine_1, (void *)i, NULL);
     }
 
     for (i = 0; i < sizeof(test_threads) / sizeof(tt_thread_t *); ++i) {
@@ -254,7 +264,7 @@ static tt_thread_t *test_consumer_thread;
 
 #define __PRODUCER_CAP 10000
 
-static tt_result_t test_producer(IN tt_thread_t *thread, IN void *param)
+static tt_result_t test_producer(IN void *param)
 {
     tt_ptrdiff_t idx = (tt_ptrdiff_t)param;
     int i = 0;
@@ -269,15 +279,15 @@ static tt_result_t test_producer(IN tt_thread_t *thread, IN void *param)
     return TT_SUCCESS;
 }
 
-static tt_result_t test_consumer(IN tt_thread_t *thread, IN void *param)
+static tt_result_t test_consumer(IN void *param)
 {
     int i = 0;
-    tt_result_t ret;
+    tt_bool_t ret;
 
     while (i < __PRODUCER_CAP * sizeof(test_threads) / sizeof(tt_thread_t *)) {
         // produce
         ret = tt_sem_acquire(&sem, 10);
-        if (TT_OK(ret)) {
+        if (ret) {
             ++i;
         }
     }
@@ -304,13 +314,12 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_sem_pc)
     tt_thread_attr_default(&tattr);
     tattr.detached = TT_TRUE;
     for (i = 0; i < sizeof(test_threads) / sizeof(tt_thread_t *); ++i) {
-        test_threads[i] =
-            tt_thread_create(NULL, test_producer, (void *)i, &tattr);
+        test_threads[i] = tt_thread_create(test_producer, (void *)i, &tattr);
         TT_INFO("%d thread created", i);
     }
 
     // start consumer
-    test_consumer_thread = tt_thread_create(NULL, test_consumer, NULL, NULL);
+    test_consumer_thread = tt_thread_create(test_consumer, NULL, NULL);
     tt_thread_wait(test_consumer_thread);
 
     tt_sem_destroy(&sem);

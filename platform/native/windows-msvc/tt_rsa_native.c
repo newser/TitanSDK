@@ -30,7 +30,7 @@
 #include <tt_crypto_native.h>
 #include <tt_sys_error.h>
 
-#ifdef TSCM_PLATFORM_CRYPTO_ENABLE
+#ifdef PLATFORM_CRYPTO_ENABLE
 
 ////////////////////////////////////////////////////////////
 // internal macro

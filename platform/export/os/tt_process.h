@@ -49,9 +49,7 @@ typedef struct tt_process_attr_s
 
 typedef struct
 {
-    tt_process_attr_t attr;
-
-    tt_process_ntv_t sys_process;
+    tt_process_ntv_t sys_proc;
 } tt_process_t;
 
 ////////////////////////////////////////////////////////////
@@ -83,5 +81,7 @@ extern tt_result_t tt_process_wait(IN tt_process_t *proc,
 extern void tt_process_attr_default(IN tt_process_attr_t *attr);
 
 extern void tt_process_exit(IN tt_u8_t exit_code);
+
+extern tt_char_t *tt_process_path(IN OPT tt_process_t *proc);
 
 #endif /* __TT_PROCESS__ */

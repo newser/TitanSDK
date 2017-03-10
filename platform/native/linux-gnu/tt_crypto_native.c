@@ -22,7 +22,7 @@
 
 #include <init/tt_profile.h>
 
-#ifdef TSCM_PLATFORM_CRYPTO_ENABLE
+#ifdef PLATFORM_CRYPTO_ENABLE
 #include <openssl/ssl.h>
 #endif
 

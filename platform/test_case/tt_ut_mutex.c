@@ -139,7 +139,7 @@ static tt_thread_t *test_threads[10];
 static tt_mutex_t mutex;
 static int cnt;
 
-static tt_result_t test_routine_1(IN tt_thread_t *thread, IN void *param)
+static tt_result_t test_routine_1(IN void *param)
 {
     tt_ptrdiff_t idx = (tt_ptrdiff_t)param;
     int i = 0;
@@ -167,8 +167,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_mutex_mt)
     cnt = 0;
 
     for (i = 0; i < sizeof(test_threads) / sizeof(tt_thread_t *); ++i) {
-        test_threads[i] =
-            tt_thread_create(NULL, test_routine_1, (void *)i, NULL);
+        test_threads[i] = tt_thread_create(test_routine_1, (void *)i, NULL);
     }
 
     for (i = 0; i < sizeof(test_threads) / sizeof(tt_thread_t *); ++i) {

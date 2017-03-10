@@ -16,9 +16,9 @@
 
 /**
 @file tt_dll_native.h
-@brief dynamic link library portlayer
+@brief dynamic link library native
 
-this file defines dynamic link library portlayer APIs
+this file defines dynamic link library native APIs
 */
 
 #ifndef __TT_DLL_NATIVE__

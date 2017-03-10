@@ -57,24 +57,22 @@ tt_result_t tt_process_create_ntv(IN tt_process_ntv_t *sys_proc,
                                   IN OPT tt_char_t *const argv[],
                                   IN OPT struct tt_process_attr_s *attr)
 {
-    wchar_t *w_file = NULL;
+    wchar_t *wc_file = NULL;
     wchar_t *lpCommandLine = NULL;
     tt_result_t result = TT_FAIL;
 
     DWORD dwCreationFlags = 0;
     STARTUPINFO si;
 
-    // convert app name
-    w_file = tt_wchar_create(file, NULL);
-    if (w_file == NULL) {
+    wc_file = tt_wchar_create(file, NULL);
+    if (wc_file == NULL) {
         TT_ERROR("no mem for converting file name");
         goto __pc_out;
     }
 
-    // construct command line
     do {
         tt_u32_t i, len, utf8_len;
-        tt_char_t *cur_arg;
+        tt_char_t *arg;
         tt_char_t *utf8_cli;
 
         if (argv == NULL) {
@@ -84,8 +82,8 @@ tt_result_t tt_process_create_ntv(IN tt_process_ntv_t *sys_proc,
         // utf8 length
         i = 0;
         len = 0;
-        while ((cur_arg = argv[i++]) != NULL) {
-            len += (tt_u32_t)strlen(cur_arg) + 1; // seperating space
+        while ((arg = argv[i++]) != NULL) {
+            len += (tt_u32_t)strlen(arg) + 1; // seperating space
         }
         if (len == 0) {
             break;
@@ -100,9 +98,9 @@ tt_result_t tt_process_create_ntv(IN tt_process_ntv_t *sys_proc,
         }
         i = 0;
         len = 0;
-        while ((cur_arg = argv[i++]) != NULL) {
-            tt_u32_t l = (tt_u32_t)strlen(cur_arg);
-            memcpy(utf8_cli + len, cur_arg, l);
+        while ((arg = argv[i++]) != NULL) {
+            tt_u32_t l = (tt_u32_t)strlen(arg);
+            memcpy(utf8_cli + len, arg, l);
             len += l;
             utf8_cli[len++] = ' '; // seperating space
         }
@@ -124,7 +122,7 @@ tt_result_t tt_process_create_ntv(IN tt_process_ntv_t *sys_proc,
     // debug
     dwCreationFlags |= CREATE_NEW_CONSOLE;
 
-    if (!CreateProcessW(w_file,
+    if (!CreateProcessW(wc_file,
                         lpCommandLine,
                         NULL,
                         NULL,
@@ -146,8 +144,8 @@ __pc_out:
         tt_wchar_destroy(lpCommandLine);
     }
 
-    if (w_file != NULL) {
-        tt_wchar_destroy(w_file);
+    if (wc_file != NULL) {
+        tt_wchar_destroy(wc_file);
     }
 
     return result;
@@ -157,16 +155,8 @@ tt_result_t tt_process_wait_ntv(IN tt_process_ntv_t *sys_proc,
                                 IN tt_bool_t block,
                                 IN OPT tt_u8_t *exit_code)
 {
-    DWORD dwMilliseconds;
-    DWORD ret;
-
-    if (block) {
-        dwMilliseconds = INFINITE;
-    } else {
-        dwMilliseconds = 0;
-    }
-
-    ret = WaitForSingleObject(sys_proc->proc_info.hProcess, dwMilliseconds);
+    DWORD ret = WaitForSingleObject(sys_proc->proc_info.hProcess,
+                                    TT_COND(block, INFINITE, 0));
     if (ret == WAIT_OBJECT_0) {
         DWORD ExitCode = 0;
         if (GetExitCodeProcess(sys_proc->proc_info.hProcess, &ExitCode)) {
@@ -189,4 +179,42 @@ tt_result_t tt_process_wait_ntv(IN tt_process_ntv_t *sys_proc,
 void tt_process_exit_ntv(IN tt_u8_t exit_code)
 {
     ExitProcess((UINT)exit_code);
+}
+
+tt_char_t *tt_process_path_ntv(IN OPT tt_process_ntv_t *sys_proc)
+{
+    HANDLE hProcess;
+    tt_u32_t nc;
+    wchar_t wc_path[1024] = {0};
+    tt_char_t *path;
+
+    if (sys_proc != NULL) {
+        hProcess = sys_proc->proc_info.hProcess;
+    } else {
+        hProcess = GetCurrentProcess();
+    }
+
+    nc = (tt_u32_t)sizeof(wc_path) / sizeof(wchar_t);
+    if (!QueryFullProcessImageNameW(hProcess, 0, wc_path, &nc)) {
+        TT_ERROR_NTV("fail to get process name");
+        return NULL;
+    }
+    // wc_path returned is null-terminated
+
+    nc = WideCharToMultiByte(CP_UTF8, 0, wc_path, -1, NULL, 0, NULL, NULL);
+    if (nc == 0) {
+        TT_ERROR_NTV("fail to convert to utf8 path");
+        return NULL;
+    }
+    // nc includes the terminating 0 if using -1
+
+    path = tt_malloc(nc);
+    if (path == NULL) {
+        TT_ERROR_NTV("no mem for process path");
+        return NULL;
+    }
+
+    WideCharToMultiByte(CP_UTF8, 0, wc_path, -1, path, nc, NULL, NULL);
+    // path is null-terminated when using -1
+    return path;
 }

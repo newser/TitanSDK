@@ -138,8 +138,6 @@ void tt_mempool_attr_default(OUT tt_mempool_attr_t *attr)
 
 void *tt_mp_alloc(IN tt_mempool_t *mp, IN tt_u32_t size)
 {
-    tt_u8_t *p;
-
     TT_ASSERT(mp != NULL);
 
     if (size == 0) {

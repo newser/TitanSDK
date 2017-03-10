@@ -30,7 +30,7 @@ this file defines MD5 native APIs
 
 #include <tt_basic_type.h>
 
-#ifdef TSCM_PLATFORM_CRYPTO_ENABLE
+#ifdef PLATFORM_CRYPTO_ENABLE
 #include <CommonCrypto/CommonDigest.h>
 #endif
 
@@ -46,7 +46,7 @@ struct tt_profile_s;
 
 typedef struct
 {
-#ifdef TSCM_PLATFORM_CRYPTO_ENABLE
+#ifdef PLATFORM_CRYPTO_ENABLE
     CC_MD5_CTX md5;
 #else
     tt_u32_t reserved;
