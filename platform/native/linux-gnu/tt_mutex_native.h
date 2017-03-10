@@ -126,17 +126,17 @@ try to acquire a system mutex
 return value MUST be checked, lock operation is implemented based on
 system call which is out of ts control
 */
-tt_inline tt_result_t tt_mutex_try_acquire_ntv(IN tt_mutex_ntv_t *sys_mutex)
+tt_inline tt_bool_t tt_mutex_try_acquire_ntv(IN tt_mutex_ntv_t *sys_mutex)
 {
     int ret = pthread_mutex_trylock(&sys_mutex->mutex);
     if (ret == 0) {
-        return TT_SUCCESS;
+        return TT_TRUE;
     } else if (ret == EBUSY) {
-        return TT_TIME_OUT;
+        return TT_FALSE;
     } else {
         TT_FATAL("fail to try lock system mutex: %d[%s]", ret, strerror(ret));
         tt_throw_exception_ntv(NULL);
-        return TT_FAIL;
+        return TT_FALSE;
     }
 }
 

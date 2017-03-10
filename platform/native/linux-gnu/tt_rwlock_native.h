@@ -125,20 +125,20 @@ try to acquire a system rwlock to read
 return value MUST be checked, lock operation is implemented based on
 system call which is out of ts control
 */
-tt_inline tt_result_t
+tt_inline tt_bool_t
 tt_rwlock_try_acquire_r_ntv(IN tt_rwlock_ntv_t *sys_rwlock)
 {
     int ret = pthread_rwlock_tryrdlock(&sys_rwlock->rwlock);
     if (ret == 0) {
-        return TT_SUCCESS;
+        return TT_TRUE;
     } else if (ret == EBUSY) {
-        return TT_TIME_OUT;
+        return TT_FALSE;
     } else {
         TT_FATAL("fail to try readlock system rwlock: %d[%s]",
                  ret,
                  strerror(ret));
         tt_throw_exception_ntv(NULL);
-        return TT_FAIL;
+        return TT_FALSE;
     }
 }
 
@@ -198,20 +198,20 @@ try to acquire a system rwlock to write
 return value MUST be checked, lock operation is implemented based on
 system call which is out of ts control
 */
-tt_inline tt_result_t
+tt_inline tt_bool_t
 tt_rwlock_try_acquire_w_ntv(IN tt_rwlock_ntv_t *sys_rwlock)
 {
     int ret = pthread_rwlock_trywrlock(&sys_rwlock->rwlock);
     if (ret == 0) {
-        return TT_SUCCESS;
+        return TT_TRUE;
     } else if (ret == EBUSY) {
-        return TT_TIME_OUT;
+        return TT_FALSE;
     } else {
         TT_FATAL("fail to try readlock system rwlock: %d[%s]",
                  ret,
                  strerror(ret));
         tt_throw_exception_ntv(NULL);
-        return TT_FAIL;
+        return TT_FALSE;
     }
 }
 

@@ -109,16 +109,16 @@ void tt_sem_destroy_ntv(IN tt_sem_ntv_t *sys_sem)
     }
 }
 
-tt_result_t tt_sem_acquire_ntv(IN tt_sem_ntv_t *sys_sem, IN tt_u32_t wait_ms)
+tt_bool_t tt_sem_acquire_ntv(IN tt_sem_ntv_t *sys_sem, IN tt_u32_t wait_ms)
 {
     int ret;
-    tt_result_t result = TT_SUCCESS;
+    tt_bool_t result = TT_TRUE;
 
     ret = pthread_mutex_lock(&sys_sem->mutex);
     if (ret != 0) {
         TT_FATAL("fail to lock sem-mutex: %d[%s]", ret, strerror(ret));
         tt_throw_exception_ntv(NULL);
-        return TT_FAIL;
+        return TT_FALSE;
     }
 
     --sys_sem->count;
@@ -128,7 +128,7 @@ tt_result_t tt_sem_acquire_ntv(IN tt_sem_ntv_t *sys_sem, IN tt_u32_t wait_ms)
             if (ret != 0) {
                 TT_FATAL("fail to wait sem-cond: %d[%s]", ret, strerror(ret));
                 tt_throw_exception_ntv(NULL);
-                return TT_FAIL;
+                return TT_FALSE;
             }
         } else {
             struct timespec abstime;
@@ -147,12 +147,13 @@ tt_result_t tt_sem_acquire_ntv(IN tt_sem_ntv_t *sys_sem, IN tt_u32_t wait_ms)
                                          &abstime);
             if (ret == ETIMEDOUT) {
                 ++sys_sem->count;
-                result = TT_TIME_OUT;
+                result = TT_FALSE;
             } else if (ret == EINTR) {
                 goto rewait;
             } else if (ret != 0) {
                 TT_FATAL("fail to wait sem-cond: %d[%s]", ret, strerror(ret));
-                result = TT_FAIL;
+                tt_throw_exception_ntv(NULL);
+                return TT_FALSE;
             }
         }
     }
@@ -161,36 +162,36 @@ tt_result_t tt_sem_acquire_ntv(IN tt_sem_ntv_t *sys_sem, IN tt_u32_t wait_ms)
     if (ret != 0) {
         TT_FATAL("fail to unlock sem-mutex: %d[%s]", ret, strerror(ret));
         tt_throw_exception_ntv(NULL);
-        return TT_FAIL;
+        return TT_FALSE;
     }
 
     return result;
 }
 
-tt_result_t tt_sem_try_acquire_ntv(IN tt_sem_ntv_t *sys_sem)
+tt_bool_t tt_sem_try_acquire_ntv(IN tt_sem_ntv_t *sys_sem)
 {
     int ret;
-    tt_result_t result = TT_TIME_OUT;
+    tt_bool_t result = TT_FALSE;
 
     ret = pthread_mutex_trylock(&sys_sem->mutex);
     if (ret == EBUSY) {
-        return TT_TIME_OUT;
+        return TT_FALSE;
     } else if (ret != 0) {
         TT_FATAL("fail to trylock sem-mutex: %d[%s]", ret, strerror(ret));
         tt_throw_exception_ntv(NULL);
-        return TT_FAIL;
+        return TT_FALSE;
     }
 
     if (sys_sem->count > 0) {
         --sys_sem->count;
-        result = TT_SUCCESS;
+        result = TT_TRUE;
     }
 
     ret = pthread_mutex_unlock(&sys_sem->mutex);
     if (ret != 0) {
         TT_FATAL("fail to unlock sem-mutex: %d[%s]", ret, strerror(ret));
         tt_throw_exception_ntv(NULL);
-        return TT_FAIL;
+        return TT_FALSE;
     }
 
     return result;

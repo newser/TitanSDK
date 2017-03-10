@@ -95,17 +95,17 @@ tt_inline void tt_spinlock_acquire_ntv(IN tt_spinlock_ntv_t *slock)
     }
 }
 
-tt_inline tt_result_t tt_spinlock_try_acquire_ntv(IN tt_spinlock_ntv_t *slock)
+tt_inline tt_bool_t tt_spinlock_try_acquire_ntv(IN tt_spinlock_ntv_t *slock)
 {
     int ret = pthread_spin_trylock(&slock->lk);
     if (ret == 0) {
-        return TT_SUCCESS;
+        return TT_TRUE;
     } else if (ret == EBUSY) {
-        return TT_TIME_OUT;
+        return TT_FALSE;
     } else {
         TT_FATAL("fail to try slock system lock: %d[%s]", ret, strerror(ret));
         tt_throw_exception_ntv(NULL);
-        return TT_FAIL;
+        return TT_FALSE;
     }
 }
 
