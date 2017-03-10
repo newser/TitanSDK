@@ -31,7 +31,7 @@ this file defines HMAC native APIs
 #include <algorithm/tt_blob.h>
 #include <crypto/tt_hmac_def.h>
 
-#ifdef TTCM_PLATFORM_CRYPTO_ENABLE
+#ifdef PLATFORM_CRYPTO_ENABLE
 #include <CommonCrypto/CommonHMAC.h>
 #endif
 
@@ -47,7 +47,7 @@ struct tt_profile_s;
 
 typedef struct
 {
-#ifdef TTCM_PLATFORM_CRYPTO_ENABLE
+#ifdef PLATFORM_CRYPTO_ENABLE
     CCHmacContext hmac;
 #endif
 

@@ -26,7 +26,7 @@
 #
 
 # windows libraries
-set(TTCM_PLATFORM_DEP_LIB winmm.lib ws2_32.lib iphlpapi.lib PARENT_SCOPE)
+set(PLATFORM_DEP_LIB winmm.lib ws2_32.lib iphlpapi.lib PARENT_SCOPE)
 
 # libraries required by platform
 function(ttcm_platform_link_libraries)
@@ -39,7 +39,7 @@ function(ttcm_platform_link_libraries)
   # network interface
   target_link_libraries(platform iphlpapi)
 
-  if (TTCM_PLATFORM_SSL_ENABLE)
+  if (PLATFORM_SSL_ENABLE)
     # crypt
     target_link_libraries(platform crypt32)
 
@@ -47,7 +47,7 @@ function(ttcm_platform_link_libraries)
     target_link_libraries(platform Ncrypt)
   endif ()
 
-  if (TTCM_PLATFORM_CRYPTO_ENABLE)
+  if (PLATFORM_CRYPTO_ENABLE)
     # crypt
     target_link_libraries(platform crypt32)
 
@@ -68,8 +68,8 @@ function(ttcm_platform_set_properties)
 
   # version
   #set_target_properties(platform PROPERTIES 
-  #                      VERSION ${TTCM_VERSION_MAJOR}.${TTCM_VERSION_MINOR})
+  #                      VERSION ${PLATFORM_VERSION_MAJOR}.${PLATFORM_VERSION_MINOR})
   set_target_properties(platform PROPERTIES 
-                        LINK_FLAGS "/VERSION:\"${TTCM_VERSION_MAJOR}.${TTCM_VERSION_MINOR}\"")
+                        LINK_FLAGS "/VERSION:\"${PLATFORM_VERSION_MAJOR}.${PLATFORM_VERSION_MINOR}\"")
 
 endfunction(ttcm_platform_set_properties)

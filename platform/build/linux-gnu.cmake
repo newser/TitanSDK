@@ -25,7 +25,7 @@
 # linker options
 #
 
-#set(TTCM_PLATFORM_DEP_LIB pthread rt numa PARENT_SCOPE)
+#set(PLATFORM_DEP_LIB pthread rt numa PARENT_SCOPE)
 
 # libraries required by platform
 function(ttcm_platform_link_libraries)
@@ -36,18 +36,18 @@ function(ttcm_platform_link_libraries)
   target_link_libraries(platform rt)
 
   # numa support
-  if (TTCM_PLATFORM_NUMA_ENABLE)
+  if (PLATFORM_NUMA_ENABLE)
     target_link_libraries(platform numa)
   endif ()
 
   # ssl
-  if (TTCM_PLATFORM_SSL_ENABLE)
+  if (PLATFORM_SSL_ENABLE)
     target_link_libraries(platform ssl)
     target_link_libraries(platform crypto)
   endif()
 
   # crypto
-  if (TTCM_PLATFORM_CRYPTO_ENABLE)
+  if (PLATFORM_CRYPTO_ENABLE)
     target_link_libraries(platform ssl)
     target_link_libraries(platform crypto)
   endif()

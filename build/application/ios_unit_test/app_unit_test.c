@@ -48,13 +48,13 @@ int app_ut_main(int argc, char *argv[])
             tt_platform_init(NULL);
 
             // create a local thread
-            ut_thread = tt_thread_create_local("tsk ut", NULL);
+            ut_thread = tt_thread_create_local(NULL);
 
             // run
             tt_evc_attr_default(&evc_attr);
             evc_attr.on_init = __utc_on_init;
             evc_attr.on_init_param = argv[2];
-            evc_attr.evp_thread_attr.local_run = TT_TRUE;
+            // evc_attr.evp_thread_attr.local_run = TT_TRUE;
 
             tt_evc_create(&evc, TT_TRUE, &evc_attr);
 
@@ -78,13 +78,13 @@ int app_ut_main(int argc, char *argv[])
             tt_platform_init(NULL);
 
             // create a local thread
-            ut_thread = tt_thread_create_local("tsk ut", NULL);
+            ut_thread = tt_thread_create_local(NULL);
 
             // run
             tt_evc_attr_default(&evc_attr);
             evc_attr.on_init = __utc_on_init;
             evc_attr.on_init_param = argv[2];
-            evc_attr.evp_thread_attr.local_run = TT_TRUE;
+            // evc_attr.evp_thread_attr.local_run = TT_TRUE;
 
             __cli_mode = 1;
 
@@ -110,7 +110,7 @@ int app_ut_main(int argc, char *argv[])
     tt_platform_init(NULL);
 
     // create a local thread
-    ut_thread = tt_thread_create_local("tsk ut", NULL);
+    ut_thread = tt_thread_create_local(NULL);
 
     // run
     tt_test_framework_init(0);
@@ -118,7 +118,7 @@ int app_ut_main(int argc, char *argv[])
     tt_test_unit_run(NULL);
     tt_test_unit_list(NULL);
 
-    tt_page_os_stat_show(0);
+    // tt_page_os_stat_show(0);
     tt_skt_stat_show(0);
 
 #ifdef TT_WINDOWS_CRT_DUMP

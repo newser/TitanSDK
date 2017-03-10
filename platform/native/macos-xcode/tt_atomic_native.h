@@ -210,12 +210,12 @@ tt_inline tt_bool_t tt_atomic_s32_cas_ntv(IN OUT tt_atomic_s32_ntv_t *a,
     TT_PTR_ALIGNED(a, 2);
 #endif
 
-    return __atomic_compare_exchange_n(a,
-                                       &comparand,
-                                       val,
-                                       0,
-                                       __ATOMIC_SEQ_CST,
-                                       __ATOMIC_SEQ_CST);
+    return TT_BOOL(__atomic_compare_exchange_n(a,
+                                               &comparand,
+                                               val,
+                                               0,
+                                               __ATOMIC_SEQ_CST,
+                                               __ATOMIC_SEQ_CST));
 }
 
 /**
@@ -257,7 +257,7 @@ tt_inline void tt_atomic_s64_set_ntv(IN OUT tt_atomic_s64_ntv_t *a,
     __atomic_store_n(a, val, __ATOMIC_SEQ_CST);
 }
 
-tt_inline tt_s32_t tt_atomic_s64_swap_ntv(IN OUT tt_atomic_s64_ntv_t *a,
+tt_inline tt_s64_t tt_atomic_s64_swap_ntv(IN OUT tt_atomic_s64_ntv_t *a,
                                           IN tt_s64_t val)
 {
 #ifdef TT_ATOMIC_ALIGNMENT_CHECK
@@ -347,12 +347,12 @@ tt_inline tt_bool_t tt_atomic_s64_cas_ntv(IN OUT tt_atomic_s64_ntv_t *a,
     TT_PTR_ALIGNED(a, 3);
 #endif
 
-    return __atomic_compare_exchange_n(a,
-                                       &comparand,
-                                       val,
-                                       0,
-                                       __ATOMIC_SEQ_CST,
-                                       __ATOMIC_SEQ_CST);
+    return TT_BOOL(__atomic_compare_exchange_n(a,
+                                               &comparand,
+                                               val,
+                                               0,
+                                               __ATOMIC_SEQ_CST,
+                                               __ATOMIC_SEQ_CST));
 }
 
 /**
@@ -428,9 +428,9 @@ compare p with comparand, if equal, exchange p with val
 - TT_SUCCESS, if p equals comparand and has been exchanged with val
 - TT_FAIL, otherwise
 */
-tt_inline tt_result_t tt_atomic_ptr_cas_ntv(IN OUT tt_ptr_t *a,
-                                            IN tt_ptr_t comparand,
-                                            IN tt_ptr_t val)
+tt_inline tt_bool_t tt_atomic_ptr_cas_ntv(IN OUT tt_ptr_t *a,
+                                          IN tt_ptr_t comparand,
+                                          IN tt_ptr_t val)
 {
 #ifdef TT_ATOMIC_ALIGNMENT_CHECK
 #if TT_ENV_IS_64BIT
@@ -440,12 +440,12 @@ tt_inline tt_result_t tt_atomic_ptr_cas_ntv(IN OUT tt_ptr_t *a,
 #endif
 #endif
 
-    return __atomic_compare_exchange_n(a,
-                                       &comparand,
-                                       val,
-                                       0,
-                                       __ATOMIC_SEQ_CST,
-                                       __ATOMIC_SEQ_CST);
+    return TT_BOOL(__atomic_compare_exchange_n(a,
+                                               &comparand,
+                                               val,
+                                               0,
+                                               __ATOMIC_SEQ_CST,
+                                               __ATOMIC_SEQ_CST));
 }
 
 #endif /* __TT_ATOMIC_NATIVE__ */

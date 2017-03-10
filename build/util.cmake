@@ -40,6 +40,8 @@ endfunction(ttcm_add_group_src)
 function(ttcm_choose_compiler_flag compiler_flag mandatory option_list)
   set(__one_ok FALSE)
   foreach(option ${option_list})
+      message(STATUS "option [${option}] in [${option_list}]")
+	  
     check_c_compiler_flag(${option} has_${option})
     if (has_${option})
       set(${compiler_flag} "${${compiler_flag}} ${option}" PARENT_SCOPE)

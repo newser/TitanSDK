@@ -31,7 +31,7 @@ this file defines AES native APIs
 #include <algorithm/tt_blob.h>
 #include <crypto/tt_aes_def.h>
 
-#ifdef TTCM_PLATFORM_CRYPTO_ENABLE
+#ifdef PLATFORM_CRYPTO_ENABLE
 #include <CommonCrypto/CommonCrypto.h>
 #endif
 
@@ -49,7 +49,7 @@ struct tt_profile_s;
 
 typedef struct tt_aes_ntv_s
 {
-#ifdef TTCM_PLATFORM_CRYPTO_ENABLE
+#ifdef PLATFORM_CRYPTO_ENABLE
     CCCryptorRef cref;
 #endif
 

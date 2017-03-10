@@ -467,11 +467,14 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_process_basic)
     path = tt_process_path(NULL);
     TT_TEST_CHECK_NOT_EQUAL(path, NULL, "");
 
+#if !TT_ENV_OS_IS_IOS
+
 #if TT_ENV_OS_IS_WINDOWS
 #define __app_file path
 #elif TT_ENV_OS_IS_IOS
     extern const char *get_app_path();
-#define __app_file get_app_path()
+//#define __app_file get_app_path()
+#define __app_file path
 #define __app_file_sc get_app_path()
 #else
 //#define __app_file "./app_unit_test"
@@ -559,6 +562,8 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_process_basic)
     TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
     ret = tt_process_wait(&proc, TT_TRUE, &ec);
     TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+#endif
+
 #endif
 
     tt_free(path);

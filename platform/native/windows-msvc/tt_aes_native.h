@@ -31,7 +31,7 @@ this file defines AES native APIs
 #include <crypto/tt_aes_def.h>
 #include <tt_basic_type.h>
 
-#ifdef TTCM_PLATFORM_CRYPTO_ENABLE
+#ifdef PLATFORM_CRYPTO_ENABLE
 #include <bcrypt.h>
 #endif
 

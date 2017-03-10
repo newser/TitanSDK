@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-include(${TTCM_BUILD_PATH}/util.cmake)
+include(${PLATFORM_BUILD_PATH}/util.cmake)
 
 #
 # system header files

@@ -30,7 +30,7 @@ this file defines diffie-hellman native APIs
 
 #include <crypto/tt_dh_def.h>
 
-#ifdef TTCM_PLATFORM_CRYPTO_ENABLE
+#ifdef PLATFORM_CRYPTO_ENABLE
 #include <openssl/dh.h>
 #endif
 
@@ -46,7 +46,7 @@ struct tt_profile_s;
 
 typedef struct
 {
-#ifdef TTCM_PLATFORM_CRYPTO_ENABLE
+#ifdef PLATFORM_CRYPTO_ENABLE
     DH *dh;
 #endif
 

@@ -25,7 +25,7 @@
 # linker options
 #
 
-set(TTCM_PLATFORM_DEP_LIB iconv PARENT_SCOPE)
+set(PLATFORM_DEP_LIB iconv PARENT_SCOPE)
 
 # libraries required by platform
 function(ttcm_platform_link_libraries)
@@ -36,12 +36,12 @@ function(ttcm_platform_link_libraries)
   # finding path every time
 
   # security
-  if (TTCM_PLATFORM_SSL_ENABLE)
+  if (PLATFORM_SSL_ENABLE)
     target_link_libraries(platform "-framework Security")
   endif()
 
   # crypto
-  if (TTCM_PLATFORM_CRYPTO_ENABLE)
+  if (PLATFORM_CRYPTO_ENABLE)
     target_link_libraries(platform "-framework Security")
   endif()
 
@@ -52,7 +52,7 @@ endfunction(ttcm_platform_link_libraries)
 
 # platform properties
 function(ttcm_platform_set_properties)
-  if (TTCM_PLATFORM_BUILD_DYNAMIC)
+  if (PLATFORM_BUILD_DYNAMIC)
     # TitanSDK.framework
     set_target_properties(platform PROPERTIES FRAMEWORK TRUE)
     set_target_properties(platform PROPERTIES OUTPUT_NAME TitanSDK)
@@ -63,6 +63,6 @@ function(ttcm_platform_set_properties)
 
   # version
   set_target_properties(platform PROPERTIES 
-                        VERSION ${TTCM_VERSION_MAJOR}.${TTCM_VERSION_MINOR})
+                        VERSION ${PLATFORM_VERSION_MAJOR}.${PLATFORM_VERSION_MINOR})
 
 endfunction(ttcm_platform_set_properties)

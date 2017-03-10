@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-include(${TTCM_BUILD_PATH}/util.cmake)
+include(${PLATFORM_BUILD_PATH}/util.cmake)
 
 #
 # system header files
@@ -39,7 +39,7 @@ ttcm_choose_compiler_flag(CMAKE_CXX_FLAGS FALSE -Wno-unused-function)
 ttcm_choose_compiler_flag(CMAKE_CXX_FLAGS FALSE -Wno-unused-variable)
 
 # atomic instrucitons need specify -march
-if (TTCM_ENV_DETECT_DETAIL)
+if (PLATFORM_ENV_DETECT_DETAIL)
   set(__march_flags -march=native)
 else ()
   if (CMAKE_SIZEOF_VOID_P EQUAL 8)

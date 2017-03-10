@@ -37,8 +37,8 @@ this file load customization definitions
 @def TT_PLATFORM_DEBUG_ENABLE
 defined if debug mode is enabled
 */
-#cmakedefine TTCM_PLATFORM_DEBUG_ENABLE
-#ifdef TTCM_PLATFORM_DEBUG_ENABLE
+#cmakedefine PLATFORM_DEBUG_ENABLE
+#ifdef PLATFORM_DEBUG_ENABLE
 #define TT_PLATFORM_DEBUG_ENABLE
 #endif
 
@@ -46,8 +46,8 @@ defined if debug mode is enabled
 @def TT_PLATFORM_DYNAMIC_LIB
 defined if build platform as a shared library
 */
-#cmakedefine TTCM_PLATFORM_BUILD_DYNAMIC
-#ifdef TTCM_PLATFORM_BUILD_DYNAMIC
+#cmakedefine PLATFORM_BUILD_DYNAMIC
+#ifdef PLATFORM_BUILD_DYNAMIC
 #define TT_PLATFORM_DYNAMIC_LIB
 #endif
 
@@ -55,8 +55,8 @@ defined if build platform as a shared library
 @def TT_PLATFORM_SSL_ENABLE
 defined if SSL is enabled
 */
-#cmakedefine TTCM_PLATFORM_SSL_ENABLE
-#ifdef TTCM_PLATFORM_SSL_ENABLE
+#cmakedefine PLATFORM_SSL_ENABLE
+#ifdef PLATFORM_SSL_ENABLE
 #define TT_PLATFORM_SSL_ENABLE
 #endif
 
@@ -64,8 +64,8 @@ defined if SSL is enabled
 @def TT_PLATFORM_NUMA_ENABLE
 defined if NUMA is enabled
 */
-#cmakedefine TTCM_PLATFORM_NUMA_ENABLE
-#ifdef TTCM_PLATFORM_NUMA_ENABLE
+#cmakedefine PLATFORM_NUMA_ENABLE
+#ifdef PLATFORM_NUMA_ENABLE
 #define TT_PLATFORM_NUMA_ENABLE
 #endif
 
@@ -73,8 +73,8 @@ defined if NUMA is enabled
 @def TT_PLATFORM_CRYPTO_ENABLE
 defined if CRYPTO is enabled
 */
-#cmakedefine TTCM_PLATFORM_CRYPTO_ENABLE
-#ifdef TTCM_PLATFORM_CRYPTO_ENABLE
+#cmakedefine PLATFORM_CRYPTO_ENABLE
+#ifdef PLATFORM_CRYPTO_ENABLE
 #define TT_PLATFORM_CRYPTO_ENABLE
 #endif
 
@@ -90,7 +90,7 @@ major version number
 major version number is changed when the new version is not
 compatible with last one
 */
-#define TT_VERSION_MAJOR ((tt_ver_t)(@TTCM_VERSION_MAJOR@))
+#define TT_VERSION_MAJOR ((tt_ver_t)(@PLATFORM_VERSION_MAJOR@))
 
 /**
 @def TT_VERSION_MINOR
@@ -100,7 +100,7 @@ minor version number
 minor version number is changed when some changes have been
 made while it keeps compatibility
 */
-#define TT_VERSION_MINOR ((tt_ver_t)(@TTCM_VERSION_MINOR@))
+#define TT_VERSION_MINOR ((tt_ver_t)(@PLATFORM_VERSION_MINOR@))
 
 /**
 @def TT_VERSION_REVISION
@@ -110,7 +110,7 @@ revision version number
 revision version number is changed when some trivial changes
 are made
 */
-#define TT_VERSION_REVISION ((tt_ver_t)(@TTCM_VERSION_REVISION@))
+#define TT_VERSION_REVISION ((tt_ver_t)(@PLATFORM_VERSION_REVISION@))
 
 /**
 @def TT_VERSION_BUILD

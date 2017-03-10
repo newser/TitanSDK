@@ -20,7 +20,6 @@
 
 #include <tt_mutex_native.h>
 
-#include <misc/tt_assert.h>
 #include <os/tt_mutex.h>
 
 #include <tt_sys_error.h>
@@ -55,22 +54,26 @@ tt_result_t tt_mutex_create_ntv(IN tt_mutex_ntv_t *sys_mutex,
     int ret = 0;
     pthread_mutexattr_t mutexattr;
 
-    if (pthread_mutexattr_init(&mutexattr) != 0) {
-        TT_ERROR_NTV("fail to init mutex attr");
+    ret = pthread_mutexattr_init(&mutexattr);
+    if (ret != 0) {
+        TT_ERROR("fail to init mutex attr: %d[%s]", ret, strerror(ret));
         return TT_FAIL;
     }
 
-    if (attr->config_recursive && attr->recursive &&
-        (pthread_mutexattr_settype(&mutexattr, PTHREAD_MUTEX_RECURSIVE) != 0)) {
-        TT_ERROR_NTV("fail to set mutex attr recursive");
-
-        pthread_mutexattr_destroy(&mutexattr);
-        return TT_FAIL;
+    if (attr->config_recursive && attr->recursive) {
+        ret = pthread_mutexattr_settype(&mutexattr, PTHREAD_MUTEX_RECURSIVE);
+        if (ret != 0) {
+            TT_ERROR("fail to set mutex attr recursive: %d[%s]",
+                     ret,
+                     strerror(ret));
+            pthread_mutexattr_destroy(&mutexattr);
+            return TT_FAIL;
+        }
     }
 
-    if (pthread_mutex_init(&sys_mutex->mutex, &mutexattr) != 0) {
-        TT_ERROR_NTV("fail to create system mutex");
-
+    ret = pthread_mutex_init(&sys_mutex->mutex, &mutexattr);
+    if (ret != 0) {
+        TT_ERROR("fail to create system mutex: %d[%s]", ret, strerror(ret));
         pthread_mutexattr_destroy(&mutexattr);
         return TT_FAIL;
     }
@@ -81,7 +84,8 @@ tt_result_t tt_mutex_create_ntv(IN tt_mutex_ntv_t *sys_mutex,
 
 void tt_mutex_destroy_ntv(IN tt_mutex_ntv_t *sys_mutex)
 {
-    if (pthread_mutex_destroy(&sys_mutex->mutex) != 0) {
-        TT_ERROR_NTV("fail to destroy system mutex");
+    int ret = pthread_mutex_destroy(&sys_mutex->mutex);
+    if (ret != 0) {
+        TT_ERROR("fail to destroy system mutex: %d[%s]", ret, strerror(ret));
     }
 }

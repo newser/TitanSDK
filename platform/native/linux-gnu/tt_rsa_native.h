@@ -31,7 +31,7 @@ this file defines RSA port layer APIs
 #include <algorithm/tt_blob.h>
 #include <crypto/tt_rsa_def.h>
 
-#ifdef TTCM_PLATFORM_CRYPTO_ENABLE
+#ifdef PLATFORM_CRYPTO_ENABLE
 #include <openssl/rsa.h>
 #endif
 
@@ -49,7 +49,7 @@ struct tt_rsa_number_s;
 
 typedef struct
 {
-#ifdef TTCM_PLATFORM_CRYPTO_ENABLE
+#ifdef PLATFORM_CRYPTO_ENABLE
     RSA *rsa;
 #endif
 

@@ -30,7 +30,7 @@ this file defines MD5 port layer APIs
 
 #include <tt_basic_type.h>
 
-#ifdef TTCM_PLATFORM_CRYPTO_ENABLE
+#ifdef PLATFORM_CRYPTO_ENABLE
 #include <openssl/md5.h>
 #endif
 
@@ -46,7 +46,7 @@ struct tt_profile_s;
 
 typedef struct
 {
-#ifdef TTCM_PLATFORM_CRYPTO_ENABLE
+#ifdef PLATFORM_CRYPTO_ENABLE
     MD5_CTX md5;
 #else
     tt_u32_t reserved;

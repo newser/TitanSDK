@@ -24,7 +24,7 @@
 #include <log/tt_log.h>
 #include <misc/tt_util.h>
 
-#ifdef TTCM_PLATFORM_CRYPTO_ENABLE
+#ifdef PLATFORM_CRYPTO_ENABLE
 
 #include <CommonCrypto/CommonCrypto.h>
 

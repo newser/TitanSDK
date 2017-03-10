@@ -119,6 +119,8 @@ wrapped c strchr()
 */
 #define tt_strchr strchr
 
+#define tt_strrchr strrchr
+
 #define tt_isspace isspace
 
 #define tt_isdigit isdigit
@@ -128,6 +130,12 @@ wrapped c strchr()
 #define tt_isalnum isalnum
 
 #define tt_isxdigit isxdigit
+
+#define tt_tolower tolower
+
+#define tt_toupper toupper
+
+#define tt_c_qsort qsort
 
 ////////////////////////////////////////////////////////////
 // type definition
@@ -187,5 +195,7 @@ extern tt_result_t tt_strtos32(IN const char *str,
                                IN char **endptr,
                                IN int base,
                                IN tt_s32_t *val);
+
+extern char *tt_strrstr(const char *haystack, const char *needle);
 
 #endif /* __TT_CSTD_AIP__ */

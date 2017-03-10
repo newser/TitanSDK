@@ -31,7 +31,7 @@ this file defines SHA port layer APIs
 #include <crypto/tt_sha_def.h>
 #include <tt_basic_type.h>
 
-#ifdef TTCM_PLATFORM_CRYPTO_ENABLE
+#ifdef PLATFORM_CRYPTO_ENABLE
 #include <openssl/sha.h>
 #endif
 
@@ -47,7 +47,7 @@ struct tt_profile_s;
 
 typedef struct
 {
-#ifdef TTCM_PLATFORM_CRYPTO_ENABLE
+#ifdef PLATFORM_CRYPTO_ENABLE
     union
     {
         SHA_CTX sha1;
