@@ -69,8 +69,6 @@ list
 */
 typedef struct tt_list_s
 {
-    __TT_PRIVATE__
-
     tt_lnode_t *head;
     tt_lnode_t *tail;
     tt_u32_t count;

@@ -26,7 +26,8 @@
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <algorithm/tt_double_linked_list.h>
+#include <algorithm/tt_list.h>
+#include <os/tt_spinlock.h>
 #include <os/tt_thread.h>
 
 #include <fcontext/tt_fiber_wrapper.h>
@@ -49,9 +50,11 @@ typedef tt_result_t (*tt_fiber_routine_t)(IN void *param);
 
 typedef struct tt_fiber_sched_s
 {
-    tt_dlist_t fiber_list;
-    struct tt_fiber_s *main_fiber;
+    tt_list_t active;
+    tt_list_t pending;
+    struct tt_fiber_s *__main;
     struct tt_fiber_s *current;
+    tt_spinlock_t lock;
 } tt_fiber_sched_t;
 
 typedef struct
@@ -65,9 +68,10 @@ typedef struct
 
 typedef struct tt_fiber_s
 {
-    tt_dnode_t node;
+    tt_lnode_t node;
     tt_fiber_routine_t routine;
     void *param;
+    tt_fiber_sched_t *fs;
     tt_fiber_wrap_t wrap_fb;
     tt_bool_t can_yield : 1;
 } tt_fiber_t;
@@ -110,16 +114,15 @@ extern tt_fiber_t *tt_fiber_create(IN tt_fiber_routine_t routine,
                                    IN void *param,
                                    IN OPT tt_fiber_attr_t *attr);
 
-extern void tt_fiber_destroy(IN tt_fiber_t *fiber);
+extern void tt_fiber_destroy(IN tt_fiber_t *fb);
 
 extern void tt_fiber_attr_default(IN tt_fiber_attr_t *attr);
 
-// back to main fiber
 extern void tt_fiber_yield();
 
-// - the caller must be main fiber
-// - @fiber must be created by main fiber
-extern void tt_fiber_switch(IN tt_fiber_t *fiber);
+extern void tt_fiber_resume(IN tt_fiber_t *fb);
+
+extern void tt_fiber_activate(IN tt_fiber_t *fb);
 
 tt_inline tt_fiber_t *tt_current_fiber()
 {

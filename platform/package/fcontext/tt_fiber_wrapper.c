@@ -23,6 +23,11 @@
 #include <memory/tt_memory_alloc.h>
 #include <os/tt_fiber.h>
 
+#if TT_ENV_OS_IS_WINDOWS
+#else
+#include <sys/mman.h>
+#endif
+
 ////////////////////////////////////////////////////////////
 // internal macro
 ////////////////////////////////////////////////////////////
@@ -45,6 +50,11 @@
 
 static void __fiber_routine_wrapper(IN tt_transfer_t t);
 
+static tt_result_t __create_stack(IN tt_fiber_wrap_t *wrap_fb,
+                                  IN tt_u32_t stack_size);
+
+static void __destroy_stack();
+
 ////////////////////////////////////////////////////////////
 // interface implementation
 ////////////////////////////////////////////////////////////
@@ -59,20 +69,16 @@ tt_result_t tt_fiber_create_wrap(IN tt_fiber_wrap_t *wrap_fb,
     wrap_fb->fctx = NULL;
     wrap_fb->from = NULL;
 
-    stack = tt_malloc(stack_size);
-    if (stack == NULL) {
-        TT_ERROR("no mem for fiber stack");
+    if (!TT_OK(__create_stack(wrap_fb, stack_size))) {
         return TT_FAIL;
     }
-    wrap_fb->stack = TT_PTR_INC(void, stack, stack_size);
-    wrap_fb->stack_size = stack_size;
 
     return TT_SUCCESS;
 }
 
 void tt_fiber_destroy_wrap(IN tt_fiber_wrap_t *wrap_fb)
 {
-    tt_free(TT_PTR_DEC(void, wrap_fb->stack, wrap_fb->stack_size));
+    __destroy_stack();
 }
 
 void tt_fiber_switch_wrap(IN tt_fiber_sched_t *fs,
@@ -91,10 +97,11 @@ void tt_fiber_switch_wrap(IN tt_fiber_sched_t *fs,
     wrap_to->from = from;
     t = tt_jump_fcontext(wrap_to->fctx, to);
     if (t.data != NULL) {
-        // must save to's context
-        wrap_to->fctx = t.fctx;
+        // note from->wrap_fb.from is actually the last fiber but
+        // not wrap_to
+        from->wrap_fb.from->wrap_fb.fctx = t.fctx;
     } else {
-        tt_dlist_remove(&fs->fiber_list, &to->node);
+        tt_list_remove(&to->node);
         tt_fiber_destroy(to);
     }
 }
@@ -110,4 +117,45 @@ void __fiber_routine_wrapper(IN tt_transfer_t t)
 
     // note return NULL indicating the fiber is terminated
     tt_jump_fcontext(t.fctx, NULL);
+}
+
+tt_result_t __create_stack(IN tt_fiber_wrap_t *wrap_fb, IN tt_u32_t stack_size)
+{
+    void *stack;
+    tt_u32_t size;
+
+    TT_U32_ALIGN_INC_PAGE(stack_size);
+    size = stack_size + (tt_g_page_size << 1);
+
+#if TT_ENV_OS_IS_WINDOWS
+#else
+    stack = mmap(NULL, size, PROT_NONE, MAP_PRIVATE | MAP_ANON, -1, 0);
+    if (stack == NULL) {
+        TT_ERROR_NTV("fail to reserve stack");
+        return TT_FAIL;
+    }
+
+    if (mprotect(TT_PTR_INC(void, stack, tt_g_page_size),
+                 stack_size,
+                 PROT_READ | PROT_WRITE) != 0) {
+        TT_ERROR_NTV("fail to change pages to read/write");
+        munmap(stack, size);
+        return TT_FAIL;
+    }
+#endif
+
+    wrap_fb->stack = TT_PTR_INC(void, stack, stack_size + tt_g_page_size);
+    wrap_fb->stack_size = stack_size;
+    return TT_SUCCESS;
+}
+
+void __destroy_stack(IN tt_fiber_wrap_t *wrap_fb)
+{
+#if TT_ENV_OS_IS_WINDOWS
+#else
+    munmap(TT_PTR_DEC(void,
+                      wrap_fb->stack,
+                      wrap_fb->stack_size + tt_g_page_size),
+           wrap_fb->stack_size + (tt_g_page_size << 1));
+#endif
 }
