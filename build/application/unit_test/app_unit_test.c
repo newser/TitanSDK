@@ -63,9 +63,20 @@ tt_result_t __console_ev_handler(IN void *console_param,
     return TT_SUCCESS;
 }
 
+tt_result_t __ut_fiber(IN void *param)
+{
+    tt_test_framework_init(0);
+    tt_test_unit_init(NULL);
+    tt_test_unit_run(NULL);
+    tt_test_unit_list(NULL);
+
+    tt_task_exit(NULL);
+}
+
 int main(int argc, char *argv[])
 {
     int i;
+    tt_task_t t;
 
     // setlocale(LC_ALL, "chs");
 
@@ -147,6 +158,12 @@ int main(int argc, char *argv[])
 
     // init platform
     tt_platform_init(NULL);
+
+    tt_task_create(&t, NULL);
+    tt_task_add_fiber(&t, __ut_fiber, NULL, NULL);
+    tt_task_run(&t);
+    tt_task_wait(&t);
+    return 0;
 
     // create a local thread
     tt_thread_create_local(NULL);

@@ -14,80 +14,63 @@
  * limitations under the License.
  */
 
+/**
+@file tt_io_poller.h
+@brief io poller
+*/
+
+#ifndef __TT_IO_POLLER__
+#define __TT_IO_POLLER__
+
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <os/tt_poller.h>
-
-#include <misc/tt_assert.h>
-#include <os/tt_fiber.h>
+#include <tt_io_poller_native.h>
 
 ////////////////////////////////////////////////////////////
-// internal macro
+// macro definition
 ////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////
-// internal type
+// type definition
 ////////////////////////////////////////////////////////////
 
-////////////////////////////////////////////////////////////
-// extern declaration
-////////////////////////////////////////////////////////////
+typedef struct tt_io_poller_attr_s
+{
+    tt_u32_t reserved;
+} tt_io_poller_attr_t;
+
+typedef struct tt_io_poller_s
+{
+    tt_io_poller_ntv_t sys_iop;
+} tt_io_poller_t;
 
 ////////////////////////////////////////////////////////////
-// global variant
+// global variants
 ////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-////////////////////////////////////////////////////////////
-// interface implementation
-////////////////////////////////////////////////////////////
+extern tt_result_t tt_io_poller_create(IN tt_io_poller_t *poller,
+                                       IN OPT tt_io_poller_attr_t *attr);
 
-tt_result_t tt_poller_create(IN tt_poller_t *poller,
-                             IN OPT tt_poller_attr_t *attr)
+extern void tt_io_poller_destroy(IN tt_io_poller_t *poller);
+
+extern void tt_io_poller_attr_default(IN tt_io_poller_attr_t *attr);
+
+extern void tt_io_poller_run(IN tt_io_poller_t *poller);
+
+tt_inline void tt_io_poller_yield(IN tt_io_poller_t *poller)
 {
-    TT_ASSERT(poller != NULL);
-
-    return tt_poller_create_ntv(&poller->sys_poller);
+    tt_io_poller_yield_ntv(&poller->sys_iop);
 }
 
-void tt_poller_destroy(IN tt_poller_t *poller)
+tt_inline void tt_io_poller_exit(IN tt_io_poller_t *poller)
 {
-    TT_ASSERT(poller != NULL);
-
-    tt_poller_destroy_ntv(&poller->sys_poller);
+    tt_io_poller_exit_ntv(&poller->sys_iop);
 }
 
-void tt_poller_attr_default(IN tt_poller_attr_t *attr)
-{
-    TT_ASSERT(attr != NULL);
-
-    attr->reserved = 0;
-}
-
-tt_result_t tt_poller_run(IN tt_poller_t *poller)
-{
-    tt_poller_ev_t ev;
-    void *data;
-
-    /*while (TT_OK(tt_poller_run_ntv(poller, &ev, &data))) {
-        switch (ev) {
-            case TT_POLLER_EV_TIMER: {
-            } break;
-            case TT_POLLER_EV_FILE: {
-            } break;
-
-            default: {
-                TT_FATAL("unknown event: %d", ev);
-                tt_throw_exception_ntv(NULL);
-                return TT_FAIL;
-            } break;
-        }
-    }*/
-
-    return TT_SUCCESS;
-}
+#endif // __TT_IO_POLLER__

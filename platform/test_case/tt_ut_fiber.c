@@ -21,9 +21,11 @@
 #include "tt_unit_test_case_config.h"
 #include <unit_test/tt_unit_test.h>
 
+#include <io/tt_io_worker_group.h>
 #include <log/tt_log.h>
 #include <os/tt_fiber.h>
 #include <os/tt_semaphore.h>
+#include <os/tt_task.h>
 #include <os/tt_thread.h>
 #include <timer/tt_time_reference.h>
 
@@ -51,6 +53,10 @@ TT_TEST_ROUTINE_DECLARE(tt_unit_test_fiber_basic)
 TT_TEST_ROUTINE_DECLARE(tt_unit_test_fiber_3fibers)
 TT_TEST_ROUTINE_DECLARE(tt_unit_test_fiber_sanity)
 TT_TEST_ROUTINE_DECLARE(tt_unit_test_fiber_sanity2)
+
+TT_TEST_ROUTINE_DECLARE(tt_unit_test_worker_group)
+
+TT_TEST_ROUTINE_DECLARE(tt_unit_test_task)
 // =========================================
 
 // === test case list ======================
@@ -93,6 +99,24 @@ TT_TEST_CASE("tt_unit_test_fiber_basic",
                  NULL,
                  NULL),
 
+    TT_TEST_CASE("tt_unit_test_worker_group",
+                 "testing worker group",
+                 tt_unit_test_worker_group,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL),
+
+    TT_TEST_CASE("tt_unit_test_task",
+                 "testing task basic",
+                 tt_unit_test_task,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL),
+
     TT_TEST_CASE_LIST_DEFINE_END(fiber_case)
     // =========================================
 
@@ -107,7 +131,7 @@ TT_TEST_CASE("tt_unit_test_fiber_basic",
     ////////////////////////////////////////////////////////////
 
     /*
-    TT_TEST_ROUTINE_DEFINE(tt_unit_test_fiber_3fibers)
+    TT_TEST_ROUTINE_DEFINE(tt_unit_test_task)
     {
         //tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
 
@@ -426,12 +450,31 @@ static tt_result_t __fiber_san2(IN void *param)
     tt_u32_t idx = (tt_u32_t)(tt_uintptr_t)param;
     tt_fiber_sched_t *cfs = tt_current_fiber_sched();
 
+    if (idx < FIBER_NUM - 1) {
+        tt_fiber_attr_t fattr;
+        tt_fiber_attr_default(&fattr);
+        fattr.stack_size = tt_rand_u32() % (1 << 6) + 1;
+
+        __fb_ar[idx + 1] = tt_fiber_create(__fiber_san2,
+                                           (void *)(tt_uintptr_t)idx + 1,
+                                           &fattr);
+        tt_fiber_resume(__fb_ar[idx + 1]);
+    }
+
     while (1) {
-        tt_u32_t action = tt_rand_u32() % 3;
+        tt_u32_t action = tt_rand_u32() % 4;
         if (action == 0) {
             tt_fiber_yield();
         } else if (action == 1) {
-            tt_fiber_resume(__fb_ar[tt_rand_u32() % FIBER_NUM]);
+            tt_u32_t k = tt_rand_u32() % FIBER_NUM;
+            if (__fb_ar[k] != NULL) {
+                TT_INFO("resuming %p", __fb_ar[idx]);
+                tt_fiber_resume(__fb_ar[k]);
+            }
+        } else if (action == 2) {
+            TT_INFO("exiting %p", __fb_ar[idx]);
+            __fb_ar[idx] = NULL;
+            break;
         } else {
             tt_fiber_resume(cfs->__main);
         }
@@ -444,6 +487,7 @@ static tt_result_t __test_fiber_san2(IN void *param)
 {
     tt_u32_t i, num = 0;
 
+#if 0
     for (i = 0; i < FIBER_NUM; ++i) {
         tt_fiber_attr_t fattr;
         tt_fiber_attr_default(&fattr);
@@ -457,10 +501,28 @@ static tt_result_t __test_fiber_san2(IN void *param)
         }
     }
     tt_fiber_resume(__fb_ar[tt_rand_u32() % FIBER_NUM]);
+#else
+    {
+        tt_fiber_attr_t fattr;
+        tt_fiber_attr_default(&fattr);
+        fattr.stack_size = tt_rand_u32() % (1 << 6) + 1;
+
+        __fb_ar[0] =
+            tt_fiber_create(__fiber_san2, (void *)(tt_uintptr_t)0, &fattr);
+        if (__fb_ar[0] == NULL) {
+            __err_line = __LINE__;
+            return TT_FAIL;
+        }
+    }
+    tt_fiber_resume(__fb_ar[0]);
+#endif
 
     while (num++ < FIBER_NUM * 100) {
         tt_u32_t idx = tt_rand_u32() % FIBER_NUM;
-        tt_fiber_resume(__fb_ar[idx]);
+        if (__fb_ar[idx] != NULL) {
+            TT_INFO("resuming %p", __fb_ar[idx]);
+            tt_fiber_resume(__fb_ar[idx]);
+        }
     }
     __ut_ret = TT_SUCCESS;
 
@@ -486,6 +548,83 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_fiber_sanity2)
     tt_thread_wait(t);
 
     TT_TEST_CHECK_EQUAL(__ut_ret, TT_SUCCESS, "");
+
+    // test end
+    TT_TEST_CASE_LEAVE()
+}
+
+TT_TEST_ROUTINE_DEFINE(tt_unit_test_worker_group)
+{
+    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+    tt_iowg_t wg;
+    tt_result_t ret;
+
+    TT_TEST_CASE_ENTER()
+    // test start
+
+    ret = tt_iowg_create(&wg, 0, NULL);
+    TT_TEST_CHECK_SUCCESS(ret, "");
+    tt_iowg_destroy(&wg);
+
+    ret = tt_iowg_create(&wg, tt_rand_u32() % 10, NULL);
+    TT_TEST_CHECK_SUCCESS(ret, "");
+    tt_iowg_destroy(&wg);
+
+    // test end
+    TT_TEST_CASE_LEAVE()
+}
+
+static tt_u32_t __tb_cnt;
+static tt_u32_t __tb_cnt_expect;
+
+static tt_result_t __task_fiber_1(IN void *param)
+{
+    tt_u32_t idx = (tt_u32_t)(tt_uintptr_t)param;
+
+    ++__tb_cnt;
+
+    if (idx % 2) {
+        tt_fiber_yield();
+    }
+
+    return TT_SUCCESS;
+}
+
+TT_TEST_ROUTINE_DEFINE(tt_unit_test_task)
+{
+    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+    tt_task_t t1;
+    tt_result_t ret;
+    tt_u32_t n, i;
+
+    TT_TEST_CASE_ENTER()
+    // test start
+
+    ret = tt_task_create(&t1, NULL);
+    TT_TEST_CHECK_SUCCESS(ret, "");
+    tt_task_exit(&t1);
+    tt_task_wait(&t1);
+
+    __tb_cnt = 0;
+    ret = tt_task_create(&t1, NULL);
+    TT_TEST_CHECK_SUCCESS(ret, "");
+    tt_task_add_fiber(&t1, __task_fiber_1, 1, NULL);
+    tt_task_run(&t1);
+    tt_task_exit(&t1);
+    tt_task_wait(&t1);
+    TT_TEST_CHECK_EQUAL(__tb_cnt, 1, "");
+
+    __tb_cnt = 0;
+    ret = tt_task_create(&t1, NULL);
+    TT_TEST_CHECK_SUCCESS(ret, "");
+    n = 5; // tt_rand_u32() % 100 + 1;
+    for (i = 0; i < n; ++i) {
+        tt_task_add_fiber(&t1, __task_fiber_1, i, NULL);
+    }
+    tt_task_run(&t1);
+    tt_task_exit(&t1);
+    tt_task_wait(&t1);
+    TT_TEST_CHECK_EQUAL(__tb_cnt, n, "");
 
     // test end
     TT_TEST_CASE_LEAVE()

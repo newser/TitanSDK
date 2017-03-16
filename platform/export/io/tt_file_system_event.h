@@ -15,19 +15,18 @@
  */
 
 /**
-@file tt_poller_natvie.h
-@brief poller native
+@file tt_file_system_event.h
+@brief file system io io_event
 */
 
-#ifndef __TT_POLLER_NATIVE__
-#define __TT_POLLER_NATIVE__
+#ifndef __TT_FILE_SYSTEM_EVENT__
+#define __TT_FILE_SYSTEM_EVENT__
 
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <os/tt_poller_def.h>
-#include <tt_basic_type.h>
+#include <io/tt_io_event.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
@@ -37,10 +36,37 @@
 // type definition
 ////////////////////////////////////////////////////////////
 
-typedef struct tt_poller_ntv_s
+struct tt_file_s;
+struct tt_file_attr_s;
+
+enum
 {
-    int kq_fd;
-} tt_poller_ntv_t;
+    TT_FS_FCREATE,
+    TT_FS_FOPEN,
+
+    TT_FS_NUM
+};
+
+typedef struct
+{
+    tt_io_ev_t io_ev;
+
+    const tt_char_t *path;
+    struct tt_file_attr_s *attr;
+
+    tt_result_t result;
+} tt_fs_fcreate_t;
+
+typedef struct
+{
+    tt_io_ev_t io_ev;
+
+    struct tt_file_s *file;
+    const tt_char_t *path;
+    struct tt_file_attr_s *attr;
+
+    tt_result_t result;
+} tt_fs_fopen_t;
 
 ////////////////////////////////////////////////////////////
 // global variants
@@ -50,13 +76,8 @@ typedef struct tt_poller_ntv_s
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern tt_result_t tt_poller_create_ntv(IN tt_poller_ntv_t *sys_poller);
+extern void tt_fs_ev_init(IN tt_io_ev_t *io_ev, IN tt_u32_t fs_ev);
 
-extern void tt_poller_destroy_ntv(IN tt_poller_ntv_t *sys_poller);
+extern void tt_fs_ev_handler(IN tt_io_ev_t *io_ev);
 
-extern tt_result_t tt_poller_run_ntv(IN tt_poller_ntv_t *sys_poller,
-                                     IN tt_s64_t wait_ms,
-                                     OUT tt_poller_ev_t *ev,
-                                     OUT void **data);
-
-#endif // __TT_POLLER_NATIVE__
+#endif // __TT_FILE_SYSTEM_EVENT__

@@ -42,6 +42,7 @@ this thread defines APIs wrapped system thread functions
 
 struct tt_evpoller_s;
 struct tt_fiber_sched_s;
+struct tt_task_s;
 
 /**
  @typedef tt_result_t (*tt_thread_routine_t)(IN void *param)
@@ -85,6 +86,7 @@ typedef struct tt_thread_s
     tt_rng_t *rng;
 
     struct tt_fiber_sched_s *fiber_sched;
+    struct tt_task_s *task;
 
     /** system thread handle */
     tt_thread_ntv_t sys_thread;

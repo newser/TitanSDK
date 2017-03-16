@@ -15,21 +15,21 @@
  */
 
 /**
-@file tt_poller.h
-@brief io poller
+@file tt_io_worker_group.h
+@brief io worker group
 */
 
-#ifndef __TT_POLLER__
-#define __TT_POLLER__
+#ifndef __TT_IO_WORKER_GROUP__
+#define __TT_IO_WORKER_GROUP__
 
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <os/tt_poller_def.h>
-#include <tt_basic_type.h>
-
-#include <tt_poller_native.h>
+#include <algorithm/tt_double_linked_list.h>
+#include <io/tt_io_worker.h>
+#include <os/tt_semaphore.h>
+#include <os/tt_spinlock.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
@@ -39,31 +39,46 @@
 // type definition
 ////////////////////////////////////////////////////////////
 
-typedef struct tt_poller_attr_s
-{
-    tt_u32_t reserved;
-} tt_poller_attr_t;
+struct tt_io_ev_s;
 
-typedef struct tt_poller_s
+typedef struct tt_iowg_attr_s
 {
-    tt_poller_ntv_t sys_poller;
-} tt_poller_t;
+    tt_io_worker_attr_t worker_attr;
+    tt_sem_attr_t sem_attr;
+    tt_spinlock_attr_t lock_attr;
+} tt_iowg_attr_t;
+
+typedef struct tt_iowg_s
+{
+    tt_dlist_t ev_list;
+    tt_io_worker_t *worker;
+    tt_sem_t sem;
+    tt_spinlock_t lock;
+    tt_u32_t worker_num;
+} tt_iowg_t;
 
 ////////////////////////////////////////////////////////////
 // global variants
 ////////////////////////////////////////////////////////////
 
+extern tt_iowg_t tt_g_iowg;
+
 ////////////////////////////////////////////////////////////
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern tt_result_t tt_poller_create(IN tt_poller_t *poller,
-                                    IN OPT tt_poller_attr_t *attr);
+extern void tt_iowg_component_register();
 
-extern void tt_poller_destroy(IN tt_poller_t *poller);
+extern tt_result_t tt_iowg_create(IN tt_iowg_t *iowg,
+                                  IN OPT tt_u32_t worker_num,
+                                  IN OPT tt_iowg_attr_t *attr);
 
-extern void tt_poller_attr_default(IN tt_poller_attr_t *attr);
+extern void tt_iowg_destroy(IN tt_iowg_t *iowg);
 
-extern tt_result_t tt_poller_run(IN tt_poller_t *poller);
+extern void tt_iowg_attr_default(IN tt_iowg_attr_t *attr);
 
-#endif // __TT_POLLER__
+extern struct tt_io_ev_s *tt_iowg_pop_ev(IN tt_iowg_t *iowg);
+
+extern void tt_iowg_push_ev(IN tt_iowg_t *iowg, IN struct tt_io_ev_s *ev);
+
+#endif // __TT_IO_WORKER_GROUP__

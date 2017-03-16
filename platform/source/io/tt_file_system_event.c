@@ -18,12 +18,11 @@
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <io/tt_file_system.h>
+#include <io/tt_file_system_event.h>
 
-#include <init/tt_component.h>
-#include <init/tt_profile.h>
-#include <io/tt_io_worker_group.h>
-#include <misc/tt_assert.h>
+#include <os/tt_fiber.h>
+
+#include <tt_file_system_native.h>
 
 ////////////////////////////////////////////////////////////
 // internal macro
@@ -33,6 +32,8 @@
 // internal type
 ////////////////////////////////////////////////////////////
 
+typedef void (*__fs_handler_t)(IN tt_io_ev_t *io_ev);
+
 ////////////////////////////////////////////////////////////
 // extern declaration
 ////////////////////////////////////////////////////////////
@@ -41,61 +42,43 @@
 // global variant
 ////////////////////////////////////////////////////////////
 
+static void __do_fopen(IN tt_io_ev_t *io_ev);
+
+static __fs_handler_t __fs_handler[TT_FS_NUM] = {
+    __do_fopen,
+};
+
 ////////////////////////////////////////////////////////////
 // interface declaration
 ////////////////////////////////////////////////////////////
-
-static tt_result_t __fs_component_init(IN tt_component_t *comp,
-                                       IN tt_profile_t *profile);
 
 ////////////////////////////////////////////////////////////
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-void tt_fs_component_register()
+void tt_fs_ev_init(IN tt_io_ev_t *io_ev, IN tt_u32_t fs)
 {
-    static tt_component_t comp;
-
-    tt_component_itf_t itf = {
-        __fs_component_init,
-    };
-
-    // init component
-    tt_component_init(&comp,
-                      TT_COMPONENT_FILE_SYSTEM,
-                      "File System",
-                      NULL,
-                      &itf);
-
-    // register component
-    tt_component_register(&comp);
+    io_ev->src = tt_current_fiber();
+    tt_dnode_init(&io_ev->node);
+    io_ev->io = TT_IO_FS;
+    io_ev->ev = fs;
 }
 
-void tt_file_attr_default(IN tt_file_attr_t *attr)
+void tt_fs_ev_handler(IN tt_io_ev_t *io_ev)
 {
-    TT_ASSERT(attr != NULL);
-}
+    __fs_handler[io_ev->io](io_ev);
 
-tt_result_t tt_fcreate(IN const tt_char_t *path, IN OPT tt_file_attr_t *attr)
-{
-    tt_file_attr_t __attr;
-
-    TT_ASSERT(path != NULL);
-
-    if (attr == NULL) {
-        tt_file_attr_default(&__attr);
-        attr = &__attr;
+    if (io_ev->src != NULL) {
+        tt_fiber_activate(io_ev->src);
     }
-
-    return tt_fcreate_ntv(path, attr);
 }
 
-tt_result_t __fs_component_init(IN tt_component_t *comp,
-                                IN tt_profile_t *profile)
+void __do_fopen(IN tt_io_ev_t *io_ev)
 {
-    if (!TT_OK(tt_fs_component_init_ntv())) {
-        return TT_FAIL;
-    }
+    tt_fs_fopen_t *fopen = (tt_fs_fopen_t *)io_ev;
 
-    return TT_SUCCESS;
+    /*
+    fopen->result =
+        tt_fopen_ntv(fopen->file, fopen->path, fopen->attr);
+     */
 }

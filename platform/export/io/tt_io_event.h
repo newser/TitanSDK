@@ -15,16 +15,18 @@
  */
 
 /**
-@file tt_poller_def.h
-@brief io poller definitions
+@file tt_io_event.h
+@brief io event
 */
 
-#ifndef __TT_POLLER_DEF__
-#define __TT_POLLER_DEF__
+#ifndef __TT_IO_EVENT__
+#define __TT_IO_EVENT__
 
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
+
+#include <algorithm/tt_double_linked_list.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
@@ -34,13 +36,28 @@
 // type definition
 ////////////////////////////////////////////////////////////
 
-typedef enum {
-    TT_POLLER_EV_TIMER,
-    TT_POLLER_EV_FILE,
+struct tt_fiber_s;
 
-    TT_POLLER_EV_NUM
-} tt_poller_ev_t;
-#define TT_POLLER_EV_VALID(e) ((ev) < TT_POLLER_EV_NUM)
+enum
+{
+    TT_IO_WORKER,
+    TT_IO_POLLER,
+    TT_IO_FS,
+    TT_IO_TIMER,
+
+    TT_IO_NUM
+};
+#define TT_IO_VALID(e) ((e) < TT_IO_NUM)
+
+typedef struct tt_io_ev_s
+{
+    struct tt_fiber_s *src;
+    tt_dnode_t node;
+    tt_u32_t io;
+    tt_u32_t ev;
+} tt_io_ev_t;
+
+typedef void (*tt_io_handler_t)(IN tt_io_ev_t *ev);
 
 ////////////////////////////////////////////////////////////
 // global variants
@@ -50,4 +67,4 @@ typedef enum {
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-#endif // __TT_POLLER_DEF__
+#endif // __TT_IO_EVENT__

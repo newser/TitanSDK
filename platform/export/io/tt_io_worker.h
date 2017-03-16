@@ -14,62 +14,63 @@
  * limitations under the License.
  */
 
+/**
+@file tt_io_worker.h
+@brief io worker
+*/
+
+#ifndef __TT_IO_WORKER__
+#define __TT_IO_WORKER__
+
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <tt_poller_native.h>
-
-#include <tt_sys_error.h>
-#include <tt_util_native.h>
-
-#include <sys/event.h>
-#include <sys/time.h>
-#include <sys/types.h>
+#include <os/tt_thread.h>
 
 ////////////////////////////////////////////////////////////
-// internal macro
+// macro definition
 ////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////
-// internal type
+// type definition
 ////////////////////////////////////////////////////////////
 
-////////////////////////////////////////////////////////////
-// extern declaration
-////////////////////////////////////////////////////////////
+struct tt_iowg_s;
+
+typedef struct tt_io_worker_attr_s
+{
+    tt_thread_attr_t thread_attr;
+} tt_io_worker_attr_t;
+
+typedef struct tt_io_worker_s
+{
+    struct tt_iowg_s *wg;
+    tt_thread_t *thread;
+} tt_io_worker_t;
+
+enum
+{
+    TT_IO_WORKER_EXIT,
+
+    TT_IO_WORKER_EV_NUM
+};
+#define TT_IO_WORKER_EV_VALID(e) ((e) < TT_IO_WORKER_EV_NUM)
 
 ////////////////////////////////////////////////////////////
-// global variant
+// global variants
 ////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-////////////////////////////////////////////////////////////
-// interface implementation
-////////////////////////////////////////////////////////////
+extern tt_result_t tt_io_worker_create(IN tt_io_worker_t *worker,
+                                       IN struct tt_iowg_s *wg,
+                                       IN OPT tt_io_worker_attr_t *attr);
 
-tt_result_t tt_poller_create_ntv(IN tt_poller_ntv_t *sys_poller)
-{
-    sys_poller->kq_fd = kqueue();
-    if (sys_poller->kq_fd < 0) {
-        TT_ERROR_NTV("fail to create kqueue fd");
-        return TT_FAIL;
-    }
+extern void tt_io_worker_destroy(IN tt_io_worker_t *worker);
 
-    return TT_SUCCESS;
-}
+extern void tt_io_worker_attr_default(IN tt_io_worker_attr_t *attr);
 
-void tt_poller_destroy_ntv(IN tt_poller_ntv_t *sys_poller)
-{
-    __RETRY_IF_EINTR(close(sys_poller->kq_fd) != 0);
-}
-
-tt_result_t tt_poller_run_ntv(IN tt_poller_ntv_t *sys_poller,
-                              IN tt_s64_t wait_ms,
-                              OUT tt_poller_ev_t *ev,
-                              OUT void **data)
-{
-}
+#endif // __TT_IO_WORKER__

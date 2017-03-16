@@ -18,12 +18,10 @@
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <io/tt_file_system.h>
+#include <io/tt_io_poller.h>
 
-#include <init/tt_component.h>
-#include <init/tt_profile.h>
-#include <io/tt_io_worker_group.h>
 #include <misc/tt_assert.h>
+#include <os/tt_fiber.h>
 
 ////////////////////////////////////////////////////////////
 // internal macro
@@ -45,57 +43,34 @@
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-static tt_result_t __fs_component_init(IN tt_component_t *comp,
-                                       IN tt_profile_t *profile);
-
 ////////////////////////////////////////////////////////////
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-void tt_fs_component_register()
+tt_result_t tt_io_poller_create(IN tt_io_poller_t *iop,
+                                IN OPT tt_io_poller_attr_t *attr)
 {
-    static tt_component_t comp;
+    TT_ASSERT(iop != NULL);
 
-    tt_component_itf_t itf = {
-        __fs_component_init,
-    };
-
-    // init component
-    tt_component_init(&comp,
-                      TT_COMPONENT_FILE_SYSTEM,
-                      "File System",
-                      NULL,
-                      &itf);
-
-    // register component
-    tt_component_register(&comp);
+    return tt_io_poller_create_ntv(&iop->sys_iop);
 }
 
-void tt_file_attr_default(IN tt_file_attr_t *attr)
+void tt_io_poller_destroy(IN tt_io_poller_t *iop)
+{
+    TT_ASSERT(iop != NULL);
+
+    tt_io_poller_destroy_ntv(&iop->sys_iop);
+}
+
+void tt_io_poller_attr_default(IN tt_io_poller_attr_t *attr)
 {
     TT_ASSERT(attr != NULL);
+
+    attr->reserved = 0;
 }
 
-tt_result_t tt_fcreate(IN const tt_char_t *path, IN OPT tt_file_attr_t *attr)
+void tt_io_poller_run(IN tt_io_poller_t *iop)
 {
-    tt_file_attr_t __attr;
-
-    TT_ASSERT(path != NULL);
-
-    if (attr == NULL) {
-        tt_file_attr_default(&__attr);
-        attr = &__attr;
-    }
-
-    return tt_fcreate_ntv(path, attr);
-}
-
-tt_result_t __fs_component_init(IN tt_component_t *comp,
-                                IN tt_profile_t *profile)
-{
-    if (!TT_OK(tt_fs_component_init_ntv())) {
-        return TT_FAIL;
-    }
-
-    return TT_SUCCESS;
+    do {
+    } while (tt_io_poller_run_ntv(&iop->sys_iop, TT_TIME_INFINITE));
 }

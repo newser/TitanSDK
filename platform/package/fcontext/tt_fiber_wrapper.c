@@ -87,6 +87,17 @@ void tt_fiber_switch_wrap(IN tt_fiber_sched_t *fs,
 {
     tt_fiber_wrap_t *wrap_to = &to->wrap_fb;
     tt_transfer_t t;
+    tt_fiber_t *prev;
+
+    // from: current fiber
+    // to: the fiber to be switched to
+    // prev: the previous fiber when tt_jump_fcontext() returns
+
+    // an example is: f1 -> f2 -> f3 -> f1, when f1 returns
+    // from tt_jump_fcontext():
+    //  from: f1, as f1 ever switched to f2
+    //  to: f2, as f1 ever switched to f2
+    //  prev: f3, as f1 returns from f3
 
     if (wrap_to->fctx == NULL) {
         wrap_to->fctx = tt_make_fcontext(wrap_to->stack,
@@ -96,27 +107,41 @@ void tt_fiber_switch_wrap(IN tt_fiber_sched_t *fs,
 
     wrap_to->from = from;
     t = tt_jump_fcontext(wrap_to->fctx, to);
-    if (t.data != NULL) {
-        // note from->wrap_fb.from is actually the last fiber but
-        // not wrap_to
-        from->wrap_fb.from->wrap_fb.fctx = t.fctx;
+
+    prev = from->wrap_fb.from;
+    if (prev->end) {
+        tt_list_remove(&prev->node);
+        tt_fiber_destroy(prev);
     } else {
-        tt_list_remove(&to->node);
-        tt_fiber_destroy(to);
+        prev->wrap_fb.fctx = t.fctx;
     }
 }
 
 void __fiber_routine_wrapper(IN tt_transfer_t t)
 {
     tt_fiber_t *cfb = t.data;
+    tt_fiber_sched_t *cfs = cfb->fs;
+    tt_fiber_wrap_t *wrap_main = &cfb->fs->__main->wrap_fb;
 
     // must save from's context
     cfb->wrap_fb.from->wrap_fb.fctx = t.fctx;
 
     cfb->routine(cfb->param);
 
-    // note return NULL indicating the fiber is terminated
-    tt_jump_fcontext(t.fctx, NULL);
+    // must not use t.fctx, see a case:
+    //  f1 -> f2
+    //  f2 -> f3 ; now f2's t.fctx is stored in f1
+    //  f3 -> f1
+    //  f1 -> main ; f1 termiantes
+    //  main -> f2
+    //  f2 -> ? ; f2 terminates now, but t.fctx is invalid
+    //
+    // the simplest solution is jumping to main fiber as it's
+    // always valid
+
+    cfb->end = TT_TRUE;
+    wrap_main->from = cfb;
+    tt_jump_fcontext(wrap_main->fctx, cfs->__main);
 }
 
 tt_result_t __create_stack(IN tt_fiber_wrap_t *wrap_fb, IN tt_u32_t stack_size)

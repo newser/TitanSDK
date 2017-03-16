@@ -23,7 +23,6 @@
 #include <event/tt_event_center.h>
 #include <init/tt_component.h>
 #include <init/tt_profile.h>
-#include <io/tt_file_system_aio.h>
 #include <io/tt_ipc_aio.h>
 #include <io/tt_socket_aio.h>
 #include <log/tt_log.h>
@@ -299,12 +298,14 @@ tt_result_t __evp_tev_dispatch(IN tt_evpoller_t *evp, IN tt_ev_t *ev)
 tt_result_t __evp_internal_tev_handler(IN tt_evpoller_t *evp, IN tt_ev_t *ev)
 {
     switch (TT_EV_RANGE(ev->ev_id)) {
-        case TT_EV_RANGE_INTERNAL_FILE: {
-            return tt_file_tev_handler(evp, ev);
-        } break;
-        case TT_EV_RANGE_INTERNAL_DIR: {
-            return tt_dir_tev_handler(evp, ev);
-        } break;
+        /*
+    case TT_EV_RANGE_INTERNAL_FILE: {
+        return tt_file_tev_handler(evp, ev);
+    } break;
+    case TT_EV_RANGE_INTERNAL_DIR: {
+        return tt_dir_tev_handler(evp, ev);
+    } break;
+         */
         case TT_EV_RANGE_INTERNAL_SOCKET:
         case TT_EV_RANGE_INTERNAL_SSL: {
             return tt_skt_tev_handler(evp, ev);

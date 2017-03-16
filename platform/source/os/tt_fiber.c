@@ -161,6 +161,7 @@ tt_fiber_t *tt_fiber_create(IN tt_fiber_routine_t routine,
     }
 
     fb->can_yield = TT_TRUE;
+    fb->end = TT_FALSE;
 
     // put to pending list, as it will be scheduled by
     // tt_fiber_switch()
@@ -207,6 +208,7 @@ void tt_fiber_yield()
     if (next != cfb) {
         cfs->current = next;
         tt_fiber_switch_wrap(cfs, cfb, next);
+        cfs->current = cfb;
     }
 }
 
@@ -232,6 +234,7 @@ void tt_fiber_resume(IN tt_fiber_t *fb)
 
         cfs->current = fb;
         tt_fiber_switch_wrap(cfs, cfb, fb);
+        cfs->current = cfb;
     }
 }
 
@@ -267,6 +270,7 @@ tt_fiber_t *__fiber_create_main(IN tt_fiber_sched_t *fs)
     fb->fs = fs;
     tt_memset(&fb->wrap_fb, 0, sizeof(tt_fiber_wrap_t));
     fb->can_yield = TT_TRUE;
+    fb->end = TT_FALSE;
 
     return fb;
 }

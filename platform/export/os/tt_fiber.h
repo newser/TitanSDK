@@ -74,6 +74,7 @@ typedef struct tt_fiber_s
     tt_fiber_sched_t *fs;
     tt_fiber_wrap_t wrap_fb;
     tt_bool_t can_yield : 1;
+    tt_bool_t end : 1;
 } tt_fiber_t;
 
 typedef struct tt_fiber_attr_s

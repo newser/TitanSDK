@@ -116,8 +116,6 @@ extern "C" {
 #include <io/tt_console.h>
 #include <io/tt_console_event.h>
 #include <io/tt_file_system.h>
-#include <io/tt_file_system_aio.h>
-#include <io/tt_file_system_aio_cb.h>
 #include <io/tt_ipc_aio.h>
 #include <io/tt_ipc_aio_cb.h>
 #include <io/tt_network_io_def.h>
@@ -242,6 +240,7 @@ extern "C" {
 #include <os/tt_rwlock.h>
 #include <os/tt_semaphore.h>
 #include <os/tt_spinlock.h>
+#include <os/tt_task.h>
 #include <timer/tt_time_reference.h>
 #include <timer/tt_time_util.h>
 #include <timer/tt_timer.h>
