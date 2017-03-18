@@ -41,6 +41,7 @@
 ////////////////////////////////////////////////////////////
 
 struct tt_fiber_s;
+struct tt_thread_s;
 
 typedef tt_result_t (*tt_fiber_routine_t)(IN void *param);
 
@@ -54,6 +55,7 @@ typedef struct tt_fiber_sched_s
     tt_list_t pending;
     struct tt_fiber_s *__main;
     struct tt_fiber_s *current;
+    struct tt_thread_s *thread;
     tt_spinlock_t lock;
 } tt_fiber_sched_t;
 

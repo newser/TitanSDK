@@ -90,6 +90,88 @@ tt_result_t tt_fcreate(IN const tt_char_t *path, IN OPT tt_file_attr_t *attr)
     return tt_fcreate_ntv(path, attr);
 }
 
+tt_result_t tt_fremove(IN const tt_char_t *path)
+{
+    TT_ASSERT(path != NULL);
+
+    return tt_fremove_ntv(path);
+}
+
+tt_result_t tt_fopen(IN tt_file_t *file,
+                     IN const tt_char_t *path,
+                     IN tt_u32_t flag,
+                     IN OPT tt_file_attr_t *attr)
+{
+    tt_file_attr_t __attr;
+
+    TT_ASSERT(file != NULL);
+    TT_ASSERT(path != NULL);
+
+    if (attr == NULL) {
+        tt_file_attr_default(&__attr);
+        attr = &__attr;
+    }
+
+    return tt_fopen_ntv(&file->sys_file, path, flag, attr);
+}
+
+void tt_fclose(IN tt_file_t *file)
+{
+    TT_ASSERT(file != NULL);
+
+    tt_fclose_ntv(&file->sys_file);
+}
+
+void tt_dir_attr_default(IN tt_dir_attr_t *attr)
+{
+    TT_ASSERT(attr != NULL);
+}
+
+tt_result_t tt_dcreate(IN const tt_char_t *path, IN tt_dir_attr_t *attr)
+{
+    tt_dir_attr_t __attr;
+
+    TT_ASSERT(path != NULL);
+
+    if (attr == NULL) {
+        tt_dir_attr_default(&__attr);
+        attr = &__attr;
+    }
+
+    return tt_dcreate_ntv(path, attr);
+}
+
+tt_result_t tt_dremove(IN const tt_char_t *path)
+{
+    TT_ASSERT(path != NULL);
+
+    return tt_dremove_ntv(path);
+}
+
+tt_result_t tt_dopen(IN tt_dir_t *dir,
+                     IN const tt_char_t *path,
+                     IN tt_dir_attr_t *attr)
+{
+    tt_dir_attr_t __attr;
+
+    TT_ASSERT(dir != NULL);
+    TT_ASSERT(path != NULL);
+
+    if (attr == NULL) {
+        tt_dir_attr_default(&__attr);
+        attr = &__attr;
+    }
+
+    return tt_dopen_ntv(&dir->sys_dir, path, attr);
+}
+
+void tt_dclose(IN tt_dir_t *dir)
+{
+    TT_ASSERT(dir != NULL);
+
+    tt_dclose_ntv(&dir->sys_dir);
+}
+
 tt_result_t __fs_component_init(IN tt_component_t *comp,
                                 IN tt_profile_t *profile)
 {

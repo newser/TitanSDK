@@ -179,7 +179,8 @@ tt_result_t __task_routine(IN void *param)
     tt_task_t *t = (tt_task_t *)param;
     tt_snode_t *node;
 
-    tt_current_thread()->task = t;
+    TT_ASSERT(t->thread->task == NULL);
+    t->thread->task = t;
 
     node = tt_slist_head(&t->tfl);
     TT_ASSERT(node != NULL);

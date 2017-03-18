@@ -31,13 +31,18 @@
 
 // === routine declarations ================
 TT_TEST_ROUTINE_DECLARE(tt_unit_test_fs_basic)
+TT_TEST_ROUTINE_DECLARE(tt_unit_test_fs_open)
+TT_TEST_ROUTINE_DECLARE(tt_unit_test_fs_rw)
+
+TT_TEST_ROUTINE_DECLARE(tt_unit_test_dir_basic)
+
 // =========================================
 
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(fs_case)
 
 #ifndef __SIMULATE_FS_AIO_FAIL
-#if 1
+
 TT_TEST_CASE("tt_unit_test_fs_basic",
              "testing fs basic",
              tt_unit_test_fs_basic,
@@ -47,7 +52,33 @@ TT_TEST_CASE("tt_unit_test_fs_basic",
              NULL,
              NULL)
 ,
-#endif
+
+    TT_TEST_CASE("tt_unit_test_fs_open",
+                 "testing fs open close",
+                 tt_unit_test_fs_open,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL),
+
+    TT_TEST_CASE("tt_unit_test_fs_rw",
+                 "testing fs read write",
+                 tt_unit_test_fs_rw,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL),
+
+    TT_TEST_CASE("tt_unit_test_dir_basic",
+                 "testing dir basic",
+                 tt_unit_test_dir_basic,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL),
 
 #endif
 
@@ -62,7 +93,7 @@ TT_TEST_CASE("tt_unit_test_fs_basic",
 
 
 /*
-TT_TEST_ROUTINE_DEFINE(name)
+TT_TEST_ROUTINE_DEFINE(tt_unit_test_fs_open)
 {
     //tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
 
@@ -85,12 +116,11 @@ TT_TEST_ROUTINE_DEFINE(name)
         TT_TEST_ROUTINE_DEFINE(tt_unit_test_fs_basic)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
-    tt_file_t tf, tf2;
+    tt_file_t tf;
     tt_result_t ret;
 
     TT_TEST_CASE_ENTER()
-    // test start
-    // setlocale(LC_ALL, "chs");
+
     tt_fremove(__SC_TEST_FILE);
 
     // create
@@ -100,6 +130,304 @@ TT_TEST_ROUTINE_DEFINE(name)
     // remove
     ret = tt_fremove(__SC_TEST_FILE);
     TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+
+    // test end
+    TT_TEST_CASE_LEAVE()
+}
+
+TT_TEST_ROUTINE_DEFINE(tt_unit_test_fs_open)
+{
+    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+    tt_file_t tf, tf2;
+    tt_result_t ret;
+    tt_u32_t n;
+
+    TT_TEST_CASE_ENTER()
+    // test start
+
+    tt_fremove(__SC_TEST_FILE);
+
+    // fail as it does not exist
+    ret = tt_fopen(&tf, __SC_TEST_FILE, 0, NULL);
+    TT_TEST_CHECK_EQUAL(ret, TT_FAIL, "");
+
+    // open file
+    ret = tt_fopen(&tf,
+                   __SC_TEST_FILE,
+                   TT_FO_CREAT | TT_FO_READ | TT_FO_WRITE,
+                   NULL);
+    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+
+    {
+        tt_u8_t buf1[100] = "test1";
+        tt_u8_t buf2[100] = {0};
+        tt_u64_t d;
+
+        ret =
+            tt_fwrite(&tf, buf1, (tt_u32_t)strlen((const char *)buf1) + 1, &n);
+        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_TEST_CHECK_EQUAL(n, (strlen((const char *)buf1) + 1), "");
+
+        ret = tt_fwrite(&tf, buf1, 0, &n);
+        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_TEST_CHECK_EQUAL(n, 0, "");
+
+        tt_fseek(&tf, TT_FSEEK_BEGIN, 0, NULL);
+        ret = tt_fread(&tf, buf2, 90, &n);
+        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_TEST_CHECK_EQUAL(n, strlen((const char *)buf1) + 1, "");
+
+        ret = tt_fread(&tf, buf2, 0, &n);
+        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_TEST_CHECK_EQUAL(n, 0, "");
+
+        ret = tt_fread(&tf, buf2, 90, &n);
+        TT_TEST_CHECK_EQUAL(ret, TT_END, "");
+
+        // write append
+        ret = tt_fopen(&tf2, __SC_TEST_FILE, TT_FO_READ | TT_FO_APPEND, NULL);
+        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+
+        // ret = tt_fread(&tf2, buf2, 90, &n);
+        // TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        // TT_TEST_CHECK_EQUAL(n, strlen(buf1)+1, "");
+        tt_fseek(&tf2, TT_FSEEK_CUR, 0, &d);
+
+        ret =
+            tt_fwrite(&tf2, buf1, (tt_u32_t)strlen((const char *)buf1) + 1, &n);
+        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_TEST_CHECK_EQUAL(n, strlen((const char *)buf1) + 1, "");
+
+        ret = tt_fwrite(&tf2, buf1, 0, &n);
+        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_TEST_CHECK_EQUAL(n, 0, "");
+
+        // even fseek begin, write still append data, so fpos should be
+        // after 2 strings
+        ret = tt_fseek(&tf2, TT_FSEEK_CUR, 0, &d);
+        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_TEST_CHECK_EQUAL(d, 2 * (strlen((const char *)buf1) + 1), "");
+
+        d = ~0;
+        ret = tt_fseek(&tf2,
+                       TT_FSEEK_CUR,
+                       -2 * (strlen((const char *)buf1) + 1),
+                       &d);
+        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_TEST_CHECK_EQUAL(d, 0, "");
+
+        ret = tt_fread(&tf2, buf2, 90, &n);
+        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_TEST_CHECK_EQUAL(n, 2 * (strlen((const char *)buf1) + 1), "");
+
+        ret = tt_fread(&tf2, buf2, 0, &n);
+        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_TEST_CHECK_EQUAL(n, 0, "");
+
+        ret = tt_fread(&tf2, buf2, 90, &n);
+        TT_TEST_CHECK_EQUAL(ret, TT_END, "");
+        TT_TEST_CHECK_EQUAL(n, 0, "");
+
+        tt_fclose(&tf2);
+    }
+    {
+        tt_u8_t buf2[100] = {0};
+
+        ret = tt_fopen(&tf2, __SC_TEST_FILE, TT_FO_CREAT | TT_FO_TRUNC, NULL);
+        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+
+        // truncated
+        ret = tt_fread(&tf, buf2, 90, &n);
+        TT_TEST_CHECK_EQUAL(ret, TT_END, "");
+
+        tt_fclose(&tf2);
+    }
+
+    tt_fclose(&tf);
+
+    // create file exclusively, fail as file exist
+    ret = tt_fopen(&tf2, __SC_TEST_FILE, TT_FO_CREAT | TT_FO_EXCL, NULL);
+    TT_TEST_CHECK_EQUAL(ret, TT_FAIL, "");
+
+    // create and truncate
+    ret = tt_fopen(&tf2, __SC_TEST_FILE, TT_FO_CREAT | TT_FO_TRUNC, NULL);
+    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+
+    // remove
+    ret = tt_fremove(__SC_TEST_FILE);
+    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    // now tf and tf2 could still be used
+
+    // close to delete
+    tt_fclose(&tf);
+
+    // close to delete
+    tt_fclose(&tf2);
+
+    // test end
+    TT_TEST_CASE_LEAVE()
+}
+
+TT_TEST_ROUTINE_DEFINE(tt_unit_test_fs_rw)
+{
+    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+    tt_file_t tf, tf2;
+    tt_result_t ret;
+
+    TT_TEST_CASE_ENTER()
+    // test start
+    // setlocale(LC_ALL, "chs");
+    tt_fremove(__SC_TEST_FILE);
+
+    // create
+    ret = tt_fopen(&tf,
+                   __SC_TEST_FILE,
+                   TT_FO_CREAT | TT_FO_EXCL | TT_FO_RDWR,
+                   NULL);
+    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+
+    // remove
+    ret = tt_fremove(__SC_TEST_FILE);
+    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+
+    // could write and read before close
+    {
+        tt_u8_t buf[100] = {0};
+        tt_u8_t rbuf[100] = {0};
+        tt_u32_t n = 0;
+        tt_result_t ret;
+
+        tt_strncpy((tt_char_t *)buf, "12345", (tt_u32_t)sizeof("12345"));
+
+        while (n < sizeof(buf)) {
+            tt_u32_t wn = 0;
+            ret = tt_fwrite(&tf, buf + n, sizeof(buf) - n, &wn);
+            TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+            n += wn;
+        }
+        TT_TEST_CHECK_EXP(n == sizeof(buf), "");
+
+        ret = tt_fseek(&tf, TT_FSEEK_BEGIN, 0, NULL);
+        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+
+        n = 0;
+        while (n < sizeof(rbuf)) {
+            tt_u32_t rn = 0;
+            ret = tt_fread(&tf, rbuf + n, sizeof(rbuf) - n, &rn);
+            TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+            n += rn;
+        }
+        TT_TEST_CHECK_EXP(n == sizeof(rbuf), "");
+
+        TT_TEST_CHECK_EQUAL(tt_strncmp((const char *)buf,
+                                       (const char *)rbuf,
+                                       sizeof(buf)),
+                            0,
+                            "");
+    }
+
+    // open should fail
+    ret = tt_fopen(&tf2, __SC_TEST_FILE, TT_FO_READ, NULL);
+    TT_TEST_CHECK_EQUAL(ret, TT_FAIL, "");
+
+    // close to delete
+    tt_fclose(&tf);
+
+    // test end
+    TT_TEST_CASE_LEAVE()
+}
+
+TT_TEST_ROUTINE_DEFINE(tt_unit_test_dir_basic)
+{
+    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+    tt_dir_t dir, dir2;
+    tt_result_t ret = TT_FAIL;
+
+    tt_dirent_t de;
+
+    TT_TEST_CASE_ENTER()
+// test start
+
+#if TT_ENV_OS_IS_IOS
+#define __TEST_DIR "../tmp/test_dir"
+#else
+//#define __TEST_DIR "./≤‚ ‘ƒø¬º")
+#define __TEST_DIR "./test_dir"
+#endif
+
+    tt_dremove(__TEST_DIR);
+
+    ret = tt_dcreate(__TEST_DIR, NULL);
+    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    ret = tt_dopen(&dir, __TEST_DIR, NULL);
+    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+
+    ret = tt_dread(&dir, &de);
+    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_TEST_CHECK_EQUAL(de.name[0], '.', "");
+    if (de.name[1] != '\0') {
+        TT_TEST_CHECK_EQUAL(de.name[1], '.', "");
+        TT_TEST_CHECK_EQUAL(de.name[2], '\0', "");
+    }
+
+    ret = tt_dread(&dir, &de);
+    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_TEST_CHECK_EQUAL(de.name[0], '.', "");
+    if (de.name[1] != '\0') {
+        TT_TEST_CHECK_EQUAL(de.name[1], '.', "");
+        TT_TEST_CHECK_EQUAL(de.name[2], '\0', "");
+    }
+
+    ret = tt_dopen(&dir2, __TEST_DIR, NULL);
+    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+
+    ret = tt_dread(&dir2, &de);
+    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_TEST_CHECK_EQUAL(de.name[0], '.', "");
+    if (de.name[1] != '\0') {
+        TT_TEST_CHECK_EQUAL(de.name[1], '.', "");
+        TT_TEST_CHECK_EQUAL(de.name[2], '\0', "");
+    }
+
+    // nothing else except . and ..
+    ret = tt_dread(&dir, &de);
+    TT_TEST_CHECK_EQUAL(ret, TT_END, "");
+
+    // could continue read
+    ret = tt_dread(&dir2, &de);
+    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_TEST_CHECK_EQUAL(de.name[0], '.', "");
+    if (de.name[1] != '\0') {
+        TT_TEST_CHECK_EQUAL(de.name[1], '.', "");
+        TT_TEST_CHECK_EQUAL(de.name[2], '\0', "");
+    }
+
+    ret = tt_dread(&dir2, &de);
+    TT_TEST_CHECK_EQUAL(ret, TT_END, "");
+
+    ret = tt_dremove(__TEST_DIR);
+    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+
+    tt_dclose(&dir);
+
+    ret = tt_dopen(&dir, __TEST_DIR, NULL);
+    TT_TEST_CHECK_EQUAL(ret, TT_FAIL, "");
+
+    tt_dclose(&dir2);
+
+    // remove subdirs
+    ret = tt_dcreate(__TEST_DIR, NULL);
+    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    ret = tt_dcreate(__TEST_DIR "/s1", NULL);
+    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    ret = tt_dcreate(__TEST_DIR "/s1/s2", NULL);
+    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+
+    ret = tt_dremove(__TEST_DIR);
+    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+
+    ret = tt_dopen(&dir, __TEST_DIR, NULL);
+    TT_TEST_CHECK_EQUAL(ret, TT_FAIL, "");
 
     // test end
     TT_TEST_CASE_LEAVE()

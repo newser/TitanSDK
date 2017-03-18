@@ -38,6 +38,15 @@ this file defines file system APIs
 // type definition
 ////////////////////////////////////////////////////////////
 
+typedef enum {
+    TT_FS_TYPE_UNKNOWN,
+    TT_FS_TYPE_FILE,
+    TT_FS_TYPE_DIR,
+
+    TT_FS_TYPE_NUM
+} tt_fs_type_t;
+#define TT_FS_TYPE_VALID(t) ((t) < TT_FS_TYPE_NUM)
+
 typedef struct tt_file_attr_s
 {
     tt_u32_t reserved;
@@ -47,6 +56,22 @@ typedef struct tt_fs_file_s
 {
     tt_file_ntv_t sys_file;
 } tt_file_t;
+
+typedef struct tt_dir_attr_s
+{
+    tt_u32_t reserved;
+} tt_dir_attr_t;
+
+typedef struct
+{
+    tt_dir_ntv_t sys_dir;
+} tt_dir_t;
+
+typedef struct tt_dirent_s
+{
+    tt_fs_type_t type;
+    tt_char_t name[TT_MAX_FILE_NAME_LEN + 1];
+} tt_dirent_t;
 
 ////////////////////////////////////////////////////////////
 // global variants
@@ -142,6 +167,7 @@ extern tt_result_t tt_fopen(OUT tt_file_t *file,
                             IN OPT tt_file_attr_t *attr);
 #define TT_FO_READ (1 << 0)
 #define TT_FO_WRITE (1 << 1)
+#define TT_FO_RDWR (TT_FO_READ | TT_FO_WRITE)
 #define TT_FO_APPEND (1 << 3)
 #define TT_FO_CREAT (1 << 4)
 #define TT_FO_EXCL (1 << 5)
@@ -161,7 +187,7 @@ close a file
 - behavior of passing a file opened asynchronously to this function
   is undefined
 */
-extern tt_result_t tt_fclose(IN tt_file_t *file);
+extern void tt_fclose(IN tt_file_t *file);
 
 /**
 @fn tt_result_t tt_fread(IN tt_file_t *file,
@@ -186,10 +212,13 @@ read a file
 - behavior of passing a file opened asynchronously to this function
   is undefined
 */
-extern tt_result_t tt_fread(IN tt_file_t *file,
-                            OUT tt_u8_t *buf,
-                            IN tt_u32_t buf_len,
-                            OUT tt_u32_t *read_len);
+tt_inline tt_result_t tt_fread(IN tt_file_t *file,
+                               OUT tt_u8_t *buf,
+                               IN tt_u32_t buf_len,
+                               OUT tt_u32_t *read_len)
+{
+    return tt_fread_ntv(&file->sys_file, buf, buf_len, read_len);
+}
 
 /**
 @fn tt_result_t tt_fwrite(IN tt_file_t *file,
@@ -212,10 +241,13 @@ write to a file
 - behavior of passing a file opened asynchronously to this function
   is undefined
 */
-extern tt_result_t tt_fwrite(IN tt_file_t *file,
-                             IN tt_u8_t *buf,
-                             IN tt_u32_t buf_len,
-                             OUT tt_u32_t *write_len);
+tt_inline tt_result_t tt_fwrite(IN tt_file_t *file,
+                                IN tt_u8_t *buf,
+                                IN tt_u32_t buf_len,
+                                OUT tt_u32_t *write_len)
+{
+    return tt_fwrite_ntv(&file->sys_file, buf, buf_len, write_len);
+}
 
 /**
 @fn tt_result_t tt_fseek(IN tt_file_t *file,
@@ -237,12 +269,130 @@ move file pointer
 - behavior of passing a file opened asynchronously to this function
   is undefined
 */
-extern tt_result_t tt_fseek(IN tt_file_t *file,
-                            IN tt_u32_t whence,
-                            IN tt_s64_t distance,
-                            OUT tt_u64_t *position);
+tt_inline tt_result_t tt_fseek(IN tt_file_t *file,
+                               IN tt_u32_t whence,
+                               IN tt_s64_t offset,
+                               OUT tt_u64_t *location)
+{
+    return tt_fseek_ntv(&file->sys_file, whence, offset, location);
+}
 #define TT_FSEEK_BEGIN (0)
 #define TT_FSEEK_CUR (1)
 #define TT_FSEEK_END (2)
+
+/**
+ @fn void tt_dir_attr_default(IN tt_dir_attr_t *attr)
+ get default directory attribute
+
+ @param [in] attr directory attribute
+ */
+extern void tt_dir_attr_default(IN tt_dir_attr_t *attr);
+
+/**
+ @fn tt_result_t tt_dcreate(IN const tt_char_t *path,
+ IN tt_dir_attr_t *attr)
+ create a directory
+
+ @param [in] path path of directory to be created
+ @param [in] attr attributes of created directory
+
+ @return
+ - TT_SUCCESS if directory is created
+ - TT_FAIL otherwise
+
+ @note
+ - this function only create unexisted directory, it would fail if specified
+ directory already exist
+ */
+extern tt_result_t tt_dcreate(IN const tt_char_t *path, IN tt_dir_attr_t *attr);
+
+/**
+ @fn tt_result_t tt_dremove(IN const tt_char_t *path,
+ IN tt_u32_t flag)
+ delete a directory
+
+ @param [in] path path of directory to be deleted
+ @param [in] flag flags affecting removing specified directory
+
+ @return
+ - TT_SUCCESS if directory is removed
+ - TT_FAIL otherwise
+
+ @note
+ - this function can only delete directory but not a file
+ - directory that is removed but had opened and not closed is supposed unable
+ to be read
+ - if TT_DRM_RECURSIVE is specified while there are ongoing operations on
+ files or sub directoies, behavior was undefined
+ - behavior when using TT_DRM_RECURSIVE depends on platform, and may greatly
+ impact performance, so do not use this flag frequently
+ */
+extern tt_result_t tt_dremove(IN const tt_char_t *path);
+
+/**
+ @fn tt_result_t tt_dopen(OUT tt_dir_t *dir,
+ IN const tt_char_t *path,
+ IN tt_dir_attr_t *attr)
+ open a directory
+
+ @param [out] dir ts directory struct to be opened
+ @param [in] path path of directory to be opened
+ @param [in] attr attributes of opened directory
+
+ @return
+ - TT_SUCCESS if directory is opened
+ - TT_FAIL otherwise
+
+ @note
+ - this function can only open exsiting directory, it would fail if specified
+ directory does not exist
+ */
+extern tt_result_t tt_dopen(IN tt_dir_t *dir,
+                            IN const tt_char_t *path,
+                            IN tt_dir_attr_t *attr);
+
+/**
+ @fn tt_result_t tt_dclose(OUT tt_dir_t *dir)
+ close an opened directory
+
+ @param [in] dir ts directory struct to be closed
+
+ @return
+ - TT_SUCCESS if directory is closed
+ - TT_FAIL otherwise
+
+ @note
+ - behavior of passing a dir opened asynchronously to this function
+ is undefined
+ */
+extern void tt_dclose(IN tt_dir_t *dir);
+
+/**
+ @fn tt_result_t tt_dread(IN tt_dir_t *dir,
+ IN tt_u32_t flag,
+ OUT tt_dir_entry_t *dentry)
+ read an opened directory
+
+ @param [in] dir ts directory struct to be read
+ @param [in] flag what attributes to be read
+ @param [out] dentry entry of the directory, may be file or a subdirectory
+
+ @return
+ - TT_SUCCESS if directory is read
+ - TT_END if all entried have been returned
+ - TT_FAIL otherwise
+
+ @note
+ - returned dentry by this function is undefined when directory has been
+ removed
+ - returned dentry by this function is undefined when content of directory
+ is changed, such like removing file or renaming sub directories
+ - behavior of passing a dir opened asynchronously to this function
+ is undefined
+ */
+tt_inline tt_result_t tt_dread(IN tt_dir_t *dir, OUT tt_dirent_t *entry)
+{
+    return tt_dread_ntv(&dir->sys_dir, entry);
+}
 
 #endif /* __TT_FILE_SYSTEM_FB__ */

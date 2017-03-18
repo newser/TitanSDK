@@ -43,10 +43,10 @@
 // global variant
 ////////////////////////////////////////////////////////////
 
-static void __worker_io_handler(IN tt_io_ev_t *ev);
+static void __worker_io(IN tt_io_ev_t *ev);
 
 static tt_io_handler_t __io_handler[TT_IO_NUM] = {
-    __worker_io_handler, NULL, tt_fs_io_handler,
+    __worker_io, NULL, tt_fs_io_worker,
 };
 
 ////////////////////////////////////////////////////////////
@@ -115,7 +115,7 @@ tt_result_t __io_worker_routine(IN void *param)
     return TT_SUCCESS;
 }
 
-void __worker_io_handler(IN tt_io_ev_t *io_ev)
+void __worker_io(IN tt_io_ev_t *io_ev)
 {
     TT_ASSERT(TT_IO_WORKER_EV_VALID(io_ev->ev));
 

@@ -18,12 +18,11 @@
 // import header files
 ////////////////////////////////////////////////////////////
 
-#define _XOPEN_SOURCE 600
-
 #include <os/tt_fiber.h>
 
 #include <memory/tt_memory_alloc.h>
 #include <misc/tt_assert.h>
+#include <os/tt_task.h>
 #include <os/tt_thread.h>
 
 ////////////////////////////////////////////////////////////
@@ -86,6 +85,7 @@ tt_fiber_sched_t *tt_fiber_sched_create(IN OPT tt_fiber_sched_attr_t *attr)
     fs->__main = __main;
 
     fs->current = __main;
+    fs->thread = NULL;
 
     if (!TT_OK(tt_spinlock_create(&fs->lock, NULL))) {
         TT_ERROR("fail to create fiber sched lock");
@@ -251,7 +251,7 @@ void tt_fiber_activate(IN tt_fiber_t *fb)
 
     tt_spinlock_release(&fs->lock);
 
-    // todo: awake main fiber
+    tt_task_yield(fs->thread->task);
 }
 
 tt_fiber_t *__fiber_create_main(IN tt_fiber_sched_t *fs)
