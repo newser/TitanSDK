@@ -608,7 +608,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_task)
     __tb_cnt = 0;
     ret = tt_task_create(&t1, NULL);
     TT_TEST_CHECK_SUCCESS(ret, "");
-    tt_task_add_fiber(&t1, __task_fiber_1, 1, NULL);
+    tt_task_add_fiber(&t1, __task_fiber_1, (void*)(tt_uintptr_t)1, NULL);
     tt_task_run(&t1);
     tt_task_exit(&t1);
     tt_task_wait(&t1);
@@ -619,7 +619,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_task)
     TT_TEST_CHECK_SUCCESS(ret, "");
     n = 5; // tt_rand_u32() % 100 + 1;
     for (i = 0; i < n; ++i) {
-        tt_task_add_fiber(&t1, __task_fiber_1, i, NULL);
+        tt_task_add_fiber(&t1, __task_fiber_1, (void*)(tt_uintptr_t)i, NULL);
     }
     tt_task_run(&t1);
     tt_task_exit(&t1);

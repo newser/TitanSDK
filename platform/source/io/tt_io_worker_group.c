@@ -24,6 +24,7 @@
 #include <init/tt_profile.h>
 #include <io/tt_io_event.h>
 #include <misc/tt_assert.h>
+#include <memory/tt_memory_alloc.h>
 
 ////////////////////////////////////////////////////////////
 // internal macro
