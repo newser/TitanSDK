@@ -20,8 +20,8 @@
 
 #include <tt_io_poller_native.h>
 
-#include <os/tt_fiber.h>
 #include <io/tt_io_event.h>
+#include <os/tt_fiber.h>
 
 #include <tt_sys_error.h>
 #include <tt_util_native.h>
@@ -79,12 +79,12 @@ tt_result_t tt_io_poller_create_ntv(IN tt_io_poller_ntv_t *sys_iop)
     tt_queue_attr_default(&evq_attr);
     evq_attr.obj_per_frame = 128;
     tt_queue_init(&sys_iop->evq, sizeof(tt_u8_t), &evq_attr);
-    
+
     ep = epoll_create(10000);
     if (ep < 0) {
         TT_ERROR_NTV("fail to create epoll fd");
         return TT_FAIL;
-    }    
+    }
     sys_iop->ep = ep;
 
     evfd = eventfd(0, EFD_SEMAPHORE);
@@ -119,9 +119,9 @@ tt_result_t tt_io_poller_create_ntv(IN tt_io_poller_ntv_t *sys_iop)
 void tt_io_poller_destroy_ntv(IN tt_io_poller_ntv_t *sys_iop)
 {
     tt_queue_destroy(&sys_iop->evq);
-    
+
     __RETRY_IF_EINTR(close(sys_iop->ep) != 0);
-    
+
     __RETRY_IF_EINTR(close(sys_iop->evfd) != 0);
 
     tt_spinlock_destroy(&sys_iop->lock);
@@ -146,11 +146,11 @@ tt_bool_t tt_io_poller_run_ntv(IN tt_io_poller_ntv_t *sys_iop,
     if (nev > 0) {
         int i;
         for (i = 0; i < nev; ++i) {
-            tt_u32_t *io = (tt_u32_t*)ev[i].data.ptr;
-            if (*io == TT_IO_POLLER) {            
+            tt_u32_t *io = (tt_u32_t *)ev[i].data.ptr;
+            if (*io == TT_IO_POLLER) {
                 uint64_t sig;
                 tt_u8_t ev = __POLLER_EV_NUM;
-                
+
                 read(sys_iop->evfd, &sig, sizeof(uint64_t));
                 TT_ASSERT(sig == 1);
 
@@ -159,7 +159,7 @@ tt_bool_t tt_io_poller_run_ntv(IN tt_io_poller_ntv_t *sys_iop,
                 tt_spinlock_release(&sys_iop->lock);
                 if (ev == __POLLER_YIELD) {
                     tt_fiber_yield();
-                }else if (ev == __POLLER_EXIT) {
+                } else if (ev == __POLLER_EXIT) {
                     return TT_FALSE;
                 }
             } else {
@@ -180,7 +180,7 @@ void tt_io_poller_yield_ntv(IN tt_io_poller_ntv_t *sys_iop)
     const uint64_t sig = 1;
     tt_u8_t ev = __POLLER_YIELD;
     tt_bool_t pushed;
-    
+
     tt_spinlock_acquire(&sys_iop->lock);
     pushed = TT_OK(tt_queue_push(&sys_iop->evq, &ev));
     tt_spinlock_release(&sys_iop->lock);
@@ -188,7 +188,7 @@ void tt_io_poller_yield_ntv(IN tt_io_poller_ntv_t *sys_iop)
         TT_FATAL("fail to push poller yield event");
         return;
     }
-    
+
 again:
     if (write(sys_iop->evfd, &sig, sizeof(uint64_t)) != sizeof(uint64_t)) {
         TT_ERROR_NTV("ep write failed");
@@ -202,7 +202,7 @@ void tt_io_poller_exit_ntv(IN tt_io_poller_ntv_t *sys_iop)
     const uint64_t sig = 1;
     tt_u8_t ev = __POLLER_EXIT;
     tt_bool_t pushed;
-    
+
     tt_spinlock_acquire(&sys_iop->lock);
     pushed = TT_OK(tt_queue_push(&sys_iop->evq, &ev));
     tt_spinlock_release(&sys_iop->lock);
@@ -210,7 +210,7 @@ void tt_io_poller_exit_ntv(IN tt_io_poller_ntv_t *sys_iop)
         TT_FATAL("fail to push poller exit event");
         return;
     }
-    
+
 again:
     if (write(sys_iop->evfd, &sig, sizeof(uint64_t)) != sizeof(uint64_t)) {
         TT_ERROR_NTV("ep write failed");
@@ -218,4 +218,3 @@ again:
         goto again;
     }
 }
-

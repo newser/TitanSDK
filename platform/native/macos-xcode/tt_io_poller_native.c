@@ -151,8 +151,7 @@ void tt_io_poller_yield_ntv(IN tt_io_poller_ntv_t *sys_iop)
 
 again:
     if (kevent(sys_iop->kq, &kev, 1, NULL, 0, NULL) != 0) {
-        TT_ERROR_NTV("kevent failed");
-        TT_ASSERT_ALWAYS(errno == EINTR);
+        TT_ERROR_NTV("fail to send poller yield");
         goto again;
     }
 }
@@ -165,8 +164,7 @@ void tt_io_poller_exit_ntv(IN tt_io_poller_ntv_t *sys_iop)
 
 again:
     if (kevent(sys_iop->kq, &kev, 1, NULL, 0, NULL) != 0) {
-        TT_ERROR_NTV("kevent failed");
-        TT_ASSERT_ALWAYS(errno == EINTR);
+        TT_ERROR_NTV("fail to send poller exit");
         goto again;
     }
 }
