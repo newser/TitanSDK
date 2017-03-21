@@ -38,7 +38,7 @@ TT_TEST_ROUTINE_DECLARE(tt_unit_test_dir_basic)
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(fs_case)
 
-#if 1
+#if 0
 
 TT_TEST_CASE("tt_unit_test_fs_basic",
              "testing fs basic",
@@ -464,7 +464,7 @@ tt_result_t __fs_fiber(IN void *param)
 
         __fiber_end[t_idx][f_idx] = TT_TRUE;
         if (++__task_end[t_idx] == __fiber_per_task) {
-            TT_INFO("task[%d] exit", t_idx);
+            //TT_INFO("task[%d] exit", t_idx);
             tt_task_exit(NULL);
         }
 
@@ -491,7 +491,7 @@ tt_result_t __fs_fiber(IN void *param)
     tt_fclose(&f);
 
     if (++__task_end[t_idx] == __fiber_per_task) {
-        TT_INFO("task[%d] exit", t_idx);
+        //TT_INFO("task[%d] exit", t_idx);
         tt_task_exit(NULL);
     }
     //++__fiber_end[t_idx][f_idx];

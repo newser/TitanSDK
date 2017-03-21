@@ -87,13 +87,6 @@ tt_fiber_sched_t *tt_fiber_sched_create(IN OPT tt_fiber_sched_attr_t *attr)
     fs->current = __main;
     fs->thread = NULL;
 
-    if (!TT_OK(tt_spinlock_create(&fs->lock, NULL))) {
-        TT_ERROR("fail to create fiber sched lock");
-        __fiber_destroy_main(__main);
-        tt_free(fs);
-        return NULL;
-    }
-
     return fs;
 }
 
@@ -112,8 +105,6 @@ void tt_fiber_sched_destroy(IN tt_fiber_sched_t *fs)
     }
 
     __fiber_destroy_main(fs->__main);
-
-    tt_spinlock_destroy(&fs->lock);
 
     tt_free(fs);
 }
@@ -194,16 +185,12 @@ void tt_fiber_yield()
 
     TT_ASSERT(cfb->can_yield);
 
-    tt_spinlock_acquire(&cfs->lock);
-
     if (cfb != cfs->__main) {
         tt_list_remove(&cfb->node);
         tt_list_push_tail(&cfs->pending, &cfb->node);
     }
 
     next = __fiber_sched_next(cfs);
-
-    tt_spinlock_release(&cfs->lock);
 
     if (next != cfb) {
         cfs->current = next;
@@ -218,8 +205,6 @@ void tt_fiber_resume(IN tt_fiber_t *fb)
     tt_fiber_t *cfb = cfs->current;
 
     if (cfb != fb) {
-        tt_spinlock_acquire(&cfs->lock);
-
         if (cfb != cfs->__main) {
             tt_list_remove(&cfb->node);
             tt_list_push_head(&cfs->pending, &cfb->node);
@@ -229,8 +214,6 @@ void tt_fiber_resume(IN tt_fiber_t *fb)
             tt_list_remove(&fb->node);
             tt_list_push_head(&cfs->active, &fb->node);
         }
-
-        tt_spinlock_release(&cfs->lock);
 
         cfs->current = fb;
         tt_fiber_switch_wrap(cfs, cfb, fb);

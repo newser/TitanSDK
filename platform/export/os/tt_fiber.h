@@ -56,7 +56,6 @@ typedef struct tt_fiber_sched_s
     struct tt_fiber_s *__main;
     struct tt_fiber_s *current;
     struct tt_thread_s *thread;
-    tt_spinlock_t lock;
 } tt_fiber_sched_t;
 
 typedef struct
