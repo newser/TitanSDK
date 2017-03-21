@@ -795,13 +795,13 @@ void __do_dread(IN tt_io_ev_t *io_ev)
 
             switch (entry.d_type) {
                 case DT_DIR: {
-                    dread->entry = TT_FS_TYPE_DIR;
+                    dread->entry->type = TT_FS_TYPE_DIR;
                 } break;
                 case DT_UNKNOWN: {
-                    dread->entry = TT_FS_TYPE_UNKNOWN;
+                    dread->entry->type = TT_FS_TYPE_UNKNOWN;
                 } break;
                 default: {
-                    dread->entry = TT_FS_TYPE_FILE;
+                    dread->entry->type = TT_FS_TYPE_FILE;
                 } break;
             }
 

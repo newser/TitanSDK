@@ -38,7 +38,7 @@ TT_TEST_ROUTINE_DECLARE(tt_unit_test_dir_basic)
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(fs_case)
 
-#if 0
+#if 1
 
 TT_TEST_CASE("tt_unit_test_fs_basic",
              "testing fs basic",

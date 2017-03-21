@@ -22,6 +22,8 @@
 
 #include <io/tt_io_event.h>
 #include <os/tt_fiber.h>
+#include <memory/tt_memory_alloc.h>
+#include <os/tt_task.h>
 
 #include <tt_sys_error.h>
 #include <tt_util_native.h>
@@ -42,6 +44,8 @@
 // internal type
 ////////////////////////////////////////////////////////////
 
+typedef tt_bool_t (*__io_handler_t)(IN tt_io_poller_ntv_t *sys_iop);
+
 enum
 {
     __POLLER_YIELD,
@@ -58,8 +62,12 @@ enum
 // global variant
 ////////////////////////////////////////////////////////////
 
-static tt_io_handler_t __io_handler[TT_IO_NUM] = {
-    NULL, NULL,
+static tt_bool_t __worker_io(IN tt_io_poller_ntv_t *sys_iop);
+
+static tt_bool_t __poller_io(IN tt_io_poller_ntv_t *sys_iop);
+
+static __io_handler_t __io_handler[TT_IO_NUM] = {
+    __worker_io, __poller_io,
 };
 
 ////////////////////////////////////////////////////////////
@@ -70,61 +78,121 @@ static tt_io_handler_t __io_handler[TT_IO_NUM] = {
 // interface implementation
 ////////////////////////////////////////////////////////////
 
+tt_result_t tt_io_poller_component_init_ntv()
+{
+    return TT_SUCCESS;
+}
+
 tt_result_t tt_io_poller_create_ntv(IN tt_io_poller_ntv_t *sys_iop)
 {
-    tt_queue_attr_t evq_attr;
     int ep, evfd;
     struct epoll_event ev = {0};
 
-    tt_queue_attr_default(&evq_attr);
-    evq_attr.obj_per_frame = 128;
-    tt_queue_init(&sys_iop->evq, sizeof(tt_u8_t), &evq_attr);
+    tt_u32_t __done = 0;
+#define __PC_P_LOCK (1 << 0)
+#define __PC_W_LOCK (1 << 1)
+#define __PC_EP (1 << 2)
+#define __PC_P_EVFD (1 << 3)
+#define __PC_W_EVFD (1 << 4)
+
+    tt_dlist_init(&sys_iop->poller_ev);
+    tt_dlist_init(&sys_iop->worker_ev);
+
+    if (!TT_OK(tt_spinlock_create(&sys_iop->poller_lock, NULL))) {
+        TT_ERROR("fail to create poller poller_lock");
+        goto fail;
+    }
+    __done |= __PC_P_LOCK;
+
+    if (!TT_OK(tt_spinlock_create(&sys_iop->worker_lock, NULL))) {
+        TT_ERROR("fail to create poller worker_lock");
+        goto fail;
+    }
+    __done |= __PC_W_LOCK;
 
     ep = epoll_create(10000);
     if (ep < 0) {
         TT_ERROR_NTV("fail to create epoll fd");
-        return TT_FAIL;
+        goto fail;
     }
     sys_iop->ep = ep;
+    __done |= __PC_EP;
 
-    evfd = eventfd(0, EFD_SEMAPHORE);
+    evfd = eventfd(0, EFD_CLOEXEC | EFD_NONBLOCK);
     if (evfd < 0) {
-        TT_ERROR_NTV("fail to create event fd");
-        __RETRY_IF_EINTR(close(ep) != 0);
-        return TT_FAIL;
+        TT_ERROR_NTV("fail to create poller event fd");
+        goto fail;
     }
-    sys_iop->evfd = evfd;
+    sys_iop->poller_evfd = evfd;
+    __done |= __PC_P_EVFD;
 
     ev.events = EPOLLIN;
-    ev.data.ptr = &sys_iop->io;
+    ev.data.u32 = TT_IO_POLLER;
     if (epoll_ctl(ep, EPOLL_CTL_ADD, evfd, &ev) != 0) {
-        TT_ERROR_NTV("fail to add event fd");
-        __RETRY_IF_EINTR(close(evfd) != 0);
-        __RETRY_IF_EINTR(close(ep) != 0);
-        return TT_FAIL;
+        TT_ERROR_NTV("fail to add poller event fd");
+        goto fail;
     }
 
-    sys_iop->io = TT_IO_POLLER;
+    evfd = eventfd(0, EFD_CLOEXEC | EFD_NONBLOCK);
+    if (evfd < 0) {
+        TT_ERROR_NTV("fail to create worker event fd");
+        goto fail;
+    }
+    sys_iop->worker_evfd = evfd;
+    __done |= __PC_W_EVFD;
 
-    if (!TT_OK(tt_spinlock_create(&sys_iop->lock, NULL))) {
-        TT_ERROR("fail to create io poller lock");
-        __RETRY_IF_EINTR(close(evfd) != 0);
-        __RETRY_IF_EINTR(close(ep) != 0);
-        return TT_FAIL;
+    ev.events = EPOLLIN;
+    ev.data.u32 = TT_IO_WORKER;
+    if (epoll_ctl(ep, EPOLL_CTL_ADD, evfd, &ev) != 0) {
+        TT_ERROR_NTV("fail to add worker event fd");
+        goto fail;
     }
 
     return TT_SUCCESS;
+
+fail:
+    if (__done & __PC_W_EVFD) {
+        __RETRY_IF_EINTR(close(sys_iop->worker_evfd) != 0);
+    }
+
+    if (__done & __PC_P_EVFD) {
+        __RETRY_IF_EINTR(close(sys_iop->poller_evfd) != 0);
+    }
+
+    if (__done & __PC_EP) {
+        __RETRY_IF_EINTR(close(sys_iop->ep) != 0);
+    }
+
+    if (__done & __PC_W_LOCK) {
+        tt_spinlock_destroy(&sys_iop->worker_lock);
+    }
+
+    if (__done & __PC_P_LOCK) {
+        tt_spinlock_destroy(&sys_iop->poller_lock);
+    }
+
+    return TT_FAIL;
 }
 
 void tt_io_poller_destroy_ntv(IN tt_io_poller_ntv_t *sys_iop)
 {
-    tt_queue_destroy(&sys_iop->evq);
+    if (!tt_dlist_empty(&sys_iop->poller_ev)) {
+        TT_FATAL("poller ev list is not empty");
+    }
+
+    if (!tt_dlist_empty(&sys_iop->worker_ev)) {
+        TT_FATAL("worker ev list is not empty");
+    }
+
+    tt_spinlock_destroy(&sys_iop->poller_lock);
+
+    tt_spinlock_destroy(&sys_iop->worker_lock);
 
     __RETRY_IF_EINTR(close(sys_iop->ep) != 0);
 
-    __RETRY_IF_EINTR(close(sys_iop->evfd) != 0);
+    __RETRY_IF_EINTR(close(sys_iop->poller_evfd) != 0);
 
-    tt_spinlock_destroy(&sys_iop->lock);
+    __RETRY_IF_EINTR(close(sys_iop->worker_evfd) != 0);
 }
 
 tt_bool_t tt_io_poller_run_ntv(IN tt_io_poller_ntv_t *sys_iop,
@@ -146,25 +214,8 @@ tt_bool_t tt_io_poller_run_ntv(IN tt_io_poller_ntv_t *sys_iop,
     if (nev > 0) {
         int i;
         for (i = 0; i < nev; ++i) {
-            tt_u32_t *io = (tt_u32_t *)ev[i].data.ptr;
-            if (*io == TT_IO_POLLER) {
-                uint64_t sig;
-                tt_u8_t ev = __POLLER_EV_NUM;
-
-                read(sys_iop->evfd, &sig, sizeof(uint64_t));
-                TT_ASSERT(sig == 1);
-
-                tt_spinlock_acquire(&sys_iop->lock);
-                tt_queue_pop(&sys_iop->evq, &ev);
-                tt_spinlock_release(&sys_iop->lock);
-                if (ev == __POLLER_YIELD) {
-                    tt_fiber_yield();
-                } else if (ev == __POLLER_EXIT) {
-                    return TT_FALSE;
-                }
-            } else {
-                TT_ASSERT(TT_IO_VALID(*io));
-                __io_handler[*io](TT_CONTAINER(io, tt_io_ev_t, io));
+            if (!__io_handler[ev[i].data.u32](sys_iop)) {
+                return TT_FALSE;
             }
         }
     } else if ((nev != 0) && (errno != EINTR)) {
@@ -175,46 +226,134 @@ tt_bool_t tt_io_poller_run_ntv(IN tt_io_poller_ntv_t *sys_iop,
     return TT_TRUE;
 }
 
-void tt_io_poller_yield_ntv(IN tt_io_poller_ntv_t *sys_iop)
+tt_result_t tt_io_poller_exit_ntv(IN tt_io_poller_ntv_t *sys_iop)
 {
+    tt_io_ev_t *io_ev;
     const uint64_t sig = 1;
-    tt_u8_t ev = __POLLER_YIELD;
-    tt_bool_t pushed;
 
-    tt_spinlock_acquire(&sys_iop->lock);
-    pushed = TT_OK(tt_queue_push(&sys_iop->evq, &ev));
-    tt_spinlock_release(&sys_iop->lock);
-    if (!pushed) {
-        TT_FATAL("fail to push poller yield event");
-        return;
+    io_ev = tt_malloc(sizeof(tt_io_ev_t));
+    if (io_ev == NULL) {
+        TT_ERROR("no mem for poller exit ev");
+        return TT_FAIL;
     }
 
+    io_ev->src = NULL;
+    io_ev->dst = NULL;
+    tt_dnode_init(&io_ev->node);
+    io_ev->io = TT_IO_POLLER;
+    io_ev->ev = __POLLER_EXIT;
+
+    tt_spinlock_acquire(&sys_iop->poller_lock);
+    tt_dlist_push_tail(&sys_iop->poller_ev, &io_ev->node);
+    tt_spinlock_release(&sys_iop->poller_lock);
+
 again:
-    if (write(sys_iop->evfd, &sig, sizeof(uint64_t)) != sizeof(uint64_t)) {
-        TT_ERROR_NTV("ep write failed");
-        TT_ASSERT_ALWAYS(errno == EINTR);
+    if (write(sys_iop->poller_evfd, &sig, sizeof(uint64_t)) == sizeof(uint64_t)) {
+        return TT_SUCCESS;
+    } else if (errno == EINTR) {
         goto again;
+    } else {
+        TT_ERROR_NTV("fail to send poller exit");
+        // no need to care io_ev, as it may already be processed
+        return TT_FAIL;
     }
 }
 
-void tt_io_poller_exit_ntv(IN tt_io_poller_ntv_t *sys_iop)
+tt_result_t tt_io_poller_finish_ntv(IN tt_io_poller_ntv_t *sys_iop,
+                                    IN tt_io_ev_t *io_ev)
 {
     const uint64_t sig = 1;
-    tt_u8_t ev = __POLLER_EXIT;
-    tt_bool_t pushed;
 
-    tt_spinlock_acquire(&sys_iop->lock);
-    pushed = TT_OK(tt_queue_push(&sys_iop->evq, &ev));
-    tt_spinlock_release(&sys_iop->lock);
-    if (!pushed) {
-        TT_FATAL("fail to push poller exit event");
-        return;
-    }
+    tt_spinlock_acquire(&sys_iop->worker_lock);
+    tt_dlist_push_tail(&sys_iop->worker_ev, &io_ev->node);
+    tt_spinlock_release(&sys_iop->worker_lock);
 
 again:
-    if (write(sys_iop->evfd, &sig, sizeof(uint64_t)) != sizeof(uint64_t)) {
-        TT_ERROR_NTV("ep write failed");
-        TT_ASSERT_ALWAYS(errno == EINTR);
+    if (write(sys_iop->worker_evfd, &sig, sizeof(uint64_t)) == sizeof(uint64_t)) {
+        return TT_SUCCESS;
+    } else if (errno == EINTR) {
         goto again;
+    } else {
+        TT_ERROR_NTV("fail to send poller finish");
+        return TT_FAIL;
     }
 }
+
+tt_result_t tt_io_poller_send_ntv(IN tt_io_poller_ntv_t *sys_iop,
+                                  IN tt_io_ev_t *io_ev)
+{
+    const uint64_t sig = 1;
+
+    tt_spinlock_acquire(&sys_iop->poller_lock);
+    tt_dlist_push_tail(&sys_iop->poller_ev, &io_ev->node);
+    tt_spinlock_release(&sys_iop->poller_lock);
+
+again:
+    if (write(sys_iop->poller_evfd, &sig, sizeof(uint64_t)) == sizeof(uint64_t)) {
+        return TT_SUCCESS;
+    } else if (errno == EINTR) {
+        goto again;
+    } else {
+        TT_ERROR_NTV("fail to send to poller");
+        return TT_FAIL;
+    }
+}
+
+tt_bool_t __worker_io(IN tt_io_poller_ntv_t *sys_iop)
+{
+    uint64_t num;
+    tt_dlist_t dl;
+    tt_dnode_t *node;
+    
+    read(sys_iop->worker_evfd, &num, sizeof(uint64_t));
+
+    tt_dlist_init(&dl);
+    tt_spinlock_acquire(&sys_iop->worker_lock);
+    tt_dlist_move(&dl, &sys_iop->worker_ev);
+    tt_spinlock_release(&sys_iop->worker_lock);
+
+    while ((node = tt_dlist_pop_head(&dl)) != NULL) {
+        tt_io_ev_t *io_ev = TT_CONTAINER(node, tt_io_ev_t, node);
+
+        TT_ASSERT(io_ev->src != NULL);
+        tt_fiber_resume(io_ev->src);
+    }
+
+    return TT_TRUE;
+}
+
+tt_bool_t __poller_io(IN tt_io_poller_ntv_t *sys_iop)
+{
+    uint64_t num;
+    tt_dlist_t dl;
+    tt_dnode_t *node;
+
+    read(sys_iop->poller_evfd, &num, sizeof(uint64_t));
+
+    tt_dlist_init(&dl);
+    tt_spinlock_acquire(&sys_iop->poller_lock);
+    tt_dlist_move(&dl, &sys_iop->poller_ev);
+    tt_spinlock_release(&sys_iop->poller_lock);
+
+    while ((node = tt_dlist_pop_head(&dl)) != NULL) {
+        tt_io_ev_t *io_ev = TT_CONTAINER(node, tt_io_ev_t, node);
+
+        if ((io_ev->io == TT_IO_POLLER) && (io_ev->ev == __POLLER_EXIT)) {
+            tt_free(io_ev);
+            return TT_FALSE;
+        }
+
+        // a message to this fiber
+        TT_ASSERT(&io_ev->dst->fs->thread->task->iop.sys_iop == sys_iop);
+        // todo: add to fiber and awake the fiber if needed
+
+        if (io_ev->src != NULL) {
+            tt_task_finish(io_ev->dst->fs->thread->task, io_ev);
+        } else {
+            tt_free(io_ev);
+        }
+    }
+
+    return TT_TRUE;
+}
+

@@ -110,6 +110,7 @@ tt_result_t tt_io_poller_create_ntv(IN tt_io_poller_ntv_t *sys_iop)
         TT_ERROR_NTV("fail to create kqueue fd");
         goto fail;
     }
+    sys_iop->kq = kq;
     __done |= __PC_KQ;
 
     EV_SET(&kev, TT_IO_POLLER, EVFILT_USER, EV_ADD | EV_CLEAR, 0, 0, NULL);
@@ -133,8 +134,6 @@ again_w:
         TT_ERROR_NTV("fail to add rd thread ev mark");
         goto fail;
     }
-
-    sys_iop->kq = kq;
 
     return TT_SUCCESS;
 
@@ -232,7 +231,7 @@ again:
         goto again;
     } else {
         TT_ERROR_NTV("fail to send poller exit");
-        tt_free(io_ev);
+        // no need to care io_ev, as it may already be processed
         return TT_FAIL;
     }
 }

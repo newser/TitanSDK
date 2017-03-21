@@ -23,7 +23,8 @@
 #include <io/tt_file_system.h>
 #include <io/tt_io_event.h>
 #include <io/tt_io_worker_group.h>
-#include <os/tt_fiber.h>
+#include <os/tt_task.h>
+#include <memory/tt_memory_alloc.h>
 
 #include <tt_util_native.h>
 
@@ -454,13 +455,16 @@ void tt_fs_io_worker(IN tt_io_ev_t *io_ev)
     __fs_io_handler[io_ev->ev](io_ev);
 
     if (io_ev->src != NULL) {
-        tt_fiber_activate(io_ev->src);
+        tt_task_finish(io_ev->src->fs->thread->task, io_ev);
+    } else {
+        tt_free(io_ev);
     }
 }
 
 void __fs_ev_init(IN tt_io_ev_t *io_ev, IN tt_u32_t ev)
 {
     io_ev->src = tt_current_fiber();
+    io_ev->dst = NULL;
     tt_dnode_init(&io_ev->node);
     io_ev->io = TT_IO_FS;
     io_ev->ev = ev;
@@ -564,7 +568,7 @@ again:
     } else if (errno == EINTR) {
         goto again;
     } else {
-        TT_ERROR_NTV("fail to create file: %s", fopen->path);
+        TT_ERROR_NTV("fail to open file: %s", fopen->path);
         fopen->result = TT_FAIL;
     }
 }
