@@ -26,8 +26,9 @@
 // import header files
 ////////////////////////////////////////////////////////////
 
+#include <algorithm/tt_double_linked_list.h>
 #include <io/tt_io_event.h>
-#include <os/tt_atomic.h>
+#include <os/tt_spinlock.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
@@ -39,6 +40,10 @@
 
 typedef struct tt_io_poller_ntv_s
 {
+    tt_dlist_t poller_ev;
+    tt_dlist_t worker_ev;
+    tt_spinlock_t poller_lock;
+    tt_spinlock_t worker_lock;
     int kq;
 } tt_io_poller_ntv_t;
 
@@ -50,15 +55,21 @@ typedef struct tt_io_poller_ntv_s
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern tt_result_t tt_io_poller_create_ntv(IN tt_io_poller_ntv_t *sys_poller);
+extern tt_result_t tt_io_poller_component_init_ntv();
 
-extern void tt_io_poller_destroy_ntv(IN tt_io_poller_ntv_t *sys_poller);
+extern tt_result_t tt_io_poller_create_ntv(IN tt_io_poller_ntv_t *sys_iop);
 
-extern tt_bool_t tt_io_poller_run_ntv(IN tt_io_poller_ntv_t *sys_poller,
+extern void tt_io_poller_destroy_ntv(IN tt_io_poller_ntv_t *sys_iop);
+
+extern tt_bool_t tt_io_poller_run_ntv(IN tt_io_poller_ntv_t *sys_iop,
                                       IN tt_s64_t wait_ms);
 
-extern void tt_io_poller_yield_ntv(IN tt_io_poller_ntv_t *sys_poller);
+extern tt_result_t tt_io_poller_exit_ntv(IN tt_io_poller_ntv_t *sys_iop);
 
-extern void tt_io_poller_exit_ntv(IN tt_io_poller_ntv_t *sys_iop);
+extern tt_result_t tt_io_poller_finish_ntv(IN tt_io_poller_ntv_t *sys_iop,
+                                           IN tt_io_ev_t *io_ev);
+
+extern tt_result_t tt_io_poller_send_ntv(IN tt_io_poller_ntv_t *sys_iop,
+                                         IN tt_io_ev_t *io_ev);
 
 #endif // __TT_IO_POLLER_NATIVE__

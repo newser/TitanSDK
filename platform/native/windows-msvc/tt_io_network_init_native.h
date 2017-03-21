@@ -46,6 +46,6 @@ io network module native initialization
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern tt_result_t tt_io_network_component_init_ntv();
+extern tt_result_t tt_network_io_component_init_ntv();
 
 #endif // __TT_IO_NETWORK_INIT_NATIVE__

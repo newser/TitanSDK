@@ -113,6 +113,7 @@ tt_result_t __io_worker_routine(IN void *param)
         __io_handler[io_ev->io](io_ev);
     }
 
+    TT_ASSERT(0);
     return TT_SUCCESS;
 }
 

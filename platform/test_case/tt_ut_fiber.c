@@ -468,11 +468,11 @@ static tt_result_t __fiber_san2(IN void *param)
         } else if (action == 1) {
             tt_u32_t k = tt_rand_u32() % FIBER_NUM;
             if (__fb_ar[k] != NULL) {
-                TT_INFO("resuming %p", __fb_ar[idx]);
+                // TT_INFO("resuming %p", __fb_ar[idx]);
                 tt_fiber_resume(__fb_ar[k]);
             }
         } else if (action == 2) {
-            TT_INFO("exiting %p", __fb_ar[idx]);
+            // TT_INFO("exiting %p", __fb_ar[idx]);
             __fb_ar[idx] = NULL;
             break;
         } else {

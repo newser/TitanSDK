@@ -16,7 +16,7 @@
 
 /**
 @file tt_io_poller.h
-@brief io poller
+@brief io iop
 */
 
 #ifndef __TT_IO_POLLER__
@@ -54,23 +54,30 @@ typedef struct tt_io_poller_s
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern tt_result_t tt_io_poller_create(IN tt_io_poller_t *poller,
+extern void tt_io_poller_component_register();
+
+extern tt_result_t tt_io_poller_create(IN tt_io_poller_t *iop,
                                        IN OPT tt_io_poller_attr_t *attr);
 
-extern void tt_io_poller_destroy(IN tt_io_poller_t *poller);
+extern void tt_io_poller_destroy(IN tt_io_poller_t *iop);
 
 extern void tt_io_poller_attr_default(IN tt_io_poller_attr_t *attr);
 
-extern void tt_io_poller_run(IN tt_io_poller_t *poller);
+extern void tt_io_poller_run(IN tt_io_poller_t *iop);
 
-tt_inline void tt_io_poller_yield(IN tt_io_poller_t *poller)
+tt_inline void tt_io_poller_exit(IN tt_io_poller_t *iop)
 {
-    tt_io_poller_yield_ntv(&poller->sys_iop);
+    tt_io_poller_exit_ntv(&iop->sys_iop);
 }
 
-tt_inline void tt_io_poller_exit(IN tt_io_poller_t *poller)
+tt_inline void tt_io_poller_finish(IN tt_io_poller_t *iop, IN tt_io_ev_t *io_ev)
 {
-    tt_io_poller_exit_ntv(&poller->sys_iop);
+    tt_io_poller_finish_ntv(&iop->sys_iop, io_ev);
+}
+
+tt_inline void tt_io_poller_send(IN tt_io_poller_t *iop, IN tt_io_ev_t *io_ev)
+{
+    tt_io_poller_send_ntv(&iop->sys_iop, io_ev);
 }
 
 #endif // __TT_IO_POLLER__

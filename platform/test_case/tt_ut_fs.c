@@ -8,12 +8,8 @@
 #include <io/tt_file_system.h>
 #include <memory/tt_memory_alloc.h>
 #include <os/tt_spinlock.h>
+#include <os/tt_task.h>
 #include <timer/tt_time_reference.h>
-
-#include <tt_cstd_api.h>
-
-#include <stdio.h>
-#include <time.h>
 
 //#define __perf_vs
 #ifdef __perf_vs
@@ -33,6 +29,7 @@
 TT_TEST_ROUTINE_DECLARE(tt_unit_test_fs_basic)
 TT_TEST_ROUTINE_DECLARE(tt_unit_test_fs_open)
 TT_TEST_ROUTINE_DECLARE(tt_unit_test_fs_rw)
+TT_TEST_ROUTINE_DECLARE(tt_unit_test_fs_multhread)
 
 TT_TEST_ROUTINE_DECLARE(tt_unit_test_dir_basic)
 
@@ -41,7 +38,7 @@ TT_TEST_ROUTINE_DECLARE(tt_unit_test_dir_basic)
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(fs_case)
 
-#ifndef __SIMULATE_FS_AIO_FAIL
+#if 1
 
 TT_TEST_CASE("tt_unit_test_fs_basic",
              "testing fs basic",
@@ -82,6 +79,16 @@ TT_TEST_CASE("tt_unit_test_fs_basic",
 
 #endif
 
+    TT_TEST_CASE("tt_unit_test_fs_multhread",
+                 "testing fs read write in multi thread",
+                 tt_unit_test_fs_multhread,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL),
+
+
     TT_TEST_CASE_LIST_DEFINE_END(fs_case)
     // =========================================
 
@@ -93,7 +100,7 @@ TT_TEST_CASE("tt_unit_test_fs_basic",
 
 
 /*
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_fs_open)
+TT_TEST_ROUTINE_DEFINE(tt_unit_test_fs_multhread)
 {
     //tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
 
@@ -428,6 +435,107 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_dir_basic)
 
     ret = tt_dopen(&dir, __TEST_DIR, NULL);
     TT_TEST_CHECK_EQUAL(ret, TT_FAIL, "");
+
+    // test end
+    TT_TEST_CASE_LEAVE()
+}
+
+#define __task_num 100
+#define __fiber_per_task 100
+
+static tt_u32_t __err_line;
+static tt_u32_t __task_end[__task_num];
+static tt_bool_t __fiber_end[__task_num][__fiber_per_task];
+
+tt_result_t __fs_fiber(IN void *param)
+{
+    tt_u32_t t_idx = (tt_u32_t)(tt_uintptr_t)param;
+    tt_u32_t f_idx = t_idx & 0xFFFF;
+    tt_file_t f;
+    tt_u8_t buf[2000];
+    tt_u32_t i, n, l;
+
+    t_idx >>= 16;
+    // TT_INFO("task[%d], fiber[%d, %p]", t_idx, f_idx, tt_current_fiber());
+
+    if (!TT_OK(tt_fopen(&f, "a.txt", TT_FO_RDWR, NULL))) {
+        __err_line = __LINE__;
+        // tt_task_exit(NULL);
+
+        __fiber_end[t_idx][f_idx] = TT_TRUE;
+        if (++__task_end[t_idx] == __fiber_per_task) {
+            TT_INFO("task[%d] exit", t_idx);
+            tt_task_exit(NULL);
+        }
+
+        return TT_FAIL;
+    }
+
+    i = 0;
+    n = 3; // n = tt_rand_u32() % 100;
+    l = 0;
+    while (i++ < n) {
+        tt_u32_t act = tt_rand_u32() % 2;
+        tt_u32_t len = 0;
+        if (act == 0) {
+            tt_result_t ret = TT_FAIL;
+            ret = tt_fread(&f, buf, tt_rand_u32() % sizeof(buf), &len);
+            if (TT_OK(ret)) {
+                l += len;
+            }
+        } else {
+            tt_fwrite(&f, buf, tt_rand_u32() % sizeof(buf), &len);
+        }
+    }
+
+    tt_fclose(&f);
+
+    if (++__task_end[t_idx] == __fiber_per_task) {
+        TT_INFO("task[%d] exit", t_idx);
+        tt_task_exit(NULL);
+    }
+    //++__fiber_end[t_idx][f_idx];
+    __fiber_end[t_idx][f_idx] = TT_TRUE;
+    // TT_INFO("fiber[%d][%d] exit", t_idx, f_idx);
+    return TT_SUCCESS;
+}
+
+TT_TEST_ROUTINE_DEFINE(tt_unit_test_fs_multhread)
+{
+    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+    tt_task_t task[__task_num];
+    tt_result_t ret;
+    tt_u32_t i, j;
+
+    TT_TEST_CASE_ENTER()
+    // test start
+
+    tt_fcreate("a.txt", NULL);
+
+    for (i = 0; i < __task_num; ++i) {
+        ret = tt_task_create(&task[i], NULL);
+        TT_TEST_CHECK_SUCCESS(ret, "");
+
+        for (j = 0; j < __fiber_per_task; ++j) {
+            tt_task_add_fiber(&task[i],
+                              __fs_fiber,
+                              (void *)(tt_uintptr_t)((i << 16) | j),
+                              NULL);
+        }
+    }
+
+    __err_line = 0;
+    for (i = 0; i < __task_num; ++i) {
+        ret = tt_task_run(&task[i]);
+        TT_TEST_CHECK_SUCCESS(ret, "");
+    }
+    TT_TEST_CHECK_EQUAL(__err_line, 0, "");
+
+    for (i = 0; i < __task_num; ++i) {
+        tt_task_wait(&task[i]);
+    }
+
+    tt_fremove("a.txt");
 
     // test end
     TT_TEST_CASE_LEAVE()

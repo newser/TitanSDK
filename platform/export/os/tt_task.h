@@ -72,16 +72,16 @@ extern void tt_task_add_fiber(IN tt_task_t *t,
 
 extern tt_result_t tt_task_run(IN tt_task_t *t);
 
-tt_inline void tt_task_yield(IN tt_task_t *t)
-{
-    tt_io_poller_yield(&t->iop);
-}
-
 // set NULL to exit current task, but note it does not exit immediately
 extern void tt_task_exit(IN OPT tt_task_t *t);
 
 extern void tt_task_wait(IN tt_task_t *t);
 
 extern tt_result_t tt_task_run_local(IN tt_task_t *t);
+
+tt_inline void tt_task_finish(IN tt_task_t *t, IN tt_io_ev_t *io_ev)
+{
+    tt_io_poller_finish(&t->iop, io_ev);
+}
 
 #endif /* __TT_TASK__ */

@@ -42,7 +42,7 @@
 // global variant
 ////////////////////////////////////////////////////////////
 
-tt_iowg_t tt_g_iowg;
+tt_iowg_t tt_g_fs_iowg;
 
 ////////////////////////////////////////////////////////////
 // interface declaration
@@ -181,7 +181,7 @@ void tt_iowg_push_ev(IN tt_iowg_t *wg, IN tt_io_ev_t *ev)
 tt_result_t __iowg_component_init(IN tt_component_t *comp,
                                   IN tt_profile_t *profile)
 {
-    if (!TT_OK(tt_iowg_create(&tt_g_iowg, 0, NULL))) {
+    if (!TT_OK(tt_iowg_create(&tt_g_fs_iowg, tt_g_cpu_num, NULL))) {
         TT_ERROR("fail to create global io worker group");
         return TT_FAIL;
     }
@@ -197,6 +197,7 @@ void __iowg_destroy_worker(IN tt_iowg_t *wg, IN tt_u32_t worker_num)
         tt_io_ev_t *ev = tt_xmalloc(sizeof(tt_io_ev_t));
 
         ev->src = NULL;
+        ev->dst = NULL;
         tt_dnode_init(&ev->node);
         ev->io = TT_IO_WORKER;
         ev->ev = TT_IO_WORKER_EXIT;

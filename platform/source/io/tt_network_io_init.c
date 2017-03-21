@@ -71,11 +71,7 @@ void tt_network_io_component_register()
 tt_result_t __network_io_component_init(IN tt_component_t *comp,
                                         IN tt_profile_t *profile)
 {
-    tt_result_t result = TT_FAIL;
-
-    // init low level network system
-    result = tt_io_network_component_init_ntv();
-    if (!TT_OK(result)) {
+    if (!TT_OK(tt_network_io_component_init_ntv())) {
         TT_ERROR("fail to initialize network io system native");
         return TT_FAIL;
     }

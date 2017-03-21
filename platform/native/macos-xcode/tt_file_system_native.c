@@ -23,7 +23,7 @@
 #include <io/tt_file_system.h>
 #include <io/tt_io_event.h>
 #include <io/tt_io_worker_group.h>
-#include <os/tt_fiber.h>
+#include <os/tt_task.h>
 
 #include <tt_util_native.h>
 
@@ -56,7 +56,7 @@ enum
     __DCLOSE,
     __DREAD,
 
-    __FS_IO_NUM,
+    __FS_EV_NUM,
 };
 
 typedef struct
@@ -212,7 +212,7 @@ static void __do_dclose(IN tt_io_ev_t *io_ev);
 
 static void __do_dread(IN tt_io_ev_t *io_ev);
 
-static tt_io_handler_t __fs_io_handler[__FS_IO_NUM] = {
+static tt_io_handler_t __fs_io_handler[__FS_EV_NUM] = {
     __do_fcreate,
     __do_fremove,
     __do_fopen,
@@ -255,7 +255,7 @@ tt_result_t tt_fcreate_ntv(IN const tt_char_t *path,
 
     fcreate.result = TT_FAIL;
 
-    tt_iowg_push_ev(&tt_g_iowg, &fcreate.io_ev);
+    tt_iowg_push_ev(&tt_g_fs_iowg, &fcreate.io_ev);
     tt_fiber_yield();
     return fcreate.result;
 }
@@ -270,7 +270,7 @@ tt_result_t tt_fremove_ntv(IN const tt_char_t *path)
 
     fremove.result = TT_FAIL;
 
-    tt_iowg_push_ev(&tt_g_iowg, &fremove.io_ev);
+    tt_iowg_push_ev(&tt_g_fs_iowg, &fremove.io_ev);
     tt_fiber_yield();
     return fremove.result;
 }
@@ -292,7 +292,7 @@ tt_result_t tt_fopen_ntv(IN tt_file_ntv_t *file,
 
     fopen.result = TT_FAIL;
 
-    tt_iowg_push_ev(&tt_g_iowg, &fopen.io_ev);
+    tt_iowg_push_ev(&tt_g_fs_iowg, &fopen.io_ev);
     tt_fiber_yield();
     return fopen.result;
 }
@@ -305,7 +305,7 @@ void tt_fclose_ntv(IN tt_file_ntv_t *file)
 
     fclose.file = file;
 
-    tt_iowg_push_ev(&tt_g_iowg, &fclose.io_ev);
+    tt_iowg_push_ev(&tt_g_fs_iowg, &fclose.io_ev);
     tt_fiber_yield();
 }
 
@@ -323,7 +323,7 @@ tt_result_t tt_fseek_ntv(IN tt_file_ntv_t *file,
     fseek.offset = offset;
     fseek.location = location;
 
-    tt_iowg_push_ev(&tt_g_iowg, &fseek.io_ev);
+    tt_iowg_push_ev(&tt_g_fs_iowg, &fseek.io_ev);
     tt_fiber_yield();
     return fseek.result;
 }
@@ -345,7 +345,7 @@ tt_result_t tt_fread_ntv(IN tt_file_ntv_t *file,
 
     fread.result = TT_FAIL;
 
-    tt_iowg_push_ev(&tt_g_iowg, &fread.io_ev);
+    tt_iowg_push_ev(&tt_g_fs_iowg, &fread.io_ev);
     tt_fiber_yield();
     return fread.result;
 }
@@ -366,7 +366,7 @@ tt_result_t tt_fwrite_ntv(IN tt_file_ntv_t *file,
 
     fwrite.result = TT_FAIL;
 
-    tt_iowg_push_ev(&tt_g_iowg, &fwrite.io_ev);
+    tt_iowg_push_ev(&tt_g_fs_iowg, &fwrite.io_ev);
     tt_fiber_yield();
     return fwrite.result;
 }
@@ -382,7 +382,7 @@ tt_result_t tt_dcreate_ntv(IN const tt_char_t *path, IN tt_dir_attr_t *attr)
 
     dcreate.result = TT_FAIL;
 
-    tt_iowg_push_ev(&tt_g_iowg, &dcreate.io_ev);
+    tt_iowg_push_ev(&tt_g_fs_iowg, &dcreate.io_ev);
     tt_fiber_yield();
     return dcreate.result;
 }
@@ -397,7 +397,7 @@ tt_result_t tt_dremove_ntv(IN const tt_char_t *path)
 
     dremove.result = TT_FAIL;
 
-    tt_iowg_push_ev(&tt_g_iowg, &dremove.io_ev);
+    tt_iowg_push_ev(&tt_g_fs_iowg, &dremove.io_ev);
     tt_fiber_yield();
     return dremove.result;
 }
@@ -416,7 +416,7 @@ tt_result_t tt_dopen_ntv(OUT tt_dir_ntv_t *dir,
 
     dopen.result = TT_FAIL;
 
-    tt_iowg_push_ev(&tt_g_iowg, &dopen.io_ev);
+    tt_iowg_push_ev(&tt_g_fs_iowg, &dopen.io_ev);
     tt_fiber_yield();
     return dopen.result;
 }
@@ -429,7 +429,7 @@ void tt_dclose_ntv(OUT tt_dir_ntv_t *dir)
 
     dclose.dir = dir;
 
-    tt_iowg_push_ev(&tt_g_iowg, &dclose.io_ev);
+    tt_iowg_push_ev(&tt_g_fs_iowg, &dclose.io_ev);
     tt_fiber_yield();
 }
 
@@ -444,7 +444,7 @@ tt_result_t tt_dread_ntv(IN tt_dir_ntv_t *dir, OUT tt_dirent_t *entry)
 
     dread.result = TT_FAIL;
 
-    tt_iowg_push_ev(&tt_g_iowg, &dread.io_ev);
+    tt_iowg_push_ev(&tt_g_fs_iowg, &dread.io_ev);
     tt_fiber_yield();
     return dread.result;
 }
@@ -454,13 +454,16 @@ void tt_fs_io_worker(IN tt_io_ev_t *io_ev)
     __fs_io_handler[io_ev->ev](io_ev);
 
     if (io_ev->src != NULL) {
-        tt_fiber_activate(io_ev->src);
+        tt_task_finish(io_ev->src->fs->thread->task, io_ev);
+    } else {
+        tt_free(io_ev);
     }
 }
 
 void __fs_ev_init(IN tt_io_ev_t *io_ev, IN tt_u32_t ev)
 {
     io_ev->src = tt_current_fiber();
+    io_ev->dst = NULL;
     tt_dnode_init(&io_ev->node);
     io_ev->io = TT_IO_FS;
     io_ev->ev = ev;
@@ -564,7 +567,7 @@ again:
     } else if (errno == EINTR) {
         goto again;
     } else {
-        TT_ERROR_NTV("fail to create file: %s", fopen->path);
+        TT_ERROR_NTV("fail to open file: %s", fopen->path);
         fopen->result = TT_FAIL;
     }
 }

@@ -20,6 +20,8 @@
 
 #include <io/tt_io_poller.h>
 
+#include <init/tt_component.h>
+#include <init/tt_profile.h>
 #include <misc/tt_assert.h>
 #include <os/tt_fiber.h>
 
@@ -43,9 +45,27 @@
 // interface declaration
 ////////////////////////////////////////////////////////////
 
+static tt_result_t __iop_component_init(IN tt_component_t *comp,
+                                        IN tt_profile_t *profile);
+
 ////////////////////////////////////////////////////////////
 // interface implementation
 ////////////////////////////////////////////////////////////
+
+void tt_io_poller_component_register()
+{
+    static tt_component_t comp;
+
+    tt_component_itf_t itf = {
+        __iop_component_init,
+    };
+
+    // init component
+    tt_component_init(&comp, TT_COMPONENT_IO_POLLER, "IO Poller", NULL, &itf);
+
+    // register component
+    tt_component_register(&comp);
+}
 
 tt_result_t tt_io_poller_create(IN tt_io_poller_t *iop,
                                 IN OPT tt_io_poller_attr_t *attr)
@@ -73,4 +93,15 @@ void tt_io_poller_run(IN tt_io_poller_t *iop)
 {
     do {
     } while (tt_io_poller_run_ntv(&iop->sys_iop, TT_TIME_INFINITE));
+}
+
+tt_result_t __iop_component_init(IN tt_component_t *comp,
+                                 IN tt_profile_t *profile)
+{
+    if (!TT_OK(tt_io_poller_component_init_ntv())) {
+        TT_ERROR("fail to init native io poller component");
+        return TT_FAIL;
+    }
+
+    return TT_SUCCESS;
 }

@@ -238,22 +238,6 @@ void tt_fiber_resume(IN tt_fiber_t *fb)
     }
 }
 
-void tt_fiber_activate(IN tt_fiber_t *fb)
-{
-    tt_fiber_sched_t *fs = fb->fs;
-
-    tt_spinlock_acquire(&fs->lock);
-
-    if (fb != fs->__main) {
-        tt_list_remove(&fb->node);
-        tt_list_push_head(&fs->active, &fb->node);
-    }
-
-    tt_spinlock_release(&fs->lock);
-
-    tt_task_yield(fs->thread->task);
-}
-
 tt_fiber_t *__fiber_create_main(IN tt_fiber_sched_t *fs)
 {
     tt_fiber_t *fb;
