@@ -155,11 +155,11 @@ try to lock a spin lock
 */
 tt_inline tt_bool_t tt_spinlock_try_acquire_tag(IN tt_spinlock_t *slock
 #if (TT_SPINLOCK_DEBUG_OPT & TT_SPINLOCK_DEBUG_TAG)
-                                                  ,
-                                                  IN const tt_char_t *function,
-                                                  IN tt_u32_t line
+                                                ,
+                                                IN const tt_char_t *function,
+                                                IN tt_u32_t line
 #endif
-                                                  )
+                                                )
 {
     return tt_spinlock_try_acquire_ntv(&slock->sys_lock);
 }

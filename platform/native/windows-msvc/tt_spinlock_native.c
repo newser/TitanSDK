@@ -49,7 +49,7 @@
 ////////////////////////////////////////////////////////////
 
 tt_result_t tt_spinlock_create_ntv(IN tt_spinlock_ntv_t *lock,
-                                      IN struct tt_spinlock_attr_s *attr)
+                                   IN struct tt_spinlock_attr_s *attr)
 {
     lock->v = 0;
     return TT_SUCCESS;

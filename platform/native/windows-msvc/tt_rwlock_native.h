@@ -117,10 +117,9 @@ try to acquire a system rwlock to read
 return value MUST be checked, lock operation is implemented based on
 system call which is out of ts control
 */
-tt_inline tt_bool_t
-tt_rwlock_try_acquire_r_ntv(IN tt_rwlock_ntv_t *sys_rwlock)
+tt_inline tt_bool_t tt_rwlock_try_acquire_r_ntv(IN tt_rwlock_ntv_t *sys_rwlock)
 {
-    return  TT_BOOL(TryAcquireSRWLockShared(&sys_rwlock->lock));
+    return TT_BOOL(TryAcquireSRWLockShared(&sys_rwlock->lock));
 }
 
 /**
@@ -171,8 +170,7 @@ try to acquire a system rwlock to write
 return value MUST be checked, lock operation is implemented based on
 system call which is out of ts control
 */
-tt_inline tt_bool_t
-tt_rwlock_try_acquire_w_ntv(IN tt_rwlock_ntv_t *sys_rwlock)
+tt_inline tt_bool_t tt_rwlock_try_acquire_w_ntv(IN tt_rwlock_ntv_t *sys_rwlock)
 {
     return TT_BOOL(TryAcquireSRWLockExclusive(&sys_rwlock->lock));
 }

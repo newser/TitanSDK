@@ -23,8 +23,8 @@
 #include <io/tt_file_system.h>
 #include <io/tt_io_event.h>
 #include <io/tt_io_worker_group.h>
-#include <os/tt_task.h>
 #include <memory/tt_memory_alloc.h>
+#include <os/tt_task.h>
 
 #include <tt_util_native.h>
 

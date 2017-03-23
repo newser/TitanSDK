@@ -60,7 +60,7 @@ tt_result_t tt_fiber_create_wrap(IN tt_fiber_wrap_t *wrap_fb,
                                  IN tt_u32_t stack_size)
 {
     void *stack;
-    
+
     TT_U32_ALIGN_INC_PAGE(stack_size);
 
     wrap_fb->fctx = NULL;

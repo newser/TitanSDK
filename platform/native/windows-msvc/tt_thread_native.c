@@ -20,10 +20,10 @@
 
 #include <tt_thread_native.h>
 
-#include <misc/tt_assert.h>
 #include <algorithm/tt_list.h>
-#include <os/tt_thread.h>
+#include <misc/tt_assert.h>
 #include <os/tt_fiber.h>
+#include <os/tt_thread.h>
 
 #include <tt_cstd_api.h>
 #include <tt_sys_error.h>
@@ -166,12 +166,12 @@ VOID __thread_on_exit_ntv(IN PVOID *arg)
     }
 
     if (thread->sys_thread.end) {
-        // this happens when destroying a thread which has serveral 
+        // this happens when destroying a thread which has serveral
         // running fibers
         return;
     }
     thread->sys_thread.end = TT_TRUE;
-    
+
     __thread_on_exit(thread);
     // thread may already be freed
 }

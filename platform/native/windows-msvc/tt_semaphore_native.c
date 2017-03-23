@@ -48,10 +48,8 @@ tt_result_t tt_sem_create_ntv(IN tt_sem_ntv_t *sys_sem,
                               IN tt_u32_t count,
                               IN struct tt_sem_attr_s *attr)
 {
-    HANDLE h_sem = CreateSemaphore(NULL, 
-                                   TT_MIN(count, 0x7FFFFFFF), 
-                                   0x7FFFFFFF,
-                                   NULL);
+    HANDLE h_sem =
+        CreateSemaphore(NULL, TT_MIN(count, 0x7FFFFFFF), 0x7FFFFFFF, NULL);
     if (h_sem != NULL) {
         sys_sem->h_sem = h_sem;
         return TT_SUCCESS;

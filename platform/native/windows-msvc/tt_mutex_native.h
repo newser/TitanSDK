@@ -28,8 +28,8 @@ this file implements mutex apis in system level
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <tt_sys_error.h>
 #include <tt_assert_native.h>
+#include <tt_sys_error.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition

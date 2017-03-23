@@ -98,7 +98,7 @@ TT_TEST_CASE("tt_unit_test_fiber_basic",
                  NULL,
                  NULL,
                  NULL),
-    
+
     TT_TEST_CASE("tt_unit_test_worker_group",
                  "testing worker group",
                  tt_unit_test_worker_group,
@@ -205,7 +205,7 @@ static tt_result_t __test_fiber_2f_yield_resume(IN void *param)
 static tt_result_t __fiber_1_resume(IN void *param)
 {
     tt_fiber_sched_t *cfs = tt_current_fiber_sched();
-    
+
     if (param != (void *)1) {
         return TT_FAIL;
     }
@@ -520,7 +520,7 @@ static tt_result_t __test_fiber_san2(IN void *param)
     while (num++ < FIBER_NUM * 100) {
         tt_u32_t idx = tt_rand_u32() % FIBER_NUM;
         if (__fb_ar[idx] != NULL) {
-            //TT_INFO("resuming %p", __fb_ar[idx]);
+            // TT_INFO("resuming %p", __fb_ar[idx]);
             tt_fiber_resume(__fb_ar[idx]);
         }
     }

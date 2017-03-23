@@ -121,24 +121,26 @@ tt_result_t tt_evp_poll_ntv(IN struct tt_evpoller_s *evp, IN tt_s64_t wait_ms)
         }
 
         switch (*((tt_u32_t *)CompletionKey)) {
-/*            case TT_EV_RANGE_INTERNAL_FILE: {
-                result = tt_file_iocp_handler(__KEY2FILE(CompletionKey),
-                                              NumberOfBytes,
-                                              Overlapped,
-                                              iocp_result);
-                if (!TT_OK(result)) {
-                    return TT_FAIL;
-                }
-            } break;
-            case TT_EV_RANGE_INTERNAL_DIR: {
-                result = tt_dir_iocp_handler(__KEY2DIR(CompletionKey),
-                                             NumberOfBytes,
-                                             Overlapped,
-                                             iocp_result);
-                if (!TT_OK(result)) {
-                    return TT_FAIL;
-                }
-            } break;*/
+            /*            case TT_EV_RANGE_INTERNAL_FILE: {
+                            result =
+               tt_file_iocp_handler(__KEY2FILE(CompletionKey),
+                                                          NumberOfBytes,
+                                                          Overlapped,
+                                                          iocp_result);
+                            if (!TT_OK(result)) {
+                                return TT_FAIL;
+                            }
+                        } break;
+                        case TT_EV_RANGE_INTERNAL_DIR: {
+                            result =
+               tt_dir_iocp_handler(__KEY2DIR(CompletionKey),
+                                                         NumberOfBytes,
+                                                         Overlapped,
+                                                         iocp_result);
+                            if (!TT_OK(result)) {
+                                return TT_FAIL;
+                            }
+                        } break;*/
             case TT_EV_RANGE_INTERNAL_SOCKET: {
                 result = tt_skt_iocp_handler(__KEY2SKT(CompletionKey),
                                              NumberOfBytes,

@@ -463,7 +463,7 @@ tt_result_t __fs_fiber(IN void *param)
 
         __fiber_end[t_idx][f_idx] = TT_TRUE;
         if (++__task_end[t_idx] == __fiber_per_task) {
-            //TT_INFO("task[%d] exit", t_idx);
+            // TT_INFO("task[%d] exit", t_idx);
             tt_task_exit(NULL);
         }
 
@@ -490,7 +490,7 @@ tt_result_t __fs_fiber(IN void *param)
     tt_fclose(&f);
 
     if (++__task_end[t_idx] == __fiber_per_task) {
-        //TT_INFO("task[%d] exit", t_idx);
+        // TT_INFO("task[%d] exit", t_idx);
         tt_task_exit(NULL);
     }
     //++__fiber_end[t_idx][f_idx];

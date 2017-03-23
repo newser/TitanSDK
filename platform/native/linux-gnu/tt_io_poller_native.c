@@ -21,8 +21,8 @@
 #include <tt_io_poller_native.h>
 
 #include <io/tt_io_event.h>
-#include <os/tt_fiber.h>
 #include <memory/tt_memory_alloc.h>
+#include <os/tt_fiber.h>
 #include <os/tt_task.h>
 
 #include <tt_sys_error.h>
@@ -248,7 +248,8 @@ tt_result_t tt_io_poller_exit_ntv(IN tt_io_poller_ntv_t *sys_iop)
     tt_spinlock_release(&sys_iop->poller_lock);
 
 again:
-    if (write(sys_iop->poller_evfd, &sig, sizeof(uint64_t)) == sizeof(uint64_t)) {
+    if (write(sys_iop->poller_evfd, &sig, sizeof(uint64_t)) ==
+        sizeof(uint64_t)) {
         return TT_SUCCESS;
     } else if (errno == EINTR) {
         goto again;
@@ -269,7 +270,8 @@ tt_result_t tt_io_poller_finish_ntv(IN tt_io_poller_ntv_t *sys_iop,
     tt_spinlock_release(&sys_iop->worker_lock);
 
 again:
-    if (write(sys_iop->worker_evfd, &sig, sizeof(uint64_t)) == sizeof(uint64_t)) {
+    if (write(sys_iop->worker_evfd, &sig, sizeof(uint64_t)) ==
+        sizeof(uint64_t)) {
         return TT_SUCCESS;
     } else if (errno == EINTR) {
         goto again;
@@ -289,7 +291,8 @@ tt_result_t tt_io_poller_send_ntv(IN tt_io_poller_ntv_t *sys_iop,
     tt_spinlock_release(&sys_iop->poller_lock);
 
 again:
-    if (write(sys_iop->poller_evfd, &sig, sizeof(uint64_t)) == sizeof(uint64_t)) {
+    if (write(sys_iop->poller_evfd, &sig, sizeof(uint64_t)) ==
+        sizeof(uint64_t)) {
         return TT_SUCCESS;
     } else if (errno == EINTR) {
         goto again;
@@ -304,7 +307,7 @@ tt_bool_t __worker_io(IN tt_io_poller_ntv_t *sys_iop)
     uint64_t num;
     tt_dlist_t dl;
     tt_dnode_t *node;
-    
+
     read(sys_iop->worker_evfd, &num, sizeof(uint64_t));
 
     tt_dlist_init(&dl);
@@ -356,4 +359,3 @@ tt_bool_t __poller_io(IN tt_io_poller_ntv_t *sys_iop)
 
     return TT_TRUE;
 }
-

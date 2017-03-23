@@ -127,7 +127,7 @@ TT_TEST_ROUTINE_DEFINE(name)
         tt_queue_iter_t pos;
         tt_u32_t *pu32;
 
-		tt_queue_iter(&q, &pos);
+        tt_queue_iter(&q, &pos);
         i = 0;
         while ((pu32 = tt_queue_iter_next(&pos)) != NULL) {
             TT_TEST_CHECK_EQUAL(*pu32, v[i++], "");
@@ -147,7 +147,7 @@ TT_TEST_ROUTINE_DEFINE(name)
         tt_queue_iter_t pos;
         tt_u32_t *pu32;
 
-		tt_queue_iter(&q, &pos);
+        tt_queue_iter(&q, &pos);
         i = 0;
         while ((pu32 = tt_queue_iter_next(&pos)) != NULL) {
             TT_TEST_CHECK_EQUAL(*pu32, v[i++], "");
@@ -246,7 +246,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_ptr_queue)
         tt_ptrq_iter_t pos;
         tt_ptr_t p;
 
-		tt_ptrq_iter(&q, &pos);
+        tt_ptrq_iter(&q, &pos);
         i = 0;
         while ((p = tt_ptrq_iter_next(&pos)) != NULL) {
             TT_TEST_CHECK_EQUAL(p, &v[i++], "");

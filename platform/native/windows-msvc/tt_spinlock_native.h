@@ -61,18 +61,18 @@ tt_spinlock_component_init_ntv(IN struct tt_profile_s *profile)
     return TT_SUCCESS;
 }
 
-extern tt_result_t tt_spinlock_create_ntv(
-    IN tt_spinlock_ntv_t *slock, IN struct tt_spinlock_attr_s *attr);
+extern tt_result_t tt_spinlock_create_ntv(IN tt_spinlock_ntv_t *slock,
+                                          IN struct tt_spinlock_attr_s *attr);
 
 extern void tt_spinlock_destroy_ntv(IN tt_spinlock_ntv_t *slock);
 
 tt_inline void tt_spinlock_acquire_ntv(IN tt_spinlock_ntv_t *slock)
 {
-    while (InterlockedCompareExchange(&slock->v, 1, 0) != 0);
+    while (InterlockedCompareExchange(&slock->v, 1, 0) != 0)
+        ;
 }
 
-tt_inline tt_bool_t
-tt_spinlock_try_acquire_ntv(IN tt_spinlock_ntv_t *slock)
+tt_inline tt_bool_t tt_spinlock_try_acquire_ntv(IN tt_spinlock_ntv_t *slock)
 {
     return TT_BOOL(InterlockedCompareExchange(&slock->v, 1, 0) == 0);
 }

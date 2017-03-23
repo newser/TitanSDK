@@ -20,12 +20,12 @@
 
 #include <tt_io_poller_native.h>
 
+#include <memory/tt_memory_alloc.h>
 #include <os/tt_fiber.h>
 #include <os/tt_task.h>
-#include <memory/tt_memory_alloc.h>
 
-#include <tt_sys_error.h>
 #include <tt_file_system_native.h>
+#include <tt_sys_error.h>
 
 ////////////////////////////////////////////////////////////
 // internal macro
@@ -162,7 +162,7 @@ tt_result_t tt_io_poller_finish_ntv(IN tt_io_poller_ntv_t *sys_iop,
                                     IN tt_io_ev_t *io_ev)
 {
     io_ev->io = TT_IO_WORKER;
-    
+
     if (!PostQueuedCompletionStatus(sys_iop->iocp,
                                     0,
                                     (ULONG_PTR)NULL,
@@ -223,7 +223,6 @@ tt_bool_t __fs_io(IN tt_io_ev_t *io_ev)
         TT_ASSERT(io_ev->src != NULL);
         tt_fiber_resume(io_ev->src);
     }
-    
+
     return TT_TRUE;
 }
-

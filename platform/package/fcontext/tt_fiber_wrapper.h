@@ -28,6 +28,8 @@
 
 #include <tt_basic_type.h>
 
+#include <tt_cstd_api.h>
+
 #include <fcontext/source/latest/tt_fcontext.h>
 
 ////////////////////////////////////////////////////////////

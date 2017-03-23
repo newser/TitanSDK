@@ -195,15 +195,15 @@ int main(int argc, char *argv[])
         tt_console_run(__console_ev_handler, NULL, TT_TRUE);
     }
 #elif AUT_MODE == 2
-    {
-        tt_cfgsh_t sh;
+{
+    tt_cfgsh_t sh;
 
-        tt_console_cfgsh_create(&sh, TT_CLI_MODE_DEFAUTL, NULL);
+    tt_console_cfgsh_create(&sh, TT_CLI_MODE_DEFAUTL, NULL);
 
-        tt_console_cfgsh_run(&sh, TT_TRUE);
-    }
+    tt_console_cfgsh_run(&sh, TT_TRUE);
+}
 #else
-    tt_cli_demo_run();
+tt_cli_demo_run();
 #endif
 
 #ifdef TT_WINDOWS_CRT_DUMP

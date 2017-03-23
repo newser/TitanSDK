@@ -30,8 +30,8 @@ this file implements semaphore apis in system level
 
 #include <misc/tt_util.h>
 
-#include <tt_sys_error.h>
 #include <tt_assert_native.h>
+#include <tt_sys_error.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
@@ -99,9 +99,9 @@ wait a system semaphore
 - TT_FAIL, otherwise
 */
 tt_inline tt_bool_t tt_sem_acquire_ntv(IN tt_sem_ntv_t *sys_sem,
-                                         IN tt_u32_t wait_ms)
+                                       IN tt_u32_t wait_ms)
 {
-    DWORD ret = WaitForSingleObject(sys_sem->h_sem, 
+    DWORD ret = WaitForSingleObject(sys_sem->h_sem,
                                     TT_COND(wait_ms == TT_TIME_INFINITE,
                                             INFINITE,
                                             wait_ms));
