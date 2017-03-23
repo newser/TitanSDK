@@ -153,7 +153,7 @@ try to lock a spin lock
 @note
 - NEVER acquire a spinlock which has already been acquired by same thread
 */
-tt_inline tt_result_t tt_spinlock_try_acquire_tag(IN tt_spinlock_t *slock
+tt_inline tt_bool_t tt_spinlock_try_acquire_tag(IN tt_spinlock_t *slock
 #if (TT_SPINLOCK_DEBUG_OPT & TT_SPINLOCK_DEBUG_TAG)
                                                   ,
                                                   IN const tt_char_t *function,

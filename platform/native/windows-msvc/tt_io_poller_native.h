@@ -15,49 +15,31 @@
  */
 
 /**
-@file tt_environment_config_native.h
-@brief environment configuration native definitions
-
-this file load environment configurations
+@file tt_io_poller_natvie.h
+@brief io poller native
 */
 
-#ifndef __TT_ENVIRONMENT_CONFIG_NATIVE__
-#define __TT_ENVIRONMENT_CONFIG_NATIVE__
+#ifndef __TT_IO_POLLER_NATIVE__
+#define __TT_IO_POLLER_NATIVE__
 
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
+#include <io/tt_io_event.h>
+
 ////////////////////////////////////////////////////////////
 // macro definition
 ////////////////////////////////////////////////////////////
 
-// ========================================
-// app running os
-// ========================================
-
-#define TT_ENV_OS_VER_WINDOWS_VISTA (TT_ENV_OS_TYPE_WINDOWS | (1 & 0xFF))
-#define TT_ENV_OS_VER_WINDOWS_7 (TT_ENV_OS_TYPE_WINDOWS | (2 & 0xFF))
-#define TT_ENV_OS_VER_WINDOWS_8 (TT_ENV_OS_TYPE_WINDOWS | (3 & 0xFF))
-#define TT_ENV_OS_VER_WINDOWS_10 (TT_ENV_OS_TYPE_WINDOWS | (4 & 0xFF))
-
-// ========================================
-// app running cpu
-// ========================================
-
-// ========================================
-// app building toolchain
-// ========================================
-
-#define TT_ENV_TOOLCHAIN_MSVC_2010 (TT_ENV_TOOLCHAIN_MSVC | 0x101)
-#define TT_ENV_TOOLCHAIN_MSVC_2012 (TT_ENV_TOOLCHAIN_MSVC | 0x101)
-#define TT_ENV_TOOLCHAIN_MSVC_2013 (TT_ENV_TOOLCHAIN_MSVC | 0x102)
-#define TT_ENV_TOOLCHAIN_MSVC_2015 (TT_ENV_TOOLCHAIN_MSVC | 0x103)
-#define TT_ENV_TOOLCHAIN_MSVC_2017 (TT_ENV_TOOLCHAIN_MSVC | 0x104)
-
 ////////////////////////////////////////////////////////////
 // type definition
 ////////////////////////////////////////////////////////////
+
+typedef struct tt_io_poller_ntv_s
+{
+    HANDLE iocp;
+} tt_io_poller_ntv_t;
 
 ////////////////////////////////////////////////////////////
 // global variants
@@ -67,4 +49,21 @@ this file load environment configurations
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-#endif /* __TT_ENVIRONMENT_CONFIG_NATIVE__ */
+extern tt_result_t tt_io_poller_component_init_ntv();
+
+extern tt_result_t tt_io_poller_create_ntv(IN tt_io_poller_ntv_t *sys_iop);
+
+extern void tt_io_poller_destroy_ntv(IN tt_io_poller_ntv_t *sys_iop);
+
+extern tt_bool_t tt_io_poller_run_ntv(IN tt_io_poller_ntv_t *sys_iop,
+                                      IN tt_s64_t wait_ms);
+
+extern tt_result_t tt_io_poller_exit_ntv(IN tt_io_poller_ntv_t *sys_iop);
+
+extern tt_result_t tt_io_poller_finish_ntv(IN tt_io_poller_ntv_t *sys_iop,
+                                           IN tt_io_ev_t *io_ev);
+
+extern tt_result_t tt_io_poller_send_ntv(IN tt_io_poller_ntv_t *sys_iop,
+                                         IN tt_io_ev_t *io_ev);
+
+#endif // __TT_IO_POLLER_NATIVE__

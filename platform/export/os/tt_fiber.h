@@ -30,7 +30,11 @@
 #include <os/tt_spinlock.h>
 #include <os/tt_thread.h>
 
+#if TT_ENV_OS_IS_WINDOWS
+#include <fcontext/tt_fiber_windows.h>
+#else
 #include <fcontext/tt_fiber_wrapper.h>
+#endif
 
 ////////////////////////////////////////////////////////////
 // macro definition

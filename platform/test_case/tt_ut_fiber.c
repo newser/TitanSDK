@@ -98,7 +98,7 @@ TT_TEST_CASE("tt_unit_test_fiber_basic",
                  NULL,
                  NULL,
                  NULL),
-
+    
     TT_TEST_CASE("tt_unit_test_worker_group",
                  "testing worker group",
                  tt_unit_test_worker_group,
@@ -205,7 +205,7 @@ static tt_result_t __test_fiber_2f_yield_resume(IN void *param)
 static tt_result_t __fiber_1_resume(IN void *param)
 {
     tt_fiber_sched_t *cfs = tt_current_fiber_sched();
-
+    
     if (param != (void *)1) {
         return TT_FAIL;
     }
@@ -287,7 +287,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_fiber_basic)
     TT_TEST_CASE_LEAVE()
 }
 
-#define FIBER_NUM 100
+#define FIBER_NUM 2
 static tt_fiber_t *__fb_ar[FIBER_NUM];
 
 static tt_u32_t __ques[FIBER_NUM], __ans[FIBER_NUM], __waiting[FIBER_NUM];
@@ -456,7 +456,7 @@ static tt_result_t __fiber_san2(IN void *param)
         fattr.stack_size = tt_rand_u32() % (1 << 6) + 1;
 
         __fb_ar[idx + 1] = tt_fiber_create(__fiber_san2,
-                                           (void *)(tt_uintptr_t)idx + 1,
+                                           (void *)(tt_uintptr_t)(idx + 1),
                                            &fattr);
         tt_fiber_resume(__fb_ar[idx + 1]);
     }
@@ -485,7 +485,7 @@ static tt_result_t __fiber_san2(IN void *param)
 
 static tt_result_t __test_fiber_san2(IN void *param)
 {
-    tt_u32_t i, num = 0;
+    tt_u32_t num = 0;
 
 #if 0
     for (i = 0; i < FIBER_NUM; ++i) {
@@ -520,7 +520,7 @@ static tt_result_t __test_fiber_san2(IN void *param)
     while (num++ < FIBER_NUM * 100) {
         tt_u32_t idx = tt_rand_u32() % FIBER_NUM;
         if (__fb_ar[idx] != NULL) {
-            TT_INFO("resuming %p", __fb_ar[idx]);
+            //TT_INFO("resuming %p", __fb_ar[idx]);
             tt_fiber_resume(__fb_ar[idx]);
         }
     }

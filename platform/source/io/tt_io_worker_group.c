@@ -133,8 +133,6 @@ tt_result_t tt_iowg_create(IN tt_iowg_t *wg,
 
 void tt_iowg_destroy(IN tt_iowg_t *wg)
 {
-    tt_u32_t i;
-
     TT_ASSERT(wg != NULL);
 
     if (!tt_dlist_empty(&wg->ev_list)) {

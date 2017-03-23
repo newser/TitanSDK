@@ -152,7 +152,23 @@ app building toochain
 @def TT_ENV_TOOLCHAIN_VER
 app building toochain version
 */
+#if defined(_MSC_VER)
+    #if ((_MSC_VER >= 1600) && (_MSC_VER < 1700))
+        #define TT_ENV_TOOLCHAIN_VER TT_ENV_TOOLCHAIN_MSVC_2010
+    #elif ((_MSC_VER >= 1700) && (_MSC_VER < 1800))
+        #define TT_ENV_TOOLCHAIN_VER TT_ENV_TOOLCHAIN_MSVC_2012
+    #elif ((_MSC_VER >= 1800) && (_MSC_VER < 1900))
+        #define TT_ENV_TOOLCHAIN_VER TT_ENV_TOOLCHAIN_MSVC_2013
+    #elif ((_MSC_VER >= 1900) && (_MSC_VER < 2000))
+        #define TT_ENV_TOOLCHAIN_VER TT_ENV_TOOLCHAIN_MSVC_2015
+    #elif ((_MSC_VER >= 2000) && (_MSC_VER < 2100))
+        #define TT_ENV_TOOLCHAIN_VER TT_ENV_TOOLCHAIN_MSVC_2017
+    #else
+        #define TT_ENV_TOOLCHAIN_VER TS_ENV_UNKNOWN_VAL
+    #endif
+#else
 #define TT_ENV_TOOLCHAIN_VER TS_ENV_UNKNOWN_VAL
+#endif
 
 // ========================================
 // app running cpu

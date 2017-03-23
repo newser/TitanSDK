@@ -123,7 +123,6 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_fs_multhread)
         TT_TEST_ROUTINE_DEFINE(tt_unit_test_fs_basic)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
-    tt_file_t tf;
     tt_result_t ret;
 
     TT_TEST_CASE_ENTER()

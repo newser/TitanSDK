@@ -15,21 +15,21 @@
  */
 
 /**
-@file tt_spinlock_native_cs.h
+@file tt_spinlock_native.h
 @brief spin lock implemented by windows critical section
 
 this files defines system APIs of spin lock implemented by windows spin
 critical section
 */
 
-#ifndef __TT_SPINLOCK_NATIVE_CS__
-#define __TT_SPINLOCK_NATIVE_CS__
+#ifndef __TT_SPINLOCK_NATIVE__
+#define __TT_SPINLOCK_NATIVE__
 
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <tt_sys_error.h>
+#include <misc/tt_util.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
@@ -44,8 +44,8 @@ struct tt_spinlock_attr_s;
 
 typedef struct
 {
-    CRITICAL_SECTION cs;
-} tt_spinlock_ntv_cs_t;
+    __declspec(align(4)) LONG v;
+} tt_spinlock_ntv_t;
 
 ////////////////////////////////////////////////////////////
 // global variants
@@ -56,35 +56,30 @@ typedef struct
 ////////////////////////////////////////////////////////////
 
 tt_inline tt_result_t
-tt_spinlock_component_init_ntv_cs(IN struct tt_profile_s *profile)
+tt_spinlock_component_init_ntv(IN struct tt_profile_s *profile)
 {
     return TT_SUCCESS;
 }
 
-extern tt_result_t tt_spinlock_create_ntv_cs(
-    IN tt_spinlock_ntv_cs_t *lock, IN struct tt_spinlock_attr_s *attr);
+extern tt_result_t tt_spinlock_create_ntv(
+    IN tt_spinlock_ntv_t *slock, IN struct tt_spinlock_attr_s *attr);
 
-extern void tt_spinlock_destroy_ntv_cs(IN tt_spinlock_ntv_cs_t *lock);
+extern void tt_spinlock_destroy_ntv(IN tt_spinlock_ntv_t *slock);
 
-tt_inline tt_result_t tt_spinlock_acquire_ntv_cs(IN tt_spinlock_ntv_cs_t *lock)
+tt_inline void tt_spinlock_acquire_ntv(IN tt_spinlock_ntv_t *slock)
 {
-    EnterCriticalSection(&lock->cs);
-    return TT_SUCCESS;
+    while (InterlockedCompareExchange(&slock->v, 1, 0) != 0);
 }
 
-tt_inline tt_result_t
-tt_spinlock_try_acquire_ntv_cs(IN tt_spinlock_ntv_cs_t *lock)
+tt_inline tt_bool_t
+tt_spinlock_try_acquire_ntv(IN tt_spinlock_ntv_t *slock)
 {
-    if (TryEnterCriticalSection(&lock->cs)) {
-        return TT_SUCCESS;
-    } else {
-        return TT_TIME_OUT;
-    }
+    return TT_BOOL(InterlockedCompareExchange(&slock->v, 1, 0) == 0);
 }
 
-tt_inline void tt_spinlock_release_ntv_cs(IN tt_spinlock_ntv_cs_t *lock)
+tt_inline void tt_spinlock_release_ntv(IN tt_spinlock_ntv_t *slock)
 {
-    LeaveCriticalSection(&lock->cs);
+    TT_ASSERT_ALWAYS(InterlockedCompareExchange(&slock->v, 0, 1) == 1);
 }
 
-#endif /* __TT_SPINLOCK_NATIVE_CS__ */
+#endif /* __TT_SPINLOCK_NATIVE__ */

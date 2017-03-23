@@ -49,7 +49,7 @@
 
 static tt_fiber_t *__fiber_create_main(IN tt_fiber_sched_t *fs);
 
-static void __fiber_destroy_main(IN tt_fiber_t *fiber);
+static void __fiber_destroy_main(IN tt_fiber_t *fb);
 
 static tt_fiber_t *__fiber_sched_next(IN tt_fiber_sched_t *fs);
 
@@ -231,20 +231,26 @@ tt_fiber_t *__fiber_create_main(IN tt_fiber_sched_t *fs)
         return NULL;
     }
 
+    if (!TT_OK(tt_fiber_create_local_wrap(&fb->wrap_fb))) {
+        tt_free(fb);
+        return NULL;
+    }
+
     tt_lnode_init(&fb->node);
     fb->routine = NULL;
     fb->param = NULL;
     fb->fs = fs;
-    tt_memset(&fb->wrap_fb, 0, sizeof(tt_fiber_wrap_t));
     fb->can_yield = TT_TRUE;
     fb->end = TT_FALSE;
 
     return fb;
 }
 
-void __fiber_destroy_main(IN tt_fiber_t *fiber)
+void __fiber_destroy_main(IN tt_fiber_t *fb)
 {
-    tt_free(fiber);
+    tt_fiber_destroy_local_wrap(&fb->wrap_fb);
+
+    tt_free(fb);
 }
 
 tt_fiber_t *__fiber_sched_next(IN tt_fiber_sched_t *fs)

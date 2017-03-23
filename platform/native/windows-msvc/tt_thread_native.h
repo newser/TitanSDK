@@ -28,7 +28,7 @@ this file specifies interfaces for system specific thread operations.
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <tt_basic_type.h>
+#include <misc/tt_util.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
@@ -42,7 +42,8 @@ struct tt_thread_s;
 
 typedef struct
 {
-    HANDLE thread_handle;
+    HANDLE h_thread;
+    tt_bool_t end : 1;
 } tt_thread_ntv_t;
 
 ////////////////////////////////////////////////////////////
@@ -135,14 +136,9 @@ put current thread into sleeping
 - TT_SUCCESS if sleeping done
 - TT_FAIL if some error occurs
 */
-tt_inline tt_result_t tt_sleep_ntv(IN tt_u32_t millisec)
+tt_inline void tt_sleep_ntv(IN tt_u32_t ms)
 {
-    if (millisec == TT_TIME_INFINITE) {
-        Sleep(INFINITE);
-    } else {
-        Sleep(millisec);
-    }
-    return TT_SUCCESS;
+    Sleep(TT_COND(ms == TT_TIME_INFINITE, INFINITE, ms));
 }
 
 /**

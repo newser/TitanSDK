@@ -15,49 +15,35 @@
  */
 
 /**
-@file tt_environment_config_native.h
-@brief environment configuration native definitions
-
-this file load environment configurations
+@file tt_fiber_windows.h
+@brief fiber wrapper windows
 */
 
-#ifndef __TT_ENVIRONMENT_CONFIG_NATIVE__
-#define __TT_ENVIRONMENT_CONFIG_NATIVE__
+#ifndef __TT_FIBER_WINDOWS__
+#define __TT_FIBER_WINDOWS__
 
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
+#include <tt_basic_type.h>
+
 ////////////////////////////////////////////////////////////
 // macro definition
 ////////////////////////////////////////////////////////////
 
-// ========================================
-// app running os
-// ========================================
-
-#define TT_ENV_OS_VER_WINDOWS_VISTA (TT_ENV_OS_TYPE_WINDOWS | (1 & 0xFF))
-#define TT_ENV_OS_VER_WINDOWS_7 (TT_ENV_OS_TYPE_WINDOWS | (2 & 0xFF))
-#define TT_ENV_OS_VER_WINDOWS_8 (TT_ENV_OS_TYPE_WINDOWS | (3 & 0xFF))
-#define TT_ENV_OS_VER_WINDOWS_10 (TT_ENV_OS_TYPE_WINDOWS | (4 & 0xFF))
-
-// ========================================
-// app running cpu
-// ========================================
-
-// ========================================
-// app building toolchain
-// ========================================
-
-#define TT_ENV_TOOLCHAIN_MSVC_2010 (TT_ENV_TOOLCHAIN_MSVC | 0x101)
-#define TT_ENV_TOOLCHAIN_MSVC_2012 (TT_ENV_TOOLCHAIN_MSVC | 0x101)
-#define TT_ENV_TOOLCHAIN_MSVC_2013 (TT_ENV_TOOLCHAIN_MSVC | 0x102)
-#define TT_ENV_TOOLCHAIN_MSVC_2015 (TT_ENV_TOOLCHAIN_MSVC | 0x103)
-#define TT_ENV_TOOLCHAIN_MSVC_2017 (TT_ENV_TOOLCHAIN_MSVC | 0x104)
-
 ////////////////////////////////////////////////////////////
 // type definition
 ////////////////////////////////////////////////////////////
+
+struct tt_fiber_s;
+struct tt_fiber_sched_s;
+
+typedef struct tt_fiber_wrap_s
+{
+    LPVOID fb;
+    struct tt_fiber_s *from;
+} tt_fiber_wrap_t;
 
 ////////////////////////////////////////////////////////////
 // global variants
@@ -67,4 +53,17 @@ this file load environment configurations
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-#endif /* __TT_ENVIRONMENT_CONFIG_NATIVE__ */
+extern tt_result_t tt_fiber_create_wrap(IN tt_fiber_wrap_t *wrap_fb,
+                                        IN tt_u32_t stack_size);
+
+extern void tt_fiber_destroy_wrap(IN tt_fiber_wrap_t *wrap_fb);
+
+extern tt_result_t tt_fiber_create_local_wrap(IN tt_fiber_wrap_t *wrap_fb);
+
+extern void tt_fiber_destroy_local_wrap(IN tt_fiber_wrap_t *wrap_fb);
+
+extern void tt_fiber_switch_wrap(IN struct tt_fiber_sched_s *fs,
+                                 IN struct tt_fiber_s *from,
+                                 IN struct tt_fiber_s *to);
+
+#endif /* __TT_FIBER_WINDOWS__ */

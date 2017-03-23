@@ -157,8 +157,6 @@ void tt_task_wait(IN tt_task_t *t)
 
 tt_result_t tt_task_run_local(IN tt_task_t *t)
 {
-    tt_snode_t *node;
-
     if (tt_slist_empty(&t->tfl)) {
         TT_ERROR("task has no fiber");
         return TT_FAIL;

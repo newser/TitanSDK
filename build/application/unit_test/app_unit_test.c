@@ -165,6 +165,15 @@ int main(int argc, char *argv[])
     tt_task_add_fiber(&t, __ut_fiber, NULL, NULL);
     tt_task_run(&t);
     tt_task_wait(&t);
+
+#if TT_ENV_OS_IS_WINDOWS
+    while (1) {
+#else
+    while (0) {
+#endif
+        tt_sleep(10000);
+    }
+
     return 0;
 
     // create a local thread

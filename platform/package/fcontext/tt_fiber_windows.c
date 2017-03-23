@@ -18,12 +18,11 @@
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <fcontext/tt_fiber_wrapper.h>
+#include <fcontext/tt_fiber_windows.h>
 
-#include <memory/tt_memory_alloc.h>
 #include <os/tt_fiber.h>
 
-#include <sys/mman.h>
+#include <tt_sys_error.h>
 
 ////////////////////////////////////////////////////////////
 // internal macro
@@ -45,12 +44,7 @@
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-static void __fiber_routine_wrapper(IN tt_transfer_t t);
-
-static tt_result_t __create_stack(IN tt_fiber_wrap_t *wrap_fb,
-                                  IN tt_u32_t stack_size);
-
-static void __destroy_stack();
+static VOID CALLBACK __fiber_routine_wrapper(PVOID lpParameter);
 
 ////////////////////////////////////////////////////////////
 // interface implementation
@@ -59,23 +53,59 @@ static void __destroy_stack();
 tt_result_t tt_fiber_create_wrap(IN tt_fiber_wrap_t *wrap_fb,
                                  IN tt_u32_t stack_size)
 {
-    void *stack;
-    
+    tt_u32_t reserve, commit;
+
     TT_U32_ALIGN_INC_PAGE(stack_size);
 
-    wrap_fb->fctx = NULL;
-    wrap_fb->from = NULL;
+    // The system commits additional pages from the reserved
+    // stack memory as they are needed, until either the stack
+    // reaches the reserved size minus one page (which is used
+    // as a guard page to prevent stack overflow)
+    reserve = stack_size + tt_g_page_size;
 
-    if (!TT_OK(__create_stack(wrap_fb, stack_size))) {
+    // 4 pages as initial committed size
+    commit = TT_MIN(stack_size, tt_g_page_size << 2);
+
+    wrap_fb->fb = CreateFiberEx(commit,
+                                reserve,
+                                FIBER_FLAG_FLOAT_SWITCH,
+                                __fiber_routine_wrapper,
+                                TT_CONTAINER(wrap_fb, tt_fiber_t, wrap_fb));
+    if (wrap_fb->fb == NULL) {
+        TT_ERROR_NTV("fail to create fiber");
         return TT_FAIL;
     }
+
+    wrap_fb->from = NULL;
 
     return TT_SUCCESS;
 }
 
 void tt_fiber_destroy_wrap(IN tt_fiber_wrap_t *wrap_fb)
 {
-    __destroy_stack();
+    DeleteFiber(wrap_fb->fb);
+}
+
+tt_result_t tt_fiber_create_local_wrap(IN tt_fiber_wrap_t *wrap_fb)
+{
+    wrap_fb->fb =
+        ConvertThreadToFiberEx(NULL, FIBER_FLAG_FLOAT_SWITCH);
+    if (wrap_fb->fb == NULL) {
+        TT_ERROR_NTV("fail to convert thread to fiber");
+        return TT_FAIL;
+    }
+    TT_INFO("MAIN FIBER DATA: %p", GetFiberData());
+
+    wrap_fb->from = NULL;
+
+    return TT_SUCCESS;
+}
+
+void tt_fiber_destroy_local_wrap(IN tt_fiber_wrap_t *wrap_fb)
+{
+    if (!ConvertFiberToThread()) {
+        TT_ERROR_NTV("fail to convert fiber to thread");
+    }
 }
 
 void tt_fiber_switch_wrap(IN tt_fiber_sched_t *fs,
@@ -83,7 +113,6 @@ void tt_fiber_switch_wrap(IN tt_fiber_sched_t *fs,
                           IN tt_fiber_t *to)
 {
     tt_fiber_wrap_t *wrap_to = &to->wrap_fb;
-    tt_transfer_t t;
     tt_fiber_t *prev;
 
     // from: current fiber
@@ -96,82 +125,36 @@ void tt_fiber_switch_wrap(IN tt_fiber_sched_t *fs,
     //  to: f2, as f1 ever switched to f2
     //  prev: f3, as f1 returns from f3
 
-    if (wrap_to->fctx == NULL) {
-        wrap_to->fctx = tt_make_fcontext(wrap_to->stack,
-                                         wrap_to->stack_size,
-                                         __fiber_routine_wrapper);
-    }
-
     wrap_to->from = from;
-    t = tt_jump_fcontext(wrap_to->fctx, to);
+    SwitchToFiber(to->wrap_fb.fb);
 
     prev = from->wrap_fb.from;
     if (prev->end) {
         tt_list_remove(&prev->node);
         tt_fiber_destroy(prev);
-    } else {
-        prev->wrap_fb.fctx = t.fctx;
     }
 }
 
-void __fiber_routine_wrapper(IN tt_transfer_t t)
+VOID CALLBACK __fiber_routine_wrapper(PVOID lpParameter)
 {
-    tt_fiber_t *cfb = t.data;
+    tt_fiber_t *cfb = (tt_fiber_t *)lpParameter;
     tt_fiber_sched_t *cfs = cfb->fs;
     tt_fiber_wrap_t *wrap_main = &cfb->fs->__main->wrap_fb;
 
-    // must save from's context
-    cfb->wrap_fb.from->wrap_fb.fctx = t.fctx;
+    if (!FlsSetValue(tt_g_thread_fls_index, (LPVOID)cfs->thread)) {
+        TT_ERROR_NTV("fail to set fls");
+        goto out;
+    }
 
     cfb->routine(cfb->param);
 
-    // must not use t.fctx, see a case:
-    //  f1 -> f2
-    //  f2 -> f3 ; now f2's t.fctx is stored in f1
-    //  f3 -> f1
-    //  f1 -> main ; f1 termiantes
-    //  main -> f2
-    //  f2 -> ? ; f2 terminates now, but t.fctx is invalid
-    //
-    // the simplest solution is jumping to main fiber as it's
-    // always valid
-
+out:
+    if (!FlsSetValue(tt_g_thread_fls_index, NULL)) {
+        TT_ERROR_NTV("fail to clear fls");
+    }
+    
     cfb->end = TT_TRUE;
     wrap_main->from = cfb;
-    tt_jump_fcontext(wrap_main->fctx, cfs->__main);
+    SwitchToFiber(wrap_main->fb);
 }
 
-tt_result_t __create_stack(IN tt_fiber_wrap_t *wrap_fb, IN tt_u32_t stack_size)
-{
-    void *stack;
-    tt_u32_t size;
-
-    TT_U32_ALIGN_INC_PAGE(stack_size);
-    size = stack_size + (tt_g_page_size << 1);
-
-    stack = mmap(NULL, size, PROT_NONE, MAP_PRIVATE | MAP_ANON, -1, 0);
-    if (stack == NULL) {
-        TT_ERROR_NTV("fail to reserve stack");
-        return TT_FAIL;
-    }
-
-    if (mprotect(TT_PTR_INC(void, stack, tt_g_page_size),
-                 stack_size,
-                 PROT_READ | PROT_WRITE) != 0) {
-        TT_ERROR_NTV("fail to change pages to read/write");
-        munmap(stack, size);
-        return TT_FAIL;
-    }
-
-    wrap_fb->stack = TT_PTR_INC(void, stack, stack_size + tt_g_page_size);
-    wrap_fb->stack_size = stack_size;
-    return TT_SUCCESS;
-}
-
-void __destroy_stack(IN tt_fiber_wrap_t *wrap_fb)
-{
-    munmap(TT_PTR_DEC(void,
-                      wrap_fb->stack,
-                      wrap_fb->stack_size + tt_g_page_size),
-           wrap_fb->stack_size + (tt_g_page_size << 1));
-}
