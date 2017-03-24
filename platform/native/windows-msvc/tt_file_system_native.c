@@ -87,6 +87,7 @@ typedef struct
     const tt_char_t *path;
     tt_u32_t flag;
     struct tt_file_attr_s *attr;
+    HANDLE iocp;
 
     tt_result_t result;
 } __fopen_t;
@@ -108,6 +109,7 @@ typedef struct
     tt_u32_t *read_len;
 
     tt_result_t result;
+    tt_u32_t pos;
 } __fread_t;
 
 typedef struct
@@ -120,6 +122,7 @@ typedef struct
     tt_u32_t *write_len;
 
     tt_result_t result;
+    tt_u32_t pos;
 } __fwrite_t;
 
 typedef struct
@@ -306,6 +309,7 @@ tt_result_t tt_fopen_ntv(IN tt_file_ntv_t *file,
     fopen.path = path;
     fopen.flag = flag;
     fopen.attr = attr;
+    fopen.iocp = tt_current_fiber_sched()->thread->task->iop.sys_iop.iocp;
 
     fopen.result = TT_FAIL;
 
@@ -361,8 +365,17 @@ tt_result_t tt_fread_ntv(IN tt_file_ntv_t *file,
     fread.read_len = read_len;
 
     fread.result = TT_FAIL;
+    fread.pos = 0;
 
-    tt_iowg_push_ev(&tt_g_fs_iowg, &fread.io_ev);
+    fread.io_ev.ov.Offset = (tt_u32_t)file->offset;
+    fread.io_ev.ov.OffsetHigh = (tt_u32_t)(file->offset >> 32);
+
+    if (!ReadFile(file->hf, buf, buf_len, NULL, &fread.io_ev.ov) &&
+        (GetLastError() != ERROR_IO_PENDING)) {
+        TT_ERROR("fail to read file");
+        return TT_FAIL;
+    }
+
     tt_fiber_yield();
     return fread.result;
 }
@@ -382,8 +395,27 @@ tt_result_t tt_fwrite_ntv(IN tt_file_ntv_t *file,
     fwrite.write_len = write_len;
 
     fwrite.result = TT_FAIL;
+    fwrite.pos = 0;
 
-    tt_iowg_push_ev(&tt_g_fs_iowg, &fwrite.io_ev);
+    // move to file end before writing
+    if (file->append) {
+        LONG high = 0;
+        DWORD loc = SetFilePointer(file->hf, 0, &high, FILE_END);
+        if (loc == INVALID_SET_FILE_POINTER) {
+            TT_ERROR_NTV("fail to move to file end");
+            return TT_FAIL;
+        }
+        file->offset = ((tt_s64_t)loc) | (((tt_s64_t)high) << 32);
+    }
+    fwrite.io_ev.ov.Offset = (tt_u32_t)file->offset;
+    fwrite.io_ev.ov.OffsetHigh = (tt_u32_t)(file->offset >> 32);
+
+    if (!WriteFile(file->hf, buf, buf_len, NULL, &fwrite.io_ev.ov) &&
+        (GetLastError() != ERROR_IO_PENDING)) {
+        TT_ERROR("fail to write file");
+        return TT_FAIL;
+    }
+
     tt_fiber_yield();
     return fwrite.result;
 }
@@ -550,6 +582,7 @@ void __do_fopen(IN tt_io_ev_t *io_ev)
 {
     __fopen_t *fopen = (__fopen_t *)io_ev;
 
+    tt_file_ntv_t *file = fopen->file;
     DWORD dwDesiredAccess;
     // LPSECURITY_ATTRIBUTES lpSecurityAttributes;
     DWORD dwCreationDisposition;
@@ -608,7 +641,7 @@ void __do_fopen(IN tt_io_ev_t *io_ev)
         return;
     }
 
-    fopen->file->hf =
+    file->hf =
         CreateFileW(w_path,
                     dwDesiredAccess,
                     FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
@@ -616,14 +649,27 @@ void __do_fopen(IN tt_io_ev_t *io_ev)
                     dwCreationDisposition,
                     dwFlagsAndAttributes,
                     NULL);
-    if (fopen->file->hf != INVALID_HANDLE_VALUE) {
-        fopen->result = TT_SUCCESS;
-    } else {
-        TT_ERROR_NTV("fail to create file: %ls", w_path);
+    tt_wchar_destroy(w_path);
+    if (file->hf == INVALID_HANDLE_VALUE) {
+        TT_ERROR_NTV("fail to create file");
         fopen->result = TT_FAIL;
+        return;
     }
 
-    tt_wchar_destroy(w_path);
+    if (CreateIoCompletionPort(file->hf,
+                               fopen->iocp,
+                               (ULONG_PTR)fopen->file,
+                               0) == NULL) {
+        TT_ERROR_NTV("fail to associate file with iocp");
+        CloseHandle(file->hf);
+        fopen->result = TT_FAIL;
+        return;
+    }
+
+    file->offset = 0;
+    file->append = TT_BOOL(dwDesiredAccess & FILE_APPEND_DATA);
+
+    fopen->result = TT_SUCCESS;
 }
 
 void __do_fclose(IN tt_io_ev_t *io_ev)
@@ -639,51 +685,153 @@ tt_bool_t __do_fread(IN tt_io_ev_t *io_ev)
 {
     __fread_t *fread = (__fread_t *)io_ev;
 
-    return TT_TRUE;
+    tt_file_ntv_t *file = fread->file;
+
+    // io_ev->io_bytes is always valid whatever io_result is
+    file->offset += io_ev->io_bytes;
+
+    fread->pos += io_ev->io_bytes;
+    if (fread->pos == fread->buf_len) {
+        *fread->read_len = fread->pos;
+        fread->result = TT_SUCCESS;
+        return TT_TRUE;
+    }
+    TT_ASSERT(fread->pos < fread->buf_len);
+
+    // return success whenever some data is read out
+    if (!TT_OK(io_ev->io_result)) {
+        if (fread->pos > 0) {
+            *fread->read_len = fread->pos;
+            fread->result = TT_SUCCESS;
+        } else {
+            fread->result = io_ev->io_result;
+        }
+        return TT_TRUE;
+    }
+
+    // buf is not full
+    fread->io_ev.ov.Offset = (tt_u32_t)file->offset;
+    fread->io_ev.ov.OffsetHigh = (tt_u32_t)(file->offset >> 32);
+
+    if (!ReadFile(fread->file->hf,
+                  TT_PTR_INC(tt_u8_t, fread->buf, fread->pos),
+                  fread->buf_len - fread->pos,
+                  NULL,
+                  &fread->io_ev.ov) &&
+        (GetLastError() != ERROR_IO_PENDING)) {
+        if (fread->pos > 0) {
+            *fread->read_len = fread->pos;
+            fread->result = TT_SUCCESS;
+        } else {
+            TT_ERROR("fail to read file");
+            fread->result = TT_FAIL;
+        }
+        return TT_TRUE;
+    }
+
+    return TT_FALSE;
 }
 
 tt_bool_t __do_fwrite(IN tt_io_ev_t *io_ev)
 {
     __fwrite_t *fwrite = (__fwrite_t *)io_ev;
 
-    return TT_TRUE;
+    tt_file_ntv_t *file = fwrite->file;
+
+    // io_ev->io_bytes is always valid whatever io_result is
+    file->offset += io_ev->io_bytes;
+
+    fwrite->pos += io_ev->io_bytes;
+    if (fwrite->pos == fwrite->buf_len) {
+        *fwrite->write_len = fwrite->pos;
+        fwrite->result = TT_SUCCESS;
+        return TT_TRUE;
+    }
+    TT_ASSERT(fwrite->pos < fwrite->buf_len);
+
+    // return success whenever some data is written
+    if (!TT_OK(io_ev->io_result)) {
+        if (fwrite->pos > 0) {
+            *fwrite->write_len = fwrite->pos;
+            fwrite->result = TT_SUCCESS;
+        } else {
+            fwrite->result = io_ev->io_result;
+        }
+        return TT_TRUE;
+    }
+
+    // move to file end before writing
+    if (file->append) {
+        LONG high = 0;
+        DWORD loc = SetFilePointer(file->hf, 0, &high, FILE_END);
+        if (loc == INVALID_SET_FILE_POINTER) {
+            if (fwrite->pos > 0) {
+                *fwrite->write_len = fwrite->pos;
+                fwrite->result = TT_SUCCESS;
+            } else {
+                TT_ERROR_NTV("fail to move to file end");
+                fwrite->result = TT_FAIL;
+            }
+            return TT_TRUE;
+        }
+        file->offset = ((tt_s64_t)loc) | (((tt_s64_t)high) << 32);
+    }
+    fwrite->io_ev.ov.Offset = (tt_u32_t)file->offset;
+    fwrite->io_ev.ov.OffsetHigh = (tt_u32_t)(file->offset >> 32);
+
+    // buf is not full
+    if (!WriteFile(fwrite->file->hf,
+                   TT_PTR_INC(tt_u8_t, fwrite->buf, fwrite->pos),
+                   fwrite->buf_len - fwrite->pos,
+                   NULL,
+                   &fwrite->io_ev.ov) &&
+        (GetLastError() != ERROR_IO_PENDING)) {
+        if (fwrite->pos > 0) {
+            *fwrite->write_len = fwrite->pos;
+            fwrite->result = TT_SUCCESS;
+        } else {
+            TT_ERROR("fail to write file");
+            fwrite->result = TT_FAIL;
+        }
+        return TT_TRUE;
+    }
+
+    return TT_FALSE;
 }
 
 void __do_fseek(IN tt_io_ev_t *io_ev)
 {
     __fseek_t *fseek = (__fseek_t *)io_ev;
 
-    LONG lDistanceToMove = (LONG)fseek->offset;
-    LONG lpDistanceToMoveHigh = (LONG)(fseek->offset >> 32);
-    DWORD dwMoveMethod;
-    DWORD location;
+    tt_file_ntv_t *file = fseek->file;
 
-    switch (fseek->whence) {
-        case TT_FSEEK_BEGIN:
-            dwMoveMethod = FILE_BEGIN;
-            break;
-        case TT_FSEEK_END:
-            dwMoveMethod = FILE_END;
-            break;
-        case TT_FSEEK_CUR:
-        default:
-            dwMoveMethod = FILE_CURRENT;
-            break;
-    }
-
-    location = SetFilePointer(fseek->file->hf,
-                              lDistanceToMove,
-                              &lpDistanceToMoveHigh,
-                              dwMoveMethod);
-    if (location != INVALID_SET_FILE_POINTER) {
-        TT_SAFE_ASSIGN(fseek->location,
-                       ((tt_s64_t)location) |
-                           (((tt_s64_t)lpDistanceToMoveHigh) << 32));
-        fseek->result = TT_SUCCESS;
+    if (fseek->whence == TT_FSEEK_BEGIN) {
+        if (fseek->offset < 0) {
+            TT_ERROR("negative location: %d", fseek->offset);
+            fseek->result = TT_FAIL;
+            return;
+        }
+        file->offset = fseek->offset;
+    } else if (fseek->whence == TT_FSEEK_CUR) {
+        if ((file->offset + fseek->offset) < 0) {
+            TT_ERROR("negative location: %d", file->offset + fseek->offset);
+            fseek->result = TT_FAIL;
+            return;
+        }
+        file->offset += fseek->offset;
     } else {
-        TT_ERROR_NTV("fail to set file pointer");
-        fseek->result = TT_FAIL;
+        LONG high = 0;
+        DWORD loc = SetFilePointer(file->hf, 0, &high, FILE_END);
+        if (loc == INVALID_SET_FILE_POINTER) {
+            TT_ERROR_NTV("fail to set file pointer");
+            fseek->result = TT_FAIL;
+            return;
+        }
+        file->offset = ((tt_s64_t)loc) | (((tt_s64_t)high) << 32);
     }
+
+    TT_SAFE_ASSIGN(fseek->location, file->offset);
+    fseek->result = TT_SUCCESS;
 }
 
 void __do_dcreate(IN tt_io_ev_t *io_ev)
@@ -734,7 +882,7 @@ void __do_dremove(IN tt_io_ev_t *io_ev)
     FileOp.hNameMappings = NULL;
     FileOp.lpszProgressTitle = NULL;
 
-    if (!SHFileOperationW(&FileOp) && RemoveDirectoryW(w_path)) {
+    if (RemoveDirectoryW(w_path) || !SHFileOperationW(&FileOp)) {
         dremove->result = TT_SUCCESS;
     } else {
         TT_ERROR("fail to remove directory: %s recursively", w_path);
@@ -816,7 +964,7 @@ void __do_dclose(IN tt_io_ev_t *io_ev)
 {
     __dclose_t *dclose = (__dclose_t *)io_ev;
 
-    if (!CloseHandle(dclose->dir->hd)) {
+    if (!FindClose(dclose->dir->hd)) {
         TT_ERROR_NTV("fail to close diretory");
     }
 }

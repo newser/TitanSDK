@@ -57,6 +57,7 @@ typedef struct tt_io_ev_s
 #if TT_ENV_OS_IS_WINDOWS
     OVERLAPPED ov;
     tt_u32_t io_bytes;
+    tt_result_t io_result;
 #endif
     tt_u16_t io;
     tt_u16_t ev;

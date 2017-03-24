@@ -266,8 +266,7 @@ move file pointer
 - TT_FAIL otherwise
 
 @note
-- behavior of passing a file opened asynchronously to this function
-  is undefined
+- do not use this api to change file opened with TT_FO_APPEND
 */
 tt_inline tt_result_t tt_fseek(IN tt_file_t *file,
                                IN tt_u32_t whence,

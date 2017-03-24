@@ -109,15 +109,31 @@ tt_bool_t tt_io_poller_run_ntv(IN tt_io_poller_ntv_t *sys_iop,
         dwMilliseconds = (DWORD)wait_ms;
     }
 
+    Overlapped = NULL;
     ret = GetQueuedCompletionStatus(sys_iop->iocp,
                                     &NumberOfBytes,
                                     &CompletionKey,
                                     &Overlapped,
                                     dwMilliseconds);
-    if (ret || (Overlapped != NULL)) {
+    if (Overlapped != NULL) {
         tt_io_ev_t *io_ev = TT_CONTAINER(Overlapped, tt_io_ev_t, ov);
 
         io_ev->io_bytes = NumberOfBytes;
+
+        if (ret) {
+            io_ev->io_result = TT_SUCCESS;
+        } else {
+            DWORD dwError = GetLastError();
+            if ((dwError == ERROR_HANDLE_EOF) ||
+                (dwError == ERROR_BROKEN_PIPE) ||
+                (dwError == WSAECONNABORTED) || (dwError == WSAECONNRESET)) {
+                io_ev->io_result = TT_END;
+            } else {
+                TT_ERROR_NTV("GQCS failed");
+                io_ev->io_result = TT_FAIL;
+            }
+        }
+
         if (!__io_handler[io_ev->io](io_ev)) {
             return TT_FALSE;
         }

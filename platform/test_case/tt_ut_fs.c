@@ -194,13 +194,18 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_fs_open)
         ret = tt_fopen(&tf2, __SC_TEST_FILE, TT_FO_READ | TT_FO_APPEND, NULL);
         TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
 
-        // ret = tt_fread(&tf2, buf2, 90, &n);
-        // TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
-        // TT_TEST_CHECK_EQUAL(n, strlen(buf1)+1, "");
+        ret = tt_fread(&tf2, buf2, 90, &n);
+        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_TEST_CHECK_EQUAL(n, (tt_u32_t)strlen((const char *)buf1) + 1, "");
+    
         tt_fseek(&tf2, TT_FSEEK_CUR, 0, &d);
+        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_TEST_CHECK_EQUAL(d, (tt_u32_t)strlen((const char *)buf1) + 1, "");
 
-        ret =
-            tt_fwrite(&tf2, buf1, (tt_u32_t)strlen((const char *)buf1) + 1, &n);
+        ret = tt_fread(&tf2, buf2, 90, &n);
+        TT_TEST_CHECK_EQUAL(ret, TT_END, "");
+
+		ret = tt_fwrite(&tf2, buf1, (tt_u32_t)strlen((const char *)buf1) + 1, &n);
         TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
         TT_TEST_CHECK_EQUAL(n, strlen((const char *)buf1) + 1, "");
 
@@ -233,7 +238,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_fs_open)
         ret = tt_fread(&tf2, buf2, 90, &n);
         TT_TEST_CHECK_EQUAL(ret, TT_END, "");
         TT_TEST_CHECK_EQUAL(n, 0, "");
-
+		 
         tt_fclose(&tf2);
     }
     {
@@ -263,9 +268,6 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_fs_open)
     ret = tt_fremove(__SC_TEST_FILE);
     TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
     // now tf and tf2 could still be used
-
-    // close to delete
-    tt_fclose(&tf);
 
     // close to delete
     tt_fclose(&tf2);

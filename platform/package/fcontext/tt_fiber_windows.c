@@ -94,7 +94,6 @@ tt_result_t tt_fiber_create_local_wrap(IN tt_fiber_wrap_t *wrap_fb)
         TT_ERROR_NTV("fail to convert thread to fiber");
         return TT_FAIL;
     }
-    TT_INFO("MAIN FIBER DATA: %p", GetFiberData());
 
     wrap_fb->from = NULL;
 

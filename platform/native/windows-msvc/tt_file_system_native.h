@@ -45,7 +45,9 @@ struct tt_io_ev_s;
 
 typedef struct
 {
+    tt_s64_t offset;
     HANDLE hf;
+    tt_bool_t append : 1;
 } tt_file_ntv_t;
 
 typedef struct
