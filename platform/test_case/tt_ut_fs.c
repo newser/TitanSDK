@@ -30,6 +30,7 @@ TT_TEST_ROUTINE_DECLARE(tt_unit_test_fs_basic)
 TT_TEST_ROUTINE_DECLARE(tt_unit_test_fs_open)
 TT_TEST_ROUTINE_DECLARE(tt_unit_test_fs_rw)
 TT_TEST_ROUTINE_DECLARE(tt_unit_test_fs_multhread)
+TT_TEST_ROUTINE_DECLARE(tt_unit_test_fs_consistency)
 
 TT_TEST_ROUTINE_DECLARE(tt_unit_test_dir_basic)
 
@@ -38,7 +39,7 @@ TT_TEST_ROUTINE_DECLARE(tt_unit_test_dir_basic)
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(fs_case)
 
-#if 1
+#if 0
 
 TT_TEST_CASE("tt_unit_test_fs_basic",
              "testing fs basic",
@@ -77,8 +78,6 @@ TT_TEST_CASE("tt_unit_test_fs_basic",
                  NULL,
                  NULL),
 
-#endif
-
     TT_TEST_CASE("tt_unit_test_fs_multhread",
                  "testing fs read write in multi thread",
                  tt_unit_test_fs_multhread,
@@ -88,6 +87,17 @@ TT_TEST_CASE("tt_unit_test_fs_basic",
                  NULL,
                  NULL),
 
+#endif
+
+TT_TEST_CASE("tt_unit_test_fs_consistency",
+             "testing fs read write consistency",
+             tt_unit_test_fs_consistency,
+             NULL,
+             NULL,
+             NULL,
+             NULL,
+             NULL)
+,
 
     TT_TEST_CASE_LIST_DEFINE_END(fs_case)
     // =========================================
@@ -100,7 +110,7 @@ TT_TEST_CASE("tt_unit_test_fs_basic",
 
 
 /*
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_fs_multhread)
+TT_TEST_ROUTINE_DEFINE(tt_unit_test_fs_consistency)
 {
     //tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
 
@@ -197,7 +207,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_fs_open)
         ret = tt_fread(&tf2, buf2, 90, &n);
         TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
         TT_TEST_CHECK_EQUAL(n, (tt_u32_t)strlen((const char *)buf1) + 1, "");
-    
+
         tt_fseek(&tf2, TT_FSEEK_CUR, 0, &d);
         TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
         TT_TEST_CHECK_EQUAL(d, (tt_u32_t)strlen((const char *)buf1) + 1, "");
@@ -205,7 +215,8 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_fs_open)
         ret = tt_fread(&tf2, buf2, 90, &n);
         TT_TEST_CHECK_EQUAL(ret, TT_END, "");
 
-		ret = tt_fwrite(&tf2, buf1, (tt_u32_t)strlen((const char *)buf1) + 1, &n);
+        ret =
+            tt_fwrite(&tf2, buf1, (tt_u32_t)strlen((const char *)buf1) + 1, &n);
         TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
         TT_TEST_CHECK_EQUAL(n, strlen((const char *)buf1) + 1, "");
 
@@ -238,7 +249,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_fs_open)
         ret = tt_fread(&tf2, buf2, 90, &n);
         TT_TEST_CHECK_EQUAL(ret, TT_END, "");
         TT_TEST_CHECK_EQUAL(n, 0, "");
-		 
+
         tt_fclose(&tf2);
     }
     {
@@ -537,6 +548,154 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_fs_multhread)
     }
 
     tt_fremove("a.txt");
+
+    // test end
+    TT_TEST_CASE_LEAVE()
+}
+
+static const tt_char_t *fname[4] = {"1.txt", "2.txt", "3.txt", "4.txt"};
+
+static tt_bool_t __fb_end;
+
+tt_result_t __wr_fiber(IN void *param)
+{
+    tt_u32_t idx = (tt_u32_t)(tt_uintptr_t)param;
+    tt_char_t buf[16 * 1024];
+    tt_u32_t len, i, size = 0;
+    tt_u8_t last = 0;
+    tt_file_t f;
+    tt_result_t ret;
+
+    ret = tt_fopen(&f, fname[idx], TT_FO_CREAT | TT_FO_TRUNC, NULL);
+    if (!TT_OK(ret)) {
+        __err_line = __LINE__;
+        goto exit;
+    }
+
+    //  write 16M
+    while (size < (1 << 24)) {
+        tt_u32_t n;
+
+        len = tt_rand_u32() % sizeof(buf);
+        for (i = 0; i < len; ++i) {
+            buf[i] = '0' + last;
+            ++last;
+            last %= 10;
+        }
+
+        ret = tt_fwrite(&f, (tt_u8_t *)buf, len, &n);
+        if (!TT_OK(ret)) {
+            __err_line = __LINE__;
+            goto exit;
+        }
+
+        size += len;
+    }
+
+    tt_fclose(&f);
+
+exit:
+    if (++__fb_end == 4) {
+        tt_task_exit(NULL);
+    }
+
+    return TT_SUCCESS;
+}
+
+tt_result_t __rd_fiber(IN void *param)
+{
+    tt_u32_t idx = (tt_u32_t)(tt_uintptr_t)param;
+    tt_char_t buf[16 * 1024];
+    tt_u32_t len, i, size = 0;
+    tt_u8_t last = 0;
+    tt_file_t f;
+    tt_result_t ret;
+
+    ret = tt_fopen(&f, fname[idx % 4], TT_FO_CREAT, NULL);
+    if (!TT_OK(ret)) {
+        __err_line = __LINE__;
+        goto exit;
+    }
+
+    //  read 16M
+    while (1) {
+        tt_u32_t n;
+
+        len = tt_rand_u32() % sizeof(buf);
+        ret = tt_fread(&f, (tt_u8_t *)buf, len, &n);
+        if (TT_OK(ret)) {
+            for (i = 0; i < n; ++i) {
+                if (buf[i] != (last + '0')) {
+                    __err_line = __LINE__;
+                    goto exit;
+                }
+
+                ++last;
+                last %= 10;
+            }
+        } else if (ret == TT_END) {
+            break;
+        } else {
+            __err_line = __LINE__;
+            goto exit;
+        }
+    }
+
+    tt_fclose(&f);
+
+exit:
+    if (++__fb_end == 4) {
+        tt_task_exit(NULL);
+    }
+
+    return TT_SUCCESS;
+}
+
+TT_TEST_ROUTINE_DEFINE(tt_unit_test_fs_consistency)
+{
+    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+    tt_task_t task;
+    tt_result_t ret;
+    tt_u32_t i, j;
+
+    TT_TEST_CASE_ENTER()
+    // test start
+
+    ret = tt_task_create(&task, NULL);
+    TT_TEST_CHECK_SUCCESS(ret, "");
+
+    for (j = 0; j < 4; ++j) {
+        tt_task_add_fiber(&task, __wr_fiber, (void *)(tt_uintptr_t)j, NULL);
+    }
+
+    __fb_end = 0;
+    __err_line = 0;
+    ret = tt_task_run(&task);
+    TT_TEST_CHECK_SUCCESS(ret, "");
+
+    tt_task_wait(&task);
+    TT_TEST_CHECK_EQUAL(__err_line, 0, "");
+
+    ret = tt_task_create(&task, NULL);
+    TT_TEST_CHECK_SUCCESS(ret, "");
+
+    // read, check consistency
+    for (j = 0; j < 8; ++j) {
+        tt_task_add_fiber(&task, __rd_fiber, (void *)(tt_uintptr_t)j, NULL);
+    }
+
+    __fb_end = 0;
+    __err_line = 0;
+    ret = tt_task_run(&task);
+    TT_TEST_CHECK_SUCCESS(ret, "");
+
+    tt_task_wait(&task);
+    TT_TEST_CHECK_EQUAL(__err_line, 0, "");
+
+    // remove
+    for (j = 0; j < sizeof(fname) / sizeof(fname[0]); ++j) {
+        tt_fremove(fname[j]);
+    }
 
     // test end
     TT_TEST_CASE_LEAVE()
