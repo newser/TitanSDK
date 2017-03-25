@@ -517,9 +517,8 @@ void __do_fopen(IN tt_io_ev_t *io_ev)
         case (TT_FO_READ | TT_FO_WRITE): {
             flag |= O_RDWR;
         } break;
-        default: {
-            // readonly by default
-            flag |= O_RDWR;
+        case TT_FO_READ: {
+            flag |= O_RDONLY;
         } break;
     }
 

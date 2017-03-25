@@ -234,8 +234,8 @@ tt_bool_t tt_io_poller_run_ntv(IN tt_io_poller_ntv_t *sys_iop,
     if (nev > 0) {
         int i;
         for (i = 0; i < nev; ++i) {
-            tt_io_ev_t *io_ev = (tt_io_ev_t*)ev[i].data.ptr;
-            
+            tt_io_ev_t *io_ev = (tt_io_ev_t *)ev[i].data.ptr;
+
             if (!__io_handler[io_ev->io](io_ev, sys_iop)) {
                 return TT_FALSE;
             }
@@ -324,8 +324,7 @@ again:
     }
 }
 
-tt_bool_t __worker_io(IN tt_io_ev_t *dummy,
-                      IN tt_io_poller_ntv_t *sys_iop)
+tt_bool_t __worker_io(IN tt_io_ev_t *dummy, IN tt_io_poller_ntv_t *sys_iop)
 {
     uint64_t num;
     tt_dlist_t dl;
@@ -348,15 +347,14 @@ tt_bool_t __worker_io(IN tt_io_ev_t *dummy,
     return TT_TRUE;
 }
 
-tt_bool_t __poller_io(IN tt_io_ev_t *dummy,
-                      IN tt_io_poller_ntv_t *sys_iop)
+tt_bool_t __poller_io(IN tt_io_ev_t *dummy, IN tt_io_poller_ntv_t *sys_iop)
 {
     uint64_t num;
     tt_dlist_t dl;
     tt_dnode_t *node;
 
     read(sys_iop->poller_evfd, &num, sizeof(uint64_t));
-    
+
     tt_dlist_init(&dl);
     tt_spinlock_acquire(&sys_iop->poller_lock);
     tt_dlist_move(&dl, &sys_iop->poller_ev);
