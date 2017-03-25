@@ -15,7 +15,7 @@
 
 # collect files
 if (PLATFORM_ENV_OS STREQUAL windows)
-  set(SRC tt_fiber_windows.c)
+  set(SRC tt_fiber_windows_wrapper.c)
 
 elseif ((PLATFORM_ENV_OS STREQUAL macos) OR PLATFORM_IOS_SIMULATOR)
   enable_language(ASM)

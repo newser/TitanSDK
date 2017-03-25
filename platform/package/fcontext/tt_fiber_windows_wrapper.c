@@ -88,8 +88,7 @@ void tt_fiber_destroy_wrap(IN tt_fiber_wrap_t *wrap_fb)
 
 tt_result_t tt_fiber_create_local_wrap(IN tt_fiber_wrap_t *wrap_fb)
 {
-    wrap_fb->fb =
-        ConvertThreadToFiberEx(NULL, FIBER_FLAG_FLOAT_SWITCH);
+    wrap_fb->fb = ConvertThreadToFiberEx(NULL, FIBER_FLAG_FLOAT_SWITCH);
     if (wrap_fb->fb == NULL) {
         TT_ERROR_NTV("fail to convert thread to fiber");
         return TT_FAIL;
@@ -151,9 +150,8 @@ out:
     if (!FlsSetValue(tt_g_thread_fls_index, NULL)) {
         TT_ERROR_NTV("fail to clear fls");
     }
-    
+
     cfb->end = TT_TRUE;
     wrap_main->from = cfb;
     SwitchToFiber(wrap_main->fb);
 }
-
