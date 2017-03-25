@@ -112,6 +112,7 @@ tt_result_t tt_platform_init(IN OPT const tt_char_t *profile_path)
     tt_network_interface_component_register();
     tt_skt_component_register();
     tt_console_component_register();
+    tt_io_poller_component_register();
     tt_iowg_component_register();
 
 // network application

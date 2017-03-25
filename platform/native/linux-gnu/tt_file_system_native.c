@@ -213,7 +213,7 @@ static void __do_dclose(IN tt_io_ev_t *io_ev);
 
 static void __do_dread(IN tt_io_ev_t *io_ev);
 
-static tt_io_handler_t __fs_io_handler[__FS_EV_NUM] = {
+static tt_worker_io_t __fs_io_handler[__FS_EV_NUM] = {
     __do_fcreate,
     __do_fremove,
     __do_fopen,
@@ -450,7 +450,7 @@ tt_result_t tt_dread_ntv(IN tt_dir_ntv_t *dir, OUT tt_dirent_t *entry)
     return dread.result;
 }
 
-void tt_fs_io_worker(IN tt_io_ev_t *io_ev)
+void tt_fs_worker_io(IN tt_io_ev_t *io_ev)
 {
     __fs_io_handler[io_ev->ev](io_ev);
 

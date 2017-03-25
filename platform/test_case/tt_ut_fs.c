@@ -39,8 +39,6 @@ TT_TEST_ROUTINE_DECLARE(tt_unit_test_dir_basic)
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(fs_case)
 
-#if 0
-
 TT_TEST_CASE("tt_unit_test_fs_basic",
              "testing fs basic",
              tt_unit_test_fs_basic,
@@ -78,16 +76,16 @@ TT_TEST_CASE("tt_unit_test_fs_basic",
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_fs_multhread",
-                 "testing fs read write in multi thread",
-                 tt_unit_test_fs_multhread,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
-
-#endif
+#if 1
+    
+TT_TEST_CASE("tt_unit_test_fs_multhread",
+             "testing fs read write in multi thread",
+             tt_unit_test_fs_multhread,
+             NULL,
+             NULL,
+             NULL,
+             NULL,
+             NULL),
 
 TT_TEST_CASE("tt_unit_test_fs_consistency",
              "testing fs read write consistency",
@@ -98,6 +96,8 @@ TT_TEST_CASE("tt_unit_test_fs_consistency",
              NULL,
              NULL)
 ,
+
+#endif
 
     TT_TEST_CASE_LIST_DEFINE_END(fs_case)
     // =========================================

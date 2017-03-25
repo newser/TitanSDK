@@ -44,11 +44,11 @@
 // internal type
 ////////////////////////////////////////////////////////////
 
-typedef tt_bool_t (*__io_handler_t)(IN tt_io_poller_ntv_t *sys_iop);
+typedef tt_bool_t (*__io_handler_t)(IN tt_io_ev_t *io_ev,
+                                    IN tt_io_poller_ntv_t *sys_iop);
 
 enum
 {
-    __POLLER_YIELD,
     __POLLER_EXIT,
 
     __POLLER_EV_NUM,
@@ -62,13 +62,19 @@ enum
 // global variant
 ////////////////////////////////////////////////////////////
 
-static tt_bool_t __worker_io(IN tt_io_poller_ntv_t *sys_iop);
+static tt_bool_t __worker_io(IN tt_io_ev_t *io_ev,
+                             IN tt_io_poller_ntv_t *sys_iop);
 
-static tt_bool_t __poller_io(IN tt_io_poller_ntv_t *sys_iop);
+static tt_bool_t __poller_io(IN tt_io_ev_t *io_ev,
+                             IN tt_io_poller_ntv_t *sys_iop);
 
 static __io_handler_t __io_handler[TT_IO_NUM] = {
     __worker_io, __poller_io,
 };
+
+static tt_io_ev_t __s_poller_io_ev;
+
+static tt_io_ev_t __s_worker_io_ev;
 
 ////////////////////////////////////////////////////////////
 // interface declaration
@@ -80,6 +86,20 @@ static __io_handler_t __io_handler[TT_IO_NUM] = {
 
 tt_result_t tt_io_poller_component_init_ntv()
 {
+    // poller io ev
+    __s_poller_io_ev.src = NULL;
+    __s_poller_io_ev.dst = NULL;
+    tt_dnode_init(&__s_poller_io_ev.node);
+    __s_poller_io_ev.io = TT_IO_POLLER;
+    __s_poller_io_ev.ev = 0;
+
+    // worker io ev
+    __s_worker_io_ev.src = NULL;
+    __s_worker_io_ev.dst = NULL;
+    tt_dnode_init(&__s_worker_io_ev.node);
+    __s_worker_io_ev.io = TT_IO_WORKER;
+    __s_worker_io_ev.ev = 0;
+
     return TT_SUCCESS;
 }
 
@@ -127,7 +147,7 @@ tt_result_t tt_io_poller_create_ntv(IN tt_io_poller_ntv_t *sys_iop)
     __done |= __PC_P_EVFD;
 
     ev.events = EPOLLIN;
-    ev.data.u32 = TT_IO_POLLER;
+    ev.data.ptr = &__s_poller_io_ev;
     if (epoll_ctl(ep, EPOLL_CTL_ADD, evfd, &ev) != 0) {
         TT_ERROR_NTV("fail to add poller event fd");
         goto fail;
@@ -142,7 +162,7 @@ tt_result_t tt_io_poller_create_ntv(IN tt_io_poller_ntv_t *sys_iop)
     __done |= __PC_W_EVFD;
 
     ev.events = EPOLLIN;
-    ev.data.u32 = TT_IO_WORKER;
+    ev.data.ptr = &__s_worker_io_ev;
     if (epoll_ctl(ep, EPOLL_CTL_ADD, evfd, &ev) != 0) {
         TT_ERROR_NTV("fail to add worker event fd");
         goto fail;
@@ -214,7 +234,9 @@ tt_bool_t tt_io_poller_run_ntv(IN tt_io_poller_ntv_t *sys_iop,
     if (nev > 0) {
         int i;
         for (i = 0; i < nev; ++i) {
-            if (!__io_handler[ev[i].data.u32](sys_iop)) {
+            tt_io_ev_t *io_ev = (tt_io_ev_t*)ev[i].data.ptr;
+            
+            if (!__io_handler[io_ev->io](io_ev, sys_iop)) {
                 return TT_FALSE;
             }
         }
@@ -302,7 +324,8 @@ again:
     }
 }
 
-tt_bool_t __worker_io(IN tt_io_poller_ntv_t *sys_iop)
+tt_bool_t __worker_io(IN tt_io_ev_t *dummy,
+                      IN tt_io_poller_ntv_t *sys_iop)
 {
     uint64_t num;
     tt_dlist_t dl;
@@ -325,14 +348,15 @@ tt_bool_t __worker_io(IN tt_io_poller_ntv_t *sys_iop)
     return TT_TRUE;
 }
 
-tt_bool_t __poller_io(IN tt_io_poller_ntv_t *sys_iop)
+tt_bool_t __poller_io(IN tt_io_ev_t *dummy,
+                      IN tt_io_poller_ntv_t *sys_iop)
 {
     uint64_t num;
     tt_dlist_t dl;
     tt_dnode_t *node;
 
     read(sys_iop->poller_evfd, &num, sizeof(uint64_t));
-
+    
     tt_dlist_init(&dl);
     tt_spinlock_acquire(&sys_iop->poller_lock);
     tt_dlist_move(&dl, &sys_iop->poller_ev);

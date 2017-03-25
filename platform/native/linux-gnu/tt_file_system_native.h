@@ -110,6 +110,6 @@ extern void tt_dclose_ntv(OUT tt_dir_ntv_t *dir);
 extern tt_result_t tt_dread_ntv(IN tt_dir_ntv_t *dir,
                                 OUT struct tt_dirent_s *entry);
 
-extern void tt_fs_io_worker(IN struct tt_io_ev_s *ev);
+extern void tt_fs_worker_io(IN struct tt_io_ev_s *ev);
 
 #endif
