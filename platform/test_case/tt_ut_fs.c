@@ -76,8 +76,7 @@ TT_TEST_CASE("tt_unit_test_fs_basic",
                  NULL,
                  NULL),
 
-#if 1
-    
+#if 0
 TT_TEST_CASE("tt_unit_test_fs_multhread",
              "testing fs read write in multi thread",
              tt_unit_test_fs_multhread,
@@ -86,7 +85,9 @@ TT_TEST_CASE("tt_unit_test_fs_multhread",
              NULL,
              NULL,
              NULL),
+#endif
 
+#if 1
 TT_TEST_CASE("tt_unit_test_fs_consistency",
              "testing fs read write consistency",
              tt_unit_test_fs_consistency,
@@ -94,9 +95,7 @@ TT_TEST_CASE("tt_unit_test_fs_consistency",
              NULL,
              NULL,
              NULL,
-             NULL)
-,
-
+             NULL),
 #endif
 
     TT_TEST_CASE_LIST_DEFINE_END(fs_case)
@@ -566,7 +565,7 @@ tt_result_t __wr_fiber(IN void *param)
     tt_file_t f;
     tt_result_t ret;
 
-    ret = tt_fopen(&f, fname[idx], TT_FO_CREAT | TT_FO_TRUNC, NULL);
+    ret = tt_fopen(&f, fname[idx], TT_FO_CREAT | TT_FO_TRUNC|TT_FO_WRITE, NULL);
     if (!TT_OK(ret)) {
         __err_line = __LINE__;
         goto exit;
@@ -611,7 +610,7 @@ tt_result_t __rd_fiber(IN void *param)
     tt_file_t f;
     tt_result_t ret;
 
-    ret = tt_fopen(&f, fname[idx % 4], TT_FO_CREAT, NULL);
+    ret = tt_fopen(&f, fname[idx % 4], TT_FO_READ, NULL);
     if (!TT_OK(ret)) {
         __err_line = __LINE__;
         goto exit;

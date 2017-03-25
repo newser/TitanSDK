@@ -412,7 +412,7 @@ tt_result_t tt_fwrite_ntv(IN tt_file_ntv_t *file,
 
     if (!WriteFile(file->hf, buf, buf_len, NULL, &fwrite.io_ev.ov) &&
         (GetLastError() != ERROR_IO_PENDING)) {
-        TT_ERROR("fail to write file");
+        TT_ERROR_NTV("fail to write file");
         return TT_FAIL;
     }
 
