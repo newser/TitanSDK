@@ -19,10 +19,23 @@ int plus(int i)
     }
 }
 
+tt_result_t __ut_fiber(IN void *param)
+{
+    tt_test_framework_init(0);
+    tt_test_unit_init(NULL);
+    tt_test_unit_run(NULL);
+    tt_test_unit_list(NULL);
+
+    tt_task_exit(NULL);
+
+    return TT_SUCCESS;
+}
+
 int app_ut_main(int argc, char *argv[])
 {
     tt_thread_t *ut_thread;
     int i;
+    tt_task_t t;
 
     printf("%d\n", plus(100));
 
@@ -109,14 +122,12 @@ int app_ut_main(int argc, char *argv[])
     // init platform
     tt_platform_init(NULL);
 
-    // create a local thread
-    ut_thread = tt_thread_create_local(NULL);
+    tt_task_create(&t, NULL);
+    tt_task_add_fiber(&t, __ut_fiber, NULL, NULL);
+    tt_task_run(&t);
+    tt_task_wait(&t);
 
-    // run
-    tt_test_framework_init(0);
-    tt_test_unit_init(NULL);
-    tt_test_unit_run(NULL);
-    tt_test_unit_list(NULL);
+    return 0;
 
     // tt_page_os_stat_show(0);
     tt_skt_stat_show(0);

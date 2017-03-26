@@ -144,7 +144,7 @@ put current thread into sleeping
 - TT_SUCCESS if sleeping done
 - TT_FAIL if some error occurs
 */
-extern tt_result_t tt_sleep_ntv(IN tt_u32_t millisec);
+extern void tt_sleep_ntv(IN tt_u32_t millisec);
 
 /**
 @fn tt_thread_native_t *tt_current_thread_ntv()

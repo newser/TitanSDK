@@ -451,6 +451,12 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_dir_basic)
     TT_TEST_CASE_LEAVE()
 }
 
+#if TT_ENV_OS_IS_IOS
+#define __ut_fname "../tmp/a.txt"
+#else
+#define __ut_fname "a.txt"
+#endif
+
 #define __task_num 100
 #define __fiber_per_task 100
 
@@ -469,7 +475,7 @@ tt_result_t __fs_fiber(IN void *param)
     t_idx >>= 16;
     // TT_INFO("task[%d], fiber[%d, %p]", t_idx, f_idx, tt_current_fiber());
 
-    if (!TT_OK(tt_fopen(&f, "a.txt", TT_FO_RDWR, NULL))) {
+    if (!TT_OK(tt_fopen(&f, __ut_fname, TT_FO_RDWR, NULL))) {
         __err_line = __LINE__;
         // tt_task_exit(NULL);
 
@@ -521,7 +527,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_fs_multhread)
     TT_TEST_CASE_ENTER()
     // test start
 
-    tt_fcreate("a.txt", NULL);
+    tt_fcreate(__ut_fname, NULL);
 
     for (i = 0; i < __task_num; ++i) {
         ret = tt_task_create(&task[i], NULL);
@@ -546,13 +552,20 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_fs_multhread)
         tt_task_wait(&task[i]);
     }
 
-    tt_fremove("a.txt");
+    tt_fremove(__ut_fname);
 
     // test end
     TT_TEST_CASE_LEAVE()
 }
 
+#if TT_ENV_OS_IS_IOS
+static const tt_char_t *fname[4] = {"../tmp/1.txt",
+                                    "../tmp/2.txt",
+                                    "../tmp/3.txt",
+                                    "../tmp/4.txt"};
+#else
 static const tt_char_t *fname[4] = {"1.txt", "2.txt", "3.txt", "4.txt"};
+#endif
 
 static tt_bool_t __fb_end;
 
