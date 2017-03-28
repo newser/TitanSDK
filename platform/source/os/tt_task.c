@@ -211,6 +211,6 @@ tt_result_t __task_routine(IN void *param)
     while (!tt_fiber_sched_empty(thread->fiber_sched) &&
            tt_io_poller_run(&t->iop, TT_TIME_INFINITE)) {
     }
-    
+
     return TT_SUCCESS;
 }

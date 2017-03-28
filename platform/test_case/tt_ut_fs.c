@@ -78,7 +78,7 @@ TT_TEST_CASE("tt_unit_test_fs_basic",
                  NULL),
 #endif
 
-#if 0
+#if 1
     TT_TEST_CASE("tt_unit_test_fs_multhread",
                  "testing fs read write in multi thread",
                  tt_unit_test_fs_multhread,
@@ -89,7 +89,7 @@ TT_TEST_CASE("tt_unit_test_fs_basic",
                  NULL),
 #endif
 
-#if 0
+#if 1
     TT_TEST_CASE("tt_unit_test_fs_consistency",
                  "testing fs read write consistency",
                  tt_unit_test_fs_consistency,
@@ -485,7 +485,7 @@ tt_result_t __fs_fiber(IN void *param)
         __fiber_end[t_idx][f_idx] = TT_TRUE;
         if (++__task_end[t_idx] == __fiber_per_task) {
             // TT_INFO("task[%d] exit", t_idx);
-            //tt_task_exit(NULL);
+            // tt_task_exit(NULL);
         }
 
         return TT_FAIL;
@@ -512,7 +512,7 @@ tt_result_t __fs_fiber(IN void *param)
 
     if (++__task_end[t_idx] == __fiber_per_task) {
         // TT_INFO("task[%d] exit", t_idx);
-        //tt_task_exit(NULL);
+        // tt_task_exit(NULL);
     }
     //++__fiber_end[t_idx][f_idx];
     __fiber_end[t_idx][f_idx] = TT_TRUE;
@@ -612,7 +612,7 @@ tt_result_t __wr_fiber(IN void *param)
 
 exit:
     if (++__fb_end == 4) {
-        //tt_task_exit(NULL);
+        // tt_task_exit(NULL);
     }
 
     return TT_SUCCESS;
@@ -661,7 +661,7 @@ tt_result_t __rd_fiber(IN void *param)
 
 exit:
     if (++__fb_end == 8) {
-        //tt_task_exit(NULL);
+        // tt_task_exit(NULL);
     }
 
     return TT_SUCCESS;

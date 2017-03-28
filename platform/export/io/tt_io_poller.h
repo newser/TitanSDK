@@ -64,7 +64,7 @@ extern void tt_io_poller_destroy(IN tt_io_poller_t *iop);
 extern void tt_io_poller_attr_default(IN tt_io_poller_attr_t *attr);
 
 tt_inline tt_bool_t tt_io_poller_run(IN tt_io_poller_t *iop,
-                           IN tt_s64_t wait_ms)
+                                     IN tt_s64_t wait_ms)
 {
     return tt_io_poller_run_ntv(&iop->sys_iop, wait_ms);
 }
