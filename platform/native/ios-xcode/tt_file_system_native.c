@@ -37,6 +37,87 @@
 // internal macro
 ////////////////////////////////////////////////////////////
 
+//#define __SIMU_FAIL_OPEN
+//#define __SIMU_FAIL_UNLINK
+//#define __SIMU_FAIL_READ
+//#define __SIMU_FAIL_WRITE
+//#define __SIMU_FAIL_SEEK
+//#define __SIMU_FAIL_CLOSE
+
+//#define __SIMU_FAIL_MKDIR
+//#define __SIMU_FAIL_FTSOPEN
+//#define __SIMU_FAIL_FTSREAD
+//#define __SIMU_FAIL_FTSCLOSE
+//#define __SIMU_FAIL_READDIR
+//#define __SIMU_FAIL_CLOSEDIR
+
+#ifdef __SIMU_FAIL_OPEN
+#define open __sf_open
+int __sf_open(const char *path, int oflag, ...);
+#endif
+
+#ifdef __SIMU_FAIL_UNLINK
+#define unlink __sf_unlink
+int __sf_unlink(const char *path);
+#endif
+
+#ifdef __SIMU_FAIL_READ
+#define read __sf_read
+ssize_t __sf_read(int fildes, void *buf, size_t nbyte);
+#endif
+
+#ifdef __SIMU_FAIL_WRITE
+#define write __sf_write
+ssize_t __sf_write(int fildes, const void *buf, size_t nbyte);
+#endif
+
+#ifdef __SIMU_FAIL_SEEK
+#define lseek __sf_lseek
+off_t __sf_lseek(int fildes, off_t offset, int whence);
+#endif
+
+#ifdef __SIMU_FAIL_CLOSE
+#define close __sf_close
+int __sf_close(int fildes);
+#endif
+
+#ifdef __SIMU_FAIL_MKDIR
+#define mkdir __sf_mkdir
+int __sf_mkdir(const char *path, mode_t mode);
+#endif
+
+#ifdef __SIMU_FAIL_FTSOPEN
+#define fts_open __sf_fts_open
+FTS *__sf_fts_open(char *const *path_argv,
+                   int options,
+                   int (*compar)(const FTSENT **, const FTSENT **));
+#endif
+
+#ifdef __SIMU_FAIL_FTSREAD
+#define fts_read __sf_fts_read
+FTSENT *__sf_fts_read(FTS *ftsp);
+#endif
+
+#ifdef __SIMU_FAIL_FTSCLOSE
+#define fts_close __sf_fts_close
+int __sf_fts_close(FTS *ftsp);
+#endif
+
+#ifdef __SIMU_FAIL_OPENDIR
+#define opendir __sf_opendir
+DIR *__sf_opendir(const char *filename);
+#endif
+
+#ifdef __SIMU_FAIL_READDIR
+#define readdir_r __sf_readdir
+int __sf_readdir(DIR *dirp, struct dirent *entry, struct dirent **result);
+#endif
+
+#ifdef __SIMU_FAIL_CLOSEDIR
+#define closedir __sf_closedir
+int __sf_closedir(DIR *dirp);
+#endif
+
 ////////////////////////////////////////////////////////////
 // internal type
 ////////////////////////////////////////////////////////////
@@ -814,3 +895,160 @@ void __do_dread(IN tt_io_ev_t *io_ev)
         dread->result = TT_FAIL;
     }
 }
+
+#ifdef open
+#undef open
+int __sf_open(const char *path, int oflag, ...)
+{
+    return -1;
+}
+
+#endif
+
+#ifdef unlink
+#undef unlink
+int __sf_unlink(const char *path)
+{
+    if (tt_rand_u32() % 2) {
+        return -1;
+    } else {
+        unlink(path);
+    }
+}
+#endif
+
+#ifdef read
+#undef read
+ssize_t __sf_read(int fildes, void *buf, size_t nbyte)
+{
+    if ((tt_rand_u32() % 4) == 0) {
+        return -1;
+    }
+
+    if (nbyte > 1) {
+        nbyte = tt_rand_u32() % nbyte;
+    }
+    return read(fildes, buf, nbyte);
+}
+#endif
+
+#ifdef write
+#undef write
+ssize_t __sf_write(int fildes, const void *buf, size_t nbyte)
+{
+    if ((tt_rand_u32() % 4) == 0) {
+        return -1;
+    }
+
+    if (nbyte > 1) {
+        nbyte = tt_rand_u32() % nbyte;
+    }
+    return write(fildes, buf, nbyte);
+}
+#endif
+
+#ifdef lseek
+#undef lseek
+off_t __sf_lseek(int fildes, off_t offset, int whence)
+{
+    return -1;
+}
+#endif
+
+#ifdef close
+#undef close
+int __sf_close(int fildes)
+{
+    if (tt_rand_u32() % 2) {
+        return -1;
+    } else {
+        return close(fildes);
+    }
+}
+#endif
+
+#ifdef mkdir
+#undef mkdir
+int __sf_mkdir(const char *path, mode_t mode)
+{
+    if (tt_rand_u32() % 2) {
+        return -1;
+    } else {
+        return mkdir(path, mode);
+    }
+}
+#endif
+
+#ifdef fts_open
+#undef fts_open
+FTS *__sf_fts_open(char *const *path_argv,
+                   int options,
+                   int (*compar)(const FTSENT **, const FTSENT **))
+{
+    if (tt_rand_u32() % 2) {
+        return NULL;
+    } else {
+        return fts_open(path_argv, options, compar);
+    }
+}
+#endif
+
+#ifdef fts_read
+#undef fts_read
+FTSENT *__sf_fts_read(FTS *ftsp)
+{
+    if (tt_rand_u32() % 2) {
+        return NULL;
+    } else {
+        return fts_read(ftsp);
+    }
+}
+#endif
+
+#ifdef fts_close
+#undef fts_close
+int __sf_fts_close(FTS *ftsp)
+{
+    if (tt_rand_u32() % 2) {
+        return -1;
+    } else {
+        return fts_close(ftsp);
+    }
+}
+#endif
+
+#ifdef opendir
+#undef opendir
+DIR *__sf_opendir(const char *filename)
+{
+    if (tt_rand_u32() % 2) {
+        return NULL;
+    } else {
+        return opendir(filename);
+    }
+}
+#endif
+
+#ifdef readdir_r
+#undef readdir_r
+int __sf_readdir(DIR *dirp, struct dirent *entry, struct dirent **result)
+{
+    if (tt_rand_u32() % 2) {
+        return -1;
+    } else {
+        return readdir_r(dirp, entry, result);
+    }
+}
+#endif
+
+#ifdef closedir
+#undef closedir
+int __sf_closedir(DIR *dirp)
+{
+    if (tt_rand_u32() % 2) {
+        return -1;
+    } else {
+        return closedir(dirp);
+    }
+}
+#endif
