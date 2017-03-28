@@ -112,6 +112,11 @@ tt_inline tt_fiber_sched_t *tt_current_fiber_sched()
     return TT_COND(t != NULL, t->fiber_sched, NULL);
 }
 
+tt_inline tt_bool_t tt_fiber_sched_empty(IN tt_fiber_sched_t *fs)
+{
+    return tt_list_empty(&fs->active) && tt_list_empty(&fs->pending);
+}
+
 // ========================================
 // fiber
 // ========================================

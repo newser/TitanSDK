@@ -177,10 +177,11 @@ tt_result_t tt_task_run_local(IN tt_task_t *t)
 tt_result_t __task_routine(IN void *param)
 {
     tt_task_t *t = (tt_task_t *)param;
+    tt_thread_t *thread = tt_current_thread();
     tt_snode_t *node;
 
     // note t->thread may not be set yet
-    tt_current_thread()->task = t;
+    thread->task = t;
 
     node = tt_slist_head(&t->tfl);
     TT_ASSERT(node != NULL);
@@ -206,6 +207,10 @@ tt_result_t __task_routine(IN void *param)
         tt_fiber_resume(tf->fb);
     }
 
-    tt_io_poller_run(&t->iop);
+    // run untill all fibers exit
+    while (!tt_fiber_sched_empty(thread->fiber_sched) &&
+           tt_io_poller_run(&t->iop, TT_TIME_INFINITE)) {
+    }
+    
     return TT_SUCCESS;
 }

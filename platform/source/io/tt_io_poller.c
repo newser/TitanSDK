@@ -89,12 +89,6 @@ void tt_io_poller_attr_default(IN tt_io_poller_attr_t *attr)
     attr->reserved = 0;
 }
 
-void tt_io_poller_run(IN tt_io_poller_t *iop)
-{
-    do {
-    } while (tt_io_poller_run_ntv(&iop->sys_iop, TT_TIME_INFINITE));
-}
-
 tt_result_t __iop_component_init(IN tt_component_t *comp,
                                  IN tt_profile_t *profile)
 {
