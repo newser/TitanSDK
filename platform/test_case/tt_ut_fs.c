@@ -459,8 +459,8 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_dir_basic)
 #define __ut_fname "a.txt"
 #endif
 
-#define __task_num 100
-#define __fiber_per_task 100
+#define __task_num 10
+#define __fiber_per_task 10
 
 static tt_u32_t __err_line;
 static tt_u32_t __task_end[__task_num];
