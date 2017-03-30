@@ -71,11 +71,7 @@ tt_inline tt_result_t tt_skt_get_ipv6only_ntv(IN tt_skt_ntv_t *skt,
     int len = (int)sizeof(DWORD);
     if (getsockopt(skt->s, IPPROTO_IPV6, IPV6_V6ONLY, (char *)&val, &len) ==
         0) {
-        if (val) {
-            *ipv6only = TT_TRUE;
-        } else {
-            *ipv6only = TT_FALSE;
-        }
+        *ipv6only = TT_BOOL(val);
         return TT_SUCCESS;
     } else {
         TT_NET_ERROR_NTV("fail to get ipv6 only");
@@ -105,11 +101,7 @@ tt_inline tt_result_t tt_skt_get_reuseaddr_ntv(IN tt_skt_ntv_t *skt,
     BOOL val = 0;
     int len = (int)sizeof(BOOL);
     if (getsockopt(skt->s, SOL_SOCKET, SO_REUSEADDR, (char *)&val, &len) == 0) {
-        if (val) {
-            *reuse_addr = TT_TRUE;
-        } else {
-            *reuse_addr = TT_FALSE;
-        }
+        *reuse_addr = TT_BOOL(val);
         return TT_SUCCESS;
     } else {
         TT_NET_ERROR_NTV("fail to get reuse addr");
@@ -154,11 +146,7 @@ tt_inline tt_result_t tt_skt_get_tcp_nodelay_ntv(IN tt_skt_ntv_t *skt,
     BOOL val = 0;
     int len = (int)sizeof(BOOL);
     if (getsockopt(skt->s, IPPROTO_TCP, TCP_NODELAY, (char *)&val, &len) == 0) {
-        if (val) {
-            *nodelay = TT_TRUE;
-        } else {
-            *nodelay = TT_FALSE;
-        }
+        *nodelay = TT_BOOL(val);
         return TT_SUCCESS;
     } else {
         TT_NET_ERROR_NTV("fail to get reuse addr");

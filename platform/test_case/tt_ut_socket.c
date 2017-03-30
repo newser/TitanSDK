@@ -472,7 +472,6 @@ TT_TEST_CASE("tt_unit_test_sk_addr",
 
     tt_sktaddr_t sa6;
     tt_sktaddr_addr_t saa6;
-    tt_u16_t port;
 
     tt_char_t buf[100];
     // tt_char_t sc_buf[100];
@@ -627,18 +626,20 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_sk_opt)
     TT_TEST_CHECK_SUCCESS(ret, "");
     TT_TEST_CHECK_EQUAL(v, TT_FALSE, "");
 
-    // reuse addr
+    // reuse port
     ret = tt_skt_set_reuseport(&s, TT_TRUE);
     TT_TEST_CHECK_SUCCESS(ret, "");
     ret = tt_skt_get_reuseport(&s, &v);
     TT_TEST_CHECK_SUCCESS(ret, "");
     TT_TEST_CHECK_EQUAL(v, TT_TRUE, "");
 
+#if !TT_ENV_OS_IS_WINDOWS
     ret = tt_skt_set_reuseport(&s, TT_FALSE);
     TT_TEST_CHECK_SUCCESS(ret, "");
     ret = tt_skt_get_reuseport(&s, &v);
     TT_TEST_CHECK_SUCCESS(ret, "");
     TT_TEST_CHECK_EQUAL(v, TT_FALSE, "");
+#endif
 
     tt_skt_destroy(&s);
 
@@ -699,11 +700,13 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_sk_opt)
     TT_TEST_CHECK_SUCCESS(ret, "");
     TT_TEST_CHECK_EQUAL(v, TT_TRUE, "");
 
+#if !TT_ENV_OS_IS_WINDOWS
     ret = tt_skt_set_reuseport(&s, TT_FALSE);
     TT_TEST_CHECK_SUCCESS(ret, "");
     ret = tt_skt_get_reuseport(&s, &v);
     TT_TEST_CHECK_SUCCESS(ret, "");
     TT_TEST_CHECK_EQUAL(v, TT_FALSE, "");
+#endif
 
     tt_skt_destroy(&s);
 
@@ -719,7 +722,6 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_bind_basic)
     tt_result_t ret;
     tt_skt_attr_t attr;
     tt_sktaddr_t addr;
-    tt_u16_t port;
 
     TT_TEST_CASE_ENTER()
 // test start
