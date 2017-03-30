@@ -610,7 +610,7 @@ tt_result_t __mcaddr_to_ipmreq(IN tt_sktaddr_addr_t *mc_addr,
                                IN int skt)
 {
     // multicast address
-    mreq->imr_multiaddr.s_addr = mc_addr->addr32.__u32;
+    mreq->imr_multiaddr.s_addr = mc_addr->a32.__u32;
 
     // local interface
     if (mcast_itf != NULL) {
@@ -644,7 +644,7 @@ tt_result_t __mcaddr_to_ipv6mreq(IN tt_sktaddr_addr_t *mc_addr,
                                  OUT struct ipv6_mreq *mreq)
 {
     // multicast address
-    tt_memcpy(mreq->ipv6mr_multiaddr.s6_addr, mc_addr->addr128.__u8, 16);
+    tt_memcpy(mreq->ipv6mr_multiaddr.s6_addr, mc_addr->a128.__u8, 16);
 
     // local interface
     if (mcast_itf != NULL) {
