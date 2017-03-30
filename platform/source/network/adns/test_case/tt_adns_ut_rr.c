@@ -642,8 +642,7 @@ __parse : {
                 "");
 
             TT_TEST_CHECK_EQUAL(rr->ttl, 0x1c0, "");
-            TT_TEST_CHECK_EQUAL(TT_ADRR_CAST(rr, tt_adrr_a_t)
-                                    ->addr.addr32.__u32,
+            TT_TEST_CHECK_EQUAL(TT_ADRR_CAST(rr, tt_adrr_a_t)->addr.a32.__u32,
                                 tt_ntoh32(0x790c7c66),
                                 "");
 

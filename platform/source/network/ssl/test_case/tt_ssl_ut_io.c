@@ -2120,7 +2120,7 @@ static void __st1_ssl_on_accept(IN struct tt_ssl_s *listening_ssl,
             tt_sktaddr_t addr;
 
             if (TT_OK(tt_skt_local_addr(new_ssl->skt, &addr))) {
-                tt_sktaddr_get_port(&addr, &port);
+                port = tt_sktaddr_get_port(&addr);
                 TT_INFO("fail port: %d", port);
             }
         }
@@ -2181,7 +2181,7 @@ static void __st1_ssl_on_connect(IN struct tt_ssl_s *ssl,
         tt_sktaddr_t addr;
 
         if (TT_OK(tt_skt_local_addr(ssl->skt, &addr))) {
-            tt_sktaddr_get_port(&addr, &port);
+            port = tt_sktaddr_get_port(&addr);
             TT_INFO("fail port: %d", port);
         }
 

@@ -132,7 +132,7 @@ tt_result_t __aaaa_render(IN struct tt_adns_rr_s *rr, OUT struct tt_buf_s *buf)
     tt_adrr_aaaa_t *rdata = TT_ADRR_CAST(rr, tt_adrr_aaaa_t);
 
     // rdata
-    TT_DO(tt_buf_put(buf, rdata->addr.addr128.__u8, 16));
+    TT_DO(tt_buf_put(buf, rdata->addr.a128.__u8, 16));
 
     return TT_SUCCESS;
 }
@@ -145,7 +145,7 @@ tt_result_t __aaaa_parse(OUT struct tt_adns_rr_s *rr,
     tt_adrr_aaaa_t *rdata = TT_ADRR_CAST(rr, tt_adrr_aaaa_t);
 
     // rdata, already in network order
-    TT_DO(tt_buf_get(buf, rdata->addr.addr128.__u8, 16));
+    TT_DO(tt_buf_get(buf, rdata->addr.a128.__u8, 16));
 
     return TT_SUCCESS;
 }

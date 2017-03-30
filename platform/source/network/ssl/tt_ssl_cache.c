@@ -365,7 +365,7 @@ tt_u32_t __mk_peer_id(IN tt_char_t *peer_id,
                                "C:%p:%x:%x:0:",
                                sslctx,
                                peer_private,
-                               sock_addr.addr32.__u32);
+                               sock_addr.a32.__u32);
         } else {
             TT_ASSERT(af == TT_NET_AF_INET6);
 
@@ -374,21 +374,21 @@ tt_u32_t __mk_peer_id(IN tt_char_t *peer_id,
                                "C:%p:%x:%x%x%x%x:0:",
                                sslctx,
                                peer_private,
-                               sock_addr.addr128.__u32[0],
-                               sock_addr.addr128.__u32[1],
-                               sock_addr.addr128.__u32[2],
-                               sock_addr.addr128.__u32[3]);
+                               sock_addr.a128.__u32[0],
+                               sock_addr.a128.__u32[1],
+                               sock_addr.a128.__u32[2],
+                               sock_addr.a128.__u32[3]);
         }
 
         // client uses remote port as a part of peer key
         af = tt_sktaddr_get_family(remote_addr);
         tt_sktaddr_get_addr_n(remote_addr, &sock_addr);
-        tt_sktaddr_get_port(remote_addr, &port);
+        port = tt_sktaddr_get_port(remote_addr);
         if (af == TT_NET_AF_INET) {
             len += tt_snprintf(peer_id + len,
                                TT_SSL_PEER_ID_LEN - 1 - len,
                                "%x:%x",
-                               sock_addr.addr32.__u32,
+                               sock_addr.a32.__u32,
                                port);
         } else {
             TT_ASSERT(af == TT_NET_AF_INET6);
@@ -396,10 +396,10 @@ tt_u32_t __mk_peer_id(IN tt_char_t *peer_id,
             len += tt_snprintf(peer_id + len,
                                TT_SSL_PEER_ID_LEN - 1 - len,
                                "%x%x%x%x:%x",
-                               sock_addr.addr128.__u32[0],
-                               sock_addr.addr128.__u32[1],
-                               sock_addr.addr128.__u32[2],
-                               sock_addr.addr128.__u32[3],
+                               sock_addr.a128.__u32[0],
+                               sock_addr.a128.__u32[1],
+                               sock_addr.a128.__u32[2],
+                               sock_addr.a128.__u32[3],
                                port);
         }
 
@@ -411,14 +411,14 @@ tt_u32_t __mk_peer_id(IN tt_char_t *peer_id,
         // server uses local port
         af = tt_sktaddr_get_family(local_addr);
         tt_sktaddr_get_addr_n(local_addr, &sock_addr);
-        tt_sktaddr_get_port(local_addr, &port);
+        port = tt_sktaddr_get_port(local_addr);
         if (af == TT_NET_AF_INET) {
             len += tt_snprintf(peer_id + len,
                                TT_SSL_PEER_ID_LEN - 1 - len,
                                "S:%p:%x:%x:%x:",
                                sslctx,
                                peer_private,
-                               sock_addr.addr32.__u32,
+                               sock_addr.a32.__u32,
                                port);
         } else {
             TT_ASSERT(af == TT_NET_AF_INET6);
@@ -428,10 +428,10 @@ tt_u32_t __mk_peer_id(IN tt_char_t *peer_id,
                                "S:%p:%x:%x%x%x%x:%x:",
                                sslctx,
                                peer_private,
-                               sock_addr.addr128.__u32[0],
-                               sock_addr.addr128.__u32[1],
-                               sock_addr.addr128.__u32[2],
-                               sock_addr.addr128.__u32[3],
+                               sock_addr.a128.__u32[0],
+                               sock_addr.a128.__u32[1],
+                               sock_addr.a128.__u32[2],
+                               sock_addr.a128.__u32[3],
                                port);
         }
 
@@ -442,17 +442,17 @@ tt_u32_t __mk_peer_id(IN tt_char_t *peer_id,
             len += tt_snprintf(peer_id + len,
                                TT_SSL_PEER_ID_LEN - 1 - len,
                                "%x:0",
-                               sock_addr.addr32.__u32);
+                               sock_addr.a32.__u32);
         } else {
             TT_ASSERT(af == TT_NET_AF_INET6);
 
             len += tt_snprintf(peer_id + len,
                                TT_SSL_PEER_ID_LEN - 1 - len,
                                "%x%x%x%x:0",
-                               sock_addr.addr128.__u32[0],
-                               sock_addr.addr128.__u32[1],
-                               sock_addr.addr128.__u32[2],
-                               sock_addr.addr128.__u32[3]);
+                               sock_addr.a128.__u32[0],
+                               sock_addr.a128.__u32[1],
+                               sock_addr.a128.__u32[2],
+                               sock_addr.a128.__u32[3]);
         }
 
         TT_ASSERT(len < TT_SSL_PEER_ID_LEN);

@@ -234,7 +234,7 @@ static void __ut_skt_enter(void *enter_param)
 
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(sk_case)
-#if 1
+
 TT_TEST_CASE("tt_unit_test_sk_addr",
              "testing socket addr api",
              tt_unit_test_sk_addr,
@@ -245,6 +245,7 @@ TT_TEST_CASE("tt_unit_test_sk_addr",
              NULL)
 ,
 
+#if 0
     TT_TEST_CASE("tt_unit_test_bind_basic",
                  "testing socket tcp api",
                  tt_unit_test_bind_basic,
@@ -299,7 +300,7 @@ TT_TEST_CASE("tt_unit_test_sk_addr",
                  NULL, NULL),
 #endif
 
-#if 1
+#if 0
     TT_TEST_CASE("tt_unit_test_udp_async_ipv4",
                  "testing socket udp async ipv4",
                  tt_unit_test_udp_async_ipv4,
@@ -319,7 +320,7 @@ TT_TEST_CASE("tt_unit_test_sk_addr",
                  NULL),
 #endif
 
-#if 1
+#if 0
     TT_TEST_CASE("tt_unit_test_tcp_async_ipv4",
                  "testing socket tcp async ipv4",
                  tt_unit_test_tcp_async_ipv4,
@@ -405,6 +406,7 @@ TT_TEST_CASE("tt_unit_test_sk_addr",
                  NULL, NULL),
 #endif
 
+#if 0
     TT_TEST_CASE("tt_unit_test_tcp_destroy_immd",
                  "testing socket tcp destroy immediately",
                  tt_unit_test_tcp_destroy_immd,
@@ -422,6 +424,7 @@ TT_TEST_CASE("tt_unit_test_sk_addr",
                  NULL,
                  NULL,
                  NULL),
+#endif
 
     TT_TEST_CASE_LIST_DEFINE_END(sk_case)
     // =========================================
@@ -504,8 +507,7 @@ TT_TEST_CASE("tt_unit_test_sk_addr",
     TT_TEST_CHECK_EQUAL(buf[7], '\0', "");
 
     tt_sktaddr_set_port(&sa, 1);
-    TT_TEST_CHECK_EQUAL(tt_sktaddr_get_port(&sa, &port), TT_SUCCESS, "");
-    TT_TEST_CHECK_EQUAL(port, 1, "");
+    TT_TEST_CHECK_EQUAL(tt_sktaddr_get_port(&sa), 1, "");
 
     ////////////////////// ipv6
 
@@ -541,8 +543,7 @@ TT_TEST_CASE("tt_unit_test_sk_addr",
     TT_TEST_CHECK_EQUAL(buf[4], '\0', "");
 
     tt_sktaddr_set_port(&sa6, 1);
-    TT_TEST_CHECK_EQUAL(tt_sktaddr_get_port(&sa6, &port), TT_SUCCESS, "");
-    TT_TEST_CHECK_EQUAL(port, 1, "");
+    TT_TEST_CHECK_EQUAL(tt_sktaddr_get_port(&sa6), 1, "");
 
     //////////// ipv4 to ipv6
 
@@ -575,8 +576,7 @@ TT_TEST_CASE("tt_unit_test_sk_addr",
     TT_TEST_CHECK_EQUAL(buf[13], '4', "");
     TT_TEST_CHECK_EQUAL(buf[14], '\0', "");
 
-    TT_TEST_CHECK_EQUAL(tt_sktaddr_get_port(&sa6, &port), TT_SUCCESS, "");
-    TT_TEST_CHECK_EQUAL(port, 1234, "");
+    TT_TEST_CHECK_EQUAL(tt_sktaddr_get_port(&sa6), 1234, "");
 
     // test end
     TT_TEST_CASE_LEAVE()
@@ -609,19 +609,17 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_bind_basic)
         tt_sktaddr_addr_t addr_val;
 
         tt_sktaddr_get_addr_n(&addr, &addr_val);
-        TT_TEST_CHECK_EQUAL(addr_val.addr32.__u32, 0, "");
+        TT_TEST_CHECK_EQUAL(addr_val.a32.__u32, 0, "");
 
-        TT_TEST_CHECK_EQUAL(tt_sktaddr_get_port(&addr, &port), TT_SUCCESS, "");
-        TT_TEST_CHECK_EQUAL(port, 0, "");
+        TT_TEST_CHECK_EQUAL(tt_sktaddr_get_port(&addr), 0, "");
     }
     if (TT_OK(tt_skt_local_addr(&sk4, &addr))) {
         tt_sktaddr_addr_t addr_val;
 
         tt_sktaddr_get_addr_n(&addr, &addr_val);
-        TT_TEST_CHECK_EQUAL(addr_val.addr32.__u32, 0, "");
+        TT_TEST_CHECK_EQUAL(addr_val.a32.__u32, 0, "");
 
-        TT_TEST_CHECK_EQUAL(tt_sktaddr_get_port(&addr, &port), TT_SUCCESS, "");
-        TT_TEST_CHECK_EQUAL(port, 0, "");
+        TT_TEST_CHECK_EQUAL(tt_sktaddr_get_port(&addr), 0, "");
     }
 
     // ret = tt_skt_listen(&sk4, TT_SKT_BACKLOG_DEFAULT);
@@ -648,8 +646,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_bind_basic)
         TT_TEST_CHECK_SUCCESS(tt_skt_local_addr(&sk4, &sa1), "");
         TT_TEST_CHECK_EQUAL(tt_sktaddr_get_family(&sa1), TT_NET_AF_INET, "");
 
-        TT_TEST_CHECK_EQUAL(tt_sktaddr_get_port(&sa1, &port), TT_SUCCESS, "");
-        TT_TEST_CHECK_EQUAL(port, __TPORT, "");
+        TT_TEST_CHECK_EQUAL(tt_sktaddr_get_port(&sa1), __TPORT, "");
 
         tt_sktaddr_get_addr_p(&sa1, buf, 19);
         TT_TEST_CHECK_EQUAL(buf[i++], '1', "");
@@ -696,8 +693,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_bind_basic)
         memset(&cmp, 0, sizeof(cmp));
         TT_TEST_CHECK_EQUAL(memcmp(&addr_val, &cmp, sizeof(cmp)), 0, "");
 
-        TT_TEST_CHECK_EQUAL(tt_sktaddr_get_port(&addr, &port), TT_SUCCESS, "");
-        TT_TEST_CHECK_EQUAL(port, 0, "");
+        TT_TEST_CHECK_EQUAL(tt_sktaddr_get_port(&addr), 0, "");
     }
     if (TT_OK(tt_skt_local_addr(&sk6, &addr))) {
         tt_sktaddr_addr_t addr_val;
@@ -707,8 +703,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_bind_basic)
         memset(&cmp, 0, sizeof(cmp));
         TT_TEST_CHECK_EQUAL(memcmp(&addr_val, &cmp, sizeof(cmp)), 0, "");
 
-        TT_TEST_CHECK_EQUAL(tt_sktaddr_get_port(&addr, &port), TT_SUCCESS, "");
-        TT_TEST_CHECK_EQUAL(port, 0, "");
+        TT_TEST_CHECK_EQUAL(tt_sktaddr_get_port(&addr), 0, "");
     }
 
     // ret = tt_skt_listen(&sk6, TT_SKT_BACKLOG_DEFAULT);
@@ -736,8 +731,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_bind_basic)
         TT_TEST_CHECK_SUCCESS(tt_skt_local_addr(&sk6, &sa1), "");
         // family has been converted
         TT_TEST_CHECK_EQUAL(tt_sktaddr_get_family(&sa1), TT_NET_AF_INET6, "");
-        TT_TEST_CHECK_EQUAL(tt_sktaddr_get_port(&sa1, &port), TT_SUCCESS, "");
-        TT_TEST_CHECK_EQUAL(port, __TPORT6, "");
+        TT_TEST_CHECK_EQUAL(tt_sktaddr_get_port(&sa1), __TPORT6, "");
 
         ret = tt_sktaddr_get_addr_p(&sa1, buf, 99);
         TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
@@ -772,8 +766,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_bind_basic)
         TT_TEST_CHECK_SUCCESS(tt_skt_local_addr(&sk6, &sa1), "");
         // family has been converted
         TT_TEST_CHECK_EQUAL(tt_sktaddr_get_family(&sa1), TT_NET_AF_INET6, "");
-        TT_TEST_CHECK_EQUAL(tt_sktaddr_get_port(&sa1, &port), TT_SUCCESS, "");
-        TT_TEST_CHECK_EQUAL(port, __TPORT6, "");
+        TT_TEST_CHECK_EQUAL(tt_sktaddr_get_port(&sa1), __TPORT6, "");
 
         tt_sktaddr_get_addr_p(&sa1, buf, 19);
 

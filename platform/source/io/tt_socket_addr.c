@@ -47,44 +47,31 @@
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-tt_result_t tt_sktaddr_set_addr_p(IN tt_sktaddr_t *addr, IN tt_char_t *p_addr)
+tt_result_t tt_sktaddr_set_addr_p(IN tt_sktaddr_t *addr, IN tt_char_t *pa)
 {
-    tt_net_family_t af;
-    tt_sktaddr_addr_t __n;
+    tt_sktaddr_addr_t na;
 
-    af = tt_sktaddr_get_family(addr);
-    if (!TT_NET_AF_VALID(af)) {
-        TT_ERROR("invalid family: %d", af);
-        return TT_FAIL;
-    }
-
-    if (p_addr == TT_SKTADDR_ANY) {
+    if (pa == TT_SKTADDR_ANY) {
         tt_sktaddr_set_addr_n(addr, TT_SKTADDR_ANY);
         return TT_SUCCESS;
     }
 
-    if (!TT_OK(tt_sktaddr_addr_p2n(af, p_addr, &__n))) {
+    if (!TT_OK(tt_sktaddr_addr_p2n(tt_sktaddr_get_family(addr), pa, &na))) {
         return TT_FAIL;
     }
-    tt_sktaddr_set_addr_n(addr, &__n);
+    tt_sktaddr_set_addr_n(addr, &na);
+
     return TT_SUCCESS;
 }
 
 tt_result_t tt_sktaddr_get_addr_p(IN tt_sktaddr_t *addr,
-                                  OUT tt_char_t *p_addr,
-                                  IN tt_u32_t p_addr_len)
+                                  OUT tt_char_t *pa,
+                                  IN tt_u32_t pa_len)
 {
-    tt_net_family_t af;
-    tt_sktaddr_addr_t __n;
+    tt_sktaddr_addr_t na;
 
-    af = tt_sktaddr_get_family(addr);
-    if (!TT_NET_AF_VALID(af)) {
-        TT_ERROR("invalid family: %d", af);
-        return TT_FAIL;
-    }
-
-    tt_sktaddr_get_addr_n(addr, &__n);
-    return tt_sktaddr_addr_n2p(af, &__n, p_addr, p_addr_len);
+    tt_sktaddr_get_addr_n(addr, &na);
+    return tt_sktaddr_addr_n2p(tt_sktaddr_get_family(addr), &na, pa, pa_len);
 }
 
 tt_sktaddr_t *tt_sktaddr_map4to6(IN tt_sktaddr_t *in4, OUT tt_sktaddr_t *in6)
@@ -94,18 +81,5 @@ tt_sktaddr_t *tt_sktaddr_map4to6(IN tt_sktaddr_t *in4, OUT tt_sktaddr_t *in6)
         return in6;
     } else {
         return in4;
-    }
-}
-
-tt_sktaddr_t *tt_sktaddr_ipv4map(IN tt_net_family_t skt_af,
-                                 IN tt_sktaddr_t *addr,
-                                 IN tt_sktaddr_t *ipv4mapped)
-{
-    if ((skt_af == TT_NET_AF_INET6) &&
-        (tt_sktaddr_get_family(addr) == TT_NET_AF_INET)) {
-        tt_sktaddr_map4to6(addr, ipv4mapped);
-        return ipv4mapped;
-    } else {
-        return addr;
     }
 }

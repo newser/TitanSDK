@@ -703,11 +703,11 @@ void __ad2_on_query(IN tt_char_t *name,
     rr = TT_CONTAINER(tt_dlist_head(qryctx->rrlist), tt_adns_rr_t, node);
     rd = TT_ADRR_CAST(rr, tt_adrr_a_t);
     tt_sktaddr_addr_p2n(TT_NET_AF_INET, __ad2_q_ip, &corrent_rd.addr);
-    if (rd->addr.addr32.__u32 != corrent_rd.addr.addr32.__u32) {
+    if (rd->addr.a32.__u32 != corrent_rd.addr.a32.__u32) {
         //__ad2_fail_exit(); // may due to random modification
         TT_INFO("correct: %x, received: %x",
-                corrent_rd.addr.addr32.__u32,
-                rd->addr.addr32.__u32);
+                corrent_rd.addr.a32.__u32,
+                rd->addr.a32.__u32);
 
         if (tt_adns_query_async(__ad2_q_name,
                                 TT_ADNS_RR_A_IN,
