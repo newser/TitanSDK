@@ -34,6 +34,8 @@
 // internal macro
 ////////////////////////////////////////////////////////////
 
+#define TT_ASSERT_SA TT_ASSERT
+
 ////////////////////////////////////////////////////////////
 // internal type
 ////////////////////////////////////////////////////////////
@@ -57,14 +59,11 @@
 void tt_sktaddr_init_ntv(IN tt_sktaddr_ntv_t *addr, IN tt_net_family_t family)
 {
     tt_memset(addr, 0, sizeof(tt_sktaddr_ntv_t));
-
     if (family == TT_NET_AF_INET) {
         addr->ss_family = AF_INET;
-    } else if (family == TT_NET_AF_INET6) {
-        addr->ss_family = AF_INET6;
     } else {
-        TT_ERROR("invalid family: %d", family);
-        addr->ss_family = -1;
+        TT_ASSERT_SA(family == TT_NET_AF_INET6);
+        addr->ss_family = AF_INET6;
     }
 }
 
@@ -72,115 +71,88 @@ tt_net_family_t tt_sktaddr_get_family_ntv(IN tt_sktaddr_ntv_t *addr)
 {
     if (addr->ss_family == AF_INET) {
         return TT_NET_AF_INET;
-    } else if (addr->ss_family == AF_INET6) {
-        return TT_NET_AF_INET6;
     } else {
-        TT_ERROR("invalid sys family: %d", addr->ss_family);
-        return TT_NET_AF_INVALID;
+        TT_ASSERT_SA(addr->ss_family == AF_INET6);
+        return TT_NET_AF_INET6;
     }
 }
 
-tt_result_t tt_sktaddr_set_addr_n_ntv(IN tt_sktaddr_ntv_t *addr,
-                                      IN union _tt_sktaddr_addr_t *addr_val)
+void tt_sktaddr_set_addr_n_ntv(IN tt_sktaddr_ntv_t *addr,
+                               IN tt_sktaddr_addr_t *na)
 {
     if (addr->ss_family == AF_INET) {
-        if (addr_val == TT_SKTADDR_ANY) {
+        if (na == TT_SKTADDR_ANY) {
             ((SOCKADDR_IN *)addr)->sin_addr.s_addr = INADDR_ANY;
         } else {
-            ((SOCKADDR_IN *)addr)->sin_addr.s_addr = addr_val->addr32.__u32;
+            ((SOCKADDR_IN *)addr)->sin_addr.s_addr = na->a32.__u32;
         }
-        return TT_SUCCESS;
-    } else if (addr->ss_family == AF_INET6) {
-        if (addr_val == TT_SKTADDR_ANY) {
+    } else {
+        TT_ASSERT_SA(addr->ss_family == AF_INET6);
+        if (na == TT_SKTADDR_ANY) {
             ((SOCKADDR_IN6 *)addr)->sin6_addr = in6addr_any;
         } else {
             tt_memcpy(((SOCKADDR_IN6 *)addr)->sin6_addr.s6_bytes,
-                      addr_val->addr128.__u8,
+                      na->a128.__u8,
                       16);
         }
-        return TT_SUCCESS;
-    } else {
-        TT_ERROR("invalid sys family: %d", addr->ss_family);
-        return TT_FAIL;
     }
 }
 
-tt_result_t tt_sktaddr_get_addr_n_ntv(IN tt_sktaddr_ntv_t *addr,
-                                      OUT union _tt_sktaddr_addr_t *addr_val)
+void tt_sktaddr_get_addr_n_ntv(IN tt_sktaddr_ntv_t *addr,
+                               OUT tt_sktaddr_addr_t *na)
 {
-    // tt_memset(addr_val, 0, sizeof(union _tt_sktaddr_addr_t));
-
+    tt_memset(na, 0, sizeof(tt_sktaddr_addr_t));
     if (addr->ss_family == AF_INET) {
-        addr_val->addr32.__u32 = ((SOCKADDR_IN *)addr)->sin_addr.s_addr;
-        return TT_SUCCESS;
-    } else if (addr->ss_family == AF_INET6) {
-        tt_memcpy(addr_val->addr128.__u8,
-                  ((SOCKADDR_IN6 *)addr)->sin6_addr.s6_bytes,
-                  16);
-        return TT_SUCCESS;
+        na->a32.__u32 = ((struct sockaddr_in *)addr)->sin_addr.s_addr;
     } else {
-        TT_ERROR("invalid sys family: %d", addr->ss_family);
-        return TT_FAIL;
+        TT_ASSERT_SA(addr->ss_family == AF_INET6);
+        tt_memcpy(na->a128.__u8,
+                  ((struct sockaddr_in6 *)addr)->sin6_addr.s6_bytes,
+                  16);
     }
 }
 
 tt_result_t tt_sktaddr_addr_n2p_ntv(IN tt_net_family_t family,
-                                    IN union _tt_sktaddr_addr_t *addr_val,
+                                    IN tt_sktaddr_addr_t *na,
                                     OUT tt_char_t *buf,
                                     IN tt_u32_t buf_len)
 {
     if (family == TT_NET_AF_INET) {
-        IN_ADDR __n;
-        __n.s_addr = addr_val->addr32.__u32;
+        IN_ADDR n;
 
-        if (InetNtopA(AF_INET, &__n, buf, buf_len) != NULL) {
-            return TT_SUCCESS;
-        } else {
-            TT_NET_ERROR_NTV("invalid n addr");
-            return TT_FAIL;
-        }
-    } else if (family == TT_NET_AF_INET6) {
-        IN6_ADDR __n;
-        tt_memcpy(__n.s6_bytes, addr_val->addr128.__u8, 16);
-
-        if (InetNtopA(AF_INET6, &__n, buf, buf_len) != NULL) {
+        n.s_addr = na->a32.__u32;
+        if (InetNtopA(AF_INET, &n, buf, buf_len) != NULL) {
             return TT_SUCCESS;
         } else {
             TT_NET_ERROR_NTV("invalid n addr");
             return TT_FAIL;
         }
     } else {
-        TT_ERROR("invalid family: %d", family);
-        return TT_FAIL;
+        IN6_ADDR n;
+
+        TT_ASSERT_SA(family == TT_NET_AF_INET6);
+
+        tt_memcpy(n.s6_bytes, na->a128.__u8, 16);
+        if (InetNtopA(AF_INET6, &n, buf, buf_len) != NULL) {
+            return TT_SUCCESS;
+        } else {
+            TT_NET_ERROR_NTV("invalid n addr");
+            return TT_FAIL;
+        }
     }
 }
 
 tt_result_t tt_sktaddr_addr_p2n_ntv(IN tt_net_family_t family,
                                     IN tt_char_t *buf,
-                                    OUT union _tt_sktaddr_addr_t *addr_val)
+                                    OUT tt_sktaddr_addr_t *na)
 {
     if (family == TT_NET_AF_INET) {
         int ret;
-        IN_ADDR __n;
+        IN_ADDR n;
 
-        ret = InetPtonA(AF_INET, buf, &__n);
+        ret = InetPtonA(AF_INET, buf, &n);
         if (ret == 1) {
-            addr_val->addr32.__u32 = __n.s_addr;
-            return TT_SUCCESS;
-        } else if (ret == 0) {
-            TT_ERROR("invalid format: %ls", buf);
-            return TT_FAIL;
-        } else {
-            TT_NET_ERROR_NTV("invalid p address: %ls", buf);
-            return TT_FAIL;
-        }
-    } else if (family == TT_NET_AF_INET6) {
-        int ret;
-        IN6_ADDR __n;
-
-        ret = InetPtonA(AF_INET6, buf, &__n);
-        if (ret == 1) {
-            tt_memcpy(addr_val->addr128.__u8, __n.s6_bytes, 16);
+            na->a32.__u32 = n.s_addr;
             return TT_SUCCESS;
         } else if (ret == 0) {
             TT_ERROR("invalid format: %ls", buf);
@@ -190,129 +162,118 @@ tt_result_t tt_sktaddr_addr_p2n_ntv(IN tt_net_family_t family,
             return TT_FAIL;
         }
     } else {
-        TT_ERROR("invalid family: %d", family);
-        return TT_FAIL;
+        int ret;
+        IN6_ADDR n;
+
+        TT_ASSERT_SA(family == TT_NET_AF_INET6);
+
+        ret = InetPtonA(AF_INET6, buf, &n);
+        if (ret == 1) {
+            tt_memcpy(na->a128.__u8, n.s6_bytes, 16);
+            return TT_SUCCESS;
+        } else if (ret == 0) {
+            TT_ERROR("invalid format: %ls", buf);
+            return TT_FAIL;
+        } else {
+            TT_NET_ERROR_NTV("invalid p address: %ls", buf);
+            return TT_FAIL;
+        }
     }
 }
 
-tt_result_t tt_sktaddr_set_port_ntv(IN tt_sktaddr_ntv_t *addr, IN tt_u16_t port)
+void tt_sktaddr_set_port_ntv(IN tt_sktaddr_ntv_t *addr, IN tt_u16_t port)
 {
     if (addr->ss_family == AF_INET) {
         ((SOCKADDR_IN *)addr)->sin_port = htons(port);
-        return TT_SUCCESS;
-    } else if (addr->ss_family == AF_INET6) {
-        ((SOCKADDR_IN6 *)addr)->sin6_port = htons(port);
-        return TT_SUCCESS;
     } else {
-        TT_ERROR("invalid sys family: %d", addr->ss_family);
-        return TT_FAIL;
+        TT_ASSERT_SA(addr->ss_family == AF_INET6);
+        ((SOCKADDR_IN6 *)addr)->sin6_port = htons(port);
     }
 }
 
-tt_result_t tt_sktaddr_get_port_ntv(IN tt_sktaddr_ntv_t *addr,
-                                    IN tt_u16_t *port)
+tt_u16_t tt_sktaddr_get_port_ntv(IN tt_sktaddr_ntv_t *addr)
 {
     if (addr->ss_family == AF_INET) {
-        *port = ntohs(((SOCKADDR_IN *)addr)->sin_port);
-        return TT_SUCCESS;
-    } else if (addr->ss_family == AF_INET6) {
-        *port = ntohs(((SOCKADDR_IN6 *)addr)->sin6_port);
-        return TT_SUCCESS;
+        return ntohs(((SOCKADDR_IN *)addr)->sin_port);
     } else {
-        TT_ERROR("invalid sys family: %d", addr->ss_family);
-        return TT_FAIL;
+        TT_ASSERT_SA(addr->ss_family == AF_INET6);
+        return ntohs(((SOCKADDR_IN6 *)addr)->sin6_port);
     }
 }
 
-tt_result_t tt_sktaddr_set_scope_ntv(IN tt_sktaddr_ntv_t *addr,
-                                     IN tt_u32_t scope_id)
+void tt_sktaddr_set_scope_ntv(IN tt_sktaddr_ntv_t *addr, IN tt_u32_t scope_id)
 {
-    if (addr->ss_family == AF_INET6) {
-        ((SOCKADDR_IN6 *)addr)->sin6_scope_id = (u_long)scope_id;
-        return TT_SUCCESS;
-    } else {
-        TT_ERROR("invalid sys family[%d] to set scope id", addr->ss_family);
-        return TT_FAIL;
+    if (addr->ss_family != AF_INET6) {
+        TT_WARN("can no set scope id to ipv4 addr");
+        return;
     }
+
+    ((SOCKADDR_IN6 *)addr)->sin6_scope_id = scope_id;
 }
 
-tt_result_t tt_sktaddr_set_scope_p_ntv(IN tt_sktaddr_ntv_t *addr,
-                                       IN tt_char_t *scope_name)
+void tt_sktaddr_set_scope_p_ntv(IN tt_sktaddr_ntv_t *addr,
+                                IN tt_char_t *scope_name)
 {
-    if (addr->ss_family == AF_INET6) {
-        WCHAR *InterfaceName;
-        NET_LUID luid;
-        NET_IFINDEX ifidx;
-        NETIO_STATUS ns;
+    WCHAR *InterfaceName;
+    NET_LUID luid;
+    NET_IFINDEX ifidx;
 
-        InterfaceName = tt_wchar_create(scope_name, NULL);
-        if (InterfaceName == NULL) {
-            return TT_FAIL;
-        }
+    if (addr->ss_family != AF_INET6) {
+        TT_WARN("can no set scope id to ipv4 addr");
+        return;
+    }
 
-        // get network interface index
-        ns = ConvertInterfaceNameToLuidW(InterfaceName, &luid);
+    InterfaceName = tt_wchar_create(scope_name, NULL);
+    if (InterfaceName == NULL) {
+        return;
+    }
+
+    if ((ConvertInterfaceNameToLuidW(InterfaceName, &luid) != 0) ||
+        (ConvertInterfaceLuidToIndex(&luid, &ifidx) != NO_ERROR)) {
+        TT_ERROR_NTV("can not get ifidx of %ls", scope_name);
         tt_wchar_destroy(InterfaceName);
-        if (ns != 0) {
-            TT_ERROR_NTV("can not get luid of %ls", scope_name);
-            return TT_FAIL;
-        }
-        if (ConvertInterfaceLuidToIndex(&luid, &ifidx) != NO_ERROR) {
-            TT_ERROR_NTV("can not get index from luid of %ls", scope_name);
-            return TT_FAIL;
-        }
-
-        ((SOCKADDR_IN6 *)addr)->sin6_scope_id = (u_long)ifidx;
-        return TT_SUCCESS;
-    } else {
-        TT_ERROR("invalid sys family[%d] to set scope id", addr->ss_family);
-        return TT_FAIL;
+        return;
     }
+
+    ((SOCKADDR_IN6 *)addr)->sin6_scope_id = (u_long)ifidx;
 }
 
 void tt_sktaddr_map4to6_ntv(IN tt_sktaddr_ntv_t *in4, OUT tt_sktaddr_ntv_t *in6)
 {
-    SOCKADDR_IN *__in4 = (SOCKADDR_IN *)in4;
-    SOCKADDR_IN6 *__in6 = (SOCKADDR_IN6 *)in6;
-    u_char *__uc6 = __in6->sin6_addr.s6_bytes;
+    SOCKADDR_IN *i4 = (SOCKADDR_IN *)in4;
+    SOCKADDR_IN6 *i6 = (SOCKADDR_IN6 *)in6;
+    u_char *uc6 = i6->sin6_addr.s6_bytes;
 
     // save ipv4 value as in4 and in6 may be same pointer
-    u_long __s_addr = __in4->sin_addr.s_addr;
-    u_short __sin_port = __in4->sin_port;
+    u_long __s_addr = i4->sin_addr.s_addr;
+    u_short __sin_port = i4->sin_port;
     // now change change in6
-    tt_memset(__in6, 0, sizeof(SOCKADDR_IN6));
+    tt_memset(i6, 0, sizeof(SOCKADDR_IN6));
 
-    // family
-    __in6->sin6_family = AF_INET6;
+    i6->sin6_family = AF_INET6;
 
-    // address, already in network endian
-    *((u_long *)&__uc6[0]) = 0;
-    *((u_long *)&__uc6[4]) = 0;
-    *((u_short *)&__uc6[8]) = 0;
-    *((u_short *)&__uc6[10]) = 0xFFFF;
-    *((u_long *)&__uc6[12]) = __s_addr;
+    *((u_long *)&uc6[0]) = 0;
+    *((u_long *)&uc6[4]) = 0;
+    *((u_short *)&uc6[8]) = 0;
+    *((u_short *)&uc6[10]) = 0xFFFF;
+    *((u_long *)&uc6[12]) = __s_addr;
 
-    // port
-    __in6->sin6_port = __sin_port;
+    i6->sin6_port = __sin_port;
 
-    // other
-    //__in6->sin6_flowinfo = 0;
-    //__in6->sin6_scope_id = 0;
+    // i6->sin6_flowinfo = 0;
+    // i6->sin6_scope_id = 0;
 }
 
 tt_bool_t tt_sktaddr_ipv4mapped_ntv(IN tt_sktaddr_ntv_t *addr)
 {
-    u_char *__uc6 = ((SOCKADDR_IN6 *)addr)->sin6_addr.s6_bytes;
+    u_char *uc6 = ((SOCKADDR_IN6 *)addr)->sin6_addr.s6_bytes;
 
-    // check family
     if (addr->ss_family != AF_INET6) {
         return TT_FALSE;
     }
 
-    // check address
-    if ((*((u_long *)&__uc6[0]) != 0) || (*((u_long *)&__uc6[4]) != 0) ||
-        (*((u_short *)&__uc6[8]) != 0) ||
-        (*((u_short *)&__uc6[10]) != 0xFFFF)) {
+    if ((*((u_long *)&uc6[0]) != 0) || (*((u_long *)&uc6[4]) != 0) ||
+        (*((u_short *)&uc6[8]) != 0) || (*((u_short *)&uc6[10]) != 0xFFFF)) {
         return TT_FALSE;
     }
 

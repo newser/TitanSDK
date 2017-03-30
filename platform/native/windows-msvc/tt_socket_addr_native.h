@@ -39,7 +39,7 @@ this file specifies socket address native definitions
 // type definition
 ////////////////////////////////////////////////////////////
 
-union _tt_sktaddr_addr_t;
+union tt_sktaddr_addr_s;
 
 typedef SOCKADDR_STORAGE tt_sktaddr_ntv_t;
 
@@ -56,34 +56,36 @@ extern void tt_sktaddr_init_ntv(IN tt_sktaddr_ntv_t *addr,
 
 extern tt_net_family_t tt_sktaddr_get_family_ntv(IN tt_sktaddr_ntv_t *addr);
 
-extern tt_result_t tt_sktaddr_set_addr_n_ntv(
-    IN tt_sktaddr_ntv_t *addr, IN union _tt_sktaddr_addr_t *addr_val);
+extern void tt_sktaddr_set_addr_n_ntv(IN tt_sktaddr_ntv_t *addr,
+                                      IN union tt_sktaddr_addr_s *na);
+
 // returned value is unspecified if addr is set to TT_SKTADDR_ANY
-extern tt_result_t tt_sktaddr_get_addr_n_ntv(
-    IN tt_sktaddr_ntv_t *addr, OUT union _tt_sktaddr_addr_t *addr_val);
+extern void tt_sktaddr_get_addr_n_ntv(IN tt_sktaddr_ntv_t *addr,
+                                      OUT union tt_sktaddr_addr_s *na);
 
-extern tt_result_t tt_sktaddr_set_port_ntv(IN tt_sktaddr_ntv_t *addr,
-                                           IN tt_u16_t port);
-extern tt_result_t tt_sktaddr_get_port_ntv(IN tt_sktaddr_ntv_t *addr,
-                                           OUT tt_u16_t *port);
+extern void tt_sktaddr_set_port_ntv(IN tt_sktaddr_ntv_t *addr,
+                                    IN tt_u16_t port);
 
-extern tt_result_t tt_sktaddr_set_scope_ntv(IN tt_sktaddr_ntv_t *addr,
-                                            IN tt_u32_t scope_id);
-extern tt_result_t tt_sktaddr_set_scope_p_ntv(IN tt_sktaddr_ntv_t *addr,
-                                              IN tt_char_t *scope_name);
+extern tt_u16_t tt_sktaddr_get_port_ntv(IN tt_sktaddr_ntv_t *addr);
 
-extern tt_result_t tt_sktaddr_addr_n2p_ntv(
-    IN tt_net_family_t family,
-    IN union _tt_sktaddr_addr_t *addr_val,
-    OUT tt_char_t *buf,
-    IN tt_u32_t buf_len);
-extern tt_result_t tt_sktaddr_addr_p2n_ntv(
-    IN tt_net_family_t family,
-    IN tt_char_t *buf,
-    OUT union _tt_sktaddr_addr_t *addr_val);
+extern void tt_sktaddr_set_scope_ntv(IN tt_sktaddr_ntv_t *addr,
+                                     IN tt_u32_t scope_id);
+
+extern void tt_sktaddr_set_scope_p_ntv(IN tt_sktaddr_ntv_t *addr,
+                                       IN tt_char_t *scope_name);
+
+extern tt_result_t tt_sktaddr_addr_n2p_ntv(IN tt_net_family_t family,
+                                           IN union tt_sktaddr_addr_s *na,
+                                           OUT tt_char_t *buf,
+                                           IN tt_u32_t buf_len);
+
+extern tt_result_t tt_sktaddr_addr_p2n_ntv(IN tt_net_family_t family,
+                                           IN tt_char_t *buf,
+                                           OUT union tt_sktaddr_addr_s *na);
 
 extern void tt_sktaddr_map4to6_ntv(IN tt_sktaddr_ntv_t *in4,
                                    OUT tt_sktaddr_ntv_t *in6);
+
 extern tt_bool_t tt_sktaddr_ipv4mapped_ntv(IN tt_sktaddr_ntv_t *addr);
 
 #endif // __TT_SOCKET_ADDR_NATIVE__
