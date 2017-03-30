@@ -78,10 +78,10 @@ extern tt_result_t tt_skt_get_reuseaddr(IN struct tt_skt_s *skt,
 //   socket has no such option untill 3.9
 // - on mac os, both are supported
 extern tt_result_t tt_skt_set_reuseport(IN struct tt_skt_s *skt,
-                                        IN tt_bool_t reuse_addr);
+                                        IN tt_bool_t reuse_port);
 
 extern tt_result_t tt_skt_get_reuseport(IN struct tt_skt_s *skt,
-                                        OUT tt_bool_t *reuse_addr);
+                                        OUT tt_bool_t *reuse_port);
 
 // ========================================
 // tcp no delay

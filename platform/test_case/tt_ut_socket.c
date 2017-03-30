@@ -61,6 +61,8 @@
 
 // === routine declarations ================
 TT_TEST_ROUTINE_DECLARE(tt_unit_test_sk_addr)
+TT_TEST_ROUTINE_DECLARE(tt_unit_test_sk_opt)
+
 TT_TEST_ROUTINE_DECLARE(tt_unit_test_bind_basic)
 TT_TEST_ROUTINE_DECLARE(tt_unit_test_tcp_server)
 TT_TEST_ROUTINE_DECLARE(tt_unit_test_tcp_server6)
@@ -244,6 +246,15 @@ TT_TEST_CASE("tt_unit_test_sk_addr",
              NULL,
              NULL)
 ,
+
+    TT_TEST_CASE("tt_unit_test_sk_opt",
+                 "testing socket option api",
+                 tt_unit_test_sk_opt,
+                 NULL,
+                 __ut_skt_enter,
+                 NULL,
+                 NULL,
+                 NULL),
 
 #if 0
     TT_TEST_CASE("tt_unit_test_bind_basic",
@@ -440,7 +451,7 @@ TT_TEST_CASE("tt_unit_test_sk_addr",
     ////////////////////////////////////////////////////////////
 
     /*
-    TT_TEST_ROUTINE_DEFINE(name)
+    TT_TEST_ROUTINE_DEFINE(tt_unit_test_sk_opt)
     {
         //tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
 
@@ -577,6 +588,124 @@ TT_TEST_CASE("tt_unit_test_sk_addr",
     TT_TEST_CHECK_EQUAL(buf[14], '\0', "");
 
     TT_TEST_CHECK_EQUAL(tt_sktaddr_get_port(&sa6), 1234, "");
+
+    // test end
+    TT_TEST_CASE_LEAVE()
+}
+
+TT_TEST_ROUTINE_DEFINE(tt_unit_test_sk_opt)
+{
+    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+    tt_skt_t s;
+    tt_result_t ret;
+    tt_bool_t v;
+
+    TT_TEST_CASE_ENTER()
+    // test start
+
+    // udp ipv4
+
+    ret = tt_skt_create(&s, TT_NET_AF_INET, TT_NET_PROTO_UDP, NULL);
+    TT_TEST_CHECK_SUCCESS(ret, "");
+
+    // nonblock
+    ret = tt_skt_set_nonblock(&s, TT_TRUE);
+    TT_TEST_CHECK_SUCCESS(ret, "");
+    ret = tt_skt_set_nonblock(&s, TT_FALSE);
+    TT_TEST_CHECK_SUCCESS(ret, "");
+
+    // reuse addr
+    ret = tt_skt_set_reuseaddr(&s, TT_TRUE);
+    TT_TEST_CHECK_SUCCESS(ret, "");
+    ret = tt_skt_get_reuseaddr(&s, &v);
+    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_TEST_CHECK_EQUAL(v, TT_TRUE, "");
+
+    ret = tt_skt_set_reuseaddr(&s, TT_FALSE);
+    TT_TEST_CHECK_SUCCESS(ret, "");
+    ret = tt_skt_get_reuseaddr(&s, &v);
+    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_TEST_CHECK_EQUAL(v, TT_FALSE, "");
+
+    // reuse addr
+    ret = tt_skt_set_reuseport(&s, TT_TRUE);
+    TT_TEST_CHECK_SUCCESS(ret, "");
+    ret = tt_skt_get_reuseport(&s, &v);
+    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_TEST_CHECK_EQUAL(v, TT_TRUE, "");
+
+    ret = tt_skt_set_reuseport(&s, TT_FALSE);
+    TT_TEST_CHECK_SUCCESS(ret, "");
+    ret = tt_skt_get_reuseport(&s, &v);
+    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_TEST_CHECK_EQUAL(v, TT_FALSE, "");
+
+    tt_skt_destroy(&s);
+
+    // tcp ipv6
+
+    ret = tt_skt_create(&s, TT_NET_AF_INET6, TT_NET_PROTO_TCP, NULL);
+    TT_TEST_CHECK_SUCCESS(ret, "");
+
+    // nonblock
+    ret = tt_skt_set_nonblock(&s, TT_TRUE);
+    TT_TEST_CHECK_SUCCESS(ret, "");
+    ret = tt_skt_set_nonblock(&s, TT_FALSE);
+    TT_TEST_CHECK_SUCCESS(ret, "");
+
+    // reuse addr
+    ret = tt_skt_set_reuseaddr(&s, TT_TRUE);
+    TT_TEST_CHECK_SUCCESS(ret, "");
+    ret = tt_skt_get_reuseaddr(&s, &v);
+    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_TEST_CHECK_EQUAL(v, TT_TRUE, "");
+
+    ret = tt_skt_set_reuseaddr(&s, TT_FALSE);
+    TT_TEST_CHECK_SUCCESS(ret, "");
+    ret = tt_skt_get_reuseaddr(&s, &v);
+    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_TEST_CHECK_EQUAL(v, TT_FALSE, "");
+
+    // tcp nodelay
+    ret = tt_skt_set_tcp_nodelay(&s, TT_TRUE);
+    TT_TEST_CHECK_SUCCESS(ret, "");
+    ret = tt_skt_get_tcp_nodelay(&s, &v);
+    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_TEST_CHECK_EQUAL(v, TT_TRUE, "");
+
+    ret = tt_skt_set_tcp_nodelay(&s, TT_FALSE);
+    TT_TEST_CHECK_SUCCESS(ret, "");
+    ret = tt_skt_get_tcp_nodelay(&s, &v);
+    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_TEST_CHECK_EQUAL(v, TT_FALSE, "");
+
+    // ipv6 only
+    ret = tt_skt_set_ipv6only(&s, TT_TRUE);
+    TT_TEST_CHECK_SUCCESS(ret, "");
+    ret = tt_skt_get_ipv6only(&s, &v);
+    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_TEST_CHECK_EQUAL(v, TT_TRUE, "");
+
+    ret = tt_skt_set_ipv6only(&s, TT_FALSE);
+    TT_TEST_CHECK_SUCCESS(ret, "");
+    ret = tt_skt_get_ipv6only(&s, &v);
+    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_TEST_CHECK_EQUAL(v, TT_FALSE, "");
+
+    // reuse port
+    ret = tt_skt_set_reuseport(&s, TT_TRUE);
+    TT_TEST_CHECK_SUCCESS(ret, "");
+    ret = tt_skt_get_reuseport(&s, &v);
+    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_TEST_CHECK_EQUAL(v, TT_TRUE, "");
+
+    ret = tt_skt_set_reuseport(&s, TT_FALSE);
+    TT_TEST_CHECK_SUCCESS(ret, "");
+    ret = tt_skt_get_reuseport(&s, &v);
+    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_TEST_CHECK_EQUAL(v, TT_FALSE, "");
+
+    tt_skt_destroy(&s);
 
     // test end
     TT_TEST_CASE_LEAVE()
