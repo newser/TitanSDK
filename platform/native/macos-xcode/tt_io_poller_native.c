@@ -42,7 +42,8 @@
 // internal type
 ////////////////////////////////////////////////////////////
 
-typedef tt_bool_t (*__io_handler_t)(IN tt_io_poller_ntv_t *sys_iop);
+typedef tt_bool_t (*__io_handler_t)(IN tt_io_ev_t *io_ev,
+                                    IN tt_io_poller_ntv_t *sys_iop);
 
 enum
 {
@@ -59,13 +60,19 @@ enum
 // global variant
 ////////////////////////////////////////////////////////////
 
-static tt_bool_t __worker_io(IN tt_io_poller_ntv_t *sys_iop);
+static tt_bool_t __worker_io(IN tt_io_ev_t *io_ev,
+                             IN tt_io_poller_ntv_t *sys_iop);
 
-static tt_bool_t __poller_io(IN tt_io_poller_ntv_t *sys_iop);
+static tt_bool_t __poller_io(IN tt_io_ev_t *io_ev,
+                             IN tt_io_poller_ntv_t *sys_iop);
 
 static __io_handler_t __io_handler[TT_IO_NUM] = {
     __worker_io, __poller_io,
 };
+
+static tt_io_ev_t __s_poller_io_ev;
+
+static tt_io_ev_t __s_worker_io_ev;
 
 ////////////////////////////////////////////////////////////
 // interface declaration
@@ -77,6 +84,20 @@ static __io_handler_t __io_handler[TT_IO_NUM] = {
 
 tt_result_t tt_io_poller_component_init_ntv()
 {
+    // poller io ev
+    __s_poller_io_ev.src = NULL;
+    __s_poller_io_ev.dst = NULL;
+    tt_dnode_init(&__s_poller_io_ev.node);
+    __s_poller_io_ev.io = TT_IO_POLLER;
+    __s_poller_io_ev.ev = 0;
+
+    // worker io ev
+    __s_worker_io_ev.src = NULL;
+    __s_worker_io_ev.dst = NULL;
+    tt_dnode_init(&__s_worker_io_ev.node);
+    __s_worker_io_ev.io = TT_IO_WORKER;
+    __s_worker_io_ev.ev = 0;
+
     return TT_SUCCESS;
 }
 
@@ -113,7 +134,13 @@ tt_result_t tt_io_poller_create_ntv(IN tt_io_poller_ntv_t *sys_iop)
     sys_iop->kq = kq;
     __done |= __PC_KQ;
 
-    EV_SET(&kev, TT_IO_POLLER, EVFILT_USER, EV_ADD | EV_CLEAR, 0, 0, NULL);
+    EV_SET(&kev,
+           TT_IO_POLLER,
+           EVFILT_USER,
+           EV_ADD | EV_CLEAR,
+           0,
+           0,
+           &__s_poller_io_ev);
 again_p:
     if (kevent(kq, &kev, 1, NULL, 0, NULL) != 0) {
         if (errno == EINTR) {
@@ -124,7 +151,13 @@ again_p:
         goto fail;
     }
 
-    EV_SET(&kev, TT_IO_WORKER, EVFILT_USER, EV_ADD | EV_CLEAR, 0, 0, NULL);
+    EV_SET(&kev,
+           TT_IO_WORKER,
+           EVFILT_USER,
+           EV_ADD | EV_CLEAR,
+           0,
+           0,
+           &__s_worker_io_ev);
 again_w:
     if (kevent(kq, &kev, 1, NULL, 0, NULL) != 0) {
         if (errno == EINTR) {
@@ -189,7 +222,9 @@ tt_bool_t tt_io_poller_run_ntv(IN tt_io_poller_ntv_t *sys_iop,
     if (nev > 0) {
         tt_u32_t i;
         for (i = 0; i < nev; ++i) {
-            if (!__io_handler[kev[i].ident](sys_iop)) {
+            tt_io_ev_t *io_ev = (tt_io_ev_t *)kev[i].udata;
+
+            if (!__io_handler[io_ev->io](io_ev, sys_iop)) {
                 return TT_FALSE;
             }
         }
@@ -222,8 +257,13 @@ tt_result_t tt_io_poller_exit_ntv(IN tt_io_poller_ntv_t *sys_iop)
     tt_dlist_push_tail(&sys_iop->poller_ev, &io_ev->node);
     tt_spinlock_release(&sys_iop->poller_lock);
 
-    EV_SET(&kev, TT_IO_POLLER, EVFILT_USER, 0, NOTE_TRIGGER, 0, NULL);
-
+    EV_SET(&kev,
+           TT_IO_POLLER,
+           EVFILT_USER,
+           0,
+           NOTE_TRIGGER,
+           0,
+           &__s_poller_io_ev);
 again:
     if (kevent(sys_iop->kq, &kev, 1, NULL, 0, NULL) == 0) {
         return TT_SUCCESS;
@@ -245,8 +285,13 @@ tt_result_t tt_io_poller_finish_ntv(IN tt_io_poller_ntv_t *sys_iop,
     tt_dlist_push_tail(&sys_iop->worker_ev, &io_ev->node);
     tt_spinlock_release(&sys_iop->worker_lock);
 
-    EV_SET(&kev, TT_IO_WORKER, EVFILT_USER, 0, NOTE_TRIGGER, 0, NULL);
-
+    EV_SET(&kev,
+           TT_IO_WORKER,
+           EVFILT_USER,
+           0,
+           NOTE_TRIGGER,
+           0,
+           &__s_worker_io_ev);
 again:
     if (kevent(sys_iop->kq, &kev, 1, NULL, 0, NULL) == 0) {
         return TT_SUCCESS;
@@ -267,8 +312,13 @@ tt_result_t tt_io_poller_send_ntv(IN tt_io_poller_ntv_t *sys_iop,
     tt_dlist_push_tail(&sys_iop->poller_ev, &io_ev->node);
     tt_spinlock_release(&sys_iop->poller_lock);
 
-    EV_SET(&kev, TT_IO_POLLER, EVFILT_USER, 0, NOTE_TRIGGER, 0, NULL);
-
+    EV_SET(&kev,
+           TT_IO_POLLER,
+           EVFILT_USER,
+           0,
+           NOTE_TRIGGER,
+           0,
+           &__s_poller_io_ev);
 again:
     if (kevent(sys_iop->kq, &kev, 1, NULL, 0, NULL) == 0) {
         return TT_SUCCESS;
@@ -280,7 +330,7 @@ again:
     }
 }
 
-tt_bool_t __worker_io(IN tt_io_poller_ntv_t *sys_iop)
+tt_bool_t __worker_io(IN tt_io_ev_t *dummy, IN tt_io_poller_ntv_t *sys_iop)
 {
     tt_dlist_t dl;
     tt_dnode_t *node;
@@ -300,7 +350,7 @@ tt_bool_t __worker_io(IN tt_io_poller_ntv_t *sys_iop)
     return TT_TRUE;
 }
 
-tt_bool_t __poller_io(IN tt_io_poller_ntv_t *sys_iop)
+tt_bool_t __poller_io(IN tt_io_ev_t *dummy, IN tt_io_poller_ntv_t *sys_iop)
 {
     tt_dlist_t dl;
     tt_dnode_t *node;

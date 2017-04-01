@@ -97,14 +97,14 @@ ttcm_add_group_src(${PLATFORM_PATH}/source/log/layout log SRC_FILE)
 ttcm_add_group_src(${PLATFORM_PATH}/source/log/io log SRC_FILE)
 
 ttcm_add_group_src(${PLATFORM_PATH}/source/network network SRC_FILE)
-ttcm_add_group_src(${PLATFORM_PATH}/source/network/adns adns SRC_FILE)
-ttcm_add_group_src(${PLATFORM_PATH}/source/network/ssl ssl SRC_FILE)
+# ttcm_add_group_src(${PLATFORM_PATH}/source/network/adns adns SRC_FILE)
+# ttcm_add_group_src(${PLATFORM_PATH}/source/network/ssl ssl SRC_FILE)
 
-ttcm_add_group_src(${PLATFORM_PATH}/source/network/ssh ssh SRC_FILE)
-ttcm_add_group_src(${PLATFORM_PATH}/source/network/ssh/message ssh SRC_FILE)
-ttcm_add_group_src(${PLATFORM_PATH}/source/network/ssh/client ssh SRC_FILE)
-ttcm_add_group_src(${PLATFORM_PATH}/source/network/ssh/server ssh SRC_FILE)
-ttcm_add_group_src(${PLATFORM_PATH}/source/network/ssh/context ssh SRC_FILE)
+#ttcm_add_group_src(${PLATFORM_PATH}/source/network/ssh ssh SRC_FILE)
+#ttcm_add_group_src(${PLATFORM_PATH}/source/network/ssh/message ssh SRC_FILE)
+#ttcm_add_group_src(${PLATFORM_PATH}/source/network/ssh/client ssh SRC_FILE)
+#ttcm_add_group_src(${PLATFORM_PATH}/source/network/ssh/server ssh SRC_FILE)
+#ttcm_add_group_src(${PLATFORM_PATH}/source/network/ssh/context ssh SRC_FILE)
 
 ttcm_add_group_src(${PLATFORM_PATH}/source/crypto crypto SRC_FILE)
 
@@ -122,10 +122,10 @@ ttcm_add_group_src(${PLATFORM_PATH}/test_case test_case SRC_FILE)
 ttcm_add_group_src(${PLATFORM_PATH}/source/cli/test_case cli SRC_FILE)
 ttcm_add_group_src(${PLATFORM_PATH}/source/xml/test_case xml SRC_FILE)
 ttcm_add_group_src(${PLATFORM_PATH}/source/crypto/test_case crypto SRC_FILE)
-ttcm_add_group_src(${PLATFORM_PATH}/source/network/ssh/test_case ssh SRC_FILE)
-ttcm_add_group_src(${PLATFORM_PATH}/source/network/ssl/test_case ssl SRC_FILE)
+#ttcm_add_group_src(${PLATFORM_PATH}/source/network/ssh/test_case ssh SRC_FILE)
+#ttcm_add_group_src(${PLATFORM_PATH}/source/network/ssl/test_case ssl SRC_FILE)
 ttcm_add_group_src(${PLATFORM_PATH}/source/math/mp/test_case mp SRC_FILE)
-ttcm_add_group_src(${PLATFORM_PATH}/source/network/adns/test_case adns SRC_FILE)
+#ttcm_add_group_src(${PLATFORM_PATH}/source/network/adns/test_case adns SRC_FILE)
 
 #
 # build

@@ -256,8 +256,9 @@ tt_result_t __evc_on_init(IN tt_evcenter_t *evc)
     tt_u32_t __done = 0;
 #define __EOI_ADNS (1 << 0)
 
-    // this function is called in evp thread
+// this function is called in evp thread
 
+#if 0
     if (evc->attr.adns_ev_attr.enable) {
         TT_ASSERT(evc->adns_dmgr == NULL);
         evc->adns_dmgr = tt_adns_dmgr_create(evc,
@@ -270,23 +271,27 @@ tt_result_t __evc_on_init(IN tt_evcenter_t *evc)
         }
         __done |= __EOI_ADNS;
     }
+#endif
 
     return TT_SUCCESS;
 
 __eoi_fail:
 
+#if 0
     if (__done & __EOI_ADNS) {
         tt_adns_dmgr_destroy(evc->adns_dmgr);
         evc->adns_dmgr = NULL;
     }
+#endif
 
     return TT_FAIL;
 }
 
 void __evc_on_exit(IN tt_evcenter_t *evc)
 {
-    // this function is called in evp thread
+// this function is called in evp thread
 
+#if 0
     if (evc->attr.adns_ev_attr.enable) {
         TT_ASSERT(evc->adns_dmgr != NULL);
         tt_adns_dmgr_destroy(evc->adns_dmgr);
@@ -294,4 +299,5 @@ void __evc_on_exit(IN tt_evcenter_t *evc)
     } else {
         TT_ASSERT(evc->adns_dmgr == NULL);
     }
+#endif
 }

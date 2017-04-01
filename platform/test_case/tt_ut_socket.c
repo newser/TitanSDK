@@ -25,7 +25,6 @@
 #include <event/tt_event_poller.h>
 #include <io/tt_socket.h>
 #include <io/tt_socket_addr.h>
-#include <io/tt_socket_aio.h>
 #include <io/tt_socket_option.h>
 #include <memory/tt_memory_alloc.h>
 #include <memory/tt_slab.h>
@@ -185,9 +184,9 @@ static void __ut_skt_enter(void *enter_param)
                 if (tt_sktaddr_get_family(saddr) == TT_NET_AF_INET) {
                     tt_u32_t n = sizeof(sizeof("::ffff:")) - 1;
 
-                    tt_sktaddr_get_addr_p(saddr,
-                                          __ut_skt_local_ip,
-                                          sizeof(__ut_skt_local_ip));
+                    tt_sktaddr_get_ip_p(saddr,
+                                        __ut_skt_local_ip,
+                                        sizeof(__ut_skt_local_ip));
 
                     tt_memcpy(__ut_skt_local_ip6_mapped, "::ffff:", n);
                     tt_memcpy(&__ut_skt_local_ip6_mapped[n],
@@ -196,9 +195,9 @@ static void __ut_skt_enter(void *enter_param)
                 } else {
                     TT_ASSERT(tt_sktaddr_get_family(saddr) == TT_NET_AF_INET6);
 
-                    tt_sktaddr_get_addr_p(saddr,
-                                          __ut_skt_local_ip6,
-                                          sizeof(__ut_skt_local_ip6));
+                    tt_sktaddr_get_ip_p(saddr,
+                                        __ut_skt_local_ip6,
+                                        sizeof(__ut_skt_local_ip6));
                 }
 
                 node = node->next;
@@ -467,11 +466,11 @@ TT_TEST_CASE("tt_unit_test_sk_addr",
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_sktaddr_t sa;
-    tt_sktaddr_addr_t saa;
+    tt_sktaddr_ip_t saa;
     tt_result_t ret;
 
     tt_sktaddr_t sa6;
-    tt_sktaddr_addr_t saa6;
+    tt_sktaddr_ip_t saa6;
     tt_u16_t port;
 
     tt_char_t buf[100];
@@ -483,13 +482,13 @@ TT_TEST_CASE("tt_unit_test_sk_addr",
     tt_sktaddr_init(&sa, TT_NET_AF_INET);
     TT_TEST_CHECK_EQUAL(tt_sktaddr_get_family(&sa), TT_NET_AF_INET, "");
 
-    ret = tt_sktaddr_addr_p2n(TT_NET_AF_INET, "1.2..4", &saa);
+    ret = tt_sktaddr_ip_p2n(TT_NET_AF_INET, "1.2..4", &saa);
     TT_TEST_CHECK_EQUAL(ret, TT_FAIL, "");
-    ret = tt_sktaddr_addr_p2n(TT_NET_AF_INET, "1.2.3.4", &saa);
+    ret = tt_sktaddr_ip_p2n(TT_NET_AF_INET, "1.2.3.4", &saa);
     TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
-    ret = tt_sktaddr_addr_n2p(TT_NET_AF_INET, &saa, buf, 7);
+    ret = tt_sktaddr_ip_n2p(TT_NET_AF_INET, &saa, buf, 7);
     TT_TEST_CHECK_EQUAL(ret, TT_FAIL, "");
-    ret = tt_sktaddr_addr_n2p(TT_NET_AF_INET, &saa, buf, 8);
+    ret = tt_sktaddr_ip_n2p(TT_NET_AF_INET, &saa, buf, 8);
     TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
     TT_TEST_CHECK_EQUAL(buf[0], '1', "");
     TT_TEST_CHECK_EQUAL(buf[1], '.', "");
@@ -500,13 +499,13 @@ TT_TEST_CASE("tt_unit_test_sk_addr",
     TT_TEST_CHECK_EQUAL(buf[6], '4', "");
     TT_TEST_CHECK_EQUAL(buf[7], '\0', "");
 
-    ret = tt_sktaddr_set_addr_p(&sa, "0.0.0");
+    ret = tt_sktaddr_set_ip_p(&sa, "0.0.0");
     TT_TEST_CHECK_EQUAL(ret, TT_FAIL, "");
-    ret = tt_sktaddr_set_addr_p(&sa, "0.0.0.1");
+    ret = tt_sktaddr_set_ip_p(&sa, "0.0.0.1");
     TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
-    ret = tt_sktaddr_get_addr_p(&sa, buf, 1);
+    ret = tt_sktaddr_get_ip_p(&sa, buf, 1);
     TT_TEST_CHECK_EQUAL(ret, TT_FAIL, "");
-    ret = tt_sktaddr_get_addr_p(&sa, buf, 10);
+    ret = tt_sktaddr_get_ip_p(&sa, buf, 10);
     TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
     TT_TEST_CHECK_EQUAL(buf[0], '0', "");
     TT_TEST_CHECK_EQUAL(buf[1], '.', "");
@@ -525,13 +524,13 @@ TT_TEST_CASE("tt_unit_test_sk_addr",
     tt_sktaddr_init(&sa6, TT_NET_AF_INET6);
     TT_TEST_CHECK_EQUAL(tt_sktaddr_get_family(&sa6), TT_NET_AF_INET6, "");
 
-    ret = tt_sktaddr_addr_p2n(TT_NET_AF_INET6, "1.2..4", &saa6);
+    ret = tt_sktaddr_ip_p2n(TT_NET_AF_INET6, "1.2..4", &saa6);
     TT_TEST_CHECK_EQUAL(ret, TT_FAIL, "");
-    ret = tt_sktaddr_addr_p2n(TT_NET_AF_INET6, "1::01", &saa6);
+    ret = tt_sktaddr_ip_p2n(TT_NET_AF_INET6, "1::01", &saa6);
     TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
-    ret = tt_sktaddr_addr_n2p(TT_NET_AF_INET6, &saa6, buf, 1);
+    ret = tt_sktaddr_ip_n2p(TT_NET_AF_INET6, &saa6, buf, 1);
     TT_TEST_CHECK_EQUAL(ret, TT_FAIL, "");
-    ret = tt_sktaddr_addr_n2p(TT_NET_AF_INET6, &saa6, buf, 8);
+    ret = tt_sktaddr_ip_n2p(TT_NET_AF_INET6, &saa6, buf, 8);
     TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
     TT_TEST_CHECK_EQUAL(buf[0], '1', "");
     TT_TEST_CHECK_EQUAL(buf[1], ':', "");
@@ -539,13 +538,13 @@ TT_TEST_CASE("tt_unit_test_sk_addr",
     TT_TEST_CHECK_EQUAL(buf[3], '1', "");
     TT_TEST_CHECK_EQUAL(buf[4], '\0', "");
 
-    ret = tt_sktaddr_set_addr_p(&sa6, "0.0.0");
+    ret = tt_sktaddr_set_ip_p(&sa6, "0.0.0");
     TT_TEST_CHECK_EQUAL(ret, TT_FAIL, "");
-    ret = tt_sktaddr_set_addr_p(&sa6, "1::01");
+    ret = tt_sktaddr_set_ip_p(&sa6, "1::01");
     TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
-    ret = tt_sktaddr_get_addr_p(&sa6, buf, 1);
+    ret = tt_sktaddr_get_ip_p(&sa6, buf, 1);
     TT_TEST_CHECK_EQUAL(ret, TT_FAIL, "");
-    ret = tt_sktaddr_get_addr_p(&sa6, buf, 10);
+    ret = tt_sktaddr_get_ip_p(&sa6, buf, 10);
     TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
     TT_TEST_CHECK_EQUAL(buf[0], '1', "");
     TT_TEST_CHECK_EQUAL(buf[1], ':', "");
@@ -558,18 +557,18 @@ TT_TEST_CASE("tt_unit_test_sk_addr",
 
     //////////// ipv4 to ipv6
 
-    ret = tt_sktaddr_addr_p2n(TT_NET_AF_INET, "1.2.3.4", &saa);
+    ret = tt_sktaddr_ip_p2n(TT_NET_AF_INET, "1.2.3.4", &saa);
     TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
 
     tt_sktaddr_init(&sa, TT_NET_AF_INET);
-    tt_sktaddr_set_addr_n(&sa, &saa);
+    tt_sktaddr_set_ip_n(&sa, &saa);
     tt_sktaddr_set_port(&sa, 1234);
 
     tt_sktaddr_map4to6(&sa, &sa6);
 
     TT_TEST_CHECK_EQUAL(tt_sktaddr_get_family(&sa6), TT_NET_AF_INET6, "");
 
-    ret = tt_sktaddr_get_addr_p(&sa6, buf, 20);
+    ret = tt_sktaddr_get_ip_p(&sa6, buf, 20);
     TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
     TT_TEST_CHECK_EQUAL(buf[0], ':', "");
     TT_TEST_CHECK_EQUAL(buf[1], ':', "");
@@ -596,7 +595,7 @@ TT_TEST_CASE("tt_unit_test_sk_addr",
 TT_TEST_ROUTINE_DEFINE(tt_unit_test_sk_opt)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
-    tt_skt_t s;
+    tt_skt_t *s;
     tt_result_t ret;
     tt_bool_t v;
 
@@ -605,112 +604,113 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_sk_opt)
 
     // udp ipv4
 
-    ret = tt_skt_create(&s, TT_NET_AF_INET, TT_NET_PROTO_UDP, NULL);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    s = tt_skt_create(TT_NET_AF_INET, TT_NET_PROTO_UDP, NULL);
+    TT_TEST_CHECK_NOT_EQUAL(s, NULL, "");
 
     // nonblock
-    ret = tt_skt_set_nonblock(&s, TT_TRUE);
+    ret = tt_skt_set_nonblock(s, TT_TRUE);
     TT_TEST_CHECK_SUCCESS(ret, "");
-    ret = tt_skt_set_nonblock(&s, TT_FALSE);
+    ret = tt_skt_set_nonblock(s, TT_FALSE);
     TT_TEST_CHECK_SUCCESS(ret, "");
 
     // reuse addr
-    ret = tt_skt_set_reuseaddr(&s, TT_TRUE);
+    ret = tt_skt_set_reuseaddr(s, TT_TRUE);
     TT_TEST_CHECK_SUCCESS(ret, "");
-    ret = tt_skt_get_reuseaddr(&s, &v);
+    ret = tt_skt_get_reuseaddr(s, &v);
     TT_TEST_CHECK_SUCCESS(ret, "");
     TT_TEST_CHECK_EQUAL(v, TT_TRUE, "");
 
-    ret = tt_skt_set_reuseaddr(&s, TT_FALSE);
+    ret = tt_skt_set_reuseaddr(s, TT_FALSE);
     TT_TEST_CHECK_SUCCESS(ret, "");
-    ret = tt_skt_get_reuseaddr(&s, &v);
+    ret = tt_skt_get_reuseaddr(s, &v);
     TT_TEST_CHECK_SUCCESS(ret, "");
     TT_TEST_CHECK_EQUAL(v, TT_FALSE, "");
 
     // reuse addr
-    ret = tt_skt_set_reuseport(&s, TT_TRUE);
+    ret = tt_skt_set_reuseport(s, TT_TRUE);
     TT_TEST_CHECK_SUCCESS(ret, "");
-    ret = tt_skt_get_reuseport(&s, &v);
+    ret = tt_skt_get_reuseport(s, &v);
     TT_TEST_CHECK_SUCCESS(ret, "");
     TT_TEST_CHECK_EQUAL(v, TT_TRUE, "");
 
-    ret = tt_skt_set_reuseport(&s, TT_FALSE);
+    ret = tt_skt_set_reuseport(s, TT_FALSE);
     TT_TEST_CHECK_SUCCESS(ret, "");
-    ret = tt_skt_get_reuseport(&s, &v);
+    ret = tt_skt_get_reuseport(s, &v);
     TT_TEST_CHECK_SUCCESS(ret, "");
     TT_TEST_CHECK_EQUAL(v, TT_FALSE, "");
 
-    tt_skt_destroy(&s);
+    tt_skt_destroy(s);
 
     // tcp ipv6
 
-    ret = tt_skt_create(&s, TT_NET_AF_INET6, TT_NET_PROTO_TCP, NULL);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    s = tt_skt_create(TT_NET_AF_INET6, TT_NET_PROTO_TCP, NULL);
+    TT_TEST_CHECK_NOT_EQUAL(s, NULL, "");
 
     // nonblock
-    ret = tt_skt_set_nonblock(&s, TT_TRUE);
+    ret = tt_skt_set_nonblock(s, TT_TRUE);
     TT_TEST_CHECK_SUCCESS(ret, "");
-    ret = tt_skt_set_nonblock(&s, TT_FALSE);
+    ret = tt_skt_set_nonblock(s, TT_FALSE);
     TT_TEST_CHECK_SUCCESS(ret, "");
 
     // reuse addr
-    ret = tt_skt_set_reuseaddr(&s, TT_TRUE);
+    ret = tt_skt_set_reuseaddr(s, TT_TRUE);
     TT_TEST_CHECK_SUCCESS(ret, "");
-    ret = tt_skt_get_reuseaddr(&s, &v);
+    ret = tt_skt_get_reuseaddr(s, &v);
     TT_TEST_CHECK_SUCCESS(ret, "");
     TT_TEST_CHECK_EQUAL(v, TT_TRUE, "");
 
-    ret = tt_skt_set_reuseaddr(&s, TT_FALSE);
+    ret = tt_skt_set_reuseaddr(s, TT_FALSE);
     TT_TEST_CHECK_SUCCESS(ret, "");
-    ret = tt_skt_get_reuseaddr(&s, &v);
+    ret = tt_skt_get_reuseaddr(s, &v);
     TT_TEST_CHECK_SUCCESS(ret, "");
     TT_TEST_CHECK_EQUAL(v, TT_FALSE, "");
 
     // tcp nodelay
-    ret = tt_skt_set_tcp_nodelay(&s, TT_TRUE);
+    ret = tt_skt_set_tcp_nodelay(s, TT_TRUE);
     TT_TEST_CHECK_SUCCESS(ret, "");
-    ret = tt_skt_get_tcp_nodelay(&s, &v);
+    ret = tt_skt_get_tcp_nodelay(s, &v);
     TT_TEST_CHECK_SUCCESS(ret, "");
     TT_TEST_CHECK_EQUAL(v, TT_TRUE, "");
 
-    ret = tt_skt_set_tcp_nodelay(&s, TT_FALSE);
+    ret = tt_skt_set_tcp_nodelay(s, TT_FALSE);
     TT_TEST_CHECK_SUCCESS(ret, "");
-    ret = tt_skt_get_tcp_nodelay(&s, &v);
+    ret = tt_skt_get_tcp_nodelay(s, &v);
     TT_TEST_CHECK_SUCCESS(ret, "");
     TT_TEST_CHECK_EQUAL(v, TT_FALSE, "");
 
     // ipv6 only
-    ret = tt_skt_set_ipv6only(&s, TT_TRUE);
+    ret = tt_skt_set_ipv6only(s, TT_TRUE);
     TT_TEST_CHECK_SUCCESS(ret, "");
-    ret = tt_skt_get_ipv6only(&s, &v);
+    ret = tt_skt_get_ipv6only(s, &v);
     TT_TEST_CHECK_SUCCESS(ret, "");
     TT_TEST_CHECK_EQUAL(v, TT_TRUE, "");
 
-    ret = tt_skt_set_ipv6only(&s, TT_FALSE);
+    ret = tt_skt_set_ipv6only(s, TT_FALSE);
     TT_TEST_CHECK_SUCCESS(ret, "");
-    ret = tt_skt_get_ipv6only(&s, &v);
+    ret = tt_skt_get_ipv6only(s, &v);
     TT_TEST_CHECK_SUCCESS(ret, "");
     TT_TEST_CHECK_EQUAL(v, TT_FALSE, "");
 
     // reuse port
-    ret = tt_skt_set_reuseport(&s, TT_TRUE);
+    ret = tt_skt_set_reuseport(s, TT_TRUE);
     TT_TEST_CHECK_SUCCESS(ret, "");
-    ret = tt_skt_get_reuseport(&s, &v);
+    ret = tt_skt_get_reuseport(s, &v);
     TT_TEST_CHECK_SUCCESS(ret, "");
     TT_TEST_CHECK_EQUAL(v, TT_TRUE, "");
 
-    ret = tt_skt_set_reuseport(&s, TT_FALSE);
+    ret = tt_skt_set_reuseport(s, TT_FALSE);
     TT_TEST_CHECK_SUCCESS(ret, "");
-    ret = tt_skt_get_reuseport(&s, &v);
+    ret = tt_skt_get_reuseport(s, &v);
     TT_TEST_CHECK_SUCCESS(ret, "");
     TT_TEST_CHECK_EQUAL(v, TT_FALSE, "");
 
-    tt_skt_destroy(&s);
+    tt_skt_destroy(s);
 
     // test end
     TT_TEST_CASE_LEAVE()
 }
 
+#if 0
 TT_TEST_ROUTINE_DEFINE(tt_unit_test_bind_basic)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
@@ -735,17 +735,17 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_bind_basic)
     TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
 
     if (TT_OK(tt_skt_local_addr(&sk4, &addr))) {
-        tt_sktaddr_addr_t addr_val;
+        tt_sktaddr_ip_t addr_val;
 
-        tt_sktaddr_get_addr_n(&addr, &addr_val);
+        tt_sktaddr_get_ip_n(&addr, &addr_val);
         TT_TEST_CHECK_EQUAL(addr_val.a32.__u32, 0, "");
 
         TT_TEST_CHECK_EQUAL(tt_sktaddr_get_port(&addr), 0, "");
     }
     if (TT_OK(tt_skt_local_addr(&sk4, &addr))) {
-        tt_sktaddr_addr_t addr_val;
+        tt_sktaddr_ip_t addr_val;
 
-        tt_sktaddr_get_addr_n(&addr, &addr_val);
+        tt_sktaddr_get_ip_n(&addr, &addr_val);
         TT_TEST_CHECK_EQUAL(addr_val.a32.__u32, 0, "");
 
         TT_TEST_CHECK_EQUAL(tt_sktaddr_get_port(&addr), 0, "");
@@ -777,7 +777,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_bind_basic)
 
         TT_TEST_CHECK_EQUAL(tt_sktaddr_get_port(&sa1), __TPORT, "");
 
-        tt_sktaddr_get_addr_p(&sa1, buf, 19);
+        tt_sktaddr_get_ip_p(&sa1, buf, 19);
         TT_TEST_CHECK_EQUAL(buf[i++], '1', "");
         TT_TEST_CHECK_EQUAL(buf[i++], '2', "");
         TT_TEST_CHECK_EQUAL(buf[i++], '7', "");
@@ -815,20 +815,20 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_bind_basic)
     TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
 
     if (TT_OK(tt_skt_local_addr(&sk6, &addr))) {
-        tt_sktaddr_addr_t addr_val;
-        tt_sktaddr_addr_t cmp;
+        tt_sktaddr_ip_t addr_val;
+        tt_sktaddr_ip_t cmp;
 
-        tt_sktaddr_get_addr_n(&addr, &addr_val);
+        tt_sktaddr_get_ip_n(&addr, &addr_val);
         memset(&cmp, 0, sizeof(cmp));
         TT_TEST_CHECK_EQUAL(memcmp(&addr_val, &cmp, sizeof(cmp)), 0, "");
 
         TT_TEST_CHECK_EQUAL(tt_sktaddr_get_port(&addr), 0, "");
     }
     if (TT_OK(tt_skt_local_addr(&sk6, &addr))) {
-        tt_sktaddr_addr_t addr_val;
-        tt_sktaddr_addr_t cmp;
+        tt_sktaddr_ip_t addr_val;
+        tt_sktaddr_ip_t cmp;
 
-        tt_sktaddr_get_addr_n(&addr, &addr_val);
+        tt_sktaddr_get_ip_n(&addr, &addr_val);
         memset(&cmp, 0, sizeof(cmp));
         TT_TEST_CHECK_EQUAL(memcmp(&addr_val, &cmp, sizeof(cmp)), 0, "");
 
@@ -845,7 +845,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_bind_basic)
     if ((tt_strncmp(__TLOCAL_IP6, "fe80", 4) == 0) && (__TLOCAL_ITF != NULL)) {
         tt_sktaddr_t __a6;
         tt_sktaddr_init(&__a6, TT_NET_AF_INET6);
-        tt_sktaddr_set_addr_p(&__a6, __TLOCAL_IP6);
+        tt_sktaddr_set_ip_p(&__a6, __TLOCAL_IP6);
         tt_sktaddr_set_port(&__a6, __TPORT6);
         tt_sktaddr_set_scope_p(&__a6, __TLOCAL_ITF);
         ret = tt_skt_bind(&sk6, &__a6);
@@ -862,7 +862,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_bind_basic)
         TT_TEST_CHECK_EQUAL(tt_sktaddr_get_family(&sa1), TT_NET_AF_INET6, "");
         TT_TEST_CHECK_EQUAL(tt_sktaddr_get_port(&sa1), __TPORT6, "");
 
-        ret = tt_sktaddr_get_addr_p(&sa1, buf, 99);
+        ret = tt_sktaddr_get_ip_p(&sa1, buf, 99);
         TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
         TT_TEST_CHECK_EQUAL(tt_strncmp(buf, __TLOCAL_IP6, 99), 0, "");
 
@@ -897,7 +897,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_bind_basic)
         TT_TEST_CHECK_EQUAL(tt_sktaddr_get_family(&sa1), TT_NET_AF_INET6, "");
         TT_TEST_CHECK_EQUAL(tt_sktaddr_get_port(&sa1), __TPORT6, "");
 
-        tt_sktaddr_get_addr_p(&sa1, buf, 19);
+        tt_sktaddr_get_ip_p(&sa1, buf, 19);
 
         i = 0;
         TT_TEST_CHECK_EQUAL(buf[i++], ':', "");
@@ -1015,7 +1015,7 @@ static tt_result_t __tcp_thread_c(IN void *param)
     tt_result_t ret;
 
     tt_sktaddr_init(&server_addr, TT_NET_AF_INET);
-    ret = tt_sktaddr_set_addr_p(&server_addr, "127.0.0.1");
+    ret = tt_sktaddr_set_ip_p(&server_addr, "127.0.0.1");
     tt_sktaddr_set_port(&server_addr, port);
 
     ret = tt_skt_create(&sk4, TT_NET_AF_INET, TT_NET_PROTO_TCP, NULL);
@@ -1024,7 +1024,7 @@ static tt_result_t __tcp_thread_c(IN void *param)
 
     {
         tt_sktaddr_init(&server_addr6, TT_NET_AF_INET6);
-        ret = tt_sktaddr_set_addr_p(&server_addr6, "::1");
+        ret = tt_sktaddr_set_ip_p(&server_addr6, "::1");
         tt_sktaddr_set_port(&server_addr6, port);
 
         ret = tt_skt_connect(&sk4, &server_addr6);
@@ -1063,7 +1063,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_tcp_server)
     attr.reuse_addr = TT_TRUE;
 
     tt_sktaddr_init(&server_addr, TT_NET_AF_INET);
-    ret = tt_sktaddr_set_addr_p(&server_addr, TT_SKTADDR_ANY);
+    ret = tt_sktaddr_set_ip_p(&server_addr, TT_SKT_IP_ANY);
     TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
     tt_sktaddr_set_port(&server_addr, __TPORT);
 
@@ -1123,7 +1123,7 @@ static tt_result_t __tcp_thread_c6(IN void *param)
     tt_result_t ret;
 
     tt_sktaddr_init(&server_addr, TT_NET_AF_INET6);
-    ret = tt_sktaddr_set_addr_p(&server_addr, "::1");
+    ret = tt_sktaddr_set_ip_p(&server_addr, "::1");
     tt_sktaddr_set_port(&server_addr, port);
 
     ret = tt_skt_create(&sk6, TT_NET_AF_INET6, TT_NET_PROTO_TCP, NULL);
@@ -1163,7 +1163,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_tcp_server6)
     tt_skt_attr_set_ipv6only(&attr, TT_FALSE);
 
     tt_sktaddr_init(&server_addr, TT_NET_AF_INET6);
-    ret = tt_sktaddr_set_addr_p(&server_addr, TT_SKTADDR_ANY);
+    ret = tt_sktaddr_set_ip_p(&server_addr, TT_SKT_IP_ANY);
     TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
     tt_sktaddr_set_port(&server_addr, __TPORT + 1);
 
@@ -1334,7 +1334,7 @@ static tt_result_t __udp_thread_c(IN void *param)
     tt_result_t ret;
 
     tt_sktaddr_init(&server_addr, TT_NET_AF_INET);
-    ret = tt_sktaddr_set_addr_p(&server_addr, "127.0.0.1");
+    ret = tt_sktaddr_set_ip_p(&server_addr, "127.0.0.1");
     tt_sktaddr_set_port(&server_addr, port);
 
     ret = tt_skt_create(&sk4, TT_NET_AF_INET, TT_NET_PROTO_UDP, NULL);
@@ -1373,7 +1373,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_udp_server)
     // tt_skt_attr_set_ipv6only(&attr, TT_FALSE);
 
     tt_sktaddr_init(&server_addr, TT_NET_AF_INET);
-    ret = tt_sktaddr_set_addr_p(&server_addr, TT_SKTADDR_ANY);
+    ret = tt_sktaddr_set_ip_p(&server_addr, TT_SKT_IP_ANY);
     TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
     tt_sktaddr_set_port(&server_addr, __TPORT + 2);
 
@@ -1421,7 +1421,7 @@ static tt_result_t __udp_thread_c6(IN void *param)
     tt_result_t ret;
 
     tt_sktaddr_init(&server_addr, TT_NET_AF_INET6);
-    ret = tt_sktaddr_set_addr_p(&server_addr, "::1");
+    ret = tt_sktaddr_set_ip_p(&server_addr, "::1");
     tt_sktaddr_set_port(&server_addr, port);
 
     ret = tt_skt_create(&sk6, TT_NET_AF_INET6, TT_NET_PROTO_UDP, NULL);
@@ -1459,7 +1459,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_udp_server6)
     tt_skt_attr_set_ipv6only(&attr, TT_FALSE);
 
     tt_sktaddr_init(&server_addr, TT_NET_AF_INET6);
-    ret = tt_sktaddr_set_addr_p(&server_addr, TT_SKTADDR_ANY);
+    ret = tt_sktaddr_set_ip_p(&server_addr, TT_SKT_IP_ANY);
     TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
     tt_sktaddr_set_port(&server_addr, __TPORT + 3);
 
@@ -1510,13 +1510,13 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_udp_server6)
 
 ////////////////////////////////////////////////////////////////////
 
-static tt_sktaddr_addr_t __mc_addr;
+static tt_sktaddr_ip_t __mc_addr;
 #define ___mulc_addr4 "224.0.0.100"
 #define ___mulc_port4 12344
 #define ___mulc_port4_cli 12444
 #define ___mulc_content "multicast packet"
 
-static tt_sktaddr_addr_t __mc_addr6;
+static tt_sktaddr_ip_t __mc_addr6;
 #define ___mulc_addr6 "ff02::1"
 #define ___mulc_port6 12366
 #define ___mulc_port6_cli 12466
@@ -1543,7 +1543,7 @@ static tt_result_t __mc_thread_4(IN void *param)
     tt_u8_t buf[100] = {0};
 
     tt_sktaddr_init(&server_addr, TT_NET_AF_INET);
-    tt_sktaddr_set_addr_n(&server_addr, &__mc_addr);
+    tt_sktaddr_set_ip_n(&server_addr, &__mc_addr);
     tt_sktaddr_set_port(&server_addr, port);
 
     ret = tt_skt_create(&sk4, TT_NET_AF_INET, TT_NET_PROTO_UDP, NULL);
@@ -1551,7 +1551,7 @@ static tt_result_t __mc_thread_4(IN void *param)
         return TT_FAIL;
 
     tt_sktaddr_init(&client_addr, TT_NET_AF_INET);
-    ret = tt_sktaddr_set_addr_p(&client_addr, TT_SKTADDR_ANY);
+    ret = tt_sktaddr_set_ip_p(&client_addr, TT_SKT_IP_ANY);
     if (!TT_OK(ret))
         return TT_FAIL;
     tt_sktaddr_set_port(&client_addr, ___mulc_port4_cli);
@@ -1599,7 +1599,7 @@ static tt_result_t __mc_thread_6(IN void *param)
     tt_u8_t buf[100] = {0};
 
     tt_sktaddr_init(&server_addr, TT_NET_AF_INET6);
-    tt_sktaddr_set_addr_n(&server_addr, &__mc_addr6);
+    tt_sktaddr_set_ip_n(&server_addr, &__mc_addr6);
     tt_sktaddr_set_port(&server_addr, port);
 
     ret = tt_skt_create(&sk6, TT_NET_AF_INET6, TT_NET_PROTO_UDP, NULL);
@@ -1607,7 +1607,7 @@ static tt_result_t __mc_thread_6(IN void *param)
         return TT_FAIL;
 
     tt_sktaddr_init(&client_addr, TT_NET_AF_INET6);
-    ret = tt_sktaddr_set_addr_p(&client_addr, TT_SKTADDR_ANY);
+    ret = tt_sktaddr_set_ip_p(&client_addr, TT_SKT_IP_ANY);
     if (!TT_OK(ret))
         return TT_FAIL;
     tt_sktaddr_set_port(&client_addr, ___mulc_port6_cli);
@@ -1667,7 +1667,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_udp_multicast)
     // test start
 
     // init mc addr
-    ret = tt_sktaddr_addr_p2n(TT_NET_AF_INET, ___mulc_addr4, &__mc_addr);
+    ret = tt_sktaddr_ip_p2n(TT_NET_AF_INET, ___mulc_addr4, &__mc_addr);
     TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
 
     ////////////////////////////////////////////////////////
@@ -1676,7 +1676,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_udp_multicast)
 
     // create server addr
     tt_sktaddr_init(&server_addr4, TT_NET_AF_INET);
-    ret = tt_sktaddr_set_addr_p(&server_addr4, TT_SKTADDR_ANY);
+    ret = tt_sktaddr_set_ip_p(&server_addr4, TT_SKT_IP_ANY);
     TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
     tt_sktaddr_set_port(&server_addr4, ___mulc_port4);
 
@@ -1702,7 +1702,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_udp_multicast)
 
     // send
     tt_sktaddr_init(&remote_addr4, TT_NET_AF_INET);
-    tt_sktaddr_set_addr_n(&remote_addr4, &__mc_addr);
+    tt_sktaddr_set_ip_n(&remote_addr4, &__mc_addr);
     tt_sktaddr_set_port(&remote_addr4, ___mulc_port4_cli);
 
     ret = tt_skt_sendto(&sk4,
@@ -1729,12 +1729,12 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_udp_multicast)
     ////////////////////////////////////////////////////////
 
     // init mc addr
-    ret = tt_sktaddr_addr_p2n(TT_NET_AF_INET6, ___mulc_addr6, &__mc_addr6);
+    ret = tt_sktaddr_ip_p2n(TT_NET_AF_INET6, ___mulc_addr6, &__mc_addr6);
     TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
 
     // create server addr
     tt_sktaddr_init(&server_addr6, TT_NET_AF_INET6);
-    ret = tt_sktaddr_set_addr_p(&server_addr6, TT_SKTADDR_ANY);
+    ret = tt_sktaddr_set_ip_p(&server_addr6, TT_SKT_IP_ANY);
     TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
     tt_sktaddr_set_port(&server_addr6, ___mulc_port6);
     if (1 || ((tt_strncmp(__TLOCAL_IP6, "fe80", 4) == 0) &&
@@ -1764,7 +1764,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_udp_multicast)
 
     // send
     tt_sktaddr_init(&remote_addr6, TT_NET_AF_INET6);
-    tt_sktaddr_set_addr_n(&remote_addr6, &__mc_addr6);
+    tt_sktaddr_set_ip_n(&remote_addr6, &__mc_addr6);
     tt_sktaddr_set_port(&remote_addr6, ___mulc_port6_cli);
 
     ret = tt_skt_sendto(&sk6,
@@ -1839,14 +1839,14 @@ void __a1_on_destroy(IN tt_skt_t *skt, IN void *cb_param)
     }
 
     // can not do more destroy
-    ret = tt_async_skt_shutdown(skt, TT_SKT_SHUTDOWN_RD);
+    ret = tt_async_skt_shutdown(skt, TT_SKT_SHUT_RD);
     if (TT_OK(ret)) {
         __a1_ret = TT_FAIL;
         __a1_error_line = __LINE__;
         tt_evc_exit(TT_LOCAL_EVC);
         return;
     }
-    ret = tt_async_skt_shutdown(skt, TT_SKT_SHUTDOWN_RDWR);
+    ret = tt_async_skt_shutdown(skt, TT_SKT_SHUT_RDWR);
     if (TT_OK(ret)) {
         __a1_ret = TT_FAIL;
         __a1_error_line = __LINE__;
@@ -1890,7 +1890,7 @@ void __a1_on_send(IN tt_skt_t *skt,
     }
 
     if ((int)(tt_ptrdiff_t)aioctx->cb_param == (__a1_hs_num - 1)) {
-        ret = tt_async_skt_shutdown(skt, TT_SKT_SHUTDOWN_WR);
+        ret = tt_async_skt_shutdown(skt, TT_SKT_SHUT_WR);
         if (ret != TT_SUCCESS) {
             __a1_ret = TT_FAIL;
             __a1_error_line = __LINE__;
@@ -1898,7 +1898,7 @@ void __a1_on_send(IN tt_skt_t *skt,
             return;
         }
 
-        ret = tt_async_skt_shutdown(skt, TT_SKT_SHUTDOWN_WR);
+        ret = tt_async_skt_shutdown(skt, TT_SKT_SHUT_WR);
         if (TT_OK(ret)) {
             __a1_ret = TT_FAIL;
             __a1_error_line = __LINE__;
@@ -1945,7 +1945,7 @@ void __a1_on_recv(IN tt_skt_t *skt,
             return;
         }
 
-        tt_async_skt_shutdown(skt, TT_SKT_SHUTDOWN_RD);
+        tt_async_skt_shutdown(skt, TT_SKT_SHUT_RD);
         // wait for on_destroy
         return;
     }
@@ -2056,13 +2056,13 @@ tt_result_t __a1_server_on_init(IN struct tt_evcenter_s *evc,
         af = TT_NET_AF_INET;
 
         tt_sktaddr_init(&_svr_addr, TT_NET_AF_INET);
-        tt_sktaddr_set_addr_p(&_svr_addr, __TLOCAL_IP);
+        tt_sktaddr_set_ip_p(&_svr_addr, __TLOCAL_IP);
         tt_sktaddr_set_port(&_svr_addr, 62250 + __a1_svr_port_shift);
     } else {
         af = TT_NET_AF_INET6;
 
         tt_sktaddr_init(&_svr_addr, TT_NET_AF_INET6);
-        tt_sktaddr_set_addr_p(&_svr_addr, __TLOCAL_IP6_MAPPED);
+        tt_sktaddr_set_ip_p(&_svr_addr, __TLOCAL_IP6_MAPPED);
         tt_sktaddr_set_port(&_svr_addr, 62250 + __a1_svr_port_shift);
 
         tt_skt_attr_set_ipv6only(&_svr_attr, TT_FALSE);
@@ -2147,7 +2147,7 @@ void __a1_on_cli_recv(IN tt_skt_t *skt,
             return;
         }
 
-        tt_async_skt_shutdown(skt, TT_SKT_SHUTDOWN_RD);
+        tt_async_skt_shutdown(skt, TT_SKT_SHUT_RD);
 
         // can not recv after closing
         do {
@@ -2314,7 +2314,7 @@ void __a1_on_connect(IN tt_skt_t *skt,
     }
 
     // all sent
-    ret = tt_async_skt_shutdown(skt, TT_SKT_SHUTDOWN_WR);
+    ret = tt_async_skt_shutdown(skt, TT_SKT_SHUT_WR);
     if (ret != TT_SUCCESS) {
         __a1_ret = TT_FAIL;
         __a1_error_line = __LINE__;
@@ -2322,7 +2322,7 @@ void __a1_on_connect(IN tt_skt_t *skt,
         return;
     }
 
-    ret = tt_async_skt_shutdown(skt, TT_SKT_SHUTDOWN_WR);
+    ret = tt_async_skt_shutdown(skt, TT_SKT_SHUT_WR);
     if (ret == TT_SUCCESS) {
         __a1_ret = TT_FAIL;
         __a1_error_line = __LINE__;
@@ -2393,7 +2393,7 @@ tt_result_t __a1_client_on_init(IN struct tt_evcenter_s *evc,
     }
 
     tt_sktaddr_init(&_svr_addr, TT_NET_AF_INET);
-    tt_sktaddr_set_addr_p(&_svr_addr, __TLOCAL_IP);
+    tt_sktaddr_set_ip_p(&_svr_addr, __TLOCAL_IP);
     tt_sktaddr_set_port(&_svr_addr, 62250 + __a1_svr_port_shift);
 
     if (af == TT_NET_AF_INET6) {
@@ -2681,7 +2681,7 @@ tt_result_t __a2_recv_on_init(IN struct tt_evcenter_s *evc,
         af = TT_NET_AF_INET6;
 
         tt_sktaddr_init(&_svr_addr, TT_NET_AF_INET6);
-        tt_sktaddr_set_addr_p(&_svr_addr, __TLOCAL_IP6_MAPPED);
+        tt_sktaddr_set_ip_p(&_svr_addr, __TLOCAL_IP6_MAPPED);
         tt_sktaddr_set_port(&_svr_addr, 52250);
 
         tt_skt_attr_set_ipv6only(&_svr_attr, TT_FALSE);
@@ -2689,7 +2689,7 @@ tt_result_t __a2_recv_on_init(IN struct tt_evcenter_s *evc,
         af = TT_NET_AF_INET;
 
         tt_sktaddr_init(&_svr_addr, TT_NET_AF_INET);
-        tt_sktaddr_set_addr_p(&_svr_addr, __TLOCAL_IP);
+        tt_sktaddr_set_ip_p(&_svr_addr, __TLOCAL_IP);
         tt_sktaddr_set_port(&_svr_addr, 52250);
     }
 
@@ -2925,11 +2925,11 @@ tt_result_t __a2_send_on_init(IN struct tt_evcenter_s *evc,
         af = TT_NET_AF_INET6;
 
         tt_sktaddr_init(&_cli_addr, TT_NET_AF_INET6);
-        tt_sktaddr_set_addr_p(&_cli_addr, __TLOCAL_IP6_MAPPED);
+        tt_sktaddr_set_ip_p(&_cli_addr, __TLOCAL_IP6_MAPPED);
         tt_sktaddr_set_port(&_cli_addr, 21224);
 
         tt_sktaddr_init(&_remote_addr, TT_NET_AF_INET6);
-        tt_sktaddr_set_addr_p(&_remote_addr, __TLOCAL_IP6_MAPPED);
+        tt_sktaddr_set_ip_p(&_remote_addr, __TLOCAL_IP6_MAPPED);
         tt_sktaddr_set_port(&_remote_addr, 52250);
 
         tt_skt_attr_set_ipv6only(&_cli_attr, TT_FALSE);
@@ -2937,11 +2937,11 @@ tt_result_t __a2_send_on_init(IN struct tt_evcenter_s *evc,
         af = TT_NET_AF_INET;
 
         tt_sktaddr_init(&_cli_addr, TT_NET_AF_INET);
-        tt_sktaddr_set_addr_p(&_cli_addr, __TLOCAL_IP);
+        tt_sktaddr_set_ip_p(&_cli_addr, __TLOCAL_IP);
         tt_sktaddr_set_port(&_cli_addr, 21224);
 
         tt_sktaddr_init(&_remote_addr, TT_NET_AF_INET);
-        tt_sktaddr_set_addr_p(&_remote_addr, __TLOCAL_IP);
+        tt_sktaddr_set_ip_p(&_remote_addr, __TLOCAL_IP);
         tt_sktaddr_set_port(&_remote_addr, 52250);
     }
 
@@ -3121,7 +3121,7 @@ void __st1_cli_on_recv(IN tt_skt_t *skt,
 
     if (aioctx->result != TT_SUCCESS) {
         if (aioctx->result == TT_END)
-            tt_async_skt_shutdown(skt, TT_SKT_SHUTDOWN_RD);
+            tt_async_skt_shutdown(skt, TT_SKT_SHUT_RD);
         else {
             while (1) {
                 ret = tt_skt_recv_async(skt,
@@ -3131,7 +3131,7 @@ void __st1_cli_on_recv(IN tt_skt_t *skt,
                                         NULL);
                 if (ret != TT_SUCCESS) {
                     if (ret == TT_END)
-                        tt_async_skt_shutdown(skt, TT_SKT_SHUTDOWN_WR);
+                        tt_async_skt_shutdown(skt, TT_SKT_SHUT_WR);
                     else {
 #ifdef __SIMULATE_SKT_AIO_FAIL
                         if (__st1_end)
@@ -3148,7 +3148,7 @@ void __st1_cli_on_recv(IN tt_skt_t *skt,
             }
         }
     } else {
-        // tt_async_skt_shutdown(skt,TT_SKT_SHUTDOWN_RDWR,
+        // tt_async_skt_shutdown(skt,TT_SKT_SHUT_RDWR,
         //                aioctx->worker);
 
         tt_s32_t num = tt_atomic_s32_get(&__st1_rcv_num);
@@ -3197,7 +3197,7 @@ void __st1_cli_on_send(IN tt_skt_t *skt,
 
     if (aioctx->result != TT_SUCCESS) {
         if (aioctx->result == TT_END)
-            tt_async_skt_shutdown(skt, TT_SKT_SHUTDOWN_RDWR);
+            tt_async_skt_shutdown(skt, TT_SKT_SHUT_RDWR);
         else {
             while (1) {
                 ret = tt_skt_send_async(skt,
@@ -3207,7 +3207,7 @@ void __st1_cli_on_send(IN tt_skt_t *skt,
                                         NULL);
                 if (ret != TT_SUCCESS) {
                     if (ret == TT_END)
-                        tt_async_skt_shutdown(skt, TT_SKT_SHUTDOWN_RDWR);
+                        tt_async_skt_shutdown(skt, TT_SKT_SHUT_RDWR);
                     else {
 #ifdef __SIMULATE_SKT_AIO_FAIL
                         if (__st1_end)
@@ -3229,7 +3229,7 @@ void __st1_cli_on_send(IN tt_skt_t *skt,
             ;
 
         // all sent
-        // tt_async_skt_shutdown(skt, TT_SKT_SHUTDOWN_WR);
+        // tt_async_skt_shutdown(skt, TT_SKT_SHUT_WR);
 
         while (1) {
             ret = tt_skt_recv_async(skt,
@@ -3295,7 +3295,7 @@ void __st1_on_connect(IN tt_skt_t *skt,
                                     NULL);
             if (ret != TT_SUCCESS) {
                 if (ret == TT_END)
-                    tt_async_skt_shutdown(skt, TT_SKT_SHUTDOWN_RDWR);
+                    tt_async_skt_shutdown(skt, TT_SKT_SHUT_RDWR);
                 else {
 #ifdef __SIMULATE_SKT_AIO_FAIL
                     if (__st1_end)
@@ -3308,7 +3308,7 @@ void __st1_on_connect(IN tt_skt_t *skt,
 #endif
                 }
             } else {
-                tt_async_skt_shutdown(skt, TT_SKT_SHUTDOWN_WR);
+                tt_async_skt_shutdown(skt, TT_SKT_SHUT_WR);
                 break;
             }
         }
@@ -3502,7 +3502,7 @@ void __st1_svr_on_send(IN tt_skt_t *skt,
 
     if (aioctx->result != TT_SUCCESS) {
         if (aioctx->result == TT_END)
-            tt_async_skt_shutdown(skt, TT_SKT_SHUTDOWN_RDWR);
+            tt_async_skt_shutdown(skt, TT_SKT_SHUT_RDWR);
         else {
             while (1) {
                 ret = tt_skt_send_async(skt,
@@ -3512,7 +3512,7 @@ void __st1_svr_on_send(IN tt_skt_t *skt,
                                         NULL);
                 if (ret != TT_SUCCESS) {
                     if (ret == TT_END)
-                        tt_async_skt_shutdown(skt, TT_SKT_SHUTDOWN_RDWR);
+                        tt_async_skt_shutdown(skt, TT_SKT_SHUT_RDWR);
                     else {
 #ifdef __SIMULATE_SKT_AIO_FAIL
                         if (__st1_end)
@@ -3571,7 +3571,7 @@ void __st1_svr_on_recv(IN tt_skt_t *skt,
 
     if (aioctx->result != TT_SUCCESS) {
         if (aioctx->result == TT_END)
-            tt_async_skt_shutdown(skt, TT_SKT_SHUTDOWN_RD);
+            tt_async_skt_shutdown(skt, TT_SKT_SHUT_RD);
         else {
             while (1) {
                 ret = tt_skt_recv_async(skt,
@@ -3581,7 +3581,7 @@ void __st1_svr_on_recv(IN tt_skt_t *skt,
                                         NULL);
                 if (ret != TT_SUCCESS) {
                     if (ret == TT_END)
-                        tt_async_skt_shutdown(skt, TT_SKT_SHUTDOWN_WR);
+                        tt_async_skt_shutdown(skt, TT_SKT_SHUT_WR);
                     else {
 #ifdef __SIMULATE_SKT_AIO_FAIL
                         if (__st1_end)
@@ -3606,7 +3606,7 @@ void __st1_svr_on_recv(IN tt_skt_t *skt,
                                     NULL);
             if (ret != TT_SUCCESS) {
                 if (ret == TT_END)
-                    tt_async_skt_shutdown(skt, TT_SKT_SHUTDOWN_RDWR);
+                    tt_async_skt_shutdown(skt, TT_SKT_SHUT_RDWR);
                 else {
 #ifdef __SIMULATE_SKT_AIO_FAIL
                     if (__st1_end)
@@ -3619,7 +3619,7 @@ void __st1_svr_on_recv(IN tt_skt_t *skt,
 #endif
                 }
             } else {
-                tt_async_skt_shutdown(skt, TT_SKT_SHUTDOWN_WR);
+                tt_async_skt_shutdown(skt, TT_SKT_SHUT_WR);
                 break;
             }
         }
@@ -3670,7 +3670,7 @@ void __st1_on_accept(IN tt_skt_t *listening_skt,
                                     NULL);
             if (ret != TT_SUCCESS) {
                 if (ret == TT_END)
-                    tt_async_skt_shutdown(new_skt, TT_SKT_SHUTDOWN_RDWR);
+                    tt_async_skt_shutdown(new_skt, TT_SKT_SHUT_RDWR);
                 else {
 #ifdef __SIMULATE_SKT_AIO_FAIL
                     if (__st1_end)
@@ -3787,7 +3787,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_tcp_async_ipv4_st)
     }
 
     tt_sktaddr_init(&__st1_svr_addr, TT_NET_AF_INET);
-    tt_sktaddr_set_addr_p(&__st1_svr_addr, __TLOCAL_IP);
+    tt_sktaddr_set_ip_p(&__st1_svr_addr, __TLOCAL_IP);
     tt_sktaddr_set_port(&__st1_svr_addr, __SF1_PORT);
 
     tt_evc_attr_default(&evc_attr);
@@ -3874,7 +3874,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_tcp_async_ipv6_st)
     }
 
     tt_sktaddr_init(&__st1_svr_addr, TT_NET_AF_INET6);
-    tt_sktaddr_set_addr_p(&__st1_svr_addr, __TLOCAL_IP6);
+    tt_sktaddr_set_ip_p(&__st1_svr_addr, __TLOCAL_IP6);
     tt_sktaddr_set_port(&__st1_svr_addr, __SF1_PORT6);
     if ((tt_strncmp(__TLOCAL_IP6, "fe80", 4) == 0) && (__TLOCAL_ITF != NULL)) {
         tt_sktaddr_set_scope_p(&__st1_svr_addr, __TLOCAL_ITF);
@@ -4272,11 +4272,11 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_udp_async_ipv4_st)
     svr_r_n = 0;
 
     tt_sktaddr_init(&__st1_svr_addr, TT_NET_AF_INET);
-    tt_sktaddr_set_addr_p(&__st1_svr_addr, __TLOCAL_IP);
+    tt_sktaddr_set_ip_p(&__st1_svr_addr, __TLOCAL_IP);
     tt_sktaddr_set_port(&__st1_svr_addr, __SF1_PORT2);
 
     tt_sktaddr_init(&__st1_svr_addr2, TT_NET_AF_INET);
-    tt_sktaddr_set_addr_p(&__st1_svr_addr2, __TLOCAL_IP);
+    tt_sktaddr_set_ip_p(&__st1_svr_addr2, __TLOCAL_IP);
     tt_sktaddr_set_port(&__st1_svr_addr2, __SF1_PORT2 + 1);
 
     tt_evc_attr_default(&evc_attr);
@@ -4345,14 +4345,14 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_udp_async_ipv6_st)
     svr_r_n = 0;
 
     tt_sktaddr_init(&__st1_svr_addr, TT_NET_AF_INET6);
-    tt_sktaddr_set_addr_p(&__st1_svr_addr, __TLOCAL_IP6);
+    tt_sktaddr_set_ip_p(&__st1_svr_addr, __TLOCAL_IP6);
     tt_sktaddr_set_port(&__st1_svr_addr, __SF1_PORT2 + 10);
     if ((tt_strncmp(__TLOCAL_IP6, "fe80", 4) == 0) && (__TLOCAL_ITF != NULL)) {
         tt_sktaddr_set_scope_p(&__st1_svr_addr, __TLOCAL_ITF);
     }
 
     tt_sktaddr_init(&__st1_svr_addr2, TT_NET_AF_INET6);
-    tt_sktaddr_set_addr_p(&__st1_svr_addr2, __TLOCAL_IP6);
+    tt_sktaddr_set_ip_p(&__st1_svr_addr2, __TLOCAL_IP6);
     tt_sktaddr_set_port(&__st1_svr_addr2, __SF1_PORT2 + 11);
     if ((tt_strncmp(__TLOCAL_IP6, "fe80", 4) == 0) && (__TLOCAL_ITF != NULL)) {
         tt_sktaddr_set_scope_p(&__st1_svr_addr2, __TLOCAL_ITF);
@@ -4452,7 +4452,7 @@ void __ab_on_send(IN tt_skt_t *skt,
 {
     if (aioctx->result != TT_SUCCESS) {
         if (aioctx->result == TT_END)
-            tt_async_skt_shutdown(skt, TT_SKT_SHUTDOWN_RD);
+            tt_async_skt_shutdown(skt, TT_SKT_SHUT_RD);
         else {
             __ab_fail_line = __LINE__;
             return;
@@ -4497,7 +4497,7 @@ void __ab_on_recv(IN tt_skt_t *skt,
 
     if (aioctx->result != TT_SUCCESS) {
         if (aioctx->result == TT_END)
-            tt_async_skt_shutdown(skt, TT_SKT_SHUTDOWN_WR);
+            tt_async_skt_shutdown(skt, TT_SKT_SHUT_WR);
         else {
             __ab_fail_line = __LINE__;
             return;
@@ -4508,7 +4508,7 @@ void __ab_on_recv(IN tt_skt_t *skt,
         ret = tt_skt_send_async(skt, &sbuf, 1, __ab_on_send, NULL);
         if (ret != TT_SUCCESS) {
             if (ret == TT_END)
-                tt_async_skt_shutdown(skt, TT_SKT_SHUTDOWN_RD);
+                tt_async_skt_shutdown(skt, TT_SKT_SHUT_RD);
             else {
                 __ab_fail_line = __LINE__;
                 return;
@@ -4520,7 +4520,7 @@ void __ab_on_recv(IN tt_skt_t *skt,
                 tt_skt_recv_async(skt, buf_array, buf_num, __ab_on_recv, NULL);
             if (ret != TT_SUCCESS) {
                 if (ret == TT_END)
-                    tt_async_skt_shutdown(skt, TT_SKT_SHUTDOWN_WR);
+                    tt_async_skt_shutdown(skt, TT_SKT_SHUT_WR);
                 else {
                     __ab_fail_line = __LINE__;
                     return;
@@ -4528,7 +4528,7 @@ void __ab_on_recv(IN tt_skt_t *skt,
             }
         } else {
             // nothing more to be sent
-            ret = tt_async_skt_shutdown(skt, TT_SKT_SHUTDOWN_WR);
+            ret = tt_async_skt_shutdown(skt, TT_SKT_SHUT_WR);
             if (ret != TT_SUCCESS) {
                 __ab_fail_line = __LINE__;
                 return;
@@ -4594,7 +4594,7 @@ static void __ab_on_accept(IN tt_skt_t *listening_skt,
     ret = tt_skt_recv_async(new_skt, &buf, 1, __ab_on_recv, NULL);
     if (ret != TT_SUCCESS) {
         if (ret == TT_END)
-            tt_async_skt_shutdown(new_skt, TT_SKT_SHUTDOWN_WR);
+            tt_async_skt_shutdown(new_skt, TT_SKT_SHUT_WR);
         else {
             __ab_fail_line = __LINE__;
             return;
@@ -4672,7 +4672,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_ab)
     //__ab_long_conn = TT_TRUE;
 
     tt_sktaddr_init(&__ab_addr, __ab_af);
-    tt_sktaddr_set_addr_p(&__ab_addr, __TLOCAL_IP);
+    tt_sktaddr_set_ip_p(&__ab_addr, __TLOCAL_IP);
     tt_sktaddr_set_port(&__ab_addr, __AB_PORT);
 
     ret = tt_slab_create(&__ab_skt_slab, sizeof(tt_skt_t), NULL);
@@ -5005,7 +5005,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_tcp_destroy_immd)
     __dimm_svr_cnt = 0;
 
     tt_sktaddr_init(&__dimm_svr_addr, TT_NET_AF_INET);
-    tt_sktaddr_set_addr_p(&__dimm_svr_addr, __TLOCAL_IP);
+    tt_sktaddr_set_ip_p(&__dimm_svr_addr, __TLOCAL_IP);
     tt_sktaddr_set_port(&__dimm_svr_addr, 60000);
 
     tt_evc_attr_default(&evc_attr);
@@ -5209,5 +5209,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_udp_destroy_immd)
     // test end
     TT_TEST_CASE_LEAVE()
 }
+
+#endif
 
 #endif

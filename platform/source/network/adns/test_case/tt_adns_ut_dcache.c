@@ -19,7 +19,6 @@
 ////////////////////////////////////////////////////////////
 
 #include <event/tt_event_center.h>
-#include <io/tt_socket_aio.h>
 #include <network/adns/tt_adns_domain_manager.h>
 #include <network/adns/tt_adns_packet.h>
 #include <network/adns/tt_adns_rr.h>
@@ -245,8 +244,8 @@ TT_TEST_ROUTINE_DEFINE(tt_adns_ut_dc_basic)
     for (i = 0; i < sizeof(__test_ns) / sizeof(struct __ns_input_t); ++i) {
         ns_addr[i].protocol = __test_ns[i].proto;
         tt_sktaddr_init(&ns_addr[i].sktaddr, __test_ns[i].af);
-        tt_sktaddr_set_addr_p(&ns_addr[i].sktaddr,
-                              (tt_char_t *)__test_ns[i].ns_name);
+        tt_sktaddr_set_ip_p(&ns_addr[i].sktaddr,
+                            (tt_char_t *)__test_ns[i].ns_name);
         tt_sktaddr_set_port(&ns_addr[i].sktaddr, __test_ns[i].port);
     }
 
@@ -368,7 +367,7 @@ tt_adns_pkt_t *__ad2_pkt_proc(tt_adns_pkt_t *pkt, tt_u32_t idx)
             tt_adns_rr_t *ans = NULL;
             tt_adrr_a_t rd;
 
-            tt_sktaddr_addr_p2n(TT_NET_AF_INET, __ad2_q_ip, &rd.addr);
+            tt_sktaddr_ip_p2n(TT_NET_AF_INET, __ad2_q_ip, &rd.addr);
 
             if (n % 10 == 1) {
                 // ttl 0
@@ -443,7 +442,7 @@ void __ad2_on_recvfrom(IN tt_skt_t *skt,
 
     if (!TT_OK(aioctx->result)) {
         if (aioctx->result == TT_END) {
-            tt_async_skt_shutdown(skt, TT_SKT_SHUTDOWN_RD);
+            tt_async_skt_shutdown(skt, TT_SKT_SHUT_RD);
         }
         return;
     }
@@ -504,7 +503,7 @@ void __ad2_on_recv(IN tt_skt_t *skt,
 
     if (!TT_OK(aioctx->result)) {
         if (aioctx->result == TT_END) {
-            tt_async_skt_shutdown(skt, TT_SKT_SHUTDOWN_RD);
+            tt_async_skt_shutdown(skt, TT_SKT_SHUT_RD);
         }
         return;
     }
@@ -606,7 +605,7 @@ tt_result_t __ad2_ns_on_init(IN struct tt_evcenter_s *evc,
     tt_skt_attr_t sat;
 
     tt_sktaddr_init(&sa, ni->af);
-    tt_sktaddr_set_addr_p(&sa, (tt_char_t *)ni->ns_name);
+    tt_sktaddr_set_ip_p(&sa, (tt_char_t *)ni->ns_name);
     tt_sktaddr_set_port(&sa, ni->port);
 
     tt_skt_attr_default(&sat);
@@ -702,7 +701,7 @@ void __ad2_on_query(IN tt_char_t *name,
 
     rr = TT_CONTAINER(tt_dlist_head(qryctx->rrlist), tt_adns_rr_t, node);
     rd = TT_ADRR_CAST(rr, tt_adrr_a_t);
-    tt_sktaddr_addr_p2n(TT_NET_AF_INET, __ad2_q_ip, &corrent_rd.addr);
+    tt_sktaddr_ip_p2n(TT_NET_AF_INET, __ad2_q_ip, &corrent_rd.addr);
     if (rd->addr.a32.__u32 != corrent_rd.addr.a32.__u32) {
         //__ad2_fail_exit(); // may due to random modification
         TT_INFO("correct: %x, received: %x",
@@ -769,8 +768,8 @@ TT_TEST_ROUTINE_DEFINE(tt_adns_ut_dc_excep)
     for (i = 0; i < __ad2_ns_num; ++i) {
         ns_addr[i].protocol = __ad2_ns_input[i].proto;
         tt_sktaddr_init(&ns_addr[i].sktaddr, __ad2_ns_input[i].af);
-        tt_sktaddr_set_addr_p(&ns_addr[i].sktaddr,
-                              (tt_char_t *)__ad2_ns_input[i].ns_name);
+        tt_sktaddr_set_ip_p(&ns_addr[i].sktaddr,
+                            (tt_char_t *)__ad2_ns_input[i].ns_name);
         tt_sktaddr_set_port(&ns_addr[i].sktaddr, __ad2_ns_input[i].port);
     }
 

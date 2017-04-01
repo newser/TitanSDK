@@ -54,6 +54,15 @@ typedef enum {
 } tt_net_protocol_t;
 #define TT_NET_PROTO_VALID(p) ((p) < TT_NET_PROTO_NUM)
 
+typedef enum {
+    TT_SKT_SHUT_RD,
+    TT_SKT_SHUT_WR,
+    TT_SKT_SHUT_RDWR,
+
+    TT_SKT_SHUT_NUM
+} tt_skt_shut_t;
+#define TT_SKT_SHUT_VALID(s) ((s) < TT_SKT_SHUT_NUM)
+
 ////////////////////////////////////////////////////////////
 // global variants
 ////////////////////////////////////////////////////////////

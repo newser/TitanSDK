@@ -43,6 +43,7 @@ enum
     TT_IO_WORKER,
     TT_IO_POLLER,
     TT_IO_FS,
+    TT_IO_SOCKET,
     TT_IO_TIMER,
 
     TT_IO_NUM

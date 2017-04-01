@@ -40,13 +40,9 @@
 #define __KQ_EV_NUM (1)
 
 #define __KEY2SKT_RD(key)                                                      \
-    TT_CONTAINER(TT_CONTAINER(key, tt_skt_ntv_t, ev_mark_rd),                  \
-                 tt_skt_t,                                                     \
-                 sys_socket)
+    TT_CONTAINER(TT_CONTAINER(key, tt_skt_ntv_t, ev_mark_rd), tt_skt_t, sys_skt)
 #define __KEY2SKT_WR(key)                                                      \
-    TT_CONTAINER(TT_CONTAINER(key, tt_skt_ntv_t, ev_mark_wr),                  \
-                 tt_skt_t,                                                     \
-                 sys_socket)
+    TT_CONTAINER(TT_CONTAINER(key, tt_skt_ntv_t, ev_mark_wr), tt_skt_t, sys_skt)
 
 #define __KEY2IPC_RD(key)                                                      \
     TT_CONTAINER(TT_CONTAINER(key, tt_ipc_ntv_t, ev_mark_rd), tt_ipc_t, sys_ipc)

@@ -402,7 +402,7 @@ void __netif_addr_dump(IN tt_netif_addr_t *netif_addr,
 {
     tt_char_t buf[200] = {0};
 
-    tt_sktaddr_get_addr_p(&netif_addr->addr, buf, sizeof(buf) - 1);
+    tt_sktaddr_get_ip_p(&netif_addr->addr, buf, sizeof(buf) - 1);
     TT_INFO("%s- %-10s%s", prefix, "ip", buf);
     // TT_INFO("%s  %-10s", prefix, "gateway");
 

@@ -77,18 +77,17 @@ tt_net_family_t tt_sktaddr_get_family_ntv(IN tt_sktaddr_ntv_t *addr)
     }
 }
 
-void tt_sktaddr_set_addr_n_ntv(IN tt_sktaddr_ntv_t *addr,
-                               IN tt_sktaddr_addr_t *na)
+void tt_sktaddr_set_ip_n_ntv(IN tt_sktaddr_ntv_t *addr, IN tt_sktaddr_ip_t *na)
 {
     if (addr->ss_family == AF_INET) {
-        if (na == TT_SKTADDR_ANY) {
+        if (na == TT_SKT_IP_ANY) {
             ((SOCKADDR_IN *)addr)->sin_addr.s_addr = INADDR_ANY;
         } else {
             ((SOCKADDR_IN *)addr)->sin_addr.s_addr = na->a32.__u32;
         }
     } else {
         TT_ASSERT_SA(addr->ss_family == AF_INET6);
-        if (na == TT_SKTADDR_ANY) {
+        if (na == TT_SKT_IP_ANY) {
             ((SOCKADDR_IN6 *)addr)->sin6_addr = in6addr_any;
         } else {
             tt_memcpy(((SOCKADDR_IN6 *)addr)->sin6_addr.s6_bytes,
@@ -98,10 +97,9 @@ void tt_sktaddr_set_addr_n_ntv(IN tt_sktaddr_ntv_t *addr,
     }
 }
 
-void tt_sktaddr_get_addr_n_ntv(IN tt_sktaddr_ntv_t *addr,
-                               OUT tt_sktaddr_addr_t *na)
+void tt_sktaddr_get_ip_n_ntv(IN tt_sktaddr_ntv_t *addr, OUT tt_sktaddr_ip_t *na)
 {
-    tt_memset(na, 0, sizeof(tt_sktaddr_addr_t));
+    tt_memset(na, 0, sizeof(tt_sktaddr_ip_t));
     if (addr->ss_family == AF_INET) {
         na->a32.__u32 = ((struct sockaddr_in *)addr)->sin_addr.s_addr;
     } else {
@@ -112,10 +110,10 @@ void tt_sktaddr_get_addr_n_ntv(IN tt_sktaddr_ntv_t *addr,
     }
 }
 
-tt_result_t tt_sktaddr_addr_n2p_ntv(IN tt_net_family_t family,
-                                    IN tt_sktaddr_addr_t *na,
-                                    OUT tt_char_t *buf,
-                                    IN tt_u32_t buf_len)
+tt_result_t tt_sktaddr_ip_n2p_ntv(IN tt_net_family_t family,
+                                  IN tt_sktaddr_ip_t *na,
+                                  OUT tt_char_t *buf,
+                                  IN tt_u32_t buf_len)
 {
     if (family == TT_NET_AF_INET) {
         IN_ADDR n;
@@ -142,9 +140,9 @@ tt_result_t tt_sktaddr_addr_n2p_ntv(IN tt_net_family_t family,
     }
 }
 
-tt_result_t tt_sktaddr_addr_p2n_ntv(IN tt_net_family_t family,
-                                    IN tt_char_t *buf,
-                                    OUT tt_sktaddr_addr_t *na)
+tt_result_t tt_sktaddr_ip_p2n_ntv(IN tt_net_family_t family,
+                                  IN tt_char_t *buf,
+                                  OUT tt_sktaddr_ip_t *na)
 {
     if (family == TT_NET_AF_INET) {
         int ret;

@@ -21,7 +21,6 @@
 #include <network/adns/tt_adns_domain.h>
 
 #include <event/tt_timer_event.h>
-#include <io/tt_socket_aio.h>
 #include <memory/tt_memory_alloc.h>
 #include <network/adns/tt_adns_domain_manager.h>
 #include <network/adns/tt_adns_packet.h>

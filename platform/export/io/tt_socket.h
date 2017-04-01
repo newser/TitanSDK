@@ -41,39 +41,23 @@ this file specifies socket APIs
 // type definition
 ////////////////////////////////////////////////////////////
 
-typedef struct tt_skt_attr_s
-{
-    tt_bool_t config_ipv6only : 1;
-    tt_bool_t ipv6only : 1;
-
-    tt_bool_t config_reuse_addr : 1;
-    tt_bool_t reuse_addr : 1;
-
-    tt_bool_t config_reuse_port : 1;
-    tt_bool_t reuse_port : 1;
-
-    tt_bool_t config_tcp_nodelay : 1;
-    tt_bool_t tcp_nodelay : 1;
-
-    tt_bool_t from_alloc : 1;
-} tt_skt_attr_t;
-
 typedef struct tt_skt_s
 {
-    tt_skt_ntv_t sys_socket;
-
-    tt_net_family_t family;
-    tt_net_protocol_t protocol;
-    tt_skt_attr_t attr;
+    tt_skt_ntv_t sys_skt;
 } tt_skt_t;
+
+typedef struct tt_skt_attr_s
+{
+    tt_u32_t reserved;
+} tt_skt_attr_t;
 
 ////////////////////////////////////////////////////////////
 // global variants
 ////////////////////////////////////////////////////////////
 
-extern tt_atomic_s64_t tt_stat_socket_num;
+extern tt_atomic_s64_t tt_skt_stat_num;
 
-extern tt_atomic_s64_t tt_stat_socket_peek;
+extern tt_atomic_s64_t tt_skt_stat_peek;
 
 ////////////////////////////////////////////////////////////
 // interface declaration
@@ -85,71 +69,59 @@ register socket system
 */
 extern void tt_skt_component_register();
 
-extern tt_result_t tt_skt_create(OUT tt_skt_t *skt,
-                                 IN tt_net_family_t family,
-                                 IN tt_net_protocol_t protocol,
-                                 IN OPT tt_skt_attr_t *attr);
+extern tt_skt_t *tt_skt_create(IN tt_net_family_t family,
+                               IN tt_net_protocol_t protocol,
+                               IN OPT tt_skt_attr_t *attr);
 
-extern tt_result_t tt_skt_destroy(IN tt_skt_t *skt);
+extern void tt_skt_destroy(IN tt_skt_t *skt);
 
-tt_inline tt_result_t tt_skt_shutdown(IN tt_skt_t *skt, IN tt_u32_t mode)
-{
-    TT_ASSERT(skt != NULL);
+extern void tt_skt_attr_default(IN tt_skt_attr_t *attr);
 
-    return tt_skt_shutdown_ntv(&skt->sys_socket, mode);
-}
-#define TT_SKT_SHUTDOWN_RD TT_SKT_SHUTDOWN_RD_NTV
-#define TT_SKT_SHUTDOWN_WR TT_SKT_SHUTDOWN_WR_NTV
-#define TT_SKT_SHUTDOWN_RDWR TT_SKT_SHUTDOWN_RDWR_NTV
+extern tt_result_t tt_skt_shutdown(IN tt_skt_t *skt, IN tt_skt_shut_t shut);
 
-// behavior of binding ipv4/ipv6 address to ipv4/ipv6 socket depends
-// on platform
-extern tt_result_t tt_skt_bind(IN tt_skt_t *skt, IN tt_sktaddr_t *local_addr);
+extern tt_result_t tt_skt_bind(IN tt_skt_t *skt, IN tt_sktaddr_t *addr);
 
 extern tt_result_t tt_skt_bind_n(IN tt_skt_t *skt,
                                  IN tt_net_family_t family,
-                                 IN tt_sktaddr_addr_t *addr,
+                                 IN tt_sktaddr_ip_t *ip,
                                  IN tt_u16_t port);
 
 extern tt_result_t tt_skt_bind_p(IN tt_skt_t *skt,
                                  IN tt_net_family_t family,
-                                 IN tt_char_t *addr,
+                                 IN const tt_char_t *ip_str,
                                  IN tt_u16_t port);
 
-extern tt_result_t tt_skt_listen(IN tt_skt_t *skt, IN tt_u32_t backlog);
-// backlog
-#define TT_SKT_BACKLOG_DEFAULT (~0)
+extern tt_result_t tt_skt_listen(IN tt_skt_t *skt);
 
 // this function does not guarantee that the new socket would inherite
 // attributes of listening_skt, although os may do some about it). caller
 // should explicitly set options by api defined in tt_socket_option.h
-extern tt_result_t tt_skt_accept(IN tt_skt_t *listening_skt,
-                                 OUT tt_skt_t *new_socket,
-                                 IN OPT tt_skt_attr_t *new_skt_attr);
+extern tt_skt_t *tt_skt_accept(IN tt_skt_t *skt,
+                               IN OPT tt_skt_attr_t *new_attr,
+                               OUT OPT tt_sktaddr_t *addr);
 
-extern tt_result_t tt_skt_connect(IN tt_skt_t *skt,
-                                  IN tt_sktaddr_t *remote_addr);
+extern tt_result_t tt_skt_connect(IN tt_skt_t *skt, IN tt_sktaddr_t *addr);
 
 extern tt_result_t tt_skt_connect_n(IN tt_skt_t *skt,
                                     IN tt_net_family_t family,
-                                    IN tt_sktaddr_addr_t *addr,
+                                    IN tt_sktaddr_ip_t *ip,
                                     IN tt_u16_t port);
 
 extern tt_result_t tt_skt_connect_p(IN tt_skt_t *skt,
                                     IN tt_net_family_t family,
-                                    IN tt_char_t *addr,
+                                    IN const tt_char_t *ip_str,
                                     IN tt_u16_t port);
 
 /**
 @fn tt_result_t tt_skt_send(IN tt_skt_t *skt,
                                OUT tt_u8_t *buf,
-                               IN tt_u32_t buf_len,
+                               IN tt_u32_t len,
                                OUT tt_u32_t *send_len);
 send data through socket
 
 @param [in] skt socket
 @param [out] buf data to be sent
-@param [in] buf_len size of buf
+@param [in] len size of buf
 @param [out] send_len stores how many bytes are sent, can be NULL
 
 @return
@@ -157,112 +129,91 @@ send data through socket
 - TT_FAIL none is sent due to some error occur
 
 @note
-- the bytes returned by send_len may be less than buf_len
+- the bytes returned by send_len may be less than len
 - this function return TT_SUCCESS even if the operation is not completed, e.g.
   operation is interrupted, but send_len returns how many bytes are sent
   accurately.
 - send_len return how many bytes read only if return value is TT_SUCCESS
 */
-extern tt_result_t tt_skt_send(IN tt_skt_t *skt,
-                               OUT tt_u8_t *buf,
-                               IN tt_u32_t buf_len,
-                               OUT OPT tt_u32_t *send_len);
+tt_inline tt_result_t tt_skt_send(IN tt_skt_t *skt,
+                                  IN tt_u8_t *buf,
+                                  IN tt_u32_t len,
+                                  OUT OPT tt_u32_t *sent)
+{
+    return tt_skt_send_ntv(&skt->sys_skt, buf, len, sent);
+}
 
-extern tt_result_t tt_skt_recv(IN tt_skt_t *skt,
-                               IN tt_u8_t *buf,
-                               IN tt_u32_t buf_len,
-                               OUT OPT tt_u32_t *recv_len);
+tt_inline tt_result_t tt_skt_recv(IN tt_skt_t *skt,
+                                  OUT tt_u8_t *buf,
+                                  IN tt_u32_t len,
+                                  OUT OPT tt_u32_t *recvd)
+{
+    return tt_skt_recv_ntv(&skt->sys_skt, buf, len, recvd);
+}
 
-extern tt_result_t tt_skt_recvfrom(IN tt_skt_t *skt,
-                                   OUT tt_u8_t *buf,
-                                   IN tt_u32_t buf_len,
-                                   OUT OPT tt_u32_t *recv_len,
-                                   OUT OPT tt_sktaddr_t *remote_addr);
+tt_inline tt_result_t tt_skt_recvfrom(IN tt_skt_t *skt,
+                                      OUT tt_u8_t *buf,
+                                      IN tt_u32_t len,
+                                      OUT OPT tt_u32_t *recvd,
+                                      OUT OPT tt_sktaddr_t *addr)
+{
+    return tt_skt_recvfrom_ntv(&skt->sys_skt, buf, len, recvd, addr);
+}
 
-extern tt_result_t tt_skt_sendto(IN tt_skt_t *skt,
-                                 IN tt_u8_t *buf,
-                                 IN tt_u32_t buf_len,
-                                 OUT OPT tt_u32_t *send_len,
-                                 IN tt_sktaddr_t *remote_addr);
+tt_inline tt_result_t tt_skt_sendto(IN tt_skt_t *skt,
+                                    IN tt_u8_t *buf,
+                                    IN tt_u32_t len,
+                                    OUT OPT tt_u32_t *sent,
+                                    IN tt_sktaddr_t *addr)
+{
+    return tt_skt_sendto_ntv(&skt->sys_skt, buf, len, sent, addr);
+}
 
 extern tt_result_t tt_skt_local_addr(IN tt_skt_t *skt, IN tt_sktaddr_t *addr);
 
 extern tt_result_t tt_skt_remote_addr(IN tt_skt_t *skt, IN tt_sktaddr_t *addr);
 
-extern void tt_skt_stat_show(IN tt_u32_t flag);
-
 extern void tt_skt_stat_inc_num();
+
 extern void tt_skt_stat_dec_num();
 
 // ========================================
-// multicast APIs
+// multicast
 // ========================================
 
 // must bind to address to receive multicast packets
 extern tt_result_t tt_skt_join_mcast(IN tt_skt_t *skt,
-                                     IN tt_sktaddr_addr_t *mc_addr,
-                                     IN OPT tt_char_t *mcast_itf);
+                                     IN tt_net_family_t family,
+                                     IN tt_sktaddr_ip_t *ip,
+                                     IN OPT const tt_char_t *itf);
 
 extern tt_result_t tt_skt_leave_mcast(IN tt_skt_t *skt,
-                                      IN tt_sktaddr_addr_t *mc_addr,
-                                      IN OPT tt_char_t *mcast_itf);
+                                      IN tt_net_family_t family,
+                                      IN tt_sktaddr_ip_t *ip,
+                                      IN OPT const tt_char_t *itf);
 
 // ========================================
-// server socket APIs
+// server
 // ========================================
 
 // - use tt_skt_destroy() to destroy created server socket
 // - created socket could be passed to tt_skt_accept()
-extern tt_result_t tt_tcp_server(OUT tt_skt_t *skt,
-                                 IN tt_net_family_t family,
-                                 IN tt_skt_attr_t *attr,
-                                 IN tt_sktaddr_t *local_addr,
-                                 IN tt_u32_t backlog);
+extern tt_skt_t *tt_tcp_server(IN tt_net_family_t family,
+                               IN OPT tt_skt_attr_t *attr,
+                               IN tt_sktaddr_t *addr);
 
-extern tt_result_t tt_udp_server(OUT tt_skt_t *skt,
-                                 IN tt_net_family_t family,
+extern tt_skt_t *tt_tcp_server_p(IN tt_net_family_t family,
                                  IN OPT tt_skt_attr_t *attr,
-                                 IN tt_sktaddr_t *local_addr);
+                                 IN const tt_char_t *ip_str,
+                                 IN tt_u16_t port);
 
-extern tt_result_t tt_udp_server_mcastast(OUT tt_skt_t *skt,
-                                          IN tt_net_family_t family,
-                                          IN tt_skt_attr_t *attr,
-                                          IN tt_sktaddr_t *local_addr,
-                                          IN OPT tt_sktaddr_addr_t *mcast_addr,
-                                          IN OPT tt_char_t *mcast_itf);
+extern tt_skt_t *tt_udp_server(IN tt_net_family_t family,
+                               IN OPT tt_skt_attr_t *attr,
+                               IN tt_sktaddr_t *addr);
 
-// ========================================
-// socket attributes
-// ========================================
-
-extern void tt_skt_attr_default(IN tt_skt_attr_t *attr);
-
-tt_inline void tt_skt_attr_set_ipv6only(IN tt_skt_attr_t *attr,
-                                        IN tt_bool_t ipv6only)
-{
-    attr->config_ipv6only = TT_TRUE;
-    attr->ipv6only = ipv6only;
-}
-
-tt_inline void tt_skt_attr_set_reuseaddr(IN tt_skt_attr_t *attr,
-                                         IN tt_bool_t reuse_addr)
-{
-    attr->config_reuse_addr = TT_TRUE;
-    attr->reuse_addr = reuse_addr;
-}
-
-tt_inline void tt_skt_attr_set_reuseport(IN tt_skt_attr_t *attr,
-                                         IN tt_bool_t reuse_port)
-{
-    attr->config_reuse_port = TT_TRUE;
-    attr->reuse_port = reuse_port;
-}
-
-tt_inline void tt_skt_attr_set_nodelay(IN tt_skt_attr_t *attr,
-                                       IN tt_bool_t tcp_nodelay)
-{
-    attr->config_tcp_nodelay = TT_TRUE;
-    attr->tcp_nodelay = tcp_nodelay;
-}
+extern tt_skt_t *tt_udp_server_p(IN tt_net_family_t family,
+                                 IN OPT tt_skt_attr_t *attr,
+                                 IN const tt_char_t *ip_str,
+                                 IN tt_u16_t port);
 
 #endif // __TT_SOCKET__

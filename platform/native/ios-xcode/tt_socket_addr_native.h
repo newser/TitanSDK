@@ -42,7 +42,7 @@ this file specifies socket address native definitions
 // type definition
 ////////////////////////////////////////////////////////////
 
-union tt_sktaddr_addr_s;
+union tt_sktaddr_ip_s;
 
 typedef struct sockaddr_storage tt_sktaddr_ntv_t;
 
@@ -59,12 +59,12 @@ extern void tt_sktaddr_init_ntv(IN tt_sktaddr_ntv_t *addr,
 
 extern tt_net_family_t tt_sktaddr_get_family_ntv(IN tt_sktaddr_ntv_t *addr);
 
-extern void tt_sktaddr_set_addr_n_ntv(IN tt_sktaddr_ntv_t *addr,
-                                      IN union tt_sktaddr_addr_s *na);
+extern void tt_sktaddr_set_ip_n_ntv(IN tt_sktaddr_ntv_t *addr,
+                                    IN union tt_sktaddr_ip_s *na);
 
-// returned value is unspecified if addr is set to TT_SKTADDR_ANY
-extern void tt_sktaddr_get_addr_n_ntv(IN tt_sktaddr_ntv_t *addr,
-                                      OUT union tt_sktaddr_addr_s *na);
+// returned value is unspecified if addr is set to TT_SKT_IP_ANY
+extern void tt_sktaddr_get_ip_n_ntv(IN tt_sktaddr_ntv_t *addr,
+                                    OUT union tt_sktaddr_ip_s *na);
 
 extern void tt_sktaddr_set_port_ntv(IN tt_sktaddr_ntv_t *addr,
                                     IN tt_u16_t port);
@@ -77,14 +77,14 @@ extern void tt_sktaddr_set_scope_ntv(IN tt_sktaddr_ntv_t *addr,
 extern void tt_sktaddr_set_scope_p_ntv(IN tt_sktaddr_ntv_t *addr,
                                        IN tt_char_t *scope_name);
 
-extern tt_result_t tt_sktaddr_addr_n2p_ntv(IN tt_net_family_t family,
-                                           IN union tt_sktaddr_addr_s *na,
-                                           OUT tt_char_t *buf,
-                                           IN tt_u32_t buf_len);
+extern tt_result_t tt_sktaddr_ip_n2p_ntv(IN tt_net_family_t family,
+                                         IN union tt_sktaddr_ip_s *na,
+                                         OUT tt_char_t *buf,
+                                         IN tt_u32_t buf_len);
 
-extern tt_result_t tt_sktaddr_addr_p2n_ntv(IN tt_net_family_t family,
-                                           IN tt_char_t *buf,
-                                           OUT union tt_sktaddr_addr_s *na);
+extern tt_result_t tt_sktaddr_ip_p2n_ntv(IN tt_net_family_t family,
+                                         IN tt_char_t *buf,
+                                         OUT union tt_sktaddr_ip_s *na);
 
 extern void tt_sktaddr_map4to6_ntv(IN tt_sktaddr_ntv_t *in4,
                                    OUT tt_sktaddr_ntv_t *in6);

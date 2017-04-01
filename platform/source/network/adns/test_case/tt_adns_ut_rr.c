@@ -340,7 +340,7 @@ TT_TEST_ROUTINE_DEFINE(tt_adns_ut_rr_a_in)
     TT_TEST_CASE_ENTER()
     // test start
 
-    tt_sktaddr_addr_p2n(TT_NET_AF_INET, "1.2.3.4", &rdata.addr);
+    tt_sktaddr_ip_p2n(TT_NET_AF_INET, "1.2.3.4", &rdata.addr);
 
     rr = tt_adrr_a_create("aaa", TT_ADNS_RR_REF_NAME, 10, &rdata);
     TT_TEST_CHECK_NOT_EQUAL(rr, NULL, "");
@@ -413,9 +413,9 @@ TT_TEST_ROUTINE_DEFINE(tt_adns_ut_rr_aaaa_in)
     TT_TEST_CASE_ENTER()
     // test start
 
-    tt_sktaddr_addr_p2n(TT_NET_AF_INET6,
-                        "0102:0304:2122:2324:3132:3334:4142:4344",
-                        &rdata.addr);
+    tt_sktaddr_ip_p2n(TT_NET_AF_INET6,
+                      "0102:0304:2122:2324:3132:3334:4142:4344",
+                      &rdata.addr);
 
     rr = tt_adrr_aaaa_create("ipv6.com", 0, 0x1020304, &rdata);
     TT_TEST_CHECK_NOT_EQUAL(rr, NULL, "");

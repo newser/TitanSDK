@@ -41,9 +41,9 @@ this file specifies socket native apis
 // macro definition
 ////////////////////////////////////////////////////////////
 
-#define TT_SKT_SHUTDOWN_RD_NTV SHUT_RD
-#define TT_SKT_SHUTDOWN_WR_NTV SHUT_WR
-#define TT_SKT_SHUTDOWN_RDWR_NTV SHUT_RDWR
+#define TT_SKT_SHUT_RD_NTV SHUT_RD
+#define TT_SKT_SHUT_WR_NTV SHUT_WR
+#define TT_SKT_SHUT_RDWR_NTV SHUT_RDWR
 
 ////////////////////////////////////////////////////////////
 // type definition
@@ -204,11 +204,11 @@ extern tt_result_t tt_skt_send_ntv(IN tt_skt_ntv_t *skt,
 
 extern tt_result_t tt_skt_join_mcast_ntv(IN tt_skt_ntv_t *skt,
                                          IN tt_net_family_t family,
-                                         IN tt_sktaddr_addr_t *mc_addr,
+                                         IN tt_sktaddr_ip_t *mc_addr,
                                          IN tt_char_t *mcast_itf);
 extern tt_result_t tt_skt_leave_mcast_ntv(IN tt_skt_ntv_t *skt,
                                           IN tt_net_family_t family,
-                                          IN tt_sktaddr_addr_t *mc_addr,
+                                          IN tt_sktaddr_ip_t *mc_addr,
                                           IN tt_char_t *mcast_itf);
 
 #endif // __TT_SOCKET_NATIVE__

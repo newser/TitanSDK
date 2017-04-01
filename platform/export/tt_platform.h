@@ -123,8 +123,6 @@ extern "C" {
 #include <io/tt_network_io_init.h>
 #include <io/tt_socket.h>
 #include <io/tt_socket_addr.h>
-#include <io/tt_socket_aio.h>
-#include <io/tt_socket_aio_cb.h>
 #include <io/tt_socket_option.h>
 #include <log/io/tt_log_io.h>
 #include <log/io/tt_log_io_standard.h>

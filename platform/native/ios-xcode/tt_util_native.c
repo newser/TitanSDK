@@ -51,11 +51,11 @@
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-tt_result_t __skt_kevent(IN int kq,
-                         IN uint64_t ident,
-                         IN int16_t filter,
-                         IN uint16_t flags,
-                         IN uint64_t udata)
+tt_result_t tt_kevent(IN int kq,
+                      IN uint64_t ident,
+                      IN int16_t filter,
+                      IN uint16_t flags,
+                      IN uint64_t udata)
 {
     struct kevent ev = {0};
     const struct timespec timeout = {0};

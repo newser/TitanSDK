@@ -360,7 +360,7 @@ tt_result_t __c1_on_init(IN struct tt_evcenter_s *evc, IN void *on_init_param)
 #define __c1_svr_port 443
 
     tt_sktaddr_init(&remote_addr, TT_NET_AF_INET);
-    tt_sktaddr_set_addr_p(&remote_addr, __c1_svr_addr);
+    tt_sktaddr_set_ip_p(&remote_addr, __c1_svr_addr);
     tt_sktaddr_set_port(&remote_addr, __c1_svr_port);
 
     ret = tt_ssl_connect_async(&__c1_ssl,
@@ -793,7 +793,7 @@ tt_result_t __ssl_ut_on_init(IN struct tt_evcenter_s *evc,
 
     // addr
     tt_sktaddr_init(&svr_addr, TT_NET_AF_INET);
-    tt_sktaddr_set_addr_p(&svr_addr, (tt_char_t *)utp->svr_addr);
+    tt_sktaddr_set_ip_p(&svr_addr, (tt_char_t *)utp->svr_addr);
     tt_sktaddr_set_port(&svr_addr, utp->svr_port);
 
     // listen: skt
@@ -1090,7 +1090,7 @@ tt_result_t __ssl_immd_on_init(IN struct tt_evcenter_s *evc,
 
     // addr
     tt_sktaddr_init(&svr_addr, TT_NET_AF_INET);
-    tt_sktaddr_set_addr_p(&svr_addr, (tt_char_t *)utp->svr_addr);
+    tt_sktaddr_set_ip_p(&svr_addr, (tt_char_t *)utp->svr_addr);
     tt_sktaddr_set_port(&svr_addr, utp->svr_port);
 
     // listen: skt
@@ -2241,7 +2241,7 @@ static tt_result_t __st1_evc_on_init(IN struct tt_evcenter_s *evc,
     __st_ssl_num[i][1] = 0;
 
     tt_sktaddr_init(&__st1_lis_addr, TT_NET_AF_INET);
-    tt_sktaddr_set_addr_p(&__st1_lis_addr, "127.0.0.1");
+    tt_sktaddr_set_ip_p(&__st1_lis_addr, "127.0.0.1");
     tt_sktaddr_set_port(&__st1_lis_addr, 33333);
 
     tt_skt_attr_default(&lis_skt_attr);

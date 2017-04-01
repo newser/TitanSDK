@@ -54,10 +54,10 @@
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-static tt_result_t __mcaddr_to_ipmreq(IN tt_sktaddr_addr_t *mc_addr,
+static tt_result_t __mcaddr_to_ipmreq(IN tt_sktaddr_ip_t *mc_addr,
                                       IN tt_char_t *mcast_itf,
                                       OUT struct ip_mreq *mreq);
-static tt_result_t __mcaddr_to_ipv6mreq(IN tt_sktaddr_addr_t *mc_addr,
+static tt_result_t __mcaddr_to_ipv6mreq(IN tt_sktaddr_ip_t *mc_addr,
                                         IN tt_char_t *mcast_itf,
                                         OUT struct ipv6_mreq *mreq);
 
@@ -414,7 +414,7 @@ tt_result_t tt_skt_recv_ntv(IN tt_skt_ntv_t *skt,
 
 tt_result_t tt_skt_join_mcast_ntv(IN tt_skt_ntv_t *skt,
                                   IN tt_net_family_t family,
-                                  IN tt_sktaddr_addr_t *mc_addr,
+                                  IN tt_sktaddr_ip_t *mc_addr,
                                   IN tt_char_t *mcast_itf)
 {
     if (family == TT_NET_AF_INET) {
@@ -459,7 +459,7 @@ tt_result_t tt_skt_join_mcast_ntv(IN tt_skt_ntv_t *skt,
 
 tt_result_t tt_skt_leave_mcast_ntv(IN tt_skt_ntv_t *skt,
                                    IN tt_net_family_t family,
-                                   IN tt_sktaddr_addr_t *mc_addr,
+                                   IN tt_sktaddr_ip_t *mc_addr,
                                    IN tt_char_t *mcast_itf)
 {
     if (family == TT_NET_AF_INET) {
@@ -502,7 +502,7 @@ tt_result_t tt_skt_leave_mcast_ntv(IN tt_skt_ntv_t *skt,
     }
 }
 
-tt_result_t __mcaddr_to_ipmreq(IN tt_sktaddr_addr_t *mc_addr,
+tt_result_t __mcaddr_to_ipmreq(IN tt_sktaddr_ip_t *mc_addr,
                                IN tt_char_t *mcast_itf,
                                OUT struct ip_mreq *mreq)
 {
@@ -548,7 +548,7 @@ tt_result_t __mcaddr_to_ipmreq(IN tt_sktaddr_addr_t *mc_addr,
     return TT_SUCCESS;
 }
 
-tt_result_t __mcaddr_to_ipv6mreq(IN tt_sktaddr_addr_t *mc_addr,
+tt_result_t __mcaddr_to_ipv6mreq(IN tt_sktaddr_ip_t *mc_addr,
                                  IN tt_char_t *mcast_itf,
                                  OUT struct ipv6_mreq *mreq)
 {

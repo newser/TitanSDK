@@ -47,39 +47,40 @@
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-tt_result_t tt_sktaddr_set_addr_p(IN tt_sktaddr_t *addr, IN tt_char_t *pa)
+tt_result_t tt_sktaddr_set_ip_p(IN tt_sktaddr_t *addr,
+                                IN const tt_char_t *ip_str)
 {
-    tt_sktaddr_addr_t na;
+    tt_sktaddr_ip_t ip;
 
-    if (pa == TT_SKTADDR_ANY) {
-        tt_sktaddr_set_addr_n(addr, TT_SKTADDR_ANY);
+    if (ip_str == TT_SKT_IP_ANY) {
+        tt_sktaddr_set_ip_n(addr, TT_SKT_IP_ANY);
         return TT_SUCCESS;
     }
 
-    if (!TT_OK(tt_sktaddr_addr_p2n(tt_sktaddr_get_family(addr), pa, &na))) {
+    if (!TT_OK(tt_sktaddr_ip_p2n(tt_sktaddr_get_family(addr), ip_str, &ip))) {
         return TT_FAIL;
     }
-    tt_sktaddr_set_addr_n(addr, &na);
+    tt_sktaddr_set_ip_n(addr, &ip);
 
     return TT_SUCCESS;
 }
 
-tt_result_t tt_sktaddr_get_addr_p(IN tt_sktaddr_t *addr,
-                                  OUT tt_char_t *pa,
-                                  IN tt_u32_t pa_len)
+tt_result_t tt_sktaddr_get_ip_p(IN tt_sktaddr_t *addr,
+                                OUT tt_char_t *buf,
+                                IN tt_u32_t buf_len)
 {
-    tt_sktaddr_addr_t na;
+    tt_sktaddr_ip_t ip;
 
-    tt_sktaddr_get_addr_n(addr, &na);
-    return tt_sktaddr_addr_n2p(tt_sktaddr_get_family(addr), &na, pa, pa_len);
+    tt_sktaddr_get_ip_n(addr, &ip);
+    return tt_sktaddr_ip_n2p(tt_sktaddr_get_family(addr), &ip, buf, buf_len);
 }
 
-tt_sktaddr_t *tt_sktaddr_map4to6(IN tt_sktaddr_t *in4, OUT tt_sktaddr_t *in6)
+tt_sktaddr_t *tt_sktaddr_map4to6(IN tt_sktaddr_t *ip4, OUT tt_sktaddr_t *ip6)
 {
-    if (tt_sktaddr_get_family(in4) == TT_NET_AF_INET) {
-        tt_sktaddr_map4to6_ntv(in4, in6);
-        return in6;
+    if (tt_sktaddr_get_family(ip4) == TT_NET_AF_INET) {
+        tt_sktaddr_map4to6_ntv(ip4, ip6);
+        return ip6;
     } else {
-        return in4;
+        return ip4;
     }
 }

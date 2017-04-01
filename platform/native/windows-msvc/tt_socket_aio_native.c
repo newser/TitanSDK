@@ -537,7 +537,7 @@ tt_result_t tt_async_skt_create_ntv(OUT tt_skt_t *skt,
     // create system socket
     // ========================================
 
-    sys_skt = &skt->sys_socket;
+    sys_skt = &skt->sys_skt;
 
     // family
     if (family == TT_NET_AF_INET) {
@@ -656,7 +656,7 @@ void tt_async_skt_destroy_ntv(IN tt_skt_t *skt, IN tt_bool_t immediate)
 
     TT_ASSERT(skt != NULL);
 
-    sys_skt = &skt->sys_socket;
+    sys_skt = &skt->sys_skt;
     if (immediate) {
         tt_skt_on_destroy_t on_destroy =
             (tt_skt_on_destroy_t)sys_skt->on_destroy;
@@ -691,25 +691,25 @@ tt_result_t tt_async_skt_shutdown_ntv(IN tt_skt_t *skt, IN tt_u32_t mode)
     TT_ASSERT(TT_NET_PROTO_VALID(skt->protocol));
 
 #ifdef __SKTAIO_CHECK_EVC
-    if (skt->sys_socket.evc != tt_evc_current()) {
+    if (skt->sys_skt.evc != tt_evc_current()) {
         TT_ERROR("different socket evc");
         return TT_BAD_PARAM;
     }
 #endif
 
-    if (!__SKT_ROLE_OF_TCP_DATA(skt->sys_socket.role)) {
+    if (!__SKT_ROLE_OF_TCP_DATA(skt->sys_skt.role)) {
         TT_ERROR("not tcp data socket");
         return TT_FAIL;
     }
 
-    if (mode == TT_SKT_SHUTDOWN_WR) {
+    if (mode == TT_SKT_SHUT_WR) {
         return __skt_shutdown_wr(skt);
-    } else if (mode == TT_SKT_SHUTDOWN_RD) {
+    } else if (mode == TT_SKT_SHUT_RD) {
         return __skt_shutdown_rd(skt);
     } else {
         tt_result_t sd_wr, sd_rd;
 
-        TT_ASSERT(mode == TT_SKT_SHUTDOWN_RDWR);
+        TT_ASSERT(mode == TT_SKT_SHUT_RDWR);
 
         sd_wr = __skt_shutdown_wr(skt);
         sd_rd = __skt_shutdown_rd(skt);
@@ -744,8 +744,8 @@ tt_result_t tt_skt_accept_async_ntv(IN tt_skt_t *listening_skt,
 
     TT_ASSERT(on_accept != NULL);
 
-    sys_skt = &listening_skt->sys_socket;
-    new_sys_skt = &new_skt->sys_socket;
+    sys_skt = &listening_skt->sys_skt;
+    new_sys_skt = &new_skt->sys_skt;
 
 #ifdef __SKTAIO_CHECK_EVC
     if (sys_skt->evc != tt_evc_current()) {
@@ -789,7 +789,7 @@ tt_result_t tt_skt_accept_async_ntv(IN tt_skt_t *listening_skt,
     if (ev == NULL) {
         TT_ERROR("fail to allocate aio");
 
-        closesocket(new_skt->sys_socket.s);
+        closesocket(new_skt->sys_skt.s);
         return TT_FAIL;
     }
     tev = TT_EV_HDR(ev, tt_thread_ev_t);
@@ -833,7 +833,7 @@ tt_result_t tt_skt_accept_async_ntv(IN tt_skt_t *listening_skt,
         if (!TT_OK(result)) {
             tt_list_remove(&tev->node);
             tt_ev_destroy(ev);
-            closesocket(new_skt->sys_socket.s);
+            closesocket(new_skt->sys_skt.s);
             return TT_FAIL;
         }
     }
@@ -857,7 +857,7 @@ tt_result_t tt_skt_connect_async_ntv(IN tt_skt_t *skt,
     TT_ASSERT(remote_addr != NULL);
     TT_ASSERT(on_connect != NULL);
 
-    sys_skt = &skt->sys_socket;
+    sys_skt = &skt->sys_skt;
 
 #ifdef __SKTAIO_CHECK_EVC
     if (sys_skt->evc != tt_evc_current()) {
@@ -956,7 +956,7 @@ tt_result_t tt_skt_send_async_ntv(IN tt_skt_t *skt,
     TT_ASSERT(blob != NULL);
     TT_ASSERT(blob_num != 0);
 
-    sys_skt = &skt->sys_socket;
+    sys_skt = &skt->sys_skt;
 
 #ifdef __SKTAIO_CHECK_EVC
     if (sys_skt->evc != tt_evc_current()) {
@@ -1073,7 +1073,7 @@ tt_result_t tt_skt_recv_async_ntv(IN tt_skt_t *skt,
     TT_ASSERT(blob != NULL);
     TT_ASSERT(blob_num != 0);
 
-    sys_skt = &skt->sys_socket;
+    sys_skt = &skt->sys_skt;
 
 #ifdef __SKTAIO_CHECK_EVC
     if (sys_skt->evc != tt_evc_current()) {
@@ -1207,7 +1207,7 @@ tt_result_t tt_skt_sendto_async_ntv(IN tt_skt_t *skt,
     TT_ASSERT(blob_num != 0);
     TT_ASSERT(remote_addr != 0);
 
-    sys_skt = &skt->sys_socket;
+    sys_skt = &skt->sys_skt;
 
 #ifdef __SKTAIO_CHECK_EVC
     if (sys_skt->evc != tt_evc_current()) {
@@ -1335,7 +1335,7 @@ tt_result_t tt_skt_recvfrom_async_ntv(IN tt_skt_t *skt,
     TT_ASSERT(blob != NULL);
     TT_ASSERT(blob_num != 0);
 
-    sys_skt = &skt->sys_socket;
+    sys_skt = &skt->sys_skt;
 
 #ifdef __SKTAIO_CHECK_EVC
     if (sys_skt->evc != tt_evc_current()) {
@@ -1449,7 +1449,7 @@ tt_result_t tt_skt_iocp_handler(IN tt_skt_t *skt,
                                 IN WSAOVERLAPPED *Overlapped,
                                 IN tt_result_t iocp_result)
 {
-    tt_skt_ntv_t *sys_skt = &skt->sys_socket;
+    tt_skt_ntv_t *sys_skt = &skt->sys_skt;
     tt_thread_ev_t *tev = TT_TEV_OF(Overlapped);
     tt_lnode_t *node = &tev->node;
     tt_ev_t *ev = TT_EV_OF(tev);
@@ -1485,14 +1485,14 @@ tt_result_t tt_skt_tev_handler(IN struct tt_evpoller_s *evp,
     switch (ev->ev_id) {
         case EV_SKT_Q_READ: {
             __skt_q_t *aio = TT_EV_DATA(ev, __skt_q_t);
-            tt_skt_ntv_t *sys_skt = &aio->skt->sys_socket;
+            tt_skt_ntv_t *sys_skt = &aio->skt->sys_skt;
 
             __do_skt_aio_q(sys_skt, &sys_skt->read_q, TT_SUCCESS, 0);
             // no need to destroy ev
         } break;
         case EV_SKT_Q_WRITE: {
             __skt_q_t *aio = TT_EV_DATA(ev, __skt_q_t);
-            tt_skt_ntv_t *sys_skt = &aio->skt->sys_socket;
+            tt_skt_ntv_t *sys_skt = &aio->skt->sys_skt;
 
             __do_skt_aio_q(sys_skt, &sys_skt->write_q, TT_SUCCESS, 0);
             // no need to destroy ev
@@ -1514,7 +1514,7 @@ tt_result_t tt_tcp_server_async_ntv(OUT tt_skt_t *skt,
                                     IN tt_u32_t backlog,
                                     IN tt_skt_exit_t *exit)
 {
-    skt->sys_socket.s = INVALID_SOCKET;
+    skt->sys_skt.s = INVALID_SOCKET;
 
     if (!TT_OK(tt_async_skt_create(skt,
                                    family,
@@ -1537,10 +1537,10 @@ tt_result_t tt_tcp_server_async_ntv(OUT tt_skt_t *skt,
 
 tssa_fail:
 
-    // nothing except skt->sys_socket.s need be released
-    if (skt->sys_socket.s != INVALID_SOCKET) {
-        closesocket(skt->sys_socket.s);
-        skt->sys_socket.s = INVALID_SOCKET;
+    // nothing except skt->sys_skt.s need be released
+    if (skt->sys_skt.s != INVALID_SOCKET) {
+        closesocket(skt->sys_skt.s);
+        skt->sys_skt.s = INVALID_SOCKET;
     }
 
     return TT_FAIL;
@@ -1552,7 +1552,7 @@ tt_result_t tt_udp_server_async_ntv(OUT tt_skt_t *skt,
                                     IN tt_sktaddr_t *local_addr,
                                     IN tt_skt_exit_t *exit)
 {
-    skt->sys_socket.s = INVALID_SOCKET;
+    skt->sys_skt.s = INVALID_SOCKET;
 
     if (!TT_OK(tt_async_skt_create(skt,
                                    family,
@@ -1571,10 +1571,10 @@ tt_result_t tt_udp_server_async_ntv(OUT tt_skt_t *skt,
 
 ussa_fail:
 
-    // nothing except skt->sys_socket.s need be released
-    if (skt->sys_socket.s != INVALID_SOCKET) {
-        closesocket(skt->sys_socket.s);
-        skt->sys_socket.s = INVALID_SOCKET;
+    // nothing except skt->sys_skt.s need be released
+    if (skt->sys_skt.s != INVALID_SOCKET) {
+        closesocket(skt->sys_skt.s);
+        skt->sys_skt.s = INVALID_SOCKET;
     }
 
     return TT_FAIL;
@@ -1583,7 +1583,7 @@ ussa_fail:
 tt_bool_t __do_skt_connect(IN __skt_connect_t *aio, IN tt_result_t iocp_result)
 {
     tt_skt_t *skt = aio->skt;
-    tt_skt_ntv_t *sys_skt = &skt->sys_socket;
+    tt_skt_ntv_t *sys_skt = &skt->sys_skt;
 
     if (TT_OK(iocp_result)) {
         if (aio->submitted) {
@@ -1618,14 +1618,14 @@ tt_bool_t __do_skt_connect(IN __skt_connect_t *aio, IN tt_result_t iocp_result)
 tt_result_t __do_skt_connect_io(IN __skt_connect_t *aio)
 {
     tt_skt_t *skt = aio->skt;
-    tt_skt_ntv_t *sys_skt = &skt->sys_socket;
+    tt_skt_ntv_t *sys_skt = &skt->sys_skt;
 
     if (sys_skt->s == INVALID_SOCKET) {
         return TT_FAIL;
     }
 
     // ConnectEx need a bind. on windows, port 0 means allocate a port
-    if (!TT_OK(tt_skt_bind_n(skt, skt->family, TT_SKTADDR_ANY, 0))) {
+    if (!TT_OK(tt_skt_bind_n(skt, skt->family, TT_SKT_IP_ANY, 0))) {
         return TT_FAIL;
     }
 
@@ -1655,9 +1655,9 @@ void __do_skt_connect_cb(IN __skt_connect_t *aio)
     TT_ASSERT(aio->result != TT_PROCEEDING);
 
     // connecting done, success or fail
-    skt->sys_socket.connecting = TT_FALSE;
+    skt->sys_skt.connecting = TT_FALSE;
 
-    skt->sys_socket.connected = TT_BOOL(TT_OK(aio->result));
+    skt->sys_skt.connected = TT_BOOL(TT_OK(aio->result));
 
     // callback
     aioctx.result = aio->result;
@@ -1669,7 +1669,7 @@ tt_bool_t __do_skt_accept(IN __skt_accept_t *aio, IN tt_result_t iocp_result)
 {
     tt_skt_t *listening_skt = aio->listening_skt;
     tt_skt_t *new_skt = aio->new_skt;
-    tt_skt_ntv_t *new_sys_skt = &new_skt->sys_socket;
+    tt_skt_ntv_t *new_sys_skt = &new_skt->sys_skt;
 
     if (TT_OK(iocp_result)) {
         if (aio->submitted) {
@@ -1686,17 +1686,17 @@ tt_bool_t __do_skt_accept(IN __skt_accept_t *aio, IN tt_result_t iocp_result)
     TT_ASSERT_SKTAIO(aio->result != TT_PROCEEDING);
 
     if (TT_OK(aio->result)) {
-        if (setsockopt(new_skt->sys_socket.s,
+        if (setsockopt(new_skt->sys_skt.s,
                        SOL_SOCKET,
                        SO_UPDATE_ACCEPT_CONTEXT,
-                       (char *)&listening_skt->sys_socket.s,
+                       (char *)&listening_skt->sys_skt.s,
                        sizeof(SOCKET)) != 0) {
             TT_NET_ERROR_NTV("fail to set SO_UPDATE_ACCEPT_CONTEXT");
         }
     } else {
-        TT_ASSERT_SKTAIO(new_skt->sys_socket.s != INVALID_SOCKET);
-        closesocket(new_skt->sys_socket.s);
-        new_skt->sys_socket.s = INVALID_SOCKET;
+        TT_ASSERT_SKTAIO(new_skt->sys_skt.s != INVALID_SOCKET);
+        closesocket(new_skt->sys_skt.s);
+        new_skt->sys_skt.s = INVALID_SOCKET;
     }
 
     __do_skt_accept_cb(aio);
@@ -1705,7 +1705,7 @@ tt_bool_t __do_skt_accept(IN __skt_accept_t *aio, IN tt_result_t iocp_result)
 
 tt_result_t __do_skt_accept_io(IN __skt_accept_t *aio)
 {
-    SOCKET s = aio->listening_skt->sys_socket.s;
+    SOCKET s = aio->listening_skt->sys_skt.s;
     DWORD dwBytesReceived;
 
     if (s == INVALID_SOCKET) {
@@ -1713,7 +1713,7 @@ tt_result_t __do_skt_accept_io(IN __skt_accept_t *aio)
     }
 
     if (!tt_AcceptEx(s,
-                     aio->new_skt->sys_socket.s,
+                     aio->new_skt->sys_skt.s,
                      aio->addr,
                      0,
                      sizeof(SOCKADDR_STORAGE) + 16,
@@ -1735,7 +1735,7 @@ void __do_skt_accept_cb(IN __skt_accept_t *aio)
     tt_skt_t *new_skt = aio->new_skt;
     tt_bool_t from_alloc = new_skt->attr.from_alloc;
 
-    new_skt->sys_socket.connected = TT_BOOL(TT_OK(aio->result));
+    new_skt->sys_skt.connected = TT_BOOL(TT_OK(aio->result));
 
     // callback
     aioctx.result = aio->result;
@@ -1753,7 +1753,7 @@ tt_bool_t __do_skt_send(IN __skt_send_t *aio,
 {
     if (TT_OK(iocp_result)) {
 #ifdef TT_PLATFORM_SSL_ENABLE
-        if (aio->skt->sys_socket.ssl != NULL) {
+        if (aio->skt->sys_skt.ssl != NULL) {
             aio->result = __do_skt_send_io_ssl(aio, send_num);
         } else {
             aio->result = __do_skt_send_io(aio, send_num);
@@ -1775,7 +1775,7 @@ tt_bool_t __do_skt_send(IN __skt_send_t *aio,
 
 tt_result_t __do_skt_send_io(IN __skt_send_t *aio, IN tt_u32_t last_io_bytes)
 {
-    tt_skt_ntv_t *sys_skt = &aio->skt->sys_socket;
+    tt_skt_ntv_t *sys_skt = &aio->skt->sys_skt;
     __sbuf_state_t *sbuf_state = &aio->sbuf_state;
 
     WSABUF *cur_buf;
@@ -1832,7 +1832,7 @@ tt_result_t __do_skt_send_io(IN __skt_send_t *aio, IN tt_u32_t last_io_bytes)
 tt_result_t __do_skt_send_io_ssl(IN __skt_send_t *aio,
                                  IN tt_u32_t last_io_bytes)
 {
-    tt_skt_ntv_t *sys_skt = &aio->skt->sys_socket;
+    tt_skt_ntv_t *sys_skt = &aio->skt->sys_skt;
     __sbuf_state_t *sbuf_state = &aio->sbuf_state;
     tt_ssl_t *ssl = sys_skt->ssl;
     tt_ssl_ntv_t *sys_ssl = &ssl->sys_ssl;
@@ -1945,7 +1945,7 @@ tt_bool_t __do_skt_recv(IN __skt_recv_t *aio,
 {
     if (TT_OK(iocp_result)) {
 #ifdef TT_PLATFORM_SSL_ENABLE
-        if (aio->skt->sys_socket.ssl != NULL) {
+        if (aio->skt->sys_skt.ssl != NULL) {
             aio->result = __do_skt_recv_io_ssl(aio, recv_num);
         } else {
             aio->result = __do_skt_recv_io(aio, recv_num);
@@ -1967,7 +1967,7 @@ tt_bool_t __do_skt_recv(IN __skt_recv_t *aio,
 
 tt_result_t __do_skt_recv_io(IN __skt_recv_t *aio, IN tt_u32_t last_io_bytes)
 {
-    tt_skt_ntv_t *sys_skt = &aio->skt->sys_socket;
+    tt_skt_ntv_t *sys_skt = &aio->skt->sys_skt;
     __sbuf_state_t *sbuf_state = &aio->sbuf_state;
 
     WSABUF *cur_buf;
@@ -2041,7 +2041,7 @@ static tt_u32_t __ssl_on_decrypt(IN tt_u8_t *pos,
 tt_result_t __do_skt_recv_io_ssl(IN __skt_recv_t *aio,
                                  IN tt_u32_t last_io_bytes)
 {
-    tt_skt_ntv_t *sys_skt = &aio->skt->sys_socket;
+    tt_skt_ntv_t *sys_skt = &aio->skt->sys_skt;
     tt_ssl_t *ssl = sys_skt->ssl;
     tt_ssl_ntv_t *sys_ssl = &ssl->sys_ssl;
     tt_result_t result;
@@ -2136,7 +2136,7 @@ tt_bool_t __do_skt_sendto(IN __skt_sendto_t *aio,
 
 tt_result_t __do_skt_sendto_io(IN __skt_sendto_t *aio, IN tt_u32_t send_num)
 {
-    tt_skt_ntv_t *sys_skt = &aio->skt->sys_socket;
+    tt_skt_ntv_t *sys_skt = &aio->skt->sys_skt;
     __sbuf_state_t *sbuf_state = &aio->sbuf_state;
 
     WSABUF *cur_buf;
@@ -2241,7 +2241,7 @@ tt_bool_t __do_skt_recvfrom(IN __skt_recvfrom_t *aio,
 
 tt_result_t __do_skt_recvfrom_io(IN __skt_recvfrom_t *aio, IN tt_u32_t recv_num)
 {
-    tt_skt_ntv_t *sys_skt = &aio->skt->sys_socket;
+    tt_skt_ntv_t *sys_skt = &aio->skt->sys_skt;
     __sbuf_state_t *sbuf_state = &aio->sbuf_state;
 
     WSABUF *cur_buf;
@@ -2341,7 +2341,7 @@ void __skt_recvfrom_on_destroy(IN struct tt_ev_s *ev)
 
 tt_result_t __skt_shutdown_wr(IN tt_skt_t *skt)
 {
-    tt_skt_ntv_t *sys_skt = &skt->sys_socket;
+    tt_skt_ntv_t *sys_skt = &skt->sys_skt;
     tt_ev_t *ev;
     tt_thread_ev_t *tev;
     __skt_shutdown_t *aio;
@@ -2388,7 +2388,7 @@ tt_result_t __skt_shutdown_wr(IN tt_skt_t *skt)
 
 tt_bool_t __do_skt_shutdown_wr(IN __skt_shutdown_t *aio)
 {
-    tt_skt_ntv_t *sys_skt = &aio->skt->sys_socket;
+    tt_skt_ntv_t *sys_skt = &aio->skt->sys_skt;
 
     // all write aio must have been done
     TT_ASSERT_SKTAIO(tt_list_count(&sys_skt->write_q) == 0);
@@ -2453,7 +2453,7 @@ tt_bool_t __do_skt_shutdown_wr(IN __skt_shutdown_t *aio)
 
 tt_result_t __skt_shutdown_rd(IN tt_skt_t *skt)
 {
-    tt_skt_ntv_t *sys_skt = &skt->sys_socket;
+    tt_skt_ntv_t *sys_skt = &skt->sys_skt;
     tt_ev_t *ev;
     tt_thread_ev_t *tev;
     __skt_shutdown_t *aio;
@@ -2500,7 +2500,7 @@ tt_result_t __skt_shutdown_rd(IN tt_skt_t *skt)
 
 tt_bool_t __do_skt_shutdown_rd(IN __skt_shutdown_t *aio)
 {
-    tt_skt_ntv_t *sys_skt = &aio->skt->sys_socket;
+    tt_skt_ntv_t *sys_skt = &aio->skt->sys_skt;
 
     // all read aio must have been done
     TT_ASSERT_SKTAIO(tt_list_count(&sys_skt->read_q) == 0);
@@ -2519,7 +2519,7 @@ tt_bool_t __do_skt_shutdown_rd(IN __skt_shutdown_t *aio)
 
 tt_result_t __skt_destroy_wr(IN tt_skt_t *skt)
 {
-    tt_skt_ntv_t *sys_skt = &skt->sys_socket;
+    tt_skt_ntv_t *sys_skt = &skt->sys_skt;
     tt_ev_t *ev;
     tt_thread_ev_t *tev;
     __skt_destroy_t *aio;
@@ -2566,7 +2566,7 @@ tt_result_t __skt_destroy_wr(IN tt_skt_t *skt)
 
 tt_bool_t __do_skt_destroy_wr(IN __skt_destroy_t *aio)
 {
-    tt_skt_ntv_t *sys_skt = &aio->skt->sys_socket;
+    tt_skt_ntv_t *sys_skt = &aio->skt->sys_skt;
 
     // all write aio must have been done
     TT_ASSERT_SKTAIO(tt_list_count(&sys_skt->write_q) == 0);
@@ -2585,7 +2585,7 @@ tt_bool_t __do_skt_destroy_wr(IN __skt_destroy_t *aio)
 
 tt_result_t __skt_destroy_rd(IN tt_skt_t *skt)
 {
-    tt_skt_ntv_t *sys_skt = &skt->sys_socket;
+    tt_skt_ntv_t *sys_skt = &skt->sys_skt;
     tt_ev_t *ev;
     tt_thread_ev_t *tev;
     __skt_destroy_t *aio;
@@ -2631,7 +2631,7 @@ tt_result_t __skt_destroy_rd(IN tt_skt_t *skt)
 
 tt_bool_t __do_skt_destroy_rd(IN __skt_destroy_t *aio)
 {
-    tt_skt_ntv_t *sys_skt = &aio->skt->sys_socket;
+    tt_skt_ntv_t *sys_skt = &aio->skt->sys_skt;
 
     // all read aio must have been done
     TT_ASSERT_SKTAIO(tt_list_count(&sys_skt->read_q) == 0);
@@ -2652,7 +2652,7 @@ void __destroy_skt(IN tt_skt_t *skt,
                    IN tt_bool_t do_cb,
                    IN tt_bool_t check_free)
 {
-    tt_skt_ntv_t *sys_skt = &skt->sys_socket;
+    tt_skt_ntv_t *sys_skt = &skt->sys_skt;
     tt_skt_on_destroy_t on_destroy = (tt_skt_on_destroy_t)sys_skt->on_destroy;
     tt_bool_t from_alloc = skt->attr.from_alloc;
 
@@ -2690,7 +2690,7 @@ tt_result_t __create_aio_ev(IN tt_skt_ntv_t *sys_skt)
         return TT_FAIL;
     }
     aio = TT_EV_DATA(ev, __skt_q_t);
-    aio->skt = TT_CONTAINER(sys_skt, tt_skt_t, sys_socket);
+    aio->skt = TT_CONTAINER(sys_skt, tt_skt_t, sys_skt);
     sys_skt->aio_rd = ev;
 
     // aio write ev
@@ -2701,7 +2701,7 @@ tt_result_t __create_aio_ev(IN tt_skt_ntv_t *sys_skt)
         return TT_FAIL;
     }
     aio = TT_EV_DATA(ev, __skt_q_t);
-    aio->skt = TT_CONTAINER(sys_skt, tt_skt_t, sys_socket);
+    aio->skt = TT_CONTAINER(sys_skt, tt_skt_t, sys_skt);
     sys_skt->aio_wr = ev;
 
     return TT_SUCCESS;
@@ -2925,7 +2925,7 @@ void __do_skt_aio_q(IN tt_skt_ntv_t *sys_skt,
 
                 // it should be the head aio in write q
                 TT_ASSERT_SKTAIO(&tev->node ==
-                                 tt_list_head(&aio->skt->sys_socket.write_q));
+                                 tt_list_head(&aio->skt->sys_skt.write_q));
 
                 tt_list_remove(node);
                 aio_done = __do_skt_shutdown_wr(aio);
@@ -2933,8 +2933,8 @@ void __do_skt_aio_q(IN tt_skt_ntv_t *sys_skt,
                     tt_ev_destroy(ev);
                 } else {
                     TT_ASSERT_SKTAIO(
-                        tt_list_count(&aio->skt->sys_socket.write_q) == 0);
-                    tt_list_push_tail(&aio->skt->sys_socket.write_q, node);
+                        tt_list_count(&aio->skt->sys_skt.write_q) == 0);
+                    tt_list_push_tail(&aio->skt->sys_skt.write_q, node);
                 }
                 return;
             } break;
@@ -2943,7 +2943,7 @@ void __do_skt_aio_q(IN tt_skt_ntv_t *sys_skt,
 
                 // it should be the head aio in read q
                 TT_ASSERT_SKTAIO(&tev->node ==
-                                 tt_list_head(&aio->skt->sys_socket.read_q));
+                                 tt_list_head(&aio->skt->sys_skt.read_q));
 
                 tt_list_remove(node);
                 __do_skt_shutdown_rd(aio);
@@ -2955,7 +2955,7 @@ void __do_skt_aio_q(IN tt_skt_ntv_t *sys_skt,
 
                 // it should be the head aio in write q
                 TT_ASSERT_SKTAIO(&tev->node ==
-                                 tt_list_head(&aio->skt->sys_socket.write_q));
+                                 tt_list_head(&aio->skt->sys_skt.write_q));
 
                 tt_list_remove(node);
                 __do_skt_destroy_wr(aio);
@@ -2967,7 +2967,7 @@ void __do_skt_aio_q(IN tt_skt_ntv_t *sys_skt,
 
                 // it should be the head aio in read q
                 TT_ASSERT_SKTAIO(&tev->node ==
-                                 tt_list_head(&aio->skt->sys_socket.read_q));
+                                 tt_list_head(&aio->skt->sys_skt.read_q));
 
                 tt_list_remove(node);
                 __do_skt_destroy_rd(aio);
@@ -2977,42 +2977,42 @@ void __do_skt_aio_q(IN tt_skt_ntv_t *sys_skt,
             case EV_SKT_CONNECT: {
                 __skt_connect_t *aio = TT_EV_DATA(ev, __skt_connect_t);
 
-                TT_ASSERT_SKTAIO(sys_skt == &aio->skt->sys_socket);
+                TT_ASSERT_SKTAIO(sys_skt == &aio->skt->sys_skt);
 
                 aio_done = __do_skt_connect(aio, iocp_result);
             } break;
             case EV_SKT_ACCEPT: {
                 __skt_accept_t *aio = TT_EV_DATA(ev, __skt_accept_t);
 
-                TT_ASSERT_SKTAIO(sys_skt == &aio->listening_skt->sys_socket);
+                TT_ASSERT_SKTAIO(sys_skt == &aio->listening_skt->sys_skt);
 
                 aio_done = __do_skt_accept(aio, iocp_result);
             } break;
             case EV_SKT_SEND: {
                 __skt_send_t *aio = TT_EV_DATA(ev, __skt_send_t);
 
-                TT_ASSERT_SKTAIO(sys_skt == &aio->skt->sys_socket);
+                TT_ASSERT_SKTAIO(sys_skt == &aio->skt->sys_skt);
 
                 aio_done = __do_skt_send(aio, iocp_result, NumberOfBytes);
             } break;
             case EV_SKT_RECV: {
                 __skt_recv_t *aio = TT_EV_DATA(ev, __skt_recv_t);
 
-                TT_ASSERT_SKTAIO(sys_skt == &aio->skt->sys_socket);
+                TT_ASSERT_SKTAIO(sys_skt == &aio->skt->sys_skt);
 
                 aio_done = __do_skt_recv(aio, iocp_result, NumberOfBytes);
             } break;
             case EV_SKT_SENDTO: {
                 __skt_sendto_t *aio = TT_EV_DATA(ev, __skt_sendto_t);
 
-                TT_ASSERT_SKTAIO(sys_skt == &aio->skt->sys_socket);
+                TT_ASSERT_SKTAIO(sys_skt == &aio->skt->sys_skt);
 
                 aio_done = __do_skt_sendto(aio, iocp_result, NumberOfBytes);
             } break;
             case EV_SKT_RECVFROM: {
                 __skt_recvfrom_t *aio = TT_EV_DATA(ev, __skt_recvfrom_t);
 
-                TT_ASSERT_SKTAIO(sys_skt == &aio->skt->sys_socket);
+                TT_ASSERT_SKTAIO(sys_skt == &aio->skt->sys_skt);
 
                 aio_done = __do_skt_recvfrom(aio, iocp_result, NumberOfBytes);
             } break;
@@ -3051,7 +3051,7 @@ void __clear_skt_aio_q(IN tt_skt_ntv_t *sys_skt,
 
                 // it should be the head aio in write q
                 TT_ASSERT_SKTAIO(&tev->node ==
-                                 tt_list_head(&aio->skt->sys_socket.write_q));
+                                 tt_list_head(&aio->skt->sys_skt.write_q));
 
                 // ignore
             } break;
@@ -3060,7 +3060,7 @@ void __clear_skt_aio_q(IN tt_skt_ntv_t *sys_skt,
 
                 // it should be the head aio in read q
                 TT_ASSERT_SKTAIO(&tev->node ==
-                                 tt_list_head(&aio->skt->sys_socket.read_q));
+                                 tt_list_head(&aio->skt->sys_skt.read_q));
 
                 // ignore
             } break;
@@ -3069,7 +3069,7 @@ void __clear_skt_aio_q(IN tt_skt_ntv_t *sys_skt,
 
                 // it should be the head aio in write q
                 TT_ASSERT_SKTAIO(&tev->node ==
-                                 tt_list_head(&aio->skt->sys_socket.write_q));
+                                 tt_list_head(&aio->skt->sys_skt.write_q));
 
                 // ignore
             } break;
@@ -3078,7 +3078,7 @@ void __clear_skt_aio_q(IN tt_skt_ntv_t *sys_skt,
 
                 // it should be the head aio in write q
                 TT_ASSERT_SKTAIO(&tev->node ==
-                                 tt_list_head(&aio->skt->sys_socket.read_q));
+                                 tt_list_head(&aio->skt->sys_skt.read_q));
 
                 // ignore
             } break;
@@ -3087,7 +3087,7 @@ void __clear_skt_aio_q(IN tt_skt_ntv_t *sys_skt,
 
                 // it should be the head aio in write q
                 TT_ASSERT_SKTAIO(&tev->node ==
-                                 tt_list_head(&aio->skt->sys_socket.write_q));
+                                 tt_list_head(&aio->skt->sys_skt.write_q));
 
                 aio->result = aio_result;
                 __do_skt_connect_cb(aio);
@@ -3098,7 +3098,7 @@ void __clear_skt_aio_q(IN tt_skt_ntv_t *sys_skt,
                 // it should be the head aio in read q
                 TT_ASSERT_SKTAIO(
                     &tev->node ==
-                    tt_list_head(&aio->listening_skt->sys_socket.read_q));
+                    tt_list_head(&aio->listening_skt->sys_skt.read_q));
 
                 aio->result = aio_result;
                 __do_skt_accept_cb(aio);
@@ -3107,7 +3107,7 @@ void __clear_skt_aio_q(IN tt_skt_ntv_t *sys_skt,
                 __skt_send_t *aio = TT_EV_DATA(ev, __skt_send_t);
 
                 TT_ASSERT_SKTAIO(&tev->node ==
-                                 tt_list_head(&aio->skt->sys_socket.write_q));
+                                 tt_list_head(&aio->skt->sys_skt.write_q));
 
                 aio->result = aio_result;
                 __do_skt_send_cb(aio);
@@ -3116,7 +3116,7 @@ void __clear_skt_aio_q(IN tt_skt_ntv_t *sys_skt,
                 __skt_recv_t *aio = TT_EV_DATA(ev, __skt_recv_t);
 
                 TT_ASSERT_SKTAIO(&tev->node ==
-                                 tt_list_head(&aio->skt->sys_socket.read_q));
+                                 tt_list_head(&aio->skt->sys_skt.read_q));
 
                 aio->result = aio_result;
                 __do_skt_recv_cb(aio);
@@ -3125,7 +3125,7 @@ void __clear_skt_aio_q(IN tt_skt_ntv_t *sys_skt,
                 __skt_sendto_t *aio = TT_EV_DATA(ev, __skt_sendto_t);
 
                 TT_ASSERT_SKTAIO(&tev->node ==
-                                 tt_list_head(&aio->skt->sys_socket.write_q));
+                                 tt_list_head(&aio->skt->sys_skt.write_q));
 
                 aio->result = aio_result;
                 __do_skt_sendto_cb(aio);
@@ -3134,7 +3134,7 @@ void __clear_skt_aio_q(IN tt_skt_ntv_t *sys_skt,
                 __skt_recvfrom_t *aio = TT_EV_DATA(ev, __skt_recvfrom_t);
 
                 TT_ASSERT_SKTAIO(&tev->node ==
-                                 tt_list_head(&aio->skt->sys_socket.read_q));
+                                 tt_list_head(&aio->skt->sys_skt.read_q));
 
                 aio->result = aio_result;
                 __do_skt_recvfrom_cb(aio);

@@ -120,7 +120,7 @@ tt_result_t tt_evp_poll_ntv(IN struct tt_evpoller_s *evp, IN tt_s64_t wait_ms)
                 case TT_EVP_MARK_EPOLL_SOCKET: {
                     tt_skt_ntv_t *sys_skt =
                         TT_CONTAINER(ep_ev[i].data.ptr, tt_skt_ntv_t, ev_mark);
-                    tt_skt_t *skt = TT_CONTAINER(sys_skt, tt_skt_t, sys_socket);
+                    tt_skt_t *skt = TT_CONTAINER(sys_skt, tt_skt_t, sys_skt);
 
                     if (!TT_OK(tt_skt_ep_handler(skt, ep_ev[i].events))) {
                         return TT_FAIL;

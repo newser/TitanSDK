@@ -59,11 +59,11 @@
 #define close __close_socket
 static int __close_socket(int skt);
 
-static tt_result_t __mcaddr_to_ipmreq(IN tt_sktaddr_addr_t *mc_addr,
+static tt_result_t __mcaddr_to_ipmreq(IN tt_sktaddr_ip_t *mc_addr,
                                       IN tt_char_t *mcast_itf,
                                       OUT struct ip_mreq *mreq,
                                       IN int skt);
-static tt_result_t __mcaddr_to_ipv6mreq(IN tt_sktaddr_addr_t *mc_addr,
+static tt_result_t __mcaddr_to_ipv6mreq(IN tt_sktaddr_ip_t *mc_addr,
                                         IN tt_char_t *mcast_itf,
                                         OUT struct ipv6_mreq *mreq);
 
@@ -516,7 +516,7 @@ __retry:
 
 tt_result_t tt_skt_join_mcast_ntv(IN tt_skt_ntv_t *skt,
                                   IN tt_net_family_t family,
-                                  IN tt_sktaddr_addr_t *mc_addr,
+                                  IN tt_sktaddr_ip_t *mc_addr,
                                   IN tt_char_t *mcast_itf)
 {
     if (family == TT_NET_AF_INET) {
@@ -561,7 +561,7 @@ tt_result_t tt_skt_join_mcast_ntv(IN tt_skt_ntv_t *skt,
 
 tt_result_t tt_skt_leave_mcast_ntv(IN tt_skt_ntv_t *skt,
                                    IN tt_net_family_t family,
-                                   IN tt_sktaddr_addr_t *mc_addr,
+                                   IN tt_sktaddr_ip_t *mc_addr,
                                    IN tt_char_t *mcast_itf)
 {
     if (family == TT_NET_AF_INET) {
@@ -604,7 +604,7 @@ tt_result_t tt_skt_leave_mcast_ntv(IN tt_skt_ntv_t *skt,
     }
 }
 
-tt_result_t __mcaddr_to_ipmreq(IN tt_sktaddr_addr_t *mc_addr,
+tt_result_t __mcaddr_to_ipmreq(IN tt_sktaddr_ip_t *mc_addr,
                                IN tt_char_t *mcast_itf,
                                OUT struct ip_mreq *mreq,
                                IN int skt)
@@ -639,7 +639,7 @@ tt_result_t __mcaddr_to_ipmreq(IN tt_sktaddr_addr_t *mc_addr,
     return TT_SUCCESS;
 }
 
-tt_result_t __mcaddr_to_ipv6mreq(IN tt_sktaddr_addr_t *mc_addr,
+tt_result_t __mcaddr_to_ipv6mreq(IN tt_sktaddr_ip_t *mc_addr,
                                  IN tt_char_t *mcast_itf,
                                  OUT struct ipv6_mreq *mreq)
 {
@@ -670,7 +670,7 @@ tt_result_t __mcaddr_to_ipv6mreq(IN tt_sktaddr_addr_t *mc_addr,
 int __close_socket(int skt)
 {
     if (skt >= 0) {
-        tt_atomic_s64_dec(&tt_stat_socket_num);
+        tt_atomic_s64_dec(&tt_skt_stat_num);
     }
     return close(skt);
 }

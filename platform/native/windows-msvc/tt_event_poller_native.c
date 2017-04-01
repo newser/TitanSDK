@@ -36,7 +36,7 @@
 #define __KEY2DIR(key)                                                         \
     TT_CONTAINER(TT_CONTAINER(key, tt_dir_ntv_t, ev_mark), tt_dir_t, sys_dir)
 #define __KEY2SKT(key)                                                         \
-    TT_CONTAINER(TT_CONTAINER(key, tt_skt_ntv_t, ev_mark), tt_skt_t, sys_socket)
+    TT_CONTAINER(TT_CONTAINER(key, tt_skt_ntv_t, ev_mark), tt_skt_t, sys_skt)
 #define __KEY2IPC(key)                                                         \
     TT_CONTAINER(TT_CONTAINER(key, tt_ipc_ntv_t, ev_mark), tt_ipc_t, sys_ipc)
 

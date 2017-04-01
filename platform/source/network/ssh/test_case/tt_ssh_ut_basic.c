@@ -152,10 +152,10 @@ tt_result_t __ut1_on_init(IN struct tt_evcenter_s *evc, IN void *on_init_param)
     tt_sshch_cb_t ch_cb = {0};
 
     tt_sktaddr_init(&addr, TT_NET_AF_INET);
-    tt_sktaddr_set_addr_p(&addr, "127.0.0.1");
-    // tt_sktaddr_set_addr_p(&addr, "192.168.80.1");
-    // tt_sktaddr_set_addr_p(&addr, "192.168.10.109");
-    // tt_sktaddr_set_addr_p(&addr, "192.168.140.1");
+    tt_sktaddr_set_ip_p(&addr, "127.0.0.1");
+    // tt_sktaddr_set_ip_p(&addr, "192.168.80.1");
+    // tt_sktaddr_set_ip_p(&addr, "192.168.10.109");
+    // tt_sktaddr_set_ip_p(&addr, "192.168.140.1");
     tt_sktaddr_set_port(&addr, 12323);
 
     tt_sshsvr_attr_default(&attr);

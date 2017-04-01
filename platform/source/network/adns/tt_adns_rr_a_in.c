@@ -95,14 +95,14 @@ tt_adns_rr_t *tt_adrr_a_create(IN const tt_char_t *name,
     return rr;
 }
 
-void tt_adrr_a_set_addr(IN struct tt_adns_rr_s *rr, tt_sktaddr_addr_t *addr)
+void tt_adrr_a_set_addr(IN struct tt_adns_rr_s *rr, tt_sktaddr_ip_t *addr)
 {
     tt_adrr_a_t *rdata;
 
     TT_ASSERT(rr->type == TT_ADNS_RR_A_IN);
     rdata = TT_ADRR_CAST(rr, tt_adrr_a_t);
 
-    tt_memcpy(&rdata->addr, addr, sizeof(tt_sktaddr_addr_t));
+    tt_memcpy(&rdata->addr, addr, sizeof(tt_sktaddr_ip_t));
 }
 
 void __a_dump(IN struct tt_adns_rr_s *rr)
@@ -110,10 +110,10 @@ void __a_dump(IN struct tt_adns_rr_s *rr)
     tt_adrr_a_t *rdata = TT_ADRR_CAST(rr, tt_adrr_a_t);
     tt_char_t ip_addr[30] = {0};
 
-    tt_sktaddr_addr_n2p(TT_NET_AF_INET,
-                        &rdata->addr,
-                        ip_addr,
-                        sizeof(ip_addr) - 1);
+    tt_sktaddr_ip_n2p(TT_NET_AF_INET,
+                      &rdata->addr,
+                      ip_addr,
+                      sizeof(ip_addr) - 1);
 
     TT_INFO("- domain: %s", rr->name);
     TT_INFO("  type clase: A IN");

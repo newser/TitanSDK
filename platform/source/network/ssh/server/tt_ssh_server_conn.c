@@ -257,7 +257,7 @@ void tt_sshsvrconn_shutdown(IN tt_sshsvrconn_t *svrconn)
         }
     }
 
-    if (!TT_OK(tt_async_skt_shutdown(&svrconn->skt, TT_SKT_SHUTDOWN_RDWR))) {
+    if (!TT_OK(tt_async_skt_shutdown(&svrconn->skt, TT_SKT_SHUT_RDWR))) {
         TT_FATAL("can not shutdown ssh connection");
     }
 }

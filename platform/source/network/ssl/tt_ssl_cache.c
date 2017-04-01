@@ -349,7 +349,7 @@ tt_u32_t __mk_peer_id(IN tt_char_t *peer_id,
                       IN tt_u32_t peer_private)
 {
     tt_net_family_t af;
-    tt_sktaddr_addr_t sock_addr;
+    tt_sktaddr_ip_t sock_addr;
     tt_u16_t port;
     tt_u32_t len;
 
@@ -358,7 +358,7 @@ tt_u32_t __mk_peer_id(IN tt_char_t *peer_id,
 
         // client does not use local port
         af = tt_sktaddr_get_family(local_addr);
-        tt_sktaddr_get_addr_n(local_addr, &sock_addr);
+        tt_sktaddr_get_ip_n(local_addr, &sock_addr);
         if (af == TT_NET_AF_INET) {
             len += tt_snprintf(peer_id + len,
                                TT_SSL_PEER_ID_LEN - 1 - len,
@@ -382,7 +382,7 @@ tt_u32_t __mk_peer_id(IN tt_char_t *peer_id,
 
         // client uses remote port as a part of peer key
         af = tt_sktaddr_get_family(remote_addr);
-        tt_sktaddr_get_addr_n(remote_addr, &sock_addr);
+        tt_sktaddr_get_ip_n(remote_addr, &sock_addr);
         port = tt_sktaddr_get_port(remote_addr);
         if (af == TT_NET_AF_INET) {
             len += tt_snprintf(peer_id + len,
@@ -410,7 +410,7 @@ tt_u32_t __mk_peer_id(IN tt_char_t *peer_id,
 
         // server uses local port
         af = tt_sktaddr_get_family(local_addr);
-        tt_sktaddr_get_addr_n(local_addr, &sock_addr);
+        tt_sktaddr_get_ip_n(local_addr, &sock_addr);
         port = tt_sktaddr_get_port(local_addr);
         if (af == TT_NET_AF_INET) {
             len += tt_snprintf(peer_id + len,
@@ -437,7 +437,7 @@ tt_u32_t __mk_peer_id(IN tt_char_t *peer_id,
 
         // server does not use remote port as a part of peer key
         af = tt_sktaddr_get_family(remote_addr);
-        tt_sktaddr_get_addr_n(remote_addr, &sock_addr);
+        tt_sktaddr_get_ip_n(remote_addr, &sock_addr);
         if (af == TT_NET_AF_INET) {
             len += tt_snprintf(peer_id + len,
                                TT_SSL_PEER_ID_LEN - 1 - len,

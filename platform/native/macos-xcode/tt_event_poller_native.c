@@ -23,8 +23,6 @@
 #include <event/tt_event_center.h>
 #include <event/tt_event_poller.h>
 #include <io/tt_ipc_aio.h>
-#include <io/tt_socket_aio.h>
-#include <misc/tt_error.h>
 
 #include <sys/event.h>
 
@@ -39,13 +37,9 @@
 #define __KQ_EV_NUM (1)
 
 #define __KEY2SKT_RD(key)                                                      \
-    TT_CONTAINER(TT_CONTAINER(key, tt_skt_ntv_t, ev_mark_rd),                  \
-                 tt_skt_t,                                                     \
-                 sys_socket)
+    TT_CONTAINER(TT_CONTAINER(key, tt_skt_ntv_t, ev_mark_rd), tt_skt_t, sys_skt)
 #define __KEY2SKT_WR(key)                                                      \
-    TT_CONTAINER(TT_CONTAINER(key, tt_skt_ntv_t, ev_mark_wr),                  \
-                 tt_skt_t,                                                     \
-                 sys_socket)
+    TT_CONTAINER(TT_CONTAINER(key, tt_skt_ntv_t, ev_mark_wr), tt_skt_t, sys_skt)
 
 #define __KEY2IPC_RD(key)                                                      \
     TT_CONTAINER(TT_CONTAINER(key, tt_ipc_ntv_t, ev_mark_rd), tt_ipc_t, sys_ipc)
@@ -134,24 +128,26 @@ tt_result_t tt_evp_poll_ntv(IN struct tt_evpoller_s *evp, IN tt_s64_t wait_ms)
                         tt_tmr_mgr_run(&evc->tmr_mgr);
                     }
                 } break;
-                case TT_SKT_MARK_KQ_RD: {
-                    result = tt_skt_kq_rd_handler(__KEY2SKT_RD(kq_ev[i].udata),
-                                                  kq_ev[i].flags,
-                                                  kq_ev[i].fflags,
-                                                  kq_ev[i].data);
-                    if (!TT_OK(result)) {
-                        return TT_FAIL;
-                    }
-                } break;
-                case TT_SKT_MARK_KQ_WR: {
-                    result = tt_skt_kq_wr_handler(__KEY2SKT_WR(kq_ev[i].udata),
-                                                  kq_ev[i].flags,
-                                                  kq_ev[i].fflags,
-                                                  kq_ev[i].data);
-                    if (!TT_OK(result)) {
-                        return TT_FAIL;
-                    }
-                } break;
+                /*
+            case TT_SKT_MARK_KQ_RD: {
+                result = tt_skt_kq_rd_handler(__KEY2SKT_RD(kq_ev[i].udata),
+                                              kq_ev[i].flags,
+                                              kq_ev[i].fflags,
+                                              kq_ev[i].data);
+                if (!TT_OK(result)) {
+                    return TT_FAIL;
+                }
+            } break;
+            case TT_SKT_MARK_KQ_WR: {
+                result = tt_skt_kq_wr_handler(__KEY2SKT_WR(kq_ev[i].udata),
+                                              kq_ev[i].flags,
+                                              kq_ev[i].fflags,
+                                              kq_ev[i].data);
+                if (!TT_OK(result)) {
+                    return TT_FAIL;
+                }
+            } break;
+                 */
                 case TT_IPC_MARK_KQ_RD: {
                     result = tt_ipc_kq_rd_handler(__KEY2IPC_RD(kq_ev[i].udata),
                                                   kq_ev[i].flags,

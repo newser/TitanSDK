@@ -491,7 +491,7 @@ void __adr_on_recvfrom(IN tt_skt_t *skt,
     if (!TT_OK(aioctx->result)) {
         if (aioctx->result == TT_END) {
             // server closed the connection
-            tt_async_skt_shutdown(skt, TT_SKT_SHUTDOWN_RDWR);
+            tt_async_skt_shutdown(skt, TT_SKT_SHUT_RDWR);
         } else if (aioctx->result == TT_CANCELLED) {
             // do nothing
         } else {
@@ -551,7 +551,7 @@ void __adr_on_recv(IN tt_skt_t *skt,
     if (!TT_OK(aioctx->result)) {
         if (aioctx->result == TT_END) {
             // server closed the connection
-            tt_async_skt_shutdown(skt, TT_SKT_SHUTDOWN_RDWR);
+            tt_async_skt_shutdown(skt, TT_SKT_SHUT_RDWR);
         } else if (aioctx->result == TT_CANCELLED) {
             // do nothing
         } else {
