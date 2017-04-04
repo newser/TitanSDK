@@ -23,6 +23,7 @@
 #include <os/tt_fiber.h>
 #include <os/tt_task.h>
 
+#include <tt_socket_native.h>
 #include <tt_sys_error.h>
 #include <tt_util_native.h>
 
@@ -66,9 +67,12 @@ static tt_bool_t __worker_io(IN tt_io_ev_t *io_ev,
 static tt_bool_t __poller_io(IN tt_io_ev_t *io_ev,
                              IN tt_io_poller_ntv_t *sys_iop);
 
-static __io_handler_t __io_handler[TT_IO_NUM] = {
-    __worker_io, __poller_io,
-};
+static tt_bool_t __skt_io(IN tt_io_ev_t *io_ev, IN tt_io_poller_ntv_t *sys_iop);
+
+static __io_handler_t __io_handler[TT_IO_NUM] = {__worker_io,
+                                                 __poller_io,
+                                                 NULL,
+                                                 __skt_io};
 
 static tt_io_ev_t __s_poller_io_ev;
 
@@ -377,6 +381,16 @@ tt_bool_t __poller_io(IN tt_io_ev_t *dummy, IN tt_io_poller_ntv_t *sys_iop)
         } else {
             tt_free(io_ev);
         }
+    }
+
+    return TT_TRUE;
+}
+
+tt_bool_t __skt_io(IN tt_io_ev_t *io_ev, IN tt_io_poller_ntv_t *sys_iop)
+{
+    if (tt_skt_poller_io(io_ev)) {
+        TT_ASSERT(io_ev->src != NULL);
+        tt_fiber_resume(io_ev->src);
     }
 
     return TT_TRUE;

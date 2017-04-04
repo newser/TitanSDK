@@ -61,8 +61,8 @@
 // === routine declarations ================
 TT_TEST_ROUTINE_DECLARE(tt_unit_test_sk_addr)
 TT_TEST_ROUTINE_DECLARE(tt_unit_test_sk_opt)
-
 TT_TEST_ROUTINE_DECLARE(tt_unit_test_bind_basic)
+
 TT_TEST_ROUTINE_DECLARE(tt_unit_test_tcp_server)
 TT_TEST_ROUTINE_DECLARE(tt_unit_test_tcp_server6)
 TT_TEST_ROUTINE_DECLARE(tt_unit_test_udp_server)
@@ -255,7 +255,6 @@ TT_TEST_CASE("tt_unit_test_sk_addr",
                  NULL,
                  NULL),
 
-#if 0
     TT_TEST_CASE("tt_unit_test_bind_basic",
                  "testing socket tcp api",
                  tt_unit_test_bind_basic,
@@ -265,6 +264,7 @@ TT_TEST_CASE("tt_unit_test_sk_addr",
                  NULL,
                  NULL),
 
+#if 0
     TT_TEST_CASE("tt_unit_test_tcp_server",
                  "testing socket tcp api",
                  tt_unit_test_tcp_server,
@@ -710,12 +710,11 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_sk_opt)
     TT_TEST_CASE_LEAVE()
 }
 
-#if 0
 TT_TEST_ROUTINE_DEFINE(tt_unit_test_bind_basic)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
-    tt_skt_t sk4;
-    tt_skt_t sk6;
+    tt_skt_t *sk4;
+    tt_skt_t *sk6;
     tt_result_t ret;
     tt_skt_attr_t attr;
     tt_sktaddr_t addr;
@@ -727,14 +726,10 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_bind_basic)
 #define __TPORT 22450
 #define __TPORT6 32350
 
-    tt_skt_attr_default(&attr);
-    attr.config_reuse_addr = TT_TRUE;
-    attr.reuse_addr = TT_TRUE;
+    sk4 = tt_skt_create(TT_NET_AF_INET, TT_NET_PROTO_TCP, &attr);
+    TT_TEST_CHECK_NOT_EQUAL(sk4, NULL, "");
 
-    ret = tt_skt_create(&sk4, TT_NET_AF_INET, TT_NET_PROTO_TCP, &attr);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
-
-    if (TT_OK(tt_skt_local_addr(&sk4, &addr))) {
+    if (TT_OK(tt_skt_local_addr(sk4, &addr))) {
         tt_sktaddr_ip_t addr_val;
 
         tt_sktaddr_get_ip_n(&addr, &addr_val);
@@ -742,7 +737,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_bind_basic)
 
         TT_TEST_CHECK_EQUAL(tt_sktaddr_get_port(&addr), 0, "");
     }
-    if (TT_OK(tt_skt_local_addr(&sk4, &addr))) {
+    if (TT_OK(tt_skt_local_addr(sk4, &addr))) {
         tt_sktaddr_ip_t addr_val;
 
         tt_sktaddr_get_ip_n(&addr, &addr_val);
@@ -754,17 +749,13 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_bind_basic)
     // ret = tt_skt_listen(&sk4, TT_SKT_BACKLOG_DEFAULT);
     // TT_TEST_CHECK_EQUAL(ret, TT_FAIL, "");
 
-    // ipv4 can not bind ipv6
-    ret = tt_skt_bind_p(&sk4, TT_NET_AF_INET6, "::1", __TPORT);
-    TT_TEST_CHECK_EQUAL(ret, TT_FAIL, "");
-
     // invalid ipv4 addr
-    ret = tt_skt_bind_p(&sk4, TT_NET_AF_INET, "256.0.0.1", __TPORT);
+    ret = tt_skt_bind_p(sk4, TT_NET_AF_INET, "256.0.0.1", __TPORT);
     TT_TEST_CHECK_EQUAL(ret, TT_FAIL, "");
-    ret = tt_skt_bind_p(&sk4, TT_NET_AF_INET, "::127.0.0.1", __TPORT);
+    ret = tt_skt_bind_p(sk4, TT_NET_AF_INET, "::127.0.0.1", __TPORT);
     TT_TEST_CHECK_EQUAL(ret, TT_FAIL, "");
 
-    ret = tt_skt_bind_p(&sk4, TT_NET_AF_INET, "127.0.0.1", __TPORT);
+    ret = tt_skt_bind_p(sk4, TT_NET_AF_INET, "127.0.0.1", __TPORT);
     TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "fail to bind to tcp test port");
 
     {
@@ -772,7 +763,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_bind_basic)
         tt_char_t buf[20];
         int i = 0;
 
-        TT_TEST_CHECK_SUCCESS(tt_skt_local_addr(&sk4, &sa1), "");
+        TT_TEST_CHECK_SUCCESS(tt_skt_local_addr(sk4, &sa1), "");
         TT_TEST_CHECK_EQUAL(tt_sktaddr_get_family(&sa1), TT_NET_AF_INET, "");
 
         TT_TEST_CHECK_EQUAL(tt_sktaddr_get_port(&sa1), __TPORT, "");
@@ -790,31 +781,24 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_bind_basic)
         TT_TEST_CHECK_EQUAL(buf[i++], '\0', "");
 
         // remote is still not valid
-        TT_TEST_CHECK_FAIL(tt_skt_remote_addr(&sk4, &sa1), "");
+        TT_TEST_CHECK_FAIL(tt_skt_remote_addr(sk4, &sa1), "");
     }
 
     // can not rebind
-    ret = tt_skt_bind_p(&sk4, TT_NET_AF_INET, "127.0.0.1", __TPORT);
+    ret = tt_skt_bind_p(sk4, TT_NET_AF_INET, "127.0.0.1", __TPORT);
     TT_TEST_CHECK_EQUAL(ret, TT_FAIL, "");
 
-    ret = tt_skt_listen(&sk4, TT_SKT_BACKLOG_DEFAULT);
+    ret = tt_skt_listen(sk4);
     TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
 
-    ret = tt_skt_destroy(&sk4);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    tt_skt_destroy(sk4);
 
     ///////////////////////////////////////////////////////////////////
 
-    tt_skt_attr_default(&attr);
-    attr.config_reuse_addr = TT_TRUE;
-    attr.reuse_addr = TT_FALSE;
+    sk6 = tt_skt_create(TT_NET_AF_INET6, TT_NET_PROTO_TCP, &attr);
+    TT_TEST_CHECK_NOT_EQUAL(sk6, NULL, "");
 
-    tt_skt_attr_set_ipv6only(&attr, TT_FALSE);
-
-    ret = tt_skt_create(&sk6, TT_NET_AF_INET6, TT_NET_PROTO_TCP, &attr);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
-
-    if (TT_OK(tt_skt_local_addr(&sk6, &addr))) {
+    if (TT_OK(tt_skt_local_addr(sk6, &addr))) {
         tt_sktaddr_ip_t addr_val;
         tt_sktaddr_ip_t cmp;
 
@@ -824,7 +808,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_bind_basic)
 
         TT_TEST_CHECK_EQUAL(tt_sktaddr_get_port(&addr), 0, "");
     }
-    if (TT_OK(tt_skt_local_addr(&sk6, &addr))) {
+    if (TT_OK(tt_skt_local_addr(sk6, &addr))) {
         tt_sktaddr_ip_t addr_val;
         tt_sktaddr_ip_t cmp;
 
@@ -839,7 +823,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_bind_basic)
     // TT_TEST_CHECK_EQUAL(ret, TT_FAIL, "");
 
     // invalid ipv6 address
-    ret = tt_skt_bind_p(&sk6, TT_NET_AF_INET6, "127.0.0.1", __TPORT6);
+    ret = tt_skt_bind_p(sk6, TT_NET_AF_INET6, "127.0.0.1", __TPORT6);
     TT_TEST_CHECK_EQUAL(ret, TT_FAIL, "");
 
     if ((tt_strncmp(__TLOCAL_IP6, "fe80", 4) == 0) && (__TLOCAL_ITF != NULL)) {
@@ -848,16 +832,16 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_bind_basic)
         tt_sktaddr_set_ip_p(&__a6, __TLOCAL_IP6);
         tt_sktaddr_set_port(&__a6, __TPORT6);
         tt_sktaddr_set_scope_p(&__a6, __TLOCAL_ITF);
-        ret = tt_skt_bind(&sk6, &__a6);
+        ret = tt_skt_bind(sk6, &__a6);
     } else {
-        ret = tt_skt_bind_p(&sk6, TT_NET_AF_INET6, __TLOCAL_IP6, __TPORT6);
+        ret = tt_skt_bind_p(sk6, TT_NET_AF_INET6, __TLOCAL_IP6, __TPORT6);
     }
     TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
     {
         tt_sktaddr_t sa1;
         tt_char_t buf[100];
 
-        TT_TEST_CHECK_SUCCESS(tt_skt_local_addr(&sk6, &sa1), "");
+        TT_TEST_CHECK_SUCCESS(tt_skt_local_addr(sk6, &sa1), "");
         // family has been converted
         TT_TEST_CHECK_EQUAL(tt_sktaddr_get_family(&sa1), TT_NET_AF_INET6, "");
         TT_TEST_CHECK_EQUAL(tt_sktaddr_get_port(&sa1), __TPORT6, "");
@@ -867,32 +851,31 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_bind_basic)
         TT_TEST_CHECK_EQUAL(tt_strncmp(buf, __TLOCAL_IP6, 99), 0, "");
 
         // remote is still not valid
-        TT_TEST_CHECK_FAIL(tt_skt_remote_addr(&sk6, &sa1), "");
+        TT_TEST_CHECK_FAIL(tt_skt_remote_addr(sk6, &sa1), "");
     }
 
     // can not rebind
-    ret = tt_skt_bind_p(&sk6, TT_NET_AF_INET6, "::1", __TPORT);
+    ret = tt_skt_bind_p(sk6, TT_NET_AF_INET6, "::1", __TPORT);
     TT_TEST_CHECK_EQUAL(ret, TT_FAIL, "");
 
-    ret = tt_skt_listen(&sk6, TT_SKT_BACKLOG_DEFAULT);
+    ret = tt_skt_listen(sk6);
     TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
 
-    ret = tt_skt_destroy(&sk6);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    tt_skt_destroy(sk6);
 
     /////// bind ipv6 addr
 
-    ret = tt_skt_create(&sk6, TT_NET_AF_INET6, TT_NET_PROTO_TCP, NULL);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    sk6 = tt_skt_create(TT_NET_AF_INET6, TT_NET_PROTO_TCP, NULL);
+    TT_TEST_CHECK_NOT_EQUAL(sk6, NULL, "");
 
-    ret = tt_skt_bind_p(&sk6, TT_NET_AF_INET6, "::1", __TPORT6);
+    ret = tt_skt_bind_p(sk6, TT_NET_AF_INET6, "::1", __TPORT6);
     TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
     {
         tt_sktaddr_t sa1;
         tt_char_t buf[20];
         int i;
 
-        TT_TEST_CHECK_SUCCESS(tt_skt_local_addr(&sk6, &sa1), "");
+        TT_TEST_CHECK_SUCCESS(tt_skt_local_addr(sk6, &sa1), "");
         // family has been converted
         TT_TEST_CHECK_EQUAL(tt_sktaddr_get_family(&sa1), TT_NET_AF_INET6, "");
         TT_TEST_CHECK_EQUAL(tt_sktaddr_get_port(&sa1), __TPORT6, "");
@@ -906,32 +889,48 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_bind_basic)
         TT_TEST_CHECK_EQUAL(buf[i++], '\0', "");
 
         // remote is still not valid
-        TT_TEST_CHECK_FAIL(tt_skt_remote_addr(&sk6, &sa1), "");
+        TT_TEST_CHECK_FAIL(tt_skt_remote_addr(sk6, &sa1), "");
     }
 
-    ret = tt_skt_destroy(&sk6);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    tt_skt_destroy(sk6);
 
     /////// ipv6 only
 
-    attr.config_ipv6only = TT_TRUE;
-    attr.ipv6only = TT_TRUE;
+    sk6 = tt_skt_create(TT_NET_AF_INET6, TT_NET_PROTO_TCP, &attr);
+    TT_TEST_CHECK_NOT_EQUAL(sk6, NULL, "");
 
-    ret = tt_skt_create(&sk6, TT_NET_AF_INET6, TT_NET_PROTO_TCP, &attr);
+    ret = tt_skt_set_ipv6only(sk6, TT_TRUE);
     TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
 
-    ret = tt_skt_bind_p(&sk6, TT_NET_AF_INET, "127.0.0.1", __TPORT6);
+    ret = tt_skt_bind_p(sk6, TT_NET_AF_INET, "127.0.0.1", __TPORT6);
     TT_TEST_CHECK_EQUAL(ret, TT_FAIL, "");
 
-    ret = tt_skt_bind_p(&sk6, TT_NET_AF_INET6, "::ffff:127.0.0.1", __TPORT6);
+    ret = tt_skt_bind_p(sk6, TT_NET_AF_INET6, "::ffff:127.0.0.1", __TPORT6);
     TT_TEST_CHECK_EQUAL(ret, TT_FAIL, "");
 
-    ret = tt_skt_destroy(&sk6);
+    tt_skt_destroy(sk6);
+
+    /////// not ipv6 only
+
+    sk6 = tt_skt_create(TT_NET_AF_INET6, TT_NET_PROTO_TCP, &attr);
+    TT_TEST_CHECK_NOT_EQUAL(sk6, NULL, "");
+
+    ret = tt_skt_set_ipv6only(sk6, TT_FALSE);
     TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+
+    ret = tt_skt_bind_p(sk6, TT_NET_AF_INET, "127.0.0.1", __TPORT6);
+    TT_TEST_CHECK_EQUAL(ret, TT_FAIL, "");
+
+    ret = tt_skt_bind_p(sk6, TT_NET_AF_INET6, "::ffff:127.0.0.1", __TPORT6);
+    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+
+    tt_skt_destroy(sk6);
 
     // test end
     TT_TEST_CASE_LEAVE()
 }
+
+#if 0
 
 #define __echo_buf_len 100
 

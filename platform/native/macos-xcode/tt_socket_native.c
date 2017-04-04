@@ -136,6 +136,22 @@ typedef struct
 // global variant
 ////////////////////////////////////////////////////////////
 
+static tt_bool_t __do_accept(IN tt_io_ev_t *io_ev);
+
+static tt_bool_t __do_connect(IN tt_io_ev_t *io_ev);
+
+static tt_bool_t __do_send(IN tt_io_ev_t *io_ev);
+
+static tt_bool_t __do_recv(IN tt_io_ev_t *io_ev);
+
+static tt_bool_t __do_sendto(IN tt_io_ev_t *io_ev);
+
+static tt_bool_t __do_recvfrom(IN tt_io_ev_t *io_ev);
+
+static tt_poller_io_t __skt_poller_io[__SKT_EV_NUM] = {
+    __do_accept, __do_connect, __do_send, __do_recv, __do_sendto, __do_recvfrom,
+};
+
 ////////////////////////////////////////////////////////////
 // interface declaration
 ////////////////////////////////////////////////////////////
@@ -146,9 +162,9 @@ static tt_result_t __addr_to_mreq(IN tt_sktaddr_ip_t *addr,
                                   IN const tt_char_t *itf,
                                   OUT struct ip_mreq *mreq,
                                   IN int skt);
-static tt_result_t __mcaddr_to_mreq6(IN tt_sktaddr_ip_t *addr,
-                                     IN const tt_char_t *itf,
-                                     OUT struct ipv6_mreq *mreq);
+static tt_result_t __addr_to_mreq6(IN tt_sktaddr_ip_t *addr,
+                                   IN const tt_char_t *itf,
+                                   OUT struct ipv6_mreq *mreq);
 
 ////////////////////////////////////////////////////////////
 // interface implementation
@@ -457,7 +473,7 @@ tt_result_t tt_skt_join_mcast_ntv(IN tt_skt_ntv_t *skt,
 
         TT_ASSERT_SKT(family == TT_NET_AF_INET6);
 
-        if (!TT_OK(__mcaddr_to_mreq6(addr, itf, &mreq))) {
+        if (!TT_OK(__addr_to_mreq6(addr, itf, &mreq))) {
             return TT_FAIL;
         }
 
@@ -497,9 +513,12 @@ tt_result_t tt_skt_leave_mcast_ntv(IN tt_skt_ntv_t *skt,
             TT_ERROR_NTV("fail to join multicast group");
             return TT_FAIL;
         }
-    } else if (family == TT_NET_AF_INET6) {
+    } else {
         struct ipv6_mreq mreq;
-        if (!TT_OK(__mcaddr_to_mreq6(addr, itf, &mreq))) {
+
+        TT_ASSERT_SKT(family == TT_NET_AF_INET6);
+
+        if (!TT_OK(__addr_to_mreq6(addr, itf, &mreq))) {
             return TT_FAIL;
         }
 
@@ -514,10 +533,16 @@ tt_result_t tt_skt_leave_mcast_ntv(IN tt_skt_ntv_t *skt,
             TT_ERROR_NTV("fail to join multicast group");
             return TT_FAIL;
         }
-    } else {
-        TT_ERROR("invalid family: %d", family);
-        return TT_FAIL;
     }
+}
+
+void tt_skt_worker_io(IN tt_io_ev_t *io_ev)
+{
+}
+
+tt_bool_t tt_skt_poller_io(IN tt_io_ev_t *io_ev)
+{
+    return __skt_poller_io[io_ev->ev](io_ev);
 }
 
 int __skt_ev_init(IN tt_io_ev_t *io_ev, IN tt_u32_t ev)
@@ -536,59 +561,152 @@ tt_result_t __addr_to_mreq(IN tt_sktaddr_ip_t *addr,
                            OUT struct ip_mreq *mreq,
                            IN int skt)
 {
-    // multicast address
+    // address
     mreq->imr_multiaddr.s_addr = addr->a32.__u32;
 
-    // local interface
+    // interface
     if (itf != NULL) {
         struct ifreq ifr;
 
-        // set family
         ifr.ifr_addr.sa_family = AF_INET;
-
-        // if name
         strncpy(ifr.ifr_name, itf, IFNAMSIZ - 1);
-
-        // get if address
         if (ioctl(skt, SIOCGIFADDR, &ifr) != 0) {
             TT_ERROR_NTV("fail to get address of %s", itf);
             return TT_FAIL;
         }
 
-        // return if address
         mreq->imr_interface.s_addr =
             ((struct sockaddr_in *)&ifr.ifr_addr)->sin_addr.s_addr;
     } else {
-        // use default interface
         mreq->imr_interface.s_addr = htonl(INADDR_ANY);
     }
 
     return TT_SUCCESS;
 }
 
-tt_result_t __mcaddr_to_mreq6(IN tt_sktaddr_ip_t *addr,
-                              IN const tt_char_t *itf,
-                              OUT struct ipv6_mreq *mreq)
+tt_result_t __addr_to_mreq6(IN tt_sktaddr_ip_t *addr,
+                            IN const tt_char_t *itf,
+                            OUT struct ipv6_mreq *mreq)
 {
-    // multicast address
+    // address
     tt_memcpy(mreq->ipv6mr_multiaddr.s6_addr, addr->a128.__u8, 16);
 
-    // local interface
+    // interface
     if (itf != NULL) {
-        unsigned int if_idx = if_nametoindex(itf);
+        unsigned int if_idx;
 
-        // get if index
+        if_idx = if_nametoindex(itf);
         if (if_idx == 0) {
             TT_ERROR_NTV("fail to get if idx of %s", itf);
             return TT_FAIL;
         }
 
-        // return if address
         mreq->ipv6mr_interface = if_idx;
     } else {
-        // use default interface
         mreq->ipv6mr_interface = 0;
     }
 
     return TT_SUCCESS;
+}
+
+tt_bool_t __do_accept(IN tt_io_ev_t *io_ev)
+{
+    __skt_accept_t *skt_accept = (__skt_accept_t *)io_ev;
+
+    socklen_t len = sizeof(struct sockaddr_storage);
+    int s, flag;
+    struct linger linger = {0};
+
+again:
+    s = accept(skt_accept->skt->s, (struct sockaddr *)skt_accept->addr, &len);
+    if (s == -1) {
+        if (errno == EINTR) {
+            goto again;
+        } else {
+            TT_ERROR_NTV("accept fail");
+            goto fail;
+        }
+    }
+
+    if (((flag = fcntl(s, F_GETFL, 0)) == -1) ||
+        (fcntl(s, F_SETFL, flag | O_NONBLOCK) == -1)) {
+        TT_ERROR_NTV("fail to set O_NONBLOCK");
+        goto fail;
+    }
+
+    if (((flag = fcntl(s, F_GETFD, 0)) == -1) ||
+        (fcntl(s, F_SETFD, flag | FD_CLOEXEC) == -1)) {
+        TT_ERROR_NTV("fail to set FD_CLOEXEC");
+        goto fail;
+    }
+
+    if (setsockopt(s, SOL_SOCKET, SO_LINGER, &linger, sizeof(struct linger)) !=
+        0) {
+        TT_ERROR_NTV("fail to set SO_LINGER");
+        goto fail;
+    }
+
+    skt_accept->new_skt->s = s;
+
+    skt_accept->result = TT_SUCCESS;
+    return TT_TRUE;
+
+fail:
+
+    if (s != -1) {
+        __RETRY_IF_EINTR(close(s));
+    }
+
+    skt_accept->result = TT_FAIL;
+    return TT_TRUE;
+}
+
+tt_bool_t __do_connect(IN tt_io_ev_t *io_ev)
+{
+    __skt_connect_t *skt_connect = (__skt_connect_t *)io_ev;
+
+    tt_skt_ntv_t *skt = skt_connect->skt;
+
+    skt_connect->result = TT_SUCCESS;
+    return TT_TRUE;
+}
+
+tt_bool_t __do_send(IN tt_io_ev_t *io_ev)
+{
+    __skt_send_t *skt_send = (__skt_send_t *)io_ev;
+
+    tt_skt_ntv_t *skt = skt_send->skt;
+
+    skt_send->result = TT_SUCCESS;
+    return TT_TRUE;
+}
+
+tt_bool_t __do_recv(IN tt_io_ev_t *io_ev)
+{
+    __skt_recv_t *skt_recv = (__skt_recv_t *)io_ev;
+
+    tt_skt_ntv_t *skt = skt_recv->skt;
+
+    skt_recv->result = TT_SUCCESS;
+    return TT_TRUE;
+}
+
+tt_bool_t __do_sendto(IN tt_io_ev_t *io_ev)
+{
+    __skt_sendto_t *skt_sendto = (__skt_sendto_t *)io_ev;
+
+    tt_skt_ntv_t *skt = skt_sendto->skt;
+
+    skt_sendto->result = TT_SUCCESS;
+    return TT_TRUE;
+}
+
+tt_bool_t __do_recvfrom(IN tt_io_ev_t *io_ev)
+{
+    __skt_recvfrom_t *skt_recvfrom = (__skt_recvfrom_t *)io_ev;
+
+    tt_skt_ntv_t *skt = skt_recvfrom->skt;
+
+    skt_recvfrom->result = TT_SUCCESS;
+    return TT_TRUE;
 }

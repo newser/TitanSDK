@@ -42,6 +42,7 @@ this file specifies socket native apis
 
 struct tt_profile_s;
 struct tt_skt_attr_s;
+struct tt_io_ev_s;
 
 typedef struct tt_skt_ntv_s
 {
@@ -122,5 +123,9 @@ extern tt_result_t tt_skt_leave_mcast_ntv(IN tt_skt_ntv_t *skt,
                                           IN tt_net_family_t family,
                                           IN tt_sktaddr_ip_t *addr,
                                           IN const tt_char_t *itf);
+
+extern void tt_skt_worker_io(IN struct tt_io_ev_s *io_ev);
+
+extern tt_bool_t tt_skt_poller_io(IN struct tt_io_ev_s *io_ev);
 
 #endif // __TT_SOCKET_NATIVE__
