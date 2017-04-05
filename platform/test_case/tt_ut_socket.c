@@ -30,6 +30,7 @@
 #include <memory/tt_slab.h>
 #include <network/tt_network_interface.h>
 #include <os/tt_task.h>
+#include <timer/tt_time_reference.h>
 
 // portlayer header files
 #include <tt_cstd_api.h>
@@ -65,6 +66,8 @@ TT_TEST_ROUTINE_DECLARE(tt_unit_test_sk_opt)
 TT_TEST_ROUTINE_DECLARE(tt_unit_test_bind_basic)
 TT_TEST_ROUTINE_DECLARE(tt_unit_test_tcp_basic)
 TT_TEST_ROUTINE_DECLARE(tt_unit_test_udp_basic)
+
+TT_TEST_ROUTINE_DECLARE(tt_unit_test_tcp4_stress)
 
 TT_TEST_ROUTINE_DECLARE(tt_unit_test_tcp_server)
 TT_TEST_ROUTINE_DECLARE(tt_unit_test_tcp_server6)
@@ -275,6 +278,26 @@ TT_TEST_CASE("tt_unit_test_sk_addr",
                  NULL,
                  NULL,
                  NULL),
+
+    TT_TEST_CASE("tt_unit_test_udp_basic",
+                 "testing socket udp api",
+                 tt_unit_test_udp_basic,
+                 NULL,
+                 __ut_skt_enter,
+                 NULL,
+                 NULL,
+                 NULL),
+
+#if 1
+    TT_TEST_CASE("tt_unit_test_tcp4_stress",
+                 "testing socket tcp ipv4 stress test",
+                 tt_unit_test_tcp4_stress,
+                 NULL,
+                 __ut_skt_enter,
+                 NULL,
+                 NULL,
+                 NULL),
+#endif
 
 #if 0
     TT_TEST_CASE("tt_unit_test_tcp_server",
@@ -943,12 +966,14 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_bind_basic)
 }
 
 static tt_u32_t __err_line;
+static tt_atomic_s64_t __io_num;
 
 static tt_result_t __f_svr(IN void *param)
 {
     tt_skt_t *s, *new_s;
-    tt_u8_t buf[] = "6789", buf2[10];
-    tt_u32_t n;
+    tt_u8_t buf[1 << 14] = "6789";
+    tt_u32_t n, loop;
+    tt_result_t ret;
 
     s = tt_skt_create(TT_NET_AF_INET, TT_NET_PROTO_TCP, NULL);
     if (s == NULL) {
@@ -972,30 +997,24 @@ static tt_result_t __f_svr(IN void *param)
         return TT_FAIL;
     }
 
-    if (!TT_OK(tt_skt_recv(new_s, buf2, sizeof(buf2), &n))) {
-        __err_line = __LINE__;
-        return TT_FAIL;
-    }
-    if (n != 4 || tt_memcmp(buf2, "123", n) != 0) {
-        __err_line = __LINE__;
-        return TT_FAIL;
-    }
+    while ((ret = tt_skt_recv(new_s, buf, sizeof(buf), &n)) != TT_END) {
+        tt_atomic_s64_add(&__io_num, n);
 
-    if (!TT_OK(tt_skt_send(new_s, buf, sizeof(buf), &n))) {
-        __err_line = __LINE__;
-        return TT_FAIL;
-    }
-    if (n != sizeof(buf)) {
-        __err_line = __LINE__;
-        return TT_FAIL;
+        if (!TT_OK(tt_skt_send(new_s, buf, sizeof(buf), &n))) {
+            __err_line = __LINE__;
+            return TT_FAIL;
+        }
+        if (n != sizeof(buf)) {
+            __err_line = __LINE__;
+            return TT_FAIL;
+        }
     }
 
     if (!TT_OK(tt_skt_shutdown(new_s, TT_SKT_SHUT_WR))) {
         __err_line = __LINE__;
         return TT_FAIL;
     }
-
-    if (tt_skt_recv(new_s, buf2, sizeof(buf2), &n) != TT_END) {
+    if (tt_skt_recv(new_s, buf, sizeof(buf), &n) != TT_END) {
         __err_line = __LINE__;
         return TT_FAIL;
     }
@@ -1010,8 +1029,8 @@ static tt_result_t __f_cli(IN void *param)
 {
     tt_skt_t *s;
     tt_result_t ret;
-    tt_u8_t buf[] = "123", buf2[10];
-    tt_u32_t n;
+    tt_u8_t buf[1 << 14] = "123";
+    tt_u32_t n, loop;
 
     s = tt_skt_create(TT_NET_AF_INET, TT_NET_PROTO_TCP, NULL);
     if (s == NULL) {
@@ -1026,32 +1045,28 @@ static tt_result_t __f_cli(IN void *param)
         return TT_FAIL;
     }
 
-    if (!TT_OK(tt_skt_send(s, buf, sizeof(buf), &n))) {
-        __err_line = __LINE__;
-        return TT_FAIL;
-    }
-    if (n != sizeof(buf)) {
-        __err_line = __LINE__;
-        return TT_FAIL;
+    loop = 0;
+    while (loop++ < (1 << 13)) {
+        if (!TT_OK(tt_skt_send(s, buf, sizeof(buf), &n))) {
+            __err_line = __LINE__;
+            return TT_FAIL;
+        }
+        if (n != sizeof(buf)) {
+            __err_line = __LINE__;
+            return TT_FAIL;
+        }
+
+        if (!TT_OK(tt_skt_recv(s, buf, sizeof(buf), &n))) {
+            __err_line = __LINE__;
+            return TT_FAIL;
+        }
     }
 
     if (!TT_OK(tt_skt_shutdown(s, TT_SKT_SHUT_WR))) {
         __err_line = __LINE__;
         return TT_FAIL;
     }
-
-    if (!TT_OK(tt_skt_recv(s, buf2, sizeof(buf2), &n))) {
-        __err_line = __LINE__;
-        return TT_FAIL;
-    }
-    if (n != 5 || tt_memcmp(buf2, "6789", n) != 0) {
-        __err_line = __LINE__;
-        return TT_FAIL;
-    }
-
-    if (tt_skt_recv(s, buf2, sizeof(buf2), &n) != TT_END) {
-        __err_line = __LINE__;
-        return TT_FAIL;
+    while (tt_skt_recv(s, buf, sizeof(buf), &n) != TT_END) {
     }
 
     tt_skt_destroy(s);
@@ -1065,6 +1080,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_tcp_basic)
     tt_fiber_t *svr, *cli;
     tt_result_t ret;
     tt_task_t t;
+    tt_s64_t start, end, dur;
 
     TT_TEST_CASE_ENTER()
     // test start
@@ -1076,10 +1092,366 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_tcp_basic)
     tt_task_add_fiber(&t, __f_cli, NULL, NULL);
 
     __err_line = 0;
+    tt_atomic_s64_set(&__io_num, 0);
+
+    start = tt_time_ref();
+
     ret = tt_task_run(&t);
     TT_TEST_CHECK_SUCCESS(ret, "");
 
     tt_task_wait(&t);
+    TT_TEST_CHECK_EQUAL(__err_line, 0, "");
+
+    end = tt_time_ref();
+    dur = tt_time_ref2ms(end - start);
+    TT_RECORD_INFO("speed: %f MB/s",
+                   (float)(tt_atomic_s64_get(&__io_num) >> 20) * 1000 / dur);
+
+    // test end
+    TT_TEST_CASE_LEAVE()
+}
+
+static tt_result_t __f_svr_udp(IN void *param)
+{
+    tt_skt_t *s;
+    tt_u8_t buf[] = "6789", buf2[10];
+    tt_u32_t n;
+    tt_sktaddr_t addr;
+
+    s = tt_skt_create(TT_NET_AF_INET6, TT_NET_PROTO_UDP, NULL);
+    if (s == NULL) {
+        __err_line = __LINE__;
+        return TT_FAIL;
+    }
+
+    tt_skt_set_reuseaddr(s, TT_TRUE);
+
+    if (!TT_OK(tt_skt_bind_p(s, TT_NET_AF_INET6, "::1", 55557))) {
+        __err_line = __LINE__;
+        return TT_FAIL;
+    }
+
+    if (!TT_OK(tt_skt_recvfrom(s, buf2, sizeof(buf2), &n, &addr))) {
+        __err_line = __LINE__;
+        return TT_FAIL;
+    }
+    if (n != 4 || tt_memcmp(buf2, "123", n) != 0) {
+        __err_line = __LINE__;
+        return TT_FAIL;
+    }
+    if (tt_sktaddr_get_port(&addr) != 55558) {
+        __err_line = __LINE__;
+        return TT_FAIL;
+    }
+
+    if (!TT_OK(tt_skt_sendto(s, buf, sizeof(buf), &n, &addr))) {
+        __err_line = __LINE__;
+        return TT_FAIL;
+    }
+    if (n != sizeof(buf)) {
+        __err_line = __LINE__;
+        return TT_FAIL;
+    }
+
+    tt_skt_destroy(s);
+
+    return TT_SUCCESS;
+}
+
+static tt_result_t __f_cli_udp(IN void *param)
+{
+    tt_skt_t *s;
+    tt_result_t ret;
+    tt_u8_t buf[] = "123", buf2[10];
+    tt_u32_t n;
+    tt_sktaddr_t addr;
+
+    s = tt_skt_create(TT_NET_AF_INET6, TT_NET_PROTO_UDP, NULL);
+    if (s == NULL) {
+        __err_line = __LINE__;
+        return TT_FAIL;
+    }
+
+    tt_skt_set_reuseaddr(s, TT_TRUE);
+
+    if (!TT_OK(tt_skt_bind_p(s, TT_NET_AF_INET6, "::1", 55558))) {
+        __err_line = __LINE__;
+        return TT_FAIL;
+    }
+
+    tt_sktaddr_init(&addr, TT_NET_AF_INET6);
+    tt_sktaddr_set_ip_p(&addr, "::1");
+    tt_sktaddr_set_port(&addr, 55557);
+
+    if (!TT_OK(tt_skt_sendto(s, buf, sizeof(buf), &n, &addr))) {
+        __err_line = __LINE__;
+        return TT_FAIL;
+    }
+    if (n != sizeof(buf)) {
+        __err_line = __LINE__;
+        return TT_FAIL;
+    }
+
+    if (!TT_OK(tt_skt_recvfrom(s, buf2, sizeof(buf2), &n, &addr))) {
+        __err_line = __LINE__;
+        return TT_FAIL;
+    }
+    if (n != 5 || tt_memcmp(buf2, "6789", n) != 0) {
+        __err_line = __LINE__;
+        return TT_FAIL;
+    }
+    if (tt_sktaddr_get_port(&addr) != 55557) {
+        __err_line = __LINE__;
+        return TT_FAIL;
+    }
+
+    tt_skt_destroy(s);
+
+    return TT_SUCCESS;
+}
+
+TT_TEST_ROUTINE_DEFINE(tt_unit_test_udp_basic)
+{
+    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+    tt_fiber_t *svr, *cli;
+    tt_result_t ret;
+    tt_task_t t;
+
+    TT_TEST_CASE_ENTER()
+    // test start
+
+    ret = tt_task_create(&t, NULL);
+    TT_TEST_CHECK_SUCCESS(ret, "");
+
+    tt_task_add_fiber(&t, __f_svr_udp, NULL, NULL);
+    tt_task_add_fiber(&t, __f_cli_udp, NULL, NULL);
+
+    __err_line = 0;
+    ret = tt_task_run(&t);
+    TT_TEST_CHECK_SUCCESS(ret, "");
+
+    tt_task_wait(&t);
+    TT_TEST_CHECK_EQUAL(__err_line, 0, "");
+
+    // test end
+    TT_TEST_CASE_LEAVE()
+}
+
+#define __CON_PER_TASK 1000
+#define __CHECK_IO
+
+static tt_result_t __f_svr_acc_t4(IN void *param)
+{
+    tt_skt_t *new_s = (tt_skt_t *)param;
+    tt_u8_t buf2[10000], c;
+    tt_u32_t n, i, len;
+
+    if (!TT_OK(tt_skt_recv(new_s, buf2, sizeof(buf2), &n))) {
+        __err_line = __LINE__;
+        return TT_FAIL;
+    }
+// TT_INFO("acc recv: %d", n);
+
+#ifdef __CHECK_IO
+    c = buf2[0];
+    for (i = 0; i < n; ++i) {
+        if (buf2[i] != (c++)) {
+            __err_line = __LINE__;
+            break;
+        }
+    }
+#endif
+
+    len = n;
+    if (!TT_OK(tt_skt_send(new_s, buf2, len, &n))) {
+        __err_line = __LINE__;
+        return TT_FAIL;
+    }
+    // TT_INFO("acc send: %d", n);
+    if (n != len) {
+        __err_line = __LINE__;
+        return TT_FAIL;
+    }
+
+    if (!TT_OK(tt_skt_shutdown(new_s, TT_SKT_SHUT_WR))) {
+        __err_line = __LINE__;
+        return TT_FAIL;
+    }
+
+    if (tt_skt_recv(new_s, buf2, sizeof(buf2), &n) != TT_END) {
+        __err_line = __LINE__;
+        return TT_FAIL;
+    }
+
+    // TT_INFO("acc destroy");
+    tt_skt_destroy(new_s);
+
+    tt_atomic_s64_add(&__io_num, n);
+
+    return TT_SUCCESS;
+}
+
+static tt_result_t __f_svr_t4(IN void *param)
+{
+    tt_skt_t *s, *new_s;
+    tt_u32_t n, i = (tt_u32_t)(tt_uintptr_t)param;
+
+    s = tt_skt_create(TT_NET_AF_INET, TT_NET_PROTO_TCP, NULL);
+    if (s == NULL) {
+        __err_line = __LINE__;
+        return TT_FAIL;
+    }
+
+    tt_skt_set_reuseaddr(s, TT_TRUE);
+
+    if (!TT_OK(
+            tt_skt_bind_p(s, TT_NET_AF_INET, __ut_skt_local_ip, __TPORT + i))) {
+        __err_line = __LINE__;
+        return TT_FAIL;
+    }
+
+    if (!TT_OK(tt_skt_listen(s))) {
+        __err_line = __LINE__;
+        return TT_FAIL;
+    }
+
+    n = 0;
+    while (n++ < __CON_PER_TASK) {
+        tt_fiber_t *fb;
+
+        new_s = tt_skt_accept(s, NULL, NULL);
+        if (s == NULL) {
+            __err_line = __LINE__;
+            return TT_FAIL;
+        }
+        // TT_INFO("new conn: %d", n);
+
+        fb = tt_fiber_create(__f_svr_acc_t4, new_s, NULL);
+        if (fb == NULL) {
+            __err_line = __LINE__;
+            return TT_FAIL;
+        }
+        tt_fiber_resume(fb, TT_FALSE);
+    }
+
+    tt_skt_destroy(s);
+
+    return TT_SUCCESS;
+}
+
+static tt_result_t __f_cli_t4(IN void *param)
+{
+    tt_skt_t *s;
+    tt_result_t ret;
+    tt_u8_t buf[10000], c;
+    tt_u32_t n, len, num, i;
+
+    num = 0;
+    while (num++ < __CON_PER_TASK) {
+        s = tt_skt_create(TT_NET_AF_INET, TT_NET_PROTO_TCP, NULL);
+        if (s == NULL) {
+            __err_line = __LINE__;
+            return TT_FAIL;
+        }
+
+        tt_skt_set_reuseaddr(s, TT_TRUE);
+
+        if (!TT_OK(tt_skt_connect_p(s,
+                                    TT_NET_AF_INET,
+                                    __ut_skt_local_ip,
+                                    __TPORT + (tt_uintptr_t)param))) {
+            __err_line = __LINE__;
+            return TT_FAIL;
+        }
+        // TT_INFO("connected: %d", num);
+
+        len = tt_rand_u32() % sizeof(buf) + 1;
+#ifdef __CHECK_IO
+        c = tt_rand_u32();
+        for (i = 0; i < len; ++i) {
+            buf[i] = (c++);
+        }
+#endif
+
+        if (!TT_OK(tt_skt_send(s, buf, len, &n))) {
+            __err_line = __LINE__;
+            return TT_FAIL;
+        }
+        // TT_INFO("con send: %d", n);
+
+        if (!TT_OK(tt_skt_shutdown(s, TT_SKT_SHUT_WR))) {
+            __err_line = __LINE__;
+            return TT_FAIL;
+        }
+
+        if (!TT_OK(tt_skt_recv(s, buf, sizeof(buf), &n))) {
+            __err_line = __LINE__;
+            return TT_FAIL;
+        }
+        if (n != len) {
+            __err_line = __LINE__;
+            return TT_FAIL;
+        }
+// TT_INFO("con recv: %d", n);
+
+#ifdef __CHECK_IO
+        c = buf[0];
+        for (i = 0; i < n; ++i) {
+            if (buf[i] != (c++)) {
+                __err_line = __LINE__;
+                break;
+            }
+        }
+#endif
+
+        if (tt_skt_recv(s, buf, sizeof(buf), &n) != TT_END) {
+            __err_line = __LINE__;
+            return TT_FAIL;
+        }
+
+        // TT_INFO("con destroy");
+        tt_skt_destroy(s);
+    }
+
+    return TT_SUCCESS;
+}
+
+TT_TEST_ROUTINE_DEFINE(tt_unit_test_tcp4_stress)
+{
+    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+    tt_fiber_t *svr, *cli;
+    tt_result_t ret;
+    tt_task_t t[1];
+    tt_s64_t start, end, dur;
+    tt_u32_t i;
+
+    TT_TEST_CASE_ENTER()
+    // test start
+
+    for (i = 0; i < sizeof(t) / sizeof(t[0]); ++i) {
+        ret = tt_task_create(&t[i], NULL);
+        TT_TEST_CHECK_SUCCESS(ret, "");
+
+        tt_task_add_fiber(&t[i], __f_svr_t4, (tt_uintptr_t)i, NULL);
+        tt_task_add_fiber(&t[i], __f_cli_t4, (tt_uintptr_t)i, NULL);
+    }
+
+    __err_line = 0;
+    tt_atomic_s64_set(&__io_num, 0);
+
+    start = tt_time_ref();
+    for (i = 0; i < sizeof(t) / sizeof(t[0]); ++i) {
+        ret = tt_task_run(&t[i]);
+        TT_TEST_CHECK_SUCCESS(ret, "");
+    }
+    for (i = 0; i < sizeof(t) / sizeof(t[0]); ++i) {
+        tt_task_wait(&t[i]);
+    }
+    end = tt_time_ref();
+    dur = tt_time_ref2ms(end - start);
+    TT_RECORD_INFO("speed: %f MB/s",
+                   ((float)tt_atomic_s64_get(&__io_num) / dur) / 1000);
+
     TT_TEST_CHECK_EQUAL(__err_line, 0, "");
 
     // test end

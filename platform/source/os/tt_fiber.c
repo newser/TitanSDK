@@ -199,13 +199,13 @@ void tt_fiber_yield()
     }
 }
 
-void tt_fiber_resume(IN tt_fiber_t *fb)
+void tt_fiber_resume(IN tt_fiber_t *fb, IN tt_bool_t suspend)
 {
     tt_fiber_sched_t *cfs = tt_current_fiber_sched();
     tt_fiber_t *cfb = cfs->current;
 
     if (cfb != fb) {
-        if (cfb != cfs->__main) {
+        if ((cfb != cfs->__main) && suspend) {
             tt_list_remove(&cfb->node);
             tt_list_push_head(&cfs->pending, &cfb->node);
         }

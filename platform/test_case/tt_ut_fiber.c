@@ -184,11 +184,11 @@ static tt_result_t __test_fiber_2f_yield_resume(IN void *param)
     }
 
     __ut_num = 0;
-    tt_fiber_resume(f1);
+    tt_fiber_resume(f1, TT_FALSE);
 
     last_num = __ut_num;
     while (__ut_num < 100) {
-        tt_fiber_resume(f1);
+        tt_fiber_resume(f1, TT_FALSE);
 
         if (__ut_num != (last_num + 1)) {
             __ut_ret = TT_FAIL;
@@ -212,7 +212,7 @@ static tt_result_t __fiber_1_resume(IN void *param)
 
     while (__ut_num < 100) {
         ++__ut_num;
-        tt_fiber_resume(cfs->__main);
+        tt_fiber_resume(cfs->__main, TT_TRUE);
     }
 
     return TT_SUCCESS;
@@ -235,11 +235,11 @@ static tt_result_t __test_fiber_2f_resume(IN void *param)
     }
 
     __ut_num = 0;
-    tt_fiber_resume(f1);
+    tt_fiber_resume(f1, TT_FALSE);
 
     last_num = __ut_num;
     while (__ut_num < 100) {
-        tt_fiber_resume(f1);
+        tt_fiber_resume(f1, TT_FALSE);
 
         if (__ut_num != (last_num + 1)) {
             __ut_ret = TT_FAIL;
@@ -329,7 +329,7 @@ static tt_result_t __test_fiber_2(IN void *param)
             __err_line = __LINE__;
             return TT_FAIL;
         }
-        tt_fiber_resume(__fb_ar[i]);
+        tt_fiber_resume(__fb_ar[i], TT_FALSE);
     }
 
     __ques[0] = 1314;
@@ -342,7 +342,7 @@ static tt_result_t __test_fiber_2(IN void *param)
             // tt_sleep(tt_rand_u32()%10);
             __ans[idx] = __ques[idx] + 1;
             __waiting[idx] = 0;
-            tt_fiber_resume(__fb_ar[idx]);
+            tt_fiber_resume(__fb_ar[idx], TT_FALSE);
 
             if (__err_line != 0) {
                 return TT_FAIL;
@@ -388,9 +388,9 @@ static tt_result_t __fiber_3(IN void *param)
         tt_u32_t i = tt_rand_u32() % 4;
         TT_INFO("fiber[%d] => [%d]", idx, i);
         if (i == 3) {
-            tt_fiber_resume(cfs->__main);
+            tt_fiber_resume(cfs->__main, TT_TRUE);
         } else {
-            tt_fiber_resume(__fb_ar[i]);
+            tt_fiber_resume(__fb_ar[i], TT_FALSE);
         }
         TT_INFO("fiber[%d]", idx);
     }
@@ -409,11 +409,11 @@ static tt_result_t __test_fiber_3(IN void *param)
             return TT_FAIL;
         }
     }
-    tt_fiber_resume(__fb_ar[0]);
+    tt_fiber_resume(__fb_ar[0], TT_TRUE);
 
     while (num++ < 100) {
         tt_u32_t idx = tt_rand_u32() % 3;
-        tt_fiber_resume(__fb_ar[idx]);
+        tt_fiber_resume(__fb_ar[idx], TT_TRUE);
         TT_INFO("main num: %d", num);
     }
     __ut_ret = TT_SUCCESS;
@@ -458,7 +458,7 @@ static tt_result_t __fiber_san2(IN void *param)
         __fb_ar[idx + 1] = tt_fiber_create(__fiber_san2,
                                            (void *)(tt_uintptr_t)(idx + 1),
                                            &fattr);
-        tt_fiber_resume(__fb_ar[idx + 1]);
+        tt_fiber_resume(__fb_ar[idx + 1], TT_TRUE);
     }
 
     while (1) {
@@ -469,14 +469,14 @@ static tt_result_t __fiber_san2(IN void *param)
             tt_u32_t k = tt_rand_u32() % FIBER_NUM;
             if (__fb_ar[k] != NULL) {
                 // TT_INFO("resuming %p", __fb_ar[idx]);
-                tt_fiber_resume(__fb_ar[k]);
+                tt_fiber_resume(__fb_ar[k], TT_TRUE);
             }
         } else if (action == 2) {
             // TT_INFO("exiting %p", __fb_ar[idx]);
             __fb_ar[idx] = NULL;
             break;
         } else {
-            tt_fiber_resume(cfs->__main);
+            tt_fiber_resume(cfs->__main, TT_TRUE);
         }
     }
 
@@ -514,14 +514,14 @@ static tt_result_t __test_fiber_san2(IN void *param)
             return TT_FAIL;
         }
     }
-    tt_fiber_resume(__fb_ar[0]);
+    tt_fiber_resume(__fb_ar[0], TT_TRUE);
 #endif
 
     while (num++ < FIBER_NUM * 100) {
         tt_u32_t idx = tt_rand_u32() % FIBER_NUM;
         if (__fb_ar[idx] != NULL) {
             // TT_INFO("resuming %p", __fb_ar[idx]);
-            tt_fiber_resume(__fb_ar[idx]);
+            tt_fiber_resume(__fb_ar[idx], TT_TRUE);
         }
     }
     __ut_ret = TT_SUCCESS;

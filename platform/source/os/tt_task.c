@@ -204,7 +204,7 @@ tt_result_t __task_routine(IN void *param)
 
         node = node->next;
 
-        tt_fiber_resume(tf->fb);
+        tt_fiber_resume(tf->fb, TT_TRUE);
     }
 
     // run untill all fibers exit

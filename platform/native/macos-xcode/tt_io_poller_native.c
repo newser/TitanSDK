@@ -348,7 +348,7 @@ tt_bool_t __worker_io(IN tt_io_ev_t *dummy, IN tt_io_poller_ntv_t *sys_iop)
         tt_io_ev_t *io_ev = TT_CONTAINER(node, tt_io_ev_t, node);
 
         TT_ASSERT(io_ev->src != NULL);
-        tt_fiber_resume(io_ev->src);
+        tt_fiber_resume(io_ev->src, TT_TRUE);
     }
 
     return TT_TRUE;
@@ -390,7 +390,7 @@ tt_bool_t __skt_io(IN tt_io_ev_t *io_ev, IN tt_io_poller_ntv_t *sys_iop)
 {
     if (tt_skt_poller_io(io_ev)) {
         TT_ASSERT(io_ev->src != NULL);
-        tt_fiber_resume(io_ev->src);
+        tt_fiber_resume(io_ev->src, TT_TRUE);
     }
 
     return TT_TRUE;

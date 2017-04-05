@@ -131,7 +131,7 @@ extern void tt_fiber_attr_default(IN tt_fiber_attr_t *attr);
 
 extern void tt_fiber_yield();
 
-extern void tt_fiber_resume(IN tt_fiber_t *fb);
+extern void tt_fiber_resume(IN tt_fiber_t *fb, IN tt_bool_t suspend);
 
 extern void tt_fiber_activate(IN tt_fiber_t *fb);
 
