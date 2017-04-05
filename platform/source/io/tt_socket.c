@@ -128,7 +128,6 @@ tt_result_t tt_skt_shutdown(IN tt_skt_t *skt, IN tt_skt_shut_t shut)
 tt_result_t tt_skt_bind(IN tt_skt_t *skt, IN tt_sktaddr_t *addr)
 {
     TT_ASSERT(skt != NULL);
-    TT_ASSERT(addr != NULL);
 
     return tt_skt_bind_ntv(&skt->sys_skt, addr);
 }
@@ -194,7 +193,7 @@ tt_skt_t *tt_skt_accept(IN tt_skt_t *skt,
         return NULL;
     }
 
-    return skt;
+    return new_skt;
 }
 
 tt_result_t tt_skt_connect(IN tt_skt_t *skt, IN tt_sktaddr_t *addr)

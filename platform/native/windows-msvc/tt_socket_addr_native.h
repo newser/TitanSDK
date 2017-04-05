@@ -59,7 +59,7 @@ extern tt_net_family_t tt_sktaddr_get_family_ntv(IN tt_sktaddr_ntv_t *addr);
 extern void tt_sktaddr_set_ip_n_ntv(IN tt_sktaddr_ntv_t *addr,
                                     IN union tt_sktaddr_ip_s *na);
 
-// returned value is unspecified if addr is set to TT_SKT_IP_ANY
+// returned value is unspecified if addr is set to TT_IP_ANY
 extern void tt_sktaddr_get_ip_n_ntv(IN tt_sktaddr_ntv_t *addr,
                                     OUT union tt_sktaddr_ip_s *na);
 

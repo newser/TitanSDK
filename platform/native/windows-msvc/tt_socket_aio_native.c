@@ -1625,7 +1625,7 @@ tt_result_t __do_skt_connect_io(IN __skt_connect_t *aio)
     }
 
     // ConnectEx need a bind. on windows, port 0 means allocate a port
-    if (!TT_OK(tt_skt_bind_n(skt, skt->family, TT_SKT_IP_ANY, 0))) {
+    if (!TT_OK(tt_skt_bind_n(skt, skt->family, TT_IP_ANY, 0))) {
         return TT_FAIL;
     }
 

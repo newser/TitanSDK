@@ -37,8 +37,6 @@ this file specifies socket address definitions
 // macro definition
 ////////////////////////////////////////////////////////////
 
-#define TT_SKT_IP_ANY NULL
-
 ////////////////////////////////////////////////////////////
 // type definition
 ////////////////////////////////////////////////////////////
@@ -84,7 +82,7 @@ tt_inline tt_net_family_t tt_sktaddr_get_family(IN tt_sktaddr_t *addr)
     return tt_sktaddr_get_family_ntv(addr);
 }
 
-// addr_val can be TT_SKT_IP_ANY
+// addr_val can be TT_IP_ANY
 tt_inline void tt_sktaddr_set_ip_n(IN tt_sktaddr_t *addr,
                                    IN tt_sktaddr_ip_t *ip)
 {
@@ -97,7 +95,7 @@ tt_inline void tt_sktaddr_get_ip_n(IN tt_sktaddr_t *addr,
     tt_sktaddr_get_ip_n_ntv(addr, ip);
 }
 
-// addr_val can be TT_SKT_IP_ANY
+// addr_val can be TT_IP_ANY
 extern tt_result_t tt_sktaddr_set_ip_p(IN tt_sktaddr_t *addr,
                                        IN const tt_char_t *ip_str);
 
@@ -145,7 +143,7 @@ tt_inline void tt_sktaddr_init_any(IN tt_sktaddr_t *addr,
                                    IN tt_net_family_t family)
 {
     tt_sktaddr_init_ntv(addr, family);
-    tt_sktaddr_set_ip_n(addr, TT_SKT_IP_ANY);
+    tt_sktaddr_set_ip_n(addr, TT_IP_ANY);
     tt_sktaddr_set_port(addr, 0);
 }
 

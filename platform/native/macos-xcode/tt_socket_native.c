@@ -84,10 +84,12 @@ typedef struct
 
     tt_skt_ntv_t *skt;
     tt_u8_t *buf;
-    tt_u32_t len;
     tt_u32_t *sent;
+    tt_u32_t len;
 
     tt_result_t result;
+    tt_u32_t kq;
+    tt_u32_t pos;
 } __skt_send_t;
 
 typedef struct
@@ -96,10 +98,11 @@ typedef struct
 
     tt_skt_ntv_t *skt;
     tt_u8_t *buf;
-    tt_u32_t len;
     tt_u32_t *recvd;
+    tt_u32_t len;
 
     tt_result_t result;
+    tt_u32_t kq;
 } __skt_recv_t;
 
 typedef struct
@@ -108,11 +111,13 @@ typedef struct
 
     tt_skt_ntv_t *skt;
     tt_u8_t *buf;
-    tt_u32_t len;
     tt_u32_t *sent;
     tt_sktaddr_t *addr;
+    tt_u32_t len;
 
     tt_result_t result;
+    tt_u32_t kq;
+    tt_u32_t pos;
 } __skt_sendto_t;
 
 typedef struct
@@ -121,11 +126,12 @@ typedef struct
 
     tt_skt_ntv_t *skt;
     tt_u8_t *buf;
-    tt_u32_t len;
     tt_u32_t *recvd;
     tt_sktaddr_t *addr;
+    tt_u32_t len;
 
     tt_result_t result;
+    tt_u32_t kq;
 } __skt_recvfrom_t;
 
 ////////////////////////////////////////////////////////////
@@ -315,8 +321,23 @@ tt_result_t tt_skt_accept_ntv(IN tt_skt_ntv_t *skt,
 
 tt_result_t tt_skt_connect_ntv(IN tt_skt_ntv_t *skt, IN tt_sktaddr_t *addr)
 {
+    socklen_t len;
     __skt_connect_t skt_connect;
     int kq;
+
+    len = TT_COND(tt_sktaddr_get_family(addr) == TT_NET_AF_INET,
+                  sizeof(struct sockaddr_in),
+                  sizeof(struct sockaddr_in6));
+
+again:
+    if (connect(skt->s, (const struct sockaddr *)addr, len) == 0) {
+        return TT_SUCCESS;
+    } else if (errno == EINTR) {
+        goto again;
+    } else if (errno != EINPROGRESS) {
+        TT_ERROR_NTV("fail to connect");
+        return TT_FAIL;
+    }
 
     kq = __skt_ev_init(&skt_connect.io_ev, __SKT_CONNECT);
 
@@ -372,6 +393,7 @@ tt_result_t tt_skt_recvfrom_ntv(IN tt_skt_ntv_t *skt,
     skt_recvfrom.addr = addr;
 
     skt_recvfrom.result = TT_FAIL;
+    skt_recvfrom.kq = kq;
 
     tt_kq_read(kq, skt->s, &skt_recvfrom.io_ev);
     tt_fiber_yield();
@@ -396,6 +418,8 @@ tt_result_t tt_skt_sendto_ntv(IN tt_skt_ntv_t *skt,
     skt_sendto.addr = addr;
 
     skt_sendto.result = TT_FAIL;
+    skt_sendto.kq = kq;
+    skt_sendto.pos = 0;
 
     tt_kq_write(kq, skt->s, &skt_sendto.io_ev);
     tt_fiber_yield();
@@ -418,6 +442,8 @@ tt_result_t tt_skt_send_ntv(IN tt_skt_ntv_t *skt,
     skt_send.sent = sent;
 
     skt_send.result = TT_FAIL;
+    skt_send.kq = kq;
+    skt_send.pos = 0;
 
     tt_kq_write(kq, skt->s, &skt_send.io_ev);
     tt_fiber_yield();
@@ -429,21 +455,22 @@ tt_result_t tt_skt_recv_ntv(IN tt_skt_ntv_t *skt,
                             IN tt_u32_t len,
                             OUT OPT tt_u32_t *recvd)
 {
-    __skt_recv_t __skt_recv_t;
+    __skt_recv_t skt_recv;
     int kq;
 
-    kq = __skt_ev_init(&__skt_recv_t.io_ev, __SKT_RECV);
+    kq = __skt_ev_init(&skt_recv.io_ev, __SKT_RECV);
 
-    __skt_recv_t.skt = skt;
-    __skt_recv_t.buf = buf;
-    __skt_recv_t.len = len;
-    __skt_recv_t.recvd = recvd;
+    skt_recv.skt = skt;
+    skt_recv.buf = buf;
+    skt_recv.len = len;
+    skt_recv.recvd = recvd;
 
-    __skt_recv_t.result = TT_FAIL;
+    skt_recv.result = TT_FAIL;
+    skt_recv.kq = kq;
 
-    tt_kq_read(kq, skt->s, &__skt_recv_t.io_ev);
+    tt_kq_read(kq, skt->s, &skt_recv.io_ev);
     tt_fiber_yield();
-    return __skt_recv_t.result;
+    return skt_recv.result;
 }
 
 tt_result_t tt_skt_join_mcast_ntv(IN tt_skt_ntv_t *skt,
@@ -665,8 +692,6 @@ tt_bool_t __do_connect(IN tt_io_ev_t *io_ev)
 {
     __skt_connect_t *skt_connect = (__skt_connect_t *)io_ev;
 
-    tt_skt_ntv_t *skt = skt_connect->skt;
-
     skt_connect->result = TT_SUCCESS;
     return TT_TRUE;
 }
@@ -675,9 +700,42 @@ tt_bool_t __do_send(IN tt_io_ev_t *io_ev)
 {
     __skt_send_t *skt_send = (__skt_send_t *)io_ev;
 
-    tt_skt_ntv_t *skt = skt_send->skt;
+    ssize_t n;
 
-    skt_send->result = TT_SUCCESS;
+again:
+    n = send(skt_send->skt->s,
+             TT_PTR_INC(void, skt_send->buf, skt_send->pos),
+             skt_send->len - skt_send->pos,
+             0);
+    if (n > 0) {
+        skt_send->pos += n;
+        TT_ASSERT_SKT(skt_send->pos <= skt_send->len);
+        if (skt_send->pos < skt_send->len) {
+            goto again;
+        } else {
+            *skt_send->sent = skt_send->pos;
+            skt_send->result = TT_SUCCESS;
+            return TT_TRUE;
+        }
+    } else if (errno == EINTR) {
+        goto again;
+    } else if ((errno == EAGAIN) || (errno == EWOULDBLOCK)) {
+        tt_kq_write(skt_send->kq, skt_send->skt->s, io_ev);
+        return TT_FALSE;
+    }
+
+    // error
+    if (skt_send->pos > 0) {
+        *skt_send->sent = skt_send->pos;
+        skt_send->result = TT_SUCCESS;
+    } else if ((errno == ECONNRESET) || (errno == EPIPE)
+               // || (errno == ENETDOWN)
+               ) {
+        skt_send->result = TT_END;
+    } else {
+        TT_ERROR_NTV("send failed");
+        skt_send->result = TT_FAIL;
+    }
     return TT_TRUE;
 }
 
@@ -685,9 +743,33 @@ tt_bool_t __do_recv(IN tt_io_ev_t *io_ev)
 {
     __skt_recv_t *skt_recv = (__skt_recv_t *)io_ev;
 
-    tt_skt_ntv_t *skt = skt_recv->skt;
+    ssize_t n;
 
-    skt_recv->result = TT_SUCCESS;
+again:
+    n = recv(skt_recv->skt->s, skt_recv->buf, skt_recv->len, 0);
+    if (n > 0) {
+        *skt_recv->recvd = n;
+        skt_recv->result = TT_SUCCESS;
+        return TT_TRUE;
+    } else if (n == 0) {
+        skt_recv->result = TT_END;
+        return TT_TRUE;
+    } else if (errno == EINTR) {
+        goto again;
+    } else if ((errno == EAGAIN) || (errno == EWOULDBLOCK)) {
+        tt_kq_read(skt_recv->kq, skt_recv->skt->s, io_ev);
+        return TT_FALSE;
+    }
+
+    // error
+    if (errno == ECONNRESET
+        // || (errno == ENETDOWN)
+        ) {
+        skt_recv->result = TT_END;
+    } else {
+        TT_ERROR_NTV("recv failed");
+        skt_recv->result = TT_FAIL;
+    }
     return TT_TRUE;
 }
 
@@ -695,9 +777,44 @@ tt_bool_t __do_sendto(IN tt_io_ev_t *io_ev)
 {
     __skt_sendto_t *skt_sendto = (__skt_sendto_t *)io_ev;
 
-    tt_skt_ntv_t *skt = skt_sendto->skt;
+    ssize_t n;
 
-    skt_sendto->result = TT_SUCCESS;
+again:
+    n = sendto(skt_sendto->skt->s,
+               TT_PTR_INC(void, skt_sendto->buf, skt_sendto->pos),
+               skt_sendto->len - skt_sendto->pos,
+               0,
+               (struct sockaddr *)skt_sendto->addr,
+               skt_sendto->addr->ss_len);
+    if (n > 0) {
+        skt_sendto->pos += n;
+        TT_ASSERT_SKT(skt_sendto->pos <= skt_sendto->len);
+        if (skt_sendto->pos < skt_sendto->len) {
+            goto again;
+        } else {
+            *skt_sendto->sent = skt_sendto->pos;
+            skt_sendto->result = TT_SUCCESS;
+            return TT_TRUE;
+        }
+    } else if (errno == EINTR) {
+        goto again;
+    } else if ((errno == EAGAIN) || (errno == EWOULDBLOCK)) {
+        tt_kq_write(skt_sendto->kq, skt_sendto->skt->s, io_ev);
+        return TT_FALSE;
+    }
+
+    // error
+    if (skt_sendto->pos > 0) {
+        *skt_sendto->sent = skt_sendto->pos;
+        skt_sendto->result = TT_SUCCESS;
+    } else if ((errno == ECONNRESET) || (errno == EPIPE)
+               // || (errno == ENETDOWN)
+               ) {
+        skt_sendto->result = TT_END;
+    } else {
+        TT_ERROR_NTV("sendto failed");
+        skt_sendto->result = TT_FAIL;
+    }
     return TT_TRUE;
 }
 
@@ -705,8 +822,38 @@ tt_bool_t __do_recvfrom(IN tt_io_ev_t *io_ev)
 {
     __skt_recvfrom_t *skt_recvfrom = (__skt_recvfrom_t *)io_ev;
 
-    tt_skt_ntv_t *skt = skt_recvfrom->skt;
+    ssize_t n;
+    socklen_t addr_len = sizeof(tt_sktaddr_t);
 
-    skt_recvfrom->result = TT_SUCCESS;
+again:
+    n = recvfrom(skt_recvfrom->skt->s,
+                 skt_recvfrom->buf,
+                 skt_recvfrom->len,
+                 0,
+                 (struct sockaddr *)skt_recvfrom->addr,
+                 &addr_len);
+    if (n > 0) {
+        *skt_recvfrom->recvd = n;
+        skt_recvfrom->result = TT_SUCCESS;
+        return TT_TRUE;
+    } else if (n == 0) {
+        skt_recvfrom->result = TT_END;
+        return TT_TRUE;
+    } else if (errno == EINTR) {
+        goto again;
+    } else if ((errno == EAGAIN) || (errno == EWOULDBLOCK)) {
+        tt_kq_read(skt_recvfrom->kq, skt_recvfrom->skt->s, io_ev);
+        return TT_FALSE;
+    }
+
+    // error
+    if (errno == ECONNRESET
+        // || (errno == ENETDOWN)
+        ) {
+        skt_recvfrom->result = TT_END;
+    } else {
+        TT_ERROR_NTV("recvfrom failed");
+        skt_recvfrom->result = TT_FAIL;
+    }
     return TT_TRUE;
 }

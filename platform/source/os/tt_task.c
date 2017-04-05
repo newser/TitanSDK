@@ -107,7 +107,7 @@ void tt_task_add_fiber(IN tt_task_t *t,
     tf->attr = attr;
     tt_snode_init(&tf->node);
 
-    tt_slist_push_head(&t->tfl, &tf->node);
+    tt_slist_push_tail(&t->tfl, &tf->node);
 }
 
 tt_result_t tt_task_run(IN tt_task_t *t)

@@ -29,6 +29,7 @@
 #include <memory/tt_memory_alloc.h>
 #include <memory/tt_slab.h>
 #include <network/tt_network_interface.h>
+#include <os/tt_task.h>
 
 // portlayer header files
 #include <tt_cstd_api.h>
@@ -62,6 +63,8 @@
 TT_TEST_ROUTINE_DECLARE(tt_unit_test_sk_addr)
 TT_TEST_ROUTINE_DECLARE(tt_unit_test_sk_opt)
 TT_TEST_ROUTINE_DECLARE(tt_unit_test_bind_basic)
+TT_TEST_ROUTINE_DECLARE(tt_unit_test_tcp_basic)
+TT_TEST_ROUTINE_DECLARE(tt_unit_test_udp_basic)
 
 TT_TEST_ROUTINE_DECLARE(tt_unit_test_tcp_server)
 TT_TEST_ROUTINE_DECLARE(tt_unit_test_tcp_server6)
@@ -256,8 +259,17 @@ TT_TEST_CASE("tt_unit_test_sk_addr",
                  NULL),
 
     TT_TEST_CASE("tt_unit_test_bind_basic",
-                 "testing socket tcp api",
+                 "testing socket bind api",
                  tt_unit_test_bind_basic,
+                 NULL,
+                 __ut_skt_enter,
+                 NULL,
+                 NULL,
+                 NULL),
+
+    TT_TEST_CASE("tt_unit_test_tcp_basic",
+                 "testing socket tcp api",
+                 tt_unit_test_tcp_basic,
                  NULL,
                  __ut_skt_enter,
                  NULL,
@@ -450,7 +462,7 @@ TT_TEST_CASE("tt_unit_test_sk_addr",
     ////////////////////////////////////////////////////////////
 
     /*
-    TT_TEST_ROUTINE_DEFINE(tt_unit_test_sk_opt)
+    TT_TEST_ROUTINE_DEFINE(tt_unit_test_tcp_basic)
     {
         //tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
 
@@ -930,6 +942,150 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_bind_basic)
     TT_TEST_CASE_LEAVE()
 }
 
+static tt_u32_t __err_line;
+
+static tt_result_t __f_svr(IN void *param)
+{
+    tt_skt_t *s, *new_s;
+    tt_u8_t buf[] = "6789", buf2[10];
+    tt_u32_t n;
+
+    s = tt_skt_create(TT_NET_AF_INET, TT_NET_PROTO_TCP, NULL);
+    if (s == NULL) {
+        __err_line = __LINE__;
+        return TT_FAIL;
+    }
+
+    if (!TT_OK(tt_skt_bind_p(s, TT_NET_AF_INET, "127.0.0.1", 55556))) {
+        __err_line = __LINE__;
+        return TT_FAIL;
+    }
+
+    if (!TT_OK(tt_skt_listen(s))) {
+        __err_line = __LINE__;
+        return TT_FAIL;
+    }
+
+    new_s = tt_skt_accept(s, NULL, NULL);
+    if (s == NULL) {
+        __err_line = __LINE__;
+        return TT_FAIL;
+    }
+
+    if (!TT_OK(tt_skt_recv(new_s, buf2, sizeof(buf2), &n))) {
+        __err_line = __LINE__;
+        return TT_FAIL;
+    }
+    if (n != 4 || tt_memcmp(buf2, "123", n) != 0) {
+        __err_line = __LINE__;
+        return TT_FAIL;
+    }
+
+    if (!TT_OK(tt_skt_send(new_s, buf, sizeof(buf), &n))) {
+        __err_line = __LINE__;
+        return TT_FAIL;
+    }
+    if (n != sizeof(buf)) {
+        __err_line = __LINE__;
+        return TT_FAIL;
+    }
+
+    if (!TT_OK(tt_skt_shutdown(new_s, TT_SKT_SHUT_WR))) {
+        __err_line = __LINE__;
+        return TT_FAIL;
+    }
+
+    if (tt_skt_recv(new_s, buf2, sizeof(buf2), &n) != TT_END) {
+        __err_line = __LINE__;
+        return TT_FAIL;
+    }
+
+    tt_skt_destroy(new_s);
+    tt_skt_destroy(s);
+
+    return TT_SUCCESS;
+}
+
+static tt_result_t __f_cli(IN void *param)
+{
+    tt_skt_t *s;
+    tt_result_t ret;
+    tt_u8_t buf[] = "123", buf2[10];
+    tt_u32_t n;
+
+    s = tt_skt_create(TT_NET_AF_INET, TT_NET_PROTO_TCP, NULL);
+    if (s == NULL) {
+        __err_line = __LINE__;
+        return TT_FAIL;
+    }
+
+    tt_skt_set_reuseaddr(s, TT_TRUE);
+
+    if (!TT_OK(tt_skt_connect_p(s, TT_NET_AF_INET, "127.0.0.1", 55556))) {
+        __err_line = __LINE__;
+        return TT_FAIL;
+    }
+
+    if (!TT_OK(tt_skt_send(s, buf, sizeof(buf), &n))) {
+        __err_line = __LINE__;
+        return TT_FAIL;
+    }
+    if (n != sizeof(buf)) {
+        __err_line = __LINE__;
+        return TT_FAIL;
+    }
+
+    if (!TT_OK(tt_skt_shutdown(s, TT_SKT_SHUT_WR))) {
+        __err_line = __LINE__;
+        return TT_FAIL;
+    }
+
+    if (!TT_OK(tt_skt_recv(s, buf2, sizeof(buf2), &n))) {
+        __err_line = __LINE__;
+        return TT_FAIL;
+    }
+    if (n != 5 || tt_memcmp(buf2, "6789", n) != 0) {
+        __err_line = __LINE__;
+        return TT_FAIL;
+    }
+
+    if (tt_skt_recv(s, buf2, sizeof(buf2), &n) != TT_END) {
+        __err_line = __LINE__;
+        return TT_FAIL;
+    }
+
+    tt_skt_destroy(s);
+
+    return TT_SUCCESS;
+}
+
+TT_TEST_ROUTINE_DEFINE(tt_unit_test_tcp_basic)
+{
+    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+    tt_fiber_t *svr, *cli;
+    tt_result_t ret;
+    tt_task_t t;
+
+    TT_TEST_CASE_ENTER()
+    // test start
+
+    ret = tt_task_create(&t, NULL);
+    TT_TEST_CHECK_SUCCESS(ret, "");
+
+    tt_task_add_fiber(&t, __f_svr, NULL, NULL);
+    tt_task_add_fiber(&t, __f_cli, NULL, NULL);
+
+    __err_line = 0;
+    ret = tt_task_run(&t);
+    TT_TEST_CHECK_SUCCESS(ret, "");
+
+    tt_task_wait(&t);
+    TT_TEST_CHECK_EQUAL(__err_line, 0, "");
+
+    // test end
+    TT_TEST_CASE_LEAVE()
+}
+
 #if 0
 
 #define __echo_buf_len 100
@@ -1062,7 +1218,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_tcp_server)
     attr.reuse_addr = TT_TRUE;
 
     tt_sktaddr_init(&server_addr, TT_NET_AF_INET);
-    ret = tt_sktaddr_set_ip_p(&server_addr, TT_SKT_IP_ANY);
+    ret = tt_sktaddr_set_ip_p(&server_addr, TT_IP_ANY);
     TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
     tt_sktaddr_set_port(&server_addr, __TPORT);
 
@@ -1162,7 +1318,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_tcp_server6)
     tt_skt_attr_set_ipv6only(&attr, TT_FALSE);
 
     tt_sktaddr_init(&server_addr, TT_NET_AF_INET6);
-    ret = tt_sktaddr_set_ip_p(&server_addr, TT_SKT_IP_ANY);
+    ret = tt_sktaddr_set_ip_p(&server_addr, TT_IP_ANY);
     TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
     tt_sktaddr_set_port(&server_addr, __TPORT + 1);
 
@@ -1372,7 +1528,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_udp_server)
     // tt_skt_attr_set_ipv6only(&attr, TT_FALSE);
 
     tt_sktaddr_init(&server_addr, TT_NET_AF_INET);
-    ret = tt_sktaddr_set_ip_p(&server_addr, TT_SKT_IP_ANY);
+    ret = tt_sktaddr_set_ip_p(&server_addr, TT_IP_ANY);
     TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
     tt_sktaddr_set_port(&server_addr, __TPORT + 2);
 
@@ -1458,7 +1614,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_udp_server6)
     tt_skt_attr_set_ipv6only(&attr, TT_FALSE);
 
     tt_sktaddr_init(&server_addr, TT_NET_AF_INET6);
-    ret = tt_sktaddr_set_ip_p(&server_addr, TT_SKT_IP_ANY);
+    ret = tt_sktaddr_set_ip_p(&server_addr, TT_IP_ANY);
     TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
     tt_sktaddr_set_port(&server_addr, __TPORT + 3);
 
@@ -1550,7 +1706,7 @@ static tt_result_t __mc_thread_4(IN void *param)
         return TT_FAIL;
 
     tt_sktaddr_init(&client_addr, TT_NET_AF_INET);
-    ret = tt_sktaddr_set_ip_p(&client_addr, TT_SKT_IP_ANY);
+    ret = tt_sktaddr_set_ip_p(&client_addr, TT_IP_ANY);
     if (!TT_OK(ret))
         return TT_FAIL;
     tt_sktaddr_set_port(&client_addr, ___mulc_port4_cli);
@@ -1606,7 +1762,7 @@ static tt_result_t __mc_thread_6(IN void *param)
         return TT_FAIL;
 
     tt_sktaddr_init(&client_addr, TT_NET_AF_INET6);
-    ret = tt_sktaddr_set_ip_p(&client_addr, TT_SKT_IP_ANY);
+    ret = tt_sktaddr_set_ip_p(&client_addr, TT_IP_ANY);
     if (!TT_OK(ret))
         return TT_FAIL;
     tt_sktaddr_set_port(&client_addr, ___mulc_port6_cli);
@@ -1675,7 +1831,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_udp_multicast)
 
     // create server addr
     tt_sktaddr_init(&server_addr4, TT_NET_AF_INET);
-    ret = tt_sktaddr_set_ip_p(&server_addr4, TT_SKT_IP_ANY);
+    ret = tt_sktaddr_set_ip_p(&server_addr4, TT_IP_ANY);
     TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
     tt_sktaddr_set_port(&server_addr4, ___mulc_port4);
 
@@ -1733,7 +1889,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_udp_multicast)
 
     // create server addr
     tt_sktaddr_init(&server_addr6, TT_NET_AF_INET6);
-    ret = tt_sktaddr_set_ip_p(&server_addr6, TT_SKT_IP_ANY);
+    ret = tt_sktaddr_set_ip_p(&server_addr6, TT_IP_ANY);
     TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
     tt_sktaddr_set_port(&server_addr6, ___mulc_port6);
     if (1 || ((tt_strncmp(__TLOCAL_IP6, "fe80", 4) == 0) &&

@@ -52,8 +52,8 @@ tt_result_t tt_sktaddr_set_ip_p(IN tt_sktaddr_t *addr,
 {
     tt_sktaddr_ip_t ip;
 
-    if (ip_str == TT_SKT_IP_ANY) {
-        tt_sktaddr_set_ip_n(addr, TT_SKT_IP_ANY);
+    if (ip_str == TT_IP_ANY) {
+        tt_sktaddr_set_ip_n(addr, TT_IP_ANY);
         return TT_SUCCESS;
     }
 

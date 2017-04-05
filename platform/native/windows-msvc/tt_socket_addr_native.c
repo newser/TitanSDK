@@ -80,14 +80,14 @@ tt_net_family_t tt_sktaddr_get_family_ntv(IN tt_sktaddr_ntv_t *addr)
 void tt_sktaddr_set_ip_n_ntv(IN tt_sktaddr_ntv_t *addr, IN tt_sktaddr_ip_t *na)
 {
     if (addr->ss_family == AF_INET) {
-        if (na == TT_SKT_IP_ANY) {
+        if (na == TT_IP_ANY) {
             ((SOCKADDR_IN *)addr)->sin_addr.s_addr = INADDR_ANY;
         } else {
             ((SOCKADDR_IN *)addr)->sin_addr.s_addr = na->a32.__u32;
         }
     } else {
         TT_ASSERT_SA(addr->ss_family == AF_INET6);
-        if (na == TT_SKT_IP_ANY) {
+        if (na == TT_IP_ANY) {
             ((SOCKADDR_IN6 *)addr)->sin6_addr = in6addr_any;
         } else {
             tt_memcpy(((SOCKADDR_IN6 *)addr)->sin6_addr.s6_bytes,
