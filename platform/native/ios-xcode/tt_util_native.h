@@ -58,7 +58,13 @@ this file provided some basic utilities for platform usage
         }                                                                      \
     } while (0)
 
-// socket kqueue related
+#define tt_kq_read(kq, ident, udata)                                           \
+    tt_kevent((kq), (ident), EVFILT_READ, EV_ADD | EV_ONESHOT, (udata))
+
+#define tt_kq_write(kq, ident, udata)                                          \
+    tt_kevent((kq), (ident), EVFILT_WRITE, EV_ADD | EV_ONESHOT, (udata))
+
+// socket kqueue
 #define __skt_kq_rd_add(kq, ident, udata)                                      \
     tt_kevent((kq), (ident), EVFILT_READ, EV_ADD | EV_DISABLE, (udata))
 #define __skt_kq_rd_enable(sys_skt)                                            \
@@ -89,7 +95,7 @@ this file provided some basic utilities for platform usage
               EV_DISABLE,                                                      \
               &(sys_skt)->ev_mark_wr)
 
-// ipc kqueue related
+// ipc kqueue
 #define __ipc_kq_rd_add(kq, ident, udata)                                      \
     tt_kevent((kq), (ident), EVFILT_READ, EV_ADD | EV_DISABLE, (udata))
 #define __ipc_kq_rd_enable(sys_ipc)                                            \

@@ -22,6 +22,7 @@
 
 #include <init/tt_component.h>
 #include <init/tt_profile.h>
+#include <memory/tt_memory_alloc.h>
 #include <misc/tt_util.h>
 
 #include <tt_cstd_api.h>

@@ -57,11 +57,11 @@ tt_result_t tt_kevent(IN int kq,
                       IN uint16_t flags,
                       IN uint64_t udata)
 {
-    struct kevent ev = {0};
+    struct kevent kev = {0};
     const struct timespec timeout = {0};
 
-    EV_SET(&ev, ident, filter, flags, 0, 0, udata);
-    if (kevent(kq, &ev, 1, NULL, 0, &timeout) == 0) {
+    EV_SET(&kev, ident, filter, flags, 0, 0, udata);
+    if (kevent(kq, &kev, 1, NULL, 0, &timeout) == 0) {
         return TT_SUCCESS;
     } else {
         TT_ERROR_NTV("[%d]fail", filter);
@@ -102,69 +102,33 @@ char *tt_cfstring_ptr(IN CFStringRef cfstr, OUT OPT tt_u32_t *len)
 
 void tt_osstatus_show(IN OSStatus osst)
 {
-    switch (osst) {
-        case errSecSuccess:
-            TT_ERROR("errSecSuccess: No error");
-            break;
-        case errSecUnimplemented:
-            TT_ERROR(
-                "errSecUnimplemented: Function or operation not implemented");
-            break;
-        case errSecIO:
-            TT_ERROR("errSecIO: I/O error (bummers)");
-            break;
-        case errSecOpWr:
-            TT_ERROR(
-                "errSecOpWr: file already open with with write permission");
-            break;
-        case errSecParam:
-            TT_ERROR(
-                "errSecParam: One or more parameters passed to a function "
-                "where not valid");
-            break;
-        case errSecAllocate:
-            TT_ERROR("errSecAllocate: Failed to allocate memory");
-            break;
-        case errSecUserCanceled:
-            TT_ERROR("errSecUserCanceled: User canceled the operation");
-            break;
-        case errSecBadReq:
-            TT_ERROR(
-                "errSecBadReq: Bad parameter or invalid state for operation");
-            break;
-        case errSecInternalComponent:
-            TT_ERROR("errSecInternalComponent: errSecInternalComponent");
-            break;
-        case errSecDuplicateItem:
-            TT_ERROR(
-                "errSecDuplicateItem: The specified item already exists in the "
-                "keychain");
-            break;
-        case errSecNotAvailable:
-            TT_ERROR(
-                "errSecNotAvailable: No keychain is available. You may need to "
-                "restart your computer");
-            break;
-        case errSecItemNotFound:
-            TT_ERROR(
-                "errSecItemNotFound: The specified item could not be found in "
-                "the keychain");
-            break;
-        case errSecInteractionNotAllowed:
-            TT_ERROR(
-                "errSecInteractionNotAllowed: User interaction is not allowed");
-            break;
-        case errSecDecode:
-            TT_ERROR("errSecDecode: Unable to decode the provided data");
-            break;
-        case errSecAuthFailed:
-            TT_ERROR(
-                "errSecAuthFailed: The user name or passphrase you entered is "
-                "not correct");
-            break;
+#if defined(TT_PLATFORM_SSL_ENABLE)
+    CFStringRef s = SecCopyErrorMessageString(osst, NULL);
+    tt_char_t *cstr = NULL;
 
-        default:
-            TT_ERROR("OSStatus: %d", osst);
-            break;
+    if (s == NULL) {
+        TT_ERROR("unknown OSStatus");
+        goto __out;
     }
+
+    cstr = tt_cfstring_ptr(s, NULL);
+    if (cstr == NULL) {
+        TT_ERROR("unknown OSStatus");
+        goto __out;
+    }
+
+    TT_ERROR("OSStatus: %s", cstr);
+
+__out:
+
+    if (cstr != NULL) {
+        tt_free(cstr);
+    }
+
+    if (s != NULL) {
+        CFRelease(s);
+    }
+#else
+    TT_ERROR("OSStatus: %d", osst);
+#endif
 }

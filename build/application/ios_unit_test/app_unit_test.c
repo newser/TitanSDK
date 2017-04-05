@@ -129,8 +129,8 @@ int app_ut_main(int argc, char *argv[])
 
     return 0;
 
-    // tt_page_os_stat_show(0);
-    tt_skt_stat_show(0);
+// tt_page_os_stat_show(0);
+// tt_skt_stat_show(0);
 
 #ifdef TT_WINDOWS_CRT_DUMP
     _CrtDumpMemoryLeaks();
