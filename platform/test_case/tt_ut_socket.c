@@ -824,7 +824,7 @@ static tt_result_t __f_svr(IN void *param)
     }
 
     new_s = tt_skt_accept(s, NULL, NULL);
-    if (s == NULL) {
+    if (new_s == NULL) {
         __err_line = __LINE__;
         return TT_FAIL;
     }
@@ -1298,7 +1298,7 @@ static tt_result_t __f_svr_t4(IN void *param)
         tt_fiber_t *fb;
 
         new_s = tt_skt_accept(s, NULL, NULL);
-        if (s == NULL) {
+        if (new_s == NULL) {
             __err_line = __LINE__;
             return TT_FAIL;
         }
