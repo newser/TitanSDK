@@ -988,7 +988,7 @@ static tt_result_t __f_cli_tcp6_close(IN void *param)
     tt_skt_t *s;
     tt_result_t ret;
     tt_u8_t buf[1 << 14] = "123";
-    tt_u32_t n, loop;
+    tt_u32_t n;
 
     s = tt_skt_create(TT_NET_AF_INET6, TT_NET_PROTO_TCP, NULL);
     if (s == NULL) {
@@ -1003,7 +1003,6 @@ static tt_result_t __f_cli_tcp6_close(IN void *param)
         return TT_FAIL;
     }
 
-    loop = 0;
     while (TT_OK(tt_skt_send(s, buf, sizeof(buf), &n)) &&
            TT_OK(tt_skt_recv(s, buf, sizeof(buf), &n)) &&
            (tt_rand_u32() % 20 != 19)) {
@@ -1410,8 +1409,8 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_tcp4_stress)
         ret = tt_task_create(&t[i], NULL);
         TT_TEST_CHECK_SUCCESS(ret, "");
 
-        tt_task_add_fiber(&t[i], __f_svr_t4, (tt_uintptr_t)i, NULL);
-        tt_task_add_fiber(&t[i], __f_cli_t4, (tt_uintptr_t)i, NULL);
+        tt_task_add_fiber(&t[i], __f_svr_t4, (void*)(tt_uintptr_t)i, NULL);
+        tt_task_add_fiber(&t[i], __f_cli_t4, (void*)(tt_uintptr_t)i, NULL);
     }
 
     __err_line = 0;

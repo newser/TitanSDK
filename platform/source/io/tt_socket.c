@@ -318,7 +318,7 @@ tt_skt_t *tt_tcp_server_p(IN tt_net_family_t family,
 
     tt_sktaddr_init(&addr, family);
     if (!TT_OK(tt_sktaddr_set_ip_p(&addr, ip))) {
-        return TT_FAIL;
+        return NULL;
     }
     tt_sktaddr_set_port(&addr, port);
 
@@ -353,7 +353,7 @@ tt_skt_t *tt_udp_server_p(IN tt_net_family_t family,
 
     tt_sktaddr_init(&addr, family);
     if (!TT_OK(tt_sktaddr_set_ip_p(&addr, ip))) {
-        return TT_FAIL;
+        return NULL;
     }
     tt_sktaddr_set_port(&addr, port);
 

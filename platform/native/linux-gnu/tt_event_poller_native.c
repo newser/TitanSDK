@@ -24,10 +24,11 @@
 #include <event/tt_event_poller.h>
 //#include <io/tt_file_system_aio.h>
 #include <io/tt_ipc_aio.h>
-#include <io/tt_socket_aio.h>
+//#include <io/tt_socket_aio.h>
 #include <misc/tt_error.h>
 
 #include <sys/epoll.h>
+#include <unistd.h>
 
 ////////////////////////////////////////////////////////////
 // internal macro
@@ -117,7 +118,7 @@ tt_result_t tt_evp_poll_ntv(IN struct tt_evpoller_s *evp, IN tt_s64_t wait_ms)
                         return TT_FAIL;
                     }
                 } break;
-                case TT_EVP_MARK_EPOLL_SOCKET: {
+                /*case TT_EVP_MARK_EPOLL_SOCKET: {
                     tt_skt_ntv_t *sys_skt =
                         TT_CONTAINER(ep_ev[i].data.ptr, tt_skt_ntv_t, ev_mark);
                     tt_skt_t *skt = TT_CONTAINER(sys_skt, tt_skt_t, sys_skt);
@@ -125,7 +126,7 @@ tt_result_t tt_evp_poll_ntv(IN struct tt_evpoller_s *evp, IN tt_s64_t wait_ms)
                     if (!TT_OK(tt_skt_ep_handler(skt, ep_ev[i].events))) {
                         return TT_FAIL;
                     }
-                } break;
+                } break;*/
                 case TT_EVP_MARK_EPOLL_IPC: {
                     tt_ipc_ntv_t *sys_ipc =
                         TT_CONTAINER(ep_ev[i].data.ptr, tt_ipc_ntv_t, ev_mark);

@@ -28,6 +28,8 @@ this file specifies apis to get or set socket option
 // import header files
 ////////////////////////////////////////////////////////////
 
+#include <misc/tt_util.h>
+
 #include <tt_socket_native.h>
 #include <tt_sys_error.h>
 
