@@ -1409,8 +1409,8 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_tcp4_stress)
         ret = tt_task_create(&t[i], NULL);
         TT_TEST_CHECK_SUCCESS(ret, "");
 
-        tt_task_add_fiber(&t[i], __f_svr_t4, (void*)(tt_uintptr_t)i, NULL);
-        tt_task_add_fiber(&t[i], __f_cli_t4, (void*)(tt_uintptr_t)i, NULL);
+        tt_task_add_fiber(&t[i], __f_svr_t4, (void *)(tt_uintptr_t)i, NULL);
+        tt_task_add_fiber(&t[i], __f_cli_t4, (void *)(tt_uintptr_t)i, NULL);
     }
 
     __err_line = 0;

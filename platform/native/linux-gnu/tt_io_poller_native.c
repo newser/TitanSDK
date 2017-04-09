@@ -25,9 +25,9 @@
 #include <os/tt_fiber.h>
 #include <os/tt_task.h>
 
+#include <tt_socket_native.h>
 #include <tt_sys_error.h>
 #include <tt_util_native.h>
-#include <tt_socket_native.h>
 
 #include <sys/epoll.h>
 #include <sys/eventfd.h>
@@ -391,7 +391,6 @@ tt_bool_t __skt_io(IN tt_io_ev_t *io_ev, IN tt_io_poller_ntv_t *sys_iop)
         TT_ASSERT(io_ev->src != NULL);
         tt_fiber_resume(io_ev->src, TT_TRUE);
     }
-    
+
     return TT_TRUE;
 }
-

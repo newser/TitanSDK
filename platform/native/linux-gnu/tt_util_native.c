@@ -46,17 +46,18 @@
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-tt_result_t tt_epoll(IN int epfd, IN int op, IN int fd, IN uint32_t events,
-                     IN void *ptr) {
-  struct epoll_event event;
+tt_result_t tt_epoll(
+    IN int epfd, IN int op, IN int fd, IN uint32_t events, IN void *ptr)
+{
+    struct epoll_event event;
 
-  event.events = events;
-  event.data.ptr = ptr;
+    event.events = events;
+    event.data.ptr = ptr;
 
-  if (epoll_ctl(epfd, op, fd, &event) == 0) {
-    return TT_SUCCESS;
-  } else {
-    TT_ERROR_NTV("epoll failed");
-    return TT_FAIL;
-  }
+    if (epoll_ctl(epfd, op, fd, &event) == 0) {
+        return TT_SUCCESS;
+    } else {
+        TT_ERROR_NTV("epoll failed");
+        return TT_FAIL;
+    }
 }
