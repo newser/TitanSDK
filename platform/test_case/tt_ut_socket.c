@@ -1026,8 +1026,8 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_tcp6_close)
     ret = tt_task_create(&t, NULL);
     TT_TEST_CHECK_SUCCESS(ret, "");
 
-    tt_task_add_fiber(&t, __f_svr, NULL, NULL);
-    tt_task_add_fiber(&t, __f_cli, NULL, NULL);
+    tt_task_add_fiber(&t, __f_svr_tcp6_close, NULL, NULL);
+    tt_task_add_fiber(&t, __f_cli_tcp6_close, NULL, NULL);
 
     __err_line = 0;
 

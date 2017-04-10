@@ -18,7 +18,7 @@
 // import header files
 ////////////////////////////////////////////////////////////
 
-#define _GNU_SOURCE
+#define _GNU_SOURCE // accept4
 
 #include <tt_socket_native.h>
 
@@ -86,8 +86,8 @@ int __sf_listen(int socket, int backlog);
 #ifdef __SIMU_FAIL_ACCEPT
 #define accept __sf_accept
 int __sf_accept(int socket,
-                struct sockaddr *restrict address,
-                socklen_t *restrict address_len);
+                struct sockaddr *address,
+                socklen_t *address_len);
 #endif
 
 #ifdef __SIMU_FAIL_CONNECT
@@ -120,11 +120,11 @@ ssize_t __sf_sendto(int socket,
 #ifdef __SIMU_FAIL_RECVFROM
 #define recvfrom __sf_recvfrom
 ssize_t __sf_recvfrom(int socket,
-                      void *restrict buffer,
+                      void *buffer,
                       size_t length,
                       int flags,
-                      struct sockaddr *restrict address,
-                      socklen_t *restrict address_len);
+                      struct sockaddr *address,
+                      socklen_t *address_len);
 #endif
 
 ////////////////////////////////////////////////////////////
@@ -133,6 +133,7 @@ ssize_t __sf_recvfrom(int socket,
 
 enum
 {
+    __SKT_NULL,
     __SKT_ACCEPT,
     __SKT_CONNECT,
     __SKT_SEND,
@@ -229,6 +230,8 @@ typedef struct
 // global variant
 ////////////////////////////////////////////////////////////
 
+static tt_bool_t __do_null(IN tt_io_ev_t *io_ev);
+
 static tt_bool_t __do_accept(IN tt_io_ev_t *io_ev);
 
 static tt_bool_t __do_connect(IN tt_io_ev_t *io_ev);
@@ -242,8 +245,10 @@ static tt_bool_t __do_sendto(IN tt_io_ev_t *io_ev);
 static tt_bool_t __do_recvfrom(IN tt_io_ev_t *io_ev);
 
 static tt_poller_io_t __skt_poller_io[__SKT_EV_NUM] = {
-    __do_accept, __do_connect, __do_send, __do_recv, __do_sendto, __do_recvfrom,
+    __do_null, __do_accept, __do_connect, __do_send, __do_recv, __do_sendto, __do_recvfrom,
 };
+
+static tt_io_ev_t __s_null_io_ev;
 
 ////////////////////////////////////////////////////////////
 // interface declaration
@@ -265,6 +270,12 @@ static tt_result_t __addr_to_mreq6(IN tt_sktaddr_ip_t *addr,
 
 tt_result_t tt_skt_component_init_ntv(IN tt_profile_t *profile)
 {
+    __s_null_io_ev.src = NULL;
+    __s_null_io_ev.dst = NULL;
+    tt_dnode_init(&__s_null_io_ev.node);
+    __s_null_io_ev.io = TT_IO_SOCKET;
+    __s_null_io_ev.ev = __SKT_NULL;
+
     return TT_SUCCESS;
 }
 
@@ -331,7 +342,7 @@ tt_result_t tt_skt_create_ntv(IN tt_skt_ntv_t *skt,
 
     epfd = tt_current_fiber_sched()->thread->task->iop.sys_iop.ep;
     event.events = EPOLLRDHUP | EPOLLONESHOT;
-    event.data.ptr = NULL;
+    event.data.ptr = &__s_null_io_ev;
     if (epoll_ctl(epfd, EPOLL_CTL_ADD, s, &event) != 0) {
         TT_ERROR_NTV("fail to add skt to epoll");
         goto fail;
@@ -735,6 +746,12 @@ tt_result_t __addr_to_mreq6(IN tt_sktaddr_ip_t *addr,
     return TT_SUCCESS;
 }
 
+tt_bool_t __do_null(IN tt_io_ev_t *io_ev)
+{
+    // no fiber to resume
+    return TT_FALSE;
+}
+
 tt_bool_t __do_accept(IN tt_io_ev_t *io_ev)
 {
     __skt_accept_t *skt_accept = (__skt_accept_t *)io_ev;
@@ -779,7 +796,7 @@ again:
     }
 
     event.events = EPOLLRDHUP | EPOLLONESHOT;
-    event.data.ptr = NULL;
+    event.data.ptr = &__s_null_io_ev;
     if (epoll_ctl(skt_accept->ep, EPOLL_CTL_ADD, s, &event) != 0) {
         TT_ERROR_NTV("fail to add skt to epoll");
         goto fail;
@@ -1015,8 +1032,8 @@ int __sf_listen(int socket, int backlog)
 #ifdef __SIMU_FAIL_ACCEPT
 #undef accept
 int __sf_accept(int socket,
-                struct sockaddr *restrict address,
-                socklen_t *restrict address_len)
+                struct sockaddr *address,
+                socklen_t *address_len)
 {
     return -1;
 }
@@ -1036,10 +1053,12 @@ int __sf_connect(int socket,
 #undef send
 ssize_t __sf_send(int socket, const void *buffer, size_t length, int flags)
 {
-    if (tt_rand_u32() % 2) {
+    if ((tt_rand_u32() % 10) == 0) {
         return -1;
     } else {
-        return send(socket, buffer, tt_rand_u32() % length, flags);
+        tt_u32_t n = tt_rand_u32() % length + 1;
+        //TT_INFO("send %d < %d", n, length);
+        return send(socket, buffer, n, flags);
     }
 }
 #endif
@@ -1048,10 +1067,12 @@ ssize_t __sf_send(int socket, const void *buffer, size_t length, int flags)
 #undef recv
 ssize_t __sf_recv(int socket, void *buffer, size_t length, int flags)
 {
-    if (tt_rand_u32() % 2) {
+    if ((tt_rand_u32() % 10) == 0) {
         return -1;
     } else {
-        return recv(socket, buffer, tt_rand_u32() % length, flags);
+        tt_u32_t n = tt_rand_u32() % length + 1;
+        //TT_INFO("recv %d < %d", n, length);
+        return recv(socket, buffer, n, flags);
     }
 }
 #endif
@@ -1065,7 +1086,7 @@ ssize_t __sf_sendto(int socket,
                     const struct sockaddr *dest_addr,
                     socklen_t dest_len)
 {
-    if (tt_rand_u32() % 2) {
+    if ((tt_rand_u32() % 10) == 0) {
         return -1;
     } else {
         return sendto(socket,
@@ -1081,13 +1102,13 @@ ssize_t __sf_sendto(int socket,
 #ifdef __SIMU_FAIL_RECVFROM
 #undef recvfrom
 ssize_t __sf_recvfrom(int socket,
-                      void *restrict buffer,
+                      void *buffer,
                       size_t length,
                       int flags,
-                      struct sockaddr *restrict address,
-                      socklen_t *restrict address_len)
+                      struct sockaddr *address,
+                      socklen_t *address_len)
 {
-    if (tt_rand_u32() % 2) {
+    if ((tt_rand_u32() % 10) == 0) {
         return -1;
     } else {
         return recvfrom(socket,
