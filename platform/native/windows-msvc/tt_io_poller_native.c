@@ -255,4 +255,3 @@ tt_bool_t __skt_io(IN tt_io_ev_t *io_ev)
 
     return TT_TRUE;
 }
-

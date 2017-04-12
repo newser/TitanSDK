@@ -369,12 +369,12 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_ipc_server)
     evc_attr.on_init = __utb_on_init;
 
     ret = tt_evc_create(&evc, TT_FALSE, &evc_attr);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     ret = tt_evc_wait(&evc);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
-    TT_TEST_CHECK_EQUAL(__utb_ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(__utb_ret, TT_SUCCESS, "");
 
     // test end
     TT_TEST_CASE_LEAVE()
@@ -635,12 +635,12 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_ipc_client)
     evc_attr.on_init_param = __IPC_PATH;
 
     ret = tt_evc_create(&evc, TT_FALSE, &evc_attr);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     ret = tt_evc_wait(&evc);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
-    TT_TEST_CHECK_EQUAL(__utb_ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(__utb_ret, TT_SUCCESS, "");
 
     // test end
     TT_TEST_CASE_LEAVE()
@@ -707,12 +707,12 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_ipc_stress)
     evc_attr.on_init = __st1_on_init;
 
     ret = tt_evc_create(&evc, TT_FALSE, &evc_attr);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     ret = tt_evc_wait(&evc);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
-    TT_TEST_CHECK_EQUAL(__utb_ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(__utb_ret, TT_SUCCESS, "");
 
     // test end
     TT_TEST_CASE_LEAVE()
@@ -786,12 +786,12 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_ipc_stress_mul)
     evc_attr.on_init = __stm_on_init;
 
     ret = tt_evc_create(&evc, TT_FALSE, &evc_attr);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     ret = tt_evc_wait(&evc);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
-    TT_TEST_CHECK_EQUAL(__utb_ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(__utb_ret, TT_SUCCESS, "");
 
     // test end
     TT_TEST_CASE_LEAVE()
@@ -995,13 +995,13 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_ipc_destroy_immd)
     evc_attr.on_init = __di_on_init_svr;
 
     ret = tt_evc_create(&evc, TT_FALSE, &evc_attr);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     ret = tt_evc_wait(&evc);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
-    TT_TEST_CHECK_EQUAL(__utb_ret, TT_SUCCESS, "");
-    TT_TEST_CHECK_EQUAL(__utb_err_line, 0, "");
+    TT_UT_EQUAL(__utb_ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(__utb_err_line, 0, "");
 
     // test client
     __utb_ret = TT_FAIL;
@@ -1012,14 +1012,14 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_ipc_destroy_immd)
     evc_attr.on_init = __di_on_init_cli;
 
     ret = tt_evc_create(&evc, TT_FALSE, &evc_attr);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     ret = tt_evc_wait(&evc);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
-    TT_TEST_CHECK_EQUAL(__utb_ret, TT_SUCCESS, "");
-    // TT_TEST_CHECK_EQUAL(__utb_ret2, TT_SUCCESS, "");
-    TT_TEST_CHECK_EQUAL(__utb_err_line, 0, "");
+    TT_UT_EQUAL(__utb_ret, TT_SUCCESS, "");
+    // TT_UT_EQUAL(__utb_ret2, TT_SUCCESS, "");
+    TT_UT_EQUAL(__utb_err_line, 0, "");
 
     // test end
     TT_TEST_CASE_LEAVE()

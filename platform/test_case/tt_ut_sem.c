@@ -123,51 +123,51 @@ TT_TEST_CASE("tt_unit_test_sem_basic",
     // test start
 
     ret = tt_sem_create(&lock, 0, NULL);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     // lock, wait for 100ms
     begin = tt_time_ref();
     b_ret = tt_sem_acquire(&lock, 100);
     end = tt_time_ref();
-    TT_TEST_CHECK_EQUAL(b_ret, TT_FALSE, "");
+    TT_UT_EQUAL(b_ret, TT_FALSE, "");
 
     t = (tt_s32_t)tt_time_ref2ms(end - begin);
-    // TT_TEST_CHECK_EXP(abs(t - 100) < 10, "");
+    // TT_UT_EXP(abs(t - 100) < 10, "");
 
     tt_sem_destroy(&lock);
 
     // with large count
     ret = tt_sem_create(&lock, ~0, NULL);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     // lock, wait for 100ms
     b_ret = tt_sem_acquire(&lock, TT_TIME_INFINITE);
-    TT_TEST_CHECK_EQUAL(b_ret, TT_TRUE, "");
+    TT_UT_EQUAL(b_ret, TT_TRUE, "");
 
     tt_sem_destroy(&lock);
 
     // create with counter value 2
     tt_memset(&attr, 0, sizeof(tt_sem_attr_t));
     ret = tt_sem_create(&lock, 2, &attr);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     // lock for two times
     b_ret = tt_sem_acquire(&lock, TT_TIME_INFINITE);
-    TT_TEST_CHECK_EQUAL(b_ret, TT_TRUE, "");
+    TT_UT_EQUAL(b_ret, TT_TRUE, "");
     b_ret = tt_sem_acquire(&lock, TT_TIME_INFINITE);
-    TT_TEST_CHECK_EQUAL(b_ret, TT_TRUE, "");
+    TT_UT_EQUAL(b_ret, TT_TRUE, "");
 
     // test wait infinite
     // ret = tt_sem_acquire(&lock, TT_TIME_INFINITE);
 
     // trylock
     ret = tt_sem_try_acquire(&lock);
-    // TT_TEST_CHECK_EQUAL(ret, TT_TIME_OUT, "");
+    // TT_UT_EQUAL(ret, TT_TIME_OUT, "");
 
     // unlock, relock
     tt_sem_release(&lock);
     b_ret = tt_sem_acquire(&lock, TT_TIME_INFINITE);
-    TT_TEST_CHECK_EQUAL(b_ret, TT_TRUE, "");
+    TT_UT_EQUAL(b_ret, TT_TRUE, "");
 
     // unlock all
     tt_sem_release(&lock);
@@ -175,7 +175,7 @@ TT_TEST_CASE("tt_unit_test_sem_basic",
 
     // trylock
     b_ret = tt_sem_try_acquire(&lock);
-    TT_TEST_CHECK_EQUAL(b_ret, TT_TRUE, "");
+    TT_UT_EQUAL(b_ret, TT_TRUE, "");
 
     // unlock
     tt_sem_release(&lock);
@@ -187,12 +187,12 @@ TT_TEST_CASE("tt_unit_test_sem_basic",
 
     // create
     ret = tt_sem_create(&lock, 0, NULL);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     // with time specified
     b_ret = tt_sem_acquire(&lock, 100);
-    TT_TEST_CHECK_EQUAL(b_ret, TT_FALSE, "");
+    TT_UT_EQUAL(b_ret, TT_FALSE, "");
     b_ret = tt_sem_acquire(&lock, 100);
-    TT_TEST_CHECK_EQUAL(b_ret, TT_FALSE, "");
+    TT_UT_EQUAL(b_ret, TT_FALSE, "");
     tt_sem_release(&lock);
     tt_sem_acquire(&lock, 100);
     // destroy
@@ -252,9 +252,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_sem_mt)
 
     tt_sem_destroy(&sem);
 
-    TT_TEST_CHECK_EQUAL(cnt,
-                        10000 * sizeof(test_threads) / sizeof(tt_thread_t *),
-                        "");
+    TT_UT_EQUAL(cnt, 10000 * sizeof(test_threads) / sizeof(tt_thread_t *), "");
 
     // test end
     TT_TEST_CASE_LEAVE()

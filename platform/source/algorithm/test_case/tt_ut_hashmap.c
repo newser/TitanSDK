@@ -158,7 +158,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_hash)
         hc = tt_hash_murmur3((tt_u8_t *)__h1_murmur3[i].key,
                              __h1_murmur3[i].key_len,
                              &hctx);
-        TT_TEST_CHECK_EQUAL(hc, __h1_murmur3[i].hash, "");
+        TT_UT_EQUAL(hc, __h1_murmur3[i].hash, "");
     }
 
     // performace: murmur3
@@ -268,11 +268,11 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_map_basic)
 
     // 10000 => 97 slots
     ret = tt_hmap_create(&hmap, 97, &attr);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
     tt_hmap_clear((&hmap));
-    TT_TEST_CHECK_EQUAL(tt_hmap_count(&hmap), 0, "");
-    TT_TEST_CHECK_EQUAL(tt_hmap_empty(&hmap), TT_TRUE, "");
-    TT_TEST_CHECK_EQUAL(tt_hmap_find(&hmap, (tt_u8_t *)&i, 1), NULL, "");
+    TT_UT_EQUAL(tt_hmap_count(&hmap), 0, "");
+    TT_UT_EQUAL(tt_hmap_empty(&hmap), TT_TRUE, "");
+    TT_UT_EQUAL(tt_hmap_find(&hmap, (tt_u8_t *)&i, 1), NULL, "");
 
     base = tt_rand_u32() % 100 + 1;
     for (i = 0; i < __h2_num; ++i) {
@@ -288,9 +288,9 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_map_basic)
 
         tt_mnode_init(&__h2_cases[i].hnode);
         if (i % 91 == 0) {
-            TT_TEST_CHECK_EQUAL(tt_hmap_contain(&hmap, &__h2_cases[i].hnode),
-                                TT_FALSE,
-                                "");
+            TT_UT_EQUAL(tt_hmap_contain(&hmap, &__h2_cases[i].hnode),
+                        TT_FALSE,
+                        "");
         }
 
         // insert
@@ -298,70 +298,68 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_map_basic)
                           __h2_cases[i].key,
                           __h2_cases[i].key_len,
                           &__h2_cases[i].hnode);
-        TT_TEST_CHECK_SUCCESS(ret, "");
+        TT_UT_SUCCESS(ret, "");
         if (i % 100 == 0) {
             tt_hnode_t *node = NULL;
             struct __h2_case_t *hc;
 
-            TT_TEST_CHECK_EQUAL(tt_hmap_count(&hmap), i + 1, "");
-            TT_TEST_CHECK_EQUAL(tt_hmap_empty(&hmap), TT_FALSE, "");
-            TT_TEST_CHECK_EQUAL(tt_hmap_contain_key(&hmap,
-                                                    __h2_cases[i].key,
-                                                    __h2_cases[i].key_len),
-                                TT_TRUE,
-                                "");
-            TT_TEST_CHECK_EQUAL(tt_hmap_contain(&hmap, &__h2_cases[i].hnode),
-                                TT_TRUE,
-                                "");
+            TT_UT_EQUAL(tt_hmap_count(&hmap), i + 1, "");
+            TT_UT_EQUAL(tt_hmap_empty(&hmap), TT_FALSE, "");
+            TT_UT_EQUAL(tt_hmap_contain_key(&hmap,
+                                            __h2_cases[i].key,
+                                            __h2_cases[i].key_len),
+                        TT_TRUE,
+                        "");
+            TT_UT_EQUAL(tt_hmap_contain(&hmap, &__h2_cases[i].hnode),
+                        TT_TRUE,
+                        "");
 
             node =
                 tt_hmap_find(&hmap, __h2_cases[i].key, __h2_cases[i].key_len);
-            TT_TEST_CHECK_NOT_EQUAL(node, NULL, "");
+            TT_UT_NOT_EQUAL(node, NULL, "");
             hc = TT_CONTAINER(node, struct __h2_case_t, hnode);
-            TT_TEST_CHECK_EQUAL(hc - &__h2_cases[0], i, "");
+            TT_UT_EQUAL(hc - &__h2_cases[0], i, "");
 
             // adding a duplicate key would fail
             ret = tt_hmap_add(&hmap,
                               __h2_cases[i].key,
                               __h2_cases[i].key_len,
                               &__h2_cases[i].hnode);
-            TT_TEST_CHECK_FAIL(ret, "");
+            TT_UT_FAIL(ret, "");
         }
     }
 
     // for each
     i = 0;
     tt_hmap_foreach(&hmap, __hm_count, &i);
-    TT_TEST_CHECK_EQUAL(i, __h2_num, "");
-    TT_TEST_CHECK_EQUAL(tt_hmap_count(&hmap), __h2_num, "");
+    TT_UT_EQUAL(i, __h2_num, "");
+    TT_UT_EQUAL(tt_hmap_count(&hmap), __h2_num, "");
 
     for (i = 0; i < __h2_num; ++i) {
         tt_hnode_t *hnode =
             tt_hmap_find(&hmap, __h2_cases[i].key, __h2_cases[i].key_len);
 
         // must be able to find a node
-        TT_TEST_CHECK_NOT_EQUAL(hnode, NULL, "");
+        TT_UT_NOT_EQUAL(hnode, NULL, "");
     }
 
     // remove
     for (i = 0; (i < __h2_num) && (i % 10 == 0); ++i) {
         tt_hmap_remove(&hmap, &__h2_cases[i].hnode);
-        TT_TEST_CHECK_EQUAL(tt_hmap_contain(&hmap, &__h2_cases[i].hnode),
-                            TT_FALSE,
-                            "");
+        TT_UT_EQUAL(tt_hmap_contain(&hmap, &__h2_cases[i].hnode), TT_FALSE, "");
     }
     for (i = 0; (i < __h2_num) && (i % 9 == 0); ++i) {
         tt_hmap_remove_key(&hmap, __h2_cases[i].key, __h2_cases[i].key_len);
-        TT_TEST_CHECK_EQUAL(tt_hmap_contain_key(&hmap,
-                                                __h2_cases[i].key,
-                                                __h2_cases[i].key_len),
-                            TT_FALSE,
-                            "");
+        TT_UT_EQUAL(tt_hmap_contain_key(&hmap,
+                                        __h2_cases[i].key,
+                                        __h2_cases[i].key_len),
+                    TT_FALSE,
+                    "");
     }
 
     tt_hmap_clear(&hmap);
-    TT_TEST_CHECK_EQUAL(tt_hmap_count(&hmap), 0, "");
-    TT_TEST_CHECK_EQUAL(tt_hmap_empty(&hmap), TT_TRUE, "");
+    TT_UT_EQUAL(tt_hmap_count(&hmap), 0, "");
+    TT_UT_EQUAL(tt_hmap_empty(&hmap), TT_TRUE, "");
 
     for (i = 0; i < __h2_num; ++i) {
         tt_free(__h2_cases[i].key);
@@ -404,19 +402,19 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_map_share_key)
 
     // 10000 => 97 slots
     ret = tt_hmap_create(&hmap, 197, &attr);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
     tt_hmap_clear((&hmap));
-    TT_TEST_CHECK_EQUAL(tt_hmap_count(&hmap), 0, "");
-    TT_TEST_CHECK_EQUAL(tt_hmap_empty(&hmap), TT_TRUE, "");
-    TT_TEST_CHECK_EQUAL(tt_hmap_find(&hmap, (tt_u8_t *)&i, 1), NULL, "");
+    TT_UT_EQUAL(tt_hmap_count(&hmap), 0, "");
+    TT_UT_EQUAL(tt_hmap_empty(&hmap), TT_TRUE, "");
+    TT_UT_EQUAL(tt_hmap_find(&hmap, (tt_u8_t *)&i, 1), NULL, "");
 
     TT_ASSERT(__knum <= __h2_num);
     for (i = 0; i < __knum; ++i) {
         tt_mnode_init(&__h2_cases[i].hnode);
         if (i % 91 == 0) {
-            TT_TEST_CHECK_EQUAL(tt_hmap_contain(&hmap, &__h2_cases[i].hnode),
-                                TT_FALSE,
-                                "");
+            TT_UT_EQUAL(tt_hmap_contain(&hmap, &__h2_cases[i].hnode),
+                        TT_FALSE,
+                        "");
         }
 
         // insert
@@ -424,69 +422,67 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_map_share_key)
                           (tt_u8_t *)&key[i],
                           sizeof(tt_u32_t),
                           &__h2_cases[i].hnode);
-        TT_TEST_CHECK_SUCCESS(ret, "");
+        TT_UT_SUCCESS(ret, "");
         if (i % 100 == 0) {
             tt_hnode_t *node = NULL;
             struct __h2_case_t *hc;
 
-            TT_TEST_CHECK_EQUAL(tt_hmap_count(&hmap), i + 1, "");
-            TT_TEST_CHECK_EQUAL(tt_hmap_empty(&hmap), TT_FALSE, "");
-            TT_TEST_CHECK_EQUAL(tt_hmap_contain_key(&hmap,
-                                                    (tt_u8_t *)&key[i],
-                                                    sizeof(tt_u32_t)),
-                                TT_TRUE,
-                                "");
-            TT_TEST_CHECK_EQUAL(tt_hmap_contain(&hmap, &__h2_cases[i].hnode),
-                                TT_TRUE,
-                                "");
+            TT_UT_EQUAL(tt_hmap_count(&hmap), i + 1, "");
+            TT_UT_EQUAL(tt_hmap_empty(&hmap), TT_FALSE, "");
+            TT_UT_EQUAL(tt_hmap_contain_key(&hmap,
+                                            (tt_u8_t *)&key[i],
+                                            sizeof(tt_u32_t)),
+                        TT_TRUE,
+                        "");
+            TT_UT_EQUAL(tt_hmap_contain(&hmap, &__h2_cases[i].hnode),
+                        TT_TRUE,
+                        "");
 
             node = tt_hmap_find(&hmap, (tt_u8_t *)&key[i], sizeof(tt_u32_t));
-            TT_TEST_CHECK_NOT_EQUAL(node, NULL, "");
+            TT_UT_NOT_EQUAL(node, NULL, "");
             hc = TT_CONTAINER(node, struct __h2_case_t, hnode);
-            TT_TEST_CHECK_EQUAL(hc - &__h2_cases[0], i, "");
+            TT_UT_EQUAL(hc - &__h2_cases[0], i, "");
 
             // adding a duplicate key would fail
             ret = tt_hmap_add(&hmap,
                               (tt_u8_t *)&key[i],
                               sizeof(tt_u32_t),
                               &__h2_cases[i].hnode);
-            TT_TEST_CHECK_FAIL(ret, "");
+            TT_UT_FAIL(ret, "");
         }
     }
 
     // for each
     i = 0;
     tt_hmap_foreach(&hmap, __hm_count, &i);
-    TT_TEST_CHECK_EQUAL(i, __knum, "");
-    TT_TEST_CHECK_EQUAL(tt_hmap_count(&hmap), __knum, "");
+    TT_UT_EQUAL(i, __knum, "");
+    TT_UT_EQUAL(tt_hmap_count(&hmap), __knum, "");
 
     for (i = 0; i < __knum; ++i) {
         tt_hnode_t *hnode =
             tt_hmap_find(&hmap, (tt_u8_t *)&key[i], sizeof(tt_u32_t));
 
         // must be able to find a node
-        TT_TEST_CHECK_NOT_EQUAL(hnode, NULL, "");
+        TT_UT_NOT_EQUAL(hnode, NULL, "");
     }
 
     // remove
     for (i = 0; (i < __knum) && (i % 10 == 0); ++i) {
         tt_hmap_remove(&hmap, &__h2_cases[i].hnode);
-        TT_TEST_CHECK_EQUAL(tt_hmap_contain(&hmap, &__h2_cases[i].hnode),
-                            TT_FALSE,
-                            "");
+        TT_UT_EQUAL(tt_hmap_contain(&hmap, &__h2_cases[i].hnode), TT_FALSE, "");
     }
     for (i = 0; (i < __knum) && (i % 9 == 0); ++i) {
         tt_hmap_remove_key(&hmap, (tt_u8_t *)&key[i], sizeof(tt_u32_t));
-        TT_TEST_CHECK_EQUAL(tt_hmap_contain_key(&hmap,
-                                                (tt_u8_t *)&key[i],
-                                                sizeof(tt_u32_t)),
-                            TT_FALSE,
-                            "");
+        TT_UT_EQUAL(tt_hmap_contain_key(&hmap,
+                                        (tt_u8_t *)&key[i],
+                                        sizeof(tt_u32_t)),
+                    TT_FALSE,
+                    "");
     }
 
     tt_hmap_clear(&hmap);
-    TT_TEST_CHECK_EQUAL(tt_hmap_count(&hmap), 0, "");
-    TT_TEST_CHECK_EQUAL(tt_hmap_empty(&hmap), TT_TRUE, "");
+    TT_UT_EQUAL(tt_hmap_count(&hmap), 0, "");
+    TT_UT_EQUAL(tt_hmap_empty(&hmap), TT_TRUE, "");
 
     tt_hmap_destroy(&hmap);
 
@@ -520,11 +516,11 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_ptrmap)
 
     // 10000 => 97 slots
     ret = tt_ptrhmap_create(&hmap, 97, &attr);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
     tt_ptrhmap_clear((&hmap));
-    TT_TEST_CHECK_EQUAL(tt_ptrhmap_count(&hmap), 0, "");
-    TT_TEST_CHECK_EQUAL(tt_ptrhmap_empty(&hmap), TT_TRUE, "");
-    TT_TEST_CHECK_EQUAL(tt_ptrhmap_find(&hmap, (tt_u8_t *)&i, 1), NULL, "");
+    TT_UT_EQUAL(tt_ptrhmap_count(&hmap), 0, "");
+    TT_UT_EQUAL(tt_ptrhmap_empty(&hmap), TT_TRUE, "");
+    TT_UT_EQUAL(tt_ptrhmap_find(&hmap, (tt_u8_t *)&i, 1), NULL, "");
 
     base = tt_rand_u32() % 100 + 1;
     for (i = 0; i < __h2_num; ++i) {
@@ -539,14 +535,14 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_ptrmap)
         __h2_cases[i].key_len = len;
 
         if (i % 91 == 0) {
-            TT_TEST_CHECK_EQUAL(tt_ptrhmap_contain_ptr(&hmap, &__h2_cases[i]),
-                                TT_FALSE,
-                                "");
-            TT_TEST_CHECK_EQUAL(tt_ptrhmap_contain_key(&hmap,
-                                                       __h2_cases[i].key,
-                                                       __h2_cases[i].key_len),
-                                TT_FALSE,
-                                "");
+            TT_UT_EQUAL(tt_ptrhmap_contain_ptr(&hmap, &__h2_cases[i]),
+                        TT_FALSE,
+                        "");
+            TT_UT_EQUAL(tt_ptrhmap_contain_key(&hmap,
+                                               __h2_cases[i].key,
+                                               __h2_cases[i].key_len),
+                        TT_FALSE,
+                        "");
         }
 
         // insert
@@ -554,48 +550,48 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_ptrmap)
                              __h2_cases[i].key,
                              __h2_cases[i].key_len,
                              &__h2_cases[i]);
-        TT_TEST_CHECK_SUCCESS(ret, "");
+        TT_UT_SUCCESS(ret, "");
         if (i % 100 == 0) {
             struct __h2_case_t *p = NULL;
 
-            TT_TEST_CHECK_EQUAL(tt_ptrhmap_count(&hmap), i + 1, "");
-            TT_TEST_CHECK_EQUAL(tt_ptrhmap_empty(&hmap), TT_FALSE, "");
-            TT_TEST_CHECK_EQUAL(tt_ptrhmap_contain_key(&hmap,
-                                                       __h2_cases[i].key,
-                                                       __h2_cases[i].key_len),
-                                TT_TRUE,
-                                "");
-            TT_TEST_CHECK_EQUAL(tt_ptrhmap_contain_ptr(&hmap, &__h2_cases[i]),
-                                TT_TRUE,
-                                "");
+            TT_UT_EQUAL(tt_ptrhmap_count(&hmap), i + 1, "");
+            TT_UT_EQUAL(tt_ptrhmap_empty(&hmap), TT_FALSE, "");
+            TT_UT_EQUAL(tt_ptrhmap_contain_key(&hmap,
+                                               __h2_cases[i].key,
+                                               __h2_cases[i].key_len),
+                        TT_TRUE,
+                        "");
+            TT_UT_EQUAL(tt_ptrhmap_contain_ptr(&hmap, &__h2_cases[i]),
+                        TT_TRUE,
+                        "");
 
             p = (struct __h2_case_t *)tt_ptrhmap_find(&hmap,
                                                       __h2_cases[i].key,
                                                       __h2_cases[i].key_len);
-            TT_TEST_CHECK_NOT_EQUAL(p, NULL, "");
-            TT_TEST_CHECK_EQUAL(p - &__h2_cases[0], i, "");
+            TT_UT_NOT_EQUAL(p, NULL, "");
+            TT_UT_EQUAL(p - &__h2_cases[0], i, "");
 
             // adding a duplicate key would fail
             ret = tt_ptrhmap_add(&hmap,
                                  __h2_cases[i].key,
                                  __h2_cases[i].key_len,
                                  &__h2_cases[i]);
-            TT_TEST_CHECK_FAIL(ret, "");
+            TT_UT_FAIL(ret, "");
         }
     }
 
     // for each
     i = 0;
     tt_ptrhmap_foreach(&hmap, __pm_count, &i);
-    TT_TEST_CHECK_EQUAL(i, __h2_num, "");
-    TT_TEST_CHECK_EQUAL(tt_ptrhmap_count(&hmap), __h2_num, "");
+    TT_UT_EQUAL(i, __h2_num, "");
+    TT_UT_EQUAL(tt_ptrhmap_count(&hmap), __h2_num, "");
 
     for (i = 0; i < __h2_num; ++i) {
         tt_hnode_t *hnode =
             tt_ptrhmap_find(&hmap, __h2_cases[i].key, __h2_cases[i].key_len);
 
         // must be able to find a node
-        TT_TEST_CHECK_NOT_EQUAL(hnode, NULL, "");
+        TT_UT_NOT_EQUAL(hnode, NULL, "");
     }
 
     // remove
@@ -603,31 +599,31 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_ptrmap)
         tt_bool_t b = tt_ptrhmap_remove_key(&hmap,
                                             __h2_cases[i].key,
                                             __h2_cases[i].key_len);
-        TT_TEST_CHECK_EQUAL(b, TT_TRUE, "");
-        TT_TEST_CHECK_EQUAL(tt_ptrhmap_contain_ptr(&hmap, &__h2_cases[i]),
-                            TT_FALSE,
-                            "");
+        TT_UT_EQUAL(b, TT_TRUE, "");
+        TT_UT_EQUAL(tt_ptrhmap_contain_ptr(&hmap, &__h2_cases[i]),
+                    TT_FALSE,
+                    "");
     }
     for (i = 1; (i < __h2_num) && (i % 9 == 0); ++i) {
         tt_bool_t b = tt_ptrhmap_remove_ptr(&hmap, &__h2_cases[i]);
-        TT_TEST_CHECK_EQUAL(b, TT_TRUE, "");
-        TT_TEST_CHECK_EQUAL(tt_ptrhmap_contain_key(&hmap,
-                                                   __h2_cases[i].key,
-                                                   __h2_cases[i].key_len),
-                            TT_FALSE,
-                            "");
+        TT_UT_EQUAL(b, TT_TRUE, "");
+        TT_UT_EQUAL(tt_ptrhmap_contain_key(&hmap,
+                                           __h2_cases[i].key,
+                                           __h2_cases[i].key_len),
+                    TT_FALSE,
+                    "");
     }
     for (i = 1; (i < __h2_num) && (i % 9 == 0); ++i) {
         tt_bool_t b = tt_ptrhmap_remove_pair(&hmap,
                                              __h2_cases[i].key,
                                              __h2_cases[i].key_len,
                                              &__h2_cases[i]);
-        TT_TEST_CHECK_EQUAL(b, TT_TRUE, "");
-        TT_TEST_CHECK_EQUAL(tt_ptrhmap_contain_key(&hmap,
-                                                   __h2_cases[i].key,
-                                                   __h2_cases[i].key_len),
-                            TT_FALSE,
-                            "");
+        TT_UT_EQUAL(b, TT_TRUE, "");
+        TT_UT_EQUAL(tt_ptrhmap_contain_key(&hmap,
+                                           __h2_cases[i].key,
+                                           __h2_cases[i].key_len),
+                    TT_FALSE,
+                    "");
     }
 
     // replace
@@ -637,16 +633,16 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_ptrmap)
                                          __h2_cases[i].key,
                                          __h2_cases[i].key_len,
                                          &ret);
-        TT_TEST_CHECK_EQUAL(b, TT_TRUE, "");
-        TT_TEST_CHECK_EQUAL(tt_ptrhmap_contain_ptr(&hmap, &ret), TT_FALSE, "");
-        TT_TEST_CHECK_EQUAL(tt_ptrhmap_find(&hmap,
-                                            __h2_cases[i].key,
-                                            __h2_cases[i].key_len),
-                            &ret,
-                            "");
-        TT_TEST_CHECK_EQUAL(tt_ptrhmap_contain_ptr(&hmap, &__h2_cases[i]),
-                            TT_FALSE,
-                            "");
+        TT_UT_EQUAL(b, TT_TRUE, "");
+        TT_UT_EQUAL(tt_ptrhmap_contain_ptr(&hmap, &ret), TT_FALSE, "");
+        TT_UT_EQUAL(tt_ptrhmap_find(&hmap,
+                                    __h2_cases[i].key,
+                                    __h2_cases[i].key_len),
+                    &ret,
+                    "");
+        TT_UT_EQUAL(tt_ptrhmap_contain_ptr(&hmap, &__h2_cases[i]),
+                    TT_FALSE,
+                    "");
 
         // &ret => &__h2_cases[i]
         b = tt_ptrhmap_replace_equal(&hmap,
@@ -654,21 +650,21 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_ptrmap)
                                      __h2_cases[i].key_len,
                                      &ret,
                                      &__h2_cases[i]);
-        TT_TEST_CHECK_EQUAL(b, TT_TRUE, "");
-        TT_TEST_CHECK_EQUAL(tt_ptrhmap_find(&hmap,
-                                            __h2_cases[i].key,
-                                            __h2_cases[i].key_len),
-                            &__h2_cases[i],
-                            "");
+        TT_UT_EQUAL(b, TT_TRUE, "");
+        TT_UT_EQUAL(tt_ptrhmap_find(&hmap,
+                                    __h2_cases[i].key,
+                                    __h2_cases[i].key_len),
+                    &__h2_cases[i],
+                    "");
     }
 
     ret = tt_ptrhmap_create(&h2, 197, NULL);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
 
     tt_ptrhmap_clear(&hmap);
-    TT_TEST_CHECK_EQUAL(tt_ptrhmap_count(&hmap), 0, "");
-    TT_TEST_CHECK_EQUAL(tt_ptrhmap_empty(&hmap), TT_TRUE, "");
-    TT_TEST_CHECK_EQUAL(tt_slist_count(&hmap.cache), hmap.cache_count, "");
+    TT_UT_EQUAL(tt_ptrhmap_count(&hmap), 0, "");
+    TT_UT_EQUAL(tt_ptrhmap_empty(&hmap), TT_TRUE, "");
+    TT_UT_EQUAL(tt_slist_count(&hmap.cache), hmap.cache_count, "");
 
     for (i = 0; i < __h2_num; ++i) {
         tt_free(__h2_cases[i].key);

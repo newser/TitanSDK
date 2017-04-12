@@ -262,12 +262,12 @@ TT_TEST_ROUTINE_DEFINE(tt_adns_ut_dc_basic)
     evc_attr.on_init = __dc_basic_on_init;
 
     ret = tt_evc_create(&evc, TT_FALSE, &evc_attr);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     ret = tt_evc_wait(&evc);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
-    TT_TEST_CHECK_EQUAL(case_ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(case_ret, TT_SUCCESS, "");
 
     for (i = 0; i < sizeof(__test_set) / sizeof(__test_set[0]); ++i) {
         tt_adns_rrlist_destroy(&__test_set[i].rrlist);
@@ -761,7 +761,7 @@ TT_TEST_ROUTINE_DEFINE(tt_adns_ut_dc_excep)
         evc_attr.on_exit_param = (void *)(tt_uintptr_t)i;
 
         ret = tt_evc_create(&ns_evc[i], TT_FALSE, &evc_attr);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
     }
 
     // start evc
@@ -781,10 +781,10 @@ TT_TEST_ROUTINE_DEFINE(tt_adns_ut_dc_excep)
     evc_attr.on_init = __dc_excep_on_init;
 
     ret = tt_evc_create(&evc, TT_FALSE, &evc_attr);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     ret = tt_evc_wait(&evc);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     for (i = 0; i < __ad2_ns_num; ++i) {
         tt_evc_exit(&ns_evc[i]);
@@ -794,7 +794,7 @@ TT_TEST_ROUTINE_DEFINE(tt_adns_ut_dc_excep)
         }
     }
 
-    TT_TEST_CHECK_EQUAL(__ad2_ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(__ad2_ret, TT_SUCCESS, "");
 
     // test end
     TT_TEST_CASE_LEAVE()

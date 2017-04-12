@@ -132,23 +132,23 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_tmrm_basic)
     tt_tmr_mgr_attr_default(&attr);
 
     ret = tt_tmr_mgr_create(&tmrm, &attr);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     // create timer
     tmr = tt_tmr_create(&tmrm, 20, 0, __ta1, &_n1, 0);
-    TT_TEST_CHECK_NOT_EQUAL(tmr, NULL, "");
+    TT_UT_NOT_EQUAL(tmr, NULL, "");
 
     ret = tt_tmr_start(tmr);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     // normal timer expired
-    TT_TEST_CHECK_EQUAL(_n1, 0, "");
+    TT_UT_EQUAL(_n1, 0, "");
     wait = tt_tmr_mgr_run(&tmrm);
-    TT_TEST_CHECK_EXP(abs((int)wait - 20) < 5, "");
+    TT_UT_EXP(abs((int)wait - 20) < 5, "");
     tt_sleep(25);
     wait = tt_tmr_mgr_run(&tmrm);
-    TT_TEST_CHECK_EQUAL(wait, TT_TIME_INFINITE, "");
-    TT_TEST_CHECK_EQUAL(_n1, 1, "");
+    TT_UT_EQUAL(wait, TT_TIME_INFINITE, "");
+    TT_UT_EQUAL(_n1, 1, "");
     tt_tmr_stop(tmr);
 
     // stop timer before expired
@@ -158,25 +158,25 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_tmrm_basic)
         tt_tmr_set_cbparam(tmr, &_n1);
         ret = tt_tmr_start(tmr);
     } while (0);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     wait = tt_tmr_mgr_run(&tmrm);
-    TT_TEST_CHECK_EXP(abs((int)wait - 30) < 5, "");
+    TT_UT_EXP(abs((int)wait - 30) < 5, "");
     tt_tmr_stop(tmr);
     tt_sleep(35);
     wait = tt_tmr_mgr_run(&tmrm);
-    TT_TEST_CHECK_EQUAL(wait, TT_TIME_INFINITE, "");
-    TT_TEST_CHECK_EQUAL(_n1, 1, "");
+    TT_UT_EQUAL(wait, TT_TIME_INFINITE, "");
+    TT_UT_EQUAL(_n1, 1, "");
 
     tt_tmr_destroy(tmr);
     tmr = NULL;
 
     // restart then destroy before expired
     tmr = tt_tmr_create(&tmrm, 20, 0, __ta1, &_n1, 0);
-    TT_TEST_CHECK_NOT_EQUAL(tmr, NULL, "");
+    TT_UT_NOT_EQUAL(tmr, NULL, "");
     ret = tt_tmr_start(tmr);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     wait = tt_tmr_mgr_run(&tmrm);
-    TT_TEST_CHECK_EXP(abs((int)wait - 20) < 5, "");
+    TT_UT_EXP(abs((int)wait - 20) < 5, "");
 
     do {
         tt_tmr_set_delay(tmr, 50);
@@ -184,14 +184,14 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_tmrm_basic)
         tt_tmr_set_cbparam(tmr, &_n1);
         ret = tt_tmr_start(tmr);
     } while (0);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     wait = tt_tmr_mgr_run(&tmrm);
-    TT_TEST_CHECK_EXP(abs((int)wait - 50) < 5, "");
+    TT_UT_EXP(abs((int)wait - 50) < 5, "");
 
     tt_tmr_destroy(tmr);
     wait = tt_tmr_mgr_run(&tmrm);
-    TT_TEST_CHECK_EQUAL(wait, TT_TIME_INFINITE, "");
-    TT_TEST_CHECK_EQUAL(_n1, 1, "");
+    TT_UT_EQUAL(wait, TT_TIME_INFINITE, "");
+    TT_UT_EQUAL(_n1, 1, "");
 
     tt_tmr_mgr_destroy(&tmrm);
 
@@ -242,13 +242,13 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_tmrm_accuracy)
     srand((int)time(NULL));
 
     ret = tt_tmr_mgr_create(&tmrm, NULL);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     for (i = 0; i < __case2_tn; ++i) {
         tt_s64_t exp = (rand() % 100) * 10; // 1s exp at most
 
         __tmrs2[i] = tt_tmr_create(&tmrm, exp, 0, __ta2, &__start[i], 0);
-        TT_TEST_CHECK_NOT_EQUAL(__tmrs2[i], NULL, "");
+        TT_UT_NOT_EQUAL(__tmrs2[i], NULL, "");
     }
 
     _n1 = 0;
@@ -258,7 +258,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_tmrm_accuracy)
         __start[i] = tt_time_ref();
         ret = tt_tmr_start(__tmrs2[i]);
         tt_tmr_mgr_run(&tmrm);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
     }
 
     // run all timers
@@ -271,8 +271,8 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_tmrm_accuracy)
         }
     } while (1);
     TT_INFO("max_diff: %dms", max_diff);
-    TT_TEST_CHECK_EQUAL(__c2_ok, TT_TRUE, "");
-    TT_TEST_CHECK_EQUAL(_n1, 1000, "");
+    TT_UT_EQUAL(__c2_ok, TT_TRUE, "");
+    TT_UT_EQUAL(_n1, 1000, "");
 
     // start all timers
     for (i = 0; i < __case2_tn; ++i) {
@@ -330,13 +330,13 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_tmrm_stable)
     srand((int)time(NULL));
 
     ret = tt_tmr_mgr_create(&tmrm, NULL);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     for (i = 0; i < __case3_tn; ++i) {
         tt_s64_t exp = (rand() % 100) * 10; // 1s exp at most
 
         __tmrs3[i] = tt_tmr_create(&tmrm, exp, 0, __ta2, &__start3[i], 0);
-        TT_TEST_CHECK_NOT_EQUAL(__tmrs3[i], NULL, "");
+        TT_UT_NOT_EQUAL(__tmrs3[i], NULL, "");
     }
 
 
@@ -359,7 +359,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_tmrm_stable)
                     tt_tmr_set_cbparam(__tmrs3[idx], &__start3[idx]);
                     ret = tt_tmr_start(__tmrs3[idx]);
                 } while (0);
-                TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+                TT_UT_EQUAL(ret, TT_SUCCESS, "");
             } else { // 10% destroy
                 tt_tmr_destroy(__tmrs3[idx]);
                 destroyed[idx] = 1;
@@ -377,7 +377,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_tmrm_stable)
             tt_sleep((tt_u32_t)wait);
         }
     } while (1);
-    TT_TEST_CHECK_EQUAL(__c3_ok, TT_TRUE, "");
+    TT_UT_EQUAL(__c3_ok, TT_TRUE, "");
 
     // start all timers
     for (i = 0; i < __case3_tn; ++i) {

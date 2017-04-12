@@ -275,13 +275,13 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_fiber_basic)
     __ut_num = 0;
     t = tt_thread_create(__test_fiber_2f_yield_resume, NULL, &tattr);
     tt_thread_wait(t);
-    TT_TEST_CHECK_EQUAL(__ut_ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(__ut_ret, TT_SUCCESS, "");
 
     // 2 fibers, 1 resume, main resume
     __ut_num = 0;
     t = tt_thread_create(__test_fiber_2f_resume, NULL, &tattr);
     tt_thread_wait(t);
-    TT_TEST_CHECK_EQUAL(__ut_ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(__ut_ret, TT_SUCCESS, "");
 
     // test end
     TT_TEST_CASE_LEAVE()
@@ -372,7 +372,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_fiber_sanity)
     t = tt_thread_create(__test_fiber_2, NULL, &tattr);
     tt_thread_wait(t);
 
-    TT_TEST_CHECK_EQUAL(__ut_ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(__ut_ret, TT_SUCCESS, "");
 
     // test end
     TT_TEST_CASE_LEAVE()
@@ -439,7 +439,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_fiber_3fibers)
     t = tt_thread_create(__test_fiber_3, NULL, &tattr);
     tt_thread_wait(t);
 
-    TT_TEST_CHECK_EQUAL(__ut_ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(__ut_ret, TT_SUCCESS, "");
 
     // test end
     TT_TEST_CASE_LEAVE()
@@ -547,7 +547,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_fiber_sanity2)
     t = tt_thread_create(__test_fiber_san2, NULL, &tattr);
     tt_thread_wait(t);
 
-    TT_TEST_CHECK_EQUAL(__ut_ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(__ut_ret, TT_SUCCESS, "");
 
     // test end
     TT_TEST_CASE_LEAVE()
@@ -563,11 +563,11 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_worker_group)
     // test start
 
     ret = tt_iowg_create(&wg, 0, NULL);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
     tt_iowg_destroy(&wg);
 
     ret = tt_iowg_create(&wg, tt_rand_u32() % 10, NULL);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
     tt_iowg_destroy(&wg);
 
     // test end
@@ -601,22 +601,22 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_task)
     // test start
 
     ret = tt_task_create(&t1, NULL);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
     tt_task_exit(&t1);
     tt_task_wait(&t1);
 
     __tb_cnt = 0;
     ret = tt_task_create(&t1, NULL);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
     tt_task_add_fiber(&t1, __task_fiber_1, (void *)(tt_uintptr_t)1, NULL);
     tt_task_run(&t1);
     tt_task_exit(&t1);
     tt_task_wait(&t1);
-    TT_TEST_CHECK_EQUAL(__tb_cnt, 1, "");
+    TT_UT_EQUAL(__tb_cnt, 1, "");
 
     __tb_cnt = 0;
     ret = tt_task_create(&t1, NULL);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
     n = 5; // tt_rand_u32() % 100 + 1;
     for (i = 0; i < n; ++i) {
         tt_task_add_fiber(&t1, __task_fiber_1, (void *)(tt_uintptr_t)i, NULL);
@@ -624,7 +624,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_task)
     tt_task_run(&t1);
     tt_task_exit(&t1);
     tt_task_wait(&t1);
-    TT_TEST_CHECK_EQUAL(__tb_cnt, n, "");
+    TT_UT_EQUAL(__tb_cnt, n, "");
 
     // test end
     TT_TEST_CASE_LEAVE()

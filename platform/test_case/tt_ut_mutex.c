@@ -107,21 +107,21 @@ TT_TEST_CASE("tt_unit_test_mutex_basic",
     // test start
 
     ret = tt_mutex_create(&lock, NULL);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     // lock
     tt_mutex_acquire(&lock);
 
     // trylock
     ret = tt_mutex_try_acquire(&lock);
-    // TT_TEST_CHECK_EQUAL(ret, TT_TIME_OUT, "");
+    // TT_UT_EQUAL(ret, TT_TIME_OUT, "");
 
     // unlock
     tt_mutex_release(&lock);
 
     // trylock
     ret = tt_mutex_try_acquire(&lock);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     // unlock
     tt_mutex_release(&lock);
@@ -176,9 +176,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_mutex_mt)
 
     tt_mutex_destroy(&mutex);
 
-    TT_TEST_CHECK_EQUAL(cnt,
-                        10000 * sizeof(test_threads) / sizeof(tt_thread_t *),
-                        "");
+    TT_UT_EQUAL(cnt, 10000 * sizeof(test_threads) / sizeof(tt_thread_t *), "");
 
     // test end
     TT_TEST_CASE_LEAVE()

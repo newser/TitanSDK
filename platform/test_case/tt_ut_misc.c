@@ -166,11 +166,11 @@ TT_TEST_CASE("tt_unit_test_version",
     // test start
 
     ver = tt_ver_major();
-    TT_TEST_CHECK_EQUAL(ver, TT_VERSION_MAJOR, "");
+    TT_UT_EQUAL(ver, TT_VERSION_MAJOR, "");
     ver = tt_ver_minor();
-    TT_TEST_CHECK_EQUAL(ver, TT_VERSION_MINOR, "");
+    TT_UT_EQUAL(ver, TT_VERSION_MINOR, "");
     ver = tt_ver_revision();
-    TT_TEST_CHECK_EQUAL(ver, TT_VERSION_REVISION, "");
+    TT_UT_EQUAL(ver, TT_VERSION_REVISION, "");
 
     tt_ver_format(buf, sizeof(buf), TT_VER_FORMAT_BASIC);
     tt_snprintf(test_buf,
@@ -178,7 +178,7 @@ TT_TEST_CASE("tt_unit_test_version",
                 "%u.%u",
                 TT_VERSION_MAJOR,
                 TT_VERSION_MINOR);
-    TT_TEST_CHECK_EQUAL(tt_strncmp(buf, test_buf, sizeof(buf)), 0, "");
+    TT_UT_EQUAL(tt_strncmp(buf, test_buf, sizeof(buf)), 0, "");
 
     tt_ver_format(buf, sizeof(buf), TT_VER_FORMAT_STANDARD);
     tt_snprintf(test_buf,
@@ -187,28 +187,28 @@ TT_TEST_CASE("tt_unit_test_version",
                 TT_VERSION_MAJOR,
                 TT_VERSION_MINOR,
                 TT_VERSION_REVISION);
-    TT_TEST_CHECK_EQUAL(tt_strncmp(buf, test_buf, sizeof(buf)), 0, "");
+    TT_UT_EQUAL(tt_strncmp(buf, test_buf, sizeof(buf)), 0, "");
 
     ret = tt_ver_require_major(TT_VERSION_MAJOR + 1);
-    TT_TEST_CHECK_EQUAL(ret, TT_FAIL, "");
+    TT_UT_EQUAL(ret, TT_FAIL, "");
     ret = tt_ver_require_major(TT_VERSION_MAJOR - 1);
-    TT_TEST_CHECK_EQUAL(ret, TT_FAIL, "");
+    TT_UT_EQUAL(ret, TT_FAIL, "");
     ret = tt_ver_require_major(TT_VERSION_MAJOR);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     ret = tt_ver_require_minor(TT_VERSION_MINOR + 1);
-    TT_TEST_CHECK_EQUAL(ret, TT_FAIL, "");
+    TT_UT_EQUAL(ret, TT_FAIL, "");
     ret = tt_ver_require_minor(TT_VERSION_MINOR - 1);
-    TT_TEST_CHECK_EQUAL(ret, TT_FAIL, "");
+    TT_UT_EQUAL(ret, TT_FAIL, "");
     ret = tt_ver_require_minor(TT_VERSION_MINOR);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     ret = tt_ver_require(TT_VERSION_MAJOR + 1, TT_VERSION_MINOR);
-    TT_TEST_CHECK_EQUAL(ret, TT_FAIL, "");
+    TT_UT_EQUAL(ret, TT_FAIL, "");
     ret = tt_ver_require(TT_VERSION_MAJOR, TT_VERSION_MINOR - 1);
-    TT_TEST_CHECK_EQUAL(ret, TT_FAIL, "");
+    TT_UT_EQUAL(ret, TT_FAIL, "");
     ret = tt_ver_require(TT_VERSION_MAJOR, TT_VERSION_MINOR);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     // test end
     TT_TEST_CASE_LEAVE()
@@ -227,7 +227,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_high_bit_1)
     // test start
 
     // return fail for 0
-    TT_TEST_CHECK_EQUAL(tt_high_bit_1(test_v, &pos), TT_FAIL, "");
+    TT_UT_EQUAL(tt_high_bit_1(test_v, &pos), TT_FAIL, "");
 
     for (n = 0; n < total; ++n) {
         int i;
@@ -241,9 +241,9 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_high_bit_1)
         }
 
         if (TT_OK(tt_high_bit_1(test_v, &pos))) {
-            TT_TEST_CHECK_EQUAL(pos, i, "");
+            TT_UT_EQUAL(pos, i, "");
         } else {
-            TT_TEST_CHECK_EQUAL(test_v, 0, "");
+            TT_UT_EQUAL(test_v, 0, "");
         }
     }
 
@@ -264,7 +264,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_low_bit_1)
     // test start
 
     // return fail for 0
-    TT_TEST_CHECK_EQUAL(tt_low_bit_1(test_v, &pos), TT_FAIL, "");
+    TT_UT_EQUAL(tt_low_bit_1(test_v, &pos), TT_FAIL, "");
 
     for (n = 0; n < total; ++n) {
         int i;
@@ -278,9 +278,9 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_low_bit_1)
         }
 
         if (TT_OK(tt_low_bit_1(test_v, &pos))) {
-            TT_TEST_CHECK_EQUAL(pos, i, "");
+            TT_UT_EQUAL(pos, i, "");
         } else {
-            TT_TEST_CHECK_EQUAL(test_v, 0, "");
+            TT_UT_EQUAL(test_v, 0, "");
         }
     }
 
@@ -367,20 +367,20 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_base64_dec)
 
     // 0 input len
     result = tt_base64_decode((tt_u8_t *)"123", 0, NULL, NULL, &decoded_len);
-    TT_TEST_CHECK_EQUAL(result, TT_SUCCESS, "");
-    TT_TEST_CHECK_EQUAL(decoded_len, 0, "");
+    TT_UT_EQUAL(result, TT_SUCCESS, "");
+    TT_UT_EQUAL(decoded_len, 0, "");
 
     // 0 output len
     decoded_len = 0;
     result = tt_base64_decode((tt_u8_t *)"123", 3, NULL, buf, &decoded_len);
-    TT_TEST_CHECK_EQUAL(result, TT_SUCCESS, "");
+    TT_UT_EQUAL(result, TT_SUCCESS, "");
 
     result = tt_base64_decode_alloc((tt_u8_t *)"123",
                                     0,
                                     NULL,
                                     &decoded,
                                     &decoded_len);
-    TT_TEST_CHECK_EQUAL(result, TT_SUCCESS, "");
+    TT_UT_EQUAL(result, TT_SUCCESS, "");
 
     tv = &b64_dec_tv[0];
     while (tv->decoded != NULL) {
@@ -394,8 +394,8 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_base64_dec)
                                   &attr,
                                   NULL,
                                   &decoded_len);
-        TT_TEST_CHECK_EQUAL(result, TT_SUCCESS, "");
-        TT_TEST_CHECK_EQUAL(decoded_len, tv->decoded_len, "");
+        TT_UT_EQUAL(result, TT_SUCCESS, "");
+        TT_UT_EQUAL(decoded_len, tv->decoded_len, "");
 
         decoded_len = sizeof(buf);
         result = tt_base64_decode((tt_u8_t *)tv->encoded,
@@ -403,9 +403,9 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_base64_dec)
                                   &attr,
                                   buf,
                                   &decoded_len);
-        TT_TEST_CHECK_EQUAL(result, TT_SUCCESS, "");
-        TT_TEST_CHECK_EQUAL(decoded_len, tv->decoded_len, "");
-        TT_TEST_CHECK_EQUAL(tt_memcmp(buf, tv->decoded, decoded_len), 0, "");
+        TT_UT_EQUAL(result, TT_SUCCESS, "");
+        TT_UT_EQUAL(decoded_len, tv->decoded_len, "");
+        TT_UT_EQUAL(tt_memcmp(buf, tv->decoded, decoded_len), 0, "");
 
         // decode alloc
         result = tt_base64_decode_alloc((tt_u8_t *)tv->encoded,
@@ -413,11 +413,9 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_base64_dec)
                                         &attr,
                                         &decoded,
                                         &decoded_len);
-        TT_TEST_CHECK_EQUAL(result, TT_SUCCESS, "");
-        TT_TEST_CHECK_EQUAL(decoded_len, tv->decoded_len, "");
-        TT_TEST_CHECK_EQUAL(tt_memcmp(decoded, tv->decoded, decoded_len),
-                            0,
-                            "");
+        TT_UT_EQUAL(result, TT_SUCCESS, "");
+        TT_UT_EQUAL(decoded_len, tv->decoded_len, "");
+        TT_UT_EQUAL(tt_memcmp(decoded, tv->decoded, decoded_len), 0, "");
         tt_free(decoded);
 
         ++tv;
@@ -560,50 +558,50 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_der_enc)
     tt_buf_init(&buf, NULL);
 
     ret = tt_der_encode_sequence(&buf, h_datalen, 0);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     ret = tt_der_encode_octstr(&buf, human_name, sizeof(human_name), 0);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     ret = tt_der_encode_bitstr(&buf,
                                human_bname,
                                sizeof(human_bname),
                                human_bname_pad,
                                0);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     ret = tt_der_encode_s32(&buf, human_age, 0);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     ret = tt_der_encode_null(&buf, 0);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     ret = tt_der_encode_oid(&buf, human_oid, sizeof(human_oid), 0);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     // child
     ret = tt_der_encode_sequence(&buf, c_datalen, 0);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     ret = tt_der_encode_octstr(&buf, c_name, sizeof(c_name), 0);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     ret = tt_der_encode_bitstr(&buf, c_bname, sizeof(c_bname), c_bname_pad, 0);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     ret = tt_der_encode_s32(&buf, c_age, 0);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     ret = tt_der_encode_oid(&buf, human_oid, sizeof(human_oid), 0);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     // son
     ret = tt_der_encode_sequence(&buf, s_datalen, 0);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     ret = tt_der_encode_s32(&buf, s_age, 0);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     // child2
     ret = tt_der_encode_sequence(&buf, c2_datalen, 0);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     ret = tt_der_encode_octstr(&buf, c2_name, sizeof(c2_name), 0);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     ret =
         tt_der_encode_bitstr(&buf, c2_bname, sizeof(c2_bname), c2_bname_pad, 0);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     ret = tt_der_encode_s32(&buf, c2_age, 0);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     do {
         tt_char_t numstr[1000] = {0};
@@ -611,56 +609,54 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_der_enc)
         TT_INFO("%s", numstr);
     } while (0);
 
-    TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&buf), sizeof(__der_encoded), "");
-    TT_TEST_CHECK_EQUAL(tt_memcmp(TT_BUF_RPOS(&buf),
-                                  __der_encoded,
-                                  TT_BUF_RLEN(&buf)),
-                        0,
-                        "");
+    TT_UT_EQUAL(TT_BUF_RLEN(&buf), sizeof(__der_encoded), "");
+    TT_UT_EQUAL(tt_memcmp(TT_BUF_RPOS(&buf), __der_encoded, TT_BUF_RLEN(&buf)),
+                0,
+                "");
 
     // test length encoding
     do {
         tt_buf_reset_rwp(&buf);
         tt_der_encode_sequence(&buf, 127, 0);
-        TT_TEST_CHECK_EQUAL(buf.p[buf.rpos + 1], 0x7f, "");
+        TT_UT_EQUAL(buf.p[buf.rpos + 1], 0x7f, "");
 
         tt_buf_reset_rwp(&buf);
         tt_der_encode_sequence(&buf, 128, 0);
-        TT_TEST_CHECK_EQUAL(buf.p[buf.rpos + 1], 0x81, "");
-        TT_TEST_CHECK_EQUAL(buf.p[buf.rpos + 2], 0x80, "");
+        TT_UT_EQUAL(buf.p[buf.rpos + 1], 0x81, "");
+        TT_UT_EQUAL(buf.p[buf.rpos + 2], 0x80, "");
 
         tt_buf_reset_rwp(&buf);
         tt_der_encode_sequence(&buf, 0x1234, 0);
-        TT_TEST_CHECK_EQUAL(buf.p[buf.rpos + 1], 0x82, "");
-        TT_TEST_CHECK_EQUAL(buf.p[buf.rpos + 2], 0x12, "");
-        TT_TEST_CHECK_EQUAL(buf.p[buf.rpos + 3], 0x34, "");
+        TT_UT_EQUAL(buf.p[buf.rpos + 1], 0x82, "");
+        TT_UT_EQUAL(buf.p[buf.rpos + 2], 0x12, "");
+        TT_UT_EQUAL(buf.p[buf.rpos + 3], 0x34, "");
 
         tt_buf_reset_rwp(&buf);
         tt_der_encode_sequence(&buf, 0x123456, 0);
-        TT_TEST_CHECK_EQUAL(buf.p[buf.rpos + 1], 0x83, "");
-        TT_TEST_CHECK_EQUAL(buf.p[buf.rpos + 2], 0x12, "");
-        TT_TEST_CHECK_EQUAL(buf.p[buf.rpos + 3], 0x34, "");
-        TT_TEST_CHECK_EQUAL(buf.p[buf.rpos + 4], 0x56, "");
+        TT_UT_EQUAL(buf.p[buf.rpos + 1], 0x83, "");
+        TT_UT_EQUAL(buf.p[buf.rpos + 2], 0x12, "");
+        TT_UT_EQUAL(buf.p[buf.rpos + 3], 0x34, "");
+        TT_UT_EQUAL(buf.p[buf.rpos + 4], 0x56, "");
 
         tt_buf_reset_rwp(&buf);
         tt_der_encode_sequence(&buf, 0x12345678, 0);
-        TT_TEST_CHECK_EQUAL(buf.p[buf.rpos + 1], 0x84, "");
-        TT_TEST_CHECK_EQUAL(buf.p[buf.rpos + 2], 0x12, "");
-        TT_TEST_CHECK_EQUAL(buf.p[buf.rpos + 3], 0x34, "");
-        TT_TEST_CHECK_EQUAL(buf.p[buf.rpos + 4], 0x56, "");
-        TT_TEST_CHECK_EQUAL(buf.p[buf.rpos + 5], 0x78, "");
+        TT_UT_EQUAL(buf.p[buf.rpos + 1], 0x84, "");
+        TT_UT_EQUAL(buf.p[buf.rpos + 2], 0x12, "");
+        TT_UT_EQUAL(buf.p[buf.rpos + 3], 0x34, "");
+        TT_UT_EQUAL(buf.p[buf.rpos + 4], 0x56, "");
+        TT_UT_EQUAL(buf.p[buf.rpos + 5], 0x78, "");
     } while (0);
 
     // bit string
     do {
         tt_buf_reset_rwp(&buf);
         tt_der_encode_bitstr(&buf, NULL, 126, 0, 0);
-        TT_TEST_CHECK_EQUAL(buf.p[buf.rpos + 1], 0x7f, "");
+        TT_UT_EQUAL(buf.p[buf.rpos + 1], 0x7f, "");
 
         tt_buf_reset_rwp(&buf);
         tt_der_encode_bitstr(&buf, NULL, 127, 0, 0);
-        TT_TEST_CHECK_EQUAL(buf.p[buf.rpos + 1], 0x81, "");
-        TT_TEST_CHECK_EQUAL(buf.p[buf.rpos + 2], 0x80, "");
+        TT_UT_EQUAL(buf.p[buf.rpos + 1], 0x81, "");
+        TT_UT_EQUAL(buf.p[buf.rpos + 2], 0x80, "");
     } while (0);
 
     // test end
@@ -684,105 +680,105 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_strtol)
     // s32
 
     result = tt_strtos32("  -0x123 ", &endptr, 0, &s32_val);
-    TT_TEST_CHECK_EQUAL(result, TT_SUCCESS, "");
-    TT_TEST_CHECK_EQUAL(*endptr, ' ', "");
-    TT_TEST_CHECK_EQUAL(s32_val, -0x123, "");
+    TT_UT_EQUAL(result, TT_SUCCESS, "");
+    TT_UT_EQUAL(*endptr, ' ', "");
+    TT_UT_EQUAL(s32_val, -0x123, "");
 
     result = tt_strtos32("  -0x123x ", &endptr, 0, &s32_val);
-    TT_TEST_CHECK_EQUAL(result, TT_FAIL, "");
+    TT_UT_EQUAL(result, TT_FAIL, "");
 
     result = tt_strtos32("   ", &endptr, 0, &s32_val);
-    TT_TEST_CHECK_EQUAL(result, TT_FAIL, "");
+    TT_UT_EQUAL(result, TT_FAIL, "");
 
     result = tt_strtos32("", &endptr, 0, &s32_val);
-    TT_TEST_CHECK_EQUAL(result, TT_FAIL, "");
+    TT_UT_EQUAL(result, TT_FAIL, "");
 
     result = tt_strtos32("-", &endptr, 0, &s32_val);
-    TT_TEST_CHECK_EQUAL(result, TT_FAIL, "");
+    TT_UT_EQUAL(result, TT_FAIL, "");
 
     result = tt_strtos32("0", &endptr, 0, &s32_val);
-    TT_TEST_CHECK_EQUAL(result, TT_SUCCESS, "");
-    TT_TEST_CHECK_EQUAL(*endptr, 0, "");
-    TT_TEST_CHECK_EQUAL(s32_val, 0, "");
+    TT_UT_EQUAL(result, TT_SUCCESS, "");
+    TT_UT_EQUAL(*endptr, 0, "");
+    TT_UT_EQUAL(s32_val, 0, "");
 
     result = tt_strtos32("-0x0", &endptr, 0, &s32_val);
-    TT_TEST_CHECK_EQUAL(result, TT_SUCCESS, "");
-    TT_TEST_CHECK_EQUAL(*endptr, 0, "");
-    TT_TEST_CHECK_EQUAL(s32_val, 0, "");
+    TT_UT_EQUAL(result, TT_SUCCESS, "");
+    TT_UT_EQUAL(*endptr, 0, "");
+    TT_UT_EQUAL(s32_val, 0, "");
 
     result = tt_strtos32("-111111111111111111111111111111111111",
                          &endptr,
                          0,
                          &s32_val);
-    TT_TEST_CHECK_EQUAL(result, TT_FAIL, "");
+    TT_UT_EQUAL(result, TT_FAIL, "");
     result = tt_strtos32("+111111111111111111111111111111111111",
                          &endptr,
                          0,
                          &s32_val);
-    TT_TEST_CHECK_EQUAL(result, TT_FAIL, "");
+    TT_UT_EQUAL(result, TT_FAIL, "");
 
     result = tt_strtos32("  +0x7fffffff", &endptr, 0, &s32_val);
-    TT_TEST_CHECK_EQUAL(result, TT_SUCCESS, "");
-    TT_TEST_CHECK_EQUAL(*endptr, 0, "");
-    TT_TEST_CHECK_EQUAL(s32_val, 0x7fffffff, "");
+    TT_UT_EQUAL(result, TT_SUCCESS, "");
+    TT_UT_EQUAL(*endptr, 0, "");
+    TT_UT_EQUAL(s32_val, 0x7fffffff, "");
 
     result = tt_strtos32("-0x80000000\t", &endptr, 0, &s32_val);
-    TT_TEST_CHECK_EQUAL(result, TT_SUCCESS, "");
-    TT_TEST_CHECK_EQUAL(*endptr, '\t', "");
-    TT_TEST_CHECK_EQUAL(s32_val, 0x80000000, "");
+    TT_UT_EQUAL(result, TT_SUCCESS, "");
+    TT_UT_EQUAL(*endptr, '\t', "");
+    TT_UT_EQUAL(s32_val, 0x80000000, "");
 
     // u32
 
     result = tt_strtou32("  0x123 ", &endptr, 0, &u32_val);
-    TT_TEST_CHECK_EQUAL(result, TT_SUCCESS, "");
-    TT_TEST_CHECK_EQUAL(*endptr, ' ', "");
-    TT_TEST_CHECK_EQUAL(u32_val, 0x123, "");
+    TT_UT_EQUAL(result, TT_SUCCESS, "");
+    TT_UT_EQUAL(*endptr, ' ', "");
+    TT_UT_EQUAL(u32_val, 0x123, "");
 
     result = tt_strtou32("  -0x123 ", &endptr, 0, &u32_val);
-    TT_TEST_CHECK_EQUAL(result, TT_FAIL, "");
+    TT_UT_EQUAL(result, TT_FAIL, "");
 
     result = tt_strtou32("  0x123x ", &endptr, 0, &u32_val);
-    TT_TEST_CHECK_EQUAL(result, TT_FAIL, "");
+    TT_UT_EQUAL(result, TT_FAIL, "");
 
     result = tt_strtou32("   ", &endptr, 0, &u32_val);
-    TT_TEST_CHECK_EQUAL(result, TT_FAIL, "");
+    TT_UT_EQUAL(result, TT_FAIL, "");
 
     result = tt_strtou32("", &endptr, 0, &u32_val);
-    TT_TEST_CHECK_EQUAL(result, TT_FAIL, "");
+    TT_UT_EQUAL(result, TT_FAIL, "");
 
     result = tt_strtou32("+", &endptr, 0, &u32_val);
-    TT_TEST_CHECK_EQUAL(result, TT_FAIL, "");
+    TT_UT_EQUAL(result, TT_FAIL, "");
 
     result = tt_strtou32("0", &endptr, 0, &u32_val);
-    TT_TEST_CHECK_EQUAL(result, TT_SUCCESS, "");
-    TT_TEST_CHECK_EQUAL(*endptr, 0, "");
-    TT_TEST_CHECK_EQUAL(u32_val, 0, "");
+    TT_UT_EQUAL(result, TT_SUCCESS, "");
+    TT_UT_EQUAL(*endptr, 0, "");
+    TT_UT_EQUAL(u32_val, 0, "");
 
     result = tt_strtou32("+0x0", &endptr, 0, &u32_val);
-    TT_TEST_CHECK_EQUAL(result, TT_SUCCESS, "");
-    TT_TEST_CHECK_EQUAL(*endptr, 0, "");
-    TT_TEST_CHECK_EQUAL(u32_val, 0, "");
+    TT_UT_EQUAL(result, TT_SUCCESS, "");
+    TT_UT_EQUAL(*endptr, 0, "");
+    TT_UT_EQUAL(u32_val, 0, "");
 
     result = tt_strtou32("-111111111111111111111111111111111111",
                          &endptr,
                          0,
                          &u32_val);
-    TT_TEST_CHECK_EQUAL(result, TT_FAIL, "");
+    TT_UT_EQUAL(result, TT_FAIL, "");
     result = tt_strtou32("+111111111111111111111111111111111111",
                          &endptr,
                          0,
                          &u32_val);
-    TT_TEST_CHECK_EQUAL(result, TT_FAIL, "");
+    TT_UT_EQUAL(result, TT_FAIL, "");
 
     result = tt_strtou32("  +0x7fffffff", &endptr, 0, &u32_val);
-    TT_TEST_CHECK_EQUAL(result, TT_SUCCESS, "");
-    TT_TEST_CHECK_EQUAL(*endptr, 0, "");
-    TT_TEST_CHECK_EQUAL(u32_val, 0x7fffffff, "");
+    TT_UT_EQUAL(result, TT_SUCCESS, "");
+    TT_UT_EQUAL(*endptr, 0, "");
+    TT_UT_EQUAL(u32_val, 0x7fffffff, "");
 
     result = tt_strtou32("+0xffffffff\t", &endptr, 0, &u32_val);
-    TT_TEST_CHECK_EQUAL(result, TT_SUCCESS, "");
-    TT_TEST_CHECK_EQUAL(*endptr, '\t', "");
-    TT_TEST_CHECK_EQUAL(u32_val, 0xffffffff, "");
+    TT_UT_EQUAL(result, TT_SUCCESS, "");
+    TT_UT_EQUAL(*endptr, '\t', "");
+    TT_UT_EQUAL(u32_val, 0xffffffff, "");
 
     //////////////////////////////////////////////
 
@@ -793,31 +789,31 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_strtol)
         char p3[] = "12341234123";
 
         p = tt_strrstr("", "");
-        TT_TEST_CHECK_NOT_EQUAL(p, NULL, "");
-        TT_TEST_CHECK_EQUAL(tt_strcmp(p, ""), 0, "");
+        TT_UT_NOT_EQUAL(p, NULL, "");
+        TT_UT_EQUAL(tt_strcmp(p, ""), 0, "");
 
         p = tt_strrstr("", "123");
-        TT_TEST_CHECK_EQUAL(p, NULL, "");
+        TT_UT_EQUAL(p, NULL, "");
 
         p = tt_strrstr("123", "");
-        TT_TEST_CHECK_NOT_EQUAL(p, NULL, "");
-        TT_TEST_CHECK_EQUAL(tt_strcmp(p, "123"), 0, "");
+        TT_UT_NOT_EQUAL(p, NULL, "");
+        TT_UT_EQUAL(tt_strcmp(p, "123"), 0, "");
 
         p = tt_strrstr("123", "123");
-        TT_TEST_CHECK_NOT_EQUAL(p, NULL, "123");
-        TT_TEST_CHECK_EQUAL(tt_strcmp(p, "123"), 0, "");
+        TT_UT_NOT_EQUAL(p, NULL, "123");
+        TT_UT_EQUAL(tt_strcmp(p, "123"), 0, "");
 
         p = tt_strrstr("", "1234");
-        TT_TEST_CHECK_EQUAL(p, NULL, "");
+        TT_UT_EQUAL(p, NULL, "");
 
         p = tt_strrstr(p1, "1234");
-        TT_TEST_CHECK_EQUAL(p, &p1[4], "");
+        TT_UT_EQUAL(p, &p1[4], "");
 
         p = tt_strrstr(p2, "1234");
-        TT_TEST_CHECK_EQUAL(p, &p2[0], "");
+        TT_UT_EQUAL(p, &p2[0], "");
 
         p = tt_strrstr(p3, "1234");
-        TT_TEST_CHECK_EQUAL(p, &p3[4], "");
+        TT_UT_EQUAL(p, &p3[4], "");
     }
 
     // test end
@@ -842,32 +838,32 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_sc_gb2sc)
 		test_len = sizeof(sc);
 		ret = tt_sys_char_convert(TT_CHARSET_GB2312,test,sizeof(test),
                                        NULL, (tt_u32_t*)&test_len);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, ""); 
+        TT_UT_EQUAL(ret, TT_SUCCESS, ""); 
 
 		len = sizeof(sc);
         ret = tt_sys_char_convert(TT_CHARSET_GB2312,test,sizeof(test),
                                   sc, (tt_u32_t*)&len);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
 #ifdef _WIN32
-        TT_TEST_CHECK_EQUAL(test_len, 6, ""); 
-        TT_TEST_CHECK_EQUAL(len, 6, ""); 
+        TT_UT_EQUAL(test_len, 6, ""); 
+        TT_UT_EQUAL(len, 6, ""); 
         
 		// 6 bytes for 2 chinese and ending 0
-        TT_TEST_CHECK_EQUAL(sc[0], 0x54c8, "");
-        TT_TEST_CHECK_EQUAL(sc[1], 0x725b, "");
-        TT_TEST_CHECK_EQUAL(sc[2], 0, "");
+        TT_UT_EQUAL(sc[0], 0x54c8, "");
+        TT_UT_EQUAL(sc[1], 0x725b, "");
+        TT_UT_EQUAL(sc[2], 0, "");
 #else
-        TT_TEST_CHECK_EQUAL(test_len, 7, ""); 
-        TT_TEST_CHECK_EQUAL(len, 7, ""); 
+        TT_UT_EQUAL(test_len, 7, ""); 
+        TT_UT_EQUAL(len, 7, ""); 
         
-        TT_TEST_CHECK_EQUAL(sc[0], (tt_sys_char_t)0xe5, "");
-        TT_TEST_CHECK_EQUAL(sc[1], (tt_sys_char_t)(tt_u8_t)0x93, "");
-        TT_TEST_CHECK_EQUAL(sc[2], (tt_sys_char_t)0x88, "");
-        TT_TEST_CHECK_EQUAL(sc[3], (tt_sys_char_t)0xe7, "");
-        TT_TEST_CHECK_EQUAL(sc[4], (tt_sys_char_t)0x89, "");
-        TT_TEST_CHECK_EQUAL(sc[5], (tt_sys_char_t)0x9b, "");
-        TT_TEST_CHECK_EQUAL(sc[6], (tt_sys_char_t)0, "");
+        TT_UT_EQUAL(sc[0], (tt_sys_char_t)0xe5, "");
+        TT_UT_EQUAL(sc[1], (tt_sys_char_t)(tt_u8_t)0x93, "");
+        TT_UT_EQUAL(sc[2], (tt_sys_char_t)0x88, "");
+        TT_UT_EQUAL(sc[3], (tt_sys_char_t)0xe7, "");
+        TT_UT_EQUAL(sc[4], (tt_sys_char_t)0x89, "");
+        TT_UT_EQUAL(sc[5], (tt_sys_char_t)0x9b, "");
+        TT_UT_EQUAL(sc[6], (tt_sys_char_t)0, "");
 #endif
     }
 
@@ -878,32 +874,32 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_sc_gb2sc)
 		test_len = sizeof(sc);
 		ret = tt_sys_char_convert(TT_CHARSET_GB2312,test,sizeof(test),
                                        NULL, (tt_u32_t*)&test_len);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, ""); 
+        TT_UT_EQUAL(ret, TT_SUCCESS, ""); 
 
 		len = sizeof(sc);
         ret = tt_sys_char_convert(TT_CHARSET_GBK,test,sizeof(test),
                                   sc, (tt_u32_t*)&len);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
 #ifdef _WIN32
-        TT_TEST_CHECK_EQUAL(test_len, 6, ""); 
-        TT_TEST_CHECK_EQUAL(len, 6, ""); 
+        TT_UT_EQUAL(test_len, 6, ""); 
+        TT_UT_EQUAL(len, 6, ""); 
         
 		// 6 bytes for 2 chinese and ending 0
-        TT_TEST_CHECK_EQUAL(sc[0], 0x54c8, "");
-        TT_TEST_CHECK_EQUAL(sc[1], 0x725b, "");
-        TT_TEST_CHECK_EQUAL(sc[2], 0, "");
+        TT_UT_EQUAL(sc[0], 0x54c8, "");
+        TT_UT_EQUAL(sc[1], 0x725b, "");
+        TT_UT_EQUAL(sc[2], 0, "");
 #else
-        TT_TEST_CHECK_EQUAL(test_len, 7, ""); 
-        TT_TEST_CHECK_EQUAL(len, 7, ""); 
+        TT_UT_EQUAL(test_len, 7, ""); 
+        TT_UT_EQUAL(len, 7, ""); 
         
-        TT_TEST_CHECK_EQUAL(sc[0], (tt_sys_char_t)0xe5, "");
-        TT_TEST_CHECK_EQUAL(sc[1], (tt_sys_char_t)0x93, "");
-        TT_TEST_CHECK_EQUAL(sc[2], (tt_sys_char_t)0x88, "");
-        TT_TEST_CHECK_EQUAL(sc[3], (tt_sys_char_t)0xe7, "");
-        TT_TEST_CHECK_EQUAL(sc[4], (tt_sys_char_t)0x89, "");
-        TT_TEST_CHECK_EQUAL(sc[5], (tt_sys_char_t)0x9b, "");
-        TT_TEST_CHECK_EQUAL(sc[6], (tt_sys_char_t)0, "");
+        TT_UT_EQUAL(sc[0], (tt_sys_char_t)0xe5, "");
+        TT_UT_EQUAL(sc[1], (tt_sys_char_t)0x93, "");
+        TT_UT_EQUAL(sc[2], (tt_sys_char_t)0x88, "");
+        TT_UT_EQUAL(sc[3], (tt_sys_char_t)0xe7, "");
+        TT_UT_EQUAL(sc[4], (tt_sys_char_t)0x89, "");
+        TT_UT_EQUAL(sc[5], (tt_sys_char_t)0x9b, "");
+        TT_UT_EQUAL(sc[6], (tt_sys_char_t)0, "");
 #endif
     }
 
@@ -914,32 +910,32 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_sc_gb2sc)
 		test_len = sizeof(sc);
 		ret = tt_sys_char_convert(TT_CHARSET_GB2312,test,sizeof(test),
                                        NULL, (tt_u32_t*)&test_len);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, ""); 
+        TT_UT_EQUAL(ret, TT_SUCCESS, ""); 
 
 		len = sizeof(sc);
         ret = tt_sys_char_convert(TT_CHARSET_GB18030,test,sizeof(test),
                                   sc, (tt_u32_t*)&len);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
 #ifdef _WIN32
-        TT_TEST_CHECK_EQUAL(test_len, 6, ""); 
-        TT_TEST_CHECK_EQUAL(len, 6, ""); 
+        TT_UT_EQUAL(test_len, 6, ""); 
+        TT_UT_EQUAL(len, 6, ""); 
         
 		// 6 bytes for 2 chinese and ending 0
-        TT_TEST_CHECK_EQUAL(sc[0], 0x54c8, "");
-        TT_TEST_CHECK_EQUAL(sc[1], 0x725b, "");
-        TT_TEST_CHECK_EQUAL(sc[2], 0, "");
+        TT_UT_EQUAL(sc[0], 0x54c8, "");
+        TT_UT_EQUAL(sc[1], 0x725b, "");
+        TT_UT_EQUAL(sc[2], 0, "");
 #else
-        TT_TEST_CHECK_EQUAL(test_len, 7, ""); 
-        TT_TEST_CHECK_EQUAL(len, 7, ""); 
+        TT_UT_EQUAL(test_len, 7, ""); 
+        TT_UT_EQUAL(len, 7, ""); 
         
-        TT_TEST_CHECK_EQUAL(sc[0], (tt_sys_char_t)0xe5, "");
-        TT_TEST_CHECK_EQUAL(sc[1], (tt_sys_char_t)0x93, "");
-        TT_TEST_CHECK_EQUAL(sc[2], (tt_sys_char_t)0x88, "");
-        TT_TEST_CHECK_EQUAL(sc[3], (tt_sys_char_t)0xe7, "");
-        TT_TEST_CHECK_EQUAL(sc[4], (tt_sys_char_t)0x89, "");
-        TT_TEST_CHECK_EQUAL(sc[5], (tt_sys_char_t)0x9b, "");
-        TT_TEST_CHECK_EQUAL(sc[6], (tt_sys_char_t)0, "");
+        TT_UT_EQUAL(sc[0], (tt_sys_char_t)0xe5, "");
+        TT_UT_EQUAL(sc[1], (tt_sys_char_t)0x93, "");
+        TT_UT_EQUAL(sc[2], (tt_sys_char_t)0x88, "");
+        TT_UT_EQUAL(sc[3], (tt_sys_char_t)0xe7, "");
+        TT_UT_EQUAL(sc[4], (tt_sys_char_t)0x89, "");
+        TT_UT_EQUAL(sc[5], (tt_sys_char_t)0x9b, "");
+        TT_UT_EQUAL(sc[6], (tt_sys_char_t)0, "");
 #endif        
     }
 
@@ -958,30 +954,30 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_c2h)
     // test start
 
     c = tt_h2c(0, '?');
-    TT_TEST_CHECK_EQUAL(c, '0', "");
+    TT_UT_EQUAL(c, '0', "");
     c = tt_h2c(9, '?');
-    TT_TEST_CHECK_EQUAL(c, '9', "");
+    TT_UT_EQUAL(c, '9', "");
     c = tt_h2c(0xa, '?');
-    TT_TEST_CHECK_EQUAL(c, 'a', "");
+    TT_UT_EQUAL(c, 'a', "");
     c = tt_h2c(0xf, '?');
-    TT_TEST_CHECK_EQUAL(c, 'f', "");
+    TT_UT_EQUAL(c, 'f', "");
     c = tt_h2c(~0, '?');
-    TT_TEST_CHECK_EQUAL(c, '?', "");
+    TT_UT_EQUAL(c, '?', "");
 
     h = tt_c2h('0', 0xFF);
-    TT_TEST_CHECK_EQUAL(h, 0, "");
+    TT_UT_EQUAL(h, 0, "");
     h = tt_c2h('9', 0xFF);
-    TT_TEST_CHECK_EQUAL(h, 9, "");
+    TT_UT_EQUAL(h, 9, "");
     h = tt_c2h('a', 0xFF);
-    TT_TEST_CHECK_EQUAL(h, 0xa, "");
+    TT_UT_EQUAL(h, 0xa, "");
     h = tt_c2h('f', 0xFF);
-    TT_TEST_CHECK_EQUAL(h, 0xf, "");
+    TT_UT_EQUAL(h, 0xf, "");
     h = tt_c2h('A', 0xFF);
-    TT_TEST_CHECK_EQUAL(h, 0xa, "");
+    TT_UT_EQUAL(h, 0xa, "");
     h = tt_c2h('F', 0xFF);
-    TT_TEST_CHECK_EQUAL(h, 0xf, "");
+    TT_UT_EQUAL(h, 0xf, "");
     h = tt_c2h('?', 0xFF);
-    TT_TEST_CHECK_EQUAL(h, 0xFF, "");
+    TT_UT_EQUAL(h, 0xFF, "");
 
     // test end
     TT_TEST_CASE_LEAVE()
@@ -999,47 +995,47 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_align)
 
     val = 0;
     TT_U32_ALIGN_INC(val, 3);
-    TT_TEST_CHECK_EQUAL(val, 0, "");
+    TT_UT_EQUAL(val, 0, "");
     val = 0;
     TT_U32_ALIGN_DEC(val, 3);
-    TT_TEST_CHECK_EQUAL(val, 0, "");
+    TT_UT_EQUAL(val, 0, "");
 
     val = 100;
     TT_U32_ALIGN_INC(val, 3);
-    TT_TEST_CHECK_EQUAL(val, 104, "");
+    TT_UT_EQUAL(val, 104, "");
     val = 100;
     TT_U32_ALIGN_DEC(val, 3);
-    TT_TEST_CHECK_EQUAL(val, 96, "");
+    TT_UT_EQUAL(val, 96, "");
 
     val = ~0;
     TT_U32_ALIGN_INC(val, 30);
-    TT_TEST_CHECK_EQUAL(val, 0, "");
+    TT_UT_EQUAL(val, 0, "");
     val = ~0;
     TT_U32_ALIGN_DEC(val, 30);
-    TT_TEST_CHECK_EQUAL(val, 0xC0000000, "");
+    TT_UT_EQUAL(val, 0xC0000000, "");
 
     // ptr align
 
     pval = (tt_ptr_t)0;
     TT_PTR_ALIGN_INC(pval, 1);
-    TT_TEST_CHECK_EQUAL(pval, 0, "");
+    TT_UT_EQUAL(pval, 0, "");
     pval = (tt_ptr_t)0;
     TT_PTR_ALIGN_DEC(pval, 1);
-    TT_TEST_CHECK_EQUAL(pval, 0, "");
+    TT_UT_EQUAL(pval, 0, "");
 
     pval = (tt_ptr_t)0x12345678;
     TT_PTR_ALIGN_INC(pval, 7);
-    TT_TEST_CHECK_EQUAL(pval, (tt_ptr_t)0x12345680, "");
+    TT_UT_EQUAL(pval, (tt_ptr_t)0x12345680, "");
     pval = (tt_ptr_t)0x12345678;
     TT_PTR_ALIGN_DEC(pval, 7);
-    TT_TEST_CHECK_EQUAL(pval, (tt_ptr_t)0x12345600, "");
+    TT_UT_EQUAL(pval, (tt_ptr_t)0x12345600, "");
 
     pval = (tt_ptr_t)~0;
     TT_PTR_ALIGN_INC(pval, 30);
-    TT_TEST_CHECK_EQUAL(pval, 0, "");
+    TT_UT_EQUAL(pval, 0, "");
     pval = (tt_ptr_t)~0;
     TT_PTR_ALIGN_DEC(pval, 30);
-    TT_TEST_CHECK_EQUAL(pval, (tt_ptr_t)0xFFFFFFFFC0000000, "");
+    TT_UT_EQUAL(pval, (tt_ptr_t)0xFFFFFFFFC0000000, "");
 
     // test end
     TT_TEST_CASE_LEAVE()

@@ -196,20 +196,20 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_str_null)
     // init
     tt_string_init(&s, NULL);
     tt_string_print(&s, 0);
-    TT_TEST_CHECK_EQUAL(tt_string_empty(&s), TT_TRUE, "");
+    TT_UT_EQUAL(tt_string_empty(&s), TT_TRUE, "");
 
     ret = __ut_str_checknull(&s);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
 
     tt_string_destroy(&s);
 
     // create
     ret = tt_string_create(&s, "", NULL);
-    TT_TEST_CHECK_SUCCESS(ret, "");
-    TT_TEST_CHECK_EQUAL(tt_string_empty(&s), TT_TRUE, "");
+    TT_UT_SUCCESS(ret, "");
+    TT_UT_EQUAL(tt_string_empty(&s), TT_TRUE, "");
 
     ret = __ut_str_checknull(&s);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
 
     tt_string_destroy(&s);
 
@@ -231,147 +231,147 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_str_basic)
 
     // create
     ret = tt_string_create(&s, "123", NULL);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
     tt_string_print(&s, 0);
-    TT_TEST_CHECK_EQUAL(tt_string_empty(&s), TT_FALSE, "");
+    TT_UT_EQUAL(tt_string_empty(&s), TT_FALSE, "");
 
-    TT_TEST_CHECK_EQUAL(tt_string_len(&s), 3, "");
+    TT_UT_EQUAL(tt_string_len(&s), 3, "");
 
     p = tt_string_cstr(&s);
-    TT_TEST_CHECK_EQUAL(tt_strncmp(p, "123", 3), 0, "");
+    TT_UT_EQUAL(tt_strncmp(p, "123", 3), 0, "");
 
     p = tt_string_subcstr(&s, 0, &len);
-    TT_TEST_CHECK_EQUAL(len, 3, "");
-    TT_TEST_CHECK_EQUAL(tt_strncmp(p, "123", 3), 0, "");
+    TT_UT_EQUAL(len, 3, "");
+    TT_UT_EQUAL(tt_strncmp(p, "123", 3), 0, "");
     p = tt_string_subcstr(&s, 1, &len);
-    TT_TEST_CHECK_EQUAL(len, 2, "");
-    TT_TEST_CHECK_EQUAL(tt_strncmp(p, "23", 2), 0, "");
+    TT_UT_EQUAL(len, 2, "");
+    TT_UT_EQUAL(tt_strncmp(p, "23", 2), 0, "");
     p = tt_string_subcstr(&s, 3, &len);
-    TT_TEST_CHECK_EQUAL(len, 0, "");
-    TT_TEST_CHECK_EQUAL(tt_strncmp(p, "", 1), 0, "");
+    TT_UT_EQUAL(len, 0, "");
+    TT_UT_EQUAL(tt_strncmp(p, "", 1), 0, "");
     p = tt_string_subcstr(&s, 4, &len);
-    TT_TEST_CHECK_EQUAL(len, 0, "");
-    TT_TEST_CHECK_EQUAL(p, NULL, "");
+    TT_UT_EQUAL(len, 0, "");
+    TT_UT_EQUAL(p, NULL, "");
 
     tt_string_clear(&s);
     ret = __ut_str_checknull(&s);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
 
     tt_string_destroy(&s);
 
     // create n
     ret = tt_string_create_sub(&s, "", 0, 0, NULL);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
     cmp_ret = tt_string_cmp(&s, "");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
     tt_string_destroy(&s);
 
     ret = tt_string_create_sub(&s, "", 0, 1, NULL);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
     cmp_ret = tt_string_cmp(&s, "");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
     tt_string_destroy(&s);
 
     ret = tt_string_create_sub(&s, "", 0, 10, NULL);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
     cmp_ret = tt_string_cmp(&s, "");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
     tt_string_destroy(&s);
 
     ret = tt_string_create_sub(&s, "123", 0, 2, NULL);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
     cmp_ret = tt_string_cmp(&s, "12");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
     tt_string_destroy(&s);
 
     ret = tt_string_create_sub(&s, "123", 1, 2, NULL);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
     cmp_ret = tt_string_cmp(&s, "23");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
     tt_string_destroy(&s);
 
     ret = tt_string_create_sub(&s, "123", 0, 30, NULL);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
     cmp_ret = tt_string_cmp(&s, "123");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
 
     // setfrom
     ret = tt_string_setfrom(&s, 0, "4567");
     cmp_ret = tt_string_cmp(&s, "4567");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
 
     ret = tt_string_setfrom(&s, 3, "890");
     cmp_ret = tt_string_cmp(&s, "456890");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
 
     ret = tt_string_setfrom(&s, 6, "123");
     cmp_ret = tt_string_cmp(&s, "456890123");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
 
     ret = tt_string_setfrom(&s, 100, "123");
-    TT_TEST_CHECK_EQUAL(ret, TT_FAIL, "");
+    TT_UT_EQUAL(ret, TT_FAIL, "");
 
     // equal_range
     cmp_ret = tt_string_equal_range(&s, "45", 0, 2);
-    TT_TEST_CHECK_EQUAL(cmp_ret, TT_TRUE, "");
+    TT_UT_EQUAL(cmp_ret, TT_TRUE, "");
     cmp_ret = tt_string_equal_range(&s, "46", 0, 2);
-    TT_TEST_CHECK_EQUAL(cmp_ret, TT_FALSE, "");
+    TT_UT_EQUAL(cmp_ret, TT_FALSE, "");
 
     cmp_ret = tt_string_equal_range(&s, "aaaaaaaa3", 8, 1);
-    TT_TEST_CHECK_EQUAL(cmp_ret, TT_TRUE, "");
+    TT_UT_EQUAL(cmp_ret, TT_TRUE, "");
     cmp_ret = tt_string_equal_range(&s, "456890124", 8, 1);
-    TT_TEST_CHECK_EQUAL(cmp_ret, TT_FALSE, "");
+    TT_UT_EQUAL(cmp_ret, TT_FALSE, "");
 
     cmp_ret = tt_string_equal_range(&s, "aaaaaaaa", 8, 0);
-    TT_TEST_CHECK_EQUAL(cmp_ret, TT_TRUE, "");
+    TT_UT_EQUAL(cmp_ret, TT_TRUE, "");
 
     cmp_ret = tt_string_equal_range(&s, "aaaaaaaa3", 18, 10);
-    TT_TEST_CHECK_EQUAL(cmp_ret, TT_FALSE, "");
+    TT_UT_EQUAL(cmp_ret, TT_FALSE, "");
     cmp_ret = tt_string_equal_range(&s, "45", 0, 3);
-    TT_TEST_CHECK_EQUAL(cmp_ret, TT_FALSE, "");
+    TT_UT_EQUAL(cmp_ret, TT_FALSE, "");
 
     // setfrom_c
     ret = tt_string_setfrom_c(&s, 0, 'a');
     cmp_ret = tt_string_cmp(&s, "a56890123");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
 
     ret = tt_string_setfrom_c(&s, 8, 'b');
     cmp_ret = tt_string_cmp(&s, "a5689012b");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
 
     ret = tt_string_setfrom_c(&s, 9, 'c');
-    TT_TEST_CHECK_EQUAL(ret, TT_FAIL, "");
+    TT_UT_EQUAL(ret, TT_FAIL, "");
     ret = tt_string_setfrom_c(&s, 19, 'c');
-    TT_TEST_CHECK_EQUAL(ret, TT_FAIL, "");
+    TT_UT_EQUAL(ret, TT_FAIL, "");
 
     // set sub
     ret = tt_string_set_sub(&s, "1234", 0, 3);
     cmp_ret = tt_string_cmp(&s, "123");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
 
     ret = tt_string_set_sub(&s, "1234", 0, 10);
     cmp_ret = tt_string_cmp(&s, "1234");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
 
     ret = tt_string_set_sub(&s, "1234", 4, 10);
     cmp_ret = tt_string_cmp(&s, "");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
 
     tt_string_destroy(&s);
 
     // create nocpy
     ret = tt_string_create_nocopy(&s, "123", NULL);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
     tt_string_print(&s, 0);
 
-    TT_TEST_CHECK_EQUAL(tt_string_len(&s), 3, "");
+    TT_UT_EQUAL(tt_string_len(&s), 3, "");
 
     p = tt_string_cstr(&s);
-    TT_TEST_CHECK_EQUAL(tt_strncmp(p, "123", 3), 0, "");
+    TT_UT_EQUAL(tt_strncmp(p, "123", 3), 0, "");
 
     tt_string_clear(&s);
     ret = __ut_str_checknull(&s);
-    TT_TEST_CHECK_EQUAL(ret, TT_FAIL, "");
+    TT_UT_EQUAL(ret, TT_FAIL, "");
 
     tt_string_destroy(&s);
 
@@ -393,27 +393,27 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_str_getchar)
     tt_string_init(&s, NULL);
 
     c = tt_string_getchar(&s, 0);
-    TT_TEST_CHECK_EQUAL(c, 0, "");
+    TT_UT_EQUAL(c, 0, "");
     c = tt_string_getchar(&s, 1);
-    TT_TEST_CHECK_EQUAL(c, 0, "");
+    TT_UT_EQUAL(c, 0, "");
     c = tt_string_getchar(&s, 2);
-    TT_TEST_CHECK_EQUAL(c, 0, "");
+    TT_UT_EQUAL(c, 0, "");
 
     ret = tt_string_create_nocopy(&s, "0123456789abcedf", NULL);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
 
     c = tt_string_getchar(&s, 0);
-    TT_TEST_CHECK_EQUAL(c, '0', "");
+    TT_UT_EQUAL(c, '0', "");
     c = tt_string_getchar(&s, 10);
-    TT_TEST_CHECK_EQUAL(c, 'a', "");
+    TT_UT_EQUAL(c, 'a', "");
     c = tt_string_getchar(&s, 15);
-    TT_TEST_CHECK_EQUAL(c, 'f', "");
+    TT_UT_EQUAL(c, 'f', "");
     c = tt_string_getchar(&s, 16);
-    TT_TEST_CHECK_EQUAL(c, 0, "");
+    TT_UT_EQUAL(c, 0, "");
     c = tt_string_getchar(&s, 17);
-    TT_TEST_CHECK_EQUAL(c, 0, "");
+    TT_UT_EQUAL(c, 0, "");
     c = tt_string_getchar(&s, ~0);
-    TT_TEST_CHECK_EQUAL(c, 0, "");
+    TT_UT_EQUAL(c, 0, "");
 
     tt_string_destroy(&s);
 
@@ -434,51 +434,51 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_str_cmp)
     tt_string_init(&s, NULL);
     tt_string_init(&s2, NULL);
     cmp_ret = tt_string_cmp(&s, tt_string_cstr(&s2));
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
     tt_string_destroy(&s);
 
     ret = tt_string_create(&s, "", NULL);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     cmp_ret = tt_string_cmp(&s, tt_string_cstr(&s2));
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
     cmp_ret = tt_string_cmp(&s2, tt_string_cstr(&s2));
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
     cmp_ret = tt_string_cmp(&s2, "");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
 
     tt_string_destroy(&s);
     tt_string_destroy(&s2);
 
     // diff len
     ret = tt_string_create(&s, "1234567890aaaaafdsafasfdas", NULL);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     ret = tt_string_create(&s2, "1234567890aaaaafdsafasfda", NULL);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     cmp_ret = tt_string_cmp(&s, tt_string_cstr(&s2));
-    TT_TEST_CHECK_EXP(cmp_ret > 0, "");
+    TT_UT_EXP(cmp_ret > 0, "");
     cmp_ret = tt_string_cmp(&s2, tt_string_cstr(&s));
-    TT_TEST_CHECK_EXP(cmp_ret < 0, "");
+    TT_UT_EXP(cmp_ret < 0, "");
     cmp_ret = tt_string_cmp(&s, "1234567890aaaaafdsafasfdas");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
 
     // same len
     tt_string_destroy(&s2);
     ret = tt_string_create(&s2, "1234567890aaaaafdsafasfdat", NULL);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     cmp_ret = tt_string_cmp(&s, tt_string_cstr(&s2));
-    TT_TEST_CHECK_EXP(cmp_ret < 0, "");
+    TT_UT_EXP(cmp_ret < 0, "");
     cmp_ret = tt_string_cmp(&s2, tt_string_cstr(&s));
-    TT_TEST_CHECK_EXP(cmp_ret > 0, "");
+    TT_UT_EXP(cmp_ret > 0, "");
     cmp_ret = tt_string_cmp(&s, "1234567890aaaaafdsafasfdas");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
 
     // string cmp empty
     tt_string_destroy(&s2);
     tt_string_init(&s2, NULL);
     cmp_ret = tt_string_cmp(&s, tt_string_cstr(&s2));
-    TT_TEST_CHECK_EXP(cmp_ret > 0, "");
+    TT_UT_EXP(cmp_ret > 0, "");
     cmp_ret = tt_string_cmp(&s2, tt_string_cstr(&s));
-    TT_TEST_CHECK_EXP(cmp_ret < 0, "");
+    TT_UT_EXP(cmp_ret < 0, "");
 
     tt_string_destroy(&s);
     tt_string_destroy(&s2);
@@ -487,58 +487,58 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_str_cmp)
     tt_string_init(&s, NULL);
     tt_string_init(&s2, NULL);
     cmp_ret = tt_string_ncasecmp(&s, tt_string_cstr(&s2));
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
     tt_string_destroy(&s);
 
     ret = tt_string_create(&s, "", NULL);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     cmp_ret = tt_string_ncasecmp(&s, tt_string_cstr(&s2));
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
     cmp_ret = tt_string_ncasecmp(&s2, tt_string_cstr(&s2));
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
     cmp_ret = tt_string_ncasecmp(&s, "");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
 
     tt_string_destroy(&s);
     tt_string_destroy(&s2);
 
     // diff len
     ret = tt_string_create(&s, "1234567890aAaAaFdSaFaszZ0fdas", NULL);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     ret = tt_string_create(&s2, "1234567890aAaAaFdSaFaszZ0fda", NULL);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     cmp_ret = tt_string_ncasecmp(&s, tt_string_cstr(&s2));
-    TT_TEST_CHECK_EXP(cmp_ret > 0, "");
+    TT_UT_EXP(cmp_ret > 0, "");
     cmp_ret = tt_string_ncasecmp(&s2, tt_string_cstr(&s));
-    TT_TEST_CHECK_EXP(cmp_ret < 0, "");
+    TT_UT_EXP(cmp_ret < 0, "");
     cmp_ret = tt_string_ncasecmp(&s, "1234567890aAaAaFdSaFaszZ0fdas");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
 
     // same len
     tt_string_destroy(&s2);
     ret = tt_string_create(&s2, "1234567890aAaAaFdSaFaszZ0fdat", NULL);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     cmp_ret = tt_string_ncasecmp(&s, tt_string_cstr(&s2));
-    TT_TEST_CHECK_EXP(cmp_ret < 0, "");
+    TT_UT_EXP(cmp_ret < 0, "");
     cmp_ret = tt_string_ncasecmp(&s2, tt_string_cstr(&s));
-    TT_TEST_CHECK_EXP(cmp_ret > 0, "");
+    TT_UT_EXP(cmp_ret > 0, "");
 
     // same len, diff case
     tt_string_destroy(&s2);
     ret = tt_string_create(&s2, "1234567890AAaaaFdSaFasZz0fdaS", NULL);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     cmp_ret = tt_string_ncasecmp(&s, tt_string_cstr(&s2));
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
     cmp_ret = tt_string_ncasecmp(&s, "1234567890AaaaaFdSaFasZZ0fdaS");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
 
     // string cmp empty
     tt_string_destroy(&s2);
     tt_string_init(&s2, NULL);
     cmp_ret = tt_string_ncasecmp(&s, tt_string_cstr(&s2));
-    TT_TEST_CHECK_EXP(cmp_ret > 0, "");
+    TT_UT_EXP(cmp_ret > 0, "");
     cmp_ret = tt_string_ncasecmp(&s2, tt_string_cstr(&s));
-    TT_TEST_CHECK_EXP(cmp_ret < 0, "");
+    TT_UT_EXP(cmp_ret < 0, "");
 
     tt_string_destroy(&s);
     tt_string_destroy(&s2);
@@ -561,86 +561,86 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_str_cpswap)
     tt_string_init(&s, NULL);
     tt_string_init(&s2, NULL);
     ret = tt_string_copy(&s, &s2);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     cmp_ret = tt_string_cmp(&s, "");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
 
     tt_string_swap(&s, &s2);
     cmp_ret = tt_string_cmp(&s, "");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
     cmp_ret = tt_string_cmp(&s2, "");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
 
     // test come remove api
     tt_string_remove_range(&s, 0, 1);
     cmp_ret = tt_string_cmp(&s, "");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
 
     tt_string_remove_range(&s, 0, 0);
     cmp_ret = tt_string_cmp(&s, "");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
 
     tt_string_remove_range(&s, 100, 1);
     cmp_ret = tt_string_cmp(&s, "");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
 
     tt_string_remove_range(&s, 100, 0);
     cmp_ret = tt_string_cmp(&s, "");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
 
     // empty <--> string
     tt_string_destroy(&s2);
     ret = tt_string_create(&s2, "1234567890abcedf", NULL);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     ret = tt_string_copy(&s, &s2);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     cmp_ret = tt_string_cmp(&s, "1234567890abcedf");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
     cmp_ret = tt_string_cmp(&s, tt_string_cstr(&s2));
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
 
     tt_string_clear(&s2);
     // now s: "123...", s2: ""
     tt_string_swap(&s, &s2);
     // now s2: "123...", s: ""
     cmp_ret = tt_string_cmp(&s, "");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
     cmp_ret = tt_string_cmp(&s2, "1234567890abcedf");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
 
     // string <--> string
     tt_string_destroy(&s);
     tt_string_init(&s, NULL);
     ret = tt_string_set(&s, "!");
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     tt_string_swap(&s, &s2);
     // now s: "123...", s2: "!"
     cmp_ret = tt_string_cmp(&s, "1234567890abcedf");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
     cmp_ret = tt_string_cmp(&s2, "!");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
 
     // test some removing op
     tt_string_remove_range(&s, 0, 1);
     cmp_ret = tt_string_cmp(&s, "234567890abcedf");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
 
     tt_string_remove_range(&s, tt_string_len(&s), 1);
     cmp_ret = tt_string_cmp(&s, "234567890abcedf");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
 
     tt_string_remove_range(&s, 9, 3);
     cmp_ret = tt_string_cmp(&s, "234567890edf");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
 
     tt_string_remove_range(&s, 9, 100);
     cmp_ret = tt_string_cmp(&s, "234567890");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
 
     tt_string_remove_range(&s, 0, 100);
     cmp_ret = tt_string_cmp(&s, "");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
 
     tt_string_destroy(&s);
     tt_string_destroy(&s2);
@@ -661,30 +661,30 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_str_find)
     // empty
     tt_string_init(&s, NULL);
     pos = tt_string_find(&s, "");
-    TT_TEST_CHECK_EQUAL(pos, 0, "");
+    TT_UT_EQUAL(pos, 0, "");
     pos = tt_string_find(&s, "1");
-    TT_TEST_CHECK_EQUAL(pos, TT_POS_NULL, "");
+    TT_UT_EQUAL(pos, TT_POS_NULL, "");
 
     pos = tt_string_findfrom(&s, 0, "");
-    TT_TEST_CHECK_EQUAL(pos, 0, "");
+    TT_UT_EQUAL(pos, 0, "");
     pos = tt_string_findfrom(&s, 1, "");
-    TT_TEST_CHECK_EQUAL(pos, TT_POS_NULL, "");
+    TT_UT_EQUAL(pos, TT_POS_NULL, "");
     pos = tt_string_findfrom(&s, 0, "1");
-    TT_TEST_CHECK_EQUAL(pos, TT_POS_NULL, "");
+    TT_UT_EQUAL(pos, TT_POS_NULL, "");
 
     pos = tt_string_find_c(&s, 0);
-    TT_TEST_CHECK_EQUAL(pos, 0, "");
+    TT_UT_EQUAL(pos, 0, "");
     pos = tt_string_find_c(&s, 'a');
-    TT_TEST_CHECK_EQUAL(pos, TT_POS_NULL, "");
+    TT_UT_EQUAL(pos, TT_POS_NULL, "");
 
     pos = tt_string_findfrom_c(&s, 0, 0);
-    TT_TEST_CHECK_EQUAL(pos, 0, "");
+    TT_UT_EQUAL(pos, 0, "");
     pos = tt_string_findfrom_c(&s, 1, 0);
-    TT_TEST_CHECK_EQUAL(pos, TT_POS_NULL, "");
+    TT_UT_EQUAL(pos, TT_POS_NULL, "");
     pos = tt_string_findfrom_c(&s, 0, 'x');
-    TT_TEST_CHECK_EQUAL(pos, TT_POS_NULL, "");
+    TT_UT_EQUAL(pos, TT_POS_NULL, "");
     pos = tt_string_findfrom_c(&s, 1, 'x');
-    TT_TEST_CHECK_EQUAL(pos, TT_POS_NULL, "");
+    TT_UT_EQUAL(pos, TT_POS_NULL, "");
 
     tt_string_destroy(&s);
 
@@ -693,77 +693,77 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_str_find)
     tt_string_set(&s, "0123456789abcdef0123456789abcdefg"); // 33 bytes
 
     pos = tt_string_find(&s, "");
-    TT_TEST_CHECK_EQUAL(pos, 0, "");
+    TT_UT_EQUAL(pos, 0, "");
     pos = tt_string_find(&s, "0123");
-    TT_TEST_CHECK_EQUAL(pos, 0, "");
+    TT_UT_EQUAL(pos, 0, "");
     pos = tt_string_find(&s, "abcdefg");
-    TT_TEST_CHECK_EQUAL(pos, 26, "");
+    TT_UT_EQUAL(pos, 26, "");
     pos = tt_string_find(&s, "ef01234");
-    TT_TEST_CHECK_EQUAL(pos, 14, "");
+    TT_UT_EQUAL(pos, 14, "");
     pos = tt_string_find(&s, "ef01234aa");
-    TT_TEST_CHECK_EQUAL(pos, TT_POS_NULL, "");
+    TT_UT_EQUAL(pos, TT_POS_NULL, "");
 
     pos = tt_string_findfrom(&s, 0, "");
-    TT_TEST_CHECK_EQUAL(pos, 0, "");
+    TT_UT_EQUAL(pos, 0, "");
     pos = tt_string_findfrom(&s, 5, "");
-    TT_TEST_CHECK_EQUAL(pos, 5, "");
+    TT_UT_EQUAL(pos, 5, "");
     pos = tt_string_findfrom(&s, tt_string_len(&s), "");
-    TT_TEST_CHECK_EQUAL(pos, tt_string_len(&s), "");
+    TT_UT_EQUAL(pos, tt_string_len(&s), "");
 
     pos = tt_string_findfrom(&s, 0, "0123");
-    TT_TEST_CHECK_EQUAL(pos, 0, "");
+    TT_UT_EQUAL(pos, 0, "");
     pos = tt_string_findfrom(&s, 1, "0123");
-    TT_TEST_CHECK_EQUAL(pos, 16, "");
+    TT_UT_EQUAL(pos, 16, "");
     pos = tt_string_findfrom(&s, 16, "0123");
-    TT_TEST_CHECK_EQUAL(pos, 16, "");
+    TT_UT_EQUAL(pos, 16, "");
     pos = tt_string_findfrom(&s, 17, "0123");
-    TT_TEST_CHECK_EQUAL(pos, TT_POS_NULL, "");
+    TT_UT_EQUAL(pos, TT_POS_NULL, "");
     pos = tt_string_findfrom(&s, tt_string_len(&s), "0123");
-    TT_TEST_CHECK_EQUAL(pos, TT_POS_NULL, "");
+    TT_UT_EQUAL(pos, TT_POS_NULL, "");
     pos = tt_string_findfrom(&s, tt_string_len(&s) + 10, "0123");
-    TT_TEST_CHECK_EQUAL(pos, TT_POS_NULL, "");
+    TT_UT_EQUAL(pos, TT_POS_NULL, "");
 
     pos = tt_string_findfrom(&s, 0, "def");
-    TT_TEST_CHECK_EQUAL(pos, 13, "");
+    TT_UT_EQUAL(pos, 13, "");
     pos = tt_string_findfrom(&s, 13, "def");
-    TT_TEST_CHECK_EQUAL(pos, 13, "");
+    TT_UT_EQUAL(pos, 13, "");
     pos = tt_string_findfrom(&s, 14, "def");
-    TT_TEST_CHECK_EQUAL(pos, 29, "");
+    TT_UT_EQUAL(pos, 29, "");
     pos = tt_string_findfrom(&s, 29, "def");
-    TT_TEST_CHECK_EQUAL(pos, 29, "");
+    TT_UT_EQUAL(pos, 29, "");
     pos = tt_string_findfrom(&s, 30, "def");
-    TT_TEST_CHECK_EQUAL(pos, TT_POS_NULL, "");
+    TT_UT_EQUAL(pos, TT_POS_NULL, "");
     pos = tt_string_findfrom(&s, tt_string_len(&s), "def");
-    TT_TEST_CHECK_EQUAL(pos, TT_POS_NULL, "");
+    TT_UT_EQUAL(pos, TT_POS_NULL, "");
     pos = tt_string_findfrom(&s, tt_string_len(&s) + 10, "def");
-    TT_TEST_CHECK_EQUAL(pos, TT_POS_NULL, "");
+    TT_UT_EQUAL(pos, TT_POS_NULL, "");
 
     pos = tt_string_find_c(&s, 0);
-    TT_TEST_CHECK_EQUAL(pos, tt_string_len(&s), "");
+    TT_UT_EQUAL(pos, tt_string_len(&s), "");
     pos = tt_string_find_c(&s, '0');
-    TT_TEST_CHECK_EQUAL(pos, 0, "");
+    TT_UT_EQUAL(pos, 0, "");
     pos = tt_string_find_c(&s, 'g');
-    TT_TEST_CHECK_EQUAL(pos, tt_string_len(&s) - 1, "");
+    TT_UT_EQUAL(pos, tt_string_len(&s) - 1, "");
     pos = tt_string_find_c(&s, 'f');
-    TT_TEST_CHECK_EQUAL(pos, 15, "");
+    TT_UT_EQUAL(pos, 15, "");
 
     pos = tt_string_findfrom_c(&s, 0, 0);
-    TT_TEST_CHECK_EQUAL(pos, tt_string_len(&s), "");
+    TT_UT_EQUAL(pos, tt_string_len(&s), "");
     pos = tt_string_findfrom_c(&s, 0, '0');
-    TT_TEST_CHECK_EQUAL(pos, 0, "");
+    TT_UT_EQUAL(pos, 0, "");
     pos = tt_string_findfrom_c(&s, 0, 'g');
-    TT_TEST_CHECK_EQUAL(pos, tt_string_len(&s) - 1, "");
+    TT_UT_EQUAL(pos, tt_string_len(&s) - 1, "");
     pos = tt_string_findfrom_c(&s, 0, 'f');
-    TT_TEST_CHECK_EQUAL(pos, 15, "");
+    TT_UT_EQUAL(pos, 15, "");
 
     pos = tt_string_findfrom_c(&s, 15, 0);
-    TT_TEST_CHECK_EQUAL(pos, tt_string_len(&s), "");
+    TT_UT_EQUAL(pos, tt_string_len(&s), "");
     pos = tt_string_findfrom_c(&s, 15, '0');
-    TT_TEST_CHECK_EQUAL(pos, 16, "");
+    TT_UT_EQUAL(pos, 16, "");
     pos = tt_string_findfrom_c(&s, 15, 'g');
-    TT_TEST_CHECK_EQUAL(pos, tt_string_len(&s) - 1, "");
+    TT_UT_EQUAL(pos, tt_string_len(&s) - 1, "");
     pos = tt_string_findfrom_c(&s, 16, 'f');
-    TT_TEST_CHECK_EQUAL(pos, 31, "");
+    TT_UT_EQUAL(pos, 31, "");
 
     tt_string_destroy(&s);
 
@@ -785,172 +785,172 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_str_join)
     tt_string_init(&s, NULL);
     tt_string_init(&s2, NULL);
     ret = tt_string_append(&s, "");
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     cmp_ret = tt_string_cmp(&s, "");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
     ret = tt_string_append_sub(&s, "", 0, 1);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     ret = tt_string_append_sub(&s, "", 0, 0);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     cmp_ret = tt_string_cmp(&s, "");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
     ret = tt_string_append_sub(&s, "", 0, 10);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     cmp_ret = tt_string_cmp(&s, "");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
 
     br = tt_string_startwith(&s, "");
-    TT_TEST_CHECK_EQUAL(br, TT_TRUE, "");
+    TT_UT_EQUAL(br, TT_TRUE, "");
     br = tt_string_startwith(&s, "aaaaaaaaaaaaa");
-    TT_TEST_CHECK_EQUAL(br, TT_FALSE, "");
+    TT_UT_EQUAL(br, TT_FALSE, "");
 
     br = tt_string_endwith(&s, "");
-    TT_TEST_CHECK_EQUAL(br, TT_TRUE, "");
+    TT_UT_EQUAL(br, TT_TRUE, "");
     br = tt_string_endwith(&s, "aaaaaaaaaaaaa");
-    TT_TEST_CHECK_EQUAL(br, TT_FALSE, "");
+    TT_UT_EQUAL(br, TT_FALSE, "");
 
     ret = tt_string_set(&s, "123");
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     ret = tt_string_append(&s, "");
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     cmp_ret = tt_string_cmp(&s, "123");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
     ret = tt_string_append_sub(&s, "", 0, 2);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     cmp_ret = tt_string_cmp(&s, "123");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
     ret = tt_string_append_sub(&s, "", 0, 10);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     cmp_ret = tt_string_cmp(&s, "123");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
 
     ret = tt_string_append(&s, "4567890abcdefxxxxxxxxx");
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     cmp_ret = tt_string_cmp(&s, "1234567890abcdefxxxxxxxxx");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
 
     br = tt_string_startwith(&s, "");
-    TT_TEST_CHECK_EQUAL(br, TT_TRUE, "");
+    TT_UT_EQUAL(br, TT_TRUE, "");
     br = tt_string_startwith(&s, "1");
-    TT_TEST_CHECK_EQUAL(br, TT_TRUE, "");
+    TT_UT_EQUAL(br, TT_TRUE, "");
     br = tt_string_startwith(&s, "123");
-    TT_TEST_CHECK_EQUAL(br, TT_TRUE, "");
+    TT_UT_EQUAL(br, TT_TRUE, "");
     br = tt_string_startwith(&s, "1234567890abcdefxxxxxxxxx");
-    TT_TEST_CHECK_EQUAL(br, TT_TRUE, "");
+    TT_UT_EQUAL(br, TT_TRUE, "");
     br = tt_string_startwith(&s, "1234567890abcdefxxxxxxxxxy");
-    TT_TEST_CHECK_EQUAL(br, TT_FALSE, "");
+    TT_UT_EQUAL(br, TT_FALSE, "");
 
     br = tt_string_endwith(&s, "");
-    TT_TEST_CHECK_EQUAL(br, TT_TRUE, "");
+    TT_UT_EQUAL(br, TT_TRUE, "");
     br = tt_string_startwith(&s, "1");
-    TT_TEST_CHECK_EQUAL(br, TT_TRUE, "");
+    TT_UT_EQUAL(br, TT_TRUE, "");
     br = tt_string_startwith(&s, "123");
-    TT_TEST_CHECK_EQUAL(br, TT_TRUE, "");
+    TT_UT_EQUAL(br, TT_TRUE, "");
     br = tt_string_startwith(&s, "1234567890abcdefxxxxxxxxx");
-    TT_TEST_CHECK_EQUAL(br, TT_TRUE, "");
+    TT_UT_EQUAL(br, TT_TRUE, "");
     br = tt_string_startwith(&s, "1234567890abcdefxxxxxxxxxy");
-    TT_TEST_CHECK_EQUAL(br, TT_FALSE, "");
+    TT_UT_EQUAL(br, TT_FALSE, "");
 
     // substr from 0
     ret = tt_string_substr(&s, 0, 0, &s2);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     cmp_ret = tt_string_cmp(&s2, "");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
 
     ret = tt_string_substr(&s, 0, 1, &s2);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     cmp_ret = tt_string_cmp(&s2, "1");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
 
     ret = tt_string_substr(&s, 0, 16, &s2);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     cmp_ret = tt_string_cmp(&s2, "1234567890abcdef");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
 
     ret = tt_string_substr(&s, 0, tt_string_len(&s), &s2);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     cmp_ret = tt_string_cmp(&s2, "1234567890abcdefxxxxxxxxx");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
 
     ret = tt_string_substr(&s, 0, ~0, &s2);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     cmp_ret = tt_string_cmp(&s2, "1234567890abcdefxxxxxxxxx");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
 
     // substr from middle
     ret = tt_string_substr(&s, 9, 0, &s2);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     cmp_ret = tt_string_cmp(&s2, "");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
 
     ret = tt_string_substr(&s, 9, 1, &s2);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     cmp_ret = tt_string_cmp(&s2, "0");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
 
     ret = tt_string_substr(&s, 9, 6, &s2);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     cmp_ret = tt_string_cmp(&s2, "0abcde");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
 
     ret = tt_string_substr(&s, 9, tt_string_len(&s) - 9, &s2);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     cmp_ret = tt_string_cmp(&s2, "0abcdefxxxxxxxxx");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
 
     ret = tt_string_substr(&s, 9, ~0, &s2);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     cmp_ret = tt_string_cmp(&s2, "0abcdefxxxxxxxxx");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
 
     // join c
     ret = tt_string_set(&s, "");
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     cmp_ret = tt_string_cmp(&s, "");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
 
     // join 0
     ret = tt_string_append_c(&s, 0);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     cmp_ret = tt_string_cmp(&s, "");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
 
     // join char
     ret = tt_string_append_c(&s, '1');
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     cmp_ret = tt_string_cmp(&s, "1");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
 
     // join char ag
     ret = tt_string_append_c(&s, '1');
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     cmp_ret = tt_string_cmp(&s, "11");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
 
     ret = tt_string_append_sub(&s, "22", 0, 0);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     cmp_ret = tt_string_cmp(&s, "11");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
 
     ret = tt_string_append_sub(&s, "22", 1, 1);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     cmp_ret = tt_string_cmp(&s, "112");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
 
     ret = tt_string_append_sub(&s, "333", 0, 3);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     cmp_ret = tt_string_cmp(&s, "112333");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
 
     ret = tt_string_append_sub(&s, "4444", 0, 333);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     cmp_ret = tt_string_cmp(&s, "1123334444");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
 
     ret = tt_string_append_sub(&s, "4444", 4, 333);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     cmp_ret = tt_string_cmp(&s, "1123334444");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
 
     tt_string_destroy(&s);
     tt_string_destroy(&s2);
@@ -974,39 +974,39 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_str_case)
     // empty string
     tt_string_tolower(&s);
     cmp_ret = tt_string_cmp(&s, "");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
 
     tt_string_toupper(&s);
     cmp_ret = tt_string_cmp(&s, "");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
 
     tt_string_trim(&s);
     cmp_ret = tt_string_cmp(&s, "");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
 
     // string
     ret = tt_string_set(&s, "123aaazzzAAAZZZ     ");
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     tt_string_toupper(&s);
     cmp_ret = tt_string_cmp(&s, "123AAAZZZAAAZZZ     ");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
 
     tt_string_tolower(&s);
     cmp_ret = tt_string_cmp(&s, "123aaazzzaaazzz     ");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
 
     tt_string_trim(&s);
     cmp_ret = tt_string_cmp(&s, "123aaazzzaaazzz");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
 
     // more spaces
     ret = tt_string_set(&s, "    123a  aazzz  AAA ZZZ     ");
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     tt_string_trim(&s);
     cmp_ret = tt_string_cmp(&s, "123a  aazzz  AAA ZZZ");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
 
     tt_string_destroy(&s);
 
@@ -1027,39 +1027,39 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_str_insert)
     tt_string_init(&s, NULL);
 
     ret = tt_string_insert(&s, 0, "");
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     cmp_ret = tt_string_cmp(&s, "");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
 
     ret = tt_string_insert(&s, TT_POS_NULL, "");
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     cmp_ret = tt_string_cmp(&s, "");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
 
     ret = tt_string_insert(&s, 0, "abc");
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     cmp_ret = tt_string_cmp(&s, "abc");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
 
     ret = tt_string_insert(&s, TT_POS_NULL, "123");
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     cmp_ret = tt_string_cmp(&s, "abc123");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
 
     ret = tt_string_insert(&s, 2, "zzz");
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     cmp_ret = tt_string_cmp(&s, "abzzzc123");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
 
     ret = tt_string_insert(&s, 2, "");
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     cmp_ret = tt_string_cmp(&s, "abzzzc123");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
 
     ret = tt_string_insert(&s, 9, "xyz");
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     cmp_ret = tt_string_cmp(&s, "abzzzc123xyz");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
 
     tt_string_destroy(&s);
 
@@ -1069,39 +1069,39 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_str_insert)
     tt_string_init(&s, NULL);
 
     ret = tt_string_insert_c(&s, 0, 0);
-    TT_TEST_CHECK_EQUAL(ret, TT_FAIL, "");
+    TT_UT_EQUAL(ret, TT_FAIL, "");
     cmp_ret = tt_string_cmp(&s, "");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
 
     ret = tt_string_insert_c(&s, TT_POS_NULL, 0);
-    TT_TEST_CHECK_EQUAL(ret, TT_FAIL, "");
+    TT_UT_EQUAL(ret, TT_FAIL, "");
     cmp_ret = tt_string_cmp(&s, "");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
 
     ret = tt_string_insert_c(&s, 0, 'a');
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     cmp_ret = tt_string_cmp(&s, "a");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
 
     ret = tt_string_insert_c(&s, TT_POS_NULL, 'b');
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     cmp_ret = tt_string_cmp(&s, "ab");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
 
     ret = tt_string_insert_c(&s, 2, 'c');
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     cmp_ret = tt_string_cmp(&s, "abc");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
 
     ret = tt_string_insert_c(&s, 2, 'z');
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     cmp_ret = tt_string_cmp(&s, "abzc");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
 
     ret = tt_string_insert_c(&s, 2, 0);
-    TT_TEST_CHECK_EQUAL(ret, TT_FAIL, "");
+    TT_UT_EQUAL(ret, TT_FAIL, "");
     cmp_ret = tt_string_cmp(&s, "abzc");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
 
     tt_string_destroy(&s);
 

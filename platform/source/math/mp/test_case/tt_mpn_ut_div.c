@@ -144,7 +144,7 @@ TT_TEST_CASE("tt_unit_test_mpn_div_reciprocal",
     tt_mpn_init(&left);
 
     ret = tt_mpn_cache_create(&bc);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
 
     d = (tt_mpn_unit_t)0xFFFFFFFFFFFFFFFF;
     rp = __mpn_reciprocal_v(d);
@@ -153,7 +153,7 @@ TT_TEST_CASE("tt_unit_test_mpn_div_reciprocal",
     tt_mpn_muleq_u(&left, d, TT_FALSE, &bc);
     tt_mpn_subeq(&left, &right);
     tt_mpn_reverse(NULL, &left);
-    TT_TEST_CHECK_EQUAL(tt_mpn_cmp_u(&left, d, TT_FALSE), -1, "");
+    TT_UT_EQUAL(tt_mpn_cmp_u(&left, d, TT_FALSE), -1, "");
 
     d = (tt_mpn_unit_t)0x8000000000000000;
     rp = __mpn_reciprocal_v(d);
@@ -162,7 +162,7 @@ TT_TEST_CASE("tt_unit_test_mpn_div_reciprocal",
     tt_mpn_muleq_u(&left, d, TT_FALSE, &bc);
     tt_mpn_subeq(&left, &right);
     tt_mpn_reverse(NULL, &left);
-    TT_TEST_CHECK_EQUAL(tt_mpn_cmp_u(&left, d, TT_FALSE), -1, "");
+    TT_UT_EQUAL(tt_mpn_cmp_u(&left, d, TT_FALSE), -1, "");
 
     d = (tt_mpn_unit_t)0x8000000000000001;
     rp = __mpn_reciprocal_v(d);
@@ -171,7 +171,7 @@ TT_TEST_CASE("tt_unit_test_mpn_div_reciprocal",
     tt_mpn_muleq_u(&left, d, TT_FALSE, &bc);
     tt_mpn_subeq(&left, &right);
     tt_mpn_reverse(NULL, &left);
-    TT_TEST_CHECK_EQUAL(tt_mpn_cmp_u(&left, d, TT_FALSE), -1, "");
+    TT_UT_EQUAL(tt_mpn_cmp_u(&left, d, TT_FALSE), -1, "");
 
     while (i++ < 10) {
         // d = (tt_mpn_unit_t)tt_rand_u64();
@@ -185,7 +185,7 @@ TT_TEST_CASE("tt_unit_test_mpn_div_reciprocal",
         tt_mpn_muleq_u(&left, d, TT_FALSE, &bc);
         tt_mpn_subeq(&left, &right);
         tt_mpn_reverse(NULL, &left);
-        TT_TEST_CHECK_EQUAL(tt_mpn_cmp_u(&left, d, TT_FALSE), -1, "");
+        TT_UT_EQUAL(tt_mpn_cmp_u(&left, d, TT_FALSE), -1, "");
     }
 
     tt_mpn_destroy(&right);
@@ -239,14 +239,14 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_mpn_div_2by1)
 #else
         __mpn_div2by1(q, r, n1, n0, d, d_rp);
 #endif
-        TT_TEST_CHECK_EXP(r < d, "");
+        TT_UT_EXP(r < d, "");
 
         // check
         __MPN_MUL(q, d, r1, r0);
         r0 += r;
         r1 += TT_COND(r0 < r, 1, 0);
-        TT_TEST_CHECK_EQUAL(r1, n1, "");
-        TT_TEST_CHECK_EQUAL(r0, n0, "");
+        TT_UT_EQUAL(r1, n1, "");
+        TT_UT_EQUAL(r0, n0, "");
     }
 
 
@@ -311,26 +311,26 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_mpn_div_basic)
     tt_mpn_init(&correct_r);
 
     ret = tt_mpn_cache_create(&bc);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
 
     // div by 0
     ret = tt_mpn_div(NULL, NULL, &n, &d, &bc);
-    TT_TEST_CHECK_EQUAL(ret, TT_FAIL, "");
+    TT_UT_EQUAL(ret, TT_FAIL, "");
 
     for (i = 0; i < sizeof(__bn_div_case) / sizeof(__bn_div_case[0]); ++i) {
         __bn_div_case_t *tc = &__bn_div_case[i];
 
         ret = tt_mpn_set_cstr(&n, tc->n, TT_MPN_FMT_AUTO, 0);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         ret = tt_mpn_set_cstr(&d, tc->d, TT_MPN_FMT_AUTO, 0);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         ret = tt_mpn_set_cstr(&correct_q, tc->correct_q, TT_MPN_FMT_AUTO, 0);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         ret = tt_mpn_set_cstr(&correct_r, tc->correct_r, TT_MPN_FMT_AUTO, 0);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
         ret = tt_mpn_div(&q, &r, &n, &d, &bc);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
         cmp_ret = tt_mpn_cmp(&r, &correct_r);
         if (cmp_ret != 0) {
@@ -338,7 +338,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_mpn_div_basic)
             tt_snprintf(c_idx, sizeof(c_idx) - 1, "bn mul fail case: %d", i);
             TT_RECORD_ERROR(c_idx);
         }
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
 
         cmp_ret = tt_mpn_cmp(&q, &correct_q);
         if (cmp_ret != 0) {
@@ -346,7 +346,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_mpn_div_basic)
             tt_snprintf(c_idx, sizeof(c_idx) - 1, "bn mul fail case: %d", i);
             TT_RECORD_ERROR(c_idx);
         }
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
     tt_mpn_destroy(&n);
@@ -390,7 +390,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_mpn_div_stress)
     tt_mpn_init(&tmp);
 
     ret = tt_mpn_cache_create(&bc);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
 
     for (i = 0; i < __BDS_CNT; ++i) {
         for (j = 0; j < __BDS_SIZE; ++j) {
@@ -402,44 +402,44 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_mpn_div_stress)
         d_len = tt_rand_u32() % __BDS_SIZE + 1;
 
         ret = tt_mpn_set(&n, __bds_n, n_len, TT_FALSE, 0);
-        TT_TEST_CHECK_SUCCESS(ret, "");
+        TT_UT_SUCCESS(ret, "");
         ret = tt_mpn_set(&d, __bds_d, d_len, TT_FALSE, 0);
-        TT_TEST_CHECK_SUCCESS(ret, "");
+        TT_UT_SUCCESS(ret, "");
         if (tt_mpn_zero(&d))
             tt_mpn_set_u(&d, 3, TT_FALSE, 0);
 
         ret = tt_mpn_div(&q, &r, &n, &d, &bc);
-        TT_TEST_CHECK_SUCCESS(ret, "");
+        TT_UT_SUCCESS(ret, "");
 
         start = tt_time_ref();
         ret = tt_mpn_mul(&tmp, &q, &d, &bc);
         end = tt_time_ref();
         t += end - start;
 
-        TT_TEST_CHECK_SUCCESS(ret, "");
+        TT_UT_SUCCESS(ret, "");
         ret = tt_mpn_addeq(&tmp, &r);
-        TT_TEST_CHECK_SUCCESS(ret, "");
+        TT_UT_SUCCESS(ret, "");
 
         cmp = tt_mpn_cmp(&tmp, &n);
         TT_ASSERT(cmp == 0);
-        TT_TEST_CHECK_EQUAL(cmp, 0, "");
+        TT_UT_EQUAL(cmp, 0, "");
 
         // div q
         ret = tt_mpn_div_q(&tmp, &n, &d, &bc);
-        TT_TEST_CHECK_SUCCESS(ret, "");
-        TT_TEST_CHECK_EQUAL(tt_mpn_cmp(&tmp, &q), 0, "");
+        TT_UT_SUCCESS(ret, "");
+        TT_UT_EQUAL(tt_mpn_cmp(&tmp, &q), 0, "");
 
         // div r
         ret = tt_mpn_div_r(&tmp, &n, &d, &bc);
-        TT_TEST_CHECK_SUCCESS(ret, "");
-        TT_TEST_CHECK_EQUAL(tt_mpn_cmp(&tmp, &r), 0, "");
+        TT_UT_SUCCESS(ret, "");
+        TT_UT_EQUAL(tt_mpn_cmp(&tmp, &r), 0, "");
 
         // diveq
         ret = tt_mpn_copy(&tmp, &n, 0);
-        TT_TEST_CHECK_SUCCESS(ret, "");
+        TT_UT_SUCCESS(ret, "");
         ret = tt_mpn_diveq(&tmp, &d, &bc);
-        TT_TEST_CHECK_SUCCESS(ret, "");
-        TT_TEST_CHECK_EQUAL(tt_mpn_cmp(&tmp, &q), 0, "");
+        TT_UT_SUCCESS(ret, "");
+        TT_UT_EQUAL(tt_mpn_cmp(&tmp, &q), 0, "");
     }
 
     tt_mpn_destroy(&n);

@@ -174,53 +174,51 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_hmac_sha1)
         tv = &__hmac_sha1_tv[i];
 
         ret = tt_hmac_create(&hmac, TT_HMAC_VER_SHA1, &tv->key);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     sag:
 
         ret = tt_hmac_update(&hmac, (tt_u8_t *)tv->input.addr, 0);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
         ret = tt_hmac_update(&hmac, (tt_u8_t *)tv->input.addr, tv->input.len);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
         if (i % 4 == 0) {
             tt_buf_init(&output, NULL);
 
             ret = tt_hmac_final_buf(&hmac, &output);
-            TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+            TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
-            TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&output),
-                                TT_HMAC_SHA1_DIGEST_LENGTH,
-                                "");
-            TT_TEST_CHECK_EQUAL(tt_memcmp(TT_BUF_RPOS(&output),
-                                          tv->output.addr,
-                                          TT_HMAC_SHA1_DIGEST_LENGTH),
-                                0,
-                                "");
+            TT_UT_EQUAL(TT_BUF_RLEN(&output), TT_HMAC_SHA1_DIGEST_LENGTH, "");
+            TT_UT_EQUAL(tt_memcmp(TT_BUF_RPOS(&output),
+                                  tv->output.addr,
+                                  TT_HMAC_SHA1_DIGEST_LENGTH),
+                        0,
+                        "");
 
             tt_buf_destroy(&output);
         } else if (i % 4 == 1) {
             tt_u8_t hmac_sha1_ret[TT_HMAC_SHA1_DIGEST_LENGTH];
             ret = tt_hmac_final(&hmac, hmac_sha1_ret);
-            TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+            TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
-            TT_TEST_CHECK_EQUAL(0,
-                                tt_memcmp(hmac_sha1_ret,
-                                          tv->output.addr,
-                                          TT_HMAC_SHA1_DIGEST_LENGTH),
-                                "");
+            TT_UT_EQUAL(0,
+                        tt_memcmp(hmac_sha1_ret,
+                                  tv->output.addr,
+                                  TT_HMAC_SHA1_DIGEST_LENGTH),
+                        "");
         } else if (i % 4 == 2) {
             tt_u8_t hmac_sha1_ret[TT_HMAC_SHA1_DIGEST_LENGTH];
             ret =
                 tt_hmac(TT_HMAC_VER_SHA1, &tv->key, &tv->input, hmac_sha1_ret);
-            TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+            TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
-            TT_TEST_CHECK_EQUAL(0,
-                                tt_memcmp(hmac_sha1_ret,
-                                          tv->output.addr,
-                                          TT_HMAC_SHA1_DIGEST_LENGTH),
-                                "");
+            TT_UT_EQUAL(0,
+                        tt_memcmp(hmac_sha1_ret,
+                                  tv->output.addr,
+                                  TT_HMAC_SHA1_DIGEST_LENGTH),
+                        "");
         } else {
             tt_blob_t bufs[2];
             tt_u32_t num;
@@ -243,13 +241,13 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_hmac_sha1)
                                  bufs,
                                  num,
                                  hmac_sha1_ret);
-            TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+            TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
-            TT_TEST_CHECK_EQUAL(0,
-                                tt_memcmp(hmac_sha1_ret,
-                                          tv->output.addr,
-                                          TT_HMAC_SHA1_DIGEST_LENGTH),
-                                "");
+            TT_UT_EQUAL(0,
+                        tt_memcmp(hmac_sha1_ret,
+                                  tv->output.addr,
+                                  TT_HMAC_SHA1_DIGEST_LENGTH),
+                        "");
         }
 
         if (k++ % 2 == 0) {

@@ -144,109 +144,109 @@ TT_TEST_CASE("tt_unit_test_atomic_basic",
 
     // inc
     ret32 = tt_atomic_s32_inc(&v32);
-    TT_TEST_CHECK_EQUAL(ret32, 0xf0000000, "");
+    TT_UT_EQUAL(ret32, 0xf0000000, "");
 
     // read
     ret32 = tt_atomic_s32_get(&v32);
-    TT_TEST_CHECK_EQUAL(ret32, 0xf0000000, "");
+    TT_UT_EQUAL(ret32, 0xf0000000, "");
 
     // swap
     ret32 = tt_atomic_s32_swap(&v32, 0);
-    TT_TEST_CHECK_EQUAL(ret32, 0xf0000000, "");
+    TT_UT_EQUAL(ret32, 0xf0000000, "");
 
     // dec
     ret32 = tt_atomic_s32_dec(&v32);
-    TT_TEST_CHECK_EQUAL(ret32, -1, "");
+    TT_UT_EQUAL(ret32, -1, "");
 
     // read
     ret32 = tt_atomic_s32_get(&v32);
-    TT_TEST_CHECK_EQUAL(ret32, -1, "");
+    TT_UT_EQUAL(ret32, -1, "");
 
     // write
     tt_atomic_s32_set(&v32, 0x12345679);
     ret32 = tt_atomic_s32_get(&v32);
-    TT_TEST_CHECK_EQUAL(ret32, 0x12345679, "");
+    TT_UT_EQUAL(ret32, 0x12345679, "");
 
     // exchange
     tt_atomic_s32_set(&v32, 0xF2345679);
     ret32 = tt_atomic_s32_get(&v32);
-    TT_TEST_CHECK_EQUAL(ret32, 0xF2345679, "");
+    TT_UT_EQUAL(ret32, 0xF2345679, "");
 
     ret32 = tt_atomic_s32_swap(&v32, 0);
-    TT_TEST_CHECK_EQUAL(ret32, 0xF2345679, "");
+    TT_UT_EQUAL(ret32, 0xF2345679, "");
     ret32 = tt_atomic_s32_get(&v32);
-    TT_TEST_CHECK_EQUAL(ret32, 0, "");
+    TT_UT_EQUAL(ret32, 0, "");
 
     tt_atomic_s32_set(&v32, 0x12345679);
     ret32 = tt_atomic_s32_get(&v32);
-    TT_TEST_CHECK_EQUAL(ret32, 0x12345679, "");
+    TT_UT_EQUAL(ret32, 0x12345679, "");
 
     // cmp exchange
     v32 = 0x12345679;
     b_ret = tt_atomic_s32_cas(&v32, 0x12345679, 0x12345689);
-    TT_TEST_CHECK_EQUAL(b_ret, TT_TRUE, "");
+    TT_UT_EQUAL(b_ret, TT_TRUE, "");
     ret32 = tt_atomic_s32_get(&v32);
-    TT_TEST_CHECK_EQUAL(ret32, 0x12345689, "");
+    TT_UT_EQUAL(ret32, 0x12345689, "");
 
     // exchange fail
     tt_atomic_s32_set(&v32, 0x12345679);
 
     b_ret = tt_atomic_s32_cas(&v32, 0x1, 0x2);
-    TT_TEST_CHECK_EQUAL(b_ret, TT_FALSE, "");
+    TT_UT_EQUAL(b_ret, TT_FALSE, "");
     ret32 = tt_atomic_s32_get(&v32);
-    TT_TEST_CHECK_EQUAL(ret32, 0x12345679, "");
+    TT_UT_EQUAL(ret32, 0x12345679, "");
 
     // inc64
     tt_atomic_s64_set(&v64, 0x12345678ffffffffLL);
 
     ret64 = tt_atomic_s64_inc(&v64);
-    TT_TEST_CHECK_EQUAL(ret64, 0x1234567900000000LL, "");
+    TT_UT_EQUAL(ret64, 0x1234567900000000LL, "");
     ret64 = tt_atomic_s64_get(&v64);
-    TT_TEST_CHECK_EQUAL(ret64, 0x1234567900000000LL, "");
+    TT_UT_EQUAL(ret64, 0x1234567900000000LL, "");
 
     // dec64
     tt_atomic_s64_set(&v64, 0x1234567900000000LL);
     ret64 = tt_atomic_s64_get(&v64);
-    TT_TEST_CHECK_EQUAL(ret64, 0x1234567900000000LL, "");
+    TT_UT_EQUAL(ret64, 0x1234567900000000LL, "");
 
     // dec
     ret64 = tt_atomic_s64_dec(&v64);
-    TT_TEST_CHECK_EQUAL(ret64, 0x12345678ffffffffLL, "");
+    TT_UT_EQUAL(ret64, 0x12345678ffffffffLL, "");
     ret64 = tt_atomic_s64_get(&v64);
-    TT_TEST_CHECK_EQUAL(ret64, 0x12345678ffffffffLL, "");
+    TT_UT_EQUAL(ret64, 0x12345678ffffffffLL, "");
 
     // write
     tt_atomic_s64_set(&v64, 0x1234567900000000LL);
     ret64 = tt_atomic_s64_get(&v64);
-    TT_TEST_CHECK_EQUAL(ret64, 0x1234567900000000LL, "");
+    TT_UT_EQUAL(ret64, 0x1234567900000000LL, "");
 
     // exchange
     tt_atomic_s64_set(&v64, 0xFFFFFFFFFFFFFFFFLL);
     ret64 = tt_atomic_s64_get(&v64);
-    TT_TEST_CHECK_EQUAL(ret64, 0xFFFFFFFFFFFFFFFFLL, "");
+    TT_UT_EQUAL(ret64, 0xFFFFFFFFFFFFFFFFLL, "");
 
     ret64 = tt_atomic_s64_swap(&v64, 0);
-    TT_TEST_CHECK_EQUAL(ret64, 0xFFFFFFFFFFFFFFFFLL, "");
+    TT_UT_EQUAL(ret64, 0xFFFFFFFFFFFFFFFFLL, "");
     ret64 = tt_atomic_s64_get(&v64);
-    TT_TEST_CHECK_EQUAL(ret64, 0, "");
+    TT_UT_EQUAL(ret64, 0, "");
 
     ret64 = tt_atomic_s64_swap(&v64, 0x1234567900000000LL);
-    TT_TEST_CHECK_EQUAL(ret64, 0, "");
+    TT_UT_EQUAL(ret64, 0, "");
     ret64 = tt_atomic_s64_get(&v64);
-    TT_TEST_CHECK_EQUAL(ret64, 0x1234567900000000LL, "");
+    TT_UT_EQUAL(ret64, 0x1234567900000000LL, "");
 
     // cmp exchange
     b_ret = tt_atomic_s64_cas(&v64, 0x1234567900000000LL, 0x1234568900000001LL);
-    TT_TEST_CHECK_EQUAL(b_ret, TT_TRUE, "");
+    TT_UT_EQUAL(b_ret, TT_TRUE, "");
     ret64 = tt_atomic_s64_get(&v64);
-    TT_TEST_CHECK_EQUAL(ret64, 0x1234568900000001LL, "");
+    TT_UT_EQUAL(ret64, 0x1234568900000001LL, "");
 
     // exchange fail
     tt_atomic_s64_set(&v64, 0x1234567900000000LL);
     b_ret = tt_atomic_s64_cas(&v64, 0x1, 0x2);
-    TT_TEST_CHECK_EQUAL(b_ret, TT_FALSE, "");
+    TT_UT_EQUAL(b_ret, TT_FALSE, "");
     ret64 = tt_atomic_s64_get(&v64);
-    TT_TEST_CHECK_EQUAL(ret64, 0x1234567900000000LL, "");
+    TT_UT_EQUAL(ret64, 0x1234567900000000LL, "");
 
     // test end
     TT_TEST_CASE_LEAVE()
@@ -302,14 +302,10 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_atomic_mt)
     }
 
     ret32 = tt_atomic_s32_get(&test_counter);
-    TT_TEST_CHECK_EQUAL(ret32,
-                        5000 * sizeof(test_threads) / sizeof(tt_thread_t *),
-                        "");
+    TT_UT_EQUAL(ret32, 5000 * sizeof(test_threads) / sizeof(tt_thread_t *), "");
 
     ret64 = tt_atomic_s64_get(&test_counter_2);
-    TT_TEST_CHECK_EQUAL(ret64,
-                        5000 * sizeof(test_threads) / sizeof(tt_thread_t *),
-                        "");
+    TT_UT_EQUAL(ret64, 5000 * sizeof(test_threads) / sizeof(tt_thread_t *), "");
 
     // test end
     TT_TEST_CASE_LEAVE()
@@ -369,19 +365,17 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_atomic_cas)
     }
 
     ret32 = tt_atomic_s32_get(&test_counter);
-    TT_TEST_CHECK_EQUAL(ret32, 0, "");
+    TT_UT_EQUAL(ret32, 0, "");
 
     ret64 = tt_atomic_s64_get(&test_counter_2);
-    TT_TEST_CHECK_EQUAL(ret64, 0x12345678ababababLL, "");
+    TT_UT_EQUAL(ret64, 0x12345678ababababLL, "");
 
-    TT_TEST_CHECK_EQUAL(test_v1,
-                        (sizeof(test_threads) / sizeof(tt_thread_t *)) *
-                            loop_num,
-                        "");
-    TT_TEST_CHECK_EQUAL(test_v1_64,
-                        (sizeof(test_threads) / sizeof(tt_thread_t *)) *
-                            loop_num,
-                        "");
+    TT_UT_EQUAL(test_v1,
+                (sizeof(test_threads) / sizeof(tt_thread_t *)) * loop_num,
+                "");
+    TT_UT_EQUAL(test_v1_64,
+                (sizeof(test_threads) / sizeof(tt_thread_t *)) * loop_num,
+                "");
 
     // test end
     TT_TEST_CASE_LEAVE()
@@ -454,32 +448,32 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_atomic_ptr)
 
     // exchange
     ret_ptr = tt_atomic_ptr_swap(&ptr, &v1);
-    TT_TEST_CHECK_EQUAL(ptr, &v1, "");
-    TT_TEST_CHECK_EQUAL(ret_ptr, NULL, "");
+    TT_UT_EQUAL(ptr, &v1, "");
+    TT_UT_EQUAL(ret_ptr, NULL, "");
 
     tt_atomic_ptr_set(&ptr, &v2);
     ret_ptr = tt_atomic_ptr_get(&ptr);
-    TT_TEST_CHECK_EQUAL(ptr, &v2, "");
-    TT_TEST_CHECK_EQUAL(ret_ptr, &v2, "");
+    TT_UT_EQUAL(ptr, &v2, "");
+    TT_UT_EQUAL(ret_ptr, &v2, "");
 
     ret_ptr = tt_atomic_ptr_swap(&ptr, NULL);
-    TT_TEST_CHECK_EQUAL(ptr, NULL, "");
-    TT_TEST_CHECK_EQUAL(ret_ptr, &v2, "");
+    TT_UT_EQUAL(ptr, NULL, "");
+    TT_UT_EQUAL(ret_ptr, &v2, "");
 
     // cas
     ptr = (tt_ptr_t)NULL;
 
     b_ret = tt_atomic_ptr_cas(&ptr, NULL, &v1);
-    TT_TEST_CHECK_EQUAL(ptr, &v1, "");
-    TT_TEST_CHECK_EQUAL(b_ret, TT_TRUE, "");
+    TT_UT_EQUAL(ptr, &v1, "");
+    TT_UT_EQUAL(b_ret, TT_TRUE, "");
 
     b_ret = tt_atomic_ptr_cas(&ptr, &v2, &v1);
-    TT_TEST_CHECK_EQUAL(ptr, &v1, "");
-    TT_TEST_CHECK_EQUAL(b_ret, TT_FALSE, "");
+    TT_UT_EQUAL(ptr, &v1, "");
+    TT_UT_EQUAL(b_ret, TT_FALSE, "");
 
     b_ret = tt_atomic_ptr_cas(&ptr, &v1, &v2);
-    TT_TEST_CHECK_EQUAL(ptr, &v2, "");
-    TT_TEST_CHECK_EQUAL(b_ret, TT_TRUE, "");
+    TT_UT_EQUAL(ptr, &v2, "");
+    TT_UT_EQUAL(b_ret, TT_TRUE, "");
 
     // xchg in multi thread
     test_head = NULL;
@@ -498,7 +492,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_atomic_ptr)
         test_head = test_head->next;
         ++i;
     }
-    TT_TEST_CHECK_EQUAL(i, sizeof(test_node) / sizeof(test_node_t), "");
+    TT_UT_EQUAL(i, sizeof(test_node) / sizeof(test_node_t), "");
 
     // cas in multi thread
     test_head = NULL;
@@ -518,7 +512,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_atomic_ptr)
         test_head = test_head->next;
         ++i;
     }
-    TT_TEST_CHECK_EQUAL(i, sizeof(test_node) / sizeof(test_node_t), "");
+    TT_UT_EQUAL(i, sizeof(test_node) / sizeof(test_node_t), "");
 
     // test end
     TT_TEST_CASE_LEAVE()

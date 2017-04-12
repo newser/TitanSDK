@@ -128,42 +128,42 @@ TT_TEST_CASE("tt_unit_test_slab_vs_malloc",
 
     // create a slab
     result = tt_slab_create(&slab, 5, NULL);
-    TT_TEST_CHECK_EQUAL(result, TT_SUCCESS, "");
+    TT_UT_EQUAL(result, TT_SUCCESS, "");
     // destroy a slab
     tt_slab_destroy(&slab);
 
     // valid attributes
     tt_slab_attr_default(&slab_attr);
     result = tt_slab_create(&slab, 5, &slab_attr);
-    TT_TEST_CHECK_EQUAL(result, TT_SUCCESS, "");
+    TT_UT_EQUAL(result, TT_SUCCESS, "");
     tt_slab_destroy(&slab);
 
     slab_attr.bulk_num = 0;
     result = tt_slab_create(&slab, 5, &slab_attr);
     p = tt_slab_alloc(&slab);
-    TT_TEST_CHECK_NOT_EQUAL(p, NULL, "");
+    TT_UT_NOT_EQUAL(p, NULL, "");
     tt_slab_free(p);
-    TT_TEST_CHECK_EQUAL(result, TT_SUCCESS, "");
+    TT_UT_EQUAL(result, TT_SUCCESS, "");
     tt_slab_destroy(&slab);
 
     // too large size can not be satisfied
     tt_slab_attr_default(&slab_attr);
     slab_attr.bulk_num = 0x4000000;
     result = tt_slab_create(&slab, 8000000, &slab_attr);
-    TT_TEST_CHECK_EQUAL(result, TT_FAIL, "");
+    TT_UT_EQUAL(result, TT_FAIL, "");
     slab_attr.bulk_num = 0x40;
     result = tt_slab_create(&slab, 0x80000000, &slab_attr);
-    TT_TEST_CHECK_EQUAL(result, TT_FAIL, "");
+    TT_UT_EQUAL(result, TT_FAIL, "");
 
     // check cache alignment
     tt_slab_attr_default(&slab_attr);
     slab_attr.cache_align = TT_TRUE;
     result = tt_slab_create(&slab, 5, &slab_attr);
-    TT_TEST_CHECK_EQUAL(result, TT_SUCCESS, "");
+    TT_UT_EQUAL(result, TT_SUCCESS, "");
     // is it already aligned?
     tmp = slab.obj_size;
     TT_U32_ALIGN_INC_CACHE(tmp);
-    TT_TEST_CHECK_EQUAL(tmp, slab.obj_size, "");
+    TT_UT_EQUAL(tmp, slab.obj_size, "");
     // done
     tt_slab_destroy(&slab);
 
@@ -192,7 +192,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_slab_allocfree)
     tt_slab_attr_default(&slab_attr);
     slab_attr.bulk_num = 1; // auto set
     result = tt_slab_create(&slab, objsize, &slab_attr);
-    TT_TEST_CHECK_EQUAL(result, TT_SUCCESS, "");
+    TT_UT_EQUAL(result, TT_SUCCESS, "");
 
     // trigger some expanding
     for (i = 0; i < sizeof(obj) / sizeof(obj[0]); ++i) {
@@ -214,7 +214,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_slab_allocfree)
     tt_slab_attr_default(&slab_attr);
     slab_attr.cache_align = TT_TRUE;
     result = tt_slab_create(&slab, objsize, &slab_attr);
-    TT_TEST_CHECK_EQUAL(result, TT_SUCCESS, "");
+    TT_UT_EQUAL(result, TT_SUCCESS, "");
 
     // trigger some expanding
     for (i = 0; i < sizeof(obj) / sizeof(obj[0]); ++i) {
@@ -255,7 +255,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_slab_vs_malloc)
     tt_slab_attr_default(&slab_attr);
     slab_attr.bulk_num = 1; // auto set
     result = tt_slab_create(&slab, objsize, &slab_attr);
-    TT_TEST_CHECK_EQUAL(result, TT_SUCCESS, "");
+    TT_UT_EQUAL(result, TT_SUCCESS, "");
 
     start = tt_time_ref();
     for (i = 0; i < sizeof(obj) / sizeof(obj[0]); ++i) {

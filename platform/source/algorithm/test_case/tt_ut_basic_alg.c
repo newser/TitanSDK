@@ -194,7 +194,7 @@ TT_TEST_CASE("tt_unit_test_basic_alg_qsort",
     tt_qsort(test_array1, 32, sizeof(tt_u8_t), test_u8_comparer);
 
     for (index = 0; index < 32; ++index) {
-        TT_TEST_CHECK_EQUAL(test_array1[index], test_array2[index], "");
+        TT_UT_EQUAL(test_array1[index], test_array2[index], "");
     }
 
     // test end
@@ -244,10 +244,10 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_basic_alg_qsort_random)
 
         // should got same result
         for (index = 0; index < array_len; ++index) {
-            TT_TEST_CHECK_EQUAL(test_array1[index], test_array2[index], "");
+            TT_UT_EQUAL(test_array1[index], test_array2[index], "");
         }
         for (index = 0; index < array_len - 1; ++index) {
-            TT_TEST_CHECK_EXP(test_array1[index] <= test_array1[index + 1], "");
+            TT_UT_EXP(test_array1[index] <= test_array1[index + 1], "");
         }
 
         ++test;
@@ -279,49 +279,49 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_basic_alg_bsearch)
     key = 120;
     result = (tt_u8_t *)
         tt_bsearch(&key, test_array1, 32, sizeof(tt_u8_t), test_u8_comparer);
-    TT_TEST_CHECK_EQUAL(*result, key, "");
+    TT_UT_EQUAL(*result, key, "");
     result = (tt_u8_t *)__short_bsearch(&key,
                                         test_array1,
                                         32,
                                         sizeof(tt_u8_t),
                                         test_u8_comparer);
-    TT_TEST_CHECK_EQUAL(*result, key, "");
+    TT_UT_EQUAL(*result, key, "");
 
     // no matching key
     key = 99;
     result = (tt_u8_t *)
         tt_bsearch(&key, test_array1, 32, sizeof(tt_u8_t), test_u8_comparer);
-    TT_TEST_CHECK_EQUAL(result, NULL, "");
+    TT_UT_EQUAL(result, NULL, "");
     result = (tt_u8_t *)__short_bsearch(&key,
                                         test_array1,
                                         32,
                                         sizeof(tt_u8_t),
                                         test_u8_comparer);
-    TT_TEST_CHECK_EQUAL(result, NULL, "");
+    TT_UT_EQUAL(result, NULL, "");
 
     // no matching key
     key = 250;
     result = (tt_u8_t *)
         tt_bsearch(&key, test_array1, 32, sizeof(tt_u8_t), test_u8_comparer);
-    TT_TEST_CHECK_EQUAL(result, NULL, "");
+    TT_UT_EQUAL(result, NULL, "");
     result = (tt_u8_t *)__short_bsearch(&key,
                                         test_array1,
                                         32,
                                         sizeof(tt_u8_t),
                                         test_u8_comparer);
-    TT_TEST_CHECK_EQUAL(result, NULL, "");
+    TT_UT_EQUAL(result, NULL, "");
 
     // no matching key
     key = 121;
     result = (tt_u8_t *)
         tt_bsearch(&key, test_array1, 32, sizeof(tt_u8_t), test_u8_comparer);
-    TT_TEST_CHECK_EQUAL(result, NULL, "");
+    TT_UT_EQUAL(result, NULL, "");
     result = (tt_u8_t *)__short_bsearch(&key,
                                         test_array1,
                                         32,
                                         sizeof(tt_u8_t),
                                         test_u8_comparer);
-    TT_TEST_CHECK_EQUAL(result, NULL, "");
+    TT_UT_EQUAL(result, NULL, "");
 
     // random test
     srand((tt_u32_t)time(NULL));
@@ -346,14 +346,14 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_basic_alg_bsearch)
                                         array_len,
                                         sizeof(tt_u32_t),
                                         test_comparer);
-        TT_TEST_CHECK_EQUAL(*result, key, "");
+        TT_UT_EQUAL(*result, key, "");
 
         result = (tt_u32_t *)__short_bsearch((void *)&key,
                                              test_array2,
                                              array_len,
                                              sizeof(tt_u32_t),
                                              test_comparer);
-        TT_TEST_CHECK_EQUAL(*result, key, "");
+        TT_UT_EQUAL(*result, key, "");
 
         ++test;
     }
@@ -388,13 +388,13 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_basic_alg_min_larger)
                                         32,
                                         sizeof(tt_u8_t),
                                         test_u8_comparer);
-    TT_TEST_CHECK_EQUAL(*result, 122, "");
+    TT_UT_EQUAL(*result, 122, "");
     result = (tt_u8_t *)__short_bsearch_gteq(&key,
                                              test_array1,
                                              32,
                                              sizeof(tt_u8_t),
                                              test_u8_comparer);
-    TT_TEST_CHECK_EQUAL(*result, 122, "");
+    TT_UT_EQUAL(*result, 122, "");
 
     // general search
     key = 122;
@@ -403,13 +403,13 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_basic_alg_min_larger)
                                         32,
                                         sizeof(tt_u8_t),
                                         test_u8_comparer);
-    TT_TEST_CHECK_EQUAL(*result, 122, "");
+    TT_UT_EQUAL(*result, 122, "");
     result = (tt_u8_t *)__short_bsearch_gteq(&key,
                                              test_array1,
                                              32,
                                              sizeof(tt_u8_t),
                                              test_u8_comparer);
-    TT_TEST_CHECK_EQUAL(*result, 122, "");
+    TT_UT_EQUAL(*result, 122, "");
 
     // no matching key
     key = 99;
@@ -418,13 +418,13 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_basic_alg_min_larger)
                                         32,
                                         sizeof(tt_u8_t),
                                         test_u8_comparer);
-    TT_TEST_CHECK_EQUAL(*result, 100, "");
+    TT_UT_EQUAL(*result, 100, "");
     result = (tt_u8_t *)__short_bsearch_gteq(&key,
                                              test_array1,
                                              32,
                                              sizeof(tt_u8_t),
                                              test_u8_comparer);
-    TT_TEST_CHECK_EQUAL(*result, 100, "");
+    TT_UT_EQUAL(*result, 100, "");
 
     // no matching key
     key = 250;
@@ -433,13 +433,13 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_basic_alg_min_larger)
                                         32,
                                         sizeof(tt_u8_t),
                                         test_u8_comparer);
-    TT_TEST_CHECK_EQUAL(result, NULL, "");
+    TT_UT_EQUAL(result, NULL, "");
     result = (tt_u8_t *)__short_bsearch_gteq(&key,
                                              test_array1,
                                              32,
                                              sizeof(tt_u8_t),
                                              test_u8_comparer);
-    TT_TEST_CHECK_EQUAL(result, NULL, "");
+    TT_UT_EQUAL(result, NULL, "");
 
     // random test
     seed = (tt_u32_t)time(NULL);
@@ -471,7 +471,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_basic_alg_min_larger)
                                                    array_len,
                                                    sizeof(tt_u32_t),
                                                    test_comparer);
-        TT_TEST_CHECK_EQUAL(*result, *result2, "");
+        TT_UT_EQUAL(*result, *result2, "");
 
         ++test;
     }
@@ -505,13 +505,13 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_basic_alg_max_less)
                                         32,
                                         sizeof(tt_u8_t),
                                         test_u8_comparer);
-    TT_TEST_CHECK_EQUAL(*result, 120, "");
+    TT_UT_EQUAL(*result, 120, "");
     result = (tt_u8_t *)__short_bsearch_lteq(&key,
                                              test_array1,
                                              32,
                                              sizeof(tt_u8_t),
                                              test_u8_comparer);
-    TT_TEST_CHECK_EQUAL(*result, 120, "");
+    TT_UT_EQUAL(*result, 120, "");
 
     // general search
     key = 122;
@@ -520,13 +520,13 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_basic_alg_max_less)
                                         32,
                                         sizeof(tt_u8_t),
                                         test_u8_comparer);
-    TT_TEST_CHECK_EQUAL(*result, 122, "");
+    TT_UT_EQUAL(*result, 122, "");
     result = (tt_u8_t *)__short_bsearch_lteq(&key,
                                              test_array1,
                                              32,
                                              sizeof(tt_u8_t),
                                              test_u8_comparer);
-    TT_TEST_CHECK_EQUAL(*result, 122, "");
+    TT_UT_EQUAL(*result, 122, "");
 
     // no matching key
     key = 99;
@@ -535,13 +535,13 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_basic_alg_max_less)
                                         32,
                                         sizeof(tt_u8_t),
                                         test_u8_comparer);
-    TT_TEST_CHECK_EQUAL(result, NULL, "");
+    TT_UT_EQUAL(result, NULL, "");
     result = (tt_u8_t *)__short_bsearch_lteq(&key,
                                              test_array1,
                                              32,
                                              sizeof(tt_u8_t),
                                              test_u8_comparer);
-    TT_TEST_CHECK_EQUAL(result, NULL, "");
+    TT_UT_EQUAL(result, NULL, "");
 
     // no matching key
     key = 250;
@@ -550,13 +550,13 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_basic_alg_max_less)
                                         32,
                                         sizeof(tt_u8_t),
                                         test_u8_comparer);
-    TT_TEST_CHECK_EQUAL(*result, 162, "");
+    TT_UT_EQUAL(*result, 162, "");
     result = (tt_u8_t *)__short_bsearch_lteq(&key,
                                              test_array1,
                                              32,
                                              sizeof(tt_u8_t),
                                              test_u8_comparer);
-    TT_TEST_CHECK_EQUAL(*result, 162, "");
+    TT_UT_EQUAL(*result, 162, "");
 
     // random test
     srand((tt_u32_t)time(NULL));
@@ -587,7 +587,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_basic_alg_max_less)
                                                    array_len,
                                                    sizeof(tt_u32_t),
                                                    test_comparer);
-        TT_TEST_CHECK_EQUAL(*result, *result2, "");
+        TT_UT_EQUAL(*result, *result2, "");
 
         ++test;
     }

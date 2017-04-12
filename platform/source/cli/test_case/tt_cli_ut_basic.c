@@ -362,15 +362,15 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cli)
     attr.seperator = '$';
 
     ret = tt_cli_create(&cli, TT_CLI_MODE_DEFAUTL, &cb, &itf, &attr);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     __ut_cli_idx = ~0;
     __ut_cli_ret = TT_SUCCESS;
     __ut_cli_err = 0;
 
     ret = tt_cli_start(&cli);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
-    TT_TEST_CHECK_EQUAL(__ut_cli_ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(__ut_cli_ret, TT_SUCCESS, "");
 
     for (i = 0; i < sizeof(cli_case) / sizeof(cli_case[0]); ++i) {
         tt_buf_t cmp_buf;
@@ -382,30 +382,30 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cli)
         __ut_cli_idx = i;
         ret = tt_cli_input(&cli, cli_case[i].in, cli_case[i].in_num);
         if (i == sizeof(cli_case) / sizeof(cli_case[0]) - 1) {
-            TT_TEST_CHECK_EQUAL(ret, TT_END, "");
+            TT_UT_EQUAL(ret, TT_END, "");
         } else {
-            TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+            TT_UT_EQUAL(ret, TT_SUCCESS, "");
         }
 
         if (cli_case[i].out_num == 0) {
-            TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&__ut_cli_obuf), 0, "");
+            TT_UT_EQUAL(TT_BUF_RLEN(&__ut_cli_obuf), 0, "");
         } else {
             ret = tt_buf_create_nocopy(&cmp_buf,
                                        cli_case[i].out,
                                        cli_case[i].out_num,
                                        NULL);
-            TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+            TT_UT_EQUAL(ret, TT_SUCCESS, "");
             cmp_ret = tt_buf_cmp(&cmp_buf, &__ut_cli_obuf);
-            TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+            TT_UT_EQUAL(cmp_ret, 0, "");
             tt_buf_destroy(&cmp_buf);
         }
 
         if (cli_case[i].cmd == (void *)1) {
             // make sure no cb
-            TT_TEST_CHECK_EQUAL(__ut_cli_cmd[0], 0, "");
+            TT_UT_EQUAL(__ut_cli_cmd[0], 0, "");
         } else if (cli_case[i].cmd != NULL) {
             cmp_ret = tt_strcmp(__ut_cli_cmd, cli_case[i].cmd);
-            TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+            TT_UT_EQUAL(cmp_ret, 0, "");
         }
     }
 
@@ -431,7 +431,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cli_stress)
     // test start
 
     ret = tt_cli_create(&cli, TT_CLI_MODE_DEFAUTL, &cb, &itf, NULL);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     for (k = 0; k < __cli_st_num; ++k) {
         i = tt_rand_u32() % 10;
@@ -693,39 +693,39 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cli_ac)
     attr.seperator = '$';
 
     ret = tt_cli_create(&cli, TT_CLI_MODE_DEFAUTL, &cb, &itf, &attr);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     __ut_cli_idx = ~0;
     __ut_cli_ret = TT_SUCCESS;
     __ut_cli_err = 0;
 
     ret = tt_cli_start(&cli);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
-    TT_TEST_CHECK_EQUAL(__ut_cli_ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(__ut_cli_ret, TT_SUCCESS, "");
     __SHOW_AC_STR();
     cmp_ret = tt_string_cmp(&__ac_string, "title:sub_title$ ");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
 
     {
         const tt_char_t *a = "   123   abcd   abce";
         tt_cli_input(&cli, (tt_u8_t *)a, (tt_u32_t)tt_strlen(a));
         __SHOW_AC_STR();
-        TT_TEST_CHECK_EQUAL(__ut_cli_ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(__ut_cli_ret, TT_SUCCESS, "");
 
         cmp_ret = tt_string_cmp(&__ac_string,
                                 "title:sub_title$    123   abcd   abce");
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
     {
         // "   123   abcd   abce[]"
         tt_cli_input_ev(&cli, TT_CLI_EV_TAB);
         __SHOW_AC_STR();
-        TT_TEST_CHECK_EQUAL(__ut_cli_ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(__ut_cli_ret, TT_SUCCESS, "");
 
         cmp_ret = tt_string_cmp(&__ac_string,
                                 "title:sub_title$    123   abcd   abce");
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
     {
@@ -733,16 +733,16 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cli_ac)
         // "   123   abcd   abc[e]"
         tt_cli_input_ev(&cli, TT_CLI_EV_TAB);
         __SHOW_AC_STR();
-        TT_TEST_CHECK_EQUAL(__ut_cli_ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(__ut_cli_ret, TT_SUCCESS, "");
 
         cmp_ret = tt_string_cmp(&__ac_string2,
                                 "title:sub_title$    123   abcd   abce");
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
         cmp_ret = tt_string_cmp(&__ac_string1, "abc abcde");
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
         cmp_ret = tt_string_cmp(&__ac_string,
                                 "title:sub_title$    123   abcd   abce");
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
     {
@@ -750,16 +750,16 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cli_ac)
         // "   123   abcd   ab[c]e"
         tt_cli_input_ev(&cli, TT_CLI_EV_TAB);
         __SHOW_AC_STR();
-        TT_TEST_CHECK_EQUAL(__ut_cli_ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(__ut_cli_ret, TT_SUCCESS, "");
 
         cmp_ret = tt_string_cmp(&__ac_string2,
                                 "title:sub_title$    123   abcd   abce");
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
         cmp_ret = tt_string_cmp(&__ac_string1, "ab abc abcde");
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
         cmp_ret = tt_string_cmp(&__ac_string,
                                 "title:sub_title$    123   abcd   abce");
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
     {
@@ -767,16 +767,16 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cli_ac)
         // "   123   abcd   a[b]ce"
         tt_cli_input_ev(&cli, TT_CLI_EV_TAB);
         __SHOW_AC_STR();
-        TT_TEST_CHECK_EQUAL(__ut_cli_ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(__ut_cli_ret, TT_SUCCESS, "");
 
         cmp_ret = tt_string_cmp(&__ac_string2,
                                 "title:sub_title$    123   abcd   abce");
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
         cmp_ret = tt_string_cmp(&__ac_string1, "a ab abc abcde");
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
         cmp_ret = tt_string_cmp(&__ac_string,
                                 "title:sub_title$    123   abcd   abce");
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
     {
@@ -784,16 +784,16 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cli_ac)
         // "   123   abcd   [a]bce"
         tt_cli_input_ev(&cli, TT_CLI_EV_TAB);
         __SHOW_AC_STR();
-        TT_TEST_CHECK_EQUAL(__ut_cli_ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(__ut_cli_ret, TT_SUCCESS, "");
 
         cmp_ret = tt_string_cmp(&__ac_string2,
                                 "title:sub_title$    123   abcd   abce");
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
         cmp_ret = tt_string_cmp(&__ac_string1, "a ab abc abcde xxx");
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
         cmp_ret = tt_string_cmp(&__ac_string,
                                 "title:sub_title$    123   abcd   abce");
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
     /////////// 3 spaces
@@ -802,37 +802,37 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cli_ac)
         // "   123   abcd  [ ]abce"
         tt_cli_input_ev(&cli, TT_CLI_EV_TAB);
         __SHOW_AC_STR();
-        TT_TEST_CHECK_EQUAL(__ut_cli_ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(__ut_cli_ret, TT_SUCCESS, "");
 
         cmp_ret = tt_string_cmp(&__ac_string1, "a ab abc abcde xxx");
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
         cmp_ret = tt_string_cmp(&__ac_string,
                                 "title:sub_title$    123   abcd   abce");
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
     }
     {
         tt_cli_input_ev(&cli, TT_CLI_EV_LEFT);
         // "   123   abcd [ ] abce"
         tt_cli_input_ev(&cli, TT_CLI_EV_TAB);
         __SHOW_AC_STR();
-        TT_TEST_CHECK_EQUAL(__ut_cli_ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(__ut_cli_ret, TT_SUCCESS, "");
 
         cmp_ret = tt_string_cmp(&__ac_string1, "a ab abc abcde xxx");
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
         cmp_ret = tt_string_cmp(&__ac_string,
                                 "title:sub_title$    123   abcd   abce");
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
     }
     {
         tt_cli_input_ev(&cli, TT_CLI_EV_LEFT);
         // "   123   abcd[ ]  abce"
         tt_cli_input_ev(&cli, TT_CLI_EV_TAB);
         __SHOW_AC_STR();
-        TT_TEST_CHECK_EQUAL(__ut_cli_ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(__ut_cli_ret, TT_SUCCESS, "");
 
         cmp_ret = tt_string_cmp(&__ac_string,
                                 "title:sub_title$    123   abcde    abce");
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
     {
@@ -840,11 +840,11 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cli_ac)
         // "   123   abcde[]   abce"
         tt_cli_input_ev(&cli, TT_CLI_EV_TAB);
         __SHOW_AC_STR();
-        TT_TEST_CHECK_EQUAL(__ut_cli_ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(__ut_cli_ret, TT_SUCCESS, "");
 
         cmp_ret = tt_string_cmp(&__ac_string,
                                 "title:sub_title$    123   abcde     abce");
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
     {
@@ -854,11 +854,11 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cli_ac)
         // "   123   abcd[e]     abce"
         tt_cli_input_ev(&cli, TT_CLI_EV_TAB);
         __SHOW_AC_STR();
-        TT_TEST_CHECK_EQUAL(__ut_cli_ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(__ut_cli_ret, TT_SUCCESS, "");
 
         cmp_ret = tt_string_cmp(&__ac_string,
                                 "title:sub_title$    123   abcde e     abce");
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
     {
@@ -870,16 +870,16 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cli_ac)
         // "   123   abc[d]e e     abce"
         tt_cli_input_ev(&cli, TT_CLI_EV_TAB);
         __SHOW_AC_STR();
-        TT_TEST_CHECK_EQUAL(__ut_cli_ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(__ut_cli_ret, TT_SUCCESS, "");
 
         cmp_ret = tt_string_cmp(&__ac_string2,
                                 "title:sub_title$    123   abcde e     abce");
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
         cmp_ret = tt_string_cmp(&__ac_string1, "abc abcde");
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
         cmp_ret = tt_string_cmp(&__ac_string,
                                 "title:sub_title$    123   abcde e     abce");
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
     {
@@ -891,16 +891,16 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cli_ac)
         // "   123   [a]bcde e     abce"
         tt_cli_input_ev(&cli, TT_CLI_EV_TAB);
         __SHOW_AC_STR();
-        TT_TEST_CHECK_EQUAL(__ut_cli_ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(__ut_cli_ret, TT_SUCCESS, "");
 
         cmp_ret = tt_string_cmp(&__ac_string2,
                                 "title:sub_title$    123   abcde e     abce");
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
         cmp_ret = tt_string_cmp(&__ac_string1, "a ab abc abcde xxx");
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
         cmp_ret = tt_string_cmp(&__ac_string,
                                 "title:sub_title$    123   abcde e     abce");
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
     {
@@ -910,11 +910,11 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cli_ac)
         // "   123[ ]  abcde e     abce"
         tt_cli_input_ev(&cli, TT_CLI_EV_TAB);
         __SHOW_AC_STR();
-        TT_TEST_CHECK_EQUAL(__ut_cli_ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(__ut_cli_ret, TT_SUCCESS, "");
 
         cmp_ret = tt_string_cmp(&__ac_string,
                                 "title:sub_title$    123    abcde e     abce");
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
     {
@@ -923,16 +923,16 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cli_ac)
         // "   12[3]   abcde e     abce"
         tt_cli_input_ev(&cli, TT_CLI_EV_TAB);
         __SHOW_AC_STR();
-        TT_TEST_CHECK_EQUAL(__ut_cli_ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(__ut_cli_ret, TT_SUCCESS, "");
 
         cmp_ret = tt_string_cmp(&__ac_string2,
                                 "title:sub_title$    123    abcde e     abce");
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
         cmp_ret = tt_string_cmp(&__ac_string1, "12 123");
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
         cmp_ret = tt_string_cmp(&__ac_string,
                                 "title:sub_title$    123    abcde e     abce");
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
     {
@@ -940,16 +940,16 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cli_ac)
         // "   1[2]3   abcde e     abce"
         tt_cli_input_ev(&cli, TT_CLI_EV_TAB);
         __SHOW_AC_STR();
-        TT_TEST_CHECK_EQUAL(__ut_cli_ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(__ut_cli_ret, TT_SUCCESS, "");
 
         cmp_ret = tt_string_cmp(&__ac_string2,
                                 "title:sub_title$    123    abcde e     abce");
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
         cmp_ret = tt_string_cmp(&__ac_string1, "1 12 123");
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
         cmp_ret = tt_string_cmp(&__ac_string,
                                 "title:sub_title$    123    abcde e     abce");
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
     // output commands
@@ -958,64 +958,64 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cli_ac)
         // "   [1]23   abcde e     abce"
         tt_cli_input_ev(&cli, TT_CLI_EV_TAB);
         __SHOW_AC_STR();
-        TT_TEST_CHECK_EQUAL(__ut_cli_ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(__ut_cli_ret, TT_SUCCESS, "");
 
         cmp_ret = tt_string_cmp(&__ac_string2,
                                 "title:sub_title$    123    abcde e     abce");
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
         cmp_ret = tt_string_cmp(&__ac_string1, "1 12 123 2345");
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
         cmp_ret = tt_string_cmp(&__ac_string,
                                 "title:sub_title$    123    abcde e     abce");
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
     }
     {
         tt_cli_input_ev(&cli, TT_CLI_EV_LEFT);
         // "  [ ]123   abcde e     abce"
         tt_cli_input_ev(&cli, TT_CLI_EV_TAB);
         __SHOW_AC_STR();
-        TT_TEST_CHECK_EQUAL(__ut_cli_ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(__ut_cli_ret, TT_SUCCESS, "");
 
         cmp_ret = tt_string_cmp(&__ac_string2,
                                 "title:sub_title$    123    abcde e     abce");
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
         cmp_ret = tt_string_cmp(&__ac_string1, "1 12 123 2345");
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
         cmp_ret = tt_string_cmp(&__ac_string,
                                 "title:sub_title$    123    abcde e     abce");
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
     }
     {
         tt_cli_input_ev(&cli, TT_CLI_EV_LEFT);
         // " [ ] 123   abcde e     abce"
         tt_cli_input_ev(&cli, TT_CLI_EV_TAB);
         __SHOW_AC_STR();
-        TT_TEST_CHECK_EQUAL(__ut_cli_ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(__ut_cli_ret, TT_SUCCESS, "");
 
         cmp_ret = tt_string_cmp(&__ac_string2,
                                 "title:sub_title$    123    abcde e     abce");
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
         cmp_ret = tt_string_cmp(&__ac_string1, "1 12 123 2345");
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
         cmp_ret = tt_string_cmp(&__ac_string,
                                 "title:sub_title$    123    abcde e     abce");
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
     }
     {
         tt_cli_input_ev(&cli, TT_CLI_EV_LEFT);
         // "[ ]  123   abcde e     abce"
         tt_cli_input_ev(&cli, TT_CLI_EV_TAB);
         __SHOW_AC_STR();
-        TT_TEST_CHECK_EQUAL(__ut_cli_ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(__ut_cli_ret, TT_SUCCESS, "");
 
         cmp_ret = tt_string_cmp(&__ac_string2,
                                 "title:sub_title$    123    abcde e     abce");
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
         cmp_ret = tt_string_cmp(&__ac_string1, "1 12 123 2345");
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
         cmp_ret = tt_string_cmp(&__ac_string,
                                 "title:sub_title$    123    abcde e     abce");
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
     tt_cli_destroy(&cli);
@@ -1061,10 +1061,10 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cli_readline)
     tt_buf_init(&__ut_cli_obuf, NULL);
 
     ret = tt_cli_create(&cli, TT_CLI_MODE_DEFAUTL, NULL, &itf, NULL);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     ret = tt_cli_start(&cli);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     tt_cli_read_line(&cli, __ut_cli_on_read);
 
@@ -1080,12 +1080,12 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cli_readline)
         __ut_read_content = "";
         __ut_read_cb = TT_FALSE;
         ret = tt_cli_input(&cli, ev, 1);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
-        TT_TEST_CHECK_EQUAL(__ut_cli_err, 0, "");
-        TT_TEST_CHECK_EQUAL(__ut_read_cb, TT_TRUE, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(__ut_cli_err, 0, "");
+        TT_UT_EQUAL(__ut_read_cb, TT_TRUE, "");
 
         cmp_ret = tt_buf_cmp_cstr(&__ut_cli_obuf, "\x87");
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
     // read a line
@@ -1097,12 +1097,12 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cli_readline)
         __ut_read_content = "123";
         __ut_read_cb = TT_FALSE;
         ret = tt_cli_input(&cli, ev, sizeof(ev));
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
-        TT_TEST_CHECK_EQUAL(__ut_cli_err, 0, "");
-        TT_TEST_CHECK_EQUAL(__ut_read_cb, TT_TRUE, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(__ut_cli_err, 0, "");
+        TT_UT_EQUAL(__ut_read_cb, TT_TRUE, "");
 
         cmp_ret = tt_buf_cmp_cstr(&__ut_cli_obuf, "123\207123");
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
     // read an editted line
@@ -1124,12 +1124,12 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cli_readline)
         __ut_read_content = "543";
         __ut_read_cb = TT_FALSE;
         ret = tt_cli_input(&cli, ev, sizeof(ev) - 1);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
-        TT_TEST_CHECK_EQUAL(__ut_cli_err, 0, "");
-        TT_TEST_CHECK_EQUAL(__ut_read_cb, TT_TRUE, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(__ut_cli_err, 0, "");
+        TT_UT_EQUAL(__ut_read_cb, TT_TRUE, "");
 
         // cmp_ret = tt_buf_cmp_cstr(&__ut_cli_obuf, (tt_char_t*)ev);
-        // TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        // TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
     // read multiple lines
@@ -1142,12 +1142,12 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cli_readline)
         __ut_read_content = "123";
         __ut_read_cb = TT_FALSE;
         ret = tt_cli_input(&cli, ev, sizeof(ev));
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
-        TT_TEST_CHECK_EQUAL(__ut_cli_err, 0, "");
-        TT_TEST_CHECK_EQUAL(__ut_read_cb, TT_TRUE, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(__ut_cli_err, 0, "");
+        TT_UT_EQUAL(__ut_read_cb, TT_TRUE, "");
 
         cmp_ret = tt_buf_cmp_cstr(&__ut_cli_obuf, "123\207123546");
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
 
         __ut_read_content = "546";
         __ut_read_cb = TT_FALSE;
@@ -1155,12 +1155,12 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cli_readline)
 
         tt_buf_clear(&__ut_cli_obuf);
         ret = tt_cli_input(&cli, ev2, sizeof(ev2));
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
-        TT_TEST_CHECK_EQUAL(__ut_cli_err, 0, "");
-        TT_TEST_CHECK_EQUAL(__ut_read_cb, TT_TRUE, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(__ut_cli_err, 0, "");
+        TT_UT_EQUAL(__ut_read_cb, TT_TRUE, "");
 
         cmp_ret = tt_buf_cmp_cstr(&__ut_cli_obuf, "\207546titansdk$ ");
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
     // read and exit
@@ -1175,12 +1175,12 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cli_readline)
         __ut_read_more = TT_CLIOR_END;
 
         ret = tt_cli_input(&cli, ev, sizeof(ev));
-        TT_TEST_CHECK_EQUAL(ret, TT_END, "");
-        TT_TEST_CHECK_EQUAL(__ut_cli_err, 0, "");
-        TT_TEST_CHECK_EQUAL(__ut_read_cb, TT_TRUE, "");
+        TT_UT_EQUAL(ret, TT_END, "");
+        TT_UT_EQUAL(__ut_cli_err, 0, "");
+        TT_UT_EQUAL(__ut_read_cb, TT_TRUE, "");
 
         cmp_ret = tt_buf_cmp_cstr(&__ut_cli_obuf, "exit\207exit");
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
     tt_cli_destroy(&cli);

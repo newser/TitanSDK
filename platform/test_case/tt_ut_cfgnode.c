@@ -165,17 +165,17 @@ TT_TEST_CASE("tt_unit_test_clinode",
                               &itf,
                               (void *)1,
                               &attr);
-    TT_TEST_CHECK_NOT_EQUAL(cnode, NULL, "");
+    TT_UT_NOT_EQUAL(cnode, NULL, "");
 
-    TT_TEST_CHECK_EQUAL(cnode->type, TT_CFGNODE_TYPE_STRING, "");
-    TT_TEST_CHECK_EQUAL(cnode->opaque, (void *)1, "");
-    TT_TEST_CHECK_EQUAL(cnode->itf, &itf, "");
-    TT_TEST_CHECK_EQUAL(tt_strcmp(cnode->name, "name"), 0, "");
-    TT_TEST_CHECK_EQUAL(tt_strcmp(cnode->display_name, "display_name"), 0, "");
-    TT_TEST_CHECK_EQUAL(tt_strcmp(cnode->brief, "info"), 0, "");
-    TT_TEST_CHECK_EQUAL(tt_strcmp(cnode->detail, "usage"), 0, "");
-    TT_TEST_CHECK_EQUAL(cnode->removing, TT_FALSE, "");
-    TT_TEST_CHECK_EQUAL(cnode->modified, TT_FALSE, "");
+    TT_UT_EQUAL(cnode->type, TT_CFGNODE_TYPE_STRING, "");
+    TT_UT_EQUAL(cnode->opaque, (void *)1, "");
+    TT_UT_EQUAL(cnode->itf, &itf, "");
+    TT_UT_EQUAL(tt_strcmp(cnode->name, "name"), 0, "");
+    TT_UT_EQUAL(tt_strcmp(cnode->display_name, "display_name"), 0, "");
+    TT_UT_EQUAL(tt_strcmp(cnode->brief, "info"), 0, "");
+    TT_UT_EQUAL(tt_strcmp(cnode->detail, "usage"), 0, "");
+    TT_UT_EQUAL(cnode->removing, TT_FALSE, "");
+    TT_UT_EQUAL(cnode->modified, TT_FALSE, "");
 
     // may fail, but should not crash
     tt_cfgnode_add(cnode, &name, &val);
@@ -273,15 +273,15 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgnode_u32)
     tt_buf_init(&out, NULL);
 
     cnode = tt_cfgu32_create("", NULL, NULL, &val, &cb, NULL);
-    TT_TEST_CHECK_NOT_EQUAL(cnode, NULL, "");
+    TT_UT_NOT_EQUAL(cnode, NULL, "");
 
     // add
     ret = tt_cfgnode_add(cnode, &n, &v);
-    TT_TEST_CHECK_EQUAL(ret, TT_BAD_PARAM, "");
+    TT_UT_EQUAL(ret, TT_BAD_PARAM, "");
 
     // rm
     ret = tt_cfgnode_rm(cnode, &n);
-    TT_TEST_CHECK_EQUAL(ret, TT_BAD_PARAM, "");
+    TT_UT_EQUAL(ret, TT_BAD_PARAM, "");
 
     // ls
     {
@@ -291,43 +291,43 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgnode_u32)
 
         tt_buf_clear(&out);
         ret = tt_cfgnode_ls(cnode, NULL, &out);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         cmp_ret = tt_buf_cmp_cstr(&out, this_out);
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
     // get
     tt_buf_clear(&out);
     val = 0;
     ret = tt_cfgnode_get(cnode, &out);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     cmp_ret = tt_buf_cmp_cstr(&out, "0");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
 
     // set
     ret = tt_cfgnode_set(cnode, &v);
-    TT_TEST_CHECK_EQUAL(ret, TT_BAD_PARAM, "");
+    TT_UT_EQUAL(ret, TT_BAD_PARAM, "");
 
     // check
     v.addr = (tt_u8_t *)max_u32;
     v.len = (tt_u32_t)tt_strlen(max_u32);
     ret = tt_cfgnode_check(cnode, &v);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     v.addr = (tt_u8_t *)invalid_u32;
     v.len = (tt_u32_t)tt_strlen(invalid_u32);
     ret = tt_cfgnode_check(cnode, &v);
-    TT_TEST_CHECK_EQUAL(ret, TT_BAD_PARAM, "");
+    TT_UT_EQUAL(ret, TT_BAD_PARAM, "");
 
     // commit
     ret = tt_cfgnode_commit(cnode);
-    TT_TEST_CHECK_EQUAL(ret, TT_BAD_PARAM, "");
+    TT_UT_EQUAL(ret, TT_BAD_PARAM, "");
 
     __ut_err_line = 0;
     __ut_on_destroy_ok = TT_FALSE;
     tt_cfgnode_destroy(cnode, TT_FALSE);
-    TT_TEST_CHECK_EQUAL(__ut_err_line, 0, "");
-    TT_TEST_CHECK_EQUAL(__ut_on_destroy_ok, TT_FALSE, "");
+    TT_UT_EQUAL(__ut_err_line, 0, "");
+    TT_UT_EQUAL(__ut_on_destroy_ok, TT_FALSE, "");
 
     // node 2
     tt_cfgu32_attr_default(&attr);
@@ -335,15 +335,15 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgnode_u32)
     attr.mode = TT_CFGVAL_MODE_GS;
 
     cnode = tt_cfgu32_create("node2", NULL, NULL, &val, &cb, &attr);
-    TT_TEST_CHECK_NOT_EQUAL(cnode, NULL, "");
+    TT_UT_NOT_EQUAL(cnode, NULL, "");
 
     // add
     ret = tt_cfgnode_add(cnode, &n, &v);
-    TT_TEST_CHECK_EQUAL(ret, TT_BAD_PARAM, "");
+    TT_UT_EQUAL(ret, TT_BAD_PARAM, "");
 
     // rm
     ret = tt_cfgnode_rm(cnode, &n);
-    TT_TEST_CHECK_EQUAL(ret, TT_BAD_PARAM, "");
+    TT_UT_EQUAL(ret, TT_BAD_PARAM, "");
 
     // ls
     {
@@ -353,92 +353,92 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgnode_u32)
 
         tt_buf_clear(&out);
         ret = tt_cfgnode_ls(cnode, NULL, &out);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         cmp_ret = tt_buf_cmp_cstr(&out, this_out);
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
     tt_buf_clear(&out);
     ret = tt_cfgnode_describe(cnode, 0, &out);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     cmp_ret = tt_buf_cmp_cstr(&out, "--gs    u32     node2    test node 2");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
 
     tt_buf_clear(&out);
     ret = tt_cfgnode_describe(cnode, 3, &out);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     cmp_ret = tt_buf_cmp_cstr(&out, "--gs    u32     ???    test node 2");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
 
     tt_buf_clear(&out);
     ret = tt_cfgnode_describe(cnode, 10, &out);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     cmp_ret =
         tt_buf_cmp_cstr(&out, "--gs    u32     node2         test node 2");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
 
     // get
     tt_buf_clear(&out);
     val = ~0;
     ret = tt_cfgnode_get(cnode, &out);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     cmp_ret = tt_buf_cmp_cstr(&out, "4294967295");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
 
     // set
     tt_buf_clear(&out);
     v.addr = (tt_u8_t *)invalid_u32;
     v.len = (tt_u32_t)tt_strlen(invalid_u32);
     ret = tt_cfgnode_set(cnode, &v);
-    TT_TEST_CHECK_EQUAL(ret, TT_BAD_PARAM, "");
+    TT_UT_EQUAL(ret, TT_BAD_PARAM, "");
 
     v.addr = (tt_u8_t *)invalid_u32_2;
     v.len = (tt_u32_t)tt_strlen(invalid_u32_2);
     ret = tt_cfgnode_set(cnode, &v);
-    TT_TEST_CHECK_EQUAL(ret, TT_BAD_PARAM, "");
+    TT_UT_EQUAL(ret, TT_BAD_PARAM, "");
 
     v.addr = (tt_u8_t *)u32_0;
     v.len = (tt_u32_t)tt_strlen(u32_0);
     ret = tt_cfgnode_set(cnode, &v);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     tt_buf_clear(&out);
     ret = tt_cfgnode_get(cnode, &out);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     cmp_ret = tt_buf_cmp_cstr(&out, "4294967295 --> 0");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
 
     v.addr = (tt_u8_t *)max_u32;
     v.len = (tt_u32_t)tt_strlen(max_u32);
     ret = tt_cfgnode_set(cnode, &v);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     tt_buf_clear(&out);
     ret = tt_cfgnode_get(cnode, &out);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     cmp_ret = tt_buf_cmp_cstr(&out, "4294967295");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
 
     // commit
     __ut_cb_called = TT_FALSE;
     ret = tt_cfgnode_commit(cnode);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
-    TT_TEST_CHECK_EQUAL(__ut_cb_called, TT_FALSE, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(__ut_cb_called, TT_FALSE, "");
 
     v.addr = (tt_u8_t *)u32_0;
     v.len = (tt_u32_t)tt_strlen(u32_0);
     ret = tt_cfgnode_set(cnode, &v);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     __ut_u32_set = 123;
     ret = tt_cfgnode_commit(cnode);
-    TT_TEST_CHECK_EQUAL(ret, TT_END, "");
-    TT_TEST_CHECK_EQUAL(__ut_cb_called, TT_TRUE, "");
-    TT_TEST_CHECK_EQUAL(__ut_u32_set, 0, "");
+    TT_UT_EQUAL(ret, TT_END, "");
+    TT_UT_EQUAL(__ut_cb_called, TT_TRUE, "");
+    TT_UT_EQUAL(__ut_u32_set, 0, "");
 
     __ut_err_line = 0;
     __ut_on_destroy_ok = TT_FALSE;
     tt_cfgnode_destroy(cnode, TT_TRUE);
-    TT_TEST_CHECK_EQUAL(__ut_err_line, 0, "");
-    TT_TEST_CHECK_EQUAL(__ut_on_destroy_ok, TT_TRUE, "");
+    TT_UT_EQUAL(__ut_err_line, 0, "");
+    TT_UT_EQUAL(__ut_on_destroy_ok, TT_TRUE, "");
 
     tt_buf_destroy(&out);
 
@@ -470,15 +470,15 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgnode_s32)
     tt_buf_init(&out, NULL);
 
     cnode = tt_cfgs32_create("", NULL, NULL, &val, &cb, NULL);
-    TT_TEST_CHECK_NOT_EQUAL(cnode, NULL, "");
+    TT_UT_NOT_EQUAL(cnode, NULL, "");
 
     // add
     ret = tt_cfgnode_add(cnode, &n, &v);
-    TT_TEST_CHECK_EQUAL(ret, TT_BAD_PARAM, "");
+    TT_UT_EQUAL(ret, TT_BAD_PARAM, "");
 
     // rm
     ret = tt_cfgnode_rm(cnode, &n);
-    TT_TEST_CHECK_EQUAL(ret, TT_BAD_PARAM, "");
+    TT_UT_EQUAL(ret, TT_BAD_PARAM, "");
 
     // ls
     {
@@ -488,35 +488,35 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgnode_s32)
 
         tt_buf_clear(&out);
         ret = tt_cfgnode_ls(cnode, NULL, &out);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         cmp_ret = tt_buf_cmp_cstr(&out, this_out);
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
     // get
     tt_buf_clear(&out);
     ret = tt_cfgnode_get(cnode, &out);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     cmp_ret = tt_buf_cmp_cstr(&out, "0");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
 
     // set
     ret = tt_cfgnode_set(cnode, &v);
-    TT_TEST_CHECK_EQUAL(ret, TT_BAD_PARAM, "");
+    TT_UT_EQUAL(ret, TT_BAD_PARAM, "");
 
     // check
     v.addr = (tt_u8_t *)max_s32;
     v.len = (tt_u32_t)tt_strlen(max_s32);
     ret = tt_cfgnode_check(cnode, &v);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     v.addr = (tt_u8_t *)invalid_s32;
     v.len = (tt_u32_t)tt_strlen(invalid_s32);
     ret = tt_cfgnode_check(cnode, &v);
-    TT_TEST_CHECK_EQUAL(ret, TT_BAD_PARAM, "");
+    TT_UT_EQUAL(ret, TT_BAD_PARAM, "");
 
     ret = tt_cfgnode_commit(cnode);
-    TT_TEST_CHECK_EQUAL(ret, TT_BAD_PARAM, "");
+    TT_UT_EQUAL(ret, TT_BAD_PARAM, "");
 
     tt_cfgnode_destroy(cnode, TT_TRUE);
 
@@ -526,15 +526,15 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgnode_s32)
     attr.mode = TT_CFGVAL_MODE_GS;
 
     cnode = tt_cfgs32_create("node1234567890", NULL, NULL, &val, &cb, &attr);
-    TT_TEST_CHECK_NOT_EQUAL(cnode, NULL, "");
+    TT_UT_NOT_EQUAL(cnode, NULL, "");
 
     // add
     ret = tt_cfgnode_add(cnode, &n, &v);
-    TT_TEST_CHECK_EQUAL(ret, TT_BAD_PARAM, "");
+    TT_UT_EQUAL(ret, TT_BAD_PARAM, "");
 
     // rm
     ret = tt_cfgnode_rm(cnode, &n);
-    TT_TEST_CHECK_EQUAL(ret, TT_BAD_PARAM, "");
+    TT_UT_EQUAL(ret, TT_BAD_PARAM, "");
 
     // ls
     {
@@ -544,9 +544,9 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgnode_s32)
 
         tt_buf_clear(&out);
         ret = tt_cfgnode_ls(cnode, NULL, &out);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         cmp_ret = tt_buf_cmp_cstr(&out, this_out);
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
 
@@ -556,9 +556,9 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgnode_s32)
 
         tt_buf_clear(&out);
         ret = tt_cfgnode_describe(cnode, 0, &out);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         cmp_ret = tt_buf_cmp_cstr(&out, this_out);
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
     {
@@ -566,9 +566,9 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgnode_s32)
 
         tt_buf_clear(&out);
         ret = tt_cfgnode_describe(cnode, 7, &out);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         cmp_ret = tt_buf_cmp_cstr(&out, this_out);
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
     {
@@ -576,9 +576,9 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgnode_s32)
 
         tt_buf_clear(&out);
         ret = tt_cfgnode_describe(cnode, 8, &out);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         cmp_ret = tt_buf_cmp_cstr(&out, this_out);
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
     {
@@ -587,79 +587,79 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgnode_s32)
 
         tt_buf_clear(&out);
         ret = tt_cfgnode_describe(cnode, 16, &out);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         cmp_ret = tt_buf_cmp_cstr(&out, this_out);
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
     // get
     val = ~0;
     tt_buf_clear(&out);
     ret = tt_cfgnode_get(cnode, &out);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     cmp_ret = tt_buf_cmp_cstr(&out, "-1");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
 
     // set
     v.addr = (tt_u8_t *)max_s32;
     v.len = (tt_u32_t)tt_strlen(max_s32);
     ret = tt_cfgnode_set(cnode, &v);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     tt_buf_clear(&out);
     ret = tt_cfgnode_get(cnode, &out);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     cmp_ret = tt_buf_cmp_cstr(&out, "-1 --> 2147483647");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
 
     tt_buf_clear(&out);
     v.addr = (tt_u8_t *)invalid_s32;
     v.len = (tt_u32_t)tt_strlen(invalid_s32);
     ret = tt_cfgnode_set(cnode, &v);
-    TT_TEST_CHECK_EQUAL(ret, TT_BAD_PARAM, "");
+    TT_UT_EQUAL(ret, TT_BAD_PARAM, "");
 
     v.addr = (tt_u8_t *)invalid_s32_2;
     v.len = (tt_u32_t)tt_strlen(invalid_s32_2);
     ret = tt_cfgnode_set(cnode, &v);
-    TT_TEST_CHECK_EQUAL(ret, TT_BAD_PARAM, "");
+    TT_UT_EQUAL(ret, TT_BAD_PARAM, "");
 
     // to -2147483648
     v.addr = (tt_u8_t *)min_s32;
     v.len = (tt_u32_t)tt_strlen(min_s32);
     ret = tt_cfgnode_set(cnode, &v);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     tt_buf_clear(&out);
     ret = tt_cfgnode_get(cnode, &out);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     cmp_ret = tt_buf_cmp_cstr(&out, "-1 --> -2147483648");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
 
     // to -1
     v.addr = (tt_u8_t *)s32_n1;
     v.len = (tt_u32_t)tt_strlen(s32_n1);
     ret = tt_cfgnode_set(cnode, &v);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     tt_buf_clear(&out);
     ret = tt_cfgnode_get(cnode, &out);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     cmp_ret = tt_buf_cmp_cstr(&out, "-1");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
 
     // commit
     __ut_cb_called = TT_FALSE;
     ret = tt_cfgnode_commit(cnode);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
-    TT_TEST_CHECK_EQUAL(__ut_cb_called, TT_FALSE, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(__ut_cb_called, TT_FALSE, "");
 
     v.addr = (tt_u8_t *)min_s32;
     v.len = (tt_u32_t)tt_strlen(min_s32);
     ret = tt_cfgnode_set(cnode, &v);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     __ut_cb_called = TT_FALSE;
     ret = tt_cfgnode_commit(cnode);
-    TT_TEST_CHECK_EQUAL(ret, TT_END, "");
-    TT_TEST_CHECK_EQUAL(__ut_cb_called, TT_TRUE, "");
-    TT_TEST_CHECK_EQUAL(__ut_s32_set, (tt_s32_t)-2147483648L, "");
+    TT_UT_EQUAL(ret, TT_END, "");
+    TT_UT_EQUAL(__ut_cb_called, TT_TRUE, "");
+    TT_UT_EQUAL(__ut_s32_set, (tt_s32_t)-2147483648L, "");
 
     tt_cfgnode_destroy(cnode, TT_TRUE);
     tt_buf_destroy(&out);
@@ -696,15 +696,15 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgnode_str)
     tt_string_init(&__ut_str_set, NULL);
 
     cnode = tt_cfgstr_create("", NULL, NULL, &val, &cb, NULL);
-    TT_TEST_CHECK_NOT_EQUAL(cnode, NULL, "");
+    TT_UT_NOT_EQUAL(cnode, NULL, "");
 
     // add
     ret = tt_cfgnode_add(cnode, &n, &v);
-    TT_TEST_CHECK_EQUAL(ret, TT_BAD_PARAM, "");
+    TT_UT_EQUAL(ret, TT_BAD_PARAM, "");
 
     // rm
     ret = tt_cfgnode_rm(cnode, &n);
-    TT_TEST_CHECK_EQUAL(ret, TT_BAD_PARAM, "");
+    TT_UT_EQUAL(ret, TT_BAD_PARAM, "");
 
     // ls
     {
@@ -712,36 +712,36 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgnode_str)
 
         tt_buf_clear(&out);
         ret = tt_cfgnode_describe(cnode, 0, &out);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         cmp_ret = tt_buf_cmp_cstr(&out, this_out);
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
     // get
     tt_buf_clear(&out);
     ret = tt_cfgnode_get(cnode, &out);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     cmp_ret = tt_buf_cmp_cstr(&out, "\"\"");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
 
     // set
     ret = tt_cfgnode_set(cnode, &v);
-    TT_TEST_CHECK_EQUAL(ret, TT_BAD_PARAM, "");
+    TT_UT_EQUAL(ret, TT_BAD_PARAM, "");
 
     // check
     v.addr = (tt_u8_t *)max_s32;
     v.len = (tt_u32_t)tt_strlen(max_s32);
     ret = tt_cfgnode_check(cnode, &v);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     v.addr = (tt_u8_t *)invalid_str;
     v.len = (tt_u32_t)tt_strlen(invalid_str);
     ret = tt_cfgnode_check(cnode, &v);
-    TT_TEST_CHECK_EQUAL(ret, TT_BAD_PARAM, "");
+    TT_UT_EQUAL(ret, TT_BAD_PARAM, "");
 
     // rm
     ret = tt_cfgnode_commit(cnode);
-    TT_TEST_CHECK_EQUAL(ret, TT_BAD_PARAM, "");
+    TT_UT_EQUAL(ret, TT_BAD_PARAM, "");
 
     tt_cfgnode_destroy(cnode, TT_TRUE);
 
@@ -751,15 +751,15 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgnode_str)
     attr.mode = TT_CFGVAL_MODE_GS;
 
     cnode = tt_cfgstr_create("node2", NULL, NULL, &val, &cb, &attr);
-    TT_TEST_CHECK_NOT_EQUAL(cnode, NULL, "");
+    TT_UT_NOT_EQUAL(cnode, NULL, "");
 
     // add
     ret = tt_cfgnode_add(cnode, &n, &v);
-    TT_TEST_CHECK_EQUAL(ret, TT_BAD_PARAM, "");
+    TT_UT_EQUAL(ret, TT_BAD_PARAM, "");
 
     // rm
     ret = tt_cfgnode_rm(cnode, &n);
-    TT_TEST_CHECK_EQUAL(ret, TT_BAD_PARAM, "");
+    TT_UT_EQUAL(ret, TT_BAD_PARAM, "");
 
     // ls
     {
@@ -767,9 +767,9 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgnode_str)
 
         tt_buf_clear(&out);
         ret = tt_cfgnode_describe(cnode, 0, &out);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         cmp_ret = tt_buf_cmp_cstr(&out, this_out);
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
     // get
@@ -777,57 +777,57 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgnode_str)
     tt_string_append(&val, test_str);
     tt_buf_clear(&out);
     ret = tt_cfgnode_get(cnode, &out);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     cmp_ret = tt_buf_cmp_cstr(&out, "\"test string\"");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
 
     // set
     v.addr = (tt_u8_t *)max_s32;
     v.len = (tt_u32_t)tt_strlen(max_s32);
     ret = tt_cfgnode_set(cnode, &v);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     tt_buf_clear(&out);
     ret = tt_cfgnode_get(cnode, &out);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     cmp_ret = tt_buf_cmp_cstr(&out, "\"test string\" --> \"2147483647\"");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
 
     v.addr = (tt_u8_t *)invalid_s32_2;
     v.len = (tt_u32_t)tt_strlen(invalid_s32_2);
     ret = tt_cfgnode_set(cnode, &v);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     tt_buf_clear(&out);
     ret = tt_cfgnode_get(cnode, &out);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     cmp_ret = tt_buf_cmp_cstr(&out, "\"test string\" --> \"-2147483649\"");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
 
     v.addr = (tt_u8_t *)test_str;
     v.len = (tt_u32_t)tt_strlen(test_str);
     ret = tt_cfgnode_set(cnode, &v);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     tt_buf_clear(&out);
     ret = tt_cfgnode_get(cnode, &out);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     cmp_ret = tt_buf_cmp_cstr(&out, "\"test string\"");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
 
     // commit
     __ut_cb_called = TT_FALSE;
     ret = tt_cfgnode_commit(cnode);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
-    TT_TEST_CHECK_EQUAL(__ut_cb_called, TT_FALSE, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(__ut_cb_called, TT_FALSE, "");
 
     v.addr = (tt_u8_t *)invalid_s32_2;
     v.len = (tt_u32_t)tt_strlen(invalid_s32_2);
     ret = tt_cfgnode_set(cnode, &v);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     __ut_cb_called = TT_FALSE;
     ret = tt_cfgnode_commit(cnode);
-    TT_TEST_CHECK_EQUAL(ret, TT_END, "");
-    TT_TEST_CHECK_EQUAL(__ut_cb_called, TT_TRUE, "");
-    TT_TEST_CHECK_EQUAL(tt_string_cmp(&__ut_str_set, "-2147483649"), 0, "");
+    TT_UT_EQUAL(ret, TT_END, "");
+    TT_UT_EQUAL(__ut_cb_called, TT_TRUE, "");
+    TT_UT_EQUAL(tt_string_cmp(&__ut_str_set, "-2147483649"), 0, "");
 
     tt_cfgnode_destroy(cnode, TT_TRUE);
     tt_buf_destroy(&out);
@@ -858,30 +858,30 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgnode_grp)
     tt_buf_init(&output, NULL);
 
     cgrp = tt_cfggrp_create("", NULL, NULL, NULL, NULL);
-    TT_TEST_CHECK_NOT_EQUAL(cgrp, NULL, "");
+    TT_UT_NOT_EQUAL(cgrp, NULL, "");
     subg = tt_cfggrp_create("sub-group", NULL, NULL, NULL, NULL);
-    TT_TEST_CHECK_NOT_EQUAL(subg, NULL, "");
+    TT_UT_NOT_EQUAL(subg, NULL, "");
     subg1 = tt_cfggrp_create("sub-group1", NULL, NULL, NULL, NULL);
-    TT_TEST_CHECK_NOT_EQUAL(subg, NULL, "");
+    TT_UT_NOT_EQUAL(subg, NULL, "");
     subg2 = tt_cfggrp_create("sub-group22", NULL, NULL, NULL, NULL);
-    TT_TEST_CHECK_NOT_EQUAL(subg, NULL, "");
+    TT_UT_NOT_EQUAL(subg, NULL, "");
     subg3 = tt_cfggrp_create("sub-group21", NULL, NULL, NULL, NULL);
-    TT_TEST_CHECK_NOT_EQUAL(subg, NULL, "");
+    TT_UT_NOT_EQUAL(subg, NULL, "");
 
     subg_c = tt_cfgu32_create("subg-c", NULL, NULL, &u32_val, NULL, NULL);
-    TT_TEST_CHECK_NOT_EQUAL(subg_c, NULL, "");
+    TT_UT_NOT_EQUAL(subg_c, NULL, "");
     c1 = tt_cfgu32_create("c1", NULL, NULL, &u32_val, NULL, NULL);
-    TT_TEST_CHECK_NOT_EQUAL(subg_c, NULL, "");
+    TT_UT_NOT_EQUAL(subg_c, NULL, "");
     c2 = tt_cfgs32_create("c22", NULL, NULL, &s32_val, NULL, NULL);
-    TT_TEST_CHECK_NOT_EQUAL(subg_c, NULL, "");
+    TT_UT_NOT_EQUAL(subg_c, NULL, "");
     c3 = tt_cfgstr_create("c333", NULL, NULL, &str_val, NULL, NULL);
-    TT_TEST_CHECK_NOT_EQUAL(subg_c, NULL, "");
+    TT_UT_NOT_EQUAL(subg_c, NULL, "");
     c4 = tt_cfgstr_create("c322", NULL, NULL, &str_val, NULL, NULL);
-    TT_TEST_CHECK_NOT_EQUAL(subg_c, NULL, "");
+    TT_UT_NOT_EQUAL(subg_c, NULL, "");
 
     // invalid name
     tmp = tt_cfgu32_create("1_2_3", NULL, NULL, &u32_val, NULL, NULL);
-    TT_TEST_CHECK_EQUAL(tmp, NULL, "");
+    TT_UT_EQUAL(tmp, NULL, "");
 
     tt_cfggrp_add(cgrp, subg);
     tt_cfggrp_add(cgrp, c1);
@@ -896,19 +896,19 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgnode_grp)
     //////////////////////////////////////////////////////
 
     ret = tt_cfgnode_add(cgrp, &name, &val);
-    TT_TEST_CHECK_EQUAL(ret, TT_BAD_PARAM, "");
+    TT_UT_EQUAL(ret, TT_BAD_PARAM, "");
 
     ret = tt_cfgnode_rm(cgrp, &name);
-    TT_TEST_CHECK_EQUAL(ret, TT_BAD_PARAM, "");
+    TT_UT_EQUAL(ret, TT_BAD_PARAM, "");
 
     {
         const tt_char_t *this_out = "----    grp     /    ";
 
         tt_buf_clear(&output);
         ret = tt_cfgnode_describe(cgrp, 0, &output);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         cmp_ret = tt_buf_cmp_cstr(&output, this_out);
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
     {
@@ -916,9 +916,9 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgnode_grp)
 
         tt_buf_clear(&output);
         ret = tt_cfgnode_describe(cgrp, 10, &output);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         cmp_ret = tt_buf_cmp_cstr(&output, this_out);
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
     {
@@ -935,19 +935,19 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgnode_grp)
 
         tt_buf_clear(&output);
         ret = tt_cfgnode_ls(cgrp, NULL, &output);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         cmp_ret = tt_buf_cmp_cstr(&output, this_out);
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
     ret = tt_cfgnode_get(cgrp, &output);
-    TT_TEST_CHECK_EQUAL(ret, TT_BAD_PARAM, "");
+    TT_UT_EQUAL(ret, TT_BAD_PARAM, "");
 
     ret = tt_cfgnode_set(cgrp, &val);
-    TT_TEST_CHECK_EQUAL(ret, TT_BAD_PARAM, "");
+    TT_UT_EQUAL(ret, TT_BAD_PARAM, "");
 
     ret = tt_cfgnode_check(cgrp, &val);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     tt_cfgnode_destroy(cgrp, TT_TRUE);
 
@@ -1024,26 +1024,26 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgnode_grp_ar)
     attr.cnode_attr.brief = "an addable and removable group";
 
     cgrp = tt_cfggrp_create("", NULL, NULL, &cb, &attr);
-    TT_TEST_CHECK_NOT_EQUAL(cgrp, NULL, "");
+    TT_UT_NOT_EQUAL(cgrp, NULL, "");
 
     //////////////////////////////////////////////////////
 
     ret = tt_cfgnode_get(cgrp, &output);
-    TT_TEST_CHECK_EQUAL(ret, TT_BAD_PARAM, "");
+    TT_UT_EQUAL(ret, TT_BAD_PARAM, "");
 
     ret = tt_cfgnode_set(cgrp, &val);
-    TT_TEST_CHECK_EQUAL(ret, TT_BAD_PARAM, "");
+    TT_UT_EQUAL(ret, TT_BAD_PARAM, "");
 
     ret = tt_cfgnode_check(cgrp, &val);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     {
         const tt_char_t *outstr = "PERM    TYPE    NAME    DESCRIPTION\n";
         tt_buf_clear(&output);
         ret = tt_cfgnode_ls(cgrp, NULL, &output);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         cmp_ret = tt_buf_cmp_cstr(&output, outstr);
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
     // add 1 node
@@ -1052,19 +1052,19 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgnode_grp_ar)
     val.addr = (tt_u8_t *)"123";
     val.len = sizeof("123") - 1;
     ret = tt_cfgnode_add(cgrp, &name, &val);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     {
         const tt_char_t *outstr = "PERM    TYPE    NAME    DESCRIPTION\n";
         tt_buf_clear(&output);
         ret = tt_cfgnode_ls(cgrp, NULL, &output);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         cmp_ret = tt_buf_cmp_cstr(&output, outstr);
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
     ret = tt_cfgnode_commit(cgrp);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     {
         const tt_char_t *outstr =
@@ -1073,9 +1073,9 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgnode_grp_ar)
 
         tt_buf_clear(&output);
         ret = tt_cfgnode_ls(cgrp, NULL, &output);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         cmp_ret = tt_buf_cmp_cstr(&output, outstr);
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
     // add 2 node
@@ -1084,10 +1084,10 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgnode_grp_ar)
     val.addr = (tt_u8_t *)"-123";
     val.len = sizeof("-123") - 1;
     ret = tt_cfgnode_add(cgrp, &name, &val);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     ret = tt_cfgnode_commit(cgrp);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     {
         const tt_char_t outstr[] =
@@ -1097,16 +1097,16 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgnode_grp_ar)
 
         tt_buf_clear(&output);
         ret = tt_cfgnode_ls(cgrp, "\001\002", &output);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         cmp_ret = tt_buf_cmp_cstr(&output, outstr);
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
     // rm 1 node
     name.addr = (tt_u8_t *)"n_u32";
     name.len = sizeof("n_u32") - 1;
     ret = tt_cfgnode_rm(cgrp, &name);
-    TT_TEST_CHECK_EQUAL(ret, TT_BAD_PARAM, "");
+    TT_UT_EQUAL(ret, TT_BAD_PARAM, "");
 
     // can not add beofore commiting
     name.addr = (tt_u8_t *)"n_u32";
@@ -1114,12 +1114,12 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgnode_grp_ar)
     val.addr = (tt_u8_t *)"123";
     val.len = sizeof("123") - 1;
     ret = tt_cfgnode_add(cgrp, &name, &val);
-    TT_TEST_CHECK_EQUAL(ret, TT_BAD_PARAM, "");
+    TT_UT_EQUAL(ret, TT_BAD_PARAM, "");
 
     name.addr = (tt_u8_t *)"n-s32-xx";
     name.len = sizeof("n-s32-xx") - 1;
     ret = tt_cfgnode_rm(cgrp, &name);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     {
         const tt_char_t outstr[] =
@@ -1129,12 +1129,12 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgnode_grp_ar)
 
         tt_buf_clear(&output);
         ret = tt_cfgnode_ls(cgrp, "\001\002", &output);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         cmp_ret = tt_buf_cmp_cstr(&output, outstr);
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
     }
     ret = tt_cfgnode_commit(cgrp);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     {
         const tt_char_t outstr[] =
             "PERM    TYPE    NAME            DESCRIPTION\x01\x02"
@@ -1142,9 +1142,9 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgnode_grp_ar)
 
         tt_buf_clear(&output);
         ret = tt_cfgnode_ls(cgrp, "\001\002", &output);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         cmp_ret = tt_buf_cmp_cstr(&output, outstr);
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
     // add 2 node
@@ -1153,23 +1153,23 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgnode_grp_ar)
     val.addr = (tt_u8_t *)"-999";
     val.len = sizeof("-999") - 1;
     ret = tt_cfgnode_add(cgrp, &name, &val);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     name.addr = (tt_u8_t *)"n_str";
     name.len = sizeof("n_str") - 1;
     val.addr = (tt_u8_t *)"this is a string";
     val.len = sizeof("this is a string") - 1;
     ret = tt_cfgnode_add(cgrp, &name, &val);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     // rm uncommitted node
     name.addr = (tt_u8_t *)"n-s32-xx";
     name.len = sizeof("n-s32-xx") - 1;
     ret = tt_cfgnode_rm(cgrp, &name);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     ret = tt_cfgnode_commit(cgrp);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     {
         const tt_char_t outstr[] =
             "PERM    TYPE    NAME            DESCRIPTION\r\n"
@@ -1178,9 +1178,9 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgnode_grp_ar)
 
         tt_buf_clear(&output);
         ret = tt_cfgnode_ls(cgrp, "\r\n", &output);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         cmp_ret = tt_buf_cmp_cstr(&output, outstr);
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
     tt_cfgnode_destroy(cgrp, TT_TRUE);
@@ -1208,15 +1208,15 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgnode_bool)
     tt_buf_init(&out, NULL);
 
     cnode = tt_cfgbool_create("", NULL, NULL, &val, &cb, NULL);
-    TT_TEST_CHECK_NOT_EQUAL(cnode, NULL, "");
+    TT_UT_NOT_EQUAL(cnode, NULL, "");
 
     // add
     ret = tt_cfgnode_add(cnode, &n, &v);
-    TT_TEST_CHECK_EQUAL(ret, TT_BAD_PARAM, "");
+    TT_UT_EQUAL(ret, TT_BAD_PARAM, "");
 
     // rm
     ret = tt_cfgnode_rm(cnode, &n);
-    TT_TEST_CHECK_EQUAL(ret, TT_BAD_PARAM, "");
+    TT_UT_EQUAL(ret, TT_BAD_PARAM, "");
 
     // ls
     {
@@ -1226,60 +1226,60 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgnode_bool)
 
         tt_buf_clear(&out);
         ret = tt_cfgnode_ls(cnode, NULL, &out);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         cmp_ret = tt_buf_cmp_cstr(&out, this_out);
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
     // get
     tt_buf_clear(&out);
     val = TT_TRUE;
     ret = tt_cfgnode_get(cnode, &out);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     cmp_ret = tt_buf_cmp_cstr(&out, "true");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
 
     tt_buf_clear(&out);
     val = TT_FALSE;
     ret = tt_cfgnode_get(cnode, &out);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     cmp_ret = tt_buf_cmp_cstr(&out, "false");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
 
     // set
     ret = tt_cfgnode_set(cnode, &v);
-    TT_TEST_CHECK_EQUAL(ret, TT_BAD_PARAM, "");
+    TT_UT_EQUAL(ret, TT_BAD_PARAM, "");
 
     // check
     v.addr = (tt_u8_t *)"true";
     v.len = (tt_u32_t)sizeof("true") - 1;
     ret = tt_cfgnode_check(cnode, &v);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     v.addr = (tt_u8_t *)"false";
     v.len = (tt_u32_t)sizeof("false") - 1;
     ret = tt_cfgnode_check(cnode, &v);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     v.addr = (tt_u8_t *)"truee";
     v.len = (tt_u32_t)sizeof("truee") - 1;
     ret = tt_cfgnode_check(cnode, &v);
-    TT_TEST_CHECK_EQUAL(ret, TT_BAD_PARAM, "");
+    TT_UT_EQUAL(ret, TT_BAD_PARAM, "");
 
     v.addr = (tt_u8_t *)"";
     v.len = (tt_u32_t)sizeof("");
     ret = tt_cfgnode_check(cnode, &v);
-    TT_TEST_CHECK_EQUAL(ret, TT_BAD_PARAM, "");
+    TT_UT_EQUAL(ret, TT_BAD_PARAM, "");
 
     // commit
     ret = tt_cfgnode_commit(cnode);
-    TT_TEST_CHECK_EQUAL(ret, TT_BAD_PARAM, "");
+    TT_UT_EQUAL(ret, TT_BAD_PARAM, "");
 
     __ut_err_line = 0;
     __ut_on_destroy_ok = TT_FALSE;
     tt_cfgnode_destroy(cnode, TT_FALSE);
-    TT_TEST_CHECK_EQUAL(__ut_err_line, 0, "");
-    TT_TEST_CHECK_EQUAL(__ut_on_destroy_ok, TT_FALSE, "");
+    TT_UT_EQUAL(__ut_err_line, 0, "");
+    TT_UT_EQUAL(__ut_on_destroy_ok, TT_FALSE, "");
 
     // node 2
     tt_cfgbool_attr_default(&attr);
@@ -1287,15 +1287,15 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgnode_bool)
     attr.mode = TT_CFGVAL_MODE_GS;
 
     cnode = tt_cfgbool_create("node-bool", NULL, NULL, &val, &cb, &attr);
-    TT_TEST_CHECK_NOT_EQUAL(cnode, NULL, "");
+    TT_UT_NOT_EQUAL(cnode, NULL, "");
 
     // add
     ret = tt_cfgnode_add(cnode, &n, &v);
-    TT_TEST_CHECK_EQUAL(ret, TT_BAD_PARAM, "");
+    TT_UT_EQUAL(ret, TT_BAD_PARAM, "");
 
     // rm
     ret = tt_cfgnode_rm(cnode, &n);
-    TT_TEST_CHECK_EQUAL(ret, TT_BAD_PARAM, "");
+    TT_UT_EQUAL(ret, TT_BAD_PARAM, "");
 
     // ls
     {
@@ -1305,38 +1305,38 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgnode_bool)
 
         tt_buf_clear(&out);
         ret = tt_cfgnode_ls(cnode, NULL, &out);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         cmp_ret = tt_buf_cmp_cstr(&out, this_out);
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
     tt_buf_clear(&out);
     ret = tt_cfgnode_describe(cnode, 0, &out);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     cmp_ret =
         tt_buf_cmp_cstr(&out, "--gs    bool    node-bool    test bool node");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
 
     tt_buf_clear(&out);
     ret = tt_cfgnode_describe(cnode, 3, &out);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     cmp_ret = tt_buf_cmp_cstr(&out, "--gs    bool    ???    test bool node");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
 
     tt_buf_clear(&out);
     ret = tt_cfgnode_describe(cnode, 10, &out);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     cmp_ret =
         tt_buf_cmp_cstr(&out, "--gs    bool    node-bool     test bool node");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
 
     // get
     tt_buf_clear(&out);
     val = ~0;
     ret = tt_cfgnode_get(cnode, &out);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     cmp_ret = tt_buf_cmp_cstr(&out, "true");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
 
     // set
     val = TT_FALSE;
@@ -1344,38 +1344,38 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgnode_bool)
     v.addr = (tt_u8_t *)"true";
     v.len = (tt_u32_t)sizeof("true") - 1;
     ret = tt_cfgnode_set(cnode, &v);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     tt_buf_clear(&out);
     v.addr = (tt_u8_t *)"false";
     v.len = (tt_u32_t)sizeof("false") - 1;
     ret = tt_cfgnode_set(cnode, &v);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     // commit
     __ut_cb_called = TT_FALSE;
     ret = tt_cfgnode_commit(cnode);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
-    TT_TEST_CHECK_EQUAL(__ut_cb_called, TT_FALSE, "");
-    TT_TEST_CHECK_EQUAL(val, TT_FALSE, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(__ut_cb_called, TT_FALSE, "");
+    TT_UT_EQUAL(val, TT_FALSE, "");
 
     val = TT_FALSE;
     tt_buf_clear(&out);
     v.addr = (tt_u8_t *)"true";
     v.len = (tt_u32_t)sizeof("true") - 1;
     ret = tt_cfgnode_set(cnode, &v);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     ret = tt_cfgnode_commit(cnode);
-    TT_TEST_CHECK_EQUAL(ret, TT_END, "");
-    TT_TEST_CHECK_EQUAL(__ut_cb_called, TT_TRUE, "");
-    TT_TEST_CHECK_EQUAL(__ut_bool_set, TT_TRUE, "");
+    TT_UT_EQUAL(ret, TT_END, "");
+    TT_UT_EQUAL(__ut_cb_called, TT_TRUE, "");
+    TT_UT_EQUAL(__ut_bool_set, TT_TRUE, "");
 
     __ut_err_line = 0;
     __ut_on_destroy_ok = TT_FALSE;
     tt_cfgnode_destroy(cnode, TT_TRUE);
-    TT_TEST_CHECK_EQUAL(__ut_err_line, 0, "");
-    TT_TEST_CHECK_EQUAL(__ut_on_destroy_ok, TT_TRUE, "");
+    TT_UT_EQUAL(__ut_err_line, 0, "");
+    TT_UT_EQUAL(__ut_on_destroy_ok, TT_TRUE, "");
 
     tt_buf_destroy(&out);
 

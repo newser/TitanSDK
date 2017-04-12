@@ -74,7 +74,7 @@ unit test apis
 
 #define TT_TEST_CASE_LEAVE() return TT_SUCCESS;
 
-#define TT_TEST_CHECK_EQUAL(a, b, info_if_not_match)                           \
+#define TT_UT_EQUAL(a, b, info_if_not_match)                                   \
     do {                                                                       \
         if ((a) != (b)) {                                                      \
             item->test_result = TT_FAIL;                                       \
@@ -83,7 +83,7 @@ unit test apis
         }                                                                      \
     } while (0)
 
-#define TT_TEST_CHECK_NOT_EQUAL(a, b, info_if_not_match)                       \
+#define TT_UT_NOT_EQUAL(a, b, info_if_not_match)                               \
     do {                                                                       \
         if ((a) == (b)) {                                                      \
             item->test_result = TT_FAIL;                                       \
@@ -92,7 +92,7 @@ unit test apis
         }                                                                      \
     } while (0)
 
-#define TT_TEST_CHECK_EXP(e, info_if_not_match)                                \
+#define TT_UT_EXP(e, info_if_not_match)                                        \
     do {                                                                       \
         if (!(e)) {                                                            \
             item->test_result = TT_FAIL;                                       \
@@ -101,10 +101,8 @@ unit test apis
         }                                                                      \
     } while (0)
 
-#define TT_TEST_CHECK_SUCCESS(a, info)                                         \
-    TT_TEST_CHECK_EQUAL((a), TT_SUCCESS, (info))
-#define TT_TEST_CHECK_FAIL(a, info)                                            \
-    TT_TEST_CHECK_NOT_EQUAL((a), TT_SUCCESS, (info))
+#define TT_UT_SUCCESS(a, info) TT_UT_EQUAL((a), TT_SUCCESS, (info))
+#define TT_UT_FAIL(a, info) TT_UT_NOT_EQUAL((a), TT_SUCCESS, (info))
 
 ////////////////////////////////////////////////////////////
 // type definition

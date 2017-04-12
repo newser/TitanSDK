@@ -199,7 +199,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_pbkdf2)
                            tv->c,
                            0,
                            ret);
-        TT_TEST_CHECK_EQUAL(result, TT_SUCCESS, "");
+        TT_UT_EQUAL(result, TT_SUCCESS, "");
     }
 
     for (i = 0; i < sizeof(pbkdf2_tv) / sizeof(pbkdf2_tv[0]); ++i) {
@@ -211,9 +211,9 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_pbkdf2)
                            tv->c,
                            tv->dklen,
                            ret);
-        TT_TEST_CHECK_EQUAL(result, TT_SUCCESS, "");
+        TT_UT_EQUAL(result, TT_SUCCESS, "");
 
-        TT_TEST_CHECK_EQUAL(tt_memcmp(ret, tv->dk.addr, tv->dklen), 0, "");
+        TT_UT_EQUAL(tt_memcmp(ret, tv->dk.addr, tv->dklen), 0, "");
     }
 
     // test end
@@ -465,17 +465,15 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_pbcs8_decrypt)
     // dec 0
     enc_data.len = 0;
     result = tt_pkcs8_decrypt(&enc_data, &pwd, dec_data.addr, &dec_data.len);
-    TT_TEST_CHECK_EQUAL(result, TT_SUCCESS, "");
-    TT_TEST_CHECK_EQUAL(dec_data.len, 0, "");
+    TT_UT_EQUAL(result, TT_SUCCESS, "");
+    TT_UT_EQUAL(dec_data.len, 0, "");
 
     enc_data.len = sizeof(__pkcs8_cipher);
     dec_data.len = sizeof(dec_data_buf);
     result = tt_pkcs8_decrypt(&enc_data, &pwd, dec_data.addr, &dec_data.len);
-    TT_TEST_CHECK_EQUAL(result, TT_SUCCESS, "");
-    TT_TEST_CHECK_EQUAL(dec_data.len, sizeof(__pkcs8_plain), "");
-    TT_TEST_CHECK_EQUAL(tt_memcmp(dec_data.addr, __pkcs8_plain, dec_data.len),
-                        0,
-                        "");
+    TT_UT_EQUAL(result, TT_SUCCESS, "");
+    TT_UT_EQUAL(dec_data.len, sizeof(__pkcs8_plain), "");
+    TT_UT_EQUAL(tt_memcmp(dec_data.addr, __pkcs8_plain, dec_data.len), 0, "");
     // tt_hex_dump(dec_data.addr, dec_data.len, 16);
 
     // test whether can be imported
@@ -488,7 +486,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_pbcs8_decrypt)
                            TT_RSA_TYPE_PRIVATE,
                            &dec_data,
                            &rsa_attr);
-    TT_TEST_CHECK_EQUAL(result, TT_SUCCESS, "");
+    TT_UT_EQUAL(result, TT_SUCCESS, "");
     tt_rsa_destroy(&priv_key);
 
     // test end

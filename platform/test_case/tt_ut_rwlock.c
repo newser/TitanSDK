@@ -116,7 +116,7 @@ TT_TEST_CASE("tt_unit_test_rwlock_basic",
 
     // create
     ret = tt_rwlock_create(&lock, NULL);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     // read acquire
     tt_rwlock_acquire_r(&lock);
@@ -128,7 +128,7 @@ TT_TEST_CASE("tt_unit_test_rwlock_basic",
 
     // try write acquire
     b_ret = tt_rwlock_try_acquire_w(&lock);
-    TT_TEST_CHECK_EQUAL(b_ret, TT_FALSE, "");
+    TT_UT_EQUAL(b_ret, TT_FALSE, "");
 
     // read release
     tt_rwlock_release_r(&lock);
@@ -137,7 +137,7 @@ TT_TEST_CASE("tt_unit_test_rwlock_basic",
 
     // try write acquire
     b_ret = tt_rwlock_try_acquire_w(&lock);
-    TT_TEST_CHECK_EQUAL(b_ret, TT_FALSE, "");
+    TT_UT_EQUAL(b_ret, TT_FALSE, "");
 
     // read release
     tt_rwlock_release_r(&lock);
@@ -147,11 +147,11 @@ TT_TEST_CASE("tt_unit_test_rwlock_basic",
 
     // try read acquire
     // ret= tt_rwlock_try_acquire_r(&lock);
-    // TT_TEST_CHECK_EQUAL(ret, TT_TIME_OUT, "");
+    // TT_UT_EQUAL(ret, TT_TIME_OUT, "");
 
     // try write acquire
     // ret= tt_rwlock_try_acquire_w(&lock);
-    // TT_TEST_CHECK_EQUAL(ret, TT_TIME_OUT, "");
+    // TT_UT_EQUAL(ret, TT_TIME_OUT, "");
 
     // write release
     tt_rwlock_release_w(&lock);
@@ -376,7 +376,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_rwlock_mt)
     end = tt_time_ref();
     t1 = (tt_u32_t)tt_time_ref2ms(end - begin);
 
-    TT_TEST_CHECK_EQUAL(write_num, write_counter, "");
+    TT_UT_EQUAL(write_num, write_counter, "");
 
 #ifdef _WIN32
     // compare with cs with spin

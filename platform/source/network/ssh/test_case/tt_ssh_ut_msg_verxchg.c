@@ -106,64 +106,64 @@ TT_TEST_CASE("tt_unit_test_sshvx_render",
     ////////////////////////////////////////////
 
     msg = tt_sshms_verxchg_create();
-    TT_TEST_CHECK_NOT_EQUAL(msg, NULL, "");
+    TT_UT_NOT_EQUAL(msg, NULL, "");
 
     tt_sshms_verxchg_set_protover(msg, TT_SSH_VER_1_0);
     tt_sshms_verxchg_set_protover(msg, TT_SSH_VER_1_99);
     tt_sshms_verxchg_set_protover(msg, TT_SSH_VER_2_0);
 
     ret = tt_sshms_verxchg_set_swver(msg, "test-1");
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
     ret = tt_sshms_verxchg_set_swver(msg, "");
-    TT_TEST_CHECK_FAIL(ret, "");
+    TT_UT_FAIL(ret, "");
     ret = tt_sshms_verxchg_set_swver(msg, "test-2");
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
     ret = tt_sshms_verxchg_set_swver(msg, "");
-    TT_TEST_CHECK_FAIL(ret, "");
+    TT_UT_FAIL(ret, "");
 
     ret = tt_sshms_verxchg_set_comment(msg, "cm-1");
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
     ret = tt_sshms_verxchg_set_comment(msg, NULL);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
     ret = tt_sshms_verxchg_set_comment(msg, "cm-2");
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
     ret = tt_sshms_verxchg_set_comment(msg, "cm-3");
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
 
     tt_sshmsg_dump(msg);
 
     ret = tt_sshmsg_render(msg, 0, NULL);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
 
     tt_buf_backup_rwp(&msg->buf, &rp, &wp);
     ret = tt_sshmsg_parse_verxchg(&msg->buf, &out_msg);
     tt_buf_restore_rwp(&msg->buf, &rp, &wp);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
 
     // should saved
-    TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&out_msg->buf), TT_BUF_RLEN(&msg->buf), "");
-    TT_TEST_CHECK_EQUAL(tt_memcmp(TT_BUF_RPOS(&out_msg->buf),
-                                  TT_BUF_RPOS(&msg->buf),
-                                  TT_BUF_RLEN(&msg->buf)),
-                        0,
-                        "");
-    TT_TEST_CHECK_EQUAL(out_msg->msg_id, TT_SSH_MSGID_VERXCHG, "");
+    TT_UT_EQUAL(TT_BUF_RLEN(&out_msg->buf), TT_BUF_RLEN(&msg->buf), "");
+    TT_UT_EQUAL(tt_memcmp(TT_BUF_RPOS(&out_msg->buf),
+                          TT_BUF_RPOS(&msg->buf),
+                          TT_BUF_RLEN(&msg->buf)),
+                0,
+                "");
+    TT_UT_EQUAL(out_msg->msg_id, TT_SSH_MSGID_VERXCHG, "");
 
     // check msg id
-    TT_TEST_CHECK_EQUAL(out_msg->msg_id, TT_SSH_MSGID_VERXCHG, "");
+    TT_UT_EQUAL(out_msg->msg_id, TT_SSH_MSGID_VERXCHG, "");
     vx = TT_SSHMSG_CAST(out_msg, tt_sshms_verxchg_t);
 
     // check ssh version
-    TT_TEST_CHECK_EQUAL(vx->protover, TT_SSH_VER_2_0, "");
+    TT_UT_EQUAL(vx->protover, TT_SSH_VER_2_0, "");
 
 #if 0 // it does not parse other area
     // check software version
-    TT_TEST_CHECK_EQUAL(vx->swver.len , 6, "");
-    TT_TEST_CHECK_EQUAL(tt_memcmp(vx->swver.addr, "test-2", 6), 0, "");
+    TT_UT_EQUAL(vx->swver.len , 6, "");
+    TT_UT_EQUAL(tt_memcmp(vx->swver.addr, "test-2", 6), 0, "");
 
     // check comments
-    TT_TEST_CHECK_EQUAL(vx->comment.len , 4, "");
-    TT_TEST_CHECK_EQUAL(tt_memcmp(vx->comment.addr, "cm-3", 4), 0, "");
+    TT_UT_EQUAL(vx->comment.len , 4, "");
+    TT_UT_EQUAL(tt_memcmp(vx->comment.addr, "cm-3", 4), 0, "");
 #endif
 
     // test end
@@ -260,26 +260,24 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_sshvx_parse)
     i = (tt_u32_t)tt_strlen(long_str);
     do {
         ret = tt_buf_put(&buf, (tt_u8_t *)long_str, i);
-        TT_TEST_CHECK_SUCCESS(ret, "");
+        TT_UT_SUCCESS(ret, "");
 
         ret = tt_sshmsg_parse_verxchg(&buf, &msg);
-        TT_TEST_CHECK_EXP((ret == TT_BUFFER_INCOMPLETE) || (ret == TT_FAIL),
-                          "");
+        TT_UT_EXP((ret == TT_BUFFER_INCOMPLETE) || (ret == TT_FAIL), "");
     } while (ret == TT_BUFFER_INCOMPLETE);
-    TT_TEST_CHECK_EQUAL(ret, TT_FAIL, "");
+    TT_UT_EQUAL(ret, TT_FAIL, "");
 
     // a long string would finally make tt_sshmsg_parse_verxchg() fail
     ret = tt_buf_put(&buf, (tt_u8_t *)"SSH-", 4);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
     do {
         ret = tt_buf_put(&buf, (tt_u8_t *)long_str, i);
-        TT_TEST_CHECK_SUCCESS(ret, "");
+        TT_UT_SUCCESS(ret, "");
 
         ret = tt_sshmsg_parse_verxchg(&buf, &msg);
-        TT_TEST_CHECK_EXP((ret == TT_BUFFER_INCOMPLETE) || (ret == TT_FAIL),
-                          "");
+        TT_UT_EXP((ret == TT_BUFFER_INCOMPLETE) || (ret == TT_FAIL), "");
     } while (ret == TT_BUFFER_INCOMPLETE);
-    TT_TEST_CHECK_EQUAL(ret, TT_FAIL, "");
+    TT_UT_EQUAL(ret, TT_FAIL, "");
 
     for (i = 0; i < sizeof(__sshvx_parse_vec) / sizeof(__sshvx_parse_vec[0]);
          ++i) {
@@ -288,17 +286,17 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_sshvx_parse)
         tt_buf_reset_rwp(&buf);
         ret =
             tt_buf_put(&buf, (tt_u8_t *)v->data, (tt_u32_t)tt_strlen(v->data));
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
         ret = tt_sshmsg_parse_verxchg(&buf, &msg);
-        TT_TEST_CHECK_EQUAL(ret, v->expect_ret, "");
+        TT_UT_EQUAL(ret, v->expect_ret, "");
 
         // restore buf pos is done in __svrconn_handle_recv not in
         // tt_sshmsg_parse
         if (TT_OK(ret)) {
             tt_sshms_verxchg_t *vx = TT_SSHMSG_CAST(msg, tt_sshms_verxchg_t);
 
-            TT_TEST_CHECK_EQUAL(vx->protover, v->ver, "");
+            TT_UT_EQUAL(vx->protover, v->ver, "");
             tt_sshmsg_release(msg);
         }
     }

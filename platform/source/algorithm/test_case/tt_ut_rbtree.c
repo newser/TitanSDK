@@ -162,29 +162,28 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_rbtree)
         tt_qsort(array, array_num, sizeof(tt_u32_t), tt_cmp_u32);
 
         tt_rbtree_init(&tree, &attr);
-        TT_TEST_CHECK_EQUAL(tt_rbtree_root(&tree), NULL, "");
-        TT_TEST_CHECK_EQUAL(tt_rbtree_count(&tree), 0, "");
-        TT_TEST_CHECK_EQUAL(tt_rbtree_empty(&tree), TT_TRUE, "");
-        TT_TEST_CHECK_EQUAL(tt_rbtree_min(&tree), NULL, "");
-        TT_TEST_CHECK_EQUAL(tt_rbtree_max(&tree), NULL, "");
-        TT_TEST_CHECK_EQUAL(tt_rbtree_find(&tree,
-                                           (tt_u8_t *)&array[tt_rand_u32() %
-                                                             array_num],
-                                           sizeof(tt_u32_t)),
-                            NULL,
-                            "");
-        TT_TEST_CHECK_EQUAL(tt_rbtree_find_gteq(&tree,
-                                                (tt_u8_t *)&array
-                                                    [tt_rand_u32() % array_num],
-                                                sizeof(tt_u32_t)),
-                            NULL,
-                            "");
-        TT_TEST_CHECK_EQUAL(tt_rbtree_find_lteq(&tree,
-                                                (tt_u8_t *)&array
-                                                    [tt_rand_u32() % array_num],
-                                                sizeof(tt_u32_t)),
-                            NULL,
-                            "");
+        TT_UT_EQUAL(tt_rbtree_root(&tree), NULL, "");
+        TT_UT_EQUAL(tt_rbtree_count(&tree), 0, "");
+        TT_UT_EQUAL(tt_rbtree_empty(&tree), TT_TRUE, "");
+        TT_UT_EQUAL(tt_rbtree_min(&tree), NULL, "");
+        TT_UT_EQUAL(tt_rbtree_max(&tree), NULL, "");
+        TT_UT_EQUAL(tt_rbtree_find(&tree,
+                                   (tt_u8_t *)&array[tt_rand_u32() % array_num],
+                                   sizeof(tt_u32_t)),
+                    NULL,
+                    "");
+        TT_UT_EQUAL(tt_rbtree_find_gteq(&tree,
+                                        (tt_u8_t *)&array[tt_rand_u32() %
+                                                          array_num],
+                                        sizeof(tt_u32_t)),
+                    NULL,
+                    "");
+        TT_UT_EQUAL(tt_rbtree_find_lteq(&tree,
+                                        (tt_u8_t *)&array[tt_rand_u32() %
+                                                          array_num],
+                                        sizeof(tt_u32_t)),
+                    NULL,
+                    "");
         tt_rbtree_remove(&tree, &rb_array[tt_rand_u32() % array_num].node);
 
         // add 1 node
@@ -192,23 +191,23 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_rbtree)
                       (tt_u8_t *)&rb_array[0].val,
                       sizeof(tt_u32_t),
                       &rb_array[0].node);
-        TT_TEST_CHECK_EQUAL(tt_rbtree_root(&tree), &rb_array[0].node, "");
-        TT_TEST_CHECK_EQUAL(tt_rbtree_count(&tree), 1, "");
-        TT_TEST_CHECK_EQUAL(tt_rbtree_empty(&tree), TT_FALSE, "");
-        TT_TEST_CHECK_EQUAL(tt_rbtree_min(&tree), &rb_array[0].node, "");
-        TT_TEST_CHECK_EQUAL(tt_rbtree_max(&tree), &rb_array[0].node, "");
-        TT_TEST_CHECK_EQUAL(tt_rbtree_prev(&tree, &rb_array[0].node), NULL, "");
-        TT_TEST_CHECK_EQUAL(tt_rbtree_next(&tree, &rb_array[0].node), NULL, "");
-        TT_TEST_CHECK_EQUAL(tt_rbtree_find(&tree,
-                                           (tt_u8_t *)&rb_array[0].val,
-                                           sizeof(tt_u32_t)),
-                            &rb_array[0].node,
-                            "");
-        TT_TEST_CHECK_EQUAL(tt_rbtree_find(&tree,
-                                           (tt_u8_t *)&black_num,
-                                           sizeof(tt_u32_t)),
-                            NULL,
-                            "");
+        TT_UT_EQUAL(tt_rbtree_root(&tree), &rb_array[0].node, "");
+        TT_UT_EQUAL(tt_rbtree_count(&tree), 1, "");
+        TT_UT_EQUAL(tt_rbtree_empty(&tree), TT_FALSE, "");
+        TT_UT_EQUAL(tt_rbtree_min(&tree), &rb_array[0].node, "");
+        TT_UT_EQUAL(tt_rbtree_max(&tree), &rb_array[0].node, "");
+        TT_UT_EQUAL(tt_rbtree_prev(&tree, &rb_array[0].node), NULL, "");
+        TT_UT_EQUAL(tt_rbtree_next(&tree, &rb_array[0].node), NULL, "");
+        TT_UT_EQUAL(tt_rbtree_find(&tree,
+                                   (tt_u8_t *)&rb_array[0].val,
+                                   sizeof(tt_u32_t)),
+                    &rb_array[0].node,
+                    "");
+        TT_UT_EQUAL(tt_rbtree_find(&tree,
+                                   (tt_u8_t *)&black_num,
+                                   sizeof(tt_u32_t)),
+                    NULL,
+                    "");
 
         // each time remove min
         for (i = 1; i < array_num; ++i) {
@@ -225,23 +224,23 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_rbtree)
                 n = tt_rbtree_find_lteq(&tree,
                                         (tt_u8_t *)&black_num,
                                         sizeof(tt_u32_t));
-                TT_TEST_CHECK_NOT_EQUAL(n, NULL, "");
+                TT_UT_NOT_EQUAL(n, NULL, "");
                 it = TT_CONTAINER(n, __rb_item_t, node);
-                TT_TEST_CHECK_EXP(it->val <= black_num, "");
+                TT_UT_EXP(it->val <= black_num, "");
 
                 black_num = array[i] - 1;
                 n = tt_rbtree_find_gteq(&tree,
                                         (tt_u8_t *)&black_num,
                                         sizeof(tt_u32_t));
-                TT_TEST_CHECK_NOT_EQUAL(n, NULL, "");
+                TT_UT_NOT_EQUAL(n, NULL, "");
                 it = TT_CONTAINER(n, __rb_item_t, node);
-                TT_TEST_CHECK_EXP(it->val >= black_num, "");
+                TT_UT_EXP(it->val >= black_num, "");
             }
         }
 
         black_num = 0;
         ret = __rbt_expensive_check(&tree, tt_rbtree_root(&tree), &black_num);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
         // each time remove min
         for (i = 0; i < array_num; ++i) {
@@ -252,30 +251,30 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_rbtree)
 
             node_min = tt_rbtree_min(&tree);
             item_min = TT_CONTAINER(node_min, __rb_item_t, node);
-            TT_TEST_CHECK_EQUAL(array[i], item_min->val, "");
+            TT_UT_EQUAL(array[i], item_min->val, "");
 
             node_max = tt_rbtree_max(&tree);
             item_max = TT_CONTAINER(node_max, __rb_item_t, node);
-            TT_TEST_CHECK_EQUAL(array[array_num - 1], item_max->val, "");
+            TT_UT_EQUAL(array[array_num - 1], item_max->val, "");
 
             if (i != array_num - 1) {
                 tt_rbnode_t *n = tt_rbtree_next(&tree, node_min);
                 __rb_item_t *it = TT_CONTAINER(n, __rb_item_t, node);
-                TT_TEST_CHECK_NOT_EQUAL(n, NULL, "");
-                TT_TEST_CHECK_EQUAL(it->val, array[i + 1], "");
+                TT_UT_NOT_EQUAL(n, NULL, "");
+                TT_UT_EQUAL(it->val, array[i + 1], "");
             }
 
             tt_rbtree_remove(&tree, node_min);
-            TT_TEST_CHECK_EQUAL(tt_rbtree_count(&tree), array_num - i - 1, "");
+            TT_UT_EQUAL(tt_rbtree_count(&tree), array_num - i - 1, "");
 
             if ((i % 39 == 0) && (i != array_num - 1)) {
                 ret = __rbt_expensive_check(&tree,
                                             tt_rbtree_root(&tree),
                                             &black_num);
-                TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+                TT_UT_EQUAL(ret, TT_SUCCESS, "");
             }
         }
-        TT_TEST_CHECK_EQUAL(tt_rbtree_count(&tree), 0, "");
+        TT_UT_EQUAL(tt_rbtree_count(&tree), 0, "");
 
         // each time remove max
         for (i = 0; i < array_num; ++i) {
@@ -295,34 +294,34 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_rbtree)
 
             node_min = tt_rbtree_min(&tree);
             item_min = TT_CONTAINER(node_min, __rb_item_t, node);
-            TT_TEST_CHECK_EQUAL(array[0], item_min->val, "");
+            TT_UT_EQUAL(array[0], item_min->val, "");
 
             node_max = tt_rbtree_max(&tree);
             item_max = TT_CONTAINER(node_max, __rb_item_t, node);
-            TT_TEST_CHECK_EQUAL(array[i], item_max->val, "");
+            TT_UT_EQUAL(array[i], item_max->val, "");
 
             if (i != 0) {
                 tt_rbnode_t *n = tt_rbtree_prev(&tree, node_max);
                 __rb_item_t *it = TT_CONTAINER(n, __rb_item_t, node);
-                TT_TEST_CHECK_NOT_EQUAL(n, NULL, "");
-                TT_TEST_CHECK_EQUAL(it->val, array[i - 1], "");
+                TT_UT_NOT_EQUAL(n, NULL, "");
+                TT_UT_EQUAL(it->val, array[i - 1], "");
             }
 
             n = tt_rbtree_find(&tree, (tt_u8_t *)&array[i], sizeof(tt_u32_t));
             it = TT_CONTAINER(n, __rb_item_t, node);
-            TT_TEST_CHECK_EQUAL(it->val, array[i], "");
+            TT_UT_EQUAL(it->val, array[i], "");
 
             tt_rbtree_remove(&tree, node_max);
-            TT_TEST_CHECK_EQUAL(tt_rbtree_count(&tree), i, "");
+            TT_UT_EQUAL(tt_rbtree_count(&tree), i, "");
 
             if ((i % 41 == 0) && (i != 0)) {
                 ret = __rbt_expensive_check(&tree,
                                             tt_rbtree_root(&tree),
                                             &black_num);
-                TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+                TT_UT_EQUAL(ret, TT_SUCCESS, "");
             }
         }
-        TT_TEST_CHECK_EQUAL(tt_rbtree_count(&tree), 0, "");
+        TT_UT_EQUAL(tt_rbtree_count(&tree), 0, "");
 
         // delete from middle node to end
         for (i = 0; i < array_num; ++i) {
@@ -341,11 +340,11 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_rbtree)
 
             node_min = tt_rbtree_min(&tree);
             item_min = TT_CONTAINER(node_min, __rb_item_t, node);
-            TT_TEST_CHECK_EQUAL(array[0], item_min->val, "");
+            TT_UT_EQUAL(array[0], item_min->val, "");
 
             node_max = tt_rbtree_max(&tree);
             item_max = TT_CONTAINER(node_max, __rb_item_t, node);
-            TT_TEST_CHECK_EQUAL(array[array_num - 1], item_max->val, "");
+            TT_UT_EQUAL(array[array_num - 1], item_max->val, "");
 
             i += tt_rand_u32() % 100;
         }

@@ -208,15 +208,15 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_dh_keypair)
         tt_memcpy(&key_data.keypair.priv, &v->priv, sizeof(tt_blob_t));
 
         ret = tt_dh_create(&dh, TT_DH_FORMAT_KEYPAIR, &key_data, NULL);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
         ret = tt_dh_compute(&dh, v->peer.addr, v->peer.len);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
         ret = tt_dh_get_secret(&dh, s, &s_len, 0);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
-        TT_TEST_CHECK_EQUAL(s_len, v->secret.len, "");
-        TT_TEST_CHECK_EQUAL(tt_memcmp(s, v->secret.addr, v->secret.len), 0, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(s_len, v->secret.len, "");
+        TT_UT_EQUAL(tt_memcmp(s, v->secret.addr, v->secret.len), 0, "");
 
         tt_dh_destroy(&dh);
     }
@@ -245,35 +245,35 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_dh_param)
 
     for (i = 0; i < 10; ++i) {
         ret = tt_dh_create(&dha, TT_DH_FORMAT_PARAM, &kd, NULL);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
         a_len = sizeof(a_pub);
         ret = tt_dh_get_pubkey(&dha, a_pub, &a_len, 0);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
         ret = tt_dh_create(&dhb, TT_DH_FORMAT_PARAM, &kd, NULL);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
         b_len = sizeof(b_pub);
         ret = tt_dh_get_pubkey(&dhb, b_pub, &b_len, 0);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
         // compute
         ret = tt_dh_compute(&dha, b_pub, b_len);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         ret = tt_dh_compute(&dhb, a_pub, a_len);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
         // get secret
         a_slen = sizeof(a_sec);
         ret = tt_dh_get_secret(&dha, a_sec, &a_slen, 0);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         b_slen = sizeof(b_sec);
         ret = tt_dh_get_secret(&dhb, b_sec, &b_slen, 0);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
-        TT_TEST_CHECK_EQUAL(a_slen, b_slen, "");
-        TT_TEST_CHECK_EQUAL(tt_memcmp(a_sec, b_sec, a_slen), 0, "");
+        TT_UT_EQUAL(a_slen, b_slen, "");
+        TT_UT_EQUAL(tt_memcmp(a_sec, b_sec, a_slen), 0, "");
     }
 
     // test end

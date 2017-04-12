@@ -176,13 +176,13 @@ TT_TEST_CASE("tt_unit_test_cfgsh_ls",
      attr.cli_attr.seperator = '$';
 
      ret = tt_cfgsh_create(&sh, TT_CLI_MODE_DEFAUTL, &itf, root, &attr);
-     TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+     TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
      tt_buf_clear(&__ut_buf_out);
      ret = tt_cfgsh_start(&sh);
-     TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+     TT_UT_EQUAL(ret, TT_SUCCESS, "");
      cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, "\nshell$ ");
-     TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+     TT_UT_EQUAL(cmp_ret, 0, "");
 
      tt_cfgsh_destroy(&sh);
 
@@ -296,13 +296,13 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_ls)
     attr.cli_attr.seperator = '$';
 
     ret = tt_cfgsh_create(&sh, TT_CLI_MODE_DEFAUTL, &itf, root, &attr);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     tt_buf_clear(&__ut_buf_out);
     ret = tt_cfgsh_start(&sh);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, "\nshell$ ");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
 
     // ls current
     {
@@ -316,9 +316,9 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_ls)
 
         tt_buf_clear(&__ut_buf_out);
         ret = tt_cfgsh_input(&sh, (tt_u8_t *)"ls\x87", 3);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, this_out);
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
     // ls single, invalid
@@ -331,9 +331,9 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_ls)
 
         tt_buf_clear(&__ut_buf_out);
         ret = tt_cfgsh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, this_out);
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
     // ls single
@@ -347,9 +347,9 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_ls)
 
         tt_buf_clear(&__ut_buf_out);
         ret = tt_cfgsh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, this_out);
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
     // ls single, empty group
@@ -363,9 +363,9 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_ls)
 
         tt_buf_clear(&__ut_buf_out);
         ret = tt_cfgsh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, this_out);
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
     // ls multiple, include empty
@@ -398,9 +398,9 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_ls)
 
         tt_buf_clear(&__ut_buf_out);
         ret = tt_cfgsh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, this_out);
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
     // ls multiple, include invalid
@@ -422,9 +422,9 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_ls)
 
         tt_buf_clear(&__ut_buf_out);
         ret = tt_cfgsh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, this_out);
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
     tt_cfgsh_destroy(&sh);
@@ -453,13 +453,13 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_help)
     attr.cli_attr.seperator = '$';
 
     ret = tt_cfgsh_create(&sh, TT_CLI_MODE_DEFAUTL, &itf, root, &attr);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     tt_buf_clear(&__ut_buf_out);
     ret = tt_cfgsh_start(&sh);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, "\nshell$ ");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
 
     // list all commands
     {
@@ -468,9 +468,9 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_help)
 
         tt_buf_clear(&__ut_buf_out);
         ret = tt_cfgsh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, this_out);
-        // TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        // TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
     // unknown cmd
@@ -483,9 +483,9 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_help)
 
         tt_buf_clear(&__ut_buf_out);
         ret = tt_cfgsh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, this_out);
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
     // show an existed command
@@ -498,9 +498,9 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_help)
 
         tt_buf_clear(&__ut_buf_out);
         ret = tt_cfgsh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, this_out);
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
     // show an existed value
@@ -513,9 +513,9 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_help)
 
         tt_buf_clear(&__ut_buf_out);
         ret = tt_cfgsh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, this_out);
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
     // show an existed group
@@ -528,9 +528,9 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_help)
 
         tt_buf_clear(&__ut_buf_out);
         ret = tt_cfgsh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, this_out);
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
     tt_cfgsh_destroy(&sh);
@@ -559,13 +559,13 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_pwd)
     attr.cli_attr.seperator = '$';
 
     ret = tt_cfgsh_create(&sh, TT_CLI_MODE_DEFAUTL, &itf, root, &attr);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     tt_buf_clear(&__ut_buf_out);
     ret = tt_cfgsh_start(&sh);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, "\nshell$ ");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
 
     // pwd root
     {
@@ -577,9 +577,9 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_pwd)
 
         tt_buf_clear(&__ut_buf_out);
         ret = tt_cfgsh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, this_out);
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
     // pwd leaf
@@ -593,9 +593,9 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_pwd)
         tt_buf_clear(&__ut_buf_out);
         sh.current = g121;
         ret = tt_cfgsh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, this_out);
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
     // pwd middle
@@ -609,9 +609,9 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_pwd)
         tt_buf_clear(&__ut_buf_out);
         sh.current = g12;
         ret = tt_cfgsh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, this_out);
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
     tt_cfgsh_destroy(&sh);
@@ -640,13 +640,13 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_cd)
     attr.cli_attr.seperator = '$';
 
     ret = tt_cfgsh_create(&sh, TT_CLI_MODE_DEFAUTL, &itf, root, &attr);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     tt_buf_clear(&__ut_buf_out);
     ret = tt_cfgsh_start(&sh);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, "\nshell$ ");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
 
     // cd, no param
     {
@@ -657,9 +657,9 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_cd)
 
         tt_buf_clear(&__ut_buf_out);
         ret = tt_cfgsh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, this_out);
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
     // cd middle
@@ -671,9 +671,9 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_cd)
 
         tt_buf_clear(&__ut_buf_out);
         ret = tt_cfgsh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, this_out);
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
     // ls
@@ -688,9 +688,9 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_cd)
 
         tt_buf_clear(&__ut_buf_out);
         ret = tt_cfgsh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, this_out);
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
     // cd leaf
@@ -702,9 +702,9 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_cd)
 
         tt_buf_clear(&__ut_buf_out);
         ret = tt_cfgsh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, this_out);
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
     // cd absolute path
@@ -716,9 +716,9 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_cd)
 
         tt_buf_clear(&__ut_buf_out);
         ret = tt_cfgsh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, this_out);
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
     // cd invalid path
@@ -731,10 +731,10 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_cd)
 
         tt_buf_clear(&__ut_buf_out);
         ret = tt_cfgsh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         tt_buf_print_cstr(&__ut_buf_out, 0);
         cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, this_out);
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
     // cd non-group
@@ -747,9 +747,9 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_cd)
 
         tt_buf_clear(&__ut_buf_out);
         ret = tt_cfgsh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, this_out);
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
     // exit
@@ -759,9 +759,9 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_cd)
 
         tt_buf_clear(&__ut_buf_out);
         ret = tt_cfgsh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
-        TT_TEST_CHECK_EQUAL(ret, TT_END, "");
+        TT_UT_EQUAL(ret, TT_END, "");
         cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, this_out);
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
     tt_cfgsh_destroy(&sh);
@@ -790,13 +790,13 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_get)
     attr.cli_attr.seperator = '$';
 
     ret = tt_cfgsh_create(&sh, TT_CLI_MODE_DEFAUTL, &itf, root, &attr);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     tt_buf_clear(&__ut_buf_out);
     ret = tt_cfgsh_start(&sh);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, "\nshell$ ");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
 
     // get single
     {
@@ -810,9 +810,9 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_get)
         __u32_val = 12300;
         tt_buf_clear(&__ut_buf_out);
         ret = tt_cfgsh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, this_out);
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
     // get single, invalid path
@@ -826,9 +826,9 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_get)
         __u32_val = 12300;
         tt_buf_clear(&__ut_buf_out);
         ret = tt_cfgsh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, this_out);
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
     // get a group
@@ -843,9 +843,9 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_get)
         __u32_val = 12300;
         tt_buf_clear(&__ut_buf_out);
         ret = tt_cfgsh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, this_out);
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
     // get multiple
@@ -866,9 +866,9 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_get)
         __u32_val = 12300;
         tt_buf_clear(&__ut_buf_out);
         ret = tt_cfgsh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, this_out);
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
     // get multiple, with some invalid path, some group
@@ -897,9 +897,9 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_get)
         __u32_val = 12300;
         tt_buf_clear(&__ut_buf_out);
         ret = tt_cfgsh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, this_out);
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
     // get current
@@ -916,9 +916,9 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_get)
         __u32_val = 12300;
         tt_buf_clear(&__ut_buf_out);
         ret = tt_cfgsh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, this_out);
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
     // get current, in a empty group
@@ -933,9 +933,9 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_get)
         tt_buf_clear(&__ut_buf_out);
         sh.current = g11;
         ret = tt_cfgsh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, this_out);
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
     tt_cfgsh_destroy(&sh);
@@ -964,13 +964,13 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_set)
     attr.cli_attr.seperator = '$';
 
     ret = tt_cfgsh_create(&sh, TT_CLI_MODE_DEFAUTL, &itf, root, &attr);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     tt_buf_clear(&__ut_buf_out);
     ret = tt_cfgsh_start(&sh);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, "\nshell$ ");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
 
     // set a non writtable value
     {
@@ -983,9 +983,9 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_set)
         __u32_val = 12300;
         tt_buf_clear(&__ut_buf_out);
         ret = tt_cfgsh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, this_out);
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
     // set a value, invalid command
@@ -999,9 +999,9 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_set)
         __u32_val = 12300;
         tt_buf_clear(&__ut_buf_out);
         ret = tt_cfgsh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, this_out);
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
     // set a value
@@ -1014,9 +1014,9 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_set)
         __u32_val = 12300;
         tt_buf_clear(&__ut_buf_out);
         ret = tt_cfgsh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, this_out);
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
     // set a invalid value
@@ -1030,9 +1030,9 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_set)
         __u32_val = 12300;
         tt_buf_clear(&__ut_buf_out);
         ret = tt_cfgsh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, this_out);
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
     // set a group
@@ -1046,9 +1046,9 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_set)
         __u32_val = 12300;
         tt_buf_clear(&__ut_buf_out);
         ret = tt_cfgsh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, this_out);
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
     tt_cfgsh_destroy(&sh);
@@ -1077,13 +1077,13 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_parse_arg)
     attr.cli_attr.seperator = '$';
 
     ret = tt_cfgsh_create(&sh, TT_CLI_MODE_DEFAUTL, &itf, root, &attr);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     tt_buf_clear(&__ut_buf_out);
     ret = tt_cfgsh_start(&sh);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, "\nshell$ ");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
 
     // normal
     {
@@ -1091,12 +1091,12 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_parse_arg)
 
         sh.arg_idx = 0;
         ret = __parse_arg(&sh, cmd);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
-        TT_TEST_CHECK_EQUAL(sh.arg_idx, 4, "");
-        TT_TEST_CHECK_EQUAL(tt_strcmp(sh.arg[0], "cmd"), 0, "");
-        TT_TEST_CHECK_EQUAL(tt_strcmp(sh.arg[1], "1"), 0, "");
-        TT_TEST_CHECK_EQUAL(tt_strcmp(sh.arg[2], "22"), 0, "");
-        TT_TEST_CHECK_EQUAL(tt_strcmp(sh.arg[3], "333"), 0, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(sh.arg_idx, 4, "");
+        TT_UT_EQUAL(tt_strcmp(sh.arg[0], "cmd"), 0, "");
+        TT_UT_EQUAL(tt_strcmp(sh.arg[1], "1"), 0, "");
+        TT_UT_EQUAL(tt_strcmp(sh.arg[2], "22"), 0, "");
+        TT_UT_EQUAL(tt_strcmp(sh.arg[3], "333"), 0, "");
     }
 
     // empty
@@ -1105,8 +1105,8 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_parse_arg)
 
         sh.arg_idx = 0;
         ret = __parse_arg(&sh, cmd);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
-        TT_TEST_CHECK_EQUAL(sh.arg_idx, 0, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(sh.arg_idx, 0, "");
     }
 
     // only spaces
@@ -1115,8 +1115,8 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_parse_arg)
 
         sh.arg_idx = 0;
         ret = __parse_arg(&sh, cmd);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
-        TT_TEST_CHECK_EQUAL(sh.arg_idx, 0, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(sh.arg_idx, 0, "");
     }
 
     // with double quotes
@@ -1125,13 +1125,11 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_parse_arg)
 
         sh.arg_idx = 0;
         ret = __parse_arg(&sh, cmd);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
-        TT_TEST_CHECK_EQUAL(sh.arg_idx, 3, "");
-        TT_TEST_CHECK_EQUAL(tt_strcmp(sh.arg[0], "cmd"), 0, "");
-        TT_TEST_CHECK_EQUAL(tt_strcmp(sh.arg[1], " arg1 'not param' arg1.1 "),
-                            0,
-                            "");
-        TT_TEST_CHECK_EQUAL(tt_strcmp(sh.arg[2], "arg2"), 0, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(sh.arg_idx, 3, "");
+        TT_UT_EQUAL(tt_strcmp(sh.arg[0], "cmd"), 0, "");
+        TT_UT_EQUAL(tt_strcmp(sh.arg[1], " arg1 'not param' arg1.1 "), 0, "");
+        TT_UT_EQUAL(tt_strcmp(sh.arg[2], "arg2"), 0, "");
     }
 
     // half double quotes
@@ -1140,11 +1138,9 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_parse_arg)
 
         sh.arg_idx = 0;
         ret = __parse_arg(&sh, cmd);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
-        TT_TEST_CHECK_EQUAL(sh.arg_idx, 1, "");
-        TT_TEST_CHECK_EQUAL(tt_strcmp(sh.arg[0], " arg1 'not param' arg1.1   "),
-                            0,
-                            "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(sh.arg_idx, 1, "");
+        TT_UT_EQUAL(tt_strcmp(sh.arg[0], " arg1 'not param' arg1.1   "), 0, "");
     }
 
     // with single quotes
@@ -1153,11 +1149,11 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_parse_arg)
 
         sh.arg_idx = 0;
         ret = __parse_arg(&sh, cmd);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
-        TT_TEST_CHECK_EQUAL(sh.arg_idx, 3, "");
-        TT_TEST_CHECK_EQUAL(tt_strcmp(sh.arg[0], "cmd"), 0, "");
-        TT_TEST_CHECK_EQUAL(tt_strcmp(sh.arg[1], " \"this is not q\" "), 0, "");
-        TT_TEST_CHECK_EQUAL(tt_strcmp(sh.arg[2], "arg2"), 0, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(sh.arg_idx, 3, "");
+        TT_UT_EQUAL(tt_strcmp(sh.arg[0], "cmd"), 0, "");
+        TT_UT_EQUAL(tt_strcmp(sh.arg[1], " \"this is not q\" "), 0, "");
+        TT_UT_EQUAL(tt_strcmp(sh.arg[2], "arg2"), 0, "");
     }
 
     // half single quotes
@@ -1166,12 +1162,11 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_parse_arg)
 
         sh.arg_idx = 0;
         ret = __parse_arg(&sh, cmd);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
-        TT_TEST_CHECK_EQUAL(sh.arg_idx, 1, "");
-        TT_TEST_CHECK_EQUAL(tt_strcmp(sh.arg[0],
-                                      " arg1 \"not param \" arg1.1   "),
-                            0,
-                            "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(sh.arg_idx, 1, "");
+        TT_UT_EQUAL(tt_strcmp(sh.arg[0], " arg1 \"not param \" arg1.1   "),
+                    0,
+                    "");
     }
 
 
@@ -1202,13 +1197,13 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_status)
     attr.cli_attr.seperator = '$';
 
     ret = tt_cfgsh_create(&sh, TT_CLI_MODE_DEFAUTL, &itf, root, &attr);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     tt_buf_clear(&__ut_buf_out);
     ret = tt_cfgsh_start(&sh);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, "\nshell$ ");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
 
     ///////////
 
@@ -1226,9 +1221,9 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_status)
         __u32_val = 12300;
         tt_buf_clear(&__ut_buf_out);
         ret = tt_cfgsh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, this_out);
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
     // status single, no change
@@ -1243,9 +1238,9 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_status)
         __u32_val = 12300;
         tt_buf_clear(&__ut_buf_out);
         ret = tt_cfgsh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, this_out);
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
     // status multiple, no change, invalid path
@@ -1273,21 +1268,21 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_status)
         __u32_val = 12300;
         tt_buf_clear(&__ut_buf_out);
         ret = tt_cfgsh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, this_out);
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
     // change some values
     val.addr = (tt_u8_t *)"-119922";
     val.len = (tt_u32_t)sizeof("-119922") - 1;
     ret = tt_cfgnode_set(s1, &val);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     val.addr = (tt_u8_t *)"229923";
     val.len = (tt_u32_t)sizeof("229923") - 1;
     ret = tt_cfgnode_set(c1211, &val);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     // status current, some are changed
     {
@@ -1302,9 +1297,9 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_status)
         __u32_val = 12300;
         tt_buf_clear(&__ut_buf_out);
         ret = tt_cfgsh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, this_out);
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
     // status single
@@ -1319,9 +1314,9 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_status)
         __u32_val = 12300;
         tt_buf_clear(&__ut_buf_out);
         ret = tt_cfgsh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, this_out);
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
     // status multiple
@@ -1358,9 +1353,9 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_status)
         __u32_val = 12300;
         tt_buf_clear(&__ut_buf_out);
         ret = tt_cfgsh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, this_out);
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
     ////////////
@@ -1382,9 +1377,9 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_status)
         __u32_val = 12300;
         tt_buf_clear(&__ut_buf_out);
         ret = tt_cfgsh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, this_out);
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
     // restore a value
@@ -1402,9 +1397,9 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_status)
         __u32_val = 12300;
         tt_buf_clear(&__ut_buf_out);
         ret = tt_cfgsh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, this_out);
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
     // restore a group
@@ -1421,9 +1416,9 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_status)
         __u32_val = 12300;
         tt_buf_clear(&__ut_buf_out);
         ret = tt_cfgsh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, this_out);
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
     ////////////
@@ -1454,13 +1449,13 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_commit)
     attr.cli_attr.seperator = '$';
 
     ret = tt_cfgsh_create(&sh, TT_CLI_MODE_DEFAUTL, &itf, root, &attr);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     tt_buf_clear(&__ut_buf_out);
     ret = tt_cfgsh_start(&sh);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, "\nshell$ ");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
 
     ///////////////////////
     // invalid
@@ -1474,9 +1469,9 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_commit)
         __u32_val = 12300;
         tt_buf_clear(&__ut_buf_out);
         ret = tt_cfgsh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, this_out);
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
     // nothing is changed
@@ -1488,9 +1483,9 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_commit)
 
         tt_buf_clear(&__ut_buf_out);
         ret = tt_cfgsh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, this_out);
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
     // changed, but not need reboot
@@ -1506,9 +1501,9 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_commit)
 
         tt_buf_clear(&__ut_buf_out);
         ret = tt_cfgsh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, this_out);
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
 
         s1->modified = TT_FALSE;
     }
@@ -1537,30 +1532,30 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_commit)
         // commit
         tt_buf_clear(&__ut_buf_out);
         ret = tt_cfgsh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, this_out);
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
 
         // no
         tt_buf_clear(&__ut_buf_out);
         ret = tt_cfgsh_input(&sh, (tt_u8_t *)no_in, sizeof(no_in) - 1);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, no_out);
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
 
         // commit
         tt_buf_clear(&__ut_buf_out);
         ret = tt_cfgsh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, this_out);
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
 
         // yes
         tt_buf_clear(&__ut_buf_out);
         ret = tt_cfgsh_input(&sh, (tt_u8_t *)yes_in, sizeof(yes_in) - 1);
-        TT_TEST_CHECK_EQUAL(ret, TT_END, "");
+        TT_UT_EQUAL(ret, TT_END, "");
         cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, yes_out);
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
 
         c1211->need_reboot = TT_FALSE;
         c1211->modified = TT_FALSE;

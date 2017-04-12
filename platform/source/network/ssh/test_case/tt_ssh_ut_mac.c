@@ -107,18 +107,18 @@ TT_TEST_CASE("tt_unit_test_sshmac_sha1",
                          (tt_u32_t)strlen(data),
                          dgst,
                          sizeof(dgst));
-    TT_TEST_CHECK_EQUAL(ret, TT_FAIL, "");
+    TT_UT_EQUAL(ret, TT_FAIL, "");
     ret = tt_sshmac_verify(&smac,
                            0,
                            (tt_u8_t *)data,
                            (tt_u32_t)strlen(data),
                            dgst,
                            sizeof(dgst));
-    TT_TEST_CHECK_EQUAL(ret, TT_FAIL, "");
+    TT_UT_EQUAL(ret, TT_FAIL, "");
 
     // set to sha1
     ret = tt_sshmac_setalg(&smac, TT_SSH_MAC_ALG_HMAC_SHA1, hkey, sizeof(hkey));
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     // 1
     ret = tt_sshmac_sign(&smac,
@@ -127,15 +127,15 @@ TT_TEST_CASE("tt_unit_test_sshmac_sha1",
                          (tt_u32_t)strlen(data),
                          dgst,
                          sizeof(dgst));
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
-    TT_TEST_CHECK_EQUAL(tt_memcmp(dgst, d1, sizeof(d1)), 0, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(tt_memcmp(dgst, d1, sizeof(d1)), 0, "");
     ret = tt_sshmac_verify(&smac,
                            0,
                            (tt_u8_t *)data,
                            (tt_u32_t)strlen(data),
                            d1,
                            sizeof(d1));
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     // 2
     ret = tt_sshmac_sign(&smac,
@@ -144,15 +144,15 @@ TT_TEST_CASE("tt_unit_test_sshmac_sha1",
                          (tt_u32_t)strlen(data),
                          dgst,
                          sizeof(dgst));
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
-    TT_TEST_CHECK_EQUAL(tt_memcmp(dgst, d2, sizeof(d2)), 0, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(tt_memcmp(dgst, d2, sizeof(d2)), 0, "");
     ret = tt_sshmac_verify(&smac,
                            1,
                            (tt_u8_t *)data,
                            (tt_u32_t)strlen(data),
                            d2,
                            sizeof(d2));
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     tt_sshmac_destroy(&smac);
 

@@ -345,85 +345,85 @@ TT_TEST_CASE("tt_unit_test_sk_addr",
     // test start
 
     tt_sktaddr_init(&sa, TT_NET_AF_INET);
-    TT_TEST_CHECK_EQUAL(tt_sktaddr_get_family(&sa), TT_NET_AF_INET, "");
+    TT_UT_EQUAL(tt_sktaddr_get_family(&sa), TT_NET_AF_INET, "");
 
     ret = tt_sktaddr_ip_p2n(TT_NET_AF_INET, "1.2..4", &saa);
-    TT_TEST_CHECK_EQUAL(ret, TT_FAIL, "");
+    TT_UT_EQUAL(ret, TT_FAIL, "");
     ret = tt_sktaddr_ip_p2n(TT_NET_AF_INET, "1.2.3.4", &saa);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     ret = tt_sktaddr_ip_n2p(TT_NET_AF_INET, &saa, buf, 7);
-    TT_TEST_CHECK_EQUAL(ret, TT_FAIL, "");
+    TT_UT_EQUAL(ret, TT_FAIL, "");
     ret = tt_sktaddr_ip_n2p(TT_NET_AF_INET, &saa, buf, 8);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
-    TT_TEST_CHECK_EQUAL(buf[0], '1', "");
-    TT_TEST_CHECK_EQUAL(buf[1], '.', "");
-    TT_TEST_CHECK_EQUAL(buf[2], '2', "");
-    TT_TEST_CHECK_EQUAL(buf[3], '.', "");
-    TT_TEST_CHECK_EQUAL(buf[4], '3', "");
-    TT_TEST_CHECK_EQUAL(buf[5], '.', "");
-    TT_TEST_CHECK_EQUAL(buf[6], '4', "");
-    TT_TEST_CHECK_EQUAL(buf[7], '\0', "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(buf[0], '1', "");
+    TT_UT_EQUAL(buf[1], '.', "");
+    TT_UT_EQUAL(buf[2], '2', "");
+    TT_UT_EQUAL(buf[3], '.', "");
+    TT_UT_EQUAL(buf[4], '3', "");
+    TT_UT_EQUAL(buf[5], '.', "");
+    TT_UT_EQUAL(buf[6], '4', "");
+    TT_UT_EQUAL(buf[7], '\0', "");
 
     ret = tt_sktaddr_set_ip_p(&sa, "0.0.0");
-    TT_TEST_CHECK_EQUAL(ret, TT_FAIL, "");
+    TT_UT_EQUAL(ret, TT_FAIL, "");
     ret = tt_sktaddr_set_ip_p(&sa, "0.0.0.1");
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     ret = tt_sktaddr_get_ip_p(&sa, buf, 1);
-    TT_TEST_CHECK_EQUAL(ret, TT_FAIL, "");
+    TT_UT_EQUAL(ret, TT_FAIL, "");
     ret = tt_sktaddr_get_ip_p(&sa, buf, 10);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
-    TT_TEST_CHECK_EQUAL(buf[0], '0', "");
-    TT_TEST_CHECK_EQUAL(buf[1], '.', "");
-    TT_TEST_CHECK_EQUAL(buf[2], '0', "");
-    TT_TEST_CHECK_EQUAL(buf[3], '.', "");
-    TT_TEST_CHECK_EQUAL(buf[4], '0', "");
-    TT_TEST_CHECK_EQUAL(buf[5], '.', "");
-    TT_TEST_CHECK_EQUAL(buf[6], '1', "");
-    TT_TEST_CHECK_EQUAL(buf[7], '\0', "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(buf[0], '0', "");
+    TT_UT_EQUAL(buf[1], '.', "");
+    TT_UT_EQUAL(buf[2], '0', "");
+    TT_UT_EQUAL(buf[3], '.', "");
+    TT_UT_EQUAL(buf[4], '0', "");
+    TT_UT_EQUAL(buf[5], '.', "");
+    TT_UT_EQUAL(buf[6], '1', "");
+    TT_UT_EQUAL(buf[7], '\0', "");
 
     tt_sktaddr_set_port(&sa, 1);
-    TT_TEST_CHECK_EQUAL(tt_sktaddr_get_port(&sa), 1, "");
+    TT_UT_EQUAL(tt_sktaddr_get_port(&sa), 1, "");
 
     ////////////////////// ipv6
 
     tt_sktaddr_init(&sa6, TT_NET_AF_INET6);
-    TT_TEST_CHECK_EQUAL(tt_sktaddr_get_family(&sa6), TT_NET_AF_INET6, "");
+    TT_UT_EQUAL(tt_sktaddr_get_family(&sa6), TT_NET_AF_INET6, "");
 
     ret = tt_sktaddr_ip_p2n(TT_NET_AF_INET6, "1.2..4", &saa6);
-    TT_TEST_CHECK_EQUAL(ret, TT_FAIL, "");
+    TT_UT_EQUAL(ret, TT_FAIL, "");
     ret = tt_sktaddr_ip_p2n(TT_NET_AF_INET6, "1::01", &saa6);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     ret = tt_sktaddr_ip_n2p(TT_NET_AF_INET6, &saa6, buf, 1);
-    TT_TEST_CHECK_EQUAL(ret, TT_FAIL, "");
+    TT_UT_EQUAL(ret, TT_FAIL, "");
     ret = tt_sktaddr_ip_n2p(TT_NET_AF_INET6, &saa6, buf, 8);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
-    TT_TEST_CHECK_EQUAL(buf[0], '1', "");
-    TT_TEST_CHECK_EQUAL(buf[1], ':', "");
-    TT_TEST_CHECK_EQUAL(buf[2], ':', "");
-    TT_TEST_CHECK_EQUAL(buf[3], '1', "");
-    TT_TEST_CHECK_EQUAL(buf[4], '\0', "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(buf[0], '1', "");
+    TT_UT_EQUAL(buf[1], ':', "");
+    TT_UT_EQUAL(buf[2], ':', "");
+    TT_UT_EQUAL(buf[3], '1', "");
+    TT_UT_EQUAL(buf[4], '\0', "");
 
     ret = tt_sktaddr_set_ip_p(&sa6, "0.0.0");
-    TT_TEST_CHECK_EQUAL(ret, TT_FAIL, "");
+    TT_UT_EQUAL(ret, TT_FAIL, "");
     ret = tt_sktaddr_set_ip_p(&sa6, "1::01");
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     ret = tt_sktaddr_get_ip_p(&sa6, buf, 1);
-    TT_TEST_CHECK_EQUAL(ret, TT_FAIL, "");
+    TT_UT_EQUAL(ret, TT_FAIL, "");
     ret = tt_sktaddr_get_ip_p(&sa6, buf, 10);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
-    TT_TEST_CHECK_EQUAL(buf[0], '1', "");
-    TT_TEST_CHECK_EQUAL(buf[1], ':', "");
-    TT_TEST_CHECK_EQUAL(buf[2], ':', "");
-    TT_TEST_CHECK_EQUAL(buf[3], '1', "");
-    TT_TEST_CHECK_EQUAL(buf[4], '\0', "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(buf[0], '1', "");
+    TT_UT_EQUAL(buf[1], ':', "");
+    TT_UT_EQUAL(buf[2], ':', "");
+    TT_UT_EQUAL(buf[3], '1', "");
+    TT_UT_EQUAL(buf[4], '\0', "");
 
     tt_sktaddr_set_port(&sa6, 1);
-    TT_TEST_CHECK_EQUAL(tt_sktaddr_get_port(&sa6), 1, "");
+    TT_UT_EQUAL(tt_sktaddr_get_port(&sa6), 1, "");
 
     //////////// ipv4 to ipv6
 
     ret = tt_sktaddr_ip_p2n(TT_NET_AF_INET, "1.2.3.4", &saa);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     tt_sktaddr_init(&sa, TT_NET_AF_INET);
     tt_sktaddr_set_ip_n(&sa, &saa);
@@ -431,27 +431,27 @@ TT_TEST_CASE("tt_unit_test_sk_addr",
 
     tt_sktaddr_map4to6(&sa, &sa6);
 
-    TT_TEST_CHECK_EQUAL(tt_sktaddr_get_family(&sa6), TT_NET_AF_INET6, "");
+    TT_UT_EQUAL(tt_sktaddr_get_family(&sa6), TT_NET_AF_INET6, "");
 
     ret = tt_sktaddr_get_ip_p(&sa6, buf, 20);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
-    TT_TEST_CHECK_EQUAL(buf[0], ':', "");
-    TT_TEST_CHECK_EQUAL(buf[1], ':', "");
-    TT_TEST_CHECK_EQUAL(buf[2], 'f', "");
-    TT_TEST_CHECK_EQUAL(buf[3], 'f', "");
-    TT_TEST_CHECK_EQUAL(buf[4], 'f', "");
-    TT_TEST_CHECK_EQUAL(buf[5], 'f', "");
-    TT_TEST_CHECK_EQUAL(buf[6], ':', "");
-    TT_TEST_CHECK_EQUAL(buf[7], '1', "");
-    TT_TEST_CHECK_EQUAL(buf[8], '.', "");
-    TT_TEST_CHECK_EQUAL(buf[9], '2', "");
-    TT_TEST_CHECK_EQUAL(buf[10], '.', "");
-    TT_TEST_CHECK_EQUAL(buf[11], '3', "");
-    TT_TEST_CHECK_EQUAL(buf[12], '.', "");
-    TT_TEST_CHECK_EQUAL(buf[13], '4', "");
-    TT_TEST_CHECK_EQUAL(buf[14], '\0', "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(buf[0], ':', "");
+    TT_UT_EQUAL(buf[1], ':', "");
+    TT_UT_EQUAL(buf[2], 'f', "");
+    TT_UT_EQUAL(buf[3], 'f', "");
+    TT_UT_EQUAL(buf[4], 'f', "");
+    TT_UT_EQUAL(buf[5], 'f', "");
+    TT_UT_EQUAL(buf[6], ':', "");
+    TT_UT_EQUAL(buf[7], '1', "");
+    TT_UT_EQUAL(buf[8], '.', "");
+    TT_UT_EQUAL(buf[9], '2', "");
+    TT_UT_EQUAL(buf[10], '.', "");
+    TT_UT_EQUAL(buf[11], '3', "");
+    TT_UT_EQUAL(buf[12], '.', "");
+    TT_UT_EQUAL(buf[13], '4', "");
+    TT_UT_EQUAL(buf[14], '\0', "");
 
-    TT_TEST_CHECK_EQUAL(tt_sktaddr_get_port(&sa6), 1234, "");
+    TT_UT_EQUAL(tt_sktaddr_get_port(&sa6), 1234, "");
 
     // test end
     TT_TEST_CASE_LEAVE()
@@ -470,40 +470,40 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_sk_opt)
     // udp ipv4
 
     s = tt_skt_create(TT_NET_AF_INET, TT_NET_PROTO_UDP, NULL);
-    TT_TEST_CHECK_NOT_EQUAL(s, NULL, "");
+    TT_UT_NOT_EQUAL(s, NULL, "");
 
     // nonblock
     ret = tt_skt_set_nonblock(s, TT_TRUE);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
     ret = tt_skt_set_nonblock(s, TT_FALSE);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
 
     // reuse addr
     ret = tt_skt_set_reuseaddr(s, TT_TRUE);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
     ret = tt_skt_get_reuseaddr(s, &v);
-    TT_TEST_CHECK_SUCCESS(ret, "");
-    TT_TEST_CHECK_EQUAL(v, TT_TRUE, "");
+    TT_UT_SUCCESS(ret, "");
+    TT_UT_EQUAL(v, TT_TRUE, "");
 
     ret = tt_skt_set_reuseaddr(s, TT_FALSE);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
     ret = tt_skt_get_reuseaddr(s, &v);
-    TT_TEST_CHECK_SUCCESS(ret, "");
-    TT_TEST_CHECK_EQUAL(v, TT_FALSE, "");
+    TT_UT_SUCCESS(ret, "");
+    TT_UT_EQUAL(v, TT_FALSE, "");
 
     // reuse port
     ret = tt_skt_set_reuseport(s, TT_TRUE);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
     ret = tt_skt_get_reuseport(s, &v);
-    TT_TEST_CHECK_SUCCESS(ret, "");
-    TT_TEST_CHECK_EQUAL(v, TT_TRUE, "");
+    TT_UT_SUCCESS(ret, "");
+    TT_UT_EQUAL(v, TT_TRUE, "");
 
 #if !TT_ENV_OS_IS_WINDOWS
     ret = tt_skt_set_reuseport(s, TT_FALSE);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
     ret = tt_skt_get_reuseport(s, &v);
-    TT_TEST_CHECK_SUCCESS(ret, "");
-    TT_TEST_CHECK_EQUAL(v, TT_FALSE, "");
+    TT_UT_SUCCESS(ret, "");
+    TT_UT_EQUAL(v, TT_FALSE, "");
 #endif
 
     tt_skt_destroy(s);
@@ -511,66 +511,66 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_sk_opt)
     // tcp ipv6
 
     s = tt_skt_create(TT_NET_AF_INET6, TT_NET_PROTO_TCP, NULL);
-    TT_TEST_CHECK_NOT_EQUAL(s, NULL, "");
+    TT_UT_NOT_EQUAL(s, NULL, "");
 
     // nonblock
     ret = tt_skt_set_nonblock(s, TT_TRUE);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
     ret = tt_skt_set_nonblock(s, TT_FALSE);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
 
     // reuse addr
     ret = tt_skt_set_reuseaddr(s, TT_TRUE);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
     ret = tt_skt_get_reuseaddr(s, &v);
-    TT_TEST_CHECK_SUCCESS(ret, "");
-    TT_TEST_CHECK_EQUAL(v, TT_TRUE, "");
+    TT_UT_SUCCESS(ret, "");
+    TT_UT_EQUAL(v, TT_TRUE, "");
 
     ret = tt_skt_set_reuseaddr(s, TT_FALSE);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
     ret = tt_skt_get_reuseaddr(s, &v);
-    TT_TEST_CHECK_SUCCESS(ret, "");
-    TT_TEST_CHECK_EQUAL(v, TT_FALSE, "");
+    TT_UT_SUCCESS(ret, "");
+    TT_UT_EQUAL(v, TT_FALSE, "");
 
     // tcp nodelay
     ret = tt_skt_set_tcp_nodelay(s, TT_TRUE);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
     ret = tt_skt_get_tcp_nodelay(s, &v);
-    TT_TEST_CHECK_SUCCESS(ret, "");
-    TT_TEST_CHECK_EQUAL(v, TT_TRUE, "");
+    TT_UT_SUCCESS(ret, "");
+    TT_UT_EQUAL(v, TT_TRUE, "");
 
     ret = tt_skt_set_tcp_nodelay(s, TT_FALSE);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
     ret = tt_skt_get_tcp_nodelay(s, &v);
-    TT_TEST_CHECK_SUCCESS(ret, "");
-    TT_TEST_CHECK_EQUAL(v, TT_FALSE, "");
+    TT_UT_SUCCESS(ret, "");
+    TT_UT_EQUAL(v, TT_FALSE, "");
 
     // ipv6 only
     ret = tt_skt_set_ipv6only(s, TT_TRUE);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
     ret = tt_skt_get_ipv6only(s, &v);
-    TT_TEST_CHECK_SUCCESS(ret, "");
-    TT_TEST_CHECK_EQUAL(v, TT_TRUE, "");
+    TT_UT_SUCCESS(ret, "");
+    TT_UT_EQUAL(v, TT_TRUE, "");
 
     ret = tt_skt_set_ipv6only(s, TT_FALSE);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
     ret = tt_skt_get_ipv6only(s, &v);
-    TT_TEST_CHECK_SUCCESS(ret, "");
-    TT_TEST_CHECK_EQUAL(v, TT_FALSE, "");
+    TT_UT_SUCCESS(ret, "");
+    TT_UT_EQUAL(v, TT_FALSE, "");
 
     // reuse port
     ret = tt_skt_set_reuseport(s, TT_TRUE);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
     ret = tt_skt_get_reuseport(s, &v);
-    TT_TEST_CHECK_SUCCESS(ret, "");
-    TT_TEST_CHECK_EQUAL(v, TT_TRUE, "");
+    TT_UT_SUCCESS(ret, "");
+    TT_UT_EQUAL(v, TT_TRUE, "");
 
 #if !TT_ENV_OS_IS_WINDOWS
     ret = tt_skt_set_reuseport(s, TT_FALSE);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
     ret = tt_skt_get_reuseport(s, &v);
-    TT_TEST_CHECK_SUCCESS(ret, "");
-    TT_TEST_CHECK_EQUAL(v, TT_FALSE, "");
+    TT_UT_SUCCESS(ret, "");
+    TT_UT_EQUAL(v, TT_FALSE, "");
 #endif
 
     tt_skt_destroy(s);
@@ -595,79 +595,79 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_bind_basic)
 #define __TPORT6 32350
 
     sk4 = tt_skt_create(TT_NET_AF_INET, TT_NET_PROTO_TCP, &attr);
-    TT_TEST_CHECK_NOT_EQUAL(sk4, NULL, "");
+    TT_UT_NOT_EQUAL(sk4, NULL, "");
 
     if (TT_OK(tt_skt_local_addr(sk4, &addr))) {
         tt_sktaddr_ip_t addr_val;
 
         tt_sktaddr_get_ip_n(&addr, &addr_val);
-        TT_TEST_CHECK_EQUAL(addr_val.a32.__u32, 0, "");
+        TT_UT_EQUAL(addr_val.a32.__u32, 0, "");
 
-        TT_TEST_CHECK_EQUAL(tt_sktaddr_get_port(&addr), 0, "");
+        TT_UT_EQUAL(tt_sktaddr_get_port(&addr), 0, "");
     }
     if (TT_OK(tt_skt_local_addr(sk4, &addr))) {
         tt_sktaddr_ip_t addr_val;
 
         tt_sktaddr_get_ip_n(&addr, &addr_val);
-        TT_TEST_CHECK_EQUAL(addr_val.a32.__u32, 0, "");
+        TT_UT_EQUAL(addr_val.a32.__u32, 0, "");
 
-        TT_TEST_CHECK_EQUAL(tt_sktaddr_get_port(&addr), 0, "");
+        TT_UT_EQUAL(tt_sktaddr_get_port(&addr), 0, "");
     }
 
     // ret = tt_skt_listen(&sk4, TT_SKT_BACKLOG_DEFAULT);
-    // TT_TEST_CHECK_EQUAL(ret, TT_FAIL, "");
+    // TT_UT_EQUAL(ret, TT_FAIL, "");
 
     // invalid ipv4 addr
     ret = tt_skt_bind_p(sk4, TT_NET_AF_INET, "256.0.0.1", __TPORT);
-    TT_TEST_CHECK_EQUAL(ret, TT_FAIL, "");
+    TT_UT_EQUAL(ret, TT_FAIL, "");
     ret = tt_skt_bind_p(sk4, TT_NET_AF_INET, "::127.0.0.1", __TPORT);
-    TT_TEST_CHECK_EQUAL(ret, TT_FAIL, "");
+    TT_UT_EQUAL(ret, TT_FAIL, "");
 
     ret = tt_skt_bind_p(sk4, TT_NET_AF_INET, "127.0.0.1", __TPORT);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "fail to bind to tcp test port");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "fail to bind to tcp test port");
 
     {
         tt_sktaddr_t sa1;
         tt_char_t buf[20];
         int i = 0;
 
-        TT_TEST_CHECK_SUCCESS(tt_skt_local_addr(sk4, &sa1), "");
-        TT_TEST_CHECK_EQUAL(tt_sktaddr_get_family(&sa1), TT_NET_AF_INET, "");
+        TT_UT_SUCCESS(tt_skt_local_addr(sk4, &sa1), "");
+        TT_UT_EQUAL(tt_sktaddr_get_family(&sa1), TT_NET_AF_INET, "");
 
-        TT_TEST_CHECK_EQUAL(tt_sktaddr_get_port(&sa1), __TPORT, "");
+        TT_UT_EQUAL(tt_sktaddr_get_port(&sa1), __TPORT, "");
 
         tt_sktaddr_get_ip_p(&sa1, buf, 19);
-        TT_TEST_CHECK_EQUAL(buf[i++], '1', "");
-        TT_TEST_CHECK_EQUAL(buf[i++], '2', "");
-        TT_TEST_CHECK_EQUAL(buf[i++], '7', "");
-        TT_TEST_CHECK_EQUAL(buf[i++], '.', "");
-        TT_TEST_CHECK_EQUAL(buf[i++], '0', "");
-        TT_TEST_CHECK_EQUAL(buf[i++], '.', "");
-        TT_TEST_CHECK_EQUAL(buf[i++], '0', "");
-        TT_TEST_CHECK_EQUAL(buf[i++], '.', "");
-        TT_TEST_CHECK_EQUAL(buf[i++], '1', "");
-        TT_TEST_CHECK_EQUAL(buf[i++], '\0', "");
+        TT_UT_EQUAL(buf[i++], '1', "");
+        TT_UT_EQUAL(buf[i++], '2', "");
+        TT_UT_EQUAL(buf[i++], '7', "");
+        TT_UT_EQUAL(buf[i++], '.', "");
+        TT_UT_EQUAL(buf[i++], '0', "");
+        TT_UT_EQUAL(buf[i++], '.', "");
+        TT_UT_EQUAL(buf[i++], '0', "");
+        TT_UT_EQUAL(buf[i++], '.', "");
+        TT_UT_EQUAL(buf[i++], '1', "");
+        TT_UT_EQUAL(buf[i++], '\0', "");
 
         // remote is still not valid
-        TT_TEST_CHECK_FAIL(tt_skt_remote_addr(sk4, &sa1), "");
+        TT_UT_FAIL(tt_skt_remote_addr(sk4, &sa1), "");
     }
 
     // can not rebind
     ret = tt_skt_bind_p(sk4, TT_NET_AF_INET, "127.0.0.1", __TPORT);
-    TT_TEST_CHECK_EQUAL(ret, TT_FAIL, "");
+    TT_UT_EQUAL(ret, TT_FAIL, "");
 
     ret = tt_skt_listen(sk4);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     tt_skt_destroy(sk4);
 
     ///////////////////////////////////////////////////////////////////
 
     sk6 = tt_skt_create(TT_NET_AF_INET6, TT_NET_PROTO_TCP, &attr);
-    TT_TEST_CHECK_NOT_EQUAL(sk6, NULL, "");
+    TT_UT_NOT_EQUAL(sk6, NULL, "");
 
     ret = tt_skt_set_ipv6only(sk6, TT_FALSE);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     if (TT_OK(tt_skt_local_addr(sk6, &addr))) {
         tt_sktaddr_ip_t addr_val;
@@ -675,9 +675,9 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_bind_basic)
 
         tt_sktaddr_get_ip_n(&addr, &addr_val);
         memset(&cmp, 0, sizeof(cmp));
-        TT_TEST_CHECK_EQUAL(memcmp(&addr_val, &cmp, sizeof(cmp)), 0, "");
+        TT_UT_EQUAL(memcmp(&addr_val, &cmp, sizeof(cmp)), 0, "");
 
-        TT_TEST_CHECK_EQUAL(tt_sktaddr_get_port(&addr), 0, "");
+        TT_UT_EQUAL(tt_sktaddr_get_port(&addr), 0, "");
     }
     if (TT_OK(tt_skt_local_addr(sk6, &addr))) {
         tt_sktaddr_ip_t addr_val;
@@ -685,17 +685,17 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_bind_basic)
 
         tt_sktaddr_get_ip_n(&addr, &addr_val);
         memset(&cmp, 0, sizeof(cmp));
-        TT_TEST_CHECK_EQUAL(memcmp(&addr_val, &cmp, sizeof(cmp)), 0, "");
+        TT_UT_EQUAL(memcmp(&addr_val, &cmp, sizeof(cmp)), 0, "");
 
-        TT_TEST_CHECK_EQUAL(tt_sktaddr_get_port(&addr), 0, "");
+        TT_UT_EQUAL(tt_sktaddr_get_port(&addr), 0, "");
     }
 
     // ret = tt_skt_listen(&sk6, TT_SKT_BACKLOG_DEFAULT);
-    // TT_TEST_CHECK_EQUAL(ret, TT_FAIL, "");
+    // TT_UT_EQUAL(ret, TT_FAIL, "");
 
     // invalid ipv6 address
     ret = tt_skt_bind_p(sk6, TT_NET_AF_INET6, "127.0.0.1", __TPORT6);
-    TT_TEST_CHECK_EQUAL(ret, TT_FAIL, "");
+    TT_UT_EQUAL(ret, TT_FAIL, "");
 
     if ((tt_strncmp(__TLOCAL_IP6, "fe80", 4) == 0) && (__TLOCAL_ITF != NULL)) {
         tt_sktaddr_t __a6;
@@ -707,60 +707,60 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_bind_basic)
     } else {
         ret = tt_skt_bind_p(sk6, TT_NET_AF_INET6, __TLOCAL_IP6, __TPORT6);
     }
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     {
         tt_sktaddr_t sa1;
         tt_char_t buf[100];
 
-        TT_TEST_CHECK_SUCCESS(tt_skt_local_addr(sk6, &sa1), "");
+        TT_UT_SUCCESS(tt_skt_local_addr(sk6, &sa1), "");
         // family has been converted
-        TT_TEST_CHECK_EQUAL(tt_sktaddr_get_family(&sa1), TT_NET_AF_INET6, "");
-        TT_TEST_CHECK_EQUAL(tt_sktaddr_get_port(&sa1), __TPORT6, "");
+        TT_UT_EQUAL(tt_sktaddr_get_family(&sa1), TT_NET_AF_INET6, "");
+        TT_UT_EQUAL(tt_sktaddr_get_port(&sa1), __TPORT6, "");
 
         ret = tt_sktaddr_get_ip_p(&sa1, buf, 99);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
-        TT_TEST_CHECK_EQUAL(tt_strncmp(buf, __TLOCAL_IP6, 99), 0, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(tt_strncmp(buf, __TLOCAL_IP6, 99), 0, "");
 
         // remote is still not valid
-        TT_TEST_CHECK_FAIL(tt_skt_remote_addr(sk6, &sa1), "");
+        TT_UT_FAIL(tt_skt_remote_addr(sk6, &sa1), "");
     }
 
     // can not rebind
     ret = tt_skt_bind_p(sk6, TT_NET_AF_INET6, "::1", __TPORT);
-    TT_TEST_CHECK_EQUAL(ret, TT_FAIL, "");
+    TT_UT_EQUAL(ret, TT_FAIL, "");
 
     ret = tt_skt_listen(sk6);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     tt_skt_destroy(sk6);
 
     /////// bind ipv6 addr
 
     sk6 = tt_skt_create(TT_NET_AF_INET6, TT_NET_PROTO_TCP, NULL);
-    TT_TEST_CHECK_NOT_EQUAL(sk6, NULL, "");
+    TT_UT_NOT_EQUAL(sk6, NULL, "");
 
     ret = tt_skt_bind_p(sk6, TT_NET_AF_INET6, "::1", __TPORT6);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     {
         tt_sktaddr_t sa1;
         tt_char_t buf[20];
         int i;
 
-        TT_TEST_CHECK_SUCCESS(tt_skt_local_addr(sk6, &sa1), "");
+        TT_UT_SUCCESS(tt_skt_local_addr(sk6, &sa1), "");
         // family has been converted
-        TT_TEST_CHECK_EQUAL(tt_sktaddr_get_family(&sa1), TT_NET_AF_INET6, "");
-        TT_TEST_CHECK_EQUAL(tt_sktaddr_get_port(&sa1), __TPORT6, "");
+        TT_UT_EQUAL(tt_sktaddr_get_family(&sa1), TT_NET_AF_INET6, "");
+        TT_UT_EQUAL(tt_sktaddr_get_port(&sa1), __TPORT6, "");
 
         tt_sktaddr_get_ip_p(&sa1, buf, 19);
 
         i = 0;
-        TT_TEST_CHECK_EQUAL(buf[i++], ':', "");
-        TT_TEST_CHECK_EQUAL(buf[i++], ':', "");
-        TT_TEST_CHECK_EQUAL(buf[i++], '1', "");
-        TT_TEST_CHECK_EQUAL(buf[i++], '\0', "");
+        TT_UT_EQUAL(buf[i++], ':', "");
+        TT_UT_EQUAL(buf[i++], ':', "");
+        TT_UT_EQUAL(buf[i++], '1', "");
+        TT_UT_EQUAL(buf[i++], '\0', "");
 
         // remote is still not valid
-        TT_TEST_CHECK_FAIL(tt_skt_remote_addr(sk6, &sa1), "");
+        TT_UT_FAIL(tt_skt_remote_addr(sk6, &sa1), "");
     }
 
     tt_skt_destroy(sk6);
@@ -768,32 +768,32 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_bind_basic)
     /////// ipv6 only
 
     sk6 = tt_skt_create(TT_NET_AF_INET6, TT_NET_PROTO_TCP, &attr);
-    TT_TEST_CHECK_NOT_EQUAL(sk6, NULL, "");
+    TT_UT_NOT_EQUAL(sk6, NULL, "");
 
     ret = tt_skt_set_ipv6only(sk6, TT_TRUE);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     ret = tt_skt_bind_p(sk6, TT_NET_AF_INET, "127.0.0.1", __TPORT6);
-    TT_TEST_CHECK_EQUAL(ret, TT_FAIL, "");
+    TT_UT_EQUAL(ret, TT_FAIL, "");
 
     ret = tt_skt_bind_p(sk6, TT_NET_AF_INET6, "::ffff:127.0.0.1", __TPORT6);
-    TT_TEST_CHECK_EQUAL(ret, TT_FAIL, "");
+    TT_UT_EQUAL(ret, TT_FAIL, "");
 
     tt_skt_destroy(sk6);
 
     /////// not ipv6 only
 
     sk6 = tt_skt_create(TT_NET_AF_INET6, TT_NET_PROTO_TCP, &attr);
-    TT_TEST_CHECK_NOT_EQUAL(sk6, NULL, "");
+    TT_UT_NOT_EQUAL(sk6, NULL, "");
 
     ret = tt_skt_set_ipv6only(sk6, TT_FALSE);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     ret = tt_skt_bind_p(sk6, TT_NET_AF_INET, "127.0.0.1", __TPORT6);
-    TT_TEST_CHECK_EQUAL(ret, TT_FAIL, "");
+    TT_UT_EQUAL(ret, TT_FAIL, "");
 
     ret = tt_skt_bind_p(sk6, TT_NET_AF_INET6, "::ffff:127.0.0.1", __TPORT6);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     tt_skt_destroy(sk6);
 
@@ -843,7 +843,7 @@ static tt_result_t __f_svr(IN void *param)
 #endif
         /*
         it has to recv all data, otherwise, data are accumulated in recv
-        buffer of new_s. if new_s recv buffer is full, client will be 
+        buffer of new_s. if new_s recv buffer is full, client will be
         blocked in tt_skt_send()
         */
         while (total < sizeof(buf)) {
@@ -859,7 +859,7 @@ static tt_result_t __f_svr(IN void *param)
             __svr_recvd += n;
 
             total += n;
-        }        
+        }
         TT_ASSERT(total == sizeof(buf));
         tt_atomic_s64_add(&__io_num, total);
 
@@ -923,7 +923,7 @@ static tt_result_t __f_cli(IN void *param)
     loop = 0;
     while (loop++ < (1 << 13)) {
         tt_u32_t total = 0;
-        
+
         if (!TT_OK(tt_skt_send(s, buf, sizeof(buf), &n))) {
             __err_line = __LINE__;
             return TT_FAIL;
@@ -987,7 +987,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_tcp_basic)
     // test start
 
     ret = tt_task_create(&t, NULL);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
 
     tt_task_add_fiber(&t, __f_svr, NULL, NULL);
     tt_task_add_fiber(&t, __f_cli, NULL, NULL);
@@ -998,10 +998,10 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_tcp_basic)
     start = tt_time_ref();
 
     ret = tt_task_run(&t);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
 
     tt_task_wait(&t);
-    TT_TEST_CHECK_EQUAL(__err_line, 0, "");
+    TT_UT_EQUAL(__err_line, 0, "");
 
     end = tt_time_ref();
     dur = tt_time_ref2ms(end - start);
@@ -1091,7 +1091,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_tcp6_close)
     // test start
 
     ret = tt_task_create(&t, NULL);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
 
     tt_task_add_fiber(&t, __f_svr_tcp6_close, NULL, NULL);
     tt_task_add_fiber(&t, __f_cli_tcp6_close, NULL, NULL);
@@ -1099,10 +1099,10 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_tcp6_close)
     __err_line = 0;
 
     ret = tt_task_run(&t);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
 
     tt_task_wait(&t);
-    TT_TEST_CHECK_EQUAL(__err_line, 0, "");
+    TT_UT_EQUAL(__err_line, 0, "");
 
     // test end
     TT_TEST_CASE_LEAVE()
@@ -1256,7 +1256,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_udp_basic)
     // test start
 
     ret = tt_task_create(&t, NULL);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
 
     tt_task_add_fiber(&t, __f_svr_udp, NULL, NULL);
     tt_task_add_fiber(&t, __f_cli_udp, NULL, NULL);
@@ -1266,10 +1266,10 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_udp_basic)
 
     start = tt_time_ref();
     ret = tt_task_run(&t);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
     tt_task_wait(&t);
     end = tt_time_ref();
-    TT_TEST_CHECK_EQUAL(__err_line, 0, "");
+    TT_UT_EQUAL(__err_line, 0, "");
 
     dur = tt_time_ref2ms(end - start);
     TT_RECORD_INFO("udp: %f MB/s",
@@ -1470,7 +1470,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_tcp4_stress)
 
     for (i = 0; i < sizeof(t) / sizeof(t[0]); ++i) {
         ret = tt_task_create(&t[i], NULL);
-        TT_TEST_CHECK_SUCCESS(ret, "");
+        TT_UT_SUCCESS(ret, "");
 
         tt_task_add_fiber(&t[i], __f_svr_t4, (void *)(tt_uintptr_t)i, NULL);
         tt_task_add_fiber(&t[i], __f_cli_t4, (void *)(tt_uintptr_t)i, NULL);
@@ -1482,7 +1482,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_tcp4_stress)
     start = tt_time_ref();
     for (i = 0; i < sizeof(t) / sizeof(t[0]); ++i) {
         ret = tt_task_run(&t[i]);
-        TT_TEST_CHECK_SUCCESS(ret, "");
+        TT_UT_SUCCESS(ret, "");
     }
     for (i = 0; i < sizeof(t) / sizeof(t[0]); ++i) {
         tt_task_wait(&t[i]);
@@ -1492,7 +1492,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_tcp4_stress)
     TT_RECORD_INFO("speed: %f MB/s",
                    ((float)tt_atomic_s64_get(&__io_num) / dur) / 1000);
 
-    TT_TEST_CHECK_EQUAL(__err_line, 0, "");
+    TT_UT_EQUAL(__err_line, 0, "");
 
     // test end
     TT_TEST_CASE_LEAVE()

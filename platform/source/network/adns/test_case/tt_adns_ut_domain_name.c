@@ -127,11 +127,10 @@ TT_TEST_CASE("tt_adns_ut_dm_name_verify",
 
     for (i = 0; i < sizeof(__dmn_cases) / sizeof(struct __dmn_e); ++i) {
         struct __dmn_e *__case = &__dmn_cases[i];
-        TT_TEST_CHECK_EQUAL(tt_adns_name_verify(__case->p,
-                                                (tt_u32_t)tt_strlen(__case->p) +
-                                                    1),
-                            __case->valid,
-                            "");
+        TT_UT_EQUAL(tt_adns_name_verify(__case->p,
+                                        (tt_u32_t)tt_strlen(__case->p) + 1),
+                    __case->valid,
+                    "");
     }
 
     // test end
@@ -184,20 +183,20 @@ TT_TEST_ROUTINE_DEFINE(tt_adns_ut_dm_name_render_parse_basic)
                                           (tt_u32_t)strlen(__case->p) + 1,
                                           0,
                                           &l);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
-        TT_TEST_CHECK_EQUAL(l, __case->len, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(l, __case->len, "");
 
         st = tt_adns_name_render(&ds,
                                  __case->p,
                                  (tt_u32_t)strlen(__case->p) + 1,
                                  0);
-        TT_TEST_CHECK_EQUAL(st, TT_SUCCESS, "");
-        TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&ds), l, "");
-        TT_TEST_CHECK_EQUAL(tt_memcmp(ds.p, __case->rendered, l), 0, "");
+        TT_UT_EQUAL(st, TT_SUCCESS, "");
+        TT_UT_EQUAL(TT_BUF_RLEN(&ds), l, "");
+        TT_UT_EQUAL(tt_memcmp(ds.p, __case->rendered, l), 0, "");
 
         st = tt_adns_name_parse_prepare(&ds);
-        TT_TEST_CHECK_EQUAL(st, TT_SUCCESS, "");
-        TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&ds), 0, "");
+        TT_UT_EQUAL(st, TT_SUCCESS, "");
+        TT_UT_EQUAL(TT_BUF_RLEN(&ds), 0, "");
 
         if (i % 2) {
             tt_buf_reset_rp(&ds);
@@ -206,14 +205,12 @@ TT_TEST_ROUTINE_DEFINE(tt_adns_ut_dm_name_render_parse_basic)
                                         &parsed_len,
                                         TT_BUF_RPOS(&ds),
                                         TT_BUF_RLEN(&ds));
-            TT_TEST_CHECK_NOT_EQUAL(parsed, NULL, "");
-            TT_TEST_CHECK_EQUAL(parsed_len, strlen(__case->p) + 1, "");
-            TT_TEST_CHECK_EQUAL(tt_memcmp(parsed,
-                                          __case->p,
-                                          strlen(__case->p) + 1),
-                                0,
-                                "");
-            TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&ds), 0, "");
+            TT_UT_NOT_EQUAL(parsed, NULL, "");
+            TT_UT_EQUAL(parsed_len, strlen(__case->p) + 1, "");
+            TT_UT_EQUAL(tt_memcmp(parsed, __case->p, strlen(__case->p) + 1),
+                        0,
+                        "");
+            TT_UT_EQUAL(TT_BUF_RLEN(&ds), 0, "");
 
             tt_free(parsed);
         } else {
@@ -222,10 +219,10 @@ TT_TEST_ROUTINE_DEFINE(tt_adns_ut_dm_name_render_parse_basic)
 
             tt_buf_reset_rp(&ds);
             n = tt_adns_name_parse_len(&ds, TT_BUF_RPOS(&ds), TT_BUF_RLEN(&ds));
-            TT_TEST_CHECK_EQUAL(n, strlen(__case->p) + 1, "");
+            TT_UT_EQUAL(n, strlen(__case->p) + 1, "");
 
             new_p = (tt_char_t *)tt_malloc(n + 10);
-            TT_TEST_CHECK_NOT_EQUAL(new_p, NULL, "");
+            TT_UT_NOT_EQUAL(new_p, NULL, "");
 
             tt_buf_reset_rp(&ds);
             parsed_len = n + 10;
@@ -234,14 +231,12 @@ TT_TEST_ROUTINE_DEFINE(tt_adns_ut_dm_name_render_parse_basic)
                                         &parsed_len,
                                         TT_BUF_RPOS(&ds),
                                         TT_BUF_RLEN(&ds));
-            TT_TEST_CHECK_EQUAL(parsed, new_p, "");
-            TT_TEST_CHECK_EQUAL(parsed_len, n, "");
-            TT_TEST_CHECK_EQUAL(tt_memcmp(parsed,
-                                          __case->p,
-                                          strlen(__case->p) + 1),
-                                0,
-                                "");
-            TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&ds), 0, "");
+            TT_UT_EQUAL(parsed, new_p, "");
+            TT_UT_EQUAL(parsed_len, n, "");
+            TT_UT_EQUAL(tt_memcmp(parsed, __case->p, strlen(__case->p) + 1),
+                        0,
+                        "");
+            TT_UT_EQUAL(TT_BUF_RLEN(&ds), 0, "");
 
             tt_free(parsed);
         }
@@ -289,23 +284,23 @@ TT_TEST_ROUTINE_DEFINE(tt_adns_ut_dm_name_parse_ptr)
 
     // aaaa.com
     ret = tt_adns_name_parse(&ds, NULL, &ret_len, b1.addr, b1.len);
-    TT_TEST_CHECK_NOT_EQUAL(ret, NULL, "");
-    TT_TEST_CHECK_EQUAL(ret_len, 9, "");
-    TT_TEST_CHECK_EQUAL(tt_memcmp(ret, "aaaa.com", ret_len), 0, "");
+    TT_UT_NOT_EQUAL(ret, NULL, "");
+    TT_UT_EQUAL(ret_len, 9, "");
+    TT_UT_EQUAL(tt_memcmp(ret, "aaaa.com", ret_len), 0, "");
     tt_free(ret);
 
     // continue parsing: b.aaaa.com
     ret = tt_adns_name_parse(&ds, NULL, &ret_len, b1.addr, b1.len);
-    TT_TEST_CHECK_NOT_EQUAL(ret, NULL, "");
-    TT_TEST_CHECK_EQUAL(ret_len, 11, "");
-    TT_TEST_CHECK_EQUAL(tt_memcmp(ret, "b.aaaa.com", ret_len), 0, "");
+    TT_UT_NOT_EQUAL(ret, NULL, "");
+    TT_UT_EQUAL(ret_len, 11, "");
+    TT_UT_EQUAL(tt_memcmp(ret, "b.aaaa.com", ret_len), 0, "");
     tt_free(ret);
 
     // continue parsing: cc.b.aaaa.com
     ret = tt_adns_name_parse(&ds, NULL, &ret_len, b1.addr, b1.len);
-    TT_TEST_CHECK_NOT_EQUAL(ret, NULL, "");
-    TT_TEST_CHECK_EQUAL(ret_len, 14, "");
-    TT_TEST_CHECK_EQUAL(tt_memcmp(ret, "cc.b.aaaa.com", ret_len), 0, "");
+    TT_UT_NOT_EQUAL(ret, NULL, "");
+    TT_UT_EQUAL(ret_len, 14, "");
+    TT_UT_EQUAL(tt_memcmp(ret, "cc.b.aaaa.com", ret_len), 0, "");
     tt_free(ret);
 
     tt_buf_destroy(&ds);
@@ -355,9 +350,9 @@ TT_TEST_ROUTINE_DEFINE(tt_adns_ut_dm_name_parse_ptr)
         b1.len = i;
 
         ret = tt_adns_name_parse(&ds, NULL, &ret_len, b1.addr, b1.len);
-        TT_TEST_CHECK_NOT_EQUAL(ret, NULL, "");
-        TT_TEST_CHECK_EQUAL(strlen(ret) + 1, ret_len, "");
-        TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&ds), 0, "");
+        TT_UT_NOT_EQUAL(ret, NULL, "");
+        TT_UT_EQUAL(strlen(ret) + 1, ret_len, "");
+        TT_UT_EQUAL(TT_BUF_RLEN(&ds), 0, "");
         tt_free(ret);
     }
 

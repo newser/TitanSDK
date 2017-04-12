@@ -197,10 +197,10 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_ssh_basic)
     evc_attr.on_init = __ut1_on_init;
 
     result = tt_evc_create(&evc, TT_FALSE, &evc_attr);
-    TT_TEST_CHECK_EQUAL(result, TT_SUCCESS, "");
+    TT_UT_EQUAL(result, TT_SUCCESS, "");
 
     result = tt_evc_wait(&evc);
-    TT_TEST_CHECK_EQUAL(result, TT_SUCCESS, "");
+    TT_UT_EQUAL(result, TT_SUCCESS, "");
 
     // test end
     TT_TEST_CASE_LEAVE()

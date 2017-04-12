@@ -188,8 +188,8 @@ int main(int argc, char *argv[])
     tt_test_unit_run(NULL);
     tt_test_unit_list(NULL);
 
-    //tt_skt_stat_show(0);
-    //tt_ssl_stat_show(0);
+// tt_skt_stat_show(0);
+// tt_ssl_stat_show(0);
 #elif AUT_MODE == 1
     {
         tt_console_run(__console_ev_handler, NULL, TT_TRUE);

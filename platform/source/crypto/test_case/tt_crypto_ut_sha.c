@@ -121,45 +121,45 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_sha1)
         tv = &__sha1_tv[i];
 
         ret = tt_sha_create(&sha1, TT_SHA_VER_SHA1);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
         // update 0
         ret = tt_sha_update(&sha1, (tt_u8_t *)tv->input, 0);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
         ret = tt_sha_update(&sha1,
                             (tt_u8_t *)tv->input,
                             (tt_u32_t)strlen(tv->input));
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
         if (i % 2 == 0) {
             tt_buf_init(&output, NULL);
             tt_buf_init(&expect, NULL);
 
             ret = tt_sha_final_buf(&sha1, &output);
-            TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+            TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
             tt_buf_put_cstr2hex(&expect, tv->output);
-            TT_TEST_CHECK_EQUAL(0, tt_buf_cmp(&output, &expect), "");
+            TT_UT_EQUAL(0, tt_buf_cmp(&output, &expect), "");
 
             tt_buf_destroy(&expect);
             tt_buf_destroy(&output);
         } else {
             tt_u8_t sha1_ret[TT_SHA1_DIGEST_LENGTH];
             ret = tt_sha_final(&sha1, sha1_ret);
-            TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+            TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
             tt_buf_init(&expect, NULL);
             tt_buf_put_hex2cstr(&expect, sha1_ret, TT_SHA1_DIGEST_LENGTH);
 
-            TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&expect),
-                                (tt_u32_t)tt_strlen(tv->output),
-                                "");
-            TT_TEST_CHECK_EQUAL(0,
-                                tt_memcmp(TT_BUF_RPOS(&expect),
-                                          tv->output,
-                                          TT_SHA1_DIGEST_LENGTH),
-                                "");
+            TT_UT_EQUAL(TT_BUF_RLEN(&expect),
+                        (tt_u32_t)tt_strlen(tv->output),
+                        "");
+            TT_UT_EQUAL(0,
+                        tt_memcmp(TT_BUF_RPOS(&expect),
+                                  tv->output,
+                                  TT_SHA1_DIGEST_LENGTH),
+                        "");
         }
 
         tt_sha_destroy(&sha1);
@@ -193,41 +193,41 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_md5)
         tv = &__md5_tv[i];
 
         ret = tt_md5_create(&md5);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
         ret = tt_md5_update(&md5,
                             (tt_u8_t *)tv->input,
                             (tt_u32_t)strlen(tv->input));
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
         if (i % 2 == 0) {
             tt_buf_init(&output, NULL);
             tt_buf_init(&expect, NULL);
 
             ret = tt_md5_final_buf(&md5, &output);
-            TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+            TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
             tt_buf_put_cstr2hex(&expect, tv->output);
-            TT_TEST_CHECK_EQUAL(0, tt_buf_cmp(&output, &expect), "");
+            TT_UT_EQUAL(0, tt_buf_cmp(&output, &expect), "");
 
             tt_buf_destroy(&expect);
             tt_buf_destroy(&output);
         } else {
             tt_u8_t md5_ret[TT_MD5_DIGEST_LENGTH];
             ret = tt_md5_final(&md5, md5_ret);
-            TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+            TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
             tt_buf_init(&expect, NULL);
             tt_buf_put_hex2cstr(&expect, md5_ret, TT_MD5_DIGEST_LENGTH);
 
-            TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&expect),
-                                (tt_u32_t)tt_strlen(tv->output),
-                                "");
-            TT_TEST_CHECK_EQUAL(0,
-                                tt_memcmp(TT_BUF_RPOS(&expect),
-                                          tv->output,
-                                          TT_SHA1_DIGEST_LENGTH),
-                                "");
+            TT_UT_EQUAL(TT_BUF_RLEN(&expect),
+                        (tt_u32_t)tt_strlen(tv->output),
+                        "");
+            TT_UT_EQUAL(0,
+                        tt_memcmp(TT_BUF_RPOS(&expect),
+                                  tv->output,
+                                  TT_SHA1_DIGEST_LENGTH),
+                        "");
         }
 
         tt_md5_destroy(&md5);

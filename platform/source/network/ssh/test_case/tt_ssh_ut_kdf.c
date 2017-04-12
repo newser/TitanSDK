@@ -331,49 +331,49 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_ssh_kdf)
                             t->enc_s2c_len,
                             t->mac_c2s_len,
                             t->mac_s2c_len);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
-        TT_TEST_CHECK_EXP(TT_BUF_RLEN(&kdf.iv_c2s) >= t->iv_c2s_len, "");
-        TT_TEST_CHECK_EQUAL(tt_memcmp(TT_BUF_RPOS(&kdf.iv_c2s),
-                                      t->iv_c2s,
-                                      t->iv_c2s_len),
-                            0,
-                            "");
+        TT_UT_EXP(TT_BUF_RLEN(&kdf.iv_c2s) >= t->iv_c2s_len, "");
+        TT_UT_EQUAL(tt_memcmp(TT_BUF_RPOS(&kdf.iv_c2s),
+                              t->iv_c2s,
+                              t->iv_c2s_len),
+                    0,
+                    "");
 
-        TT_TEST_CHECK_EXP(TT_BUF_RLEN(&kdf.iv_s2c) >= t->iv_s2c_len, "");
-        TT_TEST_CHECK_EQUAL(tt_memcmp(TT_BUF_RPOS(&kdf.iv_s2c),
-                                      t->iv_s2c,
-                                      t->iv_s2c_len),
-                            0,
-                            "");
+        TT_UT_EXP(TT_BUF_RLEN(&kdf.iv_s2c) >= t->iv_s2c_len, "");
+        TT_UT_EQUAL(tt_memcmp(TT_BUF_RPOS(&kdf.iv_s2c),
+                              t->iv_s2c,
+                              t->iv_s2c_len),
+                    0,
+                    "");
 
-        TT_TEST_CHECK_EXP(TT_BUF_RLEN(&kdf.enc_c2s) >= t->enc_c2s_len, "");
-        TT_TEST_CHECK_EQUAL(tt_memcmp(TT_BUF_RPOS(&kdf.enc_c2s),
-                                      t->enc_c2s,
-                                      t->enc_c2s_len),
-                            0,
-                            "");
+        TT_UT_EXP(TT_BUF_RLEN(&kdf.enc_c2s) >= t->enc_c2s_len, "");
+        TT_UT_EQUAL(tt_memcmp(TT_BUF_RPOS(&kdf.enc_c2s),
+                              t->enc_c2s,
+                              t->enc_c2s_len),
+                    0,
+                    "");
 
-        TT_TEST_CHECK_EXP(TT_BUF_RLEN(&kdf.enc_s2c) >= t->enc_s2c_len, "");
-        TT_TEST_CHECK_EQUAL(tt_memcmp(TT_BUF_RPOS(&kdf.enc_s2c),
-                                      t->enc_s2c,
-                                      t->enc_s2c_len),
-                            0,
-                            "");
+        TT_UT_EXP(TT_BUF_RLEN(&kdf.enc_s2c) >= t->enc_s2c_len, "");
+        TT_UT_EQUAL(tt_memcmp(TT_BUF_RPOS(&kdf.enc_s2c),
+                              t->enc_s2c,
+                              t->enc_s2c_len),
+                    0,
+                    "");
 
-        TT_TEST_CHECK_EXP(TT_BUF_RLEN(&kdf.mac_c2s) >= t->mac_c2s_len, "");
-        TT_TEST_CHECK_EQUAL(tt_memcmp(TT_BUF_RPOS(&kdf.mac_c2s),
-                                      t->mac_c2s,
-                                      t->mac_c2s_len),
-                            0,
-                            "");
+        TT_UT_EXP(TT_BUF_RLEN(&kdf.mac_c2s) >= t->mac_c2s_len, "");
+        TT_UT_EQUAL(tt_memcmp(TT_BUF_RPOS(&kdf.mac_c2s),
+                              t->mac_c2s,
+                              t->mac_c2s_len),
+                    0,
+                    "");
 
-        TT_TEST_CHECK_EXP(TT_BUF_RLEN(&kdf.mac_s2c) >= t->mac_s2c_len, "");
-        TT_TEST_CHECK_EQUAL(tt_memcmp(TT_BUF_RPOS(&kdf.mac_s2c),
-                                      t->mac_s2c,
-                                      t->mac_s2c_len),
-                            0,
-                            "");
+        TT_UT_EXP(TT_BUF_RLEN(&kdf.mac_s2c) >= t->mac_s2c_len, "");
+        TT_UT_EQUAL(tt_memcmp(TT_BUF_RPOS(&kdf.mac_s2c),
+                              t->mac_s2c,
+                              t->mac_s2c_len),
+                    0,
+                    "");
 
         tt_sshkdf_destroy(&kdf);
     }

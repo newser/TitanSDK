@@ -212,14 +212,14 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xp_basic)
     cb.on_attr = __just_print_nv;
 
     ret = tt_xmlparser_create(&xp, NULL, &cb, NULL);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
 
     // can update 0 data
     ret = tt_xmlparser_update(&xp, (tt_u8_t *)b1, 0);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
 
     ret = tt_xmlparser_update(&xp, (tt_u8_t *)b1, sizeof(b1));
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
 
     tt_xmlparser_destroy(&xp);
 
@@ -344,7 +344,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xp_content)
     attr.trim_text = TT_FALSE;
 
     ret = tt_xmlparser_create(&xp, NULL, &cb, &attr);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
 
     //////////////////////
     // 1. content
@@ -357,16 +357,16 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xp_content)
             len = tt_rand_u32() % 10; // 0-9
         }
         ret = tt_xmlparser_update(&xp, (tt_u8_t *)&b1[n], len);
-        TT_TEST_CHECK_SUCCESS(ret, "");
+        TT_UT_SUCCESS(ret, "");
         n += len;
     }
     TT_ASSERT(n == sizeof(b1));
 
     ret = tt_xmlparser_final(&xp, NULL);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
 
-    TT_TEST_CHECK_EQUAL(__seq, 3, "");
-    TT_TEST_CHECK_EQUAL(__err_line, 0, "");
+    TT_UT_EQUAL(__seq, 3, "");
+    TT_UT_EQUAL(__err_line, 0, "");
 
     //////////////////////
     // 2. empty content
@@ -379,12 +379,12 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xp_content)
     xp.cb.on_text = __xp2_no_content;
 
     ret = tt_xmlparser_update(&xp, (tt_u8_t *)"", 0);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
 
     ret = tt_xmlparser_final(&xp, NULL);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
 
-    TT_TEST_CHECK_EQUAL(__err_line, 0, "");
+    TT_UT_EQUAL(__err_line, 0, "");
 
     //////////////////////
     // 3. short content
@@ -397,12 +397,12 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xp_content)
     xp.cb.on_text = __xp2_on_content_123;
 
     ret = tt_xmlparser_update(&xp, (tt_u8_t *)"123", 3);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
 
     ret = tt_xmlparser_final(&xp, NULL);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
 
-    TT_TEST_CHECK_EQUAL(__err_line, 0, "");
+    TT_UT_EQUAL(__err_line, 0, "");
 
     tt_xmlparser_destroy(&xp);
 
@@ -414,7 +414,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xp_content)
     cb.on_text = __xp2_on_content_trim;
 
     ret = tt_xmlparser_create(&xp, NULL, &cb, &attr);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
 
     __seq = 0;
     __err_line = 0;
@@ -425,13 +425,13 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xp_content)
             len = tt_rand_u32() % 10; // 0-9
         }
         ret = tt_xmlparser_update(&xp, (tt_u8_t *)&b2[n], len);
-        TT_TEST_CHECK_SUCCESS(ret, "");
+        TT_UT_SUCCESS(ret, "");
         n += len;
     }
     TT_ASSERT(n == sizeof(b2) - 1);
 
     ret = tt_xmlparser_final(&xp, NULL);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
 
     tt_xmlparser_destroy(&xp);
 
@@ -601,7 +601,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xp_tag)
     cb.on_end_tag = __xp3_on_etag1;
 
     ret = tt_xmlparser_create(&xp, NULL, &cb, NULL);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
 
     //////////////////////
     // 1. simple tag
@@ -615,17 +615,17 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xp_tag)
             len = tt_rand_u32() % 5; // 0-4
         }
         ret = tt_xmlparser_update(&xp, (tt_u8_t *)&b1[n], len);
-        TT_TEST_CHECK_SUCCESS(ret, "");
+        TT_UT_SUCCESS(ret, "");
         n += len;
     }
     TT_ASSERT(n == sizeof(b1));
 
     ret = tt_xmlparser_final(&xp, NULL);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
 
-    TT_TEST_CHECK_EQUAL(__seq, 2, "");
-    TT_TEST_CHECK_EQUAL(__err_line, 0, "");
-    TT_TEST_CHECK_EQUAL(__stag_num, 0, "");
+    TT_UT_EQUAL(__seq, 2, "");
+    TT_UT_EQUAL(__err_line, 0, "");
+    TT_UT_EQUAL(__stag_num, 0, "");
 
     //////////////////////
     // 2. simple tag has spaces
@@ -641,17 +641,17 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xp_tag)
             len = tt_rand_u32() % 5; // 0-4
         }
         ret = tt_xmlparser_update(&xp, (tt_u8_t *)&b2[n], len);
-        TT_TEST_CHECK_SUCCESS(ret, "");
+        TT_UT_SUCCESS(ret, "");
         n += len;
     }
     TT_ASSERT(n == sizeof(b2));
 
     ret = tt_xmlparser_final(&xp, NULL);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
 
-    TT_TEST_CHECK_EQUAL(__seq, 2, "");
-    TT_TEST_CHECK_EQUAL(__err_line, 0, "");
-    TT_TEST_CHECK_EQUAL(__stag_num, 0, "");
+    TT_UT_EQUAL(__seq, 2, "");
+    TT_UT_EQUAL(__err_line, 0, "");
+    TT_UT_EQUAL(__stag_num, 0, "");
 
     //////////////////////
     // 3. EMPTY tag is invalid
@@ -659,7 +659,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xp_tag)
     tt_xmlparser_reset(&xp, 0);
 
     ret = tt_xmlparser_update(&xp, (tt_u8_t *)b3, sizeof(b3));
-    TT_TEST_CHECK_NOT_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_NOT_EQUAL(ret, TT_SUCCESS, "");
 
     //////////////////////
     // 4. start tag ends
@@ -675,16 +675,16 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xp_tag)
             len = tt_rand_u32() % 5; // 0-4
         }
         ret = tt_xmlparser_update(&xp, (tt_u8_t *)&b4[n], len);
-        TT_TEST_CHECK_SUCCESS(ret, "");
+        TT_UT_SUCCESS(ret, "");
         n += len;
     }
     TT_ASSERT(n == sizeof(b4));
 
     ret = tt_xmlparser_final(&xp, NULL);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
 
-    TT_TEST_CHECK_EQUAL(__err_line, 0, "");
-    TT_TEST_CHECK_EQUAL(__stag_num, 0, "");
+    TT_UT_EQUAL(__err_line, 0, "");
+    TT_UT_EQUAL(__stag_num, 0, "");
 
     //////////////////////
     // 5. start tag ends with "< / >
@@ -693,8 +693,8 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xp_tag)
     tt_xmlparser_reset(&xp, 0);
 
     ret = tt_xmlparser_update(&xp, (tt_u8_t *)b5, sizeof(b5));
-    TT_TEST_CHECK_NOT_EQUAL(ret, TT_SUCCESS, "");
-    TT_TEST_CHECK_EQUAL(__stag_num, 0, "");
+    TT_UT_NOT_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(__stag_num, 0, "");
 
     //////////////////////
     // 7/8/9. invalid end tag
@@ -703,19 +703,19 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xp_tag)
     __err_line = 0;
     tt_xmlparser_reset(&xp, 0);
     ret = tt_xmlparser_update(&xp, (tt_u8_t *)b7, sizeof(b7));
-    TT_TEST_CHECK_NOT_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_NOT_EQUAL(ret, TT_SUCCESS, "");
 
     __seq = 0;
     __err_line = 0;
     tt_xmlparser_reset(&xp, 0);
     ret = tt_xmlparser_update(&xp, (tt_u8_t *)b8, sizeof(b8));
-    TT_TEST_CHECK_NOT_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_NOT_EQUAL(ret, TT_SUCCESS, "");
 
     __seq = 0;
     __err_line = 0;
     tt_xmlparser_reset(&xp, 0);
     ret = tt_xmlparser_update(&xp, (tt_u8_t *)b9, sizeof(b9));
-    TT_TEST_CHECK_NOT_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_NOT_EQUAL(ret, TT_SUCCESS, "");
 
     //////////////////////
     // 6. embedded tags
@@ -728,12 +728,12 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xp_tag)
     xp.cb.on_end_tag = __xp3_on_etag2;
 
     ret = tt_xmlparser_update(&xp, (tt_u8_t *)b6, sizeof(b6));
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
 
     ret = tt_xmlparser_final(&xp, NULL);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
 
-    TT_TEST_CHECK_EQUAL(__err_line, 0, "");
+    TT_UT_EQUAL(__err_line, 0, "");
 
     // parse char by char
     p = (tt_u8_t *)b6;
@@ -743,16 +743,16 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xp_tag)
     tt_xmlparser_reset(&xp, 0);
     while (p < p_end) {
         ret = tt_xmlparser_update(&xp, p, 1);
-        TT_TEST_CHECK_SUCCESS(ret, "");
+        TT_UT_SUCCESS(ret, "");
         ++p;
     }
     ret = tt_xmlparser_final(&xp, NULL);
-    TT_TEST_CHECK_SUCCESS(ret, "");
-    TT_TEST_CHECK_EQUAL(__err_line, 0, "");
+    TT_UT_SUCCESS(ret, "");
+    TT_UT_EQUAL(__err_line, 0, "");
 
     // 10. no name
     ret = tt_xmlparser_update(&xp, (tt_u8_t *)b10, sizeof(b10));
-    TT_TEST_CHECK_NOT_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_NOT_EQUAL(ret, TT_SUCCESS, "");
 
     tt_xmlparser_destroy(&xp);
 
@@ -921,7 +921,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xp_attr)
     cb.on_end_tag = __xp4_on_etag;
 
     ret = tt_xmlparser_create(&xp, NULL, &cb, NULL);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
 
     //////////////////////
     // 1. simple tag
@@ -937,17 +937,17 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xp_attr)
             len = tt_rand_u32() % 5; // 0-4
         }
         ret = tt_xmlparser_update(&xp, (tt_u8_t *)&b1[n], len);
-        TT_TEST_CHECK_SUCCESS(ret, "");
+        TT_UT_SUCCESS(ret, "");
         n += len;
     }
     TT_ASSERT(n == sizeof(b1));
 
     ret = tt_xmlparser_final(&xp, NULL);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
 
-    TT_TEST_CHECK_EQUAL(__seq, 2, "");
-    TT_TEST_CHECK_EQUAL(__err_line, 0, "");
-    TT_TEST_CHECK_EQUAL(__stag_num, 0, "");
+    TT_UT_EQUAL(__seq, 2, "");
+    TT_UT_EQUAL(__err_line, 0, "");
+    TT_UT_EQUAL(__stag_num, 0, "");
 
     //////////////////////
     // 2/3/4. value is not in quotes
@@ -955,22 +955,22 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xp_attr)
     __err_line = 0;
     tt_xmlparser_reset(&xp, 0);
     ret = tt_xmlparser_update(&xp, (tt_u8_t *)b2, sizeof(b2));
-    TT_TEST_CHECK_NOT_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_NOT_EQUAL(ret, TT_SUCCESS, "");
 
     // can not find terminating node, so update is ok but final failed
     __seq = 0;
     __err_line = 0;
     tt_xmlparser_reset(&xp, 0);
     ret = tt_xmlparser_update(&xp, (tt_u8_t *)b3, sizeof(b3));
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     ret = tt_xmlparser_final(&xp, NULL);
-    TT_TEST_CHECK_NOT_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_NOT_EQUAL(ret, TT_SUCCESS, "");
 
     __seq = 0;
     __err_line = 0;
     tt_xmlparser_reset(&xp, 0);
     ret = tt_xmlparser_update(&xp, (tt_u8_t *)b4, sizeof(b4));
-    TT_TEST_CHECK_NOT_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_NOT_EQUAL(ret, TT_SUCCESS, "");
 
     //////////////////////
     // 5. EMPTY attribute value
@@ -988,17 +988,17 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xp_attr)
             len = tt_rand_u32() % 5; // 0-4
         }
         ret = tt_xmlparser_update(&xp, (tt_u8_t *)&b5[n], len);
-        TT_TEST_CHECK_SUCCESS(ret, "");
+        TT_UT_SUCCESS(ret, "");
         n += len;
     }
     TT_ASSERT(n == sizeof(b5));
 
     ret = tt_xmlparser_final(&xp, NULL);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
 
-    TT_TEST_CHECK_EQUAL(__seq, 2, "");
-    TT_TEST_CHECK_EQUAL(__err_line, 0, "");
-    TT_TEST_CHECK_EQUAL(__stag_num, 0, "");
+    TT_UT_EQUAL(__seq, 2, "");
+    TT_UT_EQUAL(__err_line, 0, "");
+    TT_UT_EQUAL(__stag_num, 0, "");
 
     //////////////////////
     // 6. attribute value
@@ -1016,14 +1016,14 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xp_attr)
             len = tt_rand_u32() % 5; // 0-4
         }
         ret = tt_xmlparser_update(&xp, (tt_u8_t *)&b6[n], len);
-        TT_TEST_CHECK_SUCCESS(ret, "");
+        TT_UT_SUCCESS(ret, "");
         n += len;
     }
     TT_ASSERT(n == sizeof(b6));
 
     ret = tt_xmlparser_final(&xp, NULL);
-    TT_TEST_CHECK_SUCCESS(ret, "");
-    TT_TEST_CHECK_EQUAL(__stag_num, 0, "");
+    TT_UT_SUCCESS(ret, "");
+    TT_UT_EQUAL(__stag_num, 0, "");
 
     // parse char by char
     p = (tt_u8_t *)b6;
@@ -1035,13 +1035,13 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xp_attr)
     tt_xmlparser_reset(&xp, 0);
     while (p < p_end) {
         ret = tt_xmlparser_update(&xp, p, 1);
-        TT_TEST_CHECK_SUCCESS(ret, "");
+        TT_UT_SUCCESS(ret, "");
         ++p;
     }
     ret = tt_xmlparser_final(&xp, NULL);
-    TT_TEST_CHECK_SUCCESS(ret, "");
-    TT_TEST_CHECK_EQUAL(__err_line, 0, "");
-    TT_TEST_CHECK_EQUAL(__stag_num, 0, "");
+    TT_UT_SUCCESS(ret, "");
+    TT_UT_EQUAL(__err_line, 0, "");
+    TT_UT_EQUAL(__stag_num, 0, "");
 
     //////////////////////
     // 7. invalid attribute
@@ -1049,37 +1049,37 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xp_attr)
     __err_line = 0;
     tt_xmlparser_reset(&xp, 0);
     ret = tt_xmlparser_update(&xp, (tt_u8_t *)b7_1, sizeof(b7_1));
-    TT_TEST_CHECK_NOT_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_NOT_EQUAL(ret, TT_SUCCESS, "");
 
     __seq = 0;
     __err_line = 0;
     tt_xmlparser_reset(&xp, 0);
     ret = tt_xmlparser_update(&xp, (tt_u8_t *)b7_2, sizeof(b7_2));
-    TT_TEST_CHECK_NOT_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_NOT_EQUAL(ret, TT_SUCCESS, "");
 
     __seq = 0;
     __err_line = 0;
     tt_xmlparser_reset(&xp, 0);
     ret = tt_xmlparser_update(&xp, (tt_u8_t *)b7_3, sizeof(b7_3));
-    TT_TEST_CHECK_NOT_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_NOT_EQUAL(ret, TT_SUCCESS, "");
 
     __seq = 0;
     __err_line = 0;
     tt_xmlparser_reset(&xp, 0);
     ret = tt_xmlparser_update(&xp, (tt_u8_t *)b7_4, sizeof(b7_4));
-    TT_TEST_CHECK_NOT_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_NOT_EQUAL(ret, TT_SUCCESS, "");
 
     __seq = 0;
     __err_line = 0;
     tt_xmlparser_reset(&xp, 0);
     ret = tt_xmlparser_update(&xp, (tt_u8_t *)b7_5, sizeof(b7_5));
-    TT_TEST_CHECK_NOT_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_NOT_EQUAL(ret, TT_SUCCESS, "");
 
     __seq = 0;
     __err_line = 0;
     tt_xmlparser_reset(&xp, 0);
     ret = tt_xmlparser_update(&xp, (tt_u8_t *)b7_6, sizeof(b7_6));
-    TT_TEST_CHECK_NOT_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_NOT_EQUAL(ret, TT_SUCCESS, "");
 
     tt_xmlparser_destroy(&xp);
 
@@ -1147,7 +1147,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xp_pi)
     cb.on_pi = __xp5_on_pi_1;
 
     ret = tt_xmlparser_create(&xp, NULL, &cb, NULL);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
 
     //////////////////////
     // 1. simple tag
@@ -1160,15 +1160,15 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xp_pi)
             len = tt_rand_u32() % 3; // 0-2
         }
         ret = tt_xmlparser_update(&xp, (tt_u8_t *)&b1[n], len);
-        TT_TEST_CHECK_SUCCESS(ret, "");
+        TT_UT_SUCCESS(ret, "");
         n += len;
     }
     TT_ASSERT(n == sizeof(b1));
 
     ret = tt_xmlparser_final(&xp, NULL);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
 
-    TT_TEST_CHECK_EQUAL(__err_line, 0, "");
+    TT_UT_EQUAL(__err_line, 0, "");
 
     //////////////////////
     // 2. empty pi value
@@ -1176,24 +1176,24 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xp_pi)
     tt_xmlparser_reset(&xp, 0);
 
     ret = tt_xmlparser_update(&xp, (tt_u8_t *)b2, sizeof(b2));
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
 
     ret = tt_xmlparser_final(&xp, NULL);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
 
-    TT_TEST_CHECK_EQUAL(__err_line, 0, "");
+    TT_UT_EQUAL(__err_line, 0, "");
 
     //////////////////////
     // 3. invalid pi value
     __err_line = 0;
     tt_xmlparser_reset(&xp, 0);
     ret = tt_xmlparser_update(&xp, (tt_u8_t *)b3_1, sizeof(b3_1));
-    TT_TEST_CHECK_NOT_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_NOT_EQUAL(ret, TT_SUCCESS, "");
 
     __err_line = 0;
     tt_xmlparser_reset(&xp, 0);
     ret = tt_xmlparser_update(&xp, (tt_u8_t *)b3_2, sizeof(b3_2));
-    TT_TEST_CHECK_NOT_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_NOT_EQUAL(ret, TT_SUCCESS, "");
 
     //////////////////////
     // 4. pi value
@@ -1202,12 +1202,12 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xp_pi)
 
     xp.cb.on_pi = __xp5_on_pi_2;
     ret = tt_xmlparser_update(&xp, (tt_u8_t *)b4, sizeof(b4));
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
 
     ret = tt_xmlparser_final(&xp, NULL);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
 
-    TT_TEST_CHECK_EQUAL(__err_line, 0, "");
+    TT_UT_EQUAL(__err_line, 0, "");
 
     // parse char by char
     p = (tt_u8_t *)b4;
@@ -1216,12 +1216,12 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xp_pi)
     tt_xmlparser_reset(&xp, 0);
     while (p < p_end) {
         ret = tt_xmlparser_update(&xp, p, 1);
-        TT_TEST_CHECK_SUCCESS(ret, "");
+        TT_UT_SUCCESS(ret, "");
         ++p;
     }
     ret = tt_xmlparser_final(&xp, NULL);
-    TT_TEST_CHECK_SUCCESS(ret, "");
-    TT_TEST_CHECK_EQUAL(__err_line, 0, "");
+    TT_UT_SUCCESS(ret, "");
+    TT_UT_EQUAL(__err_line, 0, "");
 
 
     tt_xmlparser_destroy(&xp);
@@ -1308,7 +1308,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xp_comment)
     attr.trim_comment = TT_TRUE;
 
     ret = tt_xmlparser_create(&xp, NULL, &cb, &attr);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
 
     //////////////////////
     // 1. simple
@@ -1321,21 +1321,21 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xp_comment)
             len = tt_rand_u32() % 3; // 0-2
         }
         ret = tt_xmlparser_update(&xp, (tt_u8_t *)&b1[n], len);
-        TT_TEST_CHECK_SUCCESS(ret, "");
+        TT_UT_SUCCESS(ret, "");
         n += len;
     }
     TT_ASSERT(n == sizeof(b1));
 
     ret = tt_xmlparser_final(&xp, NULL);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
 
-    TT_TEST_CHECK_EQUAL(__err_line, 0, "");
+    TT_UT_EQUAL(__err_line, 0, "");
 
     // invalid comment
     __err_line = 0;
     tt_xmlparser_reset(&xp, 0);
     ret = tt_xmlparser_update(&xp, (tt_u8_t *)b1_1, sizeof(b1_1));
-    TT_TEST_CHECK_NOT_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_NOT_EQUAL(ret, TT_SUCCESS, "");
 
     //////////////////////
     // 2. remove beginning and ending white spaces
@@ -1348,15 +1348,15 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xp_comment)
             len = tt_rand_u32() % 5; // 0-2
         }
         ret = tt_xmlparser_update(&xp, (tt_u8_t *)&b2[n], len);
-        TT_TEST_CHECK_SUCCESS(ret, "");
+        TT_UT_SUCCESS(ret, "");
         n += len;
     }
     TT_ASSERT(n == sizeof(b2));
 
     ret = tt_xmlparser_final(&xp, NULL);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
 
-    TT_TEST_CHECK_EQUAL(__err_line, 0, "");
+    TT_UT_EQUAL(__err_line, 0, "");
 
     //////////////////////
     // 3. ..
@@ -1371,15 +1371,15 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xp_comment)
             len = tt_rand_u32() % 5; // 0-2
         }
         ret = tt_xmlparser_update(&xp, (tt_u8_t *)&b3[n], len);
-        TT_TEST_CHECK_SUCCESS(ret, "");
+        TT_UT_SUCCESS(ret, "");
         n += len;
     }
     TT_ASSERT(n == sizeof(b3));
 
     ret = tt_xmlparser_final(&xp, NULL);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
 
-    TT_TEST_CHECK_EQUAL(__err_line, 0, "");
+    TT_UT_EQUAL(__err_line, 0, "");
 
     // parse char by char
     p = (tt_u8_t *)b3;
@@ -1388,12 +1388,12 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xp_comment)
     tt_xmlparser_reset(&xp, 0);
     while (p < p_end) {
         ret = tt_xmlparser_update(&xp, p, 1);
-        TT_TEST_CHECK_SUCCESS(ret, "");
+        TT_UT_SUCCESS(ret, "");
         ++p;
     }
     ret = tt_xmlparser_final(&xp, NULL);
-    TT_TEST_CHECK_SUCCESS(ret, "");
-    TT_TEST_CHECK_EQUAL(__err_line, 0, "");
+    TT_UT_SUCCESS(ret, "");
+    TT_UT_EQUAL(__err_line, 0, "");
 
     //////////////////////
     // 4. empty comment
@@ -1403,12 +1403,12 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xp_comment)
     xp.cb.on_comment = __xp6_on_cm_empty;
 
     ret = tt_xmlparser_update(&xp, (tt_u8_t *)b4, sizeof(b4));
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
 
     ret = tt_xmlparser_final(&xp, NULL);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
 
-    TT_TEST_CHECK_EQUAL(__err_line, 0, "");
+    TT_UT_EQUAL(__err_line, 0, "");
 
 
     tt_xmlparser_destroy(&xp);
@@ -1419,7 +1419,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xp_comment)
     attr.trim_comment = TT_FALSE;
 
     ret = tt_xmlparser_create(&xp, NULL, &cb, &attr);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
 
     // trim comment
     __err_line = 0;
@@ -1430,12 +1430,12 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xp_comment)
     xp.cb.on_comment = __xp6_on_cm_2_notrim;
 
     ret = tt_xmlparser_update(&xp, (tt_u8_t *)b3, sizeof(b3));
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
 
     ret = tt_xmlparser_final(&xp, NULL);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
 
-    TT_TEST_CHECK_EQUAL(__err_line, 0, "");
+    TT_UT_EQUAL(__err_line, 0, "");
 
     tt_xmlparser_destroy(&xp);
 
@@ -1504,7 +1504,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xp_cdata)
     attr.trim_cdata = TT_FALSE;
 
     ret = tt_xmlparser_create(&xp, NULL, &cb, &attr);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
 
     //////////////////////
     // 1. simple
@@ -1517,15 +1517,15 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xp_cdata)
             len = tt_rand_u32() % 5; // 0-2
         }
         ret = tt_xmlparser_update(&xp, (tt_u8_t *)&b1[n], len);
-        TT_TEST_CHECK_SUCCESS(ret, "");
+        TT_UT_SUCCESS(ret, "");
         n += len;
     }
     TT_ASSERT(n == sizeof(b1));
 
     ret = tt_xmlparser_final(&xp, NULL);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
 
-    TT_TEST_CHECK_EQUAL(__err_line, 0, "");
+    TT_UT_EQUAL(__err_line, 0, "");
 
     // parse char by char
     p = (tt_u8_t *)b1;
@@ -1534,23 +1534,23 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xp_cdata)
     tt_xmlparser_reset(&xp, 0);
     while (p < p_end) {
         ret = tt_xmlparser_update(&xp, p, 1);
-        TT_TEST_CHECK_SUCCESS(ret, "");
+        TT_UT_SUCCESS(ret, "");
         ++p;
     }
     ret = tt_xmlparser_final(&xp, NULL);
-    TT_TEST_CHECK_SUCCESS(ret, "");
-    TT_TEST_CHECK_EQUAL(__err_line, 0, "");
+    TT_UT_SUCCESS(ret, "");
+    TT_UT_EQUAL(__err_line, 0, "");
 
     // invalid comment
     __err_line = 0;
     tt_xmlparser_reset(&xp, 0);
     ret = tt_xmlparser_update(&xp, (tt_u8_t *)b1_1, sizeof(b1_1));
-    TT_TEST_CHECK_NOT_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_NOT_EQUAL(ret, TT_SUCCESS, "");
 
     __err_line = 0;
     tt_xmlparser_reset(&xp, 0);
     ret = tt_xmlparser_update(&xp, (tt_u8_t *)b1_2, sizeof(b1_2));
-    TT_TEST_CHECK_NOT_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_NOT_EQUAL(ret, TT_SUCCESS, "");
 
     //////////////////////
     // 2. empty cdata
@@ -1558,12 +1558,12 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xp_cdata)
     tt_xmlparser_reset(&xp, 0);
 
     ret = tt_xmlparser_update(&xp, (tt_u8_t *)b2, sizeof(b2));
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
 
     ret = tt_xmlparser_final(&xp, NULL);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
 
-    TT_TEST_CHECK_EQUAL(__err_line, 0, "");
+    TT_UT_EQUAL(__err_line, 0, "");
 
     tt_xmlparser_destroy(&xp);
 
@@ -1577,7 +1577,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xp_cdata)
     attr.trim_cdata = TT_TRUE;
 
     ret = tt_xmlparser_create(&xp, NULL, &cb, &attr);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
 
     for (n = 0; n < sizeof((b1));) {
         len = sizeof(b1) - n;
@@ -1585,15 +1585,15 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xp_cdata)
             len = tt_rand_u32() % 5; // 0-2
         }
         ret = tt_xmlparser_update(&xp, (tt_u8_t *)&b1[n], len);
-        TT_TEST_CHECK_SUCCESS(ret, "");
+        TT_UT_SUCCESS(ret, "");
         n += len;
     }
     TT_ASSERT(n == sizeof(b1));
 
     ret = tt_xmlparser_final(&xp, NULL);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
 
-    TT_TEST_CHECK_EQUAL(__err_line, 0, "");
+    TT_UT_EQUAL(__err_line, 0, "");
 
     /////// none after trim
     __err_line = 0;
@@ -1602,12 +1602,12 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xp_cdata)
     xp.cb.on_cdata = __xp7_on_cdata_none;
 
     ret = tt_xmlparser_update(&xp, (tt_u8_t *)b2, sizeof(b2));
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
 
     ret = tt_xmlparser_final(&xp, NULL);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
 
-    TT_TEST_CHECK_EQUAL(__err_line, 0, "");
+    TT_UT_EQUAL(__err_line, 0, "");
 
 
     tt_xmlparser_destroy(&xp);
@@ -1629,143 +1629,143 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xp_decode)
     // test start
 
     ret = tt_xmlmem_create(&xm, NULL);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
 
     // empty
     dec = tt_xml_chdec_len(&xm, "", 0);
-    TT_TEST_CHECK_NOT_EQUAL(dec, NULL, "");
+    TT_UT_NOT_EQUAL(dec, NULL, "");
     cmp_ret = tt_strcmp(dec, "");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
     tt_xm_free(dec);
 
     // empty, long len
     dec = tt_xml_chdec_len(&xm, "", 10);
-    TT_TEST_CHECK_NOT_EQUAL(dec, NULL, "");
+    TT_UT_NOT_EQUAL(dec, NULL, "");
     cmp_ret = tt_strcmp(dec, "");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
     tt_xm_free(dec);
 
     // basic
     dec = tt_xml_chdec_len(
         &xm, "&quot;&apos;&lt;&gt;&amp;&#0038;&#xA2;&#x20AC;&#x10348;", 10000);
-    TT_TEST_CHECK_NOT_EQUAL(dec, NULL, "");
+    TT_UT_NOT_EQUAL(dec, NULL, "");
     cmp_ret = tt_strcmp(dec, "\"'<>&&\xc2\xa2\xe2\x82\xac\xf0\x90\x8d\x88");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
     tt_xm_free(dec);
 
     // mixed
     dec = tt_xml_chdec_len(&xm,
                            "1111&quot;22222&apos;33&#0038;444&#x10348;",
                            10000);
-    TT_TEST_CHECK_NOT_EQUAL(dec, NULL, "");
+    TT_UT_NOT_EQUAL(dec, NULL, "");
     cmp_ret = tt_strcmp(dec, "1111\"22222'33&444\xf0\x90\x8d\x88");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
     tt_xm_free(dec);
 
     // mixed
     dec = tt_xml_chdec_len(&xm,
                            "&quot;22222&apos;33&#0038;444&#x10348;5555",
                            10000);
-    TT_TEST_CHECK_NOT_EQUAL(dec, NULL, "");
+    TT_UT_NOT_EQUAL(dec, NULL, "");
     cmp_ret = tt_strcmp(dec,
                         "\"22222'33&444\xf0\x90\x8d\x88"
                         "5555");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
     tt_xm_free(dec);
 
     // see &, but not valid
     dec = tt_xml_chdec(&xm, "&");
-    TT_TEST_CHECK_NOT_EQUAL(dec, NULL, "");
+    TT_UT_NOT_EQUAL(dec, NULL, "");
     cmp_ret = tt_strcmp(dec, "&");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
     tt_xm_free(dec);
 
     // see &, but not valid
     dec = tt_xml_chdec(&xm, "&&&");
-    TT_TEST_CHECK_NOT_EQUAL(dec, NULL, "");
+    TT_UT_NOT_EQUAL(dec, NULL, "");
     cmp_ret = tt_strcmp(dec, "&&&");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
     tt_xm_free(dec);
 
     // not terminated
     dec = tt_xml_chdec(&xm, "12345&quot");
-    TT_TEST_CHECK_NOT_EQUAL(dec, NULL, "");
+    TT_UT_NOT_EQUAL(dec, NULL, "");
     cmp_ret = tt_strcmp(dec, "12345&quot");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
     tt_xm_free(dec);
 
     // invalid escape
     dec = tt_xml_chdec(&xm, "&;ending");
-    TT_TEST_CHECK_NOT_EQUAL(dec, NULL, "");
+    TT_UT_NOT_EQUAL(dec, NULL, "");
     cmp_ret = tt_strcmp(dec, "&;ending");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
     tt_xm_free(dec);
 
     // invalid escape
     dec = tt_xml_chdec(&xm, "begin&unknown;ending");
-    TT_TEST_CHECK_NOT_EQUAL(dec, NULL, "");
+    TT_UT_NOT_EQUAL(dec, NULL, "");
     cmp_ret = tt_strcmp(dec, "begin&unknown;ending");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
     tt_xm_free(dec);
 
     // hex: 1
     dec = tt_xml_chdec(&xm, "&#x1;ending");
-    TT_TEST_CHECK_NOT_EQUAL(dec, NULL, "");
+    TT_UT_NOT_EQUAL(dec, NULL, "");
     cmp_ret = tt_strcmp(dec,
                         "\x1"
                         "ending");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
     tt_xm_free(dec);
 
     // hex: max
     dec = tt_xml_chdec(&xm, "&#x7FFFFFFF;ending");
-    TT_TEST_CHECK_NOT_EQUAL(dec, NULL, "");
+    TT_UT_NOT_EQUAL(dec, NULL, "");
     cmp_ret = tt_strcmp(dec,
                         "\xfd\xbf\xbf\xbf\xbf\xbf"
                         "ending");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
     tt_xm_free(dec);
 
     // hex: max, not verify encoded value
     dec = tt_xml_chdec(&xm, "&#xFFFFFFFF;ending");
-    TT_TEST_CHECK_NOT_EQUAL(dec, NULL, "");
+    TT_UT_NOT_EQUAL(dec, NULL, "");
     tt_xm_free(dec);
 
     // hex: invalid
     dec = tt_xml_chdec(&xm, "&#x1FFFFFFFF;ending");
-    TT_TEST_CHECK_NOT_EQUAL(dec, NULL, "");
+    TT_UT_NOT_EQUAL(dec, NULL, "");
     cmp_ret = tt_strcmp(dec, "&#x1FFFFFFFF;ending");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
     tt_xm_free(dec);
 
     // decimal: 1
     dec = tt_xml_chdec(&xm, "&#1;ending");
-    TT_TEST_CHECK_NOT_EQUAL(dec, NULL, "");
+    TT_UT_NOT_EQUAL(dec, NULL, "");
     cmp_ret = tt_strcmp(dec,
                         "\x1"
                         "ending");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
     tt_xm_free(dec);
 
     // decimal: max
     dec = tt_xml_chdec(&xm, "begin&#2147483647;");
-    TT_TEST_CHECK_NOT_EQUAL(dec, NULL, "");
+    TT_UT_NOT_EQUAL(dec, NULL, "");
     cmp_ret = tt_strcmp(dec,
                         "begin"
                         "\xfd\xbf\xbf\xbf\xbf\xbf");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
     tt_xm_free(dec);
 
     // decimal: max, no verify
     dec = tt_xml_chdec(&xm, "begin&#4294967295;");
-    TT_TEST_CHECK_NOT_EQUAL(dec, NULL, "");
+    TT_UT_NOT_EQUAL(dec, NULL, "");
     tt_xm_free(dec);
 
     // decimal: invalid
     dec = tt_xml_chdec(&xm, "begin&#4294967296;");
-    TT_TEST_CHECK_NOT_EQUAL(dec, NULL, "");
+    TT_UT_NOT_EQUAL(dec, NULL, "");
     cmp_ret = tt_strcmp(dec, "begin&#4294967296;");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
     tt_xm_free(dec);
 
     tt_xmlmem_destroy(&xm);
@@ -1801,7 +1801,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xp_doctype)
     attr.trim_cdata = TT_FALSE;
 
     ret = tt_xmlparser_create(&xp, NULL, &cb, &attr);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
 
     //////////////////////
     // 1. simple
@@ -1814,15 +1814,15 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xp_doctype)
             len = tt_rand_u32() % 5; // 0-2
         }
         ret = tt_xmlparser_update(&xp, (tt_u8_t *)&b1[n], len);
-        TT_TEST_CHECK_SUCCESS(ret, "");
+        TT_UT_SUCCESS(ret, "");
         n += len;
     }
     TT_ASSERT(n == sizeof(b1));
 
     ret = tt_xmlparser_final(&xp, NULL);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
 
-    TT_TEST_CHECK_EQUAL(__err_line, 0, "");
+    TT_UT_EQUAL(__err_line, 0, "");
 
     // parse char by char
     p = (tt_u8_t *)b1;
@@ -1831,12 +1831,12 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xp_doctype)
     tt_xmlparser_reset(&xp, 0);
     while (p < p_end) {
         ret = tt_xmlparser_update(&xp, p, 1);
-        TT_TEST_CHECK_SUCCESS(ret, "");
+        TT_UT_SUCCESS(ret, "");
         ++p;
     }
     ret = tt_xmlparser_final(&xp, NULL);
-    TT_TEST_CHECK_SUCCESS(ret, "");
-    TT_TEST_CHECK_EQUAL(__err_line, 0, "");
+    TT_UT_SUCCESS(ret, "");
+    TT_UT_EQUAL(__err_line, 0, "");
 
     ///////////////// empty doctype
     __err_line = 0;
@@ -1848,27 +1848,27 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xp_doctype)
             len = tt_rand_u32() % 5; // 0-2
         }
         ret = tt_xmlparser_update(&xp, (tt_u8_t *)&b1_1[n], len);
-        TT_TEST_CHECK_SUCCESS(ret, "");
+        TT_UT_SUCCESS(ret, "");
         n += len;
     }
     TT_ASSERT(n == sizeof(b1_1));
 
     ret = tt_xmlparser_final(&xp, NULL);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
 
-    TT_TEST_CHECK_EQUAL(__err_line, 0, "");
+    TT_UT_EQUAL(__err_line, 0, "");
 
     /////////// invalid doctype
     __err_line = 0;
     tt_xmlparser_reset(&xp, 0);
     ret = tt_xmlparser_update(&xp, (tt_u8_t *)b1_2, sizeof(b1_2));
-    TT_TEST_CHECK_NOT_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_NOT_EQUAL(ret, TT_SUCCESS, "");
 
     /////////// invalid doctype
     __err_line = 0;
     tt_xmlparser_reset(&xp, 0);
     ret = tt_xmlparser_update(&xp, (tt_u8_t *)b1_3, sizeof(b1_3));
-    TT_TEST_CHECK_NOT_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_NOT_EQUAL(ret, TT_SUCCESS, "");
 
     //////////////////////
     // 2. invalid, but parsable, not terminated
@@ -1876,10 +1876,10 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xp_doctype)
     tt_xmlparser_reset(&xp, 0);
 
     ret = tt_xmlparser_update(&xp, (tt_u8_t *)b2, sizeof(b2));
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
 
     ret = tt_xmlparser_final(&xp, NULL);
-    TT_TEST_CHECK_NOT_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_NOT_EQUAL(ret, TT_SUCCESS, "");
 
     tt_xmlparser_destroy(&xp);
 

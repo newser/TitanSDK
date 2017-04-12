@@ -115,17 +115,17 @@ TT_TEST_CASE("tt_unit_test_clinode",
                               NULL,
                               (void *)1,
                               &attr);
-    TT_TEST_CHECK_NOT_EQUAL(cnode, NULL, "");
+    TT_UT_NOT_EQUAL(cnode, NULL, "");
 
-    TT_TEST_CHECK_EQUAL(cnode->type, TT_CFGNODE_TYPE_STRING, "");
-    TT_TEST_CHECK_EQUAL(cnode->opaque, (void *)1, "");
-    TT_TEST_CHECK_EQUAL(cnode->itf, NULL, "");
-    TT_TEST_CHECK_EQUAL(tt_strcmp(cnode->name, "name"), 0, "");
-    TT_TEST_CHECK_EQUAL(tt_strcmp(cnode->display_name, "display_name"), 0, "");
-    TT_TEST_CHECK_EQUAL(tt_strcmp(cnode->brief, "info"), 0, "");
-    TT_TEST_CHECK_EQUAL(tt_strcmp(cnode->detail, "usage"), 0, "");
-    TT_TEST_CHECK_EQUAL(cnode->removing, TT_FALSE, "");
-    TT_TEST_CHECK_EQUAL(cnode->modified, TT_FALSE, "");
+    TT_UT_EQUAL(cnode->type, TT_CFGNODE_TYPE_STRING, "");
+    TT_UT_EQUAL(cnode->opaque, (void *)1, "");
+    TT_UT_EQUAL(cnode->itf, NULL, "");
+    TT_UT_EQUAL(tt_strcmp(cnode->name, "name"), 0, "");
+    TT_UT_EQUAL(tt_strcmp(cnode->display_name, "display_name"), 0, "");
+    TT_UT_EQUAL(tt_strcmp(cnode->brief, "info"), 0, "");
+    TT_UT_EQUAL(tt_strcmp(cnode->detail, "usage"), 0, "");
+    TT_UT_EQUAL(cnode->removing, TT_FALSE, "");
+    TT_UT_EQUAL(cnode->modified, TT_FALSE, "");
 
 #if 0
     // may fail, but should not crash
@@ -161,12 +161,12 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cli_cfgnode_u32)
     tt_buf_init(&out, NULL);
 
     cnode = tt_cfgu32_create("", NULL, &val, NULL, NULL, NULL);
-    TT_TEST_CHECK_NOT_EQUAL(cnode, NULL, "");
+    TT_UT_NOT_EQUAL(cnode, NULL, "");
 
     ret = tt_cfgnode_add(cnode, &n, &v);
-    TT_TEST_CHECK_EQUAL(ret, TT_BAD_PARAM, "");
+    TT_UT_EQUAL(ret, TT_BAD_PARAM, "");
     ret = tt_cfgnode_rm(cnode, &n);
-    TT_TEST_CHECK_EQUAL(ret, TT_BAD_PARAM, "");
+    TT_UT_EQUAL(ret, TT_BAD_PARAM, "");
 
     tt_buf_clear(&out);
     ret = tt_cfgnode_ls(cnode, NULL, &out);

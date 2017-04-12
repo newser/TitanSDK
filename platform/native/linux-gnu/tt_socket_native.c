@@ -85,9 +85,7 @@ int __sf_listen(int socket, int backlog);
 
 #ifdef __SIMU_FAIL_ACCEPT
 #define accept __sf_accept
-int __sf_accept(int socket,
-                struct sockaddr *address,
-                socklen_t *address_len);
+int __sf_accept(int socket, struct sockaddr *address, socklen_t *address_len);
 #endif
 
 #ifdef __SIMU_FAIL_CONNECT
@@ -245,7 +243,13 @@ static tt_bool_t __do_sendto(IN tt_io_ev_t *io_ev);
 static tt_bool_t __do_recvfrom(IN tt_io_ev_t *io_ev);
 
 static tt_poller_io_t __skt_poller_io[__SKT_EV_NUM] = {
-    __do_null, __do_accept, __do_connect, __do_send, __do_recv, __do_sendto, __do_recvfrom,
+    __do_null,
+    __do_accept,
+    __do_connect,
+    __do_send,
+    __do_recv,
+    __do_sendto,
+    __do_recvfrom,
 };
 
 static tt_io_ev_t __s_null_io_ev;
@@ -1031,9 +1035,7 @@ int __sf_listen(int socket, int backlog)
 
 #ifdef __SIMU_FAIL_ACCEPT
 #undef accept
-int __sf_accept(int socket,
-                struct sockaddr *address,
-                socklen_t *address_len)
+int __sf_accept(int socket, struct sockaddr *address, socklen_t *address_len)
 {
     return -1;
 }
@@ -1057,7 +1059,7 @@ ssize_t __sf_send(int socket, const void *buffer, size_t length, int flags)
         return -1;
     } else {
         tt_u32_t n = tt_rand_u32() % length + 1;
-        //TT_INFO("send %d < %d", n, length);
+        // TT_INFO("send %d < %d", n, length);
         return send(socket, buffer, n, flags);
     }
 }
@@ -1071,7 +1073,7 @@ ssize_t __sf_recv(int socket, void *buffer, size_t length, int flags)
         return -1;
     } else {
         tt_u32_t n = tt_rand_u32() % length + 1;
-        //TT_INFO("recv %d < %d", n, length);
+        // TT_INFO("recv %d < %d", n, length);
         return recv(socket, buffer, n, flags);
     }
 }

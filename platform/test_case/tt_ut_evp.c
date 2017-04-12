@@ -254,20 +254,20 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_evp_timer_basic)
 
     // create
     ret = tt_evc_create(&evc, TT_FALSE, &evc_attr);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     // destroy
     __evp_t1_ret = TT_SUCCESS;
     ret = tt_evc_wait(&evc);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
-    TT_TEST_CHECK_EQUAL(__evp_t1_ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(__evp_t1_ret, TT_SUCCESS, "");
 
     // local run
     ret = tt_evc_create(&evc, TT_TRUE, &evc_attr);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     ret = tt_evc_wait(&evc);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     // test end
     TT_TEST_CASE_LEAVE()
@@ -506,12 +506,12 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_evp_timer_st)
 
     // create
     ret = tt_evc_create(&evc, TT_FALSE, &evc_attr);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     __evp_t1_ret = TT_SUCCESS;
     ret = tt_evc_wait(&evc);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
-    TT_TEST_CHECK_EQUAL(__evp_t1_ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(__evp_t1_ret, TT_SUCCESS, "");
 
     end = tt_time_ref();
     diff = end - begin;
@@ -521,9 +521,9 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_evp_timer_st)
 
     // destroy
     // ret = tt_evc_destroy(&evc);
-    // TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    // TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
-    TT_TEST_CHECK_EQUAL(__t3_ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(__t3_ret, TT_SUCCESS, "");
 
     // test end
     TT_TEST_CASE_LEAVE()
@@ -622,16 +622,16 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_evp_threadev_perf)
 
     evc_attr.on_init_param = (void *)100;
     ret = tt_evc_create(&adv_evc_rcv, TT_FALSE, &evc_attr);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     evc_attr.on_init_param = (void *)101;
     ret = tt_evc_create(&adv_evc_snd, TT_FALSE, &evc_attr);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     ret = tt_evc_wait(&adv_evc_rcv);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     ret = tt_evc_wait(&adv_evc_snd);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     end = tt_time_ref();
     t2 = end - start;
