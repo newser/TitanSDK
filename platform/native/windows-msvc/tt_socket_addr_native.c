@@ -141,7 +141,7 @@ tt_result_t tt_sktaddr_ip_n2p_ntv(IN tt_net_family_t family,
 }
 
 tt_result_t tt_sktaddr_ip_p2n_ntv(IN tt_net_family_t family,
-                                  IN tt_char_t *buf,
+                                  IN const tt_char_t *buf,
                                   OUT tt_sktaddr_ip_t *na)
 {
     if (family == TT_NET_AF_INET) {

@@ -335,7 +335,6 @@ TT_TEST_CASE("tt_unit_test_sk_addr",
 
     tt_sktaddr_t sa6;
     tt_sktaddr_ip_t saa6;
-    tt_u16_t port;
 
     tt_char_t buf[100];
     // tt_char_t sc_buf[100];
@@ -665,6 +664,9 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_bind_basic)
     sk6 = tt_skt_create(TT_NET_AF_INET6, TT_NET_PROTO_TCP, &attr);
     TT_TEST_CHECK_NOT_EQUAL(sk6, NULL, "");
 
+    ret = tt_skt_set_ipv6only(sk6, TT_FALSE);
+    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+
     if (TT_OK(tt_skt_local_addr(sk6, &addr))) {
         tt_sktaddr_ip_t addr_val;
         tt_sktaddr_ip_t cmp;
@@ -804,7 +806,7 @@ static tt_result_t __f_svr(IN void *param)
 {
     tt_skt_t *s, *new_s;
     tt_u8_t buf[1 << 14] = "6789";
-    tt_u32_t n, loop;
+    tt_u32_t n;
     tt_result_t ret;
 
     s = tt_skt_create(TT_NET_AF_INET, TT_NET_PROTO_TCP, NULL);
@@ -860,7 +862,6 @@ static tt_result_t __f_svr(IN void *param)
 static tt_result_t __f_cli(IN void *param)
 {
     tt_skt_t *s;
-    tt_result_t ret;
     tt_u8_t buf[1 << 14] = "123";
     tt_u32_t n, loop;
 
@@ -909,7 +910,6 @@ static tt_result_t __f_cli(IN void *param)
 TT_TEST_ROUTINE_DEFINE(tt_unit_test_tcp_basic)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
-    tt_fiber_t *svr, *cli;
     tt_result_t ret;
     tt_task_t t;
     tt_s64_t start, end, dur;
@@ -947,7 +947,7 @@ static tt_result_t __f_svr_tcp6_close(IN void *param)
 {
     tt_skt_t *s, *new_s;
     tt_u8_t buf[1 << 14] = "6789";
-    tt_u32_t n, loop;
+    tt_u32_t n;
     tt_result_t ret;
 
     s = tt_skt_create(TT_NET_AF_INET6, TT_NET_PROTO_TCP, NULL);
@@ -986,7 +986,6 @@ static tt_result_t __f_svr_tcp6_close(IN void *param)
 static tt_result_t __f_cli_tcp6_close(IN void *param)
 {
     tt_skt_t *s;
-    tt_result_t ret;
     tt_u8_t buf[1 << 14] = "123";
     tt_u32_t n;
 
@@ -1016,7 +1015,6 @@ static tt_result_t __f_cli_tcp6_close(IN void *param)
 TT_TEST_ROUTINE_DEFINE(tt_unit_test_tcp6_close)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
-    tt_fiber_t *svr, *cli;
     tt_result_t ret;
     tt_task_t t;
 
@@ -1045,7 +1043,7 @@ static tt_result_t __f_svr_udp(IN void *param)
 {
     tt_skt_t *s;
     tt_u8_t buf[1000] = "6789", buf2[1000];
-    tt_u32_t n, i, k;
+    tt_u32_t n, i;
     tt_sktaddr_t addr;
 
     s = tt_skt_create(TT_NET_AF_INET6, TT_NET_PROTO_UDP, NULL);
@@ -1111,7 +1109,6 @@ static tt_result_t __f_svr_udp(IN void *param)
 static tt_result_t __f_cli_udp(IN void *param)
 {
     tt_skt_t *s;
-    tt_result_t ret;
     tt_u8_t buf[1000] = "123", buf2[1000];
     tt_u32_t n, i;
     tt_sktaddr_t addr;
@@ -1182,7 +1179,6 @@ static tt_result_t __f_cli_udp(IN void *param)
 TT_TEST_ROUTINE_DEFINE(tt_unit_test_udp_basic)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
-    tt_fiber_t *svr, *cli;
     tt_result_t ret;
     tt_task_t t;
     tt_s64_t start, end, dur;
@@ -1319,7 +1315,6 @@ static tt_result_t __f_svr_t4(IN void *param)
 static tt_result_t __f_cli_t4(IN void *param)
 {
     tt_skt_t *s;
-    tt_result_t ret;
     tt_u8_t buf[1000], c;
     tt_u32_t n, len, num, i;
 
@@ -1396,7 +1391,6 @@ static tt_result_t __f_cli_t4(IN void *param)
 TT_TEST_ROUTINE_DEFINE(tt_unit_test_tcp4_stress)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
-    tt_fiber_t *svr, *cli;
     tt_result_t ret;
     tt_task_t t[1];
     tt_s64_t start, end, dur;

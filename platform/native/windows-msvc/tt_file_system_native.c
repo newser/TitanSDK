@@ -613,7 +613,6 @@ tt_bool_t tt_fs_poller_io(IN tt_io_ev_t *io_ev)
 void __fs_ev_init(IN tt_io_ev_t *io_ev, IN tt_u32_t ev)
 {
     tt_memset(&io_ev->ov, 0, sizeof(OVERLAPPED));
-    io_ev->io_bytes = 0;
     io_ev->src = tt_current_fiber();
     io_ev->dst = NULL;
     tt_dnode_init(&io_ev->node);

@@ -56,7 +56,11 @@ typedef struct tt_io_ev_s
     struct tt_fiber_s *dst;
     tt_dnode_t node;
 #if TT_ENV_OS_IS_WINDOWS
-    OVERLAPPED ov;
+    union
+    {
+        OVERLAPPED ov;
+        WSAOVERLAPPED wov;
+    };
     tt_u32_t io_bytes;
     tt_result_t io_result;
 #endif

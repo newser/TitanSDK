@@ -672,7 +672,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_fs_consistency)
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_task_t task;
     tt_result_t ret;
-    tt_u32_t i, j;
+    tt_u32_t j;
 
     TT_TEST_CASE_ENTER()
     // test start
