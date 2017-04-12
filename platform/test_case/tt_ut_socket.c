@@ -45,6 +45,8 @@
 
 #define __CHECK_IO
 
+#define __TCP_DETAIL
+
 ////////////////////////////////////////////////////////////
 // internal type
 ////////////////////////////////////////////////////////////
@@ -801,6 +803,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_bind_basic)
 
 static tt_u32_t __err_line;
 static tt_atomic_s64_t __io_num;
+static tt_u32_t __svr_sent, __svr_recvd, __cli_recvd, __cli_sent;
 
 static tt_result_t __f_svr(IN void *param)
 {
@@ -832,12 +835,44 @@ static tt_result_t __f_svr(IN void *param)
     }
 
     while ((ret = tt_skt_recv(new_s, buf, sizeof(buf), &n)) != TT_END) {
-        tt_atomic_s64_add(&__io_num, n);
+        tt_u32_t total = n;
+#ifdef __TCP_DETAIL
+        if (n < sizeof(buf)) {
+            TT_INFO("server recv %d", n);
+        }
+#endif
+        /*
+        it has to recv all data, otherwise, data are accumulated in recv
+        buffer of new_s. if new_s recv buffer is full, client will be 
+        blocked in tt_skt_send()
+        */
+        while (total < sizeof(buf)) {
+            if (!TT_OK(tt_skt_recv(new_s, buf, sizeof(buf), &n))) {
+                __err_line = __LINE__;
+                return TT_FAIL;
+            }
+#ifdef __TCP_DETAIL
+            if (n < sizeof(buf)) {
+                TT_INFO("server recv %d", n);
+            }
+#endif
+            __svr_recvd += n;
+
+            total += n;
+        }        
+        TT_ASSERT(total == sizeof(buf));
+        tt_atomic_s64_add(&__io_num, total);
 
         if (!TT_OK(tt_skt_send(new_s, buf, sizeof(buf), &n))) {
             __err_line = __LINE__;
             return TT_FAIL;
         }
+#ifdef __TCP_DETAIL
+        if (n < sizeof(buf)) {
+            TT_INFO("server send %d", n);
+        }
+#endif
+        __svr_sent += n;
         if (n != sizeof(buf)) {
             __err_line = __LINE__;
             return TT_FAIL;
@@ -848,10 +883,17 @@ static tt_result_t __f_svr(IN void *param)
         __err_line = __LINE__;
         return TT_FAIL;
     }
+#ifdef __TCP_DETAIL
+    TT_INFO("server shutdown");
+#endif
+
     if (tt_skt_recv(new_s, buf, sizeof(buf), &n) != TT_END) {
         __err_line = __LINE__;
         return TT_FAIL;
     }
+#ifdef __TCP_DETAIL
+    TT_INFO("server recv end");
+#endif
 
     tt_skt_destroy(new_s);
     tt_skt_destroy(s);
@@ -880,27 +922,54 @@ static tt_result_t __f_cli(IN void *param)
 
     loop = 0;
     while (loop++ < (1 << 13)) {
+        tt_u32_t total = 0;
+        
         if (!TT_OK(tt_skt_send(s, buf, sizeof(buf), &n))) {
             __err_line = __LINE__;
             return TT_FAIL;
         }
+#ifdef __TCP_DETAIL
+        if (n < sizeof(buf)) {
+            TT_INFO("client sent %d", n);
+        }
+#endif
+        __cli_sent += n;
         if (n != sizeof(buf)) {
             __err_line = __LINE__;
             return TT_FAIL;
         }
 
-        if (!TT_OK(tt_skt_recv(s, buf, sizeof(buf), &n))) {
-            __err_line = __LINE__;
-            return TT_FAIL;
+        total = 0;
+        while (total < sizeof(buf)) {
+            if (!TT_OK(tt_skt_recv(s, buf, sizeof(buf), &n))) {
+                __err_line = __LINE__;
+                return TT_FAIL;
+            }
+#ifdef __TCP_DETAIL
+            if (n < sizeof(buf)) {
+                TT_INFO("client recv %d", n);
+            }
+#endif
+            __cli_recvd += n;
+
+            total += n;
         }
+        TT_ASSERT(total == sizeof(buf));
     }
 
     if (!TT_OK(tt_skt_shutdown(s, TT_SKT_SHUT_WR))) {
         __err_line = __LINE__;
         return TT_FAIL;
     }
+#ifdef __TCP_DETAIL
+    TT_INFO("client shutdown");
+#endif
+
     while (tt_skt_recv(s, buf, sizeof(buf), &n) != TT_END) {
     }
+#ifdef __TCP_DETAIL
+    TT_INFO("client recv end");
+#endif
 
     tt_skt_destroy(s);
 
@@ -1331,7 +1400,7 @@ static tt_result_t __f_cli_t4(IN void *param)
         if (!TT_OK(tt_skt_connect_p(s,
                                     TT_NET_AF_INET,
                                     __ut_skt_local_ip,
-                                    __TPORT + (tt_uintptr_t)param))) {
+                                    __TPORT + (tt_u32_t)(tt_uintptr_t)param))) {
             __err_line = __LINE__;
             return TT_FAIL;
         }

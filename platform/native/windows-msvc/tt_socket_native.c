@@ -42,87 +42,117 @@
 
 #define TT_ASSERT_SKT TT_ASSERT
 
-//#define __SIMU_FAIL_SOCKET
-//#define __SIMU_FAIL_CLOSE
-//#define __SIMU_FAIL_SHUTDOWN
-//#define __SIMU_FAIL_BIND
-//#define __SIMU_FAIL_LISTEN
-//#define __SIMU_FAIL_ACCEPT
-//#define __SIMU_FAIL_CONNECT
-//#define __SIMU_FAIL_SEND
-//#define __SIMU_FAIL_RECV
-//#define __SIMU_FAIL_SENDTO
-//#define __SIMU_FAIL_RECVFROM
+//#define __SIMU_FAIL_WSASocketW
+//#define __SIMU_FAIL_closesocket
+//#define __SIMU_FAIL_shutdown
+//#define __SIMU_FAIL_bind
+//#define __SIMU_FAIL_listen
+//#define __SIMU_FAIL_AcceptEx
+//#define __SIMU_FAIL_ConnectEx
+//#define __SIMU_FAIL_WSASend
+//#define __SIMU_FAIL_WSARecv
+//#define __SIMU_FAIL_WSASendTo
+//#define __SIMU_FAIL_WSARecvFrom
 
-#ifdef __SIMU_FAIL_SOCKET
-#define socket __sf_socket
-int __sf_socket(int domain, int type, int protocol);
+#ifdef __SIMU_FAIL_WSASocketW
+#define WSASocketW __sf_WSASocketW
+SOCKET __sf_WSASocketW(int af,
+                       int type,
+                       int protocol,
+                       LPWSAPROTOCOL_INFOW lpProtocolInfo,
+                       GROUP g,
+                       DWORD dwFlags);
 #endif
 
-#ifdef __SIMU_FAIL_CLOSE
-#define close __sf_close
-int __sf_close(int fildes);
+#ifdef __SIMU_FAIL_closesocket
+#define closesocket __sf_closesocket
+int __sf_closesocket(SOCKET s);
 #endif
 
-#ifdef __SIMU_FAIL_SHUTDOWN
+#ifdef __SIMU_FAIL_shutdown
 #define shutdown __sf_shutdown
-int __sf_shutdown(int socket, int how);
+int __sf_shutdown(SOCKET s, int how);
 #endif
 
-#ifdef __SIMU_FAIL_BIND
+#ifdef __SIMU_FAIL_bind
 #define bind __sf_bind
-int __sf_bind(int socket,
-              const struct sockaddr *address,
-              socklen_t address_len);
+int __sf_bind(SOCKET s, const struct sockaddr *name, int namelen);
 #endif
 
-#ifdef __SIMU_FAIL_LISTEN
+#ifdef __SIMU_FAIL_listen
 #define listen __sf_listen
-int __sf_listen(int socket, int backlog);
+int __sf_listen(SOCKET s, int backlog);
 #endif
 
-#ifdef __SIMU_FAIL_ACCEPT
-#define accept __sf_accept
-int __sf_accept(int socket,
-                struct sockaddr *restrict address,
-                socklen_t *restrict address_len);
+#ifdef __SIMU_FAIL_AcceptEx
+#define AcceptEx __sf_AcceptEx
+BOOL __sf_AcceptEx(SOCKET sListenSocket,
+                   SOCKET sAcceptSocket,
+                   PVOID lpOutputBuffer,
+                   DWORD dwReceiveDataLength,
+                   DWORD dwLocalAddressLength,
+                   DWORD dwRemoteAddressLength,
+                   LPDWORD lpdwBytesReceived,
+                   LPOVERLAPPED lpOverlapped);
 #endif
 
-#ifdef __SIMU_FAIL_CONNECT
-#define connect __sf_connect
-int __sf_connect(int socket,
-                 const struct sockaddr *address,
-                 socklen_t address_len);
+#ifdef __SIMU_FAIL_ConnectEx
+#define ConnectEx __sf_ConnectEx
+BOOL PASCAL __sf_ConnectEx(SOCKET s,
+                           const struct sockaddr *name,
+                           int namelen,
+                           __in_opt PVOID lpSendBuffer,
+                           DWORD dwSendDataLength,
+                           LPDWORD lpdwBytesSent,
+                           LPOVERLAPPED lpOverlapped);
 #endif
 
-#ifdef __SIMU_FAIL_SEND
-#define send __sf_send
-ssize_t __sf_send(int socket, const void *buffer, size_t length, int flags);
+#ifdef __SIMU_FAIL_WSASend
+#define WSASend __sf_WSASend
+int __sf_WSASend(SOCKET s,
+                 LPWSABUF lpBuffers,
+                 DWORD dwBufferCount,
+                 LPDWORD lpNumberOfBytesSent,
+                 DWORD dwFlags,
+                 LPWSAOVERLAPPED lpOverlapped,
+                 LPWSAOVERLAPPED_COMPLETION_ROUTINE lpCompletionRoutine);
 #endif
 
-#ifdef __SIMU_FAIL_RECV
-#define recv __sf_recv
-ssize_t __sf_recv(int socket, void *buffer, size_t length, int flags);
+#ifdef __SIMU_FAIL_WSARecv
+#define WSARecv __sf_WSARecv
+int __sf_WSARecv(SOCKET s,
+                 LPWSABUF lpBuffers,
+                 DWORD dwBufferCount,
+                 LPDWORD lpNumberOfBytesRecvd,
+                 LPDWORD lpFlags,
+                 LPWSAOVERLAPPED lpOverlapped,
+                 LPWSAOVERLAPPED_COMPLETION_ROUTINE lpCompletionRoutine);
 #endif
 
-#ifdef __SIMU_FAIL_SENDTO
-#define sendto __sf_sendto
-ssize_t __sf_sendto(int socket,
-                    const void *buffer,
-                    size_t length,
-                    int flags,
-                    const struct sockaddr *dest_addr,
-                    socklen_t dest_len);
+#ifdef __SIMU_FAIL_WSASendTo
+#define WSASendTo __sf_WSASendTo
+int __sf_WSASendTo(SOCKET s,
+                   LPWSABUF lpBuffers,
+                   DWORD dwBufferCount,
+                   LPDWORD lpNumberOfBytesSent,
+                   DWORD dwFlags,
+                   const struct sockaddr *lpTo,
+                   int iToLen,
+                   LPWSAOVERLAPPED lpOverlapped,
+                   LPWSAOVERLAPPED_COMPLETION_ROUTINE lpCompletionRoutine);
 #endif
 
-#ifdef __SIMU_FAIL_RECVFROM
-#define recvfrom __sf_recvfrom
-ssize_t __sf_recvfrom(int socket,
-                      void *restrict buffer,
-                      size_t length,
-                      int flags,
-                      struct sockaddr *restrict address,
-                      socklen_t *restrict address_len);
+#ifdef __SIMU_FAIL_WSARecvFrom
+#define WSARecvFrom __sf_WSARecvFrom
+int __sf_WSARecvFrom(SOCKET s,
+                     LPWSABUF lpBuffers,
+                     DWORD dwBufferCount,
+                     LPDWORD lpNumberOfBytesRecvd,
+                     LPDWORD lpFlags,
+                     struct sockaddr *lpFrom,
+                     LPINT lpFromlen,
+                     LPWSAOVERLAPPED lpOverlapped,
+                     LPWSAOVERLAPPED_COMPLETION_ROUTINE lpCompletionRoutine);
 #endif
 
 ////////////////////////////////////////////////////////////
@@ -324,7 +354,7 @@ tt_result_t tt_skt_create_ntv(IN tt_skt_ntv_t *skt,
         proto = IPPROTO_UDP;
     }
 
-    s = WSASocket(af, type, proto, NULL, 0, WSA_FLAG_OVERLAPPED);
+    s = WSASocketW(af, type, proto, NULL, 0, WSA_FLAG_OVERLAPPED);
     if (s == INVALID_SOCKET) {
         TT_NET_ERROR_NTV("fail to create socket");
         return TT_FAIL;
@@ -431,12 +461,12 @@ tt_result_t tt_skt_accept_ntv(IN tt_skt_ntv_t *skt,
     HANDLE iocp;
     DWORD dwBytesReceived;
 
-    new_s = WSASocket(skt->af,
-                      SOCK_STREAM,
-                      IPPROTO_TCP,
-                      NULL,
-                      0,
-                      WSA_FLAG_OVERLAPPED);
+    new_s = WSASocketW(skt->af,
+                       SOCK_STREAM,
+                       IPPROTO_TCP,
+                       NULL,
+                       0,
+                       WSA_FLAG_OVERLAPPED);
     if (new_s == INVALID_SOCKET) {
         TT_NET_ERROR_NTV("fail to create accept socket");
         return TT_FAIL;
@@ -1010,7 +1040,7 @@ tt_bool_t __do_send(IN tt_io_ev_t *io_ev)
         skt_send->result = TT_SUCCESS;
         return TT_TRUE;
     }
-    TT_ASSERT(skt_send->pos < skt_send->len);
+    TT_ASSERT_SKT(skt_send->pos < skt_send->len);
 
     // return success whenever some data is sent
     if (!TT_OK(io_ev->io_result)) {
@@ -1024,15 +1054,17 @@ tt_bool_t __do_send(IN tt_io_ev_t *io_ev)
     }
 
     // send left data
+    TT_INFO("continue WSASend");
     Buffers.buf = TT_PTR_INC(char, skt_send->buf, skt_send->pos);
     Buffers.len = skt_send->len - skt_send->pos;
+    tt_memset(&skt_send->io_ev.wov, 0, sizeof(WSAOVERLAPPED));
     if ((WSASend(skt_send->skt->s,
                  &Buffers,
                  1,
                  NULL,
                  0,
                  &skt_send->io_ev.wov,
-                 NULL) != 0) &&
+                 NULL) == 0) ||
         ((dwError = WSAGetLastError()) == WSA_IO_PENDING)) {
         return TT_FALSE;
     }
@@ -1054,7 +1086,7 @@ tt_bool_t __do_recv(IN tt_io_ev_t *io_ev)
 {
     __skt_recv_t *skt_recv = (__skt_recv_t *)io_ev;
 
-    TT_ASSERT(io_ev->io_bytes <= skt_recv->len);
+    TT_ASSERT_SKT(io_ev->io_bytes <= skt_recv->len);
 
     if (io_ev->io_bytes > 0) {
         *skt_recv->recvd = io_ev->io_bytes;
@@ -1079,7 +1111,7 @@ tt_bool_t __do_sendto(IN tt_io_ev_t *io_ev)
         skt_sendto->result = TT_SUCCESS;
         return TT_TRUE;
     }
-    TT_ASSERT(skt_sendto->pos < skt_sendto->len);
+    TT_ASSERT_SKT(skt_sendto->pos < skt_sendto->len);
 
     // return success whenever some data is sent
     if (!TT_OK(io_ev->io_result)) {
@@ -1095,6 +1127,7 @@ tt_bool_t __do_sendto(IN tt_io_ev_t *io_ev)
     // send left data
     Buffers.buf = TT_PTR_INC(char, skt_sendto->buf, skt_sendto->pos);
     Buffers.len = skt_sendto->len - skt_sendto->pos;
+    tt_memset(&skt_sendto->io_ev.wov, 0, sizeof(WSAOVERLAPPED));
     if ((WSASendTo(skt_sendto->skt->s,
                    &Buffers,
                    1,
@@ -1140,7 +1173,7 @@ tt_result_t __init_api()
     const GUID guid_GetAcceptExSockaddrs = WSAID_GETACCEPTEXSOCKADDRS;
     const GUID guid_DisconnectEx = WSAID_DISCONNECTEX;
 
-    s = WSASocket(AF_INET, SOCK_DGRAM, IPPROTO_UDP, NULL, 0, 0);
+    s = WSASocketW(AF_INET, SOCK_DGRAM, IPPROTO_UDP, NULL, 0, 0);
     if (s == INVALID_SOCKET) {
         TT_NET_ERROR_NTV("can not create a udp socket");
         return TT_FAIL;
@@ -1154,6 +1187,12 @@ tt_result_t __init_api()
         closesocket(s);
         return TT_FAIL;
     }
+#ifdef __SIMU_FAIL_AcceptEx
+    tt_AcceptEx = __sf_AcceptEx;
+#endif
+#ifdef __SIMU_FAIL_ConnectEx
+    tt_ConnectEx = __sf_ConnectEx;
+#endif
 
     closesocket(s);
     return TT_SUCCESS;
@@ -1179,132 +1218,193 @@ tt_result_t __load_api(IN SOCKET s, const IN GUID *guid, IN void **pfn)
     }
 }
 
-#ifdef __SIMU_FAIL_SOCKET
-#undef socket
-int __sf_socket(int domain, int type, int protocol)
+#ifdef __SIMU_FAIL_WSASocketW
+#undef WSASocketW
+SOCKET __sf_WSASocketW(int af,
+                       int type,
+                       int protocol,
+                       LPWSAPROTOCOL_INFOW lpProtocolInfo,
+                       GROUP g,
+                       DWORD dwFlags)
 {
-    return -1;
+    return INVALID_SOCKET;
 }
 #endif
 
-#ifdef __SIMU_FAIL_CLOSE
-#undef close
-int __sf_close(int fildes)
+#ifdef __SIMU_FAIL_closesocket
+#undef closesocket
+int __sf_closesocket(int fildes)
 {
-    return -1;
+    return SOCKET_ERROR;
 }
 #endif
 
-#ifdef __SIMU_FAIL_SHUTDOWN
+#ifdef __SIMU_FAIL_shutdown
 #undef shutdown
-int __sf_shutdown(int socket, int how)
-
+int __sf_shutdown(SOCKET s, int how)
 {
-    return -1;
+    return SOCKET_ERROR;
 }
 #endif
 
-#ifdef __SIMU_FAIL_BIND
+#ifdef __SIMU_FAIL_bind
 #undef bind
-int __sf_bind(int socket, const struct sockaddr *address, socklen_t address_len)
+int __sf_bind(SOCKET s, const struct sockaddr *name, int namelen)
 
 {
-    return -1;
+    return SOCKET_ERROR;
 }
 #endif
 
-#ifdef __SIMU_FAIL_LISTEN
+#ifdef __SIMU_FAIL_listen
 #undef listen
-int __sf_listen(int socket, int backlog)
+int __sf_listen(SOCKET s, int backlog)
 {
-    return -1;
+    return SOCKET_ERROR;
 }
 #endif
 
-#ifdef __SIMU_FAIL_ACCEPT
-#undef accept
-int __sf_accept(int socket,
-                struct sockaddr *restrict address,
-                socklen_t *restrict address_len)
+#ifdef __SIMU_FAIL_AcceptEx
+#undef AcceptEx
+BOOL __sf_AcceptEx(SOCKET sListenSocket,
+                   SOCKET sAcceptSocket,
+                   PVOID lpOutputBuffer,
+                   DWORD dwReceiveDataLength,
+                   DWORD dwLocalAddressLength,
+                   DWORD dwRemoteAddressLength,
+                   LPDWORD lpdwBytesReceived,
+                   LPOVERLAPPED lpOverlapped)
 {
-    return -1;
+    return FALSE;
 }
 #endif
 
-#ifdef __SIMU_FAIL_CONNECT
-#undef connect
-int __sf_connect(int socket,
-                 const struct sockaddr *address,
-                 socklen_t address_len)
+#ifdef __SIMU_FAIL_ConnectEx
+#undef ConnectEx
+BOOL PASCAL __sf_ConnectEx(SOCKET s,
+                           const struct sockaddr *name,
+                           int namelen,
+                           __in_opt PVOID lpSendBuffer,
+                           DWORD dwSendDataLength,
+                           LPDWORD lpdwBytesSent,
+                           LPOVERLAPPED lpOverlapped)
 {
-    return -1;
+    return FALSE;
 }
 #endif
 
-#ifdef __SIMU_FAIL_SEND
-#undef send
-ssize_t __sf_send(int socket, const void *buffer, size_t length, int flags)
+#ifdef __SIMU_FAIL_WSASend
+#undef WSASend
+int __sf_WSASend(SOCKET s,
+                 LPWSABUF lpBuffers,
+                 DWORD dwBufferCount,
+                 LPDWORD lpNumberOfBytesSent,
+                 DWORD dwFlags,
+                 LPWSAOVERLAPPED lpOverlapped,
+                 LPWSAOVERLAPPED_COMPLETION_ROUTINE lpCompletionRoutine)
 {
-    if (tt_rand_u32() % 2) {
-        return -1;
+    if (tt_rand_u32() % 10 == 0) {
+        WSASetLastError(WSA_NOT_ENOUGH_MEMORY);
+        return SOCKET_ERROR;
     } else {
-        return send(socket, buffer, tt_rand_u32() % length, flags);
+        // TT_INFO("org send: %d", lpBuffers[0].len);
+        lpBuffers[0].len = tt_rand_u32() % lpBuffers[0].len + 1;
+        // TT_INFO("but send: %d", lpBuffers[0].len);
+        return WSASend(s,
+                       lpBuffers,
+                       dwBufferCount,
+                       lpNumberOfBytesSent,
+                       dwFlags,
+                       lpOverlapped,
+                       lpCompletionRoutine);
     }
 }
 #endif
 
-#ifdef __SIMU_FAIL_RECV
-#undef recv
-ssize_t __sf_recv(int socket, void *buffer, size_t length, int flags)
+#ifdef __SIMU_FAIL_WSARecv
+#undef WSARecv
+int __sf_WSARecv(SOCKET s,
+                 LPWSABUF lpBuffers,
+                 DWORD dwBufferCount,
+                 LPDWORD lpNumberOfBytesRecvd,
+                 LPDWORD lpFlags,
+                 LPWSAOVERLAPPED lpOverlapped,
+                 LPWSAOVERLAPPED_COMPLETION_ROUTINE lpCompletionRoutine)
 {
-    if (tt_rand_u32() % 2) {
-        return -1;
+    if (tt_rand_u32() % 10 == 0) {
+        WSASetLastError(WSA_NOT_ENOUGH_MEMORY);
+        return SOCKET_ERROR;
     } else {
-        return recv(socket, buffer, tt_rand_u32() % length, flags);
+        // TT_INFO("org recv: %d", lpBuffers[0].len);
+        lpBuffers[0].len = tt_rand_u32() % lpBuffers[0].len + 1;
+        // TT_INFO("org recv: %d", lpBuffers[0].len);
+        return WSARecv(s,
+                       lpBuffers,
+                       dwBufferCount,
+                       lpNumberOfBytesRecvd,
+                       lpFlags,
+                       lpOverlapped,
+                       lpCompletionRoutine);
     }
 }
 #endif
 
-#ifdef __SIMU_FAIL_SENDTO
-#undef sendto
-ssize_t __sf_sendto(int socket,
-                    const void *buffer,
-                    size_t length,
-                    int flags,
-                    const struct sockaddr *dest_addr,
-                    socklen_t dest_len)
+#ifdef __SIMU_FAIL_WSASendTo
+#undef WSASendTo
+int __sf_WSASendTo(SOCKET s,
+                   LPWSABUF lpBuffers,
+                   DWORD dwBufferCount,
+                   LPDWORD lpNumberOfBytesSent,
+                   DWORD dwFlags,
+                   const struct sockaddr *lpTo,
+                   int iToLen,
+                   LPWSAOVERLAPPED lpOverlapped,
+                   LPWSAOVERLAPPED_COMPLETION_ROUTINE lpCompletionRoutine)
 {
-    if (tt_rand_u32() % 2) {
-        return -1;
+    if (tt_rand_u32() % 10 == 0) {
+        WSASetLastError(WSA_NOT_ENOUGH_MEMORY);
+        return SOCKET_ERROR;
     } else {
-        return sendto(socket,
-                      buffer,
-                      tt_rand_u32() % length,
-                      flags,
-                      dest_addr,
-                      dest_len);
+        lpBuffers[0].len = tt_rand_u32() % lpBuffers[0].len + 1;
+        return WSASendTo(s,
+                         lpBuffers,
+                         dwBufferCount,
+                         lpNumberOfBytesSent,
+                         dwFlags,
+                         lpTo,
+                         iToLen,
+                         lpOverlapped,
+                         lpCompletionRoutine);
     }
 }
 #endif
 
-#ifdef __SIMU_FAIL_RECVFROM
-#undef recvfrom
-ssize_t __sf_recvfrom(int socket,
-                      void *restrict buffer,
-                      size_t length,
-                      int flags,
-                      struct sockaddr *restrict address,
-                      socklen_t *restrict address_len)
+#ifdef __SIMU_FAIL_WSARecvFrom
+#undef WSARecvFrom
+int __sf_WSARecvFrom(SOCKET s,
+                     LPWSABUF lpBuffers,
+                     DWORD dwBufferCount,
+                     LPDWORD lpNumberOfBytesRecvd,
+                     LPDWORD lpFlags,
+                     struct sockaddr *lpFrom,
+                     LPINT lpFromlen,
+                     LPWSAOVERLAPPED lpOverlapped,
+                     LPWSAOVERLAPPED_COMPLETION_ROUTINE lpCompletionRoutine)
 {
-    if (tt_rand_u32() % 2) {
-        return -1;
+    if (tt_rand_u32() % 10 == 0) {
+        WSASetLastError(WSA_NOT_ENOUGH_MEMORY);
+        return SOCKET_ERROR;
     } else {
-        return recvfrom(socket,
-                        buffer,
-                        tt_rand_u32() % length,
-                        flags,
-                        address,
-                        address_len);
+        lpBuffers[0].len = tt_rand_u32() % lpBuffers[0].len + 1;
+        return WSARecvFrom(s,
+                           lpBuffers,
+                           dwBufferCount,
+                           lpNumberOfBytesRecvd,
+                           lpFlags,
+                           lpFrom,
+                           lpFromlen,
+                           lpOverlapped,
+                           lpCompletionRoutine);
     }
 }
 #endif
