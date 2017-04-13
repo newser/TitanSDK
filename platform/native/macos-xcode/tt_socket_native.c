@@ -398,7 +398,7 @@ tt_result_t tt_skt_accept_ntv(IN tt_skt_ntv_t *skt,
     skt_accept.result = TT_FAIL;
 
     tt_kq_read(kq, skt->s, &skt_accept.io_ev);
-    tt_fiber_yield();
+    tt_fiber_suspend();
     return skt_accept.result;
 }
 
@@ -430,7 +430,7 @@ again:
     skt_connect.result = TT_FAIL;
 
     tt_kq_write(kq, skt->s, &skt_connect.io_ev);
-    tt_fiber_yield();
+    tt_fiber_suspend();
     return skt_connect.result;
 }
 
@@ -479,7 +479,7 @@ tt_result_t tt_skt_recvfrom_ntv(IN tt_skt_ntv_t *skt,
     skt_recvfrom.kq = kq;
 
     tt_kq_read(kq, skt->s, &skt_recvfrom.io_ev);
-    tt_fiber_yield();
+    tt_fiber_suspend();
     return skt_recvfrom.result;
 }
 
@@ -505,7 +505,7 @@ tt_result_t tt_skt_sendto_ntv(IN tt_skt_ntv_t *skt,
     skt_sendto.pos = 0;
 
     tt_kq_write(kq, skt->s, &skt_sendto.io_ev);
-    tt_fiber_yield();
+    tt_fiber_suspend();
     return skt_sendto.result;
 }
 
@@ -529,7 +529,7 @@ tt_result_t tt_skt_send_ntv(IN tt_skt_ntv_t *skt,
     skt_send.pos = 0;
 
     tt_kq_write(kq, skt->s, &skt_send.io_ev);
-    tt_fiber_yield();
+    tt_fiber_suspend();
     return skt_send.result;
 }
 
@@ -552,7 +552,7 @@ tt_result_t tt_skt_recv_ntv(IN tt_skt_ntv_t *skt,
     skt_recv.kq = kq;
 
     tt_kq_read(kq, skt->s, &skt_recv.io_ev);
-    tt_fiber_yield();
+    tt_fiber_suspend();
     return skt_recv.result;
 }
 

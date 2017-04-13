@@ -15,21 +15,18 @@
  */
 
 /**
-@file tt_task.h
-@brief task
+@file tt_fiber_event.h
+@brief fiber event
 */
 
-#ifndef __TT_TASK__
-#define __TT_TASK__
+#ifndef __TT_FIBER_EVENT__
+#define __TT_FIBER_EVENT__
 
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <algorithm/tt_single_linked_list.h>
-#include <io/tt_io_poller.h>
-#include <os/tt_fiber.h>
-#include <os/tt_thread.h>
+#include <algorithm/tt_double_linked_list.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
@@ -39,19 +36,14 @@
 // type definition
 ////////////////////////////////////////////////////////////
 
-typedef struct tt_task_s
-{
-    tt_slist_t tfl;
-    tt_thread_t *thread;
-    tt_thread_attr_t thread_attr;
-    tt_io_poller_t iop;
-} tt_task_t;
+struct tt_fiber_s;
 
-typedef struct tt_task_attr_s
+typedef struct tt_fiber_ev_s
 {
-    tt_thread_attr_t thread_attr;
-    tt_io_poller_attr_t io_poller_attr;
-} tt_task_attr_t;
+    struct tt_fiber_s *src;
+    tt_dnode_t node;
+    tt_u32_t ev;
+} tt_fiber_ev_t;
 
 ////////////////////////////////////////////////////////////
 // global variants
@@ -61,28 +53,19 @@ typedef struct tt_task_attr_s
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern tt_result_t tt_task_create(IN tt_task_t *t, IN OPT tt_task_attr_t *attr);
+extern void tt_fiber_ev_init(IN tt_fiber_ev_t *fev, IN tt_u32_t ev);
 
-extern void tt_task_attr_default(IN tt_task_attr_t *attr);
+extern tt_fiber_ev_t *tt_fiber_ev_create(IN tt_u32_t ev, IN tt_u32_t size);
 
-extern void tt_task_add_fiber(IN tt_task_t *t,
-                              IN OPT const tt_char_t *name,
-                              IN tt_fiber_routine_t routine,
-                              IN void *param,
-                              IN OPT tt_fiber_attr_t *attr);
+extern void tt_fiber_ev_destroy(IN tt_fiber_ev_t *fev);
 
-extern tt_result_t tt_task_run(IN tt_task_t *t);
+extern void tt_fiber_send(IN struct tt_fiber_s *dst,
+                          IN tt_fiber_ev_t *fev,
+                          IN tt_bool_t wait);
 
-// set NULL to exit current task, but note it does not exit immediately
-extern void tt_task_exit(IN OPT tt_task_t *t);
+extern tt_fiber_ev_t *tt_fiber_recv(IN struct tt_fiber_s *current,
+                                    IN tt_bool_t wait);
 
-extern void tt_task_wait(IN tt_task_t *t);
+extern void tt_fiber_finish(IN tt_fiber_ev_t *fev);
 
-extern tt_result_t tt_task_run_local(IN tt_task_t *t);
-
-tt_inline void tt_task_finish(IN tt_task_t *t, IN tt_io_ev_t *io_ev)
-{
-    tt_io_poller_finish(&t->iop, io_ev);
-}
-
-#endif /* __TT_TASK__ */
+#endif // __TT_FIBER_EVENT__

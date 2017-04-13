@@ -51,8 +51,6 @@ static tt_fiber_t *__fiber_create_main(IN tt_fiber_sched_t *fs);
 
 static void __fiber_destroy_main(IN tt_fiber_t *fb);
 
-static tt_fiber_t *__fiber_sched_next(IN tt_fiber_sched_t *fs);
-
 ////////////////////////////////////////////////////////////
 // interface implementation
 ////////////////////////////////////////////////////////////
@@ -114,7 +112,49 @@ void tt_fiber_sched_attr_default(IN tt_fiber_sched_attr_t *attr)
     TT_ASSERT(attr != NULL);
 }
 
-tt_fiber_t *tt_fiber_create(IN tt_fiber_routine_t routine,
+tt_fiber_t *tt_fiber_sched_find(IN tt_fiber_sched_t *fs,
+                                IN const tt_char_t *name)
+{
+    tt_lnode_t *node;
+
+    TT_ASSERT(fs != NULL);
+    TT_ASSERT(name != NULL);
+
+    node = tt_list_head(&fs->active);
+    while (node != NULL) {
+        tt_fiber_t *fb = TT_CONTAINER(node, tt_fiber_t, node);
+        if ((fb->name != NULL) && (tt_strcmp(fb->name, name) == 0)) {
+            return fb;
+        }
+
+        node = node->next;
+    }
+
+    node = tt_list_head(&fs->pending);
+    while (node != NULL) {
+        tt_fiber_t *fb = TT_CONTAINER(node, tt_fiber_t, node);
+        if ((fb->name != NULL) && (tt_strcmp(fb->name, name) == 0)) {
+            return fb;
+        }
+
+        node = node->next;
+    }
+
+    return NULL;
+}
+
+tt_fiber_t *tt_fiber_sched_next(IN tt_fiber_sched_t *fs)
+{
+    tt_lnode_t *node = tt_list_head(&fs->active);
+    if (node != NULL) {
+        return TT_CONTAINER(node, tt_fiber_t, node);
+    } else {
+        return fs->__main;
+    }
+}
+
+tt_fiber_t *tt_fiber_create(IN OPT const tt_char_t *name,
+                            IN tt_fiber_routine_t routine,
                             IN void *param,
                             IN OPT tt_fiber_attr_t *attr)
 {
@@ -130,6 +170,11 @@ tt_fiber_t *tt_fiber_create(IN tt_fiber_routine_t routine,
         return NULL;
     }
 
+    if ((name != NULL) && (tt_fiber_sched_find(fs, name) != NULL)) {
+        TT_ERROR("duplicated fiber name: %s", name);
+        return NULL;
+    }
+
     if (attr == NULL) {
         tt_fiber_attr_default(&__attr);
         attr = &__attr;
@@ -142,9 +187,11 @@ tt_fiber_t *tt_fiber_create(IN tt_fiber_routine_t routine,
     }
 
     tt_lnode_init(&fb->node);
+    fb->name = name;
     fb->routine = routine;
     fb->param = param;
     fb->fs = fs;
+    tt_dlist_init(&fb->ev);
 
     if (!TT_OK(tt_fiber_create_wrap(&fb->wrap_fb, attr->stack_size))) {
         tt_free(fb);
@@ -153,9 +200,9 @@ tt_fiber_t *tt_fiber_create(IN tt_fiber_routine_t routine,
 
     fb->can_yield = TT_TRUE;
     fb->end = TT_FALSE;
+    fb->recving = TT_FALSE;
 
-    // put to pending list, as it will be scheduled by
-    // tt_fiber_switch()
+    // put to pending list, will be scheduled later
     tt_list_push_tail(&fs->pending, &fb->node);
 
     return fb;
@@ -163,7 +210,13 @@ tt_fiber_t *tt_fiber_create(IN tt_fiber_routine_t routine,
 
 void tt_fiber_destroy(IN tt_fiber_t *fb)
 {
+    tt_dnode_t *node;
+
     TT_ASSERT(fb != NULL);
+
+    while ((node = tt_dlist_pop_head(&fb->ev)) != NULL) {
+        // howto??
+    }
 
     tt_fiber_destroy_wrap(&fb->wrap_fb);
 
@@ -177,7 +230,7 @@ void tt_fiber_attr_default(IN tt_fiber_attr_t *attr)
     attr->stack_size = __FIBER_STACK_SIZE_DEF;
 }
 
-void tt_fiber_yield()
+void tt_fiber_suspend()
 {
     tt_fiber_sched_t *cfs = tt_current_fiber_sched();
     tt_fiber_t *cfb = cfs->current;
@@ -190,7 +243,7 @@ void tt_fiber_yield()
         tt_list_push_tail(&cfs->pending, &cfb->node);
     }
 
-    next = __fiber_sched_next(cfs);
+    next = tt_fiber_sched_next(cfs);
 
     if (next != cfb) {
         cfs->current = next;
@@ -201,13 +254,17 @@ void tt_fiber_yield()
 
 void tt_fiber_resume(IN tt_fiber_t *fb, IN tt_bool_t suspend)
 {
-    tt_fiber_sched_t *cfs = tt_current_fiber_sched();
+    tt_fiber_sched_t *cfs = fb->fs;
     tt_fiber_t *cfb = cfs->current;
 
     if (cfb != fb) {
-        if ((cfb != cfs->__main) && suspend) {
+        if (cfb != cfs->__main) {
             tt_list_remove(&cfb->node);
-            tt_list_push_head(&cfs->pending, &cfb->node);
+            if (suspend) {
+                tt_list_push_tail(&cfs->pending, &cfb->node);
+            } else {
+                tt_list_push_tail(&cfs->active, &cfb->node);
+            }
         }
 
         if (fb != cfs->__main) {
@@ -251,14 +308,4 @@ void __fiber_destroy_main(IN tt_fiber_t *fb)
     tt_fiber_destroy_local_wrap(&fb->wrap_fb);
 
     tt_free(fb);
-}
-
-tt_fiber_t *__fiber_sched_next(IN tt_fiber_sched_t *fs)
-{
-    tt_lnode_t *node = tt_list_head(&fs->active);
-    if (node != NULL) {
-        return TT_CONTAINER(node, tt_fiber_t, node);
-    } else {
-        return fs->__main;
-    }
 }

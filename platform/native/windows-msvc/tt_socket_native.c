@@ -497,7 +497,7 @@ tt_result_t tt_skt_accept_ntv(IN tt_skt_ntv_t *skt,
         return TT_FAIL;
     }
 
-    tt_fiber_yield();
+    tt_fiber_suspend();
     return skt_accept.result;
 }
 
@@ -541,7 +541,7 @@ tt_result_t tt_skt_connect_ntv(IN tt_skt_ntv_t *skt, IN tt_sktaddr_t *addr)
         return TT_FAIL;
     }
 
-    tt_fiber_yield();
+    tt_fiber_suspend();
     return skt_connect.result;
 }
 
@@ -613,7 +613,7 @@ tt_result_t tt_skt_recvfrom_ntv(IN tt_skt_ntv_t *skt,
                      &skt_recvfrom.io_ev.wov,
                      NULL) == 0) ||
         (WSAGetLastError() == WSA_IO_PENDING)) {
-        tt_fiber_yield();
+        tt_fiber_suspend();
         return skt_recvfrom.result;
     }
 
@@ -658,7 +658,7 @@ tt_result_t tt_skt_sendto_ntv(IN tt_skt_ntv_t *skt,
                    &skt_sendto.io_ev.wov,
                    NULL) == 0) ||
         (WSAGetLastError() == WSA_IO_PENDING)) {
-        tt_fiber_yield();
+        tt_fiber_suspend();
         return skt_sendto.result;
     }
 
@@ -690,7 +690,7 @@ tt_result_t tt_skt_send_ntv(IN tt_skt_ntv_t *skt,
     if ((WSASend(skt->s, &Buffers, 1, NULL, 0, &skt_send.io_ev.wov, NULL) ==
          0) ||
         ((dwError = WSAGetLastError()) == WSA_IO_PENDING)) {
-        tt_fiber_yield();
+        tt_fiber_suspend();
         return skt_send.result;
     }
 
@@ -730,7 +730,7 @@ tt_result_t tt_skt_recv_ntv(IN tt_skt_ntv_t *skt,
                  &skt_recv.io_ev.wov,
                  NULL) == 0) ||
         ((dwError = WSAGetLastError()) == WSA_IO_PENDING)) {
-        tt_fiber_yield();
+        tt_fiber_suspend();
         return skt_recv.result;
     }
 

@@ -538,6 +538,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_fs_multhread)
 
         for (j = 0; j < __fiber_per_task; ++j) {
             tt_task_add_fiber(&task[i],
+                              NULL,
                               __fs_fiber,
                               (void *)(tt_uintptr_t)((i << 16) | j),
                               NULL);
@@ -681,7 +682,11 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_fs_consistency)
     TT_UT_SUCCESS(ret, "");
 
     for (j = 0; j < 4; ++j) {
-        tt_task_add_fiber(&task, __wr_fiber, (void *)(tt_uintptr_t)j, NULL);
+        tt_task_add_fiber(&task,
+                          NULL,
+                          __wr_fiber,
+                          (void *)(tt_uintptr_t)j,
+                          NULL);
     }
 
     __fb_end = 0;
@@ -697,7 +702,11 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_fs_consistency)
 
     // read, check consistency
     for (j = 0; j < 8; ++j) {
-        tt_task_add_fiber(&task, __rd_fiber, (void *)(tt_uintptr_t)j, NULL);
+        tt_task_add_fiber(&task,
+                          NULL,
+                          __rd_fiber,
+                          (void *)(tt_uintptr_t)j,
+                          NULL);
     }
 
     __fb_end = 0;

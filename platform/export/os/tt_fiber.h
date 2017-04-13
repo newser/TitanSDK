@@ -26,6 +26,7 @@
 // import header files
 ////////////////////////////////////////////////////////////
 
+#include <algorithm/tt_double_linked_list.h>
 #include <algorithm/tt_list.h>
 #include <os/tt_spinlock.h>
 #include <os/tt_thread.h>
@@ -74,12 +75,15 @@ typedef struct
 typedef struct tt_fiber_s
 {
     tt_lnode_t node;
+    const tt_char_t *name;
     tt_fiber_routine_t routine;
     void *param;
     tt_fiber_sched_t *fs;
+    tt_dlist_t ev;
     tt_fiber_wrap_t wrap_fb;
     tt_bool_t can_yield : 1;
     tt_bool_t end : 1;
+    tt_bool_t recving : 1;
 } tt_fiber_t;
 
 typedef struct tt_fiber_attr_s
@@ -117,11 +121,17 @@ tt_inline tt_bool_t tt_fiber_sched_empty(IN tt_fiber_sched_t *fs)
     return tt_list_empty(&fs->active) && tt_list_empty(&fs->pending);
 }
 
+extern tt_fiber_t *tt_fiber_sched_find(IN tt_fiber_sched_t *fs,
+                                       IN const tt_char_t *name);
+
+extern tt_fiber_t *tt_fiber_sched_next(IN tt_fiber_sched_t *fs);
+
 // ========================================
 // fiber
 // ========================================
 
-extern tt_fiber_t *tt_fiber_create(IN tt_fiber_routine_t routine,
+extern tt_fiber_t *tt_fiber_create(IN OPT const tt_char_t *name,
+                                   IN tt_fiber_routine_t routine,
                                    IN void *param,
                                    IN OPT tt_fiber_attr_t *attr);
 
@@ -129,11 +139,9 @@ extern void tt_fiber_destroy(IN tt_fiber_t *fb);
 
 extern void tt_fiber_attr_default(IN tt_fiber_attr_t *attr);
 
-extern void tt_fiber_yield();
+extern void tt_fiber_suspend();
 
 extern void tt_fiber_resume(IN tt_fiber_t *fb, IN tt_bool_t suspend);
-
-extern void tt_fiber_activate(IN tt_fiber_t *fb);
 
 tt_inline tt_fiber_t *tt_current_fiber()
 {
@@ -141,10 +149,15 @@ tt_inline tt_fiber_t *tt_current_fiber()
     return TT_COND(fs != NULL, fs->current, NULL);
 }
 
-tt_inline tt_bool_t tt_fiber_can_yield()
+tt_inline tt_bool_t tt_fiber_can_suspend()
 {
     tt_fiber_t *f = tt_current_fiber();
     return TT_COND(f != NULL, f->can_yield, TT_FALSE);
+}
+
+tt_inline tt_fiber_t *tt_fiber_find(IN const tt_char_t *name)
+{
+    return tt_fiber_sched_find(tt_current_fiber_sched(), name);
 }
 
 #endif /* __TT_FIBER__ */

@@ -338,7 +338,7 @@ tt_result_t tt_fcreate_ntv(IN const tt_char_t *path,
     fcreate.result = TT_FAIL;
 
     tt_iowg_push_ev(&tt_g_fs_iowg, &fcreate.io_ev);
-    tt_fiber_yield();
+    tt_fiber_suspend();
     return fcreate.result;
 }
 
@@ -353,7 +353,7 @@ tt_result_t tt_fremove_ntv(IN const tt_char_t *path)
     fremove.result = TT_FAIL;
 
     tt_iowg_push_ev(&tt_g_fs_iowg, &fremove.io_ev);
-    tt_fiber_yield();
+    tt_fiber_suspend();
     return fremove.result;
 }
 
@@ -375,7 +375,7 @@ tt_result_t tt_fopen_ntv(IN tt_file_ntv_t *file,
     fopen.result = TT_FAIL;
 
     tt_iowg_push_ev(&tt_g_fs_iowg, &fopen.io_ev);
-    tt_fiber_yield();
+    tt_fiber_suspend();
     return fopen.result;
 }
 
@@ -388,7 +388,7 @@ void tt_fclose_ntv(IN tt_file_ntv_t *file)
     fclose.file = file;
 
     tt_iowg_push_ev(&tt_g_fs_iowg, &fclose.io_ev);
-    tt_fiber_yield();
+    tt_fiber_suspend();
 }
 
 tt_result_t tt_fseek_ntv(IN tt_file_ntv_t *file,
@@ -406,7 +406,7 @@ tt_result_t tt_fseek_ntv(IN tt_file_ntv_t *file,
     fseek.location = location;
 
     tt_iowg_push_ev(&tt_g_fs_iowg, &fseek.io_ev);
-    tt_fiber_yield();
+    tt_fiber_suspend();
     return fseek.result;
 }
 
@@ -428,7 +428,7 @@ tt_result_t tt_fread_ntv(IN tt_file_ntv_t *file,
     fread.result = TT_FAIL;
 
     tt_iowg_push_ev(&tt_g_fs_iowg, &fread.io_ev);
-    tt_fiber_yield();
+    tt_fiber_suspend();
     return fread.result;
 }
 
@@ -449,7 +449,7 @@ tt_result_t tt_fwrite_ntv(IN tt_file_ntv_t *file,
     fwrite.result = TT_FAIL;
 
     tt_iowg_push_ev(&tt_g_fs_iowg, &fwrite.io_ev);
-    tt_fiber_yield();
+    tt_fiber_suspend();
     return fwrite.result;
 }
 
@@ -465,7 +465,7 @@ tt_result_t tt_dcreate_ntv(IN const tt_char_t *path, IN tt_dir_attr_t *attr)
     dcreate.result = TT_FAIL;
 
     tt_iowg_push_ev(&tt_g_fs_iowg, &dcreate.io_ev);
-    tt_fiber_yield();
+    tt_fiber_suspend();
     return dcreate.result;
 }
 
@@ -480,7 +480,7 @@ tt_result_t tt_dremove_ntv(IN const tt_char_t *path)
     dremove.result = TT_FAIL;
 
     tt_iowg_push_ev(&tt_g_fs_iowg, &dremove.io_ev);
-    tt_fiber_yield();
+    tt_fiber_suspend();
     return dremove.result;
 }
 
@@ -499,7 +499,7 @@ tt_result_t tt_dopen_ntv(OUT tt_dir_ntv_t *dir,
     dopen.result = TT_FAIL;
 
     tt_iowg_push_ev(&tt_g_fs_iowg, &dopen.io_ev);
-    tt_fiber_yield();
+    tt_fiber_suspend();
     return dopen.result;
 }
 
@@ -512,7 +512,7 @@ void tt_dclose_ntv(OUT tt_dir_ntv_t *dir)
     dclose.dir = dir;
 
     tt_iowg_push_ev(&tt_g_fs_iowg, &dclose.io_ev);
-    tt_fiber_yield();
+    tt_fiber_suspend();
 }
 
 tt_result_t tt_dread_ntv(IN tt_dir_ntv_t *dir, OUT tt_dirent_t *entry)
@@ -527,7 +527,7 @@ tt_result_t tt_dread_ntv(IN tt_dir_ntv_t *dir, OUT tt_dirent_t *entry)
     dread.result = TT_FAIL;
 
     tt_iowg_push_ev(&tt_g_fs_iowg, &dread.io_ev);
-    tt_fiber_yield();
+    tt_fiber_suspend();
     return dread.result;
 }
 

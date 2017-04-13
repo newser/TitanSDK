@@ -41,6 +41,8 @@ this file specifies socket APIs
 // type definition
 ////////////////////////////////////////////////////////////
 
+struct tt_fiber_ev_s;
+
 typedef struct tt_skt_s
 {
     tt_skt_ntv_t sys_skt;
@@ -146,18 +148,20 @@ tt_inline tt_result_t tt_skt_send(IN tt_skt_t *skt,
 tt_inline tt_result_t tt_skt_recv(IN tt_skt_t *skt,
                                   OUT tt_u8_t *buf,
                                   IN tt_u32_t len,
-                                  OUT OPT tt_u32_t *recvd)
+                                  OUT OPT tt_u32_t *recvd,
+                                  OUT OPT struct tt_fiber_ev_s **fev)
 {
-    return tt_skt_recv_ntv(&skt->sys_skt, buf, len, recvd);
+    return tt_skt_recv_ntv(&skt->sys_skt, buf, len, recvd, fev);
 }
 
 tt_inline tt_result_t tt_skt_recvfrom(IN tt_skt_t *skt,
                                       OUT tt_u8_t *buf,
                                       IN tt_u32_t len,
                                       OUT OPT tt_u32_t *recvd,
-                                      OUT OPT tt_sktaddr_t *addr)
+                                      OUT OPT tt_sktaddr_t *addr,
+                                      OUT OPT struct tt_fiber_ev_s **fev)
 {
-    return tt_skt_recvfrom_ntv(&skt->sys_skt, buf, len, recvd, addr);
+    return tt_skt_recvfrom_ntv(&skt->sys_skt, buf, len, recvd, addr, fev);
 }
 
 tt_inline tt_result_t tt_skt_sendto(IN tt_skt_t *skt,

@@ -33,6 +33,7 @@
 typedef struct
 {
     tt_fiber_t *fb;
+    const tt_char_t *name;
     tt_fiber_routine_t routine;
     void *param;
     tt_fiber_attr_t *attr;
@@ -92,6 +93,7 @@ void tt_task_attr_default(IN tt_task_attr_t *attr)
 }
 
 void tt_task_add_fiber(IN tt_task_t *t,
+                       IN OPT const tt_char_t *name,
                        IN tt_fiber_routine_t routine,
                        IN void *param,
                        IN OPT tt_fiber_attr_t *attr)
@@ -102,6 +104,7 @@ void tt_task_add_fiber(IN tt_task_t *t,
     TT_ASSERT(routine != NULL);
 
     tf->fb = NULL;
+    tf->name = name;
     tf->routine = routine;
     tf->param = param;
     tf->attr = attr;
@@ -179,6 +182,7 @@ tt_result_t __task_routine(IN void *param)
     tt_task_t *t = (tt_task_t *)param;
     tt_thread_t *thread = tt_current_thread();
     tt_snode_t *node;
+    tt_fiber_sched_t *cfs = thread->fiber_sched;
 
     // note t->thread may not be set yet
     thread->task = t;
@@ -190,7 +194,7 @@ tt_result_t __task_routine(IN void *param)
 
         node = node->next;
 
-        tf->fb = tt_fiber_create(tf->routine, tf->param, tf->attr);
+        tf->fb = tt_fiber_create(tf->name, tf->routine, tf->param, tf->attr);
         if (tf->fb == NULL) {
             TT_ERROR("fail to create task fiber");
             return TT_FAIL;
@@ -204,12 +208,19 @@ tt_result_t __task_routine(IN void *param)
 
         node = node->next;
 
-        tt_fiber_resume(tf->fb, TT_TRUE);
+        tt_fiber_resume(tf->fb, TT_FALSE);
     }
 
     // run untill all fibers exit
-    while (!tt_fiber_sched_empty(thread->fiber_sched) &&
-           tt_io_poller_run(&t->iop, TT_TIME_INFINITE)) {
+    while (!tt_fiber_sched_empty(thread->fiber_sched)) {
+        tt_fiber_t *fb = tt_fiber_sched_next(cfs);
+        if (fb != cfs->__main) {
+            // if there is any active fiber other than the main fiber, run it
+            tt_fiber_resume(fb, TT_FALSE);
+        } else if (!tt_io_poller_run(&t->iop, TT_TIME_INFINITE)) {
+            // main fiber indicates exit
+            break;
+        }
     }
 
     return TT_SUCCESS;

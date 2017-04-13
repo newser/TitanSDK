@@ -25,6 +25,7 @@
 #include <io/tt_io_event.h>
 #include <io/tt_socket.h>
 #include <log/tt_log.h>
+#include <os/tt_fiber_event.h>
 #include <os/tt_task.h>
 
 #include <tt_cstd_api.h>
@@ -398,7 +399,7 @@ tt_result_t tt_skt_accept_ntv(IN tt_skt_ntv_t *skt,
     skt_accept.result = TT_FAIL;
 
     tt_kq_read(kq, skt->s, &skt_accept.io_ev);
-    tt_fiber_yield();
+    tt_fiber_suspend();
     return skt_accept.result;
 }
 
@@ -430,7 +431,7 @@ again:
     skt_connect.result = TT_FAIL;
 
     tt_kq_write(kq, skt->s, &skt_connect.io_ev);
-    tt_fiber_yield();
+    tt_fiber_suspend();
     return skt_connect.result;
 }
 
@@ -462,12 +463,24 @@ tt_result_t tt_skt_recvfrom_ntv(IN tt_skt_ntv_t *skt,
                                 OUT tt_u8_t *buf,
                                 IN tt_u32_t len,
                                 OUT OPT tt_u32_t *recvd,
-                                OUT OPT tt_sktaddr_t *addr)
+                                OUT OPT tt_sktaddr_t *addr,
+                                OUT OPT tt_fiber_ev_t **fev)
 {
     __skt_recvfrom_t skt_recvfrom;
     int kq;
+    tt_fiber_t *cfb;
+    tt_fiber_ev_t *p;
+
+    *recvd = 0;
+    TT_SAFE_ASSIGN(fev, NULL);
 
     kq = __skt_ev_init(&skt_recvfrom.io_ev, __SKT_RECVFROM);
+    cfb = skt_recvfrom.io_ev.src;
+
+    if ((fev != NULL) && ((p = tt_fiber_recv(cfb, TT_FALSE)) != NULL)) {
+        *fev = p;
+        return TT_SUCCESS;
+    }
 
     skt_recvfrom.skt = skt;
     skt_recvfrom.buf = buf;
@@ -479,7 +492,16 @@ tt_result_t tt_skt_recvfrom_ntv(IN tt_skt_ntv_t *skt,
     skt_recvfrom.kq = kq;
 
     tt_kq_read(kq, skt->s, &skt_recvfrom.io_ev);
-    tt_fiber_yield();
+
+    cfb->recving = TT_TRUE;
+    tt_fiber_suspend();
+    cfb->recving = TT_FALSE;
+
+    // may be awaked due to new fiber event
+    if ((fev != NULL) && ((p = tt_fiber_recv(cfb, TT_FALSE)) != NULL)) {
+        *fev = p;
+    }
+
     return skt_recvfrom.result;
 }
 
@@ -505,7 +527,7 @@ tt_result_t tt_skt_sendto_ntv(IN tt_skt_ntv_t *skt,
     skt_sendto.pos = 0;
 
     tt_kq_write(kq, skt->s, &skt_sendto.io_ev);
-    tt_fiber_yield();
+    tt_fiber_suspend();
     return skt_sendto.result;
 }
 
@@ -529,19 +551,31 @@ tt_result_t tt_skt_send_ntv(IN tt_skt_ntv_t *skt,
     skt_send.pos = 0;
 
     tt_kq_write(kq, skt->s, &skt_send.io_ev);
-    tt_fiber_yield();
+    tt_fiber_suspend();
     return skt_send.result;
 }
 
 tt_result_t tt_skt_recv_ntv(IN tt_skt_ntv_t *skt,
                             OUT tt_u8_t *buf,
                             IN tt_u32_t len,
-                            OUT OPT tt_u32_t *recvd)
+                            OUT OPT tt_u32_t *recvd,
+                            OUT OPT tt_fiber_ev_t **fev)
 {
     __skt_recv_t skt_recv;
     int kq;
+    tt_fiber_t *cfb;
+    tt_fiber_ev_t *p;
+
+    *recvd = 0;
+    TT_SAFE_ASSIGN(fev, NULL);
 
     kq = __skt_ev_init(&skt_recv.io_ev, __SKT_RECV);
+    cfb = skt_recv.io_ev.src;
+
+    if ((fev != NULL) && ((p = tt_fiber_recv(cfb, TT_FALSE)) != NULL)) {
+        *fev = p;
+        return TT_SUCCESS;
+    }
 
     skt_recv.skt = skt;
     skt_recv.buf = buf;
@@ -552,7 +586,16 @@ tt_result_t tt_skt_recv_ntv(IN tt_skt_ntv_t *skt,
     skt_recv.kq = kq;
 
     tt_kq_read(kq, skt->s, &skt_recv.io_ev);
-    tt_fiber_yield();
+
+    cfb->recving = TT_TRUE;
+    tt_fiber_suspend();
+    cfb->recving = TT_FALSE;
+
+    // may be awaked due to new fiber event
+    if ((fev != NULL) && ((p = tt_fiber_recv(cfb, TT_FALSE)) != NULL)) {
+        *fev = p;
+    }
+
     return skt_recv.result;
 }
 
