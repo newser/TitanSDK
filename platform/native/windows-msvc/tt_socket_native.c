@@ -25,6 +25,7 @@
 #include <io/tt_io_event.h>
 #include <io/tt_socket.h>
 #include <log/tt_log.h>
+#include <os/tt_fiber_event.h>
 #include <os/tt_task.h>
 
 #include <tt_cstd_api.h>
@@ -217,6 +218,8 @@ typedef struct
     tt_u32_t len;
 
     tt_result_t result;
+    tt_bool_t done : 1;
+    tt_bool_t canceled : 1;
 } __skt_recv_t;
 
 typedef struct
@@ -245,6 +248,8 @@ typedef struct
     tt_u32_t len;
 
     tt_result_t result;
+    tt_bool_t done : 1;
+    tt_bool_t canceled : 1;
 } __skt_recvfrom_t;
 
 ////////////////////////////////////////////////////////////
@@ -335,7 +340,6 @@ tt_result_t tt_skt_create_ntv(IN tt_skt_ntv_t *skt,
 {
     int af, type, proto;
     SOCKET s;
-    LINGER linger = {0};
     HANDLE iocp;
 
     if (family == TT_NET_AF_INET) {
@@ -374,15 +378,6 @@ tt_result_t tt_skt_create_ntv(IN tt_skt_ntv_t *skt,
                      NULL) == SOCKET_ERROR) {
             TT_NET_ERROR_NTV("fail to disable SIO_UDP_CONNRESET");
             // ignore?
-        }
-    } else {
-        if (setsockopt(s,
-                       SOL_SOCKET,
-                       SO_LINGER,
-                       (char *)&linger,
-                       sizeof(LINGER)) != 0) {
-            TT_NET_ERROR_NTV("fail to set SO_LINGER");
-            goto fail;
         }
     }
 
@@ -573,14 +568,26 @@ tt_result_t tt_skt_recvfrom_ntv(IN tt_skt_ntv_t *skt,
                                 OUT tt_u8_t *buf,
                                 IN tt_u32_t len,
                                 OUT OPT tt_u32_t *recvd,
-                                OUT tt_sktaddr_t *addr)
+                                OUT tt_sktaddr_t *addr,
+                                OUT OPT tt_fiber_ev_t **fev)
 {
     __skt_recvfrom_t skt_recvfrom;
+    tt_fiber_t *cfb;
+    tt_fiber_ev_t *p;
     WSABUF Buffers;
     DWORD Flags = 0;
     INT Fromlen = sizeof(tt_sktaddr_t);
+    
+    *recvd = 0;
+    TT_SAFE_ASSIGN(fev, NULL);
 
     __skt_ev_init(&skt_recvfrom.io_ev, __SKT_RECVFROM);
+    cfb = skt_recvfrom.io_ev.src;
+
+    if ((fev != NULL) && ((p = tt_fiber_recv(cfb, TT_FALSE)) != NULL)) {
+        *fev = p;
+        return TT_SUCCESS;
+    }
 
     skt_recvfrom.skt = skt;
     skt_recvfrom.buf = buf;
@@ -589,6 +596,8 @@ tt_result_t tt_skt_recvfrom_ntv(IN tt_skt_ntv_t *skt,
     skt_recvfrom.len = len;
 
     skt_recvfrom.result = TT_FAIL;
+    skt_recvfrom.done = TT_FALSE;
+    skt_recvfrom.canceled = TT_FALSE;
 
     // If the message is larger than the buffers, the buffers are filled
     // with the first part of the message. If the MSG_PARTIAL feature is
@@ -613,8 +622,23 @@ tt_result_t tt_skt_recvfrom_ntv(IN tt_skt_ntv_t *skt,
                      &skt_recvfrom.io_ev.wov,
                      NULL) == 0) ||
         (WSAGetLastError() == WSA_IO_PENDING)) {
+    suspend:
+        cfb->recving = TT_TRUE;
         tt_fiber_suspend();
-        return skt_recvfrom.result;
+        cfb->recving = TT_FALSE;
+        if (skt_recvfrom.done) {
+            return skt_recvfrom.result;
+        }
+
+        if (!skt_recvfrom.canceled) {
+            if (CancelIoEx((HANDLE)skt->s, &skt_recvfrom.io_ev.wov) ||
+                (GetLastError() == ERROR_NOT_FOUND)) {
+                skt_recvfrom.canceled = TT_TRUE;
+            } else {
+                TT_ERROR_NTV("fail to cancel WSARecvFrom");
+            }
+        }
+        goto suspend;
     }
 
     TT_NET_ERROR_NTV("WSARecvFrom fail");
@@ -705,13 +729,25 @@ tt_result_t tt_skt_send_ntv(IN tt_skt_ntv_t *skt,
 tt_result_t tt_skt_recv_ntv(IN tt_skt_ntv_t *skt,
                             OUT tt_u8_t *buf,
                             IN tt_u32_t len,
-                            OUT OPT tt_u32_t *recvd)
+                            OUT OPT tt_u32_t *recvd,
+                            OUT OPT tt_fiber_ev_t **fev)
 {
     __skt_recv_t skt_recv;
+    tt_fiber_t *cfb;
+    tt_fiber_ev_t *p;
     WSABUF Buffers;
     DWORD Flags = 0, dwError;
 
+    *recvd = 0;
+    TT_SAFE_ASSIGN(fev, NULL);
+
     __skt_ev_init(&skt_recv.io_ev, __SKT_RECV);
+    cfb = skt_recv.io_ev.src;
+
+    if ((fev != NULL) && ((p = tt_fiber_recv(cfb, TT_FALSE)) != NULL)) {
+        *fev = p;
+        return TT_SUCCESS;
+    }
 
     skt_recv.skt = skt;
     skt_recv.buf = buf;
@@ -719,6 +755,8 @@ tt_result_t tt_skt_recv_ntv(IN tt_skt_ntv_t *skt,
     skt_recv.recvd = recvd;
 
     skt_recv.result = TT_FAIL;
+    skt_recv.done = TT_FALSE;
+    skt_recv.canceled = TT_FALSE;
 
     Buffers.buf = (char *)buf;
     Buffers.len = len;
@@ -730,8 +768,23 @@ tt_result_t tt_skt_recv_ntv(IN tt_skt_ntv_t *skt,
                  &skt_recv.io_ev.wov,
                  NULL) == 0) ||
         ((dwError = WSAGetLastError()) == WSA_IO_PENDING)) {
+    suspend:
+        cfb->recving = TT_TRUE;
         tt_fiber_suspend();
-        return skt_recv.result;
+        cfb->recving = TT_FALSE;
+        if (skt_recv.done) {
+            return skt_recv.result;
+        }
+
+        if (!skt_recv.canceled) {
+            if (CancelIoEx((HANDLE)skt->s, &skt_recv.io_ev.wov) ||
+                (GetLastError() == ERROR_NOT_FOUND)) {
+                skt_recv.canceled = TT_TRUE;
+            } else {
+                TT_ERROR_NTV("fail to cancel WSARecv");
+            }
+        }
+        goto suspend;
     }
 
     if ((dwError == WSAECONNABORTED) || (dwError == WSAECONNRESET)) {
@@ -943,7 +996,6 @@ tt_bool_t __do_accept(IN tt_io_ev_t *io_ev)
     __skt_accept_t *skt_accept = (__skt_accept_t *)io_ev;
 
     SOCKET new_s = skt_accept->new_skt->s;
-    LINGER linger = {0};
     LPSOCKADDR LocalSockaddr, RemoteSockaddr;
     INT LocalSockaddrLength, RemoteSockaddrLength;
 
@@ -957,15 +1009,6 @@ tt_bool_t __do_accept(IN tt_io_ev_t *io_ev)
                    (char *)&skt_accept->skt->s,
                    sizeof(SOCKET)) != 0) {
         TT_NET_ERROR_NTV("fail to set SO_UPDATE_ACCEPT_CONTEXT");
-        goto fail;
-    }
-
-    if (setsockopt(new_s,
-                   SOL_SOCKET,
-                   SO_LINGER,
-                   (char *)&linger,
-                   sizeof(LINGER)) != 0) {
-        TT_NET_ERROR_NTV("fail to set SO_LINGER");
         goto fail;
     }
 
@@ -1096,6 +1139,8 @@ tt_bool_t __do_recv(IN tt_io_ev_t *io_ev)
     } else {
         skt_recv->result = io_ev->io_result;
     }
+
+    skt_recv->done = TT_TRUE;
     return TT_TRUE;
 }
 
@@ -1162,6 +1207,8 @@ tt_bool_t __do_recvfrom(IN tt_io_ev_t *io_ev)
     } else {
         skt_recvfrom->result = io_ev->io_result;
     }
+
+    skt_recvfrom->done = TT_TRUE;
     return TT_TRUE;
 }
 

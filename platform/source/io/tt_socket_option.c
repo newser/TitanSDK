@@ -122,3 +122,12 @@ tt_result_t tt_skt_set_nonblock(IN struct tt_skt_s *skt, IN tt_bool_t nonblock)
 
     return tt_skt_set_nonblock_ntv(&skt->sys_skt, nonblock);
 }
+
+tt_result_t tt_skt_set_linger(IN struct tt_skt_s *skt,
+                              IN tt_bool_t enable,
+                              IN tt_u16_t linger_sec)
+{
+    TT_ASSERT(skt != NULL);
+
+    return tt_skt_set_linger_ntv(&skt->sys_skt, enable, linger_sec);
+}

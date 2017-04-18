@@ -100,4 +100,13 @@ extern tt_result_t tt_skt_get_tcp_nodelay(IN struct tt_skt_s *skt,
 extern tt_result_t tt_skt_set_nonblock(IN struct tt_skt_s *skt,
                                        IN tt_bool_t nonblock);
 
+
+// ========================================
+// linger
+// ========================================
+
+extern tt_result_t tt_skt_set_linger(IN struct tt_skt_s *skt,
+                                     IN tt_bool_t enable,
+                                     IN tt_u16_t linger_sec);
+
 #endif // __TT_SOCKET_OPTION__

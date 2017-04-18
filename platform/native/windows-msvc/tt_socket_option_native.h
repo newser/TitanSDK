@@ -169,4 +169,23 @@ tt_inline tt_result_t tt_skt_set_nonblock_ntv(IN tt_skt_ntv_t *skt,
     }
 }
 
+tt_inline tt_result_t tt_skt_set_linger_ntv(IN tt_skt_ntv_t *skt,
+                                            IN tt_bool_t enable,
+                                            IN tt_u16_t linger_sec)
+{
+    LINGER linger;
+    linger.l_onoff = TT_COND(enable, 1, 0);
+    linger.l_linger = linger_sec;
+    if (setsockopt(skt->s,
+                   SOL_SOCKET,
+                   SO_LINGER,
+                   (char *)&linger,
+                   (int)sizeof(LINGER)) == 0) {
+        return TT_SUCCESS;
+    } else {
+        TT_NET_ERROR_NTV("fail to set linger");
+        return TT_FAIL;
+    }
+}
+
 #endif // __TT_SOCKET_OPTION_NATIVE__
