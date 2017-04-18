@@ -28,6 +28,7 @@
 #include <io/tt_socket.h>
 #include <log/tt_log.h>
 #include <os/tt_task.h>
+#include <os/tt_fiber_event.h>
 
 #include <tt_cstd_api.h>
 #include <tt_util_native.h>
@@ -290,7 +291,6 @@ tt_result_t tt_skt_create_ntv(IN tt_skt_ntv_t *skt,
 {
     int af, type, proto, s, flag, epfd;
     // int nosigpipe = 1;
-    struct linger linger = {0};
     struct epoll_event event;
 
     if (family == TT_NET_AF_INET) {
@@ -335,12 +335,6 @@ tt_result_t tt_skt_create_ntv(IN tt_skt_ntv_t *skt,
     if (((flag = fcntl(s, F_GETFD, 0)) == -1) ||
         (fcntl(s, F_SETFD, flag | FD_CLOEXEC) == -1)) {
         TT_ERROR_NTV("fail to set FD_CLOEXEC");
-        goto fail;
-    }
-
-    if (setsockopt(s, SOL_SOCKET, SO_LINGER, &linger, sizeof(struct linger)) !=
-        0) {
-        TT_ERROR_NTV("fail to set SO_LINGER");
         goto fail;
     }
 
@@ -493,12 +487,24 @@ tt_result_t tt_skt_recvfrom_ntv(IN tt_skt_ntv_t *skt,
                                 OUT tt_u8_t *buf,
                                 IN tt_u32_t len,
                                 OUT OPT tt_u32_t *recvd,
-                                OUT OPT tt_sktaddr_t *addr)
+                                OUT OPT tt_sktaddr_t *addr,
+                                OUT OPT tt_fiber_ev_t **fev)
 {
     __skt_recvfrom_t skt_recvfrom;
     int ep;
+    tt_fiber_t *cfb;
+    tt_fiber_ev_t *p;
+
+    *recvd = 0;
+    TT_SAFE_ASSIGN(fev, NULL);
 
     ep = __skt_ev_init(&skt_recvfrom.io_ev, __SKT_RECVFROM);
+    cfb = skt_recvfrom.io_ev.src;
+
+    if ((fev != NULL) && ((p = tt_fiber_recv(cfb, TT_FALSE)) != NULL)) {
+        *fev = p;
+        return TT_SUCCESS;
+    }
 
     skt_recvfrom.skt = skt;
     skt_recvfrom.buf = buf;
@@ -510,7 +516,17 @@ tt_result_t tt_skt_recvfrom_ntv(IN tt_skt_ntv_t *skt,
     skt_recvfrom.ep = ep;
 
     tt_ep_read(ep, skt->s, &skt_recvfrom.io_ev);
+
+    cfb->recving = TT_TRUE;
     tt_fiber_suspend();
+    cfb->recving = TT_FALSE;
+
+    // may be awaked due to new fiber event
+    if ((fev != NULL) && ((p = tt_fiber_recv(cfb, TT_FALSE)) != NULL)) {
+        *fev = p;
+        skt_recvfrom.result = TT_SUCCESS;
+    }
+
     return skt_recvfrom.result;
 }
 
@@ -567,12 +583,24 @@ tt_result_t tt_skt_send_ntv(IN tt_skt_ntv_t *skt,
 tt_result_t tt_skt_recv_ntv(IN tt_skt_ntv_t *skt,
                             OUT tt_u8_t *buf,
                             IN tt_u32_t len,
-                            OUT OPT tt_u32_t *recvd)
+                            OUT OPT tt_u32_t *recvd,
+                            OUT OPT tt_fiber_ev_t **fev)
 {
     __skt_recv_t skt_recv;
     int ep;
+    tt_fiber_t *cfb;
+    tt_fiber_ev_t *p;
+
+    *recvd = 0;
+    TT_SAFE_ASSIGN(fev, NULL);
 
     ep = __skt_ev_init(&skt_recv.io_ev, __SKT_RECV);
+    cfb = skt_recv.io_ev.src;
+
+    if ((fev != NULL) && ((p = tt_fiber_recv(cfb, TT_FALSE)) != NULL)) {
+        *fev = p;
+        return TT_SUCCESS;
+    }
 
     skt_recv.skt = skt;
     skt_recv.buf = buf;
@@ -583,7 +611,17 @@ tt_result_t tt_skt_recv_ntv(IN tt_skt_ntv_t *skt,
     skt_recv.ep = ep;
 
     tt_ep_read(ep, skt->s, &skt_recv.io_ev);
+
+    cfb->recving = TT_TRUE;
     tt_fiber_suspend();
+    cfb->recving = TT_FALSE;
+
+    // may be awaked due to new fiber event
+    if ((fev != NULL) && ((p = tt_fiber_recv(cfb, TT_FALSE)) != NULL)) {
+        *fev = p;
+        skt_recv.result = TT_SUCCESS;
+    }
+
     return skt_recv.result;
 }
 
@@ -762,7 +800,6 @@ tt_bool_t __do_accept(IN tt_io_ev_t *io_ev)
 
     socklen_t len = sizeof(struct sockaddr_storage);
     int s, flag;
-    struct linger linger = {0};
     struct epoll_event event;
 
 again:
@@ -792,12 +829,6 @@ again:
     goto fail;
   }
 #endif
-
-    if (setsockopt(s, SOL_SOCKET, SO_LINGER, &linger, sizeof(struct linger)) !=
-        0) {
-        TT_ERROR_NTV("fail to set SO_LINGER");
-        goto fail;
-    }
 
     event.events = EPOLLRDHUP | EPOLLONESHOT;
     event.data.ptr = &__s_null_io_ev;

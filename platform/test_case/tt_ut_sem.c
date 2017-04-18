@@ -133,7 +133,8 @@ TT_TEST_CASE("tt_unit_test_sem_basic",
 
     t = (tt_s32_t)tt_time_ref2ms(end - begin);
     // TT_UT_EXP(abs(t - 100) < 10, "");
-
+    (void)t;
+    
     tt_sem_destroy(&lock);
 
     // with large count
