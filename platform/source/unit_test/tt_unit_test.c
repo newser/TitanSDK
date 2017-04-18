@@ -107,7 +107,7 @@ tt_test_unit_t *tt_g_test_unit_list[TEST_UNIT_NUM] = {
     &TT_MAKE_TEST_UNIT_NAME(TEST_UNIT_EVPOLLER),
     &TT_MAKE_TEST_UNIT_NAME(TEST_UNIT_IPC),
 #endif
-&TT_MAKE_TEST_UNIT_NAME(TEST_UNIT_SOCKET),
+    &TT_MAKE_TEST_UNIT_NAME(TEST_UNIT_SOCKET),
 };
 
 ////////////////////////////////////////////////////////////

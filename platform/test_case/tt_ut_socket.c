@@ -1579,7 +1579,7 @@ static tt_result_t __f_svr_ev(IN void *param)
             TT_INFO("server recv %d", n);
         }
         if (!TT_OK(ret)) {
-            TT_INFO("server recv ret %d", ret);
+            TT_INFO("server recv ret %x", ret);
         }
 #endif
         __svr_recvd += n;

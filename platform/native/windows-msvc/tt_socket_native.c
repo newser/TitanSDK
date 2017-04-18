@@ -577,7 +577,7 @@ tt_result_t tt_skt_recvfrom_ntv(IN tt_skt_ntv_t *skt,
     WSABUF Buffers;
     DWORD Flags = 0;
     INT Fromlen = sizeof(tt_sktaddr_t);
-    
+
     *recvd = 0;
     TT_SAFE_ASSIGN(fev, NULL);
 

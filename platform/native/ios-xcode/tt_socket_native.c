@@ -272,7 +272,6 @@ tt_result_t tt_skt_create_ntv(IN tt_skt_ntv_t *skt,
 {
     int af, type, proto, s, flag, kq;
     int nosigpipe = 1;
-    struct linger linger = {0};
 
     if (family == TT_NET_AF_INET) {
         af = AF_INET;
@@ -314,12 +313,6 @@ tt_result_t tt_skt_create_ntv(IN tt_skt_ntv_t *skt,
     if (((flag = fcntl(s, F_GETFD, 0)) == -1) ||
         (fcntl(s, F_SETFD, flag | FD_CLOEXEC) == -1)) {
         TT_ERROR_NTV("fail to set FD_CLOEXEC");
-        goto fail;
-    }
-
-    if (setsockopt(s, SOL_SOCKET, SO_LINGER, &linger, sizeof(struct linger)) !=
-        0) {
-        TT_ERROR_NTV("fail to set SO_LINGER");
         goto fail;
     }
 
@@ -500,6 +493,7 @@ tt_result_t tt_skt_recvfrom_ntv(IN tt_skt_ntv_t *skt,
     // may be awaked due to new fiber event
     if ((fev != NULL) && ((p = tt_fiber_recv(cfb, TT_FALSE)) != NULL)) {
         *fev = p;
+        skt_recvfrom.result = TT_SUCCESS;
     }
 
     return skt_recvfrom.result;
@@ -594,6 +588,7 @@ tt_result_t tt_skt_recv_ntv(IN tt_skt_ntv_t *skt,
     // may be awaked due to new fiber event
     if ((fev != NULL) && ((p = tt_fiber_recv(cfb, TT_FALSE)) != NULL)) {
         *fev = p;
+        skt_recv.result = TT_SUCCESS;
     }
 
     return skt_recv.result;
@@ -768,7 +763,6 @@ tt_bool_t __do_accept(IN tt_io_ev_t *io_ev)
 
     socklen_t len = sizeof(struct sockaddr_storage);
     int s, flag;
-    struct linger linger = {0};
 
 again:
     s = accept(skt_accept->skt->s, (struct sockaddr *)skt_accept->addr, &len);
@@ -790,12 +784,6 @@ again:
     if (((flag = fcntl(s, F_GETFD, 0)) == -1) ||
         (fcntl(s, F_SETFD, flag | FD_CLOEXEC) == -1)) {
         TT_ERROR_NTV("fail to set FD_CLOEXEC");
-        goto fail;
-    }
-
-    if (setsockopt(s, SOL_SOCKET, SO_LINGER, &linger, sizeof(struct linger)) !=
-        0) {
-        TT_ERROR_NTV("fail to set SO_LINGER");
         goto fail;
     }
 
