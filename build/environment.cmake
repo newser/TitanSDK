@@ -227,7 +227,7 @@ endif (PLATFORM_ENV_DETECT_DETAIL)
 #
 
 # generate header file
-configure_file(${PLATFORM_ROOT_PATH}/platform/export/config/tt_environment_config.h.in
-               ${PLATFORM_ROOT_PATH}/platform/export/config/tt_environment_config.h
+configure_file(${PLATFORM_ROOT_PATH}/platform/include/config/tt_environment_config.h.in
+               ${PLATFORM_ROOT_PATH}/platform/include/config/tt_environment_config.h
                @ONLY)
 

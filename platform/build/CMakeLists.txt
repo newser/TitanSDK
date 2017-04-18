@@ -54,8 +54,8 @@ set(PLATFORM_CRYPTO_ENABLE 0 CACHE BOOL "set to non zero to enable crypto")
 message(STATUS "crypto enable: ${PLATFORM_CRYPTO_ENABLE}")
 
 # generate header file
-configure_file(${PLATFORM_ROOT_PATH}/platform/export/config/tt_customization_config.h.in
-               ${PLATFORM_ROOT_PATH}/platform/export/config/tt_customization_config.h
+configure_file(${PLATFORM_ROOT_PATH}/platform/include/config/tt_customization_config.h.in
+               ${PLATFORM_ROOT_PATH}/platform/include/config/tt_customization_config.h
                @ONLY)
 
 #
@@ -67,7 +67,7 @@ configure_file(${PLATFORM_ROOT_PATH}/platform/export/config/tt_customization_con
 #
 
 # platform
-include_directories(${PLATFORM_PATH}/export)
+include_directories(${PLATFORM_PATH}/include)
 include_directories(${PLATFORM_PATH}/native/${PLATFORM_ENV})
 include_directories(${PLATFORM_PATH}/package)
 
