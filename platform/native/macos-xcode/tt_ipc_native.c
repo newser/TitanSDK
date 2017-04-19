@@ -36,6 +36,61 @@
 
 #define TT_ASSERT_IPC TT_ASSERT
 
+//#define __SIMU_FAIL_SOCKET
+//#define __SIMU_FAIL_CLOSE
+//#define __SIMU_FAIL_BIND
+//#define __SIMU_FAIL_LISTEN
+//#define __SIMU_FAIL_ACCEPT
+//#define __SIMU_FAIL_CONNECT
+//#define __SIMU_FAIL_SEND
+//#define __SIMU_FAIL_RECV
+
+#ifdef __SIMU_FAIL_SOCKET
+#define socket __sf_socket
+int __sf_socket(int domain, int type, int protocol);
+#endif
+
+#ifdef __SIMU_FAIL_CLOSE
+#define close __sf_close
+int __sf_close(int fildes);
+#endif
+
+#ifdef __SIMU_FAIL_BIND
+#define bind __sf_bind
+int __sf_bind(int socket,
+              const struct sockaddr *address,
+              socklen_t address_len);
+#endif
+
+#ifdef __SIMU_FAIL_LISTEN
+#define listen __sf_listen
+int __sf_listen(int socket, int backlog);
+#endif
+
+#ifdef __SIMU_FAIL_ACCEPT
+#define accept __sf_accept
+int __sf_accept(int socket,
+                struct sockaddr *restrict address,
+                socklen_t *restrict address_len);
+#endif
+
+#ifdef __SIMU_FAIL_CONNECT
+#define connect __sf_connect
+int __sf_connect(int socket,
+                 const struct sockaddr *address,
+                 socklen_t address_len);
+#endif
+
+#ifdef __SIMU_FAIL_SEND
+#define send __sf_send
+ssize_t __sf_send(int socket, const void *buffer, size_t length, int flags);
+#endif
+
+#ifdef __SIMU_FAIL_RECV
+#define recv __sf_recv
+ssize_t __sf_recv(int socket, void *buffer, size_t length, int flags);
+#endif
+
 ////////////////////////////////////////////////////////////
 // internal type
 ////////////////////////////////////////////////////////////
@@ -491,3 +546,80 @@ again:
     }
     return TT_TRUE;
 }
+
+#ifdef __SIMU_FAIL_SOCKET
+#undef socket
+int __sf_socket(int domain, int type, int protocol)
+{
+    return -1;
+}
+#endif
+
+#ifdef __SIMU_FAIL_CLOSE
+#undef close
+int __sf_close(int fildes)
+{
+    return -1;
+}
+#endif
+
+#ifdef __SIMU_FAIL_BIND
+#undef bind
+int __sf_bind(int socket, const struct sockaddr *address, socklen_t address_len)
+
+{
+    return -1;
+}
+#endif
+
+#ifdef __SIMU_FAIL_LISTEN
+#undef listen
+int __sf_listen(int socket, int backlog)
+{
+    return -1;
+}
+#endif
+
+#ifdef __SIMU_FAIL_ACCEPT
+#undef accept
+int __sf_accept(int socket,
+                struct sockaddr *restrict address,
+                socklen_t *restrict address_len)
+{
+    return -1;
+}
+#endif
+
+#ifdef __SIMU_FAIL_CONNECT
+#undef connect
+int __sf_connect(int socket,
+                 const struct sockaddr *address,
+                 socklen_t address_len)
+{
+    return -1;
+}
+#endif
+
+#ifdef __SIMU_FAIL_SEND
+#undef send
+ssize_t __sf_send(int socket, const void *buffer, size_t length, int flags)
+{
+    if (tt_rand_u32() % 2) {
+        return -1;
+    } else {
+        return send(socket, buffer, tt_rand_u32() % length, flags);
+    }
+}
+#endif
+
+#ifdef __SIMU_FAIL_RECV
+#undef recv
+ssize_t __sf_recv(int socket, void *buffer, size_t length, int flags)
+{
+    if (tt_rand_u32() % 2) {
+        return -1;
+    } else {
+        return recv(socket, buffer, tt_rand_u32() % length, flags);
+    }
+}
+#endif
