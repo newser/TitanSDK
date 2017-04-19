@@ -38,6 +38,7 @@ this file defines ipc native
 // type definition
 ////////////////////////////////////////////////////////////
 
+struct tt_profile_s;
 struct tt_ipc_attr_s;
 struct tt_fiber_ev_s;
 struct tt_io_ev_s;
@@ -54,6 +55,11 @@ typedef struct
 ////////////////////////////////////////////////////////////
 // interface declaration
 ////////////////////////////////////////////////////////////
+
+tt_inline tt_result_t tt_ipc_component_init_ntv(IN struct tt_profile_s *profile)
+{
+    return TT_SUCCESS;
+}
 
 extern tt_result_t tt_ipc_create_ntv(IN tt_ipc_ntv_t *ipc,
                                      IN OPT const tt_char_t *addr,

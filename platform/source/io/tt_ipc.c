@@ -20,10 +20,10 @@
 
 #include <io/tt_ipc.h>
 
-#include <memory/tt_memory_alloc.h>
-#include <misc/tt_assert.h>
 #include <init/tt_component.h>
 #include <init/tt_profile.h>
+#include <memory/tt_memory_alloc.h>
+#include <misc/tt_assert.h>
 
 ////////////////////////////////////////////////////////////
 // internal macro

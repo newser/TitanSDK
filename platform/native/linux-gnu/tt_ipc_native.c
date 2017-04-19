@@ -31,11 +31,11 @@
 
 #include <tt_util_native.h>
 
+#include <fcntl.h>
+#include <sys/epoll.h>
 #include <sys/socket.h>
 #include <sys/un.h>
-#include <sys/epoll.h>
 #include <unistd.h>
-#include <fcntl.h>
 
 ////////////////////////////////////////////////////////////
 // internal macro
@@ -232,7 +232,9 @@ tt_result_t tt_ipc_create_ntv(IN tt_ipc_ntv_t *ipc,
         }
 
         unlink(addr);
-        if (bind(s, (const struct sockaddr *)&saun, sizeof(struct sockaddr_un)) != 0) {
+        if (bind(s,
+                 (const struct sockaddr *)&saun,
+                 sizeof(struct sockaddr_un)) != 0) {
             TT_ERROR_NTV("fail to bind ipc");
             goto fail;
         }
@@ -303,7 +305,9 @@ tt_result_t tt_ipc_connect_ntv(IN tt_ipc_ntv_t *ipc, IN const tt_char_t *addr)
     }
 
 again:
-    if (connect(ipc->s, (const struct sockaddr *)&saun, sizeof(struct sockaddr_un)) == 0) {
+    if (connect(ipc->s,
+                (const struct sockaddr *)&saun,
+                sizeof(struct sockaddr_un)) == 0) {
         return TT_SUCCESS;
     } else if (errno == EINTR) {
         goto again;
@@ -338,7 +342,7 @@ tt_result_t tt_ipc_accept_ntv(IN tt_ipc_ntv_t *ipc, IN tt_ipc_ntv_t *new_ipc)
 
     ipc_accept.result = TT_FAIL;
     ipc_accept.ep = ep;
-    
+
     tt_ep_read(ep, ipc->s, &ipc_accept.io_ev);
     tt_fiber_suspend();
     return ipc_accept.result;
@@ -468,7 +472,7 @@ tt_bool_t __do_accept(IN tt_io_ev_t *io_ev)
     struct epoll_event event;
 
 again:
-    s = accept4(ipc_accept->ipc->s, 
+    s = accept4(ipc_accept->ipc->s,
                 (struct sockaddr *)ipc_accept->saun,
                 &len,
                 SOCK_NONBLOCK | SOCK_CLOEXEC);

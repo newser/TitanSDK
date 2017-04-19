@@ -27,8 +27,8 @@
 #include <io/tt_io_event.h>
 #include <io/tt_socket.h>
 #include <log/tt_log.h>
-#include <os/tt_task.h>
 #include <os/tt_fiber_event.h>
+#include <os/tt_task.h>
 
 #include <tt_cstd_api.h>
 #include <tt_util_native.h>
