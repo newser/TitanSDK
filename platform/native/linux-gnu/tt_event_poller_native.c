@@ -23,7 +23,7 @@
 #include <event/tt_event_center.h>
 #include <event/tt_event_poller.h>
 //#include <io/tt_file_system_aio.h>
-#include <io/tt_ipc_aio.h>
+//#include <io/tt_ipc_aio.h>
 //#include <io/tt_socket_aio.h>
 #include <misc/tt_error.h>
 
@@ -126,7 +126,7 @@ tt_result_t tt_evp_poll_ntv(IN struct tt_evpoller_s *evp, IN tt_s64_t wait_ms)
                     if (!TT_OK(tt_skt_ep_handler(skt, ep_ev[i].events))) {
                         return TT_FAIL;
                     }
-                } break;*/
+                } break;
                 case TT_EVP_MARK_EPOLL_IPC: {
                     tt_ipc_ntv_t *sys_ipc =
                         TT_CONTAINER(ep_ev[i].data.ptr, tt_ipc_ntv_t, ev_mark);
@@ -135,7 +135,7 @@ tt_result_t tt_evp_poll_ntv(IN struct tt_evpoller_s *evp, IN tt_s64_t wait_ms)
                     if (!TT_OK(tt_ipc_ep_handler(ipc, ep_ev[i].events))) {
                         return TT_FAIL;
                     }
-                } break;
+                } break;*/
 
                 default: {
                     TT_FATAL("unknown event range: %x",

@@ -152,7 +152,7 @@ typedef struct
     tt_sktaddr_t *addr;
 
     tt_result_t result;
-    tt_u32_t ep;
+    int ep;
 } __skt_accept_t;
 
 typedef struct
@@ -175,7 +175,7 @@ typedef struct
     tt_u32_t len;
 
     tt_result_t result;
-    tt_u32_t ep;
+    int ep;
     tt_u32_t pos;
 } __skt_send_t;
 
@@ -189,7 +189,7 @@ typedef struct
     tt_u32_t len;
 
     tt_result_t result;
-    tt_u32_t ep;
+    int ep;
 } __skt_recv_t;
 
 typedef struct
@@ -203,7 +203,7 @@ typedef struct
     tt_u32_t len;
 
     tt_result_t result;
-    tt_u32_t ep;
+    int ep;
     tt_u32_t pos;
 } __skt_sendto_t;
 
@@ -218,7 +218,7 @@ typedef struct
     tt_u32_t len;
 
     tt_result_t result;
-    tt_u32_t ep;
+    int ep;
 } __skt_recvfrom_t;
 
 ////////////////////////////////////////////////////////////

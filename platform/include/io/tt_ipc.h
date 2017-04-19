@@ -61,6 +61,12 @@ typedef struct tt_ipc_s
 // interface declaration
 ////////////////////////////////////////////////////////////
 
+/**
+@fn void tt_ipc_component_register()
+register socket system
+*/
+extern void tt_ipc_component_register();
+
 // - for server ipc, addr must be set to a path. and for client,
 //   addr must be null
 extern tt_ipc_t *tt_ipc_create(IN OPT const tt_char_t *addr,

@@ -22,6 +22,8 @@
 
 #include <memory/tt_memory_alloc.h>
 #include <misc/tt_assert.h>
+#include <init/tt_component.h>
+#include <init/tt_profile.h>
 
 ////////////////////////////////////////////////////////////
 // internal macro
@@ -43,9 +45,27 @@
 // interface declaration
 ////////////////////////////////////////////////////////////
 
+static tt_result_t __ipc_component_init(IN tt_component_t *comp,
+                                        IN tt_profile_t *profile);
+
 ////////////////////////////////////////////////////////////
 // interface implementation
 ////////////////////////////////////////////////////////////
+
+void tt_ipc_component_register()
+{
+    static tt_component_t comp;
+
+    tt_component_itf_t itf = {
+        __ipc_component_init,
+    };
+
+    // init component
+    tt_component_init(&comp, TT_COMPONENT_IPC, "IPC", NULL, &itf);
+
+    // register component
+    tt_component_register(&comp);
+}
 
 tt_ipc_t *tt_ipc_create(IN OPT const tt_char_t *addr,
                         IN OPT tt_ipc_attr_t *attr)
@@ -128,6 +148,18 @@ tt_ipc_t *tt_ipc_accept(IN tt_ipc_t *ipc, IN OPT tt_ipc_attr_t *new_attr)
     tt_buf_init(&new_ipc->buf, &new_attr->recv_buf_attr);
 
     return new_ipc;
+}
+
+tt_result_t __ipc_component_init(IN tt_component_t *comp,
+                                 IN tt_profile_t *profile)
+{
+    // init low level socket system
+    if (!TT_OK(tt_ipc_component_init_ntv(profile))) {
+        TT_ERROR("fail to initialize ipc system native");
+        return TT_FAIL;
+    }
+
+    return TT_SUCCESS;
 }
 
 /*
