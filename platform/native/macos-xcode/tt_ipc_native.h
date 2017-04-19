@@ -15,14 +15,14 @@
  */
 
 /**
-@file tt_ipc_aio_cb.h
-@brief ipc callbacks
+@file tt_ipc_native.h
+@brief ipc native
 
-this file defines ipc callback type
+this file defines ipc native
 */
 
-#ifndef __TT_IPC_AIO_CB__
-#define __TT_IPC_AIO_CB__
+#ifndef __TT_IPC_NATIVE__
+#define __TT_IPC_NATIVE__
 
 ////////////////////////////////////////////////////////////
 // import header files
@@ -38,39 +38,14 @@ this file defines ipc callback type
 // type definition
 ////////////////////////////////////////////////////////////
 
-struct tt_ipc_s;
-struct tt_ev_s;
+struct tt_ipc_attr_s;
+struct tt_fiber_ev_s;
+struct tt_io_ev_s;
 
 typedef struct
 {
-    tt_result_t result;
-    void *cb_param;
-} tt_ipc_aioctx_t;
-
-typedef void (*tt_ipc_on_accept_t)(IN struct tt_ipc_s *listening_ipc,
-                                   IN struct tt_ipc_s *new_ipc,
-                                   IN tt_ipc_aioctx_t *aioctx);
-
-typedef void (*tt_ipc_on_connect_t)(IN struct tt_ipc_s *ipc,
-                                    IN const tt_char_t *remote_addr,
-                                    IN tt_ipc_aioctx_t *aioctx);
-
-typedef void (*tt_ipc_on_send_t)(IN struct tt_ipc_s *ipc,
-                                 IN struct tt_ev_s *pev,
-                                 IN tt_ipc_aioctx_t *aioctx);
-
-typedef void (*tt_ipc_on_recv_t)(IN struct tt_ipc_s *ipc,
-                                 IN tt_ipc_aioctx_t *aioctx,
-                                 IN TO struct tt_ev_s **pev,
-                                 IN tt_u32_t pev_num);
-
-typedef void (*tt_ipc_on_destroy_t)(IN struct tt_ipc_s *ipc, IN void *cb_param);
-
-typedef struct
-{
-    tt_ipc_on_destroy_t on_destroy;
-    void *cb_param;
-} tt_ipc_exit_t;
+    int s;
+} tt_ipc_ntv_t;
 
 ////////////////////////////////////////////////////////////
 // global variants
@@ -80,4 +55,31 @@ typedef struct
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-#endif /* __TT_IPC_AIO_CB__ */
+extern tt_result_t tt_ipc_create_ntv(IN tt_ipc_ntv_t *ipc,
+                                     IN OPT const tt_char_t *addr,
+                                     IN OPT struct tt_ipc_attr_s *attr);
+
+extern void tt_ipc_destroy_ntv(IN tt_ipc_ntv_t *ipc);
+
+extern tt_result_t tt_ipc_connect_ntv(IN tt_ipc_ntv_t *ipc,
+                                      IN const tt_char_t *addr);
+
+extern tt_result_t tt_ipc_accept_ntv(IN tt_ipc_ntv_t *ipc,
+                                     IN tt_ipc_ntv_t *new_ipc);
+
+extern tt_result_t tt_ipc_send_ntv(IN tt_ipc_ntv_t *ipc,
+                                   IN tt_u8_t *buf,
+                                   IN tt_u32_t len,
+                                   OUT OPT tt_u32_t *sent);
+
+extern tt_result_t tt_ipc_recv_ntv(IN tt_ipc_ntv_t *ipc,
+                                   OUT tt_u8_t *buf,
+                                   IN tt_u32_t len,
+                                   OUT OPT tt_u32_t *recvd,
+                                   OUT OPT struct tt_fiber_ev_s **fev);
+
+extern void tt_ipc_worker_io(IN struct tt_io_ev_s *io_ev);
+
+extern tt_bool_t tt_ipc_poller_io(IN struct tt_io_ev_s *io_ev);
+
+#endif /* __TT_IPC_NATIVE__ */

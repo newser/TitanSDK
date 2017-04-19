@@ -24,6 +24,7 @@
 // internal macro
 ////////////////////////////////////////////////////////////
 
+/*
 #if TT_ENV_OS_IS_WINDOWS
 #define __app_file "Debug\\app_unit_test.exe"
 #elif TT_ENV_OS_IS_IOS
@@ -32,6 +33,7 @@ extern const char *get_app_path();
 #else
 #define __app_file "./app_unit_test"
 #endif
+*/
 
 #if TT_ENV_OS_IS_IOS
 #define __IPC_PATH "../tmp/ipc_basic"
@@ -54,9 +56,11 @@ extern const char *get_app_path();
 // === routine declarations ================
 TT_TEST_ROUTINE_DECLARE(tt_unit_test_ipc_server)
 TT_TEST_ROUTINE_DECLARE(tt_unit_test_ipc_client)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_ipc_stress)
 TT_TEST_ROUTINE_DECLARE(tt_unit_test_ipc_stress_mul)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_ipc_destroy_immd)
+
+TT_TEST_ROUTINE_DECLARE(tt_unit_test_ipc_basic)
+TT_TEST_ROUTINE_DECLARE(tt_unit_test_ipc_stress)
+TT_TEST_ROUTINE_DECLARE(tt_unit_test_ipc_stress_real)
 // =========================================
 
 // === test case list ======================
@@ -78,19 +82,7 @@ TT_TEST_CASE_LIST_DEFINE_BEGIN(ipc_case)
                  NULL, NULL),
 #endif
 
-#if 1
-TT_TEST_CASE("tt_unit_test_ipc_stress",
-             "testing ipc stress test",
-             tt_unit_test_ipc_stress,
-             NULL,
-             NULL,
-             NULL,
-             NULL,
-             NULL)
-,
-#endif
-
-#if 1
+#if 0
     TT_TEST_CASE("tt_unit_test_ipc_stress_mul",
                  "testing ipc stress test, multiple conn",
                  tt_unit_test_ipc_stress_mul,
@@ -101,9 +93,28 @@ TT_TEST_CASE("tt_unit_test_ipc_stress",
                  NULL),
 #endif
 
-    TT_TEST_CASE("tt_unit_test_ipc_destroy_immd",
-                 "testing ipc destroy immediately",
-                 tt_unit_test_ipc_destroy_immd,
+TT_TEST_CASE("tt_unit_test_ipc_basic",
+             "testing ipc basic test",
+             tt_unit_test_ipc_basic,
+             NULL,
+             NULL,
+             NULL,
+             NULL,
+             NULL)
+,
+
+    TT_TEST_CASE("tt_unit_test_ipc_stress",
+                 "testing ipc stress test",
+                 tt_unit_test_ipc_stress,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL),
+
+    TT_TEST_CASE("tt_unit_test_ipc_stress_real",
+                 "testing ipc stress test between proc",
+                 tt_unit_test_ipc_stress_real,
                  NULL,
                  NULL,
                  NULL,
@@ -132,7 +143,7 @@ static tt_u32_t __cli_closed;
 #endif
 
 /*
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_ipc_destroy_immd)
+TT_TEST_ROUTINE_DEFINE(tt_unit_test_ipc_stress)
 {
     //tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
 
@@ -144,6 +155,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_ipc_destroy_immd)
 }
 */
 
+#if 0
 static tt_ev_t *__uti_ev_gen()
 {
     tt_ev_t *pev;
@@ -1020,6 +1032,377 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_ipc_destroy_immd)
     TT_UT_EQUAL(__utb_ret, TT_SUCCESS, "");
     // TT_UT_EQUAL(__utb_ret2, TT_SUCCESS, "");
     TT_UT_EQUAL(__utb_err_line, 0, "");
+
+    // test end
+    TT_TEST_CASE_LEAVE()
+}
+#endif
+
+#define __CONN_NUM 10
+#define __ROUND_NUM 100
+
+static tt_u32_t __err_line;
+
+#if 0
+#define TT_INFO_IPC TT_INFO
+#else
+#define TT_INFO_IPC(...)
+#endif
+
+tt_result_t __ipc_cli_1(IN void *param)
+{
+    tt_ipc_t *ipc;
+    tt_u8_t sbuf[11] = "1234567890", rbuf[11];
+    tt_u32_t n, len, cn, rn;
+
+    cn = 0;
+    while (cn++ < __CONN_NUM) {
+        TT_INFO_IPC("cli con %d", cn);
+
+        ipc = tt_ipc_create(NULL, NULL);
+        if (ipc == NULL) {
+            __err_line = __LINE__;
+            return TT_FAIL;
+        }
+
+        if (!TT_OK(tt_ipc_connect(ipc, __IPC_PATH))) {
+            __err_line = __LINE__;
+            return TT_FAIL;
+        }
+
+        rn = 0;
+        while (rn++ < __ROUND_NUM) {
+            if (!TT_OK(tt_ipc_send(ipc, sbuf, sizeof(sbuf), &n))) {
+                __err_line = __LINE__;
+                return TT_FAIL;
+            }
+            if (sizeof(sbuf) != n) {
+                __err_line = __LINE__;
+                return TT_FAIL;
+            }
+            TT_INFO_IPC("[%d] cli sent %d", rn, n);
+
+            len = 0;
+            while (len < sizeof(rbuf)) {
+                if (!TT_OK(tt_ipc_recv(ipc, rbuf, sizeof(rbuf), &n, NULL))) {
+                    __err_line = __LINE__;
+                    return TT_FAIL;
+                }
+                len += n;
+            }
+            TT_ASSERT(len == n);
+            if (tt_strcmp((tt_char_t *)rbuf, "0987654321") != 0) {
+                __err_line = __LINE__;
+                return TT_FAIL;
+            }
+            TT_INFO_IPC("[%d] cli recv %d", rn, n);
+        }
+
+        tt_ipc_destroy(ipc);
+    }
+
+    return TT_SUCCESS;
+}
+
+static tt_result_t __ipc_svr_1(IN void *param)
+{
+    tt_ipc_t *ipc, *new_ipc;
+    tt_u8_t sbuf[11] = "0987654321", rbuf[11];
+    tt_u32_t n, len, cn, rn;
+
+    ipc = tt_ipc_create(__IPC_PATH, NULL);
+    if (ipc == NULL) {
+        __err_line = __LINE__;
+        return TT_FAIL;
+    }
+
+    cn = 0;
+    while (cn++ < __CONN_NUM) {
+        TT_INFO_IPC("svr acc %d", cn);
+
+        new_ipc = tt_ipc_accept(ipc, NULL);
+        if (new_ipc == NULL) {
+            __err_line = __LINE__;
+            return TT_FAIL;
+        }
+
+        rn = 0;
+        while (rn++ < __ROUND_NUM) {
+            len = 0;
+            while (len < sizeof(rbuf)) {
+                if (!TT_OK(
+                        tt_ipc_recv(new_ipc, rbuf, sizeof(rbuf), &n, NULL))) {
+                    __err_line = __LINE__;
+                    return TT_FAIL;
+                }
+                len += n;
+            }
+            TT_ASSERT(len == n);
+            if (tt_strcmp((tt_char_t *)rbuf, "1234567890") != 0) {
+                __err_line = __LINE__;
+                return TT_FAIL;
+            }
+            TT_INFO_IPC("[%d] svr recv %d", rn, n);
+
+            if (!TT_OK(tt_ipc_send(new_ipc, sbuf, sizeof(sbuf), &n))) {
+                __err_line = __LINE__;
+                return TT_FAIL;
+            }
+            if (sizeof(sbuf) != n) {
+                __err_line = __LINE__;
+                return TT_FAIL;
+            }
+            TT_INFO_IPC("[%d] svr sent %d", rn, n);
+        }
+
+        tt_ipc_destroy(new_ipc);
+    }
+
+    tt_ipc_destroy(ipc);
+
+    return TT_SUCCESS;
+}
+
+TT_TEST_ROUTINE_DEFINE(tt_unit_test_ipc_basic)
+{
+    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+    tt_task_t t;
+    tt_result_t ret;
+
+    TT_TEST_CASE_ENTER()
+    // test start
+
+    ret = tt_task_create(&t, NULL);
+    TT_UT_SUCCESS(ret, "");
+
+    tt_task_add_fiber(&t, "svr", __ipc_svr_1, NULL, NULL);
+    tt_task_add_fiber(&t, "cli", __ipc_cli_1, NULL, NULL);
+
+    ret = tt_task_run(&t);
+    TT_UT_SUCCESS(ret, "");
+    tt_task_wait(&t);
+
+    TT_UT_EQUAL(__err_line, 0, "");
+
+    // test end
+    TT_TEST_CASE_LEAVE()
+}
+
+static tt_result_t __ipc_svr_acc_2(IN void *param)
+{
+    tt_ipc_t *new_ipc = (tt_ipc_t *)param;
+    tt_u8_t sbuf[11] = "0987654321", rbuf[11];
+    tt_u32_t n, len, rn;
+
+    rn = 0;
+    while (rn++ < __ROUND_NUM) {
+        len = 0;
+        while (len < sizeof(rbuf)) {
+            if (!TT_OK(tt_ipc_recv(new_ipc, rbuf, sizeof(rbuf), &n, NULL))) {
+                __err_line = __LINE__;
+                return TT_FAIL;
+            }
+            len += n;
+        }
+        TT_ASSERT(len == n);
+        if (tt_strcmp((tt_char_t *)rbuf, "1234567890") != 0) {
+            __err_line = __LINE__;
+            return TT_FAIL;
+        }
+        TT_INFO_IPC("[%d] acc recv %d", rn, n);
+
+        if (!TT_OK(tt_ipc_send(new_ipc, sbuf, sizeof(sbuf), &n))) {
+            __err_line = __LINE__;
+            return TT_FAIL;
+        }
+        if (sizeof(sbuf) != n) {
+            __err_line = __LINE__;
+            return TT_FAIL;
+        }
+        TT_INFO_IPC("[%d] acc sent %d", rn, n);
+    }
+
+    tt_ipc_destroy(new_ipc);
+
+    return TT_SUCCESS;
+}
+
+static tt_result_t __ipc_svr_2(IN void *param)
+{
+    tt_ipc_t *ipc, *new_ipc;
+    tt_fiber_t *fb;
+    tt_u32_t cn;
+
+    ipc = tt_ipc_create(__IPC_PATH, NULL);
+    if (ipc == NULL) {
+        __err_line = __LINE__;
+        return TT_FAIL;
+    }
+
+    cn = 0;
+    while (cn++ < __CONN_NUM) {
+        TT_INFO_IPC("svr acc %d", cn);
+
+        new_ipc = tt_ipc_accept(ipc, NULL);
+        if (new_ipc == NULL) {
+            __err_line = __LINE__;
+            return TT_FAIL;
+        }
+
+        fb = tt_fiber_create(NULL, __ipc_svr_acc_2, new_ipc, NULL);
+        if (fb == NULL) {
+            __err_line = __LINE__;
+            return TT_FAIL;
+        }
+        tt_fiber_resume(fb, TT_FALSE);
+    }
+
+    tt_ipc_destroy(ipc);
+
+    return TT_SUCCESS;
+}
+
+TT_TEST_ROUTINE_DEFINE(tt_unit_test_ipc_stress)
+{
+    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+    tt_task_t t;
+    tt_result_t ret;
+    tt_u32_t n;
+
+    TT_TEST_CASE_ENTER()
+    // test start
+
+    ret = tt_task_create(&t, NULL);
+    TT_UT_SUCCESS(ret, "");
+
+    tt_task_add_fiber(&t, "svr", __ipc_svr_2, NULL, NULL);
+    n = 0;
+    while (n++ < __CONN_NUM) {
+        tt_task_add_fiber(&t, "cli", __ipc_cli_1, NULL, NULL);
+    }
+
+    ret = tt_task_run(&t);
+    TT_UT_SUCCESS(ret, "");
+    tt_task_wait(&t);
+
+    TT_UT_EQUAL(__err_line, 0, "");
+
+    // test end
+    TT_TEST_CASE_LEAVE()
+}
+
+tt_result_t __ipc_cli_oneshot(IN void *param)
+{
+    tt_ipc_t *ipc;
+    tt_u8_t sbuf[11] = "1234567890", rbuf[11];
+    tt_u32_t n, len, rn;
+
+    ipc = tt_ipc_create(NULL, NULL);
+    if (ipc == NULL) {
+        __err_line = __LINE__;
+        return TT_FAIL;
+    }
+
+    if (!TT_OK(tt_ipc_connect(ipc, __IPC_PATH))) {
+        __err_line = __LINE__;
+        return TT_FAIL;
+    }
+
+    rn = 0;
+    while (rn++ < __ROUND_NUM) {
+        if (!TT_OK(tt_ipc_send(ipc, sbuf, sizeof(sbuf), &n))) {
+            __err_line = __LINE__;
+            return TT_FAIL;
+        }
+        if (sizeof(sbuf) != n) {
+            __err_line = __LINE__;
+            return TT_FAIL;
+        }
+        TT_INFO_IPC("[%d] cli sent %d", rn, n);
+
+        len = 0;
+        while (len < sizeof(rbuf)) {
+            if (!TT_OK(tt_ipc_recv(ipc, rbuf, sizeof(rbuf), &n, NULL))) {
+                __err_line = __LINE__;
+                return TT_FAIL;
+            }
+            len += n;
+        }
+        TT_ASSERT(len == n);
+        if (tt_strcmp((tt_char_t *)rbuf, "0987654321") != 0) {
+            __err_line = __LINE__;
+            return TT_FAIL;
+        }
+        TT_INFO_IPC("[%d] cli recv %d", rn, n);
+    }
+
+    tt_ipc_destroy(ipc);
+
+    return TT_SUCCESS;
+}
+
+TT_TEST_ROUTINE_DEFINE(tt_unit_test_ipc_stress_real)
+{
+    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+    tt_task_t t;
+    tt_result_t ret;
+    tt_u32_t n;
+    tt_process_t proc[__CONN_NUM];
+    tt_char_t *argv[20] = {0};
+    tt_char_t *path;
+
+    TT_TEST_CASE_ENTER()
+    // test start
+
+    ret = tt_task_create(&t, NULL);
+    TT_UT_SUCCESS(ret, "");
+
+    tt_task_add_fiber(&t, "svr", __ipc_svr_2, NULL, NULL);
+
+    ret = tt_task_run(&t);
+    TT_UT_SUCCESS(ret, "");
+
+    path = tt_process_path(NULL);
+    TT_UT_NOT_EQUAL(path, NULL, "");
+    argv[0] = "tsk_unit_test";
+    argv[1] = "ipc_stress";
+    argv[2] = __IPC_PATH;
+
+    n = 0;
+    while (n < __CONN_NUM) {
+#if TT_ENV_OS_IS_WINDOWS
+#define __app_file path
+#elif TT_ENV_OS_IS_IOS
+        extern const char *get_app_path();
+//#define __app_file get_app_path()
+#define __app_file path
+#define __app_file_sc get_app_path()
+#else
+//#define __app_file "./app_unit_test"
+#define __app_file path
+#define __app_file_sc "./测试"
+#endif
+
+        // create a child process
+        ret = tt_process_create(&proc[n], __app_file, argv, NULL);
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
+
+        ++n;
+    }
+
+    tt_free(path);
+
+    tt_task_wait(&t);
+
+    n = 0;
+    while (n < __CONN_NUM) {
+        ret = tt_process_wait(&proc[n], TT_TRUE, NULL);
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
+
+        ++n;
+    }
+
+    TT_UT_EQUAL(__err_line, 0, "");
 
     // test end
     TT_TEST_CASE_LEAVE()

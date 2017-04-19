@@ -23,7 +23,6 @@
 #include <event/tt_event_center.h>
 #include <init/tt_component.h>
 #include <init/tt_profile.h>
-#include <io/tt_ipc_aio.h>
 #include <log/tt_log.h>
 #include <misc/tt_assert.h>
 #include <network/adns/tt_adns_domain_manager.h>
@@ -311,10 +310,10 @@ tt_result_t __evp_internal_tev_handler(IN tt_evpoller_t *evp, IN tt_ev_t *ev)
         case TT_EV_RANGE_INTERNAL_SOCKET:
         case TT_EV_RANGE_INTERNAL_SSL: {
             return tt_skt_tev_handler(evp, ev);
-        } break;*/
+        } break;
         case TT_EV_RANGE_INTERNAL_IPC: {
             return tt_ipc_tev_handler(evp, ev);
-        } break;
+        } break;*/
         case TT_EV_RANGE_INTERNAL_EVPOLLER: {
             return __evp_tev_handler(evp, ev);
         } break;

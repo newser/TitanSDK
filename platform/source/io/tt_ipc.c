@@ -1,0 +1,178 @@
+/* Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+////////////////////////////////////////////////////////////
+// import header files
+////////////////////////////////////////////////////////////
+
+#include <io/tt_ipc.h>
+
+#include <memory/tt_memory_alloc.h>
+#include <misc/tt_assert.h>
+
+////////////////////////////////////////////////////////////
+// internal macro
+////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////
+// internal type
+////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////
+// declaration
+////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////
+// global variant
+////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////
+// interface declaration
+////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////
+// interface implementation
+////////////////////////////////////////////////////////////
+
+tt_ipc_t *tt_ipc_create(IN OPT const tt_char_t *addr,
+                        IN OPT tt_ipc_attr_t *attr)
+{
+    tt_ipc_t *ipc;
+    tt_ipc_attr_t __attr;
+
+    ipc = tt_malloc(sizeof(tt_ipc_t));
+    if (ipc == NULL) {
+        TT_ERROR("no mem for ipc");
+        return NULL;
+    }
+
+    if (attr != NULL) {
+        tt_ipc_attr_default(&__attr);
+        attr = &__attr;
+    }
+
+    if (!TT_OK(tt_ipc_create_ntv(&ipc->sys_ipc, addr, attr))) {
+        tt_free(ipc);
+        return NULL;
+    }
+
+    tt_buf_init(&ipc->buf, &attr->recv_buf_attr);
+
+    return ipc;
+}
+
+void tt_ipc_destroy(IN tt_ipc_t *ipc)
+{
+    TT_ASSERT(ipc != NULL);
+
+    tt_ipc_destroy_ntv(&ipc->sys_ipc);
+
+    tt_buf_destroy(&ipc->buf);
+
+    tt_free(ipc);
+}
+
+void tt_ipc_attr_default(IN tt_ipc_attr_t *attr)
+{
+    TT_ASSERT(attr != NULL);
+
+    tt_buf_attr_default(&attr->recv_buf_attr);
+    attr->recv_buf_attr.min_extend = (1 << 13); // 8K
+    attr->recv_buf_attr.max_extend = (1 << 17); // 128K
+}
+
+tt_result_t tt_ipc_connect(IN tt_ipc_t *ipc, IN const tt_char_t *addr)
+{
+    TT_ASSERT(ipc != NULL);
+    TT_ASSERT(addr != NULL);
+
+    return tt_ipc_connect_ntv(&ipc->sys_ipc, addr);
+}
+
+tt_ipc_t *tt_ipc_accept(IN tt_ipc_t *ipc, IN OPT tt_ipc_attr_t *new_attr)
+{
+    tt_ipc_t *new_ipc;
+    tt_ipc_attr_t __attr;
+
+    TT_ASSERT(ipc != NULL);
+
+    new_ipc = tt_malloc(sizeof(tt_ipc_t));
+    if (new_ipc == NULL) {
+        TT_ERROR("no mem for accept ipc");
+        return NULL;
+    }
+
+    if (new_attr != NULL) {
+        tt_ipc_attr_default(&__attr);
+        new_attr = &__attr;
+    }
+
+    if (!TT_OK(tt_ipc_accept_ntv(&ipc->sys_ipc, &new_ipc->sys_ipc))) {
+        tt_free(new_ipc);
+        return NULL;
+    }
+
+    tt_buf_init(&new_ipc->buf, &new_attr->recv_buf_attr);
+
+    return new_ipc;
+}
+
+/*
+tt_result_t tt_ipc_recv(IN tt_ipc_t *ipc,
+                        OUT struct tt_io_ev_s **ev,
+                        OUT OPT tt_fiber_ev_t **fev)
+{
+    tt_buf_t *buf = &ipc->buf;
+    tt_u8_t *p;
+    tt_u32_t len, recvd;
+    tt_io_ev_t *io_ev;
+
+    *ev = NULL;
+    TT_SAFE_ASSIGN(fev, NULL);
+
+again:
+    tt_buf_get_rptr(buf, &p, &len);
+    if (len < sizeof(io_ev)) {
+        return TT_BUFFER_INCOMPLETE;
+    }
+
+    io_ev = (tt_io_ev_t *)p;
+    if (io_ev->len <= len) {
+        tt_buf_inc_rp(buf, io_ev->len);
+        tt_buf_try_refine(buf, 1 << 10);
+        *ev = io_ev;
+        return TT_SUCCESS;
+    }
+
+    // no ev or ev in buf is not complete, keep recving
+    tt_buf_get_wptr(buf, &p, &len);
+    if ((len == 0) && !TT_OK(tt_buf_extend(buf))) {
+        TT_ERROR("ipc buffer is full");
+        return TT_FAIL;
+    }
+
+    if (TT_OK(tt_ipc_recv_ntv(&ipc->sys_ipc, p, len, fev))) {
+        if ((fev != NULL) && (*fev != NULL)) {
+            return TT_SUCCESS;
+        } else {
+            goto again;
+        }
+    } else {
+        TT_ERROR("ipc data may be broken");
+        return TT_FAIL;
+    }
+}
+*/

@@ -104,6 +104,9 @@ unit test apis
 #define TT_UT_SUCCESS(a, info) TT_UT_EQUAL((a), TT_SUCCESS, (info))
 #define TT_UT_FAIL(a, info) TT_UT_NOT_EQUAL((a), TT_SUCCESS, (info))
 
+#define TT_UT_NULL(a, info) TT_UT_EQUAL((a), NULL, (info))
+#define TT_UT_NOT_NULL(a, info) TT_UT_NOT_EQUAL((a), NULL, (info))
+
 ////////////////////////////////////////////////////////////
 // type definition
 ////////////////////////////////////////////////////////////
