@@ -22,8 +22,6 @@
 
 #include <event/tt_event_center.h>
 #include <event/tt_event_poller.h>
-//#include <io/tt_file_system_aio.h>
-#include <io/tt_ipc_aio.h>
 #include <misc/tt_error.h>
 
 #include <sys/event.h>
@@ -148,7 +146,7 @@ tt_result_t tt_evp_poll_ntv(IN struct tt_evpoller_s *evp, IN tt_s64_t wait_ms)
                 if (!TT_OK(result)) {
                     return TT_FAIL;
                 }
-            } break;*/
+            } break;
                 case TT_IPC_MARK_KQ_RD: {
                     result = tt_ipc_kq_rd_handler(__KEY2IPC_RD(kq_ev[i].udata),
                                                   kq_ev[i].flags,
@@ -166,7 +164,7 @@ tt_result_t tt_evp_poll_ntv(IN struct tt_evpoller_s *evp, IN tt_s64_t wait_ms)
                     if (!TT_OK(result)) {
                         return TT_FAIL;
                     }
-                } break;
+                } break;*/
 
                 default: {
                     TT_FATAL("unknown event range: %d",
