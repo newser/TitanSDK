@@ -76,12 +76,19 @@ extern void tt_ipc_destroy(IN tt_ipc_t *ipc);
 
 extern void tt_ipc_attr_default(IN tt_ipc_attr_t *attr);
 
-// caller can not assume that this function could return fail when
-// passing an invalid remote_addr, the behavior depends on os
+// client can only connect when server has called tt_ipc_accept(),
+// an example: ipc is established when server calls accept() and
+// then client calls connect(), now if client create a new ipc and
+// tries to connect to same address, the connect would fail as server
+// does not issued new accept()
 extern tt_result_t tt_ipc_connect(IN tt_ipc_t *ipc, IN const tt_char_t *addr);
 
-// on windows, new_ipc should be destroyed by tt_async_ipc_destroy
-// once this function returns success
+// will block calling thread during retrying
+extern tt_result_t tt_ipc_connect_retry(IN tt_ipc_t *ipc, 
+                                        IN const tt_char_t *addr,
+                                        IN tt_u32_t interval_ms,
+                                        IN tt_u32_t retry_count);
+
 extern tt_ipc_t *tt_ipc_accept(IN tt_ipc_t *ipc,
                                IN OPT tt_ipc_attr_t *new_attr);
 
@@ -90,7 +97,12 @@ tt_inline tt_result_t tt_ipc_send(IN tt_ipc_t *ipc,
                                   IN tt_u32_t len,
                                   OUT OPT tt_u32_t *sent)
 {
-    return tt_ipc_send_ntv(&ipc->sys_ipc, buf, len, sent);
+    if (len != 0) {
+        return tt_ipc_send_ntv(&ipc->sys_ipc, buf, len, sent);
+    } else {
+        *sent = 0;
+        return TT_SUCCESS;
+    }
 }
 
 tt_inline tt_result_t tt_ipc_recv(IN tt_ipc_t *ipc,
@@ -99,7 +111,12 @@ tt_inline tt_result_t tt_ipc_recv(IN tt_ipc_t *ipc,
                                   OUT OPT tt_u32_t *recvd,
                                   OUT OPT struct tt_fiber_ev_s **fev)
 {
-    return tt_ipc_recv_ntv(&ipc->sys_ipc, buf, len, recvd, fev);
+    if (len != 0) {
+        return tt_ipc_recv_ntv(&ipc->sys_ipc, buf, len, recvd, fev);
+    } else {
+        TT_ERROR("recv buf len can not be 0");
+        return TT_FAIL;
+    }
 }
 
 #endif /* __TT_IPC__ */

@@ -24,6 +24,7 @@
 #include <init/tt_profile.h>
 #include <memory/tt_memory_alloc.h>
 #include <misc/tt_assert.h>
+#include <os/tt_thread.h>
 
 ////////////////////////////////////////////////////////////
 // internal macro
@@ -79,7 +80,7 @@ tt_ipc_t *tt_ipc_create(IN OPT const tt_char_t *addr,
         return NULL;
     }
 
-    if (attr != NULL) {
+    if (attr == NULL) {
         tt_ipc_attr_default(&__attr);
         attr = &__attr;
     }
@@ -120,6 +121,26 @@ tt_result_t tt_ipc_connect(IN tt_ipc_t *ipc, IN const tt_char_t *addr)
     TT_ASSERT(addr != NULL);
 
     return tt_ipc_connect_ntv(&ipc->sys_ipc, addr);
+}
+
+tt_result_t tt_ipc_connect_retry(IN tt_ipc_t *ipc, 
+                                 IN const tt_char_t *addr,
+                                 IN tt_u32_t interval_ms,
+                                 IN tt_u32_t retry_count)
+{
+    tt_u32_t n;
+    tt_result_t result;
+
+    TT_ASSERT(ipc != NULL);
+    TT_ASSERT(addr != NULL);
+
+    n = 0;
+    while (!TT_OK(result = tt_ipc_connect_ntv(&ipc->sys_ipc, addr)) &&
+           (++n < retry_count)) {
+        tt_sleep(interval_ms);
+    }
+
+    return result;
 }
 
 tt_ipc_t *tt_ipc_accept(IN tt_ipc_t *ipc, IN OPT tt_ipc_attr_t *new_attr)

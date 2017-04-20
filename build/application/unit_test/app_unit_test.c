@@ -6,9 +6,9 @@
 
 //#include <locale.h>
 
-extern tt_result_t __utc_on_init(IN struct tt_evcenter_s *evc,
-                                 IN void *on_init_param);
-extern tt_u32_t __cli_mode;
+extern tt_result_t __ipc_cli_1(IN void *param);
+extern tt_result_t __ipc_cli_oneshot(IN void *param);
+extern tt_result_t __ipc_svr_1(IN void *param);
 
 extern tt_result_t tt_cli_demo_run();
 
@@ -87,10 +87,7 @@ int main(int argc, char *argv[])
     if (argc > 1) {
         if (strcmp(argv[1], "process") == 0) {
             return app_ut_process(argc, argv);
-        } else if (strcmp(argv[1], "ipc_stress") == 0) {
-            tt_evcenter_t evc;
-            tt_evc_attr_t evc_attr;
-
+        } else if (strncmp(argv[1], "ipc", 3) == 0) {
             if (argc < 3) {
                 printf("app unit test ipc need at least 3 args\n");
                 return -1;
@@ -99,12 +96,24 @@ int main(int argc, char *argv[])
             // init platform
             tt_platform_init(NULL);
 
-            extern tt_result_t __ipc_cli_oneshot(IN void *param);
             tt_task_create(&t, NULL);
-            tt_task_add_fiber(&t, NULL, __ipc_cli_oneshot, NULL, NULL);
+            if (strcmp(argv[1], "ipc-1") == 0) {
+                tt_task_add_fiber(&t, NULL, __ipc_cli_1, NULL, NULL);
+            } else if (strcmp(argv[1], "ipc-2") == 0) {
+                tt_task_add_fiber(&t, NULL, __ipc_cli_oneshot, NULL, NULL);
+            } else if (strcmp(argv[1], "ipc-svr") == 0) {
+                tt_task_add_fiber(&t, NULL, __ipc_svr_1, NULL, NULL);
+            }
             tt_task_run(&t);
             tt_task_wait(&t);
             printf("exiting\n");
+#if 0
+            while (1) {
+#else
+            while (0) {
+#endif
+                tt_sleep(10000);
+            }            
             return 0;
         } // haniu
         else {

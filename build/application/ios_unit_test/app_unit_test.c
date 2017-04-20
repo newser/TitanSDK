@@ -44,7 +44,7 @@ int app_ut_main(int argc, char *argv[])
     if (argc > 1) {
         if (strcmp(argv[1], "process") == 0) {
             return app_ut_process(argc, argv);
-        } else if (strcmp(argv[1], "ipc_stress") == 0) {
+        } else if (strcmp(argv[1], "ipc-1") == 0) {
             tt_evcenter_t evc;
             tt_evc_attr_t evc_attr;
 

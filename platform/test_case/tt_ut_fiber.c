@@ -281,7 +281,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_fiber_basic)
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_thread_t *t;
     tt_thread_attr_t tattr;
-    tt_fiber_t *fb1, *fb2, *fb3;
+    tt_fiber_t *fb1, *fb2;
 
     TT_TEST_CASE_ENTER()
     // test start
@@ -685,7 +685,7 @@ struct __ut_fev
 
 static tt_result_t __fiber_ev_send(IN void *param)
 {
-    tt_u32_t send_num, i = 0;
+    tt_u32_t i = 0;
     struct __ut_fev uev;
     tt_fiber_t *recv = tt_fiber_find("recv");
 
@@ -706,8 +706,7 @@ static tt_result_t __fiber_ev_send(IN void *param)
 
 static tt_result_t __fiber_ev_recv(IN void *param)
 {
-    tt_u32_t recv_num, i = 0;
-    struct __ut_fev uev;
+    tt_u32_t i = 0;
     tt_fiber_t *cfb = tt_current_fiber();
 
     while (i < 1000) {
@@ -727,7 +726,7 @@ static tt_result_t __fiber_ev_recv(IN void *param)
 
 static tt_result_t __fiber_ev_send_nw(IN void *param)
 {
-    tt_u32_t send_num, i = 0;
+    tt_u32_t i = 0;
     tt_fiber_t *recv = tt_fiber_find("recv");
 
     while (i < 1000) {
@@ -766,8 +765,7 @@ static tt_u32_t __ut_sum;
 
 static tt_result_t __fiber_ev_recv_nw(IN void *param)
 {
-    tt_u32_t recv_num, i = 0;
-    struct __ut_fev uev;
+    tt_u32_t i = 0;
     tt_fiber_t *cfb = tt_current_fiber();
 
     while (i < 1000) {
@@ -796,7 +794,6 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_fiber_event)
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_task_t t1;
     tt_result_t ret;
-    tt_u32_t n, i;
 
     TT_TEST_CASE_ENTER()
     // test start

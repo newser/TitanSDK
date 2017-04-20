@@ -28,6 +28,8 @@ this file defines file system APIs
 // import header files
 ////////////////////////////////////////////////////////////
 
+#include <log/tt_log.h>
+
 #include <tt_file_system_native.h>
 
 ////////////////////////////////////////////////////////////
@@ -214,10 +216,15 @@ read a file
 */
 tt_inline tt_result_t tt_fread(IN tt_file_t *file,
                                OUT tt_u8_t *buf,
-                               IN tt_u32_t buf_len,
+                               IN tt_u32_t len,
                                OUT tt_u32_t *read_len)
 {
-    return tt_fread_ntv(&file->sys_file, buf, buf_len, read_len);
+    if (len != 0) {
+        return tt_fread_ntv(&file->sys_file, buf, len, read_len);
+    } else {
+        TT_ERROR("fread buf len can not be 0");
+        return TT_FAIL;
+    }
 }
 
 /**
@@ -243,10 +250,15 @@ write to a file
 */
 tt_inline tt_result_t tt_fwrite(IN tt_file_t *file,
                                 IN tt_u8_t *buf,
-                                IN tt_u32_t buf_len,
+                                IN tt_u32_t len,
                                 OUT tt_u32_t *write_len)
 {
-    return tt_fwrite_ntv(&file->sys_file, buf, buf_len, write_len);
+    if (len != 0) {
+        return tt_fwrite_ntv(&file->sys_file, buf, len, write_len);
+    } else {
+        *write_len = 0;
+        return TT_SUCCESS;
+    }
 }
 
 /**

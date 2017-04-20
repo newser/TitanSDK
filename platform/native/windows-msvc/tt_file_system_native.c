@@ -42,7 +42,7 @@
 //#define __SIMU_FAIL_ReadFile
 //#define __SIMU_FAIL_WriteFile
 //#define __SIMU_FAIL_SetFilePointer
-//#define __SIMU_FAIL_CLOSE
+//#define __SIMU_FAIL_CloseHandle
 
 //#define __SIMU_FAIL_CreateDirectoryW
 //#define __SIMU_FAIL_RemoveDirectoryW
@@ -54,61 +54,61 @@
 #ifdef __SIMU_FAIL_CreateFileW
 #define CreateFileW __sf_CreateFileW
 HANDLE WINAPI
-__sf_CreateFileW(__in LPCWSTR lpFileName,
-                 __in DWORD dwDesiredAccess,
-                 __in DWORD dwShareMode,
-                 __in_opt LPSECURITY_ATTRIBUTES lpSecurityAttributes,
-                 __in DWORD dwCreationDisposition,
-                 __in DWORD dwFlagsAndAttributes,
-                 __in_opt HANDLE hTemplateFile);
+__sf_CreateFileW(LPCWSTR lpFileName,
+                 DWORD dwDesiredAccess,
+                 DWORD dwShareMode,
+                 LPSECURITY_ATTRIBUTES lpSecurityAttributes,
+                 DWORD dwCreationDisposition,
+                 DWORD dwFlagsAndAttributes,
+                 HANDLE hTemplateFile);
 #endif
 
 #ifdef __SIMU_FAIL_DeleteFileW
 #define DeleteFileW __sf_DeleteFileW
-BOOL WINAPI __sf_DeleteFileW(__in LPCWSTR lpFileName);
+BOOL WINAPI __sf_DeleteFileW(LPCWSTR lpFileName);
 #endif
 
 #ifdef __SIMU_FAIL_ReadFile
 #define ReadFile __sf_ReadFile
-BOOL WINAPI __sf_ReadFile(__in HANDLE hFile,
+BOOL WINAPI __sf_ReadFile(HANDLE hFile,
                           __out LPVOID lpBuffer,
-                          __in DWORD nNumberOfBytesToRead,
+                          DWORD nNumberOfBytesToRead,
                           __out_opt LPDWORD lpNumberOfBytesRead,
                           __inout_opt LPOVERLAPPED lpOverlapped);
 #endif
 
 #ifdef __SIMU_FAIL_WriteFile
 #define WriteFile __sf_WriteFile
-BOOL WINAPI __sf_WriteFile(__in HANDLE hFile,
-                           __in LPCVOID lpBuffer,
-                           __in DWORD nNumberOfBytesToWrite,
+BOOL WINAPI __sf_WriteFile(HANDLE hFile,
+                           LPCVOID lpBuffer,
+                           DWORD nNumberOfBytesToWrite,
                            __out_opt LPDWORD lpNumberOfBytesWritten,
                            __inout_opt LPOVERLAPPED lpOverlapped);
 #endif
 
 #ifdef __SIMU_FAIL_SetFilePointer
 #define SetFilePointer __sf_SetFilePointer
-DWORD WINAPI __sf_SetFilePointer(__in HANDLE hFile,
-                                 __in LONG lDistanceToMove,
+DWORD WINAPI __sf_SetFilePointer(HANDLE hFile,
+                                 LONG lDistanceToMove,
                                  __inout_opt PLONG lpDistanceToMoveHigh,
-                                 __in DWORD dwMoveMethod);
+                                 DWORD dwMoveMethod);
 #endif
 
 #ifdef __SIMU_FAIL_CloseHandle
 #define CloseHandle __sf_CloseHandle
-BOOL WINAPI __sf_CloseHandle(__in HANDLE hObject);
+BOOL WINAPI __sf_CloseHandle(HANDLE hObject);
 #endif
 
 #ifdef __SIMU_FAIL_CreateDirectoryW
 #define CreateDirectoryW __sf_CreateDirectoryW
 BOOL WINAPI
-__sf_CreateDirectoryW(__in LPCWSTR lpPathName,
-                      __in_opt LPSECURITY_ATTRIBUTES lpSecurityAttributes);
+__sf_CreateDirectoryW(LPCWSTR lpPathName,
+                      LPSECURITY_ATTRIBUTES lpSecurityAttributes);
 #endif
 
 #ifdef __SIMU_FAIL_RemoveDirectoryW
 #define RemoveDirectoryW __sf_RemoveDirectoryW
-BOOL WINAPI __sf_RemoveDirectoryW(__in LPCWSTR lpPathName);
+BOOL WINAPI __sf_RemoveDirectoryW(LPCWSTR lpPathName);
 #endif
 
 #ifdef __SIMU_FAIL_SHFileOperationW
@@ -118,7 +118,7 @@ int __sf_SHFileOperationW(LPSHFILEOPSTRUCT lpFileOp);
 
 #ifdef __SIMU_FAIL_FindFirstFileW
 #define FindFirstFileW __sf_FindFirstFileW
-HANDLE WINAPI __sf_FindFirstFileW(__in LPCTSTR lpFileName,
+HANDLE WINAPI __sf_FindFirstFileW(LPCTSTR lpFileName,
                                   __out LPWIN32_FIND_DATA lpFindFileData);
 #endif
 
@@ -129,7 +129,7 @@ BOOL WINAPI __sf_FindClose(__inout HANDLE hFindFile);
 
 #ifdef __SIMU_FAIL_FindNextFile
 #define FindNextFileW __sf_FindNextFileW
-BOOL WINAPI __sf_FindNextFileW(__in HANDLE hFindFile,
+BOOL WINAPI __sf_FindNextFileW(HANDLE hFindFile,
                                __out LPWIN32_FIND_DATA lpFindFileData);
 #endif
 
@@ -1113,13 +1113,13 @@ void __do_dread(IN tt_io_ev_t *io_ev)
 #ifdef CreateFileW
 #undef CreateFileW
 HANDLE WINAPI
-__sf_CreateFileW(__in LPCWSTR lpFileName,
-                 __in DWORD dwDesiredAccess,
-                 __in DWORD dwShareMode,
-                 __in_opt LPSECURITY_ATTRIBUTES lpSecurityAttributes,
-                 __in DWORD dwCreationDisposition,
-                 __in DWORD dwFlagsAndAttributes,
-                 __in_opt HANDLE hTemplateFile)
+__sf_CreateFileW(LPCWSTR lpFileName,
+                 DWORD dwDesiredAccess,
+                 DWORD dwShareMode,
+                 LPSECURITY_ATTRIBUTES lpSecurityAttributes,
+                 DWORD dwCreationDisposition,
+                 DWORD dwFlagsAndAttributes,
+                 HANDLE hTemplateFile)
 {
     return INVALID_HANDLE_VALUE;
 }
@@ -1127,7 +1127,7 @@ __sf_CreateFileW(__in LPCWSTR lpFileName,
 
 #ifdef DeleteFileW
 #undef DeleteFileW
-BOOL WINAPI __sf_DeleteFileW(__in LPCWSTR lpFileName)
+BOOL WINAPI __sf_DeleteFileW(LPCWSTR lpFileName)
 {
     if (tt_rand_u32() % 2) {
         return 0;
@@ -1139,9 +1139,9 @@ BOOL WINAPI __sf_DeleteFileW(__in LPCWSTR lpFileName)
 
 #ifdef ReadFile
 #undef ReadFile
-BOOL WINAPI __sf_ReadFile(__in HANDLE hFile,
+BOOL WINAPI __sf_ReadFile(HANDLE hFile,
                           __out LPVOID lpBuffer,
-                          __in DWORD nNumberOfBytesToRead,
+                          DWORD nNumberOfBytesToRead,
                           __out_opt LPDWORD lpNumberOfBytesRead,
                           __inout_opt LPOVERLAPPED lpOverlapped)
 {
@@ -1162,9 +1162,9 @@ BOOL WINAPI __sf_ReadFile(__in HANDLE hFile,
 
 #ifdef WriteFile
 #undef WriteFile
-BOOL WINAPI __sf_WriteFile(__in HANDLE hFile,
-                           __in LPCVOID lpBuffer,
-                           __in DWORD nNumberOfBytesToWrite,
+BOOL WINAPI __sf_WriteFile(HANDLE hFile,
+                           LPCVOID lpBuffer,
+                           DWORD nNumberOfBytesToWrite,
                            __out_opt LPDWORD lpNumberOfBytesWritten,
                            __inout_opt LPOVERLAPPED lpOverlapped)
 {
@@ -1185,10 +1185,10 @@ BOOL WINAPI __sf_WriteFile(__in HANDLE hFile,
 
 #ifdef SetFilePointer
 #undef SetFilePointer
-DWORD WINAPI __sf_SetFilePointer(__in HANDLE hFile,
-                                 __in LONG lDistanceToMove,
+DWORD WINAPI __sf_SetFilePointer(HANDLE hFile,
+                                 LONG lDistanceToMove,
                                  __inout_opt PLONG lpDistanceToMoveHigh,
-                                 __in DWORD dwMoveMethod)
+                                 DWORD dwMoveMethod)
 {
     return INVALID_SET_FILE_POINTER;
 }
@@ -1196,7 +1196,7 @@ DWORD WINAPI __sf_SetFilePointer(__in HANDLE hFile,
 
 #ifdef CloseHandle
 #undef CloseHandle
-BOOL WINAPI __sf_CloseHandle(__in HANDLE hObject)
+BOOL WINAPI __sf_CloseHandle(HANDLE hObject)
 {
     if (tt_rand_u32() % 2) {
         return FALSE;
@@ -1209,8 +1209,8 @@ BOOL WINAPI __sf_CloseHandle(__in HANDLE hObject)
 #ifdef CreateDirectory
 #undef CreateDirectory
 BOOL WINAPI
-__sf_CreateDirectoryW(__in LPCWSTR lpPathName,
-                      __in_opt LPSECURITY_ATTRIBUTES lpSecurityAttributes)
+__sf_CreateDirectoryW(LPCWSTR lpPathName,
+                      LPSECURITY_ATTRIBUTES lpSecurityAttributes)
 {
     if (tt_rand_u32() % 2) {
         return FALSE;
@@ -1222,7 +1222,7 @@ __sf_CreateDirectoryW(__in LPCWSTR lpPathName,
 
 #ifdef RemoveDirectoryW
 #undef RemoveDirectoryW
-BOOL WINAPI __sf_RemoveDirectoryW(__in LPCWSTR lpPathName)
+BOOL WINAPI __sf_RemoveDirectoryW(LPCWSTR lpPathName)
 {
     if (tt_rand_u32() % 2) {
         return FALSE;
@@ -1246,7 +1246,7 @@ int __sf_SHFileOperationW(LPSHFILEOPSTRUCT lpFileOp)
 
 #ifdef FindFirstFileW
 #undef FindFirstFileW
-HANDLE WINAPI __sf_FindFirstFileW(__in LPCTSTR lpFileName,
+HANDLE WINAPI __sf_FindFirstFileW(LPCTSTR lpFileName,
                                   __out LPWIN32_FIND_DATA lpFindFileData)
 {
     if (tt_rand_u32() % 2) {
@@ -1271,7 +1271,7 @@ BOOL WINAPI __sf_FindClose(__inout HANDLE hFindFile)
 
 #ifdef FindNextFileW
 #undef FindNextFileW
-BOOL WINAPI __sf_FindNextFileW(__in HANDLE hFindFile,
+BOOL WINAPI __sf_FindNextFileW(HANDLE hFindFile,
                                __out LPWIN32_FIND_DATA lpFindFileData)
 {
     if (tt_rand_u32() % 2) {

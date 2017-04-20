@@ -142,7 +142,12 @@ tt_inline tt_result_t tt_skt_send(IN tt_skt_t *skt,
                                   IN tt_u32_t len,
                                   OUT OPT tt_u32_t *sent)
 {
-    return tt_skt_send_ntv(&skt->sys_skt, buf, len, sent);
+    if (len != 0) {
+        return tt_skt_send_ntv(&skt->sys_skt, buf, len, sent);
+    } else {
+        *sent = 0;
+        return TT_SUCCESS;
+    }
 }
 
 tt_inline tt_result_t tt_skt_recv(IN tt_skt_t *skt,
@@ -151,7 +156,12 @@ tt_inline tt_result_t tt_skt_recv(IN tt_skt_t *skt,
                                   OUT OPT tt_u32_t *recvd,
                                   OUT OPT struct tt_fiber_ev_s **fev)
 {
-    return tt_skt_recv_ntv(&skt->sys_skt, buf, len, recvd, fev);
+    if (len != 0) {
+        return tt_skt_recv_ntv(&skt->sys_skt, buf, len, recvd, fev);
+    } else {
+        TT_ERROR("recv buf len can not be 0");
+        return TT_FAIL;
+    }
 }
 
 tt_inline tt_result_t tt_skt_recvfrom(IN tt_skt_t *skt,
@@ -161,7 +171,12 @@ tt_inline tt_result_t tt_skt_recvfrom(IN tt_skt_t *skt,
                                       OUT OPT tt_sktaddr_t *addr,
                                       OUT OPT struct tt_fiber_ev_s **fev)
 {
-    return tt_skt_recvfrom_ntv(&skt->sys_skt, buf, len, recvd, addr, fev);
+    if (len != 0) {
+        return tt_skt_recvfrom_ntv(&skt->sys_skt, buf, len, recvd, addr, fev);
+    } else {
+        TT_ERROR("recvfrom buf len can not be 0");
+        return TT_FAIL;
+    }
 }
 
 tt_inline tt_result_t tt_skt_sendto(IN tt_skt_t *skt,
@@ -170,7 +185,12 @@ tt_inline tt_result_t tt_skt_sendto(IN tt_skt_t *skt,
                                     OUT OPT tt_u32_t *sent,
                                     IN tt_sktaddr_t *addr)
 {
-    return tt_skt_sendto_ntv(&skt->sys_skt, buf, len, sent, addr);
+    if (len != 0) {
+        return tt_skt_sendto_ntv(&skt->sys_skt, buf, len, sent, addr);
+    } else {
+        *sent = 0;
+        return TT_SUCCESS;
+    }
 }
 
 extern tt_result_t tt_skt_local_addr(IN tt_skt_t *skt, IN tt_sktaddr_t *addr);
