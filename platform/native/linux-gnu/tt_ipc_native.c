@@ -49,8 +49,8 @@
 //#define __SIMU_FAIL_LISTEN
 //#define __SIMU_FAIL_ACCEPT4
 //#define __SIMU_FAIL_CONNECT
-//#define __SIMU_FAIL_SEND
-//#define __SIMU_FAIL_RECV
+#define __SIMU_FAIL_SEND
+#define __SIMU_FAIL_RECV
 
 #ifdef __SIMU_FAIL_SOCKET
 #define socket __sf_socket
@@ -664,10 +664,10 @@ int __sf_connect(int socket,
 #undef send
 ssize_t __sf_send(int socket, const void *buffer, size_t length, int flags)
 {
-    if (tt_rand_u32() % 2) {
+    if (0 && tt_rand_u32() % 10 == 0) {
         return -1;
     } else {
-        return send(socket, buffer, tt_rand_u32() % length, flags);
+        return send(socket, buffer, tt_rand_u32() % length + 1, flags);
     }
 }
 #endif
@@ -676,10 +676,10 @@ ssize_t __sf_send(int socket, const void *buffer, size_t length, int flags)
 #undef recv
 ssize_t __sf_recv(int socket, void *buffer, size_t length, int flags)
 {
-    if (tt_rand_u32() % 2) {
+    if (0 && tt_rand_u32() % 10 == 0) {
         return -1;
     } else {
-        return recv(socket, buffer, tt_rand_u32() % length, flags);
+        return recv(socket, buffer, tt_rand_u32() % length + 1, flags);
     }
 }
 #endif
