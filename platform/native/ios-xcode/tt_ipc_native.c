@@ -43,7 +43,7 @@
 //#define __SIMU_FAIL_ACCEPT
 //#define __SIMU_FAIL_CONNECT
 //#define __SIMU_FAIL_SEND
-//  #define __SIMU_FAIL_RECV
+//#define __SIMU_FAIL_RECV
 
 #ifdef __SIMU_FAIL_SOCKET
 #define socket __sf_socket
@@ -386,7 +386,7 @@ tt_bool_t tt_ipc_poller_io(IN tt_io_ev_t *io_ev)
 tt_result_t __init_ipc_addr(IN struct sockaddr_un *saun,
                             IN const tt_char_t *addr)
 {
-    int len = (int)strlen(addr);
+    int len = strlen(addr);
 
     memset(saun, 0, sizeof(struct sockaddr_un));
 
@@ -604,10 +604,10 @@ int __sf_connect(int socket,
 #undef send
 ssize_t __sf_send(int socket, const void *buffer, size_t length, int flags)
 {
-    if (tt_rand_u32() % 2) {
+    if (0 && tt_rand_u32() % 10 == 0) {
         return -1;
     } else {
-        return send(socket, buffer, tt_rand_u32() % length, flags);
+        return send(socket, buffer, tt_rand_u32() % length + 1, flags);
     }
 }
 #endif
@@ -616,10 +616,10 @@ ssize_t __sf_send(int socket, const void *buffer, size_t length, int flags)
 #undef recv
 ssize_t __sf_recv(int socket, void *buffer, size_t length, int flags)
 {
-    if (tt_rand_u32() % 2) {
+    if (0 && tt_rand_u32() % 10 == 0) {
         return -1;
     } else {
-        return recv(socket, buffer, tt_rand_u32() % length, flags);
+        return recv(socket, buffer, tt_rand_u32() % length + 1, flags);
     }
 }
 #endif

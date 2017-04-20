@@ -215,7 +215,7 @@ tt_result_t __ipc_svr_1(IN void *param)
     tt_result_t ret;
 
     (void)rn;
-    
+
     ipc = tt_ipc_create(__IPC_PATH, NULL);
     if (ipc == NULL) {
         __err_line = __LINE__;
@@ -329,7 +329,7 @@ static tt_result_t __ipc_svr_acc_2(IN void *param)
     tt_result_t ret;
 
     rn = 0;
-    (void)rn;    
+    (void)rn;
     while (TT_OK(
         (ret =
              tt_ipc_recv(new_ipc, rbuf + len, sizeof(rbuf) - len, &n, NULL)))) {
@@ -389,7 +389,7 @@ static tt_result_t __ipc_svr_2(IN void *param)
         return TT_FAIL;
     }
     ipc = __stress_ipc;
-    
+
     path = tt_process_path(NULL);
     TT_ASSERT(path != NULL);
     argv[0] = "app_unit_test";
@@ -464,7 +464,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_ipc_stress)
     if (__stress_ipc != NULL) {
         tt_ipc_destroy(__stress_ipc);
     }
-    
+
     TT_UT_EQUAL(__err_line, 0, "");
 
     // test end
@@ -485,7 +485,7 @@ tt_result_t __ipc_cli_oneshot(IN void *param)
 
 #if TT_ENV_OS_IS_WINDOWS
     tt_sleep(50);
-#endif    
+#endif
     if (!TT_OK(tt_ipc_connect_retry(ipc, __IPC_PATH, 100, 10))) {
         __err_line = __LINE__;
         return TT_FAIL;
@@ -584,7 +584,7 @@ tt_result_t __ipc_svr_fev(IN void *param)
     tt_fiber_t *cfb = tt_current_fiber();
 
     (void)rn;
-    
+
     ipc = tt_ipc_create(__IPC_PATH, NULL);
     if (ipc == NULL) {
         __err_line = __LINE__;

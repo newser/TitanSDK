@@ -57,8 +57,7 @@ tt_result_t tt_epoll(
     if (epoll_ctl(epfd, op, fd, &event) == 0) {
         return TT_SUCCESS;
     } else {
-        TT_ERROR_NTV("epoll failed, epfd: %d, op: %d, fd: %d",
-                     epfd, op, fd);
+        TT_ERROR_NTV("epoll failed, epfd: %d, op: %d, fd: %d", epfd, op, fd);
         return TT_FAIL;
     }
 }
