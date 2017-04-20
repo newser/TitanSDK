@@ -25,8 +25,8 @@
 #include <os/tt_task.h>
 
 #include <tt_file_system_native.h>
-#include <tt_socket_native.h>
 #include <tt_ipc_native.h>
+#include <tt_socket_native.h>
 #include <tt_sys_error.h>
 
 ////////////////////////////////////////////////////////////
@@ -270,4 +270,3 @@ tt_bool_t __ipc_io(IN tt_io_ev_t *io_ev)
 
     return TT_TRUE;
 }
-

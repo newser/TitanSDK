@@ -53,14 +53,13 @@
 
 #ifdef __SIMU_FAIL_CreateFileW
 #define CreateFileW __sf_CreateFileW
-HANDLE WINAPI
-__sf_CreateFileW(LPCWSTR lpFileName,
-                 DWORD dwDesiredAccess,
-                 DWORD dwShareMode,
-                 LPSECURITY_ATTRIBUTES lpSecurityAttributes,
-                 DWORD dwCreationDisposition,
-                 DWORD dwFlagsAndAttributes,
-                 HANDLE hTemplateFile);
+HANDLE WINAPI __sf_CreateFileW(LPCWSTR lpFileName,
+                               DWORD dwDesiredAccess,
+                               DWORD dwShareMode,
+                               LPSECURITY_ATTRIBUTES lpSecurityAttributes,
+                               DWORD dwCreationDisposition,
+                               DWORD dwFlagsAndAttributes,
+                               HANDLE hTemplateFile);
 #endif
 
 #ifdef __SIMU_FAIL_DeleteFileW
@@ -101,9 +100,8 @@ BOOL WINAPI __sf_CloseHandle(HANDLE hObject);
 
 #ifdef __SIMU_FAIL_CreateDirectoryW
 #define CreateDirectoryW __sf_CreateDirectoryW
-BOOL WINAPI
-__sf_CreateDirectoryW(LPCWSTR lpPathName,
-                      LPSECURITY_ATTRIBUTES lpSecurityAttributes);
+BOOL WINAPI __sf_CreateDirectoryW(LPCWSTR lpPathName,
+                                  LPSECURITY_ATTRIBUTES lpSecurityAttributes);
 #endif
 
 #ifdef __SIMU_FAIL_RemoveDirectoryW
@@ -1112,14 +1110,13 @@ void __do_dread(IN tt_io_ev_t *io_ev)
 
 #ifdef CreateFileW
 #undef CreateFileW
-HANDLE WINAPI
-__sf_CreateFileW(LPCWSTR lpFileName,
-                 DWORD dwDesiredAccess,
-                 DWORD dwShareMode,
-                 LPSECURITY_ATTRIBUTES lpSecurityAttributes,
-                 DWORD dwCreationDisposition,
-                 DWORD dwFlagsAndAttributes,
-                 HANDLE hTemplateFile)
+HANDLE WINAPI __sf_CreateFileW(LPCWSTR lpFileName,
+                               DWORD dwDesiredAccess,
+                               DWORD dwShareMode,
+                               LPSECURITY_ATTRIBUTES lpSecurityAttributes,
+                               DWORD dwCreationDisposition,
+                               DWORD dwFlagsAndAttributes,
+                               HANDLE hTemplateFile)
 {
     return INVALID_HANDLE_VALUE;
 }
@@ -1208,9 +1205,8 @@ BOOL WINAPI __sf_CloseHandle(HANDLE hObject)
 
 #ifdef CreateDirectory
 #undef CreateDirectory
-BOOL WINAPI
-__sf_CreateDirectoryW(LPCWSTR lpPathName,
-                      LPSECURITY_ATTRIBUTES lpSecurityAttributes)
+BOOL WINAPI __sf_CreateDirectoryW(LPCWSTR lpPathName,
+                                  LPSECURITY_ATTRIBUTES lpSecurityAttributes)
 {
     if (tt_rand_u32() % 2) {
         return FALSE;

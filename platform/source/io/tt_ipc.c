@@ -123,7 +123,7 @@ tt_result_t tt_ipc_connect(IN tt_ipc_t *ipc, IN const tt_char_t *addr)
     return tt_ipc_connect_ntv(&ipc->sys_ipc, addr);
 }
 
-tt_result_t tt_ipc_connect_retry(IN tt_ipc_t *ipc, 
+tt_result_t tt_ipc_connect_retry(IN tt_ipc_t *ipc,
                                  IN const tt_char_t *addr,
                                  IN tt_u32_t interval_ms,
                                  IN tt_u32_t retry_count)

@@ -112,49 +112,49 @@ int main(int argc, char *argv[])
 #else
             while (0) {
 #endif
-                tt_sleep(10000);
-            }            
-            return 0;
-        } // haniu
-        else {
-            printf("unknown process arg: %s\n", argv[1]);
-
-            // must return so as to infinitely creating process
-            return -1;
+            tt_sleep(10000);
         }
+        return 0;
+    } // haniu
+    else {
+        printf("unknown process arg: %s\n", argv[1]);
+
+        // must return so as to infinitely creating process
+        return -1;
     }
+}
 
-    // init platform
-    tt_platform_init(NULL);
+// init platform
+tt_platform_init(NULL);
 
-    tt_thread_create_local(NULL);
+tt_thread_create_local(NULL);
 
-    tt_task_create(&t, NULL);
-    tt_task_add_fiber(&t, NULL, __ut_fiber, NULL, NULL);
-    tt_task_run(&t);
-    tt_task_wait(&t);
-    printf("exiting\n");
+tt_task_create(&t, NULL);
+tt_task_add_fiber(&t, NULL, __ut_fiber, NULL, NULL);
+tt_task_run(&t);
+tt_task_wait(&t);
+printf("exiting\n");
 #if TT_ENV_OS_IS_WINDOWS
-    while (1) {
+while (1) {
 #else
     while (0) {
 #endif
-        tt_sleep(10000);
-    }
+    tt_sleep(10000);
+}
 
-    return 0;
+return 0;
 
-    // create a local thread
-    tt_thread_create_local(NULL);
+// create a local thread
+tt_thread_create_local(NULL);
 
 // run
 #define AUT_MODE 0
 
 #if AUT_MODE == 0
-    tt_test_framework_init(0);
-    tt_test_unit_init(NULL);
-    tt_test_unit_run(NULL);
-    tt_test_unit_list(NULL);
+tt_test_framework_init(0);
+tt_test_unit_init(NULL);
+tt_test_unit_run(NULL);
+tt_test_unit_list(NULL);
 
 // tt_skt_stat_show(0);
 // tt_ssl_stat_show(0);
@@ -175,16 +175,16 @@ tt_cli_demo_run();
 #endif
 
 #ifdef TT_WINDOWS_CRT_DUMP
-    _CrtDumpMemoryLeaks();
+_CrtDumpMemoryLeaks();
 #endif
 
 #if TT_ENV_OS_IS_WINDOWS
-    while (1) {
+while (1) {
 #else
     while (0) {
 #endif
-        tt_sleep(10000);
-    }
+    tt_sleep(10000);
+}
 
-    return 0;
+return 0;
 }

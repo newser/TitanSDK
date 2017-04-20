@@ -84,7 +84,7 @@ extern void tt_ipc_attr_default(IN tt_ipc_attr_t *attr);
 extern tt_result_t tt_ipc_connect(IN tt_ipc_t *ipc, IN const tt_char_t *addr);
 
 // will block calling thread during retrying
-extern tt_result_t tt_ipc_connect_retry(IN tt_ipc_t *ipc, 
+extern tt_result_t tt_ipc_connect_retry(IN tt_ipc_t *ipc,
                                         IN const tt_char_t *addr,
                                         IN tt_u32_t interval_ms,
                                         IN tt_u32_t retry_count);

@@ -233,6 +233,8 @@ extern "C" {
 #include <network/tt_network_interface.h>
 #include <os/tt_atomic.h>
 #include <os/tt_dll.h>
+#include <os/tt_fiber.h>
+#include <os/tt_fiber_event.h>
 #include <os/tt_mutex.h>
 #include <os/tt_process.h>
 #include <os/tt_rwlock.h>
