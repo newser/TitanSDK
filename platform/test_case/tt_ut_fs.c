@@ -4,7 +4,6 @@
 #include "tt_unit_test_case_config.h"
 #include <unit_test/tt_unit_test.h>
 
-#include <event/tt_event_center.h>
 #include <io/tt_file_system.h>
 #include <memory/tt_memory_alloc.h>
 #include <os/tt_spinlock.h>

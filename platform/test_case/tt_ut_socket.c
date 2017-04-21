@@ -21,8 +21,6 @@
 #include "tt_unit_test_case_config.h"
 #include <unit_test/tt_unit_test.h>
 
-#include <event/tt_event_center.h>
-#include <event/tt_event_poller.h>
 #include <io/tt_socket.h>
 #include <io/tt_socket_addr.h>
 #include <io/tt_socket_option.h>

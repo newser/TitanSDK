@@ -88,15 +88,6 @@ extern "C" {
 #include <crypto/tt_rsa_def.h>
 #include <crypto/tt_sha.h>
 #include <crypto/tt_sha_def.h>
-#include <event/tt_adns_event.h>
-#include <event/tt_event_base.h>
-#include <event/tt_event_center.h>
-#include <event/tt_event_poller.h>
-#include <event/tt_evp_event.h>
-#include <event/tt_process_event.h>
-#include <event/tt_site_event.h>
-#include <event/tt_thread_event.h>
-#include <event/tt_timer_event.h>
 #include <init/config_shell/tt_config_command.h>
 #include <init/config_shell/tt_config_shell.h>
 #include <init/config_shell/tt_console_config_shell.h>
