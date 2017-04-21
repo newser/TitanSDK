@@ -470,11 +470,6 @@ tt_result_t tt_skt_recvfrom_ntv(IN tt_skt_ntv_t *skt,
     kq = __skt_ev_init(&skt_recvfrom.io_ev, __SKT_RECVFROM);
     cfb = skt_recvfrom.io_ev.src;
 
-    if ((fev != NULL) && ((p = tt_fiber_recv(cfb, TT_FALSE)) != NULL)) {
-        *fev = p;
-        return TT_SUCCESS;
-    }
-
     skt_recvfrom.skt = skt;
     skt_recvfrom.buf = buf;
     skt_recvfrom.len = len;
@@ -565,11 +560,6 @@ tt_result_t tt_skt_recv_ntv(IN tt_skt_ntv_t *skt,
 
     kq = __skt_ev_init(&skt_recv.io_ev, __SKT_RECV);
     cfb = skt_recv.io_ev.src;
-
-    if ((fev != NULL) && ((p = tt_fiber_recv(cfb, TT_FALSE)) != NULL)) {
-        *fev = p;
-        return TT_SUCCESS;
-    }
 
     skt_recv.skt = skt;
     skt_recv.buf = buf;

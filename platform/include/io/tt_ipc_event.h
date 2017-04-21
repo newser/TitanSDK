@@ -15,14 +15,12 @@
  */
 
 /**
-@file tt_event_poller_native.h
-@brief event poller native
-
-this file defines event poller native APIS
+@file tt_ipc_event.h
+@brief ipc event
 */
 
-#ifndef __TT_EVENT_POLLER_NATIVE__
-#define __TT_EVENT_POLLER_NATIVE__
+#ifndef __TT_IPC_EVENT__
+#define __TT_IPC_EVENT__
 
 ////////////////////////////////////////////////////////////
 // import header files
@@ -34,17 +32,20 @@ this file defines event poller native APIS
 // macro definition
 ////////////////////////////////////////////////////////////
 
+#define TT_IPC_EV_CAST(pev, type) TT_PTR_INC(type, pev, sizeof(tt_ipc_ev_t))
+
 ////////////////////////////////////////////////////////////
 // type definition
 ////////////////////////////////////////////////////////////
 
-struct tt_evpoller_s;
-struct tt_evc_attr_s;
+struct tt_ipc_s;
+struct tt_fiber_ev_s;
 
-typedef struct
+typedef struct tt_ipc_ev_s
 {
-    tt_u32_t reserved;
-} tt_evpoller_ntv_t;
+    tt_u32_t ev;
+    tt_u32_t size;
+} tt_ipc_ev_t;
 
 ////////////////////////////////////////////////////////////
 // global variants
@@ -54,17 +55,22 @@ typedef struct
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern tt_result_t tt_evp_create_ntv(IN tt_evpoller_ntv_t *evp,
-                                     IN struct tt_evc_attr_s *evc_attr);
+tt_inline void tt_ipc_ev_init(IN tt_ipc_ev_t *pev,
+                              IN tt_u32_t ev,
+                              IN tt_u32_t size)
+{
+    pev->ev = ev;
+    pev->size = size;
+}
 
-extern tt_result_t tt_evp_destroy_ntv(IN tt_evpoller_ntv_t *evp);
+extern tt_ipc_ev_t *tt_ipc_ev_create(IN tt_u32_t ev, IN tt_u32_t size);
 
-/**
- @return
- - TT_SUCCESS, go ahead
- - TT_FAIL, error occurred and evp should stop
- */
-extern tt_result_t tt_evp_poll_ntv(IN struct tt_evpoller_s *evp,
-                                   IN tt_s64_t wait_ms);
+extern void tt_ipc_ev_destroy(IN tt_ipc_ev_t *pev);
 
-#endif /* __TT_EVENT_POLLER_NATIVE__ */
+extern tt_result_t tt_ipc_send_ev(IN struct tt_ipc_s *dst, IN tt_ipc_ev_t *pev);
+
+extern tt_result_t tt_ipc_recv_ev(IN struct tt_ipc_s *ipc,
+                                  OUT tt_ipc_ev_t **p_pev,
+                                  OUT OPT struct tt_fiber_ev_s **p_fev);
+
+#endif // __TT_IPC_EVENT__

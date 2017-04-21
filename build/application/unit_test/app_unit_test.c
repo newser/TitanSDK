@@ -9,6 +9,7 @@
 extern tt_result_t __ipc_cli_1(IN void *param);
 extern tt_result_t __ipc_cli_oneshot(IN void *param);
 extern tt_result_t __ipc_svr_1(IN void *param);
+extern tt_result_t __ipc_cli_pev(IN void *param);
 
 extern tt_result_t tt_cli_demo_run();
 
@@ -103,6 +104,8 @@ int main(int argc, char *argv[])
                 tt_task_add_fiber(&t, NULL, __ipc_cli_oneshot, NULL, NULL);
             } else if (strcmp(argv[1], "ipc-svr") == 0) {
                 tt_task_add_fiber(&t, NULL, __ipc_svr_1, NULL, NULL);
+            } else if (strcmp(argv[1], "ipc-pev") == 0) {
+                tt_task_add_fiber(&t, NULL, __ipc_cli_pev, NULL, NULL);
             }
             tt_task_run(&t);
             tt_task_wait(&t);

@@ -346,11 +346,6 @@ tt_result_t tt_ipc_recv_ntv(IN tt_ipc_ntv_t *ipc,
     kq = __ipc_ev_init(&ipc_recv.io_ev, __IPC_RECV);
     cfb = ipc_recv.io_ev.src;
 
-    if ((fev != NULL) && ((p = tt_fiber_recv(cfb, TT_FALSE)) != NULL)) {
-        *fev = p;
-        return TT_SUCCESS;
-    }
-
     ipc_recv.ipc = ipc;
     ipc_recv.buf = buf;
     ipc_recv.len = len;
@@ -487,7 +482,7 @@ again:
         if (ipc_send->pos < ipc_send->len) {
             goto again;
         } else {
-            *ipc_send->sent = ipc_send->pos;
+            TT_SAFE_ASSIGN(ipc_send->sent, ipc_send->pos);
             ipc_send->result = TT_SUCCESS;
             return TT_TRUE;
         }
@@ -500,7 +495,7 @@ again:
 
     // error
     if (ipc_send->pos > 0) {
-        *ipc_send->sent = ipc_send->pos;
+        TT_SAFE_ASSIGN(ipc_send->sent, ipc_send->pos);
         ipc_send->result = TT_SUCCESS;
     } else if ((errno == ECONNRESET) || (errno == EPIPE)
                // || (errno == ENETDOWN)
@@ -522,7 +517,7 @@ tt_bool_t __do_recv(IN tt_io_ev_t *io_ev)
 again:
     n = recv(ipc_recv->ipc->s, ipc_recv->buf, ipc_recv->len, 0);
     if (n > 0) {
-        *ipc_recv->recvd = (tt_u32_t)n;
+        TT_SAFE_ASSIGN(ipc_recv->recvd, (tt_u32_t)n);
         ipc_recv->result = TT_SUCCESS;
         return TT_TRUE;
     } else if (n == 0) {
