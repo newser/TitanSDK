@@ -20,8 +20,6 @@
 
 #include <tt_ssl_aio_native.h>
 
-#include <event/tt_event_center.h>
-//#include <io/tt_socket_aio.h>
 #include <memory/tt_memory_alloc.h>
 #include <network/ssl/tt_ssl.h>
 #include <network/ssl/tt_ssl_aio.h>

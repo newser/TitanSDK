@@ -849,7 +849,7 @@ tt_result_t __ipc_cli_pev(IN void *param)
 tt_result_t __ipc_svr_pev_fev(IN void *param)
 {
     tt_ipc_t *ipc, *new_ipc;
-    tt_u32_t n, len, cn, rn;
+    tt_u32_t n, cn, rn;
     tt_result_t ret;
     tt_fiber_ev_t *fev;
     tt_fiber_t *cfb = tt_current_fiber();
@@ -899,7 +899,7 @@ tt_result_t __ipc_svr_pev_fev(IN void *param)
                             cn, rn, pev->ev, __ipc_svr_recvd);
                 TT_ASSERT(pev->ev == pev->size);
                 for (i = 0; i < pev->size; ++i) {
-                    pev_data[i] = n;
+                    pev_data[i] = pev->ev;
                 }
             } else {
                 continue;

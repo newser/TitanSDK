@@ -349,7 +349,6 @@ tt_result_t tt_ipc_recv_ntv(IN tt_ipc_ntv_t *ipc,
 {
     __ipc_recv_t ipc_recv;
     tt_fiber_t *cfb;
-    tt_fiber_ev_t *p;
     DWORD dwError;
 
     *recvd = 0;
@@ -357,11 +356,6 @@ tt_result_t tt_ipc_recv_ntv(IN tt_ipc_ntv_t *ipc,
 
     __ipc_ev_init(&ipc_recv.io_ev, __IPC_RECV);
     cfb = ipc_recv.io_ev.src;
-
-    if ((fev != NULL) && ((p = tt_fiber_recv(cfb, TT_FALSE)) != NULL)) {
-        *fev = p;
-        return TT_SUCCESS;
-    }
 
     ipc_recv.ipc = ipc;
     ipc_recv.buf = buf;
@@ -463,7 +457,7 @@ tt_bool_t __do_send(IN tt_io_ev_t *io_ev)
 
     ipc_send->pos += io_ev->io_bytes;
     if (ipc_send->pos == ipc_send->len) {
-        *ipc_send->sent = ipc_send->pos;
+        TT_SAFE_ASSIGN(ipc_send->sent, ipc_send->pos);
         ipc_send->result = TT_SUCCESS;
         return TT_TRUE;
     }
@@ -472,7 +466,7 @@ tt_bool_t __do_send(IN tt_io_ev_t *io_ev)
     // return success whenever some data is sent
     if (!TT_OK(io_ev->io_result)) {
         if (ipc_send->pos > 0) {
-            *ipc_send->sent = ipc_send->pos;
+            TT_SAFE_ASSIGN(ipc_send->sent, ipc_send->pos);
             ipc_send->result = TT_SUCCESS;
         } else {
             ipc_send->result = io_ev->io_result;
@@ -493,7 +487,7 @@ tt_bool_t __do_send(IN tt_io_ev_t *io_ev)
 
     // error
     if (ipc_send->pos > 0) {
-        *ipc_send->sent = ipc_send->pos;
+        TT_SAFE_ASSIGN(ipc_send->sent, ipc_send->pos);
         ipc_send->result = TT_SUCCESS;
     } else if (dwError == ERROR_BROKEN_PIPE) {
         ipc_send->result = TT_END;
@@ -511,7 +505,7 @@ tt_bool_t __do_recv(IN tt_io_ev_t *io_ev)
     TT_ASSERT_IPC(io_ev->io_bytes <= ipc_recv->len);
 
     if (io_ev->io_bytes > 0) {
-        *ipc_recv->recvd = io_ev->io_bytes;
+        TT_SAFE_ASSIGN(ipc_recv->recvd, io_ev->io_bytes);
         ipc_recv->result = TT_SUCCESS;
     } else if (TT_OK(io_ev->io_result)) {
         ipc_recv->result = TT_END;

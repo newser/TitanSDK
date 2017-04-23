@@ -1132,7 +1132,7 @@ tt_bool_t __do_recv(IN tt_io_ev_t *io_ev)
     TT_ASSERT_SKT(io_ev->io_bytes <= skt_recv->len);
 
     if (io_ev->io_bytes > 0) {
-        *skt_recv->recvd = io_ev->io_bytes;
+        TT_SAFE_ASSIGN(skt_recv->recvd, io_ev->io_bytes);
         skt_recv->result = TT_SUCCESS;
     } else if (TT_OK(io_ev->io_result)) {
         skt_recv->result = TT_END;
@@ -1202,7 +1202,7 @@ tt_bool_t __do_recvfrom(IN tt_io_ev_t *io_ev)
     __skt_recvfrom_t *skt_recvfrom = (__skt_recvfrom_t *)io_ev;
 
     if (io_ev->io_bytes > 0) {
-        *skt_recvfrom->recvd = io_ev->io_bytes;
+        TT_SAFE_ASSIGN(skt_recvfrom->recvd, io_ev->io_bytes);
         skt_recvfrom->result = TT_SUCCESS;
     } else {
         skt_recvfrom->result = io_ev->io_result;
