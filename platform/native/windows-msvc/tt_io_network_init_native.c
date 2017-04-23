@@ -46,7 +46,7 @@
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-tt_result_t tt_io_network_component_init_ntv()
+tt_result_t tt_network_io_component_init_ntv()
 {
     WORD wVersionRequested;
     WSADATA wsaData;

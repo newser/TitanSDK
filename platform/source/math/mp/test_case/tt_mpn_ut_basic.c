@@ -194,187 +194,187 @@ TT_TEST_CASE("tt_unit_test_mpn_create",
     // test start
 
     ret = tt_mpn_create(&mpn, NULL, 11, TT_TRUE, 0);
-    TT_TEST_CHECK_SUCCESS(ret, "");
-    TT_TEST_CHECK_EQUAL(mpn.unit[0], 0, "");
-    TT_TEST_CHECK_EQUAL(mpn.unit_num, 1, "");
-    TT_TEST_CHECK_EQUAL(tt_mpn_neg(&mpn), TT_FALSE, "");
+    TT_UT_SUCCESS(ret, "");
+    TT_UT_EQUAL(mpn.unit[0], 0, "");
+    TT_UT_EQUAL(mpn.unit_num, 1, "");
+    TT_UT_EQUAL(tt_mpn_neg(&mpn), TT_FALSE, "");
 
     ret = tt_mpn_create(&mpn, v1, 0, TT_TRUE, 0);
-    TT_TEST_CHECK_SUCCESS(ret, "");
-    TT_TEST_CHECK_EQUAL(mpn.unit[0], 0, "");
-    TT_TEST_CHECK_EQUAL(mpn.unit_num, 1, "");
-    TT_TEST_CHECK_EQUAL(tt_mpn_neg(&mpn), TT_FALSE, "");
+    TT_UT_SUCCESS(ret, "");
+    TT_UT_EQUAL(mpn.unit[0], 0, "");
+    TT_UT_EQUAL(mpn.unit_num, 1, "");
+    TT_UT_EQUAL(tt_mpn_neg(&mpn), TT_FALSE, "");
 
     //// v1
     ret = tt_mpn_set(&mpn, v1, sizeof(v1), TT_FALSE, 0);
-    TT_TEST_CHECK_SUCCESS(ret, "");
-    TT_TEST_CHECK_EQUAL(mpn.unit[0], 0, "");
-    TT_TEST_CHECK_EQUAL(mpn.unit_num, 1, "");
-    TT_TEST_CHECK_EQUAL(mpn.negative, TT_FALSE, "");
+    TT_UT_SUCCESS(ret, "");
+    TT_UT_EQUAL(mpn.unit[0], 0, "");
+    TT_UT_EQUAL(mpn.unit_num, 1, "");
+    TT_UT_EQUAL(mpn.negative, TT_FALSE, "");
 
-    TT_TEST_CHECK_EQUAL(tt_mpn_bitnum(&mpn), 0, "");
-    TT_TEST_CHECK_EQUAL(tt_mpn_bytenum(&mpn), 0, "");
+    TT_UT_EQUAL(tt_mpn_bitnum(&mpn), 0, "");
+    TT_UT_EQUAL(tt_mpn_bytenum(&mpn), 0, "");
 
     getbuf_len = sizeof(getbuf);
     ret = tt_mpn_get(&mpn, getbuf, &getbuf_len, NULL, 0);
-    TT_TEST_CHECK_SUCCESS(ret, "");
-    TT_TEST_CHECK_EQUAL(getbuf_len, 1, "");
-    TT_TEST_CHECK_EQUAL(getbuf[0], 0, "");
+    TT_UT_SUCCESS(ret, "");
+    TT_UT_EQUAL(getbuf_len, 1, "");
+    TT_UT_EQUAL(getbuf[0], 0, "");
     ret = tt_mpn_get(&mpn, getbuf, &getbuf_len, NULL, TT_MPN_GET_SIGNED);
-    TT_TEST_CHECK_SUCCESS(ret, "");
-    TT_TEST_CHECK_EQUAL(getbuf_len, 1, "");
-    TT_TEST_CHECK_EQUAL(getbuf[0], 0, "");
+    TT_UT_SUCCESS(ret, "");
+    TT_UT_EQUAL(getbuf_len, 1, "");
+    TT_UT_EQUAL(getbuf[0], 0, "");
 
     //// v2
     ret = tt_mpn_set(&mpn, v2, sizeof(v2), TT_FALSE, 0);
-    TT_TEST_CHECK_SUCCESS(ret, "");
-    TT_TEST_CHECK_EQUAL(mpn.unit[0], 0x1234, "");
-    TT_TEST_CHECK_EQUAL(mpn.unit_num, 1, "");
-    TT_TEST_CHECK_EQUAL(mpn.negative, TT_FALSE, "");
+    TT_UT_SUCCESS(ret, "");
+    TT_UT_EQUAL(mpn.unit[0], 0x1234, "");
+    TT_UT_EQUAL(mpn.unit_num, 1, "");
+    TT_UT_EQUAL(mpn.negative, TT_FALSE, "");
 
     getbuf_len = sizeof(getbuf);
     ret = tt_mpn_get(&mpn, getbuf, &getbuf_len, NULL, 0);
-    TT_TEST_CHECK_SUCCESS(ret, "");
-    TT_TEST_CHECK_EQUAL(getbuf_len, sizeof(v2), "");
-    TT_TEST_CHECK_EQUAL(tt_memcmp(getbuf, v2, getbuf_len), 0, "");
+    TT_UT_SUCCESS(ret, "");
+    TT_UT_EQUAL(getbuf_len, sizeof(v2), "");
+    TT_UT_EQUAL(tt_memcmp(getbuf, v2, getbuf_len), 0, "");
     ret = tt_mpn_get(&mpn, getbuf, &getbuf_len, NULL, TT_MPN_GET_SIGNED);
-    TT_TEST_CHECK_SUCCESS(ret, "");
-    TT_TEST_CHECK_EQUAL(getbuf_len, sizeof(v2), "");
-    TT_TEST_CHECK_EQUAL(tt_memcmp(getbuf, v2, getbuf_len), 0, "");
+    TT_UT_SUCCESS(ret, "");
+    TT_UT_EQUAL(getbuf_len, sizeof(v2), "");
+    TT_UT_EQUAL(tt_memcmp(getbuf, v2, getbuf_len), 0, "");
 
     //// v3
     ret = tt_mpn_set(&mpn, v3, sizeof(v3), TT_TRUE, 0);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
 #if TT_ENV_IS_64BIT
-    TT_TEST_CHECK_EQUAL(mpn.unit[0], 0x123456789abcdef0, "");
-    TT_TEST_CHECK_EQUAL(mpn.unit_num, 1, "");
-    TT_TEST_CHECK_EQUAL(mpn.negative, TT_TRUE, "");
+    TT_UT_EQUAL(mpn.unit[0], 0x123456789abcdef0, "");
+    TT_UT_EQUAL(mpn.unit_num, 1, "");
+    TT_UT_EQUAL(mpn.negative, TT_TRUE, "");
 #else
-    TT_TEST_CHECK_EQUAL(mpn.unit[0], 0x9abcdef0, "");
-    TT_TEST_CHECK_EQUAL(mpn.unit[1], 0x12345678, "");
-    TT_TEST_CHECK_EQUAL(mpn.unit_num, 2, "");
-    TT_TEST_CHECK_EQUAL(mpn.negative, TT_TRUE, "");
+    TT_UT_EQUAL(mpn.unit[0], 0x9abcdef0, "");
+    TT_UT_EQUAL(mpn.unit[1], 0x12345678, "");
+    TT_UT_EQUAL(mpn.unit_num, 2, "");
+    TT_UT_EQUAL(mpn.negative, TT_TRUE, "");
 #endif
 
     getbuf_len = sizeof(getbuf);
     ret = tt_mpn_get(&mpn, getbuf, &getbuf_len, NULL, 0);
-    TT_TEST_CHECK_SUCCESS(ret, "");
-    TT_TEST_CHECK_EQUAL(getbuf_len, sizeof(v3), "");
-    TT_TEST_CHECK_EQUAL(tt_memcmp(getbuf, v3, getbuf_len), 0, "");
+    TT_UT_SUCCESS(ret, "");
+    TT_UT_EQUAL(getbuf_len, sizeof(v3), "");
+    TT_UT_EQUAL(tt_memcmp(getbuf, v3, getbuf_len), 0, "");
     ret = tt_mpn_get(&mpn, getbuf, &getbuf_len, NULL, TT_MPN_GET_SIGNED);
-    TT_TEST_CHECK_SUCCESS(ret, "");
-    TT_TEST_CHECK_EQUAL(getbuf_len, sizeof(v3), "");
-    TT_TEST_CHECK_EQUAL(tt_memcmp(getbuf, v3, getbuf_len), 0, "");
+    TT_UT_SUCCESS(ret, "");
+    TT_UT_EQUAL(getbuf_len, sizeof(v3), "");
+    TT_UT_EQUAL(tt_memcmp(getbuf, v3, getbuf_len), 0, "");
 
     //// v4
     ret = tt_mpn_set(&mpn, v4, sizeof(v4), TT_FALSE, 0);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
 #if TT_ENV_IS_64BIT
-    TT_TEST_CHECK_EQUAL(mpn.unit[0], 0x123456789abcdef0, "");
-    TT_TEST_CHECK_EQUAL(mpn.unit_num, 1, "");
-    TT_TEST_CHECK_EQUAL(mpn.negative, TT_FALSE, "");
+    TT_UT_EQUAL(mpn.unit[0], 0x123456789abcdef0, "");
+    TT_UT_EQUAL(mpn.unit_num, 1, "");
+    TT_UT_EQUAL(mpn.negative, TT_FALSE, "");
 #else
-    TT_TEST_CHECK_EQUAL(mpn.unit[0], 0x9abcdef0, "");
-    TT_TEST_CHECK_EQUAL(mpn.unit[1], 0x12345678, "");
-    TT_TEST_CHECK_EQUAL(mpn.unit[2], 0, "");
-    TT_TEST_CHECK_EQUAL(mpn.unit_num, 2, "");
-    TT_TEST_CHECK_EQUAL(mpn.negative, TT_FALSE, "");
+    TT_UT_EQUAL(mpn.unit[0], 0x9abcdef0, "");
+    TT_UT_EQUAL(mpn.unit[1], 0x12345678, "");
+    TT_UT_EQUAL(mpn.unit[2], 0, "");
+    TT_UT_EQUAL(mpn.unit_num, 2, "");
+    TT_UT_EQUAL(mpn.negative, TT_FALSE, "");
 #endif
 
-    TT_TEST_CHECK_EQUAL(tt_mpn_bitnum(&mpn), ((sizeof(v4) - 1) << 3) - 3, "");
-    TT_TEST_CHECK_EQUAL(tt_mpn_bytenum(&mpn), (sizeof(v4) - 1), "");
+    TT_UT_EQUAL(tt_mpn_bitnum(&mpn), ((sizeof(v4) - 1) << 3) - 3, "");
+    TT_UT_EQUAL(tt_mpn_bytenum(&mpn), (sizeof(v4) - 1), "");
 
     //// v5
     ret = tt_mpn_set(&mpn, v5, sizeof(v5), TT_FALSE, 0);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
 #if TT_ENV_IS_64BIT
-    TT_TEST_CHECK_EQUAL(mpn.unit[0], 0xaabbccddeeff1122, "");
-    TT_TEST_CHECK_EQUAL(mpn.unit[1], 0x123456789abcdef0, "");
-    TT_TEST_CHECK_EQUAL(mpn.unit[2], 0x1234, "");
-    TT_TEST_CHECK_EQUAL(mpn.unit_num, 3, "");
-    TT_TEST_CHECK_EQUAL(mpn.negative, TT_FALSE, "");
+    TT_UT_EQUAL(mpn.unit[0], 0xaabbccddeeff1122, "");
+    TT_UT_EQUAL(mpn.unit[1], 0x123456789abcdef0, "");
+    TT_UT_EQUAL(mpn.unit[2], 0x1234, "");
+    TT_UT_EQUAL(mpn.unit_num, 3, "");
+    TT_UT_EQUAL(mpn.negative, TT_FALSE, "");
 #else
-    TT_TEST_CHECK_EQUAL(mpn.unit[0], 0xeeff1122, "");
-    TT_TEST_CHECK_EQUAL(mpn.unit[1], 0xaabbccdd, "");
-    TT_TEST_CHECK_EQUAL(mpn.unit[2], 0x9abcdef0, "");
-    TT_TEST_CHECK_EQUAL(mpn.unit[3], 0x12345678, "");
-    TT_TEST_CHECK_EQUAL(mpn.unit[4], 0x1234, "");
-    TT_TEST_CHECK_EQUAL(mpn.unit_num, 5, "");
-    TT_TEST_CHECK_EQUAL(mpn.negative, TT_FALSE, "");
+    TT_UT_EQUAL(mpn.unit[0], 0xeeff1122, "");
+    TT_UT_EQUAL(mpn.unit[1], 0xaabbccdd, "");
+    TT_UT_EQUAL(mpn.unit[2], 0x9abcdef0, "");
+    TT_UT_EQUAL(mpn.unit[3], 0x12345678, "");
+    TT_UT_EQUAL(mpn.unit[4], 0x1234, "");
+    TT_UT_EQUAL(mpn.unit_num, 5, "");
+    TT_UT_EQUAL(mpn.negative, TT_FALSE, "");
 #endif
 
-    TT_TEST_CHECK_EQUAL(tt_mpn_bitnum(&mpn), ((sizeof(v5) - 1) << 3) - 3, "");
-    TT_TEST_CHECK_EQUAL(tt_mpn_bytenum(&mpn), (sizeof(v5) - 1), "");
+    TT_UT_EQUAL(tt_mpn_bitnum(&mpn), ((sizeof(v5) - 1) << 3) - 3, "");
+    TT_UT_EQUAL(tt_mpn_bytenum(&mpn), (sizeof(v5) - 1), "");
 
     getbuf_len = sizeof(getbuf);
     ret = tt_mpn_get(&mpn, getbuf, &getbuf_len, NULL, 0);
-    TT_TEST_CHECK_SUCCESS(ret, "");
-    TT_TEST_CHECK_EQUAL(getbuf_len, sizeof(v5) - 1, "");
-    TT_TEST_CHECK_EQUAL(tt_memcmp(getbuf, v5 + 1, getbuf_len), 0, "");
+    TT_UT_SUCCESS(ret, "");
+    TT_UT_EQUAL(getbuf_len, sizeof(v5) - 1, "");
+    TT_UT_EQUAL(tt_memcmp(getbuf, v5 + 1, getbuf_len), 0, "");
     ret = tt_mpn_get(&mpn, getbuf, &getbuf_len, NULL, TT_MPN_GET_SIGNED);
-    TT_TEST_CHECK_SUCCESS(ret, "");
-    TT_TEST_CHECK_EQUAL(getbuf_len, sizeof(v5) - 1, "");
-    TT_TEST_CHECK_EQUAL(tt_memcmp(getbuf, v5 + 1, getbuf_len), 0, "");
+    TT_UT_SUCCESS(ret, "");
+    TT_UT_EQUAL(getbuf_len, sizeof(v5) - 1, "");
+    TT_UT_EQUAL(tt_memcmp(getbuf, v5 + 1, getbuf_len), 0, "");
 
     {
         tt_u8_t x1[] = {0xff, 0, 0, 0, 0, 0, 0, 0};
         tt_u8_t x2[] = {0x80, 0, 0, 0, 0, 0, 0, 0, 0xff, 0, 0, 0, 0, 0, 0, 0};
 
         ret = tt_mpn_set(&mpn, x1, sizeof(x1), TT_FALSE, 0);
-        TT_TEST_CHECK_SUCCESS(ret, "");
+        TT_UT_SUCCESS(ret, "");
         getbuf_len = sizeof(getbuf);
         ret = tt_mpn_get(&mpn, getbuf, &getbuf_len, NULL, TT_MPN_GET_SIGNED);
-        TT_TEST_CHECK_SUCCESS(ret, "");
-        TT_TEST_CHECK_EQUAL(getbuf_len, 9, "");
-        TT_TEST_CHECK_EQUAL(getbuf[0], 0, "");
-        TT_TEST_CHECK_EQUAL(tt_memcmp(getbuf + 1, x1, getbuf_len - 1), 0, "");
+        TT_UT_SUCCESS(ret, "");
+        TT_UT_EQUAL(getbuf_len, 9, "");
+        TT_UT_EQUAL(getbuf[0], 0, "");
+        TT_UT_EQUAL(tt_memcmp(getbuf + 1, x1, getbuf_len - 1), 0, "");
 
         ret = tt_mpn_set(&mpn, x2, sizeof(x2), TT_FALSE, 0);
-        TT_TEST_CHECK_SUCCESS(ret, "");
+        TT_UT_SUCCESS(ret, "");
         getbuf_len = sizeof(getbuf);
         ret = tt_mpn_get(&mpn, getbuf, &getbuf_len, NULL, TT_MPN_GET_SIGNED);
-        TT_TEST_CHECK_SUCCESS(ret, "");
-        TT_TEST_CHECK_EQUAL(getbuf_len, 17, "");
-        TT_TEST_CHECK_EQUAL(getbuf[0], 0, "");
-        TT_TEST_CHECK_EQUAL(tt_memcmp(getbuf + 1, x2, getbuf_len - 1), 0, "");
+        TT_UT_SUCCESS(ret, "");
+        TT_UT_EQUAL(getbuf_len, 17, "");
+        TT_UT_EQUAL(getbuf[0], 0, "");
+        TT_UT_EQUAL(tt_memcmp(getbuf + 1, x2, getbuf_len - 1), 0, "");
     }
 
     //// v6
     ret = tt_mpn_set(&mpn, v6, sizeof(v6), TT_FALSE, 0);
-    TT_TEST_CHECK_SUCCESS(ret, "");
-    TT_TEST_CHECK_EQUAL(mpn.unit_num, 2, "");
+    TT_UT_SUCCESS(ret, "");
+    TT_UT_EQUAL(mpn.unit_num, 2, "");
 
     ret = tt_mpn_set(&mpn, v2, sizeof(v2), TT_TRUE, 0);
-    TT_TEST_CHECK_EQUAL(mpn.unit[0], 0x1234, "");
-    TT_TEST_CHECK_EQUAL(mpn.unit_num, 1, "");
-    TT_TEST_CHECK_EQUAL(mpn.negative, TT_TRUE, "");
+    TT_UT_EQUAL(mpn.unit[0], 0x1234, "");
+    TT_UT_EQUAL(mpn.unit_num, 1, "");
+    TT_UT_EQUAL(mpn.negative, TT_TRUE, "");
 
     // do shrink
     tt_mpn_normalize(&mpn);
-    TT_TEST_CHECK_EQUAL(mpn.unit[0], 0x1234, "");
-    TT_TEST_CHECK_EQUAL(mpn.unit_num, 1, "");
-    TT_TEST_CHECK_EQUAL(mpn.negative, TT_TRUE, "");
+    TT_UT_EQUAL(mpn.unit[0], 0x1234, "");
+    TT_UT_EQUAL(mpn.unit_num, 1, "");
+    TT_UT_EQUAL(mpn.negative, TT_TRUE, "");
 
     tt_mpn_normalize(&mpn);
-    TT_TEST_CHECK_EQUAL(mpn.unit[0], 0x1234, "");
-    TT_TEST_CHECK_EQUAL(mpn.unit_num, 1, "");
-    TT_TEST_CHECK_EQUAL(mpn.negative, TT_TRUE, "");
+    TT_UT_EQUAL(mpn.unit[0], 0x1234, "");
+    TT_UT_EQUAL(mpn.unit_num, 1, "");
+    TT_UT_EQUAL(mpn.negative, TT_TRUE, "");
 
     // zero
     ret = tt_mpn_set(&mpn, v6, sizeof(v6), TT_FALSE, 0);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
     tt_mpn_clear(&mpn);
     tt_mpn_normalize(&mpn);
-    TT_TEST_CHECK_EQUAL(mpn.unit[0], 0, "");
-    TT_TEST_CHECK_EQUAL(mpn.unit_num, 1, "");
-    TT_TEST_CHECK_NOT_EQUAL(mpn.unit, &mpn.unit_inline, "");
+    TT_UT_EQUAL(mpn.unit[0], 0, "");
+    TT_UT_EQUAL(mpn.unit_num, 1, "");
+    TT_UT_NOT_EQUAL(mpn.unit, &mpn.unit_inline, "");
     tt_mpn_refine(&mpn);
-    TT_TEST_CHECK_EQUAL(mpn.unit[0], 0, "");
-    TT_TEST_CHECK_EQUAL(mpn.unit_num, 1, "");
-    TT_TEST_CHECK_EQUAL(mpn.unit, &mpn.unit_inline, "");
+    TT_UT_EQUAL(mpn.unit[0], 0, "");
+    TT_UT_EQUAL(mpn.unit_num, 1, "");
+    TT_UT_EQUAL(mpn.unit, &mpn.unit_inline, "");
     tt_mpn_refine(&mpn);
-    TT_TEST_CHECK_EQUAL(mpn.unit[0], 0, "");
-    TT_TEST_CHECK_EQUAL(mpn.unit_num, 1, "");
+    TT_UT_EQUAL(mpn.unit[0], 0, "");
+    TT_UT_EQUAL(mpn.unit_num, 1, "");
 
     tt_mpn_destroy(&mpn);
 
@@ -442,170 +442,170 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_mpn_misc)
 
     tt_mpn_reverse(NULL, &ret);
     s = tt_mpn_cmp(&b, &ret);
-    TT_TEST_CHECK_EQUAL(s, 0, "");
-    TT_TEST_CHECK_EQUAL(tt_mpn_h0bitnum(&b), TT_MPN_USIZE_BIT, "");
+    TT_UT_EQUAL(s, 0, "");
+    TT_UT_EQUAL(tt_mpn_h0bitnum(&b), TT_MPN_USIZE_BIT, "");
 
     //// tt_mpn_copy
 
     result = tt_mpn_copy(&ret, &b, 0);
-    TT_TEST_CHECK_SUCCESS(result, "");
-    TT_TEST_CHECK_EQUAL(ret.unit[0], 0, "");
-    TT_TEST_CHECK_EQUAL(ret.unit_num, 1, "");
+    TT_UT_SUCCESS(result, "");
+    TT_UT_EQUAL(ret.unit[0], 0, "");
+    TT_UT_EQUAL(ret.unit_num, 1, "");
 
     b.unit[0] = 1;
-    TT_TEST_CHECK_EQUAL(tt_mpn_h0bitnum(&b), TT_MPN_USIZE_BIT - 1, "");
+    TT_UT_EQUAL(tt_mpn_h0bitnum(&b), TT_MPN_USIZE_BIT - 1, "");
 
     b.unit[0] = ~0;
-    TT_TEST_CHECK_EQUAL(tt_mpn_h0bitnum(&b), 0, "");
+    TT_UT_EQUAL(tt_mpn_h0bitnum(&b), 0, "");
     b.unit[0] = 0x10;
-    TT_TEST_CHECK_EQUAL(tt_mpn_h0bitnum(&b), TT_MPN_USIZE_BIT - 5, "");
+    TT_UT_EQUAL(tt_mpn_h0bitnum(&b), TT_MPN_USIZE_BIT - 5, "");
     b.unit[0] = 0x201;
-    TT_TEST_CHECK_EQUAL(tt_mpn_h0bitnum(&b), TT_MPN_USIZE_BIT - 10, "");
+    TT_UT_EQUAL(tt_mpn_h0bitnum(&b), TT_MPN_USIZE_BIT - 10, "");
     b.unit[0] = 0x4110;
-    TT_TEST_CHECK_EQUAL(tt_mpn_h0bitnum(&b), TT_MPN_USIZE_BIT - 15, "");
+    TT_UT_EQUAL(tt_mpn_h0bitnum(&b), TT_MPN_USIZE_BIT - 15, "");
     b.unit[0] = 0x801020;
-    TT_TEST_CHECK_EQUAL(tt_mpn_h0bitnum(&b), TT_MPN_USIZE_BIT - 24, "");
+    TT_UT_EQUAL(tt_mpn_h0bitnum(&b), TT_MPN_USIZE_BIT - 24, "");
     b.unit[0] = 0x83030110;
-    TT_TEST_CHECK_EQUAL(tt_mpn_h0bitnum(&b), TT_MPN_USIZE_BIT - 32, "");
+    TT_UT_EQUAL(tt_mpn_h0bitnum(&b), TT_MPN_USIZE_BIT - 32, "");
 #if TT_ENV_IS_64BIT
     b.unit[0] = 0x80f001001;
-    TT_TEST_CHECK_EQUAL(tt_mpn_h0bitnum(&b), TT_MPN_USIZE_BIT - 36, "");
+    TT_UT_EQUAL(tt_mpn_h0bitnum(&b), TT_MPN_USIZE_BIT - 36, "");
     b.unit[0] = 0x40203001fff;
-    TT_TEST_CHECK_EQUAL(tt_mpn_h0bitnum(&b), TT_MPN_USIZE_BIT - 43, "");
+    TT_UT_EQUAL(tt_mpn_h0bitnum(&b), TT_MPN_USIZE_BIT - 43, "");
     b.unit[0] = 0x40ffe0ff0eeccd;
-    TT_TEST_CHECK_EQUAL(tt_mpn_h0bitnum(&b), TT_MPN_USIZE_BIT - 55, "");
+    TT_UT_EQUAL(tt_mpn_h0bitnum(&b), TT_MPN_USIZE_BIT - 55, "");
 #endif
 
     result = tt_mpn_set(&b, __c2, sizeof(__c2), TT_TRUE, 0);
-    TT_TEST_CHECK_SUCCESS(result, "");
+    TT_UT_SUCCESS(result, "");
 
     // b is neg, ret is 0
     s = tt_mpn_cmp(&b, &ret);
-    TT_TEST_CHECK_EQUAL(s, -1, "");
+    TT_UT_EQUAL(s, -1, "");
     s = tt_mpn_cmp(&ret, &b);
-    TT_TEST_CHECK_EQUAL(s, 1, "");
+    TT_UT_EQUAL(s, 1, "");
     s = tt_mpn_cmp(&b, &b);
-    TT_TEST_CHECK_EQUAL(s, 0, "");
+    TT_UT_EQUAL(s, 0, "");
 
     result = tt_mpn_copy(&ret, &b, 1);
-    TT_TEST_CHECK_SUCCESS(result, "");
+    TT_UT_SUCCESS(result, "");
 #if TT_ENV_IS_64BIT
-    TT_TEST_CHECK_EQUAL(ret.unit[0], 0x92345678567878bb, "");
-    TT_TEST_CHECK_EQUAL(ret.unit[1], 0xffffffffffffffff, "");
-    TT_TEST_CHECK_EQUAL(ret.unit[2], 0x91345678567878, "");
-    TT_TEST_CHECK_EQUAL(ret.unit_num, 3, "");
-    TT_TEST_CHECK_EQUAL(ret.negative, TT_TRUE, "");
+    TT_UT_EQUAL(ret.unit[0], 0x92345678567878bb, "");
+    TT_UT_EQUAL(ret.unit[1], 0xffffffffffffffff, "");
+    TT_UT_EQUAL(ret.unit[2], 0x91345678567878, "");
+    TT_UT_EQUAL(ret.unit_num, 3, "");
+    TT_UT_EQUAL(ret.negative, TT_TRUE, "");
 #else
-    TT_TEST_CHECK_SUCCESS(TT_FAIL, "");
+    TT_UT_SUCCESS(TT_FAIL, "");
 #endif
 
     tt_mpn_clear(&b);
     result = tt_mpn_copy(&ret, &b, 2);
-    TT_TEST_CHECK_SUCCESS(result, "");
-    TT_TEST_CHECK_EQUAL(ret.unit[0], 0, "");
-    TT_TEST_CHECK_EQUAL(ret.unit_num, 1, "");
+    TT_UT_SUCCESS(result, "");
+    TT_UT_EQUAL(ret.unit[0], 0, "");
+    TT_UT_EQUAL(ret.unit_num, 1, "");
 
     //// tt_mpn_abs
 
     result = tt_mpn_set(&b, __c2, sizeof(__c2), TT_TRUE, 0);
-    TT_TEST_CHECK_SUCCESS(result, "");
+    TT_UT_SUCCESS(result, "");
     result = tt_mpn_abs(&ret, &b);
-    TT_TEST_CHECK_SUCCESS(result, "");
+    TT_UT_SUCCESS(result, "");
 #if TT_ENV_IS_64BIT
-    TT_TEST_CHECK_EQUAL(ret.unit[0], 0x92345678567878bb, "");
-    TT_TEST_CHECK_EQUAL(ret.unit[1], 0xffffffffffffffff, "");
-    TT_TEST_CHECK_EQUAL(ret.unit[2], 0x91345678567878, "");
-    TT_TEST_CHECK_EQUAL(ret.unit_num, 3, "");
-    TT_TEST_CHECK_EQUAL(ret.negative, TT_FALSE, "");
+    TT_UT_EQUAL(ret.unit[0], 0x92345678567878bb, "");
+    TT_UT_EQUAL(ret.unit[1], 0xffffffffffffffff, "");
+    TT_UT_EQUAL(ret.unit[2], 0x91345678567878, "");
+    TT_UT_EQUAL(ret.unit_num, 3, "");
+    TT_UT_EQUAL(ret.negative, TT_FALSE, "");
 #else
-    TT_TEST_CHECK_SUCCESS(TT_FAIL, "");
+    TT_UT_SUCCESS(TT_FAIL, "");
 #endif
 
     result = tt_mpn_abs(NULL, &b);
-    TT_TEST_CHECK_SUCCESS(result, "");
-    TT_TEST_CHECK_EQUAL(b.negative, TT_FALSE, "");
+    TT_UT_SUCCESS(result, "");
+    TT_UT_EQUAL(b.negative, TT_FALSE, "");
 
     ///////////////////////////
     result = tt_mpn_set_cstr(&b, "", TT_MPN_FMT_AUTO, 0);
-    TT_TEST_CHECK_SUCCESS(result, "");
-    TT_TEST_CHECK_EQUAL(b.unit[0], 0, "");
-    TT_TEST_CHECK_EQUAL(b.unit_num, 1, "");
+    TT_UT_SUCCESS(result, "");
+    TT_UT_EQUAL(b.unit[0], 0, "");
+    TT_UT_EQUAL(b.unit_num, 1, "");
 
     result = tt_mpn_set_cstr(&b,
                              "0xaaaacccc2222333344445555ffffffffffffffff",
                              TT_MPN_FMT_AUTO,
                              0);
-    TT_TEST_CHECK_SUCCESS(result, "");
+    TT_UT_SUCCESS(result, "");
 
     // trunc 0
     result = tt_mpn_set_cstr(&correct, "0x0", TT_MPN_FMT_AUTO, 0);
-    TT_TEST_CHECK_SUCCESS(result, "");
+    TT_UT_SUCCESS(result, "");
     result = tt_mpn_truncate(&ret, &b, 0);
-    TT_TEST_CHECK_SUCCESS(result, "");
-    TT_TEST_CHECK_EQUAL(tt_mpn_cmp(&ret, &correct), 0, "");
+    TT_UT_SUCCESS(result, "");
+    TT_UT_EQUAL(tt_mpn_cmp(&ret, &correct), 0, "");
 
     // trunc 16b
     result = tt_mpn_set_cstr(&correct, "0xffff", TT_MPN_FMT_AUTO, 0);
-    TT_TEST_CHECK_SUCCESS(result, "");
+    TT_UT_SUCCESS(result, "");
     result = tt_mpn_truncate(&ret, &b, 16);
-    TT_TEST_CHECK_SUCCESS(result, "");
-    TT_TEST_CHECK_EQUAL(tt_mpn_cmp(&ret, &correct), 0, "");
+    TT_UT_SUCCESS(result, "");
+    TT_UT_EQUAL(tt_mpn_cmp(&ret, &correct), 0, "");
 
     // trunc 64b
     result =
         tt_mpn_set_cstr(&correct, "0xffffffffffffffff", TT_MPN_FMT_AUTO, 0);
-    TT_TEST_CHECK_SUCCESS(result, "");
+    TT_UT_SUCCESS(result, "");
     result = tt_mpn_truncate(&ret, &b, 64);
-    TT_TEST_CHECK_SUCCESS(result, "");
-    TT_TEST_CHECK_EQUAL(tt_mpn_cmp(&ret, &correct), 0, "");
+    TT_UT_SUCCESS(result, "");
+    TT_UT_EQUAL(tt_mpn_cmp(&ret, &correct), 0, "");
 
     // trunc 65b
     result =
         tt_mpn_set_cstr(&correct, "0x1ffffffffffffffff", TT_MPN_FMT_AUTO, 0);
-    TT_TEST_CHECK_SUCCESS(result, "");
+    TT_UT_SUCCESS(result, "");
     result = tt_mpn_truncate(&ret, &b, 65);
-    TT_TEST_CHECK_SUCCESS(result, "");
-    TT_TEST_CHECK_EQUAL(tt_mpn_cmp(&ret, &correct), 0, "");
+    TT_UT_SUCCESS(result, "");
+    TT_UT_EQUAL(tt_mpn_cmp(&ret, &correct), 0, "");
 
     // trunc 128b
     result = tt_mpn_set_cstr(&correct,
                              "0x2222333344445555ffffffffffffffff",
                              TT_MPN_FMT_AUTO,
                              0);
-    TT_TEST_CHECK_SUCCESS(result, "");
+    TT_UT_SUCCESS(result, "");
     result = tt_mpn_truncate(&ret, &b, 128);
-    TT_TEST_CHECK_SUCCESS(result, "");
-    TT_TEST_CHECK_EQUAL(tt_mpn_cmp(&ret, &correct), 0, "");
+    TT_UT_SUCCESS(result, "");
+    TT_UT_EQUAL(tt_mpn_cmp(&ret, &correct), 0, "");
 
     // trunc 129b
     result = tt_mpn_set_cstr(&correct,
                              "0x2222333344445555ffffffffffffffff",
                              TT_MPN_FMT_AUTO,
                              0);
-    TT_TEST_CHECK_SUCCESS(result, "");
+    TT_UT_SUCCESS(result, "");
     result = tt_mpn_truncate(&ret, &b, 129);
-    TT_TEST_CHECK_SUCCESS(result, "");
-    TT_TEST_CHECK_EQUAL(tt_mpn_cmp(&ret, &correct), 0, "");
+    TT_UT_SUCCESS(result, "");
+    TT_UT_EQUAL(tt_mpn_cmp(&ret, &correct), 0, "");
 
     // trunc 190b
     result = tt_mpn_set_cstr(&correct,
                              "0xaaaacccc2222333344445555ffffffffffffffff",
                              TT_MPN_FMT_AUTO,
                              0);
-    TT_TEST_CHECK_SUCCESS(result, "");
+    TT_UT_SUCCESS(result, "");
     result = tt_mpn_truncate(&ret, &b, 190);
-    TT_TEST_CHECK_SUCCESS(result, "");
-    TT_TEST_CHECK_EQUAL(tt_mpn_cmp(&ret, &correct), 0, "");
+    TT_UT_SUCCESS(result, "");
+    TT_UT_EQUAL(tt_mpn_cmp(&ret, &correct), 0, "");
 
     // trunc 250b
     result = tt_mpn_set_cstr(&correct,
                              "0xaaaacccc2222333344445555ffffffffffffffff",
                              TT_MPN_FMT_AUTO,
                              0);
-    TT_TEST_CHECK_SUCCESS(result, "");
+    TT_UT_SUCCESS(result, "");
     result = tt_mpn_truncate(&ret, &b, 250);
-    TT_TEST_CHECK_SUCCESS(result, "");
-    TT_TEST_CHECK_EQUAL(tt_mpn_cmp(&ret, &correct), 0, "");
+    TT_UT_SUCCESS(result, "");
+    TT_UT_EQUAL(tt_mpn_cmp(&ret, &correct), 0, "");
 
     ///////////////////////////
 
@@ -614,21 +614,21 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_mpn_misc)
         tt_u32_t i;
 
         result = tt_mpn_rand(&b, 0, TT_MPN_RAND_FULL);
-        TT_TEST_CHECK_SUCCESS(result, "");
-        TT_TEST_CHECK_EQUAL(tt_mpn_zero(&b), TT_TRUE, "");
+        TT_UT_SUCCESS(result, "");
+        TT_UT_EQUAL(tt_mpn_zero(&b), TT_TRUE, "");
 
         result = tt_mpn_rand_lessthan(&ret, &b, TT_MPN_RAND_FULL);
-        TT_TEST_CHECK_FAIL(result, "");
+        TT_UT_FAIL(result, "");
 
         for (i = 1; i < 100; ++i) {
             result = tt_mpn_rand(&b, i, TT_MPN_RAND_FULL);
-            TT_TEST_CHECK_SUCCESS(result, "");
-            TT_TEST_CHECK_EQUAL(tt_mpn_bytenum(&b), i, "");
+            TT_UT_SUCCESS(result, "");
+            TT_UT_EQUAL(tt_mpn_bytenum(&b), i, "");
 
             result = tt_mpn_rand_lessthan(&ret, &b, TT_MPN_RAND_FULL);
-            TT_TEST_CHECK_SUCCESS(result, "");
-            TT_TEST_CHECK_EQUAL(tt_mpn_cmp(&ret, &b), -1, "");
-            TT_TEST_CHECK_EQUAL(tt_mpn_bytenum(&ret), tt_mpn_bytenum(&b), "");
+            TT_UT_SUCCESS(result, "");
+            TT_UT_EQUAL(tt_mpn_cmp(&ret, &b), -1, "");
+            TT_UT_EQUAL(tt_mpn_bytenum(&ret), tt_mpn_bytenum(&b), "");
         }
     }
 
@@ -656,79 +656,79 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_mpn_add)
     tt_mpn_init(&r);
 
     ret = tt_mpn_add(&r, &b, &a);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
-    TT_TEST_CHECK_EQUAL(r.unit[0], 0, "");
-    TT_TEST_CHECK_EQUAL(r.unit_num, 1, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(r.unit[0], 0, "");
+    TT_UT_EQUAL(r.unit_num, 1, "");
 
     tt_mpn_set(&a, __a1, sizeof(__a1), TT_FALSE, 0);
     ret = tt_mpn_add(&r, &b, &a);
     tt_mpn_normalize(&r);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 #if TT_ENV_IS_64BIT
-    TT_TEST_CHECK_EQUAL(r.unit[0], 0x92345678567878bb, "");
-    TT_TEST_CHECK_EQUAL(r.unit[1], 0x92345678567878aa, "");
-    TT_TEST_CHECK_EQUAL(r.unit[2], 0x92345678567878, "");
-    TT_TEST_CHECK_EQUAL(r.unit_num, 3, "");
+    TT_UT_EQUAL(r.unit[0], 0x92345678567878bb, "");
+    TT_UT_EQUAL(r.unit[1], 0x92345678567878aa, "");
+    TT_UT_EQUAL(r.unit[2], 0x92345678567878, "");
+    TT_UT_EQUAL(r.unit_num, 3, "");
 #else
-    TT_TEST_CHECK_SUCCESS(TT_FAIL, "");
+    TT_UT_SUCCESS(TT_FAIL, "");
 #endif
 
     tt_mpn_set(&b, __b1, sizeof(__b1), TT_FALSE, 0);
     ret = tt_mpn_add(&r, &b, &a);
     tt_mpn_normalize(&r);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 #if TT_ENV_IS_64BIT
-    TT_TEST_CHECK_EQUAL(r.unit[0], 0x2468acf0acf0f176, "");
-    TT_TEST_CHECK_EQUAL(r.unit[1], 0x923456785678793d, "");
-    TT_TEST_CHECK_EQUAL(r.unit[2], 0x92345678567878, "");
-    TT_TEST_CHECK_EQUAL(r.unit_num, 3, "");
+    TT_UT_EQUAL(r.unit[0], 0x2468acf0acf0f176, "");
+    TT_UT_EQUAL(r.unit[1], 0x923456785678793d, "");
+    TT_UT_EQUAL(r.unit[2], 0x92345678567878, "");
+    TT_UT_EQUAL(r.unit_num, 3, "");
 #else
-    TT_TEST_CHECK_SUCCESS(TT_FAIL, "");
+    TT_UT_SUCCESS(TT_FAIL, "");
 #endif
 
     tt_mpn_set(&b, __b2, sizeof(__b2), TT_FALSE, 0);
     ret = tt_mpn_add(&r, &b, &a);
     tt_mpn_normalize(&r);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 #if TT_ENV_IS_64BIT
-    TT_TEST_CHECK_EQUAL(r.unit[0], 0x2468acf0acf0f176, "");
-    TT_TEST_CHECK_EQUAL(r.unit[1], 0x2468acf0acf0f155, "");
-    TT_TEST_CHECK_EQUAL(r.unit[2], 0x002468acf0acf0f1, "");
-    TT_TEST_CHECK_EQUAL(r.unit[3], 1, "");
-    TT_TEST_CHECK_EQUAL(r.unit_num, 4, "");
+    TT_UT_EQUAL(r.unit[0], 0x2468acf0acf0f176, "");
+    TT_UT_EQUAL(r.unit[1], 0x2468acf0acf0f155, "");
+    TT_UT_EQUAL(r.unit[2], 0x002468acf0acf0f1, "");
+    TT_UT_EQUAL(r.unit[3], 1, "");
+    TT_UT_EQUAL(r.unit_num, 4, "");
 #else
-    TT_TEST_CHECK_SUCCESS(TT_FAIL, "");
+    TT_UT_SUCCESS(TT_FAIL, "");
 #endif
 
     // a1 - b3
     tt_mpn_set(&b, __b3, sizeof(__b3), TT_TRUE, 0);
     ret = tt_mpn_add(&r, &a, &b);
     tt_mpn_normalize(&r);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 #if TT_ENV_IS_64BIT
-    TT_TEST_CHECK_EQUAL(r.unit[0], 0x100000000000000, "");
-    TT_TEST_CHECK_EQUAL(r.unit_num, 1, "");
-    TT_TEST_CHECK_EQUAL(r.negative, TT_TRUE, "");
+    TT_UT_EQUAL(r.unit[0], 0x100000000000000, "");
+    TT_UT_EQUAL(r.unit_num, 1, "");
+    TT_UT_EQUAL(r.negative, TT_TRUE, "");
 #else
-    TT_TEST_CHECK_SUCCESS(TT_FAIL, "");
+    TT_UT_SUCCESS(TT_FAIL, "");
 #endif
     ret = tt_mpn_add(&r, &b, &a);
     tt_mpn_normalize(&r);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 #if TT_ENV_IS_64BIT
-    TT_TEST_CHECK_EQUAL(r.unit[0], 0x100000000000000, "");
-    TT_TEST_CHECK_EQUAL(r.unit_num, 1, "");
-    TT_TEST_CHECK_EQUAL(r.negative, TT_TRUE, "");
+    TT_UT_EQUAL(r.unit[0], 0x100000000000000, "");
+    TT_UT_EQUAL(r.unit_num, 1, "");
+    TT_UT_EQUAL(r.negative, TT_TRUE, "");
 #else
-    TT_TEST_CHECK_SUCCESS(TT_FAIL, "");
+    TT_UT_SUCCESS(TT_FAIL, "");
 #endif
 
     tt_mpn_set(&b, __a1, sizeof(__a1), TT_TRUE, 0);
     ret = tt_mpn_add(&r, &a, &b);
     tt_mpn_normalize(&r);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
-    TT_TEST_CHECK_EQUAL(r.unit[0], 0, "");
-    TT_TEST_CHECK_EQUAL(r.unit_num, 1, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(r.unit[0], 0, "");
+    TT_UT_EQUAL(r.unit_num, 1, "");
 
     tt_mpn_destroy(&a);
     tt_mpn_destroy(&b);
@@ -752,102 +752,102 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_mpn_addeq)
 
     ret = tt_mpn_add(&a, &b, &a);
     tt_mpn_normalize(&a);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
-    TT_TEST_CHECK_EQUAL(a.unit[0], 0, "");
-    TT_TEST_CHECK_EQUAL(a.unit_num, 1, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(a.unit[0], 0, "");
+    TT_UT_EQUAL(a.unit_num, 1, "");
 
     // __a1 + 0 => a
     tt_mpn_set(&a, __a1, sizeof(__a1), TT_FALSE, 0);
     ret = tt_mpn_add(&a, &b, &a);
     tt_mpn_normalize(&a);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 #if TT_ENV_IS_64BIT
-    TT_TEST_CHECK_EQUAL(a.unit[0], 0x92345678567878bb, "");
-    TT_TEST_CHECK_EQUAL(a.unit[1], 0x92345678567878aa, "");
-    TT_TEST_CHECK_EQUAL(a.unit[2], 0x92345678567878, "");
-    TT_TEST_CHECK_EQUAL(a.unit_num, 3, "");
+    TT_UT_EQUAL(a.unit[0], 0x92345678567878bb, "");
+    TT_UT_EQUAL(a.unit[1], 0x92345678567878aa, "");
+    TT_UT_EQUAL(a.unit[2], 0x92345678567878, "");
+    TT_UT_EQUAL(a.unit_num, 3, "");
 #else
-    TT_TEST_CHECK_SUCCESS(TT_FAIL, "");
+    TT_UT_SUCCESS(TT_FAIL, "");
 #endif
 
     // __b1 + __a1 => b
     tt_mpn_set(&b, __b1, sizeof(__b1), TT_FALSE, 0);
     ret = tt_mpn_add(&b, &b, &a);
     tt_mpn_normalize(&b);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 #if TT_ENV_IS_64BIT
-    TT_TEST_CHECK_EQUAL(b.unit[0], 0x2468acf0acf0f176, "");
-    TT_TEST_CHECK_EQUAL(b.unit[1], 0x923456785678793d, "");
-    TT_TEST_CHECK_EQUAL(b.unit[2], 0x92345678567878, "");
-    TT_TEST_CHECK_EQUAL(b.unit_num, 3, "");
+    TT_UT_EQUAL(b.unit[0], 0x2468acf0acf0f176, "");
+    TT_UT_EQUAL(b.unit[1], 0x923456785678793d, "");
+    TT_UT_EQUAL(b.unit[2], 0x92345678567878, "");
+    TT_UT_EQUAL(b.unit_num, 3, "");
 #else
-    TT_TEST_CHECK_SUCCESS(TT_FAIL, "");
+    TT_UT_SUCCESS(TT_FAIL, "");
 #endif
 
     tt_mpn_set(&b, __b2, sizeof(__b2), TT_FALSE, 0);
     ret = tt_mpn_add(&b, &a, &b);
     tt_mpn_normalize(&b);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 #if TT_ENV_IS_64BIT
-    TT_TEST_CHECK_EQUAL(b.unit[0], 0x2468acf0acf0f176, "");
-    TT_TEST_CHECK_EQUAL(b.unit[1], 0x2468acf0acf0f155, "");
-    TT_TEST_CHECK_EQUAL(b.unit[2], 0x002468acf0acf0f1, "");
-    TT_TEST_CHECK_EQUAL(b.unit[3], 1, "");
-    TT_TEST_CHECK_EQUAL(b.unit_num, 4, "");
+    TT_UT_EQUAL(b.unit[0], 0x2468acf0acf0f176, "");
+    TT_UT_EQUAL(b.unit[1], 0x2468acf0acf0f155, "");
+    TT_UT_EQUAL(b.unit[2], 0x002468acf0acf0f1, "");
+    TT_UT_EQUAL(b.unit[3], 1, "");
+    TT_UT_EQUAL(b.unit_num, 4, "");
 #else
-    TT_TEST_CHECK_SUCCESS(TT_FAIL, "");
+    TT_UT_SUCCESS(TT_FAIL, "");
 #endif
 
     // a1 - b3
     tt_mpn_set(&b, __b3, sizeof(__b3), TT_TRUE, 0);
     ret = tt_mpn_add(&b, &a, &b);
     tt_mpn_normalize(&b);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 #if TT_ENV_IS_64BIT
-    TT_TEST_CHECK_EQUAL(b.unit[0], 0x100000000000000, "");
-    TT_TEST_CHECK_EQUAL(b.unit_num, 1, "");
-    TT_TEST_CHECK_EQUAL(b.negative, TT_TRUE, "");
+    TT_UT_EQUAL(b.unit[0], 0x100000000000000, "");
+    TT_UT_EQUAL(b.unit_num, 1, "");
+    TT_UT_EQUAL(b.negative, TT_TRUE, "");
 #else
-    TT_TEST_CHECK_SUCCESS(TT_FAIL, "");
+    TT_UT_SUCCESS(TT_FAIL, "");
 #endif
     tt_mpn_set(&b, __b3, sizeof(__b3), TT_TRUE, 0);
     ret = tt_mpn_add(&b, &b, &a);
     tt_mpn_normalize(&b);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 #if TT_ENV_IS_64BIT
-    TT_TEST_CHECK_EQUAL(b.unit[0], 0x100000000000000, "");
-    TT_TEST_CHECK_EQUAL(b.unit_num, 1, "");
-    TT_TEST_CHECK_EQUAL(b.negative, TT_TRUE, "");
+    TT_UT_EQUAL(b.unit[0], 0x100000000000000, "");
+    TT_UT_EQUAL(b.unit_num, 1, "");
+    TT_UT_EQUAL(b.negative, TT_TRUE, "");
 #else
-    TT_TEST_CHECK_SUCCESS(TT_FAIL, "");
+    TT_UT_SUCCESS(TT_FAIL, "");
 #endif
 
     // now b is negative
     ret = tt_mpn_abs(&a, &b);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
-    TT_TEST_CHECK_EQUAL(b.negative, TT_TRUE, "");
-    TT_TEST_CHECK_EQUAL(a.negative, TT_FALSE, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(b.negative, TT_TRUE, "");
+    TT_UT_EQUAL(a.negative, TT_FALSE, "");
     ret = tt_mpn_add(&b, &a, &b);
     tt_mpn_normalize(&b);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
-    TT_TEST_CHECK_EQUAL(b.unit[0], 0, "");
-    TT_TEST_CHECK_EQUAL(b.unit_num, 1, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(b.unit[0], 0, "");
+    TT_UT_EQUAL(b.unit_num, 1, "");
 
     // b + b => b
     ret = tt_mpn_set(&b, __b2, sizeof(__b2), TT_TRUE, 0);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     ret = tt_mpn_addeq(&b, &b);
     tt_mpn_normalize(&b);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 #if TT_ENV_IS_64BIT
-    TT_TEST_CHECK_EQUAL(b.unit[0], 0x2468acf0acf0f176, "");
-    TT_TEST_CHECK_EQUAL(b.unit[1], 0x2468acf0acf0f155, "");
-    TT_TEST_CHECK_EQUAL(b.unit[2], 0xff2468acf0acf0f1, "");
-    TT_TEST_CHECK_EQUAL(b.unit[3], 1, "");
-    TT_TEST_CHECK_EQUAL(b.unit_num, 4, "");
-    TT_TEST_CHECK_EQUAL(b.negative, TT_TRUE, "");
+    TT_UT_EQUAL(b.unit[0], 0x2468acf0acf0f176, "");
+    TT_UT_EQUAL(b.unit[1], 0x2468acf0acf0f155, "");
+    TT_UT_EQUAL(b.unit[2], 0xff2468acf0acf0f1, "");
+    TT_UT_EQUAL(b.unit[3], 1, "");
+    TT_UT_EQUAL(b.unit_num, 4, "");
+    TT_UT_EQUAL(b.negative, TT_TRUE, "");
 #else
-    TT_TEST_CHECK_SUCCESS(TT_FAIL, "");
+    TT_UT_SUCCESS(TT_FAIL, "");
 #endif
 
     tt_mpn_destroy(&a);
@@ -873,103 +873,103 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_mpn_sub)
     // 0 - 0
     ret = tt_mpn_sub(&r, &b, &a);
     tt_mpn_normalize(&r);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
-    TT_TEST_CHECK_EQUAL(r.unit[0], 0, "");
-    TT_TEST_CHECK_EQUAL(r.unit_num, 1, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(r.unit[0], 0, "");
+    TT_UT_EQUAL(r.unit_num, 1, "");
 
     // 0 - a1
     tt_mpn_set(&a, __a1, sizeof(__a1), TT_FALSE, 0);
     ret = tt_mpn_sub(&r, &b, &a);
     tt_mpn_normalize(&r);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 #if TT_ENV_IS_64BIT
-    TT_TEST_CHECK_EQUAL(r.unit[0], 0x92345678567878bb, "");
-    TT_TEST_CHECK_EQUAL(r.unit[1], 0x92345678567878aa, "");
-    TT_TEST_CHECK_EQUAL(r.unit[2], 0x92345678567878, "");
-    TT_TEST_CHECK_EQUAL(r.unit_num, 3, "");
-    TT_TEST_CHECK_EQUAL(r.negative, TT_TRUE, "");
+    TT_UT_EQUAL(r.unit[0], 0x92345678567878bb, "");
+    TT_UT_EQUAL(r.unit[1], 0x92345678567878aa, "");
+    TT_UT_EQUAL(r.unit[2], 0x92345678567878, "");
+    TT_UT_EQUAL(r.unit_num, 3, "");
+    TT_UT_EQUAL(r.negative, TT_TRUE, "");
 #else
-    TT_TEST_CHECK_SUCCESS(TT_FAIL, "");
+    TT_UT_SUCCESS(TT_FAIL, "");
 #endif
 
     // a1 - 0
     ret = tt_mpn_sub(&r, &a, &b);
     tt_mpn_normalize(&r);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 #if TT_ENV_IS_64BIT
-    TT_TEST_CHECK_EQUAL(r.unit[0], 0x92345678567878bb, "");
-    TT_TEST_CHECK_EQUAL(r.unit[1], 0x92345678567878aa, "");
-    TT_TEST_CHECK_EQUAL(r.unit[2], 0x92345678567878, "");
-    TT_TEST_CHECK_EQUAL(r.unit_num, 3, "");
-    TT_TEST_CHECK_EQUAL(r.negative, TT_FALSE, "");
+    TT_UT_EQUAL(r.unit[0], 0x92345678567878bb, "");
+    TT_UT_EQUAL(r.unit[1], 0x92345678567878aa, "");
+    TT_UT_EQUAL(r.unit[2], 0x92345678567878, "");
+    TT_UT_EQUAL(r.unit_num, 3, "");
+    TT_UT_EQUAL(r.negative, TT_FALSE, "");
 #else
-    TT_TEST_CHECK_SUCCESS(TT_FAIL, "");
+    TT_UT_SUCCESS(TT_FAIL, "");
 #endif
 
     // c1 - a1
     tt_mpn_set(&b, __c1, sizeof(__c1), TT_FALSE, 0);
     ret = tt_mpn_sub(&r, &b, &a);
     tt_mpn_normalize(&r);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 #if TT_ENV_IS_64BIT
-    TT_TEST_CHECK_EQUAL(r.unit[0], 0xffffffffffffffff, "");
-    TT_TEST_CHECK_EQUAL(r.unit[1], 0xffffffffffffffff, "");
-    TT_TEST_CHECK_EQUAL(r.unit[2], 0x92345678567877, "");
-    TT_TEST_CHECK_EQUAL(r.unit_num, 3, "");
-    TT_TEST_CHECK_EQUAL(r.negative, TT_TRUE, "");
+    TT_UT_EQUAL(r.unit[0], 0xffffffffffffffff, "");
+    TT_UT_EQUAL(r.unit[1], 0xffffffffffffffff, "");
+    TT_UT_EQUAL(r.unit[2], 0x92345678567877, "");
+    TT_UT_EQUAL(r.unit_num, 3, "");
+    TT_UT_EQUAL(r.negative, TT_TRUE, "");
 #else
-    TT_TEST_CHECK_SUCCESS(TT_FAIL, "");
+    TT_UT_SUCCESS(TT_FAIL, "");
 #endif
 
     // a1 - c1
     ret = tt_mpn_sub(&r, &a, &b);
     tt_mpn_normalize(&r);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 #if TT_ENV_IS_64BIT
-    TT_TEST_CHECK_EQUAL(r.unit[0], 0xffffffffffffffff, "");
-    TT_TEST_CHECK_EQUAL(r.unit[1], 0xffffffffffffffff, "");
-    TT_TEST_CHECK_EQUAL(r.unit[2], 0x92345678567877, "");
-    TT_TEST_CHECK_EQUAL(r.unit_num, 3, "");
-    TT_TEST_CHECK_EQUAL(r.negative, TT_FALSE, "");
+    TT_UT_EQUAL(r.unit[0], 0xffffffffffffffff, "");
+    TT_UT_EQUAL(r.unit[1], 0xffffffffffffffff, "");
+    TT_UT_EQUAL(r.unit[2], 0x92345678567877, "");
+    TT_UT_EQUAL(r.unit_num, 3, "");
+    TT_UT_EQUAL(r.negative, TT_FALSE, "");
 #else
-    TT_TEST_CHECK_SUCCESS(TT_FAIL, "");
+    TT_UT_SUCCESS(TT_FAIL, "");
 #endif
 
     // c2 - a1
     tt_mpn_set(&b, __c2, sizeof(__c2), TT_FALSE, 0);
     ret = tt_mpn_sub(&r, &b, &a);
     tt_mpn_normalize(&r);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 #if TT_ENV_IS_64BIT
-    TT_TEST_CHECK_EQUAL(r.unit[0], 0, "");
-    TT_TEST_CHECK_EQUAL(r.unit[1], 0x92345678567878ab, "");
-    TT_TEST_CHECK_EQUAL(r.unit[2], 0x0000ffffffffffff, "");
-    TT_TEST_CHECK_EQUAL(r.unit_num, 3, "");
-    TT_TEST_CHECK_EQUAL(r.negative, TT_TRUE, "");
+    TT_UT_EQUAL(r.unit[0], 0, "");
+    TT_UT_EQUAL(r.unit[1], 0x92345678567878ab, "");
+    TT_UT_EQUAL(r.unit[2], 0x0000ffffffffffff, "");
+    TT_UT_EQUAL(r.unit_num, 3, "");
+    TT_UT_EQUAL(r.negative, TT_TRUE, "");
 #else
-    TT_TEST_CHECK_SUCCESS(TT_FAIL, "");
+    TT_UT_SUCCESS(TT_FAIL, "");
 #endif
 
     // a1 - c2
     ret = tt_mpn_sub(&r, &a, &b);
     tt_mpn_normalize(&r);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 #if TT_ENV_IS_64BIT
-    TT_TEST_CHECK_EQUAL(r.unit[0], 0, "");
-    TT_TEST_CHECK_EQUAL(r.unit[1], 0x92345678567878ab, "");
-    TT_TEST_CHECK_EQUAL(r.unit[2], 0x0000ffffffffffff, "");
-    TT_TEST_CHECK_EQUAL(r.unit_num, 3, "");
-    TT_TEST_CHECK_EQUAL(r.negative, TT_FALSE, "");
+    TT_UT_EQUAL(r.unit[0], 0, "");
+    TT_UT_EQUAL(r.unit[1], 0x92345678567878ab, "");
+    TT_UT_EQUAL(r.unit[2], 0x0000ffffffffffff, "");
+    TT_UT_EQUAL(r.unit_num, 3, "");
+    TT_UT_EQUAL(r.negative, TT_FALSE, "");
 #else
-    TT_TEST_CHECK_SUCCESS(TT_FAIL, "");
+    TT_UT_SUCCESS(TT_FAIL, "");
 #endif
 
     tt_mpn_set(&b, __a1, sizeof(__a1), TT_FALSE, 0);
     ret = tt_mpn_sub(&r, &a, &b);
     tt_mpn_normalize(&r);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
-    TT_TEST_CHECK_EQUAL(r.unit[0], 0, "");
-    TT_TEST_CHECK_EQUAL(r.unit_num, 1, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(r.unit[0], 0, "");
+    TT_UT_EQUAL(r.unit_num, 1, "");
 
     tt_mpn_destroy(&a);
     tt_mpn_destroy(&b);
@@ -993,38 +993,38 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_mpn_subeq)
 
     // 0 - 0
     ret = tt_mpn_sub(&b, &b, &a);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
-    TT_TEST_CHECK_EQUAL(b.unit[0], 0, "");
-    TT_TEST_CHECK_EQUAL(b.unit_num, 1, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(b.unit[0], 0, "");
+    TT_UT_EQUAL(b.unit_num, 1, "");
 
     // 0 - a1
     tt_mpn_set(&a, __a1, sizeof(__a1), TT_FALSE, 0);
     ret = tt_mpn_sub(&a, &b, &a);
     tt_mpn_normalize(&a);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 #if TT_ENV_IS_64BIT
-    TT_TEST_CHECK_EQUAL(a.unit[0], 0x92345678567878bb, "");
-    TT_TEST_CHECK_EQUAL(a.unit[1], 0x92345678567878aa, "");
-    TT_TEST_CHECK_EQUAL(a.unit[2], 0x92345678567878, "");
-    TT_TEST_CHECK_EQUAL(a.unit_num, 3, "");
-    TT_TEST_CHECK_EQUAL(a.negative, TT_TRUE, "");
+    TT_UT_EQUAL(a.unit[0], 0x92345678567878bb, "");
+    TT_UT_EQUAL(a.unit[1], 0x92345678567878aa, "");
+    TT_UT_EQUAL(a.unit[2], 0x92345678567878, "");
+    TT_UT_EQUAL(a.unit_num, 3, "");
+    TT_UT_EQUAL(a.negative, TT_TRUE, "");
 #else
-    TT_TEST_CHECK_SUCCESS(TT_FAIL, "");
+    TT_UT_SUCCESS(TT_FAIL, "");
 #endif
 
     // a1 - 0
     tt_mpn_abs(NULL, &a);
     ret = tt_mpn_sub(&b, &a, &b);
     tt_mpn_normalize(&b);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 #if TT_ENV_IS_64BIT
-    TT_TEST_CHECK_EQUAL(b.unit[0], 0x92345678567878bb, "");
-    TT_TEST_CHECK_EQUAL(b.unit[1], 0x92345678567878aa, "");
-    TT_TEST_CHECK_EQUAL(b.unit[2], 0x92345678567878, "");
-    TT_TEST_CHECK_EQUAL(b.unit_num, 3, "");
-    TT_TEST_CHECK_EQUAL(b.negative, TT_FALSE, "");
+    TT_UT_EQUAL(b.unit[0], 0x92345678567878bb, "");
+    TT_UT_EQUAL(b.unit[1], 0x92345678567878aa, "");
+    TT_UT_EQUAL(b.unit[2], 0x92345678567878, "");
+    TT_UT_EQUAL(b.unit_num, 3, "");
+    TT_UT_EQUAL(b.negative, TT_FALSE, "");
 #else
-    TT_TEST_CHECK_SUCCESS(TT_FAIL, "");
+    TT_UT_SUCCESS(TT_FAIL, "");
 #endif
 
     // c1 - a1
@@ -1032,15 +1032,15 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_mpn_subeq)
     tt_mpn_set(&a, __a1, sizeof(__a1), TT_FALSE, 0);
     ret = tt_mpn_sub(&b, &b, &a);
     tt_mpn_normalize(&b);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 #if TT_ENV_IS_64BIT
-    TT_TEST_CHECK_EQUAL(b.unit[0], 0xffffffffffffffff, "");
-    TT_TEST_CHECK_EQUAL(b.unit[1], 0xffffffffffffffff, "");
-    TT_TEST_CHECK_EQUAL(b.unit[2], 0x92345678567877, "");
-    TT_TEST_CHECK_EQUAL(b.unit_num, 3, "");
-    TT_TEST_CHECK_EQUAL(b.negative, TT_TRUE, "");
+    TT_UT_EQUAL(b.unit[0], 0xffffffffffffffff, "");
+    TT_UT_EQUAL(b.unit[1], 0xffffffffffffffff, "");
+    TT_UT_EQUAL(b.unit[2], 0x92345678567877, "");
+    TT_UT_EQUAL(b.unit_num, 3, "");
+    TT_UT_EQUAL(b.negative, TT_TRUE, "");
 #else
-    TT_TEST_CHECK_SUCCESS(TT_FAIL, "");
+    TT_UT_SUCCESS(TT_FAIL, "");
 #endif
 
     // a1 - c1
@@ -1048,15 +1048,15 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_mpn_subeq)
     tt_mpn_set(&b, __c1, sizeof(__c1), TT_FALSE, 0);
     ret = tt_mpn_sub(&a, &a, &b);
     tt_mpn_normalize(&b);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 #if TT_ENV_IS_64BIT
-    TT_TEST_CHECK_EQUAL(a.unit[0], 0xffffffffffffffff, "");
-    TT_TEST_CHECK_EQUAL(a.unit[1], 0xffffffffffffffff, "");
-    TT_TEST_CHECK_EQUAL(a.unit[2], 0x92345678567877, "");
-    TT_TEST_CHECK_EQUAL(a.unit_num, 3, "");
-    TT_TEST_CHECK_EQUAL(a.negative, TT_FALSE, "");
+    TT_UT_EQUAL(a.unit[0], 0xffffffffffffffff, "");
+    TT_UT_EQUAL(a.unit[1], 0xffffffffffffffff, "");
+    TT_UT_EQUAL(a.unit[2], 0x92345678567877, "");
+    TT_UT_EQUAL(a.unit_num, 3, "");
+    TT_UT_EQUAL(a.negative, TT_FALSE, "");
 #else
-    TT_TEST_CHECK_SUCCESS(TT_FAIL, "");
+    TT_UT_SUCCESS(TT_FAIL, "");
 #endif
 
     // c2 - a1
@@ -1064,15 +1064,15 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_mpn_subeq)
     tt_mpn_set(&b, __c2, sizeof(__c2), TT_FALSE, 0);
     ret = tt_mpn_sub(&a, &b, &a);
     tt_mpn_normalize(&b);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 #if TT_ENV_IS_64BIT
-    TT_TEST_CHECK_EQUAL(a.unit[0], 0, "");
-    TT_TEST_CHECK_EQUAL(a.unit[1], 0x92345678567878ab, "");
-    TT_TEST_CHECK_EQUAL(a.unit[2], 0x0000ffffffffffff, "");
-    TT_TEST_CHECK_EQUAL(a.unit_num, 3, "");
-    TT_TEST_CHECK_EQUAL(a.negative, TT_TRUE, "");
+    TT_UT_EQUAL(a.unit[0], 0, "");
+    TT_UT_EQUAL(a.unit[1], 0x92345678567878ab, "");
+    TT_UT_EQUAL(a.unit[2], 0x0000ffffffffffff, "");
+    TT_UT_EQUAL(a.unit_num, 3, "");
+    TT_UT_EQUAL(a.negative, TT_TRUE, "");
 #else
-    TT_TEST_CHECK_SUCCESS(TT_FAIL, "");
+    TT_UT_SUCCESS(TT_FAIL, "");
 #endif
 
     // a1 - c2
@@ -1080,44 +1080,44 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_mpn_subeq)
     tt_mpn_set(&b, __c2, sizeof(__c2), TT_FALSE, 0);
     ret = tt_mpn_sub(&a, &a, &b);
     tt_mpn_normalize(&a);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 #if TT_ENV_IS_64BIT
-    TT_TEST_CHECK_EQUAL(a.unit[0], 0, "");
-    TT_TEST_CHECK_EQUAL(a.unit[1], 0x92345678567878ab, "");
-    TT_TEST_CHECK_EQUAL(a.unit[2], 0x0000ffffffffffff, "");
-    TT_TEST_CHECK_EQUAL(a.unit_num, 3, "");
-    TT_TEST_CHECK_EQUAL(a.negative, TT_FALSE, "");
+    TT_UT_EQUAL(a.unit[0], 0, "");
+    TT_UT_EQUAL(a.unit[1], 0x92345678567878ab, "");
+    TT_UT_EQUAL(a.unit[2], 0x0000ffffffffffff, "");
+    TT_UT_EQUAL(a.unit_num, 3, "");
+    TT_UT_EQUAL(a.negative, TT_FALSE, "");
 #else
-    TT_TEST_CHECK_SUCCESS(TT_FAIL, "");
+    TT_UT_SUCCESS(TT_FAIL, "");
 #endif
 
     // b - b => b
     tt_mpn_set(&b, __a1, sizeof(__a1), TT_FALSE, 0);
     ret = tt_mpn_subeq(&b, &b);
     tt_mpn_normalize(&b);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
-    TT_TEST_CHECK_EQUAL(b.unit[0], 0, "");
-    TT_TEST_CHECK_EQUAL(b.unit_num, 1, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(b.unit[0], 0, "");
+    TT_UT_EQUAL(b.unit_num, 1, "");
 
     // b - (-b) => b
     tt_mpn_set(&b, __b2, sizeof(__b2), TT_TRUE, 0);
     tt_mpn_reverse(&a, &b);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
-    TT_TEST_CHECK_EQUAL(a.unit_num, b.unit_num, "");
-    TT_TEST_CHECK_EQUAL(a.unit[a.unit_num - 1], b.unit[b.unit_num - 1], "");
-    TT_TEST_CHECK_EQUAL(a.negative, TT_FALSE, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(a.unit_num, b.unit_num, "");
+    TT_UT_EQUAL(a.unit[a.unit_num - 1], b.unit[b.unit_num - 1], "");
+    TT_UT_EQUAL(a.negative, TT_FALSE, "");
     ret = tt_mpn_sub(&b, &b, &a);
     tt_mpn_normalize(&b);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 #if TT_ENV_IS_64BIT
-    TT_TEST_CHECK_EQUAL(b.unit[0], 0x2468acf0acf0f176, "");
-    TT_TEST_CHECK_EQUAL(b.unit[1], 0x2468acf0acf0f155, "");
-    TT_TEST_CHECK_EQUAL(b.unit[2], 0xff2468acf0acf0f1, "");
-    TT_TEST_CHECK_EQUAL(b.unit[3], 1, "");
-    TT_TEST_CHECK_EQUAL(b.unit_num, 4, "");
-    TT_TEST_CHECK_EQUAL(b.negative, TT_TRUE, "");
+    TT_UT_EQUAL(b.unit[0], 0x2468acf0acf0f176, "");
+    TT_UT_EQUAL(b.unit[1], 0x2468acf0acf0f155, "");
+    TT_UT_EQUAL(b.unit[2], 0xff2468acf0acf0f1, "");
+    TT_UT_EQUAL(b.unit[3], 1, "");
+    TT_UT_EQUAL(b.unit_num, 4, "");
+    TT_UT_EQUAL(b.negative, TT_TRUE, "");
 #else
-    TT_TEST_CHECK_SUCCESS(TT_FAIL, "");
+    TT_UT_SUCCESS(TT_FAIL, "");
 #endif
 
     tt_mpn_destroy(&a);
@@ -1193,36 +1193,36 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_mpn_lshift)
          ++i) {
         ret =
             tt_mpn_set_cstr(&in, __mpn_lsfht_case[i].input, TT_MPN_FMT_HEX, 0);
-        TT_TEST_CHECK_SUCCESS(ret, "");
+        TT_UT_SUCCESS(ret, "");
         ret = tt_mpn_set_cstr(&out,
                               __mpn_lsfht_case[i].output,
                               TT_MPN_FMT_HEX,
                               0);
-        TT_TEST_CHECK_SUCCESS(ret, "");
+        TT_UT_SUCCESS(ret, "");
 
         ret = tt_mpn_lshf(&calc_out, &in, __mpn_lsfht_case[i].lshift_bit);
-        TT_TEST_CHECK_SUCCESS(ret, "");
+        TT_UT_SUCCESS(ret, "");
 
         cmp_ret = tt_mpn_cmp(&calc_out, &out);
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
     for (i = 0; i < sizeof(__mpn_lsfht_case) / sizeof(__mpn_lsfht_case[0]);
          ++i) {
         ret =
             tt_mpn_set_cstr(&in, __mpn_lsfht_case[i].input, TT_MPN_FMT_HEX, 0);
-        TT_TEST_CHECK_SUCCESS(ret, "");
+        TT_UT_SUCCESS(ret, "");
         ret = tt_mpn_set_cstr(&out,
                               __mpn_lsfht_case[i].output,
                               TT_MPN_FMT_HEX,
                               0);
-        TT_TEST_CHECK_SUCCESS(ret, "");
+        TT_UT_SUCCESS(ret, "");
 
         ret = tt_mpn_lshf(NULL, &in, __mpn_lsfht_case[i].lshift_bit);
-        TT_TEST_CHECK_SUCCESS(ret, "");
+        TT_UT_SUCCESS(ret, "");
 
         cmp_ret = tt_mpn_cmp(&in, &out);
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
     tt_mpn_destroy(&in);
@@ -1287,36 +1287,36 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_mpn_rshift)
          ++i) {
         ret =
             tt_mpn_set_cstr(&in, __mpn_rsfht_case[i].input, TT_MPN_FMT_HEX, 0);
-        TT_TEST_CHECK_SUCCESS(ret, "");
+        TT_UT_SUCCESS(ret, "");
         ret = tt_mpn_set_cstr(&out,
                               __mpn_rsfht_case[i].output,
                               TT_MPN_FMT_HEX,
                               0);
-        TT_TEST_CHECK_SUCCESS(ret, "");
+        TT_UT_SUCCESS(ret, "");
 
         ret = tt_mpn_rshf(&calc_out, &in, __mpn_rsfht_case[i].lshift_bit);
-        TT_TEST_CHECK_SUCCESS(ret, "");
+        TT_UT_SUCCESS(ret, "");
 
         cmp_ret = tt_mpn_cmp(&calc_out, &out);
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
     for (i = 0; i < sizeof(__mpn_rsfht_case) / sizeof(__mpn_rsfht_case[0]);
          ++i) {
         ret =
             tt_mpn_set_cstr(&in, __mpn_rsfht_case[i].input, TT_MPN_FMT_HEX, 0);
-        TT_TEST_CHECK_SUCCESS(ret, "");
+        TT_UT_SUCCESS(ret, "");
         ret = tt_mpn_set_cstr(&out,
                               __mpn_rsfht_case[i].output,
                               TT_MPN_FMT_HEX,
                               0);
-        TT_TEST_CHECK_SUCCESS(ret, "");
+        TT_UT_SUCCESS(ret, "");
 
         ret = tt_mpn_rshf(NULL, &in, __mpn_rsfht_case[i].lshift_bit);
-        TT_TEST_CHECK_SUCCESS(ret, "");
+        TT_UT_SUCCESS(ret, "");
 
         cmp_ret = tt_mpn_cmp(&in, &out);
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
     tt_mpn_destroy(&in);
@@ -1355,36 +1355,36 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_mpn_prepend)
 
     for (i = 0; i < sizeof(__bu_prepend_un) / sizeof(__bu_prepend_un[0]); ++i) {
         ret = tt_mpn_set_cstr(&in, __bu_prepend_un[i].in, TT_FALSE, 0);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
         ret =
             tt_mpn_set_cstr(&correct_out, __bu_prepend_un[i].out, TT_FALSE, 0);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
         ret = tt_mpn_prepend_un(&out,
                                 &in,
                                 __bu_prepend_un[i].u,
                                 __bu_prepend_un[i].u_num);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
-        TT_TEST_CHECK_EQUAL(tt_mpn_cmp(&correct_out, &out), 0, "");
+        TT_UT_EQUAL(tt_mpn_cmp(&correct_out, &out), 0, "");
     }
 
     for (i = 0; i < sizeof(__bu_prepend_un) / sizeof(__bu_prepend_un[0]); ++i) {
         ret = tt_mpn_set_cstr(&in, __bu_prepend_un[i].in, TT_FALSE, 0);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
         ret =
             tt_mpn_set_cstr(&correct_out, __bu_prepend_un[i].out, TT_FALSE, 0);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
         ret = tt_mpn_prepend_un(NULL,
                                 &in,
                                 __bu_prepend_un[i].u,
                                 __bu_prepend_un[i].u_num);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
-        TT_TEST_CHECK_EQUAL(tt_mpn_cmp(&correct_out, &in), 0, "");
+        TT_UT_EQUAL(tt_mpn_cmp(&correct_out, &in), 0, "");
     }
 
     tt_mpn_destroy(&in);
@@ -1426,34 +1426,34 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_mpn_append)
 
     for (i = 0; i < sizeof(__bu_append_un) / sizeof(__bu_append_un[0]); ++i) {
         ret = tt_mpn_set_cstr(&in, __bu_append_un[i].in, TT_FALSE, 0);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
         ret = tt_mpn_set_cstr(&correct_out, __bu_append_un[i].out, TT_FALSE, 0);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
         ret = tt_mpn_append_un(&out,
                                &in,
                                __bu_append_un[i].u,
                                __bu_append_un[i].u_num);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
-        TT_TEST_CHECK_EQUAL(tt_mpn_cmp(&correct_out, &out), 0, "");
+        TT_UT_EQUAL(tt_mpn_cmp(&correct_out, &out), 0, "");
     }
 
     for (i = 0; i < sizeof(__bu_append_un) / sizeof(__bu_append_un[0]); ++i) {
         ret = tt_mpn_set_cstr(&in, __bu_append_un[i].in, TT_FALSE, 0);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
         ret = tt_mpn_set_cstr(&correct_out, __bu_append_un[i].out, TT_FALSE, 0);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
         ret = tt_mpn_append_un(NULL,
                                &in,
                                __bu_append_un[i].u,
                                __bu_append_un[i].u_num);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
-        TT_TEST_CHECK_EQUAL(tt_mpn_cmp(&correct_out, &in), 0, "");
+        TT_UT_EQUAL(tt_mpn_cmp(&correct_out, &in), 0, "");
     }
 
     tt_mpn_destroy(&in);

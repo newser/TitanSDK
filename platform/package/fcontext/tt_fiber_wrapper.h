@@ -28,6 +28,8 @@
 
 #include <tt_basic_type.h>
 
+#include <tt_cstd_api.h>
+
 #include <fcontext/source/latest/tt_fcontext.h>
 
 ////////////////////////////////////////////////////////////
@@ -61,6 +63,16 @@ extern tt_result_t tt_fiber_create_wrap(IN tt_fiber_wrap_t *wrap_fb,
                                         IN tt_u32_t stack_size);
 
 extern void tt_fiber_destroy_wrap(IN tt_fiber_wrap_t *wrap_fb);
+
+tt_inline tt_result_t tt_fiber_create_local_wrap(IN tt_fiber_wrap_t *wrap_fb)
+{
+    tt_memset(wrap_fb, 0, sizeof(tt_fiber_wrap_t));
+    return TT_SUCCESS;
+}
+
+tt_inline void tt_fiber_destroy_local_wrap(IN tt_fiber_wrap_t *wrap_fb)
+{
+}
 
 extern void tt_fiber_switch_wrap(IN struct tt_fiber_sched_s *fs,
                                  IN struct tt_fiber_s *from,

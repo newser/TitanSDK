@@ -28,6 +28,9 @@ this file implements semaphore apis in system level
 // import header files
 ////////////////////////////////////////////////////////////
 
+#include <misc/tt_util.h>
+
+#include <tt_assert_native.h>
 #include <tt_sys_error.h>
 
 ////////////////////////////////////////////////////////////
@@ -42,7 +45,7 @@ struct tt_sem_attr_s;
 
 typedef struct
 {
-    HANDLE sem_handle;
+    HANDLE h_sem;
 } tt_sem_ntv_t;
 
 ////////////////////////////////////////////////////////////
@@ -66,7 +69,7 @@ create a system semaphore
 - TT_FAIL, otherwise
 */
 extern tt_result_t tt_sem_create_ntv(IN tt_sem_ntv_t *sys_sem,
-                                     IN tt_u32_t init_count,
+                                     IN tt_u32_t count,
                                      IN struct tt_sem_attr_s *attr);
 
 /**
@@ -95,27 +98,22 @@ wait a system semaphore
 - TT_TIME_OUT, if the time specified expires
 - TT_FAIL, otherwise
 */
-tt_inline tt_result_t tt_sem_acquire_ntv(IN tt_sem_ntv_t *sys_sem,
-                                         IN tt_u32_t wait_ms)
+tt_inline tt_bool_t tt_sem_acquire_ntv(IN tt_sem_ntv_t *sys_sem,
+                                       IN tt_u32_t wait_ms)
 {
-    if (wait_ms != TT_TIME_INFINITE) {
-        DWORD ret = 0;
-
-        ret = WaitForSingleObject(sys_sem->sem_handle, wait_ms);
-        if (ret == WAIT_OBJECT_0) {
-            return TT_SUCCESS;
-        } else if (ret == WAIT_TIMEOUT) {
-            return TT_TIME_OUT;
-        }
+    DWORD ret = WaitForSingleObject(sys_sem->h_sem,
+                                    TT_COND(wait_ms == TT_TIME_INFINITE,
+                                            INFINITE,
+                                            wait_ms));
+    if (ret == WAIT_OBJECT_0) {
+        return TT_TRUE;
+    } else if (ret == WAIT_TIMEOUT) {
+        return TT_FALSE;
     } else {
-        if (WaitForSingleObject(sys_sem->sem_handle, INFINITE) ==
-            WAIT_OBJECT_0) {
-            return TT_SUCCESS;
-        }
+        TT_ERROR_NTV("fail to wait semaphore");
+        tt_throw_exception_ntv(NULL);
+        return TT_FALSE;
     }
-
-    TT_ERROR_NTV("fail to wait semaphore");
-    return TT_FAIL;
 }
 
 /**
@@ -131,19 +129,18 @@ wait a system semaphore
 - TT_TIME_OUT, if sema can not be waited now
 - TT_FAIL, otherwise
 */
-tt_inline tt_result_t tt_sem_try_acquire_ntv(IN tt_sem_ntv_t *sys_sem)
+tt_inline tt_bool_t tt_sem_try_acquire_ntv(IN tt_sem_ntv_t *sys_sem)
 {
-    DWORD ret = 0;
-
-    ret = WaitForSingleObject(sys_sem->sem_handle, 0);
+    DWORD ret = WaitForSingleObject(sys_sem->h_sem, 0);
     if (ret == WAIT_OBJECT_0) {
         return TT_SUCCESS;
     } else if (ret == WAIT_TIMEOUT) {
-        return TT_TIME_OUT;
+        return TT_FALSE;
+    } else {
+        TT_ERROR_NTV("fail to wait semaphore");
+        tt_throw_exception_ntv(NULL);
+        return TT_FALSE;
     }
-
-    TT_ERROR_NTV("fail to wait semaphore");
-    return TT_FAIL;
 }
 
 /**
@@ -156,13 +153,11 @@ post a system semaphore
 - TT_SUCCESS, if the semaphore is posted
 - TT_FAIL, otherwise
 */
-tt_inline tt_result_t tt_sem_release_ntv(IN tt_sem_ntv_t *sys_sem)
+tt_inline void tt_sem_release_ntv(IN tt_sem_ntv_t *sys_sem)
 {
-    if (ReleaseSemaphore(sys_sem->sem_handle, 1, NULL) == TRUE) {
-        return TT_SUCCESS;
-    } else {
+    if (!ReleaseSemaphore(sys_sem->h_sem, 1, NULL)) {
         TT_ERROR_NTV("fail to post semaphore");
-        return TT_FAIL;
+        tt_throw_exception_ntv(NULL);
     }
 }
 

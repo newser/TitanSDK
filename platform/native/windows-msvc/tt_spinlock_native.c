@@ -18,15 +18,15 @@
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <tt_spinlock_native_cs.h>
+#include <tt_spinlock_native.h>
 
 #include <os/tt_spinlock.h>
+
+#include <tt_sys_error.h>
 
 ////////////////////////////////////////////////////////////
 // internal macro
 ////////////////////////////////////////////////////////////
-
-#define __SPIN_LIMIT 4000
 
 ////////////////////////////////////////////////////////////
 // internal type
@@ -48,18 +48,13 @@
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-tt_result_t tt_spinlock_create_ntv_cs(IN tt_spinlock_ntv_cs_t *lock,
-                                      IN struct tt_spinlock_attr_s *attr)
+tt_result_t tt_spinlock_create_ntv(IN tt_spinlock_ntv_t *lock,
+                                   IN struct tt_spinlock_attr_s *attr)
 {
-    if (InitializeCriticalSectionAndSpinCount(&lock->cs, __SPIN_LIMIT)) {
-        return TT_SUCCESS;
-    } else {
-        TT_ERROR_NTV("fail to create system spinlock");
-        return TT_FAIL;
-    }
+    lock->v = 0;
+    return TT_SUCCESS;
 }
 
-void tt_spinlock_destroy_ntv_cs(IN tt_spinlock_ntv_cs_t *lock)
+void tt_spinlock_destroy_ntv(IN tt_spinlock_ntv_t *lock)
 {
-    DeleteCriticalSection(&lock->cs);
 }

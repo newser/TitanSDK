@@ -108,7 +108,7 @@ TT_TEST_CASE("tt_unit_test_xnp_basic",
      // test start
 
      ret = tt_xmlnp_create(&xnp, &cb, (void*)0x123, NULL);
-     TT_TEST_CHECK_SUCCESS(ret, "");
+     TT_UT_SUCCESS(ret, "");
 
      tt_xmlnp_destroy(&xnp)
 
@@ -389,7 +389,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xnp_basic)
     // test start
 
     ret = tt_xmlmem_create(&xm, NULL);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
 
     cb.on_node_start = __1_xnp_on_node_start;
     cb.on_node_end = __1_xnp_on_node_end;
@@ -397,7 +397,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xnp_basic)
     cb.on_error = __1_xnp_on_error;
 
     ret = tt_xmlnp_create(&xnp, &xm, NULL, &cb, (void *)0x123, NULL);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
 
     __ut_xnp_ret = TT_SUCCESS;
     __ut_xnp_err_line = 0;
@@ -409,16 +409,16 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xnp_basic)
             len = tt_rand_u32() % 10; // 0-9
         }
         ret = tt_xmlnp_update(&xnp, (tt_u8_t *)&__test_xml[i], len);
-        TT_TEST_CHECK_SUCCESS(ret, "");
+        TT_UT_SUCCESS(ret, "");
         i += len;
     }
     TT_ASSERT(i == sizeof(__test_xml));
 
-    TT_TEST_CHECK_SUCCESS(ret, "");
-    TT_TEST_CHECK_SUCCESS(__ut_xnp_ret, "");
+    TT_UT_SUCCESS(ret, "");
+    TT_UT_SUCCESS(__ut_xnp_ret, "");
 
     ret = tt_xmlnp_final(&xnp, NULL);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
 
     ///// random test
     for (i = 0; i < sizeof((__test_xml));) {
@@ -643,7 +643,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xnp_ns)
     // test start
 
     ret = tt_xmlmem_create(&xm, NULL);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
 
     tt_xmlns_mgr_init(&xnmgr, &xm);
 
@@ -653,7 +653,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xnp_ns)
     cb.on_error = __1_xnp_on_error;
 
     ret = tt_xmlnp_create(&xnp, &xm, &xnmgr, &cb, (void *)0x123, NULL);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
 
     __ut_xnp_ret = TT_SUCCESS;
     __ut_xnp_err_line = 0;
@@ -666,7 +666,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xnp_ns)
             len = tt_rand_u32() % 10; // 0-9
         }
         ret = tt_xmlnp_update(&xnp, (tt_u8_t *)&__test_xml_ns[i], len);
-        TT_TEST_CHECK_SUCCESS(ret, "");
+        TT_UT_SUCCESS(ret, "");
         i += len;
     }
     TT_ASSERT(i == sizeof(__test_xml_ns));
@@ -675,11 +675,11 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xnp_ns)
         tt_xmlnp_update(&xnp, (tt_u8_t *)__test_xml_ns, sizeof(__test_xml_ns));
 #endif
 
-    TT_TEST_CHECK_SUCCESS(ret, "");
-    TT_TEST_CHECK_SUCCESS(__ut_xnp_ret, "");
+    TT_UT_SUCCESS(ret, "");
+    TT_UT_SUCCESS(__ut_xnp_ret, "");
 
     ret = tt_xmlnp_final(&xnp, NULL);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
 
     ///// random test
     for (i = 0; i < sizeof((__test_xml_ns));) {
@@ -734,7 +734,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xnp_ns_etag)
     // test start
 
     ret = tt_xmlmem_create(&xm, NULL);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
 
     tt_xmlns_mgr_init(&xnmgr, &xm);
 
@@ -742,7 +742,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xnp_ns_etag)
     cb.on_error = __3_xnp_on_error;
 
     ret = tt_xmlnp_create(&xnp, &xm, &xnmgr, &cb, (void *)0x123, NULL);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
 
     {
         static tt_u8_t tx1[] =
@@ -754,8 +754,8 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xnp_ns_etag)
         __ut_xnp_err_line = 0;
 
         ret = tt_xmlnp_update(&xnp, tx1, sizeof(tx1));
-        TT_TEST_CHECK_FAIL(ret, "");
-        TT_TEST_CHECK_SUCCESS(__ut_xnp_ret, "");
+        TT_UT_FAIL(ret, "");
+        TT_UT_SUCCESS(__ut_xnp_ret, "");
 
         tt_xmlnp_reset(&xnp, 0);
         tt_xmlns_mgr_reset(&xnmgr);
@@ -771,8 +771,8 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xnp_ns_etag)
         __ut_xnp_err_line = 0;
 
         ret = tt_xmlnp_update(&xnp, tx1, sizeof(tx1));
-        TT_TEST_CHECK_FAIL(ret, "");
-        TT_TEST_CHECK_SUCCESS(__ut_xnp_ret, "");
+        TT_UT_FAIL(ret, "");
+        TT_UT_SUCCESS(__ut_xnp_ret, "");
 
         tt_xmlnp_reset(&xnp, 0);
         tt_xmlns_mgr_reset(&xnmgr);
@@ -788,8 +788,8 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xnp_ns_etag)
         __ut_xnp_err_line = 0;
 
         ret = tt_xmlnp_update(&xnp, tx1, sizeof(tx1));
-        TT_TEST_CHECK_FAIL(ret, "");
-        TT_TEST_CHECK_SUCCESS(__ut_xnp_ret, "");
+        TT_UT_FAIL(ret, "");
+        TT_UT_SUCCESS(__ut_xnp_ret, "");
 
         tt_xmlnp_reset(&xnp, 0);
         tt_xmlns_mgr_reset(&xnmgr);
@@ -958,7 +958,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xnp_ns_invalid)
     // test start
 
     ret = tt_xmlmem_create(&xm, NULL);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
 
     tt_xmlns_mgr_init(&xnmgr, &xm);
 
@@ -968,7 +968,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xnp_ns_invalid)
     cb.on_error = __1_xnp_on_error;
 
     ret = tt_xmlnp_create(&xnp, &xm, &xnmgr, &cb, (void *)0x123, NULL);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
 
     __ut_xnp_ret = TT_SUCCESS;
     __ut_xnp_err_line = 0;
@@ -984,8 +984,8 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xnp_ns_invalid)
         __ut_xnp_seq = 0;
 
         ret = tt_xmlnp_update(&xnp, tx1, sizeof(tx1));
-        TT_TEST_CHECK_SUCCESS(ret, "");
-        TT_TEST_CHECK_SUCCESS(__ut_xnp_ret, "");
+        TT_UT_SUCCESS(ret, "");
+        TT_UT_SUCCESS(__ut_xnp_ret, "");
 
         tt_xmlnp_reset(&xnp, 0);
         tt_xmlns_mgr_reset(&xnmgr);
@@ -1006,8 +1006,8 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xnp_ns_invalid)
         xnp.cb.on_node = __4_xnp_on_node_2;
 
         ret = tt_xmlnp_update(&xnp, tx1, sizeof(tx1));
-        TT_TEST_CHECK_SUCCESS(ret, "");
-        TT_TEST_CHECK_SUCCESS(__ut_xnp_ret, "");
+        TT_UT_SUCCESS(ret, "");
+        TT_UT_SUCCESS(__ut_xnp_ret, "");
 
         tt_xmlnp_reset(&xnp, 0);
         tt_xmlns_mgr_reset(&xnmgr);
@@ -1027,8 +1027,8 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xnp_ns_invalid)
         xnp.cb.on_node = __4_xnp_on_node_3;
 
         ret = tt_xmlnp_update(&xnp, tx1, sizeof(tx1));
-        TT_TEST_CHECK_SUCCESS(ret, "");
-        TT_TEST_CHECK_SUCCESS(__ut_xnp_ret, "");
+        TT_UT_SUCCESS(ret, "");
+        TT_UT_SUCCESS(__ut_xnp_ret, "");
 
         tt_xmlnp_reset(&xnp, 0);
         tt_xmlns_mgr_reset(&xnmgr);
@@ -1047,11 +1047,11 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xnp_ns_invalid)
         xnp.cb.on_node = __4_xnp_on_node_3;
 
         ret = tt_xmlnp_update(&xnp, tx1, sizeof(tx1));
-        TT_TEST_CHECK_SUCCESS(ret, "");
-        TT_TEST_CHECK_SUCCESS(__ut_xnp_ret, "");
+        TT_UT_SUCCESS(ret, "");
+        TT_UT_SUCCESS(__ut_xnp_ret, "");
 
         ret = tt_xmlnp_final(&xnp, NULL);
-        TT_TEST_CHECK_FAIL(ret, "");
+        TT_UT_FAIL(ret, "");
 
         tt_xmlnp_reset(&xnp, 0);
         tt_xmlns_mgr_reset(&xnmgr);

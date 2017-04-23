@@ -28,7 +28,7 @@ this file implements read write lock apis in system level
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <tt_sys_error.h>
+#include <misc/tt_util.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
@@ -98,10 +98,9 @@ acquire a system rwlock to read
 return value MUST be checked, lock operation is implemented based on
 system call which is out of ts control
 */
-tt_inline tt_result_t tt_rwlock_acquire_r_ntv(IN tt_rwlock_ntv_t *sys_rwlock)
+tt_inline void tt_rwlock_acquire_r_ntv(IN tt_rwlock_ntv_t *sys_rwlock)
 {
     AcquireSRWLockShared(&sys_rwlock->lock);
-    return TT_SUCCESS;
 }
 
 /**
@@ -118,14 +117,9 @@ try to acquire a system rwlock to read
 return value MUST be checked, lock operation is implemented based on
 system call which is out of ts control
 */
-tt_inline tt_result_t
-tt_rwlock_try_acquire_r_ntv(IN tt_rwlock_ntv_t *sys_rwlock)
+tt_inline tt_bool_t tt_rwlock_try_acquire_r_ntv(IN tt_rwlock_ntv_t *sys_rwlock)
 {
-    if (TryAcquireSRWLockShared(&sys_rwlock->lock)) {
-        return TT_SUCCESS;
-    } else {
-        return TT_TIME_OUT;
-    }
+    return TT_BOOL(TryAcquireSRWLockShared(&sys_rwlock->lock));
 }
 
 /**
@@ -138,10 +132,9 @@ release a system rwlock after reading
 - TT_SUCCESS, if unlocking done
 - TT_FAIL, otherwise
 */
-tt_inline tt_result_t tt_rwlock_release_r_ntv(IN tt_rwlock_ntv_t *sys_rwlock)
+tt_inline void tt_rwlock_release_r_ntv(IN tt_rwlock_ntv_t *sys_rwlock)
 {
     ReleaseSRWLockShared(&sys_rwlock->lock);
-    return TT_SUCCESS;
 }
 
 /**
@@ -158,10 +151,9 @@ acquire a system rwlock to write
 return value MUST be checked, lock operation is implemented based on
 system call which is out of ts control
 */
-tt_inline tt_result_t tt_rwlock_acquire_w_ntv(IN tt_rwlock_ntv_t *sys_rwlock)
+tt_inline void tt_rwlock_acquire_w_ntv(IN tt_rwlock_ntv_t *sys_rwlock)
 {
     AcquireSRWLockExclusive(&sys_rwlock->lock);
-    return TT_SUCCESS;
 }
 
 /**
@@ -178,14 +170,9 @@ try to acquire a system rwlock to write
 return value MUST be checked, lock operation is implemented based on
 system call which is out of ts control
 */
-tt_inline tt_result_t
-tt_rwlock_try_acquire_w_ntv(IN tt_rwlock_ntv_t *sys_rwlock)
+tt_inline tt_bool_t tt_rwlock_try_acquire_w_ntv(IN tt_rwlock_ntv_t *sys_rwlock)
 {
-    if (TryAcquireSRWLockExclusive(&sys_rwlock->lock)) {
-        return TT_SUCCESS;
-    } else {
-        return TT_TIME_OUT;
-    }
+    return TT_BOOL(TryAcquireSRWLockExclusive(&sys_rwlock->lock));
 }
 
 /**
@@ -198,10 +185,9 @@ release a system rwlock after writing
 - TT_SUCCESS, if unlocking done
 - TT_FAIL, otherwise
 */
-tt_inline tt_result_t tt_rwlock_release_w_ntv(IN tt_rwlock_ntv_t *sys_rwlock)
+tt_inline void tt_rwlock_release_w_ntv(IN tt_rwlock_ntv_t *sys_rwlock)
 {
     ReleaseSRWLockExclusive(&sys_rwlock->lock);
-    return TT_SUCCESS;
 }
 
 #endif /* __TT_RWLOCK_NATIVE__ */

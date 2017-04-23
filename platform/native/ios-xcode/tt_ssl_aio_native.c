@@ -20,14 +20,11 @@
 
 #include <tt_ssl_aio_native.h>
 
-#include <event/tt_event_center.h>
-#include <io/tt_socket_aio.h>
 #include <memory/tt_memory_alloc.h>
 #include <misc/tt_reference_counter.h>
 #include <network/ssl/tt_ssl.h>
 #include <network/ssl/tt_ssl_aio.h>
 
-#include <tt_socket_aio_native.h>
 #include <tt_ssl_context_native.h>
 #include <tt_util_native.h>
 
@@ -194,12 +191,12 @@ tt_result_t tt_async_ssl_create_ntv(IN struct tt_ssl_s *ssl,
 
     TT_ASSERT(ssl != NULL);
     TT_ASSERT(skt != NULL);
-    TT_ASSERT(skt->sys_socket.ssl == NULL);
+    TT_ASSERT(skt->sys_skt.ssl == NULL);
     TT_ASSERT(sslctx != NULL);
     TT_ASSERT(exit != NULL);
     TT_ASSERT(exit->on_destroy != NULL);
 
-    skt_role = skt->sys_socket.role;
+    skt_role = skt->sys_skt.role;
     ssl_role = sslctx->sys_ctx.role;
     if (skt_role == TT_SKT_ROLE_TCP_CONNECT) {
         TT_ASSERT_SSL(ssl_role == TT_SSL_ROLE_CLIENT);
@@ -261,9 +258,9 @@ tt_result_t tt_async_ssl_create_ntv(IN struct tt_ssl_s *ssl,
     }
 
     // be sure skt is not doing io
-    skt->sys_socket.on_destroy = __ssl_on_destroy;
-    skt->sys_socket.on_destroy_param = ssl;
-    skt->sys_socket.ssl = ssl;
+    skt->sys_skt.on_destroy = __ssl_on_destroy;
+    skt->sys_skt.on_destroy_param = ssl;
+    skt->sys_skt.ssl = ssl;
 
     return TT_SUCCESS;
 }
@@ -280,12 +277,12 @@ tt_result_t tt_async_ssl_shutdown_ntv(IN tt_ssl_t *ssl, IN tt_u32_t mode)
     tt_result_t result = TT_FAIL;
 
     if ((mode & TT_SSL_SHUTDOWN_RD) &&
-        TT_OK(tt_async_skt_shutdown(ssl->skt, TT_SKT_SHUTDOWN_RD))) {
+        TT_OK(tt_async_skt_shutdown(ssl->skt, TT_SKT_SHUT_RD))) {
         result = TT_SUCCESS;
     }
 
     if ((mode & TT_SSL_SHUTDOWN_WR) &&
-        TT_OK(tt_async_skt_shutdown(ssl->skt, TT_SKT_SHUTDOWN_WR))) {
+        TT_OK(tt_async_skt_shutdown(ssl->skt, TT_SKT_SHUT_WR))) {
         result = TT_SUCCESS;
     }
 
@@ -586,15 +583,15 @@ void __ssl_on_accept(IN tt_skt_t *listening_skt,
     tt_thread_ev_t *tev = TT_EV_HDR(ev, tt_thread_ev_t);
     __ssl_accept_t *aio = TT_EV_DATA(ev, __ssl_accept_t);
 
-    tt_skt_ntv_t *listening_sys_skt = &listening_skt->sys_socket;
-    tt_skt_ntv_t *new_sys_skt = &new_skt->sys_socket;
+    tt_skt_ntv_t *listening_sys_skt = &listening_skt->sys_skt;
+    tt_skt_ntv_t *new_sys_skt = &new_skt->sys_skt;
 
     tt_sslpeer_t *sslpeer;
     tt_ssl_t *new_ssl = aio->new_ssl;
     tt_sslctx_t *sslctx = aio->listening_ssl->sslctx;
 
     TT_ASSERT_SSL(listening_sys_skt->ssl == aio->listening_ssl);
-    TT_ASSERT_SSL(listening_sys_skt == &aio->listening_ssl->skt->sys_socket);
+    TT_ASSERT_SSL(listening_sys_skt == &aio->listening_ssl->skt->sys_skt);
 
     if (!TT_OK(aioctx->result)) {
         aio->result = aioctx->result;
@@ -657,7 +654,7 @@ void __ssl_accept_cb(IN __ssl_accept_t *aio)
     // if something failed in __ssl_on_accept, then aio->new_ssl->skt
     // may be a null pointer
     if (aio->new_ssl->skt != NULL) {
-        tt_skt_ntv_t *sys_skt = &aio->new_ssl->skt->sys_socket;
+        tt_skt_ntv_t *sys_skt = &aio->new_ssl->skt->sys_skt;
 
         sys_skt->ssl_rd_handshaking = TT_FALSE;
         sys_skt->ssl_want_rd = TT_FALSE;
@@ -716,14 +713,14 @@ void __ssl_on_connect(IN tt_skt_t *skt,
     tt_thread_ev_t *tev = TT_EV_HDR(ev, tt_thread_ev_t);
     __ssl_connect_t *aio = TT_EV_DATA(ev, __ssl_connect_t);
 
-    tt_skt_ntv_t *sys_skt = &skt->sys_socket;
+    tt_skt_ntv_t *sys_skt = &skt->sys_skt;
 
     tt_ssl_t *ssl = aio->ssl;
     tt_sslctx_t *sslctx = ssl->sslctx;
     tt_sslpeer_t *sslpeer;
 
     TT_ASSERT_SSL(sys_skt->ssl == ssl);
-    TT_ASSERT_SSL(sys_skt == &aio->ssl->skt->sys_socket);
+    TT_ASSERT_SSL(sys_skt == &aio->ssl->skt->sys_skt);
 
     tt_memcpy(&aio->remote_addr, remote_addr, sizeof(tt_sktaddr_t));
 
@@ -764,7 +761,7 @@ void __ssl_on_connect(IN tt_skt_t *skt,
 void __ssl_connect_cb(IN __ssl_connect_t *aio)
 {
     tt_ssl_aioctx_t ssl_env;
-    tt_skt_ntv_t *sys_skt = &aio->ssl->skt->sys_socket;
+    tt_skt_ntv_t *sys_skt = &aio->ssl->skt->sys_skt;
 
     ssl_env.result = aio->result;
     ssl_env.cb_param = aio->cb_param;
@@ -804,7 +801,7 @@ OSStatus __ssl_send_io(IN SSLConnectionRef connection,
                        IN OUT size_t *dataLength)
 {
     tt_skt_t *skt = (tt_skt_t *)connection;
-    tt_skt_ntv_t *sys_skt = &skt->sys_socket;
+    tt_skt_ntv_t *sys_skt = &skt->sys_skt;
 
     tt_u8_t *pos = (tt_u8_t *)data;
     tt_u32_t len = (tt_u32_t)*dataLength;
@@ -868,7 +865,7 @@ OSStatus __ssl_recv_io(IN SSLConnectionRef connection,
                        IN OUT size_t *dataLength)
 {
     tt_skt_t *skt = (tt_skt_t *)connection;
-    tt_skt_ntv_t *sys_skt = &skt->sys_socket;
+    tt_skt_ntv_t *sys_skt = &skt->sys_skt;
 
     tt_u8_t *pos = (tt_u8_t *)data;
     tt_u32_t len = (tt_u32_t)*dataLength;
@@ -1118,7 +1115,7 @@ tt_result_t __ssl_vfy_common_name(IN SecCertificateRef cert,
 
 tt_result_t __ssl_handshake(IN tt_ssl_t *ssl, IN tt_result_t kq_result)
 {
-    tt_skt_ntv_t *sys_skt = &ssl->skt->sys_socket;
+    tt_skt_ntv_t *sys_skt = &ssl->skt->sys_skt;
     OSStatus osst;
     tt_result_t result;
 
@@ -1191,7 +1188,7 @@ tt_result_t __ssl_handshake(IN tt_ssl_t *ssl, IN tt_result_t kq_result)
             // something special to handle. to close ssl and socket
             // created in __ssl_on_accept
 
-            new_sys_skt = &aio->new_ssl->skt->sys_socket;
+            new_sys_skt = &aio->new_ssl->skt->sys_skt;
             __RETRY_IF_EINTR(close(new_sys_skt->s) != 0);
             new_sys_skt->s = -1;
 

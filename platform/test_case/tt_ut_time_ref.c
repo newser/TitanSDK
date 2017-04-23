@@ -161,7 +161,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_time_ref_basic)
         TT_INFO("sleep 50 ms", t);
         tt_sleep(50);
         t = tt_time_ref();
-        TT_TEST_CHECK_EXP(t >= last, "");
+        TT_UT_EXP(t >= last, "");
 
         d = t - last;
         d = tt_time_ref2ms(d);
@@ -170,8 +170,8 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_time_ref_basic)
         // error is expected less than 5ms
         d -= 50; // slept 50ms
         TT_INFO("difference: %d ms", d);
-        // TT_TEST_CHECK_EXP(d <= 5, "");
-        TT_TEST_CHECK_EXP(d >= -5, "");
+        // TT_UT_EXP(d <= 5, "");
+        TT_UT_EXP(d >= -5, "");
     }
 
     // test end

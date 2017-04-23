@@ -30,9 +30,9 @@ endif ()
 #
 
 # platform
-include_directories(${PLATFORM_PATH}/export)
+include_directories(${PLATFORM_PATH}/include)
 include_directories(${PLATFORM_PATH}/native/${PLATFORM_ENV})
-include_directories(${PLATFORM_PATH}/native/${PLATFORM_ENV_CPU})
+include_directories(${PLATFORM_PATH}/package)
 
 #
 # source file

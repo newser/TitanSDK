@@ -143,8 +143,6 @@ static tt_result_t __send_keycode(IN tt_u8_t *key,
 
 tt_result_t tt_console_init_ntv()
 {
-    tt_result_t result;
-
     // default send/recv
     __cons_imode = TT_CONSOLE_IMODE_DEFAULT;
     __cons_omode = TT_CONSOLE_OMODE_DEFAULT;

@@ -130,25 +130,25 @@ TT_TEST_CASE("tt_unit_test_psst_init_utf8",
     // test start
 
     ret = tt_xmlmem_create(&xm, NULL);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
 
     // utf8
     {
         tt_u8_t b1[] = {0xef, 0xbb, 0xbf, 0x9, 0x9, 0x9};
 
         ret = tt_xmlparser_create(&xp, &xm, NULL, NULL);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
         ret = tt_xmlparser_update(&xp, b1, 1);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         ret = tt_xmlparser_update(&xp, b1 + 1, 1);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         ret = tt_xmlparser_update(&xp, b1 + 2, 1);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         ret = tt_xmlparser_update(&xp, b1 + 3, 3);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
-        TT_TEST_CHECK_EQUAL(xp.from_encoding, TT_CHARSET_UTF8, "");
+        TT_UT_EQUAL(xp.from_encoding, TT_CHARSET_UTF8, "");
 
         tt_xmlparser_destroy(&xp);
     }
@@ -160,16 +160,16 @@ TT_TEST_CASE("tt_unit_test_psst_init_utf8",
         tt_u32_t outn = sizeof(outb);
 
         ret = tt_xmlparser_create(&xp, &xm, NULL, NULL);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
         ret = tt_xmlparser_update(&xp, b1, 2);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         ret = tt_xmlparser_update(&xp, b1 + 2, 2);
 
-        TT_TEST_CHECK_EQUAL(xp.from_encoding, TT_CHARSET_UTF8, "");
+        TT_UT_EQUAL(xp.from_encoding, TT_CHARSET_UTF8, "");
 
         tt_chsetconv_output(&xp.csconv, outb, &outn);
-        TT_TEST_CHECK_EQUAL(tt_memcmp(outb, b1, outn), 0, "");
+        TT_UT_EQUAL(tt_memcmp(outb, b1, outn), 0, "");
 
         tt_xmlparser_destroy(&xp);
     }
@@ -191,23 +191,23 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_psst_init_utf16le)
     // test start
 
     ret = tt_xmlmem_create(&xm, NULL);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
 
     // utf16le
     {
         tt_u8_t b1[] = {0xff, 0xfe, 0x9, 0x0, 0x9, 0x0, 0x9, 0x0};
 
         ret = tt_xmlparser_create(&xp, &xm, NULL, NULL);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
         ret = tt_xmlparser_update(&xp, b1, 1);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         ret = tt_xmlparser_update(&xp, b1 + 1, 2);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         ret = tt_xmlparser_update(&xp, b1 + 3, 2);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
-        TT_TEST_CHECK_EQUAL(xp.from_encoding, TT_CHARSET_UTF16LE, "");
+        TT_UT_EQUAL(xp.from_encoding, TT_CHARSET_UTF16LE, "");
 
         tt_xmlparser_destroy(&xp);
     }
@@ -229,21 +229,21 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_psst_init_utf16be)
     // test start
 
     ret = tt_xmlmem_create(&xm, NULL);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
 
     // utf16be
     {
         tt_u8_t b1[] = {0xfe, 0xff, 0x0, 0x9, 0x0, 0x9, 0x0, 0x9};
 
         ret = tt_xmlparser_create(&xp, &xm, NULL, NULL);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
         ret = tt_xmlparser_update(&xp, b1, 1);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         ret = tt_xmlparser_update(&xp, b1 + 1, 4);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
-        TT_TEST_CHECK_EQUAL(xp.from_encoding, TT_CHARSET_UTF16BE, "");
+        TT_UT_EQUAL(xp.from_encoding, TT_CHARSET_UTF16BE, "");
 
         tt_xmlparser_destroy(&xp);
     }
@@ -265,23 +265,23 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_psst_init_utf32le)
     // test start
 
     ret = tt_xmlmem_create(&xm, NULL);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
 
     // utf32le
     {
         tt_u8_t b1[] = {0xff, 0xfe, 0, 0, 0x9, 0, 0, 0};
 
         ret = tt_xmlparser_create(&xp, &xm, NULL, NULL);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
         ret = tt_xmlparser_update(&xp, b1, 3);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         ret = tt_xmlparser_update(&xp, b1 + 3, 1);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         ret = tt_xmlparser_update(&xp, b1 + 4, 4);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
-        TT_TEST_CHECK_EQUAL(xp.from_encoding, TT_CHARSET_UTF32LE, "");
+        TT_UT_EQUAL(xp.from_encoding, TT_CHARSET_UTF32LE, "");
 
         tt_xmlparser_destroy(&xp);
     }
@@ -303,23 +303,23 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_psst_init_utf32be)
     // test start
 
     ret = tt_xmlmem_create(&xm, NULL);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
 
     // utf32be
     {
         tt_u8_t b1[] = {0, 0, 0xfe, 0xff, 0, 0, 0, 0x9};
 
         ret = tt_xmlparser_create(&xp, &xm, NULL, NULL);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
         ret = tt_xmlparser_update(&xp, b1, 1);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         ret = tt_xmlparser_update(&xp, b1 + 1, 2);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         ret = tt_xmlparser_update(&xp, b1 + 3, 5);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
-        TT_TEST_CHECK_EQUAL(xp.from_encoding, TT_CHARSET_UTF32BE, "");
+        TT_UT_EQUAL(xp.from_encoding, TT_CHARSET_UTF32BE, "");
 
         tt_xmlparser_destroy(&xp);
     }

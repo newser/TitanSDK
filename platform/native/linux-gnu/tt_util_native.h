@@ -78,6 +78,16 @@ this file provided some basic utilities for platform usage
 #define __SSL_ERROR_STRING(e)
 #endif
 
+#define tt_ep_read(epfd, fd, ptr)                                              \
+    tt_epoll((epfd),                                                           \
+             EPOLL_CTL_MOD,                                                    \
+             (fd),                                                             \
+             (EPOLLIN | EPOLLRDHUP | EPOLLONESHOT),                            \
+             (ptr))
+
+#define tt_ep_write(epfd, fd, ptr)                                             \
+    tt_epoll((epfd), EPOLL_CTL_MOD, (fd), (EPOLLOUT | EPOLLONESHOT), (ptr))
+
 ////////////////////////////////////////////////////////////
 // type definition
 ////////////////////////////////////////////////////////////
@@ -89,5 +99,8 @@ this file provided some basic utilities for platform usage
 ////////////////////////////////////////////////////////////
 // interface declaration
 ////////////////////////////////////////////////////////////
+
+extern tt_result_t tt_epoll(
+    IN int epfd, IN int op, IN int fd, IN uint32_t events, IN void *ptr);
 
 #endif /* __TT_UTIL_NATIVE__ */

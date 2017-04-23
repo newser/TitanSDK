@@ -51,17 +51,17 @@
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-tt_result_t __skt_kevent(IN int kq,
-                         IN uint64_t ident,
-                         IN int16_t filter,
-                         IN uint16_t flags,
-                         IN uint64_t udata)
+tt_result_t tt_kevent(IN int kq,
+                      IN uint64_t ident,
+                      IN int16_t filter,
+                      IN uint16_t flags,
+                      IN uint64_t udata)
 {
-    struct kevent ev = {0};
+    struct kevent kev = {0};
     const struct timespec timeout = {0};
 
-    EV_SET(&ev, ident, filter, flags, 0, 0, udata);
-    if (kevent(kq, &ev, 1, NULL, 0, &timeout) == 0) {
+    EV_SET(&kev, ident, filter, flags, 0, 0, udata);
+    if (kevent(kq, &kev, 1, NULL, 0, &timeout) == 0) {
         return TT_SUCCESS;
     } else {
         TT_ERROR_NTV("[%d]fail", filter);

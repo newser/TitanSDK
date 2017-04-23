@@ -20,15 +20,9 @@
 
 #include <tt_semaphore_native.h>
 
-#include <misc/tt_assert.h>
-
-#include <tt_cstd_api.h>
-
 ////////////////////////////////////////////////////////////
 // internal macro
 ////////////////////////////////////////////////////////////
-
-#define __INFINITE_SEM_NUM (0x7FFFFFFF)
 
 ////////////////////////////////////////////////////////////
 // internal type
@@ -51,16 +45,13 @@
 ////////////////////////////////////////////////////////////
 
 tt_result_t tt_sem_create_ntv(IN tt_sem_ntv_t *sys_sem,
-                              IN tt_u32_t init_count,
+                              IN tt_u32_t count,
                               IN struct tt_sem_attr_s *attr)
 {
-    HANDLE win_sem;
-
-    tt_memset(sys_sem, 0, sizeof(tt_sem_ntv_t));
-
-    win_sem = CreateSemaphore(NULL, init_count, __INFINITE_SEM_NUM, NULL);
-    if (win_sem != NULL) {
-        sys_sem->sem_handle = win_sem;
+    HANDLE h_sem =
+        CreateSemaphore(NULL, TT_MIN(count, 0x7FFFFFFF), 0x7FFFFFFF, NULL);
+    if (h_sem != NULL) {
+        sys_sem->h_sem = h_sem;
         return TT_SUCCESS;
     } else {
         TT_ERROR_NTV("fail to create semaphore");
@@ -70,10 +61,7 @@ tt_result_t tt_sem_create_ntv(IN tt_sem_ntv_t *sys_sem,
 
 void tt_sem_destroy_ntv(IN tt_sem_ntv_t *sys_sem)
 {
-    TT_ASSERT(sys_sem != NULL);
-    TT_ASSERT(sys_sem->sem_handle != NULL);
-
-    if (!CloseHandle((sys_sem)->sem_handle)) {
+    if (!CloseHandle((sys_sem)->h_sem)) {
         TT_ERROR_NTV("fail to destroy semaphore");
     }
 }

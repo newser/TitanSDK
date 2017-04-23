@@ -147,7 +147,7 @@ TT_TEST_CASE("tt_unit_test_mpn_mont_m1",
 
     tt_mpn_set_u(&r, 1, TT_FALSE, 0);
     ret = tt_mpn_lshf_u(NULL, &r, 1);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     tt_mpn_cache_create(&mc);
 
@@ -161,17 +161,17 @@ TT_TEST_CASE("tt_unit_test_mpn_mont_m1",
         "34A35172CBD216B3F2536D1A26EFDA5BA8D90B",
         TT_MPN_FMT_HEX,
         0);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     ret = tt_mpn_mont_m1(&m1, &m, &mc);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     ret = tt_mpn_sub_u(&t1, &r, m1, TT_FALSE);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     ret = tt_mpn_muleq(&t1, &m, &mc);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     ret = tt_mpn_modeq(&t1, &r, &mc);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
-    TT_TEST_CHECK_EQUAL(tt_mpn_cmp_u(&t1, 1, TT_FALSE), 0, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(tt_mpn_cmp_u(&t1, 1, TT_FALSE), 0, "");
     //==============================================
 
     for (i = 0; i < 100; ++i) {
@@ -185,30 +185,30 @@ TT_TEST_CASE("tt_unit_test_mpn_mont_m1",
             u_byte[k] = (tt_u8_t)tt_rand_u32();
 
         ret = tt_mpn_set(&m, u_byte, u_n, TT_FALSE, 0);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
         // m1 = -(m^-1 mod r)
         ret = tt_mpn_mont_m1(&m1, &m, &mc);
         if (!TT_OK(ret)) {
             ret = tt_mpn_gcd(&t1, &m, &r, &mc);
-            TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+            TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
-            TT_TEST_CHECK_NOT_EQUAL(tt_mpn_cmp_u(&t1, 1, TT_FALSE), 0, "");
+            TT_UT_NOT_EQUAL(tt_mpn_cmp_u(&t1, 1, TT_FALSE), 0, "");
 
             continue;
         }
 
         // mod neg
         ret = tt_mpn_sub_u(&t1, &r, m1, TT_FALSE);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
         ret = tt_mpn_muleq(&t1, &m, &mc);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         ret = tt_mpn_modeq(&t1, &r, &mc);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
         // expect (-m1)*m mod r = 1
-        TT_TEST_CHECK_EQUAL(tt_mpn_cmp_u(&t1, 1, TT_FALSE), 0, "");
+        TT_UT_EQUAL(tt_mpn_cmp_u(&t1, 1, TT_FALSE), 0, "");
     }
 
     tt_mpn_destroy(&m);
@@ -259,10 +259,10 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_mpn_rdmont)
             v_byte[k] = (tt_u8_t)tt_rand_u32();
 
         ret = tt_mpn_set(&m, u_byte, u_n, TT_FALSE, 0);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
         ret = tt_mpn_set(&a, v_byte, v_n, TT_FALSE, 0);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
         if (a.unit_num > m.unit_num * 2)
             a.unit_num = m.unit_num * 2;
@@ -287,27 +287,27 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_mpn_rdmont)
         //  m has n units, x=r^n
         //  return a*x^-1 mod m
         ret = __mpn_rdmont(&t2, &a, &m, m1, &mc);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
         // x=r^n
         ret = tt_mpn_ulshf_u(&x, 1, TT_FALSE, m.unit_num);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         // x^-1 mod m
         ret = tt_mpn_modminv(&x, &x, &m, &mc);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         // a*x^-1
         ret = tt_mpn_muleq(&x, &a, &mc);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         // a*x^-1 mod m
         ret = tt_mpn_modeq(&x, &m, &mc);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
         cmp_ret = tt_mpn_cmp(&x, &t2);
         if (cmp_ret != 0) {
             tt_mpn_show("x: \n", &x, 0);
             tt_mpn_show("t2: \n", &t2, 0);
         }
-        TT_TEST_CHECK_EXP(cmp_ret == 0, "");
+        TT_UT_EXP(cmp_ret == 0, "");
     }
 
     tt_mpn_destroy(&m);
@@ -371,29 +371,29 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_mpn_mulmont)
         __mulmont_case_t *c = &__mulmont_case[i];
 
         ret = tt_mpn_set_cstr(&a, c->a, TT_MPN_FMT_HEX, 0);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         ret = tt_mpn_set_cstr(&b, c->b, TT_MPN_FMT_HEX, 0);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         ret = tt_mpn_set_cstr(&m, c->m, TT_MPN_FMT_HEX, 0);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         ret = tt_mpn_mont_m1(&m1, &m, &mc);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         ret = __mpn_mulmont(&x, &a, &b, &m, m1, &mc);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
         // a*b*rn^-1 mod m
         ret = tt_mpn_ulshf_u(&rn, 1, TT_FALSE, m.unit_num);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         ret = tt_mpn_modminv(&rn, &rn, &m, &mc);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         ret = tt_mpn_mul(&t2, &a, &b, &mc);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         ret = tt_mpn_muleq(&t2, &rn, &mc);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         ret = tt_mpn_modeq(&t2, &m, &mc);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
-        TT_TEST_CHECK_EQUAL(tt_mpn_cmp(&t2, &x), 0, "");
+        TT_UT_EQUAL(tt_mpn_cmp(&t2, &x), 0, "");
     }
 
     for (i = 0; i < 100; ++i) {
@@ -426,11 +426,11 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_mpn_mulmont)
         }
 
         ret = tt_mpn_set(&a, u_byte, u_n, TT_FALSE, 0);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         ret = tt_mpn_set(&b, v_byte, v_n, TT_FALSE, 0);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         ret = tt_mpn_set(&m, w_byte, w_n, TT_FALSE, 0);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         start = tt_time_ref();
         ret = tt_mpn_mont_m1(&m1, &m, &mc);
         end = tt_time_ref();
@@ -439,21 +439,21 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_mpn_mulmont)
             continue;
         }
         ret = __mpn_mulmont(&x, &a, &b, &m, m1, &mc);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
         // a*b*rn^-1 mod m
         ret = tt_mpn_ulshf_u(&rn, 1, TT_FALSE, m.unit_num);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         ret = tt_mpn_modminv(&rn, &rn, &m, &mc);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         ret = tt_mpn_mul(&t2, &a, &b, &mc);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         ret = tt_mpn_muleq(&t2, &rn, &mc);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         ret = tt_mpn_modeq(&t2, &m, &mc);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
-        TT_TEST_CHECK_EQUAL(tt_mpn_cmp(&t2, &x), 0, "");
+        TT_UT_EQUAL(tt_mpn_cmp(&t2, &x), 0, "");
     }
     TT_RECORD_INFO("mulmont time: %dms", tt_time_ref2ms(t));
 
@@ -582,17 +582,17 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_mpn_modexp)
         __modexp_case_t *c = &__modexp_case[i];
 
         ret = tt_mpn_set_cstr(&a, c->a, TT_MPN_FMT_HEX, 0);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         ret = tt_mpn_set_cstr(&e, c->e, TT_MPN_FMT_HEX, 0);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         ret = tt_mpn_set_cstr(&m, c->m, TT_MPN_FMT_HEX, 0);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         ret = tt_mpn_set_cstr(&correct_r, c->aem, TT_MPN_FMT_HEX, 0);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
         ret = tt_mpn_powmod(&r, &a, &e, &m, &mc);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
-        TT_TEST_CHECK_EQUAL(tt_mpn_cmp(&correct_r, &r), 0, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(tt_mpn_cmp(&correct_r, &r), 0, "");
     }
 
 #if 1
@@ -633,11 +633,11 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_mpn_modexp)
         }
 
         ret = tt_mpn_set(&a, u_byte, u_n, TT_FALSE, 0);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         ret = tt_mpn_set(&e, v_byte, v_n, TT_FALSE, 0);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         ret = tt_mpn_set(&m, w_byte, w_n, TT_FALSE, 0);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         start = tt_time_ref();
         ret = tt_mpn_powmod(&r, &a, &e, &m, &mc);
         end = tt_time_ref();
@@ -666,7 +666,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_mpn_modexp)
             t_n = BN_num_bytes(or);
             BN_bn2bin(or, t_byte);
             tt_mpn_set(&a, t_byte, t_n, TT_FALSE, 0);
-            TT_TEST_CHECK_EQUAL(tt_mpn_cmp(&a, &r), 0, "");
+            TT_UT_EQUAL(tt_mpn_cmp(&a, &r), 0, "");
             TT_INFO("equal");
         }
 #endif

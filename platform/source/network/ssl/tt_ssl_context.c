@@ -116,13 +116,13 @@ tt_result_t tt_sslctx_add_cert_path(IN tt_sslctx_t *ctx,
     TT_ASSERT(cert_path != NULL);
     TT_ASSERT(privkey_path != NULL);
 
-    result = tt_fcontent(cert_path, &cert);
+    result = TT_FAIL; // tt_fcontent(cert_path, &cert);
     if (!TT_OK(result)) {
         TT_ERROR("fail to read cert file: %s", cert_path);
         return TT_FAIL;
     }
 
-    result = tt_fcontent(privkey_path, &privkey);
+    result = TT_FAIL; // tt_fcontent(privkey_path, &privkey);
     if (!TT_OK(result)) {
         TT_ERROR("fail to read privkey file: %s", cert_path);
 
@@ -153,7 +153,7 @@ tt_result_t tt_sslctx_add_ca_path(IN tt_sslctx_t *ctx,
 
     TT_ASSERT(ca_path != NULL);
 
-    result = tt_fcontent(ca_path, &ca);
+    result = TT_FAIL; // tt_fcontent(ca_path, &ca);
     if (!TT_OK(result)) {
         TT_ERROR("fail to read ca file: %s", ca_path);
         return TT_FAIL;

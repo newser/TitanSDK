@@ -95,14 +95,14 @@ tt_adns_rr_t *tt_adrr_aaaa_create(IN const tt_char_t *name,
     return rr;
 }
 
-void tt_adrr_aaaa_set_addr(IN struct tt_adns_rr_s *rr, tt_sktaddr_addr_t *addr)
+void tt_adrr_aaaa_set_addr(IN struct tt_adns_rr_s *rr, tt_sktaddr_ip_t *addr)
 {
     tt_adrr_aaaa_t *rdata;
 
     TT_ASSERT(rr->type == TT_ADNS_RR_AAAA_IN);
     rdata = TT_ADRR_CAST(rr, tt_adrr_aaaa_t);
 
-    tt_memcpy(&rdata->addr, addr, sizeof(tt_sktaddr_addr_t));
+    tt_memcpy(&rdata->addr, addr, sizeof(tt_sktaddr_ip_t));
 }
 
 void __aaaa_dump(IN struct tt_adns_rr_s *rr)
@@ -110,10 +110,10 @@ void __aaaa_dump(IN struct tt_adns_rr_s *rr)
     tt_adrr_aaaa_t *rdata = TT_ADRR_CAST(rr, tt_adrr_aaaa_t);
     tt_char_t ipv6_addr[30] = {0};
 
-    tt_sktaddr_addr_n2p(TT_NET_AF_INET6,
-                        &rdata->addr,
-                        ipv6_addr,
-                        sizeof(ipv6_addr) - 1);
+    tt_sktaddr_ip_n2p(TT_NET_AF_INET6,
+                      &rdata->addr,
+                      ipv6_addr,
+                      sizeof(ipv6_addr) - 1);
 
     TT_INFO("- domain: %s", rr->name);
     TT_INFO("  type clase: AAAA IN");
@@ -132,7 +132,7 @@ tt_result_t __aaaa_render(IN struct tt_adns_rr_s *rr, OUT struct tt_buf_s *buf)
     tt_adrr_aaaa_t *rdata = TT_ADRR_CAST(rr, tt_adrr_aaaa_t);
 
     // rdata
-    TT_DO(tt_buf_put(buf, rdata->addr.addr128.__u8, 16));
+    TT_DO(tt_buf_put(buf, rdata->addr.a128.__u8, 16));
 
     return TT_SUCCESS;
 }
@@ -145,7 +145,7 @@ tt_result_t __aaaa_parse(OUT struct tt_adns_rr_s *rr,
     tt_adrr_aaaa_t *rdata = TT_ADRR_CAST(rr, tt_adrr_aaaa_t);
 
     // rdata, already in network order
-    TT_DO(tt_buf_get(buf, rdata->addr.addr128.__u8, 16));
+    TT_DO(tt_buf_get(buf, rdata->addr.a128.__u8, 16));
 
     return TT_SUCCESS;
 }

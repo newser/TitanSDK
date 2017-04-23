@@ -47,7 +47,7 @@ io init network native
 ////////////////////////////////////////////////////////////
 
 /**
-@fn tt_result_t tt_io_network_component_init_ntv()
+@fn tt_result_t tt_network_io_component_init_ntv()
 init network portlayer
 
 @param [in] init_param reserved
@@ -56,7 +56,7 @@ init network portlayer
 - TT_SUCCESS if collecting succeeds
 - TT_FAIL otherwise
 */
-tt_inline tt_result_t tt_io_network_component_init_ntv()
+tt_inline tt_result_t tt_network_io_component_init_ntv()
 {
     return TT_SUCCESS;
 }

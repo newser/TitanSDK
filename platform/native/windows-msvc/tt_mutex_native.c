@@ -23,8 +23,6 @@
 #include <misc/tt_assert.h>
 #include <os/tt_mutex.h>
 
-#include <tt_cstd_api.h>
-
 ////////////////////////////////////////////////////////////
 // internal macro
 ////////////////////////////////////////////////////////////
@@ -52,15 +50,9 @@
 tt_result_t tt_mutex_create_ntv(IN tt_mutex_ntv_t *sys_mutex,
                                 IN tt_mutex_attr_t *attr)
 {
-    HANDLE win_mutex;
-
-    tt_memset(sys_mutex, 0, sizeof(tt_mutex_ntv_t));
-
-    // windows mutex is already recursive
-
-    win_mutex = CreateMutex(NULL, FALSE, NULL);
-    if (win_mutex != NULL) {
-        sys_mutex->mutex_handle = win_mutex;
+    HANDLE h_mutex = CreateMutex(NULL, FALSE, NULL);
+    if (h_mutex != NULL) {
+        sys_mutex->h_mutex = h_mutex;
         return TT_SUCCESS;
     } else {
         TT_ERROR_NTV("fail to create system mutex");
@@ -70,9 +62,7 @@ tt_result_t tt_mutex_create_ntv(IN tt_mutex_ntv_t *sys_mutex,
 
 void tt_mutex_destroy_ntv(IN tt_mutex_ntv_t *sys_mutex)
 {
-    TT_ASSERT(sys_mutex->mutex_handle != NULL);
-
-    if (!CloseHandle(sys_mutex->mutex_handle)) {
+    if (!CloseHandle(sys_mutex->h_mutex)) {
         TT_ERROR_NTV("fail to destroy system mutex");
     }
 }

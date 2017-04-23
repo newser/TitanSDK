@@ -122,56 +122,56 @@ TT_TEST_CASE("tt_unit_test_ptrheap_basic",
     tt_ptrheap_attr_default(&attr);
 
     tt_ptrheap_init(&ph, NULL, NULL);
-    TT_TEST_CHECK_EQUAL(tt_ptrheap_pop(&ph), NULL, "");
-    TT_TEST_CHECK_EQUAL(tt_ptrheap_head(&ph), NULL, "");
-    TT_TEST_CHECK_EQUAL(tt_ptrheap_count(&ph), 0, "");
-    TT_TEST_CHECK_EQUAL(tt_ptrheap_empty(&ph), TT_TRUE, "");
+    TT_UT_EQUAL(tt_ptrheap_pop(&ph), NULL, "");
+    TT_UT_EQUAL(tt_ptrheap_head(&ph), NULL, "");
+    TT_UT_EQUAL(tt_ptrheap_count(&ph), 0, "");
+    TT_UT_EQUAL(tt_ptrheap_empty(&ph), TT_TRUE, "");
     tt_ptrheap_clear(&ph);
-    TT_TEST_CHECK_EQUAL(tt_ptrheap_contain(&ph, (tt_ptr_t)0), TT_FALSE, "");
+    TT_UT_EQUAL(tt_ptrheap_contain(&ph, (tt_ptr_t)0), TT_FALSE, "");
     tt_ptrheap_destroy(&ph);
 
     tt_ptrheap_init(&ph, NULL, &attr);
 
     ret = tt_ptrheap_add(&ph, (tt_ptr_t)1, &h);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
-    TT_TEST_CHECK_EQUAL(h, 0, "");
-    TT_TEST_CHECK_EQUAL(tt_ptrheap_head(&ph), (tt_ptr_t)1, "");
-    TT_TEST_CHECK_EQUAL(tt_ptrheap_count(&ph), 1, "");
-    TT_TEST_CHECK_EQUAL(tt_ptrheap_empty(&ph), TT_FALSE, "");
-    TT_TEST_CHECK_EQUAL(tt_ptrheap_contain(&ph, (tt_ptr_t)1), TT_TRUE, "");
-    TT_TEST_CHECK_EQUAL(tt_ptrheap_pop(&ph), (tt_ptr_t)1, "");
-    TT_TEST_CHECK_EQUAL(h, TT_POS_NULL, "");
-    TT_TEST_CHECK_EQUAL(tt_ptrheap_pop(&ph), NULL, "");
-    TT_TEST_CHECK_EQUAL(h, TT_POS_NULL, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(h, 0, "");
+    TT_UT_EQUAL(tt_ptrheap_head(&ph), (tt_ptr_t)1, "");
+    TT_UT_EQUAL(tt_ptrheap_count(&ph), 1, "");
+    TT_UT_EQUAL(tt_ptrheap_empty(&ph), TT_FALSE, "");
+    TT_UT_EQUAL(tt_ptrheap_contain(&ph, (tt_ptr_t)1), TT_TRUE, "");
+    TT_UT_EQUAL(tt_ptrheap_pop(&ph), (tt_ptr_t)1, "");
+    TT_UT_EQUAL(h, TT_POS_NULL, "");
+    TT_UT_EQUAL(tt_ptrheap_pop(&ph), NULL, "");
+    TT_UT_EQUAL(h, TT_POS_NULL, "");
 
     ret = tt_ptrheap_add(&ph, NULL, NULL);
-    TT_TEST_CHECK_FAIL(ret, "");
+    TT_UT_FAIL(ret, "");
 
     ret = tt_ptrheap_add(&ph, (tt_ptr_t)3, NULL);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     ret = tt_ptrheap_add(&ph, (tt_ptr_t)2, &h);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     ret = tt_ptrheap_add(&ph, (tt_ptr_t)1, &h0);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     ret = tt_ptrheap_add(&ph, (tt_ptr_t)3, &h);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     ret = tt_ptrheap_add(&ph, (tt_ptr_t)~0, &h);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     ret = tt_ptrheap_add(&ph, (tt_ptr_t)~0, &h);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
-    TT_TEST_CHECK_EQUAL(tt_ptrheap_count(&ph), 6, "");
-    TT_TEST_CHECK_EQUAL(tt_ptrheap_empty(&ph), TT_FALSE, "");
-    TT_TEST_CHECK_EQUAL(tt_ptrheap_contain(&ph, (tt_ptr_t)~0), TT_TRUE, "");
+    TT_UT_EQUAL(tt_ptrheap_count(&ph), 6, "");
+    TT_UT_EQUAL(tt_ptrheap_empty(&ph), TT_FALSE, "");
+    TT_UT_EQUAL(tt_ptrheap_contain(&ph, (tt_ptr_t)~0), TT_TRUE, "");
 
-    TT_TEST_CHECK_EQUAL(tt_ptrheap_head(&ph), (tt_ptr_t)~0, "");
-    TT_TEST_CHECK_EQUAL(tt_ptrheap_pop(&ph), (tt_ptr_t)~0, "");
-    TT_TEST_CHECK_EQUAL(tt_ptrheap_pop(&ph), (tt_ptr_t)~0, "");
-    TT_TEST_CHECK_EQUAL(tt_ptrheap_pop(&ph), (tt_ptr_t)3, "");
+    TT_UT_EQUAL(tt_ptrheap_head(&ph), (tt_ptr_t)~0, "");
+    TT_UT_EQUAL(tt_ptrheap_pop(&ph), (tt_ptr_t)~0, "");
+    TT_UT_EQUAL(tt_ptrheap_pop(&ph), (tt_ptr_t)~0, "");
+    TT_UT_EQUAL(tt_ptrheap_pop(&ph), (tt_ptr_t)3, "");
 
     tt_ptrheap_remove(&ph, h0);
-    TT_TEST_CHECK_EQUAL(tt_ptrheap_count(&ph), 2, "");
-    TT_TEST_CHECK_EQUAL(tt_ptrheap_head(&ph), (tt_ptr_t)3, "");
+    TT_UT_EQUAL(tt_ptrheap_count(&ph), 2, "");
+    TT_UT_EQUAL(tt_ptrheap_head(&ph), (tt_ptr_t)3, "");
 
     tt_ptrheap_destroy(&ph);
 
@@ -267,15 +267,15 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_ptrheap_correct)
     for (i = 0; i < sizeof(trb) / sizeof(struct trb_t); ++i) {
         tt_rbnode_t *pn = tt_rbtree_max(&rbt);
         int pv = (int)(tt_uintptr_t)tt_ptrheap_head(&ph);
-        TT_TEST_CHECK_EQUAL(((struct trb_t *)pn)->v, pv, "");
+        TT_UT_EQUAL(((struct trb_t *)pn)->v, pv, "");
 
         tt_rbtree_remove(&rbt, pn);
         tt_ptrheap_pop(&ph);
     }
 
-    TT_TEST_CHECK_EQUAL(tt_ptrheap_head(&ph), NULL, "");
-    TT_TEST_CHECK_EQUAL(tt_ptrheap_pop(&ph), NULL, "");
-    TT_TEST_CHECK_EQUAL(ph.count, 0, "");
+    TT_UT_EQUAL(tt_ptrheap_head(&ph), NULL, "");
+    TT_UT_EQUAL(tt_ptrheap_pop(&ph), NULL, "");
+    TT_UT_EQUAL(ph.count, 0, "");
 
     // test remove
     for (i = 0; i < sizeof(trb) / sizeof(struct trb_t); ++i) {
@@ -287,7 +287,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_ptrheap_correct)
     }
     for (i = 0; i < sizeof(trb) / sizeof(struct trb_t); ++i) {
         tt_ptrheap_remove(&ph, _dh[i]);
-        TT_TEST_CHECK_EQUAL(_dh[i], TT_POS_NULL, "");
+        TT_UT_EQUAL(_dh[i], TT_POS_NULL, "");
     }
 
     tt_ptrheap_destroy(&ph);

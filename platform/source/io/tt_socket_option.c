@@ -53,7 +53,7 @@ tt_result_t tt_skt_set_ipv6only(IN struct tt_skt_s *skt, IN tt_bool_t ipv6only)
 {
     TT_ASSERT(skt != NULL);
 
-    return tt_skt_set_ipv6only_ntv(&skt->sys_socket, ipv6only);
+    return tt_skt_set_ipv6only_ntv(&skt->sys_skt, ipv6only);
 }
 
 tt_result_t tt_skt_get_ipv6only(IN struct tt_skt_s *skt,
@@ -62,7 +62,7 @@ tt_result_t tt_skt_get_ipv6only(IN struct tt_skt_s *skt,
     TT_ASSERT(skt != NULL);
     TT_ASSERT(ipv6only != NULL);
 
-    return tt_skt_get_ipv6only_ntv(&skt->sys_socket, ipv6only);
+    return tt_skt_get_ipv6only_ntv(&skt->sys_skt, ipv6only);
 }
 
 tt_result_t tt_skt_set_reuseaddr(IN struct tt_skt_s *skt,
@@ -70,7 +70,7 @@ tt_result_t tt_skt_set_reuseaddr(IN struct tt_skt_s *skt,
 {
     TT_ASSERT(skt != NULL);
 
-    return tt_skt_set_reuseaddr_ntv(&skt->sys_socket, reuse_addr);
+    return tt_skt_set_reuseaddr_ntv(&skt->sys_skt, reuse_addr);
 }
 
 tt_result_t tt_skt_get_reuseaddr(IN struct tt_skt_s *skt,
@@ -79,7 +79,7 @@ tt_result_t tt_skt_get_reuseaddr(IN struct tt_skt_s *skt,
     TT_ASSERT(skt != NULL);
     TT_ASSERT(reuse_addr != NULL);
 
-    return tt_skt_get_reuseaddr_ntv(&skt->sys_socket, reuse_addr);
+    return tt_skt_get_reuseaddr_ntv(&skt->sys_skt, reuse_addr);
 }
 
 tt_result_t tt_skt_set_reuseport(IN struct tt_skt_s *skt,
@@ -87,7 +87,7 @@ tt_result_t tt_skt_set_reuseport(IN struct tt_skt_s *skt,
 {
     TT_ASSERT(skt != NULL);
 
-    return tt_skt_set_reuseport_ntv(&skt->sys_socket, reuse_port);
+    return tt_skt_set_reuseport_ntv(&skt->sys_skt, reuse_port);
 }
 
 tt_result_t tt_skt_get_reuseport(IN struct tt_skt_s *skt,
@@ -96,7 +96,7 @@ tt_result_t tt_skt_get_reuseport(IN struct tt_skt_s *skt,
     TT_ASSERT(skt != NULL);
     TT_ASSERT(reuse_port != NULL);
 
-    return tt_skt_get_reuseport_ntv(&skt->sys_socket, reuse_port);
+    return tt_skt_get_reuseport_ntv(&skt->sys_skt, reuse_port);
 }
 
 tt_result_t tt_skt_set_tcp_nodelay(IN struct tt_skt_s *skt,
@@ -104,7 +104,7 @@ tt_result_t tt_skt_set_tcp_nodelay(IN struct tt_skt_s *skt,
 {
     TT_ASSERT(skt != NULL);
 
-    return tt_skt_set_tcp_nodelay_ntv(&skt->sys_socket, nodelay);
+    return tt_skt_set_tcp_nodelay_ntv(&skt->sys_skt, nodelay);
 }
 
 tt_result_t tt_skt_get_tcp_nodelay(IN struct tt_skt_s *skt,
@@ -113,12 +113,21 @@ tt_result_t tt_skt_get_tcp_nodelay(IN struct tt_skt_s *skt,
     TT_ASSERT(skt != NULL);
     TT_ASSERT(nodelay != NULL);
 
-    return tt_skt_get_tcp_nodelay_ntv(&skt->sys_socket, nodelay);
+    return tt_skt_get_tcp_nodelay_ntv(&skt->sys_skt, nodelay);
 }
 
 tt_result_t tt_skt_set_nonblock(IN struct tt_skt_s *skt, IN tt_bool_t nonblock)
 {
     TT_ASSERT(skt != NULL);
 
-    return tt_skt_set_nonblock_ntv(&skt->sys_socket, nonblock);
+    return tt_skt_set_nonblock_ntv(&skt->sys_skt, nonblock);
+}
+
+tt_result_t tt_skt_set_linger(IN struct tt_skt_s *skt,
+                              IN tt_bool_t enable,
+                              IN tt_u16_t linger_sec)
+{
+    TT_ASSERT(skt != NULL);
+
+    return tt_skt_set_linger_ntv(&skt->sys_skt, enable, linger_sec);
 }

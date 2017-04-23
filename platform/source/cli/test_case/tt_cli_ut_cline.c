@@ -286,8 +286,8 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cli_line)
     tt_buf_init(&ob, NULL);
 
     ret = tt_cline_create(&cl, TT_CLI_MODE_DEFAUTL, &ob, NULL);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
-    TT_TEST_CHECK_EQUAL(cl.cursor, 0, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(cl.cursor, 0, "");
 
     for (i = 0; i < sizeof(__cline_input) / sizeof(__cline_input[0]); ++i) {
         const tt_char_t *cstr;
@@ -295,34 +295,34 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cli_line)
 
         tt_buf_clear(&ob);
         ret = tt_cline_input(&cl, __cline_input[i].data, __cline_input[i].num);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
         // line
         len = tt_string_len(&cl.line);
-        TT_TEST_CHECK_EQUAL(len, __cline_line[i].num, "");
+        TT_UT_EQUAL(len, __cline_line[i].num, "");
 
         cstr = tt_string_cstr(&cl.line);
-        TT_TEST_CHECK_EQUAL(tt_strncmp(cstr,
-                                       (tt_char_t *)__cline_line[i].data,
-                                       __cline_line[i].num),
-                            0,
-                            "");
+        TT_UT_EQUAL(tt_strncmp(cstr,
+                               (tt_char_t *)__cline_line[i].data,
+                               __cline_line[i].num),
+                    0,
+                    "");
 
 
         // cursor
-        TT_TEST_CHECK_EQUAL(cl.cursor, __cline_cursor[i], "");
+        TT_UT_EQUAL(cl.cursor, __cline_cursor[i], "");
 
         // output
         // tt_buf_clear(&ob);
         // ret = tt_cline_output(&cl, &ob, TT_TRUE);
-        // TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        // TT_UT_EQUAL(ret, TT_SUCCESS, "");
         len = TT_BUF_RLEN(&ob);
-        TT_TEST_CHECK_EQUAL(len, __cline_output[i].num, "");
-        TT_TEST_CHECK_EQUAL(tt_memcmp(TT_BUF_RPOS(&ob),
-                                      __cline_output[i].data,
-                                      __cline_output[i].num),
-                            0,
-                            "");
+        TT_UT_EQUAL(len, __cline_output[i].num, "");
+        TT_UT_EQUAL(tt_memcmp(TT_BUF_RPOS(&ob),
+                              __cline_output[i].data,
+                              __cline_output[i].num),
+                    0,
+                    "");
     }
 
     tt_cline_destroy(&cl);
@@ -349,8 +349,8 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cli_line_stress)
     tt_buf_init(&ob, NULL);
 
     ret = tt_cline_create(&cl, TT_CLI_MODE_DEFAUTL, &ob, NULL);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
-    TT_TEST_CHECK_EQUAL(cl.cursor, 0, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(cl.cursor, 0, "");
 
     for (k = 0; k < __cli_st_num; ++k) {
         i = tt_rand_u32() % 10;
@@ -409,22 +409,22 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cli_line_cursor)
     tt_buf_init(&ob, NULL);
 
     ret = tt_cline_create(&cl, TT_CLI_MODE_DEFAUTL, &ob, NULL);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     // emtpy cline
     cmd = tt_cline_cursor_data(&cl, &cc);
-    TT_TEST_CHECK_EQUAL(cmd, TT_TRUE, "");
-    TT_TEST_CHECK_EQUAL(cc.addr, NULL, "");
-    TT_TEST_CHECK_EQUAL(cc.len, 0, "");
+    TT_UT_EQUAL(cmd, TT_TRUE, "");
+    TT_UT_EQUAL(cc.addr, NULL, "");
+    TT_UT_EQUAL(cc.len, 0, "");
 
     evbuf[0] = TT_CLI_EV_RIGHT;
     ret = tt_cline_input(&cl, evbuf, 1);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     cmd = tt_cline_cursor_data(&cl, &cc);
-    TT_TEST_CHECK_EQUAL(cmd, TT_TRUE, "");
-    TT_TEST_CHECK_EQUAL(cc.addr, NULL, "");
-    TT_TEST_CHECK_EQUAL(cc.len, 0, "");
+    TT_UT_EQUAL(cmd, TT_TRUE, "");
+    TT_UT_EQUAL(cc.addr, NULL, "");
+    TT_UT_EQUAL(cc.len, 0, "");
 
     // full string
     evbuf[0] = ' ';
@@ -440,129 +440,129 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cli_line_cursor)
     evbuf[10] = '5';
     evbuf[11] = '6';
     ret = tt_cline_input(&cl, evbuf, 12);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     // not cmd
     cmd = tt_cline_cursor_data(&cl, &cc);
-    TT_TEST_CHECK_EQUAL(cmd, TT_FALSE, "");
-    TT_TEST_CHECK_EQUAL(cc.len, 3, "");
-    TT_TEST_CHECK_EQUAL(tt_strncmp((tt_char_t *)cc.addr, "456", 3), 0, "");
+    TT_UT_EQUAL(cmd, TT_FALSE, "");
+    TT_UT_EQUAL(cc.len, 3, "");
+    TT_UT_EQUAL(tt_strncmp((tt_char_t *)cc.addr, "456", 3), 0, "");
 
     // right
     evbuf[0] = TT_CLI_EV_LEFT;
     ret = tt_cline_input(&cl, evbuf, 1);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     cmd = tt_cline_cursor_data(&cl, &cc);
-    TT_TEST_CHECK_EQUAL(cmd, TT_FALSE, "");
-    TT_TEST_CHECK_EQUAL(cc.len, 2, "");
-    TT_TEST_CHECK_EQUAL(tt_strncmp((tt_char_t *)cc.addr, "45", 2), 0, "");
+    TT_UT_EQUAL(cmd, TT_FALSE, "");
+    TT_UT_EQUAL(cc.len, 2, "");
+    TT_UT_EQUAL(tt_strncmp((tt_char_t *)cc.addr, "45", 2), 0, "");
 
     // right
     evbuf[0] = TT_CLI_EV_LEFT;
     ret = tt_cline_input(&cl, evbuf, 1);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     cmd = tt_cline_cursor_data(&cl, &cc);
-    TT_TEST_CHECK_EQUAL(cmd, TT_FALSE, "");
-    TT_TEST_CHECK_EQUAL(cc.len, 1, "");
-    TT_TEST_CHECK_EQUAL(tt_strncmp((tt_char_t *)cc.addr, "4", 1), 0, "");
+    TT_UT_EQUAL(cmd, TT_FALSE, "");
+    TT_UT_EQUAL(cc.len, 1, "");
+    TT_UT_EQUAL(tt_strncmp((tt_char_t *)cc.addr, "4", 1), 0, "");
 
     //////////// 3 spaces
 
     // right
     evbuf[0] = TT_CLI_EV_LEFT;
     ret = tt_cline_input(&cl, evbuf, 1);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     cmd = tt_cline_cursor_data(&cl, &cc);
-    TT_TEST_CHECK_EQUAL(cmd, TT_FALSE, "");
-    TT_TEST_CHECK_EQUAL(cc.addr, NULL, "");
-    TT_TEST_CHECK_EQUAL(cc.len, 0, "");
+    TT_UT_EQUAL(cmd, TT_FALSE, "");
+    TT_UT_EQUAL(cc.addr, NULL, "");
+    TT_UT_EQUAL(cc.len, 0, "");
 
     // right
     evbuf[0] = TT_CLI_EV_LEFT;
     ret = tt_cline_input(&cl, evbuf, 1);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     cmd = tt_cline_cursor_data(&cl, &cc);
-    TT_TEST_CHECK_EQUAL(cmd, TT_FALSE, "");
-    TT_TEST_CHECK_EQUAL(cc.addr, NULL, "");
-    TT_TEST_CHECK_EQUAL(cc.len, 0, "");
+    TT_UT_EQUAL(cmd, TT_FALSE, "");
+    TT_UT_EQUAL(cc.addr, NULL, "");
+    TT_UT_EQUAL(cc.len, 0, "");
 
     // right
     evbuf[0] = TT_CLI_EV_LEFT;
     ret = tt_cline_input(&cl, evbuf, 1);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     cmd = tt_cline_cursor_data(&cl, &cc);
-    TT_TEST_CHECK_EQUAL(cmd, TT_FALSE, "");
-    TT_TEST_CHECK_EQUAL(cc.addr, NULL, "");
-    TT_TEST_CHECK_EQUAL(cc.len, 0, "");
+    TT_UT_EQUAL(cmd, TT_FALSE, "");
+    TT_UT_EQUAL(cc.addr, NULL, "");
+    TT_UT_EQUAL(cc.len, 0, "");
 
     /////////////// cmd: "123"
 
     // right
     evbuf[0] = TT_CLI_EV_LEFT;
     ret = tt_cline_input(&cl, evbuf, 1);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     cmd = tt_cline_cursor_data(&cl, &cc);
-    TT_TEST_CHECK_EQUAL(cmd, TT_TRUE, "");
-    TT_TEST_CHECK_EQUAL(cc.len, 3, "");
-    TT_TEST_CHECK_EQUAL(tt_strncmp((tt_char_t *)cc.addr, "123", 3), 0, "");
+    TT_UT_EQUAL(cmd, TT_TRUE, "");
+    TT_UT_EQUAL(cc.len, 3, "");
+    TT_UT_EQUAL(tt_strncmp((tt_char_t *)cc.addr, "123", 3), 0, "");
 
     // right
     evbuf[0] = TT_CLI_EV_LEFT;
     ret = tt_cline_input(&cl, evbuf, 1);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     cmd = tt_cline_cursor_data(&cl, &cc);
-    TT_TEST_CHECK_EQUAL(cmd, TT_TRUE, "");
-    TT_TEST_CHECK_EQUAL(cc.len, 2, "");
-    TT_TEST_CHECK_EQUAL(tt_strncmp((tt_char_t *)cc.addr, "12", 2), 0, "");
+    TT_UT_EQUAL(cmd, TT_TRUE, "");
+    TT_UT_EQUAL(cc.len, 2, "");
+    TT_UT_EQUAL(tt_strncmp((tt_char_t *)cc.addr, "12", 2), 0, "");
 
     // right
     evbuf[0] = TT_CLI_EV_LEFT;
     ret = tt_cline_input(&cl, evbuf, 1);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     cmd = tt_cline_cursor_data(&cl, &cc);
-    TT_TEST_CHECK_EQUAL(cmd, TT_TRUE, "");
-    TT_TEST_CHECK_EQUAL(cc.len, 1, "");
-    TT_TEST_CHECK_EQUAL(tt_strncmp((tt_char_t *)cc.addr, "1", 1), 0, "");
+    TT_UT_EQUAL(cmd, TT_TRUE, "");
+    TT_UT_EQUAL(cc.len, 1, "");
+    TT_UT_EQUAL(tt_strncmp((tt_char_t *)cc.addr, "1", 1), 0, "");
 
     //////////// 3 spaces
 
     // right
     evbuf[0] = TT_CLI_EV_LEFT;
     ret = tt_cline_input(&cl, evbuf, 1);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     cmd = tt_cline_cursor_data(&cl, &cc);
-    TT_TEST_CHECK_EQUAL(cmd, TT_TRUE, "");
-    TT_TEST_CHECK_EQUAL(cc.addr, NULL, "");
-    TT_TEST_CHECK_EQUAL(cc.len, 0, "");
+    TT_UT_EQUAL(cmd, TT_TRUE, "");
+    TT_UT_EQUAL(cc.addr, NULL, "");
+    TT_UT_EQUAL(cc.len, 0, "");
 
     // right
     evbuf[0] = TT_CLI_EV_LEFT;
     ret = tt_cline_input(&cl, evbuf, 1);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     cmd = tt_cline_cursor_data(&cl, &cc);
-    TT_TEST_CHECK_EQUAL(cmd, TT_TRUE, "");
-    TT_TEST_CHECK_EQUAL(cc.addr, NULL, "");
-    TT_TEST_CHECK_EQUAL(cc.len, 0, "");
+    TT_UT_EQUAL(cmd, TT_TRUE, "");
+    TT_UT_EQUAL(cc.addr, NULL, "");
+    TT_UT_EQUAL(cc.len, 0, "");
 
     // right
     evbuf[0] = TT_CLI_EV_LEFT;
     ret = tt_cline_input(&cl, evbuf, 1);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     cmd = tt_cline_cursor_data(&cl, &cc);
-    TT_TEST_CHECK_EQUAL(cmd, TT_TRUE, "");
-    TT_TEST_CHECK_EQUAL(cc.addr, NULL, "");
-    TT_TEST_CHECK_EQUAL(cc.len, 0, "");
+    TT_UT_EQUAL(cmd, TT_TRUE, "");
+    TT_UT_EQUAL(cc.addr, NULL, "");
+    TT_UT_EQUAL(cc.len, 0, "");
 
     tt_cline_destroy(&cl);
     tt_buf_destroy(&ob);

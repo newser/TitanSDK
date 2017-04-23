@@ -6,9 +6,10 @@
 
 //#include <locale.h>
 
-extern tt_result_t __utc_on_init(IN struct tt_evcenter_s *evc,
-                                 IN void *on_init_param);
-extern tt_u32_t __cli_mode;
+extern tt_result_t __ipc_cli_1(IN void *param);
+extern tt_result_t __ipc_cli_oneshot(IN void *param);
+extern tt_result_t __ipc_svr_1(IN void *param);
+extern tt_result_t __ipc_cli_pev(IN void *param);
 
 extern tt_result_t tt_cli_demo_run();
 
@@ -63,9 +64,20 @@ tt_result_t __console_ev_handler(IN void *console_param,
     return TT_SUCCESS;
 }
 
+tt_result_t __ut_fiber(IN void *param)
+{
+    tt_test_framework_init(0);
+    tt_test_unit_init(NULL);
+    tt_test_unit_run(NULL);
+    tt_test_unit_list(NULL);
+
+    return TT_SUCCESS;
+}
+
 int main(int argc, char *argv[])
 {
     int i;
+    tt_task_t t;
 
     // setlocale(LC_ALL, "chs");
 
@@ -76,10 +88,7 @@ int main(int argc, char *argv[])
     if (argc > 1) {
         if (strcmp(argv[1], "process") == 0) {
             return app_ut_process(argc, argv);
-        } else if (strcmp(argv[1], "ipc") == 0) {
-            tt_evcenter_t evc;
-            tt_evc_attr_t evc_attr;
-
+        } else if (strncmp(argv[1], "ipc", 3) == 0) {
             if (argc < 3) {
                 printf("app unit test ipc need at least 3 args\n");
                 return -1;
@@ -88,107 +97,97 @@ int main(int argc, char *argv[])
             // init platform
             tt_platform_init(NULL);
 
-            // create a local thread
-            tt_thread_create_local(NULL);
-
-            // run
-            tt_evc_attr_default(&evc_attr);
-            evc_attr.on_init = __utc_on_init;
-            evc_attr.on_init_param = argv[2];
-
-            tt_evc_create(&evc, TT_TRUE, &evc_attr);
-
-            tt_evc_wait(&evc);
-
-            // while(1) {
+            tt_task_create(&t, NULL);
+            if (strcmp(argv[1], "ipc-1") == 0) {
+                tt_task_add_fiber(&t, NULL, __ipc_cli_1, NULL, NULL);
+            } else if (strcmp(argv[1], "ipc-2") == 0) {
+                tt_task_add_fiber(&t, NULL, __ipc_cli_oneshot, NULL, NULL);
+            } else if (strcmp(argv[1], "ipc-svr") == 0) {
+                tt_task_add_fiber(&t, NULL, __ipc_svr_1, NULL, NULL);
+            } else if (strcmp(argv[1], "ipc-pev") == 0) {
+                tt_task_add_fiber(&t, NULL, __ipc_cli_pev, NULL, NULL);
+            }
+            tt_task_run(&t);
+            tt_task_wait(&t);
+            printf("exiting\n");
+#if 0
+            while (1) {
+#else
             while (0) {
-                tt_sleep(10000);
-            }
-            return 0;
-        } else if (strcmp(argv[1], "ipc_stress") == 0) {
-            tt_evcenter_t evc;
-            tt_evc_attr_t evc_attr;
-
-            if (argc < 3) {
-                printf("app unit test ipc need at least 3 args\n");
-                return -1;
-            }
-
-            // init platform
-            tt_platform_init(NULL);
-
-            // create a local thread
-            tt_thread_create_local(NULL);
-
-            // run
-            tt_evc_attr_default(&evc_attr);
-            evc_attr.on_init = __utc_on_init;
-            evc_attr.on_init_param = argv[2];
-
-            __cli_mode = 1;
-
-            tt_evc_create(&evc, TT_TRUE, &evc_attr);
-
-            tt_evc_wait(&evc);
-
-            // while(1)
-            while (0) {
-                tt_sleep(10000);
-            }
-            return 0;
-        } // haniu
-        else {
-            printf("unknown process arg: %s\n", argv[1]);
-
-            // must return so as to infinitely creating process
-            return -1;
+#endif
+            tt_sleep(10000);
         }
+        return 0;
+    } // haniu
+    else {
+        printf("unknown process arg: %s\n", argv[1]);
+
+        // must return so as to infinitely creating process
+        return -1;
     }
+}
 
-    // init platform
-    tt_platform_init(NULL);
+// init platform
+tt_platform_init(NULL);
 
-    // create a local thread
-    tt_thread_create_local(NULL);
+tt_thread_create_local(NULL);
+
+tt_task_create(&t, NULL);
+tt_task_add_fiber(&t, NULL, __ut_fiber, NULL, NULL);
+tt_task_run(&t);
+tt_task_wait(&t);
+printf("exiting\n");
+#if TT_ENV_OS_IS_WINDOWS
+while (1) {
+#else
+    while (0) {
+#endif
+    tt_sleep(10000);
+}
+
+return 0;
+
+// create a local thread
+tt_thread_create_local(NULL);
 
 // run
 #define AUT_MODE 0
 
 #if AUT_MODE == 0
-    tt_test_framework_init(0);
-    tt_test_unit_init(NULL);
-    tt_test_unit_run(NULL);
-    tt_test_unit_list(NULL);
+tt_test_framework_init(0);
+tt_test_unit_init(NULL);
+tt_test_unit_run(NULL);
+tt_test_unit_list(NULL);
 
-    tt_skt_stat_show(0);
-    tt_ssl_stat_show(0);
+// tt_skt_stat_show(0);
+// tt_ssl_stat_show(0);
 #elif AUT_MODE == 1
     {
         tt_console_run(__console_ev_handler, NULL, TT_TRUE);
     }
 #elif AUT_MODE == 2
-    {
-        tt_cfgsh_t sh;
+{
+    tt_cfgsh_t sh;
 
-        tt_console_cfgsh_create(&sh, TT_CLI_MODE_DEFAUTL, NULL);
+    tt_console_cfgsh_create(&sh, TT_CLI_MODE_DEFAUTL, NULL);
 
-        tt_console_cfgsh_run(&sh, TT_TRUE);
-    }
+    tt_console_cfgsh_run(&sh, TT_TRUE);
+}
 #else
-    tt_cli_demo_run();
+tt_cli_demo_run();
 #endif
 
 #ifdef TT_WINDOWS_CRT_DUMP
-    _CrtDumpMemoryLeaks();
+_CrtDumpMemoryLeaks();
 #endif
 
 #if TT_ENV_OS_IS_WINDOWS
-    while (1) {
+while (1) {
 #else
     while (0) {
 #endif
-        tt_sleep(10000);
-    }
+    tt_sleep(10000);
+}
 
-    return 0;
+return 0;
 }

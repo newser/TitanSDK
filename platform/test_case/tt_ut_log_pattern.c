@@ -166,101 +166,101 @@ TT_TEST_CASE("tt_unit_test_lpatn_sn",
     tt_buf_init(&buf, NULL);
 
     ret = tt_logfld_check(&f01[0], &f01[sizeof(f01) - 2]);
-    TT_TEST_CHECK_FAIL(ret, "");
+    TT_UT_FAIL(ret, "");
 
     ret = tt_logfld_check(&f02[0], &f02[sizeof(f02) - 2]);
-    TT_TEST_CHECK_FAIL(ret, "");
+    TT_UT_FAIL(ret, "");
 
     ret = tt_logfld_check(&f03[0], &f03[sizeof(f03) - 2]);
-    TT_TEST_CHECK_FAIL(ret, "");
+    TT_UT_FAIL(ret, "");
 
     ret = tt_logfld_check(&f04[0], &f04[sizeof(f04) - 2]);
-    TT_TEST_CHECK_FAIL(ret, "");
+    TT_UT_FAIL(ret, "");
 
     ret = tt_logfld_check(&f05[0], &f05[sizeof(f05) - 2]);
-    TT_TEST_CHECK_FAIL(ret, "");
+    TT_UT_FAIL(ret, "");
 
     ret = tt_logfld_check(&f07[0], &f07[sizeof(f07) - 2]);
-    TT_TEST_CHECK_FAIL(ret, "");
+    TT_UT_FAIL(ret, "");
     lpf = tt_logfld_create(&f07[0], &f07[sizeof(f07) - 2]);
-    TT_TEST_CHECK_EQUAL(lpf, NULL, "");
+    TT_UT_EQUAL(lpf, NULL, "");
 
     // {seq_num}
     ret = tt_logfld_check(&f06[0], &f06[sizeof(f06) - 2]);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
 
     {
         lpf = tt_logfld_create(&f06[0], &f06[sizeof(f06) - 2]);
-        TT_TEST_CHECK_NOT_EQUAL(lpf, NULL, "");
+        TT_UT_NOT_EQUAL(lpf, NULL, "");
 
         tt_buf_clear(&buf);
 
         entry.seq_num = 123456;
         ret = tt_logfld_output(lpf, &entry, &buf);
-        TT_TEST_CHECK_SUCCESS(ret, "");
-        TT_TEST_CHECK_EQUAL(tt_buf_cmp_cstr(&buf, "123456"), 0, "");
+        TT_UT_SUCCESS(ret, "");
+        TT_UT_EQUAL(tt_buf_cmp_cstr(&buf, "123456"), 0, "");
 
         tt_logfld_destroy(lpf);
     }
 
     // {seq_num:}
     ret = tt_logfld_check(&f1[0], &f1[sizeof(f1) - 2]);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
 
     {
         lpf = tt_logfld_create(&f1[0], &f1[sizeof(f1) - 2]);
-        TT_TEST_CHECK_NOT_EQUAL(lpf, NULL, "");
+        TT_UT_NOT_EQUAL(lpf, NULL, "");
 
         tt_buf_clear(&buf);
 
         tt_buf_clear(&buf);
         entry.seq_num = 2147483647;
         ret = tt_logfld_output(lpf, &entry, &buf);
-        TT_TEST_CHECK_SUCCESS(ret, "");
-        TT_TEST_CHECK_EQUAL(tt_buf_cmp_cstr(&buf, "2147483647"), 0, "");
+        TT_UT_SUCCESS(ret, "");
+        TT_UT_EQUAL(tt_buf_cmp_cstr(&buf, "2147483647"), 0, "");
 
         tt_buf_clear(&buf);
         entry.seq_num = -2147483648;
         ret = tt_logfld_output(lpf, &entry, &buf);
-        TT_TEST_CHECK_SUCCESS(ret, "");
-        TT_TEST_CHECK_EQUAL(tt_buf_cmp_cstr(&buf, "-2147483648"), 0, "");
+        TT_UT_SUCCESS(ret, "");
+        TT_UT_EQUAL(tt_buf_cmp_cstr(&buf, "-2147483648"), 0, "");
 
         tt_buf_clear(&buf);
         entry.seq_num = 100;
         ret = tt_logfld_output(lpf, &entry, &buf);
-        TT_TEST_CHECK_SUCCESS(ret, "");
-        TT_TEST_CHECK_EQUAL(tt_buf_cmp_cstr(&buf, "100"), 0, "");
+        TT_UT_SUCCESS(ret, "");
+        TT_UT_EQUAL(tt_buf_cmp_cstr(&buf, "100"), 0, "");
 
         tt_logfld_destroy(lpf);
     }
 
     // {seq_num:%+04x}
     ret = tt_logfld_check(&f2[0], &f2[sizeof(f2) - 2]);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
 
     {
         lpf = tt_logfld_create(&f2[0], &f2[sizeof(f2) - 2]);
-        TT_TEST_CHECK_NOT_EQUAL(lpf, NULL, "");
+        TT_UT_NOT_EQUAL(lpf, NULL, "");
 
         tt_buf_clear(&buf);
 
         tt_buf_clear(&buf);
         entry.seq_num = 1;
         ret = tt_logfld_output(lpf, &entry, &buf);
-        TT_TEST_CHECK_SUCCESS(ret, "");
-        TT_TEST_CHECK_EQUAL(tt_buf_cmp_cstr(&buf, "+001"), 0, "");
+        TT_UT_SUCCESS(ret, "");
+        TT_UT_EQUAL(tt_buf_cmp_cstr(&buf, "+001"), 0, "");
 
         tt_buf_clear(&buf);
         entry.seq_num = -2147483648;
         ret = tt_logfld_output(lpf, &entry, &buf);
-        TT_TEST_CHECK_SUCCESS(ret, "");
-        TT_TEST_CHECK_EQUAL(tt_buf_cmp_cstr(&buf, "-2147483648"), 0, "");
+        TT_UT_SUCCESS(ret, "");
+        TT_UT_EQUAL(tt_buf_cmp_cstr(&buf, "-2147483648"), 0, "");
 
         tt_buf_clear(&buf);
         entry.seq_num = 10;
         ret = tt_logfld_output(lpf, &entry, &buf);
-        TT_TEST_CHECK_SUCCESS(ret, "");
-        TT_TEST_CHECK_EQUAL(tt_buf_cmp_cstr(&buf, "+010"), 0, "");
+        TT_UT_SUCCESS(ret, "");
+        TT_UT_EQUAL(tt_buf_cmp_cstr(&buf, "+010"), 0, "");
 
         tt_logfld_destroy(lpf);
     }
@@ -293,78 +293,78 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_lpatn_time)
     tt_buf_init(&buf, NULL);
 
     ret = tt_logfld_check(&f04[0], &f04[sizeof(f04) - 2]);
-    TT_TEST_CHECK_FAIL(ret, "");
+    TT_UT_FAIL(ret, "");
 
     ret = tt_logfld_check(&f05[0], &f05[sizeof(f05) - 2]);
-    TT_TEST_CHECK_FAIL(ret, "");
+    TT_UT_FAIL(ret, "");
 
     ret = tt_logfld_check(&f07[0], &f07[sizeof(f07) - 2]);
-    TT_TEST_CHECK_FAIL(ret, "");
+    TT_UT_FAIL(ret, "");
     lpf = tt_logfld_create(&f07[0], &f07[sizeof(f07) - 2]);
-    TT_TEST_CHECK_EQUAL(lpf, NULL, "");
+    TT_UT_EQUAL(lpf, NULL, "");
 
     // {time}
     ret = tt_logfld_check(&f06[0], &f06[sizeof(f06) - 2]);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
 
     {
         tt_char_t tmp[100] = {0};
 
         lpf = tt_logfld_create(&f06[0], &f06[sizeof(f06) - 2]);
-        TT_TEST_CHECK_NOT_EQUAL(lpf, NULL, "");
+        TT_UT_NOT_EQUAL(lpf, NULL, "");
 
         tt_buf_clear(&buf);
 
         ret = tt_logfld_output(lpf, &entry, &buf);
-        TT_TEST_CHECK_SUCCESS(ret, "");
+        TT_UT_SUCCESS(ret, "");
 
         // default format: "%Y-%m-%d %H:%M:%S"
         tt_time_localfmt(tmp, sizeof(tmp), "%Y-%m-%d %H:%M:%S");
-        TT_TEST_CHECK_EQUAL(tt_buf_cmp_cstr(&buf, tmp), 0, "");
+        TT_UT_EQUAL(tt_buf_cmp_cstr(&buf, tmp), 0, "");
 
         tt_logfld_destroy(lpf);
     }
 
     // {time:}
     ret = tt_logfld_check(&f1[0], &f1[sizeof(f1) - 2]);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
 
     {
         tt_char_t tmp[100] = {0};
 
         lpf = tt_logfld_create(&f1[0], &f1[sizeof(f1) - 2]);
-        TT_TEST_CHECK_NOT_EQUAL(lpf, NULL, "");
+        TT_UT_NOT_EQUAL(lpf, NULL, "");
 
         tt_buf_clear(&buf);
 
         ret = tt_logfld_output(lpf, &entry, &buf);
-        TT_TEST_CHECK_SUCCESS(ret, "");
+        TT_UT_SUCCESS(ret, "");
 
         // default format: "%Y-%m-%d %H:%M:%S"
         tt_time_localfmt(tmp, sizeof(tmp), "%Y-%m-%d %H:%M:%S");
-        TT_TEST_CHECK_EQUAL(tt_buf_cmp_cstr(&buf, tmp), 0, "");
+        TT_UT_EQUAL(tt_buf_cmp_cstr(&buf, tmp), 0, "");
 
         tt_logfld_destroy(lpf);
     }
 
     // {time:%Y-%m-%d-%H-%M-S}
     ret = tt_logfld_check(&f2[0], &f2[sizeof(f2) - 2]);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
 
     {
         tt_char_t tmp[100] = {0};
 
         lpf = tt_logfld_create(&f2[0], &f2[sizeof(f2) - 2]);
-        TT_TEST_CHECK_NOT_EQUAL(lpf, NULL, "");
+        TT_UT_NOT_EQUAL(lpf, NULL, "");
 
         tt_buf_clear(&buf);
 
         ret = tt_logfld_output(lpf, &entry, &buf);
-        TT_TEST_CHECK_SUCCESS(ret, "");
+        TT_UT_SUCCESS(ret, "");
 
         // format: "%Y-%m-%d-%H-%M-S"
         tt_time_localfmt(tmp, sizeof(tmp), "%Y-%m-%d-%H-%M-S");
-        TT_TEST_CHECK_EQUAL(tt_buf_cmp_cstr(&buf, tmp), 0, "");
+        TT_UT_EQUAL(tt_buf_cmp_cstr(&buf, tmp), 0, "");
 
         tt_logfld_destroy(lpf);
     }
@@ -397,113 +397,110 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_lpatn_logger)
     tt_buf_init(&buf, NULL);
 
     ret = tt_logfld_check(&f04[0], &f04[sizeof(f04) - 2]);
-    TT_TEST_CHECK_FAIL(ret, "");
+    TT_UT_FAIL(ret, "");
 
     ret = tt_logfld_check(&f05[0], &f05[sizeof(f05) - 2]);
-    TT_TEST_CHECK_FAIL(ret, "");
+    TT_UT_FAIL(ret, "");
 
     ret = tt_logfld_check(&f07[0], &f07[sizeof(f07) - 2]);
-    TT_TEST_CHECK_FAIL(ret, "");
+    TT_UT_FAIL(ret, "");
     lpf = tt_logfld_create(&f07[0], &f07[sizeof(f07) - 2]);
-    TT_TEST_CHECK_EQUAL(lpf, NULL, "");
+    TT_UT_EQUAL(lpf, NULL, "");
 
     // {logger}
     ret = tt_logfld_check(&f06[0], &f06[sizeof(f06) - 2]);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
 
     {
         lpf = tt_logfld_create(&f06[0], &f06[sizeof(f06) - 2]);
-        TT_TEST_CHECK_NOT_EQUAL(lpf, NULL, "");
+        TT_UT_NOT_EQUAL(lpf, NULL, "");
 
         tt_buf_clear(&buf);
 
         entry.logger = NULL;
         ret = tt_logfld_output(lpf, &entry, &buf);
-        TT_TEST_CHECK_SUCCESS(ret, "");
-        TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&buf), 0, "");
+        TT_UT_SUCCESS(ret, "");
+        TT_UT_EQUAL(TT_BUF_RLEN(&buf), 0, "");
 
         entry.logger = "";
         ret = tt_logfld_output(lpf, &entry, &buf);
-        TT_TEST_CHECK_SUCCESS(ret, "");
-        TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&buf), 0, "");
+        TT_UT_SUCCESS(ret, "");
+        TT_UT_EQUAL(TT_BUF_RLEN(&buf), 0, "");
 
         entry.logger = "123";
         ret = tt_logfld_output(lpf, &entry, &buf);
-        TT_TEST_CHECK_SUCCESS(ret, "");
-        TT_TEST_CHECK_EQUAL(tt_buf_cmp_cstr(&buf, "123"), 0, "");
+        TT_UT_SUCCESS(ret, "");
+        TT_UT_EQUAL(tt_buf_cmp_cstr(&buf, "123"), 0, "");
 
         tt_logfld_destroy(lpf);
     }
 
     // {logger:}
     ret = tt_logfld_check(&f1[0], &f1[sizeof(f1) - 2]);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
 
     {
         lpf = tt_logfld_create(&f1[0], &f1[sizeof(f1) - 2]);
-        TT_TEST_CHECK_NOT_EQUAL(lpf, NULL, "");
+        TT_UT_NOT_EQUAL(lpf, NULL, "");
 
         tt_buf_clear(&buf);
 
         entry.logger = NULL;
         ret = tt_logfld_output(lpf, &entry, &buf);
-        TT_TEST_CHECK_SUCCESS(ret, "");
-        TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&buf), 0, "");
+        TT_UT_SUCCESS(ret, "");
+        TT_UT_EQUAL(TT_BUF_RLEN(&buf), 0, "");
 
         entry.logger = "";
         ret = tt_logfld_output(lpf, &entry, &buf);
-        TT_TEST_CHECK_SUCCESS(ret, "");
-        TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&buf), 0, "");
+        TT_UT_SUCCESS(ret, "");
+        TT_UT_EQUAL(TT_BUF_RLEN(&buf), 0, "");
 
         entry.logger = "123";
         ret = tt_logfld_output(lpf, &entry, &buf);
-        TT_TEST_CHECK_SUCCESS(ret, "");
-        TT_TEST_CHECK_EQUAL(tt_buf_cmp_cstr(&buf, "123"), 0, "");
+        TT_UT_SUCCESS(ret, "");
+        TT_UT_EQUAL(tt_buf_cmp_cstr(&buf, "123"), 0, "");
 
         tt_logfld_destroy(lpf);
     }
 
     // {logger:%07s}
     ret = tt_logfld_check(&f2[0], &f2[sizeof(f2) - 2]);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
 
     {
         lpf = tt_logfld_create(&f2[0], &f2[sizeof(f2) - 2]);
-        TT_TEST_CHECK_NOT_EQUAL(lpf, NULL, "");
+        TT_UT_NOT_EQUAL(lpf, NULL, "");
 
         tt_buf_clear(&buf);
 
         entry.logger = NULL;
         ret = tt_logfld_output(lpf, &entry, &buf);
-        TT_TEST_CHECK_SUCCESS(ret, "");
-        TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&buf), 0, "");
+        TT_UT_SUCCESS(ret, "");
+        TT_UT_EQUAL(TT_BUF_RLEN(&buf), 0, "");
 
         entry.logger = "";
         tt_buf_clear(&buf);
         ret = tt_logfld_output(lpf, &entry, &buf);
-        TT_TEST_CHECK_SUCCESS(ret, "");
-        TT_TEST_CHECK_EQUAL(tt_buf_cmp_cstr(&buf,
-                                            "at least 7 char: [       ]. end"),
-                            0,
-                            "");
+        TT_UT_SUCCESS(ret, "");
+        TT_UT_EQUAL(tt_buf_cmp_cstr(&buf, "at least 7 char: [       ]. end"),
+                    0,
+                    "");
 
         entry.logger = "1";
         tt_buf_clear(&buf);
         ret = tt_logfld_output(lpf, &entry, &buf);
-        TT_TEST_CHECK_SUCCESS(ret, "");
-        TT_TEST_CHECK_EQUAL(tt_buf_cmp_cstr(&buf,
-                                            "at least 7 char: [      1]. end"),
-                            0,
-                            "");
+        TT_UT_SUCCESS(ret, "");
+        TT_UT_EQUAL(tt_buf_cmp_cstr(&buf, "at least 7 char: [      1]. end"),
+                    0,
+                    "");
 
         entry.logger = "12345678";
         tt_buf_clear(&buf);
         ret = tt_logfld_output(lpf, &entry, &buf);
-        TT_TEST_CHECK_SUCCESS(ret, "");
-        TT_TEST_CHECK_EQUAL(tt_buf_cmp_cstr(&buf,
-                                            "at least 7 char: [12345678]. end"),
-                            0,
-                            "");
+        TT_UT_SUCCESS(ret, "");
+        TT_UT_EQUAL(tt_buf_cmp_cstr(&buf, "at least 7 char: [12345678]. end"),
+                    0,
+                    "");
 
         tt_logfld_destroy(lpf);
     }
@@ -536,113 +533,110 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_lpatn_content)
     tt_buf_init(&buf, NULL);
 
     ret = tt_logfld_check(&f04[0], &f04[sizeof(f04) - 2]);
-    TT_TEST_CHECK_FAIL(ret, "");
+    TT_UT_FAIL(ret, "");
 
     ret = tt_logfld_check(&f05[0], &f05[sizeof(f05) - 2]);
-    TT_TEST_CHECK_FAIL(ret, "");
+    TT_UT_FAIL(ret, "");
 
     ret = tt_logfld_check(&f07[0], &f07[sizeof(f07) - 2]);
-    TT_TEST_CHECK_FAIL(ret, "");
+    TT_UT_FAIL(ret, "");
     lpf = tt_logfld_create(&f07[0], &f07[sizeof(f07) - 2]);
-    TT_TEST_CHECK_EQUAL(lpf, NULL, "");
+    TT_UT_EQUAL(lpf, NULL, "");
 
     // {content}
     ret = tt_logfld_check(&f06[0], &f06[sizeof(f06) - 2]);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
 
     {
         lpf = tt_logfld_create(&f06[0], &f06[sizeof(f06) - 2]);
-        TT_TEST_CHECK_NOT_EQUAL(lpf, NULL, "");
+        TT_UT_NOT_EQUAL(lpf, NULL, "");
 
         tt_buf_clear(&buf);
 
         entry.content = NULL;
         ret = tt_logfld_output(lpf, &entry, &buf);
-        TT_TEST_CHECK_SUCCESS(ret, "");
-        TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&buf), 0, "");
+        TT_UT_SUCCESS(ret, "");
+        TT_UT_EQUAL(TT_BUF_RLEN(&buf), 0, "");
 
         entry.content = "";
         ret = tt_logfld_output(lpf, &entry, &buf);
-        TT_TEST_CHECK_SUCCESS(ret, "");
-        TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&buf), 0, "");
+        TT_UT_SUCCESS(ret, "");
+        TT_UT_EQUAL(TT_BUF_RLEN(&buf), 0, "");
 
         entry.content = "123";
         ret = tt_logfld_output(lpf, &entry, &buf);
-        TT_TEST_CHECK_SUCCESS(ret, "");
-        TT_TEST_CHECK_EQUAL(tt_buf_cmp_cstr(&buf, "123"), 0, "");
+        TT_UT_SUCCESS(ret, "");
+        TT_UT_EQUAL(tt_buf_cmp_cstr(&buf, "123"), 0, "");
 
         tt_logfld_destroy(lpf);
     }
 
     // {content:}
     ret = tt_logfld_check(&f1[0], &f1[sizeof(f1) - 2]);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
 
     {
         lpf = tt_logfld_create(&f1[0], &f1[sizeof(f1) - 2]);
-        TT_TEST_CHECK_NOT_EQUAL(lpf, NULL, "");
+        TT_UT_NOT_EQUAL(lpf, NULL, "");
 
         tt_buf_clear(&buf);
 
         entry.content = NULL;
         ret = tt_logfld_output(lpf, &entry, &buf);
-        TT_TEST_CHECK_SUCCESS(ret, "");
-        TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&buf), 0, "");
+        TT_UT_SUCCESS(ret, "");
+        TT_UT_EQUAL(TT_BUF_RLEN(&buf), 0, "");
 
         entry.content = "";
         ret = tt_logfld_output(lpf, &entry, &buf);
-        TT_TEST_CHECK_SUCCESS(ret, "");
-        TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&buf), 0, "");
+        TT_UT_SUCCESS(ret, "");
+        TT_UT_EQUAL(TT_BUF_RLEN(&buf), 0, "");
 
         entry.content = "123";
         ret = tt_logfld_output(lpf, &entry, &buf);
-        TT_TEST_CHECK_SUCCESS(ret, "");
-        TT_TEST_CHECK_EQUAL(tt_buf_cmp_cstr(&buf, "123"), 0, "");
+        TT_UT_SUCCESS(ret, "");
+        TT_UT_EQUAL(tt_buf_cmp_cstr(&buf, "123"), 0, "");
 
         tt_logfld_destroy(lpf);
     }
 
     // {content:%07s}
     ret = tt_logfld_check(&f2[0], &f2[sizeof(f2) - 2]);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
 
     {
         lpf = tt_logfld_create(&f2[0], &f2[sizeof(f2) - 2]);
-        TT_TEST_CHECK_NOT_EQUAL(lpf, NULL, "");
+        TT_UT_NOT_EQUAL(lpf, NULL, "");
 
         tt_buf_clear(&buf);
 
         entry.content = NULL;
         ret = tt_logfld_output(lpf, &entry, &buf);
-        TT_TEST_CHECK_SUCCESS(ret, "");
-        TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&buf), 0, "");
+        TT_UT_SUCCESS(ret, "");
+        TT_UT_EQUAL(TT_BUF_RLEN(&buf), 0, "");
 
         tt_buf_clear(&buf);
         entry.content = "";
         ret = tt_logfld_output(lpf, &entry, &buf);
-        TT_TEST_CHECK_SUCCESS(ret, "");
-        TT_TEST_CHECK_EQUAL(tt_buf_cmp_cstr(&buf,
-                                            "at least 7 char: [       ]. end"),
-                            0,
-                            "");
+        TT_UT_SUCCESS(ret, "");
+        TT_UT_EQUAL(tt_buf_cmp_cstr(&buf, "at least 7 char: [       ]. end"),
+                    0,
+                    "");
 
         tt_buf_clear(&buf);
         entry.content = "1";
         ret = tt_logfld_output(lpf, &entry, &buf);
-        TT_TEST_CHECK_SUCCESS(ret, "");
-        TT_TEST_CHECK_EQUAL(tt_buf_cmp_cstr(&buf,
-                                            "at least 7 char: [      1]. end"),
-                            0,
-                            "");
+        TT_UT_SUCCESS(ret, "");
+        TT_UT_EQUAL(tt_buf_cmp_cstr(&buf, "at least 7 char: [      1]. end"),
+                    0,
+                    "");
 
         tt_buf_clear(&buf);
         entry.content = "12345678";
         ret = tt_logfld_output(lpf, &entry, &buf);
-        TT_TEST_CHECK_SUCCESS(ret, "");
-        TT_TEST_CHECK_EQUAL(tt_buf_cmp_cstr(&buf,
-                                            "at least 7 char: [12345678]. end"),
-                            0,
-                            "");
+        TT_UT_SUCCESS(ret, "");
+        TT_UT_EQUAL(tt_buf_cmp_cstr(&buf, "at least 7 char: [12345678]. end"),
+                    0,
+                    "");
 
         tt_logfld_destroy(lpf);
     }
@@ -675,113 +669,110 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_lpatn_func)
     tt_buf_init(&buf, NULL);
 
     ret = tt_logfld_check(&f04[0], &f04[sizeof(f04) - 2]);
-    TT_TEST_CHECK_FAIL(ret, "");
+    TT_UT_FAIL(ret, "");
 
     ret = tt_logfld_check(&f05[0], &f05[sizeof(f05) - 2]);
-    TT_TEST_CHECK_FAIL(ret, "");
+    TT_UT_FAIL(ret, "");
 
     ret = tt_logfld_check(&f07[0], &f07[sizeof(f07) - 2]);
-    TT_TEST_CHECK_FAIL(ret, "");
+    TT_UT_FAIL(ret, "");
     lpf = tt_logfld_create(&f07[0], &f07[sizeof(f07) - 2]);
-    TT_TEST_CHECK_EQUAL(lpf, NULL, "");
+    TT_UT_EQUAL(lpf, NULL, "");
 
     // {function}
     ret = tt_logfld_check(&f06[0], &f06[sizeof(f06) - 2]);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
 
     {
         lpf = tt_logfld_create(&f06[0], &f06[sizeof(f06) - 2]);
-        TT_TEST_CHECK_NOT_EQUAL(lpf, NULL, "");
+        TT_UT_NOT_EQUAL(lpf, NULL, "");
 
         tt_buf_clear(&buf);
 
         entry.function = NULL;
         ret = tt_logfld_output(lpf, &entry, &buf);
-        TT_TEST_CHECK_SUCCESS(ret, "");
-        TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&buf), 0, "");
+        TT_UT_SUCCESS(ret, "");
+        TT_UT_EQUAL(TT_BUF_RLEN(&buf), 0, "");
 
         entry.function = "";
         ret = tt_logfld_output(lpf, &entry, &buf);
-        TT_TEST_CHECK_SUCCESS(ret, "");
-        TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&buf), 0, "");
+        TT_UT_SUCCESS(ret, "");
+        TT_UT_EQUAL(TT_BUF_RLEN(&buf), 0, "");
 
         entry.function = "123";
         ret = tt_logfld_output(lpf, &entry, &buf);
-        TT_TEST_CHECK_SUCCESS(ret, "");
-        TT_TEST_CHECK_EQUAL(tt_buf_cmp_cstr(&buf, "123"), 0, "");
+        TT_UT_SUCCESS(ret, "");
+        TT_UT_EQUAL(tt_buf_cmp_cstr(&buf, "123"), 0, "");
 
         tt_logfld_destroy(lpf);
     }
 
     // {function:}
     ret = tt_logfld_check(&f1[0], &f1[sizeof(f1) - 2]);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
 
     {
         lpf = tt_logfld_create(&f1[0], &f1[sizeof(f1) - 2]);
-        TT_TEST_CHECK_NOT_EQUAL(lpf, NULL, "");
+        TT_UT_NOT_EQUAL(lpf, NULL, "");
 
         tt_buf_clear(&buf);
 
         entry.function = NULL;
         ret = tt_logfld_output(lpf, &entry, &buf);
-        TT_TEST_CHECK_SUCCESS(ret, "");
-        TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&buf), 0, "");
+        TT_UT_SUCCESS(ret, "");
+        TT_UT_EQUAL(TT_BUF_RLEN(&buf), 0, "");
 
         entry.function = "";
         ret = tt_logfld_output(lpf, &entry, &buf);
-        TT_TEST_CHECK_SUCCESS(ret, "");
-        TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&buf), 0, "");
+        TT_UT_SUCCESS(ret, "");
+        TT_UT_EQUAL(TT_BUF_RLEN(&buf), 0, "");
 
         entry.function = "123";
         ret = tt_logfld_output(lpf, &entry, &buf);
-        TT_TEST_CHECK_SUCCESS(ret, "");
-        TT_TEST_CHECK_EQUAL(tt_buf_cmp_cstr(&buf, "123"), 0, "");
+        TT_UT_SUCCESS(ret, "");
+        TT_UT_EQUAL(tt_buf_cmp_cstr(&buf, "123"), 0, "");
 
         tt_logfld_destroy(lpf);
     }
 
     // {function:%07s}
     ret = tt_logfld_check(&f2[0], &f2[sizeof(f2) - 2]);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
 
     {
         lpf = tt_logfld_create(&f2[0], &f2[sizeof(f2) - 2]);
-        TT_TEST_CHECK_NOT_EQUAL(lpf, NULL, "");
+        TT_UT_NOT_EQUAL(lpf, NULL, "");
 
         tt_buf_clear(&buf);
 
         entry.function = NULL;
         ret = tt_logfld_output(lpf, &entry, &buf);
-        TT_TEST_CHECK_SUCCESS(ret, "");
-        TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&buf), 0, "");
+        TT_UT_SUCCESS(ret, "");
+        TT_UT_EQUAL(TT_BUF_RLEN(&buf), 0, "");
 
         tt_buf_clear(&buf);
         entry.function = "";
         ret = tt_logfld_output(lpf, &entry, &buf);
-        TT_TEST_CHECK_SUCCESS(ret, "");
-        TT_TEST_CHECK_EQUAL(tt_buf_cmp_cstr(&buf,
-                                            "at least 7 char: [       ]. end"),
-                            0,
-                            "");
+        TT_UT_SUCCESS(ret, "");
+        TT_UT_EQUAL(tt_buf_cmp_cstr(&buf, "at least 7 char: [       ]. end"),
+                    0,
+                    "");
 
         tt_buf_clear(&buf);
         entry.function = "1";
         ret = tt_logfld_output(lpf, &entry, &buf);
-        TT_TEST_CHECK_SUCCESS(ret, "");
-        TT_TEST_CHECK_EQUAL(tt_buf_cmp_cstr(&buf,
-                                            "at least 7 char: [      1]. end"),
-                            0,
-                            "");
+        TT_UT_SUCCESS(ret, "");
+        TT_UT_EQUAL(tt_buf_cmp_cstr(&buf, "at least 7 char: [      1]. end"),
+                    0,
+                    "");
 
         tt_buf_clear(&buf);
         entry.function = "12345678";
         ret = tt_logfld_output(lpf, &entry, &buf);
-        TT_TEST_CHECK_SUCCESS(ret, "1");
-        TT_TEST_CHECK_EQUAL(tt_buf_cmp_cstr(&buf,
-                                            "at least 7 char: [12345678]. end"),
-                            0,
-                            "");
+        TT_UT_SUCCESS(ret, "1");
+        TT_UT_EQUAL(tt_buf_cmp_cstr(&buf, "at least 7 char: [12345678]. end"),
+                    0,
+                    "");
 
         tt_logfld_destroy(lpf);
     }
@@ -817,99 +808,99 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_lpatn_line)
     tt_buf_init(&buf, NULL);
 
     ret = tt_logfld_check(&f01[0], &f01[sizeof(f01) - 2]);
-    TT_TEST_CHECK_FAIL(ret, "");
+    TT_UT_FAIL(ret, "");
 
     ret = tt_logfld_check(&f02[0], &f02[sizeof(f02) - 2]);
-    TT_TEST_CHECK_FAIL(ret, "");
+    TT_UT_FAIL(ret, "");
 
     ret = tt_logfld_check(&f03[0], &f03[sizeof(f03) - 2]);
-    TT_TEST_CHECK_FAIL(ret, "");
+    TT_UT_FAIL(ret, "");
 
     ret = tt_logfld_check(&f04[0], &f04[sizeof(f04) - 2]);
-    TT_TEST_CHECK_FAIL(ret, "");
+    TT_UT_FAIL(ret, "");
 
     ret = tt_logfld_check(&f05[0], &f05[sizeof(f05) - 2]);
-    TT_TEST_CHECK_FAIL(ret, "");
+    TT_UT_FAIL(ret, "");
 
     ret = tt_logfld_check(&f07[0], &f07[sizeof(f07) - 2]);
-    TT_TEST_CHECK_FAIL(ret, "");
+    TT_UT_FAIL(ret, "");
     lpf = tt_logfld_create(&f07[0], &f07[sizeof(f07) - 2]);
-    TT_TEST_CHECK_EQUAL(lpf, NULL, "");
+    TT_UT_EQUAL(lpf, NULL, "");
 
     // {line}
     ret = tt_logfld_check(&f06[0], &f06[sizeof(f06) - 2]);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
 
     {
         lpf = tt_logfld_create(&f06[0], &f06[sizeof(f06) - 2]);
-        TT_TEST_CHECK_NOT_EQUAL(lpf, NULL, "");
+        TT_UT_NOT_EQUAL(lpf, NULL, "");
 
         tt_buf_clear(&buf);
 
         entry.line = 0;
         ret = tt_logfld_output(lpf, &entry, &buf);
-        TT_TEST_CHECK_SUCCESS(ret, "");
-        TT_TEST_CHECK_EQUAL(tt_buf_cmp_cstr(&buf, "0"), 0, "");
+        TT_UT_SUCCESS(ret, "");
+        TT_UT_EQUAL(tt_buf_cmp_cstr(&buf, "0"), 0, "");
 
         tt_logfld_destroy(lpf);
     }
 
     // {line:}
     ret = tt_logfld_check(&f1[0], &f1[sizeof(f1) - 2]);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
 
     {
         lpf = tt_logfld_create(&f1[0], &f1[sizeof(f1) - 2]);
-        TT_TEST_CHECK_NOT_EQUAL(lpf, NULL, "");
+        TT_UT_NOT_EQUAL(lpf, NULL, "");
 
         tt_buf_clear(&buf);
         entry.line = 2147483647;
         ret = tt_logfld_output(lpf, &entry, &buf);
-        TT_TEST_CHECK_SUCCESS(ret, "");
-        TT_TEST_CHECK_EQUAL(tt_buf_cmp_cstr(&buf, "2147483647"), 0, "");
+        TT_UT_SUCCESS(ret, "");
+        TT_UT_EQUAL(tt_buf_cmp_cstr(&buf, "2147483647"), 0, "");
 
         tt_buf_clear(&buf);
         entry.line = -2147483648;
         ret = tt_logfld_output(lpf, &entry, &buf);
-        TT_TEST_CHECK_SUCCESS(ret, "");
-        TT_TEST_CHECK_EQUAL(tt_buf_cmp_cstr(&buf, "-2147483648"), 0, "");
+        TT_UT_SUCCESS(ret, "");
+        TT_UT_EQUAL(tt_buf_cmp_cstr(&buf, "-2147483648"), 0, "");
 
         tt_buf_clear(&buf);
         entry.line = 100;
         ret = tt_logfld_output(lpf, &entry, &buf);
-        TT_TEST_CHECK_SUCCESS(ret, "");
-        TT_TEST_CHECK_EQUAL(tt_buf_cmp_cstr(&buf, "100"), 0, "");
+        TT_UT_SUCCESS(ret, "");
+        TT_UT_EQUAL(tt_buf_cmp_cstr(&buf, "100"), 0, "");
 
         tt_logfld_destroy(lpf);
     }
 
     // {line:%+04x}
     ret = tt_logfld_check(&f2[0], &f2[sizeof(f2) - 2]);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
 
     {
         lpf = tt_logfld_create(&f2[0], &f2[sizeof(f2) - 2]);
-        TT_TEST_CHECK_NOT_EQUAL(lpf, NULL, "");
+        TT_UT_NOT_EQUAL(lpf, NULL, "");
 
         tt_buf_clear(&buf);
 
         tt_buf_clear(&buf);
         entry.line = 1;
         ret = tt_logfld_output(lpf, &entry, &buf);
-        TT_TEST_CHECK_SUCCESS(ret, "");
-        TT_TEST_CHECK_EQUAL(tt_buf_cmp_cstr(&buf, "+001"), 0, "");
+        TT_UT_SUCCESS(ret, "");
+        TT_UT_EQUAL(tt_buf_cmp_cstr(&buf, "+001"), 0, "");
 
         tt_buf_clear(&buf);
         entry.line = -2147483648;
         ret = tt_logfld_output(lpf, &entry, &buf);
-        TT_TEST_CHECK_SUCCESS(ret, "");
-        TT_TEST_CHECK_EQUAL(tt_buf_cmp_cstr(&buf, "-2147483648"), 0, "");
+        TT_UT_SUCCESS(ret, "");
+        TT_UT_EQUAL(tt_buf_cmp_cstr(&buf, "-2147483648"), 0, "");
 
         tt_buf_clear(&buf);
         entry.line = 10;
         ret = tt_logfld_output(lpf, &entry, &buf);
-        TT_TEST_CHECK_SUCCESS(ret, "");
-        TT_TEST_CHECK_EQUAL(tt_buf_cmp_cstr(&buf, "+010"), 0, "");
+        TT_UT_SUCCESS(ret, "");
+        TT_UT_EQUAL(tt_buf_cmp_cstr(&buf, "+010"), 0, "");
 
         tt_logfld_destroy(lpf);
     }
@@ -946,46 +937,45 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_log_pattern)
         ll = tt_loglyt_pattern_create(
             "$${seq_num:%6d} $ ${level:%.2s} $}${function:} ${content}"
             "${logger:$$%s} ${line}\n");
-        TT_TEST_CHECK_NOT_EQUAL(ll, NULL, "");
+        TT_UT_NOT_EQUAL(ll, NULL, "");
 
         tt_buf_clear(&buf);
         ret = tt_loglyt_format(ll, &entry, &buf);
-        TT_TEST_CHECK_SUCCESS(ret, "");
+        TT_UT_SUCCESS(ret, "");
         cmp_ret = tt_buf_cmp_cstr(&buf,
                                   "$   100 $ FA "
                                   "$}tt_unit_test_log_pattern log "
                                   "content$$me "
                                   "1234\n");
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
 
         tt_loglyt_destroy(ll);
     }
 
     // wront format
     ll = tt_loglyt_pattern_create("${content} ${level:%d\n");
-    TT_TEST_CHECK_EQUAL(ll, NULL, "");
+    TT_UT_EQUAL(ll, NULL, "");
 
     ll = tt_loglyt_pattern_create("-- ${level} ${ function}\n");
-    TT_TEST_CHECK_EQUAL(ll, NULL, "");
+    TT_UT_EQUAL(ll, NULL, "");
 
     ll = tt_loglyt_pattern_create("-- ${level} ${}\n");
-    TT_TEST_CHECK_EQUAL(ll, NULL, "");
+    TT_UT_EQUAL(ll, NULL, "");
 
     ll = tt_loglyt_pattern_create("${level } ${function}\n");
-    TT_TEST_CHECK_EQUAL(ll, NULL, "");
+    TT_UT_EQUAL(ll, NULL, "");
 
     {
         ll = tt_loglyt_pattern_create(
             "$${level} $${function:{${}{}} $${content} 1234");
-        TT_TEST_CHECK_NOT_EQUAL(ll, NULL, "");
+        TT_UT_NOT_EQUAL(ll, NULL, "");
 
         tt_buf_clear(&buf);
         ret = tt_loglyt_format(ll, &entry, &buf);
-        TT_TEST_CHECK_SUCCESS(ret, "");
-        TT_TEST_CHECK_EQUAL(tt_buf_cmp_cstr(&buf,
-                                            "$FATAL ${${{}} $log content 1234"),
-                            0,
-                            "");
+        TT_UT_SUCCESS(ret, "");
+        TT_UT_EQUAL(tt_buf_cmp_cstr(&buf, "$FATAL ${${{}} $log content 1234"),
+                    0,
+                    "");
 
         tt_loglyt_destroy(ll);
     }

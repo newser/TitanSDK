@@ -49,9 +49,11 @@ this file load environment configurations
 // app building toolchain
 // ========================================
 
-#define TT_ENV_TOOLCHAIN_MSVC_2010 (TT_ENV_TOOLCHAIN_VER_UNKNOWN + 1)
-#define TT_ENV_TOOLCHAIN_MSVC_2012 (TT_ENV_TOOLCHAIN_VER_UNKNOWN + 2)
-#define TT_ENV_TOOLCHAIN_MSVC_2013 (TT_ENV_TOOLCHAIN_VER_UNKNOWN + 3)
+#define TT_ENV_TOOLCHAIN_MSVC_2010 (TT_ENV_TOOLCHAIN_MSVC | 0x101)
+#define TT_ENV_TOOLCHAIN_MSVC_2012 (TT_ENV_TOOLCHAIN_MSVC | 0x101)
+#define TT_ENV_TOOLCHAIN_MSVC_2013 (TT_ENV_TOOLCHAIN_MSVC | 0x102)
+#define TT_ENV_TOOLCHAIN_MSVC_2015 (TT_ENV_TOOLCHAIN_MSVC | 0x103)
+#define TT_ENV_TOOLCHAIN_MSVC_2017 (TT_ENV_TOOLCHAIN_MSVC | 0x104)
 
 ////////////////////////////////////////////////////////////
 // type definition

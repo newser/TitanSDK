@@ -20,14 +20,15 @@
 
 #include <tt_thread_native.h>
 
+#include <algorithm/tt_list.h>
 #include <misc/tt_assert.h>
+#include <os/tt_fiber.h>
 #include <os/tt_thread.h>
 
 #include <tt_cstd_api.h>
 #include <tt_sys_error.h>
 
 #include <process.h>
-#include <windows.h>
 
 ////////////////////////////////////////////////////////////
 // internal macro
@@ -42,6 +43,7 @@
 ////////////////////////////////////////////////////////////
 
 extern tt_result_t __thread_on_create(IN tt_thread_t *thread);
+
 extern tt_result_t __thread_on_exit(IN tt_thread_t *thread);
 
 ////////////////////////////////////////////////////////////
@@ -56,12 +58,11 @@ DWORD tt_g_thread_fls_index = 0;
 
 static VOID WINAPI __thread_on_exit_ntv(IN PVOID *arg);
 
-static void __cdecl detached_routine_wrapper(IN void *param);
-static unsigned __stdcall joint_routine_wrapper(IN void *param);
+static void __cdecl __detached_routine_wrapper(IN void *param);
 
-static void __thread_exit_ntv(IN tt_thread_t *sys_thread);
+static unsigned __stdcall __joint_routine_wrapper(IN void *param);
 
-static tt_result_t __thread_bind_numa_node(IN HANDLE hThread, IN USHORT Node);
+static tt_result_t __thread_bind_numa(IN HANDLE hThread, IN USHORT Node);
 
 ////////////////////////////////////////////////////////////
 // interface implementation
@@ -79,15 +80,17 @@ tt_result_t tt_thread_component_init_ntv()
     return TT_SUCCESS;
 }
 
-tt_result_t tt_thread_create_ntv(IN struct tt_thread_s *thread)
+tt_result_t tt_thread_create_ntv(IN tt_thread_t *thread)
 {
     tt_thread_ntv_t *sys_thread = &thread->sys_thread;
 
+    sys_thread->end = TT_FALSE;
+
     if (thread->detached) {
-        sys_thread->thread_handle =
-            (HANDLE)_beginthread(detached_routine_wrapper, 0, thread);
-        if ((sys_thread->thread_handle == 0) ||
-            (sys_thread->thread_handle == (HANDLE)-1L)) {
+        sys_thread->h_thread =
+            (HANDLE)_beginthread(__detached_routine_wrapper, 0, thread);
+        if ((sys_thread->h_thread == 0) ||
+            (sys_thread->h_thread == (HANDLE)-1L)) {
             TT_ERROR_NTV("fail to create detached thread");
             return TT_FAIL;
         }
@@ -95,9 +98,9 @@ tt_result_t tt_thread_create_ntv(IN struct tt_thread_s *thread)
         // remember to _endthread
         return TT_SUCCESS;
     } else {
-        sys_thread->thread_handle = (HANDLE)
-            _beginthreadex(NULL, 0, joint_routine_wrapper, thread, 0, NULL);
-        if (sys_thread->thread_handle == 0) {
+        sys_thread->h_thread = (HANDLE)
+            _beginthreadex(NULL, 0, __joint_routine_wrapper, thread, 0, NULL);
+        if (sys_thread->h_thread == 0) {
             TT_ERROR_NTV("fail to create joint thread");
             return TT_FAIL;
         }
@@ -107,13 +110,13 @@ tt_result_t tt_thread_create_ntv(IN struct tt_thread_s *thread)
     }
 }
 
-tt_result_t tt_thread_create_local_ntv(IN struct tt_thread_s *thread)
+tt_result_t tt_thread_create_local_ntv(IN tt_thread_t *thread)
 {
     tt_thread_ntv_t *sys_thread = &thread->sys_thread;
 
     if (tt_g_numa_node_id_thread != TT_NUMA_NODE_ID_UNSPECIFIED) {
-        __thread_bind_numa_node(GetCurrentThread(),
-                                (USHORT)tt_g_numa_node_id_thread);
+        __thread_bind_numa(GetCurrentThread(),
+                           (USHORT)tt_g_numa_node_id_thread);
     }
 
     if (FlsSetValue(tt_g_thread_fls_index, (LPVOID)thread) == 0) {
@@ -126,19 +129,17 @@ tt_result_t tt_thread_create_local_ntv(IN struct tt_thread_s *thread)
     return TT_SUCCESS;
 }
 
-tt_result_t tt_thread_wait_ntv(IN struct tt_thread_s *thread)
+tt_result_t tt_thread_wait_ntv(IN tt_thread_t *thread)
 {
     tt_thread_ntv_t *sys_thread = &thread->sys_thread;
 
-    if (WaitForSingleObject(sys_thread->thread_handle, INFINITE) !=
-        WAIT_OBJECT_0) {
+    if (WaitForSingleObject(sys_thread->h_thread, INFINITE) != WAIT_OBJECT_0) {
         TT_ERROR_NTV("fail to wait joint thread");
         return TT_FAIL;
     }
 
-    if (!CloseHandle(sys_thread->thread_handle)) {
+    if (!CloseHandle(sys_thread->h_thread)) {
         TT_ERROR_NTV("fail to close thread handle");
-        return TT_FAIL;
     }
 
     return TT_SUCCESS;
@@ -148,27 +149,41 @@ void tt_thread_exit_ntv()
 {
     tt_thread_t *thread = (tt_thread_t *)FlsGetValue(tt_g_thread_fls_index);
 
-    __thread_exit_ntv(thread);
+    if (thread->detached) {
+        _endthread();
+    } else {
+        _endthreadex(TT_SUCCESS);
+    }
 }
 
 VOID __thread_on_exit_ntv(IN PVOID *arg)
 {
     tt_thread_t *thread = (tt_thread_t *)arg;
 
-    if (thread != NULL) {
-        __thread_on_exit(thread);
+    if (thread == NULL) {
+        // a fiber?
+        return;
     }
+
+    if (thread->sys_thread.end) {
+        // this happens when destroying a thread which has serveral
+        // running fibers
+        return;
+    }
+    thread->sys_thread.end = TT_TRUE;
+
+    __thread_on_exit(thread);
+    // thread may already be freed
 }
 
-void __cdecl detached_routine_wrapper(IN void *param)
+void __cdecl __detached_routine_wrapper(IN void *param)
 {
     tt_thread_t *thread = (tt_thread_t *)param;
     tt_thread_ntv_t *sys_thread = &thread->sys_thread;
-    tt_result_t result;
 
     if (tt_g_numa_node_id_thread != TT_NUMA_NODE_ID_UNSPECIFIED) {
-        __thread_bind_numa_node(sys_thread->thread_handle,
-                                (USHORT)tt_g_numa_node_id_thread);
+        __thread_bind_numa(sys_thread->h_thread,
+                           (USHORT)tt_g_numa_node_id_thread);
     }
 
     if (FlsSetValue(tt_g_thread_fls_index, (LPVOID)thread) == 0) {
@@ -178,18 +193,17 @@ void __cdecl detached_routine_wrapper(IN void *param)
 
     __thread_on_create(thread);
 
-    result = thread->routine(thread->param);
+    thread->routine(thread->param);
 }
 
-unsigned __stdcall joint_routine_wrapper(IN void *param)
+unsigned __stdcall __joint_routine_wrapper(IN void *param)
 {
     tt_thread_t *thread = (tt_thread_t *)param;
     tt_thread_ntv_t *sys_thread = &thread->sys_thread;
-    tt_result_t result;
 
     if (tt_g_numa_node_id_thread != TT_NUMA_NODE_ID_UNSPECIFIED) {
-        __thread_bind_numa_node(sys_thread->thread_handle,
-                                (USHORT)tt_g_numa_node_id_thread);
+        __thread_bind_numa(sys_thread->h_thread,
+                           (USHORT)tt_g_numa_node_id_thread);
     }
 
     if (FlsSetValue(tt_g_thread_fls_index, (LPVOID)thread) == 0) {
@@ -199,24 +213,12 @@ unsigned __stdcall joint_routine_wrapper(IN void *param)
 
     __thread_on_create(thread);
 
-    result = thread->routine(thread->param);
+    thread->routine(thread->param);
 
     return TT_SUCCESS;
 }
 
-void __thread_exit_ntv(IN tt_thread_t *thread)
-{
-    tt_thread_ntv_t *sys_thread = &thread->sys_thread;
-
-    if (thread->detached) {
-        _endthread();
-    } else {
-        _endthreadex(TT_SUCCESS);
-    }
-    return;
-}
-
-tt_result_t __thread_bind_numa_node(IN HANDLE hThread, IN USHORT Node)
+tt_result_t __thread_bind_numa(IN HANDLE hThread, IN USHORT Node)
 {
     GROUP_AFFINITY ProcessorMask;
 

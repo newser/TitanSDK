@@ -37,7 +37,7 @@ section
 
 #include <Availability.h>
 
-#ifdef __IPHONE_10_0 // 10.12 and later
+#ifdef __MAC_10_12 // 10.12 and later
 #include <os/lock.h>
 #else
 #include <libkern/OSAtomic.h>
@@ -56,7 +56,7 @@ struct tt_spinlock_attr_s;
 
 typedef struct
 {
-#ifdef __IPHONE_10_0
+#ifdef __MAC_10_12
     os_unfair_lock lk;
 #else
     OSSpinLock lk;
@@ -80,7 +80,7 @@ tt_spinlock_component_init_ntv(IN struct tt_profile_s *profile)
 tt_inline tt_result_t tt_spinlock_create_ntv(IN tt_spinlock_ntv_t *slock,
                                              IN struct tt_spinlock_attr_s *attr)
 {
-#ifdef __IPHONE_10_0
+#ifdef __MAC_10_12
     slock->lk = OS_UNFAIR_LOCK_INIT;
 #else
     slock->lk = OS_SPINLOCK_INIT;
@@ -95,7 +95,7 @@ tt_inline void tt_spinlock_destroy_ntv(IN tt_spinlock_ntv_t *slock)
 
 tt_inline void tt_spinlock_acquire_ntv(IN tt_spinlock_ntv_t *slock)
 {
-#ifdef __IPHONE_10_0
+#ifdef __MAC_10_12
     os_unfair_lock_lock(&slock->lk);
 #else
     OSSpinLockLock(&slock->lk);
@@ -104,7 +104,7 @@ tt_inline void tt_spinlock_acquire_ntv(IN tt_spinlock_ntv_t *slock)
 
 tt_inline tt_bool_t tt_spinlock_try_acquire_ntv(IN tt_spinlock_ntv_t *slock)
 {
-#ifdef __IPHONE_10_0
+#ifdef __MAC_10_12
     return TT_BOOL(os_unfair_lock_trylock(&slock->lk));
 #else
     return TT_BOOL(OSSpinLockTry(&slock->lk));
@@ -113,7 +113,7 @@ tt_inline tt_bool_t tt_spinlock_try_acquire_ntv(IN tt_spinlock_ntv_t *slock)
 
 tt_inline void tt_spinlock_release_ntv(IN tt_spinlock_ntv_t *slock)
 {
-#ifdef __IPHONE_10_0
+#ifdef __MAC_10_12
     os_unfair_lock_unlock(&slock->lk);
 #else
     OSSpinLockUnlock(&slock->lk);

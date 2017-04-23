@@ -58,67 +58,73 @@ this file provided some basic utilities for platform usage
         }                                                                      \
     } while (0)
 
-// socket kqueue related
+#define tt_kq_read(kq, ident, udata)                                           \
+    tt_kevent((kq), (ident), EVFILT_READ, EV_ADD | EV_ONESHOT, (udata))
+
+#define tt_kq_write(kq, ident, udata)                                          \
+    tt_kevent((kq), (ident), EVFILT_WRITE, EV_ADD | EV_ONESHOT, (udata))
+
+// socket kqueue
 #define __skt_kq_rd_add(kq, ident, udata)                                      \
-    __skt_kevent((kq), (ident), EVFILT_READ, EV_ADD | EV_DISABLE, (udata))
+    tt_kevent((kq), (ident), EVFILT_READ, EV_ADD | EV_DISABLE, (udata))
 #define __skt_kq_rd_enable(sys_skt)                                            \
-    __skt_kevent((sys_skt)->evc->sys_evc.kq_fd,                                \
-                 (sys_skt)->s,                                                 \
-                 EVFILT_READ,                                                  \
-                 EV_ENABLE,                                                    \
-                 &(sys_skt)->ev_mark_rd)
+    tt_kevent((sys_skt)->evc->sys_evc.kq_fd,                                   \
+              (sys_skt)->s,                                                    \
+              EVFILT_READ,                                                     \
+              EV_ENABLE,                                                       \
+              &(sys_skt)->ev_mark_rd)
 #define __skt_kq_rd_disable(sys_skt)                                           \
-    __skt_kevent((sys_skt)->evc->sys_evc.kq_fd,                                \
-                 (sys_skt)->s,                                                 \
-                 EVFILT_READ,                                                  \
-                 EV_DISABLE,                                                   \
-                 &(sys_skt)->ev_mark_rd)
+    tt_kevent((sys_skt)->evc->sys_evc.kq_fd,                                   \
+              (sys_skt)->s,                                                    \
+              EVFILT_READ,                                                     \
+              EV_DISABLE,                                                      \
+              &(sys_skt)->ev_mark_rd)
 
 #define __skt_kq_wr_add(kq, ident, udata)                                      \
-    __skt_kevent((kq), (ident), EVFILT_WRITE, EV_ADD | EV_DISABLE, (udata))
+    tt_kevent((kq), (ident), EVFILT_WRITE, EV_ADD | EV_DISABLE, (udata))
 #define __skt_kq_wr_enable(sys_skt)                                            \
-    __skt_kevent((sys_skt)->evc->sys_evc.kq_fd,                                \
-                 (sys_skt)->s,                                                 \
-                 EVFILT_WRITE,                                                 \
-                 EV_ENABLE,                                                    \
-                 &(sys_skt)->ev_mark_wr)
+    tt_kevent((sys_skt)->evc->sys_evc.kq_fd,                                   \
+              (sys_skt)->s,                                                    \
+              EVFILT_WRITE,                                                    \
+              EV_ENABLE,                                                       \
+              &(sys_skt)->ev_mark_wr)
 #define __skt_kq_wr_disable(sys_skt)                                           \
-    __skt_kevent((sys_skt)->evc->sys_evc.kq_fd,                                \
-                 (sys_skt)->s,                                                 \
-                 EVFILT_WRITE,                                                 \
-                 EV_DISABLE,                                                   \
-                 &(sys_skt)->ev_mark_wr)
+    tt_kevent((sys_skt)->evc->sys_evc.kq_fd,                                   \
+              (sys_skt)->s,                                                    \
+              EVFILT_WRITE,                                                    \
+              EV_DISABLE,                                                      \
+              &(sys_skt)->ev_mark_wr)
 
-// ipc kqueue related
+// ipc kqueue
 #define __ipc_kq_rd_add(kq, ident, udata)                                      \
-    __skt_kevent((kq), (ident), EVFILT_READ, EV_ADD | EV_DISABLE, (udata))
+    tt_kevent((kq), (ident), EVFILT_READ, EV_ADD | EV_DISABLE, (udata))
 #define __ipc_kq_rd_enable(sys_ipc)                                            \
-    __skt_kevent((sys_ipc)->evc->sys_evc.kq_fd,                                \
-                 (sys_ipc)->s,                                                 \
-                 EVFILT_READ,                                                  \
-                 EV_ENABLE,                                                    \
-                 &(sys_ipc)->ev_mark_rd)
+    tt_kevent((sys_ipc)->evc->sys_evc.kq_fd,                                   \
+              (sys_ipc)->s,                                                    \
+              EVFILT_READ,                                                     \
+              EV_ENABLE,                                                       \
+              &(sys_ipc)->ev_mark_rd)
 #define __ipc_kq_rd_disable(sys_ipc)                                           \
-    __skt_kevent((sys_ipc)->evc->sys_evc.kq_fd,                                \
-                 (sys_ipc)->s,                                                 \
-                 EVFILT_READ,                                                  \
-                 EV_DISABLE,                                                   \
-                 &(sys_ipc)->ev_mark_rd)
+    tt_kevent((sys_ipc)->evc->sys_evc.kq_fd,                                   \
+              (sys_ipc)->s,                                                    \
+              EVFILT_READ,                                                     \
+              EV_DISABLE,                                                      \
+              &(sys_ipc)->ev_mark_rd)
 
 #define __ipc_kq_wr_add(kq, ident, udata)                                      \
-    __skt_kevent((kq), (ident), EVFILT_WRITE, EV_ADD | EV_DISABLE, (udata))
+    tt_kevent((kq), (ident), EVFILT_WRITE, EV_ADD | EV_DISABLE, (udata))
 #define __ipc_kq_wr_enable(sys_ipc)                                            \
-    __skt_kevent((sys_ipc)->evc->sys_evc.kq_fd,                                \
-                 (sys_ipc)->s,                                                 \
-                 EVFILT_WRITE,                                                 \
-                 EV_ENABLE,                                                    \
-                 &(sys_ipc)->ev_mark_wr)
+    tt_kevent((sys_ipc)->evc->sys_evc.kq_fd,                                   \
+              (sys_ipc)->s,                                                    \
+              EVFILT_WRITE,                                                    \
+              EV_ENABLE,                                                       \
+              &(sys_ipc)->ev_mark_wr)
 #define __ipc_kq_wr_disable(sys_ipc)                                           \
-    __skt_kevent((sys_ipc)->evc->sys_evc.kq_fd,                                \
-                 (sys_ipc)->s,                                                 \
-                 EVFILT_WRITE,                                                 \
-                 EV_DISABLE,                                                   \
-                 &(sys_ipc)->ev_mark_wr)
+    tt_kevent((sys_ipc)->evc->sys_evc.kq_fd,                                   \
+              (sys_ipc)->s,                                                    \
+              EVFILT_WRITE,                                                    \
+              EV_DISABLE,                                                      \
+              &(sys_ipc)->ev_mark_wr)
 
 ////////////////////////////////////////////////////////////
 // type definition
@@ -132,11 +138,11 @@ this file provided some basic utilities for platform usage
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern tt_result_t __skt_kevent(IN int kq,
-                                IN uint64_t ident,
-                                IN int16_t filter,
-                                IN uint16_t flags,
-                                IN uint64_t udata);
+extern tt_result_t tt_kevent(IN int kq,
+                             IN uint64_t ident,
+                             IN int16_t filter,
+                             IN uint16_t flags,
+                             IN uint64_t udata);
 
 // remember use tt_free to free the return value
 extern char *tt_cfstring_ptr(IN CFStringRef cfstr, OUT OPT tt_u32_t *len);

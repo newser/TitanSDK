@@ -360,7 +360,7 @@ tt_result_t __c1_on_init(IN struct tt_evcenter_s *evc, IN void *on_init_param)
 #define __c1_svr_port 443
 
     tt_sktaddr_init(&remote_addr, TT_NET_AF_INET);
-    tt_sktaddr_set_addr_p(&remote_addr, __c1_svr_addr);
+    tt_sktaddr_set_ip_p(&remote_addr, __c1_svr_addr);
     tt_sktaddr_set_port(&remote_addr, __c1_svr_port);
 
     ret = tt_ssl_connect_async(&__c1_ssl,
@@ -389,12 +389,12 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_ssl_client)
     attr.on_init = __c1_on_init;
 
     ret = tt_evc_create(&evc, TT_FALSE, &attr);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     ret = tt_evc_wait(&evc);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
-    TT_TEST_CHECK_EQUAL(__c1_ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(__c1_ret, TT_SUCCESS, "");
 
     // test end
     TT_TEST_CASE_LEAVE()
@@ -793,7 +793,7 @@ tt_result_t __ssl_ut_on_init(IN struct tt_evcenter_s *evc,
 
     // addr
     tt_sktaddr_init(&svr_addr, TT_NET_AF_INET);
-    tt_sktaddr_set_addr_p(&svr_addr, (tt_char_t *)utp->svr_addr);
+    tt_sktaddr_set_ip_p(&svr_addr, (tt_char_t *)utp->svr_addr);
     tt_sktaddr_set_port(&svr_addr, utp->svr_port);
 
     // listen: skt
@@ -949,10 +949,10 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_ssl_basic)
 
     enabled = tt_ssl_enabled();
 #ifdef TT_PLATFORM_SSL_ENABLE
-    TT_TEST_CHECK_EQUAL(enabled, TT_TRUE, "");
+    TT_UT_EQUAL(enabled, TT_TRUE, "");
 #else
     // actually it never reach here
-    TT_TEST_CHECK_EQUAL(enabled, TT_FALSE, "");
+    TT_UT_EQUAL(enabled, TT_FALSE, "");
 #endif
 
     tt_memset(&__sut_param, 0, sizeof(__sut_param));
@@ -974,11 +974,11 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_ssl_basic)
     __sut_param.svr_privkey_fmt = TT_SSL_PRIVKEY_FMT_NONE;
 
     ret = __ssl_ut();
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     // this case may fail, when close_notify(sent by ssl_shutdown)
     // comes before processing send_aio
-    TT_TEST_CHECK_EQUAL(__sut_ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(__sut_ret, TT_SUCCESS, "");
 
     // test end
     TT_TEST_CASE_LEAVE()
@@ -1090,7 +1090,7 @@ tt_result_t __ssl_immd_on_init(IN struct tt_evcenter_s *evc,
 
     // addr
     tt_sktaddr_init(&svr_addr, TT_NET_AF_INET);
-    tt_sktaddr_set_addr_p(&svr_addr, (tt_char_t *)utp->svr_addr);
+    tt_sktaddr_set_ip_p(&svr_addr, (tt_char_t *)utp->svr_addr);
     tt_sktaddr_set_port(&svr_addr, utp->svr_port);
 
     // listen: skt
@@ -1270,10 +1270,10 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_ssl_destroy_immd)
 
     enabled = tt_ssl_enabled();
 #ifdef TT_PLATFORM_SSL_ENABLE
-    TT_TEST_CHECK_EQUAL(enabled, TT_TRUE, "");
+    TT_UT_EQUAL(enabled, TT_TRUE, "");
 #else
     // actually it never reach here
-    TT_TEST_CHECK_EQUAL(enabled, TT_FALSE, "");
+    TT_UT_EQUAL(enabled, TT_FALSE, "");
 #endif
 
     tt_memset(&__sut_param, 0, sizeof(__sut_param));
@@ -1298,16 +1298,16 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_ssl_destroy_immd)
     attr.on_init = __ssl_immd_on_init;
 
     ret = tt_evc_create(&evc, TT_FALSE, &attr);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     ret = tt_evc_wait(&evc);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
-    TT_TEST_CHECK_EQUAL(__sut_ret, TT_SUCCESS, "");
-    TT_TEST_CHECK_EQUAL(__sut_err_line, 0, "");
+    TT_UT_EQUAL(__sut_ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(__sut_err_line, 0, "");
 
-    TT_TEST_CHECK_EQUAL(__immd_cli_cnt, 0, "");
-    TT_TEST_CHECK_EQUAL(__immd_svr_cnt, 0, "");
+    TT_UT_EQUAL(__immd_cli_cnt, 0, "");
+    TT_UT_EQUAL(__immd_svr_cnt, 0, "");
 
     // test end
     TT_TEST_CASE_LEAVE()
@@ -1381,9 +1381,9 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_ssl_svr_auth)
     __sut_param.cli_ca_attr = &cli_ca_attr;
 
     ret = __ssl_ut();
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
-    TT_TEST_CHECK_EQUAL(__sut_ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(__sut_ret, TT_SUCCESS, "");
 
     // test end
     TT_TEST_CASE_LEAVE()
@@ -1490,10 +1490,10 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_ssl_svr_auth_fail)
     // only client known handshake fail(caused by schannel)
 
     ret = __ssl_ut();
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
-    // TT_TEST_CHECK_EQUAL(__sut_ret,TT_SUCCESS,"");
-    TT_TEST_CHECK_EQUAL(__saf_fail_counter, 1, "");
+    // TT_UT_EQUAL(__sut_ret,TT_SUCCESS,"");
+    TT_UT_EQUAL(__saf_fail_counter, 1, "");
 
     // test end
     TT_TEST_CASE_LEAVE()
@@ -1574,10 +1574,10 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_ssl_svr_auth_fail_cn)
     // only client known handshake fail(caused by schannel)
 
     ret = __ssl_ut();
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
-    // TT_TEST_CHECK_EQUAL(__sut_ret,TT_SUCCESS,"");
-    TT_TEST_CHECK_EQUAL(__saf_fail_counter, 1, "");
+    // TT_UT_EQUAL(__sut_ret,TT_SUCCESS,"");
+    TT_UT_EQUAL(__saf_fail_counter, 1, "");
 
     // test end
     TT_TEST_CASE_LEAVE()
@@ -1655,9 +1655,9 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_ssl_cli_auth)
     __sut_param.cli_privkey_fmt = TT_SSL_PRIVKEY_FMT_NONE;
 
     ret = __ssl_ut();
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
-    TT_TEST_CHECK_EQUAL(__sut_ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(__sut_ret, TT_SUCCESS, "");
 
     // test end
     TT_TEST_CASE_LEAVE()
@@ -1782,9 +1782,9 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_ssl_cli_auth_fail)
     // only server know auth failed
 
     ret = __ssl_ut();
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
-    TT_TEST_CHECK_EQUAL(__caf_fail_counter, 1, "");
+    TT_UT_EQUAL(__caf_fail_counter, 1, "");
 
     // test end
     TT_TEST_CASE_LEAVE()
@@ -1869,9 +1869,9 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_ssl_cli_auth_fail_cn)
     // only server know auth failed
 
     ret = __ssl_ut();
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
-    TT_TEST_CHECK_EQUAL(__caf_fail_counter, 1, "");
+    TT_UT_EQUAL(__caf_fail_counter, 1, "");
 
     // test end
     TT_TEST_CASE_LEAVE()
@@ -2120,7 +2120,7 @@ static void __st1_ssl_on_accept(IN struct tt_ssl_s *listening_ssl,
             tt_sktaddr_t addr;
 
             if (TT_OK(tt_skt_local_addr(new_ssl->skt, &addr))) {
-                tt_sktaddr_get_port(&addr, &port);
+                port = tt_sktaddr_get_port(&addr);
                 TT_INFO("fail port: %d", port);
             }
         }
@@ -2181,7 +2181,7 @@ static void __st1_ssl_on_connect(IN struct tt_ssl_s *ssl,
         tt_sktaddr_t addr;
 
         if (TT_OK(tt_skt_local_addr(ssl->skt, &addr))) {
-            tt_sktaddr_get_port(&addr, &port);
+            port = tt_sktaddr_get_port(&addr);
             TT_INFO("fail port: %d", port);
         }
 
@@ -2241,7 +2241,7 @@ static tt_result_t __st1_evc_on_init(IN struct tt_evcenter_s *evc,
     __st_ssl_num[i][1] = 0;
 
     tt_sktaddr_init(&__st1_lis_addr, TT_NET_AF_INET);
-    tt_sktaddr_set_addr_p(&__st1_lis_addr, "127.0.0.1");
+    tt_sktaddr_set_ip_p(&__st1_lis_addr, "127.0.0.1");
     tt_sktaddr_set_port(&__st1_lis_addr, 33333);
 
     tt_skt_attr_default(&lis_skt_attr);
@@ -2353,7 +2353,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_ssl_stress_1_evc)
 
     // server ssl ctx
     ret = tt_sslctx_create(&__st1_svr_ctx, TT_SSL_ROLE_SERVER, NULL);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     cert.addr = __s_cert_e_c_p12_enc;
     cert.len = sizeof(__s_cert_e_c_p12_enc);
@@ -2369,17 +2369,17 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_ssl_stress_1_evc)
                              TT_SSL_PRIVKEY_FMT_NONE,
                              NULL,
                              NULL);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     ret = tt_sslctx_commit(&__st1_svr_ctx, NULL, 0);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     // client ssl ctx
     ret = tt_sslctx_create(&__st1_cli_ctx, TT_SSL_ROLE_CLIENT, NULL);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     ret = tt_sslctx_commit(&__st1_cli_ctx, NULL, 0);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     // evc
     tt_evc_attr_default(&evc_attr);
@@ -2387,16 +2387,16 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_ssl_stress_1_evc)
     evc_attr.on_init_param = 0;
 
     ret = tt_evc_create(&evc, TT_FALSE, &evc_attr);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     ret = tt_evc_wait(&evc);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     __st1_svr_ctx.ssl_cache.attr.peer_expire_ms = 1000; // hack
     tt_sslcache_scan(&__st1_svr_ctx.ssl_cache);
 
     TT_INFO("__st_err_line: %d", __st_err_line);
-    TT_TEST_CHECK_EQUAL(__st_err_line, 0, "");
+    TT_UT_EQUAL(__st_err_line, 0, "");
 
     // test end
     TT_TEST_CASE_LEAVE()

@@ -22,7 +22,6 @@
 
 #include <algorithm/ptr/tt_ptr_heap.h>
 #include <algorithm/tt_algorithm_def.h>
-#include <event/tt_event_center.h>
 #include <memory/tt_memory_alloc.h>
 #include <misc/tt_assert.h>
 #include <timer/tt_time_reference.h>
@@ -61,6 +60,7 @@ tt_tmr_t *tt_tmr_create(IN OPT IN struct tt_tmr_mgr_s *mgr,
 
     TT_ASSERT(cb != NULL);
 
+#if 0
     if (mgr == NULL) {
         tt_evcenter_t *evc = tt_evc_current();
         if (evc == NULL) {
@@ -70,6 +70,7 @@ tt_tmr_t *tt_tmr_create(IN OPT IN struct tt_tmr_mgr_s *mgr,
 
         mgr = &evc->tmr_mgr;
     }
+#endif
 
     // alloc timer
     tmr = (tt_tmr_t *)tt_malloc(sizeof(tt_tmr_t));

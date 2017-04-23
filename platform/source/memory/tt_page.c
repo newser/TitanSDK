@@ -151,7 +151,7 @@ void tt_page_free_align(IN void *addr,
     size_order = TT_MAX(size_order, tt_g_page_size_order);
     tt_page_free_align_ntv(addr, size_order, handle);
 #endif
-    tt_atomic_s64_sub(&tt_stat_page_alloc, 1 << size_order);
+    tt_atomic_s64_sub(&tt_stat_page_alloc, ((tt_s64_t)1) << size_order);
 }
 
 tt_result_t __page_component_init(IN tt_component_t *comp,

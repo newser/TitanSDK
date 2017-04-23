@@ -541,32 +541,32 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_vector)
     // empty
     {
         b_ret = __utv_test_u16_0(&v_u16);
-        TT_TEST_CHECK_EQUAL(b_ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(b_ret, TT_SUCCESS, "");
     }
 
     // 1 element
     {
         ret = tt_vec_push_tail(&v_u16, &val16_1);
-        TT_TEST_CHECK_SUCCESS(ret, "");
+        TT_UT_SUCCESS(ret, "");
 
         b_ret = __utv_test_u16_1(&v_u16);
-        TT_TEST_CHECK_EQUAL(b_ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(b_ret, TT_SUCCESS, "");
     }
 
     // 3 element
     {
         val16_1 = 2;
         ret = tt_vec_push_tail(&v_u16, &val16_1);
-        TT_TEST_CHECK_SUCCESS(ret, "");
+        TT_UT_SUCCESS(ret, "");
 
         val16_1 = 3;
         ret = tt_vec_push_tail(&v_u16, &val16_1);
-        TT_TEST_CHECK_SUCCESS(ret, "");
+        TT_UT_SUCCESS(ret, "");
 
         b_ret = __utv_test_u16_123(&v_u16);
-        TT_TEST_CHECK_EQUAL(b_ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(b_ret, TT_SUCCESS, "");
 
-        TT_TEST_CHECK_EQUAL(tt_vec_count(&v_u16), 3, "");
+        TT_UT_EQUAL(tt_vec_count(&v_u16), 3, "");
     }
 
     // move
@@ -574,24 +574,24 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_vector)
         tt_vec_init(&v2, sizeof(tt_u16_t), NULL, NULL);
 
         ret = tt_vec_move_all(&v_u16, &v2);
-        TT_TEST_CHECK_SUCCESS(ret, "");
-        TT_TEST_CHECK_EQUAL(tt_vec_count(&v_u16), 3, "");
+        TT_UT_SUCCESS(ret, "");
+        TT_UT_EQUAL(tt_vec_count(&v_u16), 3, "");
 
         ret = tt_vec_move_from(&v_u16, &v2, 0);
-        TT_TEST_CHECK_SUCCESS(ret, "");
-        TT_TEST_CHECK_EQUAL(tt_vec_count(&v_u16), 3, "");
+        TT_UT_SUCCESS(ret, "");
+        TT_UT_EQUAL(tt_vec_count(&v_u16), 3, "");
 
         ret = tt_vec_move_from(&v_u16, &v2, ~0);
-        TT_TEST_CHECK_SUCCESS(ret, "");
-        TT_TEST_CHECK_EQUAL(tt_vec_count(&v_u16), 3, "");
+        TT_UT_SUCCESS(ret, "");
+        TT_UT_EQUAL(tt_vec_count(&v_u16), 3, "");
 
         ret = tt_vec_move_range(&v_u16, &v2, 0, 0);
-        TT_TEST_CHECK_SUCCESS(ret, "");
-        TT_TEST_CHECK_EQUAL(tt_vec_count(&v_u16), 3, "");
+        TT_UT_SUCCESS(ret, "");
+        TT_UT_EQUAL(tt_vec_count(&v_u16), 3, "");
 
         ret = tt_vec_move_range(&v_u16, &v2, 0, ~0);
-        TT_TEST_CHECK_SUCCESS(ret, "");
-        TT_TEST_CHECK_EQUAL(tt_vec_count(&v_u16), 3, "");
+        TT_UT_SUCCESS(ret, "");
+        TT_UT_EQUAL(tt_vec_count(&v_u16), 3, "");
 
         val16_1 = 4;
         tt_vec_push_tail(&v2, &val16_1);
@@ -605,20 +605,20 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_vector)
         // 1,2,3 <= 4,5,6
         tt_vec_move_from(&v_u16, &v2, 2);
         // 1,2,3,6 <= 4,5
-        TT_TEST_CHECK_EQUAL(tt_vec_count(&v_u16), 4, "");
-        TT_TEST_CHECK_EQUAL(*(tt_u16_t *)tt_vec_get(&v_u16, 3), 6, "");
+        TT_UT_EQUAL(tt_vec_count(&v_u16), 4, "");
+        TT_UT_EQUAL(*(tt_u16_t *)tt_vec_get(&v_u16, 3), 6, "");
 
         // 1,2,3,6 <= 4,5
         tt_vec_move_range(&v_u16, &v2, 1, ~0);
         // 1,2,3,6,5 <= 4
-        TT_TEST_CHECK_EQUAL(tt_vec_count(&v_u16), 5, "");
-        TT_TEST_CHECK_EQUAL(*(tt_u16_t *)tt_vec_get(&v_u16, 4), 5, "");
+        TT_UT_EQUAL(tt_vec_count(&v_u16), 5, "");
+        TT_UT_EQUAL(*(tt_u16_t *)tt_vec_get(&v_u16, 4), 5, "");
 
         tt_vec_move_all(&v_u16, &v2);
         // 1,2,3,6,5,4
-        TT_TEST_CHECK_EQUAL(tt_vec_count(&v_u16), 6, "");
-        TT_TEST_CHECK_EQUAL(*(tt_u16_t *)tt_vec_get(&v_u16, 5), 4, "");
-        TT_TEST_CHECK_EQUAL(tt_vec_count(&v2), 0, "");
+        TT_UT_EQUAL(tt_vec_count(&v_u16), 6, "");
+        TT_UT_EQUAL(*(tt_u16_t *)tt_vec_get(&v_u16, 5), 4, "");
+        TT_UT_EQUAL(tt_vec_count(&v2), 0, "");
 
         tt_vec_trim(&v2);
         tt_vec_destroy(&v2);
@@ -1035,29 +1035,29 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_ptr_vector)
     // empty
     {
         b_ret = __utv_test_ptr_0(&pv);
-        TT_TEST_CHECK_EQUAL(b_ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(b_ret, TT_SUCCESS, "");
     }
 
     // 1 element
     {
         ret = tt_ptrvec_push_tail(&pv, &pv1);
-        TT_TEST_CHECK_SUCCESS(ret, "");
+        TT_UT_SUCCESS(ret, "");
 
         b_ret = __utv_test_ptr_1(&pv);
-        TT_TEST_CHECK_EQUAL(b_ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(b_ret, TT_SUCCESS, "");
     }
 
     // 3 element
     {
         ret = tt_ptrvec_push_tail(&pv, &pv2);
-        TT_TEST_CHECK_SUCCESS(ret, "");
+        TT_UT_SUCCESS(ret, "");
         ret = tt_ptrvec_push_tail(&pv, &pv3);
-        TT_TEST_CHECK_SUCCESS(ret, "");
+        TT_UT_SUCCESS(ret, "");
 
         b_ret = __utv_test_ptr_123(&pv);
-        TT_TEST_CHECK_EQUAL(b_ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(b_ret, TT_SUCCESS, "");
 
-        TT_TEST_CHECK_EQUAL(tt_ptrvec_count(&pv), 3, "");
+        TT_UT_EQUAL(tt_ptrvec_count(&pv), 3, "");
     }
 
     // move
@@ -1065,24 +1065,24 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_ptr_vector)
         tt_ptrvec_init(&v2, NULL, NULL);
 
         ret = tt_ptrvec_move_all(&pv, &v2);
-        TT_TEST_CHECK_SUCCESS(ret, "");
-        TT_TEST_CHECK_EQUAL(tt_ptrvec_count(&pv), 3, "");
+        TT_UT_SUCCESS(ret, "");
+        TT_UT_EQUAL(tt_ptrvec_count(&pv), 3, "");
 
         ret = tt_ptrvec_move_from(&pv, &v2, 0);
-        TT_TEST_CHECK_SUCCESS(ret, "");
-        TT_TEST_CHECK_EQUAL(tt_ptrvec_count(&pv), 3, "");
+        TT_UT_SUCCESS(ret, "");
+        TT_UT_EQUAL(tt_ptrvec_count(&pv), 3, "");
 
         ret = tt_ptrvec_move_from(&pv, &v2, ~0);
-        TT_TEST_CHECK_SUCCESS(ret, "");
-        TT_TEST_CHECK_EQUAL(tt_ptrvec_count(&pv), 3, "");
+        TT_UT_SUCCESS(ret, "");
+        TT_UT_EQUAL(tt_ptrvec_count(&pv), 3, "");
 
         ret = tt_ptrvec_move_range(&pv, &v2, 0, 0);
-        TT_TEST_CHECK_SUCCESS(ret, "");
-        TT_TEST_CHECK_EQUAL(tt_ptrvec_count(&pv), 3, "");
+        TT_UT_SUCCESS(ret, "");
+        TT_UT_EQUAL(tt_ptrvec_count(&pv), 3, "");
 
         ret = tt_ptrvec_move_range(&pv, &v2, 0, ~0);
-        TT_TEST_CHECK_SUCCESS(ret, "");
-        TT_TEST_CHECK_EQUAL(tt_ptrvec_count(&pv), 3, "");
+        TT_UT_SUCCESS(ret, "");
+        TT_UT_EQUAL(tt_ptrvec_count(&pv), 3, "");
 
         tt_ptrvec_push_tail(&v2, &pv4);
         tt_ptrvec_push_tail(&v2, &pv5);
@@ -1093,20 +1093,20 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_ptr_vector)
         // 1,2,3 <= 4,5,6
         tt_ptrvec_move_from(&pv, &v2, 2);
         // 1,2,3,6 <= 4,5
-        TT_TEST_CHECK_EQUAL(tt_ptrvec_count(&pv), 4, "");
-        TT_TEST_CHECK_EQUAL(tt_ptrvec_get(&pv, 3), &pv6, "");
+        TT_UT_EQUAL(tt_ptrvec_count(&pv), 4, "");
+        TT_UT_EQUAL(tt_ptrvec_get(&pv, 3), &pv6, "");
 
         // 1,2,3,6 <= 4,5
         tt_ptrvec_move_range(&pv, &v2, 1, ~0);
         // 1,2,3,6,5 <= 4
-        TT_TEST_CHECK_EQUAL(tt_ptrvec_count(&pv), 5, "");
-        TT_TEST_CHECK_EQUAL(tt_ptrvec_get(&pv, 4), &pv5, "");
+        TT_UT_EQUAL(tt_ptrvec_count(&pv), 5, "");
+        TT_UT_EQUAL(tt_ptrvec_get(&pv, 4), &pv5, "");
 
         tt_ptrvec_move_all(&pv, &v2);
         // 1,2,3,6,5,4
-        TT_TEST_CHECK_EQUAL(tt_ptrvec_count(&pv), 6, "");
-        TT_TEST_CHECK_EQUAL(tt_ptrvec_get(&pv, 5), &pv4, "");
-        TT_TEST_CHECK_EQUAL(tt_ptrvec_count(&v2), 0, "");
+        TT_UT_EQUAL(tt_ptrvec_count(&pv), 6, "");
+        TT_UT_EQUAL(tt_ptrvec_get(&pv, 5), &pv4, "");
+        TT_UT_EQUAL(tt_ptrvec_count(&v2), 0, "");
 
         tt_ptrvec_trim(&v2);
         tt_ptrvec_destroy(&v2);

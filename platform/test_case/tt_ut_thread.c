@@ -185,14 +185,14 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_thread_pressure)
 
     // first do some simple test
     thread1[0] = tt_thread_create(test_thread, NULL, &attr);
-    TT_TEST_CHECK_EQUAL(thread1[0], (void *)1, "");
+    TT_UT_EQUAL(thread1[0], (void *)1, "");
 
     // null name is acceptable
     thread1[1] = tt_thread_create(test_thread, NULL, &attr);
-    TT_TEST_CHECK_EQUAL(thread1[0], (void *)1, "");
+    TT_UT_EQUAL(thread1[0], (void *)1, "");
 
     thread1[2] = tt_thread_create(test_thread, NULL, &attr);
-    TT_TEST_CHECK_EQUAL(thread1[0], (void *)1, "");
+    TT_UT_EQUAL(thread1[0], (void *)1, "");
 
     thread_num = 0;
     while (thread_num < 50) {
@@ -208,7 +208,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_thread_pressure)
 
     for (i = 0; i < sizeof(thread) / sizeof(thread[0]); ++i) {
         result = tt_thread_wait(thread[i]);
-        TT_TEST_CHECK_EQUAL(result, TT_SUCCESS, "");
+        TT_UT_EQUAL(result, TT_SUCCESS, "");
     }
 
     // detached
@@ -315,7 +315,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_thread_size2alloc)
     p = tt_malloc(1);
     tt_free(p);
     tc = tt_current_thread()->tcache;
-    TT_TEST_CHECK_NOT_EQUAL(tc, NULL, "");
+    TT_UT_NOT_EQUAL(tc, NULL, "");
 
     last_size = 0;
     size = 0;
@@ -328,7 +328,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_thread_size2alloc)
         // r in (last_size,size]
 
         allocated = tt_tcache_size2alloc(tc, r);
-        TT_TEST_CHECK_EQUAL(allocated, size, "");
+        TT_UT_EQUAL(allocated, size, "");
 #if 0
         TT_INFO("---- size: %d, allocated: %d [%f%%]",
                 r, allocated, 100*((float)allocated-(float)r)/allocated);
@@ -339,7 +339,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_thread_size2alloc)
     size += tt_rand_u32() & 0xFFFF;
     allocated = tt_tcache_size2alloc(tc, size);
     TT_U32_ALIGN_INC_PAGE(size);
-    TT_TEST_CHECK_EQUAL(allocated, size, "");
+    TT_UT_EQUAL(allocated, size, "");
 
 #ifdef TT_MEMORY_TAG_ENABLE
     last_size = 0;
@@ -361,7 +361,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_thread_size2alloc)
         r += last_size;
 
         allocated = tt_msize(r);
-        TT_TEST_CHECK_EQUAL(allocated + (tt_u32_t)sizeof(tt_tcache_bin_tag_t) +
+        TT_UT_EQUAL(allocated + (tt_u32_t)sizeof(tt_tcache_bin_tag_t) +
                                 (1 << tt_g_cpu_align_order),
                             size,
                             "");
@@ -376,7 +376,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_thread_size2alloc)
     allocated = tt_msize(size);
     size += (tt_u32_t)sizeof(tt_tcache_bin_tag_t) + (1 << tt_g_cpu_align_order);
     TT_U32_ALIGN_INC_PAGE(size);
-    TT_TEST_CHECK_EQUAL(allocated + (tt_u32_t)sizeof(tt_tcache_bin_tag_t) +
+    TT_UT_EQUAL(allocated + (tt_u32_t)sizeof(tt_tcache_bin_tag_t) +
                             (1 << tt_g_cpu_align_order),
                         size,
                         "");
@@ -409,17 +409,17 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_dll)
 #elif TT_ENV_OS_IS_WINDOWS
         tt_dll_create(&c_dll, "ntdll.dll", NULL);
 #endif
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     __c_memcpy = tt_dll_symbol(&c_dll, "memcpy");
-    TT_TEST_CHECK_NOT_EQUAL(__c_memcpy, NULL, "");
+    TT_UT_NOT_EQUAL(__c_memcpy, NULL, "");
 
     tt_memset(buf1, 0xd0, sizeof(buf1));
     __c_memcpy(buf2, buf1, sizeof(buf1));
-    TT_TEST_CHECK_EQUAL(tt_memcmp(buf1, buf2, sizeof(buf1)), 0, "");
+    TT_UT_EQUAL(tt_memcmp(buf1, buf2, sizeof(buf1)), 0, "");
 
     __c_memcpy = tt_dll_symbol(&c_dll, "memcpy111");
-    TT_TEST_CHECK_EQUAL(__c_memcpy, NULL, "");
+    TT_UT_EQUAL(__c_memcpy, NULL, "");
 
     tt_dll_destroy(&c_dll);
 
@@ -434,17 +434,17 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_dll)
 #elif TT_ENV_OS_IS_WINDOWS
         tt_dll_create(&c_dll, "C:\\Windows\\System32\\ntdll.dll", NULL);
 #endif
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     __c_memcpy = tt_dll_symbol(&c_dll, "memcpy");
-    TT_TEST_CHECK_NOT_EQUAL(__c_memcpy, NULL, "");
+    TT_UT_NOT_EQUAL(__c_memcpy, NULL, "");
 
     tt_memset(buf1, 0xd0, sizeof(buf1));
     __c_memcpy(buf2, buf1, sizeof(buf1));
-    TT_TEST_CHECK_EQUAL(tt_memcmp(buf1, buf2, sizeof(buf1)), 0, "");
+    TT_UT_EQUAL(tt_memcmp(buf1, buf2, sizeof(buf1)), 0, "");
 
     __c_memcpy = tt_dll_symbol(&c_dll, "memcpy111");
-    TT_TEST_CHECK_EQUAL(__c_memcpy, NULL, "");
+    TT_UT_EQUAL(__c_memcpy, NULL, "");
 
     tt_dll_destroy(&c_dll);
 
@@ -465,7 +465,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_process_basic)
     TT_TEST_CASE_ENTER()
 
     path = tt_process_path(NULL);
-    TT_TEST_CHECK_NOT_EQUAL(path, NULL, "");
+    TT_UT_NOT_EQUAL(path, NULL, "");
 
 #if !TT_ENV_OS_IS_IOS
 
@@ -487,32 +487,32 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_process_basic)
     argv[1] = "process";
     argv[2] = "proc1";
     ret = tt_process_create(&proc, __app_file, argv, NULL);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     ret = tt_process_wait(&proc, TT_TRUE, NULL);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     // create a child process which does not exist
     argv[0] = "tsk_unit_test";
     argv[1] = "process";
     argv[2] = "proc1";
     ret = tt_process_create(&proc, "./app_unit_test_not_exist", argv, NULL);
-    // TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    // TT_UT_EQUAL(ret, TT_SUCCESS, "");
     // ret = tt_process_wait(&proc, TT_TRUE, NULL);
-    // TT_TEST_CHECK_NOT_EQUAL(ret, TT_SUCCESS, "");
+    // TT_UT_NOT_EQUAL(ret, TT_SUCCESS, "");
 
     // create a child process and test nonblock wait
     argv[0] = "tsk_unit_test";
     argv[1] = "process";
     argv[2] = "proc_to";
     ret = tt_process_create(&proc, __app_file, argv, NULL);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     do {
         ret = tt_process_wait(&proc, TT_FALSE, NULL);
         if (TT_OK(ret)) {
             break;
         } else {
-            TT_TEST_CHECK_EQUAL(ret, TT_TIME_OUT, "");
+            TT_UT_EQUAL(ret, TT_TIME_OUT, "");
             TT_INFO("waiting for child process");
             tt_sleep(500);
         }
@@ -524,10 +524,10 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_process_basic)
     argv[2] = "proc_exit";
     argv[3] = "213";
     ret = tt_process_create(&proc, __app_file, argv, NULL);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     ret = tt_process_wait(&proc, TT_TRUE, &ec);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
-    TT_TEST_CHECK_EQUAL(ec, 213, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ec, 213, "");
 
     // create a child process with more args
     argv[0] = "tsk_unit_test";
@@ -547,10 +547,10 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_process_basic)
     argv[14] = "e";
     argv[15] = "f";
     ret = tt_process_create(&proc, __app_file, argv, NULL);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     ret = tt_process_wait(&proc, TT_TRUE, &ec);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
-    TT_TEST_CHECK_EQUAL(ec, 105, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ec, 105, "");
 
 #if 0
     // create a child process with name in non-english
@@ -559,9 +559,9 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_process_basic)
     argv[2] = "proc1";
     argv[3] = NULL;
     ret = tt_process_create(&proc, __app_file_sc, argv, NULL);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     ret = tt_process_wait(&proc, TT_TRUE, &ec);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 #endif
 
 #endif

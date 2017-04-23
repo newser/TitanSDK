@@ -209,7 +209,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_ssl_cert_pkcs12)
     tt_distname_init(&dn);
 
     ret = tt_sslctx_create(&sc, TT_SSL_ROLE_CLIENT, NULL);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     // pkcs12 cert
     cert.addr = __s_cert_111_11_1_p12_enc;
@@ -225,10 +225,10 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_ssl_cert_pkcs12)
                              TT_SSL_PRIVKEY_FMT_NONE,
                              NULL,
                              NULL);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
 
     ret = tt_sslctx_commit(&sc, &dn, 0);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
 
     tt_sslctx_destroy(&sc);
 
@@ -255,7 +255,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_ssl_ca_x509)
     tt_distname_init(&dn);
 
     ret = tt_sslctx_create(&sc, TT_SSL_ROLE_CLIENT, NULL);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     // X509 der
     cert.addr = __s_cert_1_x509_der;
@@ -264,10 +264,10 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_ssl_ca_x509)
     cert_attr.encrypted = TT_FALSE;
 
     ret = tt_sslctx_add_ca(&sc, TT_SSL_CERT_FMT_X509, &cert, &cert_attr);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
 
     ret = tt_sslctx_commit(&sc, &dn, 0);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
 #if 1
     // 2 X509 pem
@@ -277,10 +277,10 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_ssl_ca_x509)
     cert_attr.encrypted = TT_FALSE;
 
     ret = tt_sslctx_add_ca(&sc, TT_SSL_CERT_FMT_X509, &cert, &cert_attr);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
 
     ret = tt_sslctx_commit(&sc, &dn, 0);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 #endif
 
     tt_sslctx_destroy(&sc);
@@ -305,7 +305,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_ssl_ca_pkcs7)
 
     // pkcs7 pem cert
     ret = tt_sslctx_create(&sc, TT_SSL_ROLE_CLIENT, NULL);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     cert.addr = __s_ca_11_1_p7_pem;
     cert.len = sizeof(__s_ca_11_1_p7_pem);
@@ -316,19 +316,19 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_ssl_ca_pkcs7)
     ret = tt_sslctx_add_ca(&sc, TT_SSL_CERT_FMT_PKCS7, &cert, &cert_attr);
 #if TT_ENV_OS_IS_IOS
     // ios does not support pkcs7
-    TT_TEST_CHECK_NOT_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_NOT_EQUAL(ret, TT_SUCCESS, "");
 #else
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
 #endif
 
     ret = tt_sslctx_commit(&sc, &dn, 0);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
 
     tt_sslctx_destroy(&sc);
 
 
     ret = tt_sslctx_create(&sc, TT_SSL_ROLE_CLIENT, NULL);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     // pkcs7 der cert
     cert.addr = __s_ca_11_1_p7_der;
@@ -340,13 +340,13 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_ssl_ca_pkcs7)
     ret = tt_sslctx_add_ca(&sc, TT_SSL_CERT_FMT_PKCS7, &cert, &cert_attr);
 #if TT_ENV_OS_IS_IOS
     // ios does not support pkcs7
-    TT_TEST_CHECK_NOT_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_NOT_EQUAL(ret, TT_SUCCESS, "");
 #else
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
 #endif
 
     ret = tt_sslctx_commit(&sc, &dn, 0);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
 
     tt_sslctx_destroy(&sc);
 
@@ -369,7 +369,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_ssl_ca_pkcs12)
     tt_distname_init(&dn);
 
     ret = tt_sslctx_create(&sc, TT_SSL_ROLE_CLIENT, NULL);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     // pkcs12 cert
     cert.addr = __s_cert_111_11_1_p12_enc;
@@ -379,10 +379,10 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_ssl_ca_pkcs12)
     cert_attr.password = __s_pwd;
 
     ret = tt_sslctx_add_ca(&sc, TT_SSL_CERT_FMT_PKCS12, &cert, &cert_attr);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
 
     ret = tt_sslctx_commit(&sc, &dn, 0);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
 
     tt_sslctx_destroy(&sc);
 
@@ -410,7 +410,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_ssl_si_verify)
     tt_distname_init(&dn);
 
     ret = tt_sslctx_create(&sc, TT_SSL_ROLE_CLIENT, NULL);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     // X509 der
     cert.addr = __s_cert_1_x509_der;
@@ -419,7 +419,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_ssl_si_verify)
     cert_attr.encrypted = TT_FALSE;
 
     ret = tt_sslctx_add_ca(&sc, TT_SSL_CERT_FMT_X509, &cert, &cert_attr);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
 
     tt_ssl_verify_init(&ssl_verify);
     ssl_verify.allow_expired_cert = TT_TRUE;
@@ -433,7 +433,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_ssl_si_verify)
 #endif
 
     ret = tt_sslctx_commit(&sc, &dn, 0);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
 #if 1
     ////////////////////////////////////////
@@ -444,8 +444,8 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_ssl_si_verify)
     cert_attr.pem_armor = TT_FALSE;
     cert_attr.encrypted = TT_FALSE;
     ret = tt_sslctx_verify(&sc, TT_SSL_CERT_FMT_X509, &cert, &cert_attr, NULL);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
-// TT_TEST_CHECK_NOT_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+// TT_UT_NOT_EQUAL(ret, TT_SUCCESS, "");
 #endif
 
 #if 1
@@ -457,7 +457,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_ssl_si_verify)
     cert_attr.pem_armor = TT_FALSE;
     cert_attr.encrypted = TT_FALSE;
     ret = tt_sslctx_verify(&sc, TT_SSL_CERT_FMT_X509, &cert, &cert_attr, NULL);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 #endif
 
 #if 1
@@ -469,7 +469,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_ssl_si_verify)
     cert_attr.pem_armor = TT_TRUE;
     cert_attr.encrypted = TT_FALSE;
     ret = tt_sslctx_verify(&sc, TT_SSL_CERT_FMT_X509, &cert, &cert_attr, NULL);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 #endif
 
 #if 1
@@ -481,7 +481,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_ssl_si_verify)
     cert_attr.pem_armor = TT_TRUE;
     cert_attr.encrypted = TT_FALSE;
     ret = tt_sslctx_verify(&sc, TT_SSL_CERT_FMT_X509, &cert, &cert_attr, NULL);
-    TT_TEST_CHECK_NOT_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_NOT_EQUAL(ret, TT_SUCCESS, "");
 #endif
 
     tt_sslctx_destroy(&sc);
@@ -506,7 +506,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_ssl_nsi_verify)
     tt_distname_init(&dn);
 
     ret = tt_sslctx_create(&sc, TT_SSL_ROLE_CLIENT, NULL);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     // X509 der
     cert.addr = __s_cert_11_x509_der;
@@ -515,7 +515,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_ssl_nsi_verify)
     cert_attr.encrypted = TT_FALSE;
 
     ret = tt_sslctx_add_ca(&sc, TT_SSL_CERT_FMT_X509, &cert, &cert_attr);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
 
     tt_ssl_verify_init(&ssl_verify);
     ssl_verify.allow_expired_cert = TT_TRUE;
@@ -529,7 +529,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_ssl_nsi_verify)
 #endif
 
     ret = tt_sslctx_commit(&sc, &dn, 0);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
 #if 1
     ////////////////////////////////////////
@@ -540,8 +540,8 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_ssl_nsi_verify)
     cert_attr.pem_armor = TT_FALSE;
     cert_attr.encrypted = TT_FALSE;
     ret = tt_sslctx_verify(&sc, TT_SSL_CERT_FMT_X509, &cert, &cert_attr, NULL);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
-// TT_TEST_CHECK_NOT_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+// TT_UT_NOT_EQUAL(ret, TT_SUCCESS, "");
 #endif
 
 #if 1
@@ -553,7 +553,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_ssl_nsi_verify)
     cert_attr.pem_armor = TT_TRUE;
     cert_attr.encrypted = TT_FALSE;
     ret = tt_sslctx_verify(&sc, TT_SSL_CERT_FMT_X509, &cert, &cert_attr, NULL);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 #endif
 
 #if 1
@@ -565,7 +565,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_ssl_nsi_verify)
     cert_attr.pem_armor = TT_TRUE;
     cert_attr.encrypted = TT_FALSE;
     ret = tt_sslctx_verify(&sc, TT_SSL_CERT_FMT_X509, &cert, &cert_attr, NULL);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 #endif
 
 #if 1
@@ -577,7 +577,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_ssl_nsi_verify)
     cert_attr.pem_armor = TT_TRUE;
     cert_attr.encrypted = TT_FALSE;
     ret = tt_sslctx_verify(&sc, TT_SSL_CERT_FMT_X509, &cert, &cert_attr, NULL);
-    TT_TEST_CHECK_NOT_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_NOT_EQUAL(ret, TT_SUCCESS, "");
 #endif
 
     tt_sslctx_destroy(&sc);
@@ -636,7 +636,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_ssl_chain_verify)
     tt_distname_init(&dn);
 
     ret = tt_sslctx_create(&sc, TT_SSL_ROLE_CLIENT, NULL);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     ////////////////////////////////////////
     // self signed chain
@@ -649,7 +649,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_ssl_chain_verify)
     cert_attr.encrypted = TT_FALSE;
 
     ret = tt_sslctx_add_ca(&sc, TT_SSL_CERT_FMT_X509, &cert, &cert_attr);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
 
     tt_ssl_verify_init(&ssl_verify);
     ssl_verify.allow_expired_cert = TT_TRUE;
@@ -663,7 +663,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_ssl_chain_verify)
 #endif
 
     ret = tt_sslctx_commit(&sc, &dn, 0);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
 #if 1
     ////////////////////////////////////////
@@ -674,7 +674,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_ssl_chain_verify)
     cert_attr.pem_armor = TT_TRUE;
     cert_attr.encrypted = TT_TRUE;
     ret = tt_sslctx_verify(&sc, TT_SSL_CERT_FMT_X509, &cert, &cert_attr, NULL);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 #endif
 
 #if 1
@@ -686,7 +686,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_ssl_chain_verify)
     cert_attr.pem_armor = TT_TRUE;
     cert_attr.encrypted = TT_FALSE;
     ret = tt_sslctx_verify(&sc, TT_SSL_CERT_FMT_X509, &cert, &cert_attr, NULL);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 #endif
 
 #if 1
@@ -698,7 +698,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_ssl_chain_verify)
     cert_attr.pem_armor = TT_TRUE;
     cert_attr.encrypted = TT_FALSE;
     ret = tt_sslctx_verify(&sc, TT_SSL_CERT_FMT_X509, &cert, &cert_attr, NULL);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 #endif
 
 #if 1
@@ -710,7 +710,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_ssl_chain_verify)
     cert_attr.pem_armor = TT_TRUE;
     cert_attr.encrypted = TT_FALSE;
     ret = tt_sslctx_verify(&sc, TT_SSL_CERT_FMT_X509, &cert, &cert_attr, NULL);
-    TT_TEST_CHECK_NOT_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_NOT_EQUAL(ret, TT_SUCCESS, "");
 #endif
 
     tt_sslctx_destroy(&sc);

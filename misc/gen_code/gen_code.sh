@@ -13,7 +13,7 @@ function usage
 
 if [ $# -eq 2 ]
 then
-  GC_PATH=../../platform/export
+  GC_PATH=../../platform/include
 elif [ $# -eq 3 ]
 then
   GC_PATH=$3

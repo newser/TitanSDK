@@ -107,6 +107,7 @@ tt_thread_t *tt_thread_create(IN tt_thread_routine_t routine,
     }
 
     thread->fiber_sched = NULL;
+    thread->task = NULL;
 
     thread->last_error = TT_SUCCESS;
     thread->detached = detached;
@@ -231,9 +232,14 @@ tt_result_t __thread_component_init(IN tt_component_t *comp,
 tt_result_t __thread_on_create(IN tt_thread_t *thread)
 {
     // must be created in new thread context
-    if (thread->enable_fiber &&
-        ((thread->fiber_sched = tt_fiber_sched_create(NULL)) == NULL)) {
-        return TT_FAIL;
+    if (thread->enable_fiber) {
+        thread->fiber_sched = tt_fiber_sched_create(NULL);
+        if (thread->fiber_sched == NULL) {
+            return TT_FAIL;
+        }
+
+        TT_ASSERT(thread->fiber_sched->thread == NULL);
+        thread->fiber_sched->thread = thread;
     }
 
     return TT_SUCCESS;

@@ -194,17 +194,17 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_charset_gb2312_utf8)
 
     ret =
         tt_chsetconv_create(&csconv, TT_CHARSET_GB2312, TT_CHARSET_UTF8, NULL);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     ret = tt_chsetconv_input(&csconv, __gb2312_1, 0);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     buf_len = 0;
     tt_chsetconv_output(&csconv, buf, &buf_len);
-    TT_TEST_CHECK_EQUAL(buf_len, 0, "");
+    TT_UT_EQUAL(buf_len, 0, "");
 
     tt_chsetconv_output_ptr(&csconv, NULL, &buf_len);
-    TT_TEST_CHECK_EQUAL(buf_len, 0, "");
+    TT_UT_EQUAL(buf_len, 0, "");
 
     tt_chsetconv_destroy(&csconv);
     ;
@@ -218,21 +218,21 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_charset_gb2312_utf8)
                                   TT_CHARSET_GB2312,
                                   TT_CHARSET_UTF8,
                                   NULL);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
         ret = tt_chsetconv_input(&csconv, __gb2312_1, sizeof(__gb2312_1));
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
         tt_chsetconv_output(&csconv, NULL, &ret_utf8_len);
-        TT_TEST_CHECK_EQUAL(ret_utf8_len, sizeof(__utf8_1), "");
+        TT_UT_EQUAL(ret_utf8_len, sizeof(__utf8_1), "");
 
         tt_chsetconv_output(&csconv, ret_utf8, &ret_utf8_len);
-        TT_TEST_CHECK_EQUAL(ret_utf8_len, sizeof(__utf8_1), "");
-        TT_TEST_CHECK_EQUAL(tt_memcmp(ret_utf8, __utf8_1, ret_utf8_len), 0, "");
+        TT_UT_EQUAL(ret_utf8_len, sizeof(__utf8_1), "");
+        TT_UT_EQUAL(tt_memcmp(ret_utf8, __utf8_1, ret_utf8_len), 0, "");
 
         // no more
         tt_chsetconv_output(&csconv, ret_utf8, &ret_utf8_len);
-        TT_TEST_CHECK_EQUAL(ret_utf8_len, 0, "");
+        TT_UT_EQUAL(ret_utf8_len, 0, "");
 
         tt_chsetconv_destroy(&csconv);
     }
@@ -246,29 +246,25 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_charset_gb2312_utf8)
                                   TT_CHARSET_UTF8,
                                   TT_CHARSET_GB2312,
                                   NULL);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
         ret = tt_chsetconv_input(&csconv, __utf8_1, sizeof(__utf8_1));
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
         tt_chsetconv_output_ptr(&csconv, NULL, &ret_gb2312_len);
-        TT_TEST_CHECK_EQUAL(ret_gb2312_len, sizeof(__gb2312_1), "");
+        TT_UT_EQUAL(ret_gb2312_len, sizeof(__gb2312_1), "");
 
         tt_chsetconv_output_ptr(&csconv, &ret_gb2312, &ret_gb2312_len);
-        TT_TEST_CHECK_EQUAL(ret_gb2312_len, sizeof(__gb2312_1), "");
-        TT_TEST_CHECK_EQUAL(tt_memcmp(ret_gb2312, __gb2312_1, ret_gb2312_len),
-                            0,
-                            "");
+        TT_UT_EQUAL(ret_gb2312_len, sizeof(__gb2312_1), "");
+        TT_UT_EQUAL(tt_memcmp(ret_gb2312, __gb2312_1, ret_gb2312_len), 0, "");
 
         // can get again
         tt_chsetconv_output_ptr(&csconv, NULL, &ret_gb2312_len);
-        TT_TEST_CHECK_EQUAL(ret_gb2312_len, sizeof(__gb2312_1), "");
+        TT_UT_EQUAL(ret_gb2312_len, sizeof(__gb2312_1), "");
 
         tt_chsetconv_output_ptr(&csconv, &ret_gb2312, &ret_gb2312_len);
-        TT_TEST_CHECK_EQUAL(ret_gb2312_len, sizeof(__gb2312_1), "");
-        TT_TEST_CHECK_EQUAL(tt_memcmp(ret_gb2312, __gb2312_1, ret_gb2312_len),
-                            0,
-                            "");
+        TT_UT_EQUAL(ret_gb2312_len, sizeof(__gb2312_1), "");
+        TT_UT_EQUAL(tt_memcmp(ret_gb2312, __gb2312_1, ret_gb2312_len), 0, "");
 
         tt_chsetconv_destroy(&csconv);
     }
@@ -326,22 +322,22 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_charset_utf16le_utf8)
     // utf16le to utf8
     ret =
         tt_chsetconv_create(&csconv, TT_CHARSET_UTF16LE, TT_CHARSET_UTF8, NULL);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     {
         tt_u8_t ret_utf8[sizeof(__utf8_1) + 100];
         tt_u32_t ret_utf8_len = sizeof(ret_utf8);
 
         ret = tt_chsetconv_input(&csconv, __utf16le_1, sizeof(__utf16le_1));
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
         tt_chsetconv_output(&csconv, ret_utf8, &ret_utf8_len);
-        TT_TEST_CHECK_EQUAL(ret_utf8_len, sizeof(__utf8_1), "");
-        TT_TEST_CHECK_EQUAL(tt_memcmp(ret_utf8, __utf8_1, ret_utf8_len), 0, "");
+        TT_UT_EQUAL(ret_utf8_len, sizeof(__utf8_1), "");
+        TT_UT_EQUAL(tt_memcmp(ret_utf8, __utf8_1, ret_utf8_len), 0, "");
 
         // no more
         ret_utf8_len = sizeof(ret_utf8);
         tt_chsetconv_output(&csconv, ret_utf8, &ret_utf8_len);
-        TT_TEST_CHECK_EQUAL(ret_utf8_len, 0, "");
+        TT_UT_EQUAL(ret_utf8_len, 0, "");
 
         tt_chsetconv_reset(&csconv);
     }
@@ -386,75 +382,75 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_charset_utf16le_utf8)
 
         // not ready
         ret = tt_chsetconv_input(&csconv, test_1, 1);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         ret_utf8_len = sizeof(ret_utf8);
         tt_chsetconv_output(&csconv, ret_utf8, &ret_utf8_len);
-        TT_TEST_CHECK_EQUAL(ret_utf8_len, 0, "");
+        TT_UT_EQUAL(ret_utf8_len, 0, "");
 
         // 1 utf8
         ret = tt_chsetconv_input(&csconv, test_1 + 1, 1);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         ret_utf8_len = sizeof(ret_utf8);
         tt_chsetconv_output(&csconv, ret_utf8, &ret_utf8_len);
-        TT_TEST_CHECK_EQUAL(ret_utf8_len, 3, "");
-        TT_TEST_CHECK_EQUAL(ret_utf8[0], 0xe7, "");
-        TT_TEST_CHECK_EQUAL(ret_utf8[1], 0xBd, "");
-        TT_TEST_CHECK_EQUAL(ret_utf8[2], 0x91, "");
+        TT_UT_EQUAL(ret_utf8_len, 3, "");
+        TT_UT_EQUAL(ret_utf8[0], 0xe7, "");
+        TT_UT_EQUAL(ret_utf8[1], 0xBd, "");
+        TT_UT_EQUAL(ret_utf8[2], 0x91, "");
 
         // 1 utf8
         ret = tt_chsetconv_input(&csconv, test_1 + 2, 3);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         ret_utf8_len = sizeof(ret_utf8);
         tt_chsetconv_output(&csconv, ret_utf8, &ret_utf8_len);
-        TT_TEST_CHECK_EQUAL(ret_utf8_len, 3, "");
-        TT_TEST_CHECK_EQUAL(ret_utf8[0], 0xe6, "");
-        TT_TEST_CHECK_EQUAL(ret_utf8[1], 0x98, "");
-        TT_TEST_CHECK_EQUAL(ret_utf8[2], 0x93, "");
+        TT_UT_EQUAL(ret_utf8_len, 3, "");
+        TT_UT_EQUAL(ret_utf8[0], 0xe6, "");
+        TT_UT_EQUAL(ret_utf8[1], 0x98, "");
+        TT_UT_EQUAL(ret_utf8[2], 0x93, "");
 
         // 2 utf8
         ret = tt_chsetconv_input(&csconv, test_1 + 5, 4);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         ret_utf8_len = sizeof(ret_utf8);
         tt_chsetconv_output(&csconv, ret_utf8, &ret_utf8_len);
-        TT_TEST_CHECK_EQUAL(ret_utf8_len, 6, "");
-        TT_TEST_CHECK_EQUAL(ret_utf8[0], 0xe7, "");
-        TT_TEST_CHECK_EQUAL(ret_utf8[1], 0xA7, "");
-        TT_TEST_CHECK_EQUAL(ret_utf8[2], 0x91, "");
-        TT_TEST_CHECK_EQUAL(ret_utf8[3], 0xe6, "");
-        TT_TEST_CHECK_EQUAL(ret_utf8[4], 0x8A, "");
-        TT_TEST_CHECK_EQUAL(ret_utf8[5], 0x80, "");
+        TT_UT_EQUAL(ret_utf8_len, 6, "");
+        TT_UT_EQUAL(ret_utf8[0], 0xe7, "");
+        TT_UT_EQUAL(ret_utf8[1], 0xA7, "");
+        TT_UT_EQUAL(ret_utf8[2], 0x91, "");
+        TT_UT_EQUAL(ret_utf8[3], 0xe6, "");
+        TT_UT_EQUAL(ret_utf8[4], 0x8A, "");
+        TT_UT_EQUAL(ret_utf8[5], 0x80, "");
 
         // not ready
         ret = tt_chsetconv_input(&csconv, test_1 + 9, 1);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         ret_utf8_len = sizeof(ret_utf8);
         tt_chsetconv_output(&csconv, ret_utf8, &ret_utf8_len);
-        TT_TEST_CHECK_EQUAL(ret_utf8_len, 0, "");
+        TT_UT_EQUAL(ret_utf8_len, 0, "");
 
         ret = tt_chsetconv_input(&csconv, test_1 + 10, 1);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         ret_utf8_len = sizeof(ret_utf8);
         tt_chsetconv_output(&csconv, ret_utf8, &ret_utf8_len);
-        TT_TEST_CHECK_EQUAL(ret_utf8_len, 0, "");
+        TT_UT_EQUAL(ret_utf8_len, 0, "");
 
         // 2 utf
         ret = tt_chsetconv_input(&csconv, test_1 + 11, 3);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         ret_utf8_len = sizeof(ret_utf8);
         tt_chsetconv_output(&csconv, ret_utf8, &ret_utf8_len);
-        TT_TEST_CHECK_EQUAL(ret_utf8_len, 7, "");
-        TT_TEST_CHECK_EQUAL(ret_utf8[0], 0xF0, "");
-        TT_TEST_CHECK_EQUAL(ret_utf8[1], 0x90, "");
-        TT_TEST_CHECK_EQUAL(ret_utf8[2], 0x90, "");
-        TT_TEST_CHECK_EQUAL(ret_utf8[3], 0xB7, "");
-        TT_TEST_CHECK_EQUAL(ret_utf8[4], 0xe8, "");
-        TT_TEST_CHECK_EQUAL(ret_utf8[5], 0xAE, "");
-        TT_TEST_CHECK_EQUAL(ret_utf8[6], 0xAF, "");
+        TT_UT_EQUAL(ret_utf8_len, 7, "");
+        TT_UT_EQUAL(ret_utf8[0], 0xF0, "");
+        TT_UT_EQUAL(ret_utf8[1], 0x90, "");
+        TT_UT_EQUAL(ret_utf8[2], 0x90, "");
+        TT_UT_EQUAL(ret_utf8[3], 0xB7, "");
+        TT_UT_EQUAL(ret_utf8[4], 0xe8, "");
+        TT_UT_EQUAL(ret_utf8[5], 0xAE, "");
+        TT_UT_EQUAL(ret_utf8[6], 0xAF, "");
 
         // no more
         ret_utf8_len = sizeof(ret_utf8);
         tt_chsetconv_output(&csconv, ret_utf8, &ret_utf8_len);
-        TT_TEST_CHECK_EQUAL(ret_utf8_len, 0, "");
+        TT_UT_EQUAL(ret_utf8_len, 0, "");
 
         tt_chsetconv_reset(&csconv);
 
@@ -468,16 +464,14 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_charset_utf16le_utf8)
             }
 
             ret = tt_chsetconv_input(&csconv, test_1 + i, n);
-            TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+            TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
             ret_utf8_len = sizeof(ret_utf8);
             tt_chsetconv_output(&csconv, ret_utf8, &ret_utf8_len);
             if (ret_utf8_len != 0) {
-                TT_TEST_CHECK_EQUAL(tt_memcmp(ret_utf8,
-                                              test_ret + j,
-                                              ret_utf8_len),
-                                    0,
-                                    "");
+                TT_UT_EQUAL(tt_memcmp(ret_utf8, test_ret + j, ret_utf8_len),
+                            0,
+                            "");
                 j += ret_utf8_len;
             }
 
@@ -491,7 +485,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_charset_utf16le_utf8)
     // utf8 to utf16le
     ret =
         tt_chsetconv_create(&csconv, TT_CHARSET_UTF8, TT_CHARSET_UTF16LE, NULL);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     {
         tt_u8_t ret_utf16le[100];
         tt_u32_t ret_utf16le_len;
@@ -499,36 +493,36 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_charset_utf16le_utf8)
         tt_u8_t *p;
 
         ret = tt_chsetconv_input(&csconv, __utf8_1, sizeof(__utf8_1));
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
         ret_utf16le_len = 0;
         tt_chsetconv_output(&csconv, ret_utf16le, &ret_utf16le_len);
-        TT_TEST_CHECK_EQUAL(ret_utf16le_len, 0, "");
+        TT_UT_EQUAL(ret_utf16le_len, 0, "");
 
         n = 0;
         while (n < sizeof(__utf16le_1)) {
             ret_utf16le_len = sizeof(ret_utf16le);
             tt_chsetconv_output(&csconv, ret_utf16le, &ret_utf16le_len);
-            TT_TEST_CHECK_EXP(ret_utf16le_len <= sizeof(ret_utf16le), "");
-            TT_TEST_CHECK_EQUAL(tt_memcmp(ret_utf16le,
-                                          __utf16le_1 + n,
-                                          ret_utf16le_len),
-                                0,
-                                "");
+            TT_UT_EXP(ret_utf16le_len <= sizeof(ret_utf16le), "");
+            TT_UT_EQUAL(tt_memcmp(ret_utf16le,
+                                  __utf16le_1 + n,
+                                  ret_utf16le_len),
+                        0,
+                        "");
 
             n += ret_utf16le_len;
         }
-        TT_TEST_CHECK_EQUAL(n, sizeof(__utf16le_1), "");
+        TT_UT_EQUAL(n, sizeof(__utf16le_1), "");
 
         // no more
         ret_utf16le_len = sizeof(ret_utf16le);
         tt_chsetconv_output(&csconv, ret_utf16le, &ret_utf16le_len);
-        TT_TEST_CHECK_EQUAL(ret_utf16le_len, 0, "");
+        TT_UT_EQUAL(ret_utf16le_len, 0, "");
 
         ret_utf16le_len = sizeof(ret_utf16le);
         tt_chsetconv_output_ptr(&csconv, &p, &ret_utf16le_len);
-        TT_TEST_CHECK_EQUAL(p, NULL, "");
-        TT_TEST_CHECK_EQUAL(ret_utf16le_len, 0, "");
+        TT_UT_EQUAL(p, NULL, "");
+        TT_UT_EQUAL(ret_utf16le_len, 0, "");
 
         tt_chsetconv_reset(&csconv);
     }
@@ -556,71 +550,71 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_charset_utf16le_utf8)
 
         // not ready
         ret = tt_chsetconv_input(&csconv, utf8_test1, 1);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         tt_chsetconv_output(&csconv, ret_utf8, &ret_utf8_len);
-        TT_TEST_CHECK_EQUAL(ret_utf8_len, 0, "");
+        TT_UT_EQUAL(ret_utf8_len, 0, "");
 
         // not ready
         ret = tt_chsetconv_input(&csconv, utf8_test1 + 1, 1);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         tt_chsetconv_output(&csconv, ret_utf8, &ret_utf8_len);
-        TT_TEST_CHECK_EQUAL(ret_utf8_len, 0, "");
+        TT_UT_EQUAL(ret_utf8_len, 0, "");
 
         // 1 utf16le
         ret = tt_chsetconv_input(&csconv, utf8_test1 + 2, 1);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         ret_utf8_len = sizeof(ret_utf8);
         tt_chsetconv_output(&csconv, ret_utf8, &ret_utf8_len);
-        TT_TEST_CHECK_EQUAL(ret_utf8_len, 2, "");
-        TT_TEST_CHECK_EQUAL(ret_utf8[0], 0X51, "");
-        TT_TEST_CHECK_EQUAL(ret_utf8[1], 0x7F, "");
+        TT_UT_EQUAL(ret_utf8_len, 2, "");
+        TT_UT_EQUAL(ret_utf8[0], 0X51, "");
+        TT_UT_EQUAL(ret_utf8[1], 0x7F, "");
 
         // not ready
         ret = tt_chsetconv_input(&csconv, utf8_test1 + 3, 2);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         ret_utf8_len = sizeof(ret_utf8);
         tt_chsetconv_output(&csconv, ret_utf8, &ret_utf8_len);
-        TT_TEST_CHECK_EQUAL(ret_utf8_len, 0, "");
+        TT_UT_EQUAL(ret_utf8_len, 0, "");
 
         // 2 utf16le
         ret = tt_chsetconv_input(&csconv, utf8_test1 + 5, 5);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         ret_utf8_len = sizeof(ret_utf8);
         tt_chsetconv_output(&csconv, ret_utf8, &ret_utf8_len);
-        TT_TEST_CHECK_EQUAL(ret_utf8_len, 4, "");
-        TT_TEST_CHECK_EQUAL(ret_utf8[0], 0X13, "");
-        TT_TEST_CHECK_EQUAL(ret_utf8[1], 0x66, "");
-        TT_TEST_CHECK_EQUAL(ret_utf8[2], 0XD1, "");
-        TT_TEST_CHECK_EQUAL(ret_utf8[3], 0x79, "");
+        TT_UT_EQUAL(ret_utf8_len, 4, "");
+        TT_UT_EQUAL(ret_utf8[0], 0X13, "");
+        TT_UT_EQUAL(ret_utf8[1], 0x66, "");
+        TT_UT_EQUAL(ret_utf8[2], 0XD1, "");
+        TT_UT_EQUAL(ret_utf8[3], 0x79, "");
 
         // not ready
         ret = tt_chsetconv_input(&csconv, utf8_test1 + 10, 1);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         ret_utf8_len = sizeof(ret_utf8);
         tt_chsetconv_output(&csconv, ret_utf8, &ret_utf8_len);
-        TT_TEST_CHECK_EQUAL(ret_utf8_len, 0, "");
+        TT_UT_EQUAL(ret_utf8_len, 0, "");
 
         ret = tt_chsetconv_input(&csconv, utf8_test1 + 11, 1);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         ret_utf8_len = sizeof(ret_utf8);
         tt_chsetconv_output(&csconv, ret_utf8, &ret_utf8_len);
-        TT_TEST_CHECK_EQUAL(ret_utf8_len, 0, "");
+        TT_UT_EQUAL(ret_utf8_len, 0, "");
 
         // 1 utf16
         ret = tt_chsetconv_input(&csconv, utf8_test1 + 12, 2);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         ret_utf8_len = sizeof(ret_utf8);
         tt_chsetconv_output(&csconv, ret_utf8, &ret_utf8_len);
-        TT_TEST_CHECK_EQUAL(ret_utf8_len, 4, "");
-        TT_TEST_CHECK_EQUAL(ret_utf8[0], 0X01, "");
-        TT_TEST_CHECK_EQUAL(ret_utf8[1], 0xD8, "");
-        TT_TEST_CHECK_EQUAL(ret_utf8[2], 0X37, "");
-        TT_TEST_CHECK_EQUAL(ret_utf8[3], 0xDC, "");
+        TT_UT_EQUAL(ret_utf8_len, 4, "");
+        TT_UT_EQUAL(ret_utf8[0], 0X01, "");
+        TT_UT_EQUAL(ret_utf8[1], 0xD8, "");
+        TT_UT_EQUAL(ret_utf8[2], 0X37, "");
+        TT_UT_EQUAL(ret_utf8[3], 0xDC, "");
 
         // no more
         ret_utf8_len = sizeof(ret_utf8);
         tt_chsetconv_output(&csconv, ret_utf8, &ret_utf8_len);
-        TT_TEST_CHECK_EQUAL(ret_utf8_len, 0, "");
+        TT_UT_EQUAL(ret_utf8_len, 0, "");
 
         tt_chsetconv_reset(&csconv);
 
@@ -634,16 +628,14 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_charset_utf16le_utf8)
             }
 
             ret = tt_chsetconv_input(&csconv, utf8_test1 + i, n);
-            TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+            TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
             ret_utf8_len = sizeof(ret_utf8);
             tt_chsetconv_output(&csconv, ret_utf8, &ret_utf8_len);
             if (ret_utf8_len != 0) {
-                TT_TEST_CHECK_EQUAL(tt_memcmp(ret_utf8,
-                                              test_ret + j,
-                                              ret_utf8_len),
-                                    0,
-                                    "");
+                TT_UT_EQUAL(tt_memcmp(ret_utf8, test_ret + j, ret_utf8_len),
+                            0,
+                            "");
                 j += ret_utf8_len;
             }
 
@@ -707,21 +699,21 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_charset_utf16be_utf8)
     // utf16be to utf8
     ret =
         tt_chsetconv_create(&csconv, TT_CHARSET_UTF16BE, TT_CHARSET_UTF8, NULL);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     {
         tt_u8_t ret_utf8[sizeof(__utf8_1)];
         tt_u32_t ret_utf8_len = sizeof(ret_utf8);
 
         ret = tt_chsetconv_input(&csconv, __utf16be_1, sizeof(__utf16be_1));
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
         tt_chsetconv_output(&csconv, ret_utf8, &ret_utf8_len);
-        TT_TEST_CHECK_EQUAL(ret_utf8_len, sizeof(__utf8_1), "");
-        TT_TEST_CHECK_EQUAL(tt_memcmp(ret_utf8, __utf8_1, ret_utf8_len), 0, "");
+        TT_UT_EQUAL(ret_utf8_len, sizeof(__utf8_1), "");
+        TT_UT_EQUAL(tt_memcmp(ret_utf8, __utf8_1, ret_utf8_len), 0, "");
 
         // no more
         tt_chsetconv_output(&csconv, ret_utf8, &ret_utf8_len);
-        TT_TEST_CHECK_EQUAL(ret_utf8_len, 0, "");
+        TT_UT_EQUAL(ret_utf8_len, 0, "");
 
         tt_chsetconv_reset(&csconv);
     }
@@ -766,75 +758,75 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_charset_utf16be_utf8)
 
         // not ready
         ret = tt_chsetconv_input(&csconv, test_1, 1);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         ret_utf8_len = sizeof(ret_utf8);
         tt_chsetconv_output(&csconv, ret_utf8, &ret_utf8_len);
-        TT_TEST_CHECK_EQUAL(ret_utf8_len, 0, "");
+        TT_UT_EQUAL(ret_utf8_len, 0, "");
 
         // 1 utf8
         ret = tt_chsetconv_input(&csconv, test_1 + 1, 1);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         ret_utf8_len = sizeof(ret_utf8);
         tt_chsetconv_output(&csconv, ret_utf8, &ret_utf8_len);
-        TT_TEST_CHECK_EQUAL(ret_utf8_len, 3, "");
-        TT_TEST_CHECK_EQUAL(ret_utf8[0], 0xe7, "");
-        TT_TEST_CHECK_EQUAL(ret_utf8[1], 0xBd, "");
-        TT_TEST_CHECK_EQUAL(ret_utf8[2], 0x91, "");
+        TT_UT_EQUAL(ret_utf8_len, 3, "");
+        TT_UT_EQUAL(ret_utf8[0], 0xe7, "");
+        TT_UT_EQUAL(ret_utf8[1], 0xBd, "");
+        TT_UT_EQUAL(ret_utf8[2], 0x91, "");
 
         // 1 utf8
         ret = tt_chsetconv_input(&csconv, test_1 + 2, 3);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         ret_utf8_len = sizeof(ret_utf8);
         tt_chsetconv_output(&csconv, ret_utf8, &ret_utf8_len);
-        TT_TEST_CHECK_EQUAL(ret_utf8_len, 3, "");
-        TT_TEST_CHECK_EQUAL(ret_utf8[0], 0xe6, "");
-        TT_TEST_CHECK_EQUAL(ret_utf8[1], 0x98, "");
-        TT_TEST_CHECK_EQUAL(ret_utf8[2], 0x93, "");
+        TT_UT_EQUAL(ret_utf8_len, 3, "");
+        TT_UT_EQUAL(ret_utf8[0], 0xe6, "");
+        TT_UT_EQUAL(ret_utf8[1], 0x98, "");
+        TT_UT_EQUAL(ret_utf8[2], 0x93, "");
 
         // 2 utf8
         ret = tt_chsetconv_input(&csconv, test_1 + 5, 4);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         ret_utf8_len = sizeof(ret_utf8);
         tt_chsetconv_output(&csconv, ret_utf8, &ret_utf8_len);
-        TT_TEST_CHECK_EQUAL(ret_utf8_len, 6, "");
-        TT_TEST_CHECK_EQUAL(ret_utf8[0], 0xe7, "");
-        TT_TEST_CHECK_EQUAL(ret_utf8[1], 0xA7, "");
-        TT_TEST_CHECK_EQUAL(ret_utf8[2], 0x91, "");
-        TT_TEST_CHECK_EQUAL(ret_utf8[3], 0xe6, "");
-        TT_TEST_CHECK_EQUAL(ret_utf8[4], 0x8A, "");
-        TT_TEST_CHECK_EQUAL(ret_utf8[5], 0x80, "");
+        TT_UT_EQUAL(ret_utf8_len, 6, "");
+        TT_UT_EQUAL(ret_utf8[0], 0xe7, "");
+        TT_UT_EQUAL(ret_utf8[1], 0xA7, "");
+        TT_UT_EQUAL(ret_utf8[2], 0x91, "");
+        TT_UT_EQUAL(ret_utf8[3], 0xe6, "");
+        TT_UT_EQUAL(ret_utf8[4], 0x8A, "");
+        TT_UT_EQUAL(ret_utf8[5], 0x80, "");
 
         // not ready
         ret = tt_chsetconv_input(&csconv, test_1 + 9, 1);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         ret_utf8_len = sizeof(ret_utf8);
         tt_chsetconv_output(&csconv, ret_utf8, &ret_utf8_len);
-        TT_TEST_CHECK_EQUAL(ret_utf8_len, 0, "");
+        TT_UT_EQUAL(ret_utf8_len, 0, "");
 
         ret = tt_chsetconv_input(&csconv, test_1 + 10, 1);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         ret_utf8_len = sizeof(ret_utf8);
         tt_chsetconv_output(&csconv, ret_utf8, &ret_utf8_len);
-        TT_TEST_CHECK_EQUAL(ret_utf8_len, 0, "");
+        TT_UT_EQUAL(ret_utf8_len, 0, "");
 
         // 2 utf
         ret = tt_chsetconv_input(&csconv, test_1 + 11, 3);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         ret_utf8_len = sizeof(ret_utf8);
         tt_chsetconv_output(&csconv, ret_utf8, &ret_utf8_len);
-        TT_TEST_CHECK_EQUAL(ret_utf8_len, 7, "");
-        TT_TEST_CHECK_EQUAL(ret_utf8[0], 0xF0, "");
-        TT_TEST_CHECK_EQUAL(ret_utf8[1], 0x90, "");
-        TT_TEST_CHECK_EQUAL(ret_utf8[2], 0x90, "");
-        TT_TEST_CHECK_EQUAL(ret_utf8[3], 0xB7, "");
-        TT_TEST_CHECK_EQUAL(ret_utf8[4], 0xe8, "");
-        TT_TEST_CHECK_EQUAL(ret_utf8[5], 0xAE, "");
-        TT_TEST_CHECK_EQUAL(ret_utf8[6], 0xAF, "");
+        TT_UT_EQUAL(ret_utf8_len, 7, "");
+        TT_UT_EQUAL(ret_utf8[0], 0xF0, "");
+        TT_UT_EQUAL(ret_utf8[1], 0x90, "");
+        TT_UT_EQUAL(ret_utf8[2], 0x90, "");
+        TT_UT_EQUAL(ret_utf8[3], 0xB7, "");
+        TT_UT_EQUAL(ret_utf8[4], 0xe8, "");
+        TT_UT_EQUAL(ret_utf8[5], 0xAE, "");
+        TT_UT_EQUAL(ret_utf8[6], 0xAF, "");
 
         // no more
         ret_utf8_len = sizeof(ret_utf8);
         tt_chsetconv_output(&csconv, ret_utf8, &ret_utf8_len);
-        TT_TEST_CHECK_EQUAL(ret_utf8_len, 0, "");
+        TT_UT_EQUAL(ret_utf8_len, 0, "");
 
         tt_chsetconv_reset(&csconv);
 
@@ -848,16 +840,14 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_charset_utf16be_utf8)
             }
 
             ret = tt_chsetconv_input(&csconv, test_1 + i, n);
-            TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+            TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
             ret_utf8_len = sizeof(ret_utf8);
             tt_chsetconv_output(&csconv, ret_utf8, &ret_utf8_len);
             if (ret_utf8_len != 0) {
-                TT_TEST_CHECK_EQUAL(tt_memcmp(ret_utf8,
-                                              test_ret + j,
-                                              ret_utf8_len),
-                                    0,
-                                    "");
+                TT_UT_EQUAL(tt_memcmp(ret_utf8, test_ret + j, ret_utf8_len),
+                            0,
+                            "");
                 j += ret_utf8_len;
             }
 
@@ -871,25 +861,23 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_charset_utf16be_utf8)
     // utf8 to utf16le
     ret =
         tt_chsetconv_create(&csconv, TT_CHARSET_UTF8, TT_CHARSET_UTF16BE, NULL);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     {
         tt_u8_t ret_utf16be[sizeof(__utf16be_1)];
         tt_u32_t ret_utf16be_len = sizeof(ret_utf16be);
 
         ret = tt_chsetconv_input(&csconv, __utf8_1, sizeof(__utf8_1));
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
         tt_chsetconv_output(&csconv, ret_utf16be, &ret_utf16be_len);
-        TT_TEST_CHECK_EQUAL(ret_utf16be_len, sizeof(__utf16be_1), "");
-        TT_TEST_CHECK_EQUAL(tt_memcmp(ret_utf16be,
-                                      __utf16be_1,
-                                      ret_utf16be_len),
-                            0,
-                            "");
+        TT_UT_EQUAL(ret_utf16be_len, sizeof(__utf16be_1), "");
+        TT_UT_EQUAL(tt_memcmp(ret_utf16be, __utf16be_1, ret_utf16be_len),
+                    0,
+                    "");
 
         // no more
         tt_chsetconv_output(&csconv, ret_utf16be, &ret_utf16be_len);
-        TT_TEST_CHECK_EQUAL(ret_utf16be_len, 0, "");
+        TT_UT_EQUAL(ret_utf16be_len, 0, "");
 
         tt_chsetconv_reset(&csconv);
     }
@@ -982,21 +970,21 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_charset_utf32le_utf8)
     // utf32le to utf8
     ret =
         tt_chsetconv_create(&csconv, TT_CHARSET_UTF32LE, TT_CHARSET_UTF8, NULL);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     {
         tt_u8_t ret_utf8[sizeof(__utf8_1)];
         tt_u32_t ret_utf8_len = sizeof(ret_utf8);
 
         ret = tt_chsetconv_input(&csconv, __utf32le_1, sizeof(__utf32le_1));
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
         tt_chsetconv_output(&csconv, ret_utf8, &ret_utf8_len);
-        TT_TEST_CHECK_EQUAL(ret_utf8_len, sizeof(__utf8_1), "");
-        TT_TEST_CHECK_EQUAL(tt_memcmp(ret_utf8, __utf8_1, ret_utf8_len), 0, "");
+        TT_UT_EQUAL(ret_utf8_len, sizeof(__utf8_1), "");
+        TT_UT_EQUAL(tt_memcmp(ret_utf8, __utf8_1, ret_utf8_len), 0, "");
 
         // no more
         tt_chsetconv_output(&csconv, ret_utf8, &ret_utf8_len);
-        TT_TEST_CHECK_EQUAL(ret_utf8_len, 0, "");
+        TT_UT_EQUAL(ret_utf8_len, 0, "");
 
         tt_chsetconv_reset(&csconv);
     }
@@ -1022,52 +1010,52 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_charset_utf32le_utf8)
 
         // not ready
         ret = tt_chsetconv_input(&csconv, test_1, 1);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         ret_utf8_len = sizeof(ret_utf8);
         tt_chsetconv_output(&csconv, ret_utf8, &ret_utf8_len);
-        TT_TEST_CHECK_EQUAL(ret_utf8_len, 0, "");
+        TT_UT_EQUAL(ret_utf8_len, 0, "");
 
         // not ready
         ret = tt_chsetconv_input(&csconv, test_1 + 1, 2);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         ret_utf8_len = sizeof(ret_utf8);
         tt_chsetconv_output(&csconv, ret_utf8, &ret_utf8_len);
-        TT_TEST_CHECK_EQUAL(ret_utf8_len, 0, "");
+        TT_UT_EQUAL(ret_utf8_len, 0, "");
 
         // 1 utf8le
         ret = tt_chsetconv_input(&csconv, test_1 + 3, 2);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         ret_utf8_len = sizeof(ret_utf8);
         tt_chsetconv_output(&csconv, ret_utf8, &ret_utf8_len);
-        TT_TEST_CHECK_EQUAL(ret_utf8_len, 3, "");
-        TT_TEST_CHECK_EQUAL(ret_utf8[0], 0xe7, "");
-        TT_TEST_CHECK_EQUAL(ret_utf8[1], 0xbd, "");
-        TT_TEST_CHECK_EQUAL(ret_utf8[2], 0x91, "");
+        TT_UT_EQUAL(ret_utf8_len, 3, "");
+        TT_UT_EQUAL(ret_utf8[0], 0xe7, "");
+        TT_UT_EQUAL(ret_utf8[1], 0xbd, "");
+        TT_UT_EQUAL(ret_utf8[2], 0x91, "");
 
         // 1 utf8le
         ret = tt_chsetconv_input(&csconv, test_1 + 5, 5);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         ret_utf8_len = sizeof(ret_utf8);
         tt_chsetconv_output(&csconv, ret_utf8, &ret_utf8_len);
-        TT_TEST_CHECK_EQUAL(ret_utf8_len, 4, "");
-        TT_TEST_CHECK_EQUAL(ret_utf8[0], 0xf0, "");
-        TT_TEST_CHECK_EQUAL(ret_utf8[1], 0x90, "");
-        TT_TEST_CHECK_EQUAL(ret_utf8[2], 0x90, "");
-        TT_TEST_CHECK_EQUAL(ret_utf8[3], 0xb7, "");
+        TT_UT_EQUAL(ret_utf8_len, 4, "");
+        TT_UT_EQUAL(ret_utf8[0], 0xf0, "");
+        TT_UT_EQUAL(ret_utf8[1], 0x90, "");
+        TT_UT_EQUAL(ret_utf8[2], 0x90, "");
+        TT_UT_EQUAL(ret_utf8[3], 0xb7, "");
 
         // 1 utf8le
         ret = tt_chsetconv_input(&csconv, test_1 + 10, 2);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         ret_utf8_len = sizeof(ret_utf8);
         tt_chsetconv_output(&csconv, ret_utf8, &ret_utf8_len);
-        TT_TEST_CHECK_EQUAL(ret_utf8_len, 3, "");
-        TT_TEST_CHECK_EQUAL(ret_utf8[0], 0xe7, "");
-        TT_TEST_CHECK_EQUAL(ret_utf8[1], 0xa7, "");
-        TT_TEST_CHECK_EQUAL(ret_utf8[2], 0x91, "");
+        TT_UT_EQUAL(ret_utf8_len, 3, "");
+        TT_UT_EQUAL(ret_utf8[0], 0xe7, "");
+        TT_UT_EQUAL(ret_utf8[1], 0xa7, "");
+        TT_UT_EQUAL(ret_utf8[2], 0x91, "");
 
         // no more
         tt_chsetconv_output(&csconv, ret_utf8, &ret_utf8_len);
-        TT_TEST_CHECK_EQUAL(ret_utf8_len, 0, "");
+        TT_UT_EQUAL(ret_utf8_len, 0, "");
 
         tt_chsetconv_reset(&csconv);
 
@@ -1081,16 +1069,14 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_charset_utf32le_utf8)
             }
 
             ret = tt_chsetconv_input(&csconv, test_1 + i, n);
-            TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+            TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
             ret_utf8_len = sizeof(ret_utf8);
             tt_chsetconv_output(&csconv, ret_utf8, &ret_utf8_len);
             if (ret_utf8_len != 0) {
-                TT_TEST_CHECK_EQUAL(tt_memcmp(ret_utf8,
-                                              test_ret + j,
-                                              ret_utf8_len),
-                                    0,
-                                    "");
+                TT_UT_EQUAL(tt_memcmp(ret_utf8, test_ret + j, ret_utf8_len),
+                            0,
+                            "");
                 j += ret_utf8_len;
             }
 
@@ -1104,25 +1090,23 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_charset_utf32le_utf8)
     // utf8 toutf32le
     ret =
         tt_chsetconv_create(&csconv, TT_CHARSET_UTF8, TT_CHARSET_UTF32LE, NULL);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     {
         tt_u8_t ret_utf32le[sizeof(__utf32le_1)];
         tt_u32_t ret_utf32le_len = sizeof(ret_utf32le);
 
         ret = tt_chsetconv_input(&csconv, __utf8_1, sizeof(__utf8_1));
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
         tt_chsetconv_output(&csconv, ret_utf32le, &ret_utf32le_len);
-        TT_TEST_CHECK_EQUAL(ret_utf32le_len, sizeof(__utf32le_1), "");
-        TT_TEST_CHECK_EQUAL(tt_memcmp(ret_utf32le,
-                                      __utf32le_1,
-                                      ret_utf32le_len),
-                            0,
-                            "");
+        TT_UT_EQUAL(ret_utf32le_len, sizeof(__utf32le_1), "");
+        TT_UT_EQUAL(tt_memcmp(ret_utf32le, __utf32le_1, ret_utf32le_len),
+                    0,
+                    "");
 
         // no more
         tt_chsetconv_output(&csconv, ret_utf32le, &ret_utf32le_len);
-        TT_TEST_CHECK_EQUAL(ret_utf32le_len, 0, "");
+        TT_UT_EQUAL(ret_utf32le_len, 0, "");
 
         tt_chsetconv_reset(&csconv);
     }
@@ -1216,21 +1200,21 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_charset_utf32be_utf8)
     // utf32be to utf8
     ret =
         tt_chsetconv_create(&csconv, TT_CHARSET_UTF32BE, TT_CHARSET_UTF8, NULL);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     {
         tt_u8_t ret_utf8[sizeof(__utf8_1)];
         tt_u32_t ret_utf8_len = sizeof(ret_utf8);
 
         ret = tt_chsetconv_input(&csconv, __utf32be_1, sizeof(__utf32be_1));
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
         tt_chsetconv_output(&csconv, ret_utf8, &ret_utf8_len);
-        TT_TEST_CHECK_EQUAL(ret_utf8_len, sizeof(__utf8_1), "");
-        TT_TEST_CHECK_EQUAL(tt_memcmp(ret_utf8, __utf8_1, ret_utf8_len), 0, "");
+        TT_UT_EQUAL(ret_utf8_len, sizeof(__utf8_1), "");
+        TT_UT_EQUAL(tt_memcmp(ret_utf8, __utf8_1, ret_utf8_len), 0, "");
 
         // no more
         tt_chsetconv_output(&csconv, ret_utf8, &ret_utf8_len);
-        TT_TEST_CHECK_EQUAL(ret_utf8_len, 0, "");
+        TT_UT_EQUAL(ret_utf8_len, 0, "");
 
         tt_chsetconv_reset(&csconv);
     }
@@ -1256,52 +1240,52 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_charset_utf32be_utf8)
 
         // not ready
         ret = tt_chsetconv_input(&csconv, test_1, 1);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         ret_utf8_len = sizeof(ret_utf8);
         tt_chsetconv_output(&csconv, ret_utf8, &ret_utf8_len);
-        TT_TEST_CHECK_EQUAL(ret_utf8_len, 0, "");
+        TT_UT_EQUAL(ret_utf8_len, 0, "");
 
         // not ready
         ret = tt_chsetconv_input(&csconv, test_1 + 1, 2);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         ret_utf8_len = sizeof(ret_utf8);
         tt_chsetconv_output(&csconv, ret_utf8, &ret_utf8_len);
-        TT_TEST_CHECK_EQUAL(ret_utf8_len, 0, "");
+        TT_UT_EQUAL(ret_utf8_len, 0, "");
 
         // 1 utf8le
         ret = tt_chsetconv_input(&csconv, test_1 + 3, 2);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         ret_utf8_len = sizeof(ret_utf8);
         tt_chsetconv_output(&csconv, ret_utf8, &ret_utf8_len);
-        TT_TEST_CHECK_EQUAL(ret_utf8_len, 3, "");
-        TT_TEST_CHECK_EQUAL(ret_utf8[0], 0xe7, "");
-        TT_TEST_CHECK_EQUAL(ret_utf8[1], 0xbd, "");
-        TT_TEST_CHECK_EQUAL(ret_utf8[2], 0x91, "");
+        TT_UT_EQUAL(ret_utf8_len, 3, "");
+        TT_UT_EQUAL(ret_utf8[0], 0xe7, "");
+        TT_UT_EQUAL(ret_utf8[1], 0xbd, "");
+        TT_UT_EQUAL(ret_utf8[2], 0x91, "");
 
         // 1 utf8le
         ret = tt_chsetconv_input(&csconv, test_1 + 5, 5);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         ret_utf8_len = sizeof(ret_utf8);
         tt_chsetconv_output(&csconv, ret_utf8, &ret_utf8_len);
-        TT_TEST_CHECK_EQUAL(ret_utf8_len, 4, "");
-        TT_TEST_CHECK_EQUAL(ret_utf8[0], 0xf0, "");
-        TT_TEST_CHECK_EQUAL(ret_utf8[1], 0x90, "");
-        TT_TEST_CHECK_EQUAL(ret_utf8[2], 0x90, "");
-        TT_TEST_CHECK_EQUAL(ret_utf8[3], 0xb7, "");
+        TT_UT_EQUAL(ret_utf8_len, 4, "");
+        TT_UT_EQUAL(ret_utf8[0], 0xf0, "");
+        TT_UT_EQUAL(ret_utf8[1], 0x90, "");
+        TT_UT_EQUAL(ret_utf8[2], 0x90, "");
+        TT_UT_EQUAL(ret_utf8[3], 0xb7, "");
 
         // 1 utf8le
         ret = tt_chsetconv_input(&csconv, test_1 + 10, 2);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
         ret_utf8_len = sizeof(ret_utf8);
         tt_chsetconv_output(&csconv, ret_utf8, &ret_utf8_len);
-        TT_TEST_CHECK_EQUAL(ret_utf8_len, 3, "");
-        TT_TEST_CHECK_EQUAL(ret_utf8[0], 0xe7, "");
-        TT_TEST_CHECK_EQUAL(ret_utf8[1], 0xa7, "");
-        TT_TEST_CHECK_EQUAL(ret_utf8[2], 0x91, "");
+        TT_UT_EQUAL(ret_utf8_len, 3, "");
+        TT_UT_EQUAL(ret_utf8[0], 0xe7, "");
+        TT_UT_EQUAL(ret_utf8[1], 0xa7, "");
+        TT_UT_EQUAL(ret_utf8[2], 0x91, "");
 
         // no more
         tt_chsetconv_output(&csconv, ret_utf8, &ret_utf8_len);
-        TT_TEST_CHECK_EQUAL(ret_utf8_len, 0, "");
+        TT_UT_EQUAL(ret_utf8_len, 0, "");
 
         tt_chsetconv_reset(&csconv);
 
@@ -1310,7 +1294,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_charset_utf32be_utf8)
                                   TT_CHARSET_UTF32BE,
                                   TT_CHARSET_UTF8,
                                   NULL);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
         i = 0;
         j = 0;
@@ -1321,16 +1305,14 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_charset_utf32be_utf8)
             }
 
             ret = tt_chsetconv_input(&csconv, test_1 + i, n);
-            TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+            TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
             ret_utf8_len = sizeof(ret_utf8);
             tt_chsetconv_output(&csconv, ret_utf8, &ret_utf8_len);
             if (ret_utf8_len != 0) {
-                TT_TEST_CHECK_EQUAL(tt_memcmp(ret_utf8,
-                                              test_ret + j,
-                                              ret_utf8_len),
-                                    0,
-                                    "");
+                TT_UT_EQUAL(tt_memcmp(ret_utf8, test_ret + j, ret_utf8_len),
+                            0,
+                            "");
                 j += ret_utf8_len;
             }
 
@@ -1344,25 +1326,23 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_charset_utf32be_utf8)
     // utf8 toutf32le
     ret =
         tt_chsetconv_create(&csconv, TT_CHARSET_UTF8, TT_CHARSET_UTF32BE, NULL);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     {
         tt_u8_t ret_utf32be[sizeof(__utf32be_1)];
         tt_u32_t ret_utf32be_len = sizeof(ret_utf32be);
 
         ret = tt_chsetconv_input(&csconv, __utf8_1, sizeof(__utf8_1));
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
         tt_chsetconv_output(&csconv, ret_utf32be, &ret_utf32be_len);
-        TT_TEST_CHECK_EQUAL(ret_utf32be_len, sizeof(__utf32be_1), "");
-        TT_TEST_CHECK_EQUAL(tt_memcmp(ret_utf32be,
-                                      __utf32be_1,
-                                      ret_utf32be_len),
-                            0,
-                            "");
+        TT_UT_EQUAL(ret_utf32be_len, sizeof(__utf32be_1), "");
+        TT_UT_EQUAL(tt_memcmp(ret_utf32be, __utf32be_1, ret_utf32be_len),
+                    0,
+                    "");
 
         // no more
         tt_chsetconv_output(&csconv, ret_utf32be, &ret_utf32be_len);
-        TT_TEST_CHECK_EQUAL(ret_utf32be_len, 0, "");
+        TT_UT_EQUAL(ret_utf32be_len, 0, "");
 
         tt_chsetconv_reset(&csconv);
     }
@@ -1384,7 +1364,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_charset_utf8)
     // test start
 
     ret = tt_chsetconv_create(&csconv, TT_CHARSET_UTF8, TT_CHARSET_UTF8, NULL);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     i = 0;
     while (i < sizeof(__utf8_1)) {
@@ -1396,7 +1376,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_charset_utf8)
         }
 
         ret = tt_chsetconv_input(&csconv, __utf8_1 + i, n);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
         i += n;
 
@@ -1409,7 +1389,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_charset_utf8)
             while (j < n) {
                 // length of this utf8 char
                 k = __utf8_len(cs_ret[j]);
-                TT_TEST_CHECK_EXP(j + k <= n, "");
+                TT_UT_EXP(j + k <= n, "");
                 j += k;
             }
         }

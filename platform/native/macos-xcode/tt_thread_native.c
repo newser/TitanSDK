@@ -166,29 +166,24 @@ tt_result_t tt_thread_wait_ntv(IN struct tt_thread_s *thread)
     return TT_SUCCESS;
 }
 
-tt_result_t tt_sleep_ntv(IN tt_u32_t millisec)
+void tt_sleep_ntv(IN tt_u32_t millisec)
 {
     struct timespec req = {0};
     struct timespec rem = {0};
 
     req.tv_sec = millisec / 1000;
     req.tv_nsec = (millisec % 1000) * 1000000;
-    do {
-        if (nanosleep(&req, &rem) == 0) {
-            break;
-        } else if (errno == EINTR) {
+
+again:
+    if (nanosleep(&req, &rem) != 0) {
+        if (errno == EINTR) {
             req.tv_sec = rem.tv_sec;
             req.tv_nsec = rem.tv_nsec;
-            // give a warning?
-
-            continue;
+            goto again;
         } else {
             TT_ERROR_NTV("thread fails to sleep");
-            return TT_FAIL;
         }
-    } while (1);
-
-    return TT_SUCCESS;
+    }
 }
 
 void __thread_on_exit_ntv(void *arg)

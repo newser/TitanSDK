@@ -24,19 +24,32 @@
 // internal macro
 ////////////////////////////////////////////////////////////
 
-#if TT_ENV_OS_IS_WINDOWS
-#define __app_file "Debug\\app_unit_test.exe"
-#elif TT_ENV_OS_IS_IOS
-extern const char *get_app_path();
-#define __app_file get_app_path()
-#else
-#define __app_file "./app_unit_test"
-#endif
-
 #if TT_ENV_OS_IS_IOS
 #define __IPC_PATH "../tmp/ipc_basic"
 #else
-#define __IPC_PATH "./ipc_basic"
+#define __IPC_PATH "./ipc_basic1"
+#endif
+
+#if TT_ENV_OS_IS_WINDOWS
+#define __app_file path
+#elif TT_ENV_OS_IS_IOS
+extern const char *get_app_path();
+//#define __app_file get_app_path()
+#define __app_file path
+#define __app_file_sc get_app_path()
+#else
+//#define __app_file "./app_unit_test"
+#define __app_file path
+#define __app_file_sc "./测试"
+#endif
+
+#define __CONN_NUM 10
+#define __ROUND_NUM 100
+
+#if 0
+#define TT_INFO_IPC TT_INFO
+#else
+#define TT_INFO_IPC(...)
 #endif
 
 ////////////////////////////////////////////////////////////
@@ -52,58 +65,56 @@ extern const char *get_app_path();
 ////////////////////////////////////////////////////////////
 
 // === routine declarations ================
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_ipc_server)
+TT_TEST_ROUTINE_DECLARE(tt_unit_test_ipc_basic)
 TT_TEST_ROUTINE_DECLARE(tt_unit_test_ipc_client)
 TT_TEST_ROUTINE_DECLARE(tt_unit_test_ipc_stress)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_ipc_stress_mul)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_ipc_destroy_immd)
+TT_TEST_ROUTINE_DECLARE(tt_unit_test_ipc_fiber_ev)
+TT_TEST_ROUTINE_DECLARE(tt_unit_test_ipc_ev)
 // =========================================
 
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(ipc_case)
 
-#if 0
-    TT_TEST_CASE("tt_unit_test_ipc_client",
-                 "testing ipc basic client api",
-                 tt_unit_test_ipc_client, NULL,
-                 NULL, NULL,
-                 NULL, NULL),
-#endif
-
-#if 0
-    TT_TEST_CASE("tt_unit_test_ipc_server",
-                 "testing ipc basic server api",
-                 tt_unit_test_ipc_server, NULL, 
-                 NULL, NULL,
-                 NULL, NULL),
-#endif
-
-#if 1
-TT_TEST_CASE("tt_unit_test_ipc_stress",
-             "testing ipc stress test",
-             tt_unit_test_ipc_stress,
+TT_TEST_CASE("tt_unit_test_ipc_basic",
+             "testing ipc basic test",
+             tt_unit_test_ipc_basic,
              NULL,
              NULL,
              NULL,
              NULL,
              NULL)
 ,
-#endif
 
-#if 1
-    TT_TEST_CASE("tt_unit_test_ipc_stress_mul",
-                 "testing ipc stress test, multiple conn",
-                 tt_unit_test_ipc_stress_mul,
+    TT_TEST_CASE("tt_unit_test_ipc_client",
+                 "testing ipc client",
+                 tt_unit_test_ipc_client,
                  NULL,
                  NULL,
                  NULL,
                  NULL,
                  NULL),
-#endif
 
-    TT_TEST_CASE("tt_unit_test_ipc_destroy_immd",
-                 "testing ipc destroy immediately",
-                 tt_unit_test_ipc_destroy_immd,
+    TT_TEST_CASE("tt_unit_test_ipc_stress",
+                 "testing ipc stress test",
+                 tt_unit_test_ipc_stress,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL),
+
+    TT_TEST_CASE("tt_unit_test_ipc_fiber_ev",
+                 "testing ipc fiber event",
+                 tt_unit_test_ipc_fiber_ev,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL),
+
+    TT_TEST_CASE("tt_unit_test_ipc_ev",
+                 "testing ipc event",
+                 tt_unit_test_ipc_ev,
                  NULL,
                  NULL,
                  NULL,
@@ -115,577 +126,314 @@ TT_TEST_CASE("tt_unit_test_ipc_stress",
 
     TT_TEST_UNIT_DEFINE(TEST_UNIT_IPC, 0, ipc_case)
 
-    ////////////////////////////////////////////////////////////
-    // interface declaration
-    ////////////////////////////////////////////////////////////
 
-    ////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////
+    // interface declaratioN
+    //////////////////////////////////////////////////////////
+
+
+    //////////////////////////////////////////////////////////
     // interface implementation
-    ////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////
 
-    tt_u32_t __cli_mode;
-static tt_u32_t __cli_closed;
-#ifdef __SIMULATE_IPC_AIO_FAIL
-#define __cli_num 10
-#else
-#define __cli_num 10
-#endif
+    /*
+    TT_TEST_ROUTINE_DEFINE(tt_unit_test_ipc_client)
+    {
+        //tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
 
-/*
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_ipc_destroy_immd)
+        TT_TEST_CASE_ENTER()
+        // test start
+
+        // test end
+        TT_TEST_CASE_LEAVE()
+    }
+    */
+
+    static tt_u32_t __err_line;
+
+tt_result_t __ipc_cli_1(IN void *param)
 {
-    //tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+    tt_ipc_t *ipc;
+    tt_u8_t sbuf[11] = "1234567890", rbuf[11] = {0};
+    tt_u32_t n, len, cn, rn;
 
-    TT_TEST_CASE_ENTER()
-    // test start
+    cn = 0;
+    while (cn++ < __CONN_NUM) {
+        TT_INFO_IPC("cli con %d", cn);
 
-    // test end
-    TT_TEST_CASE_LEAVE()
-}
-*/
-
-static tt_ev_t *__uti_ev_gen()
-{
-    tt_ev_t *pev;
-    tt_u8_t len = (tt_u8_t)tt_rand_u32() + 1;
-
-    // use the data length as ev_id
-    pev = tt_process_ev_create(len, len);
-    if (pev == NULL) {
-        return NULL;
-    }
-    tt_memset(TT_EV_DATA(pev, tt_ev_t), len, len);
-
-    return pev;
-}
-
-static tt_bool_t __uti_ev_check(tt_ev_t *ev)
-{
-    tt_u8_t *ev_data = TT_EV_DATA(ev, tt_u8_t);
-    tt_u32_t i;
-
-    if (ev->ev_id != ev->data_size) {
-        TT_ERROR("ev->ev_id[%d] != ev->data_size[%d]",
-                 ev->ev_id,
-                 ev->data_size);
-        return TT_FALSE;
-    }
-
-    for (i = 0; i < ev->data_size; ++i) {
-        if (ev_data[i] != (tt_u8_t)ev->data_size) {
-            TT_ERROR("ev_data[%d] != ev->data_size[%d]",
-                     ev_data[i],
-                     ev->data_size);
-            return TT_FALSE;
-        }
-    }
-
-    return TT_TRUE;
-}
-
-#define __UTB_MSG_NUM 100
-
-static tt_result_t __utb_ret = TT_FAIL;
-static tt_result_t __utb_ret2 = TT_FAIL;
-static tt_u32_t __utb_err_line = 0;
-static tt_ipc_t __utb_acc_ipc;
-static tt_ipc_t __utb_lis_ipc;
-
-static tt_u32_t __utb_recv_num;
-
-static void __utb_on_recv(IN struct tt_ipc_s *ipc,
-                          IN tt_ipc_aioctx_t *aioctx,
-                          IN TO tt_ev_t **ev,
-                          IN tt_u32_t ev_num);
-
-static void __utb_on_send(IN struct tt_ipc_s *ipc,
-                          IN tt_ev_t *ev,
-                          IN tt_ipc_aioctx_t *aioctx)
-{
-    if (aioctx->result != TT_SUCCESS) {
-        if (aioctx->result == TT_END) {
-            tt_async_ipc_destroy(ipc, TT_FALSE);
-            return;
-        }
-        __utb_err_line = __LINE__;
-        tt_evc_exit(TT_LOCAL_EVC);
-        return;
-    }
-
-    if (tt_ipc_recv_async(ipc, __utb_on_recv, NULL) != TT_SUCCESS) {
-        __utb_err_line = __LINE__;
-        tt_evc_exit(TT_LOCAL_EVC);
-        return;
-    }
-}
-
-static void __utb_on_recv(IN struct tt_ipc_s *ipc,
-                          IN tt_ipc_aioctx_t *aioctx,
-                          IN TO tt_ev_t **ev,
-                          IN tt_u32_t ev_num)
-{
-    tt_u32_t counter = (tt_u32_t)(tt_uintptr_t)aioctx->cb_param;
-    tt_u32_t i;
-
-    if (aioctx->result != TT_SUCCESS) {
-        if (aioctx->result == TT_END) {
-            tt_async_ipc_destroy(ipc, TT_FALSE);
-            return;
-        }
-        __utb_err_line = __LINE__;
-        tt_evc_exit(TT_LOCAL_EVC);
-        return;
-    }
-    if (ev_num == 0) {
-        __utb_err_line = __LINE__;
-        tt_evc_exit(TT_LOCAL_EVC);
-        return;
-    }
-
-    __utb_recv_num += ev_num;
-    // TT_DEBUG("recv [%d] msg", __utb_recv_num);
-
-    for (i = 0; i < ev_num; ++i) {
-        tt_ev_t *new_ev;
-
-        if (!__uti_ev_check(ev[i])) {
-            __utb_err_line = __LINE__;
-            tt_evc_exit(TT_LOCAL_EVC);
-            return;
+        ipc = tt_ipc_create(NULL, NULL);
+        if (ipc == NULL) {
+            __err_line = __LINE__;
+            TT_INFO_IPC("err: %d", __err_line);
+            return TT_FAIL;
         }
 
-        new_ev = tt_ev_copy(ev[i]);
-        if (new_ev == NULL) {
-            TT_ERROR("no mem for new ev");
-            __utb_err_line = __LINE__;
-            tt_evc_exit(TT_LOCAL_EVC);
-            return;
-        }
-
-        if (tt_ipc_send_async(ipc,
-                              new_ev,
-                              __utb_on_send,
-                              (void *)(tt_uintptr_t)(counter + i)) !=
-            TT_SUCCESS) {
-            __utb_err_line = __LINE__;
-            tt_evc_exit(TT_LOCAL_EVC);
-            return;
-        }
-    }
-}
-
-static void __utb_on_accept(IN struct tt_ipc_s *listening_ipc,
-                            IN struct tt_ipc_s *new_ipc,
-                            IN tt_ipc_aioctx_t *aioctx)
-{
-    if (aioctx->result != TT_SUCCESS) {
-        __utb_err_line = __LINE__;
-        tt_evc_exit(TT_LOCAL_EVC);
-        return;
-    }
-
-    if (tt_ipc_recv_async(new_ipc, __utb_on_recv, NULL) != TT_SUCCESS) {
-        __utb_err_line = __LINE__;
-        tt_evc_exit(TT_LOCAL_EVC);
-        return;
-    }
-}
-
-static void __utb_on_destroy(IN struct tt_ipc_s *ipc, IN void *cb_param)
-{
-    if (ipc == &__utb_lis_ipc) {
-        __utb_ret = TT_SUCCESS;
-        tt_evc_exit(TT_LOCAL_EVC);
-        return;
-    }
-
-    if (__cli_mode == 0) {
-        TT_ASSERT(ipc == &__utb_acc_ipc);
-        tt_async_ipc_destroy(&__utb_lis_ipc, TT_FALSE);
-    } else if (__cli_mode == 1) {
-        ++__cli_closed;
-        TT_DEBUG("closed[%d]", __cli_closed);
-        if (__cli_closed == __cli_num) {
-            tt_async_ipc_destroy(&__utb_lis_ipc, TT_FALSE);
-        }
-    }
-}
-
-static tt_result_t __utb_on_init(IN struct tt_evcenter_s *evc,
-                                 IN void *on_init_param)
-{
-    tt_ipc_t *ipc = &__utb_lis_ipc;
-    tt_result_t ret;
-    tt_ipc_exit_t de = {__utb_on_destroy, NULL};
-
-    tt_process_t child_proc;
-    tt_char_t *argv[5] = {0};
-
-    ret = tt_async_ipc_create(ipc, __IPC_PATH, NULL, &de);
-    if (!TT_OK(ret)) {
-        __utb_err_line = __LINE__;
-        return TT_FAIL;
-    }
-
-    ret = tt_ipc_accept_async(ipc,
-                              &__utb_acc_ipc,
-                              NULL,
-                              &de,
-                              __utb_on_accept,
-                              NULL);
-    if (ret != TT_SUCCESS) {
-        __utb_err_line = __LINE__;
-        return TT_FAIL;
-    }
-
-#if 1
-    argv[0] = "tsk_unit_test";
-    argv[1] = "ipc";
-    argv[2] = __IPC_PATH;
-    ret = tt_process_create(&child_proc, __app_file, argv, NULL);
-    if (ret != TT_SUCCESS) {
-        __utb_err_line = __LINE__;
-        return TT_FAIL;
-    }
-#endif
-
-    return TT_SUCCESS;
-}
-
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_ipc_server)
-{
-    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
-    tt_result_t ret;
-    tt_evcenter_t evc;
-    tt_evc_attr_t evc_attr;
-
-    TT_TEST_CASE_ENTER()
-    // test start
-
-    __utb_ret = TT_FAIL;
-    __utb_err_line = 0;
-
-    tt_evc_attr_default(&evc_attr);
-    evc_attr.on_init = __utb_on_init;
-
-    ret = tt_evc_create(&evc, TT_FALSE, &evc_attr);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
-
-    ret = tt_evc_wait(&evc);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
-
-    TT_TEST_CHECK_EQUAL(__utb_ret, TT_SUCCESS, "");
-
-    // test end
-    TT_TEST_CASE_LEAVE()
-}
-
-static tt_ipc_t __cli_ipc;
-static tt_u32_t __cli_msg_num;
-
-static tt_u32_t __cli_send_num;
-static tt_u32_t __cli_recv_num;
-static tt_u32_t __cli_to_send_num;
-static tt_u32_t __cli_total_send_num;
-
-// - 0: send some, recv some, exit
-// - 1: send n1, recv n1, send n2, recv n2, ... exit
-
-#ifdef __SIMULATE_IPC_AIO_FAIL
-#define __cli_max_ipc_num 100
-#else
 #if TT_ENV_OS_IS_WINDOWS
-#define __cli_max_ipc_num 1000
-#else
-#define __cli_max_ipc_num 10000
+        tt_sleep(50);
 #endif
-#endif
+        if (!TT_OK(tt_ipc_connect_retry(ipc, __IPC_PATH, 100, 10))) {
+            __err_line = __LINE__;
+            TT_INFO_IPC("err: %d", __err_line);
+            return TT_FAIL;
+        }
 
-static void __cli_ipc_on_send(IN struct tt_ipc_s *ipc,
-                              IN tt_ev_t *ev,
-                              IN tt_ipc_aioctx_t *aioctx);
-
-static void __cli_ipc_on_recv(IN struct tt_ipc_s *ipc,
-                              IN tt_ipc_aioctx_t *aioctx,
-                              IN TO tt_ev_t **ev,
-                              IN tt_u32_t ev_num)
-{
-    tt_u32_t i;
-
-    if (!TT_OK(aioctx->result)) {
-        __utb_err_line = __LINE__;
-        tt_evc_exit(TT_LOCAL_EVC);
-        return;
-    }
-
-    __cli_recv_num += ev_num;
-    if (__cli_recv_num % 1000 == 0) {
-        TT_DEBUG("recv [%d] msg", __cli_recv_num);
-    }
-
-    // we left the final ev, which would be destroyed by ipc aio
-    for (i = 0; i < ev_num - 1; ++i) {
-        tt_ev_t *c_ev = tt_ev_copy(ev[i]);
-        if (c_ev != NULL) {
-            if (!__uti_ev_check(c_ev)) {
-                __utb_err_line = __LINE__;
-                tt_evc_exit(TT_LOCAL_EVC);
-                return;
+        rn = 0;
+        while (rn++ < __ROUND_NUM) {
+            if (!TT_OK(tt_ipc_send(ipc, sbuf, sizeof(sbuf), &n))) {
+                TT_INFO_IPC("err %d", __LINE__);
+                __err_line = __LINE__;
+                return TT_FAIL;
+            }
+            TT_INFO_IPC("[%d] cli sent %d", rn, n);
+            if (sizeof(sbuf) != n) {
+                __err_line = __LINE__;
+                return TT_FAIL;
             }
 
-            tt_ev_destroy(c_ev);
-        }
-    }
-
-    if (__cli_mode == 0) {
-        // mode 0: send new event once recving is done
-        if (!aioctx->cb_param) {
-            tt_u32_t num = tt_rand_u32() % 10 + ev_num;
-
-            while (num-- != 0) {
-                tt_ev_t *ev = __uti_ev_gen();
-                if (ev == NULL) {
-                    __utb_err_line = __LINE__;
-                    tt_evc_exit(TT_LOCAL_EVC);
-                    return;
+            len = 0;
+            while (len < sizeof(rbuf)) {
+                if (!TT_OK(tt_ipc_recv(ipc,
+                                       rbuf + len,
+                                       sizeof(rbuf) - len,
+                                       &n,
+                                       NULL))) {
+                    TT_INFO_IPC("err %d", __LINE__);
+                    __err_line = __LINE__;
+                    return TT_FAIL;
                 }
-
-                if (tt_ipc_send_async(ipc,
-                                      ev,
-                                      __cli_ipc_on_send,
-                                      (void *)(tt_uintptr_t)1) != TT_SUCCESS) {
-                    __utb_err_line = __LINE__;
-                    tt_evc_exit(TT_LOCAL_EVC);
-                    return;
-                }
-                // TT_DEBUG("2. sent ipc ev[%d] bytes", ev->data_size);
+                len += n;
             }
-        } else {
-            // ipc messages recved in round 2 must be more than round 1
-            if (__cli_recv_num >= __cli_send_num) {
-                tt_async_ipc_destroy(ipc, TT_FALSE);
+            TT_ASSERT(len == sizeof(rbuf));
+            TT_INFO_IPC("[%d] cli recv %d, %s", rn, n, rbuf);
+            if (tt_strcmp((tt_char_t *)rbuf, "0987654321") != 0) {
+                __err_line = __LINE__;
+                return TT_FAIL;
             }
         }
-    } else if (__cli_mode == 1) {
-        // mode 1: deliver new send when all are received
-        if (__cli_recv_num == __cli_to_send_num) {
-            tt_u32_t num = tt_rand_u32() % 10 + ev_num;
 
-            __cli_total_send_num += __cli_to_send_num;
-            if (__cli_total_send_num % 1000 == 0) {
-                TT_DEBUG("this round: %d msg, total: %d msg",
-                         __cli_to_send_num,
-                         __cli_total_send_num);
-            }
-            if (__cli_total_send_num >= __cli_max_ipc_num) {
-                TT_DEBUG("------------- cli ipc exit");
-                tt_evc_exit(TT_LOCAL_EVC);
-                return;
-            }
-
-            __cli_to_send_num = num;
-            __cli_recv_num = 0;
-            __cli_send_num = 0;
-
-            while (num-- != 0) {
-                tt_ev_t *ev = __uti_ev_gen();
-                if (ev == NULL) {
-                    __utb_err_line = __LINE__;
-                    tt_evc_exit(TT_LOCAL_EVC);
-                    return;
-                }
-
-                if (tt_ipc_send_async(ipc,
-                                      ev,
-                                      __cli_ipc_on_send,
-                                      (void *)(tt_uintptr_t)1) != TT_SUCCESS) {
-                    __utb_err_line = __LINE__;
-                    tt_evc_exit(TT_LOCAL_EVC);
-                    return;
-                }
-                // TT_DEBUG("2. sent ipc ev[%d] bytes", ev->data_size);
-            }
-        } else {
-            // else keep receiving
-            if (tt_ipc_recv_async(ipc, __cli_ipc_on_recv, aioctx->cb_param) !=
-                TT_SUCCESS) {
-                __utb_err_line = __LINE__;
-                tt_evc_exit(TT_LOCAL_EVC);
-                return;
-            }
-        }
-    }
-}
-
-static void __cli_ipc_on_send(IN struct tt_ipc_s *ipc,
-                              IN tt_ev_t *ev,
-                              IN tt_ipc_aioctx_t *aioctx)
-{
-    if (!TT_OK(aioctx->result)) {
-        __utb_err_line = __LINE__;
-        tt_evc_exit(TT_LOCAL_EVC);
-        return;
-    }
-
-    ++__cli_send_num;
-    // TT_DEBUG("send [%d] msg", __cli_send_num);
-
-    if (__cli_mode == 0) {
-        // mode 0: deliver a new recv once it reports sending done
-        if (tt_ipc_recv_async(ipc, __cli_ipc_on_recv, aioctx->cb_param) !=
-            TT_SUCCESS) {
-            __utb_err_line = __LINE__;
-            tt_evc_exit(TT_LOCAL_EVC);
-            return;
-        }
-    } else if (__cli_mode == 1) {
-        // mode 1: deliver a new recv once all are sent
-        if (__cli_send_num == __cli_to_send_num) {
-            if (tt_ipc_recv_async(ipc, __cli_ipc_on_recv, aioctx->cb_param) !=
-                TT_SUCCESS) {
-                __utb_err_line = __LINE__;
-                tt_evc_exit(TT_LOCAL_EVC);
-                return;
-            }
-        }
-    }
-}
-
-static void __cli_ipc_on_connect(IN struct tt_ipc_s *ipc,
-                                 IN const tt_char_t *remote_addr,
-                                 IN tt_ipc_aioctx_t *aioctx)
-{
-    tt_ev_t *ev;
-    tt_u32_t num = tt_rand_u32() % 10 + 1;
-
-    if (!TT_OK(aioctx->result)) {
-        __utb_err_line = __LINE__;
-        tt_evc_exit(TT_LOCAL_EVC);
-        return;
-    }
-
-    __cli_to_send_num = num;
-    __cli_recv_num = 0;
-    __cli_send_num = 0;
-
-    while (num-- != 0) {
-        ev = __uti_ev_gen();
-        if (ev == NULL) {
-            __utb_err_line = __LINE__;
-            tt_evc_exit(TT_LOCAL_EVC);
-            return;
-        }
-
-        if (tt_ipc_send_async(ipc, ev, __cli_ipc_on_send, NULL) != TT_SUCCESS) {
-            __utb_err_line = __LINE__;
-            tt_evc_exit(TT_LOCAL_EVC);
-            return;
-        }
-        TT_DEBUG("sent ipc ev[%d] bytes", ev->data_size);
-    }
-}
-
-static void __utc_on_destroy(IN struct tt_ipc_s *ipc, IN void *cb_param)
-{
-    // generally it runs as a child thread, so exit it
-    __utb_ret = TT_SUCCESS;
-    tt_evc_exit(TT_LOCAL_EVC);
-}
-
-// static
-tt_result_t __utc_on_init(IN struct tt_evcenter_s *evc, IN void *on_init_param)
-{
-    tt_ipc_t *ipc = &__cli_ipc;
-    tt_result_t ret;
-    tt_ipc_exit_t de = {__utc_on_destroy, NULL};
-
-    ret = tt_async_ipc_create(ipc, NULL, NULL, &de);
-    if (!TT_OK(ret)) {
-        __utb_err_line = __LINE__;
-        return TT_FAIL;
-    }
-
-    ret = tt_ipc_connect_async(ipc,
-                               (const tt_char_t *)on_init_param,
-                               __cli_ipc_on_connect,
-                               NULL);
-    if (ret != TT_SUCCESS) {
-        __utb_err_line = __LINE__;
-        return TT_FAIL;
+        tt_ipc_destroy(ipc);
     }
 
     return TT_SUCCESS;
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_ipc_client)
+tt_result_t __ipc_svr_1(IN void *param)
+{
+    tt_ipc_t *ipc, *new_ipc;
+    tt_u8_t sbuf[11] = "0987654321", rbuf[11];
+    tt_u32_t n, len, cn, rn;
+    tt_result_t ret;
+
+    (void)rn;
+
+    ipc = tt_ipc_create(__IPC_PATH, NULL);
+    if (ipc == NULL) {
+        __err_line = __LINE__;
+        return TT_FAIL;
+    }
+
+    cn = 0;
+    while (cn++ < __CONN_NUM) {
+        TT_INFO_IPC("svr acc %d", cn);
+
+        new_ipc = tt_ipc_accept(ipc, NULL);
+        if (new_ipc == NULL) {
+            __err_line = __LINE__;
+            return TT_FAIL;
+        }
+
+        rn = 0;
+        len = 0;
+        while (TT_OK((ret = tt_ipc_recv(new_ipc,
+                                        rbuf + len,
+                                        sizeof(rbuf) - len,
+                                        &n,
+                                        NULL)))) {
+            len += n;
+            if (len < sizeof(rbuf)) {
+                continue;
+            }
+            TT_ASSERT(len == sizeof(rbuf));
+            len = 0;
+            TT_INFO_IPC("[%d] svr recv %d, %s", rn, n, rbuf);
+            if (tt_strcmp((tt_char_t *)rbuf, "1234567890") != 0) {
+                __err_line = __LINE__;
+                return TT_FAIL;
+            }
+
+            if (!TT_OK(tt_ipc_send(new_ipc, sbuf, sizeof(sbuf), &n))) {
+                __err_line = __LINE__;
+                return TT_FAIL;
+            }
+            if (sizeof(sbuf) != n) {
+                __err_line = __LINE__;
+                return TT_FAIL;
+            }
+            TT_INFO_IPC("[%d] svr sent %d", rn, n);
+        }
+        if (ret != TT_END) {
+            __err_line = __LINE__;
+            return TT_FAIL;
+        }
+
+        TT_INFO_IPC("svr acc done %d, ret: %x", cn, ret);
+        tt_ipc_destroy(new_ipc);
+    }
+
+    tt_ipc_destroy(ipc);
+
+    return TT_SUCCESS;
+}
+
+TT_TEST_ROUTINE_DEFINE(tt_unit_test_ipc_basic)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+    tt_task_t t;
     tt_result_t ret;
-    tt_evcenter_t evc;
-    tt_evc_attr_t evc_attr;
+    tt_process_t proc;
+    tt_char_t *argv[20] = {0};
+    tt_char_t *path;
 
     TT_TEST_CASE_ENTER()
-    // test start
 
-    __utb_ret = TT_FAIL;
-    __utb_err_line = 0;
+#if TT_ENV_OS_IS_WINDOWS
+    tt_fcreate(__IPC_PATH, NULL);
+#endif
 
-    tt_evc_attr_default(&evc_attr);
-    evc_attr.on_init = __utc_on_init;
-    evc_attr.on_init_param = __IPC_PATH;
+    ret = tt_task_create(&t, NULL);
+    TT_UT_SUCCESS(ret, "");
 
-    ret = tt_evc_create(&evc, TT_FALSE, &evc_attr);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    tt_task_add_fiber(&t, "svr", __ipc_svr_1, NULL, NULL);
+    // tt   _task_add_fiber(&t, "cli", __ipc_cli_1, NULL, NULL);
 
-    ret = tt_evc_wait(&evc);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    ret = tt_task_run(&t);
+    TT_UT_SUCCESS(ret, "");
 
-    TT_TEST_CHECK_EQUAL(__utb_ret, TT_SUCCESS, "");
+    path = tt_process_path(NULL);
+    TT_UT_NOT_EQUAL(path, NULL, "");
+    argv[0] = "app_unit_test";
+    argv[1] = "ipc-1";
+    argv[2] = __IPC_PATH;
+
+    ret = tt_process_create(&proc, __app_file, argv, NULL);
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+
+    tt_free(path);
+
+    tt_task_wait(&t);
+
+    ret = tt_process_wait(&proc, TT_TRUE, NULL);
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+
+    TT_UT_EQUAL(__err_line, 0, "");
 
     // test end
     TT_TEST_CASE_LEAVE()
 }
 
-///////////////////////////////////////////////////////
-///////////////////////////////////////////////////////
-
-static tt_result_t __st1_on_init(IN struct tt_evcenter_s *evc,
-                                 IN void *on_init_param)
+static tt_result_t __ipc_svr_acc_2(IN void *param)
 {
-    tt_ipc_t *ipc = &__utb_lis_ipc;
+    tt_ipc_t *new_ipc = (tt_ipc_t *)param;
+    tt_u8_t sbuf[11] = "0987654321", rbuf[11];
+    tt_u32_t n, len = 0, rn;
     tt_result_t ret;
-    tt_ipc_exit_t de = {__utb_on_destroy, NULL};
 
-    tt_process_t child_proc;
-    tt_char_t *argv[5] = {0};
+    rn = 0;
+    (void)rn;
+    while (TT_OK(
+        (ret =
+             tt_ipc_recv(new_ipc, rbuf + len, sizeof(rbuf) - len, &n, NULL)))) {
+        len += n;
+        if (len < sizeof(rbuf)) {
+            continue;
+        }
+        TT_ASSERT(len == sizeof(rbuf));
+        len = 0;
+        if (tt_strcmp((tt_char_t *)rbuf, "1234567890") != 0) {
+            __err_line = __LINE__;
+            return TT_FAIL;
+        }
+        TT_INFO_IPC("[%d] acc recv %d", rn, n);
 
-    ret = tt_async_ipc_create(ipc, __IPC_PATH, NULL, &de);
-    if (!TT_OK(ret)) {
-        __utb_err_line = __LINE__;
+        if (!TT_OK(tt_ipc_send(new_ipc, sbuf, sizeof(sbuf), &n))) {
+            __err_line = __LINE__;
+            return TT_FAIL;
+        }
+        if (sizeof(sbuf) != n) {
+            __err_line = __LINE__;
+            return TT_FAIL;
+        }
+        TT_INFO_IPC("[%d] acc sent %d", rn, n);
+
+        if (tt_rand_u32() % __CONN_NUM == 0) {
+            TT_INFO("server close ipc");
+            tt_ipc_destroy(new_ipc);
+            return TT_SUCCESS;
+        }
+    }
+    if (ret != TT_END) {
+        __err_line = __LINE__;
         return TT_FAIL;
     }
 
-    ret = tt_ipc_accept_async(ipc,
-                              &__utb_acc_ipc,
-                              NULL,
-                              &de,
-                              __utb_on_accept,
-                              NULL);
-    if (ret != TT_SUCCESS) {
-        __utb_err_line = __LINE__;
+    tt_ipc_destroy(new_ipc);
+
+    return TT_SUCCESS;
+}
+
+static tt_process_t proc[__CONN_NUM];
+static tt_ipc_t *__stress_ipc;
+
+static tt_result_t __ipc_svr_2(IN void *param)
+{
+    tt_ipc_t *ipc, *new_ipc;
+    tt_fiber_t *fb;
+    tt_u32_t cn;
+    tt_char_t *argv[20] = {0};
+    tt_char_t *path;
+    tt_result_t ret;
+
+    __stress_ipc = tt_ipc_create(__IPC_PATH, NULL);
+    if (__stress_ipc == NULL) {
+        __err_line = __LINE__;
         return TT_FAIL;
     }
+    ipc = __stress_ipc;
 
-#if 1
-    argv[0] = "tsk_unit_test";
-    argv[1] = "ipc_stress";
+    path = tt_process_path(NULL);
+    TT_ASSERT(path != NULL);
+    argv[0] = "app_unit_test";
+    argv[1] = "ipc-2";
     argv[2] = __IPC_PATH;
-    ret = tt_process_create(&child_proc, __app_file, argv, NULL);
-    if (ret != TT_SUCCESS) {
-        __utb_err_line = __LINE__;
-        return TT_FAIL;
+
+    cn = 0;
+    while (cn < __CONN_NUM) {
+        TT_INFO_IPC("svr acc %d", cn);
+
+        ret = tt_process_create(&proc[cn], __app_file, argv, NULL);
+        if (!TT_OK(ret)) {
+            __err_line = __LINE__;
+            return TT_FAIL;
+        }
+
+        new_ipc = tt_ipc_accept(ipc, NULL);
+        if (new_ipc == NULL) {
+            __err_line = __LINE__;
+            return TT_FAIL;
+        }
+        TT_INFO("new ipc");
+
+        fb = tt_fiber_create(NULL, __ipc_svr_acc_2, new_ipc, NULL);
+        if (fb == NULL) {
+            __err_line = __LINE__;
+            return TT_FAIL;
+        }
+        tt_fiber_resume(fb, TT_FALSE);
+
+        ++cn;
     }
-#endif
+
+    tt_free(path);
 
     return TT_SUCCESS;
 }
@@ -693,333 +441,567 @@ static tt_result_t __st1_on_init(IN struct tt_evcenter_s *evc,
 TT_TEST_ROUTINE_DEFINE(tt_unit_test_ipc_stress)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+    tt_task_t t;
     tt_result_t ret;
-    tt_evcenter_t evc;
-    tt_evc_attr_t evc_attr;
+    tt_u32_t cn;
 
     TT_TEST_CASE_ENTER()
-    // test start
 
-    __utb_ret = TT_FAIL;
-    __utb_err_line = 0;
+#if TT_ENV_OS_IS_WINDOWS
+    tt_fcreate(__IPC_PATH, NULL);
+#endif
 
-    tt_evc_attr_default(&evc_attr);
-    evc_attr.on_init = __st1_on_init;
+    ret = tt_task_create(&t, NULL);
+    TT_UT_SUCCESS(ret, "");
 
-    ret = tt_evc_create(&evc, TT_FALSE, &evc_attr);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    tt_task_add_fiber(&t, "svr", __ipc_svr_2, NULL, NULL);
 
-    ret = tt_evc_wait(&evc);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    ret = tt_task_run(&t);
+    TT_UT_SUCCESS(ret, "");
+    tt_task_wait(&t);
 
-    TT_TEST_CHECK_EQUAL(__utb_ret, TT_SUCCESS, "");
+    if (__err_line == 0) {
+        cn = 0;
+        while (cn < __CONN_NUM) {
+            if (!TT_OK(tt_process_wait(&proc[cn], TT_TRUE, NULL))) {
+                __err_line = __LINE__;
+            }
+
+            ++cn;
+        }
+    }
+
+    if (__stress_ipc != NULL) {
+        tt_ipc_destroy(__stress_ipc);
+    }
+
+    TT_UT_EQUAL(__err_line, 0, "");
 
     // test end
     TT_TEST_CASE_LEAVE()
 }
 
-///////////////////////////////////////////////////////
-///////////////////////////////////////////////////////
-
-static tt_ipc_t __mul_acc[__cli_num];
-
-static tt_result_t __stm_on_init(IN struct tt_evcenter_s *evc,
-                                 IN void *on_init_param)
+tt_result_t __ipc_cli_oneshot(IN void *param)
 {
-    tt_ipc_t *ipc = &__utb_lis_ipc;
-    tt_result_t ret;
-    tt_ipc_exit_t de = {__utb_on_destroy, NULL};
-    tt_u32_t i;
+    tt_ipc_t *ipc;
+    tt_u8_t sbuf[11] = "1234567890", rbuf[11];
+    tt_u32_t n, len, rn;
 
-    tt_process_t child_proc;
-    tt_char_t *argv[5] = {0};
-
-    ret = tt_async_ipc_create(ipc, __IPC_PATH, NULL, &de);
-    if (!TT_OK(ret)) {
-        __utb_err_line = __LINE__;
+    ipc = tt_ipc_create(NULL, NULL);
+    if (ipc == NULL) {
+        __err_line = __LINE__;
         return TT_FAIL;
     }
 
-    for (i = 0; i < __cli_num; ++i) {
-        ret = tt_ipc_accept_async(ipc,
-                                  &__mul_acc[i],
-                                  NULL,
-                                  &de,
-                                  __utb_on_accept,
-                                  NULL);
-        if (ret != TT_SUCCESS) {
-            __utb_err_line = __LINE__;
-            return TT_FAIL;
-        }
+#if TT_ENV_OS_IS_WINDOWS
+    tt_sleep(50);
+#endif
+    if (!TT_OK(tt_ipc_connect_retry(ipc, __IPC_PATH, 100, 10))) {
+        __err_line = __LINE__;
+        return TT_FAIL;
     }
 
-    for (i = 0; i < __cli_num; ++i) {
-        argv[0] = "tsk_unit_test";
-        argv[1] = "ipc_stress";
-        argv[2] = __IPC_PATH;
-        ret = tt_process_create(&child_proc, __app_file, argv, NULL);
-        if (ret != TT_SUCCESS) {
-            __utb_err_line = __LINE__;
+    rn = 0;
+    while (rn++ < __ROUND_NUM) {
+        if (!TT_OK(tt_ipc_send(ipc, sbuf, sizeof(sbuf), &n))) {
+            __err_line = __LINE__;
             return TT_FAIL;
         }
+        if (sizeof(sbuf) != n) {
+            __err_line = __LINE__;
+            return TT_FAIL;
+        }
+        TT_INFO_IPC("[%d] cli sent %d", rn, n);
+
+        len = 0;
+        while (len < sizeof(rbuf)) {
+            if (!TT_OK(tt_ipc_recv(ipc, rbuf, sizeof(rbuf), &n, NULL))) {
+                __err_line = __LINE__;
+                return TT_FAIL;
+            }
+            len += n;
+        }
+        TT_ASSERT(len == sizeof(rbuf));
+        if (tt_strcmp((tt_char_t *)rbuf, "0987654321") != 0) {
+            __err_line = __LINE__;
+            return TT_FAIL;
+        }
+        TT_INFO_IPC("[%d] cli recv %d", rn, n);
     }
+
+    tt_ipc_destroy(ipc);
 
     return TT_SUCCESS;
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_ipc_stress_mul)
+TT_TEST_ROUTINE_DEFINE(tt_unit_test_ipc_client)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+    tt_task_t t;
     tt_result_t ret;
-    tt_evcenter_t evc;
-    tt_evc_attr_t evc_attr;
+    tt_process_t proc;
+    tt_char_t *argv[20] = {0};
+    tt_char_t *path;
 
     TT_TEST_CASE_ENTER()
-    // test start
 
-    __utb_ret = TT_FAIL;
-    __utb_err_line = 0;
+#if TT_ENV_OS_IS_WINDOWS
+    tt_fcreate(__IPC_PATH, NULL);
+#endif
 
-    __cli_mode = 1;
+    ret = tt_task_create(&t, NULL);
+    TT_UT_SUCCESS(ret, "");
 
-    tt_evc_attr_default(&evc_attr);
-    evc_attr.on_init = __stm_on_init;
+    tt_task_add_fiber(&t, "svr", __ipc_cli_1, NULL, NULL);
 
-    ret = tt_evc_create(&evc, TT_FALSE, &evc_attr);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    ret = tt_task_run(&t);
+    TT_UT_SUCCESS(ret, "");
 
-    ret = tt_evc_wait(&evc);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    path = tt_process_path(NULL);
+    TT_UT_NOT_EQUAL(path, NULL, "");
+    argv[0] = "app_unit_test";
+    argv[1] = "ipc-svr";
+    argv[2] = __IPC_PATH;
 
-    TT_TEST_CHECK_EQUAL(__utb_ret, TT_SUCCESS, "");
+    ret = tt_process_create(&proc, __app_file, argv, NULL);
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+
+    tt_free(path);
+
+    tt_task_wait(&t);
+
+    ret = tt_process_wait(&proc, TT_TRUE, NULL);
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+
+    TT_UT_EQUAL(__err_line, 0, "");
 
     // test end
     TT_TEST_CASE_LEAVE()
 }
 
-static tt_u32_t __di_cnt = 0;
+#define __fiber_num 10
+#define __ev_per_fiber 100
 
-static void __di_on_accept(IN struct tt_ipc_s *listening_ipc,
-                           IN struct tt_ipc_s *new_ipc,
-                           IN tt_ipc_aioctx_t *aioctx)
+static tt_u32_t __ipc_fev_num;
+
+tt_result_t __ipc_svr_fev(IN void *param)
 {
-    if (TT_OK(aioctx->result)) {
-        __utb_err_line = __LINE__;
-        return;
-    }
-
-    if (aioctx->result != TT_CANCELLED) {
-        __utb_err_line = __LINE__;
-        return;
-    }
-}
-
-static void __di_on_destroy(IN struct tt_ipc_s *ipc, IN void *cb_param)
-{
-    if (cb_param != (void *)(tt_uintptr_t)0x12345678) {
-        __utb_err_line = __LINE__;
-        return;
-    }
-
-    --__di_cnt;
-    TT_INFO("%d ipc left", __di_cnt);
-    if (__di_cnt == 0) {
-        __utb_ret = TT_SUCCESS;
-        tt_evc_exit(TT_LOCAL_EVC);
-    }
-}
-
-static void __di_on_destroy2(IN struct tt_ipc_s *ipc, IN void *cb_param)
-{
-    if (cb_param != (void *)(tt_uintptr_t)0x87654321) {
-        __utb_err_line = __LINE__;
-        return;
-    }
-
-    --__di_cnt;
-    TT_INFO("%d ipc left", __di_cnt);
-    if (__di_cnt == 0) {
-        __utb_ret = TT_SUCCESS;
-        tt_evc_exit(TT_LOCAL_EVC);
-    }
-}
-
-static void __di_on_destroy3(IN struct tt_ipc_s *ipc, IN void *cb_param)
-{
-    if (cb_param != (void *)(tt_uintptr_t)0x12345678) {
-        __utb_err_line = __LINE__;
-        return;
-    }
-
-    --__di_cnt;
-    TT_INFO("%d ipc left", __di_cnt);
-    if (__di_cnt == 0) {
-        __utb_ret = TT_SUCCESS;
-        tt_evc_exit(TT_LOCAL_EVC);
-    }
-}
-
-static tt_result_t __di_on_init_svr(IN struct tt_evcenter_s *evc,
-                                    IN void *on_init_param)
-{
-    tt_ipc_t *ipc = &__utb_lis_ipc;
+    tt_ipc_t *ipc, *new_ipc;
+    tt_u8_t sbuf[11] = "0987654321", rbuf[11];
+    tt_u32_t n, len, cn, rn;
     tt_result_t ret;
-    tt_ipc_exit_t de = {__di_on_destroy3, (void *)(tt_uintptr_t)0x12345678};
-    tt_u32_t i;
+    tt_fiber_ev_t *fev;
+    tt_fiber_t *cfb = tt_current_fiber();
 
-    ret = tt_async_ipc_create(ipc, __IPC_PATH, NULL, &de);
-    if (!TT_OK(ret)) {
-        __utb_err_line = __LINE__;
+    (void)rn;
+
+    ipc = tt_ipc_create(__IPC_PATH, NULL);
+    if (ipc == NULL) {
+        __err_line = __LINE__;
         return TT_FAIL;
     }
 
-    for (i = 0; i < __cli_num; ++i) {
-        ret = tt_ipc_accept_async(ipc,
-                                  &__mul_acc[i],
-                                  NULL,
-                                  &de,
-                                  __di_on_accept,
-                                  NULL);
-        if (ret != TT_SUCCESS) {
-            __utb_err_line = __LINE__;
+    cn = 0;
+    while (cn++ < __CONN_NUM) {
+        TT_INFO_IPC("svr acc %d", cn);
+
+        new_ipc = tt_ipc_accept(ipc, NULL);
+        if (new_ipc == NULL) {
+            __err_line = __LINE__;
             return TT_FAIL;
+        }
+
+        rn = 0;
+        len = 0;
+        while (TT_OK((ret = tt_ipc_recv(new_ipc,
+                                        rbuf + len,
+                                        sizeof(rbuf) - len,
+                                        &n,
+                                        &fev)))) {
+            if (fev != NULL) {
+                if (fev->src != NULL) {
+                    if (fev->ev != 0xaabbccdd) {
+                        __err_line = __LINE__;
+                    }
+                    fev->ev = 0xddccbbaa;
+                } else {
+                    if (fev->ev != 0x11223344) {
+                        __err_line = __LINE__;
+                    }
+                }
+                ++__ipc_fev_num;
+                tt_fiber_finish(fev);
+            }
+
+            len += n;
+            if (len < sizeof(rbuf)) {
+                continue;
+            }
+            TT_ASSERT(len == sizeof(rbuf));
+            len = 0;
+            TT_INFO_IPC("[%d] svr recv %d, %s", rn, n, rbuf);
+            if (tt_strcmp((tt_char_t *)rbuf, "1234567890") != 0) {
+                __err_line = __LINE__;
+                return TT_FAIL;
+            }
+
+            if (!TT_OK(tt_ipc_send(new_ipc, sbuf, sizeof(sbuf), &n))) {
+                __err_line = __LINE__;
+                return TT_FAIL;
+            }
+            if (sizeof(sbuf) != n) {
+                __err_line = __LINE__;
+                return TT_FAIL;
+            }
+            TT_INFO_IPC("[%d] svr sent %d", rn, n);
+        }
+        if (ret != TT_END) {
+            __err_line = __LINE__;
+            return TT_FAIL;
+        }
+
+        TT_INFO_IPC("svr acc done %d, ret: %x", cn, ret);
+        tt_ipc_destroy(new_ipc);
+    }
+
+    tt_ipc_destroy(ipc);
+
+    while ((__ipc_fev_num < __fiber_num * __ev_per_fiber) &&
+           ((fev = tt_fiber_recv(cfb, TT_TRUE)) != NULL)) {
+        if (fev->src != NULL) {
+            if (fev->ev != 0xaabbccdd) {
+                __err_line = __LINE__;
+            }
+            fev->ev = 0xddccbbaa;
+        } else {
+            if (fev->ev != 0x11223344) {
+                __err_line = __LINE__;
+            }
+        }
+        ++__ipc_fev_num;
+        tt_fiber_finish(fev);
+    }
+
+    return TT_SUCCESS;
+}
+
+tt_result_t __ipc_cli_fev(IN void *param)
+{
+    tt_fiber_t *t = tt_fiber_find("svr");
+    tt_u32_t i;
+
+    if (t == NULL) {
+        __err_line = __LINE__;
+        return TT_FAIL;
+    }
+
+    i = 0;
+    while (i++ < __ev_per_fiber) {
+        if (tt_rand_u32() % 2) {
+            tt_fiber_ev_t fev;
+            tt_fiber_ev_init(&fev, 0xaabbccdd);
+            tt_fiber_send(t, &fev, TT_TRUE);
+            if (fev.ev != 0xddccbbaa) {
+                __err_line = __LINE__;
+            }
+        } else {
+            tt_fiber_ev_t *fev = tt_fiber_ev_create(0x11223344, 0);
+            tt_fiber_send(t, fev, TT_FALSE);
         }
     }
 
-    __di_cnt = 1;
-
-#if TT_ENV_OS_IS_WINDOWS
-    __di_cnt += __cli_num;
-    for (i = 0; i < __cli_num; ++i) {
-        tt_async_ipc_destroy(&__mul_acc[i], TT_TRUE);
-    }
-#endif
-
-    tt_async_ipc_destroy(ipc, TT_TRUE);
-
     return TT_SUCCESS;
 }
 
-static void __di_on_connect(IN struct tt_ipc_s *ipc,
-                            IN const tt_char_t *remote_addr,
-                            IN tt_ipc_aioctx_t *aioctx)
-{
-    if (TT_OK(aioctx->result)) {
-        __utb_err_line = __LINE__;
-        return;
-    }
-
-    if (aioctx->result != TT_CANCELLED) {
-        __utb_err_line = __LINE__;
-        return;
-    }
-}
-
-static tt_result_t __di_on_init_cli(IN struct tt_evcenter_s *evc,
-                                    IN void *on_init_param)
-{
-    tt_ipc_t *ipc = &__cli_ipc;
-    tt_result_t ret;
-    tt_ipc_exit_t de = {__di_on_destroy, (void *)(tt_uintptr_t)0x12345678};
-    tt_ipc_exit_t de2 = {__di_on_destroy2, (void *)(tt_uintptr_t)0x87654321};
-
-    // create a server
-    ret = tt_async_ipc_create(&__utb_lis_ipc, __IPC_PATH, NULL, &de2);
-    if (!TT_OK(ret)) {
-        __utb_err_line = __LINE__;
-        return TT_FAIL;
-    }
-
-    ret = tt_ipc_accept_async(&__utb_lis_ipc,
-                              &__utb_acc_ipc,
-                              NULL,
-                              &de,
-                              __di_on_accept,
-                              NULL);
-    if (ret != TT_SUCCESS) {
-        __utb_err_line = __LINE__;
-        return TT_FAIL;
-    }
-
-    // client connect
-    ret = tt_async_ipc_create(ipc, NULL, NULL, &de);
-    if (!TT_OK(ret)) {
-        __utb_err_line = __LINE__;
-        return TT_FAIL;
-    }
-
-    // wrong address
-    tt_ipc_connect_async(ipc,
-                         (const tt_char_t *)"wrong name",
-                         __di_on_connect,
-                         NULL);
-
-    tt_ipc_connect_async(ipc, __IPC_PATH, __di_on_connect, NULL);
-
-    // would be reject
-    ret = tt_ipc_connect_async(ipc, __IPC_PATH, __di_on_connect, NULL);
-    if (ret == TT_SUCCESS) {
-        __utb_err_line = __LINE__;
-        return TT_FAIL;
-    }
-
-    __di_cnt = 2;
-
-#if TT_ENV_OS_IS_WINDOWS
-    __di_cnt += 1;
-    tt_async_ipc_destroy(&__utb_acc_ipc, TT_TRUE);
-#endif
-
-    tt_async_ipc_destroy(&__utb_lis_ipc, TT_TRUE);
-    tt_async_ipc_destroy(ipc, TT_TRUE);
-
-    return TT_SUCCESS;
-}
-
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_ipc_destroy_immd)
+TT_TEST_ROUTINE_DEFINE(tt_unit_test_ipc_fiber_ev)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+    tt_task_t t;
     tt_result_t ret;
-    tt_evcenter_t evc;
-    tt_evc_attr_t evc_attr;
+    tt_process_t proc;
+    tt_char_t *argv[20] = {0};
+    tt_char_t *path;
+    tt_u32_t n;
 
     TT_TEST_CASE_ENTER()
-    // test start
 
-    // test server
-    __utb_ret = TT_FAIL;
-    __utb_err_line = 0;
-    __di_cnt = 0;
+#if TT_ENV_OS_IS_WINDOWS
+    tt_fcreate(__IPC_PATH, NULL);
+#endif
 
-    tt_evc_attr_default(&evc_attr);
-    evc_attr.on_init = __di_on_init_svr;
+    ret = tt_task_create(&t, NULL);
+    TT_UT_SUCCESS(ret, "");
 
-    ret = tt_evc_create(&evc, TT_FALSE, &evc_attr);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    tt_task_add_fiber(&t, "svr", __ipc_svr_fev, NULL, NULL);
+    n = 0;
+    while (n++ < __fiber_num) {
+        tt_task_add_fiber(&t, NULL, __ipc_cli_fev, NULL, NULL);
+    }
 
-    ret = tt_evc_wait(&evc);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    ret = tt_task_run(&t);
+    TT_UT_SUCCESS(ret, "");
 
-    TT_TEST_CHECK_EQUAL(__utb_ret, TT_SUCCESS, "");
-    TT_TEST_CHECK_EQUAL(__utb_err_line, 0, "");
+    path = tt_process_path(NULL);
+    TT_UT_NOT_EQUAL(path, NULL, "");
+    argv[0] = "app_unit_test";
+    argv[1] = "ipc-1";
+    argv[2] = __IPC_PATH;
 
-    // test client
-    __utb_ret = TT_FAIL;
-    __utb_err_line = 0;
-    __di_cnt = 0;
+    ret = tt_process_create(&proc, __app_file, argv, NULL);
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
-    tt_evc_attr_default(&evc_attr);
-    evc_attr.on_init = __di_on_init_cli;
+    tt_free(path);
 
-    ret = tt_evc_create(&evc, TT_FALSE, &evc_attr);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    tt_task_wait(&t);
 
-    ret = tt_evc_wait(&evc);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    ret = tt_process_wait(&proc, TT_TRUE, NULL);
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
-    TT_TEST_CHECK_EQUAL(__utb_ret, TT_SUCCESS, "");
-    // TT_TEST_CHECK_EQUAL(__utb_ret2, TT_SUCCESS, "");
-    TT_TEST_CHECK_EQUAL(__utb_err_line, 0, "");
+    TT_UT_EQUAL(__err_line, 0, "");
+    TT_UT_EQUAL(__ipc_fev_num, __fiber_num * __ev_per_fiber, "");
+
+    // test end
+    TT_TEST_CASE_LEAVE()
+}
+
+static tt_u32_t ___ipc_cli_sent, __ipc_cli_recvd;
+static tt_u32_t __ipc_svr_sent, __ipc_svr_recvd;
+
+tt_result_t __ipc_cli_pev(IN void *param)
+{
+    tt_ipc_t *ipc;
+    tt_u8_t sbuf[11] = "1234567890", rbuf[11] = {0};
+    tt_u32_t n, cn, rn;
+    tt_ipc_ev_t *pev;
+    tt_result_t ret;
+
+    cn = 0;
+    while (cn++ < __CONN_NUM) {
+        ipc = tt_ipc_create(NULL, NULL);
+        if (ipc == NULL) {
+            __err_line = __LINE__;
+            TT_INFO_IPC("err: %d", __err_line);
+            return TT_FAIL;
+        }
+
+#if TT_ENV_OS_IS_WINDOWS
+        tt_sleep(50);
+#endif
+        if (!TT_OK(tt_ipc_connect_retry(ipc, __IPC_PATH, 100, 10))) {
+            __err_line = __LINE__;
+            TT_INFO_IPC("err: %d", __err_line);
+            return TT_FAIL;
+        }
+        TT_INFO("[%d] ipc connected", cn);
+
+        rn = 0;
+        while (rn++ < __ROUND_NUM) {
+            n = tt_rand_u32() & 0xFF;
+            pev = tt_ipc_ev_create(n, n);
+            if (pev != NULL) {
+                tt_u8_t *pev_data = TT_IPC_EV_CAST(pev, tt_u8_t);
+                tt_u32_t i;
+
+                TT_ASSERT(n == pev->ev);
+                TT_ASSERT(n == pev->size);
+                for (i = 0; i < pev->size; ++i) {
+                    pev_data[i] = n;
+                }
+            } else {
+                __err_line = __LINE__;
+            }
+
+            if (!TT_OK(tt_ipc_send_ev(ipc, pev))) {
+                __err_line = __LINE__;
+                return TT_FAIL;
+            }
+            ___ipc_cli_sent += sizeof(tt_ipc_ev_t) + n;
+            TT_INFO_IPC("[%d:%d] cli sent ev %d, total: %d",
+                        cn, rn, n, ___ipc_cli_sent);
+            
+            if (TT_OK((ret = tt_ipc_recv_ev(ipc, &pev, NULL)))) {
+                if (pev != NULL) {
+                    tt_u8_t *pev_data = TT_IPC_EV_CAST(pev, tt_u8_t);
+                    tt_u32_t i;
+
+                    __ipc_cli_recvd += sizeof(tt_ipc_ev_t) + pev->ev;
+                    TT_INFO_IPC("[%d:%d] cli recv ev %d, total",
+                                cn, rn, pev->ev, __ipc_cli_recvd);
+                    for (i = 0; i < pev->size; ++i) {
+                        if (pev_data[i] != pev->size) {
+                            __err_line = __LINE__;
+                        }
+                    }
+                }
+            } else {
+                TT_INFO_IPC("[%d:%d] cli recv error", cn, rn);
+                __err_line = __LINE__;
+            }
+        }
+        TT_INFO_IPC("[%d] cli end", cn);
+
+        tt_ipc_destroy(ipc);
+    }
+
+    return TT_SUCCESS;
+}
+
+tt_result_t __ipc_svr_pev_fev(IN void *param)
+{
+    tt_ipc_t *ipc, *new_ipc;
+    tt_u32_t n, cn, rn;
+    tt_result_t ret;
+    tt_fiber_ev_t *fev;
+    tt_fiber_t *cfb = tt_current_fiber();
+    tt_ipc_ev_t *pev;
+
+    (void)rn;
+
+    ipc = tt_ipc_create(__IPC_PATH, NULL);
+    if (ipc == NULL) {
+        __err_line = __LINE__;
+        return TT_FAIL;
+    }
+
+    cn = 0;
+    while (cn++ < __CONN_NUM) {
+        new_ipc = tt_ipc_accept(ipc, NULL);
+        if (new_ipc == NULL) {
+            __err_line = __LINE__;
+            return TT_FAIL;
+        }
+        TT_INFO_IPC("ipc accepted %d", cn);
+
+        rn = 0;
+        while (TT_OK((ret = tt_ipc_recv_ev(new_ipc, &pev, &fev)))) {
+            if (fev != NULL) {
+                TT_INFO_IPC("[%d:%d] svr recv fiber ev %x", cn, rn, fev->ev);
+                if (fev->src != NULL) {
+                    if (fev->ev != 0xaabbccdd) {
+                        __err_line = __LINE__;
+                    }
+                    fev->ev = 0xddccbbaa;
+                } else {
+                    if (fev->ev != 0x11223344) {
+                        __err_line = __LINE__;
+                    }
+                }
+                ++__ipc_fev_num;
+                tt_fiber_finish(fev);
+            }
+
+            if (pev != NULL) {
+                tt_u8_t *pev_data = TT_IPC_EV_CAST(pev, tt_u8_t);
+                tt_u32_t i;
+
+                __ipc_svr_recvd += sizeof(tt_ipc_ev_t) + pev->size;
+                TT_INFO_IPC("[%d:%d] svr recv ipc ev %x, total: %d",
+                            cn, rn, pev->ev, __ipc_svr_recvd);
+                TT_ASSERT(pev->ev == pev->size);
+                for (i = 0; i < pev->size; ++i) {
+                    pev_data[i] = pev->ev;
+                }
+            } else {
+                continue;
+            }
+
+            n = tt_rand_u32() & 0xFF;
+            pev = tt_ipc_ev_create(n, n);
+            ret = tt_ipc_send_ev(new_ipc, pev);
+            if (!TT_OK(ret)) {
+                break; // client may already disconnect
+                if (ret == TT_END) {
+                    break;
+                } else {
+                    __err_line = __LINE__;
+                    return TT_FAIL;
+                }
+            }
+            __ipc_svr_sent += sizeof(tt_ipc_ev_t) + pev->size;
+            TT_INFO_IPC("[%d:%d] svr sent ev %d, total: %d",
+                        cn, rn, n, __ipc_svr_sent);
+        }
+// client may already disconnect
+#if 0
+        if (ret != TT_END) {
+            __err_line = __LINE__;
+            return TT_FAIL;
+        }
+#endif
+
+        TT_INFO_IPC("svr acc done %d, ret: %x", cn, ret);
+        tt_ipc_destroy(new_ipc);
+    }
+
+    tt_ipc_destroy(ipc);
+
+    while ((__ipc_fev_num < __fiber_num * __ev_per_fiber) &&
+           ((fev = tt_fiber_recv(cfb, TT_TRUE)) != NULL)) {
+        if (fev->src != NULL) {
+            if (fev->ev != 0xaabbccdd) {
+                __err_line = __LINE__;
+            }
+            fev->ev = 0xddccbbaa;
+        } else {
+            if (fev->ev != 0x11223344) {
+                __err_line = __LINE__;
+            }
+        }
+        ++__ipc_fev_num;
+        tt_fiber_finish(fev);
+    }
+
+    return TT_SUCCESS;
+}
+
+TT_TEST_ROUTINE_DEFINE(tt_unit_test_ipc_ev)
+{
+    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+    tt_task_t t;
+    tt_result_t ret;
+    tt_process_t proc;
+    tt_char_t *argv[20] = {0};
+    tt_char_t *path;
+    tt_u32_t n;
+
+    TT_TEST_CASE_ENTER()
+
+#if TT_ENV_OS_IS_WINDOWS
+    tt_fcreate(__IPC_PATH, NULL);
+#endif
+
+    __ipc_fev_num = 0;
+
+    ret = tt_task_create(&t, NULL);
+    TT_UT_SUCCESS(ret, "");
+
+    tt_task_add_fiber(&t, "svr", __ipc_svr_pev_fev, NULL, NULL);
+    n = 0;
+    while (n++ < __fiber_num) {
+        tt_task_add_fiber(&t, NULL, __ipc_cli_fev, NULL, NULL);
+    }
+
+    ret = tt_task_run(&t);
+    TT_UT_SUCCESS(ret, "");
+
+    path = tt_process_path(NULL);
+    TT_UT_NOT_EQUAL(path, NULL, "");
+    argv[0] = "app_unit_test";
+    argv[1] = "ipc-pev";
+    argv[2] = __IPC_PATH;
+
+    ret = tt_process_create(&proc, __app_file, argv, NULL);
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+
+    tt_free(path);
+
+    tt_task_wait(&t);
+
+    ret = tt_process_wait(&proc, TT_TRUE, NULL);
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+
+    TT_UT_EQUAL(__err_line, 0, "");
+    TT_UT_EQUAL(__ipc_fev_num, __fiber_num * __ev_per_fiber, "");
 
     // test end
     TT_TEST_CASE_LEAVE()

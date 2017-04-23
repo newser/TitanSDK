@@ -87,7 +87,7 @@ TT_TEST_CASE("tt_unit_test_doc_basic",
      // test start
 
      ret = tt_xmldoc_create(&xdoc, NULL);
-     TT_TEST_CHECK_SUCCESS(ret, "");
+     TT_UT_SUCCESS(ret, "");
 
      tt_xmldoc_destroy(&xdoc);
 
@@ -282,14 +282,14 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_doc_basic)
     // test start
 
     ret = tt_xmldoc_create(&xdoc, NULL);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
 
     ret = tt_xmldoc_update(&xdoc, __tdb_xml1, sizeof(__tdb_xml1));
-    TT_TEST_CHECK_SUCCESS(ret, "");
-    TT_TEST_CHECK_EQUAL(__check_doc(&xdoc), TT_TRUE, "");
+    TT_UT_SUCCESS(ret, "");
+    TT_UT_EQUAL(__check_doc(&xdoc), TT_TRUE, "");
 
     ret = tt_xmldoc_final(&xdoc, NULL);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
 
     // update segments
     {
@@ -301,14 +301,14 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_doc_basic)
                 len = tt_rand_u32() % 5; // 0-4
             }
             ret = tt_xmldoc_update(&xdoc, (tt_u8_t *)&__tdb_xml1[n], len);
-            TT_TEST_CHECK_SUCCESS(ret, "");
+            TT_UT_SUCCESS(ret, "");
             n += len;
         }
         TT_ASSERT(n == sizeof(__tdb_xml1));
 
         ret = tt_xmldoc_final(&xdoc, NULL);
-        TT_TEST_CHECK_SUCCESS(ret, "");
-        TT_TEST_CHECK_EQUAL(__check_doc(&xdoc), TT_TRUE, "");
+        TT_UT_SUCCESS(ret, "");
+        TT_UT_EQUAL(__check_doc(&xdoc), TT_TRUE, "");
     }
 
     // random test
@@ -571,10 +571,10 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_doc_render)
     // test start
 
     ret = tt_xmldoc_create(&xdoc, NULL);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
 
     ret = tt_xmlnr_create(&xnr, NULL);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
 
     {
         tt_xnode_t *r2;
@@ -583,24 +583,24 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_doc_render)
         tt_xmlnr_reset(&xnr, 0);
 
         ret = tt_xmldoc_update(&xdoc, __tdb_xml1, sizeof(__tdb_xml1));
-        TT_TEST_CHECK_SUCCESS(ret, "");
-        TT_TEST_CHECK_EQUAL(__check_doc(&xdoc), TT_TRUE, "");
+        TT_UT_SUCCESS(ret, "");
+        TT_UT_EQUAL(__check_doc(&xdoc), TT_TRUE, "");
 
         ret = tt_xmldoc_final(&xdoc, NULL);
-        TT_TEST_CHECK_SUCCESS(ret, "");
+        TT_UT_SUCCESS(ret, "");
 
         r2 = tt_xnode_clone(xdoc.root);
-        TT_TEST_CHECK_NOT_EQUAL(r2, NULL, "");
+        TT_UT_NOT_EQUAL(r2, NULL, "");
 
         ret = tt_xmlnr_render(&xnr, xdoc.root);
-        TT_TEST_CHECK_SUCCESS(ret, "");
+        TT_UT_SUCCESS(ret, "");
     }
 
     b_ret = __utdr_1(&xdoc, &xnr);
-    TT_TEST_CHECK_EQUAL(b_ret, TT_TRUE, "");
+    TT_UT_EQUAL(b_ret, TT_TRUE, "");
 
     b_ret = __utdr_2(&xdoc, &xnr);
-    TT_TEST_CHECK_EQUAL(b_ret, TT_TRUE, "");
+    TT_UT_EQUAL(b_ret, TT_TRUE, "");
 
     tt_xmldoc_destroy(&xdoc);
     tt_xmlnr_destroy(&xnr);

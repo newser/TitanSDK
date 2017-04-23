@@ -112,12 +112,12 @@ TT_TEST_CASE("tt_unit_test_list",
 
     tt_list_init(&l1);
     tt_list_clear(&l1);
-    TT_TEST_CHECK_EQUAL(tt_list_count(&l1), 0, "");
-    TT_TEST_CHECK_EQUAL(tt_list_empty(&l1), TT_TRUE, "");
-    TT_TEST_CHECK_EQUAL(tt_list_head(&l1), NULL, "");
-    TT_TEST_CHECK_EQUAL(tt_list_tail(&l1), NULL, "");
-    TT_TEST_CHECK_EQUAL(tt_list_pop_head(&l1), NULL, "");
-    TT_TEST_CHECK_EQUAL(tt_list_pop_tail(&l1), NULL, "");
+    TT_UT_EQUAL(tt_list_count(&l1), 0, "");
+    TT_UT_EQUAL(tt_list_empty(&l1), TT_TRUE, "");
+    TT_UT_EQUAL(tt_list_head(&l1), NULL, "");
+    TT_UT_EQUAL(tt_list_tail(&l1), NULL, "");
+    TT_UT_EQUAL(tt_list_pop_head(&l1), NULL, "");
+    TT_UT_EQUAL(tt_list_pop_tail(&l1), NULL, "");
 
     tt_lnode_init(&n1);
     tt_lnode_init(&n2);
@@ -126,32 +126,32 @@ TT_TEST_CASE("tt_unit_test_list",
     tt_lnode_init(&n5);
 
     tt_list_push_head(&l1, &n1);
-    TT_TEST_CHECK_EQUAL(tt_list_count(&l1), 1, "");
-    TT_TEST_CHECK_EQUAL(tt_list_empty(&l1), TT_FALSE, "");
-    TT_TEST_CHECK_EQUAL(tt_list_head(&l1), &n1, "");
-    TT_TEST_CHECK_EQUAL(tt_list_tail(&l1), &n1, "");
-    TT_TEST_CHECK_EQUAL(tt_list_pop_tail(&l1), &n1, "");
+    TT_UT_EQUAL(tt_list_count(&l1), 1, "");
+    TT_UT_EQUAL(tt_list_empty(&l1), TT_FALSE, "");
+    TT_UT_EQUAL(tt_list_head(&l1), &n1, "");
+    TT_UT_EQUAL(tt_list_tail(&l1), &n1, "");
+    TT_UT_EQUAL(tt_list_pop_tail(&l1), &n1, "");
     // now empty:
-    TT_TEST_CHECK_EQUAL(tt_list_count(&l1), 0, "");
-    TT_TEST_CHECK_EQUAL(tt_list_empty(&l1), TT_TRUE, "");
-    TT_TEST_CHECK_EQUAL(tt_list_head(&l1), NULL, "");
-    TT_TEST_CHECK_EQUAL(tt_list_tail(&l1), NULL, "");
-    TT_TEST_CHECK_EQUAL(tt_list_pop_head(&l1), NULL, "");
-    TT_TEST_CHECK_EQUAL(tt_list_pop_tail(&l1), NULL, "");
+    TT_UT_EQUAL(tt_list_count(&l1), 0, "");
+    TT_UT_EQUAL(tt_list_empty(&l1), TT_TRUE, "");
+    TT_UT_EQUAL(tt_list_head(&l1), NULL, "");
+    TT_UT_EQUAL(tt_list_tail(&l1), NULL, "");
+    TT_UT_EQUAL(tt_list_pop_head(&l1), NULL, "");
+    TT_UT_EQUAL(tt_list_pop_tail(&l1), NULL, "");
 
     tt_list_push_tail(&l1, &n1);
-    TT_TEST_CHECK_EQUAL(tt_list_count(&l1), 1, "");
-    TT_TEST_CHECK_EQUAL(tt_list_empty(&l1), TT_FALSE, "");
-    TT_TEST_CHECK_EQUAL(tt_list_head(&l1), &n1, "");
-    TT_TEST_CHECK_EQUAL(tt_list_tail(&l1), &n1, "");
-    TT_TEST_CHECK_EQUAL(tt_list_pop_head(&l1), &n1, "");
+    TT_UT_EQUAL(tt_list_count(&l1), 1, "");
+    TT_UT_EQUAL(tt_list_empty(&l1), TT_FALSE, "");
+    TT_UT_EQUAL(tt_list_head(&l1), &n1, "");
+    TT_UT_EQUAL(tt_list_tail(&l1), &n1, "");
+    TT_UT_EQUAL(tt_list_pop_head(&l1), &n1, "");
     // now empty:
-    TT_TEST_CHECK_EQUAL(tt_list_count(&l1), 0, "");
-    TT_TEST_CHECK_EQUAL(tt_list_empty(&l1), TT_TRUE, "");
-    TT_TEST_CHECK_EQUAL(tt_list_head(&l1), NULL, "");
-    TT_TEST_CHECK_EQUAL(tt_list_tail(&l1), NULL, "");
-    TT_TEST_CHECK_EQUAL(tt_list_pop_head(&l1), NULL, "");
-    TT_TEST_CHECK_EQUAL(tt_list_pop_tail(&l1), NULL, "");
+    TT_UT_EQUAL(tt_list_count(&l1), 0, "");
+    TT_UT_EQUAL(tt_list_empty(&l1), TT_TRUE, "");
+    TT_UT_EQUAL(tt_list_head(&l1), NULL, "");
+    TT_UT_EQUAL(tt_list_tail(&l1), NULL, "");
+    TT_UT_EQUAL(tt_list_pop_head(&l1), NULL, "");
+    TT_UT_EQUAL(tt_list_pop_tail(&l1), NULL, "");
 
     // multiple nodes:
     tt_list_push_head(&l1, &n1);
@@ -161,43 +161,43 @@ TT_TEST_CASE("tt_unit_test_list",
     tt_list_insert_after(&n1, &n3);
     tt_list_insert_after(&n1, &n4);
     // n2, n5, n1, n4, n3
-    TT_TEST_CHECK_EQUAL(tt_list_count(&l1), 5, "");
-    TT_TEST_CHECK_EQUAL(tt_list_empty(&l1), TT_FALSE, "");
-    TT_TEST_CHECK_EQUAL(tt_list_head(&l1), &n2, "");
-    TT_TEST_CHECK_EQUAL(tt_list_tail(&l1), &n3, "");
+    TT_UT_EQUAL(tt_list_count(&l1), 5, "");
+    TT_UT_EQUAL(tt_list_empty(&l1), TT_FALSE, "");
+    TT_UT_EQUAL(tt_list_head(&l1), &n2, "");
+    TT_UT_EQUAL(tt_list_tail(&l1), &n3, "");
 
     // remove n5: n2,n1,n4,n3
-    TT_TEST_CHECK_EQUAL(tt_list_remove(&n5), &n1, "");
-    TT_TEST_CHECK_EQUAL(tt_list_count(&l1), 4, "");
-    TT_TEST_CHECK_EQUAL(tt_list_empty(&l1), TT_FALSE, "");
-    TT_TEST_CHECK_EQUAL(tt_list_head(&l1), &n2, "");
-    TT_TEST_CHECK_EQUAL(tt_list_tail(&l1), &n3, "");
+    TT_UT_EQUAL(tt_list_remove(&n5), &n1, "");
+    TT_UT_EQUAL(tt_list_count(&l1), 4, "");
+    TT_UT_EQUAL(tt_list_empty(&l1), TT_FALSE, "");
+    TT_UT_EQUAL(tt_list_head(&l1), &n2, "");
+    TT_UT_EQUAL(tt_list_tail(&l1), &n3, "");
 
-    TT_TEST_CHECK_EQUAL(tt_list_remove(&n5), NULL, "");
+    TT_UT_EQUAL(tt_list_remove(&n5), NULL, "");
 
     // remove n2: n1,n4,n3
-    TT_TEST_CHECK_EQUAL(tt_list_remove(&n2), &n1, "");
-    TT_TEST_CHECK_EQUAL(tt_list_count(&l1), 3, "");
-    TT_TEST_CHECK_EQUAL(tt_list_empty(&l1), TT_FALSE, "");
-    TT_TEST_CHECK_EQUAL(tt_list_head(&l1), &n1, "");
-    TT_TEST_CHECK_EQUAL(tt_list_tail(&l1), &n3, "");
+    TT_UT_EQUAL(tt_list_remove(&n2), &n1, "");
+    TT_UT_EQUAL(tt_list_count(&l1), 3, "");
+    TT_UT_EQUAL(tt_list_empty(&l1), TT_FALSE, "");
+    TT_UT_EQUAL(tt_list_head(&l1), &n1, "");
+    TT_UT_EQUAL(tt_list_tail(&l1), &n3, "");
 
     // remove n4: n1,n3
-    TT_TEST_CHECK_EQUAL(tt_list_remove(&n4), &n3, "");
-    TT_TEST_CHECK_EQUAL(tt_list_count(&l1), 2, "");
-    TT_TEST_CHECK_EQUAL(tt_list_empty(&l1), TT_FALSE, "");
-    TT_TEST_CHECK_EQUAL(tt_list_head(&l1), &n1, "");
-    TT_TEST_CHECK_EQUAL(tt_list_tail(&l1), &n3, "");
+    TT_UT_EQUAL(tt_list_remove(&n4), &n3, "");
+    TT_UT_EQUAL(tt_list_count(&l1), 2, "");
+    TT_UT_EQUAL(tt_list_empty(&l1), TT_FALSE, "");
+    TT_UT_EQUAL(tt_list_head(&l1), &n1, "");
+    TT_UT_EQUAL(tt_list_tail(&l1), &n3, "");
 
     // remove n3: n1
-    TT_TEST_CHECK_EQUAL(tt_list_remove(&n3), NULL, "");
-    TT_TEST_CHECK_EQUAL(tt_list_count(&l1), 1, "");
-    TT_TEST_CHECK_EQUAL(tt_list_empty(&l1), TT_FALSE, "");
-    TT_TEST_CHECK_EQUAL(tt_list_head(&l1), &n1, "");
-    TT_TEST_CHECK_EQUAL(tt_list_tail(&l1), &n1, "");
+    TT_UT_EQUAL(tt_list_remove(&n3), NULL, "");
+    TT_UT_EQUAL(tt_list_count(&l1), 1, "");
+    TT_UT_EQUAL(tt_list_empty(&l1), TT_FALSE, "");
+    TT_UT_EQUAL(tt_list_head(&l1), &n1, "");
+    TT_UT_EQUAL(tt_list_tail(&l1), &n1, "");
 
     tt_list_clear(&l1);
-    TT_TEST_CHECK_EQUAL(tt_list_remove(&n1), NULL, "");
+    TT_UT_EQUAL(tt_list_remove(&n1), NULL, "");
 
     // test end
     TT_TEST_CASE_LEAVE()
@@ -215,12 +215,12 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_dl_list)
     tt_dlist_init(&l1);
     tt_dlist_init(&l2);
     tt_dlist_clear(&l1);
-    TT_TEST_CHECK_EQUAL(tt_dlist_count(&l1), 0, "");
-    TT_TEST_CHECK_EQUAL(tt_dlist_empty(&l1), TT_TRUE, "");
-    TT_TEST_CHECK_EQUAL(tt_dlist_head(&l1), NULL, "");
-    TT_TEST_CHECK_EQUAL(tt_dlist_tail(&l1), NULL, "");
-    TT_TEST_CHECK_EQUAL(tt_dlist_pop_head(&l1), NULL, "");
-    TT_TEST_CHECK_EQUAL(tt_dlist_pop_tail(&l1), NULL, "");
+    TT_UT_EQUAL(tt_dlist_count(&l1), 0, "");
+    TT_UT_EQUAL(tt_dlist_empty(&l1), TT_TRUE, "");
+    TT_UT_EQUAL(tt_dlist_head(&l1), NULL, "");
+    TT_UT_EQUAL(tt_dlist_tail(&l1), NULL, "");
+    TT_UT_EQUAL(tt_dlist_pop_head(&l1), NULL, "");
+    TT_UT_EQUAL(tt_dlist_pop_tail(&l1), NULL, "");
 
     tt_dnode_init(&n1);
     tt_dnode_init(&n2);
@@ -229,32 +229,32 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_dl_list)
     tt_dnode_init(&n5);
 
     tt_dlist_push_head(&l1, &n1);
-    TT_TEST_CHECK_EQUAL(tt_dlist_count(&l1), 1, "");
-    TT_TEST_CHECK_EQUAL(tt_dlist_empty(&l1), TT_FALSE, "");
-    TT_TEST_CHECK_EQUAL(tt_dlist_head(&l1), &n1, "");
-    TT_TEST_CHECK_EQUAL(tt_dlist_tail(&l1), &n1, "");
-    TT_TEST_CHECK_EQUAL(tt_dlist_pop_tail(&l1), &n1, "");
+    TT_UT_EQUAL(tt_dlist_count(&l1), 1, "");
+    TT_UT_EQUAL(tt_dlist_empty(&l1), TT_FALSE, "");
+    TT_UT_EQUAL(tt_dlist_head(&l1), &n1, "");
+    TT_UT_EQUAL(tt_dlist_tail(&l1), &n1, "");
+    TT_UT_EQUAL(tt_dlist_pop_tail(&l1), &n1, "");
     // now empty:
-    TT_TEST_CHECK_EQUAL(tt_dlist_count(&l1), 0, "");
-    TT_TEST_CHECK_EQUAL(tt_dlist_empty(&l1), TT_TRUE, "");
-    TT_TEST_CHECK_EQUAL(tt_dlist_head(&l1), NULL, "");
-    TT_TEST_CHECK_EQUAL(tt_dlist_tail(&l1), NULL, "");
-    TT_TEST_CHECK_EQUAL(tt_dlist_pop_head(&l1), NULL, "");
-    TT_TEST_CHECK_EQUAL(tt_dlist_pop_tail(&l1), NULL, "");
+    TT_UT_EQUAL(tt_dlist_count(&l1), 0, "");
+    TT_UT_EQUAL(tt_dlist_empty(&l1), TT_TRUE, "");
+    TT_UT_EQUAL(tt_dlist_head(&l1), NULL, "");
+    TT_UT_EQUAL(tt_dlist_tail(&l1), NULL, "");
+    TT_UT_EQUAL(tt_dlist_pop_head(&l1), NULL, "");
+    TT_UT_EQUAL(tt_dlist_pop_tail(&l1), NULL, "");
 
     tt_dlist_push_tail(&l1, &n1);
-    TT_TEST_CHECK_EQUAL(tt_dlist_count(&l1), 1, "");
-    TT_TEST_CHECK_EQUAL(tt_dlist_empty(&l1), TT_FALSE, "");
-    TT_TEST_CHECK_EQUAL(tt_dlist_head(&l1), &n1, "");
-    TT_TEST_CHECK_EQUAL(tt_dlist_tail(&l1), &n1, "");
-    TT_TEST_CHECK_EQUAL(tt_dlist_pop_head(&l1), &n1, "");
+    TT_UT_EQUAL(tt_dlist_count(&l1), 1, "");
+    TT_UT_EQUAL(tt_dlist_empty(&l1), TT_FALSE, "");
+    TT_UT_EQUAL(tt_dlist_head(&l1), &n1, "");
+    TT_UT_EQUAL(tt_dlist_tail(&l1), &n1, "");
+    TT_UT_EQUAL(tt_dlist_pop_head(&l1), &n1, "");
     // now empty:
-    TT_TEST_CHECK_EQUAL(tt_dlist_count(&l1), 0, "");
-    TT_TEST_CHECK_EQUAL(tt_dlist_empty(&l1), TT_TRUE, "");
-    TT_TEST_CHECK_EQUAL(tt_dlist_head(&l1), NULL, "");
-    TT_TEST_CHECK_EQUAL(tt_dlist_tail(&l1), NULL, "");
-    TT_TEST_CHECK_EQUAL(tt_dlist_pop_head(&l1), NULL, "");
-    TT_TEST_CHECK_EQUAL(tt_dlist_pop_tail(&l1), NULL, "");
+    TT_UT_EQUAL(tt_dlist_count(&l1), 0, "");
+    TT_UT_EQUAL(tt_dlist_empty(&l1), TT_TRUE, "");
+    TT_UT_EQUAL(tt_dlist_head(&l1), NULL, "");
+    TT_UT_EQUAL(tt_dlist_tail(&l1), NULL, "");
+    TT_UT_EQUAL(tt_dlist_pop_head(&l1), NULL, "");
+    TT_UT_EQUAL(tt_dlist_pop_tail(&l1), NULL, "");
 
     // multiple nodes:
     tt_dlist_push_head(&l1, &n1);
@@ -264,78 +264,78 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_dl_list)
     tt_dlist_insert_after(&l1, &n1, &n3);
     tt_dlist_insert_after(&l1, &n1, &n4);
     // n2, n5, n1, n4, n3
-    TT_TEST_CHECK_EQUAL(tt_dlist_count(&l1), 5, "");
-    TT_TEST_CHECK_EQUAL(tt_dlist_empty(&l1), TT_FALSE, "");
-    TT_TEST_CHECK_EQUAL(tt_dlist_head(&l1), &n2, "");
-    TT_TEST_CHECK_EQUAL(tt_dlist_tail(&l1), &n3, "");
+    TT_UT_EQUAL(tt_dlist_count(&l1), 5, "");
+    TT_UT_EQUAL(tt_dlist_empty(&l1), TT_FALSE, "");
+    TT_UT_EQUAL(tt_dlist_head(&l1), &n2, "");
+    TT_UT_EQUAL(tt_dlist_tail(&l1), &n3, "");
 
     // remove n5: n2,n1,n4,n3
-    TT_TEST_CHECK_EQUAL(tt_dlist_remove(&l1, &n5), &n1, "");
-    TT_TEST_CHECK_EQUAL(tt_dlist_count(&l1), 4, "");
-    TT_TEST_CHECK_EQUAL(tt_dlist_empty(&l1), TT_FALSE, "");
-    TT_TEST_CHECK_EQUAL(tt_dlist_head(&l1), &n2, "");
-    TT_TEST_CHECK_EQUAL(tt_dlist_tail(&l1), &n3, "");
+    TT_UT_EQUAL(tt_dlist_remove(&l1, &n5), &n1, "");
+    TT_UT_EQUAL(tt_dlist_count(&l1), 4, "");
+    TT_UT_EQUAL(tt_dlist_empty(&l1), TT_FALSE, "");
+    TT_UT_EQUAL(tt_dlist_head(&l1), &n2, "");
+    TT_UT_EQUAL(tt_dlist_tail(&l1), &n3, "");
 
     tt_dlist_remove(&l1, &n5);
-    TT_TEST_CHECK_EQUAL(tt_dlist_remove(&l1, &n5), NULL, "");
+    TT_UT_EQUAL(tt_dlist_remove(&l1, &n5), NULL, "");
 
     // remove n2: n1,n4,n3
-    TT_TEST_CHECK_EQUAL(tt_dlist_remove(&l1, &n2), &n1, "");
-    TT_TEST_CHECK_EQUAL(tt_dlist_count(&l1), 3, "");
-    TT_TEST_CHECK_EQUAL(tt_dlist_empty(&l1), TT_FALSE, "");
-    TT_TEST_CHECK_EQUAL(tt_dlist_head(&l1), &n1, "");
-    TT_TEST_CHECK_EQUAL(tt_dlist_tail(&l1), &n3, "");
+    TT_UT_EQUAL(tt_dlist_remove(&l1, &n2), &n1, "");
+    TT_UT_EQUAL(tt_dlist_count(&l1), 3, "");
+    TT_UT_EQUAL(tt_dlist_empty(&l1), TT_FALSE, "");
+    TT_UT_EQUAL(tt_dlist_head(&l1), &n1, "");
+    TT_UT_EQUAL(tt_dlist_tail(&l1), &n3, "");
 
     // remove n4: n1,n3
-    TT_TEST_CHECK_EQUAL(tt_dlist_remove(&l1, &n4), &n3, "");
-    TT_TEST_CHECK_EQUAL(tt_dlist_count(&l1), 2, "");
-    TT_TEST_CHECK_EQUAL(tt_dlist_empty(&l1), TT_FALSE, "");
-    TT_TEST_CHECK_EQUAL(tt_dlist_head(&l1), &n1, "");
-    TT_TEST_CHECK_EQUAL(tt_dlist_tail(&l1), &n3, "");
+    TT_UT_EQUAL(tt_dlist_remove(&l1, &n4), &n3, "");
+    TT_UT_EQUAL(tt_dlist_count(&l1), 2, "");
+    TT_UT_EQUAL(tt_dlist_empty(&l1), TT_FALSE, "");
+    TT_UT_EQUAL(tt_dlist_head(&l1), &n1, "");
+    TT_UT_EQUAL(tt_dlist_tail(&l1), &n3, "");
 
     // remove n3: n1
-    TT_TEST_CHECK_EQUAL(tt_dlist_remove(&l1, &n3), NULL, "");
-    TT_TEST_CHECK_EQUAL(tt_dlist_count(&l1), 1, "");
-    TT_TEST_CHECK_EQUAL(tt_dlist_empty(&l1), TT_FALSE, "");
-    TT_TEST_CHECK_EQUAL(tt_dlist_head(&l1), &n1, "");
-    TT_TEST_CHECK_EQUAL(tt_dlist_tail(&l1), &n1, "");
+    TT_UT_EQUAL(tt_dlist_remove(&l1, &n3), NULL, "");
+    TT_UT_EQUAL(tt_dlist_count(&l1), 1, "");
+    TT_UT_EQUAL(tt_dlist_empty(&l1), TT_FALSE, "");
+    TT_UT_EQUAL(tt_dlist_head(&l1), &n1, "");
+    TT_UT_EQUAL(tt_dlist_tail(&l1), &n1, "");
 
     tt_dlist_clear(&l1);
-    TT_TEST_CHECK_EQUAL(tt_dlist_remove(&l1, &n1), NULL, "");
+    TT_UT_EQUAL(tt_dlist_remove(&l1, &n1), NULL, "");
 
     // move
     tt_dlist_move(&l1, &l2);
-    TT_TEST_CHECK_EQUAL(tt_dlist_empty(&l1), TT_TRUE, "");
-    TT_TEST_CHECK_EQUAL(tt_dlist_empty(&l2), TT_TRUE, "");
+    TT_UT_EQUAL(tt_dlist_empty(&l1), TT_TRUE, "");
+    TT_UT_EQUAL(tt_dlist_empty(&l2), TT_TRUE, "");
 
     // move to empty
     tt_dlist_push_tail(&l2, &n1);
     tt_dlist_push_tail(&l2, &n2);
     tt_dlist_push_tail(&l2, &n3);
     tt_dlist_move(&l1, &l2);
-    TT_TEST_CHECK_EQUAL(tt_dlist_count(&l1), 3, "");
-    TT_TEST_CHECK_EQUAL(tt_dlist_head(&l1), &n1, "");
-    TT_TEST_CHECK_EQUAL(tt_dlist_tail(&l1), &n3, "");
-    TT_TEST_CHECK_EQUAL(tt_dlist_empty(&l2), TT_TRUE, "");
+    TT_UT_EQUAL(tt_dlist_count(&l1), 3, "");
+    TT_UT_EQUAL(tt_dlist_head(&l1), &n1, "");
+    TT_UT_EQUAL(tt_dlist_tail(&l1), &n3, "");
+    TT_UT_EQUAL(tt_dlist_empty(&l2), TT_TRUE, "");
     tt_dlist_clear(&l1);
 
     // move from empty
     tt_dlist_push_tail(&l1, &n1);
     tt_dlist_push_tail(&l1, &n2);
     tt_dlist_move(&l1, &l2);
-    TT_TEST_CHECK_EQUAL(tt_dlist_count(&l1), 2, "");
-    TT_TEST_CHECK_EQUAL(tt_dlist_head(&l1), &n1, "");
-    TT_TEST_CHECK_EQUAL(tt_dlist_tail(&l1), &n2, "");
-    TT_TEST_CHECK_EQUAL(tt_dlist_empty(&l2), TT_TRUE, "");
+    TT_UT_EQUAL(tt_dlist_count(&l1), 2, "");
+    TT_UT_EQUAL(tt_dlist_head(&l1), &n1, "");
+    TT_UT_EQUAL(tt_dlist_tail(&l1), &n2, "");
+    TT_UT_EQUAL(tt_dlist_empty(&l2), TT_TRUE, "");
 
     // move
     tt_dlist_push_tail(&l2, &n3);
     tt_dlist_push_tail(&l2, &n4);
     tt_dlist_move(&l1, &l2);
-    TT_TEST_CHECK_EQUAL(tt_dlist_count(&l1), 4, "");
-    TT_TEST_CHECK_EQUAL(tt_dlist_head(&l1), &n1, "");
-    TT_TEST_CHECK_EQUAL(tt_dlist_tail(&l1), &n4, "");
-    TT_TEST_CHECK_EQUAL(tt_dlist_empty(&l2), TT_TRUE, "");
+    TT_UT_EQUAL(tt_dlist_count(&l1), 4, "");
+    TT_UT_EQUAL(tt_dlist_head(&l1), &n1, "");
+    TT_UT_EQUAL(tt_dlist_tail(&l1), &n4, "");
+    TT_UT_EQUAL(tt_dlist_empty(&l2), TT_TRUE, "");
 
     // test end
     TT_TEST_CASE_LEAVE()
@@ -354,12 +354,12 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_sl_list)
     tt_slist_init(&l1);
     tt_slist_init(&l2);
     tt_slist_clear(&l1);
-    TT_TEST_CHECK_EQUAL(tt_slist_count(&l1), 0, "");
-    TT_TEST_CHECK_EQUAL(tt_slist_empty(&l1), TT_TRUE, "");
-    TT_TEST_CHECK_EQUAL(tt_slist_head(&l1), NULL, "");
-    TT_TEST_CHECK_EQUAL(tt_slist_tail(&l1), NULL, "");
-    TT_TEST_CHECK_EQUAL(tt_slist_pop_head(&l1), NULL, "");
-    TT_TEST_CHECK_EQUAL(tt_slist_pop_tail(&l1), NULL, "");
+    TT_UT_EQUAL(tt_slist_count(&l1), 0, "");
+    TT_UT_EQUAL(tt_slist_empty(&l1), TT_TRUE, "");
+    TT_UT_EQUAL(tt_slist_head(&l1), NULL, "");
+    TT_UT_EQUAL(tt_slist_tail(&l1), NULL, "");
+    TT_UT_EQUAL(tt_slist_pop_head(&l1), NULL, "");
+    TT_UT_EQUAL(tt_slist_pop_tail(&l1), NULL, "");
 
     tt_snode_init(&n1);
     tt_snode_init(&n2);
@@ -368,34 +368,34 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_sl_list)
     tt_snode_init(&n5);
 
     tt_slist_push_head(&l1, &n1);
-    TT_TEST_CHECK_EQUAL(tt_slist_count(&l1), 1, "");
-    TT_TEST_CHECK_EQUAL(tt_slist_empty(&l1), TT_FALSE, "");
-    TT_TEST_CHECK_EQUAL(tt_slist_head(&l1), &n1, "");
-    TT_TEST_CHECK_EQUAL(tt_slist_tail(&l1), &n1, "");
-    TT_TEST_CHECK_EQUAL(n1.next, NULL, "");
-    TT_TEST_CHECK_EQUAL(tt_slist_pop_tail(&l1), &n1, "");
+    TT_UT_EQUAL(tt_slist_count(&l1), 1, "");
+    TT_UT_EQUAL(tt_slist_empty(&l1), TT_FALSE, "");
+    TT_UT_EQUAL(tt_slist_head(&l1), &n1, "");
+    TT_UT_EQUAL(tt_slist_tail(&l1), &n1, "");
+    TT_UT_EQUAL(n1.next, NULL, "");
+    TT_UT_EQUAL(tt_slist_pop_tail(&l1), &n1, "");
     // now empty:
-    TT_TEST_CHECK_EQUAL(tt_slist_count(&l1), 0, "");
-    TT_TEST_CHECK_EQUAL(tt_slist_empty(&l1), TT_TRUE, "");
-    TT_TEST_CHECK_EQUAL(tt_slist_head(&l1), NULL, "");
-    TT_TEST_CHECK_EQUAL(tt_slist_tail(&l1), NULL, "");
-    TT_TEST_CHECK_EQUAL(tt_slist_pop_head(&l1), NULL, "");
-    TT_TEST_CHECK_EQUAL(tt_slist_pop_tail(&l1), NULL, "");
+    TT_UT_EQUAL(tt_slist_count(&l1), 0, "");
+    TT_UT_EQUAL(tt_slist_empty(&l1), TT_TRUE, "");
+    TT_UT_EQUAL(tt_slist_head(&l1), NULL, "");
+    TT_UT_EQUAL(tt_slist_tail(&l1), NULL, "");
+    TT_UT_EQUAL(tt_slist_pop_head(&l1), NULL, "");
+    TT_UT_EQUAL(tt_slist_pop_tail(&l1), NULL, "");
 
     tt_slist_push_tail(&l1, &n1);
-    TT_TEST_CHECK_EQUAL(tt_slist_count(&l1), 1, "");
-    TT_TEST_CHECK_EQUAL(tt_slist_empty(&l1), TT_FALSE, "");
-    TT_TEST_CHECK_EQUAL(tt_slist_head(&l1), &n1, "");
-    TT_TEST_CHECK_EQUAL(tt_slist_tail(&l1), &n1, "");
-    TT_TEST_CHECK_EQUAL(tt_slist_pop_head(&l1), &n1, "");
-    TT_TEST_CHECK_EQUAL(n1.next, NULL, "");
+    TT_UT_EQUAL(tt_slist_count(&l1), 1, "");
+    TT_UT_EQUAL(tt_slist_empty(&l1), TT_FALSE, "");
+    TT_UT_EQUAL(tt_slist_head(&l1), &n1, "");
+    TT_UT_EQUAL(tt_slist_tail(&l1), &n1, "");
+    TT_UT_EQUAL(tt_slist_pop_head(&l1), &n1, "");
+    TT_UT_EQUAL(n1.next, NULL, "");
     // now empty:
-    TT_TEST_CHECK_EQUAL(tt_slist_count(&l1), 0, "");
-    TT_TEST_CHECK_EQUAL(tt_slist_empty(&l1), TT_TRUE, "");
-    TT_TEST_CHECK_EQUAL(tt_slist_head(&l1), NULL, "");
-    TT_TEST_CHECK_EQUAL(tt_slist_tail(&l1), NULL, "");
-    TT_TEST_CHECK_EQUAL(tt_slist_pop_head(&l1), NULL, "");
-    TT_TEST_CHECK_EQUAL(tt_slist_pop_tail(&l1), NULL, "");
+    TT_UT_EQUAL(tt_slist_count(&l1), 0, "");
+    TT_UT_EQUAL(tt_slist_empty(&l1), TT_TRUE, "");
+    TT_UT_EQUAL(tt_slist_head(&l1), NULL, "");
+    TT_UT_EQUAL(tt_slist_tail(&l1), NULL, "");
+    TT_UT_EQUAL(tt_slist_pop_head(&l1), NULL, "");
+    TT_UT_EQUAL(tt_slist_pop_tail(&l1), NULL, "");
 
     // multiple nodes:
     tt_slist_push_head(&l1, &n1);
@@ -405,97 +405,97 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_sl_list)
     tt_slist_insert_after(&n1, &n3);
     tt_slist_insert_after(&n1, &n4);
     // n2, n5, n1, n4, n3
-    TT_TEST_CHECK_EQUAL(tt_slist_count(&l1), 5, "");
-    TT_TEST_CHECK_EQUAL(tt_slist_empty(&l1), TT_FALSE, "");
-    TT_TEST_CHECK_EQUAL(tt_slist_head(&l1), &n2, "");
-    TT_TEST_CHECK_EQUAL(tt_slist_tail(&l1), &n3, "");
-    TT_TEST_CHECK_EQUAL(n2.next, &n5, "");
-    TT_TEST_CHECK_EQUAL(n1.next, &n4, "");
-    TT_TEST_CHECK_EQUAL(n3.next, NULL, "");
+    TT_UT_EQUAL(tt_slist_count(&l1), 5, "");
+    TT_UT_EQUAL(tt_slist_empty(&l1), TT_FALSE, "");
+    TT_UT_EQUAL(tt_slist_head(&l1), &n2, "");
+    TT_UT_EQUAL(tt_slist_tail(&l1), &n3, "");
+    TT_UT_EQUAL(n2.next, &n5, "");
+    TT_UT_EQUAL(n1.next, &n4, "");
+    TT_UT_EQUAL(n3.next, NULL, "");
 
     // remove n5: n2,n1,n4,n3
-    TT_TEST_CHECK_EQUAL(tt_slist_fast_remove(&l1, &n2, &n5), &n1, "");
-    TT_TEST_CHECK_EQUAL(tt_slist_count(&l1), 4, "");
-    TT_TEST_CHECK_EQUAL(tt_slist_empty(&l1), TT_FALSE, "");
-    TT_TEST_CHECK_EQUAL(tt_slist_head(&l1), &n2, "");
-    TT_TEST_CHECK_EQUAL(tt_slist_tail(&l1), &n3, "");
+    TT_UT_EQUAL(tt_slist_fast_remove(&l1, &n2, &n5), &n1, "");
+    TT_UT_EQUAL(tt_slist_count(&l1), 4, "");
+    TT_UT_EQUAL(tt_slist_empty(&l1), TT_FALSE, "");
+    TT_UT_EQUAL(tt_slist_head(&l1), &n2, "");
+    TT_UT_EQUAL(tt_slist_tail(&l1), &n3, "");
 
     // remove n2: n1,n4,n3
-    TT_TEST_CHECK_EQUAL(tt_slist_remove(&l1, &n2), &n1, "");
-    TT_TEST_CHECK_EQUAL(tt_slist_count(&l1), 3, "");
-    TT_TEST_CHECK_EQUAL(tt_slist_empty(&l1), TT_FALSE, "");
-    TT_TEST_CHECK_EQUAL(tt_slist_head(&l1), &n1, "");
-    TT_TEST_CHECK_EQUAL(tt_slist_tail(&l1), &n3, "");
+    TT_UT_EQUAL(tt_slist_remove(&l1, &n2), &n1, "");
+    TT_UT_EQUAL(tt_slist_count(&l1), 3, "");
+    TT_UT_EQUAL(tt_slist_empty(&l1), TT_FALSE, "");
+    TT_UT_EQUAL(tt_slist_head(&l1), &n1, "");
+    TT_UT_EQUAL(tt_slist_tail(&l1), &n3, "");
 
     // remove n4: n1,n3
-    TT_TEST_CHECK_EQUAL(tt_slist_fast_remove(&l1, &n1, &n4), &n3, "");
-    TT_TEST_CHECK_EQUAL(tt_slist_count(&l1), 2, "");
-    TT_TEST_CHECK_EQUAL(tt_slist_empty(&l1), TT_FALSE, "");
-    TT_TEST_CHECK_EQUAL(tt_slist_head(&l1), &n1, "");
-    TT_TEST_CHECK_EQUAL(tt_slist_tail(&l1), &n3, "");
-    TT_TEST_CHECK_EQUAL(n3.next, NULL, "");
-    TT_TEST_CHECK_EQUAL(n1.next, &n3, "");
+    TT_UT_EQUAL(tt_slist_fast_remove(&l1, &n1, &n4), &n3, "");
+    TT_UT_EQUAL(tt_slist_count(&l1), 2, "");
+    TT_UT_EQUAL(tt_slist_empty(&l1), TT_FALSE, "");
+    TT_UT_EQUAL(tt_slist_head(&l1), &n1, "");
+    TT_UT_EQUAL(tt_slist_tail(&l1), &n3, "");
+    TT_UT_EQUAL(n3.next, NULL, "");
+    TT_UT_EQUAL(n1.next, &n3, "");
 
     // remove n1: n3
-    TT_TEST_CHECK_EQUAL(tt_slist_remove(&l1, &n1), &n3, "");
-    TT_TEST_CHECK_EQUAL(tt_slist_count(&l1), 1, "");
-    TT_TEST_CHECK_EQUAL(tt_slist_empty(&l1), TT_FALSE, "");
-    TT_TEST_CHECK_EQUAL(tt_slist_head(&l1), &n3, "");
-    TT_TEST_CHECK_EQUAL(tt_slist_tail(&l1), &n3, "");
+    TT_UT_EQUAL(tt_slist_remove(&l1, &n1), &n3, "");
+    TT_UT_EQUAL(tt_slist_count(&l1), 1, "");
+    TT_UT_EQUAL(tt_slist_empty(&l1), TT_FALSE, "");
+    TT_UT_EQUAL(tt_slist_head(&l1), &n3, "");
+    TT_UT_EQUAL(tt_slist_tail(&l1), &n3, "");
 
-    TT_TEST_CHECK_EQUAL(tt_slist_fast_remove(&l1, NULL, &n3), NULL, "");
-    TT_TEST_CHECK_EQUAL(tt_slist_count(&l1), 0, "");
-    TT_TEST_CHECK_EQUAL(tt_slist_empty(&l1), TT_TRUE, "");
-    TT_TEST_CHECK_EQUAL(tt_slist_head(&l1), NULL, "");
-    TT_TEST_CHECK_EQUAL(tt_slist_tail(&l1), NULL, "");
+    TT_UT_EQUAL(tt_slist_fast_remove(&l1, NULL, &n3), NULL, "");
+    TT_UT_EQUAL(tt_slist_count(&l1), 0, "");
+    TT_UT_EQUAL(tt_slist_empty(&l1), TT_TRUE, "");
+    TT_UT_EQUAL(tt_slist_head(&l1), NULL, "");
+    TT_UT_EQUAL(tt_slist_tail(&l1), NULL, "");
 
     tt_slist_clear(&l1);
 
     // move
     tt_slist_move(&l1, &l2);
-    TT_TEST_CHECK_EQUAL(tt_slist_empty(&l1), TT_TRUE, "");
-    TT_TEST_CHECK_EQUAL(tt_slist_empty(&l2), TT_TRUE, "");
+    TT_UT_EQUAL(tt_slist_empty(&l1), TT_TRUE, "");
+    TT_UT_EQUAL(tt_slist_empty(&l2), TT_TRUE, "");
 
     // move to empty
     tt_slist_push_tail(&l2, &n1);
     tt_slist_push_tail(&l2, &n2);
     tt_slist_push_tail(&l2, &n3);
     tt_slist_move(&l1, &l2);
-    TT_TEST_CHECK_EQUAL(tt_slist_count(&l1), 3, "");
-    TT_TEST_CHECK_EQUAL(tt_slist_head(&l1), &n1, "");
-    TT_TEST_CHECK_EQUAL(tt_slist_tail(&l1), &n3, "");
-    TT_TEST_CHECK_EQUAL(tt_slist_empty(&l2), TT_TRUE, "");
+    TT_UT_EQUAL(tt_slist_count(&l1), 3, "");
+    TT_UT_EQUAL(tt_slist_head(&l1), &n1, "");
+    TT_UT_EQUAL(tt_slist_tail(&l1), &n3, "");
+    TT_UT_EQUAL(tt_slist_empty(&l2), TT_TRUE, "");
     tt_slist_clear(&l1);
 
     // move from empty
     tt_slist_push_tail(&l1, &n1);
     tt_slist_push_tail(&l1, &n2);
     tt_slist_move(&l1, &l2);
-    TT_TEST_CHECK_EQUAL(tt_slist_count(&l1), 2, "");
-    TT_TEST_CHECK_EQUAL(tt_slist_head(&l1), &n1, "");
-    TT_TEST_CHECK_EQUAL(tt_slist_tail(&l1), &n2, "");
-    TT_TEST_CHECK_EQUAL(tt_slist_empty(&l2), TT_TRUE, "");
+    TT_UT_EQUAL(tt_slist_count(&l1), 2, "");
+    TT_UT_EQUAL(tt_slist_head(&l1), &n1, "");
+    TT_UT_EQUAL(tt_slist_tail(&l1), &n2, "");
+    TT_UT_EQUAL(tt_slist_empty(&l2), TT_TRUE, "");
 
     // move
     tt_slist_push_tail(&l2, &n3);
     tt_slist_push_tail(&l2, &n4);
     tt_slist_move(&l1, &l2);
-    TT_TEST_CHECK_EQUAL(tt_slist_count(&l1), 4, "");
-    TT_TEST_CHECK_EQUAL(tt_slist_head(&l1), &n1, "");
-    TT_TEST_CHECK_EQUAL(tt_slist_tail(&l1), &n4, "");
-    TT_TEST_CHECK_EQUAL(tt_slist_empty(&l2), TT_TRUE, "");
+    TT_UT_EQUAL(tt_slist_count(&l1), 4, "");
+    TT_UT_EQUAL(tt_slist_head(&l1), &n1, "");
+    TT_UT_EQUAL(tt_slist_tail(&l1), &n4, "");
+    TT_UT_EQUAL(tt_slist_empty(&l2), TT_TRUE, "");
 
     // swap
     tt_slist_swap(&l1, &l2);
-    TT_TEST_CHECK_EQUAL(tt_slist_count(&l2), 4, "");
-    TT_TEST_CHECK_EQUAL(tt_slist_head(&l2), &n1, "");
-    TT_TEST_CHECK_EQUAL(tt_slist_tail(&l2), &n4, "");
-    TT_TEST_CHECK_EQUAL(tt_slist_empty(&l1), TT_TRUE, "");
+    TT_UT_EQUAL(tt_slist_count(&l2), 4, "");
+    TT_UT_EQUAL(tt_slist_head(&l2), &n1, "");
+    TT_UT_EQUAL(tt_slist_tail(&l2), &n4, "");
+    TT_UT_EQUAL(tt_slist_empty(&l1), TT_TRUE, "");
 
     tt_slist_clear(&l2);
     tt_slist_swap(&l1, &l2);
-    TT_TEST_CHECK_EQUAL(tt_slist_empty(&l1), TT_TRUE, "");
-    TT_TEST_CHECK_EQUAL(tt_slist_empty(&l2), TT_TRUE, "");
+    TT_UT_EQUAL(tt_slist_empty(&l1), TT_TRUE, "");
+    TT_UT_EQUAL(tt_slist_empty(&l2), TT_TRUE, "");
 
     // move count
     tt_slist_push_tail(&l2, &n1);
@@ -504,43 +504,43 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_sl_list)
     tt_slist_push_tail(&l2, &n4);
 
     num = tt_slist_move_count(&l1, &l2, 0);
-    TT_TEST_CHECK_EQUAL(num, 0, "");
-    TT_TEST_CHECK_EQUAL(tt_slist_count(&l1), 0, "");
-    TT_TEST_CHECK_EQUAL(tt_slist_count(&l2), 4, "");
+    TT_UT_EQUAL(num, 0, "");
+    TT_UT_EQUAL(tt_slist_count(&l1), 0, "");
+    TT_UT_EQUAL(tt_slist_count(&l2), 4, "");
 
     num = tt_slist_move_count(&l1, &l2, 1);
-    TT_TEST_CHECK_EQUAL(num, 1, "");
-    TT_TEST_CHECK_EQUAL(tt_slist_count(&l1), 1, "");
-    TT_TEST_CHECK_EQUAL(tt_slist_head(&l1), &n1, "");
-    TT_TEST_CHECK_EQUAL(tt_slist_tail(&l1), &n1, "");
-    TT_TEST_CHECK_EQUAL(tt_slist_count(&l2), 3, "");
-    TT_TEST_CHECK_EQUAL(tt_slist_head(&l2), &n2, "");
-    TT_TEST_CHECK_EQUAL(tt_slist_tail(&l2), &n4, "");
+    TT_UT_EQUAL(num, 1, "");
+    TT_UT_EQUAL(tt_slist_count(&l1), 1, "");
+    TT_UT_EQUAL(tt_slist_head(&l1), &n1, "");
+    TT_UT_EQUAL(tt_slist_tail(&l1), &n1, "");
+    TT_UT_EQUAL(tt_slist_count(&l2), 3, "");
+    TT_UT_EQUAL(tt_slist_head(&l2), &n2, "");
+    TT_UT_EQUAL(tt_slist_tail(&l2), &n4, "");
 
     num = tt_slist_move_count(&l1, &l2, 100);
-    TT_TEST_CHECK_EQUAL(num, 3, "");
-    TT_TEST_CHECK_EQUAL(tt_slist_count(&l1), 4, "");
-    TT_TEST_CHECK_EQUAL(tt_slist_head(&l1), &n1, "");
-    TT_TEST_CHECK_EQUAL(tt_slist_tail(&l1), &n4, "");
-    TT_TEST_CHECK_EQUAL(tt_slist_count(&l2), 0, "");
-    TT_TEST_CHECK_EQUAL(tt_slist_head(&l2), NULL, "");
-    TT_TEST_CHECK_EQUAL(tt_slist_tail(&l2), NULL, "");
+    TT_UT_EQUAL(num, 3, "");
+    TT_UT_EQUAL(tt_slist_count(&l1), 4, "");
+    TT_UT_EQUAL(tt_slist_head(&l1), &n1, "");
+    TT_UT_EQUAL(tt_slist_tail(&l1), &n4, "");
+    TT_UT_EQUAL(tt_slist_count(&l2), 0, "");
+    TT_UT_EQUAL(tt_slist_head(&l2), NULL, "");
+    TT_UT_EQUAL(tt_slist_tail(&l2), NULL, "");
 
     // move empty to non_empty
     num = tt_slist_move_count(&l1, &l2, 100);
-    TT_TEST_CHECK_EQUAL(num, 0, "");
-    TT_TEST_CHECK_EQUAL(tt_slist_count(&l1), 4, "");
-    TT_TEST_CHECK_EQUAL(tt_slist_head(&l1), &n1, "");
-    TT_TEST_CHECK_EQUAL(tt_slist_tail(&l1), &n4, "");
-    TT_TEST_CHECK_EQUAL(tt_slist_count(&l2), 0, "");
-    TT_TEST_CHECK_EQUAL(tt_slist_head(&l2), NULL, "");
-    TT_TEST_CHECK_EQUAL(tt_slist_tail(&l2), NULL, "");
+    TT_UT_EQUAL(num, 0, "");
+    TT_UT_EQUAL(tt_slist_count(&l1), 4, "");
+    TT_UT_EQUAL(tt_slist_head(&l1), &n1, "");
+    TT_UT_EQUAL(tt_slist_tail(&l1), &n4, "");
+    TT_UT_EQUAL(tt_slist_count(&l2), 0, "");
+    TT_UT_EQUAL(tt_slist_head(&l2), NULL, "");
+    TT_UT_EQUAL(tt_slist_tail(&l2), NULL, "");
 
     num = tt_slist_move_count(&l1, &l1, 100);
-    TT_TEST_CHECK_EQUAL(num, 0, "");
-    TT_TEST_CHECK_EQUAL(tt_slist_count(&l1), 4, "");
-    TT_TEST_CHECK_EQUAL(tt_slist_head(&l1), &n1, "");
-    TT_TEST_CHECK_EQUAL(tt_slist_tail(&l1), &n4, "");
+    TT_UT_EQUAL(num, 0, "");
+    TT_UT_EQUAL(tt_slist_count(&l1), 4, "");
+    TT_UT_EQUAL(tt_slist_head(&l1), &n1, "");
+    TT_UT_EQUAL(tt_slist_tail(&l1), &n4, "");
 
     // test end
     TT_TEST_CASE_LEAVE()

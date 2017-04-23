@@ -249,29 +249,25 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_rsa_1024)
                         TT_RSA_TYPE_PUBLIC,
                         &key_data,
                         NULL);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     tt_rsa_show(&pub);
 
     ret = tt_rsa_get_number(&pub, &rn);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
-    TT_TEST_CHECK_EQUAL(rn.pubnum.modulus.len,
-                        sizeof(__rsa_pub_1024_wrapped_mod),
-                        "");
-    TT_TEST_CHECK_EQUAL(tt_memcmp(rn.pubnum.modulus.addr,
-                                  __rsa_pub_1024_wrapped_mod,
-                                  sizeof(__rsa_pub_1024_wrapped_mod)),
-                        0,
-                        "");
+    TT_UT_EQUAL(rn.pubnum.modulus.len, sizeof(__rsa_pub_1024_wrapped_mod), "");
+    TT_UT_EQUAL(tt_memcmp(rn.pubnum.modulus.addr,
+                          __rsa_pub_1024_wrapped_mod,
+                          sizeof(__rsa_pub_1024_wrapped_mod)),
+                0,
+                "");
 
-    TT_TEST_CHECK_EQUAL(rn.pubnum.pub_exp.len,
-                        sizeof(__rsa_pub_1024_wrapped_exp),
-                        "");
-    TT_TEST_CHECK_EQUAL(tt_memcmp(rn.pubnum.pub_exp.addr,
-                                  __rsa_pub_1024_wrapped_exp,
-                                  sizeof(__rsa_pub_1024_wrapped_exp)),
-                        0,
-                        "");
+    TT_UT_EQUAL(rn.pubnum.pub_exp.len, sizeof(__rsa_pub_1024_wrapped_exp), "");
+    TT_UT_EQUAL(tt_memcmp(rn.pubnum.pub_exp.addr,
+                          __rsa_pub_1024_wrapped_exp,
+                          sizeof(__rsa_pub_1024_wrapped_exp)),
+                0,
+                "");
 
     tt_buf_init(&output, NULL);
 
@@ -279,21 +275,19 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_rsa_1024)
 
     tt_buf_reset_rwp(&output);
     ret = tt_rsa_encrypt_buf(&pub, (tt_u8_t *)__rsa_1024_in, 0, &output);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
-    TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&output), 0, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(TT_BUF_RLEN(&output), 0, "");
 
     // size must be 128
     tt_buf_reset_rwp(&output);
     ret = tt_rsa_encrypt_buf(&pub, (tt_u8_t *)__rsa_1024_in, 127, &output);
-    TT_TEST_CHECK_EQUAL(ret, TT_FAIL, "");
+    TT_UT_EQUAL(ret, TT_FAIL, "");
 
     ret = tt_rsa_encrypt_buf(&pub, (tt_u8_t *)__rsa_1024_in, 128, &output);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
-    TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&output), 128, "");
-    TT_TEST_CHECK_EQUAL(tt_memcmp(__rsa_1024_out, TT_BUF_RPOS(&output), 128),
-                        0,
-                        "");
+    TT_UT_EQUAL(TT_BUF_RLEN(&output), 128, "");
+    TT_UT_EQUAL(tt_memcmp(__rsa_1024_out, TT_BUF_RPOS(&output), 128), 0, "");
 
     // rsa 1024 decrypt
     key_data.addr = (tt_u8_t *)__rsa_priv_1024;
@@ -303,55 +297,53 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_rsa_1024)
                         TT_RSA_TYPE_PRIVATE,
                         &key_data,
                         NULL);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     // tt_rsa_show(&priv);
 
     tt_buf_reset_rwp(&output);
     ret = tt_rsa_decrypt_buf(&priv, (tt_u8_t *)__rsa_1024_out, 0, &output);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
-    TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&output), 0, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(TT_BUF_RLEN(&output), 0, "");
 
     tt_buf_reset_rwp(&output);
     ret = tt_rsa_decrypt_buf(&priv, (tt_u8_t *)__rsa_1024_out, 128, &output);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
-    TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&output), 128, "");
-    TT_TEST_CHECK_EQUAL(tt_memcmp(__rsa_1024_in, TT_BUF_RPOS(&output), 128),
-                        0,
-                        "");
+    TT_UT_EQUAL(TT_BUF_RLEN(&output), 128, "");
+    TT_UT_EQUAL(tt_memcmp(__rsa_1024_in, TT_BUF_RPOS(&output), 128), 0, "");
 
     tt_rsa_destroy(&pub);
     tt_rsa_destroy(&priv);
 
     // generate rsa keys
     ret = tt_rsa_generate(&key, TT_RSA_SIZE_1024BIT, NULL);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     tt_buf_reset_rwp(&output);
     n = sizeof(buf);
     ret = tt_rsa_encrypt(&key, (tt_u8_t *)__rsa_1024_in, 128, buf, &n);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
-    TT_TEST_CHECK_EQUAL(n, 128, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(n, 128, "");
 
     // encrypt 0
     n = sizeof(buf);
     ret = tt_rsa_encrypt(&key, (tt_u8_t *)__rsa_1024_in, 0, buf, &n);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
-    TT_TEST_CHECK_EQUAL(n, 0, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(n, 0, "");
 
     tt_buf_init(&output2, NULL);
     n = sizeof(buf2);
     ret = tt_rsa_decrypt(&key, buf, 128, buf2, &n);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
-    TT_TEST_CHECK_EQUAL(n, 128, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(n, 128, "");
 
     // decrypt 0
     n = sizeof(buf2);
     ret = tt_rsa_decrypt(&key, buf, 0, buf2, &n);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
-    TT_TEST_CHECK_EQUAL(n, 0, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(n, 0, "");
 
-    TT_TEST_CHECK_EQUAL(tt_memcmp(__rsa_1024_in, buf2, 128), 0, "");
+    TT_UT_EQUAL(tt_memcmp(__rsa_1024_in, buf2, 128), 0, "");
 
     // test end
     TT_TEST_CASE_LEAVE()
@@ -387,21 +379,21 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_rsa_1024_oaep)
                         TT_RSA_TYPE_PUBLIC,
                         &key_data,
                         &attr);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     tt_rsa_show(&pub);
 
     ret = tt_rsa_get_number(&pub, &rn);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     tt_buf_init(&output, NULL);
     ret = tt_rsa_encrypt_buf(&pub, (tt_u8_t *)__rsa_1024_in, 201, &output);
-    TT_TEST_CHECK_EQUAL(ret, TT_FAIL, "");
+    TT_UT_EQUAL(ret, TT_FAIL, "");
 
     // 86 is max data size for rsa1024_oaep
     ret = tt_rsa_encrypt_buf(&pub, (tt_u8_t *)__rsa_1024_in, 86, &output);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
-    TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&output), 128, "");
+    TT_UT_EQUAL(TT_BUF_RLEN(&output), 128, "");
     // oaep encryption including a random seed, so output is not constant
 
     // rsa 1024 decrypt
@@ -413,7 +405,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_rsa_1024_oaep)
                         TT_RSA_TYPE_PRIVATE,
                         &key_data,
                         &attr);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     // tt_rsa_show(&priv);
 
     tt_buf_init(&output2, NULL);
@@ -421,31 +413,29 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_rsa_1024_oaep)
                              (tt_u8_t *)TT_BUF_RPOS(&output),
                              TT_BUF_RLEN(&output),
                              &output2);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
-    TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&output2), 86, "");
-    TT_TEST_CHECK_EQUAL(tt_memcmp(__rsa_1024_in, TT_BUF_RPOS(&output2), 86),
-                        0,
-                        "");
+    TT_UT_EQUAL(TT_BUF_RLEN(&output2), 86, "");
+    TT_UT_EQUAL(tt_memcmp(__rsa_1024_in, TT_BUF_RPOS(&output2), 86), 0, "");
 
     tt_rsa_destroy(&pub);
     tt_rsa_destroy(&priv);
 
     // generate rsa keys
     ret = tt_rsa_generate(&key, TT_RSA_SIZE_1024BIT, &attr);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     n = sizeof(buf);
     ret = tt_rsa_encrypt(&key, (tt_u8_t *)__rsa_1024_in, 80, buf, &n);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
-    TT_TEST_CHECK_EQUAL(n, 128, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(n, 128, "");
 
     n2 = sizeof(buf2);
     ret = tt_rsa_decrypt(&key, buf, n, buf2, &n2);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
-    TT_TEST_CHECK_EQUAL(n2, 80, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(n2, 80, "");
 
-    TT_TEST_CHECK_EQUAL(tt_memcmp(__rsa_1024_in, buf2, n2), 0, "");
+    TT_UT_EQUAL(tt_memcmp(__rsa_1024_in, buf2, n2), 0, "");
 
     // test end
     TT_TEST_CASE_LEAVE()
@@ -602,28 +592,26 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_rsa_2048_enc_pkcs8)
                         TT_RSA_TYPE_PUBLIC,
                         &key_data,
                         NULL);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     tt_rsa_show(&pub);
 
     ret = tt_rsa_get_number(&pub, &rn);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
-    TT_TEST_CHECK_EQUAL(rn.pubnum.modulus.len, sizeof(__rsa_pub_2048_mod), "");
-    TT_TEST_CHECK_EQUAL(tt_memcmp(rn.pubnum.modulus.addr,
-                                  __rsa_pub_2048_mod,
-                                  sizeof(__rsa_pub_2048_mod)),
-                        0,
-                        "");
+    TT_UT_EQUAL(rn.pubnum.modulus.len, sizeof(__rsa_pub_2048_mod), "");
+    TT_UT_EQUAL(tt_memcmp(rn.pubnum.modulus.addr,
+                          __rsa_pub_2048_mod,
+                          sizeof(__rsa_pub_2048_mod)),
+                0,
+                "");
 
     // same as 1024: 65536
-    TT_TEST_CHECK_EQUAL(rn.pubnum.pub_exp.len,
-                        sizeof(__rsa_pub_1024_wrapped_exp),
-                        "");
-    TT_TEST_CHECK_EQUAL(tt_memcmp(rn.pubnum.pub_exp.addr,
-                                  __rsa_pub_1024_wrapped_exp,
-                                  sizeof(__rsa_pub_1024_wrapped_exp)),
-                        0,
-                        "");
+    TT_UT_EQUAL(rn.pubnum.pub_exp.len, sizeof(__rsa_pub_1024_wrapped_exp), "");
+    TT_UT_EQUAL(tt_memcmp(rn.pubnum.pub_exp.addr,
+                          __rsa_pub_1024_wrapped_exp,
+                          sizeof(__rsa_pub_1024_wrapped_exp)),
+                0,
+                "");
 
     tt_buf_init(&output, NULL);
 
@@ -631,15 +619,13 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_rsa_2048_enc_pkcs8)
 
     // size must be 128
     ret = tt_rsa_encrypt_buf(&pub, (tt_u8_t *)__rsa_1024_in, 200, &output);
-    TT_TEST_CHECK_EQUAL(ret, TT_FAIL, "");
+    TT_UT_EQUAL(ret, TT_FAIL, "");
 
     ret = tt_rsa_encrypt_buf(&pub, (tt_u8_t *)__rsa_1024_in, 256, &output);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
-    TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&output), 256, "");
-    TT_TEST_CHECK_EQUAL(tt_memcmp(__rsa_2048_out, TT_BUF_RPOS(&output), 256),
-                        0,
-                        "");
+    TT_UT_EQUAL(TT_BUF_RLEN(&output), 256, "");
+    TT_UT_EQUAL(tt_memcmp(__rsa_2048_out, TT_BUF_RPOS(&output), 256), 0, "");
     // printf("%s\n", __rsa_pub_2048_enc);
     // printf("%s\n", __rsa_priv_2048_pkcs8_enc);
 
@@ -651,17 +637,15 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_rsa_2048_enc_pkcs8)
                         TT_RSA_TYPE_PRIVATE,
                         &key_data,
                         &attr);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     // tt_rsa_show(&priv);
 
     tt_buf_reset_rwp(&output);
     ret = tt_rsa_decrypt_buf(&priv, (tt_u8_t *)__rsa_2048_out, 256, &output);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
-    TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&output), 256, "");
-    TT_TEST_CHECK_EQUAL(tt_memcmp(__rsa_1024_in, TT_BUF_RPOS(&output), 256),
-                        0,
-                        "");
+    TT_UT_EQUAL(TT_BUF_RLEN(&output), 256, "");
+    TT_UT_EQUAL(tt_memcmp(__rsa_1024_in, TT_BUF_RPOS(&output), 256), 0, "");
     tt_rsa_destroy(&priv);
 
     // rsa 2048(pkcs8 non-crypted) decrypt
@@ -673,38 +657,36 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_rsa_2048_enc_pkcs8)
                         TT_RSA_TYPE_PRIVATE,
                         &key_data,
                         &attr);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     // tt_rsa_show(&priv);
 
     tt_buf_reset_rwp(&output);
     ret = tt_rsa_decrypt_buf(&priv, (tt_u8_t *)__rsa_2048_out, 256, &output);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
-    TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&output), 256, "");
-    TT_TEST_CHECK_EQUAL(tt_memcmp(__rsa_1024_in, TT_BUF_RPOS(&output), 256),
-                        0,
-                        "");
+    TT_UT_EQUAL(TT_BUF_RLEN(&output), 256, "");
+    TT_UT_EQUAL(tt_memcmp(__rsa_1024_in, TT_BUF_RPOS(&output), 256), 0, "");
 
     tt_rsa_destroy(&pub);
     tt_rsa_destroy(&priv);
 
     // generate rsa keys
     ret = tt_rsa_generate(&key, TT_RSA_SIZE_2048BIT, NULL);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     tt_buf_reset_rwp(&output);
     n = sizeof(buf);
     ret = tt_rsa_encrypt(&key, (tt_u8_t *)__rsa_1024_in, 256, buf, &n);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
-    TT_TEST_CHECK_EQUAL(n, 256, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(n, 256, "");
 
     tt_buf_init(&output2, NULL);
     n = sizeof(buf2);
     ret = tt_rsa_decrypt(&key, buf, 256, buf2, &n);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
-    TT_TEST_CHECK_EQUAL(n, 256, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(n, 256, "");
 
-    TT_TEST_CHECK_EQUAL(tt_memcmp(__rsa_1024_in, buf2, 256), 0, "");
+    TT_UT_EQUAL(tt_memcmp(__rsa_1024_in, buf2, 256), 0, "");
 
     // test end
     TT_TEST_CASE_LEAVE()
@@ -736,7 +718,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_rsa_2048_padpkcs1)
                         TT_RSA_TYPE_PUBLIC,
                         &key_data,
                         &attr);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     tt_rsa_show(&pub);
 
     tt_buf_init(&output, NULL);
@@ -751,7 +733,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_rsa_2048_padpkcs1)
                         TT_RSA_TYPE_PRIVATE,
                         &key_data,
                         &attr);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     // buf
 
@@ -759,56 +741,50 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_rsa_2048_padpkcs1)
     n = 1;
     tt_buf_reset_rwp(&output);
     ret = tt_rsa_encrypt_buf(&pub, (tt_u8_t *)__rsa_1024_in, n, &output);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
-    TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&output), 256, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(TT_BUF_RLEN(&output), 256, "");
 
     tt_buf_reset_rwp(&output2);
     ret = tt_rsa_decrypt_buf(&priv, TT_BUF_RPOS(&output), 256, &output2);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
-    TT_TEST_CHECK_EQUAL(tt_memcmp(TT_BUF_RPOS(&output2),
-                                  (tt_u8_t *)__rsa_1024_in,
-                                  n),
-                        0,
-                        "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(tt_memcmp(TT_BUF_RPOS(&output2), (tt_u8_t *)__rsa_1024_in, n),
+                0,
+                "");
 
     // size: 245
     n = 245;
     tt_buf_reset_rwp(&output);
     ret = tt_rsa_encrypt_buf(&pub, (tt_u8_t *)__rsa_1024_in, n, &output);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
-    TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&output), 256, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(TT_BUF_RLEN(&output), 256, "");
 
     tt_buf_reset_rwp(&output2);
     ret = tt_rsa_decrypt_buf(&priv, TT_BUF_RPOS(&output), 256, &output2);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
-    TT_TEST_CHECK_EQUAL(tt_memcmp(TT_BUF_RPOS(&output2),
-                                  (tt_u8_t *)__rsa_1024_in,
-                                  n),
-                        0,
-                        "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(tt_memcmp(TT_BUF_RPOS(&output2), (tt_u8_t *)__rsa_1024_in, n),
+                0,
+                "");
 
     // random:
     while ((n = tt_rand_u32() % 246) == 0)
         ;
     tt_buf_reset_rwp(&output);
     ret = tt_rsa_encrypt_buf(&pub, (tt_u8_t *)__rsa_1024_in, n, &output);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
-    TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&output), 256, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(TT_BUF_RLEN(&output), 256, "");
 
     tt_buf_reset_rwp(&output2);
     ret = tt_rsa_decrypt_buf(&priv, TT_BUF_RPOS(&output), 256, &output2);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
-    TT_TEST_CHECK_EQUAL(tt_memcmp(TT_BUF_RPOS(&output2),
-                                  (tt_u8_t *)__rsa_1024_in,
-                                  n),
-                        0,
-                        "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(tt_memcmp(TT_BUF_RPOS(&output2), (tt_u8_t *)__rsa_1024_in, n),
+                0,
+                "");
 
     // size: 246, exceed pkcs1 padding length
     n = 246;
     tt_buf_reset_rwp(&output);
     ret = tt_rsa_encrypt_buf(&pub, (tt_u8_t *)__rsa_1024_in, n, &output);
-    TT_TEST_CHECK_EQUAL(ret, TT_FAIL, "");
+    TT_UT_EQUAL(ret, TT_FAIL, "");
 
     tt_buf_destroy(&output);
     tt_buf_destroy(&output2);
@@ -915,7 +891,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_rsa_1024_num)
     rn.pubnum.pub_exp.len = sizeof(__pub_e);
 
     ret = tt_rsa_create_number(&pub, &rn, NULL);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     tt_buf_init(&output, NULL);
 
@@ -923,15 +899,13 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_rsa_1024_num)
 
     // size must be 128
     ret = tt_rsa_encrypt_buf(&pub, (tt_u8_t *)__rsa_1024_in, 127, &output);
-    TT_TEST_CHECK_EQUAL(ret, TT_FAIL, "");
+    TT_UT_EQUAL(ret, TT_FAIL, "");
 
     ret = tt_rsa_encrypt_buf(&pub, (tt_u8_t *)__rsa_1024_in, 128, &output);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
-    TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&output), 128, "");
-    TT_TEST_CHECK_EQUAL(tt_memcmp(__rsa_1024_out, TT_BUF_RPOS(&output), 128),
-                        0,
-                        "");
+    TT_UT_EQUAL(TT_BUF_RLEN(&output), 128, "");
+    TT_UT_EQUAL(tt_memcmp(__rsa_1024_out, TT_BUF_RPOS(&output), 128), 0, "");
 
     // rsa 1024 decrypt
     rn.type = TT_RSA_TYPE_PRIVATE;
@@ -953,16 +927,14 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_rsa_1024_num)
     rn.privnum.coefficient.len = sizeof(__priv_coeff);
 
     ret = tt_rsa_create_number(&priv, &rn, NULL);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     tt_buf_reset_rwp(&output);
     ret = tt_rsa_decrypt_buf(&priv, (tt_u8_t *)__rsa_1024_out, 128, &output);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
-    TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&output), 128, "");
-    TT_TEST_CHECK_EQUAL(tt_memcmp(__rsa_1024_in, TT_BUF_RPOS(&output), 128),
-                        0,
-                        "");
+    TT_UT_EQUAL(TT_BUF_RLEN(&output), 128, "");
+    TT_UT_EQUAL(tt_memcmp(__rsa_1024_in, TT_BUF_RPOS(&output), 128), 0, "");
 
     tt_rsa_destroy(&pub);
     tt_rsa_destroy(&priv);
@@ -1071,7 +1043,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_rsa_2048_sign_pkcs1)
                         TT_RSA_TYPE_PUBLIC,
                         &key_data,
                         &attr);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     tt_rsa_show(&pub);
 
     tt_buf_init(&output, NULL);
@@ -1086,7 +1058,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_rsa_2048_sign_pkcs1)
                         TT_RSA_TYPE_PRIVATE,
                         &key_data,
                         &attr);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     // buf
 
@@ -1094,18 +1066,16 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_rsa_2048_sign_pkcs1)
     n = 1;
     tt_buf_reset_rwp(&output);
     ret = tt_rsa_sign_buf(&priv, (tt_u8_t *)__rsa_1024_in, n, &output);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
-    TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&output), 256, "");
-    TT_TEST_CHECK_EQUAL(tt_memcmp(TT_BUF_RPOS(&output), __rsa_sign_1, 256),
-                        0,
-                        "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(TT_BUF_RLEN(&output), 256, "");
+    TT_UT_EQUAL(tt_memcmp(TT_BUF_RPOS(&output), __rsa_sign_1, 256), 0, "");
 
     ret = tt_rsa_verify(&pub,
                         (tt_u8_t *)__rsa_1024_in,
                         n,
                         TT_BUF_RPOS(&output),
                         256);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     output.p[tt_rand_u32() % 256] += 1;
     ret = tt_rsa_verify(&pub,
@@ -1113,24 +1083,22 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_rsa_2048_sign_pkcs1)
                         n,
                         TT_BUF_RPOS(&output),
                         256);
-    TT_TEST_CHECK_EQUAL(ret, TT_FAIL, "");
+    TT_UT_EQUAL(ret, TT_FAIL, "");
 
     // size: 100
     n = 100;
     tt_buf_reset_rwp(&output);
     ret = tt_rsa_sign_buf(&priv, (tt_u8_t *)__rsa_1024_in, n, &output);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
-    TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&output), 256, "");
-    TT_TEST_CHECK_EQUAL(tt_memcmp(TT_BUF_RPOS(&output), __rsa_sign_100, 256),
-                        0,
-                        "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(TT_BUF_RLEN(&output), 256, "");
+    TT_UT_EQUAL(tt_memcmp(TT_BUF_RPOS(&output), __rsa_sign_100, 256), 0, "");
 
     ret = tt_rsa_verify(&pub,
                         (tt_u8_t *)__rsa_1024_in,
                         n,
                         TT_BUF_RPOS(&output),
                         256);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     output.p[tt_rand_u32() % 256] += 1;
     ret = tt_rsa_verify(&pub,
@@ -1138,24 +1106,22 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_rsa_2048_sign_pkcs1)
                         n,
                         TT_BUF_RPOS(&output),
                         256);
-    TT_TEST_CHECK_EQUAL(ret, TT_FAIL, "");
+    TT_UT_EQUAL(ret, TT_FAIL, "");
 
     // size: 245
     n = 245;
     tt_buf_reset_rwp(&output);
     ret = tt_rsa_sign_buf(&priv, (tt_u8_t *)__rsa_1024_in, n, &output);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
-    TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&output), 256, "");
-    TT_TEST_CHECK_EQUAL(tt_memcmp(TT_BUF_RPOS(&output), __rsa_sign_245, 256),
-                        0,
-                        "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(TT_BUF_RLEN(&output), 256, "");
+    TT_UT_EQUAL(tt_memcmp(TT_BUF_RPOS(&output), __rsa_sign_245, 256), 0, "");
 
     ret = tt_rsa_verify(&pub,
                         (tt_u8_t *)__rsa_1024_in,
                         n,
                         TT_BUF_RPOS(&output),
                         256);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     output.p[tt_rand_u32() % 256] += 1;
     ret = tt_rsa_verify(&pub,
@@ -1163,21 +1129,21 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_rsa_2048_sign_pkcs1)
                         n,
                         TT_BUF_RPOS(&output),
                         256);
-    TT_TEST_CHECK_EQUAL(ret, TT_FAIL, "");
+    TT_UT_EQUAL(ret, TT_FAIL, "");
 
     // size: random
     n = tt_rand_u32() % (sizeof(__rsa_1024_in) - 1) + 1;
     tt_buf_reset_rwp(&output);
     ret = tt_rsa_sign_buf(&priv, (tt_u8_t *)__rsa_1024_in, n, &output);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
-    TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&output), 256, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(TT_BUF_RLEN(&output), 256, "");
 
     ret = tt_rsa_verify(&pub,
                         (tt_u8_t *)__rsa_1024_in,
                         n,
                         TT_BUF_RPOS(&output),
                         256);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     output.p[tt_rand_u32() % 256] += 1;
     ret = tt_rsa_verify(&pub,
@@ -1185,7 +1151,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_rsa_2048_sign_pkcs1)
                         n,
                         TT_BUF_RPOS(&output),
                         256);
-    TT_TEST_CHECK_EQUAL(ret, TT_FAIL, "");
+    TT_UT_EQUAL(ret, TT_FAIL, "");
 
     // out
     tt_buf_destroy(&output);

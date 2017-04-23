@@ -54,8 +54,8 @@ set(PLATFORM_CRYPTO_ENABLE 0 CACHE BOOL "set to non zero to enable crypto")
 message(STATUS "crypto enable: ${PLATFORM_CRYPTO_ENABLE}")
 
 # generate header file
-configure_file(${PLATFORM_ROOT_PATH}/platform/export/config/tt_customization_config.h.in
-               ${PLATFORM_ROOT_PATH}/platform/export/config/tt_customization_config.h
+configure_file(${PLATFORM_ROOT_PATH}/platform/include/config/tt_customization_config.h.in
+               ${PLATFORM_ROOT_PATH}/platform/include/config/tt_customization_config.h
                @ONLY)
 
 #
@@ -67,7 +67,7 @@ configure_file(${PLATFORM_ROOT_PATH}/platform/export/config/tt_customization_con
 #
 
 # platform
-include_directories(${PLATFORM_PATH}/export)
+include_directories(${PLATFORM_PATH}/include)
 include_directories(${PLATFORM_PATH}/native/${PLATFORM_ENV})
 include_directories(${PLATFORM_PATH}/package)
 
@@ -97,14 +97,14 @@ ttcm_add_group_src(${PLATFORM_PATH}/source/log/layout log SRC_FILE)
 ttcm_add_group_src(${PLATFORM_PATH}/source/log/io log SRC_FILE)
 
 ttcm_add_group_src(${PLATFORM_PATH}/source/network network SRC_FILE)
-ttcm_add_group_src(${PLATFORM_PATH}/source/network/adns adns SRC_FILE)
-ttcm_add_group_src(${PLATFORM_PATH}/source/network/ssl ssl SRC_FILE)
+# ttcm_add_group_src(${PLATFORM_PATH}/source/network/adns adns SRC_FILE)
+# ttcm_add_group_src(${PLATFORM_PATH}/source/network/ssl ssl SRC_FILE)
 
-ttcm_add_group_src(${PLATFORM_PATH}/source/network/ssh ssh SRC_FILE)
-ttcm_add_group_src(${PLATFORM_PATH}/source/network/ssh/message ssh SRC_FILE)
-ttcm_add_group_src(${PLATFORM_PATH}/source/network/ssh/client ssh SRC_FILE)
-ttcm_add_group_src(${PLATFORM_PATH}/source/network/ssh/server ssh SRC_FILE)
-ttcm_add_group_src(${PLATFORM_PATH}/source/network/ssh/context ssh SRC_FILE)
+#ttcm_add_group_src(${PLATFORM_PATH}/source/network/ssh ssh SRC_FILE)
+#ttcm_add_group_src(${PLATFORM_PATH}/source/network/ssh/message ssh SRC_FILE)
+#ttcm_add_group_src(${PLATFORM_PATH}/source/network/ssh/client ssh SRC_FILE)
+#ttcm_add_group_src(${PLATFORM_PATH}/source/network/ssh/server ssh SRC_FILE)
+#ttcm_add_group_src(${PLATFORM_PATH}/source/network/ssh/context ssh SRC_FILE)
 
 ttcm_add_group_src(${PLATFORM_PATH}/source/crypto crypto SRC_FILE)
 
@@ -122,10 +122,10 @@ ttcm_add_group_src(${PLATFORM_PATH}/test_case test_case SRC_FILE)
 ttcm_add_group_src(${PLATFORM_PATH}/source/cli/test_case cli SRC_FILE)
 ttcm_add_group_src(${PLATFORM_PATH}/source/xml/test_case xml SRC_FILE)
 ttcm_add_group_src(${PLATFORM_PATH}/source/crypto/test_case crypto SRC_FILE)
-ttcm_add_group_src(${PLATFORM_PATH}/source/network/ssh/test_case ssh SRC_FILE)
-ttcm_add_group_src(${PLATFORM_PATH}/source/network/ssl/test_case ssl SRC_FILE)
+#ttcm_add_group_src(${PLATFORM_PATH}/source/network/ssh/test_case ssh SRC_FILE)
+#ttcm_add_group_src(${PLATFORM_PATH}/source/network/ssl/test_case ssl SRC_FILE)
 ttcm_add_group_src(${PLATFORM_PATH}/source/math/mp/test_case mp SRC_FILE)
-ttcm_add_group_src(${PLATFORM_PATH}/source/network/adns/test_case adns SRC_FILE)
+#ttcm_add_group_src(${PLATFORM_PATH}/source/network/adns/test_case adns SRC_FILE)
 
 #
 # build

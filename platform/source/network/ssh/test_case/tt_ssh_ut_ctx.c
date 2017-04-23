@@ -125,53 +125,53 @@ TT_TEST_CASE("tt_unit_test_sshkex_basic",
     attr.is_server = TT_TRUE;
 
     ret = tt_sshctx_create(&ctx, &attr);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     // can not create kex as is created in tt_sshctx_create()
     ret = tt_sshctx_kex_create(&ctx);
-    TT_TEST_CHECK_EQUAL(ret, TT_FAIL, "");
+    TT_UT_EQUAL(ret, TT_FAIL, "");
 
     tt_sshctx_kex_destroy(&ctx);
-    TT_TEST_CHECK_EQUAL(ctx.kex, NULL, "");
+    TT_UT_EQUAL(ctx.kex, NULL, "");
 
     // can not set anything as kex is destroyed
     ret = tt_sshctx_kex_setalg(&ctx, TT_SSH_KEX_ALG_DH_G14_SHA1);
-    TT_TEST_CHECK_EQUAL(ret, TT_FAIL, "");
+    TT_UT_EQUAL(ret, TT_FAIL, "");
     ret = tt_sshctx_kex_setks(&ctx, tmp, 10, TT_FALSE);
-    TT_TEST_CHECK_EQUAL(ret, TT_FAIL, "");
+    TT_UT_EQUAL(ret, TT_FAIL, "");
     ret = tt_sshctx_kex_setks_rsa(&ctx, &blob, &blob);
-    TT_TEST_CHECK_EQUAL(ret, TT_FAIL, "");
+    TT_UT_EQUAL(ret, TT_FAIL, "");
     ret = tt_sshctx_kex_setks_rsa(&ctx, &blob, &blob);
-    TT_TEST_CHECK_EQUAL(ret, TT_FAIL, "");
+    TT_UT_EQUAL(ret, TT_FAIL, "");
     ret = tt_sshctx_kex_setvc(&ctx, tmp, 10, TT_FALSE);
-    TT_TEST_CHECK_EQUAL(ret, TT_FAIL, "");
+    TT_UT_EQUAL(ret, TT_FAIL, "");
     ret = tt_sshctx_kex_setvs(&ctx, tmp, 10, TT_FALSE);
-    TT_TEST_CHECK_EQUAL(ret, TT_FAIL, "");
+    TT_UT_EQUAL(ret, TT_FAIL, "");
     ret = tt_sshctx_kex_setic(&ctx, tmp, 10, TT_FALSE);
-    TT_TEST_CHECK_EQUAL(ret, TT_FAIL, "");
+    TT_UT_EQUAL(ret, TT_FAIL, "");
     ret = tt_sshctx_kex_setis(&ctx, tmp, 10, TT_FALSE);
-    TT_TEST_CHECK_EQUAL(ret, TT_FAIL, "");
+    TT_UT_EQUAL(ret, TT_FAIL, "");
     ret = tt_sshctx_kex_calc_h(&ctx);
-    TT_TEST_CHECK_EQUAL(ret, TT_FAIL, "");
+    TT_UT_EQUAL(ret, TT_FAIL, "");
     ret = tt_sshctx_load_session_id(&ctx);
-    TT_TEST_CHECK_EQUAL(ret, TT_FAIL, "");
+    TT_UT_EQUAL(ret, TT_FAIL, "");
 
     // create kex again
     ret = tt_sshctx_kex_create(&ctx);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     // not supported alg
     ret = tt_sshctx_kex_setalg(&ctx, TT_SSH_KEX_ALG_RSA1024_SHA1);
-    TT_TEST_CHECK_EQUAL(ret, TT_FAIL, "");
+    TT_UT_EQUAL(ret, TT_FAIL, "");
     ret = tt_sshctx_kex_setalg(&ctx, TT_SSH_KEX_ALG_RSA2048_SHA256);
-    TT_TEST_CHECK_EQUAL(ret, TT_FAIL, "");
+    TT_UT_EQUAL(ret, TT_FAIL, "");
 
     ret = tt_sshctx_kex_setalg(&ctx, TT_SSH_KEX_ALG_DH_G14_SHA1);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
-    TT_TEST_CHECK_EQUAL(ctx.kex->alg, TT_SSH_KEX_ALG_DH_G14_SHA1, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ctx.kex->alg, TT_SSH_KEX_ALG_DH_G14_SHA1, "");
     // can not setalg again
     ret = tt_sshctx_kex_setalg(&ctx, TT_SSH_KEX_ALG_DH_G1_SHA1);
-    TT_TEST_CHECK_EQUAL(ret, TT_FAIL, "");
+    TT_UT_EQUAL(ret, TT_FAIL, "");
 
     tt_sshctx_destroy(&ctx);
 
@@ -199,7 +199,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_sshkex_set)
     attr.is_server = TT_TRUE;
 
     ret = tt_sshctx_create(&ctx, &attr);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     kex = ctx.kex;
 
     for (i = 0; i < sizeof(tmp); ++i) {
@@ -209,80 +209,80 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_sshkex_set)
     // ks
     len = tt_rand_u32() % (sizeof(tmp) - 1) + 1;
     ret = tt_sshctx_kex_setks(&ctx, tmp, len, TT_FALSE);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
-    TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&kex->k_s), len, "");
-    TT_TEST_CHECK_EQUAL(tt_memcmp(TT_BUF_RPOS(&kex->k_s), tmp, len), 0, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(TT_BUF_RLEN(&kex->k_s), len, "");
+    TT_UT_EQUAL(tt_memcmp(TT_BUF_RPOS(&kex->k_s), tmp, len), 0, "");
 
     ret = tt_sshctx_kex_setks(&ctx, tmp, len, TT_TRUE);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     tt_buf_reset_rwp(&buf);
     tt_ssh_string_render(&buf, tmp, len);
-    TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&kex->k_s), TT_BUF_RLEN(&buf), "");
-    TT_TEST_CHECK_EQUAL(tt_buf_cmp(&buf, &kex->k_s), 0, "");
+    TT_UT_EQUAL(TT_BUF_RLEN(&kex->k_s), TT_BUF_RLEN(&buf), "");
+    TT_UT_EQUAL(tt_buf_cmp(&buf, &kex->k_s), 0, "");
 
     // vc
     len = tt_rand_u32() % (sizeof(tmp) - 1) + 1;
     ret = tt_sshctx_kex_setvc(&ctx, tmp, len, TT_FALSE);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
-    TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&kex->v_c), len, "");
-    TT_TEST_CHECK_EQUAL(tt_memcmp(TT_BUF_RPOS(&kex->v_c), tmp, len), 0, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(TT_BUF_RLEN(&kex->v_c), len, "");
+    TT_UT_EQUAL(tt_memcmp(TT_BUF_RPOS(&kex->v_c), tmp, len), 0, "");
 
     ret = tt_sshctx_kex_setvc(&ctx, tmp, len, TT_TRUE);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     tt_buf_reset_rwp(&buf);
     tt_ssh_string_render(&buf, tmp, len);
-    TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&kex->v_c), TT_BUF_RLEN(&buf), "");
-    TT_TEST_CHECK_EQUAL(tt_buf_cmp(&buf, &kex->v_c), 0, "");
+    TT_UT_EQUAL(TT_BUF_RLEN(&kex->v_c), TT_BUF_RLEN(&buf), "");
+    TT_UT_EQUAL(tt_buf_cmp(&buf, &kex->v_c), 0, "");
 
     // vs
     len = tt_rand_u32() % (sizeof(tmp) - 1) + 1;
     ret = tt_sshctx_kex_setvs(&ctx, tmp, len, TT_FALSE);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
-    TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&kex->v_s), len, "");
-    TT_TEST_CHECK_EQUAL(tt_memcmp(TT_BUF_RPOS(&kex->v_s), tmp, len), 0, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(TT_BUF_RLEN(&kex->v_s), len, "");
+    TT_UT_EQUAL(tt_memcmp(TT_BUF_RPOS(&kex->v_s), tmp, len), 0, "");
 
     ret = tt_sshctx_kex_setvs(&ctx, tmp, len, TT_TRUE);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     tt_buf_reset_rwp(&buf);
     tt_ssh_string_render(&buf, tmp, len);
-    TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&kex->v_s), TT_BUF_RLEN(&buf), "");
-    TT_TEST_CHECK_EQUAL(tt_buf_cmp(&buf, &kex->v_s), 0, "");
+    TT_UT_EQUAL(TT_BUF_RLEN(&kex->v_s), TT_BUF_RLEN(&buf), "");
+    TT_UT_EQUAL(tt_buf_cmp(&buf, &kex->v_s), 0, "");
 
     // ic
     len = tt_rand_u32() % (sizeof(tmp) - 1) + 1;
     ret = tt_sshctx_kex_setic(&ctx, tmp, len, TT_FALSE);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
-    TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&kex->i_c), len, "");
-    TT_TEST_CHECK_EQUAL(tt_memcmp(TT_BUF_RPOS(&kex->i_c), tmp, len), 0, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(TT_BUF_RLEN(&kex->i_c), len, "");
+    TT_UT_EQUAL(tt_memcmp(TT_BUF_RPOS(&kex->i_c), tmp, len), 0, "");
 
     ret = tt_sshctx_kex_setic(&ctx, tmp, len, TT_TRUE);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     tt_buf_reset_rwp(&buf);
     tt_ssh_string_render(&buf, tmp, len);
-    TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&kex->i_c), TT_BUF_RLEN(&buf), "");
-    TT_TEST_CHECK_EQUAL(tt_buf_cmp(&buf, &kex->i_c), 0, "");
+    TT_UT_EQUAL(TT_BUF_RLEN(&kex->i_c), TT_BUF_RLEN(&buf), "");
+    TT_UT_EQUAL(tt_buf_cmp(&buf, &kex->i_c), 0, "");
 
     // is
     len = tt_rand_u32() % (sizeof(tmp) - 1) + 1;
     ret = tt_sshctx_kex_setis(&ctx, tmp, len, TT_FALSE);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
-    TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&kex->i_s), len, "");
-    TT_TEST_CHECK_EQUAL(tt_memcmp(TT_BUF_RPOS(&kex->i_s), tmp, len), 0, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(TT_BUF_RLEN(&kex->i_s), len, "");
+    TT_UT_EQUAL(tt_memcmp(TT_BUF_RPOS(&kex->i_s), tmp, len), 0, "");
 
     ret = tt_sshctx_kex_setis(&ctx, tmp, len, TT_TRUE);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     tt_buf_reset_rwp(&buf);
     tt_ssh_string_render(&buf, tmp, len);
-    TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(&kex->i_s), TT_BUF_RLEN(&buf), "");
-    TT_TEST_CHECK_EQUAL(tt_buf_cmp(&buf, &kex->i_s), 0, "");
+    TT_UT_EQUAL(TT_BUF_RLEN(&kex->i_s), TT_BUF_RLEN(&buf), "");
+    TT_UT_EQUAL(tt_buf_cmp(&buf, &kex->i_s), 0, "");
 
     // not able to calc h, as k,e,f is not set
     ret = tt_sshctx_kex_calc_h(&ctx);
-    TT_TEST_CHECK_EQUAL(ret, TT_FAIL, "");
+    TT_UT_EQUAL(ret, TT_FAIL, "");
 
     // no h
     ret = tt_sshctx_load_session_id(&ctx);
-    TT_TEST_CHECK_EQUAL(ret, TT_FAIL, "");
+    TT_UT_EQUAL(ret, TT_FAIL, "");
 
     tt_sshctx_destroy(&ctx);
     tt_buf_destroy(&buf);
@@ -310,7 +310,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_sshkex_dh)
     attr.is_server = TT_TRUE;
 
     ret = tt_sshctx_create(&ctx, &attr);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     for (i = 0; i < sizeof(tmp); ++i) {
         tmp[i] = (tt_u8_t)tt_rand_u32();
@@ -320,141 +320,141 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_sshkex_dh)
 
     // before kex create, all would fail
     ret = tt_sshctx_kexdh_compute(&ctx, tmp, 100);
-    TT_TEST_CHECK_EQUAL(ret, TT_FAIL, "");
+    TT_UT_EQUAL(ret, TT_FAIL, "");
     ret = tt_sshctx_kexdh_set_e(&ctx, tmp, 100, TT_TRUE);
-    TT_TEST_CHECK_EQUAL(ret, TT_FAIL, "");
+    TT_UT_EQUAL(ret, TT_FAIL, "");
     ret = tt_sshctx_kexdh_load_e(&ctx);
-    TT_TEST_CHECK_EQUAL(ret, TT_FAIL, "");
+    TT_UT_EQUAL(ret, TT_FAIL, "");
     ret = tt_sshctx_kexdh_set_f(&ctx, tmp, 100, TT_TRUE);
-    TT_TEST_CHECK_EQUAL(ret, TT_FAIL, "");
+    TT_UT_EQUAL(ret, TT_FAIL, "");
     ret = tt_sshctx_kexdh_load_f(&ctx);
-    TT_TEST_CHECK_EQUAL(ret, TT_FAIL, "");
+    TT_UT_EQUAL(ret, TT_FAIL, "");
     ret = tt_sshctx_kexdh_get_k(&ctx);
-    TT_TEST_CHECK_EQUAL(ret, TT_FAIL, "");
+    TT_UT_EQUAL(ret, TT_FAIL, "");
 
     ret = tt_sshctx_kex_create(&ctx);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     // before set alg, all would fail
     ret = tt_sshctx_kexdh_compute(&ctx, tmp, 100);
-    TT_TEST_CHECK_EQUAL(ret, TT_FAIL, "");
+    TT_UT_EQUAL(ret, TT_FAIL, "");
     ret = tt_sshctx_kexdh_set_e(&ctx, tmp, 100, TT_TRUE);
-    TT_TEST_CHECK_EQUAL(ret, TT_FAIL, "");
+    TT_UT_EQUAL(ret, TT_FAIL, "");
     ret = tt_sshctx_kexdh_load_e(&ctx);
-    TT_TEST_CHECK_EQUAL(ret, TT_FAIL, "");
+    TT_UT_EQUAL(ret, TT_FAIL, "");
     ret = tt_sshctx_kexdh_set_f(&ctx, tmp, 100, TT_TRUE);
-    TT_TEST_CHECK_EQUAL(ret, TT_FAIL, "");
+    TT_UT_EQUAL(ret, TT_FAIL, "");
     ret = tt_sshctx_kexdh_load_f(&ctx);
-    TT_TEST_CHECK_EQUAL(ret, TT_FAIL, "");
+    TT_UT_EQUAL(ret, TT_FAIL, "");
     ret = tt_sshctx_kexdh_get_k(&ctx);
-    TT_TEST_CHECK_EQUAL(ret, TT_FAIL, "");
+    TT_UT_EQUAL(ret, TT_FAIL, "");
 
     ret = tt_sshctx_kex_setalg(&ctx, TT_SSH_KEX_ALG_DH_G1_SHA1);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     // ks
     len = tt_rand_u32() % (sizeof(tmp) - 1) + 1;
     ret = tt_sshctx_kex_setks(&ctx, tmp, len, TT_FALSE);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     // vc
     len = tt_rand_u32() % (sizeof(tmp) - 1) + 1;
     ret = tt_sshctx_kex_setvc(&ctx, tmp, len, TT_FALSE);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     // vs
     len = tt_rand_u32() % (sizeof(tmp) - 1) + 1;
     ret = tt_sshctx_kex_setvs(&ctx, tmp, len, TT_FALSE);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     // ic
     len = tt_rand_u32() % (sizeof(tmp) - 1) + 1;
     ret = tt_sshctx_kex_setic(&ctx, tmp, len, TT_FALSE);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     // is
     len = tt_rand_u32() % (sizeof(tmp) - 1) + 1;
     ret = tt_sshctx_kex_setis(&ctx, tmp, len, TT_FALSE);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     // as a client
 
     // load e
     ret = tt_sshctx_kexdh_load_e(&ctx);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     pbuf = &ctx.kex->alg_u.kexdh.e;
-    TT_TEST_CHECK_NOT_EQUAL(pbuf->p, NULL, "");
-    TT_TEST_CHECK_NOT_EQUAL(TT_BUF_RLEN(pbuf), 0, "");
+    TT_UT_NOT_EQUAL(pbuf->p, NULL, "");
+    TT_UT_NOT_EQUAL(TT_BUF_RLEN(pbuf), 0, "");
 
     // set f
     len = tt_rand_u32() % (sizeof(tmp) - 1) + 1;
     ret = tt_sshctx_kexdh_set_f(&ctx, tmp, len, TT_FALSE);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     pbuf = &ctx.kex->alg_u.kexdh.f;
-    TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(pbuf), len, "");
-    TT_TEST_CHECK_EQUAL(tt_memcmp(TT_BUF_RPOS(pbuf), tmp, len), 0, "");
+    TT_UT_EQUAL(TT_BUF_RLEN(pbuf), len, "");
+    TT_UT_EQUAL(tt_memcmp(TT_BUF_RPOS(pbuf), tmp, len), 0, "");
 
     ret = tt_sshctx_kexdh_set_f(&ctx, tmp, len, TT_TRUE);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     tt_buf_reset_rwp(&buf);
     tt_ssh_mpint_render(&buf, tmp, len, TT_FALSE);
-    TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(pbuf), TT_BUF_RLEN(&buf), "");
-    TT_TEST_CHECK_EQUAL(tt_buf_cmp(&buf, pbuf), 0, "");
+    TT_UT_EQUAL(TT_BUF_RLEN(pbuf), TT_BUF_RLEN(&buf), "");
+    TT_UT_EQUAL(tt_buf_cmp(&buf, pbuf), 0, "");
 
     ret = tt_sshctx_kexdh_compute(&ctx, tmp, len);
     if (TT_OK(ret)) {
         ret = tt_sshctx_kexdh_get_k(&ctx);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
         ret = tt_sshctx_kex_calc_h(&ctx);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
-        TT_TEST_CHECK_NOT_EQUAL(ctx.kex->h.p, NULL, "");
-        TT_TEST_CHECK_NOT_EQUAL(TT_BUF_RLEN(&ctx.kex->h), 0, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_NOT_EQUAL(ctx.kex->h.p, NULL, "");
+        TT_UT_NOT_EQUAL(TT_BUF_RLEN(&ctx.kex->h), 0, "");
 
         ret = tt_sshctx_load_session_id(&ctx);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
         // can not set again
         ret = tt_sshctx_load_session_id(&ctx);
-        TT_TEST_CHECK_EQUAL(ret, TT_FAIL, "");
+        TT_UT_EQUAL(ret, TT_FAIL, "");
     }
 
     // as a server
 
     // load f
     ret = tt_sshctx_kexdh_load_f(&ctx);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     pbuf = &ctx.kex->alg_u.kexdh.f;
-    TT_TEST_CHECK_NOT_EQUAL(pbuf->p, NULL, "");
-    TT_TEST_CHECK_NOT_EQUAL(TT_BUF_RLEN(pbuf), 0, "");
+    TT_UT_NOT_EQUAL(pbuf->p, NULL, "");
+    TT_UT_NOT_EQUAL(TT_BUF_RLEN(pbuf), 0, "");
 
     // set e
     len = tt_rand_u32() % (sizeof(tmp) - 1) + 1;
     ret = tt_sshctx_kexdh_set_e(&ctx, tmp, len, TT_FALSE);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     pbuf = &ctx.kex->alg_u.kexdh.e;
-    TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(pbuf), len, "");
-    TT_TEST_CHECK_EQUAL(tt_memcmp(TT_BUF_RPOS(pbuf), tmp, len), 0, "");
+    TT_UT_EQUAL(TT_BUF_RLEN(pbuf), len, "");
+    TT_UT_EQUAL(tt_memcmp(TT_BUF_RPOS(pbuf), tmp, len), 0, "");
 
     ret = tt_sshctx_kexdh_set_e(&ctx, tmp, len, TT_TRUE);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     tt_buf_reset_rwp(&buf);
     tt_ssh_mpint_render(&buf, tmp, len, TT_FALSE);
-    TT_TEST_CHECK_EQUAL(TT_BUF_RLEN(pbuf), TT_BUF_RLEN(&buf), "");
-    TT_TEST_CHECK_EQUAL(tt_buf_cmp(&buf, pbuf), 0, "");
+    TT_UT_EQUAL(TT_BUF_RLEN(pbuf), TT_BUF_RLEN(&buf), "");
+    TT_UT_EQUAL(tt_buf_cmp(&buf, pbuf), 0, "");
 
     ret = tt_sshctx_kexdh_compute(&ctx, tmp, len);
     if (TT_OK(ret)) {
         ret = tt_sshctx_kexdh_get_k(&ctx);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
         ret = tt_sshctx_kex_calc_h(&ctx);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
-        TT_TEST_CHECK_NOT_EQUAL(ctx.kex->h.p, NULL, "");
-        TT_TEST_CHECK_NOT_EQUAL(TT_BUF_RLEN(&ctx.kex->h), 0, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_NOT_EQUAL(ctx.kex->h.p, NULL, "");
+        TT_UT_NOT_EQUAL(TT_BUF_RLEN(&ctx.kex->h), 0, "");
 
         ret = tt_sshctx_load_session_id(&ctx);
-        TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
         // can not set again
         ret = tt_sshctx_load_session_id(&ctx);
-        TT_TEST_CHECK_EQUAL(ret, TT_FAIL, "");
+        TT_UT_EQUAL(ret, TT_FAIL, "");
     }
 
     tt_sshctx_destroy(&ctx);
@@ -529,15 +529,15 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_sshpubk)
     attr.is_server = TT_TRUE;
 
     ret = tt_sshctx_create(&ctx, &attr);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     tt_sshctx_pubk_destroy(&ctx);
 
     // all would fail as there is no pubk created
     ret = tt_sshctx_pubk_setalg(&ctx, TT_SSH_PUBKEY_ALG_RSA, tmp);
-    TT_TEST_CHECK_EQUAL(ret, TT_FAIL, "");
+    TT_UT_EQUAL(ret, TT_FAIL, "");
     ret = tt_sshctx_pubk_sign(&ctx, tmp, 100);
-    TT_TEST_CHECK_EQUAL(ret, TT_FAIL, "");
+    TT_UT_EQUAL(ret, TT_FAIL, "");
 
     // rsa
     key_data.addr = (tt_u8_t *)__ssh_rsapriv;
@@ -553,7 +553,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_sshpubk)
                         TT_RSA_TYPE_PRIVATE,
                         &key_data,
                         &rsa_attr);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     // rsa pub
     key_data.addr = (tt_u8_t *)__ssh_rsapub;
@@ -568,27 +568,27 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_sshpubk)
                         TT_RSA_TYPE_PUBLIC,
                         &key_data,
                         &rsa_attr);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     ret = tt_sshctx_pubk_create(&ctx);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     // set rsa
     ret = tt_sshctx_pubk_setalg(&ctx, TT_SSH_PUBKEY_ALG_RSA, &rsa);
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
-    TT_TEST_CHECK_EQUAL(ctx.pubk->alg, TT_SSH_PUBKEY_ALG_RSA, "");
-    TT_TEST_CHECK_EQUAL(ctx.pubk->alg_u.rsa, &rsa, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ctx.pubk->alg, TT_SSH_PUBKEY_ALG_RSA, "");
+    TT_UT_EQUAL(ctx.pubk->alg_u.rsa, &rsa, "");
 
     // sign
     ret = tt_sshctx_pubk_sign(&ctx, tmp, sizeof(tmp));
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     ret = tt_rsa_verify(&rsa_pub,
                         tmp,
                         sizeof(tmp),
                         TT_BUF_RPOS(&ctx.pubk->signature),
                         TT_BUF_RLEN(&ctx.pubk->signature));
-    TT_TEST_CHECK_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     tt_rsa_destroy(&rsa);
     tt_rsa_destroy(&rsa_pub);

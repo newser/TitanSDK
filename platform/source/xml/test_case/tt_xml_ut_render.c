@@ -97,7 +97,7 @@ TT_TEST_CASE("tt_unit_test_xml_ch_enc",
      // test start
 
      ret = tt_xmlrender_create(&xr, NULL);
-     TT_TEST_CHECK_SUCCESS(ret, "");
+     TT_UT_SUCCESS(ret, "");
 
      tt_xmlrender_destroy(&xr);
 
@@ -120,21 +120,21 @@ TT_TEST_CASE("tt_unit_test_xml_ch_enc",
 
     tt_buf_clear(&buf);
     ret = tt_xml_chenc("\"'<>&", &buf);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
     cmp_ret = tt_buf_cmp_cstr(&buf, "&quot;&apos;&lt;&gt;&amp;");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
 
     tt_buf_clear(&buf);
     ret = tt_xml_chenc("", &buf);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
     cmp_ret = tt_buf_cmp_cstr(&buf, "");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
 
     tt_buf_clear(&buf);
     ret = tt_xml_chenc("1\"22'333<4444>&55555", &buf);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
     cmp_ret = tt_buf_cmp_cstr(&buf, "1&quot;22&apos;333&lt;4444&gt;&amp;55555");
-    TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(cmp_ret, 0, "");
 
     tt_buf_destroy(&buf);
 
@@ -153,37 +153,37 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xmlrd_tag)
     // test start
 
     ret = tt_xmlrender_create(&xr, NULL);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
 
     // a xml tag with attr
     {
         tt_xmlrender_reset(&xr, 0);
 
         ret = tt_xmlrender_text(&xr, "text1\"'<>&");
-        TT_TEST_CHECK_SUCCESS(ret, "");
+        TT_UT_SUCCESS(ret, "");
 
         ret = tt_xmlrender_stag(&xr, "");
-        TT_TEST_CHECK_FAIL(ret, "");
+        TT_UT_FAIL(ret, "");
 
         ret = tt_xmlrender_stag(&xr, "ele1");
-        TT_TEST_CHECK_SUCCESS(ret, "");
+        TT_UT_SUCCESS(ret, "");
 
         ret = tt_xmlrender_attr(&xr, "attr1", "val1");
-        TT_TEST_CHECK_SUCCESS(ret, "");
+        TT_UT_SUCCESS(ret, "");
 
         ret = tt_xmlrender_attr(&xr, "", "val2");
-        TT_TEST_CHECK_FAIL(ret, "");
+        TT_UT_FAIL(ret, "");
 
         ret = tt_xmlrender_attr(&xr, "attr3", "");
-        TT_TEST_CHECK_SUCCESS(ret, "");
+        TT_UT_SUCCESS(ret, "");
 
         ret = tt_xmlrender_stag_end(&xr);
-        TT_TEST_CHECK_SUCCESS(ret, "");
+        TT_UT_SUCCESS(ret, "");
 
         cmp_ret = tt_buf_cmp_cstr(&xr.buf,
                                   "text1&quot;&apos;&lt;&gt;&amp;<ele1 "
                                   "attr1=\"val1\" attr3=\"\"/>\n");
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
     // indent elements
@@ -198,31 +198,31 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xmlrd_tag)
         tt_xmlrender_reset(&xr, 0);
 
         ret = tt_xmlrender_stag(&xr, "el&e1");
-        TT_TEST_CHECK_SUCCESS(ret, "");
+        TT_UT_SUCCESS(ret, "");
 
         ret = tt_xmlrender_stag_complete(&xr, TT_TRUE);
-        TT_TEST_CHECK_SUCCESS(ret, "");
+        TT_UT_SUCCESS(ret, "");
 
         ret = tt_xmlrender_stag(&xr, "sub_ele&");
-        TT_TEST_CHECK_SUCCESS(ret, "");
+        TT_UT_SUCCESS(ret, "");
 
         ret = tt_xmlrender_attr(&xr, "\"attr1'", "<val1>");
-        TT_TEST_CHECK_SUCCESS(ret, "");
+        TT_UT_SUCCESS(ret, "");
 
         ret = tt_xmlrender_stag_complete(&xr, TT_FALSE);
-        TT_TEST_CHECK_SUCCESS(ret, "");
+        TT_UT_SUCCESS(ret, "");
 
         ret = tt_xmlrender_text(&xr, "content\"'<>'\"");
-        TT_TEST_CHECK_SUCCESS(ret, "");
+        TT_UT_SUCCESS(ret, "");
 
         ret = tt_xmlrender_etag(&xr, "sub_ele&");
-        TT_TEST_CHECK_SUCCESS(ret, "");
+        TT_UT_SUCCESS(ret, "");
 
         ret = tt_xmlrender_etag(&xr, "el&e1");
-        TT_TEST_CHECK_SUCCESS(ret, "");
+        TT_UT_SUCCESS(ret, "");
 
         cmp_ret = tt_buf_cmp_cstr(&xr.buf, __xr);
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
     tt_xmlrender_destroy(&xr);
@@ -242,25 +242,25 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xmlrd_other)
     // test start
 
     ret = tt_xmlrender_create(&xr, NULL);
-    TT_TEST_CHECK_SUCCESS(ret, "");
+    TT_UT_SUCCESS(ret, "");
 
     // pi
     {
         tt_xmlrender_reset(&xr, 0);
 
         ret = tt_xmlrender_pi(&xr, "", "");
-        TT_TEST_CHECK_FAIL(ret, "");
+        TT_UT_FAIL(ret, "");
 
         ret = tt_xmlrender_pi(&xr, "xml", "");
-        TT_TEST_CHECK_SUCCESS(ret, "");
+        TT_UT_SUCCESS(ret, "");
         cmp_ret = tt_buf_cmp_cstr(&xr.buf, "<?xml?>\n");
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
 
         ret = tt_xmlrender_pi(&xr, "pi2", "pi2 content \"'<>&");
-        TT_TEST_CHECK_SUCCESS(ret, "");
+        TT_UT_SUCCESS(ret, "");
         cmp_ret =
             tt_buf_cmp_cstr(&xr.buf, "<?xml?>\n<?pi2 pi2 content \"'<>&?>\n");
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
     // comment
@@ -268,15 +268,15 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xmlrd_other)
         tt_xmlrender_reset(&xr, 0);
 
         ret = tt_xmlrender_comment(&xr, "");
-        TT_TEST_CHECK_SUCCESS(ret, "");
+        TT_UT_SUCCESS(ret, "");
         cmp_ret = tt_buf_cmp_cstr(&xr.buf, "<!--  -->\n");
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
 
         ret = tt_xmlrender_comment(&xr, "\"'<>&content ");
-        TT_TEST_CHECK_SUCCESS(ret, "");
+        TT_UT_SUCCESS(ret, "");
         cmp_ret =
             tt_buf_cmp_cstr(&xr.buf, "<!--  -->\n<!-- \"'<>&content  -->\n");
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
     // cdata
@@ -284,15 +284,15 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xmlrd_other)
         tt_xmlrender_reset(&xr, 0);
 
         ret = tt_xmlrender_cdata(&xr, "");
-        TT_TEST_CHECK_SUCCESS(ret, "");
+        TT_UT_SUCCESS(ret, "");
         cmp_ret = tt_buf_cmp_cstr(&xr.buf, "<![CDATA[]]>\n");
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
 
         ret = tt_xmlrender_cdata(&xr, "\"'<>&content ");
-        TT_TEST_CHECK_SUCCESS(ret, "");
+        TT_UT_SUCCESS(ret, "");
         cmp_ret = tt_buf_cmp_cstr(&xr.buf,
                                   "<![CDATA[]]>\n<![CDATA[\"'<>&content ]]>\n");
-        TT_TEST_CHECK_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
     tt_xmlrender_destroy(&xr);

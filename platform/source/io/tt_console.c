@@ -71,6 +71,11 @@ void tt_console_component_register()
         __console_component_init,
     };
 
+#if TT_ENV_OS_IS_IOS
+    // ios does not has console
+    return;
+#endif
+
     // init component
     tt_component_init(&comp, TT_COMPONENT_CONSOLE, "Console", NULL, &itf);
 

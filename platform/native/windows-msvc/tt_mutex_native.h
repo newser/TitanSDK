@@ -28,8 +28,7 @@ this file implements mutex apis in system level
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <tt_basic_type.h>
-
+#include <tt_assert_native.h>
 #include <tt_sys_error.h>
 
 ////////////////////////////////////////////////////////////
@@ -44,7 +43,7 @@ struct tt_mutex_attr_s;
 
 typedef struct
 {
-    HANDLE mutex_handle;
+    HANDLE h_mutex;
 } tt_mutex_ntv_t;
 
 ////////////////////////////////////////////////////////////
@@ -100,16 +99,11 @@ acquire a system mutex
 return value MUST be checked, lock operation is implemented based on
 system call which is out of ts control
 */
-tt_inline tt_result_t tt_mutex_acquire_ntv(tt_mutex_ntv_t *sys_mutex)
+tt_inline void tt_mutex_acquire_ntv(tt_mutex_ntv_t *sys_mutex)
 {
-    DWORD ret;
-
-    ret = WaitForSingleObject(sys_mutex->mutex_handle, INFINITE);
-    if (ret == WAIT_OBJECT_0) {
-        return TT_SUCCESS;
-    } else {
+    if (WaitForSingleObject(sys_mutex->h_mutex, INFINITE) != WAIT_OBJECT_0) {
         TT_ERROR_NTV("fail to lock system mutex");
-        return TT_FAIL;
+        tt_throw_exception_ntv(NULL);
     }
 }
 
@@ -128,18 +122,17 @@ try to acquire a system mutex
 return value MUST be checked, lock operation is implemented based on
 system call which is out of ts control
 */
-tt_inline tt_result_t tt_mutex_try_acquire_ntv(IN tt_mutex_ntv_t *sys_mutex)
+tt_inline tt_bool_t tt_mutex_try_acquire_ntv(IN tt_mutex_ntv_t *sys_mutex)
 {
-    DWORD ret;
-
-    ret = WaitForSingleObject(sys_mutex->mutex_handle, 0);
+    DWORD ret = WaitForSingleObject(sys_mutex->h_mutex, 0);
     if (ret == WAIT_OBJECT_0) {
-        return TT_SUCCESS;
+        return TT_TRUE;
     } else if (ret == WAIT_TIMEOUT) {
-        return TT_TIME_OUT;
+        return TT_FALSE;
     } else {
         TT_ERROR_NTV("fail to lock system mutex");
-        return TT_FAIL;
+        tt_throw_exception_ntv(NULL);
+        return TT_FALSE;
     }
 }
 
@@ -153,13 +146,11 @@ release a system mutex
 - TT_SUCCESS, if unlocking done
 - TT_FAIL, otherwise
 */
-tt_inline tt_result_t tt_mutex_release_ntv(IN tt_mutex_ntv_t *sys_mutex)
+tt_inline void tt_mutex_release_ntv(IN tt_mutex_ntv_t *sys_mutex)
 {
-    if (ReleaseMutex(sys_mutex->mutex_handle)) {
-        return TT_SUCCESS;
-    } else {
+    if (!ReleaseMutex(sys_mutex->h_mutex)) {
         TT_ERROR_NTV("fail to unlock system mutex");
-        return TT_FAIL;
+        tt_throw_exception_ntv(NULL);
     }
 }
 
