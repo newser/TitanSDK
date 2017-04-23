@@ -764,11 +764,14 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_ipc_fiber_ev)
     TT_TEST_CASE_LEAVE()
 }
 
+static tt_u32_t ___ipc_cli_sent, __ipc_cli_recvd;
+static tt_u32_t __ipc_svr_sent, __ipc_svr_recvd;
+
 tt_result_t __ipc_cli_pev(IN void *param)
 {
     tt_ipc_t *ipc;
     tt_u8_t sbuf[11] = "1234567890", rbuf[11] = {0};
-    tt_u32_t n, len, cn, rn;
+    tt_u32_t n, cn, rn;
     tt_ipc_ev_t *pev;
     tt_result_t ret;
 
@@ -812,15 +815,18 @@ tt_result_t __ipc_cli_pev(IN void *param)
                 __err_line = __LINE__;
                 return TT_FAIL;
             }
-            TT_INFO_IPC("[%d:%d] cli sent ev %d", cn, rn, n);
-
-            len = 0;
+            ___ipc_cli_sent += sizeof(tt_ipc_ev_t) + n;
+            TT_INFO_IPC("[%d:%d] cli sent ev %d, total: %d",
+                        cn, rn, n, ___ipc_cli_sent);
+            
             if (TT_OK((ret = tt_ipc_recv_ev(ipc, &pev, NULL)))) {
                 if (pev != NULL) {
                     tt_u8_t *pev_data = TT_IPC_EV_CAST(pev, tt_u8_t);
                     tt_u32_t i;
 
-                    TT_INFO_IPC("[%d:%d] cli recv ev %d", cn, rn, pev->ev);
+                    __ipc_cli_recvd += sizeof(tt_ipc_ev_t) + pev->ev;
+                    TT_INFO_IPC("[%d:%d] cli recv ev %d, total",
+                                cn, rn, pev->ev, __ipc_cli_recvd);
                     for (i = 0; i < pev->size; ++i) {
                         if (pev_data[i] != pev->size) {
                             __err_line = __LINE__;
@@ -887,29 +893,20 @@ tt_result_t __ipc_svr_pev_fev(IN void *param)
             if (pev != NULL) {
                 tt_u8_t *pev_data = TT_IPC_EV_CAST(pev, tt_u8_t);
                 tt_u32_t i;
-                TT_INFO_IPC("[%d:%d] svr recv ipc ev %x", cn, rn, pev->ev);
-                for (i = 0; i < pev->size; ++i) {
-                    if (pev_data[i] != pev->size) {
-                        __err_line = __LINE__;
-                    }
-                }
-            }
 
-            n = tt_rand_u32() & 0xFF;
-            pev = tt_ipc_ev_create(n, n);
-            if (pev != NULL) {
-                tt_u8_t *pev_data = TT_IPC_EV_CAST(pev, tt_u8_t);
-                tt_u32_t i;
-
-                TT_ASSERT(n == pev->ev);
-                TT_ASSERT(n == pev->size);
+                __ipc_svr_recvd += sizeof(tt_ipc_ev_t) + pev->size;
+                TT_INFO_IPC("[%d:%d] svr recv ipc ev %x, total: %d",
+                            cn, rn, pev->ev, __ipc_svr_recvd);
+                TT_ASSERT(pev->ev == pev->size);
                 for (i = 0; i < pev->size; ++i) {
                     pev_data[i] = n;
                 }
             } else {
-                __err_line = __LINE__;
+                continue;
             }
 
+            n = tt_rand_u32() & 0xFF;
+            pev = tt_ipc_ev_create(n, n);
             ret = tt_ipc_send_ev(new_ipc, pev);
             if (!TT_OK(ret)) {
                 break; // client may already disconnect
@@ -920,7 +917,9 @@ tt_result_t __ipc_svr_pev_fev(IN void *param)
                     return TT_FAIL;
                 }
             }
-            TT_INFO_IPC("[%d:%d] svr sent ev %d", cn, rn, n);
+            __ipc_svr_sent += sizeof(tt_ipc_ev_t) + pev->size;
+            TT_INFO_IPC("[%d:%d] svr sent ev %d, total: %d",
+                        cn, rn, n, __ipc_svr_sent);
         }
 // client may already disconnect
 #if 0

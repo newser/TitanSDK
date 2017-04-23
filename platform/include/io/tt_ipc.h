@@ -114,7 +114,7 @@ tt_inline tt_result_t tt_ipc_recv(IN tt_ipc_t *ipc,
     if (len != 0) {
         return tt_ipc_recv_ntv(&ipc->sys_ipc, buf, len, recvd, fev);
     } else {
-        TT_ERROR("recv buf len can not be 0");
+        TT_ERROR("ipc recv buf len can not be 0");
         return TT_FAIL;
     }
 }

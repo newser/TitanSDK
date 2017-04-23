@@ -101,11 +101,11 @@ tt_result_t tt_ipc_recv_ev(IN tt_ipc_t *ipc,
 
     // ev may be parsed in last call and buf has available space in front
     tt_buf_try_refine(buf, 1 << 10);
+
     if ((TT_BUF_WLEN(buf) == 0) && !TT_OK(tt_buf_extend(buf))) {
         TT_ERROR("ipc buffer is full");
         return TT_FAIL;
     }
-
     tt_buf_get_wptr(buf, &p, &len);
     while (TT_OK(result = tt_ipc_recv(ipc, p, len, &recvd, p_fev))) {
         tt_buf_inc_wp(buf, recvd);
@@ -118,9 +118,16 @@ tt_result_t tt_ipc_recv_ev(IN tt_ipc_t *ipc,
             return TT_SUCCESS;
         }
 
+        if ((TT_BUF_WLEN(buf) == 0) && !TT_OK(tt_buf_extend(buf))) {
+            TT_ERROR("ipc buffer is full");
+            return TT_FAIL;
+        }
         tt_buf_get_wptr(buf, &p, &len);
     }
-    TT_ERROR("ipc data may be broken");
+
+    if (result != TT_END) {
+        TT_ERROR("ipc data may be broken");
+    }
     return result;
 }
 
