@@ -21,10 +21,12 @@
 #include "tt_unit_test_case_config.h"
 #include <unit_test/tt_unit_test.h>
 
+#include <os/tt_fiber.h>
+#include <os/tt_fiber_event.h>
 #include <os/tt_thread.h>
-#include <timer/tt_time_reference.h>
-#include <timer/tt_timer.h>
-#include <timer/tt_timer_manager.h>
+#include <time/tt_time_reference.h>
+#include <time/tt_timer.h>
+#include <time/tt_timer_manager.h>
 
 // portlayer header files
 #include <tt_cstd_api.h>
@@ -120,115 +122,89 @@ void __ta1(IN struct tt_tmr_s *timer, IN void *param, IN tt_u32_t reason)
 TT_TEST_ROUTINE_DEFINE(tt_unit_test_tmrm_basic)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
-    tt_tmr_mgr_t tmrm;
-    tt_tmr_mgr_attr_t attr;
     tt_result_t ret;
-    tt_tmr_t *tmr;
-    tt_s64_t wait;
+    tt_tmr_t *tmr, *tt;
+    tt_s64_t wait, t1, t2;
+    tt_fiber_t *cfb = tt_current_fiber();
 
     TT_TEST_CASE_ENTER()
     // test start
 
-    tt_tmr_mgr_attr_default(&attr);
-
-    ret = tt_tmr_mgr_create(&tmrm, &attr);
-    TT_UT_EQUAL(ret, TT_SUCCESS, "");
-
     // create timer
-    tmr = tt_tmr_create(&tmrm, 20, 0, __ta1, &_n1, 0);
+    tmr = tt_tmr_create(20, 1, &_n1);
     TT_UT_NOT_EQUAL(tmr, NULL, "");
 
+    t1 = tt_time_ref();
     ret = tt_tmr_start(tmr);
     TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     // normal timer expired
-    TT_UT_EQUAL(_n1, 0, "");
-    wait = tt_tmr_mgr_run(&tmrm);
-    TT_UT_EXP(abs((int)wait - 20) < 5, "");
-    tt_sleep(25);
-    wait = tt_tmr_mgr_run(&tmrm);
-    TT_UT_EQUAL(wait, TT_TIME_INFINITE, "");
-    TT_UT_EQUAL(_n1, 1, "");
+    tt = tt_fiber_recv_timer(cfb, TT_FALSE);
+    TT_UT_NULL(tt, "");
+    tt = tt_fiber_recv_timer(cfb, TT_TRUE);
+    t2 = tt_time_ref();
+    TT_UT_EQUAL(tt, tmr, "");
+    TT_UT_EQUAL(tt->ev, 1, "");
+    TT_UT_EQUAL(tt->param, &_n1, "");
+    TT_UT_EXP(labs(tt_time_ref2ms(t2 - t1) - 20) < 5, "");
+    tt = tt_fiber_recv_timer(cfb, TT_FALSE);
+    TT_UT_NULL(tt, "");
     tt_tmr_stop(tmr);
 
     // stop timer before expired
     do {
         tt_tmr_set_delay(tmr, 30);
-        tt_tmr_set_cb(tmr, __ta1);
-        tt_tmr_set_cbparam(tmr, &_n1);
+        tt_tmr_set_param(tmr, &_n1);
         ret = tt_tmr_start(tmr);
     } while (0);
-    TT_UT_EQUAL(ret, TT_SUCCESS, "");
-    wait = tt_tmr_mgr_run(&tmrm);
-    TT_UT_EXP(abs((int)wait - 30) < 5, "");
+    tt = tt_fiber_recv_timer(cfb, TT_FALSE);
+    TT_UT_NULL(tt, "");
+    tt_sleep(10);
     tt_tmr_stop(tmr);
-    tt_sleep(35);
-    wait = tt_tmr_mgr_run(&tmrm);
-    TT_UT_EQUAL(wait, TT_TIME_INFINITE, "");
-    TT_UT_EQUAL(_n1, 1, "");
+    tt_sleep(20);
+    tt = tt_fiber_recv_timer(cfb, TT_FALSE);
+    TT_UT_NULL(tt, "");
+    tt_sleep(20);
+    tt = tt_fiber_recv_timer(cfb, TT_FALSE);
+    TT_UT_NULL(tt, "");
 
     tt_tmr_destroy(tmr);
     tmr = NULL;
 
     // restart then destroy before expired
-    tmr = tt_tmr_create(&tmrm, 20, 0, __ta1, &_n1, 0);
+    tmr = tt_tmr_create(20, 2, &_n1);
     TT_UT_NOT_EQUAL(tmr, NULL, "");
     ret = tt_tmr_start(tmr);
     TT_UT_EQUAL(ret, TT_SUCCESS, "");
-    wait = tt_tmr_mgr_run(&tmrm);
-    TT_UT_EXP(abs((int)wait - 20) < 5, "");
+    tt = tt_fiber_recv_timer(cfb, TT_TRUE);
+    TT_UT_EQUAL(tt, tmr, "");
 
     do {
         tt_tmr_set_delay(tmr, 50);
-        tt_tmr_set_cb(tmr, __ta1);
-        tt_tmr_set_cbparam(tmr, &_n1);
+        tt_tmr_set_param(tmr, NULL);
+        t1 = tt_time_ref();
         ret = tt_tmr_start(tmr);
     } while (0);
-    TT_UT_EQUAL(ret, TT_SUCCESS, "");
-    wait = tt_tmr_mgr_run(&tmrm);
-    TT_UT_EXP(abs((int)wait - 50) < 5, "");
+    tt = tt_fiber_recv_timer(cfb, TT_TRUE);
+    t2 = tt_time_ref();
+    TT_UT_EQUAL(tt, tmr, "");
+    TT_UT_EQUAL(tt->ev, 2, "");
+    TT_UT_EQUAL(tt->param, NULL, "");
+    TT_UT_EXP(labs(tt_time_ref2ms(t2 - t1) - 50) < 5, "");
 
     tt_tmr_destroy(tmr);
-    wait = tt_tmr_mgr_run(&tmrm);
-    TT_UT_EQUAL(wait, TT_TIME_INFINITE, "");
-    TT_UT_EQUAL(_n1, 1, "");
-
-    tt_tmr_mgr_destroy(&tmrm);
 
     // test end
     TT_TEST_CASE_LEAVE()
 }
 
-static tt_bool_t __c2_ok = TT_TRUE;
 static tt_s64_t max_diff;
-
-void __ta2(IN struct tt_tmr_s *timer, IN void *param, IN tt_u32_t reason)
-{
-    tt_s64_t start = *((tt_s64_t *)param);
-    tt_s64_t now = tt_time_ref();
-
-    tt_s64_t diff = tt_time_ref2ms(now - start);
-    if (diff > timer->delay_ms)
-        diff -= timer->delay_ms;
-    else
-        diff = timer->delay_ms - diff;
-
-    if (diff > max_diff)
-        max_diff = diff;
-
-    if (diff > 5) {
-        // TT_ERROR("diff: %dms", diff);
-        __c2_ok = TT_FALSE;
-    }
-
-    _n1 += 1;
-}
 
 TT_TEST_ROUTINE_DEFINE(tt_unit_test_tmrm_accuracy)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
-    tt_tmr_mgr_t tmrm;
     tt_result_t ret;
+    tt_fiber_t *cfb = tt_current_fiber();
 
 #define __case2_tn 1000
     static tt_tmr_t *__tmrs2[__case2_tn];
@@ -239,15 +215,10 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_tmrm_accuracy)
     TT_TEST_CASE_ENTER()
     // test start
 
-    srand((int)time(NULL));
-
-    ret = tt_tmr_mgr_create(&tmrm, NULL);
-    TT_UT_EQUAL(ret, TT_SUCCESS, "");
-
     for (i = 0; i < __case2_tn; ++i) {
         tt_s64_t exp = (rand() % 100) * 10; // 1s exp at most
 
-        __tmrs2[i] = tt_tmr_create(&tmrm, exp, 0, __ta2, &__start[i], 0);
+        __tmrs2[i] = tt_tmr_create(exp, i, NULL);
         TT_UT_NOT_EQUAL(__tmrs2[i], NULL, "");
     }
 
@@ -257,63 +228,44 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_tmrm_accuracy)
         // tt_sleep(rand()%5);
         __start[i] = tt_time_ref();
         ret = tt_tmr_start(__tmrs2[i]);
-        tt_tmr_mgr_run(&tmrm);
         TT_UT_EQUAL(ret, TT_SUCCESS, "");
     }
 
     // run all timers
+    i = 0;
+    max_diff = 0;
     do {
-        wait = tt_tmr_mgr_run(&tmrm);
-        if (wait == TT_TIME_INFINITE) {
+        tt_tmr_t *tmr = tt_fiber_recv_timer(cfb, TT_TRUE);
+        tt_s64_t now = tt_time_ref();
+        TT_UT_NOT_NULL(tmr, "");
+        if (++i == __case2_tn) {
             break;
-        } else {
-            tt_sleep((tt_u32_t)wait);
+        }
+        now -= __start[tmr->ev];
+        now = tt_time_ref2ms(now);
+        now = labs(now - tmr->delay_ms);
+        if (now > max_diff) {
+            max_diff = now;
         }
     } while (1);
     TT_INFO("max_diff: %dms", max_diff);
-    TT_UT_EQUAL(__c2_ok, TT_TRUE, "");
-    TT_UT_EQUAL(_n1, 1000, "");
 
     // start all timers
     for (i = 0; i < __case2_tn; ++i) {
         tt_tmr_destroy(__tmrs2[i]);
     }
 
-    tt_tmr_mgr_destroy(&tmrm);
-
     // test end
     TT_TEST_CASE_LEAVE()
 }
 
-static tt_bool_t __c3_ok = TT_TRUE;
 static tt_s64_t max_diff3;
-
-void __ta3(IN void *param, IN struct tt_tmr_s *timer)
-{
-    tt_s64_t start = *((tt_s64_t *)param);
-    tt_s64_t now = tt_time_ref();
-
-    tt_s64_t diff = tt_time_ref2ms(now - start);
-    if (diff > timer->delay_ms)
-        diff -= timer->delay_ms;
-    else
-        diff = timer->delay_ms - diff;
-
-    if (diff > max_diff3)
-        max_diff3 = diff;
-
-    if (diff > 5) {
-        __c3_ok = TT_FALSE;
-    }
-
-    _n1 += 1;
-}
 
 TT_TEST_ROUTINE_DEFINE(tt_unit_test_tmrm_stable)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
-    tt_tmr_mgr_t tmrm;
     tt_result_t ret;
+    tt_fiber_t *cfb = tt_current_fiber();
 
 #define __case3_tn 5000
 #define __case3_op 10000
@@ -323,25 +275,28 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_tmrm_stable)
 
     int i;
     tt_s64_t wait;
+    tt_s64_t now;
+    tt_tmr_t *tmr;
 
     TT_TEST_CASE_ENTER()
     // test start
 
-    srand((int)time(NULL));
-
-    ret = tt_tmr_mgr_create(&tmrm, NULL);
-    TT_UT_EQUAL(ret, TT_SUCCESS, "");
-
     for (i = 0; i < __case3_tn; ++i) {
         tt_s64_t exp = (rand() % 100) * 10; // 1s exp at most
 
-        __tmrs3[i] = tt_tmr_create(&tmrm, exp, 0, __ta2, &__start3[i], 0);
+        __tmrs3[i] = tt_tmr_create(exp, i, NULL);
         TT_UT_NOT_EQUAL(__tmrs3[i], NULL, "");
     }
 
-
     for (i = 0; i < __case3_op; ++i) {
         int idx = rand() % __case3_tn;
+
+        // keep the first timer running
+        if (idx == 0) {
+            __start3[idx] = tt_time_ref();
+            tt_tmr_start(__tmrs3[idx]);
+            continue;
+        }
 
         if (!destroyed[idx]) {
             int op__ = rand() % 10;
@@ -349,14 +304,14 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_tmrm_stable)
                 __start3[idx] = tt_time_ref();
                 tt_tmr_start(__tmrs3[idx]);
             } else if (op__ < 6) { // 30% stop
+                __start3[idx] = 0;
                 tt_tmr_stop(__tmrs3[idx]);
             } else if (op__ < 9) { // 20% restart
                 tt_s64_t e1 = (rand() % 100) * 10;
                 __start3[idx] = tt_time_ref();
                 do {
                     tt_tmr_set_delay(__tmrs3[idx], e1);
-                    tt_tmr_set_cb(__tmrs3[idx], __ta2);
-                    tt_tmr_set_cbparam(__tmrs3[idx], &__start3[idx]);
+                    tt_tmr_set_param(__tmrs3[idx], &__start3[idx]);
                     ret = tt_tmr_start(__tmrs3[idx]);
                 } while (0);
                 TT_UT_EQUAL(ret, TT_SUCCESS, "");
@@ -365,27 +320,33 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_tmrm_stable)
                 destroyed[idx] = 1;
             }
         }
-        tt_tmr_mgr_run(&tmrm);
-    }
 
-    // run all timers
-    do {
-        wait = tt_tmr_mgr_run(&tmrm);
-        if (wait == TT_TIME_INFINITE) {
-            break;
-        } else {
-            tt_sleep((tt_u32_t)wait);
+        if (i % 10 == 0) {
+            tmr = tt_fiber_recv_timer(cfb, TT_TRUE);
+            TT_UT_NOT_NULL(tmr, "");
+            now = tt_time_ref();
+            now -= __start3[tmr->ev];
+            now = tt_time_ref2ms(now);
+            now = labs(now - tmr->delay_ms);
+            if (now > max_diff) {
+                max_diff = now;
+            }
+
+            if (tmr->ev == 0) {
+                tt_tmr_set_delay(tmr, (rand() % 100) * 10);
+                __start3[0] = tt_time_ref();
+                ret = tt_tmr_start(tmr);
+                TT_UT_EQUAL(ret, TT_SUCCESS, "");
+            }
         }
-    } while (1);
-    TT_UT_EQUAL(__c3_ok, TT_TRUE, "");
+    }
+    TT_INFO("max_diff: %dms", max_diff);
 
     // start all timers
     for (i = 0; i < __case3_tn; ++i) {
         if (!destroyed[i])
             tt_tmr_destroy(__tmrs3[i]);
     }
-
-    tt_tmr_mgr_destroy(&tmrm);
 
     // test end
     TT_TEST_CASE_LEAVE()

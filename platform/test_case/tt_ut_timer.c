@@ -7,7 +7,7 @@
 #include <memory/tt_memory_alloc.h>
 #include <misc/tt_assert.h>
 #include <os/tt_semaphore.h>
-#include <timer/tt_timer_manager.h>
+#include <time/tt_timer_manager.h>
 
 #include <stdio.h>
 

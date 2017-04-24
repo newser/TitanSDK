@@ -15,14 +15,14 @@
  */
 
 /**
-@file tt_tmr_container.h
+@file tt_tmr_manager.h
 @brief timer manager
 
-this file specifies interfaces of timer container
+this file specifies interfaces of timer manger
 */
 
-#ifndef __TT_TIMER_CONTAINER__
-#define __TT_TIMER_CONTAINER__
+#ifndef __TT_TIMER_MANAGER__
+#define __TT_TIMER_MANAGER__
 
 ////////////////////////////////////////////////////////////
 // import header files
@@ -47,8 +47,6 @@ typedef struct
 
 typedef struct tt_tmr_mgr_s
 {
-    tt_tmr_mgr_attr_t attr;
-
     tt_ptrheap_t tmr_heap;
 } tt_tmr_mgr_t;
 
@@ -66,8 +64,8 @@ register timer manager system
 */
 extern void tt_tmr_mgr_component_register();
 
-extern tt_result_t tt_tmr_mgr_create(IN tt_tmr_mgr_t *mgr,
-                                     IN OPT tt_tmr_mgr_attr_t *attr);
+extern void tt_tmr_mgr_init(IN tt_tmr_mgr_t *mgr,
+                            IN OPT tt_tmr_mgr_attr_t *attr);
 
 extern void tt_tmr_mgr_destroy(IN tt_tmr_mgr_t *mgr);
 
@@ -83,4 +81,4 @@ tt_inline struct tt_tmr_s *tt_tmr_mgr_head(IN tt_tmr_mgr_t *mgr)
     return (struct tt_tmr_s *)tt_ptrheap_head(&mgr->tmr_heap);
 }
 
-#endif /* __TT_TIMER_CONTAINER__ */
+#endif /* __TT_TIMER_MANAGER__ */

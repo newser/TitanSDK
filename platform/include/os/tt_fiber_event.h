@@ -32,11 +32,17 @@
 // macro definition
 ////////////////////////////////////////////////////////////
 
+#define TT_FIBER_EV_CAST(fev, type) TT_PTR_INC(type, fev, sizeof(tt_fiber_ev_t))
+
+#define TT_FIBER_EV_UNCAST(p)                                                  \
+    TT_PTR_DEC(tt_fiber_ev_t, p, sizeof(tt_fiber_ev_t))
+
 ////////////////////////////////////////////////////////////
 // type definition
 ////////////////////////////////////////////////////////////
 
 struct tt_fiber_s;
+struct tt_tmr_s;
 
 typedef struct tt_fiber_ev_s
 {
@@ -67,5 +73,11 @@ extern tt_fiber_ev_t *tt_fiber_recv(IN struct tt_fiber_s *current,
                                     IN tt_bool_t wait);
 
 extern void tt_fiber_finish(IN tt_fiber_ev_t *fev);
+
+extern void tt_fiber_send_timer(IN struct tt_fiber_s *dst,
+                                IN struct tt_tmr_s *tmr);
+
+extern struct tt_tmr_s *tt_fiber_recv_timer(IN struct tt_fiber_s *current,
+                                            IN tt_bool_t wait);
 
 #endif // __TT_FIBER_EVENT__

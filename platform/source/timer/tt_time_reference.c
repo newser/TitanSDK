@@ -18,7 +18,7 @@
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <timer/tt_time_reference.h>
+#include <time/tt_time_reference.h>
 
 #include <init/tt_component.h>
 #include <init/tt_profile.h>
@@ -72,10 +72,7 @@ void tt_time_ref_component_register()
 tt_result_t __time_ref_component_init(IN tt_component_t *comp,
                                       IN tt_profile_t *profile)
 {
-    tt_result_t result = TT_FAIL;
-
-    result = tt_time_ref_component_init_ntv();
-    if (!TT_OK(result)) {
+    if (!TT_OK(tt_time_ref_component_init_ntv())) {
         return TT_FAIL;
     }
 

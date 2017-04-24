@@ -60,7 +60,7 @@ typedef struct
     tt_u32_t *idx;
 } tt_phnode_t;
 
-typedef struct
+typedef struct tt_ptrheap_s
 {
     union
     {

@@ -29,7 +29,7 @@
 #include <network/tt_network_interface.h>
 #include <os/tt_fiber_event.h>
 #include <os/tt_task.h>
-#include <timer/tt_time_reference.h>
+#include <time/tt_time_reference.h>
 
 // portlayer header files
 #include <tt_cstd_api.h>

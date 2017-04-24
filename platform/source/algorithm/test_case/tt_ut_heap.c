@@ -23,7 +23,7 @@
 #include <algorithm/ptr/tt_ptr_heap.h>
 #include <algorithm/tt_algorithm_def.h>
 #include <algorithm/tt_red_black_tree.h>
-#include <timer/tt_time_reference.h>
+#include <time/tt_time_reference.h>
 
 // portlayer header files
 #include <tt_cstd_api.h>

@@ -233,10 +233,10 @@ extern "C" {
 #include <os/tt_semaphore.h>
 #include <os/tt_spinlock.h>
 #include <os/tt_task.h>
-#include <timer/tt_time_reference.h>
-#include <timer/tt_time_util.h>
-#include <timer/tt_timer.h>
-#include <timer/tt_timer_manager.h>
+#include <time/tt_time_reference.h>
+#include <time/tt_time_util.h>
+#include <time/tt_timer.h>
+#include <time/tt_timer_manager.h>
 #include <tt_basic_type.h>
 #include <unit_test/tt_test_framework.h>
 #include <unit_test/tt_unit_test.h>

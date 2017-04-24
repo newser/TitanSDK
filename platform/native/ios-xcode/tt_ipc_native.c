@@ -381,7 +381,7 @@ tt_bool_t tt_ipc_poller_io(IN tt_io_ev_t *io_ev)
 tt_result_t __init_ipc_addr(IN struct sockaddr_un *saun,
                             IN const tt_char_t *addr)
 {
-    int len = strlen(addr);
+    size_t len = strlen(addr);
 
     memset(saun, 0, sizeof(struct sockaddr_un));
 

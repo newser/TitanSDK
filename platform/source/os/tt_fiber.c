@@ -24,6 +24,7 @@
 #include <misc/tt_assert.h>
 #include <os/tt_task.h>
 #include <os/tt_thread.h>
+#include <time/tt_timer.h>
 
 ////////////////////////////////////////////////////////////
 // internal macro
@@ -192,6 +193,7 @@ tt_fiber_t *tt_fiber_create(IN OPT const tt_char_t *name,
     fb->param = param;
     fb->fs = fs;
     tt_dlist_init(&fb->ev);
+    tt_dlist_init(&fb->tmr);
 
     if (!TT_OK(tt_fiber_create_wrap(&fb->wrap_fb, attr->stack_size))) {
         tt_free(fb);
@@ -216,6 +218,10 @@ void tt_fiber_destroy(IN tt_fiber_t *fb)
 
     while ((node = tt_dlist_pop_head(&fb->ev)) != NULL) {
         // howto??
+    }
+
+    while ((node = tt_dlist_pop_head(&fb->tmr)) != NULL) {
+        tt_tmr_destroy(TT_CONTAINER(node, tt_tmr_t, node));
     }
 
     tt_fiber_destroy_wrap(&fb->wrap_fb);

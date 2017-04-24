@@ -18,7 +18,7 @@
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <timer/tt_time_util.h>
+#include <time/tt_time_util.h>
 
 #include <tt_time_util_native.h>
 

@@ -22,7 +22,7 @@
 
 #include <algorithm/tt_buffer_format.h>
 #include <memory/tt_memory_alloc.h>
-#include <timer/tt_time_util.h>
+#include <time/tt_time_util.h>
 
 ////////////////////////////////////////////////////////////
 // internal macro

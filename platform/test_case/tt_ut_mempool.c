@@ -29,7 +29,7 @@
 #include <memory/tt_page.h>
 #include <os/tt_mutex.h>
 #include <os/tt_thread.h>
-#include <timer/tt_time_reference.h>
+#include <time/tt_time_reference.h>
 
 #include <time.h>
 

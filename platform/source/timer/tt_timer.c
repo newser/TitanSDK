@@ -18,16 +18,14 @@
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <timer/tt_timer.h>
+#include <time/tt_timer.h>
 
-#include <algorithm/ptr/tt_ptr_heap.h>
 #include <algorithm/tt_algorithm_def.h>
 #include <memory/tt_memory_alloc.h>
 #include <misc/tt_assert.h>
-#include <timer/tt_time_reference.h>
-#include <timer/tt_timer_manager.h>
-
-#include <tt_cstd_api.h>
+#include <os/tt_task.h>
+#include <time/tt_time_reference.h>
+#include <time/tt_timer_manager.h>
 
 ////////////////////////////////////////////////////////////
 // internal macro
@@ -49,53 +47,29 @@
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-tt_tmr_t *tt_tmr_create(IN OPT IN struct tt_tmr_mgr_s *mgr,
-                        IN tt_s64_t delay_ms,
-                        IN OPT void *opaque,
-                        IN tt_tmr_cb_t cb,
-                        IN OPT void *cb_param,
-                        IN tt_u32_t flag)
+tt_tmr_t *tt_tmr_create(IN tt_s64_t delay_ms,
+                        IN tt_u32_t ev,
+                        IN OPT void *param)
 {
-    tt_tmr_t *tmr = NULL;
+    tt_tmr_t *tmr;
 
-    TT_ASSERT(cb != NULL);
+    TT_ASSERT(delay_ms >= 0);
 
-#if 0
-    if (mgr == NULL) {
-        tt_evcenter_t *evc = tt_evc_current();
-        if (evc == NULL) {
-            TT_ERROR("not in evcenter");
-            return NULL;
-        }
-
-        mgr = &evc->tmr_mgr;
-    }
-#endif
-
-    // alloc timer
-    tmr = (tt_tmr_t *)tt_malloc(sizeof(tt_tmr_t));
+    tmr = tt_malloc(sizeof(tt_tmr_t));
     if (tmr == NULL) {
-        TT_ERROR("no mem for creating timer");
+        TT_ERROR("no mem for timer");
         return NULL;
     }
 
-    // init timer
-    tt_memset(tmr, 0, sizeof(tt_tmr_t));
-
     tmr->delay_ms = delay_ms;
-    tmr->opaque = opaque;
-    tmr->cb = cb;
-    tmr->cb_param = cb_param;
-
-    if (flag & TT_TMR_NOTIFY_DESTROYED) {
-        tmr->notify_destroyed = TT_TRUE;
-    }
-
-    tmr->status = __TMR_INACTIVE;
-
-    tmr->heap_idx = TT_POS_NULL;
-    tmr->mgr = mgr;
-    tmr->absolute_expire_time = 0;
+    tmr->absolute_ref = 0;
+    tmr->owner = tt_current_fiber();
+    tt_dnode_init(&tmr->node);
+    tmr->param = param;
+    tmr->mgr = &tmr->owner->fs->thread->task->tmr_mgr;
+    tmr->ev = ev;
+    tmr->heap_pos = TT_POS_NULL;
+    tmr->status = TT_TMR_INACTIVE;
 
     return tmr;
 }
@@ -104,20 +78,16 @@ void tt_tmr_destroy(IN tt_tmr_t *tmr)
 {
     TT_ASSERT(tmr != NULL);
 
-    if (tmr->notify_destroyed) {
-        tmr->cb(tmr, tmr->cb_param, TT_TMR_CB_DESTROYED);
-    }
-
-    if (tmr->heap_idx == TT_POS_NULL) {
+    if (tmr->heap_pos == TT_POS_NULL) {
         // not in heap
         tt_free(tmr);
     } else {
 #if 1
         // keep it in heap could avoid rebuilding heap
-        tmr->status = __TMR_ORPHAN;
+        tmr->status = TT_TMR_ORPHAN;
 #else
         // or free it, which could make more memory available
-        tt_ptrheap_remove(&tmr->mgr->tmr_heap, tmr->heap_idx);
+        tt_ptrheap_remove(&tmr->mgr->tmr_heap, tmr->heap_pos);
         tt_free(tmr);
 #endif
     }
@@ -125,47 +95,24 @@ void tt_tmr_destroy(IN tt_tmr_t *tmr)
 
 tt_result_t tt_tmr_start(IN tt_tmr_t *tmr)
 {
-    tt_tmr_mgr_t *mgr;
+    tt_ptrheap_t *tmr_heap = &tmr->mgr->tmr_heap;
+    tt_s64_t delay_ref;
 
-    TT_ASSERT(tmr != NULL);
-    TT_ASSERT(tmr->mgr != NULL);
+    tmr->absolute_ref = tt_time_ref();
+    delay_ref = tt_time_ms2ref(tmr->delay_ms);
+    if ((tmr->absolute_ref + delay_ref) <= delay_ref) {
+        // both absolute_ref and delay_ref are positive
+        TT_ERROR("too large expiration, overflowed");
+        return TT_FAIL;
+    }
+    tmr->absolute_ref += delay_ref;
 
-    mgr = tmr->mgr;
+    tmr->status = TT_TMR_ACTIVE;
 
-    // recalculate new expiration time
-    do {
-        tt_s64_t __absolute_expire_time;
-
-        tmr->absolute_expire_time = tt_time_ref();
-
-        __absolute_expire_time = tmr->absolute_expire_time;
-        __absolute_expire_time += tt_time_ms2ref(tmr->delay_ms);
-        if ((tmr->delay_ms != 0) &&
-            (__absolute_expire_time <= tmr->absolute_expire_time)) {
-            TT_ERROR("too large expiration, overflowed");
-            return TT_FAIL;
-        }
-
-        tmr->absolute_expire_time = __absolute_expire_time;
-    } while (0);
-
-    tmr->status = __TMR_ACTIVE;
-
-    if (tmr->heap_idx == TT_POS_NULL) {
-        return tt_ptrheap_add(&mgr->tmr_heap, tmr, &tmr->heap_idx);
+    if (tmr->heap_pos == TT_POS_NULL) {
+        return tt_ptrheap_add(tmr_heap, tmr, &tmr->heap_pos);
     } else {
-        tt_ptrheap_fix(&mgr->tmr_heap, tmr->heap_idx);
+        tt_ptrheap_fix(tmr_heap, tmr->heap_pos);
         return TT_SUCCESS;
     }
-}
-
-void tt_tmr_stop(IN tt_tmr_t *tmr)
-{
-    TT_ASSERT(tmr != NULL);
-
-    tmr->status = __TMR_INACTIVE;
-
-    // - no need to remove tmr out from heap so as to avoid adjusting heap
-    // - when the timer manager sees an inactive timer, it would pop it
-    //   from heap and then the timer becomes wild(not in heap)
 }

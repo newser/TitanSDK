@@ -22,6 +22,7 @@
 
 #include <memory/tt_memory_alloc.h>
 #include <os/tt_fiber.h>
+#include <time/tt_timer.h>
 
 ////////////////////////////////////////////////////////////
 // internal macro
@@ -118,5 +119,33 @@ void tt_fiber_finish(IN tt_fiber_ev_t *fev)
         tt_fiber_resume(fev->src, TT_FALSE);
     } else {
         tt_fiber_ev_destroy(fev);
+    }
+}
+
+void tt_fiber_send_timer(IN tt_fiber_t *dst, IN tt_tmr_t *tmr)
+{
+    tt_dlist_push_tail(&dst->tmr, &tmr->node);
+    if (dst->recving) {
+        tt_fiber_resume(dst, TT_FALSE);
+    } else if (wait) {
+        tt_fiber_suspend();
+    }
+}
+
+tt_tmr_t *tt_fiber_recv_timer(IN tt_fiber_t *current, IN tt_bool_t wait)
+{
+    tt_dnode_t *node;
+
+again:
+    node = tt_dlist_pop_head(&current->tmr);
+    if (node != NULL) {
+        return TT_CONTAINER(node, tt_tmr_t, node);
+    } else if (wait) {
+        current->recving = TT_TRUE;
+        tt_fiber_suspend();
+        current->recving = TT_FALSE;
+        goto again;
+    } else {
+        return NULL;
     }
 }
