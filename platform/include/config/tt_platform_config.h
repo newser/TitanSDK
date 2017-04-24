@@ -32,18 +32,18 @@ this file defines integrate all other configurations
 //  ||
 //  \/
 // pre-definition: collect user definitions
-//  - tt_environment_def.h: environment, like cpu instruction set
-//  - tt_module_def.h: module config
-//  - tt_customization_def.h: all others
+//  - tt_environment_config.h: environment, like cpu instruction set
+//  - tt_module_config.h: module config
+//  - tt_customization_config.h: all others
 //  ||
 //  \/
 // definition: component definitions according to user input
-//  - tt_algorithm_def.h
+//  - tt_algorithm_config.h
 //  - ...
 //  ||
 //  \/
 // post-definition: overwrite defitions if necessary
-//  - tt_platform_optimized_def.h
+//  - tt_platform_optimized_config.h
 //  - ...
 
 // ========================================
