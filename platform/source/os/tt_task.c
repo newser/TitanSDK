@@ -217,14 +217,26 @@ tt_result_t __task_routine(IN void *param)
     }
 
     // run untill all fibers exit
-    while (!tt_fiber_sched_empty(thread->fiber_sched)) {
+    while (!tt_fiber_sched_empty(cfs)) {
         tt_fiber_t *fb = tt_fiber_sched_next(cfs);
         if (fb != cfs->__main) {
             // if there is any active fiber other than the main fiber, run it
             tt_fiber_resume(fb, TT_FALSE);
-        } else if (!tt_io_poller_run(&t->iop, tt_tmr_mgr_run(tmr_mgr))) {
-            // main fiber indicates exit
-            break;
+        } else {
+            tt_s64_t wait_ms;
+
+            wait_ms = tt_tmr_mgr_run(tmr_mgr);
+            // tt_tmr_mgr_run() may awake some fiber so need check if all fibers
+            // are terminated, otherwise the main fiber would hang in
+            // tt_io_poller_run()
+            if (tt_fiber_sched_empty(cfs)) {
+                break;
+            }
+
+            if (!tt_io_poller_run(&t->iop, wait_ms)) {
+                // main fiber indicates exit
+                break;
+            }
         }
     }
 
