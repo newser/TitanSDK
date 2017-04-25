@@ -17,7 +17,7 @@
 project(TitanSDK)
 
 # cmake version 3.0 above
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.0.2)
 
 #
 # definition

@@ -28,81 +28,92 @@ this file specifies system interfaces for time reference
 // import header files
 ////////////////////////////////////////////////////////////
 
+#include <tt_basic_type.h>
+
 ////////////////////////////////////////////////////////////
 // macro definition
 ////////////////////////////////////////////////////////////
 
-// ========================================
-// configuration
-// ========================================
-
-// these configurations would not be put to tt_platform_config.h
+//#define __TIME_WRAP_AROUND_PROTECT
 
 /**
-@def TT_TIME_REF_NTV_TYPE_CS
-spin lock is implemented as a windows critical section
+@def tt_time_ref2ms_ntv(ref, ctx)
+convert time reference to millisecond
 */
-#define TT_TIME_REF_NTV_TYPE_QPC 1
+#define tt_time_ref2ms_ntv(ref) (ref)
 /**
-@def TT_TIME_REF_NTV_TYPE_UL
-spin lock is implemented by pure spinning at user level
+@def tt_time_ms2ref_ntv(ms, ctx)
+convert millisecond to time reference
 */
-#define TT_TIME_REF_NTV_TYPE_MMT 2
-
-/**
-@def TT_TIME_REF_NTV_TYPE
-this macro determines the spin lock implementation, currently it could be:
-- TT_TIME_REF_NTV_TYPE_QPC
-- TT_TIME_REF_NTV_TYPE_MMT
-
-@note
-"mmt" behavors stable on more platforms(especially on virtual machines),
-though it's of lower performance than "qpc"
-*/
-#define TT_TIME_REF_NTV_TYPE TT_TIME_REF_NTV_TYPE_MMT
-
-// ========================================
-// macro wrappers
-// ========================================
-
-#if (TT_TIME_REF_NTV_TYPE == TT_TIME_REF_NTV_TYPE_QPC)
-
-#include <tt_time_reference_native_qpc.h>
-
-#define tt_time_ref2ms_ntv tt_time_ref2ms_ntv_qpc
-#define tt_time_ms2ref_ntv tt_time_ms2ref_ntv_qpc
-
-#define tt_time_ref_component_init_ntv tt_time_ref_component_init_ntv_qpc
-
-#define tt_time_ref_ntv tt_time_ref_ntv_qpc
-
-#elif (TT_TIME_REF_NTV_TYPE == TT_TIME_REF_NTV_TYPE_MMT)
-
-#include <tt_time_reference_native_mmt.h>
-
-#define tt_time_ref2ms_ntv tt_time_ref2ms_ntv_mmt
-#define tt_time_ms2ref_ntv tt_time_ms2ref_ntv_mmt
-
-#define tt_time_ref_component_init_ntv tt_time_ref_component_init_ntv_mmt
-
-#define tt_time_ref_ntv tt_time_ref_ntv_mmt
-
-#else
-
-#error "unknown time reference implementation"
-
-#endif
+#define tt_time_ms2ref_ntv(ms) (ms)
 
 ////////////////////////////////////////////////////////////
 // type definition
 ////////////////////////////////////////////////////////////
 
+/**
+@struct tt_time_counter_t
+reference time context
+*/
+typedef struct
+{
+    __declspec(align(4)) LONG lock;
+    union
+    {
+        tt_u64_t v64;
+        tt_u32_t v32[2];
+#if TT_ENV_IS_BIG_ENDIAN == 1
+#define __HIGH 0
+#define __LOW 1
+#else
+#define __HIGH 1
+#define __LOW 0
+#endif
+    };
+} tt_time_counter_t;
+
 ////////////////////////////////////////////////////////////
 // global variants
 ////////////////////////////////////////////////////////////
 
+extern tt_time_counter_t tt_g_time_counter;
+
 ////////////////////////////////////////////////////////////
 // interface declaration
 ////////////////////////////////////////////////////////////
+
+/**
+@fn tt_result_t tt_time_ref_component_init_ntv()
+initialize ts time reference system
+
+@return
+- TT_SUCCESS if initialization succeeds
+- TT_FAIL otherwise
+*/
+extern tt_result_t tt_time_ref_component_init_ntv();
+
+tt_inline tt_s64_t tt_time_ref_ntv()
+{
+#ifdef __TIME_WRAP_AROUND_PROTECT
+    DWORD now = timeGetTime();
+    // - GetTickCount() is of less accuracy(10ms - 15ms)
+    // - QueryPerformanceCounter() performances varies on diff platforms
+    // - timeGetTime() is monotonical
+
+    while (InterlockedCompareExchange(&tt_g_time_counter.lock, 1, 0) != 0)
+        ;
+
+    if (now < tt_g_time_counter.v32[__LOW]) {
+        tt_g_time_counter.v32[__HIGH] += 1;
+    }
+    tt_g_time_counter.v32[__LOW] = now;
+
+    InterlockedCompareExchange(&tt_g_time_counter.lock, 0, 1);
+
+    return (tt_s64_t)tt_g_time_counter.v64;
+#else
+    return (tt_s64_t)timeGetTime();
+#endif
+}
 
 #endif /* __TT_TIME_REFERENCE_NATIVE__ */

@@ -124,7 +124,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_tmrm_basic)
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_result_t ret;
     tt_tmr_t *tmr, *tt;
-    tt_s64_t wait, t1, t2;
+    tt_s64_t t1, t2;
     tt_fiber_t *cfb = tt_current_fiber();
 
     TT_TEST_CASE_ENTER()
@@ -146,7 +146,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_tmrm_basic)
     TT_UT_EQUAL(tt, tmr, "");
     TT_UT_EQUAL(tt->ev, 1, "");
     TT_UT_EQUAL(tt->param, &_n1, "");
-    TT_UT_EXP(labs(tt_time_ref2ms(t2 - t1) - 20) < 5, "");
+    TT_UT_EXP(labs((long)tt_time_ref2ms(t2 - t1) - 20) < 5, "");
     tt = tt_fiber_recv_timer(cfb, TT_FALSE);
     TT_UT_NULL(tt, "");
     tt_tmr_stop(tmr);
@@ -190,7 +190,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_tmrm_basic)
     TT_UT_EQUAL(tt, tmr, "");
     TT_UT_EQUAL(tt->ev, 2, "");
     TT_UT_EQUAL(tt->param, NULL, "");
-    TT_UT_EXP(labs(tt_time_ref2ms(t2 - t1) - 50) < 5, "");
+    TT_UT_EXP(labs((long)tt_time_ref2ms(t2 - t1) - 50) < 5, "");
 
     tt_tmr_destroy(tmr);
 
@@ -210,7 +210,6 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_tmrm_accuracy)
     static tt_tmr_t *__tmrs2[__case2_tn];
     static tt_s64_t __start[__case2_tn];
     int i;
-    tt_s64_t wait;
 
     TT_TEST_CASE_ENTER()
     // test start
@@ -243,7 +242,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_tmrm_accuracy)
         }
         now -= __start[tmr->ev];
         now = tt_time_ref2ms(now);
-        now = labs(now - tmr->delay_ms);
+        now = labs((long)(now - tmr->delay_ms));
         if (now > max_diff) {
             max_diff = now;
         }
@@ -274,7 +273,6 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_tmrm_stable)
     static tt_s64_t __start3[__case3_tn];
 
     int i;
-    tt_s64_t wait;
     tt_s64_t now;
     tt_tmr_t *tmr;
 
@@ -327,7 +325,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_tmrm_stable)
             now = tt_time_ref();
             now -= __start3[tmr->ev];
             now = tt_time_ref2ms(now);
-            now = labs(now - tmr->delay_ms);
+            now = labs((long)(now - tmr->delay_ms));
             if (now > max_diff) {
                 max_diff = now;
             }

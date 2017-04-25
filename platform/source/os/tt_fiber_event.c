@@ -127,8 +127,6 @@ void tt_fiber_send_timer(IN tt_fiber_t *dst, IN tt_tmr_t *tmr)
     tt_dlist_push_tail(&dst->tmr, &tmr->node);
     if (dst->recving) {
         tt_fiber_resume(dst, TT_FALSE);
-    } else if (wait) {
-        tt_fiber_suspend();
     }
 }
 
