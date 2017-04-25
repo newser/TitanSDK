@@ -14,78 +14,66 @@
  * limitations under the License.
  */
 
-/**
-@file tt_time_reference_native_qpc.h
-@brief system time reference APIs
-
-this file specifies system interfaces for time reference
-*/
-
-#ifndef __TT_TIME_REFERENCE_NATIVE_QPC__
-#define __TT_TIME_REFERENCE_NATIVE_QPC__
-
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <tt_basic_type.h>
+#include <tt_time_reference_native.h>
+
+#include <misc/tt_util.h>
 
 ////////////////////////////////////////////////////////////
-// macro definition
+// internal macro
+////////////////////////////////////////////////////////////
+
+// 5 millisecond.
+// default resolution on some platform is not as expected
+#define __TIME_RESOLUTION 5
+
+////////////////////////////////////////////////////////////
+// internal type
 ////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////
-// type definition
+// extern declaration
 ////////////////////////////////////////////////////////////
 
-/**
-@struct tt_time_ref_ctx_ntv_qpc_t
-reference time context
-*/
-typedef struct
-{
-    LARGE_INTEGER freq;
-} tt_time_ref_ctx_ntv_qpc_t;
-
 ////////////////////////////////////////////////////////////
-// global variants
+// global variant
 ////////////////////////////////////////////////////////////
 
-extern tt_time_ref_ctx_ntv_qpc_t tt_g_time_ref_ctx_qpc;
+tt_time_counter_t tt_g_time_counter;
 
 ////////////////////////////////////////////////////////////
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-/**
-@fn tt_result_t tt_time_ref_component_init_ntv_qpc()
-initialize ts time reference system
+////////////////////////////////////////////////////////////
+// interface implementation
+////////////////////////////////////////////////////////////
 
-@return
-- TT_SUCCESS if initialization succeeds
-- TT_FAIL otherwise
-*/
-extern tt_result_t tt_time_ref_component_init_ntv_qpc();
-
-tt_inline tt_s64_t tt_time_ref_ntv_qpc()
+tt_result_t tt_time_ref_component_init_ntv()
 {
-    LARGE_INTEGER now;
+    TIMECAPS tc;
+    UINT resolution;
 
-    // reason to use QueryPerformanceCounter():
-    //  - GetTickCount64() is of less accuracy(10ms - 15ms)
-    //  - timeGetTime() has wrap around issue (overflow each 49 days)
-    QueryPerformanceCounter(&now);
-    return (tt_s64_t)now.QuadPart;
+    tt_g_time_counter.lock = 0;
+    tt_g_time_counter.v32[__LOW] = timeGetTime();
+    tt_g_time_counter.v32[__HIGH] = 0;
+
+    // set time resolution
+    if (timeGetDevCaps(&tc, sizeof(TIMECAPS)) != TIMERR_NOERROR) {
+        TT_WARN("fail to get time resolution");
+        goto out;
+    }
+
+    resolution = TT_MAX(tc.wPeriodMin, __TIME_RESOLUTION);
+    resolution = TT_MIN(resolution, tc.wPeriodMax);
+    if (timeBeginPeriod(resolution) != TIMERR_NOERROR) {
+        TT_WARN("time resolution may not be as expected");
+        goto out;
+    }
+
+out:
+    return TT_SUCCESS;
 }
-
-tt_inline tt_s64_t tt_time_ref2ms_ntv_qpc(IN tt_s64_t ref)
-{
-    return (ref * 1000) / tt_g_time_ref_ctx_qpc.freq.QuadPart;
-}
-
-tt_inline tt_s64_t tt_time_ms2ref_ntv_qpc(IN tt_s64_t ms)
-{
-    return (ms * tt_g_time_ref_ctx_qpc.freq.QuadPart) / 1000;
-}
-
-#endif /* __TT_TIME_REFERENCE_NATIVE_QPC__ */
