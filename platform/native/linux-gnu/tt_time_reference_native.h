@@ -28,11 +28,9 @@ this file specifies system interfaces for time reference
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <log/tt_log.h>
+#include <tt_basic_type.h>
 
-#include <errno.h>
-#include <pthread.h>
-#include <string.h>
+#include <time.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
@@ -74,14 +72,8 @@ extern tt_result_t tt_time_ref_component_init_ntv();
 
 tt_inline tt_s64_t tt_time_ref_ntv()
 {
-    int ret;
     struct timespec now;
-
-    ret = clock_gettime(CLOCK_MONOTONIC, &now);
-    if (ret != 0) {
-        TT_ERROR("fail to get time ref: %d[%s]", ret, strerror(ret));
-    }
-
+    clock_gettime(CLOCK_MONOTONIC, &now);
     return (tt_s64_t)((now.tv_sec * 1000) + (now.tv_nsec / 1000000));
 }
 

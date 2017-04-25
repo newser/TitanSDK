@@ -26,8 +26,6 @@ tt_result_t __ut_fiber(IN void *param)
     tt_test_unit_run(NULL);
     tt_test_unit_list(NULL);
 
-    tt_task_exit(NULL);
-
     return TT_SUCCESS;
 }
 
