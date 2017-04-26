@@ -159,7 +159,10 @@ void tt_task_wait(IN tt_task_t *t)
         tt_free(TT_CONTAINER(node, __task_fiber_t, node));
     }
 
-    // thread is over, timers won't be accessed
+    // - when fiber terminates, it will destroy all its own timers, but
+    //   any timer that is still in the heap will only be marked as orphan,
+    //   so it's possible that here the the timer is still in the tmr mgr
+    // - thread is over, timers won't be accessed
     while ((tmr = tt_tmr_mgr_pop(&t->tmr_mgr)) != NULL) {
         tt_tmr_destroy(tmr);
     }

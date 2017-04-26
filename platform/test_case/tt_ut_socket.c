@@ -30,6 +30,7 @@
 #include <os/tt_fiber_event.h>
 #include <os/tt_task.h>
 #include <time/tt_time_reference.h>
+#include <time/tt_timer.h>
 
 // portlayer header files
 #include <tt_cstd_api.h>
@@ -346,7 +347,9 @@ TT_TEST_CASE("tt_unit_test_sk_addr",
     }
     */
 
-    TT_TEST_ROUTINE_DEFINE(tt_unit_test_sk_addr)
+    static tt_s64_t __max_diff;
+
+TT_TEST_ROUTINE_DEFINE(tt_unit_test_sk_addr)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_sktaddr_t sa;
@@ -1834,6 +1837,7 @@ static tt_result_t __f_svr_udp_ev(IN void *param)
     tt_u32_t n, i;
     tt_sktaddr_t addr;
     tt_fiber_t *cli = tt_fiber_find("cli");
+    tt_tmr_t *tmr, *e_tmr;
 
     s = tt_skt_create(TT_NET_AF_INET6, TT_NET_PROTO_UDP, NULL);
     if (s == NULL) {
@@ -1859,7 +1863,7 @@ static tt_result_t __f_svr_udp_ev(IN void *param)
                                    &n,
                                    &addr,
                                    NULL,
-                                   NULL))) {
+                                   &e_tmr))) {
             __err_line = __LINE__;
             return TT_FAIL;
         }
@@ -1872,6 +1876,36 @@ static tt_result_t __f_svr_udp_ev(IN void *param)
         // TT_INFO("svr recv %d, total: %d", n, __svr_recvd);
         if (n != 0) {
             __svr_r_num++;
+        }
+
+        if (e_tmr != NULL) {
+            tt_s64_t now = tt_time_ref();
+            now -= (tt_s64_t)(tt_uintptr_t)e_tmr->param;
+            now = labs((long)now);
+            now = tt_time_ref2ms(now);
+            if (now > __max_diff) {
+                __max_diff = now;
+            }
+
+            now = tt_rand_u32() % 3;
+            if (now == 0) {
+                tt_tmr_destroy(e_tmr);
+            } else if (now == 1) {
+                tt_tmr_stop(e_tmr);
+            } else {
+                tt_tmr_set_delay(e_tmr, tt_rand_u32() % 5 + 5);
+                tt_tmr_set_param(e_tmr, tt_time_ref());
+                tt_tmr_start(e_tmr);
+            }
+        }
+
+        if (tt_rand_u32() % 100 == 0) {
+            tmr = tt_tmr_create(tt_rand_u32() % 5 + 5, i, tt_time_ref());
+            if (tmr == NULL) {
+                __err_line = __LINE__;
+                return TT_FAIL;
+            }
+            tt_tmr_start(tmr);
         }
 
 #if 1
@@ -1947,6 +1981,7 @@ static tt_result_t __f_cli_udp_ev(IN void *param)
     tt_u32_t n, i;
     tt_sktaddr_t addr;
     tt_fiber_ev_t *fev;
+    tt_tmr_t *tmr, *e_tmr;
 
     s = tt_skt_create(TT_NET_AF_INET6, TT_NET_PROTO_UDP, NULL);
     if (s == NULL) {
@@ -1990,13 +2025,22 @@ static tt_result_t __f_cli_udp_ev(IN void *param)
         /*TT_INFO("                            cli send %d/%d, total: %d",
                 n, len, __cli_sent);*/
 
+        if (tt_rand_u32() % 100 == 0) {
+            tmr = tt_tmr_create(tt_rand_u32() % 5 + 5, i, tt_time_ref());
+            if (tmr == NULL) {
+                __err_line = __LINE__;
+                return TT_FAIL;
+            }
+            tt_tmr_start(tmr);
+        }
+
         if (!TT_OK(tt_skt_recvfrom(s,
                                    buf2,
                                    sizeof(buf2),
                                    &n,
                                    &addr,
                                    &fev,
-                                   NULL))) {
+                                   &e_tmr))) {
             __err_line = __LINE__;
             return TT_FAIL;
         }
@@ -2024,6 +2068,27 @@ static tt_result_t __f_cli_udp_ev(IN void *param)
             tt_fiber_finish(fev);
             if (done) {
                 break;
+            }
+        }
+
+        if (e_tmr != NULL) {
+            tt_s64_t now = tt_time_ref();
+            now -= (tt_s64_t)(tt_uintptr_t)e_tmr->param;
+            now = labs((long)now);
+            now = tt_time_ref2ms(now);
+            if (now > __max_diff) {
+                __max_diff = now;
+            }
+
+            now = tt_rand_u32() % 3;
+            if (now == 0) {
+                tt_tmr_destroy(e_tmr);
+            } else if (now == 1) {
+                tt_tmr_stop(e_tmr);
+            } else {
+                tt_tmr_set_delay(e_tmr, tt_rand_u32() % 5 + 5);
+                tt_tmr_set_param(e_tmr, tt_time_ref());
+                tt_tmr_start(e_tmr);
             }
         }
 
@@ -2068,6 +2133,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_udp_event)
     __svr_sent = 0;
     __svr_recvd = 0;
     tt_atomic_s64_set(&__io_num, 0);
+    __max_diff = 0;
 
     start = tt_time_ref();
     ret = tt_task_run(&t);
@@ -2078,13 +2144,15 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_udp_event)
     TT_UT_EQUAL(__ut_ev_rcv, __ut_ev_snd, "");
 
     dur = tt_time_ref2ms(end - start);
-    TT_RECORD_INFO("udp: %f MB/s, cli sent/recv: %d/%d, svr sent/recv: %d/%d",
-                   ((float)tt_atomic_s64_get(&__io_num) / (1 << 20)) * 1000 /
-                       dur,
-                   __cli_sent,
-                   __cli_recvd,
-                   __svr_sent,
-                   __svr_recvd);
+    TT_RECORD_INFO(
+        "udp: %f MB/s, cli sent/recv: %d/%d, svr sent/recv: %d/%d, time diff: "
+        "%d",
+        ((float)tt_atomic_s64_get(&__io_num) / (1 << 20)) * 1000 / dur,
+        __cli_sent,
+        __cli_recvd,
+        __svr_sent,
+        __svr_recvd,
+        (tt_u32_t)__max_diff);
 
     // test end
     TT_TEST_CASE_LEAVE()

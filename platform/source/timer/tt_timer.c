@@ -52,6 +52,7 @@ tt_tmr_t *tt_tmr_create(IN tt_s64_t delay_ms,
                         IN OPT void *param)
 {
     tt_tmr_t *tmr;
+    tt_fiber_t *cfb;
 
     TT_ASSERT(delay_ms >= 0);
 
@@ -63,8 +64,13 @@ tt_tmr_t *tt_tmr_create(IN tt_s64_t delay_ms,
 
     tmr->delay_ms = delay_ms;
     tmr->absolute_ref = 0;
-    tmr->owner = tt_current_fiber();
-    tt_dnode_init(&tmr->node);
+
+    cfb = tt_current_fiber();
+    TT_ASSERT(cfb != NULL);
+    tmr->owner = cfb;
+    tt_lnode_init(&tmr->node);
+    tt_list_push_tail(&cfb->unexpired_tmr, &tmr->node);
+
     tmr->param = param;
     tmr->mgr = &tmr->owner->fs->thread->task->tmr_mgr;
     tmr->ev = ev;
@@ -77,6 +83,9 @@ tt_tmr_t *tt_tmr_create(IN tt_s64_t delay_ms,
 void tt_tmr_destroy(IN tt_tmr_t *tmr)
 {
     TT_ASSERT(tmr != NULL);
+
+    // does not matter whether it's in expired or unexpired timer list
+    tt_list_remove(&tmr->node);
 
     if (tmr->heap_pos == TT_POS_NULL) {
         // not in heap

@@ -56,8 +56,6 @@ a node in a list
 */
 typedef struct tt_lnode_s
 {
-    __TT_PRIVATE__
-
     struct tt_list_s *lst;
     struct tt_lnode_s *prev;
     struct tt_lnode_s *next;

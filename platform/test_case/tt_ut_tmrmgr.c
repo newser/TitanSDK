@@ -23,6 +23,7 @@
 
 #include <os/tt_fiber.h>
 #include <os/tt_fiber_event.h>
+#include <os/tt_task.h>
 #include <os/tt_thread.h>
 #include <time/tt_time_reference.h>
 #include <time/tt_timer.h>
@@ -50,6 +51,7 @@
 
 // === routine declarations ================
 TT_TEST_ROUTINE_DECLARE(tt_unit_test_tmrm_basic)
+TT_TEST_ROUTINE_DECLARE(tt_unit_test_tmrm_fiber)
 TT_TEST_ROUTINE_DECLARE(tt_unit_test_tmrm_accuracy)
 TT_TEST_ROUTINE_DECLARE(tt_unit_test_tmrm_stable)
 // =========================================
@@ -66,6 +68,15 @@ TT_TEST_CASE("tt_unit_test_tmrm_basic",
              NULL,
              NULL)
 ,
+
+    TT_TEST_CASE("tt_unit_test_tmrm_fiber",
+                 "testing tmr mgr with fiber",
+                 tt_unit_test_tmrm_fiber,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL),
 
     TT_TEST_CASE("tt_unit_test_tmrm_accuracy",
                  "testing tmr mgr accuracy",
@@ -99,7 +110,7 @@ TT_TEST_CASE("tt_unit_test_tmrm_basic",
     ////////////////////////////////////////////////////////////
 
     /*
-    TT_TEST_ROUTINE_DEFINE(name)
+    TT_TEST_ROUTINE_DEFINE(tt_unit_test_tmrm_fiber)
     {
         //tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
 
@@ -129,6 +140,26 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_tmrm_basic)
 
     TT_TEST_CASE_ENTER()
     // test start
+
+    // create, destroy
+    tmr = tt_tmr_create(20, 1, &_n1);
+    TT_UT_NOT_EQUAL(tmr, NULL, "");
+    tt_tmr_destroy(tmr);
+
+    // create, start, destroy
+    tmr = tt_tmr_create(20, 1, &_n1);
+    TT_UT_NOT_EQUAL(tmr, NULL, "");
+    ret = tt_tmr_start(tmr);
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+    tt_tmr_destroy(tmr);
+
+    // create, start, stop, destroy
+    tmr = tt_tmr_create(20, 1, &_n1);
+    TT_UT_NOT_EQUAL(tmr, NULL, "");
+    ret = tt_tmr_start(tmr);
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+    tt_tmr_stop(tmr);
+    tt_tmr_destroy(tmr);
 
     // create timer
     tmr = tt_tmr_create(20, 1, &_n1);
@@ -193,6 +224,149 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_tmrm_basic)
     TT_UT_EXP(labs((long)tt_time_ref2ms(t2 - t1) - 50) < 5, "");
 
     tt_tmr_destroy(tmr);
+
+    // test end
+    TT_TEST_CASE_LEAVE()
+}
+
+tt_result_t __fb_tmr_1(IN void *param)
+{
+    tt_tmr_t *t = tt_tmr_create(1000, 0, NULL);
+
+    return TT_SUCCESS;
+}
+
+tt_result_t __fb_tmr_2(IN void *param)
+{
+    tt_tmr_t *t = tt_tmr_create(1000, 0, NULL);
+
+    tt_tmr_destroy(t);
+    return TT_SUCCESS;
+}
+
+tt_result_t __fb_tmr_3(IN void *param)
+{
+    tt_tmr_t *t = tt_tmr_create(1000, 0, NULL);
+
+    tt_tmr_start(t);
+    return TT_SUCCESS;
+}
+
+tt_result_t __fb_tmr_4(IN void *param)
+{
+    tt_tmr_t *t = tt_tmr_create(100, 0, NULL);
+
+    tt_tmr_stop(t);
+    return TT_SUCCESS;
+}
+
+tt_result_t __fb_tmr_5(IN void *param)
+{
+    tt_tmr_t *t = tt_tmr_create(100, 0, NULL), *e;
+
+    tt_tmr_start(t);
+    e = tt_fiber_recv_timer(tt_current_fiber(), TT_TRUE);
+    TT_ASSERT(e == t);
+    tt_tmr_stop(t);
+
+    return TT_SUCCESS;
+}
+
+tt_result_t __fb_tmr_6(IN void *param)
+{
+    tt_tmr_t *t = tt_tmr_create(100, 0, NULL), *e;
+
+    tt_tmr_start(t);
+    e = tt_fiber_recv_timer(tt_current_fiber(), TT_TRUE);
+    TT_ASSERT(e == t);
+    tt_tmr_set_delay(e, 1000);
+    tt_tmr_start(e);
+
+    return TT_SUCCESS;
+}
+
+TT_TEST_ROUTINE_DEFINE(tt_unit_test_tmrm_fiber)
+{
+    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+    tt_task_t t;
+    tt_result_t ret;
+    tt_u32_t n, i;
+
+    TT_TEST_CASE_ENTER()
+    // test start
+
+    ret = tt_task_create(&t, NULL);
+    TT_UT_SUCCESS(ret, "");
+    tt_task_add_fiber(&t, "f1", __fb_tmr_1, NULL, NULL);
+    tt_task_run(&t);
+    tt_task_wait(&t);
+    TT_INFO("timer fiber 1");
+
+    ret = tt_task_create(&t, NULL);
+    TT_UT_SUCCESS(ret, "");
+    tt_task_add_fiber(&t, "f1", __fb_tmr_2, NULL, NULL);
+    tt_task_run(&t);
+    tt_task_wait(&t);
+    TT_INFO("timer fiber 2");
+
+    ret = tt_task_create(&t, NULL);
+    TT_UT_SUCCESS(ret, "");
+    tt_task_add_fiber(&t, "f1", __fb_tmr_3, NULL, NULL);
+    tt_task_run(&t);
+    tt_task_wait(&t);
+    TT_INFO("timer fiber 3");
+
+    ret = tt_task_create(&t, NULL);
+    TT_UT_SUCCESS(ret, "");
+    tt_task_add_fiber(&t, "f1", __fb_tmr_4, NULL, NULL);
+    tt_task_run(&t);
+    tt_task_wait(&t);
+    TT_INFO("timer fiber 4");
+
+    ret = tt_task_create(&t, NULL);
+    TT_UT_SUCCESS(ret, "");
+    tt_task_add_fiber(&t, "f1", __fb_tmr_5, NULL, NULL);
+    tt_task_run(&t);
+    tt_task_wait(&t);
+    TT_INFO("timer fiber 5");
+
+    ret = tt_task_create(&t, NULL);
+    TT_UT_SUCCESS(ret, "");
+    tt_task_add_fiber(&t, "f1", __fb_tmr_6, NULL, NULL);
+    tt_task_run(&t);
+    tt_task_wait(&t);
+    TT_INFO("timer fiber 6");
+
+    ret = tt_task_create(&t, NULL);
+    TT_UT_SUCCESS(ret, "");
+
+    n = tt_rand_u32() % 10;
+    for (i = 0; i < n; ++i) {
+        tt_task_add_fiber(&t, NULL, __fb_tmr_1, NULL, NULL);
+    }
+    n = tt_rand_u32() % 10;
+    for (i = 0; i < n; ++i) {
+        tt_task_add_fiber(&t, NULL, __fb_tmr_2, NULL, NULL);
+    }
+    n = tt_rand_u32() % 10;
+    for (i = 0; i < n; ++i) {
+        tt_task_add_fiber(&t, NULL, __fb_tmr_3, NULL, NULL);
+    }
+    n = tt_rand_u32() % 10;
+    for (i = 0; i < n; ++i) {
+        tt_task_add_fiber(&t, NULL, __fb_tmr_4, NULL, NULL);
+    }
+    n = tt_rand_u32() % 10;
+    for (i = 0; i < n; ++i) {
+        tt_task_add_fiber(&t, NULL, __fb_tmr_5, NULL, NULL);
+    }
+    n = tt_rand_u32() % 10;
+    for (i = 0; i < n; ++i) {
+        tt_task_add_fiber(&t, NULL, __fb_tmr_6, NULL, NULL);
+    }
+    tt_task_run(&t);
+    tt_task_wait(&t);
+    TT_INFO("timer fiber N");
 
     // test end
     TT_TEST_CASE_LEAVE()

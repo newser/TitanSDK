@@ -93,8 +93,8 @@ tt_test_unit_t *tt_g_test_unit_list[TEST_UNIT_NUM] = {
 
 #if 0
     &TT_MAKE_TEST_UNIT_NAME(TEST_UNIT_TIME_REF),
-    &TT_MAKE_TEST_UNIT_NAME(TEST_UNIT_TIMER_MGR),
 #endif
+    &TT_MAKE_TEST_UNIT_NAME(TEST_UNIT_TIMER_MGR),
 
 #if 0
     &TT_MAKE_TEST_UNIT_NAME(TEST_UNIT_MISC),
@@ -106,9 +106,9 @@ tt_test_unit_t *tt_g_test_unit_list[TEST_UNIT_NUM] = {
 
 #if 0
     &TT_MAKE_TEST_UNIT_NAME(TEST_UNIT_FS),
+    &TT_MAKE_TEST_UNIT_NAME(TEST_UNIT_IPC),
     &TT_MAKE_TEST_UNIT_NAME(TEST_UNIT_SOCKET),
 #endif
-    &TT_MAKE_TEST_UNIT_NAME(TEST_UNIT_IPC),
 };
 
 ////////////////////////////////////////////////////////////

@@ -20,6 +20,7 @@
 
 #include <os/tt_fiber_event.h>
 
+#include <algorithm/tt_list.h>
 #include <memory/tt_memory_alloc.h>
 #include <os/tt_fiber.h>
 #include <time/tt_timer.h>
@@ -124,7 +125,9 @@ void tt_fiber_finish(IN tt_fiber_ev_t *fev)
 
 void tt_fiber_send_timer(IN tt_fiber_t *dst, IN tt_tmr_t *tmr)
 {
-    tt_dlist_push_tail(&dst->tmr, &tmr->node);
+    TT_ASSERT_FEV(tmr->node.lst == &dst->unexpired_tmr);
+    tt_list_remove(&tmr->node);
+    tt_list_push_tail(&dst->expired_tmr, &tmr->node);
     if (dst->recving) {
         tt_fiber_resume(dst, TT_FALSE);
     }
@@ -132,11 +135,12 @@ void tt_fiber_send_timer(IN tt_fiber_t *dst, IN tt_tmr_t *tmr)
 
 tt_tmr_t *tt_fiber_recv_timer(IN tt_fiber_t *current, IN tt_bool_t wait)
 {
-    tt_dnode_t *node;
+    tt_lnode_t *node;
 
 again:
-    node = tt_dlist_pop_head(&current->tmr);
+    node = tt_list_pop_head(&current->expired_tmr);
     if (node != NULL) {
+        tt_list_push_tail(&current->unexpired_tmr, node);
         return TT_CONTAINER(node, tt_tmr_t, node);
     } else if (wait) {
         current->recving = TT_TRUE;

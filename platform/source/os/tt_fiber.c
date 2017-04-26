@@ -193,7 +193,8 @@ tt_fiber_t *tt_fiber_create(IN OPT const tt_char_t *name,
     fb->param = param;
     fb->fs = fs;
     tt_dlist_init(&fb->ev);
-    tt_dlist_init(&fb->tmr);
+    tt_list_init(&fb->unexpired_tmr);
+    tt_list_init(&fb->expired_tmr);
 
     if (!TT_OK(tt_fiber_create_wrap(&fb->wrap_fb, attr->stack_size))) {
         tt_free(fb);
@@ -213,6 +214,7 @@ tt_fiber_t *tt_fiber_create(IN OPT const tt_char_t *name,
 void tt_fiber_destroy(IN tt_fiber_t *fb)
 {
     tt_dnode_t *node;
+    tt_lnode_t *lnode;
 
     TT_ASSERT(fb != NULL);
 
@@ -220,8 +222,11 @@ void tt_fiber_destroy(IN tt_fiber_t *fb)
         // howto??
     }
 
-    while ((node = tt_dlist_pop_head(&fb->tmr)) != NULL) {
-        tt_tmr_destroy(TT_CONTAINER(node, tt_tmr_t, node));
+    while ((lnode = tt_list_pop_head(&fb->unexpired_tmr)) != NULL) {
+        tt_tmr_destroy(TT_CONTAINER(lnode, tt_tmr_t, node));
+    }
+    while ((lnode = tt_list_pop_head(&fb->expired_tmr)) != NULL) {
+        tt_tmr_destroy(TT_CONTAINER(lnode, tt_tmr_t, node));
     }
 
     tt_fiber_destroy_wrap(&fb->wrap_fb);

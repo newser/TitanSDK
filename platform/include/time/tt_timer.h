@@ -35,7 +35,7 @@ this file specifies interfaces of timer
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <algorithm/tt_double_linked_list.h>
+#include <algorithm/tt_list.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
@@ -62,7 +62,7 @@ typedef struct tt_tmr_s
     tt_s64_t delay_ms;
     tt_s64_t absolute_ref;
     struct tt_fiber_s *owner;
-    tt_dnode_t node;
+    tt_lnode_t node;
     void *param;
     struct tt_tmr_mgr_s *mgr;
     tt_u32_t ev;
