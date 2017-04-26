@@ -541,7 +541,7 @@ again:
         if (ipc_send->pos < ipc_send->len) {
             goto again;
         } else {
-            TT_SAFE_ASSIGN(ipc_send->sent ,ipc_send->pos);
+            TT_SAFE_ASSIGN(ipc_send->sent, ipc_send->pos);
             ipc_send->result = TT_SUCCESS;
             return TT_TRUE;
         }
@@ -554,7 +554,7 @@ again:
 
     // error
     if (ipc_send->pos > 0) {
-        TT_SAFE_ASSIGN(ipc_send->sent ,ipc_send->pos);
+        TT_SAFE_ASSIGN(ipc_send->sent, ipc_send->pos);
         ipc_send->result = TT_SUCCESS;
     } else if ((errno == ECONNRESET) || (errno == EPIPE)
                // || (errno == ENETDOWN)

@@ -107,7 +107,7 @@ tt_result_t tt_ipc_recv_ev(IN tt_ipc_t *ipc,
         return TT_FAIL;
     }
     tt_buf_get_wptr(buf, &p, &len);
-    while (TT_OK(result = tt_ipc_recv(ipc, p, len, &recvd, p_fev))) {
+    while (TT_OK(result = tt_ipc_recv(ipc, p, len, &recvd, p_fev, NULL))) {
         tt_buf_inc_wp(buf, recvd);
 
         if ((p_pev != NULL) && ((*p_pev = __parse_ipc_ev(buf)) != NULL)) {

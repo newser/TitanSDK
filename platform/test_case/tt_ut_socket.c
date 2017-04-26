@@ -860,7 +860,8 @@ static tt_result_t __f_svr(IN void *param)
         return TT_FAIL;
     }
 
-    while ((ret = tt_skt_recv(new_s, buf, sizeof(buf), &n, NULL)) != TT_END) {
+    while ((ret = tt_skt_recv(new_s, buf, sizeof(buf), &n, NULL, NULL)) !=
+           TT_END) {
         tt_u32_t total = n;
 #ifdef __TCP_DETAIL
         if (n < sizeof(buf)) {
@@ -873,7 +874,7 @@ static tt_result_t __f_svr(IN void *param)
         blocked in tt_skt_send()
         */
         while (total < sizeof(buf)) {
-            if (!TT_OK(tt_skt_recv(new_s, buf, sizeof(buf), &n, NULL))) {
+            if (!TT_OK(tt_skt_recv(new_s, buf, sizeof(buf), &n, NULL, NULL))) {
                 __err_line = __LINE__;
                 return TT_FAIL;
             }
@@ -913,7 +914,7 @@ static tt_result_t __f_svr(IN void *param)
     TT_INFO("server shutdown");
 #endif
 
-    if (tt_skt_recv(new_s, buf, sizeof(buf), &n, NULL) != TT_END) {
+    if (tt_skt_recv(new_s, buf, sizeof(buf), &n, NULL, NULL) != TT_END) {
         __err_line = __LINE__;
         return TT_FAIL;
     }
@@ -967,7 +968,7 @@ static tt_result_t __f_cli(IN void *param)
 
         total = 0;
         while (total < sizeof(buf)) {
-            if (!TT_OK(tt_skt_recv(s, buf, sizeof(buf), &n, NULL))) {
+            if (!TT_OK(tt_skt_recv(s, buf, sizeof(buf), &n, NULL, NULL))) {
                 __err_line = __LINE__;
                 return TT_FAIL;
             }
@@ -991,7 +992,7 @@ static tt_result_t __f_cli(IN void *param)
     TT_INFO("client shutdown");
 #endif
 
-    while (tt_skt_recv(s, buf, sizeof(buf), &n, NULL) != TT_END) {
+    while (tt_skt_recv(s, buf, sizeof(buf), &n, NULL, NULL) != TT_END) {
     }
 #ifdef __TCP_DETAIL
     TT_INFO("client recv end");
@@ -1067,7 +1068,8 @@ static tt_result_t __f_svr_tcp6_close(IN void *param)
         return TT_FAIL;
     }
 
-    while (((ret = tt_skt_recv(new_s, buf, sizeof(buf), &n, NULL)) != TT_END) &&
+    while (((ret = tt_skt_recv(new_s, buf, sizeof(buf), &n, NULL, NULL)) !=
+            TT_END) &&
            TT_OK(tt_skt_send(new_s, buf, sizeof(buf), &n)) &&
            (tt_rand_u32() % 20 != 17)) {
     }
@@ -1098,7 +1100,7 @@ static tt_result_t __f_cli_tcp6_close(IN void *param)
     }
 
     while (TT_OK(tt_skt_send(s, buf, sizeof(buf), &n)) &&
-           TT_OK(tt_skt_recv(s, buf, sizeof(buf), &n, NULL)) &&
+           TT_OK(tt_skt_recv(s, buf, sizeof(buf), &n, NULL, NULL)) &&
            (tt_rand_u32() % 20 != 19)) {
     }
 
@@ -1159,7 +1161,13 @@ static tt_result_t __f_svr_udp(IN void *param)
         tt_u32_t len, k;
         tt_u8_t c;
 
-        if (!TT_OK(tt_skt_recvfrom(s, buf2, sizeof(buf2), &n, &addr, NULL))) {
+        if (!TT_OK(tt_skt_recvfrom(s,
+                                   buf2,
+                                   sizeof(buf2),
+                                   &n,
+                                   &addr,
+                                   NULL,
+                                   NULL))) {
             __err_line = __LINE__;
             return TT_FAIL;
         }
@@ -1246,7 +1254,13 @@ static tt_result_t __f_cli_udp(IN void *param)
             return TT_FAIL;
         }
 
-        if (!TT_OK(tt_skt_recvfrom(s, buf2, sizeof(buf2), &n, &addr, NULL))) {
+        if (!TT_OK(tt_skt_recvfrom(s,
+                                   buf2,
+                                   sizeof(buf2),
+                                   &n,
+                                   &addr,
+                                   NULL,
+                                   NULL))) {
             __err_line = __LINE__;
             return TT_FAIL;
         }
@@ -1318,7 +1332,7 @@ static tt_result_t __f_svr_acc_t4(IN void *param)
     tt_u8_t buf2[1000], c;
     tt_u32_t n, i, len;
 
-    if (!TT_OK(tt_skt_recv(new_s, buf2, sizeof(buf2), &n, NULL))) {
+    if (!TT_OK(tt_skt_recv(new_s, buf2, sizeof(buf2), &n, NULL, NULL))) {
         __err_line = __LINE__;
         return TT_FAIL;
     }
@@ -1350,7 +1364,7 @@ static tt_result_t __f_svr_acc_t4(IN void *param)
         return TT_FAIL;
     }
 
-    if (tt_skt_recv(new_s, buf2, sizeof(buf2), &n, NULL) != TT_END) {
+    if (tt_skt_recv(new_s, buf2, sizeof(buf2), &n, NULL, NULL) != TT_END) {
         __err_line = __LINE__;
         return TT_FAIL;
     }
@@ -1457,7 +1471,7 @@ static tt_result_t __f_cli_t4(IN void *param)
             return TT_FAIL;
         }
 
-        if (!TT_OK(tt_skt_recv(s, buf, sizeof(buf), &n, NULL))) {
+        if (!TT_OK(tt_skt_recv(s, buf, sizeof(buf), &n, NULL, NULL))) {
             __err_line = __LINE__;
             return TT_FAIL;
         }
@@ -1477,7 +1491,7 @@ static tt_result_t __f_cli_t4(IN void *param)
         }
 #endif
 
-        if (tt_skt_recv(s, buf, sizeof(buf), &n, NULL) != TT_END) {
+        if (tt_skt_recv(s, buf, sizeof(buf), &n, NULL, NULL) != TT_END) {
             __err_line = __LINE__;
             return TT_FAIL;
         }
@@ -1570,7 +1584,8 @@ static tt_result_t __f_svr_ev(IN void *param)
         return TT_FAIL;
     }
 
-    while ((ret = tt_skt_recv(new_s, buf, sizeof(buf), &n, &fev)) != TT_END) {
+    while ((ret = tt_skt_recv(new_s, buf, sizeof(buf), &n, &fev, NULL)) !=
+           TT_END) {
         tt_u32_t total = n;
 #ifdef __TCP_DETAIL
         if (n < sizeof(buf) && n != 0) {
@@ -1598,7 +1613,7 @@ static tt_result_t __f_svr_ev(IN void *param)
         blocked in tt_skt_send()
         */
         while (total < sizeof(buf)) {
-            ret = tt_skt_recv(new_s, buf, sizeof(buf), &n, &fev);
+            ret = tt_skt_recv(new_s, buf, sizeof(buf), &n, &fev, NULL);
             if (!TT_OK(ret)) {
                 if (ret == TT_END) {
                     break;
@@ -1654,7 +1669,7 @@ static tt_result_t __f_svr_ev(IN void *param)
     TT_INFO("server shutdown");
 #endif
 
-    if (tt_skt_recv(new_s, buf, sizeof(buf), &n, NULL) != TT_END) {
+    if (tt_skt_recv(new_s, buf, sizeof(buf), &n, NULL, NULL) != TT_END) {
         __err_line = __LINE__;
         return TT_FAIL;
     }
@@ -1722,7 +1737,7 @@ static tt_result_t __f_cli_ev(IN void *param)
 
         total = 0;
         while (total < sizeof(buf)) {
-            if (!TT_OK(tt_skt_recv(s, buf, sizeof(buf), &n, NULL))) {
+            if (!TT_OK(tt_skt_recv(s, buf, sizeof(buf), &n, NULL, NULL))) {
                 __err_line = __LINE__;
                 return TT_FAIL;
             }
@@ -1746,7 +1761,7 @@ static tt_result_t __f_cli_ev(IN void *param)
     TT_INFO("client shutdown");
 #endif
 
-    while (tt_skt_recv(s, buf, sizeof(buf), &n, NULL) != TT_END) {
+    while (tt_skt_recv(s, buf, sizeof(buf), &n, NULL, NULL) != TT_END) {
     }
 #ifdef __TCP_DETAIL
     TT_INFO("client recv end");
@@ -1838,7 +1853,13 @@ static tt_result_t __f_svr_udp_ev(IN void *param)
         tt_u32_t len, k;
         tt_u8_t c;
 
-        if (!TT_OK(tt_skt_recvfrom(s, buf2, sizeof(buf2), &n, &addr, NULL))) {
+        if (!TT_OK(tt_skt_recvfrom(s,
+                                   buf2,
+                                   sizeof(buf2),
+                                   &n,
+                                   &addr,
+                                   NULL,
+                                   NULL))) {
             __err_line = __LINE__;
             return TT_FAIL;
         }
@@ -1969,7 +1990,13 @@ static tt_result_t __f_cli_udp_ev(IN void *param)
         /*TT_INFO("                            cli send %d/%d, total: %d",
                 n, len, __cli_sent);*/
 
-        if (!TT_OK(tt_skt_recvfrom(s, buf2, sizeof(buf2), &n, &addr, &fev))) {
+        if (!TT_OK(tt_skt_recvfrom(s,
+                                   buf2,
+                                   sizeof(buf2),
+                                   &n,
+                                   &addr,
+                                   &fev,
+                                   NULL))) {
             __err_line = __LINE__;
             return TT_FAIL;
         }

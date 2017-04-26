@@ -150,6 +150,7 @@ TT_TEST_CASE("tt_unit_test_ipc_basic",
     */
 
     static tt_u32_t __err_line;
+static tt_s64_t __max_diff;
 
 tt_result_t __ipc_cli_1(IN void *param)
 {
@@ -196,6 +197,7 @@ tt_result_t __ipc_cli_1(IN void *param)
                                        rbuf + len,
                                        sizeof(rbuf) - len,
                                        &n,
+                                       NULL,
                                        NULL))) {
                     TT_INFO_IPC("err %d", __LINE__);
                     __err_line = __LINE__;
@@ -248,6 +250,7 @@ tt_result_t __ipc_svr_1(IN void *param)
                                         rbuf + len,
                                         sizeof(rbuf) - len,
                                         &n,
+                                        NULL,
                                         NULL)))) {
             len += n;
             if (len < sizeof(rbuf)) {
@@ -340,9 +343,12 @@ static tt_result_t __ipc_svr_acc_2(IN void *param)
 
     rn = 0;
     (void)rn;
-    while (TT_OK(
-        (ret =
-             tt_ipc_recv(new_ipc, rbuf + len, sizeof(rbuf) - len, &n, NULL)))) {
+    while (TT_OK((ret = tt_ipc_recv(new_ipc,
+                                    rbuf + len,
+                                    sizeof(rbuf) - len,
+                                    &n,
+                                    NULL,
+                                    NULL)))) {
         len += n;
         if (len < sizeof(rbuf)) {
             continue;
@@ -515,7 +521,7 @@ tt_result_t __ipc_cli_oneshot(IN void *param)
 
         len = 0;
         while (len < sizeof(rbuf)) {
-            if (!TT_OK(tt_ipc_recv(ipc, rbuf, sizeof(rbuf), &n, NULL))) {
+            if (!TT_OK(tt_ipc_recv(ipc, rbuf, sizeof(rbuf), &n, NULL, NULL))) {
                 __err_line = __LINE__;
                 return TT_FAIL;
             }
@@ -592,6 +598,7 @@ tt_result_t __ipc_svr_fev(IN void *param)
     tt_result_t ret;
     tt_fiber_ev_t *fev;
     tt_fiber_t *cfb = tt_current_fiber();
+    tt_tmr_t *tmr, *e_tmr;
 
     (void)rn;
 
@@ -611,13 +618,21 @@ tt_result_t __ipc_svr_fev(IN void *param)
             return TT_FAIL;
         }
 
+        tmr = tt_tmr_create(tt_rand_u32() % 5 + 5, cn, new_ipc);
+        if (tmr == NULL) {
+            __err_line = __LINE__;
+            return TT_FAIL;
+        }
+        tt_tmr_start(tmr);
+
         rn = 0;
         len = 0;
         while (TT_OK((ret = tt_ipc_recv(new_ipc,
                                         rbuf + len,
                                         sizeof(rbuf) - len,
                                         &n,
-                                        &fev)))) {
+                                        &fev,
+                                        &e_tmr)))) {
             if (fev != NULL) {
                 if (fev->src != NULL) {
                     if (fev->ev != 0xaabbccdd) {
@@ -631,6 +646,17 @@ tt_result_t __ipc_svr_fev(IN void *param)
                 }
                 ++__ipc_fev_num;
                 tt_fiber_finish(fev);
+            }
+
+            if (e_tmr != NULL) {
+                tt_s64_t now = tt_time_ref();
+                now -= e_tmr->absolute_ref;
+                now -= e_tmr->delay_ms;
+                now = labs((long)now);
+                now = tt_time_ref2ms(now);
+                if (now > __max_diff) {
+                    __max_diff = now;
+                }
             }
 
             len += n;
@@ -729,6 +755,8 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_ipc_fiber_ev)
     tt_fcreate(__IPC_PATH, NULL);
 #endif
 
+    __max_diff = 0;
+
     ret = tt_task_create(&t, NULL);
     TT_UT_SUCCESS(ret, "");
 
@@ -759,6 +787,8 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_ipc_fiber_ev)
 
     TT_UT_EQUAL(__err_line, 0, "");
     TT_UT_EQUAL(__ipc_fev_num, __fiber_num * __ev_per_fiber, "");
+    TT_UT_EXP(__max_diff < 10, "");
+    TT_RECORD_INFO("max diff: %d", __max_diff);
 
     // test end
     TT_TEST_CASE_LEAVE()
@@ -817,8 +847,11 @@ tt_result_t __ipc_cli_pev(IN void *param)
             }
             ___ipc_cli_sent += sizeof(tt_ipc_ev_t) + n;
             TT_INFO_IPC("[%d:%d] cli sent ev %d, total: %d",
-                        cn, rn, n, ___ipc_cli_sent);
-            
+                        cn,
+                        rn,
+                        n,
+                        ___ipc_cli_sent);
+
             if (TT_OK((ret = tt_ipc_recv_ev(ipc, &pev, NULL)))) {
                 if (pev != NULL) {
                     tt_u8_t *pev_data = TT_IPC_EV_CAST(pev, tt_u8_t);
@@ -826,7 +859,10 @@ tt_result_t __ipc_cli_pev(IN void *param)
 
                     __ipc_cli_recvd += sizeof(tt_ipc_ev_t) + pev->ev;
                     TT_INFO_IPC("[%d:%d] cli recv ev %d, total",
-                                cn, rn, pev->ev, __ipc_cli_recvd);
+                                cn,
+                                rn,
+                                pev->ev,
+                                __ipc_cli_recvd);
                     for (i = 0; i < pev->size; ++i) {
                         if (pev_data[i] != pev->size) {
                             __err_line = __LINE__;
@@ -896,7 +932,10 @@ tt_result_t __ipc_svr_pev_fev(IN void *param)
 
                 __ipc_svr_recvd += sizeof(tt_ipc_ev_t) + pev->size;
                 TT_INFO_IPC("[%d:%d] svr recv ipc ev %x, total: %d",
-                            cn, rn, pev->ev, __ipc_svr_recvd);
+                            cn,
+                            rn,
+                            pev->ev,
+                            __ipc_svr_recvd);
                 TT_ASSERT(pev->ev == pev->size);
                 for (i = 0; i < pev->size; ++i) {
                     pev_data[i] = pev->ev;
@@ -919,7 +958,10 @@ tt_result_t __ipc_svr_pev_fev(IN void *param)
             }
             __ipc_svr_sent += sizeof(tt_ipc_ev_t) + pev->size;
             TT_INFO_IPC("[%d:%d] svr sent ev %d, total: %d",
-                        cn, rn, n, __ipc_svr_sent);
+                        cn,
+                        rn,
+                        n,
+                        __ipc_svr_sent);
         }
 // client may already disconnect
 #if 0

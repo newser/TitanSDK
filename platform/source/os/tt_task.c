@@ -21,6 +21,7 @@
 #include <os/tt_task.h>
 
 #include <memory/tt_memory_alloc.h>
+#include <time/tt_timer.h>
 
 ////////////////////////////////////////////////////////////
 // internal macro
@@ -146,6 +147,7 @@ void tt_task_exit(IN OPT tt_task_t *t)
 void tt_task_wait(IN tt_task_t *t)
 {
     tt_snode_t *node;
+    tt_tmr_t *tmr;
 
     TT_ASSERT(t != NULL);
 
@@ -157,6 +159,10 @@ void tt_task_wait(IN tt_task_t *t)
         tt_free(TT_CONTAINER(node, __task_fiber_t, node));
     }
 
+    // thread is over, timers won't be accessed
+    while ((tmr = tt_tmr_mgr_pop(&t->tmr_mgr)) != NULL) {
+        tt_tmr_destroy(tmr);
+    }
     tt_tmr_mgr_destroy(&t->tmr_mgr);
 
     tt_io_poller_destroy(&t->iop);

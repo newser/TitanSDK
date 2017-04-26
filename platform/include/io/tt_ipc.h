@@ -41,6 +41,7 @@ this file defines IPC APIs
 ////////////////////////////////////////////////////////////
 
 struct tt_fiber_ev_s;
+struct tt_tmr_s;
 
 typedef struct tt_ipc_attr_s
 {
@@ -109,10 +110,11 @@ tt_inline tt_result_t tt_ipc_recv(IN tt_ipc_t *ipc,
                                   OUT tt_u8_t *buf,
                                   IN tt_u32_t len,
                                   OUT OPT tt_u32_t *recvd,
-                                  OUT OPT struct tt_fiber_ev_s **fev)
+                                  OUT OPT struct tt_fiber_ev_s **p_fev,
+                                  OUT OPT struct tt_tmr_s **p_tmr)
 {
     if (len != 0) {
-        return tt_ipc_recv_ntv(&ipc->sys_ipc, buf, len, recvd, fev);
+        return tt_ipc_recv_ntv(&ipc->sys_ipc, buf, len, recvd, p_fev, p_tmr);
     } else {
         TT_ERROR("ipc recv buf len can not be 0");
         return TT_FAIL;
