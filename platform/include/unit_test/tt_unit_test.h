@@ -120,27 +120,20 @@ typedef enum {
     TEST_UNIT_LIST,
     TEST_UNIT_QUEUE,
     TEST_UNIT_SPIN_LOCK,
-    TEST_UNIT_BASIC_ALG, // id for tt_basic_algorithm
     TEST_UNIT_THREAD, // id for tt_thread
     TEST_UNIT_MUTEX, // id for ts mutex
     TEST_UNIT_SEM, // id for ts semaphore
     TEST_UNIT_RWLOCK, // id for ts rwlock
-    TEST_UNIT_MEMOS, // id for ts memory os
     TEST_UNIT_SLAB, // id for ts memory cache slab
     TEST_UNIT_MISC, // id for misc
-    TEST_UNIT_STAMP_PTR, // id for stampped pointer
     TEST_UNIT_MEMPOOL, // id for memory pool
-    TEST_UNIT_PGCENTER,
-    TEST_UNIT_BINCENTER,
-    TEST_UNIT_THREAD_CACHE,
     TEST_UNIT_TIME_REF,
     TEST_UNIT_HEAP,
     TEST_UNIT_VECTOR,
     TEST_UNIT_MAP,
     TEST_UNIT_FS,
-    TEST_UNIT_TIMER_MGR,
+    TEST_UNIT_TIMER,
     TEST_UNIT_SOCKET,
-    TEST_UNIT_EVPOLLER,
     TEST_UNIT_BUF,
     TEST_UNIT_IPC,
     TEST_UNIT_CHARSET,

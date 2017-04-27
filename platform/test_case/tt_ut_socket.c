@@ -347,7 +347,8 @@ TT_TEST_CASE("tt_unit_test_sk_addr",
     }
     */
 
-    static tt_s64_t __max_diff;
+    static tt_s64_t __ut_skt_max_diff;
+static tt_u32_t __skt_svr_tmr, __skt_cli_tmr;
 
 TT_TEST_ROUTINE_DEFINE(tt_unit_test_sk_addr)
 {
@@ -830,7 +831,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_bind_basic)
     TT_TEST_CASE_LEAVE()
 }
 
-static tt_u32_t __err_line;
+static tt_u32_t __ut_skt_err_line;
 static tt_atomic_s64_t __io_num;
 static tt_u32_t __svr_sent, __svr_recvd, __cli_recvd, __cli_sent;
 
@@ -840,30 +841,32 @@ static tt_result_t __f_svr(IN void *param)
     tt_u8_t buf[1 << 14] = "6789";
     tt_u32_t n;
     tt_result_t ret;
+    tt_fiber_ev_t *fev;
+    tt_tmr_t *tmr;
 
     s = tt_skt_create(TT_NET_AF_INET, TT_NET_PROTO_TCP, NULL);
     if (s == NULL) {
-        __err_line = __LINE__;
+        __ut_skt_err_line = __LINE__;
         return TT_FAIL;
     }
 
     if (!TT_OK(tt_skt_bind_p(s, TT_NET_AF_INET, "127.0.0.1", 55556))) {
-        __err_line = __LINE__;
+        __ut_skt_err_line = __LINE__;
         return TT_FAIL;
     }
 
     if (!TT_OK(tt_skt_listen(s))) {
-        __err_line = __LINE__;
+        __ut_skt_err_line = __LINE__;
         return TT_FAIL;
     }
 
     new_s = tt_skt_accept(s, NULL, NULL);
     if (new_s == NULL) {
-        __err_line = __LINE__;
+        __ut_skt_err_line = __LINE__;
         return TT_FAIL;
     }
 
-    while ((ret = tt_skt_recv(new_s, buf, sizeof(buf), &n, NULL, NULL)) !=
+    while ((ret = tt_skt_recv(new_s, buf, sizeof(buf), &n, &fev, &tmr)) !=
            TT_END) {
         tt_u32_t total = n;
 #ifdef __TCP_DETAIL
@@ -877,8 +880,8 @@ static tt_result_t __f_svr(IN void *param)
         blocked in tt_skt_send()
         */
         while (total < sizeof(buf)) {
-            if (!TT_OK(tt_skt_recv(new_s, buf, sizeof(buf), &n, NULL, NULL))) {
-                __err_line = __LINE__;
+            if (!TT_OK(tt_skt_recv(new_s, buf, sizeof(buf), &n, &fev, &tmr))) {
+                __ut_skt_err_line = __LINE__;
                 return TT_FAIL;
             }
 #ifdef __TCP_DETAIL
@@ -894,7 +897,7 @@ static tt_result_t __f_svr(IN void *param)
         tt_atomic_s64_add(&__io_num, total);
 
         if (!TT_OK(tt_skt_send(new_s, buf, sizeof(buf), &n))) {
-            __err_line = __LINE__;
+            __ut_skt_err_line = __LINE__;
             return TT_FAIL;
         }
 #ifdef __TCP_DETAIL
@@ -904,21 +907,21 @@ static tt_result_t __f_svr(IN void *param)
 #endif
         __svr_sent += n;
         if (n != sizeof(buf)) {
-            __err_line = __LINE__;
+            __ut_skt_err_line = __LINE__;
             return TT_FAIL;
         }
     }
 
     if (!TT_OK(tt_skt_shutdown(new_s, TT_SKT_SHUT_WR))) {
-        __err_line = __LINE__;
+        __ut_skt_err_line = __LINE__;
         return TT_FAIL;
     }
 #ifdef __TCP_DETAIL
     TT_INFO("server shutdown");
 #endif
 
-    if (tt_skt_recv(new_s, buf, sizeof(buf), &n, NULL, NULL) != TT_END) {
-        __err_line = __LINE__;
+    if (tt_skt_recv(new_s, buf, sizeof(buf), &n, &fev, &tmr) != TT_END) {
+        __ut_skt_err_line = __LINE__;
         return TT_FAIL;
     }
 #ifdef __TCP_DETAIL
@@ -936,17 +939,19 @@ static tt_result_t __f_cli(IN void *param)
     tt_skt_t *s;
     tt_u8_t buf[1 << 14] = "123";
     tt_u32_t n, loop;
+    tt_fiber_ev_t *fev;
+    tt_tmr_t *tmr;
 
     s = tt_skt_create(TT_NET_AF_INET, TT_NET_PROTO_TCP, NULL);
     if (s == NULL) {
-        __err_line = __LINE__;
+        __ut_skt_err_line = __LINE__;
         return TT_FAIL;
     }
 
     tt_skt_set_reuseaddr(s, TT_TRUE);
 
     if (!TT_OK(tt_skt_connect_p(s, TT_NET_AF_INET, "127.0.0.1", 55556))) {
-        __err_line = __LINE__;
+        __ut_skt_err_line = __LINE__;
         return TT_FAIL;
     }
 
@@ -955,7 +960,7 @@ static tt_result_t __f_cli(IN void *param)
         tt_u32_t total = 0;
 
         if (!TT_OK(tt_skt_send(s, buf, sizeof(buf), &n))) {
-            __err_line = __LINE__;
+            __ut_skt_err_line = __LINE__;
             return TT_FAIL;
         }
 #ifdef __TCP_DETAIL
@@ -965,14 +970,14 @@ static tt_result_t __f_cli(IN void *param)
 #endif
         __cli_sent += n;
         if (n != sizeof(buf)) {
-            __err_line = __LINE__;
+            __ut_skt_err_line = __LINE__;
             return TT_FAIL;
         }
 
         total = 0;
         while (total < sizeof(buf)) {
-            if (!TT_OK(tt_skt_recv(s, buf, sizeof(buf), &n, NULL, NULL))) {
-                __err_line = __LINE__;
+            if (!TT_OK(tt_skt_recv(s, buf, sizeof(buf), &n, &fev, &tmr))) {
+                __ut_skt_err_line = __LINE__;
                 return TT_FAIL;
             }
 #ifdef __TCP_DETAIL
@@ -988,14 +993,14 @@ static tt_result_t __f_cli(IN void *param)
     }
 
     if (!TT_OK(tt_skt_shutdown(s, TT_SKT_SHUT_WR))) {
-        __err_line = __LINE__;
+        __ut_skt_err_line = __LINE__;
         return TT_FAIL;
     }
 #ifdef __TCP_DETAIL
     TT_INFO("client shutdown");
 #endif
 
-    while (tt_skt_recv(s, buf, sizeof(buf), &n, NULL, NULL) != TT_END) {
+    while (tt_skt_recv(s, buf, sizeof(buf), &n, &fev, &tmr) != TT_END) {
     }
 #ifdef __TCP_DETAIL
     TT_INFO("client recv end");
@@ -1022,7 +1027,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_tcp_basic)
     tt_task_add_fiber(&t, NULL, __f_svr, NULL, NULL);
     tt_task_add_fiber(&t, NULL, __f_cli, NULL, NULL);
 
-    __err_line = 0;
+    __ut_skt_err_line = 0;
     tt_atomic_s64_set(&__io_num, 0);
 
     start = tt_time_ref();
@@ -1031,7 +1036,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_tcp_basic)
     TT_UT_SUCCESS(ret, "");
 
     tt_task_wait(&t);
-    TT_UT_EQUAL(__err_line, 0, "");
+    TT_UT_EQUAL(__ut_skt_err_line, 0, "");
 
     end = tt_time_ref();
     dur = tt_time_ref2ms(end - start);
@@ -1048,30 +1053,33 @@ static tt_result_t __f_svr_tcp6_close(IN void *param)
     tt_u8_t buf[1 << 14] = "6789";
     tt_u32_t n;
     tt_result_t ret;
+    tt_fiber_ev_t *fev;
+    tt_tmr_t *tmr;
 
     s = tt_skt_create(TT_NET_AF_INET6, TT_NET_PROTO_TCP, NULL);
     if (s == NULL) {
-        __err_line = __LINE__;
+        __ut_skt_err_line = __LINE__;
         return TT_FAIL;
     }
 
+    tt_skt_set_reuseaddr(s, TT_TRUE);
     if (!TT_OK(tt_skt_bind_p(s, TT_NET_AF_INET6, "::1", 55556))) {
-        __err_line = __LINE__;
+        __ut_skt_err_line = __LINE__;
         return TT_FAIL;
     }
 
     if (!TT_OK(tt_skt_listen(s))) {
-        __err_line = __LINE__;
+        __ut_skt_err_line = __LINE__;
         return TT_FAIL;
     }
 
     new_s = tt_skt_accept(s, NULL, NULL);
     if (s == NULL) {
-        __err_line = __LINE__;
+        __ut_skt_err_line = __LINE__;
         return TT_FAIL;
     }
 
-    while (((ret = tt_skt_recv(new_s, buf, sizeof(buf), &n, NULL, NULL)) !=
+    while (((ret = tt_skt_recv(new_s, buf, sizeof(buf), &n, &fev, &tmr)) !=
             TT_END) &&
            TT_OK(tt_skt_send(new_s, buf, sizeof(buf), &n)) &&
            (tt_rand_u32() % 20 != 17)) {
@@ -1088,22 +1096,22 @@ static tt_result_t __f_cli_tcp6_close(IN void *param)
     tt_skt_t *s;
     tt_u8_t buf[1 << 14] = "123";
     tt_u32_t n;
+    tt_fiber_ev_t *fev;
+    tt_tmr_t *tmr;
 
     s = tt_skt_create(TT_NET_AF_INET6, TT_NET_PROTO_TCP, NULL);
     if (s == NULL) {
-        __err_line = __LINE__;
+        __ut_skt_err_line = __LINE__;
         return TT_FAIL;
     }
 
-    tt_skt_set_reuseaddr(s, TT_TRUE);
-
     if (!TT_OK(tt_skt_connect_p(s, TT_NET_AF_INET6, "::1", 55556))) {
-        __err_line = __LINE__;
+        __ut_skt_err_line = __LINE__;
         return TT_FAIL;
     }
 
     while (TT_OK(tt_skt_send(s, buf, sizeof(buf), &n)) &&
-           TT_OK(tt_skt_recv(s, buf, sizeof(buf), &n, NULL, NULL)) &&
+           TT_OK(tt_skt_recv(s, buf, sizeof(buf), &n, &fev, &tmr)) &&
            (tt_rand_u32() % 20 != 19)) {
     }
 
@@ -1127,13 +1135,13 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_tcp6_close)
     tt_task_add_fiber(&t, NULL, __f_svr_tcp6_close, NULL, NULL);
     tt_task_add_fiber(&t, NULL, __f_cli_tcp6_close, NULL, NULL);
 
-    __err_line = 0;
+    __ut_skt_err_line = 0;
 
     ret = tt_task_run(&t);
     TT_UT_SUCCESS(ret, "");
 
     tt_task_wait(&t);
-    TT_UT_EQUAL(__err_line, 0, "");
+    TT_UT_EQUAL(__ut_skt_err_line, 0, "");
 
     // test end
     TT_TEST_CASE_LEAVE()
@@ -1145,17 +1153,19 @@ static tt_result_t __f_svr_udp(IN void *param)
     tt_u8_t buf[1000] = "6789", buf2[1000];
     tt_u32_t n, i;
     tt_sktaddr_t addr;
+    tt_fiber_ev_t *fev;
+    tt_tmr_t *tmr;
 
     s = tt_skt_create(TT_NET_AF_INET6, TT_NET_PROTO_UDP, NULL);
     if (s == NULL) {
-        __err_line = __LINE__;
+        __ut_skt_err_line = __LINE__;
         return TT_FAIL;
     }
 
     tt_skt_set_reuseaddr(s, TT_TRUE);
 
     if (!TT_OK(tt_skt_bind_p(s, TT_NET_AF_INET6, "::1", 55557))) {
-        __err_line = __LINE__;
+        __ut_skt_err_line = __LINE__;
         return TT_FAIL;
     }
 
@@ -1169,13 +1179,13 @@ static tt_result_t __f_svr_udp(IN void *param)
                                    sizeof(buf2),
                                    &n,
                                    &addr,
-                                   NULL,
-                                   NULL))) {
-            __err_line = __LINE__;
+                                   &fev,
+                                   &tmr))) {
+            __ut_skt_err_line = __LINE__;
             return TT_FAIL;
         }
         if (tt_sktaddr_get_port(&addr) != 55558) {
-            __err_line = __LINE__;
+            __ut_skt_err_line = __LINE__;
             return TT_FAIL;
         }
         tt_atomic_s64_add(&__io_num, n);
@@ -1184,7 +1194,7 @@ static tt_result_t __f_svr_udp(IN void *param)
         c = buf2[0];
         for (k = 0; k < n; ++k) {
             if (buf2[k] != c++) {
-                __err_line = __LINE__;
+                __ut_skt_err_line = __LINE__;
                 return TT_FAIL;
             }
         }
@@ -1198,11 +1208,11 @@ static tt_result_t __f_svr_udp(IN void *param)
         }
 #endif
         if (!TT_OK(tt_skt_sendto(s, buf, len, &n, &addr))) {
-            __err_line = __LINE__;
+            __ut_skt_err_line = __LINE__;
             return TT_FAIL;
         }
         if (n != len) {
-            __err_line = __LINE__;
+            __ut_skt_err_line = __LINE__;
             return TT_FAIL;
         }
     }
@@ -1218,17 +1228,19 @@ static tt_result_t __f_cli_udp(IN void *param)
     tt_u8_t buf[1000] = "123", buf2[1000];
     tt_u32_t n, i;
     tt_sktaddr_t addr;
+    tt_fiber_ev_t *fev;
+    tt_tmr_t *tmr;
 
     s = tt_skt_create(TT_NET_AF_INET6, TT_NET_PROTO_UDP, NULL);
     if (s == NULL) {
-        __err_line = __LINE__;
+        __ut_skt_err_line = __LINE__;
         return TT_FAIL;
     }
 
     tt_skt_set_reuseaddr(s, TT_TRUE);
 
     if (!TT_OK(tt_skt_bind_p(s, TT_NET_AF_INET6, "::1", 55558))) {
-        __err_line = __LINE__;
+        __ut_skt_err_line = __LINE__;
         return TT_FAIL;
     }
 
@@ -1249,11 +1261,11 @@ static tt_result_t __f_cli_udp(IN void *param)
         }
 #endif
         if (!TT_OK(tt_skt_sendto(s, buf, len, &n, &addr))) {
-            __err_line = __LINE__;
+            __ut_skt_err_line = __LINE__;
             return TT_FAIL;
         }
         if (n != len) {
-            __err_line = __LINE__;
+            __ut_skt_err_line = __LINE__;
             return TT_FAIL;
         }
 
@@ -1262,13 +1274,13 @@ static tt_result_t __f_cli_udp(IN void *param)
                                    sizeof(buf2),
                                    &n,
                                    &addr,
-                                   NULL,
-                                   NULL))) {
-            __err_line = __LINE__;
+                                   &fev,
+                                   &tmr))) {
+            __ut_skt_err_line = __LINE__;
             return TT_FAIL;
         }
         if (tt_sktaddr_get_port(&addr) != 55557) {
-            __err_line = __LINE__;
+            __ut_skt_err_line = __LINE__;
             return TT_FAIL;
         }
 
@@ -1276,7 +1288,7 @@ static tt_result_t __f_cli_udp(IN void *param)
         c = buf2[0];
         for (k = 0; k < n; ++k) {
             if (buf2[k] != c++) {
-                __err_line = __LINE__;
+                __ut_skt_err_line = __LINE__;
                 return TT_FAIL;
             }
         }
@@ -1304,7 +1316,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_udp_basic)
     tt_task_add_fiber(&t, NULL, __f_svr_udp, NULL, NULL);
     tt_task_add_fiber(&t, NULL, __f_cli_udp, NULL, NULL);
 
-    __err_line = 0;
+    __ut_skt_err_line = 0;
     tt_atomic_s64_set(&__io_num, 0);
 
     start = tt_time_ref();
@@ -1312,7 +1324,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_udp_basic)
     TT_UT_SUCCESS(ret, "");
     tt_task_wait(&t);
     end = tt_time_ref();
-    TT_UT_EQUAL(__err_line, 0, "");
+    TT_UT_EQUAL(__ut_skt_err_line, 0, "");
 
     dur = tt_time_ref2ms(end - start);
     TT_RECORD_INFO("udp: %f MB/s, cli sent/recv: %d/%d, svr sent/recv: %d/%d",
@@ -1334,9 +1346,11 @@ static tt_result_t __f_svr_acc_t4(IN void *param)
     tt_skt_t *new_s = (tt_skt_t *)param;
     tt_u8_t buf2[1000], c;
     tt_u32_t n, i, len;
+    tt_fiber_ev_t *fev;
+    tt_tmr_t *tmr;
 
-    if (!TT_OK(tt_skt_recv(new_s, buf2, sizeof(buf2), &n, NULL, NULL))) {
-        __err_line = __LINE__;
+    if (!TT_OK(tt_skt_recv(new_s, buf2, sizeof(buf2), &n, &fev, &tmr))) {
+        __ut_skt_err_line = __LINE__;
         return TT_FAIL;
     }
 // TT_INFO("acc recv: %d", n);
@@ -1345,7 +1359,7 @@ static tt_result_t __f_svr_acc_t4(IN void *param)
     c = buf2[0];
     for (i = 0; i < n; ++i) {
         if (buf2[i] != (c++)) {
-            __err_line = __LINE__;
+            __ut_skt_err_line = __LINE__;
             break;
         }
     }
@@ -1353,22 +1367,22 @@ static tt_result_t __f_svr_acc_t4(IN void *param)
 
     len = n;
     if (!TT_OK(tt_skt_send(new_s, buf2, len, &n))) {
-        __err_line = __LINE__;
+        __ut_skt_err_line = __LINE__;
         return TT_FAIL;
     }
     // TT_INFO("acc send: %d", n);
     if (n != len) {
-        __err_line = __LINE__;
+        __ut_skt_err_line = __LINE__;
         return TT_FAIL;
     }
 
     if (!TT_OK(tt_skt_shutdown(new_s, TT_SKT_SHUT_WR))) {
-        __err_line = __LINE__;
+        __ut_skt_err_line = __LINE__;
         return TT_FAIL;
     }
 
-    if (tt_skt_recv(new_s, buf2, sizeof(buf2), &n, NULL, NULL) != TT_END) {
-        __err_line = __LINE__;
+    if (tt_skt_recv(new_s, buf2, sizeof(buf2), &n, &fev, &tmr) != TT_END) {
+        __ut_skt_err_line = __LINE__;
         return TT_FAIL;
     }
 
@@ -1387,7 +1401,7 @@ static tt_result_t __f_svr_t4(IN void *param)
 
     s = tt_skt_create(TT_NET_AF_INET, TT_NET_PROTO_TCP, NULL);
     if (s == NULL) {
-        __err_line = __LINE__;
+        __ut_skt_err_line = __LINE__;
         return TT_FAIL;
     }
 
@@ -1395,12 +1409,12 @@ static tt_result_t __f_svr_t4(IN void *param)
 
     if (!TT_OK(
             tt_skt_bind_p(s, TT_NET_AF_INET, __ut_skt_local_ip, __TPORT + i))) {
-        __err_line = __LINE__;
+        __ut_skt_err_line = __LINE__;
         return TT_FAIL;
     }
 
     if (!TT_OK(tt_skt_listen(s))) {
-        __err_line = __LINE__;
+        __ut_skt_err_line = __LINE__;
         return TT_FAIL;
     }
 
@@ -1410,7 +1424,7 @@ static tt_result_t __f_svr_t4(IN void *param)
 
         new_s = tt_skt_accept(s, NULL, NULL);
         if (new_s == NULL) {
-            __err_line = __LINE__;
+            __ut_skt_err_line = __LINE__;
             return TT_FAIL;
         }
         // TT_INFO("new conn: %d", n);
@@ -1418,7 +1432,7 @@ static tt_result_t __f_svr_t4(IN void *param)
 
         fb = tt_fiber_create(NULL, __f_svr_acc_t4, new_s, NULL);
         if (fb == NULL) {
-            __err_line = __LINE__;
+            __ut_skt_err_line = __LINE__;
             return TT_FAIL;
         }
         tt_fiber_resume(fb, TT_FALSE);
@@ -1434,12 +1448,14 @@ static tt_result_t __f_cli_t4(IN void *param)
     tt_skt_t *s;
     tt_u8_t buf[1000], c;
     tt_u32_t n, len, num, i;
+    tt_fiber_ev_t *fev;
+    tt_tmr_t *tmr;
 
     num = 0;
     while (num++ < __CON_PER_TASK) {
         s = tt_skt_create(TT_NET_AF_INET, TT_NET_PROTO_TCP, NULL);
         if (s == NULL) {
-            __err_line = __LINE__;
+            __ut_skt_err_line = __LINE__;
             return TT_FAIL;
         }
 
@@ -1450,7 +1466,7 @@ static tt_result_t __f_cli_t4(IN void *param)
                                     TT_NET_AF_INET,
                                     __ut_skt_local_ip,
                                     __TPORT + (tt_u32_t)(tt_uintptr_t)param))) {
-            __err_line = __LINE__;
+            __ut_skt_err_line = __LINE__;
             return TT_FAIL;
         }
         // TT_INFO("connected: %d", num);
@@ -1464,22 +1480,22 @@ static tt_result_t __f_cli_t4(IN void *param)
 #endif
 
         if (!TT_OK(tt_skt_send(s, buf, len, &n))) {
-            __err_line = __LINE__;
+            __ut_skt_err_line = __LINE__;
             return TT_FAIL;
         }
         // TT_INFO("con send: %d", n);
 
         if (!TT_OK(tt_skt_shutdown(s, TT_SKT_SHUT_WR))) {
-            __err_line = __LINE__;
+            __ut_skt_err_line = __LINE__;
             return TT_FAIL;
         }
 
-        if (!TT_OK(tt_skt_recv(s, buf, sizeof(buf), &n, NULL, NULL))) {
-            __err_line = __LINE__;
+        if (!TT_OK(tt_skt_recv(s, buf, sizeof(buf), &n, &fev, &tmr))) {
+            __ut_skt_err_line = __LINE__;
             return TT_FAIL;
         }
         if (n != len) {
-            __err_line = __LINE__;
+            __ut_skt_err_line = __LINE__;
             return TT_FAIL;
         }
 // TT_INFO("con recv: %d", n);
@@ -1488,14 +1504,14 @@ static tt_result_t __f_cli_t4(IN void *param)
         c = buf[0];
         for (i = 0; i < n; ++i) {
             if (buf[i] != (c++)) {
-                __err_line = __LINE__;
+                __ut_skt_err_line = __LINE__;
                 break;
             }
         }
 #endif
 
-        if (tt_skt_recv(s, buf, sizeof(buf), &n, NULL, NULL) != TT_END) {
-            __err_line = __LINE__;
+        if (tt_skt_recv(s, buf, sizeof(buf), &n, &fev, &tmr) != TT_END) {
+            __ut_skt_err_line = __LINE__;
             return TT_FAIL;
         }
 
@@ -1533,7 +1549,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_tcp4_stress)
                           NULL);
     }
 
-    __err_line = 0;
+    __ut_skt_err_line = 0;
     tt_atomic_s64_set(&__io_num, 0);
 
     start = tt_time_ref();
@@ -1549,7 +1565,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_tcp4_stress)
     TT_RECORD_INFO("speed: %f MB/s",
                    ((float)tt_atomic_s64_get(&__io_num) / dur) / 1000);
 
-    TT_UT_EQUAL(__err_line, 0, "");
+    TT_UT_EQUAL(__ut_skt_err_line, 0, "");
 
     // test end
     TT_TEST_CASE_LEAVE()
@@ -1564,30 +1580,31 @@ static tt_result_t __f_svr_ev(IN void *param)
     tt_u32_t n;
     tt_result_t ret;
     tt_fiber_ev_t *fev;
+    tt_tmr_t *tmr, *e_tmr;
 
     s = tt_skt_create(TT_NET_AF_INET, TT_NET_PROTO_TCP, NULL);
     if (s == NULL) {
-        __err_line = __LINE__;
+        __ut_skt_err_line = __LINE__;
         return TT_FAIL;
     }
 
     if (!TT_OK(tt_skt_bind_p(s, TT_NET_AF_INET, "127.0.0.1", 56556))) {
-        __err_line = __LINE__;
+        __ut_skt_err_line = __LINE__;
         return TT_FAIL;
     }
 
     if (!TT_OK(tt_skt_listen(s))) {
-        __err_line = __LINE__;
+        __ut_skt_err_line = __LINE__;
         return TT_FAIL;
     }
 
     new_s = tt_skt_accept(s, NULL, NULL);
     if (new_s == NULL) {
-        __err_line = __LINE__;
+        __ut_skt_err_line = __LINE__;
         return TT_FAIL;
     }
 
-    while ((ret = tt_skt_recv(new_s, buf, sizeof(buf), &n, &fev, NULL)) !=
+    while ((ret = tt_skt_recv(new_s, buf, sizeof(buf), &n, &fev, &e_tmr)) !=
            TT_END) {
         tt_u32_t total = n;
 #ifdef __TCP_DETAIL
@@ -1601,13 +1618,43 @@ static tt_result_t __f_svr_ev(IN void *param)
         __svr_recvd += n;
         if (fev != NULL) {
             if ((fev->src == NULL) && (fev->ev != 0x87654321)) {
-                __err_line = __LINE__;
+                __ut_skt_err_line = __LINE__;
             }
             if ((fev->src != NULL) && (fev->ev != 0x12345678)) {
-                __err_line = __LINE__;
+                __ut_skt_err_line = __LINE__;
             }
             ++__ut_ev_rcv;
             tt_fiber_finish(fev);
+        }
+
+        if (e_tmr != NULL) {
+            tt_s64_t now = tt_time_ref();
+            now -= (tt_s64_t)(tt_uintptr_t)e_tmr->param;
+            now = labs((long)now);
+            now = tt_time_ref2ms(now);
+            if (now > __ut_skt_max_diff) {
+                __ut_skt_max_diff = now;
+            }
+
+            now = tt_rand_u32() % 3;
+            if (now == 0) {
+                tt_tmr_destroy(e_tmr);
+            } else if (now == 1) {
+                tt_tmr_stop(e_tmr);
+            } else {
+                tt_tmr_set_delay(e_tmr, tt_rand_u32() % 5 + 5);
+                tt_tmr_set_param(e_tmr, tt_time_ref());
+                tt_tmr_start(e_tmr);
+            }
+        }
+
+        if (tt_rand_u32() % 100 == 0) {
+            tmr = tt_tmr_create(tt_rand_u32() % 5 + 5, 0, tt_time_ref());
+            if (tmr == NULL) {
+                __ut_skt_err_line = __LINE__;
+                return TT_FAIL;
+            }
+            tt_tmr_start(tmr);
         }
 
         /*
@@ -1616,12 +1663,12 @@ static tt_result_t __f_svr_ev(IN void *param)
         blocked in tt_skt_send()
         */
         while (total < sizeof(buf)) {
-            ret = tt_skt_recv(new_s, buf, sizeof(buf), &n, &fev, NULL);
+            ret = tt_skt_recv(new_s, buf, sizeof(buf), &n, &fev, &e_tmr);
             if (!TT_OK(ret)) {
                 if (ret == TT_END) {
                     break;
                 } else {
-                    __err_line = __LINE__;
+                    __ut_skt_err_line = __LINE__;
                     return TT_FAIL;
                 }
             }
@@ -1634,13 +1681,43 @@ static tt_result_t __f_svr_ev(IN void *param)
 
             if (fev != NULL) {
                 if ((fev->src == NULL) && (fev->ev != 0x87654321)) {
-                    __err_line = __LINE__;
+                    __ut_skt_err_line = __LINE__;
                 }
                 if ((fev->src != NULL) && (fev->ev != 0x12345678)) {
-                    __err_line = __LINE__;
+                    __ut_skt_err_line = __LINE__;
                 }
                 ++__ut_ev_rcv;
                 tt_fiber_finish(fev);
+            }
+
+            if (e_tmr != NULL) {
+                tt_s64_t now = tt_time_ref();
+                now -= (tt_s64_t)(tt_uintptr_t)e_tmr->param;
+                now = labs((long)now);
+                now = tt_time_ref2ms(now);
+                if (now > __ut_skt_max_diff) {
+                    __ut_skt_max_diff = now;
+                }
+
+                now = tt_rand_u32() % 3;
+                if (now == 0) {
+                    tt_tmr_destroy(e_tmr);
+                } else if (now == 1) {
+                    tt_tmr_stop(e_tmr);
+                } else {
+                    tt_tmr_set_delay(e_tmr, tt_rand_u32() % 5 + 5);
+                    tt_tmr_set_param(e_tmr, tt_time_ref());
+                    tt_tmr_start(e_tmr);
+                }
+            }
+
+            if (tt_rand_u32() % 100 == 0) {
+                tmr = tt_tmr_create(tt_rand_u32() % 5 + 5, 0, tt_time_ref());
+                if (tmr == NULL) {
+                    __ut_skt_err_line = __LINE__;
+                    return TT_FAIL;
+                }
+                tt_tmr_start(tmr);
             }
 
             total += n;
@@ -1649,7 +1726,7 @@ static tt_result_t __f_svr_ev(IN void *param)
         tt_atomic_s64_add(&__io_num, total);
 
         if (!TT_OK(tt_skt_send(new_s, buf, sizeof(buf), &n))) {
-            __err_line = __LINE__;
+            __ut_skt_err_line = __LINE__;
             return TT_FAIL;
         }
 #ifdef __TCP_DETAIL
@@ -1659,21 +1736,21 @@ static tt_result_t __f_svr_ev(IN void *param)
 #endif
         __svr_sent += n;
         if (n != sizeof(buf)) {
-            __err_line = __LINE__;
+            __ut_skt_err_line = __LINE__;
             return TT_FAIL;
         }
     }
 
     if (!TT_OK(tt_skt_shutdown(new_s, TT_SKT_SHUT_WR))) {
-        __err_line = __LINE__;
+        __ut_skt_err_line = __LINE__;
         return TT_FAIL;
     }
 #ifdef __TCP_DETAIL
     TT_INFO("server shutdown");
 #endif
 
-    if (tt_skt_recv(new_s, buf, sizeof(buf), &n, NULL, NULL) != TT_END) {
-        __err_line = __LINE__;
+    if (tt_skt_recv(new_s, buf, sizeof(buf), &n, &fev, &e_tmr) != TT_END) {
+        __ut_skt_err_line = __LINE__;
         return TT_FAIL;
     }
 #ifdef __TCP_DETAIL
@@ -1692,17 +1769,19 @@ static tt_result_t __f_cli_ev(IN void *param)
     tt_u8_t buf[1 << 14] = "123";
     tt_u32_t n, loop;
     tt_fiber_t *svr = tt_fiber_find("svr");
+    tt_tmr_t *tmr, *e_tmr;
+    tt_fiber_ev_t *fev;
 
     s = tt_skt_create(TT_NET_AF_INET, TT_NET_PROTO_TCP, NULL);
     if (s == NULL) {
-        __err_line = __LINE__;
+        __ut_skt_err_line = __LINE__;
         return TT_FAIL;
     }
 
     tt_skt_set_reuseaddr(s, TT_TRUE);
 
     if (!TT_OK(tt_skt_connect_p(s, TT_NET_AF_INET, "127.0.0.1", 56556))) {
-        __err_line = __LINE__;
+        __ut_skt_err_line = __LINE__;
         return TT_FAIL;
     }
 
@@ -1711,7 +1790,7 @@ static tt_result_t __f_cli_ev(IN void *param)
         tt_u32_t total = 0;
 
         if (!TT_OK(tt_skt_send(s, buf, sizeof(buf), &n))) {
-            __err_line = __LINE__;
+            __ut_skt_err_line = __LINE__;
             return TT_FAIL;
         }
 #ifdef __TCP_DETAIL
@@ -1721,7 +1800,7 @@ static tt_result_t __f_cli_ev(IN void *param)
 #endif
         __cli_sent += n;
         if (n != sizeof(buf)) {
-            __err_line = __LINE__;
+            __ut_skt_err_line = __LINE__;
             return TT_FAIL;
         }
 
@@ -1740,8 +1819,8 @@ static tt_result_t __f_cli_ev(IN void *param)
 
         total = 0;
         while (total < sizeof(buf)) {
-            if (!TT_OK(tt_skt_recv(s, buf, sizeof(buf), &n, NULL, NULL))) {
-                __err_line = __LINE__;
+            if (!TT_OK(tt_skt_recv(s, buf, sizeof(buf), &n, &fev, &e_tmr))) {
+                __ut_skt_err_line = __LINE__;
                 return TT_FAIL;
             }
 #ifdef __TCP_DETAIL
@@ -1751,20 +1830,50 @@ static tt_result_t __f_cli_ev(IN void *param)
 #endif
             __cli_recvd += n;
 
+            if (e_tmr != NULL) {
+                tt_s64_t now = tt_time_ref();
+                now -= (tt_s64_t)(tt_uintptr_t)e_tmr->param;
+                now = labs((long)now);
+                now = tt_time_ref2ms(now);
+                if (now > __ut_skt_max_diff) {
+                    __ut_skt_max_diff = now;
+                }
+
+                now = tt_rand_u32() % 3;
+                if (now == 0) {
+                    tt_tmr_destroy(e_tmr);
+                } else if (now == 1) {
+                    tt_tmr_stop(e_tmr);
+                } else {
+                    tt_tmr_set_delay(e_tmr, tt_rand_u32() % 5 + 5);
+                    tt_tmr_set_param(e_tmr, tt_time_ref());
+                    tt_tmr_start(e_tmr);
+                }
+            }
+
+            if (tt_rand_u32() % 100 == 0) {
+                tmr = tt_tmr_create(tt_rand_u32() % 5 + 5, 0, tt_time_ref());
+                if (tmr == NULL) {
+                    __ut_skt_err_line = __LINE__;
+                    return TT_FAIL;
+                }
+                tt_tmr_start(tmr);
+            }
+
             total += n;
         }
         TT_ASSERT(total == sizeof(buf));
     }
 
     if (!TT_OK(tt_skt_shutdown(s, TT_SKT_SHUT_WR))) {
-        __err_line = __LINE__;
+        __ut_skt_err_line = __LINE__;
         return TT_FAIL;
     }
 #ifdef __TCP_DETAIL
     TT_INFO("client shutdown");
 #endif
 
-    while (tt_skt_recv(s, buf, sizeof(buf), &n, NULL, NULL) != TT_END) {
+    while (tt_skt_recv(s, buf, sizeof(buf), &n, &fev, &e_tmr) != TT_END) {
     }
 #ifdef __TCP_DETAIL
     TT_INFO("client recv end");
@@ -1791,7 +1900,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_tcp_event)
     tt_task_add_fiber(&t, "svr", __f_svr_ev, NULL, NULL);
     tt_task_add_fiber(&t, "cli", __f_cli_ev, NULL, NULL);
 
-    __err_line = 0;
+    __ut_skt_err_line = 0;
     __ut_ev_rcv = 0;
     __ut_ev_snd = 0;
     __svr_sent = 0;
@@ -1799,6 +1908,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_tcp_event)
     __cli_sent = 0;
     __cli_recvd = 0;
     tt_atomic_s64_set(&__io_num, 0);
+    __ut_skt_max_diff = 0;
 
     start = tt_time_ref();
 
@@ -1806,18 +1916,23 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_tcp_event)
     TT_UT_SUCCESS(ret, "");
 
     tt_task_wait(&t);
-    TT_UT_EQUAL(__err_line, 0, "");
+    if (__ut_skt_err_line != 0) {
+        TT_RECORD_INFO("error line: %d", __ut_skt_err_line);
+    }
+    TT_UT_EQUAL(__ut_skt_err_line, 0, "");
     TT_UT_EQUAL(__ut_ev_rcv, __ut_ev_snd, "");
 
     end = tt_time_ref();
     dur = tt_time_ref2ms(end - start);
-    TT_RECORD_INFO("udp: %f MB/s, cli sent/recv: %d/%d, svr sent/recv: %d/%d",
-                   ((float)tt_atomic_s64_get(&__io_num) / (1 << 20)) * 1000 /
-                       dur,
-                   __cli_sent,
-                   __cli_recvd,
-                   __svr_sent,
-                   __svr_recvd);
+    TT_RECORD_INFO(
+        "udp: %f MB/s, cli sent/recv: %d/%d, svr sent/recv: %d/%d, time diff: "
+        "%d",
+        ((float)tt_atomic_s64_get(&__io_num) / (1 << 20)) * 1000 / dur,
+        __cli_sent,
+        __cli_recvd,
+        __svr_sent,
+        __svr_recvd,
+        (tt_s32_t)__ut_skt_max_diff);
 
     // test end
     TT_TEST_CASE_LEAVE()
@@ -1838,19 +1953,27 @@ static tt_result_t __f_svr_udp_ev(IN void *param)
     tt_sktaddr_t addr;
     tt_fiber_t *cli = tt_fiber_find("cli");
     tt_tmr_t *tmr, *e_tmr;
+    tt_fiber_ev_t *fev;
 
     s = tt_skt_create(TT_NET_AF_INET6, TT_NET_PROTO_UDP, NULL);
     if (s == NULL) {
-        __err_line = __LINE__;
+        __ut_skt_err_line = __LINE__;
         return TT_FAIL;
     }
 
     tt_skt_set_reuseaddr(s, TT_TRUE);
 
     if (!TT_OK(tt_skt_bind_p(s, TT_NET_AF_INET6, "::1", 56557))) {
-        __err_line = __LINE__;
+        __ut_skt_err_line = __LINE__;
         return TT_FAIL;
     }
+
+    tmr = tt_tmr_create(5, ~0, tt_time_ref());
+    if (tmr == NULL) {
+        __ut_skt_err_line = __LINE__;
+        return TT_FAIL;
+    }
+    tt_tmr_start(tmr);
 
     i = 0;
     while (i++ < 10000) {
@@ -1862,13 +1985,13 @@ static tt_result_t __f_svr_udp_ev(IN void *param)
                                    sizeof(buf2),
                                    &n,
                                    &addr,
-                                   NULL,
+                                   &fev,
                                    &e_tmr))) {
-            __err_line = __LINE__;
+            __ut_skt_err_line = __LINE__;
             return TT_FAIL;
         }
         if (tt_sktaddr_get_port(&addr) != 56558) {
-            __err_line = __LINE__;
+            __ut_skt_err_line = __LINE__;
             return TT_FAIL;
         }
         tt_atomic_s64_add(&__io_num, n);
@@ -1883,29 +2006,37 @@ static tt_result_t __f_svr_udp_ev(IN void *param)
             now -= (tt_s64_t)(tt_uintptr_t)e_tmr->param;
             now = labs((long)now);
             now = tt_time_ref2ms(now);
-            if (now > __max_diff) {
-                __max_diff = now;
+            if (now > __ut_skt_max_diff) {
+                __ut_skt_max_diff = now;
             }
 
-            now = tt_rand_u32() % 3;
-            if (now == 0) {
-                tt_tmr_destroy(e_tmr);
-            } else if (now == 1) {
-                tt_tmr_stop(e_tmr);
-            } else {
-                tt_tmr_set_delay(e_tmr, tt_rand_u32() % 5 + 5);
+            if (e_tmr->ev == ~0) {
                 tt_tmr_set_param(e_tmr, tt_time_ref());
                 tt_tmr_start(e_tmr);
+            } else {
+                now = tt_rand_u32() % 3;
+                if (now == 0) {
+                    --__skt_svr_tmr;
+                    tt_tmr_destroy(e_tmr);
+                } else if (now == 1) {
+                    --__skt_svr_tmr;
+                    tt_tmr_stop(e_tmr);
+                } else {
+                    tt_tmr_set_delay(e_tmr, tt_rand_u32() % 5 + 5);
+                    tt_tmr_set_param(e_tmr, tt_time_ref());
+                    tt_tmr_start(e_tmr);
+                }
             }
         }
 
         if (tt_rand_u32() % 100 == 0) {
             tmr = tt_tmr_create(tt_rand_u32() % 5 + 5, i, tt_time_ref());
             if (tmr == NULL) {
-                __err_line = __LINE__;
+                __ut_skt_err_line = __LINE__;
                 return TT_FAIL;
             }
             tt_tmr_start(tmr);
+            ++__skt_svr_tmr;
         }
 
 #if 1
@@ -1927,7 +2058,7 @@ static tt_result_t __f_svr_udp_ev(IN void *param)
         c = buf2[0];
         for (k = 0; k < n; ++k) {
             if (buf2[k] != c++) {
-                __err_line = __LINE__;
+                __ut_skt_err_line = __LINE__;
                 return TT_FAIL;
             }
         }
@@ -1941,11 +2072,11 @@ static tt_result_t __f_svr_udp_ev(IN void *param)
         }
 #endif
         if (!TT_OK(tt_skt_sendto(s, buf, len, &n, &addr))) {
-            __err_line = __LINE__;
+            __ut_skt_err_line = __LINE__;
             return TT_FAIL;
         }
         if (n != len) {
-            __err_line = __LINE__;
+            __ut_skt_err_line = __LINE__;
             return TT_FAIL;
         }
         __svr_sent += n;
@@ -1985,20 +2116,28 @@ static tt_result_t __f_cli_udp_ev(IN void *param)
 
     s = tt_skt_create(TT_NET_AF_INET6, TT_NET_PROTO_UDP, NULL);
     if (s == NULL) {
-        __err_line = __LINE__;
+        __ut_skt_err_line = __LINE__;
         return TT_FAIL;
     }
 
     tt_skt_set_reuseaddr(s, TT_TRUE);
 
     if (!TT_OK(tt_skt_bind_p(s, TT_NET_AF_INET6, "::1", 56558))) {
-        __err_line = __LINE__;
+        __ut_skt_err_line = __LINE__;
         return TT_FAIL;
     }
 
     tt_sktaddr_init(&addr, TT_NET_AF_INET6);
     tt_sktaddr_set_ip_p(&addr, "::1");
     tt_sktaddr_set_port(&addr, 56557);
+
+    // this timer is used to make recvfrom return, as udp packet may be lost
+    tmr = tt_tmr_create(5, ~0, tt_time_ref());
+    if (tmr == NULL) {
+        __ut_skt_err_line = __LINE__;
+        return TT_FAIL;
+    }
+    tt_tmr_start(tmr);
 
     i = 0;
     while (1 || i++ < 10000) {
@@ -2013,11 +2152,11 @@ static tt_result_t __f_cli_udp_ev(IN void *param)
         }
 #endif
         if (!TT_OK(tt_skt_sendto(s, buf, len, &n, &addr))) {
-            __err_line = __LINE__;
+            __ut_skt_err_line = __LINE__;
             return TT_FAIL;
         }
         if (n != len) {
-            __err_line = __LINE__;
+            __ut_skt_err_line = __LINE__;
             return TT_FAIL;
         }
         __cli_sent += n;
@@ -2028,10 +2167,11 @@ static tt_result_t __f_cli_udp_ev(IN void *param)
         if (tt_rand_u32() % 100 == 0) {
             tmr = tt_tmr_create(tt_rand_u32() % 5 + 5, i, tt_time_ref());
             if (tmr == NULL) {
-                __err_line = __LINE__;
+                __ut_skt_err_line = __LINE__;
                 return TT_FAIL;
             }
             tt_tmr_start(tmr);
+            ++__skt_cli_tmr;
         }
 
         if (!TT_OK(tt_skt_recvfrom(s,
@@ -2041,11 +2181,11 @@ static tt_result_t __f_cli_udp_ev(IN void *param)
                                    &addr,
                                    &fev,
                                    &e_tmr))) {
-            __err_line = __LINE__;
+            __ut_skt_err_line = __LINE__;
             return TT_FAIL;
         }
         if (tt_sktaddr_get_port(&addr) != 56557) {
-            __err_line = __LINE__;
+            __ut_skt_err_line = __LINE__;
             return TT_FAIL;
         }
         __cli_recvd += n;
@@ -2057,10 +2197,10 @@ static tt_result_t __f_cli_udp_ev(IN void *param)
                 done = TT_TRUE;
             } else {
                 if ((fev->src == NULL) && (fev->ev != 0x87654321)) {
-                    __err_line = __LINE__;
+                    __ut_skt_err_line = __LINE__;
                 }
                 if ((fev->src != NULL) && (fev->ev != 0x12345678)) {
-                    __err_line = __LINE__;
+                    __ut_skt_err_line = __LINE__;
                 }
             }
             ++__ut_ev_rcv;
@@ -2076,19 +2216,26 @@ static tt_result_t __f_cli_udp_ev(IN void *param)
             now -= (tt_s64_t)(tt_uintptr_t)e_tmr->param;
             now = labs((long)now);
             now = tt_time_ref2ms(now);
-            if (now > __max_diff) {
-                __max_diff = now;
+            if (now > __ut_skt_max_diff) {
+                __ut_skt_max_diff = now;
             }
 
-            now = tt_rand_u32() % 3;
-            if (now == 0) {
-                tt_tmr_destroy(e_tmr);
-            } else if (now == 1) {
-                tt_tmr_stop(e_tmr);
-            } else {
-                tt_tmr_set_delay(e_tmr, tt_rand_u32() % 5 + 5);
+            if (e_tmr->ev == ~0) {
                 tt_tmr_set_param(e_tmr, tt_time_ref());
                 tt_tmr_start(e_tmr);
+            } else {
+                now = tt_rand_u32() % 3;
+                if (now == 0) {
+                    --__skt_cli_tmr;
+                    tt_tmr_destroy(e_tmr);
+                } else if (now == 1) {
+                    --__skt_cli_tmr;
+                    tt_tmr_stop(e_tmr);
+                } else {
+                    tt_tmr_set_delay(e_tmr, tt_rand_u32() % 5 + 5);
+                    tt_tmr_set_param(e_tmr, tt_time_ref());
+                    tt_tmr_start(e_tmr);
+                }
             }
         }
 
@@ -2096,7 +2243,7 @@ static tt_result_t __f_cli_udp_ev(IN void *param)
         c = buf2[0];
         for (k = 0; k < n; ++k) {
             if (buf2[k] != c++) {
-                __err_line = __LINE__;
+                __ut_skt_err_line = __LINE__;
                 return TT_FAIL;
             }
         }
@@ -2125,7 +2272,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_udp_event)
     tt_task_add_fiber(&t, "svr", __f_svr_udp_ev, NULL, NULL);
     tt_task_add_fiber(&t, "cli", __f_cli_udp_ev, NULL, NULL);
 
-    __err_line = 0;
+    __ut_skt_err_line = 0;
     __ut_ev_rcv = 0;
     __ut_ev_snd = 0;
     __cli_sent = 0;
@@ -2133,14 +2280,16 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_udp_event)
     __svr_sent = 0;
     __svr_recvd = 0;
     tt_atomic_s64_set(&__io_num, 0);
-    __max_diff = 0;
+    __ut_skt_max_diff = 0;
+    __skt_svr_tmr = 0;
+    __skt_cli_tmr = 0;
 
     start = tt_time_ref();
     ret = tt_task_run(&t);
     TT_UT_SUCCESS(ret, "");
     tt_task_wait(&t);
     end = tt_time_ref();
-    TT_UT_EQUAL(__err_line, 0, "");
+    TT_UT_EQUAL(__ut_skt_err_line, 0, "");
     TT_UT_EQUAL(__ut_ev_rcv, __ut_ev_snd, "");
 
     dur = tt_time_ref2ms(end - start);
@@ -2152,7 +2301,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_udp_event)
         __cli_recvd,
         __svr_sent,
         __svr_recvd,
-        (tt_u32_t)__max_diff);
+        (tt_u32_t)__ut_skt_max_diff);
 
     // test end
     TT_TEST_CASE_LEAVE()
