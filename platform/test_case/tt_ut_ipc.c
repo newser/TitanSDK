@@ -150,13 +150,15 @@ TT_TEST_CASE("tt_unit_test_ipc_basic",
     */
 
     static tt_u32_t __err_line;
-static tt_s64_t __max_diff;
+static tt_s64_t __ipc_max_diff;
 
 tt_result_t __ipc_cli_1(IN void *param)
 {
     tt_ipc_t *ipc;
     tt_u8_t sbuf[11] = "1234567890", rbuf[11] = {0};
     tt_u32_t n, len, cn, rn;
+    tt_fiber_ev_t *fev;
+    tt_tmr_t *tmr;
 
     cn = 0;
     while (cn++ < __CONN_NUM) {
@@ -197,8 +199,8 @@ tt_result_t __ipc_cli_1(IN void *param)
                                        rbuf + len,
                                        sizeof(rbuf) - len,
                                        &n,
-                                       NULL,
-                                       NULL))) {
+                                       &fev,
+                                       &tmr))) {
                     TT_INFO_IPC("err %d", __LINE__);
                     __err_line = __LINE__;
                     return TT_FAIL;
@@ -225,6 +227,8 @@ tt_result_t __ipc_svr_1(IN void *param)
     tt_u8_t sbuf[11] = "0987654321", rbuf[11];
     tt_u32_t n, len, cn, rn;
     tt_result_t ret;
+    tt_fiber_ev_t *fev;
+    tt_tmr_t *tmr;
 
     (void)rn;
 
@@ -250,8 +254,8 @@ tt_result_t __ipc_svr_1(IN void *param)
                                         rbuf + len,
                                         sizeof(rbuf) - len,
                                         &n,
-                                        NULL,
-                                        NULL)))) {
+                                        &fev,
+                                        &tmr)))) {
             len += n;
             if (len < sizeof(rbuf)) {
                 continue;
@@ -340,6 +344,8 @@ static tt_result_t __ipc_svr_acc_2(IN void *param)
     tt_u8_t sbuf[11] = "0987654321", rbuf[11];
     tt_u32_t n, len = 0, rn;
     tt_result_t ret;
+    tt_fiber_ev_t *fev;
+    tt_tmr_t *tmr;
 
     rn = 0;
     (void)rn;
@@ -347,8 +353,8 @@ static tt_result_t __ipc_svr_acc_2(IN void *param)
                                     rbuf + len,
                                     sizeof(rbuf) - len,
                                     &n,
-                                    NULL,
-                                    NULL)))) {
+                                    &fev,
+                                    &tmr)))) {
         len += n;
         if (len < sizeof(rbuf)) {
             continue;
@@ -492,6 +498,8 @@ tt_result_t __ipc_cli_oneshot(IN void *param)
     tt_ipc_t *ipc;
     tt_u8_t sbuf[11] = "1234567890", rbuf[11];
     tt_u32_t n, len, rn;
+    tt_fiber_ev_t *fev;
+    tt_tmr_t *tmr;
 
     ipc = tt_ipc_create(NULL, NULL);
     if (ipc == NULL) {
@@ -521,7 +529,7 @@ tt_result_t __ipc_cli_oneshot(IN void *param)
 
         len = 0;
         while (len < sizeof(rbuf)) {
-            if (!TT_OK(tt_ipc_recv(ipc, rbuf, sizeof(rbuf), &n, NULL, NULL))) {
+            if (!TT_OK(tt_ipc_recv(ipc, rbuf, sizeof(rbuf), &n, &fev, &tmr))) {
                 __err_line = __LINE__;
                 return TT_FAIL;
             }
@@ -618,7 +626,7 @@ tt_result_t __ipc_svr_fev(IN void *param)
             return TT_FAIL;
         }
 
-        tmr = tt_tmr_create(tt_rand_u32() % 5 + 5, cn, new_ipc);
+        tmr = tt_tmr_create(tt_rand_u32() % 5 + 5, cn, tt_time_ref());
         if (tmr == NULL) {
             __err_line = __LINE__;
             return TT_FAIL;
@@ -650,12 +658,11 @@ tt_result_t __ipc_svr_fev(IN void *param)
 
             if (e_tmr != NULL) {
                 tt_s64_t now = tt_time_ref();
-                now -= e_tmr->absolute_ref;
-                now -= e_tmr->delay_ms;
+                now -= (tt_s64_t)(tt_uintptr_t)e_tmr->param;
                 now = labs((long)now);
                 now = tt_time_ref2ms(now);
-                if (now > __max_diff) {
-                    __max_diff = now;
+                if (now > __ipc_max_diff) {
+                    __ipc_max_diff = now;
                 }
             }
 
@@ -755,7 +762,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_ipc_fiber_ev)
     tt_fcreate(__IPC_PATH, NULL);
 #endif
 
-    __max_diff = 0;
+    __ipc_max_diff = 0;
 
     ret = tt_task_create(&t, NULL);
     TT_UT_SUCCESS(ret, "");
@@ -787,8 +794,8 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_ipc_fiber_ev)
 
     TT_UT_EQUAL(__err_line, 0, "");
     TT_UT_EQUAL(__ipc_fev_num, __fiber_num * __ev_per_fiber, "");
-    TT_UT_EXP(__max_diff < 10, "");
-    TT_RECORD_INFO("max diff: %d", __max_diff);
+    TT_UT_EXP(__ipc_max_diff < 10, "");
+    TT_RECORD_INFO("max diff: %d", __ipc_max_diff);
 
     // test end
     TT_TEST_CASE_LEAVE()
@@ -804,6 +811,8 @@ tt_result_t __ipc_cli_pev(IN void *param)
     tt_u32_t n, cn, rn;
     tt_ipc_ev_t *pev;
     tt_result_t ret;
+    tt_fiber_ev_t *fev;
+    tt_tmr_t *tmr;
 
     cn = 0;
     while (cn++ < __CONN_NUM) {
@@ -852,7 +861,7 @@ tt_result_t __ipc_cli_pev(IN void *param)
                         n,
                         ___ipc_cli_sent);
 
-            if (TT_OK((ret = tt_ipc_recv_ev(ipc, &pev, NULL)))) {
+            if (TT_OK((ret = tt_ipc_recv_ev(ipc, &pev, &fev, &tmr)))) {
                 if (pev != NULL) {
                     tt_u8_t *pev_data = TT_IPC_EV_CAST(pev, tt_u8_t);
                     tt_u32_t i;
@@ -890,6 +899,7 @@ tt_result_t __ipc_svr_pev_fev(IN void *param)
     tt_fiber_ev_t *fev;
     tt_fiber_t *cfb = tt_current_fiber();
     tt_ipc_ev_t *pev;
+    tt_tmr_t *tmr, *e_tmr;
 
     (void)rn;
 
@@ -909,7 +919,7 @@ tt_result_t __ipc_svr_pev_fev(IN void *param)
         TT_INFO_IPC("ipc accepted %d", cn);
 
         rn = 0;
-        while (TT_OK((ret = tt_ipc_recv_ev(new_ipc, &pev, &fev)))) {
+        while (TT_OK((ret = tt_ipc_recv_ev(new_ipc, &pev, &fev, &e_tmr)))) {
             if (fev != NULL) {
                 TT_INFO_IPC("[%d:%d] svr recv fiber ev %x", cn, rn, fev->ev);
                 if (fev->src != NULL) {
@@ -942,6 +952,41 @@ tt_result_t __ipc_svr_pev_fev(IN void *param)
                 }
             } else {
                 continue;
+            }
+
+            if (e_tmr != NULL) {
+                tt_s64_t now = tt_time_ref();
+                now -= (tt_s64_t)(tt_uintptr_t)e_tmr->param;
+                now = labs((long)now);
+                now = tt_time_ref2ms(now);
+                if (now > __ipc_max_diff) {
+                    __ipc_max_diff = now;
+                }
+
+                if (e_tmr->ev == ~0) {
+                    tt_tmr_set_param(e_tmr, tt_time_ref());
+                    tt_tmr_start(e_tmr);
+                } else {
+                    now = tt_rand_u32() % 3;
+                    if (now == 0) {
+                        tt_tmr_destroy(e_tmr);
+                    } else if (now == 1) {
+                        tt_tmr_stop(e_tmr);
+                    } else {
+                        tt_tmr_set_delay(e_tmr, tt_rand_u32() % 5 + 5);
+                        tt_tmr_set_param(e_tmr, tt_time_ref());
+                        tt_tmr_start(e_tmr);
+                    }
+                }
+            }
+
+            if (tt_rand_u32() % 100 == 0) {
+                tmr = tt_tmr_create(tt_rand_u32() % 5 + 5, 0, tt_time_ref());
+                if (tmr == NULL) {
+                    __err_line = __LINE__;
+                    return TT_FAIL;
+                }
+                tt_tmr_start(tmr);
             }
 
             n = tt_rand_u32() & 0xFF;
@@ -1013,6 +1058,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_ipc_ev)
 #endif
 
     __ipc_fev_num = 0;
+    __ipc_max_diff = 0;
 
     ret = tt_task_create(&t, NULL);
     TT_UT_SUCCESS(ret, "");
@@ -1044,6 +1090,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_ipc_ev)
 
     TT_UT_EQUAL(__err_line, 0, "");
     TT_UT_EQUAL(__ipc_fev_num, __fiber_num * __ev_per_fiber, "");
+    TT_RECORD_INFO("max diff: %d", __ipc_max_diff);
 
     // test end
     TT_TEST_CASE_LEAVE()

@@ -23,6 +23,7 @@
 #include <io/tt_ipc.h>
 #include <memory/tt_memory_alloc.h>
 #include <os/tt_fiber_event.h>
+#include <time/tt_timer.h>
 
 ////////////////////////////////////////////////////////////
 // internal macro
@@ -84,7 +85,8 @@ tt_result_t tt_ipc_send_ev(IN tt_ipc_t *dst, IN tt_ipc_ev_t *pev)
 
 tt_result_t tt_ipc_recv_ev(IN tt_ipc_t *ipc,
                            OUT tt_ipc_ev_t **p_pev,
-                           OUT OPT tt_fiber_ev_t **p_fev)
+                           OUT tt_fiber_ev_t **p_fev,
+                           OUT struct tt_tmr_s **p_tmr)
 {
     tt_buf_t *buf = &ipc->buf;
     tt_u8_t *p;
@@ -92,10 +94,11 @@ tt_result_t tt_ipc_recv_ev(IN tt_ipc_t *ipc,
     tt_result_t result;
 
     *p_pev = NULL;
-    TT_SAFE_ASSIGN(p_fev, NULL);
+    *p_fev = NULL;
+    *p_tmr = NULL;
 
     // must first try parsing an ev, as all data may alreay arrive
-    if ((p_pev != NULL) && ((*p_pev = __parse_ipc_ev(buf)) != NULL)) {
+    if ((*p_pev = __parse_ipc_ev(buf)) != NULL) {
         return TT_SUCCESS;
     }
 
@@ -107,17 +110,20 @@ tt_result_t tt_ipc_recv_ev(IN tt_ipc_t *ipc,
         return TT_FAIL;
     }
     tt_buf_get_wptr(buf, &p, &len);
-    while (TT_OK(result = tt_ipc_recv(ipc, p, len, &recvd, p_fev, NULL))) {
-        tt_buf_inc_wp(buf, recvd);
+    while (TT_OK(result = tt_ipc_recv(ipc, p, len, &recvd, p_fev, p_tmr))) {
+        if (recvd != 0) {
+            tt_buf_inc_wp(buf, recvd);
+            if ((*p_pev = __parse_ipc_ev(buf)) != NULL) {
+                // p_fev and p_tmr may already be set
+                return TT_SUCCESS;
+            }
+        }
 
-        if ((p_pev != NULL) && ((*p_pev = __parse_ipc_ev(buf)) != NULL)) {
+        if ((*p_fev != NULL) || (*p_tmr != NULL)) {
             return TT_SUCCESS;
         }
 
-        if ((p_fev != NULL) && (*p_fev != NULL)) {
-            return TT_SUCCESS;
-        }
-
+        // only received some data but not enough, so keep receiving
         if ((TT_BUF_WLEN(buf) == 0) && !TT_OK(tt_buf_extend(buf))) {
             TT_ERROR("ipc buffer is full");
             return TT_FAIL;
