@@ -1651,13 +1651,14 @@ static tt_result_t __f_svr_ev(IN void *param)
                 tt_tmr_stop(e_tmr);
             } else {
                 tt_tmr_set_delay(e_tmr, tt_rand_u32() % 5 + 5);
-                tt_tmr_set_param(e_tmr, (void*)tt_time_ref());
+                tt_tmr_set_param(e_tmr, (void *)tt_time_ref());
                 tt_tmr_start(e_tmr);
             }
         }
 
         if (tt_rand_u32() % 100 == 0) {
-            tmr = tt_tmr_create(tt_rand_u32() % 5 + 5, 0, (void*)tt_time_ref());
+            tmr =
+                tt_tmr_create(tt_rand_u32() % 5 + 5, 0, (void *)tt_time_ref());
             if (tmr == NULL) {
                 __ut_skt_err_line = __LINE__;
                 return TT_FAIL;
@@ -1716,13 +1717,15 @@ static tt_result_t __f_svr_ev(IN void *param)
                     tt_tmr_stop(e_tmr);
                 } else {
                     tt_tmr_set_delay(e_tmr, tt_rand_u32() % 5 + 5);
-                    tt_tmr_set_param(e_tmr, (void*)tt_time_ref());
+                    tt_tmr_set_param(e_tmr, (void *)tt_time_ref());
                     tt_tmr_start(e_tmr);
                 }
             }
 
             if (tt_rand_u32() % 100 == 0) {
-                tmr = tt_tmr_create(tt_rand_u32() % 5 + 5, 0, (void*)tt_time_ref());
+                tmr = tt_tmr_create(tt_rand_u32() % 5 + 5,
+                                    0,
+                                    (void *)tt_time_ref());
                 if (tmr == NULL) {
                     __ut_skt_err_line = __LINE__;
                     return TT_FAIL;
@@ -1763,11 +1766,12 @@ static tt_result_t __f_svr_ev(IN void *param)
     TT_INFO("server shutdown");
 #endif
 
-    while (TT_OK(ret = tt_skt_recv(new_s, buf, sizeof(buf), &n, &fev, &e_tmr))) {
+    while (
+        TT_OK(ret = tt_skt_recv(new_s, buf, sizeof(buf), &n, &fev, &e_tmr))) {
     }
-	if (ret != TT_END) {
-		__ut_skt_err_line = __LINE__;
-	}
+    if (ret != TT_END) {
+        __ut_skt_err_line = __LINE__;
+    }
 #ifdef __TCP_DETAIL
     TT_INFO("server recv end");
 #endif
@@ -1869,13 +1873,15 @@ static tt_result_t __f_cli_ev(IN void *param)
                     tt_tmr_stop(e_tmr);
                 } else {
                     tt_tmr_set_delay(e_tmr, tt_rand_u32() % 5 + 5);
-                    tt_tmr_set_param(e_tmr, (void*)tt_time_ref());
+                    tt_tmr_set_param(e_tmr, (void *)tt_time_ref());
                     tt_tmr_start(e_tmr);
                 }
             }
 
             if (tt_rand_u32() % 100 == 0) {
-                tmr = tt_tmr_create(tt_rand_u32() % 5 + 5, 0, (void*)tt_time_ref());
+                tmr = tt_tmr_create(tt_rand_u32() % 5 + 5,
+                                    0,
+                                    (void *)tt_time_ref());
                 if (tmr == NULL) {
                     __ut_skt_err_line = __LINE__;
                     return TT_FAIL;
@@ -1991,7 +1997,7 @@ static tt_result_t __f_svr_udp_ev(IN void *param)
         return TT_FAIL;
     }
 
-    tmr = tt_tmr_create(5, ~0, (void*)tt_time_ref());
+    tmr = tt_tmr_create(5, ~0, (void *)tt_time_ref());
     if (tmr == NULL) {
         __ut_skt_err_line = __LINE__;
         return TT_FAIL;
@@ -2034,7 +2040,7 @@ static tt_result_t __f_svr_udp_ev(IN void *param)
             }
 
             if (e_tmr->ev == ~0) {
-                tt_tmr_set_param(e_tmr, (void*)tt_time_ref());
+                tt_tmr_set_param(e_tmr, (void *)tt_time_ref());
                 tt_tmr_start(e_tmr);
             } else {
                 now = tt_rand_u32() % 3;
@@ -2046,14 +2052,15 @@ static tt_result_t __f_svr_udp_ev(IN void *param)
                     tt_tmr_stop(e_tmr);
                 } else {
                     tt_tmr_set_delay(e_tmr, tt_rand_u32() % 5 + 5);
-                    tt_tmr_set_param(e_tmr, (void*)tt_time_ref());
+                    tt_tmr_set_param(e_tmr, (void *)tt_time_ref());
                     tt_tmr_start(e_tmr);
                 }
             }
         }
 
         if (tt_rand_u32() % 100 == 0) {
-            tmr = tt_tmr_create(tt_rand_u32() % 5 + 5, i, (void*)tt_time_ref());
+            tmr =
+                tt_tmr_create(tt_rand_u32() % 5 + 5, i, (void *)tt_time_ref());
             if (tmr == NULL) {
                 __ut_skt_err_line = __LINE__;
                 return TT_FAIL;
@@ -2155,7 +2162,7 @@ static tt_result_t __f_cli_udp_ev(IN void *param)
     tt_sktaddr_set_port(&addr, 56557);
 
     // this timer is used to make recvfrom return, as udp packet may be lost
-    tmr = tt_tmr_create(5, ~0, (void*)tt_time_ref());
+    tmr = tt_tmr_create(5, ~0, (void *)tt_time_ref());
     if (tmr == NULL) {
         __ut_skt_err_line = __LINE__;
         return TT_FAIL;
@@ -2188,7 +2195,8 @@ static tt_result_t __f_cli_udp_ev(IN void *param)
                 n, len, __cli_sent);*/
 
         if (tt_rand_u32() % 100 == 0) {
-            tmr = tt_tmr_create(tt_rand_u32() % 5 + 5, i, (void*)tt_time_ref());
+            tmr =
+                tt_tmr_create(tt_rand_u32() % 5 + 5, i, (void *)tt_time_ref());
             if (tmr == NULL) {
                 __ut_skt_err_line = __LINE__;
                 return TT_FAIL;
@@ -2244,7 +2252,7 @@ static tt_result_t __f_cli_udp_ev(IN void *param)
             }
 
             if (e_tmr->ev == ~0) {
-                tt_tmr_set_param(e_tmr, (void*)tt_time_ref());
+                tt_tmr_set_param(e_tmr, (void *)tt_time_ref());
                 tt_tmr_start(e_tmr);
             } else {
                 now = tt_rand_u32() % 3;
@@ -2256,7 +2264,7 @@ static tt_result_t __f_cli_udp_ev(IN void *param)
                     tt_tmr_stop(e_tmr);
                 } else {
                     tt_tmr_set_delay(e_tmr, tt_rand_u32() % 5 + 5);
-                    tt_tmr_set_param(e_tmr, (void*)tt_time_ref());
+                    tt_tmr_set_param(e_tmr, (void *)tt_time_ref());
                     tt_tmr_start(e_tmr);
                 }
             }

@@ -466,8 +466,6 @@ tt_result_t tt_skt_recvfrom_ntv(IN tt_skt_ntv_t *skt,
     __skt_recvfrom_t skt_recvfrom;
     int kq;
     tt_fiber_t *cfb;
-    tt_fiber_ev_t *fev;
-    tt_tmr_t *tmr;
 
     *recvd = 0;
     *p_fev = NULL;
@@ -476,8 +474,7 @@ tt_result_t tt_skt_recvfrom_ntv(IN tt_skt_ntv_t *skt,
     kq = __skt_ev_init(&skt_recvfrom.io_ev, __SKT_RECVFROM);
     cfb = skt_recvfrom.io_ev.src;
 
-    if ((tmr = tt_fiber_recv_timer(cfb, TT_FALSE)) != NULL) {
-        *p_tmr = tmr;
+    if (tt_fiber_recv_all(cfb, TT_FALSE, p_fev, p_tmr)) {
         return TT_SUCCESS;
     }
 
@@ -501,15 +498,7 @@ tt_result_t tt_skt_recvfrom_ntv(IN tt_skt_ntv_t *skt,
         tt_kq_unread(kq, skt->s, &skt_recvfrom.io_ev);
     }
 
-    // may be awaked due to new fiber event
-    if ((fev = tt_fiber_recv(cfb, TT_FALSE)) != NULL) {
-        *p_fev = fev;
-        skt_recvfrom.result = TT_SUCCESS;
-    }
-
-    // may be awaked due to expired timer
-    if ((tmr = tt_fiber_recv_timer(cfb, TT_FALSE)) != NULL) {
-        *p_tmr = tmr;
+    if (tt_fiber_recv_all(cfb, TT_FALSE, p_fev, p_tmr)) {
         skt_recvfrom.result = TT_SUCCESS;
     }
 
@@ -576,8 +565,6 @@ tt_result_t tt_skt_recv_ntv(IN tt_skt_ntv_t *skt,
     __skt_recv_t skt_recv;
     int kq;
     tt_fiber_t *cfb;
-    tt_fiber_ev_t *fev;
-    tt_tmr_t *tmr;
 
     *recvd = 0;
     *p_fev = NULL;
@@ -586,8 +573,7 @@ tt_result_t tt_skt_recv_ntv(IN tt_skt_ntv_t *skt,
     kq = __skt_ev_init(&skt_recv.io_ev, __SKT_RECV);
     cfb = skt_recv.io_ev.src;
 
-    if ((tmr = tt_fiber_recv_timer(cfb, TT_FALSE)) != NULL) {
-        *p_tmr = tmr;
+    if (tt_fiber_recv_all(cfb, TT_FALSE, p_fev, p_tmr)) {
         return TT_SUCCESS;
     }
 
@@ -610,15 +596,7 @@ tt_result_t tt_skt_recv_ntv(IN tt_skt_ntv_t *skt,
         tt_kq_unread(kq, skt->s, &skt_recv.io_ev);
     }
 
-    // may be awaked due to new fiber event
-    if ((fev = tt_fiber_recv(cfb, TT_FALSE)) != NULL) {
-        *p_fev = fev;
-        skt_recv.result = TT_SUCCESS;
-    }
-
-    // may be awaked due to expired timer
-    if ((tmr = tt_fiber_recv_timer(cfb, TT_FALSE)) != NULL) {
-        *p_tmr = tmr;
+    if (tt_fiber_recv_all(cfb, TT_FALSE, p_fev, p_tmr)) {
         skt_recv.result = TT_SUCCESS;
     }
 

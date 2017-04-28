@@ -340,8 +340,6 @@ tt_result_t tt_ipc_recv_ntv(IN tt_ipc_ntv_t *ipc,
     __ipc_recv_t ipc_recv;
     int kq;
     tt_fiber_t *cfb;
-    tt_fiber_ev_t *fev;
-    tt_tmr_t *tmr;
 
     *recvd = 0;
     *p_fev = NULL;
@@ -350,8 +348,7 @@ tt_result_t tt_ipc_recv_ntv(IN tt_ipc_ntv_t *ipc,
     kq = __ipc_ev_init(&ipc_recv.io_ev, __IPC_RECV);
     cfb = ipc_recv.io_ev.src;
 
-    if ((tmr = tt_fiber_recv_timer(cfb, TT_FALSE)) != NULL) {
-        *p_tmr = tmr;
+    if (tt_fiber_recv_all(cfb, TT_FALSE, p_fev, p_tmr)) {
         return TT_SUCCESS;
     }
 
@@ -369,15 +366,7 @@ tt_result_t tt_ipc_recv_ntv(IN tt_ipc_ntv_t *ipc,
     tt_fiber_suspend();
     cfb->recving = TT_FALSE;
 
-    // may be awaked due to new fiber event
-    if ((fev = tt_fiber_recv(cfb, TT_FALSE)) != NULL) {
-        *p_fev = fev;
-        ipc_recv.result = TT_SUCCESS;
-    }
-
-    // may be awaked due to expired timer
-    if ((tmr = tt_fiber_recv_timer(cfb, TT_FALSE)) != NULL) {
-        *p_tmr = tmr;
+    if (tt_fiber_recv_all(cfb, TT_FALSE, p_fev, p_tmr)) {
         ipc_recv.result = TT_SUCCESS;
     }
 

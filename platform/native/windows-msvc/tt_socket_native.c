@@ -778,7 +778,7 @@ tt_result_t tt_skt_recv_ntv(IN tt_skt_ntv_t *skt,
             cfb->recving = TT_FALSE;
 
             if (!skt_recv.canceled) {
-                // if CancelIoEx() succeeds, wait for notification. or 
+                // if CancelIoEx() succeeds, wait for notification. or
                 // GetLastError() may be ERROR_NOT_FOUND which means io
                 // is completed and has been queued
                 if (CancelIoEx((HANDLE)skt->s, &skt_recv.io_ev.wov) ||

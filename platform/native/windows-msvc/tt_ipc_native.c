@@ -387,7 +387,7 @@ tt_result_t tt_ipc_recv_ntv(IN tt_ipc_ntv_t *ipc,
             cfb->recving = TT_FALSE;
 
             if (!ipc_recv.canceled) {
-                // if CancelIoEx() succeeds, wait for notification. or 
+                // if CancelIoEx() succeeds, wait for notification. or
                 // GetLastError() may be ERROR_NOT_FOUND which means io
                 // is completed and has been queued
                 if (CancelIoEx((HANDLE)ipc->pipe, &ipc_recv.io_ev.ov) ||
