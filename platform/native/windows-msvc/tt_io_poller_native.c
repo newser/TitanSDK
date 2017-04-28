@@ -135,7 +135,8 @@ tt_bool_t tt_io_poller_run_ntv(IN tt_io_poller_ntv_t *sys_iop,
                 (dwError == WSAECONNABORTED) || (dwError == WSAECONNRESET)) {
                 io_ev->io_result = TT_END;
             } else if (dwError == ERROR_OPERATION_ABORTED) {
-                TT_ASSERT(0);
+                // when io is canceled by CancelIoEx()
+                io_ev->io_result = TT_FAIL;
             } else {
                 TT_ERROR_NTV("GQCS failed");
                 io_ev->io_result = TT_FAIL;

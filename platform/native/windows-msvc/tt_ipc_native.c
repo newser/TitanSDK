@@ -26,6 +26,7 @@
 #include <os/tt_fiber.h>
 #include <os/tt_fiber_event.h>
 #include <os/tt_task.h>
+#include <time/tt_timer.h>
 
 #include <tt_sys_error.h>
 #include <tt_util_native.h>
@@ -344,18 +345,27 @@ tt_result_t tt_ipc_send_ntv(IN tt_ipc_ntv_t *ipc,
 tt_result_t tt_ipc_recv_ntv(IN tt_ipc_ntv_t *ipc,
                             OUT tt_u8_t *buf,
                             IN tt_u32_t len,
-                            OUT OPT tt_u32_t *recvd,
-                            OUT OPT tt_fiber_ev_t **fev)
+                            OUT tt_u32_t *recvd,
+                            OUT tt_fiber_ev_t **p_fev,
+                            OUT tt_tmr_t **p_tmr)
 {
     __ipc_recv_t ipc_recv;
     tt_fiber_t *cfb;
     DWORD dwError;
+    tt_fiber_ev_t *fev;
+    tt_tmr_t *tmr;
 
     *recvd = 0;
-    TT_SAFE_ASSIGN(fev, NULL);
+    *p_fev = NULL;
+    *p_tmr = NULL;
 
     __ipc_ev_init(&ipc_recv.io_ev, __IPC_RECV);
     cfb = ipc_recv.io_ev.src;
+
+    if ((tmr = tt_fiber_recv_timer(cfb, TT_FALSE)) != NULL) {
+        *p_tmr = tmr;
+        return TT_SUCCESS;
+    }
 
     ipc_recv.ipc = ipc;
     ipc_recv.buf = buf;
@@ -372,19 +382,29 @@ tt_result_t tt_ipc_recv_ntv(IN tt_ipc_ntv_t *ipc,
         cfb->recving = TT_TRUE;
         tt_fiber_suspend();
         cfb->recving = TT_FALSE;
-        if (ipc_recv.done) {
-            return ipc_recv.result;
-        }
 
-        if (!ipc_recv.canceled) {
-            if (CancelIoEx((HANDLE)ipc->pipe, &ipc_recv.io_ev.wov) ||
+        if (!ipc_recv.done) {
+            if (CancelIoEx((HANDLE)ipc->pipe, &ipc_recv.io_ev.ov) ||
                 (GetLastError() == ERROR_NOT_FOUND)) {
-                ipc_recv.canceled = TT_TRUE;
+                // wait either io is canceled or completed
+                ipc_recv.done = TT_TRUE;
+                goto suspend;
             } else {
-                TT_ERROR_NTV("fail to cancel ipc recv");
+                TT_ERROR("fail to cancel ipc recv");
             }
         }
-        goto suspend;
+
+        if ((fev = tt_fiber_recv(cfb, TT_FALSE)) != NULL) {
+            *p_fev = fev;
+            ipc_recv.result = TT_SUCCESS;
+        }
+
+        if ((tmr = tt_fiber_recv_timer(cfb, TT_FALSE)) != NULL) {
+            *p_tmr = tmr;
+            ipc_recv.result = TT_SUCCESS;
+        }
+
+        return ipc_recv.result;
     }
 
     if (dwError == ERROR_BROKEN_PIPE) {
