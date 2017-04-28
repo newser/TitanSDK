@@ -80,4 +80,14 @@ extern void tt_fiber_send_timer(IN struct tt_fiber_s *dst,
 extern struct tt_tmr_s *tt_fiber_recv_timer(IN struct tt_fiber_s *current,
                                             IN tt_bool_t wait);
 
+tt_inline tt_bool_t tt_fiber_recv_all(IN struct tt_fiber_s *current,
+                                   IN tt_bool_t wait,
+                                   OUT tt_fiber_ev_t **p_fev,
+                                   OUT struct tt_tmr_s **p_tmr)
+{
+    *p_fev = tt_fiber_recv(current, wait);
+    *p_tmr = tt_fiber_recv_timer(current, wait);
+    return TT_BOOL((*p_fev != NULL) || (*p_tmr != NULL));
+}
+
 #endif // __TT_FIBER_EVENT__

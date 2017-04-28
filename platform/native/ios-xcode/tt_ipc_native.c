@@ -352,7 +352,7 @@ tt_result_t tt_ipc_recv_ntv(IN tt_ipc_ntv_t *ipc,
 
     if ((tmr = tt_fiber_recv_timer(cfb, TT_FALSE)) != NULL) {
         *p_tmr = tmr;
-        ipc_recv.result = TT_SUCCESS;
+        return TT_SUCCESS;
     }
 
     ipc_recv.ipc = ipc;

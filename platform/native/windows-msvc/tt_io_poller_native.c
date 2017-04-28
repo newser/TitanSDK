@@ -218,7 +218,7 @@ tt_result_t tt_io_poller_send_ntv(IN tt_io_poller_ntv_t *sys_iop,
 tt_bool_t __worker_io(IN tt_io_ev_t *io_ev)
 {
     TT_ASSERT(io_ev->src != NULL);
-    tt_fiber_resume(io_ev->src, TT_TRUE);
+    tt_fiber_resume(io_ev->src, TT_FALSE);
 
     return TT_TRUE;
 }
@@ -246,7 +246,7 @@ tt_bool_t __fs_io(IN tt_io_ev_t *io_ev)
 {
     if (tt_fs_poller_io(io_ev)) {
         TT_ASSERT(io_ev->src != NULL);
-        tt_fiber_resume(io_ev->src, TT_TRUE);
+        tt_fiber_resume(io_ev->src, TT_FALSE);
     }
 
     return TT_TRUE;
@@ -256,7 +256,7 @@ tt_bool_t __skt_io(IN tt_io_ev_t *io_ev)
 {
     if (tt_skt_poller_io(io_ev)) {
         TT_ASSERT(io_ev->src != NULL);
-        tt_fiber_resume(io_ev->src, TT_TRUE);
+        tt_fiber_resume(io_ev->src, TT_FALSE);
     }
 
     return TT_TRUE;
@@ -266,7 +266,7 @@ tt_bool_t __ipc_io(IN tt_io_ev_t *io_ev)
 {
     if (tt_ipc_poller_io(io_ev)) {
         TT_ASSERT(io_ev->src != NULL);
-        tt_fiber_resume(io_ev->src, TT_TRUE);
+        tt_fiber_resume(io_ev->src, TT_FALSE);
     }
 
     return TT_TRUE;

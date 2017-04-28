@@ -47,6 +47,12 @@
 
 #define __TCP_DETAIL
 
+#if 0
+#define __SKT_DETAIL TT_DEBUG
+#else
+#define __SKT_DETAIL(...)
+#endif
+
 ////////////////////////////////////////////////////////////
 // internal type
 ////////////////////////////////////////////////////////////
@@ -1604,9 +1610,11 @@ static tt_result_t __f_svr_ev(IN void *param)
         return TT_FAIL;
     }
 
+    __SKT_DETAIL("=> svr recv");
     while ((ret = tt_skt_recv(new_s, buf, sizeof(buf), &n, &fev, &e_tmr)) !=
            TT_END) {
         tt_u32_t total = n;
+        __SKT_DETAIL("<= svr recv %d", n);
 #ifdef __TCP_DETAIL
         if (n < sizeof(buf) && n != 0) {
             TT_INFO("server recv %d", n);
@@ -1663,7 +1671,9 @@ static tt_result_t __f_svr_ev(IN void *param)
         blocked in tt_skt_send()
         */
         while (total < sizeof(buf)) {
+            __SKT_DETAIL("=> svr recv");
             ret = tt_skt_recv(new_s, buf, sizeof(buf), &n, &fev, &e_tmr);
+            __SKT_DETAIL("<= svr recv %d", n);
             if (!TT_OK(ret)) {
                 if (ret == TT_END) {
                     break;
@@ -1725,10 +1735,12 @@ static tt_result_t __f_svr_ev(IN void *param)
         TT_ASSERT(total == 0 || total == sizeof(buf));
         tt_atomic_s64_add(&__io_num, total);
 
+        __SKT_DETAIL("=> svr send");
         if (!TT_OK(tt_skt_send(new_s, buf, sizeof(buf), &n))) {
             __ut_skt_err_line = __LINE__;
             return TT_FAIL;
         }
+        __SKT_DETAIL("<= svr send %d", n);
 #ifdef __TCP_DETAIL
         if (n < sizeof(buf)) {
             TT_INFO("server send %d", n);
@@ -1739,6 +1751,8 @@ static tt_result_t __f_svr_ev(IN void *param)
             __ut_skt_err_line = __LINE__;
             return TT_FAIL;
         }
+
+        __SKT_DETAIL("=> svr recv");
     }
 
     if (!TT_OK(tt_skt_shutdown(new_s, TT_SKT_SHUT_WR))) {
@@ -1749,10 +1763,11 @@ static tt_result_t __f_svr_ev(IN void *param)
     TT_INFO("server shutdown");
 #endif
 
-    if (tt_skt_recv(new_s, buf, sizeof(buf), &n, &fev, &e_tmr) != TT_END) {
-        __ut_skt_err_line = __LINE__;
-        return TT_FAIL;
+    while (TT_OK(ret = tt_skt_recv(new_s, buf, sizeof(buf), &n, &fev, &e_tmr))) {
     }
+	if (ret != TT_END) {
+		__ut_skt_err_line = __LINE__;
+	}
 #ifdef __TCP_DETAIL
     TT_INFO("server recv end");
 #endif
@@ -1789,10 +1804,12 @@ static tt_result_t __f_cli_ev(IN void *param)
     while (loop++ < (1 << 10)) {
         tt_u32_t total = 0;
 
+        __SKT_DETAIL("=> cli send");
         if (!TT_OK(tt_skt_send(s, buf, sizeof(buf), &n))) {
             __ut_skt_err_line = __LINE__;
             return TT_FAIL;
         }
+        __SKT_DETAIL("<= cli send %d", n);
 #ifdef __TCP_DETAIL
         if (n < sizeof(buf)) {
             TT_INFO("client sent %d", n);
@@ -1809,20 +1826,26 @@ static tt_result_t __f_cli_ev(IN void *param)
             if (r == 0) {
                 tt_fiber_ev_t e;
                 tt_fiber_ev_init(&e, 0x12345678);
+                __SKT_DETAIL("=> cli send ev wait");
                 tt_fiber_send(svr, &e, TT_TRUE);
+                __SKT_DETAIL("<= cli send ev wait");
             } else {
                 tt_fiber_ev_t *e = tt_fiber_ev_create(0x87654321, 0);
+                __SKT_DETAIL("=> cli send ev");
                 tt_fiber_send(svr, e, TT_FALSE);
+                __SKT_DETAIL("<= cli send ev");
             }
             ++__ut_ev_snd;
         }
 
         total = 0;
         while (total < sizeof(buf)) {
+            __SKT_DETAIL("=> cli recv");
             if (!TT_OK(tt_skt_recv(s, buf, sizeof(buf), &n, &fev, &e_tmr))) {
                 __ut_skt_err_line = __LINE__;
                 return TT_FAIL;
             }
+            __SKT_DETAIL("<= cli recv %d", n);
 #ifdef __TCP_DETAIL
             if (n < sizeof(buf) && n != 0) {
                 TT_INFO("client recv %d", n);
@@ -1873,7 +1896,7 @@ static tt_result_t __f_cli_ev(IN void *param)
     TT_INFO("client shutdown");
 #endif
 
-    while (tt_skt_recv(s, buf, sizeof(buf), &n, &fev, &e_tmr) != TT_END) {
+    while (TT_OK(tt_skt_recv(s, buf, sizeof(buf), &n, &fev, &e_tmr))) {
     }
 #ifdef __TCP_DETAIL
     TT_INFO("client recv end");
