@@ -319,7 +319,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_lpatn_time)
         TT_UT_SUCCESS(ret, "");
 
         // default format: "%Y-%m-%d %H:%M:%S"
-        tt_time_localfmt(tmp, sizeof(tmp), "%Y-%m-%d %H:%M:%S");
+        tt_date_render_now("%Y-%m-%d %H:%M:%S", tmp, sizeof(tmp));
         TT_UT_EQUAL(tt_buf_cmp_cstr(&buf, tmp), 0, "");
 
         tt_logfld_destroy(lpf);
@@ -341,7 +341,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_lpatn_time)
         TT_UT_SUCCESS(ret, "");
 
         // default format: "%Y-%m-%d %H:%M:%S"
-        tt_time_localfmt(tmp, sizeof(tmp), "%Y-%m-%d %H:%M:%S");
+        tt_date_render_now("%Y-%m-%d %H:%M:%S", tmp, sizeof(tmp));
         TT_UT_EQUAL(tt_buf_cmp_cstr(&buf, tmp), 0, "");
 
         tt_logfld_destroy(lpf);
@@ -363,7 +363,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_lpatn_time)
         TT_UT_SUCCESS(ret, "");
 
         // format: "%Y-%m-%d-%H-%M-S"
-        tt_time_localfmt(tmp, sizeof(tmp), "%Y-%m-%d-%H-%M-S");
+        tt_date_render_now("%Y-%m-%d-%H-%M-S", tmp, sizeof(tmp));
         TT_UT_EQUAL(tt_buf_cmp_cstr(&buf, tmp), 0, "");
 
         tt_logfld_destroy(lpf);

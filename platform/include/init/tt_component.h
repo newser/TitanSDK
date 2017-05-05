@@ -75,6 +75,7 @@ typedef enum {
     // time
     TT_COMPONENT_TIME_REF,
     TT_COMPONENT_TIMER_MGR,
+    TT_COMPONENT_DATE,
 
     // event
     TT_COMPONENT_EVENT_CENTER,

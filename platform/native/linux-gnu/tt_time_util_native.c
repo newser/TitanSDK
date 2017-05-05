@@ -46,9 +46,9 @@
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-tt_u32_t tt_time_localfmt_ntv(IN tt_char_t *buf,
-                              IN tt_u32_t buf_size,
-                              IN const tt_char_t *format)
+tt_u32_t tt_date_render_now_ntv(IN tt_char_t *buf,
+                                IN tt_u32_t buf_size,
+                                IN const tt_char_t *format)
 {
     time_t t = time(NULL);
     struct tm tm;
