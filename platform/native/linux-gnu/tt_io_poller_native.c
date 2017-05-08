@@ -333,11 +333,13 @@ again:
 tt_bool_t __worker_io(IN tt_io_ev_t *dummy, IN tt_io_poller_ntv_t *sys_iop)
 {
     uint64_t num;
+    ssize_t n;
     tt_dlist_t dl;
     tt_dnode_t *node;
 
-    read(sys_iop->worker_evfd, &num, sizeof(uint64_t));
-
+    n = read(sys_iop->worker_evfd, &num, sizeof(uint64_t));
+    TT_ASSERT(n == sizeof(uint64_t));
+    
     tt_dlist_init(&dl);
     tt_spinlock_acquire(&sys_iop->worker_lock);
     tt_dlist_move(&dl, &sys_iop->worker_ev);
@@ -356,10 +358,12 @@ tt_bool_t __worker_io(IN tt_io_ev_t *dummy, IN tt_io_poller_ntv_t *sys_iop)
 tt_bool_t __poller_io(IN tt_io_ev_t *dummy, IN tt_io_poller_ntv_t *sys_iop)
 {
     uint64_t num;
+    ssize_t n;
     tt_dlist_t dl;
     tt_dnode_t *node;
 
-    read(sys_iop->poller_evfd, &num, sizeof(uint64_t));
+    n = read(sys_iop->poller_evfd, &num, sizeof(uint64_t));
+    TT_ASSERT(n == sizeof(uint64_t));
 
     tt_dlist_init(&dl);
     tt_spinlock_acquire(&sys_iop->poller_lock);

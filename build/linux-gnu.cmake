@@ -63,6 +63,9 @@ ttcm_choose_compiler_flag(CMAKE_CXX_FLAGS_RELEASE FALSE -finline-functions)
 # .cmake_choose_compiler_flag(CMAKE_CXX_FLAGS TRUE -g)
 #endif ()
 
+# specify gnu99 for some c api
+ttcm_choose_compiler_flag(CMAKE_C_FLAGS FALSE -std=gnu99)
+
 #
 # linker options
 #

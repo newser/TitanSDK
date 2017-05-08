@@ -37,6 +37,7 @@ this file wraps neccesary c standard library operations for purpose:
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdarg.h>
 #include <string.h>
 
 ////////////////////////////////////////////////////////////
