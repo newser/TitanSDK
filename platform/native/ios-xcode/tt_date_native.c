@@ -83,36 +83,39 @@ void tt_date_now_ntv(OUT tt_date_t *date)
     date->tz = tt_g_local_tmzone;
 }
 
-tt_result_t tt_date_render_ntv(IN tt_date_t *date,
-                               IN const tt_char_t *format,
-                               IN tt_char_t *buf,
-                               IN tt_u32_t len)
+tt_u32_t tt_date_render_ntv(IN tt_date_t *date,
+                            IN const tt_char_t *format,
+                            IN tt_char_t *buf,
+                            IN tt_u32_t len)
 {
     struct tm tm;
     tt_u32_t n;
 
     __date2tm(date, &tm);
     n = (tt_u32_t)strftime(buf, len, format, &tm);
-    if ((n == 0) || (n >= len)) {
-        return TT_FAIL;
+    if ((n >= len) || (n == 0)) {
+        *buf = 0;
+        n = 0;
     }
-
-    return TT_SUCCESS;
+    return n;
 }
 
-tt_result_t tt_date_parse_ntv(IN tt_date_t *date,
-                              IN const tt_char_t *format,
-                              IN const tt_char_t *buf)
+tt_u32_t tt_date_parse_ntv(IN tt_date_t *date,
+                           IN const tt_char_t *format,
+                           IN const tt_char_t *buf)
 {
     struct tm tm;
+    const tt_char_t *p;
 
-    if (strptime(buf, format, &tm) == NULL) {
+    p = strptime(buf, format, &tm);
+    if (p != NULL) {
+        __tm2date(&tm, date);
+        TT_ASSERT(p >= buf);
+        return (tt_u32_t)(p - buf);
+    } else {
         TT_ERROR("fail to parse date: %s", buf);
-        return TT_FAIL;
+        return 0;
     }
-
-    __tm2date(&tm, date);
-    return TT_SUCCESS;
 }
 
 void __date2tm(IN tt_date_t *date, OUT struct tm *tm)
