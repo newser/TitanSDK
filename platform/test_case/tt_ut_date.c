@@ -170,32 +170,32 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_date_render)
     tt_date_set_mday(&d, 31); // it can ...
     tt_date_set_hour(&d, 23);
     tt_date_set_minute(&d, 59);
-    tt_date_set_second(&d, 60);
+    tt_date_set_second(&d, 59);
     tt_date_set_dst(&d, TT_TRUE);
     ret = tt_date_render(&d, "%Y-%m-%d %H-%M-%S", buf, sizeof(buf));
     TT_UT_NOT_EQUAL(ret, 0, "");
     TT_UT_EQUAL(ret, tt_strlen(buf), "");
-    TT_UT_EQUAL(tt_strcmp(buf, "2020-11-31 23-59-60"), 0, "");
+    TT_UT_EQUAL(tt_strcmp(buf, "2020-11-31 23-59-59"), 0, "");
 
     ret = tt_date_render(&d,
                          "%Y-%m-%d %H-%M-%S",
                          buf,
-                         sizeof("2020-11-31 23-59-60") - 1);
+                         sizeof("2020-11-31 23-59-59") - 1);
     TT_UT_FAIL(ret, "");
     ret = tt_date_render(&d,
                          "%Y-%m-%d %H-%M-%S",
                          buf,
-                         sizeof("2020-11-31 23-59-60"));
+                         sizeof("2020-11-31 23-59-59"));
     TT_UT_NOT_EQUAL(ret, 0, "");
     TT_UT_EQUAL(ret, tt_strlen(buf), "");
-    TT_UT_EQUAL(tt_strcmp(buf, "2020-11-31 23-59-60"), 0, "");
+    TT_UT_EQUAL(tt_strcmp(buf, "2020-11-31 23-59-59"), 0, "");
 
     TT_UT_EQUAL(tt_date_get_year(&d), 2020, "");
     TT_UT_EQUAL(tt_date_get_month(&d), TT_NOVEMBER, "");
     TT_UT_EQUAL(tt_date_get_mday(&d), 31, "");
     TT_UT_EQUAL(tt_date_get_hour(&d), 23, "");
     TT_UT_EQUAL(tt_date_get_minute(&d), 59, "");
-    TT_UT_EQUAL(tt_date_get_second(&d), 60, "");
+    TT_UT_EQUAL(tt_date_get_second(&d), 59, "");
     TT_UT_EQUAL(tt_date_get_dst(&d), TT_TRUE, "");
 
     // test end
@@ -215,53 +215,53 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_date_parse)
 
     ret = tt_date_parse(&d,
                         "%Y-%m-%d %H-%M-%S",
-                        "2020-11-31 23-59-60",
-                        sizeof("2020-11-31 23-59-60"));
+                        "2020-11-31 23-59-59",
+                        sizeof("2020-11-31 23-59-59"));
     TT_UT_NOT_EQUAL(ret, 0, "");
-    TT_UT_EQUAL(ret, sizeof("2020-11-31 23-59-60") - 1, "");
+    TT_UT_EQUAL(ret, sizeof("2020-11-31 23-59-59") - 1, "");
     TT_UT_EQUAL(tt_date_get_year(&d), 2020, "");
     TT_UT_EQUAL(tt_date_get_month(&d), TT_NOVEMBER, "");
     TT_UT_EQUAL(tt_date_get_mday(&d), 31, "");
     TT_UT_EQUAL(tt_date_get_hour(&d), 23, "");
     TT_UT_EQUAL(tt_date_get_minute(&d), 59, "");
-    TT_UT_EQUAL(tt_date_get_second(&d), 60, "");
+    TT_UT_EQUAL(tt_date_get_second(&d), 59, "");
     TT_UT_EQUAL(tt_date_get_dst(&d), TT_FALSE, "");
 
     ret = tt_date_parse(
         &d,
         "%Y-%m-%d %H-%M-%S",
-        "2020-11-31 23-59-60 2020-11-31 23-59-60 2020-11-31 23-59-60"
-        "2020-11-31 23-59-60 2020-11-31 23-59-60 2020-11-31 23-59-60"
-        "2020-11-31 23-59-60 2020-11-31 23-59-60 2020-11-31 23-59-60"
-        "2020-11-31 23-59-60 2020-11-31 23-59-60 2020-11-31 23-59-60",
+        "2020-11-31 23-59-59 2020-11-31 23-59-59 2020-11-31 23-59-59"
+        "2020-11-31 23-59-59 2020-11-31 23-59-59 2020-11-31 23-59-59"
+        "2020-11-31 23-59-59 2020-11-31 23-59-59 2020-11-31 23-59-59"
+        "2020-11-31 23-59-59 2020-11-31 23-59-59 2020-11-31 23-59-59",
         127);
     TT_UT_NOT_EQUAL(ret, 0, "");
-    TT_UT_EQUAL(ret, sizeof("2020-11-31 23-59-60") - 1, "");
+    TT_UT_EQUAL(ret, sizeof("2020-11-31 23-59-59") - 1, "");
     TT_UT_EQUAL(tt_date_get_year(&d), 2020, "");
 
     ret = tt_date_parse(
         &d,
         "%Y-%m-%d %H-%M-%S",
-        "2020-11-31 23-59-60 2020-11-31 23-59-60 2020-11-31 23-59-60"
-        "2020-11-31 23-59-60 2020-11-31 23-59-60 2020-11-31 23-59-60"
-        "2020-11-31 23-59-60 2020-11-31 23-59-60 2020-11-31 23-59-60"
-        "2020-11-31 23-59-60 2020-11-31 23-59-60 2020-11-31 23-59-60",
+        "2020-11-31 23-59-59 2020-11-31 23-59-59 2020-11-31 23-59-59"
+        "2020-11-31 23-59-59 2020-11-31 23-59-59 2020-11-31 23-59-59"
+        "2020-11-31 23-59-59 2020-11-31 23-59-59 2020-11-31 23-59-59"
+        "2020-11-31 23-59-59 2020-11-31 23-59-59 2020-11-31 23-59-59",
         128);
     TT_UT_NOT_EQUAL(ret, 0, "");
-    TT_UT_EQUAL(ret, sizeof("2020-11-31 23-59-60") - 1, "");
+    TT_UT_EQUAL(ret, sizeof("2020-11-31 23-59-59") - 1, "");
     TT_UT_EQUAL(tt_date_get_year(&d), 2020, "");
 
     ret = tt_date_parse(
         &d,
         "%Y-%m-%d %H-%M-%S",
-        "2020-11-31 23-59-60 2020-11-31 23-59-60 2020-11-31 23-59-60"
-        "2020-11-31 23-59-60 2020-11-31 23-59-60 2020-11-31 23-59-60"
-        "2020-11-31 23-59-60 2020-11-31 23-59-60 2020-11-31 23-59-60"
-        "2020-11-31 23-59-60 2020-11-31 23-59-60 2020-11-31 23-59-60",
+        "2020-11-31 23-59-59 2020-11-31 23-59-59 2020-11-31 23-59-59"
+        "2020-11-31 23-59-59 2020-11-31 23-59-59 2020-11-31 23-59-59"
+        "2020-11-31 23-59-59 2020-11-31 23-59-59 2020-11-31 23-59-59"
+        "2020-11-31 23-59-59 2020-11-31 23-59-59 2020-11-31 23-59-59",
         130);
     TT_UT_NOT_EQUAL(ret, 0, "");
-    TT_UT_EQUAL(ret, sizeof("2020-11-31 23-59-60") - 1, "");
-    TT_UT_EQUAL(tt_date_get_second(&d), 60, "");
+    TT_UT_EQUAL(ret, sizeof("2020-11-31 23-59-59") - 1, "");
+    TT_UT_EQUAL(tt_date_get_second(&d), 59, "");
 
     ret = tt_date_parse(&d,
                         "%Y-%m-%d %H-%M-%S",
@@ -271,8 +271,8 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_date_parse)
 
     ret = tt_date_parse(&d,
                         "%Y-%m-%d %H-%M-%S",
-                        "2020-13-31 23-59-60",
-                        sizeof("2020-13-31 23-59-60"));
+                        "2020-13-31 23-59-59",
+                        sizeof("2020-13-31 23-59-59"));
     TT_UT_EQUAL(ret, 0, "");
 
     // test end

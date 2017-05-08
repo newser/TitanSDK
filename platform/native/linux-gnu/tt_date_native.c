@@ -65,7 +65,7 @@ tt_result_t tt_date_component_init_ntv(IN tt_profile_t *profile)
 
 tt_tmzone_t tt_local_tmzone_ntv()
 {
-    time_t t, gt, lt;
+    time_t t;
     struct tm gtm, ltm;
 
     time(&t);
@@ -95,7 +95,7 @@ tt_u32_t tt_date_render_ntv(IN tt_date_t *date,
     tt_u32_t n;
 
     __date2tm(date, &tm);
-    n = strftime(buf, len, format, &tm);
+    n = (tt_u32_t)strftime(buf, len, format, &tm);
     if ((n >= len) || (n == 0)) {
         *buf = 0;
         n = 0;

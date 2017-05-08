@@ -128,7 +128,7 @@ tt_inline tt_u32_t tt_date_get_minute(IN tt_date_t *date)
 
 tt_inline void tt_date_set_second(IN tt_date_t *date, IN tt_u32_t second)
 {
-    TT_ASSERT(second <= 60);
+    TT_ASSERT(second <= 59);
     date->second = (tt_u8_t)second;
 }
 

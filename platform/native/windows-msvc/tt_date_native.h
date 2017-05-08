@@ -15,24 +15,27 @@
  */
 
 /**
-@file tt_time_util_native.h
-@brief time APIs
+@file tt_date_native.h
+@brief date native
 
-this file specifies time interfaces
+this file specifies date native interfaces
 */
 
-#ifndef __TT_TIME_UTIL_NATIVE__
-#define __TT_TIME_UTIL_NATIVE__
+#ifndef __TT_DATE_NATIVE__
+#define __TT_DATE_NATIVE__
 
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <tt_basic_type.h>
+#include <time/tt_date_def.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
 ////////////////////////////////////////////////////////////
+
+struct tt_profile_s;
+struct tt_date_s;
 
 ////////////////////////////////////////////////////////////
 // type definition
@@ -46,8 +49,19 @@ this file specifies time interfaces
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern tt_u32_t tt_date_render_now_ntv(IN tt_char_t *buf,
-                                       IN tt_u32_t buf_size,
-                                       IN const tt_char_t *format);
+extern tt_result_t tt_date_component_init_ntv(IN struct tt_profile_s *profile);
 
-#endif /* __TT_TIME_UTIL_NATIVE__ */
+extern tt_tmzone_t tt_local_tmzone_ntv();
+
+extern void tt_date_now_ntv(OUT struct tt_date_s *date);
+
+extern tt_u32_t tt_date_render_ntv(IN struct tt_date_s *date,
+                                   IN const tt_char_t *format,
+                                   IN tt_char_t *buf,
+                                   IN tt_u32_t len);
+
+extern tt_u32_t tt_date_parse_ntv(IN struct tt_date_s *date,
+                                  IN const tt_char_t *format,
+                                  IN const tt_char_t *buf);
+
+#endif /* __TT_DATE_NATIVE__ */
