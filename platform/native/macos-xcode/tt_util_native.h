@@ -60,71 +60,11 @@ this file provided some basic utilities for platform usage
 
 #define tt_kq_read(kq, ident, udata)                                           \
     tt_kevent((kq), (ident), EVFILT_READ, EV_ADD | EV_ONESHOT, (udata))
+#define tt_kq_unread(kq, ident, udata)                                         \
+    tt_kevent((kq), (ident), EVFILT_READ, EV_DELETE, (udata))
 
 #define tt_kq_write(kq, ident, udata)                                          \
     tt_kevent((kq), (ident), EVFILT_WRITE, EV_ADD | EV_ONESHOT, (udata))
-
-// socket kqueue
-#define __skt_kq_rd_add(kq, ident, udata)                                      \
-    tt_kevent((kq), (ident), EVFILT_READ, EV_ADD | EV_DISABLE, (udata))
-#define __skt_kq_rd_enable(sys_skt)                                            \
-    tt_kevent((sys_skt)->evc->sys_evc.kq_fd,                                   \
-              (sys_skt)->s,                                                    \
-              EVFILT_READ,                                                     \
-              EV_ENABLE,                                                       \
-              &(sys_skt)->ev_mark_rd)
-#define __skt_kq_rd_disable(sys_skt)                                           \
-    tt_kevent((sys_skt)->evc->sys_evc.kq_fd,                                   \
-              (sys_skt)->s,                                                    \
-              EVFILT_READ,                                                     \
-              EV_DISABLE,                                                      \
-              &(sys_skt)->ev_mark_rd)
-
-#define __skt_kq_wr_add(kq, ident, udata)                                      \
-    tt_kevent((kq), (ident), EVFILT_WRITE, EV_ADD | EV_DISABLE, (udata))
-#define __skt_kq_wr_enable(sys_skt)                                            \
-    tt_kevent((sys_skt)->evc->sys_evc.kq_fd,                                   \
-              (sys_skt)->s,                                                    \
-              EVFILT_WRITE,                                                    \
-              EV_ENABLE,                                                       \
-              &(sys_skt)->ev_mark_wr)
-#define __skt_kq_wr_disable(sys_skt)                                           \
-    tt_kevent((sys_skt)->evc->sys_evc.kq_fd,                                   \
-              (sys_skt)->s,                                                    \
-              EVFILT_WRITE,                                                    \
-              EV_DISABLE,                                                      \
-              &(sys_skt)->ev_mark_wr)
-
-// ipc kqueue
-#define __ipc_kq_rd_add(kq, ident, udata)                                      \
-    tt_kevent((kq), (ident), EVFILT_READ, EV_ADD | EV_DISABLE, (udata))
-#define __ipc_kq_rd_enable(sys_ipc)                                            \
-    tt_kevent((sys_ipc)->evc->sys_evc.kq_fd,                                   \
-              (sys_ipc)->s,                                                    \
-              EVFILT_READ,                                                     \
-              EV_ENABLE,                                                       \
-              &(sys_ipc)->ev_mark_rd)
-#define __ipc_kq_rd_disable(sys_ipc)                                           \
-    tt_kevent((sys_ipc)->evc->sys_evc.kq_fd,                                   \
-              (sys_ipc)->s,                                                    \
-              EVFILT_READ,                                                     \
-              EV_DISABLE,                                                      \
-              &(sys_ipc)->ev_mark_rd)
-
-#define __ipc_kq_wr_add(kq, ident, udata)                                      \
-    tt_kevent((kq), (ident), EVFILT_WRITE, EV_ADD | EV_DISABLE, (udata))
-#define __ipc_kq_wr_enable(sys_ipc)                                            \
-    tt_kevent((sys_ipc)->evc->sys_evc.kq_fd,                                   \
-              (sys_ipc)->s,                                                    \
-              EVFILT_WRITE,                                                    \
-              EV_ENABLE,                                                       \
-              &(sys_ipc)->ev_mark_wr)
-#define __ipc_kq_wr_disable(sys_ipc)                                           \
-    tt_kevent((sys_ipc)->evc->sys_evc.kq_fd,                                   \
-              (sys_ipc)->s,                                                    \
-              EVFILT_WRITE,                                                    \
-              EV_DISABLE,                                                      \
-              &(sys_ipc)->ev_mark_wr)
 
 ////////////////////////////////////////////////////////////
 // type definition

@@ -21,7 +21,6 @@
 #include <tt_time_reference_native.h>
 
 #include <misc/tt_assert.h>
-#include <misc/tt_util.h>
 
 ////////////////////////////////////////////////////////////
 // internal macro

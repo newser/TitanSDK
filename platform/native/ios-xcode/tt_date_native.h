@@ -14,51 +14,54 @@
  * limitations under the License.
  */
 
+/**
+@file tt_date_native.h
+@brief date native
+
+this file specifies date native interfaces
+*/
+
+#ifndef __TT_DATE_NATIVE__
+#define __TT_DATE_NATIVE__
+
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <tt_time_util_native.h>
-
-#include <time.h>
+#include <time/tt_date_def.h>
 
 ////////////////////////////////////////////////////////////
-// internal macro
+// macro definition
 ////////////////////////////////////////////////////////////
 
-////////////////////////////////////////////////////////////
-// internal type
-////////////////////////////////////////////////////////////
+struct tt_profile_s;
+struct tt_date_s;
 
 ////////////////////////////////////////////////////////////
-// extern declaration
+// type definition
 ////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////
-// global variant
+// global variants
 ////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-////////////////////////////////////////////////////////////
-// interface implementation
-////////////////////////////////////////////////////////////
+extern tt_result_t tt_date_component_init_ntv(IN struct tt_profile_s *profile);
 
-tt_u32_t tt_time_localfmt_ntv(IN tt_char_t *buf,
-                              IN tt_u32_t buf_size,
-                              IN const tt_char_t *format)
-{
-    time_t t = time(NULL);
-    struct tm tm;
-    tt_u32_t n;
+extern tt_tmzone_t tt_local_tmzone_ntv();
 
-    localtime_r(&t, &tm);
-    n = strftime(buf, buf_size, format, &tm);
-    if ((n >= buf_size) || (n == 0)) {
-        *buf = 0;
-        n = 0;
-    }
-    return n;
-}
+extern void tt_date_now_ntv(OUT struct tt_date_s *date);
+
+extern tt_u32_t tt_date_render_ntv(IN struct tt_date_s *date,
+                                   IN const tt_char_t *format,
+                                   IN tt_char_t *buf,
+                                   IN tt_u32_t len);
+
+extern tt_u32_t tt_date_parse_ntv(IN struct tt_date_s *date,
+                                  IN const tt_char_t *format,
+                                  IN const tt_char_t *buf);
+
+#endif /* __TT_DATE_NATIVE__ */

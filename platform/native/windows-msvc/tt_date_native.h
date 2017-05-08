@@ -15,42 +15,31 @@
  */
 
 /**
-@file tt_tmr_container.h
-@brief timer manager
+@file tt_date_native.h
+@brief date native
 
-this file specifies interfaces of timer container
+this file specifies date native interfaces
 */
 
-#ifndef __TT_TIMER_CONTAINER__
-#define __TT_TIMER_CONTAINER__
+#ifndef __TT_DATE_NATIVE__
+#define __TT_DATE_NATIVE__
 
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <algorithm/ptr/tt_ptr_heap.h>
+#include <time/tt_date_def.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
 ////////////////////////////////////////////////////////////
 
+struct tt_profile_s;
+struct tt_date_s;
+
 ////////////////////////////////////////////////////////////
 // type definition
 ////////////////////////////////////////////////////////////
-
-struct tt_tmr_s;
-
-typedef struct
-{
-    tt_ptrheap_attr_t tmr_heap_attr;
-} tt_tmr_mgr_attr_t;
-
-typedef struct tt_tmr_mgr_s
-{
-    tt_tmr_mgr_attr_t attr;
-
-    tt_ptrheap_t tmr_heap;
-} tt_tmr_mgr_t;
 
 ////////////////////////////////////////////////////////////
 // global variants
@@ -60,27 +49,19 @@ typedef struct tt_tmr_mgr_s
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-/**
-@fn void tt_tmr_mgr_component_register()
-register timer manager system
-*/
-extern void tt_tmr_mgr_component_register();
+extern tt_result_t tt_date_component_init_ntv(IN struct tt_profile_s *profile);
 
-extern tt_result_t tt_tmr_mgr_create(IN tt_tmr_mgr_t *mgr,
-                                     IN OPT tt_tmr_mgr_attr_t *attr);
+extern tt_tmzone_t tt_local_tmzone_ntv();
 
-extern void tt_tmr_mgr_destroy(IN tt_tmr_mgr_t *mgr);
+extern void tt_date_now_ntv(OUT struct tt_date_s *date);
 
-extern void tt_tmr_mgr_attr_default(IN tt_tmr_mgr_attr_t *attr);
+extern tt_u32_t tt_date_render_ntv(IN struct tt_date_s *date,
+                                   IN const tt_char_t *format,
+                                   IN tt_char_t *buf,
+                                   IN tt_u32_t len);
 
-// call expired timers' callback
-// - return how long that next timer would expire
-// - return TT_TIME_INFINITE if no timer in mgr
-extern tt_s64_t tt_tmr_mgr_run(IN tt_tmr_mgr_t *mgr);
+extern tt_u32_t tt_date_parse_ntv(IN struct tt_date_s *date,
+                                  IN const tt_char_t *format,
+                                  IN const tt_char_t *buf);
 
-tt_inline struct tt_tmr_s *tt_tmr_mgr_head(IN tt_tmr_mgr_t *mgr)
-{
-    return (struct tt_tmr_s *)tt_ptrheap_head(&mgr->tmr_heap);
-}
-
-#endif /* __TT_TIMER_CONTAINER__ */
+#endif /* __TT_DATE_NATIVE__ */

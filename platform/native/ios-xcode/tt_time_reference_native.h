@@ -30,10 +30,7 @@ this file specifies system interfaces for time reference
 
 #include <tt_basic_type.h>
 
-#include <errno.h>
 #include <mach/mach_time.h>
-#include <pthread.h>
-#include <string.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition

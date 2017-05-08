@@ -29,6 +29,7 @@
 #include <log/tt_log.h>
 #include <os/tt_fiber_event.h>
 #include <os/tt_task.h>
+#include <time/tt_timer.h>
 
 #include <tt_cstd_api.h>
 #include <tt_util_native.h>
@@ -190,6 +191,7 @@ typedef struct
 
     tt_result_t result;
     int ep;
+    tt_bool_t done : 1;
 } __skt_recv_t;
 
 typedef struct
@@ -219,6 +221,7 @@ typedef struct
 
     tt_result_t result;
     int ep;
+    tt_bool_t done : 1;
 } __skt_recvfrom_t;
 
 ////////////////////////////////////////////////////////////
@@ -488,18 +491,23 @@ tt_result_t tt_skt_recvfrom_ntv(IN tt_skt_ntv_t *skt,
                                 IN tt_u32_t len,
                                 OUT OPT tt_u32_t *recvd,
                                 OUT OPT tt_sktaddr_t *addr,
-                                OUT OPT tt_fiber_ev_t **fev)
+                                OUT struct tt_fiber_ev_s **p_fev,
+                                OUT struct tt_tmr_s **p_tmr)
 {
     __skt_recvfrom_t skt_recvfrom;
     int ep;
     tt_fiber_t *cfb;
-    tt_fiber_ev_t *p;
 
     *recvd = 0;
-    TT_SAFE_ASSIGN(fev, NULL);
+    *p_fev = NULL;
+    *p_tmr = NULL;
 
     ep = __skt_ev_init(&skt_recvfrom.io_ev, __SKT_RECVFROM);
     cfb = skt_recvfrom.io_ev.src;
+
+    if (tt_fiber_recv_all(cfb, TT_FALSE, p_fev, p_tmr)) {
+        return TT_SUCCESS;
+    }
 
     skt_recvfrom.skt = skt;
     skt_recvfrom.buf = buf;
@@ -509,6 +517,7 @@ tt_result_t tt_skt_recvfrom_ntv(IN tt_skt_ntv_t *skt,
 
     skt_recvfrom.result = TT_FAIL;
     skt_recvfrom.ep = ep;
+    skt_recvfrom.done = TT_FALSE;
 
     tt_ep_read(ep, skt->s, &skt_recvfrom.io_ev);
 
@@ -516,9 +525,11 @@ tt_result_t tt_skt_recvfrom_ntv(IN tt_skt_ntv_t *skt,
     tt_fiber_suspend();
     cfb->recving = TT_FALSE;
 
-    // may be awaked due to new fiber event
-    if ((fev != NULL) && ((p = tt_fiber_recv(cfb, TT_FALSE)) != NULL)) {
-        *fev = p;
+    if (!skt_recvfrom.done) {
+        tt_ep_unread(ep, skt->s, &__s_null_io_ev);
+    }
+
+    if (tt_fiber_recv_all(cfb, TT_FALSE, p_fev, p_tmr)) {
         skt_recvfrom.result = TT_SUCCESS;
     }
 
@@ -579,18 +590,23 @@ tt_result_t tt_skt_recv_ntv(IN tt_skt_ntv_t *skt,
                             OUT tt_u8_t *buf,
                             IN tt_u32_t len,
                             OUT OPT tt_u32_t *recvd,
-                            OUT OPT tt_fiber_ev_t **fev)
+                            OUT struct tt_fiber_ev_s **p_fev,
+                            OUT struct tt_tmr_s **p_tmr)
 {
     __skt_recv_t skt_recv;
     int ep;
     tt_fiber_t *cfb;
-    tt_fiber_ev_t *p;
 
     *recvd = 0;
-    TT_SAFE_ASSIGN(fev, NULL);
+    *p_fev = NULL;
+    *p_tmr = NULL;
 
     ep = __skt_ev_init(&skt_recv.io_ev, __SKT_RECV);
     cfb = skt_recv.io_ev.src;
+
+    if (tt_fiber_recv_all(cfb, TT_FALSE, p_fev, p_tmr)) {
+        return TT_SUCCESS;
+    }
 
     skt_recv.skt = skt;
     skt_recv.buf = buf;
@@ -599,6 +615,7 @@ tt_result_t tt_skt_recv_ntv(IN tt_skt_ntv_t *skt,
 
     skt_recv.result = TT_FAIL;
     skt_recv.ep = ep;
+    skt_recv.done = TT_FALSE;
 
     tt_ep_read(ep, skt->s, &skt_recv.io_ev);
 
@@ -606,9 +623,11 @@ tt_result_t tt_skt_recv_ntv(IN tt_skt_ntv_t *skt,
     tt_fiber_suspend();
     cfb->recving = TT_FALSE;
 
-    // may be awaked due to new fiber event
-    if ((fev != NULL) && ((p = tt_fiber_recv(cfb, TT_FALSE)) != NULL)) {
-        *fev = p;
+    if (!skt_recv.done) {
+        tt_ep_unread(ep, skt->s, &__s_null_io_ev);
+    }
+
+    if (tt_fiber_recv_all(cfb, TT_FALSE, p_fev, p_tmr)) {
         skt_recv.result = TT_SUCCESS;
     }
 
@@ -902,11 +921,13 @@ tt_bool_t __do_recv(IN tt_io_ev_t *io_ev)
 again:
     n = recv(skt_recv->skt->s, skt_recv->buf, skt_recv->len, 0);
     if (n > 0) {
-        TT_SAFE_ASSIGN(skt_recv->recvd, n);
+        *skt_recv->recvd = (tt_u32_t)n;
         skt_recv->result = TT_SUCCESS;
+        skt_recv->done = TT_TRUE;
         return TT_TRUE;
     } else if (n == 0) {
         skt_recv->result = TT_END;
+        skt_recv->done = TT_TRUE;
         return TT_TRUE;
     } else if (errno == EINTR) {
         goto again;
@@ -924,6 +945,7 @@ again:
         TT_ERROR_NTV("recv failed");
         skt_recv->result = TT_FAIL;
     }
+    skt_recv->done = TT_TRUE;
     return TT_TRUE;
 }
 
@@ -987,11 +1009,13 @@ again:
                  (struct sockaddr *)skt_recvfrom->addr,
                  &addr_len);
     if (n > 0) {
-        TT_SAFE_ASSIGN(skt_recvfrom->recvd, n);
+        *skt_recvfrom->recvd = (tt_u32_t)n;
         skt_recvfrom->result = TT_SUCCESS;
+        skt_recvfrom->done = TT_TRUE;
         return TT_TRUE;
     } else if (n == 0) {
         skt_recvfrom->result = TT_END;
+        skt_recvfrom->done = TT_TRUE;
         return TT_TRUE;
     } else if (errno == EINTR) {
         goto again;
@@ -1009,6 +1033,7 @@ again:
         TT_ERROR_NTV("recvfrom failed");
         skt_recvfrom->result = TT_FAIL;
     }
+    skt_recvfrom->done = TT_TRUE;
     return TT_TRUE;
 }
 

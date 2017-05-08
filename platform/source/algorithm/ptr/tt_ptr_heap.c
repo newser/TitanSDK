@@ -30,7 +30,7 @@
 // internal macro
 ////////////////////////////////////////////////////////////
 
-#ifdef TT_ARRAY_HEAP_SANITY_CHECK
+#ifdef TT_PTR_HEAP_SANITY_CHECK
 #define __PH_ASSERTION
 #define __PH_DO_SANITY_CHECK // expensive check
 #endif

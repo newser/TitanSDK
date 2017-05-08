@@ -75,7 +75,7 @@ tt_result_t tt_fiber_create_wrap(IN tt_fiber_wrap_t *wrap_fb,
 
 void tt_fiber_destroy_wrap(IN tt_fiber_wrap_t *wrap_fb)
 {
-    __destroy_stack();
+    __destroy_stack(wrap_fb);
 }
 
 void tt_fiber_switch_wrap(IN tt_fiber_sched_t *fs,
@@ -143,6 +143,20 @@ void __fiber_routine_wrapper(IN tt_transfer_t t)
 
 tt_result_t __create_stack(IN tt_fiber_wrap_t *wrap_fb, IN tt_u32_t stack_size)
 {
+#ifdef TT_PAGE_BY_MALLOC
+    void *stack;
+
+    TT_U32_ALIGN_INC_PAGE(stack_size);
+    stack = tt_c_malloc(stack_size);
+    if (stack == NULL) {
+        TT_ERROR_NTV("fail to malloc stack");
+        return TT_FAIL;
+    }
+
+    wrap_fb->stack = TT_PTR_INC(void, stack, stack_size);
+    wrap_fb->stack_size = stack_size;
+    return TT_SUCCESS;
+#else
     void *stack;
     tt_u32_t size;
 
@@ -166,12 +180,17 @@ tt_result_t __create_stack(IN tt_fiber_wrap_t *wrap_fb, IN tt_u32_t stack_size)
     wrap_fb->stack = TT_PTR_INC(void, stack, stack_size + tt_g_page_size);
     wrap_fb->stack_size = stack_size;
     return TT_SUCCESS;
+#endif
 }
 
 void __destroy_stack(IN tt_fiber_wrap_t *wrap_fb)
 {
+#ifdef TT_PAGE_BY_MALLOC
+    tt_free(TT_PTR_DEC(void, wrap_fb->stack, wrap_fb->stack_size));
+#else
     munmap(TT_PTR_DEC(void,
                       wrap_fb->stack,
                       wrap_fb->stack_size + tt_g_page_size),
            wrap_fb->stack_size + (tt_g_page_size << 1));
+#endif
 }

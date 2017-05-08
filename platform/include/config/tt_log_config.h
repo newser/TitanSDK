@@ -42,27 +42,6 @@ enable trace
 */
 #define TT_LOG_ENABLE
 
-/**
-@def TT_LOG_SYNC
-enable trace sync, traces are printed exclusively. this harm performance
-but is useful during debugging
-*/
-#define TT_LOG_SYNC
-
-/**
-@def TT_LOG_BUF_INIT_SIZE
-if app does not specify log buf size, ts log will use this value as the
-initial log buf size
-*/
-#define TT_LOG_BUF_INIT_SIZE 1000
-
-/**
-@def TT_LOG_BUF_MAX_SIZE
-if app does not specify log buf size, ts log buf can be expanded but won't
-exceed value specified here
-*/
-#define TT_LOG_BUF_MAX_SIZE (1 << 20) // 1M
-
 // ========================================
 // assert
 // ========================================

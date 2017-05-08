@@ -8,7 +8,7 @@
 #include <memory/tt_memory_alloc.h>
 #include <os/tt_spinlock.h>
 #include <os/tt_task.h>
-#include <timer/tt_time_reference.h>
+#include <time/tt_time_reference.h>
 
 //#define __perf_vs
 #ifdef __perf_vs

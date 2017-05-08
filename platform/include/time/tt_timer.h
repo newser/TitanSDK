@@ -35,7 +35,7 @@ this file specifies interfaces of timer
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <tt_basic_type.h>
+#include <algorithm/tt_list.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
@@ -45,43 +45,29 @@ this file specifies interfaces of timer
 // type definition
 ////////////////////////////////////////////////////////////
 
+struct tt_fiber_s;
 struct tt_tmr_mgr_s;
-struct tt_tmr_s;
 
-/**
-@typedef void (*tt_tmr_cb_t)(IN void* param, \
-                                   IN struct tt_tmr_s *timer)
-function that is executed when timer expires
+typedef enum {
+    TT_TMR_INACTIVE,
+    TT_TMR_ACTIVE,
+    TT_TMR_ORPHAN,
 
-@note
-it's safely to modify timer in this callback
-*/
-typedef void (*tt_tmr_cb_t)(IN struct tt_tmr_s *tmr,
-                            IN void *cb_param,
-                            IN tt_u32_t reason);
-// reason
-#define TT_TMR_CB_EXPIRED 0
-#define TT_TMR_CB_DESTROYED 1
+    TT_TMR_STATUS_NUM
+} tt_tmr_status_t;
+#define TT_TMR_STATUS_VALID(s) ((s) < TT_TMR_STATUS_NUM)
 
 typedef struct tt_tmr_s
 {
-    __TT_PRIVATE__
-
     tt_s64_t delay_ms;
-    void *opaque;
-    tt_tmr_cb_t cb;
-    void *cb_param;
-
-    tt_bool_t notify_destroyed : 1;
-
-    tt_u32_t status : 2;
-#define __TMR_INACTIVE 0
-#define __TMR_ACTIVE 1
-#define __TMR_ORPHAN 2
-
-    tt_u32_t heap_idx;
+    tt_s64_t absolute_ref;
+    struct tt_fiber_s *owner;
+    tt_lnode_t node;
+    void *param;
     struct tt_tmr_mgr_s *mgr;
-    tt_s64_t absolute_expire_time;
+    tt_u32_t ev;
+    tt_u32_t heap_pos;
+    tt_tmr_status_t status;
 } tt_tmr_t;
 
 ////////////////////////////////////////////////////////////
@@ -93,11 +79,9 @@ typedef struct tt_tmr_s
 ////////////////////////////////////////////////////////////
 
 /**
-@fn tt_tmr_t *tt_tmr_create(IN IN struct tt_tmr_mgr_s *mgr,
-                                IN tt_s64_t delay_ms,
-                                IN tt_tmr_cb_t action,
-                                IN void* param,
-                                IN tt_uintptr_t private_data)
+ @fn tt_tmr_t *tt_tmr_create(IN tt_s64_t delay_ms,
+                             IN tt_u32_t ev,
+                             IN OPT void *param)
 create a timer
 
 @param [in] mgr timer manager
@@ -117,14 +101,9 @@ create a timer
 - accessing the timer outside the thread where the timer manager is running
   is not consistent as the manager may be changing it
 */
-extern tt_tmr_t *tt_tmr_create(IN IN struct tt_tmr_mgr_s *mgr,
-                               IN tt_s64_t delay_ms,
-                               IN void *opaque,
-                               IN tt_tmr_cb_t cb,
-                               IN OPT void *cb_param,
-                               IN tt_u32_t flag);
-// flag
-#define TT_TMR_NOTIFY_DESTROYED (1 << 0)
+extern tt_tmr_t *tt_tmr_create(IN tt_s64_t delay_ms,
+                               IN tt_u32_t ev,
+                               IN OPT void *param);
 
 /**
 @fn void tt_tmr_destroy(IN tt_tmr_t *tmr)
@@ -162,26 +141,27 @@ stop a timer
 @note
 this function is not thread safe
 */
-extern void tt_tmr_stop(IN tt_tmr_t *tmr);
+tt_inline void tt_tmr_stop(IN tt_tmr_t *tmr)
+{
+    tmr->status = TT_TMR_INACTIVE;
+    // - no need to remove tmr out from heap so as to avoid rebuilding heap
+    // - when the timer manager sees an inactive timer, it would pop it
+    //   from heap and then the timer becomes wild(not in heap)
+}
 
 tt_inline void tt_tmr_set_delay(IN tt_tmr_t *tmr, IN tt_s64_t delay_ms)
 {
     tmr->delay_ms = delay_ms;
 }
 
-tt_inline void tt_tmr_set_opaque(IN tt_tmr_t *tmr, IN void *opaque)
+tt_inline void tt_tmr_set_ev(IN tt_tmr_t *tmr, IN tt_u32_t ev)
 {
-    tmr->opaque = opaque;
+    tmr->ev = ev;
 }
 
-tt_inline void tt_tmr_set_cb(IN tt_tmr_t *tmr, IN tt_tmr_cb_t cb)
+tt_inline void tt_tmr_set_param(IN tt_tmr_t *tmr, IN void *param)
 {
-    tmr->cb = cb;
-}
-
-tt_inline void tt_tmr_set_cbparam(IN tt_tmr_t *tmr, IN void *cb_param)
-{
-    tmr->cb_param = cb_param;
+    tmr->param = param;
 }
 
 #endif /* __TT_TIMER__ */

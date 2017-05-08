@@ -407,7 +407,7 @@ void __adr_skt_on_destroy(IN tt_skt_t *skt, IN void *cb_param)
 
         TT_ASSERT(reconn_tmr != NULL);
         tt_tmr_set_delay(reconn_tmr, 0);
-        tt_tmr_set_cbparam(reconn_tmr, (void *)__RSLVR_TMR_EV_RECREATE);
+        tt_tmr_set_param(reconn_tmr, (void *)__RSLVR_TMR_EV_RECREATE);
         tt_tmr_start(reconn_tmr);
     }
 }

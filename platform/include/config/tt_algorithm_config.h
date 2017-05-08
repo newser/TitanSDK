@@ -37,10 +37,10 @@ this file defines definitions in macros for ts algorithms
 // ========================================
 
 /**
-@def TT_ARRAY_HEAP_SANITY_CHECK
+@def TT_PTR_HEAP_SANITY_CHECK
 non zero value indicates checking heap data structure consistency
 */
-//#define TT_ARRAY_HEAP_SANITY_CHECK
+//#define TT_PTR_HEAP_SANITY_CHECK
 
 // ========================================
 // red black tree

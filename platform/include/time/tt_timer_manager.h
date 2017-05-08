@@ -14,41 +14,71 @@
  * limitations under the License.
  */
 
+/**
+@file tt_tmr_manager.h
+@brief timer manager
+
+this file specifies interfaces of timer manger
+*/
+
+#ifndef __TT_TIMER_MANAGER__
+#define __TT_TIMER_MANAGER__
+
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <timer/tt_time_util.h>
-
-#include <tt_time_util_native.h>
+#include <algorithm/ptr/tt_ptr_heap.h>
 
 ////////////////////////////////////////////////////////////
-// internal macro
+// macro definition
 ////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////
-// internal type
+// type definition
 ////////////////////////////////////////////////////////////
 
-////////////////////////////////////////////////////////////
-// extern declaration
-////////////////////////////////////////////////////////////
+struct tt_tmr_s;
+
+typedef struct
+{
+    tt_ptrheap_attr_t tmr_heap_attr;
+} tt_tmr_mgr_attr_t;
+
+typedef struct tt_tmr_mgr_s
+{
+    tt_ptrheap_t tmr_heap;
+} tt_tmr_mgr_t;
 
 ////////////////////////////////////////////////////////////
-// global variant
+// global variants
 ////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-////////////////////////////////////////////////////////////
-// interface implementation
-////////////////////////////////////////////////////////////
+/**
+@fn void tt_tmr_mgr_component_register()
+register timer manager system
+*/
+extern void tt_tmr_mgr_component_register();
 
-tt_u32_t tt_time_localfmt(IN tt_char_t *buf,
-                          IN tt_u32_t buf_size,
-                          IN const tt_char_t *format)
+extern void tt_tmr_mgr_init(IN tt_tmr_mgr_t *mgr,
+                            IN OPT tt_tmr_mgr_attr_t *attr);
+
+extern void tt_tmr_mgr_destroy(IN tt_tmr_mgr_t *mgr);
+
+extern void tt_tmr_mgr_attr_default(IN tt_tmr_mgr_attr_t *attr);
+
+// call expired timers' callback
+// - return how long that next timer would expire
+// - return TT_TIME_INFINITE if no timer in mgr
+extern tt_s64_t tt_tmr_mgr_run(IN tt_tmr_mgr_t *mgr);
+
+tt_inline struct tt_tmr_s *tt_tmr_mgr_pop(IN tt_tmr_mgr_t *mgr)
 {
-    return tt_time_localfmt_ntv(buf, buf_size, format);
+    return (struct tt_tmr_s *)tt_ptrheap_pop(&mgr->tmr_heap);
 }
+
+#endif /* __TT_TIMER_MANAGER__ */

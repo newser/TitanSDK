@@ -42,6 +42,7 @@ this file specifies socket APIs
 ////////////////////////////////////////////////////////////
 
 struct tt_fiber_ev_s;
+struct tt_tmr_s;
 
 typedef struct tt_skt_s
 {
@@ -154,10 +155,11 @@ tt_inline tt_result_t tt_skt_recv(IN tt_skt_t *skt,
                                   OUT tt_u8_t *buf,
                                   IN tt_u32_t len,
                                   OUT OPT tt_u32_t *recvd,
-                                  OUT OPT struct tt_fiber_ev_s **fev)
+                                  OUT struct tt_fiber_ev_s **p_fev,
+                                  OUT struct tt_tmr_s **p_tmr)
 {
     if (len != 0) {
-        return tt_skt_recv_ntv(&skt->sys_skt, buf, len, recvd, fev);
+        return tt_skt_recv_ntv(&skt->sys_skt, buf, len, recvd, p_fev, p_tmr);
     } else {
         TT_ERROR("recv buf len can not be 0");
         return TT_FAIL;
@@ -169,10 +171,17 @@ tt_inline tt_result_t tt_skt_recvfrom(IN tt_skt_t *skt,
                                       IN tt_u32_t len,
                                       OUT OPT tt_u32_t *recvd,
                                       OUT OPT tt_sktaddr_t *addr,
-                                      OUT OPT struct tt_fiber_ev_s **fev)
+                                      OUT struct tt_fiber_ev_s **p_fev,
+                                      OUT struct tt_tmr_s **p_tmr)
 {
     if (len != 0) {
-        return tt_skt_recvfrom_ntv(&skt->sys_skt, buf, len, recvd, addr, fev);
+        return tt_skt_recvfrom_ntv(&skt->sys_skt,
+                                   buf,
+                                   len,
+                                   recvd,
+                                   addr,
+                                   p_fev,
+                                   p_tmr);
     } else {
         TT_ERROR("recvfrom buf len can not be 0");
         return TT_FAIL;

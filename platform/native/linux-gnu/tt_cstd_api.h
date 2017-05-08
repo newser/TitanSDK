@@ -35,6 +35,7 @@ this file wraps neccesary c standard library operations for purpose:
 #include <ctype.h>
 #include <memory.h>
 #include <stdarg.h>
+#include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

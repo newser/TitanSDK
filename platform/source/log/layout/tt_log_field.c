@@ -22,7 +22,7 @@
 
 #include <algorithm/tt_buffer_format.h>
 #include <memory/tt_memory_alloc.h>
-#include <timer/tt_time_util.h>
+#include <time/tt_date.h>
 
 ////////////////////////////////////////////////////////////
 // internal macro
@@ -333,7 +333,7 @@ tt_result_t __lf_output_time(IN tt_logfld_t *lf,
     p = TT_BUF_WPOS(outbuf);
     len = TT_BUF_WLEN(outbuf);
 
-    len = tt_time_localfmt((tt_char_t *)p, len, lf->format);
+    len = tt_date_render_now(lf->format, (tt_char_t *)p, len);
     tt_buf_inc_wp(outbuf, len);
 
     return TT_SUCCESS;

@@ -27,6 +27,7 @@
 #include <log/tt_log.h>
 #include <os/tt_fiber_event.h>
 #include <os/tt_task.h>
+#include <time/tt_timer.h>
 
 #include <tt_cstd_api.h>
 #include <tt_util_native.h>
@@ -567,25 +568,25 @@ tt_result_t tt_skt_remote_addr_ntv(IN tt_skt_ntv_t *skt, OUT tt_sktaddr_t *addr)
 tt_result_t tt_skt_recvfrom_ntv(IN tt_skt_ntv_t *skt,
                                 OUT tt_u8_t *buf,
                                 IN tt_u32_t len,
-                                OUT OPT tt_u32_t *recvd,
+                                OUT tt_u32_t *recvd,
                                 OUT tt_sktaddr_t *addr,
-                                OUT OPT tt_fiber_ev_t **fev)
+                                OUT tt_fiber_ev_t **p_fev,
+                                OUT tt_tmr_t **p_tmr)
 {
     __skt_recvfrom_t skt_recvfrom;
     tt_fiber_t *cfb;
-    tt_fiber_ev_t *p;
     WSABUF Buffers;
     DWORD Flags = 0;
     INT Fromlen = sizeof(tt_sktaddr_t);
 
     *recvd = 0;
-    TT_SAFE_ASSIGN(fev, NULL);
+    *p_fev = NULL;
+    *p_tmr = NULL;
 
     __skt_ev_init(&skt_recvfrom.io_ev, __SKT_RECVFROM);
     cfb = skt_recvfrom.io_ev.src;
 
-    if ((fev != NULL) && ((p = tt_fiber_recv(cfb, TT_FALSE)) != NULL)) {
-        *fev = p;
+    if (tt_fiber_recv_all(cfb, TT_FALSE, p_fev, p_tmr)) {
         return TT_SUCCESS;
     }
 
@@ -622,23 +623,26 @@ tt_result_t tt_skt_recvfrom_ntv(IN tt_skt_ntv_t *skt,
                      &skt_recvfrom.io_ev.wov,
                      NULL) == 0) ||
         (WSAGetLastError() == WSA_IO_PENDING)) {
-    suspend:
         cfb->recving = TT_TRUE;
-        tt_fiber_suspend();
-        cfb->recving = TT_FALSE;
-        if (skt_recvfrom.done) {
-            return skt_recvfrom.result;
-        }
+        while (!skt_recvfrom.done) {
+            tt_fiber_suspend();
+            cfb->recving = TT_FALSE;
 
-        if (!skt_recvfrom.canceled) {
-            if (CancelIoEx((HANDLE)skt->s, &skt_recvfrom.io_ev.wov) ||
-                (GetLastError() == ERROR_NOT_FOUND)) {
-                skt_recvfrom.canceled = TT_TRUE;
-            } else {
-                TT_ERROR_NTV("fail to cancel WSARecvFrom");
+            if (!skt_recvfrom.canceled) {
+                if (CancelIoEx((HANDLE)skt->s, &skt_recvfrom.io_ev.wov) ||
+                    (GetLastError() == ERROR_NOT_FOUND)) {
+                    skt_recvfrom.canceled = TT_TRUE;
+                } else {
+                    TT_ERROR("fail to cancel WSARecvFrom");
+                }
             }
         }
-        goto suspend;
+
+        if (tt_fiber_recv_all(cfb, TT_FALSE, p_fev, p_tmr)) {
+            skt_recvfrom.result = TT_SUCCESS;
+        }
+
+        return skt_recvfrom.result;
     }
 
     TT_NET_ERROR_NTV("WSARecvFrom fail");
@@ -729,23 +733,23 @@ tt_result_t tt_skt_send_ntv(IN tt_skt_ntv_t *skt,
 tt_result_t tt_skt_recv_ntv(IN tt_skt_ntv_t *skt,
                             OUT tt_u8_t *buf,
                             IN tt_u32_t len,
-                            OUT OPT tt_u32_t *recvd,
-                            OUT OPT tt_fiber_ev_t **fev)
+                            OUT tt_u32_t *recvd,
+                            OUT tt_fiber_ev_t **p_fev,
+                            OUT tt_tmr_t **p_tmr)
 {
     __skt_recv_t skt_recv;
     tt_fiber_t *cfb;
-    tt_fiber_ev_t *p;
     WSABUF Buffers;
     DWORD Flags = 0, dwError;
 
     *recvd = 0;
-    TT_SAFE_ASSIGN(fev, NULL);
+    *p_fev = NULL;
+    *p_tmr = NULL;
 
     __skt_ev_init(&skt_recv.io_ev, __SKT_RECV);
     cfb = skt_recv.io_ev.src;
 
-    if ((fev != NULL) && ((p = tt_fiber_recv(cfb, TT_FALSE)) != NULL)) {
-        *fev = p;
+    if (tt_fiber_recv_all(cfb, TT_FALSE, p_fev, p_tmr)) {
         return TT_SUCCESS;
     }
 
@@ -768,23 +772,29 @@ tt_result_t tt_skt_recv_ntv(IN tt_skt_ntv_t *skt,
                  &skt_recv.io_ev.wov,
                  NULL) == 0) ||
         ((dwError = WSAGetLastError()) == WSA_IO_PENDING)) {
-    suspend:
         cfb->recving = TT_TRUE;
-        tt_fiber_suspend();
-        cfb->recving = TT_FALSE;
-        if (skt_recv.done) {
-            return skt_recv.result;
-        }
+        while (!skt_recv.done) {
+            tt_fiber_suspend();
+            cfb->recving = TT_FALSE;
 
-        if (!skt_recv.canceled) {
-            if (CancelIoEx((HANDLE)skt->s, &skt_recv.io_ev.wov) ||
-                (GetLastError() == ERROR_NOT_FOUND)) {
-                skt_recv.canceled = TT_TRUE;
-            } else {
-                TT_ERROR_NTV("fail to cancel WSARecv");
+            if (!skt_recv.canceled) {
+                // if CancelIoEx() succeeds, wait for notification. or
+                // GetLastError() may be ERROR_NOT_FOUND which means io
+                // is completed and has been queued
+                if (CancelIoEx((HANDLE)skt->s, &skt_recv.io_ev.wov) ||
+                    (GetLastError() == ERROR_NOT_FOUND)) {
+                    skt_recv.canceled = TT_TRUE;
+                } else {
+                    TT_ERROR("fail to cancel WSARecv");
+                }
             }
         }
-        goto suspend;
+
+        if (tt_fiber_recv_all(cfb, TT_FALSE, p_fev, p_tmr)) {
+            skt_recv.result = TT_SUCCESS;
+        }
+
+        return skt_recv.result;
     }
 
     if ((dwError == WSAECONNABORTED) || (dwError == WSAECONNRESET)) {

@@ -25,7 +25,7 @@
 #include <log/tt_log.h>
 #include <os/tt_spinlock.h>
 #include <os/tt_thread.h>
-#include <timer/tt_time_reference.h>
+#include <time/tt_time_reference.h>
 
 // portlayer header files
 #include <tt_cstd_api.h>

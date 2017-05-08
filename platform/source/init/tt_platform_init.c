@@ -101,6 +101,7 @@ tt_result_t tt_platform_init(IN OPT const tt_char_t *profile_path)
     // time
     tt_time_ref_component_register();
     tt_tmr_mgr_component_register();
+    tt_date_component_register();
 
     // io
     tt_fs_component_register();

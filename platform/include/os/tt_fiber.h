@@ -80,6 +80,8 @@ typedef struct tt_fiber_s
     void *param;
     tt_fiber_sched_t *fs;
     tt_dlist_t ev;
+    tt_list_t unexpired_tmr;
+    tt_list_t expired_tmr;
     tt_fiber_wrap_t wrap_fb;
     tt_bool_t can_yield : 1;
     tt_bool_t end : 1;

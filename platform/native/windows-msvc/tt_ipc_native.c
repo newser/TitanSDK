@@ -26,6 +26,7 @@
 #include <os/tt_fiber.h>
 #include <os/tt_fiber_event.h>
 #include <os/tt_task.h>
+#include <time/tt_timer.h>
 
 #include <tt_sys_error.h>
 #include <tt_util_native.h>
@@ -344,18 +345,27 @@ tt_result_t tt_ipc_send_ntv(IN tt_ipc_ntv_t *ipc,
 tt_result_t tt_ipc_recv_ntv(IN tt_ipc_ntv_t *ipc,
                             OUT tt_u8_t *buf,
                             IN tt_u32_t len,
-                            OUT OPT tt_u32_t *recvd,
-                            OUT OPT tt_fiber_ev_t **fev)
+                            OUT tt_u32_t *recvd,
+                            OUT tt_fiber_ev_t **p_fev,
+                            OUT tt_tmr_t **p_tmr)
 {
     __ipc_recv_t ipc_recv;
     tt_fiber_t *cfb;
     DWORD dwError;
 
     *recvd = 0;
-    TT_SAFE_ASSIGN(fev, NULL);
+    *p_fev = NULL;
+    *p_tmr = NULL;
 
     __ipc_ev_init(&ipc_recv.io_ev, __IPC_RECV);
     cfb = ipc_recv.io_ev.src;
+
+    // must try fiber recv, if some fiber send event during
+    // current fiber sending, then current fiber won't be able
+    // to see that event
+    if (tt_fiber_recv_all(cfb, TT_FALSE, p_fev, p_tmr)) {
+        return TT_SUCCESS;
+    }
 
     ipc_recv.ipc = ipc;
     ipc_recv.buf = buf;
@@ -368,23 +378,32 @@ tt_result_t tt_ipc_recv_ntv(IN tt_ipc_ntv_t *ipc,
 
     if (ReadFile(ipc->pipe, buf, len, NULL, &ipc_recv.io_ev.ov) ||
         ((dwError = GetLastError()) == ERROR_IO_PENDING)) {
-    suspend:
         cfb->recving = TT_TRUE;
-        tt_fiber_suspend();
-        cfb->recving = TT_FALSE;
-        if (ipc_recv.done) {
-            return ipc_recv.result;
-        }
+        // it should wait until notification comes, but once fiber awake
+        // it need not set recving as either io is done or CancelIoEx()
+        // is issued
+        while (!ipc_recv.done) {
+            tt_fiber_suspend();
+            cfb->recving = TT_FALSE;
 
-        if (!ipc_recv.canceled) {
-            if (CancelIoEx((HANDLE)ipc->pipe, &ipc_recv.io_ev.wov) ||
-                (GetLastError() == ERROR_NOT_FOUND)) {
-                ipc_recv.canceled = TT_TRUE;
-            } else {
-                TT_ERROR_NTV("fail to cancel ipc recv");
+            if (!ipc_recv.canceled) {
+                // if CancelIoEx() succeeds, wait for notification. or
+                // GetLastError() may be ERROR_NOT_FOUND which means io
+                // is completed and has been queued
+                if (CancelIoEx((HANDLE)ipc->pipe, &ipc_recv.io_ev.ov) ||
+                    (GetLastError() == ERROR_NOT_FOUND)) {
+                    ipc_recv.canceled = TT_TRUE;
+                } else {
+                    TT_ERROR("fail to cancel ipc recv");
+                }
             }
         }
-        goto suspend;
+
+        if (tt_fiber_recv_all(cfb, TT_FALSE, p_fev, p_tmr)) {
+            ipc_recv.result = TT_SUCCESS;
+        }
+
+        return ipc_recv.result;
     }
 
     if (dwError == ERROR_BROKEN_PIPE) {

@@ -21,6 +21,7 @@
 #include <os/tt_task.h>
 
 #include <memory/tt_memory_alloc.h>
+#include <time/tt_timer.h>
 
 ////////////////////////////////////////////////////////////
 // internal macro
@@ -70,8 +71,8 @@ tt_result_t tt_task_create(IN tt_task_t *t, IN OPT tt_task_attr_t *attr)
     }
 
     tt_slist_init(&t->tfl);
-
     t->thread = NULL;
+    tt_tmr_mgr_init(&t->tmr_mgr, &attr->tmr_mgr_attr);
     tt_memcpy(&t->thread_attr, &attr->thread_attr, sizeof(tt_thread_attr_t));
 
     if (!TT_OK(tt_io_poller_create(&t->iop, &attr->io_poller_attr))) {
@@ -85,6 +86,8 @@ tt_result_t tt_task_create(IN tt_task_t *t, IN OPT tt_task_attr_t *attr)
 void tt_task_attr_default(IN tt_task_attr_t *attr)
 {
     TT_ASSERT(attr != NULL);
+
+    tt_tmr_mgr_attr_default(&attr->tmr_mgr_attr);
 
     tt_thread_attr_default(&attr->thread_attr);
     attr->thread_attr.enable_fiber = TT_TRUE;
@@ -144,6 +147,7 @@ void tt_task_exit(IN OPT tt_task_t *t)
 void tt_task_wait(IN tt_task_t *t)
 {
     tt_snode_t *node;
+    tt_tmr_t *tmr;
 
     TT_ASSERT(t != NULL);
 
@@ -154,6 +158,15 @@ void tt_task_wait(IN tt_task_t *t)
     while ((node = tt_slist_pop_head(&t->tfl)) != NULL) {
         tt_free(TT_CONTAINER(node, __task_fiber_t, node));
     }
+
+    // - when fiber terminates, it will destroy all its own timers, but
+    //   any timer that is still in the heap will only be marked as orphan,
+    //   so it's possible that here the the timer is still in the tmr mgr
+    // - thread is over, timers won't be accessed
+    while ((tmr = tt_tmr_mgr_pop(&t->tmr_mgr)) != NULL) {
+        tt_tmr_destroy(tmr);
+    }
+    tt_tmr_mgr_destroy(&t->tmr_mgr);
 
     tt_io_poller_destroy(&t->iop);
 }
@@ -183,6 +196,7 @@ tt_result_t __task_routine(IN void *param)
     tt_thread_t *thread = tt_current_thread();
     tt_snode_t *node;
     tt_fiber_sched_t *cfs = thread->fiber_sched;
+    tt_tmr_mgr_t *tmr_mgr = &t->tmr_mgr;
 
     // note t->thread may not be set yet
     thread->task = t;
@@ -212,14 +226,26 @@ tt_result_t __task_routine(IN void *param)
     }
 
     // run untill all fibers exit
-    while (!tt_fiber_sched_empty(thread->fiber_sched)) {
+    while (!tt_fiber_sched_empty(cfs)) {
         tt_fiber_t *fb = tt_fiber_sched_next(cfs);
         if (fb != cfs->__main) {
             // if there is any active fiber other than the main fiber, run it
             tt_fiber_resume(fb, TT_FALSE);
-        } else if (!tt_io_poller_run(&t->iop, TT_TIME_INFINITE)) {
-            // main fiber indicates exit
-            break;
+        } else {
+            tt_s64_t wait_ms;
+
+            wait_ms = tt_tmr_mgr_run(tmr_mgr);
+            // tt_tmr_mgr_run() may awake some fiber so need check if all fibers
+            // are terminated, otherwise the main fiber would hang in
+            // tt_io_poller_run()
+            if (tt_fiber_sched_empty(cfs)) {
+                break;
+            }
+
+            if (!tt_io_poller_run(&t->iop, wait_ms)) {
+                // main fiber indicates exit
+                break;
+            }
         }
     }
 

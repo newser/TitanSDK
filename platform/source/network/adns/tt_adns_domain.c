@@ -508,8 +508,8 @@ void __adns_rrs_fsm(IN tt_adns_rrset_t *rrs,
                     rrs->elapsed_retrans = 0;
 
                     tt_tmr_set_delay(rrs->refresh_tmr, rrs->cur_retrans);
-                    tt_tmr_set_cbparam(rrs->refresh_tmr,
-                                       (void *)__RRS_TMR_EV_QUERY);
+                    tt_tmr_set_param(rrs->refresh_tmr,
+                                     (void *)__RRS_TMR_EV_QUERY);
                     tt_tmr_start(rrs->refresh_tmr);
 
                     return;
@@ -528,8 +528,8 @@ void __adns_rrs_fsm(IN tt_adns_rrset_t *rrs,
                     }
 
                     tt_tmr_set_delay(rrs->refresh_tmr, tmr_attr->max_unavail);
-                    tt_tmr_set_cbparam(rrs->refresh_tmr,
-                                       (void *)__RRS_TMR_EV_DESTROY);
+                    tt_tmr_set_param(rrs->refresh_tmr,
+                                     (void *)__RRS_TMR_EV_DESTROY);
                     tt_tmr_start(rrs->refresh_tmr);
 
                     return;
@@ -555,8 +555,8 @@ void __adns_rrs_fsm(IN tt_adns_rrset_t *rrs,
                     // turn to
                     // invalid state at [8]x
                     tt_tmr_set_delay(rrs->refresh_tmr, rrs->cur_retrans);
-                    tt_tmr_set_cbparam(rrs->refresh_tmr,
-                                       (void *)__RRS_TMR_EV_QUERY);
+                    tt_tmr_set_param(rrs->refresh_tmr,
+                                     (void *)__RRS_TMR_EV_QUERY);
                     tt_tmr_start(rrs->refresh_tmr);
 
                     return;
@@ -565,8 +565,8 @@ void __adns_rrs_fsm(IN tt_adns_rrset_t *rrs,
                     __RRS_NEW_STATE(rrs, TT_ADNS_RRS_INIT);
 
                     tt_tmr_set_delay(rrs->refresh_tmr, 0);
-                    tt_tmr_set_cbparam(rrs->refresh_tmr,
-                                       (void *)__RRS_TMR_EV_QUERY);
+                    tt_tmr_set_param(rrs->refresh_tmr,
+                                     (void *)__RRS_TMR_EV_QUERY);
                     tt_tmr_start(rrs->refresh_tmr);
 
                     return;
@@ -585,8 +585,7 @@ void __adns_rrs_fsm(IN tt_adns_rrset_t *rrs,
                 __RRS_NEW_STATE(rrs, TT_ADNS_RRS_INIT);
 
                 tt_tmr_set_delay(rrs->refresh_tmr, 0);
-                tt_tmr_set_cbparam(rrs->refresh_tmr,
-                                   (void *)__RRS_TMR_EV_QUERY);
+                tt_tmr_set_param(rrs->refresh_tmr, (void *)__RRS_TMR_EV_QUERY);
                 tt_tmr_start(rrs->refresh_tmr);
 
                 return;
@@ -617,8 +616,7 @@ void __adns_rrs_fsm(IN tt_adns_rrset_t *rrs,
                 __RRS_NEW_STATE(rrs, TT_ADNS_RRS_INIT);
 
                 tt_tmr_set_delay(rrs->refresh_tmr, 0);
-                tt_tmr_set_cbparam(rrs->refresh_tmr,
-                                   (void *)__RRS_TMR_EV_QUERY);
+                tt_tmr_set_param(rrs->refresh_tmr, (void *)__RRS_TMR_EV_QUERY);
                 tt_tmr_start(rrs->refresh_tmr);
 
                 return;
@@ -653,7 +651,7 @@ void __adns_rrs_fsm(IN tt_adns_rrset_t *rrs,
             __RRS_NEW_STATE(rrs, TT_ADNS_RRS_INIT);
 
             tt_tmr_set_delay(rrs->refresh_tmr, 0);
-            tt_tmr_set_cbparam(rrs->refresh_tmr, (void *)__RRS_TMR_EV_QUERY);
+            tt_tmr_set_param(rrs->refresh_tmr, (void *)__RRS_TMR_EV_QUERY);
             tt_tmr_start(rrs->refresh_tmr);
 
             return;
@@ -668,8 +666,7 @@ void __adns_rrs_fsm(IN tt_adns_rrset_t *rrs,
                 __RRS_NEW_STATE(rrs, TT_ADNS_RRS_READY);
 
                 tt_tmr_set_delay(rrs->refresh_tmr, next_expire);
-                tt_tmr_set_cbparam(rrs->refresh_tmr,
-                                   (void *)__RRS_TMR_EV_EXPIRE);
+                tt_tmr_set_param(rrs->refresh_tmr, (void *)__RRS_TMR_EV_EXPIRE);
                 tt_tmr_start(rrs->refresh_tmr);
 
                 return;
@@ -680,8 +677,8 @@ void __adns_rrs_fsm(IN tt_adns_rrset_t *rrs,
                 __RRS_NEW_STATE(rrs, TT_ADNS_RRS_UNAVAIL);
 
                 tt_tmr_set_delay(rrs->refresh_tmr, tmr_attr->max_unavail);
-                tt_tmr_set_cbparam(rrs->refresh_tmr,
-                                   (void *)__RRS_TMR_EV_DESTROY);
+                tt_tmr_set_param(rrs->refresh_tmr,
+                                 (void *)__RRS_TMR_EV_DESTROY);
                 tt_tmr_start(rrs->refresh_tmr);
 
                 return;
@@ -691,7 +688,7 @@ void __adns_rrs_fsm(IN tt_adns_rrset_t *rrs,
             __RRS_NEW_STATE(rrs, TT_ADNS_RRS_INIT);
 
             tt_tmr_set_delay(rrs->refresh_tmr, 0);
-            tt_tmr_set_cbparam(rrs->refresh_tmr, (void *)__RRS_TMR_EV_QUERY);
+            tt_tmr_set_param(rrs->refresh_tmr, (void *)__RRS_TMR_EV_QUERY);
             tt_tmr_start(rrs->refresh_tmr);
 
             return;

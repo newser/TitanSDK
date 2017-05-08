@@ -36,20 +36,12 @@ this file defines performance optimized definitions in macros for ts
 // algorithm config
 // ========================================
 
-#ifdef TT_ARRAY_HEAP_SANITY_CHECK
-#undef TT_ARRAY_HEAP_SANITY_CHECK
+#ifdef TT_PTR_HEAP_SANITY_CHECK
+#undef TT_PTR_HEAP_SANITY_CHECK
 #endif
 
 #ifdef TT_RBTREE_SANITY_CHECK
 #undef TT_RBTREE_SANITY_CHECK
-#endif
-
-// ========================================
-// log config
-// ========================================
-
-#ifdef TT_LOG_SYNC
-#undef TT_LOG_SYNC
 #endif
 
 // ========================================
@@ -66,14 +58,6 @@ this file defines performance optimized definitions in macros for ts
 
 #ifdef TT_MEMORY_TAG_ENABLE
 #undef TT_MEMORY_TAG_ENABLE
-#endif
-
-// ========================================
-// match config
-// ========================================
-
-#ifdef TT_MPN_SANITY_CHECK
-#undef TT_MPN_SANITY_CHECK
 #endif
 
 ////////////////////////////////////////////////////////////

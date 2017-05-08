@@ -30,6 +30,7 @@
 #include <io/tt_io_poller.h>
 #include <os/tt_fiber.h>
 #include <os/tt_thread.h>
+#include <time/tt_timer_manager.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
@@ -43,12 +44,14 @@ typedef struct tt_task_s
 {
     tt_slist_t tfl;
     tt_thread_t *thread;
+    tt_tmr_mgr_t tmr_mgr;
     tt_thread_attr_t thread_attr;
     tt_io_poller_t iop;
 } tt_task_t;
 
 typedef struct tt_task_attr_s
 {
+    tt_tmr_mgr_attr_t tmr_mgr_attr;
     tt_thread_attr_t thread_attr;
     tt_io_poller_attr_t io_poller_attr;
 } tt_task_attr_t;
@@ -83,6 +86,12 @@ extern tt_result_t tt_task_run_local(IN tt_task_t *t);
 tt_inline void tt_task_finish(IN tt_task_t *t, IN tt_io_ev_t *io_ev)
 {
     tt_io_poller_finish(&t->iop, io_ev);
+}
+
+tt_inline tt_task_t *tt_current_task()
+{
+    tt_thread_t *t = tt_current_thread();
+    return TT_COND(t != NULL, t->task, NULL);
 }
 
 #endif /* __TT_TASK__ */
