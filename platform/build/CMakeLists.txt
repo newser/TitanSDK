@@ -153,3 +153,10 @@ ttcm_platform_set_properties()
 # packages
 add_subdirectory(${PLATFORM_PATH}/package/fcontext fcontext)
 target_link_libraries(platform fcontext)
+
+# packages
+set(TLS_LIB)
+set(X509_LIB)
+set(CRYPTO_LIB)
+add_subdirectory(${PLATFORM_PATH}/package/tls tls)
+target_link_libraries(platform ${CRYPTO_LIB} ${X509_LIB} ${TLS_LIB})

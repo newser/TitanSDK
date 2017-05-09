@@ -1,0 +1,3 @@
+- removed directories: tests, visualc
+- disabled find_package(Perl) in source/latest/CMakeLists.txt
+ 
