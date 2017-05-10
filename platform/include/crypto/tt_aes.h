@@ -46,8 +46,10 @@ struct tt_profile_s;
 
 typedef struct
 {
+    size_t iv_off;
     mbedtls_aes_context ctx;
     tt_u8_t iv[16];
+    tt_u8_t ctr[16];
     tt_aes_mode_t mode : 4;
     tt_crypto_pad_t pad : 4;
 } tt_aes_t;
@@ -77,6 +79,13 @@ tt_inline void tt_aes_set_mode(IN tt_aes_t *aes, IN tt_aes_mode_t mode)
 }
 
 extern void tt_aes_set_iv(IN tt_aes_t *aes, IN tt_u8_t *iv, IN tt_u32_t iv_len);
+
+tt_inline void tt_aes_set_nonce(IN tt_aes_t *aes,
+                                IN tt_u8_t *nc,
+                                IN tt_u32_t nc_len)
+{
+    return tt_aes_set_iv(aes, nc, nc_len);
+}
 
 tt_inline void tt_aes_set_pad(IN tt_aes_t *aes, IN tt_crypto_pad_t pad)
 {

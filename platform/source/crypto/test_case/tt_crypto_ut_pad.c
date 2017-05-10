@@ -113,16 +113,19 @@ TT_TEST_CASE("tt_unit_test_crypto_pad_none",
     data_len = 101;
     ret =
         tt_crypto_pad(TT_CRYPTO_PAD_NONE, 10, buf, &data_len, tail, &tail_len);
-    TT_UT_FAIL(ret, "");
+    TT_UT_SUCCESS(ret, "");
+    TT_UT_EQUAL(tail_len, 0, "");
 
     data_len = 99;
     ret =
         tt_crypto_pad(TT_CRYPTO_PAD_NONE, 10, buf, &data_len, tail, &tail_len);
-    TT_UT_FAIL(ret, "");
+    TT_UT_SUCCESS(ret, "");
+    TT_UT_EQUAL(tail_len, 0, "");
 
     data_len = 99;
     ret = tt_crypto_unpad(TT_CRYPTO_PAD_NONE, 10, buf, &data_len);
-    TT_UT_FAIL(ret, "");
+    TT_UT_SUCCESS(ret, "");
+    TT_UT_EQUAL(data_len, 99, "");
 
     data_len = 0;
     ret =
@@ -138,7 +141,8 @@ TT_TEST_CASE("tt_unit_test_crypto_pad_none",
     data_len = 1;
     ret =
         tt_crypto_pad(TT_CRYPTO_PAD_NONE, 10, buf, &data_len, tail, &tail_len);
-    TT_UT_FAIL(ret, "");
+    TT_UT_SUCCESS(ret, "");
+    TT_UT_EQUAL(tail_len, 0, "");
 
     data_len = 10;
     ret =

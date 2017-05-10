@@ -129,27 +129,15 @@ tt_result_t __pad_none(IN tt_u8_t block,
                        IN OUT tt_u8_t *tail,
                        IN OUT tt_u32_t *tail_len)
 {
-    tt_u32_t dlen = *data_len;
-    if ((dlen % block) == 0) {
-        *tail_len = 0;
-        return TT_SUCCESS;
-    } else {
-        TT_ERROR("data length[%d] must be multiple of block[%d]", dlen, block);
-        return TT_FAIL;
-    }
+    *tail_len = 0;
+    return TT_SUCCESS;
 }
 
 tt_result_t __unpad_none(IN tt_u8_t block,
                          IN tt_u8_t *data,
                          IN OUT tt_u32_t *data_len)
 {
-    tt_u32_t dlen = *data_len;
-    if ((dlen % block) == 0) {
-        return TT_SUCCESS;
-    } else {
-        TT_ERROR("data length[%d] must be multiple of block[%d]", dlen, block);
-        return TT_FAIL;
-    }
+    return TT_SUCCESS;
 }
 
 tt_result_t __pad_pkcs7(IN tt_u8_t block,
