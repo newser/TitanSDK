@@ -26,6 +26,12 @@
 // internal macro
 ////////////////////////////////////////////////////////////
 
+#if 1
+#define TT_ASSERT_AES TT_ASSERT
+#else
+#define TT_ASSERT(...)
+#endif
+
 ////////////////////////////////////////////////////////////
 // internal type
 ////////////////////////////////////////////////////////////
@@ -33,8 +39,7 @@
 typedef tt_result_t (*__aes_crypt_t)(IN tt_aes_t *aes,
                                      IN tt_u8_t *input,
                                      IN tt_u32_t input_len,
-                                     OUT tt_u8_t *output,
-                                     IN OUT tt_u32_t *output_len);
+                                     OUT tt_u8_t *output);
 
 typedef struct
 {
@@ -54,26 +59,21 @@ typedef struct
 static tt_result_t __aes_encrypt_ecb(IN tt_aes_t *aes,
                                      IN tt_u8_t *input,
                                      IN tt_u32_t input_len,
-                                     OUT tt_u8_t *output,
-                                     IN OUT tt_u32_t *output_len);
+                                     OUT tt_u8_t *output);
 static tt_result_t __aes_decrypt_ecb(IN tt_aes_t *aes,
                                      IN tt_u8_t *input,
                                      IN tt_u32_t input_len,
-                                     OUT tt_u8_t *output,
-                                     IN OUT tt_u32_t *output_len);
+                                     OUT tt_u8_t *output);
 
 // TT_AES_CBC
 static tt_result_t __aes_encrypt_cbc(IN tt_aes_t *aes,
                                      IN tt_u8_t *input,
                                      IN tt_u32_t input_len,
-                                     OUT tt_u8_t *output,
-                                     IN OUT tt_u32_t *output_len);
+                                     OUT tt_u8_t *output);
 static tt_result_t __aes_decrypt_cbc(IN tt_aes_t *aes,
                                      IN tt_u8_t *input,
                                      IN tt_u32_t input_len,
-                                     OUT tt_u8_t *output,
-                                     IN OUT tt_u32_t *output_len);
-
+                                     OUT tt_u8_t *output);
 
 static __aes_itf_t tt_s_aes_itf[TT_AES_MODE_NUM] = {
     // TT_AES_ECB
@@ -94,10 +94,7 @@ static __aes_itf_t tt_s_aes_itf[TT_AES_MODE_NUM] = {
 tt_result_t tt_aes_create(IN tt_aes_t *aes,
                           IN tt_bool_t encrypt,
                           IN tt_blob_t *key,
-                          IN tt_aes_keybit_t keybit,
-                          IN tt_aes_mode_t mode,
-                          IN OPT tt_blob_t *iv,
-                          IN tt_crypto_pad_t pad)
+                          IN tt_aes_keybit_t keybit)
 {
     tt_u8_t k[32];
     tt_u32_t klen;
@@ -105,13 +102,9 @@ tt_result_t tt_aes_create(IN tt_aes_t *aes,
     TT_ASSERT(aes != NULL);
     TT_ASSERT(key != NULL);
     TT_ASSERT(TT_AES_KEYBIT_VALID(keybit));
-    TT_ASSERT(TT_AES_MODE_VALID(mode));
-    TT_ASSERT(TT_CRYPTO_PAD_VALID(pad));
 
-    // aes context
     mbedtls_aes_init(&aes->ctx);
 
-    // key
     if (keybit == TT_AES128) {
         if (key->len > 16) {
             TT_ERROR("aes128 key length[%u] can not exceed 16 bytes", key->len);
@@ -140,18 +133,9 @@ tt_result_t tt_aes_create(IN tt_aes_t *aes,
         mbedtls_aes_setkey_dec(&aes->ctx, k, klen << 3);
     }
 
-    // iv
     tt_memset(aes->iv, 0, sizeof(aes->iv));
-    if (iv != NULL) {
-        if (iv->len > 16) {
-            TT_ERROR("aes IV length[%u] can not exceed 16 bytes", iv->len);
-            return TT_FAIL;
-        }
-        tt_memcpy(aes->iv, iv->addr, iv->len);
-    }
-
-    aes->mode = mode;
-    aes->pad = pad;
+    aes->mode = TT_AES_ECB;
+    aes->pad = TT_CRYPTO_PAD_NONE;
 
     return TT_SUCCESS;
 }
@@ -161,6 +145,14 @@ void tt_aes_destroy(IN tt_aes_t *aes)
     TT_ASSERT(aes != NULL);
 
     mbedtls_aes_free(&aes->ctx);
+}
+
+void tt_aes_set_iv(IN tt_aes_t *aes, IN tt_u8_t *iv, IN tt_u32_t iv_len)
+{
+    TT_ASSERT(iv_len <= 16);
+
+    tt_memset(aes->iv, 0, sizeof(aes->iv));
+    tt_memcpy(aes->iv, iv, iv_len);
 }
 
 tt_result_t tt_aes_encrypt(IN tt_aes_t *aes,
@@ -184,15 +176,14 @@ tt_result_t tt_aes_encrypt(IN tt_aes_t *aes,
         return TT_FAIL;
     }
 
-    if (!TT_OK(encrypt(aes, input, input_len, output, output_len))) {
+    if (!TT_OK(encrypt(aes, input, input_len, output))) {
         return TT_FAIL;
     }
     if ((tail_len != 0) &&
         !TT_OK(encrypt(aes,
                        tail,
                        tail_len,
-                       TT_PTR_INC(tt_u8_t, output, input_len),
-                       tail_len))) {
+                       TT_PTR_INC(tt_u8_t, output, input_len)))) {
         return TT_FAIL;
     }
     *output_len = input_len + tail_len;
@@ -217,8 +208,7 @@ tt_result_t tt_aes_decrypt(IN tt_aes_t *aes,
         return TT_FAIL;
     }
 
-    // it has confirmed out buf is larger than input, use input_len here
-    if (!TT_OK(decrypt(aes, input, input_len, output, input_len))) {
+    if (!TT_OK(decrypt(aes, input, input_len, output))) {
         return TT_FAIL;
     }
 
@@ -244,10 +234,13 @@ tt_result_t tt_aes(IN tt_bool_t encrypt,
     tt_aes_t aes;
     tt_result_t result;
 
-    result = tt_aes_create(&aes, encrypt, key, keybit, mode, iv, pad);
+    result = tt_aes_create(&aes, encrypt, key, keybit);
     if (!TT_OK(result)) {
         return TT_FAIL;
     }
+    tt_aes_set_mode(&aes, mode);
+    tt_aes_set_iv(&aes, iv->addr, iv->len);
+    tt_aes_set_pad(&aes, pad);
 
     if (encrypt) {
         result = tt_aes_encrypt(&aes, input, input_len, output, output_len);
@@ -264,32 +257,74 @@ tt_result_t tt_aes(IN tt_bool_t encrypt,
 tt_result_t __aes_encrypt_ecb(IN tt_aes_t *aes,
                               IN tt_u8_t *input,
                               IN tt_u32_t input_len,
-                              OUT tt_u8_t *output,
-                              IN OUT tt_u32_t *output_len)
+                              OUT tt_u8_t *output)
 {
+    tt_u32_t n = 0;
+    while ((n + 16) < input_len) {
+        if (mbedtls_aes_crypt_ecb(&aes->ctx,
+                                  MBEDTLS_AES_ENCRYPT,
+                                  input + n,
+                                  output + n) != 0) {
+            return TT_FAIL;
+        }
+        n += 16;
+    }
+    TT_ASSERT_AES(n == input_len);
+    return TT_SUCCESS;
 }
 
 tt_result_t __aes_decrypt_ecb(IN tt_aes_t *aes,
                               IN tt_u8_t *input,
                               IN tt_u32_t input_len,
-                              OUT tt_u8_t *output,
-                              IN OUT tt_u32_t *output_len)
+                              OUT tt_u8_t *output)
 {
+    tt_u32_t n = 0;
+    while ((n + 16) < input_len) {
+        if (mbedtls_aes_crypt_ecb(&aes->ctx,
+                                  MBEDTLS_AES_DECRYPT,
+                                  input + n,
+                                  output + n) != 0) {
+            return TT_FAIL;
+        }
+        n += 16;
+    }
+    TT_ASSERT_AES(n == input_len);
+    return TT_SUCCESS;
 }
 
 // TT_AES_CBC
 tt_result_t __aes_encrypt_cbc(IN tt_aes_t *aes,
                               IN tt_u8_t *input,
                               IN tt_u32_t input_len,
-                              OUT tt_u8_t *output,
-                              IN OUT tt_u32_t *output_len)
+                              OUT tt_u8_t *output)
 {
+    TT_ASSERT_AES((input_len & 0xF) == 0);
+    if (mbedtls_aes_crypt_cbc(&aes->ctx,
+                              MBEDTLS_AES_ENCRYPT,
+                              input_len,
+                              aes->iv,
+                              input,
+                              output) == 0) {
+        return TT_SUCCESS;
+    } else {
+        return TT_FAIL;
+    }
 }
 
 tt_result_t __aes_decrypt_cbc(IN tt_aes_t *aes,
                               IN tt_u8_t *input,
                               IN tt_u32_t input_len,
-                              OUT tt_u8_t *output,
-                              IN OUT tt_u32_t *output_len)
+                              OUT tt_u8_t *output)
 {
+    TT_ASSERT_AES((input_len & 0xF) == 0);
+    if (mbedtls_aes_crypt_cbc(&aes->ctx,
+                              MBEDTLS_AES_DECRYPT,
+                              input_len,
+                              aes->iv,
+                              input,
+                              output) == 0) {
+        return TT_SUCCESS;
+    } else {
+        return TT_FAIL;
+    }
 }

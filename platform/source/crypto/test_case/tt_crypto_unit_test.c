@@ -62,14 +62,14 @@ TT_CRYPTO_UT_DECLARE(CRYPTO_UT_PAD)
 ////////////////////////////////////////////////////////////
 
 tt_test_unit_t *tt_g_crypto_ut_list[CRYPTO_UT_NUM] = {
-#if 0
     &TT_MAKE_TEST_UNIT_NAME(CRYPTO_UT_AES),
+#if 0
     &TT_MAKE_TEST_UNIT_NAME(CRYPTO_UT_RSA),
     &TT_MAKE_TEST_UNIT_NAME(CRYPTO_UT_PKCS5),
     &TT_MAKE_TEST_UNIT_NAME(CRYPTO_UT_DH),
     &TT_MAKE_TEST_UNIT_NAME(CRYPTO_UT_HMAC),
-#endif
     &TT_MAKE_TEST_UNIT_NAME(CRYPTO_UT_PAD),
+#endif
 };
 
 ////////////////////////////////////////////////////////////

@@ -638,22 +638,17 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_aes128_cbc_p7_rep)
     biv.addr = iv;
     biv.len = ilen;
 
-    ret = tt_aes_create(&enc_aes,
-                        TT_TRUE,
-                        &bkey,
-                        TT_AES128,
-                        TT_AES_CBC,
-                        &biv,
-                        TT_CRYPTO_PAD_PKCS7);
+    ret = tt_aes_create(&enc_aes, TT_TRUE, &bkey, TT_AES128);
     TT_UT_SUCCESS(ret, "");
-    ret = tt_aes_create(&dec_aes,
-                        TT_FALSE,
-                        &bkey,
-                        TT_AES128,
-                        TT_AES_CBC,
-                        &biv,
-                        TT_CRYPTO_PAD_PKCS7);
+    tt_aes_set_mode(&enc_aes, TT_AES_CBC);
+    tt_aes_set_iv(&enc_aes, biv.addr, biv.len);
+    tt_aes_set_pad(&enc_aes, TT_CRYPTO_PAD_PKCS7);
+
+    ret = tt_aes_create(&dec_aes, TT_FALSE, &bkey, TT_AES128);
     TT_UT_SUCCESS(ret, "");
+    tt_aes_set_mode(&dec_aes, TT_AES_CBC);
+    tt_aes_set_iv(&dec_aes, biv.addr, biv.len);
+    tt_aes_set_pad(&dec_aes, TT_CRYPTO_PAD_PKCS7);
 
     for (i = 0; i < sizeof(ibuf); ++i)
         ibuf[i] = (tt_u8_t)tt_rand_u32();
@@ -1056,22 +1051,17 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_aes256_cbc_p7_rep)
     biv.addr = iv;
     biv.len = ilen;
 
-    ret = tt_aes_create(&enc_aes,
-                        TT_TRUE,
-                        &bkey,
-                        TT_AES256,
-                        TT_AES_CBC,
-                        &biv,
-                        TT_CRYPTO_PAD_PKCS7);
+    ret = tt_aes_create(&enc_aes, TT_TRUE, &bkey, TT_AES256);
     TT_UT_SUCCESS(ret, "");
-    ret = tt_aes_create(&dec_aes,
-                        TT_FALSE,
-                        &bkey,
-                        TT_AES256,
-                        TT_AES_CBC,
-                        &biv,
-                        TT_CRYPTO_PAD_PKCS7);
+    tt_aes_set_mode(&enc_aes, TT_AES_CBC);
+    tt_aes_set_iv(&enc_aes, biv.addr, biv.len);
+    tt_aes_set_pad(&enc_aes, TT_CRYPTO_PAD_PKCS7);
+
+    ret = tt_aes_create(&dec_aes, TT_FALSE, &bkey, TT_AES256);
     TT_UT_SUCCESS(ret, "");
+    tt_aes_set_mode(&dec_aes, TT_AES_CBC);
+    tt_aes_set_iv(&dec_aes, biv.addr, biv.len);
+    tt_aes_set_pad(&dec_aes, TT_CRYPTO_PAD_PKCS7);
 
     for (i = 0; i < sizeof(ibuf); ++i)
         ibuf[i] = (tt_u8_t)tt_rand_u32();

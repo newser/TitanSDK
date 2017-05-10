@@ -66,12 +66,23 @@ typedef struct
 extern tt_result_t tt_aes_create(IN tt_aes_t *aes,
                                  IN tt_bool_t encrypt,
                                  IN tt_blob_t *key,
-                                 IN tt_aes_keybit_t keybit,
-                                 IN tt_aes_mode_t mode,
-                                 IN OPT tt_blob_t *iv,
-                                 IN tt_crypto_pad_t pad);
+                                 IN tt_aes_keybit_t keybit);
 
 extern void tt_aes_destroy(IN tt_aes_t *aes);
+
+tt_inline void tt_aes_set_mode(IN tt_aes_t *aes, IN tt_aes_mode_t mode)
+{
+    TT_ASSERT(TT_AES_MODE_VALID(mode));
+    aes->mode = mode;
+}
+
+extern void tt_aes_set_iv(IN tt_aes_t *aes, IN tt_u8_t *iv, IN tt_u32_t iv_len);
+
+tt_inline void tt_aes_set_pad(IN tt_aes_t *aes, IN tt_crypto_pad_t pad)
+{
+    TT_ASSERT(TT_CRYPTO_PAD_VALID(pad));
+    aes->pad = pad;
+}
 
 // - if pad mode is none: 1. input->len must be multiple of aes block size;
 //   2. length of buffer output should be at lease input->len;
