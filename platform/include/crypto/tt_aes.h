@@ -28,9 +28,11 @@ this file defines AES APIs
 // import header files
 ////////////////////////////////////////////////////////////
 
+#include <algorithm/tt_blob.h>
 #include <crypto/tt_aes_def.h>
+#include <crypto/tt_crypto_pad.h>
 
-#include <tt_aes_native.h>
+#include <aes.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
@@ -44,7 +46,10 @@ struct tt_profile_s;
 
 typedef struct
 {
-    tt_aes_ntv_t sys_aes;
+    mbedtls_aes_context ctx;
+    tt_u8_t iv[16];
+    tt_aes_mode_t mode : 4;
+    tt_crypto_pad_t pad : 4;
 } tt_aes_t;
 
 ////////////////////////////////////////////////////////////
@@ -55,71 +60,47 @@ typedef struct
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-tt_inline tt_result_t tt_aes_component_init(IN struct tt_profile_s *profile)
-{
-    return tt_aes_component_init_ntv(profile);
-}
-
-// - key->len should be less than aes size, and would padded with 0
+// - key->len should be less than aes size, and would be padded with 0
 // - attr->cbc.ivec.len should be less than aes size, and would
 //   padded with 0
 extern tt_result_t tt_aes_create(IN tt_aes_t *aes,
                                  IN tt_bool_t encrypt,
                                  IN tt_blob_t *key,
-                                 IN tt_aes_size_t size,
-                                 IN tt_aes_attr_t *attr);
+                                 IN tt_aes_keybit_t keybit,
+                                 IN tt_aes_mode_t mode,
+                                 IN OPT tt_blob_t *iv,
+                                 IN tt_crypto_pad_t pad);
 
 extern void tt_aes_destroy(IN tt_aes_t *aes);
 
-// - if padding mode is none: 1. input->len must be multiple of aes block size;
+// - if pad mode is none: 1. input->len must be multiple of aes block size;
 //   2. length of buffer output should be at lease input->len;
-// - if padding mode is pkcs7: 1. input->len can be any value; 2. length
+// - if pad mode is pkcs7: 1. input->len can be any value; 2. length
 //   of buffer output should be at lease input->len + aes block size;
 // - input and output can point to same buffer
-tt_inline tt_result_t tt_aes_encrypt(IN tt_aes_t *aes,
-                                     IN tt_u8_t *input,
-                                     IN tt_u32_t input_len,
-                                     OUT tt_u8_t *output,
-                                     IN OUT tt_u32_t *output_len)
-{
-    if (input_len == 0) {
-        *output_len = 0;
-        return TT_SUCCESS;
-    }
-
-    return tt_aes_encrypt_ntv(&aes->sys_aes,
-                              input,
-                              input_len,
-                              output,
-                              output_len);
-}
+extern tt_result_t tt_aes_encrypt(IN tt_aes_t *aes,
+                                  IN tt_u8_t *input,
+                                  IN tt_u32_t input_len,
+                                  OUT tt_u8_t *output,
+                                  IN OUT tt_u32_t *output_len);
 
 // - length of buffer output should be at lease input->len. output_len
 //   is the length of the buffer output as input and the encrypted data
 //   length as output
-tt_inline tt_result_t tt_aes_decrypt(IN tt_aes_t *aes,
-                                     IN tt_u8_t *input,
-                                     IN tt_u32_t input_len,
-                                     OUT tt_u8_t *output,
-                                     IN OUT tt_u32_t *output_len)
-{
-    if (input_len == 0) {
-        *output_len = 0;
-        return TT_SUCCESS;
-    }
-
-    return tt_aes_decrypt_ntv(&aes->sys_aes,
-                              input,
-                              input_len,
-                              output,
-                              output_len);
-}
+extern tt_result_t tt_aes_decrypt(IN tt_aes_t *aes,
+                                  IN tt_u8_t *input,
+                                  IN tt_u32_t input_len,
+                                  OUT tt_u8_t *output,
+                                  IN OUT tt_u32_t *output_len);
 
 extern tt_result_t tt_aes(IN tt_bool_t encrypt,
                           IN tt_blob_t *key,
-                          IN tt_aes_size_t size,
-                          IN tt_aes_attr_t *attr,
-                          IN tt_blob_t *input,
+                          IN tt_aes_keybit_t keybit,
+                          IN tt_aes_mode_t mode,
+                          IN OPT tt_blob_t *iv,
+                          IN tt_crypto_pad_t pad,
+                          IN tt_u8_t *input,
+                          IN tt_u32_t input_len,
                           OUT tt_u8_t *output,
                           IN OUT tt_u32_t *output_len);
 

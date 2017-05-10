@@ -32,6 +32,7 @@ this file includes crypto common definitions
 // macro definition
 ////////////////////////////////////////////////////////////
 
+
 // data would begin with 0 if highest bit is not 0
 #define TT_CRYPTO_FMT_SIGNED (1 << 0)
 // data would begin with 4 bytes number, specifying data length,

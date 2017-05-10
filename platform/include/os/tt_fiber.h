@@ -32,9 +32,9 @@
 #include <os/tt_thread.h>
 
 #if TT_ENV_OS_IS_WINDOWS
-#include <fcontext/tt_fiber_windows_wrapper.h>
+#include <tt_fiber_windows_wrapper.h>
 #else
-#include <fcontext/tt_fiber_wrapper.h>
+#include <tt_fiber_wrapper.h>
 #endif
 
 ////////////////////////////////////////////////////////////

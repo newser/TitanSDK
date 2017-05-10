@@ -127,7 +127,7 @@ tt_result_t tt_aes_component_init_ntv(IN tt_profile_t *profile)
 tt_result_t tt_aes_create_ntv(IN tt_aes_ntv_t *sys_aes,
                               IN tt_bool_t encrypt,
                               IN tt_blob_t *key,
-                              IN tt_aes_size_t size,
+                              IN tt_aes_keybit_t size,
                               IN tt_aes_attr_t *attr)
 {
     __aes_key_t aligned_key;
@@ -138,10 +138,10 @@ tt_result_t tt_aes_create_ntv(IN tt_aes_ntv_t *sys_aes,
     aligned_key.header.dwMagic = BCRYPT_KEY_DATA_BLOB_MAGIC;
     aligned_key.header.dwVersion = BCRYPT_KEY_DATA_BLOB_VERSION1;
     switch (size) {
-        case TT_AES_SIZE_128: {
+        case TT_AES128: {
             aligned_key.header.cbKeyData = 16;
         } break;
-        case TT_AES_SIZE_256: {
+        case TT_AES256: {
             aligned_key.header.cbKeyData = 32;
         } break;
 

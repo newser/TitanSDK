@@ -57,7 +57,7 @@ typedef struct tt_aes_ntv_s
     AES_KEY key;
 #endif
 
-    tt_aes_size_t size;
+    tt_aes_keybit_t size;
     tt_aes_padding_t padding;
 
     tt_aes_mode_t mode;
@@ -86,7 +86,7 @@ tt_inline tt_result_t tt_aes_component_init_ntv(IN struct tt_profile_s *profile)
 extern tt_result_t tt_aes_create_ntv(IN tt_aes_ntv_t *sys_aes,
                                      IN tt_bool_t encrypt,
                                      IN tt_blob_t *key,
-                                     IN tt_aes_size_t size,
+                                     IN tt_aes_keybit_t size,
                                      IN tt_aes_attr_t *attr);
 
 extern void tt_aes_destroy_ntv(IN tt_aes_ntv_t *sys_aes);

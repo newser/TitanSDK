@@ -30,7 +30,7 @@
 
 #include <tt_cstd_api.h>
 
-#include <fcontext/source/latest/tt_fcontext.h>
+#include <tt_fcontext.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition

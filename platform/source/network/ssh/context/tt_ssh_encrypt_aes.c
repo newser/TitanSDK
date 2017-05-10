@@ -72,7 +72,7 @@ tt_result_t tt_sshenc_aes_create_128cbc(IN struct tt_sshenc_s *enc,
     if (!TT_OK(tt_aes_create(&enc->alg_u.aes,
                              encrypt,
                              &key_blob,
-                             TT_AES_SIZE_128,
+                             TT_AES128,
                              &attr))) {
         TT_ERROR("fail to create ssh aes");
         return TT_FAIL;
@@ -108,7 +108,7 @@ tt_result_t tt_sshenc_aes_create_256cbc(IN struct tt_sshenc_s *enc,
     if (!TT_OK(tt_aes_create(&enc->alg_u.aes,
                              encrypt,
                              &key_blob,
-                             TT_AES_SIZE_256,
+                             TT_AES256,
                              &attr))) {
         TT_ERROR("fail to create ssh aes");
         return TT_FAIL;

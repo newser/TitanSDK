@@ -66,14 +66,14 @@ static tt_result_t __aes_cbc_decrypt(IN tt_aes_ntv_t *sys_aes,
 tt_result_t tt_aes_create_ntv(IN tt_aes_ntv_t *sys_aes,
                               IN tt_bool_t encrypt,
                               IN tt_blob_t *key,
-                              IN tt_aes_size_t size,
+                              IN tt_aes_keybit_t size,
                               IN tt_aes_attr_t *attr)
 {
     tt_u8_t aligned_key[__AES_MAX_KEY_SIZE];
     tt_u32_t aligned_key_len;
 
     // key
-    if (size == TT_AES_SIZE_128) {
+    if (size == TT_AES128) {
         if (key->len > __AES128_KEY_SIZE) {
             TT_ERROR("aes128 key length[%d] can not exceed[%d]",
                      key->len,
@@ -83,7 +83,7 @@ tt_result_t tt_aes_create_ntv(IN tt_aes_ntv_t *sys_aes,
 
         aligned_key_len = __AES128_KEY_SIZE;
     } else {
-        TT_ASSERT(size == TT_AES_SIZE_256);
+        TT_ASSERT(size == TT_AES256);
         if (key->len > __AES256_KEY_SIZE) {
             TT_ERROR("aes256 key length[%d] can not exceed[%d]",
                      key->len,

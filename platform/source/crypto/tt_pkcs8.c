@@ -135,8 +135,8 @@ tt_result_t tt_pkcs8_decrypt(IN tt_blob_t *ciphertext,
 
     // aes decryption
     tt_blob_t aes_key = {derived_key_buf, TT_AES_BLOCK_SIZE};
-    tt_aes_size_t aes_size;
-    tt_aes_attr_t aes_attr;
+    tt_aes_keybit_t aes_size;
+    tt_blob_t iv;
 
     TT_ASSERT(ciphertext != NULL);
     TT_ASSERT(password != NULL);
@@ -188,9 +188,9 @@ tt_result_t tt_pkcs8_decrypt(IN tt_blob_t *ciphertext,
 
     // check aes parameters
     if (pbes_param.pbes2.enc_scheme == __PBES2_ENC_AES_128_CBC) {
-        aes_size = TT_AES_SIZE_128;
+        aes_size = TT_AES128;
     } else if (pbes_param.pbes2.enc_scheme == __PBES2_ENC_AES_256_CBC) {
-        aes_size = TT_AES_SIZE_256;
+        aes_size = TT_AES256;
     } else {
         TT_ERROR("now only support AES");
         goto p8_fail;
@@ -200,10 +200,8 @@ tt_result_t tt_pkcs8_decrypt(IN tt_blob_t *ciphertext,
         TT_ERROR("too long AES IV[%d]", pbes_param.pbes2.aes.aes_iv.len);
         goto p8_fail;
     }
-    aes_attr.padding = TT_AES_PADDING_PKCS7;
-    aes_attr.mode = TT_AES_MODE_CBC;
-    aes_attr.cbc.ivec.addr = pbes_param.pbes2.aes.aes_iv.addr;
-    aes_attr.cbc.ivec.len = pbes_param.pbes2.aes.aes_iv.len;
+    iv.addr = pbes_param.pbes2.aes.aes_iv.addr;
+    iv.len = pbes_param.pbes2.aes.aes_iv.len;
 
     // any param decribing padding scheme? currently it's assumed pkcs7
     // padding scheme...
@@ -223,8 +221,11 @@ tt_result_t tt_pkcs8_decrypt(IN tt_blob_t *ciphertext,
     result = tt_aes(TT_FALSE,
                     &aes_key,
                     aes_size,
-                    &aes_attr,
-                    &enc_data,
+                    TT_AES_CBC,
+                    &iv,
+                    TT_CRYPTO_PAD_PKCS7,
+                    enc_data.addr,
+                    enc_data.len,
                     plaintext,
                     plaintext_len);
     if (!TT_OK(result)) {

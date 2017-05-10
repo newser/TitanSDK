@@ -157,7 +157,7 @@ tt_result_t tt_test_unit_init(IN tt_ptr_t reserved)
     } while (0);
 #endif
 
-#ifdef TT_PLATFORM_CRYPTO_ENABLE
+#if 1 //#ifdef TT_PLATFORM_CRYPTO_ENABLE
     do {
         tt_result_t tt_crypto_ut_init(IN tt_ptr_t reserved);
         tt_crypto_ut_init(0);

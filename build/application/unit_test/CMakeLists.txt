@@ -32,7 +32,14 @@ endif ()
 # platform
 include_directories(${PLATFORM_PATH}/include)
 include_directories(${PLATFORM_PATH}/native/${PLATFORM_ENV})
-include_directories(${PLATFORM_PATH}/package)
+
+# package: fcontext
+include_directories(${PLATFORM_PATH}/package/fcontext)
+include_directories(${PLATFORM_PATH}/package/fcontext/source/latest)
+
+# package: tls
+include_directories(${PLATFORM_PATH}/package/tls)
+include_directories(${PLATFORM_PATH}/package/tls/source/latest/include/mbedtls)
 
 #
 # source file

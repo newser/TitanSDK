@@ -18,7 +18,7 @@
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <fcontext/tt_fiber_wrapper.h>
+#include <tt_fiber_wrapper.h>
 
 #include <memory/tt_memory_alloc.h>
 #include <os/tt_fiber.h>

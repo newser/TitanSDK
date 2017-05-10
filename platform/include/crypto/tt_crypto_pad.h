@@ -15,52 +15,36 @@
  */
 
 /**
-@file tt_aes_def.h
-@brief aes definitions
+@file tt_crypto_pad.h
+@brief crypto padding
 
-this file defines aes
+this file defines crypto padding APIs
 */
 
-#ifndef __TT_AES_DEF__
-#define __TT_AES_DEF__
+#ifndef __TT_CRYPTO_PAD__
+#define __TT_CRYPTO_PAD__
 
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
+#include <tt_basic_type.h>
+
 ////////////////////////////////////////////////////////////
 // macro definition
 ////////////////////////////////////////////////////////////
-
-#define TT_AES_BLOCK_SIZE 16
-#define TT_AES_IV_SIZE 16
-
-#define TT_AES128_KEY_SIZE 16
-#define TT_AES256_KEY_SIZE 32
 
 ////////////////////////////////////////////////////////////
 // type definition
 ////////////////////////////////////////////////////////////
 
 typedef enum {
-    TT_AES128,
-    TT_AES192,
-    TT_AES256,
+    TT_CRYPTO_PAD_NONE,
+    TT_CRYPTO_PAD_PKCS7,
 
-    TT_AES_KEYBIT_NUM
-} tt_aes_keybit_t;
-#define TT_AES_KEYBIT_VALID(s) ((s) < TT_AES_KEYBIT_NUM)
-
-typedef enum {
-    TT_AES_ECB,
-    TT_AES_CBC,
-    TT_AES_CFB8,
-    TT_AES_CFB128,
-    TT_AES_CTR,
-
-    TT_AES_MODE_NUM
-} tt_aes_mode_t;
-#define TT_AES_MODE_VALID(m) ((m) < TT_AES_MODE_NUM)
+    TT_CRYPTO_PAD_NUM
+} tt_crypto_pad_t;
+#define TT_CRYPTO_PAD_VALID(p) ((p) < TT_CRYPTO_PAD_NUM)
 
 ////////////////////////////////////////////////////////////
 // global variants
@@ -70,4 +54,17 @@ typedef enum {
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-#endif
+// - size of tail must be at least block bytes
+extern tt_result_t tt_crypto_pad(IN tt_crypto_pad_t pad,
+                                 IN tt_u8_t block,
+                                 IN tt_u8_t *data,
+                                 IN OUT tt_u32_t *data_len,
+                                 IN OUT tt_u8_t *tail,
+                                 IN OUT tt_u32_t *tail_len);
+
+extern tt_result_t tt_crypto_unpad(IN tt_crypto_pad_t pad,
+                                   IN tt_u8_t block,
+                                   IN tt_u8_t *data,
+                                   IN OUT tt_u32_t *data_len);
+
+#endif /* __TT_CRYPTO_PAD__ */
