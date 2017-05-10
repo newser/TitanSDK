@@ -71,8 +71,8 @@ include_directories(${PLATFORM_PATH}/include)
 include_directories(${PLATFORM_PATH}/native/${PLATFORM_ENV})
 
 # package: fcontext
-include_directories(${PLATFORM_PATH}/package/fcontext)
-include_directories(${PLATFORM_PATH}/package/fcontext/source/latest)
+include_directories(${PLATFORM_PATH}/package/fcontext/include)
+include_directories(${PLATFORM_PATH}/package/fcontext/boost)
 
 # package: tls
 include_directories(${PLATFORM_PATH}/package/tls)

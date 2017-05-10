@@ -15,45 +15,45 @@
 
 # collect files
 if (PLATFORM_ENV_OS STREQUAL windows)
-  set(SRC tt_fiber_windows_wrapper.c)
+  set(SRC source/tt_fiber_windows_wrapper.c)
 
 elseif ((PLATFORM_ENV_OS STREQUAL macos) OR PLATFORM_IOS_SIMULATOR)
   enable_language(ASM)
 
   if (CMAKE_SIZEOF_VOID_P EQUAL 8)
-    set(SRC tt_fiber_wrapper.c 
-            source/latest/jump_x86_64_sysv_macho_gas.S
-            source/latest/make_x86_64_sysv_macho_gas.S)
+    set(SRC source/tt_fiber_wrapper.c 
+            boost/jump_x86_64_sysv_macho_gas.S
+            boost/make_x86_64_sysv_macho_gas.S)
   else ()
-    set(SRC tt_fiber_wrapper.c 
-            source/latest/jump_i386_sysv_macho_gas.S
-            source/latest/make_i386_sysv_macho_gas.S)
+    set(SRC source/tt_fiber_wrapper.c 
+            boost/jump_i386_sysv_macho_gas.S
+            boost/make_i386_sysv_macho_gas.S)
   endif ()
 
 elseif (PLATFORM_ENV_OS STREQUAL ios)
   enable_language(ASM)
 
   if (PLATFORM_ARM64)
-    set(SRC tt_fiber_wrapper.c
-            source/latest/jump_arm64_aapcs_macho_gas.S
-            source/latest/make_arm64_aapcs_macho_gas.S)
+    set(SRC source/tt_fiber_wrapper.c
+            boost/jump_arm64_aapcs_macho_gas.S
+            boost/make_arm64_aapcs_macho_gas.S)
   else ()
-    set(SRC tt_fiber_wrapper.c
-            source/latest/jump_arm_aapcs_macho_gas.S
-            source/latest/make_arm_aapcs_macho_gas.S)
+    set(SRC source/tt_fiber_wrapper.c
+            boost/jump_arm_aapcs_macho_gas.S
+            boost/make_arm_aapcs_macho_gas.S)
   endif ()
 
 elseif (PLATFORM_ENV_OS STREQUAL linux)
   enable_language(ASM)
 
   if (CMAKE_SIZEOF_VOID_P EQUAL 8)
-    set(SRC tt_fiber_wrapper.c
-            source/latest/jump_x86_64_sysv_elf_gas.S
-            source/latest/make_x86_64_sysv_elf_gas.S)
+    set(SRC source/tt_fiber_wrapper.c
+            boost/jump_x86_64_sysv_elf_gas.S
+            boost/make_x86_64_sysv_elf_gas.S)
   else ()
-    set(SRC tt_fiber_wrapper.c
-            source/latest/jump_i386_sysv_elf_gas.S
-            source/latest/make_i386_sysv_elf_gas.S)
+    set(SRC source/tt_fiber_wrapper.c
+            boost/jump_i386_sysv_elf_gas.S
+            boost/make_i386_sysv_elf_gas.S)
   endif ()
 
 endif ()
