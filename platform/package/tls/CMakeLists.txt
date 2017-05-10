@@ -17,7 +17,7 @@
 # definition
 #
 
-set(TLS_PATH ${CMAKE_CURRENT_SOURCE_DIR}/source/latest)
+set(TLS_PATH ${CMAKE_CURRENT_SOURCE_DIR}/mbedtls)
 
 function(hide_var var value)
   set(${var} ${value} PARENT_SCOPE)

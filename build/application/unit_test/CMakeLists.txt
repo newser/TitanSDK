@@ -38,8 +38,7 @@ include_directories(${PLATFORM_PATH}/package/fcontext/include)
 include_directories(${PLATFORM_PATH}/package/fcontext/boost)
 
 # package: tls
-include_directories(${PLATFORM_PATH}/package/tls)
-include_directories(${PLATFORM_PATH}/package/tls/source/latest/include/mbedtls)
+include_directories(${PLATFORM_PATH}/package/tls/mbedtls/include/mbedtls)
 
 #
 # source file
