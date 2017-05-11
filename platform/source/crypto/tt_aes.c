@@ -281,39 +281,6 @@ tt_result_t tt_aes_decrypt(IN tt_aes_t *aes,
     return TT_SUCCESS;
 }
 
-tt_result_t tt_aes(IN tt_bool_t encrypt,
-                   IN tt_blob_t *key,
-                   IN tt_aes_keybit_t keybit,
-                   IN tt_aes_mode_t mode,
-                   IN OPT tt_blob_t *iv,
-                   IN tt_crypto_pad_t pad,
-                   IN tt_u8_t *input,
-                   IN tt_u32_t input_len,
-                   OUT tt_u8_t *output,
-                   IN OUT tt_u32_t *output_len)
-{
-    tt_aes_t aes;
-    tt_result_t result;
-
-    result = tt_aes_create(&aes, encrypt, key->addr, key->len, keybit);
-    if (!TT_OK(result)) {
-        return TT_FAIL;
-    }
-    tt_aes_set_mode(&aes, mode);
-    tt_aes_set_iv(&aes, iv->addr, iv->len);
-    tt_aes_set_pad(&aes, pad);
-
-    if (encrypt) {
-        result = tt_aes_encrypt(&aes, input, input_len, output, output_len);
-    } else {
-        result = tt_aes_decrypt(&aes, input, input_len, output, output_len);
-    }
-
-    tt_aes_destroy(&aes);
-
-    return result;
-}
-
 tt_result_t tt_aes_cbc(IN tt_bool_t encrypt,
                        IN tt_u8_t *key,
                        IN tt_u32_t key_len,

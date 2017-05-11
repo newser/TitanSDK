@@ -58,6 +58,8 @@ TT_TEST_ROUTINE_DECLARE(tt_unit_test_aes192_cfb8)
 TT_TEST_ROUTINE_DECLARE(tt_unit_test_aes192_cfb128)
 TT_TEST_ROUTINE_DECLARE(tt_unit_test_aes192_ctr)
 TT_TEST_ROUTINE_DECLARE(tt_unit_test_aes192_ecb)
+
+TT_TEST_ROUTINE_DECLARE(tt_unit_test_aes_param)
 // =========================================
 
 // === test case list ======================
@@ -154,6 +156,15 @@ TT_TEST_CASE("tt_unit_test_aes128_cbc_pkcs7",
                  NULL,
                  NULL),
 
+    TT_TEST_CASE("tt_unit_test_aes_param",
+                 "crypto: AES api param check",
+                 tt_unit_test_aes_param,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL),
+
     TT_TEST_CASE_LIST_DEFINE_END(crypto_aes_case)
     // =========================================
 
@@ -168,7 +179,7 @@ TT_TEST_CASE("tt_unit_test_aes128_cbc_pkcs7",
     ////////////////////////////////////////////////////////////
 
     /*
-    TT_TEST_ROUTINE_DEFINE(tt_unit_test_aes192_cfb8)
+    TT_TEST_ROUTINE_DEFINE(tt_unit_test_aes_param)
     {
         //tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
 
@@ -1566,6 +1577,55 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_aes192_ecb)
 
         tt_aes_destroy(&aes);
     }
+
+    // test end
+    TT_TEST_CASE_LEAVE()
+}
+
+TT_TEST_ROUTINE_DEFINE(tt_unit_test_aes_param)
+{
+    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+    tt_aes_t aes;
+    tt_result_t ret;
+    tt_u8_t ib[100], ob[100];
+    tt_u32_t olen;
+
+    TT_TEST_CASE_ENTER()
+    // test start
+
+    ret = tt_aes_create(&aes, TT_TRUE, (tt_u8_t *)&ret, 0, TT_AES128);
+    TT_UT_SUCCESS(ret, "");
+
+    // 0 input
+    olen = sizeof(ob);
+    ret = tt_aes_encrypt(&aes, ib, 0, ob, &olen);
+    TT_UT_SUCCESS(ret, "");
+    TT_UT_EQUAL(olen, 0, "");
+
+    olen = sizeof(ob);
+    ret = tt_aes_decrypt(&aes, ib, 0, ob, &olen);
+    TT_UT_SUCCESS(ret, "");
+    TT_UT_EQUAL(olen, 0, "");
+
+    // 0 output
+    olen = 0;
+    ret = tt_aes_encrypt(&aes, ib, 16, ob, &olen);
+    TT_UT_FAIL(ret, "");
+
+    olen = 0;
+    ret = tt_aes_decrypt(&aes, ib, 16, ob, &olen);
+    TT_UT_FAIL(ret, "");
+
+    // short output
+    olen = 1;
+    ret = tt_aes_encrypt(&aes, ib, 16, ob, &olen);
+    TT_UT_FAIL(ret, "");
+
+    olen = 1;
+    ret = tt_aes_decrypt(&aes, ib, 16, ob, &olen);
+    TT_UT_FAIL(ret, "");
+
+    tt_aes_destroy(&aes);
 
     // test end
     TT_TEST_CASE_LEAVE()
