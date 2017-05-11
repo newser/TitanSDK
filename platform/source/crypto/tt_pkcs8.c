@@ -218,16 +218,17 @@ tt_result_t tt_pkcs8_decrypt(IN tt_blob_t *ciphertext,
     }
 
     // aes decryption
-    result = tt_aes(TT_FALSE,
-                    &aes_key,
-                    aes_size,
-                    TT_AES_CBC,
-                    &iv,
-                    TT_CRYPTO_PAD_PKCS7,
-                    enc_data.addr,
-                    enc_data.len,
-                    plaintext,
-                    plaintext_len);
+    result = tt_aes_cbc(TT_FALSE,
+                        aes_key.addr,
+                        aes_key.len,
+                        aes_size,
+                        iv.addr,
+                        iv.len,
+                        TT_CRYPTO_PAD_PKCS7,
+                        enc_data.addr,
+                        enc_data.len,
+                        plaintext,
+                        plaintext_len);
     if (!TT_OK(result)) {
         goto p8_fail;
     }

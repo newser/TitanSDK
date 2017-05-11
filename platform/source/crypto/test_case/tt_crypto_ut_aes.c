@@ -330,16 +330,17 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_aes128_cbc_pkcs7)
         tt_memset(obuf, 0, sizeof(obuf));
         tt_memcpy(&iv, &aes_128_tv_iv[i], sizeof(tt_blob_t));
         o_tbuf.len = sizeof(obuf);
-        result = tt_aes(TT_TRUE,
-                        &tv->key,
-                        TT_AES128,
-                        tv->mode,
-                        &iv,
-                        tv->pad,
-                        tv->input.addr,
-                        tv->input.len,
-                        o_tbuf.addr,
-                        &o_tbuf.len);
+        result = tt_aes_cbc(TT_TRUE,
+                            tv->key.addr,
+                            tv->key.len,
+                            TT_AES128,
+                            iv.addr,
+                            iv.len,
+                            tv->pad,
+                            tv->input.addr,
+                            tv->input.len,
+                            o_tbuf.addr,
+                            &o_tbuf.len);
         TT_UT_EQUAL(result, TT_SUCCESS, "");
         TT_UT_EQUAL(o_tbuf.len, tv->output.len, "");
         TT_UT_EQUAL(tt_memcmp(o_tbuf.addr, tv->output.addr, o_tbuf.len), 0, "");
@@ -347,16 +348,17 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_aes128_cbc_pkcs7)
         // dec
         tt_memset(obuf2, 0, sizeof(obuf2));
         o_tbuf2.len = sizeof(obuf2);
-        result = tt_aes(TT_FALSE,
-                        &tv->key,
-                        TT_AES128,
-                        tv->mode,
-                        &iv,
-                        tv->pad,
-                        o_tbuf.addr,
-                        o_tbuf.len,
-                        o_tbuf2.addr,
-                        &o_tbuf2.len);
+        result = tt_aes_cbc(TT_FALSE,
+                            tv->key.addr,
+                            tv->key.len,
+                            TT_AES128,
+                            iv.addr,
+                            iv.len,
+                            tv->pad,
+                            o_tbuf.addr,
+                            o_tbuf.len,
+                            o_tbuf2.addr,
+                            &o_tbuf2.len);
         // result = tt_aes(TT_FALSE, &o_tbuf,&tv->key,
         //                        TT_AES128,&tv->attr,
         //                        tv->padding,o_tbuf2.addr, &o_tbuf2.len);
@@ -388,16 +390,17 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_aes128_cbc_pkcs7)
         // output
         len = sizeof(__tbuf);
 
-        result = tt_aes(TT_TRUE,
-                        &tv->key,
-                        TT_AES128,
-                        tv->mode,
-                        &iv,
-                        tv->pad,
-                        ib.addr,
-                        ib.len,
-                        __tbuf,
-                        &len);
+        result = tt_aes_cbc(TT_TRUE,
+                            tv->key.addr,
+                            tv->key.len,
+                            TT_AES128,
+                            iv.addr,
+                            iv.len,
+                            tv->pad,
+                            ib.addr,
+                            ib.len,
+                            __tbuf,
+                            &len);
         TT_UT_EQUAL(result, TT_SUCCESS, "");
         TT_UT_EQUAL(len, tv->output.len, "");
         TT_UT_EQUAL(tt_memcmp(__tbuf, tv->output.addr, len), 0, "");
@@ -411,16 +414,17 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_aes128_cbc_pkcs7)
         // output
         len = sizeof(__tbuf);
 
-        result = tt_aes(TT_FALSE,
-                        &tv->key,
-                        TT_AES128,
-                        tv->mode,
-                        &iv,
-                        tv->pad,
-                        ib.addr,
-                        ib.len,
-                        __tbuf,
-                        &len);
+        result = tt_aes_cbc(TT_FALSE,
+                            tv->key.addr,
+                            tv->key.len,
+                            TT_AES128,
+                            iv.addr,
+                            iv.len,
+                            tv->pad,
+                            ib.addr,
+                            ib.len,
+                            __tbuf,
+                            &len);
         // result = tt_aes(TT_FALSE, &o_tbuf,&tv->key,
         //                        TT_AES128,&tv->attr,
         //                        tv->padding,o_tbuf2.addr, &o_tbuf2.len);
@@ -543,16 +547,17 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_aes128_cbc_none)
         tt_memset(obuf, 0, sizeof(obuf));
         tt_memcpy(&iv, &aes_128_tv_iv[i], sizeof(tt_blob_t));
         o_tbuf.len = sizeof(obuf);
-        result = tt_aes(TT_TRUE,
-                        &tv->key,
-                        TT_AES128,
-                        tv->mode,
-                        &iv,
-                        tv->pad,
-                        tv->input.addr,
-                        tv->input.len,
-                        o_tbuf.addr,
-                        &o_tbuf.len);
+        result = tt_aes_cbc(TT_TRUE,
+                            tv->key.addr,
+                            tv->key.len,
+                            TT_AES128,
+                            iv.addr,
+                            iv.len,
+                            tv->pad,
+                            tv->input.addr,
+                            tv->input.len,
+                            o_tbuf.addr,
+                            &o_tbuf.len);
         TT_UT_EQUAL(result, TT_SUCCESS, "");
         TT_UT_EQUAL(o_tbuf.len, tv->output.len, "");
         TT_UT_EQUAL(tt_memcmp(o_tbuf.addr, tv->output.addr, o_tbuf.len), 0, "");
@@ -560,16 +565,17 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_aes128_cbc_none)
         // dec
         tt_memset(obuf2, 0, sizeof(obuf2));
         o_tbuf2.len = sizeof(obuf2);
-        result = tt_aes(TT_FALSE,
-                        &tv->key,
-                        TT_AES128,
-                        tv->mode,
-                        &iv,
-                        tv->pad,
-                        o_tbuf.addr,
-                        o_tbuf.len,
-                        o_tbuf2.addr,
-                        &o_tbuf2.len);
+        result = tt_aes_cbc(TT_FALSE,
+                            tv->key.addr,
+                            tv->key.len,
+                            TT_AES128,
+                            iv.addr,
+                            iv.len,
+                            tv->pad,
+                            o_tbuf.addr,
+                            o_tbuf.len,
+                            o_tbuf2.addr,
+                            &o_tbuf2.len);
         // result = tt_aes(TT_FALSE, &o_tbuf,&tv->key,
         //                        TT_AES128,&tv->attr,
         //                        tv->padding,o_tbuf2.addr, &o_tbuf2.len);
@@ -601,16 +607,17 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_aes128_cbc_none)
         // output
         len = sizeof(__tbuf);
 
-        result = tt_aes(TT_TRUE,
-                        &tv->key,
-                        TT_AES128,
-                        tv->mode,
-                        &iv,
-                        tv->pad,
-                        ib.addr,
-                        ib.len,
-                        __tbuf,
-                        &len);
+        result = tt_aes_cbc(TT_TRUE,
+                            tv->key.addr,
+                            tv->key.len,
+                            TT_AES128,
+                            iv.addr,
+                            iv.len,
+                            tv->pad,
+                            ib.addr,
+                            ib.len,
+                            __tbuf,
+                            &len);
         TT_UT_EQUAL(result, TT_SUCCESS, "");
         TT_UT_EQUAL(len, tv->output.len, "");
         TT_UT_EQUAL(tt_memcmp(__tbuf, tv->output.addr, len), 0, "");
@@ -624,16 +631,17 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_aes128_cbc_none)
         // output
         len = sizeof(__tbuf);
 
-        result = tt_aes(TT_FALSE,
-                        &tv->key,
-                        TT_AES128,
-                        tv->mode,
-                        &iv,
-                        tv->pad,
-                        ib.addr,
-                        ib.len,
-                        __tbuf,
-                        &len);
+        result = tt_aes_cbc(TT_FALSE,
+                            tv->key.addr,
+                            tv->key.len,
+                            TT_AES128,
+                            iv.addr,
+                            iv.len,
+                            tv->pad,
+                            ib.addr,
+                            ib.len,
+                            __tbuf,
+                            &len);
         // result = tt_aes(TT_FALSE, &o_tbuf,&tv->key,
         //                        TT_AES128,&tv->attr,
         //                        tv->padding,o_tbuf2.addr, &o_tbuf2.len);
@@ -679,13 +687,13 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_aes128_cbc_p7_rep)
     biv.addr = iv;
     biv.len = ilen;
 
-    ret = tt_aes_create(&enc_aes, TT_TRUE, &bkey, TT_AES128);
+    ret = tt_aes_create(&enc_aes, TT_TRUE, bkey.addr, bkey.len, TT_AES128);
     TT_UT_SUCCESS(ret, "");
     tt_aes_set_mode(&enc_aes, TT_AES_CBC);
     tt_aes_set_iv(&enc_aes, biv.addr, biv.len);
     tt_aes_set_pad(&enc_aes, TT_CRYPTO_PAD_PKCS7);
 
-    ret = tt_aes_create(&dec_aes, TT_FALSE, &bkey, TT_AES128);
+    ret = tt_aes_create(&dec_aes, TT_FALSE, bkey.addr, bkey.len, TT_AES128);
     TT_UT_SUCCESS(ret, "");
     tt_aes_set_mode(&dec_aes, TT_AES_CBC);
     tt_aes_set_iv(&dec_aes, biv.addr, biv.len);
@@ -837,16 +845,17 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_aes256_cbc_pkcs7)
         tt_memset(obuf, 0, sizeof(obuf));
         tt_memcpy(&iv, &aes_256_tv_iv[i], sizeof(tt_blob_t));
         o_tbuf.len = sizeof(obuf);
-        result = tt_aes(TT_TRUE,
-                        &tv->key,
-                        TT_AES256,
-                        tv->mode,
-                        &iv,
-                        tv->pad,
-                        tv->input.addr,
-                        tv->input.len,
-                        o_tbuf.addr,
-                        &o_tbuf.len);
+        result = tt_aes_cbc(TT_TRUE,
+                            tv->key.addr,
+                            tv->key.len,
+                            TT_AES256,
+                            iv.addr,
+                            iv.len,
+                            tv->pad,
+                            tv->input.addr,
+                            tv->input.len,
+                            o_tbuf.addr,
+                            &o_tbuf.len);
         // result = tt_aes(TT_TRUE, &tv->input,&tv->key,
         //                        TT_AES256,&tv->attr,
         //                        tv->padding,o_tbuf.addr,&o_tbuf.len);
@@ -857,16 +866,17 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_aes256_cbc_pkcs7)
         // dec
         tt_memset(obuf2, 0, sizeof(obuf2));
         o_tbuf2.len = sizeof(obuf2);
-        result = tt_aes(TT_FALSE,
-                        &tv->key,
-                        TT_AES256,
-                        tv->mode,
-                        &iv,
-                        tv->pad,
-                        o_tbuf.addr,
-                        o_tbuf.len,
-                        o_tbuf2.addr,
-                        &o_tbuf2.len);
+        result = tt_aes_cbc(TT_FALSE,
+                            tv->key.addr,
+                            tv->key.len,
+                            TT_AES256,
+                            iv.addr,
+                            iv.len,
+                            tv->pad,
+                            o_tbuf.addr,
+                            o_tbuf.len,
+                            o_tbuf2.addr,
+                            &o_tbuf2.len);
         // result = tt_aes(TT_FALSE, &o_tbuf,&tv->key,
         //                        TT_AES256,&tv->attr,
         //                        tv->padding,o_tbuf2.addr,&o_tbuf2.len);
@@ -958,16 +968,17 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_aes256_cbc_none)
         tt_memset(obuf, 0, sizeof(obuf));
         tt_memcpy(&iv, &aes_128_tv_iv[i], sizeof(tt_blob_t));
         o_tbuf.len = sizeof(obuf);
-        result = tt_aes(TT_TRUE,
-                        &tv->key,
-                        TT_AES256,
-                        tv->mode,
-                        &iv,
-                        tv->pad,
-                        tv->input.addr,
-                        tv->input.len,
-                        o_tbuf.addr,
-                        &o_tbuf.len);
+        result = tt_aes_cbc(TT_TRUE,
+                            tv->key.addr,
+                            tv->key.len,
+                            TT_AES256,
+                            iv.addr,
+                            iv.len,
+                            tv->pad,
+                            tv->input.addr,
+                            tv->input.len,
+                            o_tbuf.addr,
+                            &o_tbuf.len);
         TT_UT_EQUAL(result, TT_SUCCESS, "");
         TT_UT_EQUAL(o_tbuf.len, tv->output.len, "");
         TT_UT_EQUAL(tt_memcmp(o_tbuf.addr, tv->output.addr, o_tbuf.len), 0, "");
@@ -975,16 +986,17 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_aes256_cbc_none)
         // dec
         tt_memset(obuf2, 0, sizeof(obuf2));
         o_tbuf2.len = sizeof(obuf2);
-        result = tt_aes(TT_FALSE,
-                        &tv->key,
-                        TT_AES256,
-                        tv->mode,
-                        &iv,
-                        tv->pad,
-                        o_tbuf.addr,
-                        o_tbuf.len,
-                        o_tbuf2.addr,
-                        &o_tbuf2.len);
+        result = tt_aes_cbc(TT_FALSE,
+                            tv->key.addr,
+                            tv->key.len,
+                            TT_AES256,
+                            iv.addr,
+                            iv.len,
+                            tv->pad,
+                            o_tbuf.addr,
+                            o_tbuf.len,
+                            o_tbuf2.addr,
+                            &o_tbuf2.len);
         // result = tt_aes(TT_FALSE, &o_tbuf,&tv->key,
         //                        TT_AES128,&tv->attr,
         //                        tv->padding,o_tbuf2.addr, &o_tbuf2.len);
@@ -1016,16 +1028,17 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_aes256_cbc_none)
         // output
         len = sizeof(__tbuf);
 
-        result = tt_aes(TT_TRUE,
-                        &tv->key,
-                        TT_AES256,
-                        tv->mode,
-                        &iv,
-                        tv->pad,
-                        ib.addr,
-                        ib.len,
-                        __tbuf,
-                        &len);
+        result = tt_aes_cbc(TT_TRUE,
+                            tv->key.addr,
+                            tv->key.len,
+                            TT_AES256,
+                            iv.addr,
+                            iv.len,
+                            tv->pad,
+                            ib.addr,
+                            ib.len,
+                            __tbuf,
+                            &len);
         TT_UT_EQUAL(result, TT_SUCCESS, "");
         TT_UT_EQUAL(len, tv->output.len, "");
         TT_UT_EQUAL(tt_memcmp(__tbuf, tv->output.addr, len), 0, "");
@@ -1039,16 +1052,17 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_aes256_cbc_none)
         // output
         len = sizeof(__tbuf);
 
-        result = tt_aes(TT_FALSE,
-                        &tv->key,
-                        TT_AES256,
-                        tv->mode,
-                        &iv,
-                        tv->pad,
-                        ib.addr,
-                        ib.len,
-                        __tbuf,
-                        &len);
+        result = tt_aes_cbc(TT_FALSE,
+                            tv->key.addr,
+                            tv->key.len,
+                            TT_AES256,
+                            iv.addr,
+                            iv.len,
+                            tv->pad,
+                            ib.addr,
+                            ib.len,
+                            __tbuf,
+                            &len);
         // result = tt_aes(TT_FALSE, &o_tbuf,&tv->key,
         //                        TT_AES128,&tv->attr,
         //                        tv->padding,o_tbuf2.addr, &o_tbuf2.len);
@@ -1092,13 +1106,13 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_aes256_cbc_p7_rep)
     biv.addr = iv;
     biv.len = ilen;
 
-    ret = tt_aes_create(&enc_aes, TT_TRUE, &bkey, TT_AES256);
+    ret = tt_aes_create(&enc_aes, TT_TRUE, bkey.addr, bkey.len, TT_AES256);
     TT_UT_SUCCESS(ret, "");
     tt_aes_set_mode(&enc_aes, TT_AES_CBC);
     tt_aes_set_iv(&enc_aes, biv.addr, biv.len);
     tt_aes_set_pad(&enc_aes, TT_CRYPTO_PAD_PKCS7);
 
-    ret = tt_aes_create(&dec_aes, TT_FALSE, &bkey, TT_AES256);
+    ret = tt_aes_create(&dec_aes, TT_FALSE, bkey.addr, bkey.len, TT_AES256);
     TT_UT_SUCCESS(ret, "");
     tt_aes_set_mode(&dec_aes, TT_AES_CBC);
     tt_aes_set_iv(&dec_aes, biv.addr, biv.len);
@@ -1242,12 +1256,12 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_aes192_cfb8)
         tt_blob_t key = {(tt_u8_t *)tv->k, tv->klen};
         tt_u32_t j;
 
-        ret = tt_aes_create(&aes, TT_TRUE, &key, TT_AES192);
+        ret = tt_aes_create(&aes, TT_TRUE, key.addr, key.len, TT_AES192);
         TT_UT_SUCCESS(ret, "");
         tt_aes_set_mode(&aes, TT_AES_CFB8);
         tt_aes_set_iv(&aes, tv->iv, tv->iv_len);
 
-        ret = tt_aes_create(&dec, TT_TRUE, &key, TT_AES192);
+        ret = tt_aes_create(&dec, TT_TRUE, key.addr, key.len, TT_AES192);
         TT_UT_SUCCESS(ret, "");
         tt_aes_set_mode(&dec, TT_AES_CFB8);
         tt_aes_set_iv(&dec, tv->iv, tv->iv_len);
@@ -1343,12 +1357,12 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_aes192_cfb128)
         tt_blob_t key = {(tt_u8_t *)tv->k, tv->klen};
         tt_u32_t j;
 
-        ret = tt_aes_create(&aes, TT_TRUE, &key, TT_AES192);
+        ret = tt_aes_create(&aes, TT_TRUE, key.addr, key.len, TT_AES192);
         TT_UT_SUCCESS(ret, "");
         tt_aes_set_mode(&aes, TT_AES_CFB128);
         tt_aes_set_iv(&aes, tv->iv, tv->iv_len);
 
-        ret = tt_aes_create(&dec, TT_TRUE, &key, TT_AES192);
+        ret = tt_aes_create(&dec, TT_TRUE, key.addr, key.len, TT_AES192);
         TT_UT_SUCCESS(ret, "");
         tt_aes_set_mode(&dec, TT_AES_CFB128);
         tt_aes_set_iv(&dec, tv->iv, tv->iv_len);
@@ -1444,12 +1458,12 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_aes192_ctr)
         tt_blob_t key = {(tt_u8_t *)tv->k, tv->klen};
         tt_u32_t j;
 
-        ret = tt_aes_create(&aes, TT_TRUE, &key, TT_AES192);
+        ret = tt_aes_create(&aes, TT_TRUE, key.addr, key.len, TT_AES192);
         TT_UT_SUCCESS(ret, "");
         tt_aes_set_mode(&aes, TT_AES_CTR);
         tt_aes_set_nonce(&aes, tv->iv, tv->iv_len);
 
-        ret = tt_aes_create(&dec, TT_TRUE, &key, TT_AES192);
+        ret = tt_aes_create(&dec, TT_TRUE, key.addr, key.len, TT_AES192);
         TT_UT_SUCCESS(ret, "");
         tt_aes_set_mode(&dec, TT_AES_CTR);
         tt_aes_set_nonce(&dec, tv->iv, tv->iv_len);
@@ -1522,11 +1536,11 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_aes192_ecb)
         tt_blob_t key = {(tt_u8_t *)tv->k, tv->klen};
         tt_u32_t j;
 
-        ret = tt_aes_create(&aes, TT_TRUE, &key, TT_AES192);
+        ret = tt_aes_create(&aes, TT_TRUE, key.addr, key.len, TT_AES192);
         TT_UT_SUCCESS(ret, "");
         tt_aes_set_mode(&aes, TT_AES_ECB);
 
-        ret = tt_aes_create(&dec, TT_FALSE, &key, TT_AES192);
+        ret = tt_aes_create(&dec, TT_FALSE, key.addr, key.len, TT_AES192);
         TT_UT_SUCCESS(ret, "");
         tt_aes_set_mode(&dec, TT_AES_ECB);
 

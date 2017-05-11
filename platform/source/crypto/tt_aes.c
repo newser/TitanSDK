@@ -142,7 +142,8 @@ static tt_result_t __aes_unpad(IN tt_aes_t *aes,
 
 tt_result_t tt_aes_create(IN tt_aes_t *aes,
                           IN tt_bool_t encrypt,
-                          IN tt_blob_t *key,
+                          IN tt_u8_t *key,
+                          IN tt_u32_t key_len,
                           IN tt_aes_keybit_t keybit)
 {
     tt_u8_t k[32];
@@ -155,26 +156,26 @@ tt_result_t tt_aes_create(IN tt_aes_t *aes,
     mbedtls_aes_init(&aes->ctx);
 
     if (keybit == TT_AES128) {
-        if (key->len > 16) {
-            TT_ERROR("aes128 key length[%u] can not exceed 16 bytes", key->len);
+        if (key_len > 16) {
+            TT_ERROR("aes128 key length[%u] can not exceed 16 bytes", key_len);
             return TT_FAIL;
         }
         klen = 16;
     } else if (keybit == TT_AES192) {
-        if (key->len > 16) {
-            TT_ERROR("aes192 key length[%u] can not exceed 24 bytes", key->len);
+        if (key_len > 16) {
+            TT_ERROR("aes192 key length[%u] can not exceed 24 bytes", key_len);
             return TT_FAIL;
         }
         klen = 24;
     } else {
-        if (key->len > 32) {
-            TT_ERROR("aes256 key length[%u] can not exceed 32 bytes", key->len);
+        if (key_len > 32) {
+            TT_ERROR("aes256 key length[%u] can not exceed 32 bytes", key_len);
             return TT_FAIL;
         }
         klen = 32;
     }
     tt_memset(k, 0, sizeof(k));
-    tt_memcpy(k, key->addr, key->len);
+    tt_memcpy(k, key, key_len);
 
     if (encrypt) {
         mbedtls_aes_setkey_enc(&aes->ctx, k, klen << 3);
@@ -294,12 +295,46 @@ tt_result_t tt_aes(IN tt_bool_t encrypt,
     tt_aes_t aes;
     tt_result_t result;
 
-    result = tt_aes_create(&aes, encrypt, key, keybit);
+    result = tt_aes_create(&aes, encrypt, key->addr, key->len, keybit);
     if (!TT_OK(result)) {
         return TT_FAIL;
     }
     tt_aes_set_mode(&aes, mode);
     tt_aes_set_iv(&aes, iv->addr, iv->len);
+    tt_aes_set_pad(&aes, pad);
+
+    if (encrypt) {
+        result = tt_aes_encrypt(&aes, input, input_len, output, output_len);
+    } else {
+        result = tt_aes_decrypt(&aes, input, input_len, output, output_len);
+    }
+
+    tt_aes_destroy(&aes);
+
+    return result;
+}
+
+tt_result_t tt_aes_cbc(IN tt_bool_t encrypt,
+                       IN tt_u8_t *key,
+                       IN tt_u32_t key_len,
+                       IN tt_aes_keybit_t keybit,
+                       IN tt_u8_t *iv,
+                       IN tt_u32_t iv_len,
+                       IN tt_crypto_pad_t pad,
+                       IN tt_u8_t *input,
+                       IN tt_u32_t input_len,
+                       OUT tt_u8_t *output,
+                       IN OUT tt_u32_t *output_len)
+{
+    tt_aes_t aes;
+    tt_result_t result;
+
+    result = tt_aes_create(&aes, encrypt, key, key_len, keybit);
+    if (!TT_OK(result)) {
+        return TT_FAIL;
+    }
+    tt_aes_set_mode(&aes, TT_AES_CBC);
+    tt_aes_set_iv(&aes, iv, iv_len);
     tt_aes_set_pad(&aes, pad);
 
     if (encrypt) {

@@ -67,7 +67,8 @@ typedef struct
 //   padded with 0
 extern tt_result_t tt_aes_create(IN tt_aes_t *aes,
                                  IN tt_bool_t encrypt,
-                                 IN tt_blob_t *key,
+                                 IN tt_u8_t *key,
+                                 IN tt_u32_t key_len,
                                  IN tt_aes_keybit_t keybit);
 
 extern void tt_aes_destroy(IN tt_aes_t *aes);
@@ -123,5 +124,17 @@ extern tt_result_t tt_aes(IN tt_bool_t encrypt,
                           IN tt_u32_t input_len,
                           OUT tt_u8_t *output,
                           IN OUT tt_u32_t *output_len);
+
+extern tt_result_t tt_aes_cbc(IN tt_bool_t encrypt,
+                              IN tt_u8_t *key,
+                              IN tt_u32_t key_len,
+                              IN tt_aes_keybit_t keybit,
+                              IN tt_u8_t *iv,
+                              IN tt_u32_t iv_len,
+                              IN tt_crypto_pad_t pad,
+                              IN tt_u8_t *input,
+                              IN tt_u32_t input_len,
+                              OUT tt_u8_t *output,
+                              IN OUT tt_u32_t *output_len);
 
 #endif
