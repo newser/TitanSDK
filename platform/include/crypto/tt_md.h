@@ -15,54 +15,52 @@
  */
 
 /**
-@file tt_aes_def.h
-@brief aes definitions
+@file tt_md.h
+@brief crypto hash
 
-this file defines aes
+this file defines crypto hash APIs
 */
 
-#ifndef __TT_AES_DEF__
-#define __TT_AES_DEF__
+#ifndef __TT_MD__
+#define __TT_MD__
 
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
+#include <log/tt_log.h>
+
+#include <md.h>
+
 ////////////////////////////////////////////////////////////
 // macro definition
 ////////////////////////////////////////////////////////////
-
-#define TT_AES_BLOCK_SIZE 16
-
-#define TT_AES_IV_SIZE 16
-
-#define TT_AES128_KEY_SIZE 16
-
-#define TT_AES256_KEY_SIZE 32
 
 ////////////////////////////////////////////////////////////
 // type definition
 ////////////////////////////////////////////////////////////
 
-typedef enum {
-    TT_AES128,
-    TT_AES192,
-    TT_AES256,
-
-    TT_AES_KEYBIT_NUM
-} tt_aes_keybit_t;
-#define TT_AES_KEYBIT_VALID(s) ((s) < TT_AES_KEYBIT_NUM)
+struct tt_buf_s;
 
 typedef enum {
-    TT_AES_ECB,
-    TT_AES_CBC,
-    TT_AES_CFB8,
-    TT_AES_CFB128,
-    TT_AES_CTR,
+    TT_MD2,
+    TT_MD4,
+    TT_MD5,
+    TT_SHA1,
+    TT_SHA224,
+    TT_SHA256,
+    TT_SHA384,
+    TT_SHA512,
+    TT_RIPEMD160,
 
-    TT_AES_MODE_NUM
-} tt_aes_mode_t;
-#define TT_AES_MODE_VALID(m) ((m) < TT_AES_MODE_NUM)
+    TT_MD_TYPE_NUM
+} tt_md_type_t;
+#define TT_MD_TYPE_VALID(t) ((t) < TT_MD_TYPE_NUM)
+
+typedef struct
+{
+    mbedtls_md_context_t ctx;
+} tt_md_t;
 
 ////////////////////////////////////////////////////////////
 // global variants
@@ -72,4 +70,47 @@ typedef enum {
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-#endif
+extern tt_result_t tt_md_create(IN tt_md_t *md, IN tt_md_type_t type);
+
+extern void tt_md_destroy(IN tt_md_t *md);
+
+tt_inline tt_u32_t tt_md_size(IN tt_md_t *md)
+{
+    return (tt_u32_t)mbedtls_md_get_size(md->ctx.md_info);
+}
+
+tt_inline tt_result_t tt_md_update(IN tt_md_t *md,
+                                   IN tt_u8_t *input,
+                                   IN tt_u32_t len)
+{
+    if (mbedtls_md_update(&md->ctx, input, len) == 0) {
+        return TT_SUCCESS;
+    } else {
+        TT_ERROR("md update failed");
+        return TT_FAIL;
+    }
+}
+
+tt_inline tt_result_t tt_md_final(IN tt_md_t *md, OUT tt_u8_t *output)
+{
+    if (mbedtls_md_finish(&md->ctx, output) == 0) {
+        return TT_SUCCESS;
+    } else {
+        TT_ERROR("md final failed");
+        return TT_FAIL;
+    }
+}
+
+extern tt_result_t tt_md_final_buf(IN tt_md_t *md, OUT struct tt_buf_s *output);
+
+tt_inline tt_result_t tt_md_reset(IN tt_md_t *md)
+{
+    if (mbedtls_md_starts(&md->ctx) == 0) {
+        return TT_SUCCESS;
+    } else {
+        TT_ERROR("md reset failed");
+        return TT_FAIL;
+    }
+}
+
+#endif /* __TT_MD__ */
