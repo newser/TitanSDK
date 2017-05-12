@@ -23,9 +23,7 @@
 #include <crypto/tt_aes.h>
 #include <crypto/tt_dh.h>
 #include <crypto/tt_hmac.h>
-#include <crypto/tt_md5.h>
 #include <crypto/tt_rsa.h>
-#include <crypto/tt_sha.h>
 #include <init/tt_component.h>
 #include <init/tt_profile.h>
 #include <misc/tt_assert.h>
@@ -90,6 +88,7 @@ tt_result_t __crypto_component_init(IN tt_component_t *comp,
     }
     TT_INFO("Intializing %-32s [Done]", "RSA");
 
+#if 0
     result = tt_md5_component_init(profile);
     if (!TT_OK(result)) {
         return TT_FAIL;
@@ -101,6 +100,7 @@ tt_result_t __crypto_component_init(IN tt_component_t *comp,
         return TT_FAIL;
     }
     TT_INFO("Intializing %-32s [Done]", "SHA");
+#endif
 
     result = tt_hmac_component_init(profile);
     if (!TT_OK(result)) {

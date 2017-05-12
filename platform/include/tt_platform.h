@@ -81,13 +81,11 @@ extern "C" {
 #include <crypto/tt_dh_mpn.h>
 #include <crypto/tt_hmac.h>
 #include <crypto/tt_hmac_def.h>
-#include <crypto/tt_md5.h>
+#include <crypto/tt_md.h>
 #include <crypto/tt_pkcs5.h>
 #include <crypto/tt_pkcs8.h>
 #include <crypto/tt_rsa.h>
 #include <crypto/tt_rsa_def.h>
-#include <crypto/tt_sha.h>
-#include <crypto/tt_sha_def.h>
 #include <init/config_shell/tt_config_command.h>
 #include <init/config_shell/tt_config_shell.h>
 #include <init/config_shell/tt_console_config_shell.h>

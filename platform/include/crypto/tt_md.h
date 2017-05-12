@@ -16,9 +16,9 @@
 
 /**
 @file tt_md.h
-@brief crypto hash
+@brief message digest
 
-this file defines crypto hash APIs
+this file defines message digest APIs
 */
 
 #ifndef __TT_MD__

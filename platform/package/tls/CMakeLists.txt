@@ -52,6 +52,9 @@ hide_var(LINK_WITH_PTHREAD OFF)
 # no need to install header files
 hide_var(INSTALL_MBEDTLS_HEADERS OFF)
 
+# customize configuration
+add_definitions(-DMBEDTLS_CONFIG_FILE="tt_mbedtls_config.h")
+
 add_subdirectory(${TLS_PATH})
 
 #

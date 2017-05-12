@@ -64,6 +64,8 @@ tt_result_t tt_md_create(IN tt_md_t *md, IN tt_md_type_t type)
     TT_ASSERT(md != NULL);
     TT_ASSERT(TT_MD_TYPE_VALID(type));
 
+    mbedtls_md_init(&md->ctx);
+
     if (mbedtls_md_setup(&md->ctx,
                          mbedtls_md_info_from_type(__s_md_type_map[type]),
                          0) != 0) {
