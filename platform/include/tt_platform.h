@@ -80,7 +80,6 @@ extern "C" {
 #include <crypto/tt_dh_def.h>
 #include <crypto/tt_dh_mpn.h>
 #include <crypto/tt_hmac.h>
-#include <crypto/tt_hmac_def.h>
 #include <crypto/tt_md.h>
 #include <crypto/tt_pkcs5.h>
 #include <crypto/tt_pkcs8.h>

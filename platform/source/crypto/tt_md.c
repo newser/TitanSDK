@@ -104,3 +104,31 @@ tt_result_t tt_md_final_buf(IN tt_md_t *md, OUT tt_buf_t *output)
 
     return TT_SUCCESS;
 }
+
+tt_result_t tt_md_gather(IN tt_md_type_t type,
+                         IN tt_blob_t *input,
+                         IN tt_u32_t input_num,
+                         OUT tt_u8_t *output)
+{
+    tt_md_t md;
+    tt_u32_t i;
+
+    if (!TT_OK(tt_md_create(&md, type))) {
+        return TT_FAIL;
+    }
+
+    for (i = 0; i < input_num; ++i) {
+        if (!TT_OK(tt_md_update(&md, input[i].addr, input[i].len))) {
+            tt_md_destroy(&md);
+            return TT_FAIL;
+        }
+    }
+
+    if (!TT_OK(tt_md_final(&md, output))) {
+        tt_md_destroy(&md);
+        return TT_FAIL;
+    }
+
+    tt_md_destroy(&md);
+    return TT_SUCCESS;
+}

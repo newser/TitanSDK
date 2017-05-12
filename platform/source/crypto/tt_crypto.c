@@ -100,13 +100,13 @@ tt_result_t __crypto_component_init(IN tt_component_t *comp,
         return TT_FAIL;
     }
     TT_INFO("Intializing %-32s [Done]", "SHA");
-#endif
 
     result = tt_hmac_component_init(profile);
     if (!TT_OK(result)) {
         return TT_FAIL;
     }
     TT_INFO("Intializing %-32s [Done]", "HMAC");
+#endif
 
     /*
     result = tt_aes_component_init(profile);

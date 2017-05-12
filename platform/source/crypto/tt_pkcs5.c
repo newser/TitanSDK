@@ -58,7 +58,7 @@ tt_result_t tt_pbkdf2(IN tt_pkcs5_prf_t prf,
                       OUT tt_u8_t *derived_key)
 {
     tt_u32_t hlen, l, r, i, j, k;
-    tt_u8_t ti[TT_HMAC_SHA1_DIGEST_LENGTH];
+    tt_u8_t ti[20];
     tt_u8_t *pos = derived_key;
     tt_result_t result;
 
@@ -89,7 +89,7 @@ tt_result_t tt_pbkdf2(IN tt_pkcs5_prf_t prf,
 
     // todo: other PRF
     if (prf == TT_PKCS5_PRF_HMAC_SHA1) {
-        hlen = TT_HMAC_SHA1_DIGEST_LENGTH;
+        hlen = 20;
     } else {
         TT_ERROR("only support hmac sha1 as prf now");
         return TT_FAIL;
@@ -111,7 +111,12 @@ tt_result_t tt_pbkdf2(IN tt_pkcs5_prf_t prf,
         blob[0].len = salt->len;
         blob[1].addr = (tt_u8_t *)&be_i;
         blob[1].len = sizeof(tt_u32_t);
-        result = tt_hmac_gather(TT_HMAC_VER_SHA1, password, blob, 2, u1);
+        result = tt_hmac_gather(TT_HMAC_SHA1,
+                                password->addr,
+                                password->len,
+                                blob,
+                                2,
+                                u1);
         if (!TT_OK(result)) {
             return TT_FAIL;
         }
@@ -126,7 +131,12 @@ tt_result_t tt_pbkdf2(IN tt_pkcs5_prf_t prf,
         for (j = 1; j < iter_count; ++j) {
             blob[0].addr = prev_u;
             blob[0].len = hlen;
-            result = tt_hmac(TT_HMAC_VER_SHA1, password, blob, cur_u);
+            result = tt_hmac(TT_HMAC_SHA1,
+                             password->addr,
+                             password->len,
+                             prev_u,
+                             hlen,
+                             cur_u);
             if (!TT_OK(result)) {
                 return TT_FAIL;
             }

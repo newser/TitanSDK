@@ -38,6 +38,7 @@
 
 // === routine declarations ================
 TT_TEST_ROUTINE_DECLARE(tt_unit_test_md)
+TT_TEST_ROUTINE_DECLARE(tt_unit_test_hmac)
 // =========================================
 
 // === test case list ======================
@@ -53,6 +54,15 @@ TT_TEST_CASE("tt_unit_test_md",
              NULL)
 ,
 
+    TT_TEST_CASE("tt_unit_test_hmac",
+                 "crypto: HMAC",
+                 tt_unit_test_hmac,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL),
+
     TT_TEST_CASE_LIST_DEFINE_END(crypto_md_case)
     // =========================================
 
@@ -67,7 +77,7 @@ TT_TEST_CASE("tt_unit_test_md",
     ////////////////////////////////////////////////////////////
 
     /*
-    TT_TEST_ROUTINE_DEFINE(name)
+    TT_TEST_ROUTINE_DEFINE(tt_unit_test_hmac)
     {
         //tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
 
@@ -198,9 +208,150 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_md)
             tt_buf_clear(&output);
             ret = tt_md_final_buf(&md, &output);
             TT_UT_SUCCESS(ret, "");
-            // TT_UT_EQUAL(tt_buf_cmp(&output, &expect), 0, "");
+            TT_UT_EQUAL(tt_buf_cmp(&output, &expect), 0, "");
 
             tt_md_destroy(&md);
+
+            tt_buf_clear(&output);
+            tt_buf_reserve(&output, TT_BUF_RLEN(&expect));
+            ret = tt_md(t, (tt_u8_t *)tv->in, len, TT_BUF_RPOS(&output));
+            TT_UT_SUCCESS(ret, "");
+            tt_buf_inc_wp(&output, TT_BUF_RLEN(&expect));
+            TT_UT_EQUAL(tt_buf_cmp(&output, &expect), 0, "");
+        }
+    }
+
+    tt_buf_destroy(&output);
+    tt_buf_destroy(&expect);
+
+    // test end
+    TT_TEST_CASE_LEAVE()
+}
+
+typedef struct
+{
+    const tt_char_t *in;
+    const tt_char_t *key;
+    const tt_char_t *out[TT_HMAC_TYPE_NUM];
+} __hmac_tv_t;
+
+// hmac test vector
+static __hmac_tv_t __hmac_tv[] =
+    {{
+         "",
+         "This is a long password --- This is a long password ---",
+         {
+             /* md2 */ "",
+             /* md4 */ "a8d936879aca46c9509b23064f022837",
+             /* md5 */ "1870f87dbe43cd92784fd065b055727c",
+             /* sha1 */ "aaf60b7c080a386fdf91bde28d4711f3d70775bb",
+             /* sha224 */
+             "bbd45ab4133630d2961c50841b726912897f7577201100eed55e852a",
+             /* sha256 */
+             "e907e328a41edacf6db73aef949786cfc444cef3b5e1b86ad591764be1550735",
+             /* sha384 */ "7d9988b833a67fd9fdacc40dbfb8dc9b3fef141e480cbbbeb582"
+                          "4b39b7a67f1ba5441132ad7b1bdc72b79ee30e69bfd3",
+             /* sha512 */ "57c10479e1a758145934c10936a704937b24f0423c6ce160a45a"
+                          "312d0848024de84178eb5ea36876412eeff1bfbb6a642cfd8288"
+                          "3fa6e9fa98c768707abebb61",
+             /* ripemd160 */ "cd65fa5ea9c609431ad4b2aa5ceb6fa7ddca748d",
+         },
+     },
+     {
+         "what do ya want for nothing?",
+         "Jefe",
+         {
+             /* md2 */ "",
+             /* md4 */ "be192c588a8e914d8a59b474a828128f",
+             /* md5 */ "750c783e6ab0b503eaa86e310a5db738",
+             /* sha1 */ "effcdf6ae5eb2fa2d27416d5f184df9c259a7c79",
+             /* sha224 */
+             "a30e01098bc6dbbf45690f3a7e9e6d0f8bbea2a39e6148008fd05e44",
+             /* sha256 */
+             "5bdcc146bf60754e6a042426089575c75a003f089d2739839dec58b964ec3843",
+             /* sha384 */
+             "af45d2e376484031617f78d2b58a6b1b9c7ef464f5a01b47e42ec3736"
+             "322445e8e2240ca5e69e2c78b3239ecfab21649",
+             /* sha512 */
+             "164b7a7bfcf819e2e395fbe73b56e0a387bd64222e831fd610270cd7ea2505549"
+             "758bf"
+             "75c05a994a6d034f65f8f0e6fdcaeab1a34d4a6b4b636e070a38bce737",
+             /* ripemd160 */ "dda6c0213a485a9e24f4742064a7f033b43c4069",
+         },
+     }};
+
+TT_TEST_ROUTINE_DEFINE(tt_unit_test_hmac)
+{
+    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+    tt_buf_t output, expect;
+    __hmac_tv_t *tv;
+    tt_u32_t n = sizeof(__hmac_tv) / sizeof(__hmac_tv[0]);
+    tt_u32_t i;
+    tt_result_t ret;
+
+    TT_TEST_CASE_ENTER()
+    // test start
+
+    tt_buf_init(&output, NULL);
+    tt_buf_init(&expect, NULL);
+
+    for (i = 0; i < 1; ++i) {
+        tt_hmac_t hmac;
+        tt_hmac_type_t t = TT_HMAC_MD4;
+        tt_u32_t len;
+
+        tv = &__hmac_tv[i];
+        len = (tt_u32_t)tt_strlen(tv->in);
+
+        for (; t < TT_HMAC_TYPE_NUM; ++t) {
+            tt_u32_t pos, seg;
+
+            tt_buf_clear(&expect);
+            tt_buf_put_cstr2hex(&expect, tv->out[t]);
+
+            ret = tt_hmac_create(&hmac,
+                                 t,
+                                 (tt_u8_t *)tv->key,
+                                 tt_strlen(tv->key));
+            TT_UT_SUCCESS(ret, "");
+
+            pos = 0;
+            while (pos < len) {
+                seg = tt_rand_u32() % (len - pos) + 1;
+                ret = tt_hmac_update(&hmac, (tt_u8_t *)tv->in + pos, seg);
+                TT_UT_SUCCESS(ret, "");
+                pos += seg;
+            }
+            TT_ASSERT(pos == len);
+
+            tt_buf_clear(&output);
+            ret = tt_hmac_final_buf(&hmac, &output);
+            TT_UT_SUCCESS(ret, "");
+            TT_UT_EQUAL(TT_BUF_RLEN(&output), tt_hmac_size(&hmac), "");
+            TT_UT_EQUAL(tt_buf_cmp(&output, &expect), 0, "");
+
+            // reset
+            tt_hmac_reset(&hmac);
+            ret = tt_hmac_update(&hmac, (tt_u8_t *)tv->in, len);
+            TT_UT_SUCCESS(ret, "");
+            tt_buf_clear(&output);
+            ret = tt_hmac_final_buf(&hmac, &output);
+            TT_UT_SUCCESS(ret, "");
+            TT_UT_EQUAL(tt_buf_cmp(&output, &expect), 0, "");
+
+            tt_hmac_destroy(&hmac);
+
+            tt_buf_clear(&output);
+            tt_buf_reserve(&output, TT_BUF_RLEN(&expect));
+            ret = tt_hmac(t,
+                          (tt_u8_t *)tv->key,
+                          tt_strlen(tv->key),
+                          (tt_u8_t *)tv->in,
+                          len,
+                          TT_BUF_RPOS(&output));
+            TT_UT_SUCCESS(ret, "");
+            tt_buf_inc_wp(&output, TT_BUF_RLEN(&expect));
+            TT_UT_EQUAL(tt_buf_cmp(&output, &expect), 0, "");
         }
     }
 
