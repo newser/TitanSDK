@@ -15,14 +15,14 @@
  */
 
 /**
-@file tt_md.h
+@file tt_message_digest.h
 @brief message digest
 
 this file defines message digest APIs
 */
 
-#ifndef __TT_MD__
-#define __TT_MD__
+#ifndef __TT_MESSAGE_DIGEST__
+#define __TT_MESSAGE_DIGEST__
 
 ////////////////////////////////////////////////////////////
 // import header files
@@ -128,4 +128,4 @@ tt_inline tt_result_t tt_md(IN tt_md_type_t type,
     return tt_md_gather(type, &b, 1, output);
 }
 
-#endif /* __TT_MD__ */
+#endif /* __TT_MESSAGE_DIGEST__ */

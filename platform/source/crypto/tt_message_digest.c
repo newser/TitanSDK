@@ -18,7 +18,7 @@
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <crypto/tt_md.h>
+#include <crypto/tt_message_digest.h>
 
 #include <algorithm/tt_buffer.h>
 #include <misc/tt_assert.h>

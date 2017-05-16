@@ -74,13 +74,14 @@ extern "C" {
 #include <config/tt_platform_optimized_config.h>
 #include <crypto/tt_aes.h>
 #include <crypto/tt_aes_def.h>
+#include <crypto/tt_cipher.h>
 #include <crypto/tt_crypto.h>
 #include <crypto/tt_crypto_def.h>
 #include <crypto/tt_dh.h>
 #include <crypto/tt_dh_def.h>
 #include <crypto/tt_dh_mpn.h>
 #include <crypto/tt_hmac.h>
-#include <crypto/tt_md.h>
+#include <crypto/tt_message_digest.h>
 #include <crypto/tt_pkcs5.h>
 #include <crypto/tt_pkcs8.h>
 #include <crypto/tt_rsa.h>
