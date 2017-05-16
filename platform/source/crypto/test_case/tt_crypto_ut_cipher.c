@@ -229,6 +229,66 @@ static __cipher_tv_t __cipher_tv[] = {
         "feedfacedeadbeeffeedfacedeadbeefabaddad2",
         "4e4b178d8fe26fdc95e2e7246dd94bec",
     },
+    {
+        TT_TRUE,
+        0,
+        TT_DES_ECB,
+        "8000000000000000",
+        "0000000000000000",
+        "95A8D72813DAA94D",
+        NULL,
+        TT_PADDING_NUM,
+    },
+    {
+        TT_FALSE,
+        0,
+        TT_DES_EDE_CBC,
+        "752878397493CB7034E5467B9594406D",
+        "112233445566778899AABBCCDDEEFF00",
+        "743F140CF372B33C71B8AA2AF2D4976B34A268F29B18F36E",
+        "78E95ABF0B8EE2C0",
+        TT_PADDING_PKCS7,
+    },
+    {
+        TT_FALSE,
+        0,
+        TT_DES_EDE3_CBC,
+        "0123456789ABCDEF23456789ABCDEF01456789ABCDEF0123",
+        "6BC1BEE22E409F96E93D7E117393172AAE2D8A571E03AC9C9EB76FAC45AF8E51",
+        "2079C3D53AA763E193B79E2569AB5262516570481F25B50F73C0BDA85C8E0DA7",
+        "F69F2445DF4F9B17",
+        TT_PADDING_NONE,
+    },
+    {
+        TT_TRUE,
+        0,
+        TT_BLOWFISH_ECB,
+        "86C8A06606C49AD9E3A4",
+        "1122334455667788",
+        "89BAFB5ED18C1EB4",
+        NULL,
+        TT_PADDING_NUM,
+    },
+    {
+        TT_TRUE,
+        0,
+        TT_BLOWFISH_CFB64,
+        "7581938532D4F8F8856F6F42BBDF3CC2B9AC751B",
+        "58C0D1E7F6205FEB3564D4E0221202FD112233445566778899aabbccddeeff00",
+        "45B8AB913430069A2D953A83941E3D8EB8F5B869C359BC927AC950076E72F0A9",
+        "0102030405060708",
+        TT_PADDING_NUM,
+    },
+    {
+        TT_TRUE,
+        0,
+        TT_ARC4_128,
+        "0102030405060708090a0b0c0d0e0f10",
+        "3132333435363738393031323334353637383930",
+        "abf5ffae55ab29cf8ba319abfed02ea16570fda5",
+        NULL,
+        TT_PADDING_NUM,
+    },
 };
 
 TT_TEST_ROUTINE_DEFINE(tt_unit_test_cipher)
@@ -403,7 +463,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cipher)
             }
             TT_ASSERT(j == in_len);
         }
-        ret = tt_cipher_finish_buf(&dec, &ibuf);
+        ret = tt_cipher_finish_buf(&dec, &dbuf);
         TT_UT_SUCCESS(ret, "");
 
         TT_UT_EQUAL(tt_buf_cmp(&dbuf, &ibuf), 0, "");
