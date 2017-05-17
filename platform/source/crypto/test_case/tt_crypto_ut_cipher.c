@@ -91,6 +91,7 @@ TT_TEST_CASE("tt_unit_test_cipher",
     tt_cipher_padding_t pad;
     const tt_char_t *ad;
     const tt_char_t *tag;
+    tt_bool_t no_update;
 } __cipher_tv_t;
 
 // md test vector
@@ -289,6 +290,60 @@ static __cipher_tv_t __cipher_tv[] = {
         NULL,
         TT_PADDING_NUM,
     },
+    {
+        TT_FALSE,
+        0,
+        TT_AES_128_CCM,
+        "404142434445464748494A4B4C4D4E4F",
+        "202122232425262728292A2B2C2D2E2F",
+        "D2A1F0E051EA5F62081A7792073D593D",
+        "1011121314151617",
+        TT_PADDING_NUM,
+        "000102030405060708090A0B0C0D0E0F",
+        "1FC64FBFACCD",
+        TT_TRUE,
+    },
+    {
+        TT_FALSE,
+        0,
+        TT_AES_128_CCM,
+        "404142434445464748494A4B4C4D4E4F",
+        "202122232425262728292A2B2C2D2E2F303132333435363738393A3B3C3D3E3F404142"
+        "434445464748494A4B4C4D4E4F505152535455565758595A5B5C5D5E5F",
+        "7162015BC051951E5918AEAF3C11F3D4AC363F8D5B6AF3D369603B04F24CAE29964E2F"
+        "2BF9D31143F72527CE2DB402EAB7660E4A10B08E82266517CDF60267F9",
+        "10111213141516",
+        TT_PADDING_NUM,
+        NULL,
+        "C66B655C",
+        TT_TRUE,
+    },
+    {
+        TT_FALSE,
+        0,
+        TT_CAMELLIA_128_CCM,
+        "C0C1C2C3C4C5C6C7C8C9CACBCCCDCECF",
+        "0C0D0E0F101112131415161718191A1B1C1D1E1F",
+        "2AD3BAD94FC52E92BE438E827C1023B96A8A7725",
+        "00000007060504A0A1A2A3A4A5",
+        TT_PADDING_NUM,
+        "000102030405060708090A0B",
+        "8FA17BA7F331DB09",
+        TT_TRUE,
+    },
+    {
+        TT_FALSE,
+        0,
+        TT_CAMELLIA_128_CCM,
+        "C0C1C2C3C4C5C6C7C8C9CACBCCCDCECF",
+        "0C0D0E0F101112131415161718191A1B1C1D1E1F20",
+        "FEA5480BA53FA8D3C34422AACE4DE67FFA3BB73BAB",
+        "00000008070605A0A1A2A3A4A5",
+        TT_PADDING_NUM,
+        "000102030405060708090A0B",
+        "AB36A1EE4FE0FE28",
+        TT_TRUE,
+    },
 };
 
 TT_TEST_ROUTINE_DEFINE(tt_unit_test_cipher)
@@ -337,6 +392,15 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cipher)
             tt_buf_put_cstr2hex(&tagbuf, tv->tag);
         }
 
+        if (tv->iv != NULL) {
+            tt_buf_clear(&ivbuf);
+            tt_buf_put_cstr2hex(&ivbuf, tv->iv);
+        }
+
+        if (tv->no_update) {
+            goto tag_auth;
+        }
+
         tt_cipher_init(&c);
         tt_cipher_init(&dec);
 
@@ -354,9 +418,6 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cipher)
         TT_UT_SUCCESS(ret, "");
 
         if (tv->iv != NULL) {
-            tt_buf_clear(&ivbuf);
-            tt_buf_put_cstr2hex(&ivbuf, tv->iv);
-
             ret =
                 tt_cipher_set_iv(&c, TT_BUF_RPOS(&ivbuf), TT_BUF_RLEN(&ivbuf));
             TT_UT_SUCCESS(ret, "");
@@ -367,14 +428,13 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cipher)
         }
 
         if (!tt_buf_empty(&adbuf)) {
-            ret = tt_cipher_set_addition(&c,
-                                         TT_BUF_RPOS(&adbuf),
-                                         TT_BUF_RLEN(&adbuf));
+            ret =
+                tt_cipher_set_aad(&c, TT_BUF_RPOS(&adbuf), TT_BUF_RLEN(&adbuf));
             TT_UT_SUCCESS(ret, "");
 
-            ret = tt_cipher_set_addition(&dec,
-                                         TT_BUF_RPOS(&adbuf),
-                                         TT_BUF_RLEN(&adbuf));
+            ret = tt_cipher_set_aad(&dec,
+                                    TT_BUF_RPOS(&adbuf),
+                                    TT_BUF_RLEN(&adbuf));
             TT_UT_SUCCESS(ret, "");
         }
 
@@ -477,6 +537,70 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cipher)
 
         tt_cipher_destroy(&c);
         tt_cipher_destroy(&dec);
+
+    //////////////////////////////////
+    //////////////////////////////////
+
+    tag_auth:
+        if (!tt_buf_empty(&tagbuf)) {
+            tt_u8_t tag[100];
+            tt_u32_t tag_len = TT_BUF_RLEN(&tagbuf);
+
+            tt_cipher_init(&c);
+            tt_cipher_init(&dec);
+
+            ret = tt_cipher_setup(&c,
+                                  tv->type,
+                                  TT_TRUE,
+                                  TT_BUF_RPOS(&kbuf),
+                                  TT_BUF_RLEN(&kbuf));
+            TT_UT_SUCCESS(ret, "");
+            ret = tt_cipher_setup(&dec,
+                                  tv->type,
+                                  TT_FALSE,
+                                  TT_BUF_RPOS(&kbuf),
+                                  TT_BUF_RLEN(&kbuf));
+            TT_UT_SUCCESS(ret, "");
+
+            if (tv->pad != TT_PADDING_NUM) {
+                ret = tt_cipher_set_pad(&c, tv->pad);
+                TT_UT_SUCCESS(ret, "");
+                ret = tt_cipher_set_pad(&dec, tv->pad);
+                TT_UT_SUCCESS(ret, "");
+            }
+
+            tt_buf_clear(&ebuf);
+            ret = tt_cipher_encrypt_tag_buf(&c,
+                                            TT_BUF_RPOS(&ivbuf),
+                                            TT_BUF_RLEN(&ivbuf),
+                                            TT_BUF_RPOS(&adbuf),
+                                            TT_BUF_RLEN(&adbuf),
+                                            TT_BUF_RPOS(&ibuf),
+                                            TT_BUF_RLEN(&ibuf),
+                                            &ebuf,
+                                            tag,
+                                            tag_len);
+            TT_UT_SUCCESS(ret, "");
+            TT_UT_EQUAL(tt_buf_cmp(&ebuf, &obuf), 0, "");
+            TT_UT_EQUAL(tt_memcmp(TT_BUF_RPOS(&tagbuf), tag, tag_len), 0, "");
+
+            tt_buf_clear(&dbuf);
+            ret = tt_cipher_decrypt_auth_buf(&c,
+                                             TT_BUF_RPOS(&ivbuf),
+                                             TT_BUF_RLEN(&ivbuf),
+                                             TT_BUF_RPOS(&adbuf),
+                                             TT_BUF_RLEN(&adbuf),
+                                             TT_BUF_RPOS(&ebuf),
+                                             TT_BUF_RLEN(&ebuf),
+                                             &dbuf,
+                                             tag,
+                                             tag_len);
+            TT_UT_SUCCESS(ret, "");
+            TT_UT_EQUAL(tt_buf_cmp(&dbuf, &ibuf), 0, "");
+
+            tt_cipher_destroy(&c);
+            tt_cipher_destroy(&dec);
+        }
     }
 
     tt_buf_destroy(&kbuf);

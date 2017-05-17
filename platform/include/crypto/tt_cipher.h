@@ -145,9 +145,9 @@ extern tt_result_t tt_cipher_set_pad(IN tt_cipher_t *cipher,
                                      IN tt_cipher_padding_t padding);
 
 // must be called after tt_cipher_setup and tt_cipher_set_iv
-extern tt_result_t tt_cipher_set_addition(IN tt_cipher_t *cipher,
-                                          IN tt_u8_t *addition,
-                                          IN tt_u32_t len);
+extern tt_result_t tt_cipher_set_aad(IN tt_cipher_t *cipher,
+                                     IN tt_u8_t *aad,
+                                     IN tt_u32_t len);
 
 extern tt_result_t tt_cipher_update(IN tt_cipher_t *cipher,
                                     IN tt_u8_t *input,
@@ -174,5 +174,51 @@ extern tt_result_t tt_cipher_update_buf(IN tt_cipher_t *cipher,
 
 extern tt_result_t tt_cipher_finish_buf(IN tt_cipher_t *cipher,
                                         IN struct tt_buf_s *obuf);
+
+extern tt_result_t tt_cipher_encrypt_tag(IN tt_cipher_t *cipher,
+                                         IN tt_u8_t *iv,
+                                         IN tt_u32_t iv_len,
+                                         IN tt_u8_t *aad,
+                                         IN tt_u32_t ad_len,
+                                         IN tt_u8_t *input,
+                                         IN tt_u32_t ilen,
+                                         IN tt_u8_t *output,
+                                         IN tt_u32_t *olen,
+                                         IN tt_u8_t *tag,
+                                         IN tt_u32_t tag_len);
+
+extern tt_result_t tt_cipher_decrypt_auth(IN tt_cipher_t *cipher,
+                                          IN tt_u8_t *iv,
+                                          IN tt_u32_t iv_len,
+                                          IN tt_u8_t *aad,
+                                          IN tt_u32_t ad_len,
+                                          IN tt_u8_t *input,
+                                          IN tt_u32_t ilen,
+                                          IN tt_u8_t *output,
+                                          IN tt_u32_t *olen,
+                                          IN tt_u8_t *tag,
+                                          IN tt_u32_t tag_len);
+
+extern tt_result_t tt_cipher_encrypt_tag_buf(IN tt_cipher_t *cipher,
+                                             IN tt_u8_t *iv,
+                                             IN tt_u32_t iv_len,
+                                             IN tt_u8_t *aad,
+                                             IN tt_u32_t ad_len,
+                                             IN tt_u8_t *input,
+                                             IN tt_u32_t ilen,
+                                             IN struct tt_buf_s *obuf,
+                                             IN tt_u8_t *tag,
+                                             IN tt_u32_t tag_len);
+
+extern tt_result_t tt_cipher_decrypt_auth_buf(IN tt_cipher_t *cipher,
+                                              IN tt_u8_t *iv,
+                                              IN tt_u32_t iv_len,
+                                              IN tt_u8_t *aad,
+                                              IN tt_u32_t ad_len,
+                                              IN tt_u8_t *input,
+                                              IN tt_u32_t ilen,
+                                              IN struct tt_buf_s *obuf,
+                                              IN tt_u8_t *tag,
+                                              IN tt_u32_t tag_len);
 
 #endif
