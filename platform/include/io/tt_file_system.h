@@ -40,6 +40,8 @@ this file defines file system APIs
 // type definition
 ////////////////////////////////////////////////////////////
 
+struct tt_buf_s;
+
 typedef enum {
     TT_FS_TYPE_UNKNOWN,
     TT_FS_TYPE_FILE,
@@ -290,6 +292,11 @@ tt_inline tt_result_t tt_fseek(IN tt_file_t *file,
 #define TT_FSEEK_BEGIN (0)
 #define TT_FSEEK_CUR (1)
 #define TT_FSEEK_END (2)
+
+extern tt_u8_t *tt_fcontent(IN const tt_char_t *path, OUT OPT tt_u64_t *size);
+
+extern tt_result_t tt_fcontent_buf(IN const tt_char_t *path,
+                                   OUT struct tt_buf_s *buf);
 
 /**
  @fn void tt_dir_attr_default(IN tt_dir_attr_t *attr)

@@ -84,6 +84,7 @@ extern "C" {
 #include <crypto/tt_message_digest.h>
 #include <crypto/tt_pkcs5.h>
 #include <crypto/tt_pkcs8.h>
+#include <crypto/tt_public_key.h>
 #include <crypto/tt_rsa.h>
 #include <crypto/tt_rsa_def.h>
 #include <init/config_shell/tt_config_command.h>

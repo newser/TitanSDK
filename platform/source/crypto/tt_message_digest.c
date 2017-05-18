@@ -39,7 +39,7 @@
 // global variant
 ////////////////////////////////////////////////////////////
 
-static mbedtls_md_type_t __s_md_type_map[TT_MD_TYPE_NUM] = {
+mbedtls_md_type_t tt_g_md_type_map[TT_MD_TYPE_NUM] = {
     MBEDTLS_MD_MD2,
     MBEDTLS_MD_MD4,
     MBEDTLS_MD_MD5,
@@ -67,7 +67,7 @@ tt_result_t tt_md_create(IN tt_md_t *md, IN tt_md_type_t type)
     mbedtls_md_init(&md->ctx);
 
     if (mbedtls_md_setup(&md->ctx,
-                         mbedtls_md_info_from_type(__s_md_type_map[type]),
+                         mbedtls_md_info_from_type(tt_g_md_type_map[type]),
                          0) != 0) {
         TT_ERROR("fail to setup md");
         return TT_FAIL;

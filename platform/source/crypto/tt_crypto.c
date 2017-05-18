@@ -82,13 +82,13 @@ tt_result_t __crypto_component_init(IN tt_component_t *comp,
         return TT_FAIL;
     }
 
+#if 0
     result = tt_rsa_component_init(profile);
     if (!TT_OK(result)) {
         return TT_FAIL;
     }
     TT_INFO("Intializing %-32s [Done]", "RSA");
 
-#if 0
     result = tt_md5_component_init(profile);
     if (!TT_OK(result)) {
         return TT_FAIL;

@@ -28,7 +28,7 @@
 
 #include <algorithm/tt_buffer.h>
 #include <algorithm/tt_list.h>
-#include <crypto/tt_rsa.h>
+#include <crypto/tt_rsa_old.h>
 #include <io/tt_socket.h>
 #include <io/tt_socket_addr.h>
 #include <network/ssh/tt_ssh_channel_cb.h>

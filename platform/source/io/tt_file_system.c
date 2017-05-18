@@ -20,6 +20,7 @@
 
 #include <io/tt_file_system.h>
 
+#include <algorithm/tt_buffer.h>
 #include <init/tt_component.h>
 #include <init/tt_profile.h>
 #include <io/tt_io_worker_group.h>
@@ -120,6 +121,68 @@ void tt_fclose(IN tt_file_t *file)
     TT_ASSERT(file != NULL);
 
     tt_fclose_ntv(&file->sys_file);
+}
+
+tt_u8_t *tt_fcontent(IN const tt_char_t *path, OUT OPT tt_u64_t *size)
+{
+    tt_file_t f;
+    tt_u8_t *buf;
+    tt_u64_t len;
+
+    if (!TT_OK(tt_fopen(&f, path, TT_FO_READ, NULL))) {
+        return NULL;
+    }
+
+    if (!TT_OK(tt_fseek(&f, TT_FSEEK_END, 0, &len))) {
+        tt_fclose(&f);
+        return NULL;
+    }
+
+    buf = tt_malloc(len);
+    if (buf == NULL) {
+        TT_ERROR("no mem for file content");
+        tt_fclose(&f);
+        return NULL;
+    }
+
+    if (!TT_OK(tt_fseek(&f, TT_FSEEK_BEGIN, 0, NULL)) ||
+        !TT_OK(tt_fread(&f, buf, len, NULL))) {
+        tt_free(buf);
+        tt_fclose(&f);
+        return NULL;
+    }
+
+    TT_SAFE_ASSIGN(size, len);
+    return buf;
+}
+
+tt_result_t tt_fcontent_buf(IN const tt_char_t *path, OUT tt_buf_t *buf)
+{
+    tt_file_t f;
+    tt_u8_t *p;
+    tt_u64_t len;
+
+    if (!TT_OK(tt_fopen(&f, path, TT_FO_READ, NULL))) {
+        return TT_FAIL;
+    }
+
+    if (!TT_OK(tt_fseek(&f, TT_FSEEK_END, 0, &len))) {
+        tt_fclose(&f);
+        return TT_FAIL;
+    }
+
+    if (!TT_OK(tt_buf_reserve(buf, len))) {
+        return TT_FAIL;
+    }
+
+    if (!TT_OK(tt_fseek(&f, TT_FSEEK_BEGIN, 0, NULL)) ||
+        !TT_OK(tt_fread(&f, TT_BUF_WPOS(buf), len, NULL))) {
+        tt_fclose(&f);
+        return TT_FAIL;
+    }
+    tt_buf_inc_wp(buf, len);
+
+    return TT_SUCCESS;
 }
 
 void tt_dir_attr_default(IN tt_dir_attr_t *attr)
