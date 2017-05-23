@@ -112,6 +112,7 @@ TT_TEST_CASE("tt_unit_test_rsa_encrypt",
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_pk_t pub, priv;
+    tt_rsa_t rpub, rpriv;
     tt_result_t ret;
     tt_u8_t ibuf[256], ebuf[256], dbuf[256];
     tt_u32_t len;
@@ -122,42 +123,48 @@ TT_TEST_CASE("tt_unit_test_rsa_encrypt",
     tt_pk_init(&pub);
     tt_pk_init(&priv);
 
-    ret = tt_pk_setup_public_file(&pub, __PUB_PK8_FILE);
+    ret = tt_pk_load_public_file(&pub, __PUB_PK8_FILE);
     TT_UT_SUCCESS(ret, "");
     TT_UT_EQUAL(tt_pk_get_type(&pub), TT_RSA, "");
 
-    ret = tt_pk_setup_private_file(&priv,
-                                   __PRIV_PK8_FILE,
-                                   (tt_u8_t *)"hahaha",
-                                   6);
+    ret =
+        tt_pk_load_private_file(&priv, __PRIV_PK8_FILE, (tt_u8_t *)"hahaha", 6);
     TT_UT_SUCCESS(ret, "");
     TT_UT_EQUAL(tt_pk_get_type(&priv), TT_RSA, "");
 
     ret = tt_pk_check(&pub, &priv);
     TT_UT_SUCCESS(ret, "");
 
+    tt_rsa_init(&rpub);
+    tt_rsa_init(&rpriv);
+
+    ret = tt_rsa_load(&rpub, &pub);
+    TT_UT_SUCCESS(ret, "");
+    ret = tt_rsa_load(&rpriv, &priv);
+    TT_UT_SUCCESS(ret, "");
+
     // pkcs1
     tt_memset(ibuf, 6, 256);
-    ret = tt_rsa_encrypt_pkcs1(&pub, ibuf, 200, ebuf);
+    ret = tt_rsa_encrypt_pkcs1(&rpub, ibuf, 200, ebuf);
     TT_UT_SUCCESS(ret, "");
     len = 256;
-    ret = tt_rsa_decrypt_pkcs1(&priv, ebuf, dbuf, &len);
+    ret = tt_rsa_decrypt_pkcs1(&rpriv, ebuf, dbuf, &len);
     TT_UT_SUCCESS(ret, "");
     TT_UT_EQUAL(len, 200, "");
     TT_UT_EQUAL(tt_memcmp(dbuf, ibuf, len), 0, "");
 
     tt_memset(ibuf, 3, 256);
-    ret = tt_rsa_encrypt_pkcs1(&pub, ibuf, 1, ebuf);
+    ret = tt_rsa_encrypt_pkcs1(&rpub, ibuf, 1, ebuf);
     TT_UT_SUCCESS(ret, "");
     len = 256;
-    ret = tt_rsa_decrypt_pkcs1(&priv, ebuf, dbuf, &len);
+    ret = tt_rsa_decrypt_pkcs1(&rpriv, ebuf, dbuf, &len);
     TT_UT_SUCCESS(ret, "");
     TT_UT_EQUAL(len, 1, "");
     TT_UT_EQUAL(tt_memcmp(dbuf, ibuf, len), 0, "");
 
     // oaep
     tt_memset(ibuf, 0, 256);
-    ret = tt_rsa_encrypt_oaep(&pub,
+    ret = tt_rsa_encrypt_oaep(&rpub,
                               ibuf,
                               100,
                               (tt_u8_t *)"1234",
@@ -166,7 +173,7 @@ TT_TEST_CASE("tt_unit_test_rsa_encrypt",
                               ebuf);
     TT_UT_SUCCESS(ret, "");
     len = 256;
-    ret = tt_rsa_decrypt_oaep(&priv,
+    ret = tt_rsa_decrypt_oaep(&rpriv,
                               ebuf,
                               (tt_u8_t *)"1234",
                               4,
@@ -178,7 +185,7 @@ TT_TEST_CASE("tt_unit_test_rsa_encrypt",
     TT_UT_EQUAL(tt_memcmp(dbuf, ibuf, len), 0, "");
 
     tt_memset(ibuf, 0xf, 256);
-    ret = tt_rsa_encrypt_oaep(&pub,
+    ret = tt_rsa_encrypt_oaep(&rpub,
                               ibuf,
                               128,
                               (tt_u8_t *)"",
@@ -187,7 +194,7 @@ TT_TEST_CASE("tt_unit_test_rsa_encrypt",
                               ebuf);
     TT_UT_SUCCESS(ret, "");
     len = 256;
-    ret = tt_rsa_decrypt_oaep(&priv,
+    ret = tt_rsa_decrypt_oaep(&rpriv,
                               ebuf,
                               (tt_u8_t *)"",
                               0,
@@ -197,6 +204,9 @@ TT_TEST_CASE("tt_unit_test_rsa_encrypt",
     TT_UT_SUCCESS(ret, "");
     TT_UT_EQUAL(len, 128, "");
     TT_UT_EQUAL(tt_memcmp(dbuf, ibuf, len), 0, "");
+
+    tt_rsa_destroy(&rpub);
+    tt_rsa_destroy(&rpriv);
 
     tt_pk_destroy(&pub);
     tt_pk_destroy(&priv);
@@ -209,6 +219,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_rsa_sign)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_pk_t pub, priv;
+    tt_rsa_t rpub, rpriv;
     tt_result_t ret;
     tt_u8_t sig[256];
     tt_u32_t len;
@@ -219,52 +230,63 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_rsa_sign)
     tt_pk_init(&pub);
     tt_pk_init(&priv);
 
-    ret = tt_pk_setup_public(&pub, __rsa_pub_der, 294);
+    ret = tt_pk_load_public(&pub, __rsa_pub_der, 294);
     TT_UT_SUCCESS(ret, "");
     TT_UT_EQUAL(tt_pk_get_type(&pub), TT_RSA, "");
 
-    ret = tt_pk_setup_private(&priv, __rsa_priv_der, 1192, NULL, 0);
+    ret = tt_pk_load_private(&priv, __rsa_priv_der, 1192, NULL, 0);
     TT_UT_SUCCESS(ret, "");
     TT_UT_EQUAL(tt_pk_get_type(&priv), TT_RSA, "");
 
     ret = tt_pk_check(&pub, &priv);
     TT_UT_SUCCESS(ret, "");
 
-    // pkcs1 sign
-    ret = tt_rsa_sign_pkcs1(&priv, (tt_u8_t *)"1234", 4, TT_SHA512, sig);
+    tt_rsa_init(&rpub);
+    tt_rsa_init(&rpriv);
+
+    ret = tt_rsa_load(&rpub, &pub);
     TT_UT_SUCCESS(ret, "");
-    ret = tt_rsa_verify_pkcs1(&pub, (tt_u8_t *)"1234", 4, TT_SHA512, sig);
-    TT_UT_SUCCESS(ret, "");
-    ret = tt_rsa_verify_pkcs1(&pub, (tt_u8_t *)"1234", 4, TT_SHA512, sig);
+    ret = tt_rsa_load(&rpriv, &priv);
     TT_UT_SUCCESS(ret, "");
 
-    ret = tt_rsa_verify_pkcs1(&pub, (tt_u8_t *)"1234", 4, TT_SHA256, sig);
+    // pkcs1 sign
+    ret = tt_rsa_sign_pkcs1(&rpriv, (tt_u8_t *)"1234", 4, TT_SHA512, sig);
+    TT_UT_SUCCESS(ret, "");
+    ret = tt_rsa_verify_pkcs1(&rpub, (tt_u8_t *)"1234", 4, TT_SHA512, sig);
+    TT_UT_SUCCESS(ret, "");
+    ret = tt_rsa_verify_pkcs1(&rpub, (tt_u8_t *)"1234", 4, TT_SHA512, sig);
+    TT_UT_SUCCESS(ret, "");
+
+    ret = tt_rsa_verify_pkcs1(&rpub, (tt_u8_t *)"1234", 4, TT_SHA256, sig);
     TT_UT_FAIL(ret, "");
 
-    ret = tt_rsa_verify_pkcs1(&pub, (tt_u8_t *)"1234", 3, TT_SHA512, sig);
+    ret = tt_rsa_verify_pkcs1(&rpub, (tt_u8_t *)"1234", 3, TT_SHA512, sig);
     TT_UT_FAIL(ret, "");
 
     sig[0]++;
-    ret = tt_rsa_verify_pkcs1(&pub, (tt_u8_t *)"1234", 4, TT_SHA512, sig);
+    ret = tt_rsa_verify_pkcs1(&rpub, (tt_u8_t *)"1234", 4, TT_SHA512, sig);
     TT_UT_FAIL(ret, "");
 
     // pss sign
-    ret = tt_rsa_sign_pss(&priv, (tt_u8_t *)"", 0, TT_MD2, sig);
+    ret = tt_rsa_sign_pss(&rpriv, (tt_u8_t *)"", 0, TT_MD2, sig);
     TT_UT_SUCCESS(ret, "");
-    ret = tt_rsa_verify_pss(&pub, (tt_u8_t *)"", 0, TT_MD2, sig);
+    ret = tt_rsa_verify_pss(&rpub, (tt_u8_t *)"", 0, TT_MD2, sig);
     TT_UT_SUCCESS(ret, "");
-    ret = tt_rsa_verify_pss(&pub, (tt_u8_t *)"", 0, TT_MD2, sig);
+    ret = tt_rsa_verify_pss(&rpub, (tt_u8_t *)"", 0, TT_MD2, sig);
     TT_UT_SUCCESS(ret, "");
 
-    ret = tt_rsa_verify_pss(&pub, (tt_u8_t *)"1", 1, TT_MD2, sig);
+    ret = tt_rsa_verify_pss(&rpub, (tt_u8_t *)"1", 1, TT_MD2, sig);
     TT_UT_FAIL(ret, "");
 
-    ret = tt_rsa_verify_pss(&pub, (tt_u8_t *)"", 0, TT_MD5, sig);
+    ret = tt_rsa_verify_pss(&rpub, (tt_u8_t *)"", 0, TT_MD5, sig);
     TT_UT_FAIL(ret, "");
 
     sig[0]++;
-    ret = tt_rsa_verify_pss(&pub, (tt_u8_t *)"", 0, TT_MD2, sig);
+    ret = tt_rsa_verify_pss(&rpub, (tt_u8_t *)"", 0, TT_MD2, sig);
     TT_UT_FAIL(ret, "");
+
+    tt_rsa_destroy(&rpub);
+    tt_rsa_destroy(&rpriv);
 
     tt_pk_destroy(&pub);
     tt_pk_destroy(&priv);
@@ -276,7 +298,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_rsa_sign)
 TT_TEST_ROUTINE_DEFINE(tt_unit_test_rsa_gen)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
-    tt_pk_t pub, priv;
+    tt_rsa_t rpub, rpriv;
     tt_result_t ret;
     tt_u8_t ibuf[256], ebuf[256], dbuf[256], sig[256];
     tt_u32_t len;
@@ -284,32 +306,31 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_rsa_gen)
     TT_TEST_CASE_ENTER()
     // test start
 
-    tt_pk_init(&pub);
-    tt_pk_init(&priv);
+    tt_rsa_init(&rpub);
+    tt_rsa_init(&rpriv);
 
-    ret = tt_rsa_generate(&pub, &priv, 1024, 0);
+    ret = tt_rsa_generate(&rpub, &rpriv, 1024, 0);
     TT_UT_FAIL(ret, "");
 
-    ret = tt_rsa_generate(&pub, &priv, 1024, 3);
-    TT_UT_EQUAL(tt_pk_get_type(&pub), TT_RSA, "");
-    TT_UT_EQUAL(tt_pk_get_type(&priv), TT_RSA, "");
+    ret = tt_rsa_generate(&rpub, &rpriv, 1024, 3);
+    TT_UT_SUCCESS(ret, "");
 
-    ret = tt_pk_check(&pub, &priv);
+    ret = tt_rsa_check(&rpub, &rpriv);
     TT_UT_SUCCESS(ret, "");
 
     // pkcs1
     tt_memset(ibuf, 3, 256);
-    ret = tt_rsa_encrypt_pkcs1(&pub, ibuf, 1, ebuf);
+    ret = tt_rsa_encrypt_pkcs1(&rpub, ibuf, 1, ebuf);
     TT_UT_SUCCESS(ret, "");
     len = 256;
-    ret = tt_rsa_decrypt_pkcs1(&priv, ebuf, dbuf, &len);
+    ret = tt_rsa_decrypt_pkcs1(&rpriv, ebuf, dbuf, &len);
     TT_UT_SUCCESS(ret, "");
     TT_UT_EQUAL(len, 1, "");
     TT_UT_EQUAL(tt_memcmp(dbuf, ibuf, len), 0, "");
 
     // oaep
     tt_memset(ibuf, 0xf, 256);
-    ret = tt_rsa_encrypt_oaep(&pub,
+    ret = tt_rsa_encrypt_oaep(&rpub,
                               ibuf,
                               21,
                               (tt_u8_t *)"",
@@ -318,7 +339,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_rsa_gen)
                               ebuf);
     TT_UT_SUCCESS(ret, "");
     len = 256;
-    ret = tt_rsa_decrypt_oaep(&priv,
+    ret = tt_rsa_decrypt_oaep(&rpriv,
                               ebuf,
                               (tt_u8_t *)"",
                               0,
@@ -330,15 +351,15 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_rsa_gen)
     TT_UT_EQUAL(tt_memcmp(dbuf, ibuf, len), 0, "");
 
     // pkcs1 sign
-    ret = tt_rsa_sign_pkcs1(&priv, (tt_u8_t *)"1234", 4, TT_SHA512, sig);
+    ret = tt_rsa_sign_pkcs1(&rpriv, (tt_u8_t *)"1234", 4, TT_SHA512, sig);
     TT_UT_SUCCESS(ret, "");
-    ret = tt_rsa_verify_pkcs1(&pub, (tt_u8_t *)"1234", 4, TT_SHA512, sig);
+    ret = tt_rsa_verify_pkcs1(&rpub, (tt_u8_t *)"1234", 4, TT_SHA512, sig);
     TT_UT_SUCCESS(ret, "");
 
     // pss sign
-    ret = tt_rsa_sign_pss(&priv, (tt_u8_t *)"1234", 4, TT_SHA224, sig);
+    ret = tt_rsa_sign_pss(&rpriv, (tt_u8_t *)"1234", 4, TT_SHA224, sig);
     TT_UT_SUCCESS(ret, "");
-    ret = tt_rsa_verify_pss(&pub, (tt_u8_t *)"1234", 4, TT_SHA224, sig);
+    ret = tt_rsa_verify_pss(&rpub, (tt_u8_t *)"1234", 4, TT_SHA224, sig);
     TT_UT_SUCCESS(ret, "");
 
     //////////////////////////
@@ -347,17 +368,17 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_rsa_gen)
 
     // pkcs1
     tt_memset(ibuf, 3, 256);
-    ret = tt_rsa_encrypt_pkcs1(&pub, ibuf, 1, ebuf);
+    ret = tt_rsa_encrypt_pkcs1(&rpub, ibuf, 1, ebuf);
     TT_UT_SUCCESS(ret, "");
     len = 256;
-    ret = tt_rsa_decrypt_pkcs1(&priv, ebuf, dbuf, &len);
+    ret = tt_rsa_decrypt_pkcs1(&rpriv, ebuf, dbuf, &len);
     TT_UT_SUCCESS(ret, "");
     TT_UT_EQUAL(len, 1, "");
     TT_UT_EQUAL(tt_memcmp(dbuf, ibuf, len), 0, "");
 
     // oaep
     tt_memset(ibuf, 0xf, 256);
-    ret = tt_rsa_encrypt_oaep(&pub,
+    ret = tt_rsa_encrypt_oaep(&rpub,
                               ibuf,
                               21,
                               (tt_u8_t *)"",
@@ -366,7 +387,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_rsa_gen)
                               ebuf);
     TT_UT_SUCCESS(ret, "");
     len = 256;
-    ret = tt_rsa_decrypt_oaep(&priv,
+    ret = tt_rsa_decrypt_oaep(&rpriv,
                               ebuf,
                               (tt_u8_t *)"",
                               0,
@@ -378,19 +399,19 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_rsa_gen)
     TT_UT_EQUAL(tt_memcmp(dbuf, ibuf, len), 0, "");
 
     // pkcs1 sign
-    ret = tt_rsa_sign_pkcs1(&priv, (tt_u8_t *)"1234", 4, TT_SHA512, sig);
+    ret = tt_rsa_sign_pkcs1(&rpriv, (tt_u8_t *)"1234", 4, TT_SHA512, sig);
     TT_UT_SUCCESS(ret, "");
-    ret = tt_rsa_verify_pkcs1(&pub, (tt_u8_t *)"1234", 4, TT_SHA512, sig);
+    ret = tt_rsa_verify_pkcs1(&rpub, (tt_u8_t *)"1234", 4, TT_SHA512, sig);
     TT_UT_SUCCESS(ret, "");
 
     // pss sign
-    ret = tt_rsa_sign_pss(&priv, (tt_u8_t *)"1234", 4, TT_SHA224, sig);
+    ret = tt_rsa_sign_pss(&rpriv, (tt_u8_t *)"1234", 4, TT_SHA224, sig);
     TT_UT_SUCCESS(ret, "");
-    ret = tt_rsa_verify_pss(&pub, (tt_u8_t *)"1234", 4, TT_SHA224, sig);
+    ret = tt_rsa_verify_pss(&rpub, (tt_u8_t *)"1234", 4, TT_SHA224, sig);
     TT_UT_SUCCESS(ret, "");
 
-    tt_pk_destroy(&pub);
-    tt_pk_destroy(&priv);
+    tt_rsa_destroy(&rpub);
+    tt_rsa_destroy(&rpriv);
 
     // test end
     TT_TEST_CASE_LEAVE()

@@ -22,6 +22,7 @@
 
 #include <algorithm/tt_buffer.h>
 #include <algorithm/tt_buffer_format.h>
+#include <crypto/tt_crypto.h>
 #include <io/tt_file_system.h>
 #include <misc/tt_assert.h>
 #include <os/tt_thread.h>
@@ -70,7 +71,7 @@ void tt_pk_destroy(IN tt_pk_t *pk)
     mbedtls_pk_free(&pk->ctx);
 }
 
-tt_result_t tt_pk_setup_public(IN tt_pk_t *pk, IN tt_u8_t *key, IN tt_u32_t len)
+tt_result_t tt_pk_load_public(IN tt_pk_t *pk, IN tt_u8_t *key, IN tt_u32_t len)
 {
     int e;
 
@@ -79,18 +80,18 @@ tt_result_t tt_pk_setup_public(IN tt_pk_t *pk, IN tt_u8_t *key, IN tt_u32_t len)
 
     e = mbedtls_pk_parse_public_key(&pk->ctx, key, len);
     if (e != 0) {
-        TT_ERROR("fail to parse public key: %s", tt_pk_strerror(e));
+        tt_crypto_error("fail to parse public key");
         return TT_FAIL;
     }
 
     return TT_SUCCESS;
 }
 
-tt_result_t tt_pk_setup_private(IN tt_pk_t *pk,
-                                IN tt_u8_t *key,
-                                IN tt_u32_t key_len,
-                                IN OPT tt_u8_t *pwd,
-                                IN tt_u32_t pwd_len)
+tt_result_t tt_pk_load_private(IN tt_pk_t *pk,
+                               IN tt_u8_t *key,
+                               IN tt_u32_t key_len,
+                               IN OPT tt_u8_t *pwd,
+                               IN tt_u32_t pwd_len)
 {
     int e;
 
@@ -99,14 +100,14 @@ tt_result_t tt_pk_setup_private(IN tt_pk_t *pk,
 
     e = mbedtls_pk_parse_key(&pk->ctx, key, key_len, pwd, pwd_len);
     if (e != 0) {
-        TT_ERROR("fail to parse private key: %s", tt_pk_strerror(e));
+        tt_crypto_error("fail to parse private key");
         return TT_FAIL;
     }
 
     return TT_SUCCESS;
 }
 
-tt_result_t tt_pk_setup_public_file(IN tt_pk_t *pk, IN const tt_char_t *path)
+tt_result_t tt_pk_load_public_file(IN tt_pk_t *pk, IN const tt_char_t *path)
 {
     tt_buf_t buf;
     int e;
@@ -116,6 +117,7 @@ tt_result_t tt_pk_setup_public_file(IN tt_pk_t *pk, IN const tt_char_t *path)
 
     tt_buf_init(&buf, NULL);
     if (!TT_OK(tt_fcontent_buf(path, &buf)) || !TT_OK(tt_buf_put_u8(&buf, 0))) {
+        tt_buf_destroy(&buf);
         return TT_FAIL;
     }
 
@@ -124,17 +126,17 @@ tt_result_t tt_pk_setup_public_file(IN tt_pk_t *pk, IN const tt_char_t *path)
                                     TT_BUF_RLEN(&buf));
     tt_buf_destroy(&buf);
     if (e != 0) {
-        TT_ERROR("fail to parse public key: %s", tt_pk_strerror(e));
+        tt_crypto_error("fail to parse public key");
         return TT_FAIL;
     }
 
     return TT_SUCCESS;
 }
 
-tt_result_t tt_pk_setup_private_file(IN tt_pk_t *pk,
-                                     IN const tt_char_t *path,
-                                     IN OPT const tt_u8_t *pwd,
-                                     IN tt_u32_t pwd_len)
+tt_result_t tt_pk_load_private_file(IN tt_pk_t *pk,
+                                    IN const tt_char_t *path,
+                                    IN OPT const tt_u8_t *pwd,
+                                    IN tt_u32_t pwd_len)
 {
     tt_buf_t buf;
     int e;
@@ -144,6 +146,7 @@ tt_result_t tt_pk_setup_private_file(IN tt_pk_t *pk,
 
     tt_buf_init(&buf, NULL);
     if (!TT_OK(tt_fcontent_buf(path, &buf)) || !TT_OK(tt_buf_put_u8(&buf, 0))) {
+        tt_buf_destroy(&buf);
         return TT_FAIL;
     }
 
@@ -154,7 +157,7 @@ tt_result_t tt_pk_setup_private_file(IN tt_pk_t *pk,
                              pwd_len);
     tt_buf_destroy(&buf);
     if (e != 0) {
-        TT_ERROR("fail to parse private key: %s", tt_pk_strerror(e));
+        tt_crypto_error("fail to parse private key");
         return TT_FAIL;
     }
 
@@ -170,7 +173,7 @@ tt_result_t tt_pk_check(IN tt_pk_t *pub, IN tt_pk_t *priv)
 
     e = mbedtls_pk_check_pair(&pub->ctx, &priv->ctx);
     if (e != 0) {
-        TT_ERROR("pub and priv does not match: %s", tt_pk_strerror(e));
+        tt_crypto_error("pub and priv does not match");
         return TT_FAIL;
     }
 
@@ -208,66 +211,4 @@ int tt_pk_rng(IN void *param, unsigned char *buf, size_t len)
     }
 
     return 0;
-}
-
-const tt_char_t *tt_pk_strerror(IN int err)
-{
-    switch (err) {
-        case MBEDTLS_ERR_PK_ALLOC_FAILED:
-            return "Memory allocation failed.";
-        case MBEDTLS_ERR_PK_TYPE_MISMATCH:
-            return "Type mismatch, eg attempt to encrypt with an ECDSA key";
-        case MBEDTLS_ERR_PK_BAD_INPUT_DATA:
-            return "Bad input parameters to function.";
-        case MBEDTLS_ERR_PK_FILE_IO_ERROR:
-            return "Read/write of file failed.";
-        case MBEDTLS_ERR_PK_KEY_INVALID_VERSION:
-            return "Unsupported key version";
-        case MBEDTLS_ERR_PK_KEY_INVALID_FORMAT:
-            return "Invalid key tag or value.";
-        case MBEDTLS_ERR_PK_UNKNOWN_PK_ALG:
-            return "Key algorithm is unsupported (only RSA and EC are "
-                   "supported).";
-        case MBEDTLS_ERR_PK_PASSWORD_REQUIRED:
-            return "Private key password can't be empty.";
-        case MBEDTLS_ERR_PK_PASSWORD_MISMATCH:
-            return "Given private key password does not allow for correct "
-                   "decryption.";
-        case MBEDTLS_ERR_PK_INVALID_PUBKEY:
-            return "The pubkey tag or value is invalid (only RSA and EC are "
-                   "supported).";
-        case MBEDTLS_ERR_PK_INVALID_ALG:
-            return "The algorithm tag or value is invalid.";
-        case MBEDTLS_ERR_PK_UNKNOWN_NAMED_CURVE:
-            return "Elliptic curve is unsupported (only NIST curves are "
-                   "supported).";
-        case MBEDTLS_ERR_PK_FEATURE_UNAVAILABLE:
-            return "Unavailable feature, e.g. RSA disabled for RSA key.";
-        case MBEDTLS_ERR_PK_SIG_LEN_MISMATCH:
-            return "The signature is valid but its length is less than "
-                   "expected.";
-
-        case MBEDTLS_ERR_PEM_NO_HEADER_FOOTER_PRESENT:
-            return "No PEM header or footer found";
-        case MBEDTLS_ERR_PEM_INVALID_DATA:
-            return "PEM string is not as expected";
-        case MBEDTLS_ERR_PEM_ALLOC_FAILED:
-            return "Failed to allocate memory";
-        case MBEDTLS_ERR_PEM_INVALID_ENC_IV:
-            return "RSA IV is not in hex-format";
-        case MBEDTLS_ERR_PEM_UNKNOWN_ENC_ALG:
-            return "Unsupported key encryption algorithm";
-        case MBEDTLS_ERR_PEM_PASSWORD_REQUIRED:
-            return "Private key password can't be empty";
-        case MBEDTLS_ERR_PEM_PASSWORD_MISMATCH:
-            return "Given private key password does not allow for correct "
-                   "decryption";
-        case MBEDTLS_ERR_PEM_FEATURE_UNAVAILABLE:
-            return "Unavailable feature, e.g. hashing/encryption combination";
-        case MBEDTLS_ERR_PEM_BAD_INPUT_DATA:
-            return "Bad input parameters to function";
-
-        default:
-            return "Unknown error";
-    }
 }

@@ -112,14 +112,12 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_crypto_ecdh)
     tt_pk_init(&pub);
     tt_pk_init(&priv);
 
-    ret = tt_pk_setup_public_file(&pub, __EC_PUB_PK8_FILE);
+    ret = tt_pk_load_public_file(&pub, __EC_PUB_PK8_FILE);
     TT_UT_SUCCESS(ret, "");
     TT_UT_EQUAL(tt_pk_get_type(&pub), TT_ECKEY, "");
 
-    ret = tt_pk_setup_private_file(&priv,
-                                   __EC_PRIV_PK8_FILE,
-                                   (tt_u8_t *)"123",
-                                   3);
+    ret =
+        tt_pk_load_private_file(&priv, __EC_PRIV_PK8_FILE, (tt_u8_t *)"123", 3);
     TT_UT_SUCCESS(ret, "");
     TT_UT_EQUAL(tt_pk_get_type(&priv), TT_ECKEY, "");
 

@@ -20,6 +20,8 @@
 
 #include <crypto/tt_rsa.h>
 
+#include <crypto/tt_crypto.h>
+#include <crypto/tt_public_key.h>
 #include <misc/tt_assert.h>
 #include <misc/tt_util.h>
 
@@ -49,77 +51,101 @@
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-tt_result_t tt_rsa_generate(OUT tt_pk_t *pub,
-                            OUT tt_pk_t *priv,
+void tt_rsa_init(IN tt_rsa_t *rsa)
+{
+    TT_ASSERT(rsa != NULL);
+
+    mbedtls_rsa_init(&rsa->ctx, 0, 0);
+}
+
+extern void tt_rsa_destroy(IN tt_rsa_t *rsa)
+{
+    TT_ASSERT(rsa != NULL);
+
+    mbedtls_rsa_free(&rsa->ctx);
+}
+
+tt_result_t tt_rsa_load(IN tt_rsa_t *rsa, IN tt_pk_t *pk)
+{
+    mbedtls_rsa_context *ctx;
+    int e;
+
+    TT_ASSERT(rsa != NULL);
+    TT_ASSERT(pk != NULL);
+
+    if (tt_pk_get_type(pk) != TT_RSA) {
+        TT_ERROR("rsa is not rsa key");
+        return TT_FAIL;
+    }
+
+    ctx = mbedtls_pk_rsa(pk->ctx);
+
+    e = mbedtls_rsa_copy(&rsa->ctx, ctx);
+    if (e != 0) {
+        tt_crypto_error("fail to copy rsa");
+        return TT_FAIL;
+    }
+
+    return TT_SUCCESS;
+}
+
+tt_result_t tt_rsa_generate(OUT tt_rsa_t *pub,
+                            OUT tt_rsa_t *priv,
                             IN tt_u32_t bit_num,
                             IN tt_u32_t exponent)
 {
-    int ret;
+    int e;
     mbedtls_rsa_context *pub_ctx, *priv_ctx;
-
-    tt_u32_t __done = 0;
-#define __RG_PUB (1 << 0)
-#define __RG_PRIV (1 << 1)
 
     TT_ASSERT(pub != NULL);
     TT_ASSERT(priv != NULL);
 
-    ret =
-        mbedtls_pk_setup(&pub->ctx, mbedtls_pk_info_from_type(MBEDTLS_PK_RSA));
-    if (ret != 0) {
-        TT_ERROR("fail to setup pub rsa: %s", tt_pk_strerror(ret));
-        goto cleanup;
-    }
-    pub_ctx = mbedtls_pk_rsa(pub->ctx);
-    mbedtls_rsa_init(pub_ctx, 0, 0);
-    __done |= __RG_PUB;
+    pub_ctx = &pub->ctx;
+    priv_ctx = &priv->ctx;
 
-    ret =
-        mbedtls_pk_setup(&priv->ctx, mbedtls_pk_info_from_type(MBEDTLS_PK_RSA));
-    if (ret != 0) {
-        TT_ERROR("fail to setup priv rsa: %s", tt_pk_strerror(ret));
-        goto cleanup;
-    }
-    priv_ctx = mbedtls_pk_rsa(priv->ctx);
-    mbedtls_rsa_init(priv_ctx, 0, 0);
-    __done |= __RG_PRIV;
-
-    ret = mbedtls_rsa_gen_key(priv_ctx, tt_pk_rng, NULL, bit_num, exponent);
-    if (ret != 0) {
-        TT_ERROR("fail to generate priv rsa: %s", tt_pk_strerror(ret));
-        goto cleanup;
+    e = mbedtls_rsa_gen_key(&priv->ctx, tt_pk_rng, NULL, bit_num, exponent);
+    if (e != 0) {
+        tt_crypto_error("fail to generate priv rsa");
+        return TT_FAIL;
     }
 
     pub_ctx->ver = priv_ctx->ver;
     pub_ctx->len = priv_ctx->len;
-    MBEDTLS_MPI_CHK(mbedtls_mpi_copy(&pub_ctx->N, &priv_ctx->N));
-    MBEDTLS_MPI_CHK(mbedtls_mpi_copy(&pub_ctx->E, &priv_ctx->E));
+    if (((e = mbedtls_mpi_copy(&pub_ctx->N, &priv_ctx->N)) != 0) ||
+        ((e = mbedtls_mpi_copy(&pub_ctx->E, &priv_ctx->E)) != 0)) {
+        tt_crypto_error("fail to copy pub rsa");
+        mbedtls_rsa_free(pub_ctx);
+        mbedtls_rsa_free(priv_ctx);
+        return TT_FAIL;
+    }
     pub_ctx->padding = priv_ctx->padding;
     pub_ctx->hash_id = priv_ctx->hash_id;
 
     return TT_SUCCESS;
-
-cleanup:
-
-    if (__done & __RG_PUB) {
-        tt_pk_destroy(pub);
-        tt_pk_init(pub);
-    }
-
-    if (__done & __RG_PRIV) {
-        tt_pk_destroy(priv);
-        tt_pk_init(priv);
-    }
-
-    return TT_FAIL;
 }
 
-tt_result_t tt_rsa_encrypt_pkcs1(IN tt_pk_t *pk,
+tt_result_t tt_rsa_check(IN tt_rsa_t *pub, IN tt_rsa_t *priv)
+{
+    int e;
+
+    TT_ASSERT(pub != NULL);
+    TT_ASSERT(priv != NULL);
+
+    e = mbedtls_rsa_check_pub_priv(&pub->ctx, &priv->ctx);
+    if (e != 0) {
+        tt_crypto_error("rsa pub and priv does match");
+        return TT_FAIL;
+    }
+
+    return TT_SUCCESS;
+}
+
+tt_result_t tt_rsa_encrypt_pkcs1(IN tt_rsa_t *rsa,
                                  IN tt_u8_t *input,
                                  IN tt_u32_t ilen,
                                  IN tt_u8_t *output)
 {
-    mbedtls_rsa_context *ctx = mbedtls_pk_rsa(pk->ctx);
+    mbedtls_rsa_context *ctx = &rsa->ctx;
     int e;
 
     mbedtls_rsa_set_padding(ctx, MBEDTLS_RSA_PKCS_V15, 0);
@@ -132,19 +158,19 @@ tt_result_t tt_rsa_encrypt_pkcs1(IN tt_pk_t *pk,
                                             input,
                                             output);
     if (e != 0) {
-        TT_ERROR("rsa pkcs1 encrypt fail: %s", tt_pk_strerror(e));
+        tt_crypto_error("rsa rsacs1 encrypt fail");
         return TT_FAIL;
     }
 
     return TT_SUCCESS;
 }
 
-tt_result_t tt_rsa_decrypt_pkcs1(IN tt_pk_t *pk,
+tt_result_t tt_rsa_decrypt_pkcs1(IN tt_rsa_t *rsa,
                                  IN tt_u8_t *input,
                                  IN tt_u8_t *output,
                                  IN tt_u32_t *olen)
 {
-    mbedtls_rsa_context *ctx = mbedtls_pk_rsa(pk->ctx);
+    mbedtls_rsa_context *ctx = &rsa->ctx;
     size_t n = *olen;
     int e;
 
@@ -159,7 +185,7 @@ tt_result_t tt_rsa_decrypt_pkcs1(IN tt_pk_t *pk,
                                             output,
                                             n);
     if (e != 0) {
-        TT_ERROR("rsa pkcs1 decrypt fail: %s", tt_pk_strerror(e));
+        tt_crypto_error("rsa rsacs1 decrypt fail");
         return TT_FAIL;
     }
     *olen = (tt_u32_t)n;
@@ -167,13 +193,13 @@ tt_result_t tt_rsa_decrypt_pkcs1(IN tt_pk_t *pk,
     return TT_SUCCESS;
 }
 
-tt_result_t tt_rsa_sign_pkcs1(IN tt_pk_t *pk,
+tt_result_t tt_rsa_sign_pkcs1(IN tt_rsa_t *rsa,
                               IN tt_u8_t *input,
                               IN tt_u32_t ilen,
                               IN tt_md_type_t md_type,
                               IN tt_u8_t *sig)
 {
-    mbedtls_rsa_context *ctx = mbedtls_pk_rsa(pk->ctx);
+    mbedtls_rsa_context *ctx = &rsa->ctx;
     mbedtls_md_type_t t;
     const mbedtls_md_info_t *md_info;
     tt_u8_t hash[MBEDTLS_MD_MAX_SIZE];
@@ -196,20 +222,20 @@ tt_result_t tt_rsa_sign_pkcs1(IN tt_pk_t *pk,
                                           hash,
                                           sig);
     if (e != 0) {
-        TT_ERROR("rsa pkcs1 sign fail: %s", tt_pk_strerror(e));
+        tt_crypto_error("rsa rsacs1 sign fail");
         return TT_FAIL;
     }
 
     return TT_SUCCESS;
 }
 
-tt_result_t tt_rsa_verify_pkcs1(IN tt_pk_t *pk,
+tt_result_t tt_rsa_verify_pkcs1(IN tt_rsa_t *rsa,
                                 IN tt_u8_t *input,
                                 IN tt_u32_t ilen,
                                 IN tt_md_type_t md_type,
                                 IN tt_u8_t *sig)
 {
-    mbedtls_rsa_context *ctx = mbedtls_pk_rsa(pk->ctx);
+    mbedtls_rsa_context *ctx = &rsa->ctx;
     mbedtls_md_type_t t;
     const mbedtls_md_info_t *md_info;
     tt_u8_t hash[MBEDTLS_MD_MAX_SIZE];
@@ -232,14 +258,14 @@ tt_result_t tt_rsa_verify_pkcs1(IN tt_pk_t *pk,
                                             hash,
                                             sig);
     if (e != 0) {
-        TT_ERROR("rsa pkcs1 verify fail: %s", tt_pk_strerror(e));
+        tt_crypto_error("rsa rsacs1 verify fail");
         return TT_FAIL;
     }
 
     return TT_SUCCESS;
 }
 
-tt_result_t tt_rsa_encrypt_oaep(IN tt_pk_t *pk,
+tt_result_t tt_rsa_encrypt_oaep(IN tt_rsa_t *rsa,
                                 IN tt_u8_t *input,
                                 IN tt_u32_t ilen,
                                 IN const tt_u8_t *label,
@@ -247,7 +273,7 @@ tt_result_t tt_rsa_encrypt_oaep(IN tt_pk_t *pk,
                                 IN tt_md_type_t md_type,
                                 IN tt_u8_t *output)
 {
-    mbedtls_rsa_context *ctx = mbedtls_pk_rsa(pk->ctx);
+    mbedtls_rsa_context *ctx = &rsa->ctx;
     int e;
 
     mbedtls_rsa_set_padding(ctx,
@@ -264,14 +290,14 @@ tt_result_t tt_rsa_encrypt_oaep(IN tt_pk_t *pk,
                                        input,
                                        output);
     if (e != 0) {
-        TT_ERROR("rsa oaep encrypt fail: %s", tt_pk_strerror(e));
+        tt_crypto_error("rsa oaep encrypt fail");
         return TT_FAIL;
     }
 
     return TT_SUCCESS;
 }
 
-tt_result_t tt_rsa_decrypt_oaep(IN tt_pk_t *pk,
+tt_result_t tt_rsa_decrypt_oaep(IN tt_rsa_t *rsa,
                                 IN tt_u8_t *input,
                                 IN const tt_u8_t *label,
                                 IN tt_u32_t label_len,
@@ -279,7 +305,7 @@ tt_result_t tt_rsa_decrypt_oaep(IN tt_pk_t *pk,
                                 IN tt_u8_t *output,
                                 IN tt_u32_t *olen)
 {
-    mbedtls_rsa_context *ctx = mbedtls_pk_rsa(pk->ctx);
+    mbedtls_rsa_context *ctx = &rsa->ctx;
     size_t n = *olen;
     int e;
 
@@ -298,7 +324,7 @@ tt_result_t tt_rsa_decrypt_oaep(IN tt_pk_t *pk,
                                        output,
                                        n);
     if (e != 0) {
-        TT_ERROR("rsa oaep decrypt fail: %s", tt_pk_strerror(e));
+        tt_crypto_error("rsa oaep decrypt fail");
         return TT_FAIL;
     }
     *olen = (tt_u32_t)n;
@@ -306,13 +332,13 @@ tt_result_t tt_rsa_decrypt_oaep(IN tt_pk_t *pk,
     return TT_SUCCESS;
 }
 
-tt_result_t tt_rsa_sign_pss(IN tt_pk_t *pk,
+tt_result_t tt_rsa_sign_pss(IN tt_rsa_t *rsa,
                             IN tt_u8_t *input,
                             IN tt_u32_t ilen,
                             IN tt_md_type_t md_type,
                             IN tt_u8_t *sig)
 {
-    mbedtls_rsa_context *ctx = mbedtls_pk_rsa(pk->ctx);
+    mbedtls_rsa_context *ctx = &rsa->ctx;
     mbedtls_md_type_t t;
     const mbedtls_md_info_t *md_info;
     tt_u8_t hash[MBEDTLS_MD_MAX_SIZE];
@@ -335,20 +361,20 @@ tt_result_t tt_rsa_sign_pss(IN tt_pk_t *pk,
                                     hash,
                                     sig);
     if (e != 0) {
-        TT_ERROR("rsa pss sign fail: %s", tt_pk_strerror(e));
+        tt_crypto_error("rsa pss sign fail");
         return TT_FAIL;
     }
 
     return TT_SUCCESS;
 }
 
-tt_result_t tt_rsa_verify_pss(IN tt_pk_t *pk,
+tt_result_t tt_rsa_verify_pss(IN tt_rsa_t *rsa,
                               IN tt_u8_t *input,
                               IN tt_u32_t ilen,
                               IN tt_md_type_t md_type,
                               IN tt_u8_t *sig)
 {
-    mbedtls_rsa_context *ctx = mbedtls_pk_rsa(pk->ctx);
+    mbedtls_rsa_context *ctx = &rsa->ctx;
     mbedtls_md_type_t t;
     const mbedtls_md_info_t *md_info;
     tt_u8_t hash[MBEDTLS_MD_MAX_SIZE];
@@ -371,7 +397,7 @@ tt_result_t tt_rsa_verify_pss(IN tt_pk_t *pk,
                                       hash,
                                       sig);
     if (e != 0) {
-        TT_ERROR("rsa pss verify fail: %s", tt_pk_strerror(e));
+        tt_crypto_error("rsa pss verify fail");
         return TT_FAIL;
     }
 

@@ -28,9 +28,9 @@ this file defines rsa APIs
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <crypto/tt_public_key.h>
-
 #include <crypto/tt_message_digest.h>
+
+#include <rsa.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
@@ -40,6 +40,13 @@ this file defines rsa APIs
 // type definition
 ////////////////////////////////////////////////////////////
 
+struct tt_pk_s;
+
+typedef struct
+{
+    mbedtls_rsa_context ctx;
+} tt_rsa_t;
+
 ////////////////////////////////////////////////////////////
 // global variants
 ////////////////////////////////////////////////////////////
@@ -48,38 +55,44 @@ this file defines rsa APIs
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern tt_result_t tt_rsa_generate(OUT tt_pk_t *pub,
-                                   OUT tt_pk_t *priv,
+extern void tt_rsa_init(IN tt_rsa_t *rsa);
+
+extern void tt_rsa_destroy(IN tt_rsa_t *rsa);
+
+extern tt_result_t tt_rsa_load(IN tt_rsa_t *rsa, IN struct tt_pk_s *pk);
+
+extern tt_result_t tt_rsa_generate(OUT tt_rsa_t *pub,
+                                   OUT tt_rsa_t *priv,
                                    IN tt_u32_t bit_num,
                                    IN tt_u32_t exponent);
 
-// pkcs1 v1.5
+extern tt_result_t tt_rsa_check(IN tt_rsa_t *pub, IN tt_rsa_t *priv);
 
-extern tt_result_t tt_rsa_encrypt_pkcs1(IN tt_pk_t *pk,
+// pkcs1 v1.5
+extern tt_result_t tt_rsa_encrypt_pkcs1(IN tt_rsa_t *rsa,
                                         IN tt_u8_t *input,
                                         IN tt_u32_t ilen,
                                         IN tt_u8_t *output);
 
-extern tt_result_t tt_rsa_decrypt_pkcs1(IN tt_pk_t *pk,
+extern tt_result_t tt_rsa_decrypt_pkcs1(IN tt_rsa_t *rsa,
                                         IN tt_u8_t *input,
                                         IN tt_u8_t *output,
                                         IN OUT tt_u32_t *olen);
 
-extern tt_result_t tt_rsa_sign_pkcs1(IN tt_pk_t *pk,
+extern tt_result_t tt_rsa_sign_pkcs1(IN tt_rsa_t *rsa,
                                      IN tt_u8_t *input,
                                      IN tt_u32_t ilen,
                                      IN tt_md_type_t md_type,
                                      IN tt_u8_t *sig);
 
-extern tt_result_t tt_rsa_verify_pkcs1(IN tt_pk_t *pk,
+extern tt_result_t tt_rsa_verify_pkcs1(IN tt_rsa_t *rsa,
                                        IN tt_u8_t *input,
                                        IN tt_u32_t ilen,
                                        IN tt_md_type_t md_type,
                                        IN tt_u8_t *sig);
 
 // pkcs1 v2.1
-
-extern tt_result_t tt_rsa_encrypt_oaep(IN tt_pk_t *pk,
+extern tt_result_t tt_rsa_encrypt_oaep(IN tt_rsa_t *rsa,
                                        IN tt_u8_t *input,
                                        IN tt_u32_t ilen,
                                        IN const tt_u8_t *label,
@@ -87,7 +100,7 @@ extern tt_result_t tt_rsa_encrypt_oaep(IN tt_pk_t *pk,
                                        IN tt_md_type_t md_type,
                                        IN tt_u8_t *output);
 
-extern tt_result_t tt_rsa_decrypt_oaep(IN tt_pk_t *pk,
+extern tt_result_t tt_rsa_decrypt_oaep(IN tt_rsa_t *rsa,
                                        IN tt_u8_t *input,
                                        IN const tt_u8_t *label,
                                        IN tt_u32_t label_len,
@@ -95,17 +108,16 @@ extern tt_result_t tt_rsa_decrypt_oaep(IN tt_pk_t *pk,
                                        IN tt_u8_t *output,
                                        IN tt_u32_t *olen);
 
-extern tt_result_t tt_rsa_sign_pss(IN tt_pk_t *pk,
+extern tt_result_t tt_rsa_sign_pss(IN tt_rsa_t *rsa,
                                    IN tt_u8_t *input,
                                    IN tt_u32_t ilen,
                                    IN tt_md_type_t md_type,
                                    IN tt_u8_t *sig);
 
-extern tt_result_t tt_rsa_verify_pss(IN tt_pk_t *pk,
+extern tt_result_t tt_rsa_verify_pss(IN tt_rsa_t *rsa,
                                      IN tt_u8_t *input,
                                      IN tt_u32_t ilen,
                                      IN tt_md_type_t md_type,
                                      IN tt_u8_t *sig);
-
 
 #endif

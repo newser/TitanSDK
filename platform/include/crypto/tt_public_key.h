@@ -65,30 +65,28 @@ extern void tt_pk_init(IN tt_pk_t *pk);
 
 extern void tt_pk_destroy(IN tt_pk_t *pk);
 
-extern tt_result_t tt_pk_setup_public(IN tt_pk_t *pk,
+extern tt_result_t tt_pk_load_public(IN tt_pk_t *pk,
+                                     IN tt_u8_t *key,
+                                     IN tt_u32_t len);
+
+extern tt_result_t tt_pk_load_private(IN tt_pk_t *pk,
                                       IN tt_u8_t *key,
-                                      IN tt_u32_t len);
+                                      IN tt_u32_t key_len,
+                                      IN OPT tt_u8_t *pwd,
+                                      IN tt_u32_t pwd_len);
 
-extern tt_result_t tt_pk_setup_private(IN tt_pk_t *pk,
-                                       IN tt_u8_t *key,
-                                       IN tt_u32_t key_len,
-                                       IN OPT tt_u8_t *pwd,
-                                       IN tt_u32_t pwd_len);
+extern tt_result_t tt_pk_load_public_file(IN tt_pk_t *pk,
+                                          IN const tt_char_t *path);
 
-extern tt_result_t tt_pk_setup_public_file(IN tt_pk_t *pk,
-                                           IN const tt_char_t *path);
-
-extern tt_result_t tt_pk_setup_private_file(IN tt_pk_t *pk,
-                                            IN const tt_char_t *path,
-                                            IN OPT const tt_u8_t *pwd,
-                                            IN tt_u32_t pwd_len);
+extern tt_result_t tt_pk_load_private_file(IN tt_pk_t *pk,
+                                           IN const tt_char_t *path,
+                                           IN OPT const tt_u8_t *pwd,
+                                           IN tt_u32_t pwd_len);
 
 extern tt_result_t tt_pk_check(IN tt_pk_t *pub, IN tt_pk_t *priv);
 
 extern tt_pk_type_t tt_pk_get_type(IN tt_pk_t *pk);
 
 extern int tt_pk_rng(IN void *param, IN unsigned char *buf, IN size_t len);
-
-extern const tt_char_t *tt_pk_strerror(IN int err);
 
 #endif

@@ -72,9 +72,9 @@ tt_test_unit_t *tt_g_crypto_ut_list[CRYPTO_UT_NUM] = {
     &TT_MAKE_TEST_UNIT_NAME(CRYPTO_UT_PKCS5),
     &TT_MAKE_TEST_UNIT_NAME(CRYPTO_UT_DH),
     &TT_MAKE_TEST_UNIT_NAME(CRYPTO_UT_PAD),
-    &TT_MAKE_TEST_UNIT_NAME(CRYPTO_UT_RSA),
-#endif
     &TT_MAKE_TEST_UNIT_NAME(CRYPTO_UT_ECDH),
+#endif
+    &TT_MAKE_TEST_UNIT_NAME(CRYPTO_UT_RSA),
 };
 
 ////////////////////////////////////////////////////////////

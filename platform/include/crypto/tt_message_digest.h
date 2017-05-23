@@ -31,7 +31,10 @@ this file defines message digest APIs
 #include <algorithm/tt_blob.h>
 #include <log/tt_log.h>
 
+// clang-format off
+#include <tt_mbedtls_config.h> // md.h lack
 #include <md.h>
+// clang-format on
 
 ////////////////////////////////////////////////////////////
 // macro definition

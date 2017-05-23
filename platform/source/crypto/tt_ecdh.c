@@ -20,6 +20,7 @@
 
 #include <crypto/tt_ecdh.h>
 
+#include <crypto/tt_crypto.h>
 #include <crypto/tt_public_key.h>
 #include <misc/tt_assert.h>
 #include <misc/tt_util.h>
@@ -97,7 +98,7 @@ tt_result_t tt_ecdh_load(IN tt_ecdh_t *ecdh, IN tt_pk_t *pk)
     if (((e = mbedtls_ecp_group_copy(&ctx->grp, &ec->grp)) != 0) ||
         ((e = mbedtls_mpi_copy(&ctx->d, &ec->d)) != 0) ||
         ((e = mbedtls_ecp_copy(&ctx->Q, &ec->Q)) != 0)) {
-        TT_ERROR("fail to copy ec key: %s", tt_pk_strerror(e));
+        tt_crypto_error("fail to copy ec key");
         mbedtls_ecdh_free(ctx);
         return TT_FAIL;
     }
@@ -117,14 +118,14 @@ tt_result_t tt_ecdh_generate(IN tt_ecdh_t *ecdh, IN tt_ecgrp_t g)
 
     e = mbedtls_ecp_group_load(&ctx->grp, __ecgrp_map[g]);
     if (e != 0) {
-        TT_ERROR("fail to load ec group[%d]: %s", g, tt_pk_strerror(e));
+        tt_crypto_error("fail to load ec group[%d]", g);
         mbedtls_ecdh_free(ctx);
         return TT_FAIL;
     }
 
     e = mbedtls_ecdh_gen_public(&ctx->grp, &ctx->d, &ctx->Q, tt_pk_rng, NULL);
     if (e != 0) {
-        TT_ERROR("fail to generate ecdh pub: %s", tt_pk_strerror(e));
+        tt_crypto_error("fail to generate ecdh pub");
         mbedtls_ecdh_free(ctx);
         return TT_FAIL;
     }
@@ -157,7 +158,7 @@ tt_result_t tt_ecdh_get_pub(IN tt_ecdh_t *ecdh,
                                        pub,
                                        len);
     if (e != 0) {
-        TT_ERROR("fail to get ec pub: %s", tt_pk_strerror(e));
+        tt_crypto_error("fail to get ec pub");
         return TT_FAIL;
     }
     *len = (tt_u32_t)olen;
@@ -183,7 +184,7 @@ tt_result_t tt_ecdh_set_pub(IN tt_ecdh_t *ecdh,
                                       pub,
                                       len);
     if (e != 0) {
-        TT_ERROR("fail to set ec pub: %s", tt_pk_strerror(e));
+        tt_crypto_error("fail to set ec pub");
         return TT_FAIL;
     }
 
@@ -206,7 +207,7 @@ tt_result_t tt_ecdh_derive(IN tt_ecdh_t *ecdh)
                                     tt_pk_rng,
                                     NULL);
     if (e != 0) {
-        TT_ERROR("fail to drive ecdh secret: %s", tt_pk_strerror(e));
+        tt_crypto_error("fail to drive ecdh secret");
         return TT_FAIL;
     }
 
@@ -236,7 +237,7 @@ tt_result_t tt_ecdh_get_secret(IN tt_ecdh_t *ecdh,
 
     e = mbedtls_mpi_write_binary(&ctx->z, secret, n);
     if (e != 0) {
-        TT_ERROR("fail to write ec secret: %s", tt_pk_strerror(e));
+        tt_crypto_error("fail to write ec secret");
         return TT_FAIL;
     }
     *len = n;

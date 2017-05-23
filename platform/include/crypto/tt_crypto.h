@@ -28,9 +28,20 @@ this file defines crypto initialization APIs
 // import header files
 ////////////////////////////////////////////////////////////
 
+#include <log/tt_log.h>
+
 ////////////////////////////////////////////////////////////
 // macro definition
 ////////////////////////////////////////////////////////////
+
+#define tt_crypto_error(...)                                                   \
+    do {                                                                       \
+        extern void mbedtls_strerror(int, char *, size_t);                     \
+        tt_char_t buf[256];                                                    \
+        TT_ERROR(__VA_ARGS__);                                                 \
+        mbedtls_strerror(e, buf, sizeof(buf) - 1);                             \
+        TT_ERROR("%s", buf);                                                   \
+    } while (0)
 
 ////////////////////////////////////////////////////////////
 // type definition
