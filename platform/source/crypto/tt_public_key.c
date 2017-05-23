@@ -23,10 +23,8 @@
 #include <algorithm/tt_buffer.h>
 #include <algorithm/tt_buffer_format.h>
 #include <io/tt_file_system.h>
-#include <memory/tt_memory_alloc.h>
-#include <os/tt_thread.h>
-
 #include <misc/tt_assert.h>
+#include <os/tt_thread.h>
 
 #include <pem.h>
 
@@ -47,7 +45,7 @@
 ////////////////////////////////////////////////////////////
 
 static mbedtls_pk_type_t __pk_type_map[TT_PK_TYPE_NUM] = {
-    MBEDTLS_PK_RSA, MBEDTLS_PK_ECKEY_DH, MBEDTLS_PK_ECDSA,
+    MBEDTLS_PK_RSA, MBEDTLS_PK_ECKEY,
 };
 
 ////////////////////////////////////////////////////////////

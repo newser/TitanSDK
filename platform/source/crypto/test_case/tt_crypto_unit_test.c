@@ -42,6 +42,7 @@ typedef enum {
     CRYPTO_UT_PAD,
     CRYPTO_UT_MD,
     CRYPTO_UT_CIPHER,
+    CRYPTO_UT_ECDH,
 
     CRYPTO_UT_NUM // number of test units
 } tt_crypto_ut_id_t;
@@ -57,6 +58,7 @@ TT_CRYPTO_UT_DECLARE(CRYPTO_UT_DH)
 TT_CRYPTO_UT_DECLARE(CRYPTO_UT_PAD)
 TT_CRYPTO_UT_DECLARE(CRYPTO_UT_MD)
 TT_CRYPTO_UT_DECLARE(CRYPTO_UT_CIPHER)
+TT_CRYPTO_UT_DECLARE(CRYPTO_UT_ECDH)
 
 ////////////////////////////////////////////////////////////
 // global variant
@@ -70,8 +72,9 @@ tt_test_unit_t *tt_g_crypto_ut_list[CRYPTO_UT_NUM] = {
     &TT_MAKE_TEST_UNIT_NAME(CRYPTO_UT_PKCS5),
     &TT_MAKE_TEST_UNIT_NAME(CRYPTO_UT_DH),
     &TT_MAKE_TEST_UNIT_NAME(CRYPTO_UT_PAD),
-#endif
     &TT_MAKE_TEST_UNIT_NAME(CRYPTO_UT_RSA),
+#endif
+    &TT_MAKE_TEST_UNIT_NAME(CRYPTO_UT_ECDH),
 };
 
 ////////////////////////////////////////////////////////////

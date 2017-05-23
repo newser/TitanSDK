@@ -15,14 +15,14 @@
  */
 
 /**
-@file tt_public_key.h
-@brief public key definitions
+@file tt_ecdh.h
+@brief crypto: ECDH
 
-this file defines public key APIs
+this file defines elliptic curve diffie-hellman APIs
 */
 
-#ifndef __TT_PUBLIC_KEY__
-#define __TT_PUBLIC_KEY__
+#ifndef __TT_ECDH__
+#define __TT_ECDH__
 
 ////////////////////////////////////////////////////////////
 // import header files
@@ -30,7 +30,7 @@ this file defines public key APIs
 
 #include <tt_basic_type.h>
 
-#include <pk.h>
+#include <ecdh.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
@@ -40,18 +40,30 @@ this file defines public key APIs
 // type definition
 ////////////////////////////////////////////////////////////
 
+struct tt_pk_s;
+
 typedef enum {
-    TT_RSA,
-    TT_ECKEY,
+    TT_ECGRP_SECP192R1,
+    TT_ECGRP_SECP224R1,
+    TT_ECGRP_SECP256R1,
+    TT_ECGRP_SECP384R1,
+    TT_ECGRP_SECP521R1,
+    TT_ECGRP_BP256R1,
+    TT_ECGRP_BP384R1,
+    TT_ECGRP_BP512R1,
+    TT_ECGRP_CURVE25519,
+    TT_ECGRP_SECP192K1,
+    TT_ECGRP_SECP224K1,
+    TT_ECGRP_SECP256K1,
 
-    TT_PK_TYPE_NUM
-} tt_pk_type_t;
-#define TT_PK_TYPE_VALID(t) ((t) < TT_PK_TYPE_NUM)
+    TT_ECGRP_NUM,
+} tt_ecgrp_t;
+#define TT_ECGRP_VALID(g) ((g) < TT_ECGRP_NUM)
 
-typedef struct tt_pk_s
+typedef struct
 {
-    mbedtls_pk_context ctx;
-} tt_pk_t;
+    mbedtls_ecdh_context ctx;
+} tt_ecdh_t;
 
 ////////////////////////////////////////////////////////////
 // global variants
@@ -61,34 +73,29 @@ typedef struct tt_pk_s
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern void tt_pk_init(IN tt_pk_t *pk);
+extern void tt_ecdh_init(IN tt_ecdh_t *ecdh);
 
-extern void tt_pk_destroy(IN tt_pk_t *pk);
+extern void tt_ecdh_destroy(IN tt_ecdh_t *ecdh);
 
-extern tt_result_t tt_pk_setup_public(IN tt_pk_t *pk,
-                                      IN tt_u8_t *key,
-                                      IN tt_u32_t len);
+extern tt_result_t tt_ecdh_load(IN tt_ecdh_t *ecdh, IN struct tt_pk_s *pk);
 
-extern tt_result_t tt_pk_setup_private(IN tt_pk_t *pk,
-                                       IN tt_u8_t *key,
-                                       IN tt_u32_t key_len,
-                                       IN OPT tt_u8_t *pwd,
-                                       IN tt_u32_t pwd_len);
+extern tt_result_t tt_ecdh_generate(IN tt_ecdh_t *ecdh, IN tt_ecgrp_t g);
 
-extern tt_result_t tt_pk_setup_public_file(IN tt_pk_t *pk,
-                                           IN const tt_char_t *path);
+extern tt_result_t tt_ecdh_get_pub(IN tt_ecdh_t *ecdh,
+                                   IN tt_bool_t local,
+                                   IN tt_bool_t compress,
+                                   OUT tt_u8_t *pub,
+                                   IN OUT tt_u32_t *len);
 
-extern tt_result_t tt_pk_setup_private_file(IN tt_pk_t *pk,
-                                            IN const tt_char_t *path,
-                                            IN OPT const tt_u8_t *pwd,
-                                            IN tt_u32_t pwd_len);
+extern tt_result_t tt_ecdh_set_pub(IN tt_ecdh_t *ecdh,
+                                   IN tt_bool_t local,
+                                   IN tt_u8_t *pub,
+                                   IN tt_u32_t len);
 
-extern tt_result_t tt_pk_check(IN tt_pk_t *pub, IN tt_pk_t *priv);
+extern tt_result_t tt_ecdh_derive(IN tt_ecdh_t *ecdh);
 
-extern tt_pk_type_t tt_pk_get_type(IN tt_pk_t *pk);
-
-extern int tt_pk_rng(IN void *param, IN unsigned char *buf, IN size_t len);
-
-extern const tt_char_t *tt_pk_strerror(IN int err);
+extern tt_result_t tt_ecdh_get_secret(IN tt_ecdh_t *ecdh,
+                                      OUT tt_u8_t *secret,
+                                      IN OUT tt_u32_t *len);
 
 #endif
