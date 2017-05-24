@@ -20,8 +20,6 @@
 
 #include <crypto/tt_crypto.h>
 
-#include <crypto/tt_aes.h>
-#include <crypto/tt_dh.h>
 #include <crypto/tt_hmac.h>
 #include <crypto/tt_rsa.h>
 #include <init/tt_component.h>
@@ -114,13 +112,13 @@ tt_result_t __crypto_component_init(IN tt_component_t *comp,
         return TT_FAIL;
     }
     TT_INFO("Intializing %-32s [Done]", "AES");
-     */
 
     result = tt_dh_component_init(profile);
     if (!TT_OK(result)) {
         return TT_FAIL;
     }
     TT_INFO("Intializing %-32s [Done]", "DH");
+     */
 
     return TT_SUCCESS;
 }

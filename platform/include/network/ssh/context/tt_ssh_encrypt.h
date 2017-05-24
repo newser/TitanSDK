@@ -26,7 +26,6 @@
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <crypto/tt_aes.h>
 #include <network/ssh/tt_ssh_def.h>
 
 ////////////////////////////////////////////////////////////
@@ -40,10 +39,10 @@
 typedef struct tt_sshenc_s
 {
     tt_ssh_enc_alg_t alg;
-    union
+    /*union
     {
         tt_aes_t aes;
-    } alg_u;
+    } alg_u;*/
 
     tt_u32_t block_len;
 } tt_sshenc_t;
