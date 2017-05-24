@@ -89,37 +89,48 @@ tt_result_t tt_rsa_load(IN tt_rsa_t *rsa, IN tt_pk_t *pk)
     return TT_SUCCESS;
 }
 
-tt_result_t tt_rsa_generate(OUT tt_rsa_t *pub,
-                            OUT tt_rsa_t *priv,
+tt_result_t tt_rsa_generate(OUT tt_rsa_t *rsa,
                             IN tt_u32_t bit_num,
                             IN tt_u32_t exponent)
 {
+    mbedtls_rsa_context *ctx;
     int e;
-    mbedtls_rsa_context *pub_ctx, *priv_ctx;
 
-    TT_ASSERT(pub != NULL);
-    TT_ASSERT(priv != NULL);
+    TT_ASSERT(rsa != NULL);
 
-    pub_ctx = &pub->ctx;
-    priv_ctx = &priv->ctx;
+    ctx = &rsa->ctx;
 
-    e = mbedtls_rsa_gen_key(&priv->ctx, tt_pk_rng, NULL, bit_num, exponent);
+    e = mbedtls_rsa_gen_key(ctx, tt_pk_rng, NULL, bit_num, exponent);
     if (e != 0) {
-        tt_crypto_error("fail to generate priv rsa");
+        tt_crypto_error("fail to generate rsa");
         return TT_FAIL;
     }
 
-    pub_ctx->ver = priv_ctx->ver;
-    pub_ctx->len = priv_ctx->len;
-    if (((e = mbedtls_mpi_copy(&pub_ctx->N, &priv_ctx->N)) != 0) ||
-        ((e = mbedtls_mpi_copy(&pub_ctx->E, &priv_ctx->E)) != 0)) {
+    return TT_SUCCESS;
+}
+
+tt_result_t tt_rsa_topub(IN tt_rsa_t *rsa, OUT tt_rsa_t *pub)
+{
+    mbedtls_rsa_context *ctx, *pub_ctx;
+    int e;
+
+    TT_ASSERT(rsa != NULL);
+    TT_ASSERT(pub != NULL);
+
+    ctx = &rsa->ctx;
+    pub_ctx = &pub->ctx;
+
+    mbedtls_rsa_free(pub_ctx);
+    pub_ctx->ver = ctx->ver;
+    pub_ctx->len = ctx->len;
+    if (((e = mbedtls_mpi_copy(&pub_ctx->N, &ctx->N)) != 0) ||
+        ((e = mbedtls_mpi_copy(&pub_ctx->E, &ctx->E)) != 0)) {
         tt_crypto_error("fail to copy pub rsa");
         mbedtls_rsa_free(pub_ctx);
-        mbedtls_rsa_free(priv_ctx);
         return TT_FAIL;
     }
-    pub_ctx->padding = priv_ctx->padding;
-    pub_ctx->hash_id = priv_ctx->hash_id;
+    pub_ctx->padding = ctx->padding;
+    pub_ctx->hash_id = ctx->hash_id;
 
     return TT_SUCCESS;
 }

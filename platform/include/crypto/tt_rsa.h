@@ -61,10 +61,11 @@ extern void tt_rsa_destroy(IN tt_rsa_t *rsa);
 
 extern tt_result_t tt_rsa_load(IN tt_rsa_t *rsa, IN struct tt_pk_s *pk);
 
-extern tt_result_t tt_rsa_generate(OUT tt_rsa_t *pub,
-                                   OUT tt_rsa_t *priv,
+extern tt_result_t tt_rsa_generate(OUT tt_rsa_t *rsa,
                                    IN tt_u32_t bit_num,
                                    IN tt_u32_t exponent);
+
+extern tt_result_t tt_rsa_topub(IN tt_rsa_t *rsa, OUT tt_rsa_t *pub);
 
 extern tt_result_t tt_rsa_check(IN tt_rsa_t *pub, IN tt_rsa_t *priv);
 

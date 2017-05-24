@@ -1041,7 +1041,7 @@ tt_result_t tt_rsa_show_ntv(IN tt_rsa_ntv_t *sys_rsa)
     tt_buf_init(&printable, NULL);
 
     if (sys_rsa->type == TT_RSA_TYPE_PUBLIC) {
-        tt_rsa_pubnum_t *pub_num = &rsa_number.pubnum;
+        tt_rsa_topubnum_t *pub_num = &rsa_number.pubnum;
 
         tt_buf_reset_rwp(&printable);
         tt_buf_put_hex2cstr(&printable,
@@ -1173,7 +1173,7 @@ tt_result_t tt_rsa_get_number_ntv(IN tt_rsa_ntv_t *sys_rsa,
 tt_result_t __rsa_number_get_public(IN CFDataRef key_data,
                                     IN struct tt_rsa_number_s *rsa_number)
 {
-    tt_rsa_pubnum_t *pub_num = &rsa_number->pubnum;
+    tt_rsa_topubnum_t *pub_num = &rsa_number->pubnum;
 
     tt_buf_t helper;
     tt_result_t result;

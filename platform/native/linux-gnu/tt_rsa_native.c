@@ -198,7 +198,7 @@ static tt_u32_t __rsa_size_byte(tt_rsa_size_t size);
 ////////////////////////////////////////////////////////////
 
 static tt_result_t __rsa_number_get_public(IN RSA *openssl_rsa,
-                                           IN tt_rsa_pubnum_t *pub_n);
+                                           IN tt_rsa_topubnum_t *pub_n);
 static tt_result_t __rsa_number_get_private(IN RSA *openssl_rsa,
                                             IN tt_rsa_privnum_t *priv_n);
 
@@ -740,7 +740,7 @@ tt_result_t tt_rsa_show_ntv(IN tt_rsa_ntv_t *sys_rsa)
     tt_buf_init(&printable, NULL);
 
     if (sys_rsa->type == TT_RSA_TYPE_PUBLIC) {
-        tt_rsa_pubnum_t *pub_num = &rsa_number.pubnum;
+        tt_rsa_topubnum_t *pub_num = &rsa_number.pubnum;
 
         tt_buf_reset_rwp(&printable);
         tt_buf_put_hex2cstr(&printable,
@@ -836,7 +836,7 @@ tt_result_t tt_rsa_get_number_ntv(IN tt_rsa_ntv_t *sys_rsa,
 }
 
 tt_result_t __rsa_number_get_public(IN RSA *openssl_rsa,
-                                    IN tt_rsa_pubnum_t *pub_n)
+                                    IN tt_rsa_topubnum_t *pub_n)
 {
     /*
      kSecFormatBSAFE:
@@ -847,7 +847,7 @@ tt_result_t __rsa_number_get_public(IN RSA *openssl_rsa,
      }
      */
 
-    tt_memset(pub_n, 0, sizeof(tt_rsa_pubnum_t));
+    tt_memset(pub_n, 0, sizeof(tt_rsa_topubnum_t));
 
     // modulus
     __BN2BUF(openssl_rsa->n, &pub_n->modulus, gp_fail);

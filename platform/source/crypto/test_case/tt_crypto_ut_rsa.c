@@ -309,10 +309,12 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_rsa_gen)
     tt_rsa_init(&rpub);
     tt_rsa_init(&rpriv);
 
-    ret = tt_rsa_generate(&rpub, &rpriv, 1024, 0);
+    ret = tt_rsa_generate(&rpriv, 1024, 0);
     TT_UT_FAIL(ret, "");
 
-    ret = tt_rsa_generate(&rpub, &rpriv, 1024, 3);
+    ret = tt_rsa_generate(&rpriv, 1024, 3);
+    TT_UT_SUCCESS(ret, "");
+    ret = tt_rsa_topub(&rpriv, &rpub);
     TT_UT_SUCCESS(ret, "");
 
     ret = tt_rsa_check(&rpub, &rpriv);

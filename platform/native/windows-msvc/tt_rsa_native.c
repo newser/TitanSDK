@@ -179,7 +179,7 @@ static __rsa_itf_t tt_s_rsa_itf[TT_RSA_PADDING_NUM] = {
 
 
 static tt_result_t __rsa_number_get_public(IN BCRYPT_KEY_HANDLE rsa,
-                                           IN tt_rsa_pubnum_t *pub_n);
+                                           IN tt_rsa_topubnum_t *pub_n);
 static tt_result_t __rsa_number_get_private(IN BCRYPT_KEY_HANDLE rsa,
                                             IN tt_rsa_privnum_t *priv_n);
 
@@ -979,7 +979,7 @@ tt_result_t tt_rsa_show_ntv(IN tt_rsa_ntv_t *sys_rsa)
     tt_buf_init(&printable, NULL);
 
     if (sys_rsa->type == TT_RSA_TYPE_PUBLIC) {
-        tt_rsa_pubnum_t *pub_num = &rsa_number.pubnum;
+        tt_rsa_topubnum_t *pub_num = &rsa_number.pubnum;
 
         tt_buf_reset_rwp(&printable);
         tt_buf_put_hex2cstr(&printable,
@@ -1075,7 +1075,7 @@ tt_result_t tt_rsa_get_number_ntv(IN tt_rsa_ntv_t *sys_rsa,
 }
 
 tt_result_t __rsa_number_get_public(IN BCRYPT_KEY_HANDLE rsa,
-                                    IN tt_rsa_pubnum_t *pub_n)
+                                    IN tt_rsa_topubnum_t *pub_n)
 {
     NTSTATUS ntst;
     ULONG n;
@@ -1091,7 +1091,7 @@ tt_result_t __rsa_number_get_public(IN BCRYPT_KEY_HANDLE rsa,
      }
      */
 
-    tt_memset(pub_n, 0, sizeof(tt_rsa_pubnum_t));
+    tt_memset(pub_n, 0, sizeof(tt_rsa_topubnum_t));
 
     // export
     ntst = BCryptExportKey(rsa, NULL, BCRYPT_RSAPUBLIC_BLOB, NULL, 0, &n, 0);
