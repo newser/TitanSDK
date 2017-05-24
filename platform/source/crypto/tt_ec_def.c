@@ -18,63 +18,37 @@
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <unit_test/tt_unit_test.h>
+#include <crypto/tt_ec_def.h>
 
 ////////////////////////////////////////////////////////////
 // internal macro
 ////////////////////////////////////////////////////////////
 
-#define TT_CRYPTO_UT_DECLARE(name)                                             \
-    extern tt_test_unit_t TT_MAKE_TEST_UNIT_NAME(name);
-
 ////////////////////////////////////////////////////////////
 // internal type
 ////////////////////////////////////////////////////////////
-
-typedef enum {
-    CRYPTO_UT_BEGIN = 0,
-
-    CRYPTO_UT_RSA = CRYPTO_UT_BEGIN,
-    CRYPTO_UT_AES,
-    CRYPTO_UT_HMAC,
-    CRYPTO_UT_PKCS5,
-    CRYPTO_UT_DH,
-    CRYPTO_UT_PAD,
-    CRYPTO_UT_MD,
-    CRYPTO_UT_CIPHER,
-    CRYPTO_UT_EC,
-
-    CRYPTO_UT_NUM // number of test units
-} tt_crypto_ut_id_t;
 
 ////////////////////////////////////////////////////////////
 // extern declaration
 ////////////////////////////////////////////////////////////
 
-TT_CRYPTO_UT_DECLARE(CRYPTO_UT_RSA)
-TT_CRYPTO_UT_DECLARE(CRYPTO_UT_AES)
-TT_CRYPTO_UT_DECLARE(CRYPTO_UT_PKCS5)
-TT_CRYPTO_UT_DECLARE(CRYPTO_UT_DH)
-TT_CRYPTO_UT_DECLARE(CRYPTO_UT_PAD)
-TT_CRYPTO_UT_DECLARE(CRYPTO_UT_MD)
-TT_CRYPTO_UT_DECLARE(CRYPTO_UT_CIPHER)
-TT_CRYPTO_UT_DECLARE(CRYPTO_UT_EC)
-
 ////////////////////////////////////////////////////////////
 // global variant
 ////////////////////////////////////////////////////////////
 
-tt_test_unit_t *tt_g_crypto_ut_list[CRYPTO_UT_NUM] = {
-#if 0
-    &TT_MAKE_TEST_UNIT_NAME(CRYPTO_UT_CIPHER),
-    &TT_MAKE_TEST_UNIT_NAME(CRYPTO_UT_MD),
-    &TT_MAKE_TEST_UNIT_NAME(CRYPTO_UT_AES),
-    &TT_MAKE_TEST_UNIT_NAME(CRYPTO_UT_PKCS5),
-    &TT_MAKE_TEST_UNIT_NAME(CRYPTO_UT_DH),
-    &TT_MAKE_TEST_UNIT_NAME(CRYPTO_UT_PAD),
-    &TT_MAKE_TEST_UNIT_NAME(CRYPTO_UT_RSA),
-#endif
-    &TT_MAKE_TEST_UNIT_NAME(CRYPTO_UT_EC),
+mbedtls_ecp_group_id tt_g_ecgrp_map[TT_ECGRP_NUM] = {
+    MBEDTLS_ECP_DP_SECP192R1,
+    MBEDTLS_ECP_DP_SECP224R1,
+    MBEDTLS_ECP_DP_SECP256R1,
+    MBEDTLS_ECP_DP_SECP384R1,
+    MBEDTLS_ECP_DP_SECP521R1,
+    MBEDTLS_ECP_DP_BP256R1,
+    MBEDTLS_ECP_DP_BP384R1,
+    MBEDTLS_ECP_DP_BP512R1,
+    MBEDTLS_ECP_DP_CURVE25519,
+    MBEDTLS_ECP_DP_SECP192K1,
+    MBEDTLS_ECP_DP_SECP224K1,
+    MBEDTLS_ECP_DP_SECP256K1,
 };
 
 ////////////////////////////////////////////////////////////
@@ -84,23 +58,3 @@ tt_test_unit_t *tt_g_crypto_ut_list[CRYPTO_UT_NUM] = {
 ////////////////////////////////////////////////////////////
 // interface implementation
 ////////////////////////////////////////////////////////////
-
-tt_result_t tt_crypto_ut_init(IN tt_ptr_t reserved)
-{
-    tt_crypto_ut_id_t unit_id = CRYPTO_UT_BEGIN;
-    while (unit_id < CRYPTO_UT_NUM) {
-        tt_result_t result = TT_FAIL;
-
-        if (tt_g_crypto_ut_list[unit_id] != NULL) {
-            result = tt_test_unit_to_class(tt_g_crypto_ut_list[unit_id]);
-            if (!TT_OK(result)) {
-                return TT_FAIL;
-            }
-        }
-
-        // next
-        ++unit_id;
-    }
-
-    return TT_SUCCESS;
-}

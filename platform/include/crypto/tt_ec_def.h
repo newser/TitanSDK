@@ -15,23 +15,20 @@
  */
 
 /**
-@file tt_ecdh.h
-@brief crypto: ECDH
+@file tt_ec_def.h
+@brief ec definitions
 
-this file defines elliptic curve diffie-hellman APIs
+this file defines ec
 */
 
-#ifndef __TT_ECDH__
-#define __TT_ECDH__
+#ifndef __TT_EC_DEF__
+#define __TT_EC_DEF__
 
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <crypto/tt_ec_def.h>
-#include <tt_basic_type.h>
-
-#include <ecdh.h>
+#include <ecp.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
@@ -41,44 +38,32 @@ this file defines elliptic curve diffie-hellman APIs
 // type definition
 ////////////////////////////////////////////////////////////
 
-struct tt_pk_s;
+typedef enum {
+    TT_ECGRP_SECP192R1,
+    TT_ECGRP_SECP224R1,
+    TT_ECGRP_SECP256R1,
+    TT_ECGRP_SECP384R1,
+    TT_ECGRP_SECP521R1,
+    TT_ECGRP_BP256R1,
+    TT_ECGRP_BP384R1,
+    TT_ECGRP_BP512R1,
+    TT_ECGRP_CURVE25519,
+    TT_ECGRP_SECP192K1,
+    TT_ECGRP_SECP224K1,
+    TT_ECGRP_SECP256K1,
 
-typedef struct
-{
-    mbedtls_ecdh_context ctx;
-} tt_ecdh_t;
+    TT_ECGRP_NUM,
+} tt_ecgrp_t;
+#define TT_ECGRP_VALID(g) ((g) < TT_ECGRP_NUM)
 
 ////////////////////////////////////////////////////////////
 // global variants
 ////////////////////////////////////////////////////////////
 
+extern mbedtls_ecp_group_id tt_g_ecgrp_map[TT_ECGRP_NUM];
+
 ////////////////////////////////////////////////////////////
 // interface declaration
 ////////////////////////////////////////////////////////////
-
-extern void tt_ecdh_init(IN tt_ecdh_t *ecdh);
-
-extern void tt_ecdh_destroy(IN tt_ecdh_t *ecdh);
-
-extern tt_result_t tt_ecdh_load(IN tt_ecdh_t *ecdh, IN struct tt_pk_s *pk);
-
-extern tt_result_t tt_ecdh_generate(IN tt_ecdh_t *ecdh, IN tt_ecgrp_t g);
-
-extern tt_result_t tt_ecdh_get_pub(IN tt_ecdh_t *ecdh,
-                                   IN tt_bool_t local,
-                                   IN tt_bool_t compress,
-                                   OUT tt_u8_t *pub,
-                                   IN OUT tt_u32_t *len);
-
-extern tt_result_t tt_ecdh_set_pub(IN tt_ecdh_t *ecdh,
-                                   IN tt_bool_t local,
-                                   IN tt_u8_t *pub,
-                                   IN tt_u32_t len);
-
-extern tt_result_t tt_ecdh_derive(IN tt_ecdh_t *ecdh);
-
-extern tt_result_t tt_ecdh_get_secret(IN tt_ecdh_t *ecdh,
-                                      OUT tt_u8_t *secret,
-                                      IN OUT tt_u32_t *len);
 
 #endif

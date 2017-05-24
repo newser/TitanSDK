@@ -15,23 +15,23 @@
  */
 
 /**
-@file tt_ecdh.h
-@brief crypto: ECDH
+@file tt_ecdsa.h
+@brief crypto: ECDSA
 
 this file defines elliptic curve diffie-hellman APIs
 */
 
-#ifndef __TT_ECDH__
-#define __TT_ECDH__
+#ifndef __TT_ECDSA__
+#define __TT_ECDSA__
 
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
 #include <crypto/tt_ec_def.h>
-#include <tt_basic_type.h>
+#include <crypto/tt_message_digest.h>
 
-#include <ecdh.h>
+#include <ecdsa.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
@@ -45,8 +45,8 @@ struct tt_pk_s;
 
 typedef struct
 {
-    mbedtls_ecdh_context ctx;
-} tt_ecdh_t;
+    mbedtls_ecdsa_context ctx;
+} tt_ecdsa_t;
 
 ////////////////////////////////////////////////////////////
 // global variants
@@ -56,29 +56,26 @@ typedef struct
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern void tt_ecdh_init(IN tt_ecdh_t *ecdh);
+extern void tt_ecdsa_init(IN tt_ecdsa_t *dsa);
 
-extern void tt_ecdh_destroy(IN tt_ecdh_t *ecdh);
+extern void tt_ecdsa_destroy(IN tt_ecdsa_t *dsa);
 
-extern tt_result_t tt_ecdh_load(IN tt_ecdh_t *ecdh, IN struct tt_pk_s *pk);
+extern tt_result_t tt_ecdsa_load(IN tt_ecdsa_t *dsa, IN struct tt_pk_s *pk);
 
-extern tt_result_t tt_ecdh_generate(IN tt_ecdh_t *ecdh, IN tt_ecgrp_t g);
+extern tt_result_t tt_ecdsa_generate(IN tt_ecdsa_t *dsa, IN tt_ecgrp_t g);
 
-extern tt_result_t tt_ecdh_get_pub(IN tt_ecdh_t *ecdh,
-                                   IN tt_bool_t local,
-                                   IN tt_bool_t compress,
-                                   OUT tt_u8_t *pub,
-                                   IN OUT tt_u32_t *len);
+extern tt_result_t tt_ecdsa_sign(IN tt_ecdsa_t *dsa,
+                                 IN tt_u8_t *input,
+                                 IN tt_u32_t len,
+                                 IN tt_md_type_t md_type,
+                                 OUT tt_u8_t *sig,
+                                 IN OUT tt_u32_t *sig_len);
 
-extern tt_result_t tt_ecdh_set_pub(IN tt_ecdh_t *ecdh,
-                                   IN tt_bool_t local,
-                                   IN tt_u8_t *pub,
-                                   IN tt_u32_t len);
-
-extern tt_result_t tt_ecdh_derive(IN tt_ecdh_t *ecdh);
-
-extern tt_result_t tt_ecdh_get_secret(IN tt_ecdh_t *ecdh,
-                                      OUT tt_u8_t *secret,
-                                      IN OUT tt_u32_t *len);
+extern tt_result_t tt_ecdsa_verify(IN tt_ecdsa_t *dsa,
+                                   IN tt_u8_t *input,
+                                   IN tt_u32_t len,
+                                   IN tt_md_type_t md_type,
+                                   IN tt_u8_t *sig,
+                                   IN tt_u32_t sig_len);
 
 #endif

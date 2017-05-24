@@ -47,13 +47,14 @@ extern tt_u8_t __ec_priv_der[];
 
 // === routine declarations ================
 TT_TEST_ROUTINE_DECLARE(tt_unit_test_crypto_ecdh)
+TT_TEST_ROUTINE_DECLARE(tt_unit_test_crypto_ecdsa)
 // =========================================
 
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(crypto_ecdh_case)
 
 TT_TEST_CASE("tt_unit_test_crypto_ecdh",
-             "crypto: ecdh load file",
+             "crypto: ecdh",
              tt_unit_test_crypto_ecdh,
              NULL,
              __ec_prepare,
@@ -62,10 +63,19 @@ TT_TEST_CASE("tt_unit_test_crypto_ecdh",
              NULL)
 ,
 
+    TT_TEST_CASE("tt_unit_test_crypto_ecdsa",
+                 "crypto: ecdsa",
+                 tt_unit_test_crypto_ecdsa,
+                 NULL,
+                 __ec_prepare,
+                 NULL,
+                 NULL,
+                 NULL),
+
     TT_TEST_CASE_LIST_DEFINE_END(crypto_ecdh_case)
     // =========================================
 
-    TT_TEST_UNIT_DEFINE(CRYPTO_UT_ECDH, 0, crypto_ecdh_case)
+    TT_TEST_UNIT_DEFINE(CRYPTO_UT_EC, 0, crypto_ecdh_case)
 
     ////////////////////////////////////////////////////////////
     // interface declaration
@@ -220,6 +230,88 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_crypto_ecdh)
 
     tt_pk_destroy(&pub);
     tt_pk_destroy(&priv);
+
+    // test end
+    TT_TEST_CASE_LEAVE()
+}
+
+TT_TEST_ROUTINE_DEFINE(tt_unit_test_crypto_ecdsa)
+{
+    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+    tt_pk_t priv, pub;
+    tt_result_t ret;
+    tt_ecdsa_t ecdsa, e2;
+    tt_u8_t buf[100], pub1[100], pub2[100], s1[100], s2[100];
+    tt_u32_t len, n1, n2, sn1, sn2;
+
+    TT_TEST_CASE_ENTER()
+    // test start
+
+    tt_pk_init(&pub);
+    tt_pk_init(&priv);
+
+    ret = tt_pk_load_public_file(&pub, __EC_PUB_PK8_FILE);
+    TT_UT_SUCCESS(ret, "");
+    TT_UT_EQUAL(tt_pk_get_type(&pub), TT_ECKEY, "");
+
+    ret =
+        tt_pk_load_private_file(&priv, __EC_PRIV_PK8_FILE, (tt_u8_t *)"123", 3);
+    TT_UT_SUCCESS(ret, "");
+    TT_UT_EQUAL(tt_pk_get_type(&priv), TT_ECKEY, "");
+
+    ret = tt_pk_check(&pub, &priv);
+    TT_UT_SUCCESS(ret, "");
+
+    // ecdsa
+    tt_ecdsa_init(&ecdsa);
+    tt_ecdsa_init(&e2);
+
+    ret = tt_ecdsa_load(&ecdsa, &priv);
+    TT_UT_SUCCESS(ret, "");
+    ret = tt_ecdsa_load(&e2, &pub);
+    TT_UT_SUCCESS(ret, "");
+
+    sn1 = sizeof(s1);
+    ret = tt_ecdsa_sign(&ecdsa, (tt_u8_t *)"", 0, TT_SHA224, s1, &sn1);
+    TT_UT_SUCCESS(ret, "");
+    tt_hex_dump(s1, sn1, 8);
+    ret = tt_ecdsa_verify(&e2, (tt_u8_t *)"", 0, TT_SHA224, s1, sn1);
+    TT_UT_SUCCESS(ret, "");
+
+    ret = tt_ecdsa_verify(&e2, (tt_u8_t *)"", 0, TT_SHA1, s1, sn1);
+    TT_UT_FAIL(ret, "");
+    ret = tt_ecdsa_verify(&e2, (tt_u8_t *)"", 0, TT_SHA224, s1, sn1 - 1);
+    TT_UT_FAIL(ret, "");
+    s1[sn1 - 1]++;
+    ret = tt_ecdsa_verify(&e2, (tt_u8_t *)"", 0, TT_SHA224, s1, sn1);
+    TT_UT_FAIL(ret, "");
+
+    tt_ecdsa_destroy(&ecdsa);
+    tt_ecdsa_destroy(&e2);
+
+    tt_pk_destroy(&pub);
+    tt_pk_destroy(&priv);
+
+    // generate ecdsa
+    ret = tt_ecdsa_generate(&ecdsa, TT_ECGRP_SECP256K1);
+    TT_UT_SUCCESS(ret, "");
+
+    sn1 = sizeof(s1);
+    ret = tt_ecdsa_sign(&ecdsa, (tt_u8_t *)"123", 3, TT_SHA512, s1, &sn1);
+    TT_UT_SUCCESS(ret, "");
+    tt_hex_dump(s1, sn1, 8);
+    ret = tt_ecdsa_verify(&ecdsa, (tt_u8_t *)"123", 3, TT_SHA512, s1, sn1);
+    TT_UT_SUCCESS(ret, "");
+
+    ret = tt_ecdsa_verify(&e2, (tt_u8_t *)"", 0, TT_SHA512, s1, sn1);
+    TT_UT_FAIL(ret, "");
+    ret = tt_ecdsa_verify(&e2, (tt_u8_t *)"", 0, TT_SHA1, s1, sn1 - 1);
+    TT_UT_FAIL(ret, "");
+    s1[sn1 - 1]++;
+    ret = tt_ecdsa_verify(&e2, (tt_u8_t *)"", 0, TT_SHA512, s1, sn1);
+    TT_UT_FAIL(ret, "");
+
+    tt_ecdsa_destroy(&ecdsa);
 
     // test end
     TT_TEST_CASE_LEAVE()

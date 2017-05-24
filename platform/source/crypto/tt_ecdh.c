@@ -41,21 +41,6 @@
 // global variant
 ////////////////////////////////////////////////////////////
 
-static mbedtls_ecp_group_id __ecgrp_map[TT_ECGRP_NUM] = {
-    MBEDTLS_ECP_DP_SECP192R1,
-    MBEDTLS_ECP_DP_SECP224R1,
-    MBEDTLS_ECP_DP_SECP256R1,
-    MBEDTLS_ECP_DP_SECP384R1,
-    MBEDTLS_ECP_DP_SECP521R1,
-    MBEDTLS_ECP_DP_BP256R1,
-    MBEDTLS_ECP_DP_BP384R1,
-    MBEDTLS_ECP_DP_BP512R1,
-    MBEDTLS_ECP_DP_CURVE25519,
-    MBEDTLS_ECP_DP_SECP192K1,
-    MBEDTLS_ECP_DP_SECP224K1,
-    MBEDTLS_ECP_DP_SECP256K1,
-};
-
 ////////////////////////////////////////////////////////////
 // interface declaration
 ////////////////////////////////////////////////////////////
@@ -80,8 +65,8 @@ extern void tt_ecdh_destroy(IN tt_ecdh_t *ecdh)
 
 tt_result_t tt_ecdh_load(IN tt_ecdh_t *ecdh, IN tt_pk_t *pk)
 {
-    mbedtls_ecp_keypair *ec;
     mbedtls_ecdh_context *ctx;
+    mbedtls_ecp_keypair *ec;
     int e;
 
     TT_ASSERT(ecdh != NULL);
@@ -92,8 +77,8 @@ tt_result_t tt_ecdh_load(IN tt_ecdh_t *ecdh, IN tt_pk_t *pk)
         return TT_FAIL;
     }
 
-    ec = mbedtls_pk_ec(pk->ctx);
     ctx = &ecdh->ctx;
+    ec = mbedtls_pk_ec(pk->ctx);
 
     if (((e = mbedtls_ecp_group_copy(&ctx->grp, &ec->grp)) != 0) ||
         ((e = mbedtls_mpi_copy(&ctx->d, &ec->d)) != 0) ||
@@ -116,7 +101,7 @@ tt_result_t tt_ecdh_generate(IN tt_ecdh_t *ecdh, IN tt_ecgrp_t g)
 
     ctx = &ecdh->ctx;
 
-    e = mbedtls_ecp_group_load(&ctx->grp, __ecgrp_map[g]);
+    e = mbedtls_ecp_group_load(&ctx->grp, tt_g_ecgrp_map[g]);
     if (e != 0) {
         tt_crypto_error("fail to load ec group[%d]", g);
         mbedtls_ecdh_free(ctx);
