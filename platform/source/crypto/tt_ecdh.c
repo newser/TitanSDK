@@ -134,14 +134,16 @@ tt_result_t tt_ecdh_get_pub(IN tt_ecdh_t *ecdh,
 
     ctx = &ecdh->ctx;
 
-    e = mbedtls_ecp_point_write_binary(&ctx->grp,
-                                       TT_COND(local, &ctx->Q, &ctx->Qp),
-                                       TT_COND(compress,
-                                               MBEDTLS_ECP_PF_COMPRESSED,
-                                               MBEDTLS_ECP_PF_UNCOMPRESSED),
-                                       &olen,
-                                       pub,
-                                       len);
+    olen =
+
+        e = mbedtls_ecp_point_write_binary(&ctx->grp,
+                                           TT_COND(local, &ctx->Q, &ctx->Qp),
+                                           TT_COND(compress,
+                                                   MBEDTLS_ECP_PF_COMPRESSED,
+                                                   MBEDTLS_ECP_PF_UNCOMPRESSED),
+                                           &olen,
+                                           pub,
+                                           len);
     if (e != 0) {
         tt_crypto_error("fail to get ec pub");
         return TT_FAIL;

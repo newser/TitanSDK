@@ -74,6 +74,7 @@ extern "C" {
 #include <config/tt_platform_optimized_config.h>
 #include <crypto/tt_cipher.h>
 #include <crypto/tt_crypto.h>
+#include <crypto/tt_dh.h>
 #include <crypto/tt_ecdh.h>
 #include <crypto/tt_ecdsa.h>
 #include <crypto/tt_hmac.h>
