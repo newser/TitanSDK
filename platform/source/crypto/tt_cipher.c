@@ -21,6 +21,7 @@
 #include <crypto/tt_cipher.h>
 
 #include <algorithm/tt_buffer.h>
+#include <crypto/tt_crypto.h>
 
 #include <tt_cstd_api.h>
 
@@ -111,8 +112,6 @@ static mbedtls_cipher_padding_t ___cipher_padding_map[TT_PADDING_NUM] = {
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-static const tt_char_t *__cipher_error(int e);
-
 ////////////////////////////////////////////////////////////
 // interface implementation
 ////////////////////////////////////////////////////////////
@@ -132,7 +131,7 @@ tt_result_t tt_cipher_setup(IN tt_cipher_t *cipher,
                              mbedtls_cipher_info_from_type(
                                  ___cipher_type_map[type]));
     if (e != 0) {
-        TT_ERROR("fail to setup cipher: %s", __cipher_error(e));
+        tt_crypto_error("fail to setup cipher");
         return TT_FAIL;
     }
 
@@ -141,7 +140,7 @@ tt_result_t tt_cipher_setup(IN tt_cipher_t *cipher,
                               len << 3,
                               encrypt ? MBEDTLS_ENCRYPT : MBEDTLS_DECRYPT);
     if (e != 0) {
-        TT_ERROR("fail to set cipher key: %s", __cipher_error(e));
+        tt_crypto_error("fail to set cipher key");
         return TT_FAIL;
     }
 
@@ -156,7 +155,7 @@ tt_result_t tt_cipher_set_iv(IN tt_cipher_t *cipher,
 
     e = mbedtls_cipher_set_iv(&cipher->ctx, iv, len);
     if (e != 0) {
-        TT_ERROR("fail to set iv: %s", __cipher_error(e));
+        tt_crypto_error("fail to set iv");
         return TT_FAIL;
     }
 
@@ -171,7 +170,7 @@ tt_result_t tt_cipher_set_pad(IN tt_cipher_t *cipher,
     e = mbedtls_cipher_set_padding_mode(&cipher->ctx,
                                         ___cipher_padding_map[padding]);
     if (e != 0) {
-        TT_ERROR("fail to set padding: %s", __cipher_error(e));
+        tt_crypto_error("fail to set padding");
         return TT_FAIL;
     }
 
@@ -186,7 +185,7 @@ tt_result_t tt_cipher_set_aad(IN tt_cipher_t *cipher,
 
     e = mbedtls_cipher_update_ad(&cipher->ctx, aad, len);
     if (e != 0) {
-        TT_ERROR("fail to set additional data: %s", __cipher_error(e));
+        tt_crypto_error("fail to set additional data");
         return TT_FAIL;
     }
 
@@ -204,7 +203,7 @@ tt_result_t tt_cipher_update(IN tt_cipher_t *cipher,
 
     e = mbedtls_cipher_update(&cipher->ctx, input, i_n, output, &o_n);
     if (e != 0) {
-        TT_ERROR("fail to update cipher: %s", __cipher_error(e));
+        tt_crypto_error("fail to update cipher");
         return TT_FAIL;
     }
     *olen = (tt_u32_t)o_n;
@@ -221,7 +220,7 @@ tt_result_t tt_cipher_finish(IN tt_cipher_t *cipher,
 
     e = mbedtls_cipher_finish(&cipher->ctx, output, &o_n);
     if (e != 0) {
-        TT_ERROR("fail to finish cipher: %s", __cipher_error(e));
+        tt_crypto_error("fail to finish cipher");
         return TT_FAIL;
     }
     *olen = (tt_u32_t)o_n;
@@ -237,7 +236,7 @@ tt_result_t tt_cipher_tag(IN tt_cipher_t *cipher,
 
     e = mbedtls_cipher_write_tag(&cipher->ctx, tag, len);
     if (e != 0) {
-        TT_ERROR("fail to tag cipher: %s", __cipher_error(e));
+        tt_crypto_error("fail to tag cipher");
         return TT_FAIL;
     }
 
@@ -252,7 +251,7 @@ tt_result_t tt_cipher_auth(IN tt_cipher_t *cipher,
 
     e = mbedtls_cipher_check_tag(&cipher->ctx, tag, len);
     if (e != 0) {
-        TT_ERROR("fail to auth cipher: %s", __cipher_error(e));
+        tt_crypto_error("fail to auth cipher");
         return TT_FAIL;
     }
 
@@ -279,7 +278,7 @@ tt_result_t tt_cipher_update_buf(IN tt_cipher_t *cipher,
     olen = TT_BUF_WLEN(obuf);
     e = mbedtls_cipher_update(&cipher->ctx, input, ilen, output, &olen);
     if (e != 0) {
-        TT_ERROR("fail to update cipher: %s", __cipher_error(e));
+        tt_crypto_error("fail to update cipher");
         return TT_FAIL;
     }
     tt_buf_inc_wp(obuf, (tt_u32_t)olen);
@@ -303,7 +302,7 @@ tt_result_t tt_cipher_finish_buf(IN tt_cipher_t *cipher, IN tt_buf_t *obuf)
     olen = TT_BUF_WLEN(obuf);
     e = mbedtls_cipher_finish(&cipher->ctx, output, &olen);
     if (e != 0) {
-        TT_ERROR("fail to finish cipher: %s", __cipher_error(e));
+        tt_crypto_error("fail to finish cipher");
         return TT_FAIL;
     }
     tt_buf_inc_wp(obuf, (tt_u32_t)olen);
@@ -338,7 +337,7 @@ tt_result_t tt_cipher_encrypt_tag(IN tt_cipher_t *cipher,
                                     tag,
                                     tag_len);
     if (e != 0) {
-        TT_ERROR("fail to encrypt tag: %s", __cipher_error(e));
+        tt_crypto_error("fail to encrypt tag");
         return TT_FAIL;
     }
     *olen = (tt_u32_t)o_n;
@@ -373,7 +372,7 @@ tt_result_t tt_cipher_decrypt_auth(IN tt_cipher_t *cipher,
                                     tag,
                                     tag_len);
     if (e != 0) {
-        TT_ERROR("fail to decrypt auth: %s", __cipher_error(e));
+        tt_crypto_error("fail to decrypt auth");
         return TT_FAIL;
     }
     *olen = (tt_u32_t)o_n;
@@ -417,7 +416,7 @@ tt_result_t tt_cipher_encrypt_tag_buf(IN tt_cipher_t *cipher,
                                     tag,
                                     tag_len);
     if (e != 0) {
-        TT_ERROR("fail to encrypt tag: %s", __cipher_error(e));
+        tt_crypto_error("fail to encrypt tag");
         return TT_FAIL;
     }
     tt_buf_inc_wp(obuf, (tt_u32_t)olen);
@@ -459,35 +458,10 @@ tt_result_t tt_cipher_decrypt_auth_buf(IN tt_cipher_t *cipher,
                                     tag,
                                     tag_len);
     if (e != 0) {
-        TT_ERROR("fail to decrypt auth: %s", __cipher_error(e));
+        tt_crypto_error("fail to decrypt auth");
         return TT_FAIL;
     }
     tt_buf_inc_wp(obuf, (tt_u32_t)olen);
 
     return TT_SUCCESS;
-}
-
-const tt_char_t *__cipher_error(int e)
-{
-    switch (e) {
-        case MBEDTLS_ERR_CIPHER_FEATURE_UNAVAILABLE:
-            return "The selected feature is not available";
-        case MBEDTLS_ERR_CIPHER_BAD_INPUT_DATA:
-        case MBEDTLS_ERR_CCM_BAD_INPUT:
-            return "Bad input parameters to function";
-        case MBEDTLS_ERR_CIPHER_ALLOC_FAILED:
-            return "Failed to allocate memory";
-        case MBEDTLS_ERR_CIPHER_INVALID_PADDING:
-            return "Input data contains invalid padding and is rejected";
-        case MBEDTLS_ERR_CIPHER_FULL_BLOCK_EXPECTED:
-            return "Decryption of block requires a full block";
-        case MBEDTLS_ERR_CIPHER_AUTH_FAILED:
-        case MBEDTLS_ERR_CCM_AUTH_FAILED:
-            return "Authentication failed (for AEAD modes)";
-        case MBEDTLS_ERR_CIPHER_INVALID_CONTEXT:
-            return "The context is invalid, eg because it was free()ed";
-
-        default:
-            return "Unknown error";
-    }
 }

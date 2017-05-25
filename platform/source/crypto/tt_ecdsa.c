@@ -101,7 +101,7 @@ tt_result_t tt_ecdsa_generate(IN tt_ecdsa_t *dsa, IN tt_ecgrp_t g)
 
     ctx = &dsa->ctx;
 
-    e = mbedtls_ecdsa_genkey(ctx, tt_g_ecgrp_map[g], tt_pk_rng, NULL);
+    e = mbedtls_ecdsa_genkey(ctx, tt_g_ecgrp_map[g], tt_crypto_rng, NULL);
     if (e != 0) {
         tt_crypto_error("fail to generate ecdsa");
         return TT_FAIL;
@@ -114,29 +114,30 @@ tt_result_t tt_ecdsa_sign(IN tt_ecdsa_t *dsa,
                           IN tt_u8_t *input,
                           IN tt_u32_t len,
                           IN tt_md_type_t md_type,
+                          IN tt_md_type_t sig_md,
                           OUT tt_u8_t *sig,
                           IN OUT tt_u32_t *sig_len)
 {
     mbedtls_ecdsa_context *ctx = &dsa->ctx;
     mbedtls_md_type_t t;
-    const mbedtls_md_info_t *md_info;
+    const mbedtls_md_info_t *md_type_info;
     tt_u8_t hash[MBEDTLS_MD_MAX_SIZE];
     tt_u32_t hashlen;
     size_t slen = *sig_len;
     int e;
 
     t = tt_g_md_type_map[md_type];
-    md_info = mbedtls_md_info_from_type(t);
-    mbedtls_md(md_info, input, len, hash);
-    hashlen = mbedtls_md_get_size(md_info);
+    md_type_info = mbedtls_md_info_from_type(t);
+    mbedtls_md(md_type_info, input, len, hash);
+    hashlen = mbedtls_md_get_size(md_type_info);
 
     e = mbedtls_ecdsa_write_signature(ctx,
-                                      tt_g_md_type_map[md_type],
+                                      tt_g_md_type_map[sig_md],
                                       hash,
                                       hashlen,
                                       sig,
                                       &slen,
-                                      tt_pk_rng,
+                                      tt_crypto_rng,
                                       NULL);
     if (e != 0) {
         tt_crypto_error("ecdsa sign failed");
@@ -156,15 +157,15 @@ tt_result_t tt_ecdsa_verify(IN tt_ecdsa_t *dsa,
 {
     mbedtls_ecdsa_context *ctx = &dsa->ctx;
     mbedtls_md_type_t t;
-    const mbedtls_md_info_t *md_info;
+    const mbedtls_md_info_t *md_type_info;
     tt_u8_t hash[MBEDTLS_MD_MAX_SIZE];
     tt_u32_t hashlen;
     int e;
 
     t = tt_g_md_type_map[md_type];
-    md_info = mbedtls_md_info_from_type(t);
-    mbedtls_md(md_info, input, len, hash);
-    hashlen = mbedtls_md_get_size(md_info);
+    md_type_info = mbedtls_md_info_from_type(t);
+    mbedtls_md(md_type_info, input, len, hash);
+    hashlen = mbedtls_md_get_size(md_type_info);
 
     e = mbedtls_ecdsa_read_signature(ctx, hash, hashlen, sig, sig_len);
     if (e != 0) {

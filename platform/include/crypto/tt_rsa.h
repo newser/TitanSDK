@@ -70,6 +70,8 @@ extern tt_result_t tt_rsa_topub(IN tt_rsa_t *rsa, OUT tt_rsa_t *pub);
 extern tt_result_t tt_rsa_check(IN tt_rsa_t *pub, IN tt_rsa_t *priv);
 
 // pkcs1 v1.5
+
+// length of output should be rsa block size
 extern tt_result_t tt_rsa_encrypt_pkcs1(IN tt_rsa_t *rsa,
                                         IN tt_u8_t *input,
                                         IN tt_u32_t ilen,
@@ -80,6 +82,7 @@ extern tt_result_t tt_rsa_decrypt_pkcs1(IN tt_rsa_t *rsa,
                                         IN tt_u8_t *output,
                                         IN OUT tt_u32_t *olen);
 
+// length of signature buf should be rsa block size
 extern tt_result_t tt_rsa_sign_pkcs1(IN tt_rsa_t *rsa,
                                      IN tt_u8_t *input,
                                      IN tt_u32_t ilen,
@@ -93,6 +96,8 @@ extern tt_result_t tt_rsa_verify_pkcs1(IN tt_rsa_t *rsa,
                                        IN tt_u8_t *sig);
 
 // pkcs1 v2.1
+
+// length of output should be rsa block size
 extern tt_result_t tt_rsa_encrypt_oaep(IN tt_rsa_t *rsa,
                                        IN tt_u8_t *input,
                                        IN tt_u32_t ilen,
@@ -109,6 +114,7 @@ extern tt_result_t tt_rsa_decrypt_oaep(IN tt_rsa_t *rsa,
                                        IN tt_u8_t *output,
                                        IN tt_u32_t *olen);
 
+// length of signature buf should be rsa block size
 extern tt_result_t tt_rsa_sign_pss(IN tt_rsa_t *rsa,
                                    IN tt_u8_t *input,
                                    IN tt_u32_t ilen,

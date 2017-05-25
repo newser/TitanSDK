@@ -64,10 +64,12 @@ extern tt_result_t tt_ecdsa_load(IN tt_ecdsa_t *dsa, IN struct tt_pk_s *pk);
 
 extern tt_result_t tt_ecdsa_generate(IN tt_ecdsa_t *dsa, IN tt_ecgrp_t g);
 
+// sig_len should be at least (2*group size+9)
 extern tt_result_t tt_ecdsa_sign(IN tt_ecdsa_t *dsa,
                                  IN tt_u8_t *input,
                                  IN tt_u32_t len,
                                  IN tt_md_type_t md_type,
+                                 IN tt_md_type_t sign_md,
                                  OUT tt_u8_t *sig,
                                  IN OUT tt_u32_t *sig_len);
 

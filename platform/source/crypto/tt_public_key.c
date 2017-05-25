@@ -25,7 +25,6 @@
 #include <crypto/tt_crypto.h>
 #include <io/tt_file_system.h>
 #include <misc/tt_assert.h>
-#include <os/tt_thread.h>
 
 #include <pem.h>
 
@@ -194,21 +193,4 @@ tt_pk_type_t tt_pk_get_type(IN tt_pk_t *pk)
         }
     }
     return i;
-}
-
-int tt_pk_rng(IN void *param, unsigned char *buf, size_t len)
-{
-    tt_u32_t n;
-
-    n = 0;
-    while ((n + sizeof(tt_u64_t)) <= len) {
-        *TT_PTR_INC(tt_u64_t, buf, n) = tt_rand_u64();
-        n += sizeof(tt_u64_t);
-    }
-    while (n < len) {
-        buf[n] = (tt_u8_t)tt_rand_u32();
-        n += sizeof(tt_u8_t);
-    }
-
-    return 0;
 }

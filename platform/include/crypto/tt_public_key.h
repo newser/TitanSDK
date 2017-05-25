@@ -87,6 +87,4 @@ extern tt_result_t tt_pk_check(IN tt_pk_t *pub, IN tt_pk_t *priv);
 
 extern tt_pk_type_t tt_pk_get_type(IN tt_pk_t *pk);
 
-extern int tt_pk_rng(IN void *param, IN unsigned char *buf, IN size_t len);
-
 #endif

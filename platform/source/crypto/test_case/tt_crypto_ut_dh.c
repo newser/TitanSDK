@@ -91,33 +91,35 @@ TT_TEST_CASE("tt_unit_test_dh",
     tt_u8_t pub[128], pub2[128], s[128], s2[128];
     tt_result_t ret;
     tt_u32_t n1, n2, sn, sn2;
-    
+
     TT_TEST_CASE_ENTER()
     // test start
 
     tt_dh_init(&dh);
     tt_dh_init(&d2);
+    TT_UT_EQUAL(tt_dh_size(&dh), 0, "");
 
     ret = tt_dh_load_param_file(&dh, __DH_PARAM_FILE);
     TT_UT_SUCCESS(ret, "");
+    TT_UT_EQUAL(tt_dh_size(&dh), 128, "");
     ret = tt_dh_load_param_file(&d2, __DH_PARAM_FILE);
     TT_UT_SUCCESS(ret, "");
-    
+    TT_UT_EQUAL(tt_dh_size(&d2), 128, "");
+
     // pub1
     n1 = sizeof(pub);
     ret = tt_dh_generate_pub(&dh, 128, pub, n1);
     TT_UT_SUCCESS(ret, "");
-    
-    n2 = sizeof(pub2);
-    ret = tt_dh_get_pub(&dh, TT_TRUE, pub2, &n2);
+
+    n2 = tt_dh_size(&dh);
+    TT_UT_EXP(sizeof(pub2) >= tt_dh_size(&dh), "");
+    ret = tt_dh_get_pub(&dh, TT_TRUE, pub2, n2);
     TT_UT_SUCCESS(ret, "");
     TT_UT_EQUAL(n1, n2, "");
     TT_UT_EQUAL(tt_memcmp(pub, pub2, n1), 0, "");
-    
-    n2 = sizeof(pub2);
-    ret = tt_dh_get_pub(&dh, TT_FALSE, pub2, &n2);
+
+    ret = tt_dh_get_pub(&dh, TT_FALSE, pub2, tt_dh_size(&dh));
     TT_UT_SUCCESS(ret, "");
-    TT_UT_EQUAL(n2, 0, "");
 
     // pub2
     n2 = sizeof(pub2);
@@ -129,7 +131,7 @@ TT_TEST_CASE("tt_unit_test_dh",
     TT_UT_SUCCESS(ret, "");
     ret = tt_dh_set_pub(&d2, pub, n1);
     TT_UT_SUCCESS(ret, "");
-    
+
     // derive
     sn = sizeof(s);
     ret = tt_dh_derive(&dh, s, &sn);
@@ -141,10 +143,10 @@ TT_TEST_CASE("tt_unit_test_dh",
 
     TT_UT_EQUAL(sn, sn2, "");
     TT_UT_EQUAL(tt_memcmp(s, s2, sn), 0, "");
-    
+
     // get secret
-    sn2 = sizeof(s2);
-    ret = tt_dh_get_secret(&dh, s2, &sn2);
+    TT_UT_EXP(sizeof(s2) >= tt_dh_size(&dh), "");
+    ret = tt_dh_get_secret(&dh, s2, tt_dh_size(&dh));
     TT_UT_SUCCESS(ret, "");
     TT_UT_EQUAL(sn, sn2, "");
     TT_UT_EQUAL(tt_memcmp(s, s2, sn), 0, "");

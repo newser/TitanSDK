@@ -177,7 +177,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_crypto_ecdh)
     ret = tt_ecdh_derive(&ecdh);
     TT_UT_SUCCESS(ret, "");
     sn1 = sizeof(s1);
-    ret = tt_ecdh_get_secret(&ecdh, s1, &sn1);
+    ret = tt_ecdh_get_secret(&ecdh, s1, 32);
     TT_UT_SUCCESS(ret, "");
 
     ret = tt_ecdh_set_pub(&e2, TT_FALSE, pub1, n1);
@@ -185,13 +185,12 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_crypto_ecdh)
     ret = tt_ecdh_derive(&e2);
     TT_UT_SUCCESS(ret, "");
     sn2 = sizeof(s2);
-    ret = tt_ecdh_get_secret(&e2, s2, &sn2);
+    ret = tt_ecdh_get_secret(&e2, s2, 32);
     TT_UT_SUCCESS(ret, "");
 
     // compare shared secret
-    TT_UT_EQUAL(sn1, sn2, "");
-    TT_UT_EQUAL(tt_memcmp(s1, s2, sn1), 0, "");
-    tt_hex_dump(s1, sn1, 8);
+    TT_UT_EQUAL(tt_memcmp(s1, s2, 32), 0, "");
+    tt_hex_dump(s1, 32, 8);
 
     {
         tt_u8_t ex1[100], ex2[100];
@@ -215,14 +214,13 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_crypto_ecdh)
         TT_UT_SUCCESS(ret, "");
 
         n1 = sizeof(ex1);
-        ret = tt_ecdh_get_secret(&ecdh, ex1, &n1);
+        ret = tt_ecdh_get_secret(&ecdh, ex1, 32);
         TT_UT_SUCCESS(ret, "");
         n2 = sizeof(ex2);
-        ret = tt_ecdh_get_secret(&ecdh, ex2, &n2);
+        ret = tt_ecdh_get_secret(&ecdh, ex2, 32);
         TT_UT_SUCCESS(ret, "");
 
-        TT_UT_EQUAL(n1, n2, "");
-        TT_UT_EQUAL(tt_memcmp(ex1, ex2, n1), 0, "");
+        TT_UT_EQUAL(tt_memcmp(ex1, ex2, 32), 0, "");
     }
 
     tt_ecdh_destroy(&ecdh);
@@ -272,7 +270,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_crypto_ecdsa)
     TT_UT_SUCCESS(ret, "");
 
     sn1 = sizeof(s1);
-    ret = tt_ecdsa_sign(&ecdsa, (tt_u8_t *)"", 0, TT_SHA224, s1, &sn1);
+    ret = tt_ecdsa_sign(&ecdsa, (tt_u8_t *)"", 0, TT_SHA224, TT_SHA1, s1, &sn1);
     TT_UT_SUCCESS(ret, "");
     tt_hex_dump(s1, sn1, 8);
     ret = tt_ecdsa_verify(&e2, (tt_u8_t *)"", 0, TT_SHA224, s1, sn1);
@@ -297,7 +295,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_crypto_ecdsa)
     TT_UT_SUCCESS(ret, "");
 
     sn1 = sizeof(s1);
-    ret = tt_ecdsa_sign(&ecdsa, (tt_u8_t *)"123", 3, TT_SHA512, s1, &sn1);
+    ret = tt_ecdsa_sign(&ecdsa, (tt_u8_t *)"123", 3, TT_SHA512, TT_MD5, s1, &sn1);
     TT_UT_SUCCESS(ret, "");
     tt_hex_dump(s1, sn1, 8);
     ret = tt_ecdsa_verify(&ecdsa, (tt_u8_t *)"123", 3, TT_SHA512, s1, sn1);

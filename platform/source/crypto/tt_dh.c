@@ -111,12 +111,16 @@ tt_result_t tt_dh_generate_pub(IN tt_dh_t *dh,
                                IN OUT tt_u32_t len)
 {
     int e;
-    size_t olen;
 
     TT_ASSERT(dh != NULL);
     TT_ASSERT(pub != NULL);
 
-    e = mbedtls_dhm_make_public(&dh->ctx, priv_size, pub, len, tt_pk_rng, NULL);
+    e = mbedtls_dhm_make_public(&dh->ctx,
+                                priv_size,
+                                pub,
+                                len,
+                                tt_crypto_rng,
+                                NULL);
     if (e != 0) {
         tt_crypto_error("fail to generate dh pub");
         return TT_FAIL;
@@ -128,30 +132,20 @@ tt_result_t tt_dh_generate_pub(IN tt_dh_t *dh,
 tt_result_t tt_dh_get_pub(IN tt_dh_t *dh,
                           IN tt_bool_t local,
                           OUT tt_u8_t *pub,
-                          IN OUT tt_u32_t *len)
+                          IN tt_u32_t len)
 {
-    mbedtls_mpi *p;
-    size_t olen;
     int e;
 
     TT_ASSERT(dh != NULL);
     TT_ASSERT(pub != NULL);
-    TT_ASSERT(len != NULL);
 
-    p = TT_COND(local, &dh->ctx.GX, &dh->ctx.GY);
-
-    olen = mbedtls_mpi_size(p);
-    if (*len < olen) {
-        TT_ERROR("not enough space for dh pub");
-        return TT_FAIL;
-    }
-
-    e = mbedtls_mpi_write_binary(p, pub, olen);
+    e = mbedtls_mpi_write_binary(TT_COND(local, &dh->ctx.GX, &dh->ctx.GY),
+                                 pub,
+                                 len);
     if (e != 0) {
         tt_crypto_error("fail to get dh pub");
         return TT_FAIL;
     }
-    *len = (tt_u32_t)olen;
 
     return TT_SUCCESS;
 }
@@ -172,27 +166,10 @@ tt_result_t tt_dh_set_pub(IN tt_dh_t *dh, IN tt_u8_t *pub, IN tt_u32_t len)
     return TT_SUCCESS;
 }
 
-tt_result_t tt_dh_derive(IN tt_dh_t *dh, OUT tt_u8_t *secret, IN tt_u32_t *len)
+tt_result_t tt_dh_derive(IN tt_dh_t *dh,
+                         OUT tt_u8_t *secret,
+                         IN OUT tt_u32_t *len)
 {
-    size_t olen;
-    int e;
-
-    TT_ASSERT(dh != NULL);
-
-    e = mbedtls_dhm_calc_secret(&dh->ctx, secret, *len, &olen, tt_pk_rng, NULL);
-    if (e != 0) {
-        tt_crypto_error("fail to drive dh secret");
-        return TT_FAIL;
-    }
-
-    return TT_SUCCESS;
-}
-
-tt_result_t tt_dh_get_secret(IN tt_dh_t *dh,
-                             OUT tt_u8_t *secret,
-                             IN OUT tt_u32_t *len)
-{
-    mbedtls_mpi *p;
     size_t olen;
     int e;
 
@@ -200,20 +177,35 @@ tt_result_t tt_dh_get_secret(IN tt_dh_t *dh,
     TT_ASSERT(secret != NULL);
     TT_ASSERT(len != NULL);
 
-    p = &dh->ctx.K;
-
-    olen = mbedtls_mpi_size(p);
-    if (*len < olen) {
-        TT_ERROR("not enough space for dh secret");
+    e = mbedtls_dhm_calc_secret(&dh->ctx,
+                                secret,
+                                len,
+                                &olen,
+                                tt_crypto_rng,
+                                NULL);
+    if (e != 0) {
+        tt_crypto_error("fail to drive dh secret");
         return TT_FAIL;
     }
+    *len = (tt_u32_t)olen;
 
-    e = mbedtls_mpi_write_binary(p, secret, olen);
+    return TT_SUCCESS;
+}
+
+tt_result_t tt_dh_get_secret(IN tt_dh_t *dh,
+                             OUT tt_u8_t *secret,
+                             IN tt_u32_t len)
+{
+    int e;
+
+    TT_ASSERT(dh != NULL);
+    TT_ASSERT(secret != NULL);
+
+    e = mbedtls_mpi_write_binary(&dh->ctx.K, secret, len);
     if (e != 0) {
         tt_crypto_error("fail to get dh secret");
         return TT_FAIL;
     }
-    *len = (tt_u32_t)olen;
 
     return TT_SUCCESS;
 }
