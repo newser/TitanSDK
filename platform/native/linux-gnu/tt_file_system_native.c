@@ -673,15 +673,15 @@ again:
         if (len < fread->buf_len) {
             goto again;
         }
-        *fread->read_len = (tt_u32_t)len;
+        TT_SAFE_ASSIGN(fread->read_len, (tt_u32_t)len);
         fread->result = TT_SUCCESS;
     } else if (n == 0) {
-        *fread->read_len = (tt_u32_t)len;
+        TT_SAFE_ASSIGN(fread->read_len, (tt_u32_t)len);
         fread->result =
             TT_COND(len > 0 || fread->buf_len == 0, TT_SUCCESS, TT_END);
     } else {
         TT_ERROR_NTV("read fail");
-        *fread->read_len = (tt_u32_t)len;
+        TT_SAFE_ASSIGN(fread->read_len, (tt_u32_t)len);
         fread->result = TT_COND(len > 0, TT_SUCCESS, TT_FAIL);
     }
 }
@@ -699,11 +699,11 @@ again:
         if (len < fwrite->buf_len) {
             goto again;
         }
-        *fwrite->write_len = (tt_u32_t)len;
+        TT_SAFE_ASSIGN(fwrite->write_len, (tt_u32_t)len);
         fwrite->result = TT_SUCCESS;
     } else {
         TT_ERROR_NTV("write fail");
-        *fwrite->write_len = (tt_u32_t)len;
+        TT_SAFE_ASSIGN(fwrite->write_len, (tt_u32_t)len);
         fwrite->result = TT_COND(len > 0, TT_SUCCESS, TT_FAIL);
     }
 }

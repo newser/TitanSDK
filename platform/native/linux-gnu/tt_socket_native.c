@@ -921,7 +921,7 @@ tt_bool_t __do_recv(IN tt_io_ev_t *io_ev)
 again:
     n = recv(skt_recv->skt->s, skt_recv->buf, skt_recv->len, 0);
     if (n > 0) {
-        *skt_recv->recvd = (tt_u32_t)n;
+        TT_SAFE_ASSIGN(skt_recv->recvd, (tt_u32_t)n);
         skt_recv->result = TT_SUCCESS;
         skt_recv->done = TT_TRUE;
         return TT_TRUE;
@@ -1009,7 +1009,7 @@ again:
                  (struct sockaddr *)skt_recvfrom->addr,
                  &addr_len);
     if (n > 0) {
-        *skt_recvfrom->recvd = (tt_u32_t)n;
+        TT_SAFE_ASSIGN(skt_recvfrom->recvd, (tt_u32_t)n);
         skt_recvfrom->result = TT_SUCCESS;
         skt_recvfrom->done = TT_TRUE;
         return TT_TRUE;

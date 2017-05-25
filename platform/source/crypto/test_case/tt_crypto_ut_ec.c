@@ -114,7 +114,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_crypto_ecdh)
     tt_result_t ret;
     tt_ecdh_t ecdh, e2;
     tt_u8_t buf[100], pub1[100], pub2[100], s1[100], s2[100];
-    tt_u32_t len, n1, n2, sn1, sn2;
+    tt_u32_t len, n1, n2;
 
     TT_TEST_CASE_ENTER()
     // test start
@@ -176,7 +176,6 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_crypto_ecdh)
     TT_UT_SUCCESS(ret, "");
     ret = tt_ecdh_derive(&ecdh);
     TT_UT_SUCCESS(ret, "");
-    sn1 = sizeof(s1);
     ret = tt_ecdh_get_secret(&ecdh, s1, 32);
     TT_UT_SUCCESS(ret, "");
 
@@ -184,7 +183,6 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_crypto_ecdh)
     TT_UT_SUCCESS(ret, "");
     ret = tt_ecdh_derive(&e2);
     TT_UT_SUCCESS(ret, "");
-    sn2 = sizeof(s2);
     ret = tt_ecdh_get_secret(&e2, s2, 32);
     TT_UT_SUCCESS(ret, "");
 

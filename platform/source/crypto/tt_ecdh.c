@@ -145,7 +145,7 @@ tt_result_t tt_ecdh_get_pub(IN tt_ecdh_t *ecdh,
                                                MBEDTLS_ECP_PF_UNCOMPRESSED),
                                        &olen,
                                        pub,
-                                       len);
+                                       (size_t)len);
     if (e != 0) {
         tt_crypto_error("fail to get ec pub");
         return TT_FAIL;

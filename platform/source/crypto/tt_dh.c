@@ -179,7 +179,7 @@ tt_result_t tt_dh_derive(IN tt_dh_t *dh,
 
     e = mbedtls_dhm_calc_secret(&dh->ctx,
                                 secret,
-                                len,
+                                (size_t)len,
                                 &olen,
                                 tt_crypto_rng,
                                 NULL);

@@ -368,7 +368,6 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cipher)
 
     for (i = 0; i < sizeof(__cipher_tv) / sizeof(__cipher_tv[0]); ++i) {
         __cipher_tv_t *tv = &__cipher_tv[i];
-        tt_u8_t *in;
         tt_u32_t ilen;
 
         tt_buf_clear(&kbuf);
@@ -376,7 +375,6 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cipher)
 
         tt_buf_clear(&ibuf);
         tt_buf_put_cstr2hex(&ibuf, tv->in);
-        in = TT_BUF_RPOS(&ibuf);
         ilen = TT_BUF_RLEN(&ibuf);
 
         tt_buf_clear(&obuf);
