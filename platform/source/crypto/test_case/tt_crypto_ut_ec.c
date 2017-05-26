@@ -237,8 +237,8 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_crypto_ecdsa)
     tt_pk_t priv, pub;
     tt_result_t ret;
     tt_ecdsa_t ecdsa, e2;
-    tt_u8_t buf[100], pub1[100], pub2[100], s1[100], s2[100];
-    tt_u32_t len, n1, n2, sn1, sn2;
+    tt_u8_t s1[100];
+    tt_u32_t sn1;
 
     TT_TEST_CASE_ENTER()
     // test start

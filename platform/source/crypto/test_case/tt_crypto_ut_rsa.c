@@ -222,7 +222,6 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_rsa_sign)
     tt_rsa_t rpub, rpriv;
     tt_result_t ret;
     tt_u8_t sig[256];
-    tt_u32_t len;
 
     TT_TEST_CASE_ENTER()
     // test start

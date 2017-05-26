@@ -312,7 +312,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_hmac)
             ret = tt_hmac_create(&hmac,
                                  t,
                                  (tt_u8_t *)tv->key,
-                                 tt_strlen(tv->key));
+                                 (tt_u32_t)tt_strlen(tv->key));
             TT_UT_SUCCESS(ret, "");
 
             pos = 0;
@@ -345,7 +345,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_hmac)
             tt_buf_reserve(&output, TT_BUF_RLEN(&expect));
             ret = tt_hmac(t,
                           (tt_u8_t *)tv->key,
-                          tt_strlen(tv->key),
+                          (tt_u32_t)tt_strlen(tv->key),
                           (tt_u8_t *)tv->in,
                           len,
                           TT_BUF_RPOS(&output));

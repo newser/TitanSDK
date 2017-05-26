@@ -19,38 +19,39 @@
 
 set(TLS_PATH ${CMAKE_CURRENT_SOURCE_DIR}/mbedtls)
 
-function(hide_var var value)
-  set(${var} ${value} PARENT_SCOPE)
-  mark_as_advanced(${var})
-endfunction(hide_var)
+macro(hide name type value)
+  set(${name} ${value} CACHE ${type} "hidden" FORCE)
+  mark_as_advanced(${name})
+endmacro(hide)
 
 #
 # customization
 #
 
 # no need pkcs11 heler lib
-hide_var(USE_PKCS11_HELPER_LIBRARY, OFF)
+hide(USE_PKCS11_HELPER_LIBRARY BOOL OFF)
 
 # may add compression support in future
-hide_var(ENABLE_ZLIB_SUPPORT OFF)
+hide(ENABLE_ZLIB_SUPPORT BOOL OFF)
 
 # no need programs
-hide_var(ENABLE_PROGRAMS OFF)
+#set(ENABLE_PROGRAMS OFF CACHE BOOL "" FORCE)
+hide(ENABLE_PROGRAMS BOOL OFF)
 
-hide_var(UNSAFE_BUILD OFF)
+hide(UNSAFE_BUILD BOOL OFF)
 
 # no need test cases
-hide_var(ENABLE_TESTING OFF)
+hide(ENABLE_TESTING BOOL OFF)
 
 # lib type depends on platform configuration
-hide_var(USE_STATIC_MBEDTLS_LIBRARY ON)
-hide_var(USE_SHARED_MBEDTLS_LIBRARY OFF)
+hide(USE_STATIC_MBEDTLS_LIBRARY BOOL ON)
+hide(USE_SHARED_MBEDTLS_LIBRARY BOOL OFF)
 
 # platform will decide how to link pthread
-hide_var(LINK_WITH_PTHREAD OFF)
+hide(LINK_WITH_PTHREAD BOOL OFF)
 
 # no need to install header files
-hide_var(INSTALL_MBEDTLS_HEADERS OFF)
+hide(INSTALL_MBEDTLS_HEADERS BOOL OFF)
 
 # customize configuration
 add_definitions(-DMBEDTLS_CONFIG_FILE="tt_mbedtls_config.h")

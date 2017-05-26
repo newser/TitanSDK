@@ -146,7 +146,7 @@ tt_u8_t *tt_fcontent(IN const tt_char_t *path, OUT OPT tt_u64_t *size)
     }
 
     if (!TT_OK(tt_fseek(&f, TT_FSEEK_BEGIN, 0, NULL)) ||
-        !TT_OK(tt_fread(&f, buf, len, NULL))) {
+        !TT_OK(tt_fread(&f, buf, (tt_u32_t)len, NULL))) {
         tt_free(buf);
         tt_fclose(&f);
         return NULL;
@@ -159,7 +159,6 @@ tt_u8_t *tt_fcontent(IN const tt_char_t *path, OUT OPT tt_u64_t *size)
 tt_result_t tt_fcontent_buf(IN const tt_char_t *path, OUT tt_buf_t *buf)
 {
     tt_file_t f;
-    tt_u8_t *p;
     tt_u64_t len;
 
     if (!TT_OK(tt_fopen(&f, path, TT_FO_READ, NULL))) {
@@ -171,16 +170,16 @@ tt_result_t tt_fcontent_buf(IN const tt_char_t *path, OUT tt_buf_t *buf)
         return TT_FAIL;
     }
 
-    if (!TT_OK(tt_buf_reserve(buf, len))) {
+    if (!TT_OK(tt_buf_reserve(buf, (tt_u32_t)len))) {
         return TT_FAIL;
     }
 
     if (!TT_OK(tt_fseek(&f, TT_FSEEK_BEGIN, 0, NULL)) ||
-        !TT_OK(tt_fread(&f, TT_BUF_WPOS(buf), len, NULL))) {
+        !TT_OK(tt_fread(&f, TT_BUF_WPOS(buf), (tt_u32_t)len, NULL))) {
         tt_fclose(&f);
         return TT_FAIL;
     }
-    tt_buf_inc_wp(buf, len);
+    tt_buf_inc_wp(buf, (tt_u32_t)len);
 
     return TT_SUCCESS;
 }
