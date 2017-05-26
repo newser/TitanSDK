@@ -21,6 +21,8 @@
 #include <os/tt_thread.h>
 
 #include <algorithm/tt_rng_xorshift.h>
+#include <crypto/tt_ctr_drbg.h>
+#include <crypto/tt_entropy.h>
 #include <init/tt_component.h>
 #include <init/tt_profile.h>
 #include <misc/tt_assert.h>
@@ -108,6 +110,8 @@ tt_thread_t *tt_thread_create(IN tt_thread_routine_t routine,
 
     thread->fiber_sched = NULL;
     thread->task = NULL;
+    thread->entropy = NULL;
+    thread->ctr_drbg = NULL;
 
     thread->last_error = TT_SUCCESS;
     thread->detached = detached;
@@ -173,6 +177,9 @@ tt_result_t tt_thread_create_local(IN OPT tt_thread_attr_t *attr)
     }
 
     thread->fiber_sched = NULL;
+    thread->task = NULL;
+    thread->entropy = NULL;
+    thread->ctr_drbg = NULL;
 
     thread->last_error = TT_SUCCESS;
     thread->detached = TT_FALSE;
@@ -255,6 +262,14 @@ void __thread_on_exit(IN tt_thread_t *thread)
 
     if (thread->fiber_sched != NULL) {
         tt_fiber_sched_destroy(thread->fiber_sched);
+    }
+
+    if (thread->ctr_drbg != NULL) {
+        tt_ctr_drbg_destroy(thread->ctr_drbg);
+    }
+
+    if (thread->entropy != NULL) {
+        tt_entropy_destroy(thread->entropy);
     }
 
     // for non-detached and non-local thread, the struct will

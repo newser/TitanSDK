@@ -10,7 +10,7 @@
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+ * See the License for the specific language governing entropyermissions and
  * limitations under the License.
  */
 
@@ -18,58 +18,28 @@
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <unit_test/tt_unit_test.h>
+#include <crypto/tt_entropy.h>
+
+#include <crypto/tt_crypto.h>
+#include <memory/tt_memory_alloc.h>
+#include <misc/tt_assert.h>
+#include <os/tt_thread.h>
 
 ////////////////////////////////////////////////////////////
 // internal macro
 ////////////////////////////////////////////////////////////
 
-#define TT_CRYPTO_UT_DECLARE(name)                                             \
-    extern tt_test_unit_t TT_MAKE_TEST_UNIT_NAME(name);
-
 ////////////////////////////////////////////////////////////
 // internal type
 ////////////////////////////////////////////////////////////
-
-typedef enum {
-    CRYPTO_UT_BEGIN = 0,
-
-    CRYPTO_UT_RSA = CRYPTO_UT_BEGIN,
-    CRYPTO_UT_HMAC,
-    CRYPTO_UT_DH,
-    CRYPTO_UT_MD,
-    CRYPTO_UT_CIPHER,
-    CRYPTO_UT_EC,
-    CRYPTO_UT_RAND,
-
-    CRYPTO_UT_NUM // number of test units
-} tt_crypto_ut_id_t;
 
 ////////////////////////////////////////////////////////////
 // extern declaration
 ////////////////////////////////////////////////////////////
 
-TT_CRYPTO_UT_DECLARE(CRYPTO_UT_RSA)
-TT_CRYPTO_UT_DECLARE(CRYPTO_UT_MD)
-TT_CRYPTO_UT_DECLARE(CRYPTO_UT_CIPHER)
-TT_CRYPTO_UT_DECLARE(CRYPTO_UT_EC)
-TT_CRYPTO_UT_DECLARE(CRYPTO_UT_DH)
-TT_CRYPTO_UT_DECLARE(CRYPTO_UT_RAND)
-
 ////////////////////////////////////////////////////////////
 // global variant
 ////////////////////////////////////////////////////////////
-
-tt_test_unit_t *tt_g_crypto_ut_list[CRYPTO_UT_NUM] = {
-#if 0
-    &TT_MAKE_TEST_UNIT_NAME(CRYPTO_UT_CIPHER),
-    &TT_MAKE_TEST_UNIT_NAME(CRYPTO_UT_MD),
-    &TT_MAKE_TEST_UNIT_NAME(CRYPTO_UT_EC),
-    &TT_MAKE_TEST_UNIT_NAME(CRYPTO_UT_RSA),
-    &TT_MAKE_TEST_UNIT_NAME(CRYPTO_UT_DH),
-#endif
-    &TT_MAKE_TEST_UNIT_NAME(CRYPTO_UT_RAND),
-};
 
 ////////////////////////////////////////////////////////////
 // interface declaration
@@ -79,22 +49,43 @@ tt_test_unit_t *tt_g_crypto_ut_list[CRYPTO_UT_NUM] = {
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-tt_result_t tt_crypto_ut_init(IN tt_ptr_t reserved)
+tt_entropy_t *tt_entropy_create()
 {
-    tt_crypto_ut_id_t unit_id = CRYPTO_UT_BEGIN;
-    while (unit_id < CRYPTO_UT_NUM) {
-        tt_result_t result = TT_FAIL;
+    tt_entropy_t *entropy;
+    int e;
 
-        if (tt_g_crypto_ut_list[unit_id] != NULL) {
-            result = tt_test_unit_to_class(tt_g_crypto_ut_list[unit_id]);
-            if (!TT_OK(result)) {
-                return TT_FAIL;
-            }
-        }
-
-        // next
-        ++unit_id;
+    entropy = tt_malloc(sizeof(tt_entropy_t));
+    if (entropy == NULL) {
+        TT_ERROR("no mem for entropy");
+        return NULL;
     }
 
-    return TT_SUCCESS;
+    mbedtls_entropy_init(&entropy->ctx);
+
+    e = mbedtls_entropy_gather(&entropy->ctx);
+    if (e != 0) {
+        tt_crypto_error("fail to gather entropy");
+        tt_free(entropy);
+        return NULL;
+    }
+
+    return entropy;
+}
+
+void tt_entropy_destroy(IN tt_entropy_t *entropy)
+{
+    TT_ASSERT(entropy != NULL);
+
+    mbedtls_entropy_free(&entropy->ctx);
+
+    tt_free(entropy);
+}
+
+tt_entropy_t *tt_current_entropy()
+{
+    tt_thread_t *t = tt_current_thread();
+    if (t->entropy == NULL) {
+        t->entropy = tt_entropy_create();
+    }
+    return t->entropy;
 }
