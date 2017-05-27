@@ -125,3 +125,8 @@ tt_result_t tt_ctr_drbg_rand(IN tt_ctr_drbg_t *drbg,
 
     return TT_SUCCESS;
 }
+
+int tt_ctr_drbg(IN void *param, IN unsigned char *buf, IN size_t len)
+{
+    return mbedtls_ctr_drbg_random(&((tt_ctr_drbg_t *)param)->ctx, buf, len);
+}

@@ -293,7 +293,8 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_crypto_ecdsa)
     TT_UT_SUCCESS(ret, "");
 
     sn1 = sizeof(s1);
-    ret = tt_ecdsa_sign(&ecdsa, (tt_u8_t *)"123", 3, TT_SHA512, TT_MD5, s1, &sn1);
+    ret =
+        tt_ecdsa_sign(&ecdsa, (tt_u8_t *)"123", 3, TT_SHA512, TT_MD5, s1, &sn1);
     TT_UT_SUCCESS(ret, "");
     tt_hex_dump(s1, sn1, 8);
     ret = tt_ecdsa_verify(&ecdsa, (tt_u8_t *)"123", 3, TT_SHA512, s1, sn1);

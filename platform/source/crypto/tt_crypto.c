@@ -22,7 +22,6 @@
 
 #include <init/tt_component.h>
 #include <init/tt_profile.h>
-#include <os/tt_thread.h>
 
 ////////////////////////////////////////////////////////////
 // internal macro
@@ -70,21 +69,4 @@ tt_result_t __crypto_component_init(IN tt_component_t *comp,
                                     IN tt_profile_t *profile)
 {
     return TT_SUCCESS;
-}
-
-int tt_crypto_rng(IN void *param, IN unsigned char *buf, IN size_t len)
-{
-    tt_u32_t n;
-
-    n = 0;
-    while ((n + sizeof(tt_u64_t)) <= len) {
-        *TT_PTR_INC(tt_u64_t, buf, n) = tt_rand_u64();
-        n += sizeof(tt_u64_t);
-    }
-    while (n < len) {
-        buf[n] = (tt_u8_t)tt_rand_u32();
-        n += sizeof(tt_u8_t);
-    }
-
-    return 0;
 }

@@ -67,4 +67,6 @@ extern tt_result_t tt_ctr_drbg_rand(IN tt_ctr_drbg_t *drbg,
                                     OUT tt_u8_t *buf,
                                     IN tt_u32_t len);
 
+extern int tt_ctr_drbg(IN void *param, IN unsigned char *buf, IN size_t len);
+
 #endif

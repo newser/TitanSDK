@@ -22,6 +22,7 @@
 
 #include <algorithm/tt_buffer_format.h>
 #include <crypto/tt_crypto.h>
+#include <crypto/tt_ctr_drbg.h>
 #include <crypto/tt_public_key.h>
 #include <io/tt_file_system.h>
 #include <misc/tt_assert.h>
@@ -119,8 +120,8 @@ tt_result_t tt_dh_generate_pub(IN tt_dh_t *dh,
                                 priv_size,
                                 pub,
                                 len,
-                                tt_crypto_rng,
-                                NULL);
+                                tt_ctr_drbg,
+                                tt_current_ctr_drbg());
     if (e != 0) {
         tt_crypto_error("fail to generate dh pub");
         return TT_FAIL;
@@ -181,8 +182,8 @@ tt_result_t tt_dh_derive(IN tt_dh_t *dh,
                                 secret,
                                 (size_t)len,
                                 &olen,
-                                tt_crypto_rng,
-                                NULL);
+                                tt_ctr_drbg,
+                                tt_current_ctr_drbg());
     if (e != 0) {
         tt_crypto_error("fail to drive dh secret");
         return TT_FAIL;

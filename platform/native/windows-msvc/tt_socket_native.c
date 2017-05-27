@@ -1089,7 +1089,7 @@ tt_bool_t __do_send(IN tt_io_ev_t *io_ev)
 
     skt_send->pos += io_ev->io_bytes;
     if (skt_send->pos == skt_send->len) {
-        TT_SAFE_ASSIGN(skt_send->sent,  skt_send->pos);
+        TT_SAFE_ASSIGN(skt_send->sent, skt_send->pos);
         skt_send->result = TT_SUCCESS;
         return TT_TRUE;
     }
@@ -1098,7 +1098,7 @@ tt_bool_t __do_send(IN tt_io_ev_t *io_ev)
     // return success whenever some data is sent
     if (!TT_OK(io_ev->io_result)) {
         if (skt_send->pos > 0) {
-            TT_SAFE_ASSIGN(skt_send->sent,  skt_send->pos);
+            TT_SAFE_ASSIGN(skt_send->sent, skt_send->pos);
             skt_send->result = TT_SUCCESS;
         } else {
             skt_send->result = io_ev->io_result;
@@ -1124,7 +1124,7 @@ tt_bool_t __do_send(IN tt_io_ev_t *io_ev)
 
     // error
     if (skt_send->pos > 0) {
-        TT_SAFE_ASSIGN(skt_send->sent,  skt_send->pos);
+        TT_SAFE_ASSIGN(skt_send->sent, skt_send->pos);
         skt_send->result = TT_SUCCESS;
     } else if ((dwError == WSAECONNABORTED) || (dwError == WSAECONNRESET)) {
         skt_send->result = TT_END;
@@ -1162,7 +1162,7 @@ tt_bool_t __do_sendto(IN tt_io_ev_t *io_ev)
 
     skt_sendto->pos += io_ev->io_bytes;
     if (skt_sendto->pos == skt_sendto->len) {
-        TT_SAFE_ASSIGN(skt_sendto->sent,  skt_sendto->pos);
+        TT_SAFE_ASSIGN(skt_sendto->sent, skt_sendto->pos);
         skt_sendto->result = TT_SUCCESS;
         return TT_TRUE;
     }
@@ -1171,7 +1171,7 @@ tt_bool_t __do_sendto(IN tt_io_ev_t *io_ev)
     // return success whenever some data is sent
     if (!TT_OK(io_ev->io_result)) {
         if (skt_sendto->pos > 0) {
-            TT_SAFE_ASSIGN(skt_sendto->sent,  skt_sendto->pos);
+            TT_SAFE_ASSIGN(skt_sendto->sent, skt_sendto->pos);
             skt_sendto->result = TT_SUCCESS;
         } else {
             skt_sendto->result = io_ev->io_result;
@@ -1198,7 +1198,7 @@ tt_bool_t __do_sendto(IN tt_io_ev_t *io_ev)
 
     // error
     if (skt_sendto->pos > 0) {
-        TT_SAFE_ASSIGN(skt_sendto->sent,  skt_sendto->pos);
+        TT_SAFE_ASSIGN(skt_sendto->sent, skt_sendto->pos);
         skt_sendto->result = TT_SUCCESS;
     } else {
         TT_NET_ERROR_NTV("WSASendTo fail");

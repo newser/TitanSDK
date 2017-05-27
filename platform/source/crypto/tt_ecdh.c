@@ -21,6 +21,7 @@
 #include <crypto/tt_ecdh.h>
 
 #include <crypto/tt_crypto.h>
+#include <crypto/tt_ctr_drbg.h>
 #include <crypto/tt_public_key.h>
 #include <misc/tt_assert.h>
 #include <misc/tt_util.h>
@@ -111,8 +112,8 @@ tt_result_t tt_ecdh_generate(IN tt_ecdh_t *ecdh, IN tt_ecgrp_t g)
     e = mbedtls_ecdh_gen_public(&ctx->grp,
                                 &ctx->d,
                                 &ctx->Q,
-                                tt_crypto_rng,
-                                NULL);
+                                tt_ctr_drbg,
+                                tt_current_ctr_drbg());
     if (e != 0) {
         tt_crypto_error("fail to generate ecdh pub");
         mbedtls_ecdh_free(ctx);
@@ -193,8 +194,8 @@ tt_result_t tt_ecdh_derive(IN tt_ecdh_t *ecdh)
                                     &ctx->z,
                                     &ctx->Qp,
                                     &ctx->d,
-                                    tt_crypto_rng,
-                                    NULL);
+                                    tt_ctr_drbg,
+                                    tt_current_ctr_drbg());
     if (e != 0) {
         tt_crypto_error("fail to drive ecdh secret");
         return TT_FAIL;

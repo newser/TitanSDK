@@ -21,6 +21,7 @@
 #include <crypto/tt_ecdsa.h>
 
 #include <crypto/tt_crypto.h>
+#include <crypto/tt_ctr_drbg.h>
 #include <crypto/tt_public_key.h>
 #include <misc/tt_assert.h>
 
@@ -101,7 +102,10 @@ tt_result_t tt_ecdsa_generate(IN tt_ecdsa_t *dsa, IN tt_ecgrp_t g)
 
     ctx = &dsa->ctx;
 
-    e = mbedtls_ecdsa_genkey(ctx, tt_g_ecgrp_map[g], tt_crypto_rng, NULL);
+    e = mbedtls_ecdsa_genkey(ctx,
+                             tt_g_ecgrp_map[g],
+                             tt_ctr_drbg,
+                             tt_current_ctr_drbg());
     if (e != 0) {
         tt_crypto_error("fail to generate ecdsa");
         return TT_FAIL;
@@ -137,8 +141,8 @@ tt_result_t tt_ecdsa_sign(IN tt_ecdsa_t *dsa,
                                       hashlen,
                                       sig,
                                       &slen,
-                                      tt_crypto_rng,
-                                      NULL);
+                                      tt_ctr_drbg,
+                                      tt_current_ctr_drbg());
     if (e != 0) {
         tt_crypto_error("ecdsa sign failed");
         return TT_FAIL;

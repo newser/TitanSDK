@@ -61,7 +61,7 @@ TT_CRYPTO_UT_DECLARE(CRYPTO_UT_RAND)
 ////////////////////////////////////////////////////////////
 
 tt_test_unit_t *tt_g_crypto_ut_list[CRYPTO_UT_NUM] = {
-#if 0
+#if 1
     &TT_MAKE_TEST_UNIT_NAME(CRYPTO_UT_CIPHER),
     &TT_MAKE_TEST_UNIT_NAME(CRYPTO_UT_MD),
     &TT_MAKE_TEST_UNIT_NAME(CRYPTO_UT_EC),

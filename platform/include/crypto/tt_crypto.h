@@ -61,6 +61,4 @@ register ts crypto component
 */
 extern void tt_crypto_component_register();
 
-extern int tt_crypto_rng(IN void *param, IN unsigned char *buf, IN size_t len);
-
 #endif /* __TT_CRYPTO__ */

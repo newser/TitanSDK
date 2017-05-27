@@ -785,7 +785,7 @@ tt_bool_t __do_fread(IN tt_io_ev_t *io_ev)
 
     fread->pos += io_ev->io_bytes;
     if (fread->pos == fread->buf_len) {
-        TT_SAFE_ASSIGN(fread->read_len,  fread->pos);
+        TT_SAFE_ASSIGN(fread->read_len, fread->pos);
         fread->result = TT_SUCCESS;
         return TT_TRUE;
     }
@@ -794,7 +794,7 @@ tt_bool_t __do_fread(IN tt_io_ev_t *io_ev)
     // return success whenever some data is read out
     if (!TT_OK(io_ev->io_result)) {
         if (fread->pos > 0) {
-            TT_SAFE_ASSIGN(fread->read_len,  fread->pos);
+            TT_SAFE_ASSIGN(fread->read_len, fread->pos);
             fread->result = TT_SUCCESS;
         } else {
             fread->result = io_ev->io_result;
@@ -813,7 +813,7 @@ tt_bool_t __do_fread(IN tt_io_ev_t *io_ev)
                   &fread->io_ev.ov) &&
         (GetLastError() != ERROR_IO_PENDING)) {
         if (fread->pos > 0) {
-            TT_SAFE_ASSIGN(fread->read_len,  fread->pos);
+            TT_SAFE_ASSIGN(fread->read_len, fread->pos);
             fread->result = TT_SUCCESS;
         } else {
             TT_ERROR_NTV("fail to read file");
@@ -836,7 +836,7 @@ tt_bool_t __do_fwrite(IN tt_io_ev_t *io_ev)
 
     fwrite->pos += io_ev->io_bytes;
     if (fwrite->pos == fwrite->buf_len) {
-        TT_SAFE_ASSIGN(fwrite->write_len,  fwrite->pos);
+        TT_SAFE_ASSIGN(fwrite->write_len, fwrite->pos);
         fwrite->result = TT_SUCCESS;
         return TT_TRUE;
     }
@@ -845,7 +845,7 @@ tt_bool_t __do_fwrite(IN tt_io_ev_t *io_ev)
     // return success whenever some data is written
     if (!TT_OK(io_ev->io_result)) {
         if (fwrite->pos > 0) {
-            TT_SAFE_ASSIGN(fwrite->write_len,  fwrite->pos);
+            TT_SAFE_ASSIGN(fwrite->write_len, fwrite->pos);
             fwrite->result = TT_SUCCESS;
         } else {
             fwrite->result = io_ev->io_result;
@@ -859,7 +859,7 @@ tt_bool_t __do_fwrite(IN tt_io_ev_t *io_ev)
         DWORD loc = SetFilePointer(file->hf, 0, &high, FILE_END);
         if (loc == INVALID_SET_FILE_POINTER) {
             if (fwrite->pos > 0) {
-                TT_SAFE_ASSIGN(fwrite->write_len,  fwrite->pos);
+                TT_SAFE_ASSIGN(fwrite->write_len, fwrite->pos);
                 fwrite->result = TT_SUCCESS;
             } else {
                 TT_ERROR_NTV("fail to move to file end");
@@ -880,7 +880,7 @@ tt_bool_t __do_fwrite(IN tt_io_ev_t *io_ev)
                    &fwrite->io_ev.ov) &&
         (GetLastError() != ERROR_IO_PENDING)) {
         if (fwrite->pos > 0) {
-            TT_SAFE_ASSIGN(fwrite->write_len,  fwrite->pos);
+            TT_SAFE_ASSIGN(fwrite->write_len, fwrite->pos);
             fwrite->result = TT_SUCCESS;
         } else {
             TT_ERROR("fail to write file");
