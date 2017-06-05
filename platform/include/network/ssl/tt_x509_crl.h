@@ -15,14 +15,14 @@
  */
 
 /**
-@file tt_x509_cert.h
-@brief x509 certificate
+@file tt_x509_crl.h
+@brief x509 crl
 
-this file defines x509 certificate APIs
+this file defines x509 crl APIs
 */
 
-#ifndef __TT_X509_CERT__
-#define __TT_X509_CERT__
+#ifndef __TT_X509_CRL__
+#define __TT_X509_CRL__
 
 ////////////////////////////////////////////////////////////
 // import header files
@@ -30,7 +30,7 @@ this file defines x509 certificate APIs
 
 #include <tt_basic_type.h>
 
-#include <x509_crt.h>
+#include <x509_crl.h>
 
 //  //////////////////////////////////////////////////////////
 // macro definition
@@ -40,12 +40,10 @@ this file defines x509 certificate APIs
 // type definition
 ////////////////////////////////////////////////////////////
 
-struct tt_x509crl_s;
-
-typedef struct
+typedef struct tt_x509crl_s
 {
-    mbedtls_x509_crt crt;
-} tt_x509cert_t;
+    mbedtls_x509_crl crl;
+} tt_x509crl_t;
 
 ////////////////////////////////////////////////////////////
 // global variants
@@ -55,29 +53,19 @@ typedef struct
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern void tt_x509cert_init(IN tt_x509cert_t *x);
+extern void tt_x509crl_init(IN tt_x509crl_t *x);
 
-extern tt_result_t tt_x509cert_add(IN tt_x509cert_t *x,
-                                   IN tt_u8_t *buf,
-                                   IN tt_u32_t len);
+extern tt_result_t tt_x509crl_add(IN tt_x509crl_t *x,
+                                  IN tt_u8_t *buf,
+                                  IN tt_u32_t len);
 
-extern tt_result_t tt_x509cert_add_file(IN tt_x509cert_t *x,
-                                        IN const tt_char_t *path);
+extern tt_result_t tt_x509crl_add_file(IN tt_x509crl_t *x,
+                                       IN const tt_char_t *path);
 
-extern void tt_x509cert_destroy(IN tt_x509cert_t *x);
+extern void tt_x509crl_destroy(IN tt_x509crl_t *x);
 
-extern tt_result_t tt_x509cert_verify(IN tt_x509cert_t *x,
-                                      IN tt_x509cert_t *ca,
-                                      IN OPT struct tt_x509crl_s *crl,
-                                      IN OPT const tt_char_t *name,
-                                      OUT tt_u32_t *status);
+extern tt_u32_t tt_x509crl_dump(IN tt_x509crl_t *x,
+                                IN tt_char_t *buf,
+                                IN tt_u32_t len);
 
-extern tt_u32_t tt_x509cert_dump_verify_status(IN tt_u32_t status,
-                                               IN tt_char_t *buf,
-                                               IN tt_u32_t len);
-
-extern tt_u32_t tt_x509cert_dump(IN tt_x509cert_t *x,
-                                 IN tt_char_t *buf,
-                                 IN tt_u32_t len);
-
-#endif /* __TT_X509_CERT__ */
+#endif /* __TT_X509_CRL__ */

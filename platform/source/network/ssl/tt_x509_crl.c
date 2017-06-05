@@ -18,14 +18,13 @@
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <network/ssl/tt_x509_cert.h>
+#include <network/ssl/tt_x509_crl.h>
 
 #include <algorithm/tt_buffer.h>
 #include <algorithm/tt_buffer_format.h>
 #include <io/tt_file_system.h>
 #include <misc/tt_assert.h>
 #include <network/ssl/tt_ssl.h>
-#include <network/ssl/tt_x509_crl.h>
 
 ////////////////////////////////////////////////////////////
 // internal macro
@@ -51,23 +50,21 @@
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-void tt_x509cert_init(IN tt_x509cert_t *x)
+void tt_x509crl_init(IN tt_x509crl_t *x)
 {
     TT_ASSERT(x != NULL);
 
-    mbedtls_x509_crt_init(&x->crt);
+    mbedtls_x509_crl_init(&x->crl);
 }
 
-tt_result_t tt_x509cert_add(IN tt_x509cert_t *x,
-                            IN tt_u8_t *buf,
-                            IN tt_u32_t len)
+tt_result_t tt_x509crl_add(IN tt_x509crl_t *x, IN tt_u8_t *buf, IN tt_u32_t len)
 {
     int n;
 
     TT_ASSERT(x != NULL);
     TT_ASSERT(buf != NULL);
 
-    if (mbedtls_x509_crt_parse(&x->crt, buf, len) != 0) {
+    if (mbedtls_x509_crl_parse(&x->crl, buf, len) != 0) {
         TT_ERROR("fail to parse x509 cert");
         return TT_FAIL;
     }
@@ -75,7 +72,7 @@ tt_result_t tt_x509cert_add(IN tt_x509cert_t *x,
     return TT_SUCCESS;
 }
 
-tt_result_t tt_x509cert_add_file(IN tt_x509cert_t *x, IN const tt_char_t *path)
+tt_result_t tt_x509crl_add_file(IN tt_x509crl_t *x, IN const tt_char_t *path)
 {
     tt_buf_t buf;
     int n;
@@ -89,7 +86,7 @@ tt_result_t tt_x509cert_add_file(IN tt_x509cert_t *x, IN const tt_char_t *path)
         return TT_FAIL;
     }
 
-    n = mbedtls_x509_crt_parse(&x->crt, TT_BUF_RPOS(&buf), TT_BUF_RLEN(&buf));
+    n = mbedtls_x509_crl_parse(&x->crl, TT_BUF_RPOS(&buf), TT_BUF_RLEN(&buf));
     tt_buf_destroy(&buf);
     if (n != 0) {
         TT_ERROR("fail to parse x509 cert");
@@ -99,54 +96,16 @@ tt_result_t tt_x509cert_add_file(IN tt_x509cert_t *x, IN const tt_char_t *path)
     return TT_SUCCESS;
 }
 
-void tt_x509cert_destroy(IN tt_x509cert_t *x)
+void tt_x509crl_destroy(IN tt_x509crl_t *x)
 {
     TT_ASSERT(x != NULL);
 
-    mbedtls_x509_crt_free(&x->crt);
+    mbedtls_x509_crl_free(&x->crl);
 }
 
-tt_result_t tt_x509cert_verify(IN tt_x509cert_t *x,
-                               IN tt_x509cert_t *ca,
-                               IN OPT tt_x509crl_t *crl,
-                               IN OPT const tt_char_t *name,
-                               OUT tt_u32_t *status)
-{
-    int e;
-
-    TT_ASSERT(x != NULL);
-    TT_ASSERT(ca != NULL);
-
-    *status = 0;
-    e = mbedtls_x509_crt_verify(&x->crt,
-                                &ca->crt,
-                                &crl->crl,
-                                name,
-                                status,
-                                NULL,
-                                NULL);
-    if (e != 0) {
-        tt_ssl_error("x509 cert verify failed");
-        return TT_FAIL;
-    }
-
-    return TT_SUCCESS;
-}
-
-tt_u32_t tt_x509cert_dump_verify_status(IN tt_u32_t status,
-                                        IN tt_char_t *buf,
-                                        IN tt_u32_t len)
+tt_u32_t tt_x509crl_dump(IN tt_x509crl_t *x, IN tt_char_t *buf, IN tt_u32_t len)
 {
     TT_ASSERT(buf != NULL);
 
-    return mbedtls_x509_crt_verify_info(buf, len, "", status);
-}
-
-tt_u32_t tt_x509cert_dump(IN tt_x509cert_t *x,
-                          IN tt_char_t *buf,
-                          IN tt_u32_t len)
-{
-    TT_ASSERT(buf != NULL);
-
-    return mbedtls_x509_crt_info(buf, len, "", &x->crt);
+    return mbedtls_x509_crl_info(buf, len, "", &x->crl);
 }

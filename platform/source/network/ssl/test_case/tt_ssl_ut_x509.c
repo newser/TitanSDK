@@ -33,6 +33,8 @@
 #define __X509_LEAF "tt_ca_leaf.crt"
 #define __leaf_key "tt_ca_leaf.key"
 
+#define __X509_CRL1 "tt_ca.crl"
+
 ////////////////////////////////////////////////////////////
 // internal type
 ////////////////////////////////////////////////////////////
@@ -50,6 +52,7 @@ static tt_bool_t has_x509;
 
 // === routine declarations ================
 TT_TEST_ROUTINE_DECLARE(tt_unit_test_x509_cert)
+TT_TEST_ROUTINE_DECLARE(tt_unit_test_x509_crl)
 // =========================================
 
 // === test case list ======================
@@ -64,6 +67,15 @@ TT_TEST_CASE("tt_unit_test_x509_cert",
              NULL,
              NULL)
 ,
+
+    TT_TEST_CASE("tt_unit_test_x509_crl",
+                 "ssl: x509 crl",
+                 tt_unit_test_x509_crl,
+                 NULL,
+                 __x509_prepare,
+                 NULL,
+                 NULL,
+                 NULL),
 
     TT_TEST_CASE_LIST_DEFINE_END(crypto_x509_case)
     // =========================================
@@ -94,7 +106,7 @@ TT_TEST_CASE("tt_unit_test_x509_cert",
     TT_TEST_ROUTINE_DEFINE(tt_unit_test_x509_cert)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
-    tt_x509crt_t ca, cert;
+    tt_x509cert_t ca, cert;
     tt_result_t ret;
     tt_u32_t status, n;
     tt_char_t buf[1000];
@@ -102,62 +114,119 @@ TT_TEST_CASE("tt_unit_test_x509_cert",
     TT_TEST_CASE_ENTER()
     // test start
 
-    tt_x509crt_init(&ca);
-    tt_x509crt_init(&cert);
+    tt_x509cert_init(&ca);
+    tt_x509cert_init(&cert);
 
     // root => leaf, should fail
-    ret = tt_x509crt_add_file(&ca, __X509_CA);
+    ret = tt_x509cert_add_file(&ca, __X509_CA);
     TT_UT_SUCCESS(ret, "");
-    ret = tt_x509crt_add_file(&cert, __X509_LEAF);
+    ret = tt_x509cert_add_file(&cert, __X509_LEAF);
     TT_UT_SUCCESS(ret, "");
-    ret = tt_x509crt_verify(&cert, &ca, NULL, NULL, &status);
+    ret = tt_x509cert_verify(&cert, &ca, NULL, NULL, &status);
     TT_UT_FAIL(ret, "");
-    n = tt_x509crt_dump_verify_status(status, buf, (tt_u32_t)sizeof(buf));
+    n = tt_x509cert_dump_verify_status(status, buf, (tt_u32_t)sizeof(buf));
     TT_INFO("%s", buf);
 
     // root, int => leaf, ok
-    ret = tt_x509crt_add_file(&ca, __X509_CA2);
+    ret = tt_x509cert_add_file(&ca, __X509_CA2);
     TT_UT_SUCCESS(ret, "");
-    n = tt_x509crt_dump(&ca, buf, (tt_u32_t)sizeof(buf));
+    n = tt_x509cert_dump(&ca, buf, (tt_u32_t)sizeof(buf));
     TT_INFO("ca: %s", buf);
-    ret = tt_x509crt_verify(&cert, &ca, NULL, NULL, &status);
+    ret = tt_x509cert_verify(&cert, &ca, NULL, NULL, &status);
     if (!TT_OK(ret)) {
-        n = tt_x509crt_dump_verify_status(status, buf, (tt_u32_t)sizeof(buf));
+        n = tt_x509cert_dump_verify_status(status, buf, (tt_u32_t)sizeof(buf));
         TT_INFO("%s", buf);
     }
     TT_UT_SUCCESS(ret, "");
 
-    tt_x509crt_destroy(&ca);
-    tt_x509crt_destroy(&cert);
+    tt_x509cert_destroy(&ca);
+    tt_x509cert_destroy(&cert);
 
-    tt_x509crt_init(&ca);
-    tt_x509crt_init(&cert);
+    tt_x509cert_init(&ca);
+    tt_x509cert_init(&cert);
 
     // root => int,leaf ok
 
-    ret = tt_x509crt_add_file(&ca, __X509_CA);
+    ret = tt_x509cert_add_file(&ca, __X509_CA);
     TT_UT_SUCCESS(ret, "");
 
-    ret = tt_x509crt_add_file(&cert, __X509_LEAF);
+    ret = tt_x509cert_add_file(&cert, __X509_LEAF);
     TT_UT_SUCCESS(ret, "");
-    ret = tt_x509crt_add_file(&cert, __X509_CA2);
+    ret = tt_x509cert_add_file(&cert, __X509_CA2);
     TT_UT_SUCCESS(ret, "");
 
-    ret = tt_x509crt_verify(&cert, &ca, NULL, NULL, &status);
+    ret = tt_x509cert_verify(&cert, &ca, NULL, NULL, &status);
     if (!TT_OK(ret)) {
-        n = tt_x509crt_dump_verify_status(status, buf, (tt_u32_t)sizeof(buf));
+        n = tt_x509cert_dump_verify_status(status, buf, (tt_u32_t)sizeof(buf));
         TT_INFO("%s", buf);
     }
     TT_UT_SUCCESS(ret, "");
 
-    tt_x509crt_destroy(&ca);
-    tt_x509crt_destroy(&cert);
+    ret = tt_x509cert_verify(&cert, &ca, NULL, "child-2", &status);
+    TT_UT_SUCCESS(ret, "");
+
+    ret = tt_x509cert_verify(&cert, &ca, NULL, "child-20", &status);
+    TT_UT_FAIL(ret, "");
+    n = tt_x509cert_dump_verify_status(status, buf, (tt_u32_t)sizeof(buf));
+    TT_INFO("%s", buf);
+
+    tt_x509cert_destroy(&ca);
+    tt_x509cert_destroy(&cert);
 
     // test end
     TT_TEST_CASE_LEAVE()
 }
 
-// 123
+TT_TEST_ROUTINE_DEFINE(tt_unit_test_x509_crl)
+{
+    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+    tt_x509cert_t ca, cert;
+    tt_x509crl_t crl;
+    tt_result_t ret;
+    tt_u32_t status, n;
+    tt_char_t buf[1000];
+
+    TT_TEST_CASE_ENTER()
+    // test start
+
+    tt_x509cert_init(&ca);
+    tt_x509cert_init(&cert);
+    tt_x509crl_init(&crl);
+
+    // root => int,leaf ok
+
+    ret = tt_x509cert_add_file(&ca, __X509_CA);
+    TT_UT_SUCCESS(ret, "");
+
+    ret = tt_x509cert_add_file(&cert, __X509_LEAF);
+    TT_UT_SUCCESS(ret, "");
+    ret = tt_x509cert_add_file(&cert, __X509_CA2);
+    TT_UT_SUCCESS(ret, "");
+
+    ret = tt_x509cert_verify(&cert, &ca, NULL, NULL, &status);
+    if (!TT_OK(ret)) {
+        n = tt_x509cert_dump_verify_status(status, buf, (tt_u32_t)sizeof(buf));
+        TT_INFO("%s", buf);
+    }
+    TT_UT_SUCCESS(ret, "");
+
+    // with crl, fail
+    ret = tt_x509crl_add_file(&crl, __X509_CRL1);
+    TT_UT_SUCCESS(ret, "");
+
+    ret = tt_x509cert_verify(&cert, &ca, &crl, NULL, &status);
+    TT_UT_FAIL(ret, "");
+    n = tt_x509cert_dump_verify_status(status, buf, (tt_u32_t)sizeof(buf));
+    TT_INFO("%s", buf);
+
+    tt_x509cert_destroy(&ca);
+    tt_x509cert_destroy(&cert);
+    tt_x509crl_destroy(&crl);
+
+    // test end
+    TT_TEST_CASE_LEAVE()
+}
+
 static tt_char_t __ca_1[] =
     "-----BEGIN CERTIFICATE-----\n"
     "MIIDETCCAfmgAwIBAgIJAJD9Yn1n4y2BMA0GCSqGSIb3DQEBDQUAMA8xDTALBgNV\n"
@@ -179,6 +248,7 @@ static tt_char_t __ca_1[] =
     "hIJwzM0RDZKXIqgtIgSgJkSs7wKP\n"
     "-----END CERTIFICATE-----\n";
 
+// pass: 123
 static tt_char_t __key_1[] =
     "-----BEGIN ENCRYPTED PRIVATE KEY-----\n"
     "MIIFDjBABgkqhkiG9w0BBQ0wMzAbBgkqhkiG9w0BBQwwDgQIYbHJexJuyN4CAggA\n"
@@ -314,6 +384,19 @@ static tt_char_t __key_3[] =
     "e5U=\n"
     "-----END ENCRYPTED PRIVATE KEY-----\n";
 
+static tt_char_t __crl_1[] =
+    "-----BEGIN X509 CRL-----\n"
+    "MIIBfjBoAgEBMA0GCSqGSIb3DQEBBQUAMA8xDTALBgNVBAMTBHJvb3QXDTE3MDYw\n"
+    "NTA4MzkyMloXDTI3MDYwMzA4MzkyMlowFTATAgJHzRcNMTcwNjA1MDgzODUyWqAO\n"
+    "MAwwCgYDVR0UBAMCAQIwDQYJKoZIhvcNAQEFBQADggEBAKVobCfxYxdmFsHmTdXK\n"
+    "LEMLwY2eFD8IWtAQDYP3n75blpf54cjwO/WP4LsoCEx9r0cEECaygB7S7xuOJ24P\n"
+    "GsVCLOj/jMmrxJ5y16yA76iIYXvoMd17OyAdrE7G4fqcy38CRcwiPHZUjDn10nmV\n"
+    "7aEmbwoLpjSoUd3VbbZt4DkRTk8YYmXOswBfkmxodcFhXnv+9Tb10txDVb3RDHbv\n"
+    "DhqS373XXNhLslVZETpgWVkeut8AsAKDEmvJ70gdsjP/JMkfsCHKC05JIzSSpQH2\n"
+    "QRVawYi3kjslnD3AKW7nTd2hfEgVxJ/o9e3zKN9e5YMFsN0n93DyfNjkGWKZvjPK\n"
+    "iek=\n"
+    "-----END X509 CRL-----\n";
+
 void __x509_prepare(void *p)
 {
     tt_file_t f;
@@ -402,6 +485,20 @@ void __x509_prepare(void *p)
     }
     if (!TT_OK(tt_fwrite(&f, (tt_u8_t *)__key_3, sizeof(__key_3) - 1, NULL))) {
         TT_ERROR("fail to write %s", __leaf_key);
+        return;
+    }
+    tt_fclose(&f);
+
+    // crl
+    if (!TT_OK(tt_fopen(&f,
+                        __X509_CRL1,
+                        TT_FO_WRITE | TT_FO_CREAT | TT_FO_TRUNC,
+                        NULL))) {
+        TT_ERROR("fail to open %s", __X509_CRL1);
+        return;
+    }
+    if (!TT_OK(tt_fwrite(&f, (tt_u8_t *)__crl_1, sizeof(__crl_1) - 1, NULL))) {
+        TT_ERROR("fail to write %s", __X509_CRL1);
         return;
     }
     tt_fclose(&f);

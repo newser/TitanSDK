@@ -211,6 +211,7 @@ extern "C" {
 #include <network/ssh/tt_ssh_channel_manager.h>
 #include <network/ssh/tt_ssh_def.h>
 #include <network/ssl/tt_x509_cert.h>
+#include <network/ssl/tt_x509_crl.h>
 #include <network/tt_network_def.h>
 #include <network/tt_network_interface.h>
 #include <os/tt_atomic.h>
