@@ -15,14 +15,14 @@
  */
 
 /**
-@file tt_sslpeer_native.h
-@brief ssl peer native
+@file tt_x509_cert.h
+@brief x509 certificate
 
-this file defines ssl peer APIs
+this file defines x509 certificate APIs
 */
 
-#ifndef __TT_SSL_PEER_NATIVE__
-#define __TT_SSL_PEER_NATIVE__
+#ifndef __TT_X509_CERT__
+#define __TT_X509_CERT__
 
 ////////////////////////////////////////////////////////////
 // import header files
@@ -30,7 +30,9 @@ this file defines ssl peer APIs
 
 #include <tt_basic_type.h>
 
-////////////////////////////////////////////////////////////
+#include <x509_crt.h>
+
+//  //////////////////////////////////////////////////////////
 // macro definition
 ////////////////////////////////////////////////////////////
 
@@ -40,8 +42,8 @@ this file defines ssl peer APIs
 
 typedef struct
 {
-    tt_u32_t reserved;
-} tt_sslpeer_ntv_t;
+    mbedtls_x509_crt crt;
+} tt_x509crt_t;
 
 ////////////////////////////////////////////////////////////
 // global variants
@@ -51,8 +53,29 @@ typedef struct
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-tt_inline void tt_sslpeer_destroy_ntv(IN tt_sslpeer_ntv_t *sys_peer)
-{
-}
+extern void tt_x509crt_init(IN tt_x509crt_t *x);
 
-#endif /* __TT_SSL_PEER_NATIVE__ */
+extern tt_result_t tt_x509crt_add(IN tt_x509crt_t *x,
+                                  IN tt_u8_t *buf,
+                                  IN tt_u32_t len);
+
+extern tt_result_t tt_x509crt_add_file(IN tt_x509crt_t *x,
+                                       IN const tt_char_t *path);
+
+extern void tt_x509crt_destroy(IN tt_x509crt_t *x);
+
+extern tt_result_t tt_x509crt_verify(IN tt_x509crt_t *x,
+                                     IN tt_x509crt_t *ca,
+                                     IN OPT void *crl,
+                                     IN OPT const tt_char_t *name,
+                                     OUT tt_u32_t *status);
+
+extern tt_u32_t tt_x509crt_dump_verify_status(IN tt_u32_t status,
+                                              IN tt_char_t *buf,
+                                              IN tt_u32_t len);
+
+extern tt_u32_t tt_x509crt_dump(IN tt_x509crt_t *x,
+                                IN tt_char_t *buf,
+                                IN tt_u32_t len);
+
+#endif /* __TT_X509_CERT__ */

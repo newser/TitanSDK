@@ -210,12 +210,7 @@ extern "C" {
 #include <network/ssh/tt_ssh_channel_cb.h>
 #include <network/ssh/tt_ssh_channel_manager.h>
 #include <network/ssh/tt_ssh_def.h>
-#include <network/ssl/tt_ssl.h>
-#include <network/ssl/tt_ssl_aio.h>
-#include <network/ssl/tt_ssl_aio_cb.h>
-#include <network/ssl/tt_ssl_cache.h>
-#include <network/ssl/tt_ssl_context.h>
-#include <network/ssl/tt_ssl_def.h>
+#include <network/ssl/tt_x509_cert.h>
 #include <network/tt_network_def.h>
 #include <network/tt_network_interface.h>
 #include <os/tt_atomic.h>
