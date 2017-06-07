@@ -42,7 +42,7 @@ this file defines x509 certificate APIs
 
 struct tt_x509crl_s;
 
-typedef struct
+typedef struct tt_x509cert_s
 {
     mbedtls_x509_crt crt;
 } tt_x509cert_t;
