@@ -29,6 +29,9 @@ this file defines ssl initialization APIs
 ////////////////////////////////////////////////////////////
 
 #include <log/tt_log.h>
+#include <log/tt_log_manager.h>
+
+#include <ssl.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
@@ -47,9 +50,34 @@ this file defines ssl initialization APIs
 // type definition
 ////////////////////////////////////////////////////////////
 
+struct tt_skt_s;
+struct tt_ssl_config_s;
+struct tt_fiber_ev_s;
+struct tt_tmr_s;
+
+typedef struct
+{
+    struct tt_skt_s *skt;
+    struct tt_fiber_ev_s **p_fev;
+    struct tt_tmr_s **p_tmr;
+
+    mbedtls_ssl_context ctx;
+} tt_ssl_t;
+
+typedef enum {
+    TT_SSL_SHUT_RD,
+    TT_SSL_SHUT_WR,
+    TT_SSL_SHUT_RDWR,
+
+    TT_SSL_SHUT_NUM
+} tt_ssl_shut_t;
+#define TT_SSL_SHUT_VALID(s) ((s) < TT_SSL_SHUT_NUM)
+
 ////////////////////////////////////////////////////////////
 // global variants
 ////////////////////////////////////////////////////////////
+
+extern tt_logmgr_t tt_g_ssl_logmgr;
 
 ////////////////////////////////////////////////////////////
 // interface declaration
@@ -60,5 +88,33 @@ this file defines ssl initialization APIs
 register ts crypto component
 */
 extern void tt_ssl_component_register();
+
+extern void tt_ssl_log_component_register();
+
+extern tt_ssl_t *tt_ssl_create(IN struct tt_skt_s *skt,
+                               IN struct tt_ssl_config_s *sc);
+
+extern void tt_ssl_destroy(IN tt_ssl_t *ssl);
+
+extern tt_result_t tt_ssl_handshake(IN tt_ssl_t *ssl,
+                                    OUT struct tt_fiber_ev_s **p_fev,
+                                    OUT struct tt_tmr_s **p_tmr);
+
+extern tt_result_t tt_ssl_send(IN tt_ssl_t *ssl,
+                               IN tt_u8_t *buf,
+                               IN tt_u32_t len,
+                               OUT tt_u32_t *sent);
+
+extern tt_result_t tt_ssl_recv(IN tt_ssl_t *ssl,
+                               OUT tt_u8_t *buf,
+                               IN tt_u32_t len,
+                               OUT tt_u32_t *recvd,
+                               OUT struct tt_fiber_ev_s **p_fev,
+                               OUT struct tt_tmr_s **p_tmr);
+
+extern tt_result_t tt_ssl_shutdown(IN tt_ssl_t *ssl, IN tt_ssl_shut_t shut);
+
+extern tt_result_t tt_ssl_set_hostname(IN tt_ssl_t *ssl,
+                                       IN const tt_char_t *hostname);
 
 #endif /* __TT_SSL__ */

@@ -60,4 +60,8 @@ extern void tt_logmgr_component_register();
 
 extern void tt_logmgr_config_component_register();
 
+extern void tt_logmgr_layout_default(IN tt_logmgr_t *lmgr);
+
+extern tt_result_t tt_logmgr_io_default(IN tt_logmgr_t *lmgr);
+
 #endif /* __TT_LOG_INIT__ */

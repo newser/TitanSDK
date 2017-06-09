@@ -106,6 +106,7 @@ typedef enum {
     // log manager
     TT_COMPONENT_LOG_MANAGER,
     TT_COMPONENT_LOGMGR_CONFIG,
+    TT_COMPONENT_SSL_LOG,
 
     TT_COMPONENT_NUM
 } tt_component_id_t;

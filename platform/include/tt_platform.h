@@ -114,6 +114,7 @@ extern "C" {
 #include <log/io/tt_log_io_standard.h>
 #include <log/layout/tt_log_field.h>
 #include <log/layout/tt_log_layout.h>
+#include <log/layout/tt_log_layout.h>
 #include <log/layout/tt_log_layout_pattern.h>
 #include <log/tt_log.h>
 #include <log/tt_log_context.h>
@@ -210,6 +211,8 @@ extern "C" {
 #include <network/ssh/tt_ssh_channel_cb.h>
 #include <network/ssh/tt_ssh_channel_manager.h>
 #include <network/ssh/tt_ssh_def.h>
+#include <network/ssl/tt_ssl.h>
+#include <network/ssl/tt_ssl_config.h>
 #include <network/ssl/tt_x509_cert.h>
 #include <network/ssl/tt_x509_crl.h>
 #include <network/tt_network_def.h>

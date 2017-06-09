@@ -124,21 +124,18 @@ void tt_logmgr_attr_default(IN tt_logmgr_attr_t *attr)
     }
 }
 
-tt_result_t tt_logmgr_set_layout(IN tt_logmgr_t *lmgr,
-                                 IN tt_log_level_t level,
-                                 IN struct tt_loglyt_s *lyt)
+void tt_logmgr_set_layout(IN tt_logmgr_t *lmgr,
+                          IN tt_log_level_t level,
+                          IN struct tt_loglyt_s *lyt)
 {
     if (TT_LOG_LEVEL_VALID(level)) {
         lmgr->ctx[level].lyt = lyt;
-        return TT_SUCCESS;
-    } else if (level == TT_LOG_LEVEL_NUM) {
+    } else {
         tt_u32_t i;
+        TT_ASSERT(level == TT_LOG_LEVEL_NUM);
         for (i = 0; i < TT_LOG_LEVEL_NUM; ++i) {
             tt_logctx_set_layout(&lmgr->ctx[i], lyt);
         }
-        return TT_SUCCESS;
-    } else {
-        return TT_FAIL;
     }
 }
 

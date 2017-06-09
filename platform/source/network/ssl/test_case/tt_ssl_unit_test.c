@@ -35,6 +35,7 @@ typedef enum {
     SSL_UT_BEGIN = 0,
 
     SSL_UT_X509 = SSL_UT_BEGIN,
+    SSL_UT_IO,
 
     SSL_UT_NUM // number of test units
 } tt_ssl_ut_id_t;
@@ -44,13 +45,15 @@ typedef enum {
 ////////////////////////////////////////////////////////////
 
 TT_SSL_UT_DECLARE(SSL_UT_X509)
+TT_SSL_UT_DECLARE(SSL_UT_IO)
 
 ////////////////////////////////////////////////////////////
 // global variant
 ////////////////////////////////////////////////////////////
 
 tt_test_unit_t *tt_g_ssl_ut_list[SSL_UT_NUM] = {
-    &TT_MAKE_TEST_UNIT_NAME(SSL_UT_X509),
+    //&TT_MAKE_TEST_UNIT_NAME(SSL_UT_X509),
+    &TT_MAKE_TEST_UNIT_NAME(SSL_UT_IO),
 };
 
 ////////////////////////////////////////////////////////////

@@ -50,12 +50,12 @@ typedef struct tt_ssl_config_s
 } tt_ssl_config_t;
 
 typedef enum {
-    TT_SSL_SIDE_CLIENT,
-    TT_SSL_SIDE_SERVER,
+    TT_SSL_CLIENT,
+    TT_SSL_SERVER,
 
-    TT_SSL_SIDE_NUM,
-} tt_ssl_side_t;
-#define TT_SSL_SIDE_VALID(s) ((s) < TT_SSL_SIDE_NUM)
+    TT_SSL_ROLE_NUM,
+} tt_ssl_role_t;
+#define TT_SSL_ROLE_VALID(s) ((s) < TT_SSL_ROLE_NUM)
 
 typedef enum {
     TT_SSL_TRANSPORT_STREAM,
@@ -89,13 +89,13 @@ typedef enum {
     TT_SSL_V3_2,
     TT_TLS_V1_1 = TT_SSL_V3_2,
     TT_DTLS_V1_0 = TT_SSL_V3_2,
-    TT_SSL_V3_3, // tls1.2 / dtls1.2
+    TT_SSL_V3_3,
     TT_TLS_V1_2 = TT_SSL_V3_3,
     TT_DTLS_V1_2 = TT_SSL_V3_3,
 
-    TT_SSL_VERSION_NUM
-} tt_ssl_version_t;
-#define TT_SSL_VERSION_VALID(v) ((v) < TT_SSL_VERSION_NUM)
+    TT_SSL_VER_NUM
+} tt_ssl_ver_t;
+#define TT_SSL_VER_VALID(v) ((v) < TT_SSL_VER_NUM)
 
 ////////////////////////////////////////////////////////////
 // global variants
@@ -106,11 +106,15 @@ typedef enum {
 ////////////////////////////////////////////////////////////
 
 extern tt_result_t tt_ssl_config_create(IN tt_ssl_config_t *sc,
-                                        IN tt_ssl_side_t side,
+                                        IN tt_ssl_role_t role,
                                         IN tt_ssl_transport_t transport,
                                         IN tt_ssl_preset_t preset);
 
 extern void tt_ssl_config_destroy(IN tt_ssl_config_t *sc);
+
+extern void tt_ssl_config_version(IN tt_ssl_config_t *sc,
+                                  IN tt_ssl_ver_t min,
+                                  IN tt_ssl_ver_t max);
 
 extern void tt_ssl_config_auth(IN tt_ssl_config_t *sc, IN tt_ssl_auth_t auth);
 
@@ -124,10 +128,6 @@ extern tt_result_t tt_ssl_config_cert(IN tt_ssl_config_t *sc,
 
 extern tt_result_t tt_ssl_config_alpn(IN tt_ssl_config_t *sc,
                                       IN const tt_char_t **alpn);
-
-extern void tt_ssl_config_version(IN tt_ssl_config_t *sc,
-                                  IN tt_ssl_version_t min,
-                                  IN tt_ssl_version_t max);
 
 extern void tt_ssl_config_trunc_hmac(IN tt_ssl_config_t *sc,
                                      IN tt_bool_t enable);

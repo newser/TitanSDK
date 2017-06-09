@@ -89,9 +89,9 @@ tt_inline tt_result_t tt_logmgr_set_level(IN tt_logmgr_t *lmgr,
 }
 
 // set level to TT_LOG_LEVEL_NUM to set all
-extern tt_result_t tt_logmgr_set_layout(IN tt_logmgr_t *lmgr,
-                                        IN tt_log_level_t level,
-                                        IN struct tt_loglyt_s *lyt);
+extern void tt_logmgr_set_layout(IN tt_logmgr_t *lmgr,
+                                 IN tt_log_level_t level,
+                                 IN struct tt_loglyt_s *lyt);
 
 // set level to TT_LOG_LEVEL_NUM to set all
 extern tt_result_t tt_logmgr_append_filter(IN tt_logmgr_t *lmgr,

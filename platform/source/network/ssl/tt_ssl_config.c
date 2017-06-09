@@ -51,12 +51,14 @@
 // interface declaration
 ////////////////////////////////////////////////////////////
 
+static void __ssl_dbg(void *, int, const char *, int, const char *);
+
 ////////////////////////////////////////////////////////////
 // interface implementation
 ////////////////////////////////////////////////////////////
 
 tt_result_t tt_ssl_config_create(IN tt_ssl_config_t *sc,
-                                 IN tt_ssl_side_t side,
+                                 IN tt_ssl_role_t role,
                                  IN tt_ssl_transport_t transport,
                                  IN tt_ssl_preset_t preset)
 {
@@ -64,7 +66,7 @@ tt_result_t tt_ssl_config_create(IN tt_ssl_config_t *sc,
     int ep, tp, ps, e;
 
     TT_ASSERT(sc != NULL);
-    TT_ASSERT(TT_SSL_SIDE_VALID(side));
+    TT_ASSERT(TT_SSL_ROLE_VALID(role));
     TT_ASSERT(TT_SSL_TRANSPORT_VALID(transport));
     TT_ASSERT(TT_SSL_PRESET_VALID(preset));
 
@@ -72,7 +74,7 @@ tt_result_t tt_ssl_config_create(IN tt_ssl_config_t *sc,
 
     mbedtls_ssl_config_init(cfg);
 
-    if (side == TT_SSL_SIDE_CLIENT) {
+    if (role == TT_SSL_CLIENT) {
         ep = MBEDTLS_SSL_IS_CLIENT;
     } else {
         ep = MBEDTLS_SSL_IS_SERVER;
@@ -97,7 +99,7 @@ tt_result_t tt_ssl_config_create(IN tt_ssl_config_t *sc,
     }
 
 #if 0 // todo
-    if (side == TT_SSL_SIDE_SERVER) {
+    if (role == TT_SSL_SERVER) {
         mbedtls_ssl_conf_session_tickets_cb(cfg,
                                             mbedtls_ssl_ticket_write,
                                             mbedtls_ssl_ticket_parse,
@@ -112,7 +114,7 @@ tt_result_t tt_ssl_config_create(IN tt_ssl_config_t *sc,
 
     mbedtls_ssl_conf_rng(&sc->cfg, tt_ctr_drbg, tt_current_ctr_drbg());
 
-    // mbedtls_ssl_conf_dbg(&sc->cfg, ...);
+    mbedtls_ssl_conf_dbg(&sc->cfg, __ssl_dbg, &tt_g_ssl_logmgr);
 
     return TT_SUCCESS;
 }
@@ -122,6 +124,41 @@ void tt_ssl_config_destroy(IN tt_ssl_config_t *sc)
     TT_ASSERT(sc != NULL);
 
     mbedtls_ssl_config_free(&sc->cfg);
+}
+
+void tt_ssl_config_version(IN tt_ssl_config_t *sc,
+                           IN tt_ssl_ver_t min,
+                           IN tt_ssl_ver_t max)
+{
+    int major, minor;
+
+    TT_ASSERT(sc != NULL);
+    TT_ASSERT(TT_SSL_VER_VALID(min) && TT_SSL_VER_VALID(max));
+    TT_ASSERT(min <= max);
+
+    major = MBEDTLS_SSL_MAJOR_VERSION_3;
+
+    if (min == TT_SSL_V3_0) {
+        minor = MBEDTLS_SSL_MINOR_VERSION_0;
+    } else if (min == TT_SSL_V3_1) {
+        minor = MBEDTLS_SSL_MINOR_VERSION_1;
+    } else if (min == TT_SSL_V3_2) {
+        minor = MBEDTLS_SSL_MINOR_VERSION_2;
+    } else {
+        minor = MBEDTLS_SSL_MINOR_VERSION_3;
+    }
+    mbedtls_ssl_conf_min_version(&sc->cfg, major, minor);
+
+    if (max == TT_SSL_V3_0) {
+        minor = MBEDTLS_SSL_MINOR_VERSION_0;
+    } else if (max == TT_SSL_V3_1) {
+        minor = MBEDTLS_SSL_MINOR_VERSION_1;
+    } else if (max == TT_SSL_V3_2) {
+        minor = MBEDTLS_SSL_MINOR_VERSION_2;
+    } else {
+        minor = MBEDTLS_SSL_MINOR_VERSION_3;
+    }
+    mbedtls_ssl_conf_max_version(&sc->cfg, major, minor);
 }
 
 void tt_ssl_config_auth(IN tt_ssl_config_t *sc, IN tt_ssl_auth_t auth)
@@ -185,41 +222,6 @@ tt_result_t tt_ssl_config_alpn(IN tt_ssl_config_t *sc,
     return TT_SUCCESS;
 }
 
-void tt_ssl_config_version(IN tt_ssl_config_t *sc,
-                           IN tt_ssl_version_t min,
-                           IN tt_ssl_version_t max)
-{
-    int major, minor;
-
-    TT_ASSERT(sc != NULL);
-    TT_ASSERT(TT_SSL_VERSION_VALID(min) && TT_SSL_VERSION_VALID(max));
-    TT_ASSERT(min <= max);
-
-    major = MBEDTLS_SSL_MAJOR_VERSION_3;
-
-    if (min == TT_SSL_V3_0) {
-        minor = MBEDTLS_SSL_MINOR_VERSION_0;
-    } else if (min == TT_SSL_V3_1) {
-        minor = MBEDTLS_SSL_MINOR_VERSION_1;
-    } else if (min == TT_SSL_V3_2) {
-        minor = MBEDTLS_SSL_MINOR_VERSION_2;
-    } else {
-        minor = MBEDTLS_SSL_MINOR_VERSION_3;
-    }
-    mbedtls_ssl_conf_min_version(&sc->cfg, major, minor);
-
-    if (max == TT_SSL_V3_0) {
-        minor = MBEDTLS_SSL_MINOR_VERSION_0;
-    } else if (max == TT_SSL_V3_1) {
-        minor = MBEDTLS_SSL_MINOR_VERSION_1;
-    } else if (max == TT_SSL_V3_2) {
-        minor = MBEDTLS_SSL_MINOR_VERSION_2;
-    } else {
-        minor = MBEDTLS_SSL_MINOR_VERSION_3;
-    }
-    mbedtls_ssl_conf_max_version(&sc->cfg, major, minor);
-}
-
 void tt_ssl_config_trunc_hmac(IN tt_ssl_config_t *sc, IN tt_bool_t enable)
 {
     TT_ASSERT(sc != NULL);
@@ -239,4 +241,28 @@ void tt_ssl_config_session_ticket(IN tt_ssl_config_t *sc, IN tt_bool_t enable)
         TT_COND(enable,
                 MBEDTLS_SSL_SESSION_TICKETS_ENABLED,
                 MBEDTLS_SSL_SESSION_TICKETS_DISABLED));
+}
+
+void __ssl_dbg(
+    void *param, int level, const char *file, int line, const char *msg)
+{
+    tt_log_level_t l;
+    const char *p;
+
+    if (level <= 1) {
+        l = TT_LOG_ERROR;
+    } else if (level <= 3) {
+        l = TT_LOG_INFO;
+    } else {
+        l = TT_LOG_DEBUG;
+    }
+
+    p = tt_strrchr(file, '/');
+    if (p != NULL) {
+        ++p;
+    } else {
+        p = file;
+    }
+
+    tt_logmgr_inputf((tt_logmgr_t *)param, l, p, line, "%s", msg);
 }
