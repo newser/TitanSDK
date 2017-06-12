@@ -208,17 +208,17 @@ tt_result_t tt_ssl_recv(IN tt_ssl_t *ssl,
     ssl->p_fev = p_fev;
     ssl->p_tmr = p_tmr;
     while ((e = mbedtls_ssl_read(&ssl->ctx, buf, len)) <= 0) {
-        if (e == MBEDTLS_ERR_SSL_WANT_READ) {
+        if ((e == MBEDTLS_ERR_SSL_WANT_READ) ||
+            (e == MBEDTLS_ERR_SSL_WANT_WRITE) ||
+            (e == MBEDTLS_ERR_SSL_PEER_CLOSE_NOTIFY)) {
+            continue;
+        } else if (e == 0) {
             if ((*p_fev != NULL) || (*p_tmr != NULL)) {
-                e = 0;
                 break;
             } else {
-                continue;
+                return TT_END;
             }
-        } else if ((e == MBEDTLS_ERR_SSL_WANT_WRITE) ||
-                   (e == MBEDTLS_ERR_SSL_PEER_CLOSE_NOTIFY)) {
-            continue;
-        } else if ((e == 0) || (e == MBEDTLS_ERR_SSL_CONN_EOF) ||
+        } else if ((e == MBEDTLS_ERR_SSL_CONN_EOF) ||
                    (e == MBEDTLS_ERR_NET_CONN_RESET)) {
             return TT_END;
         } else {

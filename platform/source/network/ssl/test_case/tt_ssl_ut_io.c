@@ -35,6 +35,12 @@
 
 #define __X509_CRL1 "tt_ca.crl"
 
+#if 0
+#define __SSL_DETAIL TT_INFO
+#else
+#define __SSL_DETAIL(...)
+#endif
+
 ////////////////////////////////////////////////////////////
 // internal type
 ////////////////////////////////////////////////////////////
@@ -98,6 +104,80 @@ static tt_atomic_s64_t __io_num;
 static tt_u32_t __svr_sent, __svr_recvd, __cli_recvd, __cli_sent;
 static tt_ssl_config_t sc_cli_1, sc_svr_1;
 
+static tt_u32_t __ut_ev_snd, __ut_ev_rcv;
+static tt_s64_t __ut_ssl_max_diff;
+
+static tt_ssl_t *__ut_ssl_connect(const tt_char_t *addr, tt_u16_t port)
+{
+    tt_skt_t *s;
+    tt_ssl_t *ssl;
+
+    s = tt_skt_create(TT_NET_AF_INET, TT_NET_PROTO_TCP, NULL);
+    if (s == NULL) {
+        __ssl_err_line = __LINE__;
+        return NULL;
+    }
+
+    if (!TT_OK(tt_skt_connect_p(s, TT_NET_AF_INET, addr, port))) {
+        __ssl_err_line = __LINE__;
+        tt_skt_destroy(s);
+        return NULL;
+    }
+
+    ssl = tt_ssl_create(s, &sc_cli_1);
+    if (ssl == NULL) {
+        __ssl_err_line = __LINE__;
+        tt_skt_destroy(s);
+        return NULL;
+    }
+
+    return ssl;
+}
+
+static tt_ssl_t *__ut_ssl_accept(const tt_char_t *addr, tt_u16_t port)
+{
+    tt_skt_t *s, *new_s;
+    tt_ssl_t *ssl;
+
+    s = tt_skt_create(TT_NET_AF_INET, TT_NET_PROTO_TCP, NULL);
+    if (s == NULL) {
+        __ssl_err_line = __LINE__;
+        return NULL;
+    }
+
+    tt_skt_set_reuseaddr(s, TT_TRUE);
+
+    if (!TT_OK(tt_skt_bind_p(s, TT_NET_AF_INET, "127.0.0.1", 60606))) {
+        __ssl_err_line = __LINE__;
+        tt_skt_destroy(s);
+        return NULL;
+    }
+
+    if (!TT_OK(tt_skt_listen(s))) {
+        __ssl_err_line = __LINE__;
+        tt_skt_destroy(s);
+        return NULL;
+    }
+
+    new_s = tt_skt_accept(s, NULL, NULL);
+    if (new_s == NULL) {
+        __ssl_err_line = __LINE__;
+        tt_skt_destroy(s);
+        return NULL;
+    }
+
+    ssl = tt_ssl_create(new_s, &sc_svr_1);
+    if (ssl == NULL) {
+        __ssl_err_line = __LINE__;
+        tt_skt_destroy(s);
+        tt_skt_destroy(new_s);
+        return NULL;
+    }
+
+    tt_skt_destroy(s);
+    return ssl;
+}
+
 static tt_result_t __f_svr(IN void *param)
 {
     tt_skt_t *s, *new_s;
@@ -105,7 +185,7 @@ static tt_result_t __f_svr(IN void *param)
     tt_u32_t n;
     tt_result_t ret;
     tt_fiber_ev_t *fev;
-    tt_tmr_t *tmr;
+    tt_tmr_t *tmr, *e_tmr;
     tt_ssl_t *ssl;
 
     s = tt_skt_create(TT_NET_AF_INET, TT_NET_PROTO_TCP, NULL);
@@ -143,7 +223,7 @@ static tt_result_t __f_svr(IN void *param)
         return TT_FAIL;
     }
 
-    while ((ret = tt_ssl_recv(ssl, buf, sizeof(buf), &n, &fev, &tmr)) !=
+    while ((ret = tt_ssl_recv(ssl, buf, sizeof(buf), &n, &fev, &e_tmr)) !=
            TT_END) {
         tt_u32_t total = n;
 #ifdef __TCP_DETAIL
@@ -151,13 +231,56 @@ static tt_result_t __f_svr(IN void *param)
             TT_INFO("server recv %d", n);
         }
 #endif
+        __svr_recvd += n;
+        if (fev != NULL) {
+            if ((fev->src == NULL) && (fev->ev != 0x87654321)) {
+                __ssl_err_line = __LINE__;
+            }
+            if ((fev->src != NULL) && (fev->ev != 0x12345678)) {
+                __ssl_err_line = __LINE__;
+            }
+            ++__ut_ev_rcv;
+            tt_fiber_finish(fev);
+        }
+
+        if (e_tmr != NULL) {
+            tt_s64_t now = tt_time_ref();
+            now -= (tt_s64_t)(tt_uintptr_t)e_tmr->param;
+            now = labs((long)now);
+            now = tt_time_ref2ms(now);
+            if (now > __ut_ssl_max_diff) {
+                __ut_ssl_max_diff = now;
+            }
+
+            now = tt_rand_u32() % 3;
+            if (now == 0) {
+                tt_tmr_destroy(e_tmr);
+            } else if (now == 1) {
+                tt_tmr_stop(e_tmr);
+            } else {
+                tt_tmr_set_delay(e_tmr, tt_rand_u32() % 5 + 5);
+                tt_tmr_set_param(e_tmr, (void *)tt_time_ref());
+                tt_tmr_start(e_tmr);
+            }
+        }
+
+        if (tt_rand_u32() % 100 == 0) {
+            tmr =
+                tt_tmr_create(tt_rand_u32() % 5 + 5, 0, (void *)tt_time_ref());
+            if (tmr == NULL) {
+                __ssl_err_line = __LINE__;
+                return TT_FAIL;
+            }
+            tt_tmr_start(tmr);
+        }
+
         /*
          it has to recv all data, otherwise, data are accumulated in recv
          buffer of new_s. if new_s recv buffer is full, client will be
          blocked in tt_skt_send()
          */
         while (total < sizeof(buf)) {
-            if (!TT_OK(tt_ssl_recv(ssl, buf, sizeof(buf), &n, &fev, &tmr))) {
+            if (!TT_OK(tt_ssl_recv(ssl, buf, sizeof(buf), &n, &fev, &e_tmr))) {
                 __ssl_err_line = __LINE__;
                 return TT_FAIL;
             }
@@ -167,6 +290,49 @@ static tt_result_t __f_svr(IN void *param)
             }
 #endif
             __svr_recvd += n;
+
+            if (fev != NULL) {
+                if ((fev->src == NULL) && (fev->ev != 0x87654321)) {
+                    __ssl_err_line = __LINE__;
+                }
+                if ((fev->src != NULL) && (fev->ev != 0x12345678)) {
+                    __ssl_err_line = __LINE__;
+                }
+                ++__ut_ev_rcv;
+                tt_fiber_finish(fev);
+            }
+
+            if (e_tmr != NULL) {
+                tt_s64_t now = tt_time_ref();
+                now -= (tt_s64_t)(tt_uintptr_t)e_tmr->param;
+                now = labs((long)now);
+                now = tt_time_ref2ms(now);
+                if (now > __ut_ssl_max_diff) {
+                    __ut_ssl_max_diff = now;
+                }
+
+                now = tt_rand_u32() % 3;
+                if (now == 0) {
+                    tt_tmr_destroy(e_tmr);
+                } else if (now == 1) {
+                    tt_tmr_stop(e_tmr);
+                } else {
+                    tt_tmr_set_delay(e_tmr, tt_rand_u32() % 5 + 5);
+                    tt_tmr_set_param(e_tmr, (void *)tt_time_ref());
+                    tt_tmr_start(e_tmr);
+                }
+            }
+
+            if (tt_rand_u32() % 100 == 0) {
+                tmr = tt_tmr_create(tt_rand_u32() % 5 + 5,
+                                    0,
+                                    (void *)tt_time_ref());
+                if (tmr == NULL) {
+                    __ssl_err_line = __LINE__;
+                    return TT_FAIL;
+                }
+                tt_tmr_start(tmr);
+            }
 
             total += n;
         }
@@ -197,10 +363,13 @@ static tt_result_t __f_svr(IN void *param)
     TT_INFO("server shutdown");
 #endif
 
-    if (tt_ssl_recv(ssl, buf, sizeof(buf), &n, &fev, &tmr) != TT_END) {
-        __ssl_err_line = __LINE__;
-        return TT_FAIL;
+    // may be some fev and tmr left, receive them
+    while (TT_OK(ret = tt_ssl_recv(ssl, buf, sizeof(buf), &n, &fev, &tmr))) {
     }
+    if (ret != TT_END) {
+        __ssl_err_line = __LINE__;
+    }
+
 #ifdef __TCP_DETAIL
     TT_INFO("server recv end");
 #endif
@@ -218,8 +387,9 @@ static tt_result_t __f_cli(IN void *param)
     tt_u8_t buf[1 << 14] = "123";
     tt_u32_t n, loop;
     tt_fiber_ev_t *fev;
-    tt_tmr_t *tmr;
+    tt_tmr_t *tmr, *e_tmr;
     tt_ssl_t *ssl;
+    tt_fiber_t *svr = tt_fiber_find("svr");
 
     s = tt_skt_create(TT_NET_AF_INET, TT_NET_PROTO_TCP, NULL);
     if (s == NULL) {
@@ -262,9 +432,26 @@ static tt_result_t __f_cli(IN void *param)
             return TT_FAIL;
         }
 
+        if (tt_rand_u32() % 5 == 0) {
+            tt_u32_t r = tt_rand_u32() % 2;
+            if (r == 0) {
+                tt_fiber_ev_t e;
+                tt_fiber_ev_init(&e, 0x12345678);
+                __SSL_DETAIL("=> cli send ev wait");
+                tt_fiber_send(svr, &e, TT_TRUE);
+                __SSL_DETAIL("<= cli send ev wait");
+            } else {
+                tt_fiber_ev_t *e = tt_fiber_ev_create(0x87654321, 0);
+                __SSL_DETAIL("=> cli send ev");
+                tt_fiber_send(svr, e, TT_FALSE);
+                __SSL_DETAIL("<= cli send ev");
+            }
+            ++__ut_ev_snd;
+        }
+
         total = 0;
         while (total < sizeof(buf)) {
-            if (!TT_OK(tt_ssl_recv(ssl, buf, sizeof(buf), &n, &fev, &tmr))) {
+            if (!TT_OK(tt_ssl_recv(ssl, buf, sizeof(buf), &n, &fev, &e_tmr))) {
                 __ssl_err_line = __LINE__;
                 return TT_FAIL;
             }
@@ -274,6 +461,38 @@ static tt_result_t __f_cli(IN void *param)
             }
 #endif
             __cli_recvd += n;
+
+            if (e_tmr != NULL) {
+                tt_s64_t now = tt_time_ref();
+                now -= (tt_s64_t)(tt_uintptr_t)e_tmr->param;
+                now = labs((long)now);
+                now = tt_time_ref2ms(now);
+                if (now > __ut_ssl_max_diff) {
+                    __ut_ssl_max_diff = now;
+                }
+
+                now = tt_rand_u32() % 3;
+                if (now == 0) {
+                    tt_tmr_destroy(e_tmr);
+                } else if (now == 1) {
+                    tt_tmr_stop(e_tmr);
+                } else {
+                    tt_tmr_set_delay(e_tmr, tt_rand_u32() % 5 + 5);
+                    tt_tmr_set_param(e_tmr, (void *)tt_time_ref());
+                    tt_tmr_start(e_tmr);
+                }
+            }
+
+            if (tt_rand_u32() % 100 == 0) {
+                tmr = tt_tmr_create(tt_rand_u32() % 5 + 5,
+                                    0,
+                                    (void *)tt_time_ref());
+                if (tmr == NULL) {
+                    __ssl_err_line = __LINE__;
+                    return TT_FAIL;
+                }
+                tt_tmr_start(tmr);
+            }
 
             total += n;
         }
@@ -316,8 +535,8 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_ssl_basic)
     ret = tt_task_create(&t, NULL);
     TT_UT_SUCCESS(ret, "");
 
-    tt_task_add_fiber(&t, NULL, __f_svr, NULL, NULL);
-    tt_task_add_fiber(&t, NULL, __f_cli, NULL, NULL);
+    tt_task_add_fiber(&t, "svr", __f_svr, NULL, NULL);
+    tt_task_add_fiber(&t, "cli", __f_cli, NULL, NULL);
 
     __ssl_err_line = 0;
     tt_atomic_s64_set(&__io_num, 0);
@@ -359,8 +578,15 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_ssl_basic)
 
     end = tt_time_ref();
     dur = tt_time_ref2ms(end - start);
-    TT_RECORD_INFO("speed: %f MB/s",
-                   (float)(tt_atomic_s64_get(&__io_num) >> 20) * 1000 / dur);
+    TT_RECORD_INFO(
+        "ssl: %f MB/s, cli sent/recv: %d/%d, svr sent/recv: %d/%d, time diff: "
+        "%d",
+        ((float)tt_atomic_s64_get(&__io_num) / (1 << 20)) * 1000 / dur,
+        __cli_sent,
+        __cli_recvd,
+        __svr_sent,
+        __svr_recvd,
+        (tt_s32_t)__ut_ssl_max_diff);
 
     tt_x509cert_destroy(&ca);
     tt_x509crl_destroy(&crl);
