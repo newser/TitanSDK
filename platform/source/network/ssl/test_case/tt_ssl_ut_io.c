@@ -58,11 +58,15 @@ extern tt_bool_t has_x509;
 
 // === routine declarations ================
 TT_TEST_ROUTINE_DECLARE(tt_unit_test_ssl_basic)
+TT_TEST_ROUTINE_DECLARE(tt_unit_test_ssl_ver)
+TT_TEST_ROUTINE_DECLARE(tt_unit_test_ssl_auth)
+TT_TEST_ROUTINE_DECLARE(tt_unit_test_ssl_alpn)
 // =========================================
 
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(ssl_io_case)
 
+#if 0
 TT_TEST_CASE("tt_unit_test_ssl_basic",
              "ssl: basic io",
              tt_unit_test_ssl_basic,
@@ -72,6 +76,37 @@ TT_TEST_CASE("tt_unit_test_ssl_basic",
              NULL,
              NULL)
 ,
+#endif
+
+#if 1
+TT_TEST_CASE("tt_unit_test_ssl_ver",
+             "ssl: version",
+             tt_unit_test_ssl_ver,
+             NULL,
+             __x509_prepare,
+             NULL,
+             NULL,
+             NULL)
+,
+
+    TT_TEST_CASE("tt_unit_test_ssl_auth",
+                 "ssl: authentication",
+                 tt_unit_test_ssl_auth,
+                 NULL,
+                 __x509_prepare,
+                 NULL,
+                 NULL,
+                 NULL),
+
+    TT_TEST_CASE("tt_unit_test_ssl_alpn",
+                 "ssl: alpn",
+                 tt_unit_test_ssl_alpn,
+                 NULL,
+                 __x509_prepare,
+                 NULL,
+                 NULL,
+                 NULL),
+#endif
 
     TT_TEST_CASE_LIST_DEFINE_END(ssl_io_case)
     // =========================================
@@ -87,7 +122,7 @@ TT_TEST_CASE("tt_unit_test_ssl_basic",
     ////////////////////////////////////////////////////////////
 
     /*
-    TT_TEST_ROUTINE_DEFINE(tt_unit_test_ssl_basic)
+    TT_TEST_ROUTINE_DEFINE(tt_unit_test_ssl_ver)
     {
         //tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
 
@@ -106,6 +141,9 @@ static tt_ssl_config_t sc_cli_1, sc_svr_1;
 
 static tt_u32_t __ut_ev_snd, __ut_ev_rcv;
 static tt_s64_t __ut_ssl_max_diff;
+
+static const tt_char_t *__ut_alpn;
+static const tt_char_t *__ut_server_name;
 
 static tt_ssl_t *__ut_ssl_connect(const tt_char_t *addr, tt_u16_t port)
 {
@@ -408,6 +446,11 @@ static tt_result_t __f_cli(IN void *param)
         return TT_FAIL;
     }
 
+    if (!TT_OK(tt_ssl_set_hostname(ssl, "child-1"))) {
+        __ssl_err_line = __LINE__;
+        return TT_FAIL;
+    }
+
     if (!TT_OK(tt_ssl_handshake(ssl, &fev, &tmr))) {
         __ssl_err_line = __LINE__;
         return TT_FAIL;
@@ -546,6 +589,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_ssl_basic)
                                TT_SSL_TRANSPORT_STREAM,
                                TT_SSL_PRESET_DEFAULT);
     TT_UT_SUCCESS(ret, "");
+    tt_ssl_config_auth(&sc_cli_1, TT_SSL_AUTH_REQUIRED);
 
     ret = tt_ssl_config_create(&sc_svr_1,
                                TT_SSL_SERVER,
@@ -592,6 +636,380 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_ssl_basic)
     tt_x509crl_destroy(&crl);
     tt_x509cert_destroy(&cert);
     tt_pk_destroy(&pk);
+    tt_ssl_config_destroy(&sc_cli_1);
+    tt_ssl_config_destroy(&sc_svr_1);
+
+    // test end
+    TT_TEST_CASE_LEAVE()
+}
+
+static tt_result_t __f_svr_fail(IN void *param)
+{
+    tt_ssl_t *ssl = __ut_ssl_accept("127.0.0.1", 60606);
+    tt_fiber_ev_t *p_ev;
+    tt_tmr_t *e_tmr;
+
+    if (ssl == NULL) {
+        __ssl_err_line = __LINE__;
+        return TT_FAIL;
+    }
+
+    if (TT_OK(tt_ssl_handshake(ssl, &p_ev, &e_tmr))) {
+        __ssl_err_line = __LINE__;
+        return TT_FAIL;
+    }
+
+    tt_ssl_destroy(ssl);
+    return TT_SUCCESS;
+}
+
+static tt_result_t __f_svr_ok(IN void *param)
+{
+    tt_ssl_t *ssl = __ut_ssl_accept("127.0.0.1", 60606);
+    tt_fiber_ev_t *p_ev;
+    tt_tmr_t *e_tmr;
+
+    if (ssl == NULL) {
+        __ssl_err_line = __LINE__;
+        return TT_FAIL;
+    }
+
+    if (!TT_OK(tt_ssl_handshake(ssl, &p_ev, &e_tmr))) {
+        __ssl_err_line = __LINE__;
+        return TT_FAIL;
+    }
+
+    if (__ut_alpn != NULL) {
+        const tt_char_t *a = tt_ssl_get_alpn(ssl);
+        if (tt_strcmp(a, __ut_alpn) != 0) {
+            __ssl_err_line = __LINE__;
+            return TT_FAIL;
+        }
+    }
+
+    tt_ssl_destroy(ssl);
+    return TT_SUCCESS;
+}
+
+static tt_result_t __f_cli_fail(IN void *param)
+{
+    tt_ssl_t *ssl = __ut_ssl_connect("127.0.0.1", 60606);
+    tt_fiber_ev_t *p_ev;
+    tt_tmr_t *e_tmr;
+
+    if (ssl == NULL) {
+        __ssl_err_line = __LINE__;
+        return TT_FAIL;
+    }
+
+    if (TT_OK(tt_ssl_handshake(ssl, &p_ev, &e_tmr))) {
+        __ssl_err_line = __LINE__;
+        return TT_FAIL;
+    }
+
+    tt_ssl_destroy(ssl);
+    return TT_SUCCESS;
+}
+
+static tt_result_t __f_cli_ok(IN void *param)
+{
+    tt_ssl_t *ssl = __ut_ssl_connect("127.0.0.1", 60606);
+    tt_fiber_ev_t *p_ev;
+    tt_tmr_t *e_tmr;
+
+    if (ssl == NULL) {
+        __ssl_err_line = __LINE__;
+        return TT_FAIL;
+    }
+
+    if (__ut_server_name != NULL) {
+        if (!TT_OK(tt_ssl_set_hostname(ssl, __ut_server_name))) {
+            __ssl_err_line = __LINE__;
+            return TT_FAIL;
+        }
+    }
+
+    if (!TT_OK(tt_ssl_handshake(ssl, &p_ev, &e_tmr))) {
+        __ssl_err_line = __LINE__;
+        return TT_FAIL;
+    }
+
+    tt_ssl_destroy(ssl);
+    return TT_SUCCESS;
+}
+
+TT_TEST_ROUTINE_DEFINE(tt_unit_test_ssl_ver)
+{
+    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+    tt_result_t ret;
+    tt_task_t t;
+    tt_x509cert_t ca, cert;
+    tt_x509crl_t crl;
+    tt_pk_t pk;
+
+    TT_TEST_CASE_ENTER()
+    // test start
+
+    ret = tt_task_create(&t, NULL);
+    TT_UT_SUCCESS(ret, "");
+
+    __ssl_err_line = 0;
+    tt_atomic_s64_set(&__io_num, 0);
+
+    ret = tt_ssl_config_create(&sc_cli_1,
+                               TT_SSL_CLIENT,
+                               TT_SSL_TRANSPORT_STREAM,
+                               TT_SSL_PRESET_DEFAULT);
+    TT_UT_SUCCESS(ret, "");
+    tt_ssl_config_version(&sc_cli_1, TT_TLS_V1_1, TT_TLS_V1_1);
+
+    ret = tt_ssl_config_create(&sc_svr_1,
+                               TT_SSL_SERVER,
+                               TT_SSL_TRANSPORT_STREAM,
+                               TT_SSL_PRESET_DEFAULT);
+    TT_UT_SUCCESS(ret, "");
+    tt_ssl_config_version(&sc_svr_1, TT_TLS_V1_2, TT_TLS_V1_2);
+
+    tt_x509cert_init(&cert);
+    ret = tt_x509cert_add_file(&cert, __X509_CA2);
+    TT_UT_SUCCESS(ret, "");
+    tt_pk_init(&pk);
+    ret = tt_pk_load_private_file(&pk, __CA_key2, (tt_u8_t *)"456", 3);
+    tt_ssl_config_cert(&sc_svr_1, &cert, &pk);
+
+    tt_x509cert_init(&ca);
+    ret = tt_x509cert_add_file(&ca, __X509_CA);
+    TT_UT_SUCCESS(ret, "");
+    tt_x509crl_init(&crl);
+    // ret = tt_x509crl_add_file(&crl, __X509_CRL1);
+    TT_UT_SUCCESS(ret, "");
+    tt_ssl_config_ca(&sc_cli_1, &ca, &crl);
+
+    tt_task_add_fiber(&t, "svr", __f_svr_fail, NULL, NULL);
+    tt_task_add_fiber(&t, "cli", __f_cli_fail, NULL, NULL);
+    ret = tt_task_run(&t);
+    TT_UT_SUCCESS(ret, "");
+    tt_task_wait(&t);
+    TT_UT_EQUAL(__ssl_err_line, 0, "");
+
+    // same version
+    tt_ssl_config_version(&sc_cli_1, TT_TLS_V1_2, TT_TLS_V1_2);
+    tt_ssl_config_version(&sc_svr_1, TT_TLS_V1_0, TT_TLS_V1_2);
+
+    ret = tt_task_create(&t, NULL);
+    TT_UT_SUCCESS(ret, "");
+    tt_task_add_fiber(&t, "svr", __f_svr_ok, NULL, NULL);
+    tt_task_add_fiber(&t, "cli", __f_cli_ok, NULL, NULL);
+    ret = tt_task_run(&t);
+    TT_UT_SUCCESS(ret, "");
+    tt_task_wait(&t);
+    TT_UT_EQUAL(__ssl_err_line, 0, "");
+
+    tt_x509cert_destroy(&ca);
+    tt_x509crl_destroy(&crl);
+    tt_x509cert_destroy(&cert);
+    tt_pk_destroy(&pk);
+    tt_ssl_config_destroy(&sc_cli_1);
+    tt_ssl_config_destroy(&sc_svr_1);
+
+    // test end
+    TT_TEST_CASE_LEAVE()
+}
+
+tt_result_t __ut_on_sni(IN struct tt_ssl_s *ssl,
+                        IN const tt_u8_t *sni,
+                        IN tt_u32_t len,
+                        IN void *param)
+{
+    if (len != sizeof("child-1") - 1 || tt_memcmp(sni, "child-1", len) != 0) {
+        return TT_FAIL;
+    }
+
+    return TT_SUCCESS;
+}
+
+TT_TEST_ROUTINE_DEFINE(tt_unit_test_ssl_auth)
+{
+    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+    tt_result_t ret;
+    tt_task_t t;
+    tt_x509cert_t ca, ca2, cert, cert2;
+    tt_x509crl_t crl;
+    tt_pk_t pk, pk2;
+
+    TT_TEST_CASE_ENTER()
+    // test start
+
+    ret = tt_task_create(&t, NULL);
+    TT_UT_SUCCESS(ret, "");
+
+    __ssl_err_line = 0;
+    tt_atomic_s64_set(&__io_num, 0);
+    __ut_server_name = "child-1";
+
+    ret = tt_ssl_config_create(&sc_cli_1,
+                               TT_SSL_CLIENT,
+                               TT_SSL_TRANSPORT_STREAM,
+                               TT_SSL_PRESET_DEFAULT);
+    TT_UT_SUCCESS(ret, "");
+    tt_ssl_config_auth(&sc_cli_1, TT_SSL_AUTH_NONE);
+
+    ret = tt_ssl_config_create(&sc_svr_1,
+                               TT_SSL_SERVER,
+                               TT_SSL_TRANSPORT_STREAM,
+                               TT_SSL_PRESET_DEFAULT);
+    TT_UT_SUCCESS(ret, "");
+    tt_ssl_config_auth(&sc_svr_1, TT_SSL_AUTH_REQUIRED);
+
+    // server cert
+    tt_x509cert_init(&cert);
+    ret = tt_x509cert_add_file(&cert, __X509_CA2);
+    TT_UT_SUCCESS(ret, "");
+    tt_pk_init(&pk);
+    ret = tt_pk_load_private_file(&pk, __CA_key2, (tt_u8_t *)"456", 3);
+    TT_UT_SUCCESS(ret, "");
+    tt_ssl_config_cert(&sc_svr_1, &cert, &pk);
+
+    // server ca
+    tt_x509cert_init(&ca2);
+    ret = tt_x509cert_add_file(&ca2, __X509_CA);
+    TT_UT_SUCCESS(ret, "");
+    ret = tt_x509cert_add_file(&ca2, __X509_CA2);
+    TT_UT_SUCCESS(ret, "");
+    tt_ssl_config_ca(&sc_svr_1, &ca2, NULL);
+
+    // client cert
+    tt_x509cert_init(&cert2);
+    ret = tt_x509cert_add_file(&cert2, __X509_LEAF);
+    TT_UT_SUCCESS(ret, "");
+    tt_pk_init(&pk2);
+    ret = tt_pk_load_private_file(&pk2, __leaf_key, (tt_u8_t *)"789", 3);
+    tt_ssl_config_cert(&sc_cli_1, &cert2, &pk2);
+
+    // client ca
+    tt_x509cert_init(&ca);
+    ret = tt_x509cert_add_file(&ca, __X509_CA);
+    TT_UT_SUCCESS(ret, "");
+    tt_x509crl_init(&crl);
+    // ret = tt_x509crl_add_file(&crl, __X509_CRL1);
+    TT_UT_SUCCESS(ret, "");
+    tt_ssl_config_ca(&sc_cli_1, &ca, &crl);
+
+    ret = tt_task_create(&t, NULL);
+    TT_UT_SUCCESS(ret, "");
+    tt_task_add_fiber(&t, "svr", __f_svr_ok, NULL, NULL);
+    tt_task_add_fiber(&t, "cli", __f_cli_ok, NULL, NULL);
+    ret = tt_task_run(&t);
+    TT_UT_SUCCESS(ret, "");
+    tt_task_wait(&t);
+    TT_UT_EQUAL(__ssl_err_line, 0, "");
+
+    // sni
+    tt_ssl_config_auth(&sc_cli_1, TT_SSL_AUTH_REQUIRED);
+    tt_ssl_config_sni(&sc_svr_1, __ut_on_sni, NULL);
+
+    ret = tt_task_create(&t, NULL);
+    TT_UT_SUCCESS(ret, "");
+    tt_task_add_fiber(&t, "svr", __f_svr_ok, NULL, NULL);
+    tt_task_add_fiber(&t, "cli", __f_cli_ok, NULL, NULL);
+    ret = tt_task_run(&t);
+    TT_UT_SUCCESS(ret, "");
+    tt_task_wait(&t);
+    TT_UT_EQUAL(__ssl_err_line, 0, "");
+
+    tt_x509cert_destroy(&ca);
+    tt_x509cert_destroy(&ca2);
+    tt_x509crl_destroy(&crl);
+    tt_x509cert_destroy(&cert);
+    tt_x509cert_destroy(&cert2);
+    tt_pk_destroy(&pk);
+    tt_ssl_config_destroy(&sc_cli_1);
+    tt_ssl_config_destroy(&sc_svr_1);
+
+    __ut_server_name = NULL;
+
+    // test end
+    TT_TEST_CASE_LEAVE()
+}
+
+TT_TEST_ROUTINE_DEFINE(tt_unit_test_ssl_alpn)
+{
+    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+    tt_result_t ret;
+    tt_task_t t;
+    tt_x509cert_t ca, cert;
+    tt_x509crl_t crl;
+    tt_pk_t pk;
+    const tt_char_t *cli_alpn[] = {"h1", "h2", "h3", NULL};
+    const tt_char_t *svr_alpn1[] = {"h4", "h2", "h1", NULL};
+    const tt_char_t *svr_alpn2[] = {"x", NULL};
+
+    TT_TEST_CASE_ENTER()
+    // test start
+
+    ret = tt_task_create(&t, NULL);
+    TT_UT_SUCCESS(ret, "");
+
+    __ssl_err_line = 0;
+    tt_atomic_s64_set(&__io_num, 0);
+    __ut_alpn = "h2";
+
+    ret = tt_ssl_config_create(&sc_cli_1,
+                               TT_SSL_CLIENT,
+                               TT_SSL_TRANSPORT_STREAM,
+                               TT_SSL_PRESET_DEFAULT);
+    TT_UT_SUCCESS(ret, "");
+    tt_ssl_config_alpn(&sc_cli_1, cli_alpn);
+
+    ret = tt_ssl_config_create(&sc_svr_1,
+                               TT_SSL_SERVER,
+                               TT_SSL_TRANSPORT_STREAM,
+                               TT_SSL_PRESET_DEFAULT);
+    TT_UT_SUCCESS(ret, "");
+    tt_ssl_config_alpn(&sc_svr_1, svr_alpn2);
+
+    tt_x509cert_init(&cert);
+    ret = tt_x509cert_add_file(&cert, __X509_CA2);
+    TT_UT_SUCCESS(ret, "");
+    tt_pk_init(&pk);
+    ret = tt_pk_load_private_file(&pk, __CA_key2, (tt_u8_t *)"456", 3);
+    tt_ssl_config_cert(&sc_svr_1, &cert, &pk);
+
+    tt_x509cert_init(&ca);
+    ret = tt_x509cert_add_file(&ca, __X509_CA);
+    TT_UT_SUCCESS(ret, "");
+    tt_x509crl_init(&crl);
+    // ret = tt_x509crl_add_file(&crl, __X509_CRL1);
+    TT_UT_SUCCESS(ret, "");
+    tt_ssl_config_ca(&sc_cli_1, &ca, &crl);
+
+    tt_task_add_fiber(&t, "svr", __f_svr_fail, NULL, NULL);
+    tt_task_add_fiber(&t, "cli", __f_cli_fail, NULL, NULL);
+    ret = tt_task_run(&t);
+    TT_UT_SUCCESS(ret, "");
+    tt_task_wait(&t);
+    TT_UT_EQUAL(__ssl_err_line, 0, "");
+
+    // same version
+    tt_ssl_config_alpn(&sc_svr_1, svr_alpn1);
+
+    ret = tt_task_create(&t, NULL);
+    TT_UT_SUCCESS(ret, "");
+    tt_task_add_fiber(&t, "svr", __f_svr_ok, NULL, NULL);
+    tt_task_add_fiber(&t, "cli", __f_cli_ok, NULL, NULL);
+    ret = tt_task_run(&t);
+    TT_UT_SUCCESS(ret, "");
+    tt_task_wait(&t);
+    TT_UT_EQUAL(__ssl_err_line, 0, "");
+
+    tt_x509cert_destroy(&ca);
+    tt_x509crl_destroy(&crl);
+    tt_x509cert_destroy(&cert);
+    tt_pk_destroy(&pk);
+    tt_ssl_config_destroy(&sc_cli_1);
+    tt_ssl_config_destroy(&sc_svr_1);
+
+    __ut_alpn = NULL;
 
     // test end
     TT_TEST_CASE_LEAVE()

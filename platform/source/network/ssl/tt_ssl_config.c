@@ -53,6 +53,11 @@
 
 static void __ssl_dbg(void *, int, const char *, int, const char *);
 
+static int __ssl_sni(void *p,
+                     mbedtls_ssl_context *ctx,
+                     const unsigned char *sni,
+                     size_t len);
+
 ////////////////////////////////////////////////////////////
 // interface implementation
 ////////////////////////////////////////////////////////////
@@ -243,6 +248,18 @@ void tt_ssl_config_session_ticket(IN tt_ssl_config_t *sc, IN tt_bool_t enable)
                 MBEDTLS_SSL_SESSION_TICKETS_DISABLED));
 }
 
+void tt_ssl_config_sni(IN tt_ssl_config_t *sc,
+                       IN tt_ssl_on_sni_t on_sni,
+                       IN void *param)
+{
+    TT_ASSERT(sc != NULL);
+    TT_ASSERT(on_sni != NULL);
+
+    sc->on_sni = on_sni;
+    sc->on_sni_param = param;
+    mbedtls_ssl_conf_sni(&sc->cfg, __ssl_sni, sc);
+}
+
 void __ssl_dbg(
     void *param, int level, const char *file, int line, const char *msg)
 {
@@ -265,4 +282,20 @@ void __ssl_dbg(
     }
 
     tt_logmgr_inputf((tt_logmgr_t *)param, l, p, line, "%s", msg);
+}
+
+int __ssl_sni(void *p,
+              mbedtls_ssl_context *ctx,
+              const unsigned char *sni,
+              size_t len)
+{
+    tt_ssl_config_t *sc = (tt_ssl_config_t *)p;
+    if (TT_OK(sc->on_sni(TT_CONTAINER(ctx, tt_ssl_t, ctx),
+                         sni,
+                         len,
+                         sc->on_sni_param))) {
+        return 0;
+    } else {
+        return -1;
+    }
 }

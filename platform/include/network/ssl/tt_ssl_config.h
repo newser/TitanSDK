@@ -40,12 +40,21 @@ this file defines ssl configuration APIs
 // type definition
 ////////////////////////////////////////////////////////////
 
+struct tt_ssl_s;
 struct tt_x509cert_s;
 struct tt_x509crl_s;
 struct tt_pk_s;
 
+typedef tt_result_t (*tt_ssl_on_sni_t)(IN struct tt_ssl_s *ssl,
+                                       IN const tt_u8_t *sni,
+                                       IN tt_u32_t len,
+                                       IN void *param);
+
 typedef struct tt_ssl_config_s
 {
+    tt_ssl_on_sni_t on_sni;
+    void *on_sni_param;
+
     mbedtls_ssl_config cfg;
 } tt_ssl_config_t;
 
@@ -134,5 +143,9 @@ extern void tt_ssl_config_trunc_hmac(IN tt_ssl_config_t *sc,
 
 extern void tt_ssl_config_session_ticket(IN tt_ssl_config_t *sc,
                                          IN tt_bool_t enable);
+
+extern void tt_ssl_config_sni(IN tt_ssl_config_t *sc,
+                              IN tt_ssl_on_sni_t on_sni,
+                              IN void *param);
 
 #endif /* __TT_SSL_CONFIG__ */

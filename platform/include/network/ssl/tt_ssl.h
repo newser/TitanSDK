@@ -30,6 +30,7 @@ this file defines ssl initialization APIs
 
 #include <log/tt_log.h>
 #include <log/tt_log_manager.h>
+#include <network/ssl/tt_ssl_config.h>
 
 #include <ssl.h>
 
@@ -55,7 +56,7 @@ struct tt_ssl_config_s;
 struct tt_fiber_ev_s;
 struct tt_tmr_s;
 
-typedef struct
+typedef struct tt_ssl_s
 {
     struct tt_skt_s *skt;
     struct tt_fiber_ev_s **p_fev;
@@ -116,5 +117,20 @@ extern tt_result_t tt_ssl_shutdown(IN tt_ssl_t *ssl, IN tt_ssl_shut_t shut);
 
 extern tt_result_t tt_ssl_set_hostname(IN tt_ssl_t *ssl,
                                        IN const tt_char_t *hostname);
+
+extern void tt_ssl_set_ca(IN tt_ssl_t *ssl,
+                          IN OPT struct tt_x509cert_s *ca,
+                          IN OPT struct tt_x509crl_s *crl);
+
+extern tt_result_t tt_ssl_set_cert(IN tt_ssl_t *ssl,
+                                   IN struct tt_x509cert_s *cert,
+                                   IN struct tt_pk_s *pk);
+
+extern void tt_ssl_set_auth(IN tt_ssl_t *ssl, IN tt_ssl_auth_t auth);
+
+tt_inline const tt_char_t *tt_ssl_get_alpn(IN tt_ssl_t *ssl)
+{
+    return mbedtls_ssl_get_alpn_protocol(&ssl->ctx);
+}
 
 #endif /* __TT_SSL__ */

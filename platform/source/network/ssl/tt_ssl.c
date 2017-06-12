@@ -20,6 +20,7 @@
 
 #include <network/ssl/tt_ssl.h>
 
+#include <crypto/tt_public_key.h>
 #include <init/tt_component.h>
 #include <init/tt_profile.h>
 #include <io/tt_socket.h>
@@ -29,6 +30,8 @@
 #include <misc/tt_assert.h>
 #include <misc/tt_util.h>
 #include <network/ssl/tt_ssl_config.h>
+#include <network/ssl/tt_x509_cert.h>
+#include <network/ssl/tt_x509_crl.h>
 
 #include <debug.h>
 #include <net_sockets.h>
@@ -274,6 +277,50 @@ tt_result_t tt_ssl_set_hostname(IN tt_ssl_t *ssl, IN const tt_char_t *hostname)
     }
 
     return TT_SUCCESS;
+}
+
+void tt_ssl_set_ca(IN tt_ssl_t *ssl,
+                   IN OPT tt_x509cert_t *ca,
+                   IN OPT tt_x509crl_t *crl)
+{
+    TT_ASSERT(ssl != NULL);
+
+    mbedtls_ssl_set_hs_ca_chain(&ssl->ctx,
+                                TT_COND(ca != NULL, &ca->crt, NULL),
+                                TT_COND(crl != NULL, &crl->crl, NULL));
+}
+
+tt_result_t tt_ssl_set_cert(IN tt_ssl_t *ssl,
+                            IN tt_x509cert_t *cert,
+                            IN tt_pk_t *pk)
+{
+    int e;
+
+    TT_ASSERT(ssl != NULL);
+    TT_ASSERT(cert != NULL);
+    TT_ASSERT(cert != NULL);
+
+    e = mbedtls_ssl_set_hs_own_cert(&ssl->ctx, &cert->crt, &pk->ctx);
+    if (e != 0) {
+        tt_ssl_error("fail to set ssl cert");
+        return TT_FAIL;
+    }
+
+    return TT_SUCCESS;
+}
+
+void tt_ssl_set_auth(IN tt_ssl_t *ssl, IN tt_ssl_auth_t auth)
+{
+    TT_ASSERT(ssl != NULL);
+    TT_ASSERT(TT_SSL_AUTH_VALID(auth));
+
+    if (auth == TT_SSL_AUTH_NONE) {
+        mbedtls_ssl_set_hs_authmode(&ssl->ctx, MBEDTLS_SSL_VERIFY_NONE);
+    } else if (auth == TT_SSL_AUTH_OPTIONAL) {
+        mbedtls_ssl_set_hs_authmode(&ssl->ctx, MBEDTLS_SSL_VERIFY_OPTIONAL);
+    } else {
+        mbedtls_ssl_set_hs_authmode(&ssl->ctx, MBEDTLS_SSL_VERIFY_REQUIRED);
+    }
 }
 
 tt_result_t __ssl_component_init(IN tt_component_t *comp,
