@@ -44,16 +44,20 @@ struct tt_ssl_s;
 struct tt_x509cert_s;
 struct tt_x509crl_s;
 struct tt_pk_s;
+struct tt_ssl_cache_s;
+struct tt_ssl_cache_attr_s;
 
 typedef tt_result_t (*tt_ssl_on_sni_t)(IN struct tt_ssl_s *ssl,
                                        IN const tt_u8_t *sni,
                                        IN tt_u32_t len,
                                        IN void *param);
 
+// a ssl config is for a single ssl server
 typedef struct tt_ssl_config_s
 {
     tt_ssl_on_sni_t on_sni;
     void *on_sni_param;
+    struct tt_ssl_cache_s *cache;
 
     mbedtls_ssl_config cfg;
 } tt_ssl_config_t;
@@ -147,5 +151,8 @@ extern void tt_ssl_config_session_ticket(IN tt_ssl_config_t *sc,
 extern void tt_ssl_config_sni(IN tt_ssl_config_t *sc,
                               IN tt_ssl_on_sni_t on_sni,
                               IN void *param);
+
+extern tt_result_t tt_ssl_config_cache(IN tt_ssl_config_t *sc,
+                                       IN OPT struct tt_ssl_cache_attr_s *attr);
 
 #endif /* __TT_SSL_CONFIG__ */

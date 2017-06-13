@@ -29,6 +29,7 @@
 #include <memory/tt_memory_alloc.h>
 #include <misc/tt_assert.h>
 #include <misc/tt_util.h>
+#include <network/ssl/tt_ssl_cache.h>
 #include <network/ssl/tt_ssl_config.h>
 #include <network/ssl/tt_x509_cert.h>
 #include <network/ssl/tt_x509_crl.h>
@@ -159,6 +160,8 @@ tt_result_t tt_ssl_handshake(IN tt_ssl_t *ssl,
     int e;
 
     TT_ASSERT(ssl != NULL);
+
+    tt_ssl_resume(ssl);
 
     ssl->p_fev = p_fev;
     ssl->p_tmr = p_tmr;

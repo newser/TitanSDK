@@ -25,6 +25,8 @@
 #include <misc/tt_assert.h>
 #include <misc/tt_util.h>
 #include <network/ssl/tt_ssl.h>
+#include <network/ssl/tt_ssl_cache.h>
+#include <network/ssl/tt_ssl_cache.h>
 #include <network/ssl/tt_x509_cert.h>
 #include <network/ssl/tt_x509_crl.h>
 
@@ -74,6 +76,10 @@ tt_result_t tt_ssl_config_create(IN tt_ssl_config_t *sc,
     TT_ASSERT(TT_SSL_ROLE_VALID(role));
     TT_ASSERT(TT_SSL_TRANSPORT_VALID(transport));
     TT_ASSERT(TT_SSL_PRESET_VALID(preset));
+
+    sc->on_sni = NULL;
+    sc->on_sni_param = NULL;
+    sc->cache = NULL;
 
     cfg = &sc->cfg;
 
@@ -127,6 +133,10 @@ tt_result_t tt_ssl_config_create(IN tt_ssl_config_t *sc,
 void tt_ssl_config_destroy(IN tt_ssl_config_t *sc)
 {
     TT_ASSERT(sc != NULL);
+
+    if (sc->cache != NULL) {
+        tt_ssl_cache_destroy(sc->cache);
+    }
 
     mbedtls_ssl_config_free(&sc->cfg);
 }
@@ -258,6 +268,27 @@ void tt_ssl_config_sni(IN tt_ssl_config_t *sc,
     sc->on_sni = on_sni;
     sc->on_sni_param = param;
     mbedtls_ssl_conf_sni(&sc->cfg, __ssl_sni, sc);
+}
+
+tt_result_t tt_ssl_config_cache(IN tt_ssl_config_t *sc,
+                                IN OPT tt_ssl_cache_attr_t *attr)
+{
+    if (sc->cache != NULL) {
+        TT_ERROR("cache is already configured");
+        return TT_FAIL;
+    }
+
+    sc->cache = tt_ssl_cache_create(attr);
+    if (sc->cache == NULL) {
+        return TT_FAIL;
+    }
+
+    mbedtls_ssl_conf_session_cache(&sc->cfg,
+                                   sc->cache,
+                                   tt_ssl_cache_get,
+                                   tt_ssl_cache_set);
+
+    return TT_SUCCESS;
 }
 
 void __ssl_dbg(
