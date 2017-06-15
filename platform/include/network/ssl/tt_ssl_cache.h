@@ -28,9 +28,11 @@ this file defines ssl cache APIs
 // import header files
 ////////////////////////////////////////////////////////////
 
+#include <algorithm/ptr/tt_ptr_queue.h>
 #include <os/tt_spinlock.h>
 
 #include <ssl_cache.h>
+#include <ssl_ticket.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
@@ -40,6 +42,7 @@ this file defines ssl cache APIs
 // type definition
 ////////////////////////////////////////////////////////////
 
+struct tt_ssl_config_s;
 struct tt_ssl_s;
 
 typedef struct tt_ssl_cache_attr_s
@@ -50,8 +53,15 @@ typedef struct tt_ssl_cache_attr_s
 
 typedef struct tt_ssl_cache_s
 {
-    mbedtls_ssl_cache_context ctx;
+    union
+    {
+        tt_ptrq_t q;
+        mbedtls_ssl_cache_context c;
+        mbedtls_ssl_ticket_context t;
+    };
     tt_spinlock_t lock;
+    tt_u32_t max_entries;
+    tt_bool_t mode : 2;
 } tt_ssl_cache_t;
 
 ////////////////////////////////////////////////////////////
@@ -62,16 +72,18 @@ typedef struct tt_ssl_cache_s
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern tt_ssl_cache_t *tt_ssl_cache_create(IN OPT tt_ssl_cache_attr_t *attr);
+extern tt_ssl_cache_t *tt_ssl_cache_create(IN struct tt_ssl_config_s *sc,
+                                           IN tt_bool_t use_ticket,
+                                           IN OPT tt_ssl_cache_attr_t *attr);
 
 extern void tt_ssl_cache_destroy(IN tt_ssl_cache_t *cache);
 
 extern void tt_ssl_cache_attr_default(IN tt_ssl_cache_attr_t *attr);
 
-extern int tt_ssl_cache_get(void *data, mbedtls_ssl_session *session);
+extern void tt_ssl_cache_save(IN tt_ssl_cache_t *cache,
+                              IN struct tt_ssl_s *ssl);
 
-extern int tt_ssl_cache_set(void *data, const mbedtls_ssl_session *session);
-
-extern void tt_ssl_resume(IN struct tt_ssl_s *ssl);
+extern void tt_ssl_cache_resume(IN tt_ssl_cache_t *cache,
+                                IN struct tt_ssl_s *ssl);
 
 #endif /* __TT_SSL_CACHE__ */

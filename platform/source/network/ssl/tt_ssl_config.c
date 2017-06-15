@@ -109,20 +109,6 @@ tt_result_t tt_ssl_config_create(IN tt_ssl_config_t *sc,
         return TT_FAIL;
     }
 
-#if 0 // todo
-    if (role == TT_SSL_SERVER) {
-        mbedtls_ssl_conf_session_tickets_cb(cfg,
-                                            mbedtls_ssl_ticket_write,
-                                            mbedtls_ssl_ticket_parse,
-                                            NULL);
-
-        mbedtls_ssl_conf_session_cache(cfg,
-                                       NULL,
-                                       mbedtls_ssl_cache_get,
-                                       mbedtls_ssl_cache_set);
-    }
-#endif
-
     mbedtls_ssl_conf_rng(&sc->cfg, tt_ctr_drbg, tt_current_ctr_drbg());
 
     mbedtls_ssl_conf_dbg(&sc->cfg, __ssl_dbg, &tt_g_ssl_logmgr);
@@ -247,17 +233,6 @@ void tt_ssl_config_trunc_hmac(IN tt_ssl_config_t *sc, IN tt_bool_t enable)
                                             MBEDTLS_SSL_TRUNC_HMAC_DISABLED));
 }
 
-void tt_ssl_config_session_ticket(IN tt_ssl_config_t *sc, IN tt_bool_t enable)
-{
-    TT_ASSERT(sc != NULL);
-
-    mbedtls_ssl_conf_session_tickets(
-        &sc->cfg,
-        TT_COND(enable,
-                MBEDTLS_SSL_SESSION_TICKETS_ENABLED,
-                MBEDTLS_SSL_SESSION_TICKETS_DISABLED));
-}
-
 void tt_ssl_config_sni(IN tt_ssl_config_t *sc,
                        IN tt_ssl_on_sni_t on_sni,
                        IN void *param)
@@ -271,6 +246,7 @@ void tt_ssl_config_sni(IN tt_ssl_config_t *sc,
 }
 
 tt_result_t tt_ssl_config_cache(IN tt_ssl_config_t *sc,
+                                IN tt_bool_t use_ticket,
                                 IN OPT tt_ssl_cache_attr_t *attr)
 {
     if (sc->cache != NULL) {
@@ -278,17 +254,34 @@ tt_result_t tt_ssl_config_cache(IN tt_ssl_config_t *sc,
         return TT_FAIL;
     }
 
-    sc->cache = tt_ssl_cache_create(attr);
-    if (sc->cache == NULL) {
+    sc->cache = tt_ssl_cache_create(sc, use_ticket, attr);
+    if (sc->cache != NULL) {
+        return TT_SUCCESS;
+    } else {
         return TT_FAIL;
     }
+}
 
-    mbedtls_ssl_conf_session_cache(&sc->cfg,
-                                   sc->cache,
-                                   tt_ssl_cache_get,
-                                   tt_ssl_cache_set);
+void tt_ssl_config_encrypt_then_mac(IN tt_ssl_config_t *sc, IN tt_bool_t enable)
+{
+    TT_ASSERT(sc != NULL);
 
-    return TT_SUCCESS;
+    mbedtls_ssl_conf_encrypt_then_mac(&sc->cfg,
+                                      TT_COND(enable,
+                                              MBEDTLS_SSL_ETM_ENABLED,
+                                              MBEDTLS_SSL_ETM_DISABLED));
+}
+
+void tt_ssl_config_extended_master_secret(IN tt_ssl_config_t *sc,
+                                          IN tt_bool_t enable)
+{
+    TT_ASSERT(sc != NULL);
+
+    mbedtls_ssl_conf_extended_master_secret(
+        &sc->cfg,
+        TT_COND(enable,
+                MBEDTLS_SSL_EXTENDED_MS_ENABLED,
+                MBEDTLS_SSL_EXTENDED_MS_DISABLED));
 }
 
 void __ssl_dbg(
