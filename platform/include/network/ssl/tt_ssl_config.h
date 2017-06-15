@@ -28,9 +28,12 @@ this file defines ssl configuration APIs
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <tt_basic_type.h>
+#include <algorithm/ptr/tt_ptr_queue.h>
+#include <os/tt_spinlock.h>
 
 #include <ssl.h>
+#include <ssl_cache.h>
+#include <ssl_ticket.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
@@ -58,7 +61,6 @@ typedef struct tt_ssl_config_s
     tt_ssl_on_sni_t on_sni;
     void *on_sni_param;
     struct tt_ssl_cache_s *cache;
-
     mbedtls_ssl_config cfg;
 } tt_ssl_config_t;
 
@@ -110,6 +112,11 @@ typedef enum {
 } tt_ssl_ver_t;
 #define TT_SSL_VER_VALID(v) ((v) < TT_SSL_VER_NUM)
 
+typedef struct
+{
+    tt_u32_t lifetime;
+} tt_ssl_ticket_attr_t;
+
 ////////////////////////////////////////////////////////////
 // global variants
 ////////////////////////////////////////////////////////////
@@ -145,14 +152,18 @@ extern tt_result_t tt_ssl_config_alpn(IN tt_ssl_config_t *sc,
 extern void tt_ssl_config_trunc_hmac(IN tt_ssl_config_t *sc,
                                      IN tt_bool_t enable);
 
-extern void tt_ssl_config_session_ticket(IN tt_ssl_config_t *sc,
-                                         IN tt_bool_t enable);
-
 extern void tt_ssl_config_sni(IN tt_ssl_config_t *sc,
                               IN tt_ssl_on_sni_t on_sni,
                               IN void *param);
 
 extern tt_result_t tt_ssl_config_cache(IN tt_ssl_config_t *sc,
+                                       IN tt_bool_t use_ticket,
                                        IN OPT struct tt_ssl_cache_attr_s *attr);
+
+extern void tt_ssl_config_encrypt_then_mac(IN tt_ssl_config_t *sc,
+                                           IN tt_bool_t enable);
+
+extern void tt_ssl_config_extended_master_secret(IN tt_ssl_config_t *sc,
+                                                 IN tt_bool_t enable);
 
 #endif /* __TT_SSL_CONFIG__ */

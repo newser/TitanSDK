@@ -157,11 +157,16 @@ tt_result_t tt_ssl_handshake(IN tt_ssl_t *ssl,
                              OUT struct tt_fiber_ev_s **p_fev,
                              OUT struct tt_tmr_s **p_tmr)
 {
+    tt_ssl_cache_t *cache;
     int e;
 
     TT_ASSERT(ssl != NULL);
 
-    tt_ssl_resume(ssl);
+    cache = tt_ssl_get_config(ssl)->cache;
+
+    if ((cache != NULL) && (ssl->ctx.conf->endpoint == MBEDTLS_SSL_IS_CLIENT)) {
+        tt_ssl_cache_resume(cache, ssl);
+    }
 
     ssl->p_fev = p_fev;
     ssl->p_tmr = p_tmr;
@@ -178,6 +183,10 @@ tt_result_t tt_ssl_handshake(IN tt_ssl_t *ssl,
             tt_ssl_error("ssl handshake fail");
             return TT_FAIL;
         }
+    }
+
+    if ((cache != NULL) && (ssl->ctx.conf->endpoint == MBEDTLS_SSL_IS_CLIENT)) {
+        tt_ssl_cache_save(cache, ssl);
     }
 
     return TT_SUCCESS;
@@ -264,6 +273,11 @@ tt_result_t tt_ssl_shutdown(IN tt_ssl_t *ssl, IN tt_ssl_shut_t shut)
     }
 
     return TT_SUCCESS;
+}
+
+tt_ssl_config_t *tt_ssl_get_config(IN tt_ssl_t *ssl)
+{
+    return TT_CONTAINER(ssl->ctx.conf, tt_ssl_config_t, cfg);
 }
 
 tt_result_t tt_ssl_set_hostname(IN tt_ssl_t *ssl, IN const tt_char_t *hostname)

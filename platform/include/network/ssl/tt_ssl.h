@@ -115,6 +115,8 @@ extern tt_result_t tt_ssl_recv(IN tt_ssl_t *ssl,
 
 extern tt_result_t tt_ssl_shutdown(IN tt_ssl_t *ssl, IN tt_ssl_shut_t shut);
 
+extern struct tt_ssl_config_s *tt_ssl_get_config(IN tt_ssl_t *ssl);
+
 extern tt_result_t tt_ssl_set_hostname(IN tt_ssl_t *ssl,
                                        IN const tt_char_t *hostname);
 
