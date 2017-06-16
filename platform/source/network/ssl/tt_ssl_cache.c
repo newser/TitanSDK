@@ -98,17 +98,12 @@ tt_ssl_cache_t *tt_ssl_cache_create(IN tt_ssl_config_t *sc,
 
     cfg = &sc->cfg;
     if (cfg->endpoint == MBEDTLS_SSL_IS_CLIENT) {
-        tt_ptrq_attr_t q_attr;
-
-        tt_ptrq_attr_default(&q_attr);
-        q_attr.ptr_per_frame = TT_MAX(q_attr.ptr_per_frame, attr->max_entries);
-
-        tt_ptrq_init(&cache->q, &q_attr);
-
-        cache->mode = 0;
+        mbedtls_ssl_session_init(&cache->s);
 
         mbedtls_ssl_conf_session_tickets(cfg,
                                          MBEDTLS_SSL_SESSION_TICKETS_ENABLED);
+
+        cache->mode = 0;
     } else if (use_ticket) {
         mbedtls_ssl_ticket_context *t = &cache->t;
         int e;
@@ -147,8 +142,6 @@ tt_ssl_cache_t *tt_ssl_cache_create(IN tt_ssl_config_t *sc,
         cache->mode = 2;
     }
 
-    cache->max_entries = attr->max_entries;
-
     return cache;
 }
 
@@ -157,12 +150,7 @@ void tt_ssl_cache_destroy(IN tt_ssl_cache_t *cache)
     TT_ASSERT(cache != NULL);
 
     if (cache->mode == 0) {
-        mbedtls_ssl_session *s;
-        while ((s = (mbedtls_ssl_session *)tt_ptrq_pop(&cache->q)) != NULL) {
-            mbedtls_ssl_session_free(s);
-            tt_free(s);
-        }
-        tt_ptrq_destroy(&cache->q);
+        mbedtls_ssl_session_free(&cache->s);
     } else if (cache->mode == 1) {
         mbedtls_ssl_ticket_free(&cache->t);
     } else {
@@ -185,54 +173,43 @@ void tt_ssl_cache_attr_default(IN tt_ssl_cache_attr_t *attr)
 
 void tt_ssl_cache_save(IN tt_ssl_cache_t *cache, IN tt_ssl_t *ssl)
 {
-    tt_ptrq_t *q = &cache->q;
-    mbedtls_ssl_session *s = ssl->ctx.session;
+    mbedtls_ssl_session *new_s, *cur_s;
+    tt_bool_t save = TT_TRUE;
+
+    new_s = ssl->ctx.session;
+    if ((new_s == NULL) || ((new_s->id_len == 0) && (new_s->ticket_len == 0))) {
+        return;
+    }
+
+    cur_s = &cache->s;
 
     tt_spinlock_acquire(&cache->lock);
 
-    // here it means everytime client finished handshake, it
-    // need check the whole cache, would it be a performance
-    // bottleneck?
-
-    if ((s == NULL) || (__find_cache(cache, s->id, s->id_len) != NULL)) {
-        goto done;
+    if ((new_s->id_len != 0) && (new_s->id_len == cur_s->id_len) &&
+        (tt_memcmp(new_s->id, cur_s->id, new_s->id_len) == 0)) {
+        save = TT_FALSE;
     }
 
-    if (tt_ptrq_count(q) >= cache->max_entries) {
-        s = (mbedtls_ssl_session *)tt_ptrq_pop(q);
-        mbedtls_ssl_session_free(s);
+    if ((new_s->ticket_len != 0) && (new_s->ticket_len == cur_s->ticket_len) &&
+        (tt_memcmp(new_s->ticket, cur_s->ticket, new_s->ticket_len) == 0)) {
+        save = TT_FALSE;
     }
 
-    s = tt_malloc(sizeof(mbedtls_ssl_session));
-    if (s == NULL) {
-        goto done;
-    }
-    mbedtls_ssl_session_init(s);
-
-    if (mbedtls_ssl_get_session(&ssl->ctx, s) != 0) {
-        tt_free(s);
-        goto done;
+    if (save) {
+        mbedtls_ssl_session_free(cur_s);
+        mbedtls_ssl_get_session(&ssl->ctx, cur_s);
     }
 
-    if (!TT_OK(tt_ptrq_push(&cache->q, s))) {
-        mbedtls_ssl_session_free(s);
-        tt_free(s);
-        goto done;
-    }
-
-done:
     tt_spinlock_release(&cache->lock);
 }
 
 void tt_ssl_cache_resume(IN tt_ssl_cache_t *cache, IN tt_ssl_t *ssl)
 {
-    tt_ptrq_t *q = &cache->q;
-    mbedtls_ssl_session *s;
+    mbedtls_ssl_session *s = &cache->s;
 
     tt_spinlock_acquire(&cache->lock);
 
-    s = (mbedtls_ssl_session *)tt_ptrq_tail(q);
-    if (s != NULL) {
+    if ((s->id_len != 0) || (s->ticket_len != 0)) {
         mbedtls_ssl_set_session(&ssl->ctx, s);
     }
 
@@ -298,20 +275,4 @@ int __set_cache(void *data, const mbedtls_ssl_session *session)
     tt_spinlock_release(&cache->lock);
 
     return e;
-}
-
-mbedtls_ssl_session *__find_cache(IN tt_ssl_cache_t *cache,
-                                  IN tt_u8_t *id,
-                                  IN tt_size_t len)
-{
-    tt_ptrq_iter_t i;
-    mbedtls_ssl_session *s;
-
-    tt_ptrq_iter(&cache->q, &i);
-    while ((s = (mbedtls_ssl_session *)tt_ptrq_iter_next(&i)) != NULL) {
-        if ((s->id_len == len) && (tt_memcmp(s->id, id, len) == 0)) {
-            return s;
-        }
-    }
-    return NULL;
 }

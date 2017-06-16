@@ -157,15 +157,15 @@ tt_result_t tt_ssl_handshake(IN tt_ssl_t *ssl,
                              OUT struct tt_fiber_ev_s **p_fev,
                              OUT struct tt_tmr_s **p_tmr)
 {
-    tt_ssl_cache_t *cache;
+    tt_ssl_config_t *sc;
     int e;
 
     TT_ASSERT(ssl != NULL);
 
-    cache = tt_ssl_get_config(ssl)->cache;
+    sc = tt_ssl_get_config(ssl);
 
-    if ((cache != NULL) && (ssl->ctx.conf->endpoint == MBEDTLS_SSL_IS_CLIENT)) {
-        tt_ssl_cache_resume(cache, ssl);
+    if ((sc->cache != NULL) && (sc->cfg.endpoint == MBEDTLS_SSL_IS_CLIENT)) {
+        tt_ssl_cache_resume(sc->cache, ssl);
     }
 
     ssl->p_fev = p_fev;
@@ -185,8 +185,8 @@ tt_result_t tt_ssl_handshake(IN tt_ssl_t *ssl,
         }
     }
 
-    if ((cache != NULL) && (ssl->ctx.conf->endpoint == MBEDTLS_SSL_IS_CLIENT)) {
-        tt_ssl_cache_save(cache, ssl);
+    if ((sc->cache != NULL) && (sc->cfg.endpoint == MBEDTLS_SSL_IS_CLIENT)) {
+        tt_ssl_cache_save(sc->cache, ssl);
     }
 
     return TT_SUCCESS;

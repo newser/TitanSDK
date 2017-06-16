@@ -28,7 +28,6 @@ this file defines ssl cache APIs
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <algorithm/ptr/tt_ptr_queue.h>
 #include <os/tt_spinlock.h>
 
 #include <ssl_cache.h>
@@ -55,12 +54,11 @@ typedef struct tt_ssl_cache_s
 {
     union
     {
-        tt_ptrq_t q;
+        mbedtls_ssl_session s;
         mbedtls_ssl_cache_context c;
         mbedtls_ssl_ticket_context t;
     };
     tt_spinlock_t lock;
-    tt_u32_t max_entries;
     tt_bool_t mode : 2;
 } tt_ssl_cache_t;
 

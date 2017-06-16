@@ -65,12 +65,13 @@ TT_TEST_ROUTINE_DECLARE(tt_unit_test_ssl_auth)
 TT_TEST_ROUTINE_DECLARE(tt_unit_test_ssl_alpn)
 TT_TEST_ROUTINE_DECLARE(tt_unit_test_ssl_resume)
 TT_TEST_ROUTINE_DECLARE(tt_unit_test_ssl_ticket)
+TT_TEST_ROUTINE_DECLARE(tt_unit_test_ssl_multhread)
 // =========================================
 
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(ssl_io_case)
 
-#if 0
+#if 1
 TT_TEST_CASE("tt_unit_test_ssl_basic",
              "ssl: basic io",
              tt_unit_test_ssl_basic,
@@ -82,7 +83,7 @@ TT_TEST_CASE("tt_unit_test_ssl_basic",
 ,
 #endif
 
-#if 0
+#if 1
     TT_TEST_CASE("tt_unit_test_ssl_ver",
                  "ssl: version",
                  tt_unit_test_ssl_ver,
@@ -119,16 +120,26 @@ TT_TEST_CASE("tt_unit_test_ssl_basic",
                  NULL,
                  NULL),
 
+    TT_TEST_CASE("tt_unit_test_ssl_ticket",
+                 "ssl: session ticket",
+                 tt_unit_test_ssl_ticket,
+                 NULL,
+                 __x509_prepare,
+                 NULL,
+                 NULL,
+                 NULL),
+
 #endif
 
-TT_TEST_CASE("tt_unit_test_ssl_ticket",
-             "ssl: session ticket",
-             tt_unit_test_ssl_ticket,
-             NULL,
-             __x509_prepare,
-             NULL,
-             NULL,
-             NULL),
+    TT_TEST_CASE("tt_unit_test_ssl_multhread",
+                 "ssl: multi thread",
+                 tt_unit_test_ssl_multhread,
+                 NULL,
+                 __x509_prepare,
+                 NULL,
+                 NULL,
+                 NULL),
+
 
     TT_TEST_CASE_LIST_DEFINE_END(ssl_io_case)
     // =========================================
@@ -1403,6 +1414,75 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_ssl_ticket)
     ret = tt_task_run(&t);
     TT_UT_SUCCESS(ret, "");
     tt_task_wait(&t);
+    TT_UT_EQUAL(__ssl_err_line, 0, "");
+
+    tt_x509cert_destroy(&ca);
+    tt_x509crl_destroy(&crl);
+    tt_x509cert_destroy(&cert);
+    tt_pk_destroy(&pk);
+    tt_ssl_config_destroy(&sc_cli_1);
+    tt_ssl_config_destroy(&sc_svr_1);
+
+    // test end
+    TT_TEST_CASE_LEAVE()
+}
+
+TT_TEST_ROUTINE_DEFINE(tt_unit_test_ssl_multhread)
+{
+    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+    tt_result_t ret;
+    tt_task_t t[10];
+    tt_x509cert_t ca, cert;
+    tt_x509crl_t crl;
+    tt_pk_t pk;
+    tt_u32_t i, k;
+
+    TT_TEST_CASE_ENTER()
+    // test start
+
+    __ssl_err_line = 0;
+
+    ret = tt_ssl_config_create(&sc_cli_1,
+                               TT_SSL_CLIENT,
+                               TT_SSL_TRANSPORT_STREAM,
+                               TT_SSL_PRESET_DEFAULT);
+    TT_UT_SUCCESS(ret, "");
+    tt_ssl_config_cache(&sc_cli_1, TT_TRUE, NULL);
+
+    ret = tt_ssl_config_create(&sc_svr_1,
+                               TT_SSL_SERVER,
+                               TT_SSL_TRANSPORT_STREAM,
+                               TT_SSL_PRESET_DEFAULT);
+    TT_UT_SUCCESS(ret, "");
+    tt_ssl_config_cache(&sc_svr_1, TT_TRUE, NULL);
+
+    tt_x509cert_init(&cert);
+    ret = tt_x509cert_add_file(&cert, __X509_CA2);
+    TT_UT_SUCCESS(ret, "");
+    tt_pk_init(&pk);
+    ret = tt_pk_load_private_file(&pk, __CA_key2, (tt_u8_t *)"456", 3);
+    tt_ssl_config_cert(&sc_svr_1, &cert, &pk);
+
+    tt_x509cert_init(&ca);
+    ret = tt_x509cert_add_file(&ca, __X509_CA);
+    TT_UT_SUCCESS(ret, "");
+    tt_x509crl_init(&crl);
+    // ret = tt_x509crl_add_file(&crl, __X509_CRL1);
+    TT_UT_SUCCESS(ret, "");
+    tt_ssl_config_ca(&sc_cli_1, &ca, &crl);
+
+    for (k = 0; k < sizeof(t) / sizeof(t[0]); ++k) {
+        ret = tt_task_create(&t[k], NULL);
+        TT_UT_SUCCESS(ret, "");
+
+        tt_task_add_fiber(&t[k], "svr", __f_svr_mul, (void *)15, NULL);
+        for (i = 0; i < 5; ++i) {
+            tt_task_add_fiber(&t[k], NULL, __f_cli_mul, (void *)3, NULL);
+        }
+        ret = tt_task_run(&t[k]);
+        TT_UT_SUCCESS(ret, "");
+        tt_task_wait(&t[k]);
+    }
     TT_UT_EQUAL(__ssl_err_line, 0, "");
 
     tt_x509cert_destroy(&ca);
