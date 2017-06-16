@@ -1160,7 +1160,7 @@ static tt_result_t __f_svr_acc(IN void *param)
 static tt_result_t __f_svr_mul(IN void *param)
 {
     tt_skt_t *s, *new_s;
-    tt_u32_t n = (tt_u32_t)param;
+    tt_u32_t n = (tt_u32_t)(tt_uintptr_t)param;
     tt_fiber_t *f;
     tt_fiber_ev_t *fev;
     tt_tmr_t *tmr, *e_tmr;
@@ -1205,7 +1205,7 @@ static tt_result_t __f_svr_mul(IN void *param)
 static tt_result_t __f_cli_mul(IN void *param)
 {
     tt_u8_t buf[1 << 10] = "123";
-    tt_u32_t n, loop, num = (tt_u32_t)param;
+    tt_u32_t n, loop, num = (tt_u32_t)(tt_uintptr_t)param;
     tt_fiber_ev_t *fev;
     tt_tmr_t *tmr, *e_tmr;
     tt_ssl_t *ssl;

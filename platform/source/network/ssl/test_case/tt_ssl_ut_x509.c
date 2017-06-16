@@ -125,7 +125,7 @@ TT_TEST_CASE("tt_unit_test_x509_cert",
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_x509cert_t ca, cert;
     tt_result_t ret;
-    tt_u32_t status, n;
+    tt_u32_t status;
     tt_char_t buf[1000];
 
     TT_TEST_CASE_ENTER()
@@ -141,17 +141,17 @@ TT_TEST_CASE("tt_unit_test_x509_cert",
     TT_UT_SUCCESS(ret, "");
     ret = tt_x509cert_verify(&cert, &ca, NULL, NULL, &status);
     TT_UT_FAIL(ret, "");
-    n = tt_x509cert_dump_verify_status(status, buf, (tt_u32_t)sizeof(buf));
+    tt_x509cert_dump_verify_status(status, buf, (tt_u32_t)sizeof(buf));
     TT_INFO("%s", buf);
 
     // root, int => leaf, ok
     ret = tt_x509cert_add_file(&ca, __X509_CA2);
     TT_UT_SUCCESS(ret, "");
-    n = tt_x509cert_dump(&ca, buf, (tt_u32_t)sizeof(buf));
+    tt_x509cert_dump(&ca, buf, (tt_u32_t)sizeof(buf));
     TT_INFO("ca: %s", buf);
     ret = tt_x509cert_verify(&cert, &ca, NULL, NULL, &status);
     if (!TT_OK(ret)) {
-        n = tt_x509cert_dump_verify_status(status, buf, (tt_u32_t)sizeof(buf));
+        tt_x509cert_dump_verify_status(status, buf, (tt_u32_t)sizeof(buf));
         TT_INFO("%s", buf);
     }
     TT_UT_SUCCESS(ret, "");
@@ -174,7 +174,7 @@ TT_TEST_CASE("tt_unit_test_x509_cert",
 
     ret = tt_x509cert_verify(&cert, &ca, NULL, NULL, &status);
     if (!TT_OK(ret)) {
-        n = tt_x509cert_dump_verify_status(status, buf, (tt_u32_t)sizeof(buf));
+        tt_x509cert_dump_verify_status(status, buf, (tt_u32_t)sizeof(buf));
         TT_INFO("%s", buf);
     }
     TT_UT_SUCCESS(ret, "");
@@ -184,7 +184,7 @@ TT_TEST_CASE("tt_unit_test_x509_cert",
 
     ret = tt_x509cert_verify(&cert, &ca, NULL, "child-20", &status);
     TT_UT_FAIL(ret, "");
-    n = tt_x509cert_dump_verify_status(status, buf, (tt_u32_t)sizeof(buf));
+    tt_x509cert_dump_verify_status(status, buf, (tt_u32_t)sizeof(buf));
     TT_INFO("%s", buf);
 
     tt_x509cert_destroy(&ca);
@@ -200,7 +200,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_x509_crl)
     tt_x509cert_t ca, cert;
     tt_x509crl_t crl;
     tt_result_t ret;
-    tt_u32_t status, n;
+    tt_u32_t status;
     tt_char_t buf[1000];
 
     TT_TEST_CASE_ENTER()
@@ -222,7 +222,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_x509_crl)
 
     ret = tt_x509cert_verify(&cert, &ca, NULL, NULL, &status);
     if (!TT_OK(ret)) {
-        n = tt_x509cert_dump_verify_status(status, buf, (tt_u32_t)sizeof(buf));
+        tt_x509cert_dump_verify_status(status, buf, (tt_u32_t)sizeof(buf));
         TT_INFO("%s", buf);
     }
     TT_UT_SUCCESS(ret, "");
@@ -233,7 +233,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_x509_crl)
 
     ret = tt_x509cert_verify(&cert, &ca, &crl, NULL, &status);
     TT_UT_FAIL(ret, "");
-    n = tt_x509cert_dump_verify_status(status, buf, (tt_u32_t)sizeof(buf));
+    tt_x509cert_dump_verify_status(status, buf, (tt_u32_t)sizeof(buf));
     TT_INFO("%s", buf);
 
     tt_x509cert_destroy(&ca);
