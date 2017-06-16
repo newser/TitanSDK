@@ -16,9 +16,9 @@
 
 /**
 @file tt_ssl.h
-@brief tt ssl
+@brief ssl initialization
 
-this file defines tt ssl
+this file defines ssl initialization APIs
 */
 
 #ifndef __TT_SSL__
@@ -28,62 +28,111 @@ this file defines tt ssl
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <network/ssl/tt_ssl_aio_cb.h>
+#include <log/tt_log.h>
+#include <log/tt_log_manager.h>
+#include <network/ssl/tt_ssl_config.h>
 
-#include <tt_ssl_native.h>
+#include <ssl.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
 ////////////////////////////////////////////////////////////
+
+#define tt_ssl_error(...)                                                      \
+    do {                                                                       \
+        extern void mbedtls_strerror(int, char *, size_t);                     \
+        tt_char_t buf[256];                                                    \
+        TT_ERROR(__VA_ARGS__);                                                 \
+        mbedtls_strerror(e, buf, sizeof(buf) - 1);                             \
+        TT_ERROR("%s", buf);                                                   \
+    } while (0)
 
 ////////////////////////////////////////////////////////////
 // type definition
 ////////////////////////////////////////////////////////////
 
 struct tt_skt_s;
-struct tt_sslctx_s;
-
-typedef struct tt_ssl_attr_s
-{
-    tt_bool_t from_alloc : 1;
-    tt_bool_t session_resume : 1;
-} tt_ssl_attr_t;
+struct tt_ssl_config_s;
+struct tt_fiber_ev_s;
+struct tt_tmr_s;
 
 typedef struct tt_ssl_s
 {
-    tt_ssl_ntv_t sys_ssl;
-
     struct tt_skt_s *skt;
-    struct tt_sslctx_s *sslctx;
-    tt_ssl_exit_t exit;
-    tt_ssl_attr_t attr;
+    struct tt_fiber_ev_s **p_fev;
+    struct tt_tmr_s **p_tmr;
 
-    // ssl satisfying below values would try to share same session id:
-    //  - tt_ssl_t::ssl_ctx
-    //  - tt_ssl_t::session_mark
-    //  - remote ip address
-    //  - remote port
-    tt_u32_t session_mark;
-
-    tt_bool_t leaf_cert_verified : 1;
+    mbedtls_ssl_context ctx;
 } tt_ssl_t;
+
+typedef enum {
+    TT_SSL_SHUT_RD,
+    TT_SSL_SHUT_WR,
+    TT_SSL_SHUT_RDWR,
+
+    TT_SSL_SHUT_NUM
+} tt_ssl_shut_t;
+#define TT_SSL_SHUT_VALID(s) ((s) < TT_SSL_SHUT_NUM)
 
 ////////////////////////////////////////////////////////////
 // global variants
 ////////////////////////////////////////////////////////////
 
+extern tt_logmgr_t tt_g_ssl_logmgr;
+
 ////////////////////////////////////////////////////////////
 // interface declaration
 ////////////////////////////////////////////////////////////
 
+/**
+@fn void tt_ssl_component_register()
+register ts crypto component
+*/
 extern void tt_ssl_component_register();
 
-// check ssl support during run time
-tt_inline tt_bool_t tt_ssl_enabled()
-{
-    return tt_ssl_enabled_ntv();
-}
+extern void tt_ssl_log_component_register();
 
-extern void tt_ssl_stat_show(IN tt_u32_t flag);
+extern tt_ssl_t *tt_ssl_create(IN struct tt_skt_s *skt,
+                               IN struct tt_ssl_config_s *sc);
+
+extern void tt_ssl_destroy(IN tt_ssl_t *ssl);
+
+extern tt_result_t tt_ssl_handshake(IN tt_ssl_t *ssl,
+                                    OUT struct tt_fiber_ev_s **p_fev,
+                                    OUT struct tt_tmr_s **p_tmr);
+
+extern tt_result_t tt_ssl_send(IN tt_ssl_t *ssl,
+                               IN tt_u8_t *buf,
+                               IN tt_u32_t len,
+                               OUT tt_u32_t *sent);
+
+extern tt_result_t tt_ssl_recv(IN tt_ssl_t *ssl,
+                               OUT tt_u8_t *buf,
+                               IN tt_u32_t len,
+                               OUT tt_u32_t *recvd,
+                               OUT struct tt_fiber_ev_s **p_fev,
+                               OUT struct tt_tmr_s **p_tmr);
+
+extern tt_result_t tt_ssl_shutdown(IN tt_ssl_t *ssl, IN tt_ssl_shut_t shut);
+
+extern struct tt_ssl_config_s *tt_ssl_get_config(IN tt_ssl_t *ssl);
+
+extern tt_result_t tt_ssl_set_hostname(IN tt_ssl_t *ssl,
+                                       IN const tt_char_t *hostname);
+
+extern void tt_ssl_set_ca(IN tt_ssl_t *ssl,
+                          IN OPT struct tt_x509cert_s *ca,
+                          IN OPT struct tt_x509crl_s *crl);
+
+extern tt_result_t tt_ssl_set_cert(IN tt_ssl_t *ssl,
+                                   IN struct tt_x509cert_s *cert,
+                                   IN struct tt_pk_s *pk);
+
+extern void tt_ssl_set_auth(IN tt_ssl_t *ssl, IN tt_ssl_auth_t auth);
+
+tt_inline const tt_char_t *tt_ssl_get_alpn(IN tt_ssl_t *ssl)
+{
+    return mbedtls_ssl_get_alpn_protocol(&ssl->ctx);
+}
 
 #endif /* __TT_SSL__ */

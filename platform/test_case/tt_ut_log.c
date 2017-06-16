@@ -231,24 +231,19 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_log_manager)
     __test_log(&lm);
 
     // set layout
-    ret = tt_logmgr_set_layout(&lm, TT_LOG_DEBUG, lyt[TT_LOG_DEBUG]);
-    TT_UT_SUCCESS(ret, "");
+    tt_logmgr_set_layout(&lm, TT_LOG_DEBUG, lyt[TT_LOG_DEBUG]);
     __test_log(&lm);
 
-    ret = tt_logmgr_set_layout(&lm, TT_LOG_INFO, lyt[TT_LOG_INFO]);
-    TT_UT_SUCCESS(ret, "");
+    tt_logmgr_set_layout(&lm, TT_LOG_INFO, lyt[TT_LOG_INFO]);
     __test_log(&lm);
 
-    ret = tt_logmgr_set_layout(&lm, TT_LOG_WARN, lyt[TT_LOG_WARN]);
-    TT_UT_SUCCESS(ret, "");
+    tt_logmgr_set_layout(&lm, TT_LOG_WARN, lyt[TT_LOG_WARN]);
     __test_log(&lm);
 
-    ret = tt_logmgr_set_layout(&lm, TT_LOG_ERROR, lyt[TT_LOG_ERROR]);
-    TT_UT_SUCCESS(ret, "");
+    tt_logmgr_set_layout(&lm, TT_LOG_ERROR, lyt[TT_LOG_ERROR]);
     __test_log(&lm);
 
-    ret = tt_logmgr_set_layout(&lm, TT_LOG_FATAL, lyt[TT_LOG_FATAL]);
-    TT_UT_SUCCESS(ret, "");
+    tt_logmgr_set_layout(&lm, TT_LOG_FATAL, lyt[TT_LOG_FATAL]);
     __test_log(&lm);
 
     tt_logmgr_set_level(&lm, TT_LOG_DEBUG);

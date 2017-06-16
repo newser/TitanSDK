@@ -28,9 +28,10 @@ this file defines HMAC APIs
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <crypto/tt_hmac_def.h>
+#include <algorithm/tt_blob.h>
+#include <log/tt_log.h>
 
-#include <tt_hmac_native.h>
+#include <md.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
@@ -42,10 +43,24 @@ this file defines HMAC APIs
 
 struct tt_buf_s;
 
+typedef enum {
+    TT_HMAC_MD2,
+    TT_HMAC_MD4,
+    TT_HMAC_MD5,
+    TT_HMAC_SHA1,
+    TT_HMAC_SHA224,
+    TT_HMAC_SHA256,
+    TT_HMAC_SHA384,
+    TT_HMAC_SHA512,
+    TT_HMAC_RIPEMD160,
+
+    TT_HMAC_TYPE_NUM
+} tt_hmac_type_t;
+#define TT_HMAC_TYPE_VALID(t) ((t) < TT_HMAC_TYPE_NUM)
+
 typedef struct
 {
-    tt_hmac_ntv_t sys_hmac;
-    tt_hmac_ver_t version;
+    mbedtls_md_context_t ctx;
 } tt_hmac_t;
 
 ////////////////////////////////////////////////////////////
@@ -56,40 +71,69 @@ typedef struct
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-tt_inline tt_result_t tt_hmac_component_init(IN struct tt_profile_s *profile)
+extern tt_result_t tt_hmac_create(IN tt_hmac_t *hm,
+                                  IN tt_hmac_type_t type,
+                                  IN tt_u8_t *key,
+                                  IN tt_u32_t key_len);
+
+extern void tt_hmac_destroy(IN tt_hmac_t *hm);
+
+tt_inline tt_u32_t tt_hmac_size(IN tt_hmac_t *hm)
 {
-    return tt_hmac_component_init_ntv(profile);
+    return (tt_u32_t)mbedtls_md_get_size(hm->ctx.md_info);
 }
 
-extern tt_result_t tt_hmac_create(IN tt_hmac_t *hmac,
-                                  IN tt_hmac_ver_t version,
-                                  IN tt_blob_t *key);
+tt_inline tt_result_t tt_hmac_update(IN tt_hmac_t *hm,
+                                     IN tt_u8_t *input,
+                                     IN tt_u32_t len)
+{
+    if (mbedtls_md_hmac_update(&hm->ctx, input, len) == 0) {
+        return TT_SUCCESS;
+    } else {
+        TT_ERROR("hmac update failed");
+        return TT_FAIL;
+    }
+}
 
-extern void tt_hmac_destroy(IN tt_hmac_t *hmac);
+tt_inline tt_result_t tt_hmac_final(IN tt_hmac_t *hm, OUT tt_u8_t *output)
+{
+    if (mbedtls_md_hmac_finish(&hm->ctx, output) == 0) {
+        return TT_SUCCESS;
+    } else {
+        TT_ERROR("hmac final failed");
+        return TT_FAIL;
+    }
+}
 
-extern tt_result_t tt_hmac_update(IN tt_hmac_t *hmac,
-                                  IN tt_u8_t *input,
-                                  IN tt_u32_t input_len);
-
-// length of output must be at least of digest length
-extern tt_result_t tt_hmac_final(IN tt_hmac_t *hmac, OUT tt_u8_t *output);
-extern tt_result_t tt_hmac_final_buf(IN tt_hmac_t *hmac,
+extern tt_result_t tt_hmac_final_buf(IN tt_hmac_t *hm,
                                      OUT struct tt_buf_s *output);
 
-extern tt_result_t tt_hmac_reset(IN tt_hmac_t *hmac);
+tt_inline tt_result_t tt_hmac_reset(IN tt_hmac_t *hm)
+{
+    if (mbedtls_md_hmac_reset(&hm->ctx) == 0) {
+        return TT_SUCCESS;
+    } else {
+        TT_ERROR("hm reset failed");
+        return TT_FAIL;
+    }
+}
 
-extern tt_result_t tt_hmac_gather(IN tt_hmac_ver_t version,
-                                  IN tt_blob_t *key,
+extern tt_result_t tt_hmac_gather(IN tt_hmac_type_t type,
+                                  IN tt_u8_t *key,
+                                  IN tt_u32_t key_len,
                                   IN tt_blob_t *input,
                                   IN tt_u32_t input_num,
                                   OUT tt_u8_t *output);
 
-tt_inline tt_result_t tt_hmac(IN tt_hmac_ver_t version,
-                              IN tt_blob_t *key,
-                              IN tt_blob_t *input,
+tt_inline tt_result_t tt_hmac(IN tt_hmac_type_t type,
+                              IN tt_u8_t *key,
+                              IN tt_u32_t key_len,
+                              IN tt_u8_t *input,
+                              IN tt_u32_t input_len,
                               OUT tt_u8_t *output)
 {
-    return tt_hmac_gather(version, key, input, 1, output);
+    tt_blob_t b = {input, input_len};
+    return tt_hmac_gather(type, key, key_len, &b, 1, output);
 }
 
 #endif /* __TT_HMAC__ */

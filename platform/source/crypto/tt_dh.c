@@ -20,10 +20,13 @@
 
 #include <crypto/tt_dh.h>
 
-#include <algorithm/tt_buffer.h>
+#include <algorithm/tt_buffer_format.h>
+#include <crypto/tt_crypto.h>
+#include <crypto/tt_ctr_drbg.h>
+#include <crypto/tt_public_key.h>
+#include <io/tt_file_system.h>
 #include <misc/tt_assert.h>
-
-#include <tt_cstd_api.h>
+#include <misc/tt_util.h>
 
 ////////////////////////////////////////////////////////////
 // internal macro
@@ -45,172 +48,165 @@
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-static tt_result_t __dh_create_param(IN tt_dh_t *dh,
-                                     IN tt_dh_keydata_param_t *param,
-                                     IN tt_dh_attr_t *attr);
-static tt_result_t __dh_create_keypair(IN tt_dh_t *dh,
-                                       IN tt_dh_keydata_keypair_t *keypair,
-                                       IN tt_dh_attr_t *attr);
-
 ////////////////////////////////////////////////////////////
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-tt_result_t tt_dh_create(IN tt_dh_t *dh,
-                         IN tt_dh_format_t format,
-                         IN tt_dh_keydata_t *keydata,
-                         IN tt_dh_attr_t *attr)
+void tt_dh_init(IN tt_dh_t *dh)
 {
     TT_ASSERT(dh != NULL);
-    TT_ASSERT(TT_DH_FORMAT_VALID(format));
-    TT_ASSERT(keydata != NULL);
 
-    if (attr != NULL) {
-        tt_memcpy(&dh->attr, attr, sizeof(tt_dh_attr_t));
-    } else {
-        tt_dh_attr_default(&dh->attr);
-    }
-
-    switch (format) {
-        case TT_DH_FORMAT_PARAM: {
-            return __dh_create_param(dh, &keydata->param, &dh->attr);
-        } break;
-        case TT_DH_FORMAT_KEYPAIR: {
-            return __dh_create_keypair(dh, &keydata->keypair, &dh->attr);
-        } break;
-
-        default: {
-            TT_ERROR("dh format[%d] is not supported yet", format);
-            return TT_FAIL;
-        } break;
-    }
+    mbedtls_dhm_init(&dh->ctx);
 }
 
 void tt_dh_destroy(IN tt_dh_t *dh)
 {
     TT_ASSERT(dh != NULL);
 
-    tt_dh_destroy_ntv(&dh->sys_dh);
+    mbedtls_dhm_free(&dh->ctx);
 }
 
-void tt_dh_attr_default(IN tt_dh_attr_t *attr)
+tt_result_t tt_dh_load_param(IN tt_dh_t *dh, IN tt_u8_t *param, IN tt_u32_t len)
 {
-    TT_ASSERT(attr != NULL);
-
-    attr->password = NULL;
-
-    attr->pem_armor = TT_FALSE;
-}
-
-tt_result_t tt_dh_get_pubkey(IN tt_dh_t *dh,
-                             OUT OPT tt_u8_t *pubkey,
-                             IN OUT tt_u32_t *pubkey_len,
-                             IN tt_u32_t flag)
-{
-    TT_ASSERT(dh != NULL);
-    TT_ASSERT(pubkey_len != NULL);
-
-    return tt_dh_get_pubkey_ntv(&dh->sys_dh, pubkey, pubkey_len, flag);
-}
-
-tt_result_t tt_dh_get_pubkey_buf(IN tt_dh_t *dh,
-                                 OUT tt_buf_t *pubkey,
-                                 IN tt_u32_t flag)
-{
-    tt_u32_t len;
+    int e;
 
     TT_ASSERT(dh != NULL);
-    TT_ASSERT(pubkey != NULL);
+    TT_ASSERT(param != NULL);
 
-    if (!TT_OK(tt_dh_get_pubkey_ntv(&dh->sys_dh, NULL, &len, flag))) {
+    e = mbedtls_dhm_parse_dhm(&dh->ctx, param, len);
+    if (e != 0) {
+        tt_crypto_error("fail to parse dh");
         return TT_FAIL;
     }
-
-    if (!TT_OK(tt_buf_reserve(pubkey, len))) {
-        return TT_FAIL;
-    }
-
-    len = TT_BUF_WLEN(pubkey);
-    if (!TT_OK(tt_dh_get_pubkey_ntv(&dh->sys_dh,
-                                    TT_BUF_WPOS(pubkey),
-                                    &len,
-                                    flag))) {
-        return TT_FAIL;
-    }
-    tt_buf_inc_wp(pubkey, len);
 
     return TT_SUCCESS;
 }
 
-tt_result_t tt_dh_compute(IN tt_dh_t *dh,
-                          IN tt_u8_t *peer_pub,
-                          IN tt_u32_t peer_pub_len)
+tt_result_t tt_dh_load_param_file(IN tt_dh_t *dh, IN const tt_char_t *path)
 {
-    TT_ASSERT(dh != NULL);
-    TT_ASSERT(peer_pub != NULL);
-    TT_ASSERT(peer_pub_len > 0);
+    tt_buf_t buf;
+    int e;
 
-    return tt_dh_compute_ntv(&dh->sys_dh, peer_pub, peer_pub_len);
+    TT_ASSERT(dh != NULL);
+    TT_ASSERT(path != NULL);
+
+    tt_buf_init(&buf, NULL);
+    if (!TT_OK(tt_fcontent_buf(path, &buf)) || !TT_OK(tt_buf_put_u8(&buf, 0))) {
+        tt_buf_destroy(&buf);
+        return TT_FAIL;
+    }
+
+    e = mbedtls_dhm_parse_dhm(&dh->ctx, TT_BUF_RPOS(&buf), TT_BUF_RLEN(&buf));
+    tt_buf_destroy(&buf);
+    if (e != 0) {
+        tt_crypto_error("fail to parse dh param");
+        return TT_FAIL;
+    }
+
+    return TT_SUCCESS;
+}
+
+tt_result_t tt_dh_generate_pub(IN tt_dh_t *dh,
+                               IN tt_u32_t priv_size,
+                               OUT tt_u8_t *pub,
+                               IN OUT tt_u32_t len)
+{
+    int e;
+
+    TT_ASSERT(dh != NULL);
+    TT_ASSERT(pub != NULL);
+
+    e = mbedtls_dhm_make_public(&dh->ctx,
+                                priv_size,
+                                pub,
+                                len,
+                                tt_ctr_drbg,
+                                tt_current_ctr_drbg());
+    if (e != 0) {
+        tt_crypto_error("fail to generate dh pub");
+        return TT_FAIL;
+    }
+
+    return TT_SUCCESS;
+}
+
+tt_result_t tt_dh_get_pub(IN tt_dh_t *dh,
+                          IN tt_bool_t local,
+                          OUT tt_u8_t *pub,
+                          IN tt_u32_t len)
+{
+    int e;
+
+    TT_ASSERT(dh != NULL);
+    TT_ASSERT(pub != NULL);
+
+    e = mbedtls_mpi_write_binary(TT_COND(local, &dh->ctx.GX, &dh->ctx.GY),
+                                 pub,
+                                 len);
+    if (e != 0) {
+        tt_crypto_error("fail to get dh pub");
+        return TT_FAIL;
+    }
+
+    return TT_SUCCESS;
+}
+
+tt_result_t tt_dh_set_pub(IN tt_dh_t *dh, IN tt_u8_t *pub, IN tt_u32_t len)
+{
+    int e;
+
+    TT_ASSERT(dh != NULL);
+    TT_ASSERT(pub != NULL);
+
+    e = mbedtls_dhm_read_public(&dh->ctx, pub, len);
+    if (e != 0) {
+        tt_crypto_error("fail to set dh pub");
+        return TT_FAIL;
+    }
+
+    return TT_SUCCESS;
+}
+
+tt_result_t tt_dh_derive(IN tt_dh_t *dh,
+                         OUT tt_u8_t *secret,
+                         IN OUT tt_u32_t *len)
+{
+    size_t olen;
+    int e;
+
+    TT_ASSERT(dh != NULL);
+    TT_ASSERT(secret != NULL);
+    TT_ASSERT(len != NULL);
+
+    e = mbedtls_dhm_calc_secret(&dh->ctx,
+                                secret,
+                                (size_t)len,
+                                &olen,
+                                tt_ctr_drbg,
+                                tt_current_ctr_drbg());
+    if (e != 0) {
+        tt_crypto_error("fail to drive dh secret");
+        return TT_FAIL;
+    }
+    *len = (tt_u32_t)olen;
+
+    return TT_SUCCESS;
 }
 
 tt_result_t tt_dh_get_secret(IN tt_dh_t *dh,
                              OUT tt_u8_t *secret,
-                             IN OUT tt_u32_t *secret_len,
-                             IN tt_u32_t flag)
+                             IN tt_u32_t len)
 {
-    TT_ASSERT(dh != NULL);
-    TT_ASSERT(secret_len != NULL);
-
-    return tt_dh_get_secret_ntv(&dh->sys_dh, secret, secret_len, flag);
-}
-
-tt_result_t tt_dh_get_secret_buf(IN tt_dh_t *dh,
-                                 OUT tt_buf_t *secret,
-                                 IN tt_u32_t flag)
-{
-    tt_u32_t len;
+    int e;
 
     TT_ASSERT(dh != NULL);
     TT_ASSERT(secret != NULL);
 
-    if (!TT_OK(tt_dh_get_secret_ntv(&dh->sys_dh, NULL, &len, flag))) {
+    e = mbedtls_mpi_write_binary(&dh->ctx.K, secret, len);
+    if (e != 0) {
+        tt_crypto_error("fail to get dh secret");
         return TT_FAIL;
     }
-
-    if (!TT_OK(tt_buf_reserve(secret, len))) {
-        return TT_FAIL;
-    }
-
-    len = TT_BUF_WLEN(secret);
-    if (!TT_OK(tt_dh_get_secret_ntv(&dh->sys_dh,
-                                    TT_BUF_WPOS(secret),
-                                    &len,
-                                    flag))) {
-        return TT_FAIL;
-    }
-    tt_buf_inc_wp(secret, len);
 
     return TT_SUCCESS;
-}
-
-tt_result_t __dh_create_param(IN tt_dh_t *dh,
-                              IN tt_dh_keydata_param_t *param,
-                              IN tt_dh_attr_t *attr)
-{
-    return tt_dh_create_param_ntv(&dh->sys_dh,
-                                  &param->prime,
-                                  &param->generator,
-                                  attr);
-}
-
-tt_result_t __dh_create_keypair(IN tt_dh_t *dh,
-                                IN tt_dh_keydata_keypair_t *keypair,
-                                IN tt_dh_attr_t *attr)
-{
-    return tt_dh_create_keypair_ntv(&dh->sys_dh,
-                                    &keypair->prime,
-                                    &keypair->generator,
-                                    &keypair->pub,
-                                    &keypair->priv,
-                                    attr);
 }

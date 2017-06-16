@@ -20,17 +20,8 @@
 
 #include <crypto/tt_crypto.h>
 
-#include <crypto/tt_aes.h>
-#include <crypto/tt_dh.h>
-#include <crypto/tt_hmac.h>
-#include <crypto/tt_md5.h>
-#include <crypto/tt_rsa.h>
-#include <crypto/tt_sha.h>
 #include <init/tt_component.h>
 #include <init/tt_profile.h>
-#include <misc/tt_assert.h>
-
-#include <tt_crypto_native.h>
 
 ////////////////////////////////////////////////////////////
 // internal macro
@@ -77,48 +68,5 @@ void tt_crypto_component_register()
 tt_result_t __crypto_component_init(IN tt_component_t *comp,
                                     IN tt_profile_t *profile)
 {
-    tt_result_t result;
-
-    result = tt_crypto_init_ntv(profile);
-    if (!TT_OK(result)) {
-        return TT_FAIL;
-    }
-
-    result = tt_rsa_component_init(profile);
-    if (!TT_OK(result)) {
-        return TT_FAIL;
-    }
-    TT_INFO("Intializing %-32s [Done]", "RSA");
-
-    result = tt_md5_component_init(profile);
-    if (!TT_OK(result)) {
-        return TT_FAIL;
-    }
-    TT_INFO("Intializing %-32s [Done]", "MD5");
-
-    result = tt_sha_component_init(profile);
-    if (!TT_OK(result)) {
-        return TT_FAIL;
-    }
-    TT_INFO("Intializing %-32s [Done]", "SHA");
-
-    result = tt_hmac_component_init(profile);
-    if (!TT_OK(result)) {
-        return TT_FAIL;
-    }
-    TT_INFO("Intializing %-32s [Done]", "HMAC");
-
-    result = tt_aes_component_init(profile);
-    if (!TT_OK(result)) {
-        return TT_FAIL;
-    }
-    TT_INFO("Intializing %-32s [Done]", "AES");
-
-    result = tt_dh_component_init(profile);
-    if (!TT_OK(result)) {
-        return TT_FAIL;
-    }
-    TT_INFO("Intializing %-32s [Done]", "DH");
-
     return TT_SUCCESS;
 }

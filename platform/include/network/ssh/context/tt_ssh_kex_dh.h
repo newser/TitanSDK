@@ -27,7 +27,6 @@
 ////////////////////////////////////////////////////////////
 
 #include <algorithm/tt_buffer.h>
-#include <crypto/tt_dh.h>
 #include <network/ssh/tt_ssh_def.h>
 
 ////////////////////////////////////////////////////////////
@@ -41,7 +40,7 @@
 typedef struct
 {
     tt_ssh_kex_alg_t alg;
-    tt_dh_t dh;
+    // tt_dh_t dh;
 
     // exchange value sent by the client
     tt_buf_t e;

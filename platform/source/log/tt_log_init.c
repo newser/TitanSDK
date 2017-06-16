@@ -114,6 +114,24 @@ void tt_logmgr_config_component_register()
     tt_component_register(&comp);
 }
 
+void tt_logmgr_layout_default(IN tt_logmgr_t *lmgr)
+{
+    tt_logmgr_set_layout(&tt_g_logmgr, TT_LOG_DEBUG, tt_s_loglyt[TT_LOG_DEBUG]);
+    tt_logmgr_set_layout(&tt_g_logmgr, TT_LOG_INFO, tt_s_loglyt[TT_LOG_INFO]);
+    tt_logmgr_set_layout(&tt_g_logmgr, TT_LOG_WARN, tt_s_loglyt[TT_LOG_WARN]);
+    tt_logmgr_set_layout(&tt_g_logmgr, TT_LOG_ERROR, tt_s_loglyt[TT_LOG_ERROR]);
+    tt_logmgr_set_layout(&tt_g_logmgr, TT_LOG_FATAL, tt_s_loglyt[TT_LOG_FATAL]);
+}
+
+tt_result_t tt_logmgr_io_default(IN tt_logmgr_t *lmgr)
+{
+    if (!TT_OK(tt_logmgr_append_io(lmgr, TT_LOG_LEVEL_NUM, tt_s_logio_std))) {
+        return TT_FAIL;
+    }
+
+    return TT_SUCCESS;
+}
+
 tt_result_t __logmgr_component_init(IN tt_component_t *comp,
                                     IN tt_profile_t *profile)
 {
@@ -123,13 +141,14 @@ tt_result_t __logmgr_component_init(IN tt_component_t *comp,
     }
 
     // log layout
-    if (!TT_OK(__create_log_layout(profile)) ||
-        !TT_OK(__install_log_layout(profile))) {
+    if (!TT_OK(__create_log_layout(profile))) {
         return TT_FAIL;
     }
+    tt_logmgr_layout_default(&tt_g_logmgr);
 
     // log io
-    if (!TT_OK(__create_log_io(profile)) || !TT_OK(__install_log_io(profile))) {
+    if (!TT_OK(__create_log_io(profile)) ||
+        !TT_OK(tt_logmgr_io_default(&tt_g_logmgr))) {
         return TT_FAIL;
     }
 
@@ -222,17 +241,6 @@ tt_result_t __create_log_layout(IN tt_profile_t *profile)
     return TT_SUCCESS;
 }
 
-tt_result_t __install_log_layout(IN tt_profile_t *profile)
-{
-    tt_logmgr_set_layout(&tt_g_logmgr, TT_LOG_DEBUG, tt_s_loglyt[TT_LOG_DEBUG]);
-    tt_logmgr_set_layout(&tt_g_logmgr, TT_LOG_INFO, tt_s_loglyt[TT_LOG_INFO]);
-    tt_logmgr_set_layout(&tt_g_logmgr, TT_LOG_WARN, tt_s_loglyt[TT_LOG_WARN]);
-    tt_logmgr_set_layout(&tt_g_logmgr, TT_LOG_ERROR, tt_s_loglyt[TT_LOG_ERROR]);
-    tt_logmgr_set_layout(&tt_g_logmgr, TT_LOG_FATAL, tt_s_loglyt[TT_LOG_FATAL]);
-
-    return TT_SUCCESS;
-}
-
 tt_result_t __create_log_io(IN tt_profile_t *profile)
 {
     tt_logio_t *lio;
@@ -244,17 +252,6 @@ tt_result_t __create_log_io(IN tt_profile_t *profile)
         return TT_FAIL;
     }
     tt_s_logio_std = lio;
-
-    return TT_SUCCESS;
-}
-
-tt_result_t __install_log_io(IN tt_profile_t *profile)
-{
-    if (!TT_OK(tt_logmgr_append_io(&tt_g_logmgr,
-                                   TT_LOG_LEVEL_NUM,
-                                   tt_s_logio_std))) {
-        return TT_FAIL;
-    }
 
     return TT_SUCCESS;
 }

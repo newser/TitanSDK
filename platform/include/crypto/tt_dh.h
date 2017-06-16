@@ -16,9 +16,9 @@
 
 /**
 @file tt_dh.h
-@brief crypto: diffie-hellman
+@brief crypto: dh
 
-this file defines diffie-hellman APIs
+this file defines crypto dh APIs
 */
 
 #ifndef __TT_DH__
@@ -28,9 +28,9 @@ this file defines diffie-hellman APIs
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <crypto/tt_dh_def.h>
+#include <tt_basic_type.h>
 
-#include <tt_dh_native.h>
+#include <dhm.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
@@ -40,21 +40,9 @@ this file defines diffie-hellman APIs
 // type definition
 ////////////////////////////////////////////////////////////
 
-struct tt_profile_s;
-struct tt_buf_s;
-
-typedef struct tt_dh_attr_s
-{
-    const tt_char_t *password;
-
-    tt_bool_t pem_armor : 1;
-} tt_dh_attr_t;
-
 typedef struct
 {
-    tt_dh_ntv_t sys_dh;
-
-    tt_dh_attr_t attr;
+    mbedtls_dhm_context ctx;
 } tt_dh_t;
 
 ////////////////////////////////////////////////////////////
@@ -65,38 +53,43 @@ typedef struct
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-tt_inline tt_result_t tt_dh_component_init(IN struct tt_profile_s *profile)
-{
-    return tt_dh_component_init_ntv(profile);
-}
-
-extern tt_result_t tt_dh_create(IN tt_dh_t *dh,
-                                IN tt_dh_format_t format,
-                                IN tt_dh_keydata_t *keydata,
-                                IN tt_dh_attr_t *attr);
+extern void tt_dh_init(IN tt_dh_t *dh);
 
 extern void tt_dh_destroy(IN tt_dh_t *dh);
 
-extern void tt_dh_attr_default(IN tt_dh_attr_t *attr);
+extern tt_result_t tt_dh_load_param(IN tt_dh_t *dh,
+                                    IN tt_u8_t *param,
+                                    IN tt_u32_t len);
 
-extern tt_result_t tt_dh_get_pubkey(IN tt_dh_t *dh,
-                                    OUT OPT tt_u8_t *pubkey,
-                                    IN OUT tt_u32_t *pubkey_len,
-                                    IN tt_u32_t flag);
-extern tt_result_t tt_dh_get_pubkey_buf(IN tt_dh_t *dh,
-                                        OUT struct tt_buf_s *pubkey,
-                                        IN tt_u32_t flag);
+extern tt_result_t tt_dh_load_param_file(IN tt_dh_t *dh,
+                                         IN const tt_char_t *path);
 
-extern tt_result_t tt_dh_compute(IN tt_dh_t *dh,
-                                 IN tt_u8_t *peer_pub,
-                                 IN tt_u32_t peer_pub_len);
+tt_inline tt_u32_t tt_dh_size(IN tt_dh_t *dh)
+{
+    return (tt_u32_t)dh->ctx.len;
+}
+
+// len should be at least group size, 128 bytes if dh group is of 1024 bits
+extern tt_result_t tt_dh_generate_pub(IN tt_dh_t *dh,
+                                      IN tt_u32_t priv_size,
+                                      OUT tt_u8_t *pub,
+                                      IN OUT tt_u32_t len);
+
+extern tt_result_t tt_dh_get_pub(IN tt_dh_t *dh,
+                                 IN tt_bool_t local,
+                                 OUT tt_u8_t *pub,
+                                 IN tt_u32_t len);
+
+extern tt_result_t tt_dh_set_pub(IN tt_dh_t *dh,
+                                 IN tt_u8_t *pub,
+                                 IN tt_u32_t len);
+
+extern tt_result_t tt_dh_derive(IN tt_dh_t *dh,
+                                OUT tt_u8_t *secret,
+                                IN OUT tt_u32_t *len);
 
 extern tt_result_t tt_dh_get_secret(IN tt_dh_t *dh,
-                                    OUT OPT tt_u8_t *secret,
-                                    IN OUT tt_u32_t *secret_len,
-                                    IN tt_u32_t flag);
-extern tt_result_t tt_dh_get_secret_buf(IN tt_dh_t *dh,
-                                        OUT struct tt_buf_s *secret,
-                                        IN tt_u32_t flag);
+                                    OUT tt_u8_t *secret,
+                                    IN tt_u32_t len);
 
-#endif
+#endif /* __TT_DH__ */

@@ -349,7 +349,7 @@ tt_result_t tt_buf_put_rand(IN tt_buf_t *buf, IN tt_u32_t len)
 
         TT_DO(tt_buf_reserve(buf, len));
 
-        while ((n + sizeof(tt_u64_t)) < len) {
+        while ((n + sizeof(tt_u64_t)) <= len) {
             TT_DO(tt_buf_put_u64(buf, tt_rand_u64()));
             n += sizeof(tt_u64_t);
         }

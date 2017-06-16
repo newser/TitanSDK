@@ -28,7 +28,6 @@
 
 #include <algorithm/tt_buffer.h>
 #include <algorithm/tt_list.h>
-#include <crypto/tt_rsa.h>
 #include <io/tt_socket.h>
 #include <io/tt_socket_addr.h>
 #include <network/ssh/tt_ssh_channel_cb.h>
@@ -64,13 +63,13 @@ typedef struct
     tt_u32_t channel_per_conn;
 
     // rsa key
-    tt_rsa_format_t rsapub_format;
+    // tt_rsa_format_t rsapub_format;
     tt_blob_t rsapub_key_data;
-    tt_rsa_attr_t rsapub_attr;
+    // tt_rsa_attr_t rsapub_attr;
 
-    tt_rsa_format_t rsapriv_format;
+    // tt_rsa_format_t rsapriv_format;
     tt_blob_t rsapriv_key_data;
-    tt_rsa_attr_t rsapriv_attr;
+    // tt_rsa_attr_t rsapriv_attr;
 } tt_sshsvr_attr_t;
 
 typedef struct tt_sshsvr_s

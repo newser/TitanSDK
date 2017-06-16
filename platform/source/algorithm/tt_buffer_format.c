@@ -109,7 +109,7 @@ tt_result_t tt_buf_putv(IN tt_buf_t *buf,
     tt_u8_t *p;
     tt_u32_t len, n;
     va_list args;
-    tt_u32_t retry = 1;
+    tt_u32_t retry = 10;
     tt_result_t result = TT_SUCCESS;
 
 again:

@@ -21,7 +21,6 @@
 #include <crypto/tt_hmac.h>
 
 #include <algorithm/tt_buffer.h>
-#include <init/tt_component.h>
 #include <misc/tt_assert.h>
 
 ////////////////////////////////////////////////////////////
@@ -40,8 +39,16 @@
 // global variant
 ////////////////////////////////////////////////////////////
 
-static tt_u32_t __hmac_digest_len[TT_HMAC_VER_NUM] = {
-    TT_HMAC_SHA1_DIGEST_LENGTH,
+static mbedtls_md_type_t __hmac_type_map[TT_HMAC_TYPE_NUM] = {
+    MBEDTLS_MD_MD2,
+    MBEDTLS_MD_MD4,
+    MBEDTLS_MD_MD5,
+    MBEDTLS_MD_SHA1,
+    MBEDTLS_MD_SHA224,
+    MBEDTLS_MD_SHA256,
+    MBEDTLS_MD_SHA384,
+    MBEDTLS_MD_SHA512,
+    MBEDTLS_MD_RIPEMD160,
 };
 
 ////////////////////////////////////////////////////////////
@@ -52,102 +59,81 @@ static tt_u32_t __hmac_digest_len[TT_HMAC_VER_NUM] = {
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-tt_result_t tt_hmac_create(IN tt_hmac_t *hmac,
-                           IN tt_hmac_ver_t version,
-                           IN tt_blob_t *key)
+tt_result_t tt_hmac_create(IN tt_hmac_t *hm,
+                           IN tt_hmac_type_t type,
+                           IN tt_u8_t *key,
+                           IN tt_u32_t key_len)
 {
-    TT_ASSERT(hmac != NULL);
-    TT_ASSERT(TT_HMAC_VER_VALID(version));
-    TT_ASSERT((key != NULL) && (key->addr != NULL) && (key->len != 0));
+    TT_ASSERT(hm != NULL);
+    TT_ASSERT(TT_HMAC_TYPE_VALID(type));
 
-    hmac->version = version;
+    mbedtls_md_init(&hm->ctx);
 
-    return tt_hmac_create_ntv(&hmac->sys_hmac, version, key);
-}
-
-void tt_hmac_destroy(IN tt_hmac_t *hmac)
-{
-    tt_hmac_destroy_ntv(&hmac->sys_hmac);
-}
-
-tt_result_t tt_hmac_update(IN tt_hmac_t *hmac,
-                           IN tt_u8_t *input,
-                           IN tt_u32_t input_len)
-{
-    TT_ASSERT(hmac != NULL);
-    TT_ASSERT(input != NULL);
-
-    if (input > 0) {
-        return tt_hmac_update_ntv(&hmac->sys_hmac, input, input_len);
-    } else {
-        return TT_SUCCESS;
-    }
-}
-
-tt_result_t tt_hmac_final_buf(IN tt_hmac_t *hmac, OUT tt_buf_t *output)
-{
-    tt_u32_t len = __hmac_digest_len[hmac->version];
-
-    TT_ASSERT(hmac != NULL);
-    TT_ASSERT(output != NULL);
-
-    if (!TT_OK(tt_buf_reserve(output, len))) {
+    if (mbedtls_md_setup(&hm->ctx,
+                         mbedtls_md_info_from_type(__hmac_type_map[type]),
+                         1) != 0) {
+        TT_ERROR("fail to setup hm");
         return TT_FAIL;
     }
 
-    if (!TT_OK(tt_hmac_final_ntv(&hmac->sys_hmac, TT_BUF_WPOS(output)))) {
-        tt_buf_destroy(output);
+    if (mbedtls_md_hmac_starts(&hm->ctx, key, key_len) != 0) {
+        TT_ERROR("fail to start hm");
         return TT_FAIL;
     }
-    tt_buf_inc_wp(output, len);
 
     return TT_SUCCESS;
 }
 
-tt_result_t tt_hmac_reset(IN tt_hmac_t *hmac)
+void tt_hmac_destroy(IN tt_hmac_t *hm)
 {
-    TT_ASSERT(hmac != NULL);
+    TT_ASSERT(hm != NULL);
 
-    return tt_hmac_reset_ntv(&hmac->sys_hmac);
+    mbedtls_md_free(&hm->ctx);
 }
 
-tt_result_t tt_hmac_final(IN tt_hmac_t *hmac, OUT tt_u8_t *output)
+tt_result_t tt_hmac_final_buf(IN tt_hmac_t *hm, OUT tt_buf_t *output)
 {
-    TT_ASSERT(hmac != NULL);
-    TT_ASSERT(output != NULL);
+    tt_u32_t size = tt_hmac_size(hm);
 
-    return tt_hmac_final_ntv(&hmac->sys_hmac, output);
+    if (!TT_OK(tt_buf_reserve(output, size))) {
+        return TT_FAIL;
+    }
+
+    if (mbedtls_md_hmac_finish(&hm->ctx, TT_BUF_RPOS(output)) != 0) {
+        TT_ERROR("hm final buf failed");
+        return TT_FAIL;
+    }
+    tt_buf_inc_wp(output, size);
+
+    return TT_SUCCESS;
 }
 
-tt_result_t tt_hmac_gather(IN tt_hmac_ver_t version,
-                           IN tt_blob_t *key,
+tt_result_t tt_hmac_gather(IN tt_hmac_type_t type,
+                           IN tt_u8_t *key,
+                           IN tt_u32_t key_len,
                            IN tt_blob_t *input,
                            IN tt_u32_t input_num,
                            OUT tt_u8_t *output)
 {
-    tt_hmac_t hmac;
-    tt_result_t result;
+    tt_hmac_t hm;
     tt_u32_t i;
 
-    result = tt_hmac_create(&hmac, version, key);
-    if (!TT_OK(result)) {
+    if (!TT_OK(tt_hmac_create(&hm, type, key, key_len))) {
         return TT_FAIL;
     }
 
     for (i = 0; i < input_num; ++i) {
-        result = tt_hmac_update(&hmac, input[i].addr, input[i].len);
-        if (!TT_OK(result)) {
-            tt_hmac_destroy(&hmac);
+        if (!TT_OK(tt_hmac_update(&hm, input[i].addr, input[i].len))) {
+            tt_hmac_destroy(&hm);
             return TT_FAIL;
         }
     }
 
-    result = tt_hmac_final(&hmac, output);
-    if (!TT_OK(result)) {
-        tt_hmac_destroy(&hmac);
+    if (!TT_OK(tt_hmac_final(&hm, output))) {
+        tt_hmac_destroy(&hm);
         return TT_FAIL;
     }
 
-    tt_hmac_destroy(&hmac);
+    tt_hmac_destroy(&hm);
     return TT_SUCCESS;
 }
