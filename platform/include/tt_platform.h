@@ -35,6 +35,7 @@ extern "C" {
 #include <algorithm/ptr/tt_ptr_hashmap.h>
 #include <algorithm/ptr/tt_ptr_heap.h>
 #include <algorithm/ptr/tt_ptr_queue.h>
+#include <algorithm/ptr/tt_ptr_stack.h>
 #include <algorithm/ptr/tt_ptr_vector.h>
 #include <algorithm/tt_algorithm_def.h>
 #include <algorithm/tt_binary_search.h>
@@ -223,30 +224,7 @@ extern "C" {
 #include <tt_basic_type.h>
 #include <unit_test/tt_test_framework.h>
 #include <unit_test/tt_unit_test.h>
-#include <xml/parse/tt_xml_parser.h>
-#include <xml/parse/tt_xmlparse_state.h>
-#include <xml/parse/tt_xmlparse_state_attr.h>
-#include <xml/parse/tt_xmlparse_state_cdata.h>
-#include <xml/parse/tt_xmlparse_state_comment.h>
-#include <xml/parse/tt_xmlparse_state_etag.h>
-#include <xml/parse/tt_xmlparse_state_exclamation.h>
-#include <xml/parse/tt_xmlparse_state_pi.h>
-#include <xml/parse/tt_xmlparse_state_stag.h>
-#include <xml/parse/tt_xmlparse_state_stagend.h>
-#include <xml/parse/tt_xmlparse_state_tag.h>
-#include <xml/parse/tt_xmlparse_state_text.h>
-#include <xml/parse/tt_xmlparse_state_waitattr.h>
-#include <xml/render/tt_xml_render.h>
-#include <xml/tt_xml_char_decode.h>
-#include <xml/tt_xml_char_encode.h>
-#include <xml/tt_xml_def.h>
 #include <xml/tt_xml_document.h>
-#include <xml/tt_xml_memory.h>
-#include <xml/tt_xml_namespace.h>
-#include <xml/tt_xml_node.h>
-#include <xml/tt_xml_node_element.h>
-#include <xml/tt_xml_node_parser.h>
-#include <xml/tt_xml_node_render.h>
 
 #ifdef __cplusplus
 }

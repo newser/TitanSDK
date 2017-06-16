@@ -18,7 +18,7 @@
 @file tt_xml_document.h
 @brief xml document
 
-this file defines xml document api
+this file specifies xml document APIs
 */
 
 #ifndef __TT_XML_DOCUMENT__
@@ -28,10 +28,7 @@ this file defines xml document api
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <xml/tt_xml_memory.h>
-#include <xml/tt_xml_namespace.h>
-#include <xml/tt_xml_node.h>
-#include <xml/tt_xml_node_parser.h>
+#include <tt_basic_type.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
@@ -43,22 +40,40 @@ this file defines xml document api
 
 typedef struct
 {
-    tt_xmlmem_attr_t xm_attr;
-    tt_xmlnp_attr_t xnp_attr;
-} tt_xmldoc_attr_t;
+    tt_ptr_t p;
+} tt_xdoc_t;
 
-typedef struct tt_xmldoc_s
+typedef enum {
+    TT_XDOC_AUTO,
+    TT_XDOC_UTF8,
+    TT_XDOC_UTF16_LE,
+    TT_XDOC_UTF16_BE,
+    TT_XDOC_UTF32_LE,
+    TT_XDOC_UTF32_BE,
+
+    TT_XDOC_ENCODING_NUM
+} tt_xdoc_encoding_t;
+#define TT_XDOC_ENCODING_VALID(e) ((e) < TT_XDOC_ENCODING_NUM)
+
+typedef struct
 {
-    tt_xmlmem_t xm;
-    tt_xmlns_mgr_t xns_mgr;
+    tt_xdoc_encoding_t encoding;
 
-    tt_xmlnp_attr_t xnp_attr;
-    tt_xmlnp_t *xnp;
-    tt_xnode_t *current;
-    tt_bool_t well_formed;
-
-    tt_xnode_t *root;
-} tt_xmldoc_t;
+    tt_bool_t parse_pi : 1;
+    tt_bool_t parse_comments : 1;
+    tt_bool_t parse_cdata : 1;
+    tt_bool_t parse_ws_pcdata : 1;
+    tt_bool_t parse_escapes : 1;
+    tt_bool_t parse_eol : 1;
+    tt_bool_t parse_wconv_attribute : 1;
+    tt_bool_t parse_wnorm_attribute : 1;
+    tt_bool_t parse_declaration : 1;
+    tt_bool_t parse_doctype : 1;
+    tt_bool_t parse_ws_pcdata_single : 1;
+    tt_bool_t parse_trim_pcdata : 1;
+    tt_bool_t parse_fragment : 1;
+    tt_bool_t parse_embed_pcdata : 1;
+} tt_xdoc_attr_t;
 
 ////////////////////////////////////////////////////////////
 // global variants
@@ -68,24 +83,19 @@ typedef struct tt_xmldoc_s
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern tt_result_t tt_xmldoc_create(IN tt_xmldoc_t *xdoc,
-                                    IN OPT tt_xmldoc_attr_t *attr);
+extern void tt_xdoc_init(IN tt_xdoc_t *xd);
 
-extern void tt_xmldoc_destroy(IN tt_xmldoc_t *xdoc);
+extern tt_result_t tt_xdoc_load(IN tt_xdoc_t *xd,
+                                IN tt_u8_t *buf,
+                                IN tt_u32_t len,
+                                IN OPT tt_xdoc_attr_t *attr);
 
-extern void tt_xmldoc_attr_default(IN tt_xmldoc_attr_t *attr);
+extern tt_result_t tt_xdoc_load_file(IN tt_xdoc_t *xd,
+                                     IN const tt_char_t *path,
+                                     IN OPT tt_xdoc_attr_t *attr);
 
-extern tt_result_t tt_xmldoc_update(IN tt_xmldoc_t *xdoc,
-                                    IN tt_u8_t *data,
-                                    IN tt_u32_t data_len);
+extern void tt_xdoc_destroy(IN tt_xdoc_t *xd);
 
-extern tt_result_t tt_xmldoc_final(IN tt_xmldoc_t *xdoc, OUT void *reserved);
-
-extern void tt_xmldoc_reset(IN tt_xmldoc_t *xdoc, IN tt_u32_t flag);
-
-tt_inline tt_xnode_t *tt_xmldoc_root(IN tt_xmldoc_t *xdoc)
-{
-    return xdoc->root;
-}
+extern void tt_xdoc_attr_default(IN tt_xdoc_attr_t *attr);
 
 #endif /* __TT_XML_DOCUMENT__ */

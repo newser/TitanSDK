@@ -34,9 +34,7 @@
 typedef enum {
     XML_UT_BEGIN = 0,
 
-    XML_UT_PSST_INIT,
-    XML_UT_PSST_PARSE,
-    XML_UT_PSST_NODE_PARSE,
+    XML_UT_XDOC = XML_UT_BEGIN,
 
     XML_UT_NUM // number of test units
 } tt_xml_ut_id_t;
@@ -45,24 +43,14 @@ typedef enum {
 // extern declaration
 ////////////////////////////////////////////////////////////
 
-TT_XML_UT_DECLARE(XML_UT_PSST_INIT)
-TT_XML_UT_DECLARE(XML_UT_PSST_PARSE)
-TT_XML_UT_DECLARE(XML_UT_PSST_NODE_PARSE)
-TT_XML_UT_DECLARE(XML_UT_PSST_DOC)
-TT_XML_UT_DECLARE(XML_UT_RENDER)
+TT_XML_UT_DECLARE(XML_UT_XDOC)
 
 ////////////////////////////////////////////////////////////
 // global variant
 ////////////////////////////////////////////////////////////
 
-tt_test_unit_t *tt_g_xml_ut_list[XML_UT_NUM] = {
-#if 0
-    &TT_MAKE_TEST_UNIT_NAME(XML_UT_PSST_INIT),
-    &TT_MAKE_TEST_UNIT_NAME(XML_UT_PSST_PARSE),
-    &TT_MAKE_TEST_UNIT_NAME(XML_UT_PSST_NODE_PARSE),
-    &TT_MAKE_TEST_UNIT_NAME(XML_UT_RENDER),
-#endif
-    &TT_MAKE_TEST_UNIT_NAME(XML_UT_PSST_DOC),
+tt_test_unit_t *tt_g_crypto_ut_list[XML_UT_NUM] = {
+    &TT_MAKE_TEST_UNIT_NAME(XML_UT_XDOC),
 };
 
 ////////////////////////////////////////////////////////////
@@ -79,8 +67,8 @@ tt_result_t tt_xml_ut_init(IN tt_ptr_t reserved)
     while (unit_id < XML_UT_NUM) {
         tt_result_t result = TT_FAIL;
 
-        if (tt_g_xml_ut_list[unit_id] != NULL) {
-            result = tt_test_unit_to_class(tt_g_xml_ut_list[unit_id]);
+        if (tt_g_crypto_ut_list[unit_id] != NULL) {
+            result = tt_test_unit_to_class(tt_g_crypto_ut_list[unit_id]);
             if (!TT_OK(result)) {
                 return TT_FAIL;
             }

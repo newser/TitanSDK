@@ -66,9 +66,9 @@ TT_TEST_UNIT_DECLARE(TEST_UNIT_DATE)
 ////////////////////////////////////////////////////////////
 
 tt_test_unit_t *tt_g_test_unit_list[TEST_UNIT_NUM] = {
-#if 1
-    &TT_MAKE_TEST_UNIT_NAME(TEST_UNIT_LOG_PATTERN),
     &TT_MAKE_TEST_UNIT_NAME(TEST_UNIT_LOG),
+#if 0
+    &TT_MAKE_TEST_UNIT_NAME(TEST_UNIT_LOG_PATTERN),
 #endif
 
 #if 0
@@ -150,14 +150,14 @@ tt_result_t tt_test_unit_init(IN tt_ptr_t reserved)
     } while (0);
 #endif
 
-#if 1 // #ifdef TT_PLATFORM_SSL_ENABLE
+#if 0
     do {
         tt_result_t tt_ssl_ut_init(IN tt_ptr_t reserved);
         tt_ssl_ut_init(0);
     } while (0);
 #endif
 
-#if 0 //#ifdef TT_PLATFORM_CRYPTO_ENABLE
+#if 0
     do {
         tt_result_t tt_crypto_ut_init(IN tt_ptr_t reserved);
         tt_crypto_ut_init(0);
@@ -171,14 +171,7 @@ tt_result_t tt_test_unit_init(IN tt_ptr_t reserved)
     } while (0);
 #endif
 
-#if 0
-    do {
-        tt_result_t tt_mp_ut_init(IN tt_ptr_t reserved);
-        tt_mp_ut_init(0);
-    } while (0);
-#endif
-
-#if 0
+#if 1
     do {
         tt_result_t tt_xml_ut_init(IN tt_ptr_t reserved);
         tt_xml_ut_init(0);
