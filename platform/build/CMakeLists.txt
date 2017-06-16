@@ -70,13 +70,13 @@ configure_file(${PLATFORM_ROOT_PATH}/platform/include/config/tt_customization_co
 include_directories(${PLATFORM_PATH}/include)
 include_directories(${PLATFORM_PATH}/native/${PLATFORM_ENV})
 
-# package: fcontext
-include_directories(${PLATFORM_PATH}/package/fcontext/include)
-include_directories(${PLATFORM_PATH}/package/fcontext/boost)
+# depend: fcontext
+include_directories(${PLATFORM_PATH}/depend/fcontext/include)
+include_directories(${PLATFORM_PATH}/depend/fcontext/boost)
 
-# package: tls
-include_directories(${PLATFORM_PATH}/package/tls/include)
-include_directories(${PLATFORM_PATH}/package/tls/mbedtls/include/mbedtls)
+# depend: tls
+include_directories(${PLATFORM_PATH}/depend/tls/include)
+include_directories(${PLATFORM_PATH}/depend/tls/mbedtls/include/mbedtls)
 
 #
 # source file
@@ -157,13 +157,13 @@ ttcm_platform_set_properties()
 # link
 #
 
-# packages
-add_subdirectory(${PLATFORM_PATH}/package/fcontext fcontext)
+# depends
+add_subdirectory(${PLATFORM_PATH}/depend/fcontext fcontext)
 target_link_libraries(platform fcontext)
 
-# packages
+# depends
 set(TLS_LIB)
 set(X509_LIB)
 set(CRYPTO_LIB)
-add_subdirectory(${PLATFORM_PATH}/package/tls tls)
+add_subdirectory(${PLATFORM_PATH}/depend/tls tls)
 target_link_libraries(platform ${CRYPTO_LIB} ${X509_LIB} ${TLS_LIB})

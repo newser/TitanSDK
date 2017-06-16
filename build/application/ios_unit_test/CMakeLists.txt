@@ -33,13 +33,13 @@ endif ()
 include_directories(${PLATFORM_PATH}/include)
 include_directories(${PLATFORM_PATH}/native/${PLATFORM_ENV})
 
-# package: fcontext
-include_directories(${PLATFORM_PATH}/package/fcontext/include)
-include_directories(${PLATFORM_PATH}/package/fcontext/boost)
+# depend: fcontext
+include_directories(${PLATFORM_PATH}/depend/fcontext/include)
+include_directories(${PLATFORM_PATH}/depend/fcontext/boost)
 
-# package: tls
-include_directories(${PLATFORM_PATH}/package/tls/include)
-include_directories(${PLATFORM_PATH}/package/tls/mbedtls/include/mbedtls)
+# depend: tls
+include_directories(${PLATFORM_PATH}/depend/tls/include)
+include_directories(${PLATFORM_PATH}/depend/tls/mbedtls/include/mbedtls)
 
 #
 # source file
