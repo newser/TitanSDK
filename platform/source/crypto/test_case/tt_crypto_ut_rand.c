@@ -93,7 +93,6 @@ TT_TEST_CASE("tt_unit_test_entropy",
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_entropy_t *e;
-    tt_result_t ret;
 
     TT_TEST_CASE_ENTER()
     // test start

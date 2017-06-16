@@ -1162,8 +1162,6 @@ static tt_result_t __f_svr_mul(IN void *param)
     tt_skt_t *s, *new_s;
     tt_u32_t n = (tt_u32_t)(tt_uintptr_t)param;
     tt_fiber_t *f;
-    tt_fiber_ev_t *fev;
-    tt_tmr_t *tmr, *e_tmr;
 
     s = tt_skt_create(TT_NET_AF_INET, TT_NET_PROTO_TCP, NULL);
     if (s == NULL) {

@@ -59,8 +59,6 @@ void tt_x509crl_init(IN tt_x509crl_t *x)
 
 tt_result_t tt_x509crl_add(IN tt_x509crl_t *x, IN tt_u8_t *buf, IN tt_u32_t len)
 {
-    int n;
-
     TT_ASSERT(x != NULL);
     TT_ASSERT(buf != NULL);
 

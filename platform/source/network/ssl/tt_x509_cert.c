@@ -62,8 +62,6 @@ tt_result_t tt_x509cert_add(IN tt_x509cert_t *x,
                             IN tt_u8_t *buf,
                             IN tt_u32_t len)
 {
-    int n;
-
     TT_ASSERT(x != NULL);
     TT_ASSERT(buf != NULL);
 
