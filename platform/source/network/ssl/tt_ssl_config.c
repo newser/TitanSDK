@@ -316,7 +316,7 @@ int __ssl_sni(void *p,
     tt_ssl_config_t *sc = (tt_ssl_config_t *)p;
     if (TT_OK(sc->on_sni(TT_CONTAINER(ctx, tt_ssl_t, ctx),
                          sni,
-                         len,
+                         (tt_u32_t)len,
                          sc->on_sni_param))) {
         return 0;
     } else {

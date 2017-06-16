@@ -24,8 +24,13 @@
 // internal macro
 ////////////////////////////////////////////////////////////
 
+#if TT_ENV_OS_IS_IOS
+#define __PUB_PK8_FILE "/tmp/123xxxabc_rsa_pub"
+#define __PRIV_PK8_FILE "/tmp/123xxxabc_rsa_priv"
+#else
 #define __PUB_PK8_FILE "123xxxabc_rsa_pub"
 #define __PRIV_PK8_FILE "123xxxabc_rsa_priv"
+#endif
 
 ////////////////////////////////////////////////////////////
 // internal type

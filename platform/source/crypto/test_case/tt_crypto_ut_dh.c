@@ -24,7 +24,11 @@
 // internal macro
 ////////////////////////////////////////////////////////////
 
+#if TT_ENV_OS_IS_IOS
+#define __DH_PARAM_FILE "/tmp/123xxxabc_DH_param"
+#else
 #define __DH_PARAM_FILE "123xxxabc_DH_param"
+#endif
 
 ////////////////////////////////////////////////////////////
 // internal type

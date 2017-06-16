@@ -24,6 +24,21 @@
 // internal macro
 ////////////////////////////////////////////////////////////
 
+#if TT_ENV_OS_IS_IOS
+
+#define __X509_CA "/tmp/tt_ca.crt"
+#define __CA_key "/tmp/tt_ca.key"
+
+#define __X509_CA2 "/tmp/tt_ca_int.crt"
+#define __CA_key2 "/tmp/tt_ca_int.key"
+
+#define __X509_LEAF "/tmp/tt_ca_leaf.crt"
+#define __leaf_key "/tmp/tt_ca_leaf.key"
+
+#define __X509_CRL1 "/tmp/tt_ca.crl"
+
+#else
+
 #define __X509_CA "tt_ca.crt"
 #define __CA_key "tt_ca.key"
 
@@ -34,6 +49,8 @@
 #define __leaf_key "tt_ca_leaf.key"
 
 #define __X509_CRL1 "tt_ca.crl"
+
+#endif
 
 ////////////////////////////////////////////////////////////
 // internal type

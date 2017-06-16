@@ -22,6 +22,7 @@
 
 #include <crypto/tt_crypto.h>
 #include <crypto/tt_entropy.h>
+#include <memory/tt_memory_alloc.h>
 #include <misc/tt_assert.h>
 #include <misc/tt_util.h>
 #include <os/tt_thread.h>
@@ -98,11 +99,12 @@ tt_ctr_drbg_t *tt_current_ctr_drbg()
     if (t->ctr_drbg == NULL) {
         tt_entropy_t *entropy = tt_current_entropy();
         if (entropy != NULL) {
-            t->ctr_drbg = tt_ctr_drbg_create(entropy,
-                                             (tt_u8_t *)t->name,
-                                             TT_COND(t->name != NULL,
-                                                     tt_strlen(t->name),
-                                                     0));
+            t->ctr_drbg =
+                tt_ctr_drbg_create(entropy,
+                                   (tt_u8_t *)t->name,
+                                   TT_COND(t->name != NULL,
+                                           (tt_u32_t)tt_strlen(t->name),
+                                           0));
         }
     }
     return t->ctr_drbg;

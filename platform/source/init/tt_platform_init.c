@@ -116,14 +116,7 @@ tt_result_t tt_platform_init(IN OPT const tt_char_t *profile_path)
     // network application
     tt_ssl_component_register();
     tt_ssl_log_component_register();
-// tt_adns_component_register();
-
-#ifdef TT_PLATFORM_CRYPTO_ENABLE
-    tt_crypto_component_register();
-#endif
-
-    // math
-    tt_mpn_component_register();
+    // tt_adns_component_register();
 
     // ========================================
     // start component

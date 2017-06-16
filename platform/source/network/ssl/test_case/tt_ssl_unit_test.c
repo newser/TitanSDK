@@ -52,8 +52,7 @@ TT_SSL_UT_DECLARE(SSL_UT_IO)
 ////////////////////////////////////////////////////////////
 
 tt_test_unit_t *tt_g_ssl_ut_list[SSL_UT_NUM] = {
-    //&TT_MAKE_TEST_UNIT_NAME(SSL_UT_X509),
-    &TT_MAKE_TEST_UNIT_NAME(SSL_UT_IO),
+    &TT_MAKE_TEST_UNIT_NAME(SSL_UT_X509), &TT_MAKE_TEST_UNIT_NAME(SSL_UT_IO),
 };
 
 ////////////////////////////////////////////////////////////

@@ -120,17 +120,6 @@ extern "C" {
 #include <log/tt_log_context.h>
 #include <log/tt_log_init.h>
 #include <log/tt_log_manager.h>
-#include <math/mp/tt_mpn.h>
-#include <math/mp/tt_mpn_add.h>
-#include <math/mp/tt_mpn_cache.h>
-#include <math/mp/tt_mpn_common.h>
-#include <math/mp/tt_mpn_div.h>
-#include <math/mp/tt_mpn_exp.h>
-#include <math/mp/tt_mpn_gcd.h>
-#include <math/mp/tt_mpn_init.h>
-#include <math/mp/tt_mpn_mod.h>
-#include <math/mp/tt_mpn_mul.h>
-#include <math/mp/tt_mpn_sub.h>
 #include <memory/tt_memory_alloc.h>
 #include <memory/tt_memory_alloc.h>
 #include <memory/tt_memory_pool.h>

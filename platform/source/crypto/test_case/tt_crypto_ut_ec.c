@@ -24,8 +24,13 @@
 // internal macro
 ////////////////////////////////////////////////////////////
 
+#if TT_ENV_OS_IS_IOS
+#define __EC_PUB_PK8_FILE "/tmp/123xxxabc_ec_pub"
+#define __EC_PRIV_PK8_FILE "/tmp/123xxxabc_ec_priv"
+#else
 #define __EC_PUB_PK8_FILE "123xxxabc_ec_pub"
 #define __EC_PRIV_PK8_FILE "123xxxabc_ec_priv"
+#endif
 
 ////////////////////////////////////////////////////////////
 // internal type
