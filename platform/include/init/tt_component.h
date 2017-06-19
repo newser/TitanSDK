@@ -91,14 +91,14 @@ typedef enum {
     TT_COMPONENT_IO_POLLER,
     TT_COMPONENT_IO_WORKER_GROUP,
 
-    // network
-    TT_COMPONENT_SSL,
-
-    // multi precision
-    TT_COMPONENT_MPN,
+    // xml
+    TT_COMPONENT_XML_NODE,
 
     // crypto
     TT_COMPONENT_CRYPTO,
+
+    // network
+    TT_COMPONENT_SSL,
 
     // network
     TT_COMPONENT_MODULE_ADNS,

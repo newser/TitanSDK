@@ -38,9 +38,10 @@ this file specifies xml document APIs
 // type definition
 ////////////////////////////////////////////////////////////
 
-typedef struct
+typedef struct tt_xdoc_s
 {
     tt_ptr_t p;
+    tt_bool_t valid : 1;
 } tt_xdoc_t;
 
 typedef enum {

@@ -70,6 +70,7 @@ void tt_xdoc_init(IN tt_xdoc_t *xd)
     TT_ASSERT(xd != NULL);
 
     xd->p = NULL;
+    xd->valid = TT_FALSE;
 }
 
 tt_result_t tt_xdoc_load(IN tt_xdoc_t *xd,
@@ -89,6 +90,7 @@ tt_result_t tt_xdoc_load(IN tt_xdoc_t *xd,
     if (xd->p != NULL) {
         p = static_cast<pugi::xml_document *>(xd->p);
         p->reset();
+        xd->valid = TT_FALSE;
     } else {
         p = new pugi::xml_document();
         if (p == NULL) {
@@ -113,6 +115,7 @@ tt_result_t tt_xdoc_load(IN tt_xdoc_t *xd,
     }
 
     xd->p = p;
+    xd->valid = TT_TRUE;
     return TT_SUCCESS;
 }
 
@@ -133,6 +136,7 @@ tt_result_t tt_xdoc_load_file(IN tt_xdoc_t *xd,
     if (xd->p != NULL) {
         p = static_cast<pugi::xml_document *>(xd->p);
         p->reset();
+        xd->valid = TT_FALSE;
     } else {
         p = new pugi::xml_document();
         if (p == NULL) {
@@ -159,6 +163,7 @@ tt_result_t tt_xdoc_load_file(IN tt_xdoc_t *xd,
     }
 
     xd->p = p;
+    xd->valid = TT_TRUE;
     return TT_SUCCESS;
 }
 
