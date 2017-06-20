@@ -214,8 +214,8 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xdoc_encoding)
         xn = tt_xdoc_root(&xd);
         TT_UT_NOT_NULL(xn, "");
         TT_UT_EQUAL(tt_xnode_type(xn), TT_XNODE_DOCUMENT, "");
-        TT_UT_EQUAL(tt_xnode_name(xn)[0], 0, "");
-        // TT_UT_EQUAL(tt_xnode_value_cstr(xn)[0], 0, "");
+        TT_UT_EQUAL(tt_xnode_get_name(xn)[0], 0, "");
+        // TT_UT_EQUAL(tt_xnode_get_value(xn)[0], 0, "");
 
         // invalid content
         ret = tt_xdoc_parse(&xd, xf->p, tt_rand_u32() % (xf->len - 2), &a);
@@ -255,8 +255,8 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xdoc_encoding)
         xn = tt_xdoc_root(&xd);
         TT_UT_NOT_NULL(xn, "");
         TT_UT_EQUAL(tt_xnode_type(xn), TT_XNODE_DOCUMENT, "");
-        TT_UT_EQUAL(tt_xnode_name(xn)[0], 0, "");
-        // TT_UT_EQUAL(tt_xnode_value_cstr(xn)[0], 0, "");
+        TT_UT_EQUAL(tt_xnode_get_name(xn)[0], 0, "");
+        // TT_UT_EQUAL(tt_xnode_get_value(xn)[0], 0, "");
 
         ++xf;
     }
@@ -289,8 +289,8 @@ static const tt_char_t *__ut_find_name(tt_xnode_t xn, const tt_char_t *name)
 {
     tt_xnode_t x;
 
-    if (tt_strcmp(name, tt_xnode_name(xn)) == 0) {
-        return tt_xnode_value_cstr(xn);
+    if (tt_strcmp(name, tt_xnode_get_name(xn)) == 0) {
+        return tt_xnode_get_value(xn);
     }
 
     x = tt_xnode_first_child(xn);

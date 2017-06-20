@@ -93,6 +93,7 @@ typedef enum {
 
     // xml
     TT_COMPONENT_XML_NODE,
+    TT_COMPONENT_XML_ATTR,
 
     // crypto
     TT_COMPONENT_CRYPTO,

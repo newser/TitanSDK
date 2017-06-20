@@ -224,6 +224,7 @@ extern "C" {
 #include <tt_basic_type.h>
 #include <unit_test/tt_test_framework.h>
 #include <unit_test/tt_unit_test.h>
+#include <xml/tt_xml_attribute.h>
 #include <xml/tt_xml_document.h>
 #include <xml/tt_xml_node.h>
 

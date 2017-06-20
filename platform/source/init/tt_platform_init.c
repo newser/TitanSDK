@@ -115,6 +115,7 @@ tt_result_t tt_platform_init(IN OPT const tt_char_t *profile_path)
 
     // xml
     tt_xnode_component_register();
+    tt_xattr_component_register();
 
     // network application
     tt_ssl_component_register();

@@ -38,6 +38,10 @@ extern "C" {
 
 #define PN(t) (*reinterpret_cast<pugi::xml_node *>(&t))
 
+#define TA(p) (*reinterpret_cast<tt_xattr_t *>(&(p)))
+
+#define PA(t) (*reinterpret_cast<pugi::xml_attribute *>(&t))
+
 ////////////////////////////////////////////////////////////
 // internal type
 ////////////////////////////////////////////////////////////
@@ -105,15 +109,33 @@ tt_xnode_type_t tt_xnode_type(IN tt_xnode_t xn)
     return __type_p2t[PN(xn).type()];
 }
 
-const tt_char_t *tt_xnode_name(IN tt_xnode_t xn)
+const tt_char_t *tt_xnode_get_name(IN tt_xnode_t xn)
 {
     return PN(xn).name();
 }
 
-const tt_char_t *tt_xnode_value_cstr(IN tt_xnode_t xn)
+tt_result_t tt_xnode_set_name(IN tt_xnode_t xn, IN const tt_char_t *name)
+{
+    if (PN(xn).set_name(name)) {
+        return TT_SUCCESS;
+    } else {
+        return TT_FAIL;
+    }
+}
+
+const tt_char_t *tt_xnode_get_value(IN tt_xnode_t xn)
 {
     pugi::xml_text text = PN(xn).text();
     return text.as_string();
+}
+
+tt_result_t tt_xnode_set_value(IN tt_xnode_t xn, IN const tt_char_t *value)
+{
+    if (PN(xn).set_value(value)) {
+        return TT_SUCCESS;
+    } else {
+        return TT_FAIL;
+    }
 }
 
 tt_xnode_t tt_xnode_first_child(IN tt_xnode_t xn)
@@ -125,6 +147,12 @@ tt_xnode_t tt_xnode_first_child(IN tt_xnode_t xn)
 tt_xnode_t tt_xnode_last_child(IN tt_xnode_t xn)
 {
     pugi::xml_node pn = PN(xn).last_child();
+    return TN(pn);
+}
+
+tt_xnode_t tt_xnode_child_byname(IN tt_xnode_t xn, IN const tt_char_t *name)
+{
+    pugi::xml_node pn = PN(xn).child(name);
     return TN(pn);
 }
 
@@ -150,6 +178,75 @@ tt_xnode_t tt_xnode_root(IN tt_xnode_t xn)
 {
     pugi::xml_node pn = PN(xn).root();
     return TN(pn);
+}
+
+// ========================================
+// xml attribute
+// ========================================
+
+tt_xattr_t tt_xnode_first_attr(IN tt_xnode_t xn)
+{
+    pugi::xml_attribute xa = PN(xn).first_attribute();
+    return TA(xa);
+}
+
+tt_xattr_t tt_xnode_last_attr(IN tt_xnode_t xn)
+{
+    pugi::xml_attribute xa = PN(xn).last_attribute();
+    return TA(xa);
+}
+
+tt_xattr_t tt_xnode_attr_byname(IN tt_xnode_t xn, IN const tt_char_t *name)
+{
+    pugi::xml_attribute xa = PN(xn).attribute(name);
+    return TA(xa);
+}
+
+tt_xattr_t tt_xnode_append_attr(IN tt_xnode_t xn, IN const tt_char_t *name)
+{
+    pugi::xml_attribute xa = PN(xn).append_attribute(name);
+    return TA(xa);
+}
+
+tt_xattr_t tt_xnode_prepend_attr(IN tt_xnode_t xn, IN const tt_char_t *name)
+{
+    pugi::xml_attribute xa = PN(xn).prepend_attribute(name);
+    return TA(xa);
+}
+
+tt_xattr_t tt_xnode_insert_attr_after(IN tt_xnode_t xn,
+                                      IN tt_xattr_t xa,
+                                      IN const tt_char_t *name)
+{
+    pugi::xml_attribute __xa = PN(xn).insert_attribute_after(name, PA(xa));
+    return TA(__xa);
+}
+
+tt_xattr_t tt_xnode_insert_attr_before(IN tt_xnode_t xn,
+                                       IN tt_xattr_t xa,
+                                       IN const tt_char_t *name)
+{
+    pugi::xml_attribute __xa = PN(xn).insert_attribute_before(name, PA(xa));
+    return TA(__xa);
+}
+
+tt_result_t tt_xnode_remove_attr(IN tt_xnode_t xn, IN tt_xattr_t xa)
+{
+    if (PN(xn).remove_attribute(PA(xa))) {
+        return TT_SUCCESS;
+    } else {
+        return TT_FAIL;
+    }
+}
+
+tt_result_t tt_xnode_remove_attr_byname(IN tt_xnode_t xn,
+                                        IN const tt_char_t *name)
+{
+    if (PN(xn).remove_attribute(name)) {
+        return TT_SUCCESS;
+    } else {
+        return TT_FAIL;
+    }
 }
 
 tt_result_t __xnode_component_init(IN tt_component_t *comp,

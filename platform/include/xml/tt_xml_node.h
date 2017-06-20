@@ -28,7 +28,7 @@ this file specifies xml node APIs
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <tt_basic_type.h>
+#include <xml/tt_xml_attribute.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
@@ -73,13 +73,17 @@ extern tt_bool_t tt_xnode_null(IN tt_xnode_t xn);
 
 extern tt_xnode_type_t tt_xnode_type(IN tt_xnode_t xn);
 
-extern const tt_char_t *tt_xnode_name(IN tt_xnode_t xn);
+extern const tt_char_t *tt_xnode_get_name(IN tt_xnode_t xn);
 
-extern const tt_char_t *tt_xnode_value_cstr(IN tt_xnode_t xn);
+extern tt_result_t tt_xnode_set_name(IN tt_xnode_t xn,
+                                     IN const tt_char_t *name);
 
 extern tt_xnode_t tt_xnode_first_child(IN tt_xnode_t xn);
 
 extern tt_xnode_t tt_xnode_last_child(IN tt_xnode_t xn);
+
+extern tt_xnode_t tt_xnode_child_byname(IN tt_xnode_t xn,
+                                        IN const tt_char_t *name);
 
 extern tt_xnode_t tt_xnode_next_sibling(IN tt_xnode_t xn);
 
@@ -88,5 +92,44 @@ extern tt_xnode_t tt_xnode_prev_sibling(IN tt_xnode_t xn);
 extern tt_xnode_t tt_xnode_parent(IN tt_xnode_t xn);
 
 extern tt_xnode_t tt_xnode_root(IN tt_xnode_t xn);
+
+// ========================================
+// xml attribute
+// ========================================
+
+extern tt_xattr_t tt_xnode_first_attr(IN tt_xnode_t xn);
+
+extern tt_xattr_t tt_xnode_last_attr(IN tt_xnode_t xn);
+
+extern tt_xattr_t tt_xnode_attr_byname(IN tt_xnode_t xn,
+                                       IN const tt_char_t *name);
+
+extern tt_xattr_t tt_xnode_append_attr(IN tt_xnode_t xn,
+                                       IN const tt_char_t *name);
+
+extern tt_xattr_t tt_xnode_prepend_attr(IN tt_xnode_t xn,
+                                        IN const tt_char_t *name);
+
+extern tt_xattr_t tt_xnode_insert_attr_after(IN tt_xnode_t xn,
+                                             IN tt_xattr_t xa,
+                                             IN const tt_char_t *name);
+
+extern tt_xattr_t tt_xnode_insert_attr_before(IN tt_xnode_t xn,
+                                              IN tt_xattr_t xa,
+                                              IN const tt_char_t *name);
+
+extern tt_result_t tt_xnode_remove_attr(IN tt_xnode_t xn, IN tt_xattr_t xa);
+
+extern tt_result_t tt_xnode_remove_attr_byname(IN tt_xnode_t xn,
+                                               IN const tt_char_t *name);
+
+// ========================================
+// xml value
+// ========================================
+
+extern const tt_char_t *tt_xnode_get_value(IN tt_xnode_t xn);
+
+extern tt_result_t tt_xnode_set_value(IN tt_xnode_t xn,
+                                      IN const tt_char_t *value);
 
 #endif /* __TT_XML_NODE__ */
