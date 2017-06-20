@@ -132,4 +132,32 @@ extern const tt_char_t *tt_xnode_get_value(IN tt_xnode_t xn);
 extern tt_result_t tt_xnode_set_value(IN tt_xnode_t xn,
                                       IN const tt_char_t *value);
 
+extern tt_bool_t tt_xnode_get_bool(IN tt_xnode_t xn, IN tt_bool_t def);
+
+extern tt_result_t tt_xnode_set_bool(IN tt_xnode_t xn, IN tt_bool_t value);
+
+extern tt_s32_t tt_xnode_get_s32(IN tt_xnode_t xn, IN tt_s32_t def);
+
+extern tt_result_t tt_xnode_set_s32(IN tt_xnode_t xn, IN tt_s32_t value);
+
+extern tt_u32_t tt_xnode_get_u32(IN tt_xnode_t xn, IN tt_u32_t def);
+
+extern tt_result_t tt_xnode_set_u32(IN tt_xnode_t xn, IN tt_u32_t value);
+
+extern tt_s64_t tt_xnode_get_s64(IN tt_xnode_t xn, IN tt_s64_t def);
+
+extern tt_result_t tt_xnode_set_s64(IN tt_xnode_t xn, IN tt_s64_t value);
+
+extern tt_u64_t tt_xnode_get_u64(IN tt_xnode_t xn, IN tt_u64_t def);
+
+extern tt_result_t tt_xnode_set_u64(IN tt_xnode_t xn, IN tt_u64_t value);
+
+extern tt_float_t tt_xnode_get_float(IN tt_xnode_t xn, IN tt_float_t def);
+
+extern tt_result_t tt_xnode_set_float(IN tt_xnode_t xn, IN tt_float_t value);
+
+extern tt_double_t tt_xnode_get_double(IN tt_xnode_t xn, IN tt_double_t def);
+
+extern tt_result_t tt_xnode_set_double(IN tt_xnode_t xn, IN tt_double_t value);
+
 #endif /* __TT_XML_NODE__ */

@@ -123,21 +123,6 @@ tt_result_t tt_xnode_set_name(IN tt_xnode_t xn, IN const tt_char_t *name)
     }
 }
 
-const tt_char_t *tt_xnode_get_value(IN tt_xnode_t xn)
-{
-    pugi::xml_text text = PN(xn).text();
-    return text.as_string();
-}
-
-tt_result_t tt_xnode_set_value(IN tt_xnode_t xn, IN const tt_char_t *value)
-{
-    if (PN(xn).set_value(value)) {
-        return TT_SUCCESS;
-    } else {
-        return TT_FAIL;
-    }
-}
-
 tt_xnode_t tt_xnode_first_child(IN tt_xnode_t xn)
 {
     pugi::xml_node pn = PN(xn).first_child();
@@ -243,6 +228,127 @@ tt_result_t tt_xnode_remove_attr_byname(IN tt_xnode_t xn,
                                         IN const tt_char_t *name)
 {
     if (PN(xn).remove_attribute(name)) {
+        return TT_SUCCESS;
+    } else {
+        return TT_FAIL;
+    }
+}
+
+// ========================================
+// xml value
+// ========================================
+
+const tt_char_t *tt_xnode_get_value(IN tt_xnode_t xn)
+{
+    pugi::xml_text text = PN(xn).text();
+    return text.as_string();
+}
+
+tt_result_t tt_xnode_set_value(IN tt_xnode_t xn, IN const tt_char_t *value)
+{
+    if (PN(xn).set_value(value)) {
+        return TT_SUCCESS;
+    } else {
+        return TT_FAIL;
+    }
+}
+
+tt_bool_t tt_xnode_get_bool(IN tt_xnode_t xn, IN tt_bool_t def)
+{
+    if (PN(xn).text().as_bool(def)) {
+        return TT_TRUE;
+    } else {
+        return TT_FALSE;
+    }
+}
+
+tt_result_t tt_xnode_set_bool(IN tt_xnode_t xn, IN tt_bool_t value)
+{
+    if (PN(xn).text().set((bool)value)) {
+        return TT_SUCCESS;
+    } else {
+        return TT_FAIL;
+    }
+}
+
+tt_s32_t tt_xnode_get_s32(IN tt_xnode_t xn, IN tt_s32_t def)
+{
+    return PN(xn).text().as_int(def);
+}
+
+tt_result_t tt_xnode_set_s32(IN tt_xnode_t xn, IN tt_s32_t value)
+{
+    if (PN(xn).text().set((int)value)) {
+        return TT_SUCCESS;
+    } else {
+        return TT_FAIL;
+    }
+}
+
+tt_u32_t tt_xnode_get_u32(IN tt_xnode_t xn, IN tt_u32_t def)
+{
+    return PN(xn).text().as_uint(def);
+}
+
+tt_result_t tt_xnode_set_u32(IN tt_xnode_t xn, IN tt_u32_t value)
+{
+    if (PN(xn).text().set((unsigned int)value)) {
+        return TT_SUCCESS;
+    } else {
+        return TT_FAIL;
+    }
+}
+
+tt_s64_t tt_xnode_get_s64(IN tt_xnode_t xn, IN tt_s64_t def)
+{
+    return PN(xn).text().as_llong(def);
+}
+
+tt_result_t tt_xnode_set_s64(IN tt_xnode_t xn, IN tt_s64_t value)
+{
+    if (PN(xn).text().set((long long)value)) {
+        return TT_SUCCESS;
+    } else {
+        return TT_FAIL;
+    }
+}
+
+tt_u64_t tt_xnode_get_u64(IN tt_xnode_t xn, IN tt_u64_t def)
+{
+    return PN(xn).text().as_ullong(def);
+}
+
+tt_result_t tt_xnode_set_u64(IN tt_xnode_t xn, IN tt_u64_t value)
+{
+    if (PN(xn).text().set((unsigned long long)value)) {
+        return TT_SUCCESS;
+    } else {
+        return TT_FAIL;
+    }
+}
+
+tt_float_t tt_xnode_get_float(IN tt_xnode_t xn, IN tt_float_t def)
+{
+    return PN(xn).text().as_float(def);
+}
+
+tt_result_t tt_xnode_set_float(IN tt_xnode_t xn, IN tt_float_t value)
+{
+    if (PN(xn).text().set(value)) {
+        return TT_SUCCESS;
+    } else {
+        return TT_FAIL;
+    }
+}
+
+tt_double_t tt_xnode_get_double(IN tt_xnode_t xn, IN tt_double_t def)
+{
+    return PN(xn).text().as_double(def);
+}
+
+tt_result_t tt_xnode_set_double(IN tt_xnode_t xn, IN tt_double_t value)
+{
+    if (PN(xn).text().set(value)) {
         return TT_SUCCESS;
     } else {
         return TT_FAIL;

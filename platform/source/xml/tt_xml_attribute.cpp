@@ -180,8 +180,6 @@ tt_result_t tt_xattr_set_s64(IN tt_xattr_t xa, IN tt_s64_t value)
 
 tt_u64_t tt_xattr_get_u64(IN tt_xattr_t xa, IN tt_u64_t def)
 {
-    unsigned long long v = PA(xa).as_ullong(def);
-    tt_u64_t v2 = PA(xa).as_ullong(def);
     return PA(xa).as_ullong(def);
 }
 
