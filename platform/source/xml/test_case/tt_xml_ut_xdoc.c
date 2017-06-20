@@ -39,6 +39,7 @@
 // === routine declarations ================
 TT_TEST_ROUTINE_DECLARE(tt_unit_test_xdoc_encoding)
 TT_TEST_ROUTINE_DECLARE(tt_unit_test_xdoc_parse)
+TT_TEST_ROUTINE_DECLARE(tt_unit_test_xdoc_render)
 // =========================================
 
 // === test case list ======================
@@ -63,21 +64,32 @@ TT_TEST_CASE("tt_unit_test_xdoc_encoding",
                  NULL,
                  NULL),
 
+    TT_TEST_CASE("tt_unit_test_xdoc_render",
+                 "xml: document renderring",
+                 tt_unit_test_xdoc_render,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL),
+
     TT_TEST_CASE_LIST_DEFINE_END(xml_xdoc_case)
     // =========================================
 
     TT_TEST_UNIT_DEFINE(XML_UT_XDOC, 0, xml_xdoc_case)
 
-    ////////////////////////////////////////////////////////////
-    // interface declaration
-    ////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////
+// interface declaration
+////////////////////////////////////////////////////////////
 
-    ////////////////////////////////////////////////////////////
-    // interface implementation
-    ////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////
+// interface implementation
+////////////////////////////////////////////////////////////
+
+#define __UT_XF_PATH "tt_test_xml"
 
     /*
-    TT_TEST_ROUTINE_DEFINE(tt_unit_test_xdoc_parse)
+    TT_TEST_ROUTINE_DEFINE(tt_unit_test_xdoc_render)
     {
         //tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
 
@@ -155,7 +167,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xdoc_encoding)
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_xdoc_t xd;
     tt_result_t ret;
-    tt_xdoc_attr_t a;
+    tt_xdoc_parse_attr_t a;
     struct __ut_xf_t *xf;
     tt_xnode_t xn;
 
@@ -172,7 +184,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xdoc_encoding)
 
     tt_xdoc_init(&xd);
 
-    ret = tt_xdoc_load(&xd, (tt_u8_t *)__ut_xdoc, sizeof(__ut_xdoc), NULL);
+    ret = tt_xdoc_parse(&xd, (tt_u8_t *)__ut_xdoc, sizeof(__ut_xdoc), NULL);
     TT_UT_SUCCESS(ret, "");
 
     xf = &__ut_xf[0];
@@ -180,23 +192,23 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xdoc_encoding)
         tt_file_t f;
         tt_u32_t n, wn;
 
-        tt_xdoc_attr_default(&a);
+        tt_xdoc_parse_attr_default(&a);
         a.encoding = xf->e;
-        a.parse_pi = (tt_bool_t)tt_rand_u32();
-        a.parse_comments = (tt_bool_t)tt_rand_u32();
-        a.parse_cdata = (tt_bool_t)tt_rand_u32();
-        a.parse_ws_pcdata = (tt_bool_t)tt_rand_u32();
-        a.parse_escapes = (tt_bool_t)tt_rand_u32();
-        a.parse_eol = (tt_bool_t)tt_rand_u32();
-        a.parse_wconv_attribute = (tt_bool_t)tt_rand_u32();
-        a.parse_wnorm_attribute = (tt_bool_t)tt_rand_u32();
-        a.parse_declaration = (tt_bool_t)tt_rand_u32();
-        a.parse_doctype = (tt_bool_t)tt_rand_u32();
-        a.parse_ws_pcdata_single = (tt_bool_t)tt_rand_u32();
-        a.parse_trim_pcdata = (tt_bool_t)tt_rand_u32();
-        a.parse_fragment = (tt_bool_t)tt_rand_u32();
-        a.parse_embed_pcdata = (tt_bool_t)tt_rand_u32();
-        ret = tt_xdoc_load(&xd, xf->p, xf->len, &a);
+        a.pi = (tt_bool_t)tt_rand_u32();
+        a.comments = (tt_bool_t)tt_rand_u32();
+        a.cdata = (tt_bool_t)tt_rand_u32();
+        a.ws_pcdata = (tt_bool_t)tt_rand_u32();
+        a.escapes = (tt_bool_t)tt_rand_u32();
+        a.eol = (tt_bool_t)tt_rand_u32();
+        a.wconv_attribute = (tt_bool_t)tt_rand_u32();
+        a.wnorm_attribute = (tt_bool_t)tt_rand_u32();
+        a.declaration = (tt_bool_t)tt_rand_u32();
+        a.doctype = (tt_bool_t)tt_rand_u32();
+        a.ws_pcdata_single = (tt_bool_t)tt_rand_u32();
+        a.trim_pcdata = (tt_bool_t)tt_rand_u32();
+        a.fragment = (tt_bool_t)tt_rand_u32();
+        a.embed_pcdata = (tt_bool_t)tt_rand_u32();
+        ret = tt_xdoc_parse(&xd, xf->p, xf->len, &a);
         TT_UT_SUCCESS(ret, "");
 
         xn = tt_xdoc_root(&xd);
@@ -206,16 +218,15 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xdoc_encoding)
         // TT_UT_EQUAL(tt_xnode_value_cstr(xn)[0], 0, "");
 
         // invalid content
-        ret = tt_xdoc_load(&xd, xf->p, tt_rand_u32() % (xf->len - 2), &a);
-        TT_UT_FAIL(ret, "");
-        xn = tt_xdoc_root(&xd);
-        TT_UT_NULL(xn, "");
-        TT_UT_EQUAL(tt_xnode_type(xn), TT_XNODE_NULL, "");
+        ret = tt_xdoc_parse(&xd, xf->p, tt_rand_u32() % (xf->len - 2), &a);
+        if (!TT_OK(ret)) {
+            xn = tt_xdoc_root(&xd);
+            TT_UT_NULL(xn, "");
+            TT_UT_EQUAL(tt_xnode_type(xn), TT_XNODE_NULL, "");
+        }
 
-#define __UT_XPATH "tt_test_xml"
-
-        tt_fremove(__UT_XPATH);
-        tt_fopen(&f, __UT_XPATH, TT_FO_CREAT | TT_FO_WRITE, NULL);
+        tt_fremove(__UT_XF_PATH);
+        tt_fopen(&f, __UT_XF_PATH, TT_FO_CREAT | TT_FO_WRITE, NULL);
         n = 0;
         while (n < xf->len) {
             ret = tt_fwrite(&f, xf->p, xf->len, &wn);
@@ -224,21 +235,21 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xdoc_encoding)
         }
         tt_fclose(&f);
 
-        a.parse_pi = (tt_bool_t)tt_rand_u32();
-        a.parse_comments = (tt_bool_t)tt_rand_u32();
-        a.parse_cdata = (tt_bool_t)tt_rand_u32();
-        a.parse_ws_pcdata = (tt_bool_t)tt_rand_u32();
-        a.parse_escapes = (tt_bool_t)tt_rand_u32();
-        a.parse_eol = (tt_bool_t)tt_rand_u32();
-        a.parse_wconv_attribute = (tt_bool_t)tt_rand_u32();
-        a.parse_wnorm_attribute = (tt_bool_t)tt_rand_u32();
-        a.parse_declaration = (tt_bool_t)tt_rand_u32();
-        a.parse_doctype = (tt_bool_t)tt_rand_u32();
-        a.parse_ws_pcdata_single = (tt_bool_t)tt_rand_u32();
-        a.parse_trim_pcdata = (tt_bool_t)tt_rand_u32();
-        a.parse_fragment = (tt_bool_t)tt_rand_u32();
-        a.parse_embed_pcdata = (tt_bool_t)tt_rand_u32();
-        ret = tt_xdoc_load_file(&xd, __UT_XPATH, &a);
+        a.pi = (tt_bool_t)tt_rand_u32();
+        a.comments = (tt_bool_t)tt_rand_u32();
+        a.cdata = (tt_bool_t)tt_rand_u32();
+        a.ws_pcdata = (tt_bool_t)tt_rand_u32();
+        a.escapes = (tt_bool_t)tt_rand_u32();
+        a.eol = (tt_bool_t)tt_rand_u32();
+        a.wconv_attribute = (tt_bool_t)tt_rand_u32();
+        a.wnorm_attribute = (tt_bool_t)tt_rand_u32();
+        a.declaration = (tt_bool_t)tt_rand_u32();
+        a.doctype = (tt_bool_t)tt_rand_u32();
+        a.ws_pcdata_single = (tt_bool_t)tt_rand_u32();
+        a.trim_pcdata = (tt_bool_t)tt_rand_u32();
+        a.fragment = (tt_bool_t)tt_rand_u32();
+        a.embed_pcdata = (tt_bool_t)tt_rand_u32();
+        ret = tt_xdoc_parse_file(&xd, __UT_XF_PATH, &a);
         TT_UT_SUCCESS(ret, "");
 
         xn = tt_xdoc_root(&xd);
@@ -317,7 +328,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xdoc_parse)
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_xdoc_t xd;
     tt_result_t ret;
-    tt_xdoc_attr_t a;
+    tt_xdoc_parse_attr_t a;
     tt_xnode_t xn;
     tt_u32_t n1, n2, n3;
     const tt_char_t *v;
@@ -328,94 +339,94 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xdoc_parse)
     tt_xdoc_init(&xd);
 
     // cdata
-    tt_xdoc_attr_default(&a);
+    tt_xdoc_parse_attr_default(&a);
 
-    a.parse_cdata = TT_FALSE;
-    ret = tt_xdoc_load(&xd, (tt_u8_t *)__ut_xdoc, sizeof(__ut_xdoc), &a);
+    a.cdata = TT_FALSE;
+    ret = tt_xdoc_parse(&xd, (tt_u8_t *)__ut_xdoc, sizeof(__ut_xdoc), &a);
     TT_UT_SUCCESS(ret, "");
     xn = tt_xdoc_root(&xd);
     TT_UT_EQUAL(__ut_find_type(xn, TT_XNODE_CDATA), TT_FALSE, "");
 
-    a.parse_cdata = TT_TRUE;
-    ret = tt_xdoc_load(&xd, (tt_u8_t *)__ut_xdoc, sizeof(__ut_xdoc), &a);
+    a.cdata = TT_TRUE;
+    ret = tt_xdoc_parse(&xd, (tt_u8_t *)__ut_xdoc, sizeof(__ut_xdoc), &a);
     TT_UT_SUCCESS(ret, "");
     xn = tt_xdoc_root(&xd);
     TT_UT_EQUAL(__ut_find_type(xn, TT_XNODE_CDATA), TT_TRUE, "");
 
     // pi
-    a.parse_pi = TT_FALSE;
-    ret = tt_xdoc_load(&xd, (tt_u8_t *)__ut_xdoc, sizeof(__ut_xdoc), &a);
+    a.pi = TT_FALSE;
+    ret = tt_xdoc_parse(&xd, (tt_u8_t *)__ut_xdoc, sizeof(__ut_xdoc), &a);
     TT_UT_SUCCESS(ret, "");
     xn = tt_xdoc_root(&xd);
     TT_UT_EQUAL(__ut_find_type(xn, TT_XNODE_PI), TT_FALSE, "");
 
-    a.parse_pi = TT_TRUE;
-    ret = tt_xdoc_load(&xd, (tt_u8_t *)__ut_xdoc, sizeof(__ut_xdoc), &a);
+    a.pi = TT_TRUE;
+    ret = tt_xdoc_parse(&xd, (tt_u8_t *)__ut_xdoc, sizeof(__ut_xdoc), &a);
     TT_UT_SUCCESS(ret, "");
     xn = tt_xdoc_root(&xd);
     TT_UT_EQUAL(__ut_find_type(xn, TT_XNODE_PI), TT_TRUE, "");
 
     // doctype
-    a.parse_doctype = TT_FALSE;
-    ret = tt_xdoc_load(&xd, (tt_u8_t *)__ut_xdoc, sizeof(__ut_xdoc), &a);
+    a.doctype = TT_FALSE;
+    ret = tt_xdoc_parse(&xd, (tt_u8_t *)__ut_xdoc, sizeof(__ut_xdoc), &a);
     TT_UT_SUCCESS(ret, "");
     xn = tt_xdoc_root(&xd);
     TT_UT_EQUAL(__ut_find_type(xn, TT_XNODE_DOCTYPE), TT_FALSE, "");
 
-    a.parse_doctype = TT_TRUE;
-    ret = tt_xdoc_load(&xd, (tt_u8_t *)__ut_xdoc, sizeof(__ut_xdoc), &a);
+    a.doctype = TT_TRUE;
+    ret = tt_xdoc_parse(&xd, (tt_u8_t *)__ut_xdoc, sizeof(__ut_xdoc), &a);
     TT_UT_SUCCESS(ret, "");
     xn = tt_xdoc_root(&xd);
     TT_UT_EQUAL(__ut_find_type(xn, TT_XNODE_DOCTYPE), TT_TRUE, "");
 
     // comment
-    a.parse_comments = TT_FALSE;
-    ret = tt_xdoc_load(&xd, (tt_u8_t *)__ut_xdoc, sizeof(__ut_xdoc), &a);
+    a.comments = TT_FALSE;
+    ret = tt_xdoc_parse(&xd, (tt_u8_t *)__ut_xdoc, sizeof(__ut_xdoc), &a);
     TT_UT_SUCCESS(ret, "");
     xn = tt_xdoc_root(&xd);
     TT_UT_EQUAL(__ut_find_type(xn, TT_XNODE_COMMENT), TT_FALSE, "");
 
-    a.parse_comments = TT_TRUE;
-    ret = tt_xdoc_load(&xd, (tt_u8_t *)__ut_xdoc, sizeof(__ut_xdoc), &a);
+    a.comments = TT_TRUE;
+    ret = tt_xdoc_parse(&xd, (tt_u8_t *)__ut_xdoc, sizeof(__ut_xdoc), &a);
     TT_UT_SUCCESS(ret, "");
     xn = tt_xdoc_root(&xd);
     TT_UT_EQUAL(__ut_find_type(xn, TT_XNODE_COMMENT), TT_TRUE, "");
 
     // declaration
-    a.parse_declaration = TT_FALSE;
-    ret = tt_xdoc_load(&xd, (tt_u8_t *)__ut_xdoc, sizeof(__ut_xdoc), &a);
+    a.declaration = TT_FALSE;
+    ret = tt_xdoc_parse(&xd, (tt_u8_t *)__ut_xdoc, sizeof(__ut_xdoc), &a);
     TT_UT_SUCCESS(ret, "");
     xn = tt_xdoc_root(&xd);
     TT_UT_EQUAL(__ut_find_type(xn, TT_XNODE_DECLARATION), TT_FALSE, "");
 
-    a.parse_declaration = TT_TRUE;
-    ret = tt_xdoc_load(&xd, (tt_u8_t *)__ut_xdoc, sizeof(__ut_xdoc), &a);
+    a.declaration = TT_TRUE;
+    ret = tt_xdoc_parse(&xd, (tt_u8_t *)__ut_xdoc, sizeof(__ut_xdoc), &a);
     TT_UT_SUCCESS(ret, "");
     xn = tt_xdoc_root(&xd);
     TT_UT_EQUAL(__ut_find_type(xn, TT_XNODE_DECLARATION), TT_TRUE, "");
 
     // ignore white space content
-    a.parse_ws_pcdata = TT_FALSE;
-    a.parse_ws_pcdata_single = TT_FALSE;
-    ret = tt_xdoc_load(&xd, (tt_u8_t *)__ut_xdoc, sizeof(__ut_xdoc), &a);
+    a.ws_pcdata = TT_FALSE;
+    a.ws_pcdata_single = TT_FALSE;
+    ret = tt_xdoc_parse(&xd, (tt_u8_t *)__ut_xdoc, sizeof(__ut_xdoc), &a);
     TT_UT_SUCCESS(ret, "");
     xn = tt_xdoc_root(&xd);
     n1 = __ut_find_num(xn);
     v = __ut_find_name(xn, "p1");
     TT_UT_EQUAL(v[0], 0, "");
 
-    a.parse_ws_pcdata = TT_FALSE;
-    a.parse_ws_pcdata_single = TT_TRUE;
-    ret = tt_xdoc_load(&xd, (tt_u8_t *)__ut_xdoc, sizeof(__ut_xdoc), &a);
+    a.ws_pcdata = TT_FALSE;
+    a.ws_pcdata_single = TT_TRUE;
+    ret = tt_xdoc_parse(&xd, (tt_u8_t *)__ut_xdoc, sizeof(__ut_xdoc), &a);
     TT_UT_SUCCESS(ret, "");
     xn = tt_xdoc_root(&xd);
     n2 = __ut_find_num(xn);
     v = __ut_find_name(xn, "p1");
     TT_UT_EQUAL(v[0], 0, "");
 
-    a.parse_ws_pcdata = TT_TRUE;
-    a.parse_ws_pcdata_single = TT_FALSE;
-    ret = tt_xdoc_load(&xd, (tt_u8_t *)__ut_xdoc, sizeof(__ut_xdoc), &a);
+    a.ws_pcdata = TT_TRUE;
+    a.ws_pcdata_single = TT_FALSE;
+    ret = tt_xdoc_parse(&xd, (tt_u8_t *)__ut_xdoc, sizeof(__ut_xdoc), &a);
     TT_UT_SUCCESS(ret, "");
     xn = tt_xdoc_root(&xd);
     n3 = __ut_find_num(xn);
@@ -426,10 +437,10 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xdoc_parse)
     TT_UT_EXP(n2 < n3, "");
 
     // parse escapes
-    a.parse_escapes = TT_FALSE;
-    a.parse_trim_pcdata = TT_FALSE;
-    a.parse_eol = TT_FALSE;
-    ret = tt_xdoc_load(&xd, (tt_u8_t *)__ut_xdoc, sizeof(__ut_xdoc), &a);
+    a.escapes = TT_FALSE;
+    a.trim_pcdata = TT_FALSE;
+    a.eol = TT_FALSE;
+    ret = tt_xdoc_parse(&xd, (tt_u8_t *)__ut_xdoc, sizeof(__ut_xdoc), &a);
     TT_UT_SUCCESS(ret, "");
     xn = tt_xdoc_root(&xd);
     v = __ut_find_name(xn, "esc");
@@ -438,10 +449,10 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xdoc_parse)
                 0,
                 "");
 
-    a.parse_escapes = TT_TRUE;
-    a.parse_trim_pcdata = TT_TRUE;
-    a.parse_eol = TT_TRUE;
-    ret = tt_xdoc_load(&xd, (tt_u8_t *)__ut_xdoc, sizeof(__ut_xdoc), &a);
+    a.escapes = TT_TRUE;
+    a.trim_pcdata = TT_TRUE;
+    a.eol = TT_TRUE;
+    ret = tt_xdoc_parse(&xd, (tt_u8_t *)__ut_xdoc, sizeof(__ut_xdoc), &a);
     TT_UT_SUCCESS(ret, "");
     xn = tt_xdoc_root(&xd);
     v = __ut_find_name(xn, "esc");
@@ -449,14 +460,14 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xdoc_parse)
     TT_UT_EQUAL(tt_strcmp(v, "<>\"&'\n\naaa"), 0, "");
 
     // parse 2 fragement
-    a.parse_fragment = TT_FALSE;
-    ret = tt_xdoc_load(&xd, (tt_u8_t *)__ut_xdoc, sizeof(__ut_xdoc), &a);
+    a.fragment = TT_FALSE;
+    ret = tt_xdoc_parse(&xd, (tt_u8_t *)__ut_xdoc, sizeof(__ut_xdoc), &a);
     TT_UT_SUCCESS(ret, "");
     xn = tt_xdoc_root(&xd);
     n1 = __ut_find_num(xn);
 
-    a.parse_fragment = TT_TRUE;
-    ret = tt_xdoc_load(&xd, (tt_u8_t *)__ut_xdoc, sizeof(__ut_xdoc), &a);
+    a.fragment = TT_TRUE;
+    ret = tt_xdoc_parse(&xd, (tt_u8_t *)__ut_xdoc, sizeof(__ut_xdoc), &a);
     TT_UT_SUCCESS(ret, "");
     xn = tt_xdoc_root(&xd);
     n2 = __ut_find_num(xn);
@@ -464,19 +475,132 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xdoc_parse)
     TT_UT_EQUAL(n1 + 2, n2, "");
 
     // embed pcdata
-    a.parse_embed_pcdata = TT_FALSE;
-    ret = tt_xdoc_load(&xd, (tt_u8_t *)__ut_xdoc, sizeof(__ut_xdoc), &a);
+    a.embed_pcdata = TT_FALSE;
+    ret = tt_xdoc_parse(&xd, (tt_u8_t *)__ut_xdoc, sizeof(__ut_xdoc), &a);
     TT_UT_SUCCESS(ret, "");
     xn = tt_xdoc_root(&xd);
     n1 = __ut_find_num(xn);
 
-    a.parse_embed_pcdata = TT_TRUE;
-    ret = tt_xdoc_load(&xd, (tt_u8_t *)__ut_xdoc, sizeof(__ut_xdoc), &a);
+    a.embed_pcdata = TT_TRUE;
+    ret = tt_xdoc_parse(&xd, (tt_u8_t *)__ut_xdoc, sizeof(__ut_xdoc), &a);
     TT_UT_SUCCESS(ret, "");
     xn = tt_xdoc_root(&xd);
     n2 = __ut_find_num(xn);
 
     TT_UT_EXP(n1 > n2, "");
+
+    tt_xdoc_destroy(&xd);
+
+    // test end
+    TT_TEST_CASE_LEAVE()
+}
+
+TT_TEST_ROUTINE_DEFINE(tt_unit_test_xdoc_render)
+{
+    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+    tt_xdoc_t xd;
+    tt_result_t ret;
+    tt_xdoc_parse_attr_t a;
+    tt_xdoc_render_attr_t ra;
+    tt_u8_t buf[2048], *p;
+    tt_u64_t size;
+
+    TT_TEST_CASE_ENTER()
+    // test start
+
+    tt_xdoc_init(&xd);
+
+    tt_xdoc_parse_attr_default(&a);
+    a.pi = TT_TRUE;
+    a.comments = TT_TRUE;
+    a.cdata = TT_TRUE;
+    a.ws_pcdata = TT_TRUE;
+    a.escapes = TT_TRUE;
+    a.eol = TT_TRUE;
+    a.wconv_attribute = TT_TRUE;
+    a.declaration = TT_FALSE;
+    a.doctype = TT_TRUE;
+    a.ws_pcdata_single = TT_TRUE;
+    a.fragment = TT_TRUE;
+
+    ret = tt_xdoc_parse(&xd, (tt_u8_t *)__ut_xdoc, sizeof(__ut_xdoc), &a);
+    TT_UT_SUCCESS(ret, "");
+
+    tt_xdoc_render_attr_default(&ra);
+    ra.do_indent = TT_TRUE;
+    ra.no_declaration = TT_TRUE;
+    ra.no_escapes = TT_TRUE;
+    ra.no_empty_element_tags = TT_TRUE;
+    ra.indent_attributes = TT_TRUE;
+    ra.write_bom = TT_FALSE;
+    ra.raw = TT_FALSE;
+    tt_memset(buf, sizeof(buf), 0);
+    ret = tt_xdoc_render(&xd, buf, sizeof(buf), &ra);
+    TT_UT_SUCCESS(ret, "");
+    TT_UT_EQUAL(tt_strcmp((tt_char_t *)buf,
+                          "<!DOCTYPE grammar PUBLIC \"-//W3C//DTD GRAMMAR "
+                          "1.0//EN\" "
+                          "\"http://www.w3.org/TR/speech-grammar/"
+                          "grammar.dtd\">\nfrag1\n<?PITarget "
+                          "PIContent?>\n<note\n    "
+                          "gender=\"female\"><![CDATA[\n         function "
+                          "matchwo(a,b)\n         {\n         if (a < b && a < "
+                          "0) then\n         {\n\n         return 1;\n\n\n     "
+                          "    }\n         }\n         ]]><to>Tove</to>\n    "
+                          "<!--\nc1\n\n\nc2\n-->\n    "
+                          "<heading>Reminder\n<p1></p1>\n        <p2>  </p2>\n "
+                          "       <esc>  <>\"&'\n\naaa  </esc>\n    "
+                          "</heading>\n</note>\nfrag2"),
+                0,
+                "");
+
+    ra.do_indent = TT_FALSE;
+    ra.no_declaration = TT_FALSE;
+    ra.no_escapes = TT_FALSE;
+    ra.no_empty_element_tags = TT_FALSE;
+    ra.indent_attributes = TT_FALSE;
+    ra.write_bom = TT_TRUE;
+    ra.raw = TT_TRUE;
+    tt_memset(buf, sizeof(buf), 0);
+    ret = tt_xdoc_render(&xd, buf, sizeof(buf), &ra);
+    TT_UT_SUCCESS(ret, "");
+    TT_UT_EQUAL(tt_strcmp((tt_char_t *)buf,
+                          "\xef\xbb\xbf<?xml version=\"1.0\"?><!DOCTYPE "
+                          "grammar PUBLIC \"-//W3C//DTD GRAMMAR 1.0//EN\" "
+                          "\"http://www.w3.org/TR/speech-grammar/"
+                          "grammar.dtd\">\nfrag1\n<?PITarget PIContent?><note "
+                          "gender=\"female\"><![CDATA[\n         function "
+                          "matchwo(a,b)\n         {\n         if (a < b && a < "
+                          "0) then\n         {\n\n         return 1;\n\n\n     "
+                          "    }\n         }\n         "
+                          "]]><to>Tove</"
+                          "to><!--\nc1\n\n\nc2\n--><heading>Reminder\n<p1/"
+                          "><p2>  </p2><esc>  &lt;&gt;\"&amp;'\n\naaa  "
+                          "</esc></heading></note>\nfrag2te>\nfrag2"),
+                0,
+                "");
+
+    ret = tt_xdoc_render_file(&xd, __UT_XF_PATH, &ra);
+    TT_UT_SUCCESS(ret, "");
+    p = tt_fcontent(__UT_XF_PATH, &size);
+    TT_UT_EQUAL(
+        tt_strncmp((tt_char_t *)p,
+                   "\xef\xbb\xbf<?xml version=\"1.0\"?><!DOCTYPE "
+                   "grammar PUBLIC \"-//W3C//DTD GRAMMAR 1.0//EN\" "
+                   "\"http://www.w3.org/TR/speech-grammar/"
+                   "grammar.dtd\">\nfrag1\n<?PITarget PIContent?><note "
+                   "gender=\"female\"><![CDATA[\n         function "
+                   "matchwo(a,b)\n         {\n         if (a < b && a < "
+                   "0) then\n         {\n\n         return 1;\n\n\n     "
+                   "    }\n         }\n         "
+                   "]]><to>Tove</"
+                   "to><!--\nc1\n\n\nc2\n--><heading>Reminder\n<p1/"
+                   "><p2>  </p2><esc>  &lt;&gt;\"&amp;'\n\naaa  "
+                   "</esc></heading></note>\nfrag2te>\nfrag2",
+                   (tt_u32_t)size),
+        0,
+        "");
+    tt_free(p);
 
     tt_xdoc_destroy(&xd);
 

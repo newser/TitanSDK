@@ -263,6 +263,21 @@ tt_inline tt_result_t tt_fwrite(IN tt_file_t *file,
     }
 }
 
+tt_inline tt_result_t tt_fwrite_all(IN tt_file_t *file,
+                                    IN tt_u8_t *buf,
+                                    IN tt_u32_t len)
+{
+    tt_u32_t n = 0;
+    while (n < len) {
+        tt_u32_t write_len;
+        if (!TT_OK(tt_fwrite(file, buf + n, len - n, &write_len))) {
+            return TT_FAIL;
+        }
+        n += write_len;
+    }
+    return TT_SUCCESS;
+}
+
 /**
 @fn tt_result_t tt_fseek(IN tt_file_t *file,
                             IN tt_u32_t whence,

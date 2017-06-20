@@ -60,21 +60,35 @@ typedef struct
 {
     tt_xdoc_encoding_t encoding;
 
-    tt_bool_t parse_pi : 1;
-    tt_bool_t parse_comments : 1;
-    tt_bool_t parse_cdata : 1;
-    tt_bool_t parse_ws_pcdata : 1;
-    tt_bool_t parse_escapes : 1;
-    tt_bool_t parse_eol : 1;
-    tt_bool_t parse_wconv_attribute : 1;
-    tt_bool_t parse_wnorm_attribute : 1;
-    tt_bool_t parse_declaration : 1;
-    tt_bool_t parse_doctype : 1;
-    tt_bool_t parse_ws_pcdata_single : 1;
-    tt_bool_t parse_trim_pcdata : 1;
-    tt_bool_t parse_fragment : 1;
-    tt_bool_t parse_embed_pcdata : 1;
-} tt_xdoc_attr_t;
+    tt_bool_t pi : 1;
+    tt_bool_t comments : 1;
+    tt_bool_t cdata : 1;
+    tt_bool_t ws_pcdata : 1;
+    tt_bool_t escapes : 1;
+    tt_bool_t eol : 1;
+    tt_bool_t wconv_attribute : 1;
+    tt_bool_t wnorm_attribute : 1;
+    tt_bool_t declaration : 1;
+    tt_bool_t doctype : 1;
+    tt_bool_t ws_pcdata_single : 1;
+    tt_bool_t trim_pcdata : 1;
+    tt_bool_t fragment : 1;
+    tt_bool_t embed_pcdata : 1;
+} tt_xdoc_parse_attr_t;
+
+typedef struct
+{
+    const tt_char_t *indent;
+    tt_xdoc_encoding_t encoding;
+
+    tt_bool_t do_indent : 1;
+    tt_bool_t write_bom : 1;
+    tt_bool_t raw : 1;
+    tt_bool_t no_declaration : 1;
+    tt_bool_t no_escapes : 1;
+    tt_bool_t indent_attributes : 1;
+    tt_bool_t no_empty_element_tags : 1;
+} tt_xdoc_render_attr_t;
 
 ////////////////////////////////////////////////////////////
 // global variants
@@ -86,17 +100,28 @@ typedef struct
 
 extern void tt_xdoc_init(IN tt_xdoc_t *xd);
 
-extern tt_result_t tt_xdoc_load(IN tt_xdoc_t *xd,
-                                IN tt_u8_t *buf,
-                                IN tt_u32_t len,
-                                IN OPT tt_xdoc_attr_t *attr);
-
-extern tt_result_t tt_xdoc_load_file(IN tt_xdoc_t *xd,
-                                     IN const tt_char_t *path,
-                                     IN OPT tt_xdoc_attr_t *attr);
-
 extern void tt_xdoc_destroy(IN tt_xdoc_t *xd);
 
-extern void tt_xdoc_attr_default(IN tt_xdoc_attr_t *attr);
+extern void tt_xdoc_parse_attr_default(IN tt_xdoc_parse_attr_t *attr);
+
+extern tt_result_t tt_xdoc_parse(IN tt_xdoc_t *xd,
+                                 IN tt_u8_t *buf,
+                                 IN tt_u32_t len,
+                                 IN OPT tt_xdoc_parse_attr_t *attr);
+
+extern tt_result_t tt_xdoc_parse_file(IN tt_xdoc_t *xd,
+                                      IN const tt_char_t *path,
+                                      IN OPT tt_xdoc_parse_attr_t *attr);
+
+extern void tt_xdoc_render_attr_default(IN tt_xdoc_render_attr_t *attr);
+
+extern tt_result_t tt_xdoc_render(IN tt_xdoc_t *xd,
+                                  IN tt_u8_t *buf,
+                                  IN tt_u32_t len,
+                                  IN OPT tt_xdoc_render_attr_t *attr);
+
+extern tt_result_t tt_xdoc_render_file(IN tt_xdoc_t *xd,
+                                       IN const tt_char_t *path,
+                                       IN OPT tt_xdoc_render_attr_t *attr);
 
 #endif /* __TT_XML_DOCUMENT__ */

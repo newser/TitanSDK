@@ -155,8 +155,8 @@ tt_xnode_t tt_xnode_root(IN tt_xnode_t xn)
 tt_result_t __xnode_component_init(IN tt_component_t *comp,
                                    IN tt_profile_t *profile)
 {
-    if (sizeof(tt_xnode_t) < sizeof(class pugi::xml_node)) {
-        TT_ERROR("sizeof(tt_xnode_t)[%d] >= sizeof(class xml_node)[%d]",
+    if (sizeof(tt_xnode_t) != sizeof(class pugi::xml_node)) {
+        TT_ERROR("sizeof(tt_xnode_t)[%d] != sizeof(class xml_node)[%d]",
                  sizeof(tt_xnode_t),
                  sizeof(class pugi::xml_node));
         return TT_FAIL;
