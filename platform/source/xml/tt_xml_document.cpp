@@ -147,12 +147,17 @@ static unsigned int __render_option(IN tt_xdoc_render_attr_t *attr);
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-void tt_xdoc_init(IN tt_xdoc_t *xd)
+tt_result_t tt_xdoc_create(IN tt_xdoc_t *xd)
 {
     TT_ASSERT(xd != NULL);
 
-    xd->p = NULL;
-    xd->valid = TT_FALSE;
+    xd->p = new pugi::xml_document();
+    if (xd->p == NULL) {
+        TT_ERROR("fail to new xml doc");
+        return TT_FAIL;
+    }
+
+    return TT_SUCCESS;
 }
 
 void tt_xdoc_destroy(IN tt_xdoc_t *xd)
@@ -196,7 +201,6 @@ tt_result_t tt_xdoc_parse(IN tt_xdoc_t *xd,
     if (xd->p != NULL) {
         p = static_cast<pugi::xml_document *>(xd->p);
         p->reset();
-        xd->valid = TT_FALSE;
     } else {
         p = new pugi::xml_document();
         if (p == NULL) {
@@ -223,7 +227,6 @@ tt_result_t tt_xdoc_parse(IN tt_xdoc_t *xd,
     }
 
     xd->p = p;
-    xd->valid = TT_TRUE;
     return TT_SUCCESS;
 }
 
@@ -238,7 +241,6 @@ tt_result_t tt_xdoc_parse_file(IN tt_xdoc_t *xd,
     if (xd->p != NULL) {
         p = static_cast<pugi::xml_document *>(xd->p);
         p->reset();
-        xd->valid = TT_FALSE;
     } else {
         p = new pugi::xml_document();
         if (p == NULL) {
@@ -273,7 +275,6 @@ tt_result_t tt_xdoc_parse_file(IN tt_xdoc_t *xd,
     }
 
     xd->p = p;
-    xd->valid = TT_TRUE;
     return TT_SUCCESS;
 }
 
@@ -300,11 +301,6 @@ tt_result_t tt_xdoc_render(IN tt_xdoc_t *xd,
 {
     TT_ASSERT(xd != NULL);
     TT_ASSERT(buf != NULL);
-
-    if (!xd->valid) {
-        TT_ERROR("not a valid xml doc");
-        return TT_FAIL;
-    }
 
     pugi::xml_document *p = static_cast<pugi::xml_document *>(xd->p);
     TT_ASSERT(p != NULL);
@@ -334,11 +330,6 @@ tt_result_t tt_xdoc_render_file(IN tt_xdoc_t *xd,
 {
     TT_ASSERT(xd != NULL);
     TT_ASSERT(path != NULL);
-
-    if (!xd->valid) {
-        TT_ERROR("not a valid xml doc");
-        return TT_FAIL;
-    }
 
     pugi::xml_document *p = static_cast<pugi::xml_document *>(xd->p);
     TT_ASSERT(p != NULL);

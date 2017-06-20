@@ -41,7 +41,6 @@ this file specifies xml document APIs
 typedef struct tt_xdoc_s
 {
     tt_ptr_t p;
-    tt_bool_t valid : 1;
 } tt_xdoc_t;
 
 typedef enum {
@@ -98,7 +97,7 @@ typedef struct
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern void tt_xdoc_init(IN tt_xdoc_t *xd);
+extern tt_result_t tt_xdoc_create(IN tt_xdoc_t *xd);
 
 extern void tt_xdoc_destroy(IN tt_xdoc_t *xd);
 

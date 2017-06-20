@@ -126,7 +126,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xattr_rel)
     TT_TEST_CASE_ENTER()
     // test start
 
-    tt_xdoc_init(&xd);
+    tt_xdoc_create(&xd);
 
     ret = tt_xdoc_parse(&xd, (tt_u8_t *)__ut_xattr, sizeof(__ut_xattr), NULL);
     TT_UT_SUCCESS(ret, "");
@@ -236,7 +236,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xattr_bool)
     TT_TEST_CASE_ENTER()
     // test start
 
-    tt_xdoc_init(&xd);
+    tt_xdoc_create(&xd);
 
     ret = tt_xdoc_parse(&xd, (tt_u8_t *)__ut_xattr, sizeof(__ut_xattr), NULL);
     TT_UT_SUCCESS(ret, "");
@@ -290,7 +290,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xattr_int)
     TT_TEST_CASE_ENTER()
     // test start
 
-    tt_xdoc_init(&xd);
+    tt_xdoc_create(&xd);
 
     ret = tt_xdoc_parse(&xd, (tt_u8_t *)__ut_xattr, sizeof(__ut_xattr), NULL);
     TT_UT_SUCCESS(ret, "");

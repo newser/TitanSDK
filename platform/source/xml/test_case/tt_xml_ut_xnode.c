@@ -41,6 +41,7 @@
 // === routine declarations ================
 TT_TEST_ROUTINE_DECLARE(tt_unit_test_xnode_bool)
 TT_TEST_ROUTINE_DECLARE(tt_unit_test_xnode_int)
+TT_TEST_ROUTINE_DECLARE(tt_unit_test_xnode_rel)
 // =========================================
 
 // === test case list ======================
@@ -65,6 +66,15 @@ TT_TEST_CASE("tt_unit_test_xnode_bool",
                  NULL,
                  NULL),
 
+    TT_TEST_CASE("tt_unit_test_xnode_rel",
+                 "xml: node relation",
+                 tt_unit_test_xnode_rel,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL),
+
     TT_TEST_CASE_LIST_DEFINE_END(xml_xnode_case)
     // =========================================
 
@@ -79,7 +89,7 @@ TT_TEST_CASE("tt_unit_test_xnode_bool",
     ////////////////////////////////////////////////////////////
 
     /*
-    TT_TEST_ROUTINE_DEFINE(tt_unit_test_xattr_rel)
+    TT_TEST_ROUTINE_DEFINE(tt_unit_test_xnode_rel)
     {
         //tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
 
@@ -115,7 +125,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xnode_bool)
     TT_TEST_CASE_ENTER()
     // test start
 
-    tt_xdoc_init(&xd);
+    tt_xdoc_create(&xd);
 
     ret = tt_xdoc_parse(&xd, (tt_u8_t *)__ut_xnode, sizeof(__ut_xnode), NULL);
     TT_UT_SUCCESS(ret, "");
@@ -169,7 +179,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xnode_int)
     TT_TEST_CASE_ENTER()
     // test start
 
-    tt_xdoc_init(&xd);
+    tt_xdoc_create(&xd);
 
     ret = tt_xdoc_parse(&xd, (tt_u8_t *)__ut_xnode, sizeof(__ut_xnode), NULL);
     TT_UT_SUCCESS(ret, "");
@@ -277,6 +287,125 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xnode_int)
     xa = tt_xnode_child_byname(xn, "double_1");
     TT_UT_NOT_NULL(xa, "");
     TT_UT_EXP(fabs(tt_xnode_get_double(xa, 0) - (-12.345)) < 0.0001, "");
+
+    tt_xdoc_destroy(&xd);
+
+    // test end
+    TT_TEST_CASE_LEAVE()
+}
+
+TT_TEST_ROUTINE_DEFINE(tt_unit_test_xnode_rel)
+{
+    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+    tt_xdoc_t xd;
+    tt_result_t ret;
+    tt_xnode_t root, xn, xn2;
+    tt_u8_t buf[512];
+
+    TT_TEST_CASE_ENTER()
+    // test start
+
+    ret = tt_xdoc_create(&xd);
+    TT_UT_SUCCESS(ret, "");
+
+    root = tt_xdoc_root(&xd);
+    TT_UT_NOT_NULL(root, "");
+
+    // add: doc
+    xn = tt_xnode_append_child(root, TT_XNODE_DOCUMENT);
+    TT_UT_NULL(xn, "");
+
+    // add: null
+    xn = tt_xnode_append_child(root, TT_XNODE_NULL);
+    TT_UT_NULL(xn, "");
+
+    // add: element
+    xn = tt_xnode_append_child(root, TT_XNODE_ELEMENT);
+    TT_UT_NOT_NULL(xn, "");
+    ret = tt_xnode_set_name(xn, "node-1");
+    TT_UT_SUCCESS(ret, "");
+    ret = tt_xnode_set_value(xn, "value-1");
+    TT_UT_FAIL(ret, "");
+
+    // add: text
+    xn = tt_xnode_prepend_child(xn, TT_XNODE_TEXT);
+    TT_UT_NOT_NULL(xn, "");
+    ret = tt_xnode_set_name(xn, "node-1");
+    TT_UT_FAIL(ret, "");
+    ret = tt_xnode_set_value(xn, "value-1");
+    TT_UT_SUCCESS(ret, "");
+
+    // add: cdata
+    xn = tt_xnode_prepend_child(root, TT_XNODE_CDATA);
+    TT_UT_NOT_NULL(xn, "");
+    ret = tt_xnode_set_name(xn, "node-2");
+    TT_UT_FAIL(ret, "");
+    ret = tt_xnode_set_value(xn, "cdata-2");
+    TT_UT_SUCCESS(ret, "");
+
+    // insert after
+    xn2 = tt_xnode_insert_child_after(root, xn, TT_XNODE_COMMENT);
+    TT_UT_NOT_NULL(xn2, "");
+    ret = tt_xnode_set_name(xn2, "node-3");
+    TT_UT_FAIL(ret, "");
+    ret = tt_xnode_set_value(xn2, "comment-3");
+    TT_UT_SUCCESS(ret, "");
+
+    // insert before
+    xn2 = tt_xnode_insert_child_before(root, xn, TT_XNODE_PI);
+    TT_UT_NOT_NULL(xn2, "");
+    ret = tt_xnode_set_name(xn2, "node-4");
+    TT_UT_SUCCESS(ret, "");
+    ret = tt_xnode_set_value(xn2, "pi-4");
+    TT_UT_SUCCESS(ret, "");
+
+    // add: declaration
+    xn = tt_xnode_append_child(root, TT_XNODE_DECLARATION);
+    TT_UT_NOT_NULL(xn, "");
+    ret = tt_xnode_set_name(xn, "node-5");
+    TT_UT_SUCCESS(ret, "");
+    ret = tt_xnode_set_value(xn, "declare-1");
+    TT_UT_FAIL(ret, "");
+
+    // add: doctype
+    xn = tt_xnode_append_child(root, TT_XNODE_DOCTYPE);
+    TT_UT_NOT_NULL(xn, "");
+    ret = tt_xnode_set_name(xn, "node-6");
+    TT_UT_FAIL(ret, "");
+    ret = tt_xnode_set_value(xn, "doctype-6");
+    TT_UT_SUCCESS(ret, "");
+
+    tt_memset(buf, 0, sizeof(buf));
+    ret = tt_xdoc_render(&xd, buf, sizeof(buf), NULL);
+    TT_UT_SUCCESS(ret, "");
+    TT_UT_EQUAL(tt_strcmp((tt_char_t *)buf,
+                          "<?xml version=\"1.0\"?>\n<?node-4 "
+                          "pi-4?><![CDATA[cdata-2]]><!--comment-3-->\n<node-1>"
+                          "value-1</node-1>\n<?node-5?>\n<!DOCTYPE "
+                          "doctype-6>\n"),
+                0,
+                "");
+
+    // remove child
+    ret = tt_xnode_remove_child(root, xn);
+    TT_UT_SUCCESS(ret, "");
+    ret = tt_xnode_remove_child(root, NULL);
+    TT_UT_FAIL(ret, "");
+
+    ret = tt_xnode_remove_child_byname(root, "node-4");
+    TT_UT_SUCCESS(ret, "");
+    ret = tt_xnode_remove_child_byname(root, "node-99");
+    TT_UT_FAIL(ret, "");
+
+    tt_memset(buf, 0, sizeof(buf));
+    ret = tt_xdoc_render(&xd, buf, sizeof(buf), NULL);
+    TT_UT_SUCCESS(ret, "");
+    TT_UT_EQUAL(tt_strcmp((tt_char_t *)buf,
+                          "<?xml "
+                          "version=\"1.0\"?>\n<![CDATA[cdata-2]]><!--comment-3-"
+                          "->\n<node-1>value-1</node-1>\n<?node-5?>\n"),
+                0,
+                "");
 
     tt_xdoc_destroy(&xd);
 

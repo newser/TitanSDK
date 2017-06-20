@@ -66,6 +66,18 @@ static tt_xnode_type_t __type_p2t[pugi::node_doctype + 1] = {
     TT_XNODE_DOCTYPE,
 };
 
+static pugi::xml_node_type __type_t2p[TT_XNODE_TYPE_NUM] = {
+    pugi::node_null,
+    pugi::node_document,
+    pugi::node_element,
+    pugi::node_pcdata,
+    pugi::node_cdata,
+    pugi::node_comment,
+    pugi::node_pi,
+    pugi::node_declaration,
+    pugi::node_doctype,
+};
+
 ////////////////////////////////////////////////////////////
 // interface declaration
 ////////////////////////////////////////////////////////////
@@ -94,14 +106,9 @@ void tt_xnode_component_register()
 
 tt_xnode_t tt_xdoc_root(IN tt_xdoc_t *xd)
 {
-    if (xd->valid) {
-        pugi::xml_document *pd = static_cast<pugi::xml_document *>(xd->p);
-        TT_ASSERT(pd != NULL);
-        return *reinterpret_cast<tt_xnode_t *>(
-            static_cast<pugi::xml_node *>(pd));
-    } else {
-        return NULL;
-    }
+    pugi::xml_document *pd = static_cast<pugi::xml_document *>(xd->p);
+    TT_ASSERT(pd != NULL);
+    return *reinterpret_cast<tt_xnode_t *>(static_cast<pugi::xml_node *>(pd));
 }
 
 tt_xnode_type_t tt_xnode_type(IN tt_xnode_t xn)
@@ -139,6 +146,53 @@ tt_xnode_t tt_xnode_child_byname(IN tt_xnode_t xn, IN const tt_char_t *name)
 {
     pugi::xml_node pn = PN(xn).child(name);
     return TN(pn);
+}
+
+tt_xnode_t tt_xnode_append_child(IN tt_xnode_t xn, IN tt_xnode_type_t type)
+{
+    pugi::xml_node pn = PN(xn).append_child(__type_t2p[type]);
+    return TN(pn);
+}
+
+tt_xnode_t tt_xnode_prepend_child(IN tt_xnode_t xn, IN tt_xnode_type_t type)
+{
+    pugi::xml_node pn = PN(xn).prepend_child(__type_t2p[type]);
+    return TN(pn);
+}
+
+tt_xnode_t tt_xnode_insert_child_after(IN tt_xnode_t xn,
+                                       IN tt_xnode_t c,
+                                       IN tt_xnode_type_t type)
+{
+    pugi::xml_node pn = PN(xn).insert_child_after(__type_t2p[type], PN(c));
+    return TN(pn);
+}
+
+tt_xnode_t tt_xnode_insert_child_before(IN tt_xnode_t xn,
+                                        IN tt_xnode_t c,
+                                        IN tt_xnode_type_t type)
+{
+    pugi::xml_node pn = PN(xn).insert_child_before(__type_t2p[type], PN(c));
+    return TN(pn);
+}
+
+tt_result_t tt_xnode_remove_child(IN tt_xnode_t xn, IN tt_xnode_t c)
+{
+    if (PN(xn).remove_child(PN(c))) {
+        return TT_SUCCESS;
+    } else {
+        return TT_FAIL;
+    }
+}
+
+tt_result_t tt_xnode_remove_child_byname(IN tt_xnode_t xn,
+                                         IN const tt_char_t *name)
+{
+    if (PN(xn).remove_child(name)) {
+        return TT_SUCCESS;
+    } else {
+        return TT_FAIL;
+    }
 }
 
 tt_xnode_t tt_xnode_next_sibling(IN tt_xnode_t xn)

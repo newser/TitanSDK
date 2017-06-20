@@ -53,9 +53,9 @@ typedef enum {
     TT_XNODE_DECLARATION,
     TT_XNODE_DOCTYPE,
 
-    TT_XNODE_NUM
+    TT_XNODE_TYPE_NUM
 } tt_xnode_type_t;
-#define TT_XNODE_VALID(v) ((v) < TT_XNODE_NUM)
+#define TT_XNODE_VALID(v) ((v) < TT_XNODE_TYPE_NUM)
 
 ////////////////////////////////////////////////////////////
 // global variants
@@ -84,6 +84,25 @@ extern tt_xnode_t tt_xnode_last_child(IN tt_xnode_t xn);
 
 extern tt_xnode_t tt_xnode_child_byname(IN tt_xnode_t xn,
                                         IN const tt_char_t *name);
+
+extern tt_xnode_t tt_xnode_append_child(IN tt_xnode_t xn,
+                                        IN tt_xnode_type_t type);
+
+extern tt_xnode_t tt_xnode_prepend_child(IN tt_xnode_t xn,
+                                         IN tt_xnode_type_t type);
+
+extern tt_xnode_t tt_xnode_insert_child_after(IN tt_xnode_t xn,
+                                              IN tt_xnode_t c,
+                                              IN tt_xnode_type_t type);
+
+extern tt_xnode_t tt_xnode_insert_child_before(IN tt_xnode_t xn,
+                                               IN tt_xnode_t c,
+                                               IN tt_xnode_type_t type);
+
+extern tt_result_t tt_xnode_remove_child(IN tt_xnode_t xn, IN tt_xnode_t c);
+
+extern tt_result_t tt_xnode_remove_child_byname(IN tt_xnode_t xn,
+                                                IN const tt_char_t *name);
 
 extern tt_xnode_t tt_xnode_next_sibling(IN tt_xnode_t xn);
 

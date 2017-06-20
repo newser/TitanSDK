@@ -174,7 +174,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xdoc_encoding)
     TT_TEST_CASE_ENTER()
     // test start
 
-    tt_xdoc_init(&xd);
+    tt_xdoc_create(&xd);
 
     xn = tt_xdoc_root(&xd);
     TT_UT_NULL(xn, "");
@@ -182,7 +182,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xdoc_encoding)
 
     tt_xdoc_destroy(&xd);
 
-    tt_xdoc_init(&xd);
+    tt_xdoc_create(&xd);
 
     ret = tt_xdoc_parse(&xd, (tt_u8_t *)__ut_xdoc, sizeof(__ut_xdoc), NULL);
     TT_UT_SUCCESS(ret, "");
@@ -336,7 +336,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xdoc_parse)
     TT_TEST_CASE_ENTER()
     // test start
 
-    tt_xdoc_init(&xd);
+    tt_xdoc_create(&xd);
 
     // cdata
     tt_xdoc_parse_attr_default(&a);
@@ -508,7 +508,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xdoc_render)
     TT_TEST_CASE_ENTER()
     // test start
 
-    tt_xdoc_init(&xd);
+    tt_xdoc_create(&xd);
 
     tt_xdoc_parse_attr_default(&a);
     a.pi = TT_TRUE;
