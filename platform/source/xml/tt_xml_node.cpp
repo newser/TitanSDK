@@ -26,6 +26,8 @@ extern "C" {
 #include <log/tt_log.h>
 #include <misc/tt_util.h>
 #include <xml/tt_xml_document.h>
+#include <xml/tt_xml_path.h>
+#include <xml/tt_xml_util.h>
 }
 
 #include <pugixml.hpp>
@@ -33,14 +35,6 @@ extern "C" {
 ////////////////////////////////////////////////////////////
 // internal macro
 ////////////////////////////////////////////////////////////
-
-#define TN(p) (*reinterpret_cast<tt_xnode_t *>(&(p)))
-
-#define PN(t) (*reinterpret_cast<pugi::xml_node *>(&t))
-
-#define TA(p) (*reinterpret_cast<tt_xattr_t *>(&(p)))
-
-#define PA(t) (*reinterpret_cast<pugi::xml_attribute *>(&t))
 
 ////////////////////////////////////////////////////////////
 // internal type
@@ -292,10 +286,10 @@ tt_result_t tt_xnode_remove_attr_byname(IN tt_xnode_t xn,
 // xml value
 // ========================================
 
-const tt_char_t *tt_xnode_get_value(IN tt_xnode_t xn)
+const tt_char_t *tt_xnode_get_value(IN tt_xnode_t xn, IN const tt_char_t *def)
 {
     pugi::xml_text text = PN(xn).text();
-    return text.as_string();
+    return text.as_string(def);
 }
 
 tt_result_t tt_xnode_set_value(IN tt_xnode_t xn, IN const tt_char_t *value)
@@ -409,11 +403,36 @@ tt_result_t tt_xnode_set_double(IN tt_xnode_t xn, IN tt_double_t value)
     }
 }
 
+// ========================================
+// xml path
+// ========================================
+
+void tt_xnode_select(IN tt_xnode_t xn,
+                     IN struct tt_xpath_s *xp,
+                     OUT tt_xnode_t *o_xn,
+                     OUT tt_xattr_t *o_xa)
+{
+    pugi::xpath_node p = PN(xn).select_node(*P_XP(xp));
+
+    pugi::xml_node pn = p.node();
+    *o_xn = TN(pn);
+
+    pugi::xml_attribute pa = p.attribute();
+    *o_xa = TA(pa);
+}
+
+void tt_xnode_select_all(IN tt_xnode_t xn,
+                         IN tt_xpath_t *xp,
+                         OUT tt_xpnodes_t *xpns)
+{
+    *P_XPNS(xpns) = PN(xn).select_nodes(*P_XP(xp));
+}
+
 tt_result_t __xnode_component_init(IN tt_component_t *comp,
                                    IN tt_profile_t *profile)
 {
-    if (sizeof(tt_xnode_t) != sizeof(class pugi::xml_node)) {
-        TT_ERROR("sizeof(tt_xnode_t)[%d] != sizeof(class xml_node)[%d]",
+    if (sizeof(tt_xnode_t) < sizeof(class pugi::xml_node)) {
+        TT_ERROR("sizeof(tt_xnode_t)[%d] < sizeof(class xml_node)[%d]",
                  sizeof(tt_xnode_t),
                  sizeof(class pugi::xml_node));
         return TT_FAIL;

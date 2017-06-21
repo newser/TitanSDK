@@ -39,6 +39,8 @@ this file specifies xml node APIs
 ////////////////////////////////////////////////////////////
 
 struct tt_xdoc_s;
+struct tt_xpath_s;
+struct tt_xpnodes_s;
 
 typedef tt_ptr_t tt_xnode_t;
 
@@ -146,7 +148,8 @@ extern tt_result_t tt_xnode_remove_attr_byname(IN tt_xnode_t xn,
 // xml value
 // ========================================
 
-extern const tt_char_t *tt_xnode_get_value(IN tt_xnode_t xn);
+extern const tt_char_t *tt_xnode_get_value(IN tt_xnode_t xn,
+                                           IN const tt_char_t *def);
 
 extern tt_result_t tt_xnode_set_value(IN tt_xnode_t xn,
                                       IN const tt_char_t *value);
@@ -178,5 +181,27 @@ extern tt_result_t tt_xnode_set_float(IN tt_xnode_t xn, IN tt_float_t value);
 extern tt_double_t tt_xnode_get_double(IN tt_xnode_t xn, IN tt_double_t def);
 
 extern tt_result_t tt_xnode_set_double(IN tt_xnode_t xn, IN tt_double_t value);
+
+// ========================================
+// xml path
+// ========================================
+
+extern void tt_xnode_select(IN tt_xnode_t xn,
+                            IN struct tt_xpath_s *xp,
+                            OUT tt_xnode_t *o_xn,
+                            OUT tt_xattr_t *o_xa);
+
+extern void tt_xnode_select_path(IN tt_xnode_t xn,
+                                 IN const tt_char_t *xp,
+                                 OUT tt_xnode_t *o_xn,
+                                 OUT tt_xattr_t *o_xa);
+
+extern void tt_xnode_select_all(IN tt_xnode_t xn,
+                                IN struct tt_xpath_s *xp,
+                                OUT struct tt_xpnodes_s *xpns);
+
+extern void tt_xnode_select_path_all(IN tt_xnode_t xn,
+                                     IN const tt_char_t *xp,
+                                     OUT struct tt_xpnodes_s *xpns);
 
 #endif /* __TT_XML_NODE__ */

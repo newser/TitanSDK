@@ -37,6 +37,7 @@ typedef enum {
     XML_UT_XDOC = XML_UT_BEGIN,
     XML_UT_XATTR,
     XML_UT_XNODE,
+    XML_UT_XPATH,
 
     XML_UT_NUM // number of test units
 } tt_xml_ut_id_t;
@@ -48,15 +49,19 @@ typedef enum {
 TT_XML_UT_DECLARE(XML_UT_XDOC)
 TT_XML_UT_DECLARE(XML_UT_XATTR)
 TT_XML_UT_DECLARE(XML_UT_XNODE)
+TT_XML_UT_DECLARE(XML_UT_XPATH)
 
 ////////////////////////////////////////////////////////////
 // global variant
 ////////////////////////////////////////////////////////////
 
 tt_test_unit_t *tt_g_crypto_ut_list[XML_UT_NUM] = {
-    //&TT_MAKE_TEST_UNIT_NAME(XML_UT_XDOC),
-    //&TT_MAKE_TEST_UNIT_NAME(XML_UT_XATTR),
+#if 0
+    &TT_MAKE_TEST_UNIT_NAME(XML_UT_XDOC),
+    &TT_MAKE_TEST_UNIT_NAME(XML_UT_XATTR),
     &TT_MAKE_TEST_UNIT_NAME(XML_UT_XNODE),
+#endif
+    &TT_MAKE_TEST_UNIT_NAME(XML_UT_XPATH),
 };
 
 ////////////////////////////////////////////////////////////

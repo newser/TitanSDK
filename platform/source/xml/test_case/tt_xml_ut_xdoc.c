@@ -290,7 +290,7 @@ static const tt_char_t *__ut_find_name(tt_xnode_t xn, const tt_char_t *name)
     tt_xnode_t x;
 
     if (tt_strcmp(name, tt_xnode_get_name(xn)) == 0) {
-        return tt_xnode_get_value(xn);
+        return tt_xnode_get_value(xn, "");
     }
 
     x = tt_xnode_first_child(xn);

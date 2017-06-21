@@ -227,6 +227,7 @@ extern "C" {
 #include <xml/tt_xml_attribute.h>
 #include <xml/tt_xml_document.h>
 #include <xml/tt_xml_node.h>
+#include <xml/tt_xml_path.h>
 
 #ifdef __cplusplus
 }

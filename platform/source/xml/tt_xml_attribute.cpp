@@ -24,6 +24,7 @@ extern "C" {
 #include <init/tt_component.h>
 #include <init/tt_profile.h>
 #include <log/tt_log.h>
+#include <xml/tt_xml_util.h>
 }
 
 #include <pugixml.hpp>
@@ -31,10 +32,6 @@ extern "C" {
 ////////////////////////////////////////////////////////////
 // internal macro
 ////////////////////////////////////////////////////////////
-
-#define TA(p) (*reinterpret_cast<tt_xattr_t *>(&(p)))
-
-#define PA(t) (*reinterpret_cast<pugi::xml_attribute *>(&t))
 
 ////////////////////////////////////////////////////////////
 // internal type
@@ -223,8 +220,8 @@ tt_result_t tt_xattr_set_double(IN tt_xattr_t xa, IN tt_double_t value)
 tt_result_t __xattr_component_init(IN tt_component_t *comp,
                                    IN tt_profile_t *profile)
 {
-    if (sizeof(tt_xattr_t) != sizeof(class pugi::xml_attribute)) {
-        TT_ERROR("sizeof(tt_xattr_t)[%d] != sizeof(class xml_attribute)[%d]",
+    if (sizeof(tt_xattr_t) < sizeof(class pugi::xml_attribute)) {
+        TT_ERROR("sizeof(tt_xattr_t)[%d] < sizeof(class xml_attribute)[%d]",
                  sizeof(tt_xattr_t),
                  sizeof(class pugi::xml_attribute));
         return TT_FAIL;
