@@ -28,7 +28,8 @@ this file specifies xml document APIs
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <tt_basic_type.h>
+#include <xml/tt_xml_attribute.h>
+#include <xml/tt_xml_node.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
@@ -37,6 +38,9 @@ this file specifies xml document APIs
 ////////////////////////////////////////////////////////////
 // type definition
 ////////////////////////////////////////////////////////////
+
+struct tt_xpath_s;
+struct tt_xpnodes_s;
 
 typedef struct tt_xdoc_s
 {
@@ -122,5 +126,37 @@ extern tt_result_t tt_xdoc_render(IN tt_xdoc_t *xd,
 extern tt_result_t tt_xdoc_render_file(IN tt_xdoc_t *xd,
                                        IN const tt_char_t *path,
                                        IN OPT tt_xdoc_render_attr_t *attr);
+
+// ========================================
+// xml path
+// ========================================
+
+extern void tt_xdoc_select(IN tt_xdoc_t *xd,
+                           IN const tt_char_t *xp,
+                           OUT tt_xnode_t *o_xn,
+                           OUT tt_xattr_t *o_xa);
+
+extern void tt_xdoc_select_all(IN tt_xdoc_t *xd,
+                               IN const tt_char_t *xp,
+                               OUT struct tt_xpnodes_s *xpns);
+
+extern void tt_xdoc_selectxp(IN tt_xdoc_t *xd,
+                             IN struct tt_xpath_s *xp,
+                             OUT tt_xnode_t *o_xn,
+                             OUT tt_xattr_t *o_xa);
+
+extern void tt_xdoc_selectxp_all(IN tt_xdoc_t *xd,
+                                 IN struct tt_xpath_s *xp,
+                                 OUT struct tt_xpnodes_s *xpns);
+
+extern tt_bool_t tt_xdoc_eval_bool(IN tt_xdoc_t *xd, IN struct tt_xpath_s *xp);
+
+extern tt_double_t tt_xdoc_eval_number(IN tt_xdoc_t *xd,
+                                       IN struct tt_xpath_s *xp);
+
+extern tt_u32_t tt_xdoc_eval_cstr(IN tt_xdoc_t *xd,
+                                  IN struct tt_xpath_s *xp,
+                                  OUT tt_char_t *buf,
+                                  IN tt_u32_t len);
 
 #endif /* __TT_XML_DOCUMENT__ */

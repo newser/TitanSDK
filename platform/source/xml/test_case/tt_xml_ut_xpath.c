@@ -41,6 +41,7 @@
 // === routine declarations ================
 TT_TEST_ROUTINE_DECLARE(tt_unit_test_xpath_node)
 TT_TEST_ROUTINE_DECLARE(tt_unit_test_xpath_attr)
+TT_TEST_ROUTINE_DECLARE(tt_unit_test_xpath_eval)
 // =========================================
 
 // === test case list ======================
@@ -65,6 +66,15 @@ TT_TEST_CASE("tt_unit_test_xpath_node",
                  NULL,
                  NULL),
 
+    TT_TEST_CASE("tt_unit_test_xpath_eval",
+                 "xml: xpath query evaluate",
+                 tt_unit_test_xpath_eval,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL),
+
     TT_TEST_CASE_LIST_DEFINE_END(xml_xpath_case)
     // =========================================
 
@@ -79,7 +89,7 @@ TT_TEST_CASE("tt_unit_test_xpath_node",
     ////////////////////////////////////////////////////////////
 
     /*
-    TT_TEST_ROUTINE_DEFINE(tt_unit_test_xpath_node)
+    TT_TEST_ROUTINE_DEFINE(tt_unit_test_xpath_eval)
     {
         //tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
 
@@ -161,7 +171,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xpath_node)
     TT_UT_SUCCESS(ret, "");
 
     tt_xpnodes_init(&xpns);
-    tt_xnode_select_all(root, &xp, &xpns);
+    tt_xnode_selectxp_all(root, &xp, &xpns);
     TT_UT_EQUAL(tt_xpnodes_count(&xpns), 4, "");
 
     n = 0;
@@ -208,7 +218,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xpath_node)
     TT_UT_EQUAL(n, 4, "");
 
     // single
-    tt_xnode_select(root, &xp, &xn, &xa);
+    tt_xnode_selectxp(root, &xp, &xn, &xa);
     TT_UT_NOT_NULL(xn, "");
     TT_UT_NULL(xa, "");
 
@@ -220,13 +230,40 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xpath_node)
     TT_UT_SUCCESS(ret, "");
 
     tt_xpnodes_init(&xpns);
-    tt_xnode_select_all(root, &xp, &xpns);
+    tt_xnode_selectxp_all(root, &xp, &xpns);
     TT_UT_EQUAL(tt_xpnodes_count(&xpns), 0, "");
 
     // single
-    tt_xnode_select(root, &xp, &xn, &xa);
+    tt_xnode_selectxp(root, &xp, &xn, &xa);
     TT_UT_NULL(xn, "");
     TT_UT_NULL(xa, "");
+
+    // select path directly
+    tt_xpnodes_destroy(&xpns);
+    tt_xpnodes_init(&xpns);
+    tt_xnode_select_all(root, "/bookstore/book/title", &xpns);
+    TT_UT_EQUAL(tt_xpnodes_count(&xpns), 4, "");
+
+    n = 0;
+    tt_xpnodes_sort(&xpns, TT_FALSE);
+    tt_xpnodes_iter(&xpns, &i);
+    while (TT_OK(tt_xpnodes_iter_next(&i, &xn, &xa))) {
+        TT_UT_NOT_NULL(xn, "");
+        TT_UT_NULL(xa, "");
+
+        if (n == 0) {
+            TT_UT_EQUAL(tt_strcmp(tt_xnode_get_value(xn, ""),
+                                  "Everyday Italian"),
+                        0,
+                        "");
+        } else if (n == 3) {
+            TT_UT_EQUAL(tt_strcmp(tt_xnode_get_value(xn, ""), "Learning XML"),
+                        0,
+                        "");
+        }
+        ++n;
+    }
+    TT_UT_EQUAL(n, 4, "");
 
     tt_xpnodes_destroy(&xpns);
     tt_xpath_destroy(&xp);
@@ -242,7 +279,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xpath_attr)
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_xdoc_t xd;
     tt_result_t ret;
-    tt_xnode_t root, xn;
+    tt_xnode_t xn;
     tt_xnode_t xa;
     tt_xpath_t xp;
     tt_xpnodes_t xpns;
@@ -257,14 +294,11 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xpath_attr)
     ret = tt_xdoc_parse(&xd, (tt_u8_t *)__ut_xpath, sizeof(__ut_xpath), NULL);
     TT_UT_SUCCESS(ret, "");
 
-    root = tt_xdoc_root(&xd);
-    TT_UT_NOT_NULL(root, "");
-
     ret = tt_xpath_create(&xp, "/bookstore/book/@category", NULL);
     TT_UT_SUCCESS(ret, "");
 
     tt_xpnodes_init(&xpns);
-    tt_xnode_select_all(root, &xp, &xpns);
+    tt_xdoc_selectxp_all(&xd, &xp, &xpns);
     TT_UT_EQUAL(tt_xpnodes_count(&xpns), 4, "");
 
     n = 0;
@@ -305,7 +339,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xpath_attr)
     TT_UT_EQUAL(n, 4, "");
 
     // single
-    tt_xnode_select(root, &xp, &xn, &xa);
+    tt_xdoc_selectxp(&xd, &xp, &xn, &xa);
     TT_UT_NULL(xn, "");
     TT_UT_NOT_NULL(xa, "");
 
@@ -317,15 +351,107 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xpath_attr)
     TT_UT_SUCCESS(ret, "");
 
     tt_xpnodes_init(&xpns);
-    tt_xnode_select_all(root, &xp, &xpns);
+    tt_xdoc_selectxp_all(&xd, &xp, &xpns);
     TT_UT_EQUAL(tt_xpnodes_count(&xpns), 0, "");
 
     // single
-    tt_xnode_select(root, &xp, &xn, &xa);
+    tt_xdoc_selectxp(&xd, &xp, &xn, &xa);
     TT_UT_NULL(xn, "");
     TT_UT_NULL(xa, "");
 
+    // select path directly
     tt_xpnodes_destroy(&xpns);
+    tt_xpnodes_init(&xpns);
+    tt_xdoc_select_all(&xd, "/bookstore/book/@category", &xpns);
+    TT_UT_EQUAL(tt_xpnodes_count(&xpns), 4, "");
+
+    n = 0;
+    tt_xpnodes_sort(&xpns, TT_FALSE);
+    tt_xpnodes_iter(&xpns, &i);
+    while (TT_OK(tt_xpnodes_iter_next(&i, &xn, &xa))) {
+        TT_UT_NULL(xn, "");
+        TT_UT_NOT_NULL(xa, "");
+
+        if (n == 0) {
+            TT_UT_EQUAL(tt_strcmp(tt_xattr_get_value(xa, ""), "cooking"),
+                        0,
+                        "");
+        } else if (n == 3) {
+            TT_UT_EQUAL(tt_strcmp(tt_xattr_get_value(xa, ""), "web"), 0, "");
+        }
+        ++n;
+    }
+    TT_UT_EQUAL(n, 4, "");
+
+    tt_xpnodes_destroy(&xpns);
+    tt_xpath_destroy(&xp);
+
+    tt_xdoc_destroy(&xd);
+
+    // test end
+    TT_TEST_CASE_LEAVE()
+}
+
+TT_TEST_ROUTINE_DEFINE(tt_unit_test_xpath_eval)
+{
+    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+    tt_xdoc_t xd;
+    tt_result_t ret;
+    tt_xnode_t xn;
+    tt_xnode_t xa;
+    tt_xpath_t xp;
+    tt_xpnodes_t xpns;
+    tt_xpnodes_iter_t i;
+    tt_u32_t n;
+    tt_char_t buf[100];
+
+    TT_TEST_CASE_ENTER()
+    // test start
+
+    tt_xdoc_create(&xd);
+
+    ret = tt_xdoc_parse(&xd, (tt_u8_t *)__ut_xpath, sizeof(__ut_xpath), NULL);
+    TT_UT_SUCCESS(ret, "");
+
+    tt_xdoc_select(&xd, "/bookstore/book", &xn, &xa);
+    TT_UT_NOT_NULL(xn, "");
+    TT_UT_NULL(xa, "");
+
+    ret = tt_xpath_create(&xp, "string-length(@category)", NULL);
+    TT_UT_SUCCESS(ret, "");
+    TT_UT_EQUAL(tt_xnode_eval_bool(xn, &xp), TT_TRUE, "");
+    TT_UT_EQUAL(tt_xnode_eval_number(xn, &xp), sizeof("cooking") - 1, "");
+    tt_memset(buf, 0, sizeof(buf));
+    tt_xnode_eval_cstr(xn, &xp, buf, sizeof(buf));
+    TT_UT_EQUAL(tt_strcmp(buf, "7"), 0, "");
+
+    ret = tt_xpath_create(&xp, "string-length(@category)", NULL);
+    TT_UT_SUCCESS(ret, "");
+    TT_UT_EQUAL(tt_xnode_eval_bool(NULL, &xp), TT_FALSE, "");
+    TT_UT_EQUAL(tt_xnode_eval_number(NULL, &xp), 0, "");
+    tt_memset(buf, 0, sizeof(buf));
+    tt_xnode_eval_cstr(NULL, &xp, buf, sizeof(buf));
+    TT_UT_EQUAL(tt_strcmp(buf, "0"), 0, "");
+
+    tt_xpath_destroy(&xp);
+
+    // xdoc eval
+    ret = tt_xpath_create(&xp, "sum(//book/price)", NULL);
+    TT_UT_SUCCESS(ret, "");
+    TT_UT_EQUAL(tt_xdoc_eval_bool(&xd, &xp), TT_TRUE, "");
+    TT_UT_EQUAL(tt_xdoc_eval_number(&xd, &xp), 149.93, "");
+    tt_memset(buf, 0, sizeof(buf));
+    tt_xdoc_eval_cstr(&xd, &xp, buf, sizeof(buf));
+    TT_UT_EQUAL(tt_strcmp(buf, "149.93"), 0, "");
+    tt_xpath_destroy(&xp);
+
+    ret = tt_xpath_create(&xp, "sum(//book/price123)", NULL);
+    TT_UT_SUCCESS(ret, "");
+    TT_UT_EQUAL(tt_xdoc_eval_bool(&xd, &xp), TT_FALSE, "");
+    TT_UT_EQUAL(tt_xdoc_eval_number(&xd, &xp), 0, "");
+    tt_memset(buf, 0, sizeof(buf));
+    tt_xdoc_eval_cstr(&xd, &xp, buf, sizeof(buf));
+    TT_UT_EQUAL(tt_strcmp(buf, "0"), 0, "");
     tt_xpath_destroy(&xp);
 
     tt_xdoc_destroy(&xd);

@@ -24,6 +24,8 @@ extern "C" {
 #include <algorithm/tt_buffer_format.h>
 #include <io/tt_file_system.h>
 #include <misc/tt_assert.h>
+#include <xml/tt_xml_path.h>
+#include <xml/tt_xml_util.h>
 
 #include <tt_cstd_api.h>
 }
@@ -351,6 +353,80 @@ tt_result_t tt_xdoc_render_file(IN tt_xdoc_t *xd,
     }
 
     return TT_SUCCESS;
+}
+
+// ========================================
+// xml path
+// ========================================
+
+void tt_xdoc_select(IN tt_xdoc_t *xd,
+                    IN const tt_char_t *xp,
+                    OUT tt_xnode_t *o_xn,
+                    OUT tt_xattr_t *o_xa)
+{
+    pugi::xpath_node p =
+        static_cast<pugi::xml_document *>(xd->p)->select_node(xp);
+
+    pugi::xml_node pn = p.node();
+    *o_xn = TN(pn);
+
+    pugi::xml_attribute pa = p.attribute();
+    *o_xa = TA(pa);
+}
+
+void tt_xdoc_select_all(IN tt_xdoc_t *xd,
+                        IN const tt_char_t *xp,
+                        OUT tt_xpnodes_t *xpns)
+{
+    *P_XPNS(xpns) = static_cast<pugi::xml_document *>(xd->p)->select_nodes(xp);
+}
+
+void tt_xdoc_selectxp(IN tt_xdoc_t *xd,
+                      IN tt_xpath_t *xp,
+                      OUT tt_xnode_t *o_xn,
+                      OUT tt_xattr_t *o_xa)
+{
+    pugi::xpath_node p =
+        static_cast<pugi::xml_document *>(xd->p)->select_node(*P_XP(xp));
+
+    pugi::xml_node pn = p.node();
+    *o_xn = TN(pn);
+
+    pugi::xml_attribute pa = p.attribute();
+    *o_xa = TA(pa);
+}
+
+void tt_xdoc_selectxp_all(IN tt_xdoc_t *xd,
+                          IN tt_xpath_t *xp,
+                          OUT tt_xpnodes_t *xpns)
+{
+    *P_XPNS(xpns) =
+        static_cast<pugi::xml_document *>(xd->p)->select_nodes(*P_XP(xp));
+}
+
+tt_bool_t tt_xdoc_eval_bool(IN tt_xdoc_t *xd, IN struct tt_xpath_s *xp)
+{
+    if (P_XP(xp)->evaluate_boolean(*static_cast<pugi::xml_document *>(xd->p))) {
+        return TT_TRUE;
+    } else {
+        return TT_FALSE;
+    }
+}
+
+tt_double_t tt_xdoc_eval_number(IN tt_xdoc_t *xd, IN struct tt_xpath_s *xp)
+{
+    return P_XP(xp)->evaluate_number(*static_cast<pugi::xml_document *>(xd->p));
+}
+
+tt_u32_t tt_xdoc_eval_cstr(IN tt_xdoc_t *xd,
+                           IN struct tt_xpath_s *xp,
+                           OUT tt_char_t *buf,
+                           IN tt_u32_t len)
+{
+    return (tt_u32_t)P_XP(xp)
+        ->evaluate_string(buf,
+                          len,
+                          (*static_cast<pugi::xml_document *>(xd->p)));
 }
 
 unsigned int __parse_option(IN tt_xdoc_parse_attr_t *attr)

@@ -229,7 +229,8 @@ tt_xattr_t tt_xnode_last_attr(IN tt_xnode_t xn)
     return TA(xa);
 }
 
-tt_xattr_t tt_xnode_attr_byname(IN tt_xnode_t xn, IN const tt_char_t *name)
+tt_xattr_t tt_xnode_selectxptr_byname(IN tt_xnode_t xn,
+                                      IN const tt_char_t *name)
 {
     pugi::xml_attribute xa = PN(xn).attribute(name);
     return TA(xa);
@@ -408,9 +409,30 @@ tt_result_t tt_xnode_set_double(IN tt_xnode_t xn, IN tt_double_t value)
 // ========================================
 
 void tt_xnode_select(IN tt_xnode_t xn,
-                     IN struct tt_xpath_s *xp,
+                     IN const tt_char_t *xp,
                      OUT tt_xnode_t *o_xn,
                      OUT tt_xattr_t *o_xa)
+{
+    pugi::xpath_node p = PN(xn).select_node(xp);
+
+    pugi::xml_node pn = p.node();
+    *o_xn = TN(pn);
+
+    pugi::xml_attribute pa = p.attribute();
+    *o_xa = TA(pa);
+}
+
+void tt_xnode_select_all(IN tt_xnode_t xn,
+                         IN const tt_char_t *xp,
+                         OUT tt_xpnodes_t *xpns)
+{
+    *P_XPNS(xpns) = PN(xn).select_nodes(xp);
+}
+
+void tt_xnode_selectxp(IN tt_xnode_t xn,
+                       IN struct tt_xpath_s *xp,
+                       OUT tt_xnode_t *o_xn,
+                       OUT tt_xattr_t *o_xa)
 {
     pugi::xpath_node p = PN(xn).select_node(*P_XP(xp));
 
@@ -421,11 +443,33 @@ void tt_xnode_select(IN tt_xnode_t xn,
     *o_xa = TA(pa);
 }
 
-void tt_xnode_select_all(IN tt_xnode_t xn,
-                         IN tt_xpath_t *xp,
-                         OUT tt_xpnodes_t *xpns)
+void tt_xnode_selectxp_all(IN tt_xnode_t xn,
+                           IN tt_xpath_t *xp,
+                           OUT tt_xpnodes_t *xpns)
 {
     *P_XPNS(xpns) = PN(xn).select_nodes(*P_XP(xp));
+}
+
+tt_bool_t tt_xnode_eval_bool(IN tt_xnode_t xn, IN struct tt_xpath_s *xp)
+{
+    if (P_XP(xp)->evaluate_boolean(PN(xn))) {
+        return TT_TRUE;
+    } else {
+        return TT_FALSE;
+    }
+}
+
+tt_double_t tt_xnode_eval_number(IN tt_xnode_t xn, IN struct tt_xpath_s *xp)
+{
+    return P_XP(xp)->evaluate_number(PN(xn));
+}
+
+tt_u32_t tt_xnode_eval_cstr(IN tt_xnode_t xn,
+                            IN struct tt_xpath_s *xp,
+                            OUT tt_char_t *buf,
+                            IN tt_u32_t len)
+{
+    return (tt_u32_t)P_XP(xp)->evaluate_string(buf, len, PN(xn));
 }
 
 tt_result_t __xnode_component_init(IN tt_component_t *comp,

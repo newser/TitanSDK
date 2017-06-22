@@ -122,8 +122,8 @@ extern tt_xattr_t tt_xnode_first_attr(IN tt_xnode_t xn);
 
 extern tt_xattr_t tt_xnode_last_attr(IN tt_xnode_t xn);
 
-extern tt_xattr_t tt_xnode_attr_byname(IN tt_xnode_t xn,
-                                       IN const tt_char_t *name);
+extern tt_xattr_t tt_xnode_selectxptr_byname(IN tt_xnode_t xn,
+                                             IN const tt_char_t *name);
 
 extern tt_xattr_t tt_xnode_append_attr(IN tt_xnode_t xn,
                                        IN const tt_char_t *name);
@@ -187,21 +187,31 @@ extern tt_result_t tt_xnode_set_double(IN tt_xnode_t xn, IN tt_double_t value);
 // ========================================
 
 extern void tt_xnode_select(IN tt_xnode_t xn,
-                            IN struct tt_xpath_s *xp,
+                            IN const tt_char_t *xp,
                             OUT tt_xnode_t *o_xn,
                             OUT tt_xattr_t *o_xa);
 
-extern void tt_xnode_select_path(IN tt_xnode_t xn,
-                                 IN const tt_char_t *xp,
-                                 OUT tt_xnode_t *o_xn,
-                                 OUT tt_xattr_t *o_xa);
-
 extern void tt_xnode_select_all(IN tt_xnode_t xn,
-                                IN struct tt_xpath_s *xp,
+                                IN const tt_char_t *xp,
                                 OUT struct tt_xpnodes_s *xpns);
 
-extern void tt_xnode_select_path_all(IN tt_xnode_t xn,
-                                     IN const tt_char_t *xp,
-                                     OUT struct tt_xpnodes_s *xpns);
+extern void tt_xnode_selectxp(IN tt_xnode_t xn,
+                              IN struct tt_xpath_s *xp,
+                              OUT tt_xnode_t *o_xn,
+                              OUT tt_xattr_t *o_xa);
+
+extern void tt_xnode_selectxp_all(IN tt_xnode_t xn,
+                                  IN struct tt_xpath_s *xp,
+                                  OUT struct tt_xpnodes_s *xpns);
+
+extern tt_bool_t tt_xnode_eval_bool(IN tt_xnode_t xn, IN struct tt_xpath_s *xp);
+
+extern tt_double_t tt_xnode_eval_number(IN tt_xnode_t xn,
+                                        IN struct tt_xpath_s *xp);
+
+extern tt_u32_t tt_xnode_eval_cstr(IN tt_xnode_t xn,
+                                   IN struct tt_xpath_s *xp,
+                                   OUT tt_char_t *buf,
+                                   IN tt_u32_t len);
 
 #endif /* __TT_XML_NODE__ */

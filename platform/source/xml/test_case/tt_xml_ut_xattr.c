@@ -247,7 +247,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xattr_bool)
     TT_UT_NOT_NULL(xn, "");
 
     // bool
-    xa = tt_xnode_attr_byname(xn, "b1");
+    xa = tt_xnode_selectxptr_byname(xn, "b1");
     TT_UT_NOT_NULL(xa, "");
     TT_UT_EQUAL(tt_xattr_get_bool(xa, TT_FALSE), TT_TRUE, "");
     TT_UT_EQUAL(tt_xattr_get_u32(xa, 0), 1, "");
@@ -263,7 +263,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xattr_bool)
     ret = tt_xattr_set_bool(xa, TT_FALSE);
     TT_UT_SUCCESS(ret, "");
 
-    xa = tt_xnode_attr_byname(xn, "new b1");
+    xa = tt_xnode_selectxptr_byname(xn, "new b1");
     TT_UT_NOT_NULL(xa, "");
     TT_UT_EQUAL(tt_xattr_get_bool(xa, TT_FALSE), TT_FALSE, "");
     TT_UT_EQUAL(tt_xattr_get_u32(xa, 0), 0, "");
@@ -301,7 +301,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xattr_int)
     TT_UT_NOT_NULL(xn, "");
 
     // u32
-    xa = tt_xnode_attr_byname(xn, "u32_1");
+    xa = tt_xnode_selectxptr_byname(xn, "u32_1");
     TT_UT_NOT_NULL(xa, "");
     TT_UT_EQUAL(tt_xattr_get_bool(xa, TT_TRUE), TT_FALSE, "");
     TT_UT_EQUAL(tt_xattr_get_u32(xa, 0), 4294967295, "");
@@ -313,12 +313,12 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xattr_int)
 
     ret = tt_xattr_set_u32(xa, 1);
     TT_UT_SUCCESS(ret, "");
-    xa = tt_xnode_attr_byname(xn, "u32_1");
+    xa = tt_xnode_selectxptr_byname(xn, "u32_1");
     TT_UT_NOT_NULL(xa, "");
     TT_UT_EQUAL(tt_xattr_get_u32(xa, 0), 1, "");
 
     // s32
-    xa = tt_xnode_attr_byname(xn, "s32_1");
+    xa = tt_xnode_selectxptr_byname(xn, "s32_1");
     TT_UT_NOT_NULL(xa, "");
     TT_UT_EQUAL(tt_xattr_get_bool(xa, TT_TRUE), TT_FALSE, "");
     TT_UT_EQUAL(tt_xattr_get_u32(xa, 0), 0, "");
@@ -330,12 +330,12 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xattr_int)
 
     ret = tt_xattr_set_s32(xa, 2147483647);
     TT_UT_SUCCESS(ret, "");
-    xa = tt_xnode_attr_byname(xn, "s32_1");
+    xa = tt_xnode_selectxptr_byname(xn, "s32_1");
     TT_UT_NOT_NULL(xa, "");
     TT_UT_EQUAL(tt_xattr_get_u32(xa, 0), 2147483647, "");
 
     // s64
-    xa = tt_xnode_attr_byname(xn, "s64_1");
+    xa = tt_xnode_selectxptr_byname(xn, "s64_1");
     TT_UT_NOT_NULL(xa, "");
     TT_UT_EQUAL(tt_xattr_get_bool(xa, TT_TRUE), TT_FALSE, "");
     TT_UT_EQUAL(tt_xattr_get_u32(xa, 0), 0, "");
@@ -347,12 +347,12 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xattr_int)
 
     ret = tt_xattr_set_s64(xa, 9223372036854775807);
     TT_UT_SUCCESS(ret, "");
-    xa = tt_xnode_attr_byname(xn, "s64_1");
+    xa = tt_xnode_selectxptr_byname(xn, "s64_1");
     TT_UT_NOT_NULL(xa, "");
     TT_UT_EQUAL(tt_xattr_get_u64(xa, 0), 9223372036854775807, "");
 
     // u64
-    xa = tt_xnode_attr_byname(xn, "u64_1");
+    xa = tt_xnode_selectxptr_byname(xn, "u64_1");
     TT_UT_NOT_NULL(xa, "");
     TT_UT_EQUAL(tt_xattr_get_bool(xa, TT_FALSE), TT_TRUE, ""); // begins with 1
     TT_UT_EQUAL(tt_xattr_get_u32(xa, 0), 4294967295, "");
@@ -362,12 +362,12 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xattr_int)
 
     ret = tt_xattr_set_s64(xa, 1);
     TT_UT_SUCCESS(ret, "");
-    xa = tt_xnode_attr_byname(xn, "u64_1");
+    xa = tt_xnode_selectxptr_byname(xn, "u64_1");
     TT_UT_NOT_NULL(xa, "");
     TT_UT_EQUAL(tt_xattr_get_u64(xa, 0), 1, "");
 
     // float
-    xa = tt_xnode_attr_byname(xn, "float_1");
+    xa = tt_xnode_selectxptr_byname(xn, "float_1");
     TT_UT_NOT_NULL(xa, "");
     TT_UT_EQUAL(tt_xattr_get_bool(xa, TT_FALSE), TT_TRUE, ""); // begins with 1
     TT_UT_EQUAL(tt_xattr_get_u32(xa, 0), 12, "");
@@ -377,13 +377,13 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xattr_int)
 
     ret = tt_xattr_set_float(xa, -12.34);
     TT_UT_SUCCESS(ret, "");
-    xa = tt_xnode_attr_byname(xn, "float_1");
+    xa = tt_xnode_selectxptr_byname(xn, "float_1");
     TT_UT_NOT_NULL(xa, "");
     TT_UT_EXP(fabsf(tt_xattr_get_float(xa, 0) - (-12.34f)) < 0.001, "");
     TT_UT_EQUAL(tt_xattr_get_u32(xa, 111), 0, ""); // ?
 
     // double
-    xa = tt_xnode_attr_byname(xn, "double_1");
+    xa = tt_xnode_selectxptr_byname(xn, "double_1");
     TT_UT_NOT_NULL(xa, "");
     TT_UT_EQUAL(tt_xattr_get_bool(xa, TT_TRUE),
                 TT_FALSE,
@@ -395,7 +395,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xattr_int)
 
     ret = tt_xattr_set_double(xa, -12.345);
     TT_UT_SUCCESS(ret, "");
-    xa = tt_xnode_attr_byname(xn, "double_1");
+    xa = tt_xnode_selectxptr_byname(xn, "double_1");
     TT_UT_NOT_NULL(xa, "");
     TT_UT_EXP(fabs(tt_xattr_get_double(xa, 0) - (-12.345)) < 0.0001, "");
 
