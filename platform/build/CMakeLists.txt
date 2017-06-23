@@ -78,6 +78,10 @@ include_directories(${PLATFORM_PATH}/depend/fcontext/boost)
 include_directories(${PLATFORM_PATH}/depend/tls/include)
 include_directories(${PLATFORM_PATH}/depend/tls/mbedtls/include/mbedtls)
 
+# depend: xml
+include_directories(${PLATFORM_PATH}/depend/xml/include)
+include_directories(${PLATFORM_PATH}/depend/xml/pugixml)
+
 #
 # source file
 #
@@ -87,21 +91,32 @@ ttcm_add_group_src(${PLATFORM_PATH}/source/algorithm algorithm SRC_FILE)
 ttcm_add_group_src(${PLATFORM_PATH}/source/algorithm/ptr algorithm SRC_FILE)
 
 ttcm_add_group_src(${PLATFORM_PATH}/source/event event SRC_FILE)
+
 ttcm_add_group_src(${PLATFORM_PATH}/source/init init SRC_FILE)
 ttcm_add_group_src(${PLATFORM_PATH}/source/init/config_shell config_shell SRC_FILE)
+
 ttcm_add_group_src(${PLATFORM_PATH}/source/io io SRC_FILE)
+
 ttcm_add_group_src(${PLATFORM_PATH}/source/os os SRC_FILE)
+
 ttcm_add_group_src(${PLATFORM_PATH}/source/memory memory SRC_FILE)
-ttcm_add_group_src(${PLATFORM_PATH}/source/mode mode SRC_FILE)
+
 ttcm_add_group_src(${PLATFORM_PATH}/source/timer timer SRC_FILE)
+
 ttcm_add_group_src(${PLATFORM_PATH}/source/misc misc SRC_FILE)
+
 ttcm_add_group_src(${PLATFORM_PATH}/source/unit_test unit_test SRC_FILE)
-ttcm_add_group_src(${PLATFORM_PATH}/native/${PLATFORM_ENV} native SRC_FILE)
-ttcm_add_group_src(${PLATFORM_PATH}/native/${PLATFORM_CPU} cpu SRC_FILE)
 
 ttcm_add_group_src(${PLATFORM_PATH}/source/log log SRC_FILE)
 ttcm_add_group_src(${PLATFORM_PATH}/source/log/layout log SRC_FILE)
 ttcm_add_group_src(${PLATFORM_PATH}/source/log/io log SRC_FILE)
+
+ttcm_add_group_src(${PLATFORM_PATH}/source/crypto crypto SRC_FILE)
+
+ttcm_add_group_src(${PLATFORM_PATH}/source/xml xml SRC_FILE)
+
+ttcm_add_group_src(${PLATFORM_PATH}/native/${PLATFORM_ENV} native SRC_FILE)
+ttcm_add_group_src(${PLATFORM_PATH}/native/${PLATFORM_CPU} cpu SRC_FILE)
 
 ttcm_add_group_src(${PLATFORM_PATH}/source/network network SRC_FILE)
 # ttcm_add_group_src(${PLATFORM_PATH}/source/network/adns adns SRC_FILE)
@@ -113,14 +128,6 @@ ttcm_add_group_src(${PLATFORM_PATH}/source/network/ssl ssl SRC_FILE)
 #ttcm_add_group_src(${PLATFORM_PATH}/source/network/ssh/server ssh SRC_FILE)
 #ttcm_add_group_src(${PLATFORM_PATH}/source/network/ssh/context ssh SRC_FILE)
 
-ttcm_add_group_src(${PLATFORM_PATH}/source/crypto crypto SRC_FILE)
-
-ttcm_add_group_src(${PLATFORM_PATH}/source/math/mp mp SRC_FILE)
-
-ttcm_add_group_src(${PLATFORM_PATH}/source/xml xml SRC_FILE)
-ttcm_add_group_src(${PLATFORM_PATH}/source/xml/parse xml SRC_FILE)
-ttcm_add_group_src(${PLATFORM_PATH}/source/xml/render xml SRC_FILE)
-
 ttcm_add_group_src(${PLATFORM_PATH}/source/cli cli SRC_FILE)
 
 # test cases
@@ -129,7 +136,6 @@ ttcm_add_group_src(${PLATFORM_PATH}/test_case test_case SRC_FILE)
 ttcm_add_group_src(${PLATFORM_PATH}/source/cli/test_case cli SRC_FILE)
 ttcm_add_group_src(${PLATFORM_PATH}/source/xml/test_case xml SRC_FILE)
 ttcm_add_group_src(${PLATFORM_PATH}/source/crypto/test_case crypto SRC_FILE)
-#ttcm_add_group_src(${PLATFORM_PATH}/source/network/ssh/test_case ssh SRC_FILE)
 ttcm_add_group_src(${PLATFORM_PATH}/source/network/ssl/test_case ssl SRC_FILE)
 ttcm_add_group_src(${PLATFORM_PATH}/source/math/mp/test_case mp SRC_FILE)
 #ttcm_add_group_src(${PLATFORM_PATH}/source/network/adns/test_case adns SRC_FILE)
@@ -167,3 +173,7 @@ set(X509_LIB)
 set(CRYPTO_LIB)
 add_subdirectory(${PLATFORM_PATH}/depend/tls tls)
 target_link_libraries(platform ${CRYPTO_LIB} ${X509_LIB} ${TLS_LIB})
+
+# depends
+add_subdirectory(${PLATFORM_PATH}/depend/xml xml)
+target_link_libraries(platform xml)

@@ -166,6 +166,8 @@ tt_result_t __basic_type_check()
     __CHECK_TYPE_LEN(tt_s32_t, 4);
     __CHECK_TYPE_LEN(tt_u64_t, 8);
     __CHECK_TYPE_LEN(tt_s64_t, 8);
+    __CHECK_TYPE_LEN(tt_float_t, 4);
+    __CHECK_TYPE_LEN(tt_double_t, 8);
 
 #if TT_ENV_IS_64BIT
     __CHECK_TYPE_LEN(tt_ptr_t, 8);
