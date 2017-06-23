@@ -19,7 +19,7 @@ fi
 # whether only format modified files
 if [ $2 == 0 ]
 then
-  FLIST=$(find $FPATH -not -path "*package/*" -type f \( -name "*.h" -o -name "*.c" -o -name "*.cpp" \))
+  FLIST=$(find $FPATH -not -path "*depend/*" -type f \( -name "*.h" -o -name "*.c" -o -name "*.cpp" \))
   FLIST=$FLIST" "$(find $FPATH -type f \( -name "*wrapper.c" -o -name "*wrapper.h" \))
 else
   FLIST=$(git status -s $FPATH | awk '/\.h$/{if ($1 != "D") print $NF}')

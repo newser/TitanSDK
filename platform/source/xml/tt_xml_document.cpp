@@ -44,7 +44,9 @@ class __xw_mem : public pugi::xml_writer
 {
   public:
     __xw_mem(IN tt_u8_t *buf, IN tt_u32_t len)
-        : buf_(buf), len_(len), error_(TT_FALSE)
+        : buf_(buf)
+        , len_(len)
+        , error_(TT_FALSE)
     {
     }
 
@@ -76,7 +78,9 @@ class __xw_file : public pugi::xml_writer
 {
   public:
     __xw_file(IN const tt_char_t *path)
-        : path_(path), error_(TT_FALSE), opened_(TT_FALSE)
+        : path_(path)
+        , error_(TT_FALSE)
+        , opened_(TT_FALSE)
     {
     }
 
