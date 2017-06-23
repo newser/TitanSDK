@@ -177,8 +177,8 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xdoc_encoding)
     tt_xdoc_create(&xd);
 
     xn = tt_xdoc_root(&xd);
-    TT_UT_NULL(xn, "");
-    TT_UT_EQUAL(tt_xnode_type(xn), TT_XNODE_NULL, "");
+    TT_UT_NOT_NULL(xn, "");
+    TT_UT_EQUAL(tt_xnode_type(xn), TT_XNODE_DOCUMENT, "");
 
     tt_xdoc_destroy(&xd);
 
@@ -221,8 +221,8 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xdoc_encoding)
         ret = tt_xdoc_parse(&xd, xf->p, tt_rand_u32() % (xf->len - 2), &a);
         if (!TT_OK(ret)) {
             xn = tt_xdoc_root(&xd);
-            TT_UT_NULL(xn, "");
-            TT_UT_EQUAL(tt_xnode_type(xn), TT_XNODE_NULL, "");
+            TT_UT_NOT_NULL(xn, "");
+            TT_UT_EQUAL(tt_xnode_type(xn), TT_XNODE_DOCUMENT, "");
         }
 
         tt_fremove(__UT_XF_PATH);

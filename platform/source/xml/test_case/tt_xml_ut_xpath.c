@@ -42,6 +42,7 @@
 TT_TEST_ROUTINE_DECLARE(tt_unit_test_xpath_node)
 TT_TEST_ROUTINE_DECLARE(tt_unit_test_xpath_attr)
 TT_TEST_ROUTINE_DECLARE(tt_unit_test_xpath_eval)
+TT_TEST_ROUTINE_DECLARE(tt_unit_test_xpath_xpvar)
 // =========================================
 
 // === test case list ======================
@@ -67,8 +68,17 @@ TT_TEST_CASE("tt_unit_test_xpath_node",
                  NULL),
 
     TT_TEST_CASE("tt_unit_test_xpath_eval",
-                 "xml: xpath query evaluate",
+                 "xml: xpath evaluate",
                  tt_unit_test_xpath_eval,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL),
+
+    TT_TEST_CASE("tt_unit_test_xpath_xpvar",
+                 "xml: xpath evaluate with variables",
+                 tt_unit_test_xpath_xpvar,
                  NULL,
                  NULL,
                  NULL,
@@ -241,7 +251,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xpath_node)
     // select path directly
     tt_xpnodes_destroy(&xpns);
     tt_xpnodes_init(&xpns);
-    tt_xnode_select_all(root, "/bookstore/book/title", &xpns);
+    tt_xnode_select_all(root, "/bookstore/book/title", NULL, &xpns);
     TT_UT_EQUAL(tt_xpnodes_count(&xpns), 4, "");
 
     n = 0;
@@ -362,7 +372,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xpath_attr)
     // select path directly
     tt_xpnodes_destroy(&xpns);
     tt_xpnodes_init(&xpns);
-    tt_xdoc_select_all(&xd, "/bookstore/book/@category", &xpns);
+    tt_xdoc_select_all(&xd, "/bookstore/book/@category", NULL, &xpns);
     TT_UT_EQUAL(tt_xpnodes_count(&xpns), 4, "");
 
     n = 0;
@@ -413,7 +423,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xpath_eval)
     ret = tt_xdoc_parse(&xd, (tt_u8_t *)__ut_xpath, sizeof(__ut_xpath), NULL);
     TT_UT_SUCCESS(ret, "");
 
-    tt_xdoc_select(&xd, "/bookstore/book", &xn, &xa);
+    tt_xdoc_select(&xd, "/bookstore/book", NULL, &xn, &xa);
     TT_UT_NOT_NULL(xn, "");
     TT_UT_NULL(xa, "");
 
@@ -455,6 +465,110 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xpath_eval)
     tt_xpath_destroy(&xp);
 
     tt_xdoc_destroy(&xd);
+
+    // test end
+    TT_TEST_CASE_LEAVE()
+}
+
+TT_TEST_ROUTINE_DEFINE(tt_unit_test_xpath_xpvar)
+{
+    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+    tt_xdoc_t xd;
+    tt_result_t ret;
+    tt_xnode_t xn, root;
+    tt_xnode_t xa;
+    tt_xpath_t xp;
+    tt_xpnodes_t xpns;
+    tt_xpnodes_iter_t i;
+    tt_u32_t n;
+    tt_char_t buf[100];
+    tt_xpvars_t xpvs;
+
+    TT_TEST_CASE_ENTER()
+    // test start
+
+    tt_xdoc_create(&xd);
+    tt_xpvars_init(&xpvs);
+
+    ret = tt_xdoc_parse(&xd, (tt_u8_t *)__ut_xpath, sizeof(__ut_xpath), NULL);
+    TT_UT_SUCCESS(ret, "");
+
+    // xpvar: cstr
+    ret = tt_xpvars_set_cstr(&xpvs, "t", "Learning XML");
+    TT_UT_SUCCESS(ret, "");
+    ret = tt_xpvars_set_bool(&xpvs, "t", TT_FALSE);
+    TT_UT_FAIL(ret, "");
+    ret = tt_xpvars_set_number(&xpvs, "t", 123);
+    TT_UT_FAIL(ret, "");
+
+    tt_xdoc_select(&xd,
+                   "/bookstore/book[title=string($t)]/author",
+                   &xpvs,
+                   &xn,
+                   &xa);
+    TT_UT_NOT_NULL(xn, "");
+    TT_UT_NULL(xa, "");
+    TT_UT_EQUAL(tt_strcmp(tt_xnode_get_value(xn, ""), "Erik T. Ray"), 0, "");
+
+    ret = tt_xpvars_set_cstr(&xpvs, "t", "Harry Potter");
+    TT_UT_SUCCESS(ret, "");
+    tt_xnode_select(tt_xdoc_root(&xd),
+                    "/bookstore/book[title=string($t)]/author",
+                    &xpvs,
+                    &xn,
+                    &xa);
+    TT_UT_NOT_NULL(xn, "");
+    TT_UT_NULL(xa, "");
+    TT_UT_EQUAL(tt_strcmp(tt_xnode_get_value(xn, ""), "J K. Rowling"), 0, "");
+
+    // xpvar: number
+    ret = tt_xpvars_set_number(&xpvs, "price", 29.99);
+    TT_UT_SUCCESS(ret, "");
+    ret = tt_xpvars_set_cstr(&xpvs, "price", "Learning XML");
+    TT_UT_FAIL(ret, "");
+    ret = tt_xpvars_set_bool(&xpvs, "price", TT_FALSE);
+    TT_UT_FAIL(ret, "");
+
+    tt_xdoc_select(&xd,
+                   "/bookstore/book[price=number($price)]/author",
+                   &xpvs,
+                   &xn,
+                   &xa);
+    TT_UT_NOT_NULL(xn, "");
+    TT_UT_NULL(xa, "");
+    TT_UT_EQUAL(tt_strcmp(tt_xnode_get_value(xn, ""), "J K. Rowling"), 0, "");
+
+    ret = tt_xpath_create(&xp,
+                          "/bookstore/book[price=number($price)]/author",
+                          &xpvs);
+    TT_UT_SUCCESS(ret, "");
+    TT_UT_NOT_NULL(xn, "");
+    TT_UT_NULL(xa, "");
+    TT_UT_EQUAL(tt_strcmp(tt_xnode_get_value(xn, ""), "J K. Rowling"), 0, "");
+
+    ret = tt_xpvars_set_number(&xpvs, "price", 1.1);
+    TT_UT_SUCCESS(ret, "");
+
+    tt_xdoc_select(&xd,
+                   "/bookstore/book[price=number($price)]/author",
+                   &xpvs,
+                   &xn,
+                   &xa);
+    TT_UT_NULL(xn, "");
+    TT_UT_NULL(xa, "");
+
+    tt_xnode_selectxp(tt_xdoc_root(&xd), &xp, &xn, &xa);
+    TT_UT_NULL(xn, "");
+    TT_UT_NULL(xa, "");
+
+    ret = tt_xpath_create(&xp, "string-length($t)", &xpvs);
+    TT_UT_SUCCESS(ret, "");
+    TT_UT_EQUAL(tt_xdoc_eval_bool(&xd, &xp), TT_TRUE, "");
+    tt_memset(buf, 0, sizeof(buf));
+    tt_xdoc_eval_cstr(&xd, &xp, buf, sizeof(buf));
+    TT_UT_EQUAL(tt_strcmp(buf, "12"), 0, "");
+    TT_UT_EQUAL(tt_xnode_eval_number(xn, &xp), sizeof("J K. Rowling") - 1, "");
+    tt_xpath_destroy(&xp);
 
     // test end
     TT_TEST_CASE_LEAVE()

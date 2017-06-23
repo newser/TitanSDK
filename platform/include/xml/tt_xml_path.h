@@ -111,25 +111,13 @@ extern void tt_xpvars_init(IN tt_xpvars_t *xpvs);
 
 extern void tt_xpvars_destroy(IN tt_xpvars_t *xpvs);
 
-extern tt_result_t tt_xpvars_add_bool(IN tt_xpvars_t *xpvs,
-                                      IN const tt_char_t *name,
-                                      IN tt_bool_t val);
-
 extern tt_result_t tt_xpvars_set_bool(IN tt_xpvars_t *xpvs,
                                       IN const tt_char_t *name,
                                       IN tt_bool_t val);
 
-extern tt_result_t tt_xpvars_add_number(IN tt_xpvars_t *xpvs,
-                                        IN const tt_char_t *name,
-                                        IN tt_double_t val);
-
 extern tt_result_t tt_xpvars_set_number(IN tt_xpvars_t *xpvs,
                                         IN const tt_char_t *name,
                                         IN tt_double_t val);
-
-extern tt_result_t tt_xpvars_add_cstr(IN tt_xpvars_t *xpvs,
-                                      IN const tt_char_t *name,
-                                      IN const tt_char_t *val);
 
 extern tt_result_t tt_xpvars_set_cstr(IN tt_xpvars_t *xpvs,
                                       IN const tt_char_t *name,

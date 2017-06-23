@@ -110,20 +110,6 @@ void tt_xpvars_destroy(IN tt_xpvars_t *xpvs)
     P_XPVS(xpvs)->~xpath_variable_set();
 }
 
-tt_result_t tt_xpvars_add_bool(IN tt_xpvars_t *xpvs,
-                               IN const tt_char_t *name,
-                               IN tt_bool_t val)
-{
-    pugi::xpath_variable *xpv =
-        P_XPVS(xpvs)->add(name, pugi::xpath_type_boolean);
-    if ((xpv != NULL) && (xpv->set((bool)val))) {
-        return TT_SUCCESS;
-    } else {
-        TT_ERROR("fail to add xpath bool: %s", name);
-        return TT_FAIL;
-    }
-}
-
 tt_result_t tt_xpvars_set_bool(IN tt_xpvars_t *xpvs,
                                IN const tt_char_t *name,
                                IN tt_bool_t val)
@@ -136,20 +122,6 @@ tt_result_t tt_xpvars_set_bool(IN tt_xpvars_t *xpvs,
     }
 }
 
-tt_result_t tt_xpvars_add_number(IN tt_xpvars_t *xpvs,
-                                 IN const tt_char_t *name,
-                                 IN tt_double_t val)
-{
-    pugi::xpath_variable *xpv =
-        P_XPVS(xpvs)->add(name, pugi::xpath_type_number);
-    if ((xpv != NULL) && (xpv->set((double)val))) {
-        return TT_SUCCESS;
-    } else {
-        TT_ERROR("fail to add xpath number: %s", name);
-        return TT_FAIL;
-    }
-}
-
 tt_result_t tt_xpvars_set_number(IN tt_xpvars_t *xpvs,
                                  IN const tt_char_t *name,
                                  IN tt_double_t val)
@@ -158,20 +130,6 @@ tt_result_t tt_xpvars_set_number(IN tt_xpvars_t *xpvs,
         return TT_SUCCESS;
     } else {
         TT_ERROR("fail to set xpath number: %s", name);
-        return TT_FAIL;
-    }
-}
-
-tt_result_t tt_xpvars_add_cstr(IN tt_xpvars_t *xpvs,
-                               IN const tt_char_t *name,
-                               IN const tt_char_t *val)
-{
-    pugi::xpath_variable *xpv =
-        P_XPVS(xpvs)->add(name, pugi::xpath_type_string);
-    if ((xpv != NULL) && (xpv->set((const char *)val))) {
-        return TT_SUCCESS;
-    } else {
-        TT_ERROR("fail to add xpath string: %s", name);
         return TT_FAIL;
     }
 }

@@ -361,11 +361,12 @@ tt_result_t tt_xdoc_render_file(IN tt_xdoc_t *xd,
 
 void tt_xdoc_select(IN tt_xdoc_t *xd,
                     IN const tt_char_t *xp,
+                    IN OPT tt_xpvars_t *xpvs,
                     OUT tt_xnode_t *o_xn,
                     OUT tt_xattr_t *o_xa)
 {
     pugi::xpath_node p =
-        static_cast<pugi::xml_document *>(xd->p)->select_node(xp);
+        static_cast<pugi::xml_document *>(xd->p)->select_node(xp, P_XPVS(xpvs));
 
     pugi::xml_node pn = p.node();
     *o_xn = TN(pn);
@@ -376,9 +377,12 @@ void tt_xdoc_select(IN tt_xdoc_t *xd,
 
 void tt_xdoc_select_all(IN tt_xdoc_t *xd,
                         IN const tt_char_t *xp,
+                        IN OPT tt_xpvars_t *xpvs,
                         OUT tt_xpnodes_t *xpns)
 {
-    *P_XPNS(xpns) = static_cast<pugi::xml_document *>(xd->p)->select_nodes(xp);
+    *P_XPNS(xpns) =
+        static_cast<pugi::xml_document *>(xd->p)->select_nodes(xp,
+                                                               P_XPVS(xpvs));
 }
 
 void tt_xdoc_selectxp(IN tt_xdoc_t *xd,

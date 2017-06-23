@@ -40,6 +40,7 @@ this file specifies xml node APIs
 
 struct tt_xdoc_s;
 struct tt_xpath_s;
+struct tt_xpvars_s;
 struct tt_xpnodes_s;
 
 typedef tt_ptr_t tt_xnode_t;
@@ -188,11 +189,13 @@ extern tt_result_t tt_xnode_set_double(IN tt_xnode_t xn, IN tt_double_t value);
 
 extern void tt_xnode_select(IN tt_xnode_t xn,
                             IN const tt_char_t *xp,
+                            IN OPT struct tt_xpvars_s *xpvs,
                             OUT tt_xnode_t *o_xn,
                             OUT tt_xattr_t *o_xa);
 
 extern void tt_xnode_select_all(IN tt_xnode_t xn,
                                 IN const tt_char_t *xp,
+                                IN OPT struct tt_xpvars_s *xpvs,
                                 OUT struct tt_xpnodes_s *xpns);
 
 extern void tt_xnode_selectxp(IN tt_xnode_t xn,

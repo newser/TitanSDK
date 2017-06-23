@@ -40,6 +40,7 @@ this file specifies xml document APIs
 ////////////////////////////////////////////////////////////
 
 struct tt_xpath_s;
+struct tt_xpvars_s;
 struct tt_xpnodes_s;
 
 typedef struct tt_xdoc_s
@@ -133,11 +134,13 @@ extern tt_result_t tt_xdoc_render_file(IN tt_xdoc_t *xd,
 
 extern void tt_xdoc_select(IN tt_xdoc_t *xd,
                            IN const tt_char_t *xp,
+                           IN OPT struct tt_xpvars_s *xpvs,
                            OUT tt_xnode_t *o_xn,
                            OUT tt_xattr_t *o_xa);
 
 extern void tt_xdoc_select_all(IN tt_xdoc_t *xd,
                                IN const tt_char_t *xp,
+                               IN OPT struct tt_xpvars_s *xpvs,
                                OUT struct tt_xpnodes_s *xpns);
 
 extern void tt_xdoc_selectxp(IN tt_xdoc_t *xd,
