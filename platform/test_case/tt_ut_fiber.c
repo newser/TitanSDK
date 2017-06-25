@@ -601,15 +601,17 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_worker_group)
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_iowg_t wg;
     tt_result_t ret;
+    tt_u32_t n;
 
     TT_TEST_CASE_ENTER()
     // test start
 
-    ret = tt_iowg_create(&wg, 0, NULL);
+    ret = tt_iowg_create(&wg, 0, 0, NULL);
     TT_UT_SUCCESS(ret, "");
     tt_iowg_destroy(&wg);
 
-    ret = tt_iowg_create(&wg, tt_rand_u32() % 10, NULL);
+    n = tt_rand_u32() % 10;
+    ret = tt_iowg_create(&wg, n, n + tt_rand_u32() % 10, NULL);
     TT_UT_SUCCESS(ret, "");
     tt_iowg_destroy(&wg);
 

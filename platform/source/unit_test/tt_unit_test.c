@@ -78,8 +78,8 @@ tt_test_unit_t *tt_g_test_unit_list[TEST_UNIT_NUM] = {
     &TT_MAKE_TEST_UNIT_NAME(TEST_UNIT_ATOMIC),
     &TT_MAKE_TEST_UNIT_NAME(TEST_UNIT_SPIN_LOCK),
     &TT_MAKE_TEST_UNIT_NAME(TEST_UNIT_RWLOCK),
-    &TT_MAKE_TEST_UNIT_NAME(TEST_UNIT_FIBER),
 #endif
+    &TT_MAKE_TEST_UNIT_NAME(TEST_UNIT_FIBER),
 
 #if 0
     &TT_MAKE_TEST_UNIT_NAME(TEST_UNIT_SLAB),
@@ -100,8 +100,8 @@ tt_test_unit_t *tt_g_test_unit_list[TEST_UNIT_NUM] = {
     &TT_MAKE_TEST_UNIT_NAME(TEST_UNIT_CFGSHELL),
 #endif
 
-#if 0
     &TT_MAKE_TEST_UNIT_NAME(TEST_UNIT_FS),
+#if 0
     &TT_MAKE_TEST_UNIT_NAME(TEST_UNIT_SOCKET),
     &TT_MAKE_TEST_UNIT_NAME(TEST_UNIT_IPC),
 #endif
@@ -171,7 +171,7 @@ tt_result_t tt_test_unit_init(IN tt_ptr_t reserved)
     } while (0);
 #endif
 
-#if 1
+#if 0
     do {
         tt_result_t tt_xml_ut_init(IN tt_ptr_t reserved);
         tt_xml_ut_init(0);

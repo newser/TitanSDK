@@ -141,11 +141,11 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_fs_consistency)
 
     // create
     ret = tt_fcreate(__SC_TEST_FILE, NULL);
-    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_SUCCESS(ret, "");
 
     // remove
     ret = tt_fremove(__SC_TEST_FILE);
-    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_SUCCESS(ret, "");
 
     // test end
     TT_TEST_CASE_LEAVE()
@@ -172,7 +172,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_fs_open)
                    __SC_TEST_FILE,
                    TT_FO_CREAT | TT_FO_READ | TT_FO_WRITE,
                    NULL);
-    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_SUCCESS(ret, "");
 
     {
         tt_u8_t buf1[100] = "test1";
@@ -181,35 +181,34 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_fs_open)
 
         ret =
             tt_fwrite(&tf, buf1, (tt_u32_t)strlen((const char *)buf1) + 1, &n);
-        TT_UT_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_SUCCESS(ret, "");
         TT_UT_EQUAL(n, (strlen((const char *)buf1) + 1), "");
 
         ret = tt_fwrite(&tf, buf1, 0, &n);
-        TT_UT_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_SUCCESS(ret, "");
         TT_UT_EQUAL(n, 0, "");
 
         tt_fseek(&tf, TT_FSEEK_BEGIN, 0, NULL);
         ret = tt_fread(&tf, buf2, 90, &n);
-        TT_UT_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_SUCCESS(ret, "");
         TT_UT_EQUAL(n, strlen((const char *)buf1) + 1, "");
 
         ret = tt_fread(&tf, buf2, 0, &n);
-        TT_UT_EQUAL(ret, TT_SUCCESS, "");
-        TT_UT_EQUAL(n, 0, "");
+        TT_UT_FAIL(ret, "");
 
         ret = tt_fread(&tf, buf2, 90, &n);
         TT_UT_EQUAL(ret, TT_END, "");
 
         // write append
         ret = tt_fopen(&tf2, __SC_TEST_FILE, TT_FO_RDWR | TT_FO_APPEND, NULL);
-        TT_UT_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_SUCCESS(ret, "");
 
         ret = tt_fread(&tf2, buf2, 90, &n);
-        TT_UT_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_SUCCESS(ret, "");
         TT_UT_EQUAL(n, (tt_u32_t)strlen((const char *)buf1) + 1, "");
 
         tt_fseek(&tf2, TT_FSEEK_CUR, 0, &d);
-        TT_UT_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_SUCCESS(ret, "");
         TT_UT_EQUAL(d, (tt_u32_t)strlen((const char *)buf1) + 1, "");
 
         ret = tt_fread(&tf2, buf2, 90, &n);
@@ -217,17 +216,17 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_fs_open)
 
         ret =
             tt_fwrite(&tf2, buf1, (tt_u32_t)strlen((const char *)buf1) + 1, &n);
-        TT_UT_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_SUCCESS(ret, "");
         TT_UT_EQUAL(n, strlen((const char *)buf1) + 1, "");
 
         ret = tt_fwrite(&tf2, buf1, 0, &n);
-        TT_UT_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_SUCCESS(ret, "");
         TT_UT_EQUAL(n, 0, "");
 
         // even fseek begin, write still append data, so fpos should be
         // after 2 strings
         ret = tt_fseek(&tf2, TT_FSEEK_CUR, 0, &d);
-        TT_UT_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_SUCCESS(ret, "");
         TT_UT_EQUAL(d, 2 * (strlen((const char *)buf1) + 1), "");
 
         d = ~0;
@@ -235,16 +234,15 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_fs_open)
                        TT_FSEEK_CUR,
                        -2 * (strlen((const char *)buf1) + 1),
                        &d);
-        TT_UT_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_SUCCESS(ret, "");
         TT_UT_EQUAL(d, 0, "");
 
         ret = tt_fread(&tf2, buf2, 90, &n);
-        TT_UT_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_SUCCESS(ret, "");
         TT_UT_EQUAL(n, 2 * (strlen((const char *)buf1) + 1), "");
 
         ret = tt_fread(&tf2, buf2, 0, &n);
-        TT_UT_EQUAL(ret, TT_SUCCESS, "");
-        TT_UT_EQUAL(n, 0, "");
+        TT_UT_FAIL(ret, "");
 
         ret = tt_fread(&tf2, buf2, 90, &n);
         TT_UT_EQUAL(ret, TT_END, "");
@@ -256,7 +254,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_fs_open)
         tt_u8_t buf2[100] = {0};
 
         ret = tt_fopen(&tf2, __SC_TEST_FILE, TT_FO_CREAT | TT_FO_TRUNC, NULL);
-        TT_UT_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_SUCCESS(ret, "");
 
         // truncated
         ret = tt_fread(&tf, buf2, 90, &n);
@@ -273,11 +271,11 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_fs_open)
 
     // create and truncate
     ret = tt_fopen(&tf2, __SC_TEST_FILE, TT_FO_CREAT | TT_FO_TRUNC, NULL);
-    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_SUCCESS(ret, "");
 
     // remove
     ret = tt_fremove(__SC_TEST_FILE);
-    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_SUCCESS(ret, "");
     // now tf and tf2 could still be used
 
     // close to delete
@@ -303,11 +301,11 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_fs_rw)
                    __SC_TEST_FILE,
                    TT_FO_CREAT | TT_FO_EXCL | TT_FO_RDWR,
                    NULL);
-    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_SUCCESS(ret, "");
 
     // remove
     ret = tt_fremove(__SC_TEST_FILE);
-    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_SUCCESS(ret, "");
 
     // could write and read before close
     {
@@ -321,19 +319,19 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_fs_rw)
         while (n < sizeof(buf)) {
             tt_u32_t wn = 0;
             ret = tt_fwrite(&tf, buf + n, sizeof(buf) - n, &wn);
-            TT_UT_EQUAL(ret, TT_SUCCESS, "");
+            TT_UT_SUCCESS(ret, "");
             n += wn;
         }
         TT_UT_EXP(n == sizeof(buf), "");
 
         ret = tt_fseek(&tf, TT_FSEEK_BEGIN, 0, NULL);
-        TT_UT_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_SUCCESS(ret, "");
 
         n = 0;
         while (n < sizeof(rbuf)) {
             tt_u32_t rn = 0;
             ret = tt_fread(&tf, rbuf + n, sizeof(rbuf) - n, &rn);
-            TT_UT_EQUAL(ret, TT_SUCCESS, "");
+            TT_UT_SUCCESS(ret, "");
             n += rn;
         }
         TT_UT_EXP(n == sizeof(rbuf), "");
@@ -377,12 +375,12 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_dir_basic)
     tt_dremove(__TEST_DIR);
 
     ret = tt_dcreate(__TEST_DIR, NULL);
-    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_SUCCESS(ret, "");
     ret = tt_dopen(&dir, __TEST_DIR, NULL);
-    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_SUCCESS(ret, "");
 
     ret = tt_dread(&dir, &de);
-    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_SUCCESS(ret, "");
     TT_UT_EQUAL(de.name[0], '.', "");
     if (de.name[1] != '\0') {
         TT_UT_EQUAL(de.name[1], '.', "");
@@ -390,7 +388,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_dir_basic)
     }
 
     ret = tt_dread(&dir, &de);
-    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_SUCCESS(ret, "");
     TT_UT_EQUAL(de.name[0], '.', "");
     if (de.name[1] != '\0') {
         TT_UT_EQUAL(de.name[1], '.', "");
@@ -398,10 +396,10 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_dir_basic)
     }
 
     ret = tt_dopen(&dir2, __TEST_DIR, NULL);
-    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_SUCCESS(ret, "");
 
     ret = tt_dread(&dir2, &de);
-    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_SUCCESS(ret, "");
     TT_UT_EQUAL(de.name[0], '.', "");
     if (de.name[1] != '\0') {
         TT_UT_EQUAL(de.name[1], '.', "");
@@ -414,7 +412,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_dir_basic)
 
     // could continue read
     ret = tt_dread(&dir2, &de);
-    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_SUCCESS(ret, "");
     TT_UT_EQUAL(de.name[0], '.', "");
     if (de.name[1] != '\0') {
         TT_UT_EQUAL(de.name[1], '.', "");
@@ -425,7 +423,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_dir_basic)
     TT_UT_EQUAL(ret, TT_END, "");
 
     ret = tt_dremove(__TEST_DIR);
-    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_SUCCESS(ret, "");
 
     tt_dclose(&dir);
 
@@ -436,14 +434,14 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_dir_basic)
 
     // remove subdirs
     ret = tt_dcreate(__TEST_DIR, NULL);
-    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_SUCCESS(ret, "");
     ret = tt_dcreate(__TEST_DIR "/s1", NULL);
-    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_SUCCESS(ret, "");
     ret = tt_dcreate(__TEST_DIR "/s1/s2", NULL);
-    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_SUCCESS(ret, "");
 
     ret = tt_dremove(__TEST_DIR);
-    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_SUCCESS(ret, "");
 
     ret = tt_dopen(&dir, __TEST_DIR, NULL);
     TT_UT_EQUAL(ret, TT_FAIL, "");
@@ -637,7 +635,7 @@ tt_result_t __rd_fiber(IN void *param)
     while (1) {
         tt_u32_t n;
 
-        len = tt_rand_u32() % sizeof(buf);
+        len = tt_rand_u32() % sizeof(buf) + 1;
         ret = tt_fread(&f, (tt_u8_t *)buf, len, &n);
         if (TT_OK(ret)) {
             for (i = 0; i < n; ++i) {

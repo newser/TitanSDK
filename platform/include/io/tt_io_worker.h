@@ -16,7 +16,7 @@
 
 /**
 @file tt_io_worker.h
-@brief io worker
+@brief io w
 */
 
 #ifndef __TT_IO_WORKER__
@@ -65,11 +65,22 @@ enum
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern tt_result_t tt_io_worker_create(IN tt_io_worker_t *worker,
+tt_inline void tt_io_worker_init(IN tt_io_worker_t *w)
+{
+    w->wg = NULL;
+    w->thread = NULL;
+}
+
+extern tt_result_t tt_io_worker_create(IN tt_io_worker_t *w,
                                        IN struct tt_iowg_s *wg,
                                        IN OPT tt_io_worker_attr_t *attr);
 
-extern void tt_io_worker_destroy(IN tt_io_worker_t *worker);
+extern void tt_io_worker_destroy(IN tt_io_worker_t *w);
+
+tt_inline tt_bool_t tt_io_worker_running(IN tt_io_worker_t *w)
+{
+    return TT_BOOL(w->thread != NULL);
+}
 
 extern void tt_io_worker_attr_default(IN tt_io_worker_attr_t *attr);
 
