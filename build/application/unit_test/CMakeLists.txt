@@ -41,6 +41,9 @@ include_directories(${PLATFORM_PATH}/depend/fcontext/boost)
 include_directories(${PLATFORM_PATH}/depend/tls/include)
 include_directories(${PLATFORM_PATH}/depend/tls/mbedtls/include/mbedtls)
 
+# depend: dns
+include_directories(${PLATFORM_PATH}/depend/dns/c-ares)
+
 #
 # source file
 #

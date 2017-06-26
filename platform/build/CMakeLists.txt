@@ -82,6 +82,9 @@ include_directories(${PLATFORM_PATH}/depend/tls/mbedtls/include/mbedtls)
 include_directories(${PLATFORM_PATH}/depend/xml/include)
 include_directories(${PLATFORM_PATH}/depend/xml/pugixml)
 
+# depend: dns
+include_directories(${PLATFORM_PATH}/depend/dns/c-ares)
+
 #
 # source file
 #
@@ -177,3 +180,8 @@ target_link_libraries(platform ${CRYPTO_LIB} ${X509_LIB} ${TLS_LIB})
 # depends
 add_subdirectory(${PLATFORM_PATH}/depend/xml xml)
 target_link_libraries(platform xml)
+
+# depends
+set(DNS_LIB)
+add_subdirectory(${PLATFORM_PATH}/depend/dns dns)
+target_link_libraries(platform ${DNS_LIB})
