@@ -410,9 +410,6 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xpath_eval)
     tt_xnode_t xn;
     tt_xnode_t xa;
     tt_xpath_t xp;
-    tt_xpnodes_t xpns;
-    tt_xpnodes_iter_t i;
-    tt_u32_t n;
     tt_char_t buf[100];
 
     TT_TEST_CASE_ENTER()
@@ -475,12 +472,9 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xpath_xpvar)
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_xdoc_t xd;
     tt_result_t ret;
-    tt_xnode_t xn, root;
+    tt_xnode_t xn;
     tt_xnode_t xa;
     tt_xpath_t xp;
-    tt_xpnodes_t xpns;
-    tt_xpnodes_iter_t i;
-    tt_u32_t n;
     tt_char_t buf[100];
     tt_xpvars_t xpvs;
 

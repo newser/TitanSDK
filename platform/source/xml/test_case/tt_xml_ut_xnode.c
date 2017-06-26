@@ -211,11 +211,11 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xnode_int)
     TT_UT_NOT_NULL(xa, "");
     TT_UT_EQUAL(tt_xnode_get_bool(xa, TT_TRUE), TT_FALSE, "");
     TT_UT_EQUAL(tt_xnode_get_u32(xa, 0), 0, "");
-    TT_UT_EQUAL(tt_xnode_get_s32(xa, 0), -2147483648, "");
+    TT_UT_EQUAL(tt_xnode_get_s32(xa, 0), -2147483648LL, "");
     TT_UT_EQUAL(tt_xnode_get_u64(xa, 0), 0, "");
-    TT_UT_EQUAL(tt_xnode_get_s64(xa, 0), -2147483648, "");
-    TT_UT_EQUAL(tt_xnode_get_float(xa, 0), -2147483648, "");
-    TT_UT_EQUAL(tt_xnode_get_double(xa, 0), -2147483648, "");
+    TT_UT_EQUAL(tt_xnode_get_s64(xa, 0), -2147483648LL, "");
+    TT_UT_EQUAL(tt_xnode_get_float(xa, 0), -2147483648LL, "");
+    TT_UT_EQUAL(tt_xnode_get_double(xa, 0), -2147483648LL, "");
 
     ret = tt_xnode_set_s32(xa, 2147483647);
     TT_UT_SUCCESS(ret, "");
@@ -228,7 +228,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xnode_int)
     TT_UT_NOT_NULL(xa, "");
     TT_UT_EQUAL(tt_xnode_get_bool(xa, TT_TRUE), TT_FALSE, "");
     TT_UT_EQUAL(tt_xnode_get_u32(xa, 0), 0, "");
-    TT_UT_EQUAL(tt_xnode_get_s32(xa, 0), -2147483648, ""); // truncated
+    TT_UT_EQUAL(tt_xnode_get_s32(xa, 0), -2147483648LL, ""); // truncated
     TT_UT_EQUAL(tt_xnode_get_u64(xa, 0), 0, "");
     TT_UT_EQUAL(tt_xnode_get_s64(xa, 0), -9223372036854775808ULL, "");
     // TT_UT_EQUAL(tt_xnode_get_float(xa, 0), -9.22337203E+18, "");
@@ -264,7 +264,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xnode_int)
     TT_UT_EQUAL(tt_xnode_get_u64(xa, 0), 12, "");
     TT_UT_EQUAL(tt_xnode_get_s64(xa, 0), 12, "");
 
-    ret = tt_xnode_set_float(xa, -12.34);
+    ret = tt_xnode_set_float(xa, -12.34f);
     TT_UT_SUCCESS(ret, "");
     xa = tt_xnode_child_byname(xn, "float_1");
     TT_UT_NOT_NULL(xa, "");

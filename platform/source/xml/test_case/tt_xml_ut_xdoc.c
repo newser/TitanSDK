@@ -534,7 +534,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xdoc_render)
     ra.indent_attributes = TT_TRUE;
     ra.write_bom = TT_FALSE;
     ra.raw = TT_FALSE;
-    tt_memset(buf, sizeof(buf), 0);
+    tt_memset(buf, 0, sizeof(buf));
     ret = tt_xdoc_render(&xd, buf, sizeof(buf), &ra);
     TT_UT_SUCCESS(ret, "");
     TT_UT_EQUAL(tt_strcmp((tt_char_t *)buf,
@@ -561,7 +561,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xdoc_render)
     ra.indent_attributes = TT_FALSE;
     ra.write_bom = TT_TRUE;
     ra.raw = TT_TRUE;
-    tt_memset(buf, sizeof(buf), 0);
+    tt_memset(buf, 0, sizeof(buf));
     ret = tt_xdoc_render(&xd, buf, sizeof(buf), &ra);
     TT_UT_SUCCESS(ret, "");
     TT_UT_EQUAL(tt_strcmp((tt_char_t *)buf,
@@ -576,7 +576,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xdoc_render)
                           "]]><to>Tove</"
                           "to><!--\nc1\n\n\nc2\n--><heading>Reminder\n<p1/"
                           "><p2>  </p2><esc>  &lt;&gt;\"&amp;'\n\naaa  "
-                          "</esc></heading></note>\nfrag2te>\nfrag2"),
+                          "</esc></heading></note>\nfrag2"),
                 0,
                 "");
 
@@ -596,7 +596,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xdoc_render)
                    "]]><to>Tove</"
                    "to><!--\nc1\n\n\nc2\n--><heading>Reminder\n<p1/"
                    "><p2>  </p2><esc>  &lt;&gt;\"&amp;'\n\naaa  "
-                   "</esc></heading></note>\nfrag2te>\nfrag2",
+                   "</esc></heading></note>\nfrag2",
                    (tt_u32_t)size),
         0,
         "");
