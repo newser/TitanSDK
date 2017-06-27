@@ -76,6 +76,12 @@ wrapped c malloc()
 #define tt_c_malloc malloc
 
 /**
+ @def tt_c_realloc
+ wrapped c realloc()
+ */
+#define tt_c_realloc realloc
+
+/**
 @def tt_c_free
 wrapped c free()
 */

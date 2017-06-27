@@ -62,7 +62,7 @@ tt_result_t tt_process_create_ntv(IN tt_process_ntv_t *sys_proc,
     tt_result_t result = TT_FAIL;
 
     DWORD dwCreationFlags = 0;
-    STARTUPINFO si;
+    STARTUPINFOW si;
 
     wc_file = tt_wchar_create(file, NULL);
     if (wc_file == NULL) {

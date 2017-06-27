@@ -220,7 +220,7 @@ TT_TEST_CASE("tt_unit_test_lpatn_sn",
         TT_UT_EQUAL(tt_buf_cmp_cstr(&buf, "2147483647"), 0, "");
 
         tt_buf_clear(&buf);
-        entry.seq_num = (tt_u32_t)-2147483648;
+        entry.seq_num = (tt_u32_t)-2147483648LL;
         ret = tt_logfld_output(lpf, &entry, &buf);
         TT_UT_SUCCESS(ret, "");
         TT_UT_EQUAL(tt_buf_cmp_cstr(&buf, "-2147483648"), 0, "");
@@ -251,7 +251,7 @@ TT_TEST_CASE("tt_unit_test_lpatn_sn",
         TT_UT_EQUAL(tt_buf_cmp_cstr(&buf, "+001"), 0, "");
 
         tt_buf_clear(&buf);
-        entry.seq_num = (tt_u32_t)-2147483648;
+        entry.seq_num = (tt_u32_t)-2147483648LL;
         ret = tt_logfld_output(lpf, &entry, &buf);
         TT_UT_SUCCESS(ret, "");
         TT_UT_EQUAL(tt_buf_cmp_cstr(&buf, "-2147483648"), 0, "");
@@ -860,7 +860,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_lpatn_line)
         TT_UT_EQUAL(tt_buf_cmp_cstr(&buf, "2147483647"), 0, "");
 
         tt_buf_clear(&buf);
-        entry.line = (tt_u32_t)-2147483648;
+        entry.line = (tt_u32_t)-2147483648LL;
         ret = tt_logfld_output(lpf, &entry, &buf);
         TT_UT_SUCCESS(ret, "");
         TT_UT_EQUAL(tt_buf_cmp_cstr(&buf, "-2147483648"), 0, "");
@@ -891,7 +891,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_lpatn_line)
         TT_UT_EQUAL(tt_buf_cmp_cstr(&buf, "+001"), 0, "");
 
         tt_buf_clear(&buf);
-        entry.line = (tt_u32_t)-2147483648;
+        entry.line = (tt_u32_t)-2147483648LL;
         ret = tt_logfld_output(lpf, &entry, &buf);
         TT_UT_SUCCESS(ret, "");
         TT_UT_EQUAL(tt_buf_cmp_cstr(&buf, "-2147483648"), 0, "");

@@ -117,7 +117,7 @@ tt_result_t tt_xattr_set_value(IN tt_xattr_t xa, IN const tt_char_t *value)
 
 tt_bool_t tt_xattr_get_bool(IN tt_xattr_t xa, IN tt_bool_t def)
 {
-    if (PA(xa).as_bool(def)) {
+    if (PA(xa).as_bool(def == TT_TRUE)) {
         return TT_TRUE;
     } else {
         return TT_FALSE;
@@ -126,7 +126,7 @@ tt_bool_t tt_xattr_get_bool(IN tt_xattr_t xa, IN tt_bool_t def)
 
 tt_result_t tt_xattr_set_bool(IN tt_xattr_t xa, IN tt_bool_t value)
 {
-    if (PA(xa).set_value((bool)value)) {
+    if (PA(xa).set_value(value == TT_TRUE)) {
         return TT_SUCCESS;
     } else {
         return TT_FAIL;

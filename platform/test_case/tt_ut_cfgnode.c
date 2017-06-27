@@ -659,7 +659,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgnode_s32)
     ret = tt_cfgnode_commit(cnode);
     TT_UT_EQUAL(ret, TT_END, "");
     TT_UT_EQUAL(__ut_cb_called, TT_TRUE, "");
-    TT_UT_EQUAL(__ut_s32_set, (tt_s32_t)-2147483648L, "");
+    TT_UT_EQUAL(__ut_s32_set, (tt_s32_t)-2147483648LL, "");
 
     tt_cfgnode_destroy(cnode, TT_TRUE);
     tt_buf_destroy(&out);

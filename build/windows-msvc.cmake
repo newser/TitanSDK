@@ -24,7 +24,7 @@ include(${PLATFORM_BUILD_PATH}/util.cmake)
 #
 
 # unicode
-add_definitions(-DUNICODE -D_UNICODE)
+add_definitions(-UUNICODE -U_UNICODE)
 
 # use MT/MTd instead of MD/MDd for both c and cxx
 string(REPLACE "/MD" "/MT" CMAKE_C_FLAGS_RELEASE ${CMAKE_C_FLAGS_RELEASE})

@@ -114,7 +114,7 @@ tt_result_t tt_xpvars_set_bool(IN tt_xpvars_t *xpvs,
                                IN const tt_char_t *name,
                                IN tt_bool_t val)
 {
-    if (P_XPVS(xpvs)->set(name, (bool)val)) {
+    if (P_XPVS(xpvs)->set(name, val == TT_TRUE)) {
         return TT_SUCCESS;
     } else {
         TT_ERROR("fail to set xpath bool: %s", name);
@@ -162,7 +162,7 @@ void tt_xpnodes_destroy(IN tt_xpnodes_t *xpns)
 
 void tt_xpnodes_sort(IN tt_xpnodes_t *xpns, IN tt_bool_t reverse)
 {
-    P_XPNS(xpns)->sort(reverse);
+    P_XPNS(xpns)->sort(reverse == TT_TRUE);
 }
 
 tt_u32_t tt_xpnodes_count(IN tt_xpnodes_t *xpns)

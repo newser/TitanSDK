@@ -54,7 +54,7 @@ typedef struct
 {
     HANDLE hd;
     tt_result_t next_result;
-    WIN32_FIND_DATA find_data;
+    WIN32_FIND_DATAW find_data;
 } tt_dir_ntv_t;
 
 ////////////////////////////////////////////////////////////

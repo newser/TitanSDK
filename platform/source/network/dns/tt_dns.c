@@ -54,7 +54,7 @@ static void *__dns_realloc(void *p, size_t s);
 
 static void __dns_attr2option(IN tt_dns_attr_t *attr,
                               IN struct ares_options *options,
-                              IN int optmask);
+                              IN int *optmask);
 
 ////////////////////////////////////////////////////////////
 // interface implementation
@@ -154,7 +154,7 @@ void *__dns_realloc(void *p, size_t s)
 
 void __dns_attr2option(IN tt_dns_attr_t *attr,
                        IN struct ares_options *options,
-                       IN int optmask)
+                       IN int *optmask)
 {
     
 }

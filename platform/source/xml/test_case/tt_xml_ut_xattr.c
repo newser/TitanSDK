@@ -322,7 +322,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xattr_int)
     TT_UT_NOT_NULL(xa, "");
     TT_UT_EQUAL(tt_xattr_get_bool(xa, TT_TRUE), TT_FALSE, "");
     TT_UT_EQUAL(tt_xattr_get_u32(xa, 0), 0, "");
-    TT_UT_EQUAL(tt_xattr_get_s32(xa, 0), -2147483648, "");
+    TT_UT_EQUAL(tt_xattr_get_s32(xa, 0), -2147483648LL, "");
     TT_UT_EQUAL(tt_xattr_get_u64(xa, 0), 0, "");
     TT_UT_EQUAL(tt_xattr_get_s64(xa, 0), -2147483648LL, "");
     TT_UT_EQUAL(tt_xattr_get_float(xa, 0), -2147483648LL, "");
@@ -339,9 +339,9 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xattr_int)
     TT_UT_NOT_NULL(xa, "");
     TT_UT_EQUAL(tt_xattr_get_bool(xa, TT_TRUE), TT_FALSE, "");
     TT_UT_EQUAL(tt_xattr_get_u32(xa, 0), 0, "");
-    TT_UT_EQUAL(tt_xattr_get_s32(xa, 0), -2147483648, ""); // truncated
+    TT_UT_EQUAL(tt_xattr_get_s32(xa, 0), -2147483648LL, ""); // truncated
     TT_UT_EQUAL(tt_xattr_get_u64(xa, 0), 0, "");
-    TT_UT_EQUAL(tt_xattr_get_s64(xa, 0), -9223372036854775808ULL, "");
+    TT_UT_EQUAL(tt_xattr_get_s64(xa, 0), -9223372036854775808LL, "");
     // TT_UT_EQUAL(tt_xattr_get_float(xa, 0), -9.22337203E+18, "");
     // TT_UT_EQUAL(tt_xattr_get_double(xa, 0), -9.2233720368547758E+18, "");
 

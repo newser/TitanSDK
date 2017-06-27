@@ -954,7 +954,7 @@ void __do_dremove(IN tt_io_ev_t *io_ev)
     __dremove_t *dremove = (__dremove_t *)io_ev;
 
     wchar_t *w_path;
-    SHFILEOPSTRUCT FileOp;
+    SHFILEOPSTRUCTW FileOp;
 
     w_path = tt_wchar_create_ex(dremove->path,
                                 NULL,

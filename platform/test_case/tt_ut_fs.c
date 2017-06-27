@@ -246,7 +246,6 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_fs_open)
 
         ret = tt_fread(&tf2, buf2, 90, &n);
         TT_UT_EQUAL(ret, TT_END, "");
-        TT_UT_EQUAL(n, 0, "");
 
         tt_fclose(&tf2);
     }
