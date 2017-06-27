@@ -125,6 +125,8 @@ ttcm_add_group_src(${PLATFORM_PATH}/source/network network SRC_FILE)
 # ttcm_add_group_src(${PLATFORM_PATH}/source/network/adns adns SRC_FILE)
 ttcm_add_group_src(${PLATFORM_PATH}/source/network/ssl ssl SRC_FILE)
 
+ttcm_add_group_src(${PLATFORM_PATH}/source/network/dns dns SRC_FILE)
+
 #ttcm_add_group_src(${PLATFORM_PATH}/source/network/ssh ssh SRC_FILE)
 #ttcm_add_group_src(${PLATFORM_PATH}/source/network/ssh/message ssh SRC_FILE)
 #ttcm_add_group_src(${PLATFORM_PATH}/source/network/ssh/client ssh SRC_FILE)

@@ -15,39 +15,35 @@
  */
 
 /**
-@file tt_memory_alloc.h
-@brief memory allocation APIs
+@file tt_dns.h
+@brief dns API
+ */
 
-APIs to allocate/free memory
-*/
-
-#ifndef __TT_MEMORY_ALLOC__
-#define __TT_MEMORY_ALLOC__
+#ifndef __TT_DNS__
+#define __TT_DNS__
 
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <misc/tt_util.h>
+#include <tt_basic_type.h>
+
+#include <ares.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
 ////////////////////////////////////////////////////////////
 
-#define tt_malloc tt_c_malloc
-
-#define tt_realloc tt_c_realloc
-
-#define tt_xmalloc tt_malloc
-
-#define tt_free tt_c_free
-
-// real size to be allocated when caller is requiring s bytes
-#define tt_msize(s) (s)
-
 ////////////////////////////////////////////////////////////
 // type definition
 ////////////////////////////////////////////////////////////
+
+typedef ares_channel tt_dns_t;
+
+typedef struct
+{
+    tt_u32_t reserved;
+}tt_dns_attr_t;
 
 ////////////////////////////////////////////////////////////
 // global variants
@@ -57,35 +53,12 @@ APIs to allocate/free memory
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-tt_inline void *tt_malloc_align(IN tt_size_t size, IN tt_u32_t order)
-{
-    void *p =
-        tt_malloc(size + (tt_size_t)(1 << (order + 1)) + sizeof(tt_uintptr_t));
-    if (p != NULL) {
-        void *org = p;
-        p = TT_PTR_INC(void, p, sizeof(tt_uintptr_t));
-        TT_PTR_ALIGN_INC(p, order);
-        *TT_PTR_DEC(void *, p, sizeof(tt_uintptr_t)) = org;
-    }
-    return p;
-}
+extern void tt_dns_component_register();
 
-tt_inline void tt_free_align(IN void *p)
-{
-    tt_free(*TT_PTR_DEC(void *, p, sizeof(tt_uintptr_t)));
-}
+extern tt_dns_t tt_dns_create(IN OPT tt_dns_attr_t *attr);
 
-tt_inline void *tt_xmalloc_align(IN tt_size_t size, IN tt_u32_t order)
-{
-    void *p, *org;
+extern void tt_dns_destroy(IN tt_dns_t d);
 
-    p = tt_xmalloc(size + (tt_size_t)(1 << (order + 1)) + sizeof(tt_uintptr_t));
-    org = p;
-    p = TT_PTR_INC(void, p, sizeof(tt_uintptr_t));
-    TT_PTR_ALIGN_INC(p, order);
-    *TT_PTR_DEC(void *, p, sizeof(tt_uintptr_t)) = org;
+extern void tt_dns_attr_default(IN tt_dns_attr_t *attr);
 
-    return p;
-}
-
-#endif // __TT_MEMORY_ALLOC__
+#endif /* __TT_DNS__ */

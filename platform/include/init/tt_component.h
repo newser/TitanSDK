@@ -102,8 +102,9 @@ typedef enum {
     // network
     TT_COMPONENT_SSL,
 
-    // network
+    // dns
     TT_COMPONENT_MODULE_ADNS,
+    TT_COMPONENT_MODULE_DNS,
 
     // log manager
     TT_COMPONENT_LOG_MANAGER,
