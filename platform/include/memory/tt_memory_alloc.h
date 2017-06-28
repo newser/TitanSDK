@@ -57,6 +57,15 @@ APIs to allocate/free memory
 // interface declaration
 ////////////////////////////////////////////////////////////
 
+tt_inline void *tt_zalloc(IN tt_size_t size)
+{
+    void *p = tt_malloc(size);
+    if (p != NULL) {
+        tt_memset(p, 0, size);
+    }
+    return p;
+}
+
 tt_inline void *tt_malloc_align(IN tt_size_t size, IN tt_u32_t order)
 {
     void *p =

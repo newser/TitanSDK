@@ -261,7 +261,7 @@ typedef struct
 // global variant
 ////////////////////////////////////////////////////////////
 
-static BOOL(PASCAL FAR *tt_ConnectEx)(SOCKET s,
+BOOL(PASCAL FAR *tt_ConnectEx)(SOCKET s,
                                       const struct sockaddr *name,
                                       int namelen,
                                       PVOID lpSendBuffer,

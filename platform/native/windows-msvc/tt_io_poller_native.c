@@ -28,6 +28,7 @@
 #include <tt_ipc_native.h>
 #include <tt_socket_native.h>
 #include <tt_sys_error.h>
+#include <tt_dns_native.h>
 
 ////////////////////////////////////////////////////////////
 // internal macro
@@ -65,8 +66,10 @@ static tt_bool_t __skt_io(IN tt_io_ev_t *io_ev);
 
 static tt_bool_t __ipc_io(IN tt_io_ev_t *io_ev);
 
+static tt_bool_t __dns_io(IN tt_io_ev_t *io_ev);
+
 static __io_handler_t __io_handler[TT_IO_NUM] = {
-    __worker_io, __poller_io, __fs_io, __skt_io, __ipc_io,
+    __worker_io, __poller_io, __fs_io, __skt_io, __ipc_io, NULL, __dns_io,
 };
 
 ////////////////////////////////////////////////////////////
@@ -271,3 +274,11 @@ tt_bool_t __ipc_io(IN tt_io_ev_t *io_ev)
 
     return TT_TRUE;
 }
+
+tt_bool_t __dns_io(IN tt_io_ev_t *io_ev)
+{
+    tt_dns_poller_io(io_ev);
+    
+    return TT_TRUE;
+}
+

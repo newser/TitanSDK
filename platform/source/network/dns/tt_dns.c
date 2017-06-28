@@ -22,8 +22,12 @@
 
 #include <init/tt_component.h>
 #include <init/tt_profile.h>
-#include <misc/tt_assert.h>
 #include <memory/tt_memory_alloc.h>
+#include <misc/tt_assert.h>
+
+#include <tt_dns_native.h>
+
+#include <ares.h>
 
 ////////////////////////////////////////////////////////////
 // internal macro
@@ -46,15 +50,13 @@
 ////////////////////////////////////////////////////////////
 
 static tt_result_t __dns_component_init(IN tt_component_t *comp,
-                                         IN tt_profile_t *profile);
+                                        IN tt_profile_t *profile);
 
-static void *__dns_malloc(size_t s);
-static void __dns_free(void *p);
-static void *__dns_realloc(void *p, size_t s);
+static void *__dns_malloc(IN size_t s);
 
-static void __dns_attr2option(IN tt_dns_attr_t *attr,
-                              IN struct ares_options *options,
-                              IN int *optmask);
+static void __dns_free(IN void *p);
+
+static void *__dns_realloc(IN void *p, IN size_t s);
 
 ////////////////////////////////////////////////////////////
 // interface implementation
@@ -69,11 +71,7 @@ void tt_dns_component_register()
     };
 
     // init component
-    tt_component_init(&comp,
-                      TT_COMPONENT_MODULE_DNS,
-                      "DNS",
-                      NULL,
-                      &itf);
+    tt_component_init(&comp, TT_COMPONENT_DNS, "DNS", NULL, &itf);
 
     // register component
     tt_component_register(&comp);
@@ -83,78 +81,72 @@ tt_dns_t tt_dns_create(IN OPT tt_dns_attr_t *attr)
 {
     tt_dns_attr_t __attr;
     ares_channel p;
-    struct ares_options options;
-    int optmask;
     int e;
-    
+
     if (attr == NULL) {
         tt_dns_attr_default(&__attr);
         attr = &__attr;
     }
-    
-    __dns_attr2option(attr, &options, &optmask);
-    e = ares_init_options(&p, &options, optmask);
+
+    e = ares_init(&p);
     if (e != ARES_SUCCESS) {
         TT_ERROR("fail to create dns: %s", ares_strerror(e));
         return NULL;
     }
-    
+
+    if (!TT_OK(tt_dns_create_ntv(p))) {
+        ares_destroy(p);
+        return NULL;
+    }
+
     return p;
 }
 
 void tt_dns_destroy(IN tt_dns_t d)
 {
     TT_ASSERT(d != NULL);
-    
+
+    tt_dns_destroy_ntv(d);
+
     ares_destroy(d);
 }
 
 void tt_dns_attr_default(IN tt_dns_attr_t *attr)
 {
     TT_ASSERT(attr != NULL);
-    
-    
+
+    attr->reserved = 0;
 }
 
 tt_result_t __dns_component_init(IN tt_component_t *comp,
-                                  IN tt_profile_t *profile)
+                                 IN tt_profile_t *profile)
 {
     int flags = 0;
     int e;
-    
+
 #if TT_ENV_OS_IS_WINDOWS
     flags |= ARES_LIB_INIT_WIN32;
 #endif
-    e = ares_library_init_mem(flags,
-                              __dns_malloc,
-                              __dns_free,
-                              __dns_realloc);
+    e = ares_library_init_mem(flags, __dns_malloc, __dns_free, __dns_realloc);
     if (e != ARES_SUCCESS) {
         TT_ERROR("fail to ini ares: %s", ares_strerror(e));
         return TT_FAIL;
     }
-    
+
     return TT_SUCCESS;
 }
 
-void *__dns_malloc(size_t s)
+void *__dns_malloc(IN size_t s)
 {
     return tt_malloc(s);
 }
 
-void __dns_free(void *p)
+void __dns_free(IN void *p)
 {
     tt_free(p);
 }
 
-void *__dns_realloc(void *p, size_t s)
+void *__dns_realloc(IN void *p, IN size_t s)
 {
     return tt_realloc(p, s);
-}
-
-void __dns_attr2option(IN tt_dns_attr_t *attr,
-                       IN struct ares_options *options,
-                       IN int *optmask)
-{
-    
 }

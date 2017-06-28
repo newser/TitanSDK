@@ -15,12 +15,12 @@
  */
 
 /**
-@file tt_dns.h
-@brief dns API
+@file tt_dns_native.h
+@brief dns native API
  */
 
-#ifndef __TT_DNS__
-#define __TT_DNS__
+#ifndef __TT_DNS_NATIVE__
+#define __TT_DNS_NATIVE__
 
 ////////////////////////////////////////////////////////////
 // import header files
@@ -36,12 +36,8 @@
 // type definition
 ////////////////////////////////////////////////////////////
 
-typedef struct ares_channeldata *tt_dns_t;
-
-typedef struct
-{
-    tt_u32_t reserved;
-} tt_dns_attr_t;
+struct ares_channeldata;
+struct tt_io_ev_s;
 
 ////////////////////////////////////////////////////////////
 // global variants
@@ -51,12 +47,10 @@ typedef struct
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern void tt_dns_component_register();
+extern tt_result_t tt_dns_create_ntv(IN struct ares_channeldata *c);
 
-extern tt_dns_t tt_dns_create(IN OPT tt_dns_attr_t *attr);
+extern void tt_dns_destroy_ntv(IN struct ares_channeldata *c);
 
-extern void tt_dns_destroy(IN tt_dns_t d);
+extern tt_bool_t tt_dns_poller_io(IN struct tt_io_ev_s *io_ev);
 
-extern void tt_dns_attr_default(IN tt_dns_attr_t *attr);
-
-#endif /* __TT_DNS__ */
+#endif /* __TT_DNS_NATIVE__ */

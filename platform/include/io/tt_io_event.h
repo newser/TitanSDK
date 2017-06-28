@@ -46,6 +46,7 @@ enum
     TT_IO_SOCKET,
     TT_IO_IPC,
     TT_IO_TIMER,
+    TT_IO_DNS,
 
     TT_IO_NUM
 };
