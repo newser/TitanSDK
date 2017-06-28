@@ -24,11 +24,11 @@
 #include <os/tt_fiber.h>
 #include <os/tt_task.h>
 
+#include <tt_dns_native.h>
 #include <tt_file_system_native.h>
 #include <tt_ipc_native.h>
 #include <tt_socket_native.h>
 #include <tt_sys_error.h>
-#include <tt_dns_native.h>
 
 ////////////////////////////////////////////////////////////
 // internal macro
@@ -278,7 +278,6 @@ tt_bool_t __ipc_io(IN tt_io_ev_t *io_ev)
 tt_bool_t __dns_io(IN tt_io_ev_t *io_ev)
 {
     tt_dns_poller_io(io_ev);
-    
+
     return TT_TRUE;
 }
-

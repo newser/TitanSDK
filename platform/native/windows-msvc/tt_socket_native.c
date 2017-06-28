@@ -261,13 +261,14 @@ typedef struct
 // global variant
 ////////////////////////////////////////////////////////////
 
-BOOL(PASCAL FAR *tt_ConnectEx)(SOCKET s,
-                                      const struct sockaddr *name,
-                                      int namelen,
-                                      PVOID lpSendBuffer,
-                                      DWORD dwSendDataLength,
-                                      LPDWORD lpdwBytesSent,
-                                      LPOVERLAPPED lpOverlapped);
+BOOL(PASCAL FAR *tt_ConnectEx)
+(SOCKET s,
+ const struct sockaddr *name,
+ int namelen,
+ PVOID lpSendBuffer,
+ DWORD dwSendDataLength,
+ LPDWORD lpdwBytesSent,
+ LPOVERLAPPED lpOverlapped);
 
 static BOOL(PASCAL FAR *tt_AcceptEx)(SOCKET sListenSocket,
                                      SOCKET sAcceptSocket,

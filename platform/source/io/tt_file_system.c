@@ -182,7 +182,7 @@ tt_result_t tt_fcontent_buf(IN const tt_char_t *path, OUT tt_buf_t *buf)
     tt_buf_inc_wp(buf, (tt_u32_t)len);
 
     tt_fclose(&f);
-	return TT_SUCCESS;
+    return TT_SUCCESS;
 }
 
 void tt_dir_attr_default(IN tt_dir_attr_t *attr)
