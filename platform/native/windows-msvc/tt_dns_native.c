@@ -43,9 +43,9 @@
 
 #define __WBUF_NUM 16
 
-#define __DSKT_NUM(c) (((c)->nservers) << 1)
+#define __DSKT_NUM(ch) (((ch)->nservers) << 2)
 
-#define __DSKT(c, i) (&(((__dskt_t *)((c)->sock_create_cb_data))[(i)]))
+#define __DSKT(ch, i) (&(((__dskt_t *)((ch)->sock_create_cb_data))[(i)]))
 
 ////////////////////////////////////////////////////////////
 // internal type
@@ -53,6 +53,7 @@
 
 enum
 {
+    __DNS_CONNECT,
     __DNS_READ,
     __DNS_WRITE,
 
@@ -61,22 +62,21 @@ enum
 
 typedef struct
 {
-    ares_channel c;
+    ares_channel ch;
     SOCKET s;
     SOCKADDR_STORAGE addr;
     WSABUF w_buf[__WBUF_NUM];
     tt_io_ev_t r_ev;
     tt_io_ev_t w_ev;
     tt_buf_t r_buf;
-    // tt_buf_t w_buf;
     ares_socklen_t addrlen;
     tt_u32_t w_len;
     tt_result_t r_result;
     tt_result_t w_result;
-    tt_u16_t idx;
     tt_bool_t udp : 1;
     tt_bool_t reading : 1;
     tt_bool_t writing : 1;
+    tt_bool_t closing : 1;
 } __dskt_t;
 
 ////////////////////////////////////////////////////////////
@@ -124,68 +124,110 @@ static struct ares_socket_functions __dskt_itf = {
     __dskt_socket, __dskt_close, __dskt_connect, __dskt_recvfrom, __dskt_sendv,
 };
 
+static tt_bool_t __do_connect(IN tt_io_ev_t *io_ev);
+
 static tt_bool_t __do_read(IN tt_io_ev_t *io_ev);
 
 static tt_bool_t __do_write(IN tt_io_ev_t *io_ev);
 
 static tt_poller_io_t __dns_poller_io[__DNS_EV_NUM] = {
-    __do_read, __do_write,
+    __do_connect, __do_read, __do_write,
 };
 
 ////////////////////////////////////////////////////////////
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-static void __dskt_init(IN __dskt_t *dskt, IN ares_channel c, IN tt_u16_t idx);
+static void __dskt_init(IN __dskt_t *dskt, IN ares_channel ch);
 
 static void __dskt_destroy(IN __dskt_t *dskt);
 
-static __dskt_t *__dskt_avail(IN ares_channel c);
+static __dskt_t *__dskt_avail(IN ares_channel ch);
 
-static int __dskt_reset(IN __dskt_t *dskt);
+static void __dskt_reset(IN __dskt_t *dskt);
 
 static void __dskt_ev_init(IN tt_io_ev_t *io_ev, IN tt_u32_t ev);
 
-static tt_result_t __dskt_config(IN SOCKET s, IN int af, IN ares_channel c);
+static tt_result_t __dskt_config(IN SOCKET s, IN int af, IN ares_channel ch);
 
 ////////////////////////////////////////////////////////////
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-tt_result_t tt_dns_create_ntv(IN ares_channel c)
+tt_result_t tt_dns_create_ntv(IN ares_channel ch)
 {
-    if (c->nservers != 0) {
+    if (ch->nservers != 0) {
         __dskt_t *dskt;
         int i;
 
-        dskt = tt_malloc(sizeof(__dskt_t) * __DSKT_NUM(c));
+        dskt = tt_malloc(sizeof(__dskt_t) * __DSKT_NUM(ch));
         if (dskt == NULL) {
             TT_ERROR("no mem for dns wov");
             return TT_FAIL;
         }
 
-        for (i = 0; i < __DSKT_NUM(c); ++i) {
-            __dskt_init(&dskt[i], c, i);
+        for (i = 0; i < __DSKT_NUM(ch); ++i) {
+            __dskt_init(&dskt[i], ch);
         }
 
-        // save dskt in c->sock_create_cb_data
-        ares_set_socket_callback(c, NULL, dskt);
+        // save dskt in ch->sock_create_cb_data. note ares_dup()
+        // would copy the pointer, then two ares_channels would
+        // share same dskts, which is not expected, so must do a
+        // "deep copy" if ares_dup() is called
+        ares_set_socket_callback(ch, NULL, dskt);
     }
 
-    ares_set_socket_functions(c, &__dskt_itf, c);
+    ares_set_socket_functions(ch, &__dskt_itf, ch);
 
     return TT_SUCCESS;
 }
 
-void tt_dns_destroy_ntv(IN ares_channel c)
+void tt_dns_destroy_ntv(IN ares_channel ch)
 {
-    if (c->sock_create_cb_data != NULL) {
+    if (ch->sock_create_cb_data != NULL) {
         int i;
-        for (i = 0; i < __DSKT_NUM(c); ++i) {
-            __dskt_destroy(__DSKT(c, i));
+        for (i = 0; i < __DSKT_NUM(ch); ++i) {
+            __dskt_destroy(__DSKT(ch, i));
         }
 
-        tt_free(c->sock_create_cb_data);
+        tt_free(ch->sock_create_cb_data);
+    }
+}
+
+tt_s64_t tt_dns_run_ntv(IN ares_channel ch)
+{
+    fd_set rfds, wfds;
+    u_int i;
+    struct timeval tvbuf;
+
+    FD_ZERO(&rfds);
+    FD_ZERO(&wfds);
+    ares_fds(ch, &rfds, &wfds);
+
+again:
+    ares_process(ch, &rfds, &wfds);
+
+    FD_ZERO(&rfds);
+    FD_ZERO(&wfds);
+    ares_fds(ch, &rfds, &wfds);
+    // now rfds and wfds include fd that need be notified when
+    // readable or writable, so it must guarentee these sockets
+    // are really in reading or writing status
+    for (i = 0; i < rfds.fd_count; ++i) {
+        if (!__DSKT(ch, rfds.fd_array[i])->reading) {
+            goto again;
+        }
+    }
+    for (i = 0; i < wfds.fd_count; ++i) {
+        if (!__DSKT(ch, rfds.fd_array[i])->writing) {
+            goto again;
+        }
+    }
+
+    if (ares_timeout(ch, NULL, &tvbuf) != NULL) {
+        return (tt_s64_t)tvbuf.tv_sec * 1000 + (tt_s64_t)tvbuf.tv_usec / 1000;
+    } else {
+        return TT_TIME_INFINITE;
     }
 }
 
@@ -194,9 +236,9 @@ tt_bool_t tt_dns_poller_io(IN tt_io_ev_t *io_ev)
     return __dns_poller_io[io_ev->ev](io_ev);
 }
 
-void __dskt_init(IN __dskt_t *dskt, IN ares_channel c, IN tt_u16_t idx)
+void __dskt_init(IN __dskt_t *dskt, IN ares_channel ch)
 {
-    dskt->c = c;
+    dskt->ch = ch;
     dskt->s = INVALID_SOCKET;
     tt_memset(&dskt->addr, 0, sizeof(SOCKADDR_STORAGE));
     tt_memset(&dskt->w_buf, 0, sizeof(dskt->w_buf));
@@ -207,10 +249,10 @@ void __dskt_init(IN __dskt_t *dskt, IN ares_channel c, IN tt_u16_t idx)
     dskt->w_len = 0;
     dskt->r_result = TT_SUCCESS;
     dskt->w_result = TT_SUCCESS;
-    dskt->idx = idx;
     dskt->udp = TT_FALSE;
     dskt->reading = TT_FALSE;
     dskt->writing = TT_FALSE;
+    dskt->closing = TT_FALSE;
 }
 
 void __dskt_destroy(IN __dskt_t *dskt)
@@ -218,31 +260,22 @@ void __dskt_destroy(IN __dskt_t *dskt)
     tt_buf_destroy(&dskt->r_buf);
 }
 
-__dskt_t *__dskt_avail(IN ares_channel c)
+__dskt_t *__dskt_avail(IN ares_channel ch)
 {
     int i;
-    for (i = 0; i < __DSKT_NUM(c); ++i) {
-        if (__DSKT(c, i)->s == INVALID_SOCKET) {
-            return __DSKT(c, i);
+    for (i = 0; i < __DSKT_NUM(ch); ++i) {
+        if (__DSKT(ch, i)->s == INVALID_SOCKET) {
+            return __DSKT(ch, i);
         }
     }
     return NULL;
 }
 
-int __dskt_reset(IN __dskt_t *dskt)
+void __dskt_reset(IN __dskt_t *dskt)
 {
-    int e = 0;
+    // keep dskt->ch
 
-    // keep dskt->c
-
-    if (dskt->s != INVALID_SOCKET) {
-        e = closesocket(dskt->s);
-        if (e != 0) {
-            TT_NET_ERROR_NTV("fail to close socket");
-        }
-        dskt->s = INVALID_SOCKET;
-    }
-
+    dskt->s = INVALID_SOCKET;
     tt_memset(&dskt->addr, 0, sizeof(SOCKADDR_STORAGE));
     tt_memset(&dskt->w_buf, 0, sizeof(dskt->w_buf));
     __dskt_ev_init(&dskt->r_ev, __DNS_READ);
@@ -252,12 +285,10 @@ int __dskt_reset(IN __dskt_t *dskt)
     dskt->w_len = 0;
     dskt->r_result = TT_SUCCESS;
     dskt->w_result = TT_SUCCESS;
-    // keep dskt->idx
     dskt->udp = TT_FALSE;
     dskt->reading = TT_FALSE;
     dskt->writing = TT_FALSE;
-
-    return e;
+    dskt->closing = TT_FALSE;
 }
 
 void __dskt_ev_init(IN tt_io_ev_t *io_ev, IN tt_u32_t ev)
@@ -272,14 +303,14 @@ void __dskt_ev_init(IN tt_io_ev_t *io_ev, IN tt_u32_t ev)
     io_ev->ev = ev;
 }
 
-tt_result_t __dskt_config(IN SOCKET s, IN int af, IN ares_channel c)
+tt_result_t __dskt_config(IN SOCKET s, IN int af, IN ares_channel ch)
 {
     int n;
     tt_sktaddr_t addr;
 
     // refer configure_socket()
 
-    n = c->socket_send_buffer_size;
+    n = ch->socket_send_buffer_size;
     if ((n > 0) && (setsockopt(s,
                                SOL_SOCKET,
                                SO_SNDBUF,
@@ -289,7 +320,7 @@ tt_result_t __dskt_config(IN SOCKET s, IN int af, IN ares_channel c)
         return TT_FAIL;
     }
 
-    n = c->socket_receive_buffer_size;
+    n = ch->socket_receive_buffer_size;
     if ((n > 0) && (setsockopt(s,
                                SOL_SOCKET,
                                SO_RCVBUF,
@@ -300,25 +331,26 @@ tt_result_t __dskt_config(IN SOCKET s, IN int af, IN ares_channel c)
     }
 
     if (af == AF_INET) {
-        if (c->local_ip4 != 0) {
+        if (ch->local_ip4 != 0) {
             tt_sktaddr_ip_t ip;
 
             tt_sktaddr_init(&addr, TT_NET_AF_INET);
 
-            ip.a32.__u32 = htonl(c->local_ip4);
+            ip.a32.__u32 = htonl(ch->local_ip4);
             tt_sktaddr_set_ip_n(&addr, &ip);
         } else {
             tt_sktaddr_init_any(&addr, TT_NET_AF_INET);
         }
     } else {
         TT_ASSERT(af == AF_INET6);
-        if (tt_memcmp(c->local_ip6, &ares_in6addr_any, sizeof(c->local_ip6)) !=
-            0) {
+        if (tt_memcmp(ch->local_ip6,
+                      &ares_in6addr_any,
+                      sizeof(ch->local_ip6)) != 0) {
             tt_sktaddr_ip_t ip;
 
             tt_sktaddr_init(&addr, TT_NET_AF_INET6);
 
-            tt_memcpy(ip.a128.__u8, c->local_ip6, 16);
+            tt_memcpy(ip.a128.__u8, ch->local_ip6, 16);
             tt_sktaddr_set_ip_n(&addr, &ip);
         } else {
             tt_sktaddr_init_any(&addr, TT_NET_AF_INET6);
@@ -341,12 +373,12 @@ ares_socket_t __dskt_socket(IN int af,
                             IN int protocol,
                             IN void *param)
 {
-    ares_channel c = (ares_channel)param;
+    ares_channel ch = (ares_channel)param;
     __dskt_t *dskt;
     SOCKET s;
     HANDLE iocp;
 
-    dskt = __dskt_avail(c);
+    dskt = __dskt_avail(ch);
     if (dskt == NULL) {
         TT_ERROR("no available dns skt");
         return ARES_SOCKET_BAD;
@@ -358,7 +390,7 @@ ares_socket_t __dskt_socket(IN int af,
         return ARES_SOCKET_BAD;
     }
 
-    if (!TT_OK(__dskt_config(s, af, c))) {
+    if (!TT_OK(__dskt_config(s, af, ch))) {
         goto fail;
     }
 
@@ -380,14 +412,14 @@ ares_socket_t __dskt_socket(IN int af,
     }
 
     iocp = tt_current_fiber_sched()->thread->task->iop.sys_iop.iocp;
-    if (CreateIoCompletionPort((HANDLE)s, iocp, (ULONG_PTR)param, 0) == NULL) {
+    if (CreateIoCompletionPort((HANDLE)s, iocp, (ULONG_PTR)ch, 0) == NULL) {
         TT_NET_ERROR_NTV("fail to bind socket to iocp");
         goto fail;
     }
 
     dskt->s = s;
     dskt->udp = TT_BOOL(protocol == IPPROTO_UDP);
-    return (ares_socket_t)dskt->idx;
+    return (ares_socket_t)(dskt - (__dskt_t *)ch->sock_create_cb_data);
 
 fail:
 
@@ -397,9 +429,20 @@ fail:
 
 int __dskt_close(IN ares_socket_t s, IN void *param)
 {
-    ares_channel c = (ares_channel)param;
+    ares_channel ch = (ares_channel)param;
+    __dskt_t *dskt = __DSKT(ch, s);
 
-    return __dskt_reset(__DSKT(c, s));
+    if (closesocket(dskt->s) != 0) {
+        TT_NET_ERROR_NTV("fail to close socket");
+    }
+    
+    if (dskt->reading || dskt->writing) {
+        dskt->closing = TT_TRUE;
+    } else {
+        __dskt_reset(__DSKT(ch, s));
+    }
+
+    return 0;
 }
 
 int __dskt_connect(IN ares_socket_t s,
@@ -407,17 +450,17 @@ int __dskt_connect(IN ares_socket_t s,
                    IN ares_socklen_t addrlen,
                    IN void *param)
 {
-    ares_channel c = (ares_channel)param;
-    __dskt_t *dskt = __DSKT(c, s);
+    ares_channel ch = (ares_channel)param;
+    __dskt_t *dskt = __DSKT(ch, s);
 
 #if 0
-    if (dskt->writing) {
+    if (dskt->reading || dskt->writing) {
         WSASetLastError(WSAEWOULDBLOCK);
         return -1;
     }
 #else
     // expecting connect() once for each socket
-    TT_ASSERT(!dskt->writing);
+    TT_ASSERT(!dskt->reading && !dskt->writing);
 #endif
 
     tt_memcpy(&dskt->addr, addr, addrlen);
@@ -435,6 +478,7 @@ int __dskt_connect(IN ares_socket_t s,
             return 0;
         } else {
             TT_NET_ERROR_NTV("WSAConnect fail");
+            WSASetLastError(WSAECONNABORTED);
             return -1;
         }
     } else {
@@ -447,11 +491,14 @@ int __dskt_connect(IN ares_socket_t s,
                          NULL,
                          &dskt->w_ev.wov) ||
             (WSAGetLastError() == WSA_IO_PENDING)) {
+            dskt->w_ev.ev = __DNS_CONNECT;
+            dskt->reading = TT_TRUE;
             dskt->writing = TT_TRUE;
             WSASetLastError(WSAEWOULDBLOCK);
             return -1;
         } else {
             TT_NET_ERROR_NTV("ConnectEx fail");
+            WSASetLastError(WSAECONNABORTED);
             return -1;
         }
     }
@@ -465,8 +512,8 @@ ares_ssize_t __dskt_recvfrom(IN ares_socket_t s,
                              IN ares_socklen_t *from_len,
                              IN void *param)
 {
-    ares_channel c = (ares_channel)param;
-    __dskt_t *dskt = __DSKT(c, s);
+    ares_channel ch = (ares_channel)param;
+    __dskt_t *dskt = __DSKT(ch, s);
     tt_buf_t *buf;
     tt_u32_t len;
     WSABUF Buffers;
@@ -483,6 +530,7 @@ ares_ssize_t __dskt_recvfrom(IN ares_socket_t s,
         len = TT_MIN(len, (tt_u32_t)data_len);
         tt_memcpy(data, TT_BUF_RPOS(buf), len);
         tt_buf_inc_rp(buf, len);
+        tt_buf_try_refine(buf, 1024);
         if (from != NULL) {
             tt_u32_t n = TT_MIN(dskt->addrlen, *from_len);
             tt_memcpy(from, &dskt->addr, n);
@@ -491,8 +539,14 @@ ares_ssize_t __dskt_recvfrom(IN ares_socket_t s,
         return len;
     }
 
+    if (!TT_OK(dskt->r_result)) {
+        WSASetLastError(WSAECONNABORTED);
+        return -1;
+    }
+
     if (!TT_OK(tt_buf_reserve(buf, (tt_u32_t)data_len))) {
         TT_ERROR("fail to reserve dns recv buf");
+        WSASetLastError(WSA_NOT_ENOUGH_MEMORY);
         return -1;
     }
 
@@ -504,6 +558,8 @@ ares_ssize_t __dskt_recvfrom(IN ares_socket_t s,
         (WSAGetLastError() == WSA_IO_PENDING)) {
         dskt->reading = TT_TRUE;
         WSASetLastError(WSAEWOULDBLOCK);
+    } else {
+        WSASetLastError(WSAECONNABORTED);
     }
     return -1;
 }
@@ -513,8 +569,8 @@ ares_ssize_t __dskt_sendv(IN ares_socket_t s,
                           IN int len,
                           IN void *param)
 {
-    ares_channel c = (ares_channel)param;
-    __dskt_t *dskt = __DSKT(c, s);
+    ares_channel ch = (ares_channel)param;
+    __dskt_t *dskt = __DSKT(ch, s);
     int n, i;
 
     if (dskt->writing) {
@@ -523,7 +579,13 @@ ares_ssize_t __dskt_sendv(IN ares_socket_t s,
     }
 
     if (dskt->w_len > 0) {
+        dskt->w_len = 0;
         return dskt->w_len;
+    }
+
+    if (!TT_OK(dskt->w_result)) {
+        WSASetLastError(WSAECONNABORTED);
+        return -1;
     }
 
     n = TT_MIN(__WBUF_NUM, len);
@@ -536,6 +598,8 @@ ares_ssize_t __dskt_sendv(IN ares_socket_t s,
         (WSAGetLastError() == WSA_IO_PENDING)) {
         dskt->writing = TT_TRUE;
         WSASetLastError(WSAEWOULDBLOCK);
+    } else {
+        WSASetLastError(WSAECONNABORTED);
     }
     return -1;
 }
@@ -544,29 +608,60 @@ ares_ssize_t __dskt_sendv(IN ares_socket_t s,
 // io handler
 // ========================================
 
+tt_bool_t __do_connect(IN tt_io_ev_t *io_ev)
+{
+    __dskt_t *dskt = TT_CONTAINER(io_ev, __dskt_t, w_ev);
+
+    dskt->w_ev.ev = __DNS_WRITE;
+    dskt->reading = TT_FALSE;
+    dskt->writing = TT_FALSE;
+
+    if (!TT_OK(io_ev->io_result) ||
+        (setsockopt(dskt->s, SOL_SOCKET, SO_UPDATE_CONNECT_CONTEXT, NULL, 0) !=
+         0)) {
+        TT_NET_ERROR_NTV("connect failed");
+        dskt->r_result = TT_FAIL;
+        dskt->w_result = TT_FAIL;
+    }
+
+    return TT_TRUE;
+}
+
 tt_bool_t __do_read(IN tt_io_ev_t *io_ev)
 {
     __dskt_t *dskt = TT_CONTAINER(io_ev, __dskt_t, r_ev);
 
+    if (dskt->closing && !dskt->writing) {
+        __dskt_reset(dskt);
+        return TT_TRUE;
+    }
+
+    dskt->reading = TT_FALSE;
+
     if (io_ev->io_bytes > 0) {
-        tt_buf_inc_rp(&dskt->r_buf, io_ev->io_bytes);
+        tt_buf_inc_wp(&dskt->r_buf, io_ev->io_bytes);
         dskt->r_result = TT_SUCCESS;
     } else if (TT_OK(io_ev->io_result)) {
         dskt->r_result = TT_END;
     } else {
         dskt->r_result = io_ev->io_result;
     }
-    dskt->reading = TT_FALSE;
 
-    ares_process_fd(dskt->c, dskt->s, ARES_SOCKET_BAD);
+    ares_process_fd(dskt->ch, dskt->s, ARES_SOCKET_BAD);
 
     return TT_TRUE;
 }
 
-
 tt_bool_t __do_write(IN tt_io_ev_t *io_ev)
 {
     __dskt_t *dskt = TT_CONTAINER(io_ev, __dskt_t, r_ev);
+
+    if (dskt->closing && !dskt->reading) {
+        __dskt_reset(dskt);
+        return TT_TRUE;
+    }
+
+    dskt->writing = TT_FALSE;
 
     if (TT_OK(io_ev->io_result)) {
         TT_ASSERT(dskt->w_len == 0);
@@ -575,9 +670,8 @@ tt_bool_t __do_write(IN tt_io_ev_t *io_ev)
     } else {
         dskt->w_result = io_ev->io_result;
     }
-    dskt->writing = TT_FALSE;
 
-    ares_process_fd(dskt->c, ARES_SOCKET_BAD, dskt->s);
+    ares_process_fd(dskt->ch, ARES_SOCKET_BAD, dskt->s);
 
     return TT_TRUE;
 }

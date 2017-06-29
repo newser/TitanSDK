@@ -71,12 +71,27 @@ tt_result_t tt_task_create(IN tt_task_t *t, IN OPT tt_task_attr_t *attr)
     }
 
     tt_slist_init(&t->tfl);
+
     t->thread = NULL;
-    tt_tmr_mgr_init(&t->tmr_mgr, &attr->tmr_mgr_attr);
     tt_memcpy(&t->thread_attr, &attr->thread_attr, sizeof(tt_thread_attr_t));
+
+    if (attr->enable_dns) {
+        t->dns = tt_dns_create(&attr->dns_attr);
+        if (t->dns == NULL) {
+            return TT_FAIL;
+        }
+    } else {
+        t->dns = NULL;
+    }
+
+    tt_tmr_mgr_init(&t->tmr_mgr, &attr->tmr_mgr_attr);
 
     if (!TT_OK(tt_io_poller_create(&t->iop, &attr->io_poller_attr))) {
         TT_ERROR("fail to create task io poller");
+
+        if (t->dns != NULL) {
+            tt_dns_destroy(t->dns);
+        }
         return TT_FAIL;
     }
 
@@ -86,6 +101,9 @@ tt_result_t tt_task_create(IN tt_task_t *t, IN OPT tt_task_attr_t *attr)
 void tt_task_attr_default(IN tt_task_attr_t *attr)
 {
     TT_ASSERT(attr != NULL);
+
+    attr->enable_dns = TT_FALSE;
+    tt_dns_attr_default(&attr->dns_attr);
 
     tt_tmr_mgr_attr_default(&attr->tmr_mgr_attr);
 
@@ -157,6 +175,10 @@ void tt_task_wait(IN tt_task_t *t)
 
     while ((node = tt_slist_pop_head(&t->tfl)) != NULL) {
         tt_free(TT_CONTAINER(node, __task_fiber_t, node));
+    }
+
+    if (t->dns != NULL) {
+        tt_dns_destroy(t->dns);
     }
 
     // - when fiber terminates, it will destroy all its own timers, but
@@ -232,7 +254,7 @@ tt_result_t __task_routine(IN void *param)
             // if there is any active fiber other than the main fiber, run it
             tt_fiber_resume(fb, TT_FALSE);
         } else {
-            tt_s64_t wait_ms;
+            tt_s64_t wait_ms, dns_ms;
 
             wait_ms = tt_tmr_mgr_run(tmr_mgr);
             // tt_tmr_mgr_run() may awake some fiber so need check if all fibers
@@ -240,6 +262,12 @@ tt_result_t __task_routine(IN void *param)
             // tt_io_poller_run()
             if (tt_fiber_sched_empty(cfs)) {
                 break;
+            }
+
+            if ((t->dns != NULL) &&
+                ((dns_ms = tt_dns_run(t->dns)) != TT_TIME_INFINITE) &&
+                (wait_ms != TT_TIME_INFINITE) && (dns_ms < wait_ms)) {
+                wait_ms = dns_ms;
             }
 
             if (!tt_io_poller_run(&t->iop, wait_ms)) {

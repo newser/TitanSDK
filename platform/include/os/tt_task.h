@@ -28,6 +28,7 @@
 
 #include <algorithm/tt_single_linked_list.h>
 #include <io/tt_io_poller.h>
+#include <network/dns/tt_dns.h>
 #include <os/tt_fiber.h>
 #include <os/tt_thread.h>
 #include <time/tt_timer_manager.h>
@@ -44,6 +45,7 @@ typedef struct tt_task_s
 {
     tt_slist_t tfl;
     tt_thread_t *thread;
+    tt_dns_t dns;
     tt_tmr_mgr_t tmr_mgr;
     tt_thread_attr_t thread_attr;
     tt_io_poller_t iop;
@@ -51,6 +53,9 @@ typedef struct tt_task_s
 
 typedef struct tt_task_attr_s
 {
+    tt_bool_t enable_dns;
+    tt_dns_attr_t dns_attr;
+
     tt_tmr_mgr_attr_t tmr_mgr_attr;
     tt_thread_attr_t thread_attr;
     tt_io_poller_attr_t io_poller_attr;

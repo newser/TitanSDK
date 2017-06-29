@@ -47,9 +47,11 @@ struct tt_io_ev_s;
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern tt_result_t tt_dns_create_ntv(IN struct ares_channeldata *c);
+extern tt_result_t tt_dns_create_ntv(IN struct ares_channeldata *ch);
 
-extern void tt_dns_destroy_ntv(IN struct ares_channeldata *c);
+extern void tt_dns_destroy_ntv(IN struct ares_channeldata *ch);
+
+extern tt_s64_t tt_dns_run_ntv(IN struct ares_channeldata *ch);
 
 extern tt_bool_t tt_dns_poller_io(IN struct tt_io_ev_s *io_ev);
 

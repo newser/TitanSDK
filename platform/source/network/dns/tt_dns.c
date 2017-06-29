@@ -25,8 +25,6 @@
 #include <memory/tt_memory_alloc.h>
 #include <misc/tt_assert.h>
 
-#include <tt_dns_native.h>
-
 #include <ares.h>
 
 ////////////////////////////////////////////////////////////
@@ -80,7 +78,7 @@ void tt_dns_component_register()
 tt_dns_t tt_dns_create(IN OPT tt_dns_attr_t *attr)
 {
     tt_dns_attr_t __attr;
-    ares_channel p;
+    ares_channel ch;
     int e;
 
     if (attr == NULL) {
@@ -88,18 +86,18 @@ tt_dns_t tt_dns_create(IN OPT tt_dns_attr_t *attr)
         attr = &__attr;
     }
 
-    e = ares_init(&p);
+    e = ares_init(&ch);
     if (e != ARES_SUCCESS) {
         TT_ERROR("fail to create dns: %s", ares_strerror(e));
         return NULL;
     }
 
-    if (!TT_OK(tt_dns_create_ntv(p))) {
-        ares_destroy(p);
+    if (!TT_OK(tt_dns_create_ntv(ch))) {
+        ares_destroy(ch);
         return NULL;
     }
 
-    return p;
+    return ch;
 }
 
 void tt_dns_destroy(IN tt_dns_t d)
