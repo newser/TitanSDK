@@ -43,6 +43,8 @@
 
 #define __WBUF_NUM 16
 
+// each server has 2 sockets, and reserve extra 2 sockets
+// for async tcp closing
 #define __DSKT_NUM(ch) (((ch)->nservers) << 2)
 
 #define __DSKT(ch, i) (&(((__dskt_t *)((ch)->sock_create_cb_data))[(i)]))
@@ -111,8 +113,8 @@ static ares_ssize_t __dskt_recvfrom(IN ares_socket_t s,
                                     IN void *data,
                                     IN size_t data_len,
                                     IN int flags,
-                                    IN struct sockaddr *from,
-                                    IN ares_socklen_t *from_len,
+                                    OUT struct sockaddr *from,
+                                    IN OUT ares_socklen_t *from_len,
                                     IN void *param);
 
 static ares_ssize_t __dskt_sendv(IN ares_socket_t s,
@@ -198,34 +200,30 @@ tt_s64_t tt_dns_run_ntv(IN ares_channel ch)
 {
     fd_set rfds, wfds;
     u_int i;
-    struct timeval tvbuf;
-
-    FD_ZERO(&rfds);
-    FD_ZERO(&wfds);
-    ares_fds(ch, &rfds, &wfds);
+    struct timeval tv;
 
 again:
-    ares_process(ch, &rfds, &wfds);
-
     FD_ZERO(&rfds);
     FD_ZERO(&wfds);
     ares_fds(ch, &rfds, &wfds);
-    // now rfds and wfds include fd that need be notified when
-    // readable or writable, so it must guarentee these sockets
-    // are really in reading or writing status
+    ares_process(ch, &rfds, &wfds);
     for (i = 0; i < rfds.fd_count; ++i) {
-        if (!__DSKT(ch, rfds.fd_array[i])->reading) {
+        __dskt_t *dskt = __DSKT(ch, rfds.fd_array[i]);
+        if (!dskt->reading) {
+            // a socket want read but not reading
             goto again;
         }
     }
     for (i = 0; i < wfds.fd_count; ++i) {
-        if (!__DSKT(ch, rfds.fd_array[i])->writing) {
+        __dskt_t *dskt = __DSKT(ch, rfds.fd_array[i]);
+        if (!dskt->udp && !dskt->writing) {
+            // a tcp socket want write but not writing
             goto again;
         }
     }
 
-    if (ares_timeout(ch, NULL, &tvbuf) != NULL) {
-        return (tt_s64_t)tvbuf.tv_sec * 1000 + (tt_s64_t)tvbuf.tv_usec / 1000;
+    if (ares_timeout(ch, NULL, &tv) != NULL) {
+        return (tt_s64_t)tv.tv_sec * 1000 + (tt_s64_t)tv.tv_usec / 1000;
     } else {
         return TT_TIME_INFINITE;
     }
@@ -305,10 +303,16 @@ void __dskt_ev_init(IN tt_io_ev_t *io_ev, IN tt_u32_t ev)
 
 tt_result_t __dskt_config(IN SOCKET s, IN int af, IN ares_channel ch)
 {
+    u_long nonblock = 1;
     int n;
     tt_sktaddr_t addr;
 
     // refer configure_socket()
+
+    if (ioctlsocket(s, FIONBIO, &nonblock) != 0) {
+        TT_NET_ERROR_NTV("fail to set FIONBIO");
+        return TT_FAIL;
+    }
 
     n = ch->socket_send_buffer_size;
     if ((n > 0) && (setsockopt(s,
@@ -394,7 +398,7 @@ ares_socket_t __dskt_socket(IN int af,
         goto fail;
     }
 
-    if (protocol == IPPROTO_UDP) {
+    if (type == SOCK_DGRAM) {
         BOOL bNewBehavior = FALSE;
         DWORD dwBytesReturned = 0;
         if (WSAIoctl(s,
@@ -418,7 +422,7 @@ ares_socket_t __dskt_socket(IN int af,
     }
 
     dskt->s = s;
-    dskt->udp = TT_BOOL(protocol == IPPROTO_UDP);
+    dskt->udp = TT_BOOL(type == SOCK_DGRAM);
     return (ares_socket_t)(dskt - (__dskt_t *)ch->sock_create_cb_data);
 
 fail:
@@ -432,13 +436,13 @@ int __dskt_close(IN ares_socket_t s, IN void *param)
     ares_channel ch = (ares_channel)param;
     __dskt_t *dskt = __DSKT(ch, s);
 
+    TT_ASSERT(!dskt->closing);
     if (closesocket(dskt->s) != 0) {
         TT_NET_ERROR_NTV("fail to close socket");
     }
-    
-    if (dskt->reading || dskt->writing) {
-        dskt->closing = TT_TRUE;
-    } else {
+    dskt->closing = TT_TRUE;
+
+    if (!dskt->reading && !dskt->writing) {
         __dskt_reset(__DSKT(ch, s));
     }
 
@@ -454,13 +458,12 @@ int __dskt_connect(IN ares_socket_t s,
     __dskt_t *dskt = __DSKT(ch, s);
 
 #if 0
-    if (dskt->reading || dskt->writing) {
+    if (dskt->reading || dskt->writing || dskt->closing) {
         WSASetLastError(WSAEWOULDBLOCK);
         return -1;
     }
 #else
-    // expecting connect() once for each socket
-    TT_ASSERT(!dskt->reading && !dskt->writing);
+    TT_ASSERT(!dskt->reading && !dskt->writing && !dskt->closing);
 #endif
 
     tt_memcpy(&dskt->addr, addr, addrlen);
@@ -468,7 +471,7 @@ int __dskt_connect(IN ares_socket_t s,
 
     if (dskt->udp) {
         // connecting udp socket won't block
-        if (WSAConnect(s,
+        if (WSAConnect(dskt->s,
                        (const struct sockaddr *)&dskt->addr,
                        dskt->addrlen,
                        NULL,
@@ -483,7 +486,7 @@ int __dskt_connect(IN ares_socket_t s,
         }
     } else {
         tt_memset(&dskt->w_ev.wov, 0, sizeof(WSAOVERLAPPED));
-        if (tt_ConnectEx(s,
+        if (tt_ConnectEx(dskt->s,
                          (const struct sockaddr *)&dskt->addr,
                          dskt->addrlen,
                          NULL,
@@ -519,6 +522,7 @@ ares_ssize_t __dskt_recvfrom(IN ares_socket_t s,
     WSABUF Buffers;
     DWORD Flags;
 
+    TT_ASSERT(!dskt->closing);
     if (dskt->reading) {
         WSASetLastError(WSAEWOULDBLOCK);
         return -1;
@@ -554,11 +558,13 @@ ares_ssize_t __dskt_recvfrom(IN ares_socket_t s,
     Buffers.len = (ULONG)data_len;
     Flags = 0;
     tt_memset(&dskt->r_ev.wov, 0, sizeof(WSAOVERLAPPED));
-    if ((WSARecv(s, &Buffers, 1, NULL, &Flags, &dskt->r_ev.wov, NULL) == 0) ||
+    if ((WSARecv(dskt->s, &Buffers, 1, NULL, &Flags, &dskt->r_ev.wov, NULL) ==
+         0) ||
         (WSAGetLastError() == WSA_IO_PENDING)) {
         dskt->reading = TT_TRUE;
         WSASetLastError(WSAEWOULDBLOCK);
     } else {
+        TT_NET_ERROR_NTV("fail to deliver WSARecv");
         WSASetLastError(WSAECONNABORTED);
     }
     return -1;
@@ -573,6 +579,7 @@ ares_ssize_t __dskt_sendv(IN ares_socket_t s,
     __dskt_t *dskt = __DSKT(ch, s);
     int n, i;
 
+    TT_ASSERT(!dskt->closing);
     if (dskt->writing) {
         WSASetLastError(WSAEWOULDBLOCK);
         return -1;
@@ -593,15 +600,29 @@ ares_ssize_t __dskt_sendv(IN ares_socket_t s,
         dskt->w_buf[i].len = (u_long)vec[i].iov_len;
         dskt->w_buf[i].buf = (char *)vec[i].iov_base;
     }
-    tt_memset(&dskt->w_ev.wov, 0, sizeof(WSAOVERLAPPED));
-    if ((WSASend(s, dskt->w_buf, n, NULL, 0, &dskt->w_ev.wov, NULL) == 0) ||
-        (WSAGetLastError() == WSA_IO_PENDING)) {
-        dskt->writing = TT_TRUE;
-        WSASetLastError(WSAEWOULDBLOCK);
+    if (dskt->udp) {
+        DWORD sent = 0;
+        if ((WSASend(dskt->s, dskt->w_buf, n, &sent, 0, NULL, NULL) == 0) ||
+            (WSAGetLastError() == WSA_IO_PENDING)) {
+            return sent;
+        } else {
+            TT_NET_ERROR_NTV("fail to deliver WSASend");
+            WSASetLastError(WSAECONNABORTED);
+            return -1;
+        }
     } else {
-        WSASetLastError(WSAECONNABORTED);
+        tt_memset(&dskt->w_ev.wov, 0, sizeof(WSAOVERLAPPED));
+        if ((WSASend(dskt->s, dskt->w_buf, n, NULL, 0, &dskt->w_ev.wov, NULL) ==
+             0) ||
+            (WSAGetLastError() == WSA_IO_PENDING)) {
+            dskt->writing = TT_TRUE;
+            WSASetLastError(WSAEWOULDBLOCK);
+        } else {
+            TT_NET_ERROR_NTV("fail to deliver WSASend");
+            WSASetLastError(WSAECONNABORTED);
+        }
+        return -1;
     }
-    return -1;
 }
 
 // ========================================

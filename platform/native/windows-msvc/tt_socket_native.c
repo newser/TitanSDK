@@ -246,6 +246,7 @@ typedef struct
     tt_u8_t *buf;
     tt_u32_t *recvd;
     tt_sktaddr_t *addr;
+    tt_sktaddr_t __addr;
     tt_u32_t len;
 
     tt_result_t result;
@@ -594,7 +595,7 @@ tt_result_t tt_skt_recvfrom_ntv(IN tt_skt_ntv_t *skt,
     skt_recvfrom.skt = skt;
     skt_recvfrom.buf = buf;
     skt_recvfrom.recvd = recvd;
-    skt_recvfrom.addr = addr;
+    skt_recvfrom.addr = TT_COND(addr != NULL, addr, &skt_recvfrom.__addr);
     skt_recvfrom.len = len;
 
     skt_recvfrom.result = TT_FAIL;
@@ -619,7 +620,7 @@ tt_result_t tt_skt_recvfrom_ntv(IN tt_skt_ntv_t *skt,
                      1,
                      NULL,
                      &Flags,
-                     (struct sockaddr *)addr,
+                     (struct sockaddr *)skt_recvfrom.addr,
                      (LPINT)&Fromlen,
                      &skt_recvfrom.io_ev.wov,
                      NULL) == 0) ||

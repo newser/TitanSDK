@@ -20,10 +20,12 @@
 
 #include <network/dns/tt_dns.h>
 
+#include <algorithm/tt_buffer_format.h>
 #include <init/tt_component.h>
 #include <init/tt_profile.h>
 #include <memory/tt_memory_alloc.h>
 #include <misc/tt_assert.h>
+#include <os/tt_task.h>
 
 #include <ares.h>
 
@@ -34,6 +36,13 @@
 ////////////////////////////////////////////////////////////
 // internal type
 ////////////////////////////////////////////////////////////
+
+typedef struct __dns_query4_s
+{
+    tt_fiber_t *src;
+    tt_sktaddr_ip_t *ip;
+    tt_result_t result;
+} __dns_query4_t;
 
 ////////////////////////////////////////////////////////////
 // extern declaration
@@ -50,11 +59,22 @@
 static tt_result_t __dns_component_init(IN tt_component_t *comp,
                                         IN tt_profile_t *profile);
 
+static void __dns_attr2option(IN tt_dns_attr_t *attr,
+                              OUT struct ares_options *options,
+                              OUT int *optmask);
+
+static tt_result_t __dns_config(IN ares_channel ch, IN tt_dns_attr_t *attr);
+
 static void *__dns_malloc(IN size_t s);
 
 static void __dns_free(IN void *p);
 
 static void *__dns_realloc(IN void *p, IN size_t s);
+
+static void __query4_cb(IN void *arg,
+                        IN int status,
+                        IN int timeouts,
+                        IN struct hostent *hostent);
 
 ////////////////////////////////////////////////////////////
 // interface implementation
@@ -79,6 +99,8 @@ tt_dns_t tt_dns_create(IN OPT tt_dns_attr_t *attr)
 {
     tt_dns_attr_t __attr;
     ares_channel ch;
+    struct ares_options options;
+    int optmask;
     int e;
 
     if (attr == NULL) {
@@ -86,9 +108,15 @@ tt_dns_t tt_dns_create(IN OPT tt_dns_attr_t *attr)
         attr = &__attr;
     }
 
-    e = ares_init(&ch);
+    __dns_attr2option(attr, &options, &optmask);
+    e = ares_init_options(&ch, &options, optmask);
     if (e != ARES_SUCCESS) {
         TT_ERROR("fail to create dns: %s", ares_strerror(e));
+        return NULL;
+    }
+
+    if (!TT_OK(__dns_config(ch, attr))) {
+        ares_destroy(ch);
         return NULL;
     }
 
@@ -113,7 +141,31 @@ void tt_dns_attr_default(IN tt_dns_attr_t *attr)
 {
     TT_ASSERT(attr != NULL);
 
-    attr->reserved = 0;
+    attr->server = NULL;
+    attr->server_num = 0;
+}
+
+tt_dns_t tt_current_dns()
+{
+    return tt_current_task()->dns;
+}
+
+tt_result_t tt_dns_query4(IN tt_dns_t d,
+                          IN const tt_char_t *name,
+                          OUT tt_sktaddr_ip_t *ip)
+{
+    __dns_query4_t dq4;
+
+    dq4.src = tt_current_fiber();
+    dq4.ip = ip;
+    dq4.result = TT_PROCEEDING;
+
+    ares_gethostbyname(d, name, AF_INET, __query4_cb, &dq4);
+    if (dq4.result == TT_PROCEEDING) {
+        tt_fiber_suspend();
+    }
+    TT_ASSERT(dq4.result != TT_PROCEEDING);
+    return dq4.result;
 }
 
 tt_result_t __dns_component_init(IN tt_component_t *comp,
@@ -134,6 +186,48 @@ tt_result_t __dns_component_init(IN tt_component_t *comp,
     return TT_SUCCESS;
 }
 
+void __dns_attr2option(IN tt_dns_attr_t *attr,
+                       OUT struct ares_options *options,
+                       OUT int *optmask)
+{
+    tt_memset(options, 0, sizeof(struct ares_options));
+    *optmask = 0;
+
+    if (attr->server != NULL) {
+        options->servers = NULL;
+        options->nservers = 0;
+        *optmask |= ARES_OPT_SERVERS;
+        // set nservers to 0 and configure servers in __dns_config()
+    }
+}
+
+tt_result_t __dns_config(IN ares_channel ch, IN tt_dns_attr_t *attr)
+{
+    if (attr->server != NULL) {
+        tt_buf_t buf;
+        tt_u32_t i;
+        int e;
+
+        TT_ASSERT(attr->server_num != 0);
+
+        tt_buf_init(&buf, NULL);
+        for (i = 0; i < attr->server_num; ++i) {
+            TT_DO(tt_buf_put_cstr(&buf, attr->server[i]));
+            TT_DO(tt_buf_put_u8(&buf, (tt_u8_t)','));
+        }
+        TT_DO(tt_buf_put_u8(&buf, 0));
+
+        e = ares_set_servers_ports_csv(ch, TT_BUF_RPOS(&buf));
+        tt_buf_destroy(&buf);
+        if (e != ARES_SUCCESS) {
+            TT_ERROR("fail to set dns servers: %s", ares_strerror(e));
+            return TT_FAIL;
+        }
+    }
+
+    return TT_SUCCESS;
+}
+
 void *__dns_malloc(IN size_t s)
 {
     return tt_malloc(s);
@@ -147,4 +241,30 @@ void __dns_free(IN void *p)
 void *__dns_realloc(IN void *p, IN size_t s)
 {
     return tt_realloc(p, s);
+}
+
+void __query4_cb(IN void *arg,
+                 IN int status,
+                 IN int timeouts,
+                 IN struct hostent *hostent)
+{
+    __dns_query4_t *dq4 = (__dns_query4_t *)arg;
+
+    TT_ASSERT(dq4->result == TT_PROCEEDING);
+
+    if ((status == ARES_SUCCESS) && (hostent != NULL) &&
+        (hostent->h_addrtype == AF_INET) && (hostent->h_addr_list != NULL) &&
+        (hostent->h_addr_list[0] != NULL)) {
+        struct in_addr *ip = (struct in_addr *)hostent->h_addr_list[0];
+        dq4->ip->a32.__u32 = ip->s_addr;
+        dq4->result = TT_SUCCESS;
+    } else if (status == ARES_ETIMEOUT) {
+        dq4->result = TT_TIME_OUT;
+    } else {
+        dq4->result = TT_FAIL;
+    }
+
+    if (tt_current_fiber() != dq4->src) {
+        tt_fiber_resume(dq4->src, TT_FALSE);
+    }
 }
