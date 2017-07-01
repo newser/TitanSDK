@@ -24,7 +24,7 @@
 // internal macro
 ////////////////////////////////////////////////////////////
 
-#define TT_DNS_UT_DECLARE(name)                                             \
+#define TT_DNS_UT_DECLARE(name)                                                \
     extern tt_test_unit_t TT_MAKE_TEST_UNIT_NAME(name);
 
 ////////////////////////////////////////////////////////////

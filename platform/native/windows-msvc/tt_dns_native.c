@@ -675,7 +675,7 @@ tt_bool_t __do_read(IN tt_io_ev_t *io_ev)
 
 tt_bool_t __do_write(IN tt_io_ev_t *io_ev)
 {
-    __dskt_t *dskt = TT_CONTAINER(io_ev, __dskt_t, r_ev);
+    __dskt_t *dskt = TT_CONTAINER(io_ev, __dskt_t, w_ev);
 
     if (dskt->closing && !dskt->reading) {
         __dskt_reset(dskt);
