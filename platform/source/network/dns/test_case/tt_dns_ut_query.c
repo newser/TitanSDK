@@ -834,7 +834,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_dns_query_exception)
     TT_UT_SUCCESS(ret, "");
     tt_task_wait(&t);
 
-    //TT_UT_EQUAL(__dns_errline, 0, "");
+    // TT_UT_EQUAL(__dns_errline, 0, "");
 
     // test end
     TT_TEST_CASE_LEAVE()
