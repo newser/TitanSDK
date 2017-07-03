@@ -132,17 +132,25 @@ void tt_dns_destroy(IN tt_dns_t d)
 {
     TT_ASSERT(d != NULL);
 
+    // the ares channel is destroyed in tt_dns_destroy_ntv()
     tt_dns_destroy_ntv(d);
-
-    ares_destroy(d);
 }
 
 void tt_dns_attr_default(IN tt_dns_attr_t *attr)
 {
     TT_ASSERT(attr != NULL);
 
+    attr->enable_edns = TT_FALSE;
+    attr->prefer_tcp = TT_FALSE;
+    attr->timeout_ms = 0;
+    attr->try_num = 0;
+    attr->send_buf_size = 0;
+    attr->recv_buf_size = 0;
     attr->server = NULL;
     attr->server_num = 0;
+    attr->local_ip4 = NULL;
+    attr->local_ip6 = NULL;
+    attr->local_device = NULL;
 }
 
 tt_dns_t tt_current_dns()
@@ -193,6 +201,35 @@ void __dns_attr2option(IN tt_dns_attr_t *attr,
     tt_memset(options, 0, sizeof(struct ares_options));
     *optmask = 0;
 
+    options->flags |= ARES_FLAG_STAYOPEN;
+    if (attr->enable_edns) {
+        options->flags |= ARES_FLAG_EDNS;
+    }
+    if (attr->prefer_tcp) {
+        options->flags |= ARES_FLAG_USEVC;
+    }
+    *optmask |= ARES_OPT_FLAGS;
+
+    if (attr->timeout_ms != 0) {
+        options->timeout = attr->timeout_ms;
+        *optmask |= ARES_OPT_TIMEOUTMS;
+    }
+
+    if (attr->try_num != 0) {
+        options->tries = attr->try_num;
+        *optmask |= ARES_OPT_TRIES;
+    }
+
+    if (attr->send_buf_size != 0) {
+        options->socket_send_buffer_size = attr->send_buf_size;
+        *optmask |= ARES_OPT_SOCK_SNDBUF;
+    }
+
+    if (attr->recv_buf_size != 0) {
+        options->socket_receive_buffer_size = attr->recv_buf_size;
+        *optmask |= ARES_OPT_SOCK_RCVBUF;
+    }
+
     if (attr->server != NULL) {
         options->servers = NULL;
         options->nservers = 0;
@@ -223,6 +260,34 @@ tt_result_t __dns_config(IN ares_channel ch, IN tt_dns_attr_t *attr)
             TT_ERROR("fail to set dns servers: %s", ares_strerror(e));
             return TT_FAIL;
         }
+    }
+
+    if (attr->local_ip4 != NULL) {
+        tt_sktaddr_t addr;
+        tt_sktaddr_ip_t ip;
+        tt_sktaddr_init(&addr, TT_NET_AF_INET);
+        if (!TT_OK(tt_sktaddr_set_ip_p(&addr, attr->local_ip4))) {
+            TT_ERROR("invalid ipv4 addr: %s", attr->local_ip4);
+            return TT_FAIL;
+        }
+        tt_sktaddr_get_ip_n(&addr, &ip);
+        ares_set_local_ip4(ch, ip.a32.__u32);
+    }
+
+    if (attr->local_ip6 != NULL) {
+        tt_sktaddr_t addr;
+        tt_sktaddr_ip_t ip;
+        tt_sktaddr_init(&addr, TT_NET_AF_INET6);
+        if (!TT_OK(tt_sktaddr_set_ip_p(&addr, attr->local_ip6))) {
+            TT_ERROR("invalid ipv6 addr: %s", attr->local_ip6);
+            return TT_FAIL;
+        }
+        tt_sktaddr_get_ip_n(&addr, &ip);
+        ares_set_local_ip6(ch, ip.a128.__u8);
+    }
+
+    if (attr->local_device != NULL) {
+        ares_set_local_dev(ch, attr->local_device);
     }
 
     return TT_SUCCESS;

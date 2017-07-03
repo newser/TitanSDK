@@ -49,6 +49,9 @@
 
 #define __DSKT(ch, i) (&(((__dskt_t *)((ch)->sock_create_cb_data))[(i)]))
 
+#define __DSKT_IDX(dskt)                                                       \
+    ((dskt) - (__dskt_t *)((dskt)->ch->sock_create_cb_data))
+
 ////////////////////////////////////////////////////////////
 // internal type
 ////////////////////////////////////////////////////////////
@@ -186,13 +189,25 @@ tt_result_t tt_dns_create_ntv(IN ares_channel ch)
 
 void tt_dns_destroy_ntv(IN ares_channel ch)
 {
-    if (ch->sock_create_cb_data != NULL) {
+    __dskt_t *p = (__dskt_t *)ch->sock_create_cb_data;
+    int n = __DSKT_NUM(ch);
+
+    // ares_destroy() need access dskt array as it would close
+    // all sockets. so ares_destroy() must be called before
+    // __dskt_destroy()
+    ares_destroy(ch);
+
+    if (p != NULL) {
         int i;
-        for (i = 0; i < __DSKT_NUM(ch); ++i) {
-            __dskt_destroy(__DSKT(ch, i));
+        for (i = 0; i < n; ++i) {
+            // no matter whether the dskt is in reading or writing
+            // as this function is generally called when io poller
+            // thread is terminated, __do_read/write/connect won't
+            // be called
+            __dskt_destroy(&p[i]);
         }
 
-        tt_free(ch->sock_create_cb_data);
+        tt_free(p);
     }
 }
 
@@ -423,7 +438,7 @@ ares_socket_t __dskt_socket(IN int af,
 
     dskt->s = s;
     dskt->udp = TT_BOOL(type == SOCK_DGRAM);
-    return (ares_socket_t)(dskt - (__dskt_t *)ch->sock_create_cb_data);
+    return __DSKT_IDX(dskt);
 
 fail:
 
@@ -586,8 +601,9 @@ ares_ssize_t __dskt_sendv(IN ares_socket_t s,
     }
 
     if (dskt->w_len > 0) {
+        tt_u32_t w_len = dskt->w_len;
         dskt->w_len = 0;
-        return dskt->w_len;
+        return w_len;
     }
 
     if (!TT_OK(dskt->w_result)) {
@@ -668,7 +684,7 @@ tt_bool_t __do_read(IN tt_io_ev_t *io_ev)
         dskt->r_result = io_ev->io_result;
     }
 
-    ares_process_fd(dskt->ch, dskt->s, ARES_SOCKET_BAD);
+    ares_process_fd(dskt->ch, __DSKT_IDX(dskt), ARES_SOCKET_BAD);
 
     return TT_TRUE;
 }
@@ -692,7 +708,7 @@ tt_bool_t __do_write(IN tt_io_ev_t *io_ev)
         dskt->w_result = io_ev->io_result;
     }
 
-    ares_process_fd(dskt->ch, ARES_SOCKET_BAD, dskt->s);
+    ares_process_fd(dskt->ch, ARES_SOCKET_BAD, __DSKT_IDX(dskt));
 
     return TT_TRUE;
 }

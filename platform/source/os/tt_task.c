@@ -268,7 +268,7 @@ tt_result_t __task_routine(IN void *param)
                 ((dns_ms = tt_dns_run(t->dns)) != TT_TIME_INFINITE) &&
                 ((wait_ms == TT_TIME_INFINITE) || (dns_ms < wait_ms))) {
                 wait_ms = dns_ms;
-                TT_INFO("wait: %d", dns_ms);
+                //TT_INFO("wait: %d", dns_ms);
             }
 
             if (!tt_io_poller_run(&t->iop, wait_ms)) {

@@ -42,8 +42,17 @@ typedef struct ares_channeldata *tt_dns_t;
 
 typedef struct
 {
+    tt_bool_t enable_edns;
+    tt_bool_t prefer_tcp;
+    tt_u32_t timeout_ms;
+    tt_u32_t try_num;
+    tt_u32_t send_buf_size;
+    tt_u32_t recv_buf_size;
     const tt_char_t **server;
     tt_u32_t server_num;
+    const tt_char_t *local_ip4;
+    const tt_char_t *local_ip6;
+    const tt_char_t *local_device;
 } tt_dns_attr_t;
 
 ////////////////////////////////////////////////////////////
