@@ -27,8 +27,8 @@
 #include <misc/tt_assert.h>
 #include <os/tt_task.h>
 
-#if TT_ENV_OS_IS_MACOS
-#include <netdb.h>
+#if TT_ENV_OS_IS_MACOS || TT_ENV_OS_IS_IOS
+#include <netdb.h> // struct hostent
 #endif
 
 #include <ares.h>

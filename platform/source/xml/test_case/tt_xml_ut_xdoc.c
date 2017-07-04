@@ -86,7 +86,11 @@ TT_TEST_CASE("tt_unit_test_xdoc_encoding",
 // interface implementation
 ////////////////////////////////////////////////////////////
 
+#if TT_ENV_OS_IS_IOS
+#define __UT_XF_PATH "/tmp/tt_test_xml"
+#else
 #define __UT_XF_PATH "tt_test_xml"
+#endif
 
     /*
     TT_TEST_ROUTINE_DEFINE(tt_unit_test_xdoc_render)

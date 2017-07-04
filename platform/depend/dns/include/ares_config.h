@@ -28,7 +28,7 @@
 #define GETHOSTNAME_TYPE_ARG2 size_t
 
 /* Define to the type qualifier of arg 1 for getnameinfo. */
-#define GETNAMEINFO_QUAL_ARG1 
+#define GETNAMEINFO_QUAL_ARG1
 
 /* Define to the type of arg 1 for getnameinfo. */
 #define GETNAMEINFO_TYPE_ARG1 struct sockaddr *
@@ -43,7 +43,7 @@
 #define GETNAMEINFO_TYPE_ARG7 int
 
 /* Specifies the number of arguments to getservbyport_r */
-#define GETSERVBYPORT_R_ARGS 
+#define GETSERVBYPORT_R_ARGS
 
 /* Define to 1 if you have AF_INET6. */
 #define HAVE_AF_INET6
@@ -103,7 +103,7 @@
 #define HAVE_GETADDRINFO
 
 /* Define to 1 if the getaddrinfo function is threadsafe. */
-#define HAVE_GETADDRINFO_THREADSAFE
+/* #undef HAVE_GETADDRINFO_THREADSAFE */
 
 /* Define to 1 if you have the getenv function. */
 #define HAVE_GETENV
@@ -341,7 +341,7 @@
 /* #undef RANDOM_FILE */
 
 /* Define to the type qualifier pointed by arg 5 for recvfrom. */
-#define RECVFROM_QUAL_ARG5 
+#define RECVFROM_QUAL_ARG5
 
 /* Define to the type of arg 1 for recvfrom. */
 #define RECVFROM_TYPE_ARG1 int
@@ -389,10 +389,10 @@
 #define RECV_TYPE_RETV ssize_t
 
 /* Define as the return type of signal handlers (`int' or `void'). */
-#define RETSIGTYPE 
+#define RETSIGTYPE
 
 /* Define to the type qualifier of arg 2 for send. */
-#define SEND_QUAL_ARG2 
+#define SEND_QUAL_ARG2
 
 /* Define to the type of arg 1 for send. */
 #define SEND_TYPE_ARG1 int
@@ -420,4 +420,3 @@
 
 /* Type to use in place of in_addr_t when system does not provide it. */
 #undef in_addr_t
-
