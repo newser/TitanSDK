@@ -48,7 +48,7 @@ TT_TEST_ROUTINE_DECLARE(tt_unit_test_dns_query_exception)
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(dns_query_case)
 
-#if 0
+#if 1
 TT_TEST_CASE("tt_unit_test_dns_query_basic",
              "dns query",
              tt_unit_test_dns_query_basic,
@@ -59,36 +59,33 @@ TT_TEST_CASE("tt_unit_test_dns_query_basic",
              NULL)
 ,
 
-TT_TEST_CASE("tt_unit_test_dns_query_u2t",
-             "dns query fail over",
-             tt_unit_test_dns_query_u2t,
-             NULL,
-             NULL,
-             NULL,
-             NULL,
-             NULL)
-,
+    TT_TEST_CASE("tt_unit_test_dns_query_u2t",
+                 "dns query fail over",
+                 tt_unit_test_dns_query_u2t,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL),
 
-TT_TEST_CASE("tt_unit_test_dns_query_timeout",
-             "dns query time out",
-             tt_unit_test_dns_query_timeout,
-             NULL,
-             NULL,
-             NULL,
-             NULL,
-             NULL)
-,
+    TT_TEST_CASE("tt_unit_test_dns_query_timeout",
+                 "dns query time out",
+                 tt_unit_test_dns_query_timeout,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL),
 #endif
 
-TT_TEST_CASE("tt_unit_test_dns_query_exception",
-             "dns query exceptional case",
-             tt_unit_test_dns_query_exception,
-             NULL,
-             NULL,
-             NULL,
-             NULL,
-             NULL)
-,
+    TT_TEST_CASE("tt_unit_test_dns_query_exception",
+                 "dns query exceptional case",
+                 tt_unit_test_dns_query_exception,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL),
 
     TT_TEST_CASE_LIST_DEFINE_END(dns_query_case)
     // =========================================
@@ -187,6 +184,7 @@ static tt_result_t __udp_svr1(IN void *param)
 
     tt_skt_destroy(s);
 
+    DUT_INFO("udp svr1 exit");
     return TT_SUCCESS;
 }
 
@@ -317,6 +315,8 @@ static tt_result_t __tcp_answer(IN tt_skt_t *s,
         n += sizeof(ans);
         buf[0] = (n >> 8);
         buf[1] = n & 0xFF;
+    } else {
+        msglen = 0;
     }
 
     if (len >= 5) {
@@ -373,10 +373,12 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_dns_query_basic)
     const tt_char_t *svr[] = {
         "127.0.0.1:43210", "127.0.0.1:43211",
     };
-    __svr_param_t sp[2] = {0};
+    __svr_param_t sp[2];
 
     TT_TEST_CASE_ENTER()
     // test start
+
+    tt_memset(sp, 0, sizeof(sp));
 
     __dns_errline = 0;
     __udp_tc = TT_FALSE;
@@ -490,10 +492,12 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_dns_query_u2t)
     const tt_char_t *svr[] = {
         "[::1]:43210", "[::1]:43211",
     };
-    __svr_param_t sp[3] = {0};
+    __svr_param_t sp[3];
 
     TT_TEST_CASE_ENTER()
     // test start
+
+    tt_memset(sp, 0, sizeof(sp));
 
     __dns_errline = 0;
     __udp_tc = TT_TRUE;
@@ -584,10 +588,12 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_dns_query_timeout)
     const tt_char_t *svr[] = {
         "127.0.0.1:43210", "127.0.0.1:43211",
     };
-    __svr_param_t sp[3] = {0};
+    __svr_param_t sp[3];
 
     TT_TEST_CASE_ENTER()
     // test start
+
+    tt_memset(sp, 0, sizeof(sp));
 
     __dns_errline = 0;
     __udp_tc = TT_TRUE;
@@ -597,7 +603,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_dns_query_timeout)
     attr.dns_attr.server = svr;
     attr.dns_attr.server_num = sizeof(svr) / sizeof(svr[0]);
     attr.dns_attr.timeout_ms = 1000;
-    attr.dns_attr.try_num = 5;
+    attr.dns_attr.try_num = 3;
 
     ret = tt_task_create(&t, &attr);
     TT_UT_SUCCESS(ret, "");
@@ -738,6 +744,8 @@ static tt_result_t __tcp_answer_rand(IN tt_skt_t *s,
         n += sizeof(ans);
         buf[0] = (n >> 8);
         buf[1] = n & 0xFF;
+    } else {
+        msglen = 0;
     }
 
     if (len >= 5) {
@@ -788,10 +796,12 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_dns_query_exception)
     const tt_char_t *svr[] = {
         "127.0.0.1:53210", "[::1]:53211",
     };
-    __svr_param_t sp[4] = {0};
+    __svr_param_t sp[4];
 
     TT_TEST_CASE_ENTER()
     // test start
+
+    tt_memset(sp, 0, sizeof(sp));
 
     __dns_errline = 0;
 

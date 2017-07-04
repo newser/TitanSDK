@@ -43,6 +43,7 @@ include_directories(${PLATFORM_PATH}/depend/tls/mbedtls/include/mbedtls)
 
 # depend: dns
 include_directories(${PLATFORM_PATH}/depend/dns/c-ares)
+include_directories(${PLATFORM_PATH}/depend/dns/include)
 
 #
 # source file

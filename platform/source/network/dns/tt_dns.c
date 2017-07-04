@@ -27,6 +27,10 @@
 #include <misc/tt_assert.h>
 #include <os/tt_task.h>
 
+#if TT_ENV_OS_IS_MACOS
+#include <netdb.h>
+#endif
+
 #include <ares.h>
 
 ////////////////////////////////////////////////////////////
@@ -254,7 +258,7 @@ tt_result_t __dns_config(IN ares_channel ch, IN tt_dns_attr_t *attr)
         }
         TT_DO(tt_buf_put_u8(&buf, 0));
 
-        e = ares_set_servers_ports_csv(ch, TT_BUF_RPOS(&buf));
+        e = ares_set_servers_ports_csv(ch, (const char *)TT_BUF_RPOS(&buf));
         tt_buf_destroy(&buf);
         if (e != ARES_SUCCESS) {
             TT_ERROR("fail to set dns servers: %s", ares_strerror(e));

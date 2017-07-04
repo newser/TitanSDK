@@ -212,6 +212,16 @@ tt_result_t tt_task_run_local(IN tt_task_t *t)
     return TT_SUCCESS;
 }
 
+void __cfs_run(IN tt_fiber_sched_t *cfs)
+{
+    tt_fiber_t *fb;
+    while ((fb = tt_fiber_sched_next(cfs)) != cfs->__main) {
+        // run until there is no active fiber
+        tt_fiber_resume(fb, TT_FALSE);
+        continue;
+    }
+}
+
 tt_result_t __task_routine(IN void *param)
 {
     tt_task_t *t = (tt_task_t *)param;
@@ -219,6 +229,7 @@ tt_result_t __task_routine(IN void *param)
     tt_snode_t *node;
     tt_fiber_sched_t *cfs = thread->fiber_sched;
     tt_tmr_mgr_t *tmr_mgr = &t->tmr_mgr;
+    tt_fiber_t *fb;
 
     // note t->thread may not be set yet
     thread->task = t;
@@ -247,6 +258,49 @@ tt_result_t __task_routine(IN void *param)
         tt_fiber_resume(tf->fb, TT_FALSE);
     }
 
+    while ((fb = tt_fiber_sched_next(cfs)) != cfs->__main) {
+        tt_fiber_resume(fb, TT_FALSE);
+        continue;
+    }
+    while (1) {
+        tt_s64_t wait_ms, dns_ms;
+
+        wait_ms = tt_tmr_mgr_run(tmr_mgr);
+
+        if ((t->dns != NULL) &&
+            ((dns_ms = tt_dns_run(t->dns)) != TT_TIME_INFINITE) &&
+            ((wait_ms == TT_TIME_INFINITE) || (dns_ms < wait_ms))) {
+            wait_ms = dns_ms;
+            TT_INFO("wait: %d", dns_ms);
+        }
+
+        fb = tt_fiber_sched_next(cfs);
+        if (fb != cfs->__main) {
+            // after processing timer events, some fibers become active
+            // so let's run all active fibers again, and after that we
+            // also need check if there is new timer
+            do {
+                tt_fiber_resume(fb, TT_FALSE);
+            } while ((fb = tt_fiber_sched_next(cfs)) != cfs->__main);
+            continue;
+        }
+
+        // it's possible that all fibers terminate
+        if (tt_fiber_sched_empty(cfs)) {
+            break;
+        }
+
+        // now we are sure:
+        //  - no active fiber, but must be some pending fibers
+        //  - all timer events are processed
+        //  - wais_ms is accurate
+        if (!tt_io_poller_run(&t->iop, wait_ms)) {
+            // main fiber indicates exit
+            break;
+        }
+    };
+
+#if 0 // old implementation, to be removed
     // run untill all fibers exit
     while (!tt_fiber_sched_empty(cfs)) {
         tt_fiber_t *fb = tt_fiber_sched_next(cfs);
@@ -257,18 +311,19 @@ tt_result_t __task_routine(IN void *param)
             tt_s64_t wait_ms, dns_ms;
 
             wait_ms = tt_tmr_mgr_run(tmr_mgr);
-            // tt_tmr_mgr_run() may awake some fiber so need check if all fibers
-            // are terminated, otherwise the main fiber would hang in
-            // tt_io_poller_run()
-            if (tt_fiber_sched_empty(cfs)) {
-                break;
-            }
 
             if ((t->dns != NULL) &&
                 ((dns_ms = tt_dns_run(t->dns)) != TT_TIME_INFINITE) &&
                 ((wait_ms == TT_TIME_INFINITE) || (dns_ms < wait_ms))) {
                 wait_ms = dns_ms;
-                // TT_INFO("wait: %d", dns_ms);
+                TT_INFO("wait: %d", dns_ms);
+            }
+
+            // tt_tmr_mgr_run() may awake some fiber so need check if all fibers
+            // are terminated, otherwise the main fiber would hang in
+            // tt_io_poller_run()
+            if (tt_fiber_sched_empty(cfs)) {
+                break;
             }
 
             if (!tt_io_poller_run(&t->iop, wait_ms)) {
@@ -277,6 +332,7 @@ tt_result_t __task_routine(IN void *param)
             }
         }
     }
+#endif
 
     return TT_SUCCESS;
 }

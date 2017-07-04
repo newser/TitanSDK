@@ -84,6 +84,7 @@ include_directories(${PLATFORM_PATH}/depend/xml/pugixml)
 
 # depend: dns
 include_directories(${PLATFORM_PATH}/depend/dns/c-ares)
+include_directories(${PLATFORM_PATH}/depend/dns/include)
 
 #
 # source file

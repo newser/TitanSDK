@@ -484,10 +484,12 @@ IF (HAVE_WINDOWS_H)
 ENDIF()
 
 # Write ares_build.h configuration file.  This is an installed file.
-CONFIGURE_FILE (ares_build.h.cmake ${PROJECT_BINARY_DIR}/ares_build.h)
+#CONFIGURE_FILE (ares_build.h.cmake ${PROJECT_BINARY_DIR}/ares_build.h)
+CONFIGURE_FILE (ares_build.h.cmake ${DNS_PATH}/../include/ares_build.h)
 
 # Write ares_config.h configuration file.  This is used only for the build.
-CONFIGURE_FILE (ares_config.h.cmake ${PROJECT_BINARY_DIR}/ares_config.h)
+#CONFIGURE_FILE (ares_config.h.cmake ${PROJECT_BINARY_DIR}/ares_config.h)
+CONFIGURE_FILE (ares_config.h.cmake ${DNS_PATH}/../include/ares_config.h)
 
 
 # TRANSFORM_MAKEFILE_INC

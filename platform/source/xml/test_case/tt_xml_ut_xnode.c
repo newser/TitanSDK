@@ -230,7 +230,8 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xnode_int)
     TT_UT_EQUAL(tt_xnode_get_u32(xa, 0), 0, "");
     TT_UT_EQUAL(tt_xnode_get_s32(xa, 0), -2147483648LL, ""); // truncated
     TT_UT_EQUAL(tt_xnode_get_u64(xa, 0), 0, "");
-    TT_UT_EQUAL(tt_xnode_get_s64(xa, 0), -9223372036854775808LL, "");
+    // TT_UT_EQUAL(tt_xnode_get_s64(xa, 0), -9223372036854775808LL, "");
+    TT_UT_EQUAL(tt_xnode_get_s64(xa, 0), (tt_s64_t)0x8000000000000000, "");
     // TT_UT_EQUAL(tt_xnode_get_float(xa, 0), -9.22337203E+18, "");
     // TT_UT_EQUAL(tt_xnode_get_double(xa, 0), -9.2233720368547758E+18, "");
 

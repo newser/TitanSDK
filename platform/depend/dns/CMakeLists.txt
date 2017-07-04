@@ -34,6 +34,9 @@ hide(CARES_SHARED BOOL OFF)
 hide(CARES_INSTALL BOOL OFF)
 hide(CARES_STATIC_PIC BOOL OFF)
 
+# customize configuration
+add_definitions(-DHAVE_CONFIG_H)
+
 add_subdirectory(${DNS_PATH})
 
 #

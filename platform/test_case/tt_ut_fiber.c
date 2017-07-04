@@ -63,7 +63,7 @@ TT_TEST_ROUTINE_DECLARE(tt_unit_test_task)
 
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(fiber_case)
-#if 0
+
 TT_TEST_CASE("tt_unit_test_fiber_basic",
              "testing basic fiber API",
              tt_unit_test_fiber_basic,
@@ -109,17 +109,15 @@ TT_TEST_CASE("tt_unit_test_fiber_basic",
                  NULL,
                  NULL,
                  NULL),
-#endif
 
-TT_TEST_CASE("tt_unit_test_task",
-             "testing task basic",
-             tt_unit_test_task,
-             NULL,
-             NULL,
-             NULL,
-             NULL,
-             NULL)
-,
+    TT_TEST_CASE("tt_unit_test_task",
+                 "testing task basic",
+                 tt_unit_test_task,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL),
 
     TT_TEST_CASE("tt_unit_test_fiber_event",
                  "testing fiber event send/recv",
