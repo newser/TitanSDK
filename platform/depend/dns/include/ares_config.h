@@ -43,7 +43,7 @@
 #define GETNAMEINFO_TYPE_ARG7 int
 
 /* Specifies the number of arguments to getservbyport_r */
-#define GETSERVBYPORT_R_ARGS 6
+#define GETSERVBYPORT_R_ARGS
 
 /* Define to 1 if you have AF_INET6. */
 #define HAVE_AF_INET6
@@ -103,7 +103,7 @@
 #define HAVE_GETADDRINFO
 
 /* Define to 1 if the getaddrinfo function is threadsafe. */
-/* #undef HAVE_GETADDRINFO_THREADSAFE */
+#define HAVE_GETADDRINFO_THREADSAFE
 
 /* Define to 1 if you have the getenv function. */
 #define HAVE_GETENV
@@ -121,7 +121,7 @@
 #define HAVE_GETNAMEINFO
 
 /* Define to 1 if you have the getservbyport_r function. */
-#define HAVE_GETSERVBYPORT_R
+/* #undef HAVE_GETSERVBYPORT_R */
 
 /* Define to 1 if you have the `gettimeofday' function. */
 #define HAVE_GETTIMEOFDAY
@@ -130,7 +130,7 @@
 #define HAVE_IF_INDEXTONAME
 
 /* Define to 1 if you have a IPv6 capable working inet_net_pton function. */
-/* #undef HAVE_INET_NET_PTON */
+#define HAVE_INET_NET_PTON
 
 /* Define to 1 if you have a IPv6 capable working inet_ntop function. */
 #define HAVE_INET_NTOP
@@ -164,7 +164,7 @@
 #define HAVE_IOCTL_SIOCGIFADDR
 
 /* Define to 1 if you have the `resolve' library (-lresolve). */
-/* #undef HAVE_LIBRESOLV */
+#define HAVE_LIBRESOLV
 
 /* Define to 1 if you have the <limits.h> header file. */
 #define HAVE_LIMITS_H
@@ -176,13 +176,13 @@
 #define HAVE_LONGLONG
 
 /* Define to 1 if you have the malloc.h header file. */
-#define HAVE_MALLOC_H
+/* #undef HAVE_MALLOC_H */
 
 /* Define to 1 if you have the memory.h header file. */
 #define HAVE_MEMORY_H
 
 /* Define to 1 if you have the MSG_NOSIGNAL flag. */
-#define HAVE_MSG_NOSIGNAL
+/* #undef HAVE_MSG_NOSIGNAL */
 
 /* Define to 1 if you have the <netdb.h> header file. */
 #define HAVE_NETDB_H
@@ -269,7 +269,7 @@
 /* #undef HAVE_STRNICMP */
 
 /* Define to 1 if you have the <stropts.h> header file. */
-#define HAVE_STROPTS_H
+/* #undef HAVE_STROPTS_H */
 
 /* Define to 1 if you have struct addrinfo. */
 #define HAVE_STRUCT_ADDRINFO

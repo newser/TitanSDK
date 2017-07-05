@@ -36,6 +36,7 @@
 // type definition
 ////////////////////////////////////////////////////////////
 
+struct tt_profile_s;
 struct ares_channeldata;
 struct tt_io_ev_s;
 
@@ -46,6 +47,11 @@ struct tt_io_ev_s;
 ////////////////////////////////////////////////////////////
 // interface declaration
 ////////////////////////////////////////////////////////////
+
+tt_inline tt_result_t tt_dns_component_init_ntv(IN struct tt_profile_s *profile)
+{
+    return TT_SUCCESS;
+}
 
 extern tt_result_t tt_dns_create_ntv(IN struct ares_channeldata *ch);
 
