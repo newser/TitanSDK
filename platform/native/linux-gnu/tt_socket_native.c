@@ -341,7 +341,7 @@ tt_result_t tt_skt_create_ntv(IN tt_skt_ntv_t *skt,
         goto fail;
     }
 
-    epfd = tt_current_fiber_sched()->thread->task->iop.sys_iop.ep;
+    epfd = tt_current_task()->iop.sys_iop.ep;
     event.events = EPOLLRDHUP | EPOLLONESHOT;
     event.data.ptr = &__s_null_io_ev;
     if (epoll_ctl(epfd, EPOLL_CTL_ADD, s, &event) != 0) {

@@ -25,6 +25,7 @@
 #include <os/tt_fiber.h>
 #include <os/tt_task.h>
 
+#include <tt_dns_native.h>
 #include <tt_ipc_native.h>
 #include <tt_socket_native.h>
 #include <tt_sys_error.h>
@@ -74,8 +75,10 @@ static tt_bool_t __skt_io(IN tt_io_ev_t *io_ev, IN tt_io_poller_ntv_t *sys_iop);
 
 static tt_bool_t __ipc_io(IN tt_io_ev_t *io_ev, IN tt_io_poller_ntv_t *sys_iop);
 
+static tt_bool_t __dns_io(IN tt_io_ev_t *io_ev, IN tt_io_poller_ntv_t *sys_iop);
+
 static __io_handler_t __io_handler[TT_IO_NUM] = {
-    __worker_io, __poller_io, NULL, __skt_io, __ipc_io,
+    __worker_io, __poller_io, NULL, __skt_io, __ipc_io, NULL, __dns_io,
 };
 
 static tt_io_ev_t __s_poller_io_ev;
@@ -242,6 +245,7 @@ tt_bool_t tt_io_poller_run_ntv(IN tt_io_poller_ntv_t *sys_iop,
         for (i = 0; i < nev; ++i) {
             tt_io_ev_t *io_ev = (tt_io_ev_t *)ev[i].data.ptr;
 
+            io_ev->epev = &ev[i];
             if (!__io_handler[io_ev->io](io_ev, sys_iop)) {
                 return TT_FALSE;
             }
@@ -408,6 +412,13 @@ tt_bool_t __ipc_io(IN tt_io_ev_t *io_ev, IN tt_io_poller_ntv_t *sys_iop)
         TT_ASSERT(io_ev->src != NULL);
         tt_fiber_resume(io_ev->src, TT_TRUE);
     }
+
+    return TT_TRUE;
+}
+
+tt_bool_t __dns_io(IN tt_io_ev_t *io_ev, IN tt_io_poller_ntv_t *sys_iop)
+{
+    tt_dns_poller_io(io_ev);
 
     return TT_TRUE;
 }

@@ -27,7 +27,7 @@
 #include <misc/tt_assert.h>
 #include <os/tt_task.h>
 
-#if TT_ENV_OS_IS_MACOS || TT_ENV_OS_IS_IOS
+#if TT_ENV_OS_IS_MACOS || TT_ENV_OS_IS_IOS || TT_ENV_OS_IS_LINUX
 #include <netdb.h> // struct hostent
 #endif
 
@@ -192,6 +192,10 @@ tt_result_t __dns_component_init(IN tt_component_t *comp,
     e = ares_library_init_mem(flags, __dns_malloc, __dns_free, __dns_realloc);
     if (e != ARES_SUCCESS) {
         TT_ERROR("fail to ini ares: %s", ares_strerror(e));
+        return TT_FAIL;
+    }
+
+    if (!TT_OK(tt_dns_component_init_ntv(profile))) {
         return TT_FAIL;
     }
 

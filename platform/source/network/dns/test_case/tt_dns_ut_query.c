@@ -48,7 +48,6 @@ TT_TEST_ROUTINE_DECLARE(tt_unit_test_dns_query_exception)
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(dns_query_case)
 
-#if 1
 TT_TEST_CASE("tt_unit_test_dns_query_basic",
              "dns query",
              tt_unit_test_dns_query_basic,
@@ -59,6 +58,7 @@ TT_TEST_CASE("tt_unit_test_dns_query_basic",
              NULL)
 ,
 
+#if 1
     TT_TEST_CASE("tt_unit_test_dns_query_u2t",
                  "dns query fail over",
                  tt_unit_test_dns_query_u2t,
@@ -76,7 +76,6 @@ TT_TEST_CASE("tt_unit_test_dns_query_basic",
                  NULL,
                  NULL,
                  NULL),
-#endif
 
     TT_TEST_CASE("tt_unit_test_dns_query_exception",
                  "dns query exceptional case",
@@ -86,6 +85,7 @@ TT_TEST_CASE("tt_unit_test_dns_query_basic",
                  NULL,
                  NULL,
                  NULL),
+#endif
 
     TT_TEST_CASE_LIST_DEFINE_END(dns_query_case)
     // =========================================

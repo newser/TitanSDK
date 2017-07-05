@@ -33,10 +33,6 @@ this file provided some basic utilities for platform usage
 #include <errno.h>
 #include <unistd.h>
 
-#ifdef TT_PLATFORM_SSL_ENABLE
-#include <openssl/err.h>
-#endif
-
 ////////////////////////////////////////////////////////////
 // macro definition
 ////////////////////////////////////////////////////////////
@@ -55,29 +51,6 @@ this file provided some basic utilities for platform usage
         }                                                                      \
     } while (0)
 
-#ifdef TT_PLATFORM_SSL_ENABLE
-#define __SSL_ERROR(...)                                                       \
-    do {                                                                       \
-        unsigned long __e;                                                     \
-                                                                               \
-        TT_ERROR(__VA_ARGS__);                                                 \
-        while ((__e = ERR_get_error()) != 0) {                                 \
-            __SSL_ERROR_STRING(__e);                                           \
-        }                                                                      \
-    } while (0)
-#define __SSL_ERROR_STRING(e)                                                  \
-    do {                                                                       \
-        TT_ERROR("ssl error: [%d][%s][%s][%s]",                                \
-                 (e),                                                          \
-                 ERR_lib_error_string((e)),                                    \
-                 ERR_func_error_string((e)),                                   \
-                 ERR_reason_error_string((e)));                                \
-    } while (0)
-#else
-#define __SSL_ERROR(...)
-#define __SSL_ERROR_STRING(e)
-#endif
-
 #define tt_ep_read(epfd, fd, ptr)                                              \
     tt_epoll((epfd),                                                           \
              EPOLL_CTL_MOD,                                                    \
@@ -89,6 +62,13 @@ this file provided some basic utilities for platform usage
 
 #define tt_ep_write(epfd, fd, ptr)                                             \
     tt_epoll((epfd), EPOLL_CTL_MOD, (fd), (EPOLLOUT | EPOLLONESHOT), (ptr))
+
+#define tt_ep_read_write(epfd, fd, ptr)                                        \
+    tt_epoll((epfd),                                                           \
+             EPOLL_CTL_MOD,                                                    \
+             (fd),                                                             \
+             (EPOLLIN | EPOLLOUT | EPOLLRDHUP | EPOLLONESHOT),                 \
+             (ptr))
 
 ////////////////////////////////////////////////////////////
 // type definition
