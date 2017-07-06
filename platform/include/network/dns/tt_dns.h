@@ -82,4 +82,8 @@ extern tt_result_t tt_dns_query4(IN tt_dns_t d,
                                  IN const tt_char_t *name,
                                  OUT tt_sktaddr_ip_t *ip);
 
+extern tt_result_t tt_dns_query6(IN tt_dns_t d,
+                                 IN const tt_char_t *name,
+                                 OUT tt_sktaddr_ip_t *ip);
+
 #endif /* __TT_DNS__ */

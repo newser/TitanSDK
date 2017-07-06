@@ -46,7 +46,7 @@ typedef struct __dns_query4_s
     tt_fiber_t *src;
     tt_sktaddr_ip_t *ip;
     tt_result_t result;
-} __dns_query4_t;
+} __dns_query_t;
 
 ////////////////////////////////////////////////////////////
 // extern declaration
@@ -76,6 +76,11 @@ static void __dns_free(IN void *p);
 static void *__dns_realloc(IN void *p, IN size_t s);
 
 static void __query4_cb(IN void *arg,
+                        IN int status,
+                        IN int timeouts,
+                        IN struct hostent *hostent);
+
+static void __query6_cb(IN void *arg,
                         IN int status,
                         IN int timeouts,
                         IN struct hostent *hostent);
@@ -166,18 +171,36 @@ tt_result_t tt_dns_query4(IN tt_dns_t d,
                           IN const tt_char_t *name,
                           OUT tt_sktaddr_ip_t *ip)
 {
-    __dns_query4_t dq4;
+    __dns_query_t dq;
 
-    dq4.src = tt_current_fiber();
-    dq4.ip = ip;
-    dq4.result = TT_PROCEEDING;
+    dq.src = tt_current_fiber();
+    dq.ip = ip;
+    dq.result = TT_PROCEEDING;
 
-    ares_gethostbyname(d, name, AF_INET, __query4_cb, &dq4);
-    if (dq4.result == TT_PROCEEDING) {
+    ares_gethostbyname(d, name, AF_INET, __query4_cb, &dq);
+    if (dq.result == TT_PROCEEDING) {
         tt_fiber_suspend();
     }
-    TT_ASSERT(dq4.result != TT_PROCEEDING);
-    return dq4.result;
+    TT_ASSERT(dq.result != TT_PROCEEDING);
+    return dq.result;
+}
+
+tt_result_t tt_dns_query6(IN tt_dns_t d,
+                          IN const tt_char_t *name,
+                          OUT tt_sktaddr_ip_t *ip)
+{
+    __dns_query_t dq;
+
+    dq.src = tt_current_fiber();
+    dq.ip = ip;
+    dq.result = TT_PROCEEDING;
+
+    ares_gethostbyname(d, name, AF_INET6, __query6_cb, &dq);
+    if (dq.result == TT_PROCEEDING) {
+        tt_fiber_suspend();
+    }
+    TT_ASSERT(dq.result != TT_PROCEEDING);
+    return dq.result;
 }
 
 tt_result_t __dns_component_init(IN tt_component_t *comp,
@@ -321,23 +344,49 @@ void __query4_cb(IN void *arg,
                  IN int timeouts,
                  IN struct hostent *hostent)
 {
-    __dns_query4_t *dq4 = (__dns_query4_t *)arg;
+    __dns_query_t *dq = (__dns_query_t *)arg;
 
-    TT_ASSERT(dq4->result == TT_PROCEEDING);
+    TT_ASSERT(dq->result == TT_PROCEEDING);
 
     if ((status == ARES_SUCCESS) && (hostent != NULL) &&
         (hostent->h_addrtype == AF_INET) && (hostent->h_addr_list != NULL) &&
         (hostent->h_addr_list[0] != NULL)) {
         struct in_addr *ip = (struct in_addr *)hostent->h_addr_list[0];
-        dq4->ip->a32.__u32 = ip->s_addr;
-        dq4->result = TT_SUCCESS;
+        dq->ip->a32.__u32 = ip->s_addr;
+        dq->result = TT_SUCCESS;
     } else if (status == ARES_ETIMEOUT) {
-        dq4->result = TT_TIME_OUT;
+        dq->result = TT_TIME_OUT;
     } else {
-        dq4->result = TT_FAIL;
+        dq->result = TT_FAIL;
     }
 
-    if (tt_current_fiber() != dq4->src) {
-        tt_fiber_resume(dq4->src, TT_FALSE);
+    if (tt_current_fiber() != dq->src) {
+        tt_fiber_resume(dq->src, TT_FALSE);
+    }
+}
+
+void __query6_cb(IN void *arg,
+                 IN int status,
+                 IN int timeouts,
+                 IN struct hostent *hostent)
+{
+    __dns_query_t *dq = (__dns_query_t *)arg;
+
+    TT_ASSERT(dq->result == TT_PROCEEDING);
+
+    if ((status == ARES_SUCCESS) && (hostent != NULL) &&
+        (hostent->h_addrtype == AF_INET6) && (hostent->h_addr_list != NULL) &&
+        (hostent->h_addr_list[0] != NULL)) {
+        struct in6_addr *ip = (struct in6_addr *)hostent->h_addr_list[0];
+        tt_memcpy(dq->ip->a128.__u8, ip->__u6_addr.__u6_addr8, 16);
+        dq->result = TT_SUCCESS;
+    } else if (status == ARES_ETIMEOUT) {
+        dq->result = TT_TIME_OUT;
+    } else {
+        dq->result = TT_FAIL;
+    }
+
+    if (tt_current_fiber() != dq->src) {
+        tt_fiber_resume(dq->src, TT_FALSE);
     }
 }

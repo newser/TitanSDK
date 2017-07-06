@@ -43,11 +43,14 @@ TT_TEST_ROUTINE_DECLARE(tt_unit_test_dns_query_basic)
 TT_TEST_ROUTINE_DECLARE(tt_unit_test_dns_query_u2t)
 TT_TEST_ROUTINE_DECLARE(tt_unit_test_dns_query_timeout)
 TT_TEST_ROUTINE_DECLARE(tt_unit_test_dns_query_exception)
+TT_TEST_ROUTINE_DECLARE(tt_unit_test_dns_query4_first6)
+TT_TEST_ROUTINE_DECLARE(tt_unit_test_dns_query6_first4)
 // =========================================
 
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(dns_query_case)
 
+#if 0
 TT_TEST_CASE("tt_unit_test_dns_query_basic",
              "dns query",
              tt_unit_test_dns_query_basic,
@@ -58,7 +61,6 @@ TT_TEST_CASE("tt_unit_test_dns_query_basic",
              NULL)
 ,
 
-#if 1
     TT_TEST_CASE("tt_unit_test_dns_query_u2t",
                  "dns query fail over",
                  tt_unit_test_dns_query_u2t,
@@ -86,6 +88,25 @@ TT_TEST_CASE("tt_unit_test_dns_query_basic",
                  NULL,
                  NULL),
 #endif
+
+TT_TEST_CASE("tt_unit_test_dns_query4_first6",
+             "dns query ip but ipv6 first",
+             tt_unit_test_dns_query4_first6,
+             NULL,
+             NULL,
+             NULL,
+             NULL,
+             NULL)
+,
+
+    TT_TEST_CASE("tt_unit_test_dns_query6_first4",
+                 "dns query ipv6 but ip first",
+                 tt_unit_test_dns_query6_first4,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL),
 
     TT_TEST_CASE_LIST_DEFINE_END(dns_query_case)
     // =========================================
@@ -845,6 +866,242 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_dns_query_exception)
     tt_task_wait(&t);
 
     // TT_UT_EQUAL(__dns_errline, 0, "");
+
+    // test end
+    TT_TEST_CASE_LEAVE()
+}
+
+static tt_result_t __dns_query_46(IN void *param)
+{
+    tt_sktaddr_ip_t ip;
+    tt_result_t ret;
+    tt_fiber_t *fb;
+
+    ret = tt_dns_query4(tt_current_dns(), "163.com", &ip);
+    if (TT_OK(ret)) {
+        // no ip, only ipv6
+        __dns_errline = __LINE__;
+        tt_task_exit(NULL);
+        return TT_FAIL;
+    }
+
+    ret = tt_dns_query4(tt_current_dns(), "163.com", &ip);
+    if (!TT_OK(ret)) {
+        __dns_errline = __LINE__;
+        tt_task_exit(NULL);
+        return TT_FAIL;
+    }
+    if (ip.a32.__u32 != 0x0a090807) {
+        __dns_errline = __LINE__;
+        tt_task_exit(NULL);
+        return TT_FAIL;
+    }
+
+    fb = tt_fiber_find("udp1");
+    if (fb != NULL) {
+        tt_fiber_ev_t *fev = tt_fiber_ev_create(0, 0);
+        tt_fiber_send(fb, fev, TT_FALSE);
+    }
+
+    return TT_SUCCESS;
+}
+
+static tt_result_t __udp_answer46(IN tt_skt_t *s,
+                                  IN tt_u8_t *buf,
+                                  IN tt_u32_t len,
+                                  IN tt_sktaddr_t *addr)
+{
+    static int n = 0;
+
+    if (n++ == 0) {
+        // ipv6
+        const tt_u8_t ans[] = {3,   '1',  '6', '3', 3,   'c', 'o', 'm', 0,
+                               0,   0x1c, 0,   1,   1,   2,   3,   4,   0,
+                               4,   0x1,  0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8,
+                               0x9, 0xa,  0xb, 0xc, 0xd, 0xe, 0xf, 0x0};
+
+        if (len >= 3) {
+            buf[2] |= 0x80; // response
+        }
+        if (len >= 8) {
+            buf[7] |= 1; // 1 answer
+        }
+        tt_memcpy(&buf[len], ans, sizeof(ans));
+
+        return tt_skt_sendto(s, buf, len + sizeof(ans), NULL, addr);
+    } else {
+        const tt_u8_t ans[] = {3, '1', '6', '3', 3, 'c', 'o', 'm', 0, 0, 1, 0,
+                               1, 1,   2,   3,   4, 0,   4,   7,   8, 9, 10};
+        // ipv4
+        if (len >= 3) {
+            buf[2] |= 0x80; // response
+        }
+        if (len >= 8) {
+            buf[7] |= 1; // 1 answer
+        }
+        tt_memcpy(&buf[len], ans, sizeof(ans));
+
+        return tt_skt_sendto(s, buf, len + sizeof(ans), NULL, addr);
+    }
+}
+
+TT_TEST_ROUTINE_DEFINE(tt_unit_test_dns_query4_first6)
+{
+    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+    tt_task_t t;
+    tt_result_t ret;
+    tt_task_attr_t attr;
+    const tt_char_t *svr[] = {
+        "127.0.0.1:43210",
+    };
+    __svr_param_t sp;
+
+    TT_TEST_CASE_ENTER()
+    // test start
+
+    tt_memset(&sp, 0, sizeof(sp));
+
+    __dns_errline = 0;
+    __udp_tc = TT_FALSE;
+
+    tt_task_attr_default(&attr);
+    attr.enable_dns = TT_TRUE;
+    attr.dns_attr.server = svr;
+    attr.dns_attr.server_num = sizeof(svr) / sizeof(svr[0]);
+    attr.dns_attr.timeout_ms = 1000;
+    attr.dns_attr.try_num = 5;
+
+    ret = tt_task_create(&t, &attr);
+    TT_UT_SUCCESS(ret, "");
+
+    sp.af = TT_NET_AF_INET;
+    sp.name = "127.0.0.1";
+    sp.port = 43210;
+    sp.on_recv = __udp_answer46;
+    sp.ignore_num = 0;
+    tt_task_add_fiber(&t, "udp1", __udp_svr1, &sp, NULL);
+    tt_task_add_fiber(&t, NULL, __dns_query_46, NULL, NULL);
+
+    ret = tt_task_run(&t);
+    TT_UT_SUCCESS(ret, "");
+    tt_task_wait(&t);
+
+    TT_UT_EQUAL(__dns_errline, 0, "");
+
+    // test end
+    TT_TEST_CASE_LEAVE()
+}
+
+static tt_result_t __dns_query_64(IN void *param)
+{
+    tt_sktaddr_ip_t ip;
+    tt_result_t ret;
+    tt_fiber_t *fb;
+
+    ret = tt_dns_query6(tt_current_dns(), "163.com", &ip);
+    if (TT_OK(ret)) {
+        // no ipv6, only ipv4
+        __dns_errline = __LINE__;
+        tt_task_exit(NULL);
+        return TT_FAIL;
+    }
+
+    ret = tt_dns_query6(tt_current_dns(), "163.com", &ip);
+    if (!TT_OK(ret)) {
+        __dns_errline = __LINE__;
+        tt_task_exit(NULL);
+        return TT_FAIL;
+    }
+
+    fb = tt_fiber_find("udp1");
+    if (fb != NULL) {
+        tt_fiber_ev_t *fev = tt_fiber_ev_create(0, 0);
+        tt_fiber_send(fb, fev, TT_FALSE);
+    }
+
+    return TT_SUCCESS;
+}
+
+static tt_result_t __udp_answer64(IN tt_skt_t *s,
+                                  IN tt_u8_t *buf,
+                                  IN tt_u32_t len,
+                                  IN tt_sktaddr_t *addr)
+{
+    static int n = 0;
+
+    if (n++ == 0) {
+        const tt_u8_t ans[] = {3, '1', '6', '3', 3, 'c', 'o', 'm', 0, 0, 1, 0,
+                               1, 1,   2,   3,   4, 0,   4,   7,   8, 9, 10};
+        // ipv4
+        if (len >= 3) {
+            buf[2] |= 0x80; // response
+        }
+        if (len >= 8) {
+            buf[7] |= 1; // 1 answer
+        }
+        tt_memcpy(&buf[len], ans, sizeof(ans));
+
+        return tt_skt_sendto(s, buf, len + sizeof(ans), NULL, addr);
+    } else {
+        // ipv6
+        const tt_u8_t ans[] = {3,   '1',  '6', '3', 3,   'c', 'o', 'm', 0,
+                               0,   0x1c, 0,   1,   1,   2,   3,   4,   0,
+                               16,  0x1,  0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8,
+                               0x9, 0xa,  0xb, 0xc, 0xd, 0xe, 0xf, 0x0};
+
+        if (len >= 3) {
+            buf[2] |= 0x80; // response
+        }
+        if (len >= 8) {
+            buf[7] |= 1; // 1 answer
+        }
+        tt_memcpy(&buf[len], ans, sizeof(ans));
+
+        return tt_skt_sendto(s, buf, len + sizeof(ans), NULL, addr);
+    }
+}
+
+TT_TEST_ROUTINE_DEFINE(tt_unit_test_dns_query6_first4)
+{
+    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+    tt_task_t t;
+    tt_result_t ret;
+    tt_task_attr_t attr;
+    const tt_char_t *svr[] = {
+        "127.0.0.1:43210",
+    };
+    __svr_param_t sp;
+
+    TT_TEST_CASE_ENTER()
+    // test start
+
+    tt_memset(&sp, 0, sizeof(sp));
+
+    __dns_errline = 0;
+
+    tt_task_attr_default(&attr);
+    attr.enable_dns = TT_TRUE;
+    attr.dns_attr.server = svr;
+    attr.dns_attr.server_num = sizeof(svr) / sizeof(svr[0]);
+    attr.dns_attr.timeout_ms = 1000;
+    attr.dns_attr.try_num = 5;
+
+    ret = tt_task_create(&t, &attr);
+    TT_UT_SUCCESS(ret, "");
+
+    sp.af = TT_NET_AF_INET;
+    sp.name = "127.0.0.1";
+    sp.port = 43210;
+    sp.on_recv = __udp_answer64;
+    sp.ignore_num = 0;
+    tt_task_add_fiber(&t, "udp1", __udp_svr1, &sp, NULL);
+    tt_task_add_fiber(&t, NULL, __dns_query_64, NULL, NULL);
+
+    ret = tt_task_run(&t);
+    TT_UT_SUCCESS(ret, "");
+    tt_task_wait(&t);
+
+    TT_UT_EQUAL(__dns_errline, 0, "");
 
     // test end
     TT_TEST_CASE_LEAVE()
