@@ -693,7 +693,7 @@ static tt_result_t __fiber_ev_send(IN void *param)
         tt_fiber_ev_init(&uev.fev, i);
         uev.resp = i;
 
-        tt_fiber_send(recv, &uev.fev, TT_TRUE);
+        tt_fiber_send_ev(recv, &uev.fev, TT_TRUE);
         if (uev.resp != i + 100) {
             __err_line = __LINE__;
         }
@@ -710,7 +710,7 @@ static tt_result_t __fiber_ev_recv(IN void *param)
     tt_fiber_t *cfb = tt_current_fiber();
 
     while (i < 1000) {
-        tt_fiber_ev_t *fev = tt_fiber_recv(cfb, TT_TRUE);
+        tt_fiber_ev_t *fev = tt_fiber_recv_ev(cfb, TT_TRUE);
         struct __ut_fev *uev;
 
         TT_ASSERT(fev != NULL);
@@ -742,14 +742,14 @@ static tt_result_t __fiber_ev_send_nw(IN void *param)
             }
             uev->resp = i;
 
-            tt_fiber_send(recv, &uev->fev, TT_FALSE);
+            tt_fiber_send_ev(recv, &uev->fev, TT_FALSE);
         } else {
             struct __ut_fev uev;
 
             tt_fiber_ev_init(&uev.fev, i);
             uev.resp = i;
 
-            tt_fiber_send(recv, &uev.fev, TT_TRUE);
+            tt_fiber_send_ev(recv, &uev.fev, TT_TRUE);
             if (uev.resp != i + 200) {
                 __err_line = __LINE__;
             }
@@ -769,7 +769,7 @@ static tt_result_t __fiber_ev_recv_nw(IN void *param)
     tt_fiber_t *cfb = tt_current_fiber();
 
     while (i < 1000) {
-        tt_fiber_ev_t *fev = tt_fiber_recv(cfb, TT_FALSE);
+        tt_fiber_ev_t *fev = tt_fiber_recv_ev(cfb, TT_FALSE);
         struct __ut_fev *uev;
 
         if (fev != NULL) {

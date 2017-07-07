@@ -84,7 +84,9 @@ void tt_fiber_ev_destroy(IN tt_fiber_ev_t *fev)
     tt_free(fev);
 }
 
-void tt_fiber_send(IN tt_fiber_t *dst, IN tt_fiber_ev_t *fev, IN tt_bool_t wait)
+void tt_fiber_send_ev(IN tt_fiber_t *dst,
+                      IN tt_fiber_ev_t *fev,
+                      IN tt_bool_t wait)
 {
     TT_ASSERT_FEV(tt_current_fiber()->fs == dst->fs);
 
@@ -96,7 +98,7 @@ void tt_fiber_send(IN tt_fiber_t *dst, IN tt_fiber_ev_t *fev, IN tt_bool_t wait)
     }
 }
 
-tt_fiber_ev_t *tt_fiber_recv(IN tt_fiber_t *current, IN tt_bool_t wait)
+tt_fiber_ev_t *tt_fiber_recv_ev(IN tt_fiber_t *current, IN tt_bool_t wait)
 {
     tt_dnode_t *node;
 
@@ -149,5 +151,44 @@ again:
         goto again;
     } else {
         return NULL;
+    }
+}
+
+tt_bool_t tt_fiber_recv(IN tt_fiber_t *current,
+                        IN tt_bool_t wait,
+                        OUT tt_fiber_ev_t **p_fev,
+                        OUT tt_tmr_t **p_tmr)
+{
+    tt_dnode_t *fev_node;
+    tt_lnode_t *tmr_node;
+    tt_bool_t recvd = TT_FALSE;
+
+again:
+    fev_node = tt_dlist_pop_head(&current->ev);
+    if (fev_node != NULL) {
+        *p_fev = TT_CONTAINER(fev_node, tt_fiber_ev_t, node);
+        recvd = TT_TRUE;
+    } else {
+        *p_fev = NULL;
+    }
+
+    tmr_node = tt_list_pop_head(&current->expired_tmr);
+    if (tmr_node != NULL) {
+        tt_list_push_tail(&current->unexpired_tmr, tmr_node);
+        *p_tmr = TT_CONTAINER(tmr_node, tt_tmr_t, node);
+        recvd = TT_TRUE;
+    } else {
+        *p_tmr = NULL;
+    }
+
+    if (recvd) {
+        return TT_TRUE;
+    } else if (wait) {
+        current->recving = TT_TRUE;
+        tt_fiber_suspend();
+        current->recving = TT_FALSE;
+        goto again;
+    } else {
+        return TT_FALSE;
     }
 }

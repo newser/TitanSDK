@@ -372,13 +372,13 @@ static tt_result_t __dns_query_1(IN void *param)
     fb = tt_fiber_find("udp1");
     if (fb != NULL) {
         tt_fiber_ev_t *fev = tt_fiber_ev_create(0, 0);
-        tt_fiber_send(fb, fev, TT_FALSE);
+        tt_fiber_send_ev(fb, fev, TT_FALSE);
     }
 
     fb = tt_fiber_find("udp2");
     if (fb != NULL) {
         tt_fiber_ev_t *fev = tt_fiber_ev_create(0, 0);
-        tt_fiber_send(fb, fev, TT_FALSE);
+        tt_fiber_send_ev(fb, fev, TT_FALSE);
     }
 
     tt_task_exit(NULL);
@@ -492,13 +492,13 @@ static tt_result_t __dns_query_2(IN void *param)
     fb = tt_fiber_find("udp1");
     if (fb != NULL) {
         tt_fiber_ev_t *fev = tt_fiber_ev_create(0, 0);
-        tt_fiber_send(fb, fev, TT_FALSE);
+        tt_fiber_send_ev(fb, fev, TT_FALSE);
     }
 
     fb = tt_fiber_find("udp2");
     if (fb != NULL) {
         tt_fiber_ev_t *fev = tt_fiber_ev_create(0, 0);
-        tt_fiber_send(fb, fev, TT_FALSE);
+        tt_fiber_send_ev(fb, fev, TT_FALSE);
     }
 
     return TT_SUCCESS;
@@ -588,13 +588,13 @@ static tt_result_t __dns_query_3(IN void *param)
     fb = tt_fiber_find("udp1");
     if (fb != NULL) {
         tt_fiber_ev_t *fev = tt_fiber_ev_create(0, 0);
-        tt_fiber_send(fb, fev, TT_FALSE);
+        tt_fiber_send_ev(fb, fev, TT_FALSE);
     }
 
     fb = tt_fiber_find("udp2");
     if (fb != NULL) {
         tt_fiber_ev_t *fev = tt_fiber_ev_create(0, 0);
-        tt_fiber_send(fb, fev, TT_FALSE);
+        tt_fiber_send_ev(fb, fev, TT_FALSE);
     }
 
     return TT_SUCCESS;
@@ -795,13 +795,13 @@ static tt_result_t __dns_query_4(IN void *param)
     fb = tt_fiber_find("udp1");
     if (fb != NULL) {
         tt_fiber_ev_t *fev = tt_fiber_ev_create(0, 0);
-        tt_fiber_send(fb, fev, TT_FALSE);
+        tt_fiber_send_ev(fb, fev, TT_FALSE);
     }
 
     fb = tt_fiber_find("udp2");
     if (fb != NULL) {
         tt_fiber_ev_t *fev = tt_fiber_ev_create(0, 0);
-        tt_fiber_send(fb, fev, TT_FALSE);
+        tt_fiber_send_ev(fb, fev, TT_FALSE);
     }
 
     tt_task_exit(NULL);
@@ -900,7 +900,7 @@ static tt_result_t __dns_query_46(IN void *param)
     fb = tt_fiber_find("udp1");
     if (fb != NULL) {
         tt_fiber_ev_t *fev = tt_fiber_ev_create(0, 0);
-        tt_fiber_send(fb, fev, TT_FALSE);
+        tt_fiber_send_ev(fb, fev, TT_FALSE);
     }
 
     return TT_SUCCESS;
@@ -1016,7 +1016,7 @@ static tt_result_t __dns_query_64(IN void *param)
     fb = tt_fiber_find("udp1");
     if (fb != NULL) {
         tt_fiber_ev_t *fev = tt_fiber_ev_create(0, 0);
-        tt_fiber_send(fb, fev, TT_FALSE);
+        tt_fiber_send_ev(fb, fev, TT_FALSE);
     }
 
     return TT_SUCCESS;

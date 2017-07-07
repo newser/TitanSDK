@@ -363,7 +363,7 @@ tt_result_t tt_ipc_recv_ntv(IN tt_ipc_ntv_t *ipc,
     // must try fiber recv, if some fiber send event during
     // current fiber sending, then current fiber won't be able
     // to see that event
-    if (tt_fiber_recv_all(cfb, TT_FALSE, p_fev, p_tmr)) {
+    if (tt_fiber_recv(cfb, TT_FALSE, p_fev, p_tmr)) {
         return TT_SUCCESS;
     }
 
@@ -399,7 +399,7 @@ tt_result_t tt_ipc_recv_ntv(IN tt_ipc_ntv_t *ipc,
             }
         }
 
-        if (tt_fiber_recv_all(cfb, TT_FALSE, p_fev, p_tmr)) {
+        if (tt_fiber_recv(cfb, TT_FALSE, p_fev, p_tmr)) {
             ipc_recv.result = TT_SUCCESS;
         }
 

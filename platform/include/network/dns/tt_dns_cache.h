@@ -14,74 +14,64 @@
  * limitations under the License.
  */
 
+/**
+@file tt_dns_cache.h
+@brief dns cache API
+ */
+
+#ifndef __TT_DNS_CACHE__
+#define __TT_DNS_CACHE__
+
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <unit_test/tt_unit_test.h>
+#include <algorithm/tt_hashmap.h>
+#include <io/tt_socket_addr.h>
+#include <network/dns/tt_dns.h>
 
 ////////////////////////////////////////////////////////////
-// internal macro
+// macro definition
 ////////////////////////////////////////////////////////////
 
-#define TT_DNS_UT_DECLARE(name)                                                \
-    extern tt_test_unit_t TT_MAKE_TEST_UNIT_NAME(name);
-
 ////////////////////////////////////////////////////////////
-// internal type
+// type definition
 ////////////////////////////////////////////////////////////
 
-typedef enum {
-    DNS_UT_BEGIN = 0,
+typedef struct
+{
+    tt_dns_t d;
+    tt_hashmap_t map;
+} tt_dns_cache_t;
 
-    DNS_UT_QUERY = DNS_UT_BEGIN,
-    DNS_UT_RR,
-
-    DNS_UT_NUM // number of test units
-} tt_dns_ut_id_t;
-
-////////////////////////////////////////////////////////////
-// extern declaration
-////////////////////////////////////////////////////////////
-
-TT_DNS_UT_DECLARE(DNS_UT_QUERY)
-TT_DNS_UT_DECLARE(DNS_UT_RR)
+typedef struct
+{
+    tt_dns_attr_t dns_attr;
+    tt_u32_t slot_num;
+    tt_hmap_attr_t map_attr;
+} tt_dns_cache_attr_t;
 
 ////////////////////////////////////////////////////////////
-// global variant
+// global variants
 ////////////////////////////////////////////////////////////
-
-tt_test_unit_t *tt_g_dns_ut_list[DNS_UT_NUM] = {
-#if 0
-    &TT_MAKE_TEST_UNIT_NAME(DNS_UT_QUERY),
-#endif
-    &TT_MAKE_TEST_UNIT_NAME(DNS_UT_RR),
-};
 
 ////////////////////////////////////////////////////////////
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-////////////////////////////////////////////////////////////
-// interface implementation
-////////////////////////////////////////////////////////////
+extern tt_result_t tt_dns_cache_create(IN tt_dns_cache_t *dc,
+                                       IN OPT tt_dns_cache_attr_t *attr);
 
-tt_result_t tt_dns_ut_init(IN tt_ptr_t reserved)
-{
-    tt_dns_ut_id_t unit_id = DNS_UT_BEGIN;
-    while (unit_id < DNS_UT_NUM) {
-        tt_result_t result = TT_FAIL;
+extern void tt_dns_cache_destroy(IN tt_dns_cache_t *dc);
 
-        if (tt_g_dns_ut_list[unit_id] != NULL) {
-            result = tt_test_unit_to_class(tt_g_dns_ut_list[unit_id]);
-            if (!TT_OK(result)) {
-                return TT_FAIL;
-            }
-        }
+extern void tt_dns_cache_attr_default(IN tt_dns_cache_attr_t *attr);
 
-        // next
-        ++unit_id;
-    }
+#if 0
+extern tt_dns_a_t *tt_dns_get_a(IN tt_dns_cache_t *dc,
+                                IN const tt_char_t *name);
 
-    return TT_SUCCESS;
-}
+extern tt_dns_aaaa_t *tt_dns_get_aaaa(IN tt_dns_cache_t *dc,
+                                      IN const tt_char_t *name);
+#endif
+
+#endif /* __TT_DNS_CACHE__ */

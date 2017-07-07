@@ -531,12 +531,12 @@ static tt_result_t __f_cli(IN void *param)
                 tt_fiber_ev_t e;
                 tt_fiber_ev_init(&e, 0x12345678);
                 __SSL_DETAIL("=> cli send ev wait");
-                tt_fiber_send(svr, &e, TT_TRUE);
+                tt_fiber_send_ev(svr, &e, TT_TRUE);
                 __SSL_DETAIL("<= cli send ev wait");
             } else {
                 tt_fiber_ev_t *e = tt_fiber_ev_create(0x87654321, 0);
                 __SSL_DETAIL("=> cli send ev");
-                tt_fiber_send(svr, e, TT_FALSE);
+                tt_fiber_send_ev(svr, e, TT_FALSE);
                 __SSL_DETAIL("<= cli send ev");
             }
             ++__ut_ev_snd;

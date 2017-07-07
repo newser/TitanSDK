@@ -1831,12 +1831,12 @@ static tt_result_t __f_cli_ev(IN void *param)
                 tt_fiber_ev_t e;
                 tt_fiber_ev_init(&e, 0x12345678);
                 __SKT_DETAIL("=> cli send ev wait");
-                tt_fiber_send(svr, &e, TT_TRUE);
+                tt_fiber_send_ev(svr, &e, TT_TRUE);
                 __SKT_DETAIL("<= cli send ev wait");
             } else {
                 tt_fiber_ev_t *e = tt_fiber_ev_create(0x87654321, 0);
                 __SKT_DETAIL("=> cli send ev");
-                tt_fiber_send(svr, e, TT_FALSE);
+                tt_fiber_send_ev(svr, e, TT_FALSE);
                 __SKT_DETAIL("<= cli send ev");
             }
             ++__ut_ev_snd;
@@ -2075,10 +2075,10 @@ static tt_result_t __f_svr_udp_ev(IN void *param)
             if (r == 0) {
                 tt_fiber_ev_t e;
                 tt_fiber_ev_init(&e, 0x12345678);
-                tt_fiber_send(cli, &e, TT_TRUE);
+                tt_fiber_send_ev(cli, &e, TT_TRUE);
             } else {
                 tt_fiber_ev_t *e = tt_fiber_ev_create(0x87654321, 0);
-                tt_fiber_send(cli, e, TT_FALSE);
+                tt_fiber_send_ev(cli, e, TT_FALSE);
             }
             ++__ut_ev_snd;
         }
@@ -2126,7 +2126,7 @@ static tt_result_t __f_svr_udp_ev(IN void *param)
 
     {
         tt_fiber_ev_t *e = tt_fiber_ev_create(0x11112222, 0);
-        tt_fiber_send(cli, e, TT_FALSE);
+        tt_fiber_send_ev(cli, e, TT_FALSE);
         __ut_ev_snd += 1;
     }
 

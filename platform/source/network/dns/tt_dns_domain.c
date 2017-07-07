@@ -18,45 +18,23 @@
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <unit_test/tt_unit_test.h>
+#include <network/dns/tt_dns_domain.h>
 
 ////////////////////////////////////////////////////////////
 // internal macro
 ////////////////////////////////////////////////////////////
 
-#define TT_DNS_UT_DECLARE(name)                                                \
-    extern tt_test_unit_t TT_MAKE_TEST_UNIT_NAME(name);
-
 ////////////////////////////////////////////////////////////
 // internal type
 ////////////////////////////////////////////////////////////
-
-typedef enum {
-    DNS_UT_BEGIN = 0,
-
-    DNS_UT_QUERY = DNS_UT_BEGIN,
-    DNS_UT_RR,
-
-    DNS_UT_NUM // number of test units
-} tt_dns_ut_id_t;
 
 ////////////////////////////////////////////////////////////
 // extern declaration
 ////////////////////////////////////////////////////////////
 
-TT_DNS_UT_DECLARE(DNS_UT_QUERY)
-TT_DNS_UT_DECLARE(DNS_UT_RR)
-
 ////////////////////////////////////////////////////////////
 // global variant
 ////////////////////////////////////////////////////////////
-
-tt_test_unit_t *tt_g_dns_ut_list[DNS_UT_NUM] = {
-#if 0
-    &TT_MAKE_TEST_UNIT_NAME(DNS_UT_QUERY),
-#endif
-    &TT_MAKE_TEST_UNIT_NAME(DNS_UT_RR),
-};
 
 ////////////////////////////////////////////////////////////
 // interface declaration
@@ -65,23 +43,3 @@ tt_test_unit_t *tt_g_dns_ut_list[DNS_UT_NUM] = {
 ////////////////////////////////////////////////////////////
 // interface implementation
 ////////////////////////////////////////////////////////////
-
-tt_result_t tt_dns_ut_init(IN tt_ptr_t reserved)
-{
-    tt_dns_ut_id_t unit_id = DNS_UT_BEGIN;
-    while (unit_id < DNS_UT_NUM) {
-        tt_result_t result = TT_FAIL;
-
-        if (tt_g_dns_ut_list[unit_id] != NULL) {
-            result = tt_test_unit_to_class(tt_g_dns_ut_list[unit_id]);
-            if (!TT_OK(result)) {
-                return TT_FAIL;
-            }
-        }
-
-        // next
-        ++unit_id;
-    }
-
-    return TT_SUCCESS;
-}

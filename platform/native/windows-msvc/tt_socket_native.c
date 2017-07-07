@@ -588,7 +588,7 @@ tt_result_t tt_skt_recvfrom_ntv(IN tt_skt_ntv_t *skt,
     __skt_ev_init(&skt_recvfrom.io_ev, __SKT_RECVFROM);
     cfb = skt_recvfrom.io_ev.src;
 
-    if (tt_fiber_recv_all(cfb, TT_FALSE, p_fev, p_tmr)) {
+    if (tt_fiber_recv(cfb, TT_FALSE, p_fev, p_tmr)) {
         return TT_SUCCESS;
     }
 
@@ -640,7 +640,7 @@ tt_result_t tt_skt_recvfrom_ntv(IN tt_skt_ntv_t *skt,
             }
         }
 
-        if (tt_fiber_recv_all(cfb, TT_FALSE, p_fev, p_tmr)) {
+        if (tt_fiber_recv(cfb, TT_FALSE, p_fev, p_tmr)) {
             skt_recvfrom.result = TT_SUCCESS;
         }
 
@@ -751,7 +751,7 @@ tt_result_t tt_skt_recv_ntv(IN tt_skt_ntv_t *skt,
     __skt_ev_init(&skt_recv.io_ev, __SKT_RECV);
     cfb = skt_recv.io_ev.src;
 
-    if (tt_fiber_recv_all(cfb, TT_FALSE, p_fev, p_tmr)) {
+    if (tt_fiber_recv(cfb, TT_FALSE, p_fev, p_tmr)) {
         return TT_SUCCESS;
     }
 
@@ -792,7 +792,7 @@ tt_result_t tt_skt_recv_ntv(IN tt_skt_ntv_t *skt,
             }
         }
 
-        if (tt_fiber_recv_all(cfb, TT_FALSE, p_fev, p_tmr)) {
+        if (tt_fiber_recv(cfb, TT_FALSE, p_fev, p_tmr)) {
             skt_recv.result = TT_SUCCESS;
         }
 
