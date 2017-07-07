@@ -142,6 +142,7 @@ tt_dns_a_t *tt_dns_a_next(IN tt_dns_a_t *a)
 tt_result_t tt_dns_a_copy(IN tt_dns_rrlist_t *dst, IN tt_dns_rrlist_t *src)
 {
     tt_dns_a_t *a = tt_dns_a_head(src);
+    TT_ASSERT_RR((dst->type == TT_DNS_A_IN) && (src->type == TT_DNS_A_IN));
     while (a != NULL) {
         tt_dns_a_t *new_a = __a_copy(a);
         if (new_a != NULL) {

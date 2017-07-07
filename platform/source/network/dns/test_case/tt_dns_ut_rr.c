@@ -37,21 +37,41 @@
 ////////////////////////////////////////////////////////////
 
 // === routine declarations ================
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_dns_rr_basic)
+TT_TEST_ROUTINE_DECLARE(tt_unit_test_dns_rr_notify)
+TT_TEST_ROUTINE_DECLARE(tt_unit_test_dns_rr_a)
+TT_TEST_ROUTINE_DECLARE(tt_unit_test_dns_rr_aaaa)
 // =========================================
 
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(dns_rr_case)
 
-TT_TEST_CASE("tt_unit_test_dns_rr_basic",
-             "dns rr basic",
-             tt_unit_test_dns_rr_basic,
+TT_TEST_CASE("tt_unit_test_dns_rr_notify",
+             "dns rr wait & notify",
+             tt_unit_test_dns_rr_notify,
              NULL,
              NULL,
              NULL,
              NULL,
              NULL)
 ,
+
+    TT_TEST_CASE("tt_unit_test_dns_rr_a",
+                 "dns rr a",
+                 tt_unit_test_dns_rr_a,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL),
+
+    TT_TEST_CASE("tt_unit_test_dns_rr_aaaa",
+                 "dns rr aaaa",
+                 tt_unit_test_dns_rr_aaaa,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL),
 
     TT_TEST_CASE_LIST_DEFINE_END(dns_rr_case)
     // =========================================
@@ -67,7 +87,7 @@ TT_TEST_CASE("tt_unit_test_dns_rr_basic",
     ////////////////////////////////////////////////////////////
 
     /*
-    TT_TEST_ROUTINE_DEFINE(tt_unit_test_dns_rr_basic)
+    TT_TEST_ROUTINE_DEFINE(tt_unit_test_dns_rr_a)
     {
         //tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
 
@@ -147,7 +167,7 @@ static tt_result_t __simu_notify(IN void *param)
     return TT_SUCCESS;
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_dns_rr_basic)
+TT_TEST_ROUTINE_DEFINE(tt_unit_test_dns_rr_notify)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_dns_rr_t drr;
@@ -176,6 +196,120 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_dns_rr_basic)
 
     tt_dns_rr_clear(&drr);
     tt_dns_rr_check(&drr, tt_time_ref());
+
+    // test end
+    TT_TEST_CASE_LEAVE()
+}
+
+TT_TEST_ROUTINE_DEFINE(tt_unit_test_dns_rr_a)
+{
+    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+    tt_dns_rrlist_t rrl, rrl2;
+    tt_dns_a_t *a;
+
+    TT_TEST_CASE_ENTER()
+    // test start
+
+    tt_dns_rrlist_init(&rrl, TT_DNS_A_IN);
+    tt_dns_rrlist_clear(&rrl);
+    tt_dns_rrlist_init(&rrl2, TT_DNS_A_IN);
+
+    a = tt_dns_a_head(&rrl);
+    TT_UT_NULL(a, "");
+
+    tt_dns_a_copy(&rrl2, &rrl);
+    TT_UT_EQUAL(tt_dns_rrlist_count(&rrl), 0, "");
+    tt_dns_rrlist_clear(&rrl);
+
+    // add 2 a to rrlist
+    a = tt_malloc(sizeof(tt_dns_a_t));
+    TT_UT_NOT_NULL(a, "");
+    tt_dnode_init(&a->node);
+    ((tt_u8_t *)&a->addr)[0] = 12;
+    tt_dlist_push_tail(&rrl.rr, &a->node);
+
+    a = tt_malloc(sizeof(tt_dns_a_t));
+    TT_UT_NOT_NULL(a, "");
+    tt_dnode_init(&a->node);
+    ((tt_u8_t *)&a->addr)[0] = 13;
+    tt_dlist_push_tail(&rrl.rr, &a->node);
+
+    TT_UT_EQUAL(tt_dns_rrlist_count(&rrl), 2, "");
+
+    // copy rrl to rrl2
+    tt_dns_a_copy(&rrl2, &rrl);
+    TT_UT_EQUAL(tt_dns_rrlist_count(&rrl2), 2, "");
+
+    a = tt_dns_a_head(&rrl2);
+    TT_UT_NOT_NULL(a, "");
+    TT_UT_EQUAL(((tt_u8_t *)&a->addr)[0], 12, "");
+
+    a = tt_dns_a_next(a);
+    TT_UT_NOT_NULL(a, "");
+    TT_UT_EQUAL(((tt_u8_t *)&a->addr)[0], 13, "");
+
+    a = tt_dns_a_next(a);
+    TT_UT_NULL(a, "");
+
+    tt_dns_rrlist_clear(&rrl);
+    tt_dns_rrlist_clear(&rrl2);
+
+    // test end
+    TT_TEST_CASE_LEAVE()
+}
+
+TT_TEST_ROUTINE_DEFINE(tt_unit_test_dns_rr_aaaa)
+{
+    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+    tt_dns_rrlist_t rrl, rrl2;
+    tt_dns_aaaa_t *a;
+
+    TT_TEST_CASE_ENTER()
+    // test start
+
+    tt_dns_rrlist_init(&rrl, TT_DNS_AAAA_IN);
+    tt_dns_rrlist_clear(&rrl);
+    tt_dns_rrlist_init(&rrl2, TT_DNS_AAAA_IN);
+
+    a = tt_dns_aaaa_head(&rrl);
+    TT_UT_NULL(a, "");
+
+    tt_dns_aaaa_copy(&rrl2, &rrl);
+    TT_UT_EQUAL(tt_dns_rrlist_count(&rrl), 0, "");
+    tt_dns_rrlist_clear(&rrl);
+
+    // add 2 a to rrlist
+    a = tt_malloc(sizeof(tt_dns_aaaa_t));
+    TT_UT_NOT_NULL(a, "");
+    tt_dnode_init(&a->node);
+    ((tt_u8_t *)&a->addr)[0] = 12;
+    tt_dlist_push_tail(&rrl.rr, &a->node);
+
+    a = tt_malloc(sizeof(tt_dns_aaaa_t));
+    TT_UT_NOT_NULL(a, "");
+    tt_dnode_init(&a->node);
+    ((tt_u8_t *)&a->addr)[0] = 13;
+    tt_dlist_push_tail(&rrl.rr, &a->node);
+
+    TT_UT_EQUAL(tt_dns_rrlist_count(&rrl), 2, "");
+
+    // copy rrl to rrl2
+    tt_dns_aaaa_copy(&rrl2, &rrl);
+    TT_UT_EQUAL(tt_dns_rrlist_count(&rrl2), 2, "");
+
+    a = tt_dns_aaaa_head(&rrl2);
+    TT_UT_NOT_NULL(a, "");
+    TT_UT_EQUAL(((tt_u8_t *)&a->addr)[0], 12, "");
+
+    a = tt_dns_aaaa_next(a);
+    TT_UT_NOT_NULL(a, "");
+    TT_UT_EQUAL(((tt_u8_t *)&a->addr)[0], 13, "");
+
+    a = tt_dns_aaaa_next(a);
+    TT_UT_NULL(a, "");
+
+    tt_dns_rrlist_clear(&rrl);
+    tt_dns_rrlist_clear(&rrl2);
 
     // test end
     TT_TEST_CASE_LEAVE()

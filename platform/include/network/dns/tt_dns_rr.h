@@ -106,6 +106,11 @@ tt_inline void tt_dns_rrlist_init(IN tt_dns_rrlist_t *rrl,
 
 extern void tt_dns_rrlist_clear(IN tt_dns_rrlist_t *rrl);
 
+tt_inline tt_u32_t tt_dns_rrlist_count(IN tt_dns_rrlist_t *rrl)
+{
+    return tt_dlist_count(&rrl->rr);
+}
+
 // RR: A
 extern tt_dns_a_t *tt_dns_a_head(IN tt_dns_rrlist_t *rrl);
 
