@@ -169,7 +169,7 @@ wait a semaphore
 - TT_TIME_OUT, if the semaphore is not waited and time specified expires
 */
 tt_inline tt_bool_t tt_sem_acquire_tag(IN tt_sem_t *sem,
-                                       IN tt_u32_t wait_ms
+                                       IN tt_s64_t wait_ms
 #if (TT_SEM_DEBUG_OPT & TT_SEM_DEBUG_TAG)
                                        ,
                                        IN const tt_char_t *function,

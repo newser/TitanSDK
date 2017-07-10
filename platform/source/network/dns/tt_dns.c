@@ -379,7 +379,7 @@ void __query6_cb(IN void *arg,
         (hostent->h_addrtype == AF_INET6) && (hostent->h_addr_list != NULL) &&
         (hostent->h_addr_list[0] != NULL)) {
         struct in6_addr *ip = (struct in6_addr *)hostent->h_addr_list[0];
-        tt_memcpy(dq->ip->a128.__u8, ip->__u6_addr.__u6_addr8, 16);
+        tt_memcpy(dq->ip->a128.__u8, ip->s6_addr, 16);
         dq->result = TT_SUCCESS;
     } else if (status == ARES_ETIMEOUT) {
         dq->result = TT_TIME_OUT;

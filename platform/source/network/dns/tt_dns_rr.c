@@ -23,6 +23,7 @@
 #include <network/dns/tt_dns_entry.h>
 #include <os/tt_fiber.h>
 #include <time/tt_time_reference.h>
+#include <memory/tt_memory_alloc.h>
 
 #if TT_ENV_OS_IS_MACOS
 #include <arpa/nameser.h>
@@ -32,6 +33,7 @@
 // clang-format off
 #define HAVE_CONFIG_H
 #include <ares_setup.h>
+#include <nameser.h>
 #include <ares.h>
 #include <ares_dns.h>
 #include <ares_private.h>

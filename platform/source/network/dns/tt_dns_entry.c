@@ -84,7 +84,7 @@ tt_dns_entry_t *tt_dns_entry_create(IN struct tt_dns_cache_s *dc,
 
     if (!TT_OK(__de_add(de))) {
         __de_destroy(de);
-        return TT_FAIL;
+        return NULL;
     }
 
     return de;

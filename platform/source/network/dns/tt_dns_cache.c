@@ -198,7 +198,15 @@ tt_result_t __dc_component_init(IN tt_component_t *comp,
 
 tt_s32_t __de_cmp(IN void *l, IN void *r)
 {
-    return ((tt_dns_entry_t *)l)->ttl - ((tt_dns_entry_t *)r)->ttl;
+    tt_s64_t lv = ((tt_dns_entry_t *)l)->ttl;
+    tt_s64_t rv = ((tt_dns_entry_t *)r)->ttl;
+    if (lv < rv) {
+        return -1;
+    } else if (lv == rv) {
+        return 0;
+    } else {
+        return 1;
+    }
 }
 
 tt_bool_t __de_destroy(IN tt_u8_t *key,
@@ -216,7 +224,7 @@ tt_dns_entry_t *__de_get(IN tt_dns_cache_t *dc, IN const tt_char_t *name)
     tt_u32_t len;
     tt_hnode_t *node;
 
-    len = tt_strlen(name);
+    len = (tt_u32_t)tt_strlen(name);
     node = tt_hmap_find(&dc->map, (tt_u8_t *)name, len);
     if (node != NULL) {
         return TT_CONTAINER(node, tt_dns_entry_t, hnode);
