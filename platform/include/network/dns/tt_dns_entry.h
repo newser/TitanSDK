@@ -14,32 +14,61 @@
  * limitations under the License.
  */
 
+/**
+@file tt_dns_entry.h
+@brief dns entry API
+ */
+
+#ifndef __TT_DNS_ENTRY__
+#define __TT_DNS_ENTRY__
+
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <network/dns/tt_dns_domain.h>
+#include <algorithm/tt_hashmap.h>
+#include <network/dns/tt_dns_rr.h>
 
 ////////////////////////////////////////////////////////////
-// internal macro
-////////////////////////////////////////////////////////////
-
-////////////////////////////////////////////////////////////
-// internal type
+// macro definition
 ////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////
-// extern declaration
+// type definition
 ////////////////////////////////////////////////////////////
 
+struct tt_dns_cache_s;
+
+typedef struct
+{
+    tt_s64_t ttl;
+    struct tt_dns_cache_s *dc;
+    const tt_char_t *name;
+    tt_hnode_t hnode;
+    tt_dns_rr_t rr[TT_DNS_TYPE_NUM];
+    tt_u32_t name_len;
+    tt_u32_t ph_idx;
+} tt_dns_entry_t;
+
 ////////////////////////////////////////////////////////////
-// global variant
+// global variants
 ////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-////////////////////////////////////////////////////////////
-// interface implementation
-////////////////////////////////////////////////////////////
+// len does not count terminating null
+extern tt_dns_entry_t *tt_dns_entry_create(IN struct tt_dns_cache_s *dc,
+                                           IN const tt_char_t *name,
+                                           IN tt_u32_t len);
+
+extern void tt_dns_entry_destroy(IN tt_dns_entry_t *de);
+
+extern void tt_dns_entry_update_ttl(IN tt_dns_entry_t *de, IN tt_s64_t ttl);
+
+extern tt_dns_rrlist_t *tt_dns_entry_get_a(IN tt_dns_entry_t *de);
+
+extern tt_dns_rrlist_t *tt_dns_entry_get_aaaa(IN tt_dns_entry_t *de);
+
+#endif /* __TT_DNS_ENTRY__ */

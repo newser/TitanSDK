@@ -23,6 +23,7 @@
 #include <algorithm/tt_buffer_format.h>
 #include <init/tt_component.h>
 #include <init/tt_profile.h>
+#include <io/tt_socket_addr.h>
 #include <memory/tt_memory_alloc.h>
 #include <misc/tt_assert.h>
 #include <os/tt_task.h>
@@ -162,14 +163,14 @@ void tt_dns_attr_default(IN tt_dns_attr_t *attr)
     attr->local_device = NULL;
 }
 
-tt_dns_t tt_current_dns()
+tt_dns_t __ut_current_dns_d()
 {
-    return tt_current_task()->dns;
+    return tt_current_task()->dns_cache->d;
 }
 
-tt_result_t tt_dns_query4(IN tt_dns_t d,
-                          IN const tt_char_t *name,
-                          OUT tt_sktaddr_ip_t *ip)
+tt_result_t __ut_dns_query4(IN tt_dns_t d,
+                            IN const tt_char_t *name,
+                            OUT tt_sktaddr_ip_t *ip)
 {
     __dns_query_t dq;
 
@@ -185,9 +186,9 @@ tt_result_t tt_dns_query4(IN tt_dns_t d,
     return dq.result;
 }
 
-tt_result_t tt_dns_query6(IN tt_dns_t d,
-                          IN const tt_char_t *name,
-                          OUT tt_sktaddr_ip_t *ip)
+tt_result_t __ut_dns_query6(IN tt_dns_t d,
+                            IN const tt_char_t *name,
+                            OUT tt_sktaddr_ip_t *ip)
 {
     __dns_query_t dq;
 

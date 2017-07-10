@@ -20,17 +20,13 @@
 
 #include <network/dns/tt_dns_cache.h>
 
-#include <algorithm/ptr/tt_ptr_queue.h>
+#include <init/tt_component.h>
+#include <init/tt_profile.h>
 #include <memory/tt_memory_alloc.h>
 #include <misc/tt_assert.h>
-#include <network/dns/tt_dns_rr.h>
-#include <os/tt_fiber.h>
-
-#if TT_ENV_OS_IS_MACOS || TT_ENV_OS_IS_IOS || TT_ENV_OS_IS_LINUX
-#include <netdb.h> // struct hostent
-#endif
-
-#include <ares.h>
+#include <network/dns/tt_dns_entry.h>
+#include <os/tt_task.h>
+#include <time/tt_time_reference.h>
 
 ////////////////////////////////////////////////////////////
 // internal macro
@@ -40,43 +36,6 @@
 // internal type
 ////////////////////////////////////////////////////////////
 
-typedef enum {
-    __RR_A,
-    __RR_AAAA,
-
-    __RR_TYPE_NUM
-} __rr_type_t;
-
-typedef struct
-{
-    tt_s64_t ttl;
-    union
-    {
-        tt_dns_a_t *a;
-        tt_dns_aaaa_t *aaaa;
-        void *p;
-    };
-    tt_ptrq_t waiting;
-} __rr_t;
-
-typedef struct
-{
-    const tt_char_t *name;
-    __rr_t rr[__RR_TYPE_NUM];
-    tt_hnode_t hnode;
-    tt_u32_t name_len;
-} __domain_t;
-
-typedef struct
-{
-    tt_fiber_t *src;
-    union
-    {
-        tt_dns_a_t **p_a;
-        tt_dns_aaaa_t **p_aaaa;
-    };
-} __dns_get_t;
-
 ////////////////////////////////////////////////////////////
 // extern declaration
 ////////////////////////////////////////////////////////////
@@ -85,59 +44,89 @@ typedef struct
 // global variant
 ////////////////////////////////////////////////////////////
 
+tt_dns_rrlist_t __empty_rrlist_a;
+
+tt_dns_rrlist_t __empty_rrlist_aaaa;
+
 ////////////////////////////////////////////////////////////
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-static __domain_t *__domain_create(IN const tt_char_t *name,
-                                   IN tt_u32_t name_len);
+static tt_result_t __dc_component_init(IN tt_component_t *comp,
+                                       IN tt_profile_t *profile);
 
-static void __domain_destroy(IN __domain_t *dm);
+static tt_s32_t __de_cmp(IN void *l, IN void *r);
 
-static void __rr_init(IN __rr_t *rr);
+static tt_bool_t __de_destroy(IN tt_u8_t *key,
+                              IN tt_u32_t key_len,
+                              IN tt_hnode_t *hnode,
+                              IN void *param);
 
-static void __rr_a_set(IN __rr_t *rr, IN tt_s64_t ttl, IN tt_dns_a_t *a);
-
-static void __rr_a_clear(IN __rr_t *rr);
-
-static tt_result_t __rr_a_wait(IN __rr_t *rr, IN void *p);
-
-static void __rr_a_notify(IN __rr_t *rr);
+static tt_dns_entry_t *__de_get(IN tt_dns_cache_t *dc,
+                                IN const tt_char_t *name);
 
 ////////////////////////////////////////////////////////////
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-tt_result_t tt_dns_cache_create(IN tt_dns_cache_t *dc,
-                                IN OPT tt_dns_cache_attr_t *attr)
+void tt_dns_cache_component_register()
+{
+    static tt_component_t comp;
+
+    tt_component_itf_t itf = {
+        __dc_component_init,
+    };
+
+    // init component
+    tt_component_init(&comp, TT_COMPONENT_DNS_CACHE, "DNS Cache", NULL, &itf);
+
+    // register component
+    tt_component_register(&comp);
+}
+
+tt_dns_cache_t *tt_dns_cache_create(IN OPT tt_dns_cache_attr_t *attr)
 {
     tt_dns_cache_attr_t __attr;
-
-    TT_ASSERT(dc != NULL);
+    tt_dns_cache_t *dc;
 
     if (attr == NULL) {
         tt_dns_cache_attr_default(&__attr);
         attr = &__attr;
     }
 
+    dc = tt_malloc(sizeof(tt_dns_cache_t));
+    if (dc == NULL) {
+        TT_ERROR("no mem for new dns cache");
+        return NULL;
+    }
+
     dc->d = tt_dns_create(&attr->dns_attr);
     if (dc->d == NULL) {
         TT_ERROR("fail to create dns resolver");
-        return TT_FAIL;
+        tt_free(dc);
+        return NULL;
     }
 
     if (!TT_OK(tt_hmap_create(&dc->map, attr->slot_num, &attr->map_attr))) {
         TT_ERROR("fail to create dns cache map");
         tt_dns_destroy(dc->d);
-        return TT_FAIL;
+        tt_free(dc);
+        return NULL;
     }
 
-    return TT_SUCCESS;
+    tt_ptrheap_init(&dc->heap, __de_cmp, &attr->heap_attr);
+
+    return dc;
 }
 
 void tt_dns_cache_destroy(IN tt_dns_cache_t *dc)
 {
     TT_ASSERT(dc != NULL);
+
+    tt_hmap_foreach(&dc->map, __de_destroy, &dc->map);
+    TT_ASSERT(tt_ptrheap_count(&dc->heap) == 0);
+
+    tt_dns_destroy(dc->d);
 }
 
 void tt_dns_cache_attr_default(IN tt_dns_cache_attr_t *attr)
@@ -148,104 +137,90 @@ void tt_dns_cache_attr_default(IN tt_dns_cache_attr_t *attr)
 
     attr->slot_num = 11;
     tt_hmap_attr_default(&attr->map_attr);
+
+    tt_ptrheap_attr_default(&attr->heap_attr);
 }
 
-tt_dns_a_t *tt_dns_get_a(IN tt_dns_cache_t *dc, IN const tt_char_t *name)
+tt_s64_t tt_dns_cache_run(IN tt_dns_cache_t *dc)
 {
-    tt_u32_t name_len;
-    tt_hnode_t *hn;
-    __domain_t *dm;
-    __dns_get_t get_a;
-    tt_dns_a_t *a;
+    tt_s64_t dns_ms, ttl;
+    tt_dns_entry_t *de;
 
-    TT_ASSERT(dc != NULL);
+    dns_ms = tt_dns_run(dc->d);
+
+    de = tt_ptrheap_head(&dc->heap);
+    if (de != NULL) {
+        ttl = de->ttl - tt_time_ref();
+    } else {
+        ttl = TT_TIME_INFINITE;
+    }
+
+    return TT_MIN(dns_ms, ttl);
+}
+
+tt_dns_rrlist_t *tt_dns_get_a(IN const tt_char_t *name)
+{
+    tt_dns_entry_t *de;
+
     TT_ASSERT(name != NULL);
 
-    name_len = tt_strlen(name);
-    hn = tt_hmap_find(&dc->map, (tt_u8_t *)name, name_len);
-    if (hn != NULL) {
-        tt_dns_a_t *a;
-
-        dm = TT_CONTAINER(hn, __domain_t, hnode);
-        a = dm->rr[__RR_A].a;
-        if (a != NULL) {
-            return a;
-        }
+    de = __de_get(tt_current_task()->dns_cache, name);
+    if (de != NULL) {
+        return tt_dns_entry_get_a(de);
     } else {
-        dm = NULL;
+        return &__empty_rrlist_a;
     }
-
-    if (dm == NULL) {
-        dm = __domain_create(name, name_len);
-        if (dm == NULL) {
-            return NULL;
-        }
-
-        if (!TT_OK(tt_hmap_add(&dc->map,
-                               (tt_u8_t *)dm->name,
-                               name_len,
-                               &dm->hnode))) {
-            __domain_destroy(dm);
-            return NULL;
-        }
-    }
-
-    get_a.src = tt_current_fiber();
-    a = NULL;
-    get_a.p_a = &a;
-    // if (!TT_OK(tt_ptrq_push(&dm->waiting_fiber, &get_a))) {
-    //    return NULL;
-    //}
-    tt_fiber_suspend();
-    return a;
 }
 
-__domain_t *__domain_create(IN const tt_char_t *name, IN tt_u32_t name_len)
+tt_dns_rrlist_t *tt_dns_get_aaaa(IN const tt_char_t *name)
 {
-    __domain_t *dm;
-    tt_ptrq_attr_t q_attr;
+    tt_dns_entry_t *de;
 
-    dm = tt_malloc(sizeof(__domain_t) + name_len + 1);
-    if (dm == NULL) {
-        TT_ERROR("no mem for dns domain");
-        return NULL;
+    TT_ASSERT(name != NULL);
+
+    de = __de_get(tt_current_task()->dns_cache, name);
+    if (de != NULL) {
+        return tt_dns_entry_get_aaaa(de);
+    } else {
+        return &__empty_rrlist_aaaa;
     }
-
-    dm->name = TT_PTR_INC(const tt_char_t, dm, sizeof(__domain_t));
-    tt_memset(dm->rr, 0, sizeof(dm->rr));
-
-    tt_ptrq_attr_default(&q_attr);
-    q_attr.ptr_per_frame = 16;
-    // tt_ptrq_init(&dm->waiting_fiber, &q_attr);
-
-    tt_hnode_init(&dm->hnode);
-    dm->name_len = name_len;
-
-    tt_memcpy((tt_u8_t *)dm->name, name, name_len + 1);
-
-    return dm;
 }
 
-void __domain_destroy(IN __domain_t *dm)
+tt_result_t __dc_component_init(IN tt_component_t *comp,
+                                IN tt_profile_t *profile)
 {
-    __dns_get_t *fb;
-    tt_dns_a_t *a;
-    tt_dns_aaaa_t *aaaa;
+    tt_dns_rrlist_init(&__empty_rrlist_a, TT_DNS_A_IN);
 
-    /*while ((fb = tt_ptrq_pop(&dm->waiting_fiber)) != NULL) {
-        // todo: set result
-        tt_fiber_resume(fb, TT_FALSE);
-    }*/
+    tt_dns_rrlist_init(&__empty_rrlist_aaaa, TT_DNS_AAAA_IN);
 
-    a = dm->rr[__RR_A].a;
-    if (a != NULL) {
-        // tt_dns_a_destroy(a);
+    return TT_SUCCESS;
+}
+
+tt_s32_t __de_cmp(IN void *l, IN void *r)
+{
+    return ((tt_dns_entry_t *)l)->ttl - ((tt_dns_entry_t *)r)->ttl;
+}
+
+tt_bool_t __de_destroy(IN tt_u8_t *key,
+                       IN tt_u32_t key_len,
+                       IN tt_hnode_t *hnode,
+                       IN void *param)
+{
+    // tt_dns_entry_destroy() will remove hnode from hash map
+    tt_dns_entry_destroy(TT_CONTAINER(hnode, tt_dns_entry_t, hnode));
+    return TT_FALSE;
+}
+
+tt_dns_entry_t *__de_get(IN tt_dns_cache_t *dc, IN const tt_char_t *name)
+{
+    tt_u32_t len;
+    tt_hnode_t *node;
+
+    len = tt_strlen(name);
+    node = tt_hmap_find(&dc->map, (tt_u8_t *)name, len);
+    if (node != NULL) {
+        return TT_CONTAINER(node, tt_dns_entry_t, hnode);
+    } else {
+        return tt_dns_entry_create(dc, name, len);
     }
-
-    aaaa = dm->rr[__RR_AAAA].aaaa;
-    if (aaaa != NULL) {
-        // tt_dns_aaaa_destroy(aaaa);
-    }
-
-    tt_free(dm);
 }

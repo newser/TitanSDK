@@ -123,6 +123,7 @@ tt_result_t tt_platform_init(IN OPT const tt_char_t *profile_path)
     tt_ssl_log_component_register();
     // tt_adns_component_register();
     tt_dns_component_register();
+    tt_dns_cache_component_register();
 
     // ========================================
     // start component

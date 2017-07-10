@@ -76,12 +76,12 @@ tt_result_t tt_task_create(IN tt_task_t *t, IN OPT tt_task_attr_t *attr)
     tt_memcpy(&t->thread_attr, &attr->thread_attr, sizeof(tt_thread_attr_t));
 
     if (attr->enable_dns) {
-        t->dns = tt_dns_create(&attr->dns_attr);
-        if (t->dns == NULL) {
+        t->dns_cache = tt_dns_cache_create(&attr->dns_cache_attr);
+        if (t->dns_cache == NULL) {
             return TT_FAIL;
         }
     } else {
-        t->dns = NULL;
+        t->dns_cache = NULL;
     }
 
     tt_tmr_mgr_init(&t->tmr_mgr, &attr->tmr_mgr_attr);
@@ -89,8 +89,8 @@ tt_result_t tt_task_create(IN tt_task_t *t, IN OPT tt_task_attr_t *attr)
     if (!TT_OK(tt_io_poller_create(&t->iop, &attr->io_poller_attr))) {
         TT_ERROR("fail to create task io poller");
 
-        if (t->dns != NULL) {
-            tt_dns_destroy(t->dns);
+        if (t->dns_cache != NULL) {
+            tt_dns_cache_destroy(t->dns_cache);
         }
         return TT_FAIL;
     }
@@ -103,7 +103,7 @@ void tt_task_attr_default(IN tt_task_attr_t *attr)
     TT_ASSERT(attr != NULL);
 
     attr->enable_dns = TT_FALSE;
-    tt_dns_attr_default(&attr->dns_attr);
+    tt_dns_cache_attr_default(&attr->dns_cache_attr);
 
     tt_tmr_mgr_attr_default(&attr->tmr_mgr_attr);
 
@@ -177,8 +177,8 @@ void tt_task_wait(IN tt_task_t *t)
         tt_free(TT_CONTAINER(node, __task_fiber_t, node));
     }
 
-    if (t->dns != NULL) {
-        tt_dns_destroy(t->dns);
+    if (t->dns_cache != NULL) {
+        tt_dns_cache_destroy(t->dns_cache);
     }
 
     // - when fiber terminates, it will destroy all its own timers, but
@@ -267,12 +267,20 @@ tt_result_t __task_routine(IN void *param)
 
         wait_ms = tt_tmr_mgr_run(tmr_mgr);
 
-        if ((t->dns != NULL) &&
-            ((dns_ms = tt_dns_run(t->dns)) != TT_TIME_INFINITE) &&
+#if 0
+        if ((t->dns_cache != NULL) &&
+            ((dns_ms = tt_dns_run(t->dns_cache)) != TT_TIME_INFINITE) &&
             ((wait_ms == TT_TIME_INFINITE) || (dns_ms < wait_ms))) {
             wait_ms = dns_ms;
             // TT_INFO("wait: %d", dns_ms);
         }
+#else
+        if ((t->dns_cache != NULL) &&
+            (wait_ms > (dns_ms = tt_dns_cache_run(t->dns_cache)))) {
+            wait_ms = dns_ms;
+            // TT_INFO("wait: %d", dns_ms);
+        }
+#endif
 
         fb = tt_fiber_sched_next(cfs);
         if (fb != cfs->__main) {
@@ -312,8 +320,8 @@ tt_result_t __task_routine(IN void *param)
 
             wait_ms = tt_tmr_mgr_run(tmr_mgr);
 
-            if ((t->dns != NULL) &&
-                ((dns_ms = tt_dns_run(t->dns)) != TT_TIME_INFINITE) &&
+            if ((t->dns_cache != NULL) &&
+                ((dns_ms = tt_dns_run(t->dns_cache)) != TT_TIME_INFINITE) &&
                 ((wait_ms == TT_TIME_INFINITE) || (dns_ms < wait_ms))) {
                 wait_ms = dns_ms;
                 TT_INFO("wait: %d", dns_ms);

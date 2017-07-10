@@ -36,6 +36,7 @@ typedef enum {
 
     DNS_UT_QUERY = DNS_UT_BEGIN,
     DNS_UT_RR,
+    DNS_UT_CACHE,
 
     DNS_UT_NUM // number of test units
 } tt_dns_ut_id_t;
@@ -46,6 +47,7 @@ typedef enum {
 
 TT_DNS_UT_DECLARE(DNS_UT_QUERY)
 TT_DNS_UT_DECLARE(DNS_UT_RR)
+TT_DNS_UT_DECLARE(DNS_UT_CACHE)
 
 ////////////////////////////////////////////////////////////
 // global variant
@@ -54,6 +56,7 @@ TT_DNS_UT_DECLARE(DNS_UT_RR)
 tt_test_unit_t *tt_g_dns_ut_list[DNS_UT_NUM] = {
 #if 0
     &TT_MAKE_TEST_UNIT_NAME(DNS_UT_QUERY),
+    &TT_MAKE_TEST_UNIT_NAME(DNS_UT_CACHE),
 #endif
     &TT_MAKE_TEST_UNIT_NAME(DNS_UT_RR),
 };

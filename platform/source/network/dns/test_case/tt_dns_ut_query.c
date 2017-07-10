@@ -34,6 +34,16 @@
 // extern declaration
 ////////////////////////////////////////////////////////////
 
+extern tt_result_t __ut_dns_query4(IN tt_dns_t d,
+                                   IN const tt_char_t *name,
+                                   OUT tt_sktaddr_ip_t *ip);
+
+extern tt_result_t __ut_dns_query6(IN tt_dns_t d,
+                                   IN const tt_char_t *name,
+                                   OUT tt_sktaddr_ip_t *ip);
+
+extern tt_dns_t __ut_current_dns_d();
+
 ////////////////////////////////////////////////////////////
 // global variant
 ////////////////////////////////////////////////////////////
@@ -50,7 +60,7 @@ TT_TEST_ROUTINE_DECLARE(tt_unit_test_dns_query6_first4)
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(dns_query_case)
 
-#if 0
+#if 1
 TT_TEST_CASE("tt_unit_test_dns_query_basic",
              "dns query",
              tt_unit_test_dns_query_basic,
@@ -89,15 +99,14 @@ TT_TEST_CASE("tt_unit_test_dns_query_basic",
                  NULL),
 #endif
 
-TT_TEST_CASE("tt_unit_test_dns_query4_first6",
-             "dns query ip but ipv6 first",
-             tt_unit_test_dns_query4_first6,
-             NULL,
-             NULL,
-             NULL,
-             NULL,
-             NULL)
-,
+    TT_TEST_CASE("tt_unit_test_dns_query4_first6",
+                 "dns query ip but ipv6 first",
+                 tt_unit_test_dns_query4_first6,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL),
 
     TT_TEST_CASE("tt_unit_test_dns_query6_first4",
                  "dns query ipv6 but ip first",
@@ -357,7 +366,7 @@ static tt_result_t __dns_query_1(IN void *param)
     tt_result_t ret;
     tt_fiber_t *fb;
 
-    ret = tt_dns_query4(tt_current_dns(), "163.com", &ip);
+    ret = __ut_dns_query4(__ut_current_dns_d(), "163.com", &ip);
     if (!TT_OK(ret)) {
         __dns_errline = __LINE__;
         tt_task_exit(NULL);
@@ -406,12 +415,12 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_dns_query_basic)
 
     tt_task_attr_default(&attr);
     attr.enable_dns = TT_TRUE;
-    attr.dns_attr.server = svr;
-    attr.dns_attr.server_num = sizeof(svr) / sizeof(svr[0]);
-    attr.dns_attr.timeout_ms = 1000;
-    attr.dns_attr.try_num = 5;
-    attr.dns_attr.send_buf_size = 777;
-    attr.dns_attr.recv_buf_size = 888;
+    attr.dns_cache_attr.dns_attr.server = svr;
+    attr.dns_cache_attr.dns_attr.server_num = sizeof(svr) / sizeof(svr[0]);
+    attr.dns_cache_attr.dns_attr.timeout_ms = 1000;
+    attr.dns_cache_attr.dns_attr.try_num = 5;
+    attr.dns_cache_attr.dns_attr.send_buf_size = 777;
+    attr.dns_cache_attr.dns_attr.recv_buf_size = 888;
 
     ret = tt_task_create(&t, &attr);
     TT_UT_SUCCESS(ret, "");
@@ -447,7 +456,7 @@ static tt_result_t __dns_query_2(IN void *param)
     tt_fiber_t *fb;
 
     // from tcp
-    ret = tt_dns_query4(tt_current_dns(), "163.com", &ip);
+    ret = __ut_dns_query4(__ut_current_dns_d(), "163.com", &ip);
     DUT_INFO("dns query 1 done");
     if (!TT_OK(ret)) {
         __dns_errline = __LINE__;
@@ -461,7 +470,7 @@ static tt_result_t __dns_query_2(IN void *param)
     }
 
     // from tcp again
-    ret = tt_dns_query4(tt_current_dns(), "163.com", &ip);
+    ret = __ut_dns_query4(__ut_current_dns_d(), "163.com", &ip);
     DUT_INFO("dns query 2 done");
     if (!TT_OK(ret)) {
         __dns_errline = __LINE__;
@@ -476,7 +485,7 @@ static tt_result_t __dns_query_2(IN void *param)
 
     // from udp
     __udp_tc = TT_FALSE;
-    ret = tt_dns_query4(tt_current_dns(), "163.com", &ip);
+    ret = __ut_dns_query4(__ut_current_dns_d(), "163.com", &ip);
     DUT_INFO("dns query 2 done");
     if (!TT_OK(ret)) {
         __dns_errline = __LINE__;
@@ -525,12 +534,12 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_dns_query_u2t)
 
     tt_task_attr_default(&attr);
     attr.enable_dns = TT_TRUE;
-    attr.dns_attr.server = svr;
-    attr.dns_attr.server_num = sizeof(svr) / sizeof(svr[0]);
-    attr.dns_attr.timeout_ms = 1000;
-    attr.dns_attr.try_num = 5;
-    attr.dns_attr.local_ip4 = "127.0.0.1";
-    attr.dns_attr.local_ip6 = "::1";
+    attr.dns_cache_attr.dns_attr.server = svr;
+    attr.dns_cache_attr.dns_attr.server_num = sizeof(svr) / sizeof(svr[0]);
+    attr.dns_cache_attr.dns_attr.timeout_ms = 1000;
+    attr.dns_cache_attr.dns_attr.try_num = 5;
+    attr.dns_cache_attr.dns_attr.local_ip4 = "127.0.0.1";
+    attr.dns_cache_attr.dns_attr.local_ip6 = "::1";
 
     ret = tt_task_create(&t, &attr);
     TT_UT_SUCCESS(ret, "");
@@ -576,7 +585,7 @@ static tt_result_t __dns_query_3(IN void *param)
     tt_fiber_t *fb;
 
     for (i = 0; i < n; ++i) {
-        ret = tt_dns_query4(tt_current_dns(), "163.com", &ip);
+        ret = __ut_dns_query4(__ut_current_dns_d(), "163.com", &ip);
         DUT_INFO("dns query[%d/%d] done", i, n);
         if (ret != TT_TIME_OUT) {
             __dns_errline = __LINE__;
@@ -621,10 +630,10 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_dns_query_timeout)
 
     tt_task_attr_default(&attr);
     attr.enable_dns = TT_TRUE;
-    attr.dns_attr.server = svr;
-    attr.dns_attr.server_num = sizeof(svr) / sizeof(svr[0]);
-    attr.dns_attr.timeout_ms = 1000;
-    attr.dns_attr.try_num = 3;
+    attr.dns_cache_attr.dns_attr.server = svr;
+    attr.dns_cache_attr.dns_attr.server_num = sizeof(svr) / sizeof(svr[0]);
+    attr.dns_cache_attr.dns_attr.timeout_ms = 1000;
+    attr.dns_cache_attr.dns_attr.try_num = 3;
 
     ret = tt_task_create(&t, &attr);
     TT_UT_SUCCESS(ret, "");
@@ -788,7 +797,7 @@ static tt_result_t __dns_query_4(IN void *param)
     tt_fiber_t *fb;
 
     for (i = 0; i < n; ++i) {
-        ret = tt_dns_query4(tt_current_dns(), "163.com", &ip);
+        ret = __ut_dns_query4(__ut_current_dns_d(), "163.com", &ip);
         DUT_INFO("dns query[%d/%d]: %s", i, n, TT_OK(ret) ? "ok" : "fail");
     }
 
@@ -828,10 +837,10 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_dns_query_exception)
 
     tt_task_attr_default(&attr);
     attr.enable_dns = TT_TRUE;
-    attr.dns_attr.server = svr;
-    attr.dns_attr.server_num = sizeof(svr) / sizeof(svr[0]);
-    attr.dns_attr.timeout_ms = 1000;
-    attr.dns_attr.try_num = 5;
+    attr.dns_cache_attr.dns_attr.server = svr;
+    attr.dns_cache_attr.dns_attr.server_num = sizeof(svr) / sizeof(svr[0]);
+    attr.dns_cache_attr.dns_attr.timeout_ms = 1000;
+    attr.dns_cache_attr.dns_attr.try_num = 5;
 
     ret = tt_task_create(&t, &attr);
     TT_UT_SUCCESS(ret, "");
@@ -877,7 +886,7 @@ static tt_result_t __dns_query_46(IN void *param)
     tt_result_t ret;
     tt_fiber_t *fb;
 
-    ret = tt_dns_query4(tt_current_dns(), "163.com", &ip);
+    ret = __ut_dns_query4(__ut_current_dns_d(), "163.com", &ip);
     if (TT_OK(ret)) {
         // no ip, only ipv6
         __dns_errline = __LINE__;
@@ -885,7 +894,7 @@ static tt_result_t __dns_query_46(IN void *param)
         return TT_FAIL;
     }
 
-    ret = tt_dns_query4(tt_current_dns(), "163.com", &ip);
+    ret = __ut_dns_query4(__ut_current_dns_d(), "163.com", &ip);
     if (!TT_OK(ret)) {
         __dns_errline = __LINE__;
         tt_task_exit(NULL);
@@ -966,10 +975,10 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_dns_query4_first6)
 
     tt_task_attr_default(&attr);
     attr.enable_dns = TT_TRUE;
-    attr.dns_attr.server = svr;
-    attr.dns_attr.server_num = sizeof(svr) / sizeof(svr[0]);
-    attr.dns_attr.timeout_ms = 1000;
-    attr.dns_attr.try_num = 5;
+    attr.dns_cache_attr.dns_attr.server = svr;
+    attr.dns_cache_attr.dns_attr.server_num = sizeof(svr) / sizeof(svr[0]);
+    attr.dns_cache_attr.dns_attr.timeout_ms = 1000;
+    attr.dns_cache_attr.dns_attr.try_num = 5;
 
     ret = tt_task_create(&t, &attr);
     TT_UT_SUCCESS(ret, "");
@@ -998,7 +1007,7 @@ static tt_result_t __dns_query_64(IN void *param)
     tt_result_t ret;
     tt_fiber_t *fb;
 
-    ret = tt_dns_query6(tt_current_dns(), "163.com", &ip);
+    ret = __ut_dns_query6(__ut_current_dns_d(), "163.com", &ip);
     if (TT_OK(ret)) {
         // no ipv6, only ipv4
         __dns_errline = __LINE__;
@@ -1006,7 +1015,7 @@ static tt_result_t __dns_query_64(IN void *param)
         return TT_FAIL;
     }
 
-    ret = tt_dns_query6(tt_current_dns(), "163.com", &ip);
+    ret = __ut_dns_query6(__ut_current_dns_d(), "163.com", &ip);
     if (!TT_OK(ret)) {
         __dns_errline = __LINE__;
         tt_task_exit(NULL);
@@ -1081,10 +1090,10 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_dns_query6_first4)
 
     tt_task_attr_default(&attr);
     attr.enable_dns = TT_TRUE;
-    attr.dns_attr.server = svr;
-    attr.dns_attr.server_num = sizeof(svr) / sizeof(svr[0]);
-    attr.dns_attr.timeout_ms = 1000;
-    attr.dns_attr.try_num = 5;
+    attr.dns_cache_attr.dns_attr.server = svr;
+    attr.dns_cache_attr.dns_attr.server_num = sizeof(svr) / sizeof(svr[0]);
+    attr.dns_cache_attr.dns_attr.timeout_ms = 1000;
+    attr.dns_cache_attr.dns_attr.try_num = 5;
 
     ret = tt_task_create(&t, &attr);
     TT_UT_SUCCESS(ret, "");

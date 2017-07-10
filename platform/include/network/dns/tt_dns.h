@@ -26,8 +26,6 @@
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <io/tt_socket_addr.h>
-
 #include <tt_dns_native.h>
 
 ////////////////////////////////////////////////////////////
@@ -75,15 +73,5 @@ tt_inline tt_s64_t tt_dns_run(IN tt_dns_t d)
 {
     return tt_dns_run_ntv(d);
 }
-
-extern tt_dns_t tt_current_dns();
-
-extern tt_result_t tt_dns_query4(IN tt_dns_t d,
-                                 IN const tt_char_t *name,
-                                 OUT tt_sktaddr_ip_t *ip);
-
-extern tt_result_t tt_dns_query6(IN tt_dns_t d,
-                                 IN const tt_char_t *name,
-                                 OUT tt_sktaddr_ip_t *ip);
 
 #endif /* __TT_DNS__ */

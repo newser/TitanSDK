@@ -105,6 +105,7 @@ typedef enum {
     // dns
     TT_COMPONENT_MODULE_ADNS,
     TT_COMPONENT_DNS,
+    TT_COMPONENT_DNS_CACHE,
 
     // log manager
     TT_COMPONENT_LOG_MANAGER,

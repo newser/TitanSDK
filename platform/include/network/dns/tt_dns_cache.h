@@ -26,8 +26,8 @@
 // import header files
 ////////////////////////////////////////////////////////////
 
+#include <algorithm/ptr/tt_ptr_heap.h>
 #include <algorithm/tt_hashmap.h>
-#include <io/tt_socket_addr.h>
 #include <network/dns/tt_dns.h>
 
 ////////////////////////////////////////////////////////////
@@ -38,10 +38,13 @@
 // type definition
 ////////////////////////////////////////////////////////////
 
-typedef struct
+struct tt_dns_rrlist_s;
+
+typedef struct tt_dns_cache_s
 {
     tt_dns_t d;
     tt_hashmap_t map;
+    tt_ptrheap_t heap;
 } tt_dns_cache_t;
 
 typedef struct
@@ -49,6 +52,7 @@ typedef struct
     tt_dns_attr_t dns_attr;
     tt_u32_t slot_num;
     tt_hmap_attr_t map_attr;
+    tt_ptrheap_attr_t heap_attr;
 } tt_dns_cache_attr_t;
 
 ////////////////////////////////////////////////////////////
@@ -59,19 +63,18 @@ typedef struct
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern tt_result_t tt_dns_cache_create(IN tt_dns_cache_t *dc,
-                                       IN OPT tt_dns_cache_attr_t *attr);
+extern void tt_dns_cache_component_register();
+
+extern tt_dns_cache_t *tt_dns_cache_create(IN OPT tt_dns_cache_attr_t *attr);
 
 extern void tt_dns_cache_destroy(IN tt_dns_cache_t *dc);
 
 extern void tt_dns_cache_attr_default(IN tt_dns_cache_attr_t *attr);
 
-#if 0
-extern tt_dns_a_t *tt_dns_get_a(IN tt_dns_cache_t *dc,
-                                IN const tt_char_t *name);
+extern tt_s64_t tt_dns_cache_run(IN tt_dns_cache_t *dc);
 
-extern tt_dns_aaaa_t *tt_dns_get_aaaa(IN tt_dns_cache_t *dc,
-                                      IN const tt_char_t *name);
-#endif
+extern struct tt_dns_rrlist_s *tt_dns_get_a(IN const tt_char_t *name);
+
+extern struct tt_dns_rrlist_s *tt_dns_get_aaaa(IN const tt_char_t *name);
 
 #endif /* __TT_DNS_CACHE__ */

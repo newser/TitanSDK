@@ -81,7 +81,8 @@ value "false" of bool type
 @def TT_TIME_INFINITE
 indicate infinite time length
 */
-#define TT_TIME_INFINITE (~0)
+//#define TT_TIME_INFINITE (~0)
+#define TT_TIME_INFINITE (0x7FFFFFFFFFFFFFFF)
 
 // ========================================
 // helper macro definition
