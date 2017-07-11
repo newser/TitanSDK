@@ -22,6 +22,7 @@
 
 #include <init/tt_component.h>
 #include <init/tt_profile.h>
+#include <io/tt_socket_addr.h>
 #include <log/tt_log.h>
 #include <memory/tt_memory_alloc.h>
 #include <os/tt_task.h>

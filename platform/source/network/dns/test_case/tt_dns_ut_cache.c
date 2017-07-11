@@ -747,7 +747,6 @@ static tt_result_t __dc_get3(IN void *param)
 {
     tt_u32_t idx = (tt_u32_t)(tt_uintptr_t)param;
     tt_dns_rrlist_t *rrl;
-    tt_dns_aaaa_t *a;
     tt_u32_t num = tt_rand_u32() % 10 + 1, i = 0;
 
     while (i++ < num) {
@@ -761,6 +760,7 @@ static tt_result_t __dc_get3(IN void *param)
             rrl = tt_dns_get_aaaa(name);
             DUT_INFO("fb[%d/%d] aaaa query [%s] end", i, num, name);
         }
+        (void)rrl;
     }
 
     if (--__d_fb_num == 0) {
@@ -832,7 +832,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_dc_exception)
 
     __d_fb_num = __D_FB_NUM;
     for (i = 0; i < __D_FB_NUM; ++i) {
-        tt_task_add_fiber(&t, NULL, __dc_get3, i, NULL);
+        tt_task_add_fiber(&t, NULL, __dc_get3, (void *)(tt_uintptr_t)i, NULL);
     }
 
     ret = tt_task_run(&t);
