@@ -123,7 +123,6 @@ TT_TEST_CASE("tt_unit_test_dc_basic",
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_dns_cache_t *dc;
-    tt_result_t ret;
     tt_task_attr_t attr;
     const tt_char_t *svr[] = {
         "127.0.0.1:43210",
@@ -533,7 +532,6 @@ static tt_result_t __udp_answer6(IN tt_skt_t *s,
 TT_TEST_ROUTINE_DEFINE(tt_unit_test_dc_get_aaaa)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
-    tt_dns_cache_t *dc;
     tt_result_t ret;
     tt_task_attr_t attr;
     const tt_char_t *svr[] = {"[::1]:43210", "[::1]:43211"};
