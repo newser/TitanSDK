@@ -25,15 +25,17 @@
 #include <os/tt_fiber.h>
 #include <time/tt_time_reference.h>
 
-#if TT_ENV_OS_IS_MACOS
-#include <arpa/nameser.h>
-#include <arpa/nameser_compat.h>
-#endif
-
 // clang-format off
 #define HAVE_CONFIG_H
 #include <ares_setup.h>
+
+#if TT_ENV_OS_IS_MACOS || TT_ENV_OS_IS_IOS
+#include <arpa/nameser.h>
+#include <arpa/nameser_compat.h>
+#else
 #include <nameser.h>
+#endif
+
 #include <ares.h>
 #include <ares_dns.h>
 #include <ares_private.h>

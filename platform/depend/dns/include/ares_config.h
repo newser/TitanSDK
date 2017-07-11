@@ -103,7 +103,7 @@
 #define HAVE_GETADDRINFO
 
 /* Define to 1 if the getaddrinfo function is threadsafe. */
-#define HAVE_GETADDRINFO_THREADSAFE
+/* #undef HAVE_GETADDRINFO_THREADSAFE */
 
 /* Define to 1 if you have the getenv function. */
 #define HAVE_GETENV

@@ -95,7 +95,7 @@ void tt_sem_destroy_ntv(IN tt_sem_ntv_t *sys_sem)
     }
 }
 
-tt_bool_t tt_sem_acquire_ntv(IN tt_sem_ntv_t *sys_sem, IN tt_u32_t wait_ms)
+tt_bool_t tt_sem_acquire_ntv(IN tt_sem_ntv_t *sys_sem, IN tt_s64_t wait_ms)
 {
     int ret;
     tt_bool_t result = TT_TRUE;

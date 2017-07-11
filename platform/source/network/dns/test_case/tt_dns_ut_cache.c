@@ -54,7 +54,7 @@ TT_TEST_ROUTINE_DECLARE(tt_unit_test_dc_exception)
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(dns_cache_case)
 
-#if 0
+#if 1
 TT_TEST_CASE("tt_unit_test_dc_basic",
              "dns cache basic",
              tt_unit_test_dc_basic,
@@ -84,15 +84,14 @@ TT_TEST_CASE("tt_unit_test_dc_basic",
                  NULL),
 #endif
 
-TT_TEST_CASE("tt_unit_test_dc_exception",
-             "dns cache get exceptional case",
-             tt_unit_test_dc_exception,
-             NULL,
-             NULL,
-             NULL,
-             NULL,
-             NULL)
-,
+    TT_TEST_CASE("tt_unit_test_dc_exception",
+                 "dns cache get exceptional case",
+                 tt_unit_test_dc_exception,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL),
 
     TT_TEST_CASE_LIST_DEFINE_END(dns_cache_case)
     // =========================================
