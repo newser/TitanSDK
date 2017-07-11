@@ -20,10 +20,10 @@
 
 #include <network/dns/tt_dns_rr.h>
 
+#include <memory/tt_memory_alloc.h>
 #include <network/dns/tt_dns_entry.h>
 #include <os/tt_fiber.h>
 #include <time/tt_time_reference.h>
-#include <memory/tt_memory_alloc.h>
 
 #if TT_ENV_OS_IS_MACOS
 #include <arpa/nameser.h>
@@ -76,7 +76,12 @@ extern tt_dns_rrlist_t __empty_rrlist_aaaa;
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-static void __ares_query(IN tt_dns_rr_t *drr, IN tt_dns_t d);
+static void __drr_query(IN tt_dns_rr_t *drr, IN tt_dns_t d);
+
+static void __drr_set(IN tt_dns_rr_t *drr,
+                      IN tt_s64_t ttl,
+                      IN tt_dns_rrlist_t *rrl,
+                      IN tt_bool_t notify);
 
 static void __a_clear_list(IN tt_dns_rrlist_t *rrl);
 
@@ -129,15 +134,6 @@ void tt_dns_rr_init(IN tt_dns_rr_t *drr,
     tt_dns_rrlist_init(&drr->rrl, type);
 }
 
-void tt_dns_rr_destroy(IN tt_dns_rr_t *drr)
-{
-    // dns_rr is destroyed when there is long time that no one
-    // query it, so there must be no fiber waiting
-    TT_ASSERT(drr->querying_fb == NULL);
-    TT_ASSERT(tt_dlist_empty(&drr->waiting));
-    tt_dns_rr_clear(drr);
-}
-
 void tt_dns_rr_clear(IN tt_dns_rr_t *drr)
 {
     drr->ttl = TT_TIME_INFINITE;
@@ -150,10 +146,6 @@ tt_dns_rrlist_t *tt_dns_rr_get(IN tt_dns_rr_t *drr, IN tt_dns_t d)
     tt_fiber_t *fb;
     __rr_wait_t wait;
 
-    if (drr->ttl < tt_time_ref()) {
-        tt_dns_rr_clear(drr);
-    }
-
     rrl = &drr->rrl;
     if (!tt_dns_rrlist_empty(rrl)) {
         return rrl;
@@ -162,7 +154,7 @@ tt_dns_rrlist_t *tt_dns_rr_get(IN tt_dns_rr_t *drr, IN tt_dns_t d)
     fb = tt_current_fiber();
     if (drr->querying_fb == NULL) {
         drr->querying_fb = fb;
-        __ares_query(drr, d);
+        __drr_query(drr, d);
         if (drr->querying_fb == NULL) {
             // callback has done querying
             goto done;
@@ -178,26 +170,6 @@ tt_dns_rrlist_t *tt_dns_rr_get(IN tt_dns_rr_t *drr, IN tt_dns_t d)
 done:
     tt_dns_entry_update_ttl(__DE_OF(drr), drr->ttl);
     return rrl;
-}
-
-void tt_dns_rr_set(IN tt_dns_rr_t *drr,
-                   IN tt_s64_t ttl,
-                   IN tt_dns_rrlist_t *rrl,
-                   IN tt_bool_t notify)
-{
-    tt_dnode_t *node;
-
-    TT_ASSERT_RR(tt_dns_rrlist_empty(&drr->rrl));
-    drr->ttl = ttl;
-    drr->querying_fb = NULL;
-    tt_dns_rrlist_move(&drr->rrl, rrl);
-
-    if (notify) {
-        while ((node = tt_dlist_pop_head(&drr->waiting)) != NULL) {
-            __rr_wait_t *wait = TT_CONTAINER(node, __rr_wait_t, node);
-            tt_fiber_resume(wait->fb, TT_FALSE);
-        }
-    }
 }
 
 // ========================================
@@ -314,7 +286,7 @@ tt_dns_aaaa_t *tt_dns_aaaa_next(IN tt_dns_aaaa_t *aaaa)
     }
 }
 
-void __ares_query(IN tt_dns_rr_t *drr, IN tt_dns_t d)
+void __drr_query(IN tt_dns_rr_t *drr, IN tt_dns_t d)
 {
     switch (drr->rrl.type) {
         case TT_DNS_A_IN: {
@@ -324,6 +296,29 @@ void __ares_query(IN tt_dns_rr_t *drr, IN tt_dns_t d)
         default: {
             ares_query(d, drr->name, C_IN, T_AAAA, __aaaa_callback, drr);
         } break;
+    }
+}
+
+void __drr_set(IN tt_dns_rr_t *drr,
+               IN tt_s64_t ttl,
+               IN tt_dns_rrlist_t *rrl,
+               IN tt_bool_t notify)
+{
+    tt_dnode_t *node;
+
+    TT_ASSERT_RR(tt_dns_rrlist_empty(&drr->rrl));
+    drr->ttl = ttl;
+    drr->querying_fb = NULL;
+    tt_dns_rrlist_move(&drr->rrl, rrl);
+
+    if (notify) {
+        tt_dlist_t waiting;
+        tt_dlist_init(&waiting);
+        tt_dlist_move(&waiting, &drr->waiting);
+        while ((node = tt_dlist_pop_head(&waiting)) != NULL) {
+            __rr_wait_t *wait = TT_CONTAINER(node, __rr_wait_t, node);
+            tt_fiber_resume(wait->fb, TT_FALSE);
+        }
     }
 }
 
@@ -376,12 +371,16 @@ void __a_callback(IN void *arg,
     tt_s64_t ttl;
     tt_dns_rrlist_t rrl;
 
+    if (status == ARES_EDESTRUCTION) {
+        return;
+    }
+
     TT_ASSERT(drr->querying_fb != NULL);
     notify = TT_BOOL(drr->querying_fb != tt_current_fiber());
     drr->querying_fb = NULL;
 
     if (status != ARES_SUCCESS) {
-        tt_dns_rr_set(drr, TT_TIME_INFINITE, &__empty_rrlist_a, notify);
+        __drr_set(drr, TT_TIME_INFINITE, &__empty_rrlist_a, notify);
         return;
     }
 
@@ -390,12 +389,13 @@ void __a_callback(IN void *arg,
     status = __a_parse(abuf, alen, &ttl, &rrl);
     if (status != ARES_SUCCESS) {
         TT_ERROR("dns a parsing failed: %s", ares_strerror(status));
-        tt_dns_rr_set(drr, TT_TIME_INFINITE, &__empty_rrlist_a, notify);
-        tt_dns_rrlist_clear(&rrl);
+        __drr_set(drr, TT_TIME_INFINITE, &__empty_rrlist_a, notify);
+        TT_ASSERT_RR(tt_dns_rrlist_empty(&rrl));
         return;
     }
 
-    tt_dns_rr_set(drr, ttl, &rrl, notify);
+    ttl = tt_time_ms2ref(ttl * 1000) + tt_time_ref();
+    __drr_set(drr, ttl, &rrl, notify);
     TT_ASSERT_RR(tt_dns_rrlist_empty(&rrl));
 }
 
@@ -574,12 +574,16 @@ void __aaaa_callback(IN void *arg,
     tt_s64_t ttl;
     tt_dns_rrlist_t rrl;
 
+    if (status == ARES_EDESTRUCTION) {
+        return;
+    }
+
     TT_ASSERT(drr->querying_fb != NULL);
     notify = TT_BOOL(drr->querying_fb != tt_current_fiber());
     drr->querying_fb = NULL;
 
     if (status != ARES_SUCCESS) {
-        tt_dns_rr_set(drr, TT_TIME_INFINITE, &__empty_rrlist_aaaa, notify);
+        __drr_set(drr, TT_TIME_INFINITE, &__empty_rrlist_aaaa, notify);
         return;
     }
 
@@ -588,12 +592,12 @@ void __aaaa_callback(IN void *arg,
     status = __aaaa_parse(abuf, alen, &ttl, &rrl);
     if (status != ARES_SUCCESS) {
         TT_ERROR("dns aaaa parsing failed: %s", ares_strerror(status));
-        tt_dns_rr_set(drr, TT_TIME_INFINITE, &__empty_rrlist_aaaa, notify);
-        tt_dns_rrlist_clear(&rrl);
+        __drr_set(drr, TT_TIME_INFINITE, &__empty_rrlist_aaaa, notify);
+        TT_ASSERT_RR(tt_dns_rrlist_empty(&rrl));
         return;
     }
 
-    tt_dns_rr_set(drr, ttl, &rrl, notify);
+    __drr_set(drr, ttl, &rrl, notify);
     TT_ASSERT_RR(tt_dns_rrlist_empty(&rrl));
 }
 
@@ -712,9 +716,13 @@ int __aaaa_parse(IN const unsigned char *abuf,
     }
     ares_free(hostname);
 
-    if ((status == ARES_SUCCESS) && !tt_dns_rrlist_empty(rrl)) {
-        *ttl = min_ttl;
-        return ARES_SUCCESS;
+    if (status == ARES_SUCCESS) {
+        if (!tt_dns_rrlist_empty(rrl)) {
+            *ttl = min_ttl;
+            return ARES_SUCCESS;
+        } else {
+            return ARES_ENODATA;
+        }
     } else {
         tt_dns_rrlist_clear(rrl);
         return status;

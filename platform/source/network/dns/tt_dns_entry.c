@@ -24,6 +24,7 @@
 #include <algorithm/tt_algorithm_def.h>
 #include <memory/tt_memory_alloc.h>
 #include <network/dns/tt_dns_cache.h>
+#include <time/tt_time_reference.h>
 
 ////////////////////////////////////////////////////////////
 // internal macro
@@ -96,11 +97,43 @@ void tt_dns_entry_destroy(IN tt_dns_entry_t *de)
     __de_destroy(de);
 }
 
+void tt_dns_entry_clear(IN tt_dns_entry_t *de)
+{
+    tt_dns_type_t t;
+
+    de->ttl = TT_TIME_INFINITE;
+
+    for (t = 0; t < TT_DNS_TYPE_NUM; ++t) {
+        tt_dns_rr_clear(&de->rr[t]);
+    }
+}
+
 void tt_dns_entry_update_ttl(IN tt_dns_entry_t *de, IN tt_s64_t ttl)
 {
-    if (de->ttl < ttl) {
+    TT_ASSERT(ttl >= 0);
+    if (de->ttl > ttl) {
         de->ttl = ttl;
         tt_ptrheap_fix(&de->dc->heap, de->ph_idx);
+    }
+}
+
+tt_bool_t tt_dns_entry_run(IN tt_dns_entry_t *de,
+                           IN tt_s64_t now,
+                           OUT tt_s64_t *ttl_ms)
+{
+    if (de->ttl == TT_TIME_INFINITE) {
+        // no need to check next entry and wait for ever
+        *ttl_ms = TT_TIME_INFINITE;
+        return TT_FALSE;
+    } else if (de->ttl >= now) {
+        // not expired, wait for some time
+        *ttl_ms = tt_time_ref2ms(de->ttl - now);
+        return TT_FALSE;
+    } else {
+        // this entry expires, should check next
+        tt_dns_entry_clear(de);
+        tt_ptrheap_fix(&de->dc->heap, de->ph_idx);
+        return TT_TRUE;
     }
 }
 
@@ -145,7 +178,7 @@ void __de_destroy(IN tt_dns_entry_t *de)
     tt_dns_type_t t;
 
     for (t = 0; t < TT_DNS_TYPE_NUM; ++t) {
-        tt_dns_rr_destroy(&de->rr[t]);
+        tt_dns_rr_clear(&de->rr[t]);
     }
 
     tt_free(de);

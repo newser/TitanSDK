@@ -65,7 +65,13 @@ extern tt_dns_entry_t *tt_dns_entry_create(IN struct tt_dns_cache_s *dc,
 
 extern void tt_dns_entry_destroy(IN tt_dns_entry_t *de);
 
+extern void tt_dns_entry_clear(IN tt_dns_entry_t *de);
+
 extern void tt_dns_entry_update_ttl(IN tt_dns_entry_t *de, IN tt_s64_t ttl);
+
+extern tt_bool_t tt_dns_entry_run(IN tt_dns_entry_t *de,
+                                  IN tt_s64_t now,
+                                  OUT tt_s64_t *ttl_ms);
 
 extern tt_dns_rrlist_t *tt_dns_entry_get_a(IN tt_dns_entry_t *de);
 

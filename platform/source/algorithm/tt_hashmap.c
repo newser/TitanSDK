@@ -222,11 +222,12 @@ void tt_hmap_foreach(IN tt_hashmap_t *hmap,
         tt_snode_t *sn = tt_slist_head(&hmap->sll[i]);
         while (sn != NULL) {
             tt_hnode_t *hn = TT_CONTAINER(sn, tt_hnode_t, snode);
+
+            sn = sn->next;
+
             if (!action(hn->key, hn->key_len, hn, param)) {
                 return;
             }
-
-            sn = sn->next;
         }
     }
 }

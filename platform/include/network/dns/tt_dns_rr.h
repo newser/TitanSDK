@@ -89,8 +89,6 @@ extern void tt_dns_rr_init(IN tt_dns_rr_t *drr,
                            IN const tt_char_t *name,
                            IN tt_dns_type_t type);
 
-extern void tt_dns_rr_destroy(IN tt_dns_rr_t *drr);
-
 extern void tt_dns_rr_clear(IN tt_dns_rr_t *drr);
 
 extern tt_dns_rrlist_t *tt_dns_rr_get(IN tt_dns_rr_t *drr, IN tt_dns_t d);

@@ -54,11 +54,11 @@ TT_DNS_UT_DECLARE(DNS_UT_CACHE)
 ////////////////////////////////////////////////////////////
 
 tt_test_unit_t *tt_g_dns_ut_list[DNS_UT_NUM] = {
-#if 1
+#if 0
     &TT_MAKE_TEST_UNIT_NAME(DNS_UT_QUERY),
-    &TT_MAKE_TEST_UNIT_NAME(DNS_UT_CACHE),
-#endif
     &TT_MAKE_TEST_UNIT_NAME(DNS_UT_RR),
+#endif
+    &TT_MAKE_TEST_UNIT_NAME(DNS_UT_CACHE),
 };
 
 ////////////////////////////////////////////////////////////

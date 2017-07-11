@@ -62,8 +62,9 @@ static tt_bool_t __de_destroy(IN tt_u8_t *key,
                               IN tt_hnode_t *hnode,
                               IN void *param);
 
-static tt_dns_entry_t *__de_get(IN tt_dns_cache_t *dc,
-                                IN const tt_char_t *name);
+tt_dns_entry_t *__de_get(IN tt_dns_cache_t *dc,
+                         IN const tt_char_t *name,
+                         IN tt_bool_t create);
 
 ////////////////////////////////////////////////////////////
 // interface implementation
@@ -143,19 +144,18 @@ void tt_dns_cache_attr_default(IN tt_dns_cache_attr_t *attr)
 
 tt_s64_t tt_dns_cache_run(IN tt_dns_cache_t *dc)
 {
-    tt_s64_t dns_ms, ttl;
+    tt_s64_t dns_ms, ttl_ms, now;
     tt_dns_entry_t *de;
 
     dns_ms = tt_dns_run(dc->d);
 
-    de = tt_ptrheap_head(&dc->heap);
-    if (de != NULL) {
-        ttl = de->ttl - tt_time_ref();
-    } else {
-        ttl = TT_TIME_INFINITE;
-    }
+    ttl_ms = TT_TIME_INFINITE;
+    now = tt_time_ref();
+    while (((de = tt_ptrheap_head(&dc->heap)) != NULL) &&
+           tt_dns_entry_run(de, now, &ttl_ms))
+        ;
 
-    return TT_MIN(dns_ms, ttl);
+    return TT_MIN(dns_ms, ttl_ms);
 }
 
 tt_dns_rrlist_t *tt_dns_get_a(IN const tt_char_t *name)
@@ -164,7 +164,7 @@ tt_dns_rrlist_t *tt_dns_get_a(IN const tt_char_t *name)
 
     TT_ASSERT(name != NULL);
 
-    de = __de_get(tt_current_task()->dns_cache, name);
+    de = __de_get(tt_current_task()->dns_cache, name, TT_TRUE);
     if (de != NULL) {
         return tt_dns_entry_get_a(de);
     } else {
@@ -178,7 +178,7 @@ tt_dns_rrlist_t *tt_dns_get_aaaa(IN const tt_char_t *name)
 
     TT_ASSERT(name != NULL);
 
-    de = __de_get(tt_current_task()->dns_cache, name);
+    de = __de_get(tt_current_task()->dns_cache, name, TT_TRUE);
     if (de != NULL) {
         return tt_dns_entry_get_aaaa(de);
     } else {
@@ -200,7 +200,8 @@ tt_s32_t __de_cmp(IN void *l, IN void *r)
 {
     tt_s64_t lv = ((tt_dns_entry_t *)l)->ttl;
     tt_s64_t rv = ((tt_dns_entry_t *)r)->ttl;
-    if (lv < rv) {
+    if (lv > rv) {
+        // make a min heap
         return -1;
     } else if (lv == rv) {
         return 0;
@@ -216,10 +217,12 @@ tt_bool_t __de_destroy(IN tt_u8_t *key,
 {
     // tt_dns_entry_destroy() will remove hnode from hash map
     tt_dns_entry_destroy(TT_CONTAINER(hnode, tt_dns_entry_t, hnode));
-    return TT_FALSE;
+    return TT_TRUE;
 }
 
-tt_dns_entry_t *__de_get(IN tt_dns_cache_t *dc, IN const tt_char_t *name)
+tt_dns_entry_t *__de_get(IN tt_dns_cache_t *dc,
+                         IN const tt_char_t *name,
+                         IN tt_bool_t create)
 {
     tt_u32_t len;
     tt_hnode_t *node;
@@ -228,7 +231,9 @@ tt_dns_entry_t *__de_get(IN tt_dns_cache_t *dc, IN const tt_char_t *name)
     node = tt_hmap_find(&dc->map, (tt_u8_t *)name, len);
     if (node != NULL) {
         return TT_CONTAINER(node, tt_dns_entry_t, hnode);
-    } else {
+    } else if (create) {
         return tt_dns_entry_create(dc, name, len);
+    } else {
+        return NULL;
     }
 }
