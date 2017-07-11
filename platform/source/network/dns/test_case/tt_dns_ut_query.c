@@ -265,7 +265,7 @@ static tt_result_t __tcp_acc1(IN void *param)
     return TT_SUCCESS;
 }
 
-static tt_result_t __tcp_svr1(IN void *param)
+tt_result_t __tcp_svr1(IN void *param)
 {
     tt_skt_t *s, *new_s;
     __svr_param_t *sp = (__svr_param_t *)param;

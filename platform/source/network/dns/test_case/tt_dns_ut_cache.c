@@ -48,11 +48,13 @@ extern tt_dns_entry_t *__de_get(IN tt_dns_cache_t *dc,
 TT_TEST_ROUTINE_DECLARE(tt_unit_test_dc_basic)
 TT_TEST_ROUTINE_DECLARE(tt_unit_test_dc_get_a)
 TT_TEST_ROUTINE_DECLARE(tt_unit_test_dc_get_aaaa)
+TT_TEST_ROUTINE_DECLARE(tt_unit_test_dc_exception)
 // =========================================
 
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(dns_cache_case)
 
+#if 0
 TT_TEST_CASE("tt_unit_test_dc_basic",
              "dns cache basic",
              tt_unit_test_dc_basic,
@@ -80,6 +82,17 @@ TT_TEST_CASE("tt_unit_test_dc_basic",
                  NULL,
                  NULL,
                  NULL),
+#endif
+
+TT_TEST_CASE("tt_unit_test_dc_exception",
+             "dns cache get exceptional case",
+             tt_unit_test_dc_exception,
+             NULL,
+             NULL,
+             NULL,
+             NULL,
+             NULL)
+,
 
     TT_TEST_CASE_LIST_DEFINE_END(dns_cache_case)
     // =========================================
@@ -569,6 +582,265 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_dc_get_aaaa)
     tt_task_wait(&t);
 
     TT_UT_EQUAL(__dns_errline, 0, "");
+
+    // test end
+    TT_TEST_CASE_LEAVE()
+}
+
+static tt_result_t __udp_answer_any(IN tt_skt_t *s,
+                                    IN tt_u8_t *buf,
+                                    IN tt_u32_t len,
+                                    IN tt_sktaddr_t *addr)
+{
+    const tt_u8_t ans[] =
+        {0xc0, 0x0c, 0, 1, 0, 1, 1, 2, 3, 4, 0, 4, 7, 8, 9, 10};
+
+    if (len >= 3) {
+        buf[2] |= 0x80; // response
+    }
+    if (__udp_tc) {
+        buf[2] |= 0x2; // truncated
+    }
+    if (len >= 8) {
+        buf[7] |= 1; // 1 answer
+    }
+    tt_memcpy(&buf[len], ans, sizeof(ans));
+
+    DUT_INFO("udp answer");
+    return tt_skt_sendto(s, buf, len + sizeof(ans), NULL, addr);
+}
+
+static tt_result_t __udp_svr_rand(IN void *param)
+{
+    tt_skt_t *s;
+    tt_result_t ret;
+    tt_u8_t buf[2048];
+    struct tt_fiber_ev_s *fev;
+    struct tt_tmr_s *tmr;
+    tt_u32_t recvd;
+    __svr_param_t *sp = (__svr_param_t *)param;
+    tt_sktaddr_t addr;
+    tt_u32_t i;
+
+    s = tt_udp_server_p(sp->af, NULL, sp->name, sp->port);
+    if (s == NULL) {
+        __dns_errline = __LINE__;
+        return TT_FAIL;
+    }
+
+    i = 0;
+    while (1) {
+        ret = tt_skt_recvfrom(s, buf, sizeof(buf), &recvd, &addr, &fev, &tmr);
+        if (!TT_OK(ret)) {
+            __dns_errline = __LINE__;
+            return TT_FAIL;
+        }
+
+        if (fev != NULL) {
+            tt_fiber_finish(fev);
+            break;
+        }
+
+        if (tt_rand_u32() % 3 == 0) {
+            // ignored
+            continue;
+        }
+
+        i = tt_rand_u32() % 4;
+        if (i == 0) {
+            DUT_INFO("udp truncated");
+            __udp_tc = TT_TRUE;
+            ret = __udp_answer_any(s, buf, recvd, &addr);
+        } else if (i == 1) {
+            DUT_INFO("udp answer");
+            __udp_tc = TT_FALSE;
+            ret = __udp_answer_any(s, buf, recvd, &addr);
+        } else if (i == 2) {
+            tt_u32_t n = tt_rand_u32() % 500 + 1, k;
+            DUT_INFO("udp short rand");
+            for (k = 0; k < n; ++k) {
+                buf[k] = (tt_u8_t)tt_rand_u32();
+            }
+            ret = tt_skt_sendto(s, buf, n, NULL, &addr);
+        } else {
+            tt_u32_t n = tt_rand_u32() % 1500 + 1, k;
+            DUT_INFO("udp long rand");
+            for (k = 0; k < n; ++k) {
+                buf[k] = (tt_u8_t)tt_rand_u32();
+            }
+            ret = tt_skt_sendto(s, buf, n, NULL, &addr);
+        }
+        if (!TT_OK(ret)) {
+            break;
+        }
+    }
+    if (!TT_OK(ret)) {
+        __dns_errline = __LINE__;
+        return TT_FAIL;
+    }
+
+    tt_skt_destroy(s);
+
+    return TT_SUCCESS;
+}
+
+extern tt_result_t __tcp_svr1(IN void *param);
+
+static tt_result_t __tcp_answer_rand(IN tt_skt_t *s,
+                                     IN tt_u8_t *buf,
+                                     IN tt_u32_t len,
+                                     IN tt_sktaddr_t *addr)
+{
+    const tt_u8_t ans[] =
+        {0xc0, 0x0c, 0, 1, 0, 1, 1, 2, 3, 4, 0, 4, 7, 8, 9, 10};
+    tt_u32_t msglen, m;
+
+    m = tt_rand_u32() % 4;
+    if (m == 0) {
+        tt_u32_t n = tt_rand_u32() % len + 1, k;
+        DUT_INFO("tcp short rand");
+        for (k = 0; k < n; ++k) {
+            buf[k] = (tt_u8_t)tt_rand_u32();
+        }
+        return tt_skt_send(s, buf, n, NULL);
+    } else if (m == 1) {
+        tt_u32_t n = tt_rand_u32() % 1000 + 1, k;
+        DUT_INFO("tcp long rand");
+        for (k = 0; k < n; ++k) {
+            buf[k] = (tt_u8_t)tt_rand_u32();
+        }
+        return tt_skt_send(s, buf, n, NULL);
+    } else if (m == 2) {
+        // force tcp disconnect
+        DUT_INFO("tcp disconnect");
+        return TT_FAIL;
+    }
+
+    if (len >= 2) {
+        tt_u16_t n = (buf[0] << 8) + buf[1];
+        msglen = 2 + n;
+        n += sizeof(ans);
+        buf[0] = (n >> 8);
+        buf[1] = n & 0xFF;
+    } else {
+        msglen = 0;
+    }
+
+    if (len >= 5) {
+        buf[4] |= 0x80; // response
+    }
+    if (len >= 10) {
+        buf[9] |= 1; // 1 answer
+    }
+    tt_memcpy(&buf[msglen], ans, sizeof(ans));
+
+    return tt_skt_send(s, buf, msglen + sizeof(ans), NULL);
+}
+
+#define __DNAME_NUM 100
+#define __DNAME_LEN 100
+static tt_char_t __ut_dname[__DNAME_NUM][__DNAME_LEN];
+static tt_u32_t __d_fb_num;
+
+#define __D_FB_NUM 10
+
+static tt_result_t __dc_get3(IN void *param)
+{
+    tt_u32_t idx = (tt_u32_t)(tt_uintptr_t)param;
+    tt_dns_rrlist_t *rrl;
+    tt_dns_aaaa_t *a;
+    tt_u32_t num = tt_rand_u32() % 10 + 1, i = 0;
+
+    while (i++ < num) {
+        const tt_char_t *name = __ut_dname[tt_rand_u32() % __DNAME_NUM];
+        if (tt_rand_u32() % 2) {
+            DUT_INFO("fb[%d/%d] a query [%s] start", i, num, name);
+            rrl = tt_dns_get_a(name);
+            DUT_INFO("fb[%d/%d] a query [%s] end", i, num, name);
+        } else {
+            DUT_INFO("fb[%d/%d] aaaa query [%s] start", i, num, name);
+            rrl = tt_dns_get_aaaa(name);
+            DUT_INFO("fb[%d/%d] aaaa query [%s] end", i, num, name);
+        }
+    }
+
+    if (--__d_fb_num == 0) {
+        tt_task_exit(NULL);
+    }
+    DUT_INFO("fb[%d/%d] end", idx, __D_FB_NUM);
+    return TT_SUCCESS;
+}
+
+TT_TEST_ROUTINE_DEFINE(tt_unit_test_dc_exception)
+{
+    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+    tt_task_t t;
+    tt_result_t ret;
+    tt_task_attr_t attr;
+    const tt_char_t *svr[] = {
+        "127.0.0.1:53210", "[::1]:53211",
+    };
+    __svr_param_t sp[4];
+    tt_u32_t i;
+
+    TT_TEST_CASE_ENTER()
+    // test start
+
+    for (i = 0; i < __DNAME_NUM; ++i) {
+        tt_u32_t n = tt_rand_u32() % (__DNAME_LEN - 1) + 1;
+        tt_u32_t j;
+        for (j = 0; j < n; ++j) {
+            __ut_dname[i][j] = tt_rand_u32() % 20 + 'a';
+        }
+    }
+
+    tt_memset(sp, 0, sizeof(sp));
+
+    __dns_errline = 0;
+
+    tt_task_attr_default(&attr);
+    attr.enable_dns = TT_TRUE;
+    attr.dns_cache_attr.dns_attr.server = svr;
+    attr.dns_cache_attr.dns_attr.server_num = sizeof(svr) / sizeof(svr[0]);
+    attr.dns_cache_attr.dns_attr.timeout_ms = 1000;
+    attr.dns_cache_attr.dns_attr.try_num = 5;
+
+    ret = tt_task_create(&t, &attr);
+    TT_UT_SUCCESS(ret, "");
+
+    sp[0].af = TT_NET_AF_INET;
+    sp[0].name = "127.0.0.1";
+    sp[0].port = 53210;
+    tt_task_add_fiber(&t, "udp1", __udp_svr_rand, &sp[0], NULL);
+    sp[1].af = TT_NET_AF_INET;
+    sp[1].name = "127.0.0.1";
+    sp[1].port = 53210;
+    sp[1].on_recv = __tcp_answer_rand;
+    sp[1].recv_num = 1; // this tcp server only accept 1 query
+    sp[1].acc_num = ~0;
+    tt_task_add_fiber(&t, "tcp1", __tcp_svr1, &sp[1], NULL);
+    sp[2].af = TT_NET_AF_INET6;
+    sp[2].name = "::1";
+    sp[2].port = 53211;
+    tt_task_add_fiber(&t, "udp2", __udp_svr_rand, &sp[2], NULL);
+    sp[3].af = TT_NET_AF_INET6;
+    sp[3].name = "::1";
+    sp[3].port = 53211;
+    sp[3].on_recv = __tcp_answer_rand;
+    sp[3].recv_num = 0; // always open
+    sp[3].acc_num = ~0;
+    tt_task_add_fiber(&t, "tcp2", __tcp_svr1, &sp[3], NULL);
+
+    __d_fb_num = __D_FB_NUM;
+    for (i = 0; i < __D_FB_NUM; ++i) {
+        tt_task_add_fiber(&t, NULL, __dc_get3, i, NULL);
+    }
+
+    ret = tt_task_run(&t);
+    TT_UT_SUCCESS(ret, "");
+    tt_task_wait(&t);
+
+    // TT_UT_EQUAL(__dns_errline, 0, "");
 
     // test end
     TT_TEST_CASE_LEAVE()
