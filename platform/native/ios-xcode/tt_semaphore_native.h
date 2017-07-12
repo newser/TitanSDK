@@ -101,7 +101,7 @@ wait a system semaphore
 - TT_FAIL, otherwise
 */
 extern tt_bool_t tt_sem_acquire_ntv(IN tt_sem_ntv_t *sys_sem,
-                                    IN tt_u32_t wait_ms);
+                                    IN tt_s64_t wait_ms);
 
 /**
 @fn tt_result_t tt_sem_try_acquire_ntv(IN tt_sem_ntv_t *sys_sem)

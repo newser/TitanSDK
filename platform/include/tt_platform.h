@@ -151,6 +151,10 @@ extern "C" {
 #include <network/adns/tt_adns_rr_a_in.h>
 #include <network/adns/tt_adns_rr_aaaa_in.h>
 #include <network/adns/tt_adns_rr_cname_in.h>
+#include <network/dns/tt_dns.h>
+#include <network/dns/tt_dns_cache.h>
+#include <network/dns/tt_dns_entry.h>
+#include <network/dns/tt_dns_rr.h>
 #include <network/ssh/context/tt_ssh_context.h>
 #include <network/ssh/context/tt_ssh_encrypt.h>
 #include <network/ssh/context/tt_ssh_encrypt_aes.h>

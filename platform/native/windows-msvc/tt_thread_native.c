@@ -156,7 +156,7 @@ void tt_thread_exit_ntv()
     }
 }
 
-VOID __thread_on_exit_ntv(IN PVOID *arg)
+VOID WINAPI __thread_on_exit_ntv(IN PVOID *arg)
 {
     tt_thread_t *thread = (tt_thread_t *)arg;
 

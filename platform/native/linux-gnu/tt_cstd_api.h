@@ -75,6 +75,12 @@ wrapped c malloc()
 #define tt_c_malloc malloc
 
 /**
+ @def tt_c_realloc
+ wrapped c realloc()
+ */
+#define tt_c_realloc realloc
+
+/**
 @def tt_c_free
 wrapped c free()
 */
@@ -163,7 +169,7 @@ tt_inline int tt_vsnprintf(char *str,
                            va_list ap)
 {
     int n = vsnprintf(str, size, format, ap);
-    if ((n < 0) || (n >= size)) {
+    if ((n < 0) || (n >= (int)size)) {
         n = size - 1;
     }
     return n;

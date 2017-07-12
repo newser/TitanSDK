@@ -474,7 +474,7 @@ tt_result_t tt_skt_recvfrom_ntv(IN tt_skt_ntv_t *skt,
     kq = __skt_ev_init(&skt_recvfrom.io_ev, __SKT_RECVFROM);
     cfb = skt_recvfrom.io_ev.src;
 
-    if (tt_fiber_recv_all(cfb, TT_FALSE, p_fev, p_tmr)) {
+    if (tt_fiber_recv(cfb, TT_FALSE, p_fev, p_tmr)) {
         return TT_SUCCESS;
     }
 
@@ -498,7 +498,7 @@ tt_result_t tt_skt_recvfrom_ntv(IN tt_skt_ntv_t *skt,
         tt_kq_unread(kq, skt->s, &skt_recvfrom.io_ev);
     }
 
-    if (tt_fiber_recv_all(cfb, TT_FALSE, p_fev, p_tmr)) {
+    if (tt_fiber_recv(cfb, TT_FALSE, p_fev, p_tmr)) {
         skt_recvfrom.result = TT_SUCCESS;
     }
 
@@ -573,7 +573,7 @@ tt_result_t tt_skt_recv_ntv(IN tt_skt_ntv_t *skt,
     kq = __skt_ev_init(&skt_recv.io_ev, __SKT_RECV);
     cfb = skt_recv.io_ev.src;
 
-    if (tt_fiber_recv_all(cfb, TT_FALSE, p_fev, p_tmr)) {
+    if (tt_fiber_recv(cfb, TT_FALSE, p_fev, p_tmr)) {
         return TT_SUCCESS;
     }
 
@@ -596,7 +596,7 @@ tt_result_t tt_skt_recv_ntv(IN tt_skt_ntv_t *skt,
         tt_kq_unread(kq, skt->s, &skt_recv.io_ev);
     }
 
-    if (tt_fiber_recv_all(cfb, TT_FALSE, p_fev, p_tmr)) {
+    if (tt_fiber_recv(cfb, TT_FALSE, p_fev, p_tmr)) {
         skt_recv.result = TT_SUCCESS;
     }
 
@@ -836,7 +836,7 @@ again:
         if (skt_send->pos < skt_send->len) {
             goto again;
         } else {
-            *skt_send->sent = skt_send->pos;
+            TT_SAFE_ASSIGN(skt_send->sent, skt_send->pos);
             skt_send->result = TT_SUCCESS;
             return TT_TRUE;
         }
@@ -849,7 +849,7 @@ again:
 
     // error
     if (skt_send->pos > 0) {
-        *skt_send->sent = skt_send->pos;
+        TT_SAFE_ASSIGN(skt_send->sent, skt_send->pos);
         skt_send->result = TT_SUCCESS;
     } else if ((errno == ECONNRESET) || (errno == EPIPE)
                // || (errno == ENETDOWN)
@@ -871,7 +871,7 @@ tt_bool_t __do_recv(IN tt_io_ev_t *io_ev)
 again:
     n = recv(skt_recv->skt->s, skt_recv->buf, skt_recv->len, 0);
     if (n > 0) {
-        *skt_recv->recvd = (tt_u32_t)n;
+        TT_SAFE_ASSIGN(skt_recv->recvd, (tt_u32_t)n);
         skt_recv->result = TT_SUCCESS;
         skt_recv->done = TT_TRUE;
         return TT_TRUE;
@@ -918,7 +918,7 @@ again:
         if (skt_sendto->pos < skt_sendto->len) {
             goto again;
         } else {
-            *skt_sendto->sent = skt_sendto->pos;
+            TT_SAFE_ASSIGN(skt_sendto->sent, skt_sendto->pos);
             skt_sendto->result = TT_SUCCESS;
             return TT_TRUE;
         }
@@ -931,7 +931,7 @@ again:
 
     // error
     if (skt_sendto->pos > 0) {
-        *skt_sendto->sent = skt_sendto->pos;
+        TT_SAFE_ASSIGN(skt_sendto->sent, skt_sendto->pos);
         skt_sendto->result = TT_SUCCESS;
     } else if ((errno == ECONNRESET) || (errno == EPIPE)
                // || (errno == ENETDOWN)
@@ -959,7 +959,7 @@ again:
                  (struct sockaddr *)skt_recvfrom->addr,
                  &addr_len);
     if (n > 0) {
-        *skt_recvfrom->recvd = (tt_u32_t)n;
+        TT_SAFE_ASSIGN(skt_recvfrom->recvd, (tt_u32_t)n);
         skt_recvfrom->result = TT_SUCCESS;
         skt_recvfrom->done = TT_TRUE;
         return TT_TRUE;

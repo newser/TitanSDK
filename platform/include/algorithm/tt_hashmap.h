@@ -81,7 +81,7 @@ typedef struct tt_hashmap_s
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-tt_inline void tt_mnode_init(IN tt_hnode_t *hnode)
+tt_inline void tt_hnode_init(IN tt_hnode_t *hnode)
 {
     hnode->key = NULL;
     tt_snode_init(&hnode->snode);

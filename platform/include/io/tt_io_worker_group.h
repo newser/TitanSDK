@@ -53,8 +53,10 @@ typedef struct tt_iowg_s
     tt_dlist_t ev_list;
     tt_io_worker_t *worker;
     tt_sem_t sem;
+    tt_io_worker_attr_t worker_attr;
     tt_spinlock_t lock;
     tt_u32_t worker_num;
+    tt_u32_t max_num;
 } tt_iowg_t;
 
 ////////////////////////////////////////////////////////////
@@ -69,16 +71,17 @@ extern tt_iowg_t tt_g_fs_iowg;
 
 extern void tt_iowg_component_register();
 
-extern tt_result_t tt_iowg_create(IN tt_iowg_t *iowg,
-                                  IN OPT tt_u32_t worker_num,
+extern tt_result_t tt_iowg_create(IN tt_iowg_t *wg,
+                                  IN OPT tt_u32_t min_num,
+                                  IN OPT tt_u32_t max_num,
                                   IN OPT tt_iowg_attr_t *attr);
 
-extern void tt_iowg_destroy(IN tt_iowg_t *iowg);
+extern void tt_iowg_destroy(IN tt_iowg_t *wg);
 
 extern void tt_iowg_attr_default(IN tt_iowg_attr_t *attr);
 
-extern struct tt_io_ev_s *tt_iowg_pop_ev(IN tt_iowg_t *iowg);
+extern struct tt_io_ev_s *tt_iowg_pop_ev(IN tt_iowg_t *wg);
 
-extern void tt_iowg_push_ev(IN tt_iowg_t *iowg, IN struct tt_io_ev_s *ev);
+extern void tt_iowg_push_ev(IN tt_iowg_t *wg, IN struct tt_io_ev_s *ev);
 
 #endif // __TT_IO_WORKER_GROUP__

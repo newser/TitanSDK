@@ -286,7 +286,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_map_basic)
 
         __h2_cases[i].key_len = len;
 
-        tt_mnode_init(&__h2_cases[i].hnode);
+        tt_hnode_init(&__h2_cases[i].hnode);
         if (i % 91 == 0) {
             TT_UT_EQUAL(tt_hmap_contain(&hmap, &__h2_cases[i].hnode),
                         TT_FALSE,
@@ -410,7 +410,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_map_share_key)
 
     TT_ASSERT(__knum <= __h2_num);
     for (i = 0; i < __knum; ++i) {
-        tt_mnode_init(&__h2_cases[i].hnode);
+        tt_hnode_init(&__h2_cases[i].hnode);
         if (i % 91 == 0) {
             TT_UT_EQUAL(tt_hmap_contain(&hmap, &__h2_cases[i].hnode),
                         TT_FALSE,

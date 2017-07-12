@@ -701,7 +701,7 @@ tt_result_t __ipc_svr_fev(IN void *param)
     tt_ipc_destroy(ipc);
 
     while ((__ipc_fev_num < __fiber_num * __ev_per_fiber) &&
-           ((fev = tt_fiber_recv(cfb, TT_TRUE)) != NULL)) {
+           ((fev = tt_fiber_recv_ev(cfb, TT_TRUE)) != NULL)) {
         if (fev->src != NULL) {
             if (fev->ev != 0xaabbccdd) {
                 __err_line = __LINE__;
@@ -734,13 +734,13 @@ tt_result_t __ipc_cli_fev(IN void *param)
         if (tt_rand_u32() % 2) {
             tt_fiber_ev_t fev;
             tt_fiber_ev_init(&fev, 0xaabbccdd);
-            tt_fiber_send(t, &fev, TT_TRUE);
+            tt_fiber_send_ev(t, &fev, TT_TRUE);
             if (fev.ev != 0xddccbbaa) {
                 __err_line = __LINE__;
             }
         } else {
             tt_fiber_ev_t *fev = tt_fiber_ev_create(0x11223344, 0);
-            tt_fiber_send(t, fev, TT_FALSE);
+            tt_fiber_send_ev(t, fev, TT_FALSE);
         }
     }
 
@@ -1026,7 +1026,7 @@ tt_result_t __ipc_svr_pev_fev(IN void *param)
     tt_ipc_destroy(ipc);
 
     while ((__ipc_fev_num < __fiber_num * __ev_per_fiber) &&
-           ((fev = tt_fiber_recv(cfb, TT_TRUE)) != NULL)) {
+           ((fev = tt_fiber_recv_ev(cfb, TT_TRUE)) != NULL)) {
         if (fev->src != NULL) {
             if (fev->ev != 0xaabbccdd) {
                 __err_line = __LINE__;

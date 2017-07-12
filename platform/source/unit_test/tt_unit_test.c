@@ -143,10 +143,10 @@ tt_result_t tt_test_unit_init(IN tt_ptr_t reserved)
     } while (0);
 #endif
 
-#if 0
+#if 1
     do {
-        tt_result_t tt_adns_ut_init(IN tt_ptr_t reserved);
-        tt_adns_ut_init(0);
+        tt_result_t tt_dns_ut_init(IN tt_ptr_t reserved);
+        tt_dns_ut_init(0);
     } while (0);
 #endif
 
@@ -171,7 +171,7 @@ tt_result_t tt_test_unit_init(IN tt_ptr_t reserved)
     } while (0);
 #endif
 
-#if 1
+#if 0
     do {
         tt_result_t tt_xml_ut_init(IN tt_ptr_t reserved);
         tt_xml_ut_init(0);

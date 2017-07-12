@@ -51,7 +51,7 @@ tt_iowg_t tt_g_fs_iowg;
 static tt_result_t __iowg_component_init(IN tt_component_t *comp,
                                          IN tt_profile_t *profile);
 
-static void __iowg_destroy_worker(IN tt_iowg_t *wg, IN tt_u32_t worker_num);
+static void __iowg_destroy_worker(IN tt_iowg_t *wg);
 
 ////////////////////////////////////////////////////////////
 // interface implementation
@@ -77,58 +77,87 @@ void tt_iowg_component_register()
 }
 
 tt_result_t tt_iowg_create(IN tt_iowg_t *wg,
-                           IN OPT tt_u32_t worker_num,
+                           IN OPT tt_u32_t min_num,
+                           IN OPT tt_u32_t max_num,
                            IN OPT tt_iowg_attr_t *attr)
 {
     tt_iowg_attr_t __attr;
     tt_u32_t i;
 
+    tt_u32_t __done = 0;
+#define __IOWG_MEM (1 << 0)
+#define __IOWG_SEM (1 << 1)
+#define __IOWG_LOCK (1 << 2)
+#define __IOWG_WKR (1 << 2)
+
     TT_ASSERT(wg != NULL);
+    TT_ASSERT(min_num <= max_num);
 
     if (attr == NULL) {
         tt_iowg_attr_default(&__attr);
         attr = &__attr;
     }
 
-    if (worker_num == 0) {
-        worker_num = 1;
-    }
-
     tt_dlist_init(&wg->ev_list);
 
-    wg->worker = tt_malloc(sizeof(tt_iowg_t) * worker_num);
+    wg->worker = tt_malloc(sizeof(tt_iowg_t) * max_num);
     if (wg->worker == NULL) {
         TT_ERROR("no mem for worker");
-        return TT_FAIL;
+        goto fail;
     }
+    __done |= __IOWG_MEM;
 
     if (!TT_OK(tt_sem_create(&wg->sem, 0, &attr->sem_attr))) {
         TT_ERROR("fail to create worker group sem");
-        tt_free(wg->worker);
-        return TT_FAIL;
+        goto fail;
     }
+    __done |= __IOWG_SEM;
+
+    tt_memcpy(&wg->worker_attr,
+              &attr->worker_attr,
+              sizeof(tt_io_worker_attr_t));
 
     if (!TT_OK(tt_spinlock_create(&wg->lock, &attr->lock_attr))) {
         TT_ERROR("fail to create worker group lock");
-        tt_sem_destroy(&wg->sem);
-        tt_free(wg->worker);
-        return TT_FAIL;
+        goto fail;
     }
+    __done |= __IOWG_LOCK;
 
-    for (i = 0; i < worker_num; ++i) {
-        if (!TT_OK(
-                tt_io_worker_create(&wg->worker[i], wg, &attr->worker_attr))) {
+    wg->worker_num = min_num;
+    wg->max_num = max_num;
+    for (i = 0; i < max_num; ++i) {
+        tt_io_worker_init(&wg->worker[i]);
+    }
+    __done |= __IOWG_WKR;
+
+    for (i = 0; i < min_num; ++i) {
+        if (!TT_OK(tt_io_worker_create(&wg->worker[i], wg, &wg->worker_attr))) {
             TT_ERROR("fail to create worker[%d]", i);
-            __iowg_destroy_worker(wg, i);
-            tt_spinlock_destroy(&wg->lock);
-            tt_sem_destroy(&wg->sem);
-            tt_free(wg->worker);
-            return TT_FAIL;
+            goto fail;
         }
     }
-    wg->worker_num = worker_num;
 
     return TT_SUCCESS;
+
+fail:
+
+    if (__done & __IOWG_WKR) {
+        __iowg_destroy_worker(wg);
+    }
+
+    if (__done & __IOWG_LOCK) {
+        tt_spinlock_destroy(&wg->lock);
+    }
+
+    if (__done & __IOWG_SEM) {
+        tt_sem_destroy(&wg->sem);
+    }
+
+    if (__done & __IOWG_MEM) {
+        tt_free(wg->worker);
+    }
+
+    return TT_FAIL;
 }
 
 void tt_iowg_destroy(IN tt_iowg_t *wg)
@@ -139,7 +168,7 @@ void tt_iowg_destroy(IN tt_iowg_t *wg)
         TT_FATAL("still event in worker group");
     }
 
-    __iowg_destroy_worker(wg, wg->worker_num);
+    __iowg_destroy_worker(wg);
     tt_free(wg->worker);
 
     tt_sem_destroy(&wg->sem);
@@ -169,17 +198,30 @@ tt_io_ev_t *tt_iowg_pop_ev(IN tt_iowg_t *wg)
 
 void tt_iowg_push_ev(IN tt_iowg_t *wg, IN tt_io_ev_t *ev)
 {
+    tt_bool_t i = wg->max_num;
+
     tt_spinlock_acquire(&wg->lock);
     tt_dlist_push_tail(&wg->ev_list, &ev->node);
+    if ((wg->worker_num < wg->max_num) &&
+        (tt_dlist_count(&wg->ev_list) > wg->worker_num)) {
+        i = wg->worker_num++;
+    }
     tt_spinlock_release(&wg->lock);
 
     tt_sem_release(&wg->sem);
+
+    if ((i < wg->max_num) &&
+        (!TT_OK(tt_io_worker_create(&wg->worker[i], wg, &wg->worker_attr)))) {
+        TT_ERROR("fail to create worker[%d]", i);
+        tt_io_worker_init(&wg->worker[i]);
+        // the ith worker has no opportunity to be created
+    }
 }
 
 tt_result_t __iowg_component_init(IN tt_component_t *comp,
                                   IN tt_profile_t *profile)
 {
-    if (!TT_OK(tt_iowg_create(&tt_g_fs_iowg, tt_g_cpu_num, NULL))) {
+    if (!TT_OK(tt_iowg_create(&tt_g_fs_iowg, 0, tt_g_cpu_num, NULL))) {
         TT_ERROR("fail to create global io worker group");
         return TT_FAIL;
     }
@@ -187,11 +229,12 @@ tt_result_t __iowg_component_init(IN tt_component_t *comp,
     return TT_SUCCESS;
 }
 
-void __iowg_destroy_worker(IN tt_iowg_t *wg, IN tt_u32_t worker_num)
+void __iowg_destroy_worker(IN tt_iowg_t *wg)
 {
     tt_u32_t i;
 
-    for (i = 0; i < worker_num; ++i) {
+    for (i = 0; (i < wg->worker_num) && tt_io_worker_running(&wg->worker[i]);
+         ++i) {
         tt_io_ev_t *ev = tt_xmalloc(sizeof(tt_io_ev_t));
 
         ev->src = NULL;
@@ -203,7 +246,8 @@ void __iowg_destroy_worker(IN tt_iowg_t *wg, IN tt_u32_t worker_num)
         tt_iowg_push_ev(wg, ev);
     }
 
-    for (i = 0; i < worker_num; ++i) {
+    for (i = 0; (i < wg->worker_num) && tt_io_worker_running(&wg->worker[i]);
+         ++i) {
         tt_io_worker_destroy(&wg->worker[i]);
     }
 }

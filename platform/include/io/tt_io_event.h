@@ -37,6 +37,7 @@
 ////////////////////////////////////////////////////////////
 
 struct tt_fiber_s;
+struct epoll_event;
 
 enum
 {
@@ -46,6 +47,7 @@ enum
     TT_IO_SOCKET,
     TT_IO_IPC,
     TT_IO_TIMER,
+    TT_IO_DNS,
 
     TT_IO_NUM
 };
@@ -64,6 +66,8 @@ typedef struct tt_io_ev_s
     };
     tt_u32_t io_bytes;
     tt_result_t io_result;
+#elif TT_ENV_OS_IS_LINUX
+    struct epoll_event *epev;
 #endif
     tt_u16_t io;
     tt_u16_t ev;

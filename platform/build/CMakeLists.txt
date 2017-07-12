@@ -82,6 +82,10 @@ include_directories(${PLATFORM_PATH}/depend/tls/mbedtls/include/mbedtls)
 include_directories(${PLATFORM_PATH}/depend/xml/include)
 include_directories(${PLATFORM_PATH}/depend/xml/pugixml)
 
+# depend: dns
+include_directories(${PLATFORM_PATH}/depend/dns/c-ares)
+include_directories(${PLATFORM_PATH}/depend/dns/include)
+
 #
 # source file
 #
@@ -119,7 +123,7 @@ ttcm_add_group_src(${PLATFORM_PATH}/native/${PLATFORM_ENV} native SRC_FILE)
 ttcm_add_group_src(${PLATFORM_PATH}/native/${PLATFORM_CPU} cpu SRC_FILE)
 
 ttcm_add_group_src(${PLATFORM_PATH}/source/network network SRC_FILE)
-# ttcm_add_group_src(${PLATFORM_PATH}/source/network/adns adns SRC_FILE)
+ttcm_add_group_src(${PLATFORM_PATH}/source/network/dns dns SRC_FILE)
 ttcm_add_group_src(${PLATFORM_PATH}/source/network/ssl ssl SRC_FILE)
 
 #ttcm_add_group_src(${PLATFORM_PATH}/source/network/ssh ssh SRC_FILE)
@@ -138,7 +142,7 @@ ttcm_add_group_src(${PLATFORM_PATH}/source/xml/test_case xml SRC_FILE)
 ttcm_add_group_src(${PLATFORM_PATH}/source/crypto/test_case crypto SRC_FILE)
 ttcm_add_group_src(${PLATFORM_PATH}/source/network/ssl/test_case ssl SRC_FILE)
 ttcm_add_group_src(${PLATFORM_PATH}/source/math/mp/test_case mp SRC_FILE)
-#ttcm_add_group_src(${PLATFORM_PATH}/source/network/adns/test_case adns SRC_FILE)
+ttcm_add_group_src(${PLATFORM_PATH}/source/network/dns/test_case dns SRC_FILE)
 
 #
 # build
@@ -177,3 +181,8 @@ target_link_libraries(platform ${CRYPTO_LIB} ${X509_LIB} ${TLS_LIB})
 # depends
 add_subdirectory(${PLATFORM_PATH}/depend/xml xml)
 target_link_libraries(platform xml)
+
+# depends
+set(DNS_LIB)
+add_subdirectory(${PLATFORM_PATH}/depend/dns dns)
+target_link_libraries(platform ${DNS_LIB})

@@ -63,7 +63,7 @@ TT_TEST_ROUTINE_DECLARE(tt_unit_test_task)
 
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(fiber_case)
-#if 0
+
 TT_TEST_CASE("tt_unit_test_fiber_basic",
              "testing basic fiber API",
              tt_unit_test_fiber_basic,
@@ -109,17 +109,15 @@ TT_TEST_CASE("tt_unit_test_fiber_basic",
                  NULL,
                  NULL,
                  NULL),
-#endif
 
-TT_TEST_CASE("tt_unit_test_task",
-             "testing task basic",
-             tt_unit_test_task,
-             NULL,
-             NULL,
-             NULL,
-             NULL,
-             NULL)
-,
+    TT_TEST_CASE("tt_unit_test_task",
+                 "testing task basic",
+                 tt_unit_test_task,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL),
 
     TT_TEST_CASE("tt_unit_test_fiber_event",
                  "testing fiber event send/recv",
@@ -601,15 +599,17 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_worker_group)
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_iowg_t wg;
     tt_result_t ret;
+    tt_u32_t n;
 
     TT_TEST_CASE_ENTER()
     // test start
 
-    ret = tt_iowg_create(&wg, 0, NULL);
+    ret = tt_iowg_create(&wg, 0, 0, NULL);
     TT_UT_SUCCESS(ret, "");
     tt_iowg_destroy(&wg);
 
-    ret = tt_iowg_create(&wg, tt_rand_u32() % 10, NULL);
+    n = tt_rand_u32() % 10;
+    ret = tt_iowg_create(&wg, n, n + tt_rand_u32() % 10, NULL);
     TT_UT_SUCCESS(ret, "");
     tt_iowg_destroy(&wg);
 
@@ -693,7 +693,7 @@ static tt_result_t __fiber_ev_send(IN void *param)
         tt_fiber_ev_init(&uev.fev, i);
         uev.resp = i;
 
-        tt_fiber_send(recv, &uev.fev, TT_TRUE);
+        tt_fiber_send_ev(recv, &uev.fev, TT_TRUE);
         if (uev.resp != i + 100) {
             __err_line = __LINE__;
         }
@@ -710,7 +710,7 @@ static tt_result_t __fiber_ev_recv(IN void *param)
     tt_fiber_t *cfb = tt_current_fiber();
 
     while (i < 1000) {
-        tt_fiber_ev_t *fev = tt_fiber_recv(cfb, TT_TRUE);
+        tt_fiber_ev_t *fev = tt_fiber_recv_ev(cfb, TT_TRUE);
         struct __ut_fev *uev;
 
         TT_ASSERT(fev != NULL);
@@ -742,14 +742,14 @@ static tt_result_t __fiber_ev_send_nw(IN void *param)
             }
             uev->resp = i;
 
-            tt_fiber_send(recv, &uev->fev, TT_FALSE);
+            tt_fiber_send_ev(recv, &uev->fev, TT_FALSE);
         } else {
             struct __ut_fev uev;
 
             tt_fiber_ev_init(&uev.fev, i);
             uev.resp = i;
 
-            tt_fiber_send(recv, &uev.fev, TT_TRUE);
+            tt_fiber_send_ev(recv, &uev.fev, TT_TRUE);
             if (uev.resp != i + 200) {
                 __err_line = __LINE__;
             }
@@ -769,7 +769,7 @@ static tt_result_t __fiber_ev_recv_nw(IN void *param)
     tt_fiber_t *cfb = tt_current_fiber();
 
     while (i < 1000) {
-        tt_fiber_ev_t *fev = tt_fiber_recv(cfb, TT_FALSE);
+        tt_fiber_ev_t *fev = tt_fiber_recv_ev(cfb, TT_FALSE);
         struct __ut_fev *uev;
 
         if (fev != NULL) {

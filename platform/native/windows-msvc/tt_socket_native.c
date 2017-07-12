@@ -246,6 +246,7 @@ typedef struct
     tt_u8_t *buf;
     tt_u32_t *recvd;
     tt_sktaddr_t *addr;
+    tt_sktaddr_t __addr;
     tt_u32_t len;
 
     tt_result_t result;
@@ -261,13 +262,14 @@ typedef struct
 // global variant
 ////////////////////////////////////////////////////////////
 
-static BOOL(PASCAL FAR *tt_ConnectEx)(SOCKET s,
-                                      const struct sockaddr *name,
-                                      int namelen,
-                                      PVOID lpSendBuffer,
-                                      DWORD dwSendDataLength,
-                                      LPDWORD lpdwBytesSent,
-                                      LPOVERLAPPED lpOverlapped);
+BOOL(PASCAL FAR *tt_ConnectEx)
+(SOCKET s,
+ const struct sockaddr *name,
+ int namelen,
+ PVOID lpSendBuffer,
+ DWORD dwSendDataLength,
+ LPDWORD lpdwBytesSent,
+ LPOVERLAPPED lpOverlapped);
 
 static BOOL(PASCAL FAR *tt_AcceptEx)(SOCKET sListenSocket,
                                      SOCKET sAcceptSocket,
@@ -586,14 +588,14 @@ tt_result_t tt_skt_recvfrom_ntv(IN tt_skt_ntv_t *skt,
     __skt_ev_init(&skt_recvfrom.io_ev, __SKT_RECVFROM);
     cfb = skt_recvfrom.io_ev.src;
 
-    if (tt_fiber_recv_all(cfb, TT_FALSE, p_fev, p_tmr)) {
+    if (tt_fiber_recv(cfb, TT_FALSE, p_fev, p_tmr)) {
         return TT_SUCCESS;
     }
 
     skt_recvfrom.skt = skt;
     skt_recvfrom.buf = buf;
     skt_recvfrom.recvd = recvd;
-    skt_recvfrom.addr = addr;
+    skt_recvfrom.addr = TT_COND(addr != NULL, addr, &skt_recvfrom.__addr);
     skt_recvfrom.len = len;
 
     skt_recvfrom.result = TT_FAIL;
@@ -618,7 +620,7 @@ tt_result_t tt_skt_recvfrom_ntv(IN tt_skt_ntv_t *skt,
                      1,
                      NULL,
                      &Flags,
-                     (struct sockaddr *)addr,
+                     (struct sockaddr *)skt_recvfrom.addr,
                      (LPINT)&Fromlen,
                      &skt_recvfrom.io_ev.wov,
                      NULL) == 0) ||
@@ -638,7 +640,7 @@ tt_result_t tt_skt_recvfrom_ntv(IN tt_skt_ntv_t *skt,
             }
         }
 
-        if (tt_fiber_recv_all(cfb, TT_FALSE, p_fev, p_tmr)) {
+        if (tt_fiber_recv(cfb, TT_FALSE, p_fev, p_tmr)) {
             skt_recvfrom.result = TT_SUCCESS;
         }
 
@@ -749,7 +751,7 @@ tt_result_t tt_skt_recv_ntv(IN tt_skt_ntv_t *skt,
     __skt_ev_init(&skt_recv.io_ev, __SKT_RECV);
     cfb = skt_recv.io_ev.src;
 
-    if (tt_fiber_recv_all(cfb, TT_FALSE, p_fev, p_tmr)) {
+    if (tt_fiber_recv(cfb, TT_FALSE, p_fev, p_tmr)) {
         return TT_SUCCESS;
     }
 
@@ -790,7 +792,7 @@ tt_result_t tt_skt_recv_ntv(IN tt_skt_ntv_t *skt,
             }
         }
 
-        if (tt_fiber_recv_all(cfb, TT_FALSE, p_fev, p_tmr)) {
+        if (tt_fiber_recv(cfb, TT_FALSE, p_fev, p_tmr)) {
             skt_recv.result = TT_SUCCESS;
         }
 

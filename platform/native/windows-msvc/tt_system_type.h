@@ -171,6 +171,10 @@ typedef ptrdiff_t tt_ptrdiff_t;
 
 typedef size_t tt_size_t;
 
+typedef float tt_float_t;
+
+typedef double tt_double_t;
+
 #if TT_ENV_TOOLCHAIN_VER <= TT_ENV_TOOLCHAIN_MSVC_2012
 #define va_copy(dst, src) ((dst) = (src))
 #endif

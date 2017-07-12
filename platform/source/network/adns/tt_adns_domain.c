@@ -323,7 +323,7 @@ tt_adns_domain_t *__adns_dm_create(IN const tt_char_t *name,
     // ending null has been copied
 
     dm->dmgr = dmgr;
-    tt_mnode_init(&dm->dmgr_node);
+    tt_hnode_init(&dm->dmgr_node);
     dm->ref = 0;
 
     for (i = 0; i < TT_ADNS_RR_TYPE_NUM; ++i) {

@@ -95,7 +95,7 @@ void tt_sem_destroy_ntv(IN tt_sem_ntv_t *sys_sem)
     }
 }
 
-tt_bool_t tt_sem_acquire_ntv(IN tt_sem_ntv_t *sys_sem, IN tt_u32_t wait_ms)
+tt_bool_t tt_sem_acquire_ntv(IN tt_sem_ntv_t *sys_sem, IN tt_s64_t wait_ms)
 {
     int ret;
     tt_bool_t result = TT_TRUE;
@@ -109,7 +109,7 @@ tt_bool_t tt_sem_acquire_ntv(IN tt_sem_ntv_t *sys_sem, IN tt_u32_t wait_ms)
 
     --sys_sem->count;
     if (sys_sem->count < 0) {
-        if (wait_ms == TT_TIME_INFINITE) {
+        if (wait_ms == (tt_s32_t)TT_TIME_INFINITE) {
             ret = pthread_cond_wait(&sys_sem->cond, &sys_sem->mutex);
             if (ret != 0) {
                 TT_FATAL("fail to wait sem-cond: %d[%s]", ret, strerror(ret));

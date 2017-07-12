@@ -304,7 +304,7 @@ tt_result_t tt_xnode_set_value(IN tt_xnode_t xn, IN const tt_char_t *value)
 
 tt_bool_t tt_xnode_get_bool(IN tt_xnode_t xn, IN tt_bool_t def)
 {
-    if (PN(xn).text().as_bool(def)) {
+    if (PN(xn).text().as_bool(def == TT_TRUE)) {
         return TT_TRUE;
     } else {
         return TT_FALSE;
@@ -313,7 +313,7 @@ tt_bool_t tt_xnode_get_bool(IN tt_xnode_t xn, IN tt_bool_t def)
 
 tt_result_t tt_xnode_set_bool(IN tt_xnode_t xn, IN tt_bool_t value)
 {
-    if (PN(xn).text().set((bool)value)) {
+    if (PN(xn).text().set(value == TT_TRUE)) {
         return TT_SUCCESS;
     } else {
         return TT_FAIL;

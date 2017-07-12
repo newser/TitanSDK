@@ -88,7 +88,9 @@ void tt_io_worker_destroy(IN tt_io_worker_t *w)
 {
     TT_ASSERT(w != NULL);
 
-    tt_thread_wait(w->thread);
+    if (w->thread != NULL) {
+        tt_thread_wait(w->thread);
+    }
 }
 
 void tt_io_worker_attr_default(IN tt_io_worker_attr_t *attr)
