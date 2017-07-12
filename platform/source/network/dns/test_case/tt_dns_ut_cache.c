@@ -28,6 +28,8 @@
 
 #define DUT_INFO TT_INFO
 
+#define __INUSE_LIMIT 3600000 // see tt_dns_cache.c
+
 ////////////////////////////////////////////////////////////
 // internal type
 ////////////////////////////////////////////////////////////
@@ -39,6 +41,8 @@
 extern tt_dns_entry_t *__de_get(IN tt_dns_cache_t *dc,
                                 IN const tt_char_t *name,
                                 IN tt_bool_t create);
+
+extern void __dc_check_inuse(IN tt_dns_cache_t *dc, IN tt_s64_t now);
 
 ////////////////////////////////////////////////////////////
 // global variant
@@ -54,7 +58,6 @@ TT_TEST_ROUTINE_DECLARE(tt_unit_test_dc_exception)
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(dns_cache_case)
 
-#if 1
 TT_TEST_CASE("tt_unit_test_dc_basic",
              "dns cache basic",
              tt_unit_test_dc_basic,
@@ -65,6 +68,7 @@ TT_TEST_CASE("tt_unit_test_dc_basic",
              NULL)
 ,
 
+#if 1
     TT_TEST_CASE("tt_unit_test_dc_get_a",
                  "dns cache get a record",
                  tt_unit_test_dc_get_a,
@@ -82,7 +86,6 @@ TT_TEST_CASE("tt_unit_test_dc_basic",
                  NULL,
                  NULL,
                  NULL),
-#endif
 
     TT_TEST_CASE("tt_unit_test_dc_exception",
                  "dns cache get exceptional case",
@@ -92,6 +95,7 @@ TT_TEST_CASE("tt_unit_test_dc_basic",
                  NULL,
                  NULL,
                  NULL),
+#endif
 
     TT_TEST_CASE_LIST_DEFINE_END(dns_cache_case)
     // =========================================
@@ -146,7 +150,7 @@ TT_TEST_CASE("tt_unit_test_dc_basic",
 
     // empty cache, wait infinite
     ms = tt_dns_cache_run(dc);
-    TT_UT_EQUAL(ms, TT_TIME_INFINITE, "");
+    TT_UT_EXP(abs((int)ms - __INUSE_LIMIT) < 20, "");
 
     de = __de_get(dc, "123", TT_FALSE);
     TT_UT_NULL(de, "");
@@ -160,6 +164,37 @@ TT_TEST_CASE("tt_unit_test_dc_basic",
     TT_UT_EQUAL(de, de2, "");
     TT_UT_EQUAL(tt_hmap_count(&dc->map), 1, "");
     TT_UT_EQUAL(tt_ptrheap_count(&dc->heap), 1, "");
+
+    now = tt_time_ref();
+    TT_UT_EQUAL(tt_dns_entry_inuse(de2, now, 10000), TT_FALSE, "");
+    TT_UT_EQUAL(tt_dns_rr_inuse(&de2->rr[TT_DNS_A_IN]), TT_FALSE, "");
+    TT_UT_EQUAL(tt_dns_rr_inuse(&de2->rr[TT_DNS_AAAA_IN]), TT_FALSE, "");
+    {
+        // hacking
+        tt_dns_rr_t *drr = &de2->rr[TT_DNS_AAAA_IN];
+        tt_dnode_t node;
+
+        TT_UT_NULL(drr->querying_fb, "");
+        drr->querying_fb = (tt_fiber_t *)drr;
+        TT_UT_EQUAL(tt_dns_rr_inuse(drr), TT_TRUE, "");
+        TT_UT_EQUAL(tt_dns_entry_inuse(de2, now, tt_time_ms2ref(10000)),
+                    TT_TRUE,
+                    "");
+        TT_UT_EQUAL(tt_dns_entry_inuse(de2, now, 1), TT_TRUE, "");
+        drr->querying_fb = NULL;
+
+        tt_dnode_init(&node);
+        tt_dlist_push_head(&drr->waiting, &node);
+        TT_UT_EQUAL(tt_dns_rr_inuse(drr), TT_TRUE, "");
+        tt_dlist_pop_head(&drr->waiting);
+
+        TT_UT_EQUAL(tt_dns_rr_inuse(drr), TT_FALSE, "");
+        now = tt_time_ref();
+        TT_UT_EQUAL(tt_dns_entry_inuse(de2, now, tt_time_ms2ref(10000)),
+                    TT_TRUE,
+                    "");
+        TT_UT_EQUAL(tt_dns_entry_inuse(de2, now, 1), TT_FALSE, "");
+    }
 
     de2 = __de_get(dc, "1234", TT_FALSE);
     TT_UT_NULL(de2, "");
@@ -225,7 +260,25 @@ TT_TEST_CASE("tt_unit_test_dc_basic",
     tt_sleep(400);
     // both de and de2 expired now
     ms = tt_dns_cache_run(dc);
-    TT_UT_EQUAL(ms, TT_TIME_INFINITE, "");
+    TT_UT_EXP(ms > 10000, "");
+
+    TT_UT_EQUAL(tt_hmap_count(&dc->map), 2, "");
+    TT_UT_EQUAL(tt_ptrheap_count(&dc->heap), 2, "");
+    {
+        // hacking
+        dc->next_check = 0;
+        ms = tt_dns_cache_run(dc);
+        TT_UT_EXP(ms > 10000, "");
+        TT_UT_EQUAL(tt_hmap_count(&dc->map), 2, "");
+        TT_UT_EQUAL(tt_ptrheap_count(&dc->heap), 2, "");
+    }
+    {
+        // force the two entry expire
+        __dc_check_inuse(dc,
+                         tt_time_ref() + tt_time_ms2ref(__INUSE_LIMIT + 10000));
+        TT_UT_EQUAL(tt_hmap_count(&dc->map), 0, "");
+        TT_UT_EQUAL(tt_ptrheap_count(&dc->heap), 0, "");
+    }
 
     tt_dns_cache_destroy(dc);
 

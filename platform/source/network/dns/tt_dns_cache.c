@@ -32,6 +32,8 @@
 // internal macro
 ////////////////////////////////////////////////////////////
 
+#define __INUSE_LIMIT (3600 * 1000) // 1 hour
+
 ////////////////////////////////////////////////////////////
 // internal type
 ////////////////////////////////////////////////////////////
@@ -48,12 +50,16 @@ tt_dns_rrlist_t __empty_rrlist_a;
 
 tt_dns_rrlist_t __empty_rrlist_aaaa;
 
+static tt_s64_t __s_inuse_limit;
+
 ////////////////////////////////////////////////////////////
 // interface declaration
 ////////////////////////////////////////////////////////////
 
 static tt_result_t __dc_component_init(IN tt_component_t *comp,
                                        IN tt_profile_t *profile);
+
+void __dc_check_inuse(IN tt_dns_cache_t *dc, IN tt_s64_t now);
 
 static tt_s32_t __de_cmp(IN void *l, IN void *r);
 
@@ -65,6 +71,11 @@ static tt_bool_t __de_destroy(IN tt_u8_t *key,
 tt_dns_entry_t *__de_get(IN tt_dns_cache_t *dc,
                          IN const tt_char_t *name,
                          IN tt_bool_t create);
+
+static tt_bool_t __de_check_inuse(IN tt_u8_t *key,
+                                  IN tt_u32_t key_len,
+                                  IN tt_hnode_t *hnode,
+                                  IN void *param);
 
 ////////////////////////////////////////////////////////////
 // interface implementation
@@ -100,6 +111,8 @@ tt_dns_cache_t *tt_dns_cache_create(IN OPT tt_dns_cache_attr_t *attr)
         TT_ERROR("no mem for new dns cache");
         return NULL;
     }
+
+    dc->next_check = tt_time_ref() + __s_inuse_limit;
 
     dc->d = tt_dns_create(&attr->dns_attr);
     if (dc->d == NULL) {
@@ -144,18 +157,27 @@ void tt_dns_cache_attr_default(IN tt_dns_cache_attr_t *attr)
 
 tt_s64_t tt_dns_cache_run(IN tt_dns_cache_t *dc)
 {
-    tt_s64_t dns_ms, ttl_ms, now;
+    tt_s64_t min_ms, ms, now;
     tt_dns_entry_t *de;
 
-    dns_ms = tt_dns_run(dc->d);
+    min_ms = tt_dns_run(dc->d);
 
-    ttl_ms = TT_TIME_INFINITE;
+    ms = TT_TIME_INFINITE;
     now = tt_time_ref();
     while (((de = tt_ptrheap_head(&dc->heap)) != NULL) &&
-           tt_dns_entry_run(de, now, &ttl_ms))
+           tt_dns_entry_run(de, now, &ms))
         ;
+    min_ms = TT_MIN(min_ms, ms);
 
-    return TT_MIN(dns_ms, ttl_ms);
+    if (dc->next_check <= now) {
+        dc->next_check = now + __s_inuse_limit;
+        __dc_check_inuse(dc, now);
+    }
+    TT_ASSERT(dc->next_check > now);
+    ms = tt_time_ref2ms(dc->next_check - now);
+    min_ms = TT_MIN(min_ms, ms);
+
+    return min_ms;
 }
 
 tt_dns_rrlist_t *tt_dns_get_a(IN const tt_char_t *name)
@@ -193,7 +215,14 @@ tt_result_t __dc_component_init(IN tt_component_t *comp,
 
     tt_dns_rrlist_init(&__empty_rrlist_aaaa, TT_DNS_AAAA_IN);
 
+    __s_inuse_limit = tt_time_ms2ref(__INUSE_LIMIT);
+
     return TT_SUCCESS;
+}
+
+void __dc_check_inuse(IN tt_dns_cache_t *dc, IN tt_s64_t now)
+{
+    tt_hmap_foreach(&dc->map, __de_check_inuse, (void *)&now);
 }
 
 tt_s32_t __de_cmp(IN void *l, IN void *r)
@@ -236,4 +265,16 @@ tt_dns_entry_t *__de_get(IN tt_dns_cache_t *dc,
     } else {
         return NULL;
     }
+}
+
+tt_bool_t __de_check_inuse(IN tt_u8_t *key,
+                           IN tt_u32_t key_len,
+                           IN tt_hnode_t *hnode,
+                           IN void *param)
+{
+    tt_dns_entry_t *de = TT_CONTAINER(hnode, tt_dns_entry_t, hnode);
+    if (!tt_dns_entry_inuse(de, *(tt_s64_t *)param, __s_inuse_limit)) {
+        tt_dns_entry_destroy(de);
+    }
+    return TT_TRUE;
 }

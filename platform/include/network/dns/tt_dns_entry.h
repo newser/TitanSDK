@@ -42,6 +42,7 @@ struct tt_dns_cache_s;
 typedef struct
 {
     tt_s64_t ttl;
+    tt_s64_t timestamp;
     struct tt_dns_cache_s *dc;
     const tt_char_t *name;
     tt_hnode_t hnode;
@@ -72,6 +73,10 @@ extern void tt_dns_entry_update_ttl(IN tt_dns_entry_t *de, IN tt_s64_t ttl);
 extern tt_bool_t tt_dns_entry_run(IN tt_dns_entry_t *de,
                                   IN tt_s64_t now,
                                   OUT tt_s64_t *ttl_ms);
+
+extern tt_bool_t tt_dns_entry_inuse(IN tt_dns_entry_t *de,
+                                    IN tt_s64_t now,
+                                    IN tt_s64_t limit);
 
 extern tt_dns_rrlist_t *tt_dns_entry_get_a(IN tt_dns_entry_t *de);
 

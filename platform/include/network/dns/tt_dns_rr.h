@@ -98,6 +98,12 @@ extern void tt_dns_rr_set(IN tt_dns_rr_t *drr,
                           IN tt_dns_rrlist_t *rrl,
                           IN tt_bool_t notify);
 
+tt_inline tt_bool_t tt_dns_rr_inuse(IN tt_dns_rr_t *drr)
+{
+    return TT_BOOL((drr->querying_fb != NULL) ||
+                   !tt_dlist_empty(&drr->waiting));
+}
+
 // ========================================
 // rr list
 // ========================================

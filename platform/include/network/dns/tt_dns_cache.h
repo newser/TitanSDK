@@ -42,6 +42,7 @@ struct tt_dns_rrlist_s;
 
 typedef struct tt_dns_cache_s
 {
+    tt_s64_t next_check;
     tt_dns_t d;
     tt_hashmap_t map;
     tt_ptrheap_t heap;

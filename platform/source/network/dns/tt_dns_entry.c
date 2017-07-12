@@ -70,6 +70,7 @@ tt_dns_entry_t *tt_dns_entry_create(IN struct tt_dns_cache_s *dc,
     }
 
     de->ttl = TT_TIME_INFINITE;
+    de->timestamp = tt_time_ref();
     de->dc = dc;
 
     de->name = TT_PTR_INC(const tt_char_t, de, sizeof(tt_dns_entry_t));
@@ -137,13 +138,39 @@ tt_bool_t tt_dns_entry_run(IN tt_dns_entry_t *de,
     }
 }
 
+tt_bool_t tt_dns_entry_inuse(IN tt_dns_entry_t *de,
+                             IN tt_s64_t now,
+                             IN tt_s64_t limit)
+{
+    tt_dns_type_t t;
+
+    if ((de->timestamp + limit) >= now) {
+        return TT_TRUE;
+    }
+
+    for (t = 0; t < TT_DNS_TYPE_NUM; ++t) {
+        if (tt_dns_rr_inuse(&de->rr[t])) {
+            // this is not expected: long time no rr query, but rr is still
+            // inuse
+            TT_WARN("dns rr is inuse");
+            // update timestamp so as to avoid checking each rr again
+            de->timestamp = tt_time_ref();
+            return TT_TRUE;
+        }
+    }
+
+    return TT_FALSE;
+}
+
 tt_dns_rrlist_t *tt_dns_entry_get_a(IN tt_dns_entry_t *de)
 {
+    de->timestamp = tt_time_ref();
     return tt_dns_rr_get(&de->rr[TT_DNS_A_IN], de->dc->d);
 }
 
 tt_dns_rrlist_t *tt_dns_entry_get_aaaa(IN tt_dns_entry_t *de)
 {
+    de->timestamp = tt_time_ref();
     return tt_dns_rr_get(&de->rr[TT_DNS_AAAA_IN], de->dc->d);
 }
 
