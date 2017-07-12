@@ -166,7 +166,9 @@ TT_TEST_CASE("tt_unit_test_dc_basic",
     TT_UT_EQUAL(tt_ptrheap_count(&dc->heap), 1, "");
 
     now = tt_time_ref();
-    TT_UT_EQUAL(tt_dns_entry_inuse(de2, now, 10000), TT_FALSE, "");
+    TT_UT_EQUAL(tt_dns_entry_inuse(de2, now, tt_time_ms2ref(10000)),
+                TT_TRUE,
+                "");
     TT_UT_EQUAL(tt_dns_rr_inuse(&de2->rr[TT_DNS_A_IN]), TT_FALSE, "");
     TT_UT_EQUAL(tt_dns_rr_inuse(&de2->rr[TT_DNS_AAAA_IN]), TT_FALSE, "");
     {
@@ -193,7 +195,12 @@ TT_TEST_CASE("tt_unit_test_dc_basic",
         TT_UT_EQUAL(tt_dns_entry_inuse(de2, now, tt_time_ms2ref(10000)),
                     TT_TRUE,
                     "");
-        TT_UT_EQUAL(tt_dns_entry_inuse(de2, now, 1), TT_FALSE, "");
+        {
+            tt_s64_t bak = de2->timestamp;
+            de2->timestamp = now - 100;
+            TT_UT_EQUAL(tt_dns_entry_inuse(de2, now, 1), TT_FALSE, "");
+            de2->timestamp = bak;
+        }
     }
 
     de2 = __de_get(dc, "1234", TT_FALSE);
@@ -241,10 +248,11 @@ TT_TEST_CASE("tt_unit_test_dc_basic",
     ms = tt_dns_cache_run(dc);
     TT_UT_EXP(abs((int)ms - 100) < 20, "");
 
-    tt_sleep(100);
+    tt_sleep(150);
     ms = tt_dns_cache_run(dc);
-    // de1 expired, de2 has 300ms left
-    TT_UT_EXP(abs((int)ms - 300) < 20, "");
+    // de1 expired, de2 has 250ms left
+    TT_INFO("ms: %d", ms);
+    TT_UT_EXP(abs((int)ms - 250) < 20, "");
     now = tt_time_ref();
 
     ttl_ms = 123;
@@ -255,7 +263,7 @@ TT_TEST_CASE("tt_unit_test_dc_basic",
     ttl_ms = 123;
     b_ret = tt_dns_entry_run(de2, now, &ttl_ms);
     TT_UT_EQUAL(b_ret, TT_FALSE, "");
-    TT_UT_EXP(abs((int)ttl_ms - 300) < 20, "");
+    TT_UT_EXP(abs((int)ttl_ms - 250) < 20, "");
 
     tt_sleep(400);
     // both de and de2 expired now
