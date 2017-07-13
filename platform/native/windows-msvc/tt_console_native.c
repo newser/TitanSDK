@@ -55,14 +55,14 @@ typedef struct
 // global variant
 ////////////////////////////////////////////////////////////
 
-static HANDLE __cons_stdin_hdl;
-static DWORD __cons_stdin_mode;
+static HANDLE __stdin_hdl;
+static DWORD __stdin_mode;
 
-static HANDLE __cons_stdout_hdl;
-static DWORD __cons_stdout_mode;
+static HANDLE __stdout_hdl;
+static DWORD __stdout_mode;
 
-static HANDLE __cons_stderr_hdl;
-static DWORD __cons_stderr_mode;
+static HANDLE __stderr_hdl;
+static DWORD __stderr_mode;
 
 static tt_console_input_mode_t __cons_imode;
 static tt_console_output_mode_t __cons_omode;
@@ -86,6 +86,7 @@ static __cons_keycode_t __cons_keycode[TT_CONS_EXTKEY_NUM] = {
 };
 
 static tt_result_t __send_right();
+
 static tt_result_t __send_left();
 
 static __send_extkey_t __send_extkey[TT_CONS_EXTKEY_NUM] = {
@@ -108,11 +109,13 @@ static __send_extkey_t __send_extkey[TT_CONS_EXTKEY_NUM] = {
 
 static tt_result_t __stdin_config();
 
-static tt_result_t __cons_send_key(IN tt_u8_t *key, IN tt_u32_t key_num);
-
 static tt_u8_t __key_map_vk(IN WORD vk);
+
 static tt_u8_t __key_map_ctrl(IN CHAR c);
+
 static tt_u8_t __key_map_basic(IN CHAR c);
+
+static tt_result_t __cons_send_key(IN tt_u8_t *key, IN tt_u32_t key_num);
 
 ////////////////////////////////////////////////////////////
 // interface implementation
@@ -120,32 +123,32 @@ static tt_u8_t __key_map_basic(IN CHAR c);
 
 tt_result_t tt_console_init_ntv()
 {
-    __cons_stdin_hdl = GetStdHandle(STD_INPUT_HANDLE);
-    if (__cons_stdin_hdl == INVALID_HANDLE_VALUE) {
+    __stdin_hdl = GetStdHandle(STD_INPUT_HANDLE);
+    if (__stdin_hdl == INVALID_HANDLE_VALUE) {
         TT_ERROR_NTV("fail to get stdin handle");
         return TT_FAIL;
     }
-    if (!GetConsoleMode(__cons_stdin_hdl, &__cons_stdin_mode)) {
+    if (!GetConsoleMode(__stdin_hdl, &__stdin_mode)) {
         TT_ERROR_NTV("fail to get stdin mode");
         return TT_FAIL;
     }
 
-    __cons_stdout_hdl = GetStdHandle(STD_OUTPUT_HANDLE);
-    if (__cons_stdout_hdl == INVALID_HANDLE_VALUE) {
+    __stdout_hdl = GetStdHandle(STD_OUTPUT_HANDLE);
+    if (__stdout_hdl == INVALID_HANDLE_VALUE) {
         TT_ERROR_NTV("fail to get stdout handle");
         return TT_FAIL;
     }
-    if (!GetConsoleMode(__cons_stdout_hdl, &__cons_stdout_mode)) {
+    if (!GetConsoleMode(__stdout_hdl, &__stdout_mode)) {
         TT_ERROR_NTV("fail to get stdout mode");
         return TT_FAIL;
     }
 
-    __cons_stderr_hdl = GetStdHandle(STD_ERROR_HANDLE);
-    if (__cons_stderr_hdl == INVALID_HANDLE_VALUE) {
+    __stderr_hdl = GetStdHandle(STD_ERROR_HANDLE);
+    if (__stderr_hdl == INVALID_HANDLE_VALUE) {
         TT_ERROR_NTV("fail to get stderr handle");
         return TT_FAIL;
     }
-    if (!GetConsoleMode(__cons_stderr_hdl, &__cons_stderr_mode)) {
+    if (!GetConsoleMode(__stderr_hdl, &__stderr_mode)) {
         TT_ERROR_NTV("fail to get stderr mode");
         return TT_FAIL;
     }
@@ -169,7 +172,7 @@ tt_result_t tt_console_enter_ntv()
 void tt_console_exit_ntv()
 {
     // restore stdin term
-    if (!SetConsoleMode(__cons_stdin_hdl, __cons_stdin_mode)) {
+    if (!SetConsoleMode(__stdin_hdl, __stdin_mode)) {
         TT_ERROR_NTV("fail to set stdin mode");
     }
 }
@@ -194,16 +197,13 @@ tt_result_t tt_console_recv_ntv(OUT tt_cons_ev_t *ev,
     DWORD i;
     tt_u32_t key_num;
 
-    if (!ReadConsoleInputA(__cons_stdin_hdl,
+    if (!ReadConsoleInputA(__stdin_hdl,
                            __stdin_evbuf,
                            __STDIN_SIZE,
-                           &NumberOfEventsRead)) {
+                           &NumberOfEventsRead) ||
+        (NumberOfEventsRead == 0)) {
         TT_ERROR_NTV("fail to read console input");
         return TT_FAIL;
-    }
-
-    if (NumberOfEventsRead == 0) {
-        return TT_PROCEEDING;
     }
     // TT_DEBUG("%d console events", NumberOfEventsRead);
 
@@ -280,120 +280,15 @@ tt_result_t tt_console_send_ntv(IN tt_cons_ev_t ev,
 
 tt_result_t __stdin_config()
 {
-    DWORD mode = __cons_stdin_mode;
+    DWORD mode = __stdin_mode;
 
     mode &= ~(ENABLE_ECHO_INPUT | ENABLE_LINE_INPUT | ENABLE_MOUSE_INPUT |
               ENABLE_PROCESSED_INPUT | ENABLE_QUICK_EDIT_MODE |
               ENABLE_WINDOW_INPUT);
     mode |= ENABLE_INSERT_MODE;
 
-    if (!SetConsoleMode(__cons_stdin_hdl, mode)) {
+    if (!SetConsoleMode(__stdin_hdl, mode)) {
         TT_ERROR_NTV("fail to set stdin mode");
-        return TT_FAIL;
-    }
-
-    return TT_SUCCESS;
-}
-
-tt_result_t __cons_send_key(IN tt_u8_t *key, IN tt_u32_t key_num)
-{
-    tt_u32_t head, pos;
-    DWORD NumberOfCharsWritten;
-
-#define __output(p, len)                                                       \
-    do {                                                                       \
-        if (pos > head) {                                                      \
-            WriteConsoleA(__cons_stdout_hdl,                                   \
-                          &key[head],                                          \
-                          pos - head,                                          \
-                          &NumberOfCharsWritten,                               \
-                          NULL);                                               \
-        }                                                                      \
-                                                                               \
-        if (p != NULL) {                                                       \
-            WriteConsoleA(__cons_stdout_hdl,                                   \
-                          (p),                                                 \
-                          (len),                                               \
-                          &NumberOfCharsWritten,                               \
-                          NULL);                                               \
-        }                                                                      \
-                                                                               \
-        ++pos;                                                                 \
-        head = pos;                                                            \
-    } while (0)
-
-    head = 0;
-    pos = 0;
-    while (pos < key_num) {
-        tt_u8_t k = key[pos];
-        if (TT_CONS_KEY_IS_BASIC(k)) {
-            ++pos;
-        } else if (TT_CONS_EXTKEY_VALID(k)) {
-            tt_u32_t i = TT_CONS_EXTKEY_IDX(k);
-
-            if (__send_extkey[i] != NULL) {
-                __output(NULL, 0);
-                __send_extkey[i]();
-            } else {
-                __cons_keycode_t *kc = &__cons_keycode[i];
-                __output(kc->code, kc->code_len);
-            }
-        } else {
-            __output(&__cons_unprintable_subst, 1);
-        }
-    }
-    if (pos > head) {
-        WriteConsoleA(__cons_stdout_hdl,
-                      &key[head],
-                      pos - head,
-                      &NumberOfCharsWritten,
-                      NULL);
-    }
-#undef __output
-
-    return TT_SUCCESS;
-}
-
-tt_result_t __send_right()
-{
-    CONSOLE_SCREEN_BUFFER_INFO csbi;
-    COORD *pos;
-
-    if (!GetConsoleScreenBufferInfo(__cons_stdout_hdl, &csbi)) {
-        TT_ERROR("fail to get console info");
-        return TT_FAIL;
-    }
-
-    pos = &csbi.dwCursorPosition;
-    if (pos->X < csbi.dwSize.X) {
-        ++pos->X;
-    }
-
-    if (!SetConsoleCursorPosition(__cons_stdout_hdl, *pos)) {
-        TT_ERROR("fail to set curso pos");
-        return TT_FAIL;
-    }
-
-    return TT_SUCCESS;
-}
-
-tt_result_t __send_left()
-{
-    CONSOLE_SCREEN_BUFFER_INFO csbi;
-    COORD *pos;
-
-    if (!GetConsoleScreenBufferInfo(__cons_stdout_hdl, &csbi)) {
-        TT_ERROR("fail to get console info");
-        return TT_FAIL;
-    }
-
-    pos = &csbi.dwCursorPosition;
-    if (pos->X > 0) {
-        --pos->X;
-    }
-
-    if (!SetConsoleCursorPosition(__cons_stdout_hdl, *pos)) {
-        TT_ERROR("fail to set curso pos");
         return TT_FAIL;
     }
 
@@ -451,4 +346,109 @@ tt_u8_t __key_map_basic(IN CHAR c)
         default:
             return TT_CONS_EXTKEY_END;
     }
+}
+
+tt_result_t __cons_send_key(IN tt_u8_t *key, IN tt_u32_t key_num)
+{
+    tt_u32_t head, pos;
+    DWORD NumberOfCharsWritten;
+
+#define __output(p, len)                                                       \
+    do {                                                                       \
+        if (pos > head) {                                                      \
+            WriteConsoleA(__stdout_hdl,                                        \
+                          &key[head],                                          \
+                          pos - head,                                          \
+                          &NumberOfCharsWritten,                               \
+                          NULL);                                               \
+        }                                                                      \
+                                                                               \
+        if (p != NULL) {                                                       \
+            WriteConsoleA(__stdout_hdl,                                        \
+                          (p),                                                 \
+                          (len),                                               \
+                          &NumberOfCharsWritten,                               \
+                          NULL);                                               \
+        }                                                                      \
+                                                                               \
+        ++pos;                                                                 \
+        head = pos;                                                            \
+    } while (0)
+
+    head = 0;
+    pos = 0;
+    while (pos < key_num) {
+        tt_u8_t k = key[pos];
+        if (TT_CONS_KEY_IS_BASIC(k)) {
+            ++pos;
+        } else if (TT_CONS_KEY_IS_EXTENDED(k)) {
+            tt_u32_t i = TT_CONS_EXTKEY_IDX(k);
+
+            if (__send_extkey[i] != NULL) {
+                __output(NULL, 0);
+                __send_extkey[i]();
+            } else {
+                __cons_keycode_t *kc = &__cons_keycode[i];
+                __output(kc->code, kc->code_len);
+            }
+        } else {
+            __output(&__cons_unprintable_subst, 1);
+        }
+    }
+    if (pos > head) {
+        WriteConsoleA(__stdout_hdl,
+                      &key[head],
+                      pos - head,
+                      &NumberOfCharsWritten,
+                      NULL);
+    }
+#undef __output
+
+    return TT_SUCCESS;
+}
+
+tt_result_t __send_right()
+{
+    CONSOLE_SCREEN_BUFFER_INFO csbi;
+    COORD *pos;
+
+    if (!GetConsoleScreenBufferInfo(__stdout_hdl, &csbi)) {
+        TT_ERROR("fail to get console info");
+        return TT_FAIL;
+    }
+
+    pos = &csbi.dwCursorPosition;
+    if (pos->X < csbi.dwSize.X) {
+        ++pos->X;
+    }
+
+    if (!SetConsoleCursorPosition(__stdout_hdl, *pos)) {
+        TT_ERROR("fail to set curso pos");
+        return TT_FAIL;
+    }
+
+    return TT_SUCCESS;
+}
+
+tt_result_t __send_left()
+{
+    CONSOLE_SCREEN_BUFFER_INFO csbi;
+    COORD *pos;
+
+    if (!GetConsoleScreenBufferInfo(__stdout_hdl, &csbi)) {
+        TT_ERROR("fail to get console info");
+        return TT_FAIL;
+    }
+
+    pos = &csbi.dwCursorPosition;
+    if (pos->X > 0) {
+        --pos->X;
+    }
+
+    if (!SetConsoleCursorPosition(__stdout_hdl, *pos)) {
+        TT_ERROR("fail to set curso pos");
+        return TT_FAIL;
+    }
+
+    return TT_SUCCESS;
 }
