@@ -178,7 +178,7 @@ tt_result_t tt_test_unit_init(IN tt_ptr_t reserved)
     } while (0);
 #endif
 
-#if 0
+#if 1
     do {
         tt_result_t tt_cli_ut_init(IN tt_ptr_t reserved);
         tt_cli_ut_init(0);

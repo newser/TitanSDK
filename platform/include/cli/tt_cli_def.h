@@ -76,7 +76,6 @@ typedef enum tt_cli_mode_s {
 #define TT_CLI_MODE_VALID(m) ((m) < TT_CLI_MODE_NUM)
 
 // NULL cmd means cli would exit
-// return true if has output
 typedef tt_u32_t (*tt_cli_on_cmd_t)(IN struct tt_cli_s *cli,
                                     IN void *param,
                                     IN const tt_char_t *cmd,
