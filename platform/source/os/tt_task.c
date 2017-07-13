@@ -113,16 +113,22 @@ void tt_task_attr_default(IN tt_task_attr_t *attr)
     tt_io_poller_attr_default(&attr->io_poller_attr);
 }
 
-void tt_task_add_fiber(IN tt_task_t *t,
-                       IN OPT const tt_char_t *name,
-                       IN tt_fiber_routine_t routine,
-                       IN void *param,
-                       IN OPT tt_fiber_attr_t *attr)
+tt_result_t tt_task_add_fiber(IN tt_task_t *t,
+                              IN OPT const tt_char_t *name,
+                              IN tt_fiber_routine_t routine,
+                              IN void *param,
+                              IN OPT tt_fiber_attr_t *attr)
 {
-    __task_fiber_t *tf = tt_xmalloc(sizeof(__task_fiber_t));
+    __task_fiber_t *tf;
 
     TT_ASSERT(t != NULL);
     TT_ASSERT(routine != NULL);
+
+    tf = tt_malloc(sizeof(__task_fiber_t));
+    if (tf == NULL) {
+        TT_ERROR("no mem to add fiber");
+        return TT_FAIL;
+    }
 
     tf->fb = NULL;
     tf->name = name;
@@ -132,6 +138,7 @@ void tt_task_add_fiber(IN tt_task_t *t,
     tt_snode_init(&tf->node);
 
     tt_slist_push_tail(&t->tfl, &tf->node);
+    return TT_SUCCESS;
 }
 
 tt_result_t tt_task_run(IN tt_task_t *t)

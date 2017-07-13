@@ -46,7 +46,7 @@
 
 static tt_atomic_s32_t tt_s_console_running;
 
-static tt_console_ev_handler_t tt_s_console_ev_handler;
+static tt_cons_ev_handler_t tt_s_console_ev_handler;
 static void *tt_s_console_param;
 
 ////////////////////////////////////////////////////////////
@@ -57,6 +57,7 @@ static tt_result_t __console_component_init(IN tt_component_t *comp,
                                             IN tt_profile_t *profile);
 
 static void __console_run();
+
 static tt_result_t __console_thread(IN void *param);
 
 ////////////////////////////////////////////////////////////
@@ -65,22 +66,19 @@ static tt_result_t __console_thread(IN void *param);
 
 void tt_console_component_register()
 {
+#if !TT_ENV_OS_IS_IOS
     static tt_component_t comp;
 
     tt_component_itf_t itf = {
         __console_component_init,
     };
 
-#if TT_ENV_OS_IS_IOS
-    // ios does not has console
-    return;
-#endif
-
     // init component
     tt_component_init(&comp, TT_COMPONENT_CONSOLE, "Console", NULL, &itf);
 
     // register component
     tt_component_register(&comp);
+#endif
 }
 
 void tt_console_attr_default(IN tt_console_attr_t *attr)
@@ -104,7 +102,7 @@ tt_result_t tt_console_config(IN tt_console_attr_t *attr)
     return tt_console_config_ntv(attr);
 }
 
-void tt_console_run(IN tt_console_ev_handler_t ev_handler,
+void tt_console_run(IN tt_cons_ev_handler_t ev_handler,
                     IN void *param,
                     IN tt_bool_t local)
 {

@@ -21,13 +21,11 @@
 #include <tt_console_native.h>
 
 #include <io/tt_console.h>
-#include <log/tt_log.h>
 #include <misc/tt_assert.h>
 
 #include <tt_cstd_api.h>
 #include <tt_sys_error.h>
 
-#include <signal.h>
 #include <termios.h>
 #include <unistd.h>
 
@@ -48,6 +46,7 @@
 
 typedef tt_result_t (*__cons_recv_t)(OUT tt_cons_ev_t *ev,
                                      OUT tt_cons_ev_data_t *ev_data);
+
 typedef tt_result_t (*__cons_send_t)(IN tt_cons_ev_t ev,
                                      IN tt_cons_ev_data_t *ev_data);
 
@@ -74,13 +73,14 @@ typedef struct
 
 static tt_console_input_mode_t __cons_imode;
 static tt_console_output_mode_t __cons_omode;
+static __cons_itf_t __cons_itf;
+
 static tt_u8_t __cons_unprintable_subst;
 
 static struct termios __stdin_termios;
+
 static tt_u8_t __stdin_rbuf[__STDIN_BUF_SIZE];
 static tt_u8_t __stdin_mbuf[__STDIN_BUF_SIZE];
-
-static __cons_itf_t __cons_itf;
 
 // ========================================
 // default mode
@@ -99,6 +99,7 @@ static __cons_keycode_t __def_ikeycode[TT_CONS_EXTKEY_NUM] = {
     {{0x0a, 0x0d}, 2, TT_TRUE}, // TT_CONS_EXTKEY_CRLF
     {{0x09}, 1, TT_TRUE}, // TT_CONS_EXTKEY_TAB
 };
+
 static __cons_keycode_t __def_okeycode[TT_CONS_EXTKEY_NUM] = {
     {{0x1b, 0x5b, 0x41}, 3, TT_FALSE}, // TT_CONS_EXTKEY_UP
     {{0x1b, 0x5b, 0x42}, 3, TT_FALSE}, // TT_CONS_EXTKEY_DOWN
@@ -115,6 +116,7 @@ static __cons_keycode_t __def_okeycode[TT_CONS_EXTKEY_NUM] = {
 
 static tt_result_t __def_recv(OUT tt_cons_ev_t *ev,
                               OUT tt_cons_ev_data_t *ev_data);
+
 static tt_result_t __def_send(IN tt_cons_ev_t ev,
                               IN tt_cons_ev_data_t *ev_data);
 
@@ -126,6 +128,7 @@ static void __install_cons_itf(IN tt_console_input_mode_t imode,
                                IN tt_console_output_mode_t omode);
 
 static tt_result_t __stdin_term_cbreak();
+
 static tt_result_t __stdin_term_raw();
 
 static tt_bool_t __recv_keycode(IN tt_u8_t *key,
@@ -133,6 +136,7 @@ static tt_bool_t __recv_keycode(IN tt_u8_t *key,
                                 IN __cons_keycode_t *kc_table,
                                 OUT tt_u8_t *mapped,
                                 OUT tt_u32_t *eaten);
+
 static tt_result_t __send_keycode(IN tt_u8_t *key,
                                   IN tt_u32_t key_num,
                                   IN __cons_keycode_t *kc_table);
@@ -143,8 +147,6 @@ static tt_result_t __send_keycode(IN tt_u8_t *key,
 
 tt_result_t tt_console_init_ntv()
 {
-    tt_result_t result;
-
     // default send/recv
     __cons_imode = TT_CONSOLE_IMODE_DEFAULT;
     __cons_omode = TT_CONSOLE_OMODE_DEFAULT;
@@ -164,7 +166,9 @@ tt_result_t tt_console_init_ntv()
 
 tt_result_t tt_console_enter_ntv()
 {
-    // config stdin term
+    // todo:
+    // set term according to params configured by tt_console_config_ntv()
+
     if (!TT_OK(__stdin_term_cbreak())) {
         return TT_FAIL;
     }
@@ -363,12 +367,12 @@ tt_result_t __send_keycode(IN tt_u8_t *key,
 #define __output(p, len)                                                       \
     do {                                                                       \
         if (pos > head) {                                                      \
-            /*printf(">> %d\n", pos - head);*/ write(STDOUT_FILENO,            \
-                                                     &key[head],               \
-                                                     pos - head);              \
+            /*printf(">> %d\n", pos - head);*/                                 \
+            write(STDOUT_FILENO, &key[head], pos - head);                      \
         }                                                                      \
                                                                                \
-        /*printf(">> %d\n", len);*/ write(STDOUT_FILENO, (p), (len));          \
+        /*printf(">> %d\n", len);*/                                            \
+        write(STDOUT_FILENO, (p), (len));                                      \
                                                                                \
         ++pos;                                                                 \
         head = pos;                                                            \
@@ -400,7 +404,6 @@ tt_result_t __send_keycode(IN tt_u8_t *key,
 // default mode
 // ========================================
 
-// default
 tt_result_t __def_recv(OUT tt_cons_ev_t *ev, OUT tt_cons_ev_data_t *ev_data)
 {
     ssize_t len;
