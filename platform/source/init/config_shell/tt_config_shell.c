@@ -100,7 +100,7 @@ tt_result_t tt_cfgsh_create(IN tt_cfgsh_t *sh,
     }
     sh->exit_msg = attr->exit_msg;
 
-    tt_cli_refresh_prefix(&sh->cli, NULL, root->name, 0);
+    tt_cli_update_prefix(&sh->cli, NULL, root->name, 0);
 
     return TT_SUCCESS;
 }

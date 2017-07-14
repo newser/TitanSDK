@@ -30,8 +30,6 @@ this file defines command line interface APIs
 
 #include <cli/tt_cli_line.h>
 
-#include <tt_cstd_api.h>
-
 ////////////////////////////////////////////////////////////
 // macro definition
 ////////////////////////////////////////////////////////////
@@ -63,31 +61,30 @@ typedef struct
     const tt_char_t *sub_title;
     tt_char_t seperator;
 
-    tt_cline_attr_t cline_attr;
     tt_buf_attr_t outbuf_attr;
+    tt_cline_attr_t cline_attr;
 } tt_cli_attr_t;
 
 typedef struct tt_cli_s
 {
-    const tt_char_t *title;
-    const tt_char_t *sub_title;
-    tt_char_t seperator;
-    tt_string_t prefix;
-
-    tt_cline_t cline;
-    tt_buf_t outbuf;
-    tt_buf_t acbuf;
-
     tt_cli_cb_t cb;
     tt_cli_itf_t itf;
-
     tt_cli_on_ev_t on_ev[TT_CLI_EV_NUM];
     tt_cli_newline_t newline;
+    tt_cli_on_read_t on_read;
 
-    tt_u32_t read_mode;
+    const tt_char_t *title;
+    const tt_char_t *sub_title;
+    tt_string_t prefix;
+
+    tt_buf_t outbuf;
+    tt_buf_t acbuf;
+    tt_cline_t cline;
+
+    tt_char_t seperator;
+    tt_u8_t read_mode : 2;
 #define __CLI_NOT_READ 0
 #define __CLI_READ_LINE 1
-    tt_cli_on_read_t on_read;
 } tt_cli_t;
 
 ////////////////////////////////////////////////////////////
@@ -110,10 +107,10 @@ extern void tt_cli_attr_default(IN tt_cli_attr_t *attr);
 
 extern tt_result_t tt_cli_start(IN tt_cli_t *cli);
 
-extern tt_result_t tt_cli_refresh_prefix(IN tt_cli_t *cli,
-                                         IN OPT const tt_char_t *title,
-                                         IN OPT const tt_char_t *sub_title,
-                                         IN OPT tt_char_t seperator);
+extern tt_result_t tt_cli_update_prefix(IN tt_cli_t *cli,
+                                        IN OPT const tt_char_t *title,
+                                        IN OPT const tt_char_t *sub_title,
+                                        IN OPT tt_char_t seperator);
 
 // return TT_END, when cli should exit
 extern tt_result_t tt_cli_input(IN tt_cli_t *cli,

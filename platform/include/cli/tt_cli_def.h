@@ -90,7 +90,7 @@ typedef tt_u32_t (*tt_cli_on_cmd_t)(IN struct tt_cli_s *cli,
 // - return TT_CLICP_FULL when fully matched, output includes completed content
 //   but also may be null if nothing need be completed
 // - return TT_CLICP_PARTIAL when something could be completed and stored in
-// output
+//   output
 typedef tt_u32_t (*tt_cli_on_complete_t)(IN struct tt_cli_s *cli,
                                          IN void *param,
                                          IN tt_blob_t *cursor_data,

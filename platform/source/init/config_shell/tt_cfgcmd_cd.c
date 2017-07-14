@@ -87,7 +87,7 @@ tt_u32_t __cd_run(IN tt_cfgsh_t *sh,
     }
 
     sh->current = cnode;
-    tt_cli_refresh_prefix(&sh->cli, NULL, cnode->name, 0);
+    tt_cli_update_prefix(&sh->cli, NULL, cnode->name, 0);
 
 #if 0
     tt_buf_put_cstr(output, "cd: /");

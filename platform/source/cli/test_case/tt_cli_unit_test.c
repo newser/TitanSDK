@@ -53,9 +53,9 @@ TT_CLI_UT_DECLARE(CLI_UT_LINE)
 
 tt_test_unit_t *tt_g_cli_ut_list[CLI_UT_NUM] = {
 #if 0
-    &TT_MAKE_TEST_UNIT_NAME(CLI_UT_BASIC),
-#endif
     &TT_MAKE_TEST_UNIT_NAME(CLI_UT_LINE),
+#endif
+    &TT_MAKE_TEST_UNIT_NAME(CLI_UT_BASIC),
 };
 
 ////////////////////////////////////////////////////////////
