@@ -133,7 +133,7 @@ tt_platform_init(NULL);
 tt_thread_create_local(NULL);
 
 // run
-#define AUT_MODE 0
+#define AUT_MODE 3
 
 #if AUT_MODE == 0
 tt_task_create(&t, NULL);
