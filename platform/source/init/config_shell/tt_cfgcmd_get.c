@@ -69,9 +69,9 @@ static tt_u32_t __get_multiple(IN tt_cfgsh_t *sh,
                                IN tt_u32_t path_num,
                                OUT tt_buf_t *output);
 
-static tt_u32_t __get_grp(IN tt_cfgnode_t *cnode, OUT tt_buf_t *output);
+static tt_u32_t __get_grp(IN tt_cfgobj_t *cnode, OUT tt_buf_t *output);
 
-static tt_u32_t __get_val(IN tt_cfgnode_t *cnode,
+static tt_u32_t __get_val(IN tt_cfgobj_t *cnode,
                           IN tt_u32_t name_len,
                           OUT tt_buf_t *output);
 
@@ -108,7 +108,7 @@ tt_u32_t __get_single(IN tt_cfgsh_t *sh,
                       OUT tt_buf_t *output)
 {
     tt_blob_t path_blob;
-    tt_cfgnode_t *cnode;
+    tt_cfgobj_t *cnode;
 
     path_blob.addr = (tt_u8_t *)path;
     path_blob.len = (tt_u32_t)tt_strlen(path);
@@ -118,7 +118,7 @@ tt_u32_t __get_single(IN tt_cfgsh_t *sh,
         return TT_CLIOC_OUT;
     }
 
-    if (cnode->type == TT_CFGNODE_TYPE_GROUP) {
+    if (cnode->type == TT_CFGOBJ_DIR) {
         return __get_grp(cnode, output);
     } else {
         return __get_val(cnode, 0, output);
@@ -150,19 +150,19 @@ tt_u32_t __get_multiple(IN tt_cfgsh_t *sh,
     return TT_CLIOC_OUT;
 }
 
-tt_u32_t __get_grp(IN tt_cfgnode_t *cnode, OUT tt_buf_t *output)
+tt_u32_t __get_grp(IN tt_cfgobj_t *cnode, OUT tt_buf_t *output)
 {
-    tt_cfggrp_t *cgrp;
+    tt_cfgdir_t *cgrp;
     tt_lnode_t *node;
     tt_u32_t max_len = 8;
 
-    TT_ASSERT(cnode->type == TT_CFGNODE_TYPE_GROUP);
-    cgrp = TT_CFGNODE_CAST(cnode, tt_cfggrp_t);
+    TT_ASSERT(cnode->type == TT_CFGOBJ_DIR);
+    cgrp = TT_CFGOBJ_CAST(cnode, tt_cfgdir_t);
 
     // calc name length
     node = tt_list_head(&cgrp->child);
     while (node != NULL) {
-        tt_cfgnode_t *cnode = TT_CONTAINER(node, tt_cfgnode_t, node);
+        tt_cfgobj_t *cnode = TT_CONTAINER(node, tt_cfgobj_t, node);
         tt_u32_t len = (tt_u32_t)tt_strlen(cnode->name) + 4;
 
         node = node->next;
@@ -177,11 +177,11 @@ tt_u32_t __get_grp(IN tt_cfgnode_t *cnode, OUT tt_buf_t *output)
 
     node = tt_list_head(&cgrp->child);
     while (node != NULL) {
-        tt_cfgnode_t *cnode = TT_CONTAINER(node, tt_cfgnode_t, node);
+        tt_cfgobj_t *cnode = TT_CONTAINER(node, tt_cfgobj_t, node);
 
         node = node->next;
 
-        if (cnode->type == TT_CFGNODE_TYPE_GROUP) {
+        if (cnode->type == TT_CFGOBJ_DIR) {
             // put name
             tt_buf_put_cstr(output, cnode->name);
             tt_buf_put_rep(output,
@@ -200,7 +200,7 @@ tt_u32_t __get_grp(IN tt_cfgnode_t *cnode, OUT tt_buf_t *output)
     return TT_CLIOC_OUT;
 }
 
-tt_u32_t __get_val(IN tt_cfgnode_t *cnode,
+tt_u32_t __get_val(IN tt_cfgobj_t *cnode,
                    IN tt_u32_t max_len,
                    OUT tt_buf_t *output)
 {
@@ -225,7 +225,7 @@ tt_u32_t __get_val(IN tt_cfgnode_t *cnode,
 
     // put value
     tt_buf_backup_rwp(output, &rp, &wp);
-    result = tt_cfgnode_get(cnode, output);
+    result = tt_cfgobj_get(cnode, output);
     if (!TT_OK(result)) {
         tt_buf_restore_rwp(output, &rp, &wp);
         if (result == TT_BAD_PARAM) {

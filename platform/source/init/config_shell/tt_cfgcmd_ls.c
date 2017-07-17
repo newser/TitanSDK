@@ -23,7 +23,7 @@
 #include <algorithm/tt_buffer_format.h>
 #include <cli/tt_cli_def.h>
 #include <init/config_shell/tt_config_shell.h>
-#include <init/tt_config_node.h>
+#include <init/tt_config_object.h>
 #include <init/tt_config_path.h>
 
 ////////////////////////////////////////////////////////////
@@ -90,7 +90,7 @@ tt_u32_t __ls_run(IN tt_cfgsh_t *sh,
 
 tt_u32_t __ls_current(IN tt_cfgsh_t *sh, OUT tt_buf_t *output)
 {
-    tt_cfgnode_t *cnode;
+    tt_cfgobj_t *cnode;
     tt_u32_t rp, wp;
     tt_char_t sep[2] = {TT_CLI_EV_ENTER, 0};
     tt_result_t result;
@@ -102,7 +102,7 @@ tt_u32_t __ls_current(IN tt_cfgsh_t *sh, OUT tt_buf_t *output)
     }
 
     tt_buf_backup_rwp(output, &rp, &wp);
-    result = tt_cfgnode_ls(cnode, sep, output);
+    result = tt_cfgobj_read(cnode, sep, output);
     if (!TT_OK(result)) {
         tt_buf_restore_rwp(output, &rp, &wp);
         if (result == TT_BAD_PARAM) {
@@ -119,7 +119,7 @@ tt_u32_t __ls_single(IN tt_cfgsh_t *sh,
                      IN tt_char_t *path,
                      OUT tt_buf_t *output)
 {
-    tt_cfgnode_t *cnode;
+    tt_cfgobj_t *cnode;
     tt_blob_t path_blob;
     tt_u32_t rp, wp;
     tt_char_t sep[2] = {TT_CLI_EV_ENTER, 0};
@@ -134,7 +134,7 @@ tt_u32_t __ls_single(IN tt_cfgsh_t *sh,
     }
 
     tt_buf_backup_rwp(output, &rp, &wp);
-    result = tt_cfgnode_ls(cnode, sep, output);
+    result = tt_cfgobj_read(cnode, sep, output);
     if (!TT_OK(result)) {
         tt_buf_restore_rwp(output, &rp, &wp);
         if (result == TT_BAD_PARAM) {

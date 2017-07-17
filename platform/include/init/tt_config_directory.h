@@ -15,14 +15,14 @@
  */
 
 /**
-@file tt_config_bool.h
-@brief config option of bool type
+@file tt_config_directory.h
+@brief config option of directory type
 
-this file defines config option of bool type
+this file defines config option of directory type
 */
 
-#ifndef __TT_CONFIG_BOOL__
-#define __TT_CONFIG_BOOL__
+#ifndef __TT_CONFIG_DIRECTORY__
+#define __TT_CONFIG_DIRECTORY__
 
 ////////////////////////////////////////////////////////////
 // import header files
@@ -38,18 +38,11 @@ this file defines config option of bool type
 // type definition
 ////////////////////////////////////////////////////////////
 
-typedef tt_result_t (*tt_cfgbool_on_set_t)(IN struct tt_cfgobj_s *cnode,
-                                           IN tt_bool_t new_val);
-
-typedef struct tt_cfgbool_cb_s
+typedef struct tt_cfgdir_s
 {
-    tt_cfgbool_on_set_t on_set;
-} tt_cfgbool_cb_t;
-
-typedef struct tt_cfgbool_s
-{
-    tt_cfgbool_cb_t cb;
-} tt_cfgbool_t;
+    tt_list_t child;
+    tt_u32_t child_name_len;
+} tt_cfgdir_t;
 
 ////////////////////////////////////////////////////////////
 // global variants
@@ -59,9 +52,20 @@ typedef struct tt_cfgbool_s
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern tt_cfgobj_t *tt_cfgbool_create(IN const tt_char_t *name,
-                                      IN tt_bool_t *p_bool,
-                                      IN OPT tt_cfgobj_attr_t *attr,
-                                      IN OPT tt_cfgbool_cb_t *cb);
+extern tt_cfgobj_t *tt_cfgdir_create(IN const tt_char_t *name,
+                                     IN OPT tt_cfgobj_attr_t *attr);
 
-#endif /* __TT_CONFIG_BOOL__ */
+extern tt_result_t tt_cfgdir_add(IN tt_cfgdir_t *cd, IN tt_cfgobj_t *child);
+
+extern void tt_cfgdir_remove(IN tt_cfgdir_t *cd, IN tt_cfgobj_t *child);
+
+extern tt_cfgobj_t *tt_cfgdir_find(IN tt_cfgdir_t *cd,
+                                   IN const tt_char_t *name,
+                                   IN tt_u32_t name_len);
+
+extern tt_result_t tt_cfgdir_ls(IN tt_cfgdir_t *c,
+                                IN const tt_char_t *col_sep,
+                                IN const tt_char_t *line_sep,
+                                OUT struct tt_buf_s *output);
+
+#endif /* __TT_CONFIG_DIRECTORY__ */

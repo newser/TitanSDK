@@ -29,7 +29,7 @@ this file defines config sh interface
 ////////////////////////////////////////////////////////////
 
 #include <cli/tt_cli.h>
-#include <init/tt_config_node.h>
+#include <init/tt_config_object.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
@@ -50,8 +50,8 @@ typedef struct
 
 typedef struct tt_cfgsh_s
 {
-    tt_cfgnode_t *root;
-    tt_cfgnode_t *current;
+    tt_cfgobj_t *root;
+    tt_cfgobj_t *current;
 
     tt_char_t *i_arg[TT_CFGSH_ARG_NUM];
     tt_char_t **arg;
@@ -73,7 +73,7 @@ typedef struct tt_cfgsh_s
 extern tt_result_t tt_cfgsh_create(IN tt_cfgsh_t *sh,
                                    IN tt_cli_mode_t mode,
                                    IN tt_cli_itf_t *itf,
-                                   IN tt_cfgnode_t *root,
+                                   IN tt_cfgobj_t *root,
                                    IN OPT tt_cfgsh_attr_t *attr);
 
 extern void tt_cfgsh_destroy(IN tt_cfgsh_t *sh);

@@ -67,7 +67,7 @@ tt_u32_t __cd_run(IN tt_cfgsh_t *sh,
                   OUT tt_buf_t *output)
 {
     tt_blob_t path;
-    tt_cfgnode_t *cnode;
+    tt_cfgobj_t *cnode;
 
     if (argc == 0) {
         return TT_CLIOC_NOOUT;
@@ -81,7 +81,7 @@ tt_u32_t __cd_run(IN tt_cfgsh_t *sh,
         return TT_CLIOC_OUT;
     }
 
-    if (cnode->type != TT_CFGNODE_TYPE_GROUP) {
+    if (cnode->type != TT_CFGOBJ_DIR) {
         tt_buf_putf(output, "not a group: %s", path.addr);
         return TT_CLIOC_OUT;
     }

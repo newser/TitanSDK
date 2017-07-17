@@ -61,7 +61,7 @@ static tt_u32_t __commit_on_read(IN struct tt_cli_s *cli,
                                  IN const tt_char_t *content,
                                  IN tt_buf_t *output);
 
-static tt_bool_t __need_reboot(IN tt_cfgnode_t *cnode, OUT tt_bool_t *changed);
+static tt_bool_t __need_reboot(IN tt_cfgobj_t *cnode, OUT tt_bool_t *changed);
 
 ////////////////////////////////////////////////////////////
 // interface implementation
@@ -90,7 +90,7 @@ tt_u32_t __commit_run(IN tt_cfgsh_t *sh,
     }
 
     if (changed) {
-        tt_cfgnode_commit(sh->root);
+        tt_cfgobj_commit(sh->root);
         tt_buf_put_cstr(output, "committing configuration...done");
         return TT_CLIOC_OUT;
     }
@@ -104,7 +104,7 @@ tt_u32_t __commit_on_read(IN struct tt_cli_s *cli,
 {
     if ((tt_strlen(content) == 1) &&
         ((content[0] == 'y') || (content[0] == 'Y'))) {
-        tt_cfgnode_commit(TT_CONTAINER(cli, tt_cfgsh_t, cli)->root);
+        tt_cfgobj_commit(TT_CONTAINER(cli, tt_cfgsh_t, cli)->root);
         tt_buf_put_cstr(output, "committing configuration...done");
         tt_buf_put_u8(output, TT_CLI_EV_ENTER);
 
@@ -115,16 +115,16 @@ tt_u32_t __commit_on_read(IN struct tt_cli_s *cli,
     }
 }
 
-tt_bool_t __need_reboot(IN tt_cfgnode_t *cnode, OUT tt_bool_t *changed)
+tt_bool_t __need_reboot(IN tt_cfgobj_t *cnode, OUT tt_bool_t *changed)
 {
-    if (cnode->type == TT_CFGNODE_TYPE_GROUP) {
-        tt_cfggrp_t *cgrp = TT_CFGNODE_CAST(cnode, tt_cfggrp_t);
+    if (cnode->type == TT_CFGOBJ_DIR) {
+        tt_cfgdir_t *cgrp = TT_CFGOBJ_CAST(cnode, tt_cfgdir_t);
         tt_lnode_t *node;
 
         // check added children
         node = tt_list_head(&cgrp->new_child);
         while (node != NULL) {
-            tt_cfgnode_t *child = TT_CONTAINER(node, tt_cfgnode_t, node);
+            tt_cfgobj_t *child = TT_CONTAINER(node, tt_cfgobj_t, node);
 
             node = node->next;
 
@@ -139,7 +139,7 @@ tt_bool_t __need_reboot(IN tt_cfgnode_t *cnode, OUT tt_bool_t *changed)
         // check children
         node = tt_list_head(&cgrp->child);
         while (node != NULL) {
-            tt_cfgnode_t *child = TT_CONTAINER(node, tt_cfgnode_t, node);
+            tt_cfgobj_t *child = TT_CONTAINER(node, tt_cfgobj_t, node);
 
             node = node->next;
 

@@ -127,9 +127,9 @@ TT_TEST_CASE("tt_unit_test_cfgpath_p2n_abs",
     TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgpath_p2n_abs)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
-    tt_cfgnode_t *root, *g1, *g11, *g12, *g121, *c1211;
+    tt_cfgobj_t *root, *g1, *g11, *g12, *g121, *c1211;
     tt_u32_t val = 0;
-    tt_cfgnode_t *n;
+    tt_cfgobj_t *n;
     tt_string_t path;
 
     TT_TEST_CASE_ENTER()
@@ -137,24 +137,24 @@ TT_TEST_CASE("tt_unit_test_cfgpath_p2n_abs",
 
     tt_string_init(&path, NULL);
 
-    root = tt_cfggrp_create("", NULL, NULL, NULL, NULL);
+    root = tt_cfgdir_create("", NULL);
     TT_UT_NOT_EQUAL(root, NULL, "");
-    g1 = tt_cfggrp_create("g1", NULL, NULL, NULL, NULL);
+    g1 = tt_cfgdir_create("g1", NULL);
     TT_UT_NOT_EQUAL(g1, NULL, "");
-    g11 = tt_cfggrp_create("g11", NULL, NULL, NULL, NULL);
+    g11 = tt_cfgdir_create("g11", NULL);
     TT_UT_NOT_EQUAL(g11, NULL, "");
-    g12 = tt_cfggrp_create("g12", NULL, NULL, NULL, NULL);
+    g12 = tt_cfgdir_create("g12", NULL);
     TT_UT_NOT_EQUAL(g12, NULL, "");
-    g121 = tt_cfggrp_create("g121", NULL, NULL, NULL, NULL);
+    g121 = tt_cfgdir_create("g121", NULL);
     TT_UT_NOT_EQUAL(g121, NULL, "");
-    c1211 = tt_cfgu32_create("c1211", NULL, NULL, &val, NULL, NULL);
+    c1211 = tt_cfgu32_create("c1211", &val, NULL, NULL);
     TT_UT_NOT_EQUAL(g121, NULL, "");
 
-    tt_cfggrp_add(root, g1);
-    tt_cfggrp_add(g1, g11);
-    tt_cfggrp_add(g1, g12);
-    tt_cfggrp_add(g12, g121);
-    tt_cfggrp_add(g121, c1211);
+    tt_cfgdir_add(TT_CFGOBJ_CAST(root, tt_cfgdir_t), g1);
+    tt_cfgdir_add(TT_CFGOBJ_CAST(g1, tt_cfgdir_t), g11);
+    tt_cfgdir_add(TT_CFGOBJ_CAST(g1, tt_cfgdir_t), g12);
+    tt_cfgdir_add(TT_CFGOBJ_CAST(g12, tt_cfgdir_t), g121);
+    tt_cfgdir_add(TT_CFGOBJ_CAST(g121, tt_cfgdir_t), c1211);
 
     //////////////////////////////////
     // absolute path
@@ -237,7 +237,7 @@ TT_TEST_CASE("tt_unit_test_cfgpath_p2n_abs",
     n = tt_cfgpath_p2n_str(root, root, &path);
     TT_UT_EQUAL(n, NULL, "");
 
-    tt_cfgnode_destroy(root, TT_TRUE);
+    tt_cfgobj_destroy(root);
     tt_string_destroy(&path);
 
     // test end
@@ -247,9 +247,9 @@ TT_TEST_CASE("tt_unit_test_cfgpath_p2n_abs",
 TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgpath_p2n_rel)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
-    tt_cfgnode_t *root, *g1, *g11, *g12, *g121, *c1211;
+    tt_cfgobj_t *root, *g1, *g11, *g12, *g121, *c1211;
     tt_u32_t val = 0;
-    tt_cfgnode_t *n;
+    tt_cfgobj_t *n;
     tt_string_t path;
 
     TT_TEST_CASE_ENTER()
@@ -257,24 +257,24 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgpath_p2n_rel)
 
     tt_string_init(&path, NULL);
 
-    root = tt_cfggrp_create("", NULL, NULL, NULL, NULL);
+    root = tt_cfgdir_create("", NULL);
     TT_UT_NOT_EQUAL(root, NULL, "");
-    g1 = tt_cfggrp_create("g1", NULL, NULL, NULL, NULL);
+    g1 = tt_cfgdir_create("g1", NULL);
     TT_UT_NOT_EQUAL(g1, NULL, "");
-    g11 = tt_cfggrp_create("g11", NULL, NULL, NULL, NULL);
+    g11 = tt_cfgdir_create("g11", NULL);
     TT_UT_NOT_EQUAL(g11, NULL, "");
-    g12 = tt_cfggrp_create("g12", NULL, NULL, NULL, NULL);
+    g12 = tt_cfgdir_create("g12", NULL);
     TT_UT_NOT_EQUAL(g12, NULL, "");
-    g121 = tt_cfggrp_create("g121", NULL, NULL, NULL, NULL);
+    g121 = tt_cfgdir_create("g121", NULL);
     TT_UT_NOT_EQUAL(g121, NULL, "");
-    c1211 = tt_cfgu32_create("c1211", NULL, NULL, &val, NULL, NULL);
+    c1211 = tt_cfgu32_create("c1211", &val, NULL, NULL);
     TT_UT_NOT_EQUAL(g121, NULL, "");
 
-    tt_cfggrp_add(root, g1);
-    tt_cfggrp_add(g1, g11);
-    tt_cfggrp_add(g1, g12);
-    tt_cfggrp_add(g12, g121);
-    tt_cfggrp_add(g121, c1211);
+    tt_cfgdir_add(TT_CFGOBJ_CAST(root, tt_cfgdir_t), g1);
+    tt_cfgdir_add(TT_CFGOBJ_CAST(g1, tt_cfgdir_t), g11);
+    tt_cfgdir_add(TT_CFGOBJ_CAST(g1, tt_cfgdir_t), g12);
+    tt_cfgdir_add(TT_CFGOBJ_CAST(g12, tt_cfgdir_t), g121);
+    tt_cfgdir_add(TT_CFGOBJ_CAST(g121, tt_cfgdir_t), c1211);
 
     //////////////////////////////////
     // absolute path
@@ -351,7 +351,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgpath_p2n_rel)
     n = tt_cfgpath_p2n_str(root, c1211, &path);
     TT_UT_EQUAL(n, NULL, "");
 
-    tt_cfgnode_destroy(root, TT_TRUE);
+    tt_cfgobj_destroy(root);
     tt_string_destroy(&path);
 
     // test end
@@ -361,9 +361,9 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgpath_p2n_rel)
 TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgpath_p2n_dot)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
-    tt_cfgnode_t *root, *g1, *g11, *g12, *g121, *c1211;
+    tt_cfgobj_t *root, *g1, *g11, *g12, *g121, *c1211;
     tt_u32_t val = 0;
-    tt_cfgnode_t *n;
+    tt_cfgobj_t *n;
     tt_string_t path;
 
     TT_TEST_CASE_ENTER()
@@ -371,24 +371,24 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgpath_p2n_dot)
 
     tt_string_init(&path, NULL);
 
-    root = tt_cfggrp_create("", NULL, NULL, NULL, NULL);
+    root = tt_cfgdir_create("", NULL);
     TT_UT_NOT_EQUAL(root, NULL, "");
-    g1 = tt_cfggrp_create("g1", NULL, NULL, NULL, NULL);
+    g1 = tt_cfgdir_create("g1", NULL);
     TT_UT_NOT_EQUAL(g1, NULL, "");
-    g11 = tt_cfggrp_create("g11", NULL, NULL, NULL, NULL);
+    g11 = tt_cfgdir_create("g11", NULL);
     TT_UT_NOT_EQUAL(g11, NULL, "");
-    g12 = tt_cfggrp_create("g12", NULL, NULL, NULL, NULL);
+    g12 = tt_cfgdir_create("g12", NULL);
     TT_UT_NOT_EQUAL(g12, NULL, "");
-    g121 = tt_cfggrp_create("g121", NULL, NULL, NULL, NULL);
+    g121 = tt_cfgdir_create("g121", NULL);
     TT_UT_NOT_EQUAL(g121, NULL, "");
-    c1211 = tt_cfgu32_create("c1211", NULL, NULL, &val, NULL, NULL);
+    c1211 = tt_cfgu32_create("c1211", &val, NULL, NULL);
     TT_UT_NOT_EQUAL(g121, NULL, "");
 
-    tt_cfggrp_add(root, g1);
-    tt_cfggrp_add(g1, g11);
-    tt_cfggrp_add(g1, g12);
-    tt_cfggrp_add(g12, g121);
-    tt_cfggrp_add(g121, c1211);
+    tt_cfgdir_add(TT_CFGOBJ_CAST(root, tt_cfgdir_t), g1);
+    tt_cfgdir_add(TT_CFGOBJ_CAST(g1, tt_cfgdir_t), g11);
+    tt_cfgdir_add(TT_CFGOBJ_CAST(g1, tt_cfgdir_t), g12);
+    tt_cfgdir_add(TT_CFGOBJ_CAST(g12, tt_cfgdir_t), g121);
+    tt_cfgdir_add(TT_CFGOBJ_CAST(g121, tt_cfgdir_t), c1211);
 
     //////////////////////////////////
     // absolute path
@@ -484,7 +484,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgpath_p2n_dot)
     n = tt_cfgpath_p2n_str(root, g121, &path);
     TT_UT_EQUAL(n, root, "");
 
-    tt_cfgnode_destroy(root, TT_TRUE);
+    tt_cfgobj_destroy(root);
     tt_string_destroy(&path);
 
     // test end
@@ -494,7 +494,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgpath_p2n_dot)
 TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgpath_n2p)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
-    tt_cfgnode_t *root, *g1, *g11, *g12, *g121, *c1211;
+    tt_cfgobj_t *root, *g1, *g11, *g12, *g121, *c1211;
     tt_u32_t val = 0;
     tt_buf_t path;
     tt_result_t ret;
@@ -505,24 +505,24 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgpath_n2p)
 
     tt_buf_init(&path, NULL);
 
-    root = tt_cfggrp_create("", NULL, NULL, NULL, NULL);
+    root = tt_cfgdir_create("", NULL);
     TT_UT_NOT_EQUAL(root, NULL, "");
-    g1 = tt_cfggrp_create("g1", NULL, NULL, NULL, NULL);
+    g1 = tt_cfgdir_create("g1", NULL);
     TT_UT_NOT_EQUAL(g1, NULL, "");
-    g11 = tt_cfggrp_create("g11", NULL, NULL, NULL, NULL);
+    g11 = tt_cfgdir_create("g11", NULL);
     TT_UT_NOT_EQUAL(g11, NULL, "");
-    g12 = tt_cfggrp_create("g12", NULL, NULL, NULL, NULL);
+    g12 = tt_cfgdir_create("g12", NULL);
     TT_UT_NOT_EQUAL(g12, NULL, "");
-    g121 = tt_cfggrp_create("g121", NULL, NULL, NULL, NULL);
+    g121 = tt_cfgdir_create("g121", NULL);
     TT_UT_NOT_EQUAL(g121, NULL, "");
-    c1211 = tt_cfgu32_create("c1211", NULL, NULL, &val, NULL, NULL);
+    c1211 = tt_cfgu32_create("c1211", &val, NULL, NULL);
     TT_UT_NOT_EQUAL(g121, NULL, "");
 
-    tt_cfggrp_add(root, g1);
-    tt_cfggrp_add(g1, g11);
-    tt_cfggrp_add(g1, g12);
-    tt_cfggrp_add(g12, g121);
-    tt_cfggrp_add(g121, c1211);
+    tt_cfgdir_add(TT_CFGOBJ_CAST(root, tt_cfgdir_t), g1);
+    tt_cfgdir_add(TT_CFGOBJ_CAST(g1, tt_cfgdir_t), g11);
+    tt_cfgdir_add(TT_CFGOBJ_CAST(g1, tt_cfgdir_t), g12);
+    tt_cfgdir_add(TT_CFGOBJ_CAST(g12, tt_cfgdir_t), g121);
+    tt_cfgdir_add(TT_CFGOBJ_CAST(g121, tt_cfgdir_t), c1211);
 
     tt_buf_clear(&path);
     ret = tt_cfgpath_n2p(root, root, &path);
@@ -586,7 +586,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgpath_n2p)
     cmp_ret = tt_buf_cmp_cstr(&path, "/g1/g12/g121/c1211");
     TT_UT_EQUAL(cmp_ret, 0, "");
 
-    tt_cfgnode_destroy(root, TT_TRUE);
+    tt_cfgobj_destroy(root);
     tt_buf_destroy(&path);
 
     // test end
@@ -596,7 +596,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgpath_n2p)
 TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgpath_comp)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
-    tt_cfgnode_t *root, *g1, *g11, *g12, *g121, *c1211;
+    tt_cfgobj_t *root, *g1, *g11, *g12, *g121, *c1211;
     tt_u32_t val = 0, status;
     tt_buf_t output;
     tt_result_t ret;
@@ -607,24 +607,24 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgpath_comp)
 
     tt_buf_init(&output, NULL);
 
-    root = tt_cfggrp_create("", NULL, NULL, NULL, NULL);
+    root = tt_cfgdir_create("", NULL);
     TT_UT_NOT_EQUAL(root, NULL, "");
-    g1 = tt_cfggrp_create("g1", NULL, NULL, NULL, NULL);
+    g1 = tt_cfgdir_create("g1", NULL);
     TT_UT_NOT_EQUAL(g1, NULL, "");
-    g11 = tt_cfggrp_create("g11", NULL, NULL, NULL, NULL);
+    g11 = tt_cfgdir_create("g11", NULL);
     TT_UT_NOT_EQUAL(g11, NULL, "");
-    g12 = tt_cfggrp_create("g12", NULL, NULL, NULL, NULL);
+    g12 = tt_cfgdir_create("g12", NULL);
     TT_UT_NOT_EQUAL(g12, NULL, "");
-    g121 = tt_cfggrp_create("g121", NULL, NULL, NULL, NULL);
+    g121 = tt_cfgdir_create("g121", NULL);
     TT_UT_NOT_EQUAL(g121, NULL, "");
-    c1211 = tt_cfgu32_create("c1211", NULL, NULL, &val, NULL, NULL);
+    c1211 = tt_cfgu32_create("c1211", &val, NULL, NULL);
     TT_UT_NOT_EQUAL(g121, NULL, "");
 
-    tt_cfggrp_add(root, g1);
-    tt_cfggrp_add(g1, g11);
-    tt_cfggrp_add(g1, g12);
-    tt_cfggrp_add(g12, g121);
-    tt_cfggrp_add(g121, c1211);
+    tt_cfgdir_add(TT_CFGOBJ_CAST(root, tt_cfgdir_t), g1);
+    tt_cfgdir_add(TT_CFGOBJ_CAST(g1, tt_cfgdir_t), g11);
+    tt_cfgdir_add(TT_CFGOBJ_CAST(g1, tt_cfgdir_t), g12);
+    tt_cfgdir_add(TT_CFGOBJ_CAST(g12, tt_cfgdir_t), g121);
+    tt_cfgdir_add(TT_CFGOBJ_CAST(g121, tt_cfgdir_t), c1211);
 
     //////////////////////////////////////////////////////
 
@@ -751,7 +751,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgpath_comp)
 
     //////////////////////////////////////////////////////
 
-    tt_cfgnode_destroy(root, TT_TRUE);
+    tt_cfgobj_destroy(root);
 
     // test end
     TT_TEST_CASE_LEAVE()

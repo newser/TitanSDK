@@ -193,17 +193,17 @@ TT_TEST_CASE("tt_unit_test_cfgsh_ls",
 
     static tt_bool_t __cfgsh_ut_init = TT_TRUE;
 
-static tt_cfgnode_t *root, *g1, *g11, *g12, *g121, *c1211;
-static tt_cfgnode_t *u1, *s1;
+static tt_cfgobj_t *root, *g1, *g11, *g12, *g121, *c1211;
+static tt_cfgobj_t *u1, *s1;
 static tt_u32_t __u32_val;
 static tt_s32_t __s32_val;
 static tt_buf_t __ut_buf_out;
 
 void __cfgsh_ut_enter(void *enter_param)
 {
-    tt_cfggrp_attr_t g_attr;
-    tt_cfgu32_attr_t u32_attr;
-    tt_cfgs32_attr_t s32_attr;
+    tt_cfgobj_attr_t g_attr;
+    tt_cfgobj_attr_t u32_attr;
+    tt_cfgobj_attr_t s32_attr;
 
     if (!__cfgsh_ut_init) {
         return;
@@ -221,39 +221,37 @@ void __cfgsh_ut_enter(void *enter_param)
      |- u1
      */
 
-    tt_cfggrp_attr_default(&g_attr);
-    tt_cfgu32_attr_default(&u32_attr);
-    tt_cfgs32_attr_default(&s32_attr);
+    tt_cfgobj_attr_default(&g_attr);
+    tt_cfgobj_attr_default(&u32_attr);
+    tt_cfgobj_attr_default(&s32_attr);
 
-    root = tt_cfggrp_create("", NULL, NULL, NULL, &g_attr);
+    root = tt_cfgdir_create("", &g_attr);
 
-    g_attr.cnode_attr.brief = "group 1, testing";
-    g_attr.cnode_attr.detail = "group 1, usage";
-    g1 = tt_cfggrp_create("g1", NULL, NULL, NULL, &g_attr);
-    tt_cfggrp_add(root, g1);
+    g_attr.brief = "group 1, testing";
+    g_attr.detail = "group 1, usage";
+    g1 = tt_cfgdir_create("g1", &g_attr);
+    tt_cfgdir_add(TT_CFGOBJ_CAST(root, tt_cfgdir_t), g1);
 
-    u32_attr.cnode_attr.brief = "u32 val under g1";
-    u1 = tt_cfgu32_create("u1", NULL, NULL, &__u32_val, NULL, &u32_attr);
-    tt_cfggrp_add(root, u1);
+    u32_attr.brief = "u32 val under g1";
+    u1 = tt_cfgu32_create("u1", &__u32_val, &u32_attr, NULL);
+    tt_cfgdir_add(TT_CFGOBJ_CAST(root, tt_cfgdir_t), u1);
 
-    s32_attr.cnode_attr.brief = "s32 val under g1";
-    s32_attr.mode = TT_CFGVAL_MODE_GS;
-    s1 = tt_cfgs32_create("s1", NULL, NULL, &__s32_val, NULL, &s32_attr);
-    tt_cfggrp_add(root, s1);
+    s32_attr.brief = "s32 val under g1";
+    s1 = tt_cfgs32_create("s1", &__s32_val, &s32_attr, NULL);
+    tt_cfgdir_add(TT_CFGOBJ_CAST(root, tt_cfgdir_t), s1);
 
-    g11 = tt_cfggrp_create("g11", NULL, NULL, NULL, &g_attr);
-    g12 = tt_cfggrp_create("g12", NULL, NULL, NULL, &g_attr);
-    g121 = tt_cfggrp_create("g121", NULL, NULL, NULL, &g_attr);
+    g11 = tt_cfgdir_create("g11", &g_attr);
+    g12 = tt_cfgdir_create("g12", &g_attr);
+    g121 = tt_cfgdir_create("g121", &g_attr);
 
-    u32_attr.cnode_attr.brief = "leaf child";
-    u32_attr.cnode_attr.detail = "c1211's usage";
-    u32_attr.mode = TT_CFGVAL_MODE_GS;
-    c1211 = tt_cfgu32_create("c1211", NULL, NULL, &__u32_val, NULL, &u32_attr);
-    tt_cfggrp_add(g121, c1211);
+    u32_attr.brief = "leaf child";
+    u32_attr.detail = "c1211's usage";
+    c1211 = tt_cfgu32_create("c1211", &__u32_val, &u32_attr, NULL);
+    tt_cfgdir_add(TT_CFGOBJ_CAST(g121, tt_cfgdir_t), c1211);
 
-    tt_cfggrp_add(g1, g11);
-    tt_cfggrp_add(g1, g12);
-    tt_cfggrp_add(g12, g121);
+    tt_cfgdir_add(TT_CFGOBJ_CAST(g1, tt_cfgdir_t), g11);
+    tt_cfgdir_add(TT_CFGOBJ_CAST(g1, tt_cfgdir_t), g12);
+    tt_cfgdir_add(TT_CFGOBJ_CAST(g12, tt_cfgdir_t), g121);
 
     tt_buf_init(&__ut_buf_out, NULL);
 }
@@ -1207,7 +1205,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_status)
 
     ///////////
 
-    tt_cfgnode_restore(root);
+    // tt_cfgobj_restore(root);
 
     // status current, no change
     {
@@ -1276,12 +1274,12 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_status)
     // change some values
     val.addr = (tt_u8_t *)"-119922";
     val.len = (tt_u32_t)sizeof("-119922") - 1;
-    ret = tt_cfgnode_set(s1, &val);
+    ret = tt_cfgobj_write(s1, val.addr, val.len);
     TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     val.addr = (tt_u8_t *)"229923";
     val.len = (tt_u32_t)sizeof("229923") - 1;
-    ret = tt_cfgnode_set(c1211, &val);
+    ret = tt_cfgobj_write(c1211, val.addr, val.len);
     TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     // status current, some are changed
@@ -1497,7 +1495,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_commit)
             "shell$ ";
 
         // hack
-        s1->modified = TT_TRUE;
+        // s1->modified = TT_TRUE;
 
         tt_buf_clear(&__ut_buf_out);
         ret = tt_cfgsh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
@@ -1505,7 +1503,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_commit)
         cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, this_out);
         TT_UT_EQUAL(cmp_ret, 0, "");
 
-        s1->modified = TT_FALSE;
+        // s1->modified = TT_FALSE;
     }
 
     // changed, need reboot
@@ -1526,7 +1524,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_commit)
         tt_char_t no_out[] = "YY\nshell$ ";
 
         // hack
-        c1211->modified = TT_TRUE;
+        // c1211->modified = TT_TRUE;
         c1211->need_reboot = TT_TRUE;
 
         // commit
@@ -1558,7 +1556,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_commit)
         TT_UT_EQUAL(cmp_ret, 0, "");
 
         c1211->need_reboot = TT_FALSE;
-        c1211->modified = TT_FALSE;
+        // c1211->modified = TT_FALSE;
     }
 
     ///////////////////////

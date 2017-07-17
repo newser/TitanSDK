@@ -67,7 +67,7 @@ tt_u32_t __set_run(IN tt_cfgsh_t *sh,
                    OUT tt_buf_t *output)
 {
     tt_blob_t path_blob, val_blob;
-    tt_cfgnode_t *cnode;
+    tt_cfgobj_t *cnode;
     tt_u32_t rp, wp;
     tt_result_t result;
 
@@ -87,13 +87,13 @@ tt_u32_t __set_run(IN tt_cfgsh_t *sh,
     val_blob.addr = (tt_u8_t *)argv[1];
     val_blob.len = (tt_u32_t)tt_strlen(argv[1]);
 
-    if (!TT_OK(tt_cfgnode_check(cnode, &val_blob))) {
+    if (!TT_OK(tt_cfgobj_check(cnode, &val_blob))) {
         tt_buf_putf(output, "bad value: %s", argv[1]);
         return TT_CLIOC_OUT;
     }
 
     tt_buf_backup_rwp(output, &rp, &wp);
-    result = tt_cfgnode_set(cnode, &val_blob);
+    result = tt_cfgobj_write(cnode, &val_blob);
     if (TT_OK(result)) {
         return TT_CLIOC_NOOUT;
     } else {

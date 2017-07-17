@@ -42,7 +42,7 @@
  @struct tt_buf_t
  buffer information
  */
-typedef struct
+typedef struct tt_blob_s
 {
     tt_u8_t *addr;
     tt_u32_t len;

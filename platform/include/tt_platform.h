@@ -89,8 +89,8 @@ extern "C" {
 #include <init/config_shell/tt_console_config_shell.h>
 #include <init/tt_component.h>
 #include <init/tt_config_bool.h>
-#include <init/tt_config_group.h>
-#include <init/tt_config_node.h>
+#include <init/tt_config_directory.h>
+#include <init/tt_config_object.h>
 #include <init/tt_config_path.h>
 #include <init/tt_config_s32.h>
 #include <init/tt_config_string.h>

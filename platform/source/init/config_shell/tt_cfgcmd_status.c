@@ -69,26 +69,26 @@ static tt_u32_t __status_multiple(IN tt_cfgsh_t *sh,
                                   IN tt_u32_t path_num,
                                   OUT tt_buf_t *output);
 
-static tt_u32_t __max_path_len(IN tt_cfgnode_t *cnode, IN tt_buf_t *path);
+static tt_u32_t __max_path_len(IN tt_cfgobj_t *cnode, IN tt_buf_t *path);
 
-static tt_u32_t __max_path_len_of(IN tt_cfgnode_t *cnode,
-                                  IN tt_cfgnode_t *root,
+static tt_u32_t __max_path_len_of(IN tt_cfgobj_t *cnode,
+                                  IN tt_cfgobj_t *root,
                                   IN tt_buf_t *path);
 
-static tt_bool_t __status_node(IN tt_cfgnode_t *cnode,
-                               IN tt_cfgnode_t *root,
+static tt_bool_t __status_node(IN tt_cfgobj_t *cnode,
+                               IN tt_cfgobj_t *root,
                                IN tt_u32_t max_name_len,
                                IN tt_buf_t *buf,
                                OUT tt_buf_t *output);
 
-static tt_bool_t __status_grp(IN tt_cfggrp_t *cgrp,
-                              IN tt_cfgnode_t *root,
+static tt_bool_t __status_grp(IN tt_cfgdir_t *cgrp,
+                              IN tt_cfgobj_t *root,
                               IN tt_u32_t max_name_len,
                               IN tt_buf_t *buf,
                               OUT tt_buf_t *output);
 
-static tt_bool_t __status_val(IN tt_cfgnode_t *cnode,
-                              IN tt_cfgnode_t *root,
+static tt_bool_t __status_val(IN tt_cfgobj_t *cnode,
+                              IN tt_cfgobj_t *root,
                               IN tt_u32_t max_name_len,
                               IN tt_buf_t *buf,
                               OUT tt_buf_t *output);
@@ -113,7 +113,7 @@ tt_u32_t __status_run(IN tt_cfgsh_t *sh,
 
 tt_u32_t __status_current(IN tt_cfgsh_t *sh, OUT tt_buf_t *output)
 {
-    tt_cfgnode_t *cnode;
+    tt_cfgobj_t *cnode;
     tt_u32_t max_name_len;
     tt_buf_t buf;
 
@@ -146,7 +146,7 @@ tt_u32_t __status_single(IN tt_cfgsh_t *sh,
                          IN tt_char_t *path,
                          OUT tt_buf_t *output)
 {
-    tt_cfgnode_t *cnode;
+    tt_cfgobj_t *cnode;
     tt_blob_t path_blob;
     tt_u32_t max_name_len;
     tt_buf_t buf;
@@ -203,23 +203,23 @@ tt_u32_t __status_multiple(IN tt_cfgsh_t *sh,
     return TT_CLIOC_OUT;
 }
 
-tt_u32_t __max_path_len(IN tt_cfgnode_t *cnode, IN tt_buf_t *pathbuf)
+tt_u32_t __max_path_len(IN tt_cfgobj_t *cnode, IN tt_buf_t *pathbuf)
 {
     return __max_path_len_of(cnode, cnode, pathbuf);
 }
 
-tt_u32_t __max_path_len_of(IN tt_cfgnode_t *cnode,
-                           IN tt_cfgnode_t *root,
+tt_u32_t __max_path_len_of(IN tt_cfgobj_t *cnode,
+                           IN tt_cfgobj_t *root,
                            IN tt_buf_t *path)
 {
-    if (cnode->type == TT_CFGNODE_TYPE_GROUP) {
-        tt_cfggrp_t *cgrp = TT_CFGNODE_CAST(cnode, tt_cfggrp_t);
+    if (cnode->type == TT_CFGOBJ_DIR) {
+        tt_cfgdir_t *cgrp = TT_CFGOBJ_CAST(cnode, tt_cfgdir_t);
         tt_lnode_t *node;
         tt_u32_t max_len = 0;
 
         node = tt_list_head(&cgrp->child);
         while (node != NULL) {
-            tt_cfgnode_t *child = TT_CONTAINER(node, tt_cfgnode_t, node);
+            tt_cfgobj_t *child = TT_CONTAINER(node, tt_cfgobj_t, node);
             tt_u32_t len;
 
             node = node->next;
@@ -242,14 +242,14 @@ tt_u32_t __max_path_len_of(IN tt_cfgnode_t *cnode,
     }
 }
 
-tt_bool_t __status_node(IN tt_cfgnode_t *cnode,
-                        IN tt_cfgnode_t *root,
+tt_bool_t __status_node(IN tt_cfgobj_t *cnode,
+                        IN tt_cfgobj_t *root,
                         IN tt_u32_t max_name_len,
                         IN tt_buf_t *buf,
                         OUT tt_buf_t *output)
 {
-    if (cnode->type == TT_CFGNODE_TYPE_GROUP) {
-        return __status_grp(TT_CFGNODE_CAST(cnode, tt_cfggrp_t),
+    if (cnode->type == TT_CFGOBJ_DIR) {
+        return __status_grp(TT_CFGOBJ_CAST(cnode, tt_cfgdir_t),
                             root,
                             max_name_len,
                             buf,
@@ -259,8 +259,8 @@ tt_bool_t __status_node(IN tt_cfgnode_t *cnode,
     }
 }
 
-tt_bool_t __status_grp(IN tt_cfggrp_t *cgrp,
-                       IN tt_cfgnode_t *root,
+tt_bool_t __status_grp(IN tt_cfgdir_t *cgrp,
+                       IN tt_cfgobj_t *root,
                        IN tt_u32_t max_name_len,
                        IN tt_buf_t *buf,
                        OUT tt_buf_t *output)
@@ -270,7 +270,7 @@ tt_bool_t __status_grp(IN tt_cfggrp_t *cgrp,
 
     node = tt_list_head(&cgrp->child);
     while (node != NULL) {
-        tt_cfgnode_t *child = TT_CONTAINER(node, tt_cfgnode_t, node);
+        tt_cfgobj_t *child = TT_CONTAINER(node, tt_cfgobj_t, node);
 
         node = node->next;
 
@@ -287,8 +287,8 @@ tt_bool_t __status_grp(IN tt_cfggrp_t *cgrp,
     return has_enter;
 }
 
-tt_bool_t __status_val(IN tt_cfgnode_t *cnode,
-                       IN tt_cfgnode_t *root,
+tt_bool_t __status_val(IN tt_cfgobj_t *cnode,
+                       IN tt_cfgobj_t *root,
                        IN tt_u32_t max_name_len,
                        IN tt_buf_t *buf,
                        OUT tt_buf_t *output)
@@ -332,7 +332,7 @@ tt_bool_t __status_val(IN tt_cfgnode_t *cnode,
 
         // DESCRIPTION
         tt_buf_backup_rwp(output, &rp, &wp);
-        result = tt_cfgnode_get(cnode, output);
+        result = tt_cfgobj_get(cnode, output);
         if (!TT_OK(result)) {
             tt_buf_restore_rwp(output, &rp, &wp);
             if (result == TT_BAD_PARAM) {

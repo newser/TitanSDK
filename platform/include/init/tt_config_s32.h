@@ -28,7 +28,7 @@
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <init/tt_config_node.h>
+#include <init/tt_config_object.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
@@ -40,30 +40,17 @@
 
 struct tt_cfgs32_s;
 
-typedef tt_bool_t (*tt_cfgs32_on_set_t)(IN struct tt_cfgnode_s *cs32,
-                                        IN tt_s32_t new_val);
+typedef tt_result_t (*tt_cfgs32_on_set_t)(IN struct tt_cfgobj_s *cnode,
+                                          IN tt_s32_t new_val);
 
 typedef struct tt_cfgs32_cb_s
 {
-    tt_cfgnode_on_destroy_t on_destroy;
     tt_cfgs32_on_set_t on_set;
 } tt_cfgs32_cb_t;
 
-typedef struct
-{
-    tt_cfgnode_attr_t cnode_attr;
-
-    tt_s32_t mode;
-#define TT_CFGS32_MODE_G 0
-#define TT_CFGS32_MODE_GS 1
-} tt_cfgs32_attr_t;
-
 typedef struct tt_cfgs32_s
 {
-    tt_s32_t *val_ptr;
-    tt_s32_t new_val;
-
-    tt_cfgs32_cb_t *cb;
+    tt_cfgs32_cb_t cb;
 } tt_cfgs32_t;
 
 ////////////////////////////////////////////////////////////
@@ -74,26 +61,9 @@ typedef struct tt_cfgs32_s
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern tt_cfgnode_t *tt_cfgs32_create(IN const tt_char_t *name,
-                                      IN OPT tt_cfgnode_itf_t *itf,
-                                      IN OPT void *opaque,
-                                      IN tt_s32_t *val_ptr,
-                                      IN OPT tt_cfgs32_cb_t *cb,
-                                      IN OPT tt_cfgs32_attr_t *attr);
-
-extern void tt_cfgs32_attr_default(IN tt_cfgs32_attr_t *attr);
-
-extern tt_result_t tt_cfgs32_ls(IN tt_cfgnode_t *cnode,
-                                IN const tt_char_t *seperator,
-                                OUT struct tt_buf_s *output);
-
-extern tt_result_t tt_cfgs32_get(IN tt_cfgnode_t *cnode,
-                                 OUT struct tt_buf_s *output);
-
-extern tt_result_t tt_cfgs32_set(IN tt_cfgnode_t *cnode, IN tt_blob_t *val);
-
-extern tt_result_t tt_cfgs32_check(IN tt_cfgnode_t *cnode, IN tt_blob_t *val);
-
-extern tt_result_t tt_cfgs32_commit(IN tt_cfgnode_t *cnode);
+extern tt_cfgobj_t *tt_cfgs32_create(IN const tt_char_t *name,
+                                     IN tt_s32_t *p_s32,
+                                     IN OPT tt_cfgobj_attr_t *attr,
+                                     IN OPT tt_cfgs32_cb_t *cb);
 
 #endif /* __TT_CONFIG_S32__ */

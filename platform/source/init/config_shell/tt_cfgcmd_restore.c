@@ -69,7 +69,7 @@ static tt_u32_t __restore_multiple(IN tt_cfgsh_t *sh,
                                    IN tt_u32_t path_num,
                                    OUT tt_buf_t *output);
 
-static tt_u32_t __restore_node(IN tt_cfgnode_t *node);
+static tt_u32_t __restore_node(IN tt_cfgobj_t *node);
 
 ////////////////////////////////////////////////////////////
 // interface implementation
@@ -91,7 +91,7 @@ tt_u32_t __restore_run(IN tt_cfgsh_t *sh,
 
 tt_u32_t __restore_current(IN tt_cfgsh_t *sh, OUT tt_buf_t *output)
 {
-    tt_cfgnode_t *cnode;
+    tt_cfgobj_t *cnode;
 
     cnode = sh->current;
     if (cnode == NULL) {
@@ -99,7 +99,7 @@ tt_u32_t __restore_current(IN tt_cfgsh_t *sh, OUT tt_buf_t *output)
         return TT_CLIOC_OUT;
     }
 
-    tt_cfgnode_restore(cnode);
+    tt_cfgobj_restore(cnode);
     return TT_CLIOC_NOOUT;
 }
 
@@ -107,7 +107,7 @@ tt_u32_t __restore_single(IN tt_cfgsh_t *sh,
                           IN tt_char_t *path,
                           OUT tt_buf_t *output)
 {
-    tt_cfgnode_t *cnode;
+    tt_cfgobj_t *cnode;
     tt_blob_t path_blob;
 
     path_blob.addr = (tt_u8_t *)path;
@@ -118,7 +118,7 @@ tt_u32_t __restore_single(IN tt_cfgsh_t *sh,
         return TT_CLIOC_OUT;
     }
 
-    tt_cfgnode_restore(cnode);
+    tt_cfgobj_restore(cnode);
     return TT_CLIOC_NOOUT;
 }
 
@@ -143,16 +143,16 @@ tt_u32_t __restore_multiple(IN tt_cfgsh_t *sh,
     return result;
 }
 
-tt_u32_t __restore_node(IN tt_cfgnode_t *cnode)
+tt_u32_t __restore_node(IN tt_cfgobj_t *cnode)
 {
-    if (cnode->type == TT_CFGNODE_TYPE_GROUP) {
-        tt_cfggrp_t *cgrp = TT_CFGNODE_CAST(cnode, tt_cfggrp_t);
+    if (cnode->type == TT_CFGOBJ_DIR) {
+        tt_cfgdir_t *cgrp = TT_CFGOBJ_CAST(cnode, tt_cfgdir_t);
         tt_lnode_t *node;
 
         // restore children
         node = tt_list_head(&cgrp->child);
         while (node != NULL) {
-            tt_cfgnode_t *child = TT_CONTAINER(node, tt_cfgnode_t, node);
+            tt_cfgobj_t *child = TT_CONTAINER(node, tt_cfgobj_t, node);
 
             node = node->next;
 
@@ -161,8 +161,7 @@ tt_u32_t __restore_node(IN tt_cfgnode_t *cnode)
 
         // remove added children
         while ((node = tt_list_pop_head(&cgrp->new_child)) != NULL) {
-            tt_cfgnode_destroy(TT_CONTAINER(node, tt_cfgnode_t, node),
-                               TT_FALSE);
+            tt_cfgobj_destroy(TT_CONTAINER(node, tt_cfgobj_t, node), TT_FALSE);
         }
     } else {
         cnode->modified = TT_FALSE;

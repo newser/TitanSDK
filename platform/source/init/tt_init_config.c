@@ -21,7 +21,7 @@
 #include <init/tt_init_config.h>
 
 #include <init/tt_component.h>
-#include <init/tt_config_group.h>
+#include <init/tt_config_directory.h>
 #include <init/tt_profile.h>
 
 ////////////////////////////////////////////////////////////
@@ -40,9 +40,9 @@
 // global variant
 ////////////////////////////////////////////////////////////
 
-tt_cfgnode_t *tt_g_config_root;
+tt_cfgobj_t *tt_g_config_root;
 
-tt_cfgnode_t *tt_g_config_platform;
+tt_cfgobj_t *tt_g_config_platform;
 
 ////////////////////////////////////////////////////////////
 // interface declaration
@@ -73,16 +73,17 @@ void tt_config_component_register()
 tt_result_t __config_component_init(IN tt_component_t *comp,
                                     IN tt_profile_t *profile)
 {
-    tt_cfggrp_attr_t attr;
+#if 0
+    tt_cfgdir_attr_t attr;
 
     // create config root node:
     //  - empty name
     //  - default interface
     //  - no private data
     //  - no callback
-    tt_cfggrp_attr_default(&attr);
+    tt_cfgdir_attr_default(&attr);
 
-    tt_g_config_root = tt_cfggrp_create("", NULL, NULL, NULL, &attr);
+    tt_g_config_root = tt_cfgdir_create("", NULL, NULL, NULL, &attr);
     if (tt_g_config_root == NULL) {
         TT_ERROR("fail to create config node: root");
         return TT_FAIL;
@@ -93,21 +94,22 @@ tt_result_t __config_component_init(IN tt_component_t *comp,
     //  - default interface
     //  - no private data
     //  - no callback
-    tt_cfggrp_attr_default(&attr);
+    tt_cfgdir_attr_default(&attr);
     attr.cnode_attr.brief = "platform configuration";
     attr.cnode_attr.detail = "platform configuration";
 
     tt_g_config_platform =
-        tt_cfggrp_create("platform", NULL, NULL, NULL, &attr);
+        tt_cfgdir_create("platform", NULL, NULL, NULL, &attr);
     if (tt_g_config_platform == NULL) {
         TT_ERROR("fail to create config node: platform");
         return TT_FAIL;
     }
 
-    if (!TT_OK(tt_cfggrp_add(tt_g_config_root, tt_g_config_platform))) {
+    if (!TT_OK(tt_cfgdir_add(tt_g_config_root, tt_g_config_platform))) {
         TT_ERROR("fail to add config node: platform");
         return TT_FAIL;
     }
+#endif
 
     return TT_SUCCESS;
 }

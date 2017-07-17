@@ -22,7 +22,7 @@
 
 #include <algorithm/tt_buffer_common.h>
 #include <algorithm/tt_buffer_format.h>
-#include <init/tt_config_group.h>
+#include <init/tt_config_directory.h>
 
 ////////////////////////////////////////////////////////////
 // internal macro
@@ -40,23 +40,23 @@
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-static tt_cfgnode_t *__cfgnode_goto(IN tt_cfgnode_t *root,
-                                    IN tt_cfgnode_t *current,
-                                    IN tt_blob_t *name);
+static tt_cfgobj_t *__cfgnode_goto(IN tt_cfgobj_t *root,
+                                   IN tt_cfgobj_t *current,
+                                   IN tt_blob_t *name);
 
-static tt_cfgnode_t *__cfgnode_parent(IN tt_cfgnode_t *cnode);
+static tt_cfgobj_t *__cfgnode_parent(IN tt_cfgobj_t *cnode);
 
 ////////////////////////////////////////////////////////////
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-tt_cfgnode_t *tt_cfgpath_p2n(IN tt_cfgnode_t *root,
-                             IN tt_cfgnode_t *current,
-                             IN tt_blob_t *path)
+tt_cfgobj_t *tt_cfgpath_p2n(IN tt_cfgobj_t *root,
+                            IN tt_cfgobj_t *current,
+                            IN tt_blob_t *path)
 {
     const tt_char_t *pc;
     tt_u32_t len, prev_pos, pos;
-    tt_cfgnode_t *cnode;
+    tt_cfgobj_t *cnode;
     tt_blob_t name;
 
     TT_ASSERT(path != NULL);
@@ -76,7 +76,7 @@ tt_cfgnode_t *tt_cfgpath_p2n(IN tt_cfgnode_t *root,
         cnode = current;
     }
     TT_ASSERT(cnode != NULL);
-    if (cnode->type != TT_CFGNODE_TYPE_GROUP) {
+    if (cnode->type != TT_CFGOBJ_DIR) {
         return NULL;
     }
 
@@ -90,7 +90,7 @@ next_slash:
         name.addr = (tt_u8_t *)&pc[prev_pos];
         name.len = pos - prev_pos;
         cnode = __cfgnode_goto(root, cnode, &name);
-        if ((cnode == NULL) || (cnode->type != TT_CFGNODE_TYPE_GROUP)) {
+        if ((cnode == NULL) || (cnode->type != TT_CFGOBJ_DIR)) {
             // here we must have seen "/xxx/", so cnode must be group
             return NULL;
         }
@@ -110,11 +110,11 @@ next_slash:
     return cnode;
 }
 
-tt_result_t tt_cfgpath_n2p(IN OPT tt_cfgnode_t *root,
-                           IN tt_cfgnode_t *current,
+tt_result_t tt_cfgpath_n2p(IN OPT tt_cfgobj_t *root,
+                           IN tt_cfgobj_t *current,
                            OUT tt_buf_t *path)
 {
-    tt_cfgnode_t *cnode;
+    tt_cfgobj_t *cnode;
     tt_u32_t pos;
     tt_u8_t slash = '/';
 
@@ -146,17 +146,17 @@ tt_result_t tt_cfgpath_n2p(IN OPT tt_cfgnode_t *root,
     return TT_SUCCESS;
 }
 
-tt_result_t tt_cfgpath_complete(IN tt_cfgnode_t *root,
-                                IN tt_cfgnode_t *current,
+tt_result_t tt_cfgpath_complete(IN tt_cfgobj_t *root,
+                                IN tt_cfgobj_t *current,
                                 IN tt_blob_t *path,
                                 OUT tt_u32_t *status,
                                 OUT tt_buf_t *output)
 {
     tt_blob_t child;
-    tt_cfggrp_t *cgrp;
+    tt_cfgdir_t *cgrp;
     tt_lnode_t *node;
     tt_bool_t head = TT_TRUE;
-    tt_cfgnode_t *cnode;
+    tt_cfgobj_t *cnode;
 
     const tt_char_t *common = NULL;
     tt_u32_t match_num = 0, common_len = 0;
@@ -198,21 +198,21 @@ tt_result_t tt_cfgpath_complete(IN tt_cfgnode_t *root,
     }
     // now current is parent node, and child include child name
 
-    if (current->type != TT_CFGNODE_TYPE_GROUP) {
+    if (current->type != TT_CFGOBJ_DIR) {
         *status = TT_CFGPCP_NONE;
         return TT_SUCCESS;
     }
-    cgrp = TT_CFGNODE_CAST(current, tt_cfggrp_t);
+    cgrp = TT_CFGOBJ_CAST(current, tt_cfgdir_t);
 
     if (child.len == 0) {
         if (tt_list_count(&cgrp->child) == 1) {
             // case 1.1: none matching, but only 1 choice
             node = tt_list_head(&cgrp->child);
-            cnode = TT_CONTAINER(node, tt_cfgnode_t, node);
+            cnode = TT_CONTAINER(node, tt_cfgobj_t, node);
             TT_DO(tt_buf_put(output,
                              (tt_u8_t *)cnode->name,
                              (tt_u32_t)tt_strlen(cnode->name)));
-            if (cnode->type == TT_CFGNODE_TYPE_GROUP) {
+            if (cnode->type == TT_CFGOBJ_DIR) {
                 TT_DO(tt_buf_put_u8(output, '/'));
                 *status = TT_CFGPCP_FULL_MORE;
             } else {
@@ -223,7 +223,7 @@ tt_result_t tt_cfgpath_complete(IN tt_cfgnode_t *root,
             // case 1.2: none matching, list all children
             for (node = tt_list_head(&cgrp->child); node != NULL;
                  node = node->next) {
-                cnode = TT_CONTAINER(node, tt_cfgnode_t, node);
+                cnode = TT_CONTAINER(node, tt_cfgobj_t, node);
                 if (head) {
                     head = TT_FALSE;
                 } else {
@@ -241,7 +241,7 @@ tt_result_t tt_cfgpath_complete(IN tt_cfgnode_t *root,
 
     // find all matching children
     for (node = tt_list_head(&cgrp->child); node != NULL; node = node->next) {
-        cnode = TT_CONTAINER(node, tt_cfgnode_t, node);
+        cnode = TT_CONTAINER(node, tt_cfgobj_t, node);
         name = cnode->name;
 
         if (tt_memcmp(name, child.addr, child.len) == 0) {
@@ -271,14 +271,14 @@ tt_result_t tt_cfgpath_complete(IN tt_cfgnode_t *root,
         // case 3: fully matched
         for (node = tt_list_head(&cgrp->child); node != NULL;
              node = node->next) {
-            cnode = TT_CONTAINER(node, tt_cfgnode_t, node);
+            cnode = TT_CONTAINER(node, tt_cfgobj_t, node);
             name = cnode->name;
 
             if (tt_memcmp(name, child.addr, child.len) == 0) {
                 TT_DO(tt_buf_put(output,
                                  (tt_u8_t *)name + child.len,
                                  (tt_u32_t)tt_strlen(name) - child.len));
-                if (cnode->type == TT_CFGNODE_TYPE_GROUP) {
+                if (cnode->type == TT_CFGOBJ_DIR) {
                     TT_DO(tt_buf_put_u8(output, '/'));
                     *status = TT_CFGPCP_FULL_MORE;
                 } else {
@@ -295,7 +295,7 @@ tt_result_t tt_cfgpath_complete(IN tt_cfgnode_t *root,
         // case 5: nothing to complete, list all candidates
         for (node = tt_list_head(&cgrp->child); node != NULL;
              node = node->next) {
-            cnode = TT_CONTAINER(node, tt_cfgnode_t, node);
+            cnode = TT_CONTAINER(node, tt_cfgobj_t, node);
             name = cnode->name;
 
             if (tt_memcmp(name, child.addr, child.len) == 0) {
@@ -315,28 +315,30 @@ tt_result_t tt_cfgpath_complete(IN tt_cfgnode_t *root,
     return TT_SUCCESS;
 }
 
-tt_cfgnode_t *__cfgnode_goto(IN tt_cfgnode_t *root,
-                             IN tt_cfgnode_t *current,
-                             IN tt_blob_t *name)
+tt_cfgobj_t *__cfgnode_goto(IN tt_cfgobj_t *root,
+                            IN tt_cfgobj_t *current,
+                            IN tt_blob_t *name)
 {
     if (tt_blob_strcmp(name, ".") == 0) {
         return current;
     } else if (tt_blob_strcmp(name, "..") == 0) {
         return __cfgnode_parent(current);
     } else {
-        return tt_cfggrp_find_blob(current, name);
+        return tt_cfgdir_find(TT_CFGOBJ_CAST(current, tt_cfgdir_t),
+                              (tt_char_t *)name->addr,
+                              name->len);
     }
 }
 
-tt_cfgnode_t *__cfgnode_parent(IN tt_cfgnode_t *cnode)
+tt_cfgobj_t *__cfgnode_parent(IN tt_cfgobj_t *cnode)
 {
-    tt_cfggrp_t *cgrp;
+    tt_cfgdir_t *cgrp;
 
     if (cnode->node.lst == NULL) {
         return NULL;
     }
     // be sure the cnode is not a uncommitted node
-    cgrp = TT_CONTAINER(cnode->node.lst, tt_cfggrp_t, child);
+    cgrp = TT_CONTAINER(cnode->node.lst, tt_cfgdir_t, child);
 
-    return TT_CFGNODE_OF(cgrp);
+    return TT_CFGOBJ_OF(cgrp);
 }

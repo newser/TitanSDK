@@ -140,7 +140,7 @@ tt_u32_t __help_single(IN tt_cfgsh_t *sh,
                        OUT tt_buf_t *output)
 {
     tt_cfgcmd_t *cmd;
-    tt_cfgnode_t *cnode;
+    tt_cfgobj_t *cnode;
     tt_blob_t name_blob;
 
     cmd = tt_cfgcmd_find(name);
@@ -153,7 +153,7 @@ tt_u32_t __help_single(IN tt_cfgsh_t *sh,
     name_blob.len = (tt_u32_t)tt_strlen(name);
     cnode = tt_cfgpath_p2n(sh->root, sh->current, &name_blob);
     if (cnode != NULL) {
-        tt_buf_put_cstr(output, tt_cfgnode_detail(cnode));
+        tt_buf_put_cstr(output, tt_cfgobj_detail(cnode));
         return TT_CLIOC_OUT;
     }
 

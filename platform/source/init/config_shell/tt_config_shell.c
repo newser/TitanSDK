@@ -69,7 +69,7 @@ static tt_result_t __expand_arg(IN tt_cfgsh_t *sh);
 tt_result_t tt_cfgsh_create(IN tt_cfgsh_t *sh,
                             IN tt_cli_mode_t mode,
                             IN tt_cli_itf_t *itf,
-                            IN tt_cfgnode_t *root,
+                            IN tt_cfgobj_t *root,
                             IN OPT tt_cfgsh_attr_t *attr)
 {
     tt_cfgsh_attr_t __attr;

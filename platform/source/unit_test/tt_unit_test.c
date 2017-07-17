@@ -95,10 +95,10 @@ tt_test_unit_t *tt_g_test_unit_list[TEST_UNIT_NUM] = {
 #if 0
     &TT_MAKE_TEST_UNIT_NAME(TEST_UNIT_MISC),
     &TT_MAKE_TEST_UNIT_NAME(TEST_UNIT_CHARSET),
-    &TT_MAKE_TEST_UNIT_NAME(TEST_UNIT_CFGNODE),
     &TT_MAKE_TEST_UNIT_NAME(TEST_UNIT_CFGPATH),
     &TT_MAKE_TEST_UNIT_NAME(TEST_UNIT_CFGSHELL),
 #endif
+    &TT_MAKE_TEST_UNIT_NAME(TEST_UNIT_CFGNODE),
 
 #if 0
     &TT_MAKE_TEST_UNIT_NAME(TEST_UNIT_FS),
@@ -178,7 +178,7 @@ tt_result_t tt_test_unit_init(IN tt_ptr_t reserved)
     } while (0);
 #endif
 
-#if 1
+#if 0
     do {
         tt_result_t tt_cli_ut_init(IN tt_ptr_t reserved);
         tt_cli_ut_init(0);
