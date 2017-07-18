@@ -161,80 +161,79 @@ TT_TEST_CASE("tt_unit_test_cfgpath_p2n_abs",
     //////////////////////////////////
 
     // null path
-    tt_string_clear(&path);
-    n = tt_cfgpath_p2n_str(root, root, &path);
+    n = tt_cfgpath_p2n_cstr(root, root, "");
+    TT_UT_EQUAL(n, NULL, "");
+
+    // invalid current
+    n = tt_cfgpath_p2n_cstr(c1211, root, "/");
     TT_UT_EQUAL(n, NULL, "");
 
     // one slash
-    tt_string_clear(&path);
-    tt_string_append(&path, "/");
-    n = tt_cfgpath_p2n_str(root, root, &path);
+    n = tt_cfgpath_p2n_cstr(root, root, "/");
     TT_UT_EQUAL(n, root, "");
 
+    // two slash
+    n = tt_cfgpath_p2n_cstr(root, root, "//");
+    TT_UT_EQUAL(n, NULL, "");
+
+    // multiple slash
+    n = tt_cfgpath_p2n_cstr(root, root, "/////");
+    TT_UT_EQUAL(n, NULL, "");
+
     // invalid path
-    tt_string_clear(&path);
-    tt_string_append(&path, "/g");
-    n = tt_cfgpath_p2n_str(root, root, &path);
+    n = tt_cfgpath_p2n_cstr(root, root, "/g");
     TT_UT_EQUAL(n, NULL, "");
 
     // valid path
-    tt_string_clear(&path);
-    tt_string_append(&path, "/g1");
-    n = tt_cfgpath_p2n_str(root, root, &path);
+    n = tt_cfgpath_p2n_cstr(root, root, "/g1");
     TT_UT_EQUAL(n, g1, "");
 
     // valid path
-    tt_string_clear(&path);
-    tt_string_append(&path, "/g1/");
-    n = tt_cfgpath_p2n_str(root, root, &path);
+    n = tt_cfgpath_p2n_cstr(root, root, "/g1/");
     TT_UT_EQUAL(n, g1, "");
 
     // invalid path
-    tt_string_clear(&path);
-    tt_string_append(&path, "/g1/g1");
-    n = tt_cfgpath_p2n_str(root, root, &path);
+    n = tt_cfgpath_p2n_cstr(root, root, "/g1/g1");
     TT_UT_EQUAL(n, NULL, "");
 
     // valid path
-    tt_string_clear(&path);
-    tt_string_append(&path, "/g1/g11");
-    n = tt_cfgpath_p2n_str(root, root, &path);
+    n = tt_cfgpath_p2n_cstr(root, root, "/g1/g11");
     TT_UT_EQUAL(n, g11, "");
 
     // valid path
-    tt_string_clear(&path);
-    tt_string_append(&path, "/g1/g12/");
-    n = tt_cfgpath_p2n_str(root, root, &path);
+    n = tt_cfgpath_p2n_cstr(root, root, "/g1/g12/");
     TT_UT_EQUAL(n, g12, "");
 
     // valid path
-    tt_string_clear(&path);
-    tt_string_append(&path, "/g1/g12/g121/c1211");
-    n = tt_cfgpath_p2n_str(root, root, &path);
+    n = tt_cfgpath_p2n_cstr(root, root, "/g1/g12/g121/c1211");
     TT_UT_EQUAL(n, c1211, "");
-
-    // valid path
-    tt_string_clear(&path);
-    tt_string_append(&path, "/g121/c1211");
-    n = tt_cfgpath_p2n_str(g12, g12, &path);
-    TT_UT_EQUAL(n, c1211, "");
-
-    // valid path
-    tt_string_clear(&path);
-    tt_string_append(&path, "/g12/g121/");
-    n = tt_cfgpath_p2n_str(g1, g1, &path);
-    TT_UT_EQUAL(n, g121, "");
 
     // invalid path
-    tt_string_clear(&path);
-    tt_string_append(&path, "/g1/g12/g121/c1211/");
-    n = tt_cfgpath_p2n_str(root, root, &path);
+    n = tt_cfgpath_p2n_cstr(root, root, "/g1/g12xx/g121/c1211");
     TT_UT_EQUAL(n, NULL, "");
 
     // invalid path
-    tt_string_clear(&path);
-    tt_string_append(&path, "/g1/g12/g121//c1211");
-    n = tt_cfgpath_p2n_str(root, root, &path);
+    n = tt_cfgpath_p2n_cstr(root, root, "/g1xx/g12/g121/c1211");
+    TT_UT_EQUAL(n, NULL, "");
+
+    // invalid path
+    n = tt_cfgpath_p2n_cstr(root, root, "/g1/g12/g121xx/c1211");
+    TT_UT_EQUAL(n, NULL, "");
+
+    // valid path
+    n = tt_cfgpath_p2n_cstr(g12, g12, "/g121/c1211");
+    TT_UT_EQUAL(n, c1211, "");
+
+    // valid path
+    n = tt_cfgpath_p2n_cstr(g1, g1, "/g12/g121/");
+    TT_UT_EQUAL(n, g121, "");
+
+    // invalid path
+    n = tt_cfgpath_p2n_cstr(root, root, "/g1/g12/g121/c1211/");
+    TT_UT_EQUAL(n, NULL, "");
+
+    // invalid path
+    n = tt_cfgpath_p2n_cstr(root, root, "/g1/g12/g121//c1211");
     TT_UT_EQUAL(n, NULL, "");
 
     tt_cfgobj_destroy(root);
@@ -281,74 +280,75 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgpath_p2n_rel)
     //////////////////////////////////
 
     // null path
-    tt_string_clear(&path);
-    n = tt_cfgpath_p2n_str(root, root, &path);
+    n = tt_cfgpath_p2n_cstr(root, root, "");
     TT_UT_EQUAL(n, NULL, "");
 
     // one slash
-    tt_string_clear(&path);
-    tt_string_append(&path, "/");
-    n = tt_cfgpath_p2n_str(root, root, &path);
+    n = tt_cfgpath_p2n_cstr(root, root, "/");
     TT_UT_EQUAL(n, root, "");
 
     // invalid path
-    tt_string_clear(&path);
-    tt_string_append(&path, "g");
-    n = tt_cfgpath_p2n_str(root, root, &path);
+    n = tt_cfgpath_p2n_cstr(root, root, "g");
+    TT_UT_EQUAL(n, NULL, "");
+
+    // invalid path
+    n = tt_cfgpath_p2n_cstr(root, c1211, ".");
     TT_UT_EQUAL(n, NULL, "");
 
     // valid path
-    tt_string_clear(&path);
-    tt_string_append(&path, "g1");
-    n = tt_cfgpath_p2n_str(root, root, &path);
+    n = tt_cfgpath_p2n_cstr(root, root, "g1");
     TT_UT_EQUAL(n, g1, "");
 
     // valid path
-    tt_string_clear(&path);
-    tt_string_append(&path, "g1/");
-    n = tt_cfgpath_p2n_str(root, root, &path);
+    n = tt_cfgpath_p2n_cstr(root, root, "g1/");
     TT_UT_EQUAL(n, g1, "");
 
     // invalid path
-    tt_string_clear(&path);
-    tt_string_append(&path, "g1");
-    n = tt_cfgpath_p2n_str(root, g1, &path);
+    n = tt_cfgpath_p2n_cstr(root, g1, "g1");
     TT_UT_EQUAL(n, NULL, "");
 
     // valid path
-    tt_string_clear(&path);
-    tt_string_append(&path, "g11");
-    n = tt_cfgpath_p2n_str(root, g1, &path);
+    n = tt_cfgpath_p2n_cstr(root, g1, "g11");
     TT_UT_EQUAL(n, g11, "");
 
     // valid path
-    tt_string_clear(&path);
-    tt_string_append(&path, "g12/");
-    n = tt_cfgpath_p2n_str(root, g1, &path);
+    n = tt_cfgpath_p2n_cstr(root, g1, "g12/");
     TT_UT_EQUAL(n, g12, "");
 
     // valid path
-    tt_string_clear(&path);
-    tt_string_append(&path, "g121/c1211");
-    n = tt_cfgpath_p2n_str(root, g12, &path);
+    n = tt_cfgpath_p2n_cstr(root, g1, "g12/g121/c1211");
     TT_UT_EQUAL(n, c1211, "");
 
+    // valid path
+    n = tt_cfgpath_p2n_cstr(root, g12, "g121/c1211");
+    TT_UT_EQUAL(n, c1211, "");
+
+    // valid path
+    n = tt_cfgpath_p2n_cstr(root, g12, "g121/../g121/./c1211");
+    TT_UT_EQUAL(n, c1211, "");
+
+    // valid path
+    n = tt_cfgpath_p2n_cstr(root, g12, "g121/../g121/.");
+    TT_UT_EQUAL(n, g121, "");
+
+    // valid path
+    n = tt_cfgpath_p2n_cstr(root, g12, "g121/../g121/./..");
+    TT_UT_EQUAL(n, g12, "");
+
+    // valid path
+    n = tt_cfgpath_p2n_cstr(root, g12, "g121/../g121/./../");
+    TT_UT_EQUAL(n, g12, "");
+
     // invalid path
-    tt_string_clear(&path);
-    tt_string_append(&path, "g12/g121/c1211/");
-    n = tt_cfgpath_p2n_str(root, g1, &path);
+    n = tt_cfgpath_p2n_cstr(root, g1, "g12/g121/c1211/");
     TT_UT_EQUAL(n, NULL, "");
 
     // invalid path
-    tt_string_clear(&path);
-    tt_string_append(&path, "g121//c1211");
-    n = tt_cfgpath_p2n_str(root, g12, &path);
+    n = tt_cfgpath_p2n_cstr(root, g12, "g121//c1211");
     TT_UT_EQUAL(n, NULL, "");
 
     // invalid path
-    tt_string_clear(&path);
-    tt_string_append(&path, "./");
-    n = tt_cfgpath_p2n_str(root, c1211, &path);
+    n = tt_cfgpath_p2n_cstr(root, c1211, "./");
     TT_UT_EQUAL(n, NULL, "");
 
     tt_cfgobj_destroy(root);
@@ -396,92 +396,74 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgpath_p2n_dot)
 
     // null path
     tt_string_clear(&path);
-    n = tt_cfgpath_p2n_str(root, root, &path);
+    n = tt_cfgpath_p2n_cstr(root, root, "");
     TT_UT_EQUAL(n, NULL, "");
 
     // valid slash
-    tt_string_clear(&path);
-    tt_string_append(&path, "/././././");
-    n = tt_cfgpath_p2n_str(root, root, &path);
+    n = tt_cfgpath_p2n_cstr(root, root, "/././././");
     TT_UT_EQUAL(n, root, "");
 
-    // invalid path
-    tt_string_clear(&path);
-    tt_string_append(&path, "/./../");
-    n = tt_cfgpath_p2n_str(root, root, &path);
+    // valid slash
+    n = tt_cfgpath_p2n_cstr(root, root, "/././././.");
+    TT_UT_EQUAL(n, root, "");
+
+    // invalid slash
+    n = tt_cfgpath_p2n_cstr(root, root, "/./././././..");
     TT_UT_EQUAL(n, NULL, "");
 
     // invalid path
-    tt_string_clear(&path);
-    tt_string_append(&path, "/./g");
-    n = tt_cfgpath_p2n_str(root, root, &path);
+    n = tt_cfgpath_p2n_cstr(root, root, "/./../");
+    TT_UT_EQUAL(n, NULL, "");
+
+    // invalid path
+    n = tt_cfgpath_p2n_cstr(root, root, "/./g");
     TT_UT_EQUAL(n, NULL, "");
 
     // valid path
-    tt_string_clear(&path);
-    tt_string_append(&path, "/g1/../g1");
-    n = tt_cfgpath_p2n_str(root, root, &path);
+    n = tt_cfgpath_p2n_cstr(root, root, "/g1/../g1");
     TT_UT_EQUAL(n, g1, "");
 
     // valid path
-    tt_string_clear(&path);
-    tt_string_append(&path, "./g1/../g1/g12/../../g1");
-    n = tt_cfgpath_p2n_str(root, root, &path);
+    n = tt_cfgpath_p2n_cstr(root, root, "./g1/../g1/g12/../../g1");
     TT_UT_EQUAL(n, g1, "");
 
     // valid path
-    tt_string_clear(&path);
-    tt_string_append(&path, "./../../g1");
-    n = tt_cfgpath_p2n_str(root, g12, &path);
+    n = tt_cfgpath_p2n_cstr(root, g12, "./../../g1");
     TT_UT_EQUAL(n, g1, "");
 
     // valid path
-    tt_string_clear(&path);
-    tt_string_append(&path, "/g1/g11");
-    n = tt_cfgpath_p2n_str(root, c1211, &path);
+    n = tt_cfgpath_p2n_cstr(root, c1211, "/g1/g11");
     TT_UT_EQUAL(n, g11, "");
 
     // invalid path
-    tt_string_clear(&path);
-    tt_string_append(&path, "//g1/g11");
-    n = tt_cfgpath_p2n_str(root, c1211, &path);
+    n = tt_cfgpath_p2n_cstr(root, c1211, "//g1/g11");
     TT_UT_EQUAL(n, NULL, "");
 
     // invalid path
-    tt_string_clear(&path);
-    tt_string_append(&path, "./g121/c1211/...");
-    n = tt_cfgpath_p2n_str(root, g12, &path);
+    n = tt_cfgpath_p2n_cstr(root, g12, "./g121/c1211/...");
     TT_UT_EQUAL(n, NULL, "");
 
     // valid path
-    tt_string_clear(&path);
-    tt_string_append(&path, "../../../g1/g12/g121/c1211");
-    n = tt_cfgpath_p2n_str(root, g121, &path);
+    n = tt_cfgpath_p2n_cstr(root, g121, "../../../g1/g12/g121/c1211");
     TT_UT_EQUAL(n, c1211, "");
 
     // valid path
-    tt_string_clear(&path);
-    tt_string_append(&path, "../../../g1/g12/g121/c1211");
-    n = tt_cfgpath_p2n_str(root, g121, &path);
+    n = tt_cfgpath_p2n_cstr(root, g121, "../../../g1/g12/g121/c1211");
     TT_UT_EQUAL(n, c1211, "");
 
     // invalid path
-    tt_string_clear(&path);
-    tt_string_append(&path,
-                     "../../../.../g1/g12/g121/c1211/.../g1/g12/g121/c1211");
-    n = tt_cfgpath_p2n_str(root, g121, &path);
+    n = tt_cfgpath_p2n_cstr(
+        root, g121, "../../../.../g1/g12/g121/c1211/.../g1/g12/g121/c1211");
     TT_UT_EQUAL(n, NULL, "");
 
     // valid path
-    tt_string_clear(&path);
-    tt_string_append(&path, "../../../g1/g12/g121/../../g12/g121/c1211");
-    n = tt_cfgpath_p2n_str(root, g121, &path);
+    n = tt_cfgpath_p2n_cstr(root,
+                            g121,
+                            "../../../g1/g12/g121/../../g12/g121/c1211");
     TT_UT_EQUAL(n, c1211, "");
 
     // valid path
-    tt_string_clear(&path);
-    tt_string_append(&path, "../../../g1/g12/g121/../../../");
-    n = tt_cfgpath_p2n_str(root, g121, &path);
+    n = tt_cfgpath_p2n_cstr(root, g121, "../../../g1/g12/g121/../../../");
     TT_UT_EQUAL(n, root, "");
 
     tt_cfgobj_destroy(root);
@@ -586,6 +568,12 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgpath_n2p)
     cmp_ret = tt_buf_cmp_cstr(&path, "/g1/g12/g121/c1211");
     TT_UT_EQUAL(cmp_ret, 0, "");
 
+    tt_buf_clear(&path);
+    ret = tt_cfgpath_n2p(c1211, g121, &path);
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+    cmp_ret = tt_buf_cmp_cstr(&path, "/g1/g12/g121");
+    TT_UT_EQUAL(cmp_ret, 0, "");
+
     tt_cfgobj_destroy(root);
     tt_buf_destroy(&path);
 
@@ -632,7 +620,12 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgpath_comp)
         tt_blob_t path = {(tt_u8_t *)"", 0};
         path.len = (tt_u32_t)tt_strlen((tt_char_t *)path.addr);
         tt_buf_clear(&output);
-        ret = tt_cfgpath_complete(root, root, &path, &status, &output);
+        ret = tt_cfgpath_complete(root,
+                                  root,
+                                  (tt_char_t *)path.addr,
+                                  path.len,
+                                  &status,
+                                  &output);
         TT_UT_EQUAL(ret, TT_SUCCESS, "");
         TT_UT_EQUAL(status, TT_CFGPCP_FULL_MORE, "");
 
@@ -640,13 +633,27 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgpath_comp)
         TT_UT_EQUAL(TT_BUF_RLEN(&output), 3, "");
         cmp_ret = tt_strncmp((tt_char_t *)TT_BUF_RPOS(&output), "g1/", 3);
         TT_UT_EQUAL(cmp_ret, 0, "");
+
+        ret = tt_cfgpath_complete(root,
+                                  c1211,
+                                  (tt_char_t *)path.addr,
+                                  path.len,
+                                  &status,
+                                  &output);
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(status, TT_CFGPCP_NONE, "");
     }
 
     {
         tt_blob_t path = {(tt_u8_t *)"g1", 0};
         path.len = (tt_u32_t)tt_strlen((tt_char_t *)path.addr);
         tt_buf_clear(&output);
-        ret = tt_cfgpath_complete(root, root, &path, &status, &output);
+        ret = tt_cfgpath_complete(root,
+                                  root,
+                                  (tt_char_t *)path.addr,
+                                  path.len,
+                                  &status,
+                                  &output);
         TT_UT_EQUAL(ret, TT_SUCCESS, "");
         TT_UT_EQUAL(status, TT_CFGPCP_FULL_MORE, "");
 
@@ -660,7 +667,12 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgpath_comp)
         tt_blob_t path = {(tt_u8_t *)"g1", 0};
         path.len = (tt_u32_t)tt_strlen((tt_char_t *)path.addr);
         tt_buf_clear(&output);
-        ret = tt_cfgpath_complete(root, g1, &path, &status, &output);
+        ret = tt_cfgpath_complete(root,
+                                  g1,
+                                  (tt_char_t *)path.addr,
+                                  path.len,
+                                  &status,
+                                  &output);
         TT_UT_EQUAL(ret, TT_SUCCESS, "");
         TT_UT_EQUAL(status, TT_CFGPCP_NONE, "");
 
@@ -674,7 +686,12 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgpath_comp)
         tt_blob_t path = {(tt_u8_t *)"g", 0};
         path.len = (tt_u32_t)tt_strlen((tt_char_t *)path.addr);
         tt_buf_clear(&output);
-        ret = tt_cfgpath_complete(root, g1, &path, &status, &output);
+        ret = tt_cfgpath_complete(root,
+                                  g1,
+                                  (tt_char_t *)path.addr,
+                                  path.len,
+                                  &status,
+                                  &output);
         TT_UT_EQUAL(ret, TT_SUCCESS, "");
         TT_UT_EQUAL(status, TT_CFGPCP_PARTIAL, "");
 
@@ -688,7 +705,12 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgpath_comp)
         tt_blob_t path = {(tt_u8_t *)"/g1/g12/g121/c12", 0};
         path.len = (tt_u32_t)tt_strlen((tt_char_t *)path.addr);
         tt_buf_clear(&output);
-        ret = tt_cfgpath_complete(root, g121, &path, &status, &output);
+        ret = tt_cfgpath_complete(root,
+                                  g121,
+                                  (tt_char_t *)path.addr,
+                                  path.len,
+                                  &status,
+                                  &output);
         TT_UT_EQUAL(ret, TT_SUCCESS, "");
         TT_UT_EQUAL(status, TT_CFGPCP_FULL, "");
 
@@ -698,12 +720,132 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgpath_comp)
         TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
+    // case1.1
+    {
+        tt_blob_t path = {(tt_u8_t *)"/g1/g12/g121/", 0};
+        path.len = (tt_u32_t)tt_strlen((tt_char_t *)path.addr);
+        tt_buf_clear(&output);
+        ret = tt_cfgpath_complete(root,
+                                  g121,
+                                  (tt_char_t *)path.addr,
+                                  path.len,
+                                  &status,
+                                  &output);
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(status, TT_CFGPCP_FULL, "");
+
+        // full complete
+        TT_UT_EQUAL(TT_BUF_RLEN(&output), 5, "");
+        cmp_ret = tt_strncmp((tt_char_t *)TT_BUF_RPOS(&output), "c1211", 1);
+        TT_UT_EQUAL(cmp_ret, 0, "");
+    }
+
+    // case1.2
+    {
+        tt_blob_t path = {(tt_u8_t *)"/g1/g12/", 0};
+        path.len = (tt_u32_t)tt_strlen((tt_char_t *)path.addr);
+        tt_buf_clear(&output);
+        ret = tt_cfgpath_complete(root,
+                                  g121,
+                                  (tt_char_t *)path.addr,
+                                  path.len,
+                                  &status,
+                                  &output);
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(status, TT_CFGPCP_FULL_MORE, "");
+
+        // full complete
+        TT_UT_EQUAL(TT_BUF_RLEN(&output), 5, "");
+        cmp_ret = tt_strncmp((tt_char_t *)TT_BUF_RPOS(&output), "g121/", 1);
+        TT_UT_EQUAL(cmp_ret, 0, "");
+    }
+
+    // case3
+    {
+        tt_blob_t path = {(tt_u8_t *)"g12", 0};
+        path.len = (tt_u32_t)tt_strlen((tt_char_t *)path.addr);
+        tt_buf_clear(&output);
+        ret = tt_cfgpath_complete(root,
+                                  g12,
+                                  (tt_char_t *)path.addr,
+                                  path.len,
+                                  &status,
+                                  &output);
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(status, TT_CFGPCP_FULL_MORE, "");
+
+        // full complete
+        TT_UT_EQUAL(TT_BUF_RLEN(&output), 2, "");
+        cmp_ret = tt_strncmp((tt_char_t *)TT_BUF_RPOS(&output), "1/", 1);
+        TT_UT_EQUAL(cmp_ret, 0, "");
+    }
+
+    {
+        tt_blob_t path = {(tt_u8_t *)".", 0};
+        path.len = (tt_u32_t)tt_strlen((tt_char_t *)path.addr);
+        tt_buf_clear(&output);
+        ret = tt_cfgpath_complete(root,
+                                  g1,
+                                  (tt_char_t *)path.addr,
+                                  path.len,
+                                  &status,
+                                  &output);
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(status, TT_CFGPCP_FULL_MORE, "");
+
+        // complete a slash
+        TT_UT_EQUAL(TT_BUF_RLEN(&output), 1, "");
+        cmp_ret = tt_strncmp((tt_char_t *)TT_BUF_RPOS(&output), "/", 1);
+        TT_UT_EQUAL(cmp_ret, 0, "");
+    }
+
+    {
+        tt_blob_t path = {(tt_u8_t *)"/g1/g12/..", 0};
+        path.len = (tt_u32_t)tt_strlen((tt_char_t *)path.addr);
+        tt_buf_clear(&output);
+        ret = tt_cfgpath_complete(root,
+                                  g121,
+                                  (tt_char_t *)path.addr,
+                                  path.len,
+                                  &status,
+                                  &output);
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(status, TT_CFGPCP_FULL_MORE, "");
+
+        // complete a slash
+        TT_UT_EQUAL(TT_BUF_RLEN(&output), 1, "");
+        cmp_ret = tt_strncmp((tt_char_t *)TT_BUF_RPOS(&output), "/", 1);
+        TT_UT_EQUAL(cmp_ret, 0, "");
+    }
+
+    {
+        tt_blob_t path = {(tt_u8_t *)"/g1/g12/...", 0};
+        path.len = (tt_u32_t)tt_strlen((tt_char_t *)path.addr);
+        tt_buf_clear(&output);
+        ret = tt_cfgpath_complete(root,
+                                  g121,
+                                  (tt_char_t *)path.addr,
+                                  path.len,
+                                  &status,
+                                  &output);
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(status, TT_CFGPCP_NONE, "");
+
+        // none match
+        TT_UT_EQUAL(TT_BUF_RLEN(&output), 0, "");
+    }
+
     {
         // invalid path
         tt_blob_t path = {(tt_u8_t *)"/g1/g12/x121/c12", 0};
         path.len = (tt_u32_t)tt_strlen((tt_char_t *)path.addr);
         tt_buf_clear(&output);
-        ret = tt_cfgpath_complete(root, g121, &path, &status, &output);
+        ret = tt_cfgpath_complete(root,
+                                  g121,
+                                  (tt_char_t *)path.addr,
+                                  path.len,
+                                  &status,
+                                  &output);
         TT_UT_EQUAL(ret, TT_SUCCESS, "");
         TT_UT_EQUAL(status, TT_CFGPCP_NONE, "");
 
@@ -715,7 +857,12 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgpath_comp)
         tt_blob_t path = {(tt_u8_t *)"/g1/g12/g121/c1211/", 0};
         path.len = (tt_u32_t)tt_strlen((tt_char_t *)path.addr);
         tt_buf_clear(&output);
-        ret = tt_cfgpath_complete(root, g121, &path, &status, &output);
+        ret = tt_cfgpath_complete(root,
+                                  g121,
+                                  (tt_char_t *)path.addr,
+                                  path.len,
+                                  &status,
+                                  &output);
         TT_UT_EQUAL(ret, TT_SUCCESS, "");
         TT_UT_EQUAL(status, TT_CFGPCP_NONE, "");
 
@@ -727,7 +874,12 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgpath_comp)
         tt_blob_t path = {(tt_u8_t *)"/g1/g12/g121/c1299", 0};
         path.len = (tt_u32_t)tt_strlen((tt_char_t *)path.addr);
         tt_buf_clear(&output);
-        ret = tt_cfgpath_complete(root, g121, &path, &status, &output);
+        ret = tt_cfgpath_complete(root,
+                                  g121,
+                                  (tt_char_t *)path.addr,
+                                  path.len,
+                                  &status,
+                                  &output);
         TT_UT_EQUAL(ret, TT_SUCCESS, "");
         TT_UT_EQUAL(status, TT_CFGPCP_NONE, "");
 
@@ -739,7 +891,12 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgpath_comp)
         tt_blob_t path = {(tt_u8_t *)"", 0};
         path.len = (tt_u32_t)tt_strlen((tt_char_t *)path.addr);
         tt_buf_clear(&output);
-        ret = tt_cfgpath_complete(root, g121, &path, &status, &output);
+        ret = tt_cfgpath_complete(root,
+                                  g121,
+                                  (tt_char_t *)path.addr,
+                                  path.len,
+                                  &status,
+                                  &output);
         TT_UT_EQUAL(ret, TT_SUCCESS, "");
         TT_UT_EQUAL(status, TT_CFGPCP_FULL, "");
 

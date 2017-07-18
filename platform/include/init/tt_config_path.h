@@ -28,7 +28,6 @@ path of config node
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <algorithm/tt_string.h>
 #include <init/tt_config_object.h>
 
 ////////////////////////////////////////////////////////////
@@ -38,6 +37,8 @@ path of config node
 ////////////////////////////////////////////////////////////
 // type definition
 ////////////////////////////////////////////////////////////
+
+struct tt_buf_s;
 
 ////////////////////////////////////////////////////////////
 // global variants
@@ -50,19 +51,15 @@ path of config node
 // start from root if path begins with '/', otherwise use current
 extern tt_cfgobj_t *tt_cfgpath_p2n(IN tt_cfgobj_t *root,
                                    IN tt_cfgobj_t *current,
-                                   IN tt_blob_t *path);
+                                   IN const tt_char_t *path,
+                                   IN tt_u32_t len);
 
-tt_inline tt_cfgobj_t *tt_cfgpath_p2n_str(IN tt_cfgobj_t *root,
-                                          IN tt_cfgobj_t *current,
-                                          IN tt_string_t *path)
+tt_inline tt_cfgobj_t *tt_cfgpath_p2n_cstr(IN tt_cfgobj_t *root,
+                                           IN tt_cfgobj_t *current,
+                                           IN const tt_char_t *path)
 {
-    tt_blob_t b = {(tt_u8_t *)tt_string_cstr(path), tt_string_len(path)};
-    return tt_cfgpath_p2n(root, current, &b);
+    return tt_cfgpath_p2n(root, current, path, tt_strlen(path));
 }
-
-extern tt_cfgobj_t *tt_cfgpath_p2n_str(IN tt_cfgobj_t *root,
-                                       IN tt_cfgobj_t *current,
-                                       IN tt_string_t *path);
 
 // print path from root to current:
 //  - if root == current, path would be emtpy
@@ -70,16 +67,17 @@ extern tt_cfgobj_t *tt_cfgpath_p2n_str(IN tt_cfgobj_t *root,
 //  - otherwise print an absolute path of current
 extern tt_result_t tt_cfgpath_n2p(IN OPT tt_cfgobj_t *root,
                                   IN tt_cfgobj_t *current,
-                                  OUT tt_buf_t *path);
+                                  OUT struct tt_buf_s *path);
 
 // - TT_CFGPCP_NONE, none match, @ref completed includes candidates
 // - TT_CFGPCP_PARTIAL, can be partially completed
 // - TT_CFGPCP_FULL, fully completed
 extern tt_result_t tt_cfgpath_complete(IN tt_cfgobj_t *root,
                                        IN tt_cfgobj_t *current,
-                                       IN tt_blob_t *path,
+                                       IN const tt_char_t *path,
+                                       IN tt_u32_t len,
                                        OUT tt_u32_t *status,
-                                       OUT tt_buf_t *output);
+                                       OUT struct tt_buf_s *output);
 #define TT_CFGPCP_NONE 0
 #define TT_CFGPCP_PARTIAL 1
 #define TT_CFGPCP_FULL 2
