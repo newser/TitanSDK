@@ -21,7 +21,6 @@
 #include <init/tt_init_config.h>
 
 #include <init/tt_component.h>
-#include <init/tt_config_directory.h>
 #include <init/tt_profile.h>
 
 ////////////////////////////////////////////////////////////
@@ -40,9 +39,9 @@
 // global variant
 ////////////////////////////////////////////////////////////
 
-tt_cfgobj_t *tt_g_config_root;
+tt_cfgdir_t *tt_g_config_root;
 
-tt_cfgobj_t *tt_g_config_platform;
+tt_cfgdir_t *tt_g_config_platform;
 
 ////////////////////////////////////////////////////////////
 // interface declaration
@@ -73,43 +72,36 @@ void tt_config_component_register()
 tt_result_t __config_component_init(IN tt_component_t *comp,
                                     IN tt_profile_t *profile)
 {
-#if 0
-    tt_cfgdir_attr_t attr;
+    tt_cfgobj_attr_t attr;
+    tt_cfgobj_t *co;
 
-    // create config root node:
-    //  - empty name
-    //  - default interface
-    //  - no private data
-    //  - no callback
-    tt_cfgdir_attr_default(&attr);
+    // create root config node
+    tt_cfgobj_attr_default(&attr);
 
-    tt_g_config_root = tt_cfgdir_create("", NULL, NULL, NULL, &attr);
-    if (tt_g_config_root == NULL) {
+    co = tt_cfgdir_create("", &attr);
+    if (co == NULL) {
         TT_ERROR("fail to create config node: root");
         return TT_FAIL;
     }
+    tt_g_config_root = TT_CFGOBJ_CAST(co, tt_cfgdir_t);
 
-    // create config platform node:
-    //  - name: "platform"
-    //  - default interface
-    //  - no private data
-    //  - no callback
-    tt_cfgdir_attr_default(&attr);
-    attr.cnode_attr.brief = "platform configuration";
-    attr.cnode_attr.detail = "platform configuration";
+    // create platform config node
+    tt_cfgobj_attr_default(&attr);
+    attr.brief = "platform configurations";
+    attr.detail = "this directory includes all platform related configurations";
 
-    tt_g_config_platform =
-        tt_cfgdir_create("platform", NULL, NULL, NULL, &attr);
-    if (tt_g_config_platform == NULL) {
+    co = tt_cfgdir_create("platform", &attr);
+    if (co == NULL) {
         TT_ERROR("fail to create config node: platform");
         return TT_FAIL;
     }
+    tt_g_config_platform = TT_CFGOBJ_CAST(co, tt_cfgdir_t);
 
-    if (!TT_OK(tt_cfgdir_add(tt_g_config_root, tt_g_config_platform))) {
+    if (!TT_OK(tt_cfgdir_add(tt_g_config_root,
+                             TT_CFGOBJ_OF(tt_g_config_platform)))) {
         TT_ERROR("fail to add config node: platform");
         return TT_FAIL;
     }
-#endif
 
     return TT_SUCCESS;
 }
