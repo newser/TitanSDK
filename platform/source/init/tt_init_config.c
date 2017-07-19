@@ -39,9 +39,9 @@
 // global variant
 ////////////////////////////////////////////////////////////
 
-tt_cfgdir_t *tt_g_config_root;
+tt_cfgobj_t *tt_g_config_root;
 
-tt_cfgdir_t *tt_g_config_platform;
+tt_cfgobj_t *tt_g_config_platform;
 
 ////////////////////////////////////////////////////////////
 // interface declaration
@@ -73,32 +73,29 @@ tt_result_t __config_component_init(IN tt_component_t *comp,
                                     IN tt_profile_t *profile)
 {
     tt_cfgobj_attr_t attr;
-    tt_cfgobj_t *co;
 
     // create root config node
     tt_cfgobj_attr_default(&attr);
 
-    co = tt_cfgdir_create("", &attr);
-    if (co == NULL) {
+    tt_g_config_root = tt_cfgdir_create("", &attr);
+    if (tt_g_config_root == NULL) {
         TT_ERROR("fail to create config node: root");
         return TT_FAIL;
     }
-    tt_g_config_root = TT_CFGOBJ_CAST(co, tt_cfgdir_t);
 
     // create platform config node
     tt_cfgobj_attr_default(&attr);
     attr.brief = "platform configurations";
     attr.detail = "this directory includes all platform related configurations";
 
-    co = tt_cfgdir_create("platform", &attr);
-    if (co == NULL) {
+    tt_g_config_platform = tt_cfgdir_create("platform", &attr);
+    if (tt_g_config_platform == NULL) {
         TT_ERROR("fail to create config node: platform");
         return TT_FAIL;
     }
-    tt_g_config_platform = TT_CFGOBJ_CAST(co, tt_cfgdir_t);
 
-    if (!TT_OK(tt_cfgdir_add(tt_g_config_root,
-                             TT_CFGOBJ_OF(tt_g_config_platform)))) {
+    if (!TT_OK(tt_cfgdir_add(TT_CFGOBJ_CAST(tt_g_config_root, tt_cfgdir_t),
+                             tt_g_config_platform))) {
         TT_ERROR("fail to add config node: platform");
         return TT_FAIL;
     }

@@ -85,7 +85,8 @@ static tt_u32_t __cli_app_on_cmd(IN struct tt_cli_s *cli,
                                  IN tt_buf_t *output);
 static tt_u32_t __cli_app_on_complete(IN struct tt_cli_s *cli,
                                       IN void *param,
-                                      IN tt_blob_t *cursor_data,
+                                      IN tt_u8_t *cur,
+                                      IN tt_u32_t cur_len,
                                       IN tt_bool_t wait4cmd,
                                       IN tt_buf_t *output);
 static tt_bool_t __cli_app_on_quit(IN struct tt_cli_s *cli,
@@ -160,7 +161,8 @@ tt_u32_t __cli_app_on_cmd(IN struct tt_cli_s *cli,
 
 tt_u32_t __cli_app_on_complete(IN struct tt_cli_s *cli,
                                IN void *param,
-                               IN tt_blob_t *cursor_data,
+                               IN tt_u8_t *cur,
+                               IN tt_u32_t cur_len,
                                IN tt_bool_t wait4cmd,
                                IN tt_buf_t *output)
 {
@@ -177,7 +179,7 @@ tt_u32_t __cli_app_on_complete(IN struct tt_cli_s *cli,
         option_num = app->arg_num;
     }
 
-    tt_cli_complete(cursor_data, option, option_num, &status, output);
+    tt_cli_complete(cur, cur_len, option, option_num, &status, output);
 
     return status;
 }

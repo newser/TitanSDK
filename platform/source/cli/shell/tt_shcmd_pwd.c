@@ -18,10 +18,10 @@
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <init/config_shell/tt_cfgcmd_pwd.h>
+#include <cli/shell/tt_shcmd_pwd.h>
 
 #include <algorithm/tt_buffer_format.h>
-#include <init/config_shell/tt_config_shell.h>
+#include <cli/shell/tt_shell.h>
 #include <init/tt_config_path.h>
 
 ////////////////////////////////////////////////////////////
@@ -40,17 +40,17 @@
 // global variant
 ////////////////////////////////////////////////////////////
 
-static const tt_char_t __cd_info[] = "change group";
+static const tt_char_t __pwd_info[] = "show current shell path";
 
-static const tt_char_t __cd_usage[] = "testing change group";
+static const tt_char_t __pwd_usage[] = "testing pwd";
 
-static tt_u32_t __cd_run(IN tt_cfgsh_t *sh,
-                         IN tt_u32_t argc,
-                         IN tt_char_t *arv[],
-                         OUT tt_buf_t *output);
+static tt_u32_t __pwd_run(IN tt_shell_t *sh,
+                          IN tt_u32_t argc,
+                          IN tt_char_t *arv[],
+                          OUT tt_buf_t *output);
 
-tt_cfgcmd_t tt_g_cfgcmd_cd = {
-    TT_CFGCMD_NAME_CD, __cd_info, __cd_usage, __cd_run,
+tt_shcmd_t tt_g_shcmd_pwd = {
+    TT_SHCMD_NAME_PWD, __pwd_info, __pwd_usage, __pwd_run,
 };
 
 ////////////////////////////////////////////////////////////
@@ -61,39 +61,26 @@ tt_cfgcmd_t tt_g_cfgcmd_cd = {
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-tt_u32_t __cd_run(IN tt_cfgsh_t *sh,
-                  IN tt_u32_t argc,
-                  IN tt_char_t *argv[],
-                  OUT tt_buf_t *output)
+tt_u32_t __pwd_run(IN tt_shell_t *sh,
+                   IN tt_u32_t argc,
+                   IN tt_char_t *argv[],
+                   OUT tt_buf_t *output)
 {
-    tt_blob_t path;
-    tt_cfgobj_t *cnode;
+    tt_u32_t rp, wp;
 
-    if (argc == 0) {
-        return TT_CLIOC_NOOUT;
-    }
-
-    path.addr = (tt_u8_t *)argv[0];
-    path.len = (tt_u32_t)tt_strlen(argv[0]);
-    cnode = tt_cfgpath_p2n(sh->root, sh->current, &path);
-    if (cnode == NULL) {
-        tt_buf_putf(output, "can not find: %s", path.addr);
+    if (sh->current == NULL) {
+        tt_buf_putf(output, "internal error");
         return TT_CLIOC_OUT;
     }
 
-    if (cnode->type != TT_CFGOBJ_DIR) {
-        tt_buf_putf(output, "not a group: %s", path.addr);
+    tt_buf_backup_rwp(output, &rp, &wp);
+    tt_buf_put_u8(output, '/');
+    if (!TT_OK(tt_cfgpath_n2p(sh->root, sh->current, output))) {
+        tt_buf_restore_rwp(output, &rp, &wp);
+
+        tt_buf_putf(output, "internal error");
         return TT_CLIOC_OUT;
     }
 
-    sh->current = cnode;
-    tt_cli_update_prefix(&sh->cli, NULL, cnode->name, 0);
-
-#if 0
-    tt_buf_put_cstr(output, "cd: /");
-    tt_cfgpath_n2p(sh->root, sh->current, output);
     return TT_CLIOC_OUT;
-#else
-    return TT_CLIOC_NOOUT;
-#endif
 }

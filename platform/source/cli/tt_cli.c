@@ -334,7 +334,8 @@ void tt_cli_set_itf(IN tt_cli_t *cli, IN OPT tt_cli_itf_t *itf)
     }
 }
 
-tt_result_t tt_cli_complete(IN tt_blob_t *cursor_data,
+tt_result_t tt_cli_complete(IN tt_u8_t *cur,
+                            IN tt_u32_t cur_len,
                             IN const tt_char_t **option,
                             IN tt_u32_t option_num,
                             OUT tt_u32_t *status,
@@ -343,7 +344,7 @@ tt_result_t tt_cli_complete(IN tt_blob_t *cursor_data,
     tt_u32_t i;
     tt_bool_t head = TT_TRUE;
 
-    if (cursor_data->addr == NULL) {
+    if (cur == NULL) {
         // put all options
         for (i = 0; i < option_num; ++i) {
             if (head) {
@@ -357,8 +358,7 @@ tt_result_t tt_cli_complete(IN tt_blob_t *cursor_data,
         }
         *status = TT_CLICP_NONE;
     } else {
-        tt_u8_t *cur = cursor_data->addr;
-        tt_u32_t cur_len = cursor_data->len, match_num = 0, common_len = 0;
+        tt_u32_t match_num = 0, common_len = 0;
         const tt_char_t *common = NULL;
 
         // only put matching options
@@ -648,8 +648,12 @@ tt_result_t __def_on_tab(IN tt_cli_t *cli)
     wait4cmd = tt_cline_cursor_data(cline, &cursor_data);
 
     tt_buf_clear(&cli->acbuf);
-    status =
-        cli->cb.on_complete(cli, cli->cb.param, &cursor_data, wait4cmd, acbuf);
+    status = cli->cb.on_complete(cli,
+                                 cli->cb.param,
+                                 cursor_data.addr,
+                                 cursor_data.len,
+                                 wait4cmd,
+                                 acbuf);
     if (status == TT_CLICP_FULL) {
         TT_DO(tt_cline_input(cline, TT_BUF_RPOS(acbuf), TT_BUF_RLEN(acbuf)));
         TT_DO(tt_cline_input_ev(cline, ' '));

@@ -156,7 +156,7 @@ return 0;
     }
 #elif AUT_MODE == 2
 {
-    tt_cfgsh_t sh;
+    tt_shell_t sh;
 
     tt_console_cfgsh_create(&sh, TT_CLI_MODE_DEFAUTL, NULL);
 

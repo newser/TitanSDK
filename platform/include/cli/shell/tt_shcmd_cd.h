@@ -15,20 +15,20 @@
  */
 
 /**
-@file tt_cfgcmd_set.h
-@brief config shell command: set
+@file tt_shcmd_cd.h
+@brief shell command: cd
 
-this file defines config shell command: set
+this file defines shell command: cd
 */
 
-#ifndef __TT_CFGCMD_SET__
-#define __TT_CFGCMD_SET__
+#ifndef __TT_SHCMD_CD__
+#define __TT_SHCMD_CD__
 
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <init/config_shell/tt_config_command.h>
+#include <cli/shell/tt_shell_command.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
@@ -42,10 +42,10 @@ this file defines config shell command: set
 // global variants
 ////////////////////////////////////////////////////////////
 
-extern tt_cfgcmd_t tt_g_cfgcmd_set;
+extern tt_shcmd_t tt_g_shcmd_cd;
 
 ////////////////////////////////////////////////////////////
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-#endif /* __TT_CFGCMD_SET__ */
+#endif /* __TT_SHCMD_CD__ */

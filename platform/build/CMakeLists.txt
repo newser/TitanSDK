@@ -97,7 +97,6 @@ ttcm_add_group_src(${PLATFORM_PATH}/source/algorithm/ptr algorithm SRC_FILE)
 ttcm_add_group_src(${PLATFORM_PATH}/source/event event SRC_FILE)
 
 ttcm_add_group_src(${PLATFORM_PATH}/source/init init SRC_FILE)
-#ttcm_add_group_src(${PLATFORM_PATH}/source/init/config_shell config_shell SRC_FILE)
 
 ttcm_add_group_src(${PLATFORM_PATH}/source/io io SRC_FILE)
 
@@ -133,6 +132,7 @@ ttcm_add_group_src(${PLATFORM_PATH}/source/network/ssl ssl SRC_FILE)
 #ttcm_add_group_src(${PLATFORM_PATH}/source/network/ssh/context ssh SRC_FILE)
 
 ttcm_add_group_src(${PLATFORM_PATH}/source/cli cli SRC_FILE)
+ttcm_add_group_src(${PLATFORM_PATH}/source/cli/shell shell SRC_FILE)
 
 # test cases
 ttcm_add_group_src(${PLATFORM_PATH}/source/algorithm/test_case test_case SRC_FILE)

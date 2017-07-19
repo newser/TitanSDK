@@ -14,38 +14,55 @@
  * limitations under the License.
  */
 
-/**
-@file tt_cfgcmd_restore.h
-@brief config shell command: restore
-
-this file defines config shell command: restore
-*/
-
-#ifndef __TT_CFGCMD_RESTORE__
-#define __TT_CFGCMD_RESTORE__
-
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <init/config_shell/tt_config_command.h>
+#include <cli/shell/tt_shcmd_quit.h>
+
+#include <cli/shell/tt_shell.h>
 
 ////////////////////////////////////////////////////////////
-// macro definition
+// internal macro
 ////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////
-// type definition
+// internal type
 ////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////
-// global variants
+// extern declaration
 ////////////////////////////////////////////////////////////
 
-extern tt_cfgcmd_t tt_g_cfgcmd_restore;
+////////////////////////////////////////////////////////////
+// global variant
+////////////////////////////////////////////////////////////
+
+static const tt_char_t __quit_info[] = "quit shell";
+
+static const tt_char_t __quit_usage[] = "testing quit";
+
+static tt_u32_t __quit_run(IN tt_shell_t *sh,
+                           IN tt_u32_t argc,
+                           IN tt_char_t *arv[],
+                           OUT tt_buf_t *output);
+
+tt_shcmd_t tt_g_shcmd_quit = {
+    TT_SHCMD_NAME_QUIT, __quit_info, __quit_usage, __quit_run,
+};
 
 ////////////////////////////////////////////////////////////
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-#endif /* __TT_CFGCMD_RESTORE__ */
+////////////////////////////////////////////////////////////
+// interface implementation
+////////////////////////////////////////////////////////////
+
+tt_u32_t __quit_run(IN tt_shell_t *sh,
+                    IN tt_u32_t argc,
+                    IN tt_char_t *argv[],
+                    OUT tt_buf_t *output)
+{
+    return TT_CLIOC_END;
+}

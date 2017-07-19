@@ -136,7 +136,7 @@ tt_result_t tt_cfgpath_n2p(IN OPT tt_cfgobj_t *root,
 tt_result_t tt_cfgpath_complete(IN tt_cfgobj_t *root,
                                 IN tt_cfgobj_t *current,
                                 IN const tt_char_t *path,
-                                IN tt_u32_t len,
+                                IN tt_u32_t path_len,
                                 OUT tt_u32_t *status,
                                 OUT tt_buf_t *output)
 {
@@ -155,13 +155,13 @@ tt_result_t tt_cfgpath_complete(IN tt_cfgobj_t *root,
     TT_ASSERT(output != NULL);
 
     tail_name = path;
-    tail_len = len;
-    if (len > 0) {
+    tail_len = path_len;
+    if (path_len > 0) {
         const tt_char_t *p;
         tt_u32_t i;
 
         p = path;
-        i = len - 1;
+        i = path_len - 1;
         while ((i != ~0) && (p[i] != '/')) {
             --i;
         }
@@ -174,9 +174,9 @@ tt_result_t tt_cfgpath_complete(IN tt_cfgobj_t *root,
                 return TT_SUCCESS;
             }
 
-            TT_ASSERT((i < len) && (path[i] == '/'));
+            TT_ASSERT((i < path_len) && (path[i] == '/'));
             tail_name = &path[i + 1];
-            tail_len = len - i - 1;
+            tail_len = path_len - i - 1;
         }
     }
     // now current is parent node, and has child name and length

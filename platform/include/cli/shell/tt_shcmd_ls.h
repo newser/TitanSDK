@@ -15,20 +15,20 @@
  */
 
 /**
-@file tt_cfgcmd_get.h
-@brief config shell command: get
+@file tt_shcmd_ls.h
+@brief shell command: ls
 
-this file defines config shell command: get
+this file defines shell command: ls
 */
 
-#ifndef __TT_CFGCMD_GET__
-#define __TT_CFGCMD_GET__
+#ifndef __TT_SHCMD_LS__
+#define __TT_SHCMD_LS__
 
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <init/config_shell/tt_config_command.h>
+#include <cli/shell/tt_shell_command.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
@@ -42,10 +42,10 @@ this file defines config shell command: get
 // global variants
 ////////////////////////////////////////////////////////////
 
-extern tt_cfgcmd_t tt_g_cfgcmd_get;
+extern tt_shcmd_t tt_g_shcmd_ls;
 
 ////////////////////////////////////////////////////////////
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-#endif /* __TT_CFGCMD_GET__ */
+#endif /* __TT_SHCMD_LS__ */

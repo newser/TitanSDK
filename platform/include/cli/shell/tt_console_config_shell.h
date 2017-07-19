@@ -15,20 +15,20 @@
  */
 
 /**
-@file tt_cfgcmd_cd.h
-@brief config shell command: cd
+@file tt_console_config_shell.h
+@brief console config shell
 
-this file defines config shell command: cd
+this file defines console config shell
 */
 
-#ifndef __TT_CFGCMD_CD__
-#define __TT_CFGCMD_CD__
+#ifndef __TT_CONSOLE_CONFIG_SHELL__
+#define __TT_CONSOLE_CONFIG_SHELL__
 
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <init/config_shell/tt_config_command.h>
+#include <cli/shell/tt_shell.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
@@ -42,10 +42,14 @@ this file defines config shell command: cd
 // global variants
 ////////////////////////////////////////////////////////////
 
-extern tt_cfgcmd_t tt_g_cfgcmd_cd;
-
 ////////////////////////////////////////////////////////////
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-#endif /* __TT_CFGCMD_CD__ */
+extern tt_result_t tt_console_cfgsh_create(IN tt_shell_t *sh,
+                                           IN tt_cli_mode_t mode,
+                                           IN OPT tt_sh_attr_t *attr);
+
+extern tt_result_t tt_console_cfgsh_run(IN tt_shell_t *sh, IN tt_bool_t local);
+
+#endif /* __TT_CONSOLE_CONFIG_SHELL__ */

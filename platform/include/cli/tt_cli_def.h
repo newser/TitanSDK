@@ -93,7 +93,8 @@ typedef tt_u32_t (*tt_cli_on_cmd_t)(IN struct tt_cli_s *cli,
 //   output
 typedef tt_u32_t (*tt_cli_on_complete_t)(IN struct tt_cli_s *cli,
                                          IN void *param,
-                                         IN tt_blob_t *cursor_data,
+                                         IN tt_u8_t *cur,
+                                         IN tt_u32_t cur_len,
                                          IN tt_bool_t wait4cmd,
                                          IN struct tt_buf_s *output);
 #define TT_CLICP_NONE 0

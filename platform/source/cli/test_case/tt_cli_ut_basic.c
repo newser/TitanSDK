@@ -511,7 +511,8 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cli_stress)
 
 static tt_u32_t __ut_cli_on_ac(IN struct tt_cli_s *cli,
                                IN void *param,
-                               IN tt_blob_t *cursor_data,
+                               IN tt_u8_t *cur,
+                               IN tt_u32_t cur_len,
                                IN tt_bool_t wait4cmd,
                                IN tt_buf_t *output)
 {
@@ -528,7 +529,8 @@ static tt_u32_t __ut_cli_on_ac(IN struct tt_cli_s *cli,
     tt_u32_t status;
     tt_result_t result;
 
-    result = tt_cli_complete(cursor_data,
+    result = tt_cli_complete(cur,
+                             cur_len,
                              TT_COND(wait4cmd, cmd, data),
                              TT_COND(wait4cmd,
                                      sizeof(cmd) / sizeof(cmd[0]),

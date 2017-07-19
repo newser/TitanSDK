@@ -18,11 +18,18 @@
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <init/config_shell/tt_cfgcmd_pwd.h>
+#include <cli/shell/tt_shell_command.h>
 
-#include <algorithm/tt_buffer_format.h>
-#include <init/config_shell/tt_config_shell.h>
-#include <init/tt_config_path.h>
+#include <cli/shell/tt_shcmd_cd.h>
+#include <cli/shell/tt_shcmd_get.h>
+#include <cli/shell/tt_shcmd_help.h>
+#include <cli/shell/tt_shcmd_ls.h>
+#include <cli/shell/tt_shcmd_pwd.h>
+#include <cli/shell/tt_shcmd_quit.h>
+#include <cli/shell/tt_shcmd_set.h>
+#include <misc/tt_assert.h>
+
+#include <tt_cstd_api.h>
 
 ////////////////////////////////////////////////////////////
 // internal macro
@@ -40,17 +47,24 @@
 // global variant
 ////////////////////////////////////////////////////////////
 
-static const tt_char_t __pwd_info[] = "show current config path";
+tt_shcmd_t *tt_g_shcmd[TT_SHCMD_NUM] = {
+    &tt_g_shcmd_ls, // TT_SHCMD_LS
+    &tt_g_shcmd_cd, // TT_SHCMD_CD
+    &tt_g_shcmd_help, // TT_SHCMD_HELP
+    &tt_g_shcmd_pwd, // TT_SHCMD_PWD
+    &tt_g_shcmd_quit, // TT_SHCMD_QUIT
+    &tt_g_shcmd_get, // TT_SHCMD_GET
+    &tt_g_shcmd_set, // TT_SHCMD_SET
+};
 
-static const tt_char_t __pwd_usage[] = "testing pwd";
-
-static tt_u32_t __pwd_run(IN tt_cfgsh_t *sh,
-                          IN tt_u32_t argc,
-                          IN tt_char_t *arv[],
-                          OUT tt_buf_t *output);
-
-tt_cfgcmd_t tt_g_cfgcmd_pwd = {
-    TT_CFGCMD_NAME_PWD, __pwd_info, __pwd_usage, __pwd_run,
+const tt_char_t *tt_g_shcmd_name[TT_SHCMD_NUM] = {
+    TT_SHCMD_NAME_LS, // TT_SHCMD_LS
+    TT_SHCMD_NAME_CD, // TT_SHCMD_CD
+    TT_SHCMD_NAME_HELP, // TT_SHCMD_HELP
+    TT_SHCMD_NAME_PWD, // TT_SHCMD_PWD
+    TT_SHCMD_NAME_QUIT, // TT_SHCMD_QUIT
+    TT_SHCMD_NAME_GET, // TT_SHCMD_GET
+    TT_SHCMD_NAME_SET, // TT_SHCMD_SET
 };
 
 ////////////////////////////////////////////////////////////
@@ -61,26 +75,13 @@ tt_cfgcmd_t tt_g_cfgcmd_pwd = {
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-tt_u32_t __pwd_run(IN tt_cfgsh_t *sh,
-                   IN tt_u32_t argc,
-                   IN tt_char_t *argv[],
-                   OUT tt_buf_t *output)
+tt_shcmd_t *tt_shcmd_find(IN const tt_char_t *name)
 {
-    tt_u32_t rp, wp;
-
-    if (sh->current == NULL) {
-        tt_buf_putf(output, "internal error");
-        return TT_CLIOC_OUT;
+    tt_u32_t i;
+    for (i = 0; i < TT_SHCMD_NUM; ++i) {
+        if (tt_strcmp(tt_g_shcmd[i]->name, name) == 0) {
+            return tt_g_shcmd[i];
+        }
     }
-
-    tt_buf_backup_rwp(output, &rp, &wp);
-    tt_buf_put_u8(output, '/');
-    if (!TT_OK(tt_cfgpath_n2p(sh->root, sh->current, output))) {
-        tt_buf_restore_rwp(output, &rp, &wp);
-
-        tt_buf_putf(output, "internal error");
-        return TT_CLIOC_OUT;
-    }
-
-    return TT_CLIOC_OUT;
+    return NULL;
 }

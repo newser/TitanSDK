@@ -18,10 +18,10 @@
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <init/config_shell/tt_cfgcmd_set.h>
+#include <cli/shell/tt_shcmd_cd.h>
 
 #include <algorithm/tt_buffer_format.h>
-#include <init/config_shell/tt_config_shell.h>
+#include <cli/shell/tt_shell.h>
 #include <init/tt_config_path.h>
 
 ////////////////////////////////////////////////////////////
@@ -40,17 +40,17 @@
 // global variant
 ////////////////////////////////////////////////////////////
 
-static const tt_char_t __set_info[] = "set value";
+static const tt_char_t __cd_info[] = "change directory";
 
-static const tt_char_t __set_usage[] = "testing set";
+static const tt_char_t __cd_usage[] = "testing change directory";
 
-static tt_u32_t __set_run(IN tt_cfgsh_t *sh,
-                          IN tt_u32_t argc,
-                          IN tt_char_t *arv[],
-                          OUT tt_buf_t *output);
+static tt_u32_t __cd_run(IN tt_shell_t *sh,
+                         IN tt_u32_t argc,
+                         IN tt_char_t *arv[],
+                         OUT tt_buf_t *output);
 
-tt_cfgcmd_t tt_g_cfgcmd_set = {
-    TT_CFGCMD_NAME_SET, __set_info, __set_usage, __set_run,
+tt_shcmd_t tt_g_shcmd_cd = {
+    TT_SHCMD_NAME_CD, __cd_info, __cd_usage, __cd_run,
 };
 
 ////////////////////////////////////////////////////////////
@@ -61,48 +61,32 @@ tt_cfgcmd_t tt_g_cfgcmd_set = {
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-tt_u32_t __set_run(IN tt_cfgsh_t *sh,
-                   IN tt_u32_t argc,
-                   IN tt_char_t *argv[],
-                   OUT tt_buf_t *output)
+tt_u32_t __cd_run(IN tt_shell_t *sh,
+                  IN tt_u32_t argc,
+                  IN tt_char_t *argv[],
+                  OUT tt_buf_t *output)
 {
-    tt_blob_t path_blob, val_blob;
-    tt_cfgobj_t *cnode;
-    tt_u32_t rp, wp;
-    tt_result_t result;
+    tt_cfgobj_t *co;
+    const tt_char_t *path;
 
-    if (argc < 2) {
-        tt_buf_putf(output, "usage: set name value");
-        return TT_CLIOC_OUT;
-    }
-
-    path_blob.addr = (tt_u8_t *)argv[0];
-    path_blob.len = (tt_u32_t)tt_strlen(argv[0]);
-    cnode = tt_cfgpath_p2n(sh->root, sh->current, &path_blob);
-    if (cnode == NULL) {
-        tt_buf_putf(output, "can not find: %s", argv[0]);
-        return TT_CLIOC_OUT;
-    }
-
-    val_blob.addr = (tt_u8_t *)argv[1];
-    val_blob.len = (tt_u32_t)tt_strlen(argv[1]);
-
-    if (!TT_OK(tt_cfgobj_check(cnode, &val_blob))) {
-        tt_buf_putf(output, "bad value: %s", argv[1]);
-        return TT_CLIOC_OUT;
-    }
-
-    tt_buf_backup_rwp(output, &rp, &wp);
-    result = tt_cfgobj_write(cnode, &val_blob);
-    if (TT_OK(result)) {
+    if (argc == 0) {
         return TT_CLIOC_NOOUT;
-    } else {
-        tt_buf_restore_rwp(output, &rp, &wp);
-        if (result == TT_BAD_PARAM) {
-            tt_buf_putf(output, "not supported operation");
-        } else {
-            tt_buf_putf(output, "internal error");
-        }
+    }
+
+    path = argv[0];
+    co = tt_cfgpath_p2n(sh->root, sh->current, path, (tt_u32_t)tt_strlen(path));
+    if (co == NULL) {
+        tt_buf_putf(output, "not found: %s", path);
         return TT_CLIOC_OUT;
     }
+
+    if (co->type != TT_CFGOBJ_DIR) {
+        tt_buf_putf(output, "not a directory: %s", path);
+        return TT_CLIOC_OUT;
+    }
+
+    sh->current = co;
+    tt_cli_update_prefix(&sh->cli, NULL, co->name, 0);
+
+    return TT_CLIOC_NOOUT;
 }

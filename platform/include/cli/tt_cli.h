@@ -137,7 +137,8 @@ extern void tt_cli_set_cb(IN tt_cli_t *cli, IN OPT tt_cli_cb_t *cb);
 
 extern void tt_cli_set_itf(IN tt_cli_t *cli, IN OPT tt_cli_itf_t *itf);
 
-extern tt_result_t tt_cli_complete(IN tt_blob_t *cursor_data,
+extern tt_result_t tt_cli_complete(IN tt_u8_t *cur,
+                                   IN tt_u32_t cur_len,
                                    IN const tt_char_t **option,
                                    IN tt_u32_t option_num,
                                    OUT tt_u32_t *status,

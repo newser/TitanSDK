@@ -75,7 +75,7 @@ extern tt_result_t tt_cfgpath_n2p(IN OPT tt_cfgobj_t *root,
 extern tt_result_t tt_cfgpath_complete(IN tt_cfgobj_t *root,
                                        IN tt_cfgobj_t *current,
                                        IN const tt_char_t *path,
-                                       IN tt_u32_t len,
+                                       IN tt_u32_t path_len,
                                        OUT tt_u32_t *status,
                                        OUT struct tt_buf_s *output);
 #define TT_CFGPCP_NONE 0
