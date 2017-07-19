@@ -15,20 +15,20 @@
  */
 
 /**
-@file tt_cfgcmd_cd.h
-@brief config shell command: cd
+@file tt_config_exe.h
+@brief config option of executable type
 
-this file defines config shell command: cd
+this file defines config option of executable type
 */
 
-#ifndef __TT_CFGCMD_CD__
-#define __TT_CFGCMD_CD__
+#ifndef __TT_CONFIG_EXE__
+#define __TT_CONFIG_EXE__
 
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <init/config_shell/tt_config_command.h>
+#include <init/tt_config_object.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
@@ -38,14 +38,38 @@ this file defines config shell command: cd
 // type definition
 ////////////////////////////////////////////////////////////
 
+typedef tt_result_t (*tt_cfgexe_run_t)(IN struct tt_cfgobj_s *co,
+                                       IN tt_u32_t argc,
+                                       IN tt_char_t *argv[],
+                                       IN const tt_char_t *line_sep,
+                                       OUT struct tt_buf_s *output,
+                                       OUT tt_u32_t *status);
+
+typedef struct
+{
+    tt_cfgexe_run_t run;
+} tt_cfgexe_t;
+
 ////////////////////////////////////////////////////////////
 // global variants
 ////////////////////////////////////////////////////////////
-
-extern tt_cfgcmd_t tt_g_cfgcmd_cd;
 
 ////////////////////////////////////////////////////////////
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-#endif /* __TT_CFGCMD_CD__ */
+extern tt_cfgobj_t *tt_cfgexe_create(IN const tt_char_t *name,
+                                     IN OPT tt_cfgobj_attr_t *attr,
+                                     IN tt_cfgexe_run_t run);
+
+tt_inline tt_result_t tt_cfgexe_run(IN tt_cfgexe_t *ce,
+                                    IN tt_u32_t argc,
+                                    IN tt_char_t *argv[],
+                                    IN const tt_char_t *line_sep,
+                                    OUT struct tt_buf_s *output,
+                                    OUT tt_u32_t *status)
+{
+    return ce->run(TT_CFGOBJ_OF(ce), argc, argv, line_sep, output, status);
+}
+
+#endif /* __TT_CONFIG_EXE__ */

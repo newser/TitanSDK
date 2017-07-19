@@ -18,10 +18,11 @@
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <init/tt_init_config.h>
+#include <cli/shell/tt_shcmd_pwd.h>
 
-#include <init/tt_component.h>
-#include <init/tt_profile.h>
+#include <algorithm/tt_buffer_format.h>
+#include <cli/shell/tt_shell.h>
+#include <init/tt_config_path.h>
 
 ////////////////////////////////////////////////////////////
 // internal macro
@@ -39,66 +40,47 @@
 // global variant
 ////////////////////////////////////////////////////////////
 
-tt_cfgobj_t *tt_g_config_root;
+static const tt_char_t __pwd_info[] = "show current shell path";
 
-tt_cfgobj_t *tt_g_config_platform;
+static const tt_char_t __pwd_usage[] = "testing pwd";
+
+static tt_u32_t __pwd_run(IN tt_shell_t *sh,
+                          IN tt_u32_t argc,
+                          IN tt_char_t *arv[],
+                          OUT tt_buf_t *output);
+
+tt_shcmd_t tt_g_shcmd_pwd = {
+    TT_SHCMD_NAME_PWD, __pwd_info, __pwd_usage, __pwd_run,
+};
 
 ////////////////////////////////////////////////////////////
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-static tt_result_t __config_component_init(IN tt_component_t *comp,
-                                           IN tt_profile_t *profile);
-
 ////////////////////////////////////////////////////////////
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-void tt_config_component_register()
+tt_u32_t __pwd_run(IN tt_shell_t *sh,
+                   IN tt_u32_t argc,
+                   IN tt_char_t *argv[],
+                   OUT tt_buf_t *output)
 {
-    static tt_component_t comp;
+    tt_u32_t rp, wp;
 
-    tt_component_itf_t itf = {
-        __config_component_init,
-    };
-
-    // init component
-    tt_component_init(&comp, TT_COMPONENT_CONFIG, "Config", NULL, &itf);
-
-    // register component
-    tt_component_register(&comp);
-}
-
-tt_result_t __config_component_init(IN tt_component_t *comp,
-                                    IN tt_profile_t *profile)
-{
-    tt_cfgobj_attr_t attr;
-
-    // create root config node
-    tt_cfgobj_attr_default(&attr);
-
-    tt_g_config_root = tt_cfgdir_create("", &attr);
-    if (tt_g_config_root == NULL) {
-        TT_ERROR("fail to create config node: root");
-        return TT_FAIL;
+    if (sh->current == NULL) {
+        tt_buf_putf(output, "internal error");
+        return TT_CLIOC_OUT;
     }
 
-    // create platform config node
-    tt_cfgobj_attr_default(&attr);
-    attr.brief = "platform configurations";
-    attr.detail = "this directory includes all platform related configurations";
+    tt_buf_backup_rwp(output, &rp, &wp);
+    tt_buf_put_u8(output, '/');
+    if (!TT_OK(tt_cfgpath_n2p(sh->root, sh->current, output))) {
+        tt_buf_restore_rwp(output, &rp, &wp);
 
-    tt_g_config_platform = tt_cfgdir_create("platform", &attr);
-    if (tt_g_config_platform == NULL) {
-        TT_ERROR("fail to create config node: platform");
-        return TT_FAIL;
+        tt_buf_putf(output, "internal error");
+        return TT_CLIOC_OUT;
     }
 
-    if (!TT_OK(tt_cfgdir_add(TT_CFGOBJ_CAST(tt_g_config_root, tt_cfgdir_t),
-                             tt_g_config_platform))) {
-        TT_ERROR("fail to add config node: platform");
-        return TT_FAIL;
-    }
-
-    return TT_SUCCESS;
+    return TT_CLIOC_OUT;
 }

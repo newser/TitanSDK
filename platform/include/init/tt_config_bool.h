@@ -28,7 +28,7 @@ this file defines config option of bool type
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <init/tt_config_node.h>
+#include <init/tt_config_object.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
@@ -38,31 +38,17 @@ this file defines config option of bool type
 // type definition
 ////////////////////////////////////////////////////////////
 
-struct tt_cfgbool_s;
-
-// return true if need reboot
-typedef tt_bool_t (*tt_cfgbool_on_set_t)(IN struct tt_cfgnode_s *cnode,
-                                         IN tt_bool_t new_val);
+typedef tt_result_t (*tt_cfgbool_on_set_t)(IN struct tt_cfgobj_s *cnode,
+                                           IN tt_bool_t new_val);
 
 typedef struct tt_cfgbool_cb_s
 {
-    tt_cfgnode_on_destroy_t on_destroy;
     tt_cfgbool_on_set_t on_set;
 } tt_cfgbool_cb_t;
 
-typedef struct
-{
-    tt_cfgnode_attr_t cnode_attr;
-
-    tt_cfgval_mode_t mode;
-} tt_cfgbool_attr_t;
-
 typedef struct tt_cfgbool_s
 {
-    tt_bool_t *val_ptr;
-    tt_bool_t new_val;
-
-    tt_cfgbool_cb_t *cb;
+    tt_cfgbool_cb_t cb;
 } tt_cfgbool_t;
 
 ////////////////////////////////////////////////////////////
@@ -73,26 +59,9 @@ typedef struct tt_cfgbool_s
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern tt_cfgnode_t *tt_cfgbool_create(IN const tt_char_t *name,
-                                       IN OPT tt_cfgnode_itf_t *itf,
-                                       IN OPT void *opaque,
-                                       IN tt_bool_t *val_ptr,
-                                       IN OPT tt_cfgbool_cb_t *cb,
-                                       IN OPT tt_cfgbool_attr_t *attr);
-
-extern void tt_cfgbool_attr_default(IN tt_cfgbool_attr_t *attr);
-
-extern tt_result_t tt_cfgbool_ls(IN tt_cfgnode_t *cnode,
-                                 IN const tt_char_t *seperator,
-                                 OUT struct tt_buf_s *output);
-
-extern tt_result_t tt_cfgbool_get(IN tt_cfgnode_t *cnode,
-                                  OUT struct tt_buf_s *output);
-
-extern tt_result_t tt_cfgbool_set(IN tt_cfgnode_t *cnode, IN tt_blob_t *val);
-
-extern tt_result_t tt_cfgbool_check(IN tt_cfgnode_t *cnode, IN tt_blob_t *val);
-
-extern tt_result_t tt_cfgbool_commit(IN tt_cfgnode_t *cnode);
+extern tt_cfgobj_t *tt_cfgbool_create(IN const tt_char_t *name,
+                                      IN tt_bool_t *p_bool,
+                                      IN OPT tt_cfgobj_attr_t *attr,
+                                      IN OPT tt_cfgbool_cb_t *cb);
 
 #endif /* __TT_CONFIG_BOOL__ */

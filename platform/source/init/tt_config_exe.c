@@ -14,38 +14,58 @@
  * limitations under the License.
  */
 
-/**
- @file tt_cfgcmd_quit.h
- @brief config shell command: quit
-
- this file defines config shell command: quit
- */
-
-#ifndef __TT_CFGCMD_QUIT__
-#define __TT_CFGCMD_QUIT__
-
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <init/config_shell/tt_config_command.h>
+#include <init/tt_config_exe.h>
 
 ////////////////////////////////////////////////////////////
-// macro definition
-////////////////////////////////////////////////////////////
-
-////////////////////////////////////////////////////////////
-// type definition
+// internal macro
 ////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////
-// global variants
+// extern declaration
 ////////////////////////////////////////////////////////////
 
-extern tt_cfgcmd_t tt_g_cfgcmd_quit;
+////////////////////////////////////////////////////////////
+// global variant
+////////////////////////////////////////////////////////////
+
+static tt_cfgobj_itf_t __cfgexe_itf = {
+    NULL, NULL, NULL,
+};
 
 ////////////////////////////////////////////////////////////
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-#endif /* __TT_CFGCMD_QUIT__ */
+////////////////////////////////////////////////////////////
+// interface implementation
+////////////////////////////////////////////////////////////
+
+tt_cfgobj_t *tt_cfgexe_create(IN const tt_char_t *name,
+                              IN OPT tt_cfgobj_attr_t *attr,
+                              IN tt_cfgexe_run_t run)
+{
+    tt_cfgobj_t *co;
+    tt_cfgexe_t *ce;
+
+    TT_ASSERT(run != NULL);
+
+    co = tt_cfgobj_create(sizeof(tt_cfgexe_t),
+                          TT_CFGOBJ_EXE,
+                          name,
+                          &__cfgexe_itf,
+                          NULL,
+                          attr);
+    if (co == NULL) {
+        return NULL;
+    }
+
+    ce = TT_CFGOBJ_CAST(co, tt_cfgexe_t);
+
+    ce->run = run;
+
+    return co;
+}

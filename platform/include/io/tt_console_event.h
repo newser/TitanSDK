@@ -88,14 +88,14 @@ typedef struct tt_cons_ev_key_s
 // console event
 // ========================================
 
-typedef enum _tt_cons_ev_t {
+typedef enum tt_cons_ev_s {
     TT_CONS_EV_KEY,
 
     TT_CONS_EV_NUM
 } tt_cons_ev_t;
 #define TT_CONS_EV_VALID(e) ((e) < TT_CONS_EV_NUM)
 
-typedef union _tt_cons_ev_data_t
+typedef union tt_cons_ev_data_s
 {
     tt_cons_ev_key_t key;
 } tt_cons_ev_data_t;

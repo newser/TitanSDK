@@ -15,20 +15,20 @@
  */
 
 /**
-@file tt_cfgcmd_get.h
-@brief config shell command: get
+@file tt_config_object_def.h
+@brief config object definition
 
-this file defines config shell command: get
+this file includes config object definition
 */
 
-#ifndef __TT_CFGCMD_GET__
-#define __TT_CFGCMD_GET__
+#ifndef __TT_CONFIG_OBJECT_DEF__
+#define __TT_CONFIG_OBJECT_DEF__
 
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <init/config_shell/tt_config_command.h>
+#include <tt_basic_type.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
@@ -38,14 +38,45 @@ this file defines config shell command: get
 // type definition
 ////////////////////////////////////////////////////////////
 
+struct tt_cfgobj_s;
+struct tt_buf_s;
+
+typedef void (*tt_cfgobj_on_destroy_t)(IN struct tt_cfgobj_s *co);
+
+typedef tt_result_t (*tt_cfgobj_read_t)(IN struct tt_cfgobj_s *co,
+                                        IN const tt_char_t *line_sep,
+                                        OUT struct tt_buf_s *output);
+
+typedef tt_result_t (*tt_cfgobj_write_t)(IN struct tt_cfgobj_s *co,
+                                         IN tt_u8_t *val,
+                                         IN tt_u32_t val_len);
+
+typedef struct tt_cfgobj_itf_s
+{
+    tt_cfgobj_on_destroy_t on_destroy;
+    tt_cfgobj_read_t read;
+    tt_cfgobj_write_t write;
+} tt_cfgobj_itf_t;
+
+typedef enum {
+    TT_CFGOBJ_U32,
+    TT_CFGOBJ_S32,
+    TT_CFGOBJ_DIR,
+    TT_CFGOBJ_STRING,
+    TT_CFGOBJ_BOOL,
+    TT_CFGOBJ_FLOAT,
+    TT_CFGOBJ_EXE,
+
+    TT_CFGOBJ_TYPE_NUM
+} tt_cfgobj_type_t;
+#define TT_CFGOBJ_TYPE_VALID(t) ((t) < TT_CFGOBJ_TYPE_NUM)
+
 ////////////////////////////////////////////////////////////
 // global variants
 ////////////////////////////////////////////////////////////
-
-extern tt_cfgcmd_t tt_g_cfgcmd_get;
 
 ////////////////////////////////////////////////////////////
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-#endif /* __TT_CFGCMD_GET__ */
+#endif /* __TT_CONFIG_OBJECT_DEF__ */

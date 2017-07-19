@@ -18,10 +18,10 @@
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <init/config_shell/tt_cfgcmd_help.h>
+#include <cli/shell/tt_shcmd_help.h>
 
 #include <algorithm/tt_buffer_format.h>
-#include <init/config_shell/tt_config_shell.h>
+#include <cli/shell/tt_shell.h>
 #include <init/tt_config_path.h>
 
 ////////////////////////////////////////////////////////////
@@ -40,30 +40,30 @@
 // global variant
 ////////////////////////////////////////////////////////////
 
-static const tt_char_t __help_info[] = "show config node or command detail";
+static const tt_char_t __help_info[] = "show command or entry usage";
 
 static const tt_char_t __help_usage[] = "";
 
-static tt_u32_t __help_run(IN tt_cfgsh_t *sh,
+static tt_u32_t __help_run(IN tt_shell_t *sh,
                            IN tt_u32_t argc,
                            IN tt_char_t *arv[],
                            OUT tt_buf_t *output);
 
-tt_cfgcmd_t tt_g_cfgcmd_help = {
-    TT_CFGCMD_NAME_HELP, __help_info, __help_usage, __help_run,
+tt_shcmd_t tt_g_shcmd_help = {
+    TT_SHCMD_NAME_HELP, __help_info, __help_usage, __help_run,
 };
 
 ////////////////////////////////////////////////////////////
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-static tt_u32_t __help_list(IN tt_cfgsh_t *sh, OUT tt_buf_t *output);
+static tt_u32_t __help_all(IN tt_shell_t *sh, OUT tt_buf_t *output);
 
-static tt_u32_t __help_single(IN tt_cfgsh_t *sh,
+static tt_u32_t __help_single(IN tt_shell_t *sh,
                               IN tt_char_t *name,
                               OUT tt_buf_t *output);
 
-static tt_u32_t __help_multiple(IN tt_cfgsh_t *sh,
+static tt_u32_t __help_multiple(IN tt_shell_t *sh,
                                 IN tt_char_t *name[],
                                 IN tt_u32_t path_num,
                                 OUT tt_buf_t *output);
@@ -72,13 +72,13 @@ static tt_u32_t __help_multiple(IN tt_cfgsh_t *sh,
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-tt_u32_t __help_run(IN tt_cfgsh_t *sh,
+tt_u32_t __help_run(IN tt_shell_t *sh,
                     IN tt_u32_t argc,
                     IN tt_char_t *argv[],
                     OUT tt_buf_t *output)
 {
     if (argc == 0) {
-        return __help_list(sh, output);
+        return __help_all(sh, output);
     } else if (argc == 1) {
         return __help_single(sh, argv[0], output);
     } else {
@@ -86,82 +86,61 @@ tt_u32_t __help_run(IN tt_cfgsh_t *sh,
     }
 }
 
-tt_u32_t __help_list(IN tt_cfgsh_t *sh, OUT tt_buf_t *output)
+tt_u32_t __help_all(IN tt_shell_t *sh, OUT tt_buf_t *output)
 {
-    tt_u32_t i, max_len = 11;
-    tt_bool_t has_enter = TT_FALSE;
+    tt_u32_t i, max_len = 0;
 
-    for (i = 0; i < TT_CFGCMD_NUM; ++i) {
-        tt_cfgcmd_t *cmd;
-        tt_u32_t name_len;
+    for (i = 0; i < TT_SHCMD_NUM; ++i) {
+        tt_shcmd_t *cmd;
+        tt_u32_t len;
 
-        cmd = tt_g_cfgcmd[i];
-        if (cmd == NULL) {
-            continue;
-        }
-
-        name_len = (tt_u32_t)tt_strlen(cmd->name) + 4;
-
-        max_len = TT_MAX(max_len, name_len);
+        cmd = tt_g_shcmd[i];
+        len = (tt_u32_t)tt_strlen(cmd->name) + 4;
+        max_len = TT_MAX(max_len, len);
     }
 
-    tt_buf_put_cstr(output, "COMMAND");
-    tt_buf_put_rep(output, ' ', max_len - 7);
-    tt_buf_put_cstr(output, "DESCRIPTION");
-    tt_buf_put_u8(output, TT_CLI_EV_ENTER);
+    for (i = 0; i < TT_SHCMD_NUM; ++i) {
+        tt_shcmd_t *cmd;
+        tt_u32_t len;
 
-    for (i = 0; i < TT_CFGCMD_NUM; ++i) {
-        tt_cfgcmd_t *cmd;
-        tt_u32_t name_len;
-
-        cmd = tt_g_cfgcmd[i];
-        if (cmd == NULL) {
-            continue;
-        }
-
-        name_len = (tt_u32_t)tt_strlen(cmd->name);
+        cmd = tt_g_shcmd[i];
+        len = (tt_u32_t)tt_strlen(cmd->name);
 
         tt_buf_put_cstr(output, cmd->name);
-        tt_buf_put_rep(output, ' ', max_len - name_len);
+        tt_buf_put_rep(output, ' ', max_len - len);
         tt_buf_put_cstr(output, TT_COND(cmd->info != NULL, cmd->info, ""));
-        tt_buf_put_u8(output, TT_CLI_EV_ENTER);
-
-        has_enter = TT_CLIOC_OUT;
-    }
-    if (has_enter) {
-        tt_buf_dec_wp(output, 1);
+        if (i != (TT_SHCMD_NUM - 1)) {
+            TT_SH_NEWLINE(output);
+        }
     }
 
     return TT_CLIOC_OUT;
 }
 
-tt_u32_t __help_single(IN tt_cfgsh_t *sh,
+tt_u32_t __help_single(IN tt_shell_t *sh,
                        IN tt_char_t *name,
                        OUT tt_buf_t *output)
 {
-    tt_cfgcmd_t *cmd;
-    tt_cfgnode_t *cnode;
-    tt_blob_t name_blob;
+    tt_shcmd_t *cmd;
+    tt_cfgobj_t *co;
 
-    cmd = tt_cfgcmd_find(name);
+    cmd = tt_shcmd_find(name);
     if (cmd != NULL) {
         tt_buf_put_cstr(output, TT_COND(cmd->usage != NULL, cmd->usage, ""));
         return TT_CLIOC_OUT;
     }
 
-    name_blob.addr = (tt_u8_t *)name;
-    name_blob.len = (tt_u32_t)tt_strlen(name);
-    cnode = tt_cfgpath_p2n(sh->root, sh->current, &name_blob);
-    if (cnode != NULL) {
-        tt_buf_put_cstr(output, tt_cfgnode_detail(cnode));
+    co = tt_cfgpath_p2n(sh->root, sh->current, name, (tt_u32_t)tt_strlen(name));
+    if (co != NULL) {
+        tt_buf_put_cstr(output, tt_cfgobj_detail(co));
         return TT_CLIOC_OUT;
     }
 
-    tt_buf_putf(output, "can not find: %s", name);
+    tt_buf_putf(output, "not found: %s", name);
     return TT_CLIOC_OUT;
 }
 
-tt_u32_t __help_multiple(IN tt_cfgsh_t *sh,
+tt_u32_t __help_multiple(IN tt_shell_t *sh,
                          IN tt_char_t *name[],
                          IN tt_u32_t path_num,
                          OUT tt_buf_t *output)

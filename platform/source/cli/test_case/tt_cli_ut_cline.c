@@ -40,7 +40,6 @@
 TT_TEST_ROUTINE_DECLARE(tt_unit_test_cli_line)
 TT_TEST_ROUTINE_DECLARE(tt_unit_test_cli_line_stress)
 TT_TEST_ROUTINE_DECLARE(tt_unit_test_cli_line_cursor)
-
 // =========================================
 
 // === test case list ======================
@@ -110,7 +109,7 @@ static __cline_case __cline_input[] = {
     {{'a'}, 1}, // single char
     {{0}, 1}, // invalid char
     {{3}, 1}, // invalid char
-    {{'a', 'z', 'A', 'Z', '0', '9'}, 6}, // multiple char
+    {{'b', 'z', 'A', 'Z', '0', '9'}, 6}, // multiple char
     {{TT_CLI_EV_UP}, 1}, // up
     /*5*/ {{TT_CLI_EV_UP, TT_CLI_EV_DOWN}, 2}, // up and down
     {{TT_CLI_EV_RIGHT}, 1}, // right
@@ -150,25 +149,29 @@ static __cline_case __cline_input[] = {
     {{TT_CLI_EV_INTR, TT_CLI_EV_INTR}, 2}, // 2intr
     {{TT_CLI_EV_QUIT}, 1}, // quit
     {{TT_CLI_EV_QUIT, TT_CLI_EV_QUIT}, 2}, // 2quit
+
+    {{'b', TT_CLI_EV_LEFT, TT_CLI_EV_LEFT, TT_CLI_EV_LEFT},
+     4}, // new char, 4 left
+    {{'c'}, 1}, // new char
 };
 static __cline_case __cline_line[] = {
     {{'a'}, 1}, // after single char
     {{'a'}, 1}, // after invalid char
     {{'a'}, 1}, // after invalid char
-    {{'a', 'a', 'z', 'A', 'Z', '0', '9'}, 7}, // multiple char
-    {{'a', 'a', 'z', 'A', 'Z', '0', '9'}, 7}, // up, no effect
-    {{'a', 'a', 'z', 'A', 'Z', '0', '9'}, 7}, // up and down, no effect
-    {{'a', 'a', 'z', 'A', 'Z', '0', '9'}, 7}, // right
-    {{'a', 'a', 'z', 'A', 'Z', '0', '9'}, 7}, // 2right
-    {{'a', 'a', 'z', 'A', 'Z', '0', '9'}, 7}, // left
-    {{'a', 'a', 'z', 'A', 'Z', '0', '9'}, 7}, // 2left
-    {{'a', 'a', 'z', 'A', 'Z', '0', '9'}, 7}, // right
-    {{'a', 'a', 'z', 'A', 'Z', '0', '9'}, 7}, // 6left
-    {{'a', 'a', 'z', 'A', 'Z', '0', '9'}, 7}, // 2left
+    {{'a', 'b', 'z', 'A', 'Z', '0', '9'}, 7}, // multiple char
+    {{'a', 'b', 'z', 'A', 'Z', '0', '9'}, 7}, // up, no effect
+    {{'a', 'b', 'z', 'A', 'Z', '0', '9'}, 7}, // up and down, no effect
+    {{'a', 'b', 'z', 'A', 'Z', '0', '9'}, 7}, // right
+    {{'a', 'b', 'z', 'A', 'Z', '0', '9'}, 7}, // 2right
+    {{'a', 'b', 'z', 'A', 'Z', '0', '9'}, 7}, // left
+    {{'a', 'b', 'z', 'A', 'Z', '0', '9'}, 7}, // 2left
+    {{'a', 'b', 'z', 'A', 'Z', '0', '9'}, 7}, // right
+    {{'a', 'b', 'z', 'A', 'Z', '0', '9'}, 7}, // 6left
+    {{'a', 'b', 'z', 'A', 'Z', '0', '9'}, 7}, // 2left
 
-    {{'a', 'a', 'z', 'A', 'Z', '0', '9'}, 7}, // delete
-    {{'a', 'z', 'A', 'Z', '0', '9'}, 6}, // right delete
-    {{'a', 'z', 'A', '0', '9'}, 5}, // 4right delete middle
+    {{'a', 'b', 'z', 'A', 'Z', '0', '9'}, 7}, // delete
+    {{'b', 'z', 'A', 'Z', '0', '9'}, 6}, // right delete
+    {{'b', 'z', 'A', '0', '9'}, 5}, // 4right delete middle
     {{0}, 0}, // move to tail delete all
 
     {{0}, 0}, // intr
@@ -176,6 +179,9 @@ static __cline_case __cline_line[] = {
     {{'a'}, 1}, // 2intr
     {{'a'}, 1}, // quit
     {{'a'}, 1}, // 2quit
+
+    {{'a', 'b'}, 2}, // new char, 3 left
+    {{'c', 'a', 'b'}, 3}, // new char
 };
 static tt_u32_t __cline_cursor[] = {
     1, // after single char
@@ -202,12 +208,15 @@ static tt_u32_t __cline_cursor[] = {
     1, // 2intr
     1, // quit
     1, // 2quit
+
+    0, // new char, 3 left
+    1, // new char
 };
 static __cline_case __cline_output[] = {
     {{'a'}, 1}, // single char
     {{0}, 0}, // invalid char
     {{0}, 0}, // invalid char
-    {{'a', 'z', 'A', 'Z', '0', '9'}, 6}, // multiple char
+    {{'b', 'z', 'A', 'Z', '0', '9'}, 6}, // multiple char
     {{0}, 0}, // up, no effect
     {{0}, 0}, // up and down, no effect
     {{0}, 0}, // right
@@ -226,7 +235,7 @@ static __cline_case __cline_output[] = {
     {{0}, 0}, // delete
     {{TT_CLI_EV_RIGHT,
       TT_CLI_EV_DELETE,
-      'a',
+      'b',
       'z',
       'A',
       'Z',
@@ -270,6 +279,9 @@ static __cline_case __cline_output[] = {
     {{'^', 'C', '^', 'C'}, 4}, // 2intr
     {{'^', 'D'}, 2}, // quit
     {{'^', 'D', '^', 'D'}, 4}, // 2quit
+
+    {{'b', TT_CLI_EV_LEFT, TT_CLI_EV_LEFT}, 3}, // new char, 3 left
+    {{'c', 'a', 'b', TT_CLI_EV_LEFT, TT_CLI_EV_LEFT}, 5}, // new char
 };
 
 TT_TEST_ROUTINE_DEFINE(tt_unit_test_cli_line)
@@ -448,7 +460,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cli_line_cursor)
     TT_UT_EQUAL(cc.len, 3, "");
     TT_UT_EQUAL(tt_strncmp((tt_char_t *)cc.addr, "456", 3), 0, "");
 
-    // right
+    // left
     evbuf[0] = TT_CLI_EV_LEFT;
     ret = tt_cline_input(&cl, evbuf, 1);
     TT_UT_EQUAL(ret, TT_SUCCESS, "");
@@ -458,7 +470,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cli_line_cursor)
     TT_UT_EQUAL(cc.len, 2, "");
     TT_UT_EQUAL(tt_strncmp((tt_char_t *)cc.addr, "45", 2), 0, "");
 
-    // right
+    // left
     evbuf[0] = TT_CLI_EV_LEFT;
     ret = tt_cline_input(&cl, evbuf, 1);
     TT_UT_EQUAL(ret, TT_SUCCESS, "");
@@ -470,7 +482,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cli_line_cursor)
 
     //////////// 3 spaces
 
-    // right
+    // left
     evbuf[0] = TT_CLI_EV_LEFT;
     ret = tt_cline_input(&cl, evbuf, 1);
     TT_UT_EQUAL(ret, TT_SUCCESS, "");
@@ -480,7 +492,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cli_line_cursor)
     TT_UT_EQUAL(cc.addr, NULL, "");
     TT_UT_EQUAL(cc.len, 0, "");
 
-    // right
+    // left
     evbuf[0] = TT_CLI_EV_LEFT;
     ret = tt_cline_input(&cl, evbuf, 1);
     TT_UT_EQUAL(ret, TT_SUCCESS, "");
@@ -490,7 +502,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cli_line_cursor)
     TT_UT_EQUAL(cc.addr, NULL, "");
     TT_UT_EQUAL(cc.len, 0, "");
 
-    // right
+    // left
     evbuf[0] = TT_CLI_EV_LEFT;
     ret = tt_cline_input(&cl, evbuf, 1);
     TT_UT_EQUAL(ret, TT_SUCCESS, "");
@@ -502,7 +514,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cli_line_cursor)
 
     /////////////// cmd: "123"
 
-    // right
+    // left
     evbuf[0] = TT_CLI_EV_LEFT;
     ret = tt_cline_input(&cl, evbuf, 1);
     TT_UT_EQUAL(ret, TT_SUCCESS, "");
@@ -512,7 +524,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cli_line_cursor)
     TT_UT_EQUAL(cc.len, 3, "");
     TT_UT_EQUAL(tt_strncmp((tt_char_t *)cc.addr, "123", 3), 0, "");
 
-    // right
+    // left
     evbuf[0] = TT_CLI_EV_LEFT;
     ret = tt_cline_input(&cl, evbuf, 1);
     TT_UT_EQUAL(ret, TT_SUCCESS, "");
@@ -522,7 +534,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cli_line_cursor)
     TT_UT_EQUAL(cc.len, 2, "");
     TT_UT_EQUAL(tt_strncmp((tt_char_t *)cc.addr, "12", 2), 0, "");
 
-    // right
+    // left
     evbuf[0] = TT_CLI_EV_LEFT;
     ret = tt_cline_input(&cl, evbuf, 1);
     TT_UT_EQUAL(ret, TT_SUCCESS, "");
@@ -534,7 +546,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cli_line_cursor)
 
     //////////// 3 spaces
 
-    // right
+    // left
     evbuf[0] = TT_CLI_EV_LEFT;
     ret = tt_cline_input(&cl, evbuf, 1);
     TT_UT_EQUAL(ret, TT_SUCCESS, "");
@@ -544,7 +556,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cli_line_cursor)
     TT_UT_EQUAL(cc.addr, NULL, "");
     TT_UT_EQUAL(cc.len, 0, "");
 
-    // right
+    // left
     evbuf[0] = TT_CLI_EV_LEFT;
     ret = tt_cline_input(&cl, evbuf, 1);
     TT_UT_EQUAL(ret, TT_SUCCESS, "");
@@ -554,7 +566,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cli_line_cursor)
     TT_UT_EQUAL(cc.addr, NULL, "");
     TT_UT_EQUAL(cc.len, 0, "");
 
-    // right
+    // left
     evbuf[0] = TT_CLI_EV_LEFT;
     ret = tt_cline_input(&cl, evbuf, 1);
     TT_UT_EQUAL(ret, TT_SUCCESS, "");

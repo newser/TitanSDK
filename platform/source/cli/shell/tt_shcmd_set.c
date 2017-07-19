@@ -18,10 +18,10 @@
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <init/config_shell/tt_cfgcmd_set.h>
+#include <cli/shell/tt_shcmd_set.h>
 
 #include <algorithm/tt_buffer_format.h>
-#include <init/config_shell/tt_config_shell.h>
+#include <cli/shell/tt_shell.h>
 #include <init/tt_config_path.h>
 
 ////////////////////////////////////////////////////////////
@@ -44,13 +44,13 @@ static const tt_char_t __set_info[] = "set value";
 
 static const tt_char_t __set_usage[] = "testing set";
 
-static tt_u32_t __set_run(IN tt_cfgsh_t *sh,
+static tt_u32_t __set_run(IN tt_shell_t *sh,
                           IN tt_u32_t argc,
                           IN tt_char_t *arv[],
                           OUT tt_buf_t *output);
 
-tt_cfgcmd_t tt_g_cfgcmd_set = {
-    TT_CFGCMD_NAME_SET, __set_info, __set_usage, __set_run,
+tt_shcmd_t tt_g_shcmd_set = {
+    TT_SHCMD_NAME_SET, __set_info, __set_usage, __set_run,
 };
 
 ////////////////////////////////////////////////////////////
@@ -61,44 +61,41 @@ tt_cfgcmd_t tt_g_cfgcmd_set = {
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-tt_u32_t __set_run(IN tt_cfgsh_t *sh,
+tt_u32_t __set_run(IN tt_shell_t *sh,
                    IN tt_u32_t argc,
                    IN tt_char_t *argv[],
                    OUT tt_buf_t *output)
 {
-    tt_blob_t path_blob, val_blob;
-    tt_cfgnode_t *cnode;
+    const tt_char_t *path, *val;
+    tt_cfgobj_t *co;
     tt_u32_t rp, wp;
     tt_result_t result;
 
     if (argc < 2) {
-        tt_buf_putf(output, "usage: set name value");
+        tt_buf_putf(output, "usage: set [name] [value]");
         return TT_CLIOC_OUT;
     }
 
-    path_blob.addr = (tt_u8_t *)argv[0];
-    path_blob.len = (tt_u32_t)tt_strlen(argv[0]);
-    cnode = tt_cfgpath_p2n(sh->root, sh->current, &path_blob);
-    if (cnode == NULL) {
-        tt_buf_putf(output, "can not find: %s", argv[0]);
+    path = argv[0];
+    co = tt_cfgpath_p2n(sh->root, sh->current, path, (tt_u32_t)tt_strlen(path));
+    if (co == NULL) {
+        tt_buf_putf(output, "not found: %s", argv[0]);
         return TT_CLIOC_OUT;
     }
 
-    val_blob.addr = (tt_u8_t *)argv[1];
-    val_blob.len = (tt_u32_t)tt_strlen(argv[1]);
-
-    if (!TT_OK(tt_cfgnode_check(cnode, &val_blob))) {
-        tt_buf_putf(output, "bad value: %s", argv[1]);
+    if (co->type == TT_CFGOBJ_DIR) {
+        tt_buf_putf(output, "set: %s: is a direcoty", path);
         return TT_CLIOC_OUT;
     }
 
+    val = argv[1];
     tt_buf_backup_rwp(output, &rp, &wp);
-    result = tt_cfgnode_set(cnode, &val_blob);
+    result = tt_cfgobj_write(co, (tt_u8_t *)val, (tt_u32_t)tt_strlen(val));
     if (TT_OK(result)) {
         return TT_CLIOC_NOOUT;
     } else {
         tt_buf_restore_rwp(output, &rp, &wp);
-        if (result == TT_BAD_PARAM) {
+        if (result == TT_NOT_SUPPORT) {
             tt_buf_putf(output, "not supported operation");
         } else {
             tt_buf_putf(output, "internal error");

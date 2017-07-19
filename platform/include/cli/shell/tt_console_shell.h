@@ -15,86 +15,41 @@
  */
 
 /**
-@file tt_config_cmd.h
-@brief config shell command
+@file tt_console_config_shell.h
+@brief console shell
 
-this file defines config shell command
+this file defines console shell
 */
 
-#ifndef __TT_CONFIG_CMD__
-#define __TT_CONFIG_CMD__
+#ifndef __TT_CONSOLE_SHELL__
+#define __TT_CONSOLE_SHELL__
 
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <tt_basic_type.h>
+#include <cli/shell/tt_shell.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
 ////////////////////////////////////////////////////////////
 
-#define TT_CFGCMD_NAME_LS "ls"
-#define TT_CFGCMD_NAME_CD "cd"
-#define TT_CFGCMD_NAME_HELP "help"
-#define TT_CFGCMD_NAME_PWD "pwd"
-#define TT_CFGCMD_NAME_QUIT "quit"
-#define TT_CFGCMD_NAME_GET "get"
-#define TT_CFGCMD_NAME_SET "set"
-#define TT_CFGCMD_NAME_STATUS "status"
-#define TT_CFGCMD_NAME_COMMIT "commit"
-#define TT_CFGCMD_NAME_RESTORE "restore"
-
 ////////////////////////////////////////////////////////////
 // type definition
 ////////////////////////////////////////////////////////////
-
-struct tt_cfgsh_s;
-struct tt_buf_s;
-
-// see return value of tt_cli_on_cmd_t
-typedef tt_u32_t (*tt_cfgcmd_run_t)(IN struct tt_cfgsh_s *sh,
-                                    IN tt_u32_t argc,
-                                    IN tt_char_t *arv[],
-                                    OUT struct tt_buf_s *output);
-
-typedef enum {
-    TT_CFGCMD_LS,
-    TT_CFGCMD_CD,
-    TT_CFGCMD_HELP,
-    TT_CFGCMD_PWD,
-    TT_CFGCMD_QUIT,
-    TT_CFGCMD_GET,
-    TT_CFGCMD_SET,
-    TT_CFGCMD_STATUS,
-    TT_CFGCMD_COMMIT,
-    TT_CFGCMD_RESTORE,
-
-    TT_CFGCMD_NUM,
-} tt_cfgcmd_id_t;
-#define TT_CFGCMD_VALID(c) ((c) < TT_CFGCMD_NUM)
-
-typedef struct
-{
-    const tt_char_t *name;
-    const tt_char_t *info;
-    const tt_char_t *usage;
-
-    tt_cfgcmd_run_t run;
-} tt_cfgcmd_t;
 
 ////////////////////////////////////////////////////////////
 // global variants
 ////////////////////////////////////////////////////////////
 
-extern tt_cfgcmd_t *tt_g_cfgcmd[TT_CFGCMD_NUM];
-
-extern const tt_char_t *tt_g_cfgcmd_name[TT_CFGCMD_NUM];
-
 ////////////////////////////////////////////////////////////
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern tt_cfgcmd_t *tt_cfgcmd_find(IN const tt_char_t *name);
+extern tt_result_t tt_console_sh_create(IN tt_shell_t *sh,
+                                        IN tt_cli_mode_t mode,
+                                        IN OPT tt_sh_attr_t *attr);
 
-#endif /* __TT_CONFIG_CMD__ */
+extern tt_result_t tt_console_sh_run(IN tt_shell_t *sh, IN tt_bool_t local);
+
+#endif /* __TT_CONSOLE_SHELL__ */

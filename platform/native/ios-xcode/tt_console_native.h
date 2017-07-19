@@ -15,11 +15,11 @@
  */
 
 /**
-@file tt_console_native.h
-@brief console io native
+ @file tt_console_native.h
+ @brief console io native
 
-this file specifies console native APIs
-*/
+ this file specifies console native APIs
+ */
 
 #ifndef __TT_CONSOLE_NATIVE__
 #define __TT_CONSOLE_NATIVE__
@@ -56,13 +56,6 @@ extern void tt_console_exit_ntv();
 
 extern tt_result_t tt_console_config_ntv(IN struct tt_console_attr_s *attr);
 
-/*
- @return
- - TT_SUCCESS, event returned
- - TT_PROCEEDING, no event, should continue
- - TT_END, no event, should quit
- - otherwise, error occured
- */
 extern tt_result_t tt_console_recv_ntv(OUT tt_cons_ev_t *ev,
                                        OUT tt_cons_ev_data_t *ev_data);
 

@@ -29,7 +29,7 @@ this file defines config option of string type
 ////////////////////////////////////////////////////////////
 
 #include <algorithm/tt_string.h>
-#include <init/tt_config_node.h>
+#include <init/tt_config_object.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
@@ -39,31 +39,18 @@ this file defines config option of string type
 // type definition
 ////////////////////////////////////////////////////////////
 
-struct tt_cfgstr_s;
-struct tt_buf_s;
-
-typedef tt_bool_t (*tt_cfgstr_on_set_t)(IN struct tt_cfgnode_s *cfgstr,
-                                        IN tt_string_t *new_val);
+typedef tt_result_t (*tt_cfgstr_on_set_t)(IN struct tt_cfgobj_s *co,
+                                          IN tt_string_t *new_val);
 
 typedef struct tt_cfgstr_cb_s
 {
-    tt_cfgnode_on_destroy_t on_destroy;
     tt_cfgstr_on_set_t on_set;
 } tt_cfgstr_cb_t;
 
-typedef struct
-{
-    tt_cfgnode_attr_t cnode_attr;
-
-    tt_cfgval_mode_t mode;
-} tt_cfgstr_attr_t;
-
 typedef struct tt_cfgstr_s
 {
-    tt_string_t *val_ptr;
-    tt_string_t new_val;
-
-    tt_cfgstr_cb_t *cb;
+    tt_cfgstr_cb_t cb;
+    tt_string_t str;
 } tt_cfgstr_t;
 
 ////////////////////////////////////////////////////////////
@@ -74,26 +61,9 @@ typedef struct tt_cfgstr_s
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern tt_cfgnode_t *tt_cfgstr_create(IN const tt_char_t *name,
-                                      IN OPT tt_cfgnode_itf_t *itf,
-                                      IN OPT void *opaque,
-                                      IN tt_string_t *val_ptr,
-                                      IN OPT tt_cfgstr_cb_t *cb,
-                                      IN OPT tt_cfgstr_attr_t *attr);
-
-extern void tt_cfgstr_attr_default(IN tt_cfgstr_attr_t *attr);
-
-extern tt_result_t tt_cfgstr_ls(IN tt_cfgnode_t *cnode,
-                                IN const tt_char_t *seperator,
-                                OUT struct tt_buf_s *output);
-
-extern tt_result_t tt_cfgstr_get(IN tt_cfgnode_t *cnode,
-                                 OUT struct tt_buf_s *output);
-
-extern tt_result_t tt_cfgstr_set(IN tt_cfgnode_t *cnode, IN tt_blob_t *val);
-
-extern tt_result_t tt_cfgstr_check(IN tt_cfgnode_t *cnode, IN tt_blob_t *val);
-
-extern tt_result_t tt_cfgstr_commit(IN tt_cfgnode_t *cnode);
+extern tt_cfgobj_t *tt_cfgstr_create(IN const tt_char_t *name,
+                                     IN tt_string_t *p_str,
+                                     IN OPT tt_cfgobj_attr_t *attr,
+                                     IN OPT tt_cfgstr_cb_t *cb);
 
 #endif /* __TT_CONFIG_STRING__ */

@@ -36,7 +36,7 @@
 // extern declaration
 ////////////////////////////////////////////////////////////
 
-extern tt_result_t __parse_arg(IN tt_cfgsh_t *sh, IN tt_char_t *line);
+extern tt_result_t __parse_arg(IN tt_shell_t *sh, IN tt_char_t *line);
 
 ////////////////////////////////////////////////////////////
 // global variant
@@ -51,18 +51,18 @@ TT_TEST_ROUTINE_DECLARE(tt_unit_test_cfgsh_pwd)
 TT_TEST_ROUTINE_DECLARE(tt_unit_test_cfgsh_cd)
 TT_TEST_ROUTINE_DECLARE(tt_unit_test_cfgsh_get)
 TT_TEST_ROUTINE_DECLARE(tt_unit_test_cfgsh_set)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_cfgsh_status)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_cfgsh_commit)
+TT_TEST_ROUTINE_DECLARE(tt_unit_test_cfgsh_quit)
 
 TT_TEST_ROUTINE_DECLARE(tt_unit_test_cfgsh_parse_arg)
+TT_TEST_ROUTINE_DECLARE(tt_unit_test_cfgsh_exec)
 // =========================================
 
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(cfgsh_case)
 
-TT_TEST_CASE("tt_unit_test_cfgsh_ls",
-             "testing cfg shell: ls",
-             tt_unit_test_cfgsh_ls,
+TT_TEST_CASE("tt_unit_test_cfgsh_parse_arg",
+             "testing shell: parse arguments",
+             tt_unit_test_cfgsh_parse_arg,
              NULL,
              __cfgsh_ut_enter,
              NULL,
@@ -70,8 +70,17 @@ TT_TEST_CASE("tt_unit_test_cfgsh_ls",
              NULL)
 ,
 
+    TT_TEST_CASE("tt_unit_test_cfgsh_ls",
+                 "testing shell: ls",
+                 tt_unit_test_cfgsh_ls,
+                 NULL,
+                 __cfgsh_ut_enter,
+                 NULL,
+                 NULL,
+                 NULL),
+
     TT_TEST_CASE("tt_unit_test_cfgsh_help",
-                 "testing cfg shell: help",
+                 "testing shell: help",
                  tt_unit_test_cfgsh_help,
                  NULL,
                  __cfgsh_ut_enter,
@@ -80,7 +89,7 @@ TT_TEST_CASE("tt_unit_test_cfgsh_ls",
                  NULL),
 
     TT_TEST_CASE("tt_unit_test_cfgsh_pwd",
-                 "testing cfg shell: pwd",
+                 "testing shell: pwd",
                  tt_unit_test_cfgsh_pwd,
                  NULL,
                  __cfgsh_ut_enter,
@@ -89,7 +98,7 @@ TT_TEST_CASE("tt_unit_test_cfgsh_ls",
                  NULL),
 
     TT_TEST_CASE("tt_unit_test_cfgsh_cd",
-                 "testing cfg shell: cd",
+                 "testing shell: cd",
                  tt_unit_test_cfgsh_cd,
                  NULL,
                  __cfgsh_ut_enter,
@@ -98,7 +107,7 @@ TT_TEST_CASE("tt_unit_test_cfgsh_ls",
                  NULL),
 
     TT_TEST_CASE("tt_unit_test_cfgsh_get",
-                 "testing cfg shell: get",
+                 "testing shell: get",
                  tt_unit_test_cfgsh_get,
                  NULL,
                  __cfgsh_ut_enter,
@@ -107,7 +116,7 @@ TT_TEST_CASE("tt_unit_test_cfgsh_ls",
                  NULL),
 
     TT_TEST_CASE("tt_unit_test_cfgsh_set",
-                 "testing cfg shell: set",
+                 "testing shell: set",
                  tt_unit_test_cfgsh_set,
                  NULL,
                  __cfgsh_ut_enter,
@@ -115,27 +124,18 @@ TT_TEST_CASE("tt_unit_test_cfgsh_ls",
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_cfgsh_parse_arg",
-                 "testing cfg shell: parse arguments",
-                 tt_unit_test_cfgsh_parse_arg,
+    TT_TEST_CASE("tt_unit_test_cfgsh_quit",
+                 "testing shell: quit",
+                 tt_unit_test_cfgsh_quit,
                  NULL,
                  __cfgsh_ut_enter,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_cfgsh_status",
-                 "testing cfg shell: status",
-                 tt_unit_test_cfgsh_status,
-                 NULL,
-                 __cfgsh_ut_enter,
-                 NULL,
-                 NULL,
-                 NULL),
-
-    TT_TEST_CASE("tt_unit_test_cfgsh_commit",
-                 "testing cfg shell: commit",
-                 tt_unit_test_cfgsh_commit,
+    TT_TEST_CASE("tt_unit_test_cfgsh_exec",
+                 "testing shell: execute",
+                 tt_unit_test_cfgsh_exec,
                  NULL,
                  __cfgsh_ut_enter,
                  NULL,
@@ -156,12 +156,12 @@ TT_TEST_CASE("tt_unit_test_cfgsh_ls",
     ////////////////////////////////////////////////////////////
 
     /*
-    TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_commit)
+    TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_quit)
     {
      // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
-     tt_cfgsh_t sh;
+     tt_shell_t sh;
      tt_result_t ret;
-     tt_cfgsh_attr_t attr;
+     tt_sh_attr_t attr;
      tt_cli_itf_t itf;
      tt_u32_t cmp_ret;
 
@@ -171,20 +171,20 @@ TT_TEST_CASE("tt_unit_test_cfgsh_ls",
      itf.param = NULL;
      itf.send = __ut_cfgsh_send;
 
-     tt_cfgsh_attr_default(&attr);
+     tt_sh_attr_default(&attr);
      attr.cli_attr.title = "shell";
      attr.cli_attr.seperator = '$';
 
-     ret = tt_cfgsh_create(&sh, TT_CLI_MODE_DEFAUTL, &itf, root, &attr);
+     ret = tt_sh_create(&sh, root, TT_CLI_MODE_DEFAUTL, &itf, &attr);
      TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
      tt_buf_clear(&__ut_buf_out);
-     ret = tt_cfgsh_start(&sh);
+     ret = tt_sh_start(&sh);
      TT_UT_EQUAL(ret, TT_SUCCESS, "");
      cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, "\nshell$ ");
      TT_UT_EQUAL(cmp_ret, 0, "");
 
-     tt_cfgsh_destroy(&sh);
+     tt_sh_destroy(&sh);
 
         // test end
         TT_TEST_CASE_LEAVE()
@@ -193,17 +193,42 @@ TT_TEST_CASE("tt_unit_test_cfgsh_ls",
 
     static tt_bool_t __cfgsh_ut_init = TT_TRUE;
 
-static tt_cfgnode_t *root, *g1, *g11, *g12, *g121, *c1211;
-static tt_cfgnode_t *u1, *s1;
+static tt_cfgobj_t *root, *g1, *g11, *g12, *g121, *c1211, *exec;
+static tt_cfgobj_t *u1, *s1;
 static tt_u32_t __u32_val;
 static tt_s32_t __s32_val;
 static tt_buf_t __ut_buf_out;
 
+static tt_u32_t exec_mode;
+static tt_result_t __exec_run(IN struct tt_cfgobj_s *co,
+                              IN tt_u32_t argc,
+                              IN tt_char_t *argv[],
+                              IN const tt_char_t *line_sep,
+                              OUT struct tt_buf_s *output,
+                              OUT tt_u32_t *status)
+{
+    if (exec_mode == 0) {
+        *status = TT_CLIOC_NOOUT;
+        return TT_SUCCESS;
+    } else if (exec_mode == 1) {
+        return TT_BAD_PARAM;
+    }
+
+    if (argc > 0) {
+        tt_buf_putf(output, "arg[0]: %s, final: %s", argv[0], argv[argc - 1]);
+    } else {
+        tt_buf_putf(output, "no arg");
+    }
+    *status = TT_CLIOC_OUT;
+    return TT_SUCCESS;
+}
+
 void __cfgsh_ut_enter(void *enter_param)
 {
-    tt_cfggrp_attr_t g_attr;
-    tt_cfgu32_attr_t u32_attr;
-    tt_cfgs32_attr_t s32_attr;
+    tt_cfgobj_attr_t g_attr;
+    tt_cfgobj_attr_t u32_attr;
+    tt_cfgobj_attr_t s32_attr;
+    tt_cfgobj_attr_t exec_attr;
 
     if (!__cfgsh_ut_init) {
         return;
@@ -217,43 +242,48 @@ void __cfgsh_ut_enter(void *enter_param)
         |- g12
            |- g121
               |- c1211
+              |- exec
      |- s1
      |- u1
      */
 
-    tt_cfggrp_attr_default(&g_attr);
-    tt_cfgu32_attr_default(&u32_attr);
-    tt_cfgs32_attr_default(&s32_attr);
+    tt_cfgobj_attr_default(&g_attr);
+    tt_cfgobj_attr_default(&u32_attr);
+    tt_cfgobj_attr_default(&s32_attr);
+    tt_cfgobj_attr_default(&exec_attr);
 
-    root = tt_cfggrp_create("", NULL, NULL, NULL, &g_attr);
+    root = tt_cfgdir_create("", &g_attr);
 
-    g_attr.cnode_attr.brief = "group 1, testing";
-    g_attr.cnode_attr.detail = "group 1, usage";
-    g1 = tt_cfggrp_create("g1", NULL, NULL, NULL, &g_attr);
-    tt_cfggrp_add(root, g1);
+    g_attr.brief = "group 1, testing";
+    g_attr.detail = "group 1, usage";
+    g1 = tt_cfgdir_create("g1", &g_attr);
+    tt_cfgdir_add(TT_CFGOBJ_CAST(root, tt_cfgdir_t), g1);
 
-    u32_attr.cnode_attr.brief = "u32 val under g1";
-    u1 = tt_cfgu32_create("u1", NULL, NULL, &__u32_val, NULL, &u32_attr);
-    tt_cfggrp_add(root, u1);
+    u32_attr.brief = "u32 val under g1";
+    u32_attr.can_write = TT_FALSE;
+    u1 = tt_cfgu32_create("u1", &__u32_val, &u32_attr, NULL);
+    tt_cfgdir_add(TT_CFGOBJ_CAST(root, tt_cfgdir_t), u1);
 
-    s32_attr.cnode_attr.brief = "s32 val under g1";
-    s32_attr.mode = TT_CFGVAL_MODE_GS;
-    s1 = tt_cfgs32_create("s1", NULL, NULL, &__s32_val, NULL, &s32_attr);
-    tt_cfggrp_add(root, s1);
+    s32_attr.brief = "s32 val under g1";
+    s1 = tt_cfgs32_create("s1", &__s32_val, &s32_attr, NULL);
+    tt_cfgdir_add(TT_CFGOBJ_CAST(root, tt_cfgdir_t), s1);
 
-    g11 = tt_cfggrp_create("g11", NULL, NULL, NULL, &g_attr);
-    g12 = tt_cfggrp_create("g12", NULL, NULL, NULL, &g_attr);
-    g121 = tt_cfggrp_create("g121", NULL, NULL, NULL, &g_attr);
+    g11 = tt_cfgdir_create("g11", &g_attr);
+    g12 = tt_cfgdir_create("g12", &g_attr);
+    g121 = tt_cfgdir_create("g121", &g_attr);
 
-    u32_attr.cnode_attr.brief = "leaf child";
-    u32_attr.cnode_attr.detail = "c1211's usage";
-    u32_attr.mode = TT_CFGVAL_MODE_GS;
-    c1211 = tt_cfgu32_create("c1211", NULL, NULL, &__u32_val, NULL, &u32_attr);
-    tt_cfggrp_add(g121, c1211);
+    u32_attr.brief = "leaf child";
+    u32_attr.detail = "c1211's usage";
+    u32_attr.can_write = TT_TRUE;
+    c1211 = tt_cfgu32_create("c1211", &__u32_val, &u32_attr, NULL);
+    tt_cfgdir_add(TT_CFGOBJ_CAST(g121, tt_cfgdir_t), c1211);
 
-    tt_cfggrp_add(g1, g11);
-    tt_cfggrp_add(g1, g12);
-    tt_cfggrp_add(g12, g121);
+    exec = tt_cfgexe_create("exec", NULL, __exec_run);
+    tt_cfgdir_add(TT_CFGOBJ_CAST(g121, tt_cfgdir_t), exec);
+
+    tt_cfgdir_add(TT_CFGOBJ_CAST(g1, tt_cfgdir_t), g11);
+    tt_cfgdir_add(TT_CFGOBJ_CAST(g1, tt_cfgdir_t), g12);
+    tt_cfgdir_add(TT_CFGOBJ_CAST(g12, tt_cfgdir_t), g121);
 
     tt_buf_init(&__ut_buf_out, NULL);
 }
@@ -276,12 +306,12 @@ static tt_result_t __ut_cfgsh_send(IN struct tt_cli_s *cli,
     return TT_SUCCESS;
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_ls)
+TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_parse_arg)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
-    tt_cfgsh_t sh;
+    tt_shell_t sh;
     tt_result_t ret;
-    tt_cfgsh_attr_t attr;
+    tt_sh_attr_t attr;
     tt_cli_itf_t itf;
     tt_u32_t cmp_ret;
 
@@ -291,15 +321,164 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_ls)
     itf.param = NULL;
     itf.send = __ut_cfgsh_send;
 
-    tt_cfgsh_attr_default(&attr);
+    tt_sh_attr_default(&attr);
     attr.cli_attr.title = "shell";
     attr.cli_attr.seperator = '$';
 
-    ret = tt_cfgsh_create(&sh, TT_CLI_MODE_DEFAUTL, &itf, root, &attr);
+    ret = tt_sh_create(&sh, root, TT_CLI_MODE_DEFAUTL, &itf, &attr);
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+
+    tt_sh_destroy(&sh);
+
+    ret = tt_sh_create(&sh, root, TT_CLI_MODE_DEFAUTL, &itf, &attr);
     TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     tt_buf_clear(&__ut_buf_out);
-    ret = tt_cfgsh_start(&sh);
+    ret = tt_sh_start(&sh);
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+    cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, "\nshell$ ");
+    TT_UT_EQUAL(cmp_ret, 0, "");
+
+    // normal
+    {
+        tt_char_t cmd[] = "  cmd 1 22 333";
+
+        sh.arg_num = 0;
+        ret = __parse_arg(&sh, cmd);
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(sh.arg_num, 4, "");
+        TT_UT_EQUAL(tt_strcmp(sh.arg[0], "cmd"), 0, "");
+        TT_UT_EQUAL(tt_strcmp(sh.arg[1], "1"), 0, "");
+        TT_UT_EQUAL(tt_strcmp(sh.arg[2], "22"), 0, "");
+        TT_UT_EQUAL(tt_strcmp(sh.arg[3], "333"), 0, "");
+    }
+
+    // empty
+    {
+        tt_char_t cmd[] = "";
+
+        sh.arg_num = 0;
+        ret = __parse_arg(&sh, cmd);
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(sh.arg_num, 0, "");
+    }
+
+    // only spaces
+    {
+        tt_char_t cmd[] = "       ";
+
+        sh.arg_num = 0;
+        ret = __parse_arg(&sh, cmd);
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(sh.arg_num, 0, "");
+    }
+
+    // with double quotes
+    {
+        tt_char_t cmd[] = " cmd \" arg1 'not param' arg1.1 \" arg2     ";
+
+        sh.arg_num = 0;
+        ret = __parse_arg(&sh, cmd);
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(sh.arg_num, 3, "");
+        TT_UT_EQUAL(tt_strcmp(sh.arg[0], "cmd"), 0, "");
+        TT_UT_EQUAL(tt_strcmp(sh.arg[1], " arg1 'not param' arg1.1 "), 0, "");
+        TT_UT_EQUAL(tt_strcmp(sh.arg[2], "arg2"), 0, "");
+    }
+
+    // half double quotes
+    {
+        tt_char_t cmd[] = "\" arg1 'not param' arg1.1   ";
+
+        sh.arg_num = 0;
+        ret = __parse_arg(&sh, cmd);
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(sh.arg_num, 1, "");
+        TT_UT_EQUAL(tt_strcmp(sh.arg[0], " arg1 'not param' arg1.1   "), 0, "");
+    }
+
+    // with single quotes
+    {
+        tt_char_t cmd[] = " cmd ' \"this is not q\" ' arg2     ";
+
+        sh.arg_num = 0;
+        ret = __parse_arg(&sh, cmd);
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(sh.arg_num, 3, "");
+        TT_UT_EQUAL(tt_strcmp(sh.arg[0], "cmd"), 0, "");
+        TT_UT_EQUAL(tt_strcmp(sh.arg[1], " \"this is not q\" "), 0, "");
+        TT_UT_EQUAL(tt_strcmp(sh.arg[2], "arg2"), 0, "");
+    }
+
+    // half single quotes
+    {
+        tt_char_t cmd[] = "' arg1 \"not param \" arg1.1   ";
+
+        sh.arg_num = 0;
+        ret = __parse_arg(&sh, cmd);
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(sh.arg_num, 1, "");
+        TT_UT_EQUAL(tt_strcmp(sh.arg[0], " arg1 \"not param \" arg1.1   "),
+                    0,
+                    "");
+    }
+
+    // end with single quotes
+    {
+        tt_char_t cmd[] = " cmd p1 p2 \'";
+
+        sh.arg_num = 0;
+        ret = __parse_arg(&sh, cmd);
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(sh.arg_num, 3, "");
+        TT_UT_EQUAL(tt_strcmp(sh.arg[0], "cmd"), 0, "");
+        TT_UT_EQUAL(tt_strcmp(sh.arg[1], "p1"), 0, "");
+        TT_UT_EQUAL(tt_strcmp(sh.arg[2], "p2"), 0, "");
+    }
+
+    // expand args
+    {
+        tt_char_t cmd[] = " cmd 0 1 2 3 4 5 6 7 8 9 10 11 12 13 \"";
+
+        sh.arg_num = 0;
+        ret = __parse_arg(&sh, cmd);
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_EQUAL(sh.arg_num, 15, "");
+        TT_UT_EQUAL(tt_strcmp(sh.arg[1], "0"), 0, "");
+        TT_UT_EQUAL(tt_strcmp(sh.arg[11], "10"), 0, "");
+        TT_UT_EQUAL(tt_strcmp(sh.arg[14], "13"), 0, "");
+    }
+
+    tt_sh_destroy(&sh);
+
+    // test end
+    TT_TEST_CASE_LEAVE()
+}
+
+TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_ls)
+{
+    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+    tt_shell_t sh;
+    tt_result_t ret;
+    tt_sh_attr_t attr;
+    tt_cli_itf_t itf;
+    tt_u32_t cmp_ret;
+
+    TT_TEST_CASE_ENTER()
+    // test start
+
+    itf.param = NULL;
+    itf.send = __ut_cfgsh_send;
+
+    tt_sh_attr_default(&attr);
+    attr.cli_attr.title = "shell";
+    attr.cli_attr.seperator = '$';
+
+    ret = tt_sh_create(&sh, root, TT_CLI_MODE_DEFAUTL, &itf, &attr);
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+
+    tt_buf_clear(&__ut_buf_out);
+    ret = tt_sh_start(&sh);
     TT_UT_EQUAL(ret, TT_SUCCESS, "");
     cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, "\nshell$ ");
     TT_UT_EQUAL(cmp_ret, 0, "");
@@ -308,14 +487,13 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_ls)
     {
         const tt_char_t *this_out =
             "ls\n"
-            "PERM    TYPE    NAME    DESCRIPTION\n"
-            "----    grp     g1/     group 1, testing\n"
-            "--gs    s32     s1      s32 val under g1\n"
-            "--g-    u32     u1      u32 val under g1\n"
+            "--    dir       g1/    group 1, testing\n"
+            "rw    s32       s1     s32 val under g1\n"
+            "r-    u32       u1     u32 val under g1\n"
             "shell$ ";
 
         tt_buf_clear(&__ut_buf_out);
-        ret = tt_cfgsh_input(&sh, (tt_u8_t *)"ls\x87", 3);
+        ret = tt_sh_input(&sh, (tt_u8_t *)"ls\x87", 3);
         TT_UT_EQUAL(ret, TT_SUCCESS, "");
         cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, this_out);
         TT_UT_EQUAL(cmp_ret, 0, "");
@@ -330,7 +508,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_ls)
             "shell$ ";
 
         tt_buf_clear(&__ut_buf_out);
-        ret = tt_cfgsh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
+        ret = tt_sh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
         TT_UT_EQUAL(ret, TT_SUCCESS, "");
         cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, this_out);
         TT_UT_EQUAL(cmp_ret, 0, "");
@@ -341,12 +519,11 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_ls)
         tt_char_t this_in[] = "ls s1\x87";
         const tt_char_t *this_out =
             "ls s1\n"
-            "PERM    TYPE    NAME    DESCRIPTION\n"
-            "--gs    s32     s1      s32 val under g1\n"
+            "rw    s32       s1    s32 val under g1\n"
             "shell$ ";
 
         tt_buf_clear(&__ut_buf_out);
-        ret = tt_cfgsh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
+        ret = tt_sh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
         TT_UT_EQUAL(ret, TT_SUCCESS, "");
         cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, this_out);
         TT_UT_EQUAL(cmp_ret, 0, "");
@@ -357,12 +534,11 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_ls)
         tt_char_t this_in[] = "ls /g1/g11\x87";
         const tt_char_t *this_out =
             "ls /g1/g11\n"
-            "PERM    TYPE    NAME    DESCRIPTION\n"
             "\n"
             "shell$ ";
 
         tt_buf_clear(&__ut_buf_out);
-        ret = tt_cfgsh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
+        ret = tt_sh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
         TT_UT_EQUAL(ret, TT_SUCCESS, "");
         cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, this_out);
         TT_UT_EQUAL(cmp_ret, 0, "");
@@ -374,30 +550,25 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_ls)
         const tt_char_t *this_out =
             "ls s1 /g1/ /u1 g1/g12/g121 g1/g11/  \n"
             "s1:\n"
-            "PERM    TYPE    NAME    DESCRIPTION\n"
-            "--gs    s32     s1      s32 val under g1\n"
+            "rw    s32       s1    s32 val under g1\n"
             "\n"
             "/g1/:\n"
-            "PERM    TYPE    NAME    DESCRIPTION\n"
-            "----    grp     g11/    group 1, testing\n"
-            "----    grp     g12/    group 1, testing\n"
+            "--    dir       g11/    group 1, testing\n"
+            "--    dir       g12/    group 1, testing\n"
             "\n"
             "/u1:\n"
-            "PERM    TYPE    NAME    DESCRIPTION\n"
-            "--g-    u32     u1      u32 val under g1\n"
+            "r-    u32       u1    u32 val under g1\n"
             "\n"
             "g1/g12/g121:\n"
-            "PERM    TYPE    NAME     DESCRIPTION\n"
-            "--gs    u32     c1211    leaf child\n"
+            "rw    u32       c1211    leaf child\n"
+            "--    exe       exec     \n"
             "\n"
             "g1/g11/:\n"
-            "PERM    TYPE    NAME    DESCRIPTION\n"
-            "\n"
             "\n"
             "shell$ ";
 
         tt_buf_clear(&__ut_buf_out);
-        ret = tt_cfgsh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
+        ret = tt_sh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
         TT_UT_EQUAL(ret, TT_SUCCESS, "");
         cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, this_out);
         TT_UT_EQUAL(cmp_ret, 0, "");
@@ -409,25 +580,23 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_ls)
         const tt_char_t *this_out =
             "ls s1 /root/g1/ /root/g1/u1 \n"
             "s1:\n"
-            "PERM    TYPE    NAME    DESCRIPTION\n"
-            "--gs    s32     s1      s32 val under g1\n"
+            "rw    s32       s1    s32 val under g1\n"
             "\n"
             "/root/g1/:\n"
             "can not find: /root/g1/\n"
             "\n"
             "/root/g1/u1:\n"
             "can not find: /root/g1/u1\n"
-            "\n"
             "shell$ ";
 
         tt_buf_clear(&__ut_buf_out);
-        ret = tt_cfgsh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
+        ret = tt_sh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
         TT_UT_EQUAL(ret, TT_SUCCESS, "");
         cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, this_out);
         TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
-    tt_cfgsh_destroy(&sh);
+    tt_sh_destroy(&sh);
 
     // test end
     TT_TEST_CASE_LEAVE()
@@ -436,9 +605,9 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_ls)
 TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_help)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
-    tt_cfgsh_t sh;
+    tt_shell_t sh;
     tt_result_t ret;
-    tt_cfgsh_attr_t attr;
+    tt_sh_attr_t attr;
     tt_cli_itf_t itf;
     tt_u32_t cmp_ret;
 
@@ -448,15 +617,15 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_help)
     itf.param = NULL;
     itf.send = __ut_cfgsh_send;
 
-    tt_cfgsh_attr_default(&attr);
+    tt_sh_attr_default(&attr);
     attr.cli_attr.title = "shell";
     attr.cli_attr.seperator = '$';
 
-    ret = tt_cfgsh_create(&sh, TT_CLI_MODE_DEFAUTL, &itf, root, &attr);
+    ret = tt_sh_create(&sh, root, TT_CLI_MODE_DEFAUTL, &itf, &attr);
     TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     tt_buf_clear(&__ut_buf_out);
-    ret = tt_cfgsh_start(&sh);
+    ret = tt_sh_start(&sh);
     TT_UT_EQUAL(ret, TT_SUCCESS, "");
     cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, "\nshell$ ");
     TT_UT_EQUAL(cmp_ret, 0, "");
@@ -467,7 +636,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_help)
         const tt_char_t *this_out = "";
 
         tt_buf_clear(&__ut_buf_out);
-        ret = tt_cfgsh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
+        ret = tt_sh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
         TT_UT_EQUAL(ret, TT_SUCCESS, "");
         cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, this_out);
         // TT_UT_EQUAL(cmp_ret, 0, "");
@@ -478,11 +647,11 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_help)
         tt_char_t this_in[] = "  help unknown-cmd  \x87";
         const tt_char_t *this_out =
             "  help unknown-cmd  \n"
-            "can not find: unknown-cmd\n"
+            "not found: unknown-cmd\n"
             "shell$ ";
 
         tt_buf_clear(&__ut_buf_out);
-        ret = tt_cfgsh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
+        ret = tt_sh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
         TT_UT_EQUAL(ret, TT_SUCCESS, "");
         cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, this_out);
         TT_UT_EQUAL(cmp_ret, 0, "");
@@ -497,7 +666,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_help)
             "shell$ ";
 
         tt_buf_clear(&__ut_buf_out);
-        ret = tt_cfgsh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
+        ret = tt_sh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
         TT_UT_EQUAL(ret, TT_SUCCESS, "");
         cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, this_out);
         TT_UT_EQUAL(cmp_ret, 0, "");
@@ -512,7 +681,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_help)
             "shell$ ";
 
         tt_buf_clear(&__ut_buf_out);
-        ret = tt_cfgsh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
+        ret = tt_sh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
         TT_UT_EQUAL(ret, TT_SUCCESS, "");
         cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, this_out);
         TT_UT_EQUAL(cmp_ret, 0, "");
@@ -527,13 +696,28 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_help)
             "shell$ ";
 
         tt_buf_clear(&__ut_buf_out);
-        ret = tt_cfgsh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
+        ret = tt_sh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
         TT_UT_EQUAL(ret, TT_SUCCESS, "");
         cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, this_out);
         TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
-    tt_cfgsh_destroy(&sh);
+    // show mul
+    {
+        tt_char_t this_in[] = "  help g1 ls\x87";
+        const tt_char_t *this_out =
+            "  help g1 ls\n"
+            "group 1, usage\n"
+            "shell$ ";
+
+        tt_buf_clear(&__ut_buf_out);
+        ret = tt_sh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
+        cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, this_out);
+        TT_UT_EQUAL(cmp_ret, 0, "");
+    }
+
+    tt_sh_destroy(&sh);
 
     // test end
     TT_TEST_CASE_LEAVE()
@@ -542,9 +726,9 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_help)
 TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_pwd)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
-    tt_cfgsh_t sh;
+    tt_shell_t sh;
     tt_result_t ret;
-    tt_cfgsh_attr_t attr;
+    tt_sh_attr_t attr;
     tt_cli_itf_t itf;
     tt_u32_t cmp_ret;
 
@@ -554,15 +738,15 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_pwd)
     itf.param = NULL;
     itf.send = __ut_cfgsh_send;
 
-    tt_cfgsh_attr_default(&attr);
+    tt_sh_attr_default(&attr);
     attr.cli_attr.title = "shell";
     attr.cli_attr.seperator = '$';
 
-    ret = tt_cfgsh_create(&sh, TT_CLI_MODE_DEFAUTL, &itf, root, &attr);
+    ret = tt_sh_create(&sh, root, TT_CLI_MODE_DEFAUTL, &itf, &attr);
     TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     tt_buf_clear(&__ut_buf_out);
-    ret = tt_cfgsh_start(&sh);
+    ret = tt_sh_start(&sh);
     TT_UT_EQUAL(ret, TT_SUCCESS, "");
     cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, "\nshell$ ");
     TT_UT_EQUAL(cmp_ret, 0, "");
@@ -576,7 +760,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_pwd)
             "shell$ ";
 
         tt_buf_clear(&__ut_buf_out);
-        ret = tt_cfgsh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
+        ret = tt_sh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
         TT_UT_EQUAL(ret, TT_SUCCESS, "");
         cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, this_out);
         TT_UT_EQUAL(cmp_ret, 0, "");
@@ -592,7 +776,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_pwd)
 
         tt_buf_clear(&__ut_buf_out);
         sh.current = g121;
-        ret = tt_cfgsh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
+        ret = tt_sh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
         TT_UT_EQUAL(ret, TT_SUCCESS, "");
         cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, this_out);
         TT_UT_EQUAL(cmp_ret, 0, "");
@@ -608,13 +792,13 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_pwd)
 
         tt_buf_clear(&__ut_buf_out);
         sh.current = g12;
-        ret = tt_cfgsh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
+        ret = tt_sh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
         TT_UT_EQUAL(ret, TT_SUCCESS, "");
         cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, this_out);
         TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
-    tt_cfgsh_destroy(&sh);
+    tt_sh_destroy(&sh);
 
     // test end
     TT_TEST_CASE_LEAVE()
@@ -623,9 +807,9 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_pwd)
 TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_cd)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
-    tt_cfgsh_t sh;
+    tt_shell_t sh;
     tt_result_t ret;
-    tt_cfgsh_attr_t attr;
+    tt_sh_attr_t attr;
     tt_cli_itf_t itf;
     tt_u32_t cmp_ret;
 
@@ -635,15 +819,15 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_cd)
     itf.param = NULL;
     itf.send = __ut_cfgsh_send;
 
-    tt_cfgsh_attr_default(&attr);
+    tt_sh_attr_default(&attr);
     attr.cli_attr.title = "shell";
     attr.cli_attr.seperator = '$';
 
-    ret = tt_cfgsh_create(&sh, TT_CLI_MODE_DEFAUTL, &itf, root, &attr);
+    ret = tt_sh_create(&sh, root, TT_CLI_MODE_DEFAUTL, &itf, &attr);
     TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     tt_buf_clear(&__ut_buf_out);
-    ret = tt_cfgsh_start(&sh);
+    ret = tt_sh_start(&sh);
     TT_UT_EQUAL(ret, TT_SUCCESS, "");
     cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, "\nshell$ ");
     TT_UT_EQUAL(cmp_ret, 0, "");
@@ -656,7 +840,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_cd)
             "shell$ ";
 
         tt_buf_clear(&__ut_buf_out);
-        ret = tt_cfgsh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
+        ret = tt_sh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
         TT_UT_EQUAL(ret, TT_SUCCESS, "");
         cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, this_out);
         TT_UT_EQUAL(cmp_ret, 0, "");
@@ -670,10 +854,11 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_cd)
             "shell:g1$ ";
 
         tt_buf_clear(&__ut_buf_out);
-        ret = tt_cfgsh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
+        ret = tt_sh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
         TT_UT_EQUAL(ret, TT_SUCCESS, "");
         cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, this_out);
         TT_UT_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(sh.current, g1, "");
     }
 
     // ls
@@ -681,13 +866,12 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_cd)
         tt_char_t this_in[] = "ls\x87";
         const tt_char_t *this_out =
             "ls\n"
-            "PERM    TYPE    NAME    DESCRIPTION\n"
-            "----    grp     g11/    group 1, testing\n"
-            "----    grp     g12/    group 1, testing\n"
+            "--    dir       g11/    group 1, testing\n"
+            "--    dir       g12/    group 1, testing\n"
             "shell:g1$ ";
 
         tt_buf_clear(&__ut_buf_out);
-        ret = tt_cfgsh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
+        ret = tt_sh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
         TT_UT_EQUAL(ret, TT_SUCCESS, "");
         cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, this_out);
         TT_UT_EQUAL(cmp_ret, 0, "");
@@ -701,7 +885,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_cd)
             "shell:g121$ ";
 
         tt_buf_clear(&__ut_buf_out);
-        ret = tt_cfgsh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
+        ret = tt_sh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
         TT_UT_EQUAL(ret, TT_SUCCESS, "");
         cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, this_out);
         TT_UT_EQUAL(cmp_ret, 0, "");
@@ -715,7 +899,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_cd)
             "shell:g11$ ";
 
         tt_buf_clear(&__ut_buf_out);
-        ret = tt_cfgsh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
+        ret = tt_sh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
         TT_UT_EQUAL(ret, TT_SUCCESS, "");
         cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, this_out);
         TT_UT_EQUAL(cmp_ret, 0, "");
@@ -726,11 +910,11 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_cd)
         tt_char_t this_in[] = "  cd ../g1/g1111 \x87";
         const tt_char_t this_out[] =
             "  cd ../g1/g1111 \n"
-            "can not find: ../g1/g1111\n"
+            "not found: ../g1/g1111\n"
             "shell:g11$ ";
 
         tt_buf_clear(&__ut_buf_out);
-        ret = tt_cfgsh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
+        ret = tt_sh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
         TT_UT_EQUAL(ret, TT_SUCCESS, "");
         tt_buf_print_cstr(&__ut_buf_out, 0);
         cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, this_out);
@@ -742,11 +926,11 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_cd)
         tt_char_t this_in[] = "  cd /g1/g12/g121/c1211\x87";
         const tt_char_t *this_out =
             "  cd /g1/g12/g121/c1211\n"
-            "not a group: /g1/g12/g121/c1211\n"
+            "not a directory: /g1/g12/g121/c1211\n"
             "shell:g11$ ";
 
         tt_buf_clear(&__ut_buf_out);
-        ret = tt_cfgsh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
+        ret = tt_sh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
         TT_UT_EQUAL(ret, TT_SUCCESS, "");
         cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, this_out);
         TT_UT_EQUAL(cmp_ret, 0, "");
@@ -755,16 +939,16 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_cd)
     // exit
     {
         tt_char_t this_in[] = "\x85";
-        const tt_char_t *this_out = "^D\nexiting\n";
+        const tt_char_t *this_out = "^D\nexiting...\n";
 
         tt_buf_clear(&__ut_buf_out);
-        ret = tt_cfgsh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
+        ret = tt_sh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
         TT_UT_EQUAL(ret, TT_END, "");
         cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, this_out);
         TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
-    tt_cfgsh_destroy(&sh);
+    tt_sh_destroy(&sh);
 
     // test end
     TT_TEST_CASE_LEAVE()
@@ -773,9 +957,9 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_cd)
 TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_get)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
-    tt_cfgsh_t sh;
+    tt_shell_t sh;
     tt_result_t ret;
-    tt_cfgsh_attr_t attr;
+    tt_sh_attr_t attr;
     tt_cli_itf_t itf;
     tt_u32_t cmp_ret;
 
@@ -785,15 +969,15 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_get)
     itf.param = NULL;
     itf.send = __ut_cfgsh_send;
 
-    tt_cfgsh_attr_default(&attr);
+    tt_sh_attr_default(&attr);
     attr.cli_attr.title = "shell";
     attr.cli_attr.seperator = '$';
 
-    ret = tt_cfgsh_create(&sh, TT_CLI_MODE_DEFAUTL, &itf, root, &attr);
+    ret = tt_sh_create(&sh, root, TT_CLI_MODE_DEFAUTL, &itf, &attr);
     TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     tt_buf_clear(&__ut_buf_out);
-    ret = tt_cfgsh_start(&sh);
+    ret = tt_sh_start(&sh);
     TT_UT_EQUAL(ret, TT_SUCCESS, "");
     cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, "\nshell$ ");
     TT_UT_EQUAL(cmp_ret, 0, "");
@@ -803,13 +987,12 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_get)
         tt_char_t this_in[] = "  get /g1/g12/g121/c1211\x87";
         const tt_char_t *this_out =
             "  get /g1/g12/g121/c1211\n"
-            "NAME     VALUE\n"
-            "c1211    12300\n"
+            "c1211: 12300\n"
             "shell$ ";
 
         __u32_val = 12300;
         tt_buf_clear(&__ut_buf_out);
-        ret = tt_cfgsh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
+        ret = tt_sh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
         TT_UT_EQUAL(ret, TT_SUCCESS, "");
         cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, this_out);
         TT_UT_EQUAL(cmp_ret, 0, "");
@@ -820,12 +1003,12 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_get)
         tt_char_t this_in[] = "  get /g1/g12/g121/c12111\x87";
         const tt_char_t *this_out =
             "  get /g1/g12/g121/c12111\n"
-            "can not find: /g1/g12/g121/c12111\n"
+            "not found: /g1/g12/g121/c12111\n"
             "shell$ ";
 
         __u32_val = 12300;
         tt_buf_clear(&__ut_buf_out);
-        ret = tt_cfgsh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
+        ret = tt_sh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
         TT_UT_EQUAL(ret, TT_SUCCESS, "");
         cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, this_out);
         TT_UT_EQUAL(cmp_ret, 0, "");
@@ -836,13 +1019,12 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_get)
         tt_char_t this_in[] = "  get g1/g12\x87";
         const tt_char_t *this_out =
             "  get g1/g12\n"
-            "NAME    VALUE\n"
-            "g121    n/a(group)\n"
+            "get: g1/g12: is a direcoty\n"
             "shell$ ";
 
         __u32_val = 12300;
         tt_buf_clear(&__ut_buf_out);
-        ret = tt_cfgsh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
+        ret = tt_sh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
         TT_UT_EQUAL(ret, TT_SUCCESS, "");
         cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, this_out);
         TT_UT_EQUAL(cmp_ret, 0, "");
@@ -854,18 +1036,15 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_get)
         const tt_char_t *this_out =
             "  get s1 /u1\n"
             "s1:\n"
-            "NAME    VALUE\n"
-            "s1      0\n"
+            "s1: 0\n"
             "\n"
             "/u1:\n"
-            "NAME    VALUE\n"
-            "u1      12300\n"
-            "\n"
+            "u1: 12300\n"
             "shell$ ";
 
         __u32_val = 12300;
         tt_buf_clear(&__ut_buf_out);
-        ret = tt_cfgsh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
+        ret = tt_sh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
         TT_UT_EQUAL(ret, TT_SUCCESS, "");
         cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, this_out);
         TT_UT_EQUAL(cmp_ret, 0, "");
@@ -877,26 +1056,21 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_get)
         const tt_char_t *this_out =
             "  get s1 s1234567890 g1 /u1\n"
             "s1:\n"
-            "NAME    VALUE\n"
-            "s1      0\n"
+            "s1: 0\n"
             "\n"
             "s1234567890:\n"
-            "can not find: s1234567890\n"
+            "not found: s1234567890\n"
             "\n"
             "g1:\n"
-            "NAME    VALUE\n"
-            "g11     n/a(group)\n"
-            "g12     n/a(group)\n"
+            "get: g1: is a direcoty\n"
             "\n"
             "/u1:\n"
-            "NAME    VALUE\n"
-            "u1      12300\n"
-            "\n"
+            "u1: 12300\n"
             "shell$ ";
 
         __u32_val = 12300;
         tt_buf_clear(&__ut_buf_out);
-        ret = tt_cfgsh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
+        ret = tt_sh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
         TT_UT_EQUAL(ret, TT_SUCCESS, "");
         cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, this_out);
         TT_UT_EQUAL(cmp_ret, 0, "");
@@ -907,38 +1081,18 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_get)
         tt_char_t this_in[] = "  get \x87";
         const tt_char_t *this_out =
             "  get \n"
-            "NAME    VALUE\n"
-            "g1      n/a(group)\n"
-            "s1      0\n"
-            "u1      12300\n"
+            "usage: get [name]\n"
             "shell$ ";
 
         __u32_val = 12300;
         tt_buf_clear(&__ut_buf_out);
-        ret = tt_cfgsh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
+        ret = tt_sh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
         TT_UT_EQUAL(ret, TT_SUCCESS, "");
         cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, this_out);
         TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
-    // get current, in a empty group
-    {
-        tt_char_t this_in[] = "  get \x87";
-        const tt_char_t *this_out =
-            "  get \n"
-            "NAME    VALUE\n"
-            "shell$ ";
-
-        __u32_val = 12300;
-        tt_buf_clear(&__ut_buf_out);
-        sh.current = g11;
-        ret = tt_cfgsh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
-        TT_UT_EQUAL(ret, TT_SUCCESS, "");
-        cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, this_out);
-        TT_UT_EQUAL(cmp_ret, 0, "");
-    }
-
-    tt_cfgsh_destroy(&sh);
+    tt_sh_destroy(&sh);
 
     // test end
     TT_TEST_CASE_LEAVE()
@@ -947,9 +1101,9 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_get)
 TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_set)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
-    tt_cfgsh_t sh;
+    tt_shell_t sh;
     tt_result_t ret;
-    tt_cfgsh_attr_t attr;
+    tt_sh_attr_t attr;
     tt_cli_itf_t itf;
     tt_u32_t cmp_ret;
 
@@ -959,15 +1113,15 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_set)
     itf.param = NULL;
     itf.send = __ut_cfgsh_send;
 
-    tt_cfgsh_attr_default(&attr);
+    tt_sh_attr_default(&attr);
     attr.cli_attr.title = "shell";
     attr.cli_attr.seperator = '$';
 
-    ret = tt_cfgsh_create(&sh, TT_CLI_MODE_DEFAUTL, &itf, root, &attr);
+    ret = tt_sh_create(&sh, root, TT_CLI_MODE_DEFAUTL, &itf, &attr);
     TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     tt_buf_clear(&__ut_buf_out);
-    ret = tt_cfgsh_start(&sh);
+    ret = tt_sh_start(&sh);
     TT_UT_EQUAL(ret, TT_SUCCESS, "");
     cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, "\nshell$ ");
     TT_UT_EQUAL(cmp_ret, 0, "");
@@ -982,7 +1136,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_set)
 
         __u32_val = 12300;
         tt_buf_clear(&__ut_buf_out);
-        ret = tt_cfgsh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
+        ret = tt_sh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
         TT_UT_EQUAL(ret, TT_SUCCESS, "");
         cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, this_out);
         TT_UT_EQUAL(cmp_ret, 0, "");
@@ -993,12 +1147,12 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_set)
         tt_char_t this_in[] = "  set s1\x87";
         const tt_char_t *this_out =
             "  set s1\n"
-            "usage: set name value\n"
+            "usage: set [name] [value]\n"
             "shell$ ";
 
         __u32_val = 12300;
         tt_buf_clear(&__ut_buf_out);
-        ret = tt_cfgsh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
+        ret = tt_sh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
         TT_UT_EQUAL(ret, TT_SUCCESS, "");
         cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, this_out);
         TT_UT_EQUAL(cmp_ret, 0, "");
@@ -1013,7 +1167,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_set)
 
         __u32_val = 12300;
         tt_buf_clear(&__ut_buf_out);
-        ret = tt_cfgsh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
+        ret = tt_sh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
         TT_UT_EQUAL(ret, TT_SUCCESS, "");
         cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, this_out);
         TT_UT_EQUAL(cmp_ret, 0, "");
@@ -1024,12 +1178,12 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_set)
         tt_char_t this_in[] = "  set s123 999\x87";
         const tt_char_t *this_out =
             "  set s123 999\n"
-            "can not find: s123\n"
+            "not found: s123\n"
             "shell$ ";
 
         __u32_val = 12300;
         tt_buf_clear(&__ut_buf_out);
-        ret = tt_cfgsh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
+        ret = tt_sh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
         TT_UT_EQUAL(ret, TT_SUCCESS, "");
         cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, this_out);
         TT_UT_EQUAL(cmp_ret, 0, "");
@@ -1040,29 +1194,29 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_set)
         tt_char_t this_in[] = "  set g1 999\x87";
         const tt_char_t *this_out =
             "  set g1 999\n"
-            "not supported operation\n"
+            "set: g1: is a direcoty\n"
             "shell$ ";
 
         __u32_val = 12300;
         tt_buf_clear(&__ut_buf_out);
-        ret = tt_cfgsh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
+        ret = tt_sh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
         TT_UT_EQUAL(ret, TT_SUCCESS, "");
         cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, this_out);
         TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
-    tt_cfgsh_destroy(&sh);
+    tt_sh_destroy(&sh);
 
     // test end
     TT_TEST_CASE_LEAVE()
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_parse_arg)
+TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_quit)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
-    tt_cfgsh_t sh;
+    tt_shell_t sh;
     tt_result_t ret;
-    tt_cfgsh_attr_t attr;
+    tt_sh_attr_t attr;
     tt_cli_itf_t itf;
     tt_u32_t cmp_ret;
 
@@ -1072,498 +1226,193 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_parse_arg)
     itf.param = NULL;
     itf.send = __ut_cfgsh_send;
 
-    tt_cfgsh_attr_default(&attr);
+    tt_sh_attr_default(&attr);
     attr.cli_attr.title = "shell";
     attr.cli_attr.seperator = '$';
+    attr.exit_msg = "goodbye";
 
-    ret = tt_cfgsh_create(&sh, TT_CLI_MODE_DEFAUTL, &itf, root, &attr);
+    ret = tt_sh_create(&sh, root, TT_CLI_MODE_DEFAUTL, &itf, &attr);
     TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     tt_buf_clear(&__ut_buf_out);
-    ret = tt_cfgsh_start(&sh);
+    ret = tt_sh_start(&sh);
     TT_UT_EQUAL(ret, TT_SUCCESS, "");
     cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, "\nshell$ ");
     TT_UT_EQUAL(cmp_ret, 0, "");
 
-    // normal
     {
-        tt_char_t cmd[] = "  cmd 1 22 333";
-
-        sh.arg_idx = 0;
-        ret = __parse_arg(&sh, cmd);
-        TT_UT_EQUAL(ret, TT_SUCCESS, "");
-        TT_UT_EQUAL(sh.arg_idx, 4, "");
-        TT_UT_EQUAL(tt_strcmp(sh.arg[0], "cmd"), 0, "");
-        TT_UT_EQUAL(tt_strcmp(sh.arg[1], "1"), 0, "");
-        TT_UT_EQUAL(tt_strcmp(sh.arg[2], "22"), 0, "");
-        TT_UT_EQUAL(tt_strcmp(sh.arg[3], "333"), 0, "");
-    }
-
-    // empty
-    {
-        tt_char_t cmd[] = "";
-
-        sh.arg_idx = 0;
-        ret = __parse_arg(&sh, cmd);
-        TT_UT_EQUAL(ret, TT_SUCCESS, "");
-        TT_UT_EQUAL(sh.arg_idx, 0, "");
-    }
-
-    // only spaces
-    {
-        tt_char_t cmd[] = "       ";
-
-        sh.arg_idx = 0;
-        ret = __parse_arg(&sh, cmd);
-        TT_UT_EQUAL(ret, TT_SUCCESS, "");
-        TT_UT_EQUAL(sh.arg_idx, 0, "");
-    }
-
-    // with double quotes
-    {
-        tt_char_t cmd[] = " cmd \" arg1 'not param' arg1.1 \" arg2     ";
-
-        sh.arg_idx = 0;
-        ret = __parse_arg(&sh, cmd);
-        TT_UT_EQUAL(ret, TT_SUCCESS, "");
-        TT_UT_EQUAL(sh.arg_idx, 3, "");
-        TT_UT_EQUAL(tt_strcmp(sh.arg[0], "cmd"), 0, "");
-        TT_UT_EQUAL(tt_strcmp(sh.arg[1], " arg1 'not param' arg1.1 "), 0, "");
-        TT_UT_EQUAL(tt_strcmp(sh.arg[2], "arg2"), 0, "");
-    }
-
-    // half double quotes
-    {
-        tt_char_t cmd[] = "\" arg1 'not param' arg1.1   ";
-
-        sh.arg_idx = 0;
-        ret = __parse_arg(&sh, cmd);
-        TT_UT_EQUAL(ret, TT_SUCCESS, "");
-        TT_UT_EQUAL(sh.arg_idx, 1, "");
-        TT_UT_EQUAL(tt_strcmp(sh.arg[0], " arg1 'not param' arg1.1   "), 0, "");
-    }
-
-    // with single quotes
-    {
-        tt_char_t cmd[] = " cmd ' \"this is not q\" ' arg2     ";
-
-        sh.arg_idx = 0;
-        ret = __parse_arg(&sh, cmd);
-        TT_UT_EQUAL(ret, TT_SUCCESS, "");
-        TT_UT_EQUAL(sh.arg_idx, 3, "");
-        TT_UT_EQUAL(tt_strcmp(sh.arg[0], "cmd"), 0, "");
-        TT_UT_EQUAL(tt_strcmp(sh.arg[1], " \"this is not q\" "), 0, "");
-        TT_UT_EQUAL(tt_strcmp(sh.arg[2], "arg2"), 0, "");
-    }
-
-    // half single quotes
-    {
-        tt_char_t cmd[] = "' arg1 \"not param \" arg1.1   ";
-
-        sh.arg_idx = 0;
-        ret = __parse_arg(&sh, cmd);
-        TT_UT_EQUAL(ret, TT_SUCCESS, "");
-        TT_UT_EQUAL(sh.arg_idx, 1, "");
-        TT_UT_EQUAL(tt_strcmp(sh.arg[0], " arg1 \"not param \" arg1.1   "),
-                    0,
-                    "");
-    }
-
-
-    tt_cfgsh_destroy(&sh);
-
-    // test end
-    TT_TEST_CASE_LEAVE()
-}
-
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_status)
-{
-    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
-    tt_cfgsh_t sh;
-    tt_result_t ret;
-    tt_cfgsh_attr_t attr;
-    tt_cli_itf_t itf;
-    tt_u32_t cmp_ret;
-    tt_blob_t val;
-
-    TT_TEST_CASE_ENTER()
-    // test start
-
-    itf.param = NULL;
-    itf.send = __ut_cfgsh_send;
-
-    tt_cfgsh_attr_default(&attr);
-    attr.cli_attr.title = "shell";
-    attr.cli_attr.seperator = '$';
-
-    ret = tt_cfgsh_create(&sh, TT_CLI_MODE_DEFAUTL, &itf, root, &attr);
-    TT_UT_EQUAL(ret, TT_SUCCESS, "");
-
-    tt_buf_clear(&__ut_buf_out);
-    ret = tt_cfgsh_start(&sh);
-    TT_UT_EQUAL(ret, TT_SUCCESS, "");
-    cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, "\nshell$ ");
-    TT_UT_EQUAL(cmp_ret, 0, "");
-
-    ///////////
-
-    tt_cfgnode_restore(root);
-
-    // status current, no change
-    {
-        tt_char_t this_in[] = "  status\x87";
+        tt_char_t this_in[] = "  qui\x87";
         const tt_char_t *this_out =
-            "  status\n"
-            "STATUS    NAME    DESCRIPTION\n"
-            "\n"
-            "shell$ ";
-
-        __u32_val = 12300;
-        tt_buf_clear(&__ut_buf_out);
-        ret = tt_cfgsh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
-        TT_UT_EQUAL(ret, TT_SUCCESS, "");
-        cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, this_out);
-        TT_UT_EQUAL(cmp_ret, 0, "");
-    }
-
-    // status single, no change
-    {
-        tt_char_t this_in[] = "  status /g1/\x87";
-        const tt_char_t *this_out =
-            "  status /g1/\n"
-            "STATUS    NAME    DESCRIPTION\n"
-            "\n"
-            "shell$ ";
-
-        __u32_val = 12300;
-        tt_buf_clear(&__ut_buf_out);
-        ret = tt_cfgsh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
-        TT_UT_EQUAL(ret, TT_SUCCESS, "");
-        cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, this_out);
-        TT_UT_EQUAL(cmp_ret, 0, "");
-    }
-
-    // status multiple, no change, invalid path
-    {
-        tt_char_t this_in[] = "  status /g1/ / /g1/g12/g121 xx/\x87";
-        const tt_char_t *this_out =
-            "  status /g1/ / /g1/g12/g121 xx/\n"
-            "/g1/:\n"
-            "STATUS    NAME    DESCRIPTION\n"
-            "\n"
-            "\n"
-            "/:\n"
-            "STATUS    NAME    DESCRIPTION\n"
-            "\n"
-            "\n"
-            "/g1/g12/g121:\n"
-            "STATUS    NAME    DESCRIPTION\n"
-            "\n"
-            "\n"
-            "xx/:\n"
-            "can not find: xx/\n"
-            "\n"
-            "shell$ ";
-
-        __u32_val = 12300;
-        tt_buf_clear(&__ut_buf_out);
-        ret = tt_cfgsh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
-        TT_UT_EQUAL(ret, TT_SUCCESS, "");
-        cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, this_out);
-        TT_UT_EQUAL(cmp_ret, 0, "");
-    }
-
-    // change some values
-    val.addr = (tt_u8_t *)"-119922";
-    val.len = (tt_u32_t)sizeof("-119922") - 1;
-    ret = tt_cfgnode_set(s1, &val);
-    TT_UT_EQUAL(ret, TT_SUCCESS, "");
-
-    val.addr = (tt_u8_t *)"229923";
-    val.len = (tt_u32_t)sizeof("229923") - 1;
-    ret = tt_cfgnode_set(c1211, &val);
-    TT_UT_EQUAL(ret, TT_SUCCESS, "");
-
-    // status current, some are changed
-    {
-        tt_char_t this_in[] = "  status\x87";
-        const tt_char_t *this_out =
-            "  status\n"
-            "STATUS    NAME                 DESCRIPTION\n"
-            "M         g1/g12/g121/c1211    12300 --> 229923\n"
-            "M         s1                   0 --> -119922\n"
-            "shell$ ";
-
-        __u32_val = 12300;
-        tt_buf_clear(&__ut_buf_out);
-        ret = tt_cfgsh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
-        TT_UT_EQUAL(ret, TT_SUCCESS, "");
-        cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, this_out);
-        TT_UT_EQUAL(cmp_ret, 0, "");
-    }
-
-    // status single
-    {
-        tt_char_t this_in[] = "  status g1\x87";
-        const tt_char_t *this_out =
-            "  status g1\n"
-            "STATUS    NAME              DESCRIPTION\n"
-            "M         g12/g121/c1211    12300 --> 229923\n"
-            "shell$ ";
-
-        __u32_val = 12300;
-        tt_buf_clear(&__ut_buf_out);
-        ret = tt_cfgsh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
-        TT_UT_EQUAL(ret, TT_SUCCESS, "");
-        cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, this_out);
-        TT_UT_EQUAL(cmp_ret, 0, "");
-    }
-
-    // status multiple
-    {
-        tt_char_t this_in[] = "  status g1 . /s1 u1  g1/g11/ xyz \x87";
-        const tt_char_t *this_out =
-            "  status g1 . /s1 u1  g1/g11/ xyz \n"
-            "g1:\n"
-            "STATUS    NAME              DESCRIPTION\n"
-            "M         g12/g121/c1211    12300 --> 229923\n"
-            "\n"
-            ".:\n"
-            "STATUS    NAME                 DESCRIPTION\n"
-            "M         g1/g12/g121/c1211    12300 --> 229923\n"
-            "M         s1                   0 --> -119922\n"
-            "\n"
-            "/s1:\n"
-            "STATUS    NAME    DESCRIPTION\n"
-            "M         s1      0 --> -119922\n"
-            "\n"
-            "u1:\n"
-            "STATUS    NAME    DESCRIPTION\n"
-            "\n"
-            "\n"
-            "g1/g11/:\n"
-            "STATUS    NAME    DESCRIPTION\n"
-            "\n"
-            "\n"
-            "xyz:\n"
-            "can not find: xyz\n"
-            "\n"
-            "shell$ ";
-
-        __u32_val = 12300;
-        tt_buf_clear(&__ut_buf_out);
-        ret = tt_cfgsh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
-        TT_UT_EQUAL(ret, TT_SUCCESS, "");
-        cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, this_out);
-        TT_UT_EQUAL(cmp_ret, 0, "");
-    }
-
-    ////////////
-
-    // restore invalid
-    {
-        tt_char_t this_in[] =
-            "  restore g1/g12/g121/c1222 g1/g12/g121/c1233\x87status / \x87";
-        const tt_char_t *this_out =
-            "  restore g1/g12/g121/c1222 g1/g12/g121/c1233\n"
-            "can not find: g1/g12/g121/c1222\n"
-            "can not find: g1/g12/g121/c1233\n"
-            "shell$ status / \n"
-            "STATUS    NAME                 DESCRIPTION\n"
-            "M         g1/g12/g121/c1211    12300 --> 229923\n"
-            "M         s1                   0 --> -119922\n"
-            "shell$ ";
-
-        __u32_val = 12300;
-        tt_buf_clear(&__ut_buf_out);
-        ret = tt_cfgsh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
-        TT_UT_EQUAL(ret, TT_SUCCESS, "");
-        cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, this_out);
-        TT_UT_EQUAL(cmp_ret, 0, "");
-    }
-
-    // restore a value
-    {
-        tt_char_t this_in[] =
-            "  restore g1/g12/g121/c1211 g1/g12/g121/c1222\x87status / \x87";
-        const tt_char_t *this_out =
-            "  restore g1/g12/g121/c1211 g1/g12/g121/c1222\n"
-            "can not find: g1/g12/g121/c1222\n"
-            "shell$ status / \n"
-            "STATUS    NAME    DESCRIPTION\n"
-            "M         s1      0 --> -119922\n"
-            "shell$ ";
-
-        __u32_val = 12300;
-        tt_buf_clear(&__ut_buf_out);
-        ret = tt_cfgsh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
-        TT_UT_EQUAL(ret, TT_SUCCESS, "");
-        cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, this_out);
-        TT_UT_EQUAL(cmp_ret, 0, "");
-    }
-
-    // restore a group
-    {
-        tt_char_t this_in[] = "  restore g1/g13 g1/g12 /\x87status / \x87";
-        const tt_char_t *this_out =
-            "  restore g1/g13 g1/g12 /\n"
-            "can not find: g1/g13\n"
-            "shell$ status / \n"
-            "STATUS    NAME    DESCRIPTION\n"
-            "\n"
-            "shell$ ";
-
-        __u32_val = 12300;
-        tt_buf_clear(&__ut_buf_out);
-        ret = tt_cfgsh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
-        TT_UT_EQUAL(ret, TT_SUCCESS, "");
-        cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, this_out);
-        TT_UT_EQUAL(cmp_ret, 0, "");
-    }
-
-    ////////////
-
-    tt_cfgsh_destroy(&sh);
-
-    // test end
-    TT_TEST_CASE_LEAVE()
-}
-
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_commit)
-{
-    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
-    tt_cfgsh_t sh;
-    tt_result_t ret;
-    tt_cfgsh_attr_t attr;
-    tt_cli_itf_t itf;
-    tt_u32_t cmp_ret;
-
-    TT_TEST_CASE_ENTER()
-    // test start
-
-    itf.param = NULL;
-    itf.send = __ut_cfgsh_send;
-
-    tt_cfgsh_attr_default(&attr);
-    attr.cli_attr.title = "shell";
-    attr.cli_attr.seperator = '$';
-
-    ret = tt_cfgsh_create(&sh, TT_CLI_MODE_DEFAUTL, &itf, root, &attr);
-    TT_UT_EQUAL(ret, TT_SUCCESS, "");
-
-    tt_buf_clear(&__ut_buf_out);
-    ret = tt_cfgsh_start(&sh);
-    TT_UT_EQUAL(ret, TT_SUCCESS, "");
-    cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, "\nshell$ ");
-    TT_UT_EQUAL(cmp_ret, 0, "");
-
-    ///////////////////////
-    // invalid
-    {
-        tt_char_t this_in[] = "  commit /g1/\x87";
-        const tt_char_t *this_out =
-            "  commit /g1/\n"
-            "usage: commit\n"
-            "shell$ ";
-
-        __u32_val = 12300;
-        tt_buf_clear(&__ut_buf_out);
-        ret = tt_cfgsh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
-        TT_UT_EQUAL(ret, TT_SUCCESS, "");
-        cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, this_out);
-        TT_UT_EQUAL(cmp_ret, 0, "");
-    }
-
-    // nothing is changed
-    {
-        tt_char_t this_in[] = "  commit\x87";
-        const tt_char_t *this_out =
-            "  commit\n"
+            "  qui\n"
+            "not found: qui\n"
             "shell$ ";
 
         tt_buf_clear(&__ut_buf_out);
-        ret = tt_cfgsh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
+        ret = tt_sh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
         TT_UT_EQUAL(ret, TT_SUCCESS, "");
         cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, this_out);
         TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
-    // changed, but not need reboot
     {
-        tt_char_t this_in[] = "  commit\x87";
+        tt_char_t this_in[] = "  quit \x87";
         const tt_char_t *this_out =
-            "  commit\n"
-            "committing configuration...done\n"
-            "shell$ ";
-
-        // hack
-        s1->modified = TT_TRUE;
+            "  quit \n"
+            "goodbye\n";
 
         tt_buf_clear(&__ut_buf_out);
-        ret = tt_cfgsh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
-        TT_UT_EQUAL(ret, TT_SUCCESS, "");
-        cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, this_out);
-        TT_UT_EQUAL(cmp_ret, 0, "");
-
-        s1->modified = TT_FALSE;
-    }
-
-    // changed, need reboot
-    {
-        tt_char_t this_in[] = "  commit\x87";
-        const tt_char_t *this_out =
-            "  commit\n"
-            "committing current configuration MAY reboot\n"
-            "are you sure to commit? [y/N] ";
-
-        tt_char_t yes_in[] = "Y\x87";
-        tt_char_t yes_out[] =
-            "Y\n"
-            "committing configuration...done\n"
-            "exiting\n";
-
-        tt_char_t no_in[] = "YY\x87";
-        tt_char_t no_out[] = "YY\nshell$ ";
-
-        // hack
-        c1211->modified = TT_TRUE;
-        c1211->need_reboot = TT_TRUE;
-
-        // commit
-        tt_buf_clear(&__ut_buf_out);
-        ret = tt_cfgsh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
-        TT_UT_EQUAL(ret, TT_SUCCESS, "");
-        cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, this_out);
-        TT_UT_EQUAL(cmp_ret, 0, "");
-
-        // no
-        tt_buf_clear(&__ut_buf_out);
-        ret = tt_cfgsh_input(&sh, (tt_u8_t *)no_in, sizeof(no_in) - 1);
-        TT_UT_EQUAL(ret, TT_SUCCESS, "");
-        cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, no_out);
-        TT_UT_EQUAL(cmp_ret, 0, "");
-
-        // commit
-        tt_buf_clear(&__ut_buf_out);
-        ret = tt_cfgsh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
-        TT_UT_EQUAL(ret, TT_SUCCESS, "");
-        cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, this_out);
-        TT_UT_EQUAL(cmp_ret, 0, "");
-
-        // yes
-        tt_buf_clear(&__ut_buf_out);
-        ret = tt_cfgsh_input(&sh, (tt_u8_t *)yes_in, sizeof(yes_in) - 1);
+        ret = tt_sh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
         TT_UT_EQUAL(ret, TT_END, "");
-        cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, yes_out);
+        cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, this_out);
         TT_UT_EQUAL(cmp_ret, 0, "");
-
-        c1211->need_reboot = TT_FALSE;
-        c1211->modified = TT_FALSE;
     }
 
-    ///////////////////////
+    tt_sh_destroy(&sh);
 
-    tt_cfgsh_destroy(&sh);
+    // test end
+    TT_TEST_CASE_LEAVE()
+}
+
+TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_exec)
+{
+    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+    tt_shell_t sh;
+    tt_result_t ret;
+    tt_sh_attr_t attr;
+    tt_cli_itf_t itf;
+    tt_u32_t cmp_ret;
+
+    TT_TEST_CASE_ENTER()
+    // test start
+
+    itf.param = NULL;
+    itf.send = __ut_cfgsh_send;
+
+    tt_sh_attr_default(&attr);
+    attr.cli_attr.title = "shell";
+    attr.cli_attr.seperator = '$';
+    attr.exit_msg = "goodbye";
+
+    ret = tt_sh_create(&sh, root, TT_CLI_MODE_DEFAUTL, &itf, &attr);
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+
+    tt_buf_clear(&__ut_buf_out);
+    ret = tt_sh_start(&sh);
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+    cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, "\nshell$ ");
+    TT_UT_EQUAL(cmp_ret, 0, "");
+
+    // not found
+    {
+        tt_char_t this_in[] = "  /g1/g12/g121/exec1 \x87";
+        const tt_char_t *this_out =
+            "  /g1/g12/g121/exec1 \n"
+            "not found: /g1/g12/g121/exec1\n"
+            "shell$ ";
+
+        tt_buf_clear(&__ut_buf_out);
+        ret = tt_sh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
+        cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, this_out);
+        TT_UT_EQUAL(cmp_ret, 0, "");
+    }
+
+    // not executalbe
+    {
+        tt_char_t this_in[] = "  g1/g12/g121/c1211 \x87";
+        const tt_char_t *this_out =
+            "  g1/g12/g121/c1211 \n"
+            "not executable: g1/g12/g121/c1211\n"
+            "shell$ ";
+
+        tt_buf_clear(&__ut_buf_out);
+        ret = tt_sh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
+        cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, this_out);
+        TT_UT_EQUAL(cmp_ret, 0, "");
+    }
+
+    // exec, no out
+    {
+        tt_char_t this_in[] = "  g1/g12/g121/exec \x87";
+        const tt_char_t *this_out =
+            "  g1/g12/g121/exec \n"
+            "shell$ ";
+
+        exec_mode = 0;
+        tt_buf_clear(&__ut_buf_out);
+        ret = tt_sh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
+        cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, this_out);
+        TT_UT_EQUAL(cmp_ret, 0, "");
+    }
+
+    // exec, failed
+    {
+        tt_char_t this_in[] = "  g1/g12/g121/exec \x87";
+        const tt_char_t *this_out =
+            "  g1/g12/g121/exec \n"
+            "g1/g12/g121/exec: failed\n"
+            "shell$ ";
+
+        exec_mode = 1;
+        tt_buf_clear(&__ut_buf_out);
+        ret = tt_sh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
+        cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, this_out);
+        TT_UT_EQUAL(cmp_ret, 0, "");
+    }
+
+    // exec, no arg
+    {
+        tt_char_t this_in[] = "  g1/g12/g121/exec \x87";
+        const tt_char_t *this_out =
+            "  g1/g12/g121/exec \n"
+            "no arg\n"
+            "shell$ ";
+
+        exec_mode = 2;
+        tt_buf_clear(&__ut_buf_out);
+        ret = tt_sh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
+        cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, this_out);
+        TT_UT_EQUAL(cmp_ret, 0, "");
+    }
+
+    // exec, 1 arg
+    {
+        tt_char_t this_in[] = "  g1/g12/g121/exec --p1=2 \x87";
+        const tt_char_t *this_out =
+            "  g1/g12/g121/exec --p1=2 \n"
+            "arg[0]: --p1=2, final: --p1=2\n"
+            "shell$ ";
+
+        exec_mode = 2;
+        tt_buf_clear(&__ut_buf_out);
+        ret = tt_sh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
+        cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, this_out);
+        TT_UT_EQUAL(cmp_ret, 0, "");
+    }
+
+    // exec, mul arg
+    {
+        tt_char_t this_in[] =
+            "  g1/g12/g121/exec 0 1 2 3 4 5 6 7 8 9 0 a b c d e f \x87";
+        const tt_char_t *this_out =
+            "  g1/g12/g121/exec 0 1 2 3 4 5 6 7 8 9 0 a b c d e f \n"
+            "arg[0]: 0, final: f\n"
+            "shell$ ";
+
+        exec_mode = 2;
+        tt_buf_clear(&__ut_buf_out);
+        ret = tt_sh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
+        cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, this_out);
+        TT_UT_EQUAL(cmp_ret, 0, "");
+    }
+
+    tt_sh_destroy(&sh);
 
     // test end
     TT_TEST_CASE_LEAVE()

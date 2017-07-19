@@ -73,11 +73,11 @@ extern tt_result_t tt_task_create(IN tt_task_t *t, IN OPT tt_task_attr_t *attr);
 
 extern void tt_task_attr_default(IN tt_task_attr_t *attr);
 
-extern void tt_task_add_fiber(IN tt_task_t *t,
-                              IN OPT const tt_char_t *name,
-                              IN tt_fiber_routine_t routine,
-                              IN void *param,
-                              IN OPT tt_fiber_attr_t *attr);
+extern tt_result_t tt_task_add_fiber(IN tt_task_t *t,
+                                     IN OPT const tt_char_t *name,
+                                     IN tt_fiber_routine_t routine,
+                                     IN void *param,
+                                     IN OPT tt_fiber_attr_t *attr);
 
 extern tt_result_t tt_task_run(IN tt_task_t *t);
 

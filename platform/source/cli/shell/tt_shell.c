@@ -18,10 +18,11 @@
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <init/config_shell/tt_config_shell.h>
+#include <cli/shell/tt_shell.h>
 
 #include <algorithm/tt_buffer_format.h>
-#include <init/config_shell/tt_config_command.h>
+#include <cli/shell/tt_shell_command.h>
+#include <init/tt_config_exe.h>
 #include <init/tt_config_path.h>
 #include <memory/tt_memory_alloc.h>
 
@@ -41,44 +42,51 @@
 // global variant
 ////////////////////////////////////////////////////////////
 
+const tt_char_t tt_g_sh_line_sep[2] = {TT_CLI_EV_ENTER, 0};
+
+const tt_char_t tt_g_sh_colume_sep[5] = {' ', ' ', ' ', ' ', 0};
+
 ////////////////////////////////////////////////////////////
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-static tt_u32_t __cfgsh_on_cmd(IN struct tt_cli_s *cli,
-                               IN void *param,
-                               IN const tt_char_t *cmd,
-                               IN tt_buf_t *output);
+static tt_u32_t __sh_on_cmd(IN tt_cli_t *cli,
+                            IN void *param,
+                            IN const tt_char_t *cmd,
+                            IN tt_buf_t *output);
 
-static tt_u32_t __cfgsh_on_complete(IN struct tt_cli_s *cli,
-                                    IN void *param,
-                                    IN tt_blob_t *cursor_data,
-                                    IN tt_bool_t wait4cmd,
-                                    IN struct tt_buf_s *output);
+static tt_u32_t __sh_on_complete(IN tt_cli_t *cli,
+                                 IN void *param,
+                                 IN tt_u8_t *cur,
+                                 IN tt_u32_t cur_len,
+                                 IN tt_bool_t wait4cmd,
+                                 IN struct tt_buf_s *output);
 
-static tt_bool_t __cfgsh_on_quit(IN struct tt_cli_s *cli, IN tt_buf_t *output);
+static tt_bool_t __sh_on_quit(IN tt_cli_t *cli, IN tt_buf_t *output);
 
-tt_result_t __parse_arg(IN tt_cfgsh_t *sh, IN tt_char_t *line);
-static tt_result_t __put_arg(IN tt_cfgsh_t *sh, IN tt_char_t *arg);
-static tt_result_t __expand_arg(IN tt_cfgsh_t *sh);
+tt_result_t __parse_arg(IN tt_shell_t *sh, IN tt_char_t *line);
+
+static tt_result_t __put_arg(IN tt_shell_t *sh, IN tt_char_t *arg);
+
+static tt_result_t __expand_arg(IN tt_shell_t *sh);
 
 ////////////////////////////////////////////////////////////
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-tt_result_t tt_cfgsh_create(IN tt_cfgsh_t *sh,
-                            IN tt_cli_mode_t mode,
-                            IN tt_cli_itf_t *itf,
-                            IN tt_cfgnode_t *root,
-                            IN OPT tt_cfgsh_attr_t *attr)
+tt_result_t tt_sh_create(IN tt_shell_t *sh,
+                         IN tt_cfgobj_t *root,
+                         IN tt_cli_mode_t mode,
+                         IN tt_cli_itf_t *itf,
+                         IN OPT tt_sh_attr_t *attr)
 {
-    tt_cfgsh_attr_t __attr;
+    tt_sh_attr_t __attr;
     tt_cli_cb_t cb;
 
     TT_ASSERT(sh != NULL);
 
     if (attr == NULL) {
-        tt_cfgsh_attr_default(&__attr);
+        tt_sh_attr_default(&__attr);
         attr = &__attr;
     }
 
@@ -87,86 +95,119 @@ tt_result_t tt_cfgsh_create(IN tt_cfgsh_t *sh,
 
     tt_memset(sh->i_arg, 0, sizeof(sh->i_arg));
     sh->arg = sh->i_arg;
-    sh->arg_num = TT_CFGSH_ARG_NUM;
-    sh->arg_idx = 0;
+    sh->exit_msg = attr->exit_msg;
+    sh->arg_size = TT_SH_ARG_NUM;
+    sh->arg_num = 0;
 
     cb.param = NULL;
-    cb.on_cmd = __cfgsh_on_cmd;
-    cb.on_complete = __cfgsh_on_complete;
-    cb.on_quit = __cfgsh_on_quit;
-
+    cb.on_cmd = __sh_on_cmd;
+    cb.on_complete = __sh_on_complete;
+    cb.on_quit = __sh_on_quit;
     if (!TT_OK(tt_cli_create(&sh->cli, mode, &cb, itf, &attr->cli_attr))) {
         return TT_FAIL;
     }
-    sh->exit_msg = attr->exit_msg;
 
-    tt_cli_refresh_prefix(&sh->cli, NULL, root->name, 0);
+    // set subtitle to current root name
+    tt_cli_update_prefix(&sh->cli, NULL, root->name, 0);
 
     return TT_SUCCESS;
 }
 
-void tt_cfgsh_destroy(IN tt_cfgsh_t *sh)
+void tt_sh_destroy(IN tt_shell_t *sh)
 {
     TT_ASSERT(sh != NULL);
+
+    tt_cli_destroy(&sh->cli);
 
     if (sh->arg != sh->i_arg) {
         tt_free(sh->arg);
     }
-
-    tt_cli_destroy(&sh->cli);
 }
 
-void tt_cfgsh_attr_default(IN tt_cfgsh_attr_t *attr)
+void tt_sh_attr_default(IN tt_sh_attr_t *attr)
 {
     TT_ASSERT(attr != NULL);
 
-    tt_cli_attr_default(&attr->cli_attr);
+    attr->exit_msg = "exiting...";
 
-    attr->exit_msg = "exiting";
+    tt_cli_attr_default(&attr->cli_attr);
 }
 
-tt_u32_t __cfgsh_on_cmd(IN struct tt_cli_s *cli,
-                        IN void *param,
-                        IN const tt_char_t *line,
-                        IN tt_buf_t *output)
+tt_u32_t __sh_on_cmd(IN tt_cli_t *cli,
+                     IN void *param,
+                     IN const tt_char_t *line,
+                     IN tt_buf_t *output)
 {
-    tt_cfgsh_t *sh = TT_CONTAINER(cli, tt_cfgsh_t, cli);
-    tt_cfgcmd_t *cmd;
+    tt_shell_t *sh = TT_CONTAINER(cli, tt_shell_t, cli);
+    const tt_char_t *name;
+    tt_shcmd_t *cmd;
+    tt_cfgobj_t *co;
 
     if (line[0] == 0) {
         return TT_CLIOC_NOOUT;
     }
 
-    sh->arg_idx = 0;
-    if (!TT_OK(__parse_arg(sh, (tt_char_t *)line)) || (sh->arg_idx == 0)) {
+    sh->arg_num = 0;
+    if (!TT_OK(__parse_arg(sh, (tt_char_t *)line)) || (sh->arg_num == 0)) {
         tt_buf_putf(output, "bad input: ", line);
         return TT_CLIOC_OUT;
     }
+    name = sh->arg[0];
 
-    cmd = tt_cfgcmd_find(sh->arg[0]);
-    if (cmd == NULL) {
-        tt_buf_putf(output, "command not found: %s", sh->arg[0]);
-        return TT_CLIOC_OUT;
+    // run as a command
+    cmd = tt_shcmd_find(name);
+    if (cmd != NULL) {
+        TT_ASSERT(cmd->run != NULL);
+        TT_ASSERT(sh->arg_num > 0);
+        // exclude the command name
+        return cmd->run(sh, sh->arg_num - 1, &sh->arg[1], output);
     }
 
-    TT_ASSERT(cmd->run != NULL);
-    TT_ASSERT(sh->arg_idx > 0);
-    return cmd->run(sh, sh->arg_idx - 1, &sh->arg[1], output);
+    // run as a executable object
+    co = tt_cfgpath_p2n(sh->root, sh->current, name, (tt_u32_t)tt_strlen(name));
+    if (co == NULL) {
+        tt_buf_putf(output, "not found: %s", name);
+        return TT_CLIOC_OUT;
+    } else if (co->type != TT_CFGOBJ_EXE) {
+        tt_buf_putf(output, "not executable: %s", name);
+        return TT_CLIOC_OUT;
+    } else {
+        tt_u32_t rp, wp;
+        tt_result_t result;
+        tt_u32_t status = TT_CLIOC_NOOUT;
+
+        tt_buf_backup_rwp(output, &rp, &wp);
+        result = tt_cfgexe_run(TT_CFGOBJ_CAST(co, tt_cfgexe_t),
+                               sh->arg_num - 1,
+                               &sh->arg[1],
+                               tt_g_sh_line_sep,
+                               output,
+                               &status);
+        if (TT_OK(result)) {
+            return status;
+        } else {
+            tt_buf_restore_rwp(output, &rp, &wp);
+            tt_buf_putf(output, "%s: failed", name);
+            return TT_CLIOC_OUT;
+        }
+    }
 }
 
-tt_u32_t __cfgsh_on_complete(IN struct tt_cli_s *cli,
-                             IN void *param,
-                             IN tt_blob_t *cursor_data,
-                             IN tt_bool_t wait4cmd,
-                             IN struct tt_buf_s *output)
+tt_u32_t __sh_on_complete(IN tt_cli_t *cli,
+                          IN void *param,
+                          IN tt_u8_t *cur,
+                          IN tt_u32_t cur_len,
+                          IN tt_bool_t wait4cmd,
+                          IN struct tt_buf_s *output)
 {
-    tt_cfgsh_t *sh = TT_CONTAINER(cli, tt_cfgsh_t, cli);
+    tt_shell_t *sh = TT_CONTAINER(cli, tt_shell_t, cli);
     tt_u32_t status;
 
     if (wait4cmd) {
-        if (!TT_OK(tt_cli_complete(cursor_data,
-                                   tt_g_cfgcmd_name,
-                                   TT_CFGCMD_NUM,
+        if (!TT_OK(tt_cli_complete(cur,
+                                   cur_len,
+                                   tt_g_shcmd_name,
+                                   TT_SHCMD_NUM,
                                    &status,
                                    output))) {
             status = TT_CLICP_NONE;
@@ -174,7 +215,8 @@ tt_u32_t __cfgsh_on_complete(IN struct tt_cli_s *cli,
     } else {
         if (TT_OK(tt_cfgpath_complete(sh->root,
                                       sh->current,
-                                      cursor_data,
+                                      (tt_char_t *)cur,
+                                      cur_len,
                                       &status,
                                       output))) {
             switch (status) {
@@ -201,9 +243,9 @@ tt_u32_t __cfgsh_on_complete(IN struct tt_cli_s *cli,
     return status;
 }
 
-tt_bool_t __cfgsh_on_quit(IN struct tt_cli_s *cli, IN tt_buf_t *output)
+tt_bool_t __sh_on_quit(IN tt_cli_t *cli, IN tt_buf_t *output)
 {
-    tt_cfgsh_t *sh = TT_CONTAINER(cli, tt_cfgsh_t, cli);
+    tt_shell_t *sh = TT_CONTAINER(cli, tt_shell_t, cli);
 
     if ((sh->exit_msg != NULL) && (sh->exit_msg[0] != 0)) {
         tt_buf_put_cstr(output, sh->exit_msg);
@@ -213,7 +255,7 @@ tt_bool_t __cfgsh_on_quit(IN struct tt_cli_s *cli, IN tt_buf_t *output)
     }
 }
 
-tt_result_t __parse_arg(IN tt_cfgsh_t *sh, IN tt_char_t *line)
+tt_result_t __parse_arg(IN tt_shell_t *sh, IN tt_char_t *line)
 {
     tt_char_t *p = line, *arg = NULL, end_c;
     tt_bool_t d_quots = TT_FALSE, s_quots = TT_FALSE;
@@ -249,7 +291,9 @@ again:
     while ((*p != 0) && (*p != end_c)) {
         ++p;
     }
-    TT_DO(__put_arg(sh, arg));
+    if (arg < p) {
+        TT_DO(__put_arg(sh, arg));
+    }
     if (*p != 0) {
         *p++ = 0;
         goto again;
@@ -259,37 +303,36 @@ done:
     return TT_SUCCESS;
 }
 
-tt_result_t __put_arg(IN tt_cfgsh_t *sh, IN tt_char_t *arg)
+tt_result_t __put_arg(IN tt_shell_t *sh, IN tt_char_t *arg)
 {
-    TT_ASSERT(sh->arg_idx <= sh->arg_num);
-    if ((sh->arg_idx == sh->arg_num) && !TT_OK(__expand_arg(sh))) {
+    TT_ASSERT(sh->arg_num <= sh->arg_size);
+    if ((sh->arg_num == sh->arg_size) && !TT_OK(__expand_arg(sh))) {
         return TT_FAIL;
     }
-    TT_ASSERT(sh->arg_idx < sh->arg_num);
+    TT_ASSERT(sh->arg_num < sh->arg_size);
 
-    sh->arg[sh->arg_idx++] = arg;
+    sh->arg[sh->arg_num++] = arg;
     return TT_SUCCESS;
 }
 
-tt_result_t __expand_arg(IN tt_cfgsh_t *sh)
+tt_result_t __expand_arg(IN tt_shell_t *sh)
 {
     tt_u32_t num, size;
     tt_char_t **new_arg;
 
-    num = sh->arg_num + TT_CFGSH_ARG_NUM;
+    num = sh->arg_size + TT_SH_ARG_NUM;
     size = num * sizeof(tt_char_t *);
-    new_arg = (tt_char_t **)tt_malloc(size);
+    new_arg = (tt_char_t **)tt_zalloc(size);
     if (new_arg == NULL) {
         return TT_FAIL;
     }
-    tt_memset(new_arg, 0, size);
-    tt_memcpy(new_arg, sh->arg, sh->arg_num * sizeof(tt_char_t *));
+    tt_memcpy(new_arg, sh->arg, sh->arg_size * sizeof(tt_char_t *));
 
     if (sh->arg != sh->i_arg) {
         tt_free(sh->arg);
     }
     sh->arg = new_arg;
-    sh->arg_num = num;
+    sh->arg_size = num;
 
     return TT_SUCCESS;
 }

@@ -28,8 +28,7 @@ this file defines platform config init
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <init/tt_config_group.h>
-#include <init/tt_config_node.h>
+#include <init/tt_config_directory.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
@@ -43,9 +42,9 @@ this file defines platform config init
 // global variants
 ////////////////////////////////////////////////////////////
 
-extern tt_cfgnode_t *tt_g_config_root;
+extern tt_cfgobj_t *tt_g_config_root;
 
-extern tt_cfgnode_t *tt_g_config_platform;
+extern tt_cfgobj_t *tt_g_config_platform;
 
 ////////////////////////////////////////////////////////////
 // interface declaration
@@ -53,14 +52,14 @@ extern tt_cfgnode_t *tt_g_config_platform;
 
 extern void tt_config_component_register();
 
-tt_inline tt_result_t tt_config_add2root(IN tt_cfgnode_t *cnode)
+tt_inline tt_result_t tt_config_add2root(IN tt_cfgobj_t *co)
 {
-    return tt_cfggrp_add(tt_g_config_root, cnode);
+    return tt_cfgdir_add(TT_CFGOBJ_CAST(tt_g_config_root, tt_cfgdir_t), co);
 }
 
-tt_inline tt_result_t tt_config_add2plat(IN tt_cfgnode_t *cnode)
+tt_inline tt_result_t tt_config_add2plat(IN tt_cfgobj_t *co)
 {
-    return tt_cfggrp_add(tt_g_config_platform, cnode);
+    return tt_cfgdir_add(TT_CFGOBJ_CAST(tt_g_config_platform, tt_cfgdir_t), co);
 }
 
 #endif /* __TT_CONFIG_INIT__ */
