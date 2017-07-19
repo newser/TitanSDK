@@ -14,57 +14,38 @@
  * limitations under the License.
  */
 
+/**
+@file tt_shcmd_help.h
+@brief shell command: help
+
+this file defines shell command: help
+*/
+
+#ifndef __TT_SHCMD_HELP__
+#define __TT_SHCMD_HELP__
+
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <init/config_shell/tt_cfgcmd_quit.h>
-
-#include <algorithm/tt_buffer_format.h>
-#include <init/config_shell/tt_config_shell.h>
-#include <init/tt_config_path.h>
+#include <cli/shell/tt_shell_command.h>
 
 ////////////////////////////////////////////////////////////
-// internal macro
+// macro definition
 ////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////
-// internal type
+// type definition
 ////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////
-// extern declaration
+// global variants
 ////////////////////////////////////////////////////////////
 
-////////////////////////////////////////////////////////////
-// global variant
-////////////////////////////////////////////////////////////
-
-static const tt_char_t __quit_info[] = "quit shell";
-
-static const tt_char_t __quit_usage[] = "testing quit";
-
-static tt_u32_t __quit_run(IN tt_cfgsh_t *sh,
-                           IN tt_u32_t argc,
-                           IN tt_char_t *arv[],
-                           OUT tt_buf_t *output);
-
-tt_cfgcmd_t tt_g_cfgcmd_quit = {
-    TT_CFGCMD_NAME_QUIT, __quit_info, __quit_usage, __quit_run,
-};
+extern tt_shcmd_t tt_g_shcmd_help;
 
 ////////////////////////////////////////////////////////////
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-////////////////////////////////////////////////////////////
-// interface implementation
-////////////////////////////////////////////////////////////
-
-tt_u32_t __quit_run(IN tt_cfgsh_t *sh,
-                    IN tt_u32_t argc,
-                    IN tt_char_t *argv[],
-                    OUT tt_buf_t *output)
-{
-    return TT_CLIOC_END;
-}
+#endif /* __TT_SHCMD_HELP__ */

@@ -15,20 +15,20 @@
  */
 
 /**
-@file tt_cfgcmd_restore.h
-@brief config shell command: restore
+@file tt_shcmd_pwd.h
+@brief shell command: pwd
 
-this file defines config shell command: restore
+this file defines shell command: pwd
 */
 
-#ifndef __TT_CFGCMD_RESTORE__
-#define __TT_CFGCMD_RESTORE__
+#ifndef __TT_SHCMD_PWD__
+#define __TT_SHCMD_PWD__
 
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <init/config_shell/tt_config_command.h>
+#include <cli/shell/tt_shell_command.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
@@ -42,10 +42,10 @@ this file defines config shell command: restore
 // global variants
 ////////////////////////////////////////////////////////////
 
-extern tt_cfgcmd_t tt_g_cfgcmd_restore;
+extern tt_shcmd_t tt_g_shcmd_pwd;
 
 ////////////////////////////////////////////////////////////
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-#endif /* __TT_CFGCMD_RESTORE__ */
+#endif /* __TT_SHCMD_PWD__ */

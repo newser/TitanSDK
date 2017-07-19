@@ -70,6 +70,13 @@ extern tt_result_t tt_buf_insert(IN tt_buf_t *buf,
                                  IN tt_u8_t *data,
                                  IN tt_u32_t data_len);
 
+tt_inline tt_result_t tt_buf_insert_cstr(IN tt_buf_t *buf,
+                                         IN tt_u32_t idx,
+                                         IN const tt_char_t *cstr)
+{
+    return tt_buf_insert(buf, idx, (tt_u8_t *)cstr, (tt_u32_t)tt_strlen(cstr));
+}
+
 extern tt_result_t tt_buf_tok(IN tt_buf_t *buf,
                               IN tt_u8_t *sep,
                               IN tt_u32_t sep_num,

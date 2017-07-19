@@ -48,14 +48,12 @@ typedef tt_result_t (*tt_cline_on_ev_t)(IN struct tt_cline_s *cline);
 
 typedef struct tt_cline_s
 {
-    tt_cli_mode_t mode;
+    tt_buf_t *outbuf;
     tt_cline_on_char_t on_char;
     tt_cline_on_ev_t on_ev[TT_CLI_EV_NUM];
-
     tt_string_t line;
+    tt_cli_mode_t mode;
     tt_u32_t cursor;
-
-    tt_buf_t *outbuf;
 } tt_cline_t;
 
 typedef struct

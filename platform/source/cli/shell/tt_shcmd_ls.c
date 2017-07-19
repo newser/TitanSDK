@@ -18,12 +18,10 @@
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <init/config_shell/tt_cfgcmd_ls.h>
+#include <cli/shell/tt_shcmd_ls.h>
 
 #include <algorithm/tt_buffer_format.h>
-#include <cli/tt_cli_def.h>
-#include <init/config_shell/tt_config_shell.h>
-#include <init/tt_config_node.h>
+#include <cli/shell/tt_shell.h>
 #include <init/tt_config_path.h>
 
 ////////////////////////////////////////////////////////////
@@ -42,30 +40,31 @@
 // global variant
 ////////////////////////////////////////////////////////////
 
-static const tt_char_t __ls_info[] = "list group contents or value information";
+static const tt_char_t __ls_info[] =
+    "list directory contents or entry information";
 
 static const tt_char_t __ls_usage[] = "testing";
 
-static tt_u32_t __ls_run(IN tt_cfgsh_t *sh,
+static tt_u32_t __ls_run(IN tt_shell_t *sh,
                          IN tt_u32_t argc,
                          IN tt_char_t *arv[],
                          OUT tt_buf_t *output);
 
-tt_cfgcmd_t tt_g_cfgcmd_ls = {
-    TT_CFGCMD_NAME_LS, __ls_info, __ls_usage, __ls_run,
+tt_shcmd_t tt_g_shcmd_ls = {
+    TT_SHCMD_NAME_LS, __ls_info, __ls_usage, __ls_run,
 };
 
 ////////////////////////////////////////////////////////////
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-static tt_u32_t __ls_current(IN tt_cfgsh_t *sh, OUT tt_buf_t *output);
+static tt_u32_t __ls_current(IN tt_shell_t *sh, OUT tt_buf_t *output);
 
-static tt_u32_t __ls_single(IN tt_cfgsh_t *sh,
+static tt_u32_t __ls_single(IN tt_shell_t *sh,
                             IN tt_char_t *path,
                             OUT tt_buf_t *output);
 
-static tt_u32_t __ls_multiple(IN tt_cfgsh_t *sh,
+static tt_u32_t __ls_multiple(IN tt_shell_t *sh,
                               IN tt_char_t *path[],
                               IN tt_u32_t path_num,
                               OUT tt_buf_t *output);
@@ -74,7 +73,7 @@ static tt_u32_t __ls_multiple(IN tt_cfgsh_t *sh,
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-tt_u32_t __ls_run(IN tt_cfgsh_t *sh,
+tt_u32_t __ls_run(IN tt_shell_t *sh,
                   IN tt_u32_t argc,
                   IN tt_char_t *argv[],
                   OUT tt_buf_t *output)
@@ -88,24 +87,23 @@ tt_u32_t __ls_run(IN tt_cfgsh_t *sh,
     }
 }
 
-tt_u32_t __ls_current(IN tt_cfgsh_t *sh, OUT tt_buf_t *output)
+tt_u32_t __ls_current(IN tt_shell_t *sh, OUT tt_buf_t *output)
 {
-    tt_cfgnode_t *cnode;
+    tt_cfgobj_t *co;
     tt_u32_t rp, wp;
-    tt_char_t sep[2] = {TT_CLI_EV_ENTER, 0};
     tt_result_t result;
 
-    cnode = sh->current;
-    if (cnode == NULL) {
+    co = sh->current;
+    if (co == NULL) {
         tt_buf_putf(output, "internal error");
         return TT_CLIOC_OUT;
     }
 
     tt_buf_backup_rwp(output, &rp, &wp);
-    result = tt_cfgnode_ls(cnode, sep, output);
+    result = tt_cfgobj_ls(co, tt_g_sh_colume_sep, tt_g_sh_line_sep, output);
     if (!TT_OK(result)) {
         tt_buf_restore_rwp(output, &rp, &wp);
-        if (result == TT_BAD_PARAM) {
+        if (result == TT_NOT_SUPPORT) {
             tt_buf_putf(output, "not supported operation");
         } else {
             tt_buf_putf(output, "internal error");
@@ -115,29 +113,25 @@ tt_u32_t __ls_current(IN tt_cfgsh_t *sh, OUT tt_buf_t *output)
     return TT_CLIOC_OUT;
 }
 
-tt_u32_t __ls_single(IN tt_cfgsh_t *sh,
+tt_u32_t __ls_single(IN tt_shell_t *sh,
                      IN tt_char_t *path,
                      OUT tt_buf_t *output)
 {
-    tt_cfgnode_t *cnode;
-    tt_blob_t path_blob;
+    tt_cfgobj_t *co;
     tt_u32_t rp, wp;
-    tt_char_t sep[2] = {TT_CLI_EV_ENTER, 0};
     tt_result_t result;
 
-    path_blob.addr = (tt_u8_t *)path;
-    path_blob.len = (tt_u32_t)tt_strlen(path);
-    cnode = tt_cfgpath_p2n(sh->root, sh->current, &path_blob);
-    if (cnode == NULL) {
+    co = tt_cfgpath_p2n(sh->root, sh->current, path, (tt_u32_t)tt_strlen(path));
+    if (co == NULL) {
         tt_buf_putf(output, "can not find: %s", path);
         return TT_CLIOC_OUT;
     }
 
     tt_buf_backup_rwp(output, &rp, &wp);
-    result = tt_cfgnode_ls(cnode, sep, output);
+    result = tt_cfgobj_ls(co, tt_g_sh_colume_sep, tt_g_sh_line_sep, output);
     if (!TT_OK(result)) {
         tt_buf_restore_rwp(output, &rp, &wp);
-        if (result == TT_BAD_PARAM) {
+        if (result == TT_NOT_SUPPORT) {
             tt_buf_putf(output, "not supported operation");
         } else {
             tt_buf_putf(output, "internal error");
@@ -147,26 +141,23 @@ tt_u32_t __ls_single(IN tt_cfgsh_t *sh,
     return TT_CLIOC_OUT;
 }
 
-tt_u32_t __ls_multiple(IN tt_cfgsh_t *sh,
+tt_u32_t __ls_multiple(IN tt_shell_t *sh,
                        IN tt_char_t *path[],
                        IN tt_u32_t path_num,
                        OUT tt_buf_t *output)
 {
     tt_u32_t i;
-    tt_bool_t has_enter = TT_FALSE;
 
     for (i = 0; i < path_num; ++i) {
         tt_buf_put_cstr(output, path[i]);
         tt_buf_put_u8(output, ':');
-        tt_buf_put_u8(output, TT_CLI_EV_ENTER);
+        TT_SH_NEWLINE(output);
 
         __ls_single(sh, path[i], output);
-        tt_buf_put_rep(output, TT_CLI_EV_ENTER, 2);
-
-        has_enter = TT_TRUE;
-    }
-    if (has_enter) {
-        tt_buf_dec_wp(output, 1);
+        if (i != (path_num - 1)) {
+            TT_SH_NEWLINE(output);
+            TT_SH_NEWLINE(output);
+        }
     }
 
     return TT_CLIOC_OUT;

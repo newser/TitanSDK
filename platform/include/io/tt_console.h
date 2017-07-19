@@ -71,15 +71,9 @@ typedef struct tt_console_attr_s
     tt_char_t unprintable_substitutor;
 } tt_console_attr_t;
 
-/*
- @return
- - TT_SUCCESS, event processed
- - TT_END, should quit
- - otherwise, error occured
- */
-typedef tt_result_t (*tt_console_ev_handler_t)(IN void *param,
-                                               IN tt_cons_ev_t ev,
-                                               IN tt_cons_ev_data_t *ev_data);
+typedef tt_result_t (*tt_cons_ev_handler_t)(IN void *param,
+                                            IN tt_cons_ev_t ev,
+                                            IN tt_cons_ev_data_t *ev_data);
 
 ////////////////////////////////////////////////////////////
 // global variants
@@ -95,7 +89,7 @@ extern void tt_console_attr_default(IN tt_console_attr_t *attr);
 
 extern tt_result_t tt_console_config(IN tt_console_attr_t *attr);
 
-extern void tt_console_run(IN tt_console_ev_handler_t ev_handler,
+extern void tt_console_run(IN tt_cons_ev_handler_t ev_handler,
                            IN void *param,
                            IN tt_bool_t local);
 

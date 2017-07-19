@@ -15,20 +15,20 @@
  */
 
 /**
-@file tt_cfgcmd_get.h
-@brief config shell command: get
+@file tt_config_directory.h
+@brief config option of directory type
 
-this file defines config shell command: get
+this file defines config option of directory type
 */
 
-#ifndef __TT_CFGCMD_GET__
-#define __TT_CFGCMD_GET__
+#ifndef __TT_CONFIG_DIRECTORY__
+#define __TT_CONFIG_DIRECTORY__
 
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <init/config_shell/tt_config_command.h>
+#include <init/tt_config_object.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
@@ -38,14 +38,34 @@ this file defines config shell command: get
 // type definition
 ////////////////////////////////////////////////////////////
 
+typedef struct tt_cfgdir_s
+{
+    tt_list_t child;
+    tt_u32_t child_name_len;
+} tt_cfgdir_t;
+
 ////////////////////////////////////////////////////////////
 // global variants
 ////////////////////////////////////////////////////////////
-
-extern tt_cfgcmd_t tt_g_cfgcmd_get;
 
 ////////////////////////////////////////////////////////////
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-#endif /* __TT_CFGCMD_GET__ */
+extern tt_cfgobj_t *tt_cfgdir_create(IN const tt_char_t *name,
+                                     IN OPT tt_cfgobj_attr_t *attr);
+
+extern tt_result_t tt_cfgdir_add(IN tt_cfgdir_t *cd, IN tt_cfgobj_t *child);
+
+extern void tt_cfgdir_remove(IN tt_cfgdir_t *cd, IN tt_cfgobj_t *child);
+
+extern tt_cfgobj_t *tt_cfgdir_find(IN tt_cfgdir_t *cd,
+                                   IN const tt_char_t *name,
+                                   IN tt_u32_t name_len);
+
+extern tt_result_t tt_cfgdir_ls(IN tt_cfgdir_t *c,
+                                IN const tt_char_t *col_sep,
+                                IN const tt_char_t *line_sep,
+                                OUT struct tt_buf_s *output);
+
+#endif /* __TT_CONFIG_DIRECTORY__ */

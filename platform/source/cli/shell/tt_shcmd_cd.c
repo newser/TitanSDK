@@ -18,21 +18,11 @@
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <init/config_shell/tt_config_command.h>
+#include <cli/shell/tt_shcmd_cd.h>
 
-#include <init/config_shell/tt_cfgcmd_cd.h>
-#include <init/config_shell/tt_cfgcmd_commit.h>
-#include <init/config_shell/tt_cfgcmd_get.h>
-#include <init/config_shell/tt_cfgcmd_help.h>
-#include <init/config_shell/tt_cfgcmd_ls.h>
-#include <init/config_shell/tt_cfgcmd_pwd.h>
-#include <init/config_shell/tt_cfgcmd_quit.h>
-#include <init/config_shell/tt_cfgcmd_restore.h>
-#include <init/config_shell/tt_cfgcmd_set.h>
-#include <init/config_shell/tt_cfgcmd_status.h>
-#include <misc/tt_assert.h>
-
-#include <tt_cstd_api.h>
+#include <algorithm/tt_buffer_format.h>
+#include <cli/shell/tt_shell.h>
+#include <init/tt_config_path.h>
 
 ////////////////////////////////////////////////////////////
 // internal macro
@@ -50,30 +40,17 @@
 // global variant
 ////////////////////////////////////////////////////////////
 
-tt_cfgcmd_t *tt_g_cfgcmd[TT_CFGCMD_NUM] = {
-    &tt_g_cfgcmd_ls, // TT_CFGCMD_LS
-    &tt_g_cfgcmd_cd, // TT_CFGCMD_CD
-    &tt_g_cfgcmd_help, // TT_CFGCMD_HELP
-    &tt_g_cfgcmd_pwd, // TT_CFGCMD_PWD
-    &tt_g_cfgcmd_quit, // TT_CFGCMD_QUIT
-    &tt_g_cfgcmd_get, // TT_CFGCMD_GET
-    &tt_g_cfgcmd_set, // TT_CFGCMD_SET
-    &tt_g_cfgcmd_status, // TT_CFGCMD_STATUS,
-    &tt_g_cfgcmd_commit, // TT_CFGCMD_COMMIT,
-    &tt_g_cfgcmd_restore, // TT_CFGCMD_RESTORE,
-};
+static const tt_char_t __cd_info[] = "change directory";
 
-const tt_char_t *tt_g_cfgcmd_name[TT_CFGCMD_NUM] = {
-    TT_CFGCMD_NAME_LS, // TT_CFGCMD_LS
-    TT_CFGCMD_NAME_CD, // TT_CFGCMD_CD
-    TT_CFGCMD_NAME_HELP, // TT_CFGCMD_HELP
-    TT_CFGCMD_NAME_PWD, // TT_CFGCMD_PWD
-    TT_CFGCMD_NAME_QUIT, // TT_CFGCMD_QUIT
-    TT_CFGCMD_NAME_GET, // TT_CFGCMD_GET
-    TT_CFGCMD_NAME_SET, // TT_CFGCMD_SET
-    TT_CFGCMD_NAME_STATUS, // TT_CFGCMD_STATUS,
-    TT_CFGCMD_NAME_COMMIT, // TT_CFGCMD_COMMIT,
-    TT_CFGCMD_NAME_RESTORE, // TT_CFGCMD_RESTORE,
+static const tt_char_t __cd_usage[] = "testing change directory";
+
+static tt_u32_t __cd_run(IN tt_shell_t *sh,
+                         IN tt_u32_t argc,
+                         IN tt_char_t *arv[],
+                         OUT tt_buf_t *output);
+
+tt_shcmd_t tt_g_shcmd_cd = {
+    TT_SHCMD_NAME_CD, __cd_info, __cd_usage, __cd_run,
 };
 
 ////////////////////////////////////////////////////////////
@@ -84,19 +61,32 @@ const tt_char_t *tt_g_cfgcmd_name[TT_CFGCMD_NUM] = {
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-tt_cfgcmd_t *tt_cfgcmd_find(IN const tt_char_t *name)
+tt_u32_t __cd_run(IN tt_shell_t *sh,
+                  IN tt_u32_t argc,
+                  IN tt_char_t *argv[],
+                  OUT tt_buf_t *output)
 {
-    tt_u32_t i;
-    tt_cfgcmd_t *cmd;
+    tt_cfgobj_t *co;
+    const tt_char_t *path;
 
-    TT_ASSERT(name != NULL);
-
-    for (i = 0; i < TT_CFGCMD_NUM; ++i) {
-        cmd = tt_g_cfgcmd[i];
-
-        if ((cmd != NULL) && (tt_strcmp(cmd->name, name) == 0)) {
-            return cmd;
-        }
+    if (argc == 0) {
+        return TT_CLIOC_NOOUT;
     }
-    return NULL;
+
+    path = argv[0];
+    co = tt_cfgpath_p2n(sh->root, sh->current, path, (tt_u32_t)tt_strlen(path));
+    if (co == NULL) {
+        tt_buf_putf(output, "not found: %s", path);
+        return TT_CLIOC_OUT;
+    }
+
+    if (co->type != TT_CFGOBJ_DIR) {
+        tt_buf_putf(output, "not a directory: %s", path);
+        return TT_CLIOC_OUT;
+    }
+
+    sh->current = co;
+    tt_cli_update_prefix(&sh->cli, NULL, co->name, 0);
+
+    return TT_CLIOC_NOOUT;
 }

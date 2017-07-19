@@ -41,7 +41,7 @@ TT_TEST_ROUTINE_DECLARE(tt_unit_test_cfgnode)
 TT_TEST_ROUTINE_DECLARE(tt_unit_test_cfgnode_u32)
 TT_TEST_ROUTINE_DECLARE(tt_unit_test_cfgnode_s32)
 TT_TEST_ROUTINE_DECLARE(tt_unit_test_cfgnode_str)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_cfgnode_grp)
+TT_TEST_ROUTINE_DECLARE(tt_unit_test_cfgnode_dir)
 TT_TEST_ROUTINE_DECLARE(tt_unit_test_cfgnode_grp_ar)
 TT_TEST_ROUTINE_DECLARE(tt_unit_test_cfgnode_bool)
 // =========================================
@@ -86,9 +86,9 @@ TT_TEST_CASE("tt_unit_test_clinode",
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_cfgnode_grp",
+    TT_TEST_CASE("tt_unit_test_cfgnode_dir",
                  "config node, group",
-                 tt_unit_test_cfgnode_grp,
+                 tt_unit_test_cfgnode_dir,
                  NULL,
                  NULL,
                  NULL,
@@ -142,51 +142,102 @@ TT_TEST_CASE("tt_unit_test_clinode",
     TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgnode)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
-    tt_cfgnode_t *cnode;
-    tt_cfgnode_attr_t attr;
+    tt_cfgobj_t *cnode;
+    tt_cfgobj_attr_t attr;
     tt_blob_t name = {(tt_u8_t *)&attr, 2};
     tt_blob_t val = {(tt_u8_t *)&attr, 3};
     tt_buf_t out;
-    tt_cfgnode_itf_t itf = {0};
+    tt_cfgobj_itf_t itf = {0};
 
     TT_TEST_CASE_ENTER()
     // test start
 
     tt_buf_init(&out, NULL);
 
-    tt_cfgnode_attr_default(&attr);
-    attr.display_name = "display_name";
+    tt_cfgobj_attr_default(&attr);
+    attr.display = "display";
     attr.brief = "info";
     attr.detail = "usage";
+    attr.need_reboot = TT_FALSE;
+    attr.can_read = TT_TRUE;
+    attr.can_write = TT_TRUE;
+    attr.can_exec = TT_FALSE;
 
-    cnode = tt_cfgnode_create(1,
-                              TT_CFGNODE_TYPE_STRING,
-                              "name",
-                              &itf,
-                              (void *)1,
-                              &attr);
+    cnode =
+        tt_cfgobj_create(1, TT_CFGOBJ_STRING, "name", &itf, (void *)1, &attr);
     TT_UT_NOT_EQUAL(cnode, NULL, "");
 
-    TT_UT_EQUAL(cnode->type, TT_CFGNODE_TYPE_STRING, "");
+    TT_UT_EQUAL(cnode->type, TT_CFGOBJ_STRING, "");
     TT_UT_EQUAL(cnode->opaque, (void *)1, "");
     TT_UT_EQUAL(cnode->itf, &itf, "");
     TT_UT_EQUAL(tt_strcmp(cnode->name, "name"), 0, "");
-    TT_UT_EQUAL(tt_strcmp(cnode->display_name, "display_name"), 0, "");
+    TT_UT_EQUAL(tt_strcmp(cnode->display, "display"), 0, "");
     TT_UT_EQUAL(tt_strcmp(cnode->brief, "info"), 0, "");
     TT_UT_EQUAL(tt_strcmp(cnode->detail, "usage"), 0, "");
-    TT_UT_EQUAL(cnode->removing, TT_FALSE, "");
-    TT_UT_EQUAL(cnode->modified, TT_FALSE, "");
+    TT_UT_EQUAL(cnode->need_reboot, TT_FALSE, "");
+    TT_UT_EQUAL(cnode->can_read, TT_TRUE, "");
+    TT_UT_EQUAL(cnode->can_write, TT_TRUE, "");
+    TT_UT_EQUAL(cnode->can_exec, TT_FALSE, "");
 
     // may fail, but should not crash
-    tt_cfgnode_add(cnode, &name, &val);
-    tt_cfgnode_rm(cnode, &name);
-    tt_cfgnode_ls(cnode, NULL, &out);
-    tt_cfgnode_get(cnode, &out);
-    tt_cfgnode_set(cnode, &val);
-    tt_cfgnode_check(cnode, &val);
-    tt_cfgnode_commit(cnode);
+    tt_cfgobj_read(cnode, NULL, &out);
+    tt_cfgobj_write(cnode, val.addr, val.len);
+    tt_cfgobj_exec(cnode, val.addr, val.len, NULL, &out);
 
-    tt_cfgnode_destroy(cnode, TT_TRUE);
+    tt_buf_clear(&out);
+    TT_UT_SUCCESS(tt_cfgobj_line(cnode, " ", 5, &out), "");
+    TT_UT_EQUAL(tt_buf_cmp_cstr(&out, "--- string name  info"), 0, "");
+
+    tt_buf_clear(&out);
+    TT_UT_SUCCESS(tt_cfgobj_line(cnode, NULL, 0, &out), "");
+    TT_UT_EQUAL(tt_buf_cmp_cstr(&out, "---    string    name    info"), 0, "");
+
+    tt_buf_clear(&out);
+    TT_UT_SUCCESS(tt_cfgobj_line(cnode, NULL, 2, &out), "");
+    TT_UT_EQUAL(tt_buf_cmp_cstr(&out, "---    string    ??    info"), 0, "");
+
+    tt_cfgobj_destroy(cnode);
+
+    // node name
+    attr.need_reboot = TT_TRUE;
+    attr.can_read = TT_FALSE;
+    attr.can_write = TT_FALSE;
+    attr.can_exec = TT_TRUE;
+    cnode =
+        tt_cfgobj_create(1, TT_CFGOBJ_DIR, "-name-", &itf, (void *)1, &attr);
+    TT_UT_NOT_NULL(cnode, "");
+    TT_UT_EQUAL(cnode->need_reboot, TT_TRUE, "");
+    TT_UT_EQUAL(cnode->can_read, TT_FALSE, "");
+    TT_UT_EQUAL(cnode->can_write, TT_FALSE, "");
+    TT_UT_EQUAL(cnode->can_exec, TT_TRUE, "");
+    TT_UT_EQUAL(tt_cfgobj_read(cnode, NULL, &out), TT_NOT_SUPPORT, "");
+    TT_UT_EQUAL(tt_cfgobj_read(cnode, NULL, &out), TT_NOT_SUPPORT, "");
+    TT_UT_EQUAL(tt_cfgobj_read(cnode, NULL, &out), TT_NOT_SUPPORT, "");
+
+    tt_buf_clear(&out);
+    TT_UT_SUCCESS(tt_cfgobj_line(cnode, " ", 8, &out), "");
+    TT_UT_EQUAL(tt_buf_cmp_cstr(&out, "--- dir    -name-/  info"), 0, "");
+
+    tt_buf_clear(&out);
+    TT_UT_SUCCESS(tt_cfgobj_line(cnode, NULL, 0, &out), "");
+    TT_UT_EQUAL(tt_buf_cmp_cstr(&out, "---    dir       -name-/    info"),
+                0,
+                "");
+
+    tt_buf_clear(&out);
+    TT_UT_SUCCESS(tt_cfgobj_line(cnode, NULL, 2, &out), "");
+    TT_UT_EQUAL(tt_buf_cmp_cstr(&out, "---    dir       ??    info"), 0, "");
+
+    tt_cfgobj_destroy(cnode);
+
+    cnode = tt_cfgobj_create(1,
+                             TT_CFGOBJ_STRING,
+                             "name?name",
+                             &itf,
+                             (void *)1,
+                             &attr);
+    TT_UT_NULL(cnode, "");
+
     tt_buf_destroy(&out);
 
     // test end
@@ -202,7 +253,7 @@ static tt_string_t __ut_str_set;
 static tt_s32_t __ut_s32_set;
 static tt_bool_t __ut_bool_set;
 
-static void __val_on_destroy(IN struct tt_cfgnode_s *cnode,
+static void __val_on_destroy(IN struct tt_cfgobj_s *cnode,
                              IN tt_bool_t committed)
 {
     if (__ut_on_destroy_ok) {
@@ -218,33 +269,41 @@ static void __val_on_destroy(IN struct tt_cfgnode_s *cnode,
     __ut_on_destroy_ok = TT_TRUE;
 }
 
-static tt_bool_t __u32_on_set(IN struct tt_cfgnode_s *cnode,
-                              IN tt_u32_t new_val)
+static tt_result_t __u32_on_set(IN struct tt_cfgobj_s *cnode,
+                                IN tt_u32_t new_val)
 {
+    *(tt_u32_t *)cnode->opaque = new_val;
     __ut_cb_called = TT_TRUE;
     __ut_u32_set = new_val;
-    return TT_TRUE;
+    return TT_SUCCESS;
 }
 
-static tt_bool_t __s32_on_set(IN struct tt_cfgnode_s *cnode,
-                              IN tt_s32_t new_val)
+static tt_result_t __s32_on_set(IN struct tt_cfgobj_s *cnode,
+                                IN tt_s32_t new_val)
 {
+    *(tt_s32_t *)cnode->opaque = new_val;
     __ut_cb_called = TT_TRUE;
     __ut_s32_set = new_val;
-    return TT_TRUE;
+    return TT_SUCCESS;
 }
 
-static tt_bool_t __str_on_set(IN struct tt_cfgnode_s *cnode,
-                              IN tt_string_t *new_val)
+static tt_result_t __str_on_set(IN struct tt_cfgobj_s *cnode,
+                                IN tt_string_t *new_val)
 {
+    tt_string_t *s = (tt_string_t *)cnode->opaque;
+
+    tt_string_clear(s);
+    tt_string_copy(s, new_val);
+
     __ut_cb_called = TT_TRUE;
     tt_string_copy(&__ut_str_set, new_val);
-    return TT_TRUE;
+    return TT_SUCCESS;
 }
 
-static tt_bool_t __bool_on_set(IN struct tt_cfgnode_s *cnode,
-                               IN tt_bool_t new_val)
+static tt_result_t __bool_on_set(IN struct tt_cfgobj_s *cnode,
+                                 IN tt_bool_t new_val)
 {
+    *(tt_bool_t *)cnode->opaque = new_val;
     __ut_cb_called = TT_TRUE;
     __ut_bool_set = new_val;
     return TT_TRUE;
@@ -253,7 +312,7 @@ static tt_bool_t __bool_on_set(IN struct tt_cfgnode_s *cnode,
 TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgnode_u32)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
-    tt_cfgnode_t *cnode;
+    tt_cfgobj_t *cnode;
     tt_u32_t val = 0;
     tt_result_t ret;
     tt_u8_t c[] = "u32";
@@ -264,124 +323,85 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgnode_u32)
     const tt_char_t *invalid_u32_2 = "-94967295";
     const tt_char_t *u32_0 = "0";
     tt_blob_t n = {c, sizeof(c)}, v = {c, sizeof(c)};
-    tt_cfgu32_attr_t attr;
-    tt_cfgu32_cb_t cb = {__val_on_destroy, __u32_on_set};
+    tt_cfgobj_attr_t attr;
+    tt_cfgu32_cb_t cb = {__u32_on_set};
 
     TT_TEST_CASE_ENTER()
     // test start
 
     tt_buf_init(&out, NULL);
 
-    cnode = tt_cfgu32_create("", NULL, NULL, &val, &cb, NULL);
+    tt_cfgobj_attr_default(&attr);
+    attr.can_read = TT_TRUE;
+    attr.can_write = TT_FALSE;
+
+    cnode = tt_cfgu32_create("", &val, &attr, &cb);
     TT_UT_NOT_EQUAL(cnode, NULL, "");
-
-    // add
-    ret = tt_cfgnode_add(cnode, &n, &v);
-    TT_UT_EQUAL(ret, TT_BAD_PARAM, "");
-
-    // rm
-    ret = tt_cfgnode_rm(cnode, &n);
-    TT_UT_EQUAL(ret, TT_BAD_PARAM, "");
 
     // ls
     {
-        const tt_char_t *this_out =
-            "PERM    TYPE    NAME    DESCRIPTION\n"
-            "--g-    u32             ";
-
         tt_buf_clear(&out);
-        ret = tt_cfgnode_ls(cnode, NULL, &out);
-        TT_UT_EQUAL(ret, TT_SUCCESS, "");
-        cmp_ret = tt_buf_cmp_cstr(&out, this_out);
+        ret = tt_cfgobj_read(cnode, NULL, &out);
+        TT_UT_SUCCESS(ret, "");
+        cmp_ret = tt_buf_cmp_cstr(&out, "0");
         TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
     // get
     tt_buf_clear(&out);
     val = 0;
-    ret = tt_cfgnode_get(cnode, &out);
-    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+    ret = tt_cfgobj_read(cnode, NULL, &out);
+    TT_UT_SUCCESS(ret, "");
     cmp_ret = tt_buf_cmp_cstr(&out, "0");
     TT_UT_EQUAL(cmp_ret, 0, "");
 
-    // set
-    ret = tt_cfgnode_set(cnode, &v);
-    TT_UT_EQUAL(ret, TT_BAD_PARAM, "");
+    // set, can not set
+    ret = tt_cfgobj_write(cnode, v.addr, v.len);
+    TT_UT_EQUAL(ret, TT_NOT_SUPPORT, "");
 
-    // check
-    v.addr = (tt_u8_t *)max_u32;
-    v.len = (tt_u32_t)tt_strlen(max_u32);
-    ret = tt_cfgnode_check(cnode, &v);
-    TT_UT_EQUAL(ret, TT_SUCCESS, "");
-
-    v.addr = (tt_u8_t *)invalid_u32;
-    v.len = (tt_u32_t)tt_strlen(invalid_u32);
-    ret = tt_cfgnode_check(cnode, &v);
-    TT_UT_EQUAL(ret, TT_BAD_PARAM, "");
-
-    // commit
-    ret = tt_cfgnode_commit(cnode);
-    TT_UT_EQUAL(ret, TT_BAD_PARAM, "");
-
-    __ut_err_line = 0;
-    __ut_on_destroy_ok = TT_FALSE;
-    tt_cfgnode_destroy(cnode, TT_FALSE);
-    TT_UT_EQUAL(__ut_err_line, 0, "");
-    TT_UT_EQUAL(__ut_on_destroy_ok, TT_FALSE, "");
+    tt_cfgobj_destroy(cnode);
 
     // node 2
-    tt_cfgu32_attr_default(&attr);
-    attr.cnode_attr.brief = "test node 2";
-    attr.mode = TT_CFGVAL_MODE_GS;
+    tt_cfgobj_attr_default(&attr);
+    attr.brief = "test node 2";
+    attr.can_read = TT_TRUE;
+    attr.can_write = TT_TRUE;
 
-    cnode = tt_cfgu32_create("node2", NULL, NULL, &val, &cb, &attr);
+    cnode = tt_cfgu32_create("node2", &val, &attr, &cb);
     TT_UT_NOT_EQUAL(cnode, NULL, "");
-
-    // add
-    ret = tt_cfgnode_add(cnode, &n, &v);
-    TT_UT_EQUAL(ret, TT_BAD_PARAM, "");
-
-    // rm
-    ret = tt_cfgnode_rm(cnode, &n);
-    TT_UT_EQUAL(ret, TT_BAD_PARAM, "");
 
     // ls
     {
-        const tt_char_t *this_out =
-            "PERM    TYPE    NAME     DESCRIPTION\n"
-            "--gs    u32     node2    test node 2";
-
         tt_buf_clear(&out);
-        ret = tt_cfgnode_ls(cnode, NULL, &out);
-        TT_UT_EQUAL(ret, TT_SUCCESS, "");
-        cmp_ret = tt_buf_cmp_cstr(&out, this_out);
+        ret = tt_cfgobj_read(cnode, NULL, &out);
+        TT_UT_SUCCESS(ret, "");
+        cmp_ret = tt_buf_cmp_cstr(&out, "0");
         TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
     tt_buf_clear(&out);
-    ret = tt_cfgnode_describe(cnode, 0, &out);
-    TT_UT_EQUAL(ret, TT_SUCCESS, "");
-    cmp_ret = tt_buf_cmp_cstr(&out, "--gs    u32     node2    test node 2");
+    ret = tt_cfgobj_line(cnode, " ", 0, &out);
+    TT_UT_SUCCESS(ret, "");
+    cmp_ret = tt_buf_cmp_cstr(&out, "rw- u32    node2 test node 2");
     TT_UT_EQUAL(cmp_ret, 0, "");
 
     tt_buf_clear(&out);
-    ret = tt_cfgnode_describe(cnode, 3, &out);
-    TT_UT_EQUAL(ret, TT_SUCCESS, "");
-    cmp_ret = tt_buf_cmp_cstr(&out, "--gs    u32     ???    test node 2");
+    ret = tt_cfgobj_line(cnode, " ", 3, &out);
+    TT_UT_SUCCESS(ret, "");
+    cmp_ret = tt_buf_cmp_cstr(&out, "rw- u32    ??? test node 2");
     TT_UT_EQUAL(cmp_ret, 0, "");
 
     tt_buf_clear(&out);
-    ret = tt_cfgnode_describe(cnode, 10, &out);
-    TT_UT_EQUAL(ret, TT_SUCCESS, "");
-    cmp_ret =
-        tt_buf_cmp_cstr(&out, "--gs    u32     node2         test node 2");
+    ret = tt_cfgobj_line(cnode, " ", 10, &out);
+    TT_UT_SUCCESS(ret, "");
+    cmp_ret = tt_buf_cmp_cstr(&out, "rw- u32    node2      test node 2");
     TT_UT_EQUAL(cmp_ret, 0, "");
 
     // get
     tt_buf_clear(&out);
     val = ~0;
-    ret = tt_cfgnode_get(cnode, &out);
-    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+    ret = tt_cfgobj_read(cnode, NULL, &out);
+    TT_UT_SUCCESS(ret, "");
     cmp_ret = tt_buf_cmp_cstr(&out, "4294967295");
     TT_UT_EQUAL(cmp_ret, 0, "");
 
@@ -389,56 +409,43 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgnode_u32)
     tt_buf_clear(&out);
     v.addr = (tt_u8_t *)invalid_u32;
     v.len = (tt_u32_t)tt_strlen(invalid_u32);
-    ret = tt_cfgnode_set(cnode, &v);
+    ret = tt_cfgobj_write(cnode, v.addr, v.len);
     TT_UT_EQUAL(ret, TT_BAD_PARAM, "");
 
     v.addr = (tt_u8_t *)invalid_u32_2;
     v.len = (tt_u32_t)tt_strlen(invalid_u32_2);
-    ret = tt_cfgnode_set(cnode, &v);
+    ret = tt_cfgobj_write(cnode, v.addr, v.len);
     TT_UT_EQUAL(ret, TT_BAD_PARAM, "");
 
     v.addr = (tt_u8_t *)u32_0;
     v.len = (tt_u32_t)tt_strlen(u32_0);
-    ret = tt_cfgnode_set(cnode, &v);
-    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+    ret = tt_cfgobj_write(cnode, v.addr, v.len);
+    TT_UT_SUCCESS(ret, "");
+    TT_UT_EQUAL(val, 0, "");
     tt_buf_clear(&out);
-    ret = tt_cfgnode_get(cnode, &out);
-    TT_UT_EQUAL(ret, TT_SUCCESS, "");
-    cmp_ret = tt_buf_cmp_cstr(&out, "4294967295 --> 0");
+    ret = tt_cfgobj_read(cnode, NULL, &out);
+    TT_UT_SUCCESS(ret, "");
+    cmp_ret = tt_buf_cmp_cstr(&out, "0");
     TT_UT_EQUAL(cmp_ret, 0, "");
 
     v.addr = (tt_u8_t *)max_u32;
     v.len = (tt_u32_t)tt_strlen(max_u32);
-    ret = tt_cfgnode_set(cnode, &v);
-    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+    ret = tt_cfgobj_write(cnode, v.addr, v.len);
+    TT_UT_SUCCESS(ret, "");
+    TT_UT_EQUAL(val, 4294967295, "");
     tt_buf_clear(&out);
-    ret = tt_cfgnode_get(cnode, &out);
-    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+    ret = tt_cfgobj_read(cnode, NULL, &out);
+    TT_UT_SUCCESS(ret, "");
     cmp_ret = tt_buf_cmp_cstr(&out, "4294967295");
     TT_UT_EQUAL(cmp_ret, 0, "");
 
-    // commit
-    __ut_cb_called = TT_FALSE;
-    ret = tt_cfgnode_commit(cnode);
-    TT_UT_EQUAL(ret, TT_SUCCESS, "");
-    TT_UT_EQUAL(__ut_cb_called, TT_FALSE, "");
-
     v.addr = (tt_u8_t *)u32_0;
     v.len = (tt_u32_t)tt_strlen(u32_0);
-    ret = tt_cfgnode_set(cnode, &v);
-    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+    ret = tt_cfgobj_write(cnode, v.addr, v.len);
+    TT_UT_SUCCESS(ret, "");
+    TT_UT_EQUAL(val, 0, "");
 
-    __ut_u32_set = 123;
-    ret = tt_cfgnode_commit(cnode);
-    TT_UT_EQUAL(ret, TT_END, "");
-    TT_UT_EQUAL(__ut_cb_called, TT_TRUE, "");
-    TT_UT_EQUAL(__ut_u32_set, 0, "");
-
-    __ut_err_line = 0;
-    __ut_on_destroy_ok = TT_FALSE;
-    tt_cfgnode_destroy(cnode, TT_TRUE);
-    TT_UT_EQUAL(__ut_err_line, 0, "");
-    TT_UT_EQUAL(__ut_on_destroy_ok, TT_TRUE, "");
+    tt_cfgobj_destroy(cnode);
 
     tt_buf_destroy(&out);
 
@@ -449,7 +456,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgnode_u32)
 TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgnode_s32)
 {
     // tt_s32_t param = TT_TEST_ROUTINE_PARAM(tt_s32_t);
-    tt_cfgnode_t *cnode;
+    tt_cfgobj_t *cnode;
     tt_s32_t val = 0;
     tt_result_t ret;
     tt_u8_t c[] = "s32";
@@ -461,207 +468,158 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgnode_s32)
     const tt_char_t *invalid_s32_2 = "-2147483649";
     const tt_char_t *s32_n1 = "  -1";
     tt_blob_t n = {c, sizeof(c)}, v = {c, sizeof(c)};
-    tt_cfgs32_attr_t attr;
-    tt_cfgs32_cb_t cb = {__val_on_destroy, __s32_on_set};
+    tt_cfgobj_attr_t attr;
+    tt_cfgs32_cb_t cb = {__s32_on_set};
 
     TT_TEST_CASE_ENTER()
     // test start
 
     tt_buf_init(&out, NULL);
 
-    cnode = tt_cfgs32_create("", NULL, NULL, &val, &cb, NULL);
+    tt_cfgobj_attr_default(&attr);
+    attr.can_read = TT_TRUE;
+    attr.can_write = TT_FALSE;
+
+    cnode = tt_cfgs32_create("", &val, &attr, &cb);
     TT_UT_NOT_EQUAL(cnode, NULL, "");
-
-    // add
-    ret = tt_cfgnode_add(cnode, &n, &v);
-    TT_UT_EQUAL(ret, TT_BAD_PARAM, "");
-
-    // rm
-    ret = tt_cfgnode_rm(cnode, &n);
-    TT_UT_EQUAL(ret, TT_BAD_PARAM, "");
 
     // ls
     {
-        const tt_char_t *this_out =
-            "PERM    TYPE    NAME    DESCRIPTION\n"
-            "--g-    s32             ";
-
         tt_buf_clear(&out);
-        ret = tt_cfgnode_ls(cnode, NULL, &out);
-        TT_UT_EQUAL(ret, TT_SUCCESS, "");
-        cmp_ret = tt_buf_cmp_cstr(&out, this_out);
+        ret = tt_cfgobj_read(cnode, NULL, &out);
+        TT_UT_SUCCESS(ret, "");
+        cmp_ret = tt_buf_cmp_cstr(&out, "0");
         TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
     // get
     tt_buf_clear(&out);
-    ret = tt_cfgnode_get(cnode, &out);
-    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+    ret = tt_cfgobj_read(cnode, "123", &out);
+    TT_UT_SUCCESS(ret, "");
     cmp_ret = tt_buf_cmp_cstr(&out, "0");
     TT_UT_EQUAL(cmp_ret, 0, "");
 
     // set
-    ret = tt_cfgnode_set(cnode, &v);
-    TT_UT_EQUAL(ret, TT_BAD_PARAM, "");
+    ret = tt_cfgobj_write(cnode, v.addr, v.len);
+    TT_UT_EQUAL(ret, TT_NOT_SUPPORT, "");
 
-    // check
-    v.addr = (tt_u8_t *)max_s32;
-    v.len = (tt_u32_t)tt_strlen(max_s32);
-    ret = tt_cfgnode_check(cnode, &v);
-    TT_UT_EQUAL(ret, TT_SUCCESS, "");
-
-    v.addr = (tt_u8_t *)invalid_s32;
-    v.len = (tt_u32_t)tt_strlen(invalid_s32);
-    ret = tt_cfgnode_check(cnode, &v);
-    TT_UT_EQUAL(ret, TT_BAD_PARAM, "");
-
-    ret = tt_cfgnode_commit(cnode);
-    TT_UT_EQUAL(ret, TT_BAD_PARAM, "");
-
-    tt_cfgnode_destroy(cnode, TT_TRUE);
+    tt_cfgobj_destroy(cnode);
 
     // node 2
-    tt_cfgs32_attr_default(&attr);
-    attr.cnode_attr.brief = "test node 2";
-    attr.mode = TT_CFGVAL_MODE_GS;
+    tt_cfgobj_attr_default(&attr);
+    attr.brief = "test node 2";
+    attr.can_read = TT_TRUE;
+    attr.can_write = TT_TRUE;
 
-    cnode = tt_cfgs32_create("node1234567890", NULL, NULL, &val, &cb, &attr);
+    cnode = tt_cfgs32_create("node1234567890", &val, &attr, &cb);
     TT_UT_NOT_EQUAL(cnode, NULL, "");
-
-    // add
-    ret = tt_cfgnode_add(cnode, &n, &v);
-    TT_UT_EQUAL(ret, TT_BAD_PARAM, "");
-
-    // rm
-    ret = tt_cfgnode_rm(cnode, &n);
-    TT_UT_EQUAL(ret, TT_BAD_PARAM, "");
 
     // ls
     {
-        const tt_char_t *this_out =
-            "PERM    TYPE    NAME              DESCRIPTION\n"
-            "--gs    s32     node1234567890    test node 2";
-
         tt_buf_clear(&out);
-        ret = tt_cfgnode_ls(cnode, NULL, &out);
-        TT_UT_EQUAL(ret, TT_SUCCESS, "");
-        cmp_ret = tt_buf_cmp_cstr(&out, this_out);
+        ret = tt_cfgobj_read(cnode, NULL, &out);
+        TT_UT_SUCCESS(ret, "");
+        cmp_ret = tt_buf_cmp_cstr(&out, "0");
         TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
 
     {
-        const tt_char_t *this_out =
-            "--gs    s32     node1234567890    test node 2";
-
         tt_buf_clear(&out);
-        ret = tt_cfgnode_describe(cnode, 0, &out);
-        TT_UT_EQUAL(ret, TT_SUCCESS, "");
-        cmp_ret = tt_buf_cmp_cstr(&out, this_out);
+        ret = tt_cfgobj_line(cnode, " ", 0, &out);
+        TT_UT_SUCCESS(ret, "");
+        cmp_ret =
+            tt_buf_cmp_cstr(&out, "rw- s32    node1234567890 test node 2");
         TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
     {
-        const tt_char_t *this_out = "--gs    s32     ???????    test node 2";
-
         tt_buf_clear(&out);
-        ret = tt_cfgnode_describe(cnode, 7, &out);
-        TT_UT_EQUAL(ret, TT_SUCCESS, "");
-        cmp_ret = tt_buf_cmp_cstr(&out, this_out);
+        ret = tt_cfgobj_line(cnode, " ", 7, &out);
+        TT_UT_SUCCESS(ret, "");
+        cmp_ret = tt_buf_cmp_cstr(&out, "rw- s32    ??????? test node 2");
         TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
     {
-        const tt_char_t *this_out = "--gs    s32     ????????    test node 2";
-
         tt_buf_clear(&out);
-        ret = tt_cfgnode_describe(cnode, 8, &out);
-        TT_UT_EQUAL(ret, TT_SUCCESS, "");
-        cmp_ret = tt_buf_cmp_cstr(&out, this_out);
+        ret = tt_cfgobj_line(cnode, " ", 8, &out);
+        TT_UT_SUCCESS(ret, "");
+        cmp_ret = tt_buf_cmp_cstr(&out, "rw- s32    ???????? test node 2");
         TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
     {
-        const tt_char_t *this_out =
-            "--gs    s32     node1234567890      test node 2";
-
         tt_buf_clear(&out);
-        ret = tt_cfgnode_describe(cnode, 16, &out);
-        TT_UT_EQUAL(ret, TT_SUCCESS, "");
-        cmp_ret = tt_buf_cmp_cstr(&out, this_out);
+        ret = tt_cfgobj_line(cnode, " ", 16, &out);
+        TT_UT_SUCCESS(ret, "");
+        cmp_ret =
+            tt_buf_cmp_cstr(&out, "rw- s32    node1234567890   test node 2");
         TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
     // get
     val = ~0;
     tt_buf_clear(&out);
-    ret = tt_cfgnode_get(cnode, &out);
-    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+    ret = tt_cfgobj_read(cnode, NULL, &out);
+    TT_UT_SUCCESS(ret, "");
     cmp_ret = tt_buf_cmp_cstr(&out, "-1");
     TT_UT_EQUAL(cmp_ret, 0, "");
 
     // set
     v.addr = (tt_u8_t *)max_s32;
     v.len = (tt_u32_t)tt_strlen(max_s32);
-    ret = tt_cfgnode_set(cnode, &v);
-    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+    ret = tt_cfgobj_write(cnode, v.addr, v.len);
+    TT_UT_SUCCESS(ret, "");
     tt_buf_clear(&out);
-    ret = tt_cfgnode_get(cnode, &out);
-    TT_UT_EQUAL(ret, TT_SUCCESS, "");
-    cmp_ret = tt_buf_cmp_cstr(&out, "-1 --> 2147483647");
+    ret = tt_cfgobj_read(cnode, NULL, &out);
+    TT_UT_SUCCESS(ret, "");
+    cmp_ret = tt_buf_cmp_cstr(&out, "2147483647");
     TT_UT_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(val, 2147483647, "");
 
     tt_buf_clear(&out);
     v.addr = (tt_u8_t *)invalid_s32;
     v.len = (tt_u32_t)tt_strlen(invalid_s32);
-    ret = tt_cfgnode_set(cnode, &v);
+    ret = tt_cfgobj_write(cnode, v.addr, v.len);
     TT_UT_EQUAL(ret, TT_BAD_PARAM, "");
 
     v.addr = (tt_u8_t *)invalid_s32_2;
     v.len = (tt_u32_t)tt_strlen(invalid_s32_2);
-    ret = tt_cfgnode_set(cnode, &v);
+    ret = tt_cfgobj_write(cnode, v.addr, v.len);
     TT_UT_EQUAL(ret, TT_BAD_PARAM, "");
 
     // to -2147483648
     v.addr = (tt_u8_t *)min_s32;
     v.len = (tt_u32_t)tt_strlen(min_s32);
-    ret = tt_cfgnode_set(cnode, &v);
-    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+    ret = tt_cfgobj_write(cnode, v.addr, v.len);
+    TT_UT_SUCCESS(ret, "");
     tt_buf_clear(&out);
-    ret = tt_cfgnode_get(cnode, &out);
-    TT_UT_EQUAL(ret, TT_SUCCESS, "");
-    cmp_ret = tt_buf_cmp_cstr(&out, "-1 --> -2147483648");
+    ret = tt_cfgobj_read(cnode, NULL, &out);
+    TT_UT_SUCCESS(ret, "");
+    cmp_ret = tt_buf_cmp_cstr(&out, "-2147483648");
     TT_UT_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(val, -2147483648, "");
 
     // to -1
     v.addr = (tt_u8_t *)s32_n1;
     v.len = (tt_u32_t)tt_strlen(s32_n1);
-    ret = tt_cfgnode_set(cnode, &v);
-    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+    ret = tt_cfgobj_write(cnode, v.addr, v.len);
+    TT_UT_SUCCESS(ret, "");
     tt_buf_clear(&out);
-    ret = tt_cfgnode_get(cnode, &out);
-    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+    ret = tt_cfgobj_read(cnode, NULL, &out);
+    TT_UT_SUCCESS(ret, "");
     cmp_ret = tt_buf_cmp_cstr(&out, "-1");
     TT_UT_EQUAL(cmp_ret, 0, "");
-
-    // commit
-    __ut_cb_called = TT_FALSE;
-    ret = tt_cfgnode_commit(cnode);
-    TT_UT_EQUAL(ret, TT_SUCCESS, "");
-    TT_UT_EQUAL(__ut_cb_called, TT_FALSE, "");
+    TT_UT_EQUAL(val, -1, "");
 
     v.addr = (tt_u8_t *)min_s32;
     v.len = (tt_u32_t)tt_strlen(min_s32);
-    ret = tt_cfgnode_set(cnode, &v);
-    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+    ret = tt_cfgobj_write(cnode, v.addr, v.len);
+    TT_UT_SUCCESS(ret, "");
+    TT_UT_EQUAL(val, -2147483648, "");
 
-    __ut_cb_called = TT_FALSE;
-    ret = tt_cfgnode_commit(cnode);
-    TT_UT_EQUAL(ret, TT_END, "");
-    TT_UT_EQUAL(__ut_cb_called, TT_TRUE, "");
-    TT_UT_EQUAL(__ut_s32_set, (tt_s32_t)-2147483648LL, "");
-
-    tt_cfgnode_destroy(cnode, TT_TRUE);
+    tt_cfgobj_destroy(cnode);
     tt_buf_destroy(&out);
 
     // test end
@@ -671,7 +629,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgnode_s32)
 TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgnode_str)
 {
     // tt_s32_t param = TT_TEST_ROUTINE_PARAM(tt_s32_t);
-    tt_cfgnode_t *cnode;
+    tt_cfgobj_t *cnode;
     tt_result_t ret;
     tt_u8_t c[] = "s32";
     tt_buf_t out;
@@ -685,8 +643,8 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgnode_str)
     const tt_char_t *invalid_s32_2 = "-2147483649";
     const tt_char_t *test_str = "test string";
     tt_blob_t n = {c, sizeof(c)}, v = {c, sizeof(c)};
-    tt_cfgstr_attr_t attr;
-    tt_cfgstr_cb_t cb = {NULL, __str_on_set};
+    tt_cfgobj_attr_t attr;
+    tt_cfgstr_cb_t cb = {__str_on_set};
 
     TT_TEST_CASE_ENTER()
     // test start
@@ -695,80 +653,57 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgnode_str)
     tt_string_init(&val, NULL);
     tt_string_init(&__ut_str_set, NULL);
 
-    cnode = tt_cfgstr_create("", NULL, NULL, &val, &cb, NULL);
+    tt_cfgobj_attr_default(&attr);
+    attr.can_read = TT_TRUE;
+    attr.can_write = TT_FALSE;
+
+    cnode = tt_cfgstr_create("", &val, &attr, &cb);
     TT_UT_NOT_EQUAL(cnode, NULL, "");
-
-    // add
-    ret = tt_cfgnode_add(cnode, &n, &v);
-    TT_UT_EQUAL(ret, TT_BAD_PARAM, "");
-
-    // rm
-    ret = tt_cfgnode_rm(cnode, &n);
-    TT_UT_EQUAL(ret, TT_BAD_PARAM, "");
 
     // ls
     {
-        const tt_char_t *this_out = "--g-    str         ";
-
         tt_buf_clear(&out);
-        ret = tt_cfgnode_describe(cnode, 0, &out);
-        TT_UT_EQUAL(ret, TT_SUCCESS, "");
-        cmp_ret = tt_buf_cmp_cstr(&out, this_out);
+        ret = tt_cfgobj_line(cnode, " ", 0, &out);
+        TT_UT_SUCCESS(ret, "");
+        cmp_ret = tt_buf_cmp_cstr(&out, "r-- string  ");
         TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
     // get
     tt_buf_clear(&out);
-    ret = tt_cfgnode_get(cnode, &out);
-    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+    ret = tt_cfgobj_read(cnode, NULL, &out);
+    TT_UT_SUCCESS(ret, "");
     cmp_ret = tt_buf_cmp_cstr(&out, "\"\"");
     TT_UT_EQUAL(cmp_ret, 0, "");
 
     // set
-    ret = tt_cfgnode_set(cnode, &v);
-    TT_UT_EQUAL(ret, TT_BAD_PARAM, "");
+    ret = tt_cfgobj_write(cnode, v.addr, v.len);
+    TT_UT_EQUAL(ret, TT_NOT_SUPPORT, "");
 
-    // check
-    v.addr = (tt_u8_t *)max_s32;
-    v.len = (tt_u32_t)tt_strlen(max_s32);
-    ret = tt_cfgnode_check(cnode, &v);
-    TT_UT_EQUAL(ret, TT_SUCCESS, "");
-
-    v.addr = (tt_u8_t *)invalid_str;
-    v.len = (tt_u32_t)tt_strlen(invalid_str);
-    ret = tt_cfgnode_check(cnode, &v);
-    TT_UT_EQUAL(ret, TT_BAD_PARAM, "");
-
-    // rm
-    ret = tt_cfgnode_commit(cnode);
-    TT_UT_EQUAL(ret, TT_BAD_PARAM, "");
-
-    tt_cfgnode_destroy(cnode, TT_TRUE);
+    tt_cfgobj_destroy(cnode);
 
     // node 2
-    tt_cfgstr_attr_default(&attr);
-    attr.cnode_attr.brief = "test node 2";
-    attr.mode = TT_CFGVAL_MODE_GS;
+    tt_cfgobj_attr_default(&attr);
+    attr.brief = "test node 2";
+    attr.can_read = TT_TRUE;
+    attr.can_write = TT_TRUE;
 
-    cnode = tt_cfgstr_create("node2", NULL, NULL, &val, &cb, &attr);
+    cnode = tt_cfgstr_create("node2", &val, &attr, &cb);
     TT_UT_NOT_EQUAL(cnode, NULL, "");
-
-    // add
-    ret = tt_cfgnode_add(cnode, &n, &v);
-    TT_UT_EQUAL(ret, TT_BAD_PARAM, "");
-
-    // rm
-    ret = tt_cfgnode_rm(cnode, &n);
-    TT_UT_EQUAL(ret, TT_BAD_PARAM, "");
 
     // ls
     {
-        const tt_char_t *this_out = "--gs    str     node2    test node 2";
-
         tt_buf_clear(&out);
-        ret = tt_cfgnode_describe(cnode, 0, &out);
-        TT_UT_EQUAL(ret, TT_SUCCESS, "");
-        cmp_ret = tt_buf_cmp_cstr(&out, this_out);
+        ret = tt_cfgobj_line(cnode, " ", 0, &out);
+        TT_UT_SUCCESS(ret, "");
+        cmp_ret = tt_buf_cmp_cstr(&out, "rw- string node2 test node 2");
+        TT_UT_EQUAL(cmp_ret, 0, "");
+    }
+    {
+        tt_buf_clear(&out);
+        ret = tt_cfgobj_ls(cnode, "|||", " ", &out);
+        TT_UT_SUCCESS(ret, "");
+        cmp_ret = tt_buf_cmp_cstr(&out, "rw-|||string|||node2|||test node 2");
         TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
@@ -776,71 +711,69 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgnode_str)
     tt_string_clear(&val);
     tt_string_append(&val, test_str);
     tt_buf_clear(&out);
-    ret = tt_cfgnode_get(cnode, &out);
-    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+    ret = tt_cfgobj_read(cnode, NULL, &out);
+    TT_UT_SUCCESS(ret, "");
     cmp_ret = tt_buf_cmp_cstr(&out, "\"test string\"");
     TT_UT_EQUAL(cmp_ret, 0, "");
 
     // set
     v.addr = (tt_u8_t *)max_s32;
     v.len = (tt_u32_t)tt_strlen(max_s32);
-    ret = tt_cfgnode_set(cnode, &v);
-    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+    ret = tt_cfgobj_write(cnode, v.addr, v.len);
+    TT_UT_SUCCESS(ret, "");
     tt_buf_clear(&out);
-    ret = tt_cfgnode_get(cnode, &out);
-    TT_UT_EQUAL(ret, TT_SUCCESS, "");
-    cmp_ret = tt_buf_cmp_cstr(&out, "\"test string\" --> \"2147483647\"");
+    ret = tt_cfgobj_read(cnode, NULL, &out);
+    TT_UT_SUCCESS(ret, "");
+    cmp_ret = tt_buf_cmp_cstr(&out, "\"2147483647\"");
     TT_UT_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(tt_string_cmp(&val, "2147483647"), 0, "");
 
     v.addr = (tt_u8_t *)invalid_s32_2;
     v.len = (tt_u32_t)tt_strlen(invalid_s32_2);
-    ret = tt_cfgnode_set(cnode, &v);
-    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+    ret = tt_cfgobj_write(cnode, v.addr, v.len);
+    TT_UT_SUCCESS(ret, "");
     tt_buf_clear(&out);
-    ret = tt_cfgnode_get(cnode, &out);
-    TT_UT_EQUAL(ret, TT_SUCCESS, "");
-    cmp_ret = tt_buf_cmp_cstr(&out, "\"test string\" --> \"-2147483649\"");
+    ret = tt_cfgobj_read(cnode, NULL, &out);
+    TT_UT_SUCCESS(ret, "");
+    cmp_ret = tt_buf_cmp_cstr(&out, "\"-2147483649\"");
     TT_UT_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(tt_string_cmp(&val, invalid_s32_2), 0, "");
 
     v.addr = (tt_u8_t *)test_str;
     v.len = (tt_u32_t)tt_strlen(test_str);
-    ret = tt_cfgnode_set(cnode, &v);
-    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+    ret = tt_cfgobj_write(cnode, v.addr, v.len);
+    TT_UT_SUCCESS(ret, "");
     tt_buf_clear(&out);
-    ret = tt_cfgnode_get(cnode, &out);
-    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+    ret = tt_cfgobj_read(cnode, NULL, &out);
+    TT_UT_SUCCESS(ret, "");
     cmp_ret = tt_buf_cmp_cstr(&out, "\"test string\"");
     TT_UT_EQUAL(cmp_ret, 0, "");
-
-    // commit
-    __ut_cb_called = TT_FALSE;
-    ret = tt_cfgnode_commit(cnode);
-    TT_UT_EQUAL(ret, TT_SUCCESS, "");
-    TT_UT_EQUAL(__ut_cb_called, TT_FALSE, "");
+    TT_UT_EQUAL(tt_string_cmp(&val, "test string"), 0, "");
 
     v.addr = (tt_u8_t *)invalid_s32_2;
     v.len = (tt_u32_t)tt_strlen(invalid_s32_2);
-    ret = tt_cfgnode_set(cnode, &v);
-    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+    ret = tt_cfgobj_write(cnode, v.addr, v.len);
+    TT_UT_SUCCESS(ret, "");
+    tt_buf_clear(&out);
+    ret = tt_cfgobj_read(cnode, "", &out);
+    TT_UT_SUCCESS(ret, "");
+    cmp_ret = tt_buf_cmp_cstr(&out, "\"-2147483649\"");
+    TT_UT_EQUAL(cmp_ret, 0, "");
+    TT_UT_EQUAL(tt_string_cmp(&val, invalid_s32_2), 0, "");
 
-    __ut_cb_called = TT_FALSE;
-    ret = tt_cfgnode_commit(cnode);
-    TT_UT_EQUAL(ret, TT_END, "");
-    TT_UT_EQUAL(__ut_cb_called, TT_TRUE, "");
-    TT_UT_EQUAL(tt_string_cmp(&__ut_str_set, "-2147483649"), 0, "");
-
-    tt_cfgnode_destroy(cnode, TT_TRUE);
+    tt_cfgobj_destroy(cnode);
     tt_buf_destroy(&out);
 
     // test end
     TT_TEST_CASE_LEAVE()
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgnode_grp)
+TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgnode_dir)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
-    tt_cfgnode_t *cgrp, *subg, *subg1, *subg2, *subg3, *subg_c, *c1, *c2, *c3,
-        *c4, *tmp;
+    tt_cfgobj_t *co, *subg, *subg1, *subg2, *subg3, *subg_c, *c1, *c2, *c3, *c4,
+        *tmp;
+    tt_cfgdir_t *cgrp;
     tt_result_t ret;
     tt_u32_t u32_val = ~0;
     tt_s32_t s32_val = ~0, cmp_ret;
@@ -857,99 +790,86 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgnode_grp)
 
     tt_buf_init(&output, NULL);
 
-    cgrp = tt_cfggrp_create("", NULL, NULL, NULL, NULL);
-    TT_UT_NOT_EQUAL(cgrp, NULL, "");
-    subg = tt_cfggrp_create("sub-group", NULL, NULL, NULL, NULL);
+    co = tt_cfgdir_create("", NULL);
+    TT_UT_NOT_EQUAL(co, NULL, "");
+    subg = tt_cfgdir_create("sub-group", NULL);
     TT_UT_NOT_EQUAL(subg, NULL, "");
-    subg1 = tt_cfggrp_create("sub-group1", NULL, NULL, NULL, NULL);
-    TT_UT_NOT_EQUAL(subg, NULL, "");
-    subg2 = tt_cfggrp_create("sub-group22", NULL, NULL, NULL, NULL);
-    TT_UT_NOT_EQUAL(subg, NULL, "");
-    subg3 = tt_cfggrp_create("sub-group21", NULL, NULL, NULL, NULL);
-    TT_UT_NOT_EQUAL(subg, NULL, "");
+    subg1 = tt_cfgdir_create("sub-group1", NULL);
+    TT_UT_NOT_EQUAL(subg1, NULL, "");
+    subg2 = tt_cfgdir_create("sub-group22", NULL);
+    TT_UT_NOT_EQUAL(subg2, NULL, "");
+    subg3 = tt_cfgdir_create("sub-group21", NULL);
+    TT_UT_NOT_EQUAL(subg3, NULL, "");
 
-    subg_c = tt_cfgu32_create("subg-c", NULL, NULL, &u32_val, NULL, NULL);
+    subg_c = tt_cfgu32_create("subg-c", &u32_val, NULL, NULL);
     TT_UT_NOT_EQUAL(subg_c, NULL, "");
-    c1 = tt_cfgu32_create("c1", NULL, NULL, &u32_val, NULL, NULL);
-    TT_UT_NOT_EQUAL(subg_c, NULL, "");
-    c2 = tt_cfgs32_create("c22", NULL, NULL, &s32_val, NULL, NULL);
-    TT_UT_NOT_EQUAL(subg_c, NULL, "");
-    c3 = tt_cfgstr_create("c333", NULL, NULL, &str_val, NULL, NULL);
-    TT_UT_NOT_EQUAL(subg_c, NULL, "");
-    c4 = tt_cfgstr_create("c322", NULL, NULL, &str_val, NULL, NULL);
-    TT_UT_NOT_EQUAL(subg_c, NULL, "");
+    c1 = tt_cfgu32_create("c1", &u32_val, NULL, NULL);
+    TT_UT_NOT_EQUAL(c1, NULL, "");
+    c2 = tt_cfgs32_create("c22", &s32_val, NULL, NULL);
+    TT_UT_NOT_EQUAL(c2, NULL, "");
+    c3 = tt_cfgstr_create("c333", &str_val, NULL, NULL);
+    TT_UT_NOT_EQUAL(c3, NULL, "");
+    c4 = tt_cfgstr_create("c322", &str_val, NULL, NULL);
+    TT_UT_NOT_EQUAL(c4, NULL, "");
 
     // invalid name
-    tmp = tt_cfgu32_create("1_2_3", NULL, NULL, &u32_val, NULL, NULL);
+    tmp = tt_cfgu32_create("1_2_3", &u32_val, NULL, NULL);
     TT_UT_EQUAL(tmp, NULL, "");
 
-    tt_cfggrp_add(cgrp, subg);
-    tt_cfggrp_add(cgrp, c1);
-    tt_cfggrp_add(cgrp, subg1);
-    tt_cfggrp_add(cgrp, c2);
-    tt_cfggrp_add(cgrp, subg2);
-    tt_cfggrp_add(cgrp, c3);
-    tt_cfggrp_add(cgrp, subg3);
-    tt_cfggrp_add(cgrp, c4);
-    tt_cfggrp_add(subg, subg_c);
+    cgrp = TT_CFGOBJ_CAST(co, tt_cfgdir_t);
+    tt_cfgdir_add(cgrp, subg);
+    tt_cfgdir_add(cgrp, c1);
+    tt_cfgdir_add(cgrp, subg1);
+    tt_cfgdir_add(cgrp, c2);
+    tt_cfgdir_add(cgrp, subg2);
+    tt_cfgdir_add(cgrp, c3);
+    tt_cfgdir_add(cgrp, subg3);
+    tt_cfgdir_add(cgrp, c4);
+    tt_cfgdir_add(TT_CFGOBJ_CAST(subg, tt_cfgdir_t), subg_c);
 
     //////////////////////////////////////////////////////
 
-    ret = tt_cfgnode_add(cgrp, &name, &val);
-    TT_UT_EQUAL(ret, TT_BAD_PARAM, "");
-
-    ret = tt_cfgnode_rm(cgrp, &name);
-    TT_UT_EQUAL(ret, TT_BAD_PARAM, "");
-
     {
-        const tt_char_t *this_out = "----    grp     /    ";
-
         tt_buf_clear(&output);
-        ret = tt_cfgnode_describe(cgrp, 0, &output);
-        TT_UT_EQUAL(ret, TT_SUCCESS, "");
-        cmp_ret = tt_buf_cmp_cstr(&output, this_out);
+        ret = tt_cfgobj_line(co, " ", 0, &output);
+        TT_UT_SUCCESS(ret, "");
+        cmp_ret = tt_buf_cmp_cstr(&output, "--- dir    / ");
         TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
     {
-        const tt_char_t *this_out = "----    grp     /             ";
-
         tt_buf_clear(&output);
-        ret = tt_cfgnode_describe(cgrp, 10, &output);
-        TT_UT_EQUAL(ret, TT_SUCCESS, "");
-        cmp_ret = tt_buf_cmp_cstr(&output, this_out);
+        ret = tt_cfgobj_line(co, NULL, 10, &output);
+        TT_UT_SUCCESS(ret, "");
+        cmp_ret = tt_buf_cmp_cstr(&output, "---    dir       /             ");
         TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
     {
         const tt_char_t *this_out =
-            "PERM    TYPE    NAME            DESCRIPTION\n"
-            "----    grp     sub-group/      \n"
-            "----    grp     sub-group1/     \n"
-            "----    grp     sub-group21/    \n"
-            "----    grp     sub-group22/    \n"
-            "--g-    u32     c1              \n"
-            "--g-    s32     c22             \n"
-            "--g-    str     c322            \n"
-            "--g-    str     c333            ";
+            "---    dir       sub-group/      \r\n"
+            "---    dir       sub-group1/     \r\n"
+            "---    dir       sub-group21/    \r\n"
+            "---    dir       sub-group22/    \r\n"
+            "rw-    u32       c1              \r\n"
+            "rw-    s32       c22             \r\n"
+            "rw-    string    c322            \r\n"
+            "rw-    string    c333            ";
 
         tt_buf_clear(&output);
-        ret = tt_cfgnode_ls(cgrp, NULL, &output);
-        TT_UT_EQUAL(ret, TT_SUCCESS, "");
+        ret = tt_cfgdir_ls(cgrp, NULL, "\r\n", &output);
+        TT_UT_SUCCESS(ret, "");
         cmp_ret = tt_buf_cmp_cstr(&output, this_out);
         TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
-    ret = tt_cfgnode_get(cgrp, &output);
-    TT_UT_EQUAL(ret, TT_BAD_PARAM, "");
+    ret = tt_cfgobj_read(co, NULL, &output);
+    TT_UT_EQUAL(ret, TT_NOT_SUPPORT, "");
 
-    ret = tt_cfgnode_set(cgrp, &val);
-    TT_UT_EQUAL(ret, TT_BAD_PARAM, "");
+    ret = tt_cfgobj_write(co, val.addr, val.len);
+    TT_UT_EQUAL(ret, TT_NOT_SUPPORT, "");
 
-    ret = tt_cfgnode_check(cgrp, &val);
-    TT_UT_EQUAL(ret, TT_SUCCESS, "");
-
-    tt_cfgnode_destroy(cgrp, TT_TRUE);
+    tt_cfgobj_destroy(co);
 
     // test end
     TT_TEST_CASE_LEAVE()
@@ -959,57 +879,48 @@ static tt_u32_t __ut_u32;
 static tt_s32_t __ut_s32;
 static tt_string_t __ut_str;
 
-static tt_cfgnode_t *__ut_create_child(IN struct tt_cfggrp_s *cgrp,
-                                       IN tt_blob_t *name,
-                                       IN tt_blob_t *val)
+static tt_cfgobj_t *__ut_create_child(IN struct tt_cfgdir_s *cgrp,
+                                      IN tt_blob_t *name,
+                                      IN tt_blob_t *val)
 {
-    tt_cfgnode_t *cnode = NULL;
+    tt_cfgobj_t *cnode = NULL;
 
     if (tt_strncmp("n_u32", (tt_char_t *)name->addr, name->len) == 0) {
-        tt_cfgu32_attr_t attr;
-        tt_cfgu32_attr_default(&attr);
-        attr.cnode_attr.brief = "testing u32 child node";
-        attr.mode = TT_CFGVAL_MODE_GS;
+        tt_cfgobj_attr_t attr;
+        tt_cfgobj_attr_default(&attr);
+        attr.brief = "testing u32 child node";
 
-        cnode = tt_cfgu32_create("n-u32-111223",
-                                 NULL,
-                                 NULL,
-                                 &__ut_u32,
-                                 NULL,
-                                 &attr);
+        cnode = tt_cfgu32_create("n-u32-111223", &__ut_u32, &attr, NULL);
     } else if (tt_strncmp("n_s32", (tt_char_t *)name->addr, name->len) == 0) {
-        tt_cfgs32_attr_t attr;
-        tt_cfgs32_attr_default(&attr);
-        attr.cnode_attr.brief = "testing s32 child";
-        attr.mode = TT_CFGVAL_MODE_GS;
+        tt_cfgobj_attr_t attr;
+        tt_cfgobj_attr_default(&attr);
+        attr.brief = "testing s32 child";
 
-        cnode =
-            tt_cfgs32_create("n-s32-xx", NULL, NULL, &__ut_s32, NULL, &attr);
+        cnode = tt_cfgs32_create("n-s32-xx", &__ut_s32, &attr, NULL);
     } else if (tt_strncmp("n_str", (tt_char_t *)name->addr, name->len) == 0) {
-        tt_cfgstr_attr_t attr;
-        tt_cfgstr_attr_default(&attr);
-        attr.cnode_attr.brief = "s32 string";
-        attr.mode = TT_CFGVAL_MODE_GS;
+        tt_cfgobj_attr_t attr;
+        tt_cfgobj_attr_default(&attr);
+        attr.brief = "s32 string";
 
-        cnode =
-            tt_cfgstr_create("n-string", NULL, NULL, &__ut_str, NULL, &attr);
+        cnode = tt_cfgstr_create("n-string", &__ut_str, &attr, NULL);
     }
 
-    tt_cfgnode_set(cnode, val);
+    // tt_cfgobj_write(cnode, val);
     return cnode;
 }
 
 TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgnode_grp_ar)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
-    tt_cfgnode_t *cgrp;
+    tt_cfgobj_t *cgrp, *co;
     tt_result_t ret;
     tt_buf_t output;
     tt_blob_t name = {(tt_u8_t *)&ret, sizeof(ret)};
     tt_blob_t val = {(tt_u8_t *)&ret, sizeof(ret)};
     tt_s32_t cmp_ret;
-    tt_cfggrp_attr_t attr;
-    tt_cfggrp_cb_t cb = {__ut_create_child};
+    tt_cfgobj_attr_t attr;
+    tt_u32_t u32_val = 0;
+    tt_s32_t s32_val = 0;
 
     const tt_char_t *ls_out_empty = "";
 
@@ -1019,171 +930,233 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgnode_grp_ar)
     tt_buf_init(&output, NULL);
     tt_string_init(&__ut_str, NULL);
 
-    tt_cfggrp_attr_default(&attr);
-    attr.mode = TT_CFGGRP_MODE_ARL;
-    attr.cnode_attr.brief = "an addable and removable group";
+    tt_cfgobj_attr_default(&attr);
+    attr.brief = "an addable and removable group";
 
-    cgrp = tt_cfggrp_create("", NULL, NULL, &cb, &attr);
+    cgrp = tt_cfgdir_create("", &attr);
     TT_UT_NOT_EQUAL(cgrp, NULL, "");
 
     //////////////////////////////////////////////////////
 
-    ret = tt_cfgnode_get(cgrp, &output);
-    TT_UT_EQUAL(ret, TT_BAD_PARAM, "");
+    ret = tt_cfgobj_read(cgrp, NULL, &output);
+    TT_UT_EQUAL(ret, TT_NOT_SUPPORT, "");
 
-    ret = tt_cfgnode_set(cgrp, &val);
-    TT_UT_EQUAL(ret, TT_BAD_PARAM, "");
-
-    ret = tt_cfgnode_check(cgrp, &val);
-    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+    ret = tt_cfgobj_write(cgrp, val.addr, val.len);
+    TT_UT_EQUAL(ret, TT_NOT_SUPPORT, "");
 
     {
-        const tt_char_t *outstr = "PERM    TYPE    NAME    DESCRIPTION\n";
         tt_buf_clear(&output);
-        ret = tt_cfgnode_ls(cgrp, NULL, &output);
-        TT_UT_EQUAL(ret, TT_SUCCESS, "");
-        cmp_ret = tt_buf_cmp_cstr(&output, outstr);
+        ret = tt_cfgobj_ls(cgrp, NULL, NULL, &output);
+        TT_UT_SUCCESS(ret, "");
+        cmp_ret = tt_buf_cmp_cstr(&output, "");
         TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
     // add 1 node
-    name.addr = (tt_u8_t *)"n_u32";
-    name.len = sizeof("n_u32") - 1;
-    val.addr = (tt_u8_t *)"123";
-    val.len = sizeof("123") - 1;
-    ret = tt_cfgnode_add(cgrp, &name, &val);
-    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+    co = tt_cfgu32_create("n-u32", &u32_val, NULL, NULL);
+    TT_UT_NOT_NULL(co, "");
+    ret = tt_cfgdir_add(TT_CFGOBJ_CAST(cgrp, tt_cfgdir_t), co);
+    TT_UT_SUCCESS(ret, "");
 
     {
-        const tt_char_t *outstr = "PERM    TYPE    NAME    DESCRIPTION\n";
         tt_buf_clear(&output);
-        ret = tt_cfgnode_ls(cgrp, NULL, &output);
-        TT_UT_EQUAL(ret, TT_SUCCESS, "");
-        cmp_ret = tt_buf_cmp_cstr(&output, outstr);
+        ret = tt_cfgobj_ls(cgrp, NULL, NULL, &output);
+        TT_UT_SUCCESS(ret, "");
+        cmp_ret = tt_buf_cmp_cstr(&output, "rw-    u32       n-u32    ");
         TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
-    ret = tt_cfgnode_commit(cgrp);
-    TT_UT_EQUAL(ret, TT_SUCCESS, "");
-
     {
-        const tt_char_t *outstr =
-            "PERM    TYPE    NAME            DESCRIPTION\n"
-            "--gs    u32     n-u32-111223    testing u32 child node";
-
         tt_buf_clear(&output);
-        ret = tt_cfgnode_ls(cgrp, NULL, &output);
-        TT_UT_EQUAL(ret, TT_SUCCESS, "");
-        cmp_ret = tt_buf_cmp_cstr(&output, outstr);
-        TT_UT_EQUAL(cmp_ret, 0, "");
+        ret = tt_cfgobj_read(cgrp, NULL, &output);
+        TT_UT_EQUAL(ret, TT_NOT_SUPPORT, "");
     }
 
     // add 2 node
-    name.addr = (tt_u8_t *)"n_s32";
-    name.len = sizeof("n_s32") - 1;
-    val.addr = (tt_u8_t *)"-123";
-    val.len = sizeof("-123") - 1;
-    ret = tt_cfgnode_add(cgrp, &name, &val);
-    TT_UT_EQUAL(ret, TT_SUCCESS, "");
-
-    ret = tt_cfgnode_commit(cgrp);
-    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+    co = tt_cfgs32_create("n-s32", &s32_val, NULL, NULL);
+    TT_UT_NOT_NULL(co, "");
+    ret = tt_cfgdir_add(TT_CFGOBJ_CAST(cgrp, tt_cfgdir_t), co);
+    TT_UT_SUCCESS(ret, "");
 
     {
         const tt_char_t outstr[] =
-            "PERM    TYPE    NAME            DESCRIPTION\x01\x02"
-            "--gs    s32     n-s32-xx        testing s32 child\x01\x02"
-            "--gs    u32     n-u32-111223    testing u32 child node";
+            "rw->>>s32   >>>n-s32>>>\r\n"
+            "rw->>>u32   >>>n-u32>>>";
 
         tt_buf_clear(&output);
-        ret = tt_cfgnode_ls(cgrp, "\001\002", &output);
-        TT_UT_EQUAL(ret, TT_SUCCESS, "");
+        ret = tt_cfgobj_ls(cgrp, ">>>", "\r\n", &output);
+        TT_UT_SUCCESS(ret, "");
         cmp_ret = tt_buf_cmp_cstr(&output, outstr);
         TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
-    // rm 1 node
-    name.addr = (tt_u8_t *)"n_u32";
-    name.len = sizeof("n_u32") - 1;
-    ret = tt_cfgnode_rm(cgrp, &name);
-    TT_UT_EQUAL(ret, TT_BAD_PARAM, "");
-
-    // can not add beofore commiting
-    name.addr = (tt_u8_t *)"n_u32";
-    name.len = sizeof("n_u32") - 1;
-    val.addr = (tt_u8_t *)"123";
-    val.len = sizeof("123") - 1;
-    ret = tt_cfgnode_add(cgrp, &name, &val);
-    TT_UT_EQUAL(ret, TT_BAD_PARAM, "");
-
-    name.addr = (tt_u8_t *)"n-s32-xx";
-    name.len = sizeof("n-s32-xx") - 1;
-    ret = tt_cfgnode_rm(cgrp, &name);
-    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+    // add a directory
+    co = tt_cfgdir_create("dir1", NULL);
+    TT_UT_NOT_NULL(co, "");
+    ret = tt_cfgdir_add(TT_CFGOBJ_CAST(cgrp, tt_cfgdir_t), co);
+    TT_UT_SUCCESS(ret, "");
 
     {
         const tt_char_t outstr[] =
-            "PERM    TYPE    NAME            DESCRIPTION\x01\x02"
-            "--gs    s32     n-s32-xx        testing s32 child\x01\x02"
-            "--gs    u32     n-u32-111223    testing u32 child node";
+            "---    dir       dir1/    \r\n"
+            "rw-    s32       n-s32    \r\n"
+            "rw-    u32       n-u32    ";
 
         tt_buf_clear(&output);
-        ret = tt_cfgnode_ls(cgrp, "\001\002", &output);
-        TT_UT_EQUAL(ret, TT_SUCCESS, "");
-        cmp_ret = tt_buf_cmp_cstr(&output, outstr);
-        TT_UT_EQUAL(cmp_ret, 0, "");
-    }
-    ret = tt_cfgnode_commit(cgrp);
-    TT_UT_EQUAL(ret, TT_SUCCESS, "");
-    {
-        const tt_char_t outstr[] =
-            "PERM    TYPE    NAME            DESCRIPTION\x01\x02"
-            "--gs    u32     n-u32-111223    testing u32 child node";
-
-        tt_buf_clear(&output);
-        ret = tt_cfgnode_ls(cgrp, "\001\002", &output);
-        TT_UT_EQUAL(ret, TT_SUCCESS, "");
+        ret = tt_cfgobj_ls(cgrp, NULL, "\r\n", &output);
+        TT_UT_SUCCESS(ret, "");
         cmp_ret = tt_buf_cmp_cstr(&output, outstr);
         TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
-    // add 2 node
-    name.addr = (tt_u8_t *)"n_s32";
-    name.len = sizeof("n_s32") - 1;
-    val.addr = (tt_u8_t *)"-999";
-    val.len = sizeof("-999") - 1;
-    ret = tt_cfgnode_add(cgrp, &name, &val);
-    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+    // duplicated a directory name
+    co = tt_cfgdir_create("dir1", NULL);
+    TT_UT_NOT_NULL(co, "");
+    ret = tt_cfgdir_add(TT_CFGOBJ_CAST(cgrp, tt_cfgdir_t), co);
+    TT_UT_FAIL(ret, "");
+    tt_cfgobj_destroy(co);
 
-    name.addr = (tt_u8_t *)"n_str";
-    name.len = sizeof("n_str") - 1;
-    val.addr = (tt_u8_t *)"this is a string";
-    val.len = sizeof("this is a string") - 1;
-    ret = tt_cfgnode_add(cgrp, &name, &val);
-    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+    // insert dir before
+    co = tt_cfgdir_create("dir0", NULL);
+    TT_UT_NOT_NULL(co, "");
+    ret = tt_cfgdir_add(TT_CFGOBJ_CAST(cgrp, tt_cfgdir_t), co);
+    TT_UT_SUCCESS(ret, "");
 
-    // rm uncommitted node
-    name.addr = (tt_u8_t *)"n-s32-xx";
-    name.len = sizeof("n-s32-xx") - 1;
-    ret = tt_cfgnode_rm(cgrp, &name);
-    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+    // insert after
+    co = tt_cfgdir_create("dir222", NULL);
+    TT_UT_NOT_NULL(co, "");
+    ret = tt_cfgdir_add(TT_CFGOBJ_CAST(cgrp, tt_cfgdir_t), co);
+    TT_UT_SUCCESS(ret, "");
 
-    ret = tt_cfgnode_commit(cgrp);
-    TT_UT_EQUAL(ret, TT_SUCCESS, "");
     {
         const tt_char_t outstr[] =
-            "PERM    TYPE    NAME            DESCRIPTION\r\n"
-            "--gs    str     n-string        s32 string\r\n"
-            "--gs    u32     n-u32-111223    testing u32 child node";
+            "---    dir       dir0/      \r\n"
+            "---    dir       dir1/      \r\n"
+            "---    dir       dir222/    \r\n"
+            "rw-    s32       n-s32      \r\n"
+            "rw-    u32       n-u32      ";
 
         tt_buf_clear(&output);
-        ret = tt_cfgnode_ls(cgrp, "\r\n", &output);
-        TT_UT_EQUAL(ret, TT_SUCCESS, "");
+        ret = tt_cfgobj_ls(cgrp, NULL, "\r\n", &output);
+        TT_UT_SUCCESS(ret, "");
         cmp_ret = tt_buf_cmp_cstr(&output, outstr);
         TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
-    tt_cfgnode_destroy(cgrp, TT_TRUE);
+    // duplicated a node name
+    co = tt_cfgdir_create("n-u32", NULL);
+    TT_UT_NOT_NULL(co, "");
+    ret = tt_cfgdir_add(TT_CFGOBJ_CAST(cgrp, tt_cfgdir_t), co);
+    TT_UT_FAIL(ret, "");
+    tt_cfgobj_destroy(co);
+
+    co = tt_cfgs32_create("dir0", &s32_val, NULL, NULL);
+    TT_UT_NOT_NULL(co, "");
+    ret = tt_cfgdir_add(TT_CFGOBJ_CAST(cgrp, tt_cfgdir_t), co);
+    TT_UT_FAIL(ret, "");
+    tt_cfgobj_destroy(co);
+
+    // insert dir before
+    co = tt_cfgs32_create("n-s0", &s32_val, NULL, NULL);
+    TT_UT_NOT_NULL(co, "");
+    ret = tt_cfgdir_add(TT_CFGOBJ_CAST(cgrp, tt_cfgdir_t), co);
+    TT_UT_SUCCESS(ret, "");
+
+    // insert after
+    co = tt_cfgs32_create("n-z666666", &s32_val, NULL, NULL);
+    TT_UT_NOT_NULL(co, "");
+    ret = tt_cfgdir_add(TT_CFGOBJ_CAST(cgrp, tt_cfgdir_t), co);
+    TT_UT_SUCCESS(ret, "");
+
+    {
+        const tt_char_t outstr[] =
+            "---    dir       dir0/        \r\n"
+            "---    dir       dir1/        \r\n"
+            "---    dir       dir222/      \r\n"
+            "rw-    s32       n-s0         \r\n"
+            "rw-    s32       n-s32        \r\n"
+            "rw-    u32       n-u32        \r\n"
+            "rw-    s32       n-z666666    ";
+
+        tt_buf_clear(&output);
+        ret = tt_cfgobj_ls(cgrp, NULL, "\r\n", &output);
+        TT_UT_SUCCESS(ret, "");
+        cmp_ret = tt_buf_cmp_cstr(&output, outstr);
+        TT_UT_EQUAL(cmp_ret, 0, "");
+    }
+
+    // find unexist
+    co = tt_cfgdir_find(TT_CFGOBJ_CAST(cgrp, tt_cfgdir_t), "xxx", 3);
+    TT_UT_NULL(co, "");
+
+    // partial
+    co = tt_cfgdir_find(TT_CFGOBJ_CAST(cgrp, tt_cfgdir_t), "dir", 3);
+    TT_UT_NULL(co, "");
+
+    // find and remove head
+    co = tt_cfgdir_find(TT_CFGOBJ_CAST(cgrp, tt_cfgdir_t), "dir0", 4);
+    TT_UT_NOT_NULL(co, "");
+    tt_cfgdir_remove(TT_CFGOBJ_CAST(cgrp, tt_cfgdir_t), co);
+    tt_cfgobj_destroy(co);
+
+    {
+        const tt_char_t outstr[] =
+            "---    dir       dir1/        \r\n"
+            "---    dir       dir222/      \r\n"
+            "rw-    s32       n-s0         \r\n"
+            "rw-    s32       n-s32        \r\n"
+            "rw-    u32       n-u32        \r\n"
+            "rw-    s32       n-z666666    ";
+
+        tt_buf_clear(&output);
+        ret = tt_cfgobj_ls(cgrp, NULL, "\r\n", &output);
+        TT_UT_SUCCESS(ret, "");
+        cmp_ret = tt_buf_cmp_cstr(&output, outstr);
+        TT_UT_EQUAL(cmp_ret, 0, "");
+    }
+
+    // find and remove tail
+    co = tt_cfgdir_find(TT_CFGOBJ_CAST(cgrp, tt_cfgdir_t), "n-z666666", 9);
+    TT_UT_NOT_NULL(co, "");
+    tt_cfgdir_remove(TT_CFGOBJ_CAST(cgrp, tt_cfgdir_t), co);
+    tt_cfgobj_destroy(co);
+
+    {
+        const tt_char_t outstr[] =
+            "---    dir       dir1/        \r\n"
+            "---    dir       dir222/      \r\n"
+            "rw-    s32       n-s0         \r\n"
+            "rw-    s32       n-s32        \r\n"
+            "rw-    u32       n-u32        ";
+
+        tt_buf_clear(&output);
+        ret = tt_cfgobj_ls(cgrp, NULL, "\r\n", &output);
+        TT_UT_SUCCESS(ret, "");
+        cmp_ret = tt_buf_cmp_cstr(&output, outstr);
+        TT_UT_EQUAL(cmp_ret, 0, "");
+    }
+
+    // find and remove middle
+    co = tt_cfgdir_find(TT_CFGOBJ_CAST(cgrp, tt_cfgdir_t), "n-s0", 4);
+    TT_UT_NOT_NULL(co, "");
+    tt_cfgdir_remove(TT_CFGOBJ_CAST(cgrp, tt_cfgdir_t), co);
+    tt_cfgobj_destroy(co);
+
+    {
+        const tt_char_t outstr[] =
+            "---    dir       dir1/        \r\n"
+            "---    dir       dir222/      \r\n"
+            "rw-    s32       n-s32        \r\n"
+            "rw-    u32       n-u32        ";
+
+        tt_buf_clear(&output);
+        ret = tt_cfgobj_ls(cgrp, NULL, "\r\n", &output);
+        TT_UT_SUCCESS(ret, "");
+        cmp_ret = tt_buf_cmp_cstr(&output, outstr);
+        TT_UT_EQUAL(cmp_ret, 0, "");
+    }
+
+    tt_cfgobj_destroy(cgrp);
 
     // test end
     TT_TEST_CASE_LEAVE()
@@ -1192,149 +1165,114 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgnode_grp_ar)
 TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgnode_bool)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
-    tt_cfgnode_t *cnode;
+    tt_cfgobj_t *cnode;
     tt_bool_t val = TT_FALSE;
     tt_result_t ret;
     tt_u8_t c[] = "u32";
     tt_buf_t out;
     tt_s32_t cmp_ret;
     tt_blob_t n = {c, sizeof(c)}, v = {c, sizeof(c)};
-    tt_cfgbool_attr_t attr;
-    tt_cfgbool_cb_t cb = {__val_on_destroy, __bool_on_set};
+    tt_cfgobj_attr_t attr;
+    tt_cfgbool_cb_t cb = {__bool_on_set};
 
     TT_TEST_CASE_ENTER()
     // test start
 
     tt_buf_init(&out, NULL);
 
-    cnode = tt_cfgbool_create("", NULL, NULL, &val, &cb, NULL);
+    tt_cfgobj_attr_default(&attr);
+    attr.can_read = TT_TRUE;
+    attr.can_write = TT_FALSE;
+
+    cnode = tt_cfgbool_create("", &val, &attr, &cb);
     TT_UT_NOT_EQUAL(cnode, NULL, "");
-
-    // add
-    ret = tt_cfgnode_add(cnode, &n, &v);
-    TT_UT_EQUAL(ret, TT_BAD_PARAM, "");
-
-    // rm
-    ret = tt_cfgnode_rm(cnode, &n);
-    TT_UT_EQUAL(ret, TT_BAD_PARAM, "");
 
     // ls
     {
-        const tt_char_t *this_out =
-            "PERM    TYPE    NAME    DESCRIPTION\n"
-            "--g-    bool            ";
+        tt_buf_clear(&out);
+        ret = tt_cfgobj_read(cnode, NULL, &out);
+        TT_UT_SUCCESS(ret, "");
+        cmp_ret = tt_buf_cmp_cstr(&out, "false");
+        TT_UT_EQUAL(cmp_ret, 0, "");
 
         tt_buf_clear(&out);
-        ret = tt_cfgnode_ls(cnode, NULL, &out);
-        TT_UT_EQUAL(ret, TT_SUCCESS, "");
-        cmp_ret = tt_buf_cmp_cstr(&out, this_out);
+        ret = tt_cfgobj_ls(cnode, NULL, NULL, &out);
+        TT_UT_SUCCESS(ret, "");
+        cmp_ret = tt_buf_cmp_cstr(&out, "r--    bool          ");
         TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
     // get
     tt_buf_clear(&out);
     val = TT_TRUE;
-    ret = tt_cfgnode_get(cnode, &out);
-    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+    ret = tt_cfgobj_read(cnode, NULL, &out);
+    TT_UT_SUCCESS(ret, "");
     cmp_ret = tt_buf_cmp_cstr(&out, "true");
     TT_UT_EQUAL(cmp_ret, 0, "");
 
     tt_buf_clear(&out);
     val = TT_FALSE;
-    ret = tt_cfgnode_get(cnode, &out);
-    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+    ret = tt_cfgobj_read(cnode, NULL, &out);
+    TT_UT_SUCCESS(ret, "");
     cmp_ret = tt_buf_cmp_cstr(&out, "false");
     TT_UT_EQUAL(cmp_ret, 0, "");
 
     // set
-    ret = tt_cfgnode_set(cnode, &v);
-    TT_UT_EQUAL(ret, TT_BAD_PARAM, "");
+    ret = tt_cfgobj_write(cnode, v.addr, v.len);
+    TT_UT_EQUAL(ret, TT_NOT_SUPPORT, "");
 
-    // check
-    v.addr = (tt_u8_t *)"true";
-    v.len = (tt_u32_t)sizeof("true") - 1;
-    ret = tt_cfgnode_check(cnode, &v);
-    TT_UT_EQUAL(ret, TT_SUCCESS, "");
-
-    v.addr = (tt_u8_t *)"false";
-    v.len = (tt_u32_t)sizeof("false") - 1;
-    ret = tt_cfgnode_check(cnode, &v);
-    TT_UT_EQUAL(ret, TT_SUCCESS, "");
-
-    v.addr = (tt_u8_t *)"truee";
-    v.len = (tt_u32_t)sizeof("truee") - 1;
-    ret = tt_cfgnode_check(cnode, &v);
-    TT_UT_EQUAL(ret, TT_BAD_PARAM, "");
-
-    v.addr = (tt_u8_t *)"";
-    v.len = (tt_u32_t)sizeof("");
-    ret = tt_cfgnode_check(cnode, &v);
-    TT_UT_EQUAL(ret, TT_BAD_PARAM, "");
-
-    // commit
-    ret = tt_cfgnode_commit(cnode);
-    TT_UT_EQUAL(ret, TT_BAD_PARAM, "");
-
-    __ut_err_line = 0;
-    __ut_on_destroy_ok = TT_FALSE;
-    tt_cfgnode_destroy(cnode, TT_FALSE);
-    TT_UT_EQUAL(__ut_err_line, 0, "");
-    TT_UT_EQUAL(__ut_on_destroy_ok, TT_FALSE, "");
+    tt_cfgobj_destroy(cnode);
 
     // node 2
-    tt_cfgbool_attr_default(&attr);
-    attr.cnode_attr.brief = "test bool node";
-    attr.mode = TT_CFGVAL_MODE_GS;
+    tt_cfgobj_attr_default(&attr);
+    attr.brief = "test bool node";
+    attr.can_read = TT_TRUE;
+    attr.can_write = TT_TRUE;
 
-    cnode = tt_cfgbool_create("node-bool", NULL, NULL, &val, &cb, &attr);
+    cnode = tt_cfgbool_create("node-bool", &val, &attr, &cb);
     TT_UT_NOT_EQUAL(cnode, NULL, "");
-
-    // add
-    ret = tt_cfgnode_add(cnode, &n, &v);
-    TT_UT_EQUAL(ret, TT_BAD_PARAM, "");
-
-    // rm
-    ret = tt_cfgnode_rm(cnode, &n);
-    TT_UT_EQUAL(ret, TT_BAD_PARAM, "");
 
     // ls
     {
-        const tt_char_t *this_out =
-            "PERM    TYPE    NAME         DESCRIPTION\n"
-            "--gs    bool    node-bool    test bool node";
+        val = TT_FALSE;
+        tt_buf_clear(&out);
+        ret = tt_cfgobj_read(cnode, NULL, &out);
+        TT_UT_SUCCESS(ret, "");
+        cmp_ret = tt_buf_cmp_cstr(&out, "false");
+        TT_UT_EQUAL(cmp_ret, 0, "");
 
         tt_buf_clear(&out);
-        ret = tt_cfgnode_ls(cnode, NULL, &out);
-        TT_UT_EQUAL(ret, TT_SUCCESS, "");
-        cmp_ret = tt_buf_cmp_cstr(&out, this_out);
+        ret = tt_cfgobj_ls(cnode, NULL, NULL, &out);
+        TT_UT_SUCCESS(ret, "");
+        cmp_ret =
+            tt_buf_cmp_cstr(&out,
+                            "rw-    bool      node-bool    test bool node");
         TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
     tt_buf_clear(&out);
-    ret = tt_cfgnode_describe(cnode, 0, &out);
-    TT_UT_EQUAL(ret, TT_SUCCESS, "");
-    cmp_ret =
-        tt_buf_cmp_cstr(&out, "--gs    bool    node-bool    test bool node");
+    ret = tt_cfgobj_line(cnode, " ", 0, &out);
+    TT_UT_SUCCESS(ret, "");
+    cmp_ret = tt_buf_cmp_cstr(&out, "rw- bool   node-bool test bool node");
     TT_UT_EQUAL(cmp_ret, 0, "");
 
     tt_buf_clear(&out);
-    ret = tt_cfgnode_describe(cnode, 3, &out);
-    TT_UT_EQUAL(ret, TT_SUCCESS, "");
-    cmp_ret = tt_buf_cmp_cstr(&out, "--gs    bool    ???    test bool node");
+    ret = tt_cfgobj_line(cnode, " ", 3, &out);
+    TT_UT_SUCCESS(ret, "");
+    cmp_ret = tt_buf_cmp_cstr(&out, "rw- bool   ??? test bool node");
     TT_UT_EQUAL(cmp_ret, 0, "");
 
     tt_buf_clear(&out);
-    ret = tt_cfgnode_describe(cnode, 10, &out);
-    TT_UT_EQUAL(ret, TT_SUCCESS, "");
-    cmp_ret =
-        tt_buf_cmp_cstr(&out, "--gs    bool    node-bool     test bool node");
+    ret = tt_cfgobj_line(cnode, " ", 10, &out);
+    TT_UT_SUCCESS(ret, "");
+    cmp_ret = tt_buf_cmp_cstr(&out, "rw- bool   node-bool  test bool node");
     TT_UT_EQUAL(cmp_ret, 0, "");
 
     // get
     tt_buf_clear(&out);
     val = ~0;
-    ret = tt_cfgnode_get(cnode, &out);
-    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+    ret = tt_cfgobj_read(cnode, NULL, &out);
+    TT_UT_SUCCESS(ret, "");
     cmp_ret = tt_buf_cmp_cstr(&out, "true");
     TT_UT_EQUAL(cmp_ret, 0, "");
 
@@ -1343,39 +1281,22 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgnode_bool)
     tt_buf_clear(&out);
     v.addr = (tt_u8_t *)"true";
     v.len = (tt_u32_t)sizeof("true") - 1;
-    ret = tt_cfgnode_set(cnode, &v);
-    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+    ret = tt_cfgobj_write(cnode, v.addr, v.len);
+    TT_UT_SUCCESS(ret, "");
+    TT_UT_EQUAL(val, TT_TRUE, "");
 
     tt_buf_clear(&out);
     v.addr = (tt_u8_t *)"false";
     v.len = (tt_u32_t)sizeof("false") - 1;
-    ret = tt_cfgnode_set(cnode, &v);
-    TT_UT_EQUAL(ret, TT_SUCCESS, "");
-
-    // commit
-    __ut_cb_called = TT_FALSE;
-    ret = tt_cfgnode_commit(cnode);
-    TT_UT_EQUAL(ret, TT_SUCCESS, "");
-    TT_UT_EQUAL(__ut_cb_called, TT_FALSE, "");
+    ret = tt_cfgobj_write(cnode, v.addr, v.len);
+    TT_UT_SUCCESS(ret, "");
     TT_UT_EQUAL(val, TT_FALSE, "");
 
-    val = TT_FALSE;
     tt_buf_clear(&out);
-    v.addr = (tt_u8_t *)"true";
-    v.len = (tt_u32_t)sizeof("true") - 1;
-    ret = tt_cfgnode_set(cnode, &v);
-    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+    ret = tt_cfgobj_write(cnode, (tt_u8_t *)"TRUE", 4);
+    TT_UT_FAIL(ret, "");
 
-    ret = tt_cfgnode_commit(cnode);
-    TT_UT_EQUAL(ret, TT_END, "");
-    TT_UT_EQUAL(__ut_cb_called, TT_TRUE, "");
-    TT_UT_EQUAL(__ut_bool_set, TT_TRUE, "");
-
-    __ut_err_line = 0;
-    __ut_on_destroy_ok = TT_FALSE;
-    tt_cfgnode_destroy(cnode, TT_TRUE);
-    TT_UT_EQUAL(__ut_err_line, 0, "");
-    TT_UT_EQUAL(__ut_on_destroy_ok, TT_TRUE, "");
+    tt_cfgobj_destroy(cnode);
 
     tt_buf_destroy(&out);
 

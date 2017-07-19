@@ -163,7 +163,8 @@ tt_result_t __logmgr_component_init(IN tt_component_t *comp,
 tt_result_t __logmgr_config_component_init(IN tt_component_t *comp,
                                            IN tt_profile_t *profile)
 {
-    tt_cfgnode_t *cnode;
+#if 0
+    tt_cfgobj_t *cnode;
     tt_cfgu32_attr_t attr;
 
     // create log level node:
@@ -190,6 +191,7 @@ tt_result_t __logmgr_config_component_init(IN tt_component_t *comp,
         TT_ERROR("fail to add config node: log-level");
         return TT_FAIL;
     }
+#endif
 
     return TT_SUCCESS;
 }

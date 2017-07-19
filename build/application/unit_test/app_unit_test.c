@@ -132,6 +132,10 @@ tt_platform_init(NULL);
 
 tt_thread_create_local(NULL);
 
+// run
+#define AUT_MODE 2
+
+#if AUT_MODE == 0
 tt_task_create(&t, NULL);
 tt_task_add_fiber(&t, NULL, __ut_fiber, NULL, NULL);
 tt_task_run(&t);
@@ -140,38 +144,23 @@ printf("exiting\n");
 #if TT_ENV_OS_IS_WINDOWS
 while (1) {
 #else
-    while (0) {
+while (0) {
 #endif
     tt_sleep(10000);
 }
 
 return 0;
-
-// create a local thread
-tt_thread_create_local(NULL);
-
-// run
-#define AUT_MODE 0
-
-#if AUT_MODE == 0
-tt_test_framework_init(0);
-tt_test_unit_init(NULL);
-tt_test_unit_run(NULL);
-tt_test_unit_list(NULL);
-
-// tt_skt_stat_show(0);
-// tt_ssl_stat_show(0);
 #elif AUT_MODE == 1
     {
         tt_console_run(__console_ev_handler, NULL, TT_TRUE);
     }
 #elif AUT_MODE == 2
 {
-    tt_cfgsh_t sh;
+    tt_shell_t sh;
 
-    tt_console_cfgsh_create(&sh, TT_CLI_MODE_DEFAUTL, NULL);
+    tt_console_sh_create(&sh, TT_CLI_MODE_DEFAUTL, NULL);
 
-    tt_console_cfgsh_run(&sh, TT_TRUE);
+    tt_console_sh_run(&sh, TT_TRUE);
 }
 #else
 tt_cli_demo_run();

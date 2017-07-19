@@ -66,7 +66,6 @@ TT_TEST_CASE("tt_unit_test_cli",
                  NULL,
                  NULL),
 
-#if 0 // debugging this case is a nightmare
     TT_TEST_CASE("tt_unit_test_cli_ac",
                  "cli auto complete",
                  tt_unit_test_cli_ac,
@@ -75,7 +74,6 @@ TT_TEST_CASE("tt_unit_test_cli",
                  NULL,
                  NULL,
                  NULL),
-#endif
 
     TT_TEST_CASE("tt_unit_test_cli_readline",
                  "cli read line",
@@ -148,7 +146,12 @@ tt_u32_t __ut_cli_on_cmd(IN struct tt_cli_s *cli,
         tt_buf_put(output, (tt_u8_t *)cmd, n);
         tt_memcpy(__ut_cli_cmd, cmd, n);
         __ut_cli_cmd[n] = 0;
-        return TT_CLIOC_OUT;
+
+        if (tt_strcmp(cmd, "exit") == 0) {
+            return TT_CLIOC_END;
+        } else {
+            return TT_CLIOC_OUT;
+        }
     }
     return TT_CLIOC_NOOUT;
 }
@@ -324,6 +327,41 @@ static __cli_case_t cli_case[] = {
     },
     {
         // 11
+        {TT_CLI_EV_ENTER},
+        1,
+        {TT_CLI_EV_ENTER,
+         't',
+         'i',
+         't',
+         'l',
+         'e',
+         ':',
+         's',
+         'u',
+         'b',
+         '_',
+         't',
+         'i',
+         't',
+         'l',
+         'e',
+         '$',
+         ' '},
+        18,
+        (void *)1,
+    },
+#if 1
+    {
+        // 12
+        {'e', 'x', 'i', 't', TT_CLI_EV_ENTER},
+        5,
+        {'e', 'x', 'i', 't', TT_CLI_EV_ENTER, 'e', 'x', 'i', 't'},
+        9,
+        NULL,
+    },
+#else
+    {
+        // 12
         {'a', 'A', 'z', 'Z', '0', '9'},
         6,
         {'a', 'A', 'z', 'Z', '0', '9'},
@@ -331,13 +369,14 @@ static __cli_case_t cli_case[] = {
         NULL,
     },
     {
-        // 12
+        // 13
         {TT_CLI_EV_QUIT},
         1,
         {'^', 'D', TT_CLI_EV_ENTER},
         3,
         (void *)1,
     },
+#endif
 };
 
 TT_TEST_ROUTINE_DEFINE(tt_unit_test_cli)
@@ -363,6 +402,9 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cli)
 
     ret = tt_cli_create(&cli, TT_CLI_MODE_DEFAUTL, &cb, &itf, &attr);
     TT_UT_EQUAL(ret, TT_SUCCESS, "");
+
+    tt_cli_set_cb(&cli, &cb);
+    tt_cli_set_itf(&cli, &itf);
 
     __ut_cli_idx = ~0;
     __ut_cli_ret = TT_SUCCESS;
@@ -469,146 +511,39 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cli_stress)
 
 static tt_u32_t __ut_cli_on_ac(IN struct tt_cli_s *cli,
                                IN void *param,
-                               IN tt_blob_t *cursor_data,
+                               IN tt_u8_t *cur,
+                               IN tt_u32_t cur_len,
                                IN tt_bool_t wait4cmd,
                                IN tt_buf_t *output)
 {
     // available cmd: 1 12 123 1234
     // available data: a ab abcdf abcde
+    // input: "   1235   abcd1   abce"
 
-    // input: "   123   abcd   abce"
+    const tt_char_t *cmd[] = {
+        "1", "12", "1234",
+    };
+    const tt_char_t *data[] = {
+        "a", "ab", "abcdf", "abcde",
+    };
+    tt_u32_t status;
+    tt_result_t result;
 
-    if (cursor_data->len == 0) {
-        if (wait4cmd) {
-            tt_buf_put(output, (const tt_u8_t *)"1 12 123 1234", 13);
-        } else {
-            tt_buf_put(output, (const tt_u8_t *)"a ab abc abcde abd", 18);
-        }
+    result = tt_cli_complete(cur,
+                             cur_len,
+                             TT_COND(wait4cmd, cmd, data),
+                             TT_COND(wait4cmd,
+                                     sizeof(cmd) / sizeof(cmd[0]),
+                                     sizeof(data) / sizeof(data[0])),
+                             &status,
+                             output);
+    if (TT_OK(result)) {
+        return status;
+    } else {
+        __ut_cli_ret = TT_FAIL;
+        __ut_cli_err = __LINE__;
         return TT_CLICP_NONE;
     }
-
-    if (cursor_data->len == 5) {
-        if (tt_strncmp((tt_char_t *)cursor_data->addr, "abcde", 5) == 0) {
-            if (wait4cmd) {
-                __ut_cli_ret = TT_FAIL;
-                __ut_cli_err = __LINE__;
-                return TT_TRUE;
-            }
-
-            return TT_CLICP_FULL;
-        } else {
-            __ut_cli_ret = TT_FAIL;
-            __ut_cli_err = __LINE__;
-            return TT_CLICP_NONE;
-        }
-    }
-
-    if (cursor_data->len == 4) {
-        if (tt_strncmp((tt_char_t *)cursor_data->addr, "abcd", 4) == 0) {
-            if (wait4cmd) {
-                __ut_cli_ret = TT_FAIL;
-                __ut_cli_err = __LINE__;
-                return TT_TRUE;
-            }
-
-            tt_buf_put(output, (const tt_u8_t *)"e", 1);
-            return TT_CLICP_FULL;
-        } else if (tt_strncmp((tt_char_t *)cursor_data->addr, "abce", 4) == 0) {
-            if (wait4cmd) {
-                __ut_cli_ret = TT_FAIL;
-                __ut_cli_err = __LINE__;
-                return TT_CLICP_NONE;
-            }
-
-            // none matching
-            return TT_CLICP_NONE;
-        } else {
-            __ut_cli_ret = TT_FAIL;
-            __ut_cli_err = __LINE__;
-            return TT_CLICP_NONE;
-        }
-    }
-
-    if (cursor_data->len == 3) {
-        if (tt_strncmp((tt_char_t *)cursor_data->addr, "123", 3) == 0) {
-            if (!wait4cmd) {
-                __ut_cli_ret = TT_FAIL;
-                __ut_cli_err = __LINE__;
-                return TT_CLICP_NONE;
-            }
-
-            return TT_CLICP_FULL;
-        } else if (tt_strncmp((tt_char_t *)cursor_data->addr, "abc", 3) == 0) {
-            if (wait4cmd) {
-                __ut_cli_ret = TT_FAIL;
-                __ut_cli_err = __LINE__;
-                return TT_CLICP_NONE;
-            }
-
-            tt_buf_put(output, (const tt_u8_t *)"abc abcde", 9);
-            return TT_CLICP_NONE;
-        } else {
-            __ut_cli_ret = TT_FAIL;
-            __ut_cli_err = __LINE__;
-            return TT_CLICP_NONE;
-        }
-    }
-
-    if (cursor_data->len == 2) {
-        if (tt_strncmp((tt_char_t *)cursor_data->addr, "12", 2) == 0) {
-            if (!wait4cmd) {
-                __ut_cli_ret = TT_FAIL;
-                __ut_cli_err = __LINE__;
-                return TT_CLICP_NONE;
-            }
-
-            tt_buf_put(output, (const tt_u8_t *)"12 123", 6);
-            return TT_CLICP_NONE;
-        } else if (tt_strncmp((tt_char_t *)cursor_data->addr, "ab", 2) == 0) {
-            if (wait4cmd) {
-                __ut_cli_ret = TT_FAIL;
-                __ut_cli_err = __LINE__;
-                return TT_CLICP_NONE;
-            }
-
-            tt_buf_put(output, (const tt_u8_t *)"ab abc abcde", 12);
-            return TT_CLICP_NONE;
-        } else {
-            __ut_cli_ret = TT_FAIL;
-            __ut_cli_err = __LINE__;
-            return TT_CLICP_NONE;
-        }
-    }
-
-    if (cursor_data->len == 1) {
-        if (tt_strncmp((tt_char_t *)cursor_data->addr, "1", 1) == 0) {
-            if (!wait4cmd) {
-                __ut_cli_ret = TT_FAIL;
-                __ut_cli_err = __LINE__;
-                return TT_CLICP_NONE;
-            }
-
-            tt_buf_put(output, (const tt_u8_t *)"1 12 123", 8);
-            return TT_CLICP_NONE;
-        } else if (tt_strncmp((tt_char_t *)cursor_data->addr, "a", 1) == 0) {
-            if (wait4cmd) {
-                __ut_cli_ret = TT_FAIL;
-                __ut_cli_err = __LINE__;
-                return TT_TRUE;
-            }
-
-            tt_buf_put(output, (const tt_u8_t *)"a ab abc abcde", 14);
-            return TT_CLICP_NONE;
-        } else {
-            __ut_cli_ret = TT_FAIL;
-            __ut_cli_err = __LINE__;
-            return TT_TRUE;
-        }
-    }
-
-    __ut_cli_ret = TT_FAIL;
-    __ut_cli_err = __LINE__;
-    return TT_TRUE;
 }
 
 static tt_string_t __ac_string;
@@ -616,6 +551,7 @@ static tt_string_t __ac_string1;
 static tt_string_t __ac_string2;
 static tt_u32_t __ac_cursor;
 #define __pref_len (sizeof("title:sub_title$ ") - 1)
+static tt_u32_t __ac_idx;
 
 tt_result_t __ut_cli_send_ac(IN struct tt_cli_s *cli,
                              IN void *param,
@@ -647,6 +583,7 @@ tt_result_t __ut_cli_send_ac(IN struct tt_cli_s *cli,
 
             tt_string_clear(&__ac_string);
             __ac_cursor = 0;
+            ++__ac_idx;
         } else if (e == TT_CLI_EV_DELETE) {
             TT_ASSERT(__ac_cursor > 0);
             tt_string_remove_range(&__ac_string, __ac_cursor, 1);
@@ -707,314 +644,365 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cli_ac)
     TT_UT_EQUAL(cmp_ret, 0, "");
 
     {
-        const tt_char_t *a = "   123   abcd   abce";
+        const tt_char_t *a = "   1235   abcd1   abce";
         tt_cli_input(&cli, (tt_u8_t *)a, (tt_u32_t)tt_strlen(a));
         __SHOW_AC_STR();
         TT_UT_EQUAL(__ut_cli_ret, TT_SUCCESS, "");
 
         cmp_ret = tt_string_cmp(&__ac_string,
-                                "title:sub_title$    123   abcd   abce");
+                                "title:sub_title$    1235   abcd1   abce");
         TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
     {
-        // "   123   abcd   abce[]"
+        // "   1235   abcd1   abce[]"
         tt_cli_input_ev(&cli, TT_CLI_EV_TAB);
         __SHOW_AC_STR();
         TT_UT_EQUAL(__ut_cli_ret, TT_SUCCESS, "");
 
+        // none match
         cmp_ret = tt_string_cmp(&__ac_string,
-                                "title:sub_title$    123   abcd   abce");
-        TT_UT_EQUAL(cmp_ret, 0, "");
-    }
-
-    {
-        tt_cli_input_ev(&cli, TT_CLI_EV_LEFT);
-        // "   123   abcd   abc[e]"
-        tt_cli_input_ev(&cli, TT_CLI_EV_TAB);
-        __SHOW_AC_STR();
-        TT_UT_EQUAL(__ut_cli_ret, TT_SUCCESS, "");
-
-        cmp_ret = tt_string_cmp(&__ac_string2,
-                                "title:sub_title$    123   abcd   abce");
-        TT_UT_EQUAL(cmp_ret, 0, "");
-        cmp_ret = tt_string_cmp(&__ac_string1, "abc abcde");
-        TT_UT_EQUAL(cmp_ret, 0, "");
-        cmp_ret = tt_string_cmp(&__ac_string,
-                                "title:sub_title$    123   abcd   abce");
+                                "title:sub_title$    1235   abcd1   abce");
         TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
     {
         tt_cli_input_ev(&cli, TT_CLI_EV_LEFT);
-        // "   123   abcd   ab[c]e"
+        // "   1235   abcd1   abc[e]"
         tt_cli_input_ev(&cli, TT_CLI_EV_TAB);
         __SHOW_AC_STR();
         TT_UT_EQUAL(__ut_cli_ret, TT_SUCCESS, "");
 
-        cmp_ret = tt_string_cmp(&__ac_string2,
-                                "title:sub_title$    123   abcd   abce");
-        TT_UT_EQUAL(cmp_ret, 0, "");
-        cmp_ret = tt_string_cmp(&__ac_string1, "ab abc abcde");
-        TT_UT_EQUAL(cmp_ret, 0, "");
+        // abc has two candi: abcde, abcdf, so complete 1 char 'd'
         cmp_ret = tt_string_cmp(&__ac_string,
-                                "title:sub_title$    123   abcd   abce");
+                                "title:sub_title$    1235   abcd1   abcde");
         TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
     {
         tt_cli_input_ev(&cli, TT_CLI_EV_LEFT);
-        // "   123   abcd   a[b]ce"
+        // "   1235   abcd1   abc[d]e"
         tt_cli_input_ev(&cli, TT_CLI_EV_TAB);
         __SHOW_AC_STR();
         TT_UT_EQUAL(__ut_cli_ret, TT_SUCCESS, "");
 
-        cmp_ret = tt_string_cmp(&__ac_string2,
-                                "title:sub_title$    123   abcd   abce");
-        TT_UT_EQUAL(cmp_ret, 0, "");
-        cmp_ret = tt_string_cmp(&__ac_string1, "a ab abc abcde");
-        TT_UT_EQUAL(cmp_ret, 0, "");
+        // abc has two candi: abcde, abcdf, so complete 1 char 'd'
         cmp_ret = tt_string_cmp(&__ac_string,
-                                "title:sub_title$    123   abcd   abce");
+                                "title:sub_title$    1235   abcd1   abcdde");
         TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
     {
         tt_cli_input_ev(&cli, TT_CLI_EV_LEFT);
-        // "   123   abcd   [a]bce"
+        tt_cli_input_ev(&cli, TT_CLI_EV_LEFT);
+        // "   1235   abcd1   ab[c]dde"
         tt_cli_input_ev(&cli, TT_CLI_EV_TAB);
         __SHOW_AC_STR();
         TT_UT_EQUAL(__ut_cli_ret, TT_SUCCESS, "");
 
         cmp_ret = tt_string_cmp(&__ac_string2,
-                                "title:sub_title$    123   abcd   abce");
+                                "title:sub_title$    1235   abcd1   abcdde");
         TT_UT_EQUAL(cmp_ret, 0, "");
-        cmp_ret = tt_string_cmp(&__ac_string1, "a ab abc abcde xxx");
+        cmp_ret = tt_string_cmp(&__ac_string1, "ab abcdf abcde");
         TT_UT_EQUAL(cmp_ret, 0, "");
         cmp_ret = tt_string_cmp(&__ac_string,
-                                "title:sub_title$    123   abcd   abce");
+                                "title:sub_title$    1235   abcd1   abcdde");
         TT_UT_EQUAL(cmp_ret, 0, "");
+    }
+
+    {
+        tt_cli_input_ev(&cli, TT_CLI_EV_LEFT);
+        // "   1235   abcd1   a[b]cdde"
+        tt_cli_input_ev(&cli, TT_CLI_EV_TAB);
+        __SHOW_AC_STR();
+        TT_UT_EQUAL(__ut_cli_ret, TT_SUCCESS, "");
+
+        cmp_ret = tt_string_cmp(&__ac_string2,
+                                "title:sub_title$    1235   abcd1   abcdde");
+        TT_UT_EQUAL(cmp_ret, 0, "");
+        cmp_ret = tt_string_cmp(&__ac_string1, "a ab abcdf abcde");
+        TT_UT_EQUAL(cmp_ret, 0, "");
+        cmp_ret = tt_string_cmp(&__ac_string,
+                                "title:sub_title$    1235   abcd1   abcdde");
+        TT_UT_EQUAL(cmp_ret, 0, "");
+    }
+
+    {
+        tt_cli_input_ev(&cli, TT_CLI_EV_LEFT);
+        // "   1235   abcd1   [a]bcdde"
+        tt_cli_input_ev(&cli, TT_CLI_EV_TAB);
+        __SHOW_AC_STR();
+        TT_UT_EQUAL(__ut_cli_ret, TT_SUCCESS, "");
+
+        cmp_ret = tt_string_cmp(&__ac_string2,
+                                "title:sub_title$    1235   abcd1   abcdde");
+        TT_UT_EQUAL(cmp_ret, 0, "");
+        cmp_ret = tt_string_cmp(&__ac_string1, "a ab abcdf abcde");
+        TT_UT_EQUAL(cmp_ret, 0, "");
+        cmp_ret = tt_string_cmp(&__ac_string,
+                                "title:sub_title$    1235   abcd1   abcdde");
     }
 
     /////////// 3 spaces
     {
         tt_cli_input_ev(&cli, TT_CLI_EV_LEFT);
-        // "   123   abcd  [ ]abce"
-        tt_cli_input_ev(&cli, TT_CLI_EV_TAB);
-        __SHOW_AC_STR();
-        TT_UT_EQUAL(__ut_cli_ret, TT_SUCCESS, "");
-
-        cmp_ret = tt_string_cmp(&__ac_string1, "a ab abc abcde xxx");
-        TT_UT_EQUAL(cmp_ret, 0, "");
-        cmp_ret = tt_string_cmp(&__ac_string,
-                                "title:sub_title$    123   abcd   abce");
-        TT_UT_EQUAL(cmp_ret, 0, "");
-    }
-    {
-        tt_cli_input_ev(&cli, TT_CLI_EV_LEFT);
-        // "   123   abcd [ ] abce"
-        tt_cli_input_ev(&cli, TT_CLI_EV_TAB);
-        __SHOW_AC_STR();
-        TT_UT_EQUAL(__ut_cli_ret, TT_SUCCESS, "");
-
-        cmp_ret = tt_string_cmp(&__ac_string1, "a ab abc abcde xxx");
-        TT_UT_EQUAL(cmp_ret, 0, "");
-        cmp_ret = tt_string_cmp(&__ac_string,
-                                "title:sub_title$    123   abcd   abce");
-        TT_UT_EQUAL(cmp_ret, 0, "");
-    }
-    {
-        tt_cli_input_ev(&cli, TT_CLI_EV_LEFT);
-        // "   123   abcd[ ]  abce"
-        tt_cli_input_ev(&cli, TT_CLI_EV_TAB);
-        __SHOW_AC_STR();
-        TT_UT_EQUAL(__ut_cli_ret, TT_SUCCESS, "");
-
-        cmp_ret = tt_string_cmp(&__ac_string,
-                                "title:sub_title$    123   abcde    abce");
-        TT_UT_EQUAL(cmp_ret, 0, "");
-    }
-
-    {
-        tt_cli_input_ev(&cli, TT_CLI_EV_LEFT);
-        // "   123   abcde[]   abce"
-        tt_cli_input_ev(&cli, TT_CLI_EV_TAB);
-        __SHOW_AC_STR();
-        TT_UT_EQUAL(__ut_cli_ret, TT_SUCCESS, "");
-
-        cmp_ret = tt_string_cmp(&__ac_string,
-                                "title:sub_title$    123   abcde     abce");
-        TT_UT_EQUAL(cmp_ret, 0, "");
-    }
-
-    {
-        tt_cli_input_ev(&cli, TT_CLI_EV_LEFT);
-        // "   123   abcde[ ]    abce"
-        tt_cli_input_ev(&cli, TT_CLI_EV_LEFT);
-        // "   123   abcd[e]     abce"
-        tt_cli_input_ev(&cli, TT_CLI_EV_TAB);
-        __SHOW_AC_STR();
-        TT_UT_EQUAL(__ut_cli_ret, TT_SUCCESS, "");
-
-        cmp_ret = tt_string_cmp(&__ac_string,
-                                "title:sub_title$    123   abcde e     abce");
-        TT_UT_EQUAL(cmp_ret, 0, "");
-    }
-
-    {
-        tt_cli_input_ev(&cli, TT_CLI_EV_LEFT);
-        // "   123   abcde[ ]e     abce"
-        tt_cli_input_ev(&cli, TT_CLI_EV_LEFT);
-        // "   123   abcd[e] e     abce"
-        tt_cli_input_ev(&cli, TT_CLI_EV_LEFT);
-        // "   123   abc[d]e e     abce"
+        // "   1235   abcd1  [ ]abcdde"
         tt_cli_input_ev(&cli, TT_CLI_EV_TAB);
         __SHOW_AC_STR();
         TT_UT_EQUAL(__ut_cli_ret, TT_SUCCESS, "");
 
         cmp_ret = tt_string_cmp(&__ac_string2,
-                                "title:sub_title$    123   abcde e     abce");
+                                "title:sub_title$    1235   abcd1   abcdde");
         TT_UT_EQUAL(cmp_ret, 0, "");
-        cmp_ret = tt_string_cmp(&__ac_string1, "abc abcde");
+        cmp_ret = tt_string_cmp(&__ac_string1, "a ab abcdf abcde");
         TT_UT_EQUAL(cmp_ret, 0, "");
         cmp_ret = tt_string_cmp(&__ac_string,
-                                "title:sub_title$    123   abcde e     abce");
-        TT_UT_EQUAL(cmp_ret, 0, "");
+                                "title:sub_title$    1235   abcd1   abcdde");
     }
-
     {
         tt_cli_input_ev(&cli, TT_CLI_EV_LEFT);
-        // "   123   ab[c]de e     abce"
-        tt_cli_input_ev(&cli, TT_CLI_EV_LEFT);
-        // "   123   a[b]cde e     abce"
-        tt_cli_input_ev(&cli, TT_CLI_EV_LEFT);
-        // "   123   [a]bcde e     abce"
+        // "   1235   abcd1 [ ] abcdde"
         tt_cli_input_ev(&cli, TT_CLI_EV_TAB);
         __SHOW_AC_STR();
         TT_UT_EQUAL(__ut_cli_ret, TT_SUCCESS, "");
 
         cmp_ret = tt_string_cmp(&__ac_string2,
-                                "title:sub_title$    123   abcde e     abce");
+                                "title:sub_title$    1235   abcd1   abcdde");
         TT_UT_EQUAL(cmp_ret, 0, "");
-        cmp_ret = tt_string_cmp(&__ac_string1, "a ab abc abcde xxx");
+        cmp_ret = tt_string_cmp(&__ac_string1, "a ab abcdf abcde");
         TT_UT_EQUAL(cmp_ret, 0, "");
         cmp_ret = tt_string_cmp(&__ac_string,
-                                "title:sub_title$    123   abcde e     abce");
-        TT_UT_EQUAL(cmp_ret, 0, "");
+                                "title:sub_title$    1235   abcd1   abcdde");
     }
-
     {
+        tt_u32_t org_idx = __ac_idx;
+
         tt_cli_input_ev(&cli, TT_CLI_EV_LEFT);
-        tt_cli_input_ev(&cli, TT_CLI_EV_LEFT);
-        tt_cli_input_ev(&cli, TT_CLI_EV_LEFT);
-        // "   123[ ]  abcde e     abce"
+        // "   1235   abcd1[ ]  abce"
         tt_cli_input_ev(&cli, TT_CLI_EV_TAB);
         __SHOW_AC_STR();
         TT_UT_EQUAL(__ut_cli_ret, TT_SUCCESS, "");
 
         cmp_ret = tt_string_cmp(&__ac_string,
-                                "title:sub_title$    123    abcde e     abce");
+                                "title:sub_title$    1235   abcd1   abcdde");
         TT_UT_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(org_idx, __ac_idx, ""); // no new line
     }
 
     {
-        tt_cli_input_ev(&cli, TT_CLI_EV_LEFT);
-        tt_cli_input_ev(&cli, TT_CLI_EV_LEFT);
-        // "   12[3]   abcde e     abce"
-        tt_cli_input_ev(&cli, TT_CLI_EV_TAB);
-        __SHOW_AC_STR();
-        TT_UT_EQUAL(__ut_cli_ret, TT_SUCCESS, "");
+        tt_u32_t org_idx = __ac_idx;
 
-        cmp_ret = tt_string_cmp(&__ac_string2,
-                                "title:sub_title$    123    abcde e     abce");
-        TT_UT_EQUAL(cmp_ret, 0, "");
-        cmp_ret = tt_string_cmp(&__ac_string1, "12 123");
-        TT_UT_EQUAL(cmp_ret, 0, "");
-        cmp_ret = tt_string_cmp(&__ac_string,
-                                "title:sub_title$    123    abcde e     abce");
-        TT_UT_EQUAL(cmp_ret, 0, "");
-    }
-
-    {
         tt_cli_input_ev(&cli, TT_CLI_EV_LEFT);
-        // "   1[2]3   abcde e     abce"
+        // "   1235   abcd[1]   abce"
         tt_cli_input_ev(&cli, TT_CLI_EV_TAB);
         __SHOW_AC_STR();
         TT_UT_EQUAL(__ut_cli_ret, TT_SUCCESS, "");
 
         cmp_ret = tt_string_cmp(&__ac_string2,
-                                "title:sub_title$    123    abcde e     abce");
+                                "title:sub_title$    1235   abcd1   abcdde");
         TT_UT_EQUAL(cmp_ret, 0, "");
-        cmp_ret = tt_string_cmp(&__ac_string1, "1 12 123");
+        cmp_ret = tt_string_cmp(&__ac_string1, "abcdf abcde");
         TT_UT_EQUAL(cmp_ret, 0, "");
         cmp_ret = tt_string_cmp(&__ac_string,
-                                "title:sub_title$    123    abcde e     abce");
-        TT_UT_EQUAL(cmp_ret, 0, "");
+                                "title:sub_title$    1235   abcd1   abcdde");
+        TT_UT_EQUAL(org_idx + 2, __ac_idx, ""); // 2 new line
     }
 
-    // output commands
     {
         tt_cli_input_ev(&cli, TT_CLI_EV_LEFT);
-        // "   [1]23   abcde e     abce"
+        // "   1235   abc[d]1    abcdde"
+        tt_cli_input_ev(&cli, TT_CLI_EV_LEFT);
+        // "   1235   ab[c]d1    abcdde"
+        tt_cli_input_ev(&cli, TT_CLI_EV_LEFT);
+        tt_cli_input_ev(&cli, TT_CLI_EV_LEFT);
+        // "   1235   [a]bcd1    abcdde"
         tt_cli_input_ev(&cli, TT_CLI_EV_TAB);
         __SHOW_AC_STR();
         TT_UT_EQUAL(__ut_cli_ret, TT_SUCCESS, "");
 
+        // show all data
         cmp_ret = tt_string_cmp(&__ac_string2,
-                                "title:sub_title$    123    abcde e     abce");
+                                "title:sub_title$    1235   abcd1   abcdde");
         TT_UT_EQUAL(cmp_ret, 0, "");
-        cmp_ret = tt_string_cmp(&__ac_string1, "1 12 123 2345");
+        cmp_ret = tt_string_cmp(&__ac_string1, "a ab abcdf abcde");
         TT_UT_EQUAL(cmp_ret, 0, "");
         cmp_ret = tt_string_cmp(&__ac_string,
-                                "title:sub_title$    123    abcde e     abce");
-        TT_UT_EQUAL(cmp_ret, 0, "");
+                                "title:sub_title$    1235   abcd1   abcdde");
     }
+
+    // 3 spaces
     {
         tt_cli_input_ev(&cli, TT_CLI_EV_LEFT);
-        // "  [ ]123   abcde e     abce"
+        tt_cli_input_ev(&cli, TT_CLI_EV_LEFT);
+        // "   1235 [ ] abcd1    abcdde"
+
         tt_cli_input_ev(&cli, TT_CLI_EV_TAB);
         __SHOW_AC_STR();
         TT_UT_EQUAL(__ut_cli_ret, TT_SUCCESS, "");
 
+        // show all data
         cmp_ret = tt_string_cmp(&__ac_string2,
-                                "title:sub_title$    123    abcde e     abce");
+                                "title:sub_title$    1235   abcd1   abcdde");
         TT_UT_EQUAL(cmp_ret, 0, "");
-        cmp_ret = tt_string_cmp(&__ac_string1, "1 12 123 2345");
+        cmp_ret = tt_string_cmp(&__ac_string1, "a ab abcdf abcde");
         TT_UT_EQUAL(cmp_ret, 0, "");
         cmp_ret = tt_string_cmp(&__ac_string,
-                                "title:sub_title$    123    abcde e     abce");
-        TT_UT_EQUAL(cmp_ret, 0, "");
+                                "title:sub_title$    1235   abcd1   abcdde");
     }
+
+    // command
     {
+        tt_u32_t org_idx = __ac_idx;
+
         tt_cli_input_ev(&cli, TT_CLI_EV_LEFT);
-        // " [ ] 123   abcde e     abce"
+        // "   1235[ ]  abcd1    abcdde"
+
         tt_cli_input_ev(&cli, TT_CLI_EV_TAB);
         __SHOW_AC_STR();
         TT_UT_EQUAL(__ut_cli_ret, TT_SUCCESS, "");
 
-        cmp_ret = tt_string_cmp(&__ac_string2,
-                                "title:sub_title$    123    abcde e     abce");
-        TT_UT_EQUAL(cmp_ret, 0, "");
-        cmp_ret = tt_string_cmp(&__ac_string1, "1 12 123 2345");
-        TT_UT_EQUAL(cmp_ret, 0, "");
+        // none match
         cmp_ret = tt_string_cmp(&__ac_string,
-                                "title:sub_title$    123    abcde e     abce");
+                                "title:sub_title$    1235   abcd1   abcdde");
         TT_UT_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(org_idx, __ac_idx, ""); // 2 new line
     }
+
     {
+        tt_u32_t org_idx = __ac_idx;
+
         tt_cli_input_ev(&cli, TT_CLI_EV_LEFT);
-        // "[ ]  123   abcde e     abce"
+        // "   123[5]  abcd1    abcdde"
+
         tt_cli_input_ev(&cli, TT_CLI_EV_TAB);
         __SHOW_AC_STR();
         TT_UT_EQUAL(__ut_cli_ret, TT_SUCCESS, "");
 
-        cmp_ret = tt_string_cmp(&__ac_string2,
-                                "title:sub_title$    123    abcde e     abce");
+        // none match
+        cmp_ret = tt_string_cmp(&__ac_string,
+                                "title:sub_title$    1234 5   abcd1   abcdde");
         TT_UT_EQUAL(cmp_ret, 0, "");
-        cmp_ret = tt_string_cmp(&__ac_string1, "1 12 123 2345");
+        TT_UT_EQUAL(org_idx, __ac_idx, ""); // 2 new line
+        // "   1234 [5]  abcd1    abcdde"
+    }
+
+    {
+        tt_u32_t org_idx = __ac_idx;
+
+        tt_cli_input_ev(&cli, TT_CLI_EV_LEFT);
+        tt_cli_input_ev(&cli, TT_CLI_EV_LEFT);
+        tt_cli_input_ev(&cli, TT_CLI_EV_LEFT);
+        // "   12[3]4 5  abcd1    abcdde"
+
+        tt_cli_input_ev(&cli, TT_CLI_EV_TAB);
+        __SHOW_AC_STR();
+        TT_UT_EQUAL(__ut_cli_ret, TT_SUCCESS, "");
+
+        // none match
+        cmp_ret = tt_string_cmp(&__ac_string2,
+                                "title:sub_title$    1234 5   abcd1   abcdde");
+        TT_UT_EQUAL(cmp_ret, 0, "");
+        cmp_ret = tt_string_cmp(&__ac_string1, "12 1234");
         TT_UT_EQUAL(cmp_ret, 0, "");
         cmp_ret = tt_string_cmp(&__ac_string,
-                                "title:sub_title$    123    abcde e     abce");
+                                "title:sub_title$    1234 5   abcd1   abcdde");
+        TT_UT_EQUAL(cmp_ret, 0, "");
+        TT_UT_EQUAL(org_idx + 2, __ac_idx, ""); // 2 new line
+        // "   1234 [5]  abcd1    abcdde"
+    }
+
+    {
+        tt_cli_input_ev(&cli, TT_CLI_EV_LEFT);
+        // "   1[2]34 5  abcd1    abcdde"
+
+        tt_cli_input_ev(&cli, TT_CLI_EV_TAB);
+        __SHOW_AC_STR();
+        TT_UT_EQUAL(__ut_cli_ret, TT_SUCCESS, "");
+
+        // none match
+        cmp_ret = tt_string_cmp(&__ac_string2,
+                                "title:sub_title$    1234 5   abcd1   abcdde");
+        TT_UT_EQUAL(cmp_ret, 0, "");
+        cmp_ret = tt_string_cmp(&__ac_string1, "1 12 1234");
+        TT_UT_EQUAL(cmp_ret, 0, "");
+        cmp_ret = tt_string_cmp(&__ac_string,
+                                "title:sub_title$    1234 5   abcd1   abcdde");
+        TT_UT_EQUAL(cmp_ret, 0, "");
+    }
+
+    {
+        tt_cli_input_ev(&cli, TT_CLI_EV_LEFT);
+        // "   [1]234 5  abcd1    abcdde"
+
+        tt_cli_input_ev(&cli, TT_CLI_EV_TAB);
+        __SHOW_AC_STR();
+        TT_UT_EQUAL(__ut_cli_ret, TT_SUCCESS, "");
+
+        // none match
+        cmp_ret = tt_string_cmp(&__ac_string2,
+                                "title:sub_title$    1234 5   abcd1   abcdde");
+        TT_UT_EQUAL(cmp_ret, 0, "");
+        cmp_ret = tt_string_cmp(&__ac_string1, "1 12 1234");
+        TT_UT_EQUAL(cmp_ret, 0, "");
+        cmp_ret = tt_string_cmp(&__ac_string,
+                                "title:sub_title$    1234 5   abcd1   abcdde");
+        TT_UT_EQUAL(cmp_ret, 0, "");
+    }
+
+    {
+        tt_cli_input_ev(&cli, TT_CLI_EV_LEFT);
+        // "  [ ]1234 5  abcd1    abcdde"
+
+        tt_cli_input_ev(&cli, TT_CLI_EV_TAB);
+        __SHOW_AC_STR();
+        TT_UT_EQUAL(__ut_cli_ret, TT_SUCCESS, "");
+
+        // none match
+        cmp_ret = tt_string_cmp(&__ac_string2,
+                                "title:sub_title$    1234 5   abcd1   abcdde");
+        TT_UT_EQUAL(cmp_ret, 0, "");
+        cmp_ret = tt_string_cmp(&__ac_string1, "1 12 1234");
+        TT_UT_EQUAL(cmp_ret, 0, "");
+        cmp_ret = tt_string_cmp(&__ac_string,
+                                "title:sub_title$    1234 5   abcd1   abcdde");
+        TT_UT_EQUAL(cmp_ret, 0, "");
+    }
+
+    {
+        tt_cli_input_ev(&cli, TT_CLI_EV_LEFT);
+        // " [ ] 1234 5  abcd1    abcdde"
+
+        tt_cli_input_ev(&cli, TT_CLI_EV_TAB);
+        __SHOW_AC_STR();
+        TT_UT_EQUAL(__ut_cli_ret, TT_SUCCESS, "");
+
+        // none match
+        cmp_ret = tt_string_cmp(&__ac_string2,
+                                "title:sub_title$    1234 5   abcd1   abcdde");
+        TT_UT_EQUAL(cmp_ret, 0, "");
+        cmp_ret = tt_string_cmp(&__ac_string1, "1 12 1234");
+        TT_UT_EQUAL(cmp_ret, 0, "");
+        cmp_ret = tt_string_cmp(&__ac_string,
+                                "title:sub_title$    1234 5   abcd1   abcdde");
+        TT_UT_EQUAL(cmp_ret, 0, "");
+    }
+
+    {
+        tt_cli_input_ev(&cli, TT_CLI_EV_LEFT);
+        // "[ ]  1234 5  abcd1    abcdde"
+
+        tt_cli_input_ev(&cli, TT_CLI_EV_TAB);
+        __SHOW_AC_STR();
+        TT_UT_EQUAL(__ut_cli_ret, TT_SUCCESS, "");
+
+        // none match
+        cmp_ret = tt_string_cmp(&__ac_string2,
+                                "title:sub_title$    1234 5   abcd1   abcdde");
+        TT_UT_EQUAL(cmp_ret, 0, "");
+        cmp_ret = tt_string_cmp(&__ac_string1, "1 12 1234");
+        TT_UT_EQUAL(cmp_ret, 0, "");
+        cmp_ret = tt_string_cmp(&__ac_string,
+                                "title:sub_title$    1234 5   abcd1   abcdde");
         TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
@@ -1052,11 +1040,16 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cli_readline)
     tt_cli_t cli;
     tt_result_t ret;
     tt_s32_t cmp_ret;
+    tt_cli_attr_t attr;
 
     tt_cli_itf_t itf = {&__ut_cli_obuf, __ut_cli_send};
 
     TT_TEST_CASE_ENTER()
     // test start
+
+    __ut_cli_err = 0;
+    __ut_read_more = TT_CLIOR_MORE;
+    __ut_cli_idx = 0;
 
     tt_buf_init(&__ut_cli_obuf, NULL);
 
@@ -1067,9 +1060,6 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cli_readline)
     TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     tt_cli_read_line(&cli, __ut_cli_on_read);
-
-    __ut_cli_err = 0;
-    __ut_read_more = TT_CLIOR_MORE;
 
     // empty
     {

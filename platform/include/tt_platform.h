@@ -60,6 +60,9 @@ extern "C" {
 #include <algorithm/tt_string_common.h>
 #include <algorithm/tt_vector.h>
 #include <algorithm/tt_write_buffer.h>
+#include <cli/shell/tt_console_shell.h>
+#include <cli/shell/tt_shell.h>
+#include <cli/shell/tt_shell_command.h>
 #include <cli/tt_cli.h>
 #include <cli/tt_cli_def.h>
 #include <cli/tt_cli_line.h>
@@ -84,13 +87,10 @@ extern "C" {
 #include <crypto/tt_message_digest.h>
 #include <crypto/tt_public_key.h>
 #include <crypto/tt_rsa.h>
-#include <init/config_shell/tt_config_command.h>
-#include <init/config_shell/tt_config_shell.h>
-#include <init/config_shell/tt_console_config_shell.h>
 #include <init/tt_component.h>
 #include <init/tt_config_bool.h>
-#include <init/tt_config_group.h>
-#include <init/tt_config_node.h>
+#include <init/tt_config_directory.h>
+#include <init/tt_config_object.h>
 #include <init/tt_config_path.h>
 #include <init/tt_config_s32.h>
 #include <init/tt_config_string.h>

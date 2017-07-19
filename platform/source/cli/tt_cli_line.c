@@ -43,18 +43,22 @@
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-static void __load_cline_on_ev(IN tt_cline_t *cline, IN tt_cli_mode_t mode);
+static void __load_cline_cb(IN tt_cline_t *cline, IN tt_cli_mode_t mode);
 
 // ========================================
 // default mode
 // ========================================
 
-static tt_result_t __def_on_char(IN struct tt_cline_s *cline, IN tt_char_t c);
+static tt_result_t __def_on_char(IN tt_cline_t *cline, IN tt_char_t c);
 
 static tt_result_t __def_on_left(IN tt_cline_t *cline);
+
 static tt_result_t __def_on_right(IN tt_cline_t *cline);
+
 static tt_result_t __def_on_intr(IN tt_cline_t *cline);
+
 static tt_result_t __def_on_quit(IN tt_cline_t *cline);
+
 static tt_result_t __def_on_delete(IN tt_cline_t *cline);
 
 ////////////////////////////////////////////////////////////
@@ -77,13 +81,11 @@ tt_result_t tt_cline_create(IN tt_cline_t *cline,
         attr = &__attr;
     }
 
-    cline->mode = mode;
-    __load_cline_on_ev(cline, mode);
-
-    tt_string_init(&cline->line, &attr->line_attr);
-    cline->cursor = 0;
-
     cline->outbuf = outbuf;
+    __load_cline_cb(cline, mode);
+    tt_string_init(&cline->line, &attr->line_attr);
+    cline->mode = mode;
+    cline->cursor = 0;
 
     return TT_SUCCESS;
 }
@@ -174,7 +176,7 @@ tt_bool_t tt_cline_cursor_data(IN tt_cline_t *cline, OUT tt_blob_t *data)
     return !(see_char && see_sp);
 }
 
-void __load_cline_on_ev(IN tt_cline_t *cline, IN tt_cli_mode_t mode)
+void __load_cline_cb(IN tt_cline_t *cline, IN tt_cli_mode_t mode)
 {
     TT_ASSERT(TT_CLI_MODE_VALID(mode));
 
@@ -182,7 +184,6 @@ void __load_cline_on_ev(IN tt_cline_t *cline, IN tt_cli_mode_t mode)
         case TT_CLI_MODE_DEFAUTL:
         default: {
             cline->on_char = __def_on_char;
-
             cline->on_ev[TT_CLI_EV_IDX(TT_CLI_EV_UP)] = NULL;
             cline->on_ev[TT_CLI_EV_IDX(TT_CLI_EV_DOWN)] = NULL;
             cline->on_ev[TT_CLI_EV_IDX(TT_CLI_EV_RIGHT)] = __def_on_right;
@@ -200,7 +201,7 @@ void __load_cline_on_ev(IN tt_cline_t *cline, IN tt_cli_mode_t mode)
 // default mode
 // ========================================
 
-tt_result_t __def_on_char(IN struct tt_cline_s *cline, IN tt_char_t c)
+tt_result_t __def_on_char(IN tt_cline_t *cline, IN tt_char_t c)
 {
     tt_string_t *line = &cline->line;
     tt_u32_t len = tt_string_len(line);

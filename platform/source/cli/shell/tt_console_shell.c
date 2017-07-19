@@ -18,7 +18,7 @@
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <init/config_shell/tt_console_config_shell.h>
+#include <cli/shell/tt_console_shell.h>
 
 #include <init/tt_init_config.h>
 #include <io/tt_console.h>
@@ -39,51 +39,51 @@
 // global variant
 ////////////////////////////////////////////////////////////
 
-static tt_result_t __cons_cfgsh_send(IN struct tt_cli_s *cli,
-                                     IN void *param,
-                                     IN tt_u8_t *ev,
-                                     IN tt_u32_t ev_num);
+static tt_result_t __csh_send(IN struct tt_cli_s *cli,
+                              IN void *param,
+                              IN tt_u8_t *ev,
+                              IN tt_u32_t ev_num);
 
-static tt_cli_itf_t __cons_cfgsh_itf = {
+static tt_cli_itf_t __csh_itf = {
     NULL,
 
-    __cons_cfgsh_send,
+    __csh_send,
 };
 
 ////////////////////////////////////////////////////////////
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-static tt_result_t __cons_cfgsh_ev_handler(IN void *param,
-                                           IN tt_cons_ev_t ev,
-                                           IN tt_cons_ev_data_t *ev_data);
+static tt_result_t __csh_ev_handler(IN void *param,
+                                    IN tt_cons_ev_t ev,
+                                    IN tt_cons_ev_data_t *ev_data);
 
 ////////////////////////////////////////////////////////////
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-tt_result_t tt_console_cfgsh_create(IN tt_cfgsh_t *sh,
-                                    IN tt_cli_mode_t mode,
-                                    IN OPT tt_cfgsh_attr_t *attr)
+tt_result_t tt_console_sh_create(IN tt_shell_t *sh,
+                                 IN tt_cli_mode_t mode,
+                                 IN OPT tt_sh_attr_t *attr)
 {
-    return tt_cfgsh_create(sh, mode, &__cons_cfgsh_itf, tt_g_config_root, attr);
+    return tt_sh_create(sh, tt_g_config_root, mode, &__csh_itf, attr);
 }
 
-tt_result_t tt_console_cfgsh_run(IN tt_cfgsh_t *sh, IN tt_bool_t local)
+tt_result_t tt_console_sh_run(IN tt_shell_t *sh, IN tt_bool_t local)
 {
     TT_ASSERT(sh != NULL);
-    TT_ASSERT(sh->cli.itf.send == __cons_cfgsh_send);
+    TT_ASSERT(sh->cli.itf.send == __csh_send);
 
-    tt_cfgsh_start(sh);
-    tt_console_run(__cons_cfgsh_ev_handler, sh, local);
+    tt_sh_start(sh);
+    tt_console_run(__csh_ev_handler, sh, local);
 
     return TT_SUCCESS;
 }
 
-tt_result_t __cons_cfgsh_send(IN struct tt_cli_s *cli,
-                              IN void *param,
-                              IN tt_u8_t *ev,
-                              IN tt_u32_t ev_num)
+tt_result_t __csh_send(IN struct tt_cli_s *cli,
+                       IN void *param,
+                       IN tt_u8_t *ev,
+                       IN tt_u32_t ev_num)
 {
     tt_u32_t i;
     tt_cons_ev_data_t ev_data;
@@ -117,13 +117,13 @@ tt_result_t __cons_cfgsh_send(IN struct tt_cli_s *cli,
     return tt_console_send(TT_CONS_EV_KEY, &ev_data);
 }
 
-tt_result_t __cons_cfgsh_ev_handler(IN void *param,
-                                    IN tt_cons_ev_t ev,
-                                    IN tt_cons_ev_data_t *ev_data)
+tt_result_t __csh_ev_handler(IN void *param,
+                             IN tt_cons_ev_t ev,
+                             IN tt_cons_ev_data_t *ev_data)
 {
-    tt_u32_t i;
     tt_cons_ev_key_t *ev_key;
-    tt_cfgsh_t *sh = (tt_cfgsh_t *)param;
+    tt_u32_t i;
+    tt_shell_t *sh = (tt_shell_t *)param;
     tt_cli_t *cli = &sh->cli;
 
     if (ev != TT_CONS_EV_KEY) {

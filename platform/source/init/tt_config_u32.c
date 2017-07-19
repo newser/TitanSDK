@@ -36,26 +36,16 @@
 // global variant
 ////////////////////////////////////////////////////////////
 
-static void __cfgu32_on_destroy(IN tt_cfgnode_t *cnode, IN tt_bool_t committed);
+static tt_result_t __cfgu32_read(IN tt_cfgobj_t *co,
+                                 IN const tt_char_t *line_sep,
+                                 OUT tt_buf_t *output);
 
-static tt_cfgnode_itf_t __cu32_itf_g = {__cfgu32_on_destroy,
-                                        NULL,
-                                        NULL,
-                                        tt_cfgu32_ls,
-                                        tt_cfgu32_get,
-                                        NULL,
-                                        tt_cfgu32_check,
-                                        NULL};
+static tt_result_t __cfgu32_write(IN tt_cfgobj_t *co,
+                                  IN tt_u8_t *val,
+                                  IN tt_u32_t val_len);
 
-static tt_cfgnode_itf_t __cu32_itf_gs = {
-    __cfgu32_on_destroy,
-    NULL,
-    NULL,
-    tt_cfgu32_ls,
-    tt_cfgu32_get,
-    tt_cfgu32_set,
-    tt_cfgu32_check,
-    tt_cfgu32_commit,
+static tt_cfgobj_itf_t __cfgu32_itf = {
+    NULL, __cfgu32_read, __cfgu32_write, NULL,
 };
 
 ////////////////////////////////////////////////////////////
@@ -66,174 +56,67 @@ static tt_cfgnode_itf_t __cu32_itf_gs = {
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-tt_cfgnode_t *tt_cfgu32_create(IN const tt_char_t *name,
-                               IN OPT tt_cfgnode_itf_t *itf,
-                               IN OPT void *opaque,
-                               IN tt_u32_t *val_ptr,
-                               IN OPT tt_cfgu32_cb_t *cb,
-                               IN OPT tt_cfgu32_attr_t *attr)
+tt_cfgobj_t *tt_cfgu32_create(IN const tt_char_t *name,
+                              IN tt_u32_t *p_u32,
+                              IN OPT tt_cfgobj_attr_t *attr,
+                              IN OPT tt_cfgu32_cb_t *cb)
 {
-    tt_cfgu32_attr_t cu32_attr;
-    tt_cfgnode_t *cnode;
+    tt_cfgobj_attr_t __attr;
+    tt_cfgobj_t *co;
     tt_cfgu32_t *cu32;
 
-    if (attr == NULL) {
-        tt_cfgu32_attr_default(&cu32_attr);
-        attr = &cu32_attr;
-    }
-
-    if (itf == NULL) {
-        if (attr->mode == TT_CFGVAL_MODE_GS) {
-            itf = &__cu32_itf_gs;
-        } else {
-            itf = &__cu32_itf_g;
-        }
-    }
-
-    cnode = tt_cfgnode_create(sizeof(tt_cfgu32_t),
-                              TT_CFGNODE_TYPE_U32,
-                              name,
-                              itf,
-                              opaque,
-                              &attr->cnode_attr);
-    if (cnode == NULL) {
+    co = tt_cfgobj_create(sizeof(tt_cfgu32_t),
+                          TT_CFGOBJ_U32,
+                          name,
+                          &__cfgu32_itf,
+                          p_u32,
+                          attr);
+    if (co == NULL) {
         return NULL;
     }
 
-    cu32 = TT_CFGNODE_CAST(cnode, tt_cfgu32_t);
+    cu32 = TT_CFGOBJ_CAST(co, tt_cfgu32_t);
 
-    cu32->val_ptr = val_ptr;
-    cu32->new_val = 0;
+    if (cb != NULL) {
+        tt_memcpy(&cu32->cb, cb, sizeof(tt_cfgu32_cb_t));
+    } else {
+        tt_memset(&cu32->cb, 0, sizeof(tt_cfgu32_cb_t));
+    }
 
-    cu32->cb = cb;
-
-    return cnode;
+    return co;
 }
 
-void tt_cfgu32_attr_default(IN tt_cfgu32_attr_t *attr)
+tt_result_t __cfgu32_read(IN tt_cfgobj_t *co,
+                          IN const tt_char_t *line_sep,
+                          OUT tt_buf_t *output)
 {
-    TT_ASSERT(attr != NULL);
-
-    tt_cfgnode_attr_default(&attr->cnode_attr);
-
-    attr->mode = TT_CFGVAL_MODE_G;
-}
-
-tt_result_t tt_cfgu32_ls(IN tt_cfgnode_t *cnode,
-                         IN const tt_char_t *seperator,
-                         OUT tt_buf_t *output)
-{
-    tt_u32_t n;
-
-    // 1st line
-    TT_DO(tt_buf_put_cstr(output, "PERM    TYPE    NAME"));
-
-    n = (tt_u32_t)tt_strlen(cnode->name) + 4;
-    n = TT_MAX(n, 8);
-    TT_DO(tt_buf_put_rep(output, ' ', n - 4));
-
-    TT_DO(tt_buf_put_cstr(output, "DESCRIPTION"));
-    TT_DO(tt_buf_put_cstr(output, TT_COND(seperator != NULL, seperator, "\n")));
-
-    return tt_cfgnode_describe(cnode, n - 4, output);
-}
-
-tt_result_t tt_cfgu32_get(IN tt_cfgnode_t *cnode, OUT tt_buf_t *output)
-{
-    tt_cfgu32_t *cu32 = TT_CFGNODE_CAST(cnode, tt_cfgu32_t);
+    tt_cfgu32_t *cu32 = TT_CFGOBJ_CAST(co, tt_cfgu32_t);
     tt_char_t buf[32] = {0};
 
-    if (cnode->modified) {
-        tt_snprintf(buf, sizeof(buf) - 1, "%u", *cu32->val_ptr);
-        TT_DO(tt_buf_put_cstr(output, buf));
-
-        TT_DO(tt_buf_put_cstr(output, " --> "));
-
-        tt_snprintf(buf, sizeof(buf) - 1, "%u", cu32->new_val);
-        TT_DO(tt_buf_put_cstr(output, buf));
-
-        return TT_SUCCESS;
-    } else {
-        tt_snprintf(buf, sizeof(buf) - 1, "%u", *cu32->val_ptr);
-        return tt_buf_put_cstr(output, buf);
-    }
+    tt_snprintf(buf, sizeof(buf) - 1, "%u", *(tt_u32_t *)co->opaque);
+    return tt_buf_put_cstr(output, buf);
 }
 
-tt_result_t tt_cfgu32_set(IN tt_cfgnode_t *cnode, IN tt_blob_t *val)
+tt_result_t __cfgu32_write(IN tt_cfgobj_t *co,
+                           IN tt_u8_t *val,
+                           IN tt_u32_t val_len)
 {
-    tt_cfgu32_t *cu32 = TT_CFGNODE_CAST(cnode, tt_cfgu32_t);
+    tt_cfgu32_t *cu32 = TT_CFGOBJ_CAST(co, tt_cfgu32_t);
     tt_u8_t buf[__MAX_U32_LEN + 1] = {0};
     tt_u32_t u32_val;
 
-    if (val->len == 0) {
-        return TT_BAD_PARAM;
-    } else if (val->len > __MAX_U32_LEN) {
+    if ((val_len == 0) || (val_len > __MAX_U32_LEN)) {
         return TT_BAD_PARAM;
     }
 
-    tt_memcpy(buf, val->addr, val->len);
+    tt_memcpy(buf, val, val_len);
     if (!TT_OK(tt_strtou32((const char *)buf, NULL, 0, &u32_val))) {
         return TT_BAD_PARAM;
     }
-    cu32->new_val = u32_val;
 
-    if (*cu32->val_ptr == u32_val) {
-        cnode->modified = TT_FALSE;
-    } else {
-        cnode->modified = TT_TRUE;
+    if (cu32->cb.on_set != NULL) {
+        cu32->cb.on_set(co, u32_val);
     }
 
     return TT_SUCCESS;
-}
-
-tt_result_t tt_cfgu32_check(IN tt_cfgnode_t *cnode, IN tt_blob_t *val)
-{
-    tt_cfgu32_t *cu32 = TT_CFGNODE_CAST(cnode, tt_cfgu32_t);
-    tt_u8_t buf[__MAX_U32_LEN + 1] = {0};
-    tt_u32_t u32_val;
-
-    if (val->len == 0) {
-        return TT_BAD_PARAM;
-    } else if (val->len > __MAX_U32_LEN) {
-        return TT_BAD_PARAM;
-    }
-
-    tt_memcpy(buf, val->addr, val->len);
-    if (!TT_OK(tt_strtou32((const char *)buf, NULL, 0, &u32_val))) {
-        return TT_BAD_PARAM;
-    }
-    return TT_SUCCESS;
-}
-
-tt_result_t tt_cfgu32_commit(IN tt_cfgnode_t *cnode)
-{
-    tt_cfgu32_t *cu32 = TT_CFGNODE_CAST(cnode, tt_cfgu32_t);
-
-    if (!cnode->modified) {
-        return TT_SUCCESS;
-    }
-
-    TT_ASSERT(cu32->new_val != *cu32->val_ptr);
-    *cu32->val_ptr = cu32->new_val;
-    cnode->modified = TT_FALSE;
-
-    if ((cu32->cb != NULL) && (cu32->cb->on_set != NULL) &&
-        cu32->cb->on_set(cnode, cu32->new_val)) {
-        return TT_END;
-    }
-
-    return TT_SUCCESS;
-}
-
-void __cfgu32_on_destroy(IN tt_cfgnode_t *cnode, IN tt_bool_t committed)
-{
-    tt_cfgu32_t *cu32 = TT_CFGNODE_CAST(cnode, tt_cfgu32_t);
-
-    if (!committed) {
-        return;
-    }
-
-    if ((cu32->cb != NULL) && (cu32->cb->on_destroy != NULL)) {
-        cu32->cb->on_destroy(cnode, TT_TRUE);
-    }
 }

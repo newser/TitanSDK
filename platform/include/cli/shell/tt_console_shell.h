@@ -15,20 +15,20 @@
  */
 
 /**
-@file tt_cfgcmd_status.h
-@brief config shell command: status
+@file tt_console_config_shell.h
+@brief console shell
 
-this file defines config shell command: status
+this file defines console shell
 */
 
-#ifndef __TT_CFGCMD_STATUS__
-#define __TT_CFGCMD_STATUS__
+#ifndef __TT_CONSOLE_SHELL__
+#define __TT_CONSOLE_SHELL__
 
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <init/config_shell/tt_config_command.h>
+#include <cli/shell/tt_shell.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
@@ -42,10 +42,14 @@ this file defines config shell command: status
 // global variants
 ////////////////////////////////////////////////////////////
 
-extern tt_cfgcmd_t tt_g_cfgcmd_status;
-
 ////////////////////////////////////////////////////////////
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-#endif /* __TT_CFGCMD_STATUS__ */
+extern tt_result_t tt_console_sh_create(IN tt_shell_t *sh,
+                                        IN tt_cli_mode_t mode,
+                                        IN OPT tt_sh_attr_t *attr);
+
+extern tt_result_t tt_console_sh_run(IN tt_shell_t *sh, IN tt_bool_t local);
+
+#endif /* __TT_CONSOLE_SHELL__ */

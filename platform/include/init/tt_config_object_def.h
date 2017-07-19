@@ -15,14 +15,14 @@
  */
 
 /**
-@file tt_config_cmd.h
-@brief config shell command
+@file tt_config_object_def.h
+@brief config object definition
 
-this file defines config shell command
+this file includes config object definition
 */
 
-#ifndef __TT_CONFIG_CMD__
-#define __TT_CONFIG_CMD__
+#ifndef __TT_CONFIG_OBJECT_DEF__
+#define __TT_CONFIG_OBJECT_DEF__
 
 ////////////////////////////////////////////////////////////
 // import header files
@@ -34,67 +34,61 @@ this file defines config shell command
 // macro definition
 ////////////////////////////////////////////////////////////
 
-#define TT_CFGCMD_NAME_LS "ls"
-#define TT_CFGCMD_NAME_CD "cd"
-#define TT_CFGCMD_NAME_HELP "help"
-#define TT_CFGCMD_NAME_PWD "pwd"
-#define TT_CFGCMD_NAME_QUIT "quit"
-#define TT_CFGCMD_NAME_GET "get"
-#define TT_CFGCMD_NAME_SET "set"
-#define TT_CFGCMD_NAME_STATUS "status"
-#define TT_CFGCMD_NAME_COMMIT "commit"
-#define TT_CFGCMD_NAME_RESTORE "restore"
-
 ////////////////////////////////////////////////////////////
 // type definition
 ////////////////////////////////////////////////////////////
 
-struct tt_cfgsh_s;
+struct tt_cfgobj_s;
 struct tt_buf_s;
 
-// see return value of tt_cli_on_cmd_t
-typedef tt_u32_t (*tt_cfgcmd_run_t)(IN struct tt_cfgsh_s *sh,
-                                    IN tt_u32_t argc,
-                                    IN tt_char_t *arv[],
-                                    OUT struct tt_buf_s *output);
+typedef void (*tt_cfgobj_on_destroy_t)(IN struct tt_cfgobj_s *co);
 
-typedef enum {
-    TT_CFGCMD_LS,
-    TT_CFGCMD_CD,
-    TT_CFGCMD_HELP,
-    TT_CFGCMD_PWD,
-    TT_CFGCMD_QUIT,
-    TT_CFGCMD_GET,
-    TT_CFGCMD_SET,
-    TT_CFGCMD_STATUS,
-    TT_CFGCMD_COMMIT,
-    TT_CFGCMD_RESTORE,
+typedef tt_result_t (*tt_cfgobj_read_t)(IN struct tt_cfgobj_s *co,
+                                        IN const tt_char_t *line_sep,
+                                        OUT struct tt_buf_s *output);
 
-    TT_CFGCMD_NUM,
-} tt_cfgcmd_id_t;
-#define TT_CFGCMD_VALID(c) ((c) < TT_CFGCMD_NUM)
+typedef tt_result_t (*tt_cfgobj_write_t)(IN struct tt_cfgobj_s *co,
+                                         IN tt_u8_t *val,
+                                         IN tt_u32_t val_len);
 
 typedef struct
 {
     const tt_char_t *name;
-    const tt_char_t *info;
-    const tt_char_t *usage;
+    const tt_char_t *value;
+} tt_cfgobj_arg_t;
 
-    tt_cfgcmd_run_t run;
-} tt_cfgcmd_t;
+typedef tt_result_t (*tt_cfgobj_exec_t)(IN struct tt_cfgobj_s *co,
+                                        IN tt_cfgobj_arg_t *arg,
+                                        IN tt_u32_t arg_num,
+                                        IN const tt_char_t *line_sep,
+                                        OUT struct tt_buf_s *output);
+
+typedef struct tt_cfgobj_itf_s
+{
+    tt_cfgobj_on_destroy_t on_destroy;
+    tt_cfgobj_read_t read;
+    tt_cfgobj_write_t write;
+    tt_cfgobj_exec_t exec;
+} tt_cfgobj_itf_t;
+
+typedef enum {
+    TT_CFGOBJ_U32,
+    TT_CFGOBJ_S32,
+    TT_CFGOBJ_DIR,
+    TT_CFGOBJ_STRING,
+    TT_CFGOBJ_BOOL,
+    TT_CFGOBJ_FLOAT,
+
+    TT_CFGOBJ_TYPE_NUM
+} tt_cfgobj_type_t;
+#define TT_CFGOBJ_TYPE_VALID(t) ((t) < TT_CFGOBJ_TYPE_NUM)
 
 ////////////////////////////////////////////////////////////
 // global variants
 ////////////////////////////////////////////////////////////
 
-extern tt_cfgcmd_t *tt_g_cfgcmd[TT_CFGCMD_NUM];
-
-extern const tt_char_t *tt_g_cfgcmd_name[TT_CFGCMD_NUM];
-
 ////////////////////////////////////////////////////////////
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern tt_cfgcmd_t *tt_cfgcmd_find(IN const tt_char_t *name);
-
-#endif /* __TT_CONFIG_CMD__ */
+#endif /* __TT_CONFIG_OBJECT_DEF__ */
