@@ -60,7 +60,7 @@ extern "C" {
 #include <algorithm/tt_string_common.h>
 #include <algorithm/tt_vector.h>
 #include <algorithm/tt_write_buffer.h>
-#include <cli/shell/tt_console_config_shell.h>
+#include <cli/shell/tt_console_shell.h>
 #include <cli/shell/tt_shell.h>
 #include <cli/shell/tt_shell_command.h>
 #include <cli/tt_cli.h>

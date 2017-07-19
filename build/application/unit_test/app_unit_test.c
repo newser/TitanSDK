@@ -133,7 +133,7 @@ tt_platform_init(NULL);
 tt_thread_create_local(NULL);
 
 // run
-#define AUT_MODE 0
+#define AUT_MODE 2
 
 #if AUT_MODE == 0
 tt_task_create(&t, NULL);
@@ -158,9 +158,9 @@ return 0;
 {
     tt_shell_t sh;
 
-    tt_console_cfgsh_create(&sh, TT_CLI_MODE_DEFAUTL, NULL);
+    tt_console_sh_create(&sh, TT_CLI_MODE_DEFAUTL, NULL);
 
-    tt_console_cfgsh_run(&sh, TT_TRUE);
+    tt_console_sh_run(&sh, TT_TRUE);
 }
 #else
 tt_cli_demo_run();

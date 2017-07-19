@@ -58,7 +58,7 @@ tt_inline tt_cfgobj_t *tt_cfgpath_p2n_cstr(IN tt_cfgobj_t *root,
                                            IN tt_cfgobj_t *current,
                                            IN const tt_char_t *path)
 {
-    return tt_cfgpath_p2n(root, current, path, tt_strlen(path));
+    return tt_cfgpath_p2n(root, current, path, (tt_u32_t)tt_strlen(path));
 }
 
 // print path from root to current:
