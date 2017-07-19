@@ -16,13 +16,13 @@
 
 /**
 @file tt_console_config_shell.h
-@brief console config shell
+@brief console shell
 
-this file defines console config shell
+this file defines console shell
 */
 
-#ifndef __TT_CONSOLE_CONFIG_SHELL__
-#define __TT_CONSOLE_CONFIG_SHELL__
+#ifndef __TT_CONSOLE_SHELL__
+#define __TT_CONSOLE_SHELL__
 
 ////////////////////////////////////////////////////////////
 // import header files
@@ -46,10 +46,10 @@ this file defines console config shell
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern tt_result_t tt_console_cfgsh_create(IN tt_shell_t *sh,
-                                           IN tt_cli_mode_t mode,
-                                           IN OPT tt_sh_attr_t *attr);
+extern tt_result_t tt_console_sh_create(IN tt_shell_t *sh,
+                                        IN tt_cli_mode_t mode,
+                                        IN OPT tt_sh_attr_t *attr);
 
-extern tt_result_t tt_console_cfgsh_run(IN tt_shell_t *sh, IN tt_bool_t local);
+extern tt_result_t tt_console_sh_run(IN tt_shell_t *sh, IN tt_bool_t local);
 
-#endif /* __TT_CONSOLE_CONFIG_SHELL__ */
+#endif /* __TT_CONSOLE_SHELL__ */
