@@ -148,7 +148,6 @@ TT_TEST_CASE("tt_unit_test_clinode",
     tt_blob_t val = {(tt_u8_t *)&attr, 3};
     tt_buf_t out;
     tt_cfgobj_itf_t itf = {0};
-    tt_u32_t status;
 
     TT_TEST_CASE_ENTER()
     // test start

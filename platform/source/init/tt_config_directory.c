@@ -75,7 +75,6 @@ tt_cfgobj_t *tt_cfgdir_create(IN const tt_char_t *name,
 tt_result_t tt_cfgdir_add(IN tt_cfgdir_t *cdir, IN tt_cfgobj_t *child)
 {
     tt_u32_t n;
-    tt_s32_t cmp;
 
     n = (tt_u32_t)tt_strlen(child->name);
     if (tt_cfgdir_find(cdir, child->name, n)) {

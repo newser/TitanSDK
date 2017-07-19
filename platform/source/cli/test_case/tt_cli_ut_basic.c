@@ -1040,7 +1040,6 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cli_readline)
     tt_cli_t cli;
     tt_result_t ret;
     tt_s32_t cmp_ret;
-    tt_cli_attr_t attr;
 
     tt_cli_itf_t itf = {&__ut_cli_obuf, __ut_cli_send};
 
