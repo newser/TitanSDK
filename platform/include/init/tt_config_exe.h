@@ -15,20 +15,20 @@
  */
 
 /**
-@file tt_config_object_def.h
-@brief config object definition
+@file tt_config_exe.h
+@brief config option of executable type
 
-this file includes config object definition
+this file defines config option of executable type
 */
 
-#ifndef __TT_CONFIG_OBJECT_DEF__
-#define __TT_CONFIG_OBJECT_DEF__
+#ifndef __TT_CONFIG_EXE__
+#define __TT_CONFIG_EXE__
 
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <tt_basic_type.h>
+#include <init/tt_config_object.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
@@ -38,38 +38,17 @@ this file includes config object definition
 // type definition
 ////////////////////////////////////////////////////////////
 
-struct tt_cfgobj_s;
-struct tt_buf_s;
+typedef tt_result_t (*tt_cfgexe_run_t)(IN struct tt_cfgobj_s *co,
+                                       IN tt_u32_t argc,
+                                       IN tt_char_t *argv[],
+                                       IN const tt_char_t *line_sep,
+                                       OUT struct tt_buf_s *output,
+                                       OUT tt_u32_t *status);
 
-typedef void (*tt_cfgobj_on_destroy_t)(IN struct tt_cfgobj_s *co);
-
-typedef tt_result_t (*tt_cfgobj_read_t)(IN struct tt_cfgobj_s *co,
-                                        IN const tt_char_t *line_sep,
-                                        OUT struct tt_buf_s *output);
-
-typedef tt_result_t (*tt_cfgobj_write_t)(IN struct tt_cfgobj_s *co,
-                                         IN tt_u8_t *val,
-                                         IN tt_u32_t val_len);
-
-typedef struct tt_cfgobj_itf_s
+typedef struct
 {
-    tt_cfgobj_on_destroy_t on_destroy;
-    tt_cfgobj_read_t read;
-    tt_cfgobj_write_t write;
-} tt_cfgobj_itf_t;
-
-typedef enum {
-    TT_CFGOBJ_U32,
-    TT_CFGOBJ_S32,
-    TT_CFGOBJ_DIR,
-    TT_CFGOBJ_STRING,
-    TT_CFGOBJ_BOOL,
-    TT_CFGOBJ_FLOAT,
-    TT_CFGOBJ_EXE,
-
-    TT_CFGOBJ_TYPE_NUM
-} tt_cfgobj_type_t;
-#define TT_CFGOBJ_TYPE_VALID(t) ((t) < TT_CFGOBJ_TYPE_NUM)
+    tt_cfgexe_run_t run;
+} tt_cfgexe_t;
 
 ////////////////////////////////////////////////////////////
 // global variants
@@ -79,4 +58,18 @@ typedef enum {
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-#endif /* __TT_CONFIG_OBJECT_DEF__ */
+extern tt_cfgobj_t *tt_cfgexe_create(IN const tt_char_t *name,
+                                     IN OPT tt_cfgobj_attr_t *attr,
+                                     IN tt_cfgexe_run_t run);
+
+tt_inline tt_result_t tt_cfgexe_run(IN tt_cfgexe_t *ce,
+                                    IN tt_u32_t argc,
+                                    IN tt_char_t *argv[],
+                                    IN const tt_char_t *line_sep,
+                                    OUT struct tt_buf_s *output,
+                                    OUT tt_u32_t *status)
+{
+    return ce->run(TT_CFGOBJ_OF(ce), argc, argv, line_sep, output, status);
+}
+
+#endif /* __TT_CONFIG_EXE__ */

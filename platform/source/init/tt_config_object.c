@@ -46,7 +46,7 @@
 ////////////////////////////////////////////////////////////
 
 static tt_char_t __s_type_name[TT_CFGOBJ_TYPE_NUM][7] = {
-    "u32   ", "s32   ", "dir   ", "string", "bool  ", "float ",
+    "u32   ", "s32   ", "dir   ", "string", "bool  ", "float ", "exe   ",
 };
 
 ////////////////////////////////////////////////////////////
@@ -58,10 +58,6 @@ static tt_bool_t __name_ok(IN const tt_char_t *name);
 static tt_result_t __line_perm(IN tt_cfgobj_t *co, OUT tt_buf_t *output);
 
 static tt_result_t __line_type(IN tt_cfgobj_t *co, OUT tt_buf_t *output);
-
-static tt_cfgobj_arg_t *__parse_arg(IN tt_u8_t *val,
-                                    IN tt_u32_t val_len,
-                                    OUT tt_u32_t *arg_num);
 
 ////////////////////////////////////////////////////////////
 // interface implementation
@@ -109,7 +105,6 @@ tt_cfgobj_t *tt_cfgobj_create(IN tt_u32_t len,
     co->need_reboot = attr->need_reboot;
     co->can_read = attr->can_read;
     co->can_write = attr->can_write;
-    co->can_exec = attr->can_exec;
 
     return co;
 }
@@ -136,7 +131,6 @@ void tt_cfgobj_attr_default(IN tt_cfgobj_attr_t *attr)
     attr->need_reboot = TT_FALSE;
     attr->can_read = TT_TRUE;
     attr->can_write = TT_TRUE;
-    attr->can_exec = TT_FALSE;
 }
 
 tt_result_t tt_cfgobj_line(IN tt_cfgobj_t *co,
@@ -205,11 +199,10 @@ tt_bool_t __name_ok(IN const tt_char_t *name)
 tt_result_t __line_perm(IN tt_cfgobj_t *co, OUT tt_buf_t *output)
 {
     tt_cfgobj_itf_t *itf = co->itf;
-    tt_char_t perm[3];
+    tt_char_t perm[2];
 
     perm[0] = TT_COND(co->can_read && (itf->read != NULL), 'r', '-');
     perm[1] = TT_COND(co->can_write && (itf->write != NULL), 'w', '-');
-    perm[2] = TT_COND(co->can_exec && (itf->exec != NULL), 'x', '-');
 
     return tt_buf_put(output, (tt_u8_t *)perm, sizeof(perm));
 }
@@ -255,45 +248,6 @@ tt_result_t tt_cfgobj_write(IN tt_cfgobj_t *co,
     }
 
     return co->itf->write(co, val, val_len);
-}
-
-tt_result_t tt_cfgobj_exec(IN tt_cfgobj_t *co,
-                           IN tt_u8_t *val,
-                           IN tt_u32_t val_len,
-                           IN OPT const tt_char_t *line_sep,
-                           OUT tt_buf_t *output)
-{
-    tt_cfgobj_arg_t *arg;
-    tt_u32_t arg_num;
-    tt_result_t result;
-
-    TT_ASSERT(co != NULL);
-    TT_ASSERT(co->itf != NULL);
-    TT_ASSERT(val != NULL);
-
-    if (!co->can_exec || (co->itf->exec == NULL)) {
-        return TT_NOT_SUPPORT;
-    }
-
-    arg = __parse_arg(val, val_len, &arg_num);
-    if (arg == NULL) {
-        return TT_BAD_PARAM;
-    }
-
-    if (line_sep == NULL) {
-        line_sep = __DEFAULT_LINE_SEP;
-    }
-
-    result = co->itf->exec(co, arg, arg_num, line_sep, output);
-    tt_free(arg);
-    return result;
-}
-
-tt_cfgobj_arg_t *__parse_arg(IN tt_u8_t *val,
-                             IN tt_u32_t val_len,
-                             OUT tt_u32_t *arg_num)
-{
-    return TT_SUCCESS;
 }
 
 tt_result_t tt_cfgobj_ls(IN tt_cfgobj_t *co,

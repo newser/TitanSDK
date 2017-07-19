@@ -90,6 +90,7 @@ extern "C" {
 #include <init/tt_component.h>
 #include <init/tt_config_bool.h>
 #include <init/tt_config_directory.h>
+#include <init/tt_config_exe.h>
 #include <init/tt_config_object.h>
 #include <init/tt_config_path.h>
 #include <init/tt_config_s32.h>

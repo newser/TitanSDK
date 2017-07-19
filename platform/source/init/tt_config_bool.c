@@ -49,7 +49,7 @@ static tt_result_t __cfgbool_write(IN tt_cfgobj_t *co,
                                    IN tt_u32_t val_len);
 
 static tt_cfgobj_itf_t __cfgbool_itf = {
-    NULL, __cfgbool_read, __cfgbool_write, NULL,
+    NULL, __cfgbool_read, __cfgbool_write,
 };
 
 ////////////////////////////////////////////////////////////
@@ -65,14 +65,8 @@ tt_cfgobj_t *tt_cfgbool_create(IN const tt_char_t *name,
                                IN OPT tt_cfgobj_attr_t *attr,
                                IN OPT tt_cfgbool_cb_t *cb)
 {
-    tt_cfgobj_attr_t __attr;
     tt_cfgobj_t *co;
     tt_cfgbool_t *cbool;
-
-    if (attr == NULL) {
-        tt_cfgobj_attr_default(&__attr);
-        attr = &__attr;
-    }
 
     co = tt_cfgobj_create(sizeof(tt_cfgbool_t),
                           TT_CFGOBJ_BOOL,

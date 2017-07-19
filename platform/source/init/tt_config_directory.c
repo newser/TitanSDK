@@ -37,7 +37,7 @@
 static void __cdir_on_destroy(IN tt_cfgobj_t *co);
 
 static tt_cfgobj_itf_t __cfgdir_itf = {
-    __cdir_on_destroy, NULL, NULL, NULL,
+    __cdir_on_destroy, NULL, NULL,
 };
 
 ////////////////////////////////////////////////////////////
@@ -51,17 +51,8 @@ static tt_cfgobj_itf_t __cfgdir_itf = {
 tt_cfgobj_t *tt_cfgdir_create(IN const tt_char_t *name,
                               IN OPT tt_cfgobj_attr_t *attr)
 {
-    tt_cfgobj_attr_t __attr;
     tt_cfgobj_t *co;
     tt_cfgdir_t *cdir;
-
-    if (attr == NULL) {
-        tt_cfgobj_attr_default(&__attr);
-        attr = &__attr;
-    }
-    attr->can_read = TT_FALSE;
-    attr->can_write = TT_FALSE;
-    attr->can_exec = TT_FALSE;
 
     co = tt_cfgobj_create(sizeof(tt_cfgdir_t),
                           TT_CFGOBJ_DIR,

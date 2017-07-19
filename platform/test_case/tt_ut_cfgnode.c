@@ -148,6 +148,7 @@ TT_TEST_CASE("tt_unit_test_clinode",
     tt_blob_t val = {(tt_u8_t *)&attr, 3};
     tt_buf_t out;
     tt_cfgobj_itf_t itf = {0};
+    tt_u32_t status;
 
     TT_TEST_CASE_ENTER()
     // test start
@@ -161,7 +162,6 @@ TT_TEST_CASE("tt_unit_test_clinode",
     attr.need_reboot = TT_FALSE;
     attr.can_read = TT_TRUE;
     attr.can_write = TT_TRUE;
-    attr.can_exec = TT_FALSE;
 
     cnode =
         tt_cfgobj_create(1, TT_CFGOBJ_STRING, "name", &itf, (void *)1, &attr);
@@ -177,12 +177,10 @@ TT_TEST_CASE("tt_unit_test_clinode",
     TT_UT_EQUAL(cnode->need_reboot, TT_FALSE, "");
     TT_UT_EQUAL(cnode->can_read, TT_TRUE, "");
     TT_UT_EQUAL(cnode->can_write, TT_TRUE, "");
-    TT_UT_EQUAL(cnode->can_exec, TT_FALSE, "");
 
     // may fail, but should not crash
     tt_cfgobj_read(cnode, NULL, &out);
     tt_cfgobj_write(cnode, val.addr, val.len);
-    tt_cfgobj_exec(cnode, val.addr, val.len, NULL, &out);
 
     tt_buf_clear(&out);
     TT_UT_SUCCESS(tt_cfgobj_line(cnode, " ", 5, &out), "");
@@ -202,14 +200,12 @@ TT_TEST_CASE("tt_unit_test_clinode",
     attr.need_reboot = TT_TRUE;
     attr.can_read = TT_FALSE;
     attr.can_write = TT_FALSE;
-    attr.can_exec = TT_TRUE;
     cnode =
         tt_cfgobj_create(1, TT_CFGOBJ_DIR, "-name-", &itf, (void *)1, &attr);
     TT_UT_NOT_NULL(cnode, "");
     TT_UT_EQUAL(cnode->need_reboot, TT_TRUE, "");
     TT_UT_EQUAL(cnode->can_read, TT_FALSE, "");
     TT_UT_EQUAL(cnode->can_write, TT_FALSE, "");
-    TT_UT_EQUAL(cnode->can_exec, TT_TRUE, "");
     TT_UT_EQUAL(tt_cfgobj_read(cnode, NULL, &out), TT_NOT_SUPPORT, "");
     TT_UT_EQUAL(tt_cfgobj_read(cnode, NULL, &out), TT_NOT_SUPPORT, "");
     TT_UT_EQUAL(tt_cfgobj_read(cnode, NULL, &out), TT_NOT_SUPPORT, "");

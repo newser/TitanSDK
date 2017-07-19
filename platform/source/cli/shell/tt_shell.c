@@ -22,6 +22,7 @@
 
 #include <algorithm/tt_buffer_format.h>
 #include <cli/shell/tt_shell_command.h>
+#include <init/tt_config_exe.h>
 #include <init/tt_config_path.h>
 #include <memory/tt_memory_alloc.h>
 
@@ -138,7 +139,9 @@ tt_u32_t __sh_on_cmd(IN tt_cli_t *cli,
                      IN tt_buf_t *output)
 {
     tt_shell_t *sh = TT_CONTAINER(cli, tt_shell_t, cli);
+    const tt_char_t *name;
     tt_shcmd_t *cmd;
+    tt_cfgobj_t *co;
 
     if (line[0] == 0) {
         return TT_CLIOC_NOOUT;
@@ -149,17 +152,45 @@ tt_u32_t __sh_on_cmd(IN tt_cli_t *cli,
         tt_buf_putf(output, "bad input: ", line);
         return TT_CLIOC_OUT;
     }
+    name = sh->arg[0];
 
-    cmd = tt_shcmd_find(sh->arg[0]);
-    if (cmd == NULL) {
-        tt_buf_putf(output, "command not found: %s", sh->arg[0]);
-        return TT_CLIOC_OUT;
+    // run as a command
+    cmd = tt_shcmd_find(name);
+    if (cmd != NULL) {
+        TT_ASSERT(cmd->run != NULL);
+        TT_ASSERT(sh->arg_num > 0);
+        // exclude the command name
+        return cmd->run(sh, sh->arg_num - 1, &sh->arg[1], output);
     }
 
-    TT_ASSERT(cmd->run != NULL);
-    TT_ASSERT(sh->arg_num > 0);
-    // exclude the command name
-    return cmd->run(sh, sh->arg_num - 1, &sh->arg[1], output);
+    // run as a executable object
+    co = tt_cfgpath_p2n(sh->root, sh->current, name, (tt_u32_t)tt_strlen(name));
+    if (co == NULL) {
+        tt_buf_putf(output, "not found: %s", name);
+        return TT_CLIOC_OUT;
+    } else if (co->type != TT_CFGOBJ_EXE) {
+        tt_buf_putf(output, "not executable: %s", name);
+        return TT_CLIOC_OUT;
+    } else {
+        tt_u32_t rp, wp;
+        tt_result_t result;
+        tt_u32_t status = TT_CLIOC_NOOUT;
+
+        tt_buf_backup_rwp(output, &rp, &wp);
+        result = tt_cfgexe_run(TT_CFGOBJ_CAST(co, tt_cfgexe_t),
+                               sh->arg_num - 1,
+                               &sh->arg[1],
+                               tt_g_sh_line_sep,
+                               output,
+                               &status);
+        if (TT_OK(result)) {
+            return status;
+        } else {
+            tt_buf_restore_rwp(output, &rp, &wp);
+            tt_buf_putf(output, "%s: failed", name);
+            return TT_CLIOC_OUT;
+        }
+    }
 }
 
 tt_u32_t __sh_on_complete(IN tt_cli_t *cli,

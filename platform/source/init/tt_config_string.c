@@ -46,7 +46,7 @@ static tt_result_t __cfgstr_write(IN tt_cfgobj_t *co,
                                   IN tt_u32_t val_len);
 
 static tt_cfgobj_itf_t __cfgstr_itf = {
-    __cfgstr_on_destroy, __cfgstr_read, __cfgstr_write, NULL,
+    __cfgstr_on_destroy, __cfgstr_read, __cfgstr_write,
 };
 
 ////////////////////////////////////////////////////////////
@@ -62,15 +62,8 @@ tt_cfgobj_t *tt_cfgstr_create(IN const tt_char_t *name,
                               IN OPT tt_cfgobj_attr_t *attr,
                               IN OPT tt_cfgstr_cb_t *cb)
 {
-    tt_cfgobj_attr_t __attr;
     tt_cfgobj_t *co;
     tt_cfgstr_t *cs;
-
-    if (attr == NULL) {
-        tt_cfgobj_attr_default(&__attr);
-        attr = &__attr;
-    }
-    attr->can_exec = TT_FALSE;
 
     co = tt_cfgobj_create(sizeof(tt_cfgstr_t),
                           TT_CFGOBJ_STRING,

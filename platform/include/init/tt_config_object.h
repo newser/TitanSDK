@@ -53,7 +53,6 @@ typedef struct
     tt_bool_t need_reboot : 1;
     tt_bool_t can_read : 1;
     tt_bool_t can_write : 1;
-    tt_bool_t can_exec : 1;
 } tt_cfgobj_attr_t;
 
 typedef struct tt_cfgobj_s
@@ -71,7 +70,6 @@ typedef struct tt_cfgobj_s
     tt_bool_t need_reboot : 1;
     tt_bool_t can_read : 1;
     tt_bool_t can_write : 1;
-    tt_bool_t can_exec : 1;
 } tt_cfgobj_t;
 
 ////////////////////////////////////////////////////////////
@@ -133,12 +131,6 @@ extern tt_result_t tt_cfgobj_read(IN tt_cfgobj_t *co,
 extern tt_result_t tt_cfgobj_write(IN tt_cfgobj_t *co,
                                    IN tt_u8_t *val,
                                    IN tt_u32_t val_len);
-
-extern tt_result_t tt_cfgobj_exec(IN tt_cfgobj_t *co,
-                                  IN tt_u8_t *arg,
-                                  IN tt_u32_t arg_len,
-                                  IN OPT const tt_char_t *line_sep,
-                                  OUT struct tt_buf_s *output);
 
 extern tt_result_t tt_cfgobj_ls(IN tt_cfgobj_t *co,
                                 IN OPT const tt_char_t *col_sep,

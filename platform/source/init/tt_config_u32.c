@@ -45,7 +45,7 @@ static tt_result_t __cfgu32_write(IN tt_cfgobj_t *co,
                                   IN tt_u32_t val_len);
 
 static tt_cfgobj_itf_t __cfgu32_itf = {
-    NULL, __cfgu32_read, __cfgu32_write, NULL,
+    NULL, __cfgu32_read, __cfgu32_write,
 };
 
 ////////////////////////////////////////////////////////////
@@ -61,7 +61,6 @@ tt_cfgobj_t *tt_cfgu32_create(IN const tt_char_t *name,
                               IN OPT tt_cfgobj_attr_t *attr,
                               IN OPT tt_cfgu32_cb_t *cb)
 {
-    tt_cfgobj_attr_t __attr;
     tt_cfgobj_t *co;
     tt_cfgu32_t *cu32;
 
