@@ -1,78 +1,88 @@
 # TitanSDK
 
-## Introduction
+TitanSDK is a cross-platform, fiber-based io library written in C, with various useful features.
 
-TitanSDK is a cross-platform, fiber-based asynchronous io library written in C, with various useful features:
-* [cross-platform, less dependency](#cpld)
-* [fiber-based asynchronous io](#fbai)
+## Features
+* [cross-platform, few external dependencies](#cpfed)
+* [fiber-based io](#fbai)
+* [inter-fiber communication, fiber timer](#ifcft)
 * [unified system api](#usa)
 * [flexibile log system](#fls)
-* command line interface: configure system or query system status
-* XML processing
-* cryptography
-* common network protocol(dns, ssl, etc.)
-* timer triggered event
+* [command line interface](#cli)
+* [XML processing](#xml)
+* [cryptography](#crypto)
+* [network protocol](#net)
 
-### <a name="cpld"></a>cross-platform, less dependency
+### <a name="cpfed"></a>cross-platform, few external dependencies
 
-Application based on TitanSDK can be built on different platforms via CMake. All features are supported on:
+Via CMake, applications based on TitanSDK can be built on:
 * Windows (Windows 7 and later)
 * Linux
 * Mac OS
 * *iOS (developing)*
 * *Android (developing)*
 
-Building TitanSDK does not need to install other libraries.
+Building TitanSDK does not need to install other library.
 
-### <a name="fbai"></a>fiber-based asynchronous io
+### <a name="fbai"></a>fiber-based io
 
-> A fiber is a unit of execution that must be manually scheduled by the application
+> A fiber is a unit of execution that must be manually scheduled by the application.
 
-TitanSDK makes it possible to do asynchronous io without splitting your code flow
+TitanSDK makes it possible to do io without blocking current thread.
 ```C
-tt_skt_recv(socket, buf, len, &recvd, NULL, NULL)
+tt_skt_recv(socket, buf, len, &recvd, NULL, NULL);
 ```
-Fiber calling io functions would be paused and resumed once io is done. When one fiber is paused, thread would execute another available fiber. All asynchronous operations are transparent to caller.
+Fiber calling io functions would be paused and resumed once io is done. When one fiber is paused, thread would execute another available fiber.
 
-fiber-based asynchronous io includes:
-* file io
-* socket io
-* inter process io
+fiber-based io includes:
+  * file io
+  * socket io
+  * inter process io
 
-Network io based on socket io are also fiber-based asynchronous
+### <a name="ifcft"></a>inter-fiber communication, fiber timer
+
+A fiber can send event to another fiber. The destination fiber would be resumed and return the received event.
+
+A fiber can start timer and it would be resumed when the timer expired.
+
 ```C
-tt_dns_rrlist_t *rrl = tt_dns_get_a("google.com")
+tt_skt_recv(socket, buf, len, &recvd, &p_fiber_event, &p_fiber_timer);
+// p_fiber_event is the received event if it's not NULL
+// p_fiber_timer is the expired timer if it's not NULL
 ```
-Fiber calling tt_dns_get_a("google.com") would be paused during dns querying and resumed once dns result can be returned
 
 ### <a name="usa"></a>unified system api
 
-Native system api(windows api, posix, etc.) are wrapped as unified apis.
+Native system api(windows api, posix, etc.) are wrapped as unified apis, including:
+  * thread, process
+  * mutex, semaphore, read write lock, spin lock, atomic operation
+  * dll(shared library)
 
-```C
-tt_thread_create(func, arg, NULL)
-```
-this function can create thread on all supported platforms
+### <a name="fls"></a>flexibile log system
 
-unified system api includes:
-* thread, process
-* mutex, semaphore, read write lock, spin lock, atomic operation
-* dll(shared library)
+Application can create and manage log system with configurable log format and multiple log destination.
 
-### flexibile log system
+### <a name="cli"></a>command line interface
 
-Application can create and manage customized log system:
-* create your log
-  ```C
-  tt_logmgr_create(&logmgr, "MyLog", NULL);
-  ```
-* customize error log format 
-  ```C
-  tt_loglyt_t *lyt = tt_loglyt_pattern_create("${time} ${level:%-6.6s} ${content} <${function} - ${line}>\n");
-  tt_logmgr_set_layout(&logmgr, TT_LOG_ERROR, lyt);
-  ```
-* configure where to output log
-  ```C
-  tt_logio_t *lio = tt_logio_std_create(NULL);
-  tt_logmgr_append_io(logmgr, TT_LOG_ERROR, tt_s_logio_std)
-  ```
+Cross-platform command line interface, by which user can do configuration or show system status.
+
+Developer can also add new entry into command line interface.
+
+### <a name="xml"></a>XML processing
+
+Parsing xml file and access xml data in DOM style, support XPATH.
+
+### <a name="crypto"></a>cryptography
+
+supported cryptography:
+  * public-key cryptography: RSA, DH, ECDH, ECDSA
+  * symmetric cryptography: AES, Camellia, DES/3DES, Blowfish, RC4 with ECB/CBC/CFB/CTR/GCM mode
+  * message digest: MD2, MD4, MD5, SHA1, SHA224, SHA256, SHA384, SHA512, RIPEMD160
+  * HMAC: HMAC-MDx, HMAC-SHAx, HMAC-RIPEMD160
+  * random number generator
+
+### <a name="net"></a>network protocol
+
+supported network protocol:
+  * SSL/TLS
+  * DNS
