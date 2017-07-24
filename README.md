@@ -12,11 +12,11 @@ tt_dns_rrlist_t *rrl = tt_dns_get_aaaa("googe.com");
 ```
 After calling the dns api, current fiber is paused, dns querying is then ongoing, other available fibers are scheduled to execute, once dns response is received, the paused fiber is resumed and a list of AAAA resource records is returned.
 
-## Release
+# Release
 
 - [2017-08-01] 0.1.0
 
-## Features
+# Features
 - **Cross-platform**: built on Windows, Linux, macOS, iOS(developing), Android(developing) via CMake
 - **Few dependencies**: only require common libraries(libpthread, ws2_32, etc.)
 - **Fiber-based io**
