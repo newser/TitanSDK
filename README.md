@@ -18,7 +18,7 @@ After calling the dns api, current fiber is paused, dns querying is then ongoing
 
 # Features
 - **Cross-platform**: built on Windows, Linux, macOS, iOS(developing), Android(developing) via CMake
-- **Few dependencies**: only require common libraries(libpthread, ws2_32, etc.)
+- **Few dependencies**: only require pre-installed libraries(libpthread, ws2_32, etc.)
 - **Fiber-based io**
 - **Inter-fiber event**: send and receive inter-fiber events
 - **Fiber-based timer**: create timer and be resumed when timer expires
