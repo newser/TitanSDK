@@ -1,10 +1,10 @@
 # TitanSDK - A cross-platform, fiber-based io library
 
-TitanSDK enables asynchronous io without splitting application code flow
+TitanSDK implements fiber-based io, which is a kind of asynchronous io without splitting application code flow.
 
 > A fiber is a particularly lightweight thread of execution. see [Fiber - Wikipedia](https://en.wikipedia.org/wiki/Fiber_(computer_science))
 
-Whenever calls a fiber-based io function, the calling fiber is paused, io is then ongoing, meanwhile other available fibers are scheduled to execute, once io finished, the paused fiber is resumed and result is returned.
+Whenever calls a fiber-based io function, the calling fiber is paused, io is then ongoing, meanwhile other available fibers are scheduled to execute, once io finishes, the paused fiber is resumed and result is returned.
 
 Network protocol implementation basing on fiber-based io has same advantage:
 ```C
