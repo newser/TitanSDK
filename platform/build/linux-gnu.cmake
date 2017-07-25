@@ -36,21 +36,9 @@ function(ttcm_platform_link_libraries)
   target_link_libraries(platform rt)
 
   # numa support
-  if (PLATFORM_NUMA_ENABLE)
+  if (PLATFORM_ENABLE_NUMA)
     target_link_libraries(platform numa)
   endif ()
-
-  # ssl
-  if (PLATFORM_SSL_ENABLE)
-    target_link_libraries(platform ssl)
-    target_link_libraries(platform crypto)
-  endif()
-
-  # crypto
-  if (PLATFORM_CRYPTO_ENABLE)
-    target_link_libraries(platform ssl)
-    target_link_libraries(platform crypto)
-  endif()
 
   target_link_libraries(platform dl)
 

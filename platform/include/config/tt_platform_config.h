@@ -68,7 +68,7 @@ this file defines integrate all other configurations
 // post-definition
 // ========================================
 
-#ifndef TT_PLATFORM_DEBUG_ENABLE
+#ifndef TT_PLATFORM_ENABLE_DEBUG
 #include <config/tt_platform_optimized_config.h>
 #endif
 

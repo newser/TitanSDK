@@ -22,12 +22,12 @@ set(PLATFORM_TOOLCHAIN ""
     CACHE FILEPATH "specified toolchain file")
 mark_as_advanced(PLATFORM_TOOLCHAIN)
 
-set(PLATFORM_TOOLCHAIN_IOS_XCODE 0 
+set(PLATFORM_IOS 0 
     CACHE BOOL  "use predefined ios-xcode toolchain")
 
 # choose toolchain
 if (PLATFORM_TOOLCHAIN STREQUAL "")
-  if (PLATFORM_TOOLCHAIN_IOS_XCODE)
+  if (PLATFORM_IOS)
     set(PLATFORM_TOOLCHAIN "ios-xcode.toolchain.cmake")
   endif ()
 endif()
@@ -156,7 +156,7 @@ message(STATUS "DETECTING ENVIRONMENT DONE: ${PLATFORM_ENV}")
 #
 
 # detect environment detail
-function(detect_env_detail param_name param_val)  
+function(detect_env param_name param_val)  
   try_run(__run_result
           __compile_result 
           ${CMAKE_BINARY_DIR}
@@ -179,40 +179,41 @@ function(detect_env_detail param_name param_val)
   
   # return result
   set(${param_val} ${__run_output} PARENT_SCOPE)
-endfunction(detect_env_detail)
+endfunction(detect_env)
 
-macro(detect_env_detail_helper param description)
+macro(detect_env_helper param description)
   if ("${${param}}" STREQUAL "")
     message(STATUS "detecting ${description}")
-    detect_env_detail("${param}" __val)
+    detect_env("${param}" __val)
     set(${param} ${__val} CACHE INTERNAL "${description}")
   endif ()
   message(STATUS "${description}: ${${param}}")
-endmacro(detect_env_detail_helper)
+endmacro(detect_env_helper)
 
 # detecting detail depends on configuration
-set(PLATFORM_ENV_DETECT_DETAIL 0 
+set(PLATFORM_ENVIRONMENT_DETAIL 0 
     CACHE BOOL "detecting environment detail for optimization")
-if (PLATFORM_ENV_DETECT_DETAIL)
+mark_as_advanced(PLATFORM_ENVIRONMENT_DETAIL)
+if (PLATFORM_ENVIRONMENT_DETAIL)
   message(STATUS "DETECTING ENVIRONMENT DETAIL ...")
 
   # detect app running os detail
-  detect_env_detail_helper(PLATFORM_ENV_OS_DETAIL "app running os detail")
-  detect_env_detail_helper(PLATFORM_ENV_OS_VER_DETAIL "app running os version detail")
-  detect_env_detail_helper(PLATFORM_ENV_OS_FEATURE_DETAIL "app running os feature detail")
+  detect_env_helper(PLATFORM_ENV_OS_DETAIL "app running os detail")
+  detect_env_helper(PLATFORM_ENV_OS_VER_DETAIL "app running os version detail")
+  detect_env_helper(PLATFORM_ENV_OS_FEATURE_DETAIL "app running os feature detail")
   
   # detect app running cpu detail
-  detect_env_detail_helper(PLATFORM_ENV_CPU_DETAIL "app running cpu detail")
-  detect_env_detail_helper(PLATFORM_ENV_CPU_FEATURE_DETAIL "app running cpu feature detail")
+  detect_env_helper(PLATFORM_ENV_CPU_DETAIL "app running cpu detail")
+  detect_env_helper(PLATFORM_ENV_CPU_FEATURE_DETAIL "app running cpu feature detail")
 
   # detect toolchain
-  detect_env_detail_helper(PLATFORM_ENV_TOOLCHAIN_DETAIL "app building toolchain detail")
-  detect_env_detail_helper(PLATFORM_ENV_TOOLCHAIN_VER_DETAIL "app building toolchain version detail")
+  detect_env_helper(PLATFORM_ENV_TOOLCHAIN_DETAIL "app building toolchain detail")
+  detect_env_helper(PLATFORM_ENV_TOOLCHAIN_VER_DETAIL "app building toolchain version detail")
   
   # host inforamtion are for cmake usage, no need to pass to application
   
   message(STATUS "DETECTING ENVIRONMENT DETAIL DONE")
-else (PLATFORM_ENV_DETECT_DETAIL)
+else (PLATFORM_ENVIRONMENT_DETAIL)
   # should assign a numberical value
   set(PLATFORM_ENV_OS_DETAIL TS_ENV_UNKNOWN_VAL)
   set(PLATFORM_ENV_OS_VER_DETAIL TS_ENV_UNKNOWN_VAL)
@@ -223,7 +224,7 @@ else (PLATFORM_ENV_DETECT_DETAIL)
     
   set(PLATFORM_ENV_TOOLCHAIN_DETAIL TS_ENV_UNKNOWN_VAL)
   set(PLATFORM_ENV_TOOLCHAIN_VER_DETAIL TS_ENV_UNKNOWN_VAL)    
-endif (PLATFORM_ENV_DETECT_DETAIL)
+endif (PLATFORM_ENVIRONMENT_DETAIL)
 
 #
 # configuration

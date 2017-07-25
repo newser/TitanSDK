@@ -32,19 +32,6 @@ function(ttcm_platform_link_libraries)
   # charset
   target_link_libraries(platform iconv)
 
-  # as it may switch between ios and ios simulator, we need do
-  # finding path every time
-
-  # security
-  if (PLATFORM_SSL_ENABLE)
-    target_link_libraries(platform "-framework Security")
-  endif()
-
-  # crypto
-  if (PLATFORM_CRYPTO_ENABLE)
-    target_link_libraries(platform "-framework Security")
-  endif()
-
   # core foundation
   target_link_libraries(platform "-framework CoreFoundation")
   
@@ -52,7 +39,7 @@ endfunction(ttcm_platform_link_libraries)
 
 # platform properties
 function(ttcm_platform_set_properties)
-  if (PLATFORM_BUILD_DYNAMIC)
+  if (PLATFORM_BUILD_SHARED)
     # TitanSDK.framework
     set_target_properties(platform PROPERTIES FRAMEWORK TRUE)
     set_target_properties(platform PROPERTIES OUTPUT_NAME TitanSDK)

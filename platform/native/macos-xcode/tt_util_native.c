@@ -99,36 +99,3 @@ char *tt_cfstring_ptr(IN CFStringRef cfstr, OUT OPT tt_u32_t *len)
     }
     return ptr;
 }
-
-void tt_osstatus_show(IN OSStatus osst)
-{
-#if defined(TT_PLATFORM_SSL_ENABLE)
-    CFStringRef s = SecCopyErrorMessageString(osst, NULL);
-    tt_char_t *cstr = NULL;
-
-    if (s == NULL) {
-        TT_ERROR("unknown OSStatus");
-        goto __out;
-    }
-
-    cstr = tt_cfstring_ptr(s, NULL);
-    if (cstr == NULL) {
-        TT_ERROR("unknown OSStatus");
-        goto __out;
-    }
-
-    TT_ERROR("OSStatus: %s", cstr);
-
-__out:
-
-    if (cstr != NULL) {
-        tt_free(cstr);
-    }
-
-    if (s != NULL) {
-        CFRelease(s);
-    }
-#else
-    TT_ERROR("OSStatus: %d", osst);
-#endif
-}

@@ -34,24 +34,16 @@ include(${PLATFORM_BUILD_PATH}/util.cmake)
 # do some configuration here
 
 # platform debug
-set(PLATFORM_DEBUG_ENABLE 1 CACHE BOOL "set to non zero to enable platform debug")
-message(STATUS "debug mode: ${PLATFORM_DEBUG_ENABLE}")
+set(PLATFORM_ENABLE_DEBUG 1 CACHE BOOL "set to non zero to enable platform debug")
+message(STATUS "debug mode: ${PLATFORM_ENABLE_DEBUG}")
 
 # build platform as a dynamic library
-set(PLATFORM_BUILD_DYNAMIC 0 CACHE BOOL "build platform dynamic library")
-message(STATUS "build dynamic: ${PLATFORM_BUILD_DYNAMIC}")
-
-# ssl enable
-set(PLATFORM_SSL_ENABLE 0 CACHE BOOL "set to non zero to enable SSL")
-message(STATUS "ssl enable: ${PLATFORM_SSL_ENABLE}")
+set(PLATFORM_BUILD_SHARED 0 CACHE BOOL "build platform dynamic library")
+message(STATUS "build dynamic: ${PLATFORM_BUILD_SHARED}")
 
 # numa enable
-set(PLATFORM_NUMA_ENABLE 0 CACHE BOOL "set to non zero to enable numa support")
-message(STATUS "numa enable: ${PLATFORM_NUMA_ENABLE}")
-
-# crypto enable
-set(PLATFORM_CRYPTO_ENABLE 0 CACHE BOOL "set to non zero to enable crypto")
-message(STATUS "crypto enable: ${PLATFORM_CRYPTO_ENABLE}")
+set(PLATFORM_ENABLE_NUMA 0 CACHE BOOL "set to non zero to enable numa support")
+message(STATUS "numa enable: ${PLATFORM_ENABLE_NUMA}")
 
 # generate header file
 configure_file(${PLATFORM_ROOT_PATH}/platform/include/config/tt_customization_config.h.in
@@ -149,7 +141,7 @@ ttcm_add_group_src(${PLATFORM_PATH}/source/network/dns/test_case dns SRC_FILE)
 #
 
 # define target
-if (PLATFORM_BUILD_DYNAMIC)
+if (PLATFORM_BUILD_SHARED)
   message(STATUS "building platform dynamic lib")
   add_library(platform SHARED ${SRC_FILE})
 else ()

@@ -66,7 +66,7 @@ extern tt_result_t tt_platform_numa_node_id_load(
 
 tt_inline tt_bool_t tt_platform_numa_enabled_ntv()
 {
-#ifdef TT_PLATFORM_NUMA_ENABLE
+#ifdef TT_PLATFORM_ENABLE_NUMA
     return TT_TRUE;
 #else
     return TT_FALSE;

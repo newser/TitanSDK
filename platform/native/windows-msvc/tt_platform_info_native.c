@@ -154,7 +154,7 @@ tt_result_t tt_platform_numa_node_id_load(IN tt_profile_t *profile,
 {
     tt_u32_t node_id = 0;
 
-#ifdef TT_PLATFORM_NUMA_ENABLE
+#ifdef TT_PLATFORM_ENABLE_NUMA
     if ((node_id != TT_NUMA_NODE_ID_UNSPECIFIED) &&
         (TT_OK(__check_numa_node_id(node_id)))) {
         // todo: read node_id from profile

@@ -37,7 +37,7 @@ memory page APIs
 #include <stdlib.h>
 #include <sys/mman.h>
 
-#ifdef TT_PLATFORM_NUMA_ENABLE
+#ifdef TT_PLATFORM_ENABLE_NUMA
 #include <numa.h>
 #endif
 
@@ -58,7 +58,7 @@ memory page APIs
 // numa api switchers
 // ========================================
 
-#ifdef TT_PLATFORM_NUMA_ENABLE
+#ifdef TT_PLATFORM_ENABLE_NUMA
 
 #define __PAGE_ALLOC_ONNODE(size, numa_node_id_memory)                         \
     numa_alloc_onnode((size), (numa_node_id_memory))

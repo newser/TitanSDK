@@ -87,6 +87,4 @@ extern tt_result_t tt_kevent(IN int kq,
 // remember use tt_free to free the return value
 extern char *tt_cfstring_ptr(IN CFStringRef cfstr, OUT OPT tt_u32_t *len);
 
-extern void tt_osstatus_show(IN OSStatus osst);
-
 #endif /* __TT_PLATFORM_UTIL_NATIVE__ */

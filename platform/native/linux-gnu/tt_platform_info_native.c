@@ -29,7 +29,7 @@
 #include <stdio.h>
 #include <unistd.h>
 
-#ifdef TT_PLATFORM_NUMA_ENABLE
+#ifdef TT_PLATFORM_ENABLE_NUMA
 #include <numa.h>
 #endif
 
@@ -75,7 +75,7 @@ tt_result_t tt_platform_cpu_num_load(OUT tt_u32_t *cpu_num)
 {
     long __cpu_num = 0;
 
-#ifdef TT_PLATFORM_NUMA_ENABLE
+#ifdef TT_PLATFORM_ENABLE_NUMA
     do {
         tt_u32_t i, n;
 
@@ -131,7 +131,7 @@ tt_result_t tt_platform_numa_node_id_load(IN tt_profile_t *profile,
                                           OUT tt_u32_t *numa_id_thread,
                                           OUT tt_u32_t *numa_id_memory)
 {
-#ifdef TT_PLATFORM_NUMA_ENABLE
+#ifdef TT_PLATFORM_ENABLE_NUMA
     do {
         tt_u32_t node_id = 0;
 

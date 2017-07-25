@@ -34,48 +34,30 @@ this file load customization definitions
 ////////////////////////////////////////////////////////////
 
 /**
-@def TT_PLATFORM_DEBUG_ENABLE
+@def TT_PLATFORM_ENABLE_DEBUG
 defined if debug mode is enabled
 */
-#cmakedefine PLATFORM_DEBUG_ENABLE
-#ifdef PLATFORM_DEBUG_ENABLE
-#define TT_PLATFORM_DEBUG_ENABLE
+#cmakedefine PLATFORM_ENABLE_DEBUG
+#ifdef PLATFORM_ENABLE_DEBUG
+#define TT_PLATFORM_ENABLE_DEBUG
 #endif
 
 /**
-@def TT_PLATFORM_DYNAMIC_LIB
+@def TT_PLATFORM_BUILD_SHARED
 defined if build platform as a shared library
 */
-#cmakedefine PLATFORM_BUILD_DYNAMIC
-#ifdef PLATFORM_BUILD_DYNAMIC
-#define TT_PLATFORM_DYNAMIC_LIB
+#cmakedefine PLATFORM_BUILD_SHARED
+#ifdef PLATFORM_BUILD_SHARED
+#define TT_PLATFORM_BUILD_SHARED
 #endif
 
 /**
-@def TT_PLATFORM_SSL_ENABLE
-defined if SSL is enabled
-*/
-#cmakedefine PLATFORM_SSL_ENABLE
-#ifdef PLATFORM_SSL_ENABLE
-#define TT_PLATFORM_SSL_ENABLE
-#endif
-
-/**
-@def TT_PLATFORM_NUMA_ENABLE
+@def TT_PLATFORM_ENABLE_NUMA
 defined if NUMA is enabled
 */
-#cmakedefine PLATFORM_NUMA_ENABLE
-#ifdef PLATFORM_NUMA_ENABLE
-#define TT_PLATFORM_NUMA_ENABLE
-#endif
-
-/**
-@def TT_PLATFORM_CRYPTO_ENABLE
-defined if CRYPTO is enabled
-*/
-#cmakedefine PLATFORM_CRYPTO_ENABLE
-#ifdef PLATFORM_CRYPTO_ENABLE
-#define TT_PLATFORM_CRYPTO_ENABLE
+#cmakedefine PLATFORM_ENABLE_NUMA
+#ifdef PLATFORM_ENABLE_NUMA
+#define TT_PLATFORM_ENABLE_NUMA
 #endif
 
 // ========================================

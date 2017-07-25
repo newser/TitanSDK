@@ -48,7 +48,7 @@ a function with such prefix would be expanded as inline
 #define tt_inline static __inline
 
 // dynamic library
-#ifdef TT_PLATFORM_DYNAMIC_LIB_BUILDING
+#ifdef TT_PLATFORM_BUILD_SHARED_BUILDING
 #define TT_EXPORT __declspec(dllexport) extern
 #else
 #define TT_EXPORT __declspec(dllimport) extern

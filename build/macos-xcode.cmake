@@ -39,7 +39,7 @@ ttcm_choose_compiler_flag(CMAKE_CXX_FLAGS FALSE -Wno-unused-function)
 ttcm_choose_compiler_flag(CMAKE_CXX_FLAGS FALSE -Wno-unused-variable)
 
 # atomic instrucitons need specify -march
-if (PLATFORM_ENV_DETECT_DETAIL)
+if (PLATFORM_ENVIRONMENT_DETAIL)
   set(__march_flags -march=native)
 else ()
   if (CMAKE_SIZEOF_VOID_P EQUAL 8)

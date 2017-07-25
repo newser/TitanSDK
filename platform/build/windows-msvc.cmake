@@ -39,22 +39,6 @@ function(ttcm_platform_link_libraries)
   # network interface
   target_link_libraries(platform iphlpapi)
 
-  if (PLATFORM_SSL_ENABLE)
-    # crypt
-    target_link_libraries(platform crypt32)
-
-    # crypt
-    target_link_libraries(platform Ncrypt)
-  endif ()
-
-  if (PLATFORM_CRYPTO_ENABLE)
-    # crypt
-    target_link_libraries(platform crypt32)
-
-    # crypt
-    target_link_libraries(platform Ncrypt)
-  endif ()
-
 endfunction(ttcm_platform_link_libraries)
 
 # platform properties
