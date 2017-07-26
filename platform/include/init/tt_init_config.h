@@ -42,15 +42,15 @@ this file defines platform config init
 // global variants
 ////////////////////////////////////////////////////////////
 
-extern tt_cfgobj_t *tt_g_config_root;
+tt_export tt_cfgobj_t *tt_g_config_root;
 
-extern tt_cfgobj_t *tt_g_config_platform;
+tt_export tt_cfgobj_t *tt_g_config_platform;
 
 ////////////////////////////////////////////////////////////
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern void tt_config_component_register();
+tt_export void tt_config_component_register();
 
 tt_inline tt_result_t tt_config_add2root(IN tt_cfgobj_t *co)
 {

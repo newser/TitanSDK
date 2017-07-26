@@ -57,7 +57,7 @@ the "point" is not always the time when system boots up
 @fn void tt_time_ref_component_register()
 register ts time reference system
 */
-extern void tt_time_ref_component_register();
+tt_export void tt_time_ref_component_register();
 
 /**
 @fn tt_s64_t tt_time_ref()

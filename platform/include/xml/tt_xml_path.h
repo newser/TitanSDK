@@ -91,54 +91,55 @@ typedef enum {
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern void tt_xpath_component_register();
+tt_export void tt_xpath_component_register();
 
 // ========================================
 // xml path
 // ========================================
 
-extern tt_result_t tt_xpath_create(IN tt_xpath_t *xp,
-                                   IN const tt_char_t *expr,
-                                   IN OPT tt_xpvars_t *xpvs);
+tt_export tt_result_t tt_xpath_create(IN tt_xpath_t *xp,
+                                      IN const tt_char_t *expr,
+                                      IN OPT tt_xpvars_t *xpvs);
 
-extern void tt_xpath_destroy(IN tt_xpath_t *xp);
+tt_export void tt_xpath_destroy(IN tt_xpath_t *xp);
 
 // ========================================
 // xml path variable set
 // ========================================
 
-extern void tt_xpvars_init(IN tt_xpvars_t *xpvs);
+tt_export void tt_xpvars_init(IN tt_xpvars_t *xpvs);
 
-extern void tt_xpvars_destroy(IN tt_xpvars_t *xpvs);
+tt_export void tt_xpvars_destroy(IN tt_xpvars_t *xpvs);
 
-extern tt_result_t tt_xpvars_set_bool(IN tt_xpvars_t *xpvs,
-                                      IN const tt_char_t *name,
-                                      IN tt_bool_t val);
+tt_export tt_result_t tt_xpvars_set_bool(IN tt_xpvars_t *xpvs,
+                                         IN const tt_char_t *name,
+                                         IN tt_bool_t val);
 
-extern tt_result_t tt_xpvars_set_number(IN tt_xpvars_t *xpvs,
-                                        IN const tt_char_t *name,
-                                        IN tt_double_t val);
+tt_export tt_result_t tt_xpvars_set_number(IN tt_xpvars_t *xpvs,
+                                           IN const tt_char_t *name,
+                                           IN tt_double_t val);
 
-extern tt_result_t tt_xpvars_set_cstr(IN tt_xpvars_t *xpvs,
-                                      IN const tt_char_t *name,
-                                      IN const tt_char_t *val);
+tt_export tt_result_t tt_xpvars_set_cstr(IN tt_xpvars_t *xpvs,
+                                         IN const tt_char_t *name,
+                                         IN const tt_char_t *val);
 
 // ========================================
 // xml path node set
 // ========================================
 
-extern void tt_xpnodes_init(IN tt_xpnodes_t *xpns);
+tt_export void tt_xpnodes_init(IN tt_xpnodes_t *xpns);
 
-extern void tt_xpnodes_destroy(IN tt_xpnodes_t *xpns);
+tt_export void tt_xpnodes_destroy(IN tt_xpnodes_t *xpns);
 
-extern void tt_xpnodes_sort(IN tt_xpnodes_t *xpns, IN tt_bool_t reverse);
+tt_export void tt_xpnodes_sort(IN tt_xpnodes_t *xpns, IN tt_bool_t reverse);
 
-extern tt_u32_t tt_xpnodes_count(IN tt_xpnodes_t *xpns);
+tt_export tt_u32_t tt_xpnodes_count(IN tt_xpnodes_t *xpns);
 
-extern void tt_xpnodes_iter(IN tt_xpnodes_t *xpns, OUT tt_xpnodes_iter_t *iter);
+tt_export void tt_xpnodes_iter(IN tt_xpnodes_t *xpns,
+                               OUT tt_xpnodes_iter_t *iter);
 
-extern tt_result_t tt_xpnodes_iter_next(IN OUT tt_xpnodes_iter_t *iter,
-                                        OUT tt_ptr_t *xn,
-                                        OUT tt_ptr_t *xa);
+tt_export tt_result_t tt_xpnodes_iter_next(IN OUT tt_xpnodes_iter_t *iter,
+                                           OUT tt_ptr_t *xn,
+                                           OUT tt_ptr_t *xa);
 
 #endif /* __TT_XML_PATH__ */

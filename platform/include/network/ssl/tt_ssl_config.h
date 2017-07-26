@@ -125,45 +125,47 @@ typedef struct
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern tt_result_t tt_ssl_config_create(IN tt_ssl_config_t *sc,
-                                        IN tt_ssl_role_t role,
-                                        IN tt_ssl_transport_t transport,
-                                        IN tt_ssl_preset_t preset);
+tt_export tt_result_t tt_ssl_config_create(IN tt_ssl_config_t *sc,
+                                           IN tt_ssl_role_t role,
+                                           IN tt_ssl_transport_t transport,
+                                           IN tt_ssl_preset_t preset);
 
-extern void tt_ssl_config_destroy(IN tt_ssl_config_t *sc);
+tt_export void tt_ssl_config_destroy(IN tt_ssl_config_t *sc);
 
-extern void tt_ssl_config_version(IN tt_ssl_config_t *sc,
-                                  IN tt_ssl_ver_t min,
-                                  IN tt_ssl_ver_t max);
+tt_export void tt_ssl_config_version(IN tt_ssl_config_t *sc,
+                                     IN tt_ssl_ver_t min,
+                                     IN tt_ssl_ver_t max);
 
-extern void tt_ssl_config_auth(IN tt_ssl_config_t *sc, IN tt_ssl_auth_t auth);
+tt_export void tt_ssl_config_auth(IN tt_ssl_config_t *sc,
+                                  IN tt_ssl_auth_t auth);
 
-extern void tt_ssl_config_ca(IN tt_ssl_config_t *sc,
-                             IN OPT struct tt_x509cert_s *ca,
-                             IN OPT struct tt_x509crl_s *crl);
+tt_export void tt_ssl_config_ca(IN tt_ssl_config_t *sc,
+                                IN OPT struct tt_x509cert_s *ca,
+                                IN OPT struct tt_x509crl_s *crl);
 
-extern tt_result_t tt_ssl_config_cert(IN tt_ssl_config_t *sc,
-                                      IN struct tt_x509cert_s *ca,
-                                      IN struct tt_pk_s *pk);
+tt_export tt_result_t tt_ssl_config_cert(IN tt_ssl_config_t *sc,
+                                         IN struct tt_x509cert_s *ca,
+                                         IN struct tt_pk_s *pk);
 
-extern tt_result_t tt_ssl_config_alpn(IN tt_ssl_config_t *sc,
-                                      IN const tt_char_t **alpn);
+tt_export tt_result_t tt_ssl_config_alpn(IN tt_ssl_config_t *sc,
+                                         IN const tt_char_t **alpn);
 
-extern void tt_ssl_config_trunc_hmac(IN tt_ssl_config_t *sc,
-                                     IN tt_bool_t enable);
+tt_export void tt_ssl_config_trunc_hmac(IN tt_ssl_config_t *sc,
+                                        IN tt_bool_t enable);
 
-extern void tt_ssl_config_sni(IN tt_ssl_config_t *sc,
-                              IN tt_ssl_on_sni_t on_sni,
-                              IN void *param);
+tt_export void tt_ssl_config_sni(IN tt_ssl_config_t *sc,
+                                 IN tt_ssl_on_sni_t on_sni,
+                                 IN void *param);
 
-extern tt_result_t tt_ssl_config_cache(IN tt_ssl_config_t *sc,
-                                       IN tt_bool_t use_ticket,
-                                       IN OPT struct tt_ssl_cache_attr_s *attr);
+tt_export tt_result_t
+tt_ssl_config_cache(IN tt_ssl_config_t *sc,
+                    IN tt_bool_t use_ticket,
+                    IN OPT struct tt_ssl_cache_attr_s *attr);
 
-extern void tt_ssl_config_encrypt_then_mac(IN tt_ssl_config_t *sc,
-                                           IN tt_bool_t enable);
+tt_export void tt_ssl_config_encrypt_then_mac(IN tt_ssl_config_t *sc,
+                                              IN tt_bool_t enable);
 
-extern void tt_ssl_config_extended_master_secret(IN tt_ssl_config_t *sc,
-                                                 IN tt_bool_t enable);
+tt_export void tt_ssl_config_extended_master_secret(IN tt_ssl_config_t *sc,
+                                                    IN tt_bool_t enable);
 
 #endif /* __TT_SSL_CONFIG__ */

@@ -113,7 +113,7 @@ typedef struct
 @fn void tt_sem_component_register()
 register ts semaphore component
 */
-extern void tt_sem_component_register();
+tt_export void tt_sem_component_register();
 
 /**
 @fn tt_result_t tt_sem_create(IN STATIC tt_sem_t *sem,
@@ -127,9 +127,9 @@ create a semaphore
 - TT_SUCCESS, if the semaphore is created
 - TT_FAIL, otherwise
 */
-extern tt_result_t tt_sem_create(IN tt_sem_t *sem,
-                                 IN tt_u32_t count,
-                                 IN OPT tt_sem_attr_t *attr);
+tt_export tt_result_t tt_sem_create(IN tt_sem_t *sem,
+                                    IN tt_u32_t count,
+                                    IN OPT tt_sem_attr_t *attr);
 
 /**
 @fn void tt_sem_destroy(IN tt_sem_t *sem)
@@ -141,7 +141,7 @@ destroy a semaphore
 - TT_SUCCESS, if the semaphore is destroyed
 - TT_FAIL, otherwise
 */
-extern void tt_sem_destroy(IN tt_sem_t *sem);
+tt_export void tt_sem_destroy(IN tt_sem_t *sem);
 
 /**
  @fn void tt_sem_attr_default(IN tt_sem_attr_t *attr)
@@ -149,7 +149,7 @@ extern void tt_sem_destroy(IN tt_sem_t *sem);
 
  @param [in] attr semaphore attribute
  */
-extern void tt_sem_attr_default(IN tt_sem_attr_t *attr);
+tt_export void tt_sem_attr_default(IN tt_sem_attr_t *attr);
 
 /**
 @fn tt_result_t tt_sem_acquire_tag(IN tt_sem_t *sem,
@@ -175,7 +175,7 @@ tt_inline tt_bool_t tt_sem_acquire_tag(IN tt_sem_t *sem,
                                        IN const tt_char_t *function,
                                        IN tt_u32_t line
 #endif
-                                       )
+)
 {
     return tt_sem_acquire_ntv(&sem->sys_sem, wait_ms);
 }
@@ -196,7 +196,7 @@ tt_inline tt_bool_t tt_sem_try_acquire_tag(IN tt_sem_t *sem
                                            IN const tt_char_t *function,
                                            IN tt_u32_t line
 #endif
-                                           )
+)
 {
     return tt_sem_try_acquire_ntv(&sem->sys_sem);
 }

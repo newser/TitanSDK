@@ -85,18 +85,18 @@ typedef struct tt_dns_aaaa_s
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern void tt_dns_rr_init(IN tt_dns_rr_t *drr,
-                           IN const tt_char_t *name,
-                           IN tt_dns_type_t type);
+tt_export void tt_dns_rr_init(IN tt_dns_rr_t *drr,
+                              IN const tt_char_t *name,
+                              IN tt_dns_type_t type);
 
-extern void tt_dns_rr_clear(IN tt_dns_rr_t *drr);
+tt_export void tt_dns_rr_clear(IN tt_dns_rr_t *drr);
 
-extern tt_dns_rrlist_t *tt_dns_rr_get(IN tt_dns_rr_t *drr, IN tt_dns_t d);
+tt_export tt_dns_rrlist_t *tt_dns_rr_get(IN tt_dns_rr_t *drr, IN tt_dns_t d);
 
-extern void tt_dns_rr_set(IN tt_dns_rr_t *drr,
-                          IN tt_s64_t ttl,
-                          IN tt_dns_rrlist_t *rrl,
-                          IN tt_bool_t notify);
+tt_export void tt_dns_rr_set(IN tt_dns_rr_t *drr,
+                             IN tt_s64_t ttl,
+                             IN tt_dns_rrlist_t *rrl,
+                             IN tt_bool_t notify);
 
 tt_inline tt_bool_t tt_dns_rr_inuse(IN tt_dns_rr_t *drr)
 {
@@ -115,7 +115,7 @@ tt_inline void tt_dns_rrlist_init(IN tt_dns_rrlist_t *rrl,
     rrl->type = type;
 }
 
-extern void tt_dns_rrlist_clear(IN tt_dns_rrlist_t *rrl);
+tt_export void tt_dns_rrlist_clear(IN tt_dns_rrlist_t *rrl);
 
 tt_inline tt_u32_t tt_dns_rrlist_count(IN tt_dns_rrlist_t *rrl)
 {
@@ -134,23 +134,23 @@ tt_inline void tt_dns_rrlist_move(IN tt_dns_rrlist_t *dst,
     tt_dlist_move(&dst->rr, &src->rr);
 }
 
-extern tt_result_t tt_dns_rrlist_copy(IN tt_dns_rrlist_t *dst,
-                                      IN tt_dns_rrlist_t *src);
+tt_export tt_result_t tt_dns_rrlist_copy(IN tt_dns_rrlist_t *dst,
+                                         IN tt_dns_rrlist_t *src);
 
-extern tt_result_t tt_dns_rrlist_add_a(IN tt_dns_rrlist_t *rrl,
-                                       IN tt_sktaddr_ip32_t *ip);
+tt_export tt_result_t tt_dns_rrlist_add_a(IN tt_dns_rrlist_t *rrl,
+                                          IN tt_sktaddr_ip32_t *ip);
 
-extern tt_result_t tt_dns_rrlist_add_aaaa(IN tt_dns_rrlist_t *rrl,
-                                          IN tt_sktaddr_ip128_t *ip);
+tt_export tt_result_t tt_dns_rrlist_add_aaaa(IN tt_dns_rrlist_t *rrl,
+                                             IN tt_sktaddr_ip128_t *ip);
 
 // RR: A
-extern tt_dns_a_t *tt_dns_a_head(IN tt_dns_rrlist_t *rrl);
+tt_export tt_dns_a_t *tt_dns_a_head(IN tt_dns_rrlist_t *rrl);
 
-extern tt_dns_a_t *tt_dns_a_next(IN tt_dns_a_t *a);
+tt_export tt_dns_a_t *tt_dns_a_next(IN tt_dns_a_t *a);
 
 // RR: AAAA
-extern tt_dns_aaaa_t *tt_dns_aaaa_head(IN tt_dns_rrlist_t *rrl);
+tt_export tt_dns_aaaa_t *tt_dns_aaaa_head(IN tt_dns_rrlist_t *rrl);
 
-extern tt_dns_aaaa_t *tt_dns_aaaa_next(IN tt_dns_aaaa_t *aaaa);
+tt_export tt_dns_aaaa_t *tt_dns_aaaa_next(IN tt_dns_aaaa_t *aaaa);
 
 #endif /* __TT_DNS_RR__ */

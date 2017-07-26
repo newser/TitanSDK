@@ -70,18 +70,18 @@ typedef struct tt_ssl_cache_s
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern tt_ssl_cache_t *tt_ssl_cache_create(IN struct tt_ssl_config_s *sc,
-                                           IN tt_bool_t use_ticket,
-                                           IN OPT tt_ssl_cache_attr_t *attr);
+tt_export tt_ssl_cache_t *tt_ssl_cache_create(IN struct tt_ssl_config_s *sc,
+                                              IN tt_bool_t use_ticket,
+                                              IN OPT tt_ssl_cache_attr_t *attr);
 
-extern void tt_ssl_cache_destroy(IN tt_ssl_cache_t *cache);
+tt_export void tt_ssl_cache_destroy(IN tt_ssl_cache_t *cache);
 
-extern void tt_ssl_cache_attr_default(IN tt_ssl_cache_attr_t *attr);
+tt_export void tt_ssl_cache_attr_default(IN tt_ssl_cache_attr_t *attr);
 
-extern void tt_ssl_cache_save(IN tt_ssl_cache_t *cache,
-                              IN struct tt_ssl_s *ssl);
+tt_export void tt_ssl_cache_save(IN tt_ssl_cache_t *cache,
+                                 IN struct tt_ssl_s *ssl);
 
-extern void tt_ssl_cache_resume(IN tt_ssl_cache_t *cache,
-                                IN struct tt_ssl_s *ssl);
+tt_export void tt_ssl_cache_resume(IN tt_ssl_cache_t *cache,
+                                   IN struct tt_ssl_s *ssl);
 
 #endif /* __TT_SSL_CACHE__ */

@@ -105,12 +105,12 @@ typedef struct tt_fiber_attr_s
 // fiber scheduler
 // ========================================
 
-extern tt_fiber_sched_t *tt_fiber_sched_create(
+tt_export tt_fiber_sched_t *tt_fiber_sched_create(
     IN OPT tt_fiber_sched_attr_t *attr);
 
-extern void tt_fiber_sched_destroy(IN tt_fiber_sched_t *fs);
+tt_export void tt_fiber_sched_destroy(IN tt_fiber_sched_t *fs);
 
-extern void tt_fiber_sched_attr_default(IN tt_fiber_sched_attr_t *attr);
+tt_export void tt_fiber_sched_attr_default(IN tt_fiber_sched_attr_t *attr);
 
 tt_inline tt_fiber_sched_t *tt_current_fiber_sched()
 {
@@ -123,27 +123,27 @@ tt_inline tt_bool_t tt_fiber_sched_empty(IN tt_fiber_sched_t *fs)
     return tt_list_empty(&fs->active) && tt_list_empty(&fs->pending);
 }
 
-extern tt_fiber_t *tt_fiber_sched_find(IN tt_fiber_sched_t *fs,
-                                       IN const tt_char_t *name);
+tt_export tt_fiber_t *tt_fiber_sched_find(IN tt_fiber_sched_t *fs,
+                                          IN const tt_char_t *name);
 
-extern tt_fiber_t *tt_fiber_sched_next(IN tt_fiber_sched_t *fs);
+tt_export tt_fiber_t *tt_fiber_sched_next(IN tt_fiber_sched_t *fs);
 
 // ========================================
 // fiber
 // ========================================
 
-extern tt_fiber_t *tt_fiber_create(IN OPT const tt_char_t *name,
-                                   IN tt_fiber_routine_t routine,
-                                   IN void *param,
-                                   IN OPT tt_fiber_attr_t *attr);
+tt_export tt_fiber_t *tt_fiber_create(IN OPT const tt_char_t *name,
+                                      IN tt_fiber_routine_t routine,
+                                      IN void *param,
+                                      IN OPT tt_fiber_attr_t *attr);
 
-extern void tt_fiber_destroy(IN tt_fiber_t *fb);
+tt_export void tt_fiber_destroy(IN tt_fiber_t *fb);
 
-extern void tt_fiber_attr_default(IN tt_fiber_attr_t *attr);
+tt_export void tt_fiber_attr_default(IN tt_fiber_attr_t *attr);
 
-extern void tt_fiber_suspend();
+tt_export void tt_fiber_suspend();
 
-extern void tt_fiber_resume(IN tt_fiber_t *fb, IN tt_bool_t suspend);
+tt_export void tt_fiber_resume(IN tt_fiber_t *fb, IN tt_bool_t suspend);
 
 tt_inline tt_fiber_t *tt_current_fiber()
 {

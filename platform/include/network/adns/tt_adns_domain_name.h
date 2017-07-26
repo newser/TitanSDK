@@ -51,7 +51,7 @@ struct tt_buf_s;
 ////////////////////////////////////////////////////////////
 
 // name_len must count the ending0
-extern tt_bool_t tt_adns_name_verify(IN const tt_char_t *name,
+tt_export tt_bool_t tt_adns_name_verify(IN const tt_char_t *name,
                                      IN tt_u32_t name_len);
 
 // ========================================
@@ -65,24 +65,24 @@ extern tt_bool_t tt_adns_name_verify(IN const tt_char_t *name,
  */
 
 // name_len should count ending 0
-extern tt_result_t tt_adns_name_render_prepare(IN const tt_char_t *name,
+tt_export tt_result_t tt_adns_name_render_prepare(IN const tt_char_t *name,
                                                IN tt_u32_t name_len,
                                                IN tt_u16_t compress_ptr,
                                                OUT tt_u32_t *len);
 
-extern tt_result_t tt_adns_name_render(IN struct tt_buf_s *buf,
+tt_export tt_result_t tt_adns_name_render(IN struct tt_buf_s *buf,
                                        IN const tt_char_t *name,
                                        IN tt_u32_t name_len,
                                        IN tt_u16_t compress_ptr);
 
-extern tt_result_t tt_adns_name_parse_prepare(IN struct tt_buf_s *buf);
+tt_export tt_result_t tt_adns_name_parse_prepare(IN struct tt_buf_s *buf);
 
 // - if name is NULL, it return new allocated buffer, and name_len returns
 //   length of the new buffer
 // - if name is not NULL, it just fill the buffer with parsed value. if
 //   name_len is less than required size, it returns NULL
 // - returned name_len does not count ending 0
-extern tt_char_t *tt_adns_name_parse(IN struct tt_buf_s *buf,
+tt_export tt_char_t *tt_adns_name_parse(IN struct tt_buf_s *buf,
                                      OUT tt_char_t *name,
                                      IN OUT tt_u32_t *name_len,
                                      IN tt_u8_t *data,
@@ -90,7 +90,7 @@ extern tt_char_t *tt_adns_name_parse(IN struct tt_buf_s *buf,
 
 // - returning 0 means parsing failed
 // - returned value does not include ending 0
-extern tt_u32_t tt_adns_name_parse_len(IN struct tt_buf_s *buf,
+tt_export tt_u32_t tt_adns_name_parse_len(IN struct tt_buf_s *buf,
                                        IN tt_u8_t *pkt,
                                        IN tt_u32_t pkt_len);
 

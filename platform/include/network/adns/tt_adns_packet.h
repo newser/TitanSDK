@@ -96,12 +96,12 @@ typedef struct tt_adns_pkt_s
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern tt_adns_pkt_t *tt_adns_pkt_create(IN tt_u16_t __id,
+tt_export tt_adns_pkt_t *tt_adns_pkt_create(IN tt_u16_t __id,
                                          IN tt_u8_t opcode,
                                          IN tt_u8_t rcode,
                                          IN tt_u32_t flag);
 
-extern void __adns_pkt_destroy(IN tt_adns_pkt_t *pkt);
+tt_export void __adns_pkt_destroy(IN tt_adns_pkt_t *pkt);
 
 #define tt_adns_pkt_ref(p) TT_REF_ADD(tt_adns_pkt_t, p, ref)
 #define tt_adns_pkt_release(p)                                                 \
@@ -139,15 +139,15 @@ tt_inline void tt_adns_pkt_add_additional(IN tt_adns_pkt_t *pkt,
 // render & parse
 // ========================================
 
-extern tt_result_t tt_adns_pkt_generate(IN tt_adns_pkt_t *pkt);
+tt_export tt_result_t tt_adns_pkt_generate(IN tt_adns_pkt_t *pkt);
 
-extern tt_result_t tt_adns_pkt_render_prepare(IN tt_adns_pkt_t *pkt,
+tt_export tt_result_t tt_adns_pkt_render_prepare(IN tt_adns_pkt_t *pkt,
                                               OUT tt_u32_t *len);
-extern tt_result_t tt_adns_pkt_render(IN tt_adns_pkt_t *pkt, OUT tt_buf_t *buf);
+tt_export tt_result_t tt_adns_pkt_render(IN tt_adns_pkt_t *pkt, OUT tt_buf_t *buf);
 
-extern tt_result_t tt_adns_pkt_parse_prepare(IN tt_buf_t *data);
+tt_export tt_result_t tt_adns_pkt_parse_prepare(IN tt_buf_t *data);
 
-extern tt_adns_pkt_t *tt_adns_pkt_parse(IN tt_buf_t *buf,
+tt_export tt_adns_pkt_t *tt_adns_pkt_parse(IN tt_buf_t *buf,
                                         IN tt_u32_t parse_flag);
 // parse_flag
 #define TT_ADNS_PKT_PARSE_QUESTION (1 << 0)

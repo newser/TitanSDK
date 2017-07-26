@@ -77,8 +77,8 @@ typedef tt_s32_t (*tt_cmpkey_t)(IN void *p,
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern tt_s32_t tt_cmp_ptr(IN void *l, IN void *r);
+tt_export tt_s32_t tt_cmp_ptr(IN void *l, IN void *r);
 
-extern tt_s32_t tt_cmp_u32(IN void *l, IN void *r);
+tt_export tt_s32_t tt_cmp_u32(IN void *l, IN void *r);
 
 #endif /* __TT_COMPARE__ */

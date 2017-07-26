@@ -47,12 +47,12 @@ typedef struct tt_profile_s
 // global variants
 ////////////////////////////////////////////////////////////
 
-extern tt_profile_t tt_g_profile;
+tt_export tt_profile_t tt_g_profile;
 
 ////////////////////////////////////////////////////////////
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern tt_result_t tt_profile_load(IN const tt_char_t *path);
+tt_export tt_result_t tt_profile_load(IN const tt_char_t *path);
 
 #endif /* __TT_PROFILE__ */

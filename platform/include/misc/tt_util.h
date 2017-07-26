@@ -325,7 +325,7 @@ return mininum n which satisfies "(1 << n) >= value"
 return value may be larger than 31, for example it returns 32 when
 value is 0x80000001
 */
-extern tt_u32_t tt_least_2power(IN tt_u32_t value);
+tt_export tt_u32_t tt_least_2power(IN tt_u32_t value);
 
 /**
 @fn tt_result_t tt_order(IN tt_u32_t value, OUT tt_u32_t *order)
@@ -342,7 +342,7 @@ get order of the param
 the param "order" can be NULL, then such function can be used to check
 if the value is aligned
 */
-extern tt_result_t tt_order(IN tt_u32_t value, OUT tt_u32_t *order);
+tt_export tt_result_t tt_order(IN tt_u32_t value, OUT tt_u32_t *order);
 
 /**
 @fn void tt_swap(IN void *a, IN void *b, IN tt_u32_t size)
@@ -355,7 +355,7 @@ swap two memory block
 @return
 void
 */
-extern void tt_swap(IN void *a, IN void *b, IN tt_u32_t size);
+tt_export void tt_swap(IN void *a, IN void *b, IN tt_u32_t size);
 
 /**
 @fn tt_result_t tt_high_bit_1(IN tt_u32_t value, OUT tt_u32_t *pos)
@@ -372,7 +372,7 @@ first 1 bit
 @note
 the pos begins at 0, 0x80000001 would return 31
 */
-extern tt_result_t tt_high_bit_1(IN tt_u32_t value, OUT tt_u32_t *pos);
+tt_export tt_result_t tt_high_bit_1(IN tt_u32_t value, OUT tt_u32_t *pos);
 
 /**
 @fn tt_result_t tt_low_bit_1(IN tt_u32_t value, OUT tt_u32_t *pos)
@@ -389,7 +389,7 @@ first 1 bit
 @note
 the pos begins at 0, 0x80000001 would return 0
 */
-extern tt_result_t tt_low_bit_1(IN tt_u32_t value, OUT tt_u32_t *pos);
+tt_export tt_result_t tt_low_bit_1(IN tt_u32_t value, OUT tt_u32_t *pos);
 
 /**
 @fn tt_u32_t tt_gcd_u32(IN tt_u32_t a, IN tt_u32_t b)
@@ -401,7 +401,7 @@ calculate greatest common divisor
 @return
 greatest common divisor
 */
-extern tt_u32_t tt_gcd_u32(IN tt_u32_t a, IN tt_u32_t b);
+tt_export tt_u32_t tt_gcd_u32(IN tt_u32_t a, IN tt_u32_t b);
 
 /**
 @fn tt_u32_t tt_lcm_u32(IN tt_u32_t a, IN tt_u32_t b)
@@ -416,7 +416,7 @@ least common multiple
 @note
 result is undetermined if it's overflowed
 */
-extern tt_u32_t tt_lcm_u32(IN tt_u32_t a, IN tt_u32_t b);
+tt_export tt_u32_t tt_lcm_u32(IN tt_u32_t a, IN tt_u32_t b);
 
 tt_inline tt_endian_type_t tt_endian()
 {
@@ -434,20 +434,20 @@ tt_inline tt_endian_type_t tt_endian()
     }
 }
 
-extern void tt_hex_dump(IN tt_u8_t *buf,
-                        IN tt_u32_t buf_len,
-                        IN tt_u32_t num_per_line);
+tt_export void tt_hex_dump(IN tt_u8_t *buf,
+                           IN tt_u32_t buf_len,
+                           IN tt_u32_t num_per_line);
 
-extern tt_u8_t tt_c2h(IN tt_char_t c, IN tt_u8_t h_if_fail);
+tt_export tt_u8_t tt_c2h(IN tt_char_t c, IN tt_u8_t h_if_fail);
 
-extern tt_char_t tt_h2c(IN tt_u8_t h, IN tt_u8_t c_if_fail);
+tt_export tt_char_t tt_h2c(IN tt_u8_t h, IN tt_u8_t c_if_fail);
 
 // copy a null terminated string
-extern tt_char_t *tt_cstr_copy(IN const tt_char_t *cstr);
+tt_export tt_char_t *tt_cstr_copy(IN const tt_char_t *cstr);
 
 // if length of cstr exceeds @ref len, cstr is truncated, otherwise only
 // whole cstr is copied
-extern tt_char_t *tt_cstr_copy_n(IN const tt_char_t *cstr, IN tt_u32_t len);
+tt_export tt_char_t *tt_cstr_copy_n(IN const tt_char_t *cstr, IN tt_u32_t len);
 
 #if 0
 tt_inline tt_bool_t tt_compare_and_swap_16byte(IN __int128 *a,

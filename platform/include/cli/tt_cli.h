@@ -95,27 +95,27 @@ typedef struct tt_cli_s
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern tt_result_t tt_cli_create(IN tt_cli_t *cli,
-                                 IN tt_cli_mode_t mode,
-                                 IN tt_cli_cb_t *cb,
-                                 IN tt_cli_itf_t *itf,
-                                 IN OPT tt_cli_attr_t *attr);
+tt_export tt_result_t tt_cli_create(IN tt_cli_t *cli,
+                                    IN tt_cli_mode_t mode,
+                                    IN tt_cli_cb_t *cb,
+                                    IN tt_cli_itf_t *itf,
+                                    IN OPT tt_cli_attr_t *attr);
 
-extern void tt_cli_destroy(IN tt_cli_t *cli);
+tt_export void tt_cli_destroy(IN tt_cli_t *cli);
 
-extern void tt_cli_attr_default(IN tt_cli_attr_t *attr);
+tt_export void tt_cli_attr_default(IN tt_cli_attr_t *attr);
 
-extern tt_result_t tt_cli_start(IN tt_cli_t *cli);
+tt_export tt_result_t tt_cli_start(IN tt_cli_t *cli);
 
-extern tt_result_t tt_cli_update_prefix(IN tt_cli_t *cli,
-                                        IN OPT const tt_char_t *title,
-                                        IN OPT const tt_char_t *sub_title,
-                                        IN OPT tt_char_t seperator);
+tt_export tt_result_t tt_cli_update_prefix(IN tt_cli_t *cli,
+                                           IN OPT const tt_char_t *title,
+                                           IN OPT const tt_char_t *sub_title,
+                                           IN OPT tt_char_t seperator);
 
 // return TT_END, when cli should exit
-extern tt_result_t tt_cli_input(IN tt_cli_t *cli,
-                                IN tt_u8_t *ev,
-                                IN tt_u32_t ev_num);
+tt_export tt_result_t tt_cli_input(IN tt_cli_t *cli,
+                                   IN tt_u8_t *ev,
+                                   IN tt_u32_t ev_num);
 
 tt_inline tt_result_t tt_cli_input_ev(IN tt_cli_t *cli, IN tt_u8_t ev)
 {
@@ -129,19 +129,19 @@ tt_inline void tt_cli_read_line(IN tt_cli_t *cli,
     cli->on_read = on_read;
 }
 
-extern tt_result_t tt_cli_output(IN tt_cli_t *cli,
-                                 IN tt_u8_t *ev,
-                                 IN tt_u32_t ev_num);
+tt_export tt_result_t tt_cli_output(IN tt_cli_t *cli,
+                                    IN tt_u8_t *ev,
+                                    IN tt_u32_t ev_num);
 
-extern void tt_cli_set_cb(IN tt_cli_t *cli, IN OPT tt_cli_cb_t *cb);
+tt_export void tt_cli_set_cb(IN tt_cli_t *cli, IN OPT tt_cli_cb_t *cb);
 
-extern void tt_cli_set_itf(IN tt_cli_t *cli, IN OPT tt_cli_itf_t *itf);
+tt_export void tt_cli_set_itf(IN tt_cli_t *cli, IN OPT tt_cli_itf_t *itf);
 
-extern tt_result_t tt_cli_complete(IN tt_u8_t *cur,
-                                   IN tt_u32_t cur_len,
-                                   IN const tt_char_t **option,
-                                   IN tt_u32_t option_num,
-                                   OUT tt_u32_t *status,
-                                   OUT tt_buf_t *outbuf);
+tt_export tt_result_t tt_cli_complete(IN tt_u8_t *cur,
+                                      IN tt_u32_t cur_len,
+                                      IN const tt_char_t **option,
+                                      IN tt_u32_t option_num,
+                                      OUT tt_u32_t *status,
+                                      OUT tt_buf_t *outbuf);
 
 #endif /* __TT_CLI__ */

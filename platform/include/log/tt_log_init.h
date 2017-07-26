@@ -42,9 +42,9 @@ this file declare APIs for init log
 // global variants
 ////////////////////////////////////////////////////////////
 
-extern tt_logmgr_t tt_g_logmgr;
+tt_export tt_logmgr_t tt_g_logmgr;
 
-extern tt_bool_t tt_g_logmgr_ok;
+tt_export tt_bool_t tt_g_logmgr_ok;
 
 ////////////////////////////////////////////////////////////
 // interface declaration
@@ -54,14 +54,14 @@ extern tt_bool_t tt_g_logmgr_ok;
 @fn void tt_log_component_register()
 register ts log component
 */
-extern void tt_log_component_register();
+tt_export void tt_log_component_register();
 
-extern void tt_logmgr_component_register();
+tt_export void tt_logmgr_component_register();
 
-extern void tt_logmgr_config_component_register();
+tt_export void tt_logmgr_config_component_register();
 
-extern void tt_logmgr_layout_default(IN tt_logmgr_t *lmgr);
+tt_export void tt_logmgr_layout_default(IN tt_logmgr_t *lmgr);
 
-extern tt_result_t tt_logmgr_io_default(IN tt_logmgr_t *lmgr);
+tt_export tt_result_t tt_logmgr_io_default(IN tt_logmgr_t *lmgr);
 
 #endif /* __TT_LOG_INIT__ */

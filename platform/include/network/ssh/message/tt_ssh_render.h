@@ -128,7 +128,7 @@ tt_inline tt_u32_t tt_ssh_string_render_prepare(IN tt_u8_t *string_val,
     return 4 + string_len;
 }
 
-extern tt_result_t tt_ssh_string_render(IN tt_buf_t *buf,
+tt_export tt_result_t tt_ssh_string_render(IN tt_buf_t *buf,
                                         IN tt_u8_t *string_val,
                                         IN tt_u32_t string_len);
 
@@ -154,7 +154,7 @@ tt_inline tt_u32_t tt_ssh_mpint_render_prepare(IN tt_u8_t *mpint,
     return 4 + mpint_len + TT_COND(!negative && (mpint[0] & 0x80), 1, 0);
 }
 
-extern tt_result_t tt_ssh_mpint_render(IN tt_buf_t *buf,
+tt_export tt_result_t tt_ssh_mpint_render(IN tt_buf_t *buf,
                                        IN tt_u8_t *mpint,
                                        IN tt_u32_t mpint_len,
                                        IN tt_bool_t negative);
@@ -175,16 +175,16 @@ extern tt_result_t tt_ssh_mpint_render(IN tt_buf_t *buf,
  is used. Terminating null characters MUST NOT be used, neither
  for the individual names, nor for the list as a whole.
  */
-extern tt_u32_t tt_ssh_namelist_render_prepare(IN const tt_char_t *name[],
+tt_export tt_u32_t tt_ssh_namelist_render_prepare(IN const tt_char_t *name[],
                                                IN tt_u32_t name_num);
 
-extern tt_result_t tt_ssh_namelist_render(IN tt_buf_t *buf,
+tt_export tt_result_t tt_ssh_namelist_render(IN tt_buf_t *buf,
                                           IN const tt_char_t *name[],
                                           IN tt_u32_t name_num);
 
 // - if block_size is 0, it uses 8 as block size
 // - if max_pad_block is 0, it uses
-extern tt_u8_t tt_sshmsg_padlen(IN tt_u32_t data_len,
+tt_export tt_u8_t tt_sshmsg_padlen(IN tt_u32_t data_len,
                                 IN tt_u32_t block_size,
                                 IN tt_u32_t pad_block,
                                 IN tt_u32_t max_pad_block);

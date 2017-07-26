@@ -51,9 +51,9 @@ typedef struct
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern struct tt_sshmsg_s *tt_sshmsg_uab_create();
+tt_export struct tt_sshmsg_s *tt_sshmsg_uab_create();
 
-extern tt_result_t tt_sshmsg_uab_set_banner(IN struct tt_sshmsg_s *msg,
+tt_export tt_result_t tt_sshmsg_uab_set_banner(IN struct tt_sshmsg_s *msg,
                                             IN const tt_char_t *banner);
 
 #endif /* __TT_SSH_MSGID_USERAUTH_BANNER__ */

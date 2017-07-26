@@ -55,29 +55,29 @@ typedef struct tt_x509cert_s
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern void tt_x509cert_init(IN tt_x509cert_t *x);
+tt_export void tt_x509cert_init(IN tt_x509cert_t *x);
 
-extern tt_result_t tt_x509cert_add(IN tt_x509cert_t *x,
-                                   IN tt_u8_t *buf,
-                                   IN tt_u32_t len);
+tt_export tt_result_t tt_x509cert_add(IN tt_x509cert_t *x,
+                                      IN tt_u8_t *buf,
+                                      IN tt_u32_t len);
 
-extern tt_result_t tt_x509cert_add_file(IN tt_x509cert_t *x,
-                                        IN const tt_char_t *path);
+tt_export tt_result_t tt_x509cert_add_file(IN tt_x509cert_t *x,
+                                           IN const tt_char_t *path);
 
-extern void tt_x509cert_destroy(IN tt_x509cert_t *x);
+tt_export void tt_x509cert_destroy(IN tt_x509cert_t *x);
 
-extern tt_result_t tt_x509cert_verify(IN tt_x509cert_t *x,
-                                      IN tt_x509cert_t *ca,
-                                      IN OPT struct tt_x509crl_s *crl,
-                                      IN OPT const tt_char_t *name,
-                                      OUT tt_u32_t *status);
+tt_export tt_result_t tt_x509cert_verify(IN tt_x509cert_t *x,
+                                         IN tt_x509cert_t *ca,
+                                         IN OPT struct tt_x509crl_s *crl,
+                                         IN OPT const tt_char_t *name,
+                                         OUT tt_u32_t *status);
 
-extern tt_u32_t tt_x509cert_dump_verify_status(IN tt_u32_t status,
-                                               IN tt_char_t *buf,
-                                               IN tt_u32_t len);
+tt_export tt_u32_t tt_x509cert_dump_verify_status(IN tt_u32_t status,
+                                                  IN tt_char_t *buf,
+                                                  IN tt_u32_t len);
 
-extern tt_u32_t tt_x509cert_dump(IN tt_x509cert_t *x,
-                                 IN tt_char_t *buf,
-                                 IN tt_u32_t len);
+tt_export tt_u32_t tt_x509cert_dump(IN tt_x509cert_t *x,
+                                    IN tt_char_t *buf,
+                                    IN tt_u32_t len);
 
 #endif /* __TT_X509_CERT__ */

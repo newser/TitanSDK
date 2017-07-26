@@ -29,7 +29,8 @@ developer only need include this file to use ts platform APIs
 ////////////////////////////////////////////////////////////
 
 #ifdef __cplusplus
-extern "C" {
+tt_export "C"
+{
 #endif
 
 #include <algorithm/ptr/tt_ptr_hashmap.h>
@@ -116,13 +117,11 @@ extern "C" {
 #include <log/io/tt_log_io_standard.h>
 #include <log/layout/tt_log_field.h>
 #include <log/layout/tt_log_layout.h>
-#include <log/layout/tt_log_layout.h>
 #include <log/layout/tt_log_layout_pattern.h>
 #include <log/tt_log.h>
 #include <log/tt_log_context.h>
 #include <log/tt_log_init.h>
 #include <log/tt_log_manager.h>
-#include <memory/tt_memory_alloc.h>
 #include <memory/tt_memory_alloc.h>
 #include <memory/tt_memory_pool.h>
 #include <memory/tt_memory_spring.h>

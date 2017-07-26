@@ -50,7 +50,7 @@ APIs to allocate/free memory pages from/to os
 @fn void tt_page_component_register()
 register numa memory component
 */
-extern void tt_page_component_register();
+tt_export void tt_page_component_register();
 
 /**
 @fn void *tt_page_alloc(IN tt_u32_t size)
@@ -62,7 +62,7 @@ allocate pages from numa node, number of pages is specified as param
 - beginning address of allocated pages
 - NULL, otherwise
 */
-extern void *tt_page_alloc(IN tt_u32_t size);
+tt_export void *tt_page_alloc(IN tt_u32_t size);
 
 /**
 @fn void tt_page_free(IN void *page_begin,
@@ -77,7 +77,7 @@ free pages, start address of pages is specified by param
 - size must be same as passed to tt_page_alloc
 - if freeing fails, just an error trace would be printed
 */
-extern void tt_page_free(IN void *addr, IN tt_u32_t size);
+tt_export void tt_page_free(IN void *addr, IN tt_u32_t size);
 
 /**
 @fn void *tt_page_alloc_align(IN tt_u32_t size_order,
@@ -97,8 +97,8 @@ as an example, if size_order is 14, meaning required (1 << 14) bytes,
 then allocated page would always begin with some address aligned with
 (1 << 14)
 */
-extern void *tt_page_alloc_align(IN tt_u32_t size_order,
-                                 OUT tt_uintptr_t *handle);
+tt_export void *tt_page_alloc_align(IN tt_u32_t size_order,
+                                    OUT tt_uintptr_t *handle);
 
 /**
 @fn void tt_page_free_align(IN void *page_begin,
@@ -115,8 +115,8 @@ free pages, start address of pages is specified by param
 - page_num_order must be same as passed to tt_page_alloc_align
 - if freeing fails, just an error trace would be printed
 */
-extern void tt_page_free_align(IN void *addr,
-                               IN tt_u32_t size_order,
-                               IN tt_uintptr_t handle);
+tt_export void tt_page_free_align(IN void *addr,
+                                  IN tt_u32_t size_order,
+                                  IN tt_uintptr_t handle);
 
 #endif // __TT_PAGE_OS__

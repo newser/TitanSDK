@@ -13,10 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# unit test for TitanSDK
 project(TitanSDK)
 
-# cmake version 3.0 above
 cmake_minimum_required(VERSION 3.0.2)
 
 #
@@ -37,7 +35,7 @@ set(PROGRAM_COMMAND_LINE 0 CACHE BOOL "app: command line")
 
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/output/static)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/output/shared)
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/output/programs)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/output/program)
 
 #
 # component

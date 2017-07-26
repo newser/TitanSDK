@@ -62,19 +62,19 @@ typedef struct tt_tmr_mgr_s
 @fn void tt_tmr_mgr_component_register()
 register timer manager system
 */
-extern void tt_tmr_mgr_component_register();
+tt_export void tt_tmr_mgr_component_register();
 
-extern void tt_tmr_mgr_init(IN tt_tmr_mgr_t *mgr,
-                            IN OPT tt_tmr_mgr_attr_t *attr);
+tt_export void tt_tmr_mgr_init(IN tt_tmr_mgr_t *mgr,
+                               IN OPT tt_tmr_mgr_attr_t *attr);
 
-extern void tt_tmr_mgr_destroy(IN tt_tmr_mgr_t *mgr);
+tt_export void tt_tmr_mgr_destroy(IN tt_tmr_mgr_t *mgr);
 
-extern void tt_tmr_mgr_attr_default(IN tt_tmr_mgr_attr_t *attr);
+tt_export void tt_tmr_mgr_attr_default(IN tt_tmr_mgr_attr_t *attr);
 
 // call expired timers' callback
 // - return how long that next timer would expire
 // - return TT_TIME_INFINITE if no timer in mgr
-extern tt_s64_t tt_tmr_mgr_run(IN tt_tmr_mgr_t *mgr);
+tt_export tt_s64_t tt_tmr_mgr_run(IN tt_tmr_mgr_t *mgr);
 
 tt_inline struct tt_tmr_s *tt_tmr_mgr_pop(IN tt_tmr_mgr_t *mgr)
 {

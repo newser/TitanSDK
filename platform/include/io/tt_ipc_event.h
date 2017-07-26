@@ -64,15 +64,16 @@ tt_inline void tt_ipc_ev_init(IN tt_ipc_ev_t *pev,
     pev->size = size;
 }
 
-extern tt_ipc_ev_t *tt_ipc_ev_create(IN tt_u32_t ev, IN tt_u32_t size);
+tt_export tt_ipc_ev_t *tt_ipc_ev_create(IN tt_u32_t ev, IN tt_u32_t size);
 
-extern void tt_ipc_ev_destroy(IN tt_ipc_ev_t *pev);
+tt_export void tt_ipc_ev_destroy(IN tt_ipc_ev_t *pev);
 
-extern tt_result_t tt_ipc_send_ev(IN struct tt_ipc_s *dst, IN tt_ipc_ev_t *pev);
+tt_export tt_result_t tt_ipc_send_ev(IN struct tt_ipc_s *dst,
+                                     IN tt_ipc_ev_t *pev);
 
-extern tt_result_t tt_ipc_recv_ev(IN struct tt_ipc_s *ipc,
-                                  OUT tt_ipc_ev_t **p_pev,
-                                  OUT struct tt_fiber_ev_s **p_fev,
-                                  OUT struct tt_tmr_s **p_tmr);
+tt_export tt_result_t tt_ipc_recv_ev(IN struct tt_ipc_s *ipc,
+                                     OUT tt_ipc_ev_t **p_pev,
+                                     OUT struct tt_fiber_ev_s **p_fev,
+                                     OUT struct tt_tmr_s **p_tmr);
 
 #endif // __TT_IPC_EVENT__

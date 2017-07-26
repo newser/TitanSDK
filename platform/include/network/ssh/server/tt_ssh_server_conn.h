@@ -82,26 +82,26 @@ typedef struct tt_sshsvrconn_s
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern tt_sshsvrconn_t *tt_sshsvrconn_create(IN struct tt_sshsvr_s *server);
+tt_export tt_sshsvrconn_t *tt_sshsvrconn_create(IN struct tt_sshsvr_s *server);
 
-extern void tt_sshsvrconn_destroy(IN tt_sshsvrconn_t *svrconn,
+tt_export void tt_sshsvrconn_destroy(IN tt_sshsvrconn_t *svrconn,
                                   IN tt_bool_t immediate);
 
-extern void tt_sshsvrconn_shutdown(IN tt_sshsvrconn_t *svrconn);
+tt_export void tt_sshsvrconn_shutdown(IN tt_sshsvrconn_t *svrconn);
 
-extern tt_result_t tt_sshsvrconn_recv(IN tt_sshsvrconn_t *svrconn);
+tt_export tt_result_t tt_sshsvrconn_recv(IN tt_sshsvrconn_t *svrconn);
 
-extern tt_result_t tt_sshsvrconn_send(IN tt_sshsvrconn_t *svrconn,
+tt_export tt_result_t tt_sshsvrconn_send(IN tt_sshsvrconn_t *svrconn,
                                       IN TO struct tt_sshmsg_s *sshmsg);
 
 // ========================================
 // ssh server channel
 // ========================================
 
-extern struct tt_sshch_s *tt_sshsvrconn_ch_create(IN tt_sshsvrconn_t *svrconn,
+tt_export struct tt_sshch_s *tt_sshsvrconn_ch_create(IN tt_sshsvrconn_t *svrconn,
                                                   IN tt_ssh_chtype_t type);
 
-extern void tt_sshsvrconn_ch_pkt_handler(IN tt_sshsvrconn_t *svrconn,
+tt_export void tt_sshsvrconn_ch_pkt_handler(IN tt_sshsvrconn_t *svrconn,
                                          IN struct tt_sshmsg_s *msg,
                                          OUT tt_sshsvr_action_t *svract);
 

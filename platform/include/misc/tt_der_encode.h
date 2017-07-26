@@ -48,55 +48,56 @@ struct tt_buf_s;
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern tt_result_t tt_der_encode_head(IN struct tt_buf_s *buf,
-                                      IN tt_u32_t tag,
-                                      IN tt_u32_t length,
-                                      IN tt_u32_t flag);
-extern tt_u32_t tt_der_head_len(IN tt_u32_t tag, IN tt_u32_t length);
+tt_export tt_result_t tt_der_encode_head(IN struct tt_buf_s *buf,
+                                         IN tt_u32_t tag,
+                                         IN tt_u32_t length,
+                                         IN tt_u32_t flag);
+tt_export tt_u32_t tt_der_head_len(IN tt_u32_t tag, IN tt_u32_t length);
 
-extern tt_result_t tt_der_encode_sequence(IN struct tt_buf_s *buf,
-                                          IN tt_u32_t length,
-                                          IN tt_u32_t flag);
-extern tt_u32_t tt_der_sequence_len(IN tt_u32_t content_len);
+tt_export tt_result_t tt_der_encode_sequence(IN struct tt_buf_s *buf,
+                                             IN tt_u32_t length,
+                                             IN tt_u32_t flag);
+tt_export tt_u32_t tt_der_sequence_len(IN tt_u32_t content_len);
 
-extern tt_result_t tt_der_encode_oid(IN struct tt_buf_s *buf,
-                                     IN tt_u8_t *oid,
-                                     IN tt_u32_t oid_len,
-                                     IN tt_u32_t flag);
-extern tt_u32_t tt_der_oid_len(IN tt_u8_t *oid, IN tt_u32_t oid_len);
+tt_export tt_result_t tt_der_encode_oid(IN struct tt_buf_s *buf,
+                                        IN tt_u8_t *oid,
+                                        IN tt_u32_t oid_len,
+                                        IN tt_u32_t flag);
+tt_export tt_u32_t tt_der_oid_len(IN tt_u8_t *oid, IN tt_u32_t oid_len);
 // may implement encoding oid with string or array format oid
 // as input
 
-extern tt_result_t tt_der_encode_octstr(IN struct tt_buf_s *buf,
-                                        IN tt_u8_t *octstr,
-                                        IN tt_u32_t octstr_len,
+tt_export tt_result_t tt_der_encode_octstr(IN struct tt_buf_s *buf,
+                                           IN tt_u8_t *octstr,
+                                           IN tt_u32_t octstr_len,
+                                           IN tt_u32_t flag);
+tt_export tt_u32_t tt_der_octstr_len(IN tt_u8_t *octstr,
+                                     IN tt_u32_t octstr_len);
+
+tt_export tt_result_t tt_der_encode_bitstr(IN struct tt_buf_s *buf,
+                                           IN OPT tt_u8_t *bitstr,
+                                           IN tt_u32_t bitstr_len,
+                                           IN tt_u32_t pad_bit_num,
+                                           IN tt_u32_t flag);
+tt_export tt_u32_t tt_der_bitstr_len(IN tt_u8_t *bitstr,
+                                     IN tt_u32_t bitstr_len,
+                                     IN tt_u32_t pad_bit_num);
+
+tt_export tt_result_t tt_der_encode_s32(IN struct tt_buf_s *buf,
+                                        IN tt_s32_t val_s32,
                                         IN tt_u32_t flag);
-extern tt_u32_t tt_der_octstr_len(IN tt_u8_t *octstr, IN tt_u32_t octstr_len);
+tt_export tt_u32_t tt_der_s32_len(IN tt_s32_t val_s32);
 
-extern tt_result_t tt_der_encode_bitstr(IN struct tt_buf_s *buf,
-                                        IN OPT tt_u8_t *bitstr,
-                                        IN tt_u32_t bitstr_len,
-                                        IN tt_u32_t pad_bit_num,
-                                        IN tt_u32_t flag);
-extern tt_u32_t tt_der_bitstr_len(IN tt_u8_t *bitstr,
-                                  IN tt_u32_t bitstr_len,
-                                  IN tt_u32_t pad_bit_num);
-
-extern tt_result_t tt_der_encode_s32(IN struct tt_buf_s *buf,
-                                     IN tt_s32_t val_s32,
-                                     IN tt_u32_t flag);
-extern tt_u32_t tt_der_s32_len(IN tt_s32_t val_s32);
-
-extern tt_result_t tt_der_encode_null(IN struct tt_buf_s *buf,
-                                      IN tt_u32_t flag);
-extern tt_u32_t tt_der_null_len();
+tt_export tt_result_t tt_der_encode_null(IN struct tt_buf_s *buf,
+                                         IN tt_u32_t flag);
+tt_export tt_u32_t tt_der_null_len();
 
 // the integer should be already in complement code form
-extern tt_result_t tt_der_encode_integer(IN struct tt_buf_s *buf,
-                                         IN tt_u8_t *integer,
-                                         IN tt_u32_t integer_len,
-                                         IN tt_u32_t flag);
-extern tt_u32_t tt_der_integer_len(IN tt_u8_t *integer,
-                                   IN tt_u32_t integer_len);
+tt_export tt_result_t tt_der_encode_integer(IN struct tt_buf_s *buf,
+                                            IN tt_u8_t *integer,
+                                            IN tt_u32_t integer_len,
+                                            IN tt_u32_t flag);
+tt_export tt_u32_t tt_der_integer_len(IN tt_u8_t *integer,
+                                      IN tt_u32_t integer_len);
 
 #endif /* __TT_DER_ENCODE__ */

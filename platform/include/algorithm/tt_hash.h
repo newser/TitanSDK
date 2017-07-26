@@ -65,14 +65,14 @@ typedef tt_hashcode_t (*tt_hash_t)(IN const tt_u8_t *key,
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern void tt_hashctx_init(IN tt_hashctx_t *hctx);
+tt_export void tt_hashctx_init(IN tt_hashctx_t *hctx);
 
-extern tt_hashcode_t tt_hash_murmur3(IN const tt_u8_t *key,
-                                     IN tt_u32_t key_len,
-                                     IN tt_hashctx_t *hctx);
+tt_export tt_hashcode_t tt_hash_murmur3(IN const tt_u8_t *key,
+                                        IN tt_u32_t key_len,
+                                        IN tt_hashctx_t *hctx);
 
-extern tt_hashcode_t tt_hash_fnv1a(IN const tt_u8_t *key,
-                                   IN tt_u32_t key_len,
-                                   IN tt_hashctx_t *hctx);
+tt_export tt_hashcode_t tt_hash_fnv1a(IN const tt_u8_t *key,
+                                      IN tt_u32_t key_len,
+                                      IN tt_hashctx_t *hctx);
 
 #endif /* __TT_HASH__ */

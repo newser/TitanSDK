@@ -64,7 +64,7 @@ typedef struct tt_mempool_s
 @fn void tt_mempool_component_register()
 register ts memory pool system
 */
-extern void tt_mempool_component_register();
+tt_export void tt_mempool_component_register();
 
 /**
 @fn tt_result_t tt_mempool_create(IN tt_mempool_t *mp,
@@ -89,9 +89,9 @@ create a memory pool
 the total available size in pool may be less than specified due to some
 overhead of memory block allocated each time and alignment required in attr
 */
-extern void tt_mempool_init(IN tt_mempool_t *mp,
-                            IN tt_u32_t max_block_size,
-                            IN OPT tt_mempool_attr_t *attr);
+tt_export void tt_mempool_init(IN tt_mempool_t *mp,
+                               IN tt_u32_t max_block_size,
+                               IN OPT tt_mempool_attr_t *attr);
 
 /**
 @fn void tt_mempool_destroy(IN tt_mempool_t *mp)
@@ -102,7 +102,7 @@ destroy a memory pool
 @note
 - be sure all memory blocks are returned, or the behavior is undetermined
 */
-extern void tt_mempool_destroy(IN tt_mempool_t *mp);
+tt_export void tt_mempool_destroy(IN tt_mempool_t *mp);
 
 /**
  @fn void tt_mempool_attr_default(OUT tt_mempool_attr_t *attr)
@@ -110,7 +110,7 @@ extern void tt_mempool_destroy(IN tt_mempool_t *mp);
 
  @param [in] attr memory pool attribute
  */
-extern void tt_mempool_attr_default(OUT tt_mempool_attr_t *attr);
+tt_export void tt_mempool_attr_default(OUT tt_mempool_attr_t *attr);
 
 /**
 @fn void* tt_mp_alloc_tag(IN tt_mempool_t *mp,
@@ -124,6 +124,6 @@ allocate memory from memory pool
 - the address of the memory block allocated
 - NULL otherwise
 */
-extern void *tt_mp_alloc(IN tt_mempool_t *mp, IN tt_u32_t size);
+tt_export void *tt_mp_alloc(IN tt_mempool_t *mp, IN tt_u32_t size);
 
 #endif /* __TT_MEMORY_POOL__ */

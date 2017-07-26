@@ -60,28 +60,28 @@ typedef struct
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern void tt_process_component_register();
+tt_export void tt_process_component_register();
 
 // - argv[0] should be the file name
 //   the final argv must be NULL
 // - the created process must be released use wait() whenever
 //   this function returned success
-extern tt_result_t tt_process_create(IN tt_process_t *proc,
-                                     IN const tt_char_t *path,
-                                     IN OPT tt_char_t *const arg[],
-                                     IN OPT tt_process_attr_t *attr);
+tt_export tt_result_t tt_process_create(IN tt_process_t *proc,
+                                        IN const tt_char_t *path,
+                                        IN OPT tt_char_t *const arg[],
+                                        IN OPT tt_process_attr_t *attr);
 
 // - exit_code is set only when this function return success
 // - exit_code is set to TT_PROCESS_EXIT_UNKNOWN, when created process is
 //   terminated abnormally so that tt_process_exit() is not called
-extern tt_result_t tt_process_wait(IN tt_process_t *proc,
-                                   IN tt_bool_t block,
-                                   IN OPT tt_u8_t *exit_code);
+tt_export tt_result_t tt_process_wait(IN tt_process_t *proc,
+                                      IN tt_bool_t block,
+                                      IN OPT tt_u8_t *exit_code);
 
-extern void tt_process_attr_default(IN tt_process_attr_t *attr);
+tt_export void tt_process_attr_default(IN tt_process_attr_t *attr);
 
-extern void tt_process_exit(IN tt_u8_t exit_code);
+tt_export void tt_process_exit(IN tt_u8_t exit_code);
 
-extern tt_char_t *tt_process_path(IN OPT tt_process_t *proc);
+tt_export tt_char_t *tt_process_path(IN OPT tt_process_t *proc);
 
 #endif /* __TT_PROCESS__ */

@@ -57,16 +57,16 @@ typedef struct tt_logfld_s
 ////////////////////////////////////////////////////////////
 
 // a log field must be reentrant
-extern tt_logfld_t *tt_logfld_create(IN const tt_char_t *start,
-                                     IN const tt_char_t *end);
+tt_export tt_logfld_t *tt_logfld_create(IN const tt_char_t *start,
+                                        IN const tt_char_t *end);
 
-extern void tt_logfld_destroy(IN tt_logfld_t *lf);
+tt_export void tt_logfld_destroy(IN tt_logfld_t *lf);
 
-extern tt_result_t tt_logfld_check(IN const tt_char_t *start,
-                                   IN const tt_char_t *end);
+tt_export tt_result_t tt_logfld_check(IN const tt_char_t *start,
+                                      IN const tt_char_t *end);
 
-extern tt_result_t tt_logfld_output(IN tt_logfld_t *lf,
-                                    IN tt_log_entry_t *entry,
-                                    OUT struct tt_buf_s *outbuf);
+tt_export tt_result_t tt_logfld_output(IN tt_logfld_t *lf,
+                                       IN tt_log_entry_t *entry,
+                                       OUT struct tt_buf_s *outbuf);
 
 #endif /* __TT_LOG_FIELD__ */

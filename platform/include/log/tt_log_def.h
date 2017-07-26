@@ -95,7 +95,7 @@ typedef tt_bool_t (*tt_log_filter_t)(IN OUT tt_log_entry_t *entry);
 // global variants
 ////////////////////////////////////////////////////////////
 
-extern const tt_char_t *tt_g_log_level_name[TT_LOG_LEVEL_NUM];
+tt_export const tt_char_t *tt_g_log_level_name[TT_LOG_LEVEL_NUM];
 
 ////////////////////////////////////////////////////////////
 // interface declaration

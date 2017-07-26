@@ -66,32 +66,33 @@ typedef struct tt_ipc_s
 @fn void tt_ipc_component_register()
 register socket system
 */
-extern void tt_ipc_component_register();
+tt_export void tt_ipc_component_register();
 
 // - for server ipc, addr must be set to a path. and for client,
 //   addr must be null
-extern tt_ipc_t *tt_ipc_create(IN OPT const tt_char_t *addr,
-                               IN OPT tt_ipc_attr_t *attr);
+tt_export tt_ipc_t *tt_ipc_create(IN OPT const tt_char_t *addr,
+                                  IN OPT tt_ipc_attr_t *attr);
 
-extern void tt_ipc_destroy(IN tt_ipc_t *ipc);
+tt_export void tt_ipc_destroy(IN tt_ipc_t *ipc);
 
-extern void tt_ipc_attr_default(IN tt_ipc_attr_t *attr);
+tt_export void tt_ipc_attr_default(IN tt_ipc_attr_t *attr);
 
 // client can only connect when server has called tt_ipc_accept(),
 // an example: ipc is established when server calls accept() and
 // then client calls connect(), now if client create a new ipc and
 // tries to connect to same address, the connect would fail as server
 // does not issued new accept()
-extern tt_result_t tt_ipc_connect(IN tt_ipc_t *ipc, IN const tt_char_t *addr);
+tt_export tt_result_t tt_ipc_connect(IN tt_ipc_t *ipc,
+                                     IN const tt_char_t *addr);
 
 // will block calling thread during retrying
-extern tt_result_t tt_ipc_connect_retry(IN tt_ipc_t *ipc,
-                                        IN const tt_char_t *addr,
-                                        IN tt_u32_t interval_ms,
-                                        IN tt_u32_t retry_count);
+tt_export tt_result_t tt_ipc_connect_retry(IN tt_ipc_t *ipc,
+                                           IN const tt_char_t *addr,
+                                           IN tt_u32_t interval_ms,
+                                           IN tt_u32_t retry_count);
 
-extern tt_ipc_t *tt_ipc_accept(IN tt_ipc_t *ipc,
-                               IN OPT tt_ipc_attr_t *new_attr);
+tt_export tt_ipc_t *tt_ipc_accept(IN tt_ipc_t *ipc,
+                                  IN OPT tt_ipc_attr_t *new_attr);
 
 tt_inline tt_result_t tt_ipc_send(IN tt_ipc_t *ipc,
                                   IN tt_u8_t *buf,

@@ -58,9 +58,9 @@ typedef struct
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern tt_cfgobj_t *tt_cfgexe_create(IN const tt_char_t *name,
-                                     IN OPT tt_cfgobj_attr_t *attr,
-                                     IN tt_cfgexe_run_t run);
+tt_export tt_cfgobj_t *tt_cfgexe_create(IN const tt_char_t *name,
+                                        IN OPT tt_cfgobj_attr_t *attr,
+                                        IN tt_cfgexe_run_t run);
 
 tt_inline tt_result_t tt_cfgexe_run(IN tt_cfgexe_t *ce,
                                     IN tt_u32_t argc,

@@ -147,7 +147,7 @@ typedef struct tt_adrr_filter_s
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern tt_adns_rr_t *tt_adns_rr_create(IN tt_u32_t extra_size,
+tt_export tt_adns_rr_t *tt_adns_rr_create(IN tt_u32_t extra_size,
                                        IN tt_adns_rr_itf_t *itf,
                                        IN const tt_char_t *name,
                                        IN tt_u32_t name_ownership,
@@ -158,17 +158,17 @@ extern tt_adns_rr_t *tt_adns_rr_create(IN tt_u32_t extra_size,
 #define TT_ADNS_RR_TAKE_NAME (1)
 #define TT_ADNS_RR_REF_NAME (2)
 
-extern void tt_adns_rr_destroy(IN tt_adns_rr_t *rr);
+tt_export void tt_adns_rr_destroy(IN tt_adns_rr_t *rr);
 
 // name_len includes terminating null
-extern tt_result_t tt_adns_rr_set_name(IN tt_adns_rr_t *rr,
+tt_export tt_result_t tt_adns_rr_set_name(IN tt_adns_rr_t *rr,
                                        IN const tt_char_t *name,
                                        IN tt_u32_t name_len,
                                        IN tt_u32_t name_ownership);
 
 // - the new rr does not belong to any dlist whether rr is
 //   already in some dlist,
-extern tt_adns_rr_t *tt_adns_rr_copy(IN tt_adns_rr_t *rr);
+tt_export tt_adns_rr_t *tt_adns_rr_copy(IN tt_adns_rr_t *rr);
 
 // ========================================
 // rr list
@@ -176,12 +176,12 @@ extern tt_adns_rr_t *tt_adns_rr_copy(IN tt_adns_rr_t *rr);
 
 // - this function will destroy dst first
 // - this function return success if src is empty
-extern tt_result_t tt_adns_rrlist_copy(IN tt_dlist_t *dst,
+tt_export tt_result_t tt_adns_rrlist_copy(IN tt_dlist_t *dst,
                                        IN tt_dlist_t *src,
                                        IN tt_u32_t flag);
 #define TT_ADNS_RRLIST_COPY_ALL (1 << 0)
 
-extern void tt_adns_rrlist_destroy(IN tt_dlist_t *rrlist);
+tt_export void tt_adns_rrlist_destroy(IN tt_dlist_t *rrlist);
 
 tt_inline void tt_adns_rrlist_clear(IN tt_dlist_t *rrlist)
 {
@@ -189,14 +189,14 @@ tt_inline void tt_adns_rrlist_clear(IN tt_dlist_t *rrlist)
     tt_dlist_init(rrlist);
 }
 
-extern tt_result_t tt_adns_rrlist_set_name(IN tt_dlist_t *rrlist,
+tt_export tt_result_t tt_adns_rrlist_set_name(IN tt_dlist_t *rrlist,
                                            IN const tt_char_t *name,
                                            IN tt_u32_t name_len,
                                            IN tt_u32_t name_ownership);
 
-extern void tt_adns_rrlist_dump(IN tt_dlist_t *rrlist);
+tt_export void tt_adns_rrlist_dump(IN tt_dlist_t *rrlist);
 
-extern void tt_adns_rrlist_filter(IN tt_dlist_t *in_rrlist,
+tt_export void tt_adns_rrlist_filter(IN tt_dlist_t *in_rrlist,
                                   IN tt_adrr_filter_t *filter,
                                   OUT tt_dlist_t *out_rrlist);
 // flag
@@ -241,15 +241,15 @@ extern void tt_adns_rrlist_filter(IN tt_dlist_t *in_rrlist,
 // render & parse
 // ========================================
 
-extern tt_result_t tt_adns_rr_render_prepare(IN tt_adns_rr_t *rr,
+tt_export tt_result_t tt_adns_rr_render_prepare(IN tt_adns_rr_t *rr,
                                              OUT tt_u32_t *len);
 
-extern tt_result_t tt_adns_rr_render(IN tt_adns_rr_t *rr,
+tt_export tt_result_t tt_adns_rr_render(IN tt_adns_rr_t *rr,
                                      OUT struct tt_buf_s *buf);
 
-extern tt_result_t tt_adns_rr_parse_prepare(IN struct tt_buf_s *buf);
+tt_export tt_result_t tt_adns_rr_parse_prepare(IN struct tt_buf_s *buf);
 
-extern tt_adns_rr_t *tt_adns_rr_parse(IN struct tt_buf_s *buf,
+tt_export tt_adns_rr_t *tt_adns_rr_parse(IN struct tt_buf_s *buf,
                                       IN tt_u8_t *pkt,
                                       IN tt_u32_t pkt_len);
 

@@ -46,12 +46,12 @@ this file defines buffer common operations APIs
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern void tt_buf_swap(IN tt_buf_t *a, IN tt_buf_t *b);
+tt_export void tt_buf_swap(IN tt_buf_t *a, IN tt_buf_t *b);
 
 // return 0 if equal, otherwise non 0 value is returned
-extern tt_s32_t tt_buf_cmp(IN tt_buf_t *a, IN tt_buf_t *b);
+tt_export tt_s32_t tt_buf_cmp(IN tt_buf_t *a, IN tt_buf_t *b);
 
-extern tt_s32_t tt_buf_cmp_cstr(IN tt_buf_t *a, IN const tt_char_t *cstr);
+tt_export tt_s32_t tt_buf_cmp_cstr(IN tt_buf_t *a, IN const tt_char_t *cstr);
 
 tt_inline tt_result_t tt_buf_copy(IN tt_buf_t *dst, IN tt_buf_t *src)
 {
@@ -59,16 +59,16 @@ tt_inline tt_result_t tt_buf_copy(IN tt_buf_t *dst, IN tt_buf_t *src)
     return tt_buf_put(dst, TT_BUF_RPOS(src), TT_BUF_RLEN(src));
 }
 
-extern void tt_buf_remove(IN tt_buf_t *buf, IN tt_u32_t pos);
+tt_export void tt_buf_remove(IN tt_buf_t *buf, IN tt_u32_t pos);
 
-extern void tt_buf_remove_range(IN tt_buf_t *buf,
-                                IN tt_u32_t from,
-                                IN tt_u32_t to);
+tt_export void tt_buf_remove_range(IN tt_buf_t *buf,
+                                   IN tt_u32_t from,
+                                   IN tt_u32_t to);
 
-extern tt_result_t tt_buf_insert(IN tt_buf_t *buf,
-                                 IN tt_u32_t idx,
-                                 IN tt_u8_t *data,
-                                 IN tt_u32_t data_len);
+tt_export tt_result_t tt_buf_insert(IN tt_buf_t *buf,
+                                    IN tt_u32_t idx,
+                                    IN tt_u8_t *data,
+                                    IN tt_u32_t data_len);
 
 tt_inline tt_result_t tt_buf_insert_cstr(IN tt_buf_t *buf,
                                          IN tt_u32_t idx,
@@ -77,15 +77,15 @@ tt_inline tt_result_t tt_buf_insert_cstr(IN tt_buf_t *buf,
     return tt_buf_insert(buf, idx, (tt_u8_t *)cstr, (tt_u32_t)tt_strlen(cstr));
 }
 
-extern tt_result_t tt_buf_tok(IN tt_buf_t *buf,
-                              IN tt_u8_t *sep,
-                              IN tt_u32_t sep_num,
-                              IN tt_u32_t flag,
-                              OUT tt_u8_t **last,
-                              OUT tt_u32_t *last_len);
+tt_export tt_result_t tt_buf_tok(IN tt_buf_t *buf,
+                                 IN tt_u8_t *sep,
+                                 IN tt_u32_t sep_num,
+                                 IN tt_u32_t flag,
+                                 OUT tt_u8_t **last,
+                                 OUT tt_u32_t *last_len);
 // flag
 #define TT_BUFTOK_NOEMPTY (1 << 0)
 
-extern void tt_buf_trim_sp(IN tt_buf_t *buf);
+tt_export void tt_buf_trim_sp(IN tt_buf_t *buf);
 
 #endif /* __TT_BUFFER_COMMON__ */

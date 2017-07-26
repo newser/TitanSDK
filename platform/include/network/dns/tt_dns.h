@@ -61,13 +61,13 @@ typedef struct
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern void tt_dns_component_register();
+tt_export void tt_dns_component_register();
 
-extern tt_dns_t tt_dns_create(IN OPT tt_dns_attr_t *attr);
+tt_export tt_dns_t tt_dns_create(IN OPT tt_dns_attr_t *attr);
 
-extern void tt_dns_destroy(IN tt_dns_t d);
+tt_export void tt_dns_destroy(IN tt_dns_t d);
 
-extern void tt_dns_attr_default(IN tt_dns_attr_t *attr);
+tt_export void tt_dns_attr_default(IN tt_dns_attr_t *attr);
 
 tt_inline tt_s64_t tt_dns_run(IN tt_dns_t d)
 {

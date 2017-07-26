@@ -70,37 +70,37 @@ typedef struct tt_sshkex_s
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern tt_result_t tt_sshkex_create(IN tt_sshkex_t *kex);
+tt_export tt_result_t tt_sshkex_create(IN tt_sshkex_t *kex);
 
-extern void tt_sshkex_destroy(IN tt_sshkex_t *kex);
+tt_export void tt_sshkex_destroy(IN tt_sshkex_t *kex);
 
-extern tt_result_t tt_sshkex_setalg(IN tt_sshkex_t *kex,
+tt_export tt_result_t tt_sshkex_setalg(IN tt_sshkex_t *kex,
                                     IN tt_ssh_kex_alg_t alg);
 
-extern tt_result_t tt_sshkex_setvc(IN tt_sshkex_t *kex,
+tt_export tt_result_t tt_sshkex_setvc(IN tt_sshkex_t *kex,
                                    IN tt_u8_t *vc,
                                    IN tt_u32_t vc_len,
                                    IN tt_bool_t format);
-extern tt_result_t tt_sshkex_setvs(IN tt_sshkex_t *kex,
+tt_export tt_result_t tt_sshkex_setvs(IN tt_sshkex_t *kex,
                                    IN tt_u8_t *vs,
                                    IN tt_u32_t vs_len,
                                    IN tt_bool_t format);
-extern tt_result_t tt_sshkex_setic(IN tt_sshkex_t *kex,
+tt_export tt_result_t tt_sshkex_setic(IN tt_sshkex_t *kex,
                                    IN tt_u8_t *ic,
                                    IN tt_u32_t ic_len,
                                    IN tt_bool_t format);
-extern tt_result_t tt_sshkex_setis(IN tt_sshkex_t *kex,
+tt_export tt_result_t tt_sshkex_setis(IN tt_sshkex_t *kex,
                                    IN tt_u8_t *is,
                                    IN tt_u32_t is_len,
                                    IN tt_bool_t format);
-extern tt_result_t tt_sshkex_setks(IN tt_sshkex_t *kex,
+tt_export tt_result_t tt_sshkex_setks(IN tt_sshkex_t *kex,
                                    IN tt_u8_t *ks,
                                    IN tt_u32_t ks_len,
                                    IN tt_bool_t format);
-extern tt_result_t tt_sshkex_setks_rsa(IN tt_sshkex_t *kex,
+tt_export tt_result_t tt_sshkex_setks_rsa(IN tt_sshkex_t *kex,
                                        IN tt_blob_t *e,
                                        IN tt_blob_t *n);
 
-extern tt_result_t tt_sshkex_calc_h(IN tt_sshkex_t *kex);
+tt_export tt_result_t tt_sshkex_calc_h(IN tt_sshkex_t *kex);
 
 #endif /* __TT_SSH_KEX__ */

@@ -51,12 +51,12 @@ typedef struct
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern struct tt_sshmsg_s *tt_sshmsg_servreq_create();
+tt_export struct tt_sshmsg_s *tt_sshmsg_servreq_create();
 
-extern void tt_sshmsg_servreq_set_service(IN struct tt_sshmsg_s *msg,
+tt_export void tt_sshmsg_servreq_set_service(IN struct tt_sshmsg_s *msg,
                                           IN tt_ssh_service_t service);
 
-extern tt_ssh_service_t tt_sshmsg_servreq_get_service(
+tt_export tt_ssh_service_t tt_sshmsg_servreq_get_service(
     IN struct tt_sshmsg_s *msg);
 
 #endif /* __TT_SSH_MSGID_SERVICE_REQUEST__ */

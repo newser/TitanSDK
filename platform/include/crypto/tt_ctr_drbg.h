@@ -55,18 +55,18 @@ typedef struct tt_ctr_drbg_s
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern tt_ctr_drbg_t *tt_ctr_drbg_create(IN struct tt_entropy_s *entropy,
-                                         IN OPT tt_u8_t *opaque,
-                                         IN tt_u32_t len);
+tt_export tt_ctr_drbg_t *tt_ctr_drbg_create(IN struct tt_entropy_s *entropy,
+                                            IN OPT tt_u8_t *opaque,
+                                            IN tt_u32_t len);
 
-extern void tt_ctr_drbg_destroy(IN tt_ctr_drbg_t *drbg);
+tt_export void tt_ctr_drbg_destroy(IN tt_ctr_drbg_t *drbg);
 
-extern tt_ctr_drbg_t *tt_current_ctr_drbg();
+tt_export tt_ctr_drbg_t *tt_current_ctr_drbg();
 
-extern tt_result_t tt_ctr_drbg_rand(IN tt_ctr_drbg_t *drbg,
-                                    OUT tt_u8_t *buf,
-                                    IN tt_u32_t len);
+tt_export tt_result_t tt_ctr_drbg_rand(IN tt_ctr_drbg_t *drbg,
+                                       OUT tt_u8_t *buf,
+                                       IN tt_u32_t len);
 
-extern int tt_ctr_drbg(IN void *param, IN unsigned char *buf, IN size_t len);
+tt_export int tt_ctr_drbg(IN void *param, IN unsigned char *buf, IN size_t len);
 
 #endif

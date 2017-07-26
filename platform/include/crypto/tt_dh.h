@@ -53,16 +53,16 @@ typedef struct
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern void tt_dh_init(IN tt_dh_t *dh);
+tt_export void tt_dh_init(IN tt_dh_t *dh);
 
-extern void tt_dh_destroy(IN tt_dh_t *dh);
+tt_export void tt_dh_destroy(IN tt_dh_t *dh);
 
-extern tt_result_t tt_dh_load_param(IN tt_dh_t *dh,
-                                    IN tt_u8_t *param,
-                                    IN tt_u32_t len);
+tt_export tt_result_t tt_dh_load_param(IN tt_dh_t *dh,
+                                       IN tt_u8_t *param,
+                                       IN tt_u32_t len);
 
-extern tt_result_t tt_dh_load_param_file(IN tt_dh_t *dh,
-                                         IN const tt_char_t *path);
+tt_export tt_result_t tt_dh_load_param_file(IN tt_dh_t *dh,
+                                            IN const tt_char_t *path);
 
 tt_inline tt_u32_t tt_dh_size(IN tt_dh_t *dh)
 {
@@ -70,26 +70,26 @@ tt_inline tt_u32_t tt_dh_size(IN tt_dh_t *dh)
 }
 
 // len should be at least group size, 128 bytes if dh group is of 1024 bits
-extern tt_result_t tt_dh_generate_pub(IN tt_dh_t *dh,
-                                      IN tt_u32_t priv_size,
-                                      OUT tt_u8_t *pub,
-                                      IN OUT tt_u32_t len);
+tt_export tt_result_t tt_dh_generate_pub(IN tt_dh_t *dh,
+                                         IN tt_u32_t priv_size,
+                                         OUT tt_u8_t *pub,
+                                         IN OUT tt_u32_t len);
 
-extern tt_result_t tt_dh_get_pub(IN tt_dh_t *dh,
-                                 IN tt_bool_t local,
-                                 OUT tt_u8_t *pub,
-                                 IN tt_u32_t len);
-
-extern tt_result_t tt_dh_set_pub(IN tt_dh_t *dh,
-                                 IN tt_u8_t *pub,
-                                 IN tt_u32_t len);
-
-extern tt_result_t tt_dh_derive(IN tt_dh_t *dh,
-                                OUT tt_u8_t *secret,
-                                IN OUT tt_u32_t *len);
-
-extern tt_result_t tt_dh_get_secret(IN tt_dh_t *dh,
-                                    OUT tt_u8_t *secret,
+tt_export tt_result_t tt_dh_get_pub(IN tt_dh_t *dh,
+                                    IN tt_bool_t local,
+                                    OUT tt_u8_t *pub,
                                     IN tt_u32_t len);
+
+tt_export tt_result_t tt_dh_set_pub(IN tt_dh_t *dh,
+                                    IN tt_u8_t *pub,
+                                    IN tt_u32_t len);
+
+tt_export tt_result_t tt_dh_derive(IN tt_dh_t *dh,
+                                   OUT tt_u8_t *secret,
+                                   IN OUT tt_u32_t *len);
+
+tt_export tt_result_t tt_dh_get_secret(IN tt_dh_t *dh,
+                                       OUT tt_u8_t *secret,
+                                       IN tt_u32_t len);
 
 #endif /* __TT_DH__ */

@@ -46,6 +46,6 @@ struct tt_sshmsg_s;
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern struct tt_sshmsg_s *tt_sshmsg_reqfail_create();
+tt_export struct tt_sshmsg_s *tt_sshmsg_reqfail_create();
 
 #endif /* __TT_SSH_MSGID_REQUEST_FAILURE__ */

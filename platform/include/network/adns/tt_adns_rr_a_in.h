@@ -59,12 +59,12 @@ typedef struct
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern struct tt_adns_rr_s *tt_adrr_a_create(IN const tt_char_t *name,
+tt_export struct tt_adns_rr_s *tt_adrr_a_create(IN const tt_char_t *name,
                                              IN tt_u32_t name_ownership,
                                              IN tt_u32_t ttl,
                                              IN OPT tt_adrr_a_t *rdata);
 
-extern void tt_adrr_a_set_addr(IN struct tt_adns_rr_s *rr,
+tt_export void tt_adrr_a_set_addr(IN struct tt_adns_rr_s *rr,
                                tt_sktaddr_ip_t *addr);
 
 #endif /* __TT_ADNS_RR_A_IN__ */

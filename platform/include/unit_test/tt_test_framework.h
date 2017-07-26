@@ -158,7 +158,7 @@ typedef struct tt_test_class_struct
  *
  * note:
  */
-extern tt_result_t tt_test_framework_init(IN tt_ptr_t attribute);
+tt_export tt_result_t tt_test_framework_init(IN tt_ptr_t attribute);
 
 /*
  * name:
@@ -182,7 +182,7 @@ extern tt_result_t tt_test_framework_init(IN tt_ptr_t attribute);
  *   seems no need to delete a test class, this submodule is just
  *   for test purpose
  */
-extern tt_result_t tt_test_class_create(IN const tt_char_t *name,
+tt_export tt_result_t tt_test_class_create(IN const tt_char_t *name,
                                         IN tt_u32_t attribute,
                                         OUT tt_test_class_t **test_class);
 
@@ -210,7 +210,7 @@ extern tt_result_t tt_test_class_create(IN const tt_char_t *name,
  *   seems no need to delete a test item, this submodule is just
  *   for test purpose
  */
-extern tt_result_t tt_test_item_add(IN tt_test_class_t *test_class,
+tt_export tt_result_t tt_test_item_add(IN tt_test_class_t *test_class,
                                     IN tt_test_entry_t *entry,
                                     IN const tt_char_t *name,
                                     IN const tt_char_t *comment);
@@ -231,7 +231,7 @@ list specified test classes as well as their cases
   all information of a test item.
 - the initial result of an item is TT_FAIL if not run yet
 */
-extern tt_result_t tt_test_list(IN const tt_char_t *class_name,
+tt_export tt_result_t tt_test_list(IN const tt_char_t *class_name,
                                 IN OUT tt_u32_t *succ_num,
                                 IN OUT tt_u32_t *fail_num);
 
@@ -248,7 +248,7 @@ extern tt_result_t tt_test_list(IN const tt_char_t *class_name,
  * note:
  *   the return value do not indicate if all cases are passed
  */
-extern tt_result_t tt_test_run(IN const tt_char_t *class_name);
+tt_export tt_result_t tt_test_run(IN const tt_char_t *class_name);
 
 /*
  * name:
@@ -270,13 +270,13 @@ extern tt_result_t tt_test_run(IN const tt_char_t *class_name);
  *   the error info may be truncated if too long
  */
 
-extern void tt_test_error_info(IN tt_test_item_t *item,
+tt_export void tt_test_error_info(IN tt_test_item_t *item,
                                IN const tt_char_t *function,
                                IN const tt_u32_t line,
                                IN const tt_char_t *error_info);
 
 // only final info is recorded, formal info are overwritten
-extern void tt_test_info(IN tt_test_item_t *item,
+tt_export void tt_test_info(IN tt_test_item_t *item,
                          IN const tt_char_t *function,
                          IN tt_u32_t line,
                          IN const tt_char_t *format,

@@ -46,10 +46,10 @@ error APIs
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern tt_result_t tt_err_get_last();
+tt_export tt_result_t tt_err_get_last();
 
-extern void tt_err_set_last(IN tt_result_t result);
+tt_export void tt_err_set_last(IN tt_result_t result);
 
-extern const tt_char_t *tt_err_string(tt_result_t result);
+tt_export const tt_char_t *tt_err_string(tt_result_t result);
 
 #endif /* __TT_ERROR__ */

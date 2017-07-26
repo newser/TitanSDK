@@ -56,28 +56,28 @@ typedef struct
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern void tt_ecdsa_init(IN tt_ecdsa_t *dsa);
+tt_export void tt_ecdsa_init(IN tt_ecdsa_t *dsa);
 
-extern void tt_ecdsa_destroy(IN tt_ecdsa_t *dsa);
+tt_export void tt_ecdsa_destroy(IN tt_ecdsa_t *dsa);
 
-extern tt_result_t tt_ecdsa_load(IN tt_ecdsa_t *dsa, IN struct tt_pk_s *pk);
+tt_export tt_result_t tt_ecdsa_load(IN tt_ecdsa_t *dsa, IN struct tt_pk_s *pk);
 
-extern tt_result_t tt_ecdsa_generate(IN tt_ecdsa_t *dsa, IN tt_ecgrp_t g);
+tt_export tt_result_t tt_ecdsa_generate(IN tt_ecdsa_t *dsa, IN tt_ecgrp_t g);
 
 // sig_len should be at least (2*group size+9)
-extern tt_result_t tt_ecdsa_sign(IN tt_ecdsa_t *dsa,
-                                 IN tt_u8_t *input,
-                                 IN tt_u32_t len,
-                                 IN tt_md_type_t md_type,
-                                 IN tt_md_type_t sign_md,
-                                 OUT tt_u8_t *sig,
-                                 IN OUT tt_u32_t *sig_len);
+tt_export tt_result_t tt_ecdsa_sign(IN tt_ecdsa_t *dsa,
+                                    IN tt_u8_t *input,
+                                    IN tt_u32_t len,
+                                    IN tt_md_type_t md_type,
+                                    IN tt_md_type_t sign_md,
+                                    OUT tt_u8_t *sig,
+                                    IN OUT tt_u32_t *sig_len);
 
-extern tt_result_t tt_ecdsa_verify(IN tt_ecdsa_t *dsa,
-                                   IN tt_u8_t *input,
-                                   IN tt_u32_t len,
-                                   IN tt_md_type_t md_type,
-                                   IN tt_u8_t *sig,
-                                   IN tt_u32_t sig_len);
+tt_export tt_result_t tt_ecdsa_verify(IN tt_ecdsa_t *dsa,
+                                      IN tt_u8_t *input,
+                                      IN tt_u32_t len,
+                                      IN tt_md_type_t md_type,
+                                      IN tt_u8_t *sig,
+                                      IN tt_u32_t sig_len);
 
 #endif

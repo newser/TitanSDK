@@ -76,22 +76,22 @@ typedef struct tt_adns_dmgr_s
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern tt_adns_dmgr_t *tt_adns_dmgr_create(
+tt_export tt_adns_dmgr_t *tt_adns_dmgr_create(
     IN struct tt_evcenter_s *evc,
     IN OPT struct tt_netaddr_s *server_addr,
     IN OPT tt_u32_t server_num,
     IN OPT tt_adns_dmgr_attr_t *attr);
 
-extern void tt_adns_dmgr_destroy(IN tt_adns_dmgr_t *dmgr);
+tt_export void tt_adns_dmgr_destroy(IN tt_adns_dmgr_t *dmgr);
 
-extern void tt_adns_dmgr_attr_default(IN tt_adns_dmgr_attr_t *attr);
+tt_export void tt_adns_dmgr_attr_default(IN tt_adns_dmgr_attr_t *attr);
 
-extern void tt_adns_dmgr_clear(IN tt_adns_dmgr_t *dmgr);
+tt_export void tt_adns_dmgr_clear(IN tt_adns_dmgr_t *dmgr);
 
-extern tt_result_t tt_adns_dmgr_tev_handler(IN struct tt_evpoller_s *evp,
+tt_export tt_result_t tt_adns_dmgr_tev_handler(IN struct tt_evpoller_s *evp,
                                             IN struct tt_ev_s *ev);
 
-extern void tt_adns_dmgr_pkt_handler(IN tt_adns_dmgr_t *dmgr,
+tt_export void tt_adns_dmgr_pkt_handler(IN tt_adns_dmgr_t *dmgr,
                                      IN struct tt_adns_pkt_s *pkt);
 
 // ========================================
@@ -107,13 +107,13 @@ extern void tt_adns_dmgr_pkt_handler(IN tt_adns_dmgr_t *dmgr,
 - result must not be used before, including no rr
 - result->result is valid only when this function return TT_SUCCESS
 */
-extern tt_result_t tt_adns_dmgr_query(IN tt_adns_dmgr_t *dmgr,
+tt_export tt_result_t tt_adns_dmgr_query(IN tt_adns_dmgr_t *dmgr,
                                       IN const tt_char_t *domain,
                                       IN tt_adns_rr_type_t type,
                                       IN tt_u32_t flag,
                                       OUT tt_adns_qryctx_t *qryctx);
 
-extern tt_result_t tt_adns_dmgr_query_async(IN tt_adns_dmgr_t *dmgr,
+tt_export tt_result_t tt_adns_dmgr_query_async(IN tt_adns_dmgr_t *dmgr,
                                             IN const tt_char_t *domain,
                                             IN tt_adns_rr_type_t type,
                                             IN tt_u32_t flag,

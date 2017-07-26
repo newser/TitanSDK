@@ -103,8 +103,8 @@ add_group_src(${PLATFORM_PATH}/source/os os SRC_FILE)
 add_group_hdr(${PLATFORM_PATH}/include/memory memory memory SRC_FILE)
 add_group_src(${PLATFORM_PATH}/source/memory memory SRC_FILE)
 
-add_group_hdr(${PLATFORM_PATH}/include/timer timer timer SRC_FILE)
-add_group_src(${PLATFORM_PATH}/source/timer timer SRC_FILE)
+add_group_hdr(${PLATFORM_PATH}/include/time time time SRC_FILE)
+add_group_src(${PLATFORM_PATH}/source/time time SRC_FILE)
 
 add_group_hdr(${PLATFORM_PATH}/include/misc misc misc SRC_FILE)
 add_group_src(${PLATFORM_PATH}/source/misc misc SRC_FILE)
@@ -142,7 +142,7 @@ add_group_src(${PLATFORM_PATH}/source/network/ssl ssl SRC_FILE)
 
 add_group_hdr(${PLATFORM_PATH}/include/cli cli cli SRC_FILE)
 add_group_src(${PLATFORM_PATH}/source/cli cli SRC_FILE)
-add_group_hdr(${PLATFORM_PATH}/include/cli/shell cli cli/shell SRC_FILE)
+add_group_hdr(${PLATFORM_PATH}/include/cli/shell shell cli/shell SRC_FILE)
 add_group_src(${PLATFORM_PATH}/source/cli/shell shell SRC_FILE)
 
 # test cases

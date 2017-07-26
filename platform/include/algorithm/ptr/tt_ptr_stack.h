@@ -64,11 +64,12 @@ typedef struct
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern void tt_ptrstk_init(IN tt_ptrstk_t *pstk, IN OPT tt_ptrstk_attr_t *attr);
+tt_export void tt_ptrstk_init(IN tt_ptrstk_t *pstk,
+                              IN OPT tt_ptrstk_attr_t *attr);
 
-extern void tt_ptrstk_destroy(IN tt_ptrstk_t *pstk);
+tt_export void tt_ptrstk_destroy(IN tt_ptrstk_t *pstk);
 
-extern void tt_ptrstk_attr_default(IN tt_ptrstk_attr_t *attr);
+tt_export void tt_ptrstk_attr_default(IN tt_ptrstk_attr_t *attr);
 
 tt_inline tt_u32_t tt_ptrstk_count(IN tt_ptrstk_t *pstk)
 {
@@ -80,16 +81,16 @@ tt_inline tt_bool_t tt_ptrstk_empty(IN tt_ptrstk_t *pstk)
     return pstk->count == 0 ? TT_TRUE : TT_FALSE;
 }
 
-extern void tt_ptrstk_clear(IN tt_ptrstk_t *pstk);
+tt_export void tt_ptrstk_clear(IN tt_ptrstk_t *pstk);
 
-extern tt_result_t tt_ptrstk_push(IN tt_ptrstk_t *pstk, IN tt_ptr_t p);
+tt_export tt_result_t tt_ptrstk_push(IN tt_ptrstk_t *pstk, IN tt_ptr_t p);
 
-extern tt_ptr_t tt_ptrstk_pop(IN tt_ptrstk_t *pstk);
+tt_export tt_ptr_t tt_ptrstk_pop(IN tt_ptrstk_t *pstk);
 
-extern tt_ptr_t tt_ptrstk_top(IN tt_ptrstk_t *pstk);
+tt_export tt_ptr_t tt_ptrstk_top(IN tt_ptrstk_t *pstk);
 
-extern void tt_ptrstk_iter(IN tt_ptrstk_t *pstk, OUT tt_ptrstk_iter_t *iter);
+tt_export void tt_ptrstk_iter(IN tt_ptrstk_t *pstk, OUT tt_ptrstk_iter_t *iter);
 
-extern tt_ptr_t tt_ptrstk_iter_next(IN OUT tt_ptrstk_iter_t *iter);
+tt_export tt_ptr_t tt_ptrstk_iter_next(IN OUT tt_ptrstk_iter_t *iter);
 
 #endif /* __TT_PTR_STACK__ */

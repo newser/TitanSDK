@@ -51,6 +51,6 @@ typedef struct
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern tt_rng_t *tt_rng_xorshift_create();
+tt_export tt_rng_t *tt_rng_xorshift_create();
 
 #endif /* __TT_RNG_XORSHIFT__ */

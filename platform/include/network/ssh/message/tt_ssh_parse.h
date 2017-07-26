@@ -62,7 +62,7 @@ tt_inline tt_result_t tt_ssh_byte_parse(IN tt_buf_t *buf, OUT tt_u8_t *byte_val)
  values MUST be interpreted as TRUE; however, applications MUST NOT
  store values other than 0 and 1.
  */
-extern tt_result_t tt_ssh_boolean_parse(IN tt_buf_t *buf,
+tt_export tt_result_t tt_ssh_boolean_parse(IN tt_buf_t *buf,
                                         OUT tt_bool_t *boolean_val);
 
 /*
@@ -101,7 +101,7 @@ tt_inline tt_result_t tt_ssh_uint64_parse(IN tt_buf_t *buf,
 // - if returned TT_SUCCESS, it guarentee that buffer has been updated
 // - otherwise, buffer may be parially updated so that caller need backup
 //   pos and restore buf pos when returned valus is not TT_SUCCESS
-extern tt_result_t tt_ssh_string_parse(IN tt_buf_t *buf,
+tt_export tt_result_t tt_ssh_string_parse(IN tt_buf_t *buf,
                                        OUT tt_u8_t **string_val,
                                        OUT tt_u32_t *string_len);
 
@@ -119,7 +119,7 @@ extern tt_result_t tt_ssh_string_parse(IN tt_buf_t *buf,
 // - if returned TT_SUCCESS, it guarentee that buffer has been updated
 // - otherwise, buffer may be parially updated so that caller need backup
 //   pos and restore buf pos when returned valus is not TT_SUCCESS
-extern tt_result_t tt_ssh_mpint_parse(IN tt_buf_t *buf,
+tt_export tt_result_t tt_ssh_mpint_parse(IN tt_buf_t *buf,
                                       OUT tt_u8_t **mpint,
                                       OUT tt_u32_t *mpint_len);
 
@@ -146,7 +146,7 @@ typedef tt_result_t (*tt_ssh_namelist_parse_cb_t)(IN tt_char_t *name,
                                                   IN tt_u32_t name_len,
                                                   IN void *param);
 
-extern tt_result_t tt_ssh_namelist_parse(IN tt_buf_t *buf,
+tt_export tt_result_t tt_ssh_namelist_parse(IN tt_buf_t *buf,
                                          IN tt_ssh_namelist_parse_cb_t cb,
                                          IN void *cb_param);
 

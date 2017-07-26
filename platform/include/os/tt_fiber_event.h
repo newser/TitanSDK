@@ -59,26 +59,26 @@ typedef struct tt_fiber_ev_s
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern void tt_fiber_ev_init(IN tt_fiber_ev_t *fev, IN tt_u32_t ev);
+tt_export void tt_fiber_ev_init(IN tt_fiber_ev_t *fev, IN tt_u32_t ev);
 
-extern tt_fiber_ev_t *tt_fiber_ev_create(IN tt_u32_t ev, IN tt_u32_t size);
+tt_export tt_fiber_ev_t *tt_fiber_ev_create(IN tt_u32_t ev, IN tt_u32_t size);
 
-extern void tt_fiber_ev_destroy(IN tt_fiber_ev_t *fev);
+tt_export void tt_fiber_ev_destroy(IN tt_fiber_ev_t *fev);
 
-extern void tt_fiber_send_ev(IN struct tt_fiber_s *dst,
-                             IN tt_fiber_ev_t *fev,
-                             IN tt_bool_t wait);
+tt_export void tt_fiber_send_ev(IN struct tt_fiber_s *dst,
+                                IN tt_fiber_ev_t *fev,
+                                IN tt_bool_t wait);
 
-extern tt_fiber_ev_t *tt_fiber_recv_ev(IN struct tt_fiber_s *current,
-                                       IN tt_bool_t wait);
+tt_export tt_fiber_ev_t *tt_fiber_recv_ev(IN struct tt_fiber_s *current,
+                                          IN tt_bool_t wait);
 
-extern void tt_fiber_finish(IN tt_fiber_ev_t *fev);
+tt_export void tt_fiber_finish(IN tt_fiber_ev_t *fev);
 
-extern void tt_fiber_send_timer(IN struct tt_fiber_s *dst,
-                                IN struct tt_tmr_s *tmr);
+tt_export void tt_fiber_send_timer(IN struct tt_fiber_s *dst,
+                                   IN struct tt_tmr_s *tmr);
 
-extern struct tt_tmr_s *tt_fiber_recv_timer(IN struct tt_fiber_s *current,
-                                            IN tt_bool_t wait);
+tt_export struct tt_tmr_s *tt_fiber_recv_timer(IN struct tt_fiber_s *current,
+                                               IN tt_bool_t wait);
 
 #if 0
 tt_inline tt_bool_t tt_fiber_recv(IN struct tt_fiber_s *current,
@@ -91,10 +91,10 @@ tt_inline tt_bool_t tt_fiber_recv(IN struct tt_fiber_s *current,
     return TT_BOOL((*p_fev != NULL) || (*p_tmr != NULL));
 }
 #else
-extern tt_bool_t tt_fiber_recv(IN struct tt_fiber_s *current,
-                               IN tt_bool_t wait,
-                               OUT tt_fiber_ev_t **p_fev,
-                               OUT struct tt_tmr_s **p_tmr);
+tt_export tt_bool_t tt_fiber_recv(IN struct tt_fiber_s *current,
+                                  IN tt_bool_t wait,
+                                  OUT tt_fiber_ev_t **p_fev,
+                                  OUT struct tt_tmr_s **p_tmr);
 #endif
 
 #endif // __TT_FIBER_EVENT__

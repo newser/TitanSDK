@@ -60,26 +60,26 @@ typedef struct
 ////////////////////////////////////////////////////////////
 
 // len does not count terminating null
-extern tt_dns_entry_t *tt_dns_entry_create(IN struct tt_dns_cache_s *dc,
-                                           IN const tt_char_t *name,
-                                           IN tt_u32_t len);
+tt_export tt_dns_entry_t *tt_dns_entry_create(IN struct tt_dns_cache_s *dc,
+                                              IN const tt_char_t *name,
+                                              IN tt_u32_t len);
 
-extern void tt_dns_entry_destroy(IN tt_dns_entry_t *de);
+tt_export void tt_dns_entry_destroy(IN tt_dns_entry_t *de);
 
-extern void tt_dns_entry_clear(IN tt_dns_entry_t *de);
+tt_export void tt_dns_entry_clear(IN tt_dns_entry_t *de);
 
-extern void tt_dns_entry_update_ttl(IN tt_dns_entry_t *de, IN tt_s64_t ttl);
+tt_export void tt_dns_entry_update_ttl(IN tt_dns_entry_t *de, IN tt_s64_t ttl);
 
-extern tt_bool_t tt_dns_entry_run(IN tt_dns_entry_t *de,
-                                  IN tt_s64_t now,
-                                  OUT tt_s64_t *ttl_ms);
+tt_export tt_bool_t tt_dns_entry_run(IN tt_dns_entry_t *de,
+                                     IN tt_s64_t now,
+                                     OUT tt_s64_t *ttl_ms);
 
-extern tt_bool_t tt_dns_entry_inuse(IN tt_dns_entry_t *de,
-                                    IN tt_s64_t now,
-                                    IN tt_s64_t limit);
+tt_export tt_bool_t tt_dns_entry_inuse(IN tt_dns_entry_t *de,
+                                       IN tt_s64_t now,
+                                       IN tt_s64_t limit);
 
-extern tt_dns_rrlist_t *tt_dns_entry_get_a(IN tt_dns_entry_t *de);
+tt_export tt_dns_rrlist_t *tt_dns_entry_get_a(IN tt_dns_entry_t *de);
 
-extern tt_dns_rrlist_t *tt_dns_entry_get_aaaa(IN tt_dns_entry_t *de);
+tt_export tt_dns_rrlist_t *tt_dns_entry_get_aaaa(IN tt_dns_entry_t *de);
 
 #endif /* __TT_DNS_ENTRY__ */

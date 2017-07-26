@@ -51,6 +51,6 @@ typedef struct
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern struct tt_sshmsg_s *tt_sshmsg_reqsucc_create();
+tt_export struct tt_sshmsg_s *tt_sshmsg_reqsucc_create();
 
 #endif /* __TT_SSH_MSGID_REQUEST_SUCCESS__ */

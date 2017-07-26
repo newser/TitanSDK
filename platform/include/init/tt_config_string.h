@@ -61,9 +61,9 @@ typedef struct tt_cfgstr_s
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern tt_cfgobj_t *tt_cfgstr_create(IN const tt_char_t *name,
-                                     IN tt_string_t *p_str,
-                                     IN OPT tt_cfgobj_attr_t *attr,
-                                     IN OPT tt_cfgstr_cb_t *cb);
+tt_export tt_cfgobj_t *tt_cfgstr_create(IN const tt_char_t *name,
+                                        IN tt_string_t *p_str,
+                                        IN OPT tt_cfgobj_attr_t *attr,
+                                        IN OPT tt_cfgstr_cb_t *cb);
 
 #endif /* __TT_CONFIG_STRING__ */

@@ -46,6 +46,6 @@ this file defines command line interface demo
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern tt_result_t tt_cli_demo_run();
+tt_export tt_result_t tt_cli_demo_run();
 
 #endif /* __TT_CLI_DEMO__ */

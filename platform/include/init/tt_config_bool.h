@@ -59,9 +59,9 @@ typedef struct tt_cfgbool_s
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern tt_cfgobj_t *tt_cfgbool_create(IN const tt_char_t *name,
-                                      IN tt_bool_t *p_bool,
-                                      IN OPT tt_cfgobj_attr_t *attr,
-                                      IN OPT tt_cfgbool_cb_t *cb);
+tt_export tt_cfgobj_t *tt_cfgbool_create(IN const tt_char_t *name,
+                                         IN tt_bool_t *p_bool,
+                                         IN OPT tt_cfgobj_attr_t *attr,
+                                         IN OPT tt_cfgbool_cb_t *cb);
 
 #endif /* __TT_CONFIG_BOOL__ */

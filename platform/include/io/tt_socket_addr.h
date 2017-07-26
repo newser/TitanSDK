@@ -96,12 +96,12 @@ tt_inline void tt_sktaddr_get_ip_n(IN tt_sktaddr_t *addr,
 }
 
 // addr_val can be TT_IP_ANY
-extern tt_result_t tt_sktaddr_set_ip_p(IN tt_sktaddr_t *addr,
-                                       IN const tt_char_t *ip_str);
+tt_export tt_result_t tt_sktaddr_set_ip_p(IN tt_sktaddr_t *addr,
+                                          IN const tt_char_t *ip_str);
 
-extern tt_result_t tt_sktaddr_get_ip_p(IN tt_sktaddr_t *addr,
-                                       OUT tt_char_t *buf,
-                                       IN tt_u32_t buf_len);
+tt_export tt_result_t tt_sktaddr_get_ip_p(IN tt_sktaddr_t *addr,
+                                          OUT tt_char_t *buf,
+                                          IN tt_u32_t buf_len);
 
 tt_inline void tt_sktaddr_set_port(IN tt_sktaddr_t *addr, IN tt_u16_t port)
 {
@@ -150,8 +150,8 @@ tt_inline void tt_sktaddr_init_any(IN tt_sktaddr_t *addr,
 // convert ipv4 address to ipv4-mapped ipv6 address
 // - in4 and in6 can be same value
 // - return mapped address if in4 and in6 are different
-extern tt_sktaddr_t *tt_sktaddr_map4to6(IN tt_sktaddr_t *ip4,
-                                        IN tt_sktaddr_t *ip6);
+tt_export tt_sktaddr_t *tt_sktaddr_map4to6(IN tt_sktaddr_t *ip4,
+                                           IN tt_sktaddr_t *ip6);
 
 tt_inline tt_bool_t tt_sktaddr_ipv4mapped(IN tt_sktaddr_t *addr)
 {

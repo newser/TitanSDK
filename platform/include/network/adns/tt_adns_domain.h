@@ -113,38 +113,38 @@ typedef struct tt_adns_tmr_attr_s
  @note
  - name_len is the length including 0
  */
-extern tt_adns_domain_t *tt_adns_domain_create(IN const tt_char_t *name,
+tt_export tt_adns_domain_t *tt_adns_domain_create(IN const tt_char_t *name,
                                                IN tt_u32_t name_len,
                                                IN struct tt_adns_dmgr_s *dmgr,
                                                IN OPT tt_adns_rr_type_t *type,
                                                IN tt_u32_t type_num);
 
-extern void __adns_domain_destroy(IN tt_adns_domain_t *dm);
+tt_export void __adns_domain_destroy(IN tt_adns_domain_t *dm);
 
 #define tt_adns_domain_ref(p) TT_REF_ADD(tt_adns_domain_t, p, ref)
 #define tt_adns_domain_release(p)                                              \
     TT_REF_RELEASE(tt_adns_domain_t, p, ref, __adns_domain_destroy)
 
-extern void tt_adns_domain_query(IN tt_adns_domain_t *dm,
+tt_export void tt_adns_domain_query(IN tt_adns_domain_t *dm,
                                  IN tt_adns_rr_type_t type);
 
-extern void tt_adns_domain_copy_rr(IN tt_adns_domain_t *dm,
+tt_export void tt_adns_domain_copy_rr(IN tt_adns_domain_t *dm,
                                    IN tt_adns_rr_type_t type,
                                    IN tt_u32_t flag,
                                    OUT tt_dlist_t *rrlist);
 
-extern tt_dlist_t *tt_adns_domain_get_rrlist(IN tt_adns_domain_t *dm,
+tt_export tt_dlist_t *tt_adns_domain_get_rrlist(IN tt_adns_domain_t *dm,
                                              IN tt_adns_rr_type_t type);
 
-extern void tt_adns_domain_hnode2key(IN tt_hnode_t *node,
+tt_export void tt_adns_domain_hnode2key(IN tt_hnode_t *node,
                                      OUT const tt_u8_t **key,
                                      OUT tt_u32_t *key_len);
 
-extern tt_result_t tt_adns_domain_subscribe(IN tt_adns_domain_t *dm,
+tt_export tt_result_t tt_adns_domain_subscribe(IN tt_adns_domain_t *dm,
                                             IN tt_adns_rr_type_t type,
                                             IN tt_lnode_t *subscriber);
 
-extern void tt_adns_rrset_pkt_handler(IN tt_adns_rrset_t *rrs,
+tt_export void tt_adns_rrset_pkt_handler(IN tt_adns_rrset_t *rrs,
                                       IN struct tt_adns_pkt_s *pkt);
 
 #endif /* __TT_ASYNC_DNS_DOMAIN__ */

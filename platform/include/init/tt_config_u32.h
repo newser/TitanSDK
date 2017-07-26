@@ -61,9 +61,9 @@ typedef struct tt_cfgu32_s
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern tt_cfgobj_t *tt_cfgu32_create(IN const tt_char_t *name,
-                                     IN tt_u32_t *p_u32,
-                                     IN OPT tt_cfgobj_attr_t *attr,
-                                     IN OPT tt_cfgu32_cb_t *cb);
+tt_export tt_cfgobj_t *tt_cfgu32_create(IN const tt_char_t *name,
+                                        IN tt_u32_t *p_u32,
+                                        IN OPT tt_cfgobj_attr_t *attr,
+                                        IN OPT tt_cfgu32_cb_t *cb);
 
 #endif /* __TT_CONFIG_U32__ */

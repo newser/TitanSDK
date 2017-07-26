@@ -63,25 +63,25 @@ typedef struct tt_iowg_s
 // global variants
 ////////////////////////////////////////////////////////////
 
-extern tt_iowg_t tt_g_fs_iowg;
+tt_export tt_iowg_t tt_g_fs_iowg;
 
 ////////////////////////////////////////////////////////////
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern void tt_iowg_component_register();
+tt_export void tt_iowg_component_register();
 
-extern tt_result_t tt_iowg_create(IN tt_iowg_t *wg,
-                                  IN OPT tt_u32_t min_num,
-                                  IN OPT tt_u32_t max_num,
-                                  IN OPT tt_iowg_attr_t *attr);
+tt_export tt_result_t tt_iowg_create(IN tt_iowg_t *wg,
+                                     IN OPT tt_u32_t min_num,
+                                     IN OPT tt_u32_t max_num,
+                                     IN OPT tt_iowg_attr_t *attr);
 
-extern void tt_iowg_destroy(IN tt_iowg_t *wg);
+tt_export void tt_iowg_destroy(IN tt_iowg_t *wg);
 
-extern void tt_iowg_attr_default(IN tt_iowg_attr_t *attr);
+tt_export void tt_iowg_attr_default(IN tt_iowg_attr_t *attr);
 
-extern struct tt_io_ev_s *tt_iowg_pop_ev(IN tt_iowg_t *wg);
+tt_export struct tt_io_ev_s *tt_iowg_pop_ev(IN tt_iowg_t *wg);
 
-extern void tt_iowg_push_ev(IN tt_iowg_t *wg, IN struct tt_io_ev_s *ev);
+tt_export void tt_iowg_push_ev(IN tt_iowg_t *wg, IN struct tt_io_ev_s *ev);
 
 #endif // __TT_IO_WORKER_GROUP__

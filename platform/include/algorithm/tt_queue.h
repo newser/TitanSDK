@@ -65,13 +65,13 @@ typedef struct
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern void tt_queue_init(IN tt_queue_t *q,
-                          IN tt_u32_t obj_size,
-                          IN OPT tt_queue_attr_t *attr);
+tt_export void tt_queue_init(IN tt_queue_t *q,
+                             IN tt_u32_t obj_size,
+                             IN OPT tt_queue_attr_t *attr);
 
-extern void tt_queue_destroy(IN tt_queue_t *q);
+tt_export void tt_queue_destroy(IN tt_queue_t *q);
 
-extern void tt_queue_attr_default(IN tt_queue_attr_t *attr);
+tt_export void tt_queue_attr_default(IN tt_queue_attr_t *attr);
 
 tt_inline tt_u32_t tt_queue_count(IN tt_queue_t *q)
 {
@@ -83,18 +83,18 @@ tt_inline tt_bool_t tt_queue_empty(IN tt_queue_t *q)
     return q->count == 0 ? TT_TRUE : TT_FALSE;
 }
 
-extern void tt_queue_clear(IN tt_queue_t *q);
+tt_export void tt_queue_clear(IN tt_queue_t *q);
 
-extern tt_result_t tt_queue_push(IN tt_queue_t *q, IN void *obj);
+tt_export tt_result_t tt_queue_push(IN tt_queue_t *q, IN void *obj);
 
-extern tt_result_t tt_queue_pop(IN tt_queue_t *q, OUT void *obj);
+tt_export tt_result_t tt_queue_pop(IN tt_queue_t *q, OUT void *obj);
 
-extern void *tt_queue_head(IN tt_queue_t *q);
+tt_export void *tt_queue_head(IN tt_queue_t *q);
 
-extern void *tt_queue_tail(IN tt_queue_t *q);
+tt_export void *tt_queue_tail(IN tt_queue_t *q);
 
-extern void tt_queue_iter(IN tt_queue_t *q, OUT tt_queue_iter_t *iter);
+tt_export void tt_queue_iter(IN tt_queue_t *q, OUT tt_queue_iter_t *iter);
 
-extern void *tt_queue_iter_next(IN OUT tt_queue_iter_t *iter);
+tt_export void *tt_queue_iter_next(IN OUT tt_queue_iter_t *iter);
 
 #endif /* __TT_QUEUE__ */

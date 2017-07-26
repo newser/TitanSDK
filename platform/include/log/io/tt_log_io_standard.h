@@ -58,8 +58,9 @@ typedef struct
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern struct tt_logio_s *tt_logio_std_create(IN OPT tt_logio_std_attr_t *attr);
+tt_export struct tt_logio_s *tt_logio_std_create(
+    IN OPT tt_logio_std_attr_t *attr);
 
-extern void tt_logio_std_attr_default(IN tt_logio_std_attr_t *attr);
+tt_export void tt_logio_std_attr_default(IN tt_logio_std_attr_t *attr);
 
 #endif /* __TT_LOG_IO_STANDARD__ */

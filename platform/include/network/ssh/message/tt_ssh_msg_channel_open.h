@@ -54,18 +54,18 @@ typedef struct tt_sshmsg_chopen_s
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern struct tt_sshmsg_s *tt_sshmsg_chopen_create();
+tt_export struct tt_sshmsg_s *tt_sshmsg_chopen_create();
 
-extern void tt_sshmsg_chopen_set_type(IN struct tt_sshmsg_s *msg,
+tt_export void tt_sshmsg_chopen_set_type(IN struct tt_sshmsg_s *msg,
                                       IN tt_ssh_chtype_t type);
 
-extern void tt_sshmsg_chopen_set_sndchnum(IN struct tt_sshmsg_s *msg,
+tt_export void tt_sshmsg_chopen_set_sndchnum(IN struct tt_sshmsg_s *msg,
                                           IN tt_u32_t snd_chnum);
 
-extern void tt_sshmsg_chopen_set_winsize(IN struct tt_sshmsg_s *msg,
+tt_export void tt_sshmsg_chopen_set_winsize(IN struct tt_sshmsg_s *msg,
                                          IN tt_u32_t window_size);
 
-extern void tt_sshmsg_chopen_set_pktsize(IN struct tt_sshmsg_s *msg,
+tt_export void tt_sshmsg_chopen_set_pktsize(IN struct tt_sshmsg_s *msg,
                                          IN tt_u32_t packet_size);
 
 #endif /* __TT_SSH_MSGID_CHANNEL_OPEN__ */

@@ -52,20 +52,20 @@ typedef struct tt_cfgdir_s
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern tt_cfgobj_t *tt_cfgdir_create(IN const tt_char_t *name,
-                                     IN OPT tt_cfgobj_attr_t *attr);
+tt_export tt_cfgobj_t *tt_cfgdir_create(IN const tt_char_t *name,
+                                        IN OPT tt_cfgobj_attr_t *attr);
 
-extern tt_result_t tt_cfgdir_add(IN tt_cfgdir_t *cd, IN tt_cfgobj_t *child);
+tt_export tt_result_t tt_cfgdir_add(IN tt_cfgdir_t *cd, IN tt_cfgobj_t *child);
 
-extern void tt_cfgdir_remove(IN tt_cfgdir_t *cd, IN tt_cfgobj_t *child);
+tt_export void tt_cfgdir_remove(IN tt_cfgdir_t *cd, IN tt_cfgobj_t *child);
 
-extern tt_cfgobj_t *tt_cfgdir_find(IN tt_cfgdir_t *cd,
-                                   IN const tt_char_t *name,
-                                   IN tt_u32_t name_len);
+tt_export tt_cfgobj_t *tt_cfgdir_find(IN tt_cfgdir_t *cd,
+                                      IN const tt_char_t *name,
+                                      IN tt_u32_t name_len);
 
-extern tt_result_t tt_cfgdir_ls(IN tt_cfgdir_t *c,
-                                IN const tt_char_t *col_sep,
-                                IN const tt_char_t *line_sep,
-                                OUT struct tt_buf_s *output);
+tt_export tt_result_t tt_cfgdir_ls(IN tt_cfgdir_t *c,
+                                   IN const tt_char_t *col_sep,
+                                   IN const tt_char_t *line_sep,
+                                   OUT struct tt_buf_s *output);
 
 #endif /* __TT_CONFIG_DIRECTORY__ */

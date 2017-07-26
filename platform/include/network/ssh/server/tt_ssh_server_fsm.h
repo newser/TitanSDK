@@ -123,9 +123,9 @@ typedef void (*tt_sshsvr_state_evhdlr_t)(IN struct tt_sshsvrconn_s *svrconn,
 // global variants
 ////////////////////////////////////////////////////////////
 
-extern const tt_char_t *tt_sshsvr_state_name[TT_SSHSVRST_NUM];
+tt_export const tt_char_t *tt_sshsvr_state_name[TT_SSHSVRST_NUM];
 
-extern const tt_char_t *tt_sshsvr_event_name[TT_SSHSVREV_NUM];
+tt_export const tt_char_t *tt_sshsvr_event_name[TT_SSHSVREV_NUM];
 
 ////////////////////////////////////////////////////////////
 // interface declaration
@@ -135,15 +135,15 @@ extern const tt_char_t *tt_sshsvr_event_name[TT_SSHSVREV_NUM];
 //  - TT_SUCCESS, event has been processed
 //  - TT_END, app should shutdown ssh conn and then destroy
 //  - TT_FAIL, error occurred, app should destroy ssh conn
-extern tt_result_t tt_sshsvr_fsm(IN struct tt_sshsvrconn_s *svrconn,
+tt_export tt_result_t tt_sshsvr_fsm(IN struct tt_sshsvrconn_s *svrconn,
                                  IN tt_sshsvr_event_t event,
                                  IN void *param);
 
-extern void tt_sshsvr_new_state(IN struct tt_sshsvrconn_s *svrconn,
+tt_export void tt_sshsvr_new_state(IN struct tt_sshsvrconn_s *svrconn,
                                 IN tt_sshsvr_state_t new_state,
                                 IN tt_sshsvr_event_t by_event);
 
-extern void tt_sshsvr_disconnect(IN struct tt_sshsvrconn_s *svrconn,
+tt_export void tt_sshsvr_disconnect(IN struct tt_sshsvrconn_s *svrconn,
                                  IN tt_u32_t reason_code,
                                  IN OPT const tt_char_t *description);
 

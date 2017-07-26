@@ -81,7 +81,7 @@ typedef struct tt_spinlock_s
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern void tt_spinlock_component_register();
+tt_export void tt_spinlock_component_register();
 
 /**
 @fn tt_result_t tt_spinlock_create(IN tt_spinlock_t *slock,
@@ -95,8 +95,8 @@ create a spin lock
 - TT_SUCCESS, if creating done
 - TT_FAIL, some error occurs
 */
-extern tt_result_t tt_spinlock_create(IN tt_spinlock_t *slock,
-                                      IN OPT tt_spinlock_attr_t *attr);
+tt_export tt_result_t tt_spinlock_create(IN tt_spinlock_t *slock,
+                                         IN OPT tt_spinlock_attr_t *attr);
 
 /**
 @fn void tt_spinlock_destroy(IN tt_spinlock_t *slock)
@@ -108,7 +108,7 @@ destroy a spin lock
 - TT_SUCCESS, if destroying done
 - TT_FAIL, some error occurs
 */
-extern void tt_spinlock_destroy(IN tt_spinlock_t *slock);
+tt_export void tt_spinlock_destroy(IN tt_spinlock_t *slock);
 
 /**
  @fn void tt_spinlock_attr_default(IN tt_spinlock_attr_t *attr)
@@ -116,7 +116,7 @@ extern void tt_spinlock_destroy(IN tt_spinlock_t *slock);
 
  @param [in] attr spinlock attribute
  */
-extern void tt_spinlock_attr_default(IN tt_spinlock_attr_t *attr);
+tt_export void tt_spinlock_attr_default(IN tt_spinlock_attr_t *attr);
 
 /**
 @fn tt_result_t tt_spinlock_acquire(IN tt_spinlock_t *slock)
@@ -135,7 +135,7 @@ tt_inline void tt_spinlock_acquire_tag(IN tt_spinlock_t *slock
                                        IN const tt_char_t *function,
                                        IN tt_u32_t line
 #endif
-                                       )
+)
 {
     tt_spinlock_acquire_ntv(&slock->sys_lock);
 }
@@ -159,7 +159,7 @@ tt_inline tt_bool_t tt_spinlock_try_acquire_tag(IN tt_spinlock_t *slock
                                                 IN const tt_char_t *function,
                                                 IN tt_u32_t line
 #endif
-                                                )
+)
 {
     return tt_spinlock_try_acquire_ntv(&slock->sys_lock);
 }

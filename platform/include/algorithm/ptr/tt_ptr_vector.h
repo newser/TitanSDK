@@ -61,7 +61,7 @@ tt_inline void tt_ptrvec_destroy(IN tt_ptrvec_t *pvec)
     tt_vec_destroy(pvec);
 }
 
-extern tt_result_t __ptrvec_reserve(IN tt_ptrvec_t *pvec, IN tt_u32_t count);
+tt_export tt_result_t __ptrvec_reserve(IN tt_ptrvec_t *pvec, IN tt_u32_t count);
 
 tt_inline tt_result_t tt_ptrvec_reserve(IN tt_ptrvec_t *pvec, IN tt_u32_t count)
 {
@@ -70,33 +70,34 @@ tt_inline tt_result_t tt_ptrvec_reserve(IN tt_ptrvec_t *pvec, IN tt_u32_t count)
                    __ptrvec_reserve(pvec, count));
 }
 
-extern tt_result_t tt_ptrvec_push_head(IN tt_ptrvec_t *pvec, IN tt_ptr_t p);
+tt_export tt_result_t tt_ptrvec_push_head(IN tt_ptrvec_t *pvec, IN tt_ptr_t p);
 
-extern tt_result_t tt_ptrvec_push_tail(IN tt_ptrvec_t *pvec, IN tt_ptr_t p);
+tt_export tt_result_t tt_ptrvec_push_tail(IN tt_ptrvec_t *pvec, IN tt_ptr_t p);
 
-extern tt_ptr_t tt_ptrvec_pop_head(IN tt_ptrvec_t *pvec);
+tt_export tt_ptr_t tt_ptrvec_pop_head(IN tt_ptrvec_t *pvec);
 
-extern tt_ptr_t tt_ptrvec_pop_tail(IN tt_ptrvec_t *pvec);
+tt_export tt_ptr_t tt_ptrvec_pop_tail(IN tt_ptrvec_t *pvec);
 
-extern tt_ptr_t tt_ptrvec_head(IN tt_ptrvec_t *pvec);
+tt_export tt_ptr_t tt_ptrvec_head(IN tt_ptrvec_t *pvec);
 
-extern tt_ptr_t tt_ptrvec_tail(IN tt_ptrvec_t *pvec);
+tt_export tt_ptr_t tt_ptrvec_tail(IN tt_ptrvec_t *pvec);
 
-extern tt_result_t tt_ptrvec_insert(IN tt_ptrvec_t *pvec,
-                                    IN tt_u32_t idx,
-                                    IN tt_ptr_t p);
+tt_export tt_result_t tt_ptrvec_insert(IN tt_ptrvec_t *pvec,
+                                       IN tt_u32_t idx,
+                                       IN tt_ptr_t p);
 
-extern tt_result_t tt_ptrvec_move_all(IN tt_ptrvec_t *dst, IN tt_ptrvec_t *src);
+tt_export tt_result_t tt_ptrvec_move_all(IN tt_ptrvec_t *dst,
+                                         IN tt_ptrvec_t *src);
 
-extern tt_result_t tt_ptrvec_move_from(IN tt_ptrvec_t *dst,
-                                       IN tt_ptrvec_t *src,
-                                       IN tt_u32_t from_idx);
+tt_export tt_result_t tt_ptrvec_move_from(IN tt_ptrvec_t *dst,
+                                          IN tt_ptrvec_t *src,
+                                          IN tt_u32_t from_idx);
 
 // [from_idx, to_idx)
-extern tt_result_t tt_ptrvec_move_range(IN tt_ptrvec_t *dst,
-                                        IN tt_ptrvec_t *src,
-                                        IN tt_u32_t from_idx,
-                                        IN tt_u32_t to_idx);
+tt_export tt_result_t tt_ptrvec_move_range(IN tt_ptrvec_t *dst,
+                                           IN tt_ptrvec_t *src,
+                                           IN tt_u32_t from_idx,
+                                           IN tt_u32_t to_idx);
 
 tt_inline tt_u32_t tt_ptrvec_capacity(IN tt_ptrvec_t *pvec)
 {
@@ -118,40 +119,40 @@ tt_inline void tt_ptrvec_clear(IN tt_ptrvec_t *pvec)
     tt_vec_clear(pvec);
 }
 
-extern tt_bool_t tt_ptrvec_comtain(IN tt_ptrvec_t *pvec, IN tt_ptr_t p);
+tt_export tt_bool_t tt_ptrvec_comtain(IN tt_ptrvec_t *pvec, IN tt_ptr_t p);
 
-extern tt_bool_t tt_ptrvec_comtain_all(IN tt_ptrvec_t *pvec,
-                                       IN tt_ptrvec_t *pvec2);
+tt_export tt_bool_t tt_ptrvec_comtain_all(IN tt_ptrvec_t *pvec,
+                                          IN tt_ptrvec_t *pvec2);
 
-extern tt_ptr_t tt_ptrvec_get(IN tt_ptrvec_t *pvec, IN tt_u32_t idx);
+tt_export tt_ptr_t tt_ptrvec_get(IN tt_ptrvec_t *pvec, IN tt_u32_t idx);
 
-extern tt_result_t tt_ptrvec_set(IN tt_ptrvec_t *pvec,
-                                 IN tt_u32_t idx,
-                                 IN tt_ptr_t p);
+tt_export tt_result_t tt_ptrvec_set(IN tt_ptrvec_t *pvec,
+                                    IN tt_u32_t idx,
+                                    IN tt_ptr_t p);
 
-extern tt_u32_t tt_ptrvec_find(IN tt_ptrvec_t *pvec, IN tt_ptr_t p);
+tt_export tt_u32_t tt_ptrvec_find(IN tt_ptrvec_t *pvec, IN tt_ptr_t p);
 
-extern tt_u32_t tt_ptrvec_find_last(IN tt_ptrvec_t *pvec, IN tt_ptr_t p);
+tt_export tt_u32_t tt_ptrvec_find_last(IN tt_ptrvec_t *pvec, IN tt_ptr_t p);
 
-extern tt_u32_t tt_ptrvec_find_from(IN tt_ptrvec_t *pvec,
-                                    IN tt_ptr_t p,
-                                    IN tt_u32_t from_idx);
+tt_export tt_u32_t tt_ptrvec_find_from(IN tt_ptrvec_t *pvec,
+                                       IN tt_ptr_t p,
+                                       IN tt_u32_t from_idx);
 
-extern tt_u32_t tt_ptrvec_find_range(IN tt_ptrvec_t *pvec,
-                                     IN tt_ptr_t p,
-                                     IN tt_u32_t from_idx,
-                                     IN tt_u32_t to_idx);
+tt_export tt_u32_t tt_ptrvec_find_range(IN tt_ptrvec_t *pvec,
+                                        IN tt_ptr_t p,
+                                        IN tt_u32_t from_idx,
+                                        IN tt_u32_t to_idx);
 
-extern void tt_ptrvec_remove(IN tt_ptrvec_t *pvec, IN tt_u32_t idx);
+tt_export void tt_ptrvec_remove(IN tt_ptrvec_t *pvec, IN tt_u32_t idx);
 
 // return removed idx
-extern tt_u32_t tt_ptrvec_remove_equal(IN tt_ptrvec_t *pvec, IN tt_ptr_t p);
+tt_export tt_u32_t tt_ptrvec_remove_equal(IN tt_ptrvec_t *pvec, IN tt_ptr_t p);
 
 // [from_idx, to_idx)
-extern void tt_ptrvec_remove_range(IN tt_ptrvec_t *pvec,
-                                   IN tt_u32_t from_idx,
-                                   IN tt_u32_t to_idx);
+tt_export void tt_ptrvec_remove_range(IN tt_ptrvec_t *pvec,
+                                      IN tt_u32_t from_idx,
+                                      IN tt_u32_t to_idx);
 
-extern void tt_ptrvec_trim(IN tt_ptrvec_t *pvec);
+tt_export void tt_ptrvec_trim(IN tt_ptrvec_t *pvec);
 
 #endif /* __TT_PTR_VECTOR__ */

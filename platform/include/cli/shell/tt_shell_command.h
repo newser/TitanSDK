@@ -81,14 +81,14 @@ typedef struct
 // global variants
 ////////////////////////////////////////////////////////////
 
-extern tt_shcmd_t *tt_g_shcmd[TT_SHCMD_NUM];
+tt_export tt_shcmd_t *tt_g_shcmd[TT_SHCMD_NUM];
 
-extern const tt_char_t *tt_g_shcmd_name[TT_SHCMD_NUM];
+tt_export const tt_char_t *tt_g_shcmd_name[TT_SHCMD_NUM];
 
 ////////////////////////////////////////////////////////////
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern tt_shcmd_t *tt_shcmd_find(IN const tt_char_t *name);
+tt_export tt_shcmd_t *tt_shcmd_find(IN const tt_char_t *name);
 
 #endif /* __TT_SHELL_COMMAND__ */

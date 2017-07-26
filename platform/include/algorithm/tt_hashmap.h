@@ -88,15 +88,15 @@ tt_inline void tt_hnode_init(IN tt_hnode_t *hnode)
     hnode->key_len = 0;
 }
 
-extern tt_result_t tt_hmap_create(IN tt_hashmap_t *hmap,
-                                  IN tt_u32_t slot_num,
-                                  IN OPT tt_hmap_attr_t *attr);
+tt_export tt_result_t tt_hmap_create(IN tt_hashmap_t *hmap,
+                                     IN tt_u32_t slot_num,
+                                     IN OPT tt_hmap_attr_t *attr);
 
-extern void tt_hmap_destroy(IN tt_hashmap_t *hmap);
+tt_export void tt_hmap_destroy(IN tt_hashmap_t *hmap);
 
-extern void tt_hmap_attr_default(IN tt_hmap_attr_t *attr);
+tt_export void tt_hmap_attr_default(IN tt_hmap_attr_t *attr);
 
-extern void tt_hmap_clear(IN tt_hashmap_t *hmap);
+tt_export void tt_hmap_clear(IN tt_hashmap_t *hmap);
 
 tt_inline tt_u32_t tt_hmap_count(IN tt_hashmap_t *hmap)
 {
@@ -108,9 +108,9 @@ tt_inline tt_bool_t tt_hmap_empty(IN tt_hashmap_t *hmap)
     return hmap->count == 0 ? TT_TRUE : TT_FALSE;
 }
 
-extern tt_hnode_t *tt_hmap_find(IN tt_hashmap_t *hmap,
-                                IN tt_u8_t *key,
-                                IN tt_u32_t key_len);
+tt_export tt_hnode_t *tt_hmap_find(IN tt_hashmap_t *hmap,
+                                   IN tt_u8_t *key,
+                                   IN tt_u32_t key_len);
 
 tt_inline tt_bool_t tt_hmap_contain_key(IN tt_hashmap_t *hmap,
                                         IN tt_u8_t *key,
@@ -119,21 +119,22 @@ tt_inline tt_bool_t tt_hmap_contain_key(IN tt_hashmap_t *hmap,
     return tt_hmap_find(hmap, key, key_len) != NULL ? TT_TRUE : TT_FALSE;
 }
 
-extern tt_bool_t tt_hmap_contain(IN tt_hashmap_t *hmap, IN tt_hnode_t *hnode);
+tt_export tt_bool_t tt_hmap_contain(IN tt_hashmap_t *hmap,
+                                    IN tt_hnode_t *hnode);
 
-extern tt_result_t tt_hmap_add(IN tt_hashmap_t *hmap,
-                               IN tt_u8_t *key,
-                               IN tt_u32_t key_len,
-                               IN tt_hnode_t *hnode);
+tt_export tt_result_t tt_hmap_add(IN tt_hashmap_t *hmap,
+                                  IN tt_u8_t *key,
+                                  IN tt_u32_t key_len,
+                                  IN tt_hnode_t *hnode);
 
-extern void tt_hmap_remove(IN tt_hashmap_t *hmap, IN tt_hnode_t *hnode);
+tt_export void tt_hmap_remove(IN tt_hashmap_t *hmap, IN tt_hnode_t *hnode);
 
-extern tt_bool_t tt_hmap_remove_key(IN tt_hashmap_t *hmap,
-                                    IN tt_u8_t *key,
-                                    IN tt_u32_t key_len);
+tt_export tt_bool_t tt_hmap_remove_key(IN tt_hashmap_t *hmap,
+                                       IN tt_u8_t *key,
+                                       IN tt_u32_t key_len);
 
-extern void tt_hmap_foreach(IN tt_hashmap_t *hmap,
-                            IN tt_hmap_action_t action,
-                            IN void *param);
+tt_export void tt_hmap_foreach(IN tt_hashmap_t *hmap,
+                               IN tt_hmap_action_t action,
+                               IN void *param);
 
 #endif /* __TT_MAP__ */

@@ -46,7 +46,7 @@ when to use TT_ASSERT()
   when all tests are done, expand this macro to be empty so that the pointer
   would not be chekced which is ever verified by ever tests
 - an opposite example is using this macro to check return value of some API
-  from external libraries of system api, this does not fit for that return
+  from tt_exportal libraries of system api, this does not fit for that return
   value is out of control, ts itself can not gurantee that API always run well
 
 when to use TT_ASSERT_ALWAYS()
@@ -57,7 +57,7 @@ when to use TT_ASSERT_ALWAYS()
 - examples can be: you find a wild pointer(assuming you can), stack overflows
   or checking result returned by non-ts applications
 - if a condition is recoverable, for example, checking parameter passed by
-  external application, "if{}" should be used instead
+  tt_exportal application, "if{}" should be used instead
 
 */
 

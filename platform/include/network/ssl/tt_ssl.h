@@ -40,7 +40,7 @@ this file defines ssl initialization APIs
 
 #define tt_ssl_error(...)                                                      \
     do {                                                                       \
-        extern void mbedtls_strerror(int, char *, size_t);                     \
+        tt_export void mbedtls_strerror(int, char *, size_t);                  \
         tt_char_t buf[256];                                                    \
         TT_ERROR(__VA_ARGS__);                                                 \
         mbedtls_strerror(e, buf, sizeof(buf) - 1);                             \
@@ -78,7 +78,7 @@ typedef enum {
 // global variants
 ////////////////////////////////////////////////////////////
 
-extern tt_logmgr_t tt_g_ssl_logmgr;
+tt_export tt_logmgr_t tt_g_ssl_logmgr;
 
 ////////////////////////////////////////////////////////////
 // interface declaration
@@ -88,47 +88,47 @@ extern tt_logmgr_t tt_g_ssl_logmgr;
 @fn void tt_ssl_component_register()
 register ts crypto component
 */
-extern void tt_ssl_component_register();
+tt_export void tt_ssl_component_register();
 
-extern void tt_ssl_log_component_register();
+tt_export void tt_ssl_log_component_register();
 
-extern tt_ssl_t *tt_ssl_create(IN struct tt_skt_s *skt,
-                               IN struct tt_ssl_config_s *sc);
+tt_export tt_ssl_t *tt_ssl_create(IN struct tt_skt_s *skt,
+                                  IN struct tt_ssl_config_s *sc);
 
-extern void tt_ssl_destroy(IN tt_ssl_t *ssl);
+tt_export void tt_ssl_destroy(IN tt_ssl_t *ssl);
 
-extern tt_result_t tt_ssl_handshake(IN tt_ssl_t *ssl,
-                                    OUT struct tt_fiber_ev_s **p_fev,
-                                    OUT struct tt_tmr_s **p_tmr);
+tt_export tt_result_t tt_ssl_handshake(IN tt_ssl_t *ssl,
+                                       OUT struct tt_fiber_ev_s **p_fev,
+                                       OUT struct tt_tmr_s **p_tmr);
 
-extern tt_result_t tt_ssl_send(IN tt_ssl_t *ssl,
-                               IN tt_u8_t *buf,
-                               IN tt_u32_t len,
-                               OUT tt_u32_t *sent);
+tt_export tt_result_t tt_ssl_send(IN tt_ssl_t *ssl,
+                                  IN tt_u8_t *buf,
+                                  IN tt_u32_t len,
+                                  OUT tt_u32_t *sent);
 
-extern tt_result_t tt_ssl_recv(IN tt_ssl_t *ssl,
-                               OUT tt_u8_t *buf,
-                               IN tt_u32_t len,
-                               OUT tt_u32_t *recvd,
-                               OUT struct tt_fiber_ev_s **p_fev,
-                               OUT struct tt_tmr_s **p_tmr);
+tt_export tt_result_t tt_ssl_recv(IN tt_ssl_t *ssl,
+                                  OUT tt_u8_t *buf,
+                                  IN tt_u32_t len,
+                                  OUT tt_u32_t *recvd,
+                                  OUT struct tt_fiber_ev_s **p_fev,
+                                  OUT struct tt_tmr_s **p_tmr);
 
-extern tt_result_t tt_ssl_shutdown(IN tt_ssl_t *ssl, IN tt_ssl_shut_t shut);
+tt_export tt_result_t tt_ssl_shutdown(IN tt_ssl_t *ssl, IN tt_ssl_shut_t shut);
 
-extern struct tt_ssl_config_s *tt_ssl_get_config(IN tt_ssl_t *ssl);
+tt_export struct tt_ssl_config_s *tt_ssl_get_config(IN tt_ssl_t *ssl);
 
-extern tt_result_t tt_ssl_set_hostname(IN tt_ssl_t *ssl,
-                                       IN const tt_char_t *hostname);
+tt_export tt_result_t tt_ssl_set_hostname(IN tt_ssl_t *ssl,
+                                          IN const tt_char_t *hostname);
 
-extern void tt_ssl_set_ca(IN tt_ssl_t *ssl,
-                          IN OPT struct tt_x509cert_s *ca,
-                          IN OPT struct tt_x509crl_s *crl);
+tt_export void tt_ssl_set_ca(IN tt_ssl_t *ssl,
+                             IN OPT struct tt_x509cert_s *ca,
+                             IN OPT struct tt_x509crl_s *crl);
 
-extern tt_result_t tt_ssl_set_cert(IN tt_ssl_t *ssl,
-                                   IN struct tt_x509cert_s *cert,
-                                   IN struct tt_pk_s *pk);
+tt_export tt_result_t tt_ssl_set_cert(IN tt_ssl_t *ssl,
+                                      IN struct tt_x509cert_s *cert,
+                                      IN struct tt_pk_s *pk);
 
-extern void tt_ssl_set_auth(IN tt_ssl_t *ssl, IN tt_ssl_auth_t auth);
+tt_export void tt_ssl_set_auth(IN tt_ssl_t *ssl, IN tt_ssl_auth_t auth);
 
 tt_inline const tt_char_t *tt_ssl_get_alpn(IN tt_ssl_t *ssl)
 {

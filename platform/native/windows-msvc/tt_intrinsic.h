@@ -47,14 +47,13 @@ a function with such prefix would be expanded as inline
 */
 #define tt_inline static __inline
 
-// dynamic library
-#ifdef TT_PLATFORM_BUILD_SHARED_BUILDING
-#define TT_EXPORT __declspec(dllexport) extern
+#ifdef TT_PLATFORM_BUILD_SHARED_EXPORT
+#define tt_export __declspec(dllexport) extern
 #else
-#define TT_EXPORT __declspec(dllimport) extern
+#define tt_export __declspec(dllimport) extern
 #endif
 
-#define TT_RESTRICT restrict
+#define tt_restrict restrict
 
 ////////////////////////////////////////////////////////////
 // type definition

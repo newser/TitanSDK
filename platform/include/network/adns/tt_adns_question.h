@@ -48,19 +48,19 @@ struct tt_adns_quest_s;
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern struct tt_adns_rr_s *tt_adns_quest_create(IN const tt_char_t *name,
+tt_export struct tt_adns_rr_s *tt_adns_quest_create(IN const tt_char_t *name,
                                                  IN tt_u32_t name_ownership,
                                                  IN tt_adns_rr_type_t type);
 
-extern tt_result_t tt_adns_quest_render_prepare(IN struct tt_adns_rr_s *rr,
+tt_export tt_result_t tt_adns_quest_render_prepare(IN struct tt_adns_rr_s *rr,
                                                 OUT tt_u32_t *len);
 
-extern tt_result_t tt_adns_quest_render(IN struct tt_adns_rr_s *rr,
+tt_export tt_result_t tt_adns_quest_render(IN struct tt_adns_rr_s *rr,
                                         OUT struct tt_buf_s *buf);
 
-extern tt_result_t tt_adns_quest_parse_prepare(IN struct tt_buf_s *buf);
+tt_export tt_result_t tt_adns_quest_parse_prepare(IN struct tt_buf_s *buf);
 
-extern struct tt_adns_rr_s *tt_adns_quest_parse(IN struct tt_buf_s *buf,
+tt_export struct tt_adns_rr_s *tt_adns_quest_parse(IN struct tt_buf_s *buf,
                                                 IN tt_u8_t *pkt,
                                                 IN tt_u32_t pkt_len);
 

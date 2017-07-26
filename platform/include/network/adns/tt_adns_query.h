@@ -66,7 +66,7 @@ typedef void (*tt_adns_on_query_t)(IN tt_char_t *domain,
 ////////////////////////////////////////////////////////////
 
 // qryctx must not be used before, including no rr
-extern tt_result_t tt_adns_query(IN const tt_char_t *domain,
+tt_export tt_result_t tt_adns_query(IN const tt_char_t *domain,
                                  IN tt_adns_rr_type_t type,
                                  IN tt_u32_t flag,
                                  OUT tt_adns_qryctx_t *qryctx);
@@ -74,7 +74,7 @@ extern tt_result_t tt_adns_query(IN const tt_char_t *domain,
 #define TT_ADNS_QUERY_ALL (1 << 0)
 #define TT_ADNS_QUERY_NEW (1 << 1)
 
-extern tt_result_t tt_adns_query_async(IN const tt_char_t *domain,
+tt_export tt_result_t tt_adns_query_async(IN const tt_char_t *domain,
                                        IN tt_adns_rr_type_t type,
                                        IN tt_u32_t flag,
                                        IN tt_adns_on_query_t on_query,

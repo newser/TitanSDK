@@ -62,7 +62,7 @@ typedef tt_atomic_s64_ntv_t tt_atomic_s64_t;
 @fn void tt_atomic_component_register()
 register ts atomic component
 */
-extern void tt_atomic_component_register();
+tt_export void tt_atomic_component_register();
 
 // ========================================
 // s32

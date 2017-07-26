@@ -52,21 +52,21 @@ struct tt_skt_s;
 // ipv6 only
 // ========================================
 
-extern tt_result_t tt_skt_set_ipv6only(IN struct tt_skt_s *skt,
-                                       IN tt_bool_t ipv6only);
+tt_export tt_result_t tt_skt_set_ipv6only(IN struct tt_skt_s *skt,
+                                          IN tt_bool_t ipv6only);
 
-extern tt_result_t tt_skt_get_ipv6only(IN struct tt_skt_s *skt,
-                                       OUT tt_bool_t *ipv6only);
+tt_export tt_result_t tt_skt_get_ipv6only(IN struct tt_skt_s *skt,
+                                          OUT tt_bool_t *ipv6only);
 
 // ========================================
 // reuse address
 // ========================================
 
-extern tt_result_t tt_skt_set_reuseaddr(IN struct tt_skt_s *skt,
-                                        IN tt_bool_t reuse_addr);
+tt_export tt_result_t tt_skt_set_reuseaddr(IN struct tt_skt_s *skt,
+                                           IN tt_bool_t reuse_addr);
 
-extern tt_result_t tt_skt_get_reuseaddr(IN struct tt_skt_s *skt,
-                                        OUT tt_bool_t *reuse_addr);
+tt_export tt_result_t tt_skt_get_reuseaddr(IN struct tt_skt_s *skt,
+                                           OUT tt_bool_t *reuse_addr);
 
 // ========================================
 // reuse port
@@ -77,36 +77,36 @@ extern tt_result_t tt_skt_get_reuseaddr(IN struct tt_skt_s *skt,
 // - on linux, reuseaddr of udp socket implies reuseport, tcp
 //   socket has no such option untill 3.9
 // - on mac os, both are supported
-extern tt_result_t tt_skt_set_reuseport(IN struct tt_skt_s *skt,
-                                        IN tt_bool_t reuse_port);
+tt_export tt_result_t tt_skt_set_reuseport(IN struct tt_skt_s *skt,
+                                           IN tt_bool_t reuse_port);
 
-extern tt_result_t tt_skt_get_reuseport(IN struct tt_skt_s *skt,
-                                        OUT tt_bool_t *reuse_port);
+tt_export tt_result_t tt_skt_get_reuseport(IN struct tt_skt_s *skt,
+                                           OUT tt_bool_t *reuse_port);
 
 // ========================================
 // tcp no delay
 // ========================================
 
-extern tt_result_t tt_skt_set_tcp_nodelay(IN struct tt_skt_s *skt,
-                                          IN tt_bool_t nodelay);
+tt_export tt_result_t tt_skt_set_tcp_nodelay(IN struct tt_skt_s *skt,
+                                             IN tt_bool_t nodelay);
 
-extern tt_result_t tt_skt_get_tcp_nodelay(IN struct tt_skt_s *skt,
-                                          OUT tt_bool_t *nodelay);
+tt_export tt_result_t tt_skt_get_tcp_nodelay(IN struct tt_skt_s *skt,
+                                             OUT tt_bool_t *nodelay);
 
 // ========================================
 // non-block
 // ========================================
 
-extern tt_result_t tt_skt_set_nonblock(IN struct tt_skt_s *skt,
-                                       IN tt_bool_t nonblock);
+tt_export tt_result_t tt_skt_set_nonblock(IN struct tt_skt_s *skt,
+                                          IN tt_bool_t nonblock);
 
 
 // ========================================
 // linger
 // ========================================
 
-extern tt_result_t tt_skt_set_linger(IN struct tt_skt_s *skt,
-                                     IN tt_bool_t enable,
-                                     IN tt_u16_t linger_sec);
+tt_export tt_result_t tt_skt_set_linger(IN struct tt_skt_s *skt,
+                                        IN tt_bool_t enable,
+                                        IN tt_u16_t linger_sec);
 
 #endif // __TT_SOCKET_OPTION__

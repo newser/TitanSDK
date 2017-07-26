@@ -64,18 +64,18 @@ typedef struct
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern void tt_dns_cache_component_register();
+tt_export void tt_dns_cache_component_register();
 
-extern tt_dns_cache_t *tt_dns_cache_create(IN OPT tt_dns_cache_attr_t *attr);
+tt_export tt_dns_cache_t *tt_dns_cache_create(IN OPT tt_dns_cache_attr_t *attr);
 
-extern void tt_dns_cache_destroy(IN tt_dns_cache_t *dc);
+tt_export void tt_dns_cache_destroy(IN tt_dns_cache_t *dc);
 
-extern void tt_dns_cache_attr_default(IN tt_dns_cache_attr_t *attr);
+tt_export void tt_dns_cache_attr_default(IN tt_dns_cache_attr_t *attr);
 
-extern tt_s64_t tt_dns_cache_run(IN tt_dns_cache_t *dc);
+tt_export tt_s64_t tt_dns_cache_run(IN tt_dns_cache_t *dc);
 
-extern struct tt_dns_rrlist_s *tt_dns_get_a(IN const tt_char_t *name);
+tt_export struct tt_dns_rrlist_s *tt_dns_get_a(IN const tt_char_t *name);
 
-extern struct tt_dns_rrlist_s *tt_dns_get_aaaa(IN const tt_char_t *name);
+tt_export struct tt_dns_rrlist_s *tt_dns_get_aaaa(IN const tt_char_t *name);
 
 #endif /* __TT_DNS_CACHE__ */

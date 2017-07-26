@@ -59,14 +59,14 @@ typedef struct
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern void tt_sshkdf_init(IN tt_sshkdf_t *kdf, IN tt_ssh_hash_alg_t hash_alg);
+tt_export void tt_sshkdf_init(IN tt_sshkdf_t *kdf, IN tt_ssh_hash_alg_t hash_alg);
 
-extern void tt_sshkdf_destroy(IN tt_sshkdf_t *kdf);
+tt_export void tt_sshkdf_destroy(IN tt_sshkdf_t *kdf);
 
 // - k: mpint formatted
 // - h: raw
 // - session_id: raw
-extern tt_result_t tt_sshkdf_run(IN tt_sshkdf_t *kdf,
+tt_export tt_result_t tt_sshkdf_run(IN tt_sshkdf_t *kdf,
                                  IN tt_blob_t *k,
                                  IN tt_blob_t *h,
                                  IN tt_blob_t *session_id,

@@ -69,28 +69,28 @@ each system page is of tt_g_page_size bytes size
   value
 - it equals (1 << tt_g_page_size_order)
 */
-extern tt_u32_t tt_g_page_size;
-extern tt_u32_t tt_g_page_size_order;
+tt_export tt_u32_t tt_g_page_size;
+tt_export tt_u32_t tt_g_page_size_order;
 
-extern tt_u32_t tt_g_cpu_num;
+tt_export tt_u32_t tt_g_cpu_num;
 
-extern tt_u32_t tt_g_cache_line_size;
-extern tt_u32_t tt_g_cache_line_size_order;
+tt_export tt_u32_t tt_g_cache_line_size;
+tt_export tt_u32_t tt_g_cache_line_size_order;
 
-extern tt_u32_t tt_g_numa_node_id;
-extern tt_u32_t tt_g_numa_node_id_thread;
-extern tt_u32_t tt_g_numa_node_id_memory;
+tt_export tt_u32_t tt_g_numa_node_id;
+tt_export tt_u32_t tt_g_numa_node_id_thread;
+tt_export tt_u32_t tt_g_numa_node_id_memory;
 
-extern tt_u32_t tt_g_cpu_align_order;
-extern tt_u32_t tt_g_platform_64bit;
-extern tt_bool_t tt_g_big_endian;
+tt_export tt_u32_t tt_g_cpu_align_order;
+tt_export tt_u32_t tt_g_platform_64bit;
+tt_export tt_bool_t tt_g_big_endian;
 
 ////////////////////////////////////////////////////////////
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern tt_result_t tt_platform_info_load(IN struct tt_profile_s *profile);
+tt_export tt_result_t tt_platform_info_load(IN struct tt_profile_s *profile);
 
-extern tt_bool_t tt_platform_numa_enabled();
+tt_export tt_bool_t tt_platform_numa_enabled();
 
 #endif /* __TT_PLATFORM_INFO__ */

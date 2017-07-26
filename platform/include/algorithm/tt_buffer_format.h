@@ -185,12 +185,12 @@ tt_inline tt_result_t tt_buf_get_u8(IN tt_buf_t *buf, IN tt_u8_t *val_u8)
 // cstring/hexidecimal
 // ========================================
 
-extern tt_result_t tt_buf_put_cstr2hex(IN tt_buf_t *buf,
-                                       IN const tt_char_t *cstr);
+tt_export tt_result_t tt_buf_put_cstr2hex(IN tt_buf_t *buf,
+                                          IN const tt_char_t *cstr);
 
-extern tt_result_t tt_buf_put_hex2cstr(IN tt_buf_t *buf,
-                                       IN tt_u8_t *hex,
-                                       IN tt_u32_t hex_len);
+tt_export tt_result_t tt_buf_put_hex2cstr(IN tt_buf_t *buf,
+                                          IN tt_u8_t *hex,
+                                          IN tt_u32_t hex_len);
 
 // terminating null won't be put to buf
 tt_inline tt_result_t tt_buf_put_cstr(IN tt_buf_t *buf,
@@ -207,12 +207,12 @@ tt_inline tt_result_t tt_buf_put_subcstr(IN tt_buf_t *buf,
     return tt_buf_put(buf, (tt_u8_t *)cstr, TT_MIN(len, n));
 }
 
-extern tt_result_t tt_buf_putf(IN tt_buf_t *buf,
-                               IN const tt_char_t *format,
-                               ...);
+tt_export tt_result_t tt_buf_putf(IN tt_buf_t *buf,
+                                  IN const tt_char_t *format,
+                                  ...);
 
-extern tt_result_t tt_buf_putv(IN tt_buf_t *buf,
-                               IN const tt_char_t *format,
-                               IN va_list ap);
+tt_export tt_result_t tt_buf_putv(IN tt_buf_t *buf,
+                                  IN const tt_char_t *format,
+                                  IN va_list ap);
 
 #endif /* __TT_BUFFER_FORMAT__ */

@@ -64,11 +64,11 @@ typedef struct
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern void tt_ptrq_init(IN tt_ptrq_t *pq, IN OPT tt_ptrq_attr_t *attr);
+tt_export void tt_ptrq_init(IN tt_ptrq_t *pq, IN OPT tt_ptrq_attr_t *attr);
 
-extern void tt_ptrq_destroy(IN tt_ptrq_t *pq);
+tt_export void tt_ptrq_destroy(IN tt_ptrq_t *pq);
 
-extern void tt_ptrq_attr_default(IN tt_ptrq_attr_t *attr);
+tt_export void tt_ptrq_attr_default(IN tt_ptrq_attr_t *attr);
 
 tt_inline tt_u32_t tt_ptrq_count(IN tt_ptrq_t *pq)
 {
@@ -80,18 +80,18 @@ tt_inline tt_bool_t tt_ptrq_empty(IN tt_ptrq_t *pq)
     return pq->count == 0 ? TT_TRUE : TT_FALSE;
 }
 
-extern void tt_ptrq_clear(IN tt_ptrq_t *pq);
+tt_export void tt_ptrq_clear(IN tt_ptrq_t *pq);
 
-extern tt_result_t tt_ptrq_push(IN tt_ptrq_t *pq, IN tt_ptr_t p);
+tt_export tt_result_t tt_ptrq_push(IN tt_ptrq_t *pq, IN tt_ptr_t p);
 
-extern tt_ptr_t tt_ptrq_pop(IN tt_ptrq_t *pq);
+tt_export tt_ptr_t tt_ptrq_pop(IN tt_ptrq_t *pq);
 
-extern tt_ptr_t tt_ptrq_head(IN tt_ptrq_t *pq);
+tt_export tt_ptr_t tt_ptrq_head(IN tt_ptrq_t *pq);
 
-extern tt_ptr_t tt_ptrq_tail(IN tt_ptrq_t *pq);
+tt_export tt_ptr_t tt_ptrq_tail(IN tt_ptrq_t *pq);
 
-extern void tt_ptrq_iter(IN tt_ptrq_t *pq, OUT tt_ptrq_iter_t *iter);
+tt_export void tt_ptrq_iter(IN tt_ptrq_t *pq, OUT tt_ptrq_iter_t *iter);
 
-extern tt_ptr_t tt_ptrq_iter_next(IN OUT tt_ptrq_iter_t *iter);
+tt_export tt_ptr_t tt_ptrq_iter_next(IN OUT tt_ptrq_iter_t *iter);
 
 #endif /* __TT_PTR_QUEUE__ */

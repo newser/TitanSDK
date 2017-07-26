@@ -57,7 +57,7 @@ typedef struct tt_date_s
 // global variants
 ////////////////////////////////////////////////////////////
 
-extern tt_tmzone_t tt_g_local_tmzone;
+tt_export tt_tmzone_t tt_g_local_tmzone;
 
 ////////////////////////////////////////////////////////////
 // interface declaration
@@ -67,9 +67,9 @@ extern tt_tmzone_t tt_g_local_tmzone;
  @fn void tt_date_component_register()
  register date system
  */
-extern void tt_date_component_register();
+tt_export void tt_date_component_register();
 
-extern void tt_date_init(IN tt_date_t *date, IN tt_tmzone_t tz);
+tt_export void tt_date_init(IN tt_date_t *date, IN tt_tmzone_t tz);
 
 tt_inline void tt_date_set_year(IN tt_date_t *date, IN tt_u32_t year)
 {
@@ -157,10 +157,10 @@ tt_inline void tt_date_now(OUT tt_date_t *date)
     tt_date_now_ntv(date);
 }
 
-extern tt_u32_t tt_date_render(IN tt_date_t *date,
-                               IN const tt_char_t *format,
-                               IN tt_char_t *buf,
-                               IN tt_u32_t len);
+tt_export tt_u32_t tt_date_render(IN tt_date_t *date,
+                                  IN const tt_char_t *format,
+                                  IN tt_char_t *buf,
+                                  IN tt_u32_t len);
 
 tt_inline tt_u32_t tt_date_render_now(IN const tt_char_t *format,
                                       IN tt_char_t *buf,
@@ -171,9 +171,9 @@ tt_inline tt_u32_t tt_date_render_now(IN const tt_char_t *format,
     return tt_date_render_ntv(&d, format, buf, len);
 }
 
-extern tt_u32_t tt_date_parse(IN tt_date_t *date,
-                              IN const tt_char_t *format,
-                              IN tt_char_t *buf,
-                              IN tt_u32_t len);
+tt_export tt_u32_t tt_date_parse(IN tt_date_t *date,
+                                 IN const tt_char_t *format,
+                                 IN tt_char_t *buf,
+                                 IN tt_u32_t len);
 
 #endif /* __TT_DATE__ */

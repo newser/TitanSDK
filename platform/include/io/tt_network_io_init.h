@@ -28,6 +28,8 @@ io network module initialization
 // import header files
 ////////////////////////////////////////////////////////////
 
+#include <tt_basic_type.h>
+
 ////////////////////////////////////////////////////////////
 // macro definition
 ////////////////////////////////////////////////////////////
@@ -48,6 +50,6 @@ io network module initialization
 @fn void tt_network_io_component_register()
 register ts network system
 */
-extern void tt_network_io_component_register();
+tt_export void tt_network_io_component_register();
 
 #endif // __TT_NETWORK_IO_INIT__

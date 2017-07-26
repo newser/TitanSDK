@@ -80,16 +80,16 @@ typedef struct tt_cfgobj_s
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern tt_cfgobj_t *tt_cfgobj_create(IN tt_u32_t len,
-                                     IN tt_cfgobj_type_t type,
-                                     IN const tt_char_t *name,
-                                     IN tt_cfgobj_itf_t *itf,
-                                     IN OPT void *opaque,
-                                     IN OPT tt_cfgobj_attr_t *attr);
+tt_export tt_cfgobj_t *tt_cfgobj_create(IN tt_u32_t len,
+                                        IN tt_cfgobj_type_t type,
+                                        IN const tt_char_t *name,
+                                        IN tt_cfgobj_itf_t *itf,
+                                        IN OPT void *opaque,
+                                        IN OPT tt_cfgobj_attr_t *attr);
 
-extern void tt_cfgobj_destroy(IN tt_cfgobj_t *co);
+tt_export void tt_cfgobj_destroy(IN tt_cfgobj_t *co);
 
-extern void tt_cfgobj_attr_default(IN tt_cfgobj_attr_t *attr);
+tt_export void tt_cfgobj_attr_default(IN tt_cfgobj_attr_t *attr);
 
 tt_inline const tt_char_t *tt_cfgobj_name(IN tt_cfgobj_t *co)
 {
@@ -115,26 +115,26 @@ tt_inline const tt_char_t *tt_cfgobj_detail(IN tt_cfgobj_t *co)
 // - if name_len is less than node name length, then at most name_len of
 //   name would be outputted followed by a space
 // - if name_len is larger, spaces are filled
-extern tt_result_t tt_cfgobj_line(IN tt_cfgobj_t *co,
-                                  IN OPT const tt_char_t *col_sep,
-                                  IN OPT tt_u32_t max_name_len,
-                                  OUT struct tt_buf_s *output);
+tt_export tt_result_t tt_cfgobj_line(IN tt_cfgobj_t *co,
+                                     IN OPT const tt_char_t *col_sep,
+                                     IN OPT tt_u32_t max_name_len,
+                                     OUT struct tt_buf_s *output);
 
 // ========================================
 // node operations
 // ========================================
 
-extern tt_result_t tt_cfgobj_read(IN tt_cfgobj_t *co,
-                                  IN OPT const tt_char_t *line_sep,
-                                  OUT struct tt_buf_s *output);
+tt_export tt_result_t tt_cfgobj_read(IN tt_cfgobj_t *co,
+                                     IN OPT const tt_char_t *line_sep,
+                                     OUT struct tt_buf_s *output);
 
-extern tt_result_t tt_cfgobj_write(IN tt_cfgobj_t *co,
-                                   IN tt_u8_t *val,
-                                   IN tt_u32_t val_len);
+tt_export tt_result_t tt_cfgobj_write(IN tt_cfgobj_t *co,
+                                      IN tt_u8_t *val,
+                                      IN tt_u32_t val_len);
 
-extern tt_result_t tt_cfgobj_ls(IN tt_cfgobj_t *co,
-                                IN OPT const tt_char_t *col_sep,
-                                IN OPT const tt_char_t *line_sep,
-                                OUT struct tt_buf_s *output);
+tt_export tt_result_t tt_cfgobj_ls(IN tt_cfgobj_t *co,
+                                   IN OPT const tt_char_t *col_sep,
+                                   IN OPT const tt_char_t *line_sep,
+                                   OUT struct tt_buf_s *output);
 
 #endif /* __TT_CONFIG_OBJECT__ */

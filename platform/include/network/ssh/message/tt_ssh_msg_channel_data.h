@@ -52,12 +52,12 @@ typedef struct
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern struct tt_sshmsg_s *tt_sshmsg_chdata_create();
+tt_export struct tt_sshmsg_s *tt_sshmsg_chdata_create();
 
-extern void tt_sshmsg_chdata_set_rcvchnum(IN struct tt_sshmsg_s *msg,
+tt_export void tt_sshmsg_chdata_set_rcvchnum(IN struct tt_sshmsg_s *msg,
                                           IN tt_u32_t rcv_chnum);
 
-extern tt_result_t tt_sshmsg_chdata_set_data(IN struct tt_sshmsg_s *msg,
+tt_export tt_result_t tt_sshmsg_chdata_set_data(IN struct tt_sshmsg_s *msg,
                                              IN tt_u8_t *data,
                                              IN tt_u32_t data_len,
                                              IN tt_bool_t no_copy);

@@ -53,10 +53,10 @@ typedef struct tt_entropy_s
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern tt_entropy_t *tt_entropy_create();
+tt_export tt_entropy_t *tt_entropy_create();
 
-extern void tt_entropy_destroy(IN tt_entropy_t *entropy);
+tt_export void tt_entropy_destroy(IN tt_entropy_t *entropy);
 
-extern tt_entropy_t *tt_current_entropy();
+tt_export tt_entropy_t *tt_current_entropy();
 
 #endif

@@ -66,45 +66,47 @@ typedef struct tt_string_s
 ////////////////////////////////////////////////////////////
 
 // size could be 0, then the str won't alloc mem initially
-extern tt_result_t tt_string_create(IN tt_string_t *str,
-                                    IN const tt_char_t *cstr,
-                                    IN OPT tt_string_attr_t *attr);
+tt_export tt_result_t tt_string_create(IN tt_string_t *str,
+                                       IN const tt_char_t *cstr,
+                                       IN OPT tt_string_attr_t *attr);
 
 // create string from intersection of [from, to) and cstr
-extern tt_result_t tt_string_create_sub(IN tt_string_t *str,
-                                        IN const tt_char_t *cstr,
-                                        IN tt_u32_t from,
-                                        IN tt_u32_t len,
-                                        IN OPT tt_string_attr_t *attr);
-
-extern tt_result_t tt_string_create_nocopy(IN tt_string_t *str,
+tt_export tt_result_t tt_string_create_sub(IN tt_string_t *str,
                                            IN const tt_char_t *cstr,
+                                           IN tt_u32_t from,
+                                           IN tt_u32_t len,
                                            IN OPT tt_string_attr_t *attr);
 
-extern void tt_string_init(IN tt_string_t *str, IN OPT tt_string_attr_t *attr);
+tt_export tt_result_t tt_string_create_nocopy(IN tt_string_t *str,
+                                              IN const tt_char_t *cstr,
+                                              IN OPT tt_string_attr_t *attr);
 
-extern void tt_string_destroy(IN tt_string_t *str);
+tt_export void tt_string_init(IN tt_string_t *str,
+                              IN OPT tt_string_attr_t *attr);
 
-extern void tt_string_attr_default(IN tt_string_attr_t *attr);
+tt_export void tt_string_destroy(IN tt_string_t *str);
 
-extern tt_result_t tt_string_set(IN tt_string_t *str, IN const tt_char_t *cstr);
+tt_export void tt_string_attr_default(IN tt_string_attr_t *attr);
 
-extern tt_result_t tt_string_set_sub(IN tt_string_t *str,
-                                     IN const tt_char_t *cstr,
-                                     IN tt_u32_t from,
-                                     IN tt_u32_t len);
+tt_export tt_result_t tt_string_set(IN tt_string_t *str,
+                                    IN const tt_char_t *cstr);
 
-extern tt_result_t tt_string_setfrom(IN tt_string_t *str,
-                                     IN tt_u32_t from,
-                                     IN const tt_char_t *cstr);
+tt_export tt_result_t tt_string_set_sub(IN tt_string_t *str,
+                                        IN const tt_char_t *cstr,
+                                        IN tt_u32_t from,
+                                        IN tt_u32_t len);
 
-extern tt_result_t tt_string_setfrom_c(IN tt_string_t *str,
-                                       IN tt_u32_t from,
-                                       IN tt_char_t c);
+tt_export tt_result_t tt_string_setfrom(IN tt_string_t *str,
+                                        IN tt_u32_t from,
+                                        IN const tt_char_t *cstr);
 
-extern void tt_string_clear(IN tt_string_t *str);
+tt_export tt_result_t tt_string_setfrom_c(IN tt_string_t *str,
+                                          IN tt_u32_t from,
+                                          IN tt_char_t c);
 
-extern void tt_string_print(IN tt_string_t *str, IN tt_u32_t flag);
+tt_export void tt_string_clear(IN tt_string_t *str);
+
+tt_export void tt_string_print(IN tt_string_t *str, IN tt_u32_t flag);
 
 tt_inline tt_u32_t tt_string_len(IN tt_string_t *str)
 {
@@ -123,9 +125,9 @@ tt_inline const tt_char_t *tt_string_cstr(IN tt_string_t *str)
 }
 
 // return NULL only when from is invalid
-extern const tt_char_t *tt_string_subcstr(IN tt_string_t *str,
-                                          IN tt_u32_t from,
-                                          OUT OPT tt_u32_t *subcstr_len);
+tt_export const tt_char_t *tt_string_subcstr(IN tt_string_t *str,
+                                             IN tt_u32_t from,
+                                             OUT OPT tt_u32_t *subcstr_len);
 
 tt_inline void tt_string_backup_rwp(IN tt_string_t *str,
                                     IN tt_u32_t *rd_pos,

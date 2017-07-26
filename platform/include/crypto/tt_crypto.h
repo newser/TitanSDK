@@ -36,7 +36,7 @@ this file defines crypto initialization APIs
 
 #define tt_crypto_error(...)                                                   \
     do {                                                                       \
-        extern void mbedtls_strerror(int, char *, size_t);                     \
+        tt_export void mbedtls_strerror(int, char *, size_t);                  \
         tt_char_t buf[256];                                                    \
         TT_ERROR(__VA_ARGS__);                                                 \
         mbedtls_strerror(e, buf, sizeof(buf) - 1);                             \
@@ -59,6 +59,6 @@ this file defines crypto initialization APIs
 @fn void tt_crypto_component_register()
 register ts crypto component
 */
-extern void tt_crypto_component_register();
+tt_export void tt_crypto_component_register();
 
 #endif /* __TT_CRYPTO__ */

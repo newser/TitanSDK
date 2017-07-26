@@ -92,7 +92,7 @@ typedef struct tt_rbtree_s
  there is no memory operation in such function, it only
  initialize the struct passed in by param
  */
-extern void tt_rbnode_init(IN tt_rbnode_t *node);
+tt_export void tt_rbnode_init(IN tt_rbnode_t *node);
 
 /**
 @fn void tt_rbtree_init(IN tt_rbtree_t *tree,
@@ -109,9 +109,10 @@ void
 there is no memory operation in such function, it only
 initialize the struct passed in by param
 */
-extern void tt_rbtree_init(IN tt_rbtree_t *tree, IN OPT tt_rbtree_attr_t *attr);
+tt_export void tt_rbtree_init(IN tt_rbtree_t *tree,
+                              IN OPT tt_rbtree_attr_t *attr);
 
-extern void tt_rbtree_attr_default(IN tt_rbtree_attr_t *attr);
+tt_export void tt_rbtree_attr_default(IN tt_rbtree_attr_t *attr);
 
 /**
  @def tt_rbtree_root(rbtree)
@@ -142,7 +143,8 @@ tt_inline tt_bool_t tt_rbtree_empty(IN tt_rbtree_t *tree)
  - the successor node in rbtree
  - NULL if the node specified by param has no successor
  */
-extern tt_rbnode_t *tt_rbtree_next(IN tt_rbtree_t *tree, IN tt_rbnode_t *node);
+tt_export tt_rbnode_t *tt_rbtree_next(IN tt_rbtree_t *tree,
+                                      IN tt_rbnode_t *node);
 
 /**
  @fn tt_rbnode_t* tt_rbtree_prev(IN tt_rbnode_t *node)
@@ -154,7 +156,8 @@ extern tt_rbnode_t *tt_rbtree_next(IN tt_rbtree_t *tree, IN tt_rbnode_t *node);
  - the predecessor node in rbtree
  - NULL if the node specified by param has no predecessor
  */
-extern tt_rbnode_t *tt_rbtree_prev(IN tt_rbtree_t *tree, IN tt_rbnode_t *node);
+tt_export tt_rbnode_t *tt_rbtree_prev(IN tt_rbtree_t *tree,
+                                      IN tt_rbnode_t *node);
 
 /**
  @fn tt_rbnode_t* tt_rbtree_find(IN tt_rbnode_t *from,
@@ -169,9 +172,9 @@ search a node in rbtree
 - the matching node if found
 - NULL if no matching node
 */
-extern tt_rbnode_t *tt_rbtree_find(IN tt_rbtree_t *tree,
-                                   IN tt_u8_t *key,
-                                   IN tt_u32_t key_len);
+tt_export tt_rbnode_t *tt_rbtree_find(IN tt_rbtree_t *tree,
+                                      IN tt_u8_t *key,
+                                      IN tt_u32_t key_len);
 
 /**
 @fn tt_rbnode_t* tt_rbtree_find_gteq( \
@@ -187,9 +190,9 @@ than key specified
 - the minimum node in tree with larger value
 - NULL if no larger node
 */
-extern tt_rbnode_t *tt_rbtree_find_gteq(IN tt_rbtree_t *tree,
-                                        IN tt_u8_t *key,
-                                        IN tt_u32_t key_len);
+tt_export tt_rbnode_t *tt_rbtree_find_gteq(IN tt_rbtree_t *tree,
+                                           IN tt_u8_t *key,
+                                           IN tt_u32_t key_len);
 
 /**
 @fn tt_rbnode_t* tt_rbtree_find_lteq( \
@@ -205,9 +208,9 @@ than key specified
 - the maximum node in tree with less value
 - NULL if no less node
 */
-extern tt_rbnode_t *tt_rbtree_find_lteq(IN tt_rbtree_t *tree,
-                                        IN tt_u8_t *key,
-                                        IN tt_u32_t key_len);
+tt_export tt_rbnode_t *tt_rbtree_find_lteq(IN tt_rbtree_t *tree,
+                                           IN tt_u8_t *key,
+                                           IN tt_u32_t key_len);
 
 /**
 @fn tt_rbnode_t* tt_rbtree_min(IN tt_rbnode_t *begin_node)
@@ -219,7 +222,7 @@ get minimum node in rbtree
 - the minimum node in rbtree
 - NULL if the tree is empty
 */
-extern tt_rbnode_t *tt_rbtree_min(IN tt_rbtree_t *tree);
+tt_export tt_rbnode_t *tt_rbtree_min(IN tt_rbtree_t *tree);
 
 /**
 @fn tt_rbnode_t* tt_rbtree_max(IN tt_rbnode_t *begin_node)
@@ -231,7 +234,7 @@ get maximum node in rbtree
 - the maximum node in rbtree
 - NULL if the tree is empty
 */
-extern tt_rbnode_t *tt_rbtree_max(IN tt_rbtree_t *tree);
+tt_export tt_rbnode_t *tt_rbtree_max(IN tt_rbtree_t *tree);
 
 /**
 @fn void tt_rbtree_add(IN tt_rbtree_t *tree,
@@ -244,10 +247,10 @@ insert a node to rbtree
 @return
 void
 */
-extern void tt_rbtree_add(IN tt_rbtree_t *tree,
-                          IN tt_u8_t *key,
-                          IN tt_u32_t key_len,
-                          IN tt_rbnode_t *node);
+tt_export void tt_rbtree_add(IN tt_rbtree_t *tree,
+                             IN tt_u8_t *key,
+                             IN tt_u32_t key_len,
+                             IN tt_rbnode_t *node);
 
 /**
 @fn void tt_rbtree_remove(IN tt_rbnode_t *node)
@@ -258,6 +261,6 @@ remove a node from rbtree
 @return
 void
 */
-extern void tt_rbtree_remove(IN tt_rbtree_t *tree, IN tt_rbnode_t *node);
+tt_export void tt_rbtree_remove(IN tt_rbtree_t *tree, IN tt_rbnode_t *node);
 
 #endif /* __TT_RED_BLACK_TREE__ */

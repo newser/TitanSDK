@@ -49,4 +49,8 @@ function(platform_set_properties)
   set_target_properties(platform PROPERTIES 
                         LINK_FLAGS "/VERSION:\"${PLATFORM_VERSION_MAJOR}.${PLATFORM_VERSION_MINOR}\"")
 
+  if (PLATFORM_BUILD_SHARED)
+    target_compile_definitions(platform PRIVATE "-DTT_PLATFORM_BUILD_SHARED_EXPORT")
+  endif ()
+
 endfunction(platform_set_properties)

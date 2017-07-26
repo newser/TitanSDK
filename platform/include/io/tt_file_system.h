@@ -89,7 +89,7 @@ typedef struct tt_dirent_s
 @fn void tt_fs_component_register()
 register os file system wrapper
 */
-extern void tt_fs_component_register();
+tt_export void tt_fs_component_register();
 
 // ========================================
 // file operations
@@ -101,7 +101,7 @@ extern void tt_fs_component_register();
 
  @param [in] attr file attribute
  */
-extern void tt_file_attr_default(IN tt_file_attr_t *attr);
+tt_export void tt_file_attr_default(IN tt_file_attr_t *attr);
 
 /**
 @fn tt_result_t tt_fcreate(IN const tt_char_t *path,
@@ -121,8 +121,8 @@ create a file
 - this function only create unexisted file, it would fail if specified file
   already exist
 */
-extern tt_result_t tt_fcreate(IN const tt_char_t *path,
-                              IN OPT tt_file_attr_t *attr);
+tt_export tt_result_t tt_fcreate(IN const tt_char_t *path,
+                                 IN OPT tt_file_attr_t *attr);
 
 /**
 @fn tt_result_t tt_fremove(IN const tt_char_t *path)
@@ -138,7 +138,7 @@ delete a file
 - if file is a link, then only the link but not the targe file is removed
 - file that is removed but had opened and not closed could be read and write
 */
-extern tt_result_t tt_fremove(IN const tt_char_t *path);
+tt_export tt_result_t tt_fremove(IN const tt_char_t *path);
 
 /**
 @fn tt_result_t tt_fopen(OUT tt_file_t *file,
@@ -165,10 +165,10 @@ open a file
   possibility that this function would fail due to file->opened_magic
   equaling some magic number accidentally
 */
-extern tt_result_t tt_fopen(OUT tt_file_t *file,
-                            IN const tt_char_t *path,
-                            IN tt_u32_t flag,
-                            IN OPT tt_file_attr_t *attr);
+tt_export tt_result_t tt_fopen(OUT tt_file_t *file,
+                               IN const tt_char_t *path,
+                               IN tt_u32_t flag,
+                               IN OPT tt_file_attr_t *attr);
 #define TT_FO_READ (1 << 0)
 #define TT_FO_WRITE (1 << 1)
 #define TT_FO_RDWR (TT_FO_READ | TT_FO_WRITE)
@@ -191,7 +191,7 @@ close a file
 - behavior of passing a file opened asynchronously to this function
   is undefined
 */
-extern void tt_fclose(IN tt_file_t *file);
+tt_export void tt_fclose(IN tt_file_t *file);
 
 /**
 @fn tt_result_t tt_fread(IN tt_file_t *file,
@@ -308,10 +308,11 @@ tt_inline tt_result_t tt_fseek(IN tt_file_t *file,
 #define TT_FSEEK_CUR (1)
 #define TT_FSEEK_END (2)
 
-extern tt_u8_t *tt_fcontent(IN const tt_char_t *path, OUT OPT tt_u64_t *size);
+tt_export tt_u8_t *tt_fcontent(IN const tt_char_t *path,
+                               OUT OPT tt_u64_t *size);
 
-extern tt_result_t tt_fcontent_buf(IN const tt_char_t *path,
-                                   OUT struct tt_buf_s *buf);
+tt_export tt_result_t tt_fcontent_buf(IN const tt_char_t *path,
+                                      OUT struct tt_buf_s *buf);
 
 /**
  @fn void tt_dir_attr_default(IN tt_dir_attr_t *attr)
@@ -319,7 +320,7 @@ extern tt_result_t tt_fcontent_buf(IN const tt_char_t *path,
 
  @param [in] attr directory attribute
  */
-extern void tt_dir_attr_default(IN tt_dir_attr_t *attr);
+tt_export void tt_dir_attr_default(IN tt_dir_attr_t *attr);
 
 /**
  @fn tt_result_t tt_dcreate(IN const tt_char_t *path,
@@ -337,7 +338,8 @@ extern void tt_dir_attr_default(IN tt_dir_attr_t *attr);
  - this function only create unexisted directory, it would fail if specified
  directory already exist
  */
-extern tt_result_t tt_dcreate(IN const tt_char_t *path, IN tt_dir_attr_t *attr);
+tt_export tt_result_t tt_dcreate(IN const tt_char_t *path,
+                                 IN tt_dir_attr_t *attr);
 
 /**
  @fn tt_result_t tt_dremove(IN const tt_char_t *path,
@@ -360,7 +362,7 @@ extern tt_result_t tt_dcreate(IN const tt_char_t *path, IN tt_dir_attr_t *attr);
  - behavior when using TT_DRM_RECURSIVE depends on platform, and may greatly
  impact performance, so do not use this flag frequently
  */
-extern tt_result_t tt_dremove(IN const tt_char_t *path);
+tt_export tt_result_t tt_dremove(IN const tt_char_t *path);
 
 /**
  @fn tt_result_t tt_dopen(OUT tt_dir_t *dir,
@@ -380,9 +382,9 @@ extern tt_result_t tt_dremove(IN const tt_char_t *path);
  - this function can only open exsiting directory, it would fail if specified
  directory does not exist
  */
-extern tt_result_t tt_dopen(IN tt_dir_t *dir,
-                            IN const tt_char_t *path,
-                            IN tt_dir_attr_t *attr);
+tt_export tt_result_t tt_dopen(IN tt_dir_t *dir,
+                               IN const tt_char_t *path,
+                               IN tt_dir_attr_t *attr);
 
 /**
  @fn tt_result_t tt_dclose(OUT tt_dir_t *dir)
@@ -398,7 +400,7 @@ extern tt_result_t tt_dopen(IN tt_dir_t *dir,
  - behavior of passing a dir opened asynchronously to this function
  is undefined
  */
-extern void tt_dclose(IN tt_dir_t *dir);
+tt_export void tt_dclose(IN tt_dir_t *dir);
 
 /**
  @fn tt_result_t tt_dread(IN tt_dir_t *dir,

@@ -61,14 +61,14 @@ typedef struct
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern struct tt_adns_rr_s *tt_adrr_cname_create(IN const tt_char_t *name,
+tt_export struct tt_adns_rr_s *tt_adrr_cname_create(IN const tt_char_t *name,
                                                  IN tt_u32_t name_ownership,
                                                  IN tt_u32_t ttl,
                                                  IN tt_adrr_cname_t *rdata);
 
 // cname_len must count terminating null, if it's 0, cname_len will be
 // calculated
-extern tt_result_t tt_adrr_cname_set_cname(IN struct tt_adns_rr_s *rr,
+tt_export tt_result_t tt_adrr_cname_set_cname(IN struct tt_adns_rr_s *rr,
                                            IN tt_char_t *cname,
                                            IN tt_u32_t cname_len);
 

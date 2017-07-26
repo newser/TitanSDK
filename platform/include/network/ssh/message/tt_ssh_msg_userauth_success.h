@@ -46,6 +46,6 @@ struct tt_sshmsg_s;
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern struct tt_sshmsg_s *tt_sshmsg_uas_create();
+tt_export struct tt_sshmsg_s *tt_sshmsg_uas_create();
 
 #endif /* __TT_SSH_MSGID_USERAUTH_SUCCESS__ */

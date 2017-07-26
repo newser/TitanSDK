@@ -58,9 +58,9 @@ typedef struct tt_skt_attr_s
 // global variants
 ////////////////////////////////////////////////////////////
 
-extern tt_atomic_s64_t tt_skt_stat_num;
+tt_export tt_atomic_s64_t tt_skt_stat_num;
 
-extern tt_atomic_s64_t tt_skt_stat_peek;
+tt_export tt_atomic_s64_t tt_skt_stat_peek;
 
 ////////////////////////////////////////////////////////////
 // interface declaration
@@ -70,50 +70,50 @@ extern tt_atomic_s64_t tt_skt_stat_peek;
 @fn void tt_skt_component_register()
 register socket system
 */
-extern void tt_skt_component_register();
+tt_export void tt_skt_component_register();
 
-extern tt_skt_t *tt_skt_create(IN tt_net_family_t family,
-                               IN tt_net_protocol_t protocol,
-                               IN OPT tt_skt_attr_t *attr);
+tt_export tt_skt_t *tt_skt_create(IN tt_net_family_t family,
+                                  IN tt_net_protocol_t protocol,
+                                  IN OPT tt_skt_attr_t *attr);
 
-extern void tt_skt_destroy(IN tt_skt_t *skt);
+tt_export void tt_skt_destroy(IN tt_skt_t *skt);
 
-extern void tt_skt_attr_default(IN tt_skt_attr_t *attr);
+tt_export void tt_skt_attr_default(IN tt_skt_attr_t *attr);
 
-extern tt_result_t tt_skt_shutdown(IN tt_skt_t *skt, IN tt_skt_shut_t shut);
+tt_export tt_result_t tt_skt_shutdown(IN tt_skt_t *skt, IN tt_skt_shut_t shut);
 
-extern tt_result_t tt_skt_bind(IN tt_skt_t *skt, IN tt_sktaddr_t *addr);
+tt_export tt_result_t tt_skt_bind(IN tt_skt_t *skt, IN tt_sktaddr_t *addr);
 
-extern tt_result_t tt_skt_bind_n(IN tt_skt_t *skt,
-                                 IN tt_net_family_t family,
-                                 IN tt_sktaddr_ip_t *ip,
-                                 IN tt_u16_t port);
-
-extern tt_result_t tt_skt_bind_p(IN tt_skt_t *skt,
-                                 IN tt_net_family_t family,
-                                 IN const tt_char_t *ip_str,
-                                 IN tt_u16_t port);
-
-extern tt_result_t tt_skt_listen(IN tt_skt_t *skt);
-
-// this function does not guarantee that the new socket would inherite
-// attributes of listening_skt, although os may do some about it). caller
-// should explicitly set options by api defined in tt_socket_option.h
-extern tt_skt_t *tt_skt_accept(IN tt_skt_t *skt,
-                               IN OPT tt_skt_attr_t *new_attr,
-                               OUT OPT tt_sktaddr_t *addr);
-
-extern tt_result_t tt_skt_connect(IN tt_skt_t *skt, IN tt_sktaddr_t *addr);
-
-extern tt_result_t tt_skt_connect_n(IN tt_skt_t *skt,
+tt_export tt_result_t tt_skt_bind_n(IN tt_skt_t *skt,
                                     IN tt_net_family_t family,
                                     IN tt_sktaddr_ip_t *ip,
                                     IN tt_u16_t port);
 
-extern tt_result_t tt_skt_connect_p(IN tt_skt_t *skt,
+tt_export tt_result_t tt_skt_bind_p(IN tt_skt_t *skt,
                                     IN tt_net_family_t family,
                                     IN const tt_char_t *ip_str,
                                     IN tt_u16_t port);
+
+tt_export tt_result_t tt_skt_listen(IN tt_skt_t *skt);
+
+// this function does not guarantee that the new socket would inherite
+// attributes of listening_skt, although os may do some about it). caller
+// should explicitly set options by api defined in tt_socket_option.h
+tt_export tt_skt_t *tt_skt_accept(IN tt_skt_t *skt,
+                                  IN OPT tt_skt_attr_t *new_attr,
+                                  OUT OPT tt_sktaddr_t *addr);
+
+tt_export tt_result_t tt_skt_connect(IN tt_skt_t *skt, IN tt_sktaddr_t *addr);
+
+tt_export tt_result_t tt_skt_connect_n(IN tt_skt_t *skt,
+                                       IN tt_net_family_t family,
+                                       IN tt_sktaddr_ip_t *ip,
+                                       IN tt_u16_t port);
+
+tt_export tt_result_t tt_skt_connect_p(IN tt_skt_t *skt,
+                                       IN tt_net_family_t family,
+                                       IN const tt_char_t *ip_str,
+                                       IN tt_u16_t port);
 
 /**
 @fn tt_result_t tt_skt_send(IN tt_skt_t *skt,
@@ -202,28 +202,30 @@ tt_inline tt_result_t tt_skt_sendto(IN tt_skt_t *skt,
     }
 }
 
-extern tt_result_t tt_skt_local_addr(IN tt_skt_t *skt, IN tt_sktaddr_t *addr);
+tt_export tt_result_t tt_skt_local_addr(IN tt_skt_t *skt,
+                                        IN tt_sktaddr_t *addr);
 
-extern tt_result_t tt_skt_remote_addr(IN tt_skt_t *skt, IN tt_sktaddr_t *addr);
+tt_export tt_result_t tt_skt_remote_addr(IN tt_skt_t *skt,
+                                         IN tt_sktaddr_t *addr);
 
-extern void tt_skt_stat_inc_num();
+tt_export void tt_skt_stat_inc_num();
 
-extern void tt_skt_stat_dec_num();
+tt_export void tt_skt_stat_dec_num();
 
 // ========================================
 // multicast
 // ========================================
 
 // must bind to address to receive multicast packets
-extern tt_result_t tt_skt_join_mcast(IN tt_skt_t *skt,
-                                     IN tt_net_family_t family,
-                                     IN tt_sktaddr_ip_t *ip,
-                                     IN OPT const tt_char_t *itf);
+tt_export tt_result_t tt_skt_join_mcast(IN tt_skt_t *skt,
+                                        IN tt_net_family_t family,
+                                        IN tt_sktaddr_ip_t *ip,
+                                        IN OPT const tt_char_t *itf);
 
-extern tt_result_t tt_skt_leave_mcast(IN tt_skt_t *skt,
-                                      IN tt_net_family_t family,
-                                      IN tt_sktaddr_ip_t *ip,
-                                      IN OPT const tt_char_t *itf);
+tt_export tt_result_t tt_skt_leave_mcast(IN tt_skt_t *skt,
+                                         IN tt_net_family_t family,
+                                         IN tt_sktaddr_ip_t *ip,
+                                         IN OPT const tt_char_t *itf);
 
 // ========================================
 // server
@@ -231,22 +233,22 @@ extern tt_result_t tt_skt_leave_mcast(IN tt_skt_t *skt,
 
 // - use tt_skt_destroy() to destroy created server socket
 // - created socket could be passed to tt_skt_accept()
-extern tt_skt_t *tt_tcp_server(IN tt_net_family_t family,
-                               IN OPT tt_skt_attr_t *attr,
-                               IN tt_sktaddr_t *addr);
+tt_export tt_skt_t *tt_tcp_server(IN tt_net_family_t family,
+                                  IN OPT tt_skt_attr_t *attr,
+                                  IN tt_sktaddr_t *addr);
 
-extern tt_skt_t *tt_tcp_server_p(IN tt_net_family_t family,
-                                 IN OPT tt_skt_attr_t *attr,
-                                 IN const tt_char_t *ip_str,
-                                 IN tt_u16_t port);
+tt_export tt_skt_t *tt_tcp_server_p(IN tt_net_family_t family,
+                                    IN OPT tt_skt_attr_t *attr,
+                                    IN const tt_char_t *ip_str,
+                                    IN tt_u16_t port);
 
-extern tt_skt_t *tt_udp_server(IN tt_net_family_t family,
-                               IN OPT tt_skt_attr_t *attr,
-                               IN tt_sktaddr_t *addr);
+tt_export tt_skt_t *tt_udp_server(IN tt_net_family_t family,
+                                  IN OPT tt_skt_attr_t *attr,
+                                  IN tt_sktaddr_t *addr);
 
-extern tt_skt_t *tt_udp_server_p(IN tt_net_family_t family,
-                                 IN OPT tt_skt_attr_t *attr,
-                                 IN const tt_char_t *ip_str,
-                                 IN tt_u16_t port);
+tt_export tt_skt_t *tt_udp_server_p(IN tt_net_family_t family,
+                                    IN OPT tt_skt_attr_t *attr,
+                                    IN const tt_char_t *ip_str,
+                                    IN tt_u16_t port);
 
 #endif // __TT_SOCKET__

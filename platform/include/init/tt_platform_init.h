@@ -46,6 +46,6 @@ this file specifies interfaces for platform initialization.
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern tt_result_t tt_platform_init(IN OPT const tt_char_t *profile_path);
+tt_export tt_result_t tt_platform_init(IN OPT const tt_char_t *profile_path);
 
 #endif /* __TT_PLATFORM_INIT__ */

@@ -65,11 +65,11 @@ typedef struct tt_rng_s
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern void tt_rng_component_register();
+tt_export void tt_rng_component_register();
 
-extern tt_rng_t *tt_rng_create(IN tt_u32_t size, IN tt_rng_itf_t *itf);
+tt_export tt_rng_t *tt_rng_create(IN tt_u32_t size, IN tt_rng_itf_t *itf);
 
-extern void tt_rng_destroy(IN tt_rng_t *rng);
+tt_export void tt_rng_destroy(IN tt_rng_t *rng);
 
 tt_inline tt_u64_t tt_rng_u64(IN tt_rng_t *rng)
 {

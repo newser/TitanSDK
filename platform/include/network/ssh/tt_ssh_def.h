@@ -124,7 +124,7 @@ typedef enum {
     (((a) >= TT_SSH_KEX_ALG_RSA1024_SHA1) &&                                   \
      ((a) <= TT_SSH_KEX_ALG_RSA2048_SHA256))
 
-extern const tt_char_t *tt_g_ssh_kex_alg_name[TT_SSH_KEX_ALG_NUM];
+tt_export const tt_char_t *tt_g_ssh_kex_alg_name[TT_SSH_KEX_ALG_NUM];
 
 // HASH
 typedef enum {
@@ -147,9 +147,9 @@ typedef enum {
 } tt_ssh_pubkey_alg_t;
 #define TT_SSH_PUBKEY_ALG_VALID(a) ((a) < TT_SSH_PUBKEY_ALG_NUM)
 
-extern const tt_char_t *tt_g_ssh_pubkey_alg_name[TT_SSH_PUBKEY_ALG_NUM];
+tt_export const tt_char_t *tt_g_ssh_pubkey_alg_name[TT_SSH_PUBKEY_ALG_NUM];
 
-extern tt_ssh_pubkey_alg_t tt_ssh_pubkey_alg_match(IN tt_u8_t *name,
+tt_export tt_ssh_pubkey_alg_t tt_ssh_pubkey_alg_match(IN tt_u8_t *name,
                                                    IN tt_u32_t name_len);
 
 // ========================================
@@ -164,9 +164,9 @@ typedef enum {
 } tt_ssh_enc_alg_t;
 #define TT_SSH_ENC_ALG_VALID(a) ((a) < TT_SSH_ENC_ALG_NUM)
 
-extern const tt_char_t *tt_g_ssh_enc_alg_name[TT_SSH_ENC_ALG_NUM];
+tt_export const tt_char_t *tt_g_ssh_enc_alg_name[TT_SSH_ENC_ALG_NUM];
 
-extern tt_ssh_enc_alg_t tt_ssh_enc_alg_match(IN tt_u8_t *name,
+tt_export tt_ssh_enc_alg_t tt_ssh_enc_alg_match(IN tt_u8_t *name,
                                              IN tt_u32_t name_len);
 
 // ========================================
@@ -180,9 +180,9 @@ typedef enum {
 } tt_ssh_mac_alg_t;
 #define TT_SSH_MAC_ALG_VALID(a) ((a) < TT_SSH_MAC_ALG_NUM)
 
-extern const tt_char_t *tt_g_ssh_mac_alg_name[TT_SSH_MAC_ALG_NUM];
+tt_export const tt_char_t *tt_g_ssh_mac_alg_name[TT_SSH_MAC_ALG_NUM];
 
-extern tt_ssh_mac_alg_t tt_ssh_mac_alg_match(IN tt_u8_t *name,
+tt_export tt_ssh_mac_alg_t tt_ssh_mac_alg_match(IN tt_u8_t *name,
                                              IN tt_u32_t name_len);
 
 // ========================================
@@ -197,9 +197,9 @@ typedef enum {
 } tt_ssh_cmprs_alg_t;
 #define TT_SSH_CMPRS_ALG_VALID(a) ((a) < TT_SSH_MAC_ALG_NUM)
 
-extern const tt_char_t *tt_g_ssh_cmprs_alg_name[TT_SSH_CMPRS_ALG_NUM];
+tt_export const tt_char_t *tt_g_ssh_cmprs_alg_name[TT_SSH_CMPRS_ALG_NUM];
 
-extern tt_ssh_cmprs_alg_t tt_ssh_cmprs_alg_match(IN tt_u8_t *name,
+tt_export tt_ssh_cmprs_alg_t tt_ssh_cmprs_alg_match(IN tt_u8_t *name,
                                                  IN tt_u32_t name_len);
 
 // ========================================
@@ -214,9 +214,9 @@ typedef enum {
 } tt_ssh_service_t;
 #define TT_SSH_SERVICE_VALID(s) ((s) < TT_SSH_SERVICE_NUM)
 
-extern const tt_char_t *tt_g_ssh_serv_name[TT_SSH_SERVICE_NUM];
+tt_export const tt_char_t *tt_g_ssh_serv_name[TT_SSH_SERVICE_NUM];
 
-extern tt_ssh_service_t tt_ssh_serv_match(IN tt_u8_t *name,
+tt_export tt_ssh_service_t tt_ssh_serv_match(IN tt_u8_t *name,
                                           IN tt_u32_t name_len);
 
 // ========================================
@@ -233,9 +233,9 @@ typedef enum {
 } tt_ssh_auth_t;
 #define TT_SSH_AUTH_VALID(s) ((s) < TT_SSH_AUTH_NUM)
 
-extern const tt_char_t *tt_g_ssh_auth_name[TT_SSH_AUTH_NUM];
+tt_export const tt_char_t *tt_g_ssh_auth_name[TT_SSH_AUTH_NUM];
 
-extern tt_ssh_auth_t tt_ssh_auth_match(IN tt_u8_t *name, IN tt_u32_t name_len);
+tt_export tt_ssh_auth_t tt_ssh_auth_match(IN tt_u8_t *name, IN tt_u32_t name_len);
 
 // ========================================
 // Channel
@@ -251,9 +251,9 @@ typedef enum {
 } tt_ssh_chtype_t;
 #define TT_SSH_CHTYPE_VALID(s) ((s) < TT_SSH_CHTYPE_NUM)
 
-extern const tt_char_t *tt_g_ssh_chtype_name[TT_SSH_CHTYPE_NUM];
+tt_export const tt_char_t *tt_g_ssh_chtype_name[TT_SSH_CHTYPE_NUM];
 
-extern tt_ssh_chtype_t tt_ssh_chtype_match(IN tt_u8_t *name,
+tt_export tt_ssh_chtype_t tt_ssh_chtype_match(IN tt_u8_t *name,
                                            IN tt_u32_t name_len);
 
 typedef enum {
@@ -273,50 +273,50 @@ typedef enum {
 } tt_ssh_chreqtype_t;
 #define TT_SSH_CHREQTYPE_VALID(s) ((s) < TT_SSH_CHREQTYPE_NUM)
 
-extern const tt_char_t *tt_g_ssh_chreqtype_name[TT_SSH_CHREQTYPE_NUM];
+tt_export const tt_char_t *tt_g_ssh_chreqtype_name[TT_SSH_CHREQTYPE_NUM];
 
-extern tt_ssh_chreqtype_t tt_ssh_chreqtype_match(IN tt_u8_t *name,
+tt_export tt_ssh_chreqtype_t tt_ssh_chreqtype_match(IN tt_u8_t *name,
                                                  IN tt_u32_t name_len);
 
 ////////////////////////////////////////////////////////////
 // global variants
 ////////////////////////////////////////////////////////////
 
-extern tt_ssh_kex_alg_t tt_g_ssh_kex_pref[];
-extern tt_u32_t tt_g_ssh_kex_pref_num;
+tt_export tt_ssh_kex_alg_t tt_g_ssh_kex_pref[];
+tt_export tt_u32_t tt_g_ssh_kex_pref_num;
 
-extern tt_ssh_pubkey_alg_t tt_g_ssh_pubkey_pref[];
-extern tt_u32_t tt_g_ssh_pubkey_pref_num;
+tt_export tt_ssh_pubkey_alg_t tt_g_ssh_pubkey_pref[];
+tt_export tt_u32_t tt_g_ssh_pubkey_pref_num;
 
-extern tt_ssh_enc_alg_t tt_g_ssh_enc_c2s_pref[];
-extern tt_u32_t tt_g_ssh_enc_c2s_pref_num;
+tt_export tt_ssh_enc_alg_t tt_g_ssh_enc_c2s_pref[];
+tt_export tt_u32_t tt_g_ssh_enc_c2s_pref_num;
 
-extern tt_ssh_enc_alg_t tt_g_ssh_enc_s2c_pref[];
-extern tt_u32_t tt_g_ssh_enc_s2c_pref_num;
+tt_export tt_ssh_enc_alg_t tt_g_ssh_enc_s2c_pref[];
+tt_export tt_u32_t tt_g_ssh_enc_s2c_pref_num;
 
-extern tt_ssh_mac_alg_t tt_g_ssh_mac_c2s_pref[];
-extern tt_u32_t tt_g_ssh_mac_c2s_pref_num;
+tt_export tt_ssh_mac_alg_t tt_g_ssh_mac_c2s_pref[];
+tt_export tt_u32_t tt_g_ssh_mac_c2s_pref_num;
 
-extern tt_ssh_mac_alg_t tt_g_ssh_mac_s2c_pref[];
-extern tt_u32_t tt_g_ssh_mac_s2c_pref_num;
+tt_export tt_ssh_mac_alg_t tt_g_ssh_mac_s2c_pref[];
+tt_export tt_u32_t tt_g_ssh_mac_s2c_pref_num;
 
-extern tt_ssh_cmprs_alg_t tt_g_ssh_cmprs_c2s_pref[];
-extern tt_u32_t tt_g_ssh_cmprs_c2s_pref_num;
+tt_export tt_ssh_cmprs_alg_t tt_g_ssh_cmprs_c2s_pref[];
+tt_export tt_u32_t tt_g_ssh_cmprs_c2s_pref_num;
 
-extern tt_ssh_cmprs_alg_t tt_g_ssh_cmprs_s2c_pref[];
-extern tt_u32_t tt_g_ssh_cmprs_s2c_pref_num;
+tt_export tt_ssh_cmprs_alg_t tt_g_ssh_cmprs_s2c_pref[];
+tt_export tt_u32_t tt_g_ssh_cmprs_s2c_pref_num;
 
 ////////////////////////////////////////////////////////////
 // interface declaration
 ////////////////////////////////////////////////////////////
 
 // return 0 for unknown enc_alg
-extern tt_u32_t tt_ssh_enc_iv_len(IN tt_ssh_enc_alg_t enc_alg);
+tt_export tt_u32_t tt_ssh_enc_iv_len(IN tt_ssh_enc_alg_t enc_alg);
 
 // return 0 for unknown enc_alg
-extern tt_u32_t tt_ssh_enc_key_len(IN tt_ssh_enc_alg_t enc_alg);
+tt_export tt_u32_t tt_ssh_enc_key_len(IN tt_ssh_enc_alg_t enc_alg);
 
 // return 0 for unknown mac_alg
-extern tt_u32_t tt_ssh_mac_key_len(IN tt_ssh_mac_alg_t mac_alg);
+tt_export tt_u32_t tt_ssh_mac_key_len(IN tt_ssh_mac_alg_t mac_alg);
 
 #endif /* __TT_SSH_DEF__ */

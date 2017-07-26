@@ -54,14 +54,14 @@ typedef struct tt_io_poller_s
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern void tt_io_poller_component_register();
+tt_export void tt_io_poller_component_register();
 
-extern tt_result_t tt_io_poller_create(IN tt_io_poller_t *iop,
-                                       IN OPT tt_io_poller_attr_t *attr);
+tt_export tt_result_t tt_io_poller_create(IN tt_io_poller_t *iop,
+                                          IN OPT tt_io_poller_attr_t *attr);
 
-extern void tt_io_poller_destroy(IN tt_io_poller_t *iop);
+tt_export void tt_io_poller_destroy(IN tt_io_poller_t *iop);
 
-extern void tt_io_poller_attr_default(IN tt_io_poller_attr_t *attr);
+tt_export void tt_io_poller_attr_default(IN tt_io_poller_attr_t *attr);
 
 tt_inline tt_bool_t tt_io_poller_run(IN tt_io_poller_t *iop,
                                      IN tt_s64_t wait_ms)

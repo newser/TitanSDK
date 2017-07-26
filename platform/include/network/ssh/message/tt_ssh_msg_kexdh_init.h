@@ -51,6 +51,6 @@ typedef struct
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern struct tt_sshmsg_s *tt_sshmsg_kexdh_init_create();
+tt_export struct tt_sshmsg_s *tt_sshmsg_kexdh_init_create();
 
 #endif /* __TT_SSH_MSGID_KEXDH_INIT__ */

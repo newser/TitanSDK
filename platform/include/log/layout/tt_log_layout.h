@@ -71,9 +71,10 @@ typedef struct tt_loglyt_s
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern tt_loglyt_t *tt_loglyt_create(IN tt_u32_t size, IN tt_loglyt_itf_t *itf);
+tt_export tt_loglyt_t *tt_loglyt_create(IN tt_u32_t size,
+                                        IN tt_loglyt_itf_t *itf);
 
-extern void tt_loglyt_destroy(IN tt_loglyt_t *ll);
+tt_export void tt_loglyt_destroy(IN tt_loglyt_t *ll);
 
 tt_inline tt_result_t tt_loglyt_format(IN tt_loglyt_t *ll,
                                        IN tt_log_entry_t *entry,

@@ -58,15 +58,15 @@ typedef struct
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern struct tt_sshmsg_s *tt_sshmsg_chopf_create();
+tt_export struct tt_sshmsg_s *tt_sshmsg_chopf_create();
 
-extern void tt_sshmsg_chopf_set_rcvchnum(IN struct tt_sshmsg_s *msg,
+tt_export void tt_sshmsg_chopf_set_rcvchnum(IN struct tt_sshmsg_s *msg,
                                          IN tt_u32_t rcv_chnum);
 
-extern void tt_sshmsg_chopf_set_reason(IN struct tt_sshmsg_s *msg,
+tt_export void tt_sshmsg_chopf_set_reason(IN struct tt_sshmsg_s *msg,
                                        IN tt_u32_t reason_code);
 
-extern tt_result_t tt_sshmsg_chopf_set_desc(IN struct tt_sshmsg_s *msg,
+tt_export tt_result_t tt_sshmsg_chopf_set_desc(IN struct tt_sshmsg_s *msg,
                                             IN const tt_char_t *desc);
 
 #endif /* __TT_SSH_MSGID_CHANNEL_OPEN_FAILURE__ */

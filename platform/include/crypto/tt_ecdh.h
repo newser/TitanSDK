@@ -56,34 +56,34 @@ typedef struct
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern void tt_ecdh_init(IN tt_ecdh_t *ecdh);
+tt_export void tt_ecdh_init(IN tt_ecdh_t *ecdh);
 
-extern void tt_ecdh_destroy(IN tt_ecdh_t *ecdh);
+tt_export void tt_ecdh_destroy(IN tt_ecdh_t *ecdh);
 
-extern tt_result_t tt_ecdh_load(IN tt_ecdh_t *ecdh, IN struct tt_pk_s *pk);
+tt_export tt_result_t tt_ecdh_load(IN tt_ecdh_t *ecdh, IN struct tt_pk_s *pk);
 
-extern tt_result_t tt_ecdh_generate(IN tt_ecdh_t *ecdh, IN tt_ecgrp_t g);
+tt_export tt_result_t tt_ecdh_generate(IN tt_ecdh_t *ecdh, IN tt_ecgrp_t g);
 
 // with compress true, len should be at least (group size+1): 33 for
 // TT_ECGRP_SECP256K1
 // with compress true, len should be at least (2*group size+1): 65 for
 // TT_ECGRP_SECP256K1
-extern tt_result_t tt_ecdh_get_pub(IN tt_ecdh_t *ecdh,
-                                   IN tt_bool_t local,
-                                   IN tt_bool_t compress,
-                                   OUT tt_u8_t *pub,
-                                   IN OUT tt_u32_t *len);
+tt_export tt_result_t tt_ecdh_get_pub(IN tt_ecdh_t *ecdh,
+                                      IN tt_bool_t local,
+                                      IN tt_bool_t compress,
+                                      OUT tt_u8_t *pub,
+                                      IN OUT tt_u32_t *len);
 
-extern tt_result_t tt_ecdh_set_pub(IN tt_ecdh_t *ecdh,
-                                   IN tt_bool_t local,
-                                   IN tt_u8_t *pub,
-                                   IN tt_u32_t len);
+tt_export tt_result_t tt_ecdh_set_pub(IN tt_ecdh_t *ecdh,
+                                      IN tt_bool_t local,
+                                      IN tt_u8_t *pub,
+                                      IN tt_u32_t len);
 
-extern tt_result_t tt_ecdh_derive(IN tt_ecdh_t *ecdh);
+tt_export tt_result_t tt_ecdh_derive(IN tt_ecdh_t *ecdh);
 
 // length should be at least group size: 32 for TT_ECGRP_SECP256K1
-extern tt_result_t tt_ecdh_get_secret(IN tt_ecdh_t *ecdh,
-                                      OUT tt_u8_t *secret,
-                                      IN tt_u32_t len);
+tt_export tt_result_t tt_ecdh_get_secret(IN tt_ecdh_t *ecdh,
+                                         OUT tt_u8_t *secret,
+                                         IN tt_u32_t len);
 
 #endif

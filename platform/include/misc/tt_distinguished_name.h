@@ -74,12 +74,12 @@ typedef struct tt_distname_s
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern void tt_distname_init(IN tt_distname_t *dn);
+tt_export void tt_distname_init(IN tt_distname_t *dn);
 
-extern void tt_distname_destroy(IN tt_distname_t *dn);
+tt_export void tt_distname_destroy(IN tt_distname_t *dn);
 
-extern tt_result_t tt_distname_add_rdn(IN tt_distname_t *dn,
-                                       IN tt_rdn_type_t type,
-                                       IN const tt_char_t *value);
+tt_export tt_result_t tt_distname_add_rdn(IN tt_distname_t *dn,
+                                          IN tt_rdn_type_t type,
+                                          IN const tt_char_t *value);
 
 #endif // __TT_DISTINGUSHED_NAME__

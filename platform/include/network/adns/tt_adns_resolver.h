@@ -84,18 +84,18 @@ typedef struct tt_adns_resolver_s
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern tt_result_t tt_adns_resolver_create(IN tt_adns_resolver_t *res,
+tt_export tt_result_t tt_adns_resolver_create(IN tt_adns_resolver_t *res,
                                            IN struct tt_adns_dmgr_s *dmgr,
                                            IN tt_netaddr_t *addr,
                                            IN OPT
                                                tt_adns_resolver_attr_t *attr);
 
 // this function would destroy socket brutely
-extern void tt_adns_resolver_destroy(IN tt_adns_resolver_t *res);
+tt_export void tt_adns_resolver_destroy(IN tt_adns_resolver_t *res);
 
-extern void tt_adns_resolver_attr_default(IN tt_adns_resolver_attr_t *attr);
+tt_export void tt_adns_resolver_attr_default(IN tt_adns_resolver_attr_t *attr);
 
-extern void tt_adns_resolver_send(IN tt_adns_resolver_t *res,
+tt_export void tt_adns_resolver_send(IN tt_adns_resolver_t *res,
                                   IN struct tt_adns_pkt_s *pkt);
 
 #endif /* __TT_ADNS_RESOLVER__ */

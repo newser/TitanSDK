@@ -68,13 +68,13 @@ typedef struct tt_logmgr_s
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern tt_result_t tt_logmgr_create(IN tt_logmgr_t *lmgr,
-                                    IN const tt_char_t *logger,
-                                    IN OPT tt_logmgr_attr_t *attr);
+tt_export tt_result_t tt_logmgr_create(IN tt_logmgr_t *lmgr,
+                                       IN const tt_char_t *logger,
+                                       IN OPT tt_logmgr_attr_t *attr);
 
-extern void tt_logmgr_destroy(IN tt_logmgr_t *lmgr);
+tt_export void tt_logmgr_destroy(IN tt_logmgr_t *lmgr);
 
-extern void tt_logmgr_attr_default(IN tt_logmgr_attr_t *attr);
+tt_export void tt_logmgr_attr_default(IN tt_logmgr_attr_t *attr);
 
 // set level to TT_LOG_LEVEL_NUM to disable all
 tt_inline tt_result_t tt_logmgr_set_level(IN tt_logmgr_t *lmgr,
@@ -89,26 +89,26 @@ tt_inline tt_result_t tt_logmgr_set_level(IN tt_logmgr_t *lmgr,
 }
 
 // set level to TT_LOG_LEVEL_NUM to set all
-extern void tt_logmgr_set_layout(IN tt_logmgr_t *lmgr,
-                                 IN tt_log_level_t level,
-                                 IN struct tt_loglyt_s *lyt);
-
-// set level to TT_LOG_LEVEL_NUM to set all
-extern tt_result_t tt_logmgr_append_filter(IN tt_logmgr_t *lmgr,
-                                           IN tt_log_level_t level,
-                                           IN tt_log_filter_t filter);
-
-// set level to TT_LOG_LEVEL_NUM to set all
-extern tt_result_t tt_logmgr_append_io(IN tt_logmgr_t *lmgr,
-                                       IN tt_log_level_t level,
-                                       IN struct tt_logio_s *lio);
-
-extern tt_result_t tt_logmgr_inputv(IN tt_logmgr_t *lmgr,
+tt_export void tt_logmgr_set_layout(IN tt_logmgr_t *lmgr,
                                     IN tt_log_level_t level,
-                                    IN const tt_char_t *func,
-                                    IN tt_u32_t line,
-                                    IN const tt_char_t *format,
-                                    IN va_list ap);
+                                    IN struct tt_loglyt_s *lyt);
+
+// set level to TT_LOG_LEVEL_NUM to set all
+tt_export tt_result_t tt_logmgr_append_filter(IN tt_logmgr_t *lmgr,
+                                              IN tt_log_level_t level,
+                                              IN tt_log_filter_t filter);
+
+// set level to TT_LOG_LEVEL_NUM to set all
+tt_export tt_result_t tt_logmgr_append_io(IN tt_logmgr_t *lmgr,
+                                          IN tt_log_level_t level,
+                                          IN struct tt_logio_s *lio);
+
+tt_export tt_result_t tt_logmgr_inputv(IN tt_logmgr_t *lmgr,
+                                       IN tt_log_level_t level,
+                                       IN const tt_char_t *func,
+                                       IN tt_u32_t line,
+                                       IN const tt_char_t *format,
+                                       IN va_list ap);
 
 tt_inline tt_result_t tt_logmgr_inputf(IN tt_logmgr_t *lmgr,
                                        IN tt_log_level_t level,

@@ -147,7 +147,7 @@ typedef struct
 @fn void tt_rwlock_component_register()
 register ts rwlock component
 */
-extern void tt_rwlock_component_register();
+tt_export void tt_rwlock_component_register();
 
 /**
 @fn tt_result_t tt_rwlock_create(IN tt_rwlock_t *rwlock,
@@ -161,8 +161,8 @@ create a rwlock
 - TT_SUCCESS, if the rwlock is created
 - TT_FAIL, otherwise
 */
-extern tt_result_t tt_rwlock_create(IN tt_rwlock_t *rwlock,
-                                    IN OPT tt_rwlock_attr_t *attr);
+tt_export tt_result_t tt_rwlock_create(IN tt_rwlock_t *rwlock,
+                                       IN OPT tt_rwlock_attr_t *attr);
 
 /**
 @fn void tt_rwlock_destroy(IN tt_rwlock_t *rwlock)
@@ -174,7 +174,7 @@ delete a rwlock
 - TT_SUCCESS, if the rwlock is destroyed
 - TT_FAIL, otherwise
 */
-extern void tt_rwlock_destroy(IN tt_rwlock_t *rwlock);
+tt_export void tt_rwlock_destroy(IN tt_rwlock_t *rwlock);
 
 /**
  @fn void tt_rwlock_attr_default(IN tt_rwlock_attr_t *attr)
@@ -182,7 +182,7 @@ extern void tt_rwlock_destroy(IN tt_rwlock_t *rwlock);
 
  @param [in] attr rwlock attribute
  */
-extern void tt_rwlock_attr_default(IN tt_rwlock_attr_t *attr);
+tt_export void tt_rwlock_attr_default(IN tt_rwlock_attr_t *attr);
 
 /**
 @fn void tt_rwlock_acquire_r_tag(IN tt_rwlock_t *rwlock)
@@ -196,7 +196,7 @@ tt_inline void tt_rwlock_acquire_r_tag(IN tt_rwlock_t *rwlock
                                        IN const tt_char_t *function,
                                        IN tt_u32_t line
 #endif
-                                       )
+)
 {
     tt_rwlock_acquire_r_ntv(&rwlock->sys_rwlock);
 }
@@ -220,7 +220,7 @@ tt_inline tt_result_t tt_rwlock_try_acquire_r_tag(IN tt_rwlock_t *rwlock
                                                   IN const tt_char_t *function,
                                                   IN tt_u32_t line
 #endif
-                                                  )
+)
 {
     return tt_rwlock_try_acquire_r_ntv(&rwlock->sys_rwlock);
 }
@@ -248,7 +248,7 @@ tt_inline void tt_rwlock_acquire_w_tag(IN tt_rwlock_t *rwlock
                                        IN const tt_char_t *function,
                                        IN tt_u32_t line
 #endif
-                                       )
+)
 {
     tt_rwlock_acquire_w_ntv(&rwlock->sys_rwlock);
 }
@@ -272,7 +272,7 @@ tt_inline tt_result_t tt_rwlock_try_acquire_w_tag(IN tt_rwlock_t *rwlock
                                                   IN const tt_char_t *function,
                                                   IN tt_u32_t line
 #endif
-                                                  )
+)
 {
     return tt_rwlock_try_acquire_w_ntv(&rwlock->sys_rwlock);
 }

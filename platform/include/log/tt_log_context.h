@@ -68,14 +68,14 @@ typedef struct
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern tt_result_t tt_logctx_create(IN tt_logctx_t *lctx,
-                                    IN tt_log_level_t level,
-                                    IN OPT struct tt_loglyt_s *lyt,
-                                    IN OPT tt_logctx_attr_t *attr);
+tt_export tt_result_t tt_logctx_create(IN tt_logctx_t *lctx,
+                                       IN tt_log_level_t level,
+                                       IN OPT struct tt_loglyt_s *lyt,
+                                       IN OPT tt_logctx_attr_t *attr);
 
-extern void tt_logctx_destroy(IN tt_logctx_t *lctx);
+tt_export void tt_logctx_destroy(IN tt_logctx_t *lctx);
 
-extern void tt_logctx_attr_default(IN tt_logctx_attr_t *attr);
+tt_export void tt_logctx_attr_default(IN tt_logctx_attr_t *attr);
 
 tt_inline void tt_logctx_set_layout(IN tt_logctx_t *lctx,
                                     IN struct tt_loglyt_s *lyt)
@@ -83,13 +83,13 @@ tt_inline void tt_logctx_set_layout(IN tt_logctx_t *lctx,
     lctx->lyt = lyt;
 }
 
-extern tt_result_t tt_logctx_append_filter(IN tt_logctx_t *lctx,
-                                           IN tt_log_filter_t filter);
+tt_export tt_result_t tt_logctx_append_filter(IN tt_logctx_t *lctx,
+                                              IN tt_log_filter_t filter);
 
-extern tt_result_t tt_logctx_append_io(IN tt_logctx_t *lctx,
-                                       IN struct tt_logio_s *lio);
+tt_export tt_result_t tt_logctx_append_io(IN tt_logctx_t *lctx,
+                                          IN struct tt_logio_s *lio);
 
-extern tt_result_t tt_logctx_input(IN tt_logctx_t *lctx,
-                                   IN tt_log_entry_t *entry);
+tt_export tt_result_t tt_logctx_input(IN tt_logctx_t *lctx,
+                                      IN tt_log_entry_t *entry);
 
 #endif /* __TT_LOG_CONTEXT__ */

@@ -101,7 +101,7 @@ typedef struct tt_mutex_s
 @fn void tt_mutex_component_register()
 register ts mutex component
 */
-extern void tt_mutex_component_register();
+tt_export void tt_mutex_component_register();
 
 /**
 @fn tt_result_t tt_mutex_create(IN tt_mutex_t *mutex,
@@ -115,8 +115,8 @@ create a mutex
 - TT_SUCCESS, if the mutex is created
 - TT_FAIL, otherwise
 */
-extern tt_result_t tt_mutex_create(IN tt_mutex_t *mutex,
-                                   IN tt_mutex_attr_t *attr);
+tt_export tt_result_t tt_mutex_create(IN tt_mutex_t *mutex,
+                                      IN tt_mutex_attr_t *attr);
 
 /**
 @fn void tt_mutex_destroy(IN tt_mutex_t *mutex)
@@ -124,7 +124,7 @@ delete a mutex
 
 @param [in] mutex the mutex to be deleted
 */
-extern void tt_mutex_destroy(IN tt_mutex_t *mutex);
+tt_export void tt_mutex_destroy(IN tt_mutex_t *mutex);
 
 /**
  @fn void tt_mutex_attr_default(IN tt_mutex_attr_t *attr)
@@ -146,7 +146,7 @@ tt_inline void tt_mutex_acquire_tag(IN tt_mutex_t *mutex
                                     IN const tt_char_t *function,
                                     IN tt_u32_t line
 #endif
-                                    )
+)
 {
     tt_mutex_acquire_ntv(&mutex->sys_mutex);
 }
@@ -167,7 +167,7 @@ tt_inline tt_result_t tt_mutex_try_acquire_tag(IN tt_mutex_t *mutex
                                                IN const tt_char_t *function,
                                                IN tt_u32_t line
 #endif
-                                               )
+)
 {
     return tt_mutex_try_acquire_ntv(&mutex->sys_mutex);
 }

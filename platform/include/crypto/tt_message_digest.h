@@ -70,15 +70,15 @@ typedef struct
 // global variants
 ////////////////////////////////////////////////////////////
 
-extern mbedtls_md_type_t tt_g_md_type_map[TT_MD_TYPE_NUM];
+tt_export mbedtls_md_type_t tt_g_md_type_map[TT_MD_TYPE_NUM];
 
 ////////////////////////////////////////////////////////////
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern tt_result_t tt_md_create(IN tt_md_t *md, IN tt_md_type_t type);
+tt_export tt_result_t tt_md_create(IN tt_md_t *md, IN tt_md_type_t type);
 
-extern void tt_md_destroy(IN tt_md_t *md);
+tt_export void tt_md_destroy(IN tt_md_t *md);
 
 tt_inline tt_u32_t tt_md_size(IN tt_md_t *md)
 {
@@ -107,7 +107,8 @@ tt_inline tt_result_t tt_md_final(IN tt_md_t *md, OUT tt_u8_t *output)
     }
 }
 
-extern tt_result_t tt_md_final_buf(IN tt_md_t *md, OUT struct tt_buf_s *output);
+tt_export tt_result_t tt_md_final_buf(IN tt_md_t *md,
+                                      OUT struct tt_buf_s *output);
 
 tt_inline tt_result_t tt_md_reset(IN tt_md_t *md)
 {
@@ -119,10 +120,10 @@ tt_inline tt_result_t tt_md_reset(IN tt_md_t *md)
     }
 }
 
-extern tt_result_t tt_md_gather(IN tt_md_type_t type,
-                                IN tt_blob_t *input,
-                                IN tt_u32_t input_num,
-                                OUT tt_u8_t *output);
+tt_export tt_result_t tt_md_gather(IN tt_md_type_t type,
+                                   IN tt_blob_t *input,
+                                   IN tt_u32_t input_num,
+                                   OUT tt_u8_t *output);
 
 tt_inline tt_result_t tt_md(IN tt_md_type_t type,
                             IN tt_u8_t *input,

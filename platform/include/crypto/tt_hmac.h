@@ -71,12 +71,12 @@ typedef struct
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern tt_result_t tt_hmac_create(IN tt_hmac_t *hm,
-                                  IN tt_hmac_type_t type,
-                                  IN tt_u8_t *key,
-                                  IN tt_u32_t key_len);
+tt_export tt_result_t tt_hmac_create(IN tt_hmac_t *hm,
+                                     IN tt_hmac_type_t type,
+                                     IN tt_u8_t *key,
+                                     IN tt_u32_t key_len);
 
-extern void tt_hmac_destroy(IN tt_hmac_t *hm);
+tt_export void tt_hmac_destroy(IN tt_hmac_t *hm);
 
 tt_inline tt_u32_t tt_hmac_size(IN tt_hmac_t *hm)
 {
@@ -105,8 +105,8 @@ tt_inline tt_result_t tt_hmac_final(IN tt_hmac_t *hm, OUT tt_u8_t *output)
     }
 }
 
-extern tt_result_t tt_hmac_final_buf(IN tt_hmac_t *hm,
-                                     OUT struct tt_buf_s *output);
+tt_export tt_result_t tt_hmac_final_buf(IN tt_hmac_t *hm,
+                                        OUT struct tt_buf_s *output);
 
 tt_inline tt_result_t tt_hmac_reset(IN tt_hmac_t *hm)
 {
@@ -118,12 +118,12 @@ tt_inline tt_result_t tt_hmac_reset(IN tt_hmac_t *hm)
     }
 }
 
-extern tt_result_t tt_hmac_gather(IN tt_hmac_type_t type,
-                                  IN tt_u8_t *key,
-                                  IN tt_u32_t key_len,
-                                  IN tt_blob_t *input,
-                                  IN tt_u32_t input_num,
-                                  OUT tt_u8_t *output);
+tt_export tt_result_t tt_hmac_gather(IN tt_hmac_type_t type,
+                                     IN tt_u8_t *key,
+                                     IN tt_u32_t key_len,
+                                     IN tt_blob_t *input,
+                                     IN tt_u32_t input_num,
+                                     OUT tt_u8_t *output);
 
 tt_inline tt_result_t tt_hmac(IN tt_hmac_type_t type,
                               IN tt_u8_t *key,

@@ -71,14 +71,14 @@ typedef struct tt_sshchmgr_s
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern tt_result_t tt_sshchmgr_send(IN tt_sshchmgr_t *chmgr,
+tt_export tt_result_t tt_sshchmgr_send(IN tt_sshchmgr_t *chmgr,
                                     IN struct tt_sshmsg_s *msg);
 
-extern tt_result_t tt_sshchmgr_extra_size(IN struct tt_sshchmgr_s *chmgr,
+tt_export tt_result_t tt_sshchmgr_extra_size(IN struct tt_sshchmgr_s *chmgr,
                                           OUT tt_u32_t *head_mac,
                                           OUT tt_u32_t *block_size);
 
-extern void tt_sshchmgr_on_ch_destroy(IN tt_sshchmgr_t *chmgr,
+tt_export void tt_sshchmgr_on_ch_destroy(IN tt_sshchmgr_t *chmgr,
                                       IN struct tt_sshch_s *ch);
 
 #endif /* __TT_SSH_CHANNEL_MANAGER__ */

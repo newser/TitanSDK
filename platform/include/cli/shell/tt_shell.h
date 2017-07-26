@@ -78,23 +78,23 @@ typedef struct tt_sh_s
 // global variants
 ////////////////////////////////////////////////////////////
 
-extern const tt_char_t tt_g_sh_line_sep[2];
+tt_export const tt_char_t tt_g_sh_line_sep[2];
 
-extern const tt_char_t tt_g_sh_colume_sep[5];
+tt_export const tt_char_t tt_g_sh_colume_sep[5];
 
 ////////////////////////////////////////////////////////////
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern tt_result_t tt_sh_create(IN tt_shell_t *sh,
-                                IN tt_cfgobj_t *root,
-                                IN tt_cli_mode_t mode,
-                                IN tt_cli_itf_t *itf,
-                                IN OPT tt_sh_attr_t *attr);
+tt_export tt_result_t tt_sh_create(IN tt_shell_t *sh,
+                                   IN tt_cfgobj_t *root,
+                                   IN tt_cli_mode_t mode,
+                                   IN tt_cli_itf_t *itf,
+                                   IN OPT tt_sh_attr_t *attr);
 
-extern void tt_sh_destroy(IN tt_shell_t *sh);
+tt_export void tt_sh_destroy(IN tt_shell_t *sh);
 
-extern void tt_sh_attr_default(IN tt_sh_attr_t *attr);
+tt_export void tt_sh_attr_default(IN tt_sh_attr_t *attr);
 
 tt_inline tt_result_t tt_sh_start(IN tt_shell_t *sh)
 {

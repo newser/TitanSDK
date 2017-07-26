@@ -109,7 +109,7 @@ typedef struct tt_slab_s
 @fn void tt_slab_component_register()
 register ts mempnc slab system
 */
-extern void tt_slab_component_register();
+tt_export void tt_slab_component_register();
 
 /**
 @fn tt_result_t tt_slab_create(IN tt_slab_t *slab,
@@ -127,9 +127,9 @@ create a slab
 - TT_SUCCESS, if creating succeeds
 - TT_FAIL, otherwise
 */
-extern tt_result_t tt_slab_create(IN tt_slab_t *slab,
-                                  IN tt_u32_t obj_size,
-                                  IN OPT tt_slab_attr_t *attr);
+tt_export tt_result_t tt_slab_create(IN tt_slab_t *slab,
+                                     IN tt_u32_t obj_size,
+                                     IN OPT tt_slab_attr_t *attr);
 
 /**
 @fn tt_result_t tt_slab_destroy(IN tt_slab_t *slab)
@@ -145,7 +145,7 @@ destroy a slab memory cache
 this function is executed without any lock, so be sure no other thread is still
 operating on this slab
 */
-extern void tt_slab_destroy(IN tt_slab_t *slab);
+tt_export void tt_slab_destroy(IN tt_slab_t *slab);
 
 /**
  @fn void tt_slab_attr_default(OUT tt_slab_attr_t *attr)
@@ -153,7 +153,7 @@ extern void tt_slab_destroy(IN tt_slab_t *slab);
 
  @param [in] attr slab memory cache attribute
  */
-extern void tt_slab_attr_default(OUT tt_slab_attr_t *attr);
+tt_export void tt_slab_attr_default(OUT tt_slab_attr_t *attr);
 
 /**
 @fn void* tt_slab_alloc_tag(IN tt_memdb_slab_t *slab)
@@ -165,13 +165,13 @@ allocate an object from slab memory cache
 - object address
 - NULL, otherwise
 */
-extern void *tt_slab_alloc_tag(IN tt_slab_t *slab
+tt_export void *tt_slab_alloc_tag(IN tt_slab_t *slab
 #ifdef TT_MEMORY_TAG_ENABLE
-                               ,
-                               IN const tt_char_t *func,
-                               IN tt_u32_t line
+                                  ,
+                                  IN const tt_char_t *func,
+                                  IN tt_u32_t line
 #endif
-                               );
+);
 
 /**
 @fn void tt_slab_free(IN void *obj)
@@ -183,6 +183,6 @@ free an object to its slab memory cache
 - object address
 - NULL, otherwise
 */
-extern void tt_slab_free(IN void *obj);
+tt_export void tt_slab_free(IN void *obj);
 
 #endif /* __TT_SLAB__ */

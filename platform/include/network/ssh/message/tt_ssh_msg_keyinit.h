@@ -79,23 +79,23 @@ typedef struct
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern struct tt_sshmsg_s *tt_sshms_keyinit_create();
+tt_export struct tt_sshmsg_s *tt_sshms_keyinit_create();
 
-extern tt_result_t tt_sshms_keyinit_addalg_kex(IN struct tt_sshmsg_s *msg,
+tt_export tt_result_t tt_sshms_keyinit_addalg_kex(IN struct tt_sshmsg_s *msg,
                                                IN tt_ssh_kex_alg_t kex);
 
-extern tt_result_t tt_sshms_keyinit_addalg_pubkey(
+tt_export tt_result_t tt_sshms_keyinit_addalg_pubkey(
     IN struct tt_sshmsg_s *msg, IN tt_ssh_pubkey_alg_t pubkey);
 
-extern tt_result_t tt_sshms_keyinit_addalg_enc(IN struct tt_sshmsg_s *msg,
+tt_export tt_result_t tt_sshms_keyinit_addalg_enc(IN struct tt_sshmsg_s *msg,
                                                IN tt_ssh_enc_alg_t enc,
                                                IN tt_bool_t client2server);
 
-extern tt_result_t tt_sshms_keyinit_addalg_mac(IN struct tt_sshmsg_s *msg,
+tt_export tt_result_t tt_sshms_keyinit_addalg_mac(IN struct tt_sshmsg_s *msg,
                                                IN tt_ssh_mac_alg_t mac,
                                                IN tt_bool_t client2server);
 
-extern tt_result_t tt_sshms_keyinit_addalg_comp(IN struct tt_sshmsg_s *msg,
+tt_export tt_result_t tt_sshms_keyinit_addalg_comp(IN struct tt_sshmsg_s *msg,
                                                 IN tt_ssh_cmprs_alg_t comp,
                                                 IN tt_bool_t client2server);
 

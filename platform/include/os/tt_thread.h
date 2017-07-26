@@ -113,7 +113,7 @@ typedef struct tt_thread_s
 @fn void tt_thread_component_register()
 register tt thread system
 */
-extern void tt_thread_component_register();
+tt_export void tt_thread_component_register();
 
 /**
 @fn tt_result_t tt_thread_create(IN tt_thread_t *thread,
@@ -141,11 +141,11 @@ create a thread
 - if create thread is not terminated immediately after created, this function
   guarantee the structure @ref thread is consistent
 */
-extern tt_thread_t *tt_thread_create(IN tt_thread_routine_t routine,
-                                     IN void *param,
-                                     IN OPT tt_thread_attr_t *attr);
+tt_export tt_thread_t *tt_thread_create(IN tt_thread_routine_t routine,
+                                        IN void *param,
+                                        IN OPT tt_thread_attr_t *attr);
 
-extern tt_result_t tt_thread_create_local(IN OPT tt_thread_attr_t *attr);
+tt_export tt_result_t tt_thread_create_local(IN OPT tt_thread_attr_t *attr);
 
 /**
 @fn void tt_thread_attr_default(IN tt_thread_attr_t  attr)
@@ -153,7 +153,7 @@ load default thread attributes
 
 @param [in] attr thread attribute
 */
-extern void tt_thread_attr_default(IN tt_thread_attr_t *attr);
+tt_export void tt_thread_attr_default(IN tt_thread_attr_t *attr);
 
 /**
 @fn tt_result_t tt_thread_wait(IN tt_thread_t *thread)
@@ -171,7 +171,7 @@ wait for a specific thread ending
 - when this function return, the thread specified by param has ended and
   destroyed
 */
-extern tt_result_t tt_thread_wait(IN tt_thread_t *thread);
+tt_export tt_result_t tt_thread_wait(IN tt_thread_t *thread);
 
 /**
 @fn void tt_thread_exit()

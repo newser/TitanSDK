@@ -69,24 +69,25 @@ typedef struct tt_task_attr_s
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern tt_result_t tt_task_create(IN tt_task_t *t, IN OPT tt_task_attr_t *attr);
+tt_export tt_result_t tt_task_create(IN tt_task_t *t,
+                                     IN OPT tt_task_attr_t *attr);
 
-extern void tt_task_attr_default(IN tt_task_attr_t *attr);
+tt_export void tt_task_attr_default(IN tt_task_attr_t *attr);
 
-extern tt_result_t tt_task_add_fiber(IN tt_task_t *t,
-                                     IN OPT const tt_char_t *name,
-                                     IN tt_fiber_routine_t routine,
-                                     IN void *param,
-                                     IN OPT tt_fiber_attr_t *attr);
+tt_export tt_result_t tt_task_add_fiber(IN tt_task_t *t,
+                                        IN OPT const tt_char_t *name,
+                                        IN tt_fiber_routine_t routine,
+                                        IN void *param,
+                                        IN OPT tt_fiber_attr_t *attr);
 
-extern tt_result_t tt_task_run(IN tt_task_t *t);
+tt_export tt_result_t tt_task_run(IN tt_task_t *t);
 
 // set NULL to exit current task, but note it does not exit immediately
-extern void tt_task_exit(IN OPT tt_task_t *t);
+tt_export void tt_task_exit(IN OPT tt_task_t *t);
 
-extern void tt_task_wait(IN tt_task_t *t);
+tt_export void tt_task_wait(IN tt_task_t *t);
 
-extern tt_result_t tt_task_run_local(IN tt_task_t *t);
+tt_export tt_result_t tt_task_run_local(IN tt_task_t *t);
 
 tt_inline void tt_task_finish(IN tt_task_t *t, IN tt_io_ev_t *io_ev)
 {

@@ -174,18 +174,18 @@ typedef struct
 // global variants
 ////////////////////////////////////////////////////////////
 
-extern tt_test_unit_t *tt_g_test_unit_list[TEST_UNIT_NUM];
+tt_export tt_test_unit_t *tt_g_test_unit_list[TEST_UNIT_NUM];
 
 ////////////////////////////////////////////////////////////
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern tt_result_t tt_test_unit_init(IN tt_ptr_t reserved);
+tt_export tt_result_t tt_test_unit_init(IN tt_ptr_t reserved);
 
-extern tt_result_t tt_test_unit_run(IN const tt_char_t *unit_name);
+tt_export tt_result_t tt_test_unit_run(IN const tt_char_t *unit_name);
 
-extern tt_result_t tt_test_unit_list(IN const tt_char_t *unit_name);
+tt_export tt_result_t tt_test_unit_list(IN const tt_char_t *unit_name);
 
-extern tt_result_t tt_test_unit_to_class(IN tt_test_unit_t *unit);
+tt_export tt_result_t tt_test_unit_to_class(IN tt_test_unit_t *unit);
 
 #endif /* __TT_UNIT_TEST__ */

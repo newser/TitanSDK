@@ -50,12 +50,12 @@ typedef struct
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern struct tt_sshmsg_s *tt_sshmsg_glbreq_create();
+tt_export struct tt_sshmsg_s *tt_sshmsg_glbreq_create();
 
-extern tt_result_t tt_sshmsg_glbreq_set_reqname(IN struct tt_sshmsg_s *msg,
+tt_export tt_result_t tt_sshmsg_glbreq_set_reqname(IN struct tt_sshmsg_s *msg,
                                                 IN const tt_char_t *req_name);
 
-extern void tt_sshmsg_glbreq_set_wantreply(IN struct tt_sshmsg_s *msg,
+tt_export void tt_sshmsg_glbreq_set_wantreply(IN struct tt_sshmsg_s *msg,
                                            IN tt_bool_t want_reply);
 
 #endif /* __TT_SSH_MSGID_GLOBAL_REQUEST__ */

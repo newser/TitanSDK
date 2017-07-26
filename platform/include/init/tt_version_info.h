@@ -76,19 +76,19 @@ typedef tt_u32_t tt_ver_t;
 @fn void tt_ver_component_register()
 register ts version component
 */
-extern void tt_ver_component_register();
+tt_export void tt_ver_component_register();
 
-extern tt_ver_t tt_ver_major();
+tt_export tt_ver_t tt_ver_major();
 
-extern tt_ver_t tt_ver_minor();
+tt_export tt_ver_t tt_ver_minor();
 
-extern tt_ver_t tt_ver_revision();
+tt_export tt_ver_t tt_ver_revision();
 
-extern const tt_char_t *tt_version_cstr();
+tt_export const tt_char_t *tt_version_cstr();
 
-extern void tt_ver_format(IN tt_char_t *buf,
-                          IN tt_u32_t buf_len,
-                          IN tt_u32_t how);
+tt_export void tt_ver_format(IN tt_char_t *buf,
+                             IN tt_u32_t buf_len,
+                             IN tt_u32_t how);
 // how
 #define TT_VER_FORMAT_BASIC 0 // major.minor
 #define TT_VER_FORMAT_STANDARD 1 // major.minor.revision
@@ -98,10 +98,10 @@ extern void tt_ver_format(IN tt_char_t *buf,
 // dynamic version check
 // ========================================
 
-extern tt_result_t tt_ver_require_major(IN tt_ver_t major);
+tt_export tt_result_t tt_ver_require_major(IN tt_ver_t major);
 
-extern tt_result_t tt_ver_require_minor(IN tt_ver_t minor);
+tt_export tt_result_t tt_ver_require_minor(IN tt_ver_t minor);
 
-extern tt_result_t tt_ver_require(IN tt_ver_t major, IN tt_ver_t minor);
+tt_export tt_result_t tt_ver_require(IN tt_ver_t major, IN tt_ver_t minor);
 
 #endif /* __TT_VERSION_INFO__ */

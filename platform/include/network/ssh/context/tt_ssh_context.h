@@ -81,86 +81,86 @@ typedef struct tt_sshctx_s
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern tt_result_t tt_sshctx_create(IN tt_sshctx_t *sshctx,
+tt_export tt_result_t tt_sshctx_create(IN tt_sshctx_t *sshctx,
                                     IN tt_sshctx_attr_t *attr);
 
-extern void tt_sshctx_destroy(IN tt_sshctx_t *sshctx);
+tt_export void tt_sshctx_destroy(IN tt_sshctx_t *sshctx);
 
 // remove unnecessary memory, only keep data for enc/dec/sign/verify
-extern void tt_sshctx_clear(IN tt_sshctx_t *sshctx);
+tt_export void tt_sshctx_clear(IN tt_sshctx_t *sshctx);
 
 // ========================================
 // key exchange
 // ========================================
 
-extern tt_result_t tt_sshctx_kex_create(IN tt_sshctx_t *sshctx);
+tt_export tt_result_t tt_sshctx_kex_create(IN tt_sshctx_t *sshctx);
 
-extern void tt_sshctx_kex_destroy(IN tt_sshctx_t *sshctx);
+tt_export void tt_sshctx_kex_destroy(IN tt_sshctx_t *sshctx);
 
-extern tt_result_t tt_sshctx_kex_setalg(IN tt_sshctx_t *sshctx,
+tt_export tt_result_t tt_sshctx_kex_setalg(IN tt_sshctx_t *sshctx,
                                         IN tt_ssh_kex_alg_t alg);
 
-extern tt_result_t tt_sshctx_kex_setks(IN tt_sshctx_t *sshctx,
+tt_export tt_result_t tt_sshctx_kex_setks(IN tt_sshctx_t *sshctx,
                                        IN tt_u8_t *ks,
                                        IN tt_u32_t ks_len,
                                        IN tt_bool_t format);
-extern tt_result_t tt_sshctx_kex_setks_rsa(IN tt_sshctx_t *sshctx,
+tt_export tt_result_t tt_sshctx_kex_setks_rsa(IN tt_sshctx_t *sshctx,
                                            IN tt_blob_t *e,
                                            IN tt_blob_t *n);
 
-extern tt_result_t tt_sshctx_kex_setvs(IN tt_sshctx_t *sshctx,
+tt_export tt_result_t tt_sshctx_kex_setvs(IN tt_sshctx_t *sshctx,
                                        IN tt_u8_t *vs,
                                        IN tt_u32_t vs_len,
                                        IN tt_bool_t format);
-extern tt_result_t tt_sshctx_kex_setvc(IN tt_sshctx_t *sshctx,
+tt_export tt_result_t tt_sshctx_kex_setvc(IN tt_sshctx_t *sshctx,
                                        IN tt_u8_t *vc,
                                        IN tt_u32_t vc_len,
                                        IN tt_bool_t format);
-extern tt_result_t tt_sshctx_kex_setis(IN tt_sshctx_t *sshctx,
+tt_export tt_result_t tt_sshctx_kex_setis(IN tt_sshctx_t *sshctx,
                                        IN tt_u8_t *is,
                                        IN tt_u32_t is_len,
                                        IN tt_bool_t format);
-extern tt_result_t tt_sshctx_kex_setic(IN tt_sshctx_t *sshctx,
+tt_export tt_result_t tt_sshctx_kex_setic(IN tt_sshctx_t *sshctx,
                                        IN tt_u8_t *ic,
                                        IN tt_u32_t ic_len,
                                        IN tt_bool_t format);
 
-extern tt_result_t tt_sshctx_kex_calc_h(IN tt_sshctx_t *sshctx);
+tt_export tt_result_t tt_sshctx_kex_calc_h(IN tt_sshctx_t *sshctx);
 
-extern tt_result_t tt_sshctx_load_session_id(IN tt_sshctx_t *sshctx);
+tt_export tt_result_t tt_sshctx_load_session_id(IN tt_sshctx_t *sshctx);
 
 // dh ...
-extern tt_result_t tt_sshctx_kexdh_compute(IN tt_sshctx_t *sshctx,
+tt_export tt_result_t tt_sshctx_kexdh_compute(IN tt_sshctx_t *sshctx,
                                            IN tt_u8_t *peerpub,
                                            IN tt_u32_t peerpub_len);
 
-extern tt_result_t tt_sshctx_kexdh_set_e(IN tt_sshctx_t *sshctx,
+tt_export tt_result_t tt_sshctx_kexdh_set_e(IN tt_sshctx_t *sshctx,
                                          IN tt_u8_t *e,
                                          IN tt_u32_t e_len,
                                          IN tt_bool_t format);
-extern tt_result_t tt_sshctx_kexdh_load_e(IN tt_sshctx_t *sshctx);
+tt_export tt_result_t tt_sshctx_kexdh_load_e(IN tt_sshctx_t *sshctx);
 
-extern tt_result_t tt_sshctx_kexdh_set_f(IN tt_sshctx_t *sshctx,
+tt_export tt_result_t tt_sshctx_kexdh_set_f(IN tt_sshctx_t *sshctx,
                                          IN tt_u8_t *f,
                                          IN tt_u32_t f_len,
                                          IN tt_bool_t format);
-extern tt_result_t tt_sshctx_kexdh_load_f(IN tt_sshctx_t *sshctx);
+tt_export tt_result_t tt_sshctx_kexdh_load_f(IN tt_sshctx_t *sshctx);
 
-extern tt_result_t tt_sshctx_kexdh_get_k(IN tt_sshctx_t *sshctx);
+tt_export tt_result_t tt_sshctx_kexdh_get_k(IN tt_sshctx_t *sshctx);
 
 // ========================================
 // public key
 // ========================================
 
-extern tt_result_t tt_sshctx_pubk_create(IN tt_sshctx_t *sshctx);
+tt_export tt_result_t tt_sshctx_pubk_create(IN tt_sshctx_t *sshctx);
 
-extern void tt_sshctx_pubk_destroy(IN tt_sshctx_t *sshctx);
+tt_export void tt_sshctx_pubk_destroy(IN tt_sshctx_t *sshctx);
 
-extern tt_result_t tt_sshctx_pubk_setalg(IN tt_sshctx_t *sshctx,
+tt_export tt_result_t tt_sshctx_pubk_setalg(IN tt_sshctx_t *sshctx,
                                          IN tt_ssh_pubkey_alg_t alg,
                                          IN void *key);
 
-extern tt_result_t tt_sshctx_pubk_sign(IN tt_sshctx_t *sshctx,
+tt_export tt_result_t tt_sshctx_pubk_sign(IN tt_sshctx_t *sshctx,
                                        IN tt_u8_t *data,
                                        IN tt_u32_t data_len);
 
@@ -296,6 +296,6 @@ tt_inline tt_result_t tt_sshctx_verify(IN tt_sshctx_t *sshctx,
 // kdf
 // ========================================
 
-extern tt_result_t tt_sshctx_kdf(IN tt_sshctx_t *sshctx);
+tt_export tt_result_t tt_sshctx_kdf(IN tt_sshctx_t *sshctx);
 
 #endif /* __TT_SSH_CONTEXT__ */

@@ -64,6 +64,6 @@ this file defines adns module initialization apis
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern void tt_adns_component_register();
+tt_export void tt_adns_component_register();
 
 #endif /* __TT_ADNS_INIT__ */

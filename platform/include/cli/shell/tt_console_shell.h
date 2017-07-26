@@ -46,10 +46,10 @@ this file defines console shell
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern tt_result_t tt_console_sh_create(IN tt_shell_t *sh,
-                                        IN tt_cli_mode_t mode,
-                                        IN OPT tt_sh_attr_t *attr);
+tt_export tt_result_t tt_console_sh_create(IN tt_shell_t *sh,
+                                           IN tt_cli_mode_t mode,
+                                           IN OPT tt_sh_attr_t *attr);
 
-extern tt_result_t tt_console_sh_run(IN tt_shell_t *sh, IN tt_bool_t local);
+tt_export tt_result_t tt_console_sh_run(IN tt_shell_t *sh, IN tt_bool_t local);
 
 #endif /* __TT_CONSOLE_SHELL__ */

@@ -142,13 +142,13 @@ typedef struct tt_component_s
 ////////////////////////////////////////////////////////////
 
 // params of component may be expanded
-extern void tt_component_init(IN tt_component_t *comp,
-                              IN tt_component_id_t cid,
-                              IN const tt_char_t *name,
-                              IN void *opaque,
-                              IN tt_component_itf_t *itf);
+tt_export void tt_component_init(IN tt_component_t *comp,
+                                 IN tt_component_id_t cid,
+                                 IN const tt_char_t *name,
+                                 IN void *opaque,
+                                 IN tt_component_itf_t *itf);
 
-extern void tt_component_register(IN tt_component_t *comp);
+tt_export void tt_component_register(IN tt_component_t *comp);
 
 /**
 @note
@@ -156,12 +156,12 @@ extern void tt_component_register(IN tt_component_t *comp);
   and those components which have been initialized wound not be
   uninitialized.
 */
-extern tt_result_t tt_component_start(IN struct tt_profile_s *profile);
+tt_export tt_result_t tt_component_start(IN struct tt_profile_s *profile);
 
-extern tt_component_t *tt_component_find_id(IN tt_component_id_t cid);
+tt_export tt_component_t *tt_component_find_id(IN tt_component_id_t cid);
 
-extern tt_component_t *tt_component_find_name(IN const tt_char_t *name);
+tt_export tt_component_t *tt_component_find_name(IN const tt_char_t *name);
 
-extern tt_bool_t tt_component_is_started(IN tt_component_id_t cid);
+tt_export tt_bool_t tt_component_is_started(IN tt_component_id_t cid);
 
 #endif /* __TT_COMPONENT__ */

@@ -71,16 +71,16 @@ typedef struct tt_sshch_s
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern tt_sshch_t *tt_sshch_create(IN tt_ssh_chtype_t type,
+tt_export tt_sshch_t *tt_sshch_create(IN tt_ssh_chtype_t type,
                                    IN tt_u32_t chnum,
                                    IN struct tt_sshch_cb_s *cb,
                                    IN struct tt_sshchmgr_s *chmgr);
 
 // destroy ssh channel
-extern void tt_sshch_destroy(IN tt_sshch_t *ch);
+tt_export void tt_sshch_destroy(IN tt_sshch_t *ch);
 
 // send eof and close
-extern void tt_sshch_shutdown(IN tt_sshch_t *ch);
+tt_export void tt_sshch_shutdown(IN tt_sshch_t *ch);
 
 tt_inline void tt_sshch_set_peerchnum(IN tt_sshch_t *ch, IN tt_u32_t peer_chnum)
 {
@@ -102,12 +102,12 @@ tt_inline void tt_sshch_set_opaque(IN tt_sshch_t *ch, IN void *opaque)
     ch->opaque = opaque;
 }
 
-extern tt_result_t tt_sshch_send(IN tt_sshch_t *ch,
+tt_export tt_result_t tt_sshch_send(IN tt_sshch_t *ch,
                                  IN tt_u8_t *data,
                                  IN tt_u32_t data_len,
                                  IN tt_u32_t flag);
 
-extern void tt_sshch_pkt_handler(IN tt_sshch_t *ch,
+tt_export void tt_sshch_pkt_handler(IN tt_sshch_t *ch,
                                  IN struct tt_sshmsg_s *msg,
                                  OUT struct tt_sshsvr_action_s *svract);
 

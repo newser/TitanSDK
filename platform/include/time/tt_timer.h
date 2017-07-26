@@ -101,9 +101,9 @@ create a timer
 - accessing the timer outside the thread where the timer manager is running
   is not consistent as the manager may be changing it
 */
-extern tt_tmr_t *tt_tmr_create(IN tt_s64_t delay_ms,
-                               IN tt_u32_t ev,
-                               IN OPT void *param);
+tt_export tt_tmr_t *tt_tmr_create(IN tt_s64_t delay_ms,
+                                  IN tt_u32_t ev,
+                                  IN OPT void *param);
 
 /**
 @fn void tt_tmr_destroy(IN tt_tmr_t *tmr)
@@ -115,7 +115,7 @@ destroy a timer
 - this function is not thread safe
 - be sure the timer is not being managed
 */
-extern void tt_tmr_destroy(IN tt_tmr_t *tmr);
+tt_export void tt_tmr_destroy(IN tt_tmr_t *tmr);
 
 /**
 @fn tt_result_t tt_tmr_start(IN tt_tmr_t *tmr)
@@ -130,7 +130,7 @@ start a timer
 @note
 - this function is not thread safe
 */
-extern tt_result_t tt_tmr_start(IN tt_tmr_t *tmr);
+tt_export tt_result_t tt_tmr_start(IN tt_tmr_t *tmr);
 
 /**
 @fn void tt_tmr_stop(IN tt_tmr_t *tmr)

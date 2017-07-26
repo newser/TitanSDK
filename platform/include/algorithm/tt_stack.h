@@ -65,13 +65,13 @@ typedef struct
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern void tt_stack_init(IN tt_stack_t *stk,
-                          IN tt_u32_t obj_size,
-                          IN OPT tt_stack_attr_t *attr);
+tt_export void tt_stack_init(IN tt_stack_t *stk,
+                             IN tt_u32_t obj_size,
+                             IN OPT tt_stack_attr_t *attr);
 
-extern void tt_stack_destroy(IN tt_stack_t *stk);
+tt_export void tt_stack_destroy(IN tt_stack_t *stk);
 
-extern void tt_stack_attr_default(IN tt_stack_attr_t *attr);
+tt_export void tt_stack_attr_default(IN tt_stack_attr_t *attr);
 
 tt_inline tt_u32_t tt_stack_count(IN tt_stack_t *stk)
 {
@@ -83,16 +83,16 @@ tt_inline tt_bool_t tt_stack_empty(IN tt_stack_t *stk)
     return stk->count == 0 ? TT_TRUE : TT_FALSE;
 }
 
-extern void tt_stack_clear(IN tt_stack_t *stk);
+tt_export void tt_stack_clear(IN tt_stack_t *stk);
 
-extern tt_result_t tt_stack_push(IN tt_stack_t *stk, IN void *obj);
+tt_export tt_result_t tt_stack_push(IN tt_stack_t *stk, IN void *obj);
 
-extern tt_result_t tt_stack_pop(IN tt_stack_t *stk, OUT void *obj);
+tt_export tt_result_t tt_stack_pop(IN tt_stack_t *stk, OUT void *obj);
 
-extern void *tt_stack_top(IN tt_stack_t *stk);
+tt_export void *tt_stack_top(IN tt_stack_t *stk);
 
-extern void tt_stack_iter(IN tt_stack_t *stk, OUT tt_stack_iter_t *iter);
+tt_export void tt_stack_iter(IN tt_stack_t *stk, OUT tt_stack_iter_t *iter);
 
-extern void *tt_stack_iter_next(IN OUT tt_stack_iter_t *iter);
+tt_export void *tt_stack_iter_next(IN OUT tt_stack_iter_t *iter);
 
 #endif /* __TT_STACK__ */

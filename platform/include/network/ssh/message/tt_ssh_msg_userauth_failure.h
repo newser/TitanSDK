@@ -54,12 +54,12 @@ typedef struct
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern struct tt_sshmsg_s *tt_sshmsg_uaf_create();
+tt_export struct tt_sshmsg_s *tt_sshmsg_uaf_create();
 
-extern void tt_sshmsg_uaf_add_auth(IN struct tt_sshmsg_s *msg,
+tt_export void tt_sshmsg_uaf_add_auth(IN struct tt_sshmsg_s *msg,
                                    IN tt_ssh_auth_t auth);
 
-extern void tt_sshmsg_uaf_set_parial_succ(IN struct tt_sshmsg_s *msg,
+tt_export void tt_sshmsg_uaf_set_parial_succ(IN struct tt_sshmsg_s *msg,
                                           IN tt_bool_t partial_success);
 
 #endif /* __TT_SSH_MSG_SERVICE_FAILURE__ */

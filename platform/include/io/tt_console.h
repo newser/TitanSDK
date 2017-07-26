@@ -83,18 +83,18 @@ typedef tt_result_t (*tt_cons_ev_handler_t)(IN void *param,
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern void tt_console_component_register();
+tt_export void tt_console_component_register();
 
-extern void tt_console_attr_default(IN tt_console_attr_t *attr);
+tt_export void tt_console_attr_default(IN tt_console_attr_t *attr);
 
-extern tt_result_t tt_console_config(IN tt_console_attr_t *attr);
+tt_export tt_result_t tt_console_config(IN tt_console_attr_t *attr);
 
-extern void tt_console_run(IN tt_cons_ev_handler_t ev_handler,
-                           IN void *param,
-                           IN tt_bool_t local);
+tt_export void tt_console_run(IN tt_cons_ev_handler_t ev_handler,
+                              IN void *param,
+                              IN tt_bool_t local);
 
-extern tt_result_t tt_console_send(IN tt_cons_ev_t ev,
-                                   IN tt_cons_ev_data_t *ev_data);
+tt_export tt_result_t tt_console_send(IN tt_cons_ev_t ev,
+                                      IN tt_cons_ev_data_t *ev_data);
 
 tt_inline tt_result_t tt_console_send_key(IN tt_u8_t *key, IN tt_u32_t key_num)
 {

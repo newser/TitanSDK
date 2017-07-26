@@ -204,7 +204,7 @@ add a node to the head of the list
 @return
 void
 */
-extern void tt_list_push_head(IN tt_list_t *lst, IN tt_lnode_t *node);
+tt_export void tt_list_push_head(IN tt_list_t *lst, IN tt_lnode_t *node);
 
 /**
 @fn void tt_list_push_tail(IN tt_list_t *lst,
@@ -217,7 +217,7 @@ add a node to the tail of the list
 @return
 void
 */
-extern void tt_list_push_tail(IN tt_list_t *lst, IN tt_lnode_t *node);
+tt_export void tt_list_push_tail(IN tt_list_t *lst, IN tt_lnode_t *node);
 
 /**
 @fn tt_lnode_t* tt_list_pop_head(IN tt_list_t *lst)
@@ -229,7 +229,7 @@ pop the head node in the list
 - head node if list is not empty
 - NULL otherwise
 */
-extern tt_lnode_t *tt_list_pop_head(IN tt_list_t *lst);
+tt_export tt_lnode_t *tt_list_pop_head(IN tt_list_t *lst);
 
 /**
 @fn tt_lnode_t* tt_list_pop_tail(IN tt_list_t *lst)
@@ -241,7 +241,7 @@ pop the tail node in the list
 - tail node if list is not empty
 - NULL otherwise
 */
-extern tt_lnode_t *tt_list_pop_tail(IN tt_list_t *lst);
+tt_export tt_lnode_t *tt_list_pop_tail(IN tt_list_t *lst);
 
 tt_inline void tt_list_clear(IN tt_list_t *lst)
 {
@@ -260,7 +260,7 @@ tt_inline void tt_list_clear(IN tt_list_t *lst)
  @return
  void
  */
-extern void tt_list_insert_before(IN tt_lnode_t *pos, IN tt_lnode_t *node);
+tt_export void tt_list_insert_before(IN tt_lnode_t *pos, IN tt_lnode_t *node);
 
 /**
  @fn void tt_list_insert_after(IN tt_lnode_t *pos,
@@ -273,7 +273,7 @@ extern void tt_list_insert_before(IN tt_lnode_t *pos, IN tt_lnode_t *node);
  @return
  void
  */
-extern void tt_list_insert_after(IN tt_lnode_t *pos, IN tt_lnode_t *node);
+tt_export void tt_list_insert_after(IN tt_lnode_t *pos, IN tt_lnode_t *node);
 
 /**
  @fn tt_lnode_t* tt_list_remove(IN tt_lnode_t *node)
@@ -285,6 +285,6 @@ extern void tt_list_insert_after(IN tt_lnode_t *pos, IN tt_lnode_t *node);
  - the node next to the pos just removed
  - NULL if the pos is the tail
  */
-extern tt_lnode_t *tt_list_remove(IN tt_lnode_t *node);
+tt_export tt_lnode_t *tt_list_remove(IN tt_lnode_t *node);
 
 #endif /* __TT_LIST__ */

@@ -46,7 +46,7 @@ struct tt_sshsvrconn_s;
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern void tt_sshsvr_state_auth(IN struct tt_sshsvrconn_s *svrconn,
+tt_export void tt_sshsvr_state_auth(IN struct tt_sshsvrconn_s *svrconn,
                                  IN tt_sshsvr_event_t event,
                                  IN void *param,
                                  OUT tt_sshsvr_action_t *svract);

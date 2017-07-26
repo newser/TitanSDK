@@ -152,7 +152,7 @@ TT_TEST_CASE("tt_unit_test_ipc_basic",
     static tt_u32_t __err_line;
 static tt_s64_t __ipc_max_diff;
 
-tt_result_t __ipc_cli_1(IN void *param)
+tt_export tt_result_t __ipc_cli_1(IN void *param)
 {
     tt_ipc_t *ipc;
     tt_u8_t sbuf[11] = "1234567890", rbuf[11] = {0};
@@ -221,7 +221,7 @@ tt_result_t __ipc_cli_1(IN void *param)
     return TT_SUCCESS;
 }
 
-tt_result_t __ipc_svr_1(IN void *param)
+tt_export tt_result_t __ipc_svr_1(IN void *param)
 {
     tt_ipc_t *ipc, *new_ipc;
     tt_u8_t sbuf[11] = "0987654321", rbuf[11];
@@ -493,7 +493,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_ipc_stress)
     TT_TEST_CASE_LEAVE()
 }
 
-tt_result_t __ipc_cli_oneshot(IN void *param)
+tt_export tt_result_t __ipc_cli_oneshot(IN void *param)
 {
     tt_ipc_t *ipc;
     tt_u8_t sbuf[11] = "1234567890", rbuf[11];
@@ -805,7 +805,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_ipc_fiber_ev)
 static tt_u32_t ___ipc_cli_sent, __ipc_cli_recvd;
 static tt_u32_t __ipc_svr_sent, __ipc_svr_recvd;
 
-tt_result_t __ipc_cli_pev(IN void *param)
+tt_export tt_result_t __ipc_cli_pev(IN void *param)
 {
     tt_ipc_t *ipc;
     tt_u8_t sbuf[11] = "1234567890", rbuf[11] = {0};

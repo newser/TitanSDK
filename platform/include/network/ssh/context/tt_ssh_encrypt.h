@@ -79,11 +79,11 @@ typedef struct
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern void tt_sshenc_init(IN tt_sshenc_t *enc);
+tt_export void tt_sshenc_init(IN tt_sshenc_t *enc);
 
-extern void tt_sshenc_destroy(IN tt_sshenc_t *enc);
+tt_export void tt_sshenc_destroy(IN tt_sshenc_t *enc);
 
-extern tt_result_t tt_sshenc_setalg(IN tt_sshenc_t *enc,
+tt_export tt_result_t tt_sshenc_setalg(IN tt_sshenc_t *enc,
                                     IN tt_ssh_enc_alg_t alg,
                                     IN tt_bool_t encrypt,
                                     IN tt_u8_t *iv,
@@ -93,11 +93,11 @@ extern tt_result_t tt_sshenc_setalg(IN tt_sshenc_t *enc,
 
 // it seems all encryption algs can be done in-place, that means
 // decrypted bytes are also put in @ref data
-extern tt_result_t tt_sshenc_encrypt(IN tt_sshenc_t *enc,
+tt_export tt_result_t tt_sshenc_encrypt(IN tt_sshenc_t *enc,
                                      IN OUT tt_u8_t *data,
                                      IN tt_u32_t data_len);
 
-extern tt_result_t tt_sshenc_decrypt(IN tt_sshenc_t *enc,
+tt_export tt_result_t tt_sshenc_decrypt(IN tt_sshenc_t *enc,
                                      IN OUT tt_u8_t *data,
                                      IN tt_u32_t data_len);
 

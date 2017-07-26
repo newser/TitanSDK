@@ -105,16 +105,16 @@ typedef struct tt_wbuf_s
 // interface enclaration
 ////////////////////////////////////////////////////////////
 
-extern void tt_wbuf_init(IN tt_wbuf_t *wbuf,
-                         IN OPT tt_wbuf_encode_itf_t *e_itf,
-                         IN OPT void *e_param,
-                         IN tt_wbuf_render_itf_t *p_itf,
-                         IN OPT void *p_param,
-                         IN OPT tt_wbuf_attr_t *attr);
+tt_export void tt_wbuf_init(IN tt_wbuf_t *wbuf,
+                            IN OPT tt_wbuf_encode_itf_t *e_itf,
+                            IN OPT void *e_param,
+                            IN tt_wbuf_render_itf_t *p_itf,
+                            IN OPT void *p_param,
+                            IN OPT tt_wbuf_attr_t *attr);
 
-extern void tt_wbuf_destroy(IN tt_wbuf_t *wbuf);
+tt_export void tt_wbuf_destroy(IN tt_wbuf_t *wbuf);
 
-extern void tt_wbuf_attr_default(IN tt_wbuf_attr_t *attr);
+tt_export void tt_wbuf_attr_default(IN tt_wbuf_attr_t *attr);
 
 tt_inline tt_result_t tt_wbuf_reserve(IN tt_wbuf_t *wbuf, IN tt_u32_t size)
 {
@@ -135,23 +135,23 @@ tt_inline void tt_wbuf_clear(IN tt_wbuf_t *wbuf)
 // - return incomplete only if none of data are encoded
 // - rendered and len is the rendered data and only valid when this function
 //   return. user could copy it out if user want to
-extern tt_result_t tt_wbuf_render(IN tt_wbuf_t *wbuf,
-                                  IN void *to_render,
-                                  OUT OPT tt_u8_t **rendered,
-                                  OUT OPT tt_u32_t *len);
+tt_export tt_result_t tt_wbuf_render(IN tt_wbuf_t *wbuf,
+                                     IN void *to_render,
+                                     OUT OPT tt_u8_t **rendered,
+                                     OUT OPT tt_u32_t *len);
 
-extern tt_result_t tt_wbuf_put(IN tt_wbuf_t *wbuf,
-                               IN tt_u8_t *data,
-                               IN tt_u32_t data_len);
+tt_export tt_result_t tt_wbuf_put(IN tt_wbuf_t *wbuf,
+                                  IN tt_u8_t *data,
+                                  IN tt_u32_t data_len);
 
 // ========================================
 // read wbuf
 // ========================================
 
-extern void tt_wbuf_get_rptr(IN tt_wbuf_t *wbuf,
-                             IN tt_u8_t **p,
-                             IN tt_u32_t *len);
+tt_export void tt_wbuf_get_rptr(IN tt_wbuf_t *wbuf,
+                                IN tt_u8_t **p,
+                                IN tt_u32_t *len);
 
-extern tt_result_t tt_wbuf_inc_rp(IN tt_wbuf_t *wbuf, IN tt_u32_t num);
+tt_export tt_result_t tt_wbuf_inc_rp(IN tt_wbuf_t *wbuf, IN tt_u32_t num);
 
 #endif /* __TT_WRITE_BUFFER__ */

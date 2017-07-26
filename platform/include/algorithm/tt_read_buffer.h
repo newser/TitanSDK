@@ -121,16 +121,16 @@ typedef struct tt_rbuf_s
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern void tt_rbuf_init(IN tt_rbuf_t *rbuf,
-                         IN OPT tt_rbuf_decode_itf_t *d_itf,
-                         IN OPT void *d_param,
-                         IN tt_rbuf_parse_itf_t *p_itf,
-                         IN OPT void *p_param,
-                         IN OPT tt_rbuf_attr_t *attr);
+tt_export void tt_rbuf_init(IN tt_rbuf_t *rbuf,
+                            IN OPT tt_rbuf_decode_itf_t *d_itf,
+                            IN OPT void *d_param,
+                            IN tt_rbuf_parse_itf_t *p_itf,
+                            IN OPT void *p_param,
+                            IN OPT tt_rbuf_attr_t *attr);
 
-extern void tt_rbuf_destroy(IN tt_rbuf_t *rbuf);
+tt_export void tt_rbuf_destroy(IN tt_rbuf_t *rbuf);
 
-extern void tt_rbuf_attr_default(IN tt_rbuf_attr_t *attr);
+tt_export void tt_rbuf_attr_default(IN tt_rbuf_attr_t *attr);
 
 tt_inline tt_result_t tt_rbuf_reserve(IN tt_rbuf_t *rbuf, IN tt_u32_t size)
 {
@@ -154,6 +154,6 @@ tt_inline void tt_rbuf_get_wptr(IN tt_rbuf_t *rbuf,
     tt_buf_get_wptr(&rbuf->raw, p, len);
 }
 
-extern tt_result_t tt_rbuf_inc_wp(IN tt_rbuf_t *rbuf, IN tt_u32_t num);
+tt_export tt_result_t tt_rbuf_inc_wp(IN tt_rbuf_t *rbuf, IN tt_u32_t num);
 
 #endif /* __TT_READ_BUFFER__ */

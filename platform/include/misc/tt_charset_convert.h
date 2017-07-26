@@ -73,32 +73,32 @@ typedef struct tt_chsetconv_s
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern tt_result_t tt_chsetconv_create(IN tt_chsetconv_t *csconv,
-                                       IN tt_charset_t from,
-                                       IN tt_charset_t to,
-                                       IN OPT tt_chsetconv_attr_t *attr);
+tt_export tt_result_t tt_chsetconv_create(IN tt_chsetconv_t *csconv,
+                                          IN tt_charset_t from,
+                                          IN tt_charset_t to,
+                                          IN OPT tt_chsetconv_attr_t *attr);
 
-extern void tt_chsetconv_destroy(IN tt_chsetconv_t *csconv);
+tt_export void tt_chsetconv_destroy(IN tt_chsetconv_t *csconv);
 
-extern void tt_chsetconv_attr_default(IN tt_chsetconv_attr_t *attr);
+tt_export void tt_chsetconv_attr_default(IN tt_chsetconv_attr_t *attr);
 
-extern tt_result_t tt_chsetconv_input(IN tt_chsetconv_t *csconv,
-                                      IN tt_u8_t *input,
-                                      IN tt_u32_t input_len);
+tt_export tt_result_t tt_chsetconv_input(IN tt_chsetconv_t *csconv,
+                                         IN tt_u8_t *input,
+                                         IN tt_u32_t input_len);
 
 // - set output to NULL to get output_len
 // - output stored in csconv is discarded when it returned
-extern void tt_chsetconv_output(IN tt_chsetconv_t *csconv,
-                                OUT OPT tt_u8_t *output,
-                                IN OUT tt_u32_t *output_len);
+tt_export void tt_chsetconv_output(IN tt_chsetconv_t *csconv,
+                                   OUT OPT tt_u8_t *output,
+                                   IN OUT tt_u32_t *output_len);
 
 // - caller can directly access converted data stored in csconv
 // - if there is no converted data, output is set to NULL and
 //   output_len is set to 0
-extern void tt_chsetconv_output_ptr(IN tt_chsetconv_t *csconv,
-                                    OUT OPT tt_u8_t **output,
-                                    OUT tt_u32_t *output_len);
+tt_export void tt_chsetconv_output_ptr(IN tt_chsetconv_t *csconv,
+                                       OUT OPT tt_u8_t **output,
+                                       OUT tt_u32_t *output_len);
 
-extern void tt_chsetconv_reset(IN tt_chsetconv_t *csconv);
+tt_export void tt_chsetconv_reset(IN tt_chsetconv_t *csconv);
 
 #endif /* __TT_CHARSET_CONVERT__ */
