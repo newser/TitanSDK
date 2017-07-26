@@ -19,4 +19,4 @@ set(SRC pugixml/pugixml.cpp
         include/pugiconfig.hpp)
 
 # add to library
-add_library(xml ${SRC})
+add_library(xml STATIC ${SRC})

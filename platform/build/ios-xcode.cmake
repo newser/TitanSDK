@@ -25,20 +25,18 @@
 # linker options
 #
 
-set(PLATFORM_DEP_LIB iconv PARENT_SCOPE)
-
 # libraries required by platform
-function(ttcm_platform_link_libraries)
+function(platform_link_libraries)
   # charset
   target_link_libraries(platform iconv)
 
   # core foundation
   target_link_libraries(platform "-framework CoreFoundation")
   
-endfunction(ttcm_platform_link_libraries)
+endfunction(platform_link_libraries)
 
 # platform properties
-function(ttcm_platform_set_properties)
+function(platform_set_properties)
   if (PLATFORM_BUILD_SHARED)
     # TitanSDK.framework
     set_target_properties(platform PROPERTIES FRAMEWORK TRUE)
@@ -52,4 +50,4 @@ function(ttcm_platform_set_properties)
   set_target_properties(platform PROPERTIES 
                         VERSION ${PLATFORM_VERSION_MAJOR}.${PLATFORM_VERSION_MINOR})
 
-endfunction(ttcm_platform_set_properties)
+endfunction(platform_set_properties)

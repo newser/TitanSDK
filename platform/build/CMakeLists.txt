@@ -82,59 +82,82 @@ include_directories(${PLATFORM_PATH}/depend/dns/include)
 # source file
 #
 
+file(GLOB SRC_FILE "${PLATFORM_PATH}/include/*.h")
+set(BASIC_HDR ${SRC_FILE})
+
 # source code
-ttcm_add_group_src(${PLATFORM_PATH}/source/algorithm algorithm SRC_FILE)
-ttcm_add_group_src(${PLATFORM_PATH}/source/algorithm/ptr algorithm SRC_FILE)
+add_group_hdr(${PLATFORM_PATH}/include/algorithm algorithm algorithm SRC_FILE)
+add_group_src(${PLATFORM_PATH}/source/algorithm algorithm SRC_FILE)
+add_group_hdr(${PLATFORM_PATH}/include/algorithm/ptr algorithm algorithm/ptr SRC_FILE)
+add_group_src(${PLATFORM_PATH}/source/algorithm/ptr algorithm SRC_FILE)
 
-ttcm_add_group_src(${PLATFORM_PATH}/source/event event SRC_FILE)
+add_group_hdr(${PLATFORM_PATH}/include/init init init SRC_FILE)
+add_group_src(${PLATFORM_PATH}/source/init init SRC_FILE)
 
-ttcm_add_group_src(${PLATFORM_PATH}/source/init init SRC_FILE)
+add_group_hdr(${PLATFORM_PATH}/include/io io io SRC_FILE)
+add_group_src(${PLATFORM_PATH}/source/io io SRC_FILE)
 
-ttcm_add_group_src(${PLATFORM_PATH}/source/io io SRC_FILE)
+add_group_hdr(${PLATFORM_PATH}/include/os os os SRC_FILE)
+add_group_src(${PLATFORM_PATH}/source/os os SRC_FILE)
 
-ttcm_add_group_src(${PLATFORM_PATH}/source/os os SRC_FILE)
+add_group_hdr(${PLATFORM_PATH}/include/memory memory memory SRC_FILE)
+add_group_src(${PLATFORM_PATH}/source/memory memory SRC_FILE)
 
-ttcm_add_group_src(${PLATFORM_PATH}/source/memory memory SRC_FILE)
+add_group_hdr(${PLATFORM_PATH}/include/timer timer timer SRC_FILE)
+add_group_src(${PLATFORM_PATH}/source/timer timer SRC_FILE)
 
-ttcm_add_group_src(${PLATFORM_PATH}/source/timer timer SRC_FILE)
+add_group_hdr(${PLATFORM_PATH}/include/misc misc misc SRC_FILE)
+add_group_src(${PLATFORM_PATH}/source/misc misc SRC_FILE)
 
-ttcm_add_group_src(${PLATFORM_PATH}/source/misc misc SRC_FILE)
+add_group_hdr(${PLATFORM_PATH}/include/unit_test unit_test unit_test SRC_FILE)
+add_group_src(${PLATFORM_PATH}/source/unit_test unit_test SRC_FILE)
 
-ttcm_add_group_src(${PLATFORM_PATH}/source/unit_test unit_test SRC_FILE)
+add_group_hdr(${PLATFORM_PATH}/include/log log log SRC_FILE)
+add_group_src(${PLATFORM_PATH}/source/log log SRC_FILE)
+add_group_hdr(${PLATFORM_PATH}/include/log/layout log log/layout SRC_FILE)
+add_group_src(${PLATFORM_PATH}/source/log/layout log SRC_FILE)
+add_group_hdr(${PLATFORM_PATH}/include/log/io log log/io SRC_FILE)
+add_group_src(${PLATFORM_PATH}/source/log/io log SRC_FILE)
 
-ttcm_add_group_src(${PLATFORM_PATH}/source/log log SRC_FILE)
-ttcm_add_group_src(${PLATFORM_PATH}/source/log/layout log SRC_FILE)
-ttcm_add_group_src(${PLATFORM_PATH}/source/log/io log SRC_FILE)
+add_group_hdr(${PLATFORM_PATH}/include/crypto crypto crypto SRC_FILE)
+add_group_src(${PLATFORM_PATH}/source/crypto crypto SRC_FILE)
 
-ttcm_add_group_src(${PLATFORM_PATH}/source/crypto crypto SRC_FILE)
+add_group_hdr(${PLATFORM_PATH}/include/xml xml xml SRC_FILE)
+add_group_src(${PLATFORM_PATH}/source/xml xml SRC_FILE)
 
-ttcm_add_group_src(${PLATFORM_PATH}/source/xml xml SRC_FILE)
+add_group_hdr(${PLATFORM_PATH}/include/network network network SRC_FILE)
+add_group_src(${PLATFORM_PATH}/source/network network SRC_FILE)
 
-ttcm_add_group_src(${PLATFORM_PATH}/native/${PLATFORM_ENV} native SRC_FILE)
-ttcm_add_group_src(${PLATFORM_PATH}/native/${PLATFORM_CPU} cpu SRC_FILE)
+add_group_hdr(${PLATFORM_PATH}/include/network/dns dns network/dns SRC_FILE)
+add_group_src(${PLATFORM_PATH}/source/network/dns dns SRC_FILE)
 
-ttcm_add_group_src(${PLATFORM_PATH}/source/network network SRC_FILE)
-ttcm_add_group_src(${PLATFORM_PATH}/source/network/dns dns SRC_FILE)
-ttcm_add_group_src(${PLATFORM_PATH}/source/network/ssl ssl SRC_FILE)
+add_group_hdr(${PLATFORM_PATH}/include/network/ssl ssl network/ssl SRC_FILE)
+add_group_src(${PLATFORM_PATH}/source/network/ssl ssl SRC_FILE)
 
-#ttcm_add_group_src(${PLATFORM_PATH}/source/network/ssh ssh SRC_FILE)
-#ttcm_add_group_src(${PLATFORM_PATH}/source/network/ssh/message ssh SRC_FILE)
-#ttcm_add_group_src(${PLATFORM_PATH}/source/network/ssh/client ssh SRC_FILE)
-#ttcm_add_group_src(${PLATFORM_PATH}/source/network/ssh/server ssh SRC_FILE)
-#ttcm_add_group_src(${PLATFORM_PATH}/source/network/ssh/context ssh SRC_FILE)
+#add_group_src(${PLATFORM_PATH}/source/network/ssh ssh SRC_FILE)
+#add_group_src(${PLATFORM_PATH}/source/network/ssh/message ssh SRC_FILE)
+#add_group_src(${PLATFORM_PATH}/source/network/ssh/client ssh SRC_FILE)
+#add_group_src(${PLATFORM_PATH}/source/network/ssh/server ssh SRC_FILE)
+#add_group_src(${PLATFORM_PATH}/source/network/ssh/context ssh SRC_FILE)
 
-ttcm_add_group_src(${PLATFORM_PATH}/source/cli cli SRC_FILE)
-ttcm_add_group_src(${PLATFORM_PATH}/source/cli/shell shell SRC_FILE)
+add_group_hdr(${PLATFORM_PATH}/include/cli cli cli SRC_FILE)
+add_group_src(${PLATFORM_PATH}/source/cli cli SRC_FILE)
+add_group_hdr(${PLATFORM_PATH}/include/cli/shell cli cli/shell SRC_FILE)
+add_group_src(${PLATFORM_PATH}/source/cli/shell shell SRC_FILE)
 
 # test cases
-ttcm_add_group_src(${PLATFORM_PATH}/source/algorithm/test_case test_case SRC_FILE)
-ttcm_add_group_src(${PLATFORM_PATH}/test_case test_case SRC_FILE)
-ttcm_add_group_src(${PLATFORM_PATH}/source/cli/test_case cli SRC_FILE)
-ttcm_add_group_src(${PLATFORM_PATH}/source/xml/test_case xml SRC_FILE)
-ttcm_add_group_src(${PLATFORM_PATH}/source/crypto/test_case crypto SRC_FILE)
-ttcm_add_group_src(${PLATFORM_PATH}/source/network/ssl/test_case ssl SRC_FILE)
-ttcm_add_group_src(${PLATFORM_PATH}/source/math/mp/test_case mp SRC_FILE)
-ttcm_add_group_src(${PLATFORM_PATH}/source/network/dns/test_case dns SRC_FILE)
+add_group_src(${PLATFORM_PATH}/source/algorithm/test_case test_case SRC_FILE)
+add_group_src(${PLATFORM_PATH}/test_case test_case SRC_FILE)
+add_group_src(${PLATFORM_PATH}/source/cli/test_case cli SRC_FILE)
+add_group_src(${PLATFORM_PATH}/source/xml/test_case xml SRC_FILE)
+add_group_src(${PLATFORM_PATH}/source/crypto/test_case crypto SRC_FILE)
+add_group_src(${PLATFORM_PATH}/source/network/ssl/test_case ssl SRC_FILE)
+add_group_src(${PLATFORM_PATH}/source/math/mp/test_case mp SRC_FILE)
+add_group_src(${PLATFORM_PATH}/source/network/dns/test_case dns SRC_FILE)
+
+# native
+add_group_hdr(${PLATFORM_PATH}/native/${PLATFORM_ENV} native "" SRC_FILE)
+add_group_src(${PLATFORM_PATH}/native/${PLATFORM_ENV} native SRC_FILE)
 
 #
 # build
@@ -149,11 +172,14 @@ else ()
   add_library(platform STATIC ${SRC_FILE})
 endif ()
 
-# link specific libraries
-ttcm_platform_link_libraries()
+# force to generate Headers link in mac framework
+set_target_properties(platform PROPERTIES PUBLIC_HEADER "${BASIC_HDR}")
 
 # set specific properties
-ttcm_platform_set_properties()
+platform_set_properties()
+
+# link specific libraries
+platform_link_libraries()
 
 #
 # link

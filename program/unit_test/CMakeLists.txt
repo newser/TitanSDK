@@ -49,20 +49,20 @@ include_directories(${PLATFORM_PATH}/depend/dns/include)
 # source file
 #
 
-set(SRC_FILE app_unit_test.c)
-set(SRC_FILE ${SRC_FILE} app_unit_test_process.c)
+set(SRC_FILE unit_test.c)
+set(SRC_FILE ${SRC_FILE} unit_test_process.c)
 
 #
 # build
 #
 
-add_executable(app_unit_test ${SRC_FILE})
+add_executable(unit_test ${SRC_FILE})
 
 #
 # link
 #
 
 # link platform module
-target_link_libraries(app_unit_test platform)
-add_dependencies(app_unit_test platform)
+target_link_libraries(unit_test platform)
+add_dependencies(unit_test platform)
 

@@ -35,7 +35,8 @@
 ////////////////////////////////////////////////////////////
 
 #if TT_ENV_OS_IS_IOS
-extern void ios_display(const char *str);
+void (*g_ios_display)(const char *str);
+static void __ios_display(const char *str);
 
 #define __IOS_BUF_SIZE 1000
 tt_char_t __ios_buf[__IOS_BUF_SIZE + 1];
@@ -151,7 +152,7 @@ tt_result_t tt_test_list(IN const tt_char_t *class_name,
 
     TT_TEST_INFO("test result: \r\n");
 #if TT_ENV_OS_IS_IOS
-    ios_display("test result: \n\n");
+    __ios_display("test result: \n\n");
 #endif
 
     if (class_name == NULL) {
@@ -266,7 +267,7 @@ tt_result_t tt_test_list_class(IN tt_test_class_t *test_class,
     TT_TEST_INFO("== class: %s\r\n", test_class->name);
 #if TT_ENV_OS_IS_IOS
     snprintf(__ios_buf, __IOS_BUF_SIZE, "== class: %s\n\n", test_class->name);
-    ios_display(__ios_buf);
+    __ios_display(__ios_buf);
 #endif
 
     while (item != NULL) {
@@ -289,16 +290,16 @@ tt_result_t tt_test_list_item(IN tt_test_item_t *item,
 
 #if TT_ENV_OS_IS_IOS
     snprintf(__ios_buf, __IOS_BUF_SIZE, "   |-- case:    %s\n", item->name);
-    ios_display(__ios_buf);
+    __ios_display(__ios_buf);
     snprintf(__ios_buf, __IOS_BUF_SIZE, "   |   comment: %s\n", item->comment);
-    ios_display(__ios_buf);
+    __ios_display(__ios_buf);
     snprintf(__ios_buf,
              __IOS_BUF_SIZE,
              "   |   result:  %s\n",
              TT_OK(item->test_result) ? "OK" : "Fail");
-    ios_display(__ios_buf);
+    __ios_display(__ios_buf);
     snprintf(__ios_buf, __IOS_BUF_SIZE, "   |-- info:    %s\n\n", item->info);
-    ios_display(__ios_buf);
+    __ios_display(__ios_buf);
 #endif
 
     if (TT_OK(item->test_result)) {
@@ -349,3 +350,12 @@ tt_result_t tt_test_run_item(IN tt_test_item_t *item)
 
     return TT_SUCCESS;
 }
+
+#if TT_ENV_OS_IS_IOS
+void __ios_display(const char *str)
+{
+    if (g_ios_display != NULL) {
+        g_ios_display(str);
+    }
+}
+#endif

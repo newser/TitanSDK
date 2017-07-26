@@ -25,11 +25,8 @@
 # linker options
 #
 
-# windows libraries
-set(PLATFORM_DEP_LIB winmm.lib ws2_32.lib iphlpapi.lib PARENT_SCOPE)
-
 # libraries required by platform
-function(ttcm_platform_link_libraries)
+function(platform_link_libraries)
   # multimedia
   target_link_libraries(platform winmm)
   
@@ -39,14 +36,10 @@ function(ttcm_platform_link_libraries)
   # network interface
   target_link_libraries(platform iphlpapi)
 
-endfunction(ttcm_platform_link_libraries)
+endfunction(platform_link_libraries)
 
 # platform properties
-function(ttcm_platform_set_properties)
-  # define TS_PLATFORM_DYNAMIC_LIB_BUILDING during building
-  set_target_properties(platform PROPERTIES
-                        COMPILE_FLAGS -DTS_PLATFORM_DYNAMIC_LIB_BUILDING)
-
+function(platform_set_properties)
   # titansdk.lib/dll
   set_target_properties(platform PROPERTIES OUTPUT_NAME titansdk)
 
@@ -56,4 +49,4 @@ function(ttcm_platform_set_properties)
   set_target_properties(platform PROPERTIES 
                         LINK_FLAGS "/VERSION:\"${PLATFORM_VERSION_MAJOR}.${PLATFORM_VERSION_MINOR}\"")
 
-endfunction(ttcm_platform_set_properties)
+endfunction(platform_set_properties)

@@ -19,16 +19,11 @@
 
 set(DNS_PATH ${CMAKE_CURRENT_SOURCE_DIR}/c-ares)
 
-macro(hide name type value)
-  set(${name} ${value} CACHE ${type} "hidden" FORCE)
-  mark_as_advanced(${name})
-endmacro(hide)
-
 #
 # customization
 #
 
-# lib type depends on platform configuration
+# must be static
 hide(CARES_STATIC BOOL ON)
 hide(CARES_SHARED BOOL OFF)
 hide(CARES_INSTALL BOOL OFF)

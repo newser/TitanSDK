@@ -32,8 +32,12 @@ include(${PLATFORM_BUILD_PATH}/environment.cmake)
 include(${PLATFORM_BUILD_PATH}/${PLATFORM_ENV}.cmake)
 
 # applications to build
-set(APP_UNIT_TEST 1 CACHE BOOL "app: unit test")
-set(APP_COMMAND_LINE 0 CACHE BOOL "app: command line")
+set(PROGRAM_UNIT_TEST 1 CACHE BOOL "app: unit test")
+set(PROGRAM_COMMAND_LINE 0 CACHE BOOL "app: command line")
+
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/output/static)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/output/shared)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/output/programs)
 
 #
 # component
@@ -42,6 +46,15 @@ set(APP_COMMAND_LINE 0 CACHE BOOL "app: command line")
 # platform
 set(PLATFORM_PATH ${PLATFORM_ROOT_PATH}/platform)
 add_subdirectory(${PLATFORM_PATH}/build platform)
+
+# program: unit test
+if (PROGRAM_UNIT_TEST)
+  if (PLATFORM_ENV STREQUAL ios-xcode)
+    add_subdirectory(${PLATFORM_ROOT_PATH}/program/ios_unit_test unit_test)
+  else ()
+    add_subdirectory(${PLATFORM_ROOT_PATH}/program/unit_test unit_test)
+  endif()
+endif ()
 
 #
 # header file path
@@ -55,15 +68,10 @@ add_subdirectory(${PLATFORM_PATH}/build platform)
 # build
 #
 
-if (APP_UNIT_TEST)
-  if (PLATFORM_ENV STREQUAL ios-xcode)
-    add_subdirectory(${PLATFORM_BUILD_PATH}/application/ios_unit_test unit_test)
-  else ()
-    add_subdirectory(${PLATFORM_BUILD_PATH}/application/unit_test unit_test)
-  endif()
-endif ()
-
 #
 # link
 #
 
+#
+# package
+#

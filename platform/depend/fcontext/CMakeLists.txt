@@ -59,4 +59,4 @@ elseif (PLATFORM_ENV_OS STREQUAL linux)
 endif ()
 
 # add to library
-add_library(fcontext ${SRC})
+add_library(fcontext STATIC ${SRC})

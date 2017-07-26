@@ -25,10 +25,8 @@
 # linker options
 #
 
-#set(PLATFORM_DEP_LIB pthread rt numa PARENT_SCOPE)
-
 # libraries required by platform
-function(ttcm_platform_link_libraries)
+function(platform_link_libraries)
   # pthread
   target_link_libraries(platform pthread)
 
@@ -42,12 +40,12 @@ function(ttcm_platform_link_libraries)
 
   target_link_libraries(platform dl)
 
-endfunction(ttcm_platform_link_libraries)
+endfunction(platform_link_libraries)
 
 # platform properties
-function(ttcm_platform_set_properties)
+function(platform_set_properties)
   # libtitansdk.a/so
   set_target_properties(platform PROPERTIES OUTPUT_NAME titansdk)
 
-endfunction(ttcm_platform_set_properties)
+endfunction(platform_set_properties)
 

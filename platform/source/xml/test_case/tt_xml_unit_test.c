@@ -55,7 +55,7 @@ TT_XML_UT_DECLARE(XML_UT_XPATH)
 // global variant
 ////////////////////////////////////////////////////////////
 
-tt_test_unit_t *tt_g_crypto_ut_list[XML_UT_NUM] = {
+tt_test_unit_t *tt_g_xml_ut_list[XML_UT_NUM] = {
 #if 1
     &TT_MAKE_TEST_UNIT_NAME(XML_UT_XDOC),
     &TT_MAKE_TEST_UNIT_NAME(XML_UT_XATTR),
@@ -78,8 +78,8 @@ tt_result_t tt_xml_ut_init(IN tt_ptr_t reserved)
     while (unit_id < XML_UT_NUM) {
         tt_result_t result = TT_FAIL;
 
-        if (tt_g_crypto_ut_list[unit_id] != NULL) {
-            result = tt_test_unit_to_class(tt_g_crypto_ut_list[unit_id]);
+        if (tt_g_xml_ut_list[unit_id] != NULL) {
+            result = tt_test_unit_to_class(tt_g_xml_ut_list[unit_id]);
             if (!TT_OK(result)) {
                 return TT_FAIL;
             }

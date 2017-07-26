@@ -50,33 +50,33 @@ include_directories(${PLATFORM_PATH}/depend/dns/include)
 #
 
 set(SRC_FILE AppDelegate.m main.m ViewController.m
-             app_unit_test_process.c app_unit_test.c)
+             unit_test_process.c unit_test.c)
 set(RESOURCE_FILE Main.storyboard)
 
 #
 # build
 #
 
-add_executable(app_unit_test MACOSX_BUNDLE ${SRC_FILE} ${RESOURCE_FILE})
+add_executable(unit_test MACOSX_BUNDLE ${SRC_FILE} ${RESOURCE_FILE})
 
-set_target_properties(app_unit_test PROPERTIES
+set_target_properties(unit_test PROPERTIES
                       MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/titansdk-ios-unit-test-Info.plist
                       RESOURCE "${RESOURCE_FILE}"
                       XCODE_ATTRIBUTE_GCC_PRECOMPILE_PREFIX_HEADER YES
                       XCODE_ATTRIBUTE_GCC_PREFIX_HEADER ${CMAKE_CURRENT_SOURCE_DIR}/titansdk-ios-unit-test-Prefix.pch
                       XCODE_ATTRIBUTE_INFOPLIST_PREPROCESS YES
-                      XCODE_ATTRIBUTE_CODE_SIGN_ENTITLEMENTS ${CMAKE_CURRENT_SOURCE_DIR}/app_unit_test.entitlements)
+                      XCODE_ATTRIBUTE_CODE_SIGN_ENTITLEMENTS ${CMAKE_CURRENT_SOURCE_DIR}/unit_test.entitlements)
 
 #
 # link
 #
 
 # link platform module
-target_link_libraries(app_unit_test platform)
-add_dependencies(app_unit_test platform)
+target_link_libraries(unit_test platform)
+add_dependencies(unit_test platform)
 
 # core foundation
-target_link_libraries(app_unit_test
+target_link_libraries(unit_test
                       "-framework CoreGraphics"
                       "-framework Foundation"
                       "-framework UIKit")

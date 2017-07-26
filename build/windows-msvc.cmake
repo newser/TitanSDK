@@ -38,8 +38,8 @@ string(REPLACE "/GX" "" CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
 string(REPLACE "/EHsc" "" CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
 
 # enable intrinsic function
-ttcm_choose_compiler_flag(CMAKE_C_FLAGS_RELEASE FALSE /Oi)
-ttcm_choose_compiler_flag(CMAKE_CXX_FLAGS_RELEASE FALSE /Oi)
+choose_compiler_flag(CMAKE_C_FLAGS_RELEASE FALSE /Oi)
+choose_compiler_flag(CMAKE_CXX_FLAGS_RELEASE FALSE /Oi)
 
 #
 # linker options

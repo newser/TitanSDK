@@ -19,11 +19,6 @@
 
 set(TLS_PATH ${CMAKE_CURRENT_SOURCE_DIR}/mbedtls)
 
-macro(hide name type value)
-  set(${name} ${value} CACHE ${type} "hidden" FORCE)
-  mark_as_advanced(${name})
-endmacro(hide)
-
 #
 # customization
 #
@@ -43,7 +38,7 @@ hide(UNSAFE_BUILD BOOL OFF)
 # no need test cases
 hide(ENABLE_TESTING BOOL OFF)
 
-# lib type depends on platform configuration
+# must be static
 hide(USE_STATIC_MBEDTLS_LIBRARY BOOL ON)
 hide(USE_SHARED_MBEDTLS_LIBRARY BOOL OFF)
 
