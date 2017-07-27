@@ -39,6 +39,7 @@ endfunction()
 add_custom_target(generate_header
                   COMMAND ${CMAKE_COMMAND} -E remove_directory ${HEADER_PATH}
                   COMMAND ${CMAKE_COMMAND} -E copy_directory ${PLATFORM_PATH}/include ${HEADER_PATH}
+                  COMMAND ${CMAKE_COMMAND} -E remove ${HEADER_PATH}/.gitignore
                   COMMENT "Generating platform header files")
 add_dependencies(generate_header platform)
 

@@ -47,10 +47,15 @@ a function with such prefix would be expanded as inline
 */
 #define tt_inline static __inline
 
-#ifdef TT_PLATFORM_BUILD_SHARED_EXPORT
+#if defined(TT_PLATFORM_BUILD_SHARED_EXPORT)
+// this is for building platform dll, defined by platform itself
 #define tt_export __declspec(dllexport) extern
-#else
+#elif defined(TT_PLATFORM_BUILD_SHARED_IMPORT)
+// this is for application linking platform dll, defined by application
 #define tt_export __declspec(dllimport) extern
+#else
+// this is for building static platform library
+#define tt_export extern
 #endif
 
 #define tt_restrict restrict

@@ -19,19 +19,19 @@ set(SRC pugixml/pugixml.cpp
         include/pugiconfig.hpp)
 
 # add to library
-if (PLATFORM_BUILD_SHARED)
-  add_library(xml SHARED ${SRC})
-else ()
-  add_library(xml STATIC ${SRC})
-endif ()
+
+# always build static lib and link to platform
+add_library(xml STATIC ${SRC})
 
 set_target_properties(xml PROPERTIES MACOSX_RPATH ON)
 
-set_target_properties(xml PROPERTIES
-                      ARCHIVE_OUTPUT_DIRECTORY_DEBUG ${PLATFORM_OUTPATH}/debug/static
-                      LIBRARY_OUTPUT_DIRECTORY_DEBUG ${PLATFORM_OUTPATH}/debug/shared
-                      RUNTIME_OUTPUT_DIRECTORY_DEBUG ${PLATFORM_OUTPATH}/debug/program)
-set_target_properties(xml PROPERTIES
-                      ARCHIVE_OUTPUT_DIRECTORY_RELEASE ${PLATFORM_OUTPATH}/release/static
-                      LIBRARY_OUTPUT_DIRECTORY_RELEASE ${PLATFORM_OUTPATH}/release/shared
-                      RUNTIME_OUTPUT_DIRECTORY_RELEASE ${PLATFORM_OUTPATH}/release/program)
+if (NOT PLATFORM_BUILD_SHARED)
+	set_target_properties(xml PROPERTIES
+    	                  ARCHIVE_OUTPUT_DIRECTORY_DEBUG ${PLATFORM_OUTPATH}/debug/static
+        	              LIBRARY_OUTPUT_DIRECTORY_DEBUG ${PLATFORM_OUTPATH}/debug/shared
+            	          RUNTIME_OUTPUT_DIRECTORY_DEBUG ${PLATFORM_OUTPATH}/debug/program)
+    set_target_properties(xml PROPERTIES
+    	                  ARCHIVE_OUTPUT_DIRECTORY_RELEASE ${PLATFORM_OUTPATH}/release/static
+        	              LIBRARY_OUTPUT_DIRECTORY_RELEASE ${PLATFORM_OUTPATH}/release/shared
+            	          RUNTIME_OUTPUT_DIRECTORY_RELEASE ${PLATFORM_OUTPATH}/release/program)
+endif ()

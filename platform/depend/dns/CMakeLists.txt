@@ -23,13 +23,9 @@ set(DNS_PATH ${CMAKE_CURRENT_SOURCE_DIR}/c-ares)
 # customization
 #
 
-if (PLATFORM_BUILD_SHARED)
-    hide(CARES_STATIC BOOL OFF)
-    hide(CARES_SHARED BOOL ON)
-else ()
-    hide(CARES_STATIC BOOL ON)
-    hide(CARES_SHARED BOOL OFF)
-endif ()
+# always build static lib and link to platform
+hide(CARES_STATIC BOOL ON)
+hide(CARES_SHARED BOOL OFF)
 hide(CARES_STATIC_PIC BOOL OFF)
 
 hide(CARES_INSTALL BOOL OFF)
@@ -41,14 +37,16 @@ add_subdirectory(${DNS_PATH})
 
 set_target_properties(c-ares PROPERTIES MACOSX_RPATH ON)
 
-set_target_properties(c-ares PROPERTIES
-                      ARCHIVE_OUTPUT_DIRECTORY_DEBUG ${PLATFORM_OUTPATH}/debug/static
-                      LIBRARY_OUTPUT_DIRECTORY_DEBUG ${PLATFORM_OUTPATH}/debug/shared
-                      RUNTIME_OUTPUT_DIRECTORY_DEBUG ${PLATFORM_OUTPATH}/debug/program)
-set_target_properties(c-ares PROPERTIES
-                      ARCHIVE_OUTPUT_DIRECTORY_RELEASE ${PLATFORM_OUTPATH}/release/static
-                      LIBRARY_OUTPUT_DIRECTORY_RELEASE ${PLATFORM_OUTPATH}/release/shared
-                      RUNTIME_OUTPUT_DIRECTORY_RELEASE ${PLATFORM_OUTPATH}/release/program)
+if (NOT PLATFORM_BUILD_SHARED)
+    set_target_properties(c-ares PROPERTIES
+                          ARCHIVE_OUTPUT_DIRECTORY_DEBUG ${PLATFORM_OUTPATH}/debug/static
+                          LIBRARY_OUTPUT_DIRECTORY_DEBUG ${PLATFORM_OUTPATH}/debug/shared
+                          RUNTIME_OUTPUT_DIRECTORY_DEBUG ${PLATFORM_OUTPATH}/debug/program)
+    set_target_properties(c-ares PROPERTIES
+                          ARCHIVE_OUTPUT_DIRECTORY_RELEASE ${PLATFORM_OUTPATH}/release/static
+                          LIBRARY_OUTPUT_DIRECTORY_RELEASE ${PLATFORM_OUTPATH}/release/shared
+                          RUNTIME_OUTPUT_DIRECTORY_RELEASE ${PLATFORM_OUTPATH}/release/program)
+endif ()
 
 #
 # result
