@@ -102,10 +102,10 @@ typedef struct tt_sshsvr_s
 ////////////////////////////////////////////////////////////
 
 tt_export tt_sshsvr_t *tt_sshsvr_create(IN tt_sktaddr_t *address,
-                                     IN OPT tt_sshsvr_attr_t *attr,
-                                     IN OPT tt_sshsvr_cb_t *cb,
-                                     IN OPT void *opaque,
-                                     IN tt_sshch_cb_t *sshch_cb);
+                                        IN OPT tt_sshsvr_attr_t *attr,
+                                        IN OPT tt_sshsvr_cb_t *cb,
+                                        IN OPT void *opaque,
+                                        IN tt_sshch_cb_t *sshch_cb);
 
 // brute can only be set to true when sshsvr is created just now
 tt_export void tt_sshsvr_destroy(IN tt_sshsvr_t *sshsvr, IN tt_bool_t brute);

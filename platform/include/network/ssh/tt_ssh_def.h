@@ -150,7 +150,7 @@ typedef enum {
 tt_export const tt_char_t *tt_g_ssh_pubkey_alg_name[TT_SSH_PUBKEY_ALG_NUM];
 
 tt_export tt_ssh_pubkey_alg_t tt_ssh_pubkey_alg_match(IN tt_u8_t *name,
-                                                   IN tt_u32_t name_len);
+                                                      IN tt_u32_t name_len);
 
 // ========================================
 // Encryption
@@ -167,7 +167,7 @@ typedef enum {
 tt_export const tt_char_t *tt_g_ssh_enc_alg_name[TT_SSH_ENC_ALG_NUM];
 
 tt_export tt_ssh_enc_alg_t tt_ssh_enc_alg_match(IN tt_u8_t *name,
-                                             IN tt_u32_t name_len);
+                                                IN tt_u32_t name_len);
 
 // ========================================
 // Data Integrity
@@ -183,7 +183,7 @@ typedef enum {
 tt_export const tt_char_t *tt_g_ssh_mac_alg_name[TT_SSH_MAC_ALG_NUM];
 
 tt_export tt_ssh_mac_alg_t tt_ssh_mac_alg_match(IN tt_u8_t *name,
-                                             IN tt_u32_t name_len);
+                                                IN tt_u32_t name_len);
 
 // ========================================
 // Compression
@@ -200,7 +200,7 @@ typedef enum {
 tt_export const tt_char_t *tt_g_ssh_cmprs_alg_name[TT_SSH_CMPRS_ALG_NUM];
 
 tt_export tt_ssh_cmprs_alg_t tt_ssh_cmprs_alg_match(IN tt_u8_t *name,
-                                                 IN tt_u32_t name_len);
+                                                    IN tt_u32_t name_len);
 
 // ========================================
 // Service
@@ -217,7 +217,7 @@ typedef enum {
 tt_export const tt_char_t *tt_g_ssh_serv_name[TT_SSH_SERVICE_NUM];
 
 tt_export tt_ssh_service_t tt_ssh_serv_match(IN tt_u8_t *name,
-                                          IN tt_u32_t name_len);
+                                             IN tt_u32_t name_len);
 
 // ========================================
 // Auth Method
@@ -235,7 +235,8 @@ typedef enum {
 
 tt_export const tt_char_t *tt_g_ssh_auth_name[TT_SSH_AUTH_NUM];
 
-tt_export tt_ssh_auth_t tt_ssh_auth_match(IN tt_u8_t *name, IN tt_u32_t name_len);
+tt_export tt_ssh_auth_t tt_ssh_auth_match(IN tt_u8_t *name,
+                                          IN tt_u32_t name_len);
 
 // ========================================
 // Channel
@@ -254,7 +255,7 @@ typedef enum {
 tt_export const tt_char_t *tt_g_ssh_chtype_name[TT_SSH_CHTYPE_NUM];
 
 tt_export tt_ssh_chtype_t tt_ssh_chtype_match(IN tt_u8_t *name,
-                                           IN tt_u32_t name_len);
+                                              IN tt_u32_t name_len);
 
 typedef enum {
     TT_SSH_CHREQTYPE_PTYREQ,
@@ -276,7 +277,7 @@ typedef enum {
 tt_export const tt_char_t *tt_g_ssh_chreqtype_name[TT_SSH_CHREQTYPE_NUM];
 
 tt_export tt_ssh_chreqtype_t tt_ssh_chreqtype_match(IN tt_u8_t *name,
-                                                 IN tt_u32_t name_len);
+                                                    IN tt_u32_t name_len);
 
 ////////////////////////////////////////////////////////////
 // global variants

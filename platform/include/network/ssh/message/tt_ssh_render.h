@@ -129,8 +129,8 @@ tt_inline tt_u32_t tt_ssh_string_render_prepare(IN tt_u8_t *string_val,
 }
 
 tt_export tt_result_t tt_ssh_string_render(IN tt_buf_t *buf,
-                                        IN tt_u8_t *string_val,
-                                        IN tt_u32_t string_len);
+                                           IN tt_u8_t *string_val,
+                                           IN tt_u32_t string_len);
 
 /*
  mpint
@@ -155,9 +155,9 @@ tt_inline tt_u32_t tt_ssh_mpint_render_prepare(IN tt_u8_t *mpint,
 }
 
 tt_export tt_result_t tt_ssh_mpint_render(IN tt_buf_t *buf,
-                                       IN tt_u8_t *mpint,
-                                       IN tt_u32_t mpint_len,
-                                       IN tt_bool_t negative);
+                                          IN tt_u8_t *mpint,
+                                          IN tt_u32_t mpint_len,
+                                          IN tt_bool_t negative);
 
 /*
  name-list
@@ -176,17 +176,17 @@ tt_export tt_result_t tt_ssh_mpint_render(IN tt_buf_t *buf,
  for the individual names, nor for the list as a whole.
  */
 tt_export tt_u32_t tt_ssh_namelist_render_prepare(IN const tt_char_t *name[],
-                                               IN tt_u32_t name_num);
+                                                  IN tt_u32_t name_num);
 
 tt_export tt_result_t tt_ssh_namelist_render(IN tt_buf_t *buf,
-                                          IN const tt_char_t *name[],
-                                          IN tt_u32_t name_num);
+                                             IN const tt_char_t *name[],
+                                             IN tt_u32_t name_num);
 
 // - if block_size is 0, it uses 8 as block size
 // - if max_pad_block is 0, it uses
 tt_export tt_u8_t tt_sshmsg_padlen(IN tt_u32_t data_len,
-                                IN tt_u32_t block_size,
-                                IN tt_u32_t pad_block,
-                                IN tt_u32_t max_pad_block);
+                                   IN tt_u32_t block_size,
+                                   IN tt_u32_t pad_block,
+                                   IN tt_u32_t max_pad_block);
 
 #endif /* __TT_SSH_RENDER__ */

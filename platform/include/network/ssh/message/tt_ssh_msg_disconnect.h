@@ -56,9 +56,9 @@ typedef struct
 tt_export struct tt_sshmsg_s *tt_sshmsg_disconnect_create();
 
 tt_export void tt_sshmsg_disconnect_set_reason(IN struct tt_sshmsg_s *msg,
-                                            IN tt_u32_t reason_code);
+                                               IN tt_u32_t reason_code);
 
 tt_export void tt_sshmsg_disconnect_set_desc(IN struct tt_sshmsg_s *msg,
-                                          IN const tt_char_t *description);
+                                             IN const tt_char_t *description);
 
 #endif /* __TT_SSH_MSGID_DISCONNECT__ */

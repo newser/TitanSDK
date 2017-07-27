@@ -54,6 +54,6 @@ struct tt_sshmsg_s;
 tt_export struct tt_sshmsg_s *tt_sshmsg_chclose_create();
 
 tt_export void tt_sshmsg_chclose_set_rcvchnum(IN struct tt_sshmsg_s *msg,
-                                           IN tt_u32_t rcv_chnumum);
+                                              IN tt_u32_t rcv_chnumum);
 
 #endif /* __TT_SSH_MSGID_CHANNEL_CLOSE__ */

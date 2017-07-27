@@ -56,12 +56,12 @@ typedef struct
 tt_export struct tt_sshmsg_s *tt_sshmsg_chreq_create();
 
 tt_export void tt_sshmsg_chreq_set_rcvchnum(IN struct tt_sshmsg_s *msg,
-                                         IN tt_u32_t rcv_chnum);
+                                            IN tt_u32_t rcv_chnum);
 
 tt_export void tt_sshmsg_chreq_set_reqtype(IN struct tt_sshmsg_s *msg,
-                                        IN tt_ssh_chreqtype_t req_type);
+                                           IN tt_ssh_chreqtype_t req_type);
 
 tt_export void tt_sshmsg_chreq_set_wantreply(IN struct tt_sshmsg_s *msg,
-                                          IN tt_bool_t want_reply);
+                                             IN tt_bool_t want_reply);
 
 #endif /* __TT_SSH_MSGID_CHANNEL_REQUEST__ */

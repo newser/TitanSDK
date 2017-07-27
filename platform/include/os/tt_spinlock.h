@@ -135,7 +135,7 @@ tt_inline void tt_spinlock_acquire_tag(IN tt_spinlock_t *slock
                                        IN const tt_char_t *function,
                                        IN tt_u32_t line
 #endif
-)
+                                       )
 {
     tt_spinlock_acquire_ntv(&slock->sys_lock);
 }
@@ -159,7 +159,7 @@ tt_inline tt_bool_t tt_spinlock_try_acquire_tag(IN tt_spinlock_t *slock
                                                 IN const tt_char_t *function,
                                                 IN tt_u32_t line
 #endif
-)
+                                                )
 {
     return tt_spinlock_try_acquire_ntv(&slock->sys_lock);
 }

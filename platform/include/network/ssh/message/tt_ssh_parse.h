@@ -63,7 +63,7 @@ tt_inline tt_result_t tt_ssh_byte_parse(IN tt_buf_t *buf, OUT tt_u8_t *byte_val)
  store values other than 0 and 1.
  */
 tt_export tt_result_t tt_ssh_boolean_parse(IN tt_buf_t *buf,
-                                        OUT tt_bool_t *boolean_val);
+                                           OUT tt_bool_t *boolean_val);
 
 /*
  uint32
@@ -102,8 +102,8 @@ tt_inline tt_result_t tt_ssh_uint64_parse(IN tt_buf_t *buf,
 // - otherwise, buffer may be parially updated so that caller need backup
 //   pos and restore buf pos when returned valus is not TT_SUCCESS
 tt_export tt_result_t tt_ssh_string_parse(IN tt_buf_t *buf,
-                                       OUT tt_u8_t **string_val,
-                                       OUT tt_u32_t *string_len);
+                                          OUT tt_u8_t **string_val,
+                                          OUT tt_u32_t *string_len);
 
 /*
  mpint
@@ -120,8 +120,8 @@ tt_export tt_result_t tt_ssh_string_parse(IN tt_buf_t *buf,
 // - otherwise, buffer may be parially updated so that caller need backup
 //   pos and restore buf pos when returned valus is not TT_SUCCESS
 tt_export tt_result_t tt_ssh_mpint_parse(IN tt_buf_t *buf,
-                                      OUT tt_u8_t **mpint,
-                                      OUT tt_u32_t *mpint_len);
+                                         OUT tt_u8_t **mpint,
+                                         OUT tt_u32_t *mpint_len);
 
 /*
  name-list
@@ -147,7 +147,7 @@ typedef tt_result_t (*tt_ssh_namelist_parse_cb_t)(IN tt_char_t *name,
                                                   IN void *param);
 
 tt_export tt_result_t tt_ssh_namelist_parse(IN tt_buf_t *buf,
-                                         IN tt_ssh_namelist_parse_cb_t cb,
-                                         IN void *cb_param);
+                                            IN tt_ssh_namelist_parse_cb_t cb,
+                                            IN void *cb_param);
 
 #endif /* __TT_SSH_PARSE__ */

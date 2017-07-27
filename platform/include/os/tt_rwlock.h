@@ -196,7 +196,7 @@ tt_inline void tt_rwlock_acquire_r_tag(IN tt_rwlock_t *rwlock
                                        IN const tt_char_t *function,
                                        IN tt_u32_t line
 #endif
-)
+                                       )
 {
     tt_rwlock_acquire_r_ntv(&rwlock->sys_rwlock);
 }
@@ -220,7 +220,7 @@ tt_inline tt_result_t tt_rwlock_try_acquire_r_tag(IN tt_rwlock_t *rwlock
                                                   IN const tt_char_t *function,
                                                   IN tt_u32_t line
 #endif
-)
+                                                  )
 {
     return tt_rwlock_try_acquire_r_ntv(&rwlock->sys_rwlock);
 }
@@ -248,7 +248,7 @@ tt_inline void tt_rwlock_acquire_w_tag(IN tt_rwlock_t *rwlock
                                        IN const tt_char_t *function,
                                        IN tt_u32_t line
 #endif
-)
+                                       )
 {
     tt_rwlock_acquire_w_ntv(&rwlock->sys_rwlock);
 }
@@ -272,7 +272,7 @@ tt_inline tt_result_t tt_rwlock_try_acquire_w_tag(IN tt_rwlock_t *rwlock
                                                   IN const tt_char_t *function,
                                                   IN tt_u32_t line
 #endif
-)
+                                                  )
 {
     return tt_rwlock_try_acquire_w_ntv(&rwlock->sys_rwlock);
 }

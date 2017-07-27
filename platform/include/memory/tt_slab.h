@@ -171,7 +171,7 @@ tt_export void *tt_slab_alloc_tag(IN tt_slab_t *slab
                                   IN const tt_char_t *func,
                                   IN tt_u32_t line
 #endif
-);
+                                  );
 
 /**
 @fn void tt_slab_free(IN void *obj)

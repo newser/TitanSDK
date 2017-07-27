@@ -57,15 +57,15 @@ typedef struct tt_sshmsg_chopen_s
 tt_export struct tt_sshmsg_s *tt_sshmsg_chopen_create();
 
 tt_export void tt_sshmsg_chopen_set_type(IN struct tt_sshmsg_s *msg,
-                                      IN tt_ssh_chtype_t type);
+                                         IN tt_ssh_chtype_t type);
 
 tt_export void tt_sshmsg_chopen_set_sndchnum(IN struct tt_sshmsg_s *msg,
-                                          IN tt_u32_t snd_chnum);
+                                             IN tt_u32_t snd_chnum);
 
 tt_export void tt_sshmsg_chopen_set_winsize(IN struct tt_sshmsg_s *msg,
-                                         IN tt_u32_t window_size);
+                                            IN tt_u32_t window_size);
 
 tt_export void tt_sshmsg_chopen_set_pktsize(IN struct tt_sshmsg_s *msg,
-                                         IN tt_u32_t packet_size);
+                                            IN tt_u32_t packet_size);
 
 #endif /* __TT_SSH_MSGID_CHANNEL_OPEN__ */

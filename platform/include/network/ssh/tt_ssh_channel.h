@@ -72,9 +72,9 @@ typedef struct tt_sshch_s
 ////////////////////////////////////////////////////////////
 
 tt_export tt_sshch_t *tt_sshch_create(IN tt_ssh_chtype_t type,
-                                   IN tt_u32_t chnum,
-                                   IN struct tt_sshch_cb_s *cb,
-                                   IN struct tt_sshchmgr_s *chmgr);
+                                      IN tt_u32_t chnum,
+                                      IN struct tt_sshch_cb_s *cb,
+                                      IN struct tt_sshchmgr_s *chmgr);
 
 // destroy ssh channel
 tt_export void tt_sshch_destroy(IN tt_sshch_t *ch);
@@ -103,12 +103,12 @@ tt_inline void tt_sshch_set_opaque(IN tt_sshch_t *ch, IN void *opaque)
 }
 
 tt_export tt_result_t tt_sshch_send(IN tt_sshch_t *ch,
-                                 IN tt_u8_t *data,
-                                 IN tt_u32_t data_len,
-                                 IN tt_u32_t flag);
+                                    IN tt_u8_t *data,
+                                    IN tt_u32_t data_len,
+                                    IN tt_u32_t flag);
 
 tt_export void tt_sshch_pkt_handler(IN tt_sshch_t *ch,
-                                 IN struct tt_sshmsg_s *msg,
-                                 OUT struct tt_sshsvr_action_s *svract);
+                                    IN struct tt_sshmsg_s *msg,
+                                    OUT struct tt_sshsvr_action_s *svract);
 
 #endif /* __TT_SSH_CHANNEL__ */

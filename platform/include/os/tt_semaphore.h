@@ -175,7 +175,7 @@ tt_inline tt_bool_t tt_sem_acquire_tag(IN tt_sem_t *sem,
                                        IN const tt_char_t *function,
                                        IN tt_u32_t line
 #endif
-)
+                                       )
 {
     return tt_sem_acquire_ntv(&sem->sys_sem, wait_ms);
 }
@@ -196,7 +196,7 @@ tt_inline tt_bool_t tt_sem_try_acquire_tag(IN tt_sem_t *sem
                                            IN const tt_char_t *function,
                                            IN tt_u32_t line
 #endif
-)
+                                           )
 {
     return tt_sem_try_acquire_ntv(&sem->sys_sem);
 }

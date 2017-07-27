@@ -59,7 +59,8 @@ typedef struct
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-tt_export void tt_sshkdf_init(IN tt_sshkdf_t *kdf, IN tt_ssh_hash_alg_t hash_alg);
+tt_export void tt_sshkdf_init(IN tt_sshkdf_t *kdf,
+                              IN tt_ssh_hash_alg_t hash_alg);
 
 tt_export void tt_sshkdf_destroy(IN tt_sshkdf_t *kdf);
 
@@ -67,14 +68,14 @@ tt_export void tt_sshkdf_destroy(IN tt_sshkdf_t *kdf);
 // - h: raw
 // - session_id: raw
 tt_export tt_result_t tt_sshkdf_run(IN tt_sshkdf_t *kdf,
-                                 IN tt_blob_t *k,
-                                 IN tt_blob_t *h,
-                                 IN tt_blob_t *session_id,
-                                 IN tt_u32_t iv_c2s_len,
-                                 IN tt_u32_t iv_s2c_len,
-                                 IN tt_u32_t enc_c2s_len,
-                                 IN tt_u32_t enc_s2c_len,
-                                 IN tt_u32_t mac_c2s_len,
-                                 IN tt_u32_t mac_s2c_len);
+                                    IN tt_blob_t *k,
+                                    IN tt_blob_t *h,
+                                    IN tt_blob_t *session_id,
+                                    IN tt_u32_t iv_c2s_len,
+                                    IN tt_u32_t iv_s2c_len,
+                                    IN tt_u32_t enc_c2s_len,
+                                    IN tt_u32_t enc_s2c_len,
+                                    IN tt_u32_t mac_c2s_len,
+                                    IN tt_u32_t mac_s2c_len);
 
 #endif /* __TT_SSH_KDF__ */

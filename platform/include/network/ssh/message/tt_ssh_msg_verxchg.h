@@ -60,10 +60,10 @@ typedef struct
 tt_export struct tt_sshmsg_s *tt_sshms_verxchg_create();
 
 tt_export void tt_sshms_verxchg_set_protover(IN struct tt_sshmsg_s *msg,
-                                          IN tt_ssh_ver_t ver);
+                                             IN tt_ssh_ver_t ver);
 
 tt_export tt_result_t tt_sshms_verxchg_set_swver(IN struct tt_sshmsg_s *msg,
-                                              IN const tt_char_t *ver);
+                                                 IN const tt_char_t *ver);
 
 // pass null to clear comment
 tt_export tt_result_t tt_sshms_verxchg_set_comment(

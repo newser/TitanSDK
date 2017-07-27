@@ -55,6 +55,6 @@ typedef struct
 tt_export struct tt_sshmsg_s *tt_sshmsg_kexdh_reply_create();
 
 tt_export void tt_sshmsg_kexdh_reply_setctx(IN struct tt_sshmsg_s *msg,
-                                         IN struct tt_sshctx_s *sshctx);
+                                            IN struct tt_sshctx_s *sshctx);
 
 #endif /* __TT_SSH_MSGID_KEXDH_REPLY__ */

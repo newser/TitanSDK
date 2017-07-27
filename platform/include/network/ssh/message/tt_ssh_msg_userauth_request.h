@@ -75,37 +75,37 @@ typedef struct
 tt_export struct tt_sshmsg_s *tt_sshmsg_uar_create();
 
 tt_export tt_result_t tt_sshmsg_uar_set_user(IN struct tt_sshmsg_s *msg,
-                                          IN const tt_char_t *user);
+                                             IN const tt_char_t *user);
 
 tt_export void tt_sshmsg_uar_set_service(IN struct tt_sshmsg_s *msg,
-                                      IN tt_ssh_service_t service);
+                                         IN tt_ssh_service_t service);
 
 tt_export void tt_sshmsg_uar_set_auth(IN struct tt_sshmsg_s *msg,
-                                   IN tt_ssh_auth_t auth);
+                                      IN tt_ssh_auth_t auth);
 
 // ========================================
 // auth: public key
 // ========================================
 
 tt_export tt_result_t tt_sshmsg_uar_set_pubkey_alg(IN struct tt_sshmsg_s *msg,
-                                                IN tt_ssh_pubkey_alg_t alg);
+                                                   IN tt_ssh_pubkey_alg_t alg);
 
 tt_export tt_result_t tt_sshmsg_uar_set_pubkey(IN struct tt_sshmsg_s *msg,
-                                            IN tt_u8_t *pubkey,
-                                            IN tt_u32_t pubkey_len);
+                                               IN tt_u8_t *pubkey,
+                                               IN tt_u32_t pubkey_len);
 
 tt_export tt_result_t tt_sshmsg_uar_set_signature(IN struct tt_sshmsg_s *msg,
-                                               IN tt_u8_t *sig,
-                                               IN tt_u32_t sig_len);
+                                                  IN tt_u8_t *sig,
+                                                  IN tt_u32_t sig_len);
 
 // ========================================
 // auth: password
 // ========================================
 
 tt_export tt_result_t tt_sshmsg_uar_set_pwd(IN struct tt_sshmsg_s *msg,
-                                         IN const tt_char_t *pwd);
+                                            IN const tt_char_t *pwd);
 
 tt_export tt_result_t tt_sshmsg_uar_set_newpwd(IN struct tt_sshmsg_s *msg,
-                                            IN const tt_char_t *pwd);
+                                               IN const tt_char_t *pwd);
 
 #endif /* __TT_SSH_MSGID_USERAUTH_REQUEST__ */

@@ -85,22 +85,22 @@ tt_export void tt_sshmac_init(IN tt_sshmac_t *mac);
 tt_export void tt_sshmac_destroy(IN tt_sshmac_t *mac);
 
 tt_export tt_result_t tt_sshmac_setalg(IN tt_sshmac_t *mac,
-                                    IN tt_ssh_mac_alg_t alg,
-                                    IN tt_u8_t *key,
-                                    IN tt_u32_t key_len);
+                                       IN tt_ssh_mac_alg_t alg,
+                                       IN tt_u8_t *key,
+                                       IN tt_u32_t key_len);
 
 tt_export tt_result_t tt_sshmac_sign(IN tt_sshmac_t *mac,
-                                  IN tt_u32_t seq_number,
-                                  IN tt_u8_t *data,
-                                  IN tt_u32_t data_len,
-                                  OUT tt_u8_t *signature,
-                                  IN tt_u32_t signature_len);
+                                     IN tt_u32_t seq_number,
+                                     IN tt_u8_t *data,
+                                     IN tt_u32_t data_len,
+                                     OUT tt_u8_t *signature,
+                                     IN tt_u32_t signature_len);
 
 tt_export tt_result_t tt_sshmac_verify(IN tt_sshmac_t *mac,
-                                    IN tt_u32_t seq_number,
-                                    IN tt_u8_t *data,
-                                    IN tt_u32_t data_len,
-                                    IN tt_u8_t *signature,
-                                    IN tt_u32_t signature_len);
+                                       IN tt_u32_t seq_number,
+                                       IN tt_u8_t *data,
+                                       IN tt_u32_t data_len,
+                                       IN tt_u8_t *signature,
+                                       IN tt_u32_t signature_len);
 
 #endif /* __TT_SSH_MAC__ */

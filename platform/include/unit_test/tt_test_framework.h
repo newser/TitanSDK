@@ -183,8 +183,8 @@ tt_export tt_result_t tt_test_framework_init(IN tt_ptr_t attribute);
  *   for test purpose
  */
 tt_export tt_result_t tt_test_class_create(IN const tt_char_t *name,
-                                        IN tt_u32_t attribute,
-                                        OUT tt_test_class_t **test_class);
+                                           IN tt_u32_t attribute,
+                                           OUT tt_test_class_t **test_class);
 
 /*
  * name:
@@ -211,9 +211,9 @@ tt_export tt_result_t tt_test_class_create(IN const tt_char_t *name,
  *   for test purpose
  */
 tt_export tt_result_t tt_test_item_add(IN tt_test_class_t *test_class,
-                                    IN tt_test_entry_t *entry,
-                                    IN const tt_char_t *name,
-                                    IN const tt_char_t *comment);
+                                       IN tt_test_entry_t *entry,
+                                       IN const tt_char_t *name,
+                                       IN const tt_char_t *comment);
 
 /**
 @fn tt_result_t tt_test_list(IN const tt_char_t *class_name,
@@ -232,8 +232,8 @@ list specified test classes as well as their cases
 - the initial result of an item is TT_FAIL if not run yet
 */
 tt_export tt_result_t tt_test_list(IN const tt_char_t *class_name,
-                                IN OUT tt_u32_t *succ_num,
-                                IN OUT tt_u32_t *fail_num);
+                                   IN OUT tt_u32_t *succ_num,
+                                   IN OUT tt_u32_t *fail_num);
 
 /*
  * name:
@@ -271,15 +271,15 @@ tt_export tt_result_t tt_test_run(IN const tt_char_t *class_name);
  */
 
 tt_export void tt_test_error_info(IN tt_test_item_t *item,
-                               IN const tt_char_t *function,
-                               IN const tt_u32_t line,
-                               IN const tt_char_t *error_info);
+                                  IN const tt_char_t *function,
+                                  IN const tt_u32_t line,
+                                  IN const tt_char_t *error_info);
 
 // only final info is recorded, formal info are overwritten
 tt_export void tt_test_info(IN tt_test_item_t *item,
-                         IN const tt_char_t *function,
-                         IN tt_u32_t line,
-                         IN const tt_char_t *format,
-                         ...);
+                            IN const tt_char_t *function,
+                            IN tt_u32_t line,
+                            IN const tt_char_t *format,
+                            ...);
 
 #endif /* __TT_TEST_FRAMEWORK__ */

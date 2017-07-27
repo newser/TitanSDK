@@ -47,8 +47,8 @@ struct tt_sshsvrconn_s;
 ////////////////////////////////////////////////////////////
 
 tt_export void tt_sshsvr_state_kexdone(IN struct tt_sshsvrconn_s *svrconn,
-                                    IN tt_sshsvr_event_t event,
-                                    IN void *param,
-                                    OUT tt_sshsvr_action_t *svract);
+                                       IN tt_sshsvr_event_t event,
+                                       IN void *param,
+                                       OUT tt_sshsvr_action_t *svract);
 
 #endif /* __TT_SSH_SERVER_STATE_KEXDONE__ */

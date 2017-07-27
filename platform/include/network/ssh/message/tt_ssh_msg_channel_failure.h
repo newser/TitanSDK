@@ -52,6 +52,6 @@ typedef struct
 tt_export struct tt_sshmsg_s *tt_sshmsg_chfail_create();
 
 tt_export void tt_sshmsg_chfail_set_rcvchnum(IN struct tt_sshmsg_s *msg,
-                                          IN tt_u32_t rcv_chnum);
+                                             IN tt_u32_t rcv_chnum);
 
 #endif /* __TT_SSH_MSGID_CHANNEL_FAILURE__ */

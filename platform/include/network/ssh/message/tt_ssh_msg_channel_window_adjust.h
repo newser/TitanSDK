@@ -55,9 +55,9 @@ typedef struct
 tt_export struct tt_sshmsg_s *tt_sshmsg_chwinadj_create();
 
 tt_export void tt_sshmsg_chwinadj_set_rcvchnum(IN struct tt_sshmsg_s *msg,
-                                            IN tt_u32_t rcv_chnum);
+                                               IN tt_u32_t rcv_chnum);
 
 tt_export void tt_sshmsg_chwinadj_set_capacity(IN struct tt_sshmsg_s *msg,
-                                            IN tt_u32_t capacity);
+                                               IN tt_u32_t capacity);
 
 #endif /* __TT_SSH_MSGID_CHANNEL_WINDOW_ADJUST__ */

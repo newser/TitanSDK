@@ -136,15 +136,15 @@ tt_export const tt_char_t *tt_sshsvr_event_name[TT_SSHSVREV_NUM];
 //  - TT_END, app should shutdown ssh conn and then destroy
 //  - TT_FAIL, error occurred, app should destroy ssh conn
 tt_export tt_result_t tt_sshsvr_fsm(IN struct tt_sshsvrconn_s *svrconn,
-                                 IN tt_sshsvr_event_t event,
-                                 IN void *param);
+                                    IN tt_sshsvr_event_t event,
+                                    IN void *param);
 
 tt_export void tt_sshsvr_new_state(IN struct tt_sshsvrconn_s *svrconn,
-                                IN tt_sshsvr_state_t new_state,
-                                IN tt_sshsvr_event_t by_event);
+                                   IN tt_sshsvr_state_t new_state,
+                                   IN tt_sshsvr_event_t by_event);
 
 tt_export void tt_sshsvr_disconnect(IN struct tt_sshsvrconn_s *svrconn,
-                                 IN tt_u32_t reason_code,
-                                 IN OPT const tt_char_t *description);
+                                    IN tt_u32_t reason_code,
+                                    IN OPT const tt_char_t *description);
 
 #endif /* __TT_SSH_SERVER_FSM__ */
