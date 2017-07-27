@@ -45,9 +45,9 @@ a function with such prefix would be expanded as inline
 */
 #define tt_inline static inline
 
-#define TT_EXPORT __attribute__((visibility("default")))
+#define tt_export __attribute__((visibility("default"))) extern
 
-#define TT_RESTRICT restrict
+#define tt_restrict restrict
 
 ////////////////////////////////////////////////////////////
 // type definition

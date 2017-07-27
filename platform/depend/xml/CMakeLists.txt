@@ -19,4 +19,19 @@ set(SRC pugixml/pugixml.cpp
         include/pugiconfig.hpp)
 
 # add to library
-add_library(xml STATIC ${SRC})
+if (PLATFORM_BUILD_SHARED)
+  add_library(xml SHARED ${SRC})
+else ()
+  add_library(xml STATIC ${SRC})
+endif ()
+
+set_target_properties(xml PROPERTIES MACOSX_RPATH ON)
+
+set_target_properties(xml PROPERTIES
+                      ARCHIVE_OUTPUT_DIRECTORY_DEBUG ${PLATFORM_OUTPATH}/debug/static
+                      LIBRARY_OUTPUT_DIRECTORY_DEBUG ${PLATFORM_OUTPATH}/debug/shared
+                      RUNTIME_OUTPUT_DIRECTORY_DEBUG ${PLATFORM_OUTPATH}/debug/program)
+set_target_properties(xml PROPERTIES
+                      ARCHIVE_OUTPUT_DIRECTORY_RELEASE ${PLATFORM_OUTPATH}/release/static
+                      LIBRARY_OUTPUT_DIRECTORY_RELEASE ${PLATFORM_OUTPATH}/release/shared
+                      RUNTIME_OUTPUT_DIRECTORY_RELEASE ${PLATFORM_OUTPATH}/release/program)

@@ -1,11 +1,11 @@
 # Licensed to the Apache Software Foundation (ASF) under one or more
-# contributor license agreements.  See the NOTICE file distributed with
+# contributor license agreements.    See the NOTICE file distributed with
 # this work for additional information regarding copyright ownership.
 # The ASF licenses this file to You under the Apache License, Version 2.0
 # (the "License"); you may not use this file except in compliance with
-# the License.  You may obtain a copy of the License at
+# the License.    You may obtain a copy of the License at
 #
-#     http://www.apache.org/licenses/LICENSE-2.0
+#         http://www.apache.org/licenses/LICENSE-2.0
 #
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
@@ -29,7 +29,7 @@ mark_as_advanced(FORCE PLATFORM_VERSION_REVISION)
 message(STATUS "version: ${PLATFORM_VERSION_MAJOR}.${PLATFORM_VERSION_MINOR}.${PLATFORM_VERSION_REVISION}")
 
 include(${PLATFORM_PATH}/build/${PLATFORM_ENV}.cmake)
-include(${PLATFORM_BUILD_PATH}/util.cmake)
+include(${BUILD_PATH}/util.cmake)
 
 # do some configuration here
 
@@ -46,8 +46,8 @@ set(PLATFORM_ENABLE_NUMA 0 CACHE BOOL "set to non zero to enable numa support")
 message(STATUS "numa enable: ${PLATFORM_ENABLE_NUMA}")
 
 # generate header file
-configure_file(${PLATFORM_ROOT_PATH}/platform/include/config/tt_customization_config.h.in
-               ${PLATFORM_ROOT_PATH}/platform/include/config/tt_customization_config.h
+configure_file(${PLATFORM_PATH}/include/config/tt_customization_config.h.in
+               ${PLATFORM_PATH}/include/config/tt_customization_config.h
                @ONLY)
 
 #
@@ -83,55 +83,54 @@ include_directories(${PLATFORM_PATH}/depend/dns/include)
 #
 
 file(GLOB SRC_FILE "${PLATFORM_PATH}/include/*.h")
-set(BASIC_HDR ${SRC_FILE})
 
 # source code
-add_group_hdr(${PLATFORM_PATH}/include/algorithm algorithm algorithm SRC_FILE)
+add_group_hdr(${PLATFORM_PATH}/include/algorithm algorithm SRC_FILE)
 add_group_src(${PLATFORM_PATH}/source/algorithm algorithm SRC_FILE)
-add_group_hdr(${PLATFORM_PATH}/include/algorithm/ptr algorithm algorithm/ptr SRC_FILE)
+add_group_hdr(${PLATFORM_PATH}/include/algorithm/ptr algorithm SRC_FILE)
 add_group_src(${PLATFORM_PATH}/source/algorithm/ptr algorithm SRC_FILE)
 
-add_group_hdr(${PLATFORM_PATH}/include/init init init SRC_FILE)
+add_group_hdr(${PLATFORM_PATH}/include/init init SRC_FILE)
 add_group_src(${PLATFORM_PATH}/source/init init SRC_FILE)
 
 add_group_hdr(${PLATFORM_PATH}/include/io io io SRC_FILE)
 add_group_src(${PLATFORM_PATH}/source/io io SRC_FILE)
 
-add_group_hdr(${PLATFORM_PATH}/include/os os os SRC_FILE)
+add_group_hdr(${PLATFORM_PATH}/include/os os SRC_FILE)
 add_group_src(${PLATFORM_PATH}/source/os os SRC_FILE)
 
-add_group_hdr(${PLATFORM_PATH}/include/memory memory memory SRC_FILE)
+add_group_hdr(${PLATFORM_PATH}/include/memory memory SRC_FILE)
 add_group_src(${PLATFORM_PATH}/source/memory memory SRC_FILE)
 
-add_group_hdr(${PLATFORM_PATH}/include/time time time SRC_FILE)
+add_group_hdr(${PLATFORM_PATH}/include/time time SRC_FILE)
 add_group_src(${PLATFORM_PATH}/source/time time SRC_FILE)
 
-add_group_hdr(${PLATFORM_PATH}/include/misc misc misc SRC_FILE)
+add_group_hdr(${PLATFORM_PATH}/include/misc misc SRC_FILE)
 add_group_src(${PLATFORM_PATH}/source/misc misc SRC_FILE)
 
-add_group_hdr(${PLATFORM_PATH}/include/unit_test unit_test unit_test SRC_FILE)
+add_group_hdr(${PLATFORM_PATH}/include/unit_test unit_test SRC_FILE)
 add_group_src(${PLATFORM_PATH}/source/unit_test unit_test SRC_FILE)
 
-add_group_hdr(${PLATFORM_PATH}/include/log log log SRC_FILE)
+add_group_hdr(${PLATFORM_PATH}/include/log log SRC_FILE)
 add_group_src(${PLATFORM_PATH}/source/log log SRC_FILE)
-add_group_hdr(${PLATFORM_PATH}/include/log/layout log log/layout SRC_FILE)
+add_group_hdr(${PLATFORM_PATH}/include/log/layout log SRC_FILE)
 add_group_src(${PLATFORM_PATH}/source/log/layout log SRC_FILE)
-add_group_hdr(${PLATFORM_PATH}/include/log/io log log/io SRC_FILE)
+add_group_hdr(${PLATFORM_PATH}/include/log/io log SRC_FILE)
 add_group_src(${PLATFORM_PATH}/source/log/io log SRC_FILE)
 
-add_group_hdr(${PLATFORM_PATH}/include/crypto crypto crypto SRC_FILE)
+add_group_hdr(${PLATFORM_PATH}/include/crypto crypto SRC_FILE)
 add_group_src(${PLATFORM_PATH}/source/crypto crypto SRC_FILE)
 
-add_group_hdr(${PLATFORM_PATH}/include/xml xml xml SRC_FILE)
+add_group_hdr(${PLATFORM_PATH}/include/xml xml SRC_FILE)
 add_group_src(${PLATFORM_PATH}/source/xml xml SRC_FILE)
 
-add_group_hdr(${PLATFORM_PATH}/include/network network network SRC_FILE)
+add_group_hdr(${PLATFORM_PATH}/include/network network SRC_FILE)
 add_group_src(${PLATFORM_PATH}/source/network network SRC_FILE)
 
-add_group_hdr(${PLATFORM_PATH}/include/network/dns dns network/dns SRC_FILE)
+add_group_hdr(${PLATFORM_PATH}/include/network/dns dns SRC_FILE)
 add_group_src(${PLATFORM_PATH}/source/network/dns dns SRC_FILE)
 
-add_group_hdr(${PLATFORM_PATH}/include/network/ssl ssl network/ssl SRC_FILE)
+add_group_hdr(${PLATFORM_PATH}/include/network/ssl ssl SRC_FILE)
 add_group_src(${PLATFORM_PATH}/source/network/ssl ssl SRC_FILE)
 
 #add_group_src(${PLATFORM_PATH}/source/network/ssh ssh SRC_FILE)
@@ -140,9 +139,9 @@ add_group_src(${PLATFORM_PATH}/source/network/ssl ssl SRC_FILE)
 #add_group_src(${PLATFORM_PATH}/source/network/ssh/server ssh SRC_FILE)
 #add_group_src(${PLATFORM_PATH}/source/network/ssh/context ssh SRC_FILE)
 
-add_group_hdr(${PLATFORM_PATH}/include/cli cli cli SRC_FILE)
+add_group_hdr(${PLATFORM_PATH}/include/cli cli SRC_FILE)
 add_group_src(${PLATFORM_PATH}/source/cli cli SRC_FILE)
-add_group_hdr(${PLATFORM_PATH}/include/cli/shell shell cli/shell SRC_FILE)
+add_group_hdr(${PLATFORM_PATH}/include/cli/shell shell SRC_FILE)
 add_group_src(${PLATFORM_PATH}/source/cli/shell shell SRC_FILE)
 
 # test cases
@@ -156,7 +155,7 @@ add_group_src(${PLATFORM_PATH}/source/math/mp/test_case mp SRC_FILE)
 add_group_src(${PLATFORM_PATH}/source/network/dns/test_case dns SRC_FILE)
 
 # native
-add_group_hdr(${PLATFORM_PATH}/native/${PLATFORM_ENV} native "" SRC_FILE)
+add_group_hdr(${PLATFORM_PATH}/native/${PLATFORM_ENV} native SRC_FILE)
 add_group_src(${PLATFORM_PATH}/native/${PLATFORM_ENV} native SRC_FILE)
 
 #
@@ -165,15 +164,27 @@ add_group_src(${PLATFORM_PATH}/native/${PLATFORM_ENV} native SRC_FILE)
 
 # define target
 if (PLATFORM_BUILD_SHARED)
-  message(STATUS "building platform dynamic lib")
-  add_library(platform SHARED ${SRC_FILE})
+    message(STATUS "building platform dynamic lib")
+    add_library(platform SHARED ${SRC_FILE})
 else ()
-  message(STATUS "building platform static lib")
-  add_library(platform STATIC ${SRC_FILE})
+    message(STATUS "building platform static lib")
+    add_library(platform STATIC ${SRC_FILE})
 endif ()
 
 # force to generate Headers link in mac framework
-set_target_properties(platform PROPERTIES PUBLIC_HEADER "${BASIC_HDR}")
+set_target_properties(platform PROPERTIES 
+                      VERSION ${PLATFORM_VERSION_MAJOR}.${PLATFORM_VERSION_MINOR}.${PLATFORM_VERSION_REVISION})
+
+set(PLATFORM_OUTPATH
+    ${CMAKE_BINARY_DIR}/output/platform/${PLATFORM_VERSION_MAJOR}.${PLATFORM_VERSION_MINOR}.${PLATFORM_VERSION_REVISION})
+set_target_properties(platform PROPERTIES
+                      ARCHIVE_OUTPUT_DIRECTORY_DEBUG ${PLATFORM_OUTPATH}/debug/static
+                      LIBRARY_OUTPUT_DIRECTORY_DEBUG ${PLATFORM_OUTPATH}/debug/shared
+                      RUNTIME_OUTPUT_DIRECTORY_DEBUG ${PLATFORM_OUTPATH}/debug/program)
+set_target_properties(platform PROPERTIES
+                      ARCHIVE_OUTPUT_DIRECTORY_RELEASE ${PLATFORM_OUTPATH}/release/static
+                      LIBRARY_OUTPUT_DIRECTORY_RELEASE ${PLATFORM_OUTPATH}/release/shared
+                      RUNTIME_OUTPUT_DIRECTORY_RELEASE ${PLATFORM_OUTPATH}/release/program)
 
 # set specific properties
 platform_set_properties()
@@ -186,8 +197,10 @@ platform_link_libraries()
 #
 
 # depends
+set(FCONTEXT_SRC)
 add_subdirectory(${PLATFORM_PATH}/depend/fcontext fcontext)
-target_link_libraries(platform fcontext)
+source_group(fcontext FILES ${FCONTEXT_SRC})
+target_sources(platform PRIVATE ${FCONTEXT_SRC})
 
 # depends
 set(TLS_LIB)
@@ -204,3 +217,5 @@ target_link_libraries(platform xml)
 set(DNS_LIB)
 add_subdirectory(${PLATFORM_PATH}/depend/dns dns)
 target_link_libraries(platform ${DNS_LIB})
+
+include(${PLATFORM_PATH}/build/generate_header.cmake)

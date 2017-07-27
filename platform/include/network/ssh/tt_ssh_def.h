@@ -283,28 +283,28 @@ tt_export tt_ssh_chreqtype_t tt_ssh_chreqtype_match(IN tt_u8_t *name,
 // global variants
 ////////////////////////////////////////////////////////////
 
-tt_export tt_ssh_kex_alg_t tt_g_ssh_kex_pref[];
+tt_export tt_ssh_kex_alg_t tt_g_ssh_kex_pref[TT_SSH_KEX_ALG_NUM];
 tt_export tt_u32_t tt_g_ssh_kex_pref_num;
 
-tt_export tt_ssh_pubkey_alg_t tt_g_ssh_pubkey_pref[];
+tt_export tt_ssh_pubkey_alg_t tt_g_ssh_pubkey_pref[TT_SSH_PUBKEY_ALG_NUM];
 tt_export tt_u32_t tt_g_ssh_pubkey_pref_num;
 
-tt_export tt_ssh_enc_alg_t tt_g_ssh_enc_c2s_pref[];
+tt_export tt_ssh_enc_alg_t tt_g_ssh_enc_c2s_pref[TT_SSH_ENC_ALG_NUM];
 tt_export tt_u32_t tt_g_ssh_enc_c2s_pref_num;
 
-tt_export tt_ssh_enc_alg_t tt_g_ssh_enc_s2c_pref[];
+tt_export tt_ssh_enc_alg_t tt_g_ssh_enc_s2c_pref[TT_SSH_ENC_ALG_NUM];
 tt_export tt_u32_t tt_g_ssh_enc_s2c_pref_num;
 
-tt_export tt_ssh_mac_alg_t tt_g_ssh_mac_c2s_pref[];
+tt_export tt_ssh_mac_alg_t tt_g_ssh_mac_c2s_pref[TT_SSH_MAC_ALG_NUM];
 tt_export tt_u32_t tt_g_ssh_mac_c2s_pref_num;
 
-tt_export tt_ssh_mac_alg_t tt_g_ssh_mac_s2c_pref[];
+tt_export tt_ssh_mac_alg_t tt_g_ssh_mac_s2c_pref[TT_SSH_MAC_ALG_NUM];
 tt_export tt_u32_t tt_g_ssh_mac_s2c_pref_num;
 
-tt_export tt_ssh_cmprs_alg_t tt_g_ssh_cmprs_c2s_pref[];
+tt_export tt_ssh_cmprs_alg_t tt_g_ssh_cmprs_c2s_pref[TT_SSH_CMPRS_ALG_NUM];
 tt_export tt_u32_t tt_g_ssh_cmprs_c2s_pref_num;
 
-tt_export tt_ssh_cmprs_alg_t tt_g_ssh_cmprs_s2c_pref[];
+tt_export tt_ssh_cmprs_alg_t tt_g_ssh_cmprs_s2c_pref[TT_SSH_CMPRS_ALG_NUM];
 tt_export tt_u32_t tt_g_ssh_cmprs_s2c_pref_num;
 
 ////////////////////////////////////////////////////////////

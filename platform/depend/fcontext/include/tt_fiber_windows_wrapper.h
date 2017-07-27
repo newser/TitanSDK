@@ -53,17 +53,17 @@ typedef struct tt_fiber_wrap_s
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern tt_result_t tt_fiber_create_wrap(IN tt_fiber_wrap_t *wrap_fb,
-                                        IN tt_u32_t stack_size);
+tt_export tt_result_t tt_fiber_create_wrap(IN tt_fiber_wrap_t *wrap_fb,
+                                           IN tt_u32_t stack_size);
 
-extern void tt_fiber_destroy_wrap(IN tt_fiber_wrap_t *wrap_fb);
+tt_export void tt_fiber_destroy_wrap(IN tt_fiber_wrap_t *wrap_fb);
 
-extern tt_result_t tt_fiber_create_local_wrap(IN tt_fiber_wrap_t *wrap_fb);
+tt_export tt_result_t tt_fiber_create_local_wrap(IN tt_fiber_wrap_t *wrap_fb);
 
-extern void tt_fiber_destroy_local_wrap(IN tt_fiber_wrap_t *wrap_fb);
+tt_export void tt_fiber_destroy_local_wrap(IN tt_fiber_wrap_t *wrap_fb);
 
-extern void tt_fiber_switch_wrap(IN struct tt_fiber_sched_s *fs,
-                                 IN struct tt_fiber_s *from,
-                                 IN struct tt_fiber_s *to);
+tt_export void tt_fiber_switch_wrap(IN struct tt_fiber_sched_s *fs,
+                                    IN struct tt_fiber_s *from,
+                                    IN struct tt_fiber_s *to);
 
 #endif /* __TT_FIBER_WINDOWS__ */

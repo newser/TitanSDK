@@ -1,11 +1,11 @@
 # Licensed to the Apache Software Foundation (ASF) under one or more
-# contributor license agreements.  See the NOTICE file distributed with
+# contributor license agreements.    See the NOTICE file distributed with
 # this work for additional information regarding copyright ownership.
 # The ASF licenses this file to You under the Apache License, Version 2.0
 # (the "License"); you may not use this file except in compliance with
-# the License.  You may obtain a copy of the License at
+# the License.    You may obtain a copy of the License at
 #
-#     http://www.apache.org/licenses/LICENSE-2.0
+#         http://www.apache.org/licenses/LICENSE-2.0
 #
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
@@ -27,25 +27,25 @@
 
 # libraries required by platform
 function(platform_link_libraries)
-  # pthread
-  target_link_libraries(platform pthread)
+    # pthread
+    target_link_libraries(platform pthread)
 
-  # realtime
-  target_link_libraries(platform rt)
+    # realtime
+    target_link_libraries(platform rt)
 
-  # numa support
-  if (PLATFORM_ENABLE_NUMA)
-    target_link_libraries(platform numa)
-  endif ()
+    # numa support
+    if (PLATFORM_ENABLE_NUMA)
+        target_link_libraries(platform numa)
+    endif ()
 
-  target_link_libraries(platform dl)
+    target_link_libraries(platform dl)
 
 endfunction(platform_link_libraries)
 
 # platform properties
 function(platform_set_properties)
-  # libtitansdk.a/so
-  set_target_properties(platform PROPERTIES OUTPUT_NAME titansdk)
+    # libtitansdk.a/so
+    set_target_properties(platform PROPERTIES OUTPUT_NAME titansdk)
 
 endfunction(platform_set_properties)
 

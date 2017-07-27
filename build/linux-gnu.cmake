@@ -1,11 +1,11 @@
 # Licensed to the Apache Software Foundation (ASF) under one or more
-# contributor license agreements.  See the NOTICE file distributed with
+# contributor license agreements.    See the NOTICE file distributed with
 # this work for additional information regarding copyright ownership.
 # The ASF licenses this file to You under the Apache License, Version 2.0
 # (the "License"); you may not use this file except in compliance with
-# the License.  You may obtain a copy of the License at
+# the License.    You may obtain a copy of the License at
 #
-#     http://www.apache.org/licenses/LICENSE-2.0
+#         http://www.apache.org/licenses/LICENSE-2.0
 #
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-include(${PLATFORM_BUILD_PATH}/util.cmake)
+include(${BUILD_PATH}/util.cmake)
 
 #
 # system header files
@@ -39,13 +39,13 @@ choose_compiler_flag(CMAKE_CXX_FLAGS FALSE -Wno-unused-variable)
 
 # atomic instrucitons need specify -march
 if (PLATFORM_ENVIRONMENT_DETAIL)
-  set(__march_flags -march=native)
+    set(__march_flags -march=native)
 else ()
-  if (CMAKE_SIZEOF_VOID_P EQUAL 8)
-    set(__march_flags -march=x86-64)
-  else ()
-    set(__march_flags -march=i686)
-  endif ()
+    if (CMAKE_SIZEOF_VOID_P EQUAL 8)
+        set(__march_flags -march=x86-64)
+    else ()
+        set(__march_flags -march=i686)
+    endif ()
 endif ()
 choose_compiler_flag(CMAKE_C_FLAGS TRUE ${__march_flags})
 choose_compiler_flag(CMAKE_CXX_FLAGS TRUE ${__march_flags})
@@ -69,4 +69,3 @@ choose_compiler_flag(CMAKE_C_FLAGS FALSE -std=gnu99)
 #
 # linker options
 #
-

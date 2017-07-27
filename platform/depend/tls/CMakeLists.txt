@@ -39,8 +39,13 @@ hide(UNSAFE_BUILD BOOL OFF)
 hide(ENABLE_TESTING BOOL OFF)
 
 # must be static
-hide(USE_STATIC_MBEDTLS_LIBRARY BOOL ON)
-hide(USE_SHARED_MBEDTLS_LIBRARY BOOL OFF)
+if (PLATFORM_BUILD_SHARED)
+  hide(USE_STATIC_MBEDTLS_LIBRARY BOOL OFF)
+  hide(USE_SHARED_MBEDTLS_LIBRARY BOOL ON)
+else ()
+  hide(USE_STATIC_MBEDTLS_LIBRARY BOOL ON)
+  hide(USE_SHARED_MBEDTLS_LIBRARY BOOL OFF)
+endif ()
 
 # platform will decide how to link pthread
 hide(LINK_WITH_PTHREAD BOOL OFF)
@@ -52,6 +57,17 @@ hide(INSTALL_MBEDTLS_HEADERS BOOL OFF)
 add_definitions(-DMBEDTLS_CONFIG_FILE="tt_mbedtls_config.h")
 
 add_subdirectory(${TLS_PATH})
+
+set_target_properties(mbedtls mbedx509 mbedcrypto PROPERTIES MACOSX_RPATH ON)
+
+set_target_properties(mbedtls mbedx509 mbedcrypto PROPERTIES
+                      ARCHIVE_OUTPUT_DIRECTORY_DEBUG ${PLATFORM_OUTPATH}/debug/static
+                      LIBRARY_OUTPUT_DIRECTORY_DEBUG ${PLATFORM_OUTPATH}/debug/shared
+                      RUNTIME_OUTPUT_DIRECTORY_DEBUG ${PLATFORM_OUTPATH}/debug/program)
+set_target_properties(mbedtls mbedx509 mbedcrypto PROPERTIES
+                      ARCHIVE_OUTPUT_DIRECTORY_RELEASE ${PLATFORM_OUTPATH}/release/static
+                      LIBRARY_OUTPUT_DIRECTORY_RELEASE ${PLATFORM_OUTPATH}/release/shared
+                      RUNTIME_OUTPUT_DIRECTORY_RELEASE ${PLATFORM_OUTPATH}/release/program)
 
 #
 # result

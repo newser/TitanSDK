@@ -1,11 +1,11 @@
 # Licensed to the Apache Software Foundation (ASF) under one or more
-# contributor license agreements.  See the NOTICE file distributed with
+# contributor license agreements.    See the NOTICE file distributed with
 # this work for additional information regarding copyright ownership.
 # The ASF licenses this file to You under the Apache License, Version 2.0
 # (the "License"); you may not use this file except in compliance with
-# the License.  You may obtain a copy of the License at
+# the License.    You may obtain a copy of the License at
 #
-#     http://www.apache.org/licenses/LICENSE-2.0
+#         http://www.apache.org/licenses/LICENSE-2.0
 #
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
@@ -23,16 +23,32 @@ set(DNS_PATH ${CMAKE_CURRENT_SOURCE_DIR}/c-ares)
 # customization
 #
 
-# must be static
-hide(CARES_STATIC BOOL ON)
-hide(CARES_SHARED BOOL OFF)
-hide(CARES_INSTALL BOOL OFF)
+if (PLATFORM_BUILD_SHARED)
+    hide(CARES_STATIC BOOL OFF)
+    hide(CARES_SHARED BOOL ON)
+else ()
+    hide(CARES_STATIC BOOL ON)
+    hide(CARES_SHARED BOOL OFF)
+endif ()
 hide(CARES_STATIC_PIC BOOL OFF)
+
+hide(CARES_INSTALL BOOL OFF)
 
 # customize configuration
 add_definitions(-DHAVE_CONFIG_H)
 
 add_subdirectory(${DNS_PATH})
+
+set_target_properties(c-ares PROPERTIES MACOSX_RPATH ON)
+
+set_target_properties(c-ares PROPERTIES
+                      ARCHIVE_OUTPUT_DIRECTORY_DEBUG ${PLATFORM_OUTPATH}/debug/static
+                      LIBRARY_OUTPUT_DIRECTORY_DEBUG ${PLATFORM_OUTPATH}/debug/shared
+                      RUNTIME_OUTPUT_DIRECTORY_DEBUG ${PLATFORM_OUTPATH}/debug/program)
+set_target_properties(c-ares PROPERTIES
+                      ARCHIVE_OUTPUT_DIRECTORY_RELEASE ${PLATFORM_OUTPATH}/release/static
+                      LIBRARY_OUTPUT_DIRECTORY_RELEASE ${PLATFORM_OUTPATH}/release/shared
+                      RUNTIME_OUTPUT_DIRECTORY_RELEASE ${PLATFORM_OUTPATH}/release/program)
 
 #
 # result
