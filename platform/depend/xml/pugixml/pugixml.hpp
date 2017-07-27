@@ -518,7 +518,7 @@ namespace pugi
 		// Add a copy of the specified attribute. Returns added attribute, or empty attribute on errors.
 		xml_attribute append_copy(const xml_attribute& proto);
 		xml_attribute prepend_copy(const xml_attribute& proto);
-		xml_attribute insert_copy_pattern_after(const xml_attribute& proto, const xml_attribute& attr);
+		xml_attribute insert_copy_after(const xml_attribute& proto, const xml_attribute& attr);
 		xml_attribute insert_copy_before(const xml_attribute& proto, const xml_attribute& attr);
 
 		// Add child node with specified type. Returns added node, or empty node on errors.
@@ -536,7 +536,7 @@ namespace pugi
 		// Add a copy of the specified node as a child. Returns added node, or empty node on errors.
 		xml_node append_copy(const xml_node& proto);
 		xml_node prepend_copy(const xml_node& proto);
-		xml_node insert_copy_pattern_after(const xml_node& proto, const xml_node& node);
+		xml_node insert_copy_after(const xml_node& proto, const xml_node& node);
 		xml_node insert_copy_before(const xml_node& proto, const xml_node& node);
 
 		// Move the specified node to become a child of this node. Returns moved node, or empty node on errors.
