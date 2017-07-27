@@ -40,6 +40,7 @@ add_custom_target(generate_header
                   COMMAND ${CMAKE_COMMAND} -E remove_directory ${HEADER_PATH}
                   COMMAND ${CMAKE_COMMAND} -E copy_directory ${PLATFORM_PATH}/include ${HEADER_PATH}
                   COMMENT "Generating platform header files")
+add_dependencies(generate_header platform)
 
 # native
 copy_header(${PLATFORM_PATH}/native/${PLATFORM_ENV})
@@ -66,10 +67,12 @@ set(PATH ${PLATFORM_PATH}/depend/fcontext)
 
 if (PLATFORM_ENV STREQUAL windows-msvc)
     add_custom_command(TARGET generate_header
-                       COMMAND ${CMAKE_COMMAND} -E copy ${PATH}/include/tt_fiber_windows_wrapper.h ${HEADER_PATH})
+                       COMMAND ${CMAKE_COMMAND} -E copy ${PATH}/include/tt_fiber_windows_wrapper.h ${HEADER_PATH}
+                       COMMAND ${CMAKE_COMMAND} -E copy ${PATH}/boost/tt_fcontext.h ${HEADER_PATH})
 else ()
     add_custom_command(TARGET generate_header
-                       COMMAND ${CMAKE_COMMAND} -E copy ${PATH}/include/tt_fiber_wrapper.h ${HEADER_PATH})
+                       COMMAND ${CMAKE_COMMAND} -E copy ${PATH}/include/tt_fiber_wrapper.h ${HEADER_PATH}
+                       COMMAND ${CMAKE_COMMAND} -E copy ${PATH}/boost/tt_fcontext.h ${HEADER_PATH})
 endif ()
 
 #
@@ -79,6 +82,9 @@ endif ()
 set(PATH ${PLATFORM_PATH}/depend/tls)
 
 copy_header(${PATH}/mbedtls/include/mbedtls)
+
+add_custom_command(TARGET generate_header
+                   COMMAND ${CMAKE_COMMAND} -E copy ${PATH}/include/tt_mbedtls_config.h ${HEADER_PATH})
 
 #
 # depends: xml
