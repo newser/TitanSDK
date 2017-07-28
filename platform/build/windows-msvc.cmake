@@ -40,12 +40,6 @@ endfunction(platform_link_libraries)
 
 # platform properties
 function(platform_set_properties)
-    # titansdk.lib/dll
-    set_target_properties(platform PROPERTIES OUTPUT_NAME titansdk)
-
-    set_target_properties(platform PROPERTIES 
-                          LINK_FLAGS "/VERSION:\"${PLATFORM_VERSION_MAJOR}.${PLATFORM_VERSION_MINOR}\"")
-
     if (PLATFORM_BUILD_SHARED)
         target_compile_definitions(platform PRIVATE "-DTT_PLATFORM_BUILD_SHARED_EXPORT")
     endif ()

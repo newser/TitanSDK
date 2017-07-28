@@ -44,5 +44,11 @@ int main(int argc, char *argv[])
     tt_task_run(&t);
     tt_task_wait(&t);
 
+#if TT_ENV_OS_IS_WINDOWS
+    while (1) {
+        tt_sleep(10000);
+    }
+#endif
+ 
     return 0;
 }

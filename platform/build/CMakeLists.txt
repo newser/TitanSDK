@@ -188,6 +188,12 @@ set_target_properties(platform PROPERTIES
                       LIBRARY_OUTPUT_DIRECTORY_RELEASE ${PLATFORM_OUTPATH}/release/shared
                       RUNTIME_OUTPUT_DIRECTORY_RELEASE ${PLATFORM_OUTPATH}/release/program)
 
+if (PLATFORM_BUILD_SHARED AND (PLATFORM_ENV STREQUAL "windows-msvc"))
+    # put the import lib under same dir as dll's
+    set_target_properties(platform PROPERTIES
+                          ARCHIVE_OUTPUT_DIRECTORY_DEBUG ${PLATFORM_OUTPATH}/debug/program)
+endif ()
+
 # set specific properties
 platform_set_properties()
 
@@ -228,6 +234,7 @@ add_custom_target(test_link_debug
                   COMMAND ${CMAKE_COMMAND} -E copy_directory ${ROOT_PATH}/program/test_link ${CMAKE_BINARY_DIR}/test_link_debug
                   COMMAND ${CMAKE_COMMAND} -E copy_directory ${PLATFORM_OUTPATH}/debug/static ${CMAKE_BINARY_DIR}/test_link_debug/static
                   COMMAND ${CMAKE_COMMAND} -E copy_directory ${PLATFORM_OUTPATH}/debug/shared ${CMAKE_BINARY_DIR}/test_link_debug/shared
+                  COMMAND ${CMAKE_COMMAND} -E copy_directory ${PLATFORM_OUTPATH}/debug/program ${CMAKE_BINARY_DIR}/test_link_debug/program
                   COMMAND ${CMAKE_COMMAND} -E copy_directory ${PLATFORM_OUTPATH}/include ${CMAKE_BINARY_DIR}/test_link_debug/include)
 add_dependencies(test_link_debug generate_header)
 
@@ -236,5 +243,6 @@ add_custom_target(test_link_release
                   COMMAND ${CMAKE_COMMAND} -E copy_directory ${ROOT_PATH}/program/test_link ${CMAKE_BINARY_DIR}/test_link_release
                   COMMAND ${CMAKE_COMMAND} -E copy_directory ${PLATFORM_OUTPATH}/debug/static ${CMAKE_BINARY_DIR}/test_link_release/static
                   COMMAND ${CMAKE_COMMAND} -E copy_directory ${PLATFORM_OUTPATH}/debug/shared ${CMAKE_BINARY_DIR}/test_link_release/shared
+                  COMMAND ${CMAKE_COMMAND} -E copy_directory ${PLATFORM_OUTPATH}/debug/program ${CMAKE_BINARY_DIR}/test_link_release/program
                   COMMAND ${CMAKE_COMMAND} -E copy_directory ${PLATFORM_OUTPATH}/include ${CMAKE_BINARY_DIR}/test_link_release/include)
 add_dependencies(test_link_release generate_header)
