@@ -44,8 +44,6 @@ endfunction(platform_link_libraries)
 
 # platform properties
 function(platform_set_properties)
-    # libtitansdk.a/so
-    set_target_properties(platform PROPERTIES OUTPUT_NAME titansdk)
 
 endfunction(platform_set_properties)
 

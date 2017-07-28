@@ -37,17 +37,5 @@ endfunction(platform_link_libraries)
 
 # platform properties
 function(platform_set_properties)
-    if (PLATFORM_BUILD_SHARED)
-        # TitanSDK.framework
-        set_target_properties(platform PROPERTIES FRAMEWORK TRUE)
-        set_target_properties(platform PROPERTIES OUTPUT_NAME TitanSDK)
-    else ()
-        # libtitansdk.a
-        set_target_properties(platform PROPERTIES OUTPUT_NAME titansdk)        
-    endif()
-
-    # version
-    set_target_properties(platform PROPERTIES 
-                          VERSION ${PLATFORM_VERSION_MAJOR}.${PLATFORM_VERSION_MINOR})
 
 endfunction(platform_set_properties)

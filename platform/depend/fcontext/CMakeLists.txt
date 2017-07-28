@@ -18,8 +18,6 @@ if (PLATFORM_ENV_OS STREQUAL windows)
   set(REL_SRC include/tt_fiber_windows_wrapper.h source/tt_fiber_windows_wrapper.c)
 
 elseif ((PLATFORM_ENV_OS STREQUAL macos) OR PLATFORM_IOS_SIMULATOR)
-  enable_language(ASM)
-
   if (CMAKE_SIZEOF_VOID_P EQUAL 8)
     set(REL_SRC include/tt_fiber_wrapper.h
                 source/tt_fiber_wrapper.c 
@@ -33,8 +31,6 @@ elseif ((PLATFORM_ENV_OS STREQUAL macos) OR PLATFORM_IOS_SIMULATOR)
   endif ()
 
 elseif (PLATFORM_ENV_OS STREQUAL ios)
-  enable_language(ASM)
-
   if (PLATFORM_ARM64)
     set(REL_SRC include/tt_fiber_wrapper.h
                 source/tt_fiber_wrapper.c
@@ -48,8 +44,6 @@ elseif (PLATFORM_ENV_OS STREQUAL ios)
   endif ()
 
 elseif (PLATFORM_ENV_OS STREQUAL linux)
-  enable_language(ASM)
-
   if (CMAKE_SIZEOF_VOID_P EQUAL 8)
     set(REL_SRC include/tt_fiber_wrapper.h
                 source/tt_fiber_wrapper.c

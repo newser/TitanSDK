@@ -50,6 +50,8 @@ configure_file(${PLATFORM_PATH}/include/config/tt_customization_config.h.in
                ${PLATFORM_PATH}/include/config/tt_customization_config.h
                @ONLY)
 
+enable_language(ASM)
+
 #
 # component
 #

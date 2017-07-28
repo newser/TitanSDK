@@ -35,7 +35,9 @@ add_definitions(-DHAVE_CONFIG_H)
 
 add_subdirectory(${DNS_PATH})
 
-set_target_properties(c-ares PROPERTIES MACOSX_RPATH ON)
+set_target_properties(c-ares PROPERTIES 
+                      MACOSX_RPATH ON
+                      POSITION_INDEPENDENT_CODE ON)
 
 if (NOT PLATFORM_BUILD_SHARED)
     set_target_properties(c-ares PROPERTIES

@@ -53,7 +53,9 @@ add_definitions(-DMBEDTLS_CONFIG_FILE="tt_mbedtls_config.h")
 
 add_subdirectory(${TLS_PATH})
 
-set_target_properties(mbedtls mbedx509 mbedcrypto PROPERTIES MACOSX_RPATH ON)
+set_target_properties(mbedtls mbedx509 mbedcrypto PROPERTIES 
+                      MACOSX_RPATH ON
+                      POSITION_INDEPENDENT_CODE ON)
 
 if (NOT PLATFORM_BUILD_SHARED)
     set_target_properties(mbedtls mbedx509 mbedcrypto PROPERTIES

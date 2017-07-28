@@ -23,7 +23,9 @@ set(SRC pugixml/pugixml.cpp
 # always build static lib and link to platform
 add_library(xml STATIC ${SRC})
 
-set_target_properties(xml PROPERTIES MACOSX_RPATH ON)
+set_target_properties(xml PROPERTIES 
+                      MACOSX_RPATH ON
+                      POSITION_INDEPENDENT_CODE ON)
 
 if (NOT PLATFORM_BUILD_SHARED)
 	set_target_properties(xml PROPERTIES

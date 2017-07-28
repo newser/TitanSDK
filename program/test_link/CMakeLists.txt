@@ -18,7 +18,7 @@ find_library(s_mbedcrypto NAMES mbedcrypto PATHS ${PLAT_STATIC} NO_DEFAULT_PATH)
 find_library(s_mbedtls NAMES mbedtls PATHS ${PLAT_STATIC} NO_DEFAULT_PATH)
 find_library(s_mbedx509 NAMES mbedx509 PATHS ${PLAT_STATIC} NO_DEFAULT_PATH)
 find_library(s_xml NAMES xml PATHS ${PLAT_STATIC} NO_DEFAULT_PATH)
-set(STATIC_LIB ${STATIC_LIB} ${s_platform} ${s_cares} ${s_mbedcrypto} ${s_mbedtls} ${s_mbedx509} ${s_xml})
+set(STATIC_LIB ${STATIC_LIB} ${s_platform} ${s_cares} ${s_mbedtls} ${s_mbedx509} ${s_mbedcrypto} ${s_xml})
 target_link_libraries(test_link_static ${STATIC_LIB})
 
 # shared
@@ -33,6 +33,8 @@ target_link_libraries(test_link_shared ${SHARED_LIB})
 # platform specific
 if (CMAKE_SYSTEM_NAME STREQUAL Windows)
 elseif (CMAKE_SYSTEM_NAME STREQUAL Linux)
+    target_link_libraries(test_link_static stdc++ m pthread)
+    target_link_libraries(test_link_shared stdc++ m pthread)
 elseif (CMAKE_SYSTEM_NAME STREQUAL Darwin)
     target_link_libraries(test_link_static stdc++ "-framework CoreFoundation")
     target_link_libraries(test_link_shared stdc++ "-framework CoreFoundation")
