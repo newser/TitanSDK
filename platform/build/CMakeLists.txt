@@ -179,19 +179,28 @@ set_target_properties(platform PROPERTIES
 
 set(PLATFORM_OUTPATH
     ${CMAKE_BINARY_DIR}/output/platform/${PLATFORM_VERSION_MAJOR}.${PLATFORM_VERSION_MINOR}.${PLATFORM_VERSION_REVISION})
-set_target_properties(platform PROPERTIES
-                      ARCHIVE_OUTPUT_DIRECTORY_DEBUG ${PLATFORM_OUTPATH}/debug/static
-                      LIBRARY_OUTPUT_DIRECTORY_DEBUG ${PLATFORM_OUTPATH}/debug/shared
-                      RUNTIME_OUTPUT_DIRECTORY_DEBUG ${PLATFORM_OUTPATH}/debug/program)
-set_target_properties(platform PROPERTIES
-                      ARCHIVE_OUTPUT_DIRECTORY_RELEASE ${PLATFORM_OUTPATH}/release/static
-                      LIBRARY_OUTPUT_DIRECTORY_RELEASE ${PLATFORM_OUTPATH}/release/shared
-                      RUNTIME_OUTPUT_DIRECTORY_RELEASE ${PLATFORM_OUTPATH}/release/program)
 
-if (PLATFORM_BUILD_SHARED AND (PLATFORM_ENV STREQUAL "windows-msvc"))
-    # put the import lib under same dir as dll's
+if (PLATFORM_ENV STREQUAL "windows-msvc")
+    if (PLATFORM_BUILD_SHARED)
+        set_target_properties(platform PROPERTIES
+                              ARCHIVE_OUTPUT_DIRECTORY_DEBUG ${PLATFORM_OUTPATH}/debug/shared
+                              RUNTIME_OUTPUT_DIRECTORY_DEBUG ${PLATFORM_OUTPATH}/debug/shared)
+        set_target_properties(platform PROPERTIES
+                              ARCHIVE_OUTPUT_DIRECTORY_RELEASE ${PLATFORM_OUTPATH}/release/shared
+                              RUNTIME_OUTPUT_DIRECTORY_RELEASE ${PLATFORM_OUTPATH}/release/shared)
+    else ()
+        set_target_properties(platform PROPERTIES
+                              ARCHIVE_OUTPUT_DIRECTORY_DEBUG ${PLATFORM_OUTPATH}/debug/static)
+        set_target_properties(platform PROPERTIES
+                              ARCHIVE_OUTPUT_DIRECTORY_RELEASE ${PLATFORM_OUTPATH}/release/static)
+    endif ()
+else ()
     set_target_properties(platform PROPERTIES
-                          ARCHIVE_OUTPUT_DIRECTORY_DEBUG ${PLATFORM_OUTPATH}/debug/program)
+                          ARCHIVE_OUTPUT_DIRECTORY_DEBUG ${PLATFORM_OUTPATH}/debug/static
+                          LIBRARY_OUTPUT_DIRECTORY_DEBUG ${PLATFORM_OUTPATH}/debug/shared)
+    set_target_properties(platform PROPERTIES
+                          ARCHIVE_OUTPUT_DIRECTORY_RELEASE ${PLATFORM_OUTPATH}/release/static
+                          LIBRARY_OUTPUT_DIRECTORY_RELEASE ${PLATFORM_OUTPATH}/release/shared)
 endif ()
 
 # set specific properties
