@@ -26,6 +26,7 @@
 
 #if TT_ENV_OS_IS_IOS
 
+#if (TT_ENV_OS_FEATURE & TT_ENV_OS_FEATURE_IOS_SIMULATOR)
 #define __X509_CA "/tmp/tt_ca.crt"
 #define __CA_key "/tmp/tt_ca.key"
 
@@ -36,6 +37,28 @@
 #define __leaf_key "/tmp/tt_ca_leaf.key"
 
 #define __X509_CRL1 "/tmp/tt_ca.crl"
+#else
+extern tt_string_t __ca_path;
+#define __X509_CA tt_string_cstr(&__ca_path)
+
+extern tt_string_t __ca_key_path;
+#define __CA_key tt_string_cstr(&__ca_key_path)
+
+extern tt_string_t __ca2_path;
+#define __X509_CA2 tt_string_cstr(&__ca2_path)
+
+extern tt_string_t __ca_key2_path;
+#define __CA_key2 tt_string_cstr(&__ca_key2_path)
+
+extern tt_string_t __leaf_path;
+#define __X509_LEAF tt_string_cstr(&__leaf_path)
+
+extern tt_string_t __leaf_key_path;
+#define __leaf_key tt_string_cstr(&__leaf_key_path)
+
+extern tt_string_t __crl_path;
+#define __X509_CRL1 tt_string_cstr(&__crl_path)
+#endif
 
 #else
 
