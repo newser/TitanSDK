@@ -4,6 +4,7 @@
 #include "tt_unit_test_case_config.h"
 #include <unit_test/tt_unit_test.h>
 
+#include <algorithm/tt_string_common.h>
 #include <io/tt_file_system.h>
 #include <memory/tt_memory_alloc.h>
 #include <os/tt_spinlock.h>
@@ -35,6 +36,37 @@ TT_TEST_ROUTINE_DECLARE(tt_unit_test_dir_basic)
 
 // =========================================
 
+static tt_string_t __sc_fpath;
+static tt_string_t __sc_dpath;
+
+static void __fs_enter(void *enter_param)
+{
+#if TT_ENV_OS_IS_IOS && !(TT_ENV_OS_FEATURE & TT_ENV_OS_FEATURE_IOS_SIMULATOR)
+    static tt_bool_t done = TT_FALSE;
+    tt_char_t *s;
+
+    if (done) {
+        return;
+    }
+
+    tt_string_init(&__sc_fpath, NULL);
+    tt_string_init(&__sc_dpath, NULL);
+
+    s = getenv("HOME");
+    if (s != NULL) {
+        tt_string_append(&__sc_fpath, s);
+        tt_string_append(&__sc_fpath, "/Library/Caches/测试");
+
+        tt_string_append(&__sc_dpath, s);
+        tt_string_append(&__sc_dpath, "/Library/Caches/test_dir");
+
+        done = TT_TRUE;
+    }
+#endif
+}
+
+static void __fs_enter_consis(void *enter_param);
+
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(fs_case)
 
@@ -43,7 +75,7 @@ TT_TEST_CASE("tt_unit_test_fs_basic",
              "testing fs basic",
              tt_unit_test_fs_basic,
              NULL,
-             NULL,
+             __fs_enter,
              NULL,
              NULL,
              NULL)
@@ -53,7 +85,7 @@ TT_TEST_CASE("tt_unit_test_fs_basic",
                  "testing fs open close",
                  tt_unit_test_fs_open,
                  NULL,
-                 NULL,
+                 __fs_enter,
                  NULL,
                  NULL,
                  NULL),
@@ -62,7 +94,7 @@ TT_TEST_CASE("tt_unit_test_fs_basic",
                  "testing fs read write",
                  tt_unit_test_fs_rw,
                  NULL,
-                 NULL,
+                 __fs_enter,
                  NULL,
                  NULL,
                  NULL),
@@ -71,7 +103,7 @@ TT_TEST_CASE("tt_unit_test_fs_basic",
                  "testing dir basic",
                  tt_unit_test_dir_basic,
                  NULL,
-                 NULL,
+                 __fs_enter_consis,
                  NULL,
                  NULL,
                  NULL),
@@ -82,7 +114,7 @@ TT_TEST_CASE("tt_unit_test_fs_basic",
                  "testing fs read write in multi thread",
                  tt_unit_test_fs_multhread,
                  NULL,
-                 NULL,
+                 __fs_enter,
                  NULL,
                  NULL,
                  NULL),
@@ -93,7 +125,7 @@ TT_TEST_CASE("tt_unit_test_fs_basic",
                  "testing fs read write consistency",
                  tt_unit_test_fs_consistency,
                  NULL,
-                 NULL,
+                 __fs_enter,
                  NULL,
                  NULL,
                  NULL),
@@ -125,7 +157,13 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_fs_consistency)
 #if TT_ENV_OS_IS_WINDOWS
 #define __SC_TEST_FILE "测试"
 #elif TT_ENV_OS_IS_IOS
+
+#if (TT_ENV_OS_FEATURE & TT_ENV_OS_FEATURE_IOS_SIMULATOR)
 #define __SC_TEST_FILE "../tmp/测试"
+#else
+#define __SC_TEST_FILE ((const tt_char_t *)tt_string_cstr(&__sc_fpath))
+#endif
+
 #else
 #define __SC_TEST_FILE "测试"
 #endif
@@ -365,7 +403,13 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_dir_basic)
 // test start
 
 #if TT_ENV_OS_IS_IOS
+
+#if (TT_ENV_OS_FEATURE & TT_ENV_OS_FEATURE_IOS_SIMULATOR)
 #define __TEST_DIR "../tmp/test_dir"
+#else
+#define __TEST_DIR ((const tt_char_t *)tt_string_cstr(&__sc_dpath))
+#endif
+
 #else
 //#define __TEST_DIR "./≤‚ ‘ƒø¬º")
 #define __TEST_DIR "./test_dir"
@@ -434,10 +478,22 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_dir_basic)
     // remove subdirs
     ret = tt_dcreate(__TEST_DIR, NULL);
     TT_UT_SUCCESS(ret, "");
-    ret = tt_dcreate(__TEST_DIR "/s1", NULL);
-    TT_UT_SUCCESS(ret, "");
-    ret = tt_dcreate(__TEST_DIR "/s1/s2", NULL);
-    TT_UT_SUCCESS(ret, "");
+    {
+        tt_char_t s[256];
+        tt_u32_t len = (tt_u32_t)tt_strlen(__TEST_DIR);
+        tt_memcpy(s, __TEST_DIR, len);
+        tt_memcpy(s + len, "/s1", sizeof("/s1") - 1);
+        ret = tt_dcreate(s, NULL);
+        TT_UT_SUCCESS(ret, "");
+    }
+    {
+        tt_char_t s[256];
+        tt_u32_t len = (tt_u32_t)tt_strlen(__TEST_DIR);
+        tt_memcpy(s, __TEST_DIR, len);
+        tt_memcpy(s + len, "/s1/s2", sizeof("/s1/s2") - 1);
+        ret = tt_dcreate(s, NULL);
+        TT_UT_SUCCESS(ret, "");
+    }
 
     ret = tt_dremove(__TEST_DIR);
     TT_UT_SUCCESS(ret, "");
@@ -450,7 +506,13 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_dir_basic)
 }
 
 #if TT_ENV_OS_IS_IOS
+
+#if (TT_ENV_OS_FEATURE & TT_ENV_OS_FEATURE_IOS_SIMULATOR)
 #define __ut_fname "../tmp/a.txt"
+#else
+#define __ut_fname ((const tt_char_t *)tt_string_cstr(&__sc_fpath))
+#endif
+
 #else
 #define __ut_fname "a.txt"
 #endif
@@ -559,15 +621,77 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_fs_multhread)
 }
 
 #if TT_ENV_OS_IS_IOS
+#if (TT_ENV_OS_FEATURE & TT_ENV_OS_FEATURE_IOS_SIMULATOR)
 static const tt_char_t *fname[4] = {"../tmp/1.txt",
                                     "../tmp/2.txt",
                                     "../tmp/3.txt",
                                     "../tmp/4.txt"};
 #else
+static const tt_char_t *fname[4] = {0};
+#endif
+#else
 static const tt_char_t *fname[4] = {"1.txt", "2.txt", "3.txt", "4.txt"};
 #endif
 
 static tt_bool_t __fb_end;
+
+void __fs_enter_consis(void *enter_param)
+{
+#if TT_ENV_OS_IS_IOS && !(TT_ENV_OS_FEATURE & TT_ENV_OS_FEATURE_IOS_SIMULATOR)
+    static tt_bool_t done = TT_FALSE;
+    tt_char_t *s;
+
+    if (done) {
+        return;
+    }
+
+    __fs_enter(NULL);
+
+    s = getenv("HOME");
+    if (s != NULL) {
+        tt_string_t str;
+        tt_char_t *path;
+        tt_u32_t len;
+
+        tt_string_init(&str, NULL);
+        tt_string_append(&str, s);
+        tt_string_append(&str, "/Library/Caches");
+        len = tt_string_len(&str);
+
+        path = tt_malloc(len + sizeof("/1.txt"));
+        if (path != NULL) {
+            tt_memcpy(path, tt_string_cstr(&str), len);
+            tt_memcpy(path + len, "/1.txt", sizeof("/1.txt"));
+            fname[0] = path;
+        }
+
+        path = tt_malloc(len + sizeof("/2.txt"));
+        if (path != NULL) {
+            tt_memcpy(path, tt_string_cstr(&str), len);
+            tt_memcpy(path + len, "/2.txt", sizeof("/2.txt"));
+            fname[1] = path;
+        }
+
+        path = tt_malloc(len + sizeof("/3.txt"));
+        if (path != NULL) {
+            tt_memcpy(path, tt_string_cstr(&str), len);
+            tt_memcpy(path + len, "/3.txt", sizeof("/3.txt"));
+            fname[2] = path;
+        }
+
+        path = tt_malloc(len + sizeof("/4.txt"));
+        if (path != NULL) {
+            tt_memcpy(path, tt_string_cstr(&str), len);
+            tt_memcpy(path + len, "/4.txt", sizeof("/4.txt"));
+            fname[3] = path;
+        }
+
+        tt_string_destroy(&str);
+        done = TT_TRUE;
+    }
+
+#endif
+}
 
 tt_result_t __wr_fiber(IN void *param)
 {

@@ -35,18 +35,23 @@ this file load environment configurations
 ////////////////////////////////////////////////////////////
 
 // ========================================
-// app running os
+// running os
 // ========================================
 
-// os features:
-#define TT_ENV_OS_FEATURE_SIMULATOR (1 << 0)
+#if TARGET_OS_IPHONE && TARGET_IPHONE_SIMULATOR
+#define ___IOS_SIMULATOR TT_ENV_OS_FEATURE_IOS_SIMULATOR
+#else
+#define ___IOS_SIMULATOR 0
+#endif
+
+#define TT_ENV_OS_FEATURE_NATIVE (___IOS_SIMULATOR)
 
 // ========================================
-// app running cpu
+// running cpu
 // ========================================
 
 // ========================================
-// app building toolchain
+// building toolchain
 // ========================================
 
 ////////////////////////////////////////////////////////////

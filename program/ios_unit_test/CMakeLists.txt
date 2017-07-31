@@ -64,8 +64,7 @@ set_target_properties(unit_test PROPERTIES
                       RESOURCE "${RESOURCE_FILE}"
                       XCODE_ATTRIBUTE_GCC_PRECOMPILE_PREFIX_HEADER YES
                       XCODE_ATTRIBUTE_GCC_PREFIX_HEADER ${CMAKE_CURRENT_SOURCE_DIR}/titansdk-ios-unit-test-Prefix.pch
-                      XCODE_ATTRIBUTE_INFOPLIST_PREPROCESS YES
-                      XCODE_ATTRIBUTE_CODE_SIGN_ENTITLEMENTS ${CMAKE_CURRENT_SOURCE_DIR}/unit_test.entitlements)
+                      XCODE_ATTRIBUTE_INFOPLIST_PREPROCESS YES)
 
 #
 # link

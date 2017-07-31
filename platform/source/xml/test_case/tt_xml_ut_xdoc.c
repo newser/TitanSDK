@@ -36,6 +36,41 @@
 // global variant
 ////////////////////////////////////////////////////////////
 
+#if TT_ENV_OS_IS_IOS
+
+#if (TT_ENV_OS_FEATURE & TT_ENV_OS_FEATURE_IOS_SIMULATOR)
+#define __UT_XF_PATH "/tmp/tt_test_xml"
+#else
+static tt_string_t xf_path;
+#define __UT_XF_PATH tt_string_cstr(&xf_path)
+#endif
+
+#else
+#define __UT_XF_PATH "tt_test_xml"
+#endif
+
+static void __xml_enter(void *enter_param)
+{
+#if TT_ENV_OS_IS_IOS && !(TT_ENV_OS_FEATURE & TT_ENV_OS_FEATURE_IOS_SIMULATOR)
+    static tt_bool_t done = TT_FALSE;
+    tt_char_t *s;
+
+    if (done) {
+        return;
+    }
+
+    tt_string_init(&xf_path, NULL);
+
+    s = getenv("HOME");
+    if (s != NULL) {
+        tt_string_append(&xf_path, s);
+        tt_string_append(&xf_path, "/Library/Caches/tt_test_xml");
+
+        done = TT_TRUE;
+    }
+#endif
+}
+
 // === routine declarations ================
 TT_TEST_ROUTINE_DECLARE(tt_unit_test_xdoc_encoding)
 TT_TEST_ROUTINE_DECLARE(tt_unit_test_xdoc_parse)
@@ -49,7 +84,7 @@ TT_TEST_CASE("tt_unit_test_xdoc_encoding",
              "xml: document encoding",
              tt_unit_test_xdoc_encoding,
              NULL,
-             NULL,
+             __xml_enter,
              NULL,
              NULL,
              NULL)
@@ -59,7 +94,7 @@ TT_TEST_CASE("tt_unit_test_xdoc_encoding",
                  "xml: document parsing",
                  tt_unit_test_xdoc_parse,
                  NULL,
-                 NULL,
+                 __xml_enter,
                  NULL,
                  NULL,
                  NULL),
@@ -68,7 +103,7 @@ TT_TEST_CASE("tt_unit_test_xdoc_encoding",
                  "xml: document renderring",
                  tt_unit_test_xdoc_render,
                  NULL,
-                 NULL,
+                 __xml_enter,
                  NULL,
                  NULL,
                  NULL),
@@ -78,19 +113,13 @@ TT_TEST_CASE("tt_unit_test_xdoc_encoding",
 
     TT_TEST_UNIT_DEFINE(XML_UT_XDOC, 0, xml_xdoc_case)
 
-////////////////////////////////////////////////////////////
-// interface declaration
-////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////
+    // interface declaration
+    ////////////////////////////////////////////////////////////
 
-////////////////////////////////////////////////////////////
-// interface implementation
-////////////////////////////////////////////////////////////
-
-#if TT_ENV_OS_IS_IOS
-#define __UT_XF_PATH "/tmp/tt_test_xml"
-#else
-#define __UT_XF_PATH "tt_test_xml"
-#endif
+    ////////////////////////////////////////////////////////////
+    // interface implementation
+    ////////////////////////////////////////////////////////////
 
     /*
     TT_TEST_ROUTINE_DEFINE(tt_unit_test_xdoc_render)

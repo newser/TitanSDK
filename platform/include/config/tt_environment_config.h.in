@@ -79,12 +79,12 @@ features from those macros and assemble them into this file.
     (TT_ENV_TOOLCHAIN_TYPE(TT_ENV_TOOLCHAIN) == TT_ENV_TOOLCHAIN_XCODE)
 
 // ========================================
-// app running os
+// running os
 // ========================================
 
 /**
 @def TT_ENV_OS
-app running os id
+running os id
 */
 #define TT_ENV_OS @PLATFORM_ENV_OS_DETAIL@
 
@@ -112,23 +112,25 @@ app running os id
 
 /**
 @def TT_ENV_OS_VER
-app running os version
+running os version
 */
 #define TT_ENV_OS_VER @PLATFORM_ENV_OS_VER_DETAIL@
 
+#define TT_ENV_OS_FEATURE_IOS_SIMULATOR (1 << 0)
+
 /**
 @def TT_ENV_OS_FEATURE
-app running os features
+running os features
 */
-#define TT_ENV_OS_FEATURE @PLATFORM_ENV_OS_FEATURE_DETAIL@
+#define TT_ENV_OS_FEATURE (@PLATFORM_ENV_OS_FEATURE_DETAIL@ | TT_ENV_OS_FEATURE_NATIVE)
 
 // ========================================
-// app building toochain
+// building toochain
 // ========================================
 
 /**
 @def TT_ENV_TOOLCHAIN
-app building toochain
+building toochain
 */
 #define TT_ENV_TOOLCHAIN @PLATFORM_ENV_TOOLCHAIN_DETAIL@
 
@@ -150,7 +152,7 @@ app building toochain
 
 /**
 @def TT_ENV_TOOLCHAIN_VER
-app building toochain version
+building toochain version
 */
 #if defined(_MSC_VER)
     #if ((_MSC_VER >= 1600) && (_MSC_VER < 1700))
@@ -171,12 +173,12 @@ app building toochain version
 #endif
 
 // ========================================
-// app running cpu
+// running cpu
 // ========================================
 
 /**
 @def TT_ENV_CPU
-app running cpu
+running cpu
 */
 #define TT_ENV_CPU @PLATFORM_ENV_CPU_DETAIL@
 
@@ -213,9 +215,9 @@ app running cpu
 
 /**
 @def TT_ENV_CPU_FEATURE
-app running cpu feature
+running cpu feature
 */
-#define TT_ENV_CPU_FEATURE @PLATFORM_ENV_CPU_FEATURE_DETAIL@
+#define TT_ENV_CPU_FEATURE (@PLATFORM_ENV_CPU_FEATURE_DETAIL@ | TT_ENV_CPU_FEATURE_NATIVE)
 
 // ========================================
 // misc

@@ -25,8 +25,16 @@
 ////////////////////////////////////////////////////////////
 
 #if TT_ENV_OS_IS_IOS
+
+#if (TT_ENV_OS_FEATURE & TT_ENV_OS_FEATURE_IOS_SIMULATOR)
 #define __EC_PUB_PK8_FILE "/tmp/123xxxabc_ec_pub"
 #define __EC_PRIV_PK8_FILE "/tmp/123xxxabc_ec_priv"
+#else
+static tt_string_t pub_path, priv_path;
+#define __EC_PUB_PK8_FILE ((const tt_char_t *)tt_string_cstr(&pub_path))
+#define __EC_PRIV_PK8_FILE ((const tt_char_t *)tt_string_cstr(&priv_path))
+#endif
+
 #else
 #define __EC_PUB_PK8_FILE "123xxxabc_ec_pub"
 #define __EC_PRIV_PK8_FILE "123xxxabc_ec_priv"
@@ -45,6 +53,8 @@ static tt_bool_t has_ec;
 
 extern tt_u8_t __ec_pub_der[];
 extern tt_u8_t __ec_priv_der[];
+
+static tt_string_t pub_path;
 
 ////////////////////////////////////////////////////////////
 // global variant
@@ -341,6 +351,24 @@ void __ec_prepare(void *p)
     if (has_ec) {
         return;
     }
+
+#if TT_ENV_OS_IS_IOS && !(TT_ENV_OS_FEATURE & TT_ENV_OS_FEATURE_IOS_SIMULATOR)
+    {
+        char *s;
+
+        tt_string_init(&pub_path, NULL);
+        tt_string_init(&priv_path, NULL);
+
+        s = getenv("HOME");
+        if (s != NULL) {
+            tt_string_append(&pub_path, s);
+            tt_string_append(&pub_path, "/Library/Caches/123xxxabc_ec_pub");
+
+            tt_string_append(&priv_path, s);
+            tt_string_append(&priv_path, "/Library/Caches/123xxxabc_ec_priv");
+        }
+    }
+#endif
 
     // gen rsa pub
     if (!TT_OK(tt_fopen(&f,

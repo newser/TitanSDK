@@ -183,15 +183,15 @@ TT_TEST_CASE("tt_unit_test_clinode",
 
     tt_buf_clear(&out);
     TT_UT_SUCCESS(tt_cfgobj_line(cnode, " ", 5, &out), "");
-    TT_UT_EQUAL(tt_buf_cmp_cstr(&out, "--- string name  info"), 0, "");
+    TT_UT_EQUAL(tt_buf_cmp_cstr(&out, "-- string name  info"), 0, "");
 
     tt_buf_clear(&out);
     TT_UT_SUCCESS(tt_cfgobj_line(cnode, NULL, 0, &out), "");
-    TT_UT_EQUAL(tt_buf_cmp_cstr(&out, "---    string    name    info"), 0, "");
+    TT_UT_EQUAL(tt_buf_cmp_cstr(&out, "--    string    name    info"), 0, "");
 
     tt_buf_clear(&out);
     TT_UT_SUCCESS(tt_cfgobj_line(cnode, NULL, 2, &out), "");
-    TT_UT_EQUAL(tt_buf_cmp_cstr(&out, "---    string    ??    info"), 0, "");
+    TT_UT_EQUAL(tt_buf_cmp_cstr(&out, "--    string    ??    info"), 0, "");
 
     tt_cfgobj_destroy(cnode);
 
@@ -211,17 +211,17 @@ TT_TEST_CASE("tt_unit_test_clinode",
 
     tt_buf_clear(&out);
     TT_UT_SUCCESS(tt_cfgobj_line(cnode, " ", 8, &out), "");
-    TT_UT_EQUAL(tt_buf_cmp_cstr(&out, "--- dir    -name-/  info"), 0, "");
+    TT_UT_EQUAL(tt_buf_cmp_cstr(&out, "-- dir    -name-/  info"), 0, "");
 
     tt_buf_clear(&out);
     TT_UT_SUCCESS(tt_cfgobj_line(cnode, NULL, 0, &out), "");
-    TT_UT_EQUAL(tt_buf_cmp_cstr(&out, "---    dir       -name-/    info"),
+    TT_UT_EQUAL(tt_buf_cmp_cstr(&out, "--    dir       -name-/    info"),
                 0,
                 "");
 
     tt_buf_clear(&out);
     TT_UT_SUCCESS(tt_cfgobj_line(cnode, NULL, 2, &out), "");
-    TT_UT_EQUAL(tt_buf_cmp_cstr(&out, "---    dir       ??    info"), 0, "");
+    TT_UT_EQUAL(tt_buf_cmp_cstr(&out, "--    dir       ??    info"), 0, "");
 
     tt_cfgobj_destroy(cnode);
 
@@ -377,19 +377,19 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgnode_u32)
     tt_buf_clear(&out);
     ret = tt_cfgobj_line(cnode, " ", 0, &out);
     TT_UT_SUCCESS(ret, "");
-    cmp_ret = tt_buf_cmp_cstr(&out, "rw- u32    node2 test node 2");
+    cmp_ret = tt_buf_cmp_cstr(&out, "rw u32    node2 test node 2");
     TT_UT_EQUAL(cmp_ret, 0, "");
 
     tt_buf_clear(&out);
     ret = tt_cfgobj_line(cnode, " ", 3, &out);
     TT_UT_SUCCESS(ret, "");
-    cmp_ret = tt_buf_cmp_cstr(&out, "rw- u32    ??? test node 2");
+    cmp_ret = tt_buf_cmp_cstr(&out, "rw u32    ??? test node 2");
     TT_UT_EQUAL(cmp_ret, 0, "");
 
     tt_buf_clear(&out);
     ret = tt_cfgobj_line(cnode, " ", 10, &out);
     TT_UT_SUCCESS(ret, "");
-    cmp_ret = tt_buf_cmp_cstr(&out, "rw- u32    node2      test node 2");
+    cmp_ret = tt_buf_cmp_cstr(&out, "rw u32    node2      test node 2");
     TT_UT_EQUAL(cmp_ret, 0, "");
 
     // get
@@ -523,8 +523,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgnode_s32)
         tt_buf_clear(&out);
         ret = tt_cfgobj_line(cnode, " ", 0, &out);
         TT_UT_SUCCESS(ret, "");
-        cmp_ret =
-            tt_buf_cmp_cstr(&out, "rw- s32    node1234567890 test node 2");
+        cmp_ret = tt_buf_cmp_cstr(&out, "rw s32    node1234567890 test node 2");
         TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
@@ -532,7 +531,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgnode_s32)
         tt_buf_clear(&out);
         ret = tt_cfgobj_line(cnode, " ", 7, &out);
         TT_UT_SUCCESS(ret, "");
-        cmp_ret = tt_buf_cmp_cstr(&out, "rw- s32    ??????? test node 2");
+        cmp_ret = tt_buf_cmp_cstr(&out, "rw s32    ??????? test node 2");
         TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
@@ -540,7 +539,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgnode_s32)
         tt_buf_clear(&out);
         ret = tt_cfgobj_line(cnode, " ", 8, &out);
         TT_UT_SUCCESS(ret, "");
-        cmp_ret = tt_buf_cmp_cstr(&out, "rw- s32    ???????? test node 2");
+        cmp_ret = tt_buf_cmp_cstr(&out, "rw s32    ???????? test node 2");
         TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
@@ -549,7 +548,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgnode_s32)
         ret = tt_cfgobj_line(cnode, " ", 16, &out);
         TT_UT_SUCCESS(ret, "");
         cmp_ret =
-            tt_buf_cmp_cstr(&out, "rw- s32    node1234567890   test node 2");
+            tt_buf_cmp_cstr(&out, "rw s32    node1234567890   test node 2");
         TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
@@ -660,7 +659,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgnode_str)
         tt_buf_clear(&out);
         ret = tt_cfgobj_line(cnode, " ", 0, &out);
         TT_UT_SUCCESS(ret, "");
-        cmp_ret = tt_buf_cmp_cstr(&out, "r-- string  ");
+        cmp_ret = tt_buf_cmp_cstr(&out, "r- string  ");
         TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
@@ -691,14 +690,14 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgnode_str)
         tt_buf_clear(&out);
         ret = tt_cfgobj_line(cnode, " ", 0, &out);
         TT_UT_SUCCESS(ret, "");
-        cmp_ret = tt_buf_cmp_cstr(&out, "rw- string node2 test node 2");
+        cmp_ret = tt_buf_cmp_cstr(&out, "rw string node2 test node 2");
         TT_UT_EQUAL(cmp_ret, 0, "");
     }
     {
         tt_buf_clear(&out);
         ret = tt_cfgobj_ls(cnode, "|||", " ", &out);
         TT_UT_SUCCESS(ret, "");
-        cmp_ret = tt_buf_cmp_cstr(&out, "rw-|||string|||node2|||test node 2");
+        cmp_ret = tt_buf_cmp_cstr(&out, "rw|||string|||node2|||test node 2");
         TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
@@ -828,7 +827,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgnode_dir)
         tt_buf_clear(&output);
         ret = tt_cfgobj_line(co, " ", 0, &output);
         TT_UT_SUCCESS(ret, "");
-        cmp_ret = tt_buf_cmp_cstr(&output, "--- dir    / ");
+        cmp_ret = tt_buf_cmp_cstr(&output, "-- dir    / ");
         TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
@@ -836,20 +835,20 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgnode_dir)
         tt_buf_clear(&output);
         ret = tt_cfgobj_line(co, NULL, 10, &output);
         TT_UT_SUCCESS(ret, "");
-        cmp_ret = tt_buf_cmp_cstr(&output, "---    dir       /             ");
+        cmp_ret = tt_buf_cmp_cstr(&output, "--    dir       /             ");
         TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
     {
         const tt_char_t *this_out =
-            "---    dir       sub-group/      \r\n"
-            "---    dir       sub-group1/     \r\n"
-            "---    dir       sub-group21/    \r\n"
-            "---    dir       sub-group22/    \r\n"
-            "rw-    u32       c1              \r\n"
-            "rw-    s32       c22             \r\n"
-            "rw-    string    c322            \r\n"
-            "rw-    string    c333            ";
+            "--    dir       sub-group/      \r\n"
+            "--    dir       sub-group1/     \r\n"
+            "--    dir       sub-group21/    \r\n"
+            "--    dir       sub-group22/    \r\n"
+            "rw    u32       c1              \r\n"
+            "rw    s32       c22             \r\n"
+            "rw    string    c322            \r\n"
+            "rw    string    c333            ";
 
         tt_buf_clear(&output);
         ret = tt_cfgdir_ls(cgrp, NULL, "\r\n", &output);
@@ -957,7 +956,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgnode_grp_ar)
         tt_buf_clear(&output);
         ret = tt_cfgobj_ls(cgrp, NULL, NULL, &output);
         TT_UT_SUCCESS(ret, "");
-        cmp_ret = tt_buf_cmp_cstr(&output, "rw-    u32       n-u32    ");
+        cmp_ret = tt_buf_cmp_cstr(&output, "rw    u32       n-u32    ");
         TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
@@ -975,8 +974,8 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgnode_grp_ar)
 
     {
         const tt_char_t outstr[] =
-            "rw->>>s32   >>>n-s32>>>\r\n"
-            "rw->>>u32   >>>n-u32>>>";
+            "rw>>>s32   >>>n-s32>>>\r\n"
+            "rw>>>u32   >>>n-u32>>>";
 
         tt_buf_clear(&output);
         ret = tt_cfgobj_ls(cgrp, ">>>", "\r\n", &output);
@@ -993,9 +992,9 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgnode_grp_ar)
 
     {
         const tt_char_t outstr[] =
-            "---    dir       dir1/    \r\n"
-            "rw-    s32       n-s32    \r\n"
-            "rw-    u32       n-u32    ";
+            "--    dir       dir1/    \r\n"
+            "rw    s32       n-s32    \r\n"
+            "rw    u32       n-u32    ";
 
         tt_buf_clear(&output);
         ret = tt_cfgobj_ls(cgrp, NULL, "\r\n", &output);
@@ -1025,11 +1024,11 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgnode_grp_ar)
 
     {
         const tt_char_t outstr[] =
-            "---    dir       dir0/      \r\n"
-            "---    dir       dir1/      \r\n"
-            "---    dir       dir222/    \r\n"
-            "rw-    s32       n-s32      \r\n"
-            "rw-    u32       n-u32      ";
+            "--    dir       dir0/      \r\n"
+            "--    dir       dir1/      \r\n"
+            "--    dir       dir222/    \r\n"
+            "rw    s32       n-s32      \r\n"
+            "rw    u32       n-u32      ";
 
         tt_buf_clear(&output);
         ret = tt_cfgobj_ls(cgrp, NULL, "\r\n", &output);
@@ -1065,13 +1064,13 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgnode_grp_ar)
 
     {
         const tt_char_t outstr[] =
-            "---    dir       dir0/        \r\n"
-            "---    dir       dir1/        \r\n"
-            "---    dir       dir222/      \r\n"
-            "rw-    s32       n-s0         \r\n"
-            "rw-    s32       n-s32        \r\n"
-            "rw-    u32       n-u32        \r\n"
-            "rw-    s32       n-z666666    ";
+            "--    dir       dir0/        \r\n"
+            "--    dir       dir1/        \r\n"
+            "--    dir       dir222/      \r\n"
+            "rw    s32       n-s0         \r\n"
+            "rw    s32       n-s32        \r\n"
+            "rw    u32       n-u32        \r\n"
+            "rw    s32       n-z666666    ";
 
         tt_buf_clear(&output);
         ret = tt_cfgobj_ls(cgrp, NULL, "\r\n", &output);
@@ -1096,12 +1095,12 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgnode_grp_ar)
 
     {
         const tt_char_t outstr[] =
-            "---    dir       dir1/        \r\n"
-            "---    dir       dir222/      \r\n"
-            "rw-    s32       n-s0         \r\n"
-            "rw-    s32       n-s32        \r\n"
-            "rw-    u32       n-u32        \r\n"
-            "rw-    s32       n-z666666    ";
+            "--    dir       dir1/        \r\n"
+            "--    dir       dir222/      \r\n"
+            "rw    s32       n-s0         \r\n"
+            "rw    s32       n-s32        \r\n"
+            "rw    u32       n-u32        \r\n"
+            "rw    s32       n-z666666    ";
 
         tt_buf_clear(&output);
         ret = tt_cfgobj_ls(cgrp, NULL, "\r\n", &output);
@@ -1118,11 +1117,11 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgnode_grp_ar)
 
     {
         const tt_char_t outstr[] =
-            "---    dir       dir1/        \r\n"
-            "---    dir       dir222/      \r\n"
-            "rw-    s32       n-s0         \r\n"
-            "rw-    s32       n-s32        \r\n"
-            "rw-    u32       n-u32        ";
+            "--    dir       dir1/        \r\n"
+            "--    dir       dir222/      \r\n"
+            "rw    s32       n-s0         \r\n"
+            "rw    s32       n-s32        \r\n"
+            "rw    u32       n-u32        ";
 
         tt_buf_clear(&output);
         ret = tt_cfgobj_ls(cgrp, NULL, "\r\n", &output);
@@ -1139,10 +1138,10 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgnode_grp_ar)
 
     {
         const tt_char_t outstr[] =
-            "---    dir       dir1/        \r\n"
-            "---    dir       dir222/      \r\n"
-            "rw-    s32       n-s32        \r\n"
-            "rw-    u32       n-u32        ";
+            "--    dir       dir1/        \r\n"
+            "--    dir       dir222/      \r\n"
+            "rw    s32       n-s32        \r\n"
+            "rw    u32       n-u32        ";
 
         tt_buf_clear(&output);
         ret = tt_cfgobj_ls(cgrp, NULL, "\r\n", &output);
@@ -1193,7 +1192,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgnode_bool)
         tt_buf_clear(&out);
         ret = tt_cfgobj_ls(cnode, NULL, NULL, &out);
         TT_UT_SUCCESS(ret, "");
-        cmp_ret = tt_buf_cmp_cstr(&out, "r--    bool          ");
+        cmp_ret = tt_buf_cmp_cstr(&out, "r-    bool          ");
         TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
@@ -1241,26 +1240,26 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgnode_bool)
         TT_UT_SUCCESS(ret, "");
         cmp_ret =
             tt_buf_cmp_cstr(&out,
-                            "rw-    bool      node-bool    test bool node");
+                            "rw    bool      node-bool    test bool node");
         TT_UT_EQUAL(cmp_ret, 0, "");
     }
 
     tt_buf_clear(&out);
     ret = tt_cfgobj_line(cnode, " ", 0, &out);
     TT_UT_SUCCESS(ret, "");
-    cmp_ret = tt_buf_cmp_cstr(&out, "rw- bool   node-bool test bool node");
+    cmp_ret = tt_buf_cmp_cstr(&out, "rw bool   node-bool test bool node");
     TT_UT_EQUAL(cmp_ret, 0, "");
 
     tt_buf_clear(&out);
     ret = tt_cfgobj_line(cnode, " ", 3, &out);
     TT_UT_SUCCESS(ret, "");
-    cmp_ret = tt_buf_cmp_cstr(&out, "rw- bool   ??? test bool node");
+    cmp_ret = tt_buf_cmp_cstr(&out, "rw bool   ??? test bool node");
     TT_UT_EQUAL(cmp_ret, 0, "");
 
     tt_buf_clear(&out);
     ret = tt_cfgobj_line(cnode, " ", 10, &out);
     TT_UT_SUCCESS(ret, "");
-    cmp_ret = tt_buf_cmp_cstr(&out, "rw- bool   node-bool  test bool node");
+    cmp_ret = tt_buf_cmp_cstr(&out, "rw bool   node-bool  test bool node");
     TT_UT_EQUAL(cmp_ret, 0, "");
 
     // get

@@ -25,7 +25,14 @@
 ////////////////////////////////////////////////////////////
 
 #if TT_ENV_OS_IS_IOS
+
+#if (TT_ENV_OS_FEATURE & TT_ENV_OS_FEATURE_IOS_SIMULATOR)
 #define __DH_PARAM_FILE "/tmp/123xxxabc_DH_param"
+#else
+static tt_string_t fparam_path;
+#define __DH_PARAM_FILE ((const tt_char_t *)tt_string_cstr(&fparam_path))
+#endif
+
 #else
 #define __DH_PARAM_FILE "123xxxabc_DH_param"
 #endif
@@ -176,6 +183,21 @@ void __dh_prepare(void *p)
     if (has_dh) {
         return;
     }
+
+#if TT_ENV_OS_IS_IOS && !(TT_ENV_OS_FEATURE & TT_ENV_OS_FEATURE_IOS_SIMULATOR)
+    {
+        char *s;
+
+        tt_string_init(&fparam_path, NULL);
+
+        s = getenv("HOME");
+        if (s != NULL) {
+            tt_string_append(&fparam_path, s);
+            tt_string_append(&fparam_path,
+                             "/Library/Caches/123xxxabc_DH_param");
+        }
+    }
+#endif
 
     // gen rsa priv
     if (!TT_OK(tt_fopen(&f,

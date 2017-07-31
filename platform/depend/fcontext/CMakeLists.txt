@@ -31,7 +31,7 @@ elseif ((PLATFORM_ENV_OS STREQUAL macos) OR PLATFORM_IOS_SIMULATOR)
   endif ()
 
 elseif (PLATFORM_ENV_OS STREQUAL ios)
-  if (PLATFORM_ARM64)
+  if (PLATFORM_ARM_ARCH STREQUAL arm64)
     set(REL_SRC include/tt_fiber_wrapper.h
                 source/tt_fiber_wrapper.c
                 boost/jump_arm64_aapcs_macho_gas.S

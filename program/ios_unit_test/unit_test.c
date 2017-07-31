@@ -1,6 +1,6 @@
 #include <tt_platform.h>
 
-#include "app_unit_test_process.h"
+#include "unit_test_process.h"
 
 //#include <locale.h>
 
