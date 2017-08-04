@@ -427,7 +427,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgnode_u32)
     v.len = (tt_u32_t)tt_strlen(max_u32);
     ret = tt_cfgobj_write(cnode, v.addr, v.len);
     TT_UT_SUCCESS(ret, "");
-    TT_UT_EQUAL(val, 4294967295, "");
+    TT_UT_EQUAL(val, 0xFFFFFFFF, "");
     tt_buf_clear(&out);
     ret = tt_cfgobj_read(cnode, NULL, &out);
     TT_UT_SUCCESS(ret, "");
@@ -593,7 +593,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgnode_s32)
     TT_UT_SUCCESS(ret, "");
     cmp_ret = tt_buf_cmp_cstr(&out, "-2147483648");
     TT_UT_EQUAL(cmp_ret, 0, "");
-    TT_UT_EQUAL(val, -2147483648, "");
+    TT_UT_EQUAL(val, 0x80000000, "");
 
     // to -1
     v.addr = (tt_u8_t *)s32_n1;
@@ -611,7 +611,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgnode_s32)
     v.len = (tt_u32_t)tt_strlen(min_s32);
     ret = tt_cfgobj_write(cnode, v.addr, v.len);
     TT_UT_SUCCESS(ret, "");
-    TT_UT_EQUAL(val, -2147483648, "");
+    TT_UT_EQUAL(val, 0x80000000, "");
 
     tt_cfgobj_destroy(cnode);
     tt_buf_destroy(&out);

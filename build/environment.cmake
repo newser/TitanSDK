@@ -17,80 +17,80 @@
 # load environment info
 #
 
-# toolchain
-set(PLATFORM_TOOLCHAIN "" 
-    CACHE FILEPATH "specified toolchain file")
-mark_as_advanced(PLATFORM_TOOLCHAIN)
+if (CMAKE_SYSTEM_NAME STREQUAL Android)
+    cmake_minimum_required(VERSION 3.7.2)
 
-set(PLATFORM_IOS 0 
-    CACHE BOOL    "use predefined ios-xcode toolchain")
+    message(STATUS "CMAKE_SYSTEM_NAME: ${CMAKE_SYSTEM_NAME}")
+    message(STATUS "CMAKE_SYSTEM_VERSION: ${CMAKE_SYSTEM_VERSION}")
+    message(STATUS "CMAKE_ANDROID_ARCH_ABI: ${CMAKE_ANDROID_ARCH_ABI}")
+    message(STATUS "CMAKE_ANDROID_NDK: ${CMAKE_ANDROID_NDK}")
 
-# choose toolchain
-if (PLATFORM_TOOLCHAIN STREQUAL "")
+elseif (CMAKE_HOST_SYSTEM_NAME STREQUAL Darwin)
+    # available only on mac
+    set(PLATFORM_IOS 0 CACHE BOOL "use predefined ios-xcode toolchain")
+
     if (PLATFORM_IOS)
-        set(PLATFORM_TOOLCHAIN "ios-xcode.toolchain.cmake")
+        include(${BUILD_PATH}/ios-xcode.toolchain.cmake)
     endif ()
-endif()
 
-# check and load toolchain
-if (PLATFORM_TOOLCHAIN)
-    if (EXISTS ${BUILD_PATH}/${PLATFORM_TOOLCHAIN})
-        include(${BUILD_PATH}/${PLATFORM_TOOLCHAIN})
-    else ()
-        message(FATAL_ERROR "toolchain does not exist")
-    endif ()
-endif (PLATFORM_TOOLCHAIN)
+endif ()
 
 # get application os
-function(get_app_os app_os)
+function(get_os os)
     if (CMAKE_SYSTEM_NAME STREQUAL Windows)
-        set(${app_os} windows PARENT_SCOPE)
+        set(${os} windows PARENT_SCOPE)
     elseif (CMAKE_SYSTEM_NAME STREQUAL Linux)
-        set(${app_os} linux PARENT_SCOPE)    
+        set(${os} linux PARENT_SCOPE)
     elseif (CMAKE_SYSTEM_NAME STREQUAL Darwin)
-        set(${app_os} macos PARENT_SCOPE)
+        set(${os} macos PARENT_SCOPE)
     elseif (CMAKE_SYSTEM_NAME STREQUAL iOS)
-        set(${app_os} ios PARENT_SCOPE)
+        set(${os} ios PARENT_SCOPE)
+    elseif (CMAKE_SYSTEM_NAME STREQUAL Android)
+        set(${os} android PARENT_SCOPE)
     else ()
         # more to be added
         message(FATAL_ERROR "unsupported os: ${${CMAKE_SYSTEM_NAME}}")
     endif ()
-endfunction(get_app_os)
+endfunction(get_os)
 
 # get application cpu
-function(get_app_cpu app_cpu)
+function(get_cpu cpu)
     set(__cpu ${CMAKE_SYSTEM_PROCESSOR})
     string(TOLOWER ${__cpu} __cpu)
     # CMAKE_SYSTEM_PROCESSOR is exactly the cpu even in cross build mode
     
     if (__cpu MATCHES "(.*intel.*|.*amd.*|.*x64.*|.*x86.*|.*i.86)")
-        set(${app_cpu} x86 PARENT_SCOPE)
-    elseif (__cpu MATCHES "(.*arm.*)")
-        set(${app_cpu} arm PARENT_SCOPE)
+        set(${cpu} x86 PARENT_SCOPE)
+    elseif (__cpu MATCHES "(.*arm.*)" OR __cpu MATCHES "(.*aarch64.*)")
+        set(${cpu} arm PARENT_SCOPE)
+    elseif (__cpu MATCHES "(.*mips.*)")
+        set(${cpu} mips PARENT_SCOPE)
     else ()
         # more to be add
         message(FATAL_ERROR "unsupported cpu: ${__cpu}")
     endif ()
 
-endfunction(get_app_cpu)
+endfunction(get_cpu)
 
 # get application toolchain
-function(get_app_toolchain app_toolchain)
-    if (CMAKE_GENERATOR MATCHES ".*Visual Studio.*")
+function(get_toolchain toolchain)
+    if (CMAKE_SYSTEM_NAME STREQUAL Android)
+        set(${toolchain} ndk PARENT_SCOPE)
+    elseif (CMAKE_GENERATOR MATCHES ".*Visual Studio.*")
         # vs must use msvc as compiler
-        set(${app_toolchain} msvc PARENT_SCOPE)
+        set(${toolchain} msvc PARENT_SCOPE)
     elseif (CMAKE_GENERATOR MATCHES ".*Unix Makefiles.*" AND 
             CMAKE_C_COMPILER_ID MATCHES GNU AND
             CMAKE_CXX_COMPILER_ID MATCHES GNU)
-        set(${app_toolchain} gnu PARENT_SCOPE)
+        set(${toolchain} gnu PARENT_SCOPE)
     elseif (CMAKE_GENERATOR MATCHES ".*Xcode.*" AND
             CMAKE_C_COMPILER_ID MATCHES Clang AND
             CMAKE_CXX_COMPILER_ID MATCHES Clang)
-        set(${app_toolchain} xcode PARENT_SCOPE)
+        set(${toolchain} xcode PARENT_SCOPE)
     else ()
         message(FATAL_ERROR "unsupported toolchain: ${CMAKE_GENERATOR}, ${CMAKE_C_COMPILER_ID}")
     endif ()
-endfunction(get_app_toolchain)
+endfunction(get_toolchain)
 
 # get host
 function(get_host_os host_os)
@@ -109,32 +109,32 @@ endfunction(get_host_os)
 # construct environment name
 message(STATUS "DETECTING ENVIRONMENT ...")
 
-# app running os
-message(STATUS "detecting app running os")
-get_app_os(PLATFORM_ENV_OS)
-set(PLATFORM_ENV_OS ${PLATFORM_ENV_OS} CACHE INTERNAL "app running os")
-message(STATUS "app running os: ${PLATFORM_ENV_OS}")
+# os
+message(STATUS "detecting os")
+get_os(PLATFORM_ENV_OS)
+set(PLATFORM_ENV_OS ${PLATFORM_ENV_OS} CACHE INTERNAL "os")
+message(STATUS "os: ${PLATFORM_ENV_OS}")
 
-# app running cpu
-message(STATUS "detecting app running cpu")
-get_app_cpu(PLATFORM_ENV_CPU)
+# cpu
+message(STATUS "detecting cpu")
+get_cpu(PLATFORM_ENV_CPU)
 if (PLATFORM_IOS_SIMULATOR)
     set(PLATFORM_ENV_CPU x86)
 endif ()
-set(PLATFORM_ENV_CPU ${PLATFORM_ENV_CPU} CACHE INTERNAL "app running cpu")
-message(STATUS "app running cpu: ${PLATFORM_ENV_CPU}")
+set(PLATFORM_ENV_CPU ${PLATFORM_ENV_CPU} CACHE INTERNAL "cpu")
+message(STATUS "cpu: ${PLATFORM_ENV_CPU}")
 
 # app building toolchain
-message(STATUS "detecting app building toochain")
-get_app_toolchain(PLATFORM_ENV_TOOLCHAIN)
-set(PLATFORM_ENV_TOOLCHAIN ${PLATFORM_ENV_TOOLCHAIN} CACHE INTERNAL "app building toochain")
-message(STATUS "app building toochain: ${PLATFORM_ENV_TOOLCHAIN}")
+message(STATUS "detecting toochain")
+get_toolchain(PLATFORM_ENV_TOOLCHAIN)
+set(PLATFORM_ENV_TOOLCHAIN ${PLATFORM_ENV_TOOLCHAIN} CACHE INTERNAL "toochain")
+message(STATUS "toochain: ${PLATFORM_ENV_TOOLCHAIN}")
 
-# app building host
-message(STATUS "detecting app building host")
+# host
+message(STATUS "detecting host")
 get_host_os(PLATFORM_ENV_HOST)
-set(PLATFORM_ENV_HOST ${PLATFORM_ENV_HOST} CACHE INTERNAL "app building host")
-message(STATUS "app building host: ${PLATFORM_ENV_HOST}")
+set(PLATFORM_ENV_HOST ${PLATFORM_ENV_HOST} CACHE INTERNAL "host")
+message(STATUS "host: ${PLATFORM_ENV_HOST}")
 
 # make env name
 #if (PLATFORM_ENV_OS STREQUAL PLATFORM_ENV_HOST)
@@ -197,14 +197,14 @@ mark_as_advanced(PLATFORM_ENVIRONMENT_DETAIL)
 if (PLATFORM_ENVIRONMENT_DETAIL)
     message(STATUS "DETECTING ENVIRONMENT DETAIL ...")
 
-    # detect app running os detail
-    detect_env_helper(PLATFORM_ENV_OS_DETAIL "app running os detail")
-    detect_env_helper(PLATFORM_ENV_OS_VER_DETAIL "app running os version detail")
-    detect_env_helper(PLATFORM_ENV_OS_FEATURE_DETAIL "app running os feature detail")
+    # detect os detail
+    detect_env_helper(PLATFORM_ENV_OS_DETAIL "os detail")
+    detect_env_helper(PLATFORM_ENV_OS_VER_DETAIL "os version detail")
+    detect_env_helper(PLATFORM_ENV_OS_FEATURE_DETAIL "os feature detail")
     
-    # detect app running cpu detail
-    detect_env_helper(PLATFORM_ENV_CPU_DETAIL "app running cpu detail")
-    detect_env_helper(PLATFORM_ENV_CPU_FEATURE_DETAIL "app running cpu feature detail")
+    # detect cpu detail
+    detect_env_helper(PLATFORM_ENV_CPU_DETAIL "cpu detail")
+    detect_env_helper(PLATFORM_ENV_CPU_FEATURE_DETAIL "cpu feature detail")
 
     # detect toolchain
     detect_env_helper(PLATFORM_ENV_TOOLCHAIN_DETAIL "app building toolchain detail")

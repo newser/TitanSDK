@@ -103,7 +103,7 @@ TT_TEST_CASE("tt_unit_test_xattr_rel",
 
     static const tt_char_t __ut_xattr[] =
         "<node b1=\"1\" "
-        "u32_1=\"4294967295\" "
+        "u32_1=\"0xFFFFFFFF\" "
         "s32_1=\"-2147483648\" "
         "s64_1=\"-9223372036854775808\" "
         "u64_1=\"18446744073709551615\" "
@@ -145,7 +145,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xattr_rel)
 
     xa2 = tt_xattr_next(xa);
     TT_UT_NOT_NULL(xa2, "");
-    TT_UT_EQUAL(tt_strcmp(tt_xattr_get_value(xa2, "xx"), "4294967295"), 0, "");
+    TT_UT_EQUAL(tt_strcmp(tt_xattr_get_value(xa2, "xx"), "0xFFFFFFFF"), 0, "");
 
     xa = tt_xnode_last_attr(xn);
     TT_UT_NOT_NULL(xa, "");
@@ -184,7 +184,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xattr_rel)
     TT_UT_EQUAL(tt_strcmp((tt_char_t *)buf,
                           "<?xml version=\"1.0\"?>\n<node "
                           "i_before=\"before_val\" attr_prep=\"prep_val\" "
-                          "b1=\"1\" u32_1=\"4294967295\" s32_1=\"-2147483648\" "
+                          "b1=\"1\" u32_1=\"0xFFFFFFFF\" s32_1=\"-2147483648\" "
                           "s64_1=\"-9223372036854775808\" "
                           "u64_1=\"18446744073709551615\" float_1=\"12.34\" "
                           "double_1=\"-2.789\" str_2=\"\" str_1=\"the last "
@@ -210,7 +210,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xattr_rel)
     TT_UT_SUCCESS(ret, "");
     TT_UT_EQUAL(tt_strcmp((tt_char_t *)buf,
                           "<?xml version=\"1.0\"?>\n<node b1=\"1\" "
-                          "u32_1=\"4294967295\" s32_1=\"-2147483648\" "
+                          "u32_1=\"0xFFFFFFFF\" s32_1=\"-2147483648\" "
                           "s64_1=\"-9223372036854775808\" "
                           "u64_1=\"18446744073709551615\" float_1=\"12.34\" "
                           "double_1=\"-2.789\" str_2=\"\" str_1=\"the last "
@@ -304,12 +304,12 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xattr_int)
     xa = tt_xnode_selectxptr_byname(xn, "u32_1");
     TT_UT_NOT_NULL(xa, "");
     TT_UT_EQUAL(tt_xattr_get_bool(xa, TT_TRUE), TT_FALSE, "");
-    TT_UT_EQUAL(tt_xattr_get_u32(xa, 0), 4294967295, "");
+    TT_UT_EQUAL(tt_xattr_get_u32(xa, 0), 0xFFFFFFFF, "");
     TT_UT_EQUAL(tt_xattr_get_s32(xa, 0), 2147483647, "");
-    TT_UT_EQUAL(tt_xattr_get_u64(xa, 0), 4294967295, "");
-    TT_UT_EQUAL(tt_xattr_get_s64(xa, 0), 4294967295, "");
-    TT_UT_EQUAL(tt_xattr_get_float(xa, 0), 4294967295, "");
-    TT_UT_EQUAL(tt_xattr_get_double(xa, 0), 4294967295, "");
+    TT_UT_EQUAL(tt_xattr_get_u64(xa, 0), 0xFFFFFFFF, "");
+    TT_UT_EQUAL(tt_xattr_get_s64(xa, 0), 0xFFFFFFFF, "");
+    TT_UT_EQUAL(tt_xattr_get_float(xa, 0), 0xFFFFFFFF, "");
+    TT_UT_EQUAL(tt_xattr_get_double(xa, 0), 0xFFFFFFFF, "");
 
     ret = tt_xattr_set_u32(xa, 1);
     TT_UT_SUCCESS(ret, "");
@@ -356,7 +356,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xattr_int)
     xa = tt_xnode_selectxptr_byname(xn, "u64_1");
     TT_UT_NOT_NULL(xa, "");
     TT_UT_EQUAL(tt_xattr_get_bool(xa, TT_FALSE), TT_TRUE, ""); // begins with 1
-    TT_UT_EQUAL(tt_xattr_get_u32(xa, 0), 4294967295, "");
+    TT_UT_EQUAL(tt_xattr_get_u32(xa, 0), 0xFFFFFFFF, "");
     TT_UT_EQUAL(tt_xattr_get_s32(xa, 0), 2147483647, ""); // truncated
     TT_UT_EQUAL(tt_xattr_get_u64(xa, 0), 18446744073709551615ULL, "");
     TT_UT_EQUAL(tt_xattr_get_s64(xa, 0), 9223372036854775807ULL, "");

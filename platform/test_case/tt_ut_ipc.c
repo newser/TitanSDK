@@ -626,7 +626,9 @@ tt_result_t __ipc_svr_fev(IN void *param)
             return TT_FAIL;
         }
 
-        tmr = tt_tmr_create(tt_rand_u32() % 5 + 5, cn, (void *)tt_time_ref());
+        tmr = tt_tmr_create(tt_rand_u32() % 5 + 5,
+                            cn,
+                            (void *)(tt_uintptr_t)tt_time_ref());
         if (tmr == NULL) {
             __err_line = __LINE__;
             return TT_FAIL;
@@ -965,7 +967,8 @@ tt_result_t __ipc_svr_pev_fev(IN void *param)
                 }
 
                 if (e_tmr->ev == ~0) {
-                    tt_tmr_set_param(e_tmr, (void *)tt_time_ref());
+                    tt_tmr_set_param(e_tmr,
+                                     (void *)(tt_uintptr_t)tt_time_ref());
                     tt_tmr_start(e_tmr);
                 } else {
                     now = tt_rand_u32() % 3;
@@ -975,7 +978,8 @@ tt_result_t __ipc_svr_pev_fev(IN void *param)
                         tt_tmr_stop(e_tmr);
                     } else {
                         tt_tmr_set_delay(e_tmr, tt_rand_u32() % 5 + 5);
-                        tt_tmr_set_param(e_tmr, (void *)tt_time_ref());
+                        tt_tmr_set_param(e_tmr,
+                                         (void *)(tt_uintptr_t)tt_time_ref());
                         tt_tmr_start(e_tmr);
                     }
                 }
@@ -984,7 +988,7 @@ tt_result_t __ipc_svr_pev_fev(IN void *param)
             if (tt_rand_u32() % 100 == 0) {
                 tmr = tt_tmr_create(tt_rand_u32() % 5 + 5,
                                     0,
-                                    (void *)tt_time_ref());
+                                    (void *)(tt_uintptr_t)tt_time_ref());
                 if (tmr == NULL) {
                     __err_line = __LINE__;
                     return TT_FAIL;
