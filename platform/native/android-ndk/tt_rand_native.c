@@ -14,76 +14,78 @@
  * limitations under the License.
  */
 
-/**
-@file tt_io_event.h
-@brief io event
-*/
-
-#ifndef __TT_IO_EVENT__
-#define __TT_IO_EVENT__
-
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <algorithm/tt_double_linked_list.h>
+#include <tt_rand_native.h>
+
+#include <tt_sys_error.h>
+
+#include <errno.h>
+#include <fcntl.h>
+#include <sys/types.h>
+#include <sys/uio.h>
+#include <unistd.h>
 
 ////////////////////////////////////////////////////////////
-// macro definition
+// internal macro
+////////////////////////////////////////////////////////////
+
+//#define __RAND_DEV "/dev/random"
+#define __RAND_DEV "/dev/urandom"
+
+////////////////////////////////////////////////////////////
+// internal type
 ////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////
-// type definition
+// extern declaration
 ////////////////////////////////////////////////////////////
 
-struct tt_fiber_s;
-struct epoll_event;
-
-enum
-{
-    TT_IO_WORKER,
-    TT_IO_POLLER,
-    TT_IO_FS,
-    TT_IO_SOCKET,
-    TT_IO_IPC,
-    TT_IO_TIMER,
-    TT_IO_DNS,
-
-    TT_IO_NUM
-};
-#define TT_IO_VALID(e) ((e) < TT_IO_NUM)
-
-typedef struct tt_io_ev_s
-{
-    struct tt_fiber_s *src;
-    struct tt_fiber_s *dst;
-    tt_dnode_t node;
-#if TT_ENV_OS_IS_WINDOWS
-    union
-    {
-        OVERLAPPED ov;
-        WSAOVERLAPPED wov;
-    };
-    tt_u32_t io_bytes;
-    tt_result_t io_result;
-#elif TT_ENV_OS_IS_LINUX || TT_ENV_OS_IS_ANDROID
-    struct epoll_event *epev;
-#endif
-    tt_u16_t io;
-    tt_u16_t ev;
-} tt_io_ev_t;
-
-typedef void (*tt_worker_io_t)(IN tt_io_ev_t *io_ev);
-
-// return true if io is completed, either succeed or fail
-typedef tt_bool_t (*tt_poller_io_t)(IN tt_io_ev_t *io_ev);
-
 ////////////////////////////////////////////////////////////
-// global variants
+// global variant
 ////////////////////////////////////////////////////////////
+
+static int __rand_fd = -1;
 
 ////////////////////////////////////////////////////////////
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-#endif // __TT_IO_EVENT__
+////////////////////////////////////////////////////////////
+// interface implementation
+////////////////////////////////////////////////////////////
+
+tt_result_t tt_rng_component_init_ntv()
+{
+    __rand_fd = open(__RAND_DEV, O_RDONLY);
+    if (__rand_fd < 0) {
+        TT_ERROR_NTV("fail to open %s", __RAND_DEV);
+        return TT_FAIL;
+    }
+
+    return TT_SUCCESS;
+}
+
+tt_result_t tt_rng_ntv(IN tt_u8_t *data, IN tt_u32_t data_len)
+{
+    tt_u32_t n = 0;
+    tt_u32_t ret;
+
+rag:
+    ret = read(__rand_fd, data + n, data_len - n);
+    if (ret > 0) {
+        n += ret;
+        if (n < data_len) {
+            goto rag;
+        } else {
+            return TT_SUCCESS;
+        }
+    } else if (errno == EINTR) {
+        goto rag;
+    } else {
+        TT_ERROR_NTV("fail to read random data");
+        return TT_FAIL;
+    }
+}

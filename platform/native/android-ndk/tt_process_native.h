@@ -15,68 +15,40 @@
  */
 
 /**
-@file tt_io_event.h
-@brief io event
+@file tt_process.h
+@brief process native
+
+this file defines process native APIs
 */
 
-#ifndef __TT_IO_EVENT__
-#define __TT_IO_EVENT__
+#ifndef __TT_PROCESS_NATIVE__
+#define __TT_PROCESS_NATIVE__
 
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <algorithm/tt_double_linked_list.h>
+#include <tt_basic_type.h>
+
+#include <unistd.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
 ////////////////////////////////////////////////////////////
 
+#define TT_PROCESS_EXIT_SUCCESS_NTV EXIT_SUCCESS
+#define TT_PROCESS_EXIT_FAILURE_NTV EXIT_FAILURE
+
 ////////////////////////////////////////////////////////////
 // type definition
 ////////////////////////////////////////////////////////////
 
-struct tt_fiber_s;
-struct epoll_event;
+struct tt_process_attr_s;
 
-enum
+typedef struct
 {
-    TT_IO_WORKER,
-    TT_IO_POLLER,
-    TT_IO_FS,
-    TT_IO_SOCKET,
-    TT_IO_IPC,
-    TT_IO_TIMER,
-    TT_IO_DNS,
-
-    TT_IO_NUM
-};
-#define TT_IO_VALID(e) ((e) < TT_IO_NUM)
-
-typedef struct tt_io_ev_s
-{
-    struct tt_fiber_s *src;
-    struct tt_fiber_s *dst;
-    tt_dnode_t node;
-#if TT_ENV_OS_IS_WINDOWS
-    union
-    {
-        OVERLAPPED ov;
-        WSAOVERLAPPED wov;
-    };
-    tt_u32_t io_bytes;
-    tt_result_t io_result;
-#elif TT_ENV_OS_IS_LINUX || TT_ENV_OS_IS_ANDROID
-    struct epoll_event *epev;
-#endif
-    tt_u16_t io;
-    tt_u16_t ev;
-} tt_io_ev_t;
-
-typedef void (*tt_worker_io_t)(IN tt_io_ev_t *io_ev);
-
-// return true if io is completed, either succeed or fail
-typedef tt_bool_t (*tt_poller_io_t)(IN tt_io_ev_t *io_ev);
+    pid_t pid;
+} tt_process_ntv_t;
 
 ////////////////////////////////////////////////////////////
 // global variants
@@ -86,4 +58,18 @@ typedef tt_bool_t (*tt_poller_io_t)(IN tt_io_ev_t *io_ev);
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-#endif // __TT_IO_EVENT__
+// the final argv must be NULL
+extern tt_result_t tt_process_create_ntv(IN tt_process_ntv_t *sys_proc,
+                                         IN const tt_char_t *path,
+                                         IN OPT tt_char_t *const arg[],
+                                         IN OPT struct tt_process_attr_s *attr);
+
+extern tt_result_t tt_process_wait_ntv(IN tt_process_ntv_t *sys_proc,
+                                       IN tt_bool_t block,
+                                       IN OPT tt_u8_t *exit_code);
+
+extern void tt_process_exit_ntv(IN tt_u8_t exit_code);
+
+extern tt_char_t *tt_process_path_ntv(IN OPT tt_process_ntv_t *sys_proc);
+
+#endif /* __TT_PROCESS_NATIVE__ */

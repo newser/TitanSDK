@@ -15,18 +15,20 @@
  */
 
 /**
-@file tt_io_event.h
-@brief io event
+@file tt_rand_native.h
+@brief native random generator
+
+this file defines native random number generator
 */
 
-#ifndef __TT_IO_EVENT__
-#define __TT_IO_EVENT__
+#ifndef __TT_RAND_NATIVE__
+#define __TT_RAND_NATIVE__
 
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <algorithm/tt_double_linked_list.h>
+#include <tt_basic_type.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
@@ -36,48 +38,6 @@
 // type definition
 ////////////////////////////////////////////////////////////
 
-struct tt_fiber_s;
-struct epoll_event;
-
-enum
-{
-    TT_IO_WORKER,
-    TT_IO_POLLER,
-    TT_IO_FS,
-    TT_IO_SOCKET,
-    TT_IO_IPC,
-    TT_IO_TIMER,
-    TT_IO_DNS,
-
-    TT_IO_NUM
-};
-#define TT_IO_VALID(e) ((e) < TT_IO_NUM)
-
-typedef struct tt_io_ev_s
-{
-    struct tt_fiber_s *src;
-    struct tt_fiber_s *dst;
-    tt_dnode_t node;
-#if TT_ENV_OS_IS_WINDOWS
-    union
-    {
-        OVERLAPPED ov;
-        WSAOVERLAPPED wov;
-    };
-    tt_u32_t io_bytes;
-    tt_result_t io_result;
-#elif TT_ENV_OS_IS_LINUX || TT_ENV_OS_IS_ANDROID
-    struct epoll_event *epev;
-#endif
-    tt_u16_t io;
-    tt_u16_t ev;
-} tt_io_ev_t;
-
-typedef void (*tt_worker_io_t)(IN tt_io_ev_t *io_ev);
-
-// return true if io is completed, either succeed or fail
-typedef tt_bool_t (*tt_poller_io_t)(IN tt_io_ev_t *io_ev);
-
 ////////////////////////////////////////////////////////////
 // global variants
 ////////////////////////////////////////////////////////////
@@ -86,4 +46,8 @@ typedef tt_bool_t (*tt_poller_io_t)(IN tt_io_ev_t *io_ev);
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-#endif // __TT_IO_EVENT__
+extern tt_result_t tt_rng_component_init_ntv();
+
+extern tt_result_t tt_rng_ntv(IN tt_u8_t *data, IN tt_u32_t data_len);
+
+#endif /* __TT_RAND_NATIVE__ */

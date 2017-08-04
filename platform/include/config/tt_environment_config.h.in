@@ -44,6 +44,7 @@ features from those macros and assemble them into this file.
 #define TT_ENV_OS_TYPE_LINUX (2 << 24)
 #define TT_ENV_OS_TYPE_MACOS (3 << 24)
 #define TT_ENV_OS_TYPE_IOS (4 << 24)
+#define TT_ENV_OS_TYPE_ANDROID (5 << 24)
 
 #define TT_ENV_OS_TYPE(t) ((t) & ~0xFFFFFF)
 #define TT_ENV_OS_IS_WINDOWS \
@@ -54,21 +55,27 @@ features from those macros and assemble them into this file.
     (TT_ENV_OS_TYPE(TT_ENV_OS) == TT_ENV_OS_TYPE_MACOS)
 #define TT_ENV_OS_IS_IOS \
     (TT_ENV_OS_TYPE(TT_ENV_OS) == TT_ENV_OS_TYPE_IOS)
+#define TT_ENV_OS_IS_ANDROID \
+    (TT_ENV_OS_TYPE(TT_ENV_OS) == TT_ENV_OS_TYPE_ANDROID)
 
 // basic cpu information
 #define TT_ENV_CPU_TYPE_X86 (1 << 24)
 #define TT_ENV_CPU_TYPE_ARM (2 << 24)
+#define TT_ENV_CPU_TYPE_MIPS (3 << 24)
 
 #define TT_ENV_CPU_TYPE(t) ((t) & ~0xFFFFFF)
 #define TT_ENV_CPU_IS_X86 \
     (TT_ENV_CPU_TYPE(TT_ENV_CPU) == TT_ENV_CPU_TYPE_X86)
 #define TT_ENV_CPU_IS_ARM \
     (TT_ENV_CPU_TYPE(TT_ENV_CPU) == TT_ENV_CPU_TYPE_ARM)
+#define TT_ENV_CPU_IS_MIPS \
+    (TT_ENV_CPU_TYPE(TT_ENV_CPU) == TT_ENV_CPU_TYPE_MIPS)
 
 // basic toolchain information
 #define TT_ENV_TOOLCHAIN_MSVC (1 << 24)
 #define TT_ENV_TOOLCHAIN_GNU (2 << 24)
 #define TT_ENV_TOOLCHAIN_XCODE (3 << 24)
+#define TT_ENV_TOOLCHAIN_NDK (4 << 24)
 
 #define TT_ENV_TOOLCHAIN_TYPE(t) ((t) & ~0xFFFFFF)
 #define TT_ENV_TOOLCHAIN_IS_MSVC \
@@ -77,6 +84,8 @@ features from those macros and assemble them into this file.
     (TT_ENV_TOOLCHAIN_TYPE(TT_ENV_TOOLCHAIN) == TT_ENV_TOOLCHAIN_GNU)
 #define TT_ENV_TOOLCHAIN_IS_XCODE \
     (TT_ENV_TOOLCHAIN_TYPE(TT_ENV_TOOLCHAIN) == TT_ENV_TOOLCHAIN_XCODE)
+#define TT_ENV_TOOLCHAIN_IS_NDK \
+    (TT_ENV_TOOLCHAIN_TYPE(TT_ENV_TOOLCHAIN) == TT_ENV_TOOLCHAIN_NDK)
 
 // ========================================
 // running os
@@ -94,6 +103,8 @@ running os id
 
 #if defined(_WIN64) || defined(_WIN32) || defined(WIN32)
     #define TT_ENV_OS TT_ENV_OS_TYPE_WINDOWS
+#elif defined(ANDROID) || defined(__ANDROID__)
+    #define TT_ENV_OS TT_ENV_OS_TYPE_ANDROID
 #elif defined(__APPLE__)
     
     #if TARGET_OS_IPHONE || TARGET_IPHONE_SIMULATOR
@@ -140,6 +151,8 @@ building toochain
 
 #if defined(_MSC_VER)
     #define TT_ENV_TOOLCHAIN TT_ENV_TOOLCHAIN_MSVC
+#elif defined(ANDROID) || defined(__ANDROID__)
+    #define TT_ENV_TOOLCHAIN TT_ENV_TOOLCHAIN_NDK
 #elif defined(__clang__)
     #define TT_ENV_TOOLCHAIN TT_ENV_TOOLCHAIN_XCODE
 #elif defined(__GNUC__)
@@ -196,12 +209,12 @@ running cpu
         #error unknown cpu
     #endif
 
-#elif TT_ENV_TOOLCHAIN_IS_XCODE || TT_ENV_TOOLCHAIN_IS_GNU
+#elif TT_ENV_TOOLCHAIN_IS_XCODE || TT_ENV_TOOLCHAIN_IS_GNU || TT_ENV_TOOLCHAIN_IS_NDK
 
     #if defined(i386) || defined(__i386) || defined(__i386__) || \
         defined(__x86_64) || defined(__x86_64__) || defined(__amd64) || defined(__amd64__)
         #define TT_ENV_CPU TT_ENV_CPU_TYPE_X86
-    #elif defined(__arm__) || defined(__arm64__)
+    #elif defined(__arm__) || defined(__arm64__) || defined(__aarch64__)
         #define TT_ENV_CPU TT_ENV_CPU_TYPE_ARM
     #else
         #error unknown cpu

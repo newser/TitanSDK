@@ -15,68 +15,31 @@
  */
 
 /**
-@file tt_io_event.h
-@brief io event
+@file tt_date_native.h
+@brief date native
+
+this file specifies date native interfaces
 */
 
-#ifndef __TT_IO_EVENT__
-#define __TT_IO_EVENT__
+#ifndef __TT_DATE_NATIVE__
+#define __TT_DATE_NATIVE__
 
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <algorithm/tt_double_linked_list.h>
+#include <time/tt_date_def.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
 ////////////////////////////////////////////////////////////
 
+struct tt_profile_s;
+struct tt_date_s;
+
 ////////////////////////////////////////////////////////////
 // type definition
 ////////////////////////////////////////////////////////////
-
-struct tt_fiber_s;
-struct epoll_event;
-
-enum
-{
-    TT_IO_WORKER,
-    TT_IO_POLLER,
-    TT_IO_FS,
-    TT_IO_SOCKET,
-    TT_IO_IPC,
-    TT_IO_TIMER,
-    TT_IO_DNS,
-
-    TT_IO_NUM
-};
-#define TT_IO_VALID(e) ((e) < TT_IO_NUM)
-
-typedef struct tt_io_ev_s
-{
-    struct tt_fiber_s *src;
-    struct tt_fiber_s *dst;
-    tt_dnode_t node;
-#if TT_ENV_OS_IS_WINDOWS
-    union
-    {
-        OVERLAPPED ov;
-        WSAOVERLAPPED wov;
-    };
-    tt_u32_t io_bytes;
-    tt_result_t io_result;
-#elif TT_ENV_OS_IS_LINUX || TT_ENV_OS_IS_ANDROID
-    struct epoll_event *epev;
-#endif
-    tt_u16_t io;
-    tt_u16_t ev;
-} tt_io_ev_t;
-
-typedef void (*tt_worker_io_t)(IN tt_io_ev_t *io_ev);
-
-// return true if io is completed, either succeed or fail
-typedef tt_bool_t (*tt_poller_io_t)(IN tt_io_ev_t *io_ev);
 
 ////////////////////////////////////////////////////////////
 // global variants
@@ -86,4 +49,19 @@ typedef tt_bool_t (*tt_poller_io_t)(IN tt_io_ev_t *io_ev);
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-#endif // __TT_IO_EVENT__
+extern tt_result_t tt_date_component_init_ntv(IN struct tt_profile_s *profile);
+
+extern tt_tmzone_t tt_local_tmzone_ntv();
+
+extern void tt_date_now_ntv(OUT struct tt_date_s *date);
+
+extern tt_u32_t tt_date_render_ntv(IN struct tt_date_s *date,
+                                   IN const tt_char_t *format,
+                                   IN tt_char_t *buf,
+                                   IN tt_u32_t len);
+
+extern tt_u32_t tt_date_parse_ntv(IN struct tt_date_s *date,
+                                  IN const tt_char_t *format,
+                                  IN const tt_char_t *buf);
+
+#endif /* __TT_DATE_NATIVE__ */

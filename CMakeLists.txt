@@ -45,6 +45,8 @@ add_subdirectory(${PLATFORM_PATH}/build platform)
 if (PROGRAM_UNIT_TEST)
     if (PLATFORM_ENV STREQUAL ios-xcode)
         add_subdirectory(${ROOT_PATH}/program/ios_unit_test unit_test)
+    elseif (PLATFORM_ENV STREQUAL android-ndk)
+        
     else ()
         add_subdirectory(${ROOT_PATH}/program/unit_test unit_test)
     endif()

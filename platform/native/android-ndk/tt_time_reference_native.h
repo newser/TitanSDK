@@ -15,68 +15,42 @@
  */
 
 /**
-@file tt_io_event.h
-@brief io event
+@file tt_time_reference_native.h
+@brief system time reference APIs
+
+this file specifies system interfaces for time reference
 */
 
-#ifndef __TT_IO_EVENT__
-#define __TT_IO_EVENT__
+#ifndef __TT_TIME_REFERENCE_NATIVE__
+#define __TT_TIME_REFERENCE_NATIVE__
 
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <algorithm/tt_double_linked_list.h>
+#include <tt_basic_type.h>
+
+#include <time.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
 ////////////////////////////////////////////////////////////
 
+/**
+@def tt_time_ref2ms_ntv(ref, ctx)
+convert time reference to millisecond
+*/
+#define tt_time_ref2ms_ntv(ref) (ref)
+
+/**
+@def tt_time_ms2ref_NTV(ms, ctx)
+convert millisecond to time reference
+*/
+#define tt_time_ms2ref_ntv(ms) (ms)
+
 ////////////////////////////////////////////////////////////
 // type definition
 ////////////////////////////////////////////////////////////
-
-struct tt_fiber_s;
-struct epoll_event;
-
-enum
-{
-    TT_IO_WORKER,
-    TT_IO_POLLER,
-    TT_IO_FS,
-    TT_IO_SOCKET,
-    TT_IO_IPC,
-    TT_IO_TIMER,
-    TT_IO_DNS,
-
-    TT_IO_NUM
-};
-#define TT_IO_VALID(e) ((e) < TT_IO_NUM)
-
-typedef struct tt_io_ev_s
-{
-    struct tt_fiber_s *src;
-    struct tt_fiber_s *dst;
-    tt_dnode_t node;
-#if TT_ENV_OS_IS_WINDOWS
-    union
-    {
-        OVERLAPPED ov;
-        WSAOVERLAPPED wov;
-    };
-    tt_u32_t io_bytes;
-    tt_result_t io_result;
-#elif TT_ENV_OS_IS_LINUX || TT_ENV_OS_IS_ANDROID
-    struct epoll_event *epev;
-#endif
-    tt_u16_t io;
-    tt_u16_t ev;
-} tt_io_ev_t;
-
-typedef void (*tt_worker_io_t)(IN tt_io_ev_t *io_ev);
-
-// return true if io is completed, either succeed or fail
-typedef tt_bool_t (*tt_poller_io_t)(IN tt_io_ev_t *io_ev);
 
 ////////////////////////////////////////////////////////////
 // global variants
@@ -86,4 +60,21 @@ typedef tt_bool_t (*tt_poller_io_t)(IN tt_io_ev_t *io_ev);
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-#endif // __TT_IO_EVENT__
+/**
+@fn tt_result_t tt_time_ref_component_init_ntv()
+initialize ts time reference system
+
+@return
+- TT_SUCCESS if initialization succeeds
+- TT_FAIL otherwise
+*/
+extern tt_result_t tt_time_ref_component_init_ntv();
+
+tt_inline tt_s64_t tt_time_ref_ntv()
+{
+    struct timespec now;
+    clock_gettime(CLOCK_MONOTONIC, &now);
+    return (tt_s64_t)((now.tv_sec * 1000) + (now.tv_nsec / 1000000));
+}
+
+#endif /* __TT_TIME_REFERENCE_NATIVE__ */

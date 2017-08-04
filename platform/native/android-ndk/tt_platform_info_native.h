@@ -15,18 +15,20 @@
  */
 
 /**
-@file tt_io_event.h
-@brief io event
+@file tt_platform_info_native.h
+@brief getting platform info
+
+this file provide interfaces for getting platform info
 */
 
-#ifndef __TT_IO_EVENT__
-#define __TT_IO_EVENT__
+#ifndef __TT_PLATFORM_INFO_NATIVE__
+#define __TT_PLATFORM_INFO_NATIVE__
 
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <algorithm/tt_double_linked_list.h>
+#include <tt_basic_type.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
@@ -36,47 +38,7 @@
 // type definition
 ////////////////////////////////////////////////////////////
 
-struct tt_fiber_s;
-struct epoll_event;
-
-enum
-{
-    TT_IO_WORKER,
-    TT_IO_POLLER,
-    TT_IO_FS,
-    TT_IO_SOCKET,
-    TT_IO_IPC,
-    TT_IO_TIMER,
-    TT_IO_DNS,
-
-    TT_IO_NUM
-};
-#define TT_IO_VALID(e) ((e) < TT_IO_NUM)
-
-typedef struct tt_io_ev_s
-{
-    struct tt_fiber_s *src;
-    struct tt_fiber_s *dst;
-    tt_dnode_t node;
-#if TT_ENV_OS_IS_WINDOWS
-    union
-    {
-        OVERLAPPED ov;
-        WSAOVERLAPPED wov;
-    };
-    tt_u32_t io_bytes;
-    tt_result_t io_result;
-#elif TT_ENV_OS_IS_LINUX || TT_ENV_OS_IS_ANDROID
-    struct epoll_event *epev;
-#endif
-    tt_u16_t io;
-    tt_u16_t ev;
-} tt_io_ev_t;
-
-typedef void (*tt_worker_io_t)(IN tt_io_ev_t *io_ev);
-
-// return true if io is completed, either succeed or fail
-typedef tt_bool_t (*tt_poller_io_t)(IN tt_io_ev_t *io_ev);
+struct tt_profile_s;
 
 ////////////////////////////////////////////////////////////
 // global variants
@@ -86,4 +48,29 @@ typedef tt_bool_t (*tt_poller_io_t)(IN tt_io_ev_t *io_ev);
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-#endif // __TT_IO_EVENT__
+extern tt_result_t tt_platform_page_size_load(OUT tt_u32_t *page_size);
+
+extern tt_result_t tt_platform_cpu_num_load(OUT tt_u32_t *cpu_num);
+
+extern tt_result_t tt_platform_cache_line_size_load(OUT tt_u32_t *size);
+
+/**
+ @note
+ - this function should do numa initialization
+ */
+extern tt_result_t tt_platform_numa_node_id_load(
+    IN struct tt_profile_s *profile,
+    OUT tt_u32_t *numa_id,
+    OUT tt_u32_t *numa_id_thread,
+    OUT tt_u32_t *numa_id_memory);
+
+tt_inline tt_bool_t tt_platform_numa_enabled_ntv()
+{
+#ifdef TT_PLATFORM_ENABLE_NUMA
+    return TT_TRUE;
+#else
+    return TT_FALSE;
+#endif
+}
+
+#endif /* __TT_PLATFORM_INFO_NATIVE__ */

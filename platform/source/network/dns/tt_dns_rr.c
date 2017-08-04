@@ -29,7 +29,7 @@
 #define HAVE_CONFIG_H
 #include <ares_setup.h>
 
-#if TT_ENV_OS_IS_MACOS || TT_ENV_OS_IS_IOS || TT_ENV_OS_IS_LINUX
+#if TT_ENV_OS_IS_MACOS || TT_ENV_OS_IS_IOS || TT_ENV_OS_IS_LINUX || TT_ENV_OS_IS_ANDROID
 #include <arpa/nameser.h>
 #include <arpa/nameser_compat.h>
 #else

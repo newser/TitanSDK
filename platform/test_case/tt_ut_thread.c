@@ -408,6 +408,8 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_dll)
         tt_dll_create(&c_dll, "libc.so.6", NULL);
 #elif TT_ENV_OS_IS_WINDOWS
         tt_dll_create(&c_dll, "ntdll.dll", NULL);
+#elif TT_ENV_OS_IS_ANDROID
+        tt_dll_create(&c_dll, "libc.so.6", NULL);
 #endif
     TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
@@ -433,6 +435,8 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_dll)
         tt_dll_create(&c_dll, "/lib/x86_64-linux-gnu/libc.so.6", NULL);
 #elif TT_ENV_OS_IS_WINDOWS
         tt_dll_create(&c_dll, "C:\\Windows\\System32\\ntdll.dll", NULL);
+#elif TT_ENV_OS_IS_ANDROID
+        tt_dll_create(&c_dll, "/lib/x86_64-linux-gnu/libc.so.6", NULL);
 #endif
     TT_UT_EQUAL(ret, TT_SUCCESS, "");
 

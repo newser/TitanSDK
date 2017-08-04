@@ -370,14 +370,15 @@ static tt_result_t __f_svr(IN void *param)
                 tt_tmr_stop(e_tmr);
             } else {
                 tt_tmr_set_delay(e_tmr, tt_rand_u32() % 5 + 5);
-                tt_tmr_set_param(e_tmr, (void *)tt_time_ref());
+                tt_tmr_set_param(e_tmr, (void *)(tt_uintptr_t)tt_time_ref());
                 tt_tmr_start(e_tmr);
             }
         }
 
         if (tt_rand_u32() % 100 == 0) {
-            tmr =
-                tt_tmr_create(tt_rand_u32() % 5 + 5, 0, (void *)tt_time_ref());
+            tmr = tt_tmr_create(tt_rand_u32() % 5 + 5,
+                                0,
+                                (void *)(tt_uintptr_t)tt_time_ref());
             if (tmr == NULL) {
                 __ssl_err_line = __LINE__;
                 return TT_FAIL;
@@ -429,7 +430,8 @@ static tt_result_t __f_svr(IN void *param)
                     tt_tmr_stop(e_tmr);
                 } else {
                     tt_tmr_set_delay(e_tmr, tt_rand_u32() % 5 + 5);
-                    tt_tmr_set_param(e_tmr, (void *)tt_time_ref());
+                    tt_tmr_set_param(e_tmr,
+                                     (void *)(tt_uintptr_t)tt_time_ref());
                     tt_tmr_start(e_tmr);
                 }
             }
@@ -437,7 +439,7 @@ static tt_result_t __f_svr(IN void *param)
             if (tt_rand_u32() % 100 == 0) {
                 tmr = tt_tmr_create(tt_rand_u32() % 5 + 5,
                                     0,
-                                    (void *)tt_time_ref());
+                                    (void *)(tt_uintptr_t)tt_time_ref());
                 if (tmr == NULL) {
                     __ssl_err_line = __LINE__;
                     return TT_FAIL;
@@ -594,7 +596,8 @@ static tt_result_t __f_cli(IN void *param)
                     tt_tmr_stop(e_tmr);
                 } else {
                     tt_tmr_set_delay(e_tmr, tt_rand_u32() % 5 + 5);
-                    tt_tmr_set_param(e_tmr, (void *)tt_time_ref());
+                    tt_tmr_set_param(e_tmr,
+                                     (void *)(tt_uintptr_t)tt_time_ref());
                     tt_tmr_start(e_tmr);
                 }
             }
@@ -602,7 +605,7 @@ static tt_result_t __f_cli(IN void *param)
             if (tt_rand_u32() % 100 == 0) {
                 tmr = tt_tmr_create(tt_rand_u32() % 5 + 5,
                                     0,
-                                    (void *)tt_time_ref());
+                                    (void *)(tt_uintptr_t)tt_time_ref());
                 if (tmr == NULL) {
                     __ssl_err_line = __LINE__;
                     return TT_FAIL;

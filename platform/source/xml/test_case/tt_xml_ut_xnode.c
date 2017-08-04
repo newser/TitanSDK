@@ -103,7 +103,7 @@ TT_TEST_CASE("tt_unit_test_xnode_bool",
 
     static const tt_char_t __ut_xnode[] =
         "<node> <b1>1</b1> "
-        "<u32_1> 4294967295</u32_1>"
+        "<u32_1> 0xFFFFFFFF</u32_1>"
         "<s32_1>-2147483648  </s32_1>"
         "<s64_1> -9223372036854775808  </s64_1>"
         "<u64_1>18446744073709551615</u64_1>"
@@ -193,12 +193,12 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xnode_int)
     xa = tt_xnode_child_byname(xn, "u32_1");
     TT_UT_NOT_NULL(xa, "");
     TT_UT_EQUAL(tt_xnode_get_bool(xa, TT_TRUE), TT_FALSE, "");
-    TT_UT_EQUAL(tt_xnode_get_u32(xa, 0), 4294967295, "");
+    TT_UT_EQUAL(tt_xnode_get_u32(xa, 0), 0xFFFFFFFF, "");
     TT_UT_EQUAL(tt_xnode_get_s32(xa, 0), 2147483647, "");
-    TT_UT_EQUAL(tt_xnode_get_u64(xa, 0), 4294967295, "");
-    TT_UT_EQUAL(tt_xnode_get_s64(xa, 0), 4294967295, "");
-    TT_UT_EQUAL(tt_xnode_get_float(xa, 0), 4294967295, "");
-    TT_UT_EQUAL(tt_xnode_get_double(xa, 0), 4294967295, "");
+    TT_UT_EQUAL(tt_xnode_get_u64(xa, 0), 0xFFFFFFFF, "");
+    TT_UT_EQUAL(tt_xnode_get_s64(xa, 0), 0xFFFFFFFF, "");
+    TT_UT_EQUAL(tt_xnode_get_float(xa, 0), 0xFFFFFFFF, "");
+    TT_UT_EQUAL(tt_xnode_get_double(xa, 0), 0xFFFFFFFF, "");
 
     ret = tt_xnode_set_u32(xa, 1);
     TT_UT_SUCCESS(ret, "");
@@ -245,7 +245,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xnode_int)
     xa = tt_xnode_child_byname(xn, "u64_1");
     TT_UT_NOT_NULL(xa, "");
     TT_UT_EQUAL(tt_xnode_get_bool(xa, TT_FALSE), TT_TRUE, ""); // begins with 1
-    TT_UT_EQUAL(tt_xnode_get_u32(xa, 0), 4294967295, "");
+    TT_UT_EQUAL(tt_xnode_get_u32(xa, 0), 0xFFFFFFFF, "");
     TT_UT_EQUAL(tt_xnode_get_s32(xa, 0), 2147483647, ""); // truncated
     TT_UT_EQUAL(tt_xnode_get_u64(xa, 0), 18446744073709551615ULL, "");
     TT_UT_EQUAL(tt_xnode_get_s64(xa, 0), 9223372036854775807ULL, "");
