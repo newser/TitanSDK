@@ -27,7 +27,6 @@
 
 # libraries required by platform
 function(platform_link_libraries)
-
     # numa support
     if (PLATFORM_ENABLE_NUMA)
         target_link_libraries(platform numa)
