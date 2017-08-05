@@ -70,7 +70,8 @@ static tt_result_t __charset_iconv(IN iconv_t ic,
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-tt_result_t tt_chsetconv_create_ntv(IN struct tt_chsetconv_s *csconv)
+#if 0
+tt_result_t tt_chsetconv_create_ntv(IN tt_chsetconv_t *csconv)
 {
     iconv_t ic;
 
@@ -87,12 +88,12 @@ tt_result_t tt_chsetconv_create_ntv(IN struct tt_chsetconv_s *csconv)
     return TT_SUCCESS;
 }
 
-void tt_chsetconv_destroy_ntv(IN struct tt_chsetconv_s *csconv)
+void tt_chsetconv_destroy_ntv(IN tt_chsetconv_t *csconv)
 {
     iconv_close(csconv->sys_csconv.ic);
 }
 
-tt_result_t tt_chsetconv_input_ntv(IN struct tt_chsetconv_s *csconv,
+tt_result_t tt_chsetconv_input_ntv(IN tt_chsetconv_t *csconv,
                                    IN tt_u8_t *input,
                                    IN tt_u32_t input_len)
 {
@@ -130,7 +131,7 @@ tt_result_t tt_chsetconv_input_ntv(IN struct tt_chsetconv_s *csconv,
     return TT_SUCCESS;
 }
 
-void tt_chsetconv_reset_ntv(IN struct tt_chsetconv_s *csconv)
+void tt_chsetconv_reset_ntv(IN tt_chsetconv_t *csconv)
 {
     iconv(csconv->sys_csconv.ic, NULL, 0, NULL, 0);
 }
@@ -174,3 +175,24 @@ ag:
         return TT_FAIL;
     }
 }
+#else
+tt_result_t tt_chsetconv_create_ntv(IN tt_chsetconv_t *csconv)
+{
+    return TT_FAIL;
+}
+
+void tt_chsetconv_destroy_ntv(IN tt_chsetconv_t *csconv)
+{
+}
+
+tt_result_t tt_chsetconv_input_ntv(IN tt_chsetconv_t *csconv,
+                                   IN tt_u8_t *input,
+                                   IN tt_u32_t input_len)
+{
+    return TT_FAIL;
+}
+
+void tt_chsetconv_reset_ntv(IN tt_chsetconv_t *csconv)
+{
+}
+#endif

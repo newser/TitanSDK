@@ -188,7 +188,7 @@ wait a semaphore
 
 @return
 - TT_SUCCESS, if the semaphore is waited successfully
-- TT_TIME_OUT, if the semaphore can not be acquired
+- TT_TIME_OUT, if t he semaphore can not be acquired
 */
 tt_inline tt_bool_t tt_sem_try_acquire_tag(IN tt_sem_t *sem
 #if (TT_SEM_DEBUG_OPT & TT_SEM_DEBUG_TAG)

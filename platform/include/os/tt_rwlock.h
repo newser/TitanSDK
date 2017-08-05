@@ -214,13 +214,13 @@ try to acquire a rwlock to read
 @note
 - NEVER read acquire a rwlock which has already been acquired by same thread
 */
-tt_inline tt_result_t tt_rwlock_try_acquire_r_tag(IN tt_rwlock_t *rwlock
+tt_inline tt_bool_t tt_rwlock_try_acquire_r_tag(IN tt_rwlock_t *rwlock
 #if (TT_RWLOCK_DEBUG_OPT & TT_RWLOCK_DEBUG_TAG)
-                                                  ,
-                                                  IN const tt_char_t *function,
-                                                  IN tt_u32_t line
+                                                ,
+                                                IN const tt_char_t *function,
+                                                IN tt_u32_t line
 #endif
-                                                  )
+                                                )
 {
     return tt_rwlock_try_acquire_r_ntv(&rwlock->sys_rwlock);
 }
@@ -266,13 +266,13 @@ try to acquire a rwlock to write
 @note
 - NEVER write acquire a rwlock which has already been acquired by same thread
 */
-tt_inline tt_result_t tt_rwlock_try_acquire_w_tag(IN tt_rwlock_t *rwlock
+tt_inline tt_bool_t tt_rwlock_try_acquire_w_tag(IN tt_rwlock_t *rwlock
 #if (TT_RWLOCK_DEBUG_OPT & TT_RWLOCK_DEBUG_TAG)
-                                                  ,
-                                                  IN const tt_char_t *function,
-                                                  IN tt_u32_t line
+                                                ,
+                                                IN const tt_char_t *function,
+                                                IN tt_u32_t line
 #endif
-                                                  )
+                                                )
 {
     return tt_rwlock_try_acquire_w_ntv(&rwlock->sys_rwlock);
 }

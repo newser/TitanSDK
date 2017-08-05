@@ -14,54 +14,54 @@
  * limitations under the License.
  */
 
-#ifndef __TT_CHARSET_CONVERT_NATIVE__
-#define __TT_CHARSET_CONVERT_NATIVE__
-
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <misc/tt_charset_def.h>
-#include <tt_basic_type.h>
+#include <tt_platform.h>
 
-#if 0
-// may use <icu.h>
-//#include <iconv.h>
-#else
-typedef void *iconv_t;
+#if TT_ENV_OS_IS_ANDROID
+#include <jni.h>
 #endif
 
 ////////////////////////////////////////////////////////////
-// macro definition
+// internal macro
 ////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////
-// type definition
+// internal type
 ////////////////////////////////////////////////////////////
 
-struct tt_chsetconv_s;
-
-typedef struct
-{
-    iconv_t ic;
-} tt_chsetconv_ntv_t;
+////////////////////////////////////////////////////////////
+// extern declaration
+////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////
-// global variants
+// global variant
 ////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern tt_result_t tt_chsetconv_create_ntv(IN struct tt_chsetconv_s *csconv);
+////////////////////////////////////////////////////////////
+// interface implementation
+////////////////////////////////////////////////////////////
 
-extern void tt_chsetconv_destroy_ntv(IN struct tt_chsetconv_s *csconv);
+#if TT_ENV_OS_IS_ANDROID
 
-extern tt_result_t tt_chsetconv_input_ntv(IN struct tt_chsetconv_s *csconv,
-                                          IN tt_u8_t *input,
-                                          IN tt_u32_t input_len);
+JNIEXPORT jstring JNICALL Java_com_titansdk_TTUnitTest_runUT(JNIEnv *env,
+                                                             jobject obj,
+                                                             jstring name)
+{
+    static tt_bool_t initialized = TT_FALSE;
 
-extern void tt_chsetconv_reset_ntv(IN struct tt_chsetconv_s *csconv);
+    if (!initialized) {
+        tt_platform_init(NULL);
+        initialized = TT_TRUE;
+    }
 
-#endif /* __TT_CHARSET_CONVERT_NATIVE__ */
+    return (*env)->NewStringUTF(env, "");
+}
+
+#endif

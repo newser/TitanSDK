@@ -27,6 +27,12 @@
 
 # libraries required by platform
 function(platform_link_libraries)
+    find_library(ANDROID_SUPPORT_LIB
+                 android_support
+                 HINTS ${CMAKE_ANDROID_NDK}/sources/cxx-stl/llvm-libc++/libs/${CMAKE_ANDROID_ARCH_ABI}
+                 NO_DEFAULT_PATH)
+    target_link_libraries(platform ${ANDROID_SUPPORT_LIB})
+
     # numa support
     if (PLATFORM_ENABLE_NUMA)
         target_link_libraries(platform numa)

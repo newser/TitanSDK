@@ -50,6 +50,9 @@ configure_file(${PLATFORM_PATH}/include/config/tt_customization_config.h.in
                ${PLATFORM_PATH}/include/config/tt_customization_config.h
                @ONLY)
 
+if (PLATFORM_ENV_OS STREQUAL android)
+    set(CMAKE_ASM_COMPILER ${CMAKE_C_COMPILER})
+endif ()
 enable_language(ASM)
 
 #

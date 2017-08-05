@@ -29,8 +29,7 @@ developer only need include this file to use ts platform APIs
 ////////////////////////////////////////////////////////////
 
 #ifdef __cplusplus
-tt_export "C"
-{
+extern "C" {
 #endif
 
 #include <algorithm/ptr/tt_ptr_hashmap.h>

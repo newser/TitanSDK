@@ -74,7 +74,8 @@ tt_inline void tt_spinlock_destroy_ntv(IN tt_spinlock_ntv_t *slock)
 
 tt_inline void tt_spinlock_acquire_ntv(IN tt_spinlock_ntv_t *slock)
 {
-    while (!tt_atomic_s32_cas_ntv(&slock->lk, 0, 1));
+    while (!tt_atomic_s32_cas_ntv(&slock->lk, 0, 1))
+        ;
 }
 
 tt_inline tt_bool_t tt_spinlock_try_acquire_ntv(IN tt_spinlock_ntv_t *slock)

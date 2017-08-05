@@ -161,13 +161,13 @@ acquire a mutex
 - TT_SUCCESS, if locking done
 - TT_TIME_OUT, if can not lock now
 */
-tt_inline tt_result_t tt_mutex_try_acquire_tag(IN tt_mutex_t *mutex
+tt_inline tt_bool_t tt_mutex_try_acquire_tag(IN tt_mutex_t *mutex
 #if (TT_MUTEX_DEBUG_OPT & TT_MUTEX_DEBUG_TAG)
-                                               ,
-                                               IN const tt_char_t *function,
-                                               IN tt_u32_t line
+                                             ,
+                                             IN const tt_char_t *function,
+                                             IN tt_u32_t line
 #endif
-                                               )
+                                             )
 {
     return tt_mutex_try_acquire_ntv(&mutex->sys_mutex);
 }
