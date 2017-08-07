@@ -15,14 +15,14 @@
  */
 
 /**
-@file tt_log_def.h
-@brief log definition
+@file tt_log_native.h
+@brief log native
 
-this file declare log definition
+this file defines log native APIs
 */
 
-#ifndef __TT_LOG_DEF__
-#define __TT_LOG_DEF__
+#ifndef __TT_LOG_NATIVE__
+#define __TT_LOG_NATIVE__
 
 ////////////////////////////////////////////////////////////
 // import header files
@@ -34,72 +34,20 @@ this file declare log definition
 // macro definition
 ////////////////////////////////////////////////////////////
 
-#define TT_LOGFLD_SEQ_NUM_KEY "seq_num"
-#define TT_LOGFLD_TIME_KEY "time"
-#define TT_LOGFLD_LOGGER_KEY "logger"
-#define TT_LOGFLD_LEVEL_KEY "level"
-#define TT_LOGFLD_CONTENT_KEY "content"
-#define TT_LOGFLD_FUNC_KEY "function"
-#define TT_LOGFLD_LINE_KEY "line"
-
 ////////////////////////////////////////////////////////////
 // type definition
 ////////////////////////////////////////////////////////////
 
-typedef enum {
-    TT_LOG_DEBUG,
-    TT_LOG_INFO,
-    TT_LOG_WARN,
-    TT_LOG_ERROR,
-    TT_LOG_FATAL,
-
-    TT_LOG_LEVEL_NUM
-} tt_log_level_t;
-#define TT_LOG_LEVEL_VALID(l) ((l) < TT_LOG_LEVEL_NUM)
-
-typedef enum {
-    TT_LOGIO_STANDARD,
-    TT_LOGIO_LOGCAT, // for android
-
-    TT_LOGIO_NUM
-} tt_logio_type_t;
-#define TT_LOGIO_TYPE_VALID(t) ((t) < TT_LOGIO_NUM)
-
-typedef enum {
-    TT_LOGFLD_SEQ_NUM,
-    TT_LOGFLD_TIME,
-    TT_LOGFLD_LOGGER,
-    TT_LOGFLD_LEVEL,
-    TT_LOGFLD_CONTENT,
-    TT_LOGFLD_FUNC,
-    TT_LOGFLD_LINE,
-
-    TT_LOGFLD_TYPE_NUM,
-} tt_logfld_type_t;
-#define TT_LOGFLD_TYPE_VALID(t) ((t) < TT_LOGFLD_TYPE_NUM)
-
-typedef struct
-{
-    tt_u32_t seq_num;
-    // todo: time
-    const tt_char_t *logger;
-    tt_log_level_t level;
-    const tt_char_t *content;
-    const tt_char_t *function;
-    tt_u32_t line;
-} tt_log_entry_t;
-
-// return false if the entry should be discarded
-typedef tt_bool_t (*tt_log_filter_t)(IN OUT tt_log_entry_t *entry);
+struct tt_profile_s;
 
 ////////////////////////////////////////////////////////////
 // global variants
 ////////////////////////////////////////////////////////////
 
-tt_export const tt_char_t *tt_g_log_level_name[TT_LOG_LEVEL_NUM];
-
 ////////////////////////////////////////////////////////////
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-#endif /* __TT_LOG_DEF__ */
+extern tt_result_t tt_log_component_init_ntv(IN struct tt_profile_s *profile);
+
+#endif /* __TT_LOG_NATIVE__ */

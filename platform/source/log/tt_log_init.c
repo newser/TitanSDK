@@ -31,6 +31,8 @@
 #include <init/tt_config_u32.h>
 #include <init/tt_init_config.h>
 
+#include <tt_log_native.h>
+
 ////////////////////////////////////////////////////////////
 // internal macro
 ////////////////////////////////////////////////////////////
@@ -48,24 +50,30 @@ tt_logmgr_t tt_g_logmgr;
 tt_bool_t tt_g_logmgr_ok = TT_FALSE;
 
 // log layout
-static tt_loglyt_t *tt_s_loglyt[TT_LOG_LEVEL_NUM];
+tt_loglyt_t *tt_s_loglyt[TT_LOG_LEVEL_NUM];
 
 // log io
-static tt_logio_t *tt_s_logio_std;
+tt_logio_t *tt_s_logio[TT_LOG_LEVEL_NUM];
 
 ////////////////////////////////////////////////////////////
 // interface declaration
 ////////////////////////////////////////////////////////////
 
+static tt_result_t __log_component_init(IN tt_component_t *comp,
+                                        IN tt_profile_t *profile);
+
 static tt_result_t __logmgr_component_init(IN tt_component_t *comp,
                                            IN tt_profile_t *profile);
+
 static tt_result_t __logmgr_config_component_init(IN tt_component_t *comp,
                                                   IN tt_profile_t *profile);
 
 static tt_result_t __create_log_layout(IN tt_profile_t *profile);
+
 static tt_result_t __install_log_layout(IN tt_profile_t *profile);
 
 static tt_result_t __create_log_io(IN tt_profile_t *profile);
+
 static tt_result_t __install_log_io(IN tt_profile_t *profile);
 
 ////////////////////////////////////////////////////////////
@@ -74,6 +82,17 @@ static tt_result_t __install_log_io(IN tt_profile_t *profile);
 
 void tt_log_component_register()
 {
+    static tt_component_t comp;
+
+    tt_component_itf_t itf = {
+        __log_component_init,
+    };
+
+    // init component
+    tt_component_init(&comp, TT_COMPONENT_LOG, "Log", NULL, &itf);
+
+    // register component
+    tt_component_register(&comp);
 }
 
 void tt_logmgr_component_register()
@@ -125,7 +144,47 @@ void tt_logmgr_layout_default(IN tt_logmgr_t *lmgr)
 
 tt_result_t tt_logmgr_io_default(IN tt_logmgr_t *lmgr)
 {
-    if (!TT_OK(tt_logmgr_append_io(lmgr, TT_LOG_LEVEL_NUM, tt_s_logio_std))) {
+    if (!TT_OK(tt_logmgr_append_io(lmgr,
+                                   TT_LOG_DEBUG,
+                                   tt_s_logio[TT_LOG_DEBUG]))) {
+        TT_ERROR("fail to append debug io");
+        return TT_FAIL;
+    }
+
+    if (!TT_OK(
+            tt_logmgr_append_io(lmgr, TT_LOG_INFO, tt_s_logio[TT_LOG_INFO]))) {
+        TT_ERROR("fail to append debug io");
+        return TT_FAIL;
+    }
+
+    if (!TT_OK(
+            tt_logmgr_append_io(lmgr, TT_LOG_WARN, tt_s_logio[TT_LOG_WARN]))) {
+        TT_ERROR("fail to append warn io");
+        return TT_FAIL;
+    }
+
+    if (!TT_OK(tt_logmgr_append_io(lmgr,
+                                   TT_LOG_ERROR,
+                                   tt_s_logio[TT_LOG_ERROR]))) {
+        TT_ERROR("fail to append error io");
+        return TT_FAIL;
+    }
+
+    if (!TT_OK(tt_logmgr_append_io(lmgr,
+                                   TT_LOG_FATAL,
+                                   tt_s_logio[TT_LOG_FATAL]))) {
+        TT_ERROR("fail to append fatal io");
+        return TT_FAIL;
+    }
+
+    return TT_SUCCESS;
+}
+
+tt_result_t __log_component_init(IN tt_component_t *comp,
+                                 IN tt_profile_t *profile)
+{
+    if (!TT_OK(tt_log_component_init_ntv(profile))) {
+        TT_ERROR("fail to initialize log system native");
         return TT_FAIL;
     }
 
@@ -201,44 +260,54 @@ tt_result_t __create_log_layout(IN tt_profile_t *profile)
     tt_loglyt_t *lyt;
 
     // debug log layout
-    lyt = tt_loglyt_pattern_create("${content} <${function} - ${line}>\n");
-    if (lyt == NULL) {
-        TT_ERROR("fail to create debug log pattern\n");
-        return TT_FAIL;
+    if (tt_s_loglyt[TT_LOG_DEBUG] == NULL) {
+        lyt = tt_loglyt_pattern_create("${content} <${function} - ${line}>\n");
+        if (lyt == NULL) {
+            TT_ERROR("fail to create debug log pattern\n");
+            return TT_FAIL;
+        }
+        tt_s_loglyt[TT_LOG_DEBUG] = lyt;
     }
-    tt_s_loglyt[TT_LOG_DEBUG] = lyt;
 
     // info log layout
-    lyt = tt_loglyt_pattern_create("${content}\n");
-    if (lyt == NULL) {
-        TT_ERROR("fail to create info log pattern\n");
-        return TT_FAIL;
+    if (tt_s_loglyt[TT_LOG_INFO] == NULL) {
+        lyt = tt_loglyt_pattern_create("${content}\n");
+        if (lyt == NULL) {
+            TT_ERROR("fail to create info log pattern\n");
+            return TT_FAIL;
+        }
+        tt_s_loglyt[TT_LOG_INFO] = lyt;
     }
-    tt_s_loglyt[TT_LOG_INFO] = lyt;
 
     // warn log layout
-    lyt = tt_loglyt_pattern_create("${time} ${level:%-6.6s} ${content}\n");
-    if (lyt == NULL) {
-        TT_ERROR("fail to create warn log pattern\n");
-        return TT_FAIL;
+    if (tt_s_loglyt[TT_LOG_WARN] == NULL) {
+        lyt = tt_loglyt_pattern_create("${time} ${level:%-6.6s} ${content}\n");
+        if (lyt == NULL) {
+            TT_ERROR("fail to create warn log pattern\n");
+            return TT_FAIL;
+        }
+        tt_s_loglyt[TT_LOG_WARN] = lyt;
     }
-    tt_s_loglyt[TT_LOG_WARN] = lyt;
 
     // error log layout
-    lyt = tt_loglyt_pattern_create("${time} ${level:%-6.6s} ${content}\n");
-    if (lyt == NULL) {
-        TT_ERROR("fail to create error log pattern\n");
-        return TT_FAIL;
+    if (tt_s_loglyt[TT_LOG_ERROR] == NULL) {
+        lyt = tt_loglyt_pattern_create("${time} ${level:%-6.6s} ${content}\n");
+        if (lyt == NULL) {
+            TT_ERROR("fail to create error log pattern\n");
+            return TT_FAIL;
+        }
+        tt_s_loglyt[TT_LOG_ERROR] = lyt;
     }
-    tt_s_loglyt[TT_LOG_ERROR] = lyt;
 
     // fatal log layout
-    lyt = tt_loglyt_pattern_create("${time} ${level:%-6.6s} ${content}\n");
-    if (lyt == NULL) {
-        TT_ERROR("fail to create fatal log pattern\n");
-        return TT_FAIL;
+    if (tt_s_loglyt[TT_LOG_FATAL] == NULL) {
+        lyt = tt_loglyt_pattern_create("${time} ${level:%-6.6s} ${content}\n");
+        if (lyt == NULL) {
+            TT_ERROR("fail to create fatal log pattern\n");
+            return TT_FAIL;
+        }
+        tt_s_loglyt[TT_LOG_FATAL] = lyt;
     }
-    tt_s_loglyt[TT_LOG_FATAL] = lyt;
 
     return TT_SUCCESS;
 }
@@ -253,7 +322,26 @@ tt_result_t __create_log_io(IN tt_profile_t *profile)
         TT_ERROR("fail to create std lio\n");
         return TT_FAIL;
     }
-    tt_s_logio_std = lio;
+
+    if (tt_s_logio[TT_LOG_DEBUG] == NULL) {
+        tt_s_logio[TT_LOG_DEBUG] = lio;
+    }
+
+    if (tt_s_logio[TT_LOG_INFO] == NULL) {
+        tt_s_logio[TT_LOG_INFO] = lio;
+    }
+
+    if (tt_s_logio[TT_LOG_WARN] == NULL) {
+        tt_s_logio[TT_LOG_WARN] = lio;
+    }
+
+    if (tt_s_logio[TT_LOG_ERROR] == NULL) {
+        tt_s_logio[TT_LOG_ERROR] = lio;
+    }
+
+    if (tt_s_logio[TT_LOG_FATAL] == NULL) {
+        tt_s_logio[TT_LOG_FATAL] = lio;
+    }
 
     return TT_SUCCESS;
 }

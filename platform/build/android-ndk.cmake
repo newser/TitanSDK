@@ -40,12 +40,15 @@ function(platform_link_libraries)
 
     target_link_libraries(platform dl)
 
+	find_library(ANDROID_LOG log)
+    target_link_libraries(platform ${ANDROID_LOG})
+
 endfunction(platform_link_libraries)
 
 # platform properties
 function(platform_set_properties)
     # add support headers
     target_include_directories(platform PRIVATE ${CMAKE_ANDROID_NDK}/sources/android/support/include)
-    
+
 endfunction(platform_set_properties)
 
