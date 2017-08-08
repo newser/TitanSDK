@@ -145,6 +145,8 @@ static tt_result_t __send_keycode(IN tt_u8_t *key,
 // interface implementation
 ////////////////////////////////////////////////////////////
 
+#if 0 // android has no console
+
 tt_result_t tt_console_init_ntv()
 {
     // default send/recv
@@ -472,3 +474,38 @@ tt_result_t __def_send(IN tt_cons_ev_t ev, IN tt_cons_ev_data_t *ev_data)
             return TT_FAIL;
     }
 }
+
+#else
+
+tt_result_t tt_console_init_ntv()
+{
+    return TT_SUCCESS;
+}
+
+tt_result_t tt_console_enter_ntv()
+{
+    return TT_FAIL;
+}
+
+void tt_console_exit_ntv()
+{
+}
+
+tt_result_t tt_console_config_ntv(IN struct tt_console_attr_s *attr)
+{
+    return TT_FAIL;
+}
+
+tt_result_t tt_console_recv_ntv(OUT tt_cons_ev_t *ev,
+                                OUT tt_cons_ev_data_t *ev_data)
+{
+    return TT_FAIL;
+}
+
+tt_result_t tt_console_send_ntv(IN tt_cons_ev_t ev,
+                                IN tt_cons_ev_data_t *ev_data)
+{
+    return TT_FAIL;
+}
+
+#endif

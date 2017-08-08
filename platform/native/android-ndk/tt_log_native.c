@@ -28,8 +28,6 @@
 #include <log/tt_log.h>
 #include <misc/tt_util.h>
 
-#include <android/log.h>
-
 ////////////////////////////////////////////////////////////
 // internal macro
 ////////////////////////////////////////////////////////////
@@ -218,5 +216,5 @@ tt_u32_t __logcat_output(IN tt_logio_t *lio,
     __logcat_t *lc = TT_LOGIO_CAST(lio, __logcat_t);
 
     // tt_logmgr_inputv() guarantees data is a null-terminated string
-    return (tt_u32_t)__android_log_print(lc->prio, lc->tag, data);
+    return (tt_u32_t)__android_log_write(lc->prio, lc->tag, data);
 }

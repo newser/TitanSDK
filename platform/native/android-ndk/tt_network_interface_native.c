@@ -87,10 +87,12 @@ tt_result_t tt_netif_group_refresh_ntv(IN struct tt_netif_group_s *group,
     struct ifaddrs *ifa = NULL;
     tt_u32_t internal_flag = 0;
 
+#if 0 // try https://github.com/morristech/android-ifaddrs
     if (getifaddrs(&ifaddrs) != 0) {
         TT_ERROR_NTV("getifaddrs failed");
         return TT_FAIL;
     }
+#endif
 
     ifa = ifaddrs;
     while (ifa != NULL) {
@@ -136,7 +138,7 @@ tt_result_t tt_netif_group_refresh_ntv(IN struct tt_netif_group_s *group,
         }
     }
 
-    freeifaddrs(ifa);
+    // freeifaddrs(ifa);
 
     return TT_SUCCESS;
 }

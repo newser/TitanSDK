@@ -812,10 +812,7 @@ tt_bool_t __do_accept(IN tt_io_ev_t *io_ev)
     struct epoll_event event;
 
 again:
-    s = accept4(skt_accept->skt->s,
-                (struct sockaddr *)skt_accept->addr,
-                &len,
-                SOCK_NONBLOCK | SOCK_CLOEXEC);
+    s = accept(skt_accept->skt->s, (struct sockaddr *)skt_accept->addr, &len);
     if (s == -1) {
         if (errno == EINTR) {
             goto again;
@@ -825,19 +822,17 @@ again:
         }
     }
 
-#if 0
-  if (((flag = fcntl(s, F_GETFL, 0)) == -1) ||
-      (fcntl(s, F_SETFL, flag | O_NONBLOCK) == -1)) {
-    TT_ERROR_NTV("fail to set O_NONBLOCK");
-    goto fail;
-  }
+    if (((flag = fcntl(s, F_GETFL, 0)) == -1) ||
+        (fcntl(s, F_SETFL, flag | O_NONBLOCK) == -1)) {
+        TT_ERROR_NTV("fail to set O_NONBLOCK");
+        goto fail;
+    }
 
-  if (((flag = fcntl(s, F_GETFD, 0)) == -1) ||
-      (fcntl(s, F_SETFD, flag | FD_CLOEXEC) == -1)) {
-    TT_ERROR_NTV("fail to set FD_CLOEXEC");
-    goto fail;
-  }
-#endif
+    if (((flag = fcntl(s, F_GETFD, 0)) == -1) ||
+        (fcntl(s, F_SETFD, flag | FD_CLOEXEC) == -1)) {
+        TT_ERROR_NTV("fail to set FD_CLOEXEC");
+        goto fail;
+    }
 
     event.events = EPOLLRDHUP | EPOLLONESHOT;
     event.data.ptr = &__s_null_io_ev;

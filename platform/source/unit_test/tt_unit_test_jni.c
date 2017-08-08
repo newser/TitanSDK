@@ -61,7 +61,7 @@ JNIEXPORT jstring JNICALL Java_com_titansdk_TTUnitTest_runUT(JNIEnv *env,
         initialized = TT_TRUE;
     }
 
-    return (*env)->NewStringUTF(env, "");
+    return (*env)->NewStringUTF(env, "runUT done");
 }
 
 #endif

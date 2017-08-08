@@ -76,17 +76,6 @@ print common fatal error log
 
 #endif
 
-/**
- @def TT_PRINTF
- print raw log
-
- @note
- this macro can be used when log system is not initialized
- */
-#define TT_PRINTF printf
-
-#define TT_VPRINTF vprintf
-
 ////////////////////////////////////////////////////////////
 // type definition
 ////////////////////////////////////////////////////////////

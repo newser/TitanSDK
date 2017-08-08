@@ -7,4 +7,3 @@ public class TTUnitTest {
 
     public static native String runUT(String name);
 }
-

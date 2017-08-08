@@ -94,7 +94,7 @@ void tt_component_register(IN tt_component_t *comp)
     if (__comp_table[comp->cid].comp == NULL) {
         __comp_table[comp->cid].comp = comp;
     } else {
-        TT_PRINTF("component[%s] has already registered\n", comp->name);
+        TT_ERROR("component[%s] has already registered\n", comp->name);
     }
 }
 

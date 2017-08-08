@@ -30,9 +30,21 @@ this file defines log native APIs
 
 #include <tt_basic_type.h>
 
+#include <android/log.h>
+
 ////////////////////////////////////////////////////////////
 // macro definition
 ////////////////////////////////////////////////////////////
+
+#define TT_PRINTF(...)                                                         \
+    do {                                                                       \
+        __android_log_print(ANDROID_LOG_INFO, "platform", __VA_ARGS__);        \
+    } while (0)
+
+#define TT_VPRINTF(fmt, ap)                                                    \
+    do {                                                                       \
+        __android_log_vprint(ANDROID_LOG_INFO, "platform", fmt, ap);           \
+    } while (0)
 
 ////////////////////////////////////////////////////////////
 // type definition
