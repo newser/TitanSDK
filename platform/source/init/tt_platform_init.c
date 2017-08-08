@@ -51,7 +51,7 @@ tt_result_t tt_platform_init(IN OPT const tt_char_t *profile_path)
     // ========================================
 
     if (!TT_OK(tt_profile_load(profile_path))) {
-        TT_PRINTF("fail to load platform profile\n");
+        TT_ERROR("fail to load platform profile\n");
         return TT_FAIL;
     }
 
@@ -60,7 +60,7 @@ tt_result_t tt_platform_init(IN OPT const tt_char_t *profile_path)
     // ========================================
 
     if (!TT_OK(tt_platform_info_load(&tt_g_profile))) {
-        TT_PRINTF("fail to load platform inforamtion\n");
+        TT_ERROR("fail to load platform inforamtion\n");
         return TT_FAIL;
     }
 
@@ -130,7 +130,7 @@ tt_result_t tt_platform_init(IN OPT const tt_char_t *profile_path)
     // ========================================
 
     if (!TT_OK(tt_component_start(&tt_g_profile))) {
-        TT_PRINTF("fail to start all components\n");
+        TT_ERROR("fail to start all components\n");
         return TT_FAIL;
     }
 

@@ -18,7 +18,10 @@
 #
 
 if (CMAKE_SYSTEM_NAME STREQUAL Android)
-    cmake_minimum_required(VERSION 3.7.2)
+    if (NOT ANDROID_STUDIO)
+        # cmake support ndk build from 3.7 but android studio may not have latest cmake
+        cmake_minimum_required(VERSION 3.7.2)
+    endif ()
 
     message(STATUS "CMAKE_SYSTEM_NAME: ${CMAKE_SYSTEM_NAME}")
     message(STATUS "CMAKE_SYSTEM_VERSION: ${CMAKE_SYSTEM_VERSION}")

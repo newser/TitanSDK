@@ -147,9 +147,9 @@ tt_result_t __ver_component_init(IN tt_component_t *comp,
 tt_result_t tt_ver_require_major(IN tt_ver_t major)
 {
     if (major != tt_ver_major()) {
-        TT_PRINTF("[Error] required major number: %d but: %d\n",
-                  major,
-                  tt_ver_major());
+        TT_ERROR("[Error] required major number: %d but: %d\n",
+                 major,
+                 tt_ver_major());
         return TT_FAIL;
     }
 
@@ -159,9 +159,9 @@ tt_result_t tt_ver_require_major(IN tt_ver_t major)
 tt_result_t tt_ver_require_minor(IN tt_ver_t minor)
 {
     if (minor != tt_ver_minor()) {
-        TT_PRINTF("[Error] required minor number: %d, but: %d\n",
-                  minor,
-                  tt_ver_minor());
+        TT_ERROR("[Error] required minor number: %d, but: %d\n",
+                 minor,
+                 tt_ver_minor());
         return TT_FAIL;
     }
 

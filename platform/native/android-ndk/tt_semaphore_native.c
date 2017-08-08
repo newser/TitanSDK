@@ -69,6 +69,7 @@ tt_result_t tt_sem_create_ntv(IN tt_sem_ntv_t *sys_sem,
         return TT_FAIL;
     }
 
+#if __ANDROID_API__ >= 21
     ret = pthread_condattr_setclock(&cond_attr, CLOCK_MONOTONIC);
     if (ret != 0) {
         TT_ERROR("fail to set system cond clock: %d[%s]", ret, strerror(ret));
@@ -76,6 +77,7 @@ tt_result_t tt_sem_create_ntv(IN tt_sem_ntv_t *sys_sem,
         pthread_mutex_destroy(&sys_sem->mutex);
         return TT_FAIL;
     }
+#endif
 
     ret = pthread_cond_init(&sys_sem->cond, &cond_attr);
     pthread_condattr_destroy(&cond_attr);

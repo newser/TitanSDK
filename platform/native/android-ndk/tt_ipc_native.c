@@ -471,10 +471,7 @@ tt_bool_t __do_accept(IN tt_io_ev_t *io_ev)
     struct epoll_event event;
 
 again:
-    s = accept4(ipc_accept->ipc->s,
-                (struct sockaddr *)ipc_accept->saun,
-                &len,
-                SOCK_NONBLOCK | SOCK_CLOEXEC);
+    s = accept(ipc_accept->ipc->s, (struct sockaddr *)ipc_accept->saun, &len);
     if (s == -1) {
         if (errno == EINTR) {
             goto again;
@@ -484,7 +481,6 @@ again:
         }
     }
 
-#if 0
     if (((flag = fcntl(s, F_GETFL, 0)) == -1) ||
         (fcntl(s, F_SETFL, flag | O_NONBLOCK) == -1)) {
         TT_ERROR_NTV("fail to set O_NONBLOCK");
@@ -496,7 +492,6 @@ again:
         TT_ERROR_NTV("fail to set FD_CLOEXEC");
         goto fail;
     }
-#endif
 
     event.events = EPOLLRDHUP | EPOLLONESHOT;
     event.data.ptr = &__s_null_io_ev;

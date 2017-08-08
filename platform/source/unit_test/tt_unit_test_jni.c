@@ -50,18 +50,43 @@
 
 #if TT_ENV_OS_IS_ANDROID
 
+tt_buf_t tt_g_jni_buf;
+
+tt_result_t __ut_fiber(IN void *param)
+{
+    tt_test_framework_init(0);
+    tt_test_unit_init(NULL);
+    tt_test_unit_run(NULL);
+    tt_test_unit_list(NULL);
+
+    return TT_SUCCESS;
+}
+
 JNIEXPORT jstring JNICALL Java_com_titansdk_TTUnitTest_runUT(JNIEnv *env,
                                                              jobject obj,
                                                              jstring name)
 {
     static tt_bool_t initialized = TT_FALSE;
+    tt_task_t t;
 
     if (!initialized) {
         tt_platform_init(NULL);
+
+        tt_thread_create_local(NULL);
+
+        tt_buf_init(&tt_g_jni_buf, NULL);
+
         initialized = TT_TRUE;
     }
 
-    return (*env)->NewStringUTF(env, "");
+    tt_task_create(&t, NULL);
+    tt_task_add_fiber(&t, NULL, __ut_fiber, NULL, NULL);
+    tt_task_run(&t);
+    tt_task_wait(&t);
+    TT_INFO("exiting");
+
+    tt_buf_put_u8(&tt_g_jni_buf, 0);
+    return (*env)->NewStringUTF(env, (const char *)TT_BUF_RPOS(&tt_g_jni_buf));
 }
 
 #endif

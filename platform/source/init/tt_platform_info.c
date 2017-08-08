@@ -79,45 +79,45 @@ tt_result_t tt_platform_info_load(IN tt_profile_t *profile)
                                            &tt_g_numa_node_id_thread,
                                            &tt_g_numa_node_id_memory);
     if (!TT_OK(result)) {
-        TT_PRINTF("fail to load numa node id\n");
+        TT_ERROR("fail to load numa node id\n");
         return TT_FAIL;
     }
 
     // page size
     result = tt_platform_page_size_load(&tt_g_page_size);
     if (!TT_OK(result)) {
-        TT_PRINTF("fail to load page size\n");
+        TT_ERROR("fail to load page size\n");
         return TT_FAIL;
     }
 
     result = tt_order(tt_g_page_size, &tt_g_page_size_order);
     if (!TT_OK(result) || (tt_g_page_size != (1 << tt_g_page_size_order))) {
-        TT_PRINTF("fail to load page size order [%x - %d]\n",
-                  tt_g_page_size,
-                  tt_g_page_size_order);
+        TT_ERROR("fail to load page size order [%x - %d]\n",
+                 tt_g_page_size,
+                 tt_g_page_size_order);
         return TT_FAIL;
     }
 
     // cpu num
     result = tt_platform_cpu_num_load(&tt_g_cpu_num);
     if (!TT_OK(result)) {
-        TT_PRINTF("fail to load cpu num\n");
+        TT_ERROR("fail to load cpu num\n");
         return TT_FAIL;
     }
 
     // cache line size
     result = tt_platform_cache_line_size_load(&tt_g_cache_line_size);
     if (!TT_OK(result)) {
-        TT_PRINTF("fail to load cache line size\n");
+        TT_ERROR("fail to load cache line size\n");
         return TT_FAIL;
     }
 
     result = tt_order(tt_g_cache_line_size, &tt_g_cache_line_size_order);
     if (!TT_OK(result) ||
         (tt_g_cache_line_size != (1 << tt_g_cache_line_size_order))) {
-        TT_PRINTF("fail to load cache line size order [%x - %d]\n",
-                  tt_g_cache_line_size,
-                  tt_g_cache_line_size_order);
+        TT_ERROR("fail to load cache line size order [%x - %d]\n",
+                 tt_g_cache_line_size,
+                 tt_g_cache_line_size_order);
         return TT_FAIL;
     }
 
@@ -129,8 +129,8 @@ tt_result_t tt_platform_info_load(IN tt_profile_t *profile)
         tt_g_cpu_align_order = 3;
         tt_g_platform_64bit = 1;
     } else {
-        TT_PRINTF("unknown platform, sizeof(void*): %d\n",
-                  (tt_u32_t)sizeof(void *));
+        TT_ERROR("unknown platform, sizeof(void*): %d\n",
+                 (tt_u32_t)sizeof(void *));
         return TT_FAIL;
     }
 
@@ -153,7 +153,7 @@ tt_result_t __basic_type_check()
 #define __CHECK_TYPE_LEN(t, l)                                                 \
     do {                                                                       \
         if (sizeof(t) != l) {                                                  \
-            TT_PRINTF("sizeof(%s) != %d\n", #t, l);                            \
+            TT_ERROR("sizeof(%s) != %d\n", #t, l);                             \
             return TT_FAIL;                                                    \
         }                                                                      \
     } while (0)

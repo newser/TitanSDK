@@ -53,7 +53,9 @@
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-static int __cpu_cache_line_size(int cpu_id, const char *cache_type);
+static int __cache_size_from_sysfs(int cpu_id, const char *cache_type);
+
+static long __cache_size_from_cpuinfo(int cpu_id);
 
 ////////////////////////////////////////////////////////////
 // interface implementation
@@ -63,7 +65,7 @@ tt_result_t tt_platform_page_size_load(OUT tt_u32_t *page_size)
 {
     long __page_size = sysconf(_SC_PAGESIZE);
     if (__page_size <= 0) {
-        TT_PRINTF("unknown os page size\n");
+        TT_ERROR("unknown os page size\n");
         return TT_FAIL;
     }
 
@@ -84,7 +86,7 @@ tt_result_t tt_platform_cpu_num_load(OUT tt_u32_t *cpu_num)
         }
 
         if (numa_all_cpus_ptr == NULL) {
-            TT_PRINTF("null numa_all_cpus_ptr\n");
+            TT_ERROR("null numa_all_cpus_ptr\n");
             return TT_FAIL;
         }
 
@@ -95,7 +97,7 @@ tt_result_t tt_platform_cpu_num_load(OUT tt_u32_t *cpu_num)
             }
         }
         if (__cpu_num <= 0) {
-            TT_PRINTF("unknown cpu number\n");
+            TT_ERROR("unknown cpu number\n");
             return TT_FAIL;
         }
 
@@ -106,7 +108,7 @@ tt_result_t tt_platform_cpu_num_load(OUT tt_u32_t *cpu_num)
 
     __cpu_num = sysconf(_SC_NPROCESSORS_ONLN);
     if (__cpu_num <= 0) {
-        TT_PRINTF("unknown cpu number\n");
+        TT_ERROR("unknown cpu number\n");
         return TT_FAIL;
     }
 
@@ -116,14 +118,22 @@ tt_result_t tt_platform_cpu_num_load(OUT tt_u32_t *cpu_num)
 
 tt_result_t tt_platform_cache_line_size_load(OUT tt_u32_t *size)
 {
-    int __size = __cpu_cache_line_size(0, "Data");
-    if (__size <= 0) {
-        TT_PRINTF("unknown cpu number\n");
-        return TT_FAIL;
+    int __size;
+
+    __size = __cache_size_from_sysfs(0, "Data");
+    if (__size > 0) {
+        *size = (tt_u32_t)__size;
+        return TT_SUCCESS;
     }
 
-    *size = (tt_u32_t)__size;
-    return TT_SUCCESS;
+    __size = (int)__cache_size_from_cpuinfo(0);
+    if (__size > 0) {
+        *size = (tt_u32_t)__size;
+        return TT_SUCCESS;
+    }
+
+    TT_ERROR("unknown cpu number\n");
+    return TT_FAIL;
 }
 
 tt_result_t tt_platform_numa_node_id_load(IN tt_profile_t *profile,
@@ -145,19 +155,19 @@ tt_result_t tt_platform_numa_node_id_load(IN tt_profile_t *profile,
         // id to unspecified rather than returning error
 
         if (numa_available() < 0) {
-            TT_PRINTF("numa not available\n");
+            TT_ERROR("numa not available\n");
             break;
         }
         if (numa_all_nodes_ptr == NULL) {
-            TT_PRINTF("null numa_all_nodes_ptr\n");
+            TT_ERROR("null numa_all_nodes_ptr\n");
             break;
         }
         if (numa_bitmask_isbitset(numa_all_nodes_ptr, node_id)) {
-            TT_PRINTF("node[%d] is not in numa_all_nodes_ptr\n", node_id);
+            TT_ERROR("node[%d] is not in numa_all_nodes_ptr\n", node_id);
             break;
         }
         if (numa_node_size64(node_id, NULL) <= 0) {
-            TT_PRINTF("node[%d] has no memory\n", node_id);
+            TT_ERROR("node[%d] has no memory\n", node_id);
             break;
         }
 
@@ -174,7 +184,7 @@ tt_result_t tt_platform_numa_node_id_load(IN tt_profile_t *profile,
     return TT_SUCCESS;
 }
 
-int __cpu_cache_line_size(int cpu_id, const char *cache_type)
+int __cache_size_from_sysfs(int cpu_id, const char *cache_type)
 {
     char path[200] = {0};
     FILE *fp = NULL;
@@ -192,7 +202,7 @@ int __cpu_cache_line_size(int cpu_id, const char *cache_type)
                 cache_index);
         fp = fopen(path, "r");
         if (fp == NULL) {
-            TT_PRINTF("fail to open file[%s]\n", path);
+            TT_ERROR("fail to open file[%s]\n", path);
             return -1;
         }
 
@@ -200,7 +210,7 @@ int __cpu_cache_line_size(int cpu_id, const char *cache_type)
         ret = fgets(path, sizeof(path), fp);
         fclose(fp);
         if (ret == NULL) {
-            TT_PRINTF("empty cache type file\n");
+            TT_ERROR("empty cache type file\n");
             return -1;
         }
 
@@ -211,7 +221,7 @@ int __cpu_cache_line_size(int cpu_id, const char *cache_type)
         ++cache_index;
     }
     if (cache_index >= __CACHE_TYPE_NUM) {
-        TT_PRINTF("fail to match cache type[%s]\n", cache_type);
+        TT_ERROR("fail to match cache type[%s]\n", cache_type);
         return -1;
     }
 
@@ -221,7 +231,7 @@ int __cpu_cache_line_size(int cpu_id, const char *cache_type)
             cache_index);
     fp = fopen(path, "r");
     if (fp == NULL) {
-        TT_PRINTF("fail to open file[%s]\n", path);
+        TT_ERROR("fail to open file[%s]\n", path);
         return -1;
     }
 
@@ -229,15 +239,62 @@ int __cpu_cache_line_size(int cpu_id, const char *cache_type)
     ret = fgets(path, sizeof(path), fp);
     fclose(fp);
     if (ret == NULL) {
-        TT_PRINTF("empty cache size file\n");
+        TT_ERROR("empty cache size file\n");
         return -1;
     }
 
     cache_line_size = strtol(path, NULL, 10);
     if (cache_line_size == 0) {
-        TT_PRINTF("fail to parse cache size[%s]\n", path);
+        TT_ERROR("fail to parse cache size[%s]\n", path);
         return -1;
     }
 
     return (int)cache_line_size;
+}
+
+long __cache_size_from_cpuinfo(int cpu_id)
+{
+    FILE *fp;
+    char buf[200];
+    char *p = buf;
+    size_t cap = sizeof(buf);
+
+    fp = fopen("/proc/cpuinfo", "r");
+    if (fp == NULL) {
+        TT_ERROR("fail to open /proc/cpuinfo\n");
+        return -1;
+    }
+
+    while (getline(&p, &cap, fp) > 0) {
+        char *pos;
+        long size;
+
+        if ((pos = strstr(p, "cache_alignment")) == NULL) {
+            goto next;
+        }
+        pos += sizeof("cache_alignment") - 1;
+
+        if ((pos = strchr(p, ':')) == NULL) {
+            goto next;
+        }
+        pos += 1;
+
+        size = strtol(pos, NULL, 10);
+        if ((size != 0) && (size != LONG_MIN) && (size != LONG_MAX)) {
+            if (p != buf) {
+                free(p);
+            }
+            return size;
+        }
+
+    next:
+        if (p != buf) {
+            free(p);
+        }
+        p = buf;
+        cap = sizeof(buf);
+    }
+
+    fclose(fp);
+    return -1;
 }

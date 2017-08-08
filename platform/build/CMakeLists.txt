@@ -38,7 +38,12 @@ set(PLATFORM_ENABLE_DEBUG 1 CACHE BOOL "set to non zero to enable platform debug
 message(STATUS "debug mode: ${PLATFORM_ENABLE_DEBUG}")
 
 # build platform as a dynamic library
-set(PLATFORM_BUILD_SHARED 0 CACHE BOOL "build platform dynamic library")
+if (PLATFORM_ENV_OS STREQUAL android)
+    # jni can only use shared lib
+    set(PLATFORM_BUILD_SHARED 1)
+else ()
+    set(PLATFORM_BUILD_SHARED 0 CACHE BOOL "build platform dynamic library")
+endif ()
 message(STATUS "build dynamic: ${PLATFORM_BUILD_SHARED}")
 
 # numa enable
@@ -50,7 +55,8 @@ configure_file(${PLATFORM_PATH}/include/config/tt_customization_config.h.in
                ${PLATFORM_PATH}/include/config/tt_customization_config.h
                @ONLY)
 
-if (PLATFORM_ENV_OS STREQUAL android)
+if ((PLATFORM_ENV_OS STREQUAL android) AND NOT ANDROID_STUDIO)
+    # cmake seems can not set as correctly (android studio is ok)
     set(CMAKE_ASM_COMPILER ${CMAKE_C_COMPILER})
 endif ()
 enable_language(ASM)
@@ -197,6 +203,14 @@ if (PLATFORM_ENV STREQUAL "windows-msvc")
         set_target_properties(platform PROPERTIES
                               ARCHIVE_OUTPUT_DIRECTORY_RELEASE ${PLATFORM_OUTPATH}/release/static)
     endif ()
+
+elseif ((PLATFORM_ENV_OS STREQUAL android) AND ANDROID_STUDIO)
+    # only build shared lib for android
+    set_target_properties(platform PROPERTIES
+                          LIBRARY_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR})
+    set_target_properties(platform PROPERTIES
+                          LIBRARY_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR})
+
 else ()
     set_target_properties(platform PROPERTIES
                           ARCHIVE_OUTPUT_DIRECTORY_DEBUG ${PLATFORM_OUTPATH}/debug/static
@@ -204,6 +218,7 @@ else ()
     set_target_properties(platform PROPERTIES
                           ARCHIVE_OUTPUT_DIRECTORY_RELEASE ${PLATFORM_OUTPATH}/release/static
                           LIBRARY_OUTPUT_DIRECTORY_RELEASE ${PLATFORM_OUTPATH}/release/shared)
+
 endif ()
 
 # set specific properties

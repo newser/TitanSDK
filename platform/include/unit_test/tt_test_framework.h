@@ -30,6 +30,7 @@ test framework
 
 #include <tt_basic_type.h>
 
+#include <algorithm/tt_buffer_format.h>
 #include <log/tt_log.h>
 
 ////////////////////////////////////////////////////////////
@@ -44,9 +45,41 @@ test framework
 
 #define TT_TEST_CLASS_NAME_LEN (32)
 
+#if TT_ENV_OS_IS_ANDROID
+
+extern tt_buf_t tt_g_jni_buf;
+
+#define TT_TEST_DETAIL(...)                                                    \
+    do {                                                                       \
+        extern tt_buf_t tt_g_jni_buf;                                          \
+        TT_DEBUG(__VA_ARGS__);                                                 \
+        tt_buf_putf(&tt_g_jni_buf, __VA_ARGS__);                               \
+        tt_buf_put_u8(&tt_g_jni_buf, '\n');                                    \
+    } while (0)
+
+#define TT_TEST_INFO(...)                                                      \
+    do {                                                                       \
+        extern tt_buf_t tt_g_jni_buf;                                          \
+        TT_INFO(__VA_ARGS__);                                                  \
+        tt_buf_putf(&tt_g_jni_buf, __VA_ARGS__);                               \
+        tt_buf_put_u8(&tt_g_jni_buf, '\n');                                    \
+    } while (0)
+
+#define TT_TEST_ERROR(...)                                                     \
+    do {                                                                       \
+        extern tt_buf_t tt_g_jni_buf;                                          \
+        TT_ERROR(__VA_ARGS__);                                                 \
+        tt_buf_putf(&tt_g_jni_buf, __VA_ARGS__);                               \
+        tt_buf_put_u8(&tt_g_jni_buf, '\n');                                    \
+    } while (0)
+
+#else
+
 #define TT_TEST_DETAIL TT_DEBUG
 #define TT_TEST_INFO TT_INFO
 #define TT_TEST_ERROR TT_ERROR
+
+#endif
 
 /*
  * name:
