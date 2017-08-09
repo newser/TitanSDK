@@ -62,9 +62,10 @@ tt_result_t __ut_fiber(IN void *param)
     return TT_SUCCESS;
 }
 
-JNIEXPORT jstring JNICALL Java_com_titansdk_TTUnitTest_runUT(JNIEnv *env,
-                                                             jobject obj,
-                                                             jstring name)
+JNIEXPORT jstring JNICALL
+Java_com_titansdk_titansdkunittest_TTUnitTestJNI_runUT(JNIEnv *env,
+                                                       jobject obj,
+                                                       jstring name)
 {
     static tt_bool_t initialized = TT_FALSE;
     tt_task_t t;

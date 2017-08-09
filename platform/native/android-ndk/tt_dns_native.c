@@ -29,9 +29,8 @@
 
 #include <tt_util_native.h>
 
-#include <fcntl.h>
 #include <sys/epoll.h>
-#include <unistd.h>
+#include <sys/uio.h>
 
 // clang-format off
 #define HAVE_CONFIG_H

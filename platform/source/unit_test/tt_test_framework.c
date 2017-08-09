@@ -153,6 +153,8 @@ tt_result_t tt_test_list(IN const tt_char_t *class_name,
     TT_TEST_INFO("test result: \r\n");
 #if TT_ENV_OS_IS_IOS
     __ios_display("test result: \n\n");
+#elif TT_ENV_OS_IS_ANDROID
+    __android_display("test result: \n\n");
 #endif
 
     if (class_name == NULL) {
@@ -268,6 +270,8 @@ tt_result_t tt_test_list_class(IN tt_test_class_t *test_class,
 #if TT_ENV_OS_IS_IOS
     snprintf(__ios_buf, __IOS_BUF_SIZE, "== class: %s\n\n", test_class->name);
     __ios_display(__ios_buf);
+#elif TT_ENV_OS_IS_ANDROID
+    __android_display("== class: %s\r\n", test_class->name);
 #endif
 
     while (item != NULL) {
@@ -300,6 +304,12 @@ tt_result_t tt_test_list_item(IN tt_test_item_t *item,
     __ios_display(__ios_buf);
     snprintf(__ios_buf, __IOS_BUF_SIZE, "   |-- info:    %s\n\n", item->info);
     __ios_display(__ios_buf);
+#elif TT_ENV_OS_IS_ANDROID
+    __android_display("   |-- case:    %s", item->name);
+    __android_display("   |   comment: %s", item->comment);
+    __android_display("   |   result:  %s",
+                      TT_OK(item->test_result) ? "OK" : "Fail");
+    __android_display("   |-- info:    %s\r\n", item->info);
 #endif
 
     if (TT_OK(item->test_result)) {

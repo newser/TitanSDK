@@ -74,12 +74,12 @@ tt_test_unit_t *tt_g_test_unit_list[TEST_UNIT_NUM] = {
 #if 0
     &TT_MAKE_TEST_UNIT_NAME(TEST_UNIT_MUTEX),
     &TT_MAKE_TEST_UNIT_NAME(TEST_UNIT_SEM),
-    &TT_MAKE_TEST_UNIT_NAME(TEST_UNIT_THREAD),
     &TT_MAKE_TEST_UNIT_NAME(TEST_UNIT_ATOMIC),
     &TT_MAKE_TEST_UNIT_NAME(TEST_UNIT_SPIN_LOCK),
     &TT_MAKE_TEST_UNIT_NAME(TEST_UNIT_RWLOCK),
     &TT_MAKE_TEST_UNIT_NAME(TEST_UNIT_FIBER),
 #endif
+    &TT_MAKE_TEST_UNIT_NAME(TEST_UNIT_THREAD),
 
 #if 0
     &TT_MAKE_TEST_UNIT_NAME(TEST_UNIT_SLAB),
@@ -204,6 +204,15 @@ tt_result_t tt_test_unit_list(IN const tt_char_t *unit_name)
     TT_TEST_INFO("\r\ntest case result: [%d / %d] OK\r\n",
                  succ_num,
                  succ_num + fail_num);
+#if TT_ENV_OS_IS_IOS
+    __ios_display("\r\ntest case result: [%d / %d] OK\r\n",
+                  succ_num,
+                  succ_num + fail_num);
+#elif TT_ENV_OS_IS_ANDROID
+    __android_display("\r\ntest case result: [%d / %d] OK\r\n",
+                      succ_num,
+                      succ_num + fail_num);
+#endif
 
     return ret;
 }

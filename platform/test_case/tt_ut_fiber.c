@@ -279,7 +279,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_fiber_basic)
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_thread_t *t;
     tt_thread_attr_t tattr;
-    tt_fiber_t *fb1, *fb2;
+    tt_fiber_t *fb1, *fb2, *fb3;
 
     TT_TEST_CASE_ENTER()
     // test start
@@ -295,9 +295,10 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_fiber_basic)
 
     fb2 = tt_fiber_create("", __fiber_name, NULL, NULL);
     TT_UT_NOT_EQUAL(fb2, NULL, "");
-    fb2 = tt_fiber_create("", __fiber_name, NULL, NULL);
-    TT_UT_EQUAL(fb2, NULL, "");
+    fb3 = tt_fiber_create("", __fiber_name, NULL, NULL);
+    TT_UT_EQUAL(fb3, NULL, "");
     tt_fiber_resume(fb1, TT_FALSE);
+    tt_fiber_resume(fb2, TT_FALSE);
 
     tt_thread_attr_default(&tattr);
     tattr.enable_fiber = TT_TRUE;
