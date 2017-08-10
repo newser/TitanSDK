@@ -111,7 +111,8 @@ tt_result_t __io_worker_routine(IN void *param)
         tt_sem_acquire(&wg->sem, TT_TIME_INFINITE);
 
         io_ev = tt_iowg_pop_ev(wg);
-        TT_ASSERT((io_ev != NULL) && TT_IO_VALID(io_ev->io));
+        TT_ASSERT(io_ev != NULL);
+        TT_ASSERT(TT_IO_VALID(io_ev->io));
         __io_handler[io_ev->io](io_ev);
     }
 

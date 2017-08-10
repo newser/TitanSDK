@@ -234,7 +234,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_mempool_alloc_free)
     // now should about 1000bytes left
     p4 = tt_mp_alloc(&pool, 900);
     TT_UT_NOT_EQUAL(p4, NULL, "");
-    p4 = tt_mp_alloc(&pool, 100);
+    p4 = tt_mp_alloc(&pool, 101);
     TT_UT_EQUAL(p4, NULL, "");
 
     tt_mempool_destroy(&pool);

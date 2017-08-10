@@ -56,23 +56,24 @@ endfunction(add_group_hdr)
 #  - do not add quotes around option list, use this function like
 #    choose_compiler_flag(CMAKE_C_FLAGS TRUE -opt1 -opt2) but not "-opt1 -opt2"
 function(choose_compiler_flag compiler_flag mandatory option_list)
-    set(__one_ok FALSE)
+    set(ok FALSE)
     foreach(option ${option_list})
         message(STATUS "option [${option}] in [${option_list}]")
-            
-        check_c_compiler_flag(${option} has_${option})
-        if (has_${option})
+
+        string(REGEX REPLACE "[-=]" "_" name ${option})
+        check_c_compiler_flag(${option} has_${name})
+        if (has_${name})
             set(${compiler_flag} "${${compiler_flag}} ${option}" PARENT_SCOPE)
             message(STATUS "adding compiler flag[${option}] to ${compiler_flag}")
 
-            set(__one_ok TRUE)
+            set(ok TRUE)
             break()
         else ()
             message(STATUS "compiler flag is not supported[${option}]")
         endif ()
     endforeach()
 
-    if (${mandatory} AND NOT __one_ok)
+    if (${mandatory} AND NOT ok)
         message(FATAL_ERROR "all compiler flag are not supported[${option_list}]")
     endif ()
 endfunction(choose_compiler_flag)

@@ -33,6 +33,8 @@ include(${BUILD_PATH}/${PLATFORM_ENV}.cmake)
 set(PROGRAM_UNIT_TEST 1 CACHE BOOL "app: unit test")
 set(PROGRAM_COMMAND_LINE 0 CACHE BOOL "app: command line")
 
+set(SANITIZE "" CACHE STRING "set sanitize param")
+
 #
 # component
 #

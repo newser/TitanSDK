@@ -26,8 +26,6 @@
 #include <misc/tt_util.h>
 #include <time/tt_date.h>
 
-#include <tt_cstd_api.h>
-
 #include <time.h>
 
 ////////////////////////////////////////////////////////////

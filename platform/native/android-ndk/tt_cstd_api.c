@@ -118,7 +118,7 @@ tt_result_t tt_strtou32(const char *str, char **endptr, int base, tt_u32_t *val)
 {
     const char *__str;
     char *__endptr;
-    unsigned long ul_val;
+    unsigned long long ull_val;
     // on any platform, l_val is at least 4 bytes long
 
     // check if it's an empty string
@@ -133,7 +133,7 @@ tt_result_t tt_strtou32(const char *str, char **endptr, int base, tt_u32_t *val)
         return TT_FAIL;
     }
 
-    ul_val = strtoul(__str, &__endptr, base);
+    ull_val = strtoull(__str, &__endptr, base);
 
     // check if any unexpected char found
     if ((*__endptr != 0) && (isspace(*__endptr) == 0)) {
@@ -142,14 +142,14 @@ tt_result_t tt_strtou32(const char *str, char **endptr, int base, tt_u32_t *val)
     TT_SAFE_ASSIGN(endptr, __endptr);
 
     // check overflow
-    if ((ul_val == ULONG_MAX) & (errno == ERANGE)) {
+    if ((ull_val == ULONG_LONG_MAX) & (errno == ERANGE)) {
         return TT_FAIL;
     }
-    if (ul_val > (long)0xFFFFFFFF) {
+    if (ull_val > (unsigned long long)0xFFFFFFFF) {
         return TT_FAIL;
     }
 
-    *val = (tt_s32_t)ul_val;
+    *val = (tt_u32_t)ull_val;
     return TT_SUCCESS;
 }
 
@@ -157,7 +157,7 @@ tt_result_t tt_strtos32(const char *str, char **endptr, int base, tt_s32_t *val)
 {
     const char *__str;
     char *__endptr;
-    long l_val;
+    long long ll_val;
     // on any platform, l_val is at least 4 bytes long
 
     // check if it's an empty string
@@ -169,7 +169,7 @@ tt_result_t tt_strtos32(const char *str, char **endptr, int base, tt_s32_t *val)
         return TT_FAIL;
     }
 
-    l_val = strtol(__str, &__endptr, base);
+    ll_val = strtoll(__str, &__endptr, base);
 
     // check if any unexpected char found
     if ((*__endptr != 0) && (isspace(*__endptr) == 0)) {
@@ -178,14 +178,16 @@ tt_result_t tt_strtos32(const char *str, char **endptr, int base, tt_s32_t *val)
     TT_SAFE_ASSIGN(endptr, __endptr);
 
     // check overflow
-    if (((l_val == LONG_MIN) || (l_val == LONG_MAX)) & (errno == ERANGE)) {
+    if (((ll_val == LONG_LONG_MIN) || (ll_val == LONG_LONG_MAX)) &
+        (errno == ERANGE)) {
         return TT_FAIL;
     }
-    if ((l_val > (long)0x7FFFFFFF) || (l_val < (long)(int)0x80000000)) {
+    if ((ll_val > (long long)0x7FFFFFFF) ||
+        (ll_val < (long long)(int)0x80000000)) {
         return TT_FAIL;
     }
 
-    *val = (tt_s32_t)l_val;
+    *val = (tt_s32_t)ll_val;
     return TT_SUCCESS;
 }
 

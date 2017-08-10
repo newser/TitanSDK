@@ -49,6 +49,7 @@
 TT_TEST_ROUTINE_DECLARE(tt_unit_test_sem_basic)
 TT_TEST_ROUTINE_DECLARE(tt_unit_test_sem_mt)
 TT_TEST_ROUTINE_DECLARE(tt_unit_test_sem_pc)
+TT_TEST_ROUTINE_DECLARE(tt_unit_test_sem_count)
 // =========================================
 
 // === test case list ======================
@@ -76,6 +77,15 @@ TT_TEST_CASE("tt_unit_test_sem_basic",
     TT_TEST_CASE("tt_unit_test_sem_pc",
                  "testing sem API in producer-consumer model",
                  tt_unit_test_sem_pc,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL),
+
+    TT_TEST_CASE("tt_unit_test_sem_count",
+                 "testing sem counting",
+                 tt_unit_test_sem_count,
                  NULL,
                  NULL,
                  NULL,
@@ -322,6 +332,65 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_sem_pc)
     tt_sem_destroy(&sem);
 
     TT_RECORD_INFO("%d", 0); // remove warnings
+
+    // test end
+    TT_TEST_CASE_LEAVE()
+}
+
+static tt_result_t test_routine_count(IN void *param)
+{
+    tt_ptrdiff_t idx = (tt_ptrdiff_t)param;
+    int i = 0;
+    tt_bool_t ret;
+
+    // TT_ASSERT(thread == test_threads[idx]);
+
+    for (i = 0; i < 1000; ++i) {
+        if ((i & 1) == 0) {
+            // 0, 2, 4, ... threads post sem for 1000times
+            tt_sem_release(&sem);
+            tt_sleep(tt_rand_u32() % 10);
+        } else {
+            // 1, 3, 5, ... threads wait sem for 1000times
+            ret = tt_sem_acquire(&sem, TT_TIME_INFINITE);
+            TT_ASSERT(TT_OK(ret));
+        }
+    }
+
+    return TT_SUCCESS;
+}
+
+static tt_thread_t *count_threads[20];
+
+TT_TEST_ROUTINE_DEFINE(tt_unit_test_sem_count)
+{
+    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+    tt_ptrdiff_t i;
+    tt_sem_attr_t attr;
+    tt_result_t ret;
+
+    TT_TEST_CASE_ENTER()
+    // test start
+
+    tt_memset(&attr, 0, sizeof(tt_sem_attr_t));
+
+    tt_sem_create(&sem, 0, &attr);
+    cnt = 0;
+
+    for (i = 0; i < sizeof(count_threads) / sizeof(tt_thread_t *); ++i) {
+        count_threads[i] =
+            tt_thread_create(test_routine_count, (void *)i, NULL);
+    }
+
+    for (i = 0; i < sizeof(count_threads) / sizeof(tt_thread_t *); ++i) {
+        tt_thread_wait(count_threads[i]);
+    }
+
+    // should be all consumed, so acquiring should return time out
+    ret = tt_sem_acquire(&sem, 100);
+    TT_UT_EQUAL(ret, TT_TIME_OUT, "");
+
+    tt_sem_destroy(&sem);
 
     // test end
     TT_TEST_CASE_LEAVE()

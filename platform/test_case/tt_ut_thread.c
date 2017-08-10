@@ -409,7 +409,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_dll)
 #elif TT_ENV_OS_IS_WINDOWS
         tt_dll_create(&c_dll, "ntdll.dll", NULL);
 #elif TT_ENV_OS_IS_ANDROID
-        tt_dll_create(&c_dll, "libc.so.6", NULL);
+        tt_dll_create(&c_dll, "libc.so", NULL);
 #endif
     TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
@@ -436,7 +436,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_dll)
 #elif TT_ENV_OS_IS_WINDOWS
         tt_dll_create(&c_dll, "C:\\Windows\\System32\\ntdll.dll", NULL);
 #elif TT_ENV_OS_IS_ANDROID
-        tt_dll_create(&c_dll, "/lib/x86_64-linux-gnu/libc.so.6", NULL);
+        tt_dll_create(&c_dll, "/system/lib/libc.so", NULL);
 #endif
     TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
@@ -480,6 +480,10 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_process_basic)
 //#define __app_file get_app_path()
 #define __app_file path
 #define __app_file_sc get_app_path()
+#elif TT_ENV_OS_IS_ANDROID
+#define __app_file path
+#define __app_file_sc "./测试"
+    return TT_SUCCESS;
 #else
 //#define __app_file "./app_unit_test"
 #define __app_file path

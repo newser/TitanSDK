@@ -28,7 +28,7 @@ choose_compiler_flag(CMAKE_CXX_FLAGS FALSE -fno-exceptions)
 
 # warn setting
 choose_compiler_flag(CMAKE_C_FLAGS FALSE -Wall)
-choose_compiler_flag(CMAKE_C_FLAGS FALSE -Werror)
+#choose_compiler_flag(CMAKE_C_FLAGS FALSE -Werror)
 choose_compiler_flag(CMAKE_C_FLAGS FALSE -Wno-unused-function)
 choose_compiler_flag(CMAKE_C_FLAGS FALSE -Wno-unused-variable)
 
@@ -49,6 +49,11 @@ choose_compiler_flag(CMAKE_CXX_FLAGS_RELEASE FALSE -finline-functions)
 # .cmake_choose_compiler_flag(CMAKE_C_FLAGS TRUE -g)
 # .cmake_choose_compiler_flag(CMAKE_CXX_FLAGS TRUE -g)
 #endif ()
+
+if (SANITIZE STREQUAL address)
+    set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -fsanitize=address -fno-omit-frame-pointer")
+    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -fsanitize=address -fno-omit-frame-pointer")
+endif ()
 
 #
 # linker options

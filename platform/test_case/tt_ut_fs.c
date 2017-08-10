@@ -164,6 +164,11 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_fs_consistency)
 #define __SC_TEST_FILE ((const tt_char_t *)tt_string_cstr(&__sc_fpath))
 #endif
 
+#elif TT_ENV_OS_IS_ANDROID
+
+#define APK_PATH "/data/data/com.titansdk.titansdkunittest/"
+#define __SC_TEST_FILE APK_PATH "测试"
+
 #else
 #define __SC_TEST_FILE "测试"
 #endif
@@ -410,6 +415,10 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_dir_basic)
 #define __TEST_DIR ((const tt_char_t *)tt_string_cstr(&__sc_dpath))
 #endif
 
+#elif TT_ENV_OS_IS_ANDROID
+
+#define __TEST_DIR APK_PATH "test_dir"
+
 #else
 //#define __TEST_DIR "./≤‚ ‘ƒø¬º")
 #define __TEST_DIR "./test_dir"
@@ -482,7 +491,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_dir_basic)
         tt_char_t s[256];
         tt_u32_t len = (tt_u32_t)tt_strlen(__TEST_DIR);
         tt_memcpy(s, __TEST_DIR, len);
-        tt_memcpy(s + len, "/s1", sizeof("/s1") - 1);
+        tt_memcpy(s + len, "/s1", sizeof("/s1"));
         ret = tt_dcreate(s, NULL);
         TT_UT_SUCCESS(ret, "");
     }
@@ -490,7 +499,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_dir_basic)
         tt_char_t s[256];
         tt_u32_t len = (tt_u32_t)tt_strlen(__TEST_DIR);
         tt_memcpy(s, __TEST_DIR, len);
-        tt_memcpy(s + len, "/s1/s2", sizeof("/s1/s2") - 1);
+        tt_memcpy(s + len, "/s1/s2", sizeof("/s1/s2"));
         ret = tt_dcreate(s, NULL);
         TT_UT_SUCCESS(ret, "");
     }
@@ -512,6 +521,10 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_dir_basic)
 #else
 #define __ut_fname ((const tt_char_t *)tt_string_cstr(&__sc_fpath))
 #endif
+
+#elif TT_ENV_OS_IS_ANDROID
+
+#define __ut_fname APK_PATH "a.txt"
 
 #else
 #define __ut_fname "a.txt"
@@ -588,6 +601,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_fs_multhread)
     TT_TEST_CASE_ENTER()
     // test start
 
+    tt_fremove(__ut_fname);
     tt_fcreate(__ut_fname, NULL);
 
     for (i = 0; i < __task_num; ++i) {
@@ -629,6 +643,11 @@ static const tt_char_t *fname[4] = {"../tmp/1.txt",
 #else
 static const tt_char_t *fname[4] = {0};
 #endif
+#elif TT_ENV_OS_IS_ANDROID
+static const tt_char_t *fname[4] = {APK_PATH "1.txt",
+                                    APK_PATH "2.txt",
+                                    APK_PATH "3.txt",
+                                    APK_PATH "4.txt"};
 #else
 static const tt_char_t *fname[4] = {"1.txt", "2.txt", "3.txt", "4.txt"};
 #endif

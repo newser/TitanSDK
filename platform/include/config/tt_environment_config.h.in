@@ -246,7 +246,7 @@ running cpu feature
         #else
             #define TT_ENV_IS_64BIT 0
         #endif
-    #elif TT_ENV_TOOLCHAIN_IS_XCODE || TT_ENV_TOOLCHAIN_IS_GNU
+    #elif TT_ENV_TOOLCHAIN_IS_XCODE || TT_ENV_TOOLCHAIN_IS_GNU || TT_ENV_TOOLCHAIN_IS_NDK
         #if defined(__x86_64) || defined(__x86_64__) || defined(__amd64) || defined(__amd64__)
             #define TT_ENV_IS_64BIT 1
         #else
@@ -260,8 +260,8 @@ running cpu feature
         #else
             #define TT_ENV_IS_64BIT 0
         #endif
-    #elif TT_ENV_TOOLCHAIN_IS_XCODE || TT_ENV_TOOLCHAIN_IS_GNU
-        #if defined(__arm64__)
+    #elif TT_ENV_TOOLCHAIN_IS_XCODE || TT_ENV_TOOLCHAIN_IS_GNU || TT_ENV_TOOLCHAIN_IS_NDK
+        #if defined(__arm64__) || defined(__aarch64__)
             #define TT_ENV_IS_64BIT 1
         #else
             #define TT_ENV_IS_64BIT 0

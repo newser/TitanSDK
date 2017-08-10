@@ -42,12 +42,12 @@ if (PLATFORM_ENV_OS STREQUAL android)
     # jni can only use shared lib
     set(PLATFORM_BUILD_SHARED 1)
 else ()
-    set(PLATFORM_BUILD_SHARED 0 CACHE BOOL "build platform dynamic library")
+    set(PLATFORM_BUILD_SHARED 0 CACHE BOOL "build platform shared library")
 endif ()
 message(STATUS "build dynamic: ${PLATFORM_BUILD_SHARED}")
 
 # numa enable
-set(PLATFORM_ENABLE_NUMA 0 CACHE BOOL "set to non zero to enable numa support")
+set(PLATFORM_ENABLE_NUMA 0 CACHE BOOL "enable numa support")
 message(STATUS "numa enable: ${PLATFORM_ENABLE_NUMA}")
 
 # generate header file
