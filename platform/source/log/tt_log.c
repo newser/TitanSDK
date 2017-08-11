@@ -32,7 +32,7 @@
 #define TT_PRINTF printf
 #endif
 
-#ifndef TT_PRINTF
+#ifndef TT_VPRINTF
 #define TT_VPRINTF vprintf
 #endif
 

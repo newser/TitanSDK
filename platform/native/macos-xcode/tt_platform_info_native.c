@@ -59,11 +59,11 @@ tt_result_t tt_platform_page_size_load(OUT tt_u32_t *page_size)
 
     // read page size
     if (sysctlbyname("hw.pagesize", &__page_size, &len, NULL, 0) != 0) {
-        TT_PRINTF("fail to get os page size");
+        TT_ERROR("fail to get os page size");
         return TT_FAIL;
     }
     if (__page_size <= 0) {
-        TT_PRINTF("unknown os page size");
+        TT_ERROR("unknown os page size");
         return TT_FAIL;
     }
 
@@ -77,11 +77,11 @@ tt_result_t tt_platform_cpu_num_load(OUT tt_u32_t *cpu_num)
     size_t len = sizeof(__cpu_num);
 
     if (sysctlbyname("hw.logicalcpu", &__cpu_num, &len, NULL, 0) != 0) {
-        TT_PRINTF("fail to get cpu number");
+        TT_ERROR("fail to get cpu number");
         return TT_FAIL;
     }
     if (__cpu_num <= 0) {
-        TT_PRINTF("unknown cpu number");
+        TT_ERROR("unknown cpu number");
         return TT_FAIL;
     }
 
@@ -99,11 +99,11 @@ tt_result_t tt_platform_cache_line_size_load(OUT tt_u32_t *size)
                      &len,
                      NULL,
                      0) != 0) {
-        TT_PRINTF("fail to get cpu cache line size");
+        TT_ERROR("fail to get cpu cache line size");
         return TT_FAIL;
     }
     if (__cache_line_size <= 0) {
-        TT_PRINTF("unknown cpu cache line size");
+        TT_ERROR("unknown cpu cache line size");
         return TT_FAIL;
     }
 

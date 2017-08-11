@@ -22,6 +22,7 @@
 #include <unit_test/tt_unit_test.h>
 
 #include <log/tt_log.h>
+#include <os/tt_atomic.h>
 #include <os/tt_semaphore.h>
 #include <os/tt_thread.h>
 #include <time/tt_time_reference.h>
@@ -148,7 +149,7 @@ TT_TEST_CASE("tt_unit_test_sem_basic",
     tt_sem_destroy(&lock);
 
     // with large count
-    ret = tt_sem_create(&lock, ~0, NULL);
+    ret = tt_sem_create(&lock, TT_SEM_MAX_COUNT, NULL);
     TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
     // lock, wait for 100ms
@@ -337,6 +338,8 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_sem_pc)
     TT_TEST_CASE_LEAVE()
 }
 
+static tt_atomic_s32_t sem_count;
+
 static tt_result_t test_routine_count(IN void *param)
 {
     tt_ptrdiff_t idx = (tt_ptrdiff_t)param;
@@ -348,12 +351,14 @@ static tt_result_t test_routine_count(IN void *param)
     for (i = 0; i < 1000; ++i) {
         if ((i & 1) == 0) {
             // 0, 2, 4, ... threads post sem for 1000times
+            tt_atomic_s32_inc(&sem_count);
             tt_sem_release(&sem);
             tt_sleep(tt_rand_u32() % 10);
         } else {
             // 1, 3, 5, ... threads wait sem for 1000times
             ret = tt_sem_acquire(&sem, TT_TIME_INFINITE);
             TT_ASSERT(TT_OK(ret));
+            TT_ASSERT_ALWAYS(tt_atomic_s32_dec(&sem_count) >= 0);
         }
     }
 
@@ -367,7 +372,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_sem_count)
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_ptrdiff_t i;
     tt_sem_attr_t attr;
-    tt_result_t ret;
+    tt_bool_t ret;
 
     TT_TEST_CASE_ENTER()
     // test start
@@ -388,7 +393,9 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_sem_count)
 
     // should be all consumed, so acquiring should return time out
     ret = tt_sem_acquire(&sem, 100);
-    TT_UT_EQUAL(ret, TT_TIME_OUT, "");
+    TT_UT_EQUAL(ret, TT_FALSE, "");
+
+    TT_UT_EQUAL(tt_atomic_s32_get(&sem_count), 0, "");
 
     tt_sem_destroy(&sem);
 

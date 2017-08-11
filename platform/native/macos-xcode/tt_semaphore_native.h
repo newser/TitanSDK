@@ -30,11 +30,13 @@ this file implements semaphore apis in system level
 
 #include <tt_basic_type.h>
 
-#include <pthread.h>
+#include <mach/mach_types.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
 ////////////////////////////////////////////////////////////
+
+#define TT_SEM_MAX_COUNT_NTV (0x7FFFFFFF)
 
 ////////////////////////////////////////////////////////////
 // type definition
@@ -44,9 +46,7 @@ struct tt_sem_attr_s;
 
 typedef struct
 {
-    pthread_mutex_t mutex;
-    pthread_cond_t cond;
-    tt_s32_t count;
+    semaphore_t sem;
 } tt_sem_ntv_t;
 
 ////////////////////////////////////////////////////////////

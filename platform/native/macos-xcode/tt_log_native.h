@@ -14,71 +14,43 @@
  * limitations under the License.
  */
 
+/**
+@file tt_log_native.h
+@brief log native
+
+this file defines log native APIs
+*/
+
+#ifndef __TT_LOG_NATIVE__
+#define __TT_LOG_NATIVE__
+
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <os/tt_semaphore.h>
-
-#include <misc/tt_assert.h>
-
-#include <tt_cstd_api.h>
+#include <tt_basic_type.h>
 
 ////////////////////////////////////////////////////////////
-// internal macro
+// macro definition
 ////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////
-// internal type
+// type definition
 ////////////////////////////////////////////////////////////
 
-////////////////////////////////////////////////////////////
-// extern declaration
-////////////////////////////////////////////////////////////
+struct tt_profile_s;
 
 ////////////////////////////////////////////////////////////
-// global variant
+// global variants
 ////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-////////////////////////////////////////////////////////////
-// interface implementation
-////////////////////////////////////////////////////////////
-
-void tt_sem_component_register()
+tt_inline tt_result_t tt_log_component_init_ntv(IN struct tt_profile_s *profile)
 {
+    return TT_SUCCESS;
 }
 
-tt_result_t tt_sem_create(IN tt_sem_t *sem,
-                          IN tt_u32_t count,
-                          IN OPT tt_sem_attr_t *attr)
-{
-    tt_sem_attr_t __attr;
-
-    TT_ASSERT(sem != NULL);
-    TT_ASSERT(count <= TT_SEM_MAX_COUNT);
-
-    if (attr != NULL) {
-        tt_sem_attr_default(&__attr);
-        attr = &__attr;
-    }
-
-    return tt_sem_create_ntv(&sem->sys_sem, count, attr);
-}
-
-void tt_sem_destroy(IN tt_sem_t *sem)
-{
-    TT_ASSERT(sem != NULL);
-
-    tt_sem_destroy_ntv(&sem->sys_sem);
-}
-
-void tt_sem_attr_default(IN tt_sem_attr_t *attr)
-{
-    TT_ASSERT(attr != NULL);
-
-    attr->reserved = 0;
-}
+#endif /* __TT_LOG_NATIVE__ */
