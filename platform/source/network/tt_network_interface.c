@@ -24,8 +24,6 @@
 #include <init/tt_profile.h>
 #include <memory/tt_memory_alloc.h>
 
-#include <tt_cstd_api.h>
-
 ////////////////////////////////////////////////////////////
 // internal macro
 ////////////////////////////////////////////////////////////
@@ -75,10 +73,7 @@ void tt_network_interface_component_register()
 tt_result_t __net_itf_component_init(IN tt_component_t *comp,
                                      IN tt_profile_t *profile)
 {
-    tt_result_t result = TT_FAIL;
-
-    result = tt_network_interface_init_ntv();
-    if (!TT_OK(result)) {
+    if (!TT_OK(tt_network_interface_init_ntv())) {
         return TT_FAIL;
     }
 
@@ -208,22 +203,19 @@ void tt_netif_group_dump(IN tt_netif_group_t *group)
 tt_netif_t *__netif_create(IN const tt_char_t *netif_name)
 {
     tt_netif_t *netif;
-    tt_u32_t name_len;
+    tt_u32_t len;
 
-    TT_ASSERT(netif_name != NULL);
-
-    name_len = (tt_u32_t)tt_strlen(netif_name);
-    if (name_len > TT_NETIF_MAX_NAME_LEN) {
+    len = (tt_u32_t)tt_strlen(netif_name);
+    if (len > TT_NETIF_MAX_NAME_LEN) {
         TT_ERROR("netif name is too long");
         return NULL;
     }
 
-    netif = (tt_netif_t *)tt_malloc(sizeof(tt_netif_t));
+    netif = tt_malloc(sizeof(tt_netif_t));
     if (netif == NULL) {
         TT_ERROR("no mem for new netif");
         return NULL;
     }
-    // tt_memset(netif, 0, sizeof(tt_netif_t));
 
     tt_lnode_init(&netif->node);
     netif->internal_flag = 0;
@@ -233,7 +225,7 @@ tt_netif_t *__netif_create(IN const tt_char_t *netif_name)
         return NULL;
     }
 
-    tt_memcpy(netif->name, netif_name, name_len + 1);
+    tt_memcpy(netif->name, netif_name, len + 1);
     netif->status = TT_NETIF_STATUS_NOT_EXIST;
     tt_list_init(&netif->addr_list);
 
@@ -258,9 +250,6 @@ tt_netif_t *__netif_find(IN tt_netif_group_t *group,
 {
     tt_lnode_t *node;
 
-    TT_ASSERT(group != NULL);
-    TT_ASSERT(netif_name != NULL);
-
     node = tt_list_head(&group->netif_list);
     while (node != NULL) {
         tt_netif_t *netif = TT_CONTAINER(node, tt_netif_t, node);
@@ -279,8 +268,6 @@ void __netif_refresh_prepare(IN tt_netif_t *netif)
 {
     tt_lnode_t *node;
 
-    TT_ASSERT(netif != NULL);
-
     node = tt_list_head(&netif->addr_list);
     while (node != NULL) {
         tt_netif_addr_t *addr = TT_CONTAINER(node, tt_netif_addr_t, node);
@@ -295,8 +282,6 @@ void __netif_refresh_done(IN tt_netif_t *netif)
 {
     tt_lnode_t *node;
     tt_netif_status_t new_status = TT_NETIF_STATUS_DOWN;
-
-    TT_ASSERT(netif != NULL);
 
     node = tt_list_head(&netif->addr_list);
     while (node != NULL) {
@@ -380,7 +365,6 @@ tt_netif_addr_t *__netif_addr_create(IN tt_net_family_t family)
         TT_ERROR("no mem for new netif addr");
         return NULL;
     }
-    // tt_memset(addr, 0, sizeof(tt_netif_addr_t));
 
     tt_lnode_init(&addr->node);
     addr->internal_flag = 0;
@@ -392,8 +376,6 @@ tt_netif_addr_t *__netif_addr_create(IN tt_net_family_t family)
 
 void __netif_addr_destroy(IN tt_netif_addr_t *netif_addr)
 {
-    TT_ASSERT(netif_addr != NULL);
-
     tt_free(netif_addr);
 }
 

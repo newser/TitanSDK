@@ -74,7 +74,6 @@ typedef struct tt_netif_addr_s
 
     tt_sktaddr_t addr;
     // may add more info such as netmask, gateway, dns, etc.
-
 } tt_netif_addr_t;
 
 // network interface
