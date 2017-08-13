@@ -113,7 +113,7 @@ choose_compiler_flag(CMAKE_CXX_FLAGS FALSE -fno-rtti)
 
 # warn setting
 choose_compiler_flag(CMAKE_C_FLAGS FALSE -Wall)
-choose_compiler_flag(CMAKE_C_FLAGS FALSE -Werror)
+#choose_compiler_flag(CMAKE_C_FLAGS FALSE -Werror)
 choose_compiler_flag(CMAKE_C_FLAGS FALSE -Wno-unused-function)
 choose_compiler_flag(CMAKE_C_FLAGS FALSE -Wno-unused-variable)
 

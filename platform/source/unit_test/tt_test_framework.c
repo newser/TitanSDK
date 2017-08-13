@@ -36,7 +36,7 @@
 
 #if TT_ENV_OS_IS_IOS
 void (*g_ios_display)(const char *str);
-static void __ios_display(const char *str);
+void __ios_display(const char *str);
 
 #define __IOS_BUF_SIZE 1000
 tt_char_t __ios_buf[__IOS_BUF_SIZE + 1];

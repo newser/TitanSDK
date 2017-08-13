@@ -205,9 +205,17 @@ tt_result_t tt_test_unit_list(IN const tt_char_t *unit_name)
                  succ_num,
                  succ_num + fail_num);
 #if TT_ENV_OS_IS_IOS
-    __ios_display("\r\ntest case result: [%d / %d] OK\r\n",
-                  succ_num,
-                  succ_num + fail_num);
+    {
+        extern void __ios_display(const char *str);
+
+        tt_char_t buf[200] = {0};
+        snprintf(buf,
+                 sizeof(buf) - 1,
+                 "\r\ntest case result: [%d / %d] OK\r\n",
+                 succ_num,
+                 succ_num + fail_num);
+        __ios_display(buf);
+    }
 #elif TT_ENV_OS_IS_ANDROID
     __android_display("\r\ntest case result: [%d / %d] OK\r\n",
                       succ_num,

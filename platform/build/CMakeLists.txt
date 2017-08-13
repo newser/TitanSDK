@@ -56,7 +56,8 @@ configure_file(${PLATFORM_PATH}/include/config/tt_customization_config.h.in
                @ONLY)
 
 if ((PLATFORM_ENV_OS STREQUAL android) AND NOT ANDROID_STUDIO)
-    # cmake seems can not set as correctly (android studio is ok)
+    set(CMAKE_ASM_COMPILER ${CMAKE_C_COMPILER})
+elseif ((PLATFORM_ENV_OS STREQUAL ios) AND NOT PLATFORM_IOS_SIMULATOR)
     set(CMAKE_ASM_COMPILER ${CMAKE_C_COMPILER})
 endif ()
 enable_language(ASM)
