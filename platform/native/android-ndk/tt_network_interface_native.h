@@ -53,10 +53,7 @@ typedef struct
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-tt_inline tt_result_t tt_network_interface_init_ntv()
-{
-    return TT_SUCCESS;
-}
+extern tt_result_t tt_network_interface_init_ntv();
 
 extern tt_result_t tt_netif_group_refresh_ntv(IN struct tt_netif_group_s *group,
                                               IN tt_u32_t flag);

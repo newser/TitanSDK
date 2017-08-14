@@ -167,7 +167,9 @@ static void __ut_skt_enter(void *enter_param)
     tt_netif_group_add(&netif_group, "loopback_0");
     tt_netif_group_add(&netif_group, "loopback_1");
 #elif TT_ENV_OS_IS_ANDROID
+    tt_netif_group_add(&netif_group, "wlan0");
     tt_netif_group_add(&netif_group, "eth0");
+    tt_netif_group_add(&netif_group, "lo");
 #else
 #warn no netif added
 #endif
@@ -185,7 +187,7 @@ static void __ut_skt_enter(void *enter_param)
                 tt_sktaddr_t *saddr = &addr->addr;
 
                 if (tt_sktaddr_get_family(saddr) == TT_NET_AF_INET) {
-                    tt_u32_t n = sizeof(sizeof("::ffff:")) - 1;
+                    tt_u32_t n = sizeof("::ffff:") - 1;
 
                     tt_sktaddr_get_ip_p(saddr,
                                         __ut_skt_local_ip,

@@ -148,24 +148,24 @@ tt_inline tt_netif_t *tt_netif_group_next(IN tt_netif_group_t *group,
 // netif, auxiliary functions
 // ========================================
 
-tt_export tt_netif_t *__netif_create(IN const tt_char_t *netif_name);
+extern tt_netif_t *__netif_create(IN const tt_char_t *netif_name);
 
-tt_export void __netif_destroy(IN tt_netif_t *netif);
+extern void __netif_destroy(IN tt_netif_t *netif);
 
-tt_export tt_netif_t *__netif_find(IN tt_netif_group_t *group,
-                                   IN const tt_char_t *netif_name);
+extern tt_netif_t *__netif_find(IN tt_netif_group_t *group,
+                                IN const tt_char_t *netif_name);
 
-tt_export void __netif_refresh_prepare(IN tt_netif_t *netif);
-tt_export void __netif_refresh_done(IN tt_netif_t *netif);
+extern void __netif_refresh_prepare(IN tt_netif_t *netif);
+extern void __netif_refresh_done(IN tt_netif_t *netif);
 
-tt_export void __netif_dump(IN tt_netif_t *netif, IN const tt_char_t *prefix);
+extern void __netif_dump(IN tt_netif_t *netif, IN const tt_char_t *prefix);
 
 // netif address
-tt_export tt_netif_addr_t *__netif_addr_create(IN tt_net_family_t family);
+extern tt_netif_addr_t *__netif_addr_create(IN tt_net_family_t family);
 
-tt_export void __netif_addr_destroy(IN tt_netif_addr_t *netif_addr);
+extern void __netif_addr_destroy(IN tt_netif_addr_t *netif_addr);
 
-tt_export void __netif_addr_dump(IN tt_netif_addr_t *netif_addr,
-                                 IN const tt_char_t *prefix);
+extern void __netif_addr_dump(IN tt_netif_addr_t *netif_addr,
+                              IN const tt_char_t *prefix);
 
 #endif /* __TT_NETWORK_INTERFACE__ */
