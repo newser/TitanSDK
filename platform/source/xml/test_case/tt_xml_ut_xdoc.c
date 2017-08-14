@@ -45,6 +45,8 @@ static tt_string_t xf_path;
 #define __UT_XF_PATH tt_string_cstr(&xf_path)
 #endif
 
+#elif TT_ENV_OS_IS_ANDROID
+#define __UT_XF_PATH "/data/data/com.titansdk.titansdkunittest/tt_test_xml"
 #else
 #define __UT_XF_PATH "tt_test_xml"
 #endif
