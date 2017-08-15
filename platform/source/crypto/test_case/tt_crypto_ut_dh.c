@@ -33,6 +33,9 @@ static tt_string_t fparam_path;
 #define __DH_PARAM_FILE ((const tt_char_t *)tt_string_cstr(&fparam_path))
 #endif
 
+#elif TT_ENV_OS_IS_ANDROID
+#define __DH_PARAM_FILE                                                        \
+    "/data/data/com.titansdk.titansdkunittest/123xxxabc_DH_param"
 #else
 #define __DH_PARAM_FILE "123xxxabc_DH_param"
 #endif

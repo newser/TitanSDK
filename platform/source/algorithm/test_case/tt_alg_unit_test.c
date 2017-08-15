@@ -70,7 +70,7 @@ TT_ALG_UT_DECLARE(ALG_UT_RBUF)
 ////////////////////////////////////////////////////////////
 
 tt_test_unit_t *tt_g_alg_ut_list[ALG_UT_NUM] = {
-#if 0
+#if 1
     &TT_MAKE_TEST_UNIT_NAME(ALG_UT_BASIC_ALG),
     &TT_MAKE_TEST_UNIT_NAME(ALG_UT_HEAP),
     &TT_MAKE_TEST_UNIT_NAME(ALG_UT_VECTOR),

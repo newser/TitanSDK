@@ -60,6 +60,21 @@ extern tt_string_t __crl_path;
 #define __X509_CRL1 tt_string_cstr(&__crl_path)
 #endif
 
+#elif TT_ENV_OS_IS_ANDROID
+
+#define PATH "/data/data/com.titansdk.titansdkunittest/"
+
+#define __X509_CA PATH "tt_ca.crt"
+#define __CA_key PATH "tt_ca.key"
+
+#define __X509_CA2 PATH "tt_ca_int.crt"
+#define __CA_key2 PATH "tt_ca_int.key"
+
+#define __X509_LEAF PATH "tt_ca_leaf.crt"
+#define __leaf_key PATH "tt_ca_leaf.key"
+
+#define __X509_CRL1 PATH "tt_ca.crl"
+
 #else
 
 #define __X509_CA "tt_ca.crt"

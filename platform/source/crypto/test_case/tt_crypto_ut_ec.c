@@ -35,6 +35,11 @@ static tt_string_t pub_path, priv_path;
 #define __EC_PRIV_PK8_FILE ((const tt_char_t *)tt_string_cstr(&priv_path))
 #endif
 
+#elif TT_ENV_OS_IS_ANDROID
+#define __EC_PUB_PK8_FILE                                                      \
+    "/data/data/com.titansdk.titansdkunittest/123xxxabc_ec_pub"
+#define __EC_PRIV_PK8_FILE                                                     \
+    "/data/data/com.titansdk.titansdkunittest/123xxxabc_ec_priv"
 #else
 #define __EC_PUB_PK8_FILE "123xxxabc_ec_pub"
 #define __EC_PRIV_PK8_FILE "123xxxabc_ec_priv"
