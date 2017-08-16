@@ -166,6 +166,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_tmr_basic)
     TT_UT_NOT_EQUAL(tmr, NULL, "");
 
     t1 = tt_time_ref();
+    (void)t2;
     ret = tt_tmr_start(tmr);
     TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
@@ -174,6 +175,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_tmr_basic)
     TT_UT_NULL(tt, "");
     tt = tt_fiber_recv_timer(cfb, TT_TRUE);
     t2 = tt_time_ref();
+    (void)t1;
     TT_UT_EQUAL(tt, tmr, "");
     TT_UT_EQUAL(tt->ev, 1, "");
     TT_UT_EQUAL(tt->param, &_n1, "");

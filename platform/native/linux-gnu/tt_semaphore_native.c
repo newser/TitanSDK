@@ -24,7 +24,6 @@
 #include <os/tt_semaphore.h>
 
 #include <errno.h>
-#include <linux/time.h>
 #include <string.h>
 
 ////////////////////////////////////////////////////////////
