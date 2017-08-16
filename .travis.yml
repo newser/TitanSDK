@@ -14,14 +14,14 @@ matrix:
           env:
               global:
                   - JOB=precise
-                  - GEN="Unix Makefiles"
-                  - BUILD="make generate_header"
+                  - GEN="'Unix Makefiles'"
+                  - BUILD=make generate_header
         - os: linux
           dist: trusty
           env:
               global:
                   - JOB=trusty
-                  - GEN="Unix Makefiles"
+                  - GEN='Unix Makefiles'
                   - BUILD="make generate_header"
         - os: osx
           osx_image: xcode7.2
@@ -30,14 +30,14 @@ matrix:
               global:
                   - JOB=xcode7
                   - GEN=Xcode
-                  - BUILD="make generate_header"
+                  - BUILD='xcodebuild -target generate_header'
         - os: osx
           osx_image: xcode8.3
           env:
               global:
                   - JOB=xcode8
                   - GEN=Xcode
-                  - BUILD="make generate_header"
+                  - BUILD="xcodebuild -target generate_header"
         - os: osx
           osx_image: xcode9
           env:
