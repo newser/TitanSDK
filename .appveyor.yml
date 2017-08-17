@@ -10,7 +10,7 @@ environment:
           JOB: vs2013
           GENERATOR: Visual Studio 12 2013 Win64
         - image: Visual Studio 2015
-          platform: x86
+          platform: Win32
           configuration: Release
           JOB: vs2015
           GENERATOR: Visual Studio 14 2015
