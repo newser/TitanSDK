@@ -1,9 +1,9 @@
 # TitanSDK - A cross-platform, fiber-based io library
 
-TitanSDK implements fiber-based io, which is a kind of asynchronous io without splitting application code flow.
-
 [![Build Status](https://www.travis-ci.org/newser/TitanSDK.svg?branch=master)](https://www.travis-ci.org/newser/TitanSDK)
 [![windows build status](https://ci.appveyor.com/api/projects/status/github/newser/TitanSDK?svg=true&passingText=windows%20passing&failingText=windows%20failing)](https://ci.appveyor.com/project/newser/titansdk)
+
+TitanSDK implements fiber-based io, which is a kind of asynchronous io without splitting application code flow.
 
 > A fiber is a particularly lightweight thread of execution. see [Fiber - Wikipedia](https://en.wikipedia.org/wiki/Fiber_(computer_science))
 
