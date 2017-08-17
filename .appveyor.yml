@@ -27,9 +27,8 @@ before_build:
     - cmd: mkdir c:\projects\titansdk_build_%JOB%
     - cmd: cd c:\projects\titansdk_build_%JOB%
     - cmd: cmake -G "%GENERATOR%" ..\titansdk
-    - cmd: dir c:\projects\titansdk_build_%JOB%
 
 build:
-    project: c:\projects\titansdk\titansdk_build_%JOB%\titansdk.sln
+    project: c:\projects\titansdk_build_%JOB%\TitanSDK.sln
     parallel: true
     verbosity: normal
