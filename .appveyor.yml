@@ -20,12 +20,16 @@ environment:
           JOB: vs2017
           GENERATOR: Visual Studio 15 2017 Win64
 
+matrix:
+    fast_finish: true
+
 before_build:
     - cmd: mkdir c:\projects\titansdk_build_%JOB%
     - cmd: cd c:\projects\titansdk_build_%JOB%
     - cmd: cmake -G "%GENERATOR%" ..\titansdk
+    - cmd: dir c:\projects\titansdk_build_%JOB%
 
 build:
-    project: c:\projects\titansdk\titansdk_build_%JOB%\TitanSDK.sln
+    project: c:\projects\titansdk\titansdk_build_%JOB%\titansdk.sln
     parallel: true
     verbosity: normal
