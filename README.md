@@ -2,6 +2,9 @@
 
 TitanSDK implements fiber-based io, which is a kind of asynchronous io without splitting application code flow.
 
+[![Build Status](https://www.travis-ci.org/newser/TitanSDK.svg?branch=master)](https://www.travis-ci.org/newser/TitanSDK)
+[![windows build status](https://ci.appveyor.com/api/projects/status/github/newser/TitanSDK?svg=true&passingText=windows%20passing&failingText=windows%20failing)](https://ci.appveyor.com/project/newser/titansdk)
+
 > A fiber is a particularly lightweight thread of execution. see [Fiber - Wikipedia](https://en.wikipedia.org/wiki/Fiber_(computer_science))
 
 Whenever calls a fiber-based io function, the calling fiber is paused, io is then ongoing, meanwhile other available fibers are scheduled to execute, once io finishes, the paused fiber is resumed and result is returned.
