@@ -69,7 +69,7 @@ tt_result_t tt_platform_page_size_load(OUT tt_u32_t *page_size)
     // read page size
     __page_size = info.dwPageSize;
     if (__page_size <= 0) {
-        TT_PRINTF("unknown os page size");
+        TT_ERROR("unknown os page size");
         return TT_FAIL;
     }
 
@@ -139,7 +139,7 @@ tt_result_t tt_platform_cache_line_size_load(OUT tt_u32_t *size)
 {
     int __size = __cpu_cache_line_size();
     if (__size <= 0) {
-        TT_PRINTF("unknown cpu number");
+        TT_ERROR("unknown cpu number");
         return TT_FAIL;
     }
 

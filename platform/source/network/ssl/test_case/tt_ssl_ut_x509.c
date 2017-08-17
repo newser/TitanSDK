@@ -456,7 +456,6 @@ static tt_char_t __crl_1[] =
 void __x509_prepare(void *p)
 {
     tt_file_t f;
-    tt_char_t *s;
 
     if (has_x509) {
         return;
