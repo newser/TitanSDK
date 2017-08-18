@@ -13,10 +13,10 @@ matrix:
         - os: linux
           dist: precise
           addons:
-                apt:
+              apt:
                   sources:
                       - ubuntu-toolchain-r-test
-              packages:
+                  packages:
                       - g++-4.9
           env:
               global:
