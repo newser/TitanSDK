@@ -18,6 +18,7 @@
 // import header files
 ////////////////////////////////////////////////////////////
 
+#include <tt_platform.h>
 #include <unit_test/tt_test_framework.h>
 
 #include <tt_cstd_api.h>
@@ -66,6 +67,9 @@ static tt_result_t tt_test_list_item(IN tt_test_item_t *item,
 
 static tt_result_t tt_test_run_class(IN tt_test_class_t *test_class);
 static tt_result_t tt_test_run_item(IN tt_test_item_t *item);
+
+static tt_result_t tt_test_run_item_of(IN tt_test_class_t *test_class,
+                                       IN const tt_char_t *name);
 
 ////////////////////////////////////////////////////////////
 // interface implementation
@@ -178,7 +182,7 @@ tt_result_t tt_test_list(IN const tt_char_t *class_name,
     return TT_SUCCESS;
 }
 
-tt_result_t tt_test_run(IN const tt_char_t *class_name)
+tt_result_t tt_test_run(IN const tt_char_t *name)
 {
     tt_test_class_t *test_class = s_test_class_head;
 
@@ -187,25 +191,23 @@ tt_result_t tt_test_run(IN const tt_char_t *class_name)
         return TT_SUCCESS;
     }
 
-    if (class_name == NULL) {
+    if (name == NULL) {
         // run all class
         while (test_class != NULL) {
             tt_test_run_class(test_class);
             test_class = test_class->next;
         }
+        return TT_SUCCESS;
     } else {
-        // run matching class
         while (test_class != NULL) {
-            if (tt_strncmp(class_name,
-                           test_class->name,
-                           TT_TEST_CLASS_NAME_LEN) == 0) {
-                tt_test_run_class(test_class);
+            tt_result_t result = tt_test_run_item_of(test_class, name);
+            if (result != TT_NOT_EXIST) {
+                return result;
             }
             test_class = test_class->next;
         }
+        return TT_NOT_EXIST;
     }
-
-    return TT_SUCCESS;
 }
 
 void tt_test_error_info(IN tt_test_item_t *item,
@@ -335,6 +337,20 @@ tt_result_t tt_test_run_class(IN tt_test_class_t *test_class)
     return TT_SUCCESS;
 }
 
+tt_result_t tt_test_run_item_of(IN tt_test_class_t *test_class,
+                                IN const tt_char_t *name)
+{
+    tt_test_item_t *item = test_class->head;
+    while (item != NULL) {
+        if (tt_strcmp(item->name, name) == 0) {
+            tt_test_run_item(item);
+            return item->test_result;
+        }
+        item = item->next;
+    }
+    return TT_NOT_EXIST;
+}
+
 tt_result_t tt_test_run_item(IN tt_test_item_t *item)
 {
     tt_test_entry_t *entry = &item->entry;
@@ -369,3 +385,37 @@ void __ios_display(const char *str)
     }
 }
 #endif
+
+void tt_test_gen_sh_unix()
+{
+    tt_buf_t buf;
+    tt_file_t f;
+    tt_test_class_t *test_class;
+
+    tt_test_framework_init(0);
+    tt_test_unit_init(NULL);
+
+    tt_buf_init(&buf, NULL);
+
+    test_class = s_test_class_head;
+    while (test_class != NULL) {
+        tt_test_item_t *item = test_class->head;
+        TT_DO_G(done,
+                tt_buf_putf(&buf, "    - echo testing %s\n", test_class->name));
+        while (item != NULL) {
+            TT_DO_G(done,
+                    tt_buf_putf(&buf,
+                                "    - export TT_UT_CASE=%s; echo testing "
+                                "${TT_UT_CASE}; ${UT}\n",
+                                item->name));
+            item = item->next;
+        }
+        test_class = test_class->next;
+    }
+
+    tt_buf_put_u8(&buf, 0);
+    TT_INFO("%s", TT_BUF_RPOS(&buf));
+
+done:
+    tt_buf_destroy(&buf);
+}

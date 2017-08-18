@@ -70,7 +70,6 @@ static void __fs_enter_consis(void *enter_param);
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(fs_case)
 
-#if 1
 TT_TEST_CASE("case_fs_basic",
              "testing fs basic",
              case_fs_basic,
@@ -107,9 +106,7 @@ TT_TEST_CASE("case_fs_basic",
                  NULL,
                  NULL,
                  NULL),
-#endif
 
-#if 1
     TT_TEST_CASE("case_fs_multhread",
                  "testing fs read write in multi thread",
                  case_fs_multhread,
@@ -118,9 +115,7 @@ TT_TEST_CASE("case_fs_basic",
                  NULL,
                  NULL,
                  NULL),
-#endif
 
-#if 1
     TT_TEST_CASE("case_fs_consistency",
                  "testing fs read write consistency",
                  case_fs_consistency,
@@ -129,7 +124,6 @@ TT_TEST_CASE("case_fs_basic",
                  NULL,
                  NULL,
                  NULL),
-#endif
 
     TT_TEST_CASE_LIST_DEFINE_END(fs_case)
     // =========================================

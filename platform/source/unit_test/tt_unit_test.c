@@ -67,11 +67,8 @@ TT_TEST_UNIT_DECLARE(TEST_UNIT_DATE)
 
 tt_test_unit_t *tt_g_test_unit_list[TEST_UNIT_NUM] = {
     &TT_MAKE_TEST_UNIT_NAME(TEST_UNIT_LOG),
-#if 0
     &TT_MAKE_TEST_UNIT_NAME(TEST_UNIT_LOG_PATTERN),
-#endif
 
-#if 0
     &TT_MAKE_TEST_UNIT_NAME(TEST_UNIT_MUTEX),
     &TT_MAKE_TEST_UNIT_NAME(TEST_UNIT_ATOMIC),
     &TT_MAKE_TEST_UNIT_NAME(TEST_UNIT_SPIN_LOCK),
@@ -79,32 +76,23 @@ tt_test_unit_t *tt_g_test_unit_list[TEST_UNIT_NUM] = {
     &TT_MAKE_TEST_UNIT_NAME(TEST_UNIT_THREAD),
     &TT_MAKE_TEST_UNIT_NAME(TEST_UNIT_FIBER),
     &TT_MAKE_TEST_UNIT_NAME(TEST_UNIT_SEM),
-#endif
 
-#if 0
     &TT_MAKE_TEST_UNIT_NAME(TEST_UNIT_SLAB),
     &TT_MAKE_TEST_UNIT_NAME(TEST_UNIT_MEMPOOL),
-#endif
 
-#if 0
     &TT_MAKE_TEST_UNIT_NAME(TEST_UNIT_TIME_REF),
     &TT_MAKE_TEST_UNIT_NAME(TEST_UNIT_DATE),
     &TT_MAKE_TEST_UNIT_NAME(TEST_UNIT_TIMER),
-#endif
 
-#if 0
     &TT_MAKE_TEST_UNIT_NAME(TEST_UNIT_MISC),
     &TT_MAKE_TEST_UNIT_NAME(TEST_UNIT_CHARSET),
     &TT_MAKE_TEST_UNIT_NAME(TEST_UNIT_CFGNODE),
     &TT_MAKE_TEST_UNIT_NAME(TEST_UNIT_CFGPATH),
     &TT_MAKE_TEST_UNIT_NAME(TEST_UNIT_CFGSHELL),
-#endif
 
-#if 0
-&TT_MAKE_TEST_UNIT_NAME(TEST_UNIT_FS),
+    &TT_MAKE_TEST_UNIT_NAME(TEST_UNIT_FS),
     &TT_MAKE_TEST_UNIT_NAME(TEST_UNIT_IPC),
     &TT_MAKE_TEST_UNIT_NAME(TEST_UNIT_SOCKET),
-#endif
 };
 
 ////////////////////////////////////////////////////////////
@@ -136,33 +124,25 @@ tt_result_t tt_test_unit_init(IN tt_ptr_t reserved)
         ++unit_id;
     }
 
-#if 0
     do {
         tt_result_t tt_alg_ut_init(IN tt_ptr_t reserved);
         tt_alg_ut_init(0);
     } while (0);
-#endif
 
-#if 0
     do {
         tt_result_t tt_dns_ut_init(IN tt_ptr_t reserved);
         tt_dns_ut_init(0);
     } while (0);
-#endif
 
-#if 1
     do {
         tt_result_t tt_ssl_ut_init(IN tt_ptr_t reserved);
         tt_ssl_ut_init(0);
     } while (0);
-#endif
 
-#if 0
     do {
         tt_result_t tt_crypto_ut_init(IN tt_ptr_t reserved);
         tt_crypto_ut_init(0);
     } while (0);
-#endif
 
 #if 0
     do {
@@ -171,19 +151,15 @@ tt_result_t tt_test_unit_init(IN tt_ptr_t reserved)
     } while (0);
 #endif
 
-#if 0
     do {
         tt_result_t tt_xml_ut_init(IN tt_ptr_t reserved);
         tt_xml_ut_init(0);
     } while (0);
-#endif
 
-#if 0
     do {
         tt_result_t tt_cli_ut_init(IN tt_ptr_t reserved);
         tt_cli_ut_init(0);
     } while (0);
-#endif
 
     return TT_SUCCESS;
 }

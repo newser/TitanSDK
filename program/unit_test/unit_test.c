@@ -66,10 +66,21 @@ tt_result_t __console_ev_handler(IN void *console_param,
 
 tt_result_t __ut_fiber(IN void *param)
 {
+    const tt_char_t *name = NULL;
+
     tt_test_framework_init(0);
     tt_test_unit_init(NULL);
-    tt_test_unit_run(NULL);
-    tt_test_unit_list(NULL);
+
+#if TT_ENV_OS_IS_WINDOWS
+#else
+    name = getenv("TT_UT_CASE");
+#endif
+    if (name != NULL) {
+        tt_test_unit_run(name);
+    } else if (tt_strcmp(name, "all") == 0) {
+        tt_test_unit_run(NULL);
+        tt_test_unit_list(NULL);
+    }
 
     return TT_SUCCESS;
 }
@@ -80,10 +91,6 @@ int main(int argc, char *argv[])
     tt_task_t t;
 
     // setlocale(LC_ALL, "chs");
-
-    for (i = 0; i < argc; ++i) {
-        printf("argv[%d]: %s\n", i, argv[i]);
-    }
 
     if (argc > 1) {
         if (strcmp(argv[1], "process") == 0) {
@@ -116,10 +123,14 @@ int main(int argc, char *argv[])
             while (0) {
 #endif
             tt_sleep(10000);
+            return 0;
         }
+    } else if (strncmp(argv[1], "sh_unix", 7) == 0) {
+        extern void tt_test_gen_sh_unix();
+        tt_test_gen_sh_unix();
         return 0;
-    } // haniu
-    else {
+    } else if (strncmp(argv[1], "sh_windows", 10) == 0) {
+    } else {
         printf("unknown process arg: %s\n", argv[1]);
 
         // must return so as to infinitely creating process

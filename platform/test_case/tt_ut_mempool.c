@@ -62,7 +62,6 @@ TT_TEST_ROUTINE_DECLARE(case_mem_page)
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(mempool_case)
 
-#if 1
 TT_TEST_CASE("case_mempool_basic",
              "testing mempool basic operation",
              case_mempool_basic,
@@ -99,7 +98,6 @@ TT_TEST_CASE("case_mempool_basic",
                  NULL,
                  NULL,
                  NULL),
-#endif
 
     TT_TEST_CASE("case_mem_page",
                  "testing memory page",

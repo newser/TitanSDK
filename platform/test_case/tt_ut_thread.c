@@ -74,7 +74,6 @@ TT_TEST_CASE("case_thread_basic",
                  NULL),
 #endif
 
-#if 1
     TT_TEST_CASE("case_thread_sleep",
                  "thread sleep api",
                  case_thread_sleep,
@@ -95,9 +94,7 @@ TT_TEST_CASE("case_thread_basic",
 
     TT_TEST_CASE(
         "case_dll", "dll operations", case_dll, NULL, NULL, NULL, NULL, NULL),
-#endif
 
-#if 1
     TT_TEST_CASE("case_process_basic",
                  "process basic operations",
                  case_process_basic,
@@ -106,7 +103,6 @@ TT_TEST_CASE("case_thread_basic",
                  NULL,
                  NULL,
                  NULL),
-#endif
 
     TT_TEST_CASE_LIST_DEFINE_END(thread_case)
     // =========================================
