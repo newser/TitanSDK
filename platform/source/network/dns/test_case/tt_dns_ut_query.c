@@ -338,6 +338,7 @@ static tt_result_t __tcp_answer(IN tt_skt_t *s,
     const tt_u8_t ans[] = {3, '1', '6', '3', 3, 'c', 'o', 'm', 0, 0, 1, 0,
                            1, 1,   2,   3,   4, 0,   4,   7,   8, 9, 10};
     tt_u32_t msglen;
+    tt_u32_t sent;
 
     if (len >= 2) {
         tt_u16_t n = (buf[0] << 8) + buf[1];
@@ -357,8 +358,14 @@ static tt_result_t __tcp_answer(IN tt_skt_t *s,
     }
     tt_memcpy(&buf[msglen], ans, sizeof(ans));
 
-    TT_INFO("sent tcp answer: %d", msglen + sizeof(ans));
-    return tt_skt_send(s, buf, msglen + sizeof(ans), NULL);
+    sent = 0;
+    if (TT_OK(tt_skt_send(s, buf, msglen + sizeof(ans), &sent))) {
+        TT_INFO("sent tcp answer: %d", sent);
+        return TT_SUCCESS;
+    } else {
+        TT_INFO("fail to sent tcp answer");
+        return TT_FAIL;
+    }
 }
 
 static tt_result_t __dns_query_1(IN void *param)
