@@ -1,18 +1,17 @@
 language: c
 
+#addons:
+#    apt:
+#        sources:
+#            - george-edison55-precise-backports
+#        packages:
+#            - cmake-data
+#            - cmake
+
 matrix:
     include:
         - os: linux
-          dist: precise
-          addons:
-              apt:
-                  sources:
-                      - ubuntu-toolchain-r-test
-                      - george-edison55-precise-backports
-                  packages:
-                      - g++-4.9
-                      - cmake-data
-                      - cmake
+          dist: trusty
           env:
               global:
                   - JOB=precise
