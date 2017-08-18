@@ -282,6 +282,7 @@ tt_result_t __tcp_svr1(IN void *param)
     while (1) {
         __svr_param_t *sp2;
 
+        DUT_INFO("try to accept new tcp skt");
         new_s = tt_skt_accept(s, NULL, NULL);
         DUT_INFO("accept new tcp skt");
         if (s == NULL) {
@@ -301,6 +302,7 @@ tt_result_t __tcp_svr1(IN void *param)
             break;
         }
     }
+    DUT_INFO("__tcp_svr1 exit");
 
     tt_skt_destroy(s);
     return TT_SUCCESS;
@@ -570,8 +572,7 @@ TT_TEST_ROUTINE_DEFINE(case_dns_query_u2t)
     sp[2].name = "::1";
     sp[2].port = 43211;
     sp[2].on_recv = __tcp_answer;
-    //sp[2].recv_num = 1;
-    sp[2].recv_num = 0;
+    sp[2].recv_num = 1;
     sp[2].acc_num = 2;
     tt_task_add_fiber(&t, NULL, __tcp_svr1, &sp[2], NULL);
     tt_task_add_fiber(&t, NULL, __dns_query_2, NULL, NULL);
