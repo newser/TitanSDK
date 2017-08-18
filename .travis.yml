@@ -65,262 +65,211 @@ install:
 
 script:
     - echo start unit test
-    - echo testing TEST_UNIT_LOG
-    - export TT_UT_CASE=case_log_context; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_log_manager; echo testing ${TT_UT_CASE}; ${UT}
-    - echo testing TEST_UNIT_LOG_PATTERN
-    - export TT_UT_CASE=case_lpatn_sn; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_lpatn_time; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_lpatn_logger; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_lpatn_content; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_lpatn_func; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_lpatn_line; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_log_pattern; echo testing ${TT_UT_CASE}; ${UT}
-    - echo testing TEST_UNIT_MUTEX
-    - export TT_UT_CASE=case_mutex_basic; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_mutex_mt; echo testing ${TT_UT_CASE}; ${UT}
-    - echo testing TEST_UNIT_ATOMIC
-    - export TT_UT_CASE=case_atomic_basic; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_atomic_mt; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_atomic_cas; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_atomic_ptr; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_atomic_fence; echo testing ${TT_UT_CASE}; ${UT}
-    - echo testing TEST_UNIT_SPIN_LOCK
-    - export TT_UT_CASE=case_spin_lock_basic_mp; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_spin_lock_basic_sp; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_spin_lock_mt; echo testing ${TT_UT_CASE}; ${UT}
-    - echo testing TEST_UNIT_RWLOCK
-    - export TT_UT_CASE=case_rwlock_basic; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_rwlock_mt; echo testing ${TT_UT_CASE}; ${UT}
-    - echo testing TEST_UNIT_THREAD
-    - export TT_UT_CASE=case_thread_basic; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_thread_sleep; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_thread_rand; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_dll; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_process_basic; echo testing ${TT_UT_CASE}; ${UT}
-    - echo testing TEST_UNIT_FIBER
-    - export TT_UT_CASE=case_fiber_basic; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_fiber_3fibers; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_fiber_sanity; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_fiber_sanity2; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_worker_group; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_task; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_fiber_event; echo testing ${TT_UT_CASE}; ${UT}
-    - echo testing TEST_UNIT_SEM
-    - export TT_UT_CASE=case_sem_basic; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_sem_mt; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_sem_pc; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_sem_count; echo testing ${TT_UT_CASE}; ${UT}
-    - echo testing TEST_UNIT_SLAB
-    - export TT_UT_CASE=case_slab_cd; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_slab_allocfree; echo testing ${TT_UT_CASE}; ${UT}
-    - echo testing TEST_UNIT_MEMPOOL
-    - export TT_UT_CASE=case_mempool_basic; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_mempool_alloc_free; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_mempool_sanity; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_mem_spg; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_mem_page; echo testing ${TT_UT_CASE}; ${UT}
-    - echo testing TEST_UNIT_TIME_REF
-    - export TT_UT_CASE=case_time_abs_basic; echo testing ${TT_UT_CASE}; ${UT}
-    - echo testing TEST_UNIT_DATE
-    - export TT_UT_CASE=case_date_def; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_date_render; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_date_parse; echo testing ${TT_UT_CASE}; ${UT}
-    - echo testing TEST_UNIT_TIMER
-    - export TT_UT_CASE=case_tmr_basic; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_tmr_fiber; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_tmr_accuracy; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_tmr_stable; echo testing ${TT_UT_CASE}; ${UT}
-    - echo testing TEST_UNIT_MISC
-    - export TT_UT_CASE=case_version; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_high_bit_1; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_low_bit_1; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_base64_dec; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_der_enc; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_strtol; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_c2h; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_align; echo testing ${TT_UT_CASE}; ${UT}
-    - echo testing TEST_UNIT_CHARSET
-    - export TT_UT_CASE=case_charset_gb2312_utf8; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_charset_utf16le_utf8; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_charset_utf16be_utf8; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_charset_utf32le_utf8; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_charset_utf32be_utf8; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_charset_utf8; echo testing ${TT_UT_CASE}; ${UT}
-    - echo testing TEST_UNIT_CFGNODE
-    - export TT_UT_CASE=case_clinode; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_cfgnode_u32; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_cfgnode_s32; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_cfgnode_str; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_cfgnode_dir; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_cfgnode_grp_ar; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_cfgnode_bool; echo testing ${TT_UT_CASE}; ${UT}
-    - echo testing TEST_UNIT_CFGPATH
-    - export TT_UT_CASE=case_cfgpath_p2n_abs; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_cfgpath_p2n_rel; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_cfgpath_p2n_dot; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_cfgpath_n2p; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_cfgpath_comp; echo testing ${TT_UT_CASE}; ${UT}
-    - echo testing TEST_UNIT_CFGSHELL
-    - export TT_UT_CASE=case_cfgsh_parse_arg; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_cfgsh_ls; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_cfgsh_help; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_cfgsh_pwd; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_cfgsh_cd; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_cfgsh_get; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_cfgsh_set; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_cfgsh_quit; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_cfgsh_exec; echo testing ${TT_UT_CASE}; ${UT}
-    - echo testing TEST_UNIT_FS
-    - export TT_UT_CASE=case_fs_basic; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_fs_open; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_fs_rw; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_dir_basic; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_fs_multhread; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_fs_consistency; echo testing ${TT_UT_CASE}; ${UT}
-    - echo testing TEST_UNIT_IPC
-    - export TT_UT_CASE=case_ipc_basic; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_ipc_client; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_ipc_stress; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_ipc_fiber_ev; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_ipc_ev; echo testing ${TT_UT_CASE}; ${UT}
-    - echo testing TEST_UNIT_SOCKET
-    - export TT_UT_CASE=case_sk_addr; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_sk_opt; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_bind_basic; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_tcp_basic; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_udp_basic; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_tcp6_close; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_tcp4_stress; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_tcp_event; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_udp_event; echo testing ${TT_UT_CASE}; ${UT}
-    - echo testing ALG_UT_BASIC_ALG
-    - export TT_UT_CASE=case_basic_alg_qsort; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_basic_alg_qsort_random; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_basic_alg_bsearch; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_basic_alg_min_larger; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_basic_alg_max_less; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_alg_rng; echo testing ${TT_UT_CASE}; ${UT}
-    - echo testing ALG_UT_HEAP
-    - export TT_UT_CASE=case_ptrheap_basic; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_ptrheap_correct; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_ptrheap_perf; echo testing ${TT_UT_CASE}; ${UT}
-    - echo testing ALG_UT_VECTOR
-    - export TT_UT_CASE=case_vector; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_ptr_vector; echo testing ${TT_UT_CASE}; ${UT}
-    - echo testing ALG_UT_LIST
-    - export TT_UT_CASE=case_list; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_dl_list; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_sl_list; echo testing ${TT_UT_CASE}; ${UT}
-    - echo testing ALG_UT_HASHMAP
-    - export TT_UT_CASE=case_hash; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_map_basic; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_map_share_key; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_ptrmap; echo testing ${TT_UT_CASE}; ${UT}
-    - echo testing ALG_UT_QUEUE
-    - export TT_UT_CASE=case_queue; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_ptr_queue; echo testing ${TT_UT_CASE}; ${UT}
-    - echo testing ALG_UT_RBTREE
-    - export TT_UT_CASE=case_rbtree; echo testing ${TT_UT_CASE}; ${UT}
-    - echo testing ALG_UT_STACK
-    - export TT_UT_CASE=case_stack; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_ptr_stack; echo testing ${TT_UT_CASE}; ${UT}
-    - echo testing ALG_UT_RBUF
-    - export TT_UT_CASE=case_rbuf; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_rbuf_stress; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_rbuf_excep; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_wbuf; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_rwbuf; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_rwbuf_raw; echo testing ${TT_UT_CASE}; ${UT}
-    - echo testing ALG_UT_BUF
-    - export TT_UT_CASE=case_buf_null; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_buf_get_basic; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_buf_get_rand; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_buf_put_basic; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_buf_put_rand; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_buf_remove; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_buf_get_hexstr; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_buftok; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_blob; echo testing ${TT_UT_CASE}; ${UT}
-    - echo testing ALG_UT_STRING
-    - export TT_UT_CASE=case_str_null; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_str_basic; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_str_getchar; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_str_cmp; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_str_copy_swap; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_str_find; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_str_join; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_str_case; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_str_insert; echo testing ${TT_UT_CASE}; ${UT}
-    - echo testing DNS_UT_QUERY
-    - export TT_UT_CASE=case_dns_query_basic; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_dns_query_u2t; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_dns_query_timeout; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_dns_query_exception; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_dns_query4_first6; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_dns_query6_first4; echo testing ${TT_UT_CASE}; ${UT}
-    - echo testing DNS_UT_RR
-    - export TT_UT_CASE=case_dns_rr_a; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_dns_rr_aaaa; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_dns_parse_a; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_dns_parse_aaaa; echo testing ${TT_UT_CASE}; ${UT}
-    - echo testing DNS_UT_CACHE
-    - export TT_UT_CASE=case_dc_basic; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_dc_get_a; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_dc_get_aaaa; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_dc_exception; echo testing ${TT_UT_CASE}; ${UT}
-    - echo testing SSL_UT_X509
-    - export TT_UT_CASE=case_x509_cert; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_x509_crl; echo testing ${TT_UT_CASE}; ${UT}
-    - echo testing SSL_UT_IO
-    - export TT_UT_CASE=case_ssl_basic; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_ssl_ver; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_ssl_auth; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_ssl_alpn; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_ssl_resume; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_ssl_ticket; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_ssl_multhread; echo testing ${TT_UT_CASE}; ${UT}
-    - echo testing CRYPTO_UT_CIPHER
-    - export TT_UT_CASE=case_cipher; echo testing ${TT_UT_CASE}; ${UT}
-    - echo testing CRYPTO_UT_MD
-    - export TT_UT_CASE=case_md; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_hmac; echo testing ${TT_UT_CASE}; ${UT}
-    - echo testing CRYPTO_UT_EC
-    - export TT_UT_CASE=case_crypto_ecdh; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_crypto_ecdsa; echo testing ${TT_UT_CASE}; ${UT}
-    - echo testing CRYPTO_UT_RSA
-    - export TT_UT_CASE=case_rsa_encrypt; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_rsa_sign; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_rsa_gen; echo testing ${TT_UT_CASE}; ${UT}
-    - echo testing CRYPTO_UT_DH
-    - export TT_UT_CASE=case_dh; echo testing ${TT_UT_CASE}; ${UT}
-    - echo testing CRYPTO_UT_RAND
-    - export TT_UT_CASE=case_entropy; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_ctr_drbg; echo testing ${TT_UT_CASE}; ${UT}
-    - echo testing XML_UT_XDOC
-    - export TT_UT_CASE=case_xdoc_encoding; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_xdoc_parse; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_xdoc_render; echo testing ${TT_UT_CASE}; ${UT}
-    - echo testing XML_UT_XATTR
-    - export TT_UT_CASE=case_xattr_rel; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_xattr_bool; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_xattr_int; echo testing ${TT_UT_CASE}; ${UT}
-    - echo testing XML_UT_XNODE
-    - export TT_UT_CASE=case_xnode_bool; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_xnode_int; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_xnode_rel; echo testing ${TT_UT_CASE}; ${UT}
-    - echo testing XML_UT_XPATH
-    - export TT_UT_CASE=case_xpath_node; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_xpath_attr; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_xpath_eval; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_xpath_xpvar; echo testing ${TT_UT_CASE}; ${UT}
-    - echo testing CLI_UT_LINE
-    - export TT_UT_CASE=case_cli_line; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_cli_line_stress; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_cli_line_cursor; echo testing ${TT_UT_CASE}; ${UT}
-    - echo testing CLI_UT_BASIC
-    - export TT_UT_CASE=case_cli; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_cli_stress; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_cli_ac; echo testing ${TT_UT_CASE}; ${UT}
-    - export TT_UT_CASE=case_cli_readline; echo testing ${TT_UT_CASE}; ${UT}
-
+    - export TT_CASE=case_log_context; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_log_manager; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_lpatn_sn; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_lpatn_time; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_lpatn_logger; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_lpatn_content; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_lpatn_func; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_lpatn_line; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_log_pattern; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_mutex_basic; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_mutex_mt; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_atomic_basic; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_atomic_mt; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_atomic_cas; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_atomic_ptr; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_atomic_fence; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_spin_lock_basic_mp; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_spin_lock_basic_sp; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_spin_lock_mt; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_rwlock_basic; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_rwlock_mt; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_thread_basic; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_thread_sleep; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_thread_rand; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_dll; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_process_basic; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_fiber_basic; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_fiber_3fibers; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_fiber_sanity; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_fiber_sanity2; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_worker_group; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_task; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_fiber_event; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_sem_basic; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_sem_mt; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_sem_pc; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_sem_count; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_slab_cd; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_slab_allocfree; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_mempool_basic; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_mempool_alloc_free; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_mempool_sanity; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_mem_spg; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_mem_page; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_time_abs_basic; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_date_def; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_date_render; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_date_parse; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_tmr_basic; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_tmr_fiber; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_tmr_accuracy; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_tmr_stable; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_version; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_high_bit_1; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_low_bit_1; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_base64_dec; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_der_enc; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_strtol; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_c2h; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_align; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_charset_gb2312_utf8; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_charset_utf16le_utf8; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_charset_utf16be_utf8; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_charset_utf32le_utf8; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_charset_utf32be_utf8; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_charset_utf8; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_clinode; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_cfgnode_u32; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_cfgnode_s32; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_cfgnode_str; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_cfgnode_dir; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_cfgnode_grp_ar; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_cfgnode_bool; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_cfgpath_p2n_abs; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_cfgpath_p2n_rel; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_cfgpath_p2n_dot; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_cfgpath_n2p; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_cfgpath_comp; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_cfgsh_parse_arg; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_cfgsh_ls; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_cfgsh_help; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_cfgsh_pwd; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_cfgsh_cd; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_cfgsh_get; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_cfgsh_set; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_cfgsh_quit; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_cfgsh_exec; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_fs_basic; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_fs_open; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_fs_rw; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_dir_basic; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_fs_multhread; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_fs_consistency; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_ipc_basic; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_ipc_client; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_ipc_stress; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_ipc_fiber_ev; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_ipc_ev; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_sk_addr; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_sk_opt; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_bind_basic; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_tcp_basic; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_udp_basic; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_tcp6_close; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_tcp4_stress; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_tcp_event; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_udp_event; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_basic_alg_qsort; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_basic_alg_qsort_random; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_basic_alg_bsearch; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_basic_alg_min_larger; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_basic_alg_max_less; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_alg_rng; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_ptrheap_basic; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_ptrheap_correct; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_ptrheap_perf; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_vector; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_ptr_vector; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_list; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_dl_list; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_sl_list; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_hash; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_map_basic; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_map_share_key; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_ptrmap; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_queue; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_ptr_queue; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_rbtree; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_stack; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_ptr_stack; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_rbuf; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_rbuf_stress; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_rbuf_excep; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_wbuf; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_rwbuf; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_rwbuf_raw; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_buf_null; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_buf_get_basic; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_buf_get_rand; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_buf_put_basic; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_buf_put_rand; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_buf_remove; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_buf_get_hexstr; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_buftok; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_blob; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_str_null; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_str_basic; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_str_getchar; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_str_cmp; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_str_copy_swap; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_str_find; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_str_join; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_str_case; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_str_insert; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_dns_query_basic; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_dns_query_u2t; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_dns_query_timeout; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_dns_query_exception; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_dns_query4_first6; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_dns_query6_first4; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_dns_rr_a; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_dns_rr_aaaa; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_dns_parse_a; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_dns_parse_aaaa; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_dc_basic; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_dc_get_a; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_dc_get_aaaa; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_dc_exception; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_x509_cert; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_x509_crl; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_ssl_basic; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_ssl_ver; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_ssl_auth; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_ssl_alpn; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_ssl_resume; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_ssl_ticket; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_ssl_multhread; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_cipher; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_md; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_hmac; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_crypto_ecdh; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_crypto_ecdsa; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_rsa_encrypt; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_rsa_sign; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_rsa_gen; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_dh; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_entropy; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_ctr_drbg; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_xdoc_encoding; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_xdoc_parse; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_xdoc_render; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_xattr_rel; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_xattr_bool; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_xattr_int; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_xnode_bool; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_xnode_int; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_xnode_rel; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_xpath_node; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_xpath_attr; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_xpath_eval; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_xpath_xpvar; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_cli_line; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_cli_line_stress; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_cli_line_cursor; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_cli; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_cli_stress; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_cli_ac; ${UT} > /dev/null 2>&1
+    - export TT_CASE=case_cli_readline; ${UT} > /dev/null 2>&1

@@ -73,13 +73,15 @@ tt_result_t __ut_fiber(IN void *param)
 
 #if TT_ENV_OS_IS_WINDOWS
 #else
-    name = getenv("TT_UT_CASE");
+    name = getenv("TT_CASE");
 #endif
     if (name != NULL) {
         tt_test_unit_run(name);
     } else if (tt_strcmp(name, "all") == 0) {
         tt_test_unit_run(NULL);
         tt_test_unit_list(NULL);
+    } else {
+        printf("unit_test <case name> | all");
     }
 
     return TT_SUCCESS;

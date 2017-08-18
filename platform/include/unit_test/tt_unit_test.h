@@ -56,7 +56,7 @@ unit test apis
                      leave_param)                                              \
     {                                                                          \
         name, comment, routine, routine_param, routine_enter, enter_param,     \
-            routine_leave, leave_param, TT_UT_CASE_SANITY                      \
+            routine_leave, leave_param, TT_CASE_SANITY                         \
     }
 
 #define TT_TEST_CASE_ADVANCED(name,                                            \
@@ -69,7 +69,7 @@ unit test apis
                               leave_param)                                     \
     {                                                                          \
         name, comment, routine, routine_param, routine_enter, enter_param,     \
-            routine_leave, leave_param, TT_UT_CASE_ADVANCED                    \
+            routine_leave, leave_param, TT_CASE_ADVANCED                       \
     }
 
 #define TT_MAKE_TEST_UNIT_NAME(name) tt_g_test_unit_##name
@@ -160,8 +160,8 @@ typedef enum {
 } tt_test_unit_id_t;
 
 typedef enum {
-    TT_UT_CASE_SANITY,
-    TT_UT_CASE_ADVANCED,
+    TT_CASE_SANITY,
+    TT_CASE_ADVANCED,
 } tt_ut_case_level_t;
 
 typedef struct
