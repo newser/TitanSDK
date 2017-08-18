@@ -38,7 +38,7 @@ extern const char *get_app_path();
 #define __app_file path
 #define __app_file_sc get_app_path()
 #else
-//#define __app_file "./app_unit_test"
+//#define __app_file "./unit_test"
 #define __app_file path
 #define __app_file_sc "./测试"
 #endif
@@ -318,7 +318,7 @@ TT_TEST_ROUTINE_DEFINE(case_ipc_basic)
 
     path = tt_process_path(NULL);
     TT_UT_NOT_EQUAL(path, NULL, "");
-    argv[0] = "app_unit_test";
+    argv[0] = "unit_test";
     argv[1] = "ipc-1";
     argv[2] = __IPC_PATH;
 
@@ -414,7 +414,7 @@ static tt_result_t __ipc_svr_2(IN void *param)
 
     path = tt_process_path(NULL);
     TT_ASSERT(path != NULL);
-    argv[0] = "app_unit_test";
+    argv[0] = "unit_test";
     argv[1] = "ipc-2";
     argv[2] = __IPC_PATH;
 
@@ -573,7 +573,7 @@ TT_TEST_ROUTINE_DEFINE(case_ipc_client)
 
     path = tt_process_path(NULL);
     TT_UT_NOT_EQUAL(path, NULL, "");
-    argv[0] = "app_unit_test";
+    argv[0] = "unit_test";
     argv[1] = "ipc-svr";
     argv[2] = __IPC_PATH;
 
@@ -781,7 +781,7 @@ TT_TEST_ROUTINE_DEFINE(case_ipc_fiber_ev)
 
     path = tt_process_path(NULL);
     TT_UT_NOT_EQUAL(path, NULL, "");
-    argv[0] = "app_unit_test";
+    argv[0] = "unit_test";
     argv[1] = "ipc-1";
     argv[2] = __IPC_PATH;
 
@@ -1081,7 +1081,7 @@ TT_TEST_ROUTINE_DEFINE(case_ipc_ev)
 
     path = tt_process_path(NULL);
     TT_UT_NOT_EQUAL(path, NULL, "");
-    argv[0] = "app_unit_test";
+    argv[0] = "unit_test";
     argv[1] = "ipc-pev";
     argv[2] = __IPC_PATH;
 
