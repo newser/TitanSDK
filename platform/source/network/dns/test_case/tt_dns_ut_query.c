@@ -572,7 +572,7 @@ TT_TEST_ROUTINE_DEFINE(case_dns_query_u2t)
     tt_task_wait(&t);
 
     if (__dns_errline != 0) {
-        TT_RECORD_INFO("__dns_errline: %d", __dns_errline);
+        TT_ERROR("__dns_errline: %d", __dns_errline);
     }
     TT_UT_EQUAL(__dns_errline, 0, "");
 
