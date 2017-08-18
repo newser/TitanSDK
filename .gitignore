@@ -34,5 +34,14 @@ build/project/*
 !*.cmake
 
 !*.h.in
-ts_environment_config.h
+
+#
+# CI
+#
+
+!.travis.yml.head
+!.travis.yml
+
+!.appveyor.yml.head
+!.appveyor.yml
 

@@ -158,7 +158,7 @@ tt_result_t tt_console_init_ntv()
     // save current stdin termios
     if (tcgetattr(STDIN_FILENO, &__stdin_termios) != 0) {
         TT_ERROR_NTV("fail to get current stdin termios");
-        return TT_FAIL;
+        // return TT_FAIL;
     }
 
     return TT_SUCCESS;

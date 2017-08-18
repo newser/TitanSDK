@@ -17,7 +17,7 @@ matrix:
                   - GENERATOR='Unix Makefiles'
                   - CMAKE_FLAGS='-DPLATFORM_BUILD_SHARED=TRUE -DPLATFORM_ENABLE_DEBUG=FALSE'
                   - BUILD_TYPE=Debug
-                  - UT=unit_test/Debug/unit_test
+                  - UT=unit_test/unit_test
         - os: linux
           dist: trusty
           env:
@@ -26,7 +26,7 @@ matrix:
                   - GENERATOR='Unix Makefiles'
                   - CMAKE_FLAGS='-DPLATFORM_BUILD_SHARED=TRUE -DPLATFORM_ENABLE_DEBUG=TRUE'
                   - BUILD_TYPE=Release
-                  - UT=unit_test/Release/unit_test
+                  - UT=unit_test/unit_test
         - os: osx
           osx_image: xcode7.3.1
           env: JOB=xcode7 GENERATOR=Xcode BUILD_CMD="xcodebuild -target generate_header"
