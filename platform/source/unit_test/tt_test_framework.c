@@ -401,13 +401,14 @@ void tt_test_gen_sh_unix()
     while (test_class != NULL) {
         tt_test_item_t *item = test_class->head;
         while (item != NULL) {
-            TT_DO_G(done,
-                    tt_buf_putf(&buf,
-                                "    - export TT_CASE=%s; echo testing "
-                                "${TT_CASE}; ${UT} > ${TT_CASE}.log 2>&1; if [ "
-                                "$? -ne 0 ]; then cat ${TT_CASE}.log; exit -1; "
-                                "fi\n",
-                                item->name));
+            TT_DO_G(
+                done,
+                tt_buf_putf(&buf,
+                            "    - export TT_CASE=%s; echo testing "
+                            "${TT_CASE}; ${UT} > ${TT_CASE}.log 2>&1; if [ "
+                            "$? -ne 0 ]; then cat ${TT_CASE}.log; (exit -1); "
+                            "fi\n",
+                            item->name));
             item = item->next;
         }
         test_class = test_class->next;
