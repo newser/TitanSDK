@@ -90,7 +90,13 @@ int main(int argc, char *argv[])
     int i;
     tt_task_t t;
 
-    // setlocale(LC_ALL, "chs");
+// setlocale(LC_ALL, "chs");
+
+#if 0
+    for (i = 0; i < argc; ++i) {
+        printf("argv[%d]: %s\n", i, argv[i]);
+    }
+#endif
 
     if (argc > 1) {
         if (strcmp(argv[1], "process") == 0) {
@@ -125,6 +131,7 @@ int main(int argc, char *argv[])
             tt_sleep(10000);
             return 0;
         }
+        return 0;
     } else if (strncmp(argv[1], "sh_unix", 7) == 0) {
         extern void tt_test_gen_sh_unix();
         tt_test_gen_sh_unix();
