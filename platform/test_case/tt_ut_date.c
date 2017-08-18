@@ -41,17 +41,17 @@
 ////////////////////////////////////////////////////////////
 
 // === routine declarations ================
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_date_def)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_date_render)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_date_parse)
+TT_TEST_ROUTINE_DECLARE(case_date_def)
+TT_TEST_ROUTINE_DECLARE(case_date_render)
+TT_TEST_ROUTINE_DECLARE(case_date_parse)
 // =========================================
 
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(date_case)
 
-TT_TEST_CASE("tt_unit_test_date_def",
+TT_TEST_CASE("case_date_def",
              "testing date definitions",
-             tt_unit_test_date_def,
+             case_date_def,
              NULL,
              NULL,
              NULL,
@@ -59,18 +59,18 @@ TT_TEST_CASE("tt_unit_test_date_def",
              NULL)
 ,
 
-    TT_TEST_CASE("tt_unit_test_date_render",
+    TT_TEST_CASE("case_date_render",
                  "testing date rendering",
-                 tt_unit_test_date_render,
+                 case_date_render,
                  NULL,
                  NULL,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_date_parse",
+    TT_TEST_CASE("case_date_parse",
                  "testing date parsing",
-                 tt_unit_test_date_parse,
+                 case_date_parse,
                  NULL,
                  NULL,
                  NULL,
@@ -91,7 +91,7 @@ TT_TEST_CASE("tt_unit_test_date_def",
     ////////////////////////////////////////////////////////////
 
     /*
-    TT_TEST_ROUTINE_DEFINE(tt_unit_test_date_parse)
+    TT_TEST_ROUTINE_DEFINE(case_date_parse)
     {
         //tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
 
@@ -103,7 +103,7 @@ TT_TEST_CASE("tt_unit_test_date_def",
     }
     */
 
-    TT_TEST_ROUTINE_DEFINE(tt_unit_test_date_def)
+    TT_TEST_ROUTINE_DEFINE(case_date_def)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
 
@@ -143,7 +143,7 @@ TT_TEST_CASE("tt_unit_test_date_def",
     TT_TEST_CASE_LEAVE()
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_date_render)
+TT_TEST_ROUTINE_DEFINE(case_date_render)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_date_t d;
@@ -202,7 +202,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_date_render)
     TT_TEST_CASE_LEAVE()
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_date_parse)
+TT_TEST_ROUTINE_DEFINE(case_date_parse)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_date_t d;

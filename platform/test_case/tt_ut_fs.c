@@ -26,13 +26,13 @@
  */
 
 // === routine declarations ================
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_fs_basic)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_fs_open)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_fs_rw)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_fs_multhread)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_fs_consistency)
+TT_TEST_ROUTINE_DECLARE(case_fs_basic)
+TT_TEST_ROUTINE_DECLARE(case_fs_open)
+TT_TEST_ROUTINE_DECLARE(case_fs_rw)
+TT_TEST_ROUTINE_DECLARE(case_fs_multhread)
+TT_TEST_ROUTINE_DECLARE(case_fs_consistency)
 
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_dir_basic)
+TT_TEST_ROUTINE_DECLARE(case_dir_basic)
 
 // =========================================
 
@@ -71,9 +71,9 @@ static void __fs_enter_consis(void *enter_param);
 TT_TEST_CASE_LIST_DEFINE_BEGIN(fs_case)
 
 #if 1
-TT_TEST_CASE("tt_unit_test_fs_basic",
+TT_TEST_CASE("case_fs_basic",
              "testing fs basic",
-             tt_unit_test_fs_basic,
+             case_fs_basic,
              NULL,
              __fs_enter,
              NULL,
@@ -81,27 +81,27 @@ TT_TEST_CASE("tt_unit_test_fs_basic",
              NULL)
 ,
 
-    TT_TEST_CASE("tt_unit_test_fs_open",
+    TT_TEST_CASE("case_fs_open",
                  "testing fs open close",
-                 tt_unit_test_fs_open,
+                 case_fs_open,
                  NULL,
                  __fs_enter,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_fs_rw",
+    TT_TEST_CASE("case_fs_rw",
                  "testing fs read write",
-                 tt_unit_test_fs_rw,
+                 case_fs_rw,
                  NULL,
                  __fs_enter,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_dir_basic",
+    TT_TEST_CASE("case_dir_basic",
                  "testing dir basic",
-                 tt_unit_test_dir_basic,
+                 case_dir_basic,
                  NULL,
                  __fs_enter_consis,
                  NULL,
@@ -110,9 +110,9 @@ TT_TEST_CASE("tt_unit_test_fs_basic",
 #endif
 
 #if 1
-    TT_TEST_CASE("tt_unit_test_fs_multhread",
+    TT_TEST_CASE("case_fs_multhread",
                  "testing fs read write in multi thread",
-                 tt_unit_test_fs_multhread,
+                 case_fs_multhread,
                  NULL,
                  __fs_enter,
                  NULL,
@@ -121,9 +121,9 @@ TT_TEST_CASE("tt_unit_test_fs_basic",
 #endif
 
 #if 1
-    TT_TEST_CASE("tt_unit_test_fs_consistency",
+    TT_TEST_CASE("case_fs_consistency",
                  "testing fs read write consistency",
-                 tt_unit_test_fs_consistency,
+                 case_fs_consistency,
                  NULL,
                  __fs_enter,
                  NULL,
@@ -142,7 +142,7 @@ TT_TEST_CASE("tt_unit_test_fs_basic",
 
 
 /*
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_fs_consistency)
+TT_TEST_ROUTINE_DEFINE(case_fs_consistency)
 {
     //tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
 
@@ -173,7 +173,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_fs_consistency)
 #define __SC_TEST_FILE "测试"
 #endif
 
-        TT_TEST_ROUTINE_DEFINE(tt_unit_test_fs_basic)
+        TT_TEST_ROUTINE_DEFINE(case_fs_basic)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_result_t ret;
@@ -194,7 +194,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_fs_consistency)
     TT_TEST_CASE_LEAVE()
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_fs_open)
+TT_TEST_ROUTINE_DEFINE(case_fs_open)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_file_t tf, tf2;
@@ -327,7 +327,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_fs_open)
     TT_TEST_CASE_LEAVE()
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_fs_rw)
+TT_TEST_ROUTINE_DEFINE(case_fs_rw)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_file_t tf, tf2;
@@ -396,7 +396,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_fs_rw)
     TT_TEST_CASE_LEAVE()
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_dir_basic)
+TT_TEST_ROUTINE_DEFINE(case_dir_basic)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_dir_t dir, dir2;
@@ -591,7 +591,7 @@ tt_result_t __fs_fiber(IN void *param)
     return TT_SUCCESS;
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_fs_multhread)
+TT_TEST_ROUTINE_DEFINE(case_fs_multhread)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_task_t task[__task_num];
@@ -807,7 +807,7 @@ exit:
     return TT_SUCCESS;
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_fs_consistency)
+TT_TEST_ROUTINE_DEFINE(case_fs_consistency)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_task_t task;

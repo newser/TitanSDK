@@ -37,19 +37,19 @@
 ////////////////////////////////////////////////////////////
 
 // === routine declarations ================
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_sshmsg_usrauthreq_pkey)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_sshmsg_usrauthreq_pwd)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_sshmsg_usrauth_success)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_sshmsg_usrauth_fail)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_sshmsg_usrauth_banner)
+TT_TEST_ROUTINE_DECLARE(case_sshmsg_usrauthreq_pkey)
+TT_TEST_ROUTINE_DECLARE(case_sshmsg_usrauthreq_pwd)
+TT_TEST_ROUTINE_DECLARE(case_sshmsg_usrauth_success)
+TT_TEST_ROUTINE_DECLARE(case_sshmsg_usrauth_fail)
+TT_TEST_ROUTINE_DECLARE(case_sshmsg_usrauth_banner)
 // =========================================
 
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(sshauthmsg_case)
 
-TT_TEST_CASE("tt_unit_test_sshmsg_usrauthreq_pkey",
+TT_TEST_CASE("case_sshmsg_usrauthreq_pkey",
              "ssh msg: user auth req: pubkey",
-             tt_unit_test_sshmsg_usrauthreq_pkey,
+             case_sshmsg_usrauthreq_pkey,
              NULL,
              NULL,
              NULL,
@@ -57,36 +57,36 @@ TT_TEST_CASE("tt_unit_test_sshmsg_usrauthreq_pkey",
              NULL)
 ,
 
-    TT_TEST_CASE("tt_unit_test_sshmsg_usrauthreq_pwd",
+    TT_TEST_CASE("case_sshmsg_usrauthreq_pwd",
                  "ssh msg: user auth req: password",
-                 tt_unit_test_sshmsg_usrauthreq_pwd,
+                 case_sshmsg_usrauthreq_pwd,
                  NULL,
                  NULL,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_sshmsg_usrauth_success",
+    TT_TEST_CASE("case_sshmsg_usrauth_success",
                  "ssh msg: user auth success",
-                 tt_unit_test_sshmsg_usrauth_success,
+                 case_sshmsg_usrauth_success,
                  NULL,
                  NULL,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_sshmsg_usrauth_fail",
+    TT_TEST_CASE("case_sshmsg_usrauth_fail",
                  "ssh msg: user auth failure",
-                 tt_unit_test_sshmsg_usrauth_fail,
+                 case_sshmsg_usrauth_fail,
                  NULL,
                  NULL,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_sshmsg_usrauth_banner",
+    TT_TEST_CASE("case_sshmsg_usrauth_banner",
                  "ssh msg: user auth banner",
-                 tt_unit_test_sshmsg_usrauth_banner,
+                 case_sshmsg_usrauth_banner,
                  NULL,
                  NULL,
                  NULL,
@@ -107,7 +107,7 @@ TT_TEST_CASE("tt_unit_test_sshmsg_usrauthreq_pkey",
     ////////////////////////////////////////////////////////////
 
     /*
-    TT_TEST_ROUTINE_DEFINE(tt_unit_test_sshmsg_usrauthreq_pkey)
+    TT_TEST_ROUTINE_DEFINE(case_sshmsg_usrauthreq_pkey)
     {
         //tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
 
@@ -119,7 +119,7 @@ TT_TEST_CASE("tt_unit_test_sshmsg_usrauthreq_pkey",
     }
     */
 
-    TT_TEST_ROUTINE_DEFINE(tt_unit_test_sshmsg_usrauthreq_pkey)
+    TT_TEST_ROUTINE_DEFINE(case_sshmsg_usrauthreq_pkey)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_sshmsg_t *msg, *out_msg;
@@ -252,7 +252,7 @@ TT_TEST_CASE("tt_unit_test_sshmsg_usrauthreq_pkey",
     TT_TEST_CASE_LEAVE()
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_sshmsg_usrauthreq_pwd)
+TT_TEST_ROUTINE_DEFINE(case_sshmsg_usrauthreq_pwd)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_sshmsg_t *msg, *out_msg;
@@ -373,7 +373,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_sshmsg_usrauthreq_pwd)
     TT_TEST_CASE_LEAVE()
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_sshmsg_usrauth_success)
+TT_TEST_ROUTINE_DEFINE(case_sshmsg_usrauth_success)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_sshmsg_t *msg, *out_msg;
@@ -421,7 +421,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_sshmsg_usrauth_success)
     TT_TEST_CASE_LEAVE()
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_sshmsg_usrauth_fail)
+TT_TEST_ROUTINE_DEFINE(case_sshmsg_usrauth_fail)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_sshmsg_t *msg, *out_msg;
@@ -487,7 +487,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_sshmsg_usrauth_fail)
     TT_TEST_CASE_LEAVE()
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_sshmsg_usrauth_banner)
+TT_TEST_ROUTINE_DEFINE(case_sshmsg_usrauth_banner)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_sshmsg_t *msg, *out_msg;

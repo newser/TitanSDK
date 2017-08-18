@@ -37,15 +37,15 @@
 ////////////////////////////////////////////////////////////
 
 // === routine declarations ================
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_cipher)
+TT_TEST_ROUTINE_DECLARE(case_cipher)
 // =========================================
 
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(crypto_cipher_case)
 
-TT_TEST_CASE("tt_unit_test_cipher",
+TT_TEST_CASE("case_cipher",
              "crypto: message digest",
-             tt_unit_test_cipher,
+             case_cipher,
              NULL,
              NULL,
              NULL,
@@ -67,7 +67,7 @@ TT_TEST_CASE("tt_unit_test_cipher",
     ////////////////////////////////////////////////////////////
 
     /*
-    TT_TEST_ROUTINE_DEFINE(tt_unit_test_cipher)
+    TT_TEST_ROUTINE_DEFINE(case_cipher)
     {
         //tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
 
@@ -346,7 +346,7 @@ static __cipher_tv_t __cipher_tv[] = {
     },
 };
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_cipher)
+TT_TEST_ROUTINE_DEFINE(case_cipher)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_cipher_t c, dec;

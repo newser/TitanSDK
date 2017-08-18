@@ -48,47 +48,41 @@ extern int __aaaa_parse(IN const unsigned char *abuf,
 ////////////////////////////////////////////////////////////
 
 // === routine declarations ================
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_dns_rr_notify)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_dns_rr_a)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_dns_rr_aaaa)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_dns_parse_a)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_dns_parse_aaaa)
+TT_TEST_ROUTINE_DECLARE(case_dns_rr_notify)
+TT_TEST_ROUTINE_DECLARE(case_dns_rr_a)
+TT_TEST_ROUTINE_DECLARE(case_dns_rr_aaaa)
+TT_TEST_ROUTINE_DECLARE(case_dns_parse_a)
+TT_TEST_ROUTINE_DECLARE(case_dns_parse_aaaa)
 // =========================================
 
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(dns_rr_case)
 
-TT_TEST_CASE("tt_unit_test_dns_rr_a",
-             "dns rr a",
-             tt_unit_test_dns_rr_a,
-             NULL,
-             NULL,
-             NULL,
-             NULL,
-             NULL)
+TT_TEST_CASE(
+    "case_dns_rr_a", "dns rr a", case_dns_rr_a, NULL, NULL, NULL, NULL, NULL)
 ,
 
-    TT_TEST_CASE("tt_unit_test_dns_rr_aaaa",
+    TT_TEST_CASE("case_dns_rr_aaaa",
                  "dns rr aaaa",
-                 tt_unit_test_dns_rr_aaaa,
+                 case_dns_rr_aaaa,
                  NULL,
                  NULL,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_dns_parse_a",
+    TT_TEST_CASE("case_dns_parse_a",
                  "dns parse a",
-                 tt_unit_test_dns_parse_a,
+                 case_dns_parse_a,
                  NULL,
                  NULL,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_dns_parse_aaaa",
+    TT_TEST_CASE("case_dns_parse_aaaa",
                  "dns parse aaaa",
-                 tt_unit_test_dns_parse_aaaa,
+                 case_dns_parse_aaaa,
                  NULL,
                  NULL,
                  NULL,
@@ -109,7 +103,7 @@ TT_TEST_CASE("tt_unit_test_dns_rr_a",
     ////////////////////////////////////////////////////////////
 
     /*
-    TT_TEST_ROUTINE_DEFINE(tt_unit_test_dns_parse_a)
+    TT_TEST_ROUTINE_DEFINE(case_dns_parse_a)
     {
         //tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
 
@@ -190,7 +184,7 @@ static tt_result_t __simu_notify(IN void *param)
     return TT_SUCCESS;
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_dns_rr_notify)
+TT_TEST_ROUTINE_DEFINE(case_dns_rr_notify)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_dns_rr_t drr;
@@ -225,7 +219,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_dns_rr_notify)
 }
 #endif
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_dns_rr_a)
+TT_TEST_ROUTINE_DEFINE(case_dns_rr_a)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_dns_rrlist_t rrl, rrl2;
@@ -298,7 +292,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_dns_rr_a)
     TT_TEST_CASE_LEAVE()
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_dns_rr_aaaa)
+TT_TEST_ROUTINE_DEFINE(case_dns_rr_aaaa)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_dns_rrlist_t rrl, rrl2;
@@ -367,7 +361,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_dns_rr_aaaa)
     TT_TEST_CASE_LEAVE()
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_dns_parse_a)
+TT_TEST_ROUTINE_DEFINE(case_dns_parse_a)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_u8_t resp[] = {
@@ -514,7 +508,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_dns_parse_a)
     TT_TEST_CASE_LEAVE()
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_dns_parse_aaaa)
+TT_TEST_ROUTINE_DEFINE(case_dns_parse_aaaa)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_u8_t resp[] = {

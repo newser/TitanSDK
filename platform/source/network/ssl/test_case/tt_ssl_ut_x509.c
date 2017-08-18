@@ -107,16 +107,16 @@ tt_bool_t has_x509;
 ////////////////////////////////////////////////////////////
 
 // === routine declarations ================
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_x509_cert)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_x509_crl)
+TT_TEST_ROUTINE_DECLARE(case_x509_cert)
+TT_TEST_ROUTINE_DECLARE(case_x509_crl)
 // =========================================
 
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(crypto_x509_case)
 
-TT_TEST_CASE("tt_unit_test_x509_cert",
+TT_TEST_CASE("case_x509_cert",
              "ssl: x509 cert",
-             tt_unit_test_x509_cert,
+             case_x509_cert,
              NULL,
              __x509_prepare,
              NULL,
@@ -124,9 +124,9 @@ TT_TEST_CASE("tt_unit_test_x509_cert",
              NULL)
 ,
 
-    TT_TEST_CASE("tt_unit_test_x509_crl",
+    TT_TEST_CASE("case_x509_crl",
                  "ssl: x509 crl",
-                 tt_unit_test_x509_crl,
+                 case_x509_crl,
                  NULL,
                  __x509_prepare,
                  NULL,
@@ -147,7 +147,7 @@ TT_TEST_CASE("tt_unit_test_x509_cert",
     ////////////////////////////////////////////////////////////
 
     /*
-    TT_TEST_ROUTINE_DEFINE(tt_unit_test_x509_cert)
+    TT_TEST_ROUTINE_DEFINE(case_x509_cert)
     {
         //tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
 
@@ -159,7 +159,7 @@ TT_TEST_CASE("tt_unit_test_x509_cert",
     }
     */
 
-    TT_TEST_ROUTINE_DEFINE(tt_unit_test_x509_cert)
+    TT_TEST_ROUTINE_DEFINE(case_x509_cert)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_x509cert_t ca, cert;
@@ -233,7 +233,7 @@ TT_TEST_CASE("tt_unit_test_x509_cert",
     TT_TEST_CASE_LEAVE()
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_x509_crl)
+TT_TEST_ROUTINE_DEFINE(case_x509_crl)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_x509cert_t ca, cert;

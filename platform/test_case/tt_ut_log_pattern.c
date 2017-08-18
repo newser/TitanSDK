@@ -38,22 +38,22 @@
 ////////////////////////////////////////////////////////////
 
 // === routine declarations ================
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_lpatn_sn)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_lpatn_time)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_lpatn_logger)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_lpatn_level)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_lpatn_content)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_lpatn_func)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_lpatn_line)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_log_pattern)
+TT_TEST_ROUTINE_DECLARE(case_lpatn_sn)
+TT_TEST_ROUTINE_DECLARE(case_lpatn_time)
+TT_TEST_ROUTINE_DECLARE(case_lpatn_logger)
+TT_TEST_ROUTINE_DECLARE(case_lpatn_level)
+TT_TEST_ROUTINE_DECLARE(case_lpatn_content)
+TT_TEST_ROUTINE_DECLARE(case_lpatn_func)
+TT_TEST_ROUTINE_DECLARE(case_lpatn_line)
+TT_TEST_ROUTINE_DECLARE(case_log_pattern)
 // =========================================
 
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(lpatn_case)
 
-TT_TEST_CASE("tt_unit_test_lpatn_sn",
+TT_TEST_CASE("case_lpatn_sn",
              "testing log pattern: seq num",
-             tt_unit_test_lpatn_sn,
+             case_lpatn_sn,
              NULL,
              NULL,
              NULL,
@@ -61,54 +61,54 @@ TT_TEST_CASE("tt_unit_test_lpatn_sn",
              NULL)
 ,
 
-    TT_TEST_CASE("tt_unit_test_lpatn_time",
+    TT_TEST_CASE("case_lpatn_time",
                  "testing log pattern: time",
-                 tt_unit_test_lpatn_time,
+                 case_lpatn_time,
                  NULL,
                  NULL,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_lpatn_logger",
+    TT_TEST_CASE("case_lpatn_logger",
                  "testing log pattern: logger",
-                 tt_unit_test_lpatn_logger,
+                 case_lpatn_logger,
                  NULL,
                  NULL,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_lpatn_content",
+    TT_TEST_CASE("case_lpatn_content",
                  "testing log pattern: content",
-                 tt_unit_test_lpatn_content,
+                 case_lpatn_content,
                  NULL,
                  NULL,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_lpatn_func",
+    TT_TEST_CASE("case_lpatn_func",
                  "testing log pattern: function",
-                 tt_unit_test_lpatn_func,
+                 case_lpatn_func,
                  NULL,
                  NULL,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_lpatn_line",
+    TT_TEST_CASE("case_lpatn_line",
                  "testing log pattern: line",
-                 tt_unit_test_lpatn_line,
+                 case_lpatn_line,
                  NULL,
                  NULL,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_log_pattern",
+    TT_TEST_CASE("case_log_pattern",
                  "testing log pattern",
-                 tt_unit_test_log_pattern,
+                 case_log_pattern,
                  NULL,
                  NULL,
                  NULL,
@@ -129,7 +129,7 @@ TT_TEST_CASE("tt_unit_test_lpatn_sn",
     ////////////////////////////////////////////////////////////
 
     /*
-    TT_TEST_ROUTINE_DEFINE(tt_unit_test_log_pattern)
+    TT_TEST_ROUTINE_DEFINE(case_log_pattern)
     {
         //tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
 
@@ -141,7 +141,7 @@ TT_TEST_CASE("tt_unit_test_lpatn_sn",
     }
     */
 
-    TT_TEST_ROUTINE_DEFINE(tt_unit_test_lpatn_sn)
+    TT_TEST_ROUTINE_DEFINE(case_lpatn_sn)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_logfld_t *lpf;
@@ -271,7 +271,7 @@ TT_TEST_CASE("tt_unit_test_lpatn_sn",
     TT_TEST_CASE_LEAVE()
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_lpatn_time)
+TT_TEST_ROUTINE_DEFINE(case_lpatn_time)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_logfld_t *lpf;
@@ -375,7 +375,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_lpatn_time)
     TT_TEST_CASE_LEAVE()
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_lpatn_logger)
+TT_TEST_ROUTINE_DEFINE(case_lpatn_logger)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_logfld_t *lpf;
@@ -511,7 +511,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_lpatn_logger)
     TT_TEST_CASE_LEAVE()
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_lpatn_content)
+TT_TEST_ROUTINE_DEFINE(case_lpatn_content)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_logfld_t *lpf;
@@ -647,7 +647,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_lpatn_content)
     TT_TEST_CASE_LEAVE()
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_lpatn_func)
+TT_TEST_ROUTINE_DEFINE(case_lpatn_func)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_logfld_t *lpf;
@@ -783,7 +783,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_lpatn_func)
     TT_TEST_CASE_LEAVE()
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_lpatn_line)
+TT_TEST_ROUTINE_DEFINE(case_lpatn_line)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_logfld_t *lpf;
@@ -911,7 +911,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_lpatn_line)
     TT_TEST_CASE_LEAVE()
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_log_pattern)
+TT_TEST_ROUTINE_DEFINE(case_log_pattern)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_loglyt_t *ll;
@@ -944,7 +944,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_log_pattern)
         TT_UT_SUCCESS(ret, "");
         cmp_ret = tt_buf_cmp_cstr(&buf,
                                   "$   100 $ FA "
-                                  "$}tt_unit_test_log_pattern log "
+                                  "$}case_log_pattern log "
                                   "content$$me "
                                   "1234\n");
         TT_UT_EQUAL(cmp_ret, 0, "");

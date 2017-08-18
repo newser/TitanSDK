@@ -39,17 +39,17 @@
 ////////////////////////////////////////////////////////////
 
 // === routine declarations ================
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_xnode_bool)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_xnode_int)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_xnode_rel)
+TT_TEST_ROUTINE_DECLARE(case_xnode_bool)
+TT_TEST_ROUTINE_DECLARE(case_xnode_int)
+TT_TEST_ROUTINE_DECLARE(case_xnode_rel)
 // =========================================
 
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(xml_xnode_case)
 
-TT_TEST_CASE("tt_unit_test_xnode_bool",
+TT_TEST_CASE("case_xnode_bool",
              "xml: node value bool",
-             tt_unit_test_xnode_bool,
+             case_xnode_bool,
              NULL,
              NULL,
              NULL,
@@ -57,18 +57,18 @@ TT_TEST_CASE("tt_unit_test_xnode_bool",
              NULL)
 ,
 
-    TT_TEST_CASE("tt_unit_test_xnode_int",
+    TT_TEST_CASE("case_xnode_int",
                  "xml: node value int",
-                 tt_unit_test_xnode_int,
+                 case_xnode_int,
                  NULL,
                  NULL,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_xnode_rel",
+    TT_TEST_CASE("case_xnode_rel",
                  "xml: node relation",
-                 tt_unit_test_xnode_rel,
+                 case_xnode_rel,
                  NULL,
                  NULL,
                  NULL,
@@ -89,7 +89,7 @@ TT_TEST_CASE("tt_unit_test_xnode_bool",
     ////////////////////////////////////////////////////////////
 
     /*
-    TT_TEST_ROUTINE_DEFINE(tt_unit_test_xnode_rel)
+    TT_TEST_ROUTINE_DEFINE(case_xnode_rel)
     {
         //tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
 
@@ -114,7 +114,7 @@ TT_TEST_CASE("tt_unit_test_xnode_bool",
         "<str_1>the last attr is a string</str_1>"
         "</node>";
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_xnode_bool)
+TT_TEST_ROUTINE_DEFINE(case_xnode_bool)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_xdoc_t xd;
@@ -168,7 +168,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xnode_bool)
     TT_TEST_CASE_LEAVE()
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_xnode_int)
+TT_TEST_ROUTINE_DEFINE(case_xnode_int)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_xdoc_t xd;
@@ -295,7 +295,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xnode_int)
     TT_TEST_CASE_LEAVE()
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_xnode_rel)
+TT_TEST_ROUTINE_DEFINE(case_xnode_rel)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_xdoc_t xd;

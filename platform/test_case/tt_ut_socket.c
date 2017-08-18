@@ -71,20 +71,20 @@
 // ipv6 cases can not run in ipv4-only environment
 
 // === routine declarations ================
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_sk_addr)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_sk_opt)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_bind_basic)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_tcp_basic)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_udp_basic)
+TT_TEST_ROUTINE_DECLARE(case_sk_addr)
+TT_TEST_ROUTINE_DECLARE(case_sk_opt)
+TT_TEST_ROUTINE_DECLARE(case_bind_basic)
+TT_TEST_ROUTINE_DECLARE(case_tcp_basic)
+TT_TEST_ROUTINE_DECLARE(case_udp_basic)
 
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_tcp4_stress)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_tcp6_close)
+TT_TEST_ROUTINE_DECLARE(case_tcp4_stress)
+TT_TEST_ROUTINE_DECLARE(case_tcp6_close)
 
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_tcp_event)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_udp_event)
+TT_TEST_ROUTINE_DECLARE(case_tcp_event)
+TT_TEST_ROUTINE_DECLARE(case_udp_event)
 
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_ab)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_ab_nc)
+TT_TEST_ROUTINE_DECLARE(case_ab)
+TT_TEST_ROUTINE_DECLARE(case_ab_nc)
 
 // =========================================
 
@@ -241,9 +241,9 @@ static void __ut_skt_enter(void *enter_param)
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(sk_case)
 
-TT_TEST_CASE("tt_unit_test_sk_addr",
+TT_TEST_CASE("case_sk_addr",
              "testing socket addr api",
-             tt_unit_test_sk_addr,
+             case_sk_addr,
              NULL,
              __ut_skt_enter,
              NULL,
@@ -251,72 +251,72 @@ TT_TEST_CASE("tt_unit_test_sk_addr",
              NULL)
 ,
 
-    TT_TEST_CASE("tt_unit_test_sk_opt",
+    TT_TEST_CASE("case_sk_opt",
                  "testing socket option api",
-                 tt_unit_test_sk_opt,
+                 case_sk_opt,
                  NULL,
                  __ut_skt_enter,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_bind_basic",
+    TT_TEST_CASE("case_bind_basic",
                  "testing socket bind api",
-                 tt_unit_test_bind_basic,
+                 case_bind_basic,
                  NULL,
                  __ut_skt_enter,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_tcp_basic",
+    TT_TEST_CASE("case_tcp_basic",
                  "testing socket tcp api",
-                 tt_unit_test_tcp_basic,
+                 case_tcp_basic,
                  NULL,
                  __ut_skt_enter,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_udp_basic",
+    TT_TEST_CASE("case_udp_basic",
                  "testing socket udp api",
-                 tt_unit_test_udp_basic,
+                 case_udp_basic,
                  NULL,
                  __ut_skt_enter,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_tcp6_close",
+    TT_TEST_CASE("case_tcp6_close",
                  "testing socket tcp ipv6 close",
-                 tt_unit_test_tcp6_close,
+                 case_tcp6_close,
                  NULL,
                  __ut_skt_enter,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_tcp4_stress",
+    TT_TEST_CASE("case_tcp4_stress",
                  "testing socket tcp ipv4 stress test",
-                 tt_unit_test_tcp4_stress,
+                 case_tcp4_stress,
                  NULL,
                  __ut_skt_enter,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_tcp_event",
+    TT_TEST_CASE("case_tcp_event",
                  "testing socket tcp recv event",
-                 tt_unit_test_tcp_event,
+                 case_tcp_event,
                  NULL,
                  __ut_skt_enter,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_udp_event",
+    TT_TEST_CASE("case_udp_event",
                  "testing socket udp recv event",
-                 tt_unit_test_udp_event,
+                 case_udp_event,
                  NULL,
                  __ut_skt_enter,
                  NULL,
@@ -324,9 +324,9 @@ TT_TEST_CASE("tt_unit_test_sk_addr",
                  NULL),
 
 #if 0
-    TT_TEST_CASE("tt_unit_test_ab", 
+    TT_TEST_CASE("case_ab", 
                  "testing socket test with apache benchmark", 
-                 tt_unit_test_ab, NULL, 
+                 case_ab, NULL, 
                  __ut_skt_enter, NULL,
                  NULL, NULL),
 #endif
@@ -345,7 +345,7 @@ TT_TEST_CASE("tt_unit_test_sk_addr",
     ////////////////////////////////////////////////////////////
 
     /*
-    TT_TEST_ROUTINE_DEFINE(tt_unit_test_tcp_basic)
+    TT_TEST_ROUTINE_DEFINE(case_tcp_basic)
     {
         //tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
 
@@ -360,7 +360,7 @@ TT_TEST_CASE("tt_unit_test_sk_addr",
     static tt_s64_t __ut_skt_max_diff;
 static tt_u32_t __skt_svr_tmr, __skt_cli_tmr;
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_sk_addr)
+TT_TEST_ROUTINE_DEFINE(case_sk_addr)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_sktaddr_t sa;
@@ -489,7 +489,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_sk_addr)
     TT_TEST_CASE_LEAVE()
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_sk_opt)
+TT_TEST_ROUTINE_DEFINE(case_sk_opt)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_skt_t *s;
@@ -619,7 +619,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_sk_opt)
     TT_TEST_CASE_LEAVE()
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_bind_basic)
+TT_TEST_ROUTINE_DEFINE(case_bind_basic)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_skt_t *sk4;
@@ -1021,7 +1021,7 @@ static tt_result_t __f_cli(IN void *param)
     return TT_SUCCESS;
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_tcp_basic)
+TT_TEST_ROUTINE_DEFINE(case_tcp_basic)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_result_t ret;
@@ -1130,7 +1130,7 @@ static tt_result_t __f_cli_tcp6_close(IN void *param)
     return TT_SUCCESS;
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_tcp6_close)
+TT_TEST_ROUTINE_DEFINE(case_tcp6_close)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_result_t ret;
@@ -1310,7 +1310,7 @@ static tt_result_t __f_cli_udp(IN void *param)
     return TT_SUCCESS;
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_udp_basic)
+TT_TEST_ROUTINE_DEFINE(case_udp_basic)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_result_t ret;
@@ -1532,7 +1532,7 @@ static tt_result_t __f_cli_t4(IN void *param)
     return TT_SUCCESS;
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_tcp4_stress)
+TT_TEST_ROUTINE_DEFINE(case_tcp4_stress)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_result_t ret;
@@ -1920,7 +1920,7 @@ static tt_result_t __f_cli_ev(IN void *param)
     return TT_SUCCESS;
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_tcp_event)
+TT_TEST_ROUTINE_DEFINE(case_tcp_event)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_result_t ret;
@@ -2298,7 +2298,7 @@ static tt_result_t __f_cli_udp_ev(IN void *param)
     return TT_SUCCESS;
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_udp_event)
+TT_TEST_ROUTINE_DEFINE(case_udp_event)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_result_t ret;

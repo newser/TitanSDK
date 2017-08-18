@@ -37,15 +37,15 @@
 ////////////////////////////////////////////////////////////
 
 // === routine declarations ================
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_sshmac_sha1)
+TT_TEST_ROUTINE_DECLARE(case_sshmac_sha1)
 // =========================================
 
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(sshmac_case)
 
-TT_TEST_CASE("tt_unit_test_sshmac_sha1",
+TT_TEST_CASE("case_sshmac_sha1",
              "ssh hmac: sha1",
-             tt_unit_test_sshmac_sha1,
+             case_sshmac_sha1,
              NULL,
              NULL,
              NULL,
@@ -79,7 +79,7 @@ TT_TEST_CASE("tt_unit_test_sshmac_sha1",
     }
     */
 
-    TT_TEST_ROUTINE_DEFINE(tt_unit_test_sshmac_sha1)
+    TT_TEST_ROUTINE_DEFINE(case_sshmac_sha1)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_sshmac_t smac;

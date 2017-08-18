@@ -37,76 +37,70 @@
 ////////////////////////////////////////////////////////////
 
 // === routine declarations ================
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_cfgnode)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_cfgnode_u32)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_cfgnode_s32)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_cfgnode_str)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_cfgnode_dir)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_cfgnode_grp_ar)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_cfgnode_bool)
+TT_TEST_ROUTINE_DECLARE(case_cfgnode)
+TT_TEST_ROUTINE_DECLARE(case_cfgnode_u32)
+TT_TEST_ROUTINE_DECLARE(case_cfgnode_s32)
+TT_TEST_ROUTINE_DECLARE(case_cfgnode_str)
+TT_TEST_ROUTINE_DECLARE(case_cfgnode_dir)
+TT_TEST_ROUTINE_DECLARE(case_cfgnode_grp_ar)
+TT_TEST_ROUTINE_DECLARE(case_cfgnode_bool)
 // =========================================
 
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(cli_node_case)
 
-TT_TEST_CASE("tt_unit_test_clinode",
-             "config node",
-             tt_unit_test_cfgnode,
-             NULL,
-             NULL,
-             NULL,
-             NULL,
-             NULL)
+TT_TEST_CASE(
+    "case_clinode", "config node", case_cfgnode, NULL, NULL, NULL, NULL, NULL)
 ,
 
-    TT_TEST_CASE("tt_unit_test_cfgnode_u32",
+    TT_TEST_CASE("case_cfgnode_u32",
                  "config node, u32",
-                 tt_unit_test_cfgnode_u32,
+                 case_cfgnode_u32,
                  NULL,
                  NULL,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_cfgnode_s32",
+    TT_TEST_CASE("case_cfgnode_s32",
                  "config node, s32",
-                 tt_unit_test_cfgnode_s32,
+                 case_cfgnode_s32,
                  NULL,
                  NULL,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_cfgnode_str",
+    TT_TEST_CASE("case_cfgnode_str",
                  "config node, string",
-                 tt_unit_test_cfgnode_str,
+                 case_cfgnode_str,
                  NULL,
                  NULL,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_cfgnode_dir",
+    TT_TEST_CASE("case_cfgnode_dir",
                  "config node, group",
-                 tt_unit_test_cfgnode_dir,
+                 case_cfgnode_dir,
                  NULL,
                  NULL,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_cfgnode_grp_ar",
+    TT_TEST_CASE("case_cfgnode_grp_ar",
                  "config node, group add/rm",
-                 tt_unit_test_cfgnode_grp_ar,
+                 case_cfgnode_grp_ar,
                  NULL,
                  NULL,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_cfgnode_bool",
+    TT_TEST_CASE("case_cfgnode_bool",
                  "config node, bool",
-                 tt_unit_test_cfgnode_bool,
+                 case_cfgnode_bool,
                  NULL,
                  NULL,
                  NULL,
@@ -127,7 +121,7 @@ TT_TEST_CASE("tt_unit_test_clinode",
     ////////////////////////////////////////////////////////////
 
     /*
-    TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgpath_basic)
+    TT_TEST_ROUTINE_DEFINE(case_cfgpath_basic)
     {
         //tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
 
@@ -139,7 +133,7 @@ TT_TEST_CASE("tt_unit_test_clinode",
     }
     */
 
-    TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgnode)
+    TT_TEST_ROUTINE_DEFINE(case_cfgnode)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_cfgobj_t *cnode;
@@ -304,7 +298,7 @@ static tt_result_t __bool_on_set(IN struct tt_cfgobj_s *cnode,
     return TT_TRUE;
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgnode_u32)
+TT_TEST_ROUTINE_DEFINE(case_cfgnode_u32)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_cfgobj_t *cnode;
@@ -448,7 +442,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgnode_u32)
     TT_TEST_CASE_LEAVE()
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgnode_s32)
+TT_TEST_ROUTINE_DEFINE(case_cfgnode_s32)
 {
     // tt_s32_t param = TT_TEST_ROUTINE_PARAM(tt_s32_t);
     tt_cfgobj_t *cnode;
@@ -620,7 +614,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgnode_s32)
     TT_TEST_CASE_LEAVE()
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgnode_str)
+TT_TEST_ROUTINE_DEFINE(case_cfgnode_str)
 {
     // tt_s32_t param = TT_TEST_ROUTINE_PARAM(tt_s32_t);
     tt_cfgobj_t *cnode;
@@ -762,7 +756,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgnode_str)
     TT_TEST_CASE_LEAVE()
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgnode_dir)
+TT_TEST_ROUTINE_DEFINE(case_cfgnode_dir)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_cfgobj_t *co, *subg, *subg1, *subg2, *subg3, *subg_c, *c1, *c2, *c3, *c4,
@@ -903,7 +897,7 @@ static tt_cfgobj_t *__ut_create_child(IN struct tt_cfgdir_s *cgrp,
     return cnode;
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgnode_grp_ar)
+TT_TEST_ROUTINE_DEFINE(case_cfgnode_grp_ar)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_cfgobj_t *cgrp, *co;
@@ -1156,7 +1150,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgnode_grp_ar)
     TT_TEST_CASE_LEAVE()
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgnode_bool)
+TT_TEST_ROUTINE_DEFINE(case_cfgnode_bool)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_cfgobj_t *cnode;

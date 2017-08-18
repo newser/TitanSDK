@@ -42,19 +42,19 @@
 ////////////////////////////////////////////////////////////
 
 // === routine declarations ================
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_cfgpath_p2n_abs)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_cfgpath_p2n_rel)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_cfgpath_p2n_dot)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_cfgpath_n2p)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_cfgpath_comp)
+TT_TEST_ROUTINE_DECLARE(case_cfgpath_p2n_abs)
+TT_TEST_ROUTINE_DECLARE(case_cfgpath_p2n_rel)
+TT_TEST_ROUTINE_DECLARE(case_cfgpath_p2n_dot)
+TT_TEST_ROUTINE_DECLARE(case_cfgpath_n2p)
+TT_TEST_ROUTINE_DECLARE(case_cfgpath_comp)
 // =========================================
 
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(cfgpath_case)
 
-TT_TEST_CASE("tt_unit_test_cfgpath_p2n_abs",
+TT_TEST_CASE("case_cfgpath_p2n_abs",
              "testing cfgpath: absolute to node",
-             tt_unit_test_cfgpath_p2n_abs,
+             case_cfgpath_p2n_abs,
              NULL,
              NULL,
              NULL,
@@ -62,36 +62,36 @@ TT_TEST_CASE("tt_unit_test_cfgpath_p2n_abs",
              NULL)
 ,
 
-    TT_TEST_CASE("tt_unit_test_cfgpath_p2n_rel",
+    TT_TEST_CASE("case_cfgpath_p2n_rel",
                  "testing cfgpath: relative to node",
-                 tt_unit_test_cfgpath_p2n_rel,
+                 case_cfgpath_p2n_rel,
                  NULL,
                  NULL,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_cfgpath_p2n_dot",
+    TT_TEST_CASE("case_cfgpath_p2n_dot",
                  "testing cfgpath: dotted path",
-                 tt_unit_test_cfgpath_p2n_dot,
+                 case_cfgpath_p2n_dot,
                  NULL,
                  NULL,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_cfgpath_n2p",
+    TT_TEST_CASE("case_cfgpath_n2p",
                  "testing cfgpath: path to node",
-                 tt_unit_test_cfgpath_n2p,
+                 case_cfgpath_n2p,
                  NULL,
                  NULL,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_cfgpath_comp",
+    TT_TEST_CASE("case_cfgpath_comp",
                  "config path, auto complete",
-                 tt_unit_test_cfgpath_comp,
+                 case_cfgpath_comp,
                  NULL,
                  NULL,
                  NULL,
@@ -112,7 +112,7 @@ TT_TEST_CASE("tt_unit_test_cfgpath_p2n_abs",
     ////////////////////////////////////////////////////////////
 
     /*
-    TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgpath_p2n)
+    TT_TEST_ROUTINE_DEFINE(case_cfgpath_p2n)
     {
         //tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
 
@@ -124,7 +124,7 @@ TT_TEST_CASE("tt_unit_test_cfgpath_p2n_abs",
     }
     */
 
-    TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgpath_p2n_abs)
+    TT_TEST_ROUTINE_DEFINE(case_cfgpath_p2n_abs)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_cfgobj_t *root, *g1, *g11, *g12, *g121, *c1211;
@@ -243,7 +243,7 @@ TT_TEST_CASE("tt_unit_test_cfgpath_p2n_abs",
     TT_TEST_CASE_LEAVE()
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgpath_p2n_rel)
+TT_TEST_ROUTINE_DEFINE(case_cfgpath_p2n_rel)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_cfgobj_t *root, *g1, *g11, *g12, *g121, *c1211;
@@ -358,7 +358,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgpath_p2n_rel)
     TT_TEST_CASE_LEAVE()
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgpath_p2n_dot)
+TT_TEST_ROUTINE_DEFINE(case_cfgpath_p2n_dot)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_cfgobj_t *root, *g1, *g11, *g12, *g121, *c1211;
@@ -473,7 +473,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgpath_p2n_dot)
     TT_TEST_CASE_LEAVE()
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgpath_n2p)
+TT_TEST_ROUTINE_DEFINE(case_cfgpath_n2p)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_cfgobj_t *root, *g1, *g11, *g12, *g121, *c1211;
@@ -581,7 +581,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgpath_n2p)
     TT_TEST_CASE_LEAVE()
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgpath_comp)
+TT_TEST_ROUTINE_DEFINE(case_cfgpath_comp)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_cfgobj_t *root, *g1, *g11, *g12, *g121, *c1211;

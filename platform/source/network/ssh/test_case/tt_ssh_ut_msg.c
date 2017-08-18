@@ -37,29 +37,29 @@
 ////////////////////////////////////////////////////////////
 
 // === routine declarations ================
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_sshmsg_byte)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_sshmsg_boolean)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_sshmsg_u32)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_sshmsg_u64)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_sshmsg_string)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_sshmsg_mpint)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_sshmsg_namelist)
+TT_TEST_ROUTINE_DECLARE(case_sshmsg_byte)
+TT_TEST_ROUTINE_DECLARE(case_sshmsg_boolean)
+TT_TEST_ROUTINE_DECLARE(case_sshmsg_u32)
+TT_TEST_ROUTINE_DECLARE(case_sshmsg_u64)
+TT_TEST_ROUTINE_DECLARE(case_sshmsg_string)
+TT_TEST_ROUTINE_DECLARE(case_sshmsg_mpint)
+TT_TEST_ROUTINE_DECLARE(case_sshmsg_namelist)
 
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_sshmsg_parse)
+TT_TEST_ROUTINE_DECLARE(case_sshmsg_parse)
 
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_sshmsg_disconnect)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_sshmsg_ignore)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_sshms_newkeys)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_sshmsg_servreq)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_sshmsg_servacc)
+TT_TEST_ROUTINE_DECLARE(case_sshmsg_disconnect)
+TT_TEST_ROUTINE_DECLARE(case_sshmsg_ignore)
+TT_TEST_ROUTINE_DECLARE(case_sshms_newkeys)
+TT_TEST_ROUTINE_DECLARE(case_sshmsg_servreq)
+TT_TEST_ROUTINE_DECLARE(case_sshmsg_servacc)
 // =========================================
 
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(sshmsg_case)
 
-TT_TEST_CASE("tt_unit_test_sshmsg_byte",
+TT_TEST_CASE("case_sshmsg_byte",
              "ssh msg parse byte",
-             tt_unit_test_sshmsg_byte,
+             case_sshmsg_byte,
              NULL,
              NULL,
              NULL,
@@ -67,117 +67,117 @@ TT_TEST_CASE("tt_unit_test_sshmsg_byte",
              NULL)
 ,
 
-    TT_TEST_CASE("tt_unit_test_sshmsg_boolean",
+    TT_TEST_CASE("case_sshmsg_boolean",
                  "ssh msg parse boolean",
-                 tt_unit_test_sshmsg_boolean,
+                 case_sshmsg_boolean,
                  NULL,
                  NULL,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_sshmsg_u32",
+    TT_TEST_CASE("case_sshmsg_u32",
                  "ssh msg parse uint32",
-                 tt_unit_test_sshmsg_u32,
+                 case_sshmsg_u32,
                  NULL,
                  NULL,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_sshmsg_u64",
+    TT_TEST_CASE("case_sshmsg_u64",
                  "ssh msg parse uint64",
-                 tt_unit_test_sshmsg_u64,
+                 case_sshmsg_u64,
                  NULL,
                  NULL,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_sshmsg_string",
+    TT_TEST_CASE("case_sshmsg_string",
                  "ssh msg parse string",
-                 tt_unit_test_sshmsg_string,
+                 case_sshmsg_string,
                  NULL,
                  NULL,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_sshmsg_mpint",
+    TT_TEST_CASE("case_sshmsg_mpint",
                  "ssh msg parse mpint",
-                 tt_unit_test_sshmsg_mpint,
+                 case_sshmsg_mpint,
                  NULL,
                  NULL,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_sshmsg_namelist",
+    TT_TEST_CASE("case_sshmsg_namelist",
                  "ssh msg parse namelist",
-                 tt_unit_test_sshmsg_namelist,
+                 case_sshmsg_namelist,
                  NULL,
                  NULL,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_sshmsg_parse",
+    TT_TEST_CASE("case_sshmsg_parse",
                  "ssh msg parse",
-                 tt_unit_test_sshmsg_parse,
+                 case_sshmsg_parse,
                  NULL,
                  NULL,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_sshmsg_disconnect",
+    TT_TEST_CASE("case_sshmsg_disconnect",
                  "ssh msg: disconnect",
-                 tt_unit_test_sshmsg_disconnect,
+                 case_sshmsg_disconnect,
                  NULL,
                  NULL,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_sshmsg_ignore",
+    TT_TEST_CASE("case_sshmsg_ignore",
                  "ssh msg: ignore",
-                 tt_unit_test_sshmsg_ignore,
+                 case_sshmsg_ignore,
                  NULL,
                  NULL,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_sshms_newkeys",
+    TT_TEST_CASE("case_sshms_newkeys",
                  "ssh msg: newkeys",
-                 tt_unit_test_sshms_newkeys,
+                 case_sshms_newkeys,
                  NULL,
                  NULL,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_sshmsg_servreq",
+    TT_TEST_CASE("case_sshmsg_servreq",
                  "ssh msg: service request",
-                 tt_unit_test_sshmsg_servreq,
+                 case_sshmsg_servreq,
                  NULL,
                  NULL,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_sshmsg_servacc",
+    TT_TEST_CASE("case_sshmsg_servacc",
                  "ssh msg: service accept",
-                 tt_unit_test_sshmsg_servacc,
+                 case_sshmsg_servacc,
                  NULL,
                  NULL,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_sshmsg_servacc",
+    TT_TEST_CASE("case_sshmsg_servacc",
                  "ssh msg: service accept",
-                 tt_unit_test_sshmsg_servacc,
+                 case_sshmsg_servacc,
                  NULL,
                  NULL,
                  NULL,
@@ -198,7 +198,7 @@ TT_TEST_CASE("tt_unit_test_sshmsg_byte",
     ////////////////////////////////////////////////////////////
 
     /*
-    TT_TEST_ROUTINE_DEFINE(tt_unit_test_sshmsg_usrauthreq_pkey)
+    TT_TEST_ROUTINE_DEFINE(case_sshmsg_usrauthreq_pkey)
     {
         //tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
 
@@ -210,7 +210,7 @@ TT_TEST_CASE("tt_unit_test_sshmsg_byte",
     }
     */
 
-    TT_TEST_ROUTINE_DEFINE(tt_unit_test_sshmsg_byte)
+    TT_TEST_ROUTINE_DEFINE(case_sshmsg_byte)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_buf_t buf;
@@ -247,7 +247,7 @@ TT_TEST_CASE("tt_unit_test_sshmsg_byte",
     TT_TEST_CASE_LEAVE()
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_sshmsg_boolean)
+TT_TEST_ROUTINE_DEFINE(case_sshmsg_boolean)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_buf_t buf;
@@ -306,7 +306,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_sshmsg_boolean)
     TT_TEST_CASE_LEAVE()
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_sshmsg_u32)
+TT_TEST_ROUTINE_DEFINE(case_sshmsg_u32)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_buf_t buf;
@@ -359,7 +359,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_sshmsg_u32)
     TT_TEST_CASE_LEAVE()
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_sshmsg_u64)
+TT_TEST_ROUTINE_DEFINE(case_sshmsg_u64)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_buf_t buf;
@@ -411,7 +411,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_sshmsg_u64)
     TT_TEST_CASE_LEAVE()
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_sshmsg_string)
+TT_TEST_ROUTINE_DEFINE(case_sshmsg_string)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_buf_t buf;
@@ -495,7 +495,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_sshmsg_string)
     TT_TEST_CASE_LEAVE()
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_sshmsg_mpint)
+TT_TEST_ROUTINE_DEFINE(case_sshmsg_mpint)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_buf_t buf;
@@ -650,7 +650,7 @@ tt_result_t __nl_cb(IN tt_char_t *name, IN tt_u32_t name_len, IN void *param)
     return TT_SUCCESS;
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_sshmsg_namelist)
+TT_TEST_ROUTINE_DEFINE(case_sshmsg_namelist)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_buf_t buf;
@@ -855,7 +855,7 @@ static struct __sshmsg_parse_vec_t __sshmsg_parse_vec[] = {
     {__incomp_7, sizeof(__incomp_7), TT_SUCCESS, 1},
 };
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_sshmsg_parse)
+TT_TEST_ROUTINE_DEFINE(case_sshmsg_parse)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_buf_t buf;
@@ -904,7 +904,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_sshmsg_parse)
     TT_TEST_CASE_LEAVE()
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_sshmsg_disconnect)
+TT_TEST_ROUTINE_DEFINE(case_sshmsg_disconnect)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_result_t ret;
@@ -980,7 +980,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_sshmsg_disconnect)
     TT_TEST_CASE_LEAVE()
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_sshmsg_ignore)
+TT_TEST_ROUTINE_DEFINE(case_sshmsg_ignore)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_result_t ret;
@@ -1043,7 +1043,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_sshmsg_ignore)
     TT_TEST_CASE_LEAVE()
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_sshms_newkeys)
+TT_TEST_ROUTINE_DEFINE(case_sshms_newkeys)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_sshmsg_t *msg, *out_msg;
@@ -1090,7 +1090,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_sshms_newkeys)
     TT_TEST_CASE_LEAVE()
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_sshmsg_servreq)
+TT_TEST_ROUTINE_DEFINE(case_sshmsg_servreq)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_sshmsg_t *msg, *out_msg;
@@ -1191,7 +1191,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_sshmsg_servreq)
     TT_TEST_CASE_LEAVE()
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_sshmsg_servacc)
+TT_TEST_ROUTINE_DEFINE(case_sshmsg_servacc)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_sshmsg_t *msg, *out_msg;

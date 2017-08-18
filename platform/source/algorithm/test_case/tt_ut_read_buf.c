@@ -39,57 +39,51 @@
 ////////////////////////////////////////////////////////////
 
 // === routine declarations ================
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_rbuf)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_rbuf_stress)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_rbuf_excep)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_wbuf)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_rwbuf)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_rwbuf_raw)
+TT_TEST_ROUTINE_DECLARE(case_rbuf)
+TT_TEST_ROUTINE_DECLARE(case_rbuf_stress)
+TT_TEST_ROUTINE_DECLARE(case_rbuf_excep)
+TT_TEST_ROUTINE_DECLARE(case_wbuf)
+TT_TEST_ROUTINE_DECLARE(case_rwbuf)
+TT_TEST_ROUTINE_DECLARE(case_rwbuf_raw)
 // =========================================
 
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(rbuf_case)
 #if 1
-TT_TEST_CASE("tt_unit_test_rbuf",
-             "testing read buffer",
-             tt_unit_test_rbuf,
-             NULL,
-             NULL,
-             NULL,
-             NULL,
-             NULL)
+TT_TEST_CASE(
+    "case_rbuf", "testing read buffer", case_rbuf, NULL, NULL, NULL, NULL, NULL)
 ,
 
-    TT_TEST_CASE("tt_unit_test_rbuf_stress",
+    TT_TEST_CASE("case_rbuf_stress",
                  "testing read buffer stress test",
-                 tt_unit_test_rbuf_stress,
+                 case_rbuf_stress,
                  NULL,
                  NULL,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_rbuf_excep",
+    TT_TEST_CASE("case_rbuf_excep",
                  "testing read buffer exceptional test",
-                 tt_unit_test_rbuf_excep,
+                 case_rbuf_excep,
                  NULL,
                  NULL,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_wbuf",
+    TT_TEST_CASE("case_wbuf",
                  "testing write buffer",
-                 tt_unit_test_wbuf,
+                 case_wbuf,
                  NULL,
                  NULL,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_rwbuf",
+    TT_TEST_CASE("case_rwbuf",
                  "testing read write buffer",
-                 tt_unit_test_rwbuf,
+                 case_rwbuf,
                  NULL,
                  NULL,
                  NULL,
@@ -97,9 +91,9 @@ TT_TEST_CASE("tt_unit_test_rbuf",
                  NULL),
 #endif
 
-    TT_TEST_CASE("tt_unit_test_rwbuf_raw",
+    TT_TEST_CASE("case_rwbuf_raw",
                  "testing read write buffer, no enc/dec",
-                 tt_unit_test_rwbuf_raw,
+                 case_rwbuf_raw,
                  NULL,
                  NULL,
                  NULL,
@@ -120,7 +114,7 @@ TT_TEST_CASE("tt_unit_test_rbuf",
     ////////////////////////////////////////////////////////////
 
     /*
-    TT_TEST_ROUTINE_DEFINE(tt_unit_test_rbuf)
+    TT_TEST_ROUTINE_DEFINE(case_rbuf)
     {
         //tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
 
@@ -265,7 +259,7 @@ static void __ut_par_done(IN void *parse_ret, IN void *param)
     ++__ut_seq;
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_rbuf)
+TT_TEST_ROUTINE_DEFINE(case_rbuf)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_rbuf_t rbuf;
@@ -343,7 +337,7 @@ static void __ut_par_done2(IN void *parse_ret, IN void *param)
     // TT_INFO("parsed: %d", v);
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_rbuf_stress)
+TT_TEST_ROUTINE_DEFINE(case_rbuf_stress)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_rbuf_t rbuf;
@@ -405,7 +399,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_rbuf_stress)
     TT_TEST_CASE_LEAVE()
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_rbuf_excep)
+TT_TEST_ROUTINE_DEFINE(case_rbuf_excep)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_rbuf_t rbuf;
@@ -552,7 +546,7 @@ static tt_result_t __ut_enc(IN tt_buf_t *raw,
     return TT_SUCCESS;
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_wbuf)
+TT_TEST_ROUTINE_DEFINE(case_wbuf)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_rbuf_t rbuf;
@@ -650,7 +644,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_wbuf)
     TT_TEST_CASE_LEAVE()
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_rwbuf)
+TT_TEST_ROUTINE_DEFINE(case_rwbuf)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_rbuf_t rbuf;
@@ -725,7 +719,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_rwbuf)
     TT_TEST_CASE_LEAVE()
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_rwbuf_raw)
+TT_TEST_ROUTINE_DEFINE(case_rwbuf_raw)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_rbuf_t rbuf;

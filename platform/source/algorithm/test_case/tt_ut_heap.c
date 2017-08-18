@@ -46,17 +46,17 @@
 ////////////////////////////////////////////////////////////
 
 // === routine declarations ================
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_ptrheap_basic)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_ptrheap_correct)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_ptrheap_perf)
+TT_TEST_ROUTINE_DECLARE(case_ptrheap_basic)
+TT_TEST_ROUTINE_DECLARE(case_ptrheap_correct)
+TT_TEST_ROUTINE_DECLARE(case_ptrheap_perf)
 // =========================================
 
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(heap_case)
 
-TT_TEST_CASE("tt_unit_test_ptrheap_basic",
+TT_TEST_CASE("case_ptrheap_basic",
              "testing ptr heap basic api",
-             tt_unit_test_ptrheap_basic,
+             case_ptrheap_basic,
              NULL,
              NULL,
              NULL,
@@ -64,18 +64,18 @@ TT_TEST_CASE("tt_unit_test_ptrheap_basic",
              NULL)
 ,
 
-    TT_TEST_CASE("tt_unit_test_ptrheap_correct",
+    TT_TEST_CASE("case_ptrheap_correct",
                  "testing ptr heap correctness",
-                 tt_unit_test_ptrheap_correct,
+                 case_ptrheap_correct,
                  NULL,
                  NULL,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_ptrheap_perf",
+    TT_TEST_CASE("case_ptrheap_perf",
                  "testing ptr heap performance",
-                 tt_unit_test_ptrheap_perf,
+                 case_ptrheap_perf,
                  NULL,
                  NULL,
                  NULL,
@@ -108,7 +108,7 @@ TT_TEST_CASE("tt_unit_test_ptrheap_basic",
     }
     */
 
-    TT_TEST_ROUTINE_DEFINE(tt_unit_test_ptrheap_basic)
+    TT_TEST_ROUTINE_DEFINE(case_ptrheap_basic)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_ptrheap_t ph;
@@ -213,7 +213,7 @@ static tt_s32_t rb_key_comparer(IN void *n,
 
 static tt_u32_t _dh[__t2_num];
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_ptrheap_correct)
+TT_TEST_ROUTINE_DEFINE(case_ptrheap_correct)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_ptrheap_t ph;
@@ -308,7 +308,7 @@ void foo1(int v)
     ++i;
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_ptrheap_perf)
+TT_TEST_ROUTINE_DEFINE(case_ptrheap_perf)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_ptrheap_t ph;

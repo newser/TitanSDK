@@ -37,47 +37,40 @@
 ////////////////////////////////////////////////////////////
 
 // === routine declarations ================
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_cli)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_cli_stress)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_cli_ac)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_cli_readline)
+TT_TEST_ROUTINE_DECLARE(case_cli)
+TT_TEST_ROUTINE_DECLARE(case_cli_stress)
+TT_TEST_ROUTINE_DECLARE(case_cli_ac)
+TT_TEST_ROUTINE_DECLARE(case_cli_readline)
 
 // =========================================
 
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(cli_basic_case)
 
-TT_TEST_CASE("tt_unit_test_cli",
-             "cli test",
-             tt_unit_test_cli,
-             NULL,
-             NULL,
-             NULL,
-             NULL,
-             NULL)
+TT_TEST_CASE("case_cli", "cli test", case_cli, NULL, NULL, NULL, NULL, NULL)
 ,
 
-    TT_TEST_CASE("tt_unit_test_cli_stress",
+    TT_TEST_CASE("case_cli_stress",
                  "cli stress test ",
-                 tt_unit_test_cli_stress,
+                 case_cli_stress,
                  NULL,
                  NULL,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_cli_ac",
+    TT_TEST_CASE("case_cli_ac",
                  "cli auto complete",
-                 tt_unit_test_cli_ac,
+                 case_cli_ac,
                  NULL,
                  NULL,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_cli_readline",
+    TT_TEST_CASE("case_cli_readline",
                  "cli read line",
-                 tt_unit_test_cli_readline,
+                 case_cli_readline,
                  NULL,
                  NULL,
                  NULL,
@@ -98,7 +91,7 @@ TT_TEST_CASE("tt_unit_test_cli",
     ////////////////////////////////////////////////////////////
 
     /*
-    TT_TEST_ROUTINE_DEFINE(tt_unit_test_cli_readline)
+    TT_TEST_ROUTINE_DEFINE(case_cli_readline)
     {
         //tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
 
@@ -379,7 +372,7 @@ static __cli_case_t cli_case[] = {
 #endif
 };
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_cli)
+TT_TEST_ROUTINE_DEFINE(case_cli)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_cli_t cli;
@@ -459,7 +452,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cli)
 
 #define __cli_st_num 100
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_cli_stress)
+TT_TEST_ROUTINE_DEFINE(case_cli_stress)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_cli_t cli;
@@ -605,7 +598,7 @@ tt_result_t __ut_cli_send_ac(IN struct tt_cli_s *cli,
 #define __SHOW_AC_STR()
 #endif
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_cli_ac)
+TT_TEST_ROUTINE_DEFINE(case_cli_ac)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_cli_t cli;
@@ -1034,7 +1027,7 @@ tt_u32_t __ut_cli_on_read(IN struct tt_cli_s *cli,
     return __ut_read_more;
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_cli_readline)
+TT_TEST_ROUTINE_DEFINE(case_cli_readline)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_cli_t cli;

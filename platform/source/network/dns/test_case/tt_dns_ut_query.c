@@ -49,21 +49,21 @@ extern tt_dns_t __ut_current_dns_d();
 ////////////////////////////////////////////////////////////
 
 // === routine declarations ================
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_dns_query_basic)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_dns_query_u2t)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_dns_query_timeout)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_dns_query_exception)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_dns_query4_first6)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_dns_query6_first4)
+TT_TEST_ROUTINE_DECLARE(case_dns_query_basic)
+TT_TEST_ROUTINE_DECLARE(case_dns_query_u2t)
+TT_TEST_ROUTINE_DECLARE(case_dns_query_timeout)
+TT_TEST_ROUTINE_DECLARE(case_dns_query_exception)
+TT_TEST_ROUTINE_DECLARE(case_dns_query4_first6)
+TT_TEST_ROUTINE_DECLARE(case_dns_query6_first4)
 // =========================================
 
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(dns_query_case)
 
 #if 1
-TT_TEST_CASE("tt_unit_test_dns_query_basic",
+TT_TEST_CASE("case_dns_query_basic",
              "dns query",
-             tt_unit_test_dns_query_basic,
+             case_dns_query_basic,
              NULL,
              NULL,
              NULL,
@@ -71,27 +71,27 @@ TT_TEST_CASE("tt_unit_test_dns_query_basic",
              NULL)
 ,
 
-    TT_TEST_CASE("tt_unit_test_dns_query_u2t",
+    TT_TEST_CASE("case_dns_query_u2t",
                  "dns query fail over",
-                 tt_unit_test_dns_query_u2t,
+                 case_dns_query_u2t,
                  NULL,
                  NULL,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_dns_query_timeout",
+    TT_TEST_CASE("case_dns_query_timeout",
                  "dns query time out",
-                 tt_unit_test_dns_query_timeout,
+                 case_dns_query_timeout,
                  NULL,
                  NULL,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_dns_query_exception",
+    TT_TEST_CASE("case_dns_query_exception",
                  "dns query exceptional case",
-                 tt_unit_test_dns_query_exception,
+                 case_dns_query_exception,
                  NULL,
                  NULL,
                  NULL,
@@ -99,18 +99,18 @@ TT_TEST_CASE("tt_unit_test_dns_query_basic",
                  NULL),
 #endif
 
-    TT_TEST_CASE("tt_unit_test_dns_query4_first6",
+    TT_TEST_CASE("case_dns_query4_first6",
                  "dns query ip but ipv6 first",
-                 tt_unit_test_dns_query4_first6,
+                 case_dns_query4_first6,
                  NULL,
                  NULL,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_dns_query6_first4",
+    TT_TEST_CASE("case_dns_query6_first4",
                  "dns query ipv6 but ip first",
-                 tt_unit_test_dns_query6_first4,
+                 case_dns_query6_first4,
                  NULL,
                  NULL,
                  NULL,
@@ -131,7 +131,7 @@ TT_TEST_CASE("tt_unit_test_dns_query_basic",
     ////////////////////////////////////////////////////////////
 
     /*
-    TT_TEST_ROUTINE_DEFINE(tt_unit_test_dns_query_basic)
+    TT_TEST_ROUTINE_DEFINE(case_dns_query_basic)
     {
         //tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
 
@@ -394,7 +394,7 @@ static tt_result_t __dns_query_1(IN void *param)
     return TT_SUCCESS;
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_dns_query_basic)
+TT_TEST_ROUTINE_DEFINE(case_dns_query_basic)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_task_t t;
@@ -513,7 +513,7 @@ static tt_result_t __dns_query_2(IN void *param)
     return TT_SUCCESS;
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_dns_query_u2t)
+TT_TEST_ROUTINE_DEFINE(case_dns_query_u2t)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_task_t t;
@@ -609,7 +609,7 @@ static tt_result_t __dns_query_3(IN void *param)
     return TT_SUCCESS;
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_dns_query_timeout)
+TT_TEST_ROUTINE_DEFINE(case_dns_query_timeout)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_task_t t;
@@ -817,7 +817,7 @@ static tt_result_t __dns_query_4(IN void *param)
     return TT_SUCCESS;
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_dns_query_exception)
+TT_TEST_ROUTINE_DEFINE(case_dns_query_exception)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_task_t t;
@@ -954,7 +954,7 @@ static tt_result_t __udp_answer46(IN tt_skt_t *s,
     }
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_dns_query4_first6)
+TT_TEST_ROUTINE_DEFINE(case_dns_query4_first6)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_task_t t;
@@ -1070,7 +1070,7 @@ static tt_result_t __udp_answer64(IN tt_skt_t *s,
     }
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_dns_query6_first4)
+TT_TEST_ROUTINE_DEFINE(case_dns_query6_first4)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_task_t t;

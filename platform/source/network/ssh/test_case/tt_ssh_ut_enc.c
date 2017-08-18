@@ -37,16 +37,16 @@
 ////////////////////////////////////////////////////////////
 
 // === routine declarations ================
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_sshenc_aes128)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_sshenc_aes256)
+TT_TEST_ROUTINE_DECLARE(case_sshenc_aes128)
+TT_TEST_ROUTINE_DECLARE(case_sshenc_aes256)
 // =========================================
 
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(sshenc_case)
 
-TT_TEST_CASE("tt_unit_test_sshenc_aes128",
+TT_TEST_CASE("case_sshenc_aes128",
              "ssh encrypt & decrypt: aes128",
-             tt_unit_test_sshenc_aes128,
+             case_sshenc_aes128,
              NULL,
              NULL,
              NULL,
@@ -54,9 +54,9 @@ TT_TEST_CASE("tt_unit_test_sshenc_aes128",
              NULL)
 ,
 
-    TT_TEST_CASE("tt_unit_test_sshenc_aes256",
+    TT_TEST_CASE("case_sshenc_aes256",
                  "ssh encrypt & decrypt: aes256",
-                 tt_unit_test_sshenc_aes256,
+                 case_sshenc_aes256,
                  NULL,
                  NULL,
                  NULL,
@@ -143,7 +143,7 @@ static tt_u8_t __aes128_iv1[] = {0x12,
                                  0xde,
                                  0xf0};
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_sshenc_aes128)
+TT_TEST_ROUTINE_DEFINE(case_sshenc_aes128)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_result_t ret;
@@ -265,7 +265,7 @@ static tt_u8_t __aes256_out2[] = {
     0x44, 0xf5, 0xf2, 0x2a, 0x42, 0x79, 0xd8, 0x87, 0xe1, 0x0c, 0x1a, 0x41,
 };
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_sshenc_aes256)
+TT_TEST_ROUTINE_DEFINE(case_sshenc_aes256)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_result_t ret;

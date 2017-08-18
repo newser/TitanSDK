@@ -37,15 +37,15 @@
 ////////////////////////////////////////////////////////////
 
 // === routine declarations ================
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_ssh_kdf)
+TT_TEST_ROUTINE_DECLARE(case_ssh_kdf)
 // =========================================
 
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(sshkdf_case)
 
-TT_TEST_CASE("tt_unit_test_ssh_kdf",
+TT_TEST_CASE("case_ssh_kdf",
              "ssh key derivation function",
-             tt_unit_test_ssh_kdf,
+             case_ssh_kdf,
              NULL,
              NULL,
              NULL,
@@ -297,7 +297,7 @@ sshkdf_tv_t sshkdf_tv[] = {
     },
 };
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_ssh_kdf)
+TT_TEST_ROUTINE_DEFINE(case_ssh_kdf)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_result_t ret;

@@ -37,19 +37,19 @@
 ////////////////////////////////////////////////////////////
 
 // === routine declarations ================
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_sshkex_basic)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_sshkex_set)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_sshkex_dh)
+TT_TEST_ROUTINE_DECLARE(case_sshkex_basic)
+TT_TEST_ROUTINE_DECLARE(case_sshkex_set)
+TT_TEST_ROUTINE_DECLARE(case_sshkex_dh)
 
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_sshpubk)
+TT_TEST_ROUTINE_DECLARE(case_sshpubk)
 // =========================================
 
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(sshctx_case)
 
-TT_TEST_CASE("tt_unit_test_sshkex_basic",
+TT_TEST_CASE("case_sshkex_basic",
              "ssh context kex basic",
-             tt_unit_test_sshkex_basic,
+             case_sshkex_basic,
              NULL,
              NULL,
              NULL,
@@ -57,27 +57,27 @@ TT_TEST_CASE("tt_unit_test_sshkex_basic",
              NULL)
 ,
 
-    TT_TEST_CASE("tt_unit_test_sshkex_set",
+    TT_TEST_CASE("case_sshkex_set",
                  "ssh context kex set values",
-                 tt_unit_test_sshkex_set,
+                 case_sshkex_set,
                  NULL,
                  NULL,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_sshkex_dh",
+    TT_TEST_CASE("case_sshkex_dh",
                  "ssh context kex DH",
-                 tt_unit_test_sshkex_dh,
+                 case_sshkex_dh,
                  NULL,
                  NULL,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_sshpubk",
+    TT_TEST_CASE("case_sshpubk",
                  "ssh context public key",
-                 tt_unit_test_sshpubk,
+                 case_sshpubk,
                  NULL,
                  NULL,
                  NULL,
@@ -98,7 +98,7 @@ TT_TEST_CASE("tt_unit_test_sshkex_basic",
     ////////////////////////////////////////////////////////////
 
     /*
-    TT_TEST_ROUTINE_DEFINE(tt_unit_test_sshpubk)
+    TT_TEST_ROUTINE_DEFINE(case_sshpubk)
     {
         //tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
 
@@ -110,7 +110,7 @@ TT_TEST_CASE("tt_unit_test_sshkex_basic",
     }
     */
 
-    TT_TEST_ROUTINE_DEFINE(tt_unit_test_sshkex_basic)
+    TT_TEST_ROUTINE_DEFINE(case_sshkex_basic)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_result_t ret;
@@ -179,7 +179,7 @@ TT_TEST_CASE("tt_unit_test_sshkex_basic",
     TT_TEST_CASE_LEAVE()
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_sshkex_set)
+TT_TEST_ROUTINE_DEFINE(case_sshkex_set)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_result_t ret;
@@ -291,7 +291,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_sshkex_set)
     TT_TEST_CASE_LEAVE()
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_sshkex_dh)
+TT_TEST_ROUTINE_DEFINE(case_sshkex_dh)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_result_t ret;
@@ -507,7 +507,7 @@ static const tt_char_t *__ssh_rsapub =
     "MQIDAQAB\n"
     "-----END PUBLIC KEY-----\n";
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_sshpubk)
+TT_TEST_ROUTINE_DEFINE(case_sshpubk)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_result_t ret;

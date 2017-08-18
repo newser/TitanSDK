@@ -48,17 +48,17 @@
 ////////////////////////////////////////////////////////////
 
 // === routine declarations ================
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_slab_cd)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_slab_allocfree)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_slab_vs_malloc)
+TT_TEST_ROUTINE_DECLARE(case_slab_cd)
+TT_TEST_ROUTINE_DECLARE(case_slab_allocfree)
+TT_TEST_ROUTINE_DECLARE(case_slab_vs_malloc)
 // =========================================
 
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(slab_case)
 
-TT_TEST_CASE("tt_unit_test_slab_cd",
+TT_TEST_CASE("case_slab_cd",
              "testing mempnc slab create and destroy",
-             tt_unit_test_slab_cd,
+             case_slab_cd,
              NULL,
              NULL,
              NULL,
@@ -66,9 +66,9 @@ TT_TEST_CASE("tt_unit_test_slab_cd",
              NULL)
 ,
 
-    TT_TEST_CASE("tt_unit_test_slab_allocfree",
+    TT_TEST_CASE("case_slab_allocfree",
                  "testing mempnc slab alloc and free",
-                 tt_unit_test_slab_allocfree,
+                 case_slab_allocfree,
                  NULL,
                  NULL,
                  NULL,
@@ -76,9 +76,9 @@ TT_TEST_CASE("tt_unit_test_slab_cd",
                  NULL),
 
 #if 0
-TT_TEST_CASE("tt_unit_test_slab_vs_malloc",
+TT_TEST_CASE("case_slab_vs_malloc",
              "testing mempnc slab vs malloc",
-             tt_unit_test_slab_vs_malloc,
+             case_slab_vs_malloc,
              NULL,
              NULL,
              NULL,
@@ -100,7 +100,7 @@ TT_TEST_CASE("tt_unit_test_slab_vs_malloc",
     ////////////////////////////////////////////////////////////
 
     /*
-    TT_TEST_ROUTINE_DEFINE(tt_unit_test_slab_vs_malloc)
+    TT_TEST_ROUTINE_DEFINE(case_slab_vs_malloc)
     {
         //tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
 
@@ -112,7 +112,7 @@ TT_TEST_CASE("tt_unit_test_slab_vs_malloc",
     }
     */
 
-    TT_TEST_ROUTINE_DEFINE(tt_unit_test_slab_cd)
+    TT_TEST_ROUTINE_DEFINE(case_slab_cd)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_slab_t slab;
@@ -171,7 +171,7 @@ TT_TEST_CASE("tt_unit_test_slab_vs_malloc",
     TT_TEST_CASE_LEAVE()
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_slab_allocfree)
+TT_TEST_ROUTINE_DEFINE(case_slab_allocfree)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
 
@@ -233,7 +233,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_slab_allocfree)
     TT_TEST_CASE_LEAVE()
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_slab_vs_malloc)
+TT_TEST_ROUTINE_DEFINE(case_slab_vs_malloc)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
 

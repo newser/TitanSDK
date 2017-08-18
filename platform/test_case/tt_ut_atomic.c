@@ -45,19 +45,19 @@
 ////////////////////////////////////////////////////////////
 
 // === routine declarations ================
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_atomic_basic)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_atomic_mt)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_atomic_cas)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_atomic_ptr)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_atomic_fence)
+TT_TEST_ROUTINE_DECLARE(case_atomic_basic)
+TT_TEST_ROUTINE_DECLARE(case_atomic_mt)
+TT_TEST_ROUTINE_DECLARE(case_atomic_cas)
+TT_TEST_ROUTINE_DECLARE(case_atomic_ptr)
+TT_TEST_ROUTINE_DECLARE(case_atomic_fence)
 // =========================================
 
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(atomic_case)
 
-TT_TEST_CASE("tt_unit_test_atomic_basic",
+TT_TEST_CASE("case_atomic_basic",
              "testing basic atomic API",
-             tt_unit_test_atomic_basic,
+             case_atomic_basic,
              NULL,
              NULL,
              NULL,
@@ -65,36 +65,36 @@ TT_TEST_CASE("tt_unit_test_atomic_basic",
              NULL)
 ,
 
-    TT_TEST_CASE("tt_unit_test_atomic_mt",
+    TT_TEST_CASE("case_atomic_mt",
                  "testing atomic API in multithread",
-                 tt_unit_test_atomic_mt,
+                 case_atomic_mt,
                  NULL,
                  NULL,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_atomic_cas",
+    TT_TEST_CASE("case_atomic_cas",
                  "testing cas API in multithread",
-                 tt_unit_test_atomic_cas,
+                 case_atomic_cas,
                  NULL,
                  NULL,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_atomic_ptr",
+    TT_TEST_CASE("case_atomic_ptr",
                  "testing atomic ptr API",
-                 tt_unit_test_atomic_ptr,
+                 case_atomic_ptr,
                  NULL,
                  NULL,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_atomic_fence",
+    TT_TEST_CASE("case_atomic_fence",
                  "testing atomic fence",
-                 tt_unit_test_atomic_fence,
+                 case_atomic_fence,
                  NULL,
                  NULL,
                  NULL,
@@ -127,7 +127,7 @@ TT_TEST_CASE("tt_unit_test_atomic_basic",
     }
     */
 
-    TT_TEST_ROUTINE_DEFINE(tt_unit_test_atomic_basic)
+    TT_TEST_ROUTINE_DEFINE(case_atomic_basic)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_atomic_s32_t v32;
@@ -280,7 +280,7 @@ static tt_result_t test_routine_1(IN void *param)
     return TT_SUCCESS;
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_atomic_mt)
+TT_TEST_ROUTINE_DEFINE(case_atomic_mt)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_ptrdiff_t i = 0;
@@ -343,7 +343,7 @@ static tt_result_t test_routine_2(IN void *param)
     return TT_SUCCESS;
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_atomic_cas)
+TT_TEST_ROUTINE_DEFINE(case_atomic_cas)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_ptrdiff_t i = 0;
@@ -434,7 +434,7 @@ static tt_result_t test_routine_ptr_cas(IN void *param)
     return TT_SUCCESS;
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_atomic_ptr)
+TT_TEST_ROUTINE_DEFINE(case_atomic_ptr)
 {
     tt_ptr_t ptr;
     tt_ptr_t ret_ptr;
@@ -572,7 +572,7 @@ static tt_result_t test_routine_3_3(IN void *param)
     return TT_SUCCESS;
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_atomic_fence)
+TT_TEST_ROUTINE_DEFINE(case_atomic_fence)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_ptrdiff_t i = 0;

@@ -50,22 +50,22 @@
 ////////////////////////////////////////////////////////////
 
 // === routine declarations ================
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_mempool_basic)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_mempool_alloc_free)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_mempool_sanity)
+TT_TEST_ROUTINE_DECLARE(case_mempool_basic)
+TT_TEST_ROUTINE_DECLARE(case_mempool_alloc_free)
+TT_TEST_ROUTINE_DECLARE(case_mempool_sanity)
 
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_ptr_stack)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_mem_spg)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_mem_page)
+TT_TEST_ROUTINE_DECLARE(case_ptr_stack)
+TT_TEST_ROUTINE_DECLARE(case_mem_spg)
+TT_TEST_ROUTINE_DECLARE(case_mem_page)
 // =========================================
 
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(mempool_case)
 
 #if 1
-TT_TEST_CASE("tt_unit_test_mempool_basic",
+TT_TEST_CASE("case_mempool_basic",
              "testing mempool basic operation",
-             tt_unit_test_mempool_basic,
+             case_mempool_basic,
              NULL,
              NULL,
              NULL,
@@ -73,27 +73,27 @@ TT_TEST_CASE("tt_unit_test_mempool_basic",
              NULL)
 ,
 
-    TT_TEST_CASE("tt_unit_test_mempool_alloc_free",
+    TT_TEST_CASE("case_mempool_alloc_free",
                  "testing mempool alloc free APIs",
-                 tt_unit_test_mempool_alloc_free,
+                 case_mempool_alloc_free,
                  NULL,
                  NULL,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_mempool_sanity",
+    TT_TEST_CASE("case_mempool_sanity",
                  "testing mempool sanity test",
-                 tt_unit_test_mempool_sanity,
+                 case_mempool_sanity,
                  NULL,
                  NULL,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_mem_spg",
+    TT_TEST_CASE("case_mem_spg",
                  "testing memory spring",
-                 tt_unit_test_mem_spg,
+                 case_mem_spg,
                  NULL,
                  NULL,
                  NULL,
@@ -101,9 +101,9 @@ TT_TEST_CASE("tt_unit_test_mempool_basic",
                  NULL),
 #endif
 
-    TT_TEST_CASE("tt_unit_test_mem_page",
+    TT_TEST_CASE("case_mem_page",
                  "testing memory page",
-                 tt_unit_test_mem_page,
+                 case_mem_page,
                  NULL,
                  NULL,
                  NULL,
@@ -124,7 +124,7 @@ TT_TEST_CASE("tt_unit_test_mempool_basic",
     ////////////////////////////////////////////////////////////
 
     /*
-    TT_TEST_ROUTINE_DEFINE(tt_unit_test_mem_page)
+    TT_TEST_ROUTINE_DEFINE(case_mem_page)
     {
         //tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
 
@@ -136,7 +136,7 @@ TT_TEST_CASE("tt_unit_test_mempool_basic",
     }
     */
 
-    TT_TEST_ROUTINE_DEFINE(tt_unit_test_mempool_basic)
+    TT_TEST_ROUTINE_DEFINE(case_mempool_basic)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_mempool_t pool;
@@ -186,7 +186,7 @@ TT_TEST_CASE("tt_unit_test_mempool_basic",
     TT_TEST_CASE_LEAVE()
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_mempool_alloc_free)
+TT_TEST_ROUTINE_DEFINE(case_mempool_alloc_free)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_mempool_t pool;
@@ -243,7 +243,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_mempool_alloc_free)
     TT_TEST_CASE_LEAVE()
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_mempool_sanity)
+TT_TEST_ROUTINE_DEFINE(case_mempool_sanity)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_mempool_t pool;
@@ -278,7 +278,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_mempool_sanity)
     TT_TEST_CASE_LEAVE()
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_mem_spg)
+TT_TEST_ROUTINE_DEFINE(case_mem_spg)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_memspg_t mspg;
@@ -421,7 +421,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_mem_spg)
     TT_TEST_CASE_LEAVE()
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_mem_page)
+TT_TEST_ROUTINE_DEFINE(case_mem_page)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_u8_t *p, *cmp_p;

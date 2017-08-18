@@ -65,19 +65,19 @@ extern const char *get_app_path();
 ////////////////////////////////////////////////////////////
 
 // === routine declarations ================
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_ipc_basic)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_ipc_client)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_ipc_stress)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_ipc_fiber_ev)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_ipc_ev)
+TT_TEST_ROUTINE_DECLARE(case_ipc_basic)
+TT_TEST_ROUTINE_DECLARE(case_ipc_client)
+TT_TEST_ROUTINE_DECLARE(case_ipc_stress)
+TT_TEST_ROUTINE_DECLARE(case_ipc_fiber_ev)
+TT_TEST_ROUTINE_DECLARE(case_ipc_ev)
 // =========================================
 
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(ipc_case)
 
-TT_TEST_CASE("tt_unit_test_ipc_basic",
+TT_TEST_CASE("case_ipc_basic",
              "testing ipc basic test",
-             tt_unit_test_ipc_basic,
+             case_ipc_basic,
              NULL,
              NULL,
              NULL,
@@ -85,36 +85,36 @@ TT_TEST_CASE("tt_unit_test_ipc_basic",
              NULL)
 ,
 
-    TT_TEST_CASE("tt_unit_test_ipc_client",
+    TT_TEST_CASE("case_ipc_client",
                  "testing ipc client",
-                 tt_unit_test_ipc_client,
+                 case_ipc_client,
                  NULL,
                  NULL,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_ipc_stress",
+    TT_TEST_CASE("case_ipc_stress",
                  "testing ipc stress test",
-                 tt_unit_test_ipc_stress,
+                 case_ipc_stress,
                  NULL,
                  NULL,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_ipc_fiber_ev",
+    TT_TEST_CASE("case_ipc_fiber_ev",
                  "testing ipc fiber event",
-                 tt_unit_test_ipc_fiber_ev,
+                 case_ipc_fiber_ev,
                  NULL,
                  NULL,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_ipc_ev",
+    TT_TEST_CASE("case_ipc_ev",
                  "testing ipc event",
-                 tt_unit_test_ipc_ev,
+                 case_ipc_ev,
                  NULL,
                  NULL,
                  NULL,
@@ -137,7 +137,7 @@ TT_TEST_CASE("tt_unit_test_ipc_basic",
     //////////////////////////////////////////////////////////
 
     /*
-    TT_TEST_ROUTINE_DEFINE(tt_unit_test_ipc_client)
+    TT_TEST_ROUTINE_DEFINE(case_ipc_client)
     {
         //tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
 
@@ -292,7 +292,7 @@ tt_export tt_result_t __ipc_svr_1(IN void *param)
     return TT_SUCCESS;
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_ipc_basic)
+TT_TEST_ROUTINE_DEFINE(case_ipc_basic)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_task_t t;
@@ -450,7 +450,7 @@ static tt_result_t __ipc_svr_2(IN void *param)
     return TT_SUCCESS;
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_ipc_stress)
+TT_TEST_ROUTINE_DEFINE(case_ipc_stress)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_task_t t;
@@ -548,7 +548,7 @@ tt_export tt_result_t __ipc_cli_oneshot(IN void *param)
     return TT_SUCCESS;
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_ipc_client)
+TT_TEST_ROUTINE_DEFINE(case_ipc_client)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_task_t t;
@@ -749,7 +749,7 @@ tt_result_t __ipc_cli_fev(IN void *param)
     return TT_SUCCESS;
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_ipc_fiber_ev)
+TT_TEST_ROUTINE_DEFINE(case_ipc_fiber_ev)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_task_t t;
@@ -1048,7 +1048,7 @@ tt_result_t __ipc_svr_pev_fev(IN void *param)
     return TT_SUCCESS;
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_ipc_ev)
+TT_TEST_ROUTINE_DEFINE(case_ipc_ev)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_task_t t;

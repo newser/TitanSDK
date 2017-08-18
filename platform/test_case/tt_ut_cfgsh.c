@@ -45,24 +45,24 @@ extern tt_result_t __parse_arg(IN tt_shell_t *sh, IN tt_char_t *line);
 static void __cfgsh_ut_enter(void *enter_param);
 
 // === routine declarations ================
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_cfgsh_ls)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_cfgsh_help)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_cfgsh_pwd)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_cfgsh_cd)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_cfgsh_get)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_cfgsh_set)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_cfgsh_quit)
+TT_TEST_ROUTINE_DECLARE(case_cfgsh_ls)
+TT_TEST_ROUTINE_DECLARE(case_cfgsh_help)
+TT_TEST_ROUTINE_DECLARE(case_cfgsh_pwd)
+TT_TEST_ROUTINE_DECLARE(case_cfgsh_cd)
+TT_TEST_ROUTINE_DECLARE(case_cfgsh_get)
+TT_TEST_ROUTINE_DECLARE(case_cfgsh_set)
+TT_TEST_ROUTINE_DECLARE(case_cfgsh_quit)
 
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_cfgsh_parse_arg)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_cfgsh_exec)
+TT_TEST_ROUTINE_DECLARE(case_cfgsh_parse_arg)
+TT_TEST_ROUTINE_DECLARE(case_cfgsh_exec)
 // =========================================
 
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(cfgsh_case)
 
-TT_TEST_CASE("tt_unit_test_cfgsh_parse_arg",
+TT_TEST_CASE("case_cfgsh_parse_arg",
              "testing shell: parse arguments",
-             tt_unit_test_cfgsh_parse_arg,
+             case_cfgsh_parse_arg,
              NULL,
              __cfgsh_ut_enter,
              NULL,
@@ -70,72 +70,72 @@ TT_TEST_CASE("tt_unit_test_cfgsh_parse_arg",
              NULL)
 ,
 
-    TT_TEST_CASE("tt_unit_test_cfgsh_ls",
+    TT_TEST_CASE("case_cfgsh_ls",
                  "testing shell: ls",
-                 tt_unit_test_cfgsh_ls,
+                 case_cfgsh_ls,
                  NULL,
                  __cfgsh_ut_enter,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_cfgsh_help",
+    TT_TEST_CASE("case_cfgsh_help",
                  "testing shell: help",
-                 tt_unit_test_cfgsh_help,
+                 case_cfgsh_help,
                  NULL,
                  __cfgsh_ut_enter,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_cfgsh_pwd",
+    TT_TEST_CASE("case_cfgsh_pwd",
                  "testing shell: pwd",
-                 tt_unit_test_cfgsh_pwd,
+                 case_cfgsh_pwd,
                  NULL,
                  __cfgsh_ut_enter,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_cfgsh_cd",
+    TT_TEST_CASE("case_cfgsh_cd",
                  "testing shell: cd",
-                 tt_unit_test_cfgsh_cd,
+                 case_cfgsh_cd,
                  NULL,
                  __cfgsh_ut_enter,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_cfgsh_get",
+    TT_TEST_CASE("case_cfgsh_get",
                  "testing shell: get",
-                 tt_unit_test_cfgsh_get,
+                 case_cfgsh_get,
                  NULL,
                  __cfgsh_ut_enter,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_cfgsh_set",
+    TT_TEST_CASE("case_cfgsh_set",
                  "testing shell: set",
-                 tt_unit_test_cfgsh_set,
+                 case_cfgsh_set,
                  NULL,
                  __cfgsh_ut_enter,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_cfgsh_quit",
+    TT_TEST_CASE("case_cfgsh_quit",
                  "testing shell: quit",
-                 tt_unit_test_cfgsh_quit,
+                 case_cfgsh_quit,
                  NULL,
                  __cfgsh_ut_enter,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_cfgsh_exec",
+    TT_TEST_CASE("case_cfgsh_exec",
                  "testing shell: execute",
-                 tt_unit_test_cfgsh_exec,
+                 case_cfgsh_exec,
                  NULL,
                  __cfgsh_ut_enter,
                  NULL,
@@ -156,7 +156,7 @@ TT_TEST_CASE("tt_unit_test_cfgsh_parse_arg",
     ////////////////////////////////////////////////////////////
 
     /*
-    TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_quit)
+    TT_TEST_ROUTINE_DEFINE(case_cfgsh_quit)
     {
      // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
      tt_shell_t sh;
@@ -306,7 +306,7 @@ static tt_result_t __ut_cfgsh_send(IN struct tt_cli_s *cli,
     return TT_SUCCESS;
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_parse_arg)
+TT_TEST_ROUTINE_DEFINE(case_cfgsh_parse_arg)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_shell_t sh;
@@ -455,7 +455,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_parse_arg)
     TT_TEST_CASE_LEAVE()
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_ls)
+TT_TEST_ROUTINE_DEFINE(case_cfgsh_ls)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_shell_t sh;
@@ -602,7 +602,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_ls)
     TT_TEST_CASE_LEAVE()
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_help)
+TT_TEST_ROUTINE_DEFINE(case_cfgsh_help)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_shell_t sh;
@@ -723,7 +723,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_help)
     TT_TEST_CASE_LEAVE()
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_pwd)
+TT_TEST_ROUTINE_DEFINE(case_cfgsh_pwd)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_shell_t sh;
@@ -804,7 +804,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_pwd)
     TT_TEST_CASE_LEAVE()
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_cd)
+TT_TEST_ROUTINE_DEFINE(case_cfgsh_cd)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_shell_t sh;
@@ -954,7 +954,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_cd)
     TT_TEST_CASE_LEAVE()
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_get)
+TT_TEST_ROUTINE_DEFINE(case_cfgsh_get)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_shell_t sh;
@@ -1098,7 +1098,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_get)
     TT_TEST_CASE_LEAVE()
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_set)
+TT_TEST_ROUTINE_DEFINE(case_cfgsh_set)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_shell_t sh;
@@ -1211,7 +1211,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_set)
     TT_TEST_CASE_LEAVE()
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_quit)
+TT_TEST_ROUTINE_DEFINE(case_cfgsh_quit)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_shell_t sh;
@@ -1273,7 +1273,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_quit)
     TT_TEST_CASE_LEAVE()
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_cfgsh_exec)
+TT_TEST_ROUTINE_DEFINE(case_cfgsh_exec)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_shell_t sh;

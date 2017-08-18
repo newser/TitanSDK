@@ -37,35 +37,35 @@
 ////////////////////////////////////////////////////////////
 
 // === routine declarations ================
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_buf_null)
+TT_TEST_ROUTINE_DECLARE(case_buf_null)
 
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_buf_get_basic)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_buf_get_rand)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_buf_get_hexstr)
+TT_TEST_ROUTINE_DECLARE(case_buf_get_basic)
+TT_TEST_ROUTINE_DECLARE(case_buf_get_rand)
+TT_TEST_ROUTINE_DECLARE(case_buf_get_hexstr)
 
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_bufp_str_basic)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_bufp_str_rand)
+TT_TEST_ROUTINE_DECLARE(case_bufp_str_basic)
+TT_TEST_ROUTINE_DECLARE(case_bufp_str_rand)
 
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_buftok)
+TT_TEST_ROUTINE_DECLARE(case_buftok)
 
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_buf_put_basic)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_buf_put_rand)
+TT_TEST_ROUTINE_DECLARE(case_buf_put_basic)
+TT_TEST_ROUTINE_DECLARE(case_buf_put_rand)
 
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_buf_remove)
+TT_TEST_ROUTINE_DECLARE(case_buf_remove)
 
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_iobuf)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_iobuf_format)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_iobuf_format_cp)
+TT_TEST_ROUTINE_DECLARE(case_iobuf)
+TT_TEST_ROUTINE_DECLARE(case_iobuf_format)
+TT_TEST_ROUTINE_DECLARE(case_iobuf_format_cp)
 
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_blob)
+TT_TEST_ROUTINE_DECLARE(case_blob)
 // =========================================
 
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(buf_case)
 
-TT_TEST_CASE("tt_unit_test_buf_null",
+TT_TEST_CASE("case_buf_null",
              "testing basic buf api, null buff",
-             tt_unit_test_buf_null,
+             case_buf_null,
              NULL,
              NULL,
              NULL,
@@ -73,72 +73,72 @@ TT_TEST_CASE("tt_unit_test_buf_null",
              NULL)
 ,
 
-    TT_TEST_CASE("tt_unit_test_buf_get_basic",
+    TT_TEST_CASE("case_buf_get_basic",
                  "testing basic buf parser API",
-                 tt_unit_test_buf_get_basic,
+                 case_buf_get_basic,
                  NULL,
                  NULL,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_buf_get_rand",
+    TT_TEST_CASE("case_buf_get_rand",
                  "testing buf parser random input",
-                 tt_unit_test_buf_get_rand,
+                 case_buf_get_rand,
                  NULL,
                  NULL,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_buf_put_basic",
+    TT_TEST_CASE("case_buf_put_basic",
                  "testing basic buf put API",
-                 tt_unit_test_buf_put_basic,
+                 case_buf_put_basic,
                  NULL,
                  NULL,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_buf_put_rand",
+    TT_TEST_CASE("case_buf_put_rand",
                  "testing buf put random input",
-                 tt_unit_test_buf_put_rand,
+                 case_buf_put_rand,
                  NULL,
                  NULL,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_buf_remove",
+    TT_TEST_CASE("case_buf_remove",
                  "testing buf remove",
-                 tt_unit_test_buf_remove,
+                 case_buf_remove,
                  NULL,
                  NULL,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_buf_get_hexstr",
+    TT_TEST_CASE("case_buf_get_hexstr",
                  "testing buf get hex string",
-                 tt_unit_test_buf_get_hexstr,
+                 case_buf_get_hexstr,
                  NULL,
                  NULL,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_buftok",
+    TT_TEST_CASE("case_buftok",
                  "testing buf tokenize",
-                 tt_unit_test_buftok,
+                 case_buftok,
                  NULL,
                  NULL,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_blob",
+    TT_TEST_CASE("case_blob",
                  "testing blob api",
-                 tt_unit_test_blob,
+                 case_blob,
                  NULL,
                  NULL,
                  NULL,
@@ -159,7 +159,7 @@ TT_TEST_CASE("tt_unit_test_buf_null",
     ////////////////////////////////////////////////////////////
 
     /*
-    TT_TEST_ROUTINE_DEFINE(tt_unit_test_blob)
+    TT_TEST_ROUTINE_DEFINE(case_blob)
     {
         //tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
 
@@ -171,7 +171,7 @@ TT_TEST_CASE("tt_unit_test_buf_null",
     }
     */
 
-    TT_TEST_ROUTINE_DEFINE(tt_unit_test_buf_null)
+    TT_TEST_ROUTINE_DEFINE(case_buf_null)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_buf_t buf, buf2;
@@ -256,7 +256,7 @@ TT_TEST_CASE("tt_unit_test_buf_null",
     TT_TEST_CASE_LEAVE()
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_buf_get_basic)
+TT_TEST_ROUTINE_DEFINE(case_buf_get_basic)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_u32_t v32 = 0x12345678, v32_ret;
@@ -392,7 +392,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_buf_get_basic)
     TT_TEST_CASE_LEAVE()
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_buf_get_rand)
+TT_TEST_ROUTINE_DEFINE(case_buf_get_rand)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_u32_t test_num = 1000, i, j;
@@ -495,7 +495,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_buf_get_rand)
 /////////////////////////////
 /////////////////////////////
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_buf_put_basic)
+TT_TEST_ROUTINE_DEFINE(case_buf_put_basic)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_u32_t v32 = 0x12345678, v32_ret;
@@ -612,7 +612,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_buf_put_basic)
     TT_TEST_CASE_LEAVE()
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_buf_put_rand)
+TT_TEST_ROUTINE_DEFINE(case_buf_put_rand)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_u32_t test_num = 1000, i;
@@ -733,7 +733,7 @@ tt_result_t __stm_get_strchr_next(tt_buf_t *stm,
     TT_BUFP_RETURN();
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_bufp_str_basic)
+TT_TEST_ROUTINE_DEFINE(case_bufp_str_basic)
 {
     //tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     const tt_char_t __t_str[] = "aaabbacd";
@@ -803,7 +803,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_bufp_str_basic)
     TT_TEST_CASE_LEAVE()
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_bufp_str_rand)
+TT_TEST_ROUTINE_DEFINE(case_bufp_str_rand)
 {
     //tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_u32_t n = 1000, i;
@@ -900,7 +900,7 @@ tt_result_t __btb_counter(IN const tt_u8_t *start,
     return TT_SUCCESS;
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_bufp_byte_tok)
+TT_TEST_ROUTINE_DEFINE(case_bufp_byte_tok)
 {
     //tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     const tt_char_t *c1[] = {
@@ -970,7 +970,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_bufp_byte_tok)
     TT_TEST_CASE_LEAVE()
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_bufp_byteseq_tok)
+TT_TEST_ROUTINE_DEFINE(case_bufp_byteseq_tok)
 {
     //tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     const tt_char_t *c1[] = {
@@ -1043,7 +1043,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_bufp_byteseq_tok)
 }
 #endif
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_buf_remove)
+TT_TEST_ROUTINE_DEFINE(case_buf_remove)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_u8_t data[5] = {0, 1, 2, 3, 4};
@@ -1180,7 +1180,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_buf_remove)
     TT_TEST_CASE_LEAVE()
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_buf_get_hexstr)
+TT_TEST_ROUTINE_DEFINE(case_buf_get_hexstr)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_buf_t buf, buf2;
@@ -1235,7 +1235,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_buf_get_hexstr)
     TT_TEST_CASE_LEAVE()
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_buftok)
+TT_TEST_ROUTINE_DEFINE(case_buftok)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_buf_t buf;
@@ -1404,7 +1404,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_buftok)
     TT_TEST_CASE_LEAVE()
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_blob)
+TT_TEST_ROUTINE_DEFINE(case_blob)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_blob_t b, b2 = {0};

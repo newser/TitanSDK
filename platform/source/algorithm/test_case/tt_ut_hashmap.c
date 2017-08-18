@@ -39,18 +39,18 @@
 ////////////////////////////////////////////////////////////
 
 // === routine declarations ================
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_hash)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_map_basic)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_map_share_key)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_ptrmap)
+TT_TEST_ROUTINE_DECLARE(case_hash)
+TT_TEST_ROUTINE_DECLARE(case_map_basic)
+TT_TEST_ROUTINE_DECLARE(case_map_share_key)
+TT_TEST_ROUTINE_DECLARE(case_ptrmap)
 // =========================================
 
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(hmap_case)
 
-TT_TEST_CASE("tt_unit_test_hash",
+TT_TEST_CASE("case_hash",
              "testing hash algorithms",
-             tt_unit_test_hash,
+             case_hash,
              NULL,
              NULL,
              NULL,
@@ -58,27 +58,27 @@ TT_TEST_CASE("tt_unit_test_hash",
              NULL)
 ,
 
-    TT_TEST_CASE("tt_unit_test_map_basic",
+    TT_TEST_CASE("case_map_basic",
                  "testing map basic",
-                 tt_unit_test_map_basic,
+                 case_map_basic,
                  NULL,
                  NULL,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_map_share_key",
+    TT_TEST_CASE("case_map_share_key",
                  "testing map, sharing key",
-                 tt_unit_test_map_share_key,
+                 case_map_share_key,
                  NULL,
                  NULL,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_ptrmap",
+    TT_TEST_CASE("case_ptrmap",
                  "testing ptrmap",
-                 tt_unit_test_ptrmap,
+                 case_ptrmap,
                  NULL,
                  NULL,
                  NULL,
@@ -99,7 +99,7 @@ TT_TEST_CASE("tt_unit_test_hash",
     ////////////////////////////////////////////////////////////
 
     /*
-    TT_TEST_ROUTINE_DEFINE(tt_unit_test_map_share_key)
+    TT_TEST_ROUTINE_DEFINE(case_map_share_key)
     {
         //tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
 
@@ -137,7 +137,7 @@ void __h1_node2key(IN tt_hnode_t *node,
 #define __TN_NUM 100000
 #define __HC_NUM 1000
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_hash)
+TT_TEST_ROUTINE_DEFINE(case_hash)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_u32_t i;
@@ -253,7 +253,7 @@ tt_bool_t __hm_count(IN tt_u8_t *key,
     return TT_TRUE;
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_map_basic)
+TT_TEST_ROUTINE_DEFINE(case_map_basic)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_hashmap_t hmap;
@@ -371,7 +371,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_map_basic)
     TT_TEST_CASE_LEAVE()
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_map_share_key)
+TT_TEST_ROUTINE_DEFINE(case_map_share_key)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_hashmap_t hmap;
@@ -501,7 +501,7 @@ tt_bool_t __pm_count(IN tt_u8_t *key,
     return TT_TRUE;
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_ptrmap)
+TT_TEST_ROUTINE_DEFINE(case_ptrmap)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_ptrhmap_t hmap, h2;

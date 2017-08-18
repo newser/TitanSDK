@@ -37,17 +37,17 @@
 ////////////////////////////////////////////////////////////
 
 // === routine declarations ================
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_sshvx_render)
+TT_TEST_ROUTINE_DECLARE(case_sshvx_render)
 
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_sshvx_parse)
+TT_TEST_ROUTINE_DECLARE(case_sshvx_parse)
 // =========================================
 
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(sshmsg_vx_case)
 
-TT_TEST_CASE("tt_unit_test_sshvx_render",
+TT_TEST_CASE("case_sshvx_render",
              "ssh msg: version exchange render",
-             tt_unit_test_sshvx_render,
+             case_sshvx_render,
              NULL,
              NULL,
              NULL,
@@ -55,9 +55,9 @@ TT_TEST_CASE("tt_unit_test_sshvx_render",
              NULL)
 ,
 
-    TT_TEST_CASE("tt_unit_test_sshvx_parse",
+    TT_TEST_CASE("case_sshvx_parse",
                  "ssh msg: version exchange parse",
-                 tt_unit_test_sshvx_parse,
+                 case_sshvx_parse,
                  NULL,
                  NULL,
                  NULL,
@@ -78,7 +78,7 @@ TT_TEST_CASE("tt_unit_test_sshvx_render",
     ////////////////////////////////////////////////////////////
 
     /*
-    TT_TEST_ROUTINE_DEFINE(tt_unit_test_sshvx_parse)
+    TT_TEST_ROUTINE_DEFINE(case_sshvx_parse)
     {
         //tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
 
@@ -90,7 +90,7 @@ TT_TEST_CASE("tt_unit_test_sshvx_render",
     }
     */
 
-    TT_TEST_ROUTINE_DEFINE(tt_unit_test_sshvx_render)
+    TT_TEST_ROUTINE_DEFINE(case_sshvx_render)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_result_t ret;
@@ -241,7 +241,7 @@ struct __sshvx_parse_vec_t __sshvx_parse_vec[] = {
     },
 };
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_sshvx_parse)
+TT_TEST_ROUTINE_DEFINE(case_sshvx_parse)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_buf_t buf;

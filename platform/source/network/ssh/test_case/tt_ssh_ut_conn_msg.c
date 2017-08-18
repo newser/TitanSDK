@@ -37,27 +37,27 @@
 ////////////////////////////////////////////////////////////
 
 // === routine declarations ================
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_sshmsg_conn_glbreq)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_sshmsg_conn_reqsucc)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_sshmsg_conn_reqfail)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_sshmsg_conn_chopen)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_sshmsg_conn_chopc)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_sshmsg_conn_chopf)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_sshmsg_conn_winadj)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_sshmsg_conn_chdata)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_sshmsg_conn_chclose)
+TT_TEST_ROUTINE_DECLARE(case_sshmsg_conn_glbreq)
+TT_TEST_ROUTINE_DECLARE(case_sshmsg_conn_reqsucc)
+TT_TEST_ROUTINE_DECLARE(case_sshmsg_conn_reqfail)
+TT_TEST_ROUTINE_DECLARE(case_sshmsg_conn_chopen)
+TT_TEST_ROUTINE_DECLARE(case_sshmsg_conn_chopc)
+TT_TEST_ROUTINE_DECLARE(case_sshmsg_conn_chopf)
+TT_TEST_ROUTINE_DECLARE(case_sshmsg_conn_winadj)
+TT_TEST_ROUTINE_DECLARE(case_sshmsg_conn_chdata)
+TT_TEST_ROUTINE_DECLARE(case_sshmsg_conn_chclose)
 
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_sshmsg_conn_chreq)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_sshmsg_conn_chsucc)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_sshmsg_conn_chfail)
+TT_TEST_ROUTINE_DECLARE(case_sshmsg_conn_chreq)
+TT_TEST_ROUTINE_DECLARE(case_sshmsg_conn_chsucc)
+TT_TEST_ROUTINE_DECLARE(case_sshmsg_conn_chfail)
 // =========================================
 
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(sshconnmsg_case)
 
-TT_TEST_CASE("tt_unit_test_sshmsg_conn_glbreq",
+TT_TEST_CASE("case_sshmsg_conn_glbreq",
              "ssh msg: global request",
-             tt_unit_test_sshmsg_conn_glbreq,
+             case_sshmsg_conn_glbreq,
              NULL,
              NULL,
              NULL,
@@ -65,99 +65,99 @@ TT_TEST_CASE("tt_unit_test_sshmsg_conn_glbreq",
              NULL)
 ,
 
-    TT_TEST_CASE("tt_unit_test_sshmsg_conn_reqsucc",
+    TT_TEST_CASE("case_sshmsg_conn_reqsucc",
                  "ssh msg: request success",
-                 tt_unit_test_sshmsg_conn_reqsucc,
+                 case_sshmsg_conn_reqsucc,
                  NULL,
                  NULL,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_sshmsg_conn_reqfail",
+    TT_TEST_CASE("case_sshmsg_conn_reqfail",
                  "ssh msg: request failure",
-                 tt_unit_test_sshmsg_conn_reqfail,
+                 case_sshmsg_conn_reqfail,
                  NULL,
                  NULL,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_sshmsg_conn_chopen",
+    TT_TEST_CASE("case_sshmsg_conn_chopen",
                  "ssh msg: channel open",
-                 tt_unit_test_sshmsg_conn_chopen,
+                 case_sshmsg_conn_chopen,
                  NULL,
                  NULL,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_sshmsg_conn_chopc",
+    TT_TEST_CASE("case_sshmsg_conn_chopc",
                  "ssh msg: channel open cfm",
-                 tt_unit_test_sshmsg_conn_chopc,
+                 case_sshmsg_conn_chopc,
                  NULL,
                  NULL,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_sshmsg_conn_chopf",
+    TT_TEST_CASE("case_sshmsg_conn_chopf",
                  "ssh msg: channel open fail",
-                 tt_unit_test_sshmsg_conn_chopf,
+                 case_sshmsg_conn_chopf,
                  NULL,
                  NULL,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_sshmsg_conn_winadj",
+    TT_TEST_CASE("case_sshmsg_conn_winadj",
                  "ssh msg: channel window adjust",
-                 tt_unit_test_sshmsg_conn_winadj,
+                 case_sshmsg_conn_winadj,
                  NULL,
                  NULL,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_sshmsg_conn_chdata",
+    TT_TEST_CASE("case_sshmsg_conn_chdata",
                  "ssh msg: channel data",
-                 tt_unit_test_sshmsg_conn_chdata,
+                 case_sshmsg_conn_chdata,
                  NULL,
                  NULL,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_sshmsg_conn_chclose",
+    TT_TEST_CASE("case_sshmsg_conn_chclose",
                  "ssh msg: channel close",
-                 tt_unit_test_sshmsg_conn_chclose,
+                 case_sshmsg_conn_chclose,
                  NULL,
                  NULL,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_sshmsg_conn_chreq",
+    TT_TEST_CASE("case_sshmsg_conn_chreq",
                  "ssh msg: channel request",
-                 tt_unit_test_sshmsg_conn_chreq,
+                 case_sshmsg_conn_chreq,
                  NULL,
                  NULL,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_sshmsg_conn_chsucc",
+    TT_TEST_CASE("case_sshmsg_conn_chsucc",
                  "ssh msg: channel success",
-                 tt_unit_test_sshmsg_conn_chsucc,
+                 case_sshmsg_conn_chsucc,
                  NULL,
                  NULL,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_sshmsg_conn_chfail",
+    TT_TEST_CASE("case_sshmsg_conn_chfail",
                  "ssh msg: channel failure",
-                 tt_unit_test_sshmsg_conn_chfail,
+                 case_sshmsg_conn_chfail,
                  NULL,
                  NULL,
                  NULL,
@@ -178,7 +178,7 @@ TT_TEST_CASE("tt_unit_test_sshmsg_conn_glbreq",
     ////////////////////////////////////////////////////////////
 
     /*
-    TT_TEST_ROUTINE_DEFINE(tt_unit_test_sshmsg_conn_glbreq)
+    TT_TEST_ROUTINE_DEFINE(case_sshmsg_conn_glbreq)
     {
         //tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
 
@@ -190,7 +190,7 @@ TT_TEST_CASE("tt_unit_test_sshmsg_conn_glbreq",
     }
     */
 
-    TT_TEST_ROUTINE_DEFINE(tt_unit_test_sshmsg_conn_glbreq)
+    TT_TEST_ROUTINE_DEFINE(case_sshmsg_conn_glbreq)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_sshmsg_t *msg, *out_msg;
@@ -263,7 +263,7 @@ TT_TEST_CASE("tt_unit_test_sshmsg_conn_glbreq",
     TT_TEST_CASE_LEAVE()
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_sshmsg_conn_reqsucc)
+TT_TEST_ROUTINE_DEFINE(case_sshmsg_conn_reqsucc)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_sshmsg_t *msg, *out_msg;
@@ -319,7 +319,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_sshmsg_conn_reqsucc)
     TT_TEST_CASE_LEAVE()
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_sshmsg_conn_reqfail)
+TT_TEST_ROUTINE_DEFINE(case_sshmsg_conn_reqfail)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_sshmsg_t *msg, *out_msg;
@@ -369,7 +369,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_sshmsg_conn_reqfail)
     TT_TEST_CASE_LEAVE()
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_sshmsg_conn_chopen)
+TT_TEST_ROUTINE_DEFINE(case_sshmsg_conn_chopen)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_sshmsg_t *msg, *out_msg;
@@ -446,7 +446,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_sshmsg_conn_chopen)
     TT_TEST_CASE_LEAVE()
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_sshmsg_conn_chopc)
+TT_TEST_ROUTINE_DEFINE(case_sshmsg_conn_chopc)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_sshmsg_t *msg, *out_msg;
@@ -519,7 +519,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_sshmsg_conn_chopc)
     TT_TEST_CASE_LEAVE()
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_sshmsg_conn_chopf)
+TT_TEST_ROUTINE_DEFINE(case_sshmsg_conn_chopf)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_sshmsg_t *msg, *out_msg;
@@ -589,7 +589,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_sshmsg_conn_chopf)
     TT_TEST_CASE_LEAVE()
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_sshmsg_conn_winadj)
+TT_TEST_ROUTINE_DEFINE(case_sshmsg_conn_winadj)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_sshmsg_t *msg, *out_msg;
@@ -652,7 +652,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_sshmsg_conn_winadj)
     TT_TEST_CASE_LEAVE()
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_sshmsg_conn_chdata)
+TT_TEST_ROUTINE_DEFINE(case_sshmsg_conn_chdata)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_sshmsg_t *msg, *out_msg;
@@ -751,7 +751,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_sshmsg_conn_chdata)
     TT_TEST_CASE_LEAVE()
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_sshmsg_conn_chclose)
+TT_TEST_ROUTINE_DEFINE(case_sshmsg_conn_chclose)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_sshmsg_t *msg, *out_msg;
@@ -809,7 +809,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_sshmsg_conn_chclose)
     TT_TEST_CASE_LEAVE()
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_sshmsg_conn_chreq)
+TT_TEST_ROUTINE_DEFINE(case_sshmsg_conn_chreq)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_sshmsg_t *msg, *out_msg;
@@ -889,7 +889,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_sshmsg_conn_chreq)
     TT_TEST_CASE_LEAVE()
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_sshmsg_conn_chsucc)
+TT_TEST_ROUTINE_DEFINE(case_sshmsg_conn_chsucc)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_sshmsg_t *msg, *out_msg;
@@ -947,7 +947,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_sshmsg_conn_chsucc)
     TT_TEST_CASE_LEAVE()
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_sshmsg_conn_chfail)
+TT_TEST_ROUTINE_DEFINE(case_sshmsg_conn_chfail)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_sshmsg_t *msg, *out_msg;

@@ -47,18 +47,18 @@
 ////////////////////////////////////////////////////////////
 
 // === routine declarations ================
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_sem_basic)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_sem_mt)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_sem_pc)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_sem_count)
+TT_TEST_ROUTINE_DECLARE(case_sem_basic)
+TT_TEST_ROUTINE_DECLARE(case_sem_mt)
+TT_TEST_ROUTINE_DECLARE(case_sem_pc)
+TT_TEST_ROUTINE_DECLARE(case_sem_count)
 // =========================================
 
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(sem_case)
 
-TT_TEST_CASE("tt_unit_test_sem_basic",
+TT_TEST_CASE("case_sem_basic",
              "testing basic sem API",
-             tt_unit_test_sem_basic,
+             case_sem_basic,
              NULL,
              NULL,
              NULL,
@@ -66,27 +66,27 @@ TT_TEST_CASE("tt_unit_test_sem_basic",
              NULL)
 ,
 
-    TT_TEST_CASE("tt_unit_test_sem_mt",
+    TT_TEST_CASE("case_sem_mt",
                  "testing sem API in multithread",
-                 tt_unit_test_sem_mt,
+                 case_sem_mt,
                  NULL,
                  NULL,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_sem_pc",
+    TT_TEST_CASE("case_sem_pc",
                  "testing sem API in producer-consumer model",
-                 tt_unit_test_sem_pc,
+                 case_sem_pc,
                  NULL,
                  NULL,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_sem_count",
+    TT_TEST_CASE("case_sem_count",
                  "testing sem counting",
-                 tt_unit_test_sem_count,
+                 case_sem_count,
                  NULL,
                  NULL,
                  NULL,
@@ -119,7 +119,7 @@ TT_TEST_CASE("tt_unit_test_sem_basic",
     }
     */
 
-    TT_TEST_ROUTINE_DEFINE(tt_unit_test_sem_basic)
+    TT_TEST_ROUTINE_DEFINE(case_sem_basic)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_sem_t lock;
@@ -240,7 +240,7 @@ static tt_result_t test_routine_1(IN void *param)
     return TT_SUCCESS;
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_sem_mt)
+TT_TEST_ROUTINE_DEFINE(case_sem_mt)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_ptrdiff_t i;
@@ -303,7 +303,7 @@ static tt_result_t test_consumer(IN void *param)
     return TT_SUCCESS;
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_sem_pc)
+TT_TEST_ROUTINE_DEFINE(case_sem_pc)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_ptrdiff_t i;
@@ -367,7 +367,7 @@ static tt_result_t test_routine_count(IN void *param)
 
 static tt_thread_t *count_threads[20];
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_sem_count)
+TT_TEST_ROUTINE_DEFINE(case_sem_count)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_ptrdiff_t i;

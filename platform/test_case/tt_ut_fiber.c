@@ -50,23 +50,23 @@
 ////////////////////////////////////////////////////////////
 
 // === routine declarations ================
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_fiber_basic)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_fiber_3fibers)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_fiber_sanity)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_fiber_sanity2)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_fiber_event)
+TT_TEST_ROUTINE_DECLARE(case_fiber_basic)
+TT_TEST_ROUTINE_DECLARE(case_fiber_3fibers)
+TT_TEST_ROUTINE_DECLARE(case_fiber_sanity)
+TT_TEST_ROUTINE_DECLARE(case_fiber_sanity2)
+TT_TEST_ROUTINE_DECLARE(case_fiber_event)
 
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_worker_group)
+TT_TEST_ROUTINE_DECLARE(case_worker_group)
 
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_task)
+TT_TEST_ROUTINE_DECLARE(case_task)
 // =========================================
 
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(fiber_case)
 
-TT_TEST_CASE("tt_unit_test_fiber_basic",
+TT_TEST_CASE("case_fiber_basic",
              "testing basic fiber API",
-             tt_unit_test_fiber_basic,
+             case_fiber_basic,
              NULL,
              NULL,
              NULL,
@@ -74,54 +74,54 @@ TT_TEST_CASE("tt_unit_test_fiber_basic",
              NULL)
 ,
 
-    TT_TEST_CASE("tt_unit_test_fiber_3fibers",
+    TT_TEST_CASE("case_fiber_3fibers",
                  "testing basic fiber API, 3 fibers",
-                 tt_unit_test_fiber_3fibers,
+                 case_fiber_3fibers,
                  NULL,
                  NULL,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_fiber_sanity",
+    TT_TEST_CASE("case_fiber_sanity",
                  "testing fiber sanity",
-                 tt_unit_test_fiber_sanity,
+                 case_fiber_sanity,
                  NULL,
                  NULL,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_fiber_sanity2",
+    TT_TEST_CASE("case_fiber_sanity2",
                  "testing fiber sanity more",
-                 tt_unit_test_fiber_sanity2,
+                 case_fiber_sanity2,
                  NULL,
                  NULL,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_worker_group",
+    TT_TEST_CASE("case_worker_group",
                  "testing worker group",
-                 tt_unit_test_worker_group,
+                 case_worker_group,
                  NULL,
                  NULL,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_task",
+    TT_TEST_CASE("case_task",
                  "testing task basic",
-                 tt_unit_test_task,
+                 case_task,
                  NULL,
                  NULL,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_fiber_event",
+    TT_TEST_CASE("case_fiber_event",
                  "testing fiber event send/recv",
-                 tt_unit_test_fiber_event,
+                 case_fiber_event,
                  NULL,
                  NULL,
                  NULL,
@@ -142,7 +142,7 @@ TT_TEST_CASE("tt_unit_test_fiber_basic",
     ////////////////////////////////////////////////////////////
 
     /*
-    TT_TEST_ROUTINE_DEFINE(tt_unit_test_task)
+    TT_TEST_ROUTINE_DEFINE(case_task)
     {
         //tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
 
@@ -274,7 +274,7 @@ static tt_result_t __test_fiber_2f_resume(IN void *param)
     return TT_SUCCESS;
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_fiber_basic)
+TT_TEST_ROUTINE_DEFINE(case_fiber_basic)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_thread_t *t;
@@ -392,7 +392,7 @@ static tt_result_t __test_fiber_2(IN void *param)
     return TT_SUCCESS;
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_fiber_sanity)
+TT_TEST_ROUTINE_DEFINE(case_fiber_sanity)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_thread_t *t;
@@ -460,7 +460,7 @@ static tt_result_t __test_fiber_3(IN void *param)
     return TT_SUCCESS;
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_fiber_3fibers)
+TT_TEST_ROUTINE_DEFINE(case_fiber_3fibers)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_thread_t *t;
@@ -571,7 +571,7 @@ static tt_result_t __test_fiber_san2(IN void *param)
     return TT_SUCCESS;
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_fiber_sanity2)
+TT_TEST_ROUTINE_DEFINE(case_fiber_sanity2)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_thread_t *t;
@@ -595,7 +595,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_fiber_sanity2)
     TT_TEST_CASE_LEAVE()
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_worker_group)
+TT_TEST_ROUTINE_DEFINE(case_worker_group)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_iowg_t wg;
@@ -634,7 +634,7 @@ static tt_result_t __task_fiber_1(IN void *param)
     return TT_SUCCESS;
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_task)
+TT_TEST_ROUTINE_DEFINE(case_task)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_task_t t1;
@@ -790,7 +790,7 @@ static tt_result_t __fiber_ev_recv_nw(IN void *param)
     return TT_SUCCESS;
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_fiber_event)
+TT_TEST_ROUTINE_DEFINE(case_fiber_event)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_task_t t1;

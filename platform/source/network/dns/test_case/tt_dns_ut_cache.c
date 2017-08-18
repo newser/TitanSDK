@@ -49,18 +49,18 @@ extern void __dc_check_inuse(IN tt_dns_cache_t *dc, IN tt_s64_t now);
 ////////////////////////////////////////////////////////////
 
 // === routine declarations ================
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_dc_basic)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_dc_get_a)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_dc_get_aaaa)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_dc_exception)
+TT_TEST_ROUTINE_DECLARE(case_dc_basic)
+TT_TEST_ROUTINE_DECLARE(case_dc_get_a)
+TT_TEST_ROUTINE_DECLARE(case_dc_get_aaaa)
+TT_TEST_ROUTINE_DECLARE(case_dc_exception)
 // =========================================
 
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(dns_cache_case)
 
-TT_TEST_CASE("tt_unit_test_dc_basic",
+TT_TEST_CASE("case_dc_basic",
              "dns cache basic",
-             tt_unit_test_dc_basic,
+             case_dc_basic,
              NULL,
              NULL,
              NULL,
@@ -69,27 +69,27 @@ TT_TEST_CASE("tt_unit_test_dc_basic",
 ,
 
 #if 1
-    TT_TEST_CASE("tt_unit_test_dc_get_a",
+    TT_TEST_CASE("case_dc_get_a",
                  "dns cache get a record",
-                 tt_unit_test_dc_get_a,
+                 case_dc_get_a,
                  NULL,
                  NULL,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_dc_get_aaaa",
+    TT_TEST_CASE("case_dc_get_aaaa",
                  "dns cache get aaaa record",
-                 tt_unit_test_dc_get_aaaa,
+                 case_dc_get_aaaa,
                  NULL,
                  NULL,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_dc_exception",
+    TT_TEST_CASE("case_dc_exception",
                  "dns cache get exceptional case",
-                 tt_unit_test_dc_exception,
+                 case_dc_exception,
                  NULL,
                  NULL,
                  NULL,
@@ -111,7 +111,7 @@ TT_TEST_CASE("tt_unit_test_dc_basic",
     ////////////////////////////////////////////////////////////
 
     /*
-    TT_TEST_ROUTINE_DEFINE(tt_unit_test_dc_basic)
+    TT_TEST_ROUTINE_DEFINE(case_dc_basic)
     {
         //tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
 
@@ -123,7 +123,7 @@ TT_TEST_CASE("tt_unit_test_dc_basic",
     }
     */
 
-    TT_TEST_ROUTINE_DEFINE(tt_unit_test_dc_basic)
+    TT_TEST_ROUTINE_DEFINE(case_dc_basic)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_dns_cache_t *dc;
@@ -458,7 +458,7 @@ static tt_result_t __dc_get1(IN void *param)
     return TT_SUCCESS;
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_dc_get_a)
+TT_TEST_ROUTINE_DEFINE(case_dc_get_a)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_dns_cache_t *dc;
@@ -590,7 +590,7 @@ static tt_result_t __udp_answer6(IN tt_skt_t *s,
     return tt_skt_sendto(s, buf, len + sizeof(ans), NULL, addr);
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_dc_get_aaaa)
+TT_TEST_ROUTINE_DEFINE(case_dc_get_aaaa)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_result_t ret;
@@ -829,7 +829,7 @@ static tt_result_t __dc_get3(IN void *param)
     return TT_SUCCESS;
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_dc_exception)
+TT_TEST_ROUTINE_DEFINE(case_dc_exception)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_task_t t;

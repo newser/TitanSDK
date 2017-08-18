@@ -45,16 +45,16 @@
 ////////////////////////////////////////////////////////////
 
 // === routine declarations ================
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_mutex_basic)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_mutex_mt)
+TT_TEST_ROUTINE_DECLARE(case_mutex_basic)
+TT_TEST_ROUTINE_DECLARE(case_mutex_mt)
 // =========================================
 
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(mutex_case)
 
-TT_TEST_CASE("tt_unit_test_mutex_basic",
+TT_TEST_CASE("case_mutex_basic",
              "testing basic mutex API",
-             tt_unit_test_mutex_basic,
+             case_mutex_basic,
              NULL,
              NULL,
              NULL,
@@ -62,9 +62,9 @@ TT_TEST_CASE("tt_unit_test_mutex_basic",
              NULL)
 ,
 
-    TT_TEST_CASE("tt_unit_test_mutex_mt",
+    TT_TEST_CASE("case_mutex_mt",
                  "testing mutex API in multithread",
-                 tt_unit_test_mutex_mt,
+                 case_mutex_mt,
                  NULL,
                  NULL,
                  NULL,
@@ -97,7 +97,7 @@ TT_TEST_CASE("tt_unit_test_mutex_basic",
     }
     */
 
-    TT_TEST_ROUTINE_DEFINE(tt_unit_test_mutex_basic)
+    TT_TEST_ROUTINE_DEFINE(case_mutex_basic)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_mutex_t lock;
@@ -155,7 +155,7 @@ static tt_result_t test_routine_1(IN void *param)
     return TT_SUCCESS;
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_mutex_mt)
+TT_TEST_ROUTINE_DEFINE(case_mutex_mt)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_ptrdiff_t i;

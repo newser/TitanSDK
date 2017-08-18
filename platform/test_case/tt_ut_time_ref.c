@@ -45,15 +45,15 @@
 ////////////////////////////////////////////////////////////
 
 // === routine declarations ================
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_time_ref_basic)
+TT_TEST_ROUTINE_DECLARE(case_time_ref_basic)
 // =========================================
 
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(time_ref_case)
 
-TT_TEST_CASE("tt_unit_test_time_abs_basic",
+TT_TEST_CASE("case_time_abs_basic",
              "testing basic time ref API",
-             tt_unit_test_time_ref_basic,
+             case_time_ref_basic,
              NULL,
              NULL,
              NULL,
@@ -138,7 +138,7 @@ TT_TEST_ROUTINE_DEFINE(name)
 }
 #endif
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_time_ref_basic)
+TT_TEST_ROUTINE_DEFINE(case_time_ref_basic)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_s64_t t, last;

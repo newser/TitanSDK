@@ -49,17 +49,17 @@
 ////////////////////////////////////////////////////////////
 
 // === routine declarations ================
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_spin_lock_basic_mp)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_spin_lock_basic_sp)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_spin_lock_mt)
+TT_TEST_ROUTINE_DECLARE(case_spin_lock_basic_mp)
+TT_TEST_ROUTINE_DECLARE(case_spin_lock_basic_sp)
+TT_TEST_ROUTINE_DECLARE(case_spin_lock_mt)
 // =========================================
 
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(spin_lock_case)
 
-TT_TEST_CASE("tt_unit_test_spin_lock_basic_mp",
+TT_TEST_CASE("case_spin_lock_basic_mp",
              "testing basic spin lock API for smp",
-             tt_unit_test_spin_lock_basic_mp,
+             case_spin_lock_basic_mp,
              NULL,
              NULL,
              NULL,
@@ -67,18 +67,18 @@ TT_TEST_CASE("tt_unit_test_spin_lock_basic_mp",
              NULL)
 ,
 
-    TT_TEST_CASE("tt_unit_test_spin_lock_basic_sp",
+    TT_TEST_CASE("case_spin_lock_basic_sp",
                  "basic spin lock API for single processor",
-                 tt_unit_test_spin_lock_basic_sp,
+                 case_spin_lock_basic_sp,
                  NULL,
                  NULL,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_spin_lock_mt",
+    TT_TEST_CASE("case_spin_lock_mt",
                  "testing spin lock API in multithread",
-                 tt_unit_test_spin_lock_mt,
+                 case_spin_lock_mt,
                  NULL,
                  NULL,
                  NULL,
@@ -111,7 +111,7 @@ TT_TEST_CASE("tt_unit_test_spin_lock_basic_mp",
     }
     */
 
-    TT_TEST_ROUTINE_DEFINE(tt_unit_test_spin_lock_basic_mp)
+    TT_TEST_ROUTINE_DEFINE(case_spin_lock_basic_mp)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_spinlock_t lock;
@@ -150,7 +150,7 @@ TT_TEST_CASE("tt_unit_test_spin_lock_basic_mp",
     TT_TEST_CASE_LEAVE()
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_spin_lock_basic_sp)
+TT_TEST_ROUTINE_DEFINE(case_spin_lock_basic_sp)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_spinlock_t lock;
@@ -246,7 +246,7 @@ static tt_result_t test_routine_1(IN void *param)
     return TT_SUCCESS;
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_spin_lock_mt)
+TT_TEST_ROUTINE_DEFINE(case_spin_lock_mt)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_ptrdiff_t i;

@@ -11,16 +11,16 @@
  */
 
 // === routine declarations ================
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_log_context)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_log_manager)
+TT_TEST_ROUTINE_DECLARE(case_log_context)
+TT_TEST_ROUTINE_DECLARE(case_log_manager)
 // =========================================
 
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(log_case)
 
-TT_TEST_CASE("tt_unit_test_log_context",
+TT_TEST_CASE("case_log_context",
              "testing log context",
-             tt_unit_test_log_context,
+             case_log_context,
              NULL,
              NULL,
              NULL,
@@ -28,9 +28,9 @@ TT_TEST_CASE("tt_unit_test_log_context",
              NULL)
 ,
 
-    TT_TEST_CASE("tt_unit_test_log_manager",
+    TT_TEST_CASE("case_log_manager",
                  "testing log manager",
-                 tt_unit_test_log_manager,
+                 case_log_manager,
                  NULL,
                  NULL,
                  NULL,
@@ -48,7 +48,7 @@ TT_TEST_CASE("tt_unit_test_log_context",
 
 
     /*
-    TT_TEST_ROUTINE_DEFINE(tt_unit_test_log_manager)
+    TT_TEST_ROUTINE_DEFINE(case_log_manager)
     {
         //tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
 
@@ -60,7 +60,7 @@ TT_TEST_CASE("tt_unit_test_log_context",
     }
     */
 
-    TT_TEST_ROUTINE_DEFINE(tt_unit_test_log_context)
+    TT_TEST_ROUTINE_DEFINE(case_log_context)
 {
     tt_loglyt_t *lyt;
     tt_logctx_t ctx;
@@ -187,7 +187,7 @@ static tt_bool_t __log_filter_false(IN OUT tt_log_entry_t *entry)
     return TT_FALSE;
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_log_manager)
+TT_TEST_ROUTINE_DEFINE(case_log_manager)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_logmgr_t lm;

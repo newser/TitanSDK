@@ -39,17 +39,17 @@
 ////////////////////////////////////////////////////////////
 
 // === routine declarations ================
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_xattr_rel)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_xattr_bool)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_xattr_int)
+TT_TEST_ROUTINE_DECLARE(case_xattr_rel)
+TT_TEST_ROUTINE_DECLARE(case_xattr_bool)
+TT_TEST_ROUTINE_DECLARE(case_xattr_int)
 // =========================================
 
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(xml_xattr_case)
 
-TT_TEST_CASE("tt_unit_test_xattr_rel",
+TT_TEST_CASE("case_xattr_rel",
              "xml: attribute relation",
-             tt_unit_test_xattr_rel,
+             case_xattr_rel,
              NULL,
              NULL,
              NULL,
@@ -57,18 +57,18 @@ TT_TEST_CASE("tt_unit_test_xattr_rel",
              NULL)
 ,
 
-    TT_TEST_CASE("tt_unit_test_xattr_bool",
+    TT_TEST_CASE("case_xattr_bool",
                  "xml: attribute value",
-                 tt_unit_test_xattr_bool,
+                 case_xattr_bool,
                  NULL,
                  NULL,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_xattr_int",
+    TT_TEST_CASE("case_xattr_int",
                  "xml: attribute value int",
-                 tt_unit_test_xattr_int,
+                 case_xattr_int,
                  NULL,
                  NULL,
                  NULL,
@@ -89,7 +89,7 @@ TT_TEST_CASE("tt_unit_test_xattr_rel",
     ////////////////////////////////////////////////////////////
 
     /*
-    TT_TEST_ROUTINE_DEFINE(tt_unit_test_xattr_rel)
+    TT_TEST_ROUTINE_DEFINE(case_xattr_rel)
     {
         //tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
 
@@ -114,7 +114,7 @@ TT_TEST_CASE("tt_unit_test_xattr_rel",
         "str_1=\"the last attr is a string\" "
         "/>";
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_xattr_rel)
+TT_TEST_ROUTINE_DEFINE(case_xattr_rel)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_xdoc_t xd;
@@ -225,7 +225,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xattr_rel)
     TT_TEST_CASE_LEAVE()
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_xattr_bool)
+TT_TEST_ROUTINE_DEFINE(case_xattr_bool)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_xdoc_t xd;
@@ -279,7 +279,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xattr_bool)
     TT_TEST_CASE_LEAVE()
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_xattr_int)
+TT_TEST_ROUTINE_DEFINE(case_xattr_int)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_xdoc_t xd;

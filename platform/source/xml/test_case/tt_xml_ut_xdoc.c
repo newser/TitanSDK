@@ -74,17 +74,17 @@ static void __xml_enter(void *enter_param)
 }
 
 // === routine declarations ================
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_xdoc_encoding)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_xdoc_parse)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_xdoc_render)
+TT_TEST_ROUTINE_DECLARE(case_xdoc_encoding)
+TT_TEST_ROUTINE_DECLARE(case_xdoc_parse)
+TT_TEST_ROUTINE_DECLARE(case_xdoc_render)
 // =========================================
 
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(xml_xdoc_case)
 
-TT_TEST_CASE("tt_unit_test_xdoc_encoding",
+TT_TEST_CASE("case_xdoc_encoding",
              "xml: document encoding",
-             tt_unit_test_xdoc_encoding,
+             case_xdoc_encoding,
              NULL,
              __xml_enter,
              NULL,
@@ -92,18 +92,18 @@ TT_TEST_CASE("tt_unit_test_xdoc_encoding",
              NULL)
 ,
 
-    TT_TEST_CASE("tt_unit_test_xdoc_parse",
+    TT_TEST_CASE("case_xdoc_parse",
                  "xml: document parsing",
-                 tt_unit_test_xdoc_parse,
+                 case_xdoc_parse,
                  NULL,
                  __xml_enter,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_xdoc_render",
+    TT_TEST_CASE("case_xdoc_render",
                  "xml: document renderring",
-                 tt_unit_test_xdoc_render,
+                 case_xdoc_render,
                  NULL,
                  __xml_enter,
                  NULL,
@@ -124,7 +124,7 @@ TT_TEST_CASE("tt_unit_test_xdoc_encoding",
     ////////////////////////////////////////////////////////////
 
     /*
-    TT_TEST_ROUTINE_DEFINE(tt_unit_test_xdoc_render)
+    TT_TEST_ROUTINE_DEFINE(case_xdoc_render)
     {
         //tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
 
@@ -197,7 +197,7 @@ struct __ut_xf_t
                 TT_XDOC_UTF32_BE},
                {0}};
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_xdoc_encoding)
+TT_TEST_ROUTINE_DEFINE(case_xdoc_encoding)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_xdoc_t xd;
@@ -358,7 +358,7 @@ static tt_u32_t __ut_find_num(tt_xnode_t xn)
     return n + 1;
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_xdoc_parse)
+TT_TEST_ROUTINE_DEFINE(case_xdoc_parse)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_xdoc_t xd;
@@ -530,7 +530,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xdoc_parse)
     TT_TEST_CASE_LEAVE()
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_xdoc_render)
+TT_TEST_ROUTINE_DEFINE(case_xdoc_render)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_xdoc_t xd;

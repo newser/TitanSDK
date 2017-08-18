@@ -52,16 +52,16 @@
 ////////////////////////////////////////////////////////////
 
 // === routine declarations ================
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_rwlock_basic)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_rwlock_mt)
+TT_TEST_ROUTINE_DECLARE(case_rwlock_basic)
+TT_TEST_ROUTINE_DECLARE(case_rwlock_mt)
 // =========================================
 
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(rwlock_case)
 
-TT_TEST_CASE("tt_unit_test_rwlock_basic",
+TT_TEST_CASE("case_rwlock_basic",
              "testing basic rwlock API",
-             tt_unit_test_rwlock_basic,
+             case_rwlock_basic,
              NULL,
              NULL,
              NULL,
@@ -69,9 +69,9 @@ TT_TEST_CASE("tt_unit_test_rwlock_basic",
              NULL)
 ,
 
-    TT_TEST_CASE("tt_unit_test_rwlock_mt",
+    TT_TEST_CASE("case_rwlock_mt",
                  "testing rwlock API in multithread",
-                 tt_unit_test_rwlock_mt,
+                 case_rwlock_mt,
                  NULL,
                  NULL,
                  NULL,
@@ -104,7 +104,7 @@ TT_TEST_CASE("tt_unit_test_rwlock_basic",
     }
     */
 
-    TT_TEST_ROUTINE_DEFINE(tt_unit_test_rwlock_basic)
+    TT_TEST_ROUTINE_DEFINE(case_rwlock_basic)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_rwlock_t lock;
@@ -330,7 +330,7 @@ static tt_result_t test_routine_5(IN void *param)
     return TT_SUCCESS;
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_rwlock_mt)
+TT_TEST_ROUTINE_DEFINE(case_rwlock_mt)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_ptrdiff_t i = 0, j = 0;

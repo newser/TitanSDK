@@ -39,26 +39,20 @@
 ////////////////////////////////////////////////////////////
 
 // === routine declarations ================
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_queue)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_ptr_queue)
+TT_TEST_ROUTINE_DECLARE(case_queue)
+TT_TEST_ROUTINE_DECLARE(case_ptr_queue)
 // =========================================
 
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(queue_case)
 
-TT_TEST_CASE("tt_unit_test_queue",
-             "testing queue",
-             tt_unit_test_queue,
-             NULL,
-             NULL,
-             NULL,
-             NULL,
-             NULL)
+TT_TEST_CASE(
+    "case_queue", "testing queue", case_queue, NULL, NULL, NULL, NULL, NULL)
 ,
 
-    TT_TEST_CASE("tt_unit_test_ptr_queue",
+    TT_TEST_CASE("case_ptr_queue",
                  "testing ptr queue",
-                 tt_unit_test_ptr_queue,
+                 case_ptr_queue,
                  NULL,
                  NULL,
                  NULL,
@@ -94,7 +88,7 @@ TT_TEST_ROUTINE_DEFINE(name)
 #define __q_size 100
 #define __qf_size 10
 
-        TT_TEST_ROUTINE_DEFINE(tt_unit_test_queue)
+        TT_TEST_ROUTINE_DEFINE(case_queue)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_u32_t v[__q_size] = {0};
@@ -198,7 +192,7 @@ TT_TEST_ROUTINE_DEFINE(name)
     TT_TEST_CASE_LEAVE()
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_ptr_queue)
+TT_TEST_ROUTINE_DEFINE(case_ptr_queue)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_u32_t v[__q_size] = {0};

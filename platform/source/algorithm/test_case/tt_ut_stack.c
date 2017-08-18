@@ -39,26 +39,20 @@
 ////////////////////////////////////////////////////////////
 
 // === routine declarations ================
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_stack)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_ptr_stack)
+TT_TEST_ROUTINE_DECLARE(case_stack)
+TT_TEST_ROUTINE_DECLARE(case_ptr_stack)
 // =========================================
 
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(stack_case)
 
-TT_TEST_CASE("tt_unit_test_stack",
-             "testing stack",
-             tt_unit_test_stack,
-             NULL,
-             NULL,
-             NULL,
-             NULL,
-             NULL)
+TT_TEST_CASE(
+    "case_stack", "testing stack", case_stack, NULL, NULL, NULL, NULL, NULL)
 ,
 
-    TT_TEST_CASE("tt_unit_test_ptr_stack",
+    TT_TEST_CASE("case_ptr_stack",
                  "testing ptr stack",
-                 tt_unit_test_ptr_stack,
+                 case_ptr_stack,
                  NULL,
                  NULL,
                  NULL,
@@ -94,7 +88,7 @@ TT_TEST_ROUTINE_DEFINE(name)
 #define __q_size 100
 #define __qf_size 10
 
-        TT_TEST_ROUTINE_DEFINE(tt_unit_test_stack)
+        TT_TEST_ROUTINE_DEFINE(case_stack)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_u32_t v[__q_size] = {0};
@@ -189,7 +183,7 @@ TT_TEST_ROUTINE_DEFINE(name)
     TT_TEST_CASE_LEAVE()
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_ptr_stack)
+TT_TEST_ROUTINE_DEFINE(case_ptr_stack)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_u32_t v[__q_size] = {0};

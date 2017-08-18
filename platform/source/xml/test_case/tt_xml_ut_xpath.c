@@ -39,18 +39,18 @@
 ////////////////////////////////////////////////////////////
 
 // === routine declarations ================
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_xpath_node)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_xpath_attr)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_xpath_eval)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_xpath_xpvar)
+TT_TEST_ROUTINE_DECLARE(case_xpath_node)
+TT_TEST_ROUTINE_DECLARE(case_xpath_attr)
+TT_TEST_ROUTINE_DECLARE(case_xpath_eval)
+TT_TEST_ROUTINE_DECLARE(case_xpath_xpvar)
 // =========================================
 
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(xml_xpath_case)
 
-TT_TEST_CASE("tt_unit_test_xpath_node",
+TT_TEST_CASE("case_xpath_node",
              "xml: xpath query node",
-             tt_unit_test_xpath_node,
+             case_xpath_node,
              NULL,
              NULL,
              NULL,
@@ -58,27 +58,27 @@ TT_TEST_CASE("tt_unit_test_xpath_node",
              NULL)
 ,
 
-    TT_TEST_CASE("tt_unit_test_xpath_attr",
+    TT_TEST_CASE("case_xpath_attr",
                  "xml: xpath query attr",
-                 tt_unit_test_xpath_attr,
+                 case_xpath_attr,
                  NULL,
                  NULL,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_xpath_eval",
+    TT_TEST_CASE("case_xpath_eval",
                  "xml: xpath evaluate",
-                 tt_unit_test_xpath_eval,
+                 case_xpath_eval,
                  NULL,
                  NULL,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_xpath_xpvar",
+    TT_TEST_CASE("case_xpath_xpvar",
                  "xml: xpath evaluate with variables",
-                 tt_unit_test_xpath_xpvar,
+                 case_xpath_xpvar,
                  NULL,
                  NULL,
                  NULL,
@@ -99,7 +99,7 @@ TT_TEST_CASE("tt_unit_test_xpath_node",
     ////////////////////////////////////////////////////////////
 
     /*
-    TT_TEST_ROUTINE_DEFINE(tt_unit_test_xpath_eval)
+    TT_TEST_ROUTINE_DEFINE(case_xpath_eval)
     {
         //tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
 
@@ -150,7 +150,7 @@ TT_TEST_CASE("tt_unit_test_xpath_node",
         "\n"
         "</bookstore>\n";
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_xpath_node)
+TT_TEST_ROUTINE_DEFINE(case_xpath_node)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_xdoc_t xd;
@@ -284,7 +284,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xpath_node)
     TT_TEST_CASE_LEAVE()
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_xpath_attr)
+TT_TEST_ROUTINE_DEFINE(case_xpath_attr)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_xdoc_t xd;
@@ -402,7 +402,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xpath_attr)
     TT_TEST_CASE_LEAVE()
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_xpath_eval)
+TT_TEST_ROUTINE_DEFINE(case_xpath_eval)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_xdoc_t xd;
@@ -467,7 +467,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_xpath_eval)
     TT_TEST_CASE_LEAVE()
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_xpath_xpvar)
+TT_TEST_ROUTINE_DEFINE(case_xpath_xpvar)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_xdoc_t xd;

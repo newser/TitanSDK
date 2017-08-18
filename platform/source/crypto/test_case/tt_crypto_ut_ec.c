@@ -66,16 +66,16 @@ static tt_string_t pub_path;
 ////////////////////////////////////////////////////////////
 
 // === routine declarations ================
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_crypto_ecdh)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_crypto_ecdsa)
+TT_TEST_ROUTINE_DECLARE(case_crypto_ecdh)
+TT_TEST_ROUTINE_DECLARE(case_crypto_ecdsa)
 // =========================================
 
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(crypto_ecdh_case)
 
-TT_TEST_CASE("tt_unit_test_crypto_ecdh",
+TT_TEST_CASE("case_crypto_ecdh",
              "crypto: ecdh",
-             tt_unit_test_crypto_ecdh,
+             case_crypto_ecdh,
              NULL,
              __ec_prepare,
              NULL,
@@ -83,9 +83,9 @@ TT_TEST_CASE("tt_unit_test_crypto_ecdh",
              NULL)
 ,
 
-    TT_TEST_CASE("tt_unit_test_crypto_ecdsa",
+    TT_TEST_CASE("case_crypto_ecdsa",
                  "crypto: ecdsa",
-                 tt_unit_test_crypto_ecdsa,
+                 case_crypto_ecdsa,
                  NULL,
                  __ec_prepare,
                  NULL,
@@ -106,7 +106,7 @@ TT_TEST_CASE("tt_unit_test_crypto_ecdh",
     ////////////////////////////////////////////////////////////
 
     /*
-    TT_TEST_ROUTINE_DEFINE(tt_unit_test_crypto_ecdh)
+    TT_TEST_ROUTINE_DEFINE(case_crypto_ecdh)
     {
         //tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
 
@@ -127,7 +127,7 @@ TT_TEST_CASE("tt_unit_test_crypto_ecdh",
         0x15, 0x75, 0xdd, 0x10, 0x90, 0xf6, 0xd0, 0xa4, 0xc3, 0xe1,
 };
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_crypto_ecdh)
+TT_TEST_ROUTINE_DEFINE(case_crypto_ecdh)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_pk_t priv, pub;
@@ -251,7 +251,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_crypto_ecdh)
     TT_TEST_CASE_LEAVE()
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_crypto_ecdsa)
+TT_TEST_ROUTINE_DEFINE(case_crypto_ecdsa)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_pk_t priv, pub;

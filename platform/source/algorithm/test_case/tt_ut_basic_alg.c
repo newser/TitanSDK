@@ -87,21 +87,21 @@ tt_s32_t test_rb_comparer(IN void *l, IN void *r);
 tt_s32_t test_lst_comparer(IN void *l, IN void *r);
 
 // === routine declarations ================
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_basic_alg_qsort)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_basic_alg_qsort_random)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_basic_alg_bsearch)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_basic_alg_min_larger)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_basic_alg_max_less)
+TT_TEST_ROUTINE_DECLARE(case_basic_alg_qsort)
+TT_TEST_ROUTINE_DECLARE(case_basic_alg_qsort_random)
+TT_TEST_ROUTINE_DECLARE(case_basic_alg_bsearch)
+TT_TEST_ROUTINE_DECLARE(case_basic_alg_min_larger)
+TT_TEST_ROUTINE_DECLARE(case_basic_alg_max_less)
 
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_alg_rng)
+TT_TEST_ROUTINE_DECLARE(case_alg_rng)
 // =========================================
 
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(basic_alg_case)
 
-TT_TEST_CASE("tt_unit_test_basic_alg_qsort",
+TT_TEST_CASE("case_basic_alg_qsort",
              "testing tt_qsort()",
-             tt_unit_test_basic_alg_qsort,
+             case_basic_alg_qsort,
              NULL,
              NULL,
              NULL,
@@ -109,45 +109,45 @@ TT_TEST_CASE("tt_unit_test_basic_alg_qsort",
              NULL)
 ,
 
-    TT_TEST_CASE("tt_unit_test_basic_alg_qsort_random",
+    TT_TEST_CASE("case_basic_alg_qsort_random",
                  "testing tt_qsort()",
-                 tt_unit_test_basic_alg_qsort_random,
+                 case_basic_alg_qsort_random,
                  NULL,
                  NULL,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_basic_alg_bsearch",
+    TT_TEST_CASE("case_basic_alg_bsearch",
                  "testing tt_bsearch()",
-                 tt_unit_test_basic_alg_bsearch,
+                 case_basic_alg_bsearch,
                  NULL,
                  NULL,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_basic_alg_min_larger",
+    TT_TEST_CASE("case_basic_alg_min_larger",
                  "testing tt_bsearch_gteq()",
-                 tt_unit_test_basic_alg_min_larger,
+                 case_basic_alg_min_larger,
                  NULL,
                  NULL,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_basic_alg_max_less",
+    TT_TEST_CASE("case_basic_alg_max_less",
                  "testing tt_bsearch_lteq()",
-                 tt_unit_test_basic_alg_max_less,
+                 case_basic_alg_max_less,
                  NULL,
                  NULL,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_alg_rng",
+    TT_TEST_CASE("case_alg_rng",
                  "testing random num generator",
-                 tt_unit_test_alg_rng,
+                 case_alg_rng,
                  NULL,
                  NULL,
                  NULL,
@@ -165,7 +165,7 @@ TT_TEST_CASE("tt_unit_test_basic_alg_qsort",
 
 
     /*
-    TT_TEST_ROUTINE_DEFINE(tt_unit_test_alg_rng)
+    TT_TEST_ROUTINE_DEFINE(case_alg_rng)
     {
         //tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
 
@@ -177,7 +177,7 @@ TT_TEST_CASE("tt_unit_test_basic_alg_qsort",
     }
     */
 
-    TT_TEST_ROUTINE_DEFINE(tt_unit_test_basic_alg_qsort)
+    TT_TEST_ROUTINE_DEFINE(case_basic_alg_qsort)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_u8_t test_array1[32] = {0};
@@ -214,7 +214,7 @@ static int c_cmp(const void *l, const void *r)
         return 1;
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_basic_alg_qsort_random)
+TT_TEST_ROUTINE_DEFINE(case_basic_alg_qsort_random)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_u32_t test = 0;
@@ -257,7 +257,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_basic_alg_qsort_random)
     TT_TEST_CASE_LEAVE()
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_basic_alg_bsearch)
+TT_TEST_ROUTINE_DEFINE(case_basic_alg_bsearch)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
 
@@ -362,7 +362,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_basic_alg_bsearch)
     TT_TEST_CASE_LEAVE()
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_basic_alg_min_larger)
+TT_TEST_ROUTINE_DEFINE(case_basic_alg_min_larger)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
 
@@ -480,7 +480,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_basic_alg_min_larger)
     TT_TEST_CASE_LEAVE()
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_basic_alg_max_less)
+TT_TEST_ROUTINE_DEFINE(case_basic_alg_max_less)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
 
@@ -884,7 +884,7 @@ extern "C" {
 #endif
 #endif
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_alg_rbtree_mt)
+TT_TEST_ROUTINE_DEFINE(case_alg_rbtree_mt)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
 
@@ -959,7 +959,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_alg_rbtree_mt)
 #endif
 
 #define __RAND_SIZE 100000
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_alg_rng)
+TT_TEST_ROUTINE_DEFINE(case_alg_rng)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     static tt_u32_t num[__RAND_SIZE];

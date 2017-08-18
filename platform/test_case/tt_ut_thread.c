@@ -37,26 +37,26 @@ tt_list_t tt_s_thread_list;
 tt_result_t test_thread(IN void *param);
 
 // === routine declarations ================
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_thread_basic)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_thread_pressure)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_thread_sleep)
+TT_TEST_ROUTINE_DECLARE(case_thread_basic)
+TT_TEST_ROUTINE_DECLARE(case_thread_pressure)
+TT_TEST_ROUTINE_DECLARE(case_thread_sleep)
 
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_thread_rand)
+TT_TEST_ROUTINE_DECLARE(case_thread_rand)
 
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_thread_size2alloc)
+TT_TEST_ROUTINE_DECLARE(case_thread_size2alloc)
 
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_dll)
+TT_TEST_ROUTINE_DECLARE(case_dll)
 
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_process_basic)
+TT_TEST_ROUTINE_DECLARE(case_process_basic)
 
 // =========================================
 
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(thread_case)
 
-TT_TEST_CASE("tt_unit_test_thread_basic",
+TT_TEST_CASE("case_thread_basic",
              "basic thread pressure test",
-             tt_unit_test_thread_basic,
+             case_thread_basic,
              NULL,
              NULL,
              NULL,
@@ -64,9 +64,9 @@ TT_TEST_CASE("tt_unit_test_thread_basic",
              NULL)
 ,
 #if 0
-    TT_TEST_CASE("tt_unit_test_thread_pressure",
+    TT_TEST_CASE("case_thread_pressure",
                  "thread pressure test",
-                 tt_unit_test_thread_pressure,
+                 case_thread_pressure,
                  NULL,
                  NULL,
                  NULL,
@@ -75,38 +75,32 @@ TT_TEST_CASE("tt_unit_test_thread_basic",
 #endif
 
 #if 1
-    TT_TEST_CASE("tt_unit_test_thread_sleep",
+    TT_TEST_CASE("case_thread_sleep",
                  "thread sleep api",
-                 tt_unit_test_thread_sleep,
+                 case_thread_sleep,
                  NULL,
                  NULL,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_thread_rand",
+    TT_TEST_CASE("case_thread_rand",
                  "thread random number generator",
-                 tt_unit_test_thread_rand,
+                 case_thread_rand,
                  NULL,
                  NULL,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_dll",
-                 "dll operations",
-                 tt_unit_test_dll,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE(
+        "case_dll", "dll operations", case_dll, NULL, NULL, NULL, NULL, NULL),
 #endif
 
 #if 1
-    TT_TEST_CASE("tt_unit_test_process_basic",
+    TT_TEST_CASE("case_process_basic",
                  "process basic operations",
-                 tt_unit_test_process_basic,
+                 case_process_basic,
                  NULL,
                  NULL,
                  NULL,
@@ -136,7 +130,7 @@ TT_TEST_CASE("tt_unit_test_thread_basic",
     }
     */
 
-    TT_TEST_ROUTINE_DEFINE(tt_unit_test_thread_basic)
+    TT_TEST_ROUTINE_DEFINE(case_thread_basic)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
 
@@ -161,7 +155,7 @@ TT_TEST_CASE("tt_unit_test_thread_basic",
 tt_u32_t t_num;
 
 #if 1
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_thread_pressure)
+TT_TEST_ROUTINE_DEFINE(case_thread_pressure)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_u32_t thread_num = 0;
@@ -257,7 +251,7 @@ tt_result_t test_thread_sleep(IN void *param)
     return 0;
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_thread_sleep)
+TT_TEST_ROUTINE_DEFINE(case_thread_sleep)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
 
@@ -278,7 +272,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_thread_sleep)
     TT_TEST_CASE_LEAVE()
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_thread_rand)
+TT_TEST_ROUTINE_DEFINE(case_thread_rand)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_u64_t n1, n2, n3, n4, n5;
@@ -299,7 +293,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_thread_rand)
 }
 
 #if 0
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_thread_size2alloc)
+TT_TEST_ROUTINE_DEFINE(case_thread_size2alloc)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_u32_t last_size = 0, size = 0;
@@ -387,7 +381,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_thread_size2alloc)
 }
 #endif
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_dll)
+TT_TEST_ROUTINE_DEFINE(case_dll)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_dll_t c_dll;
@@ -456,7 +450,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_dll)
     TT_TEST_CASE_LEAVE()
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_process_basic)
+TT_TEST_ROUTINE_DEFINE(case_process_basic)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_process_t proc;

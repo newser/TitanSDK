@@ -37,15 +37,15 @@
 ////////////////////////////////////////////////////////////
 
 // === routine declarations ================
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_ssh_basic)
+TT_TEST_ROUTINE_DECLARE(case_ssh_basic)
 // =========================================
 
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(sshbasic_case)
 
-TT_TEST_CASE("tt_unit_test_ssh_basic",
+TT_TEST_CASE("case_ssh_basic",
              "ssh server basic",
-             tt_unit_test_ssh_basic,
+             case_ssh_basic,
              NULL,
              NULL,
              NULL,
@@ -182,7 +182,7 @@ tt_result_t __ut1_on_init(IN struct tt_evcenter_s *evc, IN void *on_init_param)
     return TT_SUCCESS;
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_ssh_basic)
+TT_TEST_ROUTINE_DEFINE(case_ssh_basic)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_evcenter_t evc;

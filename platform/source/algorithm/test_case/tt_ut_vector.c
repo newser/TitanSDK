@@ -43,16 +43,16 @@
 ////////////////////////////////////////////////////////////
 
 // === routine declarations ================
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_vector)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_ptr_vector)
+TT_TEST_ROUTINE_DECLARE(case_vector)
+TT_TEST_ROUTINE_DECLARE(case_ptr_vector)
 // =========================================
 
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(vec_case)
 
-TT_TEST_CASE("tt_unit_test_vector",
+TT_TEST_CASE("case_vector",
              "testing vector basic api",
-             tt_unit_test_vector,
+             case_vector,
              NULL,
              NULL,
              NULL,
@@ -60,9 +60,9 @@ TT_TEST_CASE("tt_unit_test_vector",
              NULL)
 ,
 
-    TT_TEST_CASE("tt_unit_test_ptr_vector",
+    TT_TEST_CASE("case_ptr_vector",
                  "testing pointer vector",
-                 tt_unit_test_ptr_vector,
+                 case_ptr_vector,
                  NULL,
                  NULL,
                  NULL,
@@ -83,7 +83,7 @@ TT_TEST_CASE("tt_unit_test_vector",
     ////////////////////////////////////////////////////////////
 
     /*
-    TT_TEST_ROUTINE_DEFINE(tt_unit_test_vector)
+    TT_TEST_ROUTINE_DEFINE(case_vector)
     {
         //tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
 
@@ -521,7 +521,7 @@ static tt_bool_t __utv_test_u16_123(IN tt_vec_t *v)
     return TT_TRUE;
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_vector)
+TT_TEST_ROUTINE_DEFINE(case_vector)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_vec_t v_u16, v2;
@@ -1016,7 +1016,7 @@ static tt_bool_t __utv_test_ptr_123(IN tt_vec_t *v)
     return TT_TRUE;
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_ptr_vector)
+TT_TEST_ROUTINE_DEFINE(case_ptr_vector)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_ptrvec_t pv, v2;

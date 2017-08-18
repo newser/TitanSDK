@@ -114,22 +114,22 @@ extern tt_bool_t has_x509;
 ////////////////////////////////////////////////////////////
 
 // === routine declarations ================
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_ssl_basic)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_ssl_ver)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_ssl_auth)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_ssl_alpn)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_ssl_resume)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_ssl_ticket)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_ssl_multhread)
+TT_TEST_ROUTINE_DECLARE(case_ssl_basic)
+TT_TEST_ROUTINE_DECLARE(case_ssl_ver)
+TT_TEST_ROUTINE_DECLARE(case_ssl_auth)
+TT_TEST_ROUTINE_DECLARE(case_ssl_alpn)
+TT_TEST_ROUTINE_DECLARE(case_ssl_resume)
+TT_TEST_ROUTINE_DECLARE(case_ssl_ticket)
+TT_TEST_ROUTINE_DECLARE(case_ssl_multhread)
 // =========================================
 
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(ssl_io_case)
 
 #if 1
-TT_TEST_CASE("tt_unit_test_ssl_basic",
+TT_TEST_CASE("case_ssl_basic",
              "ssl: basic io",
-             tt_unit_test_ssl_basic,
+             case_ssl_basic,
              NULL,
              __x509_prepare,
              NULL,
@@ -139,45 +139,45 @@ TT_TEST_CASE("tt_unit_test_ssl_basic",
 #endif
 
 #if 1
-    TT_TEST_CASE("tt_unit_test_ssl_ver",
+    TT_TEST_CASE("case_ssl_ver",
                  "ssl: version",
-                 tt_unit_test_ssl_ver,
+                 case_ssl_ver,
                  NULL,
                  __x509_prepare,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_ssl_auth",
+    TT_TEST_CASE("case_ssl_auth",
                  "ssl: authentication",
-                 tt_unit_test_ssl_auth,
+                 case_ssl_auth,
                  NULL,
                  __x509_prepare,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_ssl_alpn",
+    TT_TEST_CASE("case_ssl_alpn",
                  "ssl: alpn",
-                 tt_unit_test_ssl_alpn,
+                 case_ssl_alpn,
                  NULL,
                  __x509_prepare,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_ssl_resume",
+    TT_TEST_CASE("case_ssl_resume",
                  "ssl: session resume",
-                 tt_unit_test_ssl_resume,
+                 case_ssl_resume,
                  NULL,
                  __x509_prepare,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_ssl_ticket",
+    TT_TEST_CASE("case_ssl_ticket",
                  "ssl: session ticket",
-                 tt_unit_test_ssl_ticket,
+                 case_ssl_ticket,
                  NULL,
                  __x509_prepare,
                  NULL,
@@ -186,9 +186,9 @@ TT_TEST_CASE("tt_unit_test_ssl_basic",
 
 #endif
 
-    TT_TEST_CASE("tt_unit_test_ssl_multhread",
+    TT_TEST_CASE("case_ssl_multhread",
                  "ssl: multi thread",
-                 tt_unit_test_ssl_multhread,
+                 case_ssl_multhread,
                  NULL,
                  __x509_prepare,
                  NULL,
@@ -210,7 +210,7 @@ TT_TEST_CASE("tt_unit_test_ssl_basic",
     ////////////////////////////////////////////////////////////
 
     /*
-    TT_TEST_ROUTINE_DEFINE(tt_unit_test_ssl_ver)
+    TT_TEST_ROUTINE_DEFINE(case_ssl_ver)
     {
         //tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
 
@@ -653,7 +653,7 @@ static tt_result_t __f_cli(IN void *param)
     return TT_SUCCESS;
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_ssl_basic)
+TT_TEST_ROUTINE_DEFINE(case_ssl_basic)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_result_t ret;
@@ -830,7 +830,7 @@ static tt_result_t __f_cli_ok(IN void *param)
     return TT_SUCCESS;
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_ssl_ver)
+TT_TEST_ROUTINE_DEFINE(case_ssl_ver)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_result_t ret;
@@ -920,7 +920,7 @@ tt_result_t __ut_on_sni(IN struct tt_ssl_s *ssl,
     return TT_SUCCESS;
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_ssl_auth)
+TT_TEST_ROUTINE_DEFINE(case_ssl_auth)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_result_t ret;
@@ -1024,7 +1024,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_ssl_auth)
     TT_TEST_CASE_LEAVE()
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_ssl_alpn)
+TT_TEST_ROUTINE_DEFINE(case_ssl_alpn)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_result_t ret;
@@ -1321,7 +1321,7 @@ static tt_result_t __f_cli_mul(IN void *param)
     return TT_SUCCESS;
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_ssl_resume)
+TT_TEST_ROUTINE_DEFINE(case_ssl_resume)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_result_t ret;
@@ -1402,7 +1402,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_ssl_resume)
     TT_TEST_CASE_LEAVE()
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_ssl_ticket)
+TT_TEST_ROUTINE_DEFINE(case_ssl_ticket)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_result_t ret;
@@ -1483,7 +1483,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_ssl_ticket)
     TT_TEST_CASE_LEAVE()
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_ssl_multhread)
+TT_TEST_ROUTINE_DEFINE(case_ssl_multhread)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_result_t ret;

@@ -37,31 +37,19 @@
 ////////////////////////////////////////////////////////////
 
 // === routine declarations ================
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_md)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_hmac)
+TT_TEST_ROUTINE_DECLARE(case_md)
+TT_TEST_ROUTINE_DECLARE(case_hmac)
 // =========================================
 
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(crypto_md_case)
 
-TT_TEST_CASE("tt_unit_test_md",
-             "crypto: message digest",
-             tt_unit_test_md,
-             NULL,
-             NULL,
-             NULL,
-             NULL,
-             NULL)
+TT_TEST_CASE(
+    "case_md", "crypto: message digest", case_md, NULL, NULL, NULL, NULL, NULL)
 ,
 
-    TT_TEST_CASE("tt_unit_test_hmac",
-                 "crypto: HMAC",
-                 tt_unit_test_hmac,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE(
+        "case_hmac", "crypto: HMAC", case_hmac, NULL, NULL, NULL, NULL, NULL),
 
     TT_TEST_CASE_LIST_DEFINE_END(crypto_md_case)
     // =========================================
@@ -77,7 +65,7 @@ TT_TEST_CASE("tt_unit_test_md",
     ////////////////////////////////////////////////////////////
 
     /*
-    TT_TEST_ROUTINE_DEFINE(tt_unit_test_hmac)
+    TT_TEST_ROUTINE_DEFINE(case_hmac)
     {
         //tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
 
@@ -154,7 +142,7 @@ static __md_tv_t __md_tv[] = {
     },
 };
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_md)
+TT_TEST_ROUTINE_DEFINE(case_md)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_buf_t output, expect;
@@ -280,7 +268,7 @@ static __hmac_tv_t __hmac_tv[] =
          },
      }};
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_hmac)
+TT_TEST_ROUTINE_DEFINE(case_hmac)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_buf_t output, expect;

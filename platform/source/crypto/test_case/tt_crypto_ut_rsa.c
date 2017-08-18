@@ -64,17 +64,17 @@ extern tt_u8_t __rsa_priv_der[];
 ////////////////////////////////////////////////////////////
 
 // === routine declarations ================
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_rsa_encrypt)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_rsa_sign)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_rsa_gen)
+TT_TEST_ROUTINE_DECLARE(case_rsa_encrypt)
+TT_TEST_ROUTINE_DECLARE(case_rsa_sign)
+TT_TEST_ROUTINE_DECLARE(case_rsa_gen)
 // =========================================
 
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(crypto_rsa_case)
 
-TT_TEST_CASE("tt_unit_test_rsa_encrypt",
+TT_TEST_CASE("case_rsa_encrypt",
              "rsa encrypt and decrypt",
-             tt_unit_test_rsa_encrypt,
+             case_rsa_encrypt,
              NULL,
              __rsa_prepare,
              NULL,
@@ -82,18 +82,18 @@ TT_TEST_CASE("tt_unit_test_rsa_encrypt",
              NULL)
 ,
 
-    TT_TEST_CASE("tt_unit_test_rsa_sign",
+    TT_TEST_CASE("case_rsa_sign",
                  "rsa sign and verify",
-                 tt_unit_test_rsa_sign,
+                 case_rsa_sign,
                  NULL,
                  __rsa_prepare,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_rsa_gen",
+    TT_TEST_CASE("case_rsa_gen",
                  "rsa generated",
-                 tt_unit_test_rsa_gen,
+                 case_rsa_gen,
                  NULL,
                  NULL,
                  NULL,
@@ -114,7 +114,7 @@ TT_TEST_CASE("tt_unit_test_rsa_encrypt",
     ////////////////////////////////////////////////////////////
 
     /*
-    TT_TEST_ROUTINE_DEFINE(tt_unit_test_rsa_encrypt)
+    TT_TEST_ROUTINE_DEFINE(case_rsa_encrypt)
     {
         //tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
 
@@ -126,7 +126,7 @@ TT_TEST_CASE("tt_unit_test_rsa_encrypt",
     }
     */
 
-    TT_TEST_ROUTINE_DEFINE(tt_unit_test_rsa_encrypt)
+    TT_TEST_ROUTINE_DEFINE(case_rsa_encrypt)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_pk_t pub, priv;
@@ -233,7 +233,7 @@ TT_TEST_CASE("tt_unit_test_rsa_encrypt",
     TT_TEST_CASE_LEAVE()
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_rsa_sign)
+TT_TEST_ROUTINE_DEFINE(case_rsa_sign)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_pk_t pub, priv;
@@ -312,7 +312,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_rsa_sign)
     TT_TEST_CASE_LEAVE()
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_rsa_gen)
+TT_TEST_ROUTINE_DEFINE(case_rsa_gen)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_rsa_t rpub, rpriv;

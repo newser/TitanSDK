@@ -56,20 +56,14 @@ static tt_bool_t has_dh;
 ////////////////////////////////////////////////////////////
 
 // === routine declarations ================
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_dh)
+TT_TEST_ROUTINE_DECLARE(case_dh)
 // =========================================
 
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(crypto_dh_case)
 
-TT_TEST_CASE("tt_unit_test_dh",
-             "crypto: dh",
-             tt_unit_test_dh,
-             NULL,
-             __dh_prepare,
-             NULL,
-             NULL,
-             NULL)
+TT_TEST_CASE(
+    "case_dh", "crypto: dh", case_dh, NULL, __dh_prepare, NULL, NULL, NULL)
 ,
 
     TT_TEST_CASE_LIST_DEFINE_END(crypto_dh_case)
@@ -86,7 +80,7 @@ TT_TEST_CASE("tt_unit_test_dh",
     ////////////////////////////////////////////////////////////
 
     /*
-    TT_TEST_ROUTINE_DEFINE(tt_unit_test_dh)
+    TT_TEST_ROUTINE_DEFINE(case_dh)
     {
         //tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
 
@@ -98,7 +92,7 @@ TT_TEST_CASE("tt_unit_test_dh",
     }
     */
 
-    TT_TEST_ROUTINE_DEFINE(tt_unit_test_dh)
+    TT_TEST_ROUTINE_DEFINE(case_dh)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_dh_t dh, d2;

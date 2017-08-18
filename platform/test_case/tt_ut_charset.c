@@ -8,62 +8,62 @@
  */
 
 // === routine declarations ================
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_charset_gb2312_utf8)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_charset_utf16le_utf8)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_charset_utf16be_utf8)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_charset_utf32le_utf8)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_charset_utf32be_utf8)
+TT_TEST_ROUTINE_DECLARE(case_charset_gb2312_utf8)
+TT_TEST_ROUTINE_DECLARE(case_charset_utf16le_utf8)
+TT_TEST_ROUTINE_DECLARE(case_charset_utf16be_utf8)
+TT_TEST_ROUTINE_DECLARE(case_charset_utf32le_utf8)
+TT_TEST_ROUTINE_DECLARE(case_charset_utf32be_utf8)
 
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_charset_utf8)
+TT_TEST_ROUTINE_DECLARE(case_charset_utf8)
 // =========================================
 
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(charset_case)
 
-TT_TEST_CASE("tt_unit_test_charset_gb2312_utf8",
+TT_TEST_CASE("case_charset_gb2312_utf8",
              "testing charset: gb2312 <==> utf8",
-             tt_unit_test_charset_gb2312_utf8,
+             case_charset_gb2312_utf8,
              NULL,
              NULL,
              NULL,
              NULL,
              NULL)
-, TT_TEST_CASE("tt_unit_test_charset_utf16le_utf8",
+, TT_TEST_CASE("case_charset_utf16le_utf8",
                "testing charset: utf16le <==> utf8",
-               tt_unit_test_charset_utf16le_utf8,
+               case_charset_utf16le_utf8,
                NULL,
                NULL,
                NULL,
                NULL,
                NULL),
-    TT_TEST_CASE("tt_unit_test_charset_utf16be_utf8",
+    TT_TEST_CASE("case_charset_utf16be_utf8",
                  "testing charset: utf16be <==> utf8",
-                 tt_unit_test_charset_utf16be_utf8,
+                 case_charset_utf16be_utf8,
                  NULL,
                  NULL,
                  NULL,
                  NULL,
                  NULL),
-    TT_TEST_CASE("tt_unit_test_charset_utf32le_utf8",
+    TT_TEST_CASE("case_charset_utf32le_utf8",
                  "testing charset: utf32le <==> utf8",
-                 tt_unit_test_charset_utf32le_utf8,
+                 case_charset_utf32le_utf8,
                  NULL,
                  NULL,
                  NULL,
                  NULL,
                  NULL),
-    TT_TEST_CASE("tt_unit_test_charset_utf32be_utf8",
+    TT_TEST_CASE("case_charset_utf32be_utf8",
                  "testing charset: utf32be <==> utf8",
-                 tt_unit_test_charset_utf32be_utf8,
+                 case_charset_utf32be_utf8,
                  NULL,
                  NULL,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_charset_utf8",
+    TT_TEST_CASE("case_charset_utf8",
                  "testing charset: utf8",
-                 tt_unit_test_charset_utf8,
+                 case_charset_utf8,
                  NULL,
                  NULL,
                  NULL,
@@ -81,7 +81,7 @@ TT_TEST_CASE("tt_unit_test_charset_gb2312_utf8",
 
 
     /*
-    TT_TEST_ROUTINE_DEFINE(tt_unit_test_charset_utf8)
+    TT_TEST_ROUTINE_DEFINE(case_charset_utf8)
     {
         //tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
 
@@ -181,7 +181,7 @@ static tt_u8_t __utf8_1[] = {
     0xE4, 0xB8, 0xAD, 0xE5, 0x9B, 0xBD, 0xE7, 0x9A, 0x84,
 };
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_charset_gb2312_utf8)
+TT_TEST_ROUTINE_DEFINE(case_charset_gb2312_utf8)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_result_t ret;
@@ -310,7 +310,7 @@ static tt_u8_t __utf16le_1[] =
      0x16, 0x59, 0x02, 0x5e, 0x3a, 0x57, 0xf8, 0x76, 0xd4, 0x6b, 0x0c, 0xff,
      0x2d, 0x4e, 0xfd, 0x56, 0x84, 0x76};
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_charset_utf16le_utf8)
+TT_TEST_ROUTINE_DEFINE(case_charset_utf16le_utf8)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_result_t ret;
@@ -687,7 +687,7 @@ static tt_u8_t __utf16be_1[] =
      0x59, 0x16, 0x5e, 0x02, 0x57, 0x3a, 0x76, 0xf8, 0x6b, 0xd4, 0xff, 0x0c,
      0x4e, 0x2d, 0x56, 0xfd, 0x76, 0x84};
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_charset_utf16be_utf8)
+TT_TEST_ROUTINE_DEFINE(case_charset_utf16be_utf8)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_result_t ret;
@@ -958,7 +958,7 @@ static tt_u8_t __utf32le_1[] =
      0xf8, 0x76, 0x00, 0x00, 0xd4, 0x6b, 0x00, 0x00, 0x0c, 0xff, 0x00, 0x00,
      0x2d, 0x4e, 0x00, 0x00, 0xfd, 0x56, 0x00, 0x00, 0x84, 0x76, 0x00, 0x00};
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_charset_utf32le_utf8)
+TT_TEST_ROUTINE_DEFINE(case_charset_utf32le_utf8)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_result_t ret;
@@ -1188,7 +1188,7 @@ static tt_u8_t __utf32be_1[] = {
     0x00, 0x00, 0x4e, 0x2d, 0x00, 0x00, 0x56, 0xfd, 0x00, 0x00, 0x76, 0x84,
 };
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_charset_utf32be_utf8)
+TT_TEST_ROUTINE_DEFINE(case_charset_utf32be_utf8)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_result_t ret;
@@ -1352,7 +1352,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_charset_utf32be_utf8)
     TT_TEST_CASE_LEAVE()
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_charset_utf8)
+TT_TEST_ROUTINE_DEFINE(case_charset_utf8)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_result_t ret;

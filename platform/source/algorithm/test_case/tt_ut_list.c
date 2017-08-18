@@ -39,36 +39,30 @@
 ////////////////////////////////////////////////////////////
 
 // === routine declarations ================
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_list)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_dl_list)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_sl_list)
+TT_TEST_ROUTINE_DECLARE(case_list)
+TT_TEST_ROUTINE_DECLARE(case_dl_list)
+TT_TEST_ROUTINE_DECLARE(case_sl_list)
 // =========================================
 
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(list_case)
 
-TT_TEST_CASE("tt_unit_test_list",
-             "testing: list",
-             tt_unit_test_list,
-             NULL,
-             NULL,
-             NULL,
-             NULL,
-             NULL)
+TT_TEST_CASE(
+    "case_list", "testing: list", case_list, NULL, NULL, NULL, NULL, NULL)
 ,
 
-    TT_TEST_CASE("tt_unit_test_dl_list",
+    TT_TEST_CASE("case_dl_list",
                  "testing: double linked list",
-                 tt_unit_test_dl_list,
+                 case_dl_list,
                  NULL,
                  NULL,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_sl_list",
+    TT_TEST_CASE("case_sl_list",
                  "testing: single linked list",
-                 tt_unit_test_sl_list,
+                 case_sl_list,
                  NULL,
                  NULL,
                  NULL,
@@ -89,7 +83,7 @@ TT_TEST_CASE("tt_unit_test_list",
     ////////////////////////////////////////////////////////////
 
     /*
-    TT_TEST_ROUTINE_DEFINE(tt_unit_test_list)
+    TT_TEST_ROUTINE_DEFINE(case_list)
     {
         //tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
 
@@ -101,7 +95,7 @@ TT_TEST_CASE("tt_unit_test_list",
     }
     */
 
-    TT_TEST_ROUTINE_DEFINE(tt_unit_test_list)
+    TT_TEST_ROUTINE_DEFINE(case_list)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_list_t l1;
@@ -203,7 +197,7 @@ TT_TEST_CASE("tt_unit_test_list",
     TT_TEST_CASE_LEAVE()
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_dl_list)
+TT_TEST_ROUTINE_DEFINE(case_dl_list)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_dlist_t l1, l2;
@@ -341,7 +335,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_dl_list)
     TT_TEST_CASE_LEAVE()
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_sl_list)
+TT_TEST_ROUTINE_DEFINE(case_sl_list)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_slist_t l1, l2;

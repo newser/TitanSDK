@@ -42,24 +42,24 @@
 ////////////////////////////////////////////////////////////
 
 // === routine declarations ================
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_str_null)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_str_basic)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_str_getchar)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_str_cmp)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_str_cpswap)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_str_find)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_str_join)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_str_case)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_str_insert)
+TT_TEST_ROUTINE_DECLARE(case_str_null)
+TT_TEST_ROUTINE_DECLARE(case_str_basic)
+TT_TEST_ROUTINE_DECLARE(case_str_getchar)
+TT_TEST_ROUTINE_DECLARE(case_str_cmp)
+TT_TEST_ROUTINE_DECLARE(case_str_cpswap)
+TT_TEST_ROUTINE_DECLARE(case_str_find)
+TT_TEST_ROUTINE_DECLARE(case_str_join)
+TT_TEST_ROUTINE_DECLARE(case_str_case)
+TT_TEST_ROUTINE_DECLARE(case_str_insert)
 
 // =========================================
 
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(string_case)
 
-TT_TEST_CASE("tt_unit_test_str_null",
+TT_TEST_CASE("case_str_null",
              "testing basic string api, null string",
-             tt_unit_test_str_null,
+             case_str_null,
              NULL,
              NULL,
              NULL,
@@ -67,72 +67,72 @@ TT_TEST_CASE("tt_unit_test_str_null",
              NULL)
 ,
 
-    TT_TEST_CASE("tt_unit_test_str_basic",
+    TT_TEST_CASE("case_str_basic",
                  "testing basic string api",
-                 tt_unit_test_str_basic,
+                 case_str_basic,
                  NULL,
                  NULL,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_str_getchar",
+    TT_TEST_CASE("case_str_getchar",
                  "testing basic string getchar",
-                 tt_unit_test_str_getchar,
+                 case_str_getchar,
                  NULL,
                  NULL,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_str_cmp",
+    TT_TEST_CASE("case_str_cmp",
                  "testing basic string compare",
-                 tt_unit_test_str_cmp,
+                 case_str_cmp,
                  NULL,
                  NULL,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_str_copy_swap",
+    TT_TEST_CASE("case_str_copy_swap",
                  "testing basic string copy&swap",
-                 tt_unit_test_str_cpswap,
+                 case_str_cpswap,
                  NULL,
                  NULL,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_str_find",
+    TT_TEST_CASE("case_str_find",
                  "testing basic string find",
-                 tt_unit_test_str_find,
+                 case_str_find,
                  NULL,
                  NULL,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_str_join",
+    TT_TEST_CASE("case_str_join",
                  "testing basic string join",
-                 tt_unit_test_str_join,
+                 case_str_join,
                  NULL,
                  NULL,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_str_case",
+    TT_TEST_CASE("case_str_case",
                  "testing string case convert",
-                 tt_unit_test_str_case,
+                 case_str_case,
                  NULL,
                  NULL,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_str_insert",
+    TT_TEST_CASE("case_str_insert",
                  "testing string insert",
-                 tt_unit_test_str_insert,
+                 case_str_insert,
                  NULL,
                  NULL,
                  NULL,
@@ -153,7 +153,7 @@ TT_TEST_CASE("tt_unit_test_str_null",
     ////////////////////////////////////////////////////////////
 
     /*
-    TT_TEST_ROUTINE_DEFINE(tt_unit_test_str_insert)
+    TT_TEST_ROUTINE_DEFINE(case_str_insert)
     {
         //tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
 
@@ -184,7 +184,7 @@ tt_result_t __ut_str_checknull(tt_string_t *s)
     return TT_SUCCESS;
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_str_null)
+TT_TEST_ROUTINE_DEFINE(case_str_null)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_string_t s;
@@ -217,7 +217,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_str_null)
     TT_TEST_CASE_LEAVE()
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_str_basic)
+TT_TEST_ROUTINE_DEFINE(case_str_basic)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_string_t s;
@@ -379,7 +379,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_str_basic)
     TT_TEST_CASE_LEAVE()
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_str_getchar)
+TT_TEST_ROUTINE_DEFINE(case_str_getchar)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_string_t s;
@@ -421,7 +421,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_str_getchar)
     TT_TEST_CASE_LEAVE()
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_str_cmp)
+TT_TEST_ROUTINE_DEFINE(case_str_cmp)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_string_t s, s2;
@@ -547,7 +547,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_str_cmp)
     TT_TEST_CASE_LEAVE()
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_str_cpswap)
+TT_TEST_ROUTINE_DEFINE(case_str_cpswap)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_string_t s, s2;
@@ -649,7 +649,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_str_cpswap)
     TT_TEST_CASE_LEAVE()
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_str_find)
+TT_TEST_ROUTINE_DEFINE(case_str_find)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_string_t s;
@@ -771,7 +771,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_str_find)
     TT_TEST_CASE_LEAVE()
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_str_join)
+TT_TEST_ROUTINE_DEFINE(case_str_join)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_string_t s, s2;
@@ -959,7 +959,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_str_join)
     TT_TEST_CASE_LEAVE()
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_str_case)
+TT_TEST_ROUTINE_DEFINE(case_str_case)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_string_t s;
@@ -1014,7 +1014,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_str_case)
     TT_TEST_CASE_LEAVE()
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_str_insert)
+TT_TEST_ROUTINE_DEFINE(case_str_insert)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_string_t s;

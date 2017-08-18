@@ -39,20 +39,14 @@
 ////////////////////////////////////////////////////////////
 
 // === routine declarations ================
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_rbtree)
+TT_TEST_ROUTINE_DECLARE(case_rbtree)
 // =========================================
 
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(rbtree_case)
 
-TT_TEST_CASE("tt_unit_test_rbtree",
-             "testing rbtree",
-             tt_unit_test_rbtree,
-             NULL,
-             NULL,
-             NULL,
-             NULL,
-             NULL)
+TT_TEST_CASE(
+    "case_rbtree", "testing rbtree", case_rbtree, NULL, NULL, NULL, NULL, NULL)
 ,
 
     TT_TEST_CASE_LIST_DEFINE_END(rbtree_case)
@@ -73,7 +67,7 @@ TT_TEST_CASE("tt_unit_test_rbtree",
 ////////////////////////////////////////////////////////////
 
 /*
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_rbtree)
+TT_TEST_ROUTINE_DEFINE(case_rbtree)
 {
     //tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
 
@@ -104,7 +98,7 @@ static tt_s32_t __rb_cmpkey(IN void *p, IN tt_u8_t *key, IN tt_u32_t key_len)
     }
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_rbtree)
+TT_TEST_ROUTINE_DEFINE(case_rbtree)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_u32_t array_num = 0;

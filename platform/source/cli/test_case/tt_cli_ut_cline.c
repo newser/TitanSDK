@@ -37,17 +37,17 @@
 ////////////////////////////////////////////////////////////
 
 // === routine declarations ================
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_cli_line)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_cli_line_stress)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_cli_line_cursor)
+TT_TEST_ROUTINE_DECLARE(case_cli_line)
+TT_TEST_ROUTINE_DECLARE(case_cli_line_stress)
+TT_TEST_ROUTINE_DECLARE(case_cli_line_cursor)
 // =========================================
 
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(cli_line_case)
 
-TT_TEST_CASE("tt_unit_test_cli_line",
+TT_TEST_CASE("case_cli_line",
              "cli line editor",
-             tt_unit_test_cli_line,
+             case_cli_line,
              NULL,
              NULL,
              NULL,
@@ -55,18 +55,18 @@ TT_TEST_CASE("tt_unit_test_cli_line",
              NULL)
 ,
 
-    TT_TEST_CASE("tt_unit_test_cli_line_stress",
+    TT_TEST_CASE("case_cli_line_stress",
                  "cli line editor stress test",
-                 tt_unit_test_cli_line_stress,
+                 case_cli_line_stress,
                  NULL,
                  NULL,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_cli_line_cursor",
+    TT_TEST_CASE("case_cli_line_cursor",
                  "cli line editor get curosr data",
-                 tt_unit_test_cli_line_cursor,
+                 case_cli_line_cursor,
                  NULL,
                  NULL,
                  NULL,
@@ -87,7 +87,7 @@ TT_TEST_CASE("tt_unit_test_cli_line",
     ////////////////////////////////////////////////////////////
 
     /*
-    TT_TEST_ROUTINE_DEFINE(tt_unit_test_cli_line_cursor)
+    TT_TEST_ROUTINE_DEFINE(case_cli_line_cursor)
     {
         //tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
 
@@ -284,7 +284,7 @@ static __cline_case __cline_output[] = {
     {{'c', 'a', 'b', TT_CLI_EV_LEFT, TT_CLI_EV_LEFT}, 5}, // new char
 };
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_cli_line)
+TT_TEST_ROUTINE_DEFINE(case_cli_line)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_cline_t cl;
@@ -346,7 +346,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cli_line)
 
 #define __cli_st_num 100
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_cli_line_stress)
+TT_TEST_ROUTINE_DEFINE(case_cli_line_stress)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_cline_t cl;
@@ -405,7 +405,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_cli_line_stress)
     TT_TEST_CASE_LEAVE()
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_cli_line_cursor)
+TT_TEST_ROUTINE_DEFINE(case_cli_line_cursor)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_cline_t cl;

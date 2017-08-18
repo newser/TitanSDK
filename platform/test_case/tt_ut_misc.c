@@ -40,24 +40,24 @@
 ////////////////////////////////////////////////////////////
 
 // === routine declarations ================
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_version)
+TT_TEST_ROUTINE_DECLARE(case_version)
 
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_high_bit_1)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_low_bit_1)
+TT_TEST_ROUTINE_DECLARE(case_high_bit_1)
+TT_TEST_ROUTINE_DECLARE(case_low_bit_1)
 
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_base64_dec)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_der_enc)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_strtol)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_c2h)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_align)
+TT_TEST_ROUTINE_DECLARE(case_base64_dec)
+TT_TEST_ROUTINE_DECLARE(case_der_enc)
+TT_TEST_ROUTINE_DECLARE(case_strtol)
+TT_TEST_ROUTINE_DECLARE(case_c2h)
+TT_TEST_ROUTINE_DECLARE(case_align)
 // =========================================
 
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(misc_case)
 
-TT_TEST_CASE("tt_unit_test_version",
+TT_TEST_CASE("case_version",
              "testing version info APIs",
-             tt_unit_test_version,
+             case_version,
              NULL,
              NULL,
              NULL,
@@ -65,63 +65,57 @@ TT_TEST_CASE("tt_unit_test_version",
              NULL)
 ,
 
-    TT_TEST_CASE("tt_unit_test_high_bit_1",
+    TT_TEST_CASE("case_high_bit_1",
                  "testing tt_high_bit_1()",
-                 tt_unit_test_high_bit_1,
+                 case_high_bit_1,
                  NULL,
                  NULL,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_low_bit_1",
+    TT_TEST_CASE("case_low_bit_1",
                  "testing tt_low_bit_1()",
-                 tt_unit_test_low_bit_1,
+                 case_low_bit_1,
                  NULL,
                  NULL,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_base64_dec",
+    TT_TEST_CASE("case_base64_dec",
                  "base64 decode",
-                 tt_unit_test_base64_dec,
+                 case_base64_dec,
                  NULL,
                  NULL,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_der_enc",
+    TT_TEST_CASE("case_der_enc",
                  "asn1 der encode",
-                 tt_unit_test_der_enc,
+                 case_der_enc,
                  NULL,
                  NULL,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_strtol",
-                 "ts strtol",
-                 tt_unit_test_strtol,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE(
+        "case_strtol", "ts strtol", case_strtol, NULL, NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("tt_unit_test_c2h",
+    TT_TEST_CASE("case_c2h",
                  "ts char/hex to hex/char",
-                 tt_unit_test_c2h,
+                 case_c2h,
                  NULL,
                  NULL,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_align",
+    TT_TEST_CASE("case_align",
                  "testing value alignment",
-                 tt_unit_test_align,
+                 case_align,
                  NULL,
                  NULL,
                  NULL,
@@ -142,7 +136,7 @@ TT_TEST_CASE("tt_unit_test_version",
     ////////////////////////////////////////////////////////////
 
     /*
-    TT_TEST_ROUTINE_DEFINE(tt_unit_test_c2h)
+    TT_TEST_ROUTINE_DEFINE(case_c2h)
     {
         //tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
 
@@ -154,7 +148,7 @@ TT_TEST_CASE("tt_unit_test_version",
     }
     */
 
-    TT_TEST_ROUTINE_DEFINE(tt_unit_test_version)
+    TT_TEST_ROUTINE_DEFINE(case_version)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_result_t ret;
@@ -214,7 +208,7 @@ TT_TEST_CASE("tt_unit_test_version",
     TT_TEST_CASE_LEAVE()
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_high_bit_1)
+TT_TEST_ROUTINE_DEFINE(case_high_bit_1)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     int n = 0;
@@ -251,7 +245,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_high_bit_1)
     TT_TEST_CASE_LEAVE()
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_low_bit_1)
+TT_TEST_ROUTINE_DEFINE(case_low_bit_1)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     int n = 0;
@@ -352,7 +346,7 @@ b64_dec_tv_t b64_dec_tv[] = {
     {NULL, 0, NULL, NULL, NULL},
 };
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_base64_dec)
+TT_TEST_ROUTINE_DEFINE(case_base64_dec)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     b64_dec_tv_t *tv;
@@ -431,7 +425,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_base64_dec)
 //////////////////////////////////////////////////////////////
 // asn.1
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_der_enc)
+TT_TEST_ROUTINE_DEFINE(case_der_enc)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_buf_t buf;
@@ -666,7 +660,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_der_enc)
 // asn.1
 //////////////////////////////////////////////////////////////
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_strtol)
+TT_TEST_ROUTINE_DEFINE(case_strtol)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_result_t result;
@@ -821,7 +815,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_strtol)
 }
 
 #if 0
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_sc_gb2sc)
+TT_TEST_ROUTINE_DEFINE(case_sc_gb2sc)
 {    
     //tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     wchar_t sc[100];
@@ -944,7 +938,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_sc_gb2sc)
 }
 #endif
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_c2h)
+TT_TEST_ROUTINE_DEFINE(case_c2h)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_char_t c;
@@ -983,7 +977,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_c2h)
     TT_TEST_CASE_LEAVE()
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_align)
+TT_TEST_ROUTINE_DEFINE(case_align)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_u32_t val;

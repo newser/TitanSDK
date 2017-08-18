@@ -50,18 +50,18 @@
 ////////////////////////////////////////////////////////////
 
 // === routine declarations ================
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_tmr_basic)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_tmr_fiber)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_tmr_accuracy)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_tmr_stable)
+TT_TEST_ROUTINE_DECLARE(case_tmr_basic)
+TT_TEST_ROUTINE_DECLARE(case_tmr_fiber)
+TT_TEST_ROUTINE_DECLARE(case_tmr_accuracy)
+TT_TEST_ROUTINE_DECLARE(case_tmr_stable)
 // =========================================
 
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(tmr_case)
 
-TT_TEST_CASE("tt_unit_test_tmr_basic",
+TT_TEST_CASE("case_tmr_basic",
              "testing tmr mgr basic api",
-             tt_unit_test_tmr_basic,
+             case_tmr_basic,
              NULL,
              NULL,
              NULL,
@@ -69,27 +69,27 @@ TT_TEST_CASE("tt_unit_test_tmr_basic",
              NULL)
 ,
 
-    TT_TEST_CASE("tt_unit_test_tmr_fiber",
+    TT_TEST_CASE("case_tmr_fiber",
                  "testing tmr mgr with fiber",
-                 tt_unit_test_tmr_fiber,
+                 case_tmr_fiber,
                  NULL,
                  NULL,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_tmr_accuracy",
+    TT_TEST_CASE("case_tmr_accuracy",
                  "testing tmr mgr accuracy",
-                 tt_unit_test_tmr_accuracy,
+                 case_tmr_accuracy,
                  NULL,
                  NULL,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("tt_unit_test_tmr_stable",
+    TT_TEST_CASE("case_tmr_stable",
                  "testing tmr mgr stability",
-                 tt_unit_test_tmr_stable,
+                 case_tmr_stable,
                  NULL,
                  NULL,
                  NULL,
@@ -110,7 +110,7 @@ TT_TEST_CASE("tt_unit_test_tmr_basic",
     ////////////////////////////////////////////////////////////
 
     /*
-    TT_TEST_ROUTINE_DEFINE(tt_unit_test_tmr_fiber)
+    TT_TEST_ROUTINE_DEFINE(case_tmr_fiber)
     {
         //tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
 
@@ -130,7 +130,7 @@ void __ta1(IN struct tt_tmr_s *timer, IN void *param, IN tt_u32_t reason)
     *pn1 += 1;
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_tmr_basic)
+TT_TEST_ROUTINE_DEFINE(case_tmr_basic)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_result_t ret;
@@ -324,7 +324,7 @@ tt_result_t __fb_tmr_6(IN void *param)
     return TT_SUCCESS;
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_tmr_fiber)
+TT_TEST_ROUTINE_DEFINE(case_tmr_fiber)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_task_t t;
@@ -413,7 +413,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_tmr_fiber)
 
 static tt_s64_t max_diff;
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_tmr_accuracy)
+TT_TEST_ROUTINE_DEFINE(case_tmr_accuracy)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_result_t ret;
@@ -473,7 +473,7 @@ TT_TEST_ROUTINE_DEFINE(tt_unit_test_tmr_accuracy)
 
 static tt_s64_t max_diff3;
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_tmr_stable)
+TT_TEST_ROUTINE_DEFINE(case_tmr_stable)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_result_t ret;

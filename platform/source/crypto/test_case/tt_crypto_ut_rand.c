@@ -37,16 +37,16 @@
 ////////////////////////////////////////////////////////////
 
 // === routine declarations ================
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_entropy)
-TT_TEST_ROUTINE_DECLARE(tt_unit_test_ctr_drbg)
+TT_TEST_ROUTINE_DECLARE(case_entropy)
+TT_TEST_ROUTINE_DECLARE(case_ctr_drbg)
 // =========================================
 
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(crypto_rand_case)
 
-TT_TEST_CASE("tt_unit_test_entropy",
+TT_TEST_CASE("case_entropy",
              "crypto: entropy",
-             tt_unit_test_entropy,
+             case_entropy,
              NULL,
              NULL,
              NULL,
@@ -54,9 +54,9 @@ TT_TEST_CASE("tt_unit_test_entropy",
              NULL)
 ,
 
-    TT_TEST_CASE("tt_unit_test_ctr_drbg",
+    TT_TEST_CASE("case_ctr_drbg",
                  "crypto: ctr drbg",
-                 tt_unit_test_ctr_drbg,
+                 case_ctr_drbg,
                  NULL,
                  NULL,
                  NULL,
@@ -77,7 +77,7 @@ TT_TEST_CASE("tt_unit_test_entropy",
     ////////////////////////////////////////////////////////////
 
     /*
-    TT_TEST_ROUTINE_DEFINE(tt_unit_test_entropy)
+    TT_TEST_ROUTINE_DEFINE(case_entropy)
     {
         //tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
 
@@ -89,7 +89,7 @@ TT_TEST_CASE("tt_unit_test_entropy",
     }
     */
 
-    TT_TEST_ROUTINE_DEFINE(tt_unit_test_entropy)
+    TT_TEST_ROUTINE_DEFINE(case_entropy)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_entropy_t *e;
@@ -106,7 +106,7 @@ TT_TEST_CASE("tt_unit_test_entropy",
     TT_TEST_CASE_LEAVE()
 }
 
-TT_TEST_ROUTINE_DEFINE(tt_unit_test_ctr_drbg)
+TT_TEST_ROUTINE_DEFINE(case_ctr_drbg)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_entropy_t *e;
