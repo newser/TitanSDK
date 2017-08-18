@@ -520,6 +520,7 @@ static tt_result_t __dns_query_2(IN void *param)
         tt_fiber_send_ev(fb, fev, TT_FALSE);
     }
 
+    tt_task_exit(NULL);
     return TT_SUCCESS;
 }
 
@@ -572,7 +573,7 @@ TT_TEST_ROUTINE_DEFINE(case_dns_query_u2t)
     sp[2].name = "::1";
     sp[2].port = 43211;
     sp[2].on_recv = __tcp_answer;
-    sp[2].recv_num = 1;
+    sp[2].recv_num = 0;
     sp[2].acc_num = 2;
     tt_task_add_fiber(&t, NULL, __tcp_svr1, &sp[2], NULL);
     tt_task_add_fiber(&t, NULL, __dns_query_2, NULL, NULL);

@@ -350,14 +350,6 @@ void __query4_cb(IN void *arg,
 
     TT_ASSERT(dq->result == TT_PROCEEDING);
 
-    TT_INFO("%d, %p, %d, %p, %p",
-            status,
-            hostent,
-            TT_COND(hostent != NULL, hostent->h_addrtype, ~0),
-            TT_COND(hostent != NULL, hostent->h_addr_list, NULL),
-            TT_COND((hostent != NULL) && (hostent->h_addr_list != NULL),
-                    hostent->h_addr_list[0],
-                    NULL));
     if ((status == ARES_SUCCESS) && (hostent != NULL) &&
         (hostent->h_addrtype == AF_INET) && (hostent->h_addr_list != NULL) &&
         (hostent->h_addr_list[0] != NULL)) {
