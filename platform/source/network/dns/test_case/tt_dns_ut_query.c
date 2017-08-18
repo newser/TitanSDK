@@ -357,6 +357,7 @@ static tt_result_t __tcp_answer(IN tt_skt_t *s,
     }
     tt_memcpy(&buf[msglen], ans, sizeof(ans));
 
+    TT_INFO("sent tcp answer: %d", msglen + sizeof(ans));
     return tt_skt_send(s, buf, msglen + sizeof(ans), NULL);
 }
 
