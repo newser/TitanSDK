@@ -64,6 +64,8 @@ tt_result_t __console_ev_handler(IN void *console_param,
     return TT_SUCCESS;
 }
 
+static tt_bool_t tt_ut_ok = TT_FALSE;
+
 tt_result_t __ut_fiber(IN void *param)
 {
     const tt_char_t *name = NULL;
@@ -76,10 +78,13 @@ tt_result_t __ut_fiber(IN void *param)
     name = getenv("TT_CASE");
 #endif
     if (name != NULL) {
-        tt_test_unit_run(name);
+        if (TT_OK(tt_test_unit_run(name))) {
+            tt_ut_ok = TT_TRUE;
+        }
     } else if (tt_strcmp(name, "all") == 0) {
         tt_test_unit_run(NULL);
         tt_test_unit_list(NULL);
+        tt_ut_ok = TT_TRUE;
     } else {
         printf("unit_test <case name> | all");
     }
@@ -161,6 +166,7 @@ tt_task_add_fiber(&t, NULL, __ut_fiber, NULL, NULL);
 tt_task_run(&t);
 tt_task_wait(&t);
 printf("exiting\n");
+return TT_COND(tt_ut_ok, 0, -1);
 #if TT_ENV_OS_IS_WINDOWS
 while (1) {
 #else
