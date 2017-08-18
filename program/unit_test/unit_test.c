@@ -78,13 +78,13 @@ tt_result_t __ut_fiber(IN void *param)
     name = getenv("TT_CASE");
 #endif
     if (name != NULL) {
-        if (TT_OK(tt_test_unit_run(name))) {
+        if (tt_strcmp(name, "all") == 0) {
+            tt_test_unit_run(NULL);
+            tt_test_unit_list(NULL);
+            tt_ut_ok = TT_TRUE;
+        } else if (TT_OK(tt_test_unit_run(name))) {
             tt_ut_ok = TT_TRUE;
         }
-    } else if (tt_strcmp(name, "all") == 0) {
-        tt_test_unit_run(NULL);
-        tt_test_unit_list(NULL);
-        tt_ut_ok = TT_TRUE;
     } else {
         printf("unit_test <case name> | all");
     }

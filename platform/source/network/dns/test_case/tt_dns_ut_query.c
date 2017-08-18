@@ -258,9 +258,12 @@ static tt_result_t __tcp_acc1(IN void *param)
     }
 
     tt_skt_shutdown(new_s, TT_SKT_SHUT_WR);
+    TT_INFO("shutdown dns tcp");
     while (TT_OK(tt_skt_recv(new_s, buf, sizeof(buf), &recvd, &fev, &tmr))) {
+        TT_INFO("received dns tcp: %d", recvd);
     }
     tt_skt_destroy(new_s);
+    TT_INFO("destroyed dns tcp");
 
     return TT_SUCCESS;
 }
