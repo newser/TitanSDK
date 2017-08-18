@@ -150,7 +150,7 @@ TT_TEST_CASE("case_dc_basic",
 
     // empty cache, wait infinite
     ms = tt_dns_cache_run(dc);
-    TT_UT_EXP(abs((int)ms - __INUSE_LIMIT) < 50, "");
+    TT_UT_EXP(abs((int)ms - __INUSE_LIMIT) < 100, "");
 
     de = __de_get(dc, "123", TT_FALSE);
     TT_UT_NULL(de, "");
@@ -242,17 +242,17 @@ TT_TEST_CASE("case_dc_basic",
 
     // cache would say wait 200ms
     ms = tt_dns_cache_run(dc);
-    TT_UT_EXP(abs((int)ms - 200) < 50, "");
+    TT_UT_EXP(abs((int)ms - 200) < 100, "");
 
     tt_sleep(100);
     ms = tt_dns_cache_run(dc);
-    TT_UT_EXP(abs((int)ms - 100) < 50, "");
+    TT_UT_EXP(abs((int)ms - 100) < 100, "");
 
     tt_sleep(150);
     ms = tt_dns_cache_run(dc);
     // de1 expired, de2 has 250ms left
     TT_INFO("ms: %d", ms);
-    TT_UT_EXP(abs((int)ms - 250) < 50, "");
+    TT_UT_EXP(abs((int)ms - 250) < 100, "");
     now = tt_time_ref();
 
     ttl_ms = 123;
@@ -263,7 +263,7 @@ TT_TEST_CASE("case_dc_basic",
     ttl_ms = 123;
     b_ret = tt_dns_entry_run(de2, now, &ttl_ms);
     TT_UT_EQUAL(b_ret, TT_FALSE, "");
-    TT_UT_EXP(abs((int)ttl_ms - 250) < 50, "");
+    TT_UT_EXP(abs((int)ttl_ms - 250) < 100, "");
 
     tt_sleep(400);
     // both de and de2 expired now
