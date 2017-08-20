@@ -32,6 +32,10 @@ function(platform_link_libraries)
 
     # core foundation
     target_link_libraries(platform "-framework CoreFoundation")
+
+    # XCTest
+	find_library(XCTEST XCTest)
+    target_link_libraries(platform ${XCTEST})
     
 endfunction(platform_link_libraries)
 
