@@ -1,22 +1,24 @@
 language: c
 
-addons:
-    apt:
-        sources:
-            - george-edison55-precise-backports
-        packages:
-            - cmake-data
-            - cmake
+#addons:
+#    apt:
+#        sources:
+#            - george-edison55-precise-backports
+#        packages:
+#            - cmake-data
+#            - cmake
 
 matrix:
     include:
         - os: linux
+          dist: trusty
           env:
               global:
                   - JOB=precise
                   - GENERATOR='Unix Makefiles'
                   - CMAKE_FLAGS='-DPLATFORM_BUILD_SHARED=TRUE -DPLATFORM_ENABLE_DEBUG=FALSE'
                   - BUILD_TYPE=Debug
+                  - OS=linux
                   - UT=unit_test/unit_test
         - os: linux
           dist: trusty
@@ -26,6 +28,7 @@ matrix:
                   - GENERATOR='Unix Makefiles'
                   - CMAKE_FLAGS='-DPLATFORM_BUILD_SHARED=TRUE -DPLATFORM_ENABLE_DEBUG=TRUE'
                   - BUILD_TYPE=Release
+                  - OS=linux
                   - UT=unit_test/unit_test
         - os: osx
           osx_image: xcode7.3.1
@@ -36,6 +39,7 @@ matrix:
                   - GENERATOR=Xcode
                   - CMAKE_FLAGS='-DPLATFORM_BUILD_SHARED=FALSE -DPLATFORM_ENABLE_DEBUG=FALSE'
                   - BUILD_TYPE=Debug
+                  - OS=macos
                   - UT=unit_test/Debug/unit_test
         - os: osx
           osx_image: xcode8.3
@@ -45,6 +49,7 @@ matrix:
                   - GENERATOR=Xcode
                   - CMAKE_FLAGS='-DPLATFORM_BUILD_SHARED=FALSE -DPLATFORM_ENABLE_DEBUG=TRUE'
                   - BUILD_TYPE=Release
+                  - OS=macos
                   - UT=unit_test/Release/unit_test
         - os: osx
           osx_image: xcode9
@@ -54,6 +59,7 @@ matrix:
                   - GENERATOR=Xcode
                   - CMAKE_FLAGS='-DPLATFORM_BUILD_SHARED=TRUE -DPLATFORM_ENABLE_DEBUG=FALSE'
                   - BUILD_TYPE=Debug
+                  - OS=macos
                   - UT=unit_test/Debug/unit_test
 
 install:
@@ -61,7 +67,9 @@ install:
     - cd titansdk_BUILD_CMD_${JOB}
     - cmake -G "${GENERATOR}" ${CMAKE_FLAGS} ..
     - cmake --build . --target unit_test --config ${BUILD_TYPE}
-    - ${BUILD_CMD}
 
 script:
-    - echo start unit test
+    - mkdir test_log
+    - cd test_log
+    - cp ../../misc/run_case.sh ./run_case.sh
+    - chmod u+x run_case.sh
