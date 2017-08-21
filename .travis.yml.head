@@ -14,6 +14,7 @@ matrix:
           dist: trusty
           env:
               global:
+			      - JOB='Linux'
                   - GENERATOR='Unix Makefiles'
                   - CMAKE_FLAGS='-DPLATFORM_BUILD_SHARED=TRUE -DPLATFORM_ENABLE_DEBUG=FALSE'
                   - BUILD_CMD='cmake --build . --target unit_test --config Debug'
@@ -23,6 +24,7 @@ matrix:
           dist: trusty
           env:
               global:
+			      - JOB='Linux'
                   - GENERATOR='Unix Makefiles'
                   - CMAKE_FLAGS='-DPLATFORM_BUILD_SHARED=TRUE -DPLATFORM_ENABLE_DEBUG=TRUE'
                   - BUILD_CMD='cmake --build . --target unit_test --config Release'
@@ -32,6 +34,7 @@ matrix:
           osx_image: xcode7.3.1
           env:
               global:
+			      - JOB='macOS Xcode7'
                   - GENERATOR=Xcode
                   - CMAKE_FLAGS='-DPLATFORM_BUILD_SHARED=FALSE -DPLATFORM_ENABLE_DEBUG=FALSE'
                   - BUILD_CMD='cmake --build . --target unit_test --config Debug'
@@ -41,6 +44,7 @@ matrix:
           osx_image: xcode8.3
           env:
               global:
+			      - JOB='macOS Xcode8'
                   - GENERATOR=Xcode
                   - CMAKE_FLAGS='-DPLATFORM_BUILD_SHARED=FALSE -DPLATFORM_ENABLE_DEBUG=TRUE'
                   - BUILD_CMD='cmake --build . --target unit_test --config Release'
@@ -50,6 +54,7 @@ matrix:
           osx_image: xcode9
           env:
               global:
+			      - JOB='macOS Xcode9'
                   - GENERATOR=Xcode
                   - CMAKE_FLAGS='-DPLATFORM_BUILD_SHARED=TRUE -DPLATFORM_ENABLE_DEBUG=FALSE'
                   - BUILD_CMD='cmake --build . --target unit_test --config Debug'
@@ -59,9 +64,10 @@ matrix:
           osx_image: xcode7.3.1
           env:
               global:
+			      - JOB='iOS9 Xcode7'
                   - GENERATOR=Xcode
-                  - CMAKE_FLAGS='-DPLATFORM_BUILD_SHARED=TRUE -DPLATFORM_ENABLE_DEBUG=TRUE -DPLATFORM_IOS=TRUE -DPLATFORM_ARM_ARCH=armv7'
-                  - CMAKE_FLAGS2='-DPLATFORM_IOS=TRUE -DPLATFORM_IOS_SIMULATOR=FALSE'
+                  - CMAKE_FLAGS='-DPLATFORM_BUILD_SHARED=TRUE -DPLATFORM_ENABLE_DEBUG=TRUE'
+                  - CMAKE_FLAGS2='-DPLATFORM_IOS=TRUE -DPLATFORM_IOS_SIMULATOR=FALSE -DPLATFORM_ARM_ARCH=armv7'
                   - BUILD_CMD='xcodebuild -project TitanSDK.xcodeproj -target unit_test -arch armv7 -sdk iphoneos9.3 -configuration Debug CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO'
                   - OS=ios
                   - UT=unit_test/Debug/unit_test
@@ -69,9 +75,10 @@ matrix:
           osx_image: xcode8.3
           env:
               global:
+			      - JOB='iOS10 Xcode8'
                   - GENERATOR=Xcode
-                  - CMAKE_FLAGS='-DPLATFORM_BUILD_SHARED=TRUE -DPLATFORM_ENABLE_DEBUG=FALSE -DPLATFORM_IOS=TRUE -DPLATFORM_ARM_ARCH=arm64'
-                  - CMAKE_FLAGS2='-DPLATFORM_IOS=TRUE -DPLATFORM_IOS_SIMULATOR=FALSE'
+                  - CMAKE_FLAGS='-DPLATFORM_BUILD_SHARED=TRUE -DPLATFORM_ENABLE_DEBUG=FALSE'
+                  - CMAKE_FLAGS2='-DPLATFORM_IOS=TRUE -DPLATFORM_IOS_SIMULATOR=FALSE -DPLATFORM_ARM_ARCH=armv7s'
                   - BUILD_CMD='xcodebuild -project TitanSDK.xcodeproj -target unit_test -arch arm64 -sdk iphoneos10.3 -configuration Release CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO'
                   - OS=ios
                   - UT=unit_test/Release/unit_test
@@ -79,9 +86,10 @@ matrix:
           osx_image: xcode9
           env:
               global:
+			      - JOB='iOS11 Xcode9'
                   - GENERATOR=Xcode
-                  - CMAKE_FLAGS='-DPLATFORM_BUILD_SHARED=FALSE -DPLATFORM_ENABLE_DEBUG=TRUE -DPLATFORM_IOS=TRUE'
-                  - CMAKE_FLAGS2='-DPLATFORM_IOS=TRUE -DPLATFORM_IOS_SIMULATOR=FALSE'
+                  - CMAKE_FLAGS='-DPLATFORM_BUILD_SHARED=FALSE -DPLATFORM_ENABLE_DEBUG=TRUE'
+                  - CMAKE_FLAGS2='-DPLATFORM_IOS=TRUE -DPLATFORM_IOS_SIMULATOR=FALSE -DPLATFORM_ARM_ARCH=arm64'
                   - BUILD_CMD='xcodebuild -project TitanSDK.xcodeproj -target unit_test -arch arm64 -sdk iphoneos11.0 -configuration Debug CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO'
                   - OS=ios
                   - UT=unit_test/Debug/unit_test
