@@ -14,7 +14,7 @@ matrix:
           dist: trusty
           env:
               global:
-			      - JOB='Linux'
+                  - JOB='Linux'
                   - GENERATOR='Unix Makefiles'
                   - CMAKE_FLAGS='-DPLATFORM_BUILD_SHARED=TRUE -DPLATFORM_ENABLE_DEBUG=FALSE'
                   - BUILD_CMD='cmake --build . --target unit_test --config Debug'
@@ -24,7 +24,7 @@ matrix:
           dist: trusty
           env:
               global:
-			      - JOB='Linux'
+                  - JOB='Linux'
                   - GENERATOR='Unix Makefiles'
                   - CMAKE_FLAGS='-DPLATFORM_BUILD_SHARED=TRUE -DPLATFORM_ENABLE_DEBUG=TRUE'
                   - BUILD_CMD='cmake --build . --target unit_test --config Release'
@@ -34,7 +34,7 @@ matrix:
           osx_image: xcode7.3.1
           env:
               global:
-			      - JOB='macOS Xcode7'
+                  - JOB='macOS Xcode7'
                   - GENERATOR=Xcode
                   - CMAKE_FLAGS='-DPLATFORM_BUILD_SHARED=FALSE -DPLATFORM_ENABLE_DEBUG=FALSE'
                   - BUILD_CMD='cmake --build . --target unit_test --config Debug'
@@ -44,7 +44,7 @@ matrix:
           osx_image: xcode8.3
           env:
               global:
-			      - JOB='macOS Xcode8'
+                  - JOB='macOS Xcode8'
                   - GENERATOR=Xcode
                   - CMAKE_FLAGS='-DPLATFORM_BUILD_SHARED=FALSE -DPLATFORM_ENABLE_DEBUG=TRUE'
                   - BUILD_CMD='cmake --build . --target unit_test --config Release'
@@ -54,7 +54,7 @@ matrix:
           osx_image: xcode9
           env:
               global:
-			      - JOB='macOS Xcode9'
+                  - JOB='macOS Xcode9'
                   - GENERATOR=Xcode
                   - CMAKE_FLAGS='-DPLATFORM_BUILD_SHARED=TRUE -DPLATFORM_ENABLE_DEBUG=FALSE'
                   - BUILD_CMD='cmake --build . --target unit_test --config Debug'
@@ -64,7 +64,7 @@ matrix:
           osx_image: xcode7.3.1
           env:
               global:
-			      - JOB='iOS9 Xcode7'
+                  - JOB='iOS9 Xcode7'
                   - GENERATOR=Xcode
                   - CMAKE_FLAGS='-DPLATFORM_BUILD_SHARED=TRUE -DPLATFORM_ENABLE_DEBUG=TRUE'
                   - CMAKE_FLAGS2='-DPLATFORM_IOS=TRUE -DPLATFORM_IOS_SIMULATOR=FALSE -DPLATFORM_ARM_ARCH=armv7'
@@ -75,7 +75,7 @@ matrix:
           osx_image: xcode8.3
           env:
               global:
-			      - JOB='iOS10 Xcode8'
+                  - JOB='iOS10 Xcode8'
                   - GENERATOR=Xcode
                   - CMAKE_FLAGS='-DPLATFORM_BUILD_SHARED=TRUE -DPLATFORM_ENABLE_DEBUG=FALSE'
                   - CMAKE_FLAGS2='-DPLATFORM_IOS=TRUE -DPLATFORM_IOS_SIMULATOR=FALSE -DPLATFORM_ARM_ARCH=armv7s'
@@ -86,7 +86,7 @@ matrix:
           osx_image: xcode9
           env:
               global:
-			      - JOB='iOS11 Xcode9'
+                  - JOB='iOS11 Xcode9'
                   - GENERATOR=Xcode
                   - CMAKE_FLAGS='-DPLATFORM_BUILD_SHARED=FALSE -DPLATFORM_ENABLE_DEBUG=TRUE'
                   - CMAKE_FLAGS2='-DPLATFORM_IOS=TRUE -DPLATFORM_IOS_SIMULATOR=FALSE -DPLATFORM_ARM_ARCH=arm64'
