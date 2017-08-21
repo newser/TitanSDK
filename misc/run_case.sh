@@ -18,8 +18,13 @@ then
     exit -1
 fi
 
-if [ ${OS} != "ios-simulator" ]
+if [ ${OS} == "ios" ]
 then
+    :
+elif [ ${OS} == "ios-simulator" ]
+then
+    echo todo
+else
     echo testing ${TT_CASE}
     ${UT} > ${TT_CASE}.log 2>&1
     if [ $? -ne 0 ]
@@ -27,8 +32,6 @@ then
         cat ${TT_CASE}.log
         exit -1
     fi
-else
-    echo testing ${TT_CASE}
 fi
 
 exit 0
