@@ -17,7 +17,7 @@ matrix:
                   - JOB=precise
                   - GENERATOR='Unix Makefiles'
                   - CMAKE_FLAGS='-DPLATFORM_BUILD_SHARED=TRUE -DPLATFORM_ENABLE_DEBUG=FALSE'
-                  - BUILD_TYPE=Debug
+                  - BUILD_CMD='cmake --build . --target unit_test --config Debug'
                   - OS=linux
                   - UT=unit_test/unit_test
         - os: linux
@@ -27,18 +27,17 @@ matrix:
                   - JOB=trusty
                   - GENERATOR='Unix Makefiles'
                   - CMAKE_FLAGS='-DPLATFORM_BUILD_SHARED=TRUE -DPLATFORM_ENABLE_DEBUG=TRUE'
-                  - BUILD_TYPE=Release
+                  - BUILD_CMD='cmake --build . --target unit_test --config Release'
                   - OS=linux
                   - UT=unit_test/unit_test
         - os: osx
           osx_image: xcode7.3.1
-          env: JOB=xcode7 GENERATOR=Xcode BUILD_CMD="xcodebuild -target generate_header"
           env:
               global:
                   - JOB=xcode7
                   - GENERATOR=Xcode
                   - CMAKE_FLAGS='-DPLATFORM_BUILD_SHARED=FALSE -DPLATFORM_ENABLE_DEBUG=FALSE'
-                  - BUILD_TYPE=Debug
+                  - BUILD_CMD='cmake --build . --target unit_test --config Debug'
                   - OS=macos
                   - UT=unit_test/Debug/unit_test
         - os: osx
@@ -48,7 +47,7 @@ matrix:
                   - JOB=xcode8
                   - GENERATOR=Xcode
                   - CMAKE_FLAGS='-DPLATFORM_BUILD_SHARED=FALSE -DPLATFORM_ENABLE_DEBUG=TRUE'
-                  - BUILD_TYPE=Release
+                  - BUILD_CMD='cmake --build . --target unit_test --config Release'
                   - OS=macos
                   - UT=unit_test/Release/unit_test
         - os: osx
@@ -58,15 +57,45 @@ matrix:
                   - JOB=xcode9
                   - GENERATOR=Xcode
                   - CMAKE_FLAGS='-DPLATFORM_BUILD_SHARED=TRUE -DPLATFORM_ENABLE_DEBUG=FALSE'
-                  - BUILD_TYPE=Debug
+                  - BUILD_CMD='cmake --build . --target unit_test --config Debug'
                   - OS=macos
+                  - UT=unit_test/Debug/unit_test
+        - os: osx
+          osx_image: xcode7.3.1
+          env:
+              global:
+                  - JOB=ios9
+                  - GENERATOR=Xcode
+                  - CMAKE_FLAGS='-DPLATFORM_BUILD_SHARED=TRUE -DPLATFORM_ENABLE_DEBUG=TRUE -DPLATFORM_IOS=TRUE -DPLATFORM_ARM_ARCH=armv7'
+                  - BUILD_CMD='xcodebuild -project TitanSDK.xcodeproj -scheme unit_test -arch armv7 -sdk iphoneos9.3 -configuration Debug CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO'
+                  - OS=ios
+                  - UT=unit_test/Debug/unit_test
+        - os: osx
+          osx_image: xcode8.3
+          env:
+              global:
+                  - JOB=ios10
+                  - GENERATOR=Xcode
+                  - CMAKE_FLAGS='-DPLATFORM_BUILD_SHARED=TRUE -DPLATFORM_ENABLE_DEBUG=FALSE -DPLATFORM_IOS=TRUE -DPLATFORM_ARM_ARCH=arm64'
+                  - BUILD_CMD='xcodebuild -project TitanSDK.xcodeproj -scheme unit_test -arch arm64 -sdk iphoneos10.3 -configuration Release CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO'
+                  - OS=ios
+                  - UT=unit_test/Release/unit_test
+        - os: osx
+          osx_image: xcode9
+          env:
+              global:
+                  - JOB=ios11
+                  - GENERATOR=Xcode
+                  - CMAKE_FLAGS='-DPLATFORM_BUILD_SHARED=FALSE -DPLATFORM_ENABLE_DEBUG=TRUE -DPLATFORM_IOS=TRUE'
+                  - BUILD_CMD='xcodebuild -project TitanSDK.xcodeproj -scheme unit_test -arch arm64 -sdk iphoneos11.0 -configuration Debug CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO'
+                  - OS=ios
                   - UT=unit_test/Debug/unit_test
 
 install:
     - mkdir titansdk_BUILD_CMD_${JOB}
     - cd titansdk_BUILD_CMD_${JOB}
     - cmake -G "${GENERATOR}" ${CMAKE_FLAGS} ..
-    - cmake --build . --target unit_test --config ${BUILD_TYPE}
+    - ${BUILD_CMD}
 
 script:
     - cp ../misc/run_case.sh ./run_case.sh

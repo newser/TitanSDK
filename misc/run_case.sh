@@ -18,7 +18,7 @@ then
     exit -1
 fi
 
-if [ ${OS} != "ios" ]
+if [ ${OS} != "ios-simulator" ]
 then
     echo testing ${TT_CASE}
     ${UT} > ${TT_CASE}.log 2>&1

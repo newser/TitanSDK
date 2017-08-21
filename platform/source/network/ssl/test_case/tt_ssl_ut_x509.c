@@ -456,6 +456,7 @@ static tt_char_t __crl_1[] =
 void __x509_prepare(void *p)
 {
     tt_file_t f;
+    const tt_char_t *s;
 
     if (has_x509) {
         return;
@@ -491,6 +492,8 @@ void __x509_prepare(void *p)
         tt_string_append(&__crl_path, s);
         tt_string_append(&__crl_path, "/Library/Caches/tt_ca.crl");
     }
+#else
+    (void)s;
 #endif
 
     // root cert
