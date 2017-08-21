@@ -98,7 +98,7 @@ install:
     - mkdir titansdk_build
     - cd titansdk_build
     - cmake -G "${GENERATOR}" ${CMAKE_FLAGS} ..
-    - if [ ! -z ${CMAKE_FLAGS2} ]; then cmake -G "${GENERATOR}" ${CMAKE_FLAGS2} ..; fi
+    - if [ ! -z "${CMAKE_FLAGS2}" ]; then cmake -G "${GENERATOR}" ${CMAKE_FLAGS2} ..; fi
     - ${BUILD_CMD}
 
 script:
