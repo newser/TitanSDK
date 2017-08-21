@@ -69,7 +69,5 @@ install:
     - cmake --build . --target unit_test --config ${BUILD_TYPE}
 
 script:
-    - mkdir test_log
-    - cd test_log
-    - cp ../../misc/run_case.sh ./run_case.sh
+    - cp ../misc/run_case.sh ./run_case.sh
     - chmod u+x run_case.sh
