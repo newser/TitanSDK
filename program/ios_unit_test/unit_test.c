@@ -10,21 +10,30 @@ extern tt_result_t __ipc_cli_1(IN void *param);
 extern tt_result_t __ipc_cli_oneshot(IN void *param);
 extern tt_result_t __ipc_svr_1(IN void *param);
 
-int plus(int i)
-{
-    if (i > 0) {
-        return i + plus(i - 1);
-    } else {
-        return 0;
-    }
-}
+static tt_bool_t tt_ut_ok = TT_FALSE;
 
 tt_result_t __ut_fiber(IN void *param)
 {
+    const tt_char_t *name = NULL;
+
     tt_test_framework_init(0);
     tt_test_unit_init(NULL);
-    tt_test_unit_run(NULL);
-    tt_test_unit_list(NULL);
+
+#if TT_ENV_OS_IS_WINDOWS
+#else
+    name = getenv("TT_CASE");
+#endif
+    if (name != NULL) {
+        if (tt_strcmp(name, "all") == 0) {
+            tt_test_unit_run(NULL);
+            tt_test_unit_list(NULL);
+            tt_ut_ok = TT_TRUE;
+        } else if (TT_OK(tt_test_unit_run(name))) {
+            tt_ut_ok = TT_TRUE;
+        }
+    } else {
+        printf("unit_test <case name> | all");
+    }
 
     return TT_SUCCESS;
 }
@@ -34,8 +43,6 @@ int app_ut_main(int argc, char *argv[])
     tt_thread_t *ut_thread;
     int i;
     tt_task_t t;
-
-    printf("%d\n", plus(100));
 
     // setlocale(LC_ALL, "chs");
 
@@ -73,6 +80,7 @@ int app_ut_main(int argc, char *argv[])
 #endif
             tt_sleep(10000);
         }
+        exit(0);
         return 0;
     } // haniu
     else {
@@ -92,6 +100,7 @@ tt_task_run(&t);
 tt_task_wait(&t);
 printf("exiting\n");
 
+exit(0);
 return 0;
 
 // tt_page_os_stat_show(0);
@@ -104,7 +113,7 @@ _CrtDumpMemoryLeaks();
 #if TT_ENV_OS_IS_WINDOWS
 while (1) {
 #else
-while (0) {
+    while (0) {
 #endif
     tt_sleep(10000);
 }

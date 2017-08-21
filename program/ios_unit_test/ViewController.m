@@ -32,6 +32,16 @@ static UITextView *ios_text_view;
     {
         ios_text_view = _text_view;
     }
+
+#if 1 // todo
+    NSThread *thread = [[NSThread alloc]initWithTarget:self
+                                              selector:@selector(titansdk_ut:)
+                                                object:nil];
+    if (thread != NULL)
+    {
+        [thread start];
+    }
+#endif
 }
 
 - (void)didReceiveMemoryWarning
