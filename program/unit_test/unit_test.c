@@ -75,7 +75,7 @@ tt_result_t __ut_fiber(IN void *param)
     tt_test_unit_init(NULL);
 
 #if TT_ENV_OS_IS_WINDOWS
-    GetEnvironmentVariableA("TT_CASE", buf, sizeof(buf)-1);
+    GetEnvironmentVariableA("TT_CASE", buf, sizeof(buf) - 1);
     name = buf;
     printf("%s|\n", name);
 #else
