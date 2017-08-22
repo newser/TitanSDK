@@ -25,7 +25,7 @@ elif [ ${OS} == "ios-simulator" ]
 then
     export SIMCTL_CHILD_TT_CASE=${TT_CASE}
     xcrun simctl launch --console ${DEV} com.titansdk.unit-test > ${TT_CASE}.log 2>&1
-    grep "|   result:  OK" ${TT_CASE}.log
+    grep "|   result:  OK" ${TT_CASE}.log > /dev/null 2>&1
     if [ $? -ne 0 ]
     then
         cat ${TT_CASE}.log

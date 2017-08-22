@@ -303,6 +303,10 @@ TT_TEST_ROUTINE_DEFINE(case_ipc_basic)
 
     TT_TEST_CASE_ENTER()
 
+#if TT_ENV_OS_IS_IOS || TT_ENV_OS_IS_ANDROID
+    return TT_SUCCESS;
+#endif
+
 #if TT_ENV_OS_IS_WINDOWS
     tt_fcreate(__IPC_PATH, NULL);
 #endif
@@ -459,6 +463,10 @@ TT_TEST_ROUTINE_DEFINE(case_ipc_stress)
 
     TT_TEST_CASE_ENTER()
 
+#if TT_ENV_OS_IS_IOS || TT_ENV_OS_IS_ANDROID
+    return TT_SUCCESS;
+#endif
+
 #if TT_ENV_OS_IS_WINDOWS
     tt_fcreate(__IPC_PATH, NULL);
 #endif
@@ -558,6 +566,10 @@ TT_TEST_ROUTINE_DEFINE(case_ipc_client)
     tt_char_t *path;
 
     TT_TEST_CASE_ENTER()
+
+#if TT_ENV_OS_IS_IOS || TT_ENV_OS_IS_ANDROID
+    return TT_SUCCESS;
+#endif
 
 #if TT_ENV_OS_IS_WINDOWS
     tt_fcreate(__IPC_PATH, NULL);
@@ -760,6 +772,10 @@ TT_TEST_ROUTINE_DEFINE(case_ipc_fiber_ev)
     tt_u32_t n;
 
     TT_TEST_CASE_ENTER()
+
+#if TT_ENV_OS_IS_IOS || TT_ENV_OS_IS_ANDROID
+    return TT_SUCCESS;
+#endif
 
 #if TT_ENV_OS_IS_WINDOWS
     tt_fcreate(__IPC_PATH, NULL);
@@ -1059,6 +1075,10 @@ TT_TEST_ROUTINE_DEFINE(case_ipc_ev)
     tt_u32_t n;
 
     TT_TEST_CASE_ENTER()
+
+#if TT_ENV_OS_IS_IOS || TT_ENV_OS_IS_ANDROID
+    return TT_SUCCESS;
+#endif
 
 #if TT_ENV_OS_IS_WINDOWS
     tt_fcreate(__IPC_PATH, NULL);

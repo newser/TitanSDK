@@ -461,19 +461,16 @@ TT_TEST_ROUTINE_DEFINE(case_process_basic)
     path = tt_process_path(NULL);
     TT_UT_NOT_EQUAL(path, NULL, "");
 
-#if !TT_ENV_OS_IS_IOS
-
-#if TT_ENV_OS_IS_WINDOWS
-#define __app_file path
-#elif TT_ENV_OS_IS_IOS
+#if TT_ENV_OS_IS_IOS
     extern const char *get_app_path();
-//#define __app_file get_app_path()
-#define __app_file path
-#define __app_file_sc get_app_path()
+#define __app_file get_app_path()
+    return TT_SUCCESS;
+
 #elif TT_ENV_OS_IS_ANDROID
 #define __app_file path
-#define __app_file_sc "./测试"
+    //#define __app_file_sc "./测试"
     return TT_SUCCESS;
+
 #else
 //#define __app_file "./app_unit_test"
 #define __app_file path
@@ -560,8 +557,6 @@ TT_TEST_ROUTINE_DEFINE(case_process_basic)
     TT_UT_EQUAL(ret, TT_SUCCESS, "");
     ret = tt_process_wait(&proc, TT_TRUE, &ec);
     TT_UT_EQUAL(ret, TT_SUCCESS, "");
-#endif
-
 #endif
 
     tt_free(path);
