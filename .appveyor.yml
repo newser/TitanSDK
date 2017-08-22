@@ -4,31 +4,245 @@ clone_folder: c:\projects\titansdk
 
 environment:
     matrix:
-        - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2013
+        - JOB: vs2013
+          APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2013
           platform: x64
           configuration: Debug
-          JOB: vs2013
           GENERATOR: Visual Studio 12 2013 Win64
-        - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+          UT: c:\projects\titansdk_build\unit_test\Debug\unit_test.exe
+        - JOB: vs2015
+          APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
           platform: Win32
           configuration: Release
-          JOB: vs2015
           GENERATOR: Visual Studio 14 2015
-        - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+          UT: c:\projects\titansdk_build\unit_test\Debug\unit_test.exe
+        - JOB: vs2017
+          APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
           platform: x64
           configuration: Release
-          JOB: vs2017
           GENERATOR: Visual Studio 15 2017 Win64
+          UT: c:\projects\titansdk_build\unit_test\Debug\unit_test.exe
 
 matrix:
     fast_finish: true
 
 before_build:
-    - cmd: mkdir c:\projects\titansdk_build_%JOB%
-    - cmd: cd c:\projects\titansdk_build_%JOB%
+    - cmd: mkdir c:\projects\titansdk_build
+    - cmd: cd c:\projects\titansdk_build
     - cmd: cmake -G "%GENERATOR%" ..\titansdk
 
 build:
     project: c:\projects\titansdk_build_%JOB%\TitanSDK.sln
     parallel: true
     verbosity: normal
+
+test_script:
+    - cmd: echo start unit test
+    - cmd: set TT_CASE=case_log_context& %UT%
+    - cmd: set TT_CASE=case_log_manager& %UT%
+    - cmd: set TT_CASE=case_lpatn_sn& %UT%
+    - cmd: set TT_CASE=case_lpatn_time& %UT%
+    - cmd: set TT_CASE=case_lpatn_logger& %UT%
+    - cmd: set TT_CASE=case_lpatn_content& %UT%
+    - cmd: set TT_CASE=case_lpatn_func& %UT%
+    - cmd: set TT_CASE=case_lpatn_line& %UT%
+    - cmd: set TT_CASE=case_log_pattern& %UT%
+    - cmd: set TT_CASE=case_mutex_basic& %UT%
+    - cmd: set TT_CASE=case_mutex_mt& %UT%
+    - cmd: set TT_CASE=case_atomic_basic& %UT%
+    - cmd: set TT_CASE=case_atomic_mt& %UT%
+    - cmd: set TT_CASE=case_atomic_cas& %UT%
+    - cmd: set TT_CASE=case_atomic_ptr& %UT%
+    - cmd: set TT_CASE=case_atomic_fence& %UT%
+    - cmd: set TT_CASE=case_spin_lock_basic_mp& %UT
+    - cmd: set TT_CASE=case_spin_lock_basic_sp& %UT
+    - cmd: set TT_CASE=case_spin_lock_mt& %UT%
+    - cmd: set TT_CASE=case_rwlock_basic& %UT%
+    - cmd: set TT_CASE=case_rwlock_mt& %UT%
+    - cmd: set TT_CASE=case_thread_basic& %UT%
+    - cmd: set TT_CASE=case_thread_sleep& %UT%
+    - cmd: set TT_CASE=case_thread_rand& %UT%
+    - cmd: set TT_CASE=case_dll& %UT%
+    - cmd: set TT_CASE=case_process_basic& %UT%
+    - cmd: set TT_CASE=case_fiber_basic& %UT%
+    - cmd: set TT_CASE=case_fiber_3fibers& %UT%
+    - cmd: set TT_CASE=case_fiber_sanity& %UT%
+    - cmd: set TT_CASE=case_fiber_sanity2& %UT%
+    - cmd: set TT_CASE=case_worker_group& %UT%
+    - cmd: set TT_CASE=case_task& %UT%
+    - cmd: set TT_CASE=case_fiber_event& %UT%
+    - cmd: set TT_CASE=case_sem_basic& %UT%
+    - cmd: set TT_CASE=case_sem_mt& %UT%
+    - cmd: set TT_CASE=case_sem_pc& %UT%
+    - cmd: set TT_CASE=case_sem_count& %UT%
+    - cmd: set TT_CASE=case_slab_cd& %UT%
+    - cmd: set TT_CASE=case_slab_allocfree& %UT%
+    - cmd: set TT_CASE=case_mempool_basic& %UT%
+    - cmd: set TT_CASE=case_mempool_alloc_free& %UT
+    - cmd: set TT_CASE=case_mempool_sanity& %UT%
+    - cmd: set TT_CASE=case_mem_spg& %UT%
+    - cmd: set TT_CASE=case_mem_page& %UT%
+    - cmd: set TT_CASE=case_time_abs_basic& %UT%
+    - cmd: set TT_CASE=case_date_def& %UT%
+    - cmd: set TT_CASE=case_date_render& %UT%
+    - cmd: set TT_CASE=case_date_parse& %UT%
+    - cmd: set TT_CASE=case_tmr_basic& %UT%
+    - cmd: set TT_CASE=case_tmr_fiber& %UT%
+    - cmd: set TT_CASE=case_tmr_accuracy& %UT%
+    - cmd: set TT_CASE=case_tmr_stable& %UT%
+    - cmd: set TT_CASE=case_version& %UT%
+    - cmd: set TT_CASE=case_high_bit_1& %UT%
+    - cmd: set TT_CASE=case_low_bit_1& %UT%
+    - cmd: set TT_CASE=case_base64_dec& %UT%
+    - cmd: set TT_CASE=case_der_enc& %UT%
+    - cmd: set TT_CASE=case_strtol& %UT%
+    - cmd: set TT_CASE=case_c2h& %UT%
+    - cmd: set TT_CASE=case_align& %UT%
+    - cmd: set TT_CASE=case_charset_gb2312_utf8& %U
+    - cmd: set TT_CASE=case_charset_utf16le_utf8& %
+    - cmd: set TT_CASE=case_charset_utf16be_utf8& %
+    - cmd: set TT_CASE=case_charset_utf32le_utf8& %
+    - cmd: set TT_CASE=case_charset_utf32be_utf8& %
+    - cmd: set TT_CASE=case_charset_utf8& %UT%
+    - cmd: set TT_CASE=case_clinode& %UT%
+    - cmd: set TT_CASE=case_cfgnode_u32& %UT%
+    - cmd: set TT_CASE=case_cfgnode_s32& %UT%
+    - cmd: set TT_CASE=case_cfgnode_str& %UT%
+    - cmd: set TT_CASE=case_cfgnode_dir& %UT%
+    - cmd: set TT_CASE=case_cfgnode_grp_ar& %UT%
+    - cmd: set TT_CASE=case_cfgnode_bool& %UT%
+    - cmd: set TT_CASE=case_cfgpath_p2n_abs& %UT%
+    - cmd: set TT_CASE=case_cfgpath_p2n_rel& %UT%
+    - cmd: set TT_CASE=case_cfgpath_p2n_dot& %UT%
+    - cmd: set TT_CASE=case_cfgpath_n2p& %UT%
+    - cmd: set TT_CASE=case_cfgpath_comp& %UT%
+    - cmd: set TT_CASE=case_cfgsh_parse_arg& %UT%
+    - cmd: set TT_CASE=case_cfgsh_ls& %UT%
+    - cmd: set TT_CASE=case_cfgsh_help& %UT%
+    - cmd: set TT_CASE=case_cfgsh_pwd& %UT%
+    - cmd: set TT_CASE=case_cfgsh_cd& %UT%
+    - cmd: set TT_CASE=case_cfgsh_get& %UT%
+    - cmd: set TT_CASE=case_cfgsh_set& %UT%
+    - cmd: set TT_CASE=case_cfgsh_quit& %UT%
+    - cmd: set TT_CASE=case_cfgsh_exec& %UT%
+    - cmd: set TT_CASE=case_fs_basic& %UT%
+    - cmd: set TT_CASE=case_fs_open& %UT%
+    - cmd: set TT_CASE=case_fs_rw& %UT%
+    - cmd: set TT_CASE=case_dir_basic& %UT%
+    - cmd: set TT_CASE=case_fs_multhread& %UT%
+    - cmd: set TT_CASE=case_fs_consistency& %UT%
+    - cmd: set TT_CASE=case_ipc_basic& %UT%
+    - cmd: set TT_CASE=case_ipc_client& %UT%
+    - cmd: set TT_CASE=case_ipc_stress& %UT%
+    - cmd: set TT_CASE=case_ipc_fiber_ev& %UT%
+    - cmd: set TT_CASE=case_ipc_ev& %UT%
+    - cmd: set TT_CASE=case_sk_addr& %UT%
+    - cmd: set TT_CASE=case_sk_opt& %UT%
+    - cmd: set TT_CASE=case_bind_basic& %UT%
+    - cmd: set TT_CASE=case_tcp_basic& %UT%
+    - cmd: set TT_CASE=case_udp_basic& %UT%
+    - cmd: set TT_CASE=case_tcp6_close& %UT%
+    - cmd: set TT_CASE=case_tcp4_stress& %UT%
+    - cmd: set TT_CASE=case_tcp_event& %UT%
+    - cmd: set TT_CASE=case_udp_event& %UT%
+    - cmd: set TT_CASE=case_basic_alg_qsort& %UT%
+    - cmd: set TT_CASE=case_basic_alg_qsort_random&
+    - cmd: set TT_CASE=case_basic_alg_bsearch& %UT%
+    - cmd: set TT_CASE=case_basic_alg_min_larger& %
+    - cmd: set TT_CASE=case_basic_alg_max_less& %UT
+    - cmd: set TT_CASE=case_alg_rng& %UT%
+    - cmd: set TT_CASE=case_ptrheap_basic& %UT%
+    - cmd: set TT_CASE=case_ptrheap_correct& %UT%
+    - cmd: set TT_CASE=case_ptrheap_perf& %UT%
+    - cmd: set TT_CASE=case_vector& %UT%
+    - cmd: set TT_CASE=case_ptr_vector& %UT%
+    - cmd: set TT_CASE=case_list& %UT%
+    - cmd: set TT_CASE=case_dl_list& %UT%
+    - cmd: set TT_CASE=case_sl_list& %UT%
+    - cmd: set TT_CASE=case_hash& %UT%
+    - cmd: set TT_CASE=case_map_basic& %UT%
+    - cmd: set TT_CASE=case_map_share_key& %UT%
+    - cmd: set TT_CASE=case_ptrmap& %UT%
+    - cmd: set TT_CASE=case_queue& %UT%
+    - cmd: set TT_CASE=case_ptr_queue& %UT%
+    - cmd: set TT_CASE=case_rbtree& %UT%
+    - cmd: set TT_CASE=case_stack& %UT%
+    - cmd: set TT_CASE=case_ptr_stack& %UT%
+    - cmd: set TT_CASE=case_rbuf& %UT%
+    - cmd: set TT_CASE=case_rbuf_stress& %UT%
+    - cmd: set TT_CASE=case_rbuf_excep& %UT%
+    - cmd: set TT_CASE=case_wbuf& %UT%
+    - cmd: set TT_CASE=case_rwbuf& %UT%
+    - cmd: set TT_CASE=case_rwbuf_raw& %UT%
+    - cmd: set TT_CASE=case_buf_null& %UT%
+    - cmd: set TT_CASE=case_buf_get_basic& %UT%
+    - cmd: set TT_CASE=case_buf_get_rand& %UT%
+    - cmd: set TT_CASE=case_buf_put_basic& %UT%
+    - cmd: set TT_CASE=case_buf_put_rand& %UT%
+    - cmd: set TT_CASE=case_buf_remove& %UT%
+    - cmd: set TT_CASE=case_buf_get_hexstr& %UT%
+    - cmd: set TT_CASE=case_buftok& %UT%
+    - cmd: set TT_CASE=case_blob& %UT%
+    - cmd: set TT_CASE=case_str_null& %UT%
+    - cmd: set TT_CASE=case_str_basic& %UT%
+    - cmd: set TT_CASE=case_str_getchar& %UT%
+    - cmd: set TT_CASE=case_str_cmp& %UT%
+    - cmd: set TT_CASE=case_str_copy_swap& %UT%
+    - cmd: set TT_CASE=case_str_find& %UT%
+    - cmd: set TT_CASE=case_str_join& %UT%
+    - cmd: set TT_CASE=case_str_case& %UT%
+    - cmd: set TT_CASE=case_str_insert& %UT%
+    - cmd: set TT_CASE=case_dns_query_basic& %UT%
+    - cmd: set TT_CASE=case_dns_query_u2t& %UT%
+    - cmd: set TT_CASE=case_dns_query_timeout& %UT%
+    - cmd: set TT_CASE=case_dns_query_exception& %U
+    - cmd: set TT_CASE=case_dns_query4_first6& %UT%
+    - cmd: set TT_CASE=case_dns_query6_first4& %UT%
+    - cmd: set TT_CASE=case_dns_rr_a& %UT%
+    - cmd: set TT_CASE=case_dns_rr_aaaa& %UT%
+    - cmd: set TT_CASE=case_dns_parse_a& %UT%
+    - cmd: set TT_CASE=case_dns_parse_aaaa& %UT%
+    - cmd: set TT_CASE=case_dc_basic& %UT%
+    - cmd: set TT_CASE=case_dc_get_a& %UT%
+    - cmd: set TT_CASE=case_dc_get_aaaa& %UT%
+    - cmd: set TT_CASE=case_dc_exception& %UT%
+    - cmd: set TT_CASE=case_x509_cert& %UT%
+    - cmd: set TT_CASE=case_x509_crl& %UT%
+    - cmd: set TT_CASE=case_ssl_basic& %UT%
+    - cmd: set TT_CASE=case_ssl_ver& %UT%
+    - cmd: set TT_CASE=case_ssl_auth& %UT%
+    - cmd: set TT_CASE=case_ssl_alpn& %UT%
+    - cmd: set TT_CASE=case_ssl_resume& %UT%
+    - cmd: set TT_CASE=case_ssl_ticket& %UT%
+    - cmd: set TT_CASE=case_ssl_multhread& %UT%
+    - cmd: set TT_CASE=case_cipher& %UT%
+    - cmd: set TT_CASE=case_md& %UT%
+    - cmd: set TT_CASE=case_hmac& %UT%
+    - cmd: set TT_CASE=case_crypto_ecdh& %UT%
+    - cmd: set TT_CASE=case_crypto_ecdsa& %UT%
+    - cmd: set TT_CASE=case_rsa_encrypt& %UT%
+    - cmd: set TT_CASE=case_rsa_sign& %UT%
+    - cmd: set TT_CASE=case_rsa_gen& %UT%
+    - cmd: set TT_CASE=case_dh& %UT%
+    - cmd: set TT_CASE=case_entropy& %UT%
+    - cmd: set TT_CASE=case_ctr_drbg& %UT%
+    - cmd: set TT_CASE=case_xdoc_encoding& %UT%
+    - cmd: set TT_CASE=case_xdoc_parse& %UT%
+    - cmd: set TT_CASE=case_xdoc_render& %UT%
+    - cmd: set TT_CASE=case_xattr_rel& %UT%
+    - cmd: set TT_CASE=case_xattr_bool& %UT%
+    - cmd: set TT_CASE=case_xattr_int& %UT%
+    - cmd: set TT_CASE=case_xnode_bool& %UT%
+    - cmd: set TT_CASE=case_xnode_int& %UT%
+    - cmd: set TT_CASE=case_xnode_rel& %UT%
+    - cmd: set TT_CASE=case_xpath_node& %UT%
+    - cmd: set TT_CASE=case_xpath_attr& %UT%
+    - cmd: set TT_CASE=case_xpath_eval& %UT%
+    - cmd: set TT_CASE=case_xpath_xpvar& %UT%
+    - cmd: set TT_CASE=case_cli_line& %UT%
+    - cmd: set TT_CASE=case_cli_line_stress& %UT%
+    - cmd: set TT_CASE=case_cli_line_cursor& %UT%
+    - cmd: set TT_CASE=case_cli& %UT%
+    - cmd: set TT_CASE=case_cli_stress& %UT%
+    - cmd: set TT_CASE=case_cli_ac& %UT%
+    - cmd: set TT_CASE=case_cli_readline& %UT%
