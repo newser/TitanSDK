@@ -389,7 +389,6 @@ void __ios_display(const char *str)
 void tt_test_gen_sh_unix()
 {
     tt_buf_t buf;
-    tt_file_t f;
     tt_test_class_t *test_class;
 
     tt_test_framework_init(0);
@@ -404,6 +403,36 @@ void tt_test_gen_sh_unix()
             TT_DO_G(done,
                     tt_buf_putf(&buf,
                                 "    - export TT_CASE=%s; ./run_case.sh\n",
+                                item->name));
+            item = item->next;
+        }
+        test_class = test_class->next;
+    }
+
+    tt_buf_put_u8(&buf, 0);
+    printf("%s", TT_BUF_RPOS(&buf));
+
+done:
+    tt_buf_destroy(&buf);
+}
+
+void tt_test_gen_sh_win()
+{
+    tt_buf_t buf;
+    tt_test_class_t *test_class;
+
+    tt_test_framework_init(0);
+    tt_test_unit_init(NULL);
+
+    tt_buf_init(&buf, NULL);
+
+    test_class = s_test_class_head;
+    while (test_class != NULL) {
+        tt_test_item_t *item = test_class->head;
+        while (item != NULL) {
+            TT_DO_G(done,
+                    tt_buf_putf(&buf,
+                                "    - cmd: set TT_CASE=%s& %%UT%%\n",
                                 item->name));
             item = item->next;
         }
