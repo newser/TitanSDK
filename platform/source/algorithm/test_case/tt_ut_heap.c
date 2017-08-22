@@ -287,6 +287,9 @@ TT_TEST_ROUTINE_DEFINE(case_ptrheap_correct)
     }
     for (i = 0; i < sizeof(trb) / sizeof(struct trb_t); ++i) {
         tt_ptrheap_remove(&ph, _dh[i]);
+        if (_dh[i] != TT_POS_NULL) {
+            TT_INFO("_dh[%d]: %u", i, _dh[i]);
+        }
         TT_UT_EQUAL(_dh[i], TT_POS_NULL, "");
     }
 
