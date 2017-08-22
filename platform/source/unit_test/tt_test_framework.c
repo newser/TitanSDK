@@ -432,7 +432,7 @@ void tt_test_gen_sh_win()
         while (item != NULL) {
             TT_DO_G(done,
                     tt_buf_putf(&buf,
-                                "    - cmd: set TT_CASE=%s& %%UT%%\n",
+                                "    - cmd: set TT_CASE=%s& run_case.bat\n",
                                 item->name));
             item = item->next;
         }
