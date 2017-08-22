@@ -32,7 +32,7 @@ before_build:
     - cmd: cmake -G "%GENERATOR%" ..\titansdk
 
 build:
-    project: c:\projects\titansdk_build_%JOB%\TitanSDK.sln
+    project: c:\projects\titansdk_build\TitanSDK.sln
     parallel: true
     verbosity: normal
 
