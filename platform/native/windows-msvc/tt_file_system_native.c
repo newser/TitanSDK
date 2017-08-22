@@ -466,7 +466,7 @@ tt_result_t tt_fread_ntv(IN tt_file_ntv_t *file,
 
     if (!ReadFile(file->hf, buf, buf_len, NULL, &fread.io_ev.ov) &&
         (GetLastError() != ERROR_IO_PENDING)) {
-        TT_ERROR("fail to read file");
+        TT_ERROR_NTV("fail to read file");
         return TT_FAIL;
     }
 
