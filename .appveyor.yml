@@ -15,13 +15,13 @@ environment:
           platform: Win32
           configuration: Release
           GENERATOR: Visual Studio 14 2015
-          UT: c:\projects\titansdk_build\unit_test\Debug\unit_test.exe
+          UT: c:\projects\titansdk_build\unit_test\Release\unit_test.exe
         - JOB: vs2017
           APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
           platform: x64
           configuration: Release
           GENERATOR: Visual Studio 15 2017 Win64
-          UT: c:\projects\titansdk_build\unit_test\Debug\unit_test.exe
+          UT: c:\projects\titansdk_build\unit_test\Release\unit_test.exe
 
 matrix:
     fast_finish: true
