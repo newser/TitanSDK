@@ -233,7 +233,7 @@ void tt_sktaddr_map4to6_ntv(IN tt_sktaddr_ntv_t *in4, OUT tt_sktaddr_ntv_t *in6)
 
     // save ipv4 value as in4 and in6 may be same pointer
     uint32_t __s_addr = i4->sin_addr.s_addr;
-    in_port_t __sin_port = i4->sin_port;
+    uint16_t __sin_port = i4->sin_port;
     // now change change in6
     tt_memset(i6, 0, sizeof(struct sockaddr_in6));
 

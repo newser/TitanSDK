@@ -29,8 +29,15 @@ then
     if [ $? -ne 0 ]
     then
         cat ${TT_CASE}.log
-        # running ios simulator in travis ci docker image seems not stable enough
-        #exit -1
+
+        # running ios simulator in travis ci docker image seems not stable enough,
+        # so we'll search the fail log to determine if the case really failed,
+        # note this may miss some exceptional failures such as crash.
+        grep "|   result:  Fail" ${TT_CASE}.log > /dev/null 2>&1
+        if [ $? -eq 0 ]
+        then
+            exit -1
+        fi
     fi
 else
     echo testing ${TT_CASE}

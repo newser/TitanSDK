@@ -23,9 +23,13 @@
 #include <misc/tt_assert.h>
 #include <os/tt_semaphore.h>
 
+// clang-format off
+// time_t used in <linux/time.h> is defined in <sys/types.h>
+#include <sys/types.h>
 #include <errno.h>
 #include <linux/time.h>
 #include <string.h>
+// clang-format on
 
 ////////////////////////////////////////////////////////////
 // internal macro

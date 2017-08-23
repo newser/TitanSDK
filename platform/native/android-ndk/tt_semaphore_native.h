@@ -37,7 +37,11 @@ this file implements semaphore apis in system level
 // macro definition
 ////////////////////////////////////////////////////////////
 
+#ifdef SEM_VALUE_MAX
 #define TT_SEM_MAX_COUNT_NTV SEM_VALUE_MAX
+#else
+#define TT_SEM_MAX_COUNT_NTV 0x3fffffff
+#endif
 
 ////////////////////////////////////////////////////////////
 // type definition

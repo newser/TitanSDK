@@ -30,6 +30,7 @@
 #include <linux/netlink.h>
 #include <linux/rtnetlink.h>
 #include <net/if.h>
+#include <sys/socket.h>
 
 ////////////////////////////////////////////////////////////
 // internal macro
@@ -327,12 +328,10 @@ tt_result_t __netlink_update_link(IN tt_netif_group_t *group,
         if ((a->rta_type == IFLA_IFNAME) &&
             (RTA_PAYLOAD(a) <= TT_NETIF_MAX_NAME_LEN)) {
             netif = __netif_find(group, (tt_char_t *)RTA_DATA(a));
-            break;
+            return __netif_update_link(netif, ifi, len);
         }
     }
-    if (netif != NULL) {
-        return __netif_update_link(netif, ifi, len);
-    }
+    return TT_SUCCESS;
 }
 
 tt_result_t __netlink_update_addr(IN tt_netif_group_t *group,
@@ -432,8 +431,13 @@ tt_u32_t __netlink_recv(IN __netlink_t *nlink, IN tt_buf_t *buf)
 {
     struct iovec iov;
     struct sockaddr_nl addr;
-    struct msghdr msg;
+#if __ANDROID_API__ >= 21
     struct mmsghdr msgvec;
+    struct msghdr *msg = &msgvec.msg_hdr;
+#else
+    struct msghdr m;
+    struct msghdr *msg = &m;
+#endif
     struct timespec timeout;
     ssize_t n;
     struct nlmsghdr *hdr;
@@ -441,17 +445,16 @@ tt_u32_t __netlink_recv(IN __netlink_t *nlink, IN tt_buf_t *buf)
     iov.iov_base = TT_BUF_WPOS(buf);
     iov.iov_len = TT_BUF_WLEN(buf);
 
-    msg.msg_name = (void *)&addr;
-    msg.msg_namelen = sizeof(struct sockaddr_nl);
-    msg.msg_iov = &iov;
-    msg.msg_iovlen = 1;
-    msg.msg_control = NULL;
-    msg.msg_controllen = 0;
-    msg.msg_flags = 0;
+    msg->msg_name = (void *)&addr;
+    msg->msg_namelen = sizeof(struct sockaddr_nl);
+    msg->msg_iov = &iov;
+    msg->msg_iovlen = 1;
+    msg->msg_control = NULL;
+    msg->msg_controllen = 0;
+    msg->msg_flags = 0;
 
 again:
 #if __ANDROID_API__ >= 21
-    msgvec.msg_hdr = &msg;
     msgvec.msg_len = 0;
     timeout.tv_sec = 3; // congfiguable?
     timeout.tv_nsec = 0;
@@ -460,9 +463,8 @@ again:
         n = msgvec.msg_len;
     }
 #else
-    (void)msgvec;
     (void)timeout;
-    n = recvmsg(nlink->s, &msg, 0);
+    n = recvmsg(nlink->s, msg, 0);
 #endif
     if (n <= 0) {
         if (errno == EINTR) {
@@ -471,7 +473,7 @@ again:
             TT_ERROR_NTV("netlink rev failed");
             return __NLRECV_ERROR;
         }
-    } else if (msg.msg_flags & MSG_TRUNC) {
+    } else if (msg->msg_flags & MSG_TRUNC) {
         tt_buf_clear(buf);
         n = TT_BUF_WLEN(buf) << 1;
         if (TT_OK(tt_buf_reserve(buf, n))) {

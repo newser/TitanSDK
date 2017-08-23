@@ -108,6 +108,7 @@ tt_inline tt_result_t tt_skt_get_reuseaddr_ntv(IN tt_skt_ntv_t *skt,
 tt_inline tt_result_t tt_skt_set_reuseport_ntv(IN tt_skt_ntv_t *skt,
                                                IN tt_bool_t reuse_port)
 {
+#ifdef SO_REUSEPORT
     int val = reuse_port ? 1 : 0;
     if (setsockopt(skt->s, SOL_SOCKET, SO_REUSEPORT, &val, sizeof(int)) == 0) {
         return TT_SUCCESS;
@@ -115,11 +116,16 @@ tt_inline tt_result_t tt_skt_set_reuseport_ntv(IN tt_skt_ntv_t *skt,
         TT_ERROR_NTV("fail to set reuse port to %d", reuse_port);
         return TT_FAIL;
     }
+#else
+    TT_WARN("SO_REUSEPORT is not supported");
+    return TT_SUCCESS;
+#endif
 }
 
 tt_inline tt_result_t tt_skt_get_reuseport_ntv(IN tt_skt_ntv_t *skt,
                                                OUT tt_bool_t *reuse_port)
 {
+#ifdef SO_REUSEPORT
     int val = 0;
     socklen_t len = (int)sizeof(int);
     if (getsockopt(skt->s, SOL_SOCKET, SO_REUSEPORT, &val, &len) == 0) {
@@ -129,6 +135,11 @@ tt_inline tt_result_t tt_skt_get_reuseport_ntv(IN tt_skt_ntv_t *skt,
         TT_ERROR_NTV("fail to get reuse port");
         return TT_FAIL;
     }
+#else
+    TT_WARN("SO_REUSEPORT is not supported");
+    reuse_port = TT_FALSE;
+    return TT_SUCCESS;
+#endif
 }
 
 tt_inline tt_result_t tt_skt_set_tcp_nodelay_ntv(IN tt_skt_ntv_t *skt,

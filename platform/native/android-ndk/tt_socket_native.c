@@ -32,12 +32,14 @@
 #include <time/tt_timer.h>
 
 #include <tt_cstd_api.h>
+#include <tt_epoll_compat.h>
 #include <tt_util_native.h>
 
 #include <fcntl.h>
 #include <net/if.h>
 #include <sys/epoll.h>
 #include <sys/ioctl.h>
+#include <sys/socket.h>
 #include <unistd.h>
 
 ////////////////////////////////////////////////////////////

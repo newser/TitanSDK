@@ -30,6 +30,7 @@
 #include <os/tt_task.h>
 #include <time/tt_timer.h>
 
+#include <tt_epoll_compat.h>
 #include <tt_util_native.h>
 
 #include <fcntl.h>

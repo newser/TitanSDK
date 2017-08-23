@@ -31,6 +31,7 @@ this file provided some basic utilities for platform usage
 #include <tt_sys_error.h>
 
 #include <errno.h>
+#include <sys/epoll.h>
 #include <unistd.h>
 
 ////////////////////////////////////////////////////////////

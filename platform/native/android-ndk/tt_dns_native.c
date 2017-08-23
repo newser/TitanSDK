@@ -27,10 +27,13 @@
 #include <memory/tt_memory_alloc.h>
 #include <os/tt_task.h>
 
+#include <tt_epoll_compat.h>
 #include <tt_util_native.h>
 
 #include <sys/epoll.h>
 #include <sys/uio.h>
+
+#include <fcntl.h>
 
 // clang-format off
 #define HAVE_CONFIG_H

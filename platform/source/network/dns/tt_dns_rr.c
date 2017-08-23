@@ -30,8 +30,17 @@
 #include <ares_setup.h>
 
 #if TT_ENV_OS_IS_MACOS || TT_ENV_OS_IS_IOS || TT_ENV_OS_IS_LINUX || TT_ENV_OS_IS_ANDROID
+
+#ifdef HAVE_ARPA_NAMESER_H
 #include <arpa/nameser.h>
+#else
+#include <nameser.h>
+#endif
+
+#ifdef HAVE_ARPA_NAMESER_COMPAT_H
 #include <arpa/nameser_compat.h>
+#endif
+
 #else
 #include <nameser.h>
 #endif
