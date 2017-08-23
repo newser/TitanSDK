@@ -386,7 +386,7 @@ void __ios_display(const char *str)
 }
 #endif
 
-void tt_test_gen_sh_unix()
+tt_export void tt_test_gen_sh_unix()
 {
     tt_buf_t buf;
     tt_test_class_t *test_class;
@@ -416,7 +416,7 @@ done:
     tt_buf_destroy(&buf);
 }
 
-void tt_test_gen_sh_win()
+tt_export void tt_test_gen_sh_win()
 {
     tt_buf_t buf;
     tt_test_class_t *test_class;

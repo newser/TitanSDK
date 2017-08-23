@@ -271,6 +271,9 @@ TT_TEST_ROUTINE_DEFINE(case_fs_open)
                        TT_FSEEK_CUR,
                        -2 * (strlen((const char *)buf1) + 1),
                        &d);
+        if (!TT_OK(ret) || d != 0) {
+            TT_INFO("ret: %d, d: %u", ret, (tt_u32_t)d);
+        }
         TT_UT_SUCCESS(ret, "");
         TT_UT_EQUAL(d, 0, "");
 
