@@ -269,7 +269,7 @@ TT_TEST_ROUTINE_DEFINE(case_fs_open)
         d = ~0;
         ret = tt_fseek(&tf2,
                        TT_FSEEK_CUR,
-                       -2 * (strlen((const char *)buf1) + 1),
+                       -2 * (tt_s32_t)(strlen((const char *)buf1) + 1),
                        &d);
         TT_UT_SUCCESS(ret, "");
         TT_UT_EQUAL(d, 0, "");

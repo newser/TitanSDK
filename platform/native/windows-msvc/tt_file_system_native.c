@@ -450,6 +450,7 @@ tt_result_t tt_fread_ntv(IN tt_file_ntv_t *file,
                          OUT tt_u32_t *read_len)
 {
     __fread_t fread;
+    DWORD dwError;
 
     __fs_ev_init(&fread.io_ev, __FREAD);
 
@@ -465,9 +466,13 @@ tt_result_t tt_fread_ntv(IN tt_file_ntv_t *file,
     fread.io_ev.ov.OffsetHigh = (tt_u32_t)(file->offset >> 32);
 
     if (!ReadFile(file->hf, buf, buf_len, NULL, &fread.io_ev.ov) &&
-        (GetLastError() != ERROR_IO_PENDING)) {
-        TT_ERROR("fail to read file");
-        return TT_FAIL;
+        ((dwError = GetLastError()) != ERROR_IO_PENDING)) {
+        if (dwError == ERROR_HANDLE_EOF) {
+            return TT_END;
+        } else {
+            TT_ERROR_NTV("fail to read file");
+            return TT_FAIL;
+        }
     }
 
     tt_fiber_suspend();

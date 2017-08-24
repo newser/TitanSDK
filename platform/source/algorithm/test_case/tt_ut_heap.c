@@ -213,6 +213,19 @@ static tt_s32_t rb_key_comparer(IN void *n,
 
 static tt_u32_t _dh[__t2_num];
 
+static tt_s32_t __ph_cmp(IN void *l, IN void *r)
+{
+    struct trb_t *lt = (struct trb_t *)l;
+    struct trb_t *rt = (struct trb_t *)r;
+    if (lt->v < rt->v) {
+        return -1;
+    } else if (lt->v == rt->v) {
+        return 0;
+    } else {
+        return 1;
+    }
+}
+
 TT_TEST_ROUTINE_DEFINE(case_ptrheap_correct)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
@@ -233,7 +246,7 @@ TT_TEST_ROUTINE_DEFINE(case_ptrheap_correct)
     // create ptr heap
     tt_ptrheap_attr_default(&attr);
 
-    tt_ptrheap_init(&ph, NULL, NULL);
+    tt_ptrheap_init(&ph, __ph_cmp, NULL);
 
     // create a rbtree
     tt_rbtree_attr_default(&rbattr);
@@ -256,7 +269,7 @@ TT_TEST_ROUTINE_DEFINE(case_ptrheap_correct)
 
     begin = tt_time_ref();
     for (i = 0; i < sizeof(trb) / sizeof(struct trb_t); ++i) {
-        tt_ptrheap_add(&ph, (tt_ptr_t)(tt_uintptr_t)trb[i].v, NULL);
+        tt_ptrheap_add(&ph, &trb[i], NULL);
     }
     end = tt_time_ref();
     t2 = (tt_s32_t)tt_time_ref2ms(end - begin);
@@ -266,7 +279,7 @@ TT_TEST_ROUTINE_DEFINE(case_ptrheap_correct)
     // cmp
     for (i = 0; i < sizeof(trb) / sizeof(struct trb_t); ++i) {
         tt_rbnode_t *pn = tt_rbtree_max(&rbt);
-        int pv = (int)(tt_uintptr_t)tt_ptrheap_head(&ph);
+        int pv = ((struct trb_t *)tt_ptrheap_head(&ph))->v;
         TT_UT_EQUAL(((struct trb_t *)pn)->v, pv, "");
 
         tt_rbtree_remove(&rbt, pn);
@@ -279,14 +292,27 @@ TT_TEST_ROUTINE_DEFINE(case_ptrheap_correct)
 
     // test remove
     for (i = 0; i < sizeof(trb) / sizeof(struct trb_t); ++i) {
-        tt_ptrheap_add(&ph, (tt_ptr_t)(tt_uintptr_t)trb[i].v, &_dh[i]);
+        TT_UT_SUCCESS(tt_ptrheap_add(&ph, &trb[i], &_dh[i]), "");
     }
+    for (i = 0; i < sizeof(trb) / sizeof(struct trb_t); ++i) {
+        TT_UT_EQUAL(ph.node[_dh[i]].p, &trb[i], "");
+    }
+    TT_UT_EQUAL(ph.count, sizeof(trb) / sizeof(struct trb_t), "");
+
     for (i = 0; i < sizeof(trb) / sizeof(struct trb_t); ++i) {
         trb[i].v = rand();
         tt_ptrheap_fix(&ph, _dh[i]);
     }
     for (i = 0; i < sizeof(trb) / sizeof(struct trb_t); ++i) {
+        TT_UT_EQUAL(ph.node[_dh[i]].p, &trb[i], "");
+    }
+    TT_UT_EQUAL(ph.count, sizeof(trb) / sizeof(struct trb_t), "");
+
+    for (i = 0; i < sizeof(trb) / sizeof(struct trb_t); ++i) {
         tt_ptrheap_remove(&ph, _dh[i]);
+        if (_dh[i] != TT_POS_NULL) {
+            TT_INFO("_dh[%d]: %u", i, _dh[i]);
+        }
         TT_UT_EQUAL(_dh[i], TT_POS_NULL, "");
     }
 

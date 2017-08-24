@@ -69,11 +69,15 @@ static tt_bool_t tt_ut_ok = TT_FALSE;
 tt_result_t __ut_fiber(IN void *param)
 {
     const tt_char_t *name = NULL;
+    tt_char_t buf[200] = {0};
 
     tt_test_framework_init(0);
     tt_test_unit_init(NULL);
 
 #if TT_ENV_OS_IS_WINDOWS
+    GetEnvironmentVariableA("TT_CASE", buf, sizeof(buf) - 1);
+    name = buf;
+    printf("%s|\n", name);
 #else
     name = getenv("TT_CASE");
 #endif
@@ -94,7 +98,6 @@ tt_result_t __ut_fiber(IN void *param)
 
 int main(int argc, char *argv[])
 {
-    int i;
     tt_task_t t;
 
 // setlocale(LC_ALL, "chs");
@@ -143,7 +146,10 @@ int main(int argc, char *argv[])
         extern void tt_test_gen_sh_unix();
         tt_test_gen_sh_unix();
         return 0;
-    } else if (strncmp(argv[1], "sh_windows", 10) == 0) {
+    } else if (strncmp(argv[1], "sh_win", 10) == 0) {
+        extern void tt_test_gen_sh_win();
+        tt_test_gen_sh_win();
+        return 0;
     } else {
         printf("unknown process arg: %s\n", argv[1]);
 

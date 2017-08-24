@@ -126,37 +126,45 @@ tt_result_t tt_console_init_ntv()
     __stdin_hdl = GetStdHandle(STD_INPUT_HANDLE);
     if (__stdin_hdl == INVALID_HANDLE_VALUE) {
         TT_ERROR_NTV("fail to get stdin handle");
-        return TT_FAIL;
+        goto fail;
     }
     if (!GetConsoleMode(__stdin_hdl, &__stdin_mode)) {
         TT_ERROR_NTV("fail to get stdin mode");
-        return TT_FAIL;
+        goto fail;
     }
 
     __stdout_hdl = GetStdHandle(STD_OUTPUT_HANDLE);
     if (__stdout_hdl == INVALID_HANDLE_VALUE) {
         TT_ERROR_NTV("fail to get stdout handle");
-        return TT_FAIL;
+        goto fail;
     }
+#if 0
     if (!GetConsoleMode(__stdout_hdl, &__stdout_mode)) {
         TT_ERROR_NTV("fail to get stdout mode");
-        return TT_FAIL;
+        goto fail;
     }
+#endif
 
     __stderr_hdl = GetStdHandle(STD_ERROR_HANDLE);
     if (__stderr_hdl == INVALID_HANDLE_VALUE) {
         TT_ERROR_NTV("fail to get stderr handle");
-        return TT_FAIL;
+        goto fail;
     }
+#if 0
     if (!GetConsoleMode(__stderr_hdl, &__stderr_mode)) {
         TT_ERROR_NTV("fail to get stderr mode");
-        return TT_FAIL;
+        goto fail;
     }
+#endif
 
     __cons_imode = TT_CONSOLE_IMODE_DEFAULT;
     __cons_omode = TT_CONSOLE_OMODE_DEFAULT;
     __cons_unprintable_subst = '.';
 
+    return TT_SUCCESS;
+
+fail:
+    // ignore it if fail to get console handle
     return TT_SUCCESS;
 }
 
