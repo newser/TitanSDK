@@ -21,7 +21,7 @@
 set(CMAKE_SYSTEM_NAME Android)
 
 # api version
-set(CMAKE_SYSTEM_VERSION 19)
+set(CMAKE_SYSTEM_VERSION 21)
 
 # abi: "armeabi" "armeabi-v7a" "arm64-v8a" "x86" "x86_64"
 set(CMAKE_ANDROID_ARCH_ABI x86)

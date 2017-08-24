@@ -28,17 +28,19 @@ this file defines epoll compatibility
 // import header files
 ////////////////////////////////////////////////////////////
 
+#include <sys/epoll.h>
+
 ////////////////////////////////////////////////////////////
 // macro definition
 ////////////////////////////////////////////////////////////
 
 #ifndef EPOLLRDHUP
-#warning EPOLLRDHUP is not defined
+#warning EPOLLRDHUP is not defined, io may not work
 #define EPOLLRDHUP 0x00002000
 #endif
 
 #ifndef EPOLLONESHOT
-#warning EPOLLONESHOT is not defined
+#warning EPOLLONESHOT is not defined, io may not work
 #define EPOLLONESHOT 0x40000000
 #endif
 
