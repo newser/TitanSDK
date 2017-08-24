@@ -3,13 +3,6 @@ matrix:
         - language: c
           os: linux
           dist: trusty
-          addons:
-              apt:
-                  sources:
-                      - george-edison55-precise-backports
-                  packages:
-                      - cmake-data
-                      - cmake
           env:
               global:
                   - JOB='Android 21'
@@ -19,8 +12,14 @@ before_install:
     - |
       if [ "${OS}" == "android" ]
       then
+          wget -q cmake-3.9.1-Linux-x86_64.sh && \
+          sh cmake-3.9.1-Linux-x86_64.sh || \
+          exit -1
+          PATH=$(pwd)/cmake-3.9.1-Linux-x86_64/bin:${PATH}
+          cmake --version
+
           export NDK=android-ndk-r14b
-          wget https://dl.google.com/android/repository/${NDK}-linux-x86_64.zip && \
+          wget -q https://dl.google.com/android/repository/${NDK}-linux-x86_64.zip && \
           unzip -oqq ${NDK}-linux-x86_64.zip || \
           exit -1
           
