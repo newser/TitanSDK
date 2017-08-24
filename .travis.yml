@@ -43,8 +43,50 @@ before_install:
           echo ====================================
           echo android: 21
           echo abi: x86
-          echo ====================================          
+          echo ====================================
           android_compile 21 x86 "-DPLATFORM_BUILD_SHARED=FALSE -DPLATFORM_ENABLE_DEBUG=TRUE" Debug
+
+          echo ====================================
+          echo android: 21
+          echo abi: x86_64
+          echo ====================================
+          android_compile 21 x86_64 "-DPLATFORM_BUILD_SHARED=FALSE -DPLATFORM_ENABLE_DEBUG=TRUE" Debug
+
+          echo ====================================
+          echo android: 21
+          echo abi: armeabi
+          echo ====================================
+          android_compile 21 armeabi "-DPLATFORM_BUILD_SHARED=TRUE -DPLATFORM_ENABLE_DEBUG=FALSE" Release
+
+          echo ====================================
+          echo android: 21
+          echo abi: arm64-v8a
+          echo ====================================
+          android_compile 21 arm64-v8a "-DPLATFORM_BUILD_SHARED=TRUE -DPLATFORM_ENABLE_DEBUG=TRUE" Release
+
+          echo ====================================
+          echo android: 24
+          echo abi: x86
+          echo ====================================
+          android_compile 24 x86 "-DPLATFORM_BUILD_SHARED=TRUE -DPLATFORM_ENABLE_DEBUG=FALSE" Release
+
+          echo ====================================
+          echo android: 24
+          echo abi: x86_64
+          echo ====================================
+          android_compile 24 x86_64 "-DPLATFORM_BUILD_SHARED=TRUE -DPLATFORM_ENABLE_DEBUG=FALSE" Release
+
+          echo ====================================
+          echo android: 24
+          echo abi: armeabi
+          echo ====================================
+          android_compile 24 armeabi "-DPLATFORM_BUILD_SHARED=FALSE -DPLATFORM_ENABLE_DEBUG=TRUE" Debug
+
+          echo ====================================
+          echo android: 24
+          echo abi: arm64-v8a
+          echo ====================================
+          android_compile 24 arm64-v8a "-DPLATFORM_BUILD_SHARED=FALSE -DPLATFORM_ENABLE_DEBUG=FALSE" Debug
       fi
 
 install:
