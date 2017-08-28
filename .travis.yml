@@ -263,7 +263,7 @@ install:
           android-wait-for-emulator
           echo avd is running
           adb shell echo echo from adb shell!
-		  adb shell install android_lib_unit_test/app/build/outputs/apk/app-debug.apk || exit -1
+          adb shell install android_lib_unit_test/app/build/outputs/apk/app-debug.apk || exit -1
       fi
 
 script:
