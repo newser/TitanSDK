@@ -120,8 +120,7 @@ matrix:
                   - tools
                   - build-tools-25.0.0
                   - android-24
-                  - extra-android-m2repository
-                  - extra-android-support
+                  - extra
                   - sys-img-x86-android-24
           env:
               global:
