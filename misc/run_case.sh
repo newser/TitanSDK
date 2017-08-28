@@ -38,7 +38,34 @@ then
         then
             exit -1
         fi
+
+        # just give a warning and show log if success log is not found
+        grep "|   result:  OK" ${TT_CASE}.log > /dev/null 2>&1
+        if [ $? -ne 0 ]
+        then
+            echo WARNING!!! ${TT_CASE} may failed
+            cat ${TT_CASE}.log
+        fi
     fi
+elif [ ${OS} == "android-simulator" ]
+    adb shell am force-stop com.titansdk.titansdkunittest
+    adb shell logcat -c
+    adb shell am start -a android.intent.action.MAIN -n com.titansdk.titansdkunittest/com.titansdk.titansdkunittest.MainActivity -e TT_CASE ${TT_CASE}
+    adb logcat -d -s platform > ${TT_CASE}.log
+
+    grep "|   result:  Fail" ${TT_CASE}.log > /dev/null 2>&1
+    if [ $? -eq 0 ]
+    then
+        exit -1
+    fi
+
+    grep "|   result:  OK" ${TT_CASE}.log > /dev/null 2>&1
+    if [ $? -ne 0 ]
+    then
+        echo WARNING!!! ${TT_CASE} may failed
+        cat ${TT_CASE}.log
+    fi
+then
 else
     echo testing ${TT_CASE}
     ${UT} > ${TT_CASE}.log 2>&1

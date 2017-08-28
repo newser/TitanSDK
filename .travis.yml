@@ -253,9 +253,9 @@ install:
           cp -r ../TitanSDK/program/android_lib_unit_test/ ./
           cp output/platform/0.1.0/debug/shared/libplatform.so android_lib_unit_test/TitanSDKUnitTest/app/src/main/jniLibs/x86/
 
-          cd android_lib_unit_test/TitanSDKUnitTest; &&
-          ./gradlew assembleDebug; &&
-          cd -; ||
+          cd android_lib_unit_test/TitanSDKUnitTest; && \
+          ./gradlew assembleDebug; && \
+          cd -; || \
           exit -1
   
           echo no | android create avd --force --name ut -b x86 --package 'system-images;android-24;google_apis_playstore;x86'
@@ -263,6 +263,7 @@ install:
           android-wait-for-emulator
           echo avd is running
           adb shell echo echo from adb shell!
+		  adb shell install android_lib_unit_test/app/build/outputs/apk/app-debug.apk || exit -1
       fi
 
 script:
