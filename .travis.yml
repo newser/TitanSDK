@@ -124,6 +124,7 @@ matrix:
           env:
               global:
                   - JOB='Android Simulator'
+                  - GENERATOR='Unix Makefiles'
                   - OS=android-simulator
                   - CMAKE_FLAGS='-DCMAKE_TOOLCHAIN_FILE=toolchain.cmake -DPLATFORM_ENABLE_DEBUG=TRUE'
                   - BUILD_CMD='cmake --build . --target platform --config Debug'
