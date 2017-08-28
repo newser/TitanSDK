@@ -54,10 +54,28 @@ tt_buf_t tt_g_jni_buf;
 
 tt_result_t __ut_fiber(IN void *param)
 {
+    const tt_char_t *name = (const tt_char_t *)param;
+
     tt_test_framework_init(0);
     tt_test_unit_init(NULL);
+
+#if 0
     tt_test_unit_run(NULL);
     tt_test_unit_list(NULL);
+#endif
+
+    if (name != NULL) {
+        TT_INFO("case name: %s", name);
+        if (tt_strcmp(name, "all") == 0) {
+            tt_test_unit_run(NULL);
+            tt_test_unit_list(NULL);
+            // tt_ut_ok = TT_TRUE;
+        } else if (TT_OK(tt_test_unit_run(name))) {
+            // tt_ut_ok = TT_TRUE;
+        }
+    } else {
+        TT_INFO("unit_test <case name> | all");
+    }
 
     return TT_SUCCESS;
 }
@@ -81,7 +99,11 @@ Java_com_titansdk_titansdkunittest_TTUnitTestJNI_runUT(JNIEnv *env,
     }
 
     tt_task_create(&t, NULL);
-    tt_task_add_fiber(&t, NULL, __ut_fiber, NULL, NULL);
+    tt_task_add_fiber(&t,
+                      NULL,
+                      __ut_fiber,
+                      (void *)(*env)->GetStringUTFChars(env, name, 0),
+                      NULL);
     tt_task_run(&t);
     tt_task_wait(&t);
     TT_INFO("exiting");

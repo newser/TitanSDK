@@ -94,7 +94,7 @@ void tt_component_register(IN tt_component_t *comp)
     if (__comp_table[comp->cid].comp == NULL) {
         __comp_table[comp->cid].comp = comp;
     } else {
-        TT_ERROR("component[%s] has already registered\n", comp->name);
+        TT_ERROR("component[%s] has already registered", comp->name);
     }
 }
 
@@ -108,10 +108,10 @@ tt_result_t tt_component_start(IN tt_profile_t *profile)
 
         if (!comp_status->started && (comp != NULL)) {
             if (TT_OK(comp->itf.init(comp, profile))) {
-                TT_INFO("Intializing %-32s [Done]", comp->name);
+                TT_INFO("Initializing %-32s [Done]", comp->name);
                 __comp_table[i].started = TT_TRUE;
             } else {
-                TT_INFO("Intializing %-32s [Fail]", comp->name);
+                TT_INFO("Initializing %-32s [Fail]", comp->name);
                 return TT_FAIL;
             }
         }

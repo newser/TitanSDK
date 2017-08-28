@@ -111,6 +111,22 @@ matrix:
               global:
                   - JOB='Android Build'
                   - OS=android
+        - language: android
+          dist: trusty
+          android:
+              components:
+                  - tools
+                  - platform-tools
+                  - tools
+                  - build-tools-25.0.0
+                  - android-24
+                  - sys-img-x86-android-24
+          env:
+              global:
+                  - JOB='Android Simulator'
+                  - OS=android-simulator
+                  - CMAKE_FLAGS='-DCMAKE_TOOLCHAIN_FILE=toolchain.cmake -DPLATFORM_ENABLE_DEBUG=TRUE'
+                  - BUILD_CMD='cmake --build . --target platform --config Debug'
 
 before_install:
     - |
@@ -192,6 +208,25 @@ before_install:
           echo ====================================
           android_compile 24 arm64-v8a "-DPLATFORM_BUILD_SHARED=FALSE -DPLATFORM_ENABLE_DEBUG=FALSE" Debug
       fi
+    - |
+      if [ "${OS}" == "android-simulator" ]
+      then
+          wget -q https://cmake.org/files/v3.9/cmake-3.9.1-Linux-x86_64.sh && \
+          yes | sh cmake-3.9.1-Linux-x86_64.sh > /dev/null || \
+          exit -1
+          PATH=$(pwd)/cmake-3.9.1-Linux-x86_64/bin:${PATH}
+          cmake --version
+
+          export NDK=android-ndk-r14b
+          wget -q https://dl.google.com/android/repository/${NDK}-linux-x86_64.zip && \
+          unzip -oqq ${NDK}-linux-x86_64.zip || \
+          exit -1
+
+          echo "set(CMAKE_SYSTEM_NAME Android)" > toolchain.cmake &&
+          echo "set(CMAKE_SYSTEM_VERSION 21)" >> toolchain.cmake &&
+          echo "set(CMAKE_ANDROID_ARCH_ABI x86)" >> toolchain.cmake &&
+          echo "set(CMAKE_ANDROID_NDK \"$(pwd)/${NDK}\")" >> toolchain.cmake
+      fi
 
 install:
     - if [ "${OS}" == "android" ]; then exit 0; fi
@@ -210,6 +245,12 @@ install:
           export DEV=$(xcrun simctl create test_iphone7 com.apple.CoreSimulator.SimDeviceType.iPhone-7 com.apple.CoreSimulator.SimRuntime.iOS-10-3) && \
           xcrun simctl boot ${DEV} && \
           xcrun simctl install ${DEV} ${UT}
+      fi
+    - |
+      if [ ${OS} == "android-simulator" ]
+      then
+          echo to do android ut
+          exit 0
       fi
 
 script:

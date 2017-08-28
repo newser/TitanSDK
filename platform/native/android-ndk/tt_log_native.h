@@ -41,6 +41,9 @@ this file defines log native APIs
         __android_log_print(ANDROID_LOG_INFO, "platform", __VA_ARGS__);        \
     } while (0)
 
+// __android_log_print() would automatically add a LF
+#define TT_PRINTF_LF(...)
+
 #define TT_VPRINTF(fmt, ap)                                                    \
     do {                                                                       \
         __android_log_vprint(ANDROID_LOG_INFO, "platform", fmt, ap);           \

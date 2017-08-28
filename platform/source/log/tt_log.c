@@ -32,6 +32,13 @@
 #define TT_PRINTF printf
 #endif
 
+#ifndef TT_PRINTF_LF
+#define TT_PRINTF_LF()                                                         \
+    do {                                                                       \
+        printf("\n");                                                          \
+    } while (0)
+#endif
+
 #ifndef TT_VPRINTF
 #define TT_VPRINTF vprintf
 #endif
@@ -68,7 +75,7 @@ void tt_log_debug(IN const tt_char_t *func,
         tt_logmgr_inputv(&tt_g_logmgr, TT_LOG_DEBUG, func, line, format, ap);
     } else {
         TT_VPRINTF(format, ap);
-        TT_PRINTF("\n");
+        TT_PRINTF_LF();
     }
     va_end(ap);
 }
@@ -85,7 +92,7 @@ void tt_log_info(IN const tt_char_t *func,
         tt_logmgr_inputv(&tt_g_logmgr, TT_LOG_INFO, func, line, format, ap);
     } else {
         TT_VPRINTF(format, ap);
-        TT_PRINTF("\n");
+        TT_PRINTF_LF();
     }
     va_end(ap);
 }
@@ -102,7 +109,7 @@ void tt_log_warn(IN const tt_char_t *func,
         tt_logmgr_inputv(&tt_g_logmgr, TT_LOG_WARN, func, line, format, ap);
     } else {
         TT_VPRINTF(format, ap);
-        TT_PRINTF("\n");
+        TT_PRINTF_LF();
     }
     va_end(ap);
 }
@@ -119,7 +126,7 @@ void tt_log_error(IN const tt_char_t *func,
         tt_logmgr_inputv(&tt_g_logmgr, TT_LOG_ERROR, func, line, format, ap);
     } else {
         TT_VPRINTF(format, ap);
-        TT_PRINTF("\n");
+        TT_PRINTF_LF();
     }
     va_end(ap);
 }
@@ -136,7 +143,7 @@ void tt_log_fatal(IN const tt_char_t *func,
         tt_logmgr_inputv(&tt_g_logmgr, TT_LOG_FATAL, func, line, format, ap);
     } else {
         TT_VPRINTF(format, ap);
-        TT_PRINTF("\n");
+        TT_PRINTF_LF();
     }
     va_end(ap);
 }
