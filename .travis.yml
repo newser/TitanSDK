@@ -254,7 +254,7 @@ install:
           cp output/platform/0.1.0/debug/shared/libplatform.so android_lib_unit_test/TitanSDKUnitTest/app/src/main/jniLibs/x86/
 
           cd android_lib_unit_test/TitanSDKUnitTest && \
-          ./gradlew assembleDebug && \
+          ./gradlew clean assembleDebug && \
           cd - || \
           exit -1
   
