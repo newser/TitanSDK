@@ -121,7 +121,7 @@ matrix:
                   - build-tools-25.0.0
                   - android-24
                   - extra
-                  - sys-img-x86-android-24
+                  - sys-img-armeabi-v7a-android-24
           env:
               global:
                   - JOB='Android Simulator'
@@ -226,7 +226,7 @@ before_install:
 
           echo "set(CMAKE_SYSTEM_NAME Android)" > toolchain.cmake &&
           echo "set(CMAKE_SYSTEM_VERSION 21)" >> toolchain.cmake &&
-          echo "set(CMAKE_ANDROID_ARCH_ABI x86)" >> toolchain.cmake &&
+          echo "set(CMAKE_ANDROID_ARCH_ABI armeabi-v7a)" >> toolchain.cmake &&
           echo "set(CMAKE_ANDROID_NDK \"$(pwd)/${NDK}\")" >> toolchain.cmake
 
           echo yes | sdkmanager "extras;m2repository;com;android;support;constraint;constraint-layout;1.0.2"
@@ -255,15 +255,15 @@ install:
       if [ ${OS} == "android-simulator" ]
       then
           cp -r ../program/android_lib_unit_test/ ./
-          cp output/platform/0.1.0/debug/shared/libplatform.so android_lib_unit_test/TitanSDKUnitTest/app/src/main/jniLibs/x86/
+          cp output/platform/0.1.0/debug/shared/libplatform.so android_lib_unit_test/TitanSDKUnitTest/app/src/main/jniLibs/armeabi-v7a/
 
           cd android_lib_unit_test/TitanSDKUnitTest && \
           ./gradlew clean assembleDebug && \
           cd - || \
           exit -1
   
-          echo no | android create avd --force --name ut --target android-24 --abi x86 || exit -1
-          emulator -avd ut -no-audio -no-window &
+          echo no | android create avd --force --name ut --target android-24 --abi armeabi-v7a || exit -1
+          emulator -avd ut -no-skin -no-audio -no-window &
           android-wait-for-emulator
           echo avd is running
           adb shell echo echo from adb shell!
