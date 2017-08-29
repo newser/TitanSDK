@@ -18,10 +18,10 @@ then
     exit -1
 fi
 
-if [ ${OS} == "ios" ]
+if [ "${OS}" = "ios" ]
 then
     :
-elif [ ${OS} == "ios-simulator" ]
+elif [ "${OS}" = "ios-simulator" ]
 then
     export SIMCTL_CHILD_TT_CASE=${TT_CASE}
     xcrun simctl launch --console ${DEV} com.titansdk.unit-test > ${TT_CASE}.log 2>&1
@@ -47,7 +47,7 @@ then
             cat ${TT_CASE}.log
         fi
     fi
-elif [ ${OS} == "android-simulator" ]
+elif [ "${OS}" = "android-simulator" ]
 then
     adb shell am force-stop com.titansdk.titansdkunittest
     adb shell logcat -c
