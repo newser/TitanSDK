@@ -266,7 +266,7 @@ install:
           echo no | android create avd --force --name ut --target android-21 --abi armeabi-v7a || exit -1
           emulator -avd ut -no-audio -no-window &
           android-wait-for-emulator
-		  adb shell echo echo from adb shell!!!
+          adb shell echo echo from adb shell!!!
           adb install android_lib_unit_test/TitanSDKUnitTest/app/build/outputs/apk/app-debug.apk || exit -1
       fi
 
