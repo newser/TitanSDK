@@ -52,7 +52,18 @@ then
     adb shell am force-stop com.titansdk.titansdkunittest
     adb shell logcat -c
     adb shell am start -a android.intent.action.MAIN -n com.titansdk.titansdkunittest/com.titansdk.titansdkunittest.MainActivity -e TT_CASE ${TT_CASE}
-    adb logcat -d -s platform > ${TT_CASE}.log
+    
+    i=0
+    while [ ${i} -lt 10 ]
+    do
+        echo [${i}] waiting ${TT_CASE}
+        sleep 1
+        adb logcat -d -s platform > ${TT_CASE}.log
+        diff ${TT_CASE}.log ${TT_CASE}.log.prev > /dev/null 2>&1 && i=$((i + 1))
+        rm ${TT_CASE}.log.prev > /dev/null 2>&1
+        mv ${TT_CASE}.log ${TT_CASE}.log.prev
+    done
+    mv ${TT_CASE}.log.prev ${TT_CASE}.log
 
     grep "|   result:  Fail" ${TT_CASE}.log > /dev/null 2>&1
     if [ $? -eq 0 ]
