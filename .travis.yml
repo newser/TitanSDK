@@ -126,9 +126,10 @@ matrix:
               global:
                   - JOB='Android Simulator'
                   - GENERATOR='Unix Makefiles'
-                  - OS=android-simulator
                   - CMAKE_FLAGS='-DCMAKE_TOOLCHAIN_FILE=toolchain.cmake -DPLATFORM_ENABLE_DEBUG=TRUE'
                   - BUILD_CMD='cmake --build . --target platform --config Debug'
+                  - OS=android-simulator
+                  - UT=dummy
 
 before_install:
     - |
@@ -265,9 +266,7 @@ install:
           echo no | android create avd --force --name ut --target android-21 --abi armeabi-v7a || exit -1
           emulator -avd ut -no-audio -no-window &
           android-wait-for-emulator
-          echo avd is running
-          adb shell echo echo from adb shell!
-          adb shell install android_lib_unit_test/app/build/outputs/apk/app-debug.apk || exit -1
+          adb install android_lib_unit_test/app/build/outputs/apk/app-debug.apk || exit -1
       fi
 
 script:
