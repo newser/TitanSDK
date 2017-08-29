@@ -262,7 +262,7 @@ install:
           cd - || \
           exit -1
   
-          echo no | android create avd --force --name ut -b x86 --package 'system-images;android-24;google_apis_playstore;x86'
+          echo no | android create avd --force --name ut --target android-24 --abi x86 || exit -1
           emulator -avd ut -no-audio -no-window &
           android-wait-for-emulator
           echo avd is running
