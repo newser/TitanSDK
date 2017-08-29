@@ -228,6 +228,9 @@ before_install:
           echo "set(CMAKE_SYSTEM_VERSION 21)" >> toolchain.cmake &&
           echo "set(CMAKE_ANDROID_ARCH_ABI x86)" >> toolchain.cmake &&
           echo "set(CMAKE_ANDROID_NDK \"$(pwd)/${NDK}\")" >> toolchain.cmake
+
+          echo yes | sdkmanager "extras;m2repository;com;android;support;constraint;constraint-layout;1.0.2"
+          echo yes | sdkmanager "extras;m2repository;com;android;support;constraint;constraint-layout-solver;1.0.2"
       fi
 
 install:
