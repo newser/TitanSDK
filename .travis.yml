@@ -262,7 +262,7 @@ install:
           cd - || \
           exit -1
   
-          echo no | android create avd --force --name ut --target android-24 --abi armeabi-v7a || exit -1
+          echo no | android create avd --force --name ut --target android-21 --abi armeabi-v7a || exit -1
           emulator -avd ut -no-audio -no-window &
           android-wait-for-emulator
           echo avd is running
