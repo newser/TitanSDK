@@ -48,6 +48,7 @@ then
         fi
     fi
 elif [ ${OS} == "android-simulator" ]
+then
     adb shell am force-stop com.titansdk.titansdkunittest
     adb shell logcat -c
     adb shell am start -a android.intent.action.MAIN -n com.titansdk.titansdkunittest/com.titansdk.titansdkunittest.MainActivity -e TT_CASE ${TT_CASE}
@@ -65,7 +66,6 @@ elif [ ${OS} == "android-simulator" ]
         echo WARNING!!! ${TT_CASE} may failed
         cat ${TT_CASE}.log
     fi
-then
 else
     echo testing ${TT_CASE}
     ${UT} > ${TT_CASE}.log 2>&1
