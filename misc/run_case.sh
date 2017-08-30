@@ -59,6 +59,7 @@ then
         echo [${i}] waiting ${TT_CASE}
         sleep 1
         adb logcat -d -s platform > ${TT_CASE}.log
+        grep "|   result:" ${TT_CASE}.log > /dev/null 2>&1 && break
         diff ${TT_CASE}.log ${TT_CASE}.log.prev > /dev/null 2>&1 && i=$((i + 1))
         rm ${TT_CASE}.log.prev > /dev/null 2>&1
         mv ${TT_CASE}.log ${TT_CASE}.log.prev
