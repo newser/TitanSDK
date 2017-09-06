@@ -190,7 +190,11 @@ TT_TEST_ROUTINE_DEFINE(case_charset_gb2312_utf8)
     tt_u32_t buf_len;
 
     TT_TEST_CASE_ENTER()
-    // test start
+// test start
+
+#if TT_ENV_OS_IS_ANDROID
+    return TT_SUCCESS;
+#endif
 
     ret =
         tt_chsetconv_create(&csconv, TT_CHARSET_GB2312, TT_CHARSET_UTF8, NULL);
@@ -317,7 +321,11 @@ TT_TEST_ROUTINE_DEFINE(case_charset_utf16le_utf8)
     tt_chsetconv_t csconv;
 
     TT_TEST_CASE_ENTER()
-    // test start
+// test start
+
+#if TT_ENV_OS_IS_ANDROID
+    return TT_SUCCESS;
+#endif
 
     // utf16le to utf8
     ret =
@@ -694,7 +702,11 @@ TT_TEST_ROUTINE_DEFINE(case_charset_utf16be_utf8)
     tt_chsetconv_t csconv;
 
     TT_TEST_CASE_ENTER()
-    // test start
+// test start
+
+#if TT_ENV_OS_IS_ANDROID
+    return TT_SUCCESS;
+#endif
 
     // utf16be to utf8
     ret =
@@ -965,7 +977,11 @@ TT_TEST_ROUTINE_DEFINE(case_charset_utf32le_utf8)
     tt_chsetconv_t csconv;
 
     TT_TEST_CASE_ENTER()
-    // test start
+// test start
+
+#if TT_ENV_OS_IS_ANDROID
+    return TT_SUCCESS;
+#endif
 
     // utf32le to utf8
     ret =
@@ -1195,7 +1211,11 @@ TT_TEST_ROUTINE_DEFINE(case_charset_utf32be_utf8)
     tt_chsetconv_t csconv;
 
     TT_TEST_CASE_ENTER()
-    // test start
+// test start
+
+#if TT_ENV_OS_IS_ANDROID
+    return TT_SUCCESS;
+#endif
 
     // utf32be to utf8
     ret =

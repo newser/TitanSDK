@@ -328,7 +328,9 @@ tt_result_t __netlink_update_link(IN tt_netif_group_t *group,
         if ((a->rta_type == IFLA_IFNAME) &&
             (RTA_PAYLOAD(a) <= TT_NETIF_MAX_NAME_LEN)) {
             netif = __netif_find(group, (tt_char_t *)RTA_DATA(a));
-            return __netif_update_link(netif, ifi, len);
+            if (netif != NULL) {
+                return __netif_update_link(netif, ifi, len);
+            }
         }
     }
     return TT_SUCCESS;

@@ -200,7 +200,14 @@ tt_result_t tt_test_run(IN const tt_char_t *name)
         return TT_SUCCESS;
     } else {
         while (test_class != NULL) {
-            tt_result_t result = tt_test_run_item_of(test_class, name);
+            tt_result_t result;
+
+            if (tt_strcmp(test_class->name, name) == 0) {
+                tt_test_run_class(test_class);
+                return TT_SUCCESS;
+            }
+
+            result = tt_test_run_item_of(test_class, name);
             if (result != TT_NOT_EXIST) {
                 return result;
             }

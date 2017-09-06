@@ -35,7 +35,15 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected String doInBackground(Void... voids) {
-            return TTUnitTestJNI.runUT("");
+            String r = null;
+            r = TTUnitTestJNI.runUT("ALG_UT_HASHMAP") +
+                TTUnitTestJNI.runUT("ALG_UT_QUEUE") +
+                TTUnitTestJNI.runUT("ALG_UT_RBTREE") +
+                TTUnitTestJNI.runUT("ALG_UT_STACK") +
+                TTUnitTestJNI.runUT("ALG_UT_RBUF") +
+                TTUnitTestJNI.runUT("ALG_UT_BUF") +
+                TTUnitTestJNI.runUT("ALG_UT_STRING");
+            return r;
         }
 
         @Override

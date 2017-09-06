@@ -99,8 +99,10 @@ if enabled, name of the function who locked the rwlock would be recorded
 /**
 @def TT_ATOMIC_ALIGNMENT_CHECK
 enable alignment check
+
+do not enable it on android, the ndk can not handle aligned(8) on armeabi
 */
-#define TT_ATOMIC_ALIGNMENT_CHECK
+//#define TT_ATOMIC_ALIGNMENT_CHECK
 
 ////////////////////////////////////////////////////////////
 // type definition
