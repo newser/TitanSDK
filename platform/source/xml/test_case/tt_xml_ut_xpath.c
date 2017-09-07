@@ -429,8 +429,10 @@ TT_TEST_ROUTINE_DEFINE(case_xpath_eval)
     TT_UT_EQUAL(tt_xnode_eval_bool(xn, &xp), TT_TRUE, "");
     TT_UT_EQUAL(tt_xnode_eval_number(xn, &xp), sizeof("cooking") - 1, "");
     tt_memset(buf, 0, sizeof(buf));
+#if !TT_ENV_OS_IS_ANDROID
     tt_xnode_eval_cstr(xn, &xp, buf, sizeof(buf));
     TT_UT_EQUAL(tt_strcmp(buf, "7"), 0, "");
+#endif
 
     ret = tt_xpath_create(&xp, "string-length(@category)", NULL);
     TT_UT_SUCCESS(ret, "");

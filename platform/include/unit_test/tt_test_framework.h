@@ -135,6 +135,7 @@ typedef struct tt_test_class_struct
     // self info
     tt_char_t name[TT_TEST_CLASS_NAME_LEN + 1];
     tt_u32_t attribute;
+#define __TCLS_TOUCHED (1 << 0)
 
     // items list
     tt_test_item_t *head;

@@ -132,7 +132,7 @@ tt_result_t tt_test_item_add(IN tt_test_class_t *test_class,
     tt_memset(created_item, 0, sizeof(tt_test_item_t));
 
     tt_memcpy(&created_item->entry, entry, sizeof(tt_test_entry_t));
-    created_item->test_result = TT_FAIL;
+    created_item->test_result = TT_PROCEEDING;
     tt_strncpy(created_item->name, name, TT_TEST_ITEM_NAME_LEN);
     if (comment != NULL) {
         tt_strncpy(created_item->comment, comment, TT_TEST_ITEM_COMMENT_LEN);
@@ -275,6 +275,10 @@ tt_result_t tt_test_list_class(IN tt_test_class_t *test_class,
 {
     tt_test_item_t *item = test_class->head;
 
+    if (!(test_class->attribute & __TCLS_TOUCHED)) {
+        return TT_SUCCESS;
+    }
+
     TT_TEST_INFO("== class: %s\r\n", test_class->name);
 #if TT_ENV_OS_IS_IOS
     snprintf(__ios_buf, __IOS_BUF_SIZE, "== class: %s\n\n", test_class->name);
@@ -295,6 +299,10 @@ tt_result_t tt_test_list_item(IN tt_test_item_t *item,
                               IN OUT tt_u32_t *succ_num,
                               IN OUT tt_u32_t *fail_num)
 {
+    if (item->test_result == TT_PROCEEDING) {
+        return TT_SUCCESS;
+    }
+
     TT_TEST_INFO("   |-- case:    %s", item->name);
     TT_TEST_INFO("   |   comment: %s", item->comment);
     TT_TEST_INFO("   |   result:  %s",
@@ -333,6 +341,8 @@ tt_result_t tt_test_list_item(IN tt_test_item_t *item,
 tt_result_t tt_test_run_class(IN tt_test_class_t *test_class)
 {
     tt_test_item_t *item = test_class->head;
+
+    test_class->attribute |= __TCLS_TOUCHED;
 
     TT_TEST_INFO("== start running class: %s\r\n", test_class->name);
     while (item != NULL) {

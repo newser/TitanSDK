@@ -68,11 +68,11 @@ tt_result_t __ut_fiber(IN void *param)
         TT_INFO("case name: %s", name);
         if (tt_strcmp(name, "all") == 0) {
             tt_test_unit_run(NULL);
-            tt_test_unit_list(NULL);
             // tt_ut_ok = TT_TRUE;
         } else if (TT_OK(tt_test_unit_run(name))) {
             // tt_ut_ok = TT_TRUE;
         }
+        tt_test_unit_list(NULL);
     } else {
         TT_INFO("unit_test <case name> | all");
     }
@@ -93,10 +93,10 @@ Java_com_titansdk_titansdkunittest_TTUnitTestJNI_runUT(JNIEnv *env,
 
         tt_thread_create_local(NULL);
 
-        tt_buf_init(&tt_g_jni_buf, NULL);
-
         initialized = TT_TRUE;
     }
+
+    tt_buf_init(&tt_g_jni_buf, NULL);
 
     tt_task_create(&t, NULL);
     tt_task_add_fiber(&t,
