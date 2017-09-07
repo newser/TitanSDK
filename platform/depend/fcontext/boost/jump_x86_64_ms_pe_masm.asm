@@ -109,7 +109,7 @@ tt_jump_fcontext PROC EXPORT FRAME
     ; load NT_TIB
     mov  r10,  gs:[030h]
     ; save fiber local storage
-    mov  rax, [r10+018h]
+    mov  rax, [r10+020h]
     mov  [rsp+0b0h], rax
     ; save current deallocation stack
     mov  rax, [r10+01478h]
@@ -158,7 +158,7 @@ tt_jump_fcontext PROC EXPORT FRAME
     mov  r10,  gs:[030h]
     ; restore fiber local storage
     mov  rax, [rsp+0b0h]
-    mov  [r10+018h], rax
+    mov  [r10+020h], rax
     ; restore current deallocation stack
     mov  rax, [rsp+0b8h]
     mov  [r10+01478h], rax

@@ -35,14 +35,11 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected String doInBackground(Void... voids) {
-            String r = null;
-            r = TTUnitTestJNI.runUT("ALG_UT_HASHMAP") +
-                TTUnitTestJNI.runUT("ALG_UT_QUEUE") +
-                TTUnitTestJNI.runUT("ALG_UT_RBTREE") +
-                TTUnitTestJNI.runUT("ALG_UT_STACK") +
-                TTUnitTestJNI.runUT("ALG_UT_RBUF") +
-                TTUnitTestJNI.runUT("ALG_UT_BUF") +
-                TTUnitTestJNI.runUT("ALG_UT_STRING");
+            String r = "";
+            String[] name = { "XML_UT_XPATH" };
+            for (int i = 0; i < name.length; ++i) {
+                r += TTUnitTestJNI.runUT(name[i]);
+            }
             return r;
         }
 
