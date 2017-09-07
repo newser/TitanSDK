@@ -3,19 +3,19 @@
 if [ -z ${OS} ]
 then
     echo missing OS
-    exit -1
+    exit 1
 fi
 
 if [ -z ${TT_CASE} ]
 then
     echo missing TT_CASE
-    exit -1
+    exit 1
 fi
 
 if [ -z ${UT} ]
 then
     echo missing UT
-    exit -1
+    exit 1
 fi
 
 if [ "${OS}" = "ios" ]
@@ -36,7 +36,7 @@ then
         grep "|   result:  Fail" ${TT_CASE}.log > /dev/null 2>&1
         if [ $? -eq 0 ]
         then
-            exit -1
+            exit 1
         fi
 
         # just give a warning and show log if success log is not found
@@ -71,7 +71,8 @@ then
     grep "|   result:  Fail" ${TT_CASE}.log > /dev/null 2>&1
     if [ $? -eq 0 ]
     then
-        exit -1
+        cat ${TT_CASE}.log
+        exit 1
     fi
 
     grep "|   result:  OK" ${TT_CASE}.log > /dev/null 2>&1
@@ -86,7 +87,7 @@ else
     if [ $? -ne 0 ]
     then
         cat ${TT_CASE}.log
-        exit -1
+        exit 1
     fi
 fi
 
