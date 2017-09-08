@@ -2019,7 +2019,7 @@ static tt_result_t __f_svr_udp_ev(IN void *param)
     tt_skt_t *s;
     tt_u8_t buf[10] = "6789", buf2[10];
     tt_u32_t n, i;
-    tt_sktaddr_t addr;
+    tt_sktaddr_t addr, addr2;
     tt_fiber_t *cli = tt_fiber_find("cli");
     tt_tmr_t *tmr, *e_tmr;
     tt_fiber_ev_t *fev;
@@ -2053,7 +2053,7 @@ static tt_result_t __f_svr_udp_ev(IN void *param)
                                    buf2,
                                    sizeof(buf2),
                                    &n,
-                                   &addr,
+                                   &addr2,
                                    &fev,
                                    &e_tmr))) {
             __ut_skt_err_line = __LINE__;
@@ -2061,7 +2061,7 @@ static tt_result_t __f_svr_udp_ev(IN void *param)
         }
         // on some plat: if recvfrom is interrupted by fiber ev and return
         // all data in addr are cleared...
-        if ((n != 0) && (tt_sktaddr_get_port(&addr) != 56558)) {
+        if ((n != 0) && (tt_sktaddr_get_port(&addr2) != 56558)) {
             __ut_skt_err_line = __LINE__;
             return TT_FAIL;
         }
@@ -2184,7 +2184,7 @@ static tt_result_t __f_cli_udp_ev(IN void *param)
     tt_skt_t *s;
     tt_u8_t buf[10] = "123", buf2[10];
     tt_u32_t n, i;
-    tt_sktaddr_t addr;
+    tt_sktaddr_t addr, addr2;
     tt_fiber_ev_t *fev;
     tt_tmr_t *tmr, *e_tmr;
 
@@ -2254,7 +2254,7 @@ static tt_result_t __f_cli_udp_ev(IN void *param)
                                    buf2,
                                    sizeof(buf2),
                                    &n,
-                                   &addr,
+                                   &addr2,
                                    &fev,
                                    &e_tmr))) {
             __ut_skt_err_line = __LINE__;
@@ -2262,7 +2262,7 @@ static tt_result_t __f_cli_udp_ev(IN void *param)
         }
         // on some plat: if recvfrom is interrupted by fiber ev and return
         // all data in addr are cleared...
-        if ((n != 0) && (tt_sktaddr_get_port(&addr) != 56557)) {
+        if ((n != 0) && (tt_sktaddr_get_port(&addr2) != 56557)) {
             __ut_skt_err_line = __LINE__;
             return TT_FAIL;
         }
