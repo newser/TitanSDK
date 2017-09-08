@@ -531,7 +531,6 @@ TT_TEST_ROUTINE_DEFINE(case_sk_opt)
     ret = tt_skt_get_reuseport(s, &v);
     TT_UT_SUCCESS(ret, "");
     TT_UT_EQUAL(v, TT_TRUE, "");
-#endif
 
 #if !TT_ENV_OS_IS_WINDOWS
     ret = tt_skt_set_reuseport(s, TT_FALSE);
@@ -539,6 +538,7 @@ TT_TEST_ROUTINE_DEFINE(case_sk_opt)
     ret = tt_skt_get_reuseport(s, &v);
     TT_UT_SUCCESS(ret, "");
     TT_UT_EQUAL(v, TT_FALSE, "");
+#endif
 #endif
 
     tt_skt_destroy(s);

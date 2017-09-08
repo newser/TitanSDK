@@ -228,6 +228,7 @@ endif ()
 
 if (PLATFORM_UNIT_TEST_LITE)
     target_compile_definitions(platform PRIVATE "-D__UT_LITE__")
+    message(STATUS "lite unit test")
 endif ()
 
 # set specific properties
