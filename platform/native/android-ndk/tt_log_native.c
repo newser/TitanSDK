@@ -114,7 +114,7 @@ tt_result_t __create_log_layout_ntv(IN tt_profile_t *profile)
     tt_s_loglyt[TT_LOG_INFO] = lyt;
 
     // warn log layout
-    lyt = tt_loglyt_pattern_create("${content}");
+    lyt = tt_loglyt_pattern_create("${content} <${function} - ${line}>");
     if (lyt == NULL) {
         TT_ERROR("fail to create warn log pattern");
         return TT_FAIL;
@@ -122,7 +122,7 @@ tt_result_t __create_log_layout_ntv(IN tt_profile_t *profile)
     tt_s_loglyt[TT_LOG_WARN] = lyt;
 
     // error log layout
-    lyt = tt_loglyt_pattern_create("${content}");
+    lyt = tt_loglyt_pattern_create("${content} <${function} - ${line}>");
     if (lyt == NULL) {
         TT_ERROR("fail to create error log pattern");
         return TT_FAIL;
@@ -130,7 +130,7 @@ tt_result_t __create_log_layout_ntv(IN tt_profile_t *profile)
     tt_s_loglyt[TT_LOG_ERROR] = lyt;
 
     // fatal log layout
-    lyt = tt_loglyt_pattern_create("${content}");
+    lyt = tt_loglyt_pattern_create("${content} <${function} - ${line}>");
     if (lyt == NULL) {
         TT_ERROR("fail to create fatal log pattern");
         return TT_FAIL;

@@ -281,7 +281,8 @@ tt_result_t __create_log_layout(IN tt_profile_t *profile)
 
     // warn log layout
     if (tt_s_loglyt[TT_LOG_WARN] == NULL) {
-        lyt = tt_loglyt_pattern_create("${time} ${level:%-6.6s} ${content}\n");
+        lyt = tt_loglyt_pattern_create(
+            "${time} ${level:%-6.6s} ${content} <${function} - ${line}>\n");
         if (lyt == NULL) {
             TT_ERROR("fail to create warn log pattern\n");
             return TT_FAIL;
@@ -291,7 +292,8 @@ tt_result_t __create_log_layout(IN tt_profile_t *profile)
 
     // error log layout
     if (tt_s_loglyt[TT_LOG_ERROR] == NULL) {
-        lyt = tt_loglyt_pattern_create("${time} ${level:%-6.6s} ${content}\n");
+        lyt = tt_loglyt_pattern_create(
+            "${time} ${level:%-6.6s} ${content} <${function} - ${line}>\n");
         if (lyt == NULL) {
             TT_ERROR("fail to create error log pattern\n");
             return TT_FAIL;
@@ -301,7 +303,8 @@ tt_result_t __create_log_layout(IN tt_profile_t *profile)
 
     // fatal log layout
     if (tt_s_loglyt[TT_LOG_FATAL] == NULL) {
-        lyt = tt_loglyt_pattern_create("${time} ${level:%-6.6s} ${content}\n");
+        lyt = tt_loglyt_pattern_create(
+            "${time} ${level:%-6.6s} ${content} <${function} - ${line}>\n");
         if (lyt == NULL) {
             TT_ERROR("fail to create fatal log pattern\n");
             return TT_FAIL;

@@ -209,6 +209,7 @@ tt_result_t tt_test_run(IN const tt_char_t *name)
 
             result = tt_test_run_item_of(test_class, name);
             if (result != TT_NOT_EXIST) {
+                test_class->attribute |= __TCLS_TOUCHED;
                 return result;
             }
             test_class = test_class->next;

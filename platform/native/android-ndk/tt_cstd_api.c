@@ -31,6 +31,8 @@
 // internal macro
 ////////////////////////////////////////////////////////////
 
+#define __CASE_DIFF ((tt_char_t)('a' - 'A'))
+
 ////////////////////////////////////////////////////////////
 // internal type
 ////////////////////////////////////////////////////////////
@@ -60,7 +62,6 @@ tt_s32_t tt_strnicmp(IN const tt_char_t *s1,
     TT_ASSERT(s1 != NULL);
     TT_ASSERT(s2 != NULL);
 
-#define __DIFF ((tt_char_t)('A' - 'a'))
     while (i < n) {
         tt_char_t c1 = s1[i];
         tt_char_t c2 = s2[i];
@@ -74,7 +75,7 @@ tt_s32_t tt_strnicmp(IN const tt_char_t *s1,
             continue;
         }
 
-        if ((c1 + __DIFF == c2) || (c2 + __DIFF == c1)) {
+        if (((c1 + __CASE_DIFF) == c2) || ((c2 + __CASE_DIFF) == c1)) {
             // note this allow different non-character bytes
             ++i;
             continue;
@@ -93,7 +94,6 @@ tt_s32_t tt_memicmp(IN const tt_u8_t *s1, IN const tt_u8_t *s2, IN tt_u32_t n)
     TT_ASSERT(s1 != NULL);
     TT_ASSERT(s2 != NULL);
 
-#define __DIFF ((tt_char_t)('A' - 'a'))
     while (i < n) {
         tt_char_t c1 = s1[i];
         tt_char_t c2 = s2[i];
@@ -103,11 +103,12 @@ tt_s32_t tt_memicmp(IN const tt_u8_t *s1, IN const tt_u8_t *s2, IN tt_u32_t n)
             continue;
         }
 
-        if (((c1 + __DIFF) == c2) || ((c2 + __DIFF) == c1)) {
+        if (((c1 + __CASE_DIFF) == c2) || ((c2 + __CASE_DIFF) == c1)) {
             ++i;
             continue;
         }
 
+        TT_INFO("c1: %c, c2: %c", c1, c2);
         return c1 - c2;
     }
 

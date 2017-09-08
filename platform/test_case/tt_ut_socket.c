@@ -90,7 +90,7 @@ TT_TEST_ROUTINE_DECLARE(case_ab_nc)
 
 // sometimes local ip can not be retrieved in __ut_skt_enter, as
 // the physical netif name is not listed in __ut_skt_enter
-#if 1
+#if 0
 #define __TLOCAL_IP __ut_skt_local_ip
 #define __TLOCAL_IP6 __ut_skt_local_ip6
 #define __TLOCAL_ITF __ut_skt_local_itf
