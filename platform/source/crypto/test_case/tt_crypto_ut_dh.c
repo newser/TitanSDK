@@ -117,6 +117,7 @@ TT_TEST_CASE(
     // pub1
     n1 = sizeof(pub);
     ret = tt_dh_generate_pub(&dh, 128, pub, n1);
+    tt_hex_dump(pub, n1, 16);
     TT_UT_SUCCESS(ret, "");
 
     n2 = tt_dh_size(&dh);
@@ -132,6 +133,7 @@ TT_TEST_CASE(
     // pub2
     n2 = sizeof(pub2);
     ret = tt_dh_generate_pub(&d2, 128, pub2, n2);
+    tt_hex_dump(pub2, n2, 16);
     TT_UT_SUCCESS(ret, "");
 
     // exchange pub
@@ -157,6 +159,8 @@ TT_TEST_CASE(
     ret = tt_dh_get_secret(&dh, s2, tt_dh_size(&dh));
     TT_UT_SUCCESS(ret, "");
     TT_UT_EQUAL(sn, sn2, "");
+    tt_hex_dump(s, sn, 16);
+    tt_hex_dump(s2, sn, 16);
     TT_UT_EQUAL(tt_memcmp(s, s2, sn), 0, "");
 
     tt_dh_destroy(&dh);

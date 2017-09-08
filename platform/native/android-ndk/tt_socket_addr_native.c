@@ -191,7 +191,6 @@ tt_u16_t tt_sktaddr_get_port_ntv(IN tt_sktaddr_ntv_t *addr)
     if (addr->ss_family == AF_INET) {
         return ntohs(((struct sockaddr_in *)addr)->sin_port);
     } else {
-        TT_INFO("addr->ss_family: %d", addr->ss_family);
         TT_ASSERT_SA(addr->ss_family == AF_INET6);
         return ntohs(((struct sockaddr_in6 *)addr)->sin6_port);
     }

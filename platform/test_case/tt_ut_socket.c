@@ -2059,7 +2059,9 @@ static tt_result_t __f_svr_udp_ev(IN void *param)
             __ut_skt_err_line = __LINE__;
             return TT_FAIL;
         }
-        if (tt_sktaddr_get_port(&addr) != 56558) {
+        // on some plat: if recvfrom is interrupted by fiber ev and return
+        // all data in addr are cleared...
+        if ((n != 0) && (tt_sktaddr_get_port(&addr) != 56558)) {
             __ut_skt_err_line = __LINE__;
             return TT_FAIL;
         }
@@ -2258,7 +2260,9 @@ static tt_result_t __f_cli_udp_ev(IN void *param)
             __ut_skt_err_line = __LINE__;
             return TT_FAIL;
         }
-        if (tt_sktaddr_get_port(&addr) != 56557) {
+        // on some plat: if recvfrom is interrupted by fiber ev and return
+        // all data in addr are cleared...
+        if ((n != 0) && (tt_sktaddr_get_port(&addr) != 56557)) {
             __ut_skt_err_line = __LINE__;
             return TT_FAIL;
         }
