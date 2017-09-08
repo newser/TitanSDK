@@ -150,7 +150,9 @@ TT_TEST_CASE("case_dc_basic",
 
     // empty cache, wait infinite
     ms = tt_dns_cache_run(dc);
+#if !TT_ENV_OS_IS_ANDROID
     TT_UT_EXP(abs((int)ms - __INUSE_LIMIT) < 100, "");
+#endif
 
     de = __de_get(dc, "123", TT_FALSE);
     TT_UT_NULL(de, "");
