@@ -50,6 +50,10 @@ message(STATUS "build dynamic: ${PLATFORM_BUILD_SHARED}")
 set(PLATFORM_ENABLE_NUMA 0 CACHE BOOL "enable numa support")
 message(STATUS "numa enable: ${PLATFORM_ENABLE_NUMA}")
 
+# lite unit test
+set(PLATFORM_UNIT_TEST_LITE 0 CACHE BOOL "lite unit test")
+mark_as_advanced(FORCE PLATFORM_UNIT_TEST_LITE)
+
 # generate header file
 configure_file(${PLATFORM_PATH}/include/config/tt_customization_config.h.in
                ${PLATFORM_PATH}/include/config/tt_customization_config.h
@@ -220,6 +224,10 @@ else ()
                           ARCHIVE_OUTPUT_DIRECTORY_RELEASE ${PLATFORM_OUTPATH}/release/static
                           LIBRARY_OUTPUT_DIRECTORY_RELEASE ${PLATFORM_OUTPATH}/release/shared)
 
+endif ()
+
+if (PLATFORM_UNIT_TEST_LITE)
+    target_compile_definitions(platform PRIVATE "-D__UT_LITE__")
 endif ()
 
 # set specific properties
