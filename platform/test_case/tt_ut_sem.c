@@ -340,6 +340,12 @@ TT_TEST_ROUTINE_DEFINE(case_sem_pc)
 
 static tt_atomic_s32_t sem_count;
 
+#ifdef __UT_LITE__
+#define SM_NUM 10
+#else
+#define SM_NUM 1000
+#endif
+
 static tt_result_t test_routine_count(IN void *param)
 {
     tt_ptrdiff_t idx = (tt_ptrdiff_t)param;
@@ -348,7 +354,7 @@ static tt_result_t test_routine_count(IN void *param)
 
     // TT_ASSERT(thread == test_threads[idx]);
 
-    for (i = 0; i < 1000; ++i) {
+    for (i = 0; i < SM_NUM; ++i) {
         if ((i & 1) == 0) {
             // 0, 2, 4, ... threads post sem for 1000times
             tt_atomic_s32_inc(&sem_count);

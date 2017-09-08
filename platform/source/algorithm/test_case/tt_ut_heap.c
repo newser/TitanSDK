@@ -179,7 +179,12 @@ TT_TEST_CASE("case_ptrheap_basic",
     TT_TEST_CASE_LEAVE()
 }
 
+#ifdef __UT_LITE__
+#define __t2_num 1000
+#else
 #define __t2_num 100000
+#endif
+
 struct trb_t
 {
     tt_rbnode_t n;

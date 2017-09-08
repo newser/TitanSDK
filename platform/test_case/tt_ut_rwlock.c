@@ -163,7 +163,11 @@ TT_TEST_CASE("case_rwlock_basic",
     TT_TEST_CASE_LEAVE()
 }
 
+#ifdef __UT_LITE__
+#define ACT_NUM 100
+#else
 #define ACT_NUM 10000
+#endif
 #define THREAD_NUM 16
 #define SIM_WRITING(k, n) while (k++ < n)
 //#define SIM_WRITING(k, n) do {}while(0)

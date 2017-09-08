@@ -635,7 +635,11 @@ TT_TEST_ROUTINE_DEFINE(case_dns_query_timeout)
     __svr_param_t sp[3];
 
     TT_TEST_CASE_ENTER()
-    // test start
+// test start
+
+#ifdef __UT_LITE__
+    return TT_SUCCESS;
+#endif
 
     tt_memset(sp, 0, sizeof(sp));
 
@@ -843,7 +847,11 @@ TT_TEST_ROUTINE_DEFINE(case_dns_query_exception)
     __svr_param_t sp[4];
 
     TT_TEST_CASE_ENTER()
-    // test start
+// test start
+
+#ifdef __UT_LITE__
+    return TT_SUCCESS;
+#endif
 
     tt_memset(sp, 0, sizeof(sp));
 

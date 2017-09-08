@@ -523,12 +523,15 @@ TT_TEST_ROUTINE_DEFINE(case_sk_opt)
     TT_UT_SUCCESS(ret, "");
     TT_UT_EQUAL(v, TT_FALSE, "");
 
+// android can not set this opt for udp
+#if !TT_ENV_OS_IS_ANDROID
     // reuse port
     ret = tt_skt_set_reuseport(s, TT_TRUE);
     TT_UT_SUCCESS(ret, "");
     ret = tt_skt_get_reuseport(s, &v);
     TT_UT_SUCCESS(ret, "");
     TT_UT_EQUAL(v, TT_TRUE, "");
+#endif
 
 #if !TT_ENV_OS_IS_WINDOWS
     ret = tt_skt_set_reuseport(s, TT_FALSE);
@@ -944,6 +947,12 @@ static tt_result_t __f_svr(IN void *param)
     return TT_SUCCESS;
 }
 
+#ifdef __UT_LITE__
+#define TB_NUM 100
+#else
+#define TB_NUM 1000
+#endif
+
 static tt_result_t __f_cli(IN void *param)
 {
     tt_skt_t *s;
@@ -966,7 +975,7 @@ static tt_result_t __f_cli(IN void *param)
     }
 
     loop = 0;
-    while (loop++ < (1 << 13)) {
+    while (loop++ < TB_NUM) {
         tt_u32_t total = 0;
 
         if (!TT_OK(tt_skt_send(s, buf, sizeof(buf), &n))) {
@@ -1157,6 +1166,12 @@ TT_TEST_ROUTINE_DEFINE(case_tcp6_close)
     TT_TEST_CASE_LEAVE()
 }
 
+#ifdef __UT_LITE__
+#define UB_NUM 100
+#else
+#define UB_NUM 10000
+#endif
+
 static tt_result_t __f_svr_udp(IN void *param)
 {
     tt_skt_t *s;
@@ -1180,7 +1195,7 @@ static tt_result_t __f_svr_udp(IN void *param)
     }
 
     i = 0;
-    while (i++ < 10000) {
+    while (i++ < UB_NUM) {
         tt_u32_t len, k;
         tt_u8_t c;
 
@@ -1259,7 +1274,7 @@ static tt_result_t __f_cli_udp(IN void *param)
     tt_sktaddr_set_port(&addr, 55557);
 
     i = 0;
-    while (i++ < 10000) {
+    while (i++ < UB_NUM) {
         tt_u32_t len, k;
         tt_u8_t c;
 
@@ -1349,7 +1364,11 @@ TT_TEST_ROUTINE_DEFINE(case_udp_basic)
     TT_TEST_CASE_LEAVE()
 }
 
+#ifdef __UT_LITE__
+#define __CON_PER_TASK 100
+#else
 #define __CON_PER_TASK 1000
+#endif
 
 static tt_result_t __f_svr_acc_t4(IN void *param)
 {
@@ -1788,6 +1807,12 @@ static tt_result_t __f_svr_ev(IN void *param)
     return TT_SUCCESS;
 }
 
+#ifdef __UT_LITE__
+#define TE_NUM 100
+#else
+#define TE_NUM 1000
+#endif
+
 static tt_result_t __f_cli_ev(IN void *param)
 {
     tt_skt_t *s;
@@ -1811,7 +1836,7 @@ static tt_result_t __f_cli_ev(IN void *param)
     }
 
     loop = 0;
-    while (loop++ < (1 << 10)) {
+    while (loop++ < TE_NUM) {
         tt_u32_t total = 0;
 
         __SKT_DETAIL("=> cli send");
@@ -1977,6 +2002,12 @@ TT_TEST_ROUTINE_DEFINE(case_tcp_event)
 static tt_u32_t __svr_r_num, __svr_s_num;
 static tt_u32_t __cli_r_num, __cli_s_num;
 
+#ifdef __UT_LITE__
+#define UE_NUM 100
+#else
+#define UE_NUM 10000
+#endif
+
 // when use buf size of 100 or 1000, we see udp packet lost
 // this may be caused by udp packet is not received out of
 // skt recv buffer as caller is processing fiber event, using
@@ -2012,7 +2043,7 @@ static tt_result_t __f_svr_udp_ev(IN void *param)
     tt_tmr_start(tmr);
 
     i = 0;
-    while (i++ < 10000) {
+    while (i++ < UE_NUM) {
         tt_u32_t len, k;
         tt_u8_t c;
 
@@ -2179,7 +2210,7 @@ static tt_result_t __f_cli_udp_ev(IN void *param)
     tt_tmr_start(tmr);
 
     i = 0;
-    while (1 || i++ < 10000) {
+    while (1 || i++ < UE_NUM) {
         tt_u32_t len, k;
         tt_u8_t c;
 

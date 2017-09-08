@@ -222,7 +222,11 @@ TT_TEST_ROUTINE_DEFINE(case_hash)
     TT_TEST_CASE_LEAVE()
 }
 
+#ifdef __UT_LITE__
+#define __h2_num 1000
+#else
 #define __h2_num 10000
+#endif
 
 struct __h2_case_t
 {

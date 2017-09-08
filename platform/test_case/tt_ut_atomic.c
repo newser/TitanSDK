@@ -256,6 +256,14 @@ static tt_thread_t *test_threads[100];
 static tt_atomic_s32_t test_counter;
 static tt_atomic_s64_t test_counter_2;
 
+#ifdef __UT_LITE__
+#define INC_NUM 100
+#define DEC_NUM 50
+#else
+#define INC_NUM 10000
+#define DEC_NUM 5000
+#endif
+
 static tt_result_t test_routine_1(IN void *param)
 {
     tt_ptrdiff_t idx = (tt_ptrdiff_t)param;
@@ -263,17 +271,17 @@ static tt_result_t test_routine_1(IN void *param)
 
     // TT_ASSERT(thread == test_threads[idx]);
 
-    for (i = 0; i < 10000; ++i) {
+    for (i = 0; i < INC_NUM; ++i) {
         tt_atomic_s32_inc(&test_counter);
     }
-    for (i = 0; i < 5000; ++i) {
+    for (i = 0; i < DEC_NUM; ++i) {
         tt_atomic_s32_dec(&test_counter);
     }
 
-    for (i = 0; i < 10000; ++i) {
+    for (i = 0; i < INC_NUM; ++i) {
         tt_atomic_s64_inc(&test_counter_2);
     }
-    for (i = 0; i < 5000; ++i) {
+    for (i = 0; i < DEC_NUM; ++i) {
         tt_atomic_s64_dec(&test_counter_2);
     }
 
@@ -302,10 +310,16 @@ TT_TEST_ROUTINE_DEFINE(case_atomic_mt)
     }
 
     ret32 = tt_atomic_s32_get(&test_counter);
-    TT_UT_EQUAL(ret32, 5000 * sizeof(test_threads) / sizeof(tt_thread_t *), "");
+    TT_UT_EQUAL(ret32,
+                (INC_NUM - DEC_NUM) * sizeof(test_threads) /
+                    sizeof(tt_thread_t *),
+                "");
 
     ret64 = tt_atomic_s64_get(&test_counter_2);
-    TT_UT_EQUAL(ret64, 5000 * sizeof(test_threads) / sizeof(tt_thread_t *), "");
+    TT_UT_EQUAL(ret64,
+                (INC_NUM - DEC_NUM) * sizeof(test_threads) /
+                    sizeof(tt_thread_t *),
+                "");
 
     // test end
     TT_TEST_CASE_LEAVE()
@@ -572,6 +586,12 @@ static tt_result_t test_routine_3_3(IN void *param)
     return TT_SUCCESS;
 }
 
+#ifdef __UT_LITE__
+#define F_NUM 10
+#else
+#define F_NUM 100
+#endif
+
 TT_TEST_ROUTINE_DEFINE(case_atomic_fence)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
@@ -582,7 +602,7 @@ TT_TEST_ROUTINE_DEFINE(case_atomic_fence)
 
     __ut_ret_fence = TT_SUCCESS;
 
-    for (i = 0; i < 1000; ++i) {
+    for (i = 0; i < F_NUM; ++i) {
         tt_atomic_s32_set(&__done, 0);
 
         test_threads[0] = tt_thread_create(test_routine_3_1, (void *)i, NULL);

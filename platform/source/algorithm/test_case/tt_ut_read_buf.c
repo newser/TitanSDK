@@ -328,7 +328,11 @@ TT_TEST_ROUTINE_DEFINE(case_rbuf)
     TT_TEST_CASE_LEAVE()
 }
 
+#ifdef __UT_LITE__
+#define __ST_NUM 100
+#else
 #define __ST_NUM 1000
+#endif
 
 static void __ut_par_done2(IN void *parse_ret, IN void *param)
 {

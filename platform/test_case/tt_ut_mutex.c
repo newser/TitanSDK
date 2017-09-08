@@ -139,6 +139,12 @@ static tt_thread_t *test_threads[10];
 static tt_mutex_t mutex;
 static int cnt;
 
+#ifdef __UT_LITE__
+#define M_NUM 100
+#else
+#define M_NUM 10000
+#endif
+
 static tt_result_t test_routine_1(IN void *param)
 {
     tt_ptrdiff_t idx = (tt_ptrdiff_t)param;
@@ -146,7 +152,7 @@ static tt_result_t test_routine_1(IN void *param)
 
     // TT_ASSERT(thread == test_threads[idx]);
 
-    for (i = 0; i < 10000; ++i) {
+    for (i = 0; i < M_NUM; ++i) {
         tt_mutex_acquire(&mutex);
         ++cnt;
         tt_mutex_release(&mutex);
@@ -176,7 +182,7 @@ TT_TEST_ROUTINE_DEFINE(case_mutex_mt)
 
     tt_mutex_destroy(&mutex);
 
-    TT_UT_EQUAL(cnt, 10000 * sizeof(test_threads) / sizeof(tt_thread_t *), "");
+    TT_UT_EQUAL(cnt, M_NUM * sizeof(test_threads) / sizeof(tt_thread_t *), "");
 
     // test end
     TT_TEST_CASE_LEAVE()

@@ -304,6 +304,12 @@ static tt_ssl_t *__ut_ssl_accept(const tt_char_t *addr, tt_u16_t port)
     return ssl;
 }
 
+#ifdef __UT_LITE__
+#define SB_NUM 100
+#else
+#define SB_NUM (1 << 10)
+#endif
+
 static tt_result_t __f_svr(IN void *param)
 {
     tt_skt_t *s, *new_s;
@@ -547,7 +553,7 @@ static tt_result_t __f_cli(IN void *param)
     }
 
     loop = 0;
-    while (loop++ < (1 << 13)) {
+    while (loop++ < SB_NUM) {
         tt_u32_t total = 0;
 
         if (!TT_OK(tt_ssl_send(ssl, buf, sizeof(buf), &n))) {
@@ -1241,6 +1247,12 @@ static tt_result_t __f_svr_mul(IN void *param)
     return TT_SUCCESS;
 }
 
+#ifdef __UT_LITE__
+#define CM_NUM 10
+#else
+#define CM_NUM 100
+#endif
+
 static tt_result_t __f_cli_mul(IN void *param)
 {
     tt_u8_t buf[1 << 10] = "123";
@@ -1263,7 +1275,7 @@ static tt_result_t __f_cli_mul(IN void *param)
         }
 
         loop = 0;
-        while (loop++ < 100) {
+        while (loop++ < CM_NUM) {
             tt_u32_t total = 0;
 
             if (!TT_OK(tt_ssl_send(ssl, buf, sizeof(buf), &n))) {
@@ -1368,9 +1380,9 @@ TT_TEST_ROUTINE_DEFINE(case_ssl_resume)
     TT_UT_SUCCESS(ret, "");
     tt_ssl_config_ca(&sc_cli_1, &ca, &crl);
 
-    tt_task_add_fiber(&t, "svr", __f_svr_mul, (void *)50, NULL);
-    for (i = 0; i < 10; ++i) {
-        tt_task_add_fiber(&t, NULL, __f_cli_mul, (void *)5, NULL);
+    tt_task_add_fiber(&t, "svr", __f_svr_mul, (void *)15, NULL);
+    for (i = 0; i < 5; ++i) {
+        tt_task_add_fiber(&t, NULL, __f_cli_mul, (void *)3, NULL);
     }
     ret = tt_task_run(&t);
     TT_UT_SUCCESS(ret, "");
@@ -1382,9 +1394,9 @@ TT_TEST_ROUTINE_DEFINE(case_ssl_resume)
 
     ret = tt_task_create(&t, NULL);
     TT_UT_SUCCESS(ret, "");
-    tt_task_add_fiber(&t, "svr", __f_svr_mul, (void *)50, NULL);
-    for (i = 0; i < 10; ++i) {
-        tt_task_add_fiber(&t, NULL, __f_cli_mul, (void *)5, NULL);
+    tt_task_add_fiber(&t, "svr", __f_svr_mul, (void *)15, NULL);
+    for (i = 0; i < 5; ++i) {
+        tt_task_add_fiber(&t, NULL, __f_cli_mul, (void *)3, NULL);
     }
     ret = tt_task_run(&t);
     TT_UT_SUCCESS(ret, "");
@@ -1449,9 +1461,9 @@ TT_TEST_ROUTINE_DEFINE(case_ssl_ticket)
     TT_UT_SUCCESS(ret, "");
     tt_ssl_config_ca(&sc_cli_1, &ca, &crl);
 
-    tt_task_add_fiber(&t, "svr", __f_svr_mul, (void *)50, NULL);
-    for (i = 0; i < 10; ++i) {
-        tt_task_add_fiber(&t, NULL, __f_cli_mul, (void *)5, NULL);
+    tt_task_add_fiber(&t, "svr", __f_svr_mul, (void *)15, NULL);
+    for (i = 0; i < 5; ++i) {
+        tt_task_add_fiber(&t, NULL, __f_cli_mul, (void *)3, NULL);
     }
     ret = tt_task_run(&t);
     TT_UT_SUCCESS(ret, "");
@@ -1463,9 +1475,9 @@ TT_TEST_ROUTINE_DEFINE(case_ssl_ticket)
 
     ret = tt_task_create(&t, NULL);
     TT_UT_SUCCESS(ret, "");
-    tt_task_add_fiber(&t, "svr", __f_svr_mul, (void *)50, NULL);
-    for (i = 0; i < 10; ++i) {
-        tt_task_add_fiber(&t, NULL, __f_cli_mul, (void *)5, NULL);
+    tt_task_add_fiber(&t, "svr", __f_svr_mul, (void *)15, NULL);
+    for (i = 0; i < 5; ++i) {
+        tt_task_add_fiber(&t, NULL, __f_cli_mul, (void *)3, NULL);
     }
     ret = tt_task_run(&t);
     TT_UT_SUCCESS(ret, "");

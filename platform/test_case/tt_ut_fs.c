@@ -809,7 +809,11 @@ TT_TEST_ROUTINE_DEFINE(case_fs_consistency)
     tt_u32_t j;
 
     TT_TEST_CASE_ENTER()
-    // test start
+// test start
+
+#ifdef __UT_LITE__
+    return TT_SUCCESS;
+#endif
 
     ret = tt_task_create(&task, NULL);
     TT_UT_SUCCESS(ret, "");

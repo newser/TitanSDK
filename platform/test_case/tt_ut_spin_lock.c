@@ -197,11 +197,20 @@ TT_TEST_ROUTINE_DEFINE(case_spin_lock_basic_sp)
     TT_TEST_CASE_LEAVE()
 }
 
+#ifdef __UT_LITE__
+static tt_thread_t *test_threads[10];
+#else
 static tt_thread_t *test_threads[100];
+#endif
+
 static tt_spinlock_t slock;
 static int cnt;
 
+#ifdef __UT_LITE__
+#define __ACT_NUM 100
+#else
 #define __ACT_NUM 10000
+#endif
 unsigned char act[sizeof(test_threads) / sizeof(tt_thread_t *)][__ACT_NUM];
 
 tt_list_t __test_list;
