@@ -321,7 +321,11 @@ TT_TEST_ROUTINE_DEFINE(case_rsa_gen)
     tt_u32_t len;
 
     TT_TEST_CASE_ENTER()
-    // test start
+// test start
+
+#ifdef __UT_LITE__
+    return TT_SUCCESS;
+#endif
 
     tt_rsa_init(&rpub);
     tt_rsa_init(&rpriv);

@@ -593,6 +593,7 @@ TT_TEST_ROUTINE_DEFINE(case_sk_opt)
     TT_UT_SUCCESS(ret, "");
     TT_UT_EQUAL(v, TT_FALSE, "");
 
+#if !TT_ENV_OS_IS_ANDROID
     // reuse port
     ret = tt_skt_set_reuseport(s, TT_TRUE);
     TT_UT_SUCCESS(ret, "");
@@ -606,6 +607,7 @@ TT_TEST_ROUTINE_DEFINE(case_sk_opt)
     ret = tt_skt_get_reuseport(s, &v);
     TT_UT_SUCCESS(ret, "");
     TT_UT_EQUAL(v, TT_FALSE, "");
+#endif
 #endif
 
     // tcp linger

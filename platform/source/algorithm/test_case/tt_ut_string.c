@@ -528,6 +528,10 @@ TT_TEST_ROUTINE_DEFINE(case_str_cmp)
     ret = tt_string_create(&s2, "1234567890AAaaaFdSaFasZz0fdaS", NULL);
     TT_UT_EQUAL(ret, TT_SUCCESS, "");
     cmp_ret = tt_string_ncasecmp(&s, tt_string_cstr(&s2));
+    TT_INFO("s: %s, s2: %s, cmp_ret: %d",
+            tt_string_cstr(&s),
+            tt_string_cstr(&s2),
+            cmp_ret);
     TT_UT_EQUAL(cmp_ret, 0, "");
     cmp_ret = tt_string_ncasecmp(&s, "1234567890AaaaaFdSaFasZZ0fdaS");
     TT_UT_EQUAL(cmp_ret, 0, "");

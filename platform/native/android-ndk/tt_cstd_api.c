@@ -103,7 +103,7 @@ tt_s32_t tt_memicmp(IN const tt_u8_t *s1, IN const tt_u8_t *s2, IN tt_u32_t n)
             continue;
         }
 
-        if ((c1 + __DIFF == c2) || (c2 + __DIFF == c1)) {
+        if (((c1 + __DIFF) == c2) || ((c2 + __DIFF) == c1)) {
             ++i;
             continue;
         }
