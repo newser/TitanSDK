@@ -93,7 +93,7 @@ tt_result_t __ut_fiber(IN void *param)
 #if 1
     else {
         const tt_char_t *names[] = {
-            "SSL_UT_X509", "SSL_UT_IO",
+            "case_udp_event",
         };
         tt_u32_t i;
 
