@@ -12,17 +12,17 @@ TitanSDK implements various fiber-based features.
 
 > A fiber is a particularly lightweight thread of execution. see [Fiber - Wikipedia](https://en.wikipedia.org/wiki/Fiber_(computer_science))
 
-The major advantages(also its purposes) are:
+The major advantages(also this sdk's purposes) are:
 - high concurrency
 - easy coding
 - less race condition
 - better architecture
 
 ## High concurrency
-Traditional application gains concurrency by multi-thread, a typical case is network server, which may create a thread serving each connection. Each thread generally occupies megabytes while a fiber only uses kilobytes(128K by default and can be adjusted to be less), so that application can have far more fibers than threads and thus more concurrent.
+Traditional application gains concurrency by multi-thread, a typical case is network server, which may create a thread serving each connection. A thread generally occupies megabytes while a fiber only uses kilobytes(128K by default and can be adjusted to be less), so an application can have far more fibers than threads and thus more concurrent.
 
 ## Easy coding
-Some application make use of asynchronous io for high concurrency, it can only have one thread(or one thread per cpu), when application needs do io(or any operation that would block caller), it provides a callback to be executed once io finishes. Such mechanism gains highest concurrecy but the key issue is programming a callback chain for a complex case is very difficult, imaging how hard it is to handle errors and release resources and roll back operations in a callback chain. With fiber, application can be paused when doing an io and resumed when io finishes, does not need any callback.
+Some application gains high concurrency by asynchronous operations, it can only have one thread(or one thread per cpu), when application needs do io(or any operation that would block caller), it provides a callback to be executed once io finishes. Such mechanism gains highest concurrecy but the key issue is programming a callback chain for a complex case is very difficult, imaging how hard it is to handle errors and release resources and roll back operations in a callback chain. With fiber, application can be paused when doing an io and resumed when io finishes, does not need any callback.
 
 Below is a fiber-based dns query operation:
 ```C
