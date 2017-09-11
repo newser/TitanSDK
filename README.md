@@ -1,13 +1,23 @@
-# TitanSDK - A cross-platform, fiber-based io library
+# TitanSDK - A cross-platform, fiber-based framework
 
-[![Build Status](https://www.travis-ci.org/newser/TitanSDK.svg?branch=master)](https://www.travis-ci.org/newser/TitanSDK)
-[![windows build status](https://ci.appveyor.com/api/projects/status/github/newser/TitanSDK?svg=true&passingText=windows%20passing&failingText=windows%20failing)](https://ci.appveyor.com/project/newser/titansdk)
+| Platform | CI Status |
+| --- | --- |
+| Linux | [![Linux](https://www.travis-ci.org/newser/TitanSDK.svg?branch=master)](https://www.travis-ci.org/newser/TitanSDK) |
+| macOS | [![macOS](https://www.travis-ci.org/newser/TitanSDK.svg?branch=master)](https://www.travis-ci.org/newser/TitanSDK) |
+| iOS | [![iOS](https://www.travis-ci.org/newser/TitanSDK.svg?branch=master)](https://www.travis-ci.org/newser/TitanSDK) |
+| Android | [![Android](https://www.travis-ci.org/newser/TitanSDK.svg?branch=master)](https://www.travis-ci.org/newser/TitanSDK) |
+| Windows | [![Windows](https://ci.appveyor.com/api/projects/status/github/newser/TitanSDK?svg=true&passingText=windows%20passing&failingText=windows%20failing)](https://ci.appveyor.com/project/newser/titansdk) |
 
-TitanSDK implements fiber-based io, which is a kind of asynchronous io without splitting application code flow.
+TitanSDK implements various fiber-based features, the major advantages(also my purposes) is reducing code complexity but keeping concurrency:
+- keep concurrency: 
+- reduce code complexity: no need to write multithread program, 
+- 
+
+which originally need to "wait for some result" and thus would block caller, examples are waiting for network connection, reading disk files, waiting for RPC results and so on. 
 
 > A fiber is a particularly lightweight thread of execution. see [Fiber - Wikipedia](https://en.wikipedia.org/wiki/Fiber_(computer_science))
 
-Whenever calls a fiber-based io function, the calling fiber is paused, io is then ongoing, meanwhile other available fibers are scheduled to execute, once io finishes, the paused fiber is resumed and result is returned.
+With fiber technology these features can be done asynchronously but without splitting application code flow. Whenever calls a fiber-based API, the calling fiber is paused, operation is then ongoing, meanwhile other available fibers are scheduled to execute, once operation finishes, the paused fiber is resumed and result is returned.
 
 Network protocol implementation basing on fiber-based io has same advantage:
 ```C
