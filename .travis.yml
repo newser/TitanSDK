@@ -111,7 +111,7 @@ matrix:
               global:
                   - JOB='Android Build'
                   - OS=android
-       - language: android
+        - language: android
           dist: trusty
           android:
               components:
