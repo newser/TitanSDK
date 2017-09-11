@@ -1,0 +1,248 @@
+version: '{build}'
+
+clone_folder: c:\projects\titansdk
+
+environment:
+    matrix:
+        - JOB: vs2013
+          APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2013
+          platform: x64
+          configuration: Debug
+          GENERATOR: Visual Studio 12 2013 Win64
+          UT: c:\projects\titansdk_build\unit_test\Debug\unit_test.exe
+        - JOB: vs2015
+          APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+          platform: Win32
+          configuration: Release
+          GENERATOR: Visual Studio 14 2015
+          UT: c:\projects\titansdk_build\unit_test\Release\unit_test.exe
+        - JOB: vs2017
+          APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+          platform: x64
+          configuration: Release
+          GENERATOR: Visual Studio 15 2017 Win64
+          UT: c:\projects\titansdk_build\unit_test\Release\unit_test.exe
+
+matrix:
+    fast_finish: true
+
+before_build:
+    - cmd: mkdir c:\projects\titansdk_build
+    - cmd: cd c:\projects\titansdk_build
+    - cmd: cmake -G "%GENERATOR%" ..\titansdk
+
+build:
+    project: c:\projects\titansdk_build\TitanSDK.sln
+    parallel: true
+    verbosity: normal
+
+test_script:
+    - cmd: copy c:\projects\titansdk\misc\run_case.bat
+    - cmd: set TT_CASE=case_log_context& run_case.bat
+    - cmd: set TT_CASE=case_log_manager& run_case.bat
+    - cmd: set TT_CASE=case_lpatn_sn& run_case.bat
+    - cmd: set TT_CASE=case_lpatn_time& run_case.bat
+    - cmd: set TT_CASE=case_lpatn_logger& run_case.bat
+    - cmd: set TT_CASE=case_lpatn_content& run_case.bat
+    - cmd: set TT_CASE=case_lpatn_func& run_case.bat
+    - cmd: set TT_CASE=case_lpatn_line& run_case.bat
+    - cmd: set TT_CASE=case_log_pattern& run_case.bat
+    - cmd: set TT_CASE=case_mutex_basic& run_case.bat
+    - cmd: set TT_CASE=case_mutex_mt& run_case.bat
+    - cmd: set TT_CASE=case_atomic_basic& run_case.bat
+    - cmd: set TT_CASE=case_atomic_mt& run_case.bat
+    - cmd: set TT_CASE=case_atomic_cas& run_case.bat
+    - cmd: set TT_CASE=case_atomic_ptr& run_case.bat
+    - cmd: set TT_CASE=case_atomic_fence& run_case.bat
+    - cmd: set TT_CASE=case_spin_lock_basic_mp& run_case.bat
+    - cmd: set TT_CASE=case_spin_lock_basic_sp& run_case.bat
+    - cmd: set TT_CASE=case_spin_lock_mt& run_case.bat
+    - cmd: set TT_CASE=case_rwlock_basic& run_case.bat
+    - cmd: set TT_CASE=case_rwlock_mt& run_case.bat
+    - cmd: set TT_CASE=case_thread_basic& run_case.bat
+    - cmd: set TT_CASE=case_thread_sleep& run_case.bat
+    - cmd: set TT_CASE=case_thread_rand& run_case.bat
+    - cmd: set TT_CASE=case_dll& run_case.bat
+    - cmd: set TT_CASE=case_process_basic& run_case.bat
+    - cmd: set TT_CASE=case_fiber_basic& run_case.bat
+    - cmd: set TT_CASE=case_fiber_3fibers& run_case.bat
+    - cmd: set TT_CASE=case_fiber_sanity& run_case.bat
+    - cmd: set TT_CASE=case_fiber_sanity2& run_case.bat
+    - cmd: set TT_CASE=case_worker_group& run_case.bat
+    - cmd: set TT_CASE=case_task& run_case.bat
+    - cmd: set TT_CASE=case_fiber_event& run_case.bat
+    - cmd: set TT_CASE=case_sem_basic& run_case.bat
+    - cmd: set TT_CASE=case_sem_mt& run_case.bat
+    - cmd: set TT_CASE=case_sem_pc& run_case.bat
+    - cmd: set TT_CASE=case_sem_count& run_case.bat
+    - cmd: set TT_CASE=case_slab_cd& run_case.bat
+    - cmd: set TT_CASE=case_slab_allocfree& run_case.bat
+    - cmd: set TT_CASE=case_mempool_basic& run_case.bat
+    - cmd: set TT_CASE=case_mempool_alloc_free& run_case.bat
+    - cmd: set TT_CASE=case_mempool_sanity& run_case.bat
+    - cmd: set TT_CASE=case_mem_spg& run_case.bat
+    - cmd: set TT_CASE=case_mem_page& run_case.bat
+    - cmd: set TT_CASE=case_time_abs_basic& run_case.bat
+    - cmd: set TT_CASE=case_date_def& run_case.bat
+    - cmd: set TT_CASE=case_date_render& run_case.bat
+    - cmd: set TT_CASE=case_date_parse& run_case.bat
+    - cmd: set TT_CASE=case_tmr_basic& run_case.bat
+    - cmd: set TT_CASE=case_tmr_fiber& run_case.bat
+    - cmd: set TT_CASE=case_tmr_accuracy& run_case.bat
+    - cmd: set TT_CASE=case_tmr_stable& run_case.bat
+    - cmd: set TT_CASE=case_version& run_case.bat
+    - cmd: set TT_CASE=case_high_bit_1& run_case.bat
+    - cmd: set TT_CASE=case_low_bit_1& run_case.bat
+    - cmd: set TT_CASE=case_base64_dec& run_case.bat
+    - cmd: set TT_CASE=case_der_enc& run_case.bat
+    - cmd: set TT_CASE=case_strtol& run_case.bat
+    - cmd: set TT_CASE=case_c2h& run_case.bat
+    - cmd: set TT_CASE=case_align& run_case.bat
+    - cmd: set TT_CASE=case_charset_gb2312_utf8& run_case.bat
+    - cmd: set TT_CASE=case_charset_utf16le_utf8& run_case.bat
+    - cmd: set TT_CASE=case_charset_utf16be_utf8& run_case.bat
+    - cmd: set TT_CASE=case_charset_utf32le_utf8& run_case.bat
+    - cmd: set TT_CASE=case_charset_utf32be_utf8& run_case.bat
+    - cmd: set TT_CASE=case_charset_utf8& run_case.bat
+    - cmd: set TT_CASE=case_clinode& run_case.bat
+    - cmd: set TT_CASE=case_cfgnode_u32& run_case.bat
+    - cmd: set TT_CASE=case_cfgnode_s32& run_case.bat
+    - cmd: set TT_CASE=case_cfgnode_str& run_case.bat
+    - cmd: set TT_CASE=case_cfgnode_dir& run_case.bat
+    - cmd: set TT_CASE=case_cfgnode_grp_ar& run_case.bat
+    - cmd: set TT_CASE=case_cfgnode_bool& run_case.bat
+    - cmd: set TT_CASE=case_cfgpath_p2n_abs& run_case.bat
+    - cmd: set TT_CASE=case_cfgpath_p2n_rel& run_case.bat
+    - cmd: set TT_CASE=case_cfgpath_p2n_dot& run_case.bat
+    - cmd: set TT_CASE=case_cfgpath_n2p& run_case.bat
+    - cmd: set TT_CASE=case_cfgpath_comp& run_case.bat
+    - cmd: set TT_CASE=case_cfgsh_parse_arg& run_case.bat
+    - cmd: set TT_CASE=case_cfgsh_ls& run_case.bat
+    - cmd: set TT_CASE=case_cfgsh_help& run_case.bat
+    - cmd: set TT_CASE=case_cfgsh_pwd& run_case.bat
+    - cmd: set TT_CASE=case_cfgsh_cd& run_case.bat
+    - cmd: set TT_CASE=case_cfgsh_get& run_case.bat
+    - cmd: set TT_CASE=case_cfgsh_set& run_case.bat
+    - cmd: set TT_CASE=case_cfgsh_quit& run_case.bat
+    - cmd: set TT_CASE=case_cfgsh_exec& run_case.bat
+    - cmd: set TT_CASE=case_fs_basic& run_case.bat
+    - cmd: set TT_CASE=case_fs_open& run_case.bat
+    - cmd: set TT_CASE=case_fs_rw& run_case.bat
+    - cmd: set TT_CASE=case_dir_basic& run_case.bat
+    - cmd: set TT_CASE=case_fs_multhread& run_case.bat
+    - cmd: set TT_CASE=case_fs_consistency& run_case.bat
+    - cmd: set TT_CASE=case_ipc_basic& run_case.bat
+    - cmd: set TT_CASE=case_ipc_client& run_case.bat
+    - cmd: set TT_CASE=case_ipc_stress& run_case.bat
+    - cmd: set TT_CASE=case_ipc_fiber_ev& run_case.bat
+    - cmd: set TT_CASE=case_ipc_ev& run_case.bat
+    - cmd: set TT_CASE=case_sk_addr& run_case.bat
+    - cmd: set TT_CASE=case_sk_opt& run_case.bat
+    - cmd: set TT_CASE=case_bind_basic& run_case.bat
+    - cmd: set TT_CASE=case_tcp_basic& run_case.bat
+    - cmd: set TT_CASE=case_udp_basic& run_case.bat
+    - cmd: set TT_CASE=case_tcp6_close& run_case.bat
+    - cmd: set TT_CASE=case_tcp4_stress& run_case.bat
+    - cmd: set TT_CASE=case_tcp_event& run_case.bat
+    - cmd: set TT_CASE=case_udp_event& run_case.bat
+    - cmd: set TT_CASE=case_basic_alg_qsort& run_case.bat
+    - cmd: set TT_CASE=case_basic_alg_qsort_random& run_case.bat
+    - cmd: set TT_CASE=case_basic_alg_bsearch& run_case.bat
+    - cmd: set TT_CASE=case_basic_alg_min_larger& run_case.bat
+    - cmd: set TT_CASE=case_basic_alg_max_less& run_case.bat
+    - cmd: set TT_CASE=case_alg_rng& run_case.bat
+    - cmd: set TT_CASE=case_ptrheap_basic& run_case.bat
+    - cmd: set TT_CASE=case_ptrheap_correct& run_case.bat
+    - cmd: set TT_CASE=case_ptrheap_perf& run_case.bat
+    - cmd: set TT_CASE=case_vector& run_case.bat
+    - cmd: set TT_CASE=case_ptr_vector& run_case.bat
+    - cmd: set TT_CASE=case_list& run_case.bat
+    - cmd: set TT_CASE=case_dl_list& run_case.bat
+    - cmd: set TT_CASE=case_sl_list& run_case.bat
+    - cmd: set TT_CASE=case_hash& run_case.bat
+    - cmd: set TT_CASE=case_map_basic& run_case.bat
+    - cmd: set TT_CASE=case_map_share_key& run_case.bat
+    - cmd: set TT_CASE=case_ptrmap& run_case.bat
+    - cmd: set TT_CASE=case_queue& run_case.bat
+    - cmd: set TT_CASE=case_ptr_queue& run_case.bat
+    - cmd: set TT_CASE=case_rbtree& run_case.bat
+    - cmd: set TT_CASE=case_stack& run_case.bat
+    - cmd: set TT_CASE=case_ptr_stack& run_case.bat
+    - cmd: set TT_CASE=case_rbuf& run_case.bat
+    - cmd: set TT_CASE=case_rbuf_stress& run_case.bat
+    - cmd: set TT_CASE=case_rbuf_excep& run_case.bat
+    - cmd: set TT_CASE=case_wbuf& run_case.bat
+    - cmd: set TT_CASE=case_rwbuf& run_case.bat
+    - cmd: set TT_CASE=case_rwbuf_raw& run_case.bat
+    - cmd: set TT_CASE=case_buf_null& run_case.bat
+    - cmd: set TT_CASE=case_buf_get_basic& run_case.bat
+    - cmd: set TT_CASE=case_buf_get_rand& run_case.bat
+    - cmd: set TT_CASE=case_buf_put_basic& run_case.bat
+    - cmd: set TT_CASE=case_buf_put_rand& run_case.bat
+    - cmd: set TT_CASE=case_buf_remove& run_case.bat
+    - cmd: set TT_CASE=case_buf_get_hexstr& run_case.bat
+    - cmd: set TT_CASE=case_buftok& run_case.bat
+    - cmd: set TT_CASE=case_blob& run_case.bat
+    - cmd: set TT_CASE=case_str_null& run_case.bat
+    - cmd: set TT_CASE=case_str_basic& run_case.bat
+    - cmd: set TT_CASE=case_str_getchar& run_case.bat
+    - cmd: set TT_CASE=case_str_cmp& run_case.bat
+    - cmd: set TT_CASE=case_str_copy_swap& run_case.bat
+    - cmd: set TT_CASE=case_str_find& run_case.bat
+    - cmd: set TT_CASE=case_str_join& run_case.bat
+    - cmd: set TT_CASE=case_str_case& run_case.bat
+    - cmd: set TT_CASE=case_str_insert& run_case.bat
+    - cmd: set TT_CASE=case_dns_query_basic& run_case.bat
+    - cmd: set TT_CASE=case_dns_query_u2t& run_case.bat
+    - cmd: set TT_CASE=case_dns_query_timeout& run_case.bat
+    - cmd: set TT_CASE=case_dns_query_exception& run_case.bat
+    - cmd: set TT_CASE=case_dns_query4_first6& run_case.bat
+    - cmd: set TT_CASE=case_dns_query6_first4& run_case.bat
+    - cmd: set TT_CASE=case_dns_rr_a& run_case.bat
+    - cmd: set TT_CASE=case_dns_rr_aaaa& run_case.bat
+    - cmd: set TT_CASE=case_dns_parse_a& run_case.bat
+    - cmd: set TT_CASE=case_dns_parse_aaaa& run_case.bat
+    - cmd: set TT_CASE=case_dc_basic& run_case.bat
+    - cmd: set TT_CASE=case_dc_get_a& run_case.bat
+    - cmd: set TT_CASE=case_dc_get_aaaa& run_case.bat
+    - cmd: set TT_CASE=case_dc_exception& run_case.bat
+    - cmd: set TT_CASE=case_x509_cert& run_case.bat
+    - cmd: set TT_CASE=case_x509_crl& run_case.bat
+    - cmd: set TT_CASE=case_ssl_basic& run_case.bat
+    - cmd: set TT_CASE=case_ssl_ver& run_case.bat
+    - cmd: set TT_CASE=case_ssl_auth& run_case.bat
+    - cmd: set TT_CASE=case_ssl_alpn& run_case.bat
+    - cmd: set TT_CASE=case_ssl_resume& run_case.bat
+    - cmd: set TT_CASE=case_ssl_ticket& run_case.bat
+    - cmd: set TT_CASE=case_ssl_multhread& run_case.bat
+    - cmd: set TT_CASE=case_cipher& run_case.bat
+    - cmd: set TT_CASE=case_md& run_case.bat
+    - cmd: set TT_CASE=case_hmac& run_case.bat
+    - cmd: set TT_CASE=case_crypto_ecdh& run_case.bat
+    - cmd: set TT_CASE=case_crypto_ecdsa& run_case.bat
+    - cmd: set TT_CASE=case_rsa_encrypt& run_case.bat
+    - cmd: set TT_CASE=case_rsa_sign& run_case.bat
+    - cmd: set TT_CASE=case_rsa_gen& run_case.bat
+    - cmd: set TT_CASE=case_dh& run_case.bat
+    - cmd: set TT_CASE=case_entropy& run_case.bat
+    - cmd: set TT_CASE=case_ctr_drbg& run_case.bat
+    - cmd: set TT_CASE=case_xdoc_encoding& run_case.bat
+    - cmd: set TT_CASE=case_xdoc_parse& run_case.bat
+    - cmd: set TT_CASE=case_xdoc_render& run_case.bat
+    - cmd: set TT_CASE=case_xattr_rel& run_case.bat
+    - cmd: set TT_CASE=case_xattr_bool& run_case.bat
+    - cmd: set TT_CASE=case_xattr_int& run_case.bat
+    - cmd: set TT_CASE=case_xnode_bool& run_case.bat
+    - cmd: set TT_CASE=case_xnode_int& run_case.bat
+    - cmd: set TT_CASE=case_xnode_rel& run_case.bat
+    - cmd: set TT_CASE=case_xpath_node& run_case.bat
+    - cmd: set TT_CASE=case_xpath_attr& run_case.bat
+    - cmd: set TT_CASE=case_xpath_eval& run_case.bat
+    - cmd: set TT_CASE=case_xpath_xpvar& run_case.bat
+    - cmd: set TT_CASE=case_cli_line& run_case.bat
+    - cmd: set TT_CASE=case_cli_line_stress& run_case.bat
+    - cmd: set TT_CASE=case_cli_line_cursor& run_case.bat
+    - cmd: set TT_CASE=case_cli& run_case.bat
+    - cmd: set TT_CASE=case_cli_stress& run_case.bat
+    - cmd: set TT_CASE=case_cli_ac& run_case.bat
+    - cmd: set TT_CASE=case_cli_readline& run_case.bat

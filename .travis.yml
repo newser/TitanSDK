@@ -1,0 +1,483 @@
+matrix:
+    include:
+        - language: c
+          os: linux
+          dist: trusty
+          env:
+              global:
+                  - JOB='Linux'
+                  - GENERATOR='Unix Makefiles'
+                  - CMAKE_FLAGS='-DPLATFORM_BUILD_SHARED=TRUE -DPLATFORM_ENABLE_DEBUG=FALSE'
+                  - BUILD_CMD='cmake --build . --target unit_test --config Debug'
+                  - OS=linux
+                  - UT=unit_test/unit_test
+        - language: c
+          os: linux
+          dist: trusty
+          language: c
+          env:
+              global:
+                  - JOB='Linux'
+                  - GENERATOR='Unix Makefiles'
+                  - CMAKE_FLAGS='-DPLATFORM_BUILD_SHARED=TRUE -DPLATFORM_ENABLE_DEBUG=TRUE'
+                  - BUILD_CMD='cmake --build . --target unit_test --config Release'
+                  - OS=linux
+                  - UT=unit_test/unit_test
+        - language: c
+          os: osx
+          osx_image: xcode7.3.1
+          env:
+              global:
+                  - JOB='macOS Xcode7'
+                  - GENERATOR=Xcode
+                  - CMAKE_FLAGS='-DPLATFORM_BUILD_SHARED=FALSE -DPLATFORM_ENABLE_DEBUG=FALSE'
+                  - BUILD_CMD='cmake --build . --target unit_test --config Debug'
+                  - OS=macos
+                  - UT=unit_test/Debug/unit_test
+        - language: c
+          os: osx
+          osx_image: xcode8.3
+          env:
+              global:
+                  - JOB='macOS Xcode8'
+                  - GENERATOR=Xcode
+                  - CMAKE_FLAGS='-DPLATFORM_BUILD_SHARED=FALSE -DPLATFORM_ENABLE_DEBUG=TRUE'
+                  - BUILD_CMD='cmake --build . --target unit_test --config Release'
+                  - OS=macos
+                  - UT=unit_test/Release/unit_test
+        - language: c
+          os: osx
+          osx_image: xcode9
+          env:
+              global:
+                  - JOB='macOS Xcode9'
+                  - GENERATOR=Xcode
+                  - CMAKE_FLAGS='-DPLATFORM_BUILD_SHARED=TRUE -DPLATFORM_ENABLE_DEBUG=FALSE'
+                  - BUILD_CMD='cmake --build . --target unit_test --config Debug'
+                  - OS=macos
+                  - UT=unit_test/Debug/unit_test
+        - language: c
+          os: osx
+          osx_image: xcode7.3.1
+          env:
+              global:
+                  - JOB='iOS9 Xcode7'
+                  - GENERATOR=Xcode
+                  - CMAKE_FLAGS='-DPLATFORM_BUILD_SHARED=TRUE -DPLATFORM_ENABLE_DEBUG=TRUE'
+                  - CMAKE_FLAGS2='-DPLATFORM_IOS=TRUE -DPLATFORM_IOS_SIMULATOR=FALSE -DPLATFORM_ARM_ARCH=armv7'
+                  - BUILD_CMD='xcodebuild -project TitanSDK.xcodeproj -target unit_test -arch armv7 -sdk iphoneos9.3 -configuration Debug CODE_SIGN_IDENTITY= CODE_SIGNING_REQUIRED=NO'
+                  - OS=ios
+                  - UT=dummy
+        - language: c
+          os: osx
+          osx_image: xcode8.3
+          env:
+              global:
+                  - JOB='iOS10 Xcode8'
+                  - GENERATOR=Xcode
+                  - CMAKE_FLAGS='-DPLATFORM_BUILD_SHARED=TRUE -DPLATFORM_ENABLE_DEBUG=FALSE'
+                  - CMAKE_FLAGS2='-DPLATFORM_IOS=TRUE -DPLATFORM_IOS_SIMULATOR=FALSE -DPLATFORM_ARM_ARCH=armv7s'
+                  - BUILD_CMD='xcodebuild -project TitanSDK.xcodeproj -target unit_test -arch armv7s -sdk iphoneos10.3 -configuration Release CODE_SIGN_IDENTITY= CODE_SIGNING_REQUIRED=NO'
+                  - OS=ios
+                  - UT=dummy
+        - language: c
+          os: osx
+          osx_image: xcode9
+          env:
+              global:
+                  - JOB='iOS11 Xcode9'
+                  - GENERATOR=Xcode
+                  - CMAKE_FLAGS='-DPLATFORM_BUILD_SHARED=FALSE -DPLATFORM_ENABLE_DEBUG=TRUE'
+                  - CMAKE_FLAGS2='-DPLATFORM_IOS=TRUE -DPLATFORM_IOS_SIMULATOR=FALSE -DPLATFORM_ARM_ARCH=arm64'
+                  - BUILD_CMD='xcodebuild -project TitanSDK.xcodeproj -target unit_test -arch arm64 -sdk iphoneos11.0 -configuration Debug CODE_SIGN_IDENTITY= CODE_SIGNING_REQUIRED=NO'
+                  - OS=ios
+                  - UT=dummy
+        - language: c
+          os: osx
+          osx_image: xcode8.3
+          env:
+              global:
+                  - JOB='Simulator iOS10 Xcode8'
+                  - GENERATOR=Xcode
+                  - CMAKE_FLAGS='-DPLATFORM_BUILD_SHARED=FALSE -DPLATFORM_ENABLE_DEBUG=TRUE'
+                  - CMAKE_FLAGS2='-DPLATFORM_IOS=TRUE -DPLATFORM_IOS_SIMULATOR=TRUE'
+                  - BUILD_CMD='xcodebuild -project TitanSDK.xcodeproj -target unit_test -arch x86_64 -sdk iphonesimulator10.3 -configuration Debug'
+                  - OS=ios-simulator
+                  - UT=unit_test/Debug-iphonesimulator/unit_test.app
+        - language: c
+          os: linux
+          dist: trusty
+          env:
+              global:
+                  - JOB='Android Build'
+                  - OS=android
+        - language: android
+          dist: trusty
+          android:
+              components:
+                  - tools
+                  - platform-tools
+                  - tools
+                  - build-tools-25.0.0
+                  - android-21
+                  - extra
+                  - sys-img-armeabi-v7a-android-21
+          env:
+              global:
+                  - JOB='Android Simulator'
+                  - GENERATOR='Unix Makefiles'
+                  - CMAKE_FLAGS='-DCMAKE_TOOLCHAIN_FILE=toolchain.cmake -DPLATFORM_ENABLE_DEBUG=TRUE -DPLATFORM_UNIT_TEST_LITE=TRUE'
+                  - BUILD_CMD='cmake --build . --target platform --config Debug'
+                  - OS=android-simulator
+                  - UT=dummy
+
+before_install:
+    - |
+      if [ "${OS}" == "android" ]
+      then
+          wget -q https://cmake.org/files/v3.9/cmake-3.9.1-Linux-x86_64.sh && \
+          yes | sh cmake-3.9.1-Linux-x86_64.sh > /dev/null || \
+          exit -1
+          PATH=$(pwd)/cmake-3.9.1-Linux-x86_64/bin:${PATH}
+          cmake --version
+
+          export NDK=android-ndk-r14b
+          wget -q https://dl.google.com/android/repository/${NDK}-linux-x86_64.zip && \
+          unzip -oqq ${NDK}-linux-x86_64.zip || \
+          exit -1
+          
+          function android_compile {
+              echo "set(CMAKE_SYSTEM_NAME Android)" > toolchain.cmake &&
+              echo "set(CMAKE_SYSTEM_VERSION $1)" >> toolchain.cmake &&
+              echo "set(CMAKE_ANDROID_ARCH_ABI $2)" >> toolchain.cmake &&
+              echo "set(CMAKE_ANDROID_NDK \"$(pwd)/${NDK}\")" >> toolchain.cmake
+              
+              mkdir titansdk_build
+              cd titansdk_build
+              cmake -G "Unix Makefiles" -DCMAKE_TOOLCHAIN_FILE=toolchain.cmake $3 .. && \
+              cmake --build . --target platform --config $4 && \
+              cd .. && \
+              rm -rf titansdk_build || \
+              return -1
+              
+              return 0
+          }
+          
+          echo ====================================
+          echo android: 21
+          echo abi: x86
+          echo ====================================
+          android_compile 21 x86 "-DPLATFORM_BUILD_SHARED=FALSE -DPLATFORM_ENABLE_DEBUG=TRUE" Debug
+
+          echo ====================================
+          echo android: 21
+          echo abi: x86_64
+          echo ====================================
+          android_compile 21 x86_64 "-DPLATFORM_BUILD_SHARED=FALSE -DPLATFORM_ENABLE_DEBUG=TRUE" Debug
+
+          echo ====================================
+          echo android: 21
+          echo abi: armeabi
+          echo ====================================
+          android_compile 21 armeabi "-DPLATFORM_BUILD_SHARED=TRUE -DPLATFORM_ENABLE_DEBUG=FALSE" Release
+
+          echo ====================================
+          echo android: 21
+          echo abi: arm64-v8a
+          echo ====================================
+          android_compile 21 arm64-v8a "-DPLATFORM_BUILD_SHARED=TRUE -DPLATFORM_ENABLE_DEBUG=TRUE" Release
+
+          echo ====================================
+          echo android: 24
+          echo abi: x86
+          echo ====================================
+          android_compile 24 x86 "-DPLATFORM_BUILD_SHARED=TRUE -DPLATFORM_ENABLE_DEBUG=FALSE" Release
+
+          echo ====================================
+          echo android: 24
+          echo abi: x86_64
+          echo ====================================
+          android_compile 24 x86_64 "-DPLATFORM_BUILD_SHARED=TRUE -DPLATFORM_ENABLE_DEBUG=FALSE" Release
+
+          echo ====================================
+          echo android: 24
+          echo abi: armeabi
+          echo ====================================
+          android_compile 24 armeabi "-DPLATFORM_BUILD_SHARED=FALSE -DPLATFORM_ENABLE_DEBUG=TRUE" Debug
+
+          echo ====================================
+          echo android: 24
+          echo abi: arm64-v8a
+          echo ====================================
+          android_compile 24 arm64-v8a "-DPLATFORM_BUILD_SHARED=FALSE -DPLATFORM_ENABLE_DEBUG=FALSE" Debug
+      fi
+    - |
+      if [ "${OS}" == "android-simulator" ]
+      then
+          wget -q https://cmake.org/files/v3.9/cmake-3.9.1-Linux-x86_64.sh && \
+          yes | sh cmake-3.9.1-Linux-x86_64.sh > /dev/null || \
+          exit -1
+          PATH=$(pwd)/cmake-3.9.1-Linux-x86_64/bin:${PATH}
+          cmake --version
+
+          export NDK=android-ndk-r14b
+          wget -q https://dl.google.com/android/repository/${NDK}-linux-x86_64.zip && \
+          unzip -oqq ${NDK}-linux-x86_64.zip || \
+          exit -1
+
+          echo "set(CMAKE_SYSTEM_NAME Android)" > toolchain.cmake &&
+          echo "set(CMAKE_SYSTEM_VERSION 21)" >> toolchain.cmake &&
+          echo "set(CMAKE_ANDROID_ARCH_ABI armeabi-v7a)" >> toolchain.cmake &&
+          echo "set(CMAKE_ANDROID_NDK \"$(pwd)/${NDK}\")" >> toolchain.cmake
+
+          echo yes | sdkmanager "extras;m2repository;com;android;support;constraint;constraint-layout;1.0.2"
+          echo yes | sdkmanager "extras;m2repository;com;android;support;constraint;constraint-layout-solver;1.0.2"
+      fi
+
+install:
+    - if [ "${OS}" == "android" ]; then exit 0; fi
+    - mkdir titansdk_build
+    - cd titansdk_build
+    - cmake -G "${GENERATOR}" ${CMAKE_FLAGS} ..
+    - |
+      if [ ! -z "${CMAKE_FLAGS2}" ]
+      then
+          cmake -G "${GENERATOR}" ${CMAKE_FLAGS2} ..
+      fi
+    - ${BUILD_CMD}
+    - |
+      if [ ${OS} == "ios-simulator" ]
+      then
+          export DEV=$(xcrun simctl create test_iphone7 com.apple.CoreSimulator.SimDeviceType.iPhone-7 com.apple.CoreSimulator.SimRuntime.iOS-10-3) && \
+          xcrun simctl boot ${DEV} && \
+          xcrun simctl install ${DEV} ${UT}
+      fi
+    - |
+      if [ ${OS} == "android-simulator" ]
+      then
+          cp -r ../program/android_lib_unit_test/ ./
+          cp output/platform/0.1.0/debug/shared/libplatform.so android_lib_unit_test/TitanSDKUnitTest/app/src/main/jniLibs/armeabi-v7a/
+
+          cd android_lib_unit_test/TitanSDKUnitTest && \
+          ./gradlew clean assembleDebug && \
+          cd - || \
+          exit -1
+  
+          echo no | android create avd --force --name ut --target android-21 --abi armeabi-v7a || exit -1
+          emulator -avd ut -no-audio -no-window &
+          android-wait-for-emulator
+          adb shell echo echo from adb shell!!!
+          adb install android_lib_unit_test/TitanSDKUnitTest/app/build/outputs/apk/app-debug.apk || exit -1
+      fi
+
+script:
+    - cp ../misc/run_case.sh ./run_case.sh
+    - chmod u+x run_case.sh
+    - export TT_CASE=case_log_context; ./run_case.sh
+    - export TT_CASE=case_log_manager; ./run_case.sh
+    - export TT_CASE=case_lpatn_sn; ./run_case.sh
+    - export TT_CASE=case_lpatn_time; ./run_case.sh
+    - export TT_CASE=case_lpatn_logger; ./run_case.sh
+    - export TT_CASE=case_lpatn_content; ./run_case.sh
+    - export TT_CASE=case_lpatn_func; ./run_case.sh
+    - export TT_CASE=case_lpatn_line; ./run_case.sh
+    - export TT_CASE=case_log_pattern; ./run_case.sh
+    - export TT_CASE=case_mutex_basic; ./run_case.sh
+    - export TT_CASE=case_mutex_mt; ./run_case.sh
+    - export TT_CASE=case_atomic_basic; ./run_case.sh
+    - export TT_CASE=case_atomic_mt; ./run_case.sh
+    - export TT_CASE=case_atomic_cas; ./run_case.sh
+    - export TT_CASE=case_atomic_ptr; ./run_case.sh
+    - export TT_CASE=case_atomic_fence; ./run_case.sh
+    - export TT_CASE=case_spin_lock_basic_mp; ./run_case.sh
+    - export TT_CASE=case_spin_lock_basic_sp; ./run_case.sh
+    - export TT_CASE=case_spin_lock_mt; ./run_case.sh
+    - export TT_CASE=case_rwlock_basic; ./run_case.sh
+    - export TT_CASE=case_rwlock_mt; ./run_case.sh
+    - export TT_CASE=case_thread_basic; ./run_case.sh
+    - export TT_CASE=case_thread_sleep; ./run_case.sh
+    - export TT_CASE=case_thread_rand; ./run_case.sh
+    - export TT_CASE=case_dll; ./run_case.sh
+    - export TT_CASE=case_process_basic; ./run_case.sh
+    - export TT_CASE=case_fiber_basic; ./run_case.sh
+    - export TT_CASE=case_fiber_3fibers; ./run_case.sh
+    - export TT_CASE=case_fiber_sanity; ./run_case.sh
+    - export TT_CASE=case_fiber_sanity2; ./run_case.sh
+    - export TT_CASE=case_worker_group; ./run_case.sh
+    - export TT_CASE=case_task; ./run_case.sh
+    - export TT_CASE=case_fiber_event; ./run_case.sh
+    - export TT_CASE=case_sem_basic; ./run_case.sh
+    - export TT_CASE=case_sem_mt; ./run_case.sh
+    - export TT_CASE=case_sem_pc; ./run_case.sh
+    - export TT_CASE=case_sem_count; ./run_case.sh
+    - export TT_CASE=case_slab_cd; ./run_case.sh
+    - export TT_CASE=case_slab_allocfree; ./run_case.sh
+    - export TT_CASE=case_mempool_basic; ./run_case.sh
+    - export TT_CASE=case_mempool_alloc_free; ./run_case.sh
+    - export TT_CASE=case_mempool_sanity; ./run_case.sh
+    - export TT_CASE=case_mem_spg; ./run_case.sh
+    - export TT_CASE=case_mem_page; ./run_case.sh
+    - export TT_CASE=case_time_abs_basic; ./run_case.sh
+    - export TT_CASE=case_date_def; ./run_case.sh
+    - export TT_CASE=case_date_render; ./run_case.sh
+    - export TT_CASE=case_date_parse; ./run_case.sh
+    - export TT_CASE=case_tmr_basic; ./run_case.sh
+    - export TT_CASE=case_tmr_fiber; ./run_case.sh
+    - export TT_CASE=case_tmr_accuracy; ./run_case.sh
+    - export TT_CASE=case_tmr_stable; ./run_case.sh
+    - export TT_CASE=case_version; ./run_case.sh
+    - export TT_CASE=case_high_bit_1; ./run_case.sh
+    - export TT_CASE=case_low_bit_1; ./run_case.sh
+    - export TT_CASE=case_base64_dec; ./run_case.sh
+    - export TT_CASE=case_der_enc; ./run_case.sh
+    - export TT_CASE=case_strtol; ./run_case.sh
+    - export TT_CASE=case_c2h; ./run_case.sh
+    - export TT_CASE=case_align; ./run_case.sh
+    - export TT_CASE=case_charset_gb2312_utf8; ./run_case.sh
+    - export TT_CASE=case_charset_utf16le_utf8; ./run_case.sh
+    - export TT_CASE=case_charset_utf16be_utf8; ./run_case.sh
+    - export TT_CASE=case_charset_utf32le_utf8; ./run_case.sh
+    - export TT_CASE=case_charset_utf32be_utf8; ./run_case.sh
+    - export TT_CASE=case_charset_utf8; ./run_case.sh
+    - export TT_CASE=case_clinode; ./run_case.sh
+    - export TT_CASE=case_cfgnode_u32; ./run_case.sh
+    - export TT_CASE=case_cfgnode_s32; ./run_case.sh
+    - export TT_CASE=case_cfgnode_str; ./run_case.sh
+    - export TT_CASE=case_cfgnode_dir; ./run_case.sh
+    - export TT_CASE=case_cfgnode_grp_ar; ./run_case.sh
+    - export TT_CASE=case_cfgnode_bool; ./run_case.sh
+    - export TT_CASE=case_cfgpath_p2n_abs; ./run_case.sh
+    - export TT_CASE=case_cfgpath_p2n_rel; ./run_case.sh
+    - export TT_CASE=case_cfgpath_p2n_dot; ./run_case.sh
+    - export TT_CASE=case_cfgpath_n2p; ./run_case.sh
+    - export TT_CASE=case_cfgpath_comp; ./run_case.sh
+    - export TT_CASE=case_cfgsh_parse_arg; ./run_case.sh
+    - export TT_CASE=case_cfgsh_ls; ./run_case.sh
+    - export TT_CASE=case_cfgsh_help; ./run_case.sh
+    - export TT_CASE=case_cfgsh_pwd; ./run_case.sh
+    - export TT_CASE=case_cfgsh_cd; ./run_case.sh
+    - export TT_CASE=case_cfgsh_get; ./run_case.sh
+    - export TT_CASE=case_cfgsh_set; ./run_case.sh
+    - export TT_CASE=case_cfgsh_quit; ./run_case.sh
+    - export TT_CASE=case_cfgsh_exec; ./run_case.sh
+    - export TT_CASE=case_fs_basic; ./run_case.sh
+    - export TT_CASE=case_fs_open; ./run_case.sh
+    - export TT_CASE=case_fs_rw; ./run_case.sh
+    - export TT_CASE=case_dir_basic; ./run_case.sh
+    - export TT_CASE=case_fs_multhread; ./run_case.sh
+    - export TT_CASE=case_fs_consistency; ./run_case.sh
+    - export TT_CASE=case_ipc_basic; ./run_case.sh
+    - export TT_CASE=case_ipc_client; ./run_case.sh
+    - export TT_CASE=case_ipc_stress; ./run_case.sh
+    - export TT_CASE=case_ipc_fiber_ev; ./run_case.sh
+    - export TT_CASE=case_ipc_ev; ./run_case.sh
+    - export TT_CASE=case_sk_addr; ./run_case.sh
+    - export TT_CASE=case_sk_opt; ./run_case.sh
+    - export TT_CASE=case_bind_basic; ./run_case.sh
+    - export TT_CASE=case_tcp_basic; ./run_case.sh
+    - export TT_CASE=case_udp_basic; ./run_case.sh
+    - export TT_CASE=case_tcp6_close; ./run_case.sh
+    - export TT_CASE=case_tcp4_stress; ./run_case.sh
+    - export TT_CASE=case_tcp_event; ./run_case.sh
+    - export TT_CASE=case_udp_event; ./run_case.sh
+    - export TT_CASE=case_basic_alg_qsort; ./run_case.sh
+    - export TT_CASE=case_basic_alg_qsort_random; ./run_case.sh
+    - export TT_CASE=case_basic_alg_bsearch; ./run_case.sh
+    - export TT_CASE=case_basic_alg_min_larger; ./run_case.sh
+    - export TT_CASE=case_basic_alg_max_less; ./run_case.sh
+    - export TT_CASE=case_alg_rng; ./run_case.sh
+    - export TT_CASE=case_ptrheap_basic; ./run_case.sh
+    - export TT_CASE=case_ptrheap_correct; ./run_case.sh
+    - export TT_CASE=case_ptrheap_perf; ./run_case.sh
+    - export TT_CASE=case_vector; ./run_case.sh
+    - export TT_CASE=case_ptr_vector; ./run_case.sh
+    - export TT_CASE=case_list; ./run_case.sh
+    - export TT_CASE=case_dl_list; ./run_case.sh
+    - export TT_CASE=case_sl_list; ./run_case.sh
+    - export TT_CASE=case_hash; ./run_case.sh
+    - export TT_CASE=case_map_basic; ./run_case.sh
+    - export TT_CASE=case_map_share_key; ./run_case.sh
+    - export TT_CASE=case_ptrmap; ./run_case.sh
+    - export TT_CASE=case_queue; ./run_case.sh
+    - export TT_CASE=case_ptr_queue; ./run_case.sh
+    - export TT_CASE=case_rbtree; ./run_case.sh
+    - export TT_CASE=case_stack; ./run_case.sh
+    - export TT_CASE=case_ptr_stack; ./run_case.sh
+    - export TT_CASE=case_rbuf; ./run_case.sh
+    - export TT_CASE=case_rbuf_stress; ./run_case.sh
+    - export TT_CASE=case_rbuf_excep; ./run_case.sh
+    - export TT_CASE=case_wbuf; ./run_case.sh
+    - export TT_CASE=case_rwbuf; ./run_case.sh
+    - export TT_CASE=case_rwbuf_raw; ./run_case.sh
+    - export TT_CASE=case_buf_null; ./run_case.sh
+    - export TT_CASE=case_buf_get_basic; ./run_case.sh
+    - export TT_CASE=case_buf_get_rand; ./run_case.sh
+    - export TT_CASE=case_buf_put_basic; ./run_case.sh
+    - export TT_CASE=case_buf_put_rand; ./run_case.sh
+    - export TT_CASE=case_buf_remove; ./run_case.sh
+    - export TT_CASE=case_buf_get_hexstr; ./run_case.sh
+    - export TT_CASE=case_buftok; ./run_case.sh
+    - export TT_CASE=case_blob; ./run_case.sh
+    - export TT_CASE=case_str_null; ./run_case.sh
+    - export TT_CASE=case_str_basic; ./run_case.sh
+    - export TT_CASE=case_str_getchar; ./run_case.sh
+    - export TT_CASE=case_str_cmp; ./run_case.sh
+    - export TT_CASE=case_str_copy_swap; ./run_case.sh
+    - export TT_CASE=case_str_find; ./run_case.sh
+    - export TT_CASE=case_str_join; ./run_case.sh
+    - export TT_CASE=case_str_case; ./run_case.sh
+    - export TT_CASE=case_str_insert; ./run_case.sh
+    - export TT_CASE=case_dns_query_basic; ./run_case.sh
+    - export TT_CASE=case_dns_query_u2t; ./run_case.sh
+    - export TT_CASE=case_dns_query_timeout; ./run_case.sh
+    - export TT_CASE=case_dns_query_exception; ./run_case.sh
+    - export TT_CASE=case_dns_query4_first6; ./run_case.sh
+    - export TT_CASE=case_dns_query6_first4; ./run_case.sh
+    - export TT_CASE=case_dns_rr_a; ./run_case.sh
+    - export TT_CASE=case_dns_rr_aaaa; ./run_case.sh
+    - export TT_CASE=case_dns_parse_a; ./run_case.sh
+    - export TT_CASE=case_dns_parse_aaaa; ./run_case.sh
+    - export TT_CASE=case_dc_basic; ./run_case.sh
+    - export TT_CASE=case_dc_get_a; ./run_case.sh
+    - export TT_CASE=case_dc_get_aaaa; ./run_case.sh
+    - export TT_CASE=case_dc_exception; ./run_case.sh
+    - export TT_CASE=case_x509_cert; ./run_case.sh
+    - export TT_CASE=case_x509_crl; ./run_case.sh
+    - export TT_CASE=case_ssl_basic; ./run_case.sh
+    - export TT_CASE=case_ssl_ver; ./run_case.sh
+    - export TT_CASE=case_ssl_auth; ./run_case.sh
+    - export TT_CASE=case_ssl_alpn; ./run_case.sh
+    - export TT_CASE=case_ssl_resume; ./run_case.sh
+    - export TT_CASE=case_ssl_ticket; ./run_case.sh
+    - export TT_CASE=case_ssl_multhread; ./run_case.sh
+    - export TT_CASE=case_cipher; ./run_case.sh
+    - export TT_CASE=case_md; ./run_case.sh
+    - export TT_CASE=case_hmac; ./run_case.sh
+    - export TT_CASE=case_crypto_ecdh; ./run_case.sh
+    - export TT_CASE=case_crypto_ecdsa; ./run_case.sh
+    - export TT_CASE=case_rsa_encrypt; ./run_case.sh
+    - export TT_CASE=case_rsa_sign; ./run_case.sh
+    - export TT_CASE=case_rsa_gen; ./run_case.sh
+    - export TT_CASE=case_dh; ./run_case.sh
+    - export TT_CASE=case_entropy; ./run_case.sh
+    - export TT_CASE=case_ctr_drbg; ./run_case.sh
+    - export TT_CASE=case_xdoc_encoding; ./run_case.sh
+    - export TT_CASE=case_xdoc_parse; ./run_case.sh
+    - export TT_CASE=case_xdoc_render; ./run_case.sh
+    - export TT_CASE=case_xattr_rel; ./run_case.sh
+    - export TT_CASE=case_xattr_bool; ./run_case.sh
+    - export TT_CASE=case_xattr_int; ./run_case.sh
+    - export TT_CASE=case_xnode_bool; ./run_case.sh
+    - export TT_CASE=case_xnode_int; ./run_case.sh
+    - export TT_CASE=case_xnode_rel; ./run_case.sh
+    - export TT_CASE=case_xpath_node; ./run_case.sh
+    - export TT_CASE=case_xpath_attr; ./run_case.sh
+    - export TT_CASE=case_xpath_eval; ./run_case.sh
+    - export TT_CASE=case_xpath_xpvar; ./run_case.sh
+    - export TT_CASE=case_cli_line; ./run_case.sh
+    - export TT_CASE=case_cli_line_stress; ./run_case.sh
+    - export TT_CASE=case_cli_line_cursor; ./run_case.sh
+    - export TT_CASE=case_cli; ./run_case.sh
+    - export TT_CASE=case_cli_stress; ./run_case.sh
+    - export TT_CASE=case_cli_ac; ./run_case.sh
+    - export TT_CASE=case_cli_readline; ./run_case.sh

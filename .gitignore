@@ -1,0 +1,47 @@
+#
+# generic
+#
+
+# all files are ignored except specified type
+*
+
+# add all directories by default
+!*/
+
+# ignore .c of cmake
+build/project/*
+
+#
+# git files
+#
+
+!.gitignore
+
+#
+# source code
+#
+
+!*.c
+!*.h
+!*.cpp
+!*.hpp
+
+#
+# cmake
+#
+
+!CMakeLists.txt
+!*.cmake
+
+!*.h.in
+
+#
+# CI
+#
+
+!.travis.yml.head
+!.travis.yml
+
+!.appveyor.yml.head
+!.appveyor.yml
+

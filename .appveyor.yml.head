@@ -1,0 +1,34 @@
+version: '{build}'
+
+clone_folder: c:\projects\titansdk
+
+environment:
+    matrix:
+        - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2013
+          platform: x64
+          configuration: Debug
+          JOB: vs2013
+          GENERATOR: Visual Studio 12 2013 Win64
+        - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+          platform: Win32
+          configuration: Release
+          JOB: vs2015
+          GENERATOR: Visual Studio 14 2015
+        - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+          platform: x64
+          configuration: Release
+          JOB: vs2017
+          GENERATOR: Visual Studio 15 2017 Win64
+
+matrix:
+    fast_finish: true
+
+before_build:
+    - cmd: mkdir c:\projects\titansdk_build_%JOB%
+    - cmd: cd c:\projects\titansdk_build_%JOB%
+    - cmd: cmake -G "%GENERATOR%" ..\titansdk
+
+build:
+    project: c:\projects\titansdk_build_%JOB%\TitanSDK.sln
+    parallel: true
+    verbosity: normal
