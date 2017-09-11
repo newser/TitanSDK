@@ -8,22 +8,32 @@
 | Android | [![Android](https://www.travis-ci.org/newser/TitanSDK.svg?branch=master)](https://www.travis-ci.org/newser/TitanSDK) |
 | Windows | [![Windows](https://ci.appveyor.com/api/projects/status/github/newser/TitanSDK?svg=true&passingText=windows%20passing&failingText=windows%20failing)](https://ci.appveyor.com/project/newser/titansdk) |
 
-TitanSDK implements various fiber-based features, the major advantages(also my purposes) is reducing code complexity but keeping concurrency:
-- keep concurrency: 
-- reduce code complexity: no need to write multithread program, 
-- 
-
-which originally need to "wait for some result" and thus would block caller, examples are waiting for network connection, reading disk files, waiting for RPC results and so on. 
+TitanSDK implements various fiber-based features.
 
 > A fiber is a particularly lightweight thread of execution. see [Fiber - Wikipedia](https://en.wikipedia.org/wiki/Fiber_(computer_science))
 
-With fiber technology these features can be done asynchronously but without splitting application code flow. Whenever calls a fiber-based API, the calling fiber is paused, operation is then ongoing, meanwhile other available fibers are scheduled to execute, once operation finishes, the paused fiber is resumed and result is returned.
+The major advantages(also its purposes) are:
+- high concurrency
+- easy coding
+- less race condition
+- better architecture
 
-Network protocol implementation basing on fiber-based io has same advantage:
+## High concurrency
+Traditional application gains concurrency by multi-thread, a typical case is network server, which may create a thread serving each connection. Each thread generally occupies megabytes while a fiber only uses kilobytes(128K by default and can be adjusted to be less), so that application can have far more fibers than threads and thus more concurrent.
+
+## Easy coding
+Some application make use of asynchronous io for high concurrency, it can only have one thread(or one thread per cpu), when application needs do io(or any operation that would block caller), it provides a callback to be executed once io finishes. Such mechanism gains highest concurrecy but the key issue is programming a callback chain for a complex case is very difficult, imaging how hard it is to handle errors and release resources and roll back operations in a callback chain. With fiber, application can be paused when doing an io and resumed when io finishes, does not need any callback.
+
+Below is a fiber-based dns query operation:
 ```C
 tt_dns_rrlist_t *rrl = tt_dns_get_aaaa("googe.com");
 ```
 After calling the dns api, current fiber is paused, dns querying is then ongoing, other available fibers are scheduled to execute, once dns response is received, the paused fiber is resumed and a list of AAAA resource records is returned.
+
+## Less race condition
+Lots of application does not really need be multi-threaded but they have to
+
+## Better architecture
 
 # Release
 
