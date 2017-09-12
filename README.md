@@ -1,5 +1,18 @@
 # TitanSDK - A cross-platform, fiber-based framework
 
+TitanSDK tends to be a cross-platform framework helping developer focus on their specific application development rather than rewriting common functionalities including:
+- [IO](#io)
+- fiber
+- timer management
+- system api
+- logging
+- CLI(command line interface)
+- XML
+- cryptography
+- SSL/TLS
+- DNS
+
+## Supported platform
 | Platform | CI Status |
 | --- | --- |
 | Linux | [![Linux](https://www.travis-ci.org/newser/TitanSDK.svg?branch=master)](https://www.travis-ci.org/newser/TitanSDK) |
@@ -8,9 +21,59 @@
 | Android | [![Android](https://www.travis-ci.org/newser/TitanSDK.svg?branch=master)](https://www.travis-ci.org/newser/TitanSDK) |
 | Windows | [![Windows](https://ci.appveyor.com/api/projects/status/github/newser/TitanSDK?svg=true)](https://ci.appveyor.com/project/newser/titansdk) |
 
-TitanSDK implements various fiber-based features.
+## Release
+
+- [2017-09-12] 0.1.0
+
+## Features
+
+#### <a name="io"/>IO
+- socket io
+- ipc io
+- file io
+
+## Cross-platform
+
+Almost all features of TitanSDK can run cross platforms, implemented features are:
+- **Io**:
+  - socket io
+  - regular file io
+  - inter-process io
+- **Inter-fiber event**: send and receive inter-fiber events
+- **Timer**: create timer and be notified when timer expires
+- **Unified system api**: wrapped native system api(windows api, posix, etc.) as unified apis
+- **Flexibile log system**: configurable log format and various log output style
+- **Command line interface**: configure or show status via cross-platform CLI
+- **XML**: DOM style XML accessing, support XPath
+- **Cryptography**: public-key, symmetric-key, message digest, HMAC, random number generation, etc.
+- **Network protocol**:
+  - SSL/TLS
+  - DNS
+
+## Fiber
 
 > A fiber is a particularly lightweight thread of execution. see [Fiber - Wikipedia](https://en.wikipedia.org/wiki/Fiber_(computer_science))
+
+TitanSDK solves some of questions above by making use of fiber. 
+
+Each module can run in a fiber, each fiber can:
+- send/receive fiber event
+- do one kind of io(inter-fiber, socket, inter-process, inter-thread)
+- manage timers
+
+An example, assume an application requires:
+- interact with another process
+- do network io
+- handling received request
+- sending response to a specified network address
+
+Such application can have two fibers, one for receiving request from another process and process request, another for sending response
+
+TitanSDK implements various **fiber-based** features:
+
+
+
+
 
 The major advantages(also this sdk's purposes) are:
 - higher concurrency
@@ -48,22 +111,4 @@ Many systems need be configurable. TitanSDK provides APIs for defining configura
 ## Cross platform, rich features
 Code can be compiled on different platforms(Windows, Linux, macOS, iOS, Android) without modification. Lots of common/infra features have been implemented or integrated, developer can focus on specific application without caring trivial things like how to create threads on different platforms, how to create a ssl connection, how to do xml querying, etc.
 
-- **Fiber-based io**:
-  - socket io
-  - regular file io
-  - inter-process io
-- **Inter-fiber event**: send and receive inter-fiber events
-- **Fiber-based timer**: create timer and be resumed when timer expires
-- **Unified system api**: wrapped native system api(windows api, posix, etc.) as unified apis
-- **Flexibile log system**: configurable log format and various log output style
-- **Command line interfac**e: configure or show status via cross-platform CLI
-- **XML**: DOM style XML accessing, support XPath
-- **Cryptography**: public-key, symmetric-key, message digest, HMAC, random number generation, etc.
-- **Network protocol**:
-  - SSL/TLS
-  - DNS
-
-# Release
-
-- [2017-09-12] 0.1.0
 
