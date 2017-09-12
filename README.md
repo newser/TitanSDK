@@ -3,7 +3,7 @@
 [![Linux](https://www.travis-ci.org/newser/TitanSDK.svg?branch=master)](https://www.travis-ci.org/newser/TitanSDK)
 [![Windows](https://ci.appveyor.com/api/projects/status/github/newser/TitanSDK?svg=true)](https://ci.appveyor.com/project/newser/titansdk)
 
-TitanSDK is a cross-platform, fiber-based framework.
+TitanSDK is a cross-platform, fiber-based, rich feature framework.
 
 ## Cross-platform
 
@@ -28,14 +28,14 @@ tt_dns_rrlist_t *rrl = tt_dns_get_aaaa("google.com");
 ```
 After calling the dns api, current fiber is paused, dns querying is then ongoing, other available fibers are scheduled to execute, once dns response is received, the paused fiber is resumed and a list of AAAA resource records is returned.
 
-## Framework
+## Rich feature
 
-### Rich features
+TitanSDK helps developer focus on their specific application development rather than rewriting common functionalities.
 
 #### IO
-- socket io
-- regular file io
-- inter-process io
+- fiber-based socket io
+- fiber-based regular file io
+- fiber-based inter-process io
 
 #### Inter-fiber event
 - send and receive inter-fiber events
@@ -63,9 +63,9 @@ After calling the dns api, current fiber is paused, dns querying is then ongoing
 
 #### TLS
 
-### Better architecture
+## Framework
 
-TitanSDK provides a way of architect software system:
+TitanSDK provides a better way of architect software system:
 - each module runs in a fiber. fibers can be in same or different threads, i.e. module A's fiber and B's are in a thread, while module C's fiber runs in another thread.
 - modules can communicate with each other, via sending and receiving fiber events.
 - module can do io and receives fiber events at same time.
