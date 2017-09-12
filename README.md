@@ -20,22 +20,22 @@ Applications basing on TitanSDK can be built and run on:
 
 TitanSDK integrated fiber implementation, which can create or switch fibers on all supported platforms.
 
-Fiber APIs are transparent to user, user does not need explicitly yield or resume fiber, these APIs are used by io implementation internally, i.e. yielding fiber after staring an asynchronous io, resuming fiber when io completes. Such io style is called **fiber-based** here.
+Fiber APIs are transparent to user, user does not need explicitly yield or resume fiber, these APIs are used by I/O implementation internally, i.e. yielding fiber after staring an asynchronous I/O, resuming fiber when I/O completes. Such I/O style is called **fiber-based** here.
 
-Features based on fiber-based io are also fiber-based, see an example:
+Features based on fiber-based I/O are also fiber-based, see an example:
 ```C
 tt_dns_rrlist_t *rrl = tt_dns_get_aaaa("google.com");
 ```
-After calling the dns api, current fiber is yielded, dns querying is then ongoing, other available fibers are scheduled to execute, once dns response is received, the yielded fiber would be resumed and a list of AAAA resource records is returned.
+After calling the DNS API, current fiber is yielded, DNS querying is then ongoing, other available fibers are scheduled to execute, once DNS response is received, the yielded fiber would be resumed and a list of AAAA resource records is returned.
 
 ## C. Rich featured
 
 TitanSDK helps developer focus on their specific application development rather than rewriting common functionalities.
 
-#### IO
-- fiber-based socket io
-- fiber-based regular file io
-- fiber-based inter-process io
+#### I/O
+- fiber-based socket I/O
+- fiber-based regular file I/O
+- fiber-based inter-process I/O
 
 #### Inter-fiber event
 - send and receive inter-fiber events
@@ -45,7 +45,7 @@ TitanSDK helps developer focus on their specific application development rather 
 - create timer and be notified when timer expires
 
 #### Unified system api
-- wrapped native system api(windows api, posix, etc.) as unified apis
+- wrapped native system api(windows API, posix, etc.) as unified apis
 
 #### Logging
 - configurable log format and various log output style
@@ -68,13 +68,13 @@ TitanSDK helps developer focus on their specific application development rather 
 TitanSDK provides a good way of architect software system:
 - each module runs in a fiber. fibers can be in same or different threads, i.e. module A's fiber and B's are in a thread, while module C's fiber runs in another thread.
 - modules can communicate with each other, via sending and receiving fiber events.
-- module can do io and receives fiber events at same time.
+- module can do I/O and receives fiber events at same time.
 
 #### versus multi-thread:
 - more concurrent: fiber consumes less resource than thread, system could have far more fibers than threads.
 - less race condition: fibers in same thread do not have race condition issue.
 
-#### versus asynchronous io:
+#### versus asynchronous I/O:
 - easier coding: no need to split code flow into a callback chain, coding and debugging are much easier.
 
 #### an example application:
