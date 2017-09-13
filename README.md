@@ -63,10 +63,10 @@ TitanSDK helps developer focus on their specific application development rather 
 
 #### TLS
 
-## D. A framework
+## D. Framework
 
-TitanSDK provides a good way of architect software system:
-- each module runs in a fiber. fibers can be in same or different threads, i.e. module A's fiber and B's are in a thread, while module C's fiber runs in another thread.
+TitanSDK provides a way of architect software system:
+- each module runs in its own fiber. fibers can be in same or different threads, i.e. module A's fiber and B's are in a thread, while module C's fiber runs in another thread.
 - modules can communicate with each other, via sending and receiving fiber events.
 - module can do I/O and receives fiber events at same time.
 
@@ -80,8 +80,8 @@ TitanSDK provides a good way of architect software system:
 #### an example application:
 
 Requirements:
-- receive data from another process
-- receive data from network
+- can receive data from another process
+- can receive data from network
 - handle received data and send response to source
 
 This example application can have three modules, each run in its own fiber, but all fibers run in a single thread:
@@ -154,7 +154,7 @@ tt_result_t fiber_core(IN void *param)
     tt_fiber_t *core_fb = tt_current_fiber();
     while (TT_OK(tt_fiber_recv(core_fb, TT_TRUE, &fiber_ev, &timer))) {
         if (fiber_ev != NULL) {
-            // receives events from "net" and "ipc" fiber
+            // received events from "net" and "ipc" fiber
             ...
             // sends response events
             tt_fiber_send_ev(fiber_ev->src, resp_ev, TT_FALSE);
