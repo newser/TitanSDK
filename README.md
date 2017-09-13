@@ -87,8 +87,9 @@ Requirements:
 This example application can have three modules, each run in its own fiber, but all fibers run in a single thread:
 <img src="https://github.com/newser/repo/blob/master/picture/fiber_arch_example.png" width="456" height="206"/>
 
-##### Setting up the architecture:
+##### Setting up architecture
 ```C
+tt_task_t t;
 tt_task_create(&t, NULL);
 tt_task_add_fiber(&t, "ipc", fiber_ipc, NULL, NULL);
 tt_task_add_fiber(&t, "net", fiber_net, NULL, NULL);
