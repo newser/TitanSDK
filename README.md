@@ -85,6 +85,9 @@ Requirements:
 - handle received data and send response to source
 
 This example application can have three modules, each run in its own fiber, but all fibers run in a single thread:
+<img src="https://github.com/newser/repo/blob/master/picture/fiber_arch_example.png" width="456" height="206"/>
+
+##### Setting up the architecture:
 ```C
 tt_task_create(&t, NULL);
 tt_task_add_fiber(&t, "ipc", fiber_ipc, NULL, NULL);
@@ -93,6 +96,7 @@ tt_task_add_fiber(&t, "core", fiber_core, NULL, NULL);
 tt_task_run_local(&t);
 ```
 
+##### "ipc" fiber
 The "ipc" fiber receives request from another process and send to "core" fiber, it also receives events from "core" fiber and send response to another process:
 ```C
 tt_result_t fiber_ipc(IN void *param)
@@ -120,6 +124,7 @@ tt_result_t fiber_ipc(IN void *param)
 }
 ```
 
+##### "net" fiber
 The "net" fiber receives request from network and send to "core" fiber, it also receives events from "core" fiber and send response to network:
 ```C
 tt_result_t fiber_net(IN void *param)
@@ -147,6 +152,7 @@ tt_result_t fiber_net(IN void *param)
 }
 ```
 
+##### "core" fiber
 The "core" fiber receives events from "net" and "ipc" fiber, and sends response events to them:
 ```C
 tt_result_t fiber_core(IN void *param)
