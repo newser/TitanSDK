@@ -78,21 +78,21 @@ enable_language(ASM)
 include_directories(${PLATFORM_PATH}/include)
 include_directories(${PLATFORM_PATH}/native/${PLATFORM_ENV})
 
-# depend: fcontext
-include_directories(${PLATFORM_PATH}/depend/fcontext/include)
-include_directories(${PLATFORM_PATH}/depend/fcontext/boost)
+# library: fcontext
+include_directories(${PLATFORM_PATH}/library/fcontext/include)
+include_directories(${PLATFORM_PATH}/library/fcontext/boost)
 
-# depend: tls
-include_directories(${PLATFORM_PATH}/depend/tls/include)
-include_directories(${PLATFORM_PATH}/depend/tls/mbedtls/include/mbedtls)
+# library: tls
+include_directories(${PLATFORM_PATH}/library/tls/include)
+include_directories(${PLATFORM_PATH}/library/tls/mbedtls/include/mbedtls)
 
-# depend: xml
-include_directories(${PLATFORM_PATH}/depend/xml/include)
-include_directories(${PLATFORM_PATH}/depend/xml/pugixml)
+# library: xml
+include_directories(${PLATFORM_PATH}/library/xml/include)
+include_directories(${PLATFORM_PATH}/library/xml/pugixml)
 
-# depend: dns
-include_directories(${PLATFORM_PATH}/depend/dns/c-ares)
-include_directories(${PLATFORM_PATH}/depend/dns/include)
+# library: dns
+include_directories(${PLATFORM_PATH}/library/dns/c-ares)
+include_directories(${PLATFORM_PATH}/library/dns/include)
 
 #
 # source file
@@ -241,26 +241,26 @@ platform_link_libraries()
 # link
 #
 
-# depends
+# library
 set(FCONTEXT_SRC)
-add_subdirectory(${PLATFORM_PATH}/depend/fcontext fcontext)
+add_subdirectory(${PLATFORM_PATH}/library/fcontext fcontext)
 source_group(fcontext FILES ${FCONTEXT_SRC})
 target_sources(platform PRIVATE ${FCONTEXT_SRC})
 
-# depends
+# library
 set(TLS_LIB)
 set(X509_LIB)
 set(CRYPTO_LIB)
-add_subdirectory(${PLATFORM_PATH}/depend/tls tls)
+add_subdirectory(${PLATFORM_PATH}/library/tls tls)
 target_link_libraries(platform ${CRYPTO_LIB} ${X509_LIB} ${TLS_LIB})
 
-# depends
-add_subdirectory(${PLATFORM_PATH}/depend/xml xml)
+# library
+add_subdirectory(${PLATFORM_PATH}/library/xml xml)
 target_link_libraries(platform xml)
 
-# depends
+# library
 set(DNS_LIB)
-add_subdirectory(${PLATFORM_PATH}/depend/dns dns)
+add_subdirectory(${PLATFORM_PATH}/library/dns dns)
 target_link_libraries(platform ${DNS_LIB})
 
 include(${PLATFORM_PATH}/build/generate_header.cmake)
