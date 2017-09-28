@@ -84,6 +84,10 @@ tt_export tt_u32_t tt_string_findfrom_c(IN tt_string_t *s,
 
 tt_export tt_u32_t tt_string_rfind_c(IN tt_string_t *s, IN tt_char_t c);
 
+tt_export tt_u32_t tt_string_rfindfrom_c(IN tt_string_t *s,
+                                         IN tt_u32_t from,
+                                         IN tt_char_t c);
+
 tt_export void tt_string_remove_range(IN tt_string_t *s,
                                       IN tt_u32_t from,
                                       IN tt_u32_t len);

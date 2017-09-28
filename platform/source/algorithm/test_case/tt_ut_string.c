@@ -375,6 +375,30 @@ TT_TEST_ROUTINE_DEFINE(case_str_basic)
     ret = __ut_str_checknull(&s);
     TT_UT_EQUAL(ret, TT_FAIL, "");
 
+    {
+        tt_string_t ss;
+
+        tt_string_init(&ss, NULL);
+        tt_string_set(&ss, "0123456789");
+
+        ret = tt_string_set_range(&ss, 7, 3, "xxx");
+        TT_UT_SUCCESS(ret, "");
+        TT_UT_EQUAL(tt_string_cmp(&ss, "0123456xxx"), 0, "");
+
+        ret = tt_string_set_range(&ss, 7, 4, "yyy");
+        TT_UT_FAIL(ret, "");
+
+        ret = tt_string_set_range(&ss, 0, 1, "abcd");
+        TT_UT_SUCCESS(ret, "");
+        TT_UT_EQUAL(tt_string_cmp(&ss, "abcd123456xxx"), 0, "");
+
+        ret = tt_string_set_range(&ss, 1, 3, "0");
+        TT_UT_SUCCESS(ret, "");
+        TT_UT_EQUAL(tt_string_cmp(&ss, "a0123456xxx"), 0, "");
+
+        tt_string_destroy(&ss);
+    }
+
     tt_string_destroy(&s);
 
     // test end
@@ -737,6 +761,22 @@ TT_TEST_ROUTINE_DEFINE(case_str_find)
     pos = tt_string_find_c(&s, 'a');
     TT_UT_EQUAL(pos, TT_POS_NULL, "");
 
+    pos = tt_string_rfind_c(&s, 0);
+    TT_UT_EQUAL(pos, 0, "");
+    pos = tt_string_rfind_c(&s, 'a');
+    TT_UT_EQUAL(pos, TT_POS_NULL, "");
+
+    pos = tt_string_rfindfrom_c(&s, 0, 0);
+    TT_UT_EQUAL(pos, TT_POS_NULL, "");
+    pos = tt_string_rfindfrom_c(&s, 1, 0);
+    TT_UT_EQUAL(pos, TT_POS_NULL, "");
+    pos = tt_string_rfindfrom_c(&s, 10, 0);
+    TT_UT_EQUAL(pos, TT_POS_NULL, "");
+    pos = tt_string_rfindfrom_c(&s, 0, 'a');
+    TT_UT_EQUAL(pos, TT_POS_NULL, "");
+    pos = tt_string_rfindfrom_c(&s, 10, 'a');
+    TT_UT_EQUAL(pos, TT_POS_NULL, "");
+
     pos = tt_string_findfrom_c(&s, 0, 0);
     TT_UT_EQUAL(pos, 0, "");
     pos = tt_string_findfrom_c(&s, 1, 0);
@@ -751,6 +791,26 @@ TT_TEST_ROUTINE_DEFINE(case_str_find)
     // string
     tt_string_init(&s, NULL);
     tt_string_set(&s, "0123456789abcdef0123456789abcdefg"); // 33 bytes
+
+    {
+        pos = tt_string_rfind_c(&s, 'f');
+        TT_UT_EQUAL(pos, 31, "");
+        pos = tt_string_rfind_c(&s, 'x');
+        TT_UT_EQUAL(pos, TT_POS_NULL, "");
+
+        pos = tt_string_rfindfrom_c(&s, 0, 'f');
+        TT_UT_EQUAL(pos, TT_POS_NULL, "");
+
+        pos = tt_string_rfindfrom_c(&s, 1000, 'f');
+        TT_UT_EQUAL(pos, 31, "");
+        pos = tt_string_rfindfrom_c(&s, pos, 'f');
+        TT_UT_EQUAL(pos, 15, "");
+        pos = tt_string_rfindfrom_c(&s, pos, 'f');
+        TT_UT_EQUAL(pos, TT_POS_NULL, "");
+
+        pos = tt_string_rfindfrom_c(&s, 1000, 'x');
+        TT_UT_EQUAL(pos, TT_POS_NULL, "");
+    }
 
     pos = tt_string_find(&s, "");
     TT_UT_EQUAL(pos, 0, "");

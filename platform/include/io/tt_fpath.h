@@ -75,6 +75,11 @@ tt_inline const tt_char_t *tt_fpath_cstr(IN tt_fpath_t *fp)
     return tt_string_cstr(&fp->s);
 }
 
+tt_inline tt_string_t *tt_fpath_string(IN tt_fpath_t *fp)
+{
+    return &fp->s;
+}
+
 tt_inline tt_bool_t tt_fpath_empty(IN tt_fpath_t *fp)
 {
     return tt_string_empty(&fp->s);

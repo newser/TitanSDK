@@ -143,6 +143,12 @@ tt_export tt_result_t tt_buf_set(IN tt_buf_t *buf,
                                  IN tt_u8_t *data,
                                  IN tt_u32_t data_len);
 
+tt_export tt_result_t tt_buf_set_range(IN tt_buf_t *buf,
+                                       IN tt_u32_t pos,
+                                       IN tt_u32_t len,
+                                       IN tt_u8_t *data,
+                                       IN tt_u32_t data_len);
+
 // ========================================
 // memory operation
 // ========================================

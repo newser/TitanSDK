@@ -72,24 +72,45 @@ tt_bool_t tt_fpath_is_file(IN tt_fpath_t *fp)
 
 const tt_char_t *tt_fpath_filename(IN tt_fpath_t *fp)
 {
-    tt_u32_t pos = tt_string_rfind_c(&fp->s, __FSEP_C);
+    tt_string_t *s = &fp->s;
+    tt_u32_t pos = tt_string_rfind_c(s, __FSEP_C);
     if (pos != TT_POS_NULL) {
-        return tt_string_subcstr(&fp->s, pos + 1, NULL);
+        return tt_string_subcstr(s, pos + 1, NULL);
     } else {
-        return tt_string_cstr(&fp->s);
+        return tt_string_cstr(s);
     }
 }
 
 tt_result_t tt_fpath_set_filename(IN tt_fpath_t *fp,
                                   IN const tt_char_t *filename)
 {
-    tt_u32_t pos = tt_string_rfind_c(&fp->s, __FSEP_C);
+    tt_string_t *s = &fp->s;
+    tt_u32_t pos = tt_string_rfind_c(s, __FSEP_C);
     if (pos != TT_POS_NULL) {
-        return TT_SUCCESS; // tt_string_remove_range(&fp->s, pos, )(&fp->s,pos +
-        // 1,NULL);
+        tt_string_remove_tailfrom(s, pos + 1);
+        return tt_string_append(s, filename);
     } else {
-        return tt_string_cstr(&fp->s);
+        return tt_string_set(s, filename);
     }
+}
+
+tt_result_t tt_fpath_set_basename(IN tt_fpath_t *fp,
+                                  IN const tt_char_t *basename)
+{
+    tt_string_t *s = &fp->s;
+    tt_u32_t pos = tt_string_rfind_c(s, __FSEP_C);
+    if (pos != TT_POS_NULL) {
+        tt_string_remove_tailfrom(s, pos + 1);
+        return tt_string_append(s, basename);
+    } else {
+        return tt_string_set(s, basename);
+    }
+}
+
+tt_result_t tt_fpath_set_extension(IN tt_fpath_t *fp,
+                                   IN const tt_char_t *extension)
+{
+    return TT_SUCCESS;
 }
 
 void __fpath_normalize(IN tt_fpath_t *fp)

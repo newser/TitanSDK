@@ -211,6 +211,27 @@ tt_u32_t tt_string_rfind_c(IN tt_string_t *s, IN tt_char_t c)
     return (tt_u32_t)(pos - TT_BUF_RPOS(buf));
 }
 
+tt_u32_t tt_string_rfindfrom_c(IN tt_string_t *s,
+                               IN tt_u32_t from,
+                               IN tt_char_t c)
+{
+    tt_u32_t n;
+    const tt_char_t *cs;
+
+    n = tt_string_len(s);
+    if (from > n) {
+        from = n;
+    }
+
+    cs = tt_string_cstr(s);
+    while (--from != ~0) {
+        if (cs[from] == c) {
+            return from;
+        }
+    }
+    return TT_POS_NULL;
+}
+
 void tt_string_remove_range(IN tt_string_t *s,
                             IN tt_u32_t from,
                             IN tt_u32_t len)
