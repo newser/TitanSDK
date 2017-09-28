@@ -129,6 +129,28 @@ void tt_buf_remove_range(IN tt_buf_t *buf, IN tt_u32_t from, IN tt_u32_t to)
     buf->wpos -= (to - from);
 }
 
+void tt_buf_remove_headto(IN tt_buf_t *buf, IN tt_u32_t to)
+{
+    tt_u32_t len = TT_BUF_RLEN(buf);
+
+    if (to >= len) {
+        to = len;
+    }
+
+    buf->rpos += to;
+}
+
+void tt_buf_remove_tailfrom(IN tt_buf_t *buf, IN tt_u32_t from)
+{
+    tt_u32_t len = TT_BUF_RLEN(buf);
+
+    if (from >= len) {
+        return;
+    }
+
+    buf->wpos -= (len - from);
+}
+
 tt_result_t tt_buf_insert(IN tt_buf_t *buf,
                           IN tt_u32_t idx,
                           IN tt_u8_t *data,

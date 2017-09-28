@@ -106,6 +106,7 @@ extern "C" {
 #include <io/tt_console.h>
 #include <io/tt_console_event.h>
 #include <io/tt_file_system.h>
+#include <io/tt_fpath.h>
 #include <io/tt_io_worker_group.h>
 #include <io/tt_ipc.h>
 #include <io/tt_ipc_event.h>

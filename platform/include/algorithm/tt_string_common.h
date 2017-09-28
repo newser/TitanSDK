@@ -88,6 +88,10 @@ tt_export void tt_string_remove_range(IN tt_string_t *s,
                                       IN tt_u32_t from,
                                       IN tt_u32_t len);
 
+tt_export void tt_string_remove_head(IN tt_string_t *s, IN tt_u32_t to);
+
+tt_export void tt_string_remove_tail(IN tt_string_t *s, IN tt_u32_t from);
+
 tt_export tt_result_t tt_string_append(IN OUT tt_string_t *s,
                                        IN const tt_char_t *substr);
 

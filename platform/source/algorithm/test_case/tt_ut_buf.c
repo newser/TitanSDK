@@ -236,6 +236,14 @@ TT_TEST_CASE("case_buf_null",
 
     tt_buf_remove(&buf, 0);
     tt_buf_remove_range(&buf, 0, 1);
+    tt_buf_remove_headto(&buf, 0);
+    TT_UT_EQUAL(tt_buf_empty(&buf), TT_TRUE, "");
+    tt_buf_remove_headto(&buf, 10000);
+    TT_UT_EQUAL(tt_buf_empty(&buf), TT_TRUE, "");
+    tt_buf_remove_tailfrom(&buf, 0);
+    TT_UT_EQUAL(tt_buf_empty(&buf), TT_TRUE, "");
+    tt_buf_remove_tailfrom(&buf, 10000);
+    TT_UT_EQUAL(tt_buf_empty(&buf), TT_TRUE, "");
 
     // format
     ret = tt_buf_put_cstr2hex(&buf, "");
@@ -1174,6 +1182,30 @@ TT_TEST_ROUTINE_DEFINE(case_buf_remove)
         TT_UT_SUCCESS(ret, "");
         TT_UT_EQUAL(TT_BUF_RLEN(&buf), sizeof(aa), "");
         TT_UT_EQUAL(tt_memcmp(TT_BUF_RPOS(&buf), aa, sizeof(aa)), 0, "");
+
+        tt_buf_remove_headto(&buf, 0);
+        TT_UT_EQUAL(tt_memcmp(TT_BUF_RPOS(&buf), aa, sizeof(aa)), 0, "");
+
+        tt_buf_remove_headto(&buf, 1);
+        TT_UT_EQUAL(TT_BUF_RPOS(&buf)[0], 1, "");
+
+        tt_buf_remove_tailfrom(&buf, TT_BUF_RLEN(&buf));
+        TT_UT_EQUAL(TT_BUF_RLEN(&buf), sizeof(aa) - 1, "");
+        tt_buf_remove_tailfrom(&buf, TT_BUF_RLEN(&buf) + 1);
+        TT_UT_EQUAL(TT_BUF_RLEN(&buf), sizeof(aa) - 1, "");
+
+        tt_buf_remove_tailfrom(&buf, 0);
+        TT_UT_EQUAL(tt_buf_empty(&buf), TT_TRUE, "");
+
+        tt_buf_put_rand(&buf, 100);
+        TT_UT_EQUAL(TT_BUF_RLEN(&buf), 100, "");
+        tt_buf_remove_headto(&buf, 10000);
+        TT_UT_EQUAL(tt_buf_empty(&buf), TT_TRUE, "");
+
+        tt_buf_put_rand(&buf, 100);
+        TT_UT_EQUAL(TT_BUF_RLEN(&buf), 100, "");
+        tt_buf_remove_tail(&buf, 10000);
+        TT_UT_EQUAL(tt_buf_empty(&buf), TT_TRUE, "");
     }
 
     tt_buf_destroy(&buf);
