@@ -84,9 +84,13 @@ tt_inline tt_bool_t tt_ptrq_empty(IN tt_ptrq_t *pq)
 
 tt_export void tt_ptrq_clear(IN tt_ptrq_t *pq);
 
-tt_export tt_result_t tt_ptrq_push(IN tt_ptrq_t *pq, IN tt_ptr_t p);
+tt_export tt_result_t tt_ptrq_push_head(IN tt_ptrq_t *pq, IN tt_ptr_t p);
 
-tt_export tt_ptr_t tt_ptrq_pop(IN tt_ptrq_t *pq);
+tt_export tt_result_t tt_ptrq_push_tail(IN tt_ptrq_t *pq, IN tt_ptr_t p);
+
+tt_export tt_ptr_t tt_ptrq_pop_head(IN tt_ptrq_t *pq);
+
+tt_export tt_ptr_t tt_ptrq_pop_tail(IN tt_ptrq_t *pq);
 
 tt_export tt_ptr_t tt_ptrq_head(IN tt_ptrq_t *pq);
 

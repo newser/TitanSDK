@@ -52,8 +52,6 @@ TT_TEST_ROUTINE_DECLARE(case_der_enc)
 TT_TEST_ROUTINE_DECLARE(case_strtol)
 TT_TEST_ROUTINE_DECLARE(case_c2h)
 TT_TEST_ROUTINE_DECLARE(case_align)
-
-TT_TEST_ROUTINE_DECLARE(case_fpath_basic)
 // =========================================
 
 // === test case list ======================
@@ -120,15 +118,6 @@ TT_TEST_CASE("case_version",
     TT_TEST_CASE("case_align",
                  "testing value alignment",
                  case_align,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
-
-    TT_TEST_CASE("case_fpath_basic",
-                 "testing fpath basic",
-                 case_fpath_basic,
                  NULL,
                  NULL,
                  NULL,
@@ -1043,61 +1032,6 @@ TT_TEST_ROUTINE_DEFINE(case_align)
     pval = (tt_ptr_t)~0;
     TT_PTR_ALIGN_DEC(pval, 30);
     TT_UT_EQUAL(pval, (tt_ptr_t)0xFFFFFFFFC0000000, "");
-
-    // test end
-    TT_TEST_CASE_LEAVE()
-}
-
-TT_TEST_ROUTINE_DEFINE(case_fpath_basic)
-{
-    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
-    tt_fpath_t fp, fp2;
-    tt_result_t ret;
-
-    TT_TEST_CASE_ENTER()
-    // test start
-
-    tt_fpath_init(&fp);
-    tt_fpath_init(&fp2);
-    TT_UT_EQUAL(tt_fpath_empty(&fp), TT_TRUE, "");
-    TT_UT_EQUAL(tt_fpath_cstr(&fp)[0], 0, "");
-    ret = tt_fpath_copy(&fp2, &fp);
-    TT_UT_SUCCESS(ret, "");
-    TT_UT_EQUAL(tt_fpath_cstr(&fp2)[0], 0, "");
-    tt_fpath_destroy(&fp);
-
-    ret = tt_fpath_create(&fp, "");
-    TT_UT_SUCCESS(ret, "");
-    TT_UT_EQUAL(tt_fpath_empty(&fp), TT_TRUE, "");
-    TT_UT_EQUAL(tt_fpath_cstr(&fp)[0], 0, "");
-    TT_UT_EQUAL(tt_fpath_startwith(&fp, ""), TT_TRUE, "");
-    TT_UT_EQUAL(tt_fpath_startwith(&fp, "a"), TT_FALSE, "");
-    TT_UT_EQUAL(tt_fpath_endwith(&fp, ""), TT_TRUE, "");
-    TT_UT_EQUAL(tt_fpath_endwith(&fp, "/"), TT_FALSE, "");
-    ret = tt_fpath_copy(&fp2, &fp);
-    TT_UT_SUCCESS(ret, "");
-    TT_UT_EQUAL(tt_fpath_cstr(&fp2)[0], 0, "");
-    tt_fpath_destroy(&fp);
-
-    ret = tt_fpath_create(&fp, "a/b/c/");
-    TT_UT_SUCCESS(ret, "");
-    TT_UT_EQUAL(tt_fpath_empty(&fp), TT_FALSE, "");
-    TT_UT_EQUAL(tt_strcmp(tt_fpath_cstr(&fp), "a/b/c/"), 0, "");
-    TT_UT_EQUAL(tt_fpath_cmp(&fp, "a/b/c/"), 0, "");
-    TT_UT_EQUAL(tt_fpath_startwith(&fp, ""), TT_TRUE, "");
-    TT_UT_EQUAL(tt_fpath_startwith(&fp, "a"), TT_TRUE, "");
-    TT_UT_EQUAL(tt_fpath_startwith(&fp, "a/"), TT_TRUE, "");
-    TT_UT_EQUAL(tt_fpath_startwith(&fp, "a/c"), TT_FALSE, "");
-    TT_UT_EQUAL(tt_fpath_endwith(&fp, ""), TT_TRUE, "");
-    TT_UT_EQUAL(tt_fpath_endwith(&fp, "/"), TT_TRUE, "");
-    TT_UT_EQUAL(tt_fpath_endwith(&fp, "c/"), TT_TRUE, "");
-    TT_UT_EQUAL(tt_fpath_endwith(&fp, "cc/"), TT_FALSE, "");
-    ret = tt_fpath_copy(&fp2, &fp);
-    TT_UT_SUCCESS(ret, "");
-    TT_UT_EQUAL(tt_fpath_cmp(&fp2, "a/b/c/"), 0, "");
-    tt_fpath_destroy(&fp);
-
-    tt_fpath_destroy(&fp2);
 
     // test end
     TT_TEST_CASE_LEAVE()

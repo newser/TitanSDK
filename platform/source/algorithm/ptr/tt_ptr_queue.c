@@ -53,6 +53,10 @@ typedef struct
 // interface declaration
 ////////////////////////////////////////////////////////////
 
+static __q_frame_t *__alloc_head_frame(IN tt_ptrq_t *pq);
+
+static __q_frame_t *__alloc_tail_frame(IN tt_ptrq_t *pq);
+
 static __q_frame_t *__alloc_frame(IN tt_ptrq_t *pq);
 
 static void __free_frame(IN tt_ptrq_t *pq, IN __q_frame_t *frame);
@@ -110,9 +114,47 @@ void tt_ptrq_clear(IN tt_ptrq_t *pq)
     while ((dnode = tt_dlist_pop_head(&pq->frame)) != NULL) {
         __free_frame(pq, TT_CONTAINER(dnode, __q_frame_t, node));
     }
+    pq->count = 0;
 }
 
-tt_result_t tt_ptrq_push(IN tt_ptrq_t *pq, IN tt_ptr_t p)
+tt_result_t tt_ptrq_push_head(IN tt_ptrq_t *pq, IN tt_ptr_t p)
+{
+    tt_dnode_t *dnode;
+    __q_frame_t *frame;
+
+    if (p == NULL) {
+        TT_ERROR("can not be null");
+        return TT_FAIL;
+    }
+
+    dnode = tt_dlist_head(&pq->frame);
+    if (dnode != NULL) {
+        frame = TT_CONTAINER(dnode, __q_frame_t, node);
+    } else {
+        frame = __alloc_head_frame(pq);
+        if (frame == NULL) {
+            return TT_FAIL;
+        }
+        tt_dlist_push_head(&pq->frame, &frame->node);
+    }
+
+    if (frame->start == 0) {
+        frame = __alloc_head_frame(pq);
+        if (frame == NULL) {
+            return TT_FAIL;
+        }
+        tt_dlist_push_head(&pq->frame, &frame->node);
+    }
+    TT_ASSERT(frame->start > 0);
+
+    --frame->start;
+    __F_PTR(frame, frame->start) = p;
+    ++pq->count;
+
+    return TT_SUCCESS;
+}
+
+tt_result_t tt_ptrq_push_tail(IN tt_ptrq_t *pq, IN tt_ptr_t p)
 {
     tt_dnode_t *dnode;
     __q_frame_t *frame;
@@ -126,7 +168,7 @@ tt_result_t tt_ptrq_push(IN tt_ptrq_t *pq, IN tt_ptr_t p)
     if (dnode != NULL) {
         frame = TT_CONTAINER(dnode, __q_frame_t, node);
     } else {
-        frame = __alloc_frame(pq);
+        frame = __alloc_tail_frame(pq);
         if (frame == NULL) {
             return TT_FAIL;
         }
@@ -134,7 +176,7 @@ tt_result_t tt_ptrq_push(IN tt_ptrq_t *pq, IN tt_ptr_t p)
     }
 
     if (frame->end == pq->ptr_per_frame) {
-        frame = __alloc_frame(pq);
+        frame = __alloc_tail_frame(pq);
         if (frame == NULL) {
             return TT_FAIL;
         }
@@ -149,7 +191,7 @@ tt_result_t tt_ptrq_push(IN tt_ptrq_t *pq, IN tt_ptr_t p)
     return TT_SUCCESS;
 }
 
-tt_ptr_t tt_ptrq_pop(IN tt_ptrq_t *pq)
+tt_ptr_t tt_ptrq_pop_head(IN tt_ptrq_t *pq)
 {
     tt_dnode_t *dnode;
     __q_frame_t *frame;
@@ -165,6 +207,31 @@ tt_ptr_t tt_ptrq_pop(IN tt_ptrq_t *pq)
 
     p = __F_PTR(frame, frame->start);
     ++frame->start;
+    if (frame->start == frame->end) {
+        tt_dlist_remove(&pq->frame, &frame->node);
+        __free_frame(pq, frame);
+    }
+    --pq->count;
+
+    return p;
+}
+
+tt_ptr_t tt_ptrq_pop_tail(IN tt_ptrq_t *pq)
+{
+    tt_dnode_t *dnode;
+    __q_frame_t *frame;
+    tt_ptr_t p;
+
+    dnode = tt_dlist_tail(&pq->frame);
+    if (dnode == NULL) {
+        return NULL;
+    }
+
+    frame = TT_CONTAINER(dnode, __q_frame_t, node);
+    TT_ASSERT(frame->start < frame->end);
+
+    --frame->end;
+    p = __F_PTR(frame, frame->end);
     if (frame->start == frame->end) {
         tt_dlist_remove(&pq->frame, &frame->node);
         __free_frame(pq, frame);
@@ -245,26 +312,46 @@ tt_ptr_t tt_ptrq_iter_next(IN OUT tt_ptrq_iter_t *iter)
     return p;
 }
 
-__q_frame_t *__alloc_frame(IN tt_ptrq_t *pq)
+__q_frame_t *__alloc_head_frame(IN tt_ptrq_t *pq)
 {
-    __q_frame_t *frame;
+    __q_frame_t *frame = __alloc_frame(pq);
+    if (frame == NULL) {
+        TT_ERROR("no mem for new frame");
+        return NULL;
+    }
 
-    if (pq->cached_frame != NULL) {
-        frame = pq->cached_frame;
-        pq->cached_frame = NULL;
-    } else {
-        frame = tt_malloc(sizeof(__q_frame_t) +
-                          (sizeof(tt_ptr_t) * pq->ptr_per_frame));
-        if (frame == NULL) {
-            TT_ERROR("no mem for new frame");
-            return NULL;
-        }
+    tt_dnode_init(&frame->node);
+    frame->start = pq->ptr_per_frame;
+    frame->end = pq->ptr_per_frame;
+    return frame;
+}
+
+__q_frame_t *__alloc_tail_frame(IN tt_ptrq_t *pq)
+{
+    __q_frame_t *frame = __alloc_frame(pq);
+    if (frame == NULL) {
+        TT_ERROR("no mem for new frame");
+        return NULL;
     }
 
     tt_dnode_init(&frame->node);
     frame->start = 0;
     frame->end = 0;
     return frame;
+}
+
+__q_frame_t *__alloc_frame(IN tt_ptrq_t *pq)
+{
+    __q_frame_t *frame;
+
+    if (pq->cached_frame != NULL) {
+        __q_frame_t *frame = pq->cached_frame;
+        pq->cached_frame = NULL;
+        return frame;
+    } else {
+        return tt_malloc(sizeof(__q_frame_t) +
+                         (sizeof(tt_ptr_t) * pq->ptr_per_frame));
+    }
 }
 
 void __free_frame(IN tt_ptrq_t *pq, IN __q_frame_t *frame)

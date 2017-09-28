@@ -85,9 +85,9 @@ void tt_logctx_destroy(IN tt_logctx_t *lctx)
 
     tt_buf_destroy(&lctx->buf);
 
-    while (tt_ptrq_pop(&lctx->filter_q))
+    while (tt_ptrq_pop_head(&lctx->filter_q))
         ;
-    while (tt_ptrq_pop(&lctx->io_q))
+    while (tt_ptrq_pop_head(&lctx->io_q))
         ;
 }
 
@@ -113,7 +113,7 @@ tt_result_t tt_logctx_append_filter(IN tt_logctx_t *lctx,
         return TT_FAIL;
     }
 
-    return tt_ptrq_push(&lctx->filter_q, filter);
+    return tt_ptrq_push_tail(&lctx->filter_q, filter);
 }
 
 tt_result_t tt_logctx_append_io(IN tt_logctx_t *lctx, IN tt_logio_t *lio)
@@ -122,7 +122,7 @@ tt_result_t tt_logctx_append_io(IN tt_logctx_t *lctx, IN tt_logio_t *lio)
         return TT_FAIL;
     }
 
-    return tt_ptrq_push(&lctx->io_q, lio);
+    return tt_ptrq_push_tail(&lctx->io_q, lio);
 }
 
 tt_result_t tt_logctx_input(IN tt_logctx_t *lctx, IN tt_log_entry_t *entry)

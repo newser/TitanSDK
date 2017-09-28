@@ -216,7 +216,8 @@ TT_TEST_ROUTINE_DEFINE(case_ptr_queue)
     TT_UT_EQUAL(tt_ptrq_head(&q), NULL, "");
     TT_UT_EQUAL(tt_ptrq_tail(&q), NULL, "");
 
-    TT_UT_EQUAL(tt_ptrq_pop(&q), NULL, "");
+    TT_UT_EQUAL(tt_ptrq_pop_head(&q), NULL, "");
+    TT_UT_EQUAL(tt_ptrq_pop_tail(&q), NULL, "");
 
     {
         tt_ptrq_iter_t pos;
@@ -229,7 +230,7 @@ TT_TEST_ROUTINE_DEFINE(case_ptr_queue)
     }
 
     for (i = 0; i < __q_size; ++i) {
-        ret = tt_ptrq_push(&q, &v[i]);
+        ret = tt_ptrq_push_tail(&q, &v[i]);
         TT_UT_SUCCESS(ret, "");
         TT_UT_EQUAL(tt_ptrq_head(&q), &v[0], "");
         TT_UT_EQUAL(tt_ptrq_tail(&q), &v[i], "");
@@ -250,29 +251,70 @@ TT_TEST_ROUTINE_DEFINE(case_ptr_queue)
 
     n = tt_rand_u32() % __q_size;
     for (i = 0; i < n; ++i) {
-        TT_UT_EQUAL(tt_ptrq_pop(&q), &v[i], "");
+        TT_UT_EQUAL(tt_ptrq_pop_head(&q), &v[i], "");
         TT_UT_EQUAL(tt_ptrq_head(&q), &v[i + 1], "");
         TT_UT_EQUAL(tt_ptrq_tail(&q), &v[__q_size - 1], "");
     }
     TT_UT_EQUAL(tt_ptrq_count(&q), __q_size - n, "");
 
     for (i = 0; i < n; ++i) {
-        ret = tt_ptrq_push(&q, &v[i]);
+        ret = tt_ptrq_push_tail(&q, &v[i]);
         TT_UT_SUCCESS(ret, "");
     }
     TT_UT_EQUAL(tt_ptrq_count(&q), __q_size, "");
 
     for (i = 0; i < __q_size - q.ptr_per_frame; ++i) {
         if (i < (__q_size - n)) {
-            TT_UT_EQUAL(tt_ptrq_pop(&q), &v[i + n], "");
+            TT_UT_EQUAL(tt_ptrq_pop_head(&q), &v[i + n], "");
         } else {
-            TT_UT_EQUAL(tt_ptrq_pop(&q), &v[i + n - __q_size], "");
+            TT_UT_EQUAL(tt_ptrq_pop_head(&q), &v[i + n - __q_size], "");
         }
     }
     TT_UT_EQUAL(tt_ptrq_count(&q), q.ptr_per_frame, "");
 
+    {
+        tt_ptrq_clear(&q);
+
+        for (i = 0; i < __q_size; ++i) {
+            ret = tt_ptrq_push_tail(&q, &v[i]);
+            TT_UT_SUCCESS(ret, "");
+            TT_UT_EQUAL(tt_ptrq_head(&q), &v[0], "");
+            TT_UT_EQUAL(tt_ptrq_tail(&q), &v[i], "");
+        }
+        TT_UT_EQUAL(tt_ptrq_count(&q), __q_size, "");
+
+        n = tt_rand_u32() % __q_size;
+        for (i = 0; i < n; ++i) {
+            TT_UT_EQUAL(tt_ptrq_pop_tail(&q), &v[__q_size - 1 - i], "");
+            TT_UT_EQUAL(tt_ptrq_head(&q), &v[0], "");
+            TT_UT_EQUAL(tt_ptrq_tail(&q), &v[__q_size - 2 - i], "");
+        }
+        TT_UT_EQUAL(tt_ptrq_count(&q), __q_size - n, "");
+    }
+
+    {
+        tt_ptrq_clear(&q);
+
+        for (i = 0; i < __q_size; ++i) {
+            ret = tt_ptrq_push_head(&q, &v[i]);
+            TT_UT_SUCCESS(ret, "");
+            TT_UT_EQUAL(tt_ptrq_tail(&q), &v[0], "");
+            TT_UT_EQUAL(tt_ptrq_head(&q), &v[i], "");
+        }
+        TT_UT_EQUAL(tt_ptrq_count(&q), __q_size, "");
+
+        n = tt_rand_u32() % __q_size;
+        for (i = 0; i < n; ++i) {
+            TT_UT_EQUAL(tt_ptrq_pop_head(&q), &v[__q_size - 1 - i], "");
+            TT_UT_EQUAL(tt_ptrq_tail(&q), &v[0], "");
+            TT_UT_EQUAL(tt_ptrq_head(&q), &v[__q_size - 2 - i], "");
+        }
+        TT_UT_EQUAL(tt_ptrq_count(&q), __q_size - n, "");
+    }
+
     tt_ptrq_clear(&q);
-    TT_UT_EQUAL(tt_ptrq_pop(&q), NULL, "");
+    TT_UT_EQUAL(tt_ptrq_pop_head(&q), NULL, "");
+    TT_UT_EQUAL(tt_ptrq_pop_tail(&q), NULL, "");
     TT_UT_EQUAL(tt_ptrq_head(&q), NULL, "");
     TT_UT_EQUAL(tt_ptrq_tail(&q), NULL, "");
 
