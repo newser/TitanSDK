@@ -96,7 +96,7 @@ TT_TEST_CASE("case_str_null",
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("case_str_copy_swap",
+    TT_TEST_CASE("case_str_cpswap",
                  "testing basic string copy&swap",
                  case_str_cpswap,
                  NULL,
@@ -582,6 +582,22 @@ TT_TEST_ROUTINE_DEFINE(case_str_cpswap)
     cmp_ret = tt_string_cmp(&s, "");
     TT_UT_EQUAL(cmp_ret, 0, "");
 
+    {
+        tt_string_remove_headto(&s, 0);
+        TT_UT_EQUAL(tt_string_cmp(&s, ""), 0, "");
+        tt_string_remove_headto(&s, 1);
+        TT_UT_EQUAL(tt_string_cmp(&s, ""), 0, "");
+        tt_string_remove_headto(&s, 1000);
+        TT_UT_EQUAL(tt_string_cmp(&s, ""), 0, "");
+
+        tt_string_remove_tailfrom(&s, 0);
+        TT_UT_EQUAL(tt_string_cmp(&s, ""), 0, "");
+        tt_string_remove_tailfrom(&s, 1);
+        TT_UT_EQUAL(tt_string_cmp(&s, ""), 0, "");
+        tt_string_remove_tailfrom(&s, 10000);
+        TT_UT_EQUAL(tt_string_cmp(&s, ""), 0, "");
+    }
+
     tt_string_remove_range(&s, 0, 0);
     cmp_ret = tt_string_cmp(&s, "");
     TT_UT_EQUAL(cmp_ret, 0, "");
@@ -647,6 +663,44 @@ TT_TEST_ROUTINE_DEFINE(case_str_cpswap)
     tt_string_remove_range(&s, 0, 100);
     cmp_ret = tt_string_cmp(&s, "");
     TT_UT_EQUAL(cmp_ret, 0, "");
+
+    {
+        tt_string_set(&s, "1234567890");
+        tt_string_remove_headto(&s, 0);
+        TT_UT_EQUAL(tt_string_cmp(&s, "1234567890"), 0, "");
+        tt_string_remove_headto(&s, 1);
+        TT_UT_EQUAL(tt_string_cmp(&s, "234567890"), 0, "");
+        tt_string_remove_headto(&s, 1000);
+        TT_UT_EQUAL(tt_string_cmp(&s, ""), 0, "");
+
+        tt_string_set(&s, "1234567890");
+        tt_string_remove_head(&s, 0);
+        TT_UT_EQUAL(tt_string_cmp(&s, "1234567890"), 0, "");
+        tt_string_remove_head(&s, 1);
+        TT_UT_EQUAL(tt_string_cmp(&s, "234567890"), 0, "");
+        tt_string_remove_head(&s, 1000);
+        TT_UT_EQUAL(tt_string_cmp(&s, ""), 0, "");
+
+        tt_string_set(&s, "1234567890");
+        tt_string_remove_tailfrom(&s, 10);
+        TT_UT_EQUAL(tt_string_cmp(&s, "1234567890"), 0, "");
+        tt_string_remove_tailfrom(&s, 9);
+        TT_UT_EQUAL(tt_string_cmp(&s, "123456789"), 0, "");
+        tt_string_remove_tailfrom(&s, 7);
+        TT_UT_EQUAL(tt_string_cmp(&s, "1234567"), 0, "");
+        tt_string_remove_tailfrom(&s, 0);
+        TT_UT_EQUAL(tt_string_cmp(&s, ""), 0, "");
+
+        tt_string_set(&s, "1234567890");
+        tt_string_remove_tail(&s, 0);
+        TT_UT_EQUAL(tt_string_cmp(&s, "1234567890"), 0, "");
+        tt_string_remove_tail(&s, 1);
+        TT_UT_EQUAL(tt_string_cmp(&s, "123456789"), 0, "");
+        tt_string_remove_tail(&s, 2);
+        TT_UT_EQUAL(tt_string_cmp(&s, "1234567"), 0, "");
+        tt_string_remove_tail(&s, 1000);
+        TT_UT_EQUAL(tt_string_cmp(&s, ""), 0, "");
+    }
 
     tt_string_destroy(&s);
     tt_string_destroy(&s2);

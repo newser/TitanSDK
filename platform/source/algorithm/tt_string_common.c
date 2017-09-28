@@ -229,7 +229,7 @@ void tt_string_remove_range(IN tt_string_t *s,
     tt_buf_remove_range(&s->buf, from, from + len);
 }
 
-void tt_string_remove_head(IN tt_string_t *s, IN tt_u32_t to)
+void tt_string_remove_headto(IN tt_string_t *s, IN tt_u32_t to)
 {
     tt_u32_t n;
 
@@ -241,7 +241,7 @@ void tt_string_remove_head(IN tt_string_t *s, IN tt_u32_t to)
     tt_buf_remove_headto(&s->buf, to);
 }
 
-void tt_string_remove_tail(IN tt_string_t *s, IN tt_u32_t from)
+void tt_string_remove_tailfrom(IN tt_string_t *s, IN tt_u32_t from)
 {
     tt_u32_t n;
 
@@ -251,6 +251,7 @@ void tt_string_remove_tail(IN tt_string_t *s, IN tt_u32_t from)
     }
 
     tt_buf_remove_tailfrom(&s->buf, from);
+    tt_buf_put_u8(&s->buf, 0);
 }
 
 tt_result_t tt_string_append(IN OUT tt_string_t *s, IN const tt_char_t *substr)
