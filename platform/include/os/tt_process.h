@@ -86,9 +86,9 @@ tt_export void tt_process_exit(IN tt_u8_t exit_code);
 
 tt_export tt_char_t *tt_process_path(IN OPT tt_process_t *proc);
 
-tt_inline tt_char_t *tt_current_dir()
+tt_inline tt_char_t *tt_current_path(IN tt_bool_t end_slash)
 {
-    return tt_current_dir_ntv();
+    return tt_current_path_ntv(end_slash);
 }
 
 #endif /* __TT_PROCESS__ */

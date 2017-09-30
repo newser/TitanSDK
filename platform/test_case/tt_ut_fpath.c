@@ -406,6 +406,12 @@ TT_TEST_ROUTINE_DEFINE(case_fpath_move)
         TT_UT_SUCCESS(ret, "");
         TT_UT_EQUAL(tt_fpath_cmp(&fp2, "./child1"), 0, "");
 
+        ret = tt_fpath_get_absolute(&fp, &fp2);
+        TT_UT_SUCCESS(ret, "");
+        TT_UT_EQUAL(tt_fpath_is_absolute(&fp2), TT_TRUE, "");
+        TT_UT_EQUAL(tt_fpath_is_relative(&fp2), TT_FALSE, "");
+        TT_INFO("abs path: %s", tt_fpath_cstr(&fp2));
+
         ret = tt_fpath_to_sibling(&fp, "sib1");
         TT_UT_SUCCESS(ret, "");
         TT_UT_EQUAL(tt_fpath_cmp(&fp, "sib1"), 0, "");
@@ -413,6 +419,13 @@ TT_TEST_ROUTINE_DEFINE(case_fpath_move)
         ret = tt_fpath_to_child(&fp, "child1");
         TT_UT_SUCCESS(ret, "");
         TT_UT_EQUAL(tt_fpath_cmp(&fp, "./child1"), 0, "");
+
+        tt_fpath_clear(&fp);
+        ret = tt_fpath_to_absolute(&fp);
+        TT_UT_SUCCESS(ret, "");
+        TT_UT_EQUAL(tt_fpath_is_absolute(&fp), TT_TRUE, "");
+        TT_UT_EQUAL(tt_fpath_is_relative(&fp), TT_FALSE, "");
+        TT_INFO("abs path: %s", tt_fpath_cstr(&fp2));
     }
 
     // single file
@@ -427,6 +440,12 @@ TT_TEST_ROUTINE_DEFINE(case_fpath_move)
         TT_UT_SUCCESS(ret, "");
         TT_UT_EQUAL(tt_fpath_cmp(&fp2, "123/child1/child2/"), 0, "");
 
+        ret = tt_fpath_get_absolute(&fp, &fp2);
+        TT_UT_SUCCESS(ret, "");
+        TT_UT_EQUAL(tt_fpath_is_absolute(&fp2), TT_TRUE, "");
+        TT_UT_EQUAL(tt_fpath_is_relative(&fp2), TT_FALSE, "");
+        TT_INFO("abs path: %s", tt_fpath_cstr(&fp2));
+
         ret = tt_fpath_to_sibling(&fp, "sib1");
         TT_UT_SUCCESS(ret, "");
         TT_UT_EQUAL(tt_fpath_cmp(&fp, "sib1"), 0, "");
@@ -435,6 +454,13 @@ TT_TEST_ROUTINE_DEFINE(case_fpath_move)
         ret = tt_fpath_to_child(&fp, "child1");
         TT_UT_SUCCESS(ret, "");
         TT_UT_EQUAL(tt_fpath_cmp(&fp, "123/child1"), 0, "");
+
+        tt_fpath_clear(&fp);
+        ret = tt_fpath_to_absolute(&fp);
+        TT_UT_SUCCESS(ret, "");
+        TT_UT_EQUAL(tt_fpath_is_absolute(&fp), TT_TRUE, "");
+        TT_UT_EQUAL(tt_fpath_is_relative(&fp), TT_FALSE, "");
+        TT_INFO("abs path: %s", tt_fpath_cstr(&fp2));
     }
 
     // absolute directory
@@ -449,6 +475,13 @@ TT_TEST_ROUTINE_DEFINE(case_fpath_move)
         TT_UT_SUCCESS(ret, "");
         TT_UT_EQUAL(tt_fpath_cmp(&fp2, "/a/b/c/d/e/child1/"), 0, "");
 
+        ret = tt_fpath_get_absolute(&fp, &fp2);
+        TT_UT_SUCCESS(ret, "");
+        TT_UT_EQUAL(tt_fpath_is_absolute(&fp2), TT_TRUE, "");
+        TT_UT_EQUAL(tt_fpath_is_relative(&fp2), TT_FALSE, "");
+        TT_INFO("abs path: %s", tt_fpath_cstr(&fp2));
+        TT_UT_EQUAL(tt_fpath_cmp(&fp2, tt_fpath_cstr(&fp2)), 0, "");
+
         ret = tt_fpath_to_sibling(&fp, "sib1/");
         TT_UT_SUCCESS(ret, "");
         TT_UT_EQUAL(tt_fpath_cmp(&fp, "/a/b/c/d/sib1/"), 0, "");
@@ -458,6 +491,13 @@ TT_TEST_ROUTINE_DEFINE(case_fpath_move)
         TT_UT_EQUAL(tt_fpath_cmp(&fp, "/a/b/c/d/e/child1/child2/child3"),
                     0,
                     "");
+
+        tt_fpath_clear(&fp);
+        ret = tt_fpath_to_absolute(&fp);
+        TT_UT_SUCCESS(ret, "");
+        TT_UT_EQUAL(tt_fpath_is_absolute(&fp), TT_TRUE, "");
+        TT_UT_EQUAL(tt_fpath_is_relative(&fp), TT_FALSE, "");
+        TT_INFO("abs path: %s", tt_fpath_cstr(&fp2));
     }
 
     // root directory

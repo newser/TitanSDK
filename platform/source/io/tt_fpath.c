@@ -23,8 +23,7 @@
 #include <io/tt_fpath.h>
 
 #include <algorithm/tt_algorithm_def.h>
-
-#include <unistd.h>
+#include <os/tt_process.h>
 
 ////////////////////////////////////////////////////////////
 // internal macro
@@ -404,7 +403,7 @@ tt_result_t tt_fpath_get_absolute(IN tt_fpath_t *fp, OUT tt_fpath_t *abs)
 
 tt_result_t tt_fpath_to_absolute(IN tt_fpath_t *fp)
 {
-    tt_char_t *cwd;
+    tt_char_t *dir;
     tt_fpath_t tmp;
     tt_result_t result;
 
@@ -412,23 +411,32 @@ tt_result_t tt_fpath_to_absolute(IN tt_fpath_t *fp)
         return TT_SUCCESS;
     }
 
-    cwd = getcwd(NULL, 0);
-    if (cwd == NULL) {
-        TT_ERROR("fail to get current working directory");
+    dir = tt_current_path(TT_TRUE);
+    if (dir == NULL) {
         return TT_FAIL;
     }
 
-    result = tt_fpath_create(&tmp, cwd, TT_FPATH_AUTO);
-    free(cwd);
+    result = tt_fpath_create(&tmp, dir, TT_FPATH_AUTO);
+    tt_free(dir);
     if (TT_OK(!result)) {
         return TT_FAIL;
     }
-    tt_fpath_to_dir(fp);
 
+    // copy root
     tt_memcpy(fp->root, tmp.root, sizeof(fp->root));
-    // copy dir to fp
 
-    return TT_SUCCESS;
+    // prepend directories
+    result = TT_FAIL;
+    while ((dir = tt_ptrq_pop_tail(&tmp.dir)) != NULL) {
+        if (!TT_OK(tt_ptrq_push_head(&fp->dir, dir))) {
+            goto done;
+        }
+    }
+    result = TT_SUCCESS;
+
+done:
+    tt_fpath_destroy(&tmp);
+    return result;
 }
 
 tt_result_t __fpath_parse(IN const tt_char_t *path,
