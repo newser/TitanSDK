@@ -181,11 +181,13 @@ tt_inline tt_bool_t tt_fpath_is_relative(IN tt_fpath_t *fp)
     return !tt_fpath_is_absolute(fp);
 }
 
+#if 0
 tt_export tt_result_t tt_fpath_get_relative(IN tt_fpath_t *fp,
                                             IN const tt_char_t *other,
                                             OUT tt_fpath_t *rel);
 
 tt_export tt_result_t tt_fpath_to_relative(IN tt_fpath_t *fp,
                                            IN const tt_char_t *other);
+#endif
 
 #endif // __TT_FPATH__

@@ -458,6 +458,11 @@ TT_TEST_ROUTINE_DEFINE(case_process_basic)
 
     TT_TEST_CASE_ENTER()
 
+    path = tt_current_dir();
+    TT_UT_NOT_NULL(path, "");
+    TT_INFO("cwd: %s", path);
+    tt_free(path);
+
     path = tt_process_path(NULL);
     TT_UT_NOT_EQUAL(path, NULL, "");
 

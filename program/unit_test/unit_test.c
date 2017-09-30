@@ -93,7 +93,8 @@ tt_result_t __ut_fiber(IN void *param)
 #if 1
     else {
         const tt_char_t *names[] = {
-            "TEST_UNIT_FPATH",
+            //            "TEST_UNIT_FPATH",
+            "case_process_basic",
         };
         tt_u32_t i;
 

@@ -24,6 +24,8 @@
 
 #include <algorithm/tt_algorithm_def.h>
 
+#include <unistd.h>
+
 ////////////////////////////////////////////////////////////
 // internal macro
 ////////////////////////////////////////////////////////////
@@ -391,6 +393,42 @@ tt_result_t tt_fpath_to_child(IN tt_fpath_t *fp, IN const tt_char_t *child)
     }
 
     return __fpath_parse_move(fp, child);
+}
+
+tt_result_t tt_fpath_get_absolute(IN tt_fpath_t *fp, OUT tt_fpath_t *abs)
+{
+    tt_fpath_copy(abs, fp);
+
+    return tt_fpath_to_absolute(abs);
+}
+
+tt_result_t tt_fpath_to_absolute(IN tt_fpath_t *fp)
+{
+    tt_char_t *cwd;
+    tt_fpath_t tmp;
+    tt_result_t result;
+
+    if (tt_fpath_is_absolute(fp)) {
+        return TT_SUCCESS;
+    }
+
+    cwd = getcwd(NULL, 0);
+    if (cwd == NULL) {
+        TT_ERROR("fail to get current working directory");
+        return TT_FAIL;
+    }
+
+    result = tt_fpath_create(&tmp, cwd, TT_FPATH_AUTO);
+    free(cwd);
+    if (TT_OK(!result)) {
+        return TT_FAIL;
+    }
+    tt_fpath_to_dir(fp);
+
+    tt_memcpy(fp->root, tmp.root, sizeof(fp->root));
+    // copy dir to fp
+
+    return TT_SUCCESS;
 }
 
 tt_result_t __fpath_parse(IN const tt_char_t *path,

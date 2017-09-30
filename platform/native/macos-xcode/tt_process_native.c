@@ -32,6 +32,7 @@
 #include <stdlib.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <unistd.h>
 
 ////////////////////////////////////////////////////////////
 // internal macro
@@ -148,4 +149,24 @@ tt_char_t *tt_process_path_ntv(IN OPT tt_process_ntv_t *sys_proc)
     // path is already null-terminated
 
     return path;
+}
+
+tt_char_t *tt_current_dir_ntv()
+{
+    char *cwd, *d;
+
+    cwd = getcwd(NULL, 0);
+    if (cwd == NULL) {
+        TT_ERROR_NTV("fail to get current working directory");
+        return NULL;
+    }
+
+    d = tt_cstr_copy(cwd);
+    free(cwd);
+    if (d != NULL) {
+        return d;
+    } else {
+        TT_ERROR("fail to copy current working directory");
+        return NULL;
+    }
 }
