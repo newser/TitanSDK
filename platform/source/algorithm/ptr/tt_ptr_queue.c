@@ -312,6 +312,62 @@ tt_ptr_t tt_ptrq_iter_next(IN OUT tt_ptrq_iter_t *iter)
     return p;
 }
 
+tt_ptr_t tt_ptrq_get(IN tt_ptrq_t *pq, IN tt_u32_t idx)
+{
+    tt_dnode_t *node;
+
+    if (idx >= pq->count) {
+        return NULL;
+    }
+
+    node = tt_dlist_head(&pq->frame);
+    while (node != NULL) {
+        __q_frame_t *frame = TT_CONTAINER(node, __q_frame_t, node);
+        tt_u32_t n = frame->end - frame->start;
+
+        node = node->next;
+
+        if (idx < n) {
+            return __F_PTR(frame, idx);
+        } else {
+            idx -= n;
+        }
+    }
+    // should not reach here
+    TT_ASSERT(0);
+    return NULL;
+}
+
+tt_ptr_t tt_ptrq_set(IN tt_ptrq_t *pq, IN tt_u32_t idx, IN tt_ptr_t p)
+{
+    tt_dnode_t *node;
+
+    TT_ASSERT(p != NULL);
+
+    if (idx >= pq->count) {
+        return NULL;
+    }
+
+    node = tt_dlist_head(&pq->frame);
+    while (node != NULL) {
+        __q_frame_t *frame = TT_CONTAINER(node, __q_frame_t, node);
+        tt_u32_t n = frame->end - frame->start;
+
+        node = node->next;
+
+        if (idx < n) {
+            tt_ptr_t old_p = __F_PTR(frame, idx);
+            __F_PTR(frame, idx) = p;
+            return old_p;
+        } else {
+            idx -= n;
+        }
+    }
+    // should not reach here
+    TT_ASSERT(0);
+    return NULL;
+}
+
 __q_frame_t *__alloc_head_frame(IN tt_ptrq_t *pq)
 {
     __q_frame_t *frame = __alloc_frame(pq);

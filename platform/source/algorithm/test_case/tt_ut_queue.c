@@ -219,6 +219,15 @@ TT_TEST_ROUTINE_DEFINE(case_ptr_queue)
     TT_UT_EQUAL(tt_ptrq_pop_head(&q), NULL, "");
     TT_UT_EQUAL(tt_ptrq_pop_tail(&q), NULL, "");
 
+    TT_UT_EQUAL(tt_ptrq_get(&q, 0), NULL, "");
+    TT_UT_EQUAL(tt_ptrq_get(&q, 1), NULL, "");
+    TT_UT_EQUAL(tt_ptrq_get(&q, ~0), NULL, "");
+
+    TT_UT_EQUAL(tt_ptrq_set(&q, 0, &i), NULL, "");
+    TT_UT_EQUAL(tt_ptrq_set(&q, 1, &i), NULL, "");
+    TT_UT_EQUAL(tt_ptrq_set(&q, ~0, &i), NULL, "");
+    TT_UT_EQUAL(tt_ptrq_empty(&q), TT_TRUE, "");
+
     {
         tt_ptrq_iter_t pos;
         tt_ptrq_iter(&q, &pos);
@@ -236,6 +245,13 @@ TT_TEST_ROUTINE_DEFINE(case_ptr_queue)
         TT_UT_EQUAL(tt_ptrq_tail(&q), &v[i], "");
     }
     TT_UT_EQUAL(tt_ptrq_count(&q), __q_size, "");
+
+    TT_UT_EQUAL(tt_ptrq_get(&q, 0), &v[0], "");
+    TT_UT_EQUAL(tt_ptrq_get(&q, 1), &v[1], "");
+    TT_UT_EQUAL(tt_ptrq_get(&q, __q_size - 2), &v[__q_size - 2], "");
+    TT_UT_EQUAL(tt_ptrq_get(&q, __q_size - 1), &v[__q_size - 1], "");
+    TT_UT_EQUAL(tt_ptrq_get(&q, __q_size), NULL, "");
+    TT_UT_EQUAL(tt_ptrq_get(&q, ~0), NULL, "");
 
     {
         tt_ptrq_iter_t pos;
@@ -310,6 +326,27 @@ TT_TEST_ROUTINE_DEFINE(case_ptr_queue)
             TT_UT_EQUAL(tt_ptrq_head(&q), &v[__q_size - 2 - i], "");
         }
         TT_UT_EQUAL(tt_ptrq_count(&q), __q_size - n, "");
+    }
+
+    {
+        tt_ptrq_clear(&q);
+
+        for (i = 0; i < __q_size; ++i) {
+            ret = tt_ptrq_push_tail(&q, &v[i]);
+            TT_UT_SUCCESS(ret, "");
+        }
+        TT_UT_EQUAL(tt_ptrq_count(&q), __q_size, "");
+
+        for (i = 0; i < __q_size; ++i) {
+            tt_ptr_t p = tt_ptrq_set(&q, i, &v[__q_size - 1 - i]);
+            TT_UT_EQUAL(p, &v[i], "");
+        }
+        TT_UT_EQUAL(tt_ptrq_count(&q), __q_size, "");
+
+        for (i = 0; i < __q_size; ++i) {
+            TT_UT_EQUAL(tt_ptrq_get(&q, i), &v[__q_size - 1 - i], "");
+        }
+        TT_UT_EQUAL(tt_ptrq_count(&q), __q_size, "");
     }
 
     tt_ptrq_clear(&q);

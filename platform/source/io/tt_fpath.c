@@ -439,6 +439,52 @@ done:
     return result;
 }
 
+const tt_char_t *tt_fpath_get_name(IN tt_fpath_t *fp, IN tt_u32_t idx)
+{
+    tt_u32_t n = tt_ptrq_count(&fp->dir);
+    if (idx < n) {
+        return tt_ptrq_get(&fp->dir, idx);
+    } else if ((idx == n) && (tt_fpath_is_file(fp))) {
+        return tt_fpath_get_filename(fp);
+    } else {
+        TT_ERROR("invalid fpath index: %d", idx);
+        return NULL;
+    }
+}
+
+tt_result_t tt_fpath_set_name(IN tt_fpath_t *fp,
+                              IN tt_u32_t idx,
+                              IN const tt_char_t *name)
+{
+    tt_u32_t n;
+
+    if ((tt_strchr(name, '/') != NULL) || (tt_strchr(name, '\\') != NULL)) {
+        TT_ERROR("fpath name can not include / or \\");
+        return TT_FAIL;
+    }
+
+    n = tt_ptrq_count(&fp->dir);
+    if (idx < n) {
+        tt_ptr_t p, old_p;
+
+        p = tt_cstr_copy(name);
+        if (p != NULL) {
+            old_p = tt_ptrq_set(&fp->dir, idx, p);
+            TT_ASSERT(old_p != NULL);
+            tt_free(old_p);
+            return TT_SUCCESS;
+        } else {
+            TT_ERROR("fail to copy fpath name");
+            return TT_FAIL;
+        }
+    } else if ((idx == n) && (tt_fpath_is_file(fp))) {
+        return tt_fpath_set_filename(fp, name);
+    } else {
+        TT_ERROR("invalid fpath index: %d", idx);
+        return NULL;
+    }
+}
+
 tt_result_t __fpath_parse(IN const tt_char_t *path,
                           IN tt_char_t sep,
                           OUT tt_fpath_t *fp)

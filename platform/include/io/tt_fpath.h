@@ -89,16 +89,6 @@ tt_export tt_string_t *tt_fpath_string(IN tt_fpath_t *fp);
 
 tt_export tt_u32_t tt_fpath_len(IN tt_fpath_t *fp);
 
-tt_inline tt_u32_t tt_fpath_count(IN tt_fpath_t *fp)
-{
-    return tt_ptrq_count(&fp->dir);
-}
-
-tt_inline tt_bool_t tt_fpath_empty(IN tt_fpath_t *fp)
-{
-    return TT_BOOL(tt_fpath_count(fp) == 0);
-}
-
 tt_export tt_s32_t tt_fpath_cmp(IN tt_fpath_t *fp, IN const tt_char_t *other);
 
 tt_export tt_bool_t tt_fpath_startwith(IN tt_fpath_t *fp,
@@ -181,13 +171,21 @@ tt_inline tt_bool_t tt_fpath_is_relative(IN tt_fpath_t *fp)
     return !tt_fpath_is_absolute(fp);
 }
 
-#if 0
-tt_export tt_result_t tt_fpath_get_relative(IN tt_fpath_t *fp,
-                                            IN const tt_char_t *other,
-                                            OUT tt_fpath_t *rel);
+tt_inline tt_u32_t tt_fpath_count(IN tt_fpath_t *fp)
+{
+    return tt_ptrq_count(&fp->dir) + TT_COND(tt_fpath_is_file(fp), 1, 0);
+}
 
-tt_export tt_result_t tt_fpath_to_relative(IN tt_fpath_t *fp,
-                                           IN const tt_char_t *other);
-#endif
+tt_inline tt_bool_t tt_fpath_empty(IN tt_fpath_t *fp)
+{
+    return TT_BOOL(tt_fpath_count(fp) == 0);
+}
+
+tt_export const tt_char_t *tt_fpath_get_name(IN tt_fpath_t *fp,
+                                             IN tt_u32_t idx);
+
+tt_export tt_result_t tt_fpath_set_name(IN tt_fpath_t *fp,
+                                        IN tt_u32_t idx,
+                                        IN const tt_char_t *name);
 
 #endif // __TT_FPATH__

@@ -16,12 +16,12 @@ tt_result_t __ut_fiber(IN void *param)
 {
     const tt_char_t *name = NULL;
     const tt_char_t buf[200] = {0};
-    
+
     tt_test_framework_init(0);
     tt_test_unit_init(NULL);
 
 #if TT_ENV_OS_IS_WINDOWS
-    GetEnvironmentVariableA("TT_CASE", buf, sizeof(buf)-1);
+    GetEnvironmentVariableA("TT_CASE", buf, sizeof(buf) - 1);
     name = buf;
 #else
     name = getenv("TT_CASE");

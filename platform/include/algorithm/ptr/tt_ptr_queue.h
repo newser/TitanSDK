@@ -100,4 +100,10 @@ tt_export void tt_ptrq_iter(IN tt_ptrq_t *pq, OUT tt_ptrq_iter_t *iter);
 
 tt_export tt_ptr_t tt_ptrq_iter_next(IN OUT tt_ptrq_iter_t *iter);
 
+tt_export tt_ptr_t tt_ptrq_get(IN tt_ptrq_t *pq, IN tt_u32_t idx);
+
+tt_export tt_ptr_t tt_ptrq_set(IN tt_ptrq_t *pq,
+                               IN tt_u32_t idx,
+                               IN tt_ptr_t p);
+
 #endif /* __TT_PTR_QUEUE__ */
