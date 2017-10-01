@@ -758,12 +758,15 @@ TT_TEST_ROUTINE_DEFINE(case_fpath_root)
 TT_TEST_ROUTINE_DEFINE(case_fpath_name)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
-    tt_fpath_t fp;
+    tt_fpath_t fp, fp2;
+    tt_fpath_iter_t iter;
+    tt_result_t ret;
 
     TT_TEST_CASE_ENTER()
     // test start
 
     tt_fpath_init(&fp, TT_FPATH_UNIX);
+    tt_fpath_init(&fp2, TT_FPATH_WINDOWS);
 
     // empty
     TT_UT_EQUAL(tt_fpath_count(&fp), 0, "");
@@ -775,6 +778,18 @@ TT_TEST_ROUTINE_DEFINE(case_fpath_name)
     TT_UT_FAIL(tt_fpath_set_name(&fp, ~0, "123"), "");
     TT_UT_EQUAL(tt_fpath_cstr(&fp)[0], 0, "");
 
+    tt_fpath_iter(&fp, &iter);
+    TT_UT_NULL(tt_fpath_iter_next(&iter), "");
+
+    ret = tt_fpath_get_sub(&fp, 0, 0, &fp2);
+    TT_UT_FAIL(ret, "");
+    ret = tt_fpath_get_sub(&fp, 0, 1, &fp2);
+    TT_UT_FAIL(ret, "");
+    ret = tt_fpath_get_sub(&fp, 1, 0, &fp2);
+    TT_UT_FAIL(ret, "");
+    ret = tt_fpath_get_sub(&fp, 1, 1, &fp2);
+    TT_UT_FAIL(ret, "");
+
     // root dir
     tt_fpath_set(&fp, "c:\\");
     TT_UT_EQUAL(tt_fpath_count(&fp), 0, "");
@@ -785,6 +800,18 @@ TT_TEST_ROUTINE_DEFINE(case_fpath_name)
     TT_UT_FAIL(tt_fpath_set_name(&fp, 1, "123"), "");
     TT_UT_FAIL(tt_fpath_set_name(&fp, ~0, "123"), "");
     TT_UT_EQUAL(tt_strcmp(tt_fpath_cstr(&fp), "c:/"), 0, "");
+
+    tt_fpath_iter(&fp, &iter);
+    TT_UT_NULL(tt_fpath_iter_next(&iter), "");
+
+    ret = tt_fpath_get_sub(&fp, 0, 0, &fp2);
+    TT_UT_FAIL(ret, "");
+    ret = tt_fpath_get_sub(&fp, 0, 1, &fp2);
+    TT_UT_FAIL(ret, "");
+    ret = tt_fpath_get_sub(&fp, 1, 0, &fp2);
+    TT_UT_FAIL(ret, "");
+    ret = tt_fpath_get_sub(&fp, 1, 1, &fp2);
+    TT_UT_FAIL(ret, "");
 
     // single file
     tt_fpath_set(&fp, "abc");
@@ -799,6 +826,21 @@ TT_TEST_ROUTINE_DEFINE(case_fpath_name)
     TT_UT_FAIL(tt_fpath_set_name(&fp, ~0, "123"), "");
     TT_UT_EQUAL(tt_strcmp(tt_fpath_cstr(&fp), "123"), 0, "");
 
+    tt_fpath_iter(&fp, &iter);
+    TT_UT_EQUAL(tt_strcmp(tt_fpath_iter_next(&iter), "123"), 0, "");
+    TT_UT_NULL(tt_fpath_iter_next(&iter), "");
+
+    ret = tt_fpath_get_sub(&fp, 0, 0, &fp2);
+    TT_UT_SUCCESS(ret, "");
+    TT_UT_EQUAL(tt_fpath_cstr(&fp2)[0], 0, "");
+    ret = tt_fpath_get_sub(&fp, 0, 1, &fp2);
+    TT_UT_SUCCESS(ret, "");
+    TT_UT_EQUAL(tt_fpath_cmp(&fp2, "123"), 0, "");
+    ret = tt_fpath_get_sub(&fp, 0, 2, &fp2);
+    TT_UT_FAIL(ret, "");
+    ret = tt_fpath_get_sub(&fp, 1, 1, &fp2);
+    TT_UT_FAIL(ret, "");
+
     // single dir
     tt_fpath_set(&fp, "/abc/");
     TT_UT_EQUAL(tt_fpath_count(&fp), 1, "");
@@ -811,6 +853,21 @@ TT_TEST_ROUTINE_DEFINE(case_fpath_name)
     TT_UT_FAIL(tt_fpath_set_name(&fp, 1, "123"), "");
     TT_UT_FAIL(tt_fpath_set_name(&fp, ~0, "123"), "");
     TT_UT_EQUAL(tt_strcmp(tt_fpath_cstr(&fp), "/123/"), 0, "");
+
+    tt_fpath_iter(&fp, &iter);
+    TT_UT_EQUAL(tt_strcmp(tt_fpath_iter_next(&iter), "123"), 0, "");
+    TT_UT_NULL(tt_fpath_iter_next(&iter), "");
+
+    ret = tt_fpath_get_sub(&fp, 0, 0, &fp2);
+    TT_UT_SUCCESS(ret, "");
+    TT_UT_EQUAL(tt_fpath_cstr(&fp2)[0], 0, "");
+    ret = tt_fpath_get_sub(&fp, 0, 1, &fp2);
+    TT_UT_SUCCESS(ret, "");
+    TT_UT_EQUAL(tt_fpath_cmp(&fp2, "123\\"), 0, "");
+    ret = tt_fpath_get_sub(&fp, 0, 2, &fp2);
+    TT_UT_FAIL(ret, "");
+    ret = tt_fpath_get_sub(&fp, 1, 1, &fp2);
+    TT_UT_FAIL(ret, "");
 
     // multiple level file
     tt_fpath_set(&fp, "a/b/c/d");
@@ -828,6 +885,28 @@ TT_TEST_ROUTINE_DEFINE(case_fpath_name)
     TT_UT_FAIL(tt_fpath_set_name(&fp, ~0, "??"), "");
     TT_UT_EQUAL(tt_strcmp(tt_fpath_cstr(&fp), "x1/y2/z3/u4"), 0, "");
 
+    tt_fpath_iter(&fp, &iter);
+    TT_UT_EQUAL(tt_strcmp(tt_fpath_iter_next(&iter), "x1"), 0, "");
+    TT_UT_EQUAL(tt_strcmp(tt_fpath_iter_next(&iter), "y2"), 0, "");
+    TT_UT_EQUAL(tt_strcmp(tt_fpath_iter_next(&iter), "z3"), 0, "");
+    TT_UT_EQUAL(tt_strcmp(tt_fpath_iter_next(&iter), "u4"), 0, "");
+    TT_UT_NULL(tt_fpath_iter_next(&iter), "");
+
+    ret = tt_fpath_get_sub(&fp, 0, 0, &fp2);
+    TT_UT_SUCCESS(ret, "");
+    TT_UT_EQUAL(tt_fpath_cstr(&fp2)[0], 0, "");
+    ret = tt_fpath_get_sub(&fp, 0, 1, &fp2);
+    TT_UT_SUCCESS(ret, "");
+    TT_UT_EQUAL(tt_fpath_cmp(&fp2, "x1\\"), 0, "");
+    ret = tt_fpath_get_sub(&fp, 1, 2, &fp2);
+    TT_UT_SUCCESS(ret, "");
+    TT_UT_EQUAL(tt_fpath_cmp(&fp2, "y2\\z3\\"), 0, "");
+    ret = tt_fpath_get_sub(&fp, 2, 2, &fp2);
+    TT_UT_SUCCESS(ret, "");
+    TT_UT_EQUAL(tt_fpath_cmp(&fp2, "z3\\u4"), 0, "");
+    ret = tt_fpath_get_sub(&fp, 3, 2, &fp2);
+    TT_UT_FAIL(ret, "");
+
     // multiple level dir
     tt_fpath_set(&fp, "a/b/c/d/");
     TT_UT_EQUAL(tt_fpath_count(&fp), 4, "");
@@ -844,7 +923,30 @@ TT_TEST_ROUTINE_DEFINE(case_fpath_name)
     TT_UT_FAIL(tt_fpath_set_name(&fp, ~0, "??"), "");
     TT_UT_EQUAL(tt_strcmp(tt_fpath_cstr(&fp), "x1/y2/z3/u4/"), 0, "");
 
+    tt_fpath_iter(&fp, &iter);
+    TT_UT_EQUAL(tt_strcmp(tt_fpath_iter_next(&iter), "x1"), 0, "");
+    TT_UT_EQUAL(tt_strcmp(tt_fpath_iter_next(&iter), "y2"), 0, "");
+    TT_UT_EQUAL(tt_strcmp(tt_fpath_iter_next(&iter), "z3"), 0, "");
+    TT_UT_EQUAL(tt_strcmp(tt_fpath_iter_next(&iter), "u4"), 0, "");
+    TT_UT_NULL(tt_fpath_iter_next(&iter), "");
+
+    ret = tt_fpath_get_sub(&fp, 0, 0, &fp2);
+    TT_UT_SUCCESS(ret, "");
+    TT_UT_EQUAL(tt_fpath_cstr(&fp2)[0], 0, "");
+    ret = tt_fpath_get_sub(&fp, 0, 1, &fp2);
+    TT_UT_SUCCESS(ret, "");
+    TT_UT_EQUAL(tt_fpath_cmp(&fp2, "x1\\"), 0, "");
+    ret = tt_fpath_get_sub(&fp, 1, 3, &fp2);
+    TT_UT_SUCCESS(ret, "");
+    TT_UT_EQUAL(tt_fpath_cmp(&fp2, "y2\\z3\\u4\\"), 0, "");
+    ret = tt_fpath_get_sub(&fp, 2, 1, &fp2);
+    TT_UT_SUCCESS(ret, "");
+    TT_UT_EQUAL(tt_fpath_cmp(&fp2, "z3\\"), 0, "");
+    ret = tt_fpath_get_sub(&fp, 3, 2, &fp2);
+    TT_UT_FAIL(ret, "");
+
     tt_fpath_destroy(&fp);
+    tt_fpath_destroy(&fp2);
 
     // test end
     TT_TEST_CASE_LEAVE()

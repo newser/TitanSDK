@@ -61,6 +61,12 @@ typedef struct
     tt_bool_t modified : 1;
 } tt_fpath_t;
 
+typedef struct
+{
+    tt_ptrq_iter_t dir_iter;
+    tt_bool_t file_accessed : 1;
+} tt_fpath_iter_t;
+
 ////////////////////////////////////////////////////////////
 // global variants
 ////////////////////////////////////////////////////////////
@@ -187,5 +193,18 @@ tt_export const tt_char_t *tt_fpath_get_name(IN tt_fpath_t *fp,
 tt_export tt_result_t tt_fpath_set_name(IN tt_fpath_t *fp,
                                         IN tt_u32_t idx,
                                         IN const tt_char_t *name);
+
+tt_inline void tt_fpath_iter(IN tt_fpath_t *fp, OUT tt_fpath_iter_t *iter)
+{
+    tt_ptrq_iter(&fp->dir, &iter->dir_iter);
+    iter->file_accessed = TT_FALSE;
+}
+
+tt_export const tt_char_t *tt_fpath_iter_next(IN OUT tt_fpath_iter_t *iter);
+
+tt_export tt_result_t tt_fpath_get_sub(IN tt_fpath_t *fp,
+                                       IN tt_u32_t from,
+                                       IN tt_u32_t num,
+                                       OUT tt_fpath_t *sub);
 
 #endif // __TT_FPATH__

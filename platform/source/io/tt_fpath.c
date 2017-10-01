@@ -485,6 +485,55 @@ tt_result_t tt_fpath_set_name(IN tt_fpath_t *fp,
     }
 }
 
+const tt_char_t *tt_fpath_iter_next(IN OUT tt_fpath_iter_t *iter)
+{
+    const tt_char_t *name = tt_ptrq_iter_next(&iter->dir_iter);
+    tt_fpath_t *fp = TT_CONTAINER(iter->dir_iter.pq, tt_fpath_t, dir);
+    if (name != NULL) {
+        return name;
+    } else if (!iter->file_accessed && tt_fpath_is_file(fp)) {
+        iter->file_accessed = TT_TRUE;
+        return tt_fpath_get_filename(fp);
+    } else {
+        return NULL;
+    }
+}
+
+tt_result_t tt_fpath_get_sub(IN tt_fpath_t *fp,
+                             IN tt_u32_t from,
+                             IN tt_u32_t num,
+                             OUT tt_fpath_t *sub)
+{
+    tt_u32_t n, end, i, dn;
+    tt_fpath_iter_t iter;
+
+    n = tt_fpath_count(fp);
+    end = from + num;
+    if ((from >= n) || (end > n)) {
+        TT_ERROR("invalid range[%d, %d), only %d names", from, end, n);
+        return TT_FAIL;
+    }
+
+    tt_fpath_clear(sub);
+
+    tt_fpath_iter(fp, &iter);
+    i = 0;
+    dn = tt_ptrq_count(&fp->dir);
+    while (i < end) {
+        const tt_char_t *name = tt_fpath_iter_next(&iter);
+        TT_ASSERT(name != NULL);
+        if (i == dn) {
+            TT_ASSERT((i + 1) == end);
+            TT_DO(tt_fpath_set_filename(sub, name));
+        } else if (i >= from) {
+            TT_DO(__dir_push(sub, (tt_char_t *)name));
+            sub->modified = TT_TRUE;
+        }
+        ++i;
+    }
+    return TT_SUCCESS;
+}
+
 tt_result_t __fpath_parse(IN const tt_char_t *path,
                           IN tt_char_t sep,
                           OUT tt_fpath_t *fp)
