@@ -121,6 +121,10 @@ tt_export tt_result_t tt_string_append_sub(IN OUT tt_string_t *s,
                                            IN tt_u32_t from,
                                            IN tt_u32_t len);
 
+tt_export tt_result_t tt_string_append_f(IN OUT tt_string_t *s,
+                                         IN const tt_char_t *format,
+                                         ...);
+
 tt_export tt_bool_t tt_string_startwith(IN tt_string_t *s,
                                         IN const tt_char_t *substr);
 

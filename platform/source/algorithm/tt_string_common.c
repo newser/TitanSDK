@@ -350,6 +350,25 @@ tt_result_t tt_string_append_sub(IN OUT tt_string_t *s,
     return TT_SUCCESS;
 }
 
+tt_result_t tt_string_append_f(IN OUT tt_string_t *s,
+                               IN const tt_char_t *format,
+                               ...)
+{
+    tt_buf_t *buf = &s->buf;
+    va_list args;
+    tt_result_t result;
+
+    TT_ASSERT(buf->wpos > 0);
+    --buf->wpos;
+
+    va_start(args, format);
+    result = tt_buf_putv(buf, format, args);
+    va_end(args);
+
+    TT_DO(tt_buf_put_u8(buf, 0));
+    return TT_SUCCESS;
+}
+
 tt_bool_t tt_string_startwith(IN tt_string_t *s, IN const tt_char_t *substr)
 {
     tt_u32_t n = (tt_u32_t)tt_strlen(substr);

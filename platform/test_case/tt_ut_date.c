@@ -46,6 +46,12 @@
 TT_TEST_ROUTINE_DECLARE(case_date_def)
 TT_TEST_ROUTINE_DECLARE(case_date_render)
 TT_TEST_ROUTINE_DECLARE(case_date_parse)
+TT_TEST_ROUTINE_DECLARE(case_date_year)
+TT_TEST_ROUTINE_DECLARE(case_date_month)
+TT_TEST_ROUTINE_DECLARE(case_date_day)
+TT_TEST_ROUTINE_DECLARE(case_date_time)
+TT_TEST_ROUTINE_DECLARE(case_date_cjdn)
+TT_TEST_ROUTINE_DECLARE(case_date_inc_dec)
 // =========================================
 
 // === test case list ======================
@@ -79,6 +85,60 @@ TT_TEST_CASE("case_date_def",
                  NULL,
                  NULL),
 
+    TT_TEST_CASE("case_date_year",
+                 "testing date year",
+                 case_date_year,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL),
+
+    TT_TEST_CASE("case_date_month",
+                 "testing date month",
+                 case_date_month,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL),
+
+    TT_TEST_CASE("case_date_day",
+                 "testing date day",
+                 case_date_day,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL),
+
+    TT_TEST_CASE("case_date_time",
+                 "testing date time",
+                 case_date_time,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL),
+
+    TT_TEST_CASE("case_date_cjdn",
+                 "testing date cjdn",
+                 case_date_cjdn,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL),
+
+    TT_TEST_CASE("case_date_inc_dec",
+                 "testing date inc/dec",
+                 case_date_inc_dec,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL),
+
     TT_TEST_CASE_LIST_DEFINE_END(date_case)
     // =========================================
 
@@ -93,7 +153,7 @@ TT_TEST_CASE("case_date_def",
     ////////////////////////////////////////////////////////////
 
     /*
-    TT_TEST_ROUTINE_DEFINE(case_date_parse)
+    TT_TEST_ROUTINE_DEFINE(case_date_inc_dec)
     {
         //tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
 
@@ -169,11 +229,10 @@ TT_TEST_ROUTINE_DEFINE(case_date_render)
     tt_date_init(&d, TT_UTC_08_00);
     tt_date_set_year(&d, 2020);
     tt_date_set_month(&d, TT_NOVEMBER);
-    tt_date_set_mday(&d, 31); // it can ...
+    tt_date_set_monthday(&d, 31); // it can ...
     tt_date_set_hour(&d, 23);
     tt_date_set_minute(&d, 59);
     tt_date_set_second(&d, 59);
-    tt_date_set_dst(&d, TT_TRUE);
     ret = tt_date_render(&d, "%Y-%m-%d %H-%M-%S", buf, sizeof(buf));
     TT_UT_NOT_EQUAL(ret, 0, "");
     TT_UT_EQUAL(ret, tt_strlen(buf), "");
@@ -194,11 +253,10 @@ TT_TEST_ROUTINE_DEFINE(case_date_render)
 
     TT_UT_EQUAL(tt_date_get_year(&d), 2020, "");
     TT_UT_EQUAL(tt_date_get_month(&d), TT_NOVEMBER, "");
-    TT_UT_EQUAL(tt_date_get_mday(&d), 31, "");
+    TT_UT_EQUAL(tt_date_get_monthday(&d), 31, "");
     TT_UT_EQUAL(tt_date_get_hour(&d), 23, "");
     TT_UT_EQUAL(tt_date_get_minute(&d), 59, "");
     TT_UT_EQUAL(tt_date_get_second(&d), 59, "");
-    TT_UT_EQUAL(tt_date_get_dst(&d), TT_TRUE, "");
 
     // test end
     TT_TEST_CASE_LEAVE()
@@ -223,11 +281,10 @@ TT_TEST_ROUTINE_DEFINE(case_date_parse)
     TT_UT_EQUAL(ret, sizeof("2020-11-31 23-59-59") - 1, "");
     TT_UT_EQUAL(tt_date_get_year(&d), 2020, "");
     TT_UT_EQUAL(tt_date_get_month(&d), TT_NOVEMBER, "");
-    TT_UT_EQUAL(tt_date_get_mday(&d), 31, "");
+    TT_UT_EQUAL(tt_date_get_monthday(&d), 31, "");
     TT_UT_EQUAL(tt_date_get_hour(&d), 23, "");
     TT_UT_EQUAL(tt_date_get_minute(&d), 59, "");
     TT_UT_EQUAL(tt_date_get_second(&d), 59, "");
-    TT_UT_EQUAL(tt_date_get_dst(&d), TT_FALSE, "");
 
     ret = tt_date_parse(
         &d,
@@ -276,6 +333,516 @@ TT_TEST_ROUTINE_DEFINE(case_date_parse)
                         "2020-13-31 23-59-59",
                         sizeof("2020-13-31 23-59-59"));
     TT_UT_EQUAL(ret, 0, "");
+
+    // test end
+    TT_TEST_CASE_LEAVE()
+}
+
+extern tt_u32_t __year_daynum(IN tt_u32_t year);
+
+TT_TEST_ROUTINE_DEFINE(case_date_year)
+{
+    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+    tt_date_t d;
+
+    TT_TEST_CASE_ENTER()
+    // test start
+
+    tt_date_init(&d, tt_g_local_tmzone);
+
+    TT_UT_EQUAL(tt_date_get_year(&d), 1583, "");
+    TT_UT_EQUAL(tt_date_is_leapyear(&d), TT_FALSE, "");
+
+    TT_UT_FAIL(tt_date_set_year(&d, 1582), "");
+    TT_UT_EQUAL(tt_date_get_year(&d), 1583, "");
+    TT_UT_EQUAL(tt_date_is_leapyear(&d), TT_FALSE, "");
+
+    TT_UT_SUCCESS(tt_date_set_year(&d, 1584), "");
+    TT_UT_EQUAL(tt_date_get_year(&d), 1584, "");
+    TT_UT_EQUAL(tt_date_is_leapyear(&d), TT_TRUE, "");
+
+    TT_UT_SUCCESS(tt_date_set_year(&d, 1700), "");
+    TT_UT_EQUAL(tt_date_get_year(&d), 1700, "");
+    TT_UT_EQUAL(tt_date_is_leapyear(&d), TT_FALSE, "");
+
+    TT_UT_SUCCESS(tt_date_set_year(&d, 2000), "");
+    TT_UT_EQUAL(tt_date_get_year(&d), 2000, "");
+    TT_UT_EQUAL(tt_date_is_leapyear(&d), TT_TRUE, "");
+
+    // test end
+    TT_TEST_CASE_LEAVE()
+}
+
+TT_TEST_ROUTINE_DEFINE(case_date_month)
+{
+    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+    tt_date_t d;
+
+    TT_TEST_CASE_ENTER()
+    // test start
+
+    tt_date_init(&d, tt_g_local_tmzone);
+
+    tt_date_set_year(&d, 1587);
+
+    tt_date_set_month(&d, TT_JANUARY);
+    TT_UT_EQUAL(tt_date_get_month(&d), TT_JANUARY, "");
+    TT_UT_SUCCESS(tt_date_set_monthday(&d, 1), "");
+    TT_UT_EQUAL(tt_date_get_monthday(&d), 1, "");
+    TT_UT_SUCCESS(tt_date_set_monthday(&d, 31), "");
+    TT_UT_EQUAL(tt_date_get_monthday(&d), 31, "");
+    TT_UT_FAIL(tt_date_set_monthday(&d, 32), "");
+
+    tt_date_set_month(&d, TT_FEBRUARY);
+    TT_UT_EQUAL(tt_date_get_month(&d), TT_FEBRUARY, "");
+    TT_UT_SUCCESS(tt_date_set_monthday(&d, 1), "");
+    TT_UT_EQUAL(tt_date_get_monthday(&d), 1, "");
+    TT_UT_SUCCESS(tt_date_set_monthday(&d, 28), "");
+    TT_UT_EQUAL(tt_date_get_monthday(&d), 28, "");
+    TT_UT_FAIL(tt_date_set_monthday(&d, 29), "");
+
+    tt_date_set_month(&d, TT_MARCH);
+    TT_UT_SUCCESS(tt_date_set_monthday(&d, 31), "");
+    TT_UT_EQUAL(tt_date_get_monthday(&d), 31, "");
+    TT_UT_FAIL(tt_date_set_monthday(&d, 32), "");
+    tt_date_set_month(&d, TT_APRIL);
+    TT_UT_SUCCESS(tt_date_set_monthday(&d, 30), "");
+    TT_UT_EQUAL(tt_date_get_monthday(&d), 30, "");
+    TT_UT_FAIL(tt_date_set_monthday(&d, 31), "");
+    tt_date_set_month(&d, TT_MAY);
+    TT_UT_SUCCESS(tt_date_set_monthday(&d, 31), "");
+    TT_UT_EQUAL(tt_date_get_monthday(&d), 31, "");
+    TT_UT_FAIL(tt_date_set_monthday(&d, 32), "");
+    tt_date_set_month(&d, TT_JUNE);
+    TT_UT_SUCCESS(tt_date_set_monthday(&d, 30), "");
+    TT_UT_EQUAL(tt_date_get_monthday(&d), 30, "");
+    TT_UT_FAIL(tt_date_set_monthday(&d, 31), "");
+    tt_date_set_month(&d, TT_JULY);
+    TT_UT_SUCCESS(tt_date_set_monthday(&d, 31), "");
+    TT_UT_EQUAL(tt_date_get_monthday(&d), 31, "");
+    TT_UT_FAIL(tt_date_set_monthday(&d, 32), "");
+    tt_date_set_month(&d, TT_AUGUST);
+    TT_UT_SUCCESS(tt_date_set_monthday(&d, 31), "");
+    TT_UT_EQUAL(tt_date_get_monthday(&d), 31, "");
+    TT_UT_FAIL(tt_date_set_monthday(&d, 32), "");
+    tt_date_set_month(&d, TT_SEPTEMBER);
+    TT_UT_SUCCESS(tt_date_set_monthday(&d, 30), "");
+    TT_UT_EQUAL(tt_date_get_monthday(&d), 30, "");
+    TT_UT_FAIL(tt_date_set_monthday(&d, 31), "");
+    tt_date_set_month(&d, TT_OCTOBER);
+    TT_UT_SUCCESS(tt_date_set_monthday(&d, 31), "");
+    TT_UT_EQUAL(tt_date_get_monthday(&d), 31, "");
+    TT_UT_FAIL(tt_date_set_monthday(&d, 32), "");
+    tt_date_set_month(&d, TT_NOVEMBER);
+    TT_UT_SUCCESS(tt_date_set_monthday(&d, 30), "");
+    TT_UT_EQUAL(tt_date_get_monthday(&d), 30, "");
+    TT_UT_FAIL(tt_date_set_monthday(&d, 31), "");
+    tt_date_set_month(&d, TT_DECEMBER);
+    TT_UT_SUCCESS(tt_date_set_monthday(&d, 31), "");
+    TT_UT_EQUAL(tt_date_get_monthday(&d), 31, "");
+    TT_UT_FAIL(tt_date_set_monthday(&d, 32), "");
+
+    // leap year
+    tt_date_set_year(&d, 2000);
+    tt_date_set_month(&d, TT_FEBRUARY);
+    TT_UT_EQUAL(tt_date_get_month(&d), TT_FEBRUARY, "");
+    TT_UT_SUCCESS(tt_date_set_monthday(&d, 1), "");
+    TT_UT_EQUAL(tt_date_get_monthday(&d), 1, "");
+    TT_UT_SUCCESS(tt_date_set_monthday(&d, 28), "");
+    TT_UT_EQUAL(tt_date_get_monthday(&d), 28, "");
+    TT_UT_SUCCESS(tt_date_set_monthday(&d, 29), "");
+    TT_UT_EQUAL(tt_date_get_monthday(&d), 29, "");
+    TT_UT_FAIL(tt_date_set_monthday(&d, 30), "");
+
+    // test end
+    TT_TEST_CASE_LEAVE()
+}
+
+TT_TEST_ROUTINE_DEFINE(case_date_day)
+{
+    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+    tt_date_t d;
+
+    TT_TEST_CASE_ENTER()
+    // test start
+
+    tt_date_init(&d, tt_g_local_tmzone);
+
+    tt_date_set_year(&d, 2017);
+    tt_date_set_month(&d, TT_OCTOBER);
+    tt_date_set_monthday(&d, 5);
+    TT_UT_EQUAL(tt_date_get_weekday(&d), TT_THURSDAY, "");
+
+    TT_UT_SUCCESS(tt_date_set_date(&d, 1901, TT_JANUARY, 1), "");
+    TT_UT_EQUAL(tt_date_get_weekday(&d), TT_TUESDAY, "");
+
+    TT_UT_SUCCESS(tt_date_set_date(&d, 1584, TT_FEBRUARY, 29), "");
+    TT_UT_EQUAL(tt_date_get_weekday(&d), TT_WEDNESDAY, "");
+
+    TT_UT_SUCCESS(tt_date_set_date(&d, 1583, TT_JANUARY, 1), "");
+    TT_UT_EQUAL(tt_date_get_weekday(&d), TT_SATURDAY, "");
+
+    // get year day
+    TT_UT_SUCCESS(tt_date_set_date(&d, 1999, TT_JANUARY, 1), "");
+    TT_UT_EQUAL(tt_date_get_yearday(&d), 0, "");
+    TT_UT_SUCCESS(tt_date_set_date(&d, 1999, TT_FEBRUARY, 28), "");
+    TT_UT_EQUAL(tt_date_get_yearday(&d), 58, "");
+    TT_UT_SUCCESS(tt_date_set_date(&d, 1999, TT_MARCH, 1), "");
+    TT_UT_EQUAL(tt_date_get_yearday(&d), 59, "");
+    TT_UT_SUCCESS(tt_date_set_date(&d, 1999, TT_DECEMBER, 31), "");
+    TT_UT_EQUAL(tt_date_get_yearday(&d), 364, "");
+
+    // get leap year day
+    TT_UT_SUCCESS(tt_date_set_date(&d, 2000, TT_JANUARY, 1), "");
+    TT_UT_EQUAL(tt_date_get_yearday(&d), 0, "");
+    TT_UT_SUCCESS(tt_date_set_date(&d, 2000, TT_FEBRUARY, 29), "");
+    TT_UT_EQUAL(tt_date_get_yearday(&d), 59, "");
+    TT_UT_SUCCESS(tt_date_set_date(&d, 2000, TT_MARCH, 1), "");
+    TT_UT_EQUAL(tt_date_get_yearday(&d), 60, "");
+    TT_UT_SUCCESS(tt_date_set_date(&d, 2000, TT_DECEMBER, 31), "");
+    TT_UT_EQUAL(tt_date_get_yearday(&d), 365, "");
+
+    // set year day
+    TT_UT_SUCCESS(tt_date_set_date(&d, 1999, TT_JANUARY, 1), "");
+    TT_UT_FAIL(tt_date_set_yearday(&d, 365), "");
+
+    TT_UT_SUCCESS(tt_date_set_yearday(&d, 364), "");
+    TT_UT_EQUAL(tt_date_get_year(&d), 1999, "");
+    TT_UT_EQUAL(tt_date_get_month(&d), TT_DECEMBER, "");
+    TT_UT_EQUAL(tt_date_get_monthday(&d), 31, "");
+
+    TT_UT_SUCCESS(tt_date_set_yearday(&d, 0), "");
+    TT_UT_EQUAL(tt_date_get_year(&d), 1999, "");
+    TT_UT_EQUAL(tt_date_get_month(&d), TT_JANUARY, "");
+    TT_UT_EQUAL(tt_date_get_monthday(&d), 1, "");
+
+    TT_UT_SUCCESS(tt_date_set_yearday(&d, 58), "");
+    TT_UT_EQUAL(tt_date_get_year(&d), 1999, "");
+    TT_UT_EQUAL(tt_date_get_month(&d), TT_FEBRUARY, "");
+    TT_UT_EQUAL(tt_date_get_monthday(&d), 28, "");
+
+    TT_UT_SUCCESS(tt_date_set_yearday(&d, 59), "");
+    TT_UT_EQUAL(tt_date_get_year(&d), 1999, "");
+    TT_UT_EQUAL(tt_date_get_month(&d), TT_MARCH, "");
+    TT_UT_EQUAL(tt_date_get_monthday(&d), 1, "");
+
+    // set leap year day
+    TT_UT_SUCCESS(tt_date_set_date(&d, 2000, TT_JANUARY, 1), "");
+    TT_UT_SUCCESS(tt_date_set_yearday(&d, 365), "");
+
+    TT_UT_SUCCESS(tt_date_set_yearday(&d, 365), "");
+    TT_UT_EQUAL(tt_date_get_year(&d), 2000, "");
+    TT_UT_EQUAL(tt_date_get_month(&d), TT_DECEMBER, "");
+    TT_UT_EQUAL(tt_date_get_monthday(&d), 31, "");
+
+    TT_UT_SUCCESS(tt_date_set_yearday(&d, 0), "");
+    TT_UT_EQUAL(tt_date_get_year(&d), 2000, "");
+    TT_UT_EQUAL(tt_date_get_month(&d), TT_JANUARY, "");
+    TT_UT_EQUAL(tt_date_get_monthday(&d), 1, "");
+
+    TT_UT_SUCCESS(tt_date_set_yearday(&d, 59), "");
+    TT_UT_EQUAL(tt_date_get_year(&d), 2000, "");
+    TT_UT_EQUAL(tt_date_get_month(&d), TT_FEBRUARY, "");
+    TT_UT_EQUAL(tt_date_get_monthday(&d), 29, "");
+
+    TT_UT_SUCCESS(tt_date_set_yearday(&d, 60), "");
+    TT_UT_EQUAL(tt_date_get_year(&d), 2000, "");
+    TT_UT_EQUAL(tt_date_get_month(&d), TT_MARCH, "");
+    TT_UT_EQUAL(tt_date_get_monthday(&d), 1, "");
+
+    // test end
+    TT_TEST_CASE_LEAVE()
+}
+
+TT_TEST_ROUTINE_DEFINE(case_date_time)
+{
+    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+    tt_date_t d;
+
+    TT_TEST_CASE_ENTER()
+    // test start
+
+    tt_date_init(&d, tt_g_local_tmzone);
+
+    tt_date_set_hour(&d, 0);
+    TT_UT_EQUAL(tt_date_get_hour(&d), 0, "");
+    TT_UT_EQUAL(tt_date_get_hour_ampm(&d), 0, "");
+    TT_UT_EQUAL(tt_date_is_am(&d), TT_TRUE, "");
+    TT_UT_EQUAL(tt_date_is_pm(&d), TT_FALSE, "");
+
+    tt_date_set_hour(&d, 12);
+    TT_UT_EQUAL(tt_date_get_hour(&d), 12, "");
+    TT_UT_EQUAL(tt_date_get_hour_ampm(&d), 12, "");
+    TT_UT_EQUAL(tt_date_is_am(&d), TT_FALSE, "");
+    TT_UT_EQUAL(tt_date_is_pm(&d), TT_TRUE, "");
+
+    tt_date_set_hour(&d, 23);
+    TT_UT_EQUAL(tt_date_get_hour(&d), 23, "");
+    TT_UT_EQUAL(tt_date_get_hour_ampm(&d), 11, "");
+    TT_UT_EQUAL(tt_date_is_am(&d), TT_FALSE, "");
+    TT_UT_EQUAL(tt_date_is_pm(&d), TT_TRUE, "");
+
+    tt_date_set_minute(&d, 0);
+    TT_UT_EQUAL(tt_date_get_minute(&d), 0, "");
+    tt_date_set_minute(&d, 30);
+    TT_UT_EQUAL(tt_date_get_minute(&d), 30, "");
+    tt_date_set_minute(&d, 59);
+    TT_UT_EQUAL(tt_date_get_minute(&d), 59, "");
+
+    tt_date_set_second(&d, 0);
+    TT_UT_EQUAL(tt_date_get_second(&d), 0, "");
+    tt_date_set_second(&d, 30);
+    TT_UT_EQUAL(tt_date_get_second(&d), 30, "");
+    tt_date_set_second(&d, 59);
+    TT_UT_EQUAL(tt_date_get_second(&d), 59, "");
+
+    // test end
+    TT_TEST_CASE_LEAVE()
+}
+
+extern tt_u32_t __ymd2cjdn(IN tt_u16_t year,
+                           IN tt_month_t month,
+                           IN tt_u8_t day);
+
+extern void __cjdn2ymd(IN tt_u32_t cjdn,
+                       OUT tt_u16_t *year,
+                       OUT tt_month_t *month,
+                       OUT tt_u8_t *day);
+
+TT_TEST_ROUTINE_DEFINE(case_date_cjdn)
+{
+    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+    tt_date_t d;
+    tt_u32_t cjdn;
+    tt_month_t m;
+
+    TT_TEST_CASE_ENTER()
+    // test start
+
+    tt_date_init(&d, tt_g_local_tmzone);
+
+    // 2000/2/29
+    TT_UT_SUCCESS(tt_date_set_date(&d, 2000, TT_FEBRUARY, 29), "");
+    cjdn = __ymd2cjdn(d.year, d.month, d.mday);
+    TT_UT_EQUAL(cjdn, 2451604, "");
+    __cjdn2ymd(cjdn, &d.year, &m, &d.mday);
+    d.month = m;
+    TT_UT_EQUAL(tt_date_get_year(&d), 2000, "");
+    TT_UT_EQUAL(tt_date_get_month(&d), TT_FEBRUARY, "");
+    TT_UT_EQUAL(tt_date_get_monthday(&d), 29, "");
+
+    // 2000/3/1
+    TT_UT_SUCCESS(tt_date_set_date(&d, 2000, TT_MARCH, 1), "");
+    cjdn = __ymd2cjdn(d.year, d.month, d.mday);
+    TT_UT_EQUAL(cjdn, 2451605, "");
+    __cjdn2ymd(cjdn, &d.year, &m, &d.mday);
+    d.month = m;
+    TT_UT_EQUAL(tt_date_get_year(&d), 2000, "");
+    TT_UT_EQUAL(tt_date_get_month(&d), TT_MARCH, "");
+    TT_UT_EQUAL(tt_date_get_monthday(&d), 1, "");
+
+    // 2001/2/28
+    TT_UT_SUCCESS(tt_date_set_date(&d, 2001, TT_FEBRUARY, 28), "");
+    cjdn = __ymd2cjdn(d.year, d.month, d.mday);
+    TT_UT_EQUAL(cjdn, 2451969, "");
+    __cjdn2ymd(cjdn, &d.year, &m, &d.mday);
+    d.month = m;
+    TT_UT_EQUAL(tt_date_get_year(&d), 2001, "");
+    TT_UT_EQUAL(tt_date_get_month(&d), TT_FEBRUARY, "");
+    TT_UT_EQUAL(tt_date_get_monthday(&d), 28, "");
+
+    // 2001/3/1
+    TT_UT_SUCCESS(tt_date_set_date(&d, 2001, TT_MARCH, 1), "");
+    cjdn = __ymd2cjdn(d.year, d.month, d.mday);
+    TT_UT_EQUAL(cjdn, 2451970, "");
+    __cjdn2ymd(cjdn, &d.year, &m, &d.mday);
+    d.month = m;
+    TT_UT_EQUAL(tt_date_get_year(&d), 2001, "");
+    TT_UT_EQUAL(tt_date_get_month(&d), TT_MARCH, "");
+    TT_UT_EQUAL(tt_date_get_monthday(&d), 1, "");
+
+    // 2100/2/28
+    TT_UT_SUCCESS(tt_date_set_date(&d, 2100, TT_FEBRUARY, 28), "");
+    cjdn = __ymd2cjdn(d.year, d.month, d.mday);
+    TT_UT_EQUAL(cjdn, 2488128, "");
+    __cjdn2ymd(cjdn, &d.year, &m, &d.mday);
+    d.month = m;
+    TT_UT_EQUAL(tt_date_get_year(&d), 2100, "");
+    TT_UT_EQUAL(tt_date_get_month(&d), TT_FEBRUARY, "");
+    TT_UT_EQUAL(tt_date_get_monthday(&d), 28, "");
+
+    // 2100/3/1
+    TT_UT_SUCCESS(tt_date_set_date(&d, 2100, TT_MARCH, 1), "");
+    cjdn = __ymd2cjdn(d.year, d.month, d.mday);
+    TT_UT_EQUAL(cjdn, 2488129, "");
+    __cjdn2ymd(cjdn, &d.year, &m, &d.mday);
+    d.month = m;
+    TT_UT_EQUAL(tt_date_get_year(&d), 2100, "");
+    TT_UT_EQUAL(tt_date_get_month(&d), TT_MARCH, "");
+    TT_UT_EQUAL(tt_date_get_monthday(&d), 1, "");
+
+    // test end
+    TT_TEST_CASE_LEAVE()
+}
+
+TT_TEST_ROUTINE_DEFINE(case_date_inc_dec)
+{
+    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+    tt_date_t d, d2;
+
+    TT_TEST_CASE_ENTER()
+    // test start
+
+    tt_date_init(&d, tt_g_local_tmzone);
+
+    TT_UT_FAIL(tt_date_inc_day(&d, ~0), "");
+    TT_UT_EQUAL(tt_date_cmp(&d, &d), 0, "");
+
+    // 1999/1/1
+    TT_UT_SUCCESS(tt_date_set_date(&d, 1999, TT_DECEMBER, 31), "");
+
+    // cmp date
+    TT_UT_SUCCESS(tt_date_set_date(&d2, 2000, TT_DECEMBER, 31), "");
+    TT_UT_EQUAL(tt_date_cmp(&d, &d2), -1, "");
+    TT_UT_EQUAL(tt_date_cmp(&d2, &d), 1, "");
+
+    TT_UT_SUCCESS(tt_date_set_date(&d2, 1999, TT_NOVEMBER, 30), "");
+    TT_UT_EQUAL(tt_date_cmp(&d, &d2), 1, "");
+    TT_UT_EQUAL(tt_date_cmp(&d2, &d), -1, "");
+
+    TT_UT_SUCCESS(tt_date_set_date(&d2, 1999, TT_DECEMBER, 30), "");
+    TT_UT_EQUAL(tt_date_cmp(&d, &d2), 1, "");
+    TT_UT_EQUAL(tt_date_cmp(&d2, &d), -1, "");
+
+    // day
+    TT_UT_SUCCESS(tt_date_inc_day(&d, 0), "");
+    TT_UT_EQUAL(tt_date_get_year(&d), 1999, "");
+    TT_UT_EQUAL(tt_date_get_month(&d), TT_DECEMBER, "");
+    TT_UT_EQUAL(tt_date_get_monthday(&d), 31, "");
+
+    TT_UT_SUCCESS(tt_date_inc_day(&d, 1), "");
+    TT_UT_EQUAL(tt_date_get_year(&d), 2000, "");
+    TT_UT_EQUAL(tt_date_get_month(&d), TT_JANUARY, "");
+    TT_UT_EQUAL(tt_date_get_monthday(&d), 1, "");
+
+    TT_UT_SUCCESS(tt_date_dec_day(&d, 1), "");
+    TT_UT_EQUAL(tt_date_get_year(&d), 1999, "");
+    TT_UT_EQUAL(tt_date_get_month(&d), TT_DECEMBER, "");
+    TT_UT_EQUAL(tt_date_get_monthday(&d), 31, "");
+
+    // hour
+    tt_date_set_time(&d, 23, 59, 59);
+
+    // cmp time
+    tt_date_copy(&d2, &d);
+    tt_date_set_time(&d2, 21, 59, 59);
+    TT_UT_EQUAL(tt_date_cmp(&d, &d2), 1, "");
+    TT_UT_EQUAL(tt_date_cmp(&d2, &d), -1, "");
+    tt_date_set_time(&d2, 23, 58, 59);
+    TT_UT_EQUAL(tt_date_cmp(&d, &d2), 1, "");
+    TT_UT_EQUAL(tt_date_cmp(&d2, &d), -1, "");
+    tt_date_set_time(&d2, 23, 59, 58);
+    TT_UT_EQUAL(tt_date_cmp(&d, &d2), 1, "");
+    TT_UT_EQUAL(tt_date_cmp(&d2, &d), -1, "");
+
+    TT_UT_SUCCESS(tt_date_set_date(&d2, 1999, TT_NOVEMBER, 30), "");
+    TT_UT_EQUAL(tt_date_cmp(&d, &d2), 1, "");
+    TT_UT_EQUAL(tt_date_cmp(&d2, &d), -1, "");
+
+    TT_UT_SUCCESS(tt_date_set_date(&d2, 1999, TT_DECEMBER, 30), "");
+    TT_UT_EQUAL(tt_date_cmp(&d, &d2), 1, "");
+    TT_UT_EQUAL(tt_date_cmp(&d2, &d), -1, "");
+
+    TT_UT_SUCCESS(tt_date_inc_hour(&d, 0), "");
+    TT_UT_EQUAL(tt_date_get_hour(&d), 23, "");
+    TT_UT_EQUAL(tt_date_get_minute(&d), 59, "");
+    TT_UT_EQUAL(tt_date_get_second(&d), 59, "");
+
+    TT_UT_SUCCESS(tt_date_inc_hour(&d, 1), "");
+    TT_UT_EQUAL(tt_date_get_year(&d), 2000, "");
+    TT_UT_EQUAL(tt_date_get_month(&d), TT_JANUARY, "");
+    TT_UT_EQUAL(tt_date_get_monthday(&d), 1, "");
+    TT_UT_EQUAL(tt_date_get_hour(&d), 0, "");
+    TT_UT_EQUAL(tt_date_get_minute(&d), 59, "");
+    TT_UT_EQUAL(tt_date_get_second(&d), 59, "");
+
+    TT_UT_SUCCESS(tt_date_dec_hour(&d, 1), "");
+    TT_UT_EQUAL(tt_date_get_year(&d), 1999, "");
+    TT_UT_EQUAL(tt_date_get_month(&d), TT_DECEMBER, "");
+    TT_UT_EQUAL(tt_date_get_monthday(&d), 31, "");
+    TT_UT_EQUAL(tt_date_get_hour(&d), 23, "");
+    TT_UT_EQUAL(tt_date_get_minute(&d), 59, "");
+    TT_UT_EQUAL(tt_date_get_second(&d), 59, "");
+
+    TT_UT_SUCCESS(tt_date_inc_hour(&d, 25), "");
+    TT_UT_EQUAL(tt_date_get_year(&d), 2000, "");
+    TT_UT_EQUAL(tt_date_get_month(&d), TT_JANUARY, "");
+    TT_UT_EQUAL(tt_date_get_monthday(&d), 2, "");
+    TT_UT_EQUAL(tt_date_get_hour(&d), 0, "");
+    TT_UT_EQUAL(tt_date_get_minute(&d), 59, "");
+    TT_UT_EQUAL(tt_date_get_second(&d), 59, "");
+
+    TT_UT_SUCCESS(tt_date_dec_hour(&d, 25), "");
+    TT_UT_EQUAL(tt_date_get_year(&d), 1999, "");
+    TT_UT_EQUAL(tt_date_get_month(&d), TT_DECEMBER, "");
+    TT_UT_EQUAL(tt_date_get_monthday(&d), 31, "");
+    TT_UT_EQUAL(tt_date_get_hour(&d), 23, "");
+    TT_UT_EQUAL(tt_date_get_minute(&d), 59, "");
+    TT_UT_EQUAL(tt_date_get_second(&d), 59, "");
+
+    // min
+    TT_UT_SUCCESS(tt_date_set(&d, 2000, TT_FEBRUARY, 29, 23, 59, 59), "");
+
+    TT_UT_SUCCESS(tt_date_inc_minute(&d, 0), "");
+    TT_UT_EQUAL(tt_date_get_year(&d), 2000, "");
+    TT_UT_EQUAL(tt_date_get_month(&d), TT_FEBRUARY, "");
+    TT_UT_EQUAL(tt_date_get_monthday(&d), 29, "");
+    TT_UT_EQUAL(tt_date_get_hour(&d), 23, "");
+    TT_UT_EQUAL(tt_date_get_minute(&d), 59, "");
+    TT_UT_EQUAL(tt_date_get_second(&d), 59, "");
+
+    TT_UT_SUCCESS(tt_date_inc_minute(&d, 1501), "");
+    TT_UT_EQUAL(tt_date_get_year(&d), 2000, "");
+    TT_UT_EQUAL(tt_date_get_month(&d), TT_MARCH, "");
+    TT_UT_EQUAL(tt_date_get_monthday(&d), 2, "");
+    TT_UT_EQUAL(tt_date_get_hour(&d), 1, "");
+    TT_UT_EQUAL(tt_date_get_minute(&d), 0, "");
+    TT_UT_EQUAL(tt_date_get_second(&d), 59, "");
+
+    TT_UT_SUCCESS(tt_date_dec_minute(&d, 1501), "");
+    TT_UT_EQUAL(tt_date_get_year(&d), 2000, "");
+    TT_UT_EQUAL(tt_date_get_month(&d), TT_FEBRUARY, "");
+    TT_UT_EQUAL(tt_date_get_monthday(&d), 29, "");
+    TT_UT_EQUAL(tt_date_get_hour(&d), 23, "");
+    TT_UT_EQUAL(tt_date_get_minute(&d), 59, "");
+    TT_UT_EQUAL(tt_date_get_second(&d), 59, "");
+
+    // second
+    TT_UT_SUCCESS(tt_date_set(&d, 1999, TT_FEBRUARY, 28, 23, 59, 59), "");
+
+    TT_UT_SUCCESS(tt_date_inc_second(&d, 0), "");
+    TT_UT_EQUAL(tt_date_get_year(&d), 1999, "");
+    TT_UT_EQUAL(tt_date_get_month(&d), TT_FEBRUARY, "");
+    TT_UT_EQUAL(tt_date_get_monthday(&d), 28, "");
+    TT_UT_EQUAL(tt_date_get_hour(&d), 23, "");
+    TT_UT_EQUAL(tt_date_get_minute(&d), 59, "");
+    TT_UT_EQUAL(tt_date_get_second(&d), 59, "");
+
+    TT_UT_SUCCESS(tt_date_inc_second(&d, 90001), "");
+    TT_UT_EQUAL(tt_date_get_year(&d), 1999, "");
+    TT_UT_EQUAL(tt_date_get_month(&d), TT_MARCH, "");
+    TT_UT_EQUAL(tt_date_get_monthday(&d), 2, "");
+    TT_UT_EQUAL(tt_date_get_hour(&d), 1, "");
+    TT_UT_EQUAL(tt_date_get_minute(&d), 0, "");
+    TT_UT_EQUAL(tt_date_get_second(&d), 0, "");
+
+    TT_UT_SUCCESS(tt_date_dec_second(&d, 90001), "");
+    TT_UT_EQUAL(tt_date_get_year(&d), 1999, "");
+    TT_UT_EQUAL(tt_date_get_month(&d), TT_FEBRUARY, "");
+    TT_UT_EQUAL(tt_date_get_monthday(&d), 28, "");
+    TT_UT_EQUAL(tt_date_get_hour(&d), 23, "");
+    TT_UT_EQUAL(tt_date_get_minute(&d), 59, "");
+    TT_UT_EQUAL(tt_date_get_second(&d), 59, "");
 
     // test end
     TT_TEST_CASE_LEAVE()

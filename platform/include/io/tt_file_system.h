@@ -58,7 +58,7 @@ typedef struct tt_file_attr_s
     tt_u32_t reserved;
 } tt_file_attr_t;
 
-typedef struct tt_fs_file_s
+typedef struct tt_file_s
 {
     tt_file_ntv_t sys_file;
 } tt_file_t;
@@ -68,7 +68,7 @@ typedef struct tt_dir_attr_s
     tt_u32_t reserved;
 } tt_dir_attr_t;
 
-typedef struct
+typedef struct tt_dir_s
 {
     tt_dir_ntv_t sys_dir;
 } tt_dir_t;

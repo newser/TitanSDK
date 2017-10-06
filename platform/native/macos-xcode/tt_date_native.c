@@ -128,7 +128,6 @@ void __date2tm(IN tt_date_t *date, OUT struct tm *tm)
     tm->tm_hour = (int)date->hour;
     tm->tm_min = (int)date->minute;
     tm->tm_sec = (int)date->second;
-    tm->tm_isdst = (int)date->dst;
 
     // other members are not used
     tm->tm_wday = 0;

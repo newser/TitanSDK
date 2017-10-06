@@ -17,92 +17,91 @@
  */
 
 /**
-@file tt_log_def.h
-@brief log definition
+@file tt_log_io_file.h
+@brief log io file
 
-this file declare log definition
+this file defines log io file output
 */
 
-#ifndef __TT_LOG_DEF__
-#define __TT_LOG_DEF__
+#ifndef __TT_LOG_IO_FILE__
+#define __TT_LOG_IO_FILE__
 
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <tt_basic_type.h>
+#include <io/tt_file_system.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
 ////////////////////////////////////////////////////////////
 
-#define TT_LOGFLD_SEQ_NUM_KEY "seq_num"
-#define TT_LOGFLD_TIME_KEY "time"
-#define TT_LOGFLD_LOGGER_KEY "logger"
-#define TT_LOGFLD_LEVEL_KEY "level"
-#define TT_LOGFLD_CONTENT_KEY "content"
-#define TT_LOGFLD_FUNC_KEY "function"
-#define TT_LOGFLD_LINE_KEY "line"
-
 ////////////////////////////////////////////////////////////
 // type definition
 ////////////////////////////////////////////////////////////
 
-typedef enum {
-    TT_LOG_DEBUG,
-    TT_LOG_INFO,
-    TT_LOG_WARN,
-    TT_LOG_ERROR,
-    TT_LOG_FATAL,
-
-    TT_LOG_LEVEL_NUM
-} tt_log_level_t;
-#define TT_LOG_LEVEL_VALID(l) ((l) < TT_LOG_LEVEL_NUM)
+struct tt_logio_s;
 
 typedef enum {
-    TT_LOGIO_STANDARD,
-    TT_LOGIO_LOGCAT, // for android
-    TT_LOGIO_FILE,
+    TT_LOGFILE_SUFFIX_INDEX,
+    TT_LOGFILE_SUFFIX_DATE,
 
-    TT_LOGIO_NUM
-} tt_logio_type_t;
-#define TT_LOGIO_TYPE_VALID(t) ((t) < TT_LOGIO_NUM)
+    TT_LOGFILE_SUFFIX_NUM
+} tt_logfile_suffix_t;
+#define TT_LOGFILE_SUFFIX_VALID(n) ((n) < TT_LOGFILE_SUFFIX_NUM)
 
 typedef enum {
-    TT_LOGFLD_SEQ_NUM,
-    TT_LOGFLD_TIME,
-    TT_LOGFLD_LOGGER,
-    TT_LOGFLD_LEVEL,
-    TT_LOGFLD_CONTENT,
-    TT_LOGFLD_FUNC,
-    TT_LOGFLD_LINE,
+    TT_LOGFILE_ARCHIVE_NONE,
+    TT_LOGFILE_ARCHIVE_ZIP,
 
-    TT_LOGFLD_TYPE_NUM,
-} tt_logfld_type_t;
-#define TT_LOGFLD_TYPE_VALID(t) ((t) < TT_LOGFLD_TYPE_NUM)
+    TT_LOGFILE_ARCHIVE_NUM
+} tt_logfile_archive_t;
+#define TT_LOGFILE_ARCHIVE_VALID(n) ((n) < TT_LOGFILE_ARCHIVE_NUM)
 
 typedef struct
 {
-    tt_u32_t seq_num;
-    // todo: time
-    const tt_char_t *logger;
-    tt_log_level_t level;
-    const tt_char_t *content;
-    const tt_char_t *function;
-    tt_u32_t line;
-} tt_log_entry_t;
+    const tt_char_t *log_name;
+    const tt_char_t *archive_name;
+    tt_logfile_suffix_t log_suffix;
+    tt_logfile_suffix_t archive_suffix;
+    tt_u32_t keep_log_sec;
+    tt_u32_t keep_archive_sec;
+    tt_u32_t max_log_size_order;
+} tt_logio_file_attr_t;
 
-// return false if the entry should be discarded
-typedef tt_bool_t (*tt_log_filter_t)(IN OUT tt_log_entry_t *entry);
+typedef struct
+{
+    tt_s64_t keep_log_time;
+    tt_s64_t keep_archive_time;
+    const tt_char_t *log_path;
+    const tt_char_t *log_name;
+    const tt_char_t *archive_path;
+    const tt_char_t *archive_name;
+    tt_file_t f;
+    tt_logfile_suffix_t log_suffix;
+    tt_logfile_suffix_t archive_suffix;
+    tt_u32_t max_log_size;
+    tt_u32_t write_len;
+
+    union
+    {
+        tt_u32_t index;
+    };
+} tt_logio_file_t;
 
 ////////////////////////////////////////////////////////////
 // global variants
 ////////////////////////////////////////////////////////////
 
-tt_export const tt_char_t *tt_g_log_level_name[TT_LOG_LEVEL_NUM];
-
 ////////////////////////////////////////////////////////////
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-#endif /* __TT_LOG_DEF__ */
+tt_export struct tt_logio_s *tt_logio_file_create(
+    IN const tt_char_t *log_path,
+    IN const tt_char_t *archive_path,
+    IN OPT tt_logio_file_attr_t *attr);
+
+tt_export void tt_logio_file_attr_default(IN tt_logio_file_attr_t *attr);
+
+#endif /* __TT_LOG_IO_FILE__ */
