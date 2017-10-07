@@ -168,6 +168,23 @@ tt_s32_t tt_date_cmp(IN tt_date_t *a, IN tt_date_t *b)
     return 0;
 }
 
+tt_result_t tt_date_change_tmzone(IN tt_date_t *date, IN tt_tmzone_t tz)
+{
+    tt_s32_t org_s, new_s;
+
+    TT_ASSERT(TT_TMZONE_VALID(tz));
+
+    org_s = tt_tmzone2offsec(date->tz);
+    new_s = tt_tmzone2offsec(tz);
+    if (new_s >= org_s) {
+        TT_DO(tt_date_inc_second(date, (tt_u32_t)(new_s - org_s)));
+    } else {
+        TT_DO(tt_date_dec_second(date, (tt_u32_t)(org_s - new_s)));
+    }
+    date->tz = tz;
+    return TT_SUCCESS;
+}
+
 // ========================================
 // get/set
 // ========================================

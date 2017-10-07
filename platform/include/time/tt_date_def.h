@@ -132,8 +132,8 @@ tt_export const tt_char_t *tt_weekday_name[TT_WEEKDAY_NUM];
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-tt_export tt_s64_t tt_tmzone2offsec(IN tt_tmzone_t tmzone);
+tt_export tt_s32_t tt_tmzone2offsec(IN tt_tmzone_t tmzone);
 
-tt_export tt_tmzone_t tt_offsec2tmzone(IN tt_s64_t offset);
+tt_export tt_tmzone_t tt_offsec2tmzone(IN tt_s32_t offset);
 
 #endif /* __TT_DATE_DEF__ */

@@ -168,6 +168,7 @@ TT_TEST_CASE("case_date_def",
     TT_TEST_ROUTINE_DEFINE(case_date_def)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+    tt_date_t d;
 
     TT_TEST_CASE_ENTER()
     // test start
@@ -200,6 +201,23 @@ TT_TEST_CASE("case_date_def",
     TT_UT_EQUAL(tt_tmzone2offsec(TT_UTC_00_00), 0, "");
     TT_UT_EQUAL(tt_tmzone2offsec(TT_UTC_08_45), 31500, "");
     TT_UT_EQUAL(tt_tmzone2offsec(TT_UTC_14_00), 50400, "");
+
+    tt_date_init(&d, TT_UTC_08_00);
+    TT_UT_SUCCESS(tt_date_set(&d, 2017, TT_OCTOBER, 7, 20, 0, 0), "");
+
+    tt_date_change_tmzone(&d, TT_UTC_MINUS_07_00);
+    TT_UT_EQUAL(tt_date_get_month(&d), TT_OCTOBER, "");
+    TT_UT_EQUAL(tt_date_get_monthday(&d), 7, "");
+    TT_UT_EQUAL(tt_date_get_hour(&d), 5, "");
+    TT_UT_EQUAL(tt_date_get_minute(&d), 0, "");
+    TT_UT_EQUAL(tt_date_get_second(&d), 0, "");
+
+    tt_date_change_tmzone(&d, TT_UTC_09_00);
+    TT_UT_EQUAL(tt_date_get_month(&d), TT_OCTOBER, "");
+    TT_UT_EQUAL(tt_date_get_monthday(&d), 7, "");
+    TT_UT_EQUAL(tt_date_get_hour(&d), 21, "");
+    TT_UT_EQUAL(tt_date_get_minute(&d), 0, "");
+    TT_UT_EQUAL(tt_date_get_second(&d), 0, "");
 
     // test end
     TT_TEST_CASE_LEAVE()

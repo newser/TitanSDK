@@ -75,7 +75,7 @@ const tt_char_t *tt_weekday_name[TT_WEEKDAY_NUM] = {"Sunday",
                                                     "Saturday"};
 
 #define SEC(h, m) (((h)*3600) + ((m)*60))
-static tt_s64_t __tmzone_offset[TT_TMZONE_NUM] =
+static tt_s32_t __tmzone_offset[TT_TMZONE_NUM] =
     {-SEC(12, 0), -SEC(11, 0), -SEC(10, 0), -SEC(9, 30), -SEC(9, 0),
      -SEC(8, 0),  -SEC(7, 0),  -SEC(6, 0),  -SEC(5, 0),  -SEC(4, 0),
      -SEC(3, 30), -SEC(3, 0),  -SEC(2, 0),  -SEC(1, 0),  SEC(0, 0),
@@ -93,13 +93,13 @@ static tt_s64_t __tmzone_offset[TT_TMZONE_NUM] =
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-tt_s64_t tt_tmzone2offsec(IN tt_tmzone_t tmzone)
+tt_s32_t tt_tmzone2offsec(IN tt_tmzone_t tmzone)
 {
     TT_ASSERT(TT_TMZONE_VALID(tmzone));
     return __tmzone_offset[tmzone];
 }
 
-tt_tmzone_t tt_offsec2tmzone(IN tt_s64_t offset)
+tt_tmzone_t tt_offsec2tmzone(IN tt_s32_t offset)
 {
     tt_tmzone_t z = TT_UTC_MINUS_12_00;
     while ((z < TT_UTC_14_00) && (offset > __tmzone_offset[z])) {

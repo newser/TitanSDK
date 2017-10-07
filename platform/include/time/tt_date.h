@@ -85,6 +85,9 @@ tt_export tt_bool_t tt_date_valid(IN tt_u32_t year,
 
 tt_export tt_s32_t tt_date_cmp(IN tt_date_t *a, IN tt_date_t *b);
 
+tt_export tt_result_t tt_date_change_tmzone(IN tt_date_t *date,
+                                            IN tt_tmzone_t tz);
+
 // ========================================
 // get/set
 // ========================================
@@ -205,6 +208,11 @@ tt_inline tt_result_t tt_date_set(IN tt_date_t *date,
 tt_inline tt_tmzone_t tt_date_get_tmzone(IN tt_date_t *date)
 {
     return date->tz;
+}
+
+tt_inline void tt_date_set_tmzone(IN tt_date_t *date, IN tt_tmzone_t tz)
+{
+    date->tz = tz;
 }
 
 tt_inline void tt_date_now(OUT tt_date_t *date)
