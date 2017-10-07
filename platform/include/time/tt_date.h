@@ -267,4 +267,15 @@ tt_export tt_u32_t tt_date_parse(IN tt_date_t *date,
                                  IN tt_char_t *buf,
                                  IN tt_u32_t len);
 
+// ========================================
+// conversion
+// ========================================
+
+tt_export tt_result_t tt_date_to_julian(IN tt_date_t *date,
+                                        OUT tt_double_t *julian);
+
+tt_export tt_result_t tt_date_from_julian(IN tt_date_t *date,
+                                          IN tt_double_t julian,
+                                          IN tt_tmzone_t tz);
+
 #endif /* __TT_DATE__ */

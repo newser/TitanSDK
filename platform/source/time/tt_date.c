@@ -131,39 +131,23 @@ tt_bool_t tt_date_valid(IN tt_u32_t year, IN tt_month_t month, IN tt_u32_t mday)
 
 tt_s32_t tt_date_cmp(IN tt_date_t *a, IN tt_date_t *b)
 {
-    tt_u32_t av, bv;
+#define __dcmp(field)                                                          \
+    do {                                                                       \
+        if (a->field > b->field) {                                             \
+            return 1;                                                          \
+        } else if (a->field < b->field) {                                      \
+            return -1;                                                         \
+        }                                                                      \
+    } while (0)
 
-    av = __ymd2cjdn(a->year, a->month, a->mday);
-    bv = __ymd2cjdn(b->year, b->month, b->mday);
-    if (av > bv) {
-        return 1;
-    } else if (av < bv) {
-        return -1;
-    }
+    __dcmp(year);
+    __dcmp(month);
+    __dcmp(mday);
+    __dcmp(hour);
+    __dcmp(minute);
+    __dcmp(second);
 
-    av = a->hour;
-    bv = b->hour;
-    if (av > bv) {
-        return 1;
-    } else if (av < bv) {
-        return -1;
-    }
-
-    av = a->minute;
-    bv = b->minute;
-    if (av > bv) {
-        return 1;
-    } else if (av < bv) {
-        return -1;
-    }
-
-    av = a->second;
-    bv = b->second;
-    if (av > bv) {
-        return 1;
-    } else if (av < bv) {
-        return -1;
-    }
+#undef __dcmp
 
     return 0;
 }
@@ -520,6 +504,67 @@ tt_u32_t tt_date_parse(IN tt_date_t *date,
         tt_free(s);
     }
     return result;
+}
+
+// ========================================
+// conversion
+// ========================================
+
+tt_result_t tt_date_to_julian(IN tt_date_t *date, OUT tt_double_t *julian)
+{
+    tt_date_t d;
+    tt_double_t jd;
+    tt_u32_t cjdn;
+
+    tt_date_copy(&d, date);
+    if (!TT_OK(tt_date_change_tmzone(&d, TT_UTC_00_00))) {
+        return -1;
+    }
+
+    cjdn = __ymd2cjdn(d.year, d.month, d.mday);
+
+    jd = cjdn;
+    jd += d.hour / 24.0 + d.minute / 1440.0 + d.second / 86400.0 - 0.5;
+    *julian = jd;
+    return TT_SUCCESS;
+}
+
+tt_result_t tt_date_from_julian(IN tt_date_t *date,
+                                IN tt_double_t julian,
+                                IN tt_tmzone_t tz)
+{
+    tt_double_t cjd;
+    tt_u32_t cjdn, sec;
+    tt_month_t m;
+
+    cjd = julian + 0.5;
+    cjdn = (tt_u32_t)cjd;
+    cjd -= cjdn;
+
+    __cjdn2ymd(cjdn, &date->year, &m, &date->mday);
+    date->month = m;
+    if (!__date_valid(date->year, date->month, date->mday)) {
+        return TT_FAIL;
+    }
+
+    // time
+    TT_ASSERT(cjd < 1);
+    sec = (tt_u32_t)(cjd * 86400);
+
+    date->hour = (tt_u8_t)(sec / 3600);
+    TT_ASSERT(date->hour < 24);
+    sec -= (date->hour * 3600);
+
+    date->minute = (tt_u8_t)(sec / 60);
+    TT_ASSERT(date->hour < 60);
+    sec -= (date->minute * 60);
+
+    TT_ASSERT(sec < 60);
+    date->second = sec;
+    ;
+
+    date->tz = TT_UTC_00_00;
+    return tt_date_change_tmzone(date, tz);
 }
 
 tt_result_t __date_component_init(IN tt_component_t *comp,

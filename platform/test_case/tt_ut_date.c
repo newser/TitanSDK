@@ -52,6 +52,7 @@ TT_TEST_ROUTINE_DECLARE(case_date_day)
 TT_TEST_ROUTINE_DECLARE(case_date_time)
 TT_TEST_ROUTINE_DECLARE(case_date_cjdn)
 TT_TEST_ROUTINE_DECLARE(case_date_inc_dec)
+TT_TEST_ROUTINE_DECLARE(case_date_julian)
 // =========================================
 
 // === test case list ======================
@@ -139,6 +140,15 @@ TT_TEST_CASE("case_date_def",
                  NULL,
                  NULL),
 
+    TT_TEST_CASE("case_date_julian",
+                 "testing date to/from julian day",
+                 case_date_julian,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL),
+
     TT_TEST_CASE_LIST_DEFINE_END(date_case)
     // =========================================
 
@@ -153,7 +163,7 @@ TT_TEST_CASE("case_date_def",
     ////////////////////////////////////////////////////////////
 
     /*
-    TT_TEST_ROUTINE_DEFINE(case_date_inc_dec)
+    TT_TEST_ROUTINE_DEFINE(case_date_julian)
     {
         //tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
 
@@ -861,6 +871,67 @@ TT_TEST_ROUTINE_DEFINE(case_date_inc_dec)
     TT_UT_EQUAL(tt_date_get_hour(&d), 23, "");
     TT_UT_EQUAL(tt_date_get_minute(&d), 59, "");
     TT_UT_EQUAL(tt_date_get_second(&d), 59, "");
+
+    // test end
+    TT_TEST_CASE_LEAVE()
+}
+
+TT_TEST_ROUTINE_DEFINE(case_date_julian)
+{
+    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+    tt_date_t d;
+    tt_double_t jd;
+
+    TT_TEST_CASE_ENTER()
+    // test start
+
+    tt_date_init(&d, TT_UTC_00_00);
+
+    TT_UT_SUCCESS(tt_date_set_date(&d, 1840, TT_DECEMBER, 31), "");
+    TT_UT_SUCCESS(tt_date_to_julian(&d, &jd), "");
+    TT_UT_EXP((jd - 2393470.5) < 0.1, "");
+    TT_UT_SUCCESS(tt_date_from_julian(&d, jd, TT_UTC_00_00), "");
+    TT_UT_EQUAL(tt_date_get_year(&d), 1840, "");
+    TT_UT_EQUAL(tt_date_get_month(&d), TT_DECEMBER, "");
+    TT_UT_EQUAL(tt_date_get_monthday(&d), 31, "");
+    TT_UT_EQUAL(tt_date_get_hour(&d), 0, "");
+
+    TT_UT_SUCCESS(tt_date_set_date(&d, 1858, TT_NOVEMBER, 17), "");
+    TT_UT_SUCCESS(tt_date_to_julian(&d, &jd), "");
+    TT_UT_EXP((jd - 2400000.5) < 0.1, "");
+    TT_UT_EQUAL(tt_date_get_year(&d), 1858, "");
+    TT_UT_EQUAL(tt_date_get_month(&d), TT_NOVEMBER, "");
+    TT_UT_EQUAL(tt_date_get_monthday(&d), 17, "");
+    TT_UT_EQUAL(tt_date_get_hour(&d), 0, "");
+
+    TT_UT_SUCCESS(tt_date_set_date(&d, 1899, TT_DECEMBER, 30), "");
+    TT_UT_SUCCESS(tt_date_to_julian(&d, &jd), "");
+    TT_UT_EXP((jd - 2415018.5) < 0.1, "");
+
+    TT_UT_SUCCESS(tt_date_set_date(&d, 1901, TT_JANUARY, 1), "");
+    TT_UT_SUCCESS(tt_date_to_julian(&d, &jd), "");
+    TT_UT_EXP((jd - 2415385.5) < 0.1, "");
+
+    TT_UT_SUCCESS(tt_date_set_date(&d, 1970, TT_JANUARY, 1), "");
+    TT_UT_SUCCESS(tt_date_to_julian(&d, &jd), "");
+    TT_UT_EXP((jd - 2440587.5) < 0.1, "");
+
+    TT_UT_SUCCESS(tt_date_set_date(&d, 1980, TT_JANUARY, 1), "");
+    TT_UT_SUCCESS(tt_date_to_julian(&d, &jd), "");
+    TT_UT_EXP((jd - 2444239.5) < 0.1, "");
+    TT_UT_SUCCESS(tt_date_from_julian(&d, jd, TT_UTC_00_00), "");
+    TT_UT_EQUAL(tt_date_get_year(&d), 1980, "");
+    TT_UT_EQUAL(tt_date_get_month(&d), TT_JANUARY, "");
+    TT_UT_EQUAL(tt_date_get_monthday(&d), 1, "");
+    TT_UT_EQUAL(tt_date_get_hour(&d), 0, "");
+
+    TT_UT_SUCCESS(tt_date_from_julian(&d, 2455620.56318, TT_UTC_00_00), "");
+    TT_UT_EQUAL(tt_date_get_year(&d), 2011, "");
+    TT_UT_EQUAL(tt_date_get_month(&d), TT_FEBRUARY, "");
+    TT_UT_EQUAL(tt_date_get_monthday(&d), 28, "");
+    TT_UT_EQUAL(tt_date_get_hour(&d), 1, "");
+    TT_UT_EQUAL(tt_date_get_minute(&d), 30, "");
+    // TT_UT_EQUAL(tt_date_get_second(&d), 59, "");
 
     // test end
     TT_TEST_CASE_LEAVE()
