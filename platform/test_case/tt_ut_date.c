@@ -53,6 +53,7 @@ TT_TEST_ROUTINE_DECLARE(case_date_time)
 TT_TEST_ROUTINE_DECLARE(case_date_cjdn)
 TT_TEST_ROUTINE_DECLARE(case_date_inc_dec)
 TT_TEST_ROUTINE_DECLARE(case_date_julian)
+TT_TEST_ROUTINE_DECLARE(case_date_diff)
 // =========================================
 
 // === test case list ======================
@@ -149,6 +150,15 @@ TT_TEST_CASE("case_date_def",
                  NULL,
                  NULL),
 
+    TT_TEST_CASE("case_date_diff",
+                 "testing date difference",
+                 case_date_diff,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL),
+
     TT_TEST_CASE_LIST_DEFINE_END(date_case)
     // =========================================
 
@@ -163,7 +173,7 @@ TT_TEST_CASE("case_date_def",
     ////////////////////////////////////////////////////////////
 
     /*
-    TT_TEST_ROUTINE_DEFINE(case_date_julian)
+    TT_TEST_ROUTINE_DEFINE(case_date_diff)
     {
         //tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
 
@@ -953,6 +963,48 @@ TT_TEST_ROUTINE_DEFINE(case_date_julian)
     TT_UT_EQUAL(tt_date_get_hour(&d), 1, "");
     TT_UT_EQUAL(tt_date_get_minute(&d), 30, "");
     // TT_UT_EQUAL(tt_date_get_second(&d), 59, "");
+
+    // test end
+    TT_TEST_CASE_LEAVE()
+}
+
+TT_TEST_ROUTINE_DEFINE(case_date_diff)
+{
+    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+    tt_date_t a, b;
+
+    TT_TEST_CASE_ENTER()
+    // test start
+
+    tt_date_init(&a, tt_g_local_tmzone);
+    tt_date_init(&b, tt_g_local_tmzone);
+
+    // diff day
+    tt_date_set_date(&a, 2016, TT_FEBRUARY, 28);
+    tt_date_copy(&b, &a);
+    TT_UT_EQUAL(tt_date_diff_day(&a, &b), 0, "");
+
+    tt_date_set_date(&b, 2016, TT_FEBRUARY, 29);
+    TT_UT_EQUAL(tt_date_diff_day(&a, &b), -1, "");
+    TT_UT_EQUAL(tt_date_diff_day(&b, &a), 1, "");
+
+    tt_date_set_date(&b, 2017, TT_FEBRUARY, 28);
+    TT_UT_EQUAL(tt_date_diff_day(&a, &b), -366, "");
+    TT_UT_EQUAL(tt_date_diff_day(&b, &a), 366, "");
+
+    // diff time
+    tt_date_set_time(&a, 12, 0, 0);
+    tt_date_set_time(&b, 12, 0, 0);
+    TT_UT_EQUAL(tt_date_diff_second(&a, &b), -366 * 86400, "");
+    TT_UT_EQUAL(tt_date_diff_second(&b, &a), 366 * 86400, "");
+
+    tt_date_set_time(&a, 12, 0, 1);
+    TT_UT_EQUAL(tt_date_diff_second(&a, &b), -366 * 86400 + 1, "");
+    TT_UT_EQUAL(tt_date_diff_second(&b, &a), 366 * 86400 - 1, "");
+
+    tt_date_set_time(&a, 11, 59, 59);
+    TT_UT_EQUAL(tt_date_diff_second(&a, &b), -366 * 86400 - 1, "");
+    TT_UT_EQUAL(tt_date_diff_second(&b, &a), 366 * 86400 + 1, "");
 
     // test end
     TT_TEST_CASE_LEAVE()

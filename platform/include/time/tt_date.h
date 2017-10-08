@@ -88,6 +88,10 @@ tt_export tt_s32_t tt_date_cmp(IN tt_date_t *a, IN tt_date_t *b);
 tt_export tt_result_t tt_date_change_tmzone(IN tt_date_t *date,
                                             IN tt_tmzone_t tz);
 
+tt_export tt_s32_t tt_date_diff_day(IN tt_date_t *a, IN tt_date_t *b);
+
+tt_export tt_s64_t tt_date_diff_second(IN tt_date_t *a, IN tt_date_t *b);
+
 // ========================================
 // get/set
 // ========================================

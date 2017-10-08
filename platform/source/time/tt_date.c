@@ -169,6 +169,43 @@ tt_result_t tt_date_change_tmzone(IN tt_date_t *date, IN tt_tmzone_t tz)
     return TT_SUCCESS;
 }
 
+tt_s32_t tt_date_diff_day(IN tt_date_t *a, IN tt_date_t *b)
+{
+    tt_date_t utc_a, utc_b;
+    tt_u32_t a_cjdn, b_cjdn;
+
+    tt_date_copy(&utc_a, a);
+    tt_date_change_tmzone(&utc_a, TT_UTC_00_00);
+    a_cjdn = __ymd2cjdn(utc_a.year, utc_a.month, utc_a.mday);
+
+    tt_date_copy(&utc_b, b);
+    tt_date_change_tmzone(&utc_b, TT_UTC_00_00);
+    b_cjdn = __ymd2cjdn(utc_b.year, utc_b.month, utc_b.mday);
+
+    return (tt_s32_t)(a_cjdn - b_cjdn);
+}
+
+tt_s64_t tt_date_diff_second(IN tt_date_t *a, IN tt_date_t *b)
+{
+    tt_date_t utc_a, utc_b;
+    tt_u32_t a_cjdn, b_cjdn;
+    tt_s64_t sec;
+
+    tt_date_copy(&utc_a, a);
+    tt_date_change_tmzone(&utc_a, TT_UTC_00_00);
+    a_cjdn = __ymd2cjdn(utc_a.year, utc_a.month, utc_a.mday);
+
+    tt_date_copy(&utc_b, b);
+    tt_date_change_tmzone(&utc_b, TT_UTC_00_00);
+    b_cjdn = __ymd2cjdn(utc_b.year, utc_b.month, utc_b.mday);
+
+    sec = (tt_s64_t)(a_cjdn - b_cjdn) * 86400;
+    sec += (tt_s64_t)(utc_a.hour - utc_b.hour) * 3600;
+    sec += (tt_s64_t)(utc_a.minute - utc_b.minute) * 60;
+    sec += (tt_s64_t)(utc_a.second - utc_b.second);
+    return sec;
+}
+
 // ========================================
 // get/set
 // ========================================
