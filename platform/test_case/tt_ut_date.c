@@ -881,11 +881,32 @@ TT_TEST_ROUTINE_DEFINE(case_date_julian)
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_date_t d;
     tt_double_t jd;
+    tt_u32_t w;
 
     TT_TEST_CASE_ENTER()
     // test start
 
     tt_date_init(&d, TT_UTC_00_00);
+
+    // test get week
+    TT_UT_SUCCESS(tt_date_set_date(&d, 2017, TT_JANUARY, 3), "");
+    TT_UT_EQUAL(tt_date_get_weekday(&d), TT_TUESDAY, "");
+    TT_UT_EQUAL(tt_date_get_week(&d, TT_MONDAY), 1, "");
+    TT_UT_EQUAL(tt_date_get_week(&d, TT_FRIDAY), 0, "");
+    TT_UT_EQUAL(tt_date_get_week(&d, TT_TUESDAY), 1, "");
+
+    TT_UT_SUCCESS(tt_date_set_date(&d, 2017, TT_DECEMBER, 30), "");
+    TT_UT_EQUAL(tt_date_get_week(&d, TT_MONDAY), 52, "");
+
+    TT_UT_SUCCESS(tt_date_set_date(&d, 2017, TT_DECEMBER, 18), "");
+    TT_UT_EQUAL(tt_date_get_week(&d, TT_MONDAY), 51, "");
+
+    TT_UT_SUCCESS(tt_date_set_date(&d, 2016, TT_FEBRUARY, 28), "");
+    TT_UT_EQUAL(tt_date_get_week(&d, TT_MONDAY), 8, "");
+
+    TT_UT_SUCCESS(tt_date_set_date(&d, 2016, TT_FEBRUARY, 29), "");
+    TT_UT_EQUAL(tt_date_get_week(&d, TT_MONDAY), 9, "");
+    // test get week end
 
     TT_UT_SUCCESS(tt_date_set_date(&d, 1840, TT_DECEMBER, 31), "");
     TT_UT_SUCCESS(tt_date_to_julian(&d, &jd), "");

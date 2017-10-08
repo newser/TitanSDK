@@ -305,6 +305,37 @@ tt_result_t tt_date_set_date(IN tt_date_t *date,
     return TT_SUCCESS;
 }
 
+tt_u32_t tt_date_get_week(IN tt_date_t *date, IN tt_weekday_t first_day)
+{
+    tt_date_t d;
+    tt_weekday_t wd;
+    tt_u32_t w, n;
+
+    tt_date_copy(&d, date);
+    tt_date_set_month(&d, TT_JANUARY);
+    tt_date_set_monthday(&d, 1);
+    wd = tt_date_get_weekday(&d);
+    if (wd < first_day) {
+        n = first_day - wd;
+    } else if (wd == first_day) {
+        n = 0;
+    } else {
+        n = TT_WEEKDAY_NUM + first_day - wd;
+    }
+
+    w = tt_date_get_yearday(date);
+    if (w >= n) {
+        w -= n;
+        w /= 7;
+        if (n != 0) {
+            ++w;
+        }
+        return w;
+    } else {
+        return 0;
+    }
+}
+
 // ========================================
 // increase/decrease
 // ========================================

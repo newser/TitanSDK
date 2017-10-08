@@ -220,6 +220,9 @@ tt_inline void tt_date_now(OUT tt_date_t *date)
     tt_date_now_ntv(date);
 }
 
+tt_export tt_u32_t tt_date_get_week(IN tt_date_t *date,
+                                    IN tt_weekday_t first_day);
+
 // ========================================
 // increase/decrease
 // ========================================
