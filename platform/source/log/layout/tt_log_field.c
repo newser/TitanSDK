@@ -24,7 +24,7 @@
 
 #include <algorithm/tt_buffer_format.h>
 #include <memory/tt_memory_alloc.h>
-#include <time/tt_date.h>
+#include <time/tt_date_format.h>
 
 ////////////////////////////////////////////////////////////
 // internal macro

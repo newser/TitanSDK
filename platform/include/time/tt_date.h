@@ -252,29 +252,6 @@ tt_export tt_result_t tt_date_dec_second(IN tt_date_t *date,
                                          IN tt_u32_t second);
 
 // ========================================
-// render/parse
-// ========================================
-
-tt_export tt_u32_t tt_date_render(IN tt_date_t *date,
-                                  IN const tt_char_t *format,
-                                  IN tt_char_t *buf,
-                                  IN tt_u32_t len);
-
-tt_inline tt_u32_t tt_date_render_now(IN const tt_char_t *format,
-                                      IN tt_char_t *buf,
-                                      IN tt_u32_t len)
-{
-    tt_date_t d;
-    tt_date_now(&d);
-    return tt_date_render_ntv(&d, format, buf, len);
-}
-
-tt_export tt_u32_t tt_date_parse(IN tt_date_t *date,
-                                 IN const tt_char_t *format,
-                                 IN tt_char_t *buf,
-                                 IN tt_u32_t len);
-
-// ========================================
 // conversion
 // ========================================
 

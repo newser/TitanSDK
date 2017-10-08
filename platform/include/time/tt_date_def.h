@@ -126,7 +126,11 @@ tt_export const tt_char_t *tt_tmzone_name[TT_TMZONE_NUM];
 
 tt_export const tt_char_t *tt_month_name[TT_MONTH_NUM];
 
+tt_export const tt_char_t *tt_month_name_abbr[TT_MONTH_NUM];
+
 tt_export const tt_char_t *tt_weekday_name[TT_WEEKDAY_NUM];
+
+tt_export const tt_char_t *tt_weekday_name_abbr[TT_WEEKDAY_NUM];
 
 ////////////////////////////////////////////////////////////
 // interface declaration

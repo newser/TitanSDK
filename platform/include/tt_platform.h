@@ -212,6 +212,7 @@ extern "C" {
 #include <os/tt_spinlock.h>
 #include <os/tt_task.h>
 #include <time/tt_date.h>
+#include <time/tt_date_format.h>
 #include <time/tt_time_reference.h>
 #include <time/tt_timer.h>
 #include <time/tt_timer_manager.h>

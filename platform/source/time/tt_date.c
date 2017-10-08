@@ -199,10 +199,10 @@ tt_s64_t tt_date_diff_second(IN tt_date_t *a, IN tt_date_t *b)
     tt_date_change_tmzone(&utc_b, TT_UTC_00_00);
     b_cjdn = __ymd2cjdn(utc_b.year, utc_b.month, utc_b.mday);
 
-    sec = (tt_s64_t)(a_cjdn - b_cjdn) * 86400;
-    sec += (tt_s64_t)(utc_a.hour - utc_b.hour) * 3600;
-    sec += (tt_s64_t)(utc_a.minute - utc_b.minute) * 60;
-    sec += (tt_s64_t)(utc_a.second - utc_b.second);
+    sec = ((tt_s64_t)a_cjdn - (tt_s64_t)b_cjdn) * 86400;
+    sec += ((tt_s64_t)utc_a.hour - (tt_s64_t)utc_b.hour) * 3600;
+    sec += ((tt_s64_t)utc_a.minute - (tt_s64_t)utc_b.minute) * 60;
+    sec += ((tt_s64_t)utc_a.second - (tt_s64_t)utc_b.second);
     return sec;
 }
 
@@ -531,6 +531,7 @@ tt_result_t tt_date_dec_second(IN tt_date_t *date, IN tt_u32_t second)
     }
 }
 
+#if 0
 tt_u32_t tt_date_render(IN tt_date_t *date,
                         IN const tt_char_t *format,
                         IN tt_char_t *buf,
@@ -573,6 +574,7 @@ tt_u32_t tt_date_parse(IN tt_date_t *date,
     }
     return result;
 }
+#endif
 
 // ========================================
 // conversion

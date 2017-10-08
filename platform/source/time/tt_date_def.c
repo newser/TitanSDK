@@ -66,6 +66,21 @@ const tt_char_t *tt_month_name[TT_MONTH_NUM] = {
     "December",
 };
 
+const tt_char_t *tt_month_name_abbr[TT_MONTH_NUM] = {
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "June",
+    "July",
+    "Aug",
+    "Sept",
+    "Oct",
+    "Nov",
+    "Dec",
+};
+
 const tt_char_t *tt_weekday_name[TT_WEEKDAY_NUM] = {"Sunday",
                                                     "Monday",
                                                     "Tuesday",
@@ -73,6 +88,9 @@ const tt_char_t *tt_weekday_name[TT_WEEKDAY_NUM] = {"Sunday",
                                                     "Thursday",
                                                     "Friday",
                                                     "Saturday"};
+
+const tt_char_t *tt_weekday_name_abbr[TT_WEEKDAY_NUM] =
+    {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
 
 #define SEC(h, m) (((h)*3600) + ((m)*60))
 static tt_s32_t __tmzone_offset[TT_TMZONE_NUM] =
