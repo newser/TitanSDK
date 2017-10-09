@@ -123,7 +123,7 @@ static __lf_entry_t __lf_table[] = {
     {
         TT_LOGFLD_TIME_KEY,
         TT_LOGFLD_TIME,
-        "%Y-%m-%d %H:%M:%S",
+        "%Y-%N-%D %H:%M:%S",
 
         __lf_create,
         __lf_destroy,

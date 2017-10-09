@@ -116,6 +116,7 @@ extern "C" {
 #include <io/tt_socket_addr.h>
 #include <io/tt_socket_option.h>
 #include <log/io/tt_log_io.h>
+#include <log/io/tt_log_io_file.h>
 #include <log/io/tt_log_io_standard.h>
 #include <log/layout/tt_log_field.h>
 #include <log/layout/tt_log_layout.h>

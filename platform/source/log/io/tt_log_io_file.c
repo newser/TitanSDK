@@ -231,11 +231,12 @@ tt_result_t __fidx_next(IN tt_logio_file_t *lf)
     }
     result = tt_fopen(&lf->f,
                       tt_fpath_cstr(&path),
-                      TT_FO_WRITE | TT_FO_APPEND | TT_FO_EXCL,
+                      TT_FO_WRITE | TT_FO_APPEND | TT_FO_CREAT | TT_FO_EXCL,
                       NULL);
     tt_fpath_destroy(&path);
     if (TT_OK(result)) {
         lf->f_opened = TT_TRUE;
+        ++lf->u.fidx.index;
         return TT_SUCCESS;
     } else {
         return TT_FAIL;
@@ -310,7 +311,7 @@ tt_result_t __fdate_next(IN tt_logio_file_t *lf)
     }
     result = tt_fopen(&lf->f,
                       tt_fpath_cstr(&path),
-                      TT_FO_WRITE | TT_FO_APPEND | TT_FO_EXCL,
+                      TT_FO_WRITE | TT_FO_APPEND | TT_FO_CREAT | TT_FO_EXCL,
                       NULL);
     tt_fpath_destroy(&path);
     if (TT_OK(result)) {

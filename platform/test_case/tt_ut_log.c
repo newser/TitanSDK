@@ -13,6 +13,9 @@
 // === routine declarations ================
 TT_TEST_ROUTINE_DECLARE(case_log_context)
 TT_TEST_ROUTINE_DECLARE(case_log_manager)
+
+TT_TEST_ROUTINE_DECLARE(case_log_io_file_index)
+TT_TEST_ROUTINE_DECLARE(case_log_io_file_date)
 // =========================================
 
 // === test case list ======================
@@ -37,6 +40,24 @@ TT_TEST_CASE("case_log_context",
                  NULL,
                  NULL),
 
+    TT_TEST_CASE("case_log_io_file_index",
+                 "testing log io file by index",
+                 case_log_io_file_index,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL),
+
+    TT_TEST_CASE("case_log_io_file_date",
+                 "testing log io file by date",
+                 case_log_io_file_date,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL),
+
     TT_TEST_CASE_LIST_DEFINE_END(log_case)
     // =========================================
 
@@ -48,7 +69,7 @@ TT_TEST_CASE("case_log_context",
 
 
     /*
-    TT_TEST_ROUTINE_DEFINE(case_log_manager)
+    TT_TEST_ROUTINE_DEFINE(case_log_io_file_index)
     {
         //tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
 
@@ -288,6 +309,181 @@ TT_TEST_ROUTINE_DEFINE(case_log_manager)
     tt_logio_destroy(lio);
 
     tt_logmgr_destroy(&lm);
+
+    // test end
+    TT_TEST_CASE_LEAVE()
+}
+
+#if TT_ENV_OS_IS_IOS
+
+#if (TT_ENV_OS_FEATURE & TT_ENV_OS_FEATURE_IOS_SIMULATOR)
+#define __LIOF_LOG_PATH "/tmp/"
+#define __LIOF_ARCH_PATH "/tmp/"
+#else
+static tt_string_t log_path, arch_path;
+#define __LIOF_LOG_PATH tt_string_cstr(&log_path)
+#define __LIOF_ARCH_PATH tt_string_cstr(&arch_path)
+#endif
+
+#elif TT_ENV_OS_IS_ANDROID
+#define __LIOF_LOG_PATH "/data/data/com.titansdk.titansdkunittest/"
+#define __LIOF_ARCH_PATH "/data/data/com.titansdk.titansdkunittest/"
+#else
+#define __LIOF_LOG_PATH ""
+#define __LIOF_ARCH_PATH ""
+#endif
+
+TT_TEST_ROUTINE_DEFINE(case_log_io_file_index)
+{
+    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+    tt_logio_t *lio;
+    tt_logio_file_attr_t a;
+    tt_result_t ret;
+    tt_u32_t n;
+    tt_file_t f;
+    tt_char_t buf[100];
+
+    TT_TEST_CASE_ENTER()
+    // test start
+
+    tt_logio_file_attr_default(&a);
+    a.log_name = "tttlog";
+    a.max_log_size_order = 6; // 64 bytes
+    a.log_suffix = TT_LOGFILE_SUFFIX_INDEX;
+
+    tt_fremove(__LIOF_LOG_PATH "tttlog.1");
+    tt_fremove(__LIOF_LOG_PATH "tttlog.2");
+    tt_fremove(__LIOF_LOG_PATH "tttlog.3");
+
+    lio = tt_logio_file_create(__LIOF_LOG_PATH, __LIOF_ARCH_PATH, &a);
+    TT_UT_NOT_NULL(lio, "");
+
+    // 160 bytes
+    n = tt_logio_output(lio, "123456789 123456789 123456789 123456789 ", 40);
+    TT_UT_EQUAL(n, 40, "");
+    n = tt_logio_output(lio, "123456789 123456789 123456789 123456789 ", 40);
+    TT_UT_EQUAL(n, 40, "");
+    n = tt_logio_output(lio, "123456789 123456789 123456789 123456789 ", 40);
+    TT_UT_EQUAL(n, 40, "");
+    n = tt_logio_output(lio, "123456789 123456789 123456789 123456789 ", 40);
+    TT_UT_EQUAL(n, 40, "");
+
+    // should be 3 log file
+    ret =
+        tt_fopen(&f, __LIOF_LOG_PATH "tttlog.1", TT_FO_READ | TT_FO_EXCL, NULL);
+    TT_UT_SUCCESS(ret, "");
+    ret = tt_fread(&f, (tt_u8_t *)buf, sizeof(buf), &n);
+    TT_UT_SUCCESS(ret, "");
+    TT_UT_EQUAL(n, 80, "");
+    TT_UT_EQUAL(tt_memcmp(buf, "123456789 123456789 123456789 123456789 ", 40),
+                0,
+                "");
+    TT_UT_EQUAL(tt_memcmp(buf + 40,
+                          "123456789 123456789 123456789 123456789 ",
+                          40),
+                0,
+                "");
+    tt_fclose(&f);
+
+    ret =
+        tt_fopen(&f, __LIOF_LOG_PATH "tttlog.2", TT_FO_READ | TT_FO_EXCL, NULL);
+    TT_UT_SUCCESS(ret, "");
+    ret = tt_fread(&f, (tt_u8_t *)buf, sizeof(buf), &n);
+    TT_UT_SUCCESS(ret, "");
+    TT_UT_EQUAL(n, 80, "");
+    TT_UT_EQUAL(tt_memcmp(buf, "123456789 123456789 123456789 123456789 ", 40),
+                0,
+                "");
+    TT_UT_EQUAL(tt_memcmp(buf + 40,
+                          "123456789 123456789 123456789 123456789 ",
+                          40),
+                0,
+                "");
+    tt_fclose(&f);
+
+    ret =
+        tt_fopen(&f, __LIOF_LOG_PATH "tttlog.3", TT_FO_READ | TT_FO_EXCL, NULL);
+    TT_UT_SUCCESS(ret, "");
+    ret = tt_fread(&f, (tt_u8_t *)buf, sizeof(buf), &n);
+    TT_UT_EQUAL(ret, TT_END, "");
+    tt_fclose(&f);
+
+    tt_logio_destroy(lio);
+
+    // test end
+    TT_TEST_CASE_LEAVE()
+}
+
+TT_TEST_ROUTINE_DEFINE(case_log_io_file_date)
+{
+    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+    tt_logio_t *lio;
+    tt_logio_file_attr_t a;
+    tt_result_t ret;
+    tt_u32_t n;
+    tt_file_t f;
+    tt_char_t buf[100];
+    tt_dir_t d;
+    tt_dirent_t de;
+
+    TT_TEST_CASE_ENTER()
+    // test start
+
+    tt_logio_file_attr_default(&a);
+    a.log_name = "log";
+    a.max_log_size_order = 6; // 64 bytes
+    a.log_suffix = TT_LOGFILE_SUFFIX_DATE;
+    a.date_format = "%C%N%DT%H%M%S%Z";
+
+#define __LIOF_LOG_PATH_D __LIOF_LOG_PATH "fdate/"
+    tt_dremove(__LIOF_LOG_PATH_D);
+    tt_dcreate(__LIOF_LOG_PATH_D, NULL);
+
+    lio = tt_logio_file_create(__LIOF_LOG_PATH_D, __LIOF_ARCH_PATH, &a);
+    TT_UT_NOT_NULL(lio, "");
+
+    // 40 bytes
+    n = tt_logio_output(lio, "123456789 123456789 123456789 123456789 ", 40);
+    TT_UT_EQUAL(n, 40, "");
+    // can not generate multiple log files, time is short, leading to same file
+    // name
+
+    // should be 3 log file
+    ret = tt_dopen(&d, __LIOF_LOG_PATH_D, NULL);
+    TT_UT_SUCCESS(ret, "");
+    while (TT_OK(ret = tt_dread(&d, &de))) {
+        tt_fpath_t p;
+
+        if (tt_strcmp(de.name, ".") == 0) {
+            continue;
+        }
+        if (tt_strcmp(de.name, "..") == 0) {
+            continue;
+        }
+
+        tt_fpath_create(&p, __LIOF_LOG_PATH_D, TT_FPATH_AUTO);
+        tt_fpath_set_filename(&p, de.name);
+
+        ret = tt_fopen(&f, tt_fpath_cstr(&p), TT_FO_READ | TT_FO_EXCL, NULL);
+        tt_fpath_destroy(&p);
+        TT_UT_SUCCESS(ret, "");
+        ret = tt_fread(&f, (tt_u8_t *)buf, sizeof(buf), &n);
+        if (TT_OK(ret)) {
+            TT_UT_EQUAL(n, 40, "");
+            TT_UT_EQUAL(tt_memcmp(buf,
+                                  "123456789 123456789 123456789 123456789 ",
+                                  40),
+                        0,
+                        "");
+        } else {
+            TT_UT_EQUAL(ret, TT_END, "");
+        }
+        tt_fclose(&f);
+    }
+    tt_dclose(&d);
+    TT_UT_EQUAL(ret, TT_END, "");
+
+    tt_logio_destroy(lio);
 
     // test end
     TT_TEST_CASE_LEAVE()

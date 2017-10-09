@@ -82,7 +82,7 @@ tt_inline tt_u32_t tt_date_render_now(IN const tt_char_t *format,
 {
     tt_date_t d;
     tt_date_now(&d);
-    return tt_date_render_ntv(&d, format, buf, len);
+    return tt_date_render(&d, format, buf, len);
 }
 
 tt_export tt_result_t tt_date_parse(IN tt_date_t *date,
