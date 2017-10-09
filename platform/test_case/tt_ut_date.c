@@ -196,7 +196,24 @@ TT_TEST_CASE("case_date_def",
     TT_UT_EQUAL(tt_strcmp(tt_tmzone_name[TT_UTC_MINUS_12_00], "UTC-12:00"),
                 0,
                 "");
+    TT_UT_EQUAL(tt_strcmp(tt_tmzone_name_iso8601[TT_UTC_MINUS_12_00], "-12:00"),
+                0,
+                "");
+    TT_UT_EQUAL(tt_strcmp(tt_tmzone_name_rfc1123[TT_UTC_MINUS_12_00], "-1200"),
+                0,
+                "");
+
+    TT_UT_EQUAL(tt_strcmp(tt_tmzone_name[TT_UTC_00_00], "UTC+00:00"), 0, "");
+    TT_UT_EQUAL(tt_strcmp(tt_tmzone_name_rfc1123[TT_UTC_00_00], "GMT"), 0, "");
+    TT_UT_EQUAL(tt_strcmp(tt_tmzone_name_iso8601[TT_UTC_00_00], "Z"), 0, "");
+
     TT_UT_EQUAL(tt_strcmp(tt_tmzone_name[TT_UTC_14_00], "UTC+14:00"), 0, "");
+    TT_UT_EQUAL(tt_strcmp(tt_tmzone_name_rfc1123[TT_UTC_14_00], "+1400"),
+                0,
+                "");
+    TT_UT_EQUAL(tt_strcmp(tt_tmzone_name_iso8601[TT_UTC_14_00], "+14:00"),
+                0,
+                "");
 
     TT_UT_EQUAL(tt_strcmp(tt_month_name[TT_JANUARY], "January"), 0, "");
     TT_UT_EQUAL(tt_strcmp(tt_month_name[TT_DECEMBER], "December"), 0, "");
@@ -311,6 +328,23 @@ TT_TEST_ROUTINE_DEFINE(case_date_render)
     TT_UT_EQUAL(ret, 2, "");
     TT_UT_EQUAL(tt_strcmp(buf, "12"), 0, "");
 
+    // %A/%a
+    tt_date_set_hour(&d, 12);
+    ret = tt_date_render(&d, "%A", buf, sizeof(buf));
+    TT_UT_EQUAL(ret, 2, "");
+    TT_UT_EQUAL(tt_strcmp(buf, "PM"), 0, "");
+    ret = tt_date_render(&d, "%a", buf, sizeof(buf));
+    TT_UT_EQUAL(ret, 2, "");
+    TT_UT_EQUAL(tt_strcmp(buf, "pm"), 0, "");
+
+    tt_date_set_hour(&d, 0);
+    ret = tt_date_render(&d, "%A", buf, sizeof(buf));
+    TT_UT_EQUAL(ret, 2, "");
+    TT_UT_EQUAL(tt_strcmp(buf, "AM"), 0, "");
+    ret = tt_date_render(&d, "%a", buf, sizeof(buf));
+    TT_UT_EQUAL(ret, 2, "");
+    TT_UT_EQUAL(tt_strcmp(buf, "am"), 0, "");
+
     // %h
     tt_date_set_monthday(&d, 12);
     ret = tt_date_render(&d, "%h", buf, sizeof(buf));
@@ -329,6 +363,24 @@ TT_TEST_ROUTINE_DEFINE(case_date_render)
     TT_UT_EQUAL(ret, 2, "");
     TT_UT_EQUAL(tt_strcmp(buf, "09"), 0, "");
 
+    // %Z
+    tt_date_set_tmzone(&d, TT_UTC_04_30);
+    ret = tt_date_render(&d, "%Z", buf, sizeof(buf));
+    TT_UT_EQUAL(ret, sizeof("+0430") - 1, "");
+    TT_UT_EQUAL(tt_strcmp(buf, "+0430"), 0, "");
+    ret = tt_date_render(&d, "%z", buf, sizeof(buf));
+    TT_UT_EQUAL(ret, sizeof("+04:30") - 1, "");
+    TT_UT_EQUAL(tt_strcmp(buf, "+04:30"), 0, "");
+
+    // %z
+    tt_date_set_tmzone(&d, TT_UTC_00_00);
+    ret = tt_date_render(&d, "%Z", buf, sizeof(buf));
+    TT_UT_EQUAL(ret, sizeof("GMT") - 1, "");
+    TT_UT_EQUAL(tt_strcmp(buf, "GMT"), 0, "");
+    ret = tt_date_render(&d, "%z", buf, sizeof(buf));
+    TT_UT_EQUAL(ret, sizeof("Z") - 1, "");
+    TT_UT_EQUAL(tt_strcmp(buf, "Z"), 0, "");
+
     tt_date_set(&d, 2017, TT_OCTOBER, 8, 23, 59, 01);
     ret = tt_date_render(&d, "%W", buf, sizeof(buf));
     TT_UT_EQUAL(ret, sizeof("Sunday") - 1, "");
@@ -339,21 +391,29 @@ TT_TEST_ROUTINE_DEFINE(case_date_render)
 
     // combination, RFC1123
     tt_date_set(&d, 2017, TT_OCTOBER, 8, 23, 59, 01);
-    ret = tt_date_render(&d, "--- %w, %D %b %C %H:%M:%S %%%", buf, sizeof(buf));
-    TT_UT_EQUAL(ret, sizeof("--- Sun, 08 Oct 2017 23:59:01 %%%") - 1, "");
-    TT_UT_EQUAL(tt_strcmp(buf, "--- Sun, 08 Oct 2017 23:59:01 %%%"), 0, "");
+    tt_date_set_tmzone(&d, TT_UTC_MINUS_03_30);
+    ret =
+        tt_date_render(&d, "--- %w, %D %b %C %H:%M:%S %Z%%%", buf, sizeof(buf));
+    TT_UT_EQUAL(ret, sizeof("--- Sun, 08 Oct 2017 23:59:01 -0330%%%") - 1, "");
+    TT_UT_EQUAL(tt_strcmp(buf, "--- Sun, 08 Oct 2017 23:59:01 -0330%%%"),
+                0,
+                "");
 
     // combination, RFC850
     tt_date_set(&d, 2017, TT_OCTOBER, 8, 23, 59, 01);
-    ret = tt_date_render(&d, "%W, %D-%b-%C %H:%M:%S %%%", buf, sizeof(buf));
-    TT_UT_EQUAL(ret, sizeof("Sunday, 08-Oct-2017 23:59:01 %%%") - 1, "");
-    TT_UT_EQUAL(tt_strcmp(buf, "Sunday, 08-Oct-2017 23:59:01 %%%"), 0, "");
+    tt_date_set_tmzone(&d, TT_UTC_MINUS_04_00);
+    ret = tt_date_render(&d, "%W, %D-%b-%C %H:%M:%S %z %%%", buf, sizeof(buf));
+    TT_UT_EQUAL(ret, sizeof("Sunday, 08-Oct-2017 23:59:01 -04:00 %%%") - 1, "");
+    TT_UT_EQUAL(tt_strcmp(buf, "Sunday, 08-Oct-2017 23:59:01 -04:00 %%%"),
+                0,
+                "");
 
     // combination, ascii
     tt_date_set(&d, 2017, TT_OCTOBER, 8, 23, 59, 01);
-    ret = tt_date_render(&d, "--- %w %b %d %H:%M:%S %C", buf, sizeof(buf));
-    TT_UT_EQUAL(ret, sizeof("--- Sun Oct  8 23:59:01 2017") - 1, "");
-    TT_UT_EQUAL(tt_strcmp(buf, "--- Sun Oct  8 23:59:01 2017"), 0, "");
+    tt_date_set_tmzone(&d, TT_UTC_00_00);
+    ret = tt_date_render(&d, "--- %w %b %d %H:%M:%S %C %Z", buf, sizeof(buf));
+    TT_UT_EQUAL(ret, sizeof("--- Sun Oct  8 23:59:01 2017 GMT") - 1, "");
+    TT_UT_EQUAL(tt_strcmp(buf, "--- Sun Oct  8 23:59:01 2017 GMT"), 0, "");
 
     // test end
     TT_TEST_CASE_LEAVE()

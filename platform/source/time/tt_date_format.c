@@ -74,6 +74,14 @@ static tt_result_t __W_render(IN tt_date_t *d, OUT tt_string_t *s);
 
 static tt_result_t __w_render(IN tt_date_t *d, OUT tt_string_t *s);
 
+static tt_result_t __A_render(IN tt_date_t *d, OUT tt_string_t *s);
+
+static tt_result_t __a_render(IN tt_date_t *d, OUT tt_string_t *s);
+
+static tt_result_t __Z_render(IN tt_date_t *d, OUT tt_string_t *s);
+
+static tt_result_t __z_render(IN tt_date_t *d, OUT tt_string_t *s);
+
 static __sym_t __sym[] = {
     {
         'Y', __Y_render,
@@ -113,6 +121,18 @@ static __sym_t __sym[] = {
     },
     {
         'w', __w_render,
+    },
+    {
+        'A', __A_render,
+    },
+    {
+        'a', __a_render,
+    },
+    {
+        'Z', __Z_render,
+    },
+    {
+        'z', __z_render,
     },
 };
 
@@ -351,4 +371,26 @@ tt_result_t __W_render(IN tt_date_t *d, OUT tt_string_t *s)
 tt_result_t __w_render(IN tt_date_t *d, OUT tt_string_t *s)
 {
     return tt_string_append(s, tt_weekday_name_abbr[tt_date_get_weekday(d)]);
+}
+
+tt_result_t __A_render(IN tt_date_t *d, OUT tt_string_t *s)
+{
+    tt_u32_t h = tt_date_get_hour(d);
+    return tt_string_append(s, TT_COND(h < 12, "AM", "PM"));
+}
+
+tt_result_t __a_render(IN tt_date_t *d, OUT tt_string_t *s)
+{
+    tt_u32_t h = tt_date_get_hour(d);
+    return tt_string_append(s, TT_COND(h < 12, "am", "pm"));
+}
+
+tt_result_t __Z_render(IN tt_date_t *d, OUT tt_string_t *s)
+{
+    return tt_string_append(s, tt_tmzone_name_rfc1123[tt_date_get_tmzone(d)]);
+}
+
+tt_result_t __z_render(IN tt_date_t *d, OUT tt_string_t *s)
+{
+    return tt_string_append(s, tt_tmzone_name_iso8601[tt_date_get_tmzone(d)]);
 }

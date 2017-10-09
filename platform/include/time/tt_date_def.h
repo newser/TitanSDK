@@ -124,6 +124,10 @@ typedef enum {
 
 tt_export const tt_char_t *tt_tmzone_name[TT_TMZONE_NUM];
 
+tt_export const tt_char_t *tt_tmzone_name_rfc1123[TT_TMZONE_NUM];
+
+tt_export const tt_char_t *tt_tmzone_name_iso8601[TT_TMZONE_NUM];
+
 tt_export const tt_char_t *tt_month_name[TT_MONTH_NUM];
 
 tt_export const tt_char_t *tt_month_name_abbr[TT_MONTH_NUM];

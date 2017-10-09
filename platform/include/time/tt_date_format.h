@@ -58,12 +58,16 @@ this file specifies date format interfaces
  %d    month day, padded by blank ( 1, ...)
  %H    hour, padded by zero (01, ...)
  %h    hour (1, ...)
+ %A    AM/PM
+ %a    am/pm
  %M    minute, padded by zero (01, ...)
  %m    minute (1, ...)
  %S    second, padded by zero (01, ...)
  %s    second (1, ...)
  %W    full week day (Monday, ...)
  %w    abbreviated week day (Mon, ...)
+ %Z    time zone, RFC1123 (GMT, +0800, ...)
+ %Z    time zone, ISO8601 (Z, +08:00, ...)
  */
 tt_export tt_u32_t tt_date_render(IN tt_date_t *date,
                                   IN const tt_char_t *format,
