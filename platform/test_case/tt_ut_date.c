@@ -331,20 +331,34 @@ TT_TEST_ROUTINE_DEFINE(case_date_render)
     ret = tt_date_render(&d, "%B", buf, sizeof(buf));
     TT_UT_EQUAL(ret, sizeof("January") - 1, "");
     TT_UT_EQUAL(tt_strcmp(buf, "January"), 0, "");
+    ret = tt_date_render(&d, "%N", buf, sizeof(buf));
+    TT_UT_EQUAL(ret, sizeof("01") - 1, "");
+    TT_UT_EQUAL(tt_strcmp(buf, "01"), 0, "");
+
     tt_date_set_month(&d, TT_DECEMBER);
     ret = tt_date_render(&d, "%B", buf, sizeof(buf));
     TT_UT_EQUAL(ret, sizeof("December") - 1, "");
     TT_UT_EQUAL(tt_strcmp(buf, "December"), 0, "");
+    ret = tt_date_render(&d, "%N", buf, sizeof(buf));
+    TT_UT_EQUAL(ret, sizeof("12") - 1, "");
+    TT_UT_EQUAL(tt_strcmp(buf, "12"), 0, "");
 
     // %b
     tt_date_set_month(&d, TT_JANUARY);
     ret = tt_date_render(&d, "%b", buf, sizeof(buf));
     TT_UT_EQUAL(ret, sizeof("Jan") - 1, "");
     TT_UT_EQUAL(tt_strcmp(buf, "Jan"), 0, "");
+    ret = tt_date_render(&d, "%n", buf, sizeof(buf));
+    TT_UT_EQUAL(ret, sizeof(" 1") - 1, "");
+    TT_UT_EQUAL(tt_strcmp(buf, " 1"), 0, "");
+
     tt_date_set_month(&d, TT_DECEMBER);
     ret = tt_date_render(&d, "%b", buf, sizeof(buf));
     TT_UT_EQUAL(ret, sizeof("Dec") - 1, "");
     TT_UT_EQUAL(tt_strcmp(buf, "Dec"), 0, "");
+    ret = tt_date_render(&d, "%n", buf, sizeof(buf));
+    TT_UT_EQUAL(ret, sizeof("12") - 1, "");
+    TT_UT_EQUAL(tt_strcmp(buf, "12"), 0, "");
 
     // %D
     tt_date_set_monthday(&d, 9);
@@ -436,20 +450,20 @@ TT_TEST_ROUTINE_DEFINE(case_date_render)
                 "");
 
     // combination, RFC850
-    tt_date_set(&d, 2017, TT_OCTOBER, 8, 23, 59, 01);
+    tt_date_set(&d, 2017, TT_JANUARY, 8, 23, 59, 01);
     tt_date_set_tmzone(&d, TT_UTC_MINUS_04_00);
-    ret = tt_date_render(&d, "%W, %D-%b-%C %H:%M:%S %z %%%", buf, sizeof(buf));
-    TT_UT_EQUAL(ret, sizeof("Sunday, 08-Oct-2017 23:59:01 -04:00 %%%") - 1, "");
-    TT_UT_EQUAL(tt_strcmp(buf, "Sunday, 08-Oct-2017 23:59:01 -04:00 %%%"),
+    ret = tt_date_render(&d, "%W, %D-%N-%C %H:%M:%S %z %%%", buf, sizeof(buf));
+    TT_UT_EQUAL(ret, sizeof("Sunday, 08-01-2017 23:59:01 -04:00 %%%") - 1, "");
+    TT_UT_EQUAL(tt_strcmp(buf, "Sunday, 08-01-2017 23:59:01 -04:00 %%%"),
                 0,
                 "");
 
     // combination, ascii
-    tt_date_set(&d, 2017, TT_OCTOBER, 8, 23, 59, 01);
+    tt_date_set(&d, 2017, TT_JANUARY, 8, 23, 59, 01);
     tt_date_set_tmzone(&d, TT_UTC_00_00);
-    ret = tt_date_render(&d, "--- %w %b %d %H:%M:%S %C %Z", buf, sizeof(buf));
-    TT_UT_EQUAL(ret, sizeof("--- Sun Oct  8 23:59:01 2017 GMT") - 1, "");
-    TT_UT_EQUAL(tt_strcmp(buf, "--- Sun Oct  8 23:59:01 2017 GMT"), 0, "");
+    ret = tt_date_render(&d, "--- %w %n %d %H:%M:%S %C %Z", buf, sizeof(buf));
+    TT_UT_EQUAL(ret, sizeof("--- Sun  1  8 23:59:01 2017 GMT") - 1, "");
+    TT_UT_EQUAL(tt_strcmp(buf, "--- Sun  1  8 23:59:01 2017 GMT"), 0, "");
 
     // test end
     TT_TEST_CASE_LEAVE()
@@ -536,6 +550,12 @@ TT_TEST_ROUTINE_DEFINE(case_date_parse)
     TT_UT_SUCCESS(ret, "");
     TT_UT_EQUAL(tt_date_get_month(&d), TT_JANUARY, "");
 
+    len = sizeof("01") - 1;
+    ret = tt_date_parse(&d, "%N", "01", &len);
+    TT_UT_SUCCESS(ret, "");
+    TT_UT_EQUAL(tt_date_get_month(&d), TT_JANUARY, "");
+    TT_UT_EQUAL(len, sizeof("01") - 1, "");
+
     // b
     len = sizeof(" %% December") - 1;
     ret = tt_date_parse(&d, "%%  %B", " %% December", &len);
@@ -544,6 +564,16 @@ TT_TEST_ROUTINE_DEFINE(case_date_parse)
     TT_UT_EQUAL(len, sizeof(" %% December") - 1, "");
 
     ret = tt_date_parse(&d, "%%  %B", " %% JA", &len);
+    TT_UT_FAIL(ret, "");
+
+    len = sizeof(" 1") - 1;
+    ret = tt_date_parse(&d, "%n", " 1", &len);
+    TT_UT_SUCCESS(ret, "");
+    TT_UT_EQUAL(tt_date_get_month(&d), TT_JANUARY, "");
+    TT_UT_EQUAL(len, sizeof(" 1") - 1, "");
+
+    len = sizeof(" 13") - 1;
+    ret = tt_date_parse(&d, "%n", " 13", &len);
     TT_UT_FAIL(ret, "");
 
     // D
@@ -672,24 +702,24 @@ TT_TEST_ROUTINE_DEFINE(case_date_parse)
     TT_UT_EQUAL(tt_date_get_tmzone(&d), TT_UTC_MINUS_03_30, "");
 
     // combination, rfc850
-    len = sizeof("Sunday, 08-Oct-2017 23:59:01 +04:00 %%%") - 1;
+    len = sizeof("Sunday, 08- 1-2017 23:59:01 +04:00 %%%") - 1;
     ret = tt_date_parse(&d,
-                        "%W, %D-%b-%C %H:%M:%S %z %%%",
-                        "Sunday, 08-Oct-2017 23:59:01 +04:00 %%%",
+                        "%W, %D-%n-%C %H:%M:%S %z %%%",
+                        "Sunday, 08- 1-2017 23:59:01 +04:00 %%%",
                         &len);
     TT_UT_SUCCESS(ret, "");
-    TT_UT_EQUAL(tt_date_cmp_date(&d, 2017, TT_OCTOBER, 8), 0, "");
+    TT_UT_EQUAL(tt_date_cmp_date(&d, 2017, TT_JANUARY, 8), 0, "");
     TT_UT_EQUAL(tt_date_cmp_time(&d, 23, 59, 01), 0, "");
     TT_UT_EQUAL(tt_date_get_tmzone(&d), TT_UTC_04_00, "");
 
     // combination, rfc850
-    len = sizeof("--- Sun Oct  8 23:59:01 2017 GMT") - 1;
+    len = sizeof("--- Sun 01  8 23:59:01 2017 GMT") - 1;
     ret = tt_date_parse(&d,
-                        "--- %w %b %d %H:%M:%S %C %Z",
-                        "--- Sun Oct  8 23:59:01 2017 GMT",
+                        "--- %w %N %d %H:%M:%S %C %Z",
+                        "--- Sun 01  8 23:59:01 2017 GMT",
                         &len);
     TT_UT_SUCCESS(ret, "");
-    TT_UT_EQUAL(tt_date_cmp_date(&d, 2017, TT_OCTOBER, 8), 0, "");
+    TT_UT_EQUAL(tt_date_cmp_date(&d, 2017, TT_JANUARY, 8), 0, "");
     TT_UT_EQUAL(tt_date_cmp_time(&d, 23, 59, 01), 0, "");
     TT_UT_EQUAL(tt_date_get_tmzone(&d), TT_UTC_00_00, "");
 

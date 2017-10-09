@@ -62,6 +62,7 @@ typedef struct
 {
     const tt_char_t *log_name;
     const tt_char_t *archive_name;
+    const tt_char_t *date_format;
     tt_logfile_suffix_t log_suffix;
     tt_logfile_suffix_t archive_suffix;
     tt_u32_t keep_log_sec;
@@ -85,8 +86,17 @@ typedef struct
 
     union
     {
-        tt_u32_t index;
-    };
+        struct
+        {
+            tt_u32_t index;
+        } fidx;
+        struct
+        {
+            const tt_char_t *date_format;
+        } fdate;
+    } u;
+
+    tt_bool_t f_opened : 1;
 } tt_logio_file_t;
 
 ////////////////////////////////////////////////////////////

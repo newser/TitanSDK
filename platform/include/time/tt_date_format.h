@@ -54,6 +54,8 @@ this file specifies date format interfaces
  %C    year with centry (2001, ...)
  %B    full month (January, ...)
  %b    abbreviated month (Jan, ...)
+ %N    numeric month, padded by zero(01, ...)
+ %n    numeric month, padded by blank( 1, ...)
  %D    month day, padded by zero (01, ...)
  %d    month day, padded by blank ( 1, ...)
  %H    hour, padded by zero (01, ...)

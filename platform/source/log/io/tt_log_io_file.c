@@ -22,10 +22,10 @@
 
 #include <log/io/tt_log_io_file.h>
 
-#include <algorithm/tt_string_common.h>
 #include <io/tt_fpath.h>
 #include <log/io/tt_log_io.h>
 #include <misc/tt_util.h>
+#include <time/tt_date_format.h>
 #include <time/tt_time_reference.h>
 
 ////////////////////////////////////////////////////////////
@@ -44,6 +44,10 @@
 // global variant
 ////////////////////////////////////////////////////////////
 
+// ========================================
+// log io file by index
+// ========================================
+
 static tt_u32_t __lio_fidx_output(IN tt_logio_t *lio,
                                   IN const tt_char_t *data,
                                   IN tt_u32_t data_len);
@@ -55,6 +59,10 @@ static tt_logio_itf_t tt_s_logio_fidx_itf = {
     NULL,
     __lio_fidx_output,
 };
+
+// ========================================
+// log io file by date
+// ========================================
 
 static tt_u32_t __lio_fdate_output(IN tt_logio_t *lio,
                                    IN const tt_char_t *data,
@@ -72,9 +80,9 @@ static tt_logio_itf_t tt_s_logio_fdate_itf = {
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-static tt_result_t __fidx_next(IN tt_logio_file_t *lio_file);
+static tt_result_t __fidx_next(IN tt_logio_file_t *lf);
 
-static tt_result_t __fdate_next(IN tt_logio_file_t *lio_file);
+static tt_result_t __fdate_next(IN tt_logio_file_t *lf);
 
 ////////////////////////////////////////////////////////////
 // interface implementation
@@ -86,7 +94,7 @@ tt_logio_t *tt_logio_file_create(IN const tt_char_t *log_path,
 {
     tt_logio_file_attr_t __attr;
     tt_logio_t *lio;
-    tt_logio_file_t *lio_file;
+    tt_logio_file_t *lf;
     tt_result_t result;
 
     TT_ASSERT(log_path != NULL);
@@ -96,46 +104,49 @@ tt_logio_t *tt_logio_file_create(IN const tt_char_t *log_path,
         tt_logio_file_attr_default(&__attr);
         attr = &__attr;
     }
-
     TT_ASSERT(TT_LOGFILE_SUFFIX_VALID(attr->log_suffix));
+    TT_ASSERT(TT_LOGFILE_SUFFIX_VALID(attr->archive_suffix));
+
     if (attr->log_suffix == TT_LOGFILE_SUFFIX_INDEX) {
         lio = tt_logio_create(sizeof(tt_logio_file_t), &tt_s_logio_fidx_itf);
-    } else if (attr->log_suffix == TT_LOGFILE_SUFFIX_DATE) {
-        lio = tt_logio_create(sizeof(tt_logio_file_t), &tt_s_logio_fdate_itf);
     } else {
-        // never reach here
-        lio = NULL;
+        TT_ASSERT(attr->log_suffix == TT_LOGFILE_SUFFIX_DATE);
+        TT_ASSERT(attr->date_format != NULL);
+        lio = tt_logio_create(sizeof(tt_logio_file_t), &tt_s_logio_fdate_itf);
     }
     if (lio == NULL) {
+        TT_ERROR("no mem for log io file");
         return NULL;
     }
 
-    lio_file = TT_LOGIO_CAST(lio, tt_logio_file_t);
+    lf = TT_LOGIO_CAST(lio, tt_logio_file_t);
 
     // init common
-    lio_file->keep_log_time = tt_time_ms2ref(attr->keep_log_sec * 1000);
-    lio_file->keep_archive_time = tt_time_ms2ref(attr->keep_archive_sec * 1000);
-    lio_file->log_path = log_path;
-    lio_file->log_name = attr->log_name;
-    lio_file->archive_path = archive_path;
-    lio_file->archive_name = attr->archive_name;
-    lio_file->log_suffix = attr->log_suffix;
-    TT_ASSERT(TT_LOGFILE_SUFFIX_VALID(attr->archive_suffix));
-    lio_file->archive_suffix = attr->archive_suffix;
+    lf->keep_log_time = tt_time_ms2ref(attr->keep_log_sec * 1000);
+    lf->keep_archive_time = tt_time_ms2ref(attr->keep_archive_sec * 1000);
+    lf->log_path = log_path;
+    lf->log_name = attr->log_name;
+    lf->archive_path = archive_path;
+    lf->archive_name = attr->archive_name;
+    lf->log_suffix = attr->log_suffix;
+    lf->archive_suffix = attr->archive_suffix;
     if (attr->max_log_size_order > 30) {
-        attr->max_log_size_order = 30;
+        lf->max_log_size = 1 << 30;
+    } else {
+        lf->max_log_size = 1 << attr->max_log_size_order;
     }
-    lio_file->max_log_size = 1 << attr->max_log_size_order;
-    lio_file->write_len = 0;
+    lf->write_len = 0;
+    lf->f_opened = TT_FALSE;
 
     // init specific
-    result = TT_FAIL;
+    tt_memset(&lf->u, 0, sizeof(lf->u));
     if (attr->log_suffix == TT_LOGFILE_SUFFIX_INDEX) {
-        lio_file->index = 0;
-
-        result = __fidx_next(lio_file);
-    } else if (attr->log_suffix == TT_LOGFILE_SUFFIX_DATE) {
-        result = __fdate_next(lio_file);
+        lf->u.fidx.index = 1;
+        result = __fidx_next(lf);
+    } else {
+        TT_ASSERT(attr->log_suffix == TT_LOGFILE_SUFFIX_DATE);
+        lf->u.fdate.date_format = attr->date_format;
+        result = __fdate_next(lf);
     }
 
     if (TT_OK(result)) {
@@ -150,6 +161,7 @@ void tt_logio_file_attr_default(IN tt_logio_file_attr_t *attr)
 {
     attr->log_name = "log";
     attr->archive_name = "archive";
+    attr->date_format = "%C%N%DT%H%M%S";
     attr->log_suffix = TT_LOGFILE_SUFFIX_INDEX;
     attr->archive_suffix = TT_LOGFILE_SUFFIX_DATE;
     attr->keep_log_sec = 3600;
@@ -157,98 +169,154 @@ void tt_logio_file_attr_default(IN tt_logio_file_attr_t *attr)
     attr->max_log_size_order = 20;
 }
 
+// ========================================
+// log io file by index
+// ========================================
+
 tt_u32_t __lio_fidx_output(IN tt_logio_t *lio,
                            IN const tt_char_t *data,
                            IN tt_u32_t data_len)
 {
-    tt_logio_file_t *lio_file = TT_LOGIO_CAST(lio, tt_logio_file_t);
-    tt_u32_t write_len;
+    tt_logio_file_t *lf = TT_LOGIO_CAST(lio, tt_logio_file_t);
+    tt_u32_t write_len = 0;
 
     // this function is already protected by log manger's lock
 
-    if (TT_OK(tt_fwrite(&lio_file->f, (tt_u8_t *)data, data_len, &write_len))) {
-        lio_file->write_len += write_len;
+    if (!lf->f_opened) {
+        // it ever failed to open log file, which is not expected. but here we
+        // try to open the log file again
+        __fidx_next(lf);
     }
 
-    if (lio_file->write_len >= lio_file->max_log_size) {
-        tt_fclose(&lio_file->f);
-        __fidx_next(lio_file);
+    if (lf->f_opened &&
+        TT_OK(tt_fwrite(&lf->f, (tt_u8_t *)data, data_len, &write_len))) {
+        lf->write_len += write_len;
+        if (lf->write_len >= lf->max_log_size) {
+            __fidx_next(lf);
+        }
+    } else {
+        // no way to recover anything, just give a warning
+        tt_printf("WARN: log is lost!!!\n");
     }
 
     return write_len;
 }
+
+tt_result_t __fidx_next(IN tt_logio_file_t *lf)
+{
+    tt_char_t ext[8];
+    tt_fpath_t path;
+    tt_result_t result;
+
+    // note this function can only use tt_printf
+
+    tt_memset(ext, 0, sizeof(ext));
+    tt_snprintf(ext, sizeof(ext) - 1, "%d", lf->u.fidx.index);
+
+    // construct log file path
+    tt_fpath_init(&path, TT_FPATH_AUTO);
+    if (!TT_OK(tt_fpath_set(&path, lf->log_path)) ||
+        !TT_OK(tt_fpath_to_dir(&path)) ||
+        !TT_OK(tt_fpath_set_basename(&path, lf->log_name)) ||
+        !TT_OK(tt_fpath_set_extension(&path, ext))) {
+        tt_printf("fail to construct log file name\n");
+        tt_fpath_destroy(&path);
+        return TT_FAIL;
+    }
+
+    if (lf->f_opened) {
+        tt_fclose(&lf->f);
+        lf->f_opened = TT_FALSE;
+        lf->write_len = 0;
+    }
+    result = tt_fopen(&lf->f,
+                      tt_fpath_cstr(&path),
+                      TT_FO_WRITE | TT_FO_APPEND | TT_FO_EXCL,
+                      NULL);
+    tt_fpath_destroy(&path);
+    if (TT_OK(result)) {
+        lf->f_opened = TT_TRUE;
+        return TT_SUCCESS;
+    } else {
+        return TT_FAIL;
+    }
+}
+
+// ========================================
+// log io file by date
+// ========================================
 
 tt_u32_t __lio_fdate_output(IN tt_logio_t *lio,
                             IN const tt_char_t *data,
                             IN tt_u32_t data_len)
 {
-    tt_logio_file_t *lio_file = TT_LOGIO_CAST(lio, tt_logio_file_t);
-    tt_u32_t write_len;
+    tt_logio_file_t *lf = TT_LOGIO_CAST(lio, tt_logio_file_t);
+    tt_u32_t write_len = 0;
 
     // this function is already protected by log manger's lock
 
-    if (TT_OK(tt_fwrite(&lio_file->f, (tt_u8_t *)data, data_len, &write_len))) {
-        lio_file->write_len += write_len;
+    if (!lf->f_opened) {
+        // it ever failed to open log file, which is not expected. but here we
+        // try to open the log file again
+        __fdate_next(lf);
     }
 
-    if (lio_file->write_len >= lio_file->max_log_size) {
-        tt_fclose(&lio_file->f);
-        __fdate_next(lio_file);
+    if (lf->f_opened &&
+        TT_OK(tt_fwrite(&lf->f, (tt_u8_t *)data, data_len, &write_len))) {
+        lf->write_len += write_len;
+        if (lf->write_len >= lf->max_log_size) {
+            __fdate_next(lf);
+        }
+    } else {
+        // no way to recover anything, just give a warning
+        tt_printf("WARN: log is lost!!!\n");
     }
 
     return write_len;
 }
 
-tt_result_t __fidx_next(IN tt_logio_file_t *lio_file)
+tt_result_t __fdate_next(IN tt_logio_file_t *lf)
 {
+    tt_char_t ext[32]; // 8+1+6+1+3
+    tt_u32_t n;
     tt_fpath_t path;
-    tt_result_t result = TT_FAIL;
+    tt_result_t result;
+
+    // note this function can only use tt_printf
+
+    tt_memset(ext, 0, sizeof(ext));
+    n = tt_date_render_now(lf->u.fdate.date_format, ext, sizeof(ext) - 1);
+    TT_ASSERT(n < sizeof(ext));
+    tt_snprintf(ext + n,
+                sizeof(ext) - 1 - n,
+                ".%d",
+                tt_time_ref2ms(tt_time_ref()) % 1000);
 
     // construct log file path
     tt_fpath_init(&path, TT_FPATH_AUTO);
-    TT_DO_G(path_done, tt_fpath_set(&path, lio_file->log_path));
-    TT_DO_G(path_done, tt_fpath_to_dir(&path));
-    TT_DO_G(path_done, tt_fpath_set_basename(&path, lio_file->log_name));
-    TT_DO_G(path_done, tt_fpath_set_extension(&path, lio_file->index));
-    result = TT_SUCCESS;
-path_done:
-    if (!TT_OK(result)) {
+    if (!TT_OK(tt_fpath_set(&path, lf->log_path)) ||
+        !TT_OK(tt_fpath_to_dir(&path)) ||
+        !TT_OK(tt_fpath_set_basename(&path, lf->log_name)) ||
+        !TT_OK(tt_fpath_set_extension(&path, ext))) {
+        tt_printf("fail to construct log file name\n");
         tt_fpath_destroy(&path);
-        return result;
+        return TT_FAIL;
     }
 
-    result = tt_fopen(&lio_file->f,
+    if (lf->f_opened) {
+        tt_fclose(&lf->f);
+        lf->f_opened = TT_FALSE;
+        lf->write_len = 0;
+    }
+    result = tt_fopen(&lf->f,
                       tt_fpath_cstr(&path),
                       TT_FO_WRITE | TT_FO_APPEND | TT_FO_EXCL,
                       NULL);
     tt_fpath_destroy(&path);
-    lio_file->write_len = 0;
-    return result;
-}
-
-tt_result_t __fdate_next(IN tt_logio_file_t *lio_file)
-{
-    tt_fpath_t path;
-    tt_result_t result = TT_FAIL;
-
-    // construct log file path
-    tt_fpath_init(&path, TT_FPATH_AUTO);
-    TT_DO_G(path_done, tt_fpath_set(&path, lio_file->log_path));
-    TT_DO_G(path_done, tt_fpath_to_dir(&path));
-    TT_DO_G(path_done, tt_fpath_set_basename(&path, lio_file->log_name));
-    TT_DO_G(path_done, tt_fpath_set_extension(&path, lio_file->index));
-    result = TT_SUCCESS;
-path_done:
-    if (!TT_OK(result)) {
-        tt_fpath_destroy(&path);
-        return result;
+    if (TT_OK(result)) {
+        lf->f_opened = TT_TRUE;
+        return TT_SUCCESS;
+    } else {
+        return TT_FAIL;
     }
-
-    result = tt_fopen(&lio_file->f,
-                      tt_fpath_cstr(&path),
-                      TT_FO_WRITE | TT_FO_APPEND | TT_FO_EXCL,
-                      NULL);
-    tt_fpath_destroy(&path);
-    lio_file->write_len = 0;
-    return result;
 }

@@ -71,6 +71,14 @@ static const tt_char_t *__B_parse(IN const tt_char_t *start,
                                   IN const tt_char_t *end,
                                   OUT tt_date_t *d);
 
+static tt_result_t __N_render(IN tt_date_t *d, OUT tt_string_t *s);
+
+static tt_result_t __n_render(IN tt_date_t *d, OUT tt_string_t *s);
+
+static const tt_char_t *__N_parse(IN const tt_char_t *start,
+                                  IN const tt_char_t *end,
+                                  OUT tt_date_t *d);
+
 static tt_result_t __D_render(IN tt_date_t *d, OUT tt_string_t *s);
 
 static tt_result_t __d_render(IN tt_date_t *d, OUT tt_string_t *s);
@@ -134,6 +142,12 @@ static __sym_t __sym[] = {
     },
     {
         'b', __b_render, __B_parse,
+    },
+    {
+        'N', __N_render, __N_parse,
+    },
+    {
+        'n', __n_render, __N_parse,
     },
     {
         'D', __D_render, __D_parse,
@@ -445,6 +459,57 @@ const tt_char_t *__B_parse(IN const tt_char_t *start,
 
     TT_ERROR("not found month");
     return NULL;
+}
+
+tt_result_t __N_render(IN tt_date_t *d, OUT tt_string_t *s)
+{
+    tt_u32_t m = tt_date_get_month(d) + 1;
+    tt_char_t c[3] = {0};
+
+    c[0] = m / 10 + '0';
+    c[1] = m % 10 + '0';
+    return tt_string_append(s, c);
+}
+
+tt_result_t __n_render(IN tt_date_t *d, OUT tt_string_t *s)
+{
+    tt_u32_t m = tt_date_get_month(d) + 1, m1;
+    tt_char_t c[3] = {0};
+
+    m1 = m / 10;
+    if (m1 != 0) {
+        c[0] = m1 + '0';
+        c[1] = m % 10 + '0';
+    } else {
+        c[0] = ' ';
+        c[1] = m % 10 + '0';
+    }
+    return tt_string_append(s, c);
+}
+
+const tt_char_t *__N_parse(IN const tt_char_t *start,
+                           IN const tt_char_t *end,
+                           OUT tt_date_t *d)
+{
+    tt_u32_t m = 0;
+
+    if ((start + 2) < end) {
+        end = start + 2;
+    }
+
+    while ((start < end) && tt_isdigit(*start)) {
+        m *= 10;
+        m += (*start - '0');
+        ++start;
+    }
+
+    if (m <= 12) {
+        tt_date_set_month(d, m - 1);
+        return start;
+    } else {
+        TT_ERROR("invalid month: %d", m);
+        return NULL;
+    }
 }
 
 tt_result_t __D_render(IN tt_date_t *d, OUT tt_string_t *s)
