@@ -193,33 +193,69 @@ TT_TEST_CASE("case_date_def",
     TT_TEST_CASE_ENTER()
     // test start
 
-    TT_UT_EQUAL(tt_strcmp(tt_tmzone_name[TT_UTC_MINUS_12_00], "UTC-12:00"),
+    TT_UT_EQUAL(tt_strcmp((tt_char_t *)tt_g_tmzone_name[TT_UTC_MINUS_12_00]
+                              .addr,
+                          "UTC-12:00"),
                 0,
                 "");
-    TT_UT_EQUAL(tt_strcmp(tt_tmzone_name_iso8601[TT_UTC_MINUS_12_00], "-12:00"),
+    TT_UT_EQUAL(tt_strcmp((tt_char_t *)
+                              tt_g_tmzone_name_iso8601[TT_UTC_MINUS_12_00]
+                                  .addr,
+                          "-12:00"),
                 0,
                 "");
-    TT_UT_EQUAL(tt_strcmp(tt_tmzone_name_rfc1123[TT_UTC_MINUS_12_00], "-1200"),
-                0,
-                "");
-
-    TT_UT_EQUAL(tt_strcmp(tt_tmzone_name[TT_UTC_00_00], "UTC+00:00"), 0, "");
-    TT_UT_EQUAL(tt_strcmp(tt_tmzone_name_rfc1123[TT_UTC_00_00], "GMT"), 0, "");
-    TT_UT_EQUAL(tt_strcmp(tt_tmzone_name_iso8601[TT_UTC_00_00], "Z"), 0, "");
-
-    TT_UT_EQUAL(tt_strcmp(tt_tmzone_name[TT_UTC_14_00], "UTC+14:00"), 0, "");
-    TT_UT_EQUAL(tt_strcmp(tt_tmzone_name_rfc1123[TT_UTC_14_00], "+1400"),
-                0,
-                "");
-    TT_UT_EQUAL(tt_strcmp(tt_tmzone_name_iso8601[TT_UTC_14_00], "+14:00"),
+    TT_UT_EQUAL(tt_strcmp((tt_char_t *)
+                              tt_g_tmzone_name_rfc1123[TT_UTC_MINUS_12_00]
+                                  .addr,
+                          "-1200"),
                 0,
                 "");
 
-    TT_UT_EQUAL(tt_strcmp(tt_month_name[TT_JANUARY], "January"), 0, "");
-    TT_UT_EQUAL(tt_strcmp(tt_month_name[TT_DECEMBER], "December"), 0, "");
+    TT_UT_EQUAL(tt_strcmp((tt_char_t *)tt_g_tmzone_name[TT_UTC_00_00].addr,
+                          "UTC+00:00"),
+                0,
+                "");
+    TT_UT_EQUAL(tt_strcmp((tt_char_t *)tt_g_tmzone_name_rfc1123[TT_UTC_00_00]
+                              .addr,
+                          "GMT"),
+                0,
+                "");
+    TT_UT_EQUAL(tt_strcmp((tt_char_t *)tt_g_tmzone_name_iso8601[TT_UTC_00_00]
+                              .addr,
+                          "Z"),
+                0,
+                "");
 
-    TT_UT_EQUAL(tt_strcmp(tt_weekday_name[TT_SUNDAY], "Sunday"), 0, "");
-    TT_UT_EQUAL(tt_strcmp(tt_weekday_name[TT_SATURDAY], "Saturday"), 0, "");
+    TT_UT_EQUAL(tt_strcmp((tt_char_t *)tt_g_tmzone_name[TT_UTC_14_00].addr,
+                          "UTC+14:00"),
+                0,
+                "");
+    TT_UT_EQUAL(tt_strcmp((tt_char_t *)tt_g_tmzone_name_rfc1123[TT_UTC_14_00]
+                              .addr,
+                          "+1400"),
+                0,
+                "");
+    TT_UT_EQUAL(tt_strcmp((tt_char_t *)tt_g_tmzone_name_iso8601[TT_UTC_14_00]
+                              .addr,
+                          "+14:00"),
+                0,
+                "");
+
+    TT_UT_EQUAL(tt_strcmp((char *)tt_g_month_name[TT_JANUARY].addr, "January"),
+                0,
+                "");
+    TT_UT_EQUAL(tt_strcmp((char *)tt_g_month_name[TT_DECEMBER].addr,
+                          "December"),
+                0,
+                "");
+
+    TT_UT_EQUAL(tt_strcmp((char *)tt_g_weekday_name[TT_SUNDAY].addr, "Sunday"),
+                0,
+                "");
+    TT_UT_EQUAL(tt_strcmp((char *)tt_g_weekday_name[TT_SATURDAY].addr,
+                          "Saturday"),
+                0,
+                "");
 
     TT_UT_EQUAL(tt_offsec2tmzone(-100000000), TT_UTC_MINUS_12_00, "");
     TT_UT_EQUAL(tt_offsec2tmzone(-43200), TT_UTC_MINUS_12_00, "");
@@ -424,78 +460,242 @@ TT_TEST_ROUTINE_DEFINE(case_date_parse)
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_date_t d;
     tt_result_t ret;
+    tt_u32_t len;
 
     TT_TEST_CASE_ENTER()
     // test start
 
     tt_date_init(&d, tt_g_local_tmzone);
 
-    ret = tt_date_parse(&d,
-                        "%Y-%m-%d %H-%M-%S",
-                        "2020-11-31 23-59-59",
-                        sizeof("2020-11-31 23-59-59"));
-    TT_UT_NOT_EQUAL(ret, 0, "");
-    TT_UT_EQUAL(ret, sizeof("2020-11-31 23-59-59") - 1, "");
-    TT_UT_EQUAL(tt_date_get_year(&d), 2020, "");
-    TT_UT_EQUAL(tt_date_get_month(&d), TT_NOVEMBER, "");
-    TT_UT_EQUAL(tt_date_get_monthday(&d), 31, "");
+    len = sizeof("2012-12") - 1;
+    ret = tt_date_parse(&d, "", "2012-12", &len);
+    TT_UT_SUCCESS(ret, "");
+    TT_UT_EQUAL(len, 0, "");
+
+    len = 0;
+    ret = tt_date_parse(&d, "%Y", "", &len);
+    TT_UT_FAIL(ret, "");
+
+    len = 2;
+    ret = tt_date_parse(&d, "aa", "aa", &len);
+    TT_UT_SUCCESS(ret, "");
+    TT_UT_EQUAL(len, 2, "");
+
+    len = 2;
+    ret = tt_date_parse(&d, "ab", "aa", &len);
+    TT_UT_FAIL(ret, "");
+
+    len = 1;
+    ret = tt_date_parse(&d, "%", "%", &len);
+    TT_UT_SUCCESS(ret, "");
+    TT_UT_EQUAL(len, 1, "");
+
+    len = 2;
+    ret = tt_date_parse(&d, "%%", "%a", &len);
+    TT_UT_FAIL(ret, "");
+    len = 4;
+    ret = tt_date_parse(&d, "  %% ", " %  ", &len);
+    TT_UT_FAIL(ret, "");
+    len = sizeof(" 2012  ");
+    ret = tt_date_parse(&d, "  %", " 2012  ", &len);
+    TT_UT_FAIL(ret, "");
+    len = sizeof(" 2012  ");
+    ret = tt_date_parse(&d, "  %o", " 2012  ", &len);
+    TT_UT_FAIL(ret, "");
+
+    // Y
+    len = sizeof(" 2012   %") - 1;
+    ret = tt_date_parse(&d, "  %Y  %", " 2012   %", &len);
+    TT_UT_SUCCESS(ret, "");
+    TT_UT_EQUAL(tt_date_get_year(&d), 2012, "");
+
+    // y
+    len = sizeof(" 19990   %%%") - 1;
+    ret = tt_date_parse(&d, "  %Y0  %%%", " 19990   %%%", &len);
+    TT_UT_SUCCESS(ret, "");
+    TT_UT_EQUAL(tt_date_get_year(&d), 1999, "");
+    TT_UT_EQUAL(len, sizeof(" 19990   %%%") - 1, "");
+
+    // C
+    len = sizeof(" 199   %%%") - 1;
+    ret = tt_date_parse(&d, "  %Y0  %%%", " 199   %%%", &len);
+    TT_UT_FAIL(ret, "");
+    // does not support year before 1583
+
+    // B
+    len = sizeof(" %% Jan") - 1;
+    ret = tt_date_parse(&d, "%%  %B", " %% Jan", &len);
+    TT_UT_SUCCESS(ret, "");
+    TT_UT_EQUAL(tt_date_get_month(&d), TT_JANUARY, "");
+    TT_UT_EQUAL(len, sizeof(" %% Jan") - 1, "");
+
+    ret = tt_date_parse(&d, "%%  %B  ", " %% jaNe", &len);
+    TT_UT_SUCCESS(ret, "");
+    TT_UT_EQUAL(tt_date_get_month(&d), TT_JANUARY, "");
+    ret = tt_date_parse(&d, "%%  %Be", " %% JANe", &len);
+    TT_UT_SUCCESS(ret, "");
+    TT_UT_EQUAL(tt_date_get_month(&d), TT_JANUARY, "");
+
+    // b
+    len = sizeof(" %% December") - 1;
+    ret = tt_date_parse(&d, "%%  %B", " %% December", &len);
+    TT_UT_SUCCESS(ret, "");
+    TT_UT_EQUAL(tt_date_get_month(&d), TT_DECEMBER, "");
+    TT_UT_EQUAL(len, sizeof(" %% December") - 1, "");
+
+    ret = tt_date_parse(&d, "%%  %B", " %% JA", &len);
+    TT_UT_FAIL(ret, "");
+
+    // D
+    len = sizeof(" 199") - 1;
+    ret = tt_date_parse(&d, "  %D", " 199", &len);
+    TT_UT_SUCCESS(ret, "");
+    TT_UT_EQUAL(tt_date_get_monthday(&d), 19, "");
+
+    // d
+    len = sizeof(" 3 99") - 1;
+    ret = tt_date_parse(&d, "  %d", " 3 99", &len);
+    TT_UT_SUCCESS(ret, "");
+    TT_UT_EQUAL(tt_date_get_monthday(&d), 3, "");
+
+    len = sizeof(" 39") - 1;
+    ret = tt_date_parse(&d, "  %d", " 39", &len);
+    TT_UT_FAIL(ret, "");
+
+    // H
+    len = sizeof(" 239") - 1;
+    ret = tt_date_parse(&d, "  %H", " 239", &len);
+    TT_UT_SUCCESS(ret, "");
     TT_UT_EQUAL(tt_date_get_hour(&d), 23, "");
+    TT_UT_EQUAL(len, 3, "");
+
+    // h
+    len = sizeof(" 0 99") - 1;
+    ret = tt_date_parse(&d, "  %h", " 0 99", &len);
+    TT_UT_SUCCESS(ret, "");
+    TT_UT_EQUAL(tt_date_get_hour(&d), 0, "");
+    TT_UT_EQUAL(len, 2, "");
+
+    len = sizeof(" 79") - 1;
+    ret = tt_date_parse(&d, "  %h", " 79", &len);
+    TT_UT_FAIL(ret, "");
+
+    // M
+    len = sizeof(" 599") - 1;
+    ret = tt_date_parse(&d, "  %M", " 599", &len);
+    TT_UT_SUCCESS(ret, "");
     TT_UT_EQUAL(tt_date_get_minute(&d), 59, "");
+    TT_UT_EQUAL(len, 3, "");
+
+    len = sizeof(" 0 99") - 1;
+    ret = tt_date_parse(&d, "  %M", " 0 99", &len);
+    TT_UT_SUCCESS(ret, "");
+    TT_UT_EQUAL(tt_date_get_minute(&d), 0, "");
+    TT_UT_EQUAL(len, 2, "");
+
+    len = sizeof(" 79") - 1;
+    ret = tt_date_parse(&d, "  %M", " 79", &len);
+    TT_UT_FAIL(ret, "");
+
+    // S
+    len = sizeof(" 599") - 1;
+    ret = tt_date_parse(&d, "  %S", " 599", &len);
+    TT_UT_SUCCESS(ret, "");
     TT_UT_EQUAL(tt_date_get_second(&d), 59, "");
+    TT_UT_EQUAL(len, 3, "");
 
-    ret = tt_date_parse(
-        &d,
-        "%Y-%m-%d %H-%M-%S",
-        "2020-11-31 23-59-59 2020-11-31 23-59-59 2020-11-31 23-59-59"
-        "2020-11-31 23-59-59 2020-11-31 23-59-59 2020-11-31 23-59-59"
-        "2020-11-31 23-59-59 2020-11-31 23-59-59 2020-11-31 23-59-59"
-        "2020-11-31 23-59-59 2020-11-31 23-59-59 2020-11-31 23-59-59",
-        127);
-    TT_UT_NOT_EQUAL(ret, 0, "");
-    TT_UT_EQUAL(ret, sizeof("2020-11-31 23-59-59") - 1, "");
-    TT_UT_EQUAL(tt_date_get_year(&d), 2020, "");
+    len = sizeof(" 0 99") - 1;
+    ret = tt_date_parse(&d, "  %S", " 0 99", &len);
+    TT_UT_SUCCESS(ret, "");
+    TT_UT_EQUAL(tt_date_get_second(&d), 0, "");
+    TT_UT_EQUAL(len, 2, "");
 
-    ret = tt_date_parse(
-        &d,
-        "%Y-%m-%d %H-%M-%S",
-        "2020-11-31 23-59-59 2020-11-31 23-59-59 2020-11-31 23-59-59"
-        "2020-11-31 23-59-59 2020-11-31 23-59-59 2020-11-31 23-59-59"
-        "2020-11-31 23-59-59 2020-11-31 23-59-59 2020-11-31 23-59-59"
-        "2020-11-31 23-59-59 2020-11-31 23-59-59 2020-11-31 23-59-59",
-        128);
-    TT_UT_NOT_EQUAL(ret, 0, "");
-    TT_UT_EQUAL(ret, sizeof("2020-11-31 23-59-59") - 1, "");
-    TT_UT_EQUAL(tt_date_get_year(&d), 2020, "");
+    len = sizeof(" 79") - 1;
+    ret = tt_date_parse(&d, "  %S", " 79", &len);
+    TT_UT_FAIL(ret, "");
 
-    ret = tt_date_parse(
-        &d,
-        "%Y-%m-%d %H-%M-%S",
-        "2020-11-31 23-59-59 2020-11-31 23-59-59 2020-11-31 23-59-59"
-        "2020-11-31 23-59-59 2020-11-31 23-59-59 2020-11-31 23-59-59"
-        "2020-11-31 23-59-59 2020-11-31 23-59-59 2020-11-31 23-59-59"
-        "2020-11-31 23-59-59 2020-11-31 23-59-59 2020-11-31 23-59-59",
-        130);
-    TT_UT_NOT_EQUAL(ret, 0, "");
-    TT_UT_EQUAL(ret, sizeof("2020-11-31 23-59-59") - 1, "");
-    TT_UT_EQUAL(tt_date_get_second(&d), 59, "");
+    // W
+    len = sizeof(" %% Monday") - 1;
+    ret = tt_date_parse(&d, "%%  %W", " %% Monday", &len);
+    TT_UT_SUCCESS(ret, "");
+    TT_UT_EQUAL(len, sizeof(" %% Monday") - 1, "");
 
+    len = sizeof(" %% sunDAYe") - 1;
+    ret = tt_date_parse(&d, "%%  %we  ", " %% sunDAYe", &len);
+    TT_UT_SUCCESS(ret, "");
+    TT_UT_EQUAL(len, sizeof(" %% sunDAYe") - 1, "");
+
+    len = sizeof(" %% SAT") - 1;
+    ret = tt_date_parse(&d, "%%  %we", " %% SAT", &len);
+    TT_UT_SUCCESS(ret, "");
+    TT_UT_EQUAL(len, sizeof(" %% SAT") - 1, "");
+
+    len = sizeof(" %% sund") - 1;
+    ret = tt_date_parse(&d, "%%  %w", " %% sund", &len);
+    TT_UT_SUCCESS(ret, "");
+    TT_UT_EQUAL(len, sizeof(" %% sund") - 2, "");
+
+    len = sizeof(" %% su") - 1;
+    ret = tt_date_parse(&d, "%%  %w", " %% su", &len);
+    TT_UT_FAIL(ret, "");
+
+    // Z
+    len = sizeof("gmt") - 1;
+    ret = tt_date_parse(&d, "%Z", "gmt", &len);
+    TT_UT_EQUAL(tt_date_get_tmzone(&d), TT_UTC_00_00, "");
+    TT_UT_EQUAL(len, sizeof("gmt") - 1, "");
+
+    len = sizeof("z") - 1;
+    ret = tt_date_parse(&d, "%Z", "z", &len);
+    TT_UT_EQUAL(tt_date_get_tmzone(&d), TT_UTC_00_00, "");
+    TT_UT_EQUAL(len, sizeof("z") - 1, "");
+
+    len = sizeof("-03:30") - 1;
+    ret = tt_date_parse(&d, "%Z", "-03:30", &len);
+    TT_UT_EQUAL(tt_date_get_tmzone(&d), TT_UTC_MINUS_03_30, "");
+    TT_UT_EQUAL(len, sizeof("-03:30") - 1, "");
+
+    len = sizeof("+14:00") - 1;
+    ret = tt_date_parse(&d, "%Z", "+14:00", &len);
+    TT_UT_EQUAL(tt_date_get_tmzone(&d), TT_UTC_14_00, "");
+    TT_UT_EQUAL(len, sizeof("+14:00") - 1, "");
+
+    // combination, rfc1123
+    len = sizeof("--- Sun, 08 Oct 2017 23:59:01 -0330%%%") - 1;
     ret = tt_date_parse(&d,
-                        "%Y-%m-%d %H-%M-%S",
-                        "2020-11-31",
-                        sizeof("2020-11-31"));
-    TT_UT_EQUAL(ret, 0, "");
+                        "--- %w, %D %b %C %H:%M:%S %Z%%%",
+                        "--- Sun, 08 Oct 2017 23:59:01 -0330%%%",
+                        &len);
+    TT_UT_SUCCESS(ret, "");
+    TT_UT_EQUAL(tt_date_cmp_date(&d, 2017, TT_OCTOBER, 8), 0, "");
+    TT_UT_EQUAL(tt_date_cmp_time(&d, 23, 59, 01), 0, "");
+    TT_UT_EQUAL(tt_date_get_tmzone(&d), TT_UTC_MINUS_03_30, "");
 
+    // combination, rfc850
+    len = sizeof("Sunday, 08-Oct-2017 23:59:01 +04:00 %%%") - 1;
     ret = tt_date_parse(&d,
-                        "%Y-%m-%d %H-%M-%S",
-                        "2020-13-31 23-59-59",
-                        sizeof("2020-13-31 23-59-59"));
-    TT_UT_EQUAL(ret, 0, "");
+                        "%W, %D-%b-%C %H:%M:%S %z %%%",
+                        "Sunday, 08-Oct-2017 23:59:01 +04:00 %%%",
+                        &len);
+    TT_UT_SUCCESS(ret, "");
+    TT_UT_EQUAL(tt_date_cmp_date(&d, 2017, TT_OCTOBER, 8), 0, "");
+    TT_UT_EQUAL(tt_date_cmp_time(&d, 23, 59, 01), 0, "");
+    TT_UT_EQUAL(tt_date_get_tmzone(&d), TT_UTC_04_00, "");
+
+    // combination, rfc850
+    len = sizeof("--- Sun Oct  8 23:59:01 2017 GMT") - 1;
+    ret = tt_date_parse(&d,
+                        "--- %w %b %d %H:%M:%S %C %Z",
+                        "--- Sun Oct  8 23:59:01 2017 GMT",
+                        &len);
+    TT_UT_SUCCESS(ret, "");
+    TT_UT_EQUAL(tt_date_cmp_date(&d, 2017, TT_OCTOBER, 8), 0, "");
+    TT_UT_EQUAL(tt_date_cmp_time(&d, 23, 59, 01), 0, "");
+    TT_UT_EQUAL(tt_date_get_tmzone(&d), TT_UTC_00_00, "");
 
     // test end
     TT_TEST_CASE_LEAVE()
 }
-
-extern tt_u32_t __year_daynum(IN tt_u32_t year);
 
 TT_TEST_ROUTINE_DEFINE(case_date_year)
 {

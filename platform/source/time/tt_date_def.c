@@ -28,6 +28,11 @@
 // internal macro
 ////////////////////////////////////////////////////////////
 
+#define __BLOB(s)                                                              \
+    {                                                                          \
+        (tt_u8_t *)s, sizeof(s) - 1,                                           \
+    }
+
 ////////////////////////////////////////////////////////////
 // internal type
 ////////////////////////////////////////////////////////////
@@ -40,74 +45,93 @@
 // global variant
 ////////////////////////////////////////////////////////////
 
-const tt_char_t *tt_tmzone_name[TT_TMZONE_NUM] = {
-    "UTC-12:00", "UTC-11:00", "UTC-10:00", "UTC-09:30", "UTC-09:00",
-    "UTC-08:00", "UTC-07:00", "UTC-06:00", "UTC-05:00", "UTC-04:00",
-    "UTC-03:30", "UTC-03:00", "UTC-02:00", "UTC-01:00", "UTC+00:00",
-    "UTC+01:00", "UTC+02:00", "UTC+03:00", "UTC+03:30", "UTC+04:00",
-    "UTC+04:30", "UTC+05:00", "UTC+05:30", "UTC+05:45", "UTC+06:00",
-    "UTC+06:30", "UTC+07:00", "UTC+08:00", "UTC+08:30", "UTC+08:45",
-    "UTC+09:00", "UTC+09:30", "UTC+10:00", "UTC+10:30", "UTC+11:00",
-    "UTC+12:00", "UTC+12:45", "UTC+13:00", "UTC+14:00",
+tt_blob_t tt_g_tmzone_name[TT_TMZONE_NUM] = {
+    __BLOB("UTC-12:00"), __BLOB("UTC-11:00"), __BLOB("UTC-10:00"),
+    __BLOB("UTC-09:30"), __BLOB("UTC-09:00"), __BLOB("UTC-08:00"),
+    __BLOB("UTC-07:00"), __BLOB("UTC-06:00"), __BLOB("UTC-05:00"),
+    __BLOB("UTC-04:00"), __BLOB("UTC-03:30"), __BLOB("UTC-03:00"),
+    __BLOB("UTC-02:00"), __BLOB("UTC-01:00"), __BLOB("UTC+00:00"),
+    __BLOB("UTC+01:00"), __BLOB("UTC+02:00"), __BLOB("UTC+03:00"),
+    __BLOB("UTC+03:30"), __BLOB("UTC+04:00"), __BLOB("UTC+04:30"),
+    __BLOB("UTC+05:00"), __BLOB("UTC+05:30"), __BLOB("UTC+05:45"),
+    __BLOB("UTC+06:00"), __BLOB("UTC+06:30"), __BLOB("UTC+07:00"),
+    __BLOB("UTC+08:00"), __BLOB("UTC+08:30"), __BLOB("UTC+08:45"),
+    __BLOB("UTC+09:00"), __BLOB("UTC+09:30"), __BLOB("UTC+10:00"),
+    __BLOB("UTC+10:30"), __BLOB("UTC+11:00"), __BLOB("UTC+12:00"),
+    __BLOB("UTC+12:45"), __BLOB("UTC+13:00"), __BLOB("UTC+14:00"),
 };
 
-const tt_char_t *tt_tmzone_name_rfc1123[TT_TMZONE_NUM] = {
-    "-1200", "-1100", "-1000", "-0930", "-0900", "-0800", "-0700", "-0600",
-    "-0500", "-0400", "-0330", "-0300", "-0200", "-0100", "GMT",   "+0100",
-    "+0200", "+0300", "+0330", "+0400", "+0430", "+0500", "+0530", "+0545",
-    "+0600", "+0630", "+0700", "+0800", "+0830", "+0845", "+0900", "+0930",
-    "+1000", "+1030", "+1100", "+1200", "+1245", "+1300", "+1400",
+tt_blob_t tt_g_tmzone_name_rfc1123[TT_TMZONE_NUM] = {
+    __BLOB("-1200"), __BLOB("-1100"), __BLOB("-1000"), __BLOB("-0930"),
+    __BLOB("-0900"), __BLOB("-0800"), __BLOB("-0700"), __BLOB("-0600"),
+    __BLOB("-0500"), __BLOB("-0400"), __BLOB("-0330"), __BLOB("-0300"),
+    __BLOB("-0200"), __BLOB("-0100"), __BLOB("GMT"),   __BLOB("+0100"),
+    __BLOB("+0200"), __BLOB("+0300"), __BLOB("+0330"), __BLOB("+0400"),
+    __BLOB("+0430"), __BLOB("+0500"), __BLOB("+0530"), __BLOB("+0545"),
+    __BLOB("+0600"), __BLOB("+0630"), __BLOB("+0700"), __BLOB("+0800"),
+    __BLOB("+0830"), __BLOB("+0845"), __BLOB("+0900"), __BLOB("+0930"),
+    __BLOB("+1000"), __BLOB("+1030"), __BLOB("+1100"), __BLOB("+1200"),
+    __BLOB("+1245"), __BLOB("+1300"), __BLOB("+1400"),
 };
 
-const tt_char_t *tt_tmzone_name_iso8601[TT_TMZONE_NUM] = {
-    "-12:00", "-11:00", "-10:00", "-09:30", "-09:00", "-08:00", "-07:00",
-    "-06:00", "-05:00", "-04:00", "-03:30", "-03:00", "-02:00", "-01:00",
-    "Z",      "+01:00", "+02:00", "+03:00", "+03:30", "+04:00", "+04:30",
-    "+05:00", "+05:30", "+05:45", "+06:00", "+06:30", "+07:00", "+08:00",
-    "+08:30", "+08:45", "+09:00", "+09:30", "+10:00", "+10:30", "+11:00",
-    "+12:00", "+12:45", "+13:00", "+14:00",
+tt_blob_t tt_g_tmzone_name_iso8601[TT_TMZONE_NUM] = {
+    __BLOB("-12:00"), __BLOB("-11:00"), __BLOB("-10:00"), __BLOB("-09:30"),
+    __BLOB("-09:00"), __BLOB("-08:00"), __BLOB("-07:00"), __BLOB("-06:00"),
+    __BLOB("-05:00"), __BLOB("-04:00"), __BLOB("-03:30"), __BLOB("-03:00"),
+    __BLOB("-02:00"), __BLOB("-01:00"), __BLOB("Z"),      __BLOB("+01:00"),
+    __BLOB("+02:00"), __BLOB("+03:00"), __BLOB("+03:30"), __BLOB("+04:00"),
+    __BLOB("+04:30"), __BLOB("+05:00"), __BLOB("+05:30"), __BLOB("+05:45"),
+    __BLOB("+06:00"), __BLOB("+06:30"), __BLOB("+07:00"), __BLOB("+08:00"),
+    __BLOB("+08:30"), __BLOB("+08:45"), __BLOB("+09:00"), __BLOB("+09:30"),
+    __BLOB("+10:00"), __BLOB("+10:30"), __BLOB("+11:00"), __BLOB("+12:00"),
+    __BLOB("+12:45"), __BLOB("+13:00"), __BLOB("+14:00"),
 };
 
-const tt_char_t *tt_month_name[TT_MONTH_NUM] = {
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
+tt_blob_t tt_g_month_name[TT_MONTH_NUM] = {
+    __BLOB("January"),
+    __BLOB("February"),
+    __BLOB("March"),
+    __BLOB("April"),
+    __BLOB("May"),
+    __BLOB("June"),
+    __BLOB("July"),
+    __BLOB("August"),
+    __BLOB("September"),
+    __BLOB("October"),
+    __BLOB("November"),
+    __BLOB("December"),
 };
 
-const tt_char_t *tt_month_name_abbr[TT_MONTH_NUM] = {
-    "Jan",
-    "Feb",
-    "Mar",
-    "Apr",
-    "May",
-    "June",
-    "July",
-    "Aug",
-    "Sept",
-    "Oct",
-    "Nov",
-    "Dec",
+tt_blob_t tt_g_month_name_abbr[TT_MONTH_NUM] = {
+    __BLOB("Jan"),
+    __BLOB("Feb"),
+    __BLOB("Mar"),
+    __BLOB("Apr"),
+    __BLOB("May"),
+    __BLOB("June"),
+    __BLOB("July"),
+    __BLOB("Aug"),
+    __BLOB("Sept"),
+    __BLOB("Oct"),
+    __BLOB("Nov"),
+    __BLOB("Dec"),
 };
 
-const tt_char_t *tt_weekday_name[TT_WEEKDAY_NUM] = {"Sunday",
-                                                    "Monday",
-                                                    "Tuesday",
-                                                    "Wednesday",
-                                                    "Thursday",
-                                                    "Friday",
-                                                    "Saturday"};
+tt_blob_t tt_g_weekday_name[TT_WEEKDAY_NUM] = {__BLOB("Sunday"),
+                                               __BLOB("Monday"),
+                                               __BLOB("Tuesday"),
+                                               __BLOB("Wednesday"),
+                                               __BLOB("Thursday"),
+                                               __BLOB("Friday"),
+                                               __BLOB("Saturday")};
 
-const tt_char_t *tt_weekday_name_abbr[TT_WEEKDAY_NUM] =
-    {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
+tt_blob_t tt_g_weekday_name_abbr[TT_WEEKDAY_NUM] = {__BLOB("Sun"),
+                                                    __BLOB("Mon"),
+                                                    __BLOB("Tue"),
+                                                    __BLOB("Wed"),
+                                                    __BLOB("Thu"),
+                                                    __BLOB("Fri"),
+                                                    __BLOB("Sat")};
 
 #define SEC(h, m) (((h)*3600) + ((m)*60))
 static tt_s32_t __tmzone_offset[TT_TMZONE_NUM] =

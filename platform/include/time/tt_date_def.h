@@ -30,7 +30,7 @@ this file specifies date definitions
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <tt_basic_type.h>
+#include <algorithm/tt_blob.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
@@ -122,19 +122,19 @@ typedef enum {
 // global variants
 ////////////////////////////////////////////////////////////
 
-tt_export const tt_char_t *tt_tmzone_name[TT_TMZONE_NUM];
+tt_export tt_blob_t tt_g_tmzone_name[TT_TMZONE_NUM];
 
-tt_export const tt_char_t *tt_tmzone_name_rfc1123[TT_TMZONE_NUM];
+tt_export tt_blob_t tt_g_tmzone_name_rfc1123[TT_TMZONE_NUM];
 
-tt_export const tt_char_t *tt_tmzone_name_iso8601[TT_TMZONE_NUM];
+tt_export tt_blob_t tt_g_tmzone_name_iso8601[TT_TMZONE_NUM];
 
-tt_export const tt_char_t *tt_month_name[TT_MONTH_NUM];
+tt_export tt_blob_t tt_g_month_name[TT_MONTH_NUM];
 
-tt_export const tt_char_t *tt_month_name_abbr[TT_MONTH_NUM];
+tt_export tt_blob_t tt_g_month_name_abbr[TT_MONTH_NUM];
 
-tt_export const tt_char_t *tt_weekday_name[TT_WEEKDAY_NUM];
+tt_export tt_blob_t tt_g_weekday_name[TT_WEEKDAY_NUM];
 
-tt_export const tt_char_t *tt_weekday_name_abbr[TT_WEEKDAY_NUM];
+tt_export tt_blob_t tt_g_weekday_name_abbr[TT_WEEKDAY_NUM];
 
 ////////////////////////////////////////////////////////////
 // interface declaration

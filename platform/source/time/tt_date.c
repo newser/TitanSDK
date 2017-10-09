@@ -124,13 +124,11 @@ void tt_date_init(IN tt_date_t *date, IN tt_tmzone_t tz)
     date->tz = tz;
 }
 
-tt_bool_t tt_date_valid(IN tt_u32_t year, IN tt_month_t month, IN tt_u32_t mday)
+tt_bool_t tt_date_valid(IN tt_date_t *date)
 {
-    return __date_valid(__Y_IN(year), month, __MDAY_IN(mday));
+    return __date_valid(date->year, date->month, date->mday);
 }
 
-tt_s32_t tt_date_cmp(IN tt_date_t *a, IN tt_date_t *b)
-{
 #define __dcmp(field)                                                          \
     do {                                                                       \
         if (a->field > b->field) {                                             \
@@ -139,18 +137,53 @@ tt_s32_t tt_date_cmp(IN tt_date_t *a, IN tt_date_t *b)
             return -1;                                                         \
         }                                                                      \
     } while (0)
-
+tt_s32_t tt_date_cmp(IN tt_date_t *a, IN tt_date_t *b)
+{
     __dcmp(year);
     __dcmp(month);
     __dcmp(mday);
     __dcmp(hour);
     __dcmp(minute);
     __dcmp(second);
-
+    return 0;
+}
 #undef __dcmp
+
+#define __dcmp(field)                                                          \
+    do {                                                                       \
+        if (date->field > field) {                                             \
+            return 1;                                                          \
+        } else if (date->field < field) {                                      \
+            return -1;                                                         \
+        }                                                                      \
+    } while (0)
+tt_s32_t tt_date_cmp_date(IN tt_date_t *date,
+                          IN tt_u32_t year,
+                          IN tt_month_t month,
+                          IN tt_u32_t mday)
+{
+    year = __Y_IN(year);
+    __dcmp(year);
+
+    __dcmp(month);
+
+    mday = __MDAY_IN(mday);
+    __dcmp(mday);
 
     return 0;
 }
+
+tt_s32_t tt_date_cmp_time(IN tt_date_t *date,
+                          IN tt_u32_t hour,
+                          IN tt_month_t minute,
+                          IN tt_u32_t second)
+{
+    __dcmp(hour);
+    __dcmp(minute);
+    __dcmp(second);
+    return 0;
+}
+#undef __dcmp
 
 tt_result_t tt_date_change_tmzone(IN tt_date_t *date, IN tt_tmzone_t tz)
 {
