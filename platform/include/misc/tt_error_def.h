@@ -97,7 +97,7 @@ typedef enum _tt_result_t {
     TT_NO_RESOURCE,
     TT_BAD_ENV,
     TT_NOT_EXIST,
-    TT_ALREADY_EXIST,
+    TT_E_EXIST,
     TT_NOT_SUPPORT,
 
     // idx: 10

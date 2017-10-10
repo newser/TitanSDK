@@ -77,7 +77,7 @@ __ERR_RANGE_STRING_START(TT_ERR_RANGE_COMMON)
     __ERR_STRING(TT_NO_RESOURCE, "No resource"),
     __ERR_STRING(TT_BAD_ENV, "Bad environment"),
     __ERR_STRING(TT_NOT_EXIST, "Not exist"),
-    __ERR_STRING(TT_ALREADY_EXIST, "Already exsit"),
+    __ERR_STRING(TT_E_EXIST, "Already exsit"),
     __ERR_STRING(TT_NOT_SUPPORT, "Not support"),
 
     // idx: 10

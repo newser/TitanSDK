@@ -204,43 +204,59 @@ tt_u32_t __lio_fidx_output(IN tt_logio_t *lio,
 
 tt_result_t __fidx_next(IN tt_logio_file_t *lf)
 {
-    tt_char_t ext[8];
     tt_fpath_t path;
     tt_result_t result;
 
-    // note this function can only use tt_printf
+    if (lf->f_opened) {
+        tt_fclose(&lf->f);
+        lf->write_len = 0;
+        lf->f_opened = TT_FALSE;
+    }
 
-    tt_memset(ext, 0, sizeof(ext));
-    tt_snprintf(ext, sizeof(ext) - 1, "%d", lf->u.fidx.index);
-
-    // construct log file path
+    // construct log file name
     tt_fpath_init(&path, TT_FPATH_AUTO);
     if (!TT_OK(tt_fpath_set(&path, lf->log_path)) ||
         !TT_OK(tt_fpath_to_dir(&path)) ||
-        !TT_OK(tt_fpath_set_basename(&path, lf->log_name)) ||
-        !TT_OK(tt_fpath_set_extension(&path, ext))) {
-        tt_printf("fail to construct log file name\n");
+        !TT_OK(tt_fpath_set_basename(&path, lf->log_name))) {
         tt_fpath_destroy(&path);
         return TT_FAIL;
     }
 
-    if (lf->f_opened) {
-        tt_fclose(&lf->f);
-        lf->f_opened = TT_FALSE;
-        lf->write_len = 0;
-    }
-    result = tt_fopen(&lf->f,
-                      tt_fpath_cstr(&path),
-                      TT_FO_WRITE | TT_FO_APPEND | TT_FO_CREAT | TT_FO_EXCL,
-                      NULL);
-    tt_fpath_destroy(&path);
-    if (TT_OK(result)) {
-        lf->f_opened = TT_TRUE;
+    // open log file
+    result = TT_FAIL;
+    while (!TT_OK(result)) {
+        tt_char_t ext[16];
+        tt_u64_t size;
+
+        tt_memset(ext, 0, sizeof(ext));
+        tt_snprintf(ext, sizeof(ext) - 1, "%d", lf->u.fidx.index);
+        if (!TT_OK(tt_fpath_set_extension(&path, ext))) {
+            break;
+        }
+
+        if (!TT_OK(tt_fopen(&lf->f,
+                            tt_fpath_cstr(&path),
+                            TT_FO_WRITE | TT_FO_APPEND | TT_FO_CREAT,
+                            NULL))) {
+            break;
+        }
+
+        if (!TT_OK(tt_fseek(&lf->f, TT_FSEEK_END, 0, &size))) {
+            tt_fclose(&lf->f);
+            break;
+        }
         ++lf->u.fidx.index;
-        return TT_SUCCESS;
-    } else {
-        return TT_FAIL;
+        if (size < lf->max_log_size) {
+            lf->write_len = (tt_u32_t)size;
+            lf->f_opened = TT_TRUE;
+            result = TT_SUCCESS;
+        } else {
+            tt_fclose(&lf->f);
+        }
     }
+
+    tt_fpath_destroy(&path);
+    return result;
 }
 
 // ========================================
@@ -278,46 +294,62 @@ tt_u32_t __lio_fdate_output(IN tt_logio_t *lio,
 
 tt_result_t __fdate_next(IN tt_logio_file_t *lf)
 {
-    tt_char_t ext[32]; // 8+1+6+1+3
-    tt_u32_t n;
     tt_fpath_t path;
     tt_result_t result;
+    tt_u32_t idx;
 
-    // note this function can only use tt_printf
+    if (lf->f_opened) {
+        tt_fclose(&lf->f);
+        lf->write_len = 0;
+        lf->f_opened = TT_FALSE;
+    }
 
-    tt_memset(ext, 0, sizeof(ext));
-    n = tt_date_render_now(lf->u.fdate.date_format, ext, sizeof(ext) - 1);
-    TT_ASSERT(n < sizeof(ext));
-    tt_snprintf(ext + n,
-                sizeof(ext) - 1 - n,
-                ".%d",
-                tt_time_ref2ms(tt_time_ref()) % 1000);
-
-    // construct log file path
+    // construct log file name
     tt_fpath_init(&path, TT_FPATH_AUTO);
     if (!TT_OK(tt_fpath_set(&path, lf->log_path)) ||
         !TT_OK(tt_fpath_to_dir(&path)) ||
-        !TT_OK(tt_fpath_set_basename(&path, lf->log_name)) ||
-        !TT_OK(tt_fpath_set_extension(&path, ext))) {
-        tt_printf("fail to construct log file name\n");
+        !TT_OK(tt_fpath_set_basename(&path, lf->log_name))) {
         tt_fpath_destroy(&path);
         return TT_FAIL;
     }
 
-    if (lf->f_opened) {
-        tt_fclose(&lf->f);
-        lf->f_opened = TT_FALSE;
-        lf->write_len = 0;
+    // open log file
+    result = TT_FAIL;
+    idx = 1;
+    while (!TT_OK(result)) {
+        tt_char_t ext[32]; // 8+1+6+1+[]
+        tt_u32_t n;
+        tt_u64_t size;
+
+        tt_memset(ext, 0, sizeof(ext));
+        n = tt_date_render_now(lf->u.fdate.date_format, ext, sizeof(ext) - 1);
+        TT_ASSERT(n < sizeof(ext));
+        tt_snprintf(ext + n, sizeof(ext) - 1 - n, ".%d", idx);
+        if (!TT_OK(tt_fpath_set_extension(&path, ext))) {
+            break;
+        }
+
+        if (!TT_OK(tt_fopen(&lf->f,
+                            tt_fpath_cstr(&path),
+                            TT_FO_WRITE | TT_FO_APPEND | TT_FO_CREAT,
+                            NULL))) {
+            break;
+        }
+
+        if (!TT_OK(tt_fseek(&lf->f, TT_FSEEK_END, 0, &size))) {
+            tt_fclose(&lf->f);
+            break;
+        }
+        ++idx;
+        if (size < lf->max_log_size) {
+            lf->write_len = (tt_u32_t)size;
+            lf->f_opened = TT_TRUE;
+            result = TT_SUCCESS;
+        } else {
+            tt_fclose(&lf->f);
+        }
     }
-    result = tt_fopen(&lf->f,
-                      tt_fpath_cstr(&path),
-                      TT_FO_WRITE | TT_FO_APPEND | TT_FO_CREAT | TT_FO_EXCL,
-                      NULL);
+
     tt_fpath_destroy(&path);
-    if (TT_OK(result)) {
-        lf->f_opened = TT_TRUE;
-        return TT_SUCCESS;
-    } else {
-        return TT_FAIL;
-    }
+    return result;
 }
