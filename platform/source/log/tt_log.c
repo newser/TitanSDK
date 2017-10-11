@@ -23,6 +23,7 @@
 #include <log/tt_log.h>
 
 #include <log/tt_log_init.h>
+#include <os/tt_thread.h>
 
 #include <tt_log_native.h>
 
@@ -73,7 +74,7 @@ void tt_log_debug(IN const tt_char_t *func,
     va_list ap;
 
     va_start(ap, format);
-    if (tt_g_logmgr_ok) {
+    if (tt_g_logmgr_ok && !tt_thread_log_std()) {
         tt_logmgr_inputv(&tt_g_logmgr, TT_LOG_DEBUG, func, line, format, ap);
     } else {
         TT_VPRINTF(format, ap);
@@ -90,7 +91,7 @@ void tt_log_info(IN const tt_char_t *func,
     va_list ap;
 
     va_start(ap, format);
-    if (tt_g_logmgr_ok) {
+    if (tt_g_logmgr_ok && !tt_thread_log_std()) {
         tt_logmgr_inputv(&tt_g_logmgr, TT_LOG_INFO, func, line, format, ap);
     } else {
         TT_VPRINTF(format, ap);
@@ -107,7 +108,7 @@ void tt_log_warn(IN const tt_char_t *func,
     va_list ap;
 
     va_start(ap, format);
-    if (tt_g_logmgr_ok) {
+    if (tt_g_logmgr_ok && !tt_thread_log_std()) {
         tt_logmgr_inputv(&tt_g_logmgr, TT_LOG_WARN, func, line, format, ap);
     } else {
         TT_VPRINTF(format, ap);
@@ -124,7 +125,7 @@ void tt_log_error(IN const tt_char_t *func,
     va_list ap;
 
     va_start(ap, format);
-    if (tt_g_logmgr_ok) {
+    if (tt_g_logmgr_ok && !tt_thread_log_std()) {
         tt_logmgr_inputv(&tt_g_logmgr, TT_LOG_ERROR, func, line, format, ap);
     } else {
         TT_VPRINTF(format, ap);
@@ -141,7 +142,7 @@ void tt_log_fatal(IN const tt_char_t *func,
     va_list ap;
 
     va_start(ap, format);
-    if (tt_g_logmgr_ok) {
+    if (tt_g_logmgr_ok && !tt_thread_log_std()) {
         tt_logmgr_inputv(&tt_g_logmgr, TT_LOG_FATAL, func, line, format, ap);
     } else {
         TT_VPRINTF(format, ap);

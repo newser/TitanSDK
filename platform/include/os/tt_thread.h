@@ -101,6 +101,7 @@ typedef struct tt_thread_s
     tt_bool_t detached : 1;
     tt_bool_t local : 1;
     tt_bool_t enable_fiber : 1;
+    tt_bool_t log_std : 1;
 } tt_thread_t;
 
 ////////////////////////////////////////////////////////////
@@ -203,6 +204,12 @@ the current thread struct
 tt_inline tt_thread_t *tt_current_thread()
 {
     return tt_current_thread_ntv();
+}
+
+tt_inline tt_bool_t tt_thread_log_std()
+{
+    tt_thread_t *t = tt_current_thread();
+    return TT_COND(t != NULL, t->log_std, TT_TRUE);
 }
 
 /**

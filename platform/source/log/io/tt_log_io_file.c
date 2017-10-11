@@ -25,6 +25,7 @@
 #include <io/tt_fpath.h>
 #include <log/io/tt_log_io.h>
 #include <misc/tt_util.h>
+#include <os/tt_thread.h>
 #include <time/tt_date_format.h>
 #include <time/tt_time_reference.h>
 
@@ -179,8 +180,11 @@ tt_u32_t __lio_fidx_output(IN tt_logio_t *lio,
 {
     tt_logio_file_t *lf = TT_LOGIO_CAST(lio, tt_logio_file_t);
     tt_u32_t write_len = 0;
+    tt_thread_t *t = tt_current_thread();
 
     // this function is already protected by log manger's lock
+
+    t->log_std = TT_TRUE;
 
     if (!lf->f_opened) {
         // it ever failed to open log file, which is not expected. but here we
@@ -196,9 +200,10 @@ tt_u32_t __lio_fidx_output(IN tt_logio_t *lio,
         }
     } else {
         // no way to recover anything, just give a warning
-        tt_printf("WARN: log is lost!!!\n");
+        TT_ERROR("log is lost");
     }
 
+    t->log_std = TT_FALSE;
     return write_len;
 }
 
@@ -269,8 +274,11 @@ tt_u32_t __lio_fdate_output(IN tt_logio_t *lio,
 {
     tt_logio_file_t *lf = TT_LOGIO_CAST(lio, tt_logio_file_t);
     tt_u32_t write_len = 0;
+    tt_thread_t *t = tt_current_thread();
 
     // this function is already protected by log manger's lock
+
+    t->log_std = TT_TRUE;
 
     if (!lf->f_opened) {
         // it ever failed to open log file, which is not expected. but here we
@@ -285,10 +293,10 @@ tt_u32_t __lio_fdate_output(IN tt_logio_t *lio,
             __fdate_next(lf);
         }
     } else {
-        // no way to recover anything, just give a warning
-        tt_printf("WARN: log is lost!!!\n");
+        TT_ERROR("log is lost");
     }
 
+    t->log_std = TT_FALSE;
     return write_len;
 }
 

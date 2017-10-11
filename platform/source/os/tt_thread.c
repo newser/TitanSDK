@@ -119,6 +119,7 @@ tt_thread_t *tt_thread_create(IN tt_thread_routine_t routine,
     thread->detached = detached;
     thread->local = TT_FALSE;
     thread->enable_fiber = attr->enable_fiber;
+    thread->log_std = TT_FALSE;
 
     if (!TT_OK(tt_thread_create_ntv(thread))) {
         goto tc_fail;
