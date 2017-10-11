@@ -316,6 +316,19 @@ tt_export tt_u8_t *tt_fcontent(IN const tt_char_t *path,
 tt_export tt_result_t tt_fcontent_buf(IN const tt_char_t *path,
                                       OUT struct tt_buf_s *buf);
 
+// - prevent other PROCESSES from locking the file
+// - does not prevent other THREADS from locking the file
+// - does not prevent other threads or processes from reading or writing file
+tt_inline tt_result_t tt_ftrylock(IN tt_file_t *file, IN tt_bool_t exclusive)
+{
+    return tt_ftrylock_ntv(&file->sys_file, exclusive);
+}
+
+tt_inline void tt_funlock(IN tt_file_t *file)
+{
+    tt_funlock_ntv(&file->sys_file);
+}
+
 /**
  @fn void tt_dir_attr_default(IN tt_dir_attr_t *attr)
  get default directory attribute

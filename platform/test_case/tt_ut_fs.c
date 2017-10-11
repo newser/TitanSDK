@@ -7,6 +7,7 @@
 #include <algorithm/tt_string_common.h>
 #include <io/tt_file_system.h>
 #include <memory/tt_memory_alloc.h>
+#include <os/tt_process.h>
 #include <os/tt_spinlock.h>
 #include <os/tt_task.h>
 #include <time/tt_time_reference.h>
@@ -31,6 +32,7 @@ TT_TEST_ROUTINE_DECLARE(case_fs_open)
 TT_TEST_ROUTINE_DECLARE(case_fs_rw)
 TT_TEST_ROUTINE_DECLARE(case_fs_multhread)
 TT_TEST_ROUTINE_DECLARE(case_fs_consistency)
+TT_TEST_ROUTINE_DECLARE(case_fs_flock)
 
 TT_TEST_ROUTINE_DECLARE(case_dir_basic)
 
@@ -79,6 +81,15 @@ TT_TEST_CASE("case_fs_basic",
              NULL,
              NULL)
 ,
+
+    TT_TEST_CASE("case_fs_flock",
+                 "testing fs flock",
+                 case_fs_flock,
+                 NULL,
+                 __fs_enter,
+                 NULL,
+                 NULL,
+                 NULL),
 
     TT_TEST_CASE("case_fs_open",
                  "testing fs open close",
@@ -171,6 +182,7 @@ TT_TEST_ROUTINE_DEFINE(case_fs_consistency)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_result_t ret;
+    tt_file_t f;
 
     TT_TEST_CASE_ENTER()
 
@@ -179,6 +191,91 @@ TT_TEST_ROUTINE_DEFINE(case_fs_consistency)
     // create
     ret = tt_fcreate(__SC_TEST_FILE, NULL);
     TT_UT_SUCCESS(ret, "");
+
+    ret = tt_fopen(&f, __SC_TEST_FILE, TT_FO_RDWR, NULL);
+    TT_UT_SUCCESS(ret, "");
+
+    ret = tt_ftrylock(&f, TT_FALSE);
+    TT_UT_SUCCESS(ret, "");
+    ret = tt_ftrylock(&f, TT_FALSE);
+    TT_UT_SUCCESS(ret, "");
+    tt_funlock(&f);
+
+    ret = tt_ftrylock(&f, TT_TRUE);
+    TT_UT_SUCCESS(ret, "");
+    tt_funlock(&f);
+
+    tt_fclose(&f);
+
+    // remove
+    ret = tt_fremove(__SC_TEST_FILE);
+    TT_UT_SUCCESS(ret, "");
+
+    // test end
+    TT_TEST_CASE_LEAVE()
+}
+
+TT_TEST_ROUTINE_DEFINE(case_fs_flock)
+{
+    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+    tt_result_t ret;
+    tt_file_t f;
+    tt_process_t p;
+    tt_char_t *arg[] = {"not care", "flock", __SC_TEST_FILE, "e", NULL};
+    tt_u8_t r;
+
+    TT_TEST_CASE_ENTER()
+
+    tt_fremove(__SC_TEST_FILE);
+
+    ret = tt_fopen(&f, __SC_TEST_FILE, TT_FO_CREAT | TT_FO_RDWR, NULL);
+    TT_UT_SUCCESS(ret, "");
+
+    // share lock first
+    ret = tt_ftrylock(&f, TT_FALSE);
+    TT_UT_SUCCESS(ret, "");
+    ret = tt_ftrylock(&f, TT_FALSE);
+    TT_UT_SUCCESS(ret, "");
+
+    arg[3] = "ex";
+    ret = tt_process_create(&p, tt_process_path(NULL), arg, NULL);
+    TT_UT_SUCCESS(ret, "");
+    ret = tt_process_wait(&p, TT_TRUE, &r);
+    TT_UT_SUCCESS(ret, "");
+    // can not exclusive lock
+    TT_UT_EQUAL(r, 1, "");
+
+    arg[3] = "sh";
+    ret = tt_process_create(&p, tt_process_path(NULL), arg, NULL);
+    TT_UT_SUCCESS(ret, "");
+    ret = tt_process_wait(&p, TT_TRUE, &r);
+    TT_UT_SUCCESS(ret, "");
+    // can share lock
+    TT_UT_EQUAL(r, 0, "");
+
+    tt_funlock(&f);
+
+    // exclusive lock first
+    ret = tt_ftrylock(&f, TT_TRUE);
+    TT_UT_SUCCESS(ret, "");
+
+    arg[3] = "ex";
+    ret = tt_process_create(&p, tt_process_path(NULL), arg, NULL);
+    TT_UT_SUCCESS(ret, "");
+    ret = tt_process_wait(&p, TT_TRUE, &r);
+    TT_UT_SUCCESS(ret, "");
+    // can not exclusive lock
+    TT_UT_EQUAL(r, 1, "");
+
+    arg[3] = "sh";
+    ret = tt_process_create(&p, tt_process_path(NULL), arg, NULL);
+    TT_UT_SUCCESS(ret, "");
+    ret = tt_process_wait(&p, TT_TRUE, &r);
+    TT_UT_SUCCESS(ret, "");
+    // can not share lock
+    TT_UT_EQUAL(r, 1, "");
+
+    tt_funlock(&f);
 
     // remove
     ret = tt_fremove(__SC_TEST_FILE);

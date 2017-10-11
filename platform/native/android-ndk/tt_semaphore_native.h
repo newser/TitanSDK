@@ -104,7 +104,7 @@ wait a system semaphore
 
 @return
 - TT_SUCCESS, if the semaphore is waited
-- TT_TIME_OUT, if the time specified expires
+- TT_E_TIMEOUT, if the time specified expires
 - TT_FAIL, otherwise
 */
 extern tt_bool_t tt_sem_acquire_ntv(IN tt_sem_ntv_t *sys_sem,
@@ -120,7 +120,7 @@ wait a system semaphore
 
 @return
 - TT_SUCCESS, if the semaphore is waited
-- TT_TIME_OUT, if sema can not be waited now
+- TT_E_TIMEOUT, if sema can not be waited now
 - TT_FAIL, otherwise
 */
 extern tt_bool_t tt_sem_try_acquire_ntv(IN tt_sem_ntv_t *sys_sem);

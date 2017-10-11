@@ -107,7 +107,7 @@ __wait_ag:
         }
         return TT_SUCCESS;
     } else if (ret == 0) {
-        return TT_TIME_OUT;
+        return TT_E_TIMEOUT;
     }
 
     // failed

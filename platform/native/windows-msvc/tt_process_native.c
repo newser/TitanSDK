@@ -171,7 +171,7 @@ tt_result_t tt_process_wait_ntv(IN tt_process_ntv_t *sys_proc,
         CloseHandle(sys_proc->proc_info.hThread);
         return TT_SUCCESS;
     } else if (ret == WAIT_TIMEOUT) {
-        return TT_TIME_OUT;
+        return TT_E_TIMEOUT;
     } else {
         TT_ERROR_NTV("wait process failed");
         return TT_FAIL;

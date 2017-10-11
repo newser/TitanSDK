@@ -176,7 +176,7 @@ TT_TEST_CASE("case_sem_basic",
 
     // trylock
     ret = tt_sem_try_acquire(&lock);
-    // TT_UT_EQUAL(ret, TT_TIME_OUT, "");
+    // TT_UT_EQUAL(ret, TT_E_TIMEOUT, "");
 
     // unlock, relock
     tt_sem_release(&lock);

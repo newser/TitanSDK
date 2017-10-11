@@ -48,7 +48,7 @@ this file specifies interfaces of sem.
 
  @return
  - TT_SUCCESS, if the semaphore is waited successfully
- - TT_TIME_OUT, if the semaphore can not be acquired and time specified expires
+ - TT_E_TIMEOUT, if the semaphore can not be acquired and time specified expires
 
  @note
  - NENVER acquire a semaphore which has already been acquired by same thread
@@ -64,7 +64,7 @@ this file specifies interfaces of sem.
 
  @return
  - TT_SUCCESS, if the semaphore is waited successfully
- - TT_TIME_OUT, if the semaphore can not be acquired
+ - TT_E_TIMEOUT, if the semaphore can not be acquired
 
  @note
  - NENVER acquire a semaphore which has already been acquired by same thread
@@ -164,13 +164,13 @@ wait a semaphore
 @param [in] wait_ms
 - the time in millisec spent on waiting semaphore.
 - if 0, this function is just a "try-wait", the return value is either
-  TT_SUCCESS or TT_TIME_OUT.
+  TT_SUCCESS or TT_E_TIMEOUT.
 - if TT_TIME_INFINITE, the function will never return till the semaphore
   is signaled
 
 @return
 - TT_SUCCESS, if the semaphore is waited successfully
-- TT_TIME_OUT, if the semaphore is not waited and time specified expires
+- TT_E_TIMEOUT, if the semaphore is not waited and time specified expires
 */
 tt_inline tt_bool_t tt_sem_acquire_tag(IN tt_sem_t *sem,
                                        IN tt_s64_t wait_ms
@@ -192,7 +192,7 @@ wait a semaphore
 
 @return
 - TT_SUCCESS, if the semaphore is waited successfully
-- TT_TIME_OUT, if t he semaphore can not be acquired
+- TT_E_TIMEOUT, if t he semaphore can not be acquired
 */
 tt_inline tt_bool_t tt_sem_try_acquire_tag(IN tt_sem_t *sem
 #if (TT_SEM_DEBUG_OPT & TT_SEM_DEBUG_TAG)

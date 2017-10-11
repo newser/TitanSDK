@@ -603,7 +603,7 @@ static tt_result_t __dns_query_3(IN void *param)
     for (i = 0; i < n; ++i) {
         ret = __ut_dns_query4(__ut_current_dns_d(), "163.com", &ip);
         DUT_INFO("dns query[%d/%d] done", i, n);
-        if (ret != TT_TIME_OUT) {
+        if (ret != TT_E_TIMEOUT) {
             __dns_errline = __LINE__;
             tt_task_exit(NULL);
             return TT_FAIL;

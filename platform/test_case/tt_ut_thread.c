@@ -517,7 +517,7 @@ TT_TEST_ROUTINE_DEFINE(case_process_basic)
         if (TT_OK(ret)) {
             break;
         } else {
-            TT_UT_EQUAL(ret, TT_TIME_OUT, "");
+            TT_UT_EQUAL(ret, TT_E_TIMEOUT, "");
             TT_INFO("waiting for child process");
             tt_sleep(500);
         }

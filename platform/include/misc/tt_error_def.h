@@ -88,7 +88,7 @@ typedef enum _tt_result_t {
 
     // idx: 0
     TT_FAIL,
-    TT_TIME_OUT,
+    TT_E_TIMEOUT,
     TT_END,
     TT_PROCEEDING,
     TT_BAD_PARAM,

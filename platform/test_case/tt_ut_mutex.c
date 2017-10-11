@@ -116,7 +116,7 @@ TT_TEST_CASE("case_mutex_basic",
 
     // trylock
     ret = tt_mutex_try_acquire(&lock);
-    // TT_UT_EQUAL(ret, TT_TIME_OUT, "");
+    // TT_UT_EQUAL(ret, TT_E_TIMEOUT, "");
 
     // unlock
     tt_mutex_release(&lock);

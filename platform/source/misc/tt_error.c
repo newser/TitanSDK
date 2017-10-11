@@ -68,7 +68,7 @@ __ERR_RANGE_STRING_START(TT_ERR_RANGE_COMMON)
 
     // idx: 0
     __ERR_STRING(TT_FAIL, "Fail"),
-    __ERR_STRING(TT_TIME_OUT, "Time out"),
+    __ERR_STRING(TT_E_TIMEOUT, "Time out"),
     __ERR_STRING(TT_END, "Operation ends"),
     __ERR_STRING(TT_PROCEEDING, "Proceeding"),
     __ERR_STRING(TT_BAD_PARAM, "Bad parameter"),

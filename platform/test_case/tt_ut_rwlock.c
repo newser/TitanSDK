@@ -149,11 +149,11 @@ TT_TEST_CASE("case_rwlock_basic",
 
     // try read acquire
     // ret= tt_rwlock_try_acquire_r(&lock);
-    // TT_UT_EQUAL(ret, TT_TIME_OUT, "");
+    // TT_UT_EQUAL(ret, TT_E_TIMEOUT, "");
 
     // try write acquire
     // ret= tt_rwlock_try_acquire_w(&lock);
-    // TT_UT_EQUAL(ret, TT_TIME_OUT, "");
+    // TT_UT_EQUAL(ret, TT_E_TIMEOUT, "");
 
     // write release
     tt_rwlock_release_w(&lock);

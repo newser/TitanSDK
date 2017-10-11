@@ -161,7 +161,7 @@ acquire a mutex
 
 @return
 - TT_SUCCESS, if locking done
-- TT_TIME_OUT, if can not lock now
+- TT_E_TIMEOUT, if can not lock now
 */
 tt_inline tt_bool_t tt_mutex_try_acquire_tag(IN tt_mutex_t *mutex
 #if (TT_MUTEX_DEBUG_OPT & TT_MUTEX_DEBUG_TAG)

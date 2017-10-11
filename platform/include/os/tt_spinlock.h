@@ -150,7 +150,7 @@ try to lock a spin lock
 
 @return
 - TT_SUCCESS, if locking done
-- TT_TIME_OUT, the spin lock is already locked by others
+- TT_E_TIMEOUT, the spin lock is already locked by others
 
 @note
 - NEVER acquire a spinlock which has already been acquired by same thread

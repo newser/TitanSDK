@@ -359,7 +359,7 @@ void __query4_cb(IN void *arg,
         dq->ip->a32.__u32 = ip->s_addr;
         dq->result = TT_SUCCESS;
     } else if (status == ARES_ETIMEOUT) {
-        dq->result = TT_TIME_OUT;
+        dq->result = TT_E_TIMEOUT;
     } else {
         dq->result = TT_FAIL;
     }
@@ -385,7 +385,7 @@ void __query6_cb(IN void *arg,
         tt_memcpy(dq->ip->a128.__u8, ip->s6_addr, 16);
         dq->result = TT_SUCCESS;
     } else if (status == ARES_ETIMEOUT) {
-        dq->result = TT_TIME_OUT;
+        dq->result = TT_E_TIMEOUT;
     } else {
         dq->result = TT_FAIL;
     }
