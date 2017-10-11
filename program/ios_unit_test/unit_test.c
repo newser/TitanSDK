@@ -34,9 +34,25 @@ tt_result_t __ut_fiber(IN void *param)
         } else if (TT_OK(tt_test_unit_run(name))) {
             tt_ut_ok = TT_TRUE;
         }
-    } else {
+    }
+#if 1
+    else {
+        const tt_char_t *names[] = {
+            "TEST_UNIT_DATE",
+        };
+        tt_u32_t i;
+
+        for (i = 0; i < sizeof(names) / sizeof(names[0]); ++i) {
+            tt_test_unit_run(names[i]);
+        }
+        tt_test_unit_list(NULL);
+        tt_ut_ok = TT_TRUE;
+    }
+#else
+    else {
         printf("unit_test <case name> | all");
     }
+#endif
 
     return TT_SUCCESS;
 }

@@ -93,7 +93,7 @@ tt_bool_t tt_sem_acquire_ntv(IN tt_sem_ntv_t *sys_sem, IN tt_s64_t wait_ms)
         mach_timespec_t t;
         kern_return_t r;
 
-        t.tv_sec = wait_ms / 1000;
+        t.tv_sec = (unsigned int)(wait_ms / 1000);
         t.tv_nsec = (wait_ms % 1000) * 1000000;
 
         // again2:

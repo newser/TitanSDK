@@ -226,6 +226,10 @@ TT_TEST_ROUTINE_DEFINE(case_fs_flock)
 
     TT_TEST_CASE_ENTER()
 
+#if TT_ENV_OS_IS_IOS
+    return TT_SUCCESS;
+#endif
+
     tt_fremove(__SC_TEST_FILE);
 
     ret = tt_fopen(&f, __SC_TEST_FILE, TT_FO_CREAT | TT_FO_RDWR, NULL);

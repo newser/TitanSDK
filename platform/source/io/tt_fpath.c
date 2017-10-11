@@ -271,8 +271,8 @@ tt_result_t tt_fpath_to_dir(IN tt_fpath_t *fp)
     tt_char_t *name;
 
     if ((fp->basename != NULL) && (fp->extension != NULL)) {
-        tt_u32_t bn = tt_strlen(fp->basename);
-        tt_u32_t en = tt_strlen(fp->extension);
+        tt_u32_t bn = (tt_u32_t)tt_strlen(fp->basename);
+        tt_u32_t en = (tt_u32_t)tt_strlen(fp->extension);
 
         name = tt_malloc(bn + en + 2);
         if (name == NULL) {

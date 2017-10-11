@@ -435,7 +435,7 @@ const tt_char_t *__B_parse(IN const tt_char_t *start,
                            IN const tt_char_t *end,
                            OUT tt_date_t *d)
 {
-    tt_u32_t len = end - start, i;
+    tt_u32_t len = (tt_u32_t)(end - start), i;
 
     for (i = 0; i < sizeof(tt_g_month_name) / sizeof(tt_g_month_name[0]); ++i) {
         tt_blob_t *name = &tt_g_month_name[i];
@@ -693,7 +693,7 @@ const tt_char_t *__W_parse(IN const tt_char_t *start,
                            IN const tt_char_t *end,
                            OUT tt_date_t *d)
 {
-    tt_u32_t len = end - start, i;
+    tt_u32_t len = (tt_u32_t)(end - start), i;
 
     for (i = 0; i < sizeof(tt_g_weekday_name) / sizeof(tt_g_weekday_name[0]);
          ++i) {
@@ -750,7 +750,7 @@ const tt_char_t *__Z_parse(IN const tt_char_t *start,
                            IN const tt_char_t *end,
                            OUT tt_date_t *d)
 {
-    tt_u32_t len = end - start, i;
+    tt_u32_t len = (tt_u32_t)(end - start), i;
 
     for (i = 0; i < sizeof(tt_g_tmzone_name_iso8601) /
                         sizeof(tt_g_tmzone_name_iso8601[0]);
