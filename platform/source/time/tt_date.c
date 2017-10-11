@@ -147,6 +147,22 @@ tt_s32_t tt_date_cmp(IN tt_date_t *a, IN tt_date_t *b)
     __dcmp(second);
     return 0;
 }
+
+tt_s32_t tt_date_cmp_date(IN tt_date_t *a, IN tt_date_t *b)
+{
+    __dcmp(year);
+    __dcmp(month);
+    __dcmp(mday);
+    return 0;
+}
+
+tt_s32_t tt_date_cmp_time(IN tt_date_t *a, IN tt_date_t *b)
+{
+    __dcmp(hour);
+    __dcmp(minute);
+    __dcmp(second);
+    return 0;
+}
 #undef __dcmp
 
 #define __dcmp(field)                                                          \
@@ -157,10 +173,32 @@ tt_s32_t tt_date_cmp(IN tt_date_t *a, IN tt_date_t *b)
             return -1;                                                         \
         }                                                                      \
     } while (0)
-tt_s32_t tt_date_cmp_date(IN tt_date_t *date,
-                          IN tt_u32_t year,
-                          IN tt_month_t month,
-                          IN tt_u32_t mday)
+tt_s32_t tt_date_cmp_v(IN tt_date_t *date,
+                       IN tt_u32_t year,
+                       IN tt_month_t month,
+                       IN tt_u32_t mday,
+                       IN tt_u32_t hour,
+                       IN tt_month_t minute,
+                       IN tt_u32_t second)
+{
+    year = __Y_IN(year);
+    __dcmp(year);
+
+    __dcmp(month);
+
+    mday = __MDAY_IN(mday);
+    __dcmp(mday);
+
+    __dcmp(hour);
+    __dcmp(minute);
+    __dcmp(second);
+    return 0;
+}
+
+tt_s32_t tt_date_cmp_vdate(IN tt_date_t *date,
+                           IN tt_u32_t year,
+                           IN tt_month_t month,
+                           IN tt_u32_t mday)
 {
     year = __Y_IN(year);
     __dcmp(year);
@@ -173,10 +211,10 @@ tt_s32_t tt_date_cmp_date(IN tt_date_t *date,
     return 0;
 }
 
-tt_s32_t tt_date_cmp_time(IN tt_date_t *date,
-                          IN tt_u32_t hour,
-                          IN tt_month_t minute,
-                          IN tt_u32_t second)
+tt_s32_t tt_date_cmp_vtime(IN tt_date_t *date,
+                           IN tt_u32_t hour,
+                           IN tt_month_t minute,
+                           IN tt_u32_t second)
 {
     __dcmp(hour);
     __dcmp(minute);

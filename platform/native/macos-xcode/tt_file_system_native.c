@@ -133,6 +133,7 @@ enum
     __FREAD,
     __FWRITE,
     __FSEEK,
+    __FSTAT,
 
     __DCREATE,
     __DREMOVE,
@@ -221,6 +222,16 @@ typedef struct
 {
     tt_io_ev_t io_ev;
 
+    tt_file_ntv_t *file;
+    tt_fstat_t *fst;
+
+    tt_result_t result;
+} __fstat_t;
+
+typedef struct
+{
+    tt_io_ev_t io_ev;
+
     const tt_char_t *path;
     struct tt_dir_attr_s *attr;
 
@@ -286,6 +297,8 @@ static void __do_fwrite(IN tt_io_ev_t *io_ev);
 
 static void __do_fseek(IN tt_io_ev_t *io_ev);
 
+static void __do_fstat(IN tt_io_ev_t *io_ev);
+
 static void __do_dcreate(IN tt_io_ev_t *io_ev);
 
 static void __do_dremove(IN tt_io_ev_t *io_ev);
@@ -304,6 +317,7 @@ static tt_worker_io_t __fs_io_handler[__FS_EV_NUM] = {
     __do_fread,
     __do_fwrite,
     __do_fseek,
+    __do_fstat,
 
     __do_dcreate,
     __do_dremove,
@@ -317,6 +331,8 @@ static tt_worker_io_t __fs_io_handler[__FS_EV_NUM] = {
 ////////////////////////////////////////////////////////////
 
 static void __fs_ev_init(IN tt_io_ev_t *io_ev, IN tt_u32_t ev);
+
+static void __time2date(IN time_t *t, IN tt_date_t *d);
 
 ////////////////////////////////////////////////////////////
 // interface implementation
@@ -472,6 +488,22 @@ void tt_funlock_ntv(IN tt_file_ntv_t *file)
     if (flock(file->fd, LOCK_UN) != 0) {
         TT_ERROR_NTV("fail to lock file");
     }
+}
+
+tt_result_t tt_fstat_ntv(IN tt_file_ntv_t *file, OUT tt_fstat_t *fst)
+{
+    __fstat_t fstat;
+
+    __fs_ev_init(&fstat.io_ev, __FSTAT);
+
+    fstat.file = file;
+    fstat.fst = fst;
+
+    fstat.result = TT_FAIL;
+
+    tt_iowg_push_ev(&tt_g_fs_iowg, &fstat.io_ev);
+    tt_fiber_suspend();
+    return fstat.result;
 }
 
 tt_result_t tt_dcreate_ntv(IN const tt_char_t *path, IN tt_dir_attr_t *attr)
@@ -760,6 +792,40 @@ void __do_fseek(IN tt_io_ev_t *io_ev)
     }
 }
 
+void __do_fstat(IN tt_io_ev_t *io_ev)
+{
+    __fstat_t *fstat_ev = (__fstat_t *)io_ev;
+    struct stat st;
+    tt_fstat_t *fst = fstat_ev->fst;
+
+    if (fstat(fstat_ev->file->fd, &st) != 0) {
+        TT_ERROR_NTV("fstat failed");
+        fstat_ev->result = TT_FAIL;
+        return;
+    }
+
+    tt_memset(fst, 0, sizeof(tt_fstat_t));
+    tt_date_init(&fst->created, tt_g_local_tmzone);
+    tt_date_init(&fst->accessed, tt_g_local_tmzone);
+    tt_date_init(&fst->modified, tt_g_local_tmzone);
+
+    fst->size = st.st_size;
+    __time2date(&st.st_ctime, &fst->created);
+    __time2date(&st.st_atime, &fst->accessed);
+    __time2date(&st.st_mtime, &fst->modified);
+    fst->link_num = (tt_u32_t)st.st_nlink;
+    fst->is_file = TT_BOOL(S_ISREG(st.st_mode));
+    fst->is_dir = TT_BOOL(S_ISDIR(st.st_mode));
+    fst->is_usr_readable = TT_BOOL(st.st_mode & S_IRUSR);
+    fst->is_grp_readable = TT_BOOL(st.st_mode & S_IRGRP);
+    fst->is_oth_readable = TT_BOOL(st.st_mode & S_IROTH);
+    fst->is_usr_writable = TT_BOOL(st.st_mode & S_IWUSR);
+    fst->is_grp_writable = TT_BOOL(st.st_mode & S_IWGRP);
+    fst->is_oth_writable = TT_BOOL(st.st_mode & S_IWOTH);
+    fst->is_link = TT_BOOL(S_ISLNK(st.st_mode));
+    fstat_ev->result = TT_SUCCESS;
+}
+
 void __do_dcreate(IN tt_io_ev_t *io_ev)
 {
     __dcreate_t *dcreate = (__dcreate_t *)io_ev;
@@ -915,6 +981,18 @@ void __do_dread(IN tt_io_ev_t *io_ev)
         TT_ERROR_NTV("fail to read dir");
         dread->result = TT_FAIL;
     }
+}
+
+void __time2date(IN time_t *t, IN tt_date_t *d)
+{
+    struct tm tm;
+    localtime_r(t, &tm);
+    tt_date_set_year(d, tm.tm_year + 1900);
+    tt_date_set_month(d, tm.tm_mon);
+    tt_date_set_monthday(d, tm.tm_mday);
+    tt_date_set_hour(d, tm.tm_hour);
+    tt_date_set_minute(d, tm.tm_min);
+    tt_date_set_second(d, TT_COND(tm.tm_sec < 60, tm.tm_sec, 59));
 }
 
 #ifdef open

@@ -93,7 +93,7 @@ tt_result_t __ut_fiber(IN void *param)
 #if 1
     else {
         const tt_char_t *names[] = {
-            "case_fs_flock",
+            "case_fs_open",
         };
         tt_u32_t i;
 

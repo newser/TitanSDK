@@ -697,8 +697,8 @@ TT_TEST_ROUTINE_DEFINE(case_date_parse)
                         "--- Sun, 08 Oct 2017 23:59:01 -0330%%%",
                         &len);
     TT_UT_SUCCESS(ret, "");
-    TT_UT_EQUAL(tt_date_cmp_date(&d, 2017, TT_OCTOBER, 8), 0, "");
-    TT_UT_EQUAL(tt_date_cmp_time(&d, 23, 59, 01), 0, "");
+    TT_UT_EQUAL(tt_date_cmp_vdate(&d, 2017, TT_OCTOBER, 8), 0, "");
+    TT_UT_EQUAL(tt_date_cmp_vtime(&d, 23, 59, 01), 0, "");
     TT_UT_EQUAL(tt_date_get_tmzone(&d), TT_UTC_MINUS_03_30, "");
 
     // combination, rfc850
@@ -708,8 +708,8 @@ TT_TEST_ROUTINE_DEFINE(case_date_parse)
                         "Sunday, 08- 1-2017 23:59:01 +04:00 %%%",
                         &len);
     TT_UT_SUCCESS(ret, "");
-    TT_UT_EQUAL(tt_date_cmp_date(&d, 2017, TT_JANUARY, 8), 0, "");
-    TT_UT_EQUAL(tt_date_cmp_time(&d, 23, 59, 01), 0, "");
+    TT_UT_EQUAL(tt_date_cmp_vdate(&d, 2017, TT_JANUARY, 8), 0, "");
+    TT_UT_EQUAL(tt_date_cmp_vtime(&d, 23, 59, 01), 0, "");
     TT_UT_EQUAL(tt_date_get_tmzone(&d), TT_UTC_04_00, "");
 
     // combination, rfc850
@@ -719,8 +719,8 @@ TT_TEST_ROUTINE_DEFINE(case_date_parse)
                         "--- Sun 01  8 23:59:01 2017 GMT",
                         &len);
     TT_UT_SUCCESS(ret, "");
-    TT_UT_EQUAL(tt_date_cmp_date(&d, 2017, TT_JANUARY, 8), 0, "");
-    TT_UT_EQUAL(tt_date_cmp_time(&d, 23, 59, 01), 0, "");
+    TT_UT_EQUAL(tt_date_cmp_vdate(&d, 2017, TT_JANUARY, 8), 0, "");
+    TT_UT_EQUAL(tt_date_cmp_vtime(&d, 23, 59, 01), 0, "");
     TT_UT_EQUAL(tt_date_get_tmzone(&d), TT_UTC_00_00, "");
 
     // test end

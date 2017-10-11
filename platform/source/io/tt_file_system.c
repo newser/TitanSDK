@@ -131,6 +131,8 @@ tt_u8_t *tt_fcontent(IN const tt_char_t *path, OUT OPT tt_u64_t *size)
     tt_u8_t *buf;
     tt_u64_t len;
 
+    TT_ASSERT(path != NULL);
+
     if (!TT_OK(tt_fopen(&f, path, TT_FO_READ, NULL))) {
         return NULL;
     }
@@ -163,6 +165,9 @@ tt_result_t tt_fcontent_buf(IN const tt_char_t *path, OUT tt_buf_t *buf)
     tt_file_t f;
     tt_u64_t len;
 
+    TT_ASSERT(path != NULL);
+    TT_ASSERT(buf != NULL);
+
     if (!TT_OK(tt_fopen(&f, path, TT_FO_READ, NULL))) {
         return TT_FAIL;
     }
@@ -182,6 +187,48 @@ tt_result_t tt_fcontent_buf(IN const tt_char_t *path, OUT tt_buf_t *buf)
         return TT_FAIL;
     }
     tt_buf_inc_wp(buf, (tt_u32_t)len);
+
+    tt_fclose(&f);
+    return TT_SUCCESS;
+}
+
+tt_result_t tt_fsize(IN const tt_char_t *path, OUT tt_u64_t *size)
+{
+    tt_file_t f;
+    tt_u64_t len;
+
+    TT_ASSERT(path != NULL);
+    TT_ASSERT(size != NULL);
+
+    if (!TT_OK(tt_fopen(&f, path, TT_FO_READ, NULL))) {
+        return TT_FAIL;
+    }
+
+    if (!TT_OK(tt_fseek(&f, TT_FSEEK_END, 0, &len))) {
+        tt_fclose(&f);
+        return TT_FAIL;
+    }
+
+    tt_fclose(&f);
+    *size = len;
+    return TT_SUCCESS;
+}
+
+tt_result_t tt_fstat_path(IN const tt_char_t *path, OUT tt_fstat_t *fstat)
+{
+    tt_file_t f;
+
+    TT_ASSERT(path != NULL);
+    TT_ASSERT(fstat != NULL);
+
+    if (!TT_OK(tt_fopen(&f, path, TT_FO_READ, NULL))) {
+        return TT_FAIL;
+    }
+
+    if (!TT_OK(tt_fstat(&f, fstat))) {
+        tt_fclose(&f);
+        return TT_FAIL;
+    }
 
     tt_fclose(&f);
     return TT_SUCCESS;

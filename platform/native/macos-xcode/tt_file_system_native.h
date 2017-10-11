@@ -44,6 +44,7 @@ this file implements file system APIs at system level.
 ////////////////////////////////////////////////////////////
 
 struct tt_file_attr_s;
+struct tt_fstat_s;
 struct tt_dir_attr_s;
 struct tt_dirent_s;
 struct tt_io_ev_s;
@@ -101,6 +102,9 @@ extern tt_result_t tt_ftrylock_ntv(IN tt_file_ntv_t *file,
                                    IN tt_bool_t exclusive);
 
 extern void tt_funlock_ntv(IN tt_file_ntv_t *file);
+
+extern tt_result_t tt_fstat_ntv(IN tt_file_ntv_t *file,
+                                OUT struct tt_fstat_s *fstat);
 
 extern tt_result_t tt_dcreate_ntv(IN const tt_char_t *path,
                                   IN struct tt_dir_attr_s *attr);

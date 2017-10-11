@@ -342,6 +342,7 @@ TT_TEST_ROUTINE_DEFINE(case_log_io_file_index)
     tt_u32_t n;
     tt_file_t f;
     tt_char_t buf[100];
+    tt_u64_t size;
 
     TT_TEST_CASE_ENTER()
     // test start
@@ -359,6 +360,10 @@ TT_TEST_ROUTINE_DEFINE(case_log_io_file_index)
     lio = tt_logio_file_create(__LIOF_LOG_PATH, __LIOF_ARCH_PATH, &a);
     TT_UT_NOT_NULL(lio, "");
 
+    ret = tt_fsize(__LIOF_LOG_PATH "tttlog.1", &size);
+    TT_UT_SUCCESS(ret, "");
+    TT_UT_EQUAL(size, 0, "");
+
     // 160 bytes
     n = tt_logio_output(lio, "123456789 123456789 123456789 123456789 ", 40);
     TT_UT_EQUAL(n, 40, "");
@@ -368,6 +373,10 @@ TT_TEST_ROUTINE_DEFINE(case_log_io_file_index)
     TT_UT_EQUAL(n, 40, "");
     n = tt_logio_output(lio, "123456789 123456789 123456789 123456789 ", 40);
     TT_UT_EQUAL(n, 40, "");
+
+    ret = tt_fsize(__LIOF_LOG_PATH "tttlog.1", &size);
+    TT_UT_SUCCESS(ret, "");
+    TT_UT_EQUAL(size, 80, "");
 
     // should be 3 log file
     ret =

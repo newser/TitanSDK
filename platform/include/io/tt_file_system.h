@@ -31,6 +31,7 @@ this file defines file system APIs
 ////////////////////////////////////////////////////////////
 
 #include <log/tt_log.h>
+#include <time/tt_date.h>
 
 #include <tt_file_system_native.h>
 
@@ -78,6 +79,24 @@ typedef struct tt_dirent_s
     tt_fs_type_t type;
     tt_char_t name[TT_MAX_FILE_NAME_LEN + 1];
 } tt_dirent_t;
+
+typedef struct tt_fstat_s
+{
+    tt_u64_t size;
+    tt_date_t created;
+    tt_date_t accessed;
+    tt_date_t modified;
+    tt_u32_t link_num;
+    tt_bool_t is_file : 1;
+    tt_bool_t is_dir : 1;
+    tt_bool_t is_usr_readable : 1;
+    tt_bool_t is_grp_readable : 1;
+    tt_bool_t is_oth_readable : 1;
+    tt_bool_t is_usr_writable : 1;
+    tt_bool_t is_grp_writable : 1;
+    tt_bool_t is_oth_writable : 1;
+    tt_bool_t is_link : 1;
+} tt_fstat_t;
 
 ////////////////////////////////////////////////////////////
 // global variants
@@ -316,6 +335,8 @@ tt_export tt_u8_t *tt_fcontent(IN const tt_char_t *path,
 tt_export tt_result_t tt_fcontent_buf(IN const tt_char_t *path,
                                       OUT struct tt_buf_s *buf);
 
+tt_export tt_result_t tt_fsize(IN const tt_char_t *path, OUT tt_u64_t *size);
+
 // - prevent other PROCESSES from locking the file
 // - does not prevent other THREADS from locking the file
 // - does not prevent other threads or processes from reading or writing file
@@ -328,6 +349,14 @@ tt_inline void tt_funlock(IN tt_file_t *file)
 {
     tt_funlock_ntv(&file->sys_file);
 }
+
+tt_inline tt_result_t tt_fstat(IN tt_file_t *file, OUT tt_fstat_t *fstat)
+{
+    return tt_fstat_ntv(&file->sys_file, fstat);
+}
+
+tt_export tt_result_t tt_fstat_path(IN const tt_char_t *path,
+                                    OUT tt_fstat_t *fstat);
 
 /**
  @fn void tt_dir_attr_default(IN tt_dir_attr_t *attr)

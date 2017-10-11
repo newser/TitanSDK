@@ -195,6 +195,30 @@ TT_TEST_ROUTINE_DEFINE(case_fs_consistency)
     ret = tt_fopen(&f, __SC_TEST_FILE, TT_FO_RDWR, NULL);
     TT_UT_SUCCESS(ret, "");
 
+    {
+        tt_date_t d;
+        tt_fstat_t fstat;
+        tt_date_init(&d, tt_g_local_tmzone);
+        tt_date_now(&d);
+        ret = tt_fstat(&f, &fstat);
+        TT_UT_SUCCESS(ret, "");
+        TT_UT_EQUAL(tt_date_cmp_date(&fstat.created, &d), 0, "");
+        TT_UT_EQUAL(fstat.created.hour, d.hour, "");
+        TT_UT_EQUAL(fstat.created.minute, d.minute, "");
+        TT_UT_EQUAL(tt_date_cmp_date(&fstat.accessed, &d), 0, "");
+        TT_UT_EQUAL(fstat.accessed.hour, d.hour, "");
+        TT_UT_EQUAL(fstat.accessed.minute, d.minute, "");
+        TT_UT_EQUAL(tt_date_cmp_date(&fstat.modified, &d), 0, "");
+        TT_UT_EQUAL(fstat.modified.hour, d.hour, "");
+        TT_UT_EQUAL(fstat.modified.minute, d.minute, "");
+        TT_UT_EQUAL(fstat.size, 0, "");
+        TT_UT_EQUAL(fstat.is_dir, TT_FALSE, "");
+        TT_UT_EQUAL(fstat.is_file, TT_TRUE, "");
+        TT_UT_EQUAL(fstat.is_link, TT_FALSE, "");
+        TT_UT_EQUAL(fstat.is_usr_readable, TT_TRUE, "");
+        TT_UT_EQUAL(fstat.is_usr_writable, TT_TRUE, "");
+    }
+
     ret = tt_ftrylock(&f, TT_FALSE);
     TT_UT_SUCCESS(ret, "");
     ret = tt_ftrylock(&f, TT_FALSE);
@@ -321,6 +345,21 @@ TT_TEST_ROUTINE_DEFINE(case_fs_open)
             tt_fwrite(&tf, buf1, (tt_u32_t)strlen((const char *)buf1) + 1, &n);
         TT_UT_SUCCESS(ret, "");
         TT_UT_EQUAL(n, (strlen((const char *)buf1) + 1), "");
+
+        {
+            tt_date_t d;
+            tt_fstat_t fstat;
+            tt_date_init(&d, tt_g_local_tmzone);
+            tt_date_now(&d);
+            ret = tt_fstat(&tf, &fstat);
+            TT_UT_SUCCESS(ret, "");
+            TT_UT_EQUAL(fstat.size, n, "");
+            TT_UT_EQUAL(fstat.is_dir, TT_FALSE, "");
+            TT_UT_EQUAL(fstat.is_file, TT_TRUE, "");
+            TT_UT_EQUAL(fstat.is_link, TT_FALSE, "");
+            TT_UT_EQUAL(fstat.is_usr_readable, TT_TRUE, "");
+            TT_UT_EQUAL(fstat.is_usr_writable, TT_TRUE, "");
+        }
 
         ret = tt_fwrite(&tf, buf1, 0, &n);
         TT_UT_SUCCESS(ret, "");
