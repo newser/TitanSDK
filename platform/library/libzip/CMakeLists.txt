@@ -17,45 +17,24 @@
 # definition
 #
 
-set(ZLIB_PATH ${CMAKE_CURRENT_SOURCE_DIR}/zlib)
+set(ZIP_PATH ${CMAKE_CURRENT_SOURCE_DIR}/libzip)
 
 #
 # customization
 #
 
-if (PLATFORM_ENV_CPU STREQUAL x86)
-    if (CMAKE_SIZEOF_VOID_P EQUAL 8)
-        set(ZLIB_ASM686 OFF)
-        set(ZLIB_AMD64 ON)
-    else ()
-        set(ZLIB_ASM686 ON)
-        set(ZLIB_AMD64 OFF)
-    endif ()
-else ()
-    set(ZLIB_ASM686 OFF)
-    set(ZLIB_AMD64 OFF)
-endif ()
-hide(ASM686 BOOL ${ZLIB_ASM686})
-hide(AMD64 BOOL ${ZLIB_AMD64})
+add_subdirectory(${ZIP_PATH})
 
-hide(INSTALL_BIN_DIR PATH "${CMAKE_INSTALL_PREFIX}/bin")
-hide(INSTALL_LIB_DIR PATH "${CMAKE_INSTALL_PREFIX}/lib")
-hide(INSTALL_INC_DIR PATH "${CMAKE_INSTALL_PREFIX}/include")
-hide(INSTALL_MAN_DIR PATH "${CMAKE_INSTALL_PREFIX}/share/man")
-hide(INSTALL_PKGCONFIG_DIR PATH "${CMAKE_INSTALL_PREFIX}/share/pkgconfig")
-
-add_subdirectory(${ZLIB_PATH})
-
-set_target_properties(zlibstatic PROPERTIES
+set_target_properties(zip PROPERTIES
                       MACOSX_RPATH ON
                       POSITION_INDEPENDENT_CODE ON)
 
 if (NOT PLATFORM_BUILD_SHARED)
-    set_target_properties(zlibstatic PROPERTIES
+    set_target_properties(zip PROPERTIES
                           ARCHIVE_OUTPUT_DIRECTORY_DEBUG ${PLATFORM_OUTPATH}/debug/static
                           LIBRARY_OUTPUT_DIRECTORY_DEBUG ${PLATFORM_OUTPATH}/debug/shared
                           RUNTIME_OUTPUT_DIRECTORY_DEBUG ${PLATFORM_OUTPATH}/debug/program)
-    set_target_properties(zlibstatic PROPERTIES
+    set_target_properties(zip PROPERTIES
                           ARCHIVE_OUTPUT_DIRECTORY_RELEASE ${PLATFORM_OUTPATH}/release/static
                           LIBRARY_OUTPUT_DIRECTORY_RELEASE ${PLATFORM_OUTPATH}/release/shared
                           RUNTIME_OUTPUT_DIRECTORY_RELEASE ${PLATFORM_OUTPATH}/release/program)
@@ -65,4 +44,4 @@ endif ()
 # result
 #
 
-set(ZLIB_LIB zlibstatic PARENT_SCOPE)
+set(ZIP_LIB zip PARENT_SCOPE)

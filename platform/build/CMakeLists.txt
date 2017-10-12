@@ -263,6 +263,16 @@ set(DNS_LIB)
 add_subdirectory(${PLATFORM_PATH}/library/dns dns)
 target_link_libraries(platform ${DNS_LIB})
 
+# library
+set(ZLIB_LIB)
+add_subdirectory(${PLATFORM_PATH}/library/zlib zlib)
+target_link_libraries(platform ${ZLIB_LIB})
+
+# library
+set(ZIP_LIB)
+add_subdirectory(${PLATFORM_PATH}/library/libzip libzip)
+target_link_libraries(platform ${ZIP_LIB})
+
 include(${PLATFORM_PATH}/build/generate_header.cmake)
 
 # test link
