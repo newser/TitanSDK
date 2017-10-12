@@ -1,0 +1,4 @@
+- removed directories: amiga, contrib(kept amd64, asm686), doc, example, msdos, nintendods, old, os400, qnx, test, watcom, zlib.3.pdf
+
+- disabled find_package(Perl) in mbedtls/CMakeLists.txt
+- removed target apidoc mbedtls/CMakeLists.txt  
