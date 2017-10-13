@@ -945,7 +945,7 @@ TT_TEST_ROUTINE_DEFINE(case_cfgsh_cd)
 
         tt_buf_clear(&__ut_buf_out);
         ret = tt_sh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
-        TT_UT_EQUAL(ret, TT_END, "");
+        TT_UT_EQUAL(ret, TT_E_END, "");
         cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, this_out);
         TT_UT_EQUAL(cmp_ret, 0, "");
     }
@@ -1264,7 +1264,7 @@ TT_TEST_ROUTINE_DEFINE(case_cfgsh_quit)
 
         tt_buf_clear(&__ut_buf_out);
         ret = tt_sh_input(&sh, (tt_u8_t *)this_in, sizeof(this_in) - 1);
-        TT_UT_EQUAL(ret, TT_END, "");
+        TT_UT_EQUAL(ret, TT_E_END, "");
         cmp_ret = tt_buf_cmp_cstr(&__ut_buf_out, this_out);
         TT_UT_EQUAL(cmp_ret, 0, "");
     }

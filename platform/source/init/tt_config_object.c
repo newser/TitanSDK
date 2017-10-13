@@ -227,7 +227,7 @@ tt_result_t tt_cfgobj_read(IN tt_cfgobj_t *co,
     TT_ASSERT(output != NULL);
 
     if (!co->can_read || (co->itf->read == NULL)) {
-        return TT_NOT_SUPPORT;
+        return TT_E_UNSUPPORT;
     }
 
     if (line_sep == NULL) {
@@ -246,7 +246,7 @@ tt_result_t tt_cfgobj_write(IN tt_cfgobj_t *co,
     TT_ASSERT(val != NULL);
 
     if (!co->can_write || (co->itf->write == NULL)) {
-        return TT_NOT_SUPPORT;
+        return TT_E_UNSUPPORT;
     }
 
     return co->itf->write(co, val, val_len);

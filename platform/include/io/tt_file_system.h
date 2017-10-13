@@ -228,7 +228,7 @@ read a file
 
 @return
 - TT_SUCCESS some content of file is read
-- TT_END none is read and reached file end
+- TT_E_END none is read and reached file end
 - TT_FAIL none is read and some error occured
 
 @note
@@ -458,7 +458,7 @@ tt_export void tt_dclose(IN tt_dir_t *dir);
 
  @return
  - TT_SUCCESS if directory is read
- - TT_END if all entried have been returned
+ - TT_E_END if all entried have been returned
  - TT_FAIL otherwise
 
  @note

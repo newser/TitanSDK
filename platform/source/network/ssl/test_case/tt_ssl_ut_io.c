@@ -358,7 +358,7 @@ static tt_result_t __f_svr(IN void *param)
     }
 
     while ((ret = tt_ssl_recv(ssl, buf, sizeof(buf), &n, &fev, &e_tmr)) !=
-           TT_END) {
+           TT_E_END) {
         tt_u32_t total = n;
 #ifdef __TCP_DETAIL
         if (n < sizeof(buf)) {
@@ -502,7 +502,7 @@ static tt_result_t __f_svr(IN void *param)
     // may be some fev and tmr left, receive them
     while (TT_OK(ret = tt_ssl_recv(ssl, buf, sizeof(buf), &n, &fev, &tmr))) {
     }
-    if (ret != TT_END) {
+    if (ret != TT_E_END) {
         __ssl_err_line = __LINE__;
     }
 
@@ -649,7 +649,7 @@ static tt_result_t __f_cli(IN void *param)
     TT_INFO("client shutdown");
 #endif
 
-    while (tt_ssl_recv(ssl, buf, sizeof(buf), &n, &fev, &tmr) != TT_END) {
+    while (tt_ssl_recv(ssl, buf, sizeof(buf), &n, &fev, &tmr) != TT_E_END) {
     }
 #ifdef __TCP_DETAIL
     TT_INFO("client recv end");
@@ -1137,7 +1137,7 @@ static tt_result_t __f_svr_acc(IN void *param)
     }
 
     while ((ret = tt_ssl_recv(ssl, buf, sizeof(buf), &n, &fev, &e_tmr)) !=
-           TT_END) {
+           TT_E_END) {
         tt_u32_t total = n;
 #ifdef __TCP_DETAIL
         if (n < sizeof(buf)) {
@@ -1193,7 +1193,7 @@ static tt_result_t __f_svr_acc(IN void *param)
     // may be some fev and tmr left, receive them
     while (TT_OK(ret = tt_ssl_recv(ssl, buf, sizeof(buf), &n, &fev, &tmr))) {
     }
-    if (ret != TT_END) {
+    if (ret != TT_E_END) {
         __ssl_err_line = __LINE__;
     }
 
@@ -1322,7 +1322,7 @@ static tt_result_t __f_cli_mul(IN void *param)
         TT_INFO("client shutdown");
 #endif
 
-        while (tt_ssl_recv(ssl, buf, sizeof(buf), &n, &fev, &tmr) != TT_END) {
+        while (tt_ssl_recv(ssl, buf, sizeof(buf), &n, &fev, &tmr) != TT_E_END) {
         }
 #ifdef __TCP_DETAIL
         TT_INFO("client recv end");

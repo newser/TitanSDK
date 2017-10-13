@@ -415,7 +415,7 @@ tt_result_t __def_recv(OUT tt_cons_ev_t *ev, OUT tt_cons_ev_data_t *ev_data)
     len = read(STDIN_FILENO, __stdin_rbuf, sizeof(__stdin_rbuf));
     if (len < 0) {
         if (len == 0) {
-            return TT_END;
+            return TT_E_END;
         } else {
             TT_ERROR_NTV("read fail");
             return TT_FAIL;

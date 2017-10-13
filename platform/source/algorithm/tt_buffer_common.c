@@ -198,7 +198,7 @@ tt_result_t tt_buf_tok(IN tt_buf_t *buf,
         if (pos < end) {
             ++pos;
         } else {
-            return TT_END;
+            return TT_E_END;
         }
     } else {
         pos = TT_BUF_RPOS(buf);
@@ -234,7 +234,7 @@ tt_result_t tt_buf_tok(IN tt_buf_t *buf,
         *last_len = (tt_u32_t)(pos - tstart);
         return TT_SUCCESS;
     }
-    return TT_END;
+    return TT_E_END;
 }
 
 void tt_buf_trim_sp(IN tt_buf_t *buf)

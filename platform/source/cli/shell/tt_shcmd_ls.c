@@ -105,7 +105,7 @@ tt_u32_t __ls_current(IN tt_shell_t *sh, OUT tt_buf_t *output)
     result = tt_cfgobj_ls(co, tt_g_sh_colume_sep, tt_g_sh_line_sep, output);
     if (!TT_OK(result)) {
         tt_buf_restore_rwp(output, &rp, &wp);
-        if (result == TT_NOT_SUPPORT) {
+        if (result == TT_E_UNSUPPORT) {
             tt_buf_putf(output, "not supported operation");
         } else {
             tt_buf_putf(output, "internal error");
@@ -133,7 +133,7 @@ tt_u32_t __ls_single(IN tt_shell_t *sh,
     result = tt_cfgobj_ls(co, tt_g_sh_colume_sep, tt_g_sh_line_sep, output);
     if (!TT_OK(result)) {
         tt_buf_restore_rwp(output, &rp, &wp);
-        if (result == TT_NOT_SUPPORT) {
+        if (result == TT_E_UNSUPPORT) {
             tt_buf_putf(output, "not supported operation");
         } else {
             tt_buf_putf(output, "internal error");

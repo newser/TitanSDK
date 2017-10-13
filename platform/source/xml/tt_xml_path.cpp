@@ -197,7 +197,7 @@ tt_result_t tt_xpnodes_iter_next(IN OUT tt_xpnodes_iter_t *iter,
 
         return TT_SUCCESS;
     } else {
-        return TT_END;
+        return TT_E_END;
     }
 }
 

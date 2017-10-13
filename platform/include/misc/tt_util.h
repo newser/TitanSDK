@@ -301,12 +301,12 @@ used when a pointer in code need be assigned if it's not null
 ////////////////////////////////////////////////////////////
 
 typedef enum {
-    TT_ENDIAN_INVALID,
+    TT_E_ENDIAN_INVALID,
 
-    TT_ENDIAN_BIG,
-    TT_ENDIAN_LITTLE,
+    TT_E_ENDIAN_BIG,
+    TT_E_ENDIAN_LITTLE,
 
-    TT_ENDIAN_NUM
+    TT_E_ENDIAN_NUM
 } tt_endian_type_t;
 
 ////////////////////////////////////////////////////////////
@@ -430,9 +430,9 @@ tt_inline tt_endian_type_t tt_endian()
 
     t.__u16 = 0x0A0B;
     if (t.__u8[0] == 0x0B) {
-        return TT_ENDIAN_LITTLE;
+        return TT_E_ENDIAN_LITTLE;
     } else {
-        return TT_ENDIAN_BIG;
+        return TT_E_ENDIAN_BIG;
     }
 }
 

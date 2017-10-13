@@ -415,7 +415,7 @@ TT_TEST_ROUTINE_DEFINE(case_log_io_file_index)
         tt_fopen(&f, __LIOF_LOG_PATH "tttlog.3", TT_FO_READ | TT_FO_EXCL, NULL);
     TT_UT_SUCCESS(ret, "");
     ret = tt_fread(&f, (tt_u8_t *)buf, sizeof(buf), &n);
-    TT_UT_EQUAL(ret, TT_END, "");
+    TT_UT_EQUAL(ret, TT_E_END, "");
     tt_fclose(&f);
 
     tt_logio_destroy(lio);
@@ -549,12 +549,12 @@ TT_TEST_ROUTINE_DEFINE(case_log_io_file_date)
 
             ++num;
         } else {
-            TT_UT_EQUAL(ret, TT_END, "");
+            TT_UT_EQUAL(ret, TT_E_END, "");
         }
         tt_fclose(&f);
     }
     tt_dclose(&d);
-    TT_UT_EQUAL(ret, TT_END, "");
+    TT_UT_EQUAL(ret, TT_E_END, "");
     TT_UT_EQUAL(num, 2, "");
 
     tt_logio_destroy(lio);
@@ -612,12 +612,12 @@ TT_TEST_ROUTINE_DEFINE(case_log_io_file_date)
 
             ++num;
         } else {
-            TT_UT_EQUAL(ret, TT_END, "");
+            TT_UT_EQUAL(ret, TT_E_END, "");
         }
         tt_fclose(&f);
     }
     tt_dclose(&d);
-    TT_UT_EQUAL(ret, TT_END, "");
+    TT_UT_EQUAL(ret, TT_E_END, "");
     TT_UT_EQUAL(num, 4, "");
 
     tt_logio_destroy(lio);

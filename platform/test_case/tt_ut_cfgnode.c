@@ -201,9 +201,9 @@ TT_TEST_CASE(
     TT_UT_EQUAL(cnode->need_reboot, TT_TRUE, "");
     TT_UT_EQUAL(cnode->can_read, TT_FALSE, "");
     TT_UT_EQUAL(cnode->can_write, TT_FALSE, "");
-    TT_UT_EQUAL(tt_cfgobj_read(cnode, NULL, &out), TT_NOT_SUPPORT, "");
-    TT_UT_EQUAL(tt_cfgobj_read(cnode, NULL, &out), TT_NOT_SUPPORT, "");
-    TT_UT_EQUAL(tt_cfgobj_read(cnode, NULL, &out), TT_NOT_SUPPORT, "");
+    TT_UT_EQUAL(tt_cfgobj_read(cnode, NULL, &out), TT_E_UNSUPPORT, "");
+    TT_UT_EQUAL(tt_cfgobj_read(cnode, NULL, &out), TT_E_UNSUPPORT, "");
+    TT_UT_EQUAL(tt_cfgobj_read(cnode, NULL, &out), TT_E_UNSUPPORT, "");
 
     tt_buf_clear(&out);
     TT_UT_SUCCESS(tt_cfgobj_line(cnode, " ", 8, &out), "");
@@ -348,7 +348,7 @@ TT_TEST_ROUTINE_DEFINE(case_cfgnode_u32)
 
     // set, can not set
     ret = tt_cfgobj_write(cnode, v.addr, v.len);
-    TT_UT_EQUAL(ret, TT_NOT_SUPPORT, "");
+    TT_UT_EQUAL(ret, TT_E_UNSUPPORT, "");
 
     tt_cfgobj_destroy(cnode);
 
@@ -492,7 +492,7 @@ TT_TEST_ROUTINE_DEFINE(case_cfgnode_s32)
 
     // set
     ret = tt_cfgobj_write(cnode, v.addr, v.len);
-    TT_UT_EQUAL(ret, TT_NOT_SUPPORT, "");
+    TT_UT_EQUAL(ret, TT_E_UNSUPPORT, "");
 
     tt_cfgobj_destroy(cnode);
 
@@ -668,7 +668,7 @@ TT_TEST_ROUTINE_DEFINE(case_cfgnode_str)
 
     // set
     ret = tt_cfgobj_write(cnode, v.addr, v.len);
-    TT_UT_EQUAL(ret, TT_NOT_SUPPORT, "");
+    TT_UT_EQUAL(ret, TT_E_UNSUPPORT, "");
 
     tt_cfgobj_destroy(cnode);
 
@@ -854,10 +854,10 @@ TT_TEST_ROUTINE_DEFINE(case_cfgnode_dir)
     }
 
     ret = tt_cfgobj_read(co, NULL, &output);
-    TT_UT_EQUAL(ret, TT_NOT_SUPPORT, "");
+    TT_UT_EQUAL(ret, TT_E_UNSUPPORT, "");
 
     ret = tt_cfgobj_write(co, val.addr, val.len);
-    TT_UT_EQUAL(ret, TT_NOT_SUPPORT, "");
+    TT_UT_EQUAL(ret, TT_E_UNSUPPORT, "");
 
     tt_cfgobj_destroy(co);
 
@@ -929,10 +929,10 @@ TT_TEST_ROUTINE_DEFINE(case_cfgnode_grp_ar)
     //////////////////////////////////////////////////////
 
     ret = tt_cfgobj_read(cgrp, NULL, &output);
-    TT_UT_EQUAL(ret, TT_NOT_SUPPORT, "");
+    TT_UT_EQUAL(ret, TT_E_UNSUPPORT, "");
 
     ret = tt_cfgobj_write(cgrp, val.addr, val.len);
-    TT_UT_EQUAL(ret, TT_NOT_SUPPORT, "");
+    TT_UT_EQUAL(ret, TT_E_UNSUPPORT, "");
 
     {
         tt_buf_clear(&output);
@@ -959,7 +959,7 @@ TT_TEST_ROUTINE_DEFINE(case_cfgnode_grp_ar)
     {
         tt_buf_clear(&output);
         ret = tt_cfgobj_read(cgrp, NULL, &output);
-        TT_UT_EQUAL(ret, TT_NOT_SUPPORT, "");
+        TT_UT_EQUAL(ret, TT_E_UNSUPPORT, "");
     }
 
     // add 2 node
@@ -1209,7 +1209,7 @@ TT_TEST_ROUTINE_DEFINE(case_cfgnode_bool)
 
     // set
     ret = tt_cfgobj_write(cnode, v.addr, v.len);
-    TT_UT_EQUAL(ret, TT_NOT_SUPPORT, "");
+    TT_UT_EQUAL(ret, TT_E_UNSUPPORT, "");
 
     tt_cfgobj_destroy(cnode);
 

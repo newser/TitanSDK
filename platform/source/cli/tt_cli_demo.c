@@ -266,10 +266,10 @@ tt_result_t __console_ev_handler(IN void *param,
         }
     }
 
-    if (tt_cli_input(cli, ev_key->key, ev_key->key_num) != TT_END) {
+    if (tt_cli_input(cli, ev_key->key, ev_key->key_num) != TT_E_END) {
         return TT_SUCCESS;
     } else {
         // any failure would result in console exit
-        return TT_END;
+        return TT_E_END;
     }
 }

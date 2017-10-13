@@ -283,9 +283,9 @@ tt_result_t tt_cli_input(IN tt_cli_t *cli, IN tt_u8_t *ev, IN tt_u32_t ev_num)
             if (on_ev != NULL) {
                 tt_result_t result = on_ev(cli);
                 if (TT_OK(result)) {
-                } else if (result == TT_END) {
+                } else if (result == TT_E_END) {
                     __cli_flush(cli);
-                    return TT_END;
+                    return TT_E_END;
                 } else {
                     TT_ERROR("fail to handle cli event[0x%x]", e);
                 }
@@ -500,7 +500,7 @@ tt_result_t __cli_read_line(IN tt_cli_t *cli,
                     TT_DO(tt_buf_put_u8(outbuf, TT_CLI_EV_ENTER));
                 }
                 __cli_flush(cli);
-                return TT_END;
+                return TT_E_END;
             } else {
                 TT_ASSERT(status == TT_CLIOR_MORE);
                 // continue reading
@@ -588,7 +588,7 @@ tt_result_t __def_on_quit(IN tt_cli_t *cli)
         TT_DO(tt_buf_put_u8(outbuf, TT_CLI_EV_ENTER));
     }
 
-    return TT_END;
+    return TT_E_END;
 }
 
 tt_result_t __def_on_delete(IN tt_cli_t *cli)
@@ -630,7 +630,7 @@ tt_result_t __def_on_enter(IN tt_cli_t *cli)
         if (__cli_on_quit(cli, outbuf)) {
             TT_DO(tt_buf_put_u8(outbuf, TT_CLI_EV_ENTER));
         }
-        return TT_END;
+        return TT_E_END;
     }
 }
 

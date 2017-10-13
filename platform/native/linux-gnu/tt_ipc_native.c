@@ -565,7 +565,7 @@ again:
     } else if ((errno == ECONNRESET) || (errno == EPIPE)
                // || (errno == ENETDOWN)
                ) {
-        ipc_send->result = TT_END;
+        ipc_send->result = TT_E_END;
     } else {
         TT_ERROR_NTV("send failed");
         ipc_send->result = TT_FAIL;
@@ -586,7 +586,7 @@ again:
         ipc_recv->result = TT_SUCCESS;
         return TT_TRUE;
     } else if (n == 0) {
-        ipc_recv->result = TT_END;
+        ipc_recv->result = TT_E_END;
         return TT_TRUE;
     } else if (errno == EINTR) {
         goto again;
@@ -599,7 +599,7 @@ again:
     if (errno == ECONNRESET
         // || (errno == ENETDOWN)
         ) {
-        ipc_recv->result = TT_END;
+        ipc_recv->result = TT_E_END;
     } else {
         TT_ERROR_NTV("recv failed");
         ipc_recv->result = TT_FAIL;

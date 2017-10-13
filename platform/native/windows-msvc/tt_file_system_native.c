@@ -470,7 +470,7 @@ tt_result_t tt_fread_ntv(IN tt_file_ntv_t *file,
     if (!ReadFile(file->hf, buf, buf_len, NULL, &fread.io_ev.ov) &&
         ((dwError = GetLastError()) != ERROR_IO_PENDING)) {
         if (dwError == ERROR_HANDLE_EOF) {
-            return TT_END;
+            return TT_E_END;
         } else {
             TT_ERROR_NTV("fail to read file");
             return TT_FAIL;
@@ -1105,7 +1105,7 @@ void __do_dread(IN tt_io_ev_t *io_ev)
     // check next
     if (!FindNextFileW(dir->hd, &dir->find_data)) {
         if (GetLastError() == ERROR_NO_MORE_FILES) {
-            dir->next_result = TT_END;
+            dir->next_result = TT_E_END;
         } else {
             dir->next_result = TT_FAIL;
             TT_ERROR_NTV("fail to get next file");

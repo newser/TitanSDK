@@ -144,7 +144,7 @@ tt_u32_t __get_val(IN tt_cfgobj_t *co, OUT tt_buf_t *output)
     result = tt_cfgobj_read(co, tt_g_sh_line_sep, output);
     if (!TT_OK(result)) {
         tt_buf_restore_rwp(output, &rp, &wp);
-        if (result == TT_NOT_SUPPORT) {
+        if (result == TT_E_UNSUPPORT) {
             tt_buf_putf(output, "not supported operation");
         } else {
             tt_buf_putf(output, "internal error");

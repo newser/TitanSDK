@@ -233,11 +233,11 @@ tt_result_t tt_ssl_recv(IN tt_ssl_t *ssl,
             if ((*p_fev != NULL) || (*p_tmr != NULL)) {
                 break;
             } else {
-                return TT_END;
+                return TT_E_END;
             }
         } else if ((e == MBEDTLS_ERR_SSL_CONN_EOF) ||
                    (e == MBEDTLS_ERR_NET_CONN_RESET)) {
-            return TT_END;
+            return TT_E_END;
         } else {
             tt_ssl_error("ssl send fail");
             return TT_FAIL;
@@ -406,7 +406,7 @@ int __ssl_recv(void *ctx, unsigned char *buf, size_t len)
                          ssl->p_tmr);
     if (TT_OK(result)) {
         return (int)recvd;
-    } else if (result == TT_END) {
+    } else if (result == TT_E_END) {
         return 0;
     } else {
         return MBEDTLS_ERR_NET_RECV_FAILED;

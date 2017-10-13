@@ -114,7 +114,7 @@ tt_export tt_result_t tt_cli_update_prefix(IN tt_cli_t *cli,
                                            IN OPT const tt_char_t *sub_title,
                                            IN OPT tt_char_t seperator);
 
-// return TT_END, when cli should exit
+// return TT_E_END, when cli should exit
 tt_export tt_result_t tt_cli_input(IN tt_cli_t *cli,
                                    IN tt_u8_t *ev,
                                    IN tt_u32_t ev_num);

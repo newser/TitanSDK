@@ -133,7 +133,7 @@ tt_result_t tt_ipc_recv_ev(IN tt_ipc_t *ipc,
         tt_buf_get_wptr(buf, &p, &len);
     }
 
-    if (result != TT_END) {
+    if (result != TT_E_END) {
         TT_ERROR("ipc data may be broken");
     }
     return result;

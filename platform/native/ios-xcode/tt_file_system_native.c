@@ -699,7 +699,7 @@ again:
     } else if (n == 0) {
         TT_SAFE_ASSIGN(fread->read_len, (tt_u32_t)len);
         fread->result =
-            TT_COND(len > 0 || fread->buf_len == 0, TT_SUCCESS, TT_END);
+            TT_COND(len > 0 || fread->buf_len == 0, TT_SUCCESS, TT_E_END);
     } else {
         TT_ERROR_NTV("read fail");
         TT_SAFE_ASSIGN(fread->read_len, (tt_u32_t)len);
@@ -909,7 +909,7 @@ void __do_dread(IN tt_io_ev_t *io_ev)
 
             dread->result = TT_SUCCESS;
         } else {
-            dread->result = TT_END;
+            dread->result = TT_E_END;
         }
     } else {
         TT_ERROR_NTV("fail to read dir");

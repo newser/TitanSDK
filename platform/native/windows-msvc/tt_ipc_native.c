@@ -337,7 +337,7 @@ tt_result_t tt_ipc_send_ntv(IN tt_ipc_ntv_t *ipc,
 
     if (dwError == ERROR_BROKEN_PIPE) {
         TT_ERROR_NTV("ipc send fail");
-        return TT_END;
+        return TT_E_END;
     } else {
         TT_ERROR_NTV("ipc send fail");
         return TT_FAIL;
@@ -410,7 +410,7 @@ tt_result_t tt_ipc_recv_ntv(IN tt_ipc_ntv_t *ipc,
 
     if (dwError == ERROR_BROKEN_PIPE) {
         TT_ERROR_NTV("ipc recv fail");
-        return TT_END;
+        return TT_E_END;
     } else {
         TT_ERROR_NTV("ipc recv fail");
         return TT_FAIL;
@@ -511,7 +511,7 @@ tt_bool_t __do_send(IN tt_io_ev_t *io_ev)
         TT_SAFE_ASSIGN(ipc_send->sent, ipc_send->pos);
         ipc_send->result = TT_SUCCESS;
     } else if (dwError == ERROR_BROKEN_PIPE) {
-        ipc_send->result = TT_END;
+        ipc_send->result = TT_E_END;
     } else {
         TT_ERROR_NTV("ipc send fail");
         ipc_send->result = TT_FAIL;
@@ -529,7 +529,7 @@ tt_bool_t __do_recv(IN tt_io_ev_t *io_ev)
         TT_SAFE_ASSIGN(ipc_recv->recvd, io_ev->io_bytes);
         ipc_recv->result = TT_SUCCESS;
     } else if (TT_OK(io_ev->io_result)) {
-        ipc_recv->result = TT_END;
+        ipc_recv->result = TT_E_END;
     } else {
         ipc_recv->result = io_ev->io_result;
     }

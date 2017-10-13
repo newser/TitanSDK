@@ -20,11 +20,7 @@
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <cli/shell/tt_shcmd_set.h>
-
-#include <algorithm/tt_buffer_format.h>
-#include <cli/shell/tt_shell.h>
-#include <init/tt_config_path.h>
+#include <zip/tt_gzip.h>
 
 ////////////////////////////////////////////////////////////
 // internal macro
@@ -42,19 +38,6 @@
 // global variant
 ////////////////////////////////////////////////////////////
 
-static const tt_char_t __set_info[] = "set value";
-
-static const tt_char_t __set_usage[] = "testing set";
-
-static tt_u32_t __set_run(IN tt_shell_t *sh,
-                          IN tt_u32_t argc,
-                          IN tt_char_t *arv[],
-                          OUT tt_buf_t *output);
-
-tt_shcmd_t tt_g_shcmd_set = {
-    TT_SHCMD_NAME_SET, __set_info, __set_usage, __set_run,
-};
-
 ////////////////////////////////////////////////////////////
 // interface declaration
 ////////////////////////////////////////////////////////////
@@ -62,46 +45,3 @@ tt_shcmd_t tt_g_shcmd_set = {
 ////////////////////////////////////////////////////////////
 // interface implementation
 ////////////////////////////////////////////////////////////
-
-tt_u32_t __set_run(IN tt_shell_t *sh,
-                   IN tt_u32_t argc,
-                   IN tt_char_t *argv[],
-                   OUT tt_buf_t *output)
-{
-    const tt_char_t *path, *val;
-    tt_cfgobj_t *co;
-    tt_u32_t rp, wp;
-    tt_result_t result;
-
-    if (argc < 2) {
-        tt_buf_putf(output, "usage: set [name] [value]");
-        return TT_CLIOC_OUT;
-    }
-
-    path = argv[0];
-    co = tt_cfgpath_p2n(sh->root, sh->current, path, (tt_u32_t)tt_strlen(path));
-    if (co == NULL) {
-        tt_buf_putf(output, "not found: %s", argv[0]);
-        return TT_CLIOC_OUT;
-    }
-
-    if (co->type == TT_CFGOBJ_DIR) {
-        tt_buf_putf(output, "set: %s: is a direcoty", path);
-        return TT_CLIOC_OUT;
-    }
-
-    val = argv[1];
-    tt_buf_backup_rwp(output, &rp, &wp);
-    result = tt_cfgobj_write(co, (tt_u8_t *)val, (tt_u32_t)tt_strlen(val));
-    if (TT_OK(result)) {
-        return TT_CLIOC_NOOUT;
-    } else {
-        tt_buf_restore_rwp(output, &rp, &wp);
-        if (result == TT_E_UNSUPPORT) {
-            tt_buf_putf(output, "not supported operation");
-        } else {
-            tt_buf_putf(output, "internal error");
-        }
-        return TT_CLIOC_OUT;
-    }
-}

@@ -727,7 +727,7 @@ tt_result_t tt_skt_send_ntv(IN tt_skt_ntv_t *skt,
     }
 
     if ((dwError == WSAECONNABORTED) || (dwError == WSAECONNRESET)) {
-        return TT_END;
+        return TT_E_END;
     } else {
         TT_NET_ERROR_NTV("WSASend fail");
         return TT_FAIL;
@@ -802,7 +802,7 @@ tt_result_t tt_skt_recv_ntv(IN tt_skt_ntv_t *skt,
     }
 
     if ((dwError == WSAECONNABORTED) || (dwError == WSAECONNRESET)) {
-        return TT_END;
+        return TT_E_END;
     } else {
         TT_NET_ERROR_NTV("WSARecv fail");
         return TT_FAIL;
@@ -1131,7 +1131,7 @@ tt_bool_t __do_send(IN tt_io_ev_t *io_ev)
         TT_SAFE_ASSIGN(skt_send->sent, skt_send->pos);
         skt_send->result = TT_SUCCESS;
     } else if ((dwError == WSAECONNABORTED) || (dwError == WSAECONNRESET)) {
-        skt_send->result = TT_END;
+        skt_send->result = TT_E_END;
     } else {
         TT_NET_ERROR_NTV("WSASend fail");
         skt_send->result = TT_FAIL;
@@ -1149,7 +1149,7 @@ tt_bool_t __do_recv(IN tt_io_ev_t *io_ev)
         TT_SAFE_ASSIGN(skt_recv->recvd, io_ev->io_bytes);
         skt_recv->result = TT_SUCCESS;
     } else if (TT_OK(io_ev->io_result)) {
-        skt_recv->result = TT_END;
+        skt_recv->result = TT_E_END;
     } else {
         skt_recv->result = io_ev->io_result;
     }

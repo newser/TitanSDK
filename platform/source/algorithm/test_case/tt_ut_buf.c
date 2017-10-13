@@ -1294,7 +1294,8 @@ TT_TEST_ROUTINE_DEFINE(case_buftok)
     tok = NULL;
     tok_len = 0;
     i = 0;
-    while (tt_buf_tok(&buf, (tt_u8_t *)";?.", 3, 0, &tok, &tok_len) != TT_END) {
+    while (tt_buf_tok(&buf, (tt_u8_t *)";?.", 3, 0, &tok, &tok_len) !=
+           TT_E_END) {
         if (i == 0) {
             TT_UT_EQUAL(tok_len, 0, "");
         } else if (i == 1) {
@@ -1319,7 +1320,8 @@ TT_TEST_ROUTINE_DEFINE(case_buftok)
     tok_len = 0;
     i = 0;
     tt_buf_reset_rwp(&buf);
-    while (tt_buf_tok(&buf, (tt_u8_t *)";?.", 3, 0, &tok, &tok_len) != TT_END) {
+    while (tt_buf_tok(&buf, (tt_u8_t *)";?.", 3, 0, &tok, &tok_len) !=
+           TT_E_END) {
         TT_UT_EQUAL(tok_len, 0, "");
 
         ++i;
@@ -1332,7 +1334,8 @@ TT_TEST_ROUTINE_DEFINE(case_buftok)
     i = 0;
     tt_buf_reset_rwp(&buf);
     tt_buf_put_u8(&buf, '.');
-    while (tt_buf_tok(&buf, (tt_u8_t *)";?.", 3, 0, &tok, &tok_len) != TT_END) {
+    while (tt_buf_tok(&buf, (tt_u8_t *)";?.", 3, 0, &tok, &tok_len) !=
+           TT_E_END) {
         TT_UT_EQUAL(tok_len, 0, "");
 
         ++i;
@@ -1346,7 +1349,8 @@ TT_TEST_ROUTINE_DEFINE(case_buftok)
     tt_buf_reset_rwp(&buf);
     tt_buf_put_u8(&buf, '?');
     tt_buf_put_u8(&buf, ';');
-    while (tt_buf_tok(&buf, (tt_u8_t *)";?.", 3, 0, &tok, &tok_len) != TT_END) {
+    while (tt_buf_tok(&buf, (tt_u8_t *)";?.", 3, 0, &tok, &tok_len) !=
+           TT_E_END) {
         TT_UT_EQUAL(tok_len, 0, "");
 
         ++i;
@@ -1362,7 +1366,8 @@ TT_TEST_ROUTINE_DEFINE(case_buftok)
     tok = NULL;
     tok_len = 0;
     i = 0;
-    while (tt_buf_tok(&buf, (tt_u8_t *)";?.", 3, 0, &tok, &tok_len) != TT_END) {
+    while (tt_buf_tok(&buf, (tt_u8_t *)";?.", 3, 0, &tok, &tok_len) !=
+           TT_E_END) {
         TT_UT_EQUAL(tok_len, 0, "");
 
         ++i;
@@ -1383,7 +1388,7 @@ TT_TEST_ROUTINE_DEFINE(case_buftok)
                       3,
                       TT_BUFTOK_NOEMPTY,
                       &tok,
-                      &tok_len) != TT_END) {
+                      &tok_len) != TT_E_END) {
         TT_UT_EQUAL(tok_len, 0, "");
 
         ++i;
@@ -1400,7 +1405,7 @@ TT_TEST_ROUTINE_DEFINE(case_buftok)
                       3,
                       TT_BUFTOK_NOEMPTY,
                       &tok,
-                      &tok_len) != TT_END) {
+                      &tok_len) != TT_E_END) {
         ++i;
     }
     TT_UT_EQUAL(i, 0, "");
@@ -1416,7 +1421,7 @@ TT_TEST_ROUTINE_DEFINE(case_buftok)
                       3,
                       TT_BUFTOK_NOEMPTY,
                       &tok,
-                      &tok_len) != TT_END) {
+                      &tok_len) != TT_E_END) {
         ++i;
     }
     TT_UT_EQUAL(i, 0, "");
@@ -1433,7 +1438,7 @@ TT_TEST_ROUTINE_DEFINE(case_buftok)
                       3,
                       TT_BUFTOK_NOEMPTY,
                       &tok,
-                      &tok_len) != TT_END) {
+                      &tok_len) != TT_E_END) {
         ++i;
     }
     TT_UT_EQUAL(i, 0, "");

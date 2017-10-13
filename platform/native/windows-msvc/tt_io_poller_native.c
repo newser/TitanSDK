@@ -138,7 +138,7 @@ tt_bool_t tt_io_poller_run_ntv(IN tt_io_poller_ntv_t *sys_iop,
             if ((dwError == ERROR_HANDLE_EOF) ||
                 (dwError == ERROR_BROKEN_PIPE) ||
                 (dwError == WSAECONNABORTED) || (dwError == WSAECONNRESET)) {
-                io_ev->io_result = TT_END;
+                io_ev->io_result = TT_E_END;
             } else if (dwError == ERROR_OPERATION_ABORTED) {
                 // when io is canceled by CancelIoEx()
                 io_ev->io_result = TT_FAIL;

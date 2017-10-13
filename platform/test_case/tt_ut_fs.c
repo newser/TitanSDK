@@ -374,7 +374,7 @@ TT_TEST_ROUTINE_DEFINE(case_fs_open)
         TT_UT_FAIL(ret, "");
 
         ret = tt_fread(&tf, buf2, 90, &n);
-        TT_UT_EQUAL(ret, TT_END, "");
+        TT_UT_EQUAL(ret, TT_E_END, "");
 
         // write append
         ret = tt_fopen(&tf2, __SC_TEST_FILE, TT_FO_RDWR | TT_FO_APPEND, NULL);
@@ -389,7 +389,7 @@ TT_TEST_ROUTINE_DEFINE(case_fs_open)
         TT_UT_EQUAL(d, (tt_u32_t)strlen((const char *)buf1) + 1, "");
 
         ret = tt_fread(&tf2, buf2, 90, &n);
-        TT_UT_EQUAL(ret, TT_END, "");
+        TT_UT_EQUAL(ret, TT_E_END, "");
 
         ret =
             tt_fwrite(&tf2, buf1, (tt_u32_t)strlen((const char *)buf1) + 1, &n);
@@ -422,7 +422,7 @@ TT_TEST_ROUTINE_DEFINE(case_fs_open)
         TT_UT_FAIL(ret, "");
 
         ret = tt_fread(&tf2, buf2, 90, &n);
-        TT_UT_EQUAL(ret, TT_END, "");
+        TT_UT_EQUAL(ret, TT_E_END, "");
 
         tt_fclose(&tf2);
     }
@@ -434,7 +434,7 @@ TT_TEST_ROUTINE_DEFINE(case_fs_open)
 
         // truncated
         ret = tt_fread(&tf, buf2, 90, &n);
-        TT_UT_EQUAL(ret, TT_END, "");
+        TT_UT_EQUAL(ret, TT_E_END, "");
 
         tt_fclose(&tf2);
     }
@@ -594,7 +594,7 @@ TT_TEST_ROUTINE_DEFINE(case_dir_basic)
 
     // nothing else except . and ..
     ret = tt_dread(&dir, &de);
-    TT_UT_EQUAL(ret, TT_END, "");
+    TT_UT_EQUAL(ret, TT_E_END, "");
 
     // could continue read
     ret = tt_dread(&dir2, &de);
@@ -606,7 +606,7 @@ TT_TEST_ROUTINE_DEFINE(case_dir_basic)
     }
 
     ret = tt_dread(&dir2, &de);
-    TT_UT_EQUAL(ret, TT_END, "");
+    TT_UT_EQUAL(ret, TT_E_END, "");
 
     ret = tt_dremove(__TEST_DIR);
     TT_UT_SUCCESS(ret, "");
@@ -923,7 +923,7 @@ tt_result_t __rd_fiber(IN void *param)
                 ++last;
                 last %= 10;
             }
-        } else if (ret == TT_END) {
+        } else if (ret == TT_E_END) {
             break;
         } else {
             __err_line = __LINE__;

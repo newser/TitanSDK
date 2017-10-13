@@ -89,7 +89,7 @@ typedef enum _tt_result_t {
     // idx: 0
     TT_FAIL,
     TT_E_TIMEOUT,
-    TT_END,
+    TT_E_END,
     TT_PROCEEDING,
     TT_BAD_PARAM,
 
@@ -98,7 +98,7 @@ typedef enum _tt_result_t {
     TT_BAD_ENV,
     TT_NOT_EXIST,
     TT_E_EXIST,
-    TT_NOT_SUPPORT,
+    TT_E_UNSUPPORT,
 
     // idx: 10
     TT_CANCELLED,

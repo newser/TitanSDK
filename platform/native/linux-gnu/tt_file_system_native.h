@@ -108,7 +108,7 @@ extern tt_result_t tt_dopen_ntv(OUT tt_dir_ntv_t *dir,
 
 extern void tt_dclose_ntv(OUT tt_dir_ntv_t *dir);
 
-// return TT_END if reaching end
+// return TT_E_END if reaching end
 extern tt_result_t tt_dread_ntv(IN tt_dir_ntv_t *dir,
                                 OUT struct tt_dirent_s *entry);
 

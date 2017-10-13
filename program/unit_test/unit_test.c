@@ -57,7 +57,7 @@ tt_result_t __console_ev_handler(IN void *console_param,
         TT_DEBUG("exit console 1");
         TT_DEBUG("exit console 2");
         TT_DEBUG("exit console 3");
-        return TT_END;
+        return TT_E_END;
     }
 #endif
 
@@ -93,7 +93,7 @@ tt_result_t __ut_fiber(IN void *param)
 #if 1
     else {
         const tt_char_t *names[] = {
-            "case_fs_open",
+            "TEST_UNIT_DATA_NODE",
         };
         tt_u32_t i;
 

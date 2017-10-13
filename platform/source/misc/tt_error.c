@@ -69,7 +69,7 @@ __ERR_RANGE_STRING_START(TT_ERR_RANGE_COMMON)
     // idx: 0
     __ERR_STRING(TT_FAIL, "Fail"),
     __ERR_STRING(TT_E_TIMEOUT, "Time out"),
-    __ERR_STRING(TT_END, "Operation ends"),
+    __ERR_STRING(TT_E_END, "Operation ends"),
     __ERR_STRING(TT_PROCEEDING, "Proceeding"),
     __ERR_STRING(TT_BAD_PARAM, "Bad parameter"),
 
@@ -78,7 +78,7 @@ __ERR_RANGE_STRING_START(TT_ERR_RANGE_COMMON)
     __ERR_STRING(TT_BAD_ENV, "Bad environment"),
     __ERR_STRING(TT_NOT_EXIST, "Not exist"),
     __ERR_STRING(TT_E_EXIST, "Already exsit"),
-    __ERR_STRING(TT_NOT_SUPPORT, "Not support"),
+    __ERR_STRING(TT_E_UNSUPPORT, "Not support"),
 
     // idx: 10
     __ERR_STRING(TT_CANCELLED, "Operation is cancelled"),

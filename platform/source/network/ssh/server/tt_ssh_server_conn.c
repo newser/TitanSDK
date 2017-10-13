@@ -274,7 +274,7 @@ tt_result_t tt_sshsvrconn_recv(IN tt_sshsvrconn_t *svrconn)
 
     if (TT_BUF_WLEN(recv_buf) == 0) {
         // try expanding recv buf??
-        return TT_END;
+        return TT_E_END;
     }
 
     tt_buf_get_wblob(recv_buf, &recv_blob);
@@ -508,7 +508,7 @@ void __svrconn_on_recv(IN tt_skt_t *skt,
         if (!TT_OK(tt_sshsvrconn_recv(svrconn))) {
             tt_sshsvrconn_destroy(svrconn, TT_FALSE);
         }
-    } else if (result == TT_END) {
+    } else if (result == TT_E_END) {
         // tt_sshctx_sign_inc_seq(&svrconn->ctx);
 
         tt_sshsvrconn_shutdown(svrconn);

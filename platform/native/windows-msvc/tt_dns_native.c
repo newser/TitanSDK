@@ -681,7 +681,7 @@ tt_bool_t __do_read(IN tt_io_ev_t *io_ev)
         tt_buf_inc_wp(&dskt->r_buf, io_ev->io_bytes);
         dskt->r_result = TT_SUCCESS;
     } else if (TT_OK(io_ev->io_result)) {
-        dskt->r_result = TT_END;
+        dskt->r_result = TT_E_END;
     } else {
         dskt->r_result = io_ev->io_result;
     }

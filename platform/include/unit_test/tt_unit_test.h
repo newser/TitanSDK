@@ -158,6 +158,7 @@ typedef enum {
     TEST_UNIT_CFGSHELL,
     TEST_UNIT_DATE,
     TEST_UNIT_FPATH,
+    TEST_UNIT_DATA_NODE,
 
     TEST_UNIT_NUM // number of test units
 } tt_test_unit_id_t;

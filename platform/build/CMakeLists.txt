@@ -160,6 +160,9 @@ add_group_src(${PLATFORM_PATH}/source/cli cli SRC_FILE)
 add_group_hdr(${PLATFORM_PATH}/include/cli/shell shell SRC_FILE)
 add_group_src(${PLATFORM_PATH}/source/cli/shell shell SRC_FILE)
 
+add_group_hdr(${PLATFORM_PATH}/include/zip zip SRC_FILE)
+add_group_src(${PLATFORM_PATH}/source/zip zip SRC_FILE)
+
 # test cases
 add_group_src(${PLATFORM_PATH}/source/algorithm/test_case test_case SRC_FILE)
 add_group_src(${PLATFORM_PATH}/test_case test_case SRC_FILE)
