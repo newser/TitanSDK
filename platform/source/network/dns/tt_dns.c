@@ -179,13 +179,13 @@ tt_result_t __ut_dns_query4(IN tt_dns_t d,
 
     dq.src = tt_current_fiber();
     dq.ip = ip;
-    dq.result = TT_PROCEEDING;
+    dq.result = TT_E_PROCEED;
 
     ares_gethostbyname(d, name, AF_INET, __query4_cb, &dq);
-    if (dq.result == TT_PROCEEDING) {
+    if (dq.result == TT_E_PROCEED) {
         tt_fiber_suspend();
     }
-    TT_ASSERT(dq.result != TT_PROCEEDING);
+    TT_ASSERT(dq.result != TT_E_PROCEED);
     return dq.result;
 }
 
@@ -197,13 +197,13 @@ tt_result_t __ut_dns_query6(IN tt_dns_t d,
 
     dq.src = tt_current_fiber();
     dq.ip = ip;
-    dq.result = TT_PROCEEDING;
+    dq.result = TT_E_PROCEED;
 
     ares_gethostbyname(d, name, AF_INET6, __query6_cb, &dq);
-    if (dq.result == TT_PROCEEDING) {
+    if (dq.result == TT_E_PROCEED) {
         tt_fiber_suspend();
     }
-    TT_ASSERT(dq.result != TT_PROCEEDING);
+    TT_ASSERT(dq.result != TT_E_PROCEED);
     return dq.result;
 }
 
@@ -350,7 +350,7 @@ void __query4_cb(IN void *arg,
 {
     __dns_query_t *dq = (__dns_query_t *)arg;
 
-    TT_ASSERT(dq->result == TT_PROCEEDING);
+    TT_ASSERT(dq->result == TT_E_PROCEED);
 
     if ((status == ARES_SUCCESS) && (hostent != NULL) &&
         (hostent->h_addrtype == AF_INET) && (hostent->h_addr_list != NULL) &&
@@ -376,7 +376,7 @@ void __query6_cb(IN void *arg,
 {
     __dns_query_t *dq = (__dns_query_t *)arg;
 
-    TT_ASSERT(dq->result == TT_PROCEEDING);
+    TT_ASSERT(dq->result == TT_E_PROCEED);
 
     if ((status == ARES_SUCCESS) && (hostent != NULL) &&
         (hostent->h_addrtype == AF_INET6) && (hostent->h_addr_list != NULL) &&

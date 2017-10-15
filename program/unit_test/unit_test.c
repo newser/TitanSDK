@@ -93,7 +93,7 @@ tt_result_t __ut_fiber(IN void *param)
 #if 1
     else {
         const tt_char_t *names[] = {
-            "TEST_UNIT_DATA_NODE",
+            "ZIP_UT_GZIP",
         };
         tt_u32_t i;
 

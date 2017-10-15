@@ -134,7 +134,7 @@ tt_result_t tt_test_item_add(IN tt_test_class_t *test_class,
     tt_memset(created_item, 0, sizeof(tt_test_item_t));
 
     tt_memcpy(&created_item->entry, entry, sizeof(tt_test_entry_t));
-    created_item->test_result = TT_PROCEEDING;
+    created_item->test_result = TT_E_PROCEED;
     tt_strncpy(created_item->name, name, TT_TEST_ITEM_NAME_LEN);
     if (comment != NULL) {
         tt_strncpy(created_item->comment, comment, TT_TEST_ITEM_COMMENT_LEN);
@@ -302,7 +302,7 @@ tt_result_t tt_test_list_item(IN tt_test_item_t *item,
                               IN OUT tt_u32_t *succ_num,
                               IN OUT tt_u32_t *fail_num)
 {
-    if (item->test_result == TT_PROCEEDING) {
+    if (item->test_result == TT_E_PROCEED) {
         return TT_SUCCESS;
     }
 

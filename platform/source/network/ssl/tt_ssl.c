@@ -175,7 +175,7 @@ tt_result_t tt_ssl_handshake(IN tt_ssl_t *ssl,
     while ((e = mbedtls_ssl_handshake(&ssl->ctx)) != 0) {
         if (e == MBEDTLS_ERR_SSL_WANT_READ) {
             if ((*p_fev != NULL) || (*p_tmr != NULL)) {
-                return TT_PROCEEDING;
+                return TT_E_PROCEED;
             } else {
                 continue;
             }

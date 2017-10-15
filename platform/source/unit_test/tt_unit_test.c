@@ -167,6 +167,11 @@ tt_result_t tt_test_unit_init(IN tt_ptr_t reserved)
         tt_cli_ut_init(0);
     } while (0);
 
+    do {
+        tt_result_t tt_zip_ut_init(IN tt_ptr_t reserved);
+        tt_zip_ut_init(0);
+    } while (0);
+
     return TT_SUCCESS;
 }
 

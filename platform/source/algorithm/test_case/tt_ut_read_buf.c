@@ -185,7 +185,7 @@ static tt_result_t __ut_dec(IN tt_buf_t *raw,
         tt_buf_inc_rp(raw, n);
         return TT_SUCCESS;
     } else {
-        return TT_PROCEEDING;
+        return TT_E_PROCEED;
     }
 }
 
@@ -241,7 +241,7 @@ static tt_result_t __ut_par(IN tt_buf_t *buf,
         *parse_ret = (void *)ret;
         return TT_SUCCESS;
     } else {
-        return TT_PROCEEDING;
+        return TT_E_PROCEED;
     }
 }
 

@@ -16,36 +16,78 @@
  * limitations under the License.
  */
 
-/**
-@file tt_zip_common.h
-@brief zip common APIs
-
-this file specifies common zip interfaces
-*/
-
-#ifndef __TT_ZIP_COMMON__
-#define __TT_ZIP_COMMON__
-
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <tt_basic_type.h>
+#include <tt_platform.h>
 
 ////////////////////////////////////////////////////////////
-// macro definition
-////////////////////////////////////////////////////////////
-
-////////////////////////////////////////////////////////////
-// type definition
+// internal macro
 ////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////
-// global variants
+// internal type
 ////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////
-// interface declaration
+// extern declaration
 ////////////////////////////////////////////////////////////
 
-#endif /* __TT_ZIP_COMMON__ */
+////////////////////////////////////////////////////////////
+// global variant
+////////////////////////////////////////////////////////////
+
+// === routine declarations ================
+TT_TEST_ROUTINE_DECLARE(case_zip_gzip_def)
+// =========================================
+
+// === test case list ======================
+TT_TEST_CASE_LIST_DEFINE_BEGIN(zip_gzip_case)
+
+TT_TEST_CASE("case_zip_gzip_def",
+             "zip: gzip deflate",
+             case_zip_gzip_def,
+             NULL,
+             NULL,
+             NULL,
+             NULL,
+             NULL)
+,
+
+    TT_TEST_CASE_LIST_DEFINE_END(zip_gzip_case)
+    // =========================================
+
+    TT_TEST_UNIT_DEFINE(ZIP_UT_GZIP, 0, zip_gzip_case)
+
+    ////////////////////////////////////////////////////////////
+    // interface declaration
+    ////////////////////////////////////////////////////////////
+
+    ////////////////////////////////////////////////////////////
+    // interface implementation
+    ////////////////////////////////////////////////////////////
+
+    /*
+    TT_TEST_ROUTINE_DEFINE(case_zip_gzip_def)
+    {
+        //tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+
+        TT_TEST_CASE_ENTER()
+        // test start
+
+        // test end
+        TT_TEST_CASE_LEAVE()
+    }
+    */
+
+    TT_TEST_ROUTINE_DEFINE(case_zip_gzip_def)
+{
+    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+
+    TT_TEST_CASE_ENTER()
+    // test start
+
+    // test end
+    TT_TEST_CASE_LEAVE()
+}

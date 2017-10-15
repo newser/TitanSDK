@@ -115,7 +115,7 @@ void tt_sshsvr_state_keyxchg(IN struct tt_sshsvrconn_s *svrconn,
                 if (svrconn->ms_keyinit_out) {
                     svract->new_state = TT_SSHSVRST_KEXDH;
                 }
-            } else if (result == TT_PROCEEDING) {
+            } else if (result == TT_E_PROCEED) {
                 TT_SSH_MSGID_IGNORED(TT_SSHSVRST_KEYXCHG, msg->msg_id);
             } else {
                 svract->new_event = TT_SSHSVREV_DISCONNECT;

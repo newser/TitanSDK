@@ -90,7 +90,7 @@ typedef enum _tt_result_t {
     TT_FAIL,
     TT_E_TIMEOUT,
     TT_E_END,
-    TT_PROCEEDING,
+    TT_E_PROCEED,
     TT_BAD_PARAM,
 
     // idx: 5

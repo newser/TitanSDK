@@ -16,32 +16,68 @@
  * limitations under the License.
  */
 
+/**
+@file tt_gzip_deflate.h
+@brief gzip deflate APIs
+
+this file specifies deflate interfaces of gzip
+*/
+
+#ifndef __TT_GZIP_DEFLATE__
+#define __TT_GZIP_DEFLATE__
+
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <zip/tt_gzip.h>
+#include <tt_basic_type.h>
+
+#include <zlib.h>
 
 ////////////////////////////////////////////////////////////
-// internal macro
-////////////////////////////////////////////////////////////
-
-////////////////////////////////////////////////////////////
-// internal type
-////////////////////////////////////////////////////////////
-
-////////////////////////////////////////////////////////////
-// extern declaration
+// macro definition
 ////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////
-// global variant
+// type definition
+////////////////////////////////////////////////////////////
+
+typedef struct
+{
+    z_stream zs;
+} tt_gzipdef_t;
+
+typedef struct
+{
+    tt_u32_t level; // 0 - 9
+    tt_u32_t window_bits; // 8 - 15
+    tt_u32_t mem_level; // 1 - 9
+} tt_gzipdef_attr_t;
+
+////////////////////////////////////////////////////////////
+// global variants
 ////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-////////////////////////////////////////////////////////////
-// interface implementation
-////////////////////////////////////////////////////////////
+tt_export tt_result_t tt_gzipdef_create(IN tt_gzipdef_t *gzd,
+                                        IN OPT tt_gzipdef_attr_t *attr);
+
+tt_export void tt_gzipdef_destroy(IN tt_gzipdef_t *gzd);
+
+tt_export void tt_gzipdef_attr_default(IN tt_gzipdef_attr_t *attr);
+
+tt_export tt_result_t tt_gzipdef(IN tt_gzipdef_t *gzd,
+                                 IN tt_u8_t *ibuf,
+                                 IN tt_u32_t ilen,
+                                 OUT tt_u32_t *consumed_len,
+                                 IN tt_u8_t *obuf,
+                                 IN tt_u32_t olen,
+                                 OUT tt_u32_t *produced_len,
+                                 IN tt_bool_t all_in);
+
+tt_export void tt_gzipdef_reset(IN tt_gzipdef_t *gzd);
+
+#endif /* __TT_GZIP_DEFLATE__ */

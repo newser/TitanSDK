@@ -94,6 +94,10 @@ include_directories(${PLATFORM_PATH}/library/xml/pugixml)
 include_directories(${PLATFORM_PATH}/library/dns/c-ares)
 include_directories(${PLATFORM_PATH}/library/dns/include)
 
+# library: zip
+include_directories(${PLATFORM_PATH}/library/zip/zlib)
+include_directories(${PLATFORM_PATH}/library/zip/libzip/lib)
+
 #
 # source file
 #
@@ -172,6 +176,7 @@ add_group_src(${PLATFORM_PATH}/source/crypto/test_case crypto SRC_FILE)
 add_group_src(${PLATFORM_PATH}/source/network/ssl/test_case ssl SRC_FILE)
 add_group_src(${PLATFORM_PATH}/source/math/mp/test_case mp SRC_FILE)
 add_group_src(${PLATFORM_PATH}/source/network/dns/test_case dns SRC_FILE)
+add_group_src(${PLATFORM_PATH}/source/zip/test_case zip SRC_FILE)
 
 # native
 add_group_hdr(${PLATFORM_PATH}/native/${PLATFORM_ENV} native SRC_FILE)
@@ -268,13 +273,9 @@ target_link_libraries(platform ${DNS_LIB})
 
 # library
 set(ZLIB_LIB)
-add_subdirectory(${PLATFORM_PATH}/library/zlib zlib)
-target_link_libraries(platform ${ZLIB_LIB})
-
-# library
-set(ZIP_LIB)
-add_subdirectory(${PLATFORM_PATH}/library/libzip libzip)
-target_link_libraries(platform ${ZIP_LIB})
+set(LIBZIP_LIB)
+add_subdirectory(${PLATFORM_PATH}/library/zip zip)
+target_link_libraries(platform ${ZLIB_LIB} ${LIBZIP_LIB})
 
 include(${PLATFORM_PATH}/build/generate_header.cmake)
 

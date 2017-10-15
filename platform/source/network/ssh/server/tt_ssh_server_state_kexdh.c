@@ -130,7 +130,7 @@ void __svr_kexdh_packet(IN tt_sshsvrconn_t *svrconn,
             result = __svr_kexdh_pkt_dhinit(svrconn, msg);
             if (TT_OK(result)) {
                 svract->new_event = TT_SSHSVREV_KEXDH_REPLY;
-            } else if (result == TT_PROCEEDING) {
+            } else if (result == TT_E_PROCEED) {
                 TT_SSH_MSGID_IGNORED(TT_SSHSVRST_KEXDH, msg->msg_id);
             } else {
                 svract->new_event = TT_SSHSVREV_DISCONNECT;

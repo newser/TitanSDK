@@ -144,10 +144,10 @@ void __svr_auth_pkt_uar(IN tt_sshsvrconn_t *svrconn,
 
     if (TT_OK(result)) {
         svract->new_state = TT_SSHSVRST_AUTH_DONE;
-    } else if (result != TT_PROCEEDING) {
+    } else if (result != TT_E_PROCEED) {
         svract->new_event = TT_SSHSVREV_DISCONNECT;
     } else {
-        // TT_PROCEEDING means requiring more authentication
+        // TT_E_PROCEED means requiring more authentication
     }
 }
 
@@ -170,7 +170,7 @@ tt_result_t __svr_auth_conn(IN tt_sshsvrconn_t *svrconn,
             tt_u32_t auth_num = sizeof(auth) / sizeof(auth[0]);
 
             if (TT_OK(__svr_auth_fail(svrconn, auth, auth_num, TT_TRUE))) {
-                return TT_PROCEEDING;
+                return TT_E_PROCEED;
             } else {
                 return TT_FAIL;
             }

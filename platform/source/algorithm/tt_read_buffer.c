@@ -155,7 +155,7 @@ tt_result_t __rbuf_decode(IN tt_rbuf_t *rbuf, OUT tt_buf_t **data)
 
             tt_buf_restore_rwp(dec, &d_rp, &d_wp);
 
-            if (result != TT_PROCEEDING) {
+            if (result != TT_E_PROCEED) {
                 return TT_FAIL;
             }
         }
@@ -204,7 +204,7 @@ tt_result_t __rbuf_parse(IN tt_rbuf_t *rbuf, IN tt_buf_t *data)
             tt_buf_restore_rwp(data, &rp, &wp);
             tt_buf_inc_rp(data, len);
 
-            if (result != TT_PROCEEDING) {
+            if (result != TT_E_PROCEED) {
                 return TT_FAIL;
             }
         }
