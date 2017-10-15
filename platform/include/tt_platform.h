@@ -224,6 +224,10 @@ extern "C" {
 #include <xml/tt_xml_document.h>
 #include <xml/tt_xml_node.h>
 #include <xml/tt_xml_path.h>
+#include <zip/tt_gzip_deflate.h>
+#include <zip/tt_gzip_inflate.h>
+#include <zip/tt_zlib_deflate.h>
+#include <zip/tt_zlib_inflate.h>
 
 #ifdef __cplusplus
 }

@@ -50,7 +50,7 @@
 
 voidpf tt_zlib_alloc(voidpf opaque, uInt items, uInt size)
 {
-    return tt_malloc(size);
+    return tt_zalloc(items * size);
 }
 
 void tt_zlib_free(voidpf opaque, voidpf address)

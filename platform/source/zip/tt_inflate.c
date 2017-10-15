@@ -20,7 +20,7 @@
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <zip/tt_gzip_deflate.h>
+#include <zip/tt_inflate.h>
 
 #include <misc/tt_assert.h>
 #include <misc/tt_util.h>
@@ -50,36 +50,88 @@
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-tt_result_t tt_gzipdef_create(IN tt_gzipdef_t *gzd,
-                              IN OPT tt_gzipdef_attr_t *attr)
+tt_result_t tt_inflate_create(IN tt_inflate_t *ifl,
+                              IN OPT tt_inflate_attr_t *attr)
 {
-    tt_deflate_attr_t __attr;
+    tt_inflate_attr_t __attr;
     int z_err;
 
-    TT_ASSERT(gzd != NULL);
+    TT_ASSERT(ifl != NULL);
 
     if (attr != NULL) {
-        tt_memcpy(&__attr, attr, sizeof(tt_deflate_attr_t));
+        tt_memcpy(&__attr, attr, sizeof(tt_inflate_attr_t));
     } else {
-        tt_deflate_attr_default(&__attr);
+        tt_inflate_attr_default(&__attr);
     }
     attr = &__attr;
-    TT_LIMIT_MAX(attr->level, 9);
     TT_LIMIT_RANGE(attr->window_bits, 9, 15);
-    TT_LIMIT_RANGE(attr->mem_level, 1, 9);
 
-    TT_ZSTREAM_INIT(&gzd->zs);
+    TT_ZSTREAM_INIT(&ifl->zs);
 
-    z_err = deflateInit2(&gzd->zs,
-                         attr->level,
-                         Z_DEFLATED,
-                         attr->window_bits + 16, // gzip
-                         attr->mem_level,
-                         Z_DEFAULT_STRATEGY);
+    z_err = inflateInit2(&ifl->zs, -(int)attr->window_bits);
     if (z_err != Z_OK) {
-        TT_ERROR("fail to init gzip deflate");
+        TT_ERROR("fail to init inflate");
         return TT_FAIL;
     }
 
     return TT_SUCCESS;
+}
+
+void tt_inflate_destroy(IN tt_inflate_t *ifl)
+{
+    TT_ASSERT(ifl != NULL);
+
+    inflateEnd(&ifl->zs);
+}
+
+void tt_inflate_attr_default(IN tt_inflate_attr_t *attr)
+{
+    attr->window_bits = 15;
+}
+
+tt_result_t tt_inflate_run(IN tt_inflate_t *ifl,
+                           IN tt_u8_t *ibuf,
+                           IN tt_u32_t ilen,
+                           OUT tt_u32_t *consumed_len,
+                           IN tt_u8_t *obuf,
+                           IN tt_u32_t olen,
+                           OUT tt_u32_t *produced_len,
+                           IN tt_bool_t finish)
+{
+    z_stream *zs = &ifl->zs;
+    tt_u32_t il, ol;
+    int z_err;
+
+    if (ibuf != NULL) {
+        zs->next_in = ibuf;
+        zs->avail_in = ilen;
+    }
+    il = zs->avail_in;
+
+    if (obuf != NULL) {
+        zs->next_out = obuf;
+        zs->avail_out = olen;
+    }
+    ol = zs->avail_out;
+
+    z_err = inflate(zs, TT_COND(finish, Z_FINISH, Z_SYNC_FLUSH));
+    if ((z_err == Z_OK) || (z_err == Z_BUF_ERROR)) {
+        TT_SAFE_ASSIGN(consumed_len, il - zs->avail_in);
+        TT_SAFE_ASSIGN(produced_len, ol - zs->avail_out);
+        return TT_SUCCESS;
+    } else if (z_err == Z_STREAM_END) {
+        TT_SAFE_ASSIGN(consumed_len, il - zs->avail_in);
+        TT_SAFE_ASSIGN(produced_len, ol - zs->avail_out);
+        return TT_E_END;
+    } else {
+        TT_ERROR("iflp inflate fail");
+        return TT_FAIL;
+    }
+}
+
+void tt_inflate_reset(IN tt_inflate_t *ifl)
+{
+    TT_ASSERT(ifl != NULL);
+
+    inflateReset(&ifl->zs);
 }

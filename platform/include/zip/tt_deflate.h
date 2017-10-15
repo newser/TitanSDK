@@ -16,78 +16,68 @@
  * limitations under the License.
  */
 
+/**
+@file tt_deflate.h
+@brief deflate APIs
+
+this file specifies deflate interfaces
+*/
+
+#ifndef __TT_DEFLATE__
+#define __TT_DEFLATE__
+
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <tt_platform.h>
+#include <tt_basic_type.h>
+
+#include <zlib.h>
 
 ////////////////////////////////////////////////////////////
-// internal macro
-////////////////////////////////////////////////////////////
-
-////////////////////////////////////////////////////////////
-// internal type
+// macro definition
 ////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////
-// extern declaration
+// type definition
 ////////////////////////////////////////////////////////////
 
-////////////////////////////////////////////////////////////
-// global variant
-////////////////////////////////////////////////////////////
-
-// === routine declarations ================
-TT_TEST_ROUTINE_DECLARE(case_zip_gzip_def)
-// =========================================
-
-// === test case list ======================
-TT_TEST_CASE_LIST_DEFINE_BEGIN(zip_gzip_case)
-
-TT_TEST_CASE("case_zip_gzip_def",
-             "zip: gzip deflate",
-             case_zip_gzip_def,
-             NULL,
-             NULL,
-             NULL,
-             NULL,
-             NULL)
-,
-
-    TT_TEST_CASE_LIST_DEFINE_END(zip_gzip_case)
-    // =========================================
-
-    TT_TEST_UNIT_DEFINE(ZIP_UT_GZIP, 0, zip_gzip_case)
-
-    ////////////////////////////////////////////////////////////
-    // interface declaration
-    ////////////////////////////////////////////////////////////
-
-    ////////////////////////////////////////////////////////////
-    // interface implementation
-    ////////////////////////////////////////////////////////////
-
-    /*
-    TT_TEST_ROUTINE_DEFINE(case_zip_gzip_def)
-    {
-        //tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
-
-        TT_TEST_CASE_ENTER()
-        // test start
-
-        // test end
-        TT_TEST_CASE_LEAVE()
-    }
-    */
-
-    TT_TEST_ROUTINE_DEFINE(case_zip_gzip_def)
+typedef struct
 {
-    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+    z_stream zs;
+} tt_deflate_t;
 
-    TT_TEST_CASE_ENTER()
-    // test start
+typedef struct
+{
+    tt_u32_t level; // 0 - 9
+    tt_u32_t window_bits; // 9 - 15
+    tt_u32_t mem_level; // 1 - 9
+} tt_deflate_attr_t;
 
-    // test end
-    TT_TEST_CASE_LEAVE()
-}
+////////////////////////////////////////////////////////////
+// global variants
+////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////
+// interface declaration
+////////////////////////////////////////////////////////////
+
+tt_export tt_result_t tt_deflate_create(IN tt_deflate_t *dfl,
+                                        IN OPT tt_deflate_attr_t *attr);
+
+tt_export void tt_deflate_destroy(IN tt_deflate_t *dfl);
+
+tt_export void tt_deflate_attr_default(IN tt_deflate_attr_t *attr);
+
+tt_export tt_result_t tt_deflate_run(IN tt_deflate_t *dfl,
+                                     IN tt_u8_t *ibuf,
+                                     IN tt_u32_t ilen,
+                                     OUT tt_u32_t *consumed_len,
+                                     IN tt_u8_t *obuf,
+                                     IN tt_u32_t olen,
+                                     OUT tt_u32_t *produced_len,
+                                     IN tt_bool_t finish);
+
+tt_export void tt_deflate_reset(IN tt_deflate_t *dfl);
+
+#endif /* __TT_DEFLATE__ */

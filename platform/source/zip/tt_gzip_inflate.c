@@ -20,40 +20,27 @@
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <unit_test/tt_unit_test.h>
+#include <zip/tt_gzip_inflate.h>
+
+#include <misc/tt_assert.h>
+#include <misc/tt_util.h>
+#include <zip/tt_zlib.h>
 
 ////////////////////////////////////////////////////////////
 // internal macro
 ////////////////////////////////////////////////////////////
 
-#define TT_ZIP_UT_DECLARE(name)                                                \
-    extern tt_test_unit_t TT_MAKE_TEST_UNIT_NAME(name);
-
 ////////////////////////////////////////////////////////////
 // internal type
 ////////////////////////////////////////////////////////////
-
-typedef enum {
-    ZIP_UT_BEGIN = 0,
-
-    ZIP_UT_ZLIB = ZIP_UT_BEGIN,
-
-    ZIP_UT_NUM // number of test units
-} tt_zip_ut_id_t;
 
 ////////////////////////////////////////////////////////////
 // extern declaration
 ////////////////////////////////////////////////////////////
 
-TT_ZIP_UT_DECLARE(ZIP_UT_ZLIB)
-
 ////////////////////////////////////////////////////////////
 // global variant
 ////////////////////////////////////////////////////////////
-
-tt_test_unit_t *tt_g_zip_ut_list[ZIP_UT_NUM] = {
-    &TT_MAKE_TEST_UNIT_NAME(ZIP_UT_ZLIB),
-};
 
 ////////////////////////////////////////////////////////////
 // interface declaration
@@ -63,21 +50,28 @@ tt_test_unit_t *tt_g_zip_ut_list[ZIP_UT_NUM] = {
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-tt_result_t tt_zip_ut_init(IN tt_ptr_t reserved)
+tt_result_t tt_gzipinf_create(IN tt_gzipinf_t *gzi,
+                              IN OPT tt_gzipinf_attr_t *attr)
 {
-    tt_zip_ut_id_t unit_id = ZIP_UT_BEGIN;
-    while (unit_id < ZIP_UT_NUM) {
-        tt_result_t result = TT_FAIL;
+    tt_inflate_attr_t __attr;
+    int z_err;
 
-        if (tt_g_zip_ut_list[unit_id] != NULL) {
-            result = tt_test_unit_to_class(tt_g_zip_ut_list[unit_id]);
-            if (!TT_OK(result)) {
-                return TT_FAIL;
-            }
-        }
+    TT_ASSERT(gzi != NULL);
 
-        // next
-        ++unit_id;
+    if (attr != NULL) {
+        tt_memcpy(&__attr, attr, sizeof(tt_inflate_attr_t));
+    } else {
+        tt_inflate_attr_default(&__attr);
+    }
+    attr = &__attr;
+    TT_LIMIT_RANGE(attr->window_bits, 9, 15);
+
+    TT_ZSTREAM_INIT(&gzi->zs);
+
+    z_err = inflateInit2(&gzi->zs, attr->window_bits + 16); // gzip
+    if (z_err != Z_OK) {
+        TT_ERROR("fail to init gzip inflate");
+        return TT_FAIL;
     }
 
     return TT_SUCCESS;

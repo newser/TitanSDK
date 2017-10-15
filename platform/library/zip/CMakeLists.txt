@@ -18,6 +18,7 @@
 #
 
 set(ZLIB_PATH ${CMAKE_CURRENT_SOURCE_DIR}/zlib)
+set(LIBZIP_PATH ${CMAKE_CURRENT_SOURCE_DIR}/libzip)
 
 #
 # customization
@@ -45,17 +46,18 @@ hide(INSTALL_MAN_DIR PATH "${CMAKE_INSTALL_PREFIX}/share/man")
 hide(INSTALL_PKGCONFIG_DIR PATH "${CMAKE_INSTALL_PREFIX}/share/pkgconfig")
 
 add_subdirectory(${ZLIB_PATH})
+add_subdirectory(${LIBZIP_PATH})
 
-set_target_properties(zlibstatic PROPERTIES
+set_target_properties(zlibstatic zip PROPERTIES
                       MACOSX_RPATH ON
                       POSITION_INDEPENDENT_CODE ON)
 
 if (NOT PLATFORM_BUILD_SHARED)
-    set_target_properties(zlibstatic PROPERTIES
+    set_target_properties(zlibstatic zip PROPERTIES
                           ARCHIVE_OUTPUT_DIRECTORY_DEBUG ${PLATFORM_OUTPATH}/debug/static
                           LIBRARY_OUTPUT_DIRECTORY_DEBUG ${PLATFORM_OUTPATH}/debug/shared
                           RUNTIME_OUTPUT_DIRECTORY_DEBUG ${PLATFORM_OUTPATH}/debug/program)
-    set_target_properties(zlibstatic PROPERTIES
+    set_target_properties(zlibstatic zip PROPERTIES
                           ARCHIVE_OUTPUT_DIRECTORY_RELEASE ${PLATFORM_OUTPATH}/release/static
                           LIBRARY_OUTPUT_DIRECTORY_RELEASE ${PLATFORM_OUTPATH}/release/shared
                           RUNTIME_OUTPUT_DIRECTORY_RELEASE ${PLATFORM_OUTPATH}/release/program)
@@ -66,3 +68,4 @@ endif ()
 #
 
 set(ZLIB_LIB zlibstatic PARENT_SCOPE)
+set(LIBZIP_LIB zip PARENT_SCOPE)

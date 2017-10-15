@@ -296,6 +296,26 @@ used when a pointer in code need be assigned if it's not null
 #define TT_DONN_G(lable, ...) __TT_NOT_NULL(goto lable, __VA_ARGS__)
 #define TT_DONN_R(result, ...) __TT_NOT_NULL(return (result), __VA_ARGS__)
 
+#define TT_LIMIT_MAX(v, max)                                                   \
+    do {                                                                       \
+        if ((v) > (max)) {                                                     \
+            (v) = (max);                                                       \
+        }                                                                      \
+    } while (0)
+
+#define TT_LIMIT_MIN(v, min)                                                   \
+    do {                                                                       \
+        if ((v) < (min)) {                                                     \
+            (v) = (min);                                                       \
+        }                                                                      \
+    } while (0)
+
+#define TT_LIMIT_RANGE(v, min, max)                                            \
+    do {                                                                       \
+        TT_LIMIT_MIN(v, min);                                                  \
+        TT_LIMIT_MAX(v, max);                                                  \
+    } while (0)
+
 ////////////////////////////////////////////////////////////
 // type definition
 ////////////////////////////////////////////////////////////

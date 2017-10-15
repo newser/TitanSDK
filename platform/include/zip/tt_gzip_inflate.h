@@ -17,20 +17,20 @@
  */
 
 /**
-@file tt_gzip_deflate.h
-@brief gzip deflate APIs
+@file tt_gzip_inflate.h
+@brief gzip inflate APIs
 
-this file specifies deflate interfaces of gzip
+this file specifies inflate interfaces of gzip
 */
 
-#ifndef __TT_GZIP_DEFLATE__
-#define __TT_GZIP_DEFLATE__
+#ifndef __TT_GZIP_INFLATE__
+#define __TT_GZIP_INFLATE__
 
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <zip/tt_deflate.h>
+#include <zip/tt_inflate.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
@@ -40,9 +40,9 @@ this file specifies deflate interfaces of gzip
 // type definition
 ////////////////////////////////////////////////////////////
 
-typedef tt_deflate_t tt_gzipdef_t;
+typedef tt_inflate_t tt_gzipinf_t;
 
-typedef tt_deflate_attr_t tt_gzipdef_attr_t;
+typedef tt_inflate_attr_t tt_gzipinf_attr_t;
 
 ////////////////////////////////////////////////////////////
 // global variants
@@ -52,41 +52,41 @@ typedef tt_deflate_attr_t tt_gzipdef_attr_t;
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-tt_export tt_result_t tt_gzipdef_create(IN tt_gzipdef_t *gzd,
-                                        IN OPT tt_gzipdef_attr_t *attr);
+tt_export tt_result_t tt_gzipinf_create(IN tt_gzipinf_t *gzi,
+                                        IN OPT tt_gzipinf_attr_t *attr);
 
-tt_inline void tt_gzipdef_destroy(IN tt_gzipdef_t *gzd)
+tt_inline void tt_gzipinf_destroy(IN tt_gzipinf_t *gzi)
 {
-    tt_deflate_destroy(gzd);
+    tt_inflate_destroy(gzi);
 }
 
-tt_inline void tt_gzipdef_attr_default(IN tt_gzipdef_attr_t *attr)
+tt_inline void tt_gzipinf_attr_default(IN tt_gzipinf_attr_t *attr)
 {
-    tt_deflate_attr_default(attr);
+    tt_inflate_attr_default(attr);
 }
 
-tt_inline tt_result_t tt_gzipdef_run(IN tt_gzipdef_t *gzd,
+tt_inline tt_result_t tt_gzipinf_run(IN tt_gzipinf_t *gzi,
                                      IN tt_u8_t *ibuf,
                                      IN tt_u32_t ilen,
                                      OUT tt_u32_t *consumed_len,
                                      IN tt_u8_t *obuf,
                                      IN tt_u32_t olen,
                                      OUT tt_u32_t *produced_len,
-                                     IN tt_bool_t all_in)
+                                     IN tt_bool_t finish)
 {
-    return tt_deflate_run(gzd,
+    return tt_inflate_run(gzi,
                           ibuf,
                           ilen,
                           consumed_len,
                           obuf,
                           olen,
                           produced_len,
-                          all_in);
+                          finish);
 }
 
-tt_inline void tt_gzipdef_reset(IN tt_gzipdef_t *gzd)
+tt_inline void tt_gzipinf_reset(IN tt_gzipinf_t *gzi)
 {
-    return tt_deflate_reset(gzd);
+    return tt_inflate_reset(gzi);
 }
 
-#endif /* __TT_GZIP_DEFLATE__ */
+#endif /* __TT_GZIP_INFLATE__ */
