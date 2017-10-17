@@ -20,25 +20,40 @@
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <io/tt_data_node.h>
-
-#include <memory/tt_memory_alloc.h>
+#include <unit_test/tt_unit_test.h>
 
 ////////////////////////////////////////////////////////////
 // internal macro
 ////////////////////////////////////////////////////////////
 
+#define TT_DATA_UT_DECLARE(name)                                               \
+    extern tt_test_unit_t TT_MAKE_TEST_UNIT_NAME(name);
+
 ////////////////////////////////////////////////////////////
 // internal type
 ////////////////////////////////////////////////////////////
+
+typedef enum {
+    DATA_UT_BEGIN = 0,
+
+    DATA_UT_DTNODE = DATA_UT_BEGIN,
+
+    DATA_UT_NUM // number of test units
+} tt_data_ut_id_t;
 
 ////////////////////////////////////////////////////////////
 // extern declaration
 ////////////////////////////////////////////////////////////
 
+TT_DATA_UT_DECLARE(DATA_UT_DTNODE)
+
 ////////////////////////////////////////////////////////////
 // global variant
 ////////////////////////////////////////////////////////////
+
+tt_test_unit_t *tt_g_data_ut_list[DATA_UT_NUM] = {
+    &TT_MAKE_TEST_UNIT_NAME(DATA_UT_DTNODE),
+};
 
 ////////////////////////////////////////////////////////////
 // interface declaration
@@ -48,25 +63,22 @@
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-tt_dtnode_t *tt_dtnode_create(IN tt_u32_t size, IN tt_dtnode_itf_t *itf)
+tt_result_t tt_data_ut_init(IN tt_ptr_t reserved)
 {
-    tt_dtnode_t *dtn;
+    tt_data_ut_id_t unit_id = DATA_UT_BEGIN;
+    while (unit_id < DATA_UT_NUM) {
+        tt_result_t result = TT_FAIL;
 
-    dtn = (tt_dtnode_t *)tt_malloc(sizeof(tt_dtnode_t) + size);
-    if (dtn == NULL) {
-        return NULL;
+        if (tt_g_data_ut_list[unit_id] != NULL) {
+            result = tt_test_unit_to_class(tt_g_data_ut_list[unit_id]);
+            if (!TT_OK(result)) {
+                return TT_FAIL;
+            }
+        }
+
+        // next
+        ++unit_id;
     }
 
-    dtn->itf = itf;
-
-    return dtn;
-}
-
-void tt_dtnode_destroy(IN tt_dtnode_t *dtn)
-{
-    if (dtn->itf->destroy != NULL) {
-        dtn->itf->destroy(dtn);
-    }
-
-    tt_free(dtn);
+    return TT_SUCCESS;
 }

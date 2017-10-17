@@ -88,7 +88,6 @@ tt_test_unit_t *tt_g_test_unit_list[TEST_UNIT_NUM] = {
     &TT_MAKE_TEST_UNIT_NAME(TEST_UNIT_DATE),
     &TT_MAKE_TEST_UNIT_NAME(TEST_UNIT_TIMER),
     &TT_MAKE_TEST_UNIT_NAME(TEST_UNIT_FPATH),
-    &TT_MAKE_TEST_UNIT_NAME(TEST_UNIT_DATA_NODE),
 
     &TT_MAKE_TEST_UNIT_NAME(TEST_UNIT_MISC),
     &TT_MAKE_TEST_UNIT_NAME(TEST_UNIT_CHARSET),
@@ -170,6 +169,11 @@ tt_result_t tt_test_unit_init(IN tt_ptr_t reserved)
     do {
         tt_result_t tt_zip_ut_init(IN tt_ptr_t reserved);
         tt_zip_ut_init(0);
+    } while (0);
+
+    do {
+        tt_result_t tt_data_ut_init(IN tt_ptr_t reserved);
+        tt_data_ut_init(0);
     } while (0);
 
     return TT_SUCCESS;

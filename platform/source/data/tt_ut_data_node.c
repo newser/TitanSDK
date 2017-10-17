@@ -20,16 +20,7 @@
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include "tt_unit_test_case_config.h"
-#include <unit_test/tt_unit_test.h>
-
-#include <io/tt_data_node_blob.h>
-#include <time/tt_time_reference.h>
-
-// portlayer header files
-#include <tt_cstd_api.h>
-
-#include <time.h>
+#include <tt_platform.h>
 
 ////////////////////////////////////////////////////////////
 // internal macro
@@ -67,7 +58,7 @@ TT_TEST_CASE("case_dtn_blob",
     TT_TEST_CASE_LIST_DEFINE_END(dtnode_case)
     // =========================================
 
-    TT_TEST_UNIT_DEFINE(TEST_UNIT_DATA_NODE, 0, dtnode_case)
+    TT_TEST_UNIT_DEFINE(DATA_UT_DTNODE, 0, dtnode_case)
 
     ////////////////////////////////////////////////////////////
     // interface declaration
