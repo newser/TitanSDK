@@ -16,84 +16,52 @@
  * limitations under the License.
  */
 
-/**
-@file tt_zip_source.h
-@brief zip source APIs
-
-this file specifies zip source interfaces
-*/
-
-#ifndef __TT_ZIP_SOURCE__
-#define __TT_ZIP_SOURCE__
-
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <log/tt_log.h>
-#include <misc/tt_util.h>
-#include <tt_basic_type.h>
-#include <zip/tt_libzip.h>
+#include <zip/tt_zip_source_blob.h>
+
+#include <misc/tt_assert.h>
 
 ////////////////////////////////////////////////////////////
-// macro definition
-////////////////////////////////////////////////////////////
-
-////////////////////////////////////////////////////////////
-// type definition
+// internal macro
 ////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////
-// global variants
+// internal type
+////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////
+// extern declaration
+////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////
+// global variant
 ////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-tt_inline void tt_zipsrc_ref(IN tt_zipsrc_t *zs)
-{
-    zip_source_keep(zs);
-}
+////////////////////////////////////////////////////////////
+// interface implementation
+////////////////////////////////////////////////////////////
 
-tt_inline void tt_zipsrc_release(IN tt_zipsrc_t *zs)
+tt_zipsrc_t *tt_zipsrc_blob_create(IN void *p,
+                                   IN tt_u32_t len,
+                                   IN tt_bool_t free)
 {
-    zip_source_free(zs);
-}
+    zip_source_t *zs;
+    zip_error_t ze;
 
-tt_inline tt_result_t tt_zipsrc_open(IN tt_zipsrc_t *zs)
-{
-    if (zip_source_open(zs) == 0) {
-        return TT_SUCCESS;
+    TT_ASSERT(p != NULL);
+
+    zs = zip_source_buffer_create(p, len, free, &ze);
+    if (zs != NULL) {
+        return zs;
     } else {
-        TT_ERROR("fail to open zip source: %s",
-                 zip_error_strerror(zip_source_error(zs)));
-        return TT_FAIL;
+        TT_ERROR("fail to create zipsrc blob: %s", zip_error_strerror(&ze));
+        return NULL;
     }
 }
-
-tt_inline void tt_zipsrc_close(IN tt_zipsrc_t *zs)
-{
-    zip_source_close(zs);
-}
-
-tt_inline tt_result_t tt_zipsrc_read(IN tt_zipsrc_t *zs,
-                                     OUT tt_u8_t *buf,
-                                     IN tt_u32_t len,
-                                     OUT tt_u32_t *read_len)
-{
-    zip_int64_t n = zip_source_read(zs, buf, len);
-    if (n > 0) {
-        TT_SAFE_ASSIGN(read_len, (tt_u32_t)n);
-        return TT_SUCCESS;
-    } else if (n == 0) {
-        TT_SAFE_ASSIGN(read_len, 0);
-        return TT_E_END;
-    } else {
-        TT_ERROR("fail to read zip source: %s",
-                 zip_error_strerror(zip_source_error(zs)));
-        return TT_FAIL;
-    }
-}
-
-#endif /* __TT_ZIP_SOURCE__ */

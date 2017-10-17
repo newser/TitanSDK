@@ -37,6 +37,7 @@ typedef enum {
     ZIP_UT_BEGIN = 0,
 
     ZIP_UT_ZLIB = ZIP_UT_BEGIN,
+    ZIP_UT_ZSOURCE,
 
     ZIP_UT_NUM // number of test units
 } tt_zip_ut_id_t;
@@ -46,6 +47,7 @@ typedef enum {
 ////////////////////////////////////////////////////////////
 
 TT_ZIP_UT_DECLARE(ZIP_UT_ZLIB)
+TT_ZIP_UT_DECLARE(ZIP_UT_ZSOURCE)
 
 ////////////////////////////////////////////////////////////
 // global variant
@@ -53,6 +55,7 @@ TT_ZIP_UT_DECLARE(ZIP_UT_ZLIB)
 
 tt_test_unit_t *tt_g_zip_ut_list[ZIP_UT_NUM] = {
     &TT_MAKE_TEST_UNIT_NAME(ZIP_UT_ZLIB),
+    &TT_MAKE_TEST_UNIT_NAME(ZIP_UT_ZSOURCE),
 };
 
 ////////////////////////////////////////////////////////////
