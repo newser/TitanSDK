@@ -76,8 +76,6 @@ extern tt_result_t tt_fcreate_ntv(IN const tt_char_t *path,
 
 extern tt_result_t tt_fremove_ntv(IN const tt_char_t *path);
 
-extern tt_bool_t tt_fexist_ntv(IN const tt_char_t *path);
-
 extern tt_result_t tt_fopen_ntv(IN tt_file_ntv_t *file,
                                 IN const tt_char_t *path,
                                 IN tt_u32_t flag,
@@ -113,8 +111,6 @@ extern tt_result_t tt_dcreate_ntv(IN const tt_char_t *path,
 
 extern tt_result_t tt_dremove_ntv(IN const tt_char_t *path);
 
-extern tt_bool_t tt_dexist_ntv(IN const tt_char_t *path);
-
 extern tt_result_t tt_dopen_ntv(OUT tt_dir_ntv_t *dir,
                                 IN const tt_char_t *path,
                                 IN struct tt_dir_attr_s *attr);
@@ -124,6 +120,11 @@ extern void tt_dclose_ntv(OUT tt_dir_ntv_t *dir);
 // return TT_E_END if reaching end
 extern tt_result_t tt_dread_ntv(IN tt_dir_ntv_t *dir,
                                 OUT struct tt_dirent_s *entry);
+
+extern tt_bool_t tt_fs_exist_ntv(IN const tt_char_t *path);
+
+extern tt_result_t tt_fs_rename_ntv(IN const tt_char_t *from,
+                                    IN const tt_char_t *to);
 
 extern void tt_fs_worker_io(IN struct tt_io_ev_s *ev);
 

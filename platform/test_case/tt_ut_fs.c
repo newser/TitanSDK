@@ -161,10 +161,12 @@ TT_TEST_ROUTINE_DEFINE(case_fs_consistency)
 
 #if TT_ENV_OS_IS_WINDOWS
 #define __SC_TEST_FILE "测试"
+#define __SC_TEST_FILE2 "测试2"
 #elif TT_ENV_OS_IS_IOS
 
 #if (TT_ENV_OS_FEATURE & TT_ENV_OS_FEATURE_IOS_SIMULATOR)
 #define __SC_TEST_FILE "../tmp/测试"
+#define __SC_TEST_FILE2 "../tmp/测试2"
 #else
 #define __SC_TEST_FILE ((const tt_char_t *)tt_string_cstr(&__sc_fpath))
 #endif
@@ -173,9 +175,11 @@ TT_TEST_ROUTINE_DEFINE(case_fs_consistency)
 
 #define APK_PATH "/data/data/com.titansdk.titansdkunittest/"
 #define __SC_TEST_FILE APK_PATH "测试"
+#define __SC_TEST_FILE2 APK_PATH "测试2"
 
 #else
 #define __SC_TEST_FILE "测试"
+#define __SC_TEST_FILE2 "测试2"
 #endif
 
         TT_TEST_ROUTINE_DEFINE(case_fs_basic)
@@ -234,6 +238,23 @@ TT_TEST_ROUTINE_DEFINE(case_fs_consistency)
     // remove
     ret = tt_fremove(__SC_TEST_FILE);
     TT_UT_SUCCESS(ret, "");
+
+    // rename
+    {
+        TT_UT_EQUAL(tt_fs_exist(__SC_TEST_FILE), TT_FALSE, "");
+
+        ret = tt_fcreate(__SC_TEST_FILE, NULL);
+        TT_UT_SUCCESS(ret, "");
+        TT_UT_EQUAL(tt_fs_exist(__SC_TEST_FILE), TT_TRUE, "");
+
+        ret = tt_fs_rename(__SC_TEST_FILE, __SC_TEST_FILE2);
+        TT_UT_SUCCESS(ret, "");
+        TT_UT_EQUAL(tt_fs_exist(__SC_TEST_FILE), TT_FALSE, "");
+        TT_UT_EQUAL(tt_fs_exist(__SC_TEST_FILE2), TT_TRUE, "");
+
+        ret = tt_fremove(__SC_TEST_FILE2);
+        TT_UT_SUCCESS(ret, "");
+    }
 
     // test end
     TT_TEST_CASE_LEAVE()
@@ -325,7 +346,7 @@ TT_TEST_ROUTINE_DEFINE(case_fs_open)
 
     tt_fremove(__SC_TEST_FILE);
 
-    TT_UT_EQUAL(tt_fexist(__SC_TEST_FILE), TT_FALSE, "");
+    TT_UT_EQUAL(tt_fs_exist(__SC_TEST_FILE), TT_FALSE, "");
 
     // fail as it does not exist
     ret = tt_fopen(&tf, __SC_TEST_FILE, 0, NULL);
@@ -338,7 +359,7 @@ TT_TEST_ROUTINE_DEFINE(case_fs_open)
                    NULL);
     TT_UT_SUCCESS(ret, "");
 
-    TT_UT_EQUAL(tt_fexist(__SC_TEST_FILE), TT_TRUE, "");
+    TT_UT_EQUAL(tt_fs_exist(__SC_TEST_FILE), TT_TRUE, "");
 
     {
         tt_u8_t buf1[100] = "test1";
@@ -549,6 +570,7 @@ TT_TEST_ROUTINE_DEFINE(case_dir_basic)
 
 #if (TT_ENV_OS_FEATURE & TT_ENV_OS_FEATURE_IOS_SIMULATOR)
 #define __TEST_DIR "../tmp/test_dir"
+#define __TEST_DIR2 "../tmp/test_dir2"
 #else
 #define __TEST_DIR ((const tt_char_t *)tt_string_cstr(&__sc_dpath))
 #endif
@@ -556,19 +578,21 @@ TT_TEST_ROUTINE_DEFINE(case_dir_basic)
 #elif TT_ENV_OS_IS_ANDROID
 
 #define __TEST_DIR APK_PATH "test_dir"
+#define __TEST_DIR2 APK_PATH "test_dir2"
 
 #else
 //#define __TEST_DIR "./≤‚ ‘ƒø¬º")
 #define __TEST_DIR "./test_dir"
+#define __TEST_DIR2 "./test_dir2"
 #endif
 
     tt_dremove(__TEST_DIR);
 
-    TT_UT_EQUAL(tt_dexist(__TEST_DIR), TT_FALSE, "");
+    TT_UT_EQUAL(tt_fs_exist(__TEST_DIR), TT_FALSE, "");
 
     ret = tt_dcreate(__TEST_DIR, NULL);
     TT_UT_SUCCESS(ret, "");
-    TT_UT_EQUAL(tt_dexist(__TEST_DIR), TT_TRUE, "");
+    TT_UT_EQUAL(tt_fs_exist(__TEST_DIR), TT_TRUE, "");
     ret = tt_dopen(&dir, __TEST_DIR, NULL);
     TT_UT_SUCCESS(ret, "");
 
@@ -650,6 +674,23 @@ TT_TEST_ROUTINE_DEFINE(case_dir_basic)
 
     ret = tt_dopen(&dir, __TEST_DIR, NULL);
     TT_UT_EQUAL(ret, TT_FAIL, "");
+
+    // rename
+    {
+        TT_UT_EQUAL(tt_fs_exist(__TEST_DIR), TT_FALSE, "");
+
+        ret = tt_dcreate(__TEST_DIR, NULL);
+        TT_UT_SUCCESS(ret, "");
+        TT_UT_EQUAL(tt_fs_exist(__TEST_DIR), TT_TRUE, "");
+
+        ret = tt_fs_rename(__TEST_DIR, __TEST_DIR2);
+        TT_UT_SUCCESS(ret, "");
+        TT_UT_EQUAL(tt_fs_exist(__TEST_DIR), TT_FALSE, "");
+        TT_UT_EQUAL(tt_fs_exist(__TEST_DIR2), TT_TRUE, "");
+
+        ret = tt_dremove(__TEST_DIR2);
+        TT_UT_SUCCESS(ret, "");
+    }
 
     // test end
     TT_TEST_CASE_LEAVE()

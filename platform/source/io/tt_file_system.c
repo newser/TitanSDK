@@ -100,13 +100,6 @@ tt_result_t tt_fremove(IN const tt_char_t *path)
     return tt_fremove_ntv(path);
 }
 
-tt_bool_t tt_fexist(IN const tt_char_t *path)
-{
-    TT_ASSERT(path != NULL);
-
-    return tt_fexist_ntv(path);
-}
-
 tt_result_t tt_fopen(IN tt_file_t *file,
                      IN const tt_char_t *path,
                      IN tt_u32_t flag,
@@ -267,13 +260,6 @@ tt_result_t tt_dremove(IN const tt_char_t *path)
     return tt_dremove_ntv(path);
 }
 
-tt_bool_t tt_dexist(IN const tt_char_t *path)
-{
-    TT_ASSERT(path != NULL);
-
-    return tt_dexist_ntv(path);
-}
-
 tt_result_t tt_dopen(IN tt_dir_t *dir,
                      IN const tt_char_t *path,
                      IN tt_dir_attr_t *attr)
@@ -296,6 +282,21 @@ void tt_dclose(IN tt_dir_t *dir)
     TT_ASSERT(dir != NULL);
 
     tt_dclose_ntv(&dir->sys_dir);
+}
+
+tt_bool_t tt_fs_exist(IN const tt_char_t *path)
+{
+    TT_ASSERT(path != NULL);
+
+    return tt_fs_exist_ntv(path);
+}
+
+tt_result_t tt_fs_rename(IN const tt_char_t *from, IN const tt_char_t *to)
+{
+    TT_ASSERT(from != NULL);
+    TT_ASSERT(to != NULL);
+
+    return tt_fs_rename_ntv(from, to);
 }
 
 tt_result_t __fs_component_init(IN tt_component_t *comp,

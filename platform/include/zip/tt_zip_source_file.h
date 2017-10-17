@@ -17,42 +17,25 @@
  */
 
 /**
-@file tt_sys_error.h
-@brief show system error information
+@file tt_zip_source_file.h
+@brief zip source file APIs
 
-APIs to show system error information
+this file specifies zip source file interfaces
 */
 
-#ifndef __TT_SYS_ERROR__
-#define __TT_SYS_ERROR__
+#ifndef __TT_ZIP_SOURCE_file__
+#define __TT_ZIP_SOURCE_file__
 
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <log/tt_log.h>
-#include <log/tt_log_manager.h>
+#include <tt_basic_type.h>
+#include <zip/tt_libzip.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
 ////////////////////////////////////////////////////////////
-
-#define TT_ERROR_NTV(...)                                                      \
-    do {                                                                       \
-        TT_ERROR(__VA_ARGS__);                                                 \
-        tt_last_error_show(__FUNCTION__);                                      \
-    } while (0)
-
-#define TT_NET_ERROR_NTV TT_ERROR_NTV
-
-#define TT_ERROR_NTV_DUMP(ptr, owner, member, dump_func, dump_opt, ...)        \
-    do {                                                                       \
-        TT_ERROR(__VA_ARGS__);                                                 \
-        tt_last_error_show(__FUNCTION__);                                      \
-        if (ptr != NULL) {                                                     \
-            dump_func(TT_CONTAINER((ptr), owner, member), (dump_opt));         \
-        }                                                                      \
-    } while (0)
 
 ////////////////////////////////////////////////////////////
 // type definition
@@ -66,11 +49,6 @@ APIs to show system error information
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-tt_inline tt_u32_t tt_last_error()
-{
-    return errno;
-}
+tt_export tt_zipsrc_t *tt_zipsrc_file_create(IN const tt_char_t *path);
 
-extern void tt_last_error_show(IN const tt_char_t *function);
-
-#endif /* __TT_SYS_ERROR__ */
+#endif /* __TT_ZIP_SOURCE_file__ */

@@ -161,8 +161,6 @@ delete a file
 */
 tt_export tt_result_t tt_fremove(IN const tt_char_t *path);
 
-tt_export tt_bool_t tt_fexist(IN const tt_char_t *path);
-
 /**
 @fn tt_result_t tt_fopen(OUT tt_file_t *file,
                             IN const tt_char_t *path,
@@ -331,6 +329,11 @@ tt_inline tt_result_t tt_fseek(IN tt_file_t *file,
 #define TT_FSEEK_CUR (1)
 #define TT_FSEEK_END (2)
 
+tt_inline tt_result_t tt_ftell(IN tt_file_t *file, OUT tt_u64_t *location)
+{
+    return tt_fseek(file, TT_FSEEK_CUR, 0, location);
+}
+
 tt_export tt_u8_t *tt_fcontent(IN const tt_char_t *path,
                                OUT OPT tt_u64_t *size);
 
@@ -410,8 +413,6 @@ tt_export tt_result_t tt_dcreate(IN const tt_char_t *path,
  */
 tt_export tt_result_t tt_dremove(IN const tt_char_t *path);
 
-tt_export tt_bool_t tt_dexist(IN const tt_char_t *path);
-
 /**
  @fn tt_result_t tt_dopen(OUT tt_dir_t *dir,
  IN const tt_char_t *path,
@@ -477,5 +478,10 @@ tt_inline tt_result_t tt_dread(IN tt_dir_t *dir, OUT tt_dirent_t *entry)
 {
     return tt_dread_ntv(&dir->sys_dir, entry);
 }
+
+tt_export tt_bool_t tt_fs_exist(IN const tt_char_t *path);
+
+tt_export tt_result_t tt_fs_rename(IN const tt_char_t *from,
+                                   IN const tt_char_t *to);
 
 #endif /* __TT_FILE_SYSTEM_FB__ */
