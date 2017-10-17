@@ -76,6 +76,8 @@ extern tt_result_t tt_fcreate_ntv(IN const tt_char_t *path,
 
 extern tt_result_t tt_fremove_ntv(IN const tt_char_t *path);
 
+extern tt_bool_t tt_fexist_ntv(IN const tt_char_t *path);
+
 extern tt_result_t tt_fopen_ntv(IN tt_file_ntv_t *file,
                                 IN const tt_char_t *path,
                                 IN tt_u32_t flag,
@@ -110,6 +112,8 @@ extern tt_result_t tt_dcreate_ntv(IN const tt_char_t *path,
                                   IN struct tt_dir_attr_s *attr);
 
 extern tt_result_t tt_dremove_ntv(IN const tt_char_t *path);
+
+extern tt_bool_t tt_dexist_ntv(IN const tt_char_t *path);
 
 extern tt_result_t tt_dopen_ntv(OUT tt_dir_ntv_t *dir,
                                 IN const tt_char_t *path,

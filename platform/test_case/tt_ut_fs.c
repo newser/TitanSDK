@@ -325,6 +325,8 @@ TT_TEST_ROUTINE_DEFINE(case_fs_open)
 
     tt_fremove(__SC_TEST_FILE);
 
+    TT_UT_EQUAL(tt_fexist(__SC_TEST_FILE), TT_FALSE, "");
+
     // fail as it does not exist
     ret = tt_fopen(&tf, __SC_TEST_FILE, 0, NULL);
     TT_UT_EQUAL(ret, TT_FAIL, "");
@@ -335,6 +337,8 @@ TT_TEST_ROUTINE_DEFINE(case_fs_open)
                    TT_FO_CREAT | TT_FO_READ | TT_FO_WRITE,
                    NULL);
     TT_UT_SUCCESS(ret, "");
+
+    TT_UT_EQUAL(tt_fexist(__SC_TEST_FILE), TT_TRUE, "");
 
     {
         tt_u8_t buf1[100] = "test1";
@@ -560,8 +564,11 @@ TT_TEST_ROUTINE_DEFINE(case_dir_basic)
 
     tt_dremove(__TEST_DIR);
 
+    TT_UT_EQUAL(tt_dexist(__TEST_DIR), TT_FALSE, "");
+
     ret = tt_dcreate(__TEST_DIR, NULL);
     TT_UT_SUCCESS(ret, "");
+    TT_UT_EQUAL(tt_dexist(__TEST_DIR), TT_TRUE, "");
     ret = tt_dopen(&dir, __TEST_DIR, NULL);
     TT_UT_SUCCESS(ret, "");
 

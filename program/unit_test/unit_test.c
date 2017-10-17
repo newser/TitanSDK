@@ -92,9 +92,7 @@ tt_result_t __ut_fiber(IN void *param)
     }
 #if 1
     else {
-        const tt_char_t *names[] = {
-            "ZIP_UT_ZLIB",
-        };
+        const tt_char_t *names[] = {"ZIP_UT_ZLIB"};
         tt_u32_t i;
 
         for (i = 0; i < sizeof(names) / sizeof(names[0]); ++i) {

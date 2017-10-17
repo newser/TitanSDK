@@ -161,6 +161,8 @@ delete a file
 */
 tt_export tt_result_t tt_fremove(IN const tt_char_t *path);
 
+tt_export tt_bool_t tt_fexist(IN const tt_char_t *path);
+
 /**
 @fn tt_result_t tt_fopen(OUT tt_file_t *file,
                             IN const tt_char_t *path,
@@ -407,6 +409,8 @@ tt_export tt_result_t tt_dcreate(IN const tt_char_t *path,
  impact performance, so do not use this flag frequently
  */
 tt_export tt_result_t tt_dremove(IN const tt_char_t *path);
+
+tt_export tt_bool_t tt_dexist(IN const tt_char_t *path);
 
 /**
  @fn tt_result_t tt_dopen(OUT tt_dir_t *dir,

@@ -134,12 +134,14 @@ enum
     __FWRITE,
     __FSEEK,
     __FSTAT,
+    __FEXIST,
 
     __DCREATE,
     __DREMOVE,
     __DOPEN,
     __DCLOSE,
     __DREAD,
+    __DEXIST,
 
     __FS_EV_NUM,
 };
@@ -162,6 +164,15 @@ typedef struct
 
     tt_result_t result;
 } __fremove_t;
+
+typedef struct
+{
+    tt_io_ev_t io_ev;
+
+    const tt_char_t *path;
+
+    tt_bool_t result;
+} __fexist_t;
 
 typedef struct
 {
@@ -251,6 +262,15 @@ typedef struct
 {
     tt_io_ev_t io_ev;
 
+    const tt_char_t *path;
+
+    tt_bool_t result;
+} __dexist_t;
+
+typedef struct
+{
+    tt_io_ev_t io_ev;
+
     tt_dir_ntv_t *dir;
     const tt_char_t *path;
     struct tt_dir_attr_s *attr;
@@ -287,6 +307,8 @@ static void __do_fcreate(IN tt_io_ev_t *io_ev);
 
 static void __do_fremove(IN tt_io_ev_t *io_ev);
 
+static void __do_fexist(IN tt_io_ev_t *io_ev);
+
 static void __do_fopen(IN tt_io_ev_t *io_ev);
 
 static void __do_fclose(IN tt_io_ev_t *io_ev);
@@ -303,6 +325,8 @@ static void __do_dcreate(IN tt_io_ev_t *io_ev);
 
 static void __do_dremove(IN tt_io_ev_t *io_ev);
 
+static void __do_dexist(IN tt_io_ev_t *io_ev);
+
 static void __do_dopen(IN tt_io_ev_t *io_ev);
 
 static void __do_dclose(IN tt_io_ev_t *io_ev);
@@ -318,12 +342,14 @@ static tt_worker_io_t __fs_io_handler[__FS_EV_NUM] = {
     __do_fwrite,
     __do_fseek,
     __do_fstat,
+    __do_fexist,
 
     __do_dcreate,
     __do_dremove,
     __do_dopen,
     __do_dclose,
     __do_dread,
+    __do_dexist,
 };
 
 ////////////////////////////////////////////////////////////
@@ -373,6 +399,21 @@ tt_result_t tt_fremove_ntv(IN const tt_char_t *path)
     tt_iowg_push_ev(&tt_g_fs_iowg, &fremove.io_ev);
     tt_fiber_suspend();
     return fremove.result;
+}
+
+tt_bool_t tt_fexist_ntv(IN const tt_char_t *path)
+{
+    __fexist_t fexist;
+
+    __fs_ev_init(&fexist.io_ev, __FEXIST);
+
+    fexist.path = path;
+
+    fexist.result = TT_FALSE;
+
+    tt_iowg_push_ev(&tt_g_fs_iowg, &fexist.io_ev);
+    tt_fiber_suspend();
+    return fexist.result;
 }
 
 // this function can not open directory
@@ -537,6 +578,21 @@ tt_result_t tt_dremove_ntv(IN const tt_char_t *path)
     return dremove.result;
 }
 
+tt_bool_t tt_dexist_ntv(IN const tt_char_t *path)
+{
+    __dexist_t dexist;
+
+    __fs_ev_init(&dexist.io_ev, __DEXIST);
+
+    dexist.path = path;
+
+    dexist.result = TT_FALSE;
+
+    tt_iowg_push_ev(&tt_g_fs_iowg, &dexist.io_ev);
+    tt_fiber_suspend();
+    return dexist.result;
+}
+
 tt_result_t tt_dopen_ntv(OUT tt_dir_ntv_t *dir,
                          IN const tt_char_t *path,
                          IN tt_dir_attr_t *attr)
@@ -633,6 +689,17 @@ void __do_fremove(IN tt_io_ev_t *io_ev)
     } else {
         TT_ERROR_NTV("fail to remove %s", fremove->path);
         fremove->result = TT_FAIL;
+    }
+}
+
+void __do_fexist(IN tt_io_ev_t *io_ev)
+{
+    __fexist_t *fexist = (__fexist_t *)io_ev;
+
+    if (access(fexist->path, F_OK) == 0) {
+        fexist->result = TT_TRUE;
+    } else {
+        fexist->result = TT_FALSE;
     }
 }
 
@@ -923,6 +990,17 @@ __retry3:
     }
 
     dremove->result = TT_SUCCESS;
+}
+
+void __do_dexist(IN tt_io_ev_t *io_ev)
+{
+    __dexist_t *dexist = (__dexist_t *)io_ev;
+
+    if (access(dexist->path, F_OK) == 0) {
+        dexist->result = TT_TRUE;
+    } else {
+        dexist->result = TT_FALSE;
+    }
 }
 
 void __do_dopen(IN tt_io_ev_t *io_ev)

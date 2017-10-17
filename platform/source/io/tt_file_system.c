@@ -100,6 +100,13 @@ tt_result_t tt_fremove(IN const tt_char_t *path)
     return tt_fremove_ntv(path);
 }
 
+tt_bool_t tt_fexist(IN const tt_char_t *path)
+{
+    TT_ASSERT(path != NULL);
+
+    return tt_fexist_ntv(path);
+}
+
 tt_result_t tt_fopen(IN tt_file_t *file,
                      IN const tt_char_t *path,
                      IN tt_u32_t flag,
@@ -258,6 +265,13 @@ tt_result_t tt_dremove(IN const tt_char_t *path)
     TT_ASSERT(path != NULL);
 
     return tt_dremove_ntv(path);
+}
+
+tt_bool_t tt_dexist(IN const tt_char_t *path)
+{
+    TT_ASSERT(path != NULL);
+
+    return tt_dexist_ntv(path);
 }
 
 tt_result_t tt_dopen(IN tt_dir_t *dir,
