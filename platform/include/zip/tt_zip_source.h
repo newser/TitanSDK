@@ -43,6 +43,12 @@ this file specifies zip source interfaces
 // type definition
 ////////////////////////////////////////////////////////////
 
+typedef struct tt_zip_stat_s
+{
+    // may be changed in future
+    zip_stat_t st;
+} tt_zip_stat_t;
+
 ////////////////////////////////////////////////////////////
 // global variants
 ////////////////////////////////////////////////////////////
@@ -91,6 +97,99 @@ tt_inline tt_result_t tt_zipsrc_read(IN tt_zipsrc_t *zs,
         return TT_E_END;
     } else {
         TT_ERROR("fail to read zip source: %s",
+                 zip_error_strerror(zip_source_error(zs)));
+        return TT_FAIL;
+    }
+}
+
+tt_inline tt_result_t tt_zipsrc_stat(IN tt_zipsrc_t *zs,
+                                     OUT tt_zip_stat_t *zstat)
+{
+    if (zip_source_stat(zs, &zstat->st) == 0) {
+        return TT_SUCCESS;
+    } else {
+        TT_ERROR("fail to stat zip source: %s",
+                 zip_error_strerror(zip_source_error(zs)));
+        return TT_FAIL;
+    }
+}
+
+tt_export tt_result_t tt_zipsrc_seek(IN tt_zipsrc_t *zs,
+                                     IN tt_u32_t whence,
+                                     IN tt_s64_t offset);
+#define TT_ZSSEEK_BEGIN 0
+#define TT_ZSSEEK_CUR 1
+#define TT_ZSSEEK_END 2
+
+tt_inline tt_result_t tt_zipsrc_tell(IN tt_zipsrc_t *zs, OUT tt_u64_t *location)
+{
+    zip_int64_t n = zip_source_tell(zs);
+    if (n >= 0) {
+        *location = n;
+        return TT_SUCCESS;
+    } else {
+        TT_ERROR("fail to tell zip source: %s",
+                 zip_error_strerror(zip_source_error(zs)));
+        return TT_FAIL;
+    }
+}
+
+tt_inline tt_result_t tt_zipsrc_begin_write(IN tt_zipsrc_t *zs)
+{
+    if (zip_source_begin_write(zs) == 0) {
+        return TT_SUCCESS;
+    } else {
+        TT_ERROR("fail to begin write zip source: %s",
+                 zip_error_strerror(zip_source_error(zs)));
+        return TT_FAIL;
+    }
+}
+
+tt_inline tt_result_t tt_zipsrc_commit_write(IN tt_zipsrc_t *zs)
+{
+    if (zip_source_commit_write(zs) == 0) {
+        return TT_SUCCESS;
+    } else {
+        TT_ERROR("fail to commit write zip source: %s",
+                 zip_error_strerror(zip_source_error(zs)));
+        return TT_FAIL;
+    }
+}
+
+tt_inline void tt_zipsrc_rollback_write(IN tt_zipsrc_t *zs)
+{
+    zip_source_rollback_write(zs);
+}
+
+tt_inline tt_result_t tt_zipsrc_write(IN tt_zipsrc_t *zs,
+                                      OUT tt_u8_t *buf,
+                                      IN tt_u32_t len,
+                                      OUT tt_u32_t *write_len)
+{
+    zip_int64_t n = zip_source_write(zs, buf, len);
+    if (n > 0) {
+        TT_SAFE_ASSIGN(write_len, (tt_u32_t)n);
+        return TT_SUCCESS;
+    } else {
+        TT_ERROR("fail to write zip source: %s",
+                 zip_error_strerror(zip_source_error(zs)));
+        return TT_FAIL;
+    }
+}
+
+tt_export tt_result_t tt_zipsrc_seek_write(IN tt_zipsrc_t *zs,
+                                           IN tt_u32_t whence,
+                                           IN tt_s64_t offset);
+
+tt_inline tt_result_t tt_zipsrc_tell_write(IN tt_zipsrc_t *zs,
+                                           OUT tt_u64_t *location)
+{
+    zip_int64_t n = zip_source_tell_write(zs);
+    if (n >= 0) {
+        *location = n;
+        return TT_SUCCESS;
+    } else {
+        TT_ERROR("fail to tell write zip source: %s",
                  zip_error_strerror(zip_source_error(zs)));
         return TT_FAIL;
     }

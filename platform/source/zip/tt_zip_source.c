@@ -47,3 +47,61 @@
 ////////////////////////////////////////////////////////////
 // interface implementation
 ////////////////////////////////////////////////////////////
+
+tt_result_t tt_zipsrc_seek(IN tt_zipsrc_t *zs,
+                           IN tt_u32_t whence,
+                           IN tt_s64_t offset)
+{
+    int w;
+
+    TT_ASSERT(whence <= TT_ZSSEEK_END);
+    switch (whence) {
+        case TT_ZSSEEK_BEGIN: {
+            w = SEEK_SET;
+        } break;
+        case TT_ZSSEEK_CUR: {
+            w = SEEK_CUR;
+        } break;
+        default:
+        case TT_ZSSEEK_END: {
+            w = SEEK_END;
+        } break;
+    }
+
+    if (zip_source_seek(zs, offset, w) == 0) {
+        return TT_SUCCESS;
+    } else {
+        TT_ERROR("fail to seek zip source: %s",
+                 zip_error_strerror(zip_source_error(zs)));
+        return TT_FAIL;
+    }
+}
+
+tt_result_t tt_zipsrc_seek_write(IN tt_zipsrc_t *zs,
+                                 IN tt_u32_t whence,
+                                 IN tt_s64_t offset)
+{
+    int w;
+
+    TT_ASSERT(whence <= TT_ZSSEEK_END);
+    switch (whence) {
+        case TT_ZSSEEK_BEGIN: {
+            w = SEEK_SET;
+        } break;
+        case TT_ZSSEEK_CUR: {
+            w = SEEK_CUR;
+        } break;
+        default:
+        case TT_ZSSEEK_END: {
+            w = SEEK_END;
+        } break;
+    }
+
+    if (zip_source_seek_write(zs, offset, w) == 0) {
+        return TT_SUCCESS;
+    } else {
+        TT_ERROR("fail to seek write zip source: %s",
+                 zip_error_strerror(zip_source_error(zs)));
+        return TT_FAIL;
+    }
+}

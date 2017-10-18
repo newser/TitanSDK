@@ -330,7 +330,7 @@ zip_int64_t __zsf_begin_write(IN __zsf_t *zsf)
 
     tt_string_clear(s);
     if (!TT_OK(tt_string_append(s, zsf->name)) ||
-        !TT_OK(tt_string_append_f(s, ".%d", tt_rand_u32()))) {
+        !TT_OK(tt_string_append_f(s, ".%u", tt_rand_u32()))) {
         zip_error_set(&zsf->zerr, ZIP_ER_MEMORY, 0);
         return -1;
     }
@@ -403,6 +403,7 @@ zip_int64_t __zsf_read(IN __zsf_t *zsf, IN tt_u8_t *data, IN zip_uint64_t len)
 {
     zip_uint64_t n;
     tt_u32_t read_len;
+    tt_result_t result;
 
     if (zsf->end > 0) {
         TT_ASSERT(zsf->current <= zsf->end);
@@ -413,13 +414,19 @@ zip_int64_t __zsf_read(IN __zsf_t *zsf, IN tt_u8_t *data, IN zip_uint64_t len)
     } else {
         n = len;
     }
+    if (n == 0) {
+        return 0;
+    }
     if (n > 0x7FFFFFFF) {
         n = 0x7FFFFFFF;
     }
 
-    if (TT_OK(tt_fread(&zsf->f, data, (tt_u32_t)n, &read_len))) {
+    result = tt_fread(&zsf->f, data, (tt_u32_t)n, &read_len);
+    if (TT_OK(result)) {
         zsf->current += read_len;
         return (zip_int64_t)read_len;
+    } else if (result == TT_E_END) {
+        return 0;
     } else {
         zip_error_set(&zsf->zerr, ZIP_ER_READ, tt_get_sys_err());
         return -1;
