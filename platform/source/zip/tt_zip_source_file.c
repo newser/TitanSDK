@@ -22,6 +22,7 @@
 
 #include <zip/tt_zip_source_file.h>
 
+#include <algorithm/tt_string_common.h>
 #include <io/tt_file_system.h>
 #include <misc/tt_assert.h>
 #include <misc/tt_util.h>
@@ -37,18 +38,18 @@
 
 typedef struct
 {
-    tt_s64_t start;
-    tt_s64_t end;
-    tt_s64_t current;
+    zip_int64_t start;
+    zip_int64_t end;
+    zip_int64_t current;
     zip_int64_t supports;
-    struct zip_stat st;
-    const tt_char_t *path;
-    const tt_char_t *tmp_path;
-    tt_file_t fin;
-    tt_file_t fout;
-    zip_error_t ze;
+    const tt_char_t *name;
+    zip_error_t zerr;
     zip_error_t stat_error;
-    tt_bool_t fin_opened : 1;
+    struct zip_stat stat;
+    tt_file_t f;
+    tt_file_t fout;
+    tt_string_t tmp_name;
+    tt_bool_t f_opened : 1;
     tt_bool_t fout_opened : 1;
 } __zsf_t;
 
@@ -60,20 +61,20 @@ typedef struct
 // global variant
 ////////////////////////////////////////////////////////////
 
-static zip_int64_t __zsf_itf(void *state,
-                             void *data,
-                             zip_uint64_t len,
-                             zip_source_cmd_t cmd);
-
 ////////////////////////////////////////////////////////////
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-static __zsf_t *__zsf_create(IN const tt_char_t *path);
+static __zsf_t *__zsf_create(IN const tt_char_t *path,
+                             IN tt_u64_t from,
+                             IN tt_u64_t len);
 
 static void __zsf_destroy(IN __zsf_t *zsf);
 
-static void __zsf_reset(IN __zsf_t *zsf);
+static zip_int64_t __zsf_itf(void *state,
+                             void *data,
+                             zip_uint64_t len,
+                             zip_source_cmd_t cmd);
 
 static zip_int64_t __zsf_begin_write(IN __zsf_t *zsf);
 
@@ -86,8 +87,6 @@ static zip_int64_t __zsf_open(IN __zsf_t *zsf);
 static zip_int64_t __zsf_read(IN __zsf_t *zsf,
                               IN tt_u8_t *data,
                               IN zip_uint64_t len);
-
-static zip_int64_t __zsf_remove(IN __zsf_t *zsf);
 
 static void __zsf_rollback_write(IN __zsf_t *zsf);
 
@@ -104,27 +103,122 @@ static zip_int64_t __zsf_write(IN __zsf_t *zsf,
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-tt_zipsrc_t *tt_zipsrc_file_create(IN const tt_char_t *path)
+tt_zipsrc_t *tt_zipsrc_file_create(IN const tt_char_t *path,
+                                   IN tt_u64_t from,
+                                   IN tt_u64_t len)
 {
     __zsf_t *zsf;
     zip_source_t *zs;
-    zip_error_t ze;
+    zip_error_t zerr;
 
     TT_ASSERT(path != NULL);
 
-    zsf = __zsf_create(path);
+    zsf = __zsf_create(path, from, len);
     if (zsf == NULL) {
         return NULL;
     }
 
-    zs = zip_source_function_create(__zsf_itf, zsf, &ze);
+    zs = zip_source_function_create(__zsf_itf, zsf, &zerr);
     if (zs != NULL) {
         return zs;
     } else {
-        TT_ERROR("fail to create zipsrc blob: %s", zip_error_strerror(&ze));
+        TT_ERROR("fail to create zipsrc blob: %s", zip_error_strerror(&zerr));
         __zsf_destroy(zsf);
         return NULL;
     }
+}
+
+__zsf_t *__zsf_create(IN const tt_char_t *path,
+                      IN tt_u64_t from,
+                      IN tt_u64_t len)
+{
+    tt_u32_t n;
+    __zsf_t *zsf;
+    zip_stat_t *st;
+    tt_fstat_t fst;
+
+    n = tt_strlen(path);
+    zsf = tt_zalloc(sizeof(__zsf_t) + n + 1);
+    if (zsf == NULL) {
+        return NULL;
+    }
+
+    zsf->start = from;
+    zsf->end = len;
+    zsf->current = 0;
+    zsf->supports = ZIP_SOURCE_SUPPORTS_READABLE |
+                    zip_source_make_command_bitmap(ZIP_SOURCE_SUPPORTS,
+                                                   ZIP_SOURCE_TELL,
+                                                   -1);
+
+    zsf->name = TT_PTR_INC(const tt_char_t, zsf, sizeof(__zsf_t));
+    tt_memcpy((tt_char_t *)zsf->name, path, n + 1);
+
+    zip_error_init(&zsf->zerr);
+    zip_error_init(&zsf->stat_error);
+    zip_stat_init(&zsf->stat);
+    tt_string_init(&zsf->tmp_name, NULL);
+    zsf->f_opened = TT_FALSE;
+    zsf->fout_opened = TT_FALSE;
+
+    // set stat
+    st = &zsf->stat;
+
+    if (zsf->end > 0) {
+        st->size = zsf->end;
+        st->valid |= ZIP_STAT_SIZE;
+    }
+
+    if (TT_OK(tt_fstat_path(zsf->name, &fst))) {
+        if (!(st->valid & ZIP_STAT_MTIME)) {
+            st->mtime = tt_date_diff_epoch_second(&fst.modified);
+            st->valid |= ZIP_STAT_MTIME;
+        }
+
+        if (fst.is_file) {
+            zsf->supports = ZIP_SOURCE_SUPPORTS_SEEKABLE;
+
+            if ((zsf->start + zsf->end) > fst.size) {
+                __zsf_destroy(zsf);
+                return NULL;
+            }
+
+            if (zsf->end == 0) {
+                st->size = fst.size - zsf->start;
+                st->valid |= ZIP_STAT_SIZE;
+
+                if (zsf->start == 0) {
+                    zsf->supports = ZIP_SOURCE_SUPPORTS_WRITABLE;
+                }
+            }
+        }
+    } else {
+        if ((zsf->start == 0) && (zsf->end == 0)) {
+            zsf->supports = ZIP_SOURCE_SUPPORTS_WRITABLE;
+        }
+
+        zip_error_set(&zsf->stat_error, ZIP_ER_READ, tt_get_sys_err());
+    }
+
+    return zsf;
+}
+
+void __zsf_destroy(IN __zsf_t *zsf)
+{
+    zip_error_fini(&zsf->zerr);
+    zip_error_fini(&zsf->stat_error);
+
+    if (zsf->f_opened) {
+        tt_fclose(&zsf->f);
+    }
+
+    if (zsf->fout_opened) {
+        tt_fclose(&zsf->fout);
+    }
+
+    tt_string_destroy(&zsf->tmp_name);
+
+    tt_free(zsf);
 }
 
 zip_int64_t __zsf_itf(void *state,
@@ -132,13 +226,7 @@ zip_int64_t __zsf_itf(void *state,
                       zip_uint64_t len,
                       zip_source_cmd_t cmd)
 {
-    __zsf_t *zsf;
-    char *buf;
-    zip_uint64_t n;
-    size_t i;
-
-    zsf = (__zsf_t *)state;
-    buf = (char *)data;
+    __zsf_t *zsf = (__zsf_t *)state;
 
     switch (cmd) {
         case ZIP_SOURCE_BEGIN_WRITE: {
@@ -152,7 +240,7 @@ zip_int64_t __zsf_itf(void *state,
             return 0;
         }
         case ZIP_SOURCE_ERROR: {
-            return zip_error_to_data(&zsf->ze, data, len);
+            return zip_error_to_data(&zsf->zerr, data, len);
         }
         case ZIP_SOURCE_FREE: {
             __zsf_destroy(zsf);
@@ -165,7 +253,8 @@ zip_int64_t __zsf_itf(void *state,
             return __zsf_read(zsf, (tt_u8_t *)data, len);
         }
         case ZIP_SOURCE_REMOVE: {
-            return __zsf_remove(zsf);
+            tt_fremove(zsf->name);
+            return 0;
         }
         case ZIP_SOURCE_ROLLBACK_WRITE: {
             __zsf_rollback_write(zsf);
@@ -176,7 +265,7 @@ zip_int64_t __zsf_itf(void *state,
                 ZIP_SOURCE_GET_ARGS(zip_source_args_seek_t,
                                     data,
                                     len,
-                                    &zsf->ze);
+                                    &zsf->zerr);
             if (args != NULL) {
                 return __zsf_seek(zsf, args);
             } else {
@@ -188,7 +277,7 @@ zip_int64_t __zsf_itf(void *state,
                 ZIP_SOURCE_GET_ARGS(zip_source_args_seek_t,
                                     data,
                                     len,
-                                    &zsf->ze);
+                                    &zsf->zerr);
             if (args != NULL) {
                 return __zsf_seek_write(zsf, args);
             } else {
@@ -196,18 +285,18 @@ zip_int64_t __zsf_itf(void *state,
             }
         }
         case ZIP_SOURCE_STAT: {
-            if (len < sizeof(zsf->st))
+            if (len < sizeof(zsf->stat))
                 return -1;
 
             if (zip_error_code_zip(&zsf->stat_error) != 0) {
-                zip_error_set(&zsf->ze,
+                zip_error_set(&zsf->zerr,
                               zip_error_code_zip(&zsf->stat_error),
                               zip_error_code_system(&zsf->stat_error));
                 return -1;
             }
 
-            memcpy(data, &zsf->st, sizeof(zsf->st));
-            return sizeof(zsf->st);
+            tt_memcpy(data, &zsf->stat, sizeof(zsf->stat));
+            return sizeof(zsf->stat);
         }
         case ZIP_SOURCE_SUPPORTS: {
             return zsf->supports;
@@ -220,7 +309,7 @@ zip_int64_t __zsf_itf(void *state,
             if (TT_OK(tt_ftell(&zsf->fout, &location))) {
                 return location;
             } else {
-                zip_error_set(&zsf->ze, ZIP_ER_TELL, tt_last_error());
+                zip_error_set(&zsf->zerr, ZIP_ER_TELL, tt_get_sys_err());
                 return -1;
             }
         }
@@ -229,7 +318,7 @@ zip_int64_t __zsf_itf(void *state,
         }
 
         default: {
-            zip_error_set(&zsf->ze, ZIP_ER_OPNOTSUPP, 0);
+            zip_error_set(&zsf->zerr, ZIP_ER_OPNOTSUPP, 0);
             return -1;
         }
     }
@@ -237,27 +326,25 @@ zip_int64_t __zsf_itf(void *state,
 
 zip_int64_t __zsf_begin_write(IN __zsf_t *zsf)
 {
-    tt_u32_t n;
-    tt_char_t *tp;
+    tt_string_t *s = &zsf->tmp_name;
 
-    __zsf_reset(zsf);
-
-    n = tt_strlen(zsf->path) + 10;
-    tp = tt_zalloc(n);
-    if (tp == NULL) {
-        zip_error_set(&zsf->ze, ZIP_ER_MEMORY, 0);
+    tt_string_clear(s);
+    if (!TT_OK(tt_string_append(s, zsf->name)) ||
+        !TT_OK(tt_string_append_f(s, ".%d", tt_rand_u32()))) {
+        zip_error_set(&zsf->zerr, ZIP_ER_MEMORY, 0);
         return -1;
     }
-    tt_snprintf(tp, n - 1, "%s.%d", zsf->path, tt_rand_u32() & 0xFFFF);
-    TT_ASSERT(zsf->tmp_path == NULL);
-    zsf->tmp_path = tp;
 
-    TT_ASSERT(!zsf->fout_opened);
+    if (zsf->fout_opened) {
+        TT_WARN("closed zsf fout");
+        tt_fclose(&zsf->fout);
+        zsf->fout_opened = TT_FALSE;
+    }
     if (!TT_OK(tt_fopen(&zsf->fout,
-                        zsf->tmp_path,
+                        tt_string_cstr(s),
                         TT_FO_CREAT | TT_FO_RDWR,
                         NULL))) {
-        zip_error_set(&zsf->ze, ZIP_ER_TMPOPEN, 0);
+        zip_error_set(&zsf->zerr, ZIP_ER_TMPOPEN, tt_get_sys_err());
         return -1;
     }
     zsf->fout_opened = TT_TRUE;
@@ -271,39 +358,40 @@ zip_int64_t __zsf_commit_write(IN __zsf_t *zsf)
     tt_fclose(&zsf->fout);
     zsf->fout_opened = TT_FALSE;
 
-    if (!TT_OK(tt_fs_rename(zsf->tmp_path, zsf->path))) {
-        zip_error_set(&zsf->ze, ZIP_ER_RENAME, 0);
+    if (!TT_OK(tt_fs_rename(tt_string_cstr(&zsf->tmp_name), zsf->name))) {
+        zip_error_set(&zsf->zerr, ZIP_ER_RENAME, 0);
         return -1;
     }
     // need set permission of renamed file??
-    tt_free((void *)zsf->tmp_path);
-    zsf->tmp_path = NULL;
 
     return 0;
 }
 
 void __zsf_close(IN __zsf_t *zsf)
 {
-    if (zsf->fin_opened) {
-        tt_fclose(&zsf->fin);
-        zsf->fin_opened = TT_FALSE;
+    if (zsf->f_opened) {
+        tt_fclose(&zsf->f);
+        zsf->f_opened = TT_FALSE;
     }
 }
 
 zip_int64_t __zsf_open(IN __zsf_t *zsf)
 {
-    if (zsf->path != NULL) {
-        TT_ASSERT(!zsf->fin_opened);
-        if (!TT_OK(tt_fopen(&zsf->fin, zsf->path, TT_FO_READ, NULL))) {
-            zip_error_set(&zsf->ze, ZIP_ER_OPEN, tt_last_error());
+    if (zsf->name != NULL) {
+        if (zsf->f_opened) {
+            tt_fclose(&zsf->f);
+            zsf->f_opened = TT_FALSE;
+        }
+        if (!TT_OK(tt_fopen(&zsf->f, zsf->name, TT_FO_READ, NULL))) {
+            zip_error_set(&zsf->zerr, ZIP_ER_OPEN, tt_get_sys_err());
             return -1;
         }
-        zsf->fin_opened = TT_TRUE;
+        zsf->f_opened = TT_TRUE;
     }
 
     if ((zsf->start > 0) &&
-        !TT_OK(tt_fseek(&zsf->fin, TT_FSEEK_BEGIN, zsf->start, NULL))) {
-        zip_error_set(&zsf->ze, ZIP_ER_SEEK, tt_last_error());
+        !TT_OK(tt_fseek(&zsf->f, TT_FSEEK_BEGIN, zsf->start, NULL))) {
+        zip_error_set(&zsf->zerr, ZIP_ER_SEEK, tt_get_sys_err());
         return -1;
     }
     zsf->current = 0;
@@ -317,6 +405,7 @@ zip_int64_t __zsf_read(IN __zsf_t *zsf, IN tt_u8_t *data, IN zip_uint64_t len)
     tt_u32_t read_len;
 
     if (zsf->end > 0) {
+        TT_ASSERT(zsf->current <= zsf->end);
         n = zsf->end - zsf->current;
         if (n > len) {
             n = len;
@@ -328,21 +417,11 @@ zip_int64_t __zsf_read(IN __zsf_t *zsf, IN tt_u8_t *data, IN zip_uint64_t len)
         n = 0x7FFFFFFF;
     }
 
-    if (!TT_OK(tt_fread(&zsf->fin, data, (tt_u32_t)n, &read_len))) {
+    if (TT_OK(tt_fread(&zsf->f, data, (tt_u32_t)n, &read_len))) {
         zsf->current += read_len;
         return (zip_int64_t)read_len;
     } else {
-        zip_error_set(&zsf->ze, ZIP_ER_READ, tt_last_error());
-        return -1;
-    }
-}
-
-zip_int64_t __zsf_remove(IN __zsf_t *zsf)
-{
-    if (TT_OK(tt_fremove(zsf->path))) {
-        return 0;
-    } else {
-        zip_error_set(&zsf->ze, ZIP_ER_REMOVE, tt_last_error());
+        zip_error_set(&zsf->zerr, ZIP_ER_READ, tt_get_sys_err());
         return -1;
     }
 }
@@ -354,64 +433,57 @@ void __zsf_rollback_write(IN __zsf_t *zsf)
         zsf->fout_opened = TT_FALSE;
     }
 
-    if (zsf->tmp_path != NULL) {
-        tt_fremove(zsf->tmp_path);
-        tt_free((void *)zsf->tmp_path);
-        zsf->tmp_path = NULL;
-    }
+    tt_fremove(tt_string_cstr(&zsf->tmp_name));
 }
 
 zip_int64_t __zsf_seek(IN __zsf_t *zsf, IN zip_source_args_seek_t *args)
 {
-    int need_seek = 1;
-    zip_int64_t new_current;
+    tt_bool_t to_seek;
+    zip_int64_t pos;
 
+    to_seek = TT_TRUE;
     switch (args->whence) {
         case SEEK_SET: {
-            new_current = args->offset;
+            pos = args->offset;
         } break;
         case SEEK_END: {
             if (zsf->end == 0) {
-                if (!TT_OK(tt_fseek(&zsf->fin,
+                if (!TT_OK(tt_fseek(&zsf->f,
                                     TT_FSEEK_END,
                                     args->offset,
-                                    (tt_u64_t *)&new_current))) {
-                    zip_error_set(&zsf->ze, ZIP_ER_SEEK, tt_last_error());
+                                    (tt_u64_t *)&pos))) {
+                    zip_error_set(&zsf->zerr, ZIP_ER_SEEK, tt_get_sys_err());
                     return -1;
                 }
-                new_current -= (zip_int64_t)zsf->start;
-                need_seek = 0;
+                pos -= zsf->start;
+                to_seek = TT_FALSE;
             } else {
-                new_current = (zip_int64_t)zsf->end + args->offset;
+                pos = zsf->end + args->offset;
             }
         } break;
         case SEEK_CUR: {
-            new_current = (zip_int64_t)zsf->current + args->offset;
+            pos = zsf->current + args->offset;
         } break;
 
         default: {
-            zip_error_set(&zsf->ze, ZIP_ER_INVAL, 0);
+            zip_error_set(&zsf->zerr, ZIP_ER_INVAL, 0);
             return -1;
-        }
+        } break;
     }
-
-    if ((new_current < 0) ||
-        ((zsf->end != 0) && ((zip_uint64_t)new_current > zsf->end)) ||
-        (((zip_uint64_t)new_current + zsf->start) < zsf->start)) {
-        zip_error_set(&zsf->ze, ZIP_ER_INVAL, 0);
+    if ((pos < 0) || ((zsf->end != 0) && (pos > zsf->end)) ||
+        ((pos + zsf->start) < zsf->start)) {
+        zip_error_set(&zsf->zerr, ZIP_ER_INVAL, 0);
         return -1;
     }
 
-    zsf->current = (zip_uint64_t)new_current;
-
-    if (need_seek) {
-        if (!TT_OK(tt_fseek(&zsf->fin,
-                            TT_FSEEK_BEGIN,
-                            zsf->current + zsf->start,
-                            NULL))) {
-            zip_error_set(&zsf->ze, ZIP_ER_SEEK, tt_last_error());
-            return -1;
-        }
+    zsf->current = (zip_uint64_t)pos;
+    if (to_seek &&
+        !TT_OK(tt_fseek(&zsf->f,
+                        TT_FSEEK_BEGIN,
+                        zsf->current + zsf->start,
+                        NULL))) {
+        zip_error_set(&zsf->zerr, ZIP_ER_SEEK, tt_get_sys_err());
+        return -1;
     }
     return 0;
 }
@@ -431,13 +503,13 @@ zip_int64_t __zsf_seek_write(IN __zsf_t *zsf, IN zip_source_args_seek_t *args)
         } break;
 
         default: {
-            zip_error_set(&zsf->ze, ZIP_ER_INVAL, 0);
+            zip_error_set(&zsf->zerr, ZIP_ER_INVAL, 0);
             return -1;
         }
     }
 
     if (!TT_OK(tt_fseek(&zsf->fout, whence, args->offset, NULL))) {
-        zip_error_set(&zsf->ze, ZIP_ER_SEEK, tt_last_error());
+        zip_error_set(&zsf->zerr, ZIP_ER_SEEK, tt_get_sys_err());
         return -1;
     }
 
@@ -455,33 +527,7 @@ zip_int64_t __zsf_write(IN __zsf_t *zsf, IN tt_u8_t *data, IN zip_uint64_t len)
     if (TT_OK(tt_fwrite(&zsf->fout, data, len, &write_len))) {
         return (zip_int64_t)write_len;
     } else {
-        zip_error_set(&zsf->ze, ZIP_ER_WRITE, tt_last_error());
+        zip_error_set(&zsf->zerr, ZIP_ER_WRITE, tt_get_sys_err());
         return -1;
     }
-}
-
-__zsf_t *__zsf_create(IN const tt_char_t *path)
-{
-    tt_u32_t n;
-    __zsf_t *zsf;
-
-    n = tt_strlen(path);
-    zsf = tt_malloc(sizeof(__zsf_t) + n + 1);
-    if (zsf == NULL) {
-        return NULL;
-    }
-
-    zsf->path = TT_PTR_INC(const tt_char_t, zsf, sizeof(__zsf_t));
-    tt_memcpy((tt_char_t *)zsf->path, path, n + 1);
-
-    return zsf;
-}
-
-void __zsf_destroy(IN __zsf_t *zsf)
-{
-    tt_free(zsf);
-}
-
-void __zsf_reset(IN __zsf_t *zsf)
-{
 }

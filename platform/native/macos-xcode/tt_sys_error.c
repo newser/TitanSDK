@@ -51,7 +51,7 @@
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-void tt_last_error_show(IN const tt_char_t *function)
+void tt_sys_err_show(IN const tt_char_t *function)
 {
     TT_ERROR("%s failed with error %d: %s", function, errno, strerror(errno));
 }

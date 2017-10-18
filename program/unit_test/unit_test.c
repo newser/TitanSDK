@@ -92,7 +92,7 @@ tt_result_t __ut_fiber(IN void *param)
     }
 #if 1
     else {
-        const tt_char_t *names[] = {"case_dir_basic"};
+        const tt_char_t *names[] = {"case_date_diff"};
         tt_u32_t i;
 
         for (i = 0; i < sizeof(names) / sizeof(names[0]); ++i) {

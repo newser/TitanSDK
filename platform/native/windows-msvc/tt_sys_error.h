@@ -40,14 +40,14 @@ APIs to show system error information
     do {                                                                       \
         DWORD err_no = GetLastError();                                         \
         TT_ERROR(__VA_ARGS__);                                                 \
-        tt_last_error_show(err_no, __FUNCTION__, __LINE__);                    \
+        tt_sys_err_show(err_no, __FUNCTION__, __LINE__);                       \
     } while (0)
 
 #define TT_NET_ERROR_NTV(...)                                                  \
     do {                                                                       \
         DWORD err_no = WSAGetLastError();                                      \
         TT_ERROR(__VA_ARGS__);                                                 \
-        tt_last_error_show(err_no, __FUNCTION__, __LINE__);                    \
+        tt_sys_err_show(err_no, __FUNCTION__, __LINE__);                       \
     } while (0)
 
 ////////////////////////////////////////////////////////////
@@ -62,8 +62,8 @@ APIs to show system error information
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern void tt_last_error_show(IN DWORD err_no,
-                               IN LPSTR lpszFunction,
-                               IN int line);
+extern void tt_sys_err_show(IN DWORD err_no,
+                            IN LPSTR lpszFunction,
+                            IN int line);
 
 #endif /* __TT_SYS_ERROR__ */

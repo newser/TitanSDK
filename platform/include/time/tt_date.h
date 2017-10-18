@@ -205,8 +205,8 @@ tt_export tt_result_t tt_date_set_date(IN tt_date_t *date,
 
 tt_inline void tt_date_set_time(IN tt_date_t *date,
                                 IN tt_u32_t hour,
-                                IN tt_month_t minute,
-                                IN tt_weekday_t second)
+                                IN tt_u32_t minute,
+                                IN tt_u32_t second)
 {
     tt_date_set_hour(date, hour);
     tt_date_set_minute(date, minute);
@@ -218,8 +218,8 @@ tt_inline tt_result_t tt_date_set(IN tt_date_t *date,
                                   IN tt_month_t month,
                                   IN tt_u32_t mday,
                                   IN tt_u32_t hour,
-                                  IN tt_month_t minute,
-                                  IN tt_weekday_t second)
+                                  IN tt_u32_t minute,
+                                  IN tt_u32_t second)
 {
     if (TT_OK(tt_date_set_date(date, year, month, mday))) {
         tt_date_set_time(date, hour, minute, second);
@@ -272,7 +272,7 @@ tt_export tt_result_t tt_date_dec_second(IN tt_date_t *date,
                                          IN tt_u32_t second);
 
 // ========================================
-// conversion
+// misc
 // ========================================
 
 tt_export tt_result_t tt_date_to_julian(IN tt_date_t *date,
@@ -281,5 +281,27 @@ tt_export tt_result_t tt_date_to_julian(IN tt_date_t *date,
 tt_export tt_result_t tt_date_from_julian(IN tt_date_t *date,
                                           IN tt_double_t julian,
                                           IN tt_tmzone_t tz);
+
+tt_inline void tt_date_epoch(IN tt_date_t *date)
+{
+    tt_date_set(date, 1970, TT_JANUARY, 1, 0, 0, 0);
+    tt_date_set_tmzone(date, TT_UTC_00_00);
+}
+
+tt_inline tt_s32_t tt_date_diff_epoch_day(IN tt_date_t *date)
+{
+    tt_date_t d;
+    tt_date_init(&d, TT_UTC_00_00);
+    tt_date_epoch(&d);
+    return tt_date_diff_day(date, &d);
+}
+
+tt_inline tt_s64_t tt_date_diff_epoch_second(IN tt_date_t *date)
+{
+    tt_date_t d;
+    tt_date_init(&d, TT_UTC_00_00);
+    tt_date_epoch(&d);
+    return tt_date_diff_second(date, &d);
+}
 
 #endif /* __TT_DATE__ */

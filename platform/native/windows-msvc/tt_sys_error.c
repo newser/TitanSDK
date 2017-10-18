@@ -50,7 +50,7 @@
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-void tt_last_error_show(IN DWORD err_no, IN LPSTR lpszFunction, IN int line)
+void tt_sys_err_show(IN DWORD err_no, IN LPSTR lpszFunction, IN int line)
 {
     // from msdn...
 

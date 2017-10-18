@@ -1355,6 +1355,16 @@ TT_TEST_ROUTINE_DEFINE(case_date_diff)
     TT_UT_EQUAL(tt_date_diff_second(&a, &b), -366 * 86400 - 1, "");
     TT_UT_EQUAL(tt_date_diff_second(&b, &a), 366 * 86400 + 1, "");
 
+    {
+        tt_s64_t s;
+        time_t t;
+
+        tt_date_now(&a);
+        s = tt_date_diff_epoch_second(&a);
+        t = time(NULL);
+        TT_INFO("s: %ld, t: %ld", s, t);
+    }
+
     // test end
     TT_TEST_CASE_LEAVE()
 }
