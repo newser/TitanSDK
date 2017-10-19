@@ -16,50 +16,76 @@
  * limitations under the License.
  */
 
-/**
-@file tt_libzip.h
-@brief libzip APIs
-
-this file specifies libzip interfaces
-*/
-
-#ifndef __TT_LIBZIP__
-#define __TT_LIBZIP__
-
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <zip.h>
+#include <zip/tt_zip_archive.h>
+
+#include <misc/tt_assert.h>
+#include <zip/tt_zip_source.h>
 
 ////////////////////////////////////////////////////////////
-// macro definition
+// internal macro
 ////////////////////////////////////////////////////////////
 
-#define TT_ZF_NOCASE ZIP_FL_NOCASE
-#define TT_ZF_NODIR ZIP_FL_NODIR
-#define TT_ZF_COMPRESSED ZIP_FL_COMPRESSED
-#define TT_ZF_UNCHANGED ZIP_FL_UNCHANGED
-#define TT_ZF_RECOMPRESS ZIP_FL_RECOMPRESS
-#define TT_ZF_ENCRYPTED ZIP_FL_ENCRYPTED
-#define TT_ZF_ENC_GUESS ZIP_FL_ENC_GUESS
-#define TT_ZF_ENC_RAW ZIP_FL_ENC_RAW
-#define TT_ZF_ENC_STRICT ZIP_FL_ENC_STRICT
-#define TT_ZF_LOCAL ZIP_FL_LOCAL
-#define TT_ZF_CENTRAL ZIP_FL_CENTRAL
-
 ////////////////////////////////////////////////////////////
-// type definition
+// internal type
 ////////////////////////////////////////////////////////////
 
-typedef zip_source_t tt_zipsrc_t;
+////////////////////////////////////////////////////////////
+// extern declaration
+////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////
-// global variants
+// global variant
 ////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-#endif /* __TT_LIBZIP__ */
+////////////////////////////////////////////////////////////
+// interface implementation
+////////////////////////////////////////////////////////////
+
+tt_result_t tt_ziparc_create(IN tt_ziparc_t *za,
+                             IN tt_zipsrc_t *zsrc,
+                             IN tt_u32_t flag,
+                             IN OPT tt_ziparc_attr_t *attr)
+{
+    tt_ziparc_attr_t __attr;
+    zip_error_t zerr;
+
+    TT_ASSERT(za != NULL);
+    TT_ASSERT(zsrc != NULL);
+
+    if (attr == NULL) {
+        tt_ziparc_attr_default(&__attr);
+        attr = &__attr;
+    }
+
+    za->z = zip_open_from_source(zsrc, flag, &zerr);
+    if (za->z == NULL) {
+        TT_ERROR("fail to create zip arc: %s", zip_error_strerror(&zerr));
+        return TT_FAIL;
+    }
+
+    return TT_SUCCESS;
+}
+
+void tt_ziparc_destroy(IN tt_ziparc_t *za, IN tt_bool_t flush)
+{
+    if (flush) {
+        if (zip_close(za->z) != 0) {
+            TT_ERROR("fail to flush zip arc: %s", tt_ziparc_strerror(za));
+        }
+    } else {
+        zip_discard(za->z);
+    }
+}
+
+void tt_ziparc_attr_default(IN tt_ziparc_attr_t *attr)
+{
+    attr->reserved = 0;
+}

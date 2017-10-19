@@ -17,42 +17,39 @@
  */
 
 /**
-@file tt_libzip.h
-@brief libzip APIs
+@file tt_zip_archive.h
+@brief zip archive APIs
 
-this file specifies libzip interfaces
+this file specifies zip archive interfaces
 */
 
-#ifndef __TT_LIBZIP__
-#define __TT_LIBZIP__
+#ifndef __TT_ZIP_ARCHIVE__
+#define __TT_ZIP_ARCHIVE__
 
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <zip.h>
+#include <tt_basic_type.h>
+#include <zip/tt_libzip.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
 ////////////////////////////////////////////////////////////
 
-#define TT_ZF_NOCASE ZIP_FL_NOCASE
-#define TT_ZF_NODIR ZIP_FL_NODIR
-#define TT_ZF_COMPRESSED ZIP_FL_COMPRESSED
-#define TT_ZF_UNCHANGED ZIP_FL_UNCHANGED
-#define TT_ZF_RECOMPRESS ZIP_FL_RECOMPRESS
-#define TT_ZF_ENCRYPTED ZIP_FL_ENCRYPTED
-#define TT_ZF_ENC_GUESS ZIP_FL_ENC_GUESS
-#define TT_ZF_ENC_RAW ZIP_FL_ENC_RAW
-#define TT_ZF_ENC_STRICT ZIP_FL_ENC_STRICT
-#define TT_ZF_LOCAL ZIP_FL_LOCAL
-#define TT_ZF_CENTRAL ZIP_FL_CENTRAL
-
 ////////////////////////////////////////////////////////////
 // type definition
 ////////////////////////////////////////////////////////////
 
-typedef zip_source_t tt_zipsrc_t;
+typedef struct tt_ziparc_s
+{
+    zip_t *z;
+} tt_ziparc_t;
+
+typedef struct
+{
+    tt_u32_t reserved;
+} tt_ziparc_attr_t;
 
 ////////////////////////////////////////////////////////////
 // global variants
@@ -62,4 +59,23 @@ typedef zip_source_t tt_zipsrc_t;
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-#endif /* __TT_LIBZIP__ */
+tt_export tt_result_t tt_ziparc_create(IN tt_ziparc_t *za,
+                                       IN tt_zipsrc_t *zsrc,
+                                       IN tt_u32_t flag,
+                                       IN OPT tt_ziparc_attr_t *attr);
+#define TT_ZA_CREAT ZIP_CREATE
+#define TT_ZA_EXCL ZIP_EXCL
+#define TT_ZA_CHECKCONS ZIP_CHECKCONS
+#define TT_ZA_TRUNCATE ZIP_TRUNCATE
+#define TT_ZA_RDONLY ZIP_RDONLY
+
+tt_export void tt_ziparc_destroy(IN tt_ziparc_t *za, IN tt_bool_t flush);
+
+tt_export void tt_ziparc_attr_default(IN tt_ziparc_attr_t *attr);
+
+tt_inline const tt_char_t *tt_ziparc_strerror(IN tt_ziparc_t *za)
+{
+    return zip_error_strerror(zip_get_error(za->z));
+}
+
+#endif /* __TT_ZIP_ARCHIVE__ */

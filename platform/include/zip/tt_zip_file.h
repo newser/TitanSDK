@@ -17,42 +17,41 @@
  */
 
 /**
-@file tt_libzip.h
-@brief libzip APIs
+@file tt_zip_archive.h
+@brief zip file APIs
 
-this file specifies libzip interfaces
+this file specifies zip file interfaces
 */
 
-#ifndef __TT_LIBZIP__
-#define __TT_LIBZIP__
+#ifndef __TT_ZIP_FILE__
+#define __TT_ZIP_FILE__
 
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <zip.h>
+#include <tt_basic_type.h>
+#include <zip/tt_libzip.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
 ////////////////////////////////////////////////////////////
 
-#define TT_ZF_NOCASE ZIP_FL_NOCASE
-#define TT_ZF_NODIR ZIP_FL_NODIR
-#define TT_ZF_COMPRESSED ZIP_FL_COMPRESSED
-#define TT_ZF_UNCHANGED ZIP_FL_UNCHANGED
-#define TT_ZF_RECOMPRESS ZIP_FL_RECOMPRESS
-#define TT_ZF_ENCRYPTED ZIP_FL_ENCRYPTED
-#define TT_ZF_ENC_GUESS ZIP_FL_ENC_GUESS
-#define TT_ZF_ENC_RAW ZIP_FL_ENC_RAW
-#define TT_ZF_ENC_STRICT ZIP_FL_ENC_STRICT
-#define TT_ZF_LOCAL ZIP_FL_LOCAL
-#define TT_ZF_CENTRAL ZIP_FL_CENTRAL
-
 ////////////////////////////////////////////////////////////
 // type definition
 ////////////////////////////////////////////////////////////
 
-typedef zip_source_t tt_zipsrc_t;
+struct tt_ziparc_s;
+
+typedef struct
+{
+    zip_file_t *f;
+} tt_zipfile_t;
+
+typedef struct
+{
+    const tt_char_t *password;
+} tt_zipfile_attr_t;
 
 ////////////////////////////////////////////////////////////
 // global variants
@@ -62,4 +61,24 @@ typedef zip_source_t tt_zipsrc_t;
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-#endif /* __TT_LIBZIP__ */
+tt_export tt_u32_t tt_zipfile_find(IN struct tt_ziparc_s *za,
+                                   IN const tt_char_t *name,
+                                   IN tt_u32_t flag);
+
+tt_export tt_result_t tt_zipfile_open(IN tt_zipfile_t *zf,
+                                      IN struct tt_ziparc_s *za,
+                                      IN const tt_char_t *name,
+                                      IN tt_u32_t flag,
+                                      IN OPT tt_zipfile_attr_t *attr);
+
+tt_export tt_result_t tt_zipfile_open_index(IN tt_zipfile_t *zf,
+                                            IN struct tt_ziparc_s *za,
+                                            IN tt_u32_t index,
+                                            IN tt_u32_t flag,
+                                            IN OPT tt_zipfile_attr_t *attr);
+
+tt_export void tt_zipfile_close(IN tt_zipfile_t *za, IN tt_bool_t flush);
+
+tt_export void tt_zipfile_attr_default(IN tt_zipfile_attr_t *attr);
+
+#endif /* __TT_ZIP_FILE__ */
