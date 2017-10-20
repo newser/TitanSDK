@@ -47,12 +47,24 @@ this file specifies libzip interfaces
 #define TT_ZF_ENC_STRICT ZIP_FL_ENC_STRICT
 #define TT_ZF_LOCAL ZIP_FL_LOCAL
 #define TT_ZF_CENTRAL ZIP_FL_CENTRAL
+#define TT_ZF_ENC_UTF_8 ZIP_FL_ENC_UTF_8
+#define TT_ZF_ENC_CP437 ZIP_FL_ENC_CP437
+#define TT_ZF_OVERWRITE ZIP_FL_OVERWRITE
 
 ////////////////////////////////////////////////////////////
 // type definition
 ////////////////////////////////////////////////////////////
 
 typedef zip_source_t tt_zipsrc_t;
+
+typedef zip_t tt_zip_t;
+
+typedef enum {
+    TT_ZIP_CIPHER_NONE = ZIP_EM_NONE,
+    TT_ZIP_CIPHER_AES128 = ZIP_EM_AES_128,
+    TT_ZIP_CIPHER_AES192 = ZIP_EM_AES_192,
+    TT_ZIP_CIPHER_AES256 = ZIP_EM_AES_256,
+} tt_zip_cipher_t;
 
 ////////////////////////////////////////////////////////////
 // global variants

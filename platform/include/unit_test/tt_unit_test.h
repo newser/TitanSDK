@@ -122,6 +122,14 @@ unit test apis
 #define TT_UT_NULL(a, info) TT_UT_EQUAL((a), NULL, (info))
 #define TT_UT_NOT_NULL(a, info) TT_UT_NOT_EQUAL((a), NULL, (info))
 
+#define TT_UT_TRUE(a, info) TT_UT_EQUAL((a), TT_TRUE, (info))
+#define TT_UT_FALSE(a, info) TT_UT_EQUAL((a), TT_FALSE, (info))
+
+#define TT_UT_STREQ(a, b, info)                                                \
+    TT_UT_EQUAL(tt_strcmp((char *)(a), (char *)(b)), 0, (info))
+#define TT_UT_MEMEQ(a, b, n, info)                                             \
+    TT_UT_EQUAL(tt_memcmp((a), (b), (n)), 0, (info))
+
 ////////////////////////////////////////////////////////////
 // type definition
 ////////////////////////////////////////////////////////////

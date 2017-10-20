@@ -187,10 +187,16 @@ TT_TEST_ROUTINE_DEFINE(case_fs_consistency)
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_result_t ret;
     tt_file_t f;
+    tt_fstat_t fstat;
 
     TT_TEST_CASE_ENTER()
 
     tt_fremove(__SC_TEST_FILE);
+
+    ret = tt_fopen(&f, __SC_TEST_FILE, TT_FO_READ, NULL);
+    TT_UT_EQUAL(ret, TT_E_NOEXIST, "");
+    ret = tt_fstat_path(__SC_TEST_FILE, &fstat);
+    TT_UT_EQUAL(ret, TT_E_NOEXIST, "");
 
     // create
     ret = tt_fcreate(__SC_TEST_FILE, NULL);

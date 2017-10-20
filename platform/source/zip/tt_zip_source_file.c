@@ -136,6 +136,7 @@ __zsf_t *__zsf_create(IN const tt_char_t *path,
     __zsf_t *zsf;
     zip_stat_t *st;
     tt_fstat_t fst;
+    tt_result_t result;
 
     n = tt_strlen(path);
     zsf = tt_zalloc(sizeof(__zsf_t) + n + 1);
@@ -169,7 +170,8 @@ __zsf_t *__zsf_create(IN const tt_char_t *path,
         st->valid |= ZIP_STAT_SIZE;
     }
 
-    if (TT_OK(tt_fstat_path(zsf->name, &fst))) {
+    result = tt_fstat_path(zsf->name, &fst);
+    if (TT_OK(result)) {
         if (!(st->valid & ZIP_STAT_MTIME)) {
             st->mtime = tt_date_diff_epoch_second(&fst.modified);
             st->valid |= ZIP_STAT_MTIME;
@@ -197,7 +199,11 @@ __zsf_t *__zsf_create(IN const tt_char_t *path,
             zsf->supports = ZIP_SOURCE_SUPPORTS_WRITABLE;
         }
 
-        zip_error_set(&zsf->stat_error, ZIP_ER_READ, tt_get_sys_err());
+        zip_error_set(&zsf->stat_error,
+                      ZIP_ER_READ,
+                      TT_COND(result == TT_E_NOEXIST,
+                              ENOENT,
+                              tt_get_sys_err()));
     }
 
     return zsf;

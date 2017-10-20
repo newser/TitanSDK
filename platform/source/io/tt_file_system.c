@@ -217,17 +217,20 @@ tt_result_t tt_fsize(IN const tt_char_t *path, OUT tt_u64_t *size)
 tt_result_t tt_fstat_path(IN const tt_char_t *path, OUT tt_fstat_t *fstat)
 {
     tt_file_t f;
+    tt_result_t result;
 
     TT_ASSERT(path != NULL);
     TT_ASSERT(fstat != NULL);
 
-    if (!TT_OK(tt_fopen(&f, path, TT_FO_READ, NULL))) {
-        return TT_FAIL;
+    result = tt_fopen(&f, path, TT_FO_READ, NULL);
+    if (!TT_OK(result)) {
+        return result;
     }
 
-    if (!TT_OK(tt_fstat(&f, fstat))) {
+    result = tt_fstat(&f, fstat);
+    if (!TT_OK(result)) {
         tt_fclose(&f);
-        return TT_FAIL;
+        return result;
     }
 
     tt_fclose(&f);

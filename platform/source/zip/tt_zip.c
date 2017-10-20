@@ -20,7 +20,7 @@
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <zip/tt_zip_archive.h>
+#include <zip/tt_zip.h>
 
 #include <misc/tt_assert.h>
 #include <zip/tt_zip_source.h>
@@ -49,43 +49,57 @@
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-tt_result_t tt_ziparc_create(IN tt_ziparc_t *za,
-                             IN tt_zipsrc_t *zsrc,
-                             IN tt_u32_t flag,
-                             IN OPT tt_ziparc_attr_t *attr)
+tt_zip_t *tt_zip_create(IN tt_zipsrc_t *zsrc,
+                        IN tt_u32_t flag,
+                        IN OPT tt_zip_attr_t *attr)
 {
-    tt_ziparc_attr_t __attr;
+    tt_zip_attr_t __attr;
+    zip_t *z;
     zip_error_t zerr;
 
-    TT_ASSERT(za != NULL);
     TT_ASSERT(zsrc != NULL);
 
     if (attr == NULL) {
-        tt_ziparc_attr_default(&__attr);
+        tt_zip_attr_default(&__attr);
         attr = &__attr;
     }
 
-    za->z = zip_open_from_source(zsrc, flag, &zerr);
-    if (za->z == NULL) {
+    z = zip_open_from_source(zsrc, flag, &zerr);
+    if (z == NULL) {
         TT_ERROR("fail to create zip arc: %s", zip_error_strerror(&zerr));
-        return TT_FAIL;
+        return NULL;
     }
 
-    return TT_SUCCESS;
+    return z;
 }
 
-void tt_ziparc_destroy(IN tt_ziparc_t *za, IN tt_bool_t flush)
+void tt_zip_destroy(IN tt_zip_t *z, IN tt_bool_t flush)
 {
     if (flush) {
-        if (zip_close(za->z) != 0) {
-            TT_ERROR("fail to flush zip arc: %s", tt_ziparc_strerror(za));
+        if (zip_close(z) != 0) {
+            TT_ERROR("fail to flush zip arc: %s", tt_zip_strerror(z));
         }
     } else {
-        zip_discard(za->z);
+        zip_discard(z);
     }
 }
 
-void tt_ziparc_attr_default(IN tt_ziparc_attr_t *attr)
+void tt_zip_attr_default(IN tt_zip_attr_t *attr)
 {
     attr->reserved = 0;
+}
+
+tt_u32_t tt_zip_find(IN tt_zip_t *z, IN const tt_char_t *name, IN tt_u32_t flag)
+{
+    zip_int64_t i;
+
+    TT_ASSERT(z != NULL);
+    TT_ASSERT(name != NULL);
+
+    i = zip_name_locate(z, name, flag);
+    if ((i >= 0) && (i <= 0x7FFFFFFF)) {
+        return (tt_u32_t)i;
+    } else {
+        return TT_POS_NULL;
+    }
 }

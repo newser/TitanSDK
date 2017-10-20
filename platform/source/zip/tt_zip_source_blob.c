@@ -55,7 +55,7 @@ tt_zipsrc_t *tt_zipsrc_blob_create(IN void *p,
     zip_source_t *zs;
     zip_error_t ze;
 
-    TT_ASSERT(p != NULL);
+    // TT_ASSERT(p != NULL);
 
     zs = zip_source_buffer_create(p, len, free, &ze);
     if (zs != NULL) {

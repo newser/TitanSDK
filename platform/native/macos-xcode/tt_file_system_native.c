@@ -760,6 +760,9 @@ again:
         fopen->result = TT_SUCCESS;
     } else if (errno == EINTR) {
         goto again;
+    } else if (errno == ENOENT) {
+        TT_ERROR_NTV("fail to open file: %s", fopen->path);
+        fopen->result = TT_E_NOEXIST;
     } else {
         TT_ERROR_NTV("fail to open file: %s", fopen->path);
         fopen->result = TT_FAIL;
@@ -859,8 +862,8 @@ void __do_fstat(IN tt_io_ev_t *io_ev)
     tt_fstat_t *fst = fstat_ev->fst;
 
     if (fstat(fstat_ev->file->fd, &st) != 0) {
+        fstat_ev->result = TT_COND(errno == ENOENT, TT_E_NOEXIST, TT_FAIL);
         TT_ERROR_NTV("fstat failed");
-        fstat_ev->result = TT_FAIL;
         return;
     }
 

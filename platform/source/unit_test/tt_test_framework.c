@@ -210,13 +210,13 @@ tt_result_t tt_test_run(IN const tt_char_t *name)
             }
 
             result = tt_test_run_item_of(test_class, name);
-            if (result != TT_NOT_EXIST) {
+            if (result != TT_E_NOEXIST) {
                 test_class->attribute |= __TCLS_TOUCHED;
                 return result;
             }
             test_class = test_class->next;
         }
-        return TT_NOT_EXIST;
+        return TT_E_NOEXIST;
     }
 }
 
@@ -368,7 +368,7 @@ tt_result_t tt_test_run_item_of(IN tt_test_class_t *test_class,
         }
         item = item->next;
     }
-    return TT_NOT_EXIST;
+    return TT_E_NOEXIST;
 }
 
 tt_result_t tt_test_run_item(IN tt_test_item_t *item)
