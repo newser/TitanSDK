@@ -228,6 +228,8 @@ extern "C" {
 #include <xml/tt_xml_path.h>
 #include <zip/tt_gzip_deflate.h>
 #include <zip/tt_gzip_inflate.h>
+#include <zip/tt_zip.h>
+#include <zip/tt_zip_file.h>
 #include <zip/tt_zlib_deflate.h>
 #include <zip/tt_zlib_inflate.h>
 

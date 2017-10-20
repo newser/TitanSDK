@@ -60,7 +60,7 @@ typedef struct
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-tt_export tt_zip_t *tt_zip_create(IN tt_zipsrc_t *zsrc,
+tt_export tt_zip_t *tt_zip_create(IN tt_zipsrc_t *z,
                                   IN tt_u32_t flag,
                                   IN OPT tt_zip_attr_t *attr);
 #define TT_ZA_CREAT ZIP_CREATE
@@ -68,6 +68,18 @@ tt_export tt_zip_t *tt_zip_create(IN tt_zipsrc_t *zsrc,
 #define TT_ZA_CHECKCONS ZIP_CHECKCONS
 #define TT_ZA_TRUNCATE ZIP_TRUNCATE
 #define TT_ZA_RDONLY ZIP_RDONLY
+
+tt_export tt_zip_t *tt_zip_create_blob(IN void *p,
+                                       IN tt_u32_t len,
+                                       IN tt_bool_t free,
+                                       IN tt_u32_t flag,
+                                       IN OPT tt_zip_attr_t *attr);
+
+tt_export tt_zip_t *tt_zip_create_file(IN const tt_char_t *path,
+                                       IN tt_u64_t from,
+                                       IN tt_u64_t len,
+                                       IN tt_u32_t flag,
+                                       IN OPT tt_zip_attr_t *attr);
 
 tt_export void tt_zip_destroy(IN tt_zip_t *z, IN tt_bool_t flush);
 

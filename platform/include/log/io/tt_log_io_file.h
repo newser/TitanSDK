@@ -31,6 +31,7 @@ this file defines log io file output
 ////////////////////////////////////////////////////////////
 
 #include <io/tt_file_system.h>
+#include <os/tt_task.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
@@ -64,7 +65,6 @@ typedef struct
     const tt_char_t *archive_name;
     const tt_char_t *date_format;
     tt_logfile_suffix_t log_suffix;
-    tt_logfile_suffix_t archive_suffix;
     tt_u32_t keep_log_sec;
     tt_u32_t keep_archive_sec;
     tt_u32_t max_log_size_order;
@@ -72,15 +72,15 @@ typedef struct
 
 typedef struct
 {
-    tt_s64_t keep_log_time;
-    tt_s64_t keep_archive_time;
     const tt_char_t *log_path;
     const tt_char_t *log_name;
     const tt_char_t *archive_path;
     const tt_char_t *archive_name;
+    tt_task_t worker;
     tt_file_t f;
     tt_logfile_suffix_t log_suffix;
-    tt_logfile_suffix_t archive_suffix;
+    tt_u32_t keep_log_sec;
+    tt_u32_t keep_archive_sec;
     tt_u32_t max_log_size;
     tt_u32_t write_len;
 
@@ -97,6 +97,7 @@ typedef struct
     } u;
 
     tt_bool_t f_opened : 1;
+    tt_bool_t worker_running : 1;
 } tt_logio_file_t;
 
 ////////////////////////////////////////////////////////////

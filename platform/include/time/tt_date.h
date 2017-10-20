@@ -304,4 +304,18 @@ tt_inline tt_s64_t tt_date_diff_epoch_second(IN tt_date_t *date)
     return tt_date_diff_second(date, &d);
 }
 
+tt_inline tt_s32_t tt_date_diff_now_day(IN tt_date_t *date)
+{
+    tt_date_t d;
+    tt_date_now(&d);
+    return tt_date_diff_day(date, &d);
+}
+
+tt_inline tt_s64_t tt_date_diff_now_second(IN tt_date_t *date)
+{
+    tt_date_t d;
+    tt_date_now(&d);
+    return tt_date_diff_second(date, &d);
+}
+
 #endif /* __TT_DATE__ */

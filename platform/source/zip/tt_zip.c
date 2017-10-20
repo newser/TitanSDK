@@ -24,6 +24,8 @@
 
 #include <misc/tt_assert.h>
 #include <zip/tt_zip_source.h>
+#include <zip/tt_zip_source_blob.h>
+#include <zip/tt_zip_source_file.h>
 
 ////////////////////////////////////////////////////////////
 // internal macro
@@ -67,6 +69,52 @@ tt_zip_t *tt_zip_create(IN tt_zipsrc_t *zsrc,
     z = zip_open_from_source(zsrc, flag, &zerr);
     if (z == NULL) {
         TT_ERROR("fail to create zip arc: %s", zip_error_strerror(&zerr));
+        return NULL;
+    }
+
+    return z;
+}
+
+tt_zip_t *tt_zip_create_blob(IN void *p,
+                             IN tt_u32_t len,
+                             IN tt_bool_t free,
+                             IN tt_u32_t flag,
+                             IN OPT tt_zip_attr_t *attr)
+{
+    tt_zipsrc_t *zs;
+    tt_zip_t *z;
+
+    zs = tt_zipsrc_blob_create(p, len, free);
+    if (zs == NULL) {
+        return NULL;
+    }
+
+    z = tt_zip_create(zs, flag, attr);
+    if (z == NULL) {
+        tt_zipsrc_release(zs);
+        return NULL;
+    }
+
+    return z;
+}
+
+tt_zip_t *tt_zip_create_file(IN const tt_char_t *path,
+                             IN tt_u64_t from,
+                             IN tt_u64_t len,
+                             IN tt_u32_t flag,
+                             IN OPT tt_zip_attr_t *attr)
+{
+    tt_zipsrc_t *zs;
+    tt_zip_t *z;
+
+    zs = tt_zipsrc_file_create(path, from, len);
+    if (zs == NULL) {
+        return NULL;
+    }
+
+    z = tt_zip_create(zs, flag, attr);
+    if (z == NULL) {
+        tt_zipsrc_release(zs);
         return NULL;
     }
 

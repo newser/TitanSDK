@@ -225,8 +225,7 @@ tt_u32_t tt_date_render(IN tt_date_t *date,
             p += 1;
         } else if ((p + 2) > end) {
             TT_ASSERT((p + 1) == end);
-            TT_DO_G(done,
-                    tt_string_append_sub(&s, prev, 0, (tt_u32_t)(end - prev)));
+            p += 1;
             break;
         } else if (*(p + 1) == '%') {
             p += 2;
@@ -247,6 +246,9 @@ tt_u32_t tt_date_render(IN tt_date_t *date,
 
             TT_DO_G(done, sym->render(date, &s));
         }
+    }
+    if (prev < p) {
+        TT_DO_G(done, tt_string_append_sub(&s, prev, 0, (tt_u32_t)(p - prev)));
     }
 
     n = tt_string_len(&s);

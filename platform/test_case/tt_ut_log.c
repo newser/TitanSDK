@@ -4,6 +4,7 @@
 #include "tt_unit_test_case_config.h"
 #include <unit_test/tt_unit_test.h>
 
+#include <os/tt_fiber.h>
 #include <tt_platform.h>
 
 /*
@@ -16,6 +17,7 @@ TT_TEST_ROUTINE_DECLARE(case_log_manager)
 
 TT_TEST_ROUTINE_DECLARE(case_log_io_file_index)
 TT_TEST_ROUTINE_DECLARE(case_log_io_file_date)
+TT_TEST_ROUTINE_DECLARE(case_log_io_file_archive)
 // =========================================
 
 // === test case list ======================
@@ -58,6 +60,15 @@ TT_TEST_CASE("case_log_context",
                  NULL,
                  NULL),
 
+    TT_TEST_CASE("case_log_io_file_archive",
+                 "testing log io file archiving",
+                 case_log_io_file_archive,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL),
+
     TT_TEST_CASE_LIST_DEFINE_END(log_case)
     // =========================================
 
@@ -69,7 +80,7 @@ TT_TEST_CASE("case_log_context",
 
 
     /*
-    TT_TEST_ROUTINE_DEFINE(case_log_io_file_index)
+    TT_TEST_ROUTINE_DEFINE(case_log_io_file_archive)
     {
         //tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
 
@@ -621,6 +632,129 @@ TT_TEST_ROUTINE_DEFINE(case_log_io_file_date)
     TT_UT_EQUAL(num, 4, "");
 
     tt_logio_destroy(lio);
+
+    // test end
+    TT_TEST_CASE_LEAVE()
+}
+
+TT_TEST_ROUTINE_DEFINE(case_log_io_file_archive)
+{
+    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+    tt_logio_file_attr_t a;
+    tt_logio_t *lio;
+    tt_u32_t n;
+    tt_bool_t oneshot = TT_FALSE;
+
+    TT_TEST_CASE_ENTER()
+    // test start
+
+    tt_logio_file_attr_default(&a);
+    a.log_name = "mylog";
+    a.max_log_size_order = 6; // 64 bytes
+    a.log_suffix = TT_LOGFILE_SUFFIX_INDEX;
+    a.keep_log_sec = 3;
+
+#define __LIOF_P_LOG __LIOF_LOG_PATH "mylog/"
+    tt_dremove(__LIOF_P_LOG);
+    tt_dcreate(__LIOF_P_LOG, NULL);
+#define __LIOF_P_ARCH __LIOF_LOG_PATH "myarch/"
+    tt_dremove(__LIOF_P_ARCH);
+    tt_dcreate(__LIOF_P_ARCH, NULL);
+
+    lio = tt_logio_file_create(__LIOF_P_LOG, __LIOF_P_ARCH, &a);
+    TT_UT_NOT_NULL(lio, "");
+
+    // 160 bytes => 3 file
+    n = tt_logio_output(lio, "123456789 123456789 123456789 123456789 ", 40);
+    TT_UT_EQUAL(n, 40, "");
+    n = tt_logio_output(lio, "123456789 123456789 123456789 123456789 ", 40);
+    TT_UT_EQUAL(n, 40, "");
+    n = tt_logio_output(lio, "123456789 123456789 123456789 123456789 ", 40);
+    TT_UT_EQUAL(n, 40, "");
+    n = tt_logio_output(lio, "123456789 123456789 123456789 123456789 ", 40);
+    TT_UT_EQUAL(n, 40, "");
+    n = tt_logio_output(lio, "123456789 123456789 123456789 123456789 ", 40);
+    TT_UT_EQUAL(n, 40, "");
+
+    while (1) {
+        tt_dir_t d;
+        tt_result_t ret;
+        tt_dirent_t de;
+        tt_zip_t *z;
+        tt_bool_t found = TT_FALSE;
+
+        tt_sleep(7000);
+
+        ret = tt_dopen(&d, __LIOF_P_ARCH, NULL);
+        TT_UT_SUCCESS(ret, "");
+
+        while (TT_OK(ret = tt_dread(&d, &de))) {
+            tt_fpath_t fp;
+            tt_zipfile_t *zf;
+            tt_char_t b[100];
+            tt_u32_t n;
+
+            if (tt_strcmp(de.name, ".") == 0) {
+                continue;
+            } else if (tt_strcmp(de.name, "..") == 0) {
+                continue;
+            }
+            // this should be the log archive
+            found = TT_TRUE;
+
+            tt_fpath_init(&fp, TT_FPATH_AUTO);
+            tt_fpath_set(&fp, __LIOF_P_ARCH);
+            tt_fpath_to_dir(&fp);
+            tt_fpath_set_filename(&fp, de.name);
+
+            z = tt_zip_create_file(tt_fpath_cstr(&fp), 0, 0, 0, NULL);
+            tt_fpath_destroy(&fp);
+            TT_UT_NOT_NULL(z, "");
+            TT_UT_EQUAL(tt_zip_count(z, 0), 2, "");
+
+            zf = tt_zipfile_open_index(z, 0, 0, NULL);
+            TT_UT_NOT_NULL(z, "");
+            ret = tt_zipfile_read(zf, (tt_u8_t *)b, sizeof(b), &n);
+            TT_UT_SUCCESS(ret, "");
+            TT_UT_EQUAL(n, 80, "");
+            TT_UT_NSTREQ(b, "123456789 123456789 123456789 123456789 ", 40, "");
+            TT_UT_NSTREQ(b + 40,
+                         "123456789 123456789 123456789 123456789 ",
+                         40,
+                         "");
+            ret = tt_zipfile_read(zf, (tt_u8_t *)b, sizeof(b), &n);
+            TT_UT_EQUAL(ret, TT_E_END, "");
+            TT_UT_EQUAL(n, 0, "");
+            tt_zipfile_close(zf);
+
+            zf = tt_zipfile_open_index(z, 1, 0, NULL);
+            TT_UT_NOT_NULL(z, "");
+            ret = tt_zipfile_read(zf, (tt_u8_t *)b, sizeof(b), &n);
+            TT_UT_SUCCESS(ret, "");
+            TT_UT_EQUAL(n, 80, "");
+            TT_UT_NSTREQ(b, "123456789 123456789 123456789 123456789 ", 40, "");
+            TT_UT_NSTREQ(b + 40,
+                         "123456789 123456789 123456789 123456789 ",
+                         40,
+                         "");
+            ret = tt_zipfile_read(zf, (tt_u8_t *)b, sizeof(b), &n);
+            TT_UT_EQUAL(ret, TT_E_END, "");
+            TT_UT_EQUAL(n, 0, "");
+            tt_zipfile_close(zf);
+
+            tt_zip_destroy(z, TT_FALSE);
+        }
+        tt_dclose(&d);
+        if (found) {
+            break;
+        } else {
+            TT_UT_FALSE(oneshot, "");
+            oneshot = TT_TRUE;
+        }
+    }
+
+    // enable it when cross-thread fiber event is implemented
+    // tt_logio_destroy(lio);
 
     // test end
     TT_TEST_CASE_LEAVE()

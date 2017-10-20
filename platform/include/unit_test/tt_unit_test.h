@@ -127,6 +127,8 @@ unit test apis
 
 #define TT_UT_STREQ(a, b, info)                                                \
     TT_UT_EQUAL(tt_strcmp((char *)(a), (char *)(b)), 0, (info))
+#define TT_UT_NSTREQ(a, b, n, info)                                            \
+    TT_UT_EQUAL(tt_strncmp((char *)(a), (char *)(b), (n)), 0, (info))
 #define TT_UT_MEMEQ(a, b, n, info)                                             \
     TT_UT_EQUAL(tt_memcmp((a), (b), (n)), 0, (info))
 

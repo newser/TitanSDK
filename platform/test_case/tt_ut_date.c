@@ -432,9 +432,9 @@ TT_TEST_ROUTINE_DEFINE(case_date_render)
     TT_UT_EQUAL(tt_strcmp(buf, "Z"), 0, "");
 
     tt_date_set(&d, 2017, TT_OCTOBER, 8, 23, 59, 01);
-    ret = tt_date_render(&d, "%W", buf, sizeof(buf));
-    TT_UT_EQUAL(ret, sizeof("Sunday") - 1, "");
-    TT_UT_EQUAL(tt_strcmp(buf, "Sunday"), 0, "");
+    ret = tt_date_render(&d, "%W.tar", buf, sizeof(buf));
+    TT_UT_EQUAL(ret, sizeof("Sunday.tar") - 1, "");
+    TT_UT_EQUAL(tt_strcmp(buf, "Sunday.tar"), 0, "");
     ret = tt_date_render(&d, "%w", buf, sizeof(buf));
     TT_UT_EQUAL(ret, sizeof("Sun") - 1, "");
     TT_UT_EQUAL(tt_strcmp(buf, "Sun"), 0, "");
