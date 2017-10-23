@@ -82,6 +82,9 @@ tt_export tt_result_t tt_task_add_fiber(IN tt_task_t *t,
                                         IN void *param,
                                         IN OPT tt_fiber_attr_t *attr);
 
+tt_export tt_fiber_t *tt_task_find_fiber(IN tt_task_t *t,
+                                         IN const tt_char_t *name);
+
 tt_export tt_result_t tt_task_run(IN tt_task_t *t);
 
 // set NULL to exit current task, but note it does not exit immediately
@@ -101,5 +104,7 @@ tt_inline tt_task_t *tt_current_task()
     tt_thread_t *t = tt_current_thread();
     return TT_COND(t != NULL, t->task, NULL);
 }
+
+tt_export void tt_task_poller_io(IN tt_io_ev_t *io_ev);
 
 #endif /* __TT_TASK__ */

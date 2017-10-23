@@ -40,6 +40,8 @@
 // internal macro
 ////////////////////////////////////////////////////////////
 
+#define __LIOFW_NAME "logio file worker"
+
 ////////////////////////////////////////////////////////////
 // internal type
 ////////////////////////////////////////////////////////////
@@ -181,7 +183,7 @@ tt_logio_t *tt_logio_file_create(IN const tt_char_t *log_path,
     if ((lf->max_log_size != 0) && (lf->keep_log_sec != 0)) {
         if (!TT_OK(tt_task_create(&lf->worker, NULL)) ||
             !TT_OK(tt_task_add_fiber(&lf->worker,
-                                     "logio file worker",
+                                     __LIOFW_NAME,
                                      __liof_worker,
                                      lf,
                                      NULL)) ||
@@ -440,6 +442,7 @@ tt_result_t __liof_worker(IN void *param)
         if (fev != NULL) {
             switch (fev->ev) {
                 case __T_EXIT: {
+                    tt_fiber_finish(fev);
                     return TT_SUCCESS;
                 } break;
 
@@ -476,8 +479,18 @@ tt_result_t __liof_worker(IN void *param)
 
 void __liof_w_exit(IN tt_task_t *worker)
 {
-    tt_fiber_ev_t *fev = tt_fiber_ev_create(__T_EXIT, 0);
-    // todo: cross thread fiber event
+    tt_fiber_t *fb = tt_task_find_fiber(worker, __LIOFW_NAME);
+    if (fb != NULL) {
+        // can not simply exit worker task, as the worker may interacting
+        // with fs worker threads, must exit worker in a synchronous way
+        tt_fiber_ev_t fev;
+        tt_fiber_ev_init(&fev, __T_EXIT);
+        tt_fiber_send_ev(fb, &fev, TT_TRUE);
+
+        // the worker has only one fiber, it would exit when the only
+        // fiber terminates
+        tt_task_wait(worker);
+    }
 }
 
 void __liof_w_archive(IN tt_logio_file_t *lf)

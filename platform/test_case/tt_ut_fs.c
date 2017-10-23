@@ -356,7 +356,7 @@ TT_TEST_ROUTINE_DEFINE(case_fs_open)
 
     // fail as it does not exist
     ret = tt_fopen(&tf, __SC_TEST_FILE, 0, NULL);
-    TT_UT_EQUAL(ret, TT_FAIL, "");
+    TT_UT_EQUAL(ret, TT_E_NOEXIST, "");
 
     // open file
     ret = tt_fopen(&tf,
@@ -552,7 +552,7 @@ TT_TEST_ROUTINE_DEFINE(case_fs_rw)
 
     // open should fail
     ret = tt_fopen(&tf2, __SC_TEST_FILE, TT_FO_READ, NULL);
-    TT_UT_EQUAL(ret, TT_FAIL, "");
+    TT_UT_EQUAL(ret, TT_E_NOEXIST, "");
 
     // close to delete
     tt_fclose(&tf);

@@ -42,7 +42,7 @@ this file defines ipc native
 
 struct tt_profile_s;
 struct tt_ipc_attr_s;
-struct tt_fiber_ev_s;
+struct tt_fiber_ev_t;
 struct tt_tmr_s;
 struct tt_io_ev_s;
 
@@ -85,7 +85,7 @@ extern tt_result_t tt_ipc_recv_ntv(IN tt_ipc_ntv_t *ipc,
                                    OUT tt_u8_t *buf,
                                    IN tt_u32_t len,
                                    OUT tt_u32_t *recvd,
-                                   OUT struct tt_fiber_ev_s **p_fev,
+                                   OUT struct tt_fiber_ev_t **p_fev,
                                    OUT struct tt_tmr_s **p_tmr);
 
 extern void tt_ipc_worker_io(IN struct tt_io_ev_s *io_ev);

@@ -754,7 +754,7 @@ TT_TEST_ROUTINE_DEFINE(case_log_io_file_archive)
     }
 
     // enable it when cross-thread fiber event is implemented
-    // tt_logio_destroy(lio);
+    tt_logio_destroy(lio);
 
     // test end
     TT_TEST_CASE_LEAVE()

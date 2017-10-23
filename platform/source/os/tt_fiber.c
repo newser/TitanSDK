@@ -54,6 +54,8 @@ static tt_fiber_t *__fiber_create_main(IN tt_fiber_sched_t *fs);
 
 static void __fiber_destroy_main(IN tt_fiber_t *fb);
 
+static void __fiber_yield(IN tt_bool_t pend);
+
 ////////////////////////////////////////////////////////////
 // interface implementation
 ////////////////////////////////////////////////////////////
@@ -245,24 +247,12 @@ void tt_fiber_attr_default(IN tt_fiber_attr_t *attr)
 
 void tt_fiber_suspend()
 {
-    tt_fiber_sched_t *cfs = tt_current_fiber_sched();
-    tt_fiber_t *cfb = cfs->current;
-    tt_fiber_t *next;
+    __fiber_yield(TT_TRUE);
+}
 
-    TT_ASSERT(cfb->can_yield);
-
-    if (cfb != cfs->__main) {
-        tt_list_remove(&cfb->node);
-        tt_list_push_tail(&cfs->pending, &cfb->node);
-    }
-
-    next = tt_fiber_sched_next(cfs);
-
-    if (next != cfb) {
-        cfs->current = next;
-        tt_fiber_switch_wrap(cfs, cfb, next);
-        cfs->current = cfb;
-    }
+void tt_fiber_yield()
+{
+    __fiber_yield(TT_FALSE);
 }
 
 void tt_fiber_resume(IN tt_fiber_t *fb, IN tt_bool_t suspend)
@@ -321,4 +311,27 @@ void __fiber_destroy_main(IN tt_fiber_t *fb)
     tt_fiber_destroy_local_wrap(&fb->wrap_fb);
 
     tt_free(fb);
+}
+
+void __fiber_yield(IN tt_bool_t pend)
+{
+    tt_fiber_sched_t *cfs = tt_current_fiber_sched();
+    tt_fiber_t *cfb = cfs->current;
+    tt_fiber_t *next;
+
+    TT_ASSERT(cfb->can_yield);
+
+    if (cfb != cfs->__main) {
+        tt_list_remove(&cfb->node);
+        tt_list_push_tail(TT_COND(pend, &cfs->pending, &cfs->active),
+                          &cfb->node);
+    }
+
+    next = tt_fiber_sched_next(cfs);
+
+    if (next != cfb) {
+        cfs->current = next;
+        tt_fiber_switch_wrap(cfs, cfb, next);
+        cfs->current = cfb;
+    }
 }

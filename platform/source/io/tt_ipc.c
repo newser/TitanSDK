@@ -158,7 +158,7 @@ tt_ipc_t *tt_ipc_accept(IN tt_ipc_t *ipc, IN OPT tt_ipc_attr_t *new_attr)
         return NULL;
     }
 
-    if (new_attr != NULL) {
+    if (new_attr == NULL) {
         tt_ipc_attr_default(&__attr);
         new_attr = &__attr;
     }

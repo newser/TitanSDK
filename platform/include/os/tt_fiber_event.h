@@ -29,6 +29,7 @@
 ////////////////////////////////////////////////////////////
 
 #include <algorithm/tt_double_linked_list.h>
+#include <io/tt_io_event.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
@@ -46,12 +47,16 @@
 struct tt_fiber_s;
 struct tt_tmr_s;
 
-typedef struct tt_fiber_ev_s
+#if 0
+typedef tt_fiber_ev_t
 {
     struct tt_fiber_s *src;
     tt_dnode_t node;
     tt_u32_t ev;
 } tt_fiber_ev_t;
+#else
+typedef tt_io_ev_t tt_fiber_ev_t;
+#endif
 
 ////////////////////////////////////////////////////////////
 // global variants

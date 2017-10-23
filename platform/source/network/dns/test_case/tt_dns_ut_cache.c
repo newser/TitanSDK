@@ -328,7 +328,7 @@ static tt_result_t __udp_svr1(IN void *param)
     tt_skt_t *s;
     tt_result_t ret;
     tt_u8_t buf[2048];
-    struct tt_fiber_ev_s *fev;
+    tt_fiber_ev_t *fev;
     struct tt_tmr_s *tmr;
     tt_u32_t recvd;
     __svr_param_t *sp = (__svr_param_t *)param;
@@ -681,7 +681,7 @@ static tt_result_t __udp_svr_rand(IN void *param)
     tt_skt_t *s;
     tt_result_t ret;
     tt_u8_t buf[2048];
-    struct tt_fiber_ev_s *fev;
+    tt_fiber_ev_t *fev;
     struct tt_tmr_s *tmr;
     tt_u32_t recvd;
     __svr_param_t *sp = (__svr_param_t *)param;

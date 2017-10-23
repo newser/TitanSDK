@@ -28,7 +28,7 @@
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <tt_basic_type.h>
+#include <os/tt_fiber_event.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
@@ -41,7 +41,6 @@
 ////////////////////////////////////////////////////////////
 
 struct tt_ipc_s;
-struct tt_fiber_ev_s;
 struct tt_tmr_s;
 
 typedef struct tt_ipc_ev_s
@@ -75,7 +74,7 @@ tt_export tt_result_t tt_ipc_send_ev(IN struct tt_ipc_s *dst,
 
 tt_export tt_result_t tt_ipc_recv_ev(IN struct tt_ipc_s *ipc,
                                      OUT tt_ipc_ev_t **p_pev,
-                                     OUT struct tt_fiber_ev_s **p_fev,
+                                     OUT tt_fiber_ev_t **p_fev,
                                      OUT struct tt_tmr_s **p_tmr);
 
 #endif // __TT_IPC_EVENT__

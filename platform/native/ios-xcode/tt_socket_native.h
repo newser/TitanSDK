@@ -45,7 +45,7 @@ this file specifies socket native apis
 struct tt_profile_s;
 struct tt_skt_attr_s;
 struct tt_io_ev_s;
-struct tt_fiber_ev_s;
+struct tt_fiber_ev_t;
 struct tt_tmr_s;
 
 typedef struct tt_skt_ntv_s
@@ -97,7 +97,7 @@ extern tt_result_t tt_skt_recvfrom_ntv(IN tt_skt_ntv_t *skt,
                                        IN tt_u32_t len,
                                        OUT OPT tt_u32_t *recvd,
                                        OUT OPT tt_sktaddr_t *addr,
-                                       OUT struct tt_fiber_ev_s **p_fev,
+                                       OUT struct tt_fiber_ev_t **p_fev,
                                        OUT struct tt_tmr_s **p_tmr);
 
 // send_len stores how many bytes are sent only when return value is TT_SUCCESS
@@ -113,7 +113,7 @@ extern tt_result_t tt_skt_recv_ntv(IN tt_skt_ntv_t *skt,
                                    OUT tt_u8_t *buf,
                                    IN tt_u32_t len,
                                    OUT OPT tt_u32_t *recvd,
-                                   OUT struct tt_fiber_ev_s **p_fev,
+                                   OUT struct tt_fiber_ev_t **p_fev,
                                    OUT struct tt_tmr_s **p_tmr);
 
 // send_len stores how many bytes are sent only when return value is TT_SUCCESS

@@ -43,7 +43,6 @@ this file specifies socket APIs
 // type definition
 ////////////////////////////////////////////////////////////
 
-struct tt_fiber_ev_s;
 struct tt_tmr_s;
 
 typedef struct tt_skt_s
@@ -157,7 +156,7 @@ tt_inline tt_result_t tt_skt_recv(IN tt_skt_t *skt,
                                   OUT tt_u8_t *buf,
                                   IN tt_u32_t len,
                                   OUT OPT tt_u32_t *recvd,
-                                  OUT struct tt_fiber_ev_s **p_fev,
+                                  OUT tt_fiber_ev_t **p_fev,
                                   OUT struct tt_tmr_s **p_tmr)
 {
     if (len != 0) {
@@ -173,7 +172,7 @@ tt_inline tt_result_t tt_skt_recvfrom(IN tt_skt_t *skt,
                                       IN tt_u32_t len,
                                       OUT OPT tt_u32_t *recvd,
                                       OUT OPT tt_sktaddr_t *addr,
-                                      OUT struct tt_fiber_ev_s **p_fev,
+                                      OUT tt_fiber_ev_t **p_fev,
                                       OUT struct tt_tmr_s **p_tmr)
 {
     if (len != 0) {

@@ -145,6 +145,8 @@ tt_export void tt_fiber_attr_default(IN tt_fiber_attr_t *attr);
 
 tt_export void tt_fiber_suspend();
 
+tt_export void tt_fiber_yield();
+
 tt_export void tt_fiber_resume(IN tt_fiber_t *fb, IN tt_bool_t suspend);
 
 tt_inline tt_fiber_t *tt_current_fiber()

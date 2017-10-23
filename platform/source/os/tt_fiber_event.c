@@ -25,6 +25,7 @@
 #include <algorithm/tt_list.h>
 #include <memory/tt_memory_alloc.h>
 #include <os/tt_fiber.h>
+#include <os/tt_task.h>
 #include <time/tt_timer.h>
 
 ////////////////////////////////////////////////////////////
@@ -59,12 +60,12 @@
 
 void tt_fiber_ev_init(IN tt_fiber_ev_t *fev, IN tt_u32_t ev)
 {
+    tt_io_ev_init(fev, TT_IO_FIBER, ev);
+
+    // this function is used for ev that requires response, so must
+    // set source fiber
     fev->src = tt_current_fiber();
     TT_ASSERT_FEV(fev->src != NULL);
-
-    tt_dnode_init(&fev->node);
-
-    fev->ev = ev;
 }
 
 tt_fiber_ev_t *tt_fiber_ev_create(IN tt_u32_t ev, IN tt_u32_t size)
@@ -73,9 +74,7 @@ tt_fiber_ev_t *tt_fiber_ev_create(IN tt_u32_t ev, IN tt_u32_t size)
 
     fev = tt_malloc(sizeof(tt_fiber_ev_t) + size);
     if (fev != NULL) {
-        fev->src = NULL;
-        tt_dnode_init(&fev->node);
-        fev->ev = ev;
+        tt_io_ev_init(fev, TT_IO_FIBER, ev);
     }
 
     return fev;
@@ -90,13 +89,21 @@ void tt_fiber_send_ev(IN tt_fiber_t *dst,
                       IN tt_fiber_ev_t *fev,
                       IN tt_bool_t wait)
 {
-    TT_ASSERT_FEV(tt_current_fiber()->fs == dst->fs);
-
-    tt_dlist_push_tail(&dst->ev, &fev->node);
-    if (dst->recving) {
-        tt_fiber_resume(dst, wait);
-    } else if (wait) {
-        tt_fiber_suspend();
+    tt_fiber_t *cfb = tt_current_fiber();
+    if (cfb->fs == dst->fs) {
+        tt_dlist_push_tail(&dst->ev, &fev->node);
+        if (dst->recving) {
+            tt_fiber_resume(dst, wait);
+        } else if (wait) {
+            tt_fiber_suspend();
+        }
+    } else {
+        // cross task fiber event
+        fev->dst = dst;
+        tt_io_poller_send(&dst->fs->thread->task->iop, fev);
+        if (wait) {
+            tt_fiber_suspend();
+        }
     }
 }
 
@@ -121,7 +128,12 @@ again:
 void tt_fiber_finish(IN tt_fiber_ev_t *fev)
 {
     if (fev->src != NULL) {
-        tt_fiber_resume(fev->src, TT_FALSE);
+        tt_fiber_t *cfb = tt_current_fiber();
+        if (cfb->fs == fev->src->fs) {
+            tt_fiber_resume(fev->src, TT_FALSE);
+        } else {
+            tt_io_poller_finish(&fev->src->fs->thread->task->iop, fev);
+        }
     } else {
         tt_fiber_ev_destroy(fev);
     }
