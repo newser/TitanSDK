@@ -679,7 +679,7 @@ done:
             while (TT_OK(tt_dread(&d, &entry))) {
                 tt_u32_t n;
 
-                n = tt_strlen(entry.name);
+                n = (tt_u32_t)tt_strlen(entry.name);
                 if ((n < 9) ||
                     (tt_strcmp(entry.name + n - 9, ".ttarctmp") != 0)) {
                     continue;

@@ -138,7 +138,7 @@ __zsf_t *__zsf_create(IN const tt_char_t *path,
     tt_fstat_t fst;
     tt_result_t result;
 
-    n = tt_strlen(path);
+    n = (tt_u32_t)tt_strlen(path);
     zsf = tt_zalloc(sizeof(__zsf_t) + n + 1);
     if (zsf == NULL) {
         return NULL;
@@ -537,7 +537,7 @@ zip_int64_t __zsf_write(IN __zsf_t *zsf, IN tt_u8_t *data, IN zip_uint64_t len)
         len = 0x7FFFFFFF;
     }
 
-    if (TT_OK(tt_fwrite(&zsf->fout, data, len, &write_len))) {
+    if (TT_OK(tt_fwrite(&zsf->fout, data, (tt_u32_t)len, &write_len))) {
         return (zip_int64_t)write_len;
     } else {
         zip_error_set(&zsf->zerr, ZIP_ER_WRITE, tt_get_sys_err());

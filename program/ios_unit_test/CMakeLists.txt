@@ -45,6 +45,11 @@ include_directories(${PLATFORM_PATH}/library/tls/mbedtls/include/mbedtls)
 include_directories(${PLATFORM_PATH}/library/dns/c-ares)
 include_directories(${PLATFORM_PATH}/library/dns/include)
 
+# library: zip
+include_directories(${PLATFORM_PATH}/library/zip/zlib)
+include_directories(${PLATFORM_PATH}/library/zip/libzip/lib)
+include_directories(${PLATFORM_PATH}/library/zip/include)
+
 #
 # source file
 #

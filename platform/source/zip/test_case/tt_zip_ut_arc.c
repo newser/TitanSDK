@@ -177,17 +177,17 @@ TT_TEST_CASE("case_zarc_write_blob",
 
     ret = tt_zipsrc_open(zs);
     TT_UT_SUCCESS(ret, "");
-    ret = tt_zipsrc_read(zs, data, zstat.st.size, &i);
+    ret = tt_zipsrc_read(zs, data, (tt_u32_t)zstat.st.size, &i);
     TT_UT_SUCCESS(ret, "");
     TT_UT_EQUAL(i, zstat.st.size, "");
-    ret = tt_zipsrc_read(zs, data, zstat.st.size, &i);
+    ret = tt_zipsrc_read(zs, data, (tt_u32_t)zstat.st.size, &i);
     TT_UT_EQUAL(ret, TT_E_END, "");
     tt_zipsrc_close(zs);
 
     tt_zipsrc_release(zs);
 
     // uncompress
-    zs = tt_zipsrc_blob_create(data, zstat.st.size, TT_TRUE);
+    zs = tt_zipsrc_blob_create(data, (tt_u32_t)zstat.st.size, TT_TRUE);
     TT_UT_NOT_NULL(zs, "");
 
     za = tt_zip_create(zs, 0, NULL);
