@@ -364,6 +364,7 @@ tt_result_t tt_string_append_f(IN OUT tt_string_t *s,
     va_start(args, format);
     result = tt_buf_putv(buf, format, args);
     va_end(args);
+    (void)result;
 
     TT_DO(tt_buf_put_u8(buf, 0));
     return TT_SUCCESS;

@@ -124,6 +124,8 @@ TT_TEST_CASE("case_zarc_write_blob",
     // add a dir
     d2 = tt_zip_add_dir(za, "dir1/dir2", 0);
     TT_UT_NOT_EQUAL(d1, TT_POS_NULL, "");
+    (void)d2;
+    (void)f2;
 
     // add a file
     for (i = 0; i < sizeof(ibuf1); ++i) {

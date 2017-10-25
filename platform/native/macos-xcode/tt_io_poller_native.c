@@ -377,7 +377,6 @@ tt_bool_t __poller_io(IN tt_io_ev_t *dummy, IN tt_io_poller_ntv_t *sys_iop)
 
     while ((node = tt_dlist_pop_head(&dl)) != NULL) {
         tt_io_ev_t *io_ev = TT_CONTAINER(node, tt_io_ev_t, node);
-        tt_fiber_t *dst;
 
         if (io_ev->io == TT_IO_POLLER) {
             if (io_ev->ev_internal == __POLLER_EXIT) {
@@ -391,7 +390,7 @@ tt_bool_t __poller_io(IN tt_io_ev_t *dummy, IN tt_io_poller_ntv_t *sys_iop)
                 tt_free(io_ev);
             }
         } else if (io_ev->io == TT_IO_FIBER) {
-            dst = io_ev->dst;
+            tt_fiber_t *dst = io_ev->dst;
             TT_ASSERT(&dst->fs->thread->task->iop.sys_iop == sys_iop);
             tt_dlist_push_tail(&dst->ev, &io_ev->node);
             if (dst->recving) {

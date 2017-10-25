@@ -481,7 +481,7 @@ tt_result_t tt_fpath_set_name(IN tt_fpath_t *fp,
         return tt_fpath_set_filename(fp, name);
     } else {
         TT_ERROR("invalid fpath index: %d", idx);
-        return NULL;
+        return TT_FAIL;
     }
 }
 

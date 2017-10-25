@@ -1099,7 +1099,7 @@ int __sf_unlink(const char *path)
     if (tt_rand_u32() % 2) {
         return -1;
     } else {
-        unlink(path);
+        return unlink(path);
     }
 }
 #endif

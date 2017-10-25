@@ -107,7 +107,6 @@ tt_inline void tt_io_ev_init(IN tt_io_ev_t *io_ev,
     io_ev->io_bytes = 0;
     io_ev->io_result = TT_FAIL;
 #elif TT_ENV_OS_IS_LINUX || TT_ENV_OS_IS_ANDROID
-    TT_ASSERT(TT_FALSE);
     io_ev->epev = NULL;
 #endif
     io_ev->ev = ev;
