@@ -264,8 +264,7 @@ tt_result_t tt_io_poller_exit_ntv(IN tt_io_poller_ntv_t *sys_iop)
         return TT_FAIL;
     }
 
-    tt_io_ev_init(io_ev, TT_IO_POLLER, 0);
-    io_ev->ev_internal = __POLLER_EXIT;
+    tt_io_ev_init(io_ev, TT_IO_POLLER, __POLLER_EXIT);
 
     tt_spinlock_acquire(&sys_iop->poller_lock);
     tt_dlist_push_tail(&sys_iop->poller_ev, &io_ev->node);
@@ -378,7 +377,7 @@ tt_bool_t __poller_io(IN tt_io_ev_t *dummy, IN tt_io_poller_ntv_t *sys_iop)
         tt_io_ev_t *io_ev = TT_CONTAINER(node, tt_io_ev_t, node);
 
         if (io_ev->io == TT_IO_POLLER) {
-            if (io_ev->ev_internal == __POLLER_EXIT) {
+            if (io_ev->ev == __POLLER_EXIT) {
                 tt_free(io_ev);
                 return TT_FALSE;
             }

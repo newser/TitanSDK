@@ -500,25 +500,6 @@ tt_result_t tt_fwrite_ntv(IN tt_file_ntv_t *file,
     return fwrite.result;
 }
 
-tt_result_t tt_ftrylock_ntv(IN tt_file_ntv_t *file, IN tt_bool_t exclusive)
-{
-    if (flock(file->fd, TT_COND(exclusive, LOCK_EX, LOCK_SH) | LOCK_NB) == 0) {
-        return TT_SUCCESS;
-    } else if (errno == EWOULDBLOCK) {
-        return TT_E_TIMEOUT;
-    } else {
-        TT_ERROR_NTV("fail to lock file");
-        return TT_FAIL;
-    }
-}
-
-void tt_funlock_ntv(IN tt_file_ntv_t *file)
-{
-    if (flock(file->fd, LOCK_UN) != 0) {
-        TT_ERROR_NTV("fail to lock file");
-    }
-}
-
 tt_result_t tt_fstat_ntv(IN tt_file_ntv_t *file, OUT tt_fstat_t *fst)
 {
     __fstat_t fstat;

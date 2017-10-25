@@ -223,11 +223,6 @@ int main(int argc, char *argv[])
         tt_task_run(&t);
         tt_task_wait(&t);
         printf("exiting\n");
-
-
-        while (1) {
-            Sleep(1000);
-        }
         return tt_g_flock_ret;
     } else {
         printf("unknown process arg: %s\n", argv[1]);
