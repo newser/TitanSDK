@@ -490,7 +490,7 @@ tt_result_t tt_skt_accept_ntv(IN tt_skt_ntv_t *skt,
                      sizeof(SOCKADDR_STORAGE) + 16,
                      sizeof(SOCKADDR_STORAGE) + 16,
                      &dwBytesReceived,
-                     &skt_accept.io_ev.wov) &&
+                     &skt_accept.io_ev.u.wov) &&
         (WSAGetLastError() != ERROR_IO_PENDING)) {
         TT_NET_ERROR_NTV("AcceptEx failed");
         closesocket(new_s);
@@ -535,7 +535,7 @@ tt_result_t tt_skt_connect_ntv(IN tt_skt_ntv_t *skt, IN tt_sktaddr_t *addr)
                       NULL,
                       0,
                       NULL,
-                      &skt_connect.io_ev.wov) &&
+                      &skt_connect.io_ev.u.wov) &&
         (WSAGetLastError() != WSA_IO_PENDING)) {
         TT_NET_ERROR_NTV("ConnectEx fail");
         return TT_FAIL;
@@ -624,7 +624,7 @@ tt_result_t tt_skt_recvfrom_ntv(IN tt_skt_ntv_t *skt,
                      &Flags,
                      (struct sockaddr *)skt_recvfrom.addr,
                      (LPINT)&Fromlen,
-                     &skt_recvfrom.io_ev.wov,
+                     &skt_recvfrom.io_ev.u.wov,
                      NULL) == 0) ||
         (WSAGetLastError() == WSA_IO_PENDING)) {
         cfb->recving = TT_TRUE;
@@ -633,7 +633,7 @@ tt_result_t tt_skt_recvfrom_ntv(IN tt_skt_ntv_t *skt,
             cfb->recving = TT_FALSE;
 
             if (!skt_recvfrom.canceled) {
-                if (CancelIoEx((HANDLE)skt->s, &skt_recvfrom.io_ev.wov) ||
+                if (CancelIoEx((HANDLE)skt->s, &skt_recvfrom.io_ev.u.wov) ||
                     (GetLastError() == ERROR_NOT_FOUND)) {
                     skt_recvfrom.canceled = TT_TRUE;
                 } else {
@@ -687,7 +687,7 @@ tt_result_t tt_skt_sendto_ntv(IN tt_skt_ntv_t *skt,
                    0,
                    (struct sockaddr *)addr,
                    skt_sendto.addr_len,
-                   &skt_sendto.io_ev.wov,
+                   &skt_sendto.io_ev.u.wov,
                    NULL) == 0) ||
         (WSAGetLastError() == WSA_IO_PENDING)) {
         tt_fiber_suspend();
@@ -719,7 +719,7 @@ tt_result_t tt_skt_send_ntv(IN tt_skt_ntv_t *skt,
 
     Buffers.buf = (char *)buf;
     Buffers.len = len;
-    if ((WSASend(skt->s, &Buffers, 1, NULL, 0, &skt_send.io_ev.wov, NULL) ==
+    if ((WSASend(skt->s, &Buffers, 1, NULL, 0, &skt_send.io_ev.u.wov, NULL) ==
          0) ||
         ((dwError = WSAGetLastError()) == WSA_IO_PENDING)) {
         tt_fiber_suspend();
@@ -773,7 +773,7 @@ tt_result_t tt_skt_recv_ntv(IN tt_skt_ntv_t *skt,
                  1,
                  NULL,
                  &Flags,
-                 &skt_recv.io_ev.wov,
+                 &skt_recv.io_ev.u.wov,
                  NULL) == 0) ||
         ((dwError = WSAGetLastError()) == WSA_IO_PENDING)) {
         cfb->recving = TT_TRUE;
@@ -785,7 +785,7 @@ tt_result_t tt_skt_recv_ntv(IN tt_skt_ntv_t *skt,
                 // if CancelIoEx() succeeds, wait for notification. or
                 // GetLastError() may be ERROR_NOT_FOUND which means io
                 // is completed and has been queued
-                if (CancelIoEx((HANDLE)skt->s, &skt_recv.io_ev.wov) ||
+                if (CancelIoEx((HANDLE)skt->s, &skt_recv.io_ev.u.wov) ||
                     (GetLastError() == ERROR_NOT_FOUND)) {
                     skt_recv.canceled = TT_TRUE;
                 } else {
@@ -910,14 +910,8 @@ tt_bool_t tt_skt_poller_io(IN tt_io_ev_t *io_ev)
 
 HANDLE __skt_ev_init(IN tt_io_ev_t *io_ev, IN tt_u32_t ev)
 {
+	tt_io_ev_init(io_ev, TT_IO_SOCKET, ev);
     io_ev->src = tt_current_fiber();
-    io_ev->dst = NULL;
-    tt_dnode_init(&io_ev->node);
-    tt_memset(&io_ev->wov, 0, sizeof(WSAOVERLAPPED));
-    io_ev->io_bytes = 0;
-    io_ev->io_result = TT_FAIL;
-    io_ev->io = TT_IO_SOCKET;
-    io_ev->ev = ev;
 
     return io_ev->src->fs->thread->task->iop.sys_iop.iocp;
 }
@@ -1114,13 +1108,13 @@ tt_bool_t __do_send(IN tt_io_ev_t *io_ev)
     TT_INFO("continue WSASend");
     Buffers.buf = TT_PTR_INC(char, skt_send->buf, skt_send->pos);
     Buffers.len = skt_send->len - skt_send->pos;
-    tt_memset(&skt_send->io_ev.wov, 0, sizeof(WSAOVERLAPPED));
+    tt_memset(&skt_send->io_ev.u.wov, 0, sizeof(WSAOVERLAPPED));
     if ((WSASend(skt_send->skt->s,
                  &Buffers,
                  1,
                  NULL,
                  0,
-                 &skt_send->io_ev.wov,
+                 &skt_send->io_ev.u.wov,
                  NULL) == 0) ||
         ((dwError = WSAGetLastError()) == WSA_IO_PENDING)) {
         return TT_FALSE;
@@ -1186,7 +1180,7 @@ tt_bool_t __do_sendto(IN tt_io_ev_t *io_ev)
     // send left data
     Buffers.buf = TT_PTR_INC(char, skt_sendto->buf, skt_sendto->pos);
     Buffers.len = skt_sendto->len - skt_sendto->pos;
-    tt_memset(&skt_sendto->io_ev.wov, 0, sizeof(WSAOVERLAPPED));
+    tt_memset(&skt_sendto->io_ev.u.wov, 0, sizeof(WSAOVERLAPPED));
     if ((WSASendTo(skt_sendto->skt->s,
                    &Buffers,
                    1,
@@ -1194,7 +1188,7 @@ tt_bool_t __do_sendto(IN tt_io_ev_t *io_ev)
                    0,
                    (struct sockaddr *)skt_sendto->addr,
                    skt_sendto->addr_len,
-                   &skt_sendto->io_ev.wov,
+                   &skt_sendto->io_ev.u.wov,
                    NULL) == 0) ||
         (WSAGetLastError() == WSA_IO_PENDING)) {
         return TT_FALSE;

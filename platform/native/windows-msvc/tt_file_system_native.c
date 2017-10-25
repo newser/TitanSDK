@@ -146,12 +146,17 @@ enum
     __FREAD,
     __FWRITE,
     __FSEEK,
+    __FSTAT,
+    __FTRYLOCK,
 
     __DCREATE,
     __DREMOVE,
     __DOPEN,
     __DCLOSE,
     __DREAD,
+
+    __FS_EXIST,
+    __FS_RENAME,
 
     __FS_EV_NUM,
 };
@@ -237,6 +242,23 @@ typedef struct
 {
     tt_io_ev_t io_ev;
 
+    tt_file_ntv_t *file;
+    tt_fstat_t *fst;
+
+    tt_result_t result;
+} __fstat_t;
+
+typedef struct
+{
+    tt_io_ev_t io_ev;
+
+    tt_result_t result;
+} __ftrylock_t;
+
+typedef struct
+{
+    tt_io_ev_t io_ev;
+
     const tt_char_t *path;
     struct tt_dir_attr_s *attr;
 
@@ -280,6 +302,25 @@ typedef struct
     tt_result_t result;
 } __dread_t;
 
+typedef struct
+{
+    tt_io_ev_t io_ev;
+
+    const tt_char_t *path;
+
+    tt_bool_t result;
+} __fs_exist_t;
+
+typedef struct
+{
+    tt_io_ev_t io_ev;
+
+    const tt_char_t *from;
+    const tt_char_t *to;
+
+    tt_result_t result;
+} __fs_rename_t;
+
 ////////////////////////////////////////////////////////////
 // extern declaration
 ////////////////////////////////////////////////////////////
@@ -298,6 +339,8 @@ static void __do_fclose(IN tt_io_ev_t *io_ev);
 
 static void __do_fseek(IN tt_io_ev_t *io_ev);
 
+static void __do_fstat(IN tt_io_ev_t *io_ev);
+
 static void __do_dcreate(IN tt_io_ev_t *io_ev);
 
 static void __do_dremove(IN tt_io_ev_t *io_ev);
@@ -308,6 +351,10 @@ static void __do_dclose(IN tt_io_ev_t *io_ev);
 
 static void __do_dread(IN tt_io_ev_t *io_ev);
 
+static void __do_fs_exist(IN tt_io_ev_t *io_ev);
+
+static void __do_fs_rename(IN tt_io_ev_t *io_ev);
+
 static tt_worker_io_t __fs_worker_io[__FS_EV_NUM] = {
     __do_fcreate,
     __do_fremove,
@@ -316,17 +363,24 @@ static tt_worker_io_t __fs_worker_io[__FS_EV_NUM] = {
     NULL,
     NULL,
     __do_fseek,
+    __do_fstat,
+    NULL,
 
     __do_dcreate,
     __do_dremove,
     __do_dopen,
     __do_dclose,
     __do_dread,
+
+    __do_fs_exist,
+    __do_fs_rename,
 };
 
 static tt_bool_t __do_fread(IN tt_io_ev_t *io_ev);
 
 static tt_bool_t __do_fwrite(IN tt_io_ev_t *io_ev);
+
+static tt_bool_t __do_ftrylock(IN tt_io_ev_t *io_ev);
 
 static tt_poller_io_t __fs_poller_io[__FS_EV_NUM] = {
     NULL,
@@ -336,10 +390,15 @@ static tt_poller_io_t __fs_poller_io[__FS_EV_NUM] = {
     __do_fread,
     __do_fwrite,
     NULL,
+    NULL,    
+    __do_ftrylock,
 
     NULL,
     NULL,
     NULL,
+    NULL,
+    NULL,
+
     NULL,
     NULL,
 };
@@ -349,6 +408,8 @@ static tt_poller_io_t __fs_poller_io[__FS_EV_NUM] = {
 ////////////////////////////////////////////////////////////
 
 static void __fs_ev_init(IN tt_io_ev_t *io_ev, IN tt_u32_t ev);
+
+static void __filetime2date(IN FILETIME *t, IN tt_date_t *d);
 
 ////////////////////////////////////////////////////////////
 // interface implementation
@@ -464,10 +525,10 @@ tt_result_t tt_fread_ntv(IN tt_file_ntv_t *file,
     fread.result = TT_FAIL;
     fread.pos = 0;
 
-    fread.io_ev.ov.Offset = (tt_u32_t)file->offset;
-    fread.io_ev.ov.OffsetHigh = (tt_u32_t)(file->offset >> 32);
+    fread.io_ev.u.ov.Offset = (tt_u32_t)file->offset;
+    fread.io_ev.u.ov.OffsetHigh = (tt_u32_t)(file->offset >> 32);
 
-    if (!ReadFile(file->hf, buf, buf_len, NULL, &fread.io_ev.ov) &&
+    if (!ReadFile(file->hf, buf, buf_len, NULL, &fread.io_ev.u.ov) &&
         ((dwError = GetLastError()) != ERROR_IO_PENDING)) {
         if (dwError == ERROR_HANDLE_EOF) {
             return TT_E_END;
@@ -508,10 +569,10 @@ tt_result_t tt_fwrite_ntv(IN tt_file_ntv_t *file,
         }
         file->offset = ((tt_s64_t)loc) | (((tt_s64_t)high) << 32);
     }
-    fwrite.io_ev.ov.Offset = (tt_u32_t)file->offset;
-    fwrite.io_ev.ov.OffsetHigh = (tt_u32_t)(file->offset >> 32);
+    fwrite.io_ev.u.ov.Offset = (tt_u32_t)file->offset;
+    fwrite.io_ev.u.ov.OffsetHigh = (tt_u32_t)(file->offset >> 32);
 
-    if (!WriteFile(file->hf, buf, buf_len, NULL, &fwrite.io_ev.ov) &&
+    if (!WriteFile(file->hf, buf, buf_len, NULL, &fwrite.io_ev.u.ov) &&
         (GetLastError() != ERROR_IO_PENDING)) {
         TT_ERROR_NTV("fail to write file");
         return TT_FAIL;
@@ -519,6 +580,49 @@ tt_result_t tt_fwrite_ntv(IN tt_file_ntv_t *file,
 
     tt_fiber_suspend();
     return fwrite.result;
+}
+
+tt_result_t tt_ftrylock_ntv(IN tt_file_ntv_t *file, IN tt_bool_t exclusive)
+{
+    __ftrylock_t ftrylock;
+    DWORD dwFlags;
+
+    __fs_ev_init(&ftrylock.io_ev, __FTRYLOCK);
+    ftrylock.result = TT_FAIL;
+    
+    dwFlags = LOCKFILE_FAIL_IMMEDIATELY;
+    if (exclusive) {
+        dwFlags |= LOCKFILE_EXCLUSIVE_LOCK;
+    }
+
+    // can not use "GetLastError() == ERROR_IO_PENDING", seems
+    // the ov would always be returned by GQCS
+    LockFileEx(file->hf, dwFlags, 0, ~0, ~0, &ftrylock.io_ev.u.ov);
+    tt_fiber_suspend();
+    return ftrylock.result;
+}
+
+void tt_funlock_ntv(IN tt_file_ntv_t *file)
+{
+    if (!UnlockFile(file->hf, 0, 0, ~0, ~0)) {
+        TT_ERROR_NTV("fail to unlock file");
+    }
+}
+
+tt_result_t tt_fstat_ntv(IN tt_file_ntv_t *file, OUT tt_fstat_t *fst)
+{
+    __fstat_t fstat;
+
+    __fs_ev_init(&fstat.io_ev, __FSTAT);
+
+    fstat.file = file;
+    fstat.fst = fst;
+
+    fstat.result = TT_FAIL;
+
+    tt_iowg_push_ev(&tt_g_fs_iowg, &fstat.io_ev);
+    tt_fiber_suspend();
+    return fstat.result;
 }
 
 tt_result_t tt_dcreate_ntv(IN const tt_char_t *path, IN tt_dir_attr_t *attr)
@@ -599,6 +703,37 @@ tt_result_t tt_dread_ntv(IN tt_dir_ntv_t *dir, OUT tt_dirent_t *entry)
     return dread.result;
 }
 
+tt_bool_t tt_fs_exist_ntv(IN const tt_char_t *path)
+{
+    __fs_exist_t fs_exist;
+
+    __fs_ev_init(&fs_exist.io_ev, __FS_EXIST);
+
+    fs_exist.path = path;
+
+    fs_exist.result = TT_FALSE;
+
+    tt_iowg_push_ev(&tt_g_fs_iowg, &fs_exist.io_ev);
+    tt_fiber_suspend();
+    return fs_exist.result;
+}
+
+tt_result_t tt_fs_rename_ntv(IN const tt_char_t *from, IN const tt_char_t *to)
+{
+    __fs_rename_t fs_rename;
+
+    __fs_ev_init(&fs_rename.io_ev, __FS_RENAME);
+
+    fs_rename.from = from;
+    fs_rename.to = to;
+
+    fs_rename.result = TT_FAIL;
+
+    tt_iowg_push_ev(&tt_g_fs_iowg, &fs_rename.io_ev);
+    tt_fiber_suspend();
+    return fs_rename.result;
+}
+
 void tt_fs_worker_io(IN tt_io_ev_t *io_ev)
 {
     __fs_worker_io[io_ev->ev](io_ev);
@@ -617,12 +752,23 @@ tt_bool_t tt_fs_poller_io(IN tt_io_ev_t *io_ev)
 
 void __fs_ev_init(IN tt_io_ev_t *io_ev, IN tt_u32_t ev)
 {
-    tt_memset(&io_ev->ov, 0, sizeof(OVERLAPPED));
+	tt_io_ev_init(io_ev, TT_IO_FS, ev);
     io_ev->src = tt_current_fiber();
-    io_ev->dst = NULL;
-    tt_dnode_init(&io_ev->node);
-    io_ev->io = TT_IO_FS;
-    io_ev->ev = ev;
+}
+
+void __filetime2date(IN FILETIME *t, IN tt_date_t *d)
+{
+    SYSTEMTIME stUTC, stLocal;
+
+    FileTimeToSystemTime(t, &stUTC);
+    SystemTimeToTzSpecificLocalTime(NULL, &stUTC, &stLocal);
+
+    tt_date_set_year(d, stLocal.wYear);
+    tt_date_set_month(d, stLocal.wMonth - 1);
+    tt_date_set_monthday(d, stLocal.wDay);
+    tt_date_set_hour(d, stLocal.wHour);
+    tt_date_set_minute(d, stLocal.wMinute);
+    tt_date_set_second(d, stLocal.wSecond);
 }
 
 void __do_fcreate(IN tt_io_ev_t *io_ev)
@@ -749,12 +895,14 @@ void __do_fopen(IN tt_io_ev_t *io_ev)
                     dwCreationDisposition,
                     dwFlagsAndAttributes,
                     NULL);
-    tt_wchar_destroy(w_path);
     if (file->hf == INVALID_HANDLE_VALUE) {
-        TT_ERROR_NTV("fail to create file");
-        fopen->result = TT_FAIL;
+        fopen->result = TT_COND(GetLastError() == ERROR_FILE_NOT_FOUND,
+            TT_E_NOEXIST, TT_FAIL);
+        TT_ERROR_NTV("fail to open file: %s", fopen->path);
+        tt_wchar_destroy(w_path);
         return;
     }
+    tt_wchar_destroy(w_path);
 
     if (CreateIoCompletionPort(file->hf,
                                fopen->iocp,
@@ -767,7 +915,7 @@ void __do_fopen(IN tt_io_ev_t *io_ev)
     }
 
     file->offset = 0;
-    file->append = TT_BOOL(dwDesiredAccess & FILE_APPEND_DATA);
+    file->append = TT_BOOL(fopen->flag & TT_FO_APPEND);
 
     fopen->result = TT_SUCCESS;
 }
@@ -810,14 +958,14 @@ tt_bool_t __do_fread(IN tt_io_ev_t *io_ev)
     }
 
     // buf is not full
-    fread->io_ev.ov.Offset = (tt_u32_t)file->offset;
-    fread->io_ev.ov.OffsetHigh = (tt_u32_t)(file->offset >> 32);
+    fread->io_ev.u.ov.Offset = (tt_u32_t)file->offset;
+    fread->io_ev.u.ov.OffsetHigh = (tt_u32_t)(file->offset >> 32);
 
     if (!ReadFile(fread->file->hf,
                   TT_PTR_INC(tt_u8_t, fread->buf, fread->pos),
                   fread->buf_len - fread->pos,
                   NULL,
-                  &fread->io_ev.ov) &&
+                  &fread->io_ev.u.ov) &&
         (GetLastError() != ERROR_IO_PENDING)) {
         if (fread->pos > 0) {
             TT_SAFE_ASSIGN(fread->read_len, fread->pos);
@@ -876,15 +1024,15 @@ tt_bool_t __do_fwrite(IN tt_io_ev_t *io_ev)
         }
         file->offset = ((tt_s64_t)loc) | (((tt_s64_t)high) << 32);
     }
-    fwrite->io_ev.ov.Offset = (tt_u32_t)file->offset;
-    fwrite->io_ev.ov.OffsetHigh = (tt_u32_t)(file->offset >> 32);
+    fwrite->io_ev.u.ov.Offset = (tt_u32_t)file->offset;
+    fwrite->io_ev.u.ov.OffsetHigh = (tt_u32_t)(file->offset >> 32);
 
     // buf is not full
     if (!WriteFile(fwrite->file->hf,
                    TT_PTR_INC(tt_u8_t, fwrite->buf, fwrite->pos),
                    fwrite->buf_len - fwrite->pos,
                    NULL,
-                   &fwrite->io_ev.ov) &&
+                   &fwrite->io_ev.u.ov) &&
         (GetLastError() != ERROR_IO_PENDING)) {
         if (fwrite->pos > 0) {
             TT_SAFE_ASSIGN(fwrite->write_len, fwrite->pos);
@@ -928,10 +1076,67 @@ void __do_fseek(IN tt_io_ev_t *io_ev)
             return;
         }
         file->offset = ((tt_s64_t)loc) | (((tt_s64_t)high) << 32);
+
+        if ((tt_s64_t)(file->offset + fseek->offset) < 0) {
+            TT_ERROR_NTV("negative file pointer");
+            fseek->result = TT_FAIL;
+            return;
+        }
+        file->offset += fseek->offset;
     }
 
     TT_SAFE_ASSIGN(fseek->location, file->offset);
     fseek->result = TT_SUCCESS;
+}
+
+void __do_fstat(IN tt_io_ev_t *io_ev)
+{
+    __fstat_t *fstat_ev = (__fstat_t *)io_ev;
+    BY_HANDLE_FILE_INFORMATION info;
+    tt_fstat_t *fst = fstat_ev->fst;
+
+
+    if (!GetFileInformationByHandle(fstat_ev->file->hf, &info)) {
+        fstat_ev->result = TT_COND(GetLastError() == ERROR_FILE_NOT_FOUND,
+                                   TT_E_NOEXIST,
+                                   TT_FAIL);
+        TT_ERROR_NTV("fstat failed");
+        return;
+    }
+
+    tt_memset(fst, 0, sizeof(tt_fstat_t));
+    tt_date_init(&fst->created, tt_g_local_tmzone);
+    tt_date_init(&fst->accessed, tt_g_local_tmzone);
+    tt_date_init(&fst->modified, tt_g_local_tmzone);
+
+    fst->size = (((tt_u64_t)info.nFileSizeHigh) << 32) | info.nFileSizeLow;
+    __filetime2date(&info.ftCreationTime, &fst->created);
+    __filetime2date(&info.ftLastAccessTime, &fst->accessed);
+    __filetime2date(&info.ftLastWriteTime, &fst->modified);
+    fst->link_num = (tt_u32_t)info.nNumberOfLinks;
+    fst->is_file = !TT_BOOL(info.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY);
+    fst->is_dir = TT_BOOL(info.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY);
+    fst->is_usr_readable = TT_TRUE;
+    fst->is_grp_readable = TT_TRUE;
+    fst->is_oth_readable = TT_TRUE;
+    fst->is_usr_writable = !TT_BOOL(info.dwFileAttributes & FILE_ATTRIBUTE_READONLY);
+    fst->is_grp_writable = !TT_BOOL(info.dwFileAttributes & FILE_ATTRIBUTE_READONLY);
+    fst->is_oth_writable = !TT_BOOL(info.dwFileAttributes & FILE_ATTRIBUTE_READONLY);
+    fst->is_link = TT_BOOL(info.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT);
+    fstat_ev->result = TT_SUCCESS;
+}
+
+tt_bool_t __do_ftrylock(IN tt_io_ev_t *io_ev)
+{
+    __ftrylock_t *ftrylock = (__ftrylock_t *)io_ev;
+
+    if (TT_OK(io_ev->io_result)) {
+        ftrylock->result = TT_SUCCESS;
+    } else {
+        ftrylock->result = TT_FAIL;
+    }
+
+    return TT_TRUE;
 }
 
 void __do_dcreate(IN tt_io_ev_t *io_ev)
@@ -1113,6 +1318,61 @@ void __do_dread(IN tt_io_ev_t *io_ev)
     }
 
     dread->result = TT_SUCCESS;
+}
+
+void __do_fs_exist(IN tt_io_ev_t *io_ev)
+{
+    __fs_exist_t *fs_exist = (__fs_exist_t *)io_ev;
+    
+    wchar_t *w_path;
+    DWORD attr;
+    
+    w_path = tt_wchar_create(fs_exist->path, NULL);
+    if (w_path == NULL) {
+        fs_exist->result = TT_FALSE;
+        return;
+    }
+
+    attr = GetFileAttributesW(w_path);
+    tt_wchar_destroy(w_path);
+    if (attr != INVALID_FILE_ATTRIBUTES) {
+        fs_exist->result = TT_TRUE;
+    } else {
+        fs_exist->result = TT_FALSE;
+    }
+}
+
+void __do_fs_rename(IN tt_io_ev_t *io_ev)
+{
+    __fs_rename_t *fs_rename = (__fs_rename_t *)io_ev;
+
+    wchar_t *w_from, *w_to;
+    BOOL ret;
+    
+    w_from = tt_wchar_create(fs_rename->from, NULL);
+    if (w_from == NULL) {
+        fs_rename->result = TT_FAIL;
+        return;
+    }
+
+    w_to = tt_wchar_create(fs_rename->to, NULL);
+    if (w_to == NULL) {
+        tt_wchar_destroy(w_from);
+        fs_rename->result = TT_FAIL;
+        return;
+    }
+
+    ret = MoveFileExW(w_from, w_to, MOVEFILE_REPLACE_EXISTING);
+    tt_wchar_destroy(w_from);
+    tt_wchar_destroy(w_to);
+    if (ret) {
+        fs_rename->result = TT_SUCCESS;
+    } else {
+        TT_ERROR_NTV("fail to rename from %s to %s",
+                     fs_rename->from,
+                     fs_rename->to);
+        fs_rename->result = TT_FAIL;
+    }
 }
 
 #ifdef CreateFileW

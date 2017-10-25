@@ -357,7 +357,6 @@ TT_TEST_ROUTINE_DEFINE(case_zsrc_writefile)
     tt_result_t ret;
     tt_u32_t i, n;
     tt_file_t f;
-    tt_zip_stat_t zstat;
     tt_u64_t loc;
 
     TT_TEST_CASE_ENTER()
@@ -402,12 +401,20 @@ TT_TEST_ROUTINE_DEFINE(case_zsrc_writefile)
     TT_UT_SUCCESS(ret, "");
     TT_UT_EQUAL(n, 10, "");
 
+    ret = tt_zipsrc_tell_write(zs, &loc);
+    TT_UT_SUCCESS(ret, "");
+    TT_UT_EQUAL(loc, 10, "");
+
     tt_memset(obuf, 'b', 20);
     ret = tt_zipsrc_seek_write(zs, TT_ZSSEEK_CUR, 90);
     TT_UT_SUCCESS(ret, "");
     ret = tt_zipsrc_write(zs, obuf, 20, &n);
     TT_UT_SUCCESS(ret, "");
     TT_UT_EQUAL(n, 20, "");
+
+    ret = tt_zipsrc_tell_write(zs, &loc);
+    TT_UT_SUCCESS(ret, "");
+    TT_UT_EQUAL(loc, 120, "");
 
     tt_memset(obuf, 'c', 30);
     ret = tt_zipsrc_seek_write(zs, TT_ZSSEEK_END, -56);
@@ -452,11 +459,9 @@ TT_TEST_ROUTINE_DEFINE(case_zsrc_writefile_off)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_zipsrc_t *zs;
-    tt_u8_t buf[256], obuf[256];
+    tt_u8_t buf[256];
     tt_result_t ret;
     tt_u32_t i, n;
-    tt_file_t f;
-    tt_zip_stat_t zstat;
     tt_u64_t loc;
 
     TT_TEST_CASE_ENTER()

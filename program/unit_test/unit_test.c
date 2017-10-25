@@ -78,6 +78,9 @@ tt_result_t __ut_fiber(IN void *param)
     GetEnvironmentVariableA("TT_CASE", buf, sizeof(buf) - 1);
     name = buf;
     printf("%s|\n", name);
+	if (name[0] == 0) {
+		name = NULL;
+	}
 #else
     name = getenv("TT_CASE");
 #endif
@@ -94,9 +97,13 @@ tt_result_t __ut_fiber(IN void *param)
     else {
         const tt_char_t *names[] = {
             "TEST_UNIT_LOG",
-            // "TEST_UNIT_FIBER",
-            // "TEST_UNIT_FIBER","TEST_UNIT_IPC","TEST_UNIT_SOCKET",
-            //"ZIP_UT_ZLIB", "ZIP_UT_ZSOURCE", "ZIP_UT_ZARC",
+            //"TEST_UNIT_FS",
+            //"TEST_UNIT_IPC",
+            //"TEST_UNIT_SOCKET",
+            //"TEST_UNIT_FIBER",
+            //"ZIP_UT_ZLIB",
+            "ZIP_UT_ZSOURCE", "ZIP_UT_ZARC",
+            "case_fs_open",
         };
         tt_u32_t i;
 
@@ -122,9 +129,11 @@ tt_result_t __flock_fiber(IN void *param)
     char **argv = (char **)param;
     tt_file_t f;
     tt_result_t r;
-
+    tt_u32_t i = 0;
+    
     printf("testing flock 2\n");
 
+    printf("opening: %s\n", argv[2]);
     if (!TT_OK(tt_fopen(&f, argv[2], TT_FO_RDWR, NULL))) {
         tt_g_flock_ret = -1;
         return TT_FAIL;
@@ -205,12 +214,17 @@ int main(int argc, char *argv[])
             return -1;
         }
 
-        tt_platform_init(NULL);
+        tt_platform_init(NULL);        
         tt_task_create(&t, NULL);
         tt_task_add_fiber(&t, NULL, __flock_fiber, argv, NULL);
         tt_task_run(&t);
         tt_task_wait(&t);
         printf("exiting\n");
+        
+        
+        while(1) {
+            Sleep(1000);
+        }
         return tt_g_flock_ret;
     } else {
         printf("unknown process arg: %s\n", argv[1]);

@@ -57,13 +57,4 @@ extern tt_tmzone_t tt_local_tmzone_ntv();
 
 extern void tt_date_now_ntv(OUT struct tt_date_s *date);
 
-extern tt_u32_t tt_date_render_ntv(IN struct tt_date_s *date,
-                                   IN const tt_char_t *format,
-                                   IN tt_char_t *buf,
-                                   IN tt_u32_t len);
-
-extern tt_u32_t tt_date_parse_ntv(IN struct tt_date_s *date,
-                                  IN const tt_char_t *format,
-                                  IN const tt_char_t *buf);
-
 #endif /* __TT_DATE_NATIVE__ */

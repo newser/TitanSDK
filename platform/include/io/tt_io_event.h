@@ -78,7 +78,6 @@ typedef struct tt_io_ev_s
 #endif
     tt_u32_t ev;
     tt_u16_t io;
-    tt_u16_t ev_internal; // 0 means not internal
 } tt_io_ev_t;
 
 typedef void (*tt_worker_io_t)(IN tt_io_ev_t *io_ev);
@@ -102,7 +101,6 @@ tt_inline void tt_io_ev_init(IN tt_io_ev_t *io_ev,
     io_ev->dst = NULL;
     tt_dnode_init(&io_ev->node);
 #if TT_ENV_OS_IS_WINDOWS
-    TT_ASSERT(TT_FALSE);
     tt_memset(&io_ev->u, 0, sizeof(io_ev->u));
     io_ev->io_bytes = 0;
     io_ev->io_result = TT_FAIL;
@@ -111,7 +109,6 @@ tt_inline void tt_io_ev_init(IN tt_io_ev_t *io_ev,
 #endif
     io_ev->ev = ev;
     io_ev->io = io;
-    io_ev->ev_internal = 0;
 }
 
 #endif // __TT_IO_EVENT__

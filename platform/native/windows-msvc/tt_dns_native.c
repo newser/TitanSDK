@@ -308,14 +308,7 @@ void __dskt_reset(IN __dskt_t *dskt)
 
 void __dskt_ev_init(IN tt_io_ev_t *io_ev, IN tt_u32_t ev)
 {
-    io_ev->src = NULL;
-    io_ev->dst = NULL;
-    tt_dnode_init(&io_ev->node);
-    tt_memset(&io_ev->wov, 0, sizeof(WSAOVERLAPPED));
-    io_ev->io_bytes = 0;
-    io_ev->io_result = TT_FAIL;
-    io_ev->io = TT_IO_DNS;
-    io_ev->ev = ev;
+	tt_io_ev_init(io_ev, TT_IO_DNS, ev);
 }
 
 tt_result_t __dskt_config(IN SOCKET s, IN int af, IN ares_channel ch)
@@ -502,14 +495,14 @@ int __dskt_connect(IN ares_socket_t s,
             return -1;
         }
     } else {
-        tt_memset(&dskt->w_ev.wov, 0, sizeof(WSAOVERLAPPED));
+        tt_memset(&dskt->w_ev.u.wov, 0, sizeof(WSAOVERLAPPED));
         if (tt_ConnectEx(dskt->s,
                          (const struct sockaddr *)&dskt->addr,
                          dskt->addrlen,
                          NULL,
                          0,
                          NULL,
-                         &dskt->w_ev.wov) ||
+                         &dskt->w_ev.u.wov) ||
             (WSAGetLastError() == WSA_IO_PENDING)) {
             dskt->w_ev.ev = __DNS_CONNECT;
             dskt->reading = TT_TRUE;
@@ -574,8 +567,8 @@ ares_ssize_t __dskt_recvfrom(IN ares_socket_t s,
     Buffers.buf = (char *)TT_BUF_WPOS(buf);
     Buffers.len = (ULONG)data_len;
     Flags = 0;
-    tt_memset(&dskt->r_ev.wov, 0, sizeof(WSAOVERLAPPED));
-    if ((WSARecv(dskt->s, &Buffers, 1, NULL, &Flags, &dskt->r_ev.wov, NULL) ==
+    tt_memset(&dskt->r_ev.u.wov, 0, sizeof(WSAOVERLAPPED));
+    if ((WSARecv(dskt->s, &Buffers, 1, NULL, &Flags, &dskt->r_ev.u.wov, NULL) ==
          0) ||
         (WSAGetLastError() == WSA_IO_PENDING)) {
         dskt->reading = TT_TRUE;
@@ -629,8 +622,8 @@ ares_ssize_t __dskt_sendv(IN ares_socket_t s,
             return -1;
         }
     } else {
-        tt_memset(&dskt->w_ev.wov, 0, sizeof(WSAOVERLAPPED));
-        if ((WSASend(dskt->s, dskt->w_buf, n, NULL, 0, &dskt->w_ev.wov, NULL) ==
+        tt_memset(&dskt->w_ev.u.wov, 0, sizeof(WSAOVERLAPPED));
+        if ((WSASend(dskt->s, dskt->w_buf, n, NULL, 0, &dskt->w_ev.u.wov, NULL) ==
              0) ||
             (WSAGetLastError() == WSA_IO_PENDING)) {
             dskt->writing = TT_TRUE;

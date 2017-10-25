@@ -70,8 +70,14 @@ static tt_bool_t __ipc_io(IN tt_io_ev_t *io_ev);
 
 static tt_bool_t __dns_io(IN tt_io_ev_t *io_ev);
 
+static tt_bool_t __task_io(IN tt_io_ev_t *io_ev);
+
+static tt_bool_t __fiber_io(IN tt_io_ev_t *io_ev);
+
 static __io_handler_t __io_handler[TT_IO_NUM] = {
     __worker_io, __poller_io, __fs_io, __skt_io, __ipc_io, NULL, __dns_io,
+        __task_io,
+        __fiber_io,
 };
 
 ////////////////////////////////////////////////////////////
@@ -127,7 +133,7 @@ tt_bool_t tt_io_poller_run_ntv(IN tt_io_poller_ntv_t *sys_iop,
                                     &Overlapped,
                                     dwMilliseconds);
     if (Overlapped != NULL) {
-        tt_io_ev_t *io_ev = TT_CONTAINER(Overlapped, tt_io_ev_t, ov);
+        tt_io_ev_t *io_ev = TT_CONTAINER(Overlapped, tt_io_ev_t, u.ov);
 
         io_ev->io_bytes = NumberOfBytes;
 
@@ -169,17 +175,12 @@ tt_result_t tt_io_poller_exit_ntv(IN tt_io_poller_ntv_t *sys_iop)
         return TT_FAIL;
     }
 
-    tt_memset(&io_ev->ov, 0, sizeof(OVERLAPPED));
-    io_ev->src = NULL;
-    io_ev->dst = NULL;
-    tt_dnode_init(&io_ev->node);
-    io_ev->io = TT_IO_POLLER;
-    io_ev->ev = __POLLER_EXIT;
+	tt_io_ev_init(io_ev, TT_IO_POLLER, __POLLER_EXIT);
 
     if (!PostQueuedCompletionStatus(sys_iop->iocp,
                                     0,
                                     (ULONG_PTR)NULL,
-                                    &io_ev->ov)) {
+                                    &io_ev->u.ov)) {
         TT_ERROR_NTV("fail to send poller exit");
         tt_free(io_ev);
         return TT_FAIL;
@@ -196,7 +197,7 @@ tt_result_t tt_io_poller_finish_ntv(IN tt_io_poller_ntv_t *sys_iop,
     if (!PostQueuedCompletionStatus(sys_iop->iocp,
                                     0,
                                     (ULONG_PTR)NULL,
-                                    &io_ev->ov)) {
+                                    &io_ev->u.ov)) {
         TT_ERROR_NTV("fail to send poller finish");
         return TT_FAIL;
     }
@@ -207,12 +208,10 @@ tt_result_t tt_io_poller_finish_ntv(IN tt_io_poller_ntv_t *sys_iop,
 tt_result_t tt_io_poller_send_ntv(IN tt_io_poller_ntv_t *sys_iop,
                                   IN tt_io_ev_t *io_ev)
 {
-    io_ev->io = TT_IO_POLLER;
-
     if (!PostQueuedCompletionStatus(sys_iop->iocp,
                                     0,
                                     (ULONG_PTR)NULL,
-                                    &io_ev->ov)) {
+                                    &io_ev->u.ov)) {
         TT_ERROR_NTV("fail to send to poller");
         return TT_FAIL;
     }
@@ -234,9 +233,6 @@ tt_bool_t __poller_io(IN tt_io_ev_t *io_ev)
         tt_free(io_ev);
         return TT_FALSE;
     }
-
-    // a message to this fiber
-    // todo: add to fiber and awake the fiber if needed
 
     if (io_ev->src != NULL) {
         tt_task_finish(io_ev->dst->fs->thread->task, io_ev);
@@ -283,3 +279,22 @@ tt_bool_t __dns_io(IN tt_io_ev_t *io_ev)
 
     return TT_TRUE;
 }
+
+tt_bool_t __task_io(IN tt_io_ev_t *io_ev)
+{
+    tt_task_poller_io(io_ev);
+
+    return TT_TRUE;
+}
+
+tt_bool_t __fiber_io(IN tt_io_ev_t *io_ev)
+{
+    tt_fiber_t *dst = io_ev->dst;
+    tt_dlist_push_tail(&dst->ev, &io_ev->node);
+    if (dst->recving) {
+        tt_fiber_resume(dst, TT_FALSE);
+    }
+
+    return TT_TRUE;
+}
+

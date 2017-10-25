@@ -220,3 +220,35 @@ tt_char_t *tt_process_path_ntv(IN OPT tt_process_ntv_t *sys_proc)
     // path is null-terminated when using -1
     return path;
 }
+
+tt_char_t *tt_current_path_ntv(IN tt_bool_t end_slash)
+{
+    DWORD len;
+    char *d;
+
+    len = GetCurrentDirectoryA(0, NULL);
+    if (len == 0) {
+        TT_ERROR_NTV("fail to get current directory length");
+        return NULL;
+    }
+
+    d = tt_malloc(len + 2);
+    if (d == NULL) {
+        TT_ERROR("no mem for current directory");
+        return NULL;
+    }
+
+    len = GetCurrentDirectoryA(len + 2, d);
+    if (len == 0) {
+        TT_ERROR_NTV("fail to get current directory");
+        tt_free(d);
+        return NULL;
+    }
+    if (end_slash && (len > 0) && (d[len - 1] != '\\')) {
+        d[len] = '\\';
+        d[len + 1] = 0;
+    }
+
+    return d;
+}
+

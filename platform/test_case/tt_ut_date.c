@@ -1240,7 +1240,6 @@ TT_TEST_ROUTINE_DEFINE(case_date_julian)
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_date_t d;
     tt_double_t jd;
-    tt_u32_t w;
 
     TT_TEST_CASE_ENTER()
     // test start
@@ -1357,9 +1356,12 @@ TT_TEST_ROUTINE_DEFINE(case_date_diff)
 
     {
         tt_s64_t s;
+        tt_char_t b[128] = {0};
         time_t t;
 
         tt_date_now(&a);
+        tt_date_render(&a, "%C-%N-%D %H:%M:%S", b, sizeof(b) - 1);
+        TT_INFO("now: %s, timezone: %s", b, tt_g_tmzone_name[a.tz].addr);
         s = tt_date_diff_epoch_second(&a);
         t = time(NULL);
         TT_INFO("s: %ld, t: %ld", s, t);

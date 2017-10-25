@@ -543,7 +543,6 @@ TT_TEST_ROUTINE_DEFINE(case_fpath_parent)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_fpath_t fp, fp2;
-    tt_u32_t pos;
     tt_result_t ret;
 
     TT_TEST_CASE_ENTER()
@@ -670,7 +669,6 @@ TT_TEST_ROUTINE_DEFINE(case_fpath_root)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_fpath_t fp, fp2;
-    tt_u32_t pos;
     tt_result_t ret = TT_FAIL;
 
     TT_TEST_CASE_ENTER()

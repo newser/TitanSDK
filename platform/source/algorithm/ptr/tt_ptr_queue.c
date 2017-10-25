@@ -398,8 +398,6 @@ __q_frame_t *__alloc_tail_frame(IN tt_ptrq_t *pq)
 
 __q_frame_t *__alloc_frame(IN tt_ptrq_t *pq)
 {
-    __q_frame_t *frame;
-
     if (pq->cached_frame != NULL) {
         __q_frame_t *frame = pq->cached_frame;
         pq->cached_frame = NULL;

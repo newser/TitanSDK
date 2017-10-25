@@ -231,7 +231,6 @@ tt_u32_t tt_date_render(IN tt_date_t *date,
             p += 2;
         } else {
             __sym_t *sym;
-            const tt_char_t *str;
 
             TT_DO_G(done,
                     tt_string_append_sub(&s, prev, 0, (tt_u32_t)(p - prev)));
@@ -393,7 +392,7 @@ tt_result_t __C_render(IN tt_date_t *d, OUT tt_string_t *s)
     tt_u32_t y = tt_date_get_year(d);
     tt_char_t c[10] = {0};
 
-    snprintf(c, sizeof(c) - 1, "%d", y);
+    tt_snprintf(c, sizeof(c) - 1, "%d", y);
     return tt_string_append(s, c);
 }
 

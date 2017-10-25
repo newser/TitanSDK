@@ -86,7 +86,7 @@ tt_inline tt_result_t tt_zlibinf_run(IN tt_zlibinf_t *zli,
 
 tt_inline void tt_zlibinf_reset(IN tt_zlibinf_t *zli)
 {
-    return tt_inflate_reset(zli);
+    tt_inflate_reset(zli);
 }
 
 #endif /* __TT_ZLIB_INFLATE__ */

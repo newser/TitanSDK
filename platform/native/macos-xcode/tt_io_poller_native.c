@@ -52,8 +52,7 @@ typedef tt_bool_t (*__io_handler_t)(IN tt_io_ev_t *io_ev,
 
 enum
 {
-    // internal event can not be 0
-    __POLLER_EXIT = 1,
+    __POLLER_EXIT,
 };
 
 ////////////////////////////////////////////////////////////

@@ -62,6 +62,11 @@ APIs to show system error information
 // interface declaration
 ////////////////////////////////////////////////////////////
 
+tt_inline tt_u32_t tt_get_sys_err()
+{
+    return GetLastError();
+}
+
 extern void tt_sys_err_show(IN DWORD err_no,
                             IN LPSTR lpszFunction,
                             IN int line);

@@ -11,6 +11,7 @@
 #include <os/tt_spinlock.h>
 #include <os/tt_task.h>
 #include <time/tt_time_reference.h>
+#include <io/tt_fpath.h>
 
 //#define __perf_vs
 #ifdef __perf_vs
@@ -213,8 +214,10 @@ TT_TEST_ROUTINE_DEFINE(case_fs_consistency)
         ret = tt_fstat(&f, &fstat);
         TT_UT_SUCCESS(ret, "");
         TT_UT_EQUAL(tt_date_cmp_date(&fstat.created, &d), 0, "");
+#if !TT_ENV_OS_IS_WINDOWS
         TT_UT_EQUAL(fstat.created.hour, d.hour, "");
         TT_UT_EQUAL(fstat.created.minute, d.minute, "");
+#endif
         TT_UT_EQUAL(tt_date_cmp_date(&fstat.accessed, &d), 0, "");
         TT_UT_EQUAL(fstat.accessed.hour, d.hour, "");
         TT_UT_EQUAL(fstat.accessed.minute, d.minute, "");
@@ -233,6 +236,7 @@ TT_TEST_ROUTINE_DEFINE(case_fs_consistency)
     TT_UT_SUCCESS(ret, "");
     ret = tt_ftrylock(&f, TT_FALSE);
     TT_UT_SUCCESS(ret, "");
+    tt_funlock(&f);
     tt_funlock(&f);
 
     ret = tt_ftrylock(&f, TT_TRUE);
@@ -272,18 +276,23 @@ TT_TEST_ROUTINE_DEFINE(case_fs_flock)
     tt_result_t ret;
     tt_file_t f;
     tt_process_t p;
-    tt_char_t *arg[] = {"not care", "flock", __SC_TEST_FILE, "e", NULL};
+    tt_char_t *arg[] = {"\"not care\"", "flock", __SC_TEST_FILE, "e", NULL};
     tt_u8_t r;
-
+    
     TT_TEST_CASE_ENTER()
 
 #if TT_ENV_OS_IS_IOS
     return TT_SUCCESS;
 #endif
 
-    tt_fremove(__SC_TEST_FILE);
+#if TT_ENV_OS_IS_WINDOWS
+    return TT_SUCCESS;
+#endif
 
-    ret = tt_fopen(&f, __SC_TEST_FILE, TT_FO_CREAT | TT_FO_RDWR, NULL);
+    tt_fremove(__SC_TEST_FILE);
+    tt_fcreate(__SC_TEST_FILE, NULL);
+
+    ret = tt_fopen(&f, __SC_TEST_FILE, TT_FO_RDWR, NULL);
     TT_UT_SUCCESS(ret, "");
 
     // share lock first
@@ -292,7 +301,17 @@ TT_TEST_ROUTINE_DEFINE(case_fs_flock)
     ret = tt_ftrylock(&f, TT_FALSE);
     TT_UT_SUCCESS(ret, "");
 
-    arg[3] = "ex";
+	arg[3] = "ex";
+#if 0
+        {
+			    tt_fpath_t fp;
+    tt_fpath_init(&fp, TT_FPATH_AUTO);
+    tt_fpath_set(&fp, tt_current_path(TT_TRUE));
+    tt_fpath_to_dir(&fp);
+    tt_fpath_set_filename(&fp,__SC_TEST_FILE);
+    arg[2] = (tt_char_t*)tt_fpath_cstr(&fp);
+        }
+#endif
     ret = tt_process_create(&p, tt_process_path(NULL), arg, NULL);
     TT_UT_SUCCESS(ret, "");
     ret = tt_process_wait(&p, TT_TRUE, &r);
@@ -455,6 +474,11 @@ TT_TEST_ROUTINE_DEFINE(case_fs_open)
         ret = tt_fread(&tf2, buf2, 90, &n);
         TT_UT_EQUAL(ret, TT_E_END, "");
 
+        ret = tt_fseek(&tf2, TT_FSEEK_END, -20000, NULL);
+        TT_UT_FAIL(ret, "");
+        ret = tt_fread(&tf2, buf2, 90, &n);
+        TT_UT_EQUAL(ret, TT_E_END, "");
+
         tt_fclose(&tf2);
     }
     {
@@ -550,12 +574,12 @@ TT_TEST_ROUTINE_DEFINE(case_fs_rw)
                     "");
     }
 
+    // close to delete
+    tt_fclose(&tf);
+
     // open should fail
     ret = tt_fopen(&tf2, __SC_TEST_FILE, TT_FO_READ, NULL);
     TT_UT_EQUAL(ret, TT_E_NOEXIST, "");
-
-    // close to delete
-    tt_fclose(&tf);
 
     // test end
     TT_TEST_CASE_LEAVE()

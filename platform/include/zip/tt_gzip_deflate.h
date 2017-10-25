@@ -86,7 +86,7 @@ tt_inline tt_result_t tt_gzipdef_run(IN tt_gzipdef_t *gzd,
 
 tt_inline void tt_gzipdef_reset(IN tt_gzipdef_t *gzd)
 {
-    return tt_deflate_reset(gzd);
+    tt_deflate_reset(gzd);
 }
 
 #endif /* __TT_GZIP_DEFLATE__ */

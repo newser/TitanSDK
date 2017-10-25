@@ -28,9 +28,15 @@
 #include <misc/tt_util.h>
 #include <os/tt_thread.h>
 
+#include <tt_sys_error.h>
+
 ////////////////////////////////////////////////////////////
 // internal macro
 ////////////////////////////////////////////////////////////
+
+#if TT_ENV_OS_IS_WINDOWS
+#define ENOENT ERROR_FILE_NOT_FOUND
+#endif
 
 ////////////////////////////////////////////////////////////
 // internal type
@@ -180,7 +186,7 @@ __zsf_t *__zsf_create(IN const tt_char_t *path,
         if (fst.is_file) {
             zsf->supports = ZIP_SOURCE_SUPPORTS_SEEKABLE;
 
-            if ((zsf->start + zsf->end) > fst.size) {
+            if ((tt_u64_t)(zsf->start + zsf->end) > fst.size) {
                 __zsf_destroy(zsf);
                 return NULL;
             }

@@ -130,7 +130,7 @@ TT_TEST_CASE("case_zarc_write_blob",
     // add a file
     for (i = 0; i < sizeof(ibuf1); ++i) {
         ibuf1[i] = i;
-        ibuf2[i] = sizeof(ibuf2) - i;
+        ibuf2[i] = (tt_u8_t)sizeof(ibuf2) - i;
     }
 
     zsf1 = tt_zipsrc_blob_create(ibuf1, sizeof(ibuf1), TT_FALSE);

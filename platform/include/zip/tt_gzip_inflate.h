@@ -86,7 +86,7 @@ tt_inline tt_result_t tt_gzipinf_run(IN tt_gzipinf_t *gzi,
 
 tt_inline void tt_gzipinf_reset(IN tt_gzipinf_t *gzi)
 {
-    return tt_inflate_reset(gzi);
+    tt_inflate_reset(gzi);
 }
 
 #endif /* __TT_GZIP_INFLATE__ */

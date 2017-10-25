@@ -86,7 +86,7 @@ tt_inline tt_result_t tt_zlibdef_run(IN tt_zlibdef_t *zli,
 
 tt_inline void tt_zlibdef_reset(IN tt_zlibdef_t *zli)
 {
-    return tt_deflate_reset(zli);
+    tt_deflate_reset(zli);
 }
 
 #endif /* __TT_ZLIB_DEFLATE__ */
