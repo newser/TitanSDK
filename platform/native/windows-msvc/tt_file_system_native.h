@@ -98,11 +98,6 @@ extern tt_result_t tt_fwrite_ntv(IN tt_file_ntv_t *file,
                                  IN tt_u32_t buf_len,
                                  OUT tt_u32_t *write_len);
 
-extern tt_result_t tt_ftrylock_ntv(IN tt_file_ntv_t *file,
-                                   IN tt_bool_t exclusive);
-
-extern void tt_funlock_ntv(IN tt_file_ntv_t *file);
-
 extern tt_result_t tt_fstat_ntv(IN tt_file_ntv_t *file,
                                 OUT struct tt_fstat_s *fstat);
 

@@ -33,7 +33,6 @@ TT_TEST_ROUTINE_DECLARE(case_fs_open)
 TT_TEST_ROUTINE_DECLARE(case_fs_rw)
 TT_TEST_ROUTINE_DECLARE(case_fs_multhread)
 TT_TEST_ROUTINE_DECLARE(case_fs_consistency)
-TT_TEST_ROUTINE_DECLARE(case_fs_flock)
 
 TT_TEST_ROUTINE_DECLARE(case_dir_basic)
 
@@ -82,15 +81,6 @@ TT_TEST_CASE("case_fs_basic",
              NULL,
              NULL)
 ,
-
-    TT_TEST_CASE("case_fs_flock",
-                 "testing fs flock",
-                 case_fs_flock,
-                 NULL,
-                 __fs_enter,
-                 NULL,
-                 NULL,
-                 NULL),
 
     TT_TEST_CASE("case_fs_open",
                  "testing fs open close",
@@ -232,6 +222,7 @@ TT_TEST_ROUTINE_DEFINE(case_fs_consistency)
         TT_UT_EQUAL(fstat.is_usr_writable, TT_TRUE, "");
     }
 
+#if 0
     ret = tt_ftrylock(&f, TT_FALSE);
     TT_UT_SUCCESS(ret, "");
     ret = tt_ftrylock(&f, TT_FALSE);
@@ -242,6 +233,7 @@ TT_TEST_ROUTINE_DEFINE(case_fs_consistency)
     ret = tt_ftrylock(&f, TT_TRUE);
     TT_UT_SUCCESS(ret, "");
     tt_funlock(&f);
+#endif
 
     tt_fclose(&f);
 
@@ -270,6 +262,7 @@ TT_TEST_ROUTINE_DEFINE(case_fs_consistency)
     TT_TEST_CASE_LEAVE()
 }
 
+#if 0
 TT_TEST_ROUTINE_DEFINE(case_fs_flock)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
@@ -358,6 +351,7 @@ TT_TEST_ROUTINE_DEFINE(case_fs_flock)
     // test end
     TT_TEST_CASE_LEAVE()
 }
+#endif
 
 TT_TEST_ROUTINE_DEFINE(case_fs_open)
 {

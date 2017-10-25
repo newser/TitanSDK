@@ -96,8 +96,8 @@ tt_result_t __ut_fiber(IN void *param)
 #if 1
     else {
         const tt_char_t *names[] = {
-            "TEST_UNIT_LOG",
-            //"TEST_UNIT_FS",
+            //"TEST_UNIT_LOG",
+            "TEST_UNIT_FS",
             //"TEST_UNIT_IPC",
             //"TEST_UNIT_SOCKET",
             //"TEST_UNIT_FIBER",
@@ -134,6 +134,7 @@ tt_result_t __flock_fiber(IN void *param)
 
     printf("testing flock 2\n");
 
+#if 0
     printf("opening: %s\n", argv[2]);
     if (!TT_OK(tt_fopen(&f, argv[2], TT_FO_RDWR, NULL))) {
         tt_g_flock_ret = -1;
@@ -149,6 +150,7 @@ tt_result_t __flock_fiber(IN void *param)
     } else {
         tt_g_flock_ret = -1;
     }
+#endif
     return TT_SUCCESS;
 }
 

@@ -147,7 +147,6 @@ enum
     __FWRITE,
     __FSEEK,
     __FSTAT,
-    __FTRYLOCK,
 
     __DCREATE,
     __DREMOVE,
@@ -247,13 +246,6 @@ typedef struct
 
     tt_result_t result;
 } __fstat_t;
-
-typedef struct
-{
-    tt_io_ev_t io_ev;
-
-    tt_result_t result;
-} __ftrylock_t;
 
 typedef struct
 {
@@ -364,7 +356,6 @@ static tt_worker_io_t __fs_worker_io[__FS_EV_NUM] = {
     NULL,
     __do_fseek,
     __do_fstat,
-    NULL,
 
     __do_dcreate,
     __do_dremove,
@@ -380,8 +371,6 @@ static tt_bool_t __do_fread(IN tt_io_ev_t *io_ev);
 
 static tt_bool_t __do_fwrite(IN tt_io_ev_t *io_ev);
 
-static tt_bool_t __do_ftrylock(IN tt_io_ev_t *io_ev);
-
 static tt_poller_io_t __fs_poller_io[__FS_EV_NUM] = {
     NULL,
     NULL,
@@ -391,7 +380,6 @@ static tt_poller_io_t __fs_poller_io[__FS_EV_NUM] = {
     __do_fwrite,
     NULL,
     NULL,
-    __do_ftrylock,
 
     NULL,
     NULL,
@@ -580,33 +568,6 @@ tt_result_t tt_fwrite_ntv(IN tt_file_ntv_t *file,
 
     tt_fiber_suspend();
     return fwrite.result;
-}
-
-tt_result_t tt_ftrylock_ntv(IN tt_file_ntv_t *file, IN tt_bool_t exclusive)
-{
-    __ftrylock_t ftrylock;
-    DWORD dwFlags;
-
-    __fs_ev_init(&ftrylock.io_ev, __FTRYLOCK);
-    ftrylock.result = TT_FAIL;
-
-    dwFlags = LOCKFILE_FAIL_IMMEDIATELY;
-    if (exclusive) {
-        dwFlags |= LOCKFILE_EXCLUSIVE_LOCK;
-    }
-
-    // can not use "GetLastError() == ERROR_IO_PENDING", seems
-    // the ov would always be returned by GQCS
-    LockFileEx(file->hf, dwFlags, 0, ~0, ~0, &ftrylock.io_ev.u.ov);
-    tt_fiber_suspend();
-    return ftrylock.result;
-}
-
-void tt_funlock_ntv(IN tt_file_ntv_t *file)
-{
-    if (!UnlockFile(file->hf, 0, 0, ~0, ~0)) {
-        TT_ERROR_NTV("fail to unlock file");
-    }
 }
 
 tt_result_t tt_fstat_ntv(IN tt_file_ntv_t *file, OUT tt_fstat_t *fst)
@@ -1129,19 +1090,6 @@ void __do_fstat(IN tt_io_ev_t *io_ev)
     fst->is_link =
         TT_BOOL(info.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT);
     fstat_ev->result = TT_SUCCESS;
-}
-
-tt_bool_t __do_ftrylock(IN tt_io_ev_t *io_ev)
-{
-    __ftrylock_t *ftrylock = (__ftrylock_t *)io_ev;
-
-    if (TT_OK(io_ev->io_result)) {
-        ftrylock->result = TT_SUCCESS;
-    } else {
-        ftrylock->result = TT_FAIL;
-    }
-
-    return TT_TRUE;
 }
 
 void __do_dcreate(IN tt_io_ev_t *io_ev)

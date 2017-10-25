@@ -342,19 +342,6 @@ tt_export tt_result_t tt_fcontent_buf(IN const tt_char_t *path,
 
 tt_export tt_result_t tt_fsize(IN const tt_char_t *path, OUT tt_u64_t *size);
 
-// - prevent other PROCESSES from locking the file
-// - does not prevent other THREADS from locking the file
-// - does not prevent other threads or processes from reading or writing file
-tt_inline tt_result_t tt_ftrylock(IN tt_file_t *file, IN tt_bool_t exclusive)
-{
-    return tt_ftrylock_ntv(&file->sys_file, exclusive);
-}
-
-tt_inline void tt_funlock(IN tt_file_t *file)
-{
-    tt_funlock_ntv(&file->sys_file);
-}
-
 tt_inline tt_result_t tt_fstat(IN tt_file_t *file, OUT tt_fstat_t *fstat)
 {
     return tt_fstat_ntv(&file->sys_file, fstat);
