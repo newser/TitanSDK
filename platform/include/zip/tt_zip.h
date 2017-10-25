@@ -208,7 +208,9 @@ tt_inline tt_result_t tt_zip_set_comment(IN tt_zip_t *z,
 {
     if (zip_set_archive_comment(z,
                                 comment,
-                                TT_COND(len != 0, len, (zip_uint16_t)tt_strlen(comment))) ==
+                                TT_COND(len != 0,
+                                        len,
+                                        (zip_uint16_t)tt_strlen(comment))) ==
         0) {
         return TT_SUCCESS;
     } else {
@@ -240,7 +242,9 @@ tt_inline tt_result_t tt_zip_set_fcomment(IN tt_zip_t *z,
     if (zip_file_set_comment(z,
                              index,
                              comment,
-                             TT_COND(len != 0, len, (zip_uint16_t)tt_strlen(comment)),
+                             TT_COND(len != 0,
+                                     len,
+                                     (zip_uint16_t)tt_strlen(comment)),
                              flag) == 0) {
         return TT_SUCCESS;
     } else {

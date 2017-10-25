@@ -308,7 +308,7 @@ void __dskt_reset(IN __dskt_t *dskt)
 
 void __dskt_ev_init(IN tt_io_ev_t *io_ev, IN tt_u32_t ev)
 {
-	tt_io_ev_init(io_ev, TT_IO_DNS, ev);
+    tt_io_ev_init(io_ev, TT_IO_DNS, ev);
 }
 
 tt_result_t __dskt_config(IN SOCKET s, IN int af, IN ares_channel ch)
@@ -623,8 +623,13 @@ ares_ssize_t __dskt_sendv(IN ares_socket_t s,
         }
     } else {
         tt_memset(&dskt->w_ev.u.wov, 0, sizeof(WSAOVERLAPPED));
-        if ((WSASend(dskt->s, dskt->w_buf, n, NULL, 0, &dskt->w_ev.u.wov, NULL) ==
-             0) ||
+        if ((WSASend(dskt->s,
+                     dskt->w_buf,
+                     n,
+                     NULL,
+                     0,
+                     &dskt->w_ev.u.wov,
+                     NULL) == 0) ||
             (WSAGetLastError() == WSA_IO_PENDING)) {
             dskt->writing = TT_TRUE;
             WSASetLastError(WSAEWOULDBLOCK);

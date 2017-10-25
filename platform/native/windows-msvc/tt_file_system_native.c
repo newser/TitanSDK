@@ -390,7 +390,7 @@ static tt_poller_io_t __fs_poller_io[__FS_EV_NUM] = {
     __do_fread,
     __do_fwrite,
     NULL,
-    NULL,    
+    NULL,
     __do_ftrylock,
 
     NULL,
@@ -589,7 +589,7 @@ tt_result_t tt_ftrylock_ntv(IN tt_file_ntv_t *file, IN tt_bool_t exclusive)
 
     __fs_ev_init(&ftrylock.io_ev, __FTRYLOCK);
     ftrylock.result = TT_FAIL;
-    
+
     dwFlags = LOCKFILE_FAIL_IMMEDIATELY;
     if (exclusive) {
         dwFlags |= LOCKFILE_EXCLUSIVE_LOCK;
@@ -752,7 +752,7 @@ tt_bool_t tt_fs_poller_io(IN tt_io_ev_t *io_ev)
 
 void __fs_ev_init(IN tt_io_ev_t *io_ev, IN tt_u32_t ev)
 {
-	tt_io_ev_init(io_ev, TT_IO_FS, ev);
+    tt_io_ev_init(io_ev, TT_IO_FS, ev);
     io_ev->src = tt_current_fiber();
 }
 
@@ -897,7 +897,8 @@ void __do_fopen(IN tt_io_ev_t *io_ev)
                     NULL);
     if (file->hf == INVALID_HANDLE_VALUE) {
         fopen->result = TT_COND(GetLastError() == ERROR_FILE_NOT_FOUND,
-            TT_E_NOEXIST, TT_FAIL);
+                                TT_E_NOEXIST,
+                                TT_FAIL);
         TT_ERROR_NTV("fail to open file: %s", fopen->path);
         tt_wchar_destroy(w_path);
         return;
@@ -1119,10 +1120,14 @@ void __do_fstat(IN tt_io_ev_t *io_ev)
     fst->is_usr_readable = TT_TRUE;
     fst->is_grp_readable = TT_TRUE;
     fst->is_oth_readable = TT_TRUE;
-    fst->is_usr_writable = !TT_BOOL(info.dwFileAttributes & FILE_ATTRIBUTE_READONLY);
-    fst->is_grp_writable = !TT_BOOL(info.dwFileAttributes & FILE_ATTRIBUTE_READONLY);
-    fst->is_oth_writable = !TT_BOOL(info.dwFileAttributes & FILE_ATTRIBUTE_READONLY);
-    fst->is_link = TT_BOOL(info.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT);
+    fst->is_usr_writable =
+        !TT_BOOL(info.dwFileAttributes & FILE_ATTRIBUTE_READONLY);
+    fst->is_grp_writable =
+        !TT_BOOL(info.dwFileAttributes & FILE_ATTRIBUTE_READONLY);
+    fst->is_oth_writable =
+        !TT_BOOL(info.dwFileAttributes & FILE_ATTRIBUTE_READONLY);
+    fst->is_link =
+        TT_BOOL(info.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT);
     fstat_ev->result = TT_SUCCESS;
 }
 
@@ -1323,10 +1328,10 @@ void __do_dread(IN tt_io_ev_t *io_ev)
 void __do_fs_exist(IN tt_io_ev_t *io_ev)
 {
     __fs_exist_t *fs_exist = (__fs_exist_t *)io_ev;
-    
+
     wchar_t *w_path;
     DWORD attr;
-    
+
     w_path = tt_wchar_create(fs_exist->path, NULL);
     if (w_path == NULL) {
         fs_exist->result = TT_FALSE;
@@ -1348,7 +1353,7 @@ void __do_fs_rename(IN tt_io_ev_t *io_ev)
 
     wchar_t *w_from, *w_to;
     BOOL ret;
-    
+
     w_from = tt_wchar_create(fs_rename->from, NULL);
     if (w_from == NULL) {
         fs_rename->result = TT_FAIL;

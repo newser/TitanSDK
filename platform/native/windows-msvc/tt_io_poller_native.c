@@ -75,9 +75,15 @@ static tt_bool_t __task_io(IN tt_io_ev_t *io_ev);
 static tt_bool_t __fiber_io(IN tt_io_ev_t *io_ev);
 
 static __io_handler_t __io_handler[TT_IO_NUM] = {
-    __worker_io, __poller_io, __fs_io, __skt_io, __ipc_io, NULL, __dns_io,
-        __task_io,
-        __fiber_io,
+    __worker_io,
+    __poller_io,
+    __fs_io,
+    __skt_io,
+    __ipc_io,
+    NULL,
+    __dns_io,
+    __task_io,
+    __fiber_io,
 };
 
 ////////////////////////////////////////////////////////////
@@ -175,7 +181,7 @@ tt_result_t tt_io_poller_exit_ntv(IN tt_io_poller_ntv_t *sys_iop)
         return TT_FAIL;
     }
 
-	tt_io_ev_init(io_ev, TT_IO_POLLER, __POLLER_EXIT);
+    tt_io_ev_init(io_ev, TT_IO_POLLER, __POLLER_EXIT);
 
     if (!PostQueuedCompletionStatus(sys_iop->iocp,
                                     0,
@@ -297,4 +303,3 @@ tt_bool_t __fiber_io(IN tt_io_ev_t *io_ev)
 
     return TT_TRUE;
 }
-

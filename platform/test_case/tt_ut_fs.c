@@ -6,12 +6,12 @@
 
 #include <algorithm/tt_string_common.h>
 #include <io/tt_file_system.h>
+#include <io/tt_fpath.h>
 #include <memory/tt_memory_alloc.h>
 #include <os/tt_process.h>
 #include <os/tt_spinlock.h>
 #include <os/tt_task.h>
 #include <time/tt_time_reference.h>
-#include <io/tt_fpath.h>
 
 //#define __perf_vs
 #ifdef __perf_vs
@@ -278,7 +278,7 @@ TT_TEST_ROUTINE_DEFINE(case_fs_flock)
     tt_process_t p;
     tt_char_t *arg[] = {"\"not care\"", "flock", __SC_TEST_FILE, "e", NULL};
     tt_u8_t r;
-    
+
     TT_TEST_CASE_ENTER()
 
 #if TT_ENV_OS_IS_IOS
@@ -301,7 +301,7 @@ TT_TEST_ROUTINE_DEFINE(case_fs_flock)
     ret = tt_ftrylock(&f, TT_FALSE);
     TT_UT_SUCCESS(ret, "");
 
-	arg[3] = "ex";
+    arg[3] = "ex";
 #if 0
         {
 			    tt_fpath_t fp;

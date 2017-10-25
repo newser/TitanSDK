@@ -30,7 +30,7 @@ this file specifies libzip interfaces
 // import header files
 ////////////////////////////////////////////////////////////
 
-// always static 
+// always static
 #define ZIP_STATIC
 #include <zip.h>
 

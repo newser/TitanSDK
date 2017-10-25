@@ -450,7 +450,7 @@ tt_char_t *__pipe_name(IN const tt_char_t *addr)
 
 HANDLE __ipc_ev_init(IN tt_io_ev_t *io_ev, IN tt_u32_t ev)
 {
-	tt_io_ev_init(io_ev, TT_IO_IPC, ev);
+    tt_io_ev_init(io_ev, TT_IO_IPC, ev);
     io_ev->src = tt_current_fiber();
 
     return io_ev->src->fs->thread->task->iop.sys_iop.iocp;

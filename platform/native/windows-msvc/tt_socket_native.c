@@ -910,7 +910,7 @@ tt_bool_t tt_skt_poller_io(IN tt_io_ev_t *io_ev)
 
 HANDLE __skt_ev_init(IN tt_io_ev_t *io_ev, IN tt_u32_t ev)
 {
-	tt_io_ev_init(io_ev, TT_IO_SOCKET, ev);
+    tt_io_ev_init(io_ev, TT_IO_SOCKET, ev);
     io_ev->src = tt_current_fiber();
 
     return io_ev->src->fs->thread->task->iop.sys_iop.iocp;

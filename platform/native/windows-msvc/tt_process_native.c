@@ -251,4 +251,3 @@ tt_char_t *tt_current_path_ntv(IN tt_bool_t end_slash)
 
     return d;
 }
-
