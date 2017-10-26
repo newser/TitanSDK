@@ -31,6 +31,7 @@ this file defines IPC APIs
 ////////////////////////////////////////////////////////////
 
 #include <algorithm/tt_buffer.h>
+#include <os/tt_fiber_event.h>
 
 #include <tt_ipc_native.h>
 

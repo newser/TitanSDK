@@ -32,6 +32,7 @@ this file specifies socket APIs
 
 #include <io/tt_socket_addr.h>
 #include <os/tt_atomic.h>
+#include <os/tt_fiber_event.h>
 
 #include <tt_socket_native.h>
 

@@ -9,3 +9,4 @@ libzip:
 - removed "for tests" section in CMakeLists.txt
 - generated "libzip_config.h" and "zipconf.h" are put to include dir
 - include_directories() is changed to "include" dir in lib/CMakeLists.txt
+- gladman_fcrypt/sha1.c, removed "#include <stdlib.h>" for compiling android
