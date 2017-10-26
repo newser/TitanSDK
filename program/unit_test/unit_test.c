@@ -96,15 +96,12 @@ tt_result_t __ut_fiber(IN void *param)
 #if 1
     else {
         const tt_char_t *names[] = {
-            //"TEST_UNIT_LOG",
-            "TEST_UNIT_FS",
+            "TEST_UNIT_LOG",
+            //"TEST_UNIT_FS",
             //"TEST_UNIT_IPC",
             //"TEST_UNIT_SOCKET",
             //"TEST_UNIT_FIBER",
             //"ZIP_UT_ZLIB",
-            "ZIP_UT_ZSOURCE",
-            "ZIP_UT_ZARC",
-            "case_fs_open",
         };
         tt_u32_t i;
 

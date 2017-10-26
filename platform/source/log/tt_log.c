@@ -71,10 +71,20 @@ void tt_log_debug(IN const tt_char_t *func,
                   IN const tt_char_t *format,
                   ...)
 {
+    tt_thread_log_t l;
     va_list ap;
 
+    if (!tt_g_logmgr_ok) {
+        return;
+    }
+
+    l = tt_thread_get_log(NULL);
+    if (!TT_THREAD_LOG_VALID(l) || (l == TT_THREAD_LOG_NONE)) {
+        return;
+    }
+
     va_start(ap, format);
-    if (tt_g_logmgr_ok && !tt_thread_log_std()) {
+    if (l == TT_THREAD_LOG_DEFAULT) {
         tt_logmgr_inputv(&tt_g_logmgr, TT_LOG_DEBUG, func, line, format, ap);
     } else {
         TT_VPRINTF(format, ap);
@@ -88,10 +98,20 @@ void tt_log_info(IN const tt_char_t *func,
                  IN const tt_char_t *format,
                  ...)
 {
+    tt_thread_log_t l;
     va_list ap;
 
+    if (!tt_g_logmgr_ok) {
+        return;
+    }
+
+    l = tt_thread_get_log(NULL);
+    if (!TT_THREAD_LOG_VALID(l) || (l == TT_THREAD_LOG_NONE)) {
+        return;
+    }
+
     va_start(ap, format);
-    if (tt_g_logmgr_ok && !tt_thread_log_std()) {
+    if (l == TT_THREAD_LOG_DEFAULT) {
         tt_logmgr_inputv(&tt_g_logmgr, TT_LOG_INFO, func, line, format, ap);
     } else {
         TT_VPRINTF(format, ap);
@@ -105,10 +125,20 @@ void tt_log_warn(IN const tt_char_t *func,
                  IN const tt_char_t *format,
                  ...)
 {
+    tt_thread_log_t l;
     va_list ap;
 
+    if (!tt_g_logmgr_ok) {
+        return;
+    }
+
+    l = tt_thread_get_log(NULL);
+    if (!TT_THREAD_LOG_VALID(l) || (l == TT_THREAD_LOG_NONE)) {
+        return;
+    }
+
     va_start(ap, format);
-    if (tt_g_logmgr_ok && !tt_thread_log_std()) {
+    if (l == TT_THREAD_LOG_DEFAULT) {
         tt_logmgr_inputv(&tt_g_logmgr, TT_LOG_WARN, func, line, format, ap);
     } else {
         TT_VPRINTF(format, ap);
@@ -122,10 +152,20 @@ void tt_log_error(IN const tt_char_t *func,
                   IN const tt_char_t *format,
                   ...)
 {
+    tt_thread_log_t l;
     va_list ap;
 
+    if (!tt_g_logmgr_ok) {
+        return;
+    }
+
+    l = tt_thread_get_log(NULL);
+    if (!TT_THREAD_LOG_VALID(l) || (l == TT_THREAD_LOG_NONE)) {
+        return;
+    }
+
     va_start(ap, format);
-    if (tt_g_logmgr_ok && !tt_thread_log_std()) {
+    if (l == TT_THREAD_LOG_DEFAULT) {
         tt_logmgr_inputv(&tt_g_logmgr, TT_LOG_ERROR, func, line, format, ap);
     } else {
         TT_VPRINTF(format, ap);
@@ -139,10 +179,20 @@ void tt_log_fatal(IN const tt_char_t *func,
                   IN const tt_char_t *format,
                   ...)
 {
+    tt_thread_log_t l;
     va_list ap;
 
+    if (!tt_g_logmgr_ok) {
+        return;
+    }
+
+    l = tt_thread_get_log(NULL);
+    if (!TT_THREAD_LOG_VALID(l) || (l == TT_THREAD_LOG_NONE)) {
+        return;
+    }
+
     va_start(ap, format);
-    if (tt_g_logmgr_ok && !tt_thread_log_std()) {
+    if (l == TT_THREAD_LOG_DEFAULT) {
         tt_logmgr_inputv(&tt_g_logmgr, TT_LOG_FATAL, func, line, format, ap);
     } else {
         TT_VPRINTF(format, ap);

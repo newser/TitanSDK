@@ -70,6 +70,15 @@ typedef struct tt_thread_attr_s
     tt_bool_t enable_fiber : 1;
 } tt_thread_attr_t;
 
+typedef enum {
+    TT_THREAD_LOG_DEFAULT,
+    TT_THREAD_LOG_STD,
+    TT_THREAD_LOG_NONE,
+
+    TT_THREAD_LOG_NUM
+} tt_thread_log_t;
+#define TT_THREAD_LOG_VALID(l) ((l) < TT_THREAD_LOG_NUM)
+
 /**
 @struct tt_thread_t
 thread struct
@@ -101,7 +110,7 @@ typedef struct tt_thread_s
     tt_bool_t detached : 1;
     tt_bool_t local : 1;
     tt_bool_t enable_fiber : 1;
-    tt_bool_t log_std : 1;
+    tt_thread_log_t log : 2;
 } tt_thread_t;
 
 ////////////////////////////////////////////////////////////
@@ -206,10 +215,26 @@ tt_inline tt_thread_t *tt_current_thread()
     return tt_current_thread_ntv();
 }
 
-tt_inline tt_bool_t tt_thread_log_std()
+tt_inline tt_thread_log_t tt_thread_get_log(IN tt_thread_t *thread)
 {
-    tt_thread_t *t = tt_current_thread();
-    return TT_COND(t != NULL, t->log_std, TT_TRUE);
+    if (thread == NULL) {
+        thread = tt_current_thread();
+    }
+    return TT_COND(thread != NULL, thread->log, TT_THREAD_LOG_NUM);
+}
+
+tt_inline tt_thread_log_t tt_thread_set_log(IN tt_thread_t *thread,
+                                            IN tt_thread_log_t l)
+{
+    tt_thread_log_t org = TT_THREAD_LOG_NUM;
+    if (thread == NULL) {
+        thread = tt_current_thread();
+    }
+    if (thread != NULL) {
+        org = thread->log;
+        thread->log = l;
+    }
+    return org;
 }
 
 /**
