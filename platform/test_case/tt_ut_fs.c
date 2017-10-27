@@ -171,7 +171,11 @@ TT_TEST_ROUTINE_DEFINE(case_fs_consistency)
 #else
 #define __SC_TEST_FILE "测试"
 #define __SC_TEST_FILE2 "测试2"
+
+#define __TEST_D1 "测试目录1"
 #endif
+#define __TEST_D2 "测试目录2"
+#define __TEST_F3 "测试文件3"
 
         TT_TEST_ROUTINE_DEFINE(case_fs_basic)
 {
@@ -256,6 +260,73 @@ TT_TEST_ROUTINE_DEFINE(case_fs_consistency)
 
         ret = tt_fremove(__SC_TEST_FILE2);
         TT_UT_SUCCESS(ret, "");
+    }
+
+    // create file with parent paths
+    {
+        tt_dremove(__TEST_D1);
+        TT_UT_FALSE(tt_fs_exist(__TEST_D1), "");
+
+        ret = tt_fcreate(__TEST_D1
+                         "/"__TEST_D2
+                         "/"__TEST_F3,
+                         NULL);
+        TT_UT_SUCCESS(ret, "");
+        TT_UT_TRUE(tt_fs_exist(__TEST_D1 "/"__TEST_D2
+                                         "/"__TEST_F3),
+                   "");
+
+        tt_dremove(__TEST_D1
+                   "/"__TEST_D2
+                   "/");
+        TT_UT_FALSE(tt_fs_exist(__TEST_D1 "/"__TEST_D2), "");
+
+        ret = tt_fcreate(__TEST_D1
+                         "/"__TEST_D2
+                         "/"__TEST_F3,
+                         NULL);
+        TT_UT_SUCCESS(ret, "");
+        TT_UT_TRUE(tt_fs_exist(__TEST_D1 "/"__TEST_D2
+                                         "/"__TEST_F3),
+                   "");
+    }
+
+    // open file with parent paths
+    {
+        tt_dremove(__TEST_D1);
+        TT_UT_FALSE(tt_fs_exist(__TEST_D1), "");
+
+        ret = tt_fopen(&f,
+                       __TEST_D1
+                       "/"__TEST_D2
+                       "/"__TEST_F3,
+                       TT_FO_CREAT_DIR,
+                       NULL);
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_TRUE(tt_fs_exist(__TEST_D1 "/"__TEST_D2
+                                         "/"__TEST_F3),
+                   "");
+        tt_fclose(&f);
+
+        tt_dremove(__TEST_D1
+                   "/"__TEST_D2
+                   "/");
+        TT_UT_TRUE(tt_fs_exist(__TEST_D1), "");
+        TT_UT_FALSE(tt_fs_exist(__TEST_D1 "/"__TEST_D2
+                                          "/"),
+                    "");
+
+        ret = tt_fopen(&f,
+                       __TEST_D1
+                       "/"__TEST_D2
+                       "/"__TEST_F3,
+                       TT_FO_CREAT_DIR,
+                       NULL);
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_TRUE(tt_fs_exist(__TEST_D1 "/"__TEST_D2
+                                         "/"__TEST_F3),
+                   "");
+        tt_fclose(&f);
     }
 
     // test end
@@ -610,6 +681,8 @@ TT_TEST_ROUTINE_DEFINE(case_dir_basic)
 #define __TEST_DIR2 "./test_dir2"
 #endif
 
+#define __TEST_SUBDIR "一个子目录3"
+
     tt_dremove(__TEST_DIR);
 
     TT_UT_EQUAL(tt_fs_exist(__TEST_DIR), TT_FALSE, "");
@@ -714,6 +787,33 @@ TT_TEST_ROUTINE_DEFINE(case_dir_basic)
 
         ret = tt_dremove(__TEST_DIR2);
         TT_UT_SUCCESS(ret, "");
+    }
+
+    {
+        tt_dremove(__TEST_DIR);
+        TT_UT_FALSE(tt_fs_exist(__TEST_DIR), "");
+
+        ret = tt_dcreate(__TEST_DIR "/" __TEST_SUBDIR "/" __TEST_SUBDIR
+                                    "/" __TEST_SUBDIR,
+                         NULL);
+        TT_UT_SUCCESS(ret, "");
+        TT_UT_TRUE(tt_fs_exist(__TEST_DIR "/" __TEST_SUBDIR "/" __TEST_SUBDIR
+                                          "/" __TEST_SUBDIR),
+                   "");
+
+        tt_dremove(__TEST_DIR "/" __TEST_SUBDIR "/" __TEST_SUBDIR);
+        TT_UT_TRUE(tt_fs_exist(__TEST_DIR), "");
+        TT_UT_TRUE(tt_fs_exist(__TEST_DIR "/" __TEST_SUBDIR), "");
+        TT_UT_FALSE(tt_fs_exist(__TEST_DIR "/" __TEST_SUBDIR "/" __TEST_SUBDIR),
+                    "");
+
+        ret = tt_dcreate(__TEST_DIR "/" __TEST_SUBDIR "/" __TEST_SUBDIR
+                                    "/" __TEST_SUBDIR "/",
+                         NULL);
+        TT_UT_SUCCESS(ret, "");
+        TT_UT_TRUE(tt_fs_exist(__TEST_DIR "/" __TEST_SUBDIR "/" __TEST_SUBDIR
+                                          "/" __TEST_SUBDIR),
+                   "");
     }
 
     // test end

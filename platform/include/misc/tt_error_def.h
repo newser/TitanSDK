@@ -94,7 +94,7 @@ typedef enum _tt_result_t {
     TT_BAD_PARAM,
 
     // idx: 5
-    TT_NO_RESOURCE,
+    TT_E_NOMEM,
     TT_BAD_ENV,
     TT_E_NOEXIST,
     TT_E_EXIST,

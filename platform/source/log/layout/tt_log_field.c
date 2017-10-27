@@ -108,29 +108,7 @@ static tt_result_t __lf_output_line(IN tt_logfld_t *lf,
                                     IN tt_log_entry_t *entry,
                                     OUT tt_buf_t *outbuf);
 
-static __lf_entry_t __lf_table[] = {
-    {
-        TT_LOGFLD_SEQ_NUM_KEY,
-        TT_LOGFLD_SEQ_NUM,
-        "%d",
-
-        __lf_create,
-        __lf_destroy,
-        __lf_check,
-        __lf_output_seq_num,
-    },
-
-    {
-        TT_LOGFLD_TIME_KEY,
-        TT_LOGFLD_TIME,
-        "%Y-%N-%D %H:%M:%S",
-
-        __lf_create,
-        __lf_destroy,
-        __lf_check,
-        __lf_output_time,
-    },
-
+static __lf_entry_t __lf_table[TT_LOGFLD_TYPE_NUM] = {
     {
         TT_LOGFLD_LOGGER_KEY,
         TT_LOGFLD_LOGGER,
@@ -140,28 +118,6 @@ static __lf_entry_t __lf_table[] = {
         __lf_destroy,
         __lf_check,
         __lf_output_logger,
-    },
-
-    {
-        TT_LOGFLD_LEVEL_KEY,
-        TT_LOGFLD_LEVEL,
-        "%s",
-
-        __lf_create,
-        __lf_destroy,
-        __lf_check,
-        __lf_output_level,
-    },
-
-    {
-        TT_LOGFLD_CONTENT_KEY,
-        TT_LOGFLD_CONTENT,
-        "%s",
-
-        __lf_create,
-        __lf_destroy,
-        __lf_check,
-        __lf_output_content,
     },
 
     {
@@ -176,6 +132,28 @@ static __lf_entry_t __lf_table[] = {
     },
 
     {
+        TT_LOGFLD_CONTENT_KEY,
+        TT_LOGFLD_CONTENT,
+        "%s",
+
+        __lf_create,
+        __lf_destroy,
+        __lf_check,
+        __lf_output_content,
+    },
+
+    {
+        TT_LOGFLD_SEQ_NUM_KEY,
+        TT_LOGFLD_SEQ_NUM,
+        "%d",
+
+        __lf_create,
+        __lf_destroy,
+        __lf_check,
+        __lf_output_seq_num,
+    },
+
+    {
         TT_LOGFLD_LINE_KEY,
         TT_LOGFLD_LINE,
         "%d",
@@ -184,6 +162,28 @@ static __lf_entry_t __lf_table[] = {
         __lf_destroy,
         __lf_check,
         __lf_output_line,
+    },
+
+    {
+        TT_LOGFLD_LEVEL_KEY,
+        TT_LOGFLD_LEVEL,
+        "%s",
+
+        __lf_create,
+        __lf_destroy,
+        __lf_check,
+        __lf_output_level,
+    },
+
+    {
+        TT_LOGFLD_TIME_KEY,
+        TT_LOGFLD_TIME,
+        "%Y-%N-%D %H:%M:%S",
+
+        __lf_create,
+        __lf_destroy,
+        __lf_check,
+        __lf_output_time,
     },
 };
 
@@ -327,8 +327,6 @@ tt_result_t __lf_output_time(IN tt_logfld_t *lf,
 {
     tt_u8_t *p;
     tt_u32_t len;
-
-    // todo: read time from entry and format to outbuf
 
     // reserving 100 bytes should be enough
     TT_DO(tt_buf_reserve(outbuf, 100));

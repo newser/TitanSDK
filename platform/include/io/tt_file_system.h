@@ -197,6 +197,7 @@ tt_export tt_result_t tt_fopen(OUT tt_file_t *file,
 #define TT_FO_CREAT (1 << 4)
 #define TT_FO_EXCL (1 << 5)
 #define TT_FO_TRUNC (1 << 6)
+#define TT_FO_CREAT_DIR (1 << 7)
 
 /**
 @fn tt_result_t tt_fclose(IN tt_file_t *file)

@@ -223,7 +223,7 @@ tt_u32_t __lio_fidx_output(IN tt_logio_t *lio,
 
     // this function is already protected by log manger's lock
 
-    l = tt_thread_set_log(t, TT_THREAD_LOG_STD);
+    l = tt_thread_set_log(t, TT_THREAD_LOG_PRINTF);
 
     if (!lf->f_opened) {
         // it ever failed to open log file, which is not expected. but here we
@@ -327,7 +327,7 @@ tt_u32_t __lio_fdate_output(IN tt_logio_t *lio,
 
     // this function is already protected by log manger's lock
 
-    l = tt_thread_set_log(t, TT_THREAD_LOG_STD);
+    l = tt_thread_set_log(t, TT_THREAD_LOG_PRINTF);
 
     if (!lf->f_opened) {
         // it ever failed to open log file, which is not expected. but here we

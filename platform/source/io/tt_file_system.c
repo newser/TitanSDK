@@ -51,6 +51,8 @@
 static tt_result_t __fs_component_init(IN tt_component_t *comp,
                                        IN tt_profile_t *profile);
 
+static tt_char_t *__parent_dir(IN const tt_char_t *path);
+
 ////////////////////////////////////////////////////////////
 // interface implementation
 ////////////////////////////////////////////////////////////
@@ -82,6 +84,7 @@ void tt_file_attr_default(IN tt_file_attr_t *attr)
 tt_result_t tt_fcreate(IN const tt_char_t *path, IN OPT tt_file_attr_t *attr)
 {
     tt_file_attr_t __attr;
+    tt_char_t *parent;
 
     TT_ASSERT(path != NULL);
 
@@ -90,7 +93,18 @@ tt_result_t tt_fcreate(IN const tt_char_t *path, IN OPT tt_file_attr_t *attr)
         attr = &__attr;
     }
 
-    return tt_fcreate_ntv(path, attr);
+    parent = __parent_dir(path);
+    if (parent != NULL) {
+        tt_result_t result = tt_dcreate(parent, NULL);
+        tt_free(parent);
+        if (TT_OK(result)) {
+            return tt_fcreate_ntv(path, attr);
+        } else {
+            return result;
+        }
+    } else {
+        return tt_fcreate_ntv(path, attr);
+    }
 }
 
 tt_result_t tt_fremove(IN const tt_char_t *path)
@@ -106,6 +120,8 @@ tt_result_t tt_fopen(IN tt_file_t *file,
                      IN OPT tt_file_attr_t *attr)
 {
     tt_file_attr_t __attr;
+    tt_char_t *parent;
+    tt_result_t result;
 
     TT_ASSERT(file != NULL);
     TT_ASSERT(path != NULL);
@@ -115,7 +131,18 @@ tt_result_t tt_fopen(IN tt_file_t *file,
         attr = &__attr;
     }
 
-    return tt_fopen_ntv(&file->sys_file, path, flag, attr);
+    if ((flag & TT_FO_CREAT_DIR) && ((parent = __parent_dir(path)) != NULL)) {
+        result = tt_dcreate(parent, NULL);
+        tt_free(parent);
+        if (TT_OK(result)) {
+            flag |= TT_FO_CREAT;
+            return tt_fopen_ntv(&file->sys_file, path, flag, attr);
+        } else {
+            return result;
+        }
+    } else {
+        return tt_fopen_ntv(&file->sys_file, path, flag, attr);
+    }
 }
 
 void tt_fclose(IN tt_file_t *file)
@@ -245,6 +272,11 @@ void tt_dir_attr_default(IN tt_dir_attr_t *attr)
 tt_result_t tt_dcreate(IN const tt_char_t *path, IN tt_dir_attr_t *attr)
 {
     tt_dir_attr_t __attr;
+    tt_char_t sep;
+    tt_u32_t len, pos;
+    tt_char_t *p;
+    const tt_char_t *prev, *s;
+    tt_result_t result = TT_FAIL;
 
     TT_ASSERT(path != NULL);
 
@@ -253,7 +285,50 @@ tt_result_t tt_dcreate(IN const tt_char_t *path, IN tt_dir_attr_t *attr)
         attr = &__attr;
     }
 
-    return tt_dcreate_ntv(path, attr);
+    if (tt_strchr(path, '/') != NULL) {
+        sep = '/';
+    } else if (tt_strchr(path, '\\') != NULL) {
+        sep = '\\';
+    } else {
+        return tt_dcreate_ntv(path, attr);
+    }
+
+    len = tt_strlen(path);
+    p = tt_zalloc(len + 1);
+    if (p == NULL) {
+        return TT_E_NOMEM;
+    }
+
+    pos = 0;
+    prev = path;
+    s = path;
+    while ((s = tt_strchr(s, sep)) != NULL) {
+        tt_u32_t n;
+
+        if ((s == path) || ((s == (path + 2)) && (path[1] == ':'))) {
+            continue;
+        }
+
+        n = s - prev;
+        tt_memcpy(p + pos, prev, n);
+        pos += n;
+        if (!tt_fs_exist(p) && !TT_OK((result = tt_dcreate_ntv(p, attr)))) {
+            goto done;
+        }
+
+        prev = s;
+        ++s;
+    }
+    if (prev < (path + len - 1)) {
+        tt_memcpy(p + pos, prev, path + len - prev);
+        if (!tt_fs_exist(p) && !TT_OK((result = tt_dcreate_ntv(p, attr)))) {
+            goto done;
+        }
+    }
+
+done:
+    tt_free(p);
+    return result;
 }
 
 tt_result_t tt_dremove(IN const tt_char_t *path)
@@ -310,4 +385,33 @@ tt_result_t __fs_component_init(IN tt_component_t *comp,
     }
 
     return TT_SUCCESS;
+}
+
+tt_char_t *__parent_dir(IN const tt_char_t *path)
+{
+    tt_char_t *p;
+    tt_u32_t len;
+
+    p = tt_strrchr(path, '/');
+#if TT_ENV_OS_IS_WINDOWS
+    if (p == NULL) {
+        p = tt_strrchr(path, '\\');
+    }
+#endif
+
+    if ((p == NULL) || ((p == (path + 1)) && (path[0] == '.')) ||
+        ((p == (path + 2)) && (path[0] == '.') && (path[1] == '.'))) {
+        return NULL;
+    }
+
+    len = (tt_u32_t)(p - path);
+    p = tt_malloc(len + 1);
+    if (p != NULL) {
+        tt_memcpy(p, path, len);
+        p[len] = 0;
+        return p;
+    } else {
+        TT_ERROR("no mem for parent path");
+        return NULL;
+    }
 }

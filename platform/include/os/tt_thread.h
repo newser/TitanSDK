@@ -72,7 +72,7 @@ typedef struct tt_thread_attr_s
 
 typedef enum {
     TT_THREAD_LOG_DEFAULT,
-    TT_THREAD_LOG_STD,
+    TT_THREAD_LOG_PRINTF,
     TT_THREAD_LOG_NONE,
 
     TT_THREAD_LOG_NUM
@@ -220,13 +220,13 @@ tt_inline tt_thread_log_t tt_thread_get_log(IN tt_thread_t *thread)
     if (thread == NULL) {
         thread = tt_current_thread();
     }
-    return TT_COND(thread != NULL, thread->log, TT_THREAD_LOG_NUM);
+    return TT_COND(thread != NULL, thread->log, TT_THREAD_LOG_PRINTF);
 }
 
 tt_inline tt_thread_log_t tt_thread_set_log(IN tt_thread_t *thread,
                                             IN tt_thread_log_t l)
 {
-    tt_thread_log_t org = TT_THREAD_LOG_NUM;
+    tt_thread_log_t org = TT_THREAD_LOG_PRINTF;
     if (thread == NULL) {
         thread = tt_current_thread();
     }

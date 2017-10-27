@@ -69,13 +69,13 @@ typedef enum {
 #define TT_LOGIO_TYPE_VALID(t) ((t) < TT_LOGIO_NUM)
 
 typedef enum {
-    TT_LOGFLD_SEQ_NUM,
-    TT_LOGFLD_TIME,
     TT_LOGFLD_LOGGER,
-    TT_LOGFLD_LEVEL,
-    TT_LOGFLD_CONTENT,
     TT_LOGFLD_FUNC,
+    TT_LOGFLD_CONTENT,
+    TT_LOGFLD_SEQ_NUM,
     TT_LOGFLD_LINE,
+    TT_LOGFLD_LEVEL,
+    TT_LOGFLD_TIME,
 
     TT_LOGFLD_TYPE_NUM,
 } tt_logfld_type_t;
@@ -83,13 +83,12 @@ typedef enum {
 
 typedef struct
 {
-    tt_u32_t seq_num;
-    // todo: time
     const tt_char_t *logger;
-    tt_log_level_t level;
-    const tt_char_t *content;
     const tt_char_t *function;
+    const tt_char_t *content;
+    tt_u32_t seq_num;
     tt_u32_t line;
+    tt_log_level_t level;
 } tt_log_entry_t;
 
 // return false if the entry should be discarded
