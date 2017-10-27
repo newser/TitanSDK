@@ -50,6 +50,7 @@ enum
 {
     __T_EXIT,
     __T_ARCHIVE,
+    __T_PURGE_REMOVE,
 };
 
 ////////////////////////////////////////////////////////////
@@ -110,6 +111,8 @@ static void __liof_w_exit(IN tt_task_t *worker);
 
 static void __liof_w_archive(IN tt_logio_file_t *lf);
 
+static void __liof_w_purge_remove(IN tt_logio_file_t *lf);
+
 ////////////////////////////////////////////////////////////
 // interface implementation
 ////////////////////////////////////////////////////////////
@@ -152,6 +155,7 @@ tt_logio_t *tt_logio_file_create(IN const tt_char_t *log_path,
     lf->archive_path = archive_path;
     lf->archive_name = attr->archive_name;
     lf->log_suffix = attr->log_suffix;
+    lf->log_purge = attr->log_purge;
     lf->keep_log_sec = attr->keep_log_sec;
     lf->keep_archive_sec = attr->keep_archive_sec;
     if ((attr->max_log_size_order != 30) && (attr->max_log_size_order > 30)) {
@@ -164,13 +168,13 @@ tt_logio_t *tt_logio_file_create(IN const tt_char_t *log_path,
     lf->worker_running = TT_FALSE;
 
     // init specific
-    tt_memset(&lf->u, 0, sizeof(lf->u));
+    tt_memset(&lf->u_suffix, 0, sizeof(lf->u_suffix));
     if (attr->log_suffix == TT_LOGFILE_SUFFIX_INDEX) {
-        lf->u.fidx.index = 1;
+        lf->u_suffix.fidx.index = 1;
         result = __fidx_next(lf);
     } else {
         TT_ASSERT(attr->log_suffix == TT_LOGFILE_SUFFIX_DATE);
-        lf->u.fdate.date_format = attr->date_format;
+        lf->u_suffix.fdate.date_format = attr->date_format;
         result = __fdate_next(lf);
     }
     if (!TT_OK(result)) {
@@ -203,6 +207,7 @@ void tt_logio_file_attr_default(IN tt_logio_file_attr_t *attr)
     attr->archive_name = "archive";
     attr->date_format = "%C%N%DT%H%M%S";
     attr->log_suffix = TT_LOGFILE_SUFFIX_INDEX;
+    attr->log_purge = TT_LOGFILE_PURGE_NONE;
     attr->keep_log_sec = 0;
     attr->keep_archive_sec = 0;
     attr->max_log_size_order = 0;
@@ -282,7 +287,7 @@ tt_result_t __fidx_next(IN tt_logio_file_t *lf)
         tt_u64_t size;
 
         tt_memset(ext, 0, sizeof(ext));
-        tt_snprintf(ext, sizeof(ext) - 1, "%d", lf->u.fidx.index);
+        tt_snprintf(ext, sizeof(ext) - 1, "%d", lf->u_suffix.fidx.index);
         if (!TT_OK(tt_fpath_set_extension(&path, ext))) {
             break;
         }
@@ -298,7 +303,7 @@ tt_result_t __fidx_next(IN tt_logio_file_t *lf)
             tt_fclose(&lf->f);
             break;
         }
-        ++lf->u.fidx.index;
+        ++lf->u_suffix.fidx.index;
         if (size < lf->max_log_size) {
             lf->write_len = (tt_u32_t)size;
             lf->f_opened = TT_TRUE;
@@ -388,7 +393,9 @@ tt_result_t __fdate_next(IN tt_logio_file_t *lf)
         tt_u64_t size;
 
         tt_memset(ext, 0, sizeof(ext));
-        n = tt_date_render_now(lf->u.fdate.date_format, ext, sizeof(ext) - 1);
+        n = tt_date_render_now(lf->u_suffix.fdate.date_format,
+                               ext,
+                               sizeof(ext) - 1);
         TT_ASSERT(n < sizeof(ext));
         tt_snprintf(ext + n, sizeof(ext) - 1 - n, ".%d", idx);
         if (!TT_OK(tt_fpath_set_extension(&path, ext))) {
@@ -439,6 +446,18 @@ tt_result_t __liof_worker(IN void *param)
         // conintue as it may create other timers
     }
 
+    if (lf->keep_archive_sec != 0) {
+        if (lf->log_purge == TT_LOGFILE_PURGE_REMOVE) {
+            t = tt_tmr_create(lf->keep_archive_sec * 1000,
+                              __T_PURGE_REMOVE,
+                              NULL);
+            if (!TT_OK(tt_tmr_start(t))) {
+                TT_FATAL("fail to start purge remove timer");
+                // conintue as it may create other timers
+            }
+        }
+    }
+
     cur = tt_current_fiber();
     while (tt_fiber_recv(cur, TT_TRUE, &fev, &t)) {
         if (fev != NULL) {
@@ -460,6 +479,9 @@ tt_result_t __liof_worker(IN void *param)
             switch (t->ev) {
                 case __T_ARCHIVE: {
                     __liof_w_archive(lf);
+                } break;
+                case __T_PURGE_REMOVE: {
+                    __liof_w_purge_remove(lf);
                 } break;
 
                 default: {
@@ -697,5 +719,51 @@ done:
             tt_dclose(&d);
         }
         tt_fpath_destroy(&tmp_p);
+    }
+}
+
+void __liof_w_purge_remove(IN tt_logio_file_t *lf)
+{
+    tt_fpath_t ap;
+    tt_u32_t len;
+    tt_dir_t d;
+    tt_dirent_t entry;
+
+    tt_u32_t __done = 0;
+#define __LPR_AP (1 << 0)
+#define __LPR_DIR (1 << 1)
+
+    tt_fpath_init(&ap, TT_FPATH_AUTO);
+    __done |= __LPR_AP;
+    TT_DO_G(done, tt_fpath_set(&ap, lf->archive_path));
+
+    len = tt_strlen(lf->archive_name);
+
+    TT_DO_G(done, tt_dopen(&d, lf->archive_path, NULL));
+    __done |= __LPR_DIR;
+    while (TT_OK(tt_dread(&d, &entry))) {
+        tt_fstat_t fst;
+
+        if (tt_strncmp(entry.name, lf->archive_name, len) != 0) {
+            continue;
+        }
+
+        if (!TT_OK(tt_fpath_set_filename(&ap, entry.name)) ||
+            !TT_OK(tt_fstat_path(tt_fpath_cstr(&ap), &fst)) || !fst.is_file ||
+            (-tt_date_diff_now_second(&fst.modified) <
+             (tt_s64_t)lf->keep_archive_sec)) {
+            continue;
+        }
+
+        tt_fremove(tt_fpath_cstr(&ap));
+    }
+
+done:
+    if (__done & __LPR_AP) {
+        tt_fpath_destroy(&ap);
+    }
+
+    if (__done & __LPR_DIR) {
+        tt_dclose(&d);
     }
 }

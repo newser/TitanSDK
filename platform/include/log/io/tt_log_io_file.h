@@ -59,12 +59,22 @@ typedef enum {
 } tt_logfile_archive_t;
 #define TT_LOGFILE_ARCHIVE_VALID(n) ((n) < TT_LOGFILE_ARCHIVE_NUM)
 
+typedef enum {
+    TT_LOGFILE_PURGE_NONE,
+    TT_LOGFILE_PURGE_REMOVE,
+    TT_LOGFILE_PURGE_SFTP,
+
+    TT_LOGFILE_PURGE_NUM
+} tt_logfile_purge_t;
+#define TT_LOGFILE_PURGE_VALID(n) ((n) < TT_LOGFILE_PURGE_NUM)
+
 typedef struct
 {
     const tt_char_t *log_name;
     const tt_char_t *archive_name;
     const tt_char_t *date_format;
     tt_logfile_suffix_t log_suffix;
+    tt_logfile_purge_t log_purge;
     tt_u32_t keep_log_sec;
     tt_u32_t keep_archive_sec;
     tt_u32_t max_log_size_order;
@@ -79,6 +89,7 @@ typedef struct
     tt_task_t worker;
     tt_file_t f;
     tt_logfile_suffix_t log_suffix;
+    tt_logfile_purge_t log_purge;
     tt_u32_t keep_log_sec;
     tt_u32_t keep_archive_sec;
     tt_u32_t max_log_size;
@@ -94,7 +105,15 @@ typedef struct
         {
             const tt_char_t *date_format;
         } fdate;
-    } u;
+    } u_suffix;
+
+    union
+    {
+        struct
+        {
+            tt_u32_t reserved;
+        } sftp;
+    } u_purge;
 
     tt_bool_t f_opened : 1;
     tt_bool_t worker_running : 1;

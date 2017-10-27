@@ -653,6 +653,8 @@ TT_TEST_ROUTINE_DEFINE(case_log_io_file_archive)
     a.max_log_size_order = 6; // 64 bytes
     a.log_suffix = TT_LOGFILE_SUFFIX_INDEX;
     a.keep_log_sec = 3;
+    a.keep_archive_sec = 3;
+    a.log_purge = TT_LOGFILE_PURGE_REMOVE;
 
 #define __LIOF_P_LOG __LIOF_LOG_PATH "mylog/"
     tt_dremove(__LIOF_P_LOG);
@@ -683,7 +685,7 @@ TT_TEST_ROUTINE_DEFINE(case_log_io_file_archive)
         tt_zip_t *z;
         tt_bool_t found = TT_FALSE;
 
-        tt_sleep(7000);
+        tt_sleep(4000);
 
         ret = tt_dopen(&d, __LIOF_P_ARCH, NULL);
         TT_UT_SUCCESS(ret, "");
@@ -751,6 +753,33 @@ TT_TEST_ROUTINE_DEFINE(case_log_io_file_archive)
             TT_UT_FALSE(oneshot, "");
             oneshot = TT_TRUE;
         }
+    }
+
+    tt_sleep(4000);
+
+    // should already be purged
+    {
+        tt_u32_t n = 0;
+        tt_dir_t d;
+        tt_result_t ret;
+        tt_dirent_t de;
+
+        ret = tt_dopen(&d, __LIOF_P_ARCH, NULL);
+        TT_UT_SUCCESS(ret, "");
+
+        while (TT_OK(ret = tt_dread(&d, &de))) {
+            if (tt_strcmp(de.name, ".") == 0) {
+                continue;
+            } else if (tt_strcmp(de.name, "..") == 0) {
+                continue;
+            }
+
+            ++n;
+            TT_INFO("arch: %s", de.name);
+        }
+        TT_UT_EQUAL(n, 0, "");
+
+        tt_dclose(&d);
     }
 
     // enable it when cross-thread fiber event is implemented
