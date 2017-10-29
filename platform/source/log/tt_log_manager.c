@@ -69,7 +69,7 @@ tt_result_t tt_logmgr_create(IN tt_logmgr_t *lmgr,
     // default level
     lmgr->level = TT_LOG_WARN;
 
-    if (!TT_OK(tt_spinlock_create(&lmgr->lock, &attr->lock_attr))) {
+    if (!TT_OK(tt_mutex_create(&lmgr->lock, &attr->lock_attr))) {
         return TT_FAIL;
     }
 
@@ -84,7 +84,7 @@ tt_result_t tt_logmgr_create(IN tt_logmgr_t *lmgr,
             for (j = 0; j < i; ++j) {
                 tt_logctx_destroy(&lmgr->ctx[j]);
             }
-            tt_spinlock_destroy(&lmgr->lock);
+            tt_mutex_destroy(&lmgr->lock);
             return TT_FAIL;
         }
     }
@@ -100,7 +100,7 @@ void tt_logmgr_destroy(IN tt_logmgr_t *lmgr)
         return;
     }
 
-    tt_spinlock_destroy(&lmgr->lock);
+    tt_mutex_destroy(&lmgr->lock);
 
     tt_buf_destroy(&lmgr->buf);
 
@@ -117,7 +117,7 @@ void tt_logmgr_attr_default(IN tt_logmgr_attr_t *attr)
         return;
     }
 
-    tt_spinlock_attr_default(&attr->lock_attr);
+    tt_mutex_attr_default(&attr->lock_attr);
 
     tt_buf_attr_default(&attr->buf_attr);
 
@@ -196,7 +196,7 @@ tt_result_t tt_logmgr_inputv(IN tt_logmgr_t *lmgr,
     entry.function = func;
     entry.line = line;
 
-    tt_spinlock_acquire(&lmgr->lock);
+    tt_mutex_acquire(&lmgr->lock);
 
     tt_buf_clear(buf);
     if (TT_OK(tt_buf_putv(&lmgr->buf, format, ap)) &&
@@ -206,7 +206,7 @@ tt_result_t tt_logmgr_inputv(IN tt_logmgr_t *lmgr,
         result = tt_logctx_input(&lmgr->ctx[level], &entry);
     }
 
-    tt_spinlock_release(&lmgr->lock);
+    tt_mutex_release(&lmgr->lock);
 
     return result;
 }

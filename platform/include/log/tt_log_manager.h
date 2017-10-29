@@ -32,7 +32,7 @@ this file declare log manager
 
 #include <algorithm/tt_buffer.h>
 #include <log/tt_log_context.h>
-#include <os/tt_spinlock.h>
+#include <os/tt_mutex.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
@@ -47,7 +47,7 @@ struct tt_logio_s;
 
 typedef struct
 {
-    tt_spinlock_attr_t lock_attr;
+    tt_mutex_attr_t lock_attr;
     tt_buf_attr_t buf_attr;
     tt_logctx_attr_t ctx_attr[TT_LOG_LEVEL_NUM];
 } tt_logmgr_attr_t;
@@ -56,7 +56,7 @@ typedef struct tt_logmgr_s
 {
     const tt_char_t *logger;
     tt_log_level_t level;
-    tt_spinlock_t lock;
+    tt_mutex_t lock;
     tt_u32_t seq_num;
     tt_buf_t buf;
     tt_logctx_t ctx[TT_LOG_LEVEL_NUM];
