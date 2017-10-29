@@ -125,8 +125,8 @@ static tt_s32_t tt_g_flock_ret;
 tt_result_t __flock_fiber(IN void *param)
 {
     char **argv = (char **)param;
-    //tt_file_t f;
-    //tt_result_t r;
+    // tt_file_t f;
+    // tt_result_t r;
     tt_u32_t i = 0;
 
     printf("testing flock 2\n");
