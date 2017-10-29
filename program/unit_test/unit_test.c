@@ -96,9 +96,8 @@ tt_result_t __ut_fiber(IN void *param)
 #if 1
     else {
         const tt_char_t *names[] = {
-            "case_console_color",
-            //"TEST_UNIT_LOG",
-            //"TEST_UNIT_FS",
+            "TEST_UNIT_LOG", "TEST_UNIT_FS",
+            //"case_console_color",
             //"TEST_UNIT_IPC",
             //"TEST_UNIT_SOCKET",
             //"TEST_UNIT_FIBER",
