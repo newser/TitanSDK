@@ -41,6 +41,7 @@ console api should be able to write:
 ////////////////////////////////////////////////////////////
 
 #include <io/tt_console_event.h>
+#include <misc/tt_assert.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
@@ -77,6 +78,22 @@ typedef tt_result_t (*tt_cons_ev_handler_t)(IN void *param,
                                             IN tt_cons_ev_t ev,
                                             IN tt_cons_ev_data_t *ev_data);
 
+typedef enum {
+    TT_CONSOLE_COLOR_CURRENT,
+
+    TT_CONSOLE_BLACK,
+    TT_CONSOLE_RED,
+    TT_CONSOLE_GREEN,
+    TT_CONSOLE_YELLOW,
+    TT_CONSOLE_BLUE,
+    TT_CONSOLE_MAGENTA,
+    TT_CONSOLE_CYAN,
+    TT_CONSOLE_WHITE,
+
+    TT_CONSOLE_COLOR_NUM
+} tt_console_color_t;
+#define TT_CONSOLE_COLOR_VALID(c) ((c) < TT_CONSOLE_COLOR_NUM)
+
 ////////////////////////////////////////////////////////////
 // global variants
 ////////////////////////////////////////////////////////////
@@ -110,5 +127,8 @@ tt_inline tt_result_t tt_console_send_key(IN tt_u8_t *key, IN tt_u32_t key_num)
         return TT_SUCCESS;
     }
 }
+
+tt_export void tt_console_set_color(IN tt_console_color_t foreground,
+                                    IN tt_console_color_t background);
 
 #endif // __TT_CONSOLE__

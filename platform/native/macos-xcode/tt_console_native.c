@@ -212,6 +212,41 @@ tt_result_t tt_console_send_ntv(IN tt_cons_ev_t ev,
     return __cons_itf.send(ev, ev_data);
 }
 
+void tt_console_set_color_ntv(IN tt_console_color_t foreground,
+                              IN tt_console_color_t background)
+{
+    static const tt_char_t *__fc_keycode[TT_CONSOLE_COLOR_NUM] = {
+        NULL,
+        "\033[30m",
+        "\033[31m",
+        "\033[32m",
+        "\033[33m",
+        "\033[34m",
+        "\033[35m",
+        "\033[36m",
+        "\033[37m",
+    };
+    static const tt_char_t *__bc_keycode[TT_CONSOLE_COLOR_NUM] = {
+        NULL,
+        "\033[40m",
+        "\033[41m",
+        "\033[42m",
+        "\033[43m",
+        "\033[44m",
+        "\033[45m",
+        "\033[46m",
+        "\033[47m",
+    };
+
+    if (foreground != TT_CONSOLE_COLOR_CURRENT) {
+        write(STDOUT_FILENO, __fc_keycode[foreground], 5);
+    }
+
+    if (background != TT_CONSOLE_COLOR_CURRENT) {
+        write(STDOUT_FILENO, __bc_keycode[background], 5);
+    }
+}
+
 void __install_cons_itf(IN tt_console_input_mode_t imode,
                         IN tt_console_output_mode_t omode)
 {

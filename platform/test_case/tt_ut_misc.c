@@ -52,6 +52,7 @@ TT_TEST_ROUTINE_DECLARE(case_der_enc)
 TT_TEST_ROUTINE_DECLARE(case_strtol)
 TT_TEST_ROUTINE_DECLARE(case_c2h)
 TT_TEST_ROUTINE_DECLARE(case_align)
+TT_TEST_ROUTINE_DECLARE(case_console_color)
 // =========================================
 
 // === test case list ======================
@@ -124,6 +125,15 @@ TT_TEST_CASE("case_version",
                  NULL,
                  NULL),
 
+    TT_TEST_CASE("case_console_color",
+                 "testing console",
+                 case_console_color,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL),
+
     TT_TEST_CASE_LIST_DEFINE_END(misc_case)
     // =========================================
 
@@ -138,7 +148,7 @@ TT_TEST_CASE("case_version",
     ////////////////////////////////////////////////////////////
 
     /*
-    TT_TEST_ROUTINE_DEFINE(case_fpath_basic)
+    TT_TEST_ROUTINE_DEFINE(case_console_color)
     {
         //tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
 
@@ -1032,6 +1042,47 @@ TT_TEST_ROUTINE_DEFINE(case_align)
     pval = (tt_ptr_t)~0;
     TT_PTR_ALIGN_DEC(pval, 30);
     TT_UT_EQUAL(pval, (tt_ptr_t)0xFFFFFFFFC0000000, "");
+
+    // test end
+    TT_TEST_CASE_LEAVE()
+}
+
+TT_TEST_ROUTINE_DEFINE(case_console_color)
+{
+    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+
+    TT_TEST_CASE_ENTER()
+    // test start
+
+    tt_console_set_color(TT_CONSOLE_BLACK, TT_CONSOLE_COLOR_CURRENT);
+    TT_INFO("black - current");
+    tt_console_set_color(TT_CONSOLE_RED, TT_CONSOLE_COLOR_CURRENT);
+    TT_INFO("red - current");
+    tt_console_set_color(TT_CONSOLE_GREEN, TT_CONSOLE_COLOR_CURRENT);
+    TT_INFO("green - current");
+    tt_console_set_color(TT_CONSOLE_YELLOW, TT_CONSOLE_COLOR_CURRENT);
+    TT_INFO("yellow - current");
+    tt_console_set_color(TT_CONSOLE_MAGENTA, TT_CONSOLE_COLOR_CURRENT);
+    TT_INFO("magenta - current");
+    tt_console_set_color(TT_CONSOLE_CYAN, TT_CONSOLE_COLOR_CURRENT);
+    TT_INFO("cyan - current");
+    tt_console_set_color(TT_CONSOLE_WHITE, TT_CONSOLE_COLOR_CURRENT);
+    TT_INFO("white - current");
+
+    tt_console_set_color(TT_CONSOLE_COLOR_CURRENT, TT_CONSOLE_BLACK);
+    TT_INFO("current - black");
+    tt_console_set_color(TT_CONSOLE_COLOR_CURRENT, TT_CONSOLE_RED);
+    TT_INFO("current - red");
+    tt_console_set_color(TT_CONSOLE_COLOR_CURRENT, TT_CONSOLE_GREEN);
+    TT_INFO("current - green");
+    tt_console_set_color(TT_CONSOLE_COLOR_CURRENT, TT_CONSOLE_YELLOW);
+    TT_INFO("current - yellow");
+    tt_console_set_color(TT_CONSOLE_COLOR_CURRENT, TT_CONSOLE_MAGENTA);
+    TT_INFO("current - magenta");
+    tt_console_set_color(TT_CONSOLE_COLOR_CURRENT, TT_CONSOLE_CYAN);
+    TT_INFO("current - cyan");
+    tt_console_set_color(TT_CONSOLE_COLOR_CURRENT, TT_CONSOLE_WHITE);
+    TT_INFO("current - white");
 
     // test end
     TT_TEST_CASE_LEAVE()

@@ -139,6 +139,15 @@ tt_result_t tt_console_send(IN tt_cons_ev_t ev, IN tt_cons_ev_data_t *ev_data)
     return tt_console_send_ntv(ev, ev_data);
 }
 
+void tt_console_set_color(IN tt_console_color_t foreground,
+                          IN tt_console_color_t background)
+{
+    TT_ASSERT(TT_CONSOLE_COLOR_VALID(foreground));
+    TT_ASSERT(TT_CONSOLE_COLOR_VALID(background));
+
+    tt_console_set_color_ntv(foreground, background);
+}
+
 tt_result_t __console_component_init(IN tt_component_t *comp,
                                      IN tt_profile_t *profile)
 {
