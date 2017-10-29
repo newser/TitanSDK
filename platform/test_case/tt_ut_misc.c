@@ -1069,6 +1069,21 @@ TT_TEST_ROUTINE_DEFINE(case_console_color)
     tt_console_set_color(TT_CONSOLE_WHITE, TT_CONSOLE_COLOR_CURRENT);
     TT_INFO("white - current");
 
+    tt_console_set_color(TT_CONSOLE_BRIGHT_BLACK, TT_CONSOLE_COLOR_CURRENT);
+    TT_INFO("bright black - current");
+    tt_console_set_color(TT_CONSOLE_BRIGHT_RED, TT_CONSOLE_COLOR_CURRENT);
+    TT_INFO("bright red - current");
+    tt_console_set_color(TT_CONSOLE_BRIGHT_GREEN, TT_CONSOLE_COLOR_CURRENT);
+    TT_INFO("bright green - current");
+    tt_console_set_color(TT_CONSOLE_BRIGHT_YELLOW, TT_CONSOLE_COLOR_CURRENT);
+    TT_INFO("bright yellow - current");
+    tt_console_set_color(TT_CONSOLE_BRIGHT_MAGENTA, TT_CONSOLE_COLOR_CURRENT);
+    TT_INFO("bright magenta - current");
+    tt_console_set_color(TT_CONSOLE_BRIGHT_CYAN, TT_CONSOLE_COLOR_CURRENT);
+    TT_INFO("bright cyan - current");
+    tt_console_set_color(TT_CONSOLE_BRIGHT_WHITE, TT_CONSOLE_COLOR_CURRENT);
+    TT_INFO("bright white - current");
+
     tt_console_set_color(TT_CONSOLE_COLOR_CURRENT, TT_CONSOLE_BLACK);
     TT_INFO("current - black");
     tt_console_set_color(TT_CONSOLE_COLOR_CURRENT, TT_CONSOLE_RED);
@@ -1083,6 +1098,21 @@ TT_TEST_ROUTINE_DEFINE(case_console_color)
     TT_INFO("current - cyan");
     tt_console_set_color(TT_CONSOLE_COLOR_CURRENT, TT_CONSOLE_WHITE);
     TT_INFO("current - white");
+
+    tt_console_set_color(TT_CONSOLE_COLOR_CURRENT, TT_CONSOLE_BRIGHT_BLACK);
+    TT_INFO("bright current - black");
+    tt_console_set_color(TT_CONSOLE_COLOR_CURRENT, TT_CONSOLE_BRIGHT_RED);
+    TT_INFO("bright current - red");
+    tt_console_set_color(TT_CONSOLE_COLOR_CURRENT, TT_CONSOLE_BRIGHT_GREEN);
+    TT_INFO("bright current - green");
+    tt_console_set_color(TT_CONSOLE_COLOR_CURRENT, TT_CONSOLE_BRIGHT_YELLOW);
+    TT_INFO("bright current - yellow");
+    tt_console_set_color(TT_CONSOLE_COLOR_CURRENT, TT_CONSOLE_BRIGHT_MAGENTA);
+    TT_INFO("bright current - magenta");
+    tt_console_set_color(TT_CONSOLE_COLOR_CURRENT, TT_CONSOLE_BRIGHT_CYAN);
+    TT_INFO("bright current - cyan");
+    tt_console_set_color(TT_CONSOLE_COLOR_CURRENT, TT_CONSOLE_BRIGHT_WHITE);
+    TT_INFO("bright current - white");
 
     // test end
     TT_TEST_CASE_LEAVE()

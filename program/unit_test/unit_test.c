@@ -96,8 +96,8 @@ tt_result_t __ut_fiber(IN void *param)
 #if 1
     else {
         const tt_char_t *names[] = {
-            "TEST_UNIT_LOG", "TEST_UNIT_FS",
-            //"case_console_color",
+            //"TEST_UNIT_LOG", "TEST_UNIT_FS",
+            "case_console_color",
             //"TEST_UNIT_IPC",
             //"TEST_UNIT_SOCKET",
             //"TEST_UNIT_FIBER",
@@ -125,8 +125,8 @@ static tt_s32_t tt_g_flock_ret;
 tt_result_t __flock_fiber(IN void *param)
 {
     char **argv = (char **)param;
-    tt_file_t f;
-    tt_result_t r;
+    //tt_file_t f;
+    //tt_result_t r;
     tt_u32_t i = 0;
 
     printf("testing flock 2\n");

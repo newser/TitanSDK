@@ -30,6 +30,7 @@ this file specifies console native APIs
 // import header files
 ////////////////////////////////////////////////////////////
 
+#include <io/tt_console.h>
 #include <io/tt_console_event.h>
 
 ////////////////////////////////////////////////////////////
@@ -63,5 +64,8 @@ extern tt_result_t tt_console_recv_ntv(OUT tt_cons_ev_t *ev,
 
 extern tt_result_t tt_console_send_ntv(IN tt_cons_ev_t ev,
                                        IN tt_cons_ev_data_t *ev_data);
+
+extern void tt_console_set_color_ntv(IN tt_console_color_t foreground,
+                                     IN tt_console_color_t background);
 
 #endif // __TT_CONSOLE_NATIVE__

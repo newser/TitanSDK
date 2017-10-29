@@ -153,11 +153,11 @@ TT_TEST_ROUTINE_DEFINE(case_fs_consistency)
 #if TT_ENV_OS_IS_WINDOWS
 #define __SC_TEST_FILE "测试"
 #define __SC_TEST_FILE2 "测试2"
+#define __TEST_D1 "测试目录1"
 #elif TT_ENV_OS_IS_IOS
 
 #if (TT_ENV_OS_FEATURE & TT_ENV_OS_FEATURE_IOS_SIMULATOR)
 #define __SC_TEST_FILE "../tmp/测试"
-#define __SC_TEST_FILE2 "../tmp/测试2"
 #else
 #define __SC_TEST_FILE ((const tt_char_t *)tt_string_cstr(&__sc_fpath))
 #endif

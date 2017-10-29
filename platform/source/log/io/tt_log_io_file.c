@@ -737,7 +737,7 @@ void __liof_w_purge_remove(IN tt_logio_file_t *lf)
     __done |= __LPR_AP;
     TT_DO_G(done, tt_fpath_set(&ap, lf->archive_path));
 
-    len = tt_strlen(lf->archive_name);
+    len = (tt_u32_t)tt_strlen(lf->archive_name);
 
     TT_DO_G(done, tt_dopen(&d, lf->archive_path, NULL));
     __done |= __LPR_DIR;

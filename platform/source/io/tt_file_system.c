@@ -293,7 +293,7 @@ tt_result_t tt_dcreate(IN const tt_char_t *path, IN tt_dir_attr_t *attr)
         return tt_dcreate_ntv(path, attr);
     }
 
-    len = tt_strlen(path);
+    len = (tt_u32_t)tt_strlen(path);
     p = tt_zalloc(len + 1);
     if (p == NULL) {
         return TT_E_NOMEM;
@@ -309,7 +309,7 @@ tt_result_t tt_dcreate(IN const tt_char_t *path, IN tt_dir_attr_t *attr)
             continue;
         }
 
-        n = s - prev;
+        n = (tt_u32_t)(s - prev);
         tt_memcpy(p + pos, prev, n);
         pos += n;
         if (!tt_fs_exist(p) && !TT_OK((result = tt_dcreate_ntv(p, attr)))) {

@@ -288,6 +288,57 @@ tt_result_t tt_console_send_ntv(IN tt_cons_ev_t ev,
     }
 }
 
+void tt_console_set_color_ntv(IN tt_console_color_t foreground,
+                              IN tt_console_color_t background)
+{
+    static WORD __fc_keycode[TT_CONSOLE_COLOR_NUM] = {
+        0,
+        0,
+        FOREGROUND_RED,
+        FOREGROUND_GREEN,
+        FOREGROUND_RED | FOREGROUND_GREEN,
+        FOREGROUND_BLUE,
+        FOREGROUND_RED | FOREGROUND_BLUE,
+        FOREGROUND_GREEN | FOREGROUND_BLUE,
+        FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE,
+
+        FOREGROUND_INTENSITY | FOREGROUND_RED,
+        FOREGROUND_INTENSITY | FOREGROUND_GREEN,
+        FOREGROUND_INTENSITY | FOREGROUND_RED | FOREGROUND_GREEN,
+        FOREGROUND_INTENSITY | FOREGROUND_BLUE,
+        FOREGROUND_INTENSITY | FOREGROUND_RED | FOREGROUND_BLUE,
+        FOREGROUND_INTENSITY | FOREGROUND_GREEN | FOREGROUND_BLUE,
+        FOREGROUND_INTENSITY | FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE,
+    };
+    static WORD __bc_keycode[TT_CONSOLE_COLOR_NUM] = {
+        0,
+        0,
+        BACKGROUND_RED,
+        BACKGROUND_GREEN,
+        BACKGROUND_RED | BACKGROUND_GREEN,
+        BACKGROUND_BLUE,
+        BACKGROUND_RED | BACKGROUND_BLUE,
+        BACKGROUND_GREEN | BACKGROUND_BLUE,
+        BACKGROUND_RED | BACKGROUND_GREEN | BACKGROUND_BLUE,
+
+        BACKGROUND_INTENSITY | BACKGROUND_RED,
+        BACKGROUND_INTENSITY | BACKGROUND_GREEN,
+        BACKGROUND_INTENSITY | BACKGROUND_RED | BACKGROUND_GREEN,
+        BACKGROUND_INTENSITY | BACKGROUND_BLUE,
+        BACKGROUND_INTENSITY | BACKGROUND_RED | BACKGROUND_BLUE,
+        BACKGROUND_INTENSITY | BACKGROUND_GREEN | BACKGROUND_BLUE,
+        BACKGROUND_INTENSITY | BACKGROUND_RED | BACKGROUND_GREEN | BACKGROUND_BLUE,
+    };
+
+    if (foreground != TT_CONSOLE_COLOR_CURRENT) {
+        SetConsoleTextAttribute(__stdout_hdl, __fc_keycode[foreground]);
+    }
+
+    if (background != TT_CONSOLE_COLOR_CURRENT) {
+        SetConsoleTextAttribute(__stdout_hdl, __bc_keycode[background]);
+    }
+}
+
 tt_result_t __stdin_config()
 {
     DWORD mode = __stdin_mode;
