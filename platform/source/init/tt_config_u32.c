@@ -107,12 +107,12 @@ tt_result_t __cfgu32_write(IN tt_cfgobj_t *co,
     tt_u32_t u32_val;
 
     if ((val_len == 0) || (val_len > __MAX_U32_LEN)) {
-        return TT_BAD_PARAM;
+        return TT_E_BADARG;
     }
 
     tt_memcpy(buf, val, val_len);
     if (!TT_OK(tt_strtou32((const char *)buf, NULL, 0, &u32_val))) {
-        return TT_BAD_PARAM;
+        return TT_E_BADARG;
     }
 
     if (cu32->cb.on_set != NULL) {

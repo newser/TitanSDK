@@ -63,7 +63,7 @@ tt_result_t tt_der_encode_head(IN tt_buf_t *buf,
     // tag
     if ((tag & 0x1F) == 0x1F) {
         TT_ERROR("high-tag-number form is not supported");
-        return TT_BAD_PARAM;
+        return TT_E_BADARG;
     }
     TT_DO(tt_buf_put_u8(buf, (tt_u8_t)tag));
 

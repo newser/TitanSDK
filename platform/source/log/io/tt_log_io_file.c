@@ -192,7 +192,7 @@ tt_logio_t *tt_logio_file_create(IN const tt_char_t *log_path,
                                      lf,
                                      NULL)) ||
             !TT_OK(tt_task_run(&lf->worker))) {
-            tt_logio_destroy(lio);
+            __logio_destroy(lio);
             return NULL;
         }
         lf->worker_running = TT_TRUE;

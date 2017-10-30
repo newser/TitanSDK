@@ -71,7 +71,7 @@ __ERR_RANGE_STRING_START(TT_ERR_RANGE_COMMON)
     __ERR_STRING(TT_E_TIMEOUT, "Time out"),
     __ERR_STRING(TT_E_END, "Operation ends"),
     __ERR_STRING(TT_E_PROCEED, "Proceeding"),
-    __ERR_STRING(TT_BAD_PARAM, "Bad parameter"),
+    __ERR_STRING(TT_E_BADARG, "Bad parameter"),
 
     // idx: 5
     __ERR_STRING(TT_E_NOMEM, "No resource"),

@@ -128,7 +128,7 @@ void tt_logmgr_attr_default(IN tt_logmgr_attr_t *attr)
 
 void tt_logmgr_set_layout(IN tt_logmgr_t *lmgr,
                           IN tt_log_level_t level,
-                          IN struct tt_loglyt_s *lyt)
+                          IN TO struct tt_loglyt_s *lyt)
 {
     if (TT_LOG_LEVEL_VALID(level)) {
         lmgr->ctx[level].lyt = lyt;
@@ -143,7 +143,7 @@ void tt_logmgr_set_layout(IN tt_logmgr_t *lmgr,
 
 tt_result_t tt_logmgr_append_filter(IN tt_logmgr_t *lmgr,
                                     IN tt_log_level_t level,
-                                    IN tt_log_filter_t filter)
+                                    IN struct tt_logfltr_s *filter)
 {
     if (TT_LOG_LEVEL_VALID(level)) {
         return tt_logctx_append_filter(&lmgr->ctx[level], filter);
@@ -154,13 +154,13 @@ tt_result_t tt_logmgr_append_filter(IN tt_logmgr_t *lmgr,
         }
         return TT_SUCCESS;
     } else {
-        return TT_FAIL;
+        return TT_E_BADARG;
     }
 }
 
 tt_result_t tt_logmgr_append_io(IN tt_logmgr_t *lmgr,
                                 IN tt_log_level_t level,
-                                IN struct tt_logio_s *lio)
+                                IN TO struct tt_logio_s *lio)
 {
     if (TT_LOG_LEVEL_VALID(level)) {
         return tt_logctx_append_io(&lmgr->ctx[level], lio);
@@ -171,7 +171,7 @@ tt_result_t tt_logmgr_append_io(IN tt_logmgr_t *lmgr,
         }
         return TT_SUCCESS;
     } else {
-        return TT_FAIL;
+        return TT_E_BADARG;
     }
 }
 

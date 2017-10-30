@@ -210,7 +210,7 @@ tt_result_t tt_string_set_range(IN tt_string_t *str,
 
     if ((from + len) > n) {
         TT_ERROR("invalid from len");
-        return TT_BAD_PARAM;
+        return TT_E_BADARG;
     }
 
     return tt_buf_set_range(&str->buf,

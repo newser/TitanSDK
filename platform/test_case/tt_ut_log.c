@@ -4,6 +4,7 @@
 #include "tt_unit_test_case_config.h"
 #include <unit_test/tt_unit_test.h>
 
+#include <log/filter/tt_log_filter.h>
 #include <os/tt_fiber.h>
 #include <tt_platform.h>
 
@@ -138,8 +139,8 @@ TT_TEST_CASE("case_log_context",
     tt_logctx_input(&ctx, &entry);
 
     tt_logctx_destroy(&ctx);
-    tt_loglyt_destroy(lyt);
-    tt_logio_destroy(lio);
+    // tt_loglyt_destroy(lyt);
+    tt_logio_release(lio);
 
     // invalid cases
     ret = tt_logctx_create(&ctx, TT_LOG_LEVEL_NUM, lyt, NULL);
@@ -209,15 +210,24 @@ static tt_bool_t __test_log(tt_logmgr_t *lm)
     return TT_TRUE;
 }
 
-static tt_bool_t __log_filter_true(IN OUT tt_log_entry_t *entry)
+static tt_u32_t __log_filter_true(IN struct tt_logfltr_s *lf,
+                                  IN tt_log_entry_t *entry,
+                                  IN tt_buf_t *buf)
 {
-    return TT_TRUE;
+    return TT_LOGFLTR_PASS | TT_LOGFLTR_SELF;
 }
 
-static tt_bool_t __log_filter_false(IN OUT tt_log_entry_t *entry)
+static tt_u32_t __log_filter_false(IN struct tt_logfltr_s *lf,
+                                   IN tt_log_entry_t *entry,
+                                   IN tt_buf_t *buf)
 {
-    return TT_FALSE;
+    return 0;
 }
+
+static tt_logfltr_t *lf, *lf2, *lf3;
+static tt_logfltr_itf_t lfi = {NULL, __log_filter_false};
+static tt_logfltr_itf_t lfi2 = {NULL, __log_filter_true};
+static tt_logfltr_itf_t lfi3 = {NULL, __log_filter_true};
 
 TT_TEST_ROUTINE_DEFINE(case_log_manager)
 {
@@ -290,34 +300,49 @@ TT_TEST_ROUTINE_DEFINE(case_log_manager)
 
     // test filter
     {
+        lf = tt_logfltr_create(0, &lfi);
+        TT_UT_NOT_NULL(lf, "");
+        lf2 = tt_logfltr_create(0, &lfi2);
+        TT_UT_NOT_NULL(lf, "");
+        lf3 = tt_logfltr_create(0, &lfi3);
+        TT_UT_NOT_NULL(lf, "");
+
         ret = tt_logmgr_append_filter(&lm, TT_LOG_DEBUG, NULL);
         TT_UT_FAIL(ret, "");
         __test_log(&lm);
 
-        ret = tt_logmgr_append_filter(&lm, 200, __log_filter_false);
+        ret = tt_logmgr_append_filter(&lm, 200, lf);
         TT_UT_FAIL(ret, "");
         __test_log(&lm);
 
-        ret = tt_logmgr_append_filter(&lm, TT_LOG_DEBUG, __log_filter_true);
+        ret = tt_logmgr_append_filter(&lm, TT_LOG_DEBUG, lf2);
+        TT_UT_SUCCESS(ret, "");
+        ret = tt_logfltr_append_io(lf2, lio);
         TT_UT_SUCCESS(ret, "");
         __test_log(&lm);
 
-        ret = tt_logmgr_append_filter(&lm, TT_LOG_DEBUG, __log_filter_true);
+        ret = tt_logmgr_append_filter(&lm, TT_LOG_DEBUG, lf3);
         TT_UT_SUCCESS(ret, "");
         __test_log(&lm);
 
-        ret = tt_logmgr_append_filter(&lm, TT_LOG_DEBUG, __log_filter_false);
+        ret = tt_logmgr_append_filter(&lm, TT_LOG_DEBUG, lf3);
         TT_UT_SUCCESS(ret, "");
         __test_log(&lm);
+
+        tt_logfltr_release(lf);
+        tt_logfltr_release(lf2);
+        tt_logfltr_release(lf3);
     }
 
+#if 0
     tt_loglyt_destroy(lyt[TT_LOG_DEBUG]);
     tt_loglyt_destroy(lyt[TT_LOG_INFO]);
     tt_loglyt_destroy(lyt[TT_LOG_WARN]);
     tt_loglyt_destroy(lyt[TT_LOG_ERROR]);
     tt_loglyt_destroy(lyt[TT_LOG_FATAL]);
+#endif
 
-    tt_logio_destroy(lio);
+    tt_logio_release(lio);
 
     tt_logmgr_destroy(&lm);
 
@@ -429,7 +454,7 @@ TT_TEST_ROUTINE_DEFINE(case_log_io_file_index)
     TT_UT_EQUAL(ret, TT_E_END, "");
     tt_fclose(&f);
 
-    tt_logio_destroy(lio);
+    tt_logio_release(lio);
 
     /////////
     // continue output
@@ -480,7 +505,7 @@ TT_TEST_ROUTINE_DEFINE(case_log_io_file_index)
                 "");
     tt_fclose(&f);
 
-    tt_logio_destroy(lio);
+    tt_logio_release(lio);
 
     // test end
     TT_TEST_CASE_LEAVE()
@@ -568,7 +593,7 @@ TT_TEST_ROUTINE_DEFINE(case_log_io_file_date)
     TT_UT_EQUAL(ret, TT_E_END, "");
     TT_UT_EQUAL(num, 2, "");
 
-    tt_logio_destroy(lio);
+    tt_logio_release(lio);
 
     //////////
     // again
@@ -631,7 +656,7 @@ TT_TEST_ROUTINE_DEFINE(case_log_io_file_date)
     TT_UT_EQUAL(ret, TT_E_END, "");
     TT_UT_EQUAL(num, 4, "");
 
-    tt_logio_destroy(lio);
+    tt_logio_release(lio);
 
     // test end
     TT_TEST_CASE_LEAVE()
@@ -783,7 +808,7 @@ TT_TEST_ROUTINE_DEFINE(case_log_io_file_archive)
     }
 
     // enable it when cross-thread fiber event is implemented
-    tt_logio_destroy(lio);
+    tt_logio_release(lio);
 
     // test end
     TT_TEST_CASE_LEAVE()

@@ -20,8 +20,10 @@
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <log/io/tt_log_io.h>
+#include <log/filter/tt_log_filter.h>
 
+#include <algorithm/tt_buffer.h>
+#include <log/io/tt_log_io.h>
 #include <memory/tt_memory_alloc.h>
 
 ////////////////////////////////////////////////////////////
@@ -48,31 +50,77 @@
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-tt_logio_t *tt_logio_create(IN tt_u32_t size, IN tt_logio_itf_t *itf)
+tt_logfltr_t *tt_logfltr_create(IN tt_u32_t size, IN tt_logfltr_itf_t *itf)
+{
+    tt_logfltr_t *lf;
+
+    if ((itf == NULL) || (itf->input == NULL)) {
+        return NULL;
+    }
+
+    lf = tt_malloc(sizeof(tt_logfltr_t) + size);
+    if (lf == NULL) {
+        return NULL;
+    }
+
+    lf->itf = itf;
+    tt_ptrq_init(&lf->io_q, NULL);
+    tt_atomic_s32_set(&lf->ref, 1);
+
+    return lf;
+}
+
+void __logfltr_destroy(IN tt_logfltr_t *lf)
 {
     tt_logio_t *lio;
 
-    lio = (tt_logio_t *)tt_malloc(sizeof(tt_logio_t) + size);
-    if (lio == NULL) {
-        return NULL;
+    if (lf == NULL) {
+        return;
     }
 
-    lio->itf = itf;
-    tt_atomic_s32_set(&lio->ref, 1);
-
-    if ((lio->itf->create != NULL) && !TT_OK(lio->itf->create(lio))) {
-        tt_free(lio);
-        return NULL;
+    if (lf->itf->destroy != NULL) {
+        lf->itf->destroy(lf);
     }
 
-    return lio;
+    while ((lio = (tt_logio_t *)tt_ptrq_pop_head(&lf->io_q)) != NULL) {
+        tt_logio_release(lio);
+    }
+
+    tt_free(lf);
 }
 
-void __logio_destroy(IN tt_logio_t *lio)
+tt_result_t tt_logfltr_append_io(IN tt_logfltr_t *lf,
+                                 IN TO struct tt_logio_s *lio)
 {
-    if (lio->itf->destroy != NULL) {
-        lio->itf->destroy(lio);
+    if ((lf == NULL) || (lio == NULL)) {
+        return TT_E_BADARG;
     }
 
-    tt_free(lio);
+    if (TT_OK(tt_ptrq_push_tail(&lf->io_q, lio))) {
+        tt_logio_ref(lio);
+        return TT_SUCCESS;
+    } else {
+        return TT_FAIL;
+    }
+}
+
+tt_u32_t tt_logfltr_input(IN tt_logfltr_t *lf,
+                          IN tt_log_entry_t *entry,
+                          IN OUT tt_buf_t *buf)
+{
+    tt_u32_t io = lf->itf->input(lf, entry, buf);
+
+    if (io & TT_LOGFLTR_SELF) {
+        tt_ptrq_iter_t i;
+        tt_logio_t *lio;
+
+        tt_ptrq_iter(&lf->io_q, &i);
+        while ((lio = (tt_logio_t *)tt_ptrq_iter_next(&i)) != NULL) {
+            tt_logio_output(lio,
+                            (tt_char_t *)TT_BUF_RPOS(buf),
+                            TT_BUF_RLEN(buf));
+        }
+    }
+
+    return io;
 }

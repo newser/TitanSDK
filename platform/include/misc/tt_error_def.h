@@ -91,7 +91,7 @@ typedef enum _tt_result_t {
     TT_E_TIMEOUT,
     TT_E_END,
     TT_E_PROCEED,
-    TT_BAD_PARAM,
+    TT_E_BADARG,
 
     // idx: 5
     TT_E_NOMEM,

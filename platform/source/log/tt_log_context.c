@@ -23,6 +23,7 @@
 #include <log/tt_log_context.h>
 
 #include <algorithm/tt_buffer_format.h>
+#include <log/filter/tt_log_filter.h>
 #include <log/io/tt_log_io.h>
 #include <log/layout/tt_log_layout.h>
 #include <memory/tt_memory_alloc.h>
@@ -59,7 +60,7 @@ tt_result_t tt_logctx_create(IN tt_logctx_t *lctx,
     tt_logctx_attr_t __attr;
 
     if ((lctx == NULL) || !TT_LOG_LEVEL_VALID(level)) {
-        return TT_FAIL;
+        return TT_E_BADARG;
     }
 
     if (attr == NULL) {
@@ -67,28 +68,37 @@ tt_result_t tt_logctx_create(IN tt_logctx_t *lctx,
         attr = &__attr;
     }
 
-    lctx->level = level;
     lctx->lyt = lyt;
-
-    tt_buf_init(&lctx->buf, &attr->buf_attr);
     tt_ptrq_init(&lctx->filter_q, &attr->filter_q_attr);
     tt_ptrq_init(&lctx->io_q, &attr->io_q_attr);
+    tt_buf_init(&lctx->buf, &attr->buf_attr);
+    lctx->level = level;
 
     return TT_SUCCESS;
 }
 
 void tt_logctx_destroy(IN tt_logctx_t *lctx)
 {
+    tt_logfltr_t *lf;
+    tt_logio_t *lio;
+
     if (lctx == NULL) {
         return;
     }
 
-    tt_buf_destroy(&lctx->buf);
+    if (lctx->lyt != NULL) {
+        tt_loglyt_destroy(lctx->lyt);
+    }
 
-    while (tt_ptrq_pop_head(&lctx->filter_q))
-        ;
-    while (tt_ptrq_pop_head(&lctx->io_q))
-        ;
+    while ((lf = (tt_logfltr_t *)tt_ptrq_pop_head(&lctx->filter_q)) != NULL) {
+        tt_logfltr_release(lf);
+    }
+
+    while ((lio = (tt_logio_t *)tt_ptrq_pop_head(&lctx->io_q)) != NULL) {
+        tt_logio_release(lio);
+    }
+
+    tt_buf_destroy(&lctx->buf);
 }
 
 void tt_logctx_attr_default(IN tt_logctx_attr_t *attr)
@@ -97,62 +107,81 @@ void tt_logctx_attr_default(IN tt_logctx_attr_t *attr)
         return;
     }
 
-    tt_buf_attr_default(&attr->buf_attr);
-
     tt_ptrq_attr_default(&attr->filter_q_attr);
     attr->filter_q_attr.ptr_per_frame = 8;
 
     tt_ptrq_attr_default(&attr->io_q_attr);
     attr->io_q_attr.ptr_per_frame = 8;
+
+    tt_buf_attr_default(&attr->buf_attr);
+}
+
+void tt_logctx_set_layout(IN tt_logctx_t *lctx, IN TO tt_loglyt_t *lyt)
+{
+    if (lctx->lyt != NULL) {
+        tt_loglyt_destroy(lctx->lyt);
+    }
+    lctx->lyt = lyt;
 }
 
 tt_result_t tt_logctx_append_filter(IN tt_logctx_t *lctx,
-                                    IN tt_log_filter_t filter)
+                                    IN tt_logfltr_t *filter)
 {
     if ((lctx == NULL) || (filter == NULL)) {
-        return TT_FAIL;
+        return TT_E_BADARG;
     }
 
-    return tt_ptrq_push_tail(&lctx->filter_q, filter);
+    if (TT_OK(tt_ptrq_push_tail(&lctx->filter_q, filter))) {
+        tt_logfltr_ref(filter);
+        return TT_SUCCESS;
+    } else {
+        return TT_FAIL;
+    }
 }
 
-tt_result_t tt_logctx_append_io(IN tt_logctx_t *lctx, IN tt_logio_t *lio)
+tt_result_t tt_logctx_append_io(IN tt_logctx_t *lctx, IN TO tt_logio_t *lio)
 {
     if ((lctx == NULL) || (lio == NULL)) {
-        return TT_FAIL;
+        return TT_E_BADARG;
     }
 
-    return tt_ptrq_push_tail(&lctx->io_q, lio);
+    if (TT_OK(tt_ptrq_push_tail(&lctx->io_q, lio))) {
+        tt_logio_ref(lio);
+        return TT_SUCCESS;
+    } else {
+        return TT_FAIL;
+    }
 }
 
 tt_result_t tt_logctx_input(IN tt_logctx_t *lctx, IN tt_log_entry_t *entry)
 {
     tt_buf_t *buf;
     tt_ptrq_iter_t iter;
-    tt_log_filter_t filter;
+    tt_logfltr_t *filter;
     tt_logio_t *lio;
     tt_result_t result = TT_SUCCESS;
 
     if ((lctx == NULL) || (lctx->lyt == NULL) || (entry == NULL)) {
-        return TT_FAIL;
+        return TT_E_BADARG;
     }
     buf = &lctx->buf;
 
     entry->level = lctx->level;
 
-    // filter
-    tt_ptrq_iter(&lctx->filter_q, &iter);
-    while ((filter = tt_ptrq_iter_next(&iter)) != NULL) {
-        if (!filter(entry)) {
-            return TT_SUCCESS;
-        }
-    }
-
-    // fomat
+    // format
     tt_buf_clear(buf);
     if (!TT_OK(tt_loglyt_format(lctx->lyt, entry, buf)) ||
         !TT_OK(tt_buf_put_u8(buf, 0))) {
         return TT_FAIL;
+    }
+
+    // filter
+    tt_ptrq_iter(&lctx->filter_q, &iter);
+    while ((filter = (tt_logfltr_t *)tt_ptrq_iter_next(&iter)) != NULL) {
+        tt_u32_t io = tt_logfltr_input(filter, entry, buf);
+        if (!(io & TT_LOGFLTR_PASS)) {
+            return TT_SUCCESS;
+        }
     }
 
     // output

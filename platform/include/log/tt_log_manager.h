@@ -44,6 +44,7 @@ this file declare log manager
 
 struct tt_loglyt_s;
 struct tt_logio_s;
+struct tt_logfltr_s;
 
 typedef struct
 {
@@ -98,12 +99,12 @@ tt_export void tt_logmgr_set_layout(IN tt_logmgr_t *lmgr,
 // set level to TT_LOG_LEVEL_NUM to set all
 tt_export tt_result_t tt_logmgr_append_filter(IN tt_logmgr_t *lmgr,
                                               IN tt_log_level_t level,
-                                              IN tt_log_filter_t filter);
+                                              IN struct tt_logfltr_s *filter);
 
 // set level to TT_LOG_LEVEL_NUM to set all
 tt_export tt_result_t tt_logmgr_append_io(IN tt_logmgr_t *lmgr,
                                           IN tt_log_level_t level,
-                                          IN struct tt_logio_s *lio);
+                                          IN TO struct tt_logio_s *lio);
 
 tt_export tt_result_t tt_logmgr_inputv(IN tt_logmgr_t *lmgr,
                                        IN tt_log_level_t level,

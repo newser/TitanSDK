@@ -401,12 +401,12 @@ TT_TEST_ROUTINE_DEFINE(case_cfgnode_u32)
     v.addr = (tt_u8_t *)invalid_u32;
     v.len = (tt_u32_t)tt_strlen(invalid_u32);
     ret = tt_cfgobj_write(cnode, v.addr, v.len);
-    TT_UT_EQUAL(ret, TT_BAD_PARAM, "");
+    TT_UT_EQUAL(ret, TT_E_BADARG, "");
 
     v.addr = (tt_u8_t *)invalid_u32_2;
     v.len = (tt_u32_t)tt_strlen(invalid_u32_2);
     ret = tt_cfgobj_write(cnode, v.addr, v.len);
-    TT_UT_EQUAL(ret, TT_BAD_PARAM, "");
+    TT_UT_EQUAL(ret, TT_E_BADARG, "");
 
     v.addr = (tt_u8_t *)u32_0;
     v.len = (tt_u32_t)tt_strlen(u32_0);
@@ -572,12 +572,12 @@ TT_TEST_ROUTINE_DEFINE(case_cfgnode_s32)
     v.addr = (tt_u8_t *)invalid_s32;
     v.len = (tt_u32_t)tt_strlen(invalid_s32);
     ret = tt_cfgobj_write(cnode, v.addr, v.len);
-    TT_UT_EQUAL(ret, TT_BAD_PARAM, "");
+    TT_UT_EQUAL(ret, TT_E_BADARG, "");
 
     v.addr = (tt_u8_t *)invalid_s32_2;
     v.len = (tt_u32_t)tt_strlen(invalid_s32_2);
     ret = tt_cfgobj_write(cnode, v.addr, v.len);
-    TT_UT_EQUAL(ret, TT_BAD_PARAM, "");
+    TT_UT_EQUAL(ret, TT_E_BADARG, "");
 
     // to -2147483648
     v.addr = (tt_u8_t *)min_s32;

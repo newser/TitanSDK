@@ -213,7 +213,7 @@ static tt_result_t __exec_run(IN struct tt_cfgobj_s *co,
         *status = TT_CLIOC_NOOUT;
         return TT_SUCCESS;
     } else if (exec_mode == 1) {
-        return TT_BAD_PARAM;
+        return TT_E_BADARG;
     }
 
     if (argc > 0) {

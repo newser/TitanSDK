@@ -112,7 +112,7 @@ tt_result_t __cfgbool_write(IN tt_cfgobj_t *co,
                 0)) {
         bool_val = TT_FALSE;
     } else {
-        return TT_BAD_PARAM;
+        return TT_E_BADARG;
     }
 
     if (cbool->cb.on_set != NULL) {

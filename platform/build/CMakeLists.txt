@@ -138,6 +138,8 @@ add_group_hdr(${PLATFORM_PATH}/include/log/layout log SRC_FILE)
 add_group_src(${PLATFORM_PATH}/source/log/layout log SRC_FILE)
 add_group_hdr(${PLATFORM_PATH}/include/log/io log SRC_FILE)
 add_group_src(${PLATFORM_PATH}/source/log/io log SRC_FILE)
+add_group_hdr(${PLATFORM_PATH}/include/log/filter log SRC_FILE)
+add_group_src(${PLATFORM_PATH}/source/log/filter log SRC_FILE)
 
 add_group_hdr(${PLATFORM_PATH}/include/crypto crypto SRC_FILE)
 add_group_src(${PLATFORM_PATH}/source/crypto crypto SRC_FILE)

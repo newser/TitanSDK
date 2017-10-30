@@ -17,20 +17,20 @@
  */
 
 /**
-@file tt_log_io.h
-@brief log io
+@file tt_log_layout.h
+@brief log filter
 
-this file defines log io
+this file defines log filter
 */
 
-#ifndef __TT_LOG_IO__
-#define __TT_LOG_IO__
+#ifndef __TT_LOG_FILTER__
+#define __TT_LOG_FILTER__
 
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <algorithm/tt_list.h>
+#include <algorithm/ptr/tt_ptr_queue.h>
 #include <log/tt_log_def.h>
 #include <misc/tt_reference_counter.h>
 
@@ -38,43 +38,41 @@ this file defines log io
 // macro definition
 ////////////////////////////////////////////////////////////
 
-#define TT_LOGIO_CAST(lio, type) TT_PTR_INC(type, lio, sizeof(tt_logio_t))
+#define TT_LOGFLTR_CAST(lf, type) TT_PTR_INC(type, lf, sizeof(tt_logfltr_t))
 
-#define tt_logio_ref(lio) TT_REF_ADD(tt_logio_t, lio, ref)
+#define tt_logfltr_ref(lf) TT_REF_ADD(tt_logfltr_t, lf, ref)
 
-#define tt_logio_release(lio)                                                  \
-    TT_REF_RELEASE(tt_logio_t, lio, ref, __logio_destroy)
+#define tt_logfltr_release(lf)                                                 \
+    TT_REF_RELEASE(tt_logfltr_t, lf, ref, __logfltr_destroy)
 
 ////////////////////////////////////////////////////////////
 // type definition
 ////////////////////////////////////////////////////////////
 
+struct tt_logfltr_s;
+struct tt_buf_s;
 struct tt_logio_s;
 
-typedef tt_result_t (*tt_logio_create_t)(IN struct tt_logio_s *lio);
+typedef void (*tt_logfltr_destroy_t)(IN struct tt_logfltr_s *lf);
 
-typedef void (*tt_logio_destroy_t)(IN struct tt_logio_s *lio);
-
-// - data must be null terminated string, len equals tt_strlen(data)
-// - return how many bytes are outputted
-typedef tt_u32_t (*tt_logio_output_t)(IN struct tt_logio_s *lio,
-                                      IN const tt_char_t *data,
-                                      IN tt_u32_t len);
+typedef tt_u32_t (*tt_logfltr_input_t)(IN struct tt_logfltr_s *lf,
+                                       IN tt_log_entry_t *entry,
+                                       IN OUT struct tt_buf_s *buf);
+#define TT_LOGFLTR_PASS (1 << 0)
+#define TT_LOGFLTR_SELF (1 << 1)
 
 typedef struct
 {
-    tt_logio_type_t type;
+    tt_logfltr_destroy_t destroy;
+    tt_logfltr_input_t input;
+} tt_logfltr_itf_t;
 
-    tt_logio_create_t create;
-    tt_logio_destroy_t destroy;
-    tt_logio_output_t output;
-} tt_logio_itf_t;
-
-typedef struct tt_logio_s
+typedef struct tt_logfltr_s
 {
-    tt_logio_itf_t *itf;
+    tt_logfltr_itf_t *itf;
+    tt_ptrq_t io_q;
     tt_atomic_s32_t ref;
-} tt_logio_t;
+} tt_logfltr_t;
 
 ////////////////////////////////////////////////////////////
 // global variants
@@ -84,16 +82,16 @@ typedef struct tt_logio_s
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-// size does not count sizeof(tt_logio_t)
-tt_export tt_logio_t *tt_logio_create(IN tt_u32_t size, IN tt_logio_itf_t *itf);
+tt_export tt_logfltr_t *tt_logfltr_create(IN tt_u32_t size,
+                                          IN tt_logfltr_itf_t *itf);
 
-tt_export void __logio_destroy(IN tt_logio_t *lio);
+tt_export void __logfltr_destroy(IN tt_logfltr_t *lf);
 
-tt_inline tt_u32_t tt_logio_output(IN tt_logio_t *lio,
-                                   IN const tt_char_t *data,
-                                   IN tt_u32_t len)
-{
-    return lio->itf->output(lio, data, len);
-}
+tt_export tt_result_t tt_logfltr_append_io(IN tt_logfltr_t *lf,
+                                           IN TO struct tt_logio_s *lio);
 
-#endif /* __TT_LOG_IO__ */
+tt_export tt_u32_t tt_logfltr_input(IN struct tt_logfltr_s *lf,
+                                    IN tt_log_entry_t *entry,
+                                    IN OUT struct tt_buf_s *buf);
+
+#endif /* __TT_LOG_FILTER__ */
