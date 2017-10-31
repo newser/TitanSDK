@@ -17,63 +17,20 @@
  */
 
 /**
-@file tt_platform_config.h
-@brief platform configurations
+@file tt_log_io_standard.h
+@brief log io syslog
 
-this file defines integrate all other configurations
+this file defines log io syslog output
 */
 
-#ifndef __TT_PLATFORM_CONFIG__
-#define __TT_PLATFORM_CONFIG__
+#ifndef __TT_LOG_IO_SYSLOG__
+#define __TT_LOG_IO_SYSLOG__
 
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
-// cmake
-//  ||
-//  \/
-// pre-definition: collect user definitions
-//  - tt_environment_config.h: environment, like cpu instruction set
-//  - tt_module_config.h: module config
-//  - tt_customization_config.h: all others
-//  ||
-//  \/
-// definition: component definitions according to user input
-//  - tt_algorithm_config.h
-//  - ...
-//  ||
-//  \/
-// post-definition: overwrite defitions if necessary
-//  - tt_platform_optimized_config.h
-//  - ...
-
-// ========================================
-// pre-definition
-// ========================================
-
-#include <config/tt_customization_config.h>
-#include <config/tt_environment_config.h>
-#include <config/tt_have.h>
-
-// ========================================
-// definition
-// ========================================
-
-#include <config/tt_algorithm_config.h>
-#include <config/tt_file_system_config.h>
-#include <config/tt_log_config.h>
-#include <config/tt_memory_config.h>
-#include <config/tt_mpn_config.h>
-#include <config/tt_os_config.h>
-
-// ========================================
-// post-definition
-// ========================================
-
-#ifndef TT_PLATFORM_ENABLE_DEBUG
-#include <config/tt_platform_optimized_config.h>
-#endif
+#include <tt_basic_type.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
@@ -83,6 +40,33 @@ this file defines integrate all other configurations
 // type definition
 ////////////////////////////////////////////////////////////
 
+struct tt_logio_s;
+
+typedef enum {
+    TT_SYSLOG_USER,
+    TT_SYSLOG_LOCAL0,
+    TT_SYSLOG_LOCAL1,
+    TT_SYSLOG_LOCAL2,
+    TT_SYSLOG_LOCAL3,
+    TT_SYSLOG_LOCAL4,
+    TT_SYSLOG_LOCAL5,
+    TT_SYSLOG_LOCAL6,
+    TT_SYSLOG_LOCAL7,
+
+    TT_SYSLOG_FACILITY_NUM
+} tt_syslog_facility_t;
+#define TT_SYSLOG_FACILITY_VALID(f) ((f) < TT_SYSLOG_FACILITY_NUM)
+
+typedef struct
+{
+    tt_syslog_facility_t facility;
+} tt_logio_syslog_attr_t;
+
+typedef struct
+{
+    tt_syslog_facility_t facility;
+} tt_logio_syslog_t;
+
 ////////////////////////////////////////////////////////////
 // global variants
 ////////////////////////////////////////////////////////////
@@ -91,4 +75,9 @@ this file defines integrate all other configurations
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-#endif /* __TT_PLATFORM_CONFIG__ */
+tt_export struct tt_logio_s *tt_logio_syslog_create(
+    IN OPT tt_logio_syslog_attr_t *attr);
+
+tt_export void tt_logio_syslog_attr_default(IN tt_logio_syslog_attr_t *attr);
+
+#endif /* __TT_LOG_IO_SYSLOG__ */

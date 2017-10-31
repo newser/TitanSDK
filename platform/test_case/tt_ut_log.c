@@ -19,6 +19,7 @@ TT_TEST_ROUTINE_DECLARE(case_log_manager)
 TT_TEST_ROUTINE_DECLARE(case_log_io_file_index)
 TT_TEST_ROUTINE_DECLARE(case_log_io_file_date)
 TT_TEST_ROUTINE_DECLARE(case_log_io_file_archive)
+TT_TEST_ROUTINE_DECLARE(case_log_io_syslog)
 // =========================================
 
 // === test case list ======================
@@ -70,6 +71,15 @@ TT_TEST_CASE("case_log_context",
                  NULL,
                  NULL),
 
+    TT_TEST_CASE("case_log_io_syslog",
+                 "testing log io syslog",
+                 case_log_io_syslog,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL),
+
     TT_TEST_CASE_LIST_DEFINE_END(log_case)
     // =========================================
 
@@ -81,7 +91,7 @@ TT_TEST_CASE("case_log_context",
 
 
     /*
-    TT_TEST_ROUTINE_DEFINE(case_log_io_file_archive)
+    TT_TEST_ROUTINE_DEFINE(case_log_io_syslog)
     {
         //tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
 
@@ -379,6 +389,7 @@ TT_TEST_ROUTINE_DEFINE(case_log_io_file_index)
     tt_file_t f;
     tt_char_t buf[100];
     tt_u64_t size;
+    tt_log_entry_t le = {0};
 
     TT_TEST_CASE_ENTER()
     // test start
@@ -401,13 +412,25 @@ TT_TEST_ROUTINE_DEFINE(case_log_io_file_index)
     TT_UT_EQUAL(size, 0, "");
 
     // 160 bytes
-    n = tt_logio_output(lio, "123456789 123456789 123456789 123456789 ", 40);
+    n = tt_logio_output(lio,
+                        &le,
+                        "123456789 123456789 123456789 123456789 ",
+                        40);
     TT_UT_EQUAL(n, 40, "");
-    n = tt_logio_output(lio, "123456789 123456789 123456789 123456789 ", 40);
+    n = tt_logio_output(lio,
+                        &le,
+                        "123456789 123456789 123456789 123456789 ",
+                        40);
     TT_UT_EQUAL(n, 40, "");
-    n = tt_logio_output(lio, "123456789 123456789 123456789 123456789 ", 40);
+    n = tt_logio_output(lio,
+                        &le,
+                        "123456789 123456789 123456789 123456789 ",
+                        40);
     TT_UT_EQUAL(n, 40, "");
-    n = tt_logio_output(lio, "123456789 123456789 123456789 123456789 ", 40);
+    n = tt_logio_output(lio,
+                        &le,
+                        "123456789 123456789 123456789 123456789 ",
+                        40);
     TT_UT_EQUAL(n, 40, "");
 
     ret = tt_fsize(__LIOF_LOG_PATH "tttlog.1", &size);
@@ -464,13 +487,25 @@ TT_TEST_ROUTINE_DEFINE(case_log_io_file_index)
     TT_UT_NOT_NULL(lio, "");
 
     // 160 bytes
-    n = tt_logio_output(lio, "123456789 123456789 123456789 123456789 ", 40);
+    n = tt_logio_output(lio,
+                        &le,
+                        "123456789 123456789 123456789 123456789 ",
+                        40);
     TT_UT_EQUAL(n, 40, "");
-    n = tt_logio_output(lio, "123456789 123456789 123456789 123456789 ", 40);
+    n = tt_logio_output(lio,
+                        &le,
+                        "123456789 123456789 123456789 123456789 ",
+                        40);
     TT_UT_EQUAL(n, 40, "");
-    n = tt_logio_output(lio, "123456789 123456789 123456789 123456789 ", 40);
+    n = tt_logio_output(lio,
+                        &le,
+                        "123456789 123456789 123456789 123456789 ",
+                        40);
     TT_UT_EQUAL(n, 40, "");
-    n = tt_logio_output(lio, "123456789 123456789 123456789 123456789 ", 40);
+    n = tt_logio_output(lio,
+                        &le,
+                        "123456789 123456789 123456789 123456789 ",
+                        40);
     TT_UT_EQUAL(n, 40, "");
 
     ret =
@@ -522,6 +557,7 @@ TT_TEST_ROUTINE_DEFINE(case_log_io_file_date)
     tt_char_t buf[100];
     tt_dir_t d;
     tt_dirent_t de;
+    tt_log_entry_t le = {0};
 
     TT_TEST_CASE_ENTER()
     // test start
@@ -540,13 +576,25 @@ TT_TEST_ROUTINE_DEFINE(case_log_io_file_date)
     TT_UT_NOT_NULL(lio, "");
 
     // 160 bytes => 2 file
-    n = tt_logio_output(lio, "123456789 123456789 123456789 123456789 ", 40);
+    n = tt_logio_output(lio,
+                        &le,
+                        "123456789 123456789 123456789 123456789 ",
+                        40);
     TT_UT_EQUAL(n, 40, "");
-    n = tt_logio_output(lio, "123456789 123456789 123456789 123456789 ", 40);
+    n = tt_logio_output(lio,
+                        &le,
+                        "123456789 123456789 123456789 123456789 ",
+                        40);
     TT_UT_EQUAL(n, 40, "");
-    n = tt_logio_output(lio, "123456789 123456789 123456789 123456789 ", 40);
+    n = tt_logio_output(lio,
+                        &le,
+                        "123456789 123456789 123456789 123456789 ",
+                        40);
     TT_UT_EQUAL(n, 40, "");
-    n = tt_logio_output(lio, "123456789 123456789 123456789 123456789 ", 40);
+    n = tt_logio_output(lio,
+                        &le,
+                        "123456789 123456789 123456789 123456789 ",
+                        40);
     TT_UT_EQUAL(n, 40, "");
 
     // should be 3 log file
@@ -603,13 +651,25 @@ TT_TEST_ROUTINE_DEFINE(case_log_io_file_date)
     TT_UT_NOT_NULL(lio, "");
 
     // 160 bytes => 2 file
-    n = tt_logio_output(lio, "123456789 123456789 123456789 123456789 ", 40);
+    n = tt_logio_output(lio,
+                        &le,
+                        "123456789 123456789 123456789 123456789 ",
+                        40);
     TT_UT_EQUAL(n, 40, "");
-    n = tt_logio_output(lio, "123456789 123456789 123456789 123456789 ", 40);
+    n = tt_logio_output(lio,
+                        &le,
+                        "123456789 123456789 123456789 123456789 ",
+                        40);
     TT_UT_EQUAL(n, 40, "");
-    n = tt_logio_output(lio, "123456789 123456789 123456789 123456789 ", 40);
+    n = tt_logio_output(lio,
+                        &le,
+                        "123456789 123456789 123456789 123456789 ",
+                        40);
     TT_UT_EQUAL(n, 40, "");
-    n = tt_logio_output(lio, "123456789 123456789 123456789 123456789 ", 40);
+    n = tt_logio_output(lio,
+                        &le,
+                        "123456789 123456789 123456789 123456789 ",
+                        40);
     TT_UT_EQUAL(n, 40, "");
 
     // should be 3 log file
@@ -669,6 +729,7 @@ TT_TEST_ROUTINE_DEFINE(case_log_io_file_archive)
     tt_logio_t *lio;
     tt_u32_t n;
     tt_bool_t oneshot = TT_FALSE;
+    tt_log_entry_t le = {0};
 
     TT_TEST_CASE_ENTER()
     // test start
@@ -692,15 +753,30 @@ TT_TEST_ROUTINE_DEFINE(case_log_io_file_archive)
     TT_UT_NOT_NULL(lio, "");
 
     // 160 bytes => 3 file
-    n = tt_logio_output(lio, "123456789 123456789 123456789 123456789 ", 40);
+    n = tt_logio_output(lio,
+                        &le,
+                        "123456789 123456789 123456789 123456789 ",
+                        40);
     TT_UT_EQUAL(n, 40, "");
-    n = tt_logio_output(lio, "123456789 123456789 123456789 123456789 ", 40);
+    n = tt_logio_output(lio,
+                        &le,
+                        "123456789 123456789 123456789 123456789 ",
+                        40);
     TT_UT_EQUAL(n, 40, "");
-    n = tt_logio_output(lio, "123456789 123456789 123456789 123456789 ", 40);
+    n = tt_logio_output(lio,
+                        &le,
+                        "123456789 123456789 123456789 123456789 ",
+                        40);
     TT_UT_EQUAL(n, 40, "");
-    n = tt_logio_output(lio, "123456789 123456789 123456789 123456789 ", 40);
+    n = tt_logio_output(lio,
+                        &le,
+                        "123456789 123456789 123456789 123456789 ",
+                        40);
     TT_UT_EQUAL(n, 40, "");
-    n = tt_logio_output(lio, "123456789 123456789 123456789 123456789 ", 40);
+    n = tt_logio_output(lio,
+                        &le,
+                        "123456789 123456789 123456789 123456789 ",
+                        40);
     TT_UT_EQUAL(n, 40, "");
 
     while (1) {
@@ -808,6 +884,64 @@ TT_TEST_ROUTINE_DEFINE(case_log_io_file_archive)
     }
 
     // enable it when cross-thread fiber event is implemented
+    tt_logio_release(lio);
+
+    // test end
+    TT_TEST_CASE_LEAVE()
+}
+
+TT_TEST_ROUTINE_DEFINE(case_log_io_syslog)
+{
+    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+    tt_logio_t *lio;
+    tt_log_entry_t le = {0};
+    tt_logio_syslog_attr_t a;
+
+    TT_TEST_CASE_ENTER()
+    // test start
+
+    lio = tt_logio_syslog_create(NULL);
+    TT_UT_NOT_NULL(lio, "");
+
+    le.level = TT_LOG_DEBUG;
+    tt_logio_output(lio, &le, "debug log", sizeof("debug log"));
+
+    le.level = TT_LOG_INFO;
+    tt_logio_output(lio, &le, "info log", sizeof("debug log"));
+
+    le.level = TT_LOG_WARN;
+    tt_logio_output(lio, &le, "warn log", sizeof("debug log"));
+
+    le.level = TT_LOG_ERROR;
+    tt_logio_output(lio, &le, "error log", sizeof("debug log"));
+
+    le.level = TT_LOG_FATAL;
+    tt_logio_output(lio, &le, "fatal log", sizeof("debug log"));
+
+    tt_logio_release(lio);
+
+    //////////////
+    tt_logio_syslog_attr_default(&a);
+    a.facility = TT_SYSLOG_LOCAL7;
+
+    lio = tt_logio_syslog_create(&a);
+    TT_UT_NOT_NULL(lio, "");
+
+    le.level = TT_LOG_DEBUG;
+    tt_logio_output(lio, &le, "debug log", sizeof("debug log"));
+
+    le.level = TT_LOG_INFO;
+    tt_logio_output(lio, &le, "info log", sizeof("debug log"));
+
+    le.level = TT_LOG_WARN;
+    tt_logio_output(lio, &le, "warn log", sizeof("debug log"));
+
+    le.level = TT_LOG_ERROR;
+    tt_logio_output(lio, &le, "error log", sizeof("debug log"));
+
+    le.level = TT_LOG_FATAL;
+    tt_logio_output(lio, &le, "fatal log", sizeof("debug log"));
+
     tt_logio_release(lio);
 
     // test end

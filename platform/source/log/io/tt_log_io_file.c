@@ -66,6 +66,7 @@ enum
 // ========================================
 
 static tt_u32_t __lio_fidx_output(IN tt_logio_t *lio,
+                                  IN tt_log_entry_t *entry,
                                   IN const tt_char_t *data,
                                   IN tt_u32_t data_len);
 
@@ -84,6 +85,7 @@ static tt_logio_itf_t tt_s_logio_fidx_itf = {
 // ========================================
 
 static tt_u32_t __lio_fdate_output(IN tt_logio_t *lio,
+                                   IN tt_log_entry_t *entry,
                                    IN const tt_char_t *data,
                                    IN tt_u32_t data_len);
 
@@ -218,6 +220,7 @@ void tt_logio_file_attr_default(IN tt_logio_file_attr_t *attr)
 // ========================================
 
 tt_u32_t __lio_fidx_output(IN tt_logio_t *lio,
+                           IN tt_log_entry_t *entry,
                            IN const tt_char_t *data,
                            IN tt_u32_t data_len)
 {
@@ -322,6 +325,7 @@ tt_result_t __fidx_next(IN tt_logio_file_t *lf)
 // ========================================
 
 tt_u32_t __lio_fdate_output(IN tt_logio_t *lio,
+                            IN tt_log_entry_t *entry,
                             IN const tt_char_t *data,
                             IN tt_u32_t data_len)
 {

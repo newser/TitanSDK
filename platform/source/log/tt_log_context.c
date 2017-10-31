@@ -188,6 +188,7 @@ tt_result_t tt_logctx_input(IN tt_logctx_t *lctx, IN tt_log_entry_t *entry)
     tt_ptrq_iter(&lctx->io_q, &iter);
     while ((lio = tt_ptrq_iter_next(&iter)) != NULL) {
         if (!TT_OK(tt_logio_output(lio,
+                                   entry,
                                    (tt_char_t *)TT_BUF_RPOS(buf),
                                    TT_BUF_RLEN(buf)))) {
             // continue even one of logio failed, but this function would

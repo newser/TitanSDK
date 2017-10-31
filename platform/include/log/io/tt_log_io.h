@@ -58,6 +58,7 @@ typedef void (*tt_logio_destroy_t)(IN struct tt_logio_s *lio);
 // - data must be null terminated string, len equals tt_strlen(data)
 // - return how many bytes are outputted
 typedef tt_u32_t (*tt_logio_output_t)(IN struct tt_logio_s *lio,
+                                      IN tt_log_entry_t *entry,
                                       IN const tt_char_t *data,
                                       IN tt_u32_t len);
 
@@ -90,10 +91,11 @@ tt_export tt_logio_t *tt_logio_create(IN tt_u32_t size, IN tt_logio_itf_t *itf);
 tt_export void __logio_destroy(IN tt_logio_t *lio);
 
 tt_inline tt_u32_t tt_logio_output(IN tt_logio_t *lio,
+                                   IN tt_log_entry_t *entry,
                                    IN const tt_char_t *data,
                                    IN tt_u32_t len)
 {
-    return lio->itf->output(lio, data, len);
+    return lio->itf->output(lio, entry, data, len);
 }
 
 #endif /* __TT_LOG_IO__ */

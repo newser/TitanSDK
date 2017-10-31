@@ -20,12 +20,16 @@
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <log/io/tt_log_io_standard.h>
+#include <log/io/tt_log_io_syslog.h>
 
 #include <log/io/tt_log_io.h>
 #include <misc/tt_util.h>
 
 #include <tt_cstd_api.h>
+
+#ifdef TT_HAVE_SYSLOG
+#include <syslog.h>
+#endif
 
 ////////////////////////////////////////////////////////////
 // internal macro
@@ -43,17 +47,17 @@
 // global variant
 ////////////////////////////////////////////////////////////
 
-static tt_u32_t __lio_std_output(IN tt_logio_t *lio,
-                                 IN tt_log_entry_t *entry,
-                                 IN const tt_char_t *data,
-                                 IN tt_u32_t data_len);
+static tt_u32_t __lio_syslog_output(IN tt_logio_t *lio,
+                                    IN tt_log_entry_t *entry,
+                                    IN const tt_char_t *data,
+                                    IN tt_u32_t data_len);
 
 static tt_logio_itf_t tt_s_logio_std_itf = {
-    TT_LOGIO_STANDARD,
+    TT_LOGIO_SYSLOG,
 
     NULL,
     NULL,
-    __lio_std_output,
+    __lio_syslog_output,
 };
 
 ////////////////////////////////////////////////////////////
@@ -64,36 +68,60 @@ static tt_logio_itf_t tt_s_logio_std_itf = {
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-tt_logio_t *tt_logio_std_create(IN OPT tt_logio_std_attr_t *attr)
+tt_logio_t *tt_logio_syslog_create(IN OPT tt_logio_syslog_attr_t *attr)
 {
+    tt_logio_syslog_attr_t __attr;
     tt_logio_t *lio;
-    tt_logio_std_t *lio_std;
+    tt_logio_syslog_t *lio_syslog;
 
-    lio = tt_logio_create(sizeof(tt_logio_std_t), &tt_s_logio_std_itf);
+    if (attr == NULL) {
+        tt_logio_syslog_attr_default(&__attr);
+        attr = &__attr;
+    }
+
+    lio = tt_logio_create(sizeof(tt_logio_syslog_t), &tt_s_logio_std_itf);
     if (lio == NULL) {
         return NULL;
     }
 
-    lio_std = TT_LOGIO_CAST(lio, tt_logio_std_t);
+    lio_syslog = TT_LOGIO_CAST(lio, tt_logio_syslog_t);
 
-    if (attr != NULL) {
-        tt_memcpy(&lio_std->attr, attr, sizeof(tt_logio_std_attr_t));
-    } else {
-        tt_logio_std_attr_default(&lio_std->attr);
-    }
+    lio_syslog->facility = attr->facility;
 
     return lio;
 }
 
-void tt_logio_std_attr_default(IN tt_logio_std_attr_t *attr)
+void tt_logio_syslog_attr_default(IN tt_logio_syslog_attr_t *attr)
 {
-    attr->reserved = 0;
+    attr->facility = TT_SYSLOG_USER;
 }
 
-tt_u32_t __lio_std_output(IN tt_logio_t *lio,
-                          IN tt_log_entry_t *entry,
-                          IN const tt_char_t *data,
-                          IN tt_u32_t data_len)
+tt_u32_t __lio_syslog_output(IN tt_logio_t *lio,
+                             IN tt_log_entry_t *entry,
+                             IN const tt_char_t *data,
+                             IN tt_u32_t data_len)
 {
-    return printf("%s", data);
+    static int fmap[TT_SYSLOG_FACILITY_NUM] = {
+        LOG_USER,
+        LOG_LOCAL0,
+        LOG_LOCAL1,
+        LOG_LOCAL2,
+        LOG_LOCAL3,
+        LOG_LOCAL4,
+        LOG_LOCAL5,
+        LOG_LOCAL6,
+        LOG_LOCAL7,
+    };
+    static int level2pri[TT_LOG_LEVEL_NUM] = {
+        LOG_DEBUG, LOG_INFO, LOG_WARNING, LOG_ERR, LOG_CRIT,
+    };
+
+    tt_logio_syslog_t *lio_syslog = TT_LOGIO_CAST(lio, tt_logio_syslog_t);
+
+#ifdef TT_HAVE_SYSLOG
+    syslog(fmap[lio_syslog->facility] | level2pri[entry->level], "%s", data);
+    return data_len;
+#else
+    return 0;
+#endif
 }

@@ -66,6 +66,15 @@ elseif ((PLATFORM_ENV_OS STREQUAL ios) AND NOT PLATFORM_IOS_SIMULATOR)
 endif ()
 enable_language(ASM)
 
+# have
+include(CheckSymbolExists)
+
+check_symbol_exists(syslog syslog.h HAVE_SYSLOG)
+
+configure_file(${ROOT_PATH}/platform/include/config/tt_have.h.in
+               ${ROOT_PATH}/platform/include/config/tt_have.h
+               @ONLY)
+
 #
 # component
 #
