@@ -65,12 +65,12 @@ enum
 // log io file by index
 // ========================================
 
+static void __lio_fidx_destroy(IN tt_logio_t *lio);
+
 static tt_u32_t __lio_fidx_output(IN tt_logio_t *lio,
                                   IN tt_log_entry_t *entry,
                                   IN const tt_char_t *data,
                                   IN tt_u32_t data_len);
-
-static void __lio_fidx_destroy(IN tt_logio_t *lio);
 
 static tt_logio_itf_t tt_s_logio_fidx_itf = {
     TT_LOGIO_FILE,
@@ -84,12 +84,12 @@ static tt_logio_itf_t tt_s_logio_fidx_itf = {
 // log io file by date
 // ========================================
 
+static void __lio_fdate_destroy(IN tt_logio_t *lio);
+
 static tt_u32_t __lio_fdate_output(IN tt_logio_t *lio,
                                    IN tt_log_entry_t *entry,
                                    IN const tt_char_t *data,
                                    IN tt_u32_t data_len);
-
-static void __lio_fdate_destroy(IN tt_logio_t *lio);
 
 static tt_logio_itf_t tt_s_logio_fdate_itf = {
     TT_LOGIO_FILE,
@@ -219,6 +219,15 @@ void tt_logio_file_attr_default(IN tt_logio_file_attr_t *attr)
 // log io file by index
 // ========================================
 
+void __lio_fidx_destroy(IN tt_logio_t *lio)
+{
+    tt_logio_file_t *lf = TT_LOGIO_CAST(lio, tt_logio_file_t);
+
+    if (lf->worker_running) {
+        __liof_w_exit(&lf->worker);
+    }
+}
+
 tt_u32_t __lio_fidx_output(IN tt_logio_t *lio,
                            IN tt_log_entry_t *entry,
                            IN const tt_char_t *data,
@@ -252,15 +261,6 @@ tt_u32_t __lio_fidx_output(IN tt_logio_t *lio,
 
     tt_thread_set_log(t, l);
     return write_len;
-}
-
-void __lio_fidx_destroy(IN tt_logio_t *lio)
-{
-    tt_logio_file_t *lf = TT_LOGIO_CAST(lio, tt_logio_file_t);
-
-    if (lf->worker_running) {
-        __liof_w_exit(&lf->worker);
-    }
 }
 
 tt_result_t __fidx_next(IN tt_logio_file_t *lf)
@@ -324,6 +324,15 @@ tt_result_t __fidx_next(IN tt_logio_file_t *lf)
 // log io file by date
 // ========================================
 
+void __lio_fdate_destroy(IN tt_logio_t *lio)
+{
+    tt_logio_file_t *lf = TT_LOGIO_CAST(lio, tt_logio_file_t);
+
+    if (lf->worker_running) {
+        __liof_w_exit(&lf->worker);
+    }
+}
+
 tt_u32_t __lio_fdate_output(IN tt_logio_t *lio,
                             IN tt_log_entry_t *entry,
                             IN const tt_char_t *data,
@@ -356,15 +365,6 @@ tt_u32_t __lio_fdate_output(IN tt_logio_t *lio,
 
     tt_thread_set_log(t, l);
     return write_len;
-}
-
-void __lio_fdate_destroy(IN tt_logio_t *lio)
-{
-    tt_logio_file_t *lf = TT_LOGIO_CAST(lio, tt_logio_file_t);
-
-    if (lf->worker_running) {
-        __liof_w_exit(&lf->worker);
-    }
 }
 
 tt_result_t __fdate_next(IN tt_logio_file_t *lf)

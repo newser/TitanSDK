@@ -64,6 +64,8 @@ typedef enum {
     TT_LOGIO_LOGCAT, // for android
     TT_LOGIO_FILE,
     TT_LOGIO_SYSLOG,
+    TT_LOGIO_UDP,
+    TT_LOGIO_TCP,
 
     TT_LOGIO_NUM
 } tt_logio_type_t;

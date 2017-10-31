@@ -240,6 +240,15 @@ tt_bool_t tt_io_poller_run_ntv(IN tt_io_poller_ntv_t *sys_iop,
         tt_u32_t i;
         for (i = 0; i < nev; ++i) {
             tt_io_ev_t *io_ev = (tt_io_ev_t *)kev[i].udata;
+            tt_u32_t flags = kev[i].flags;
+
+            if (flags & EV_ERROR) {
+                io_ev->io_result = TT_FAIL;
+            } else if (flags & EV_EOF) {
+                io_ev->io_result = TT_E_END;
+            } else {
+                io_ev->io_result = TT_SUCCESS;
+            }
 
             if (!__io_handler[io_ev->io](io_ev, sys_iop)) {
                 return TT_FALSE;

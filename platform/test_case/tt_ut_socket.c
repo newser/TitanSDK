@@ -965,6 +965,20 @@ static tt_result_t __f_cli(IN void *param)
     tt_fiber_ev_t *fev;
     tt_tmr_t *tmr;
 
+    // invalid address, should fail
+    s = tt_skt_create(TT_NET_AF_INET, TT_NET_PROTO_TCP, NULL);
+    if (s == NULL) {
+        __ut_skt_err_line = __LINE__;
+        return TT_FAIL;
+    }
+
+    if (TT_OK(tt_skt_connect_p(s, TT_NET_AF_INET, "127.0.0.1", 63333))) {
+        __ut_skt_err_line = __LINE__;
+        return TT_FAIL;
+    }
+    tt_skt_destroy(s);
+
+    // valid address
     s = tt_skt_create(TT_NET_AF_INET, TT_NET_PROTO_TCP, NULL);
     if (s == NULL) {
         __ut_skt_err_line = __LINE__;

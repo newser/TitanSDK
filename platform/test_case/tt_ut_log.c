@@ -20,6 +20,8 @@ TT_TEST_ROUTINE_DECLARE(case_log_io_file_index)
 TT_TEST_ROUTINE_DECLARE(case_log_io_file_date)
 TT_TEST_ROUTINE_DECLARE(case_log_io_file_archive)
 TT_TEST_ROUTINE_DECLARE(case_log_io_syslog)
+TT_TEST_ROUTINE_DECLARE(case_log_io_udp)
+TT_TEST_ROUTINE_DECLARE(case_log_io_tcp)
 // =========================================
 
 // === test case list ======================
@@ -80,6 +82,24 @@ TT_TEST_CASE("case_log_context",
                  NULL,
                  NULL),
 
+    TT_TEST_CASE("case_log_io_udp",
+                 "testing log io udp",
+                 case_log_io_udp,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL),
+
+    TT_TEST_CASE("case_log_io_tcp",
+                 "testing log io tcp",
+                 case_log_io_tcp,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL),
+
     TT_TEST_CASE_LIST_DEFINE_END(log_case)
     // =========================================
 
@@ -91,7 +111,7 @@ TT_TEST_CASE("case_log_context",
 
 
     /*
-    TT_TEST_ROUTINE_DEFINE(case_log_io_syslog)
+    TT_TEST_ROUTINE_DEFINE(case_log_io_udp)
     {
         //tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
 
@@ -941,6 +961,245 @@ TT_TEST_ROUTINE_DEFINE(case_log_io_syslog)
 
     le.level = TT_LOG_FATAL;
     tt_logio_output(lio, &le, "fatal log", sizeof("debug log"));
+
+    tt_logio_release(lio);
+
+    // test end
+    TT_TEST_CASE_LEAVE()
+}
+
+static tt_atomic_s32_t __svr_ok;
+static tt_u32_t __err_line;
+
+static tt_result_t __udp_log_svr(IN void *param)
+{
+    tt_skt_t *s;
+    tt_u8_t buf[20];
+    tt_u32_t i, recvd;
+    tt_fiber_ev_t *fev;
+    tt_tmr_t *tmr;
+
+    s = tt_udp_server_p(TT_NET_AF_INET, NULL, "127.0.0.1", 60010);
+    if (s == NULL) {
+        __err_line = __LINE__;
+        return TT_FAIL;
+    }
+    tt_atomic_s32_set(&__svr_ok, 1);
+
+    i = 1;
+    while (i < 10) {
+        if (!TT_OK(tt_skt_recvfrom(s,
+                                   buf,
+                                   sizeof(buf),
+                                   &recvd,
+                                   NULL,
+                                   &fev,
+                                   &tmr))) {
+            __err_line = __LINE__;
+            return TT_FAIL;
+        }
+
+        if (recvd != i) {
+            __err_line = __LINE__;
+            return TT_FAIL;
+        }
+        if (tt_strncmp((tt_char_t *)buf, "123456789", i) != 0) {
+            __err_line = __LINE__;
+            return TT_FAIL;
+        }
+
+        ++i;
+    }
+
+    return TT_SUCCESS;
+}
+
+TT_TEST_ROUTINE_DEFINE(case_log_io_udp)
+{
+    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+    tt_task_t t;
+    tt_result_t ret;
+    tt_logio_t *lio;
+    tt_sktaddr_t addr;
+    tt_log_entry_t le = {0};
+
+    TT_TEST_CASE_ENTER()
+    // test start
+
+    tt_atomic_s32_set(&__svr_ok, 0);
+    __err_line = 0;
+
+    tt_sktaddr_init(&addr, TT_NET_AF_INET);
+    tt_sktaddr_set_ip_p(&addr, "127.0.0.1");
+    tt_sktaddr_set_port(&addr, 60010);
+
+    ret = tt_task_create(&t, NULL);
+    TT_UT_SUCCESS(ret, "");
+    ret = tt_task_add_fiber(&t, NULL, __udp_log_svr, &addr, NULL);
+    TT_UT_SUCCESS(ret, "");
+    ret = tt_task_run(&t);
+    TT_UT_SUCCESS(ret, "");
+    while (tt_atomic_s32_get(&__svr_ok) == 0) {
+        tt_sleep(100);
+    }
+
+    lio = tt_logio_udp_create(TT_NET_AF_INET, &addr, NULL);
+    TT_UT_NOT_NULL(lio, "");
+
+    tt_logio_output(lio, &le, "123456789", 1);
+    tt_logio_output(lio, &le, "123456789", 2);
+    tt_logio_output(lio, &le, "123456789", 3);
+    tt_logio_output(lio, &le, "123456789", 4);
+    tt_logio_output(lio, &le, "123456789", 5);
+    tt_logio_output(lio, &le, "123456789", 6);
+    tt_logio_output(lio, &le, "123456789", 7);
+    tt_logio_output(lio, &le, "123456789", 8);
+    tt_logio_output(lio, &le, "123456789", 9);
+
+    tt_logio_release(lio);
+
+    tt_task_wait(&t);
+    TT_UT_EQUAL(__err_line, 0, "");
+
+    /////////////
+    // invalid address
+    tt_sktaddr_set_port(&addr, 65001);
+
+    lio = tt_logio_udp_create(TT_NET_AF_INET, &addr, NULL);
+    TT_UT_NOT_NULL(lio, "");
+
+    tt_logio_output(lio, &le, "123456789", 1);
+    tt_logio_output(lio, &le, "123456789", 2);
+    tt_logio_output(lio, &le, "123456789", 3);
+    tt_logio_output(lio, &le, "123456789", 4);
+    tt_logio_output(lio, &le, "123456789", 5);
+    tt_logio_output(lio, &le, "123456789", 6);
+    tt_logio_output(lio, &le, "123456789", 7);
+    tt_logio_output(lio, &le, "123456789", 8);
+    tt_logio_output(lio, &le, "123456789", 9);
+
+    tt_logio_release(lio);
+
+    // test end
+    TT_TEST_CASE_LEAVE()
+}
+
+static tt_result_t __tcp_log_svr(IN void *param)
+{
+    tt_skt_t *s, *as;
+    tt_u8_t buf[100];
+    tt_u32_t recvd, n;
+    tt_fiber_ev_t *fev;
+    tt_tmr_t *tmr;
+
+    s = tt_tcp_server_p(TT_NET_AF_INET, NULL, "127.0.0.1", 60020);
+    if (s == NULL) {
+        __err_line = __LINE__;
+        return TT_FAIL;
+    }
+
+    as = tt_skt_accept(s, NULL, NULL);
+    if (as == NULL) {
+        __err_line = __LINE__;
+        return TT_FAIL;
+    }
+
+    n = 0;
+    while (1) {
+        if (!TT_OK(tt_skt_recv(as,
+                               buf + n,
+                               sizeof(buf) - n,
+                               &recvd,
+                               &fev,
+                               &tmr))) {
+            __err_line = __LINE__;
+            return TT_FAIL;
+        }
+
+        n += recvd;
+        if (n >= 36) {
+            break;
+        }
+    }
+    if (tt_strncmp((tt_char_t *)buf,
+                   "112123123412345123456123456712345678",
+                   36) != 0) {
+        __err_line = __LINE__;
+        return TT_FAIL;
+    }
+
+    tt_skt_destroy(as);
+    tt_skt_destroy(s);
+
+    return TT_SUCCESS;
+}
+
+TT_TEST_ROUTINE_DEFINE(case_log_io_tcp)
+{
+    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+    tt_task_t t;
+    tt_result_t ret;
+    tt_logio_t *lio;
+    tt_sktaddr_t addr;
+    tt_log_entry_t le = {0};
+
+    TT_TEST_CASE_ENTER()
+    // test start
+
+    tt_atomic_s32_set(&__svr_ok, 0);
+    __err_line = 0;
+
+    tt_sktaddr_init(&addr, TT_NET_AF_INET);
+    tt_sktaddr_set_ip_p(&addr, "127.0.0.1");
+    tt_sktaddr_set_port(&addr, 60020);
+
+    ret = tt_task_create(&t, NULL);
+    TT_UT_SUCCESS(ret, "");
+    ret = tt_task_add_fiber(&t, NULL, __tcp_log_svr, &addr, NULL);
+    TT_UT_SUCCESS(ret, "");
+    ret = tt_task_run(&t);
+    TT_UT_SUCCESS(ret, "");
+#if 0
+    while (tt_atomic_s32_get(&__svr_ok) == 0) {
+        tt_sleep(100);
+    }
+#endif
+
+    lio = tt_logio_tcp_create(TT_NET_AF_INET, &addr, NULL);
+    TT_UT_NOT_NULL(lio, "");
+
+    tt_logio_output(lio, &le, "123456789", 1);
+    tt_logio_output(lio, &le, "123456789", 2);
+    tt_logio_output(lio, &le, "123456789", 3);
+    tt_logio_output(lio, &le, "123456789", 4);
+    tt_logio_output(lio, &le, "123456789", 5);
+    tt_logio_output(lio, &le, "123456789", 6);
+    tt_logio_output(lio, &le, "123456789", 7);
+    tt_logio_output(lio, &le, "123456789", 8);
+    tt_logio_output(lio, &le, "123456789", 9);
+
+    tt_logio_release(lio);
+
+    tt_task_wait(&t);
+    TT_INFO("error line: %d", __err_line);
+    TT_UT_EQUAL(__err_line, 0, "");
+
+    /////////////
+    // invalid address
+    tt_sktaddr_set_port(&addr, 65001);
+
+    lio = tt_logio_tcp_create(TT_NET_AF_INET, &addr, NULL);
+    TT_UT_NOT_NULL(lio, "");
+
+    tt_logio_output(lio, &le, "123456789", 1);
+    tt_logio_output(lio, &le, "123456789", 2);
+    tt_logio_output(lio, &le, "123456789", 3);
+    tt_logio_output(lio, &le, "123456789", 4);
+    tt_logio_output(lio, &le, "123456789", 5);
+    tt_logio_output(lio, &le, "123456789", 6);
+    tt_logio_output(lio, &le, "123456789", 7);
+    tt_logio_output(lio, &le, "123456789", 8);
+    tt_logio_output(lio, &le, "123456789", 9);
 
     tt_logio_release(lio);
 
