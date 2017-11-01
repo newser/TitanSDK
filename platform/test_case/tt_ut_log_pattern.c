@@ -48,6 +48,8 @@ TT_TEST_ROUTINE_DECLARE(case_lpatn_content)
 TT_TEST_ROUTINE_DECLARE(case_lpatn_func)
 TT_TEST_ROUTINE_DECLARE(case_lpatn_line)
 TT_TEST_ROUTINE_DECLARE(case_log_pattern)
+
+TT_TEST_ROUTINE_DECLARE(case_log_syslog3164)
 // =========================================
 
 // === test case list ======================
@@ -117,6 +119,15 @@ TT_TEST_CASE("case_lpatn_sn",
                  NULL,
                  NULL),
 
+    TT_TEST_CASE("case_log_syslog3164",
+                 "testing log layout: syslog3164",
+                 case_log_syslog3164,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL),
+
     TT_TEST_CASE_LIST_DEFINE_END(lpatn_case)
     // =========================================
 
@@ -131,7 +142,7 @@ TT_TEST_CASE("case_lpatn_sn",
     ////////////////////////////////////////////////////////////
 
     /*
-    TT_TEST_ROUTINE_DEFINE(case_log_pattern)
+    TT_TEST_ROUTINE_DEFINE(case_log_syslog3164)
     {
         //tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
 
@@ -982,6 +993,57 @@ TT_TEST_ROUTINE_DEFINE(case_log_pattern)
         tt_loglyt_destroy(ll);
     }
 
+    tt_buf_destroy(&buf);
+
+    // test end
+    TT_TEST_CASE_LEAVE()
+}
+
+TT_TEST_ROUTINE_DEFINE(case_log_syslog3164)
+{
+    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+    tt_loglyt_t *ll;
+    tt_result_t ret;
+    tt_buf_t buf;
+    tt_log_entry_t le = {0};
+    const tt_char_t *p;
+    tt_char_t dn[16] = {0};
+
+    TT_TEST_CASE_ENTER()
+    // test start
+
+    tt_buf_init(&buf, NULL);
+
+    ll = tt_loglyt_syslog3164_create(TT_SYSLOG_LPR,
+                                     TT_SYSLOG_CRIT,
+                                     "testhost",
+                                     NULL,
+                                     "${level} ${content}\n");
+    TT_UT_NOT_NULL(ll, "");
+
+    le.content = "log content";
+    le.level = TT_LOG_DEBUG;
+    ret = tt_loglyt_format(ll, &le, &buf);
+    TT_UT_SUCCESS(ret, "");
+
+    p = (const tt_char_t *)TT_BUF_RPOS(&buf);
+    TT_UT_EQUAL(tt_strncmp(p, "<50>", 4), 0, "");
+    TT_UT_NOT_NULL(tt_strstr(p, "testhost unit_test: DEBUG log content"), "");
+
+    tt_date_render_now("%b %d %H:", dn, sizeof(dn) - 1);
+    TT_UT_NOT_NULL(tt_strstr(p, dn), "");
+
+    {
+        tt_sktaddr_t addr;
+        tt_logio_t *lio;
+
+        tt_sktaddr_init(&addr, TT_NET_AF_INET);
+        tt_sktaddr_set_ip_p(&addr, "");
+
+        lio = tt_logio_udp_create(TT_NET_AF_INET, &addr, NULL);
+    }
+
+    tt_loglyt_destroy(ll);
     tt_buf_destroy(&buf);
 
     // test end

@@ -91,4 +91,14 @@ tt_inline tt_char_t *tt_current_path(IN tt_bool_t end_slash)
     return tt_current_path_ntv(end_slash);
 }
 
+tt_inline const tt_char_t *tt_process_name()
+{
+    const tt_char_t *name = tt_process_name_ntv();
+    if (name != NULL) {
+        return name;
+    } else {
+        return "unknown";
+    }
+}
+
 #endif /* __TT_PROCESS__ */

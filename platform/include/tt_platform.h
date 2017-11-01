@@ -127,6 +127,7 @@ extern "C" {
 #include <log/layout/tt_log_field.h>
 #include <log/layout/tt_log_layout.h>
 #include <log/layout/tt_log_layout_pattern.h>
+#include <log/layout/tt_log_layout_syslog3164.h>
 #include <log/tt_log.h>
 #include <log/tt_log_context.h>
 #include <log/tt_log_init.h>

@@ -20,12 +20,7 @@
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <log/io/tt_log_io_syslog.h>
-
-#include <log/io/tt_log_io.h>
-#include <misc/tt_util.h>
-
-#include <tt_cstd_api.h>
+#include <log/tt_syslog_def.h>
 
 #ifdef TT_HAVE_SYSLOG
 #include <syslog.h>
@@ -47,17 +42,33 @@
 // global variant
 ////////////////////////////////////////////////////////////
 
-static void __lio_syslog_output(IN tt_logio_t *lio,
-                                IN const tt_char_t *data,
-                                IN tt_u32_t data_len);
+#ifdef TT_HAVE_SYSLOG
 
-static tt_logio_itf_t tt_s_logio_std_itf = {
-    TT_LOGIO_SYSLOG,
-
-    NULL,
-    NULL,
-    __lio_syslog_output,
+tt_s32_t tt_syslog_facility_map[TT_SYSLOG_FACILITY_NUM] = {
+    LOG_KERN,     LOG_USER,   LOG_MAIL,   LOG_DAEMON, LOG_AUTH,
+    LOG_SYSLOG,   LOG_LPR,    LOG_NEWS,   LOG_UUCP,   LOG_CRON,
+    LOG_AUTHPRIV, LOG_FTP,    LOG_LOCAL0, LOG_LOCAL1, LOG_LOCAL2,
+    LOG_LOCAL3,   LOG_LOCAL4, LOG_LOCAL5, LOG_LOCAL6, LOG_LOCAL7,
 };
+
+tt_s32_t tt_syslog_level_map[TT_SYSLOG_LEVEL_NUM] = {
+    LOG_EMERG,
+    LOG_ALERT,
+    LOG_CRIT,
+    LOG_ERR,
+    LOG_WARNING,
+    LOG_NOTICE,
+    LOG_INFO,
+    LOG_DEBUG,
+};
+
+#else
+
+tt_s32_t tt_syslog_facility_map[TT_SYSLOG_FACILITY_NUM];
+
+tt_s32_t tt_syslog_level_map[TT_SYSLOG_LEVEL_NUM];
+
+#endif
 
 ////////////////////////////////////////////////////////////
 // interface declaration
@@ -66,46 +77,3 @@ static tt_logio_itf_t tt_s_logio_std_itf = {
 ////////////////////////////////////////////////////////////
 // interface implementation
 ////////////////////////////////////////////////////////////
-
-tt_logio_t *tt_logio_syslog_create(IN OPT tt_logio_syslog_attr_t *attr)
-{
-    tt_logio_syslog_attr_t __attr;
-    tt_logio_t *lio;
-    tt_logio_syslog_t *lio_syslog;
-
-    if (attr == NULL) {
-        tt_logio_syslog_attr_default(&__attr);
-        attr = &__attr;
-    }
-
-    lio = tt_logio_create(sizeof(tt_logio_syslog_t), &tt_s_logio_std_itf);
-    if (lio == NULL) {
-        return NULL;
-    }
-
-    lio_syslog = TT_LOGIO_CAST(lio, tt_logio_syslog_t);
-
-    lio_syslog->facility = attr->facility;
-    lio_syslog->level = attr->level;
-
-    return lio;
-}
-
-void tt_logio_syslog_attr_default(IN tt_logio_syslog_attr_t *attr)
-{
-    attr->facility = TT_SYSLOG_USER;
-    attr->level = TT_SYSLOG_INFO;
-}
-
-void __lio_syslog_output(IN tt_logio_t *lio,
-                         IN const tt_char_t *data,
-                         IN tt_u32_t data_len)
-{
-    tt_logio_syslog_t *lio_syslog = TT_LOGIO_CAST(lio, tt_logio_syslog_t);
-
-#ifdef TT_HAVE_SYSLOG
-    syslog(TT_SYSLOG_PRIORITY(lio_syslog->facility, lio_syslog->level),
-           "%s",
-           data);
-#endif
-}

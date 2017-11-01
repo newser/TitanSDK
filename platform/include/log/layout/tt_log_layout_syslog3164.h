@@ -17,19 +17,20 @@
  */
 
 /**
-@file tt_log_io_syslog.h
-@brief log io syslog
+@file tt_log_layout_syslog3164.h
+@brief log layout syslog3164
 
-this file defines log io syslog output
+this file defines log layout syslog3164
 */
 
-#ifndef __TT_LOG_IO_SYSLOG__
-#define __TT_LOG_IO_SYSLOG__
+#ifndef __TT_LOG_LAYOUT_SYSLOG3164__
+#define __TT_LOG_LAYOUT_SYSLOG3164__
 
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
+#include <log/layout/tt_log_layout.h>
 #include <log/tt_syslog_def.h>
 
 ////////////////////////////////////////////////////////////
@@ -40,20 +41,6 @@ this file defines log io syslog output
 // type definition
 ////////////////////////////////////////////////////////////
 
-struct tt_logio_s;
-
-typedef struct
-{
-    tt_syslog_facility_t facility;
-    tt_syslog_level_t level;
-} tt_logio_syslog_attr_t;
-
-typedef struct
-{
-    tt_syslog_facility_t facility;
-    tt_syslog_level_t level;
-} tt_logio_syslog_t;
-
 ////////////////////////////////////////////////////////////
 // global variants
 ////////////////////////////////////////////////////////////
@@ -62,9 +49,11 @@ typedef struct
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-tt_export struct tt_logio_s *tt_logio_syslog_create(
-    IN OPT tt_logio_syslog_attr_t *attr);
+tt_export tt_loglyt_t *tt_loglyt_syslog3164_create(
+    IN tt_syslog_facility_t f,
+    IN tt_syslog_level_t l,
+    IN const tt_char_t *host,
+    IN OPT const tt_char_t *program,
+    IN const tt_char_t *pattern);
 
-tt_export void tt_logio_syslog_attr_default(IN tt_logio_syslog_attr_t *attr);
-
-#endif /* __TT_LOG_IO_SYSLOG__ */
+#endif /* __TT_LOG_LAYOUT_SYSLOG3164__ */
