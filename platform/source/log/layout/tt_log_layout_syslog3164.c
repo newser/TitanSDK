@@ -97,21 +97,21 @@ tt_loglyt_t *tt_loglyt_syslog3164_create(IN tt_syslog_facility_t f,
     lls->pattern = llp;
 
     lls->host = host;
-    lls->host_len = tt_strlen(lls->host);
+    lls->host_len = (tt_u32_t)tt_strlen(lls->host);
 
     if (program != NULL) {
         lls->program = program;
     } else {
         lls->program = tt_process_name();
     }
-    lls->program_len = tt_strlen(lls->program);
+    lls->program_len = (tt_u32_t)tt_strlen(lls->program);
 
     tt_memset(lls->pri, 0, sizeof(lls->pri));
     tt_snprintf(lls->pri,
                 sizeof(lls->pri) - 1,
                 "<%d>",
                 TT_SYSLOG_PRIORITY(f, l));
-    lls->pri_len = tt_strlen(lls->pri);
+    lls->pri_len = (tt_u32_t)tt_strlen(lls->pri);
 
     return ll;
 }

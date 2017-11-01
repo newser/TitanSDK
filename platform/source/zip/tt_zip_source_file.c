@@ -34,7 +34,7 @@
 // internal macro
 ////////////////////////////////////////////////////////////
 
-#if TT_ENV_OS_IS_WINDOWS
+#if TT_ENV_OS_IS_WINDOWS && !defined(ENOENT)
 #define ENOENT ERROR_FILE_NOT_FOUND
 #endif
 

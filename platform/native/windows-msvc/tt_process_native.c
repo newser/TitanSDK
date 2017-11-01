@@ -30,6 +30,8 @@
 #include <tt_sys_error.h>
 #include <tt_wchar.h>
 
+#include <psapi.h>
+
 ////////////////////////////////////////////////////////////
 // internal macro
 ////////////////////////////////////////////////////////////
@@ -45,6 +47,8 @@
 ////////////////////////////////////////////////////////////
 // global variant
 ////////////////////////////////////////////////////////////
+
+static tt_char_t tt_s_process_name[128];
 
 ////////////////////////////////////////////////////////////
 // interface declaration
@@ -251,3 +255,20 @@ tt_char_t *tt_current_path_ntv(IN tt_bool_t end_slash)
 
     return d;
 }
+
+const tt_char_t *tt_process_name_ntv()
+{
+	static char path[MAX_PATH] = {0};
+
+    if (GetProcessImageFileNameA(GetCurrentProcess(), path, MAX_PATH) != 0) {
+        char *p = tt_strrchr(path, '\\');
+        if (p != NULL) {
+            return p + 1;
+        } else {
+            return path;
+        }
+    } else {
+        return "unknown";
+    }
+}
+

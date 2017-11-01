@@ -24,6 +24,8 @@
 
 #include <misc/tt_assert.h>
 #include <misc/tt_util.h>
+#include <init/tt_component.h>
+#include <init/tt_profile.h>
 
 #include <tt_cstd_api.h>
 
@@ -43,9 +45,14 @@
 // global variant
 ////////////////////////////////////////////////////////////
 
+static tt_char_t tt_s_process_name[128];
+
 ////////////////////////////////////////////////////////////
 // interface declaration
 ////////////////////////////////////////////////////////////
+
+static tt_result_t __process_component_init(IN tt_component_t *comp,
+                                        IN tt_profile_t *profile);
 
 ////////////////////////////////////////////////////////////
 // interface implementation
@@ -53,6 +60,17 @@
 
 void tt_process_component_register()
 {
+    static tt_component_t comp;
+
+    tt_component_itf_t itf = {
+        __process_component_init,
+    };
+
+    // init component
+    tt_component_init(&comp, TT_COMPONENT_PROCESS, "Process", NULL, &itf);
+
+    // register component
+    tt_component_register(&comp);
 }
 
 tt_result_t tt_process_create(IN tt_process_t *proc,
@@ -98,3 +116,29 @@ tt_char_t *tt_process_path(IN OPT tt_process_t *proc)
 {
     return tt_process_path_ntv(TT_COND(proc != NULL, &proc->sys_proc, NULL));
 }
+
+const tt_char_t *tt_process_name()
+{
+    return tt_s_process_name;
+}
+
+tt_result_t __process_component_init(IN tt_component_t *comp,
+                                 IN tt_profile_t *profile)
+{
+    const tt_char_t *name;
+    tt_u32_t len;
+
+    name = tt_process_name_ntv();
+    if (name != NULL) {
+        len = (tt_u32_t)tt_strlen(name);
+        if (len >= sizeof(tt_s_process_name)) {
+            len = sizeof(tt_s_process_name) - 1;
+        }
+        tt_memcpy(tt_s_process_name, name, len);
+    } else {
+        tt_memcpy(tt_s_process_name, "unknown", sizeof("unknown") - 1);
+    }
+    
+    return TT_SUCCESS;
+}
+

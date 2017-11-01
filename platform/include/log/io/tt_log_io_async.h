@@ -31,6 +31,8 @@ this file defines log io async output
 ////////////////////////////////////////////////////////////
 
 #include <os/tt_task.h>
+#include <algorithm/ptr/tt_ptr_queue.h>
+#include <algorithm/tt_buffer.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition

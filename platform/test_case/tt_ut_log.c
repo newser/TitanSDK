@@ -693,7 +693,6 @@ TT_TEST_ROUTINE_DEFINE(case_log_io_file_archive)
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_logio_file_attr_t a;
     tt_logio_t *lio;
-    tt_u32_t n;
     tt_bool_t oneshot = TT_FALSE;
 
     TT_TEST_CASE_ENTER()
@@ -1065,7 +1064,7 @@ TT_TEST_ROUTINE_DEFINE(case_log_io_tcp)
 
     ret = tt_task_create(&t, NULL);
     TT_UT_SUCCESS(ret, "");
-    ret = tt_task_add_fiber(&t, NULL, __tcp_log_svr, port, NULL);
+    ret = tt_task_add_fiber(&t, NULL, __tcp_log_svr, (void*)(tt_uintptr_t)port, NULL);
     TT_UT_SUCCESS(ret, "");
     ret = tt_task_run(&t);
     TT_UT_SUCCESS(ret, "");
