@@ -45,10 +45,9 @@
 
 static void __lio_udp_destroy(IN tt_logio_t *lio);
 
-static tt_u32_t __lio_udp_output(IN tt_logio_t *lio,
-                                 IN tt_log_entry_t *entry,
-                                 IN const tt_char_t *data,
-                                 IN tt_u32_t data_len);
+static void __lio_udp_output(IN tt_logio_t *lio,
+                             IN const tt_char_t *data,
+                             IN tt_u32_t data_len);
 
 static tt_logio_itf_t tt_s_logio_udp_itf = {
     TT_LOGIO_UDP,
@@ -123,26 +122,22 @@ void __lio_udp_destroy(IN tt_logio_t *lio)
     tt_skt_destroy(lio_udp->skt);
 }
 
-tt_u32_t __lio_udp_output(IN tt_logio_t *lio,
-                          IN tt_log_entry_t *entry,
-                          IN const tt_char_t *data,
-                          IN tt_u32_t data_len)
+void __lio_udp_output(IN tt_logio_t *lio,
+                      IN const tt_char_t *data,
+                      IN tt_u32_t data_len)
 {
     tt_logio_udp_t *lio_udp = TT_LOGIO_CAST(lio, tt_logio_udp_t);
-    tt_u32_t sent = 0;
     tt_thread_t *t = tt_current_thread();
     tt_thread_log_t l;
 
     l = tt_thread_set_log(t, TT_THREAD_LOG_PRINTF);
 
-    if (!TT_OK(tt_skt_sendto(lio_udp->skt,
-                             (tt_u8_t *)data,
-                             data_len,
-                             &sent,
-                             &lio_udp->addr))) {
+    if (!TT_OK(tt_skt_sendto_all(lio_udp->skt,
+                                 (tt_u8_t *)data,
+                                 data_len,
+                                 &lio_udp->addr))) {
         TT_ERROR("fail to send udp log: %s", data);
     }
 
     tt_thread_set_log(t, l);
-    return sent;
 }

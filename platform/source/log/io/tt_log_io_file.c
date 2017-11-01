@@ -67,10 +67,9 @@ enum
 
 static void __lio_fidx_destroy(IN tt_logio_t *lio);
 
-static tt_u32_t __lio_fidx_output(IN tt_logio_t *lio,
-                                  IN tt_log_entry_t *entry,
-                                  IN const tt_char_t *data,
-                                  IN tt_u32_t data_len);
+static void __lio_fidx_output(IN tt_logio_t *lio,
+                              IN const tt_char_t *data,
+                              IN tt_u32_t data_len);
 
 static tt_logio_itf_t tt_s_logio_fidx_itf = {
     TT_LOGIO_FILE,
@@ -86,10 +85,9 @@ static tt_logio_itf_t tt_s_logio_fidx_itf = {
 
 static void __lio_fdate_destroy(IN tt_logio_t *lio);
 
-static tt_u32_t __lio_fdate_output(IN tt_logio_t *lio,
-                                   IN tt_log_entry_t *entry,
-                                   IN const tt_char_t *data,
-                                   IN tt_u32_t data_len);
+static void __lio_fdate_output(IN tt_logio_t *lio,
+                               IN const tt_char_t *data,
+                               IN tt_u32_t data_len);
 
 static tt_logio_itf_t tt_s_logio_fdate_itf = {
     TT_LOGIO_FILE,
@@ -228,13 +226,11 @@ void __lio_fidx_destroy(IN tt_logio_t *lio)
     }
 }
 
-tt_u32_t __lio_fidx_output(IN tt_logio_t *lio,
-                           IN tt_log_entry_t *entry,
-                           IN const tt_char_t *data,
-                           IN tt_u32_t data_len)
+void __lio_fidx_output(IN tt_logio_t *lio,
+                       IN const tt_char_t *data,
+                       IN tt_u32_t data_len)
 {
     tt_logio_file_t *lf = TT_LOGIO_CAST(lio, tt_logio_file_t);
-    tt_u32_t write_len = 0;
     tt_thread_t *t = tt_current_thread();
     tt_thread_log_t l;
 
@@ -249,18 +245,17 @@ tt_u32_t __lio_fidx_output(IN tt_logio_t *lio,
     }
 
     if (lf->f_opened &&
-        TT_OK(tt_fwrite(&lf->f, (tt_u8_t *)data, data_len, &write_len))) {
-        lf->write_len += write_len;
+        TT_OK(tt_fwrite_all(&lf->f, (tt_u8_t *)data, data_len))) {
+        lf->write_len += data_len;
         if (lf->write_len >= lf->max_log_size) {
             __fidx_next(lf);
         }
     } else {
         // no way to recover anything, just give a warning
-        TT_ERROR("log is lost");
+        TT_ERROR("log may be lost: %s", data);
     }
 
     tt_thread_set_log(t, l);
-    return write_len;
 }
 
 tt_result_t __fidx_next(IN tt_logio_file_t *lf)
@@ -333,13 +328,11 @@ void __lio_fdate_destroy(IN tt_logio_t *lio)
     }
 }
 
-tt_u32_t __lio_fdate_output(IN tt_logio_t *lio,
-                            IN tt_log_entry_t *entry,
-                            IN const tt_char_t *data,
-                            IN tt_u32_t data_len)
+void __lio_fdate_output(IN tt_logio_t *lio,
+                        IN const tt_char_t *data,
+                        IN tt_u32_t data_len)
 {
     tt_logio_file_t *lf = TT_LOGIO_CAST(lio, tt_logio_file_t);
-    tt_u32_t write_len = 0;
     tt_thread_t *t = tt_current_thread();
     tt_thread_log_t l;
 
@@ -354,17 +347,17 @@ tt_u32_t __lio_fdate_output(IN tt_logio_t *lio,
     }
 
     if (lf->f_opened &&
-        TT_OK(tt_fwrite(&lf->f, (tt_u8_t *)data, data_len, &write_len))) {
-        lf->write_len += write_len;
+        TT_OK(tt_fwrite_all(&lf->f, (tt_u8_t *)data, data_len))) {
+        lf->write_len += data_len;
         if (lf->write_len >= lf->max_log_size) {
             __fdate_next(lf);
         }
     } else {
-        TT_ERROR("log is lost");
+        // no way to recover anything, just give a warning
+        TT_ERROR("log may be lost: %s", data);
     }
 
     tt_thread_set_log(t, l);
-    return write_len;
 }
 
 tt_result_t __fdate_next(IN tt_logio_file_t *lf)

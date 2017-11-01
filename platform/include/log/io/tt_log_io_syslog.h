@@ -57,14 +57,30 @@ typedef enum {
 } tt_syslog_facility_t;
 #define TT_SYSLOG_FACILITY_VALID(f) ((f) < TT_SYSLOG_FACILITY_NUM)
 
+typedef enum {
+    TT_SYSLOG_EMERG,
+    TT_SYSLOG_ALERT,
+    TT_SYSLOG_CRIT,
+    TT_SYSLOG_ERR,
+    TT_SYSLOG_WARNING,
+    TT_SYSLOG_NOTICE,
+    TT_SYSLOG_INFO,
+    TT_SYSLOG_DEBUG,
+
+    TT_SYSLOG_LEVEL_NUM
+} tt_syslog_level_t;
+#define TT_SYSLOG_LEVEL_VALID(l) ((f) < TT_SYSLOG_FACILITY_NUM)
+
 typedef struct
 {
     tt_syslog_facility_t facility;
+    tt_syslog_level_t level;
 } tt_logio_syslog_attr_t;
 
 typedef struct
 {
     tt_syslog_facility_t facility;
+    tt_syslog_level_t level;
 } tt_logio_syslog_t;
 
 ////////////////////////////////////////////////////////////

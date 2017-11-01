@@ -153,6 +153,22 @@ tt_inline tt_result_t tt_skt_send(IN tt_skt_t *skt,
     }
 }
 
+tt_inline tt_result_t tt_skt_send_all(IN tt_skt_t *skt,
+                                      IN tt_u8_t *buf,
+                                      IN tt_u32_t len)
+{
+    tt_u32_t n = 0;
+    while (n < len) {
+        tt_u32_t sent;
+        tt_result_t result;
+        if (!TT_OK(result = tt_skt_send(skt, buf + n, len - n, &sent))) {
+            return result;
+        }
+        n += sent;
+    }
+    return TT_SUCCESS;
+}
+
 tt_inline tt_result_t tt_skt_recv(IN tt_skt_t *skt,
                                   OUT tt_u8_t *buf,
                                   IN tt_u32_t len,
@@ -202,6 +218,24 @@ tt_inline tt_result_t tt_skt_sendto(IN tt_skt_t *skt,
         *sent = 0;
         return TT_SUCCESS;
     }
+}
+
+tt_inline tt_result_t tt_skt_sendto_all(IN tt_skt_t *skt,
+                                        IN tt_u8_t *buf,
+                                        IN tt_u32_t len,
+                                        IN tt_sktaddr_t *addr)
+{
+    tt_u32_t n = 0;
+    while (n < len) {
+        tt_u32_t sent;
+        tt_result_t result;
+        if (!TT_OK(result =
+                       tt_skt_sendto(skt, buf + n, len - n, &sent, addr))) {
+            return result;
+        }
+        n += sent;
+    }
+    return TT_SUCCESS;
 }
 
 tt_export tt_result_t tt_skt_local_addr(IN tt_skt_t *skt,

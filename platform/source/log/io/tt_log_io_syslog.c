@@ -47,10 +47,9 @@
 // global variant
 ////////////////////////////////////////////////////////////
 
-static tt_u32_t __lio_syslog_output(IN tt_logio_t *lio,
-                                    IN tt_log_entry_t *entry,
-                                    IN const tt_char_t *data,
-                                    IN tt_u32_t data_len);
+static void __lio_syslog_output(IN tt_logio_t *lio,
+                                IN const tt_char_t *data,
+                                IN tt_u32_t data_len);
 
 static tt_logio_itf_t tt_s_logio_std_itf = {
     TT_LOGIO_SYSLOG,
@@ -87,6 +86,7 @@ tt_logio_t *tt_logio_syslog_create(IN OPT tt_logio_syslog_attr_t *attr)
     lio_syslog = TT_LOGIO_CAST(lio, tt_logio_syslog_t);
 
     lio_syslog->facility = attr->facility;
+    lio_syslog->level = attr->level;
 
     return lio;
 }
@@ -94,13 +94,14 @@ tt_logio_t *tt_logio_syslog_create(IN OPT tt_logio_syslog_attr_t *attr)
 void tt_logio_syslog_attr_default(IN tt_logio_syslog_attr_t *attr)
 {
     attr->facility = TT_SYSLOG_USER;
+    attr->level = TT_SYSLOG_INFO;
 }
 
-tt_u32_t __lio_syslog_output(IN tt_logio_t *lio,
-                             IN tt_log_entry_t *entry,
-                             IN const tt_char_t *data,
-                             IN tt_u32_t data_len)
+void __lio_syslog_output(IN tt_logio_t *lio,
+                         IN const tt_char_t *data,
+                         IN tt_u32_t data_len)
 {
+#ifdef TT_HAVE_SYSLOG
     static int fmap[TT_SYSLOG_FACILITY_NUM] = {
         LOG_USER,
         LOG_LOCAL0,
@@ -112,16 +113,19 @@ tt_u32_t __lio_syslog_output(IN tt_logio_t *lio,
         LOG_LOCAL6,
         LOG_LOCAL7,
     };
-    static int level2pri[TT_LOG_LEVEL_NUM] = {
-        LOG_DEBUG, LOG_INFO, LOG_WARNING, LOG_ERR, LOG_CRIT,
+    static int lmap[TT_SYSLOG_LEVEL_NUM] = {
+        LOG_EMERG,
+        LOG_ALERT,
+        LOG_CRIT,
+        LOG_ERR,
+        LOG_WARNING,
+        LOG_NOTICE,
+        LOG_INFO,
+        LOG_DEBUG,
     };
 
     tt_logio_syslog_t *lio_syslog = TT_LOGIO_CAST(lio, tt_logio_syslog_t);
 
-#ifdef TT_HAVE_SYSLOG
-    syslog(fmap[lio_syslog->facility] | level2pri[entry->level], "%s", data);
-    return data_len;
-#else
-    return 0;
+    syslog(fmap[lio_syslog->facility] | lmap[lio_syslog->level], "%s", data);
 #endif
 }

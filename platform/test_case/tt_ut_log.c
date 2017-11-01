@@ -22,6 +22,7 @@ TT_TEST_ROUTINE_DECLARE(case_log_io_file_archive)
 TT_TEST_ROUTINE_DECLARE(case_log_io_syslog)
 TT_TEST_ROUTINE_DECLARE(case_log_io_udp)
 TT_TEST_ROUTINE_DECLARE(case_log_io_tcp)
+TT_TEST_ROUTINE_DECLARE(case_log_io_async)
 // =========================================
 
 // === test case list ======================
@@ -100,6 +101,15 @@ TT_TEST_CASE("case_log_context",
                  NULL,
                  NULL),
 
+    TT_TEST_CASE("case_log_io_async",
+                 "testing log io async",
+                 case_log_io_async,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL),
+
     TT_TEST_CASE_LIST_DEFINE_END(log_case)
     // =========================================
 
@@ -111,7 +121,7 @@ TT_TEST_CASE("case_log_context",
 
 
     /*
-    TT_TEST_ROUTINE_DEFINE(case_log_io_udp)
+    TT_TEST_ROUTINE_DEFINE(case_log_io_async)
     {
         //tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
 
@@ -432,26 +442,10 @@ TT_TEST_ROUTINE_DEFINE(case_log_io_file_index)
     TT_UT_EQUAL(size, 0, "");
 
     // 160 bytes
-    n = tt_logio_output(lio,
-                        &le,
-                        "123456789 123456789 123456789 123456789 ",
-                        40);
-    TT_UT_EQUAL(n, 40, "");
-    n = tt_logio_output(lio,
-                        &le,
-                        "123456789 123456789 123456789 123456789 ",
-                        40);
-    TT_UT_EQUAL(n, 40, "");
-    n = tt_logio_output(lio,
-                        &le,
-                        "123456789 123456789 123456789 123456789 ",
-                        40);
-    TT_UT_EQUAL(n, 40, "");
-    n = tt_logio_output(lio,
-                        &le,
-                        "123456789 123456789 123456789 123456789 ",
-                        40);
-    TT_UT_EQUAL(n, 40, "");
+    tt_logio_output(lio, "123456789 123456789 123456789 123456789 ", 40);
+    tt_logio_output(lio, "123456789 123456789 123456789 123456789 ", 40);
+    tt_logio_output(lio, "123456789 123456789 123456789 123456789 ", 40);
+    tt_logio_output(lio, "123456789 123456789 123456789 123456789 ", 40);
 
     ret = tt_fsize(__LIOF_LOG_PATH "tttlog.1", &size);
     TT_UT_SUCCESS(ret, "");
@@ -507,26 +501,10 @@ TT_TEST_ROUTINE_DEFINE(case_log_io_file_index)
     TT_UT_NOT_NULL(lio, "");
 
     // 160 bytes
-    n = tt_logio_output(lio,
-                        &le,
-                        "123456789 123456789 123456789 123456789 ",
-                        40);
-    TT_UT_EQUAL(n, 40, "");
-    n = tt_logio_output(lio,
-                        &le,
-                        "123456789 123456789 123456789 123456789 ",
-                        40);
-    TT_UT_EQUAL(n, 40, "");
-    n = tt_logio_output(lio,
-                        &le,
-                        "123456789 123456789 123456789 123456789 ",
-                        40);
-    TT_UT_EQUAL(n, 40, "");
-    n = tt_logio_output(lio,
-                        &le,
-                        "123456789 123456789 123456789 123456789 ",
-                        40);
-    TT_UT_EQUAL(n, 40, "");
+    tt_logio_output(lio, "123456789 123456789 123456789 123456789 ", 40);
+    tt_logio_output(lio, "123456789 123456789 123456789 123456789 ", 40);
+    tt_logio_output(lio, "123456789 123456789 123456789 123456789 ", 40);
+    tt_logio_output(lio, "123456789 123456789 123456789 123456789 ", 40);
 
     ret =
         tt_fopen(&f, __LIOF_LOG_PATH "tttlog.3", TT_FO_READ | TT_FO_EXCL, NULL);
@@ -596,26 +574,10 @@ TT_TEST_ROUTINE_DEFINE(case_log_io_file_date)
     TT_UT_NOT_NULL(lio, "");
 
     // 160 bytes => 2 file
-    n = tt_logio_output(lio,
-                        &le,
-                        "123456789 123456789 123456789 123456789 ",
-                        40);
-    TT_UT_EQUAL(n, 40, "");
-    n = tt_logio_output(lio,
-                        &le,
-                        "123456789 123456789 123456789 123456789 ",
-                        40);
-    TT_UT_EQUAL(n, 40, "");
-    n = tt_logio_output(lio,
-                        &le,
-                        "123456789 123456789 123456789 123456789 ",
-                        40);
-    TT_UT_EQUAL(n, 40, "");
-    n = tt_logio_output(lio,
-                        &le,
-                        "123456789 123456789 123456789 123456789 ",
-                        40);
-    TT_UT_EQUAL(n, 40, "");
+    tt_logio_output(lio, "123456789 123456789 123456789 123456789 ", 40);
+    tt_logio_output(lio, "123456789 123456789 123456789 123456789 ", 40);
+    tt_logio_output(lio, "123456789 123456789 123456789 123456789 ", 40);
+    tt_logio_output(lio, "123456789 123456789 123456789 123456789 ", 40);
 
     // should be 3 log file
     ret = tt_dopen(&d, __LIOF_LOG_PATH_D, NULL);
@@ -671,26 +633,10 @@ TT_TEST_ROUTINE_DEFINE(case_log_io_file_date)
     TT_UT_NOT_NULL(lio, "");
 
     // 160 bytes => 2 file
-    n = tt_logio_output(lio,
-                        &le,
-                        "123456789 123456789 123456789 123456789 ",
-                        40);
-    TT_UT_EQUAL(n, 40, "");
-    n = tt_logio_output(lio,
-                        &le,
-                        "123456789 123456789 123456789 123456789 ",
-                        40);
-    TT_UT_EQUAL(n, 40, "");
-    n = tt_logio_output(lio,
-                        &le,
-                        "123456789 123456789 123456789 123456789 ",
-                        40);
-    TT_UT_EQUAL(n, 40, "");
-    n = tt_logio_output(lio,
-                        &le,
-                        "123456789 123456789 123456789 123456789 ",
-                        40);
-    TT_UT_EQUAL(n, 40, "");
+    tt_logio_output(lio, "123456789 123456789 123456789 123456789 ", 40);
+    tt_logio_output(lio, "123456789 123456789 123456789 123456789 ", 40);
+    tt_logio_output(lio, "123456789 123456789 123456789 123456789 ", 40);
+    tt_logio_output(lio, "123456789 123456789 123456789 123456789 ", 40);
 
     // should be 3 log file
     ret = tt_dopen(&d, __LIOF_LOG_PATH_D, NULL);
@@ -749,7 +695,6 @@ TT_TEST_ROUTINE_DEFINE(case_log_io_file_archive)
     tt_logio_t *lio;
     tt_u32_t n;
     tt_bool_t oneshot = TT_FALSE;
-    tt_log_entry_t le = {0};
 
     TT_TEST_CASE_ENTER()
     // test start
@@ -773,31 +718,11 @@ TT_TEST_ROUTINE_DEFINE(case_log_io_file_archive)
     TT_UT_NOT_NULL(lio, "");
 
     // 160 bytes => 3 file
-    n = tt_logio_output(lio,
-                        &le,
-                        "123456789 123456789 123456789 123456789 ",
-                        40);
-    TT_UT_EQUAL(n, 40, "");
-    n = tt_logio_output(lio,
-                        &le,
-                        "123456789 123456789 123456789 123456789 ",
-                        40);
-    TT_UT_EQUAL(n, 40, "");
-    n = tt_logio_output(lio,
-                        &le,
-                        "123456789 123456789 123456789 123456789 ",
-                        40);
-    TT_UT_EQUAL(n, 40, "");
-    n = tt_logio_output(lio,
-                        &le,
-                        "123456789 123456789 123456789 123456789 ",
-                        40);
-    TT_UT_EQUAL(n, 40, "");
-    n = tt_logio_output(lio,
-                        &le,
-                        "123456789 123456789 123456789 123456789 ",
-                        40);
-    TT_UT_EQUAL(n, 40, "");
+    tt_logio_output(lio, "123456789 123456789 123456789 123456789 ", 40);
+    tt_logio_output(lio, "123456789 123456789 123456789 123456789 ", 40);
+    tt_logio_output(lio, "123456789 123456789 123456789 123456789 ", 40);
+    tt_logio_output(lio, "123456789 123456789 123456789 123456789 ", 40);
+    tt_logio_output(lio, "123456789 123456789 123456789 123456789 ", 40);
 
     while (1) {
         tt_dir_t d;
@@ -914,7 +839,6 @@ TT_TEST_ROUTINE_DEFINE(case_log_io_syslog)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_logio_t *lio;
-    tt_log_entry_t le = {0};
     tt_logio_syslog_attr_t a;
 
     TT_TEST_CASE_ENTER()
@@ -923,44 +847,27 @@ TT_TEST_ROUTINE_DEFINE(case_log_io_syslog)
     lio = tt_logio_syslog_create(NULL);
     TT_UT_NOT_NULL(lio, "");
 
-    le.level = TT_LOG_DEBUG;
-    tt_logio_output(lio, &le, "debug log", sizeof("debug log"));
-
-    le.level = TT_LOG_INFO;
-    tt_logio_output(lio, &le, "info log", sizeof("debug log"));
-
-    le.level = TT_LOG_WARN;
-    tt_logio_output(lio, &le, "warn log", sizeof("debug log"));
-
-    le.level = TT_LOG_ERROR;
-    tt_logio_output(lio, &le, "error log", sizeof("debug log"));
-
-    le.level = TT_LOG_FATAL;
-    tt_logio_output(lio, &le, "fatal log", sizeof("debug log"));
+    tt_logio_output(lio, "debug log", sizeof("debug log"));
+    tt_logio_output(lio, "info log", sizeof("debug log"));
+    tt_logio_output(lio, "warn log", sizeof("debug log"));
+    tt_logio_output(lio, "error log", sizeof("debug log"));
+    tt_logio_output(lio, "fatal log", sizeof("debug log"));
 
     tt_logio_release(lio);
 
     //////////////
     tt_logio_syslog_attr_default(&a);
     a.facility = TT_SYSLOG_LOCAL7;
+    a.level = TT_SYSLOG_CRIT;
 
     lio = tt_logio_syslog_create(&a);
     TT_UT_NOT_NULL(lio, "");
 
-    le.level = TT_LOG_DEBUG;
-    tt_logio_output(lio, &le, "debug log", sizeof("debug log"));
-
-    le.level = TT_LOG_INFO;
-    tt_logio_output(lio, &le, "info log", sizeof("debug log"));
-
-    le.level = TT_LOG_WARN;
-    tt_logio_output(lio, &le, "warn log", sizeof("debug log"));
-
-    le.level = TT_LOG_ERROR;
-    tt_logio_output(lio, &le, "error log", sizeof("debug log"));
-
-    le.level = TT_LOG_FATAL;
-    tt_logio_output(lio, &le, "fatal log", sizeof("debug log"));
+    tt_logio_output(lio, "debug log", sizeof("debug log"));
+    tt_logio_output(lio, "info log", sizeof("debug log"));
+    tt_logio_output(lio, "warn log", sizeof("debug log"));
+    tt_logio_output(lio, "error log", sizeof("debug log"));
+    tt_logio_output(lio, "fatal log", sizeof("debug log"));
 
     tt_logio_release(lio);
 
@@ -1046,15 +953,15 @@ TT_TEST_ROUTINE_DEFINE(case_log_io_udp)
     lio = tt_logio_udp_create(TT_NET_AF_INET, &addr, NULL);
     TT_UT_NOT_NULL(lio, "");
 
-    tt_logio_output(lio, &le, "123456789", 1);
-    tt_logio_output(lio, &le, "123456789", 2);
-    tt_logio_output(lio, &le, "123456789", 3);
-    tt_logio_output(lio, &le, "123456789", 4);
-    tt_logio_output(lio, &le, "123456789", 5);
-    tt_logio_output(lio, &le, "123456789", 6);
-    tt_logio_output(lio, &le, "123456789", 7);
-    tt_logio_output(lio, &le, "123456789", 8);
-    tt_logio_output(lio, &le, "123456789", 9);
+    tt_logio_output(lio, "123456789", 1);
+    tt_logio_output(lio, "123456789", 2);
+    tt_logio_output(lio, "123456789", 3);
+    tt_logio_output(lio, "123456789", 4);
+    tt_logio_output(lio, "123456789", 5);
+    tt_logio_output(lio, "123456789", 6);
+    tt_logio_output(lio, "123456789", 7);
+    tt_logio_output(lio, "123456789", 8);
+    tt_logio_output(lio, "123456789", 9);
 
     tt_logio_release(lio);
 
@@ -1068,15 +975,15 @@ TT_TEST_ROUTINE_DEFINE(case_log_io_udp)
     lio = tt_logio_udp_create(TT_NET_AF_INET, &addr, NULL);
     TT_UT_NOT_NULL(lio, "");
 
-    tt_logio_output(lio, &le, "123456789", 1);
-    tt_logio_output(lio, &le, "123456789", 2);
-    tt_logio_output(lio, &le, "123456789", 3);
-    tt_logio_output(lio, &le, "123456789", 4);
-    tt_logio_output(lio, &le, "123456789", 5);
-    tt_logio_output(lio, &le, "123456789", 6);
-    tt_logio_output(lio, &le, "123456789", 7);
-    tt_logio_output(lio, &le, "123456789", 8);
-    tt_logio_output(lio, &le, "123456789", 9);
+    tt_logio_output(lio, "123456789", 1);
+    tt_logio_output(lio, "123456789", 2);
+    tt_logio_output(lio, "123456789", 3);
+    tt_logio_output(lio, "123456789", 4);
+    tt_logio_output(lio, "123456789", 5);
+    tt_logio_output(lio, "123456789", 6);
+    tt_logio_output(lio, "123456789", 7);
+    tt_logio_output(lio, "123456789", 8);
+    tt_logio_output(lio, "123456789", 9);
 
     tt_logio_release(lio);
 
@@ -1091,12 +998,14 @@ static tt_result_t __tcp_log_svr(IN void *param)
     tt_u32_t recvd, n;
     tt_fiber_ev_t *fev;
     tt_tmr_t *tmr;
+    tt_u32_t port = (tt_u32_t)(tt_uintptr_t)param;
 
-    s = tt_tcp_server_p(TT_NET_AF_INET, NULL, "127.0.0.1", 60020);
+    s = tt_tcp_server_p(TT_NET_AF_INET, NULL, "127.0.0.1", port);
     if (s == NULL) {
         __err_line = __LINE__;
         return TT_FAIL;
     }
+    tt_atomic_s32_set(&__svr_ok, 1);
 
     as = tt_skt_accept(s, NULL, NULL);
     if (as == NULL) {
@@ -1141,7 +1050,7 @@ TT_TEST_ROUTINE_DEFINE(case_log_io_tcp)
     tt_result_t ret;
     tt_logio_t *lio;
     tt_sktaddr_t addr;
-    tt_log_entry_t le = {0};
+    tt_u32_t port;
 
     TT_TEST_CASE_ENTER()
     // test start
@@ -1151,15 +1060,16 @@ TT_TEST_ROUTINE_DEFINE(case_log_io_tcp)
 
     tt_sktaddr_init(&addr, TT_NET_AF_INET);
     tt_sktaddr_set_ip_p(&addr, "127.0.0.1");
-    tt_sktaddr_set_port(&addr, 60020);
+    port = 60000 + tt_rand_u32() % 5000;
+    tt_sktaddr_set_port(&addr, port);
 
     ret = tt_task_create(&t, NULL);
     TT_UT_SUCCESS(ret, "");
-    ret = tt_task_add_fiber(&t, NULL, __tcp_log_svr, &addr, NULL);
+    ret = tt_task_add_fiber(&t, NULL, __tcp_log_svr, port, NULL);
     TT_UT_SUCCESS(ret, "");
     ret = tt_task_run(&t);
     TT_UT_SUCCESS(ret, "");
-#if 0
+#if 1
     while (tt_atomic_s32_get(&__svr_ok) == 0) {
         tt_sleep(100);
     }
@@ -1168,15 +1078,15 @@ TT_TEST_ROUTINE_DEFINE(case_log_io_tcp)
     lio = tt_logio_tcp_create(TT_NET_AF_INET, &addr, NULL);
     TT_UT_NOT_NULL(lio, "");
 
-    tt_logio_output(lio, &le, "123456789", 1);
-    tt_logio_output(lio, &le, "123456789", 2);
-    tt_logio_output(lio, &le, "123456789", 3);
-    tt_logio_output(lio, &le, "123456789", 4);
-    tt_logio_output(lio, &le, "123456789", 5);
-    tt_logio_output(lio, &le, "123456789", 6);
-    tt_logio_output(lio, &le, "123456789", 7);
-    tt_logio_output(lio, &le, "123456789", 8);
-    tt_logio_output(lio, &le, "123456789", 9);
+    tt_logio_output(lio, "123456789", 1);
+    tt_logio_output(lio, "123456789", 2);
+    tt_logio_output(lio, "123456789", 3);
+    tt_logio_output(lio, "123456789", 4);
+    tt_logio_output(lio, "123456789", 5);
+    tt_logio_output(lio, "123456789", 6);
+    tt_logio_output(lio, "123456789", 7);
+    tt_logio_output(lio, "123456789", 8);
+    tt_logio_output(lio, "123456789", 9);
 
     tt_logio_release(lio);
 
@@ -1191,17 +1101,93 @@ TT_TEST_ROUTINE_DEFINE(case_log_io_tcp)
     lio = tt_logio_tcp_create(TT_NET_AF_INET, &addr, NULL);
     TT_UT_NOT_NULL(lio, "");
 
-    tt_logio_output(lio, &le, "123456789", 1);
-    tt_logio_output(lio, &le, "123456789", 2);
-    tt_logio_output(lio, &le, "123456789", 3);
-    tt_logio_output(lio, &le, "123456789", 4);
-    tt_logio_output(lio, &le, "123456789", 5);
-    tt_logio_output(lio, &le, "123456789", 6);
-    tt_logio_output(lio, &le, "123456789", 7);
-    tt_logio_output(lio, &le, "123456789", 8);
-    tt_logio_output(lio, &le, "123456789", 9);
+    tt_logio_output(lio, "123456789", 1);
+    tt_logio_output(lio, "123456789", 2);
+    tt_logio_output(lio, "123456789", 3);
+    tt_logio_output(lio, "123456789", 4);
+    tt_logio_output(lio, "123456789", 5);
+    tt_logio_output(lio, "123456789", 6);
+    tt_logio_output(lio, "123456789", 7);
+    tt_logio_output(lio, "123456789", 8);
+    tt_logio_output(lio, "123456789", 9);
 
     tt_logio_release(lio);
+
+    // test end
+    TT_TEST_CASE_LEAVE()
+}
+
+static tt_logio_t *lio_async;
+
+#define __LOG_TASK 10
+static tt_task_t __log_tsk[__LOG_TASK];
+
+static tt_result_t __log_rtn(IN void *param)
+{
+    tt_u32_t idx = (tt_u32_t)(tt_uintptr_t)param;
+    tt_u32_t i;
+    tt_char_t buf[20] = {0};
+
+    tt_memset(buf, '0' + idx, idx + 1);
+    buf[idx + 1] = '\n';
+
+    for (i = 0; i < 20; ++i) {
+        tt_logio_output(lio_async, buf, idx + 3);
+    }
+
+    return TT_SUCCESS;
+}
+
+TT_TEST_ROUTINE_DEFINE(case_log_io_async)
+{
+    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+    tt_logio_t *lio;
+    tt_result_t ret;
+    tt_u32_t i;
+
+    TT_TEST_CASE_ENTER()
+    // test start
+
+    lio_async = tt_logio_async_create(NULL);
+    TT_UT_NOT_NULL(lio_async, "");
+
+    lio = tt_logio_std_create(NULL);
+    TT_UT_NOT_NULL(lio, "");
+    ret = tt_logio_async_append(lio_async, lio);
+    TT_UT_SUCCESS(ret, "");
+    ret = tt_logio_async_append(lio_async, lio);
+    TT_UT_SUCCESS(ret, "");
+    tt_logio_release(lio);
+
+    tt_logio_output(lio_async, "", 0);
+    tt_logio_output(lio_async, "1", 1);
+    tt_logio_output(lio_async, "12", 2);
+    tt_logio_output(lio_async, "123", 3);
+    tt_logio_output(lio_async, "1234", 4);
+    tt_logio_output(lio_async, "12345", 5);
+    tt_logio_output(lio_async, "123456", 6);
+    tt_logio_output(lio_async, "1234567", 7);
+    tt_logio_output(lio_async, "12345678", 8);
+
+    for (i = 0; i < __LOG_TASK; ++i) {
+        ret = tt_task_create(&__log_tsk[i], NULL);
+        TT_UT_SUCCESS(ret, "");
+        ret = tt_task_add_fiber(&__log_tsk[i],
+                                NULL,
+                                __log_rtn,
+                                (void *)(tt_uintptr_t)i,
+                                NULL);
+        TT_UT_SUCCESS(ret, "");
+    }
+    for (i = 0; i < __LOG_TASK; ++i) {
+        ret = tt_task_run(&__log_tsk[i]);
+        TT_UT_SUCCESS(ret, "");
+    }
+    for (i = 0; i < __LOG_TASK; ++i) {
+        tt_task_wait(&__log_tsk[i]);
+    }
+
+    tt_logio_release(lio_async);
 
     // test end
     TT_TEST_CASE_LEAVE()

@@ -159,7 +159,6 @@ tt_result_t tt_logctx_input(IN tt_logctx_t *lctx, IN tt_log_entry_t *entry)
     tt_ptrq_iter_t iter;
     tt_logfltr_t *filter;
     tt_logio_t *lio;
-    tt_result_t result = TT_SUCCESS;
 
     if ((lctx == NULL) || (lctx->lyt == NULL) || (entry == NULL)) {
         return TT_E_BADARG;
@@ -187,15 +186,8 @@ tt_result_t tt_logctx_input(IN tt_logctx_t *lctx, IN tt_log_entry_t *entry)
     // output
     tt_ptrq_iter(&lctx->io_q, &iter);
     while ((lio = tt_ptrq_iter_next(&iter)) != NULL) {
-        if (!TT_OK(tt_logio_output(lio,
-                                   entry,
-                                   (tt_char_t *)TT_BUF_RPOS(buf),
-                                   TT_BUF_RLEN(buf)))) {
-            // continue even one of logio failed, but this function would
-            // finally return TT_FAIL
-            result = TT_FAIL;
-        }
+        tt_logio_output(lio, (tt_char_t *)TT_BUF_RPOS(buf), TT_BUF_RLEN(buf));
     }
 
-    return result;
+    return TT_SUCCESS;
 }

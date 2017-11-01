@@ -49,7 +49,7 @@ typedef struct
 
 typedef struct
 {
-    tt_logio_std_attr_t attr;
+    tt_u32_t reserved;
 } tt_logio_std_t;
 
 ////////////////////////////////////////////////////////////

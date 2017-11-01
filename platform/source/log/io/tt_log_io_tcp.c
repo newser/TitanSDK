@@ -45,10 +45,9 @@
 
 static void __lio_tcp_destroy(IN tt_logio_t *lio);
 
-static tt_u32_t __lio_tcp_output(IN tt_logio_t *lio,
-                                 IN tt_log_entry_t *entry,
-                                 IN const tt_char_t *data,
-                                 IN tt_u32_t data_len);
+static void __lio_tcp_output(IN tt_logio_t *lio,
+                             IN const tt_char_t *data,
+                             IN tt_u32_t data_len);
 
 static tt_logio_itf_t tt_s_logio_tcp_itf = {
     TT_LOGIO_TCP,
@@ -126,13 +125,11 @@ void __lio_tcp_destroy(IN tt_logio_t *lio)
     tt_skt_destroy(lio_tcp->skt);
 }
 
-tt_u32_t __lio_tcp_output(IN tt_logio_t *lio,
-                          IN tt_log_entry_t *entry,
-                          IN const tt_char_t *data,
-                          IN tt_u32_t data_len)
+void __lio_tcp_output(IN tt_logio_t *lio,
+                      IN const tt_char_t *data,
+                      IN tt_u32_t data_len)
 {
     tt_logio_tcp_t *lio_tcp = TT_LOGIO_CAST(lio, tt_logio_tcp_t);
-    tt_u32_t sent = 0;
     tt_thread_t *t = tt_current_thread();
     tt_thread_log_t l;
 
@@ -148,8 +145,7 @@ tt_u32_t __lio_tcp_output(IN tt_logio_t *lio,
     }
 
     if (lio_tcp->state == __LC_CONNECTED) {
-        if (!TT_OK(
-                tt_skt_send(lio_tcp->skt, (tt_u8_t *)data, data_len, &sent))) {
+        if (!TT_OK(tt_skt_send_all(lio_tcp->skt, (tt_u8_t *)data, data_len))) {
             TT_ERROR("send failed, tcp log: %s", data);
             lio_tcp->state = __LC_DISCONNECTED;
         }
@@ -158,5 +154,4 @@ tt_u32_t __lio_tcp_output(IN tt_logio_t *lio,
     }
 
     tt_thread_set_log(t, l);
-    return sent;
 }

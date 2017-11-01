@@ -117,7 +117,6 @@ tt_u32_t tt_logfltr_input(IN tt_logfltr_t *lf,
         tt_ptrq_iter(&lf->io_q, &i);
         while ((lio = (tt_logio_t *)tt_ptrq_iter_next(&i)) != NULL) {
             tt_logio_output(lio,
-                            entry,
                             (tt_char_t *)TT_BUF_RPOS(buf),
                             TT_BUF_RLEN(buf));
         }
