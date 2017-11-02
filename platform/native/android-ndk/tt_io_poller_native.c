@@ -254,6 +254,15 @@ tt_bool_t tt_io_poller_run_ntv(IN tt_io_poller_ntv_t *sys_iop,
         int i;
         for (i = 0; i < nev; ++i) {
             tt_io_ev_t *io_ev = (tt_io_ev_t *)ev[i].data.ptr;
+            uint32_t events = ev[i].events;
+
+            if (events & EPOLLERR) {
+                io_ev->io_result = TT_FAIL;
+            } else if (events & EPOLLHUP) {
+                io_ev->io_result = TT_E_END;
+            } else {
+                io_ev->io_result = TT_SUCCESS;
+            }
 
             io_ev->epev = &ev[i];
             if (!__io_handler[io_ev->io](io_ev, sys_iop)) {
