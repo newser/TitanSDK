@@ -124,6 +124,7 @@ extern "C" {
 #include <log/io/tt_log_io_syslog.h>
 #include <log/io/tt_log_io_tcp.h>
 #include <log/io/tt_log_io_udp.h>
+#include <log/io/tt_log_io_windows_event.h>
 #include <log/layout/tt_log_field.h>
 #include <log/layout/tt_log_layout.h>
 #include <log/layout/tt_log_layout_pattern.h>

@@ -17,14 +17,14 @@
  */
 
 /**
-@file tt_log_def.h
-@brief log definition
+@file tt_log_io_windows_event.h
+@brief log io windows event
 
-this file declare log definition
+this file defines log io windows event output
 */
 
-#ifndef __TT_LOG_DEF__
-#define __TT_LOG_DEF__
+#ifndef __TT_LOG_IO_WINDOWS_EVENT__
+#define __TT_LOG_IO_WINDOWS_EVENT__
 
 ////////////////////////////////////////////////////////////
 // import header files
@@ -36,74 +36,54 @@ this file declare log definition
 // macro definition
 ////////////////////////////////////////////////////////////
 
-#define TT_LOGFLD_SEQ_NUM_KEY "seq_num"
-#define TT_LOGFLD_TIME_KEY "time"
-#define TT_LOGFLD_LOGGER_KEY "logger"
-#define TT_LOGFLD_LEVEL_KEY "level"
-#define TT_LOGFLD_CONTENT_KEY "content"
-#define TT_LOGFLD_FUNC_KEY "function"
-#define TT_LOGFLD_LINE_KEY "line"
-
 ////////////////////////////////////////////////////////////
 // type definition
 ////////////////////////////////////////////////////////////
 
-typedef enum {
-    TT_LOG_DEBUG,
-    TT_LOG_INFO,
-    TT_LOG_WARN,
-    TT_LOG_ERROR,
-    TT_LOG_FATAL,
-
-    TT_LOG_LEVEL_NUM
-} tt_log_level_t;
-#define TT_LOG_LEVEL_VALID(l) ((l) < TT_LOG_LEVEL_NUM)
+struct tt_logio_s;
 
 typedef enum {
-    TT_LOGIO_STANDARD,
-    TT_LOGIO_LOGCAT, // for android
-    TT_LOGIO_FILE,
-    TT_LOGIO_SYSLOG,
-    TT_LOGIO_UDP,
-    TT_LOGIO_TCP,
-    TT_LOGIO_ASYNC,
-    TT_LOGIO_WINDOWS_EVENT,
+    TT_WINEV_SUCCESS,
+    TT_WINEV_ERROR,
+    TT_WINEV_WARNING,
+    TT_WINEV_INFORMATION,
+    TT_WINEV_AUDIT_SUCCESS,
+    TT_WINEV_AUDIT_FAILURE,
 
-    TT_LOGIO_NUM
-} tt_logio_type_t;
-#define TT_LOGIO_TYPE_VALID(t) ((t) < TT_LOGIO_NUM)
-
-typedef enum {
-    TT_LOGFLD_LOGGER,
-    TT_LOGFLD_FUNC,
-    TT_LOGFLD_CONTENT,
-    TT_LOGFLD_SEQ_NUM,
-    TT_LOGFLD_LINE,
-    TT_LOGFLD_LEVEL,
-    TT_LOGFLD_TIME,
-
-    TT_LOGFLD_TYPE_NUM,
-} tt_logfld_type_t;
-#define TT_LOGFLD_TYPE_VALID(t) ((t) < TT_LOGFLD_TYPE_NUM)
+    TT_WINEV_TYPE_NUM
+} tt_winev_type_t;
+#define TT_WINEV_TYPE_VALID ((t) < TT_WINEV_TYPE_NUM)
 
 typedef struct
 {
-    const tt_char_t *logger;
-    const tt_char_t *function;
-    const tt_char_t *content;
-    tt_u32_t seq_num;
-    tt_u32_t line;
-    tt_log_level_t level;
-} tt_log_entry_t;
+    const tt_char_t *server;
+} tt_logio_winev_attr_t;
+
+typedef struct
+{
+#ifdef TT_HAVE_WINDOWS_EVENT_LOG
+    HANDLE source;
+#endif
+    tt_winev_type_t type;
+    tt_u32_t category;
+    tt_u32_t ev_id;
+} tt_logio_winev_t;
 
 ////////////////////////////////////////////////////////////
 // global variants
 ////////////////////////////////////////////////////////////
 
-tt_export const tt_char_t *tt_g_log_level_name[TT_LOG_LEVEL_NUM];
-
 ////////////////////////////////////////////////////////////
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-#endif /* __TT_LOG_DEF__ */
+tt_export struct tt_logio_s *tt_logio_winev_create(
+    IN const tt_char_t *source,
+    IN tt_winev_type_t type,
+    IN tt_u32_t category,
+    IN tt_u32_t ev_id,
+    IN OPT tt_logio_winev_attr_t *attr);
+
+tt_export void tt_logio_winev_attr_default(IN tt_logio_winev_attr_t *attr);
+
+#endif /* __TT_LOG_IO_WINDOWS_EVENT__ */

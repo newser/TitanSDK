@@ -43,6 +43,15 @@ defined if has syslog
 #define TT_HAVE_SYSLOG
 #endif
 
+/**
+@def HAVE_WINDOWS_EVENT_LOG
+defined if has windows event log
+*/
+#cmakedefine HAVE_WINDOWS_EVENT_LOG
+#ifdef HAVE_WINDOWS_EVENT_LOG
+#define TT_HAVE_WINDOWS_EVENT_LOG
+#endif
+
 ////////////////////////////////////////////////////////////
 // type definition
 ////////////////////////////////////////////////////////////

@@ -70,6 +70,7 @@ enable_language(ASM)
 include(CheckSymbolExists)
 
 check_symbol_exists(syslog syslog.h HAVE_SYSLOG)
+check_symbol_exists(ReportEvent windows.h HAVE_WINDOWS_EVENT_LOG)
 
 configure_file(${ROOT_PATH}/platform/include/config/tt_have.h.in
                ${ROOT_PATH}/platform/include/config/tt_have.h
