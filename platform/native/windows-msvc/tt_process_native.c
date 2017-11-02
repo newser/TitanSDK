@@ -48,7 +48,7 @@
 // global variant
 ////////////////////////////////////////////////////////////
 
-static tt_char_t tt_s_process_name[128];
+static tt_char_t tt_s_process_name[256];
 
 ////////////////////////////////////////////////////////////
 // interface declaration
@@ -256,19 +256,39 @@ tt_char_t *tt_current_path_ntv(IN tt_bool_t end_slash)
     return d;
 }
 
-const tt_char_t *tt_process_name_ntv()
+tt_result_t tt_process_name_ntv(IN tt_char_t *name, IN tt_u32_t len)
 {
-	static char path[MAX_PATH] = {0};
-
-    if (GetProcessImageFileNameA(GetCurrentProcess(), path, MAX_PATH) != 0) {
-        char *p = tt_strrchr(path, '\\');
-        if (p != NULL) {
-            return p + 1;
-        } else {
-            return path;
-        }
-    } else {
-        return "unknown";
+    wchar_t wpath[MAX_PATH + 1] = {0};
+    char *upath, *p;
+    tt_u32_t n;
+    
+    if (GetProcessImageFileNameW(GetCurrentProcess(), wpath, MAX_PATH) == 0) {
+        TT_ERROR_NTV("fail to get process name");
+        return TT_FAIL;
     }
+
+    upath = tt_utf8_create(wpath, NULL);
+    if (upath == NULL) {
+        return TT_FAIL;
+    }
+
+    p = tt_strrchr(upath, '\\');
+    if (p != NULL) {
+        p += 1;
+    } else {
+        p = upath;
+    }
+
+    n = (tt_u32_t)tt_strlen(p);
+    if (n >= len) {
+        TT_WARN("process name may be truncated");
+        n = len - 1;
+    }
+
+    tt_memcpy(name, p, n);
+    name[n] = 0;
+    
+    tt_free(upath);
+    return TT_SUCCESS;
 }
 

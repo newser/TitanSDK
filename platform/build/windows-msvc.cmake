@@ -36,6 +36,9 @@ function(platform_link_libraries)
     # network interface
     target_link_libraries(platform iphlpapi)
 
+    # process
+    target_link_libraries(platform psapi)
+
 endfunction(platform_link_libraries)
 
 # platform properties

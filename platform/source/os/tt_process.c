@@ -125,18 +125,9 @@ const tt_char_t *tt_process_name()
 tt_result_t __process_component_init(IN tt_component_t *comp,
                                  IN tt_profile_t *profile)
 {
-    const tt_char_t *name;
-    tt_u32_t len;
-
-    name = tt_process_name_ntv();
-    if (name != NULL) {
-        len = (tt_u32_t)tt_strlen(name);
-        if (len >= sizeof(tt_s_process_name)) {
-            len = sizeof(tt_s_process_name) - 1;
-        }
-        tt_memcpy(tt_s_process_name, name, len);
-    } else {
-        tt_memcpy(tt_s_process_name, "unknown", sizeof("unknown") - 1);
+    if (!TT_OK(tt_process_name_ntv(tt_s_process_name,
+                                   sizeof(tt_s_process_name) - 1))) {
+        tt_memcpy(tt_s_process_name, "unknown", sizeof("unknown") - 1);        
     }
     
     return TT_SUCCESS;
