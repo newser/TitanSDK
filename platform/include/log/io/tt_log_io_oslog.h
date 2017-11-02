@@ -17,14 +17,14 @@
  */
 
 /**
-@file tt_log_def.h
-@brief log definition
+@file tt_log_io_oslog.h
+@brief log io os log
 
-this file declare log definition
+this file defines log io os log
 */
 
-#ifndef __TT_LOG_DEF__
-#define __TT_LOG_DEF__
+#ifndef __TT_LOG_IO_OSLOG__
+#define __TT_LOG_IO_OSLOG__
 
 ////////////////////////////////////////////////////////////
 // import header files
@@ -32,79 +32,50 @@ this file declare log definition
 
 #include <tt_basic_type.h>
 
+#ifdef TT_HAVE_OSLOG
+#include <os/log.h>
+#endif
+
 ////////////////////////////////////////////////////////////
 // macro definition
 ////////////////////////////////////////////////////////////
-
-#define TT_LOGFLD_SEQ_NUM_KEY "seq_num"
-#define TT_LOGFLD_TIME_KEY "time"
-#define TT_LOGFLD_LOGGER_KEY "logger"
-#define TT_LOGFLD_LEVEL_KEY "level"
-#define TT_LOGFLD_CONTENT_KEY "content"
-#define TT_LOGFLD_FUNC_KEY "function"
-#define TT_LOGFLD_LINE_KEY "line"
 
 ////////////////////////////////////////////////////////////
 // type definition
 ////////////////////////////////////////////////////////////
 
-typedef enum {
-    TT_LOG_DEBUG,
-    TT_LOG_INFO,
-    TT_LOG_WARN,
-    TT_LOG_ERROR,
-    TT_LOG_FATAL,
-
-    TT_LOG_LEVEL_NUM
-} tt_log_level_t;
-#define TT_LOG_LEVEL_VALID(l) ((l) < TT_LOG_LEVEL_NUM)
+struct tt_logio_s;
 
 typedef enum {
-    TT_LOGIO_STANDARD,
-    TT_LOGIO_LOGCAT, // for android
-    TT_LOGIO_FILE,
-    TT_LOGIO_SYSLOG,
-    TT_LOGIO_UDP,
-    TT_LOGIO_TCP,
-    TT_LOGIO_ASYNC,
-    TT_LOGIO_WINDOWS_EVENT,
-    TT_LOGIO_OSLOG,
+    TT_OSLOG_DEBUG,
+    TT_OSLOG_DEFAULT,
+    TT_OSLOG_ERROR,
+    TT_OSLOG_FAULT,
+    TT_OSLOG_INFO,
 
-    TT_LOGIO_NUM
-} tt_logio_type_t;
-#define TT_LOGIO_TYPE_VALID(t) ((t) < TT_LOGIO_NUM)
-
-typedef enum {
-    TT_LOGFLD_LOGGER,
-    TT_LOGFLD_FUNC,
-    TT_LOGFLD_CONTENT,
-    TT_LOGFLD_SEQ_NUM,
-    TT_LOGFLD_LINE,
-    TT_LOGFLD_LEVEL,
-    TT_LOGFLD_TIME,
-
-    TT_LOGFLD_TYPE_NUM,
-} tt_logfld_type_t;
-#define TT_LOGFLD_TYPE_VALID(t) ((t) < TT_LOGFLD_TYPE_NUM)
+    TT_OSLOG_TYPE_NUM
+} tt_oslog_type_t;
+#define TT_OSLOG_TYPE_VALID ((t) < TT_OSLOG_TYPE_NUM)
 
 typedef struct
 {
-    const tt_char_t *logger;
-    const tt_char_t *function;
-    const tt_char_t *content;
-    tt_u32_t seq_num;
-    tt_u32_t line;
-    tt_log_level_t level;
-} tt_log_entry_t;
+#ifdef TT_HAVE_OSLOG
+    os_log_t l;
+#endif
+    tt_oslog_type_t type;
+} tt_logio_oslog_t;
 
 ////////////////////////////////////////////////////////////
 // global variants
 ////////////////////////////////////////////////////////////
 
-tt_export const tt_char_t *tt_g_log_level_name[TT_LOG_LEVEL_NUM];
-
 ////////////////////////////////////////////////////////////
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-#endif /* __TT_LOG_DEF__ */
+tt_export struct tt_logio_s *tt_logio_oslog_create(
+    IN const tt_char_t *subsystem,
+    IN const tt_char_t *category,
+    IN tt_oslog_type_t type);
+
+#endif /* __TT_LOG_IO_OSLOG__ */

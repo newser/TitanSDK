@@ -24,6 +24,7 @@ TT_TEST_ROUTINE_DECLARE(case_log_io_udp)
 TT_TEST_ROUTINE_DECLARE(case_log_io_tcp)
 TT_TEST_ROUTINE_DECLARE(case_log_io_async)
 TT_TEST_ROUTINE_DECLARE(case_log_io_winev)
+TT_TEST_ROUTINE_DECLARE(case_log_io_oslog)
 // =========================================
 
 // === test case list ======================
@@ -114,6 +115,15 @@ TT_TEST_CASE("case_log_context",
     TT_TEST_CASE("case_log_io_winev",
                  "testing log io windows event",
                  case_log_io_winev,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL),
+
+    TT_TEST_CASE("case_log_io_oslog",
+                 "testing log io oslog",
+                 case_log_io_oslog,
                  NULL,
                  NULL,
                  NULL,
@@ -1233,3 +1243,29 @@ TT_TEST_ROUTINE_DEFINE(case_log_io_winev)
     TT_TEST_CASE_LEAVE()
 }
 
+TT_TEST_ROUTINE_DEFINE(case_log_io_oslog)
+{
+    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+    tt_logio_t *lio;
+
+    TT_TEST_CASE_ENTER()
+    // test start
+
+    lio = tt_logio_oslog_create("subsys", "cat", TT_OSLOG_FAULT);
+    TT_UT_NOT_NULL(lio, "");
+
+    tt_logio_output(lio, "", 1);
+    tt_logio_output(lio, "1", 2);
+    tt_logio_output(lio, "12", 3);
+    tt_logio_output(lio, "123", 4);
+    tt_logio_output(lio, "1234", 5);
+    tt_logio_output(lio, "12345", 6);
+    tt_logio_output(lio, "123456", 7);
+    tt_logio_output(lio, "1234567", 8);
+    tt_logio_output(lio, "12345678", 9);
+
+    tt_logio_release(lio);
+
+    // test end
+    TT_TEST_CASE_LEAVE()
+}

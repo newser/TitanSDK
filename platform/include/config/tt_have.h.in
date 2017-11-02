@@ -52,6 +52,15 @@ defined if has windows event log
 #define TT_HAVE_WINDOWS_EVENT_LOG
 #endif
 
+/**
+@def HAVE_OSLOG
+defined if has mac/ios os log
+*/
+#cmakedefine HAVE_OSLOG
+#ifdef HAVE_OSLOG
+#define TT_HAVE_OSLOG
+#endif
+
 ////////////////////////////////////////////////////////////
 // type definition
 ////////////////////////////////////////////////////////////

@@ -120,6 +120,7 @@ extern "C" {
 #include <log/io/tt_log_io.h>
 #include <log/io/tt_log_io_async.h>
 #include <log/io/tt_log_io_file.h>
+#include <log/io/tt_log_io_oslog.h>
 #include <log/io/tt_log_io_standard.h>
 #include <log/io/tt_log_io_syslog.h>
 #include <log/io/tt_log_io_tcp.h>
