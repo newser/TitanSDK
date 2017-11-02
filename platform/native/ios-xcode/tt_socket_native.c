@@ -460,7 +460,7 @@ tt_result_t tt_skt_remote_addr_ntv(IN tt_skt_ntv_t *skt, OUT tt_sktaddr_t *addr)
 tt_result_t tt_skt_recvfrom_ntv(IN tt_skt_ntv_t *skt,
                                 OUT tt_u8_t *buf,
                                 IN tt_u32_t len,
-                                OUT tt_u32_t *recvd,
+                                OUT OPT tt_u32_t *recvd,
                                 OUT OPT tt_sktaddr_t *addr,
                                 OUT tt_fiber_ev_t **p_fev,
                                 OUT tt_tmr_t **p_tmr)
@@ -817,7 +817,7 @@ tt_bool_t __do_connect(IN tt_io_ev_t *io_ev)
 {
     __skt_connect_t *skt_connect = (__skt_connect_t *)io_ev;
 
-    skt_connect->result = TT_SUCCESS;
+    skt_connect->result = io_ev->io_result;
     return TT_TRUE;
 }
 

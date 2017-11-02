@@ -1388,6 +1388,13 @@ TT_TEST_ROUTINE_DEFINE(case_udp_basic)
 #define __CON_PER_TASK 1000
 #endif
 
+//#define __TC_STRESS_DETAIL
+#ifdef __TC_STRESS_DETAIL
+#define __S TT_INFO
+#else
+#define __S(...)
+#endif
+
 static tt_result_t __f_svr_acc_t4(IN void *param)
 {
     tt_skt_t *new_s = (tt_skt_t *)param;
@@ -1400,7 +1407,7 @@ static tt_result_t __f_svr_acc_t4(IN void *param)
         __ut_skt_err_line = __LINE__;
         return TT_FAIL;
     }
-// TT_INFO("acc recv: %d", n);
+    __S("acc recv: %d", n);
 
 #ifdef __CHECK_IO
     c = buf2[0];
@@ -1417,7 +1424,7 @@ static tt_result_t __f_svr_acc_t4(IN void *param)
         __ut_skt_err_line = __LINE__;
         return TT_FAIL;
     }
-    // TT_INFO("acc send: %d", n);
+    __S("acc send: %d", n);
     if (n != len) {
         __ut_skt_err_line = __LINE__;
         return TT_FAIL;
@@ -1433,7 +1440,7 @@ static tt_result_t __f_svr_acc_t4(IN void *param)
         return TT_FAIL;
     }
 
-    // TT_INFO("acc destroy");
+    __S("acc destroy");
     tt_skt_destroy(new_s);
 
     tt_atomic_s64_add(&__io_num, n);
@@ -1474,7 +1481,7 @@ static tt_result_t __f_svr_t4(IN void *param)
             __ut_skt_err_line = __LINE__;
             return TT_FAIL;
         }
-        // TT_INFO("new conn: %d", n);
+        __S("new conn: %d", n);
         tt_skt_set_linger(new_s, TT_TRUE, 0);
 
         fb = tt_fiber_create(NULL, __f_svr_acc_t4, new_s, NULL);
@@ -1516,7 +1523,7 @@ static tt_result_t __f_cli_t4(IN void *param)
             __ut_skt_err_line = __LINE__;
             return TT_FAIL;
         }
-        // TT_INFO("connected: %d", num);
+        __S("connected: %d", num);
 
         len = tt_rand_u32() % sizeof(buf) + 1;
 #ifdef __CHECK_IO
@@ -1530,7 +1537,7 @@ static tt_result_t __f_cli_t4(IN void *param)
             __ut_skt_err_line = __LINE__;
             return TT_FAIL;
         }
-        // TT_INFO("con send: %d", n);
+        __S("con send: %d", n);
 
         if (!TT_OK(tt_skt_shutdown(s, TT_SKT_SHUT_WR))) {
             __ut_skt_err_line = __LINE__;
@@ -1545,7 +1552,7 @@ static tt_result_t __f_cli_t4(IN void *param)
             __ut_skt_err_line = __LINE__;
             return TT_FAIL;
         }
-// TT_INFO("con recv: %d", n);
+        __S("con recv: %d", n);
 
 #ifdef __CHECK_IO
         c = buf[0];
@@ -1562,7 +1569,7 @@ static tt_result_t __f_cli_t4(IN void *param)
             return TT_FAIL;
         }
 
-        // TT_INFO("con destroy");
+        __S("con destroy");
         tt_skt_destroy(s);
     }
 
