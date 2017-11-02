@@ -261,7 +261,7 @@ tt_result_t tt_process_name_ntv(IN tt_char_t *name, IN tt_u32_t len)
     wchar_t wpath[MAX_PATH + 1] = {0};
     char *upath, *p;
     tt_u32_t n;
-    
+
     if (GetProcessImageFileNameW(GetCurrentProcess(), wpath, MAX_PATH) == 0) {
         TT_ERROR_NTV("fail to get process name");
         return TT_FAIL;
@@ -287,8 +287,7 @@ tt_result_t tt_process_name_ntv(IN tt_char_t *name, IN tt_u32_t len)
 
     tt_memcpy(name, p, n);
     name[n] = 0;
-    
+
     tt_free(upath);
     return TT_SUCCESS;
 }
-

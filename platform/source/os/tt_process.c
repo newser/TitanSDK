@@ -22,10 +22,10 @@
 
 #include <os/tt_process.h>
 
-#include <misc/tt_assert.h>
-#include <misc/tt_util.h>
 #include <init/tt_component.h>
 #include <init/tt_profile.h>
+#include <misc/tt_assert.h>
+#include <misc/tt_util.h>
 
 #include <tt_cstd_api.h>
 
@@ -52,7 +52,7 @@ static tt_char_t tt_s_process_name[128];
 ////////////////////////////////////////////////////////////
 
 static tt_result_t __process_component_init(IN tt_component_t *comp,
-                                        IN tt_profile_t *profile);
+                                            IN tt_profile_t *profile);
 
 ////////////////////////////////////////////////////////////
 // interface implementation
@@ -123,13 +123,12 @@ const tt_char_t *tt_process_name()
 }
 
 tt_result_t __process_component_init(IN tt_component_t *comp,
-                                 IN tt_profile_t *profile)
+                                     IN tt_profile_t *profile)
 {
     if (!TT_OK(tt_process_name_ntv(tt_s_process_name,
                                    sizeof(tt_s_process_name) - 1))) {
-        tt_memcpy(tt_s_process_name, "unknown", sizeof("unknown") - 1);        
+        tt_memcpy(tt_s_process_name, "unknown", sizeof("unknown") - 1);
     }
-    
+
     return TT_SUCCESS;
 }
-

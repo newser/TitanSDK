@@ -1064,7 +1064,11 @@ TT_TEST_ROUTINE_DEFINE(case_log_io_tcp)
 
     ret = tt_task_create(&t, NULL);
     TT_UT_SUCCESS(ret, "");
-    ret = tt_task_add_fiber(&t, NULL, __tcp_log_svr, (void*)(tt_uintptr_t)port, NULL);
+    ret = tt_task_add_fiber(&t,
+                            NULL,
+                            __tcp_log_svr,
+                            (void *)(tt_uintptr_t)port,
+                            NULL);
     TT_UT_SUCCESS(ret, "");
     ret = tt_task_run(&t);
     TT_UT_SUCCESS(ret, "");
