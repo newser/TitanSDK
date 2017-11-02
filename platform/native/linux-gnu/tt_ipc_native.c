@@ -526,7 +526,7 @@ tt_bool_t __do_connect(IN tt_io_ev_t *io_ev)
 {
     __ipc_connect_t *ipc_connect = (__ipc_connect_t *)io_ev;
 
-    ipc_connect->result = TT_SUCCESS;
+    ipc_connect->result = io_ev->io_result;
     return TT_TRUE;
 }
 

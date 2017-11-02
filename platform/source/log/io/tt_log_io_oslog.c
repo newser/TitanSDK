@@ -24,7 +24,9 @@
 
 #include <log/io/tt_log_io.h>
 
+#ifdef TT_HAVE_OSLOG
 #include <os/log.h>
+#endif
 
 ////////////////////////////////////////////////////////////
 // internal macro

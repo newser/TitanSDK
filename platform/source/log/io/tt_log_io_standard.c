@@ -81,6 +81,8 @@ tt_logio_t *tt_logio_std_create(IN OPT tt_logio_std_attr_t *attr)
 
     lio_std = TT_LOGIO_CAST(lio, tt_logio_std_t);
 
+    (void)lio_std;
+
     return lio;
 }
 

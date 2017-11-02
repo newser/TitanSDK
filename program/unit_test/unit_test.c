@@ -97,9 +97,9 @@ tt_result_t __ut_fiber(IN void *param)
     else {
         const tt_char_t *names[] = {
             //"case_tcp4_stress",
-            //"TEST_UNIT_LOG",
+            "TEST_UNIT_LOG",
             //"TEST_UNIT_FS",
-            "TEST_UNIT_IPC",
+            //"TEST_UNIT_IPC",
             //"TEST_UNIT_SOCKET",
             //"TEST_UNIT_FIBER",
             //"ZIP_UT_ZLIB",

@@ -867,7 +867,7 @@ tt_bool_t __do_connect(IN tt_io_ev_t *io_ev)
 {
     __skt_connect_t *skt_connect = (__skt_connect_t *)io_ev;
 
-    skt_connect->result = TT_SUCCESS;
+    skt_connect->result = io_ev->io_result;
     return TT_TRUE;
 }
 
