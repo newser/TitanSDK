@@ -22,6 +22,7 @@
 
 #include <log/layout/tt_log_layout.h>
 
+#include <algorithm/tt_buffer_format.h>
 #include <memory/tt_memory_alloc.h>
 
 ////////////////////////////////////////////////////////////
@@ -82,4 +83,14 @@ void tt_loglyt_destroy(IN tt_loglyt_t *ll)
     }
 
     tt_free(ll);
+}
+
+tt_result_t tt_loglyt_format(IN tt_loglyt_t *ll,
+                             IN tt_log_entry_t *entry,
+                             OUT tt_buf_t *outbuf)
+{
+    TT_DO(ll->itf->format(ll, entry, outbuf));
+    TT_DO(tt_buf_put_u8(outbuf, 0));
+
+    return TT_SUCCESS;
 }

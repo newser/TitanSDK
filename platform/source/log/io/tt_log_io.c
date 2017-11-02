@@ -23,6 +23,7 @@
 #include <log/io/tt_log_io.h>
 
 #include <memory/tt_memory_alloc.h>
+#include <os/tt_thread.h>
 
 ////////////////////////////////////////////////////////////
 // internal macro
@@ -75,4 +76,19 @@ void __logio_destroy(IN tt_logio_t *lio)
     }
 
     tt_free(lio);
+}
+
+void tt_logio_output(IN tt_logio_t *lio,
+                     IN const tt_char_t *data,
+                     IN tt_u32_t len)
+{
+    tt_thread_t *t;
+    tt_thread_log_t l;
+
+    t = tt_current_thread();
+    l = tt_thread_set_log(t, TT_THREAD_LOG_PRINTF);
+
+    lio->itf->output(lio, data, len);
+
+    tt_thread_set_log(t, l);
 }

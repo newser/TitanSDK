@@ -127,10 +127,6 @@ void __lio_udp_output(IN tt_logio_t *lio,
                       IN tt_u32_t data_len)
 {
     tt_logio_udp_t *lio_udp = TT_LOGIO_CAST(lio, tt_logio_udp_t);
-    tt_thread_t *t = tt_current_thread();
-    tt_thread_log_t l;
-
-    l = tt_thread_set_log(t, TT_THREAD_LOG_PRINTF);
 
     if (!TT_OK(tt_skt_sendto_all(lio_udp->skt,
                                  (tt_u8_t *)data,
@@ -138,6 +134,4 @@ void __lio_udp_output(IN tt_logio_t *lio,
                                  &lio_udp->addr))) {
         TT_ERROR("fail to send udp log: %s", data);
     }
-
-    tt_thread_set_log(t, l);
 }

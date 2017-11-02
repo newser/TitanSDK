@@ -169,8 +169,7 @@ tt_result_t tt_logctx_input(IN tt_logctx_t *lctx, IN tt_log_entry_t *entry)
 
     // format
     tt_buf_clear(buf);
-    if (!TT_OK(tt_loglyt_format(lctx->lyt, entry, buf)) ||
-        !TT_OK(tt_buf_put_u8(buf, 0))) {
+    if (!TT_OK(tt_loglyt_format(lctx->lyt, entry, buf))) {
         return TT_FAIL;
     }
 

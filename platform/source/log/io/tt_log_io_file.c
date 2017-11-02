@@ -231,12 +231,8 @@ void __lio_fidx_output(IN tt_logio_t *lio,
                        IN tt_u32_t data_len)
 {
     tt_logio_file_t *lf = TT_LOGIO_CAST(lio, tt_logio_file_t);
-    tt_thread_t *t = tt_current_thread();
-    tt_thread_log_t l;
 
     // this function is already protected by log manger's lock
-
-    l = tt_thread_set_log(t, TT_THREAD_LOG_PRINTF);
 
     if (!lf->f_opened) {
         // it ever failed to open log file, which is not expected. but here we
@@ -254,8 +250,6 @@ void __lio_fidx_output(IN tt_logio_t *lio,
         // no way to recover anything, just give a warning
         TT_ERROR("log may be lost: %s", data);
     }
-
-    tt_thread_set_log(t, l);
 }
 
 tt_result_t __fidx_next(IN tt_logio_file_t *lf)
@@ -333,12 +327,8 @@ void __lio_fdate_output(IN tt_logio_t *lio,
                         IN tt_u32_t data_len)
 {
     tt_logio_file_t *lf = TT_LOGIO_CAST(lio, tt_logio_file_t);
-    tt_thread_t *t = tt_current_thread();
-    tt_thread_log_t l;
 
     // this function is already protected by log manger's lock
-
-    l = tt_thread_set_log(t, TT_THREAD_LOG_PRINTF);
 
     if (!lf->f_opened) {
         // it ever failed to open log file, which is not expected. but here we
@@ -356,8 +346,6 @@ void __lio_fdate_output(IN tt_logio_t *lio,
         // no way to recover anything, just give a warning
         TT_ERROR("log may be lost: %s", data);
     }
-
-    tt_thread_set_log(t, l);
 }
 
 tt_result_t __fdate_next(IN tt_logio_file_t *lf)

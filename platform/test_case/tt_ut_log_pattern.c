@@ -1033,15 +1033,27 @@ TT_TEST_ROUTINE_DEFINE(case_log_syslog3164)
     tt_date_render_now("%b %d %H:", dn, sizeof(dn) - 1);
     TT_UT_NOT_NULL(tt_strstr(p, dn), "");
 
+#if 0
     {
         tt_sktaddr_t addr;
         tt_logio_t *lio;
-
+        tt_u32_t i;
+        
         tt_sktaddr_init(&addr, TT_NET_AF_INET);
-        tt_sktaddr_set_ip_p(&addr, "");
+        tt_sktaddr_set_ip_p(&addr, "192.168.140.170");
+        tt_sktaddr_set_port(&addr, 62000);
 
         lio = tt_logio_udp_create(TT_NET_AF_INET, &addr, NULL);
+        
+        i = 0;
+        while (i++ < 10) {
+            tt_logio_output(lio, (tt_char_t*)TT_BUF_RPOS(&buf), TT_BUF_RLEN(&buf));
+            tt_sleep(100);
+        }
+        
+        tt_logio_release(lio);
     }
+#endif
 
     tt_loglyt_destroy(ll);
     tt_buf_destroy(&buf);

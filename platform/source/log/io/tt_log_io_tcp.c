@@ -130,10 +130,6 @@ void __lio_tcp_output(IN tt_logio_t *lio,
                       IN tt_u32_t data_len)
 {
     tt_logio_tcp_t *lio_tcp = TT_LOGIO_CAST(lio, tt_logio_tcp_t);
-    tt_thread_t *t = tt_current_thread();
-    tt_thread_log_t l;
-
-    l = tt_thread_set_log(t, TT_THREAD_LOG_PRINTF);
 
     if (lio_tcp->state == __LC_INIT) {
         if (TT_OK(tt_skt_connect(lio_tcp->skt, &lio_tcp->addr))) {
@@ -152,6 +148,4 @@ void __lio_tcp_output(IN tt_logio_t *lio,
     } else {
         TT_ERROR("already disconnected, tcp log: %s", data);
     }
-
-    tt_thread_set_log(t, l);
 }
