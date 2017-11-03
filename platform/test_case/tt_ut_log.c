@@ -417,8 +417,8 @@ TT_TEST_ROUTINE_DEFINE(case_log_manager)
 #define __LIOF_ARCH_PATH "/tmp/"
 #else
 static tt_string_t log_path, arch_path;
-#define __LIOF_LOG_PATH tt_string_cstr(&log_path)
-#define __LIOF_ARCH_PATH tt_string_cstr(&arch_path)
+#define __LIOF_LOG_PATH "todo" // tt_string_cstr(&log_path)
+#define __LIOF_ARCH_PATH "todo" // tt_string_cstr(&arch_path)
 #endif
 
 #elif TT_ENV_OS_IS_ANDROID

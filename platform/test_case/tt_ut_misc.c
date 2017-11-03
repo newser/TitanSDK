@@ -1043,6 +1043,8 @@ TT_TEST_ROUTINE_DEFINE(case_align)
     TT_PTR_ALIGN_DEC(pval, 30);
     TT_UT_EQUAL(pval, (tt_ptr_t)0xFFFFFFFFC0000000, "");
 
+    TT_INFO("backtrace: \n%s", tt_backtrace("    ", "\n"));
+
     // test end
     TT_TEST_CASE_LEAVE()
 }

@@ -244,8 +244,8 @@ TT_TEST_CASE("case_zarc_write_blob",
 #else
 static tt_string_t zf1_path, zf2_path, za_path;
 #define Z_FILE tt_string_cstr(&zf1_path)
-#define Z_FILE tt_string_cstr(&zf2_path)
-#define Z_ARCH tt_string_cstr(za_path)
+#define Z_FILE2 tt_string_cstr(&zf2_path)
+#define Z_ARCH tt_string_cstr(&za_path)
 #endif
 
 #elif TT_ENV_OS_IS_ANDROID

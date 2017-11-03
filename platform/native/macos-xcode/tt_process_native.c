@@ -162,7 +162,7 @@ tt_char_t *tt_current_path_ntv(IN tt_bool_t end_slash)
         return NULL;
     }
 
-    len = tt_strlen(cwd);
+    len = (tt_u32_t)tt_strlen(cwd);
     if (end_slash && (len > 0) && (cwd[len - 1] != '/')) {
         append_slash = 1;
     } else {

@@ -114,6 +114,7 @@ tt_thread_t *tt_thread_create(IN tt_thread_routine_t routine,
     thread->task = NULL;
     thread->entropy = NULL;
     thread->ctr_drbg = NULL;
+    thread->backtrace = NULL;
 
     thread->last_error = TT_SUCCESS;
     thread->detached = detached;
@@ -127,7 +128,6 @@ tt_thread_t *tt_thread_create(IN tt_thread_routine_t routine,
     // now the thread is created, and it may be running or even
     // terminate, so accessing the "thread", either reading or
     // writing is unsafe
-
     if (detached) {
         // do not return the thread to caller
         return (tt_thread_t *)1;
@@ -273,6 +273,11 @@ void __thread_on_exit(IN tt_thread_t *thread)
 
     if (thread->entropy != NULL) {
         tt_entropy_destroy(thread->entropy);
+    }
+
+    if (thread->backtrace != NULL) {
+        tt_buf_destroy(thread->backtrace);
+        tt_free(thread->backtrace);
     }
 
     // for non-detached and non-local thread, the struct will

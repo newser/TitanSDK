@@ -47,6 +47,7 @@ struct tt_fiber_sched_s;
 struct tt_task_s;
 struct tt_entropy_s;
 struct tt_ctr_drbg_s;
+struct tt_buf_s;
 
 /**
  @typedef tt_result_t (*tt_thread_routine_t)(IN void *param)
@@ -102,6 +103,7 @@ typedef struct tt_thread_s
     struct tt_task_s *task;
     struct tt_entropy_s *entropy;
     struct tt_ctr_drbg_s *ctr_drbg;
+    struct tt_buf_s *backtrace;
 
     /** system thread handle */
     tt_thread_ntv_t sys_thread;

@@ -52,8 +52,7 @@ typedef tt_bool_t (*__io_handler_t)(IN tt_io_ev_t *io_ev,
 
 enum
 {
-    // internal event can not be 0
-    __POLLER_EXIT = 1,
+    __POLLER_EXIT,
 };
 
 ////////////////////////////////////////////////////////////
@@ -241,6 +240,15 @@ tt_bool_t tt_io_poller_run_ntv(IN tt_io_poller_ntv_t *sys_iop,
         tt_u32_t i;
         for (i = 0; i < nev; ++i) {
             tt_io_ev_t *io_ev = (tt_io_ev_t *)kev[i].udata;
+            tt_u32_t flags = kev[i].flags;
+
+            if (flags & EV_ERROR) {
+                io_ev->io_result = TT_FAIL;
+            } else if (flags & EV_EOF) {
+                io_ev->io_result = TT_E_END;
+            } else {
+                io_ev->io_result = TT_SUCCESS;
+            }
 
             if (!__io_handler[io_ev->io](io_ev, sys_iop)) {
                 return TT_FALSE;
@@ -265,8 +273,7 @@ tt_result_t tt_io_poller_exit_ntv(IN tt_io_poller_ntv_t *sys_iop)
         return TT_FAIL;
     }
 
-    tt_io_ev_init(io_ev, TT_IO_POLLER, 0);
-    io_ev->ev_internal = __POLLER_EXIT;
+    tt_io_ev_init(io_ev, TT_IO_POLLER, __POLLER_EXIT);
 
     tt_spinlock_acquire(&sys_iop->poller_lock);
     tt_dlist_push_tail(&sys_iop->poller_ev, &io_ev->node);
@@ -377,10 +384,9 @@ tt_bool_t __poller_io(IN tt_io_ev_t *dummy, IN tt_io_poller_ntv_t *sys_iop)
 
     while ((node = tt_dlist_pop_head(&dl)) != NULL) {
         tt_io_ev_t *io_ev = TT_CONTAINER(node, tt_io_ev_t, node);
-        tt_fiber_t *dst;
 
         if (io_ev->io == TT_IO_POLLER) {
-            if (io_ev->ev_internal == __POLLER_EXIT) {
+            if (io_ev->ev == __POLLER_EXIT) {
                 tt_free(io_ev);
                 return TT_FALSE;
             }
@@ -391,7 +397,7 @@ tt_bool_t __poller_io(IN tt_io_ev_t *dummy, IN tt_io_poller_ntv_t *sys_iop)
                 tt_free(io_ev);
             }
         } else if (io_ev->io == TT_IO_FIBER) {
-            dst = io_ev->dst;
+            tt_fiber_t *dst = io_ev->dst;
             TT_ASSERT(&dst->fs->thread->task->iop.sys_iop == sys_iop);
             tt_dlist_push_tail(&dst->ev, &io_ev->node);
             if (dst->recving) {

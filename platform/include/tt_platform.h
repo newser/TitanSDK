@@ -141,6 +141,7 @@ extern "C" {
 #include <memory/tt_slab.h>
 #include <misc/tt_asn1_def.h>
 #include <misc/tt_assert.h>
+#include <misc/tt_backtrace.h>
 #include <misc/tt_base64.h>
 #include <misc/tt_charset_convert.h>
 #include <misc/tt_charset_def.h>

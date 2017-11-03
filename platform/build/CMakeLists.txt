@@ -54,6 +54,8 @@ message(STATUS "numa enable: ${PLATFORM_ENABLE_NUMA}")
 set(PLATFORM_UNIT_TEST_LITE 0 CACHE BOOL "lite unit test")
 mark_as_advanced(FORCE PLATFORM_UNIT_TEST_LITE)
 
+set(PLATFORM_BACKTRACE 0 CACHE BOOL "unwind stack")
+
 # generate header file
 configure_file(${PLATFORM_PATH}/include/config/tt_customization_config.h.in
                ${PLATFORM_PATH}/include/config/tt_customization_config.h
@@ -72,6 +74,11 @@ include(CheckSymbolExists)
 check_symbol_exists(syslog syslog.h HAVE_SYSLOG)
 check_symbol_exists(ReportEvent windows.h HAVE_WINDOWS_EVENT_LOG)
 check_symbol_exists(os_log os/log.h HAVE_OSLOG)
+
+if (PLATFORM_BACKTRACE)
+    check_symbol_exists(unw_getcontext libunwind.h HAVE_LIBUNWIND)
+    check_symbol_exists(backtrace execinfo.h HAVE_BACKTRACE)
+endif ()
 
 configure_file(${ROOT_PATH}/platform/include/config/tt_have.h.in
                ${ROOT_PATH}/platform/include/config/tt_have.h

@@ -16,79 +16,66 @@
  * limitations under the License.
  */
 
-/**
-@file tt_have.h
-@brief have definitions
-
-this file load have definitions
-*/
-
-#ifndef __TT_HAVE__
-#define __TT_HAVE__
-
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
-////////////////////////////////////////////////////////////
-// macro definition
-////////////////////////////////////////////////////////////
+#include <misc/tt_backtrace.h>
 
-/**
-@def HAVE_SYSLOG
-defined if has syslog
-*/
-#cmakedefine HAVE_SYSLOG
-#ifdef HAVE_SYSLOG
-#define TT_HAVE_SYSLOG
-#endif
+#include <algorithm/tt_buffer_format.h>
+#include <os/tt_thread.h>
 
-/**
-@def HAVE_WINDOWS_EVENT_LOG
-defined if has windows event log
-*/
-#cmakedefine HAVE_WINDOWS_EVENT_LOG
-#ifdef HAVE_WINDOWS_EVENT_LOG
-#define TT_HAVE_WINDOWS_EVENT_LOG
-#endif
-
-/**
-@def HAVE_OSLOG
-defined if has mac/ios os log
-*/
-#cmakedefine HAVE_OSLOG
-#ifdef HAVE_OSLOG
-#define TT_HAVE_OSLOG
-#endif
-
-/**
-@def HAVE_LIBUNWIND
-defined if has libunwind
-*/
-#cmakedefine HAVE_LIBUNWIND
-#ifdef HAVE_LIBUNWIND
-#define TT_HAVE_LIBUNWIND
-#endif
-
-/**
-@def HAVE_BACKTRACE
-defined if has backtrace
-*/
-#cmakedefine HAVE_BACKTRACE
-#ifdef HAVE_BACKTRACE
-#define TT_HAVE_BACKTRACE
-#endif
+#include <tt_backtrace_native.h>
 
 ////////////////////////////////////////////////////////////
-// type definition
+// internal macro
 ////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////
-// global variants
+// internal type
+////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////
+// extern declaration
+////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////
+// global variant
 ////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-#endif /* __TT_HAVE__ */
+////////////////////////////////////////////////////////////
+// interface implementation
+////////////////////////////////////////////////////////////
+
+const tt_char_t *tt_backtrace(IN OPT const tt_char_t *prefix,
+                              IN OPT const tt_char_t *suffix)
+{
+    tt_thread_t *t;
+    tt_buf_t *buf;
+
+    t = tt_current_thread();
+    if (t == NULL) {
+        return "";
+    }
+
+    if (t->backtrace == NULL) {
+        t->backtrace = tt_malloc(sizeof(tt_buf_t));
+        if (t->backtrace == NULL) {
+            return "";
+        }
+        tt_buf_init(t->backtrace, NULL);
+    }
+    buf = t->backtrace;
+
+    tt_buf_clear(buf);
+    if (!TT_OK(tt_backtrace_ntv(buf, prefix, suffix))) {
+        return "";
+    }
+    tt_buf_put_u8(buf, 0);
+
+    return (tt_char_t *)TT_BUF_RPOS(buf);
+}

@@ -16,72 +16,24 @@
  * limitations under the License.
  */
 
-/**
-@file tt_have.h
-@brief have definitions
-
-this file load have definitions
-*/
-
-#ifndef __TT_HAVE__
-#define __TT_HAVE__
+#ifndef __TT_BACKTRACE_NTV__
+#define __TT_BACKTRACE_NTV__
 
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
+#include <tt_basic_type.h>
+
 ////////////////////////////////////////////////////////////
 // macro definition
 ////////////////////////////////////////////////////////////
 
-/**
-@def HAVE_SYSLOG
-defined if has syslog
-*/
-#cmakedefine HAVE_SYSLOG
-#ifdef HAVE_SYSLOG
-#define TT_HAVE_SYSLOG
-#endif
-
-/**
-@def HAVE_WINDOWS_EVENT_LOG
-defined if has windows event log
-*/
-#cmakedefine HAVE_WINDOWS_EVENT_LOG
-#ifdef HAVE_WINDOWS_EVENT_LOG
-#define TT_HAVE_WINDOWS_EVENT_LOG
-#endif
-
-/**
-@def HAVE_OSLOG
-defined if has mac/ios os log
-*/
-#cmakedefine HAVE_OSLOG
-#ifdef HAVE_OSLOG
-#define TT_HAVE_OSLOG
-#endif
-
-/**
-@def HAVE_LIBUNWIND
-defined if has libunwind
-*/
-#cmakedefine HAVE_LIBUNWIND
-#ifdef HAVE_LIBUNWIND
-#define TT_HAVE_LIBUNWIND
-#endif
-
-/**
-@def HAVE_BACKTRACE
-defined if has backtrace
-*/
-#cmakedefine HAVE_BACKTRACE
-#ifdef HAVE_BACKTRACE
-#define TT_HAVE_BACKTRACE
-#endif
-
 ////////////////////////////////////////////////////////////
 // type definition
 ////////////////////////////////////////////////////////////
+
+struct tt_buf_s;
 
 ////////////////////////////////////////////////////////////
 // global variants
@@ -91,4 +43,8 @@ defined if has backtrace
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-#endif /* __TT_HAVE__ */
+extern tt_result_t tt_backtrace_ntv(IN struct tt_buf_s *buf,
+                                    IN OPT const tt_char_t *prefix,
+                                    IN OPT const tt_char_t *suffix);
+
+#endif /* __TT_BACKTRACE_NTV__ */

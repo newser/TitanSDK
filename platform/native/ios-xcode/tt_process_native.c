@@ -22,7 +22,6 @@
 
 #include <tt_process_native.h>
 
-#include <memory/tt_memory_alloc.h>
 #include <misc/tt_util.h>
 #include <os/tt_process.h>
 
@@ -185,4 +184,20 @@ tt_char_t *tt_current_path_ntv(IN tt_bool_t end_slash)
     d[len + append_slash] = 0;
 
     return d;
+}
+
+tt_result_t tt_process_name_ntv(IN tt_char_t *name, IN tt_u32_t len)
+{
+    const char *p = getprogname();
+    if (p != NULL) {
+        tt_u32_t n = (tt_u32_t)tt_strlen(p);
+        if (n >= len) {
+            n = len - 1;
+        }
+        tt_memcpy(name, p, n);
+        name[n] = 0;
+        return TT_SUCCESS;
+    } else {
+        return TT_FAIL;
+    }
 }

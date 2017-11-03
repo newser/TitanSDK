@@ -38,8 +38,8 @@ TT_TEST_ROUTINE_DECLARE(case_dir_basic)
 
 // =========================================
 
-static tt_string_t __sc_fpath;
-static tt_string_t __sc_dpath;
+static tt_string_t __sc_fpath, __sc_fpath2;
+static tt_string_t __sc_dpath, __sc_dpath1;
 
 static void __fs_enter(void *enter_param)
 {
@@ -158,8 +158,12 @@ TT_TEST_ROUTINE_DEFINE(case_fs_consistency)
 
 #if (TT_ENV_OS_FEATURE & TT_ENV_OS_FEATURE_IOS_SIMULATOR)
 #define __SC_TEST_FILE "../tmp/测试"
+#define __SC_TEST_FILE2 "../tmp/测试2"
+#define __TEST_D1 "../tmp/测试目录1"
 #else
 #define __SC_TEST_FILE ((const tt_char_t *)tt_string_cstr(&__sc_fpath))
+#define __SC_TEST_FILE2 ((const tt_char_t *)tt_string_cstr(&__sc_fpath2))
+#define __TEST_D1 "todo" //((const tt_char_t *)tt_string_cstr(&__sc_dpath1))
 #endif
 
 #elif TT_ENV_OS_IS_ANDROID
@@ -667,7 +671,9 @@ TT_TEST_ROUTINE_DEFINE(case_dir_basic)
 #define __TEST_DIR "../tmp/test_dir"
 #define __TEST_DIR2 "../tmp/test_dir2"
 #else
-#define __TEST_DIR ((const tt_char_t *)tt_string_cstr(&__sc_dpath))
+//#define __TEST_DIR ((const tt_char_t *)tt_string_cstr(&__sc_dpath))
+#define __TEST_DIR "todo"
+#define __TEST_DIR2 "todo"
 #endif
 
 #elif TT_ENV_OS_IS_ANDROID
