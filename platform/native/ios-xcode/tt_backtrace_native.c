@@ -69,12 +69,12 @@ tt_result_t tt_backtrace_ntv(IN tt_buf_t *buf,
     if (prefix == NULL) {
         prefix = "";
     }
-    plen = (int)tt_strlen(prefix);
+    plen = (tt_u32_t)tt_strlen(prefix);
 
     if (suffix == NULL) {
         suffix = "";
     }
-    slen = (int)tt_strlen(suffix);
+    slen = (tt_u32_t)tt_strlen(suffix);
 
     if ((unw_getcontext(&ctx) != 0) || (unw_init_local(&cur, &ctx) != 0)) {
         return TT_FAIL;
@@ -112,15 +112,17 @@ tt_result_t tt_backtrace_ntv(IN tt_buf_t *buf,
     if (prefix == NULL) {
         prefix = "";
     }
-    plen = (int)tt_strlen(prefix);
+    plen = (tt_u32_t)tt_strlen(prefix);
 
     if (suffix == NULL) {
         suffix = "";
     }
-    slen = (int)tt_strlen(suffix);
+    slen = (tt_u32_t)tt_strlen(suffix);
 
-    n = backtrace(addr, __BT_SIZE);
-    sym = backtrace_symbols(addr, n);
+    if (((n = backtrace(addr, __BT_SIZE)) == 0) ||
+        ((sym = backtrace_symbols(addr, n)) == NULL)) {
+        return "";
+    }
     for (i = 0; i < n; ++i) {
         TT_DO_G(done, tt_buf_put(buf, (tt_u8_t *)prefix, plen));
         TT_DO_G(done, tt_buf_put_cstr(buf, sym[i]));
@@ -130,7 +132,7 @@ tt_result_t tt_backtrace_ntv(IN tt_buf_t *buf,
 
 done:
     free(sym);
-    return TT_E_NOMEM;
+    return result;
 }
 
 #else
