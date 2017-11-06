@@ -23,11 +23,13 @@
 #include <os/tt_thread.h>
 
 #include <algorithm/tt_rng_xorshift.h>
+#include <algorithm/tt_buffer.h>
 #include <crypto/tt_ctr_drbg.h>
 #include <crypto/tt_entropy.h>
 #include <init/tt_component.h>
 #include <init/tt_profile.h>
 #include <misc/tt_assert.h>
+#include <memory/tt_memory_alloc.h>
 #include <os/tt_fiber.h>
 
 #include <tt_cstd_api.h>

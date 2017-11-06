@@ -39,6 +39,10 @@ function(platform_link_libraries)
     # process
     target_link_libraries(platform psapi)
 
+    if (PLATFORM_ENABLE_BACKTRACE)
+        target_link_libraries(platform dbghelp)
+    endif ()
+
 endfunction(platform_link_libraries)
 
 # platform properties

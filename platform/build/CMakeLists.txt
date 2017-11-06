@@ -76,7 +76,7 @@ check_symbol_exists(ReportEvent windows.h HAVE_WINDOWS_EVENT_LOG)
 check_symbol_exists(os_log os/log.h HAVE_OSLOG)
 
 if (PLATFORM_ENABLE_BACKTRACE)
-    if (PLATFORM_ENV_OS STREQUAL windows)
+    if ((PLATFORM_ENV_OS STREQUAL windows) OR (PLATFORM_ENV_OS STREQUAL android))
         set(HAVE_LIBUNWIND 0)
         set(HAVE_BACKTRACE 0)
     elseif ((PLATFORM_ENV_OS STREQUAL ios) OR (PLATFORM_ENV_OS STREQUAL macos))

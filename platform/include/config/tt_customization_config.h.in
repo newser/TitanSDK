@@ -62,6 +62,15 @@ defined if NUMA is enabled
 #define TT_PLATFORM_ENABLE_NUMA
 #endif
 
+/**
+@def TT_PLATFORM_ENABLE_BACKTRACE
+defined if backtrace is enabled
+*/
+#cmakedefine PLATFORM_ENABLE_BACKTRACE
+#ifdef PLATFORM_ENABLE_BACKTRACE
+#define TT_PLATFORM_ENABLE_BACKTRACE
+#endif
+
 // ========================================
 // version
 // ========================================

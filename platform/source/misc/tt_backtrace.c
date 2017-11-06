@@ -23,6 +23,8 @@
 #include <misc/tt_backtrace.h>
 
 #include <algorithm/tt_buffer_format.h>
+#include <init/tt_component.h>
+#include <init/tt_profile.h>
 #include <os/tt_thread.h>
 
 #include <tt_backtrace_native.h>
@@ -47,9 +49,27 @@
 // interface declaration
 ////////////////////////////////////////////////////////////
 
+static tt_result_t __bt_component_init(IN tt_component_t *comp,
+                                       IN tt_profile_t *profile);
+
 ////////////////////////////////////////////////////////////
 // interface implementation
 ////////////////////////////////////////////////////////////
+
+void tt_backtrace_component_register()
+{
+    static tt_component_t comp;
+
+    tt_component_itf_t itf = {
+        __bt_component_init,
+    };
+
+    // init component
+    tt_component_init(&comp, TT_COMPONENT_BACKTRACE, "Backtrace", NULL, &itf);
+
+    // register component
+    tt_component_register(&comp);
+}
 
 const tt_char_t *tt_backtrace(IN OPT const tt_char_t *prefix,
                               IN OPT const tt_char_t *suffix)
@@ -78,4 +98,16 @@ const tt_char_t *tt_backtrace(IN OPT const tt_char_t *prefix,
     tt_buf_put_u8(buf, 0);
 
     return (tt_char_t *)TT_BUF_RPOS(buf);
+}
+
+tt_result_t __bt_component_init(IN tt_component_t *comp,
+                                IN tt_profile_t *profile)
+{
+    // init low level socket system
+    if (!TT_OK(tt_backtrace_component_init_ntv(profile))) {
+        TT_ERROR("fail to initialize backtrace native");
+        return TT_FAIL;
+    }
+
+    return TT_SUCCESS;
 }

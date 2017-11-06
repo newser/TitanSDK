@@ -56,6 +56,9 @@ typedef enum {
     // version
     TT_COMPONENT_VERSION_INFO,
 
+    // backtrace
+    TT_COMPONENT_BACKTRACE,
+
     // algorithm
     TT_COMPONENT_RAND,
 
@@ -108,6 +111,10 @@ typedef enum {
     TT_COMPONENT_MODULE_ADNS,
     TT_COMPONENT_DNS,
     TT_COMPONENT_DNS_CACHE,
+
+    // ========================================
+    // can init application from now on
+    // ========================================
 
     // log manager
     TT_COMPONENT_LOG_MANAGER,
