@@ -44,7 +44,8 @@ struct tt_buf_s;
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-tt_inline tt_result_t tt_backtrace_component_init_ntv(IN struct tt_profile_s *profile)
+tt_inline tt_result_t
+tt_backtrace_component_init_ntv(IN struct tt_profile_s *profile)
 {
     return TT_SUCCESS;
 }

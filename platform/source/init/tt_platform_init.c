@@ -83,7 +83,7 @@ tt_result_t tt_platform_init(IN OPT const tt_char_t *profile_path)
 
     // backtrace
     tt_backtrace_component_register();
-    
+
     // algoirthm
     tt_rng_component_register();
 
