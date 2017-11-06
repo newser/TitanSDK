@@ -25,6 +25,7 @@
 #include <algorithm/tt_buffer_format.h>
 
 #if defined(TT_HAVE_LIBUNWIND)
+#define UNW_LOCAL_ONLY
 #include <libunwind.h>
 #elif defined(TT_HAVE_BACKTRACE)
 #include <execinfo.h>

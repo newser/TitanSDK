@@ -121,7 +121,7 @@ tt_result_t tt_backtrace_ntv(IN tt_buf_t *buf,
 
     if (((n = backtrace(addr, __BT_SIZE)) == 0) ||
         ((sym = backtrace_symbols(addr, n)) == NULL)) {
-        return "";
+        return TT_FAIL;
     }
     for (i = 0; i < n; ++i) {
         TT_DO_G(done, tt_buf_put(buf, (tt_u8_t *)prefix, plen));
