@@ -28,9 +28,7 @@
 
 #include <tt_sys_error.h>
 
-#include <errno.h>
 #include <stdlib.h>
-#include <sys/types.h>
 #include <sys/wait.h>
 
 ////////////////////////////////////////////////////////////
@@ -182,4 +180,26 @@ tt_char_t *tt_current_path_ntv(IN tt_bool_t end_slash)
     d[len + append_slash] = 0;
 
     return d;
+}
+
+tt_result_t tt_process_name_ntv(IN tt_char_t *name, IN tt_u32_t len)
+{
+    const char *p;
+
+#if __ANDROID_API__ >= 21
+    p = getprogname();
+#else
+    p = NULL;
+#endif
+    if (p != NULL) {
+        tt_u32_t n = (tt_u32_t)tt_strlen(p);
+        if (n >= len) {
+            n = len - 1;
+        }
+        tt_memcpy(name, p, n);
+        name[n] = 0;
+        return TT_SUCCESS;
+    } else {
+        return TT_FAIL;
+    }
 }

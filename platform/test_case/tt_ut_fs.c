@@ -171,6 +171,7 @@ TT_TEST_ROUTINE_DEFINE(case_fs_consistency)
 #define APK_PATH "/data/data/com.titansdk.titansdkunittest/"
 #define __SC_TEST_FILE APK_PATH "测试"
 #define __SC_TEST_FILE2 APK_PATH "测试2"
+#define __TEST_D1 APK_PATH "测试目录1"
 
 #else
 #define __SC_TEST_FILE "测试"

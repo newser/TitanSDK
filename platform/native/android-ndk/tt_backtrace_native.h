@@ -16,32 +16,24 @@
  * limitations under the License.
  */
 
-/**
-@file tt_console_native.h
-@brief console io native
-
-this file specifies console native APIs
-*/
-
-#ifndef __TT_CONSOLE_NATIVE__
-#define __TT_CONSOLE_NATIVE__
+#ifndef __TT_BACKTRACE_NTV__
+#define __TT_BACKTRACE_NTV__
 
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <io/tt_console.h>
-#include <io/tt_console_event.h>
+#include <tt_basic_type.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
 ////////////////////////////////////////////////////////////
 
-struct tt_console_attr_s;
-
 ////////////////////////////////////////////////////////////
 // type definition
 ////////////////////////////////////////////////////////////
+
+struct tt_buf_s;
 
 ////////////////////////////////////////////////////////////
 // global variants
@@ -51,23 +43,8 @@ struct tt_console_attr_s;
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern tt_result_t tt_console_init_ntv();
+extern tt_result_t tt_backtrace_ntv(IN struct tt_buf_s *buf,
+                                    IN OPT const tt_char_t *prefix,
+                                    IN OPT const tt_char_t *suffix);
 
-extern tt_result_t tt_console_enter_ntv();
-
-extern void tt_console_exit_ntv();
-
-extern tt_result_t tt_console_config_ntv(IN struct tt_console_attr_s *attr);
-
-extern tt_result_t tt_console_recv_ntv(OUT tt_cons_ev_t *ev,
-                                       OUT tt_cons_ev_data_t *ev_data);
-
-extern tt_result_t tt_console_send_ntv(IN tt_cons_ev_t ev,
-                                       IN tt_cons_ev_data_t *ev_data);
-
-tt_inline void tt_console_set_color_ntv(IN tt_console_color_t foreground,
-                                        IN tt_console_color_t background)
-{
-}
-
-#endif // __TT_CONSOLE_NATIVE__
+#endif /* __TT_BACKTRACE_NTV__ */
