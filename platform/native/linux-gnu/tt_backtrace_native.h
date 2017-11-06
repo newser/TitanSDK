@@ -33,6 +33,7 @@
 // type definition
 ////////////////////////////////////////////////////////////
 
+struct tt_profile_s;
 struct tt_buf_s;
 
 ////////////////////////////////////////////////////////////
@@ -42,6 +43,11 @@ struct tt_buf_s;
 ////////////////////////////////////////////////////////////
 // interface declaration
 ////////////////////////////////////////////////////////////
+
+tt_inline tt_result_t tt_backtrace_component_init_ntv(IN struct tt_profile_s *profile)
+{
+    return TT_SUCCESS;
+}
 
 extern tt_result_t tt_backtrace_ntv(IN struct tt_buf_s *buf,
                                     IN OPT const tt_char_t *prefix,

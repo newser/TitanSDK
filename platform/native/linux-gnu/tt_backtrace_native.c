@@ -92,7 +92,7 @@ tt_result_t tt_backtrace_ntv(IN tt_buf_t *buf,
         }
 
         TT_DO_G(done, tt_buf_put(buf, (tt_u8_t *)prefix, plen));
-        TT_DO_G(done, tt_buf_putf(buf, "%3d %p %s(+0x%x)", i++, ip, name, off));
+        TT_DO_G(done, tt_buf_putf(buf, "#%d <%p> in %s(+0x%x)", i++, ip, name, off));
         TT_DO_G(done, tt_buf_put(buf, (tt_u8_t *)suffix, slen));
     }
 done:

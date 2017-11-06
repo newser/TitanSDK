@@ -104,14 +104,14 @@ tt_result_t tt_backtrace_ntv(IN tt_buf_t *buf,
         line.SizeOfStruct = sizeof(IMAGEHLP_LINE64);
 
         if (!SymFromAddr(proc, (DWORD64)bt[i], &addr_disp, sym)) {
-            TT_DO_G(done, tt_buf_putf(buf, "#%3d <%p> in ?", i, bt[i]));
+            TT_DO_G(done, tt_buf_putf(buf, "#%d <%p> in ?", i, bt[i]));
         } else if (!SymGetLineFromAddrW64(proc,
                                           (DWORD64)bt[i],
                                           &disp2,
                                           &line)) {
             TT_DO_G(done,
                     tt_buf_putf(buf,
-                                "#%3d <%p> in %s(+0x%x)",
+                                "#%d <%p> in %s(+0x%x)",
                                 i,
                                 bt[i],
                                 sym->Name,
@@ -121,7 +121,7 @@ tt_result_t tt_backtrace_ntv(IN tt_buf_t *buf,
             if (fname != NULL) {
                 tt_result_t result;
                 result = tt_buf_putf(buf,
-                                     "#%3d <%p> in %s() at [%s:%d]",
+                                     "#%d <%p> in %s() at [%s:%d]",
                                      i,
                                      bt[i],
                                      sym->Name,
@@ -134,7 +134,7 @@ tt_result_t tt_backtrace_ntv(IN tt_buf_t *buf,
             } else {
                 TT_DO_G(done,
                         tt_buf_putf(buf,
-                                    "#%3d <%p> in %s(+0x%x)",
+                                    "#%d <%p> in %s(+0x%x)",
                                     i,
                                     bt[i],
                                     sym->Name,
