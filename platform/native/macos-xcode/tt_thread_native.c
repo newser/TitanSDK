@@ -138,15 +138,22 @@ tt_result_t tt_thread_create_ntv(IN struct tt_thread_s *thread)
 
 tt_result_t tt_thread_create_local_ntv(IN struct tt_thread_s *thread)
 {
-    sigset_t mask, org_mask;
+    sigset_t mask;
 
     if (pthread_setspecific(tt_g_thread_key, thread) != 0) {
         TT_ERROR("fail to set thread specific data");
         return TT_FAIL;
     }
 
-    if ((sigfillset(&mask) != 0) || (sigdelset(&mask, SIGINT) != 0) ||
-        (pthread_sigmask(SIG_BLOCK, &mask, &org_mask) != 0)) {
+    sigfillset(&mask);
+    sigdelset(&mask, SIGABRT);
+    sigdelset(&mask, SIGSEGV);
+    sigdelset(&mask, SIGBUS);
+    sigdelset(&mask, SIGILL);
+    sigdelset(&mask, SIGFPE);
+    sigdelset(&mask, SIGPIPE);
+    sigdelset(&mask, SIGINT);
+    if (pthread_sigmask(SIG_BLOCK, &mask, NULL) != 0) {
         TT_ERROR("fail to block signals");
     }
 
@@ -225,8 +232,15 @@ void *__thread_routine_wrapper(IN void *param)
     // now it's safe to access member of tt_thread_t
 #endif
 
-    if ((sigfillset(&mask) != 0) || (sigdelset(&mask, SIGINT) != 0) ||
-        (pthread_sigmask(SIG_BLOCK, &mask, NULL) != 0)) {
+    sigfillset(&mask);
+    sigdelset(&mask, SIGABRT);
+    sigdelset(&mask, SIGSEGV);
+    sigdelset(&mask, SIGBUS);
+    sigdelset(&mask, SIGILL);
+    sigdelset(&mask, SIGFPE);
+    sigdelset(&mask, SIGPIPE);
+    sigdelset(&mask, SIGINT);
+    if (pthread_sigmask(SIG_BLOCK, &mask, NULL) != 0) {
         TT_ERROR("fail to block signals");
     }
 

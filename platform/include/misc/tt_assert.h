@@ -72,6 +72,7 @@ when to use TT_ASSERT_ALWAYS()
 
 #include <config/tt_platform_config.h>
 #include <log/tt_log.h>
+#include <misc/tt_backtrace.h>
 
 #include <tt_assert_native.h>
 
@@ -80,9 +81,18 @@ when to use TT_ASSERT_ALWAYS()
 ////////////////////////////////////////////////////////////
 
 /**
-@def TT_ASSERT_ALWAYS(e)
-if e is not satisfied, always raise an exception
-*/
+ @def TT_ASSERT_ALWAYS(e)
+ if e is not satisfied, always raise an exception
+ */
+#ifdef TT_PLATFORM_ENABLE_BACKTRACE
+#define TT_ASSERT_ALWAYS(e)                                                    \
+    do {                                                                       \
+        if (TT_UNLIKELY(!(e))) {                                               \
+            TT_ERROR("false: (%s)\n%s", #e, tt_backtrace("    ", "\n"));       \
+            tt_throw_exception_ntv(NULL);                                      \
+        }                                                                      \
+    } while (0)
+#else
 #define TT_ASSERT_ALWAYS(e)                                                    \
     do {                                                                       \
         if (TT_UNLIKELY(!(e))) {                                               \
@@ -90,6 +100,7 @@ if e is not satisfied, always raise an exception
             tt_throw_exception_ntv(NULL);                                      \
         }                                                                      \
     } while (0)
+#endif
 
 #ifdef TT_ASSERT_ENABLE
 

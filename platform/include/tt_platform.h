@@ -145,6 +145,7 @@ extern "C" {
 #include <misc/tt_base64.h>
 #include <misc/tt_charset_convert.h>
 #include <misc/tt_charset_def.h>
+#include <misc/tt_crash_trace.h>
 #include <misc/tt_der_decode.h>
 #include <misc/tt_der_encode.h>
 #include <misc/tt_distinguished_name.h>

@@ -86,7 +86,7 @@ TT_TEST_ROUTINE_DEFINE(name)
     TT_TEST_CASE_LEAVE()
 }
 */
-
+#include <signal.h>
 #define __q_size 100
 #define __qf_size 10
 
@@ -256,6 +256,27 @@ TT_TEST_ROUTINE_DEFINE(name)
             TT_UT_EQUAL(vv, v[__q_size - 1 - i], "");
         }
         TT_UT_EQUAL(tt_queue_count(&q), __q_size, "");
+    }
+
+    {
+        tt_u32_t i1 = 1, i2 = 0;
+        tt_u32_t *p = NULL;
+        void (*f)() = NULL;
+
+        // sigabrt
+        TT_ASSERT(0);
+
+        // sigsegv
+        // f();
+
+        // sigsegv
+        //*p = 1;
+
+        // sigill
+        // raise(SIGILL);
+
+        // sigfpe
+        // i1 /= i2;
     }
 
     tt_queue_destroy(&q);

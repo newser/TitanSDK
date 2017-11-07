@@ -49,15 +49,14 @@ typedef enum {
 
     // log
     TT_COMPONENT_LOG,
+    TT_COMPONENT_BACKTRACE,
+    TT_COMPONENT_CRASH_TRACE,
 
     // config
     TT_COMPONENT_CONFIG,
 
     // version
     TT_COMPONENT_VERSION_INFO,
-
-    // backtrace
-    TT_COMPONENT_BACKTRACE,
 
     // algorithm
     TT_COMPONENT_RAND,

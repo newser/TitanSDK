@@ -16,15 +16,8 @@
  * limitations under the License.
  */
 
-/**
-@file tt_backtrace.h
-@brief back trace
-
-this file defines back trace APIs
-*/
-
-#ifndef __TT_BACKTRACE__
-#define __TT_BACKTRACE__
+#ifndef __TT_CRASH_TRACE_NTV__
+#define __TT_CRASH_TRACE_NTV__
 
 ////////////////////////////////////////////////////////////
 // import header files
@@ -40,6 +33,8 @@ this file defines back trace APIs
 // type definition
 ////////////////////////////////////////////////////////////
 
+struct tt_profile_s;
+
 ////////////////////////////////////////////////////////////
 // global variants
 ////////////////////////////////////////////////////////////
@@ -48,13 +43,7 @@ this file defines back trace APIs
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-/**
-@fn void tt_backtrace_component_register()
-register backtrace system
-*/
-tt_export void tt_backtrace_component_register();
+extern tt_result_t tt_crash_trace_component_init_ntv(
+    IN struct tt_profile_s *profile);
 
-tt_export const tt_char_t *tt_backtrace(IN OPT const tt_char_t *prefix,
-                                        IN OPT const tt_char_t *suffix);
-
-#endif /* __TT_BACKTRACE__ */
+#endif /* __TT_CRASH_TRACE_NTV__ */

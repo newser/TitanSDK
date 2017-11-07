@@ -20,28 +20,21 @@
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <tt_backtrace_native.h>
+#include <misc/tt_crash_trace.h>
 
-#include <algorithm/tt_buffer_format.h>
+#include <init/tt_component.h>
+#include <init/tt_profile.h>
+#include <log/tt_log.h>
 
-#include <dlfcn.h>
-#include <unwind.h>
+#include <tt_crash_trace_native.h>
 
 ////////////////////////////////////////////////////////////
 // internal macro
 ////////////////////////////////////////////////////////////
 
-#define __BT_SIZE 128
-
 ////////////////////////////////////////////////////////////
 // internal type
 ////////////////////////////////////////////////////////////
-
-typedef struct __unwind_param_s
-{
-    uintptr_t addr[__BT_SIZE];
-    tt_u32_t num;
-} __unwind_param_t;
 
 ////////////////////////////////////////////////////////////
 // extern declaration
@@ -55,64 +48,39 @@ typedef struct __unwind_param_s
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-static _Unwind_Reason_Code __unwind_cb(struct _Unwind_Context *ctx,
-                                       void *param);
+static tt_result_t __ct_component_init(IN tt_component_t *comp,
+                                       IN tt_profile_t *profile);
 
 ////////////////////////////////////////////////////////////
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-tt_result_t tt_backtrace_ntv(IN tt_buf_t *buf,
-                             IN OPT const tt_char_t *prefix,
-                             IN OPT const tt_char_t *suffix)
+void tt_crash_trace_component_register()
 {
-    tt_u32_t plen, slen, i;
-    __unwind_param_t up;
-    tt_result_t result = TT_E_NOMEM;
+    static tt_component_t comp;
 
-    if (prefix == NULL) {
-        prefix = "";
-    }
-    plen = (tt_u32_t)tt_strlen(prefix);
+    tt_component_itf_t itf = {
+        __ct_component_init,
+    };
 
-    if (suffix == NULL) {
-        suffix = "";
-    }
-    slen = (tt_u32_t)tt_strlen(suffix);
+    // init component
+    tt_component_init(&comp,
+                      TT_COMPONENT_CRASH_TRACE,
+                      "Crash Trace",
+                      NULL,
+                      &itf);
 
-    tt_memset(&up, 0, sizeof(__unwind_param_t));
-    _Unwind_Backtrace(__unwind_cb, &up);
-    for (i = 0; i < up.num; ++i) {
-        Dl_info di;
-        const char *name;
-
-        if (dladdr((void *)up.addr[i], &di) && (di.dli_sname != NULL)) {
-            name = di.dli_sname;
-        } else {
-            name = "?";
-        }
-
-        TT_DO_G(done, tt_buf_put(buf, (tt_u8_t *)prefix, plen));
-        TT_DO_G(done, tt_buf_putf(buf, "%3d %p %s", i, up.addr[i], name));
-        TT_DO_G(done, tt_buf_put(buf, (tt_u8_t *)suffix, slen));
-    }
-    result = TT_SUCCESS;
-
-done:
-    return result;
+    // register component
+    tt_component_register(&comp);
 }
 
-_Unwind_Reason_Code __unwind_cb(struct _Unwind_Context *ctx, void *param)
+tt_result_t __ct_component_init(IN tt_component_t *comp,
+                                IN tt_profile_t *profile)
 {
-    __unwind_param_t *up = (__unwind_param_t *)param;
-    uintptr_t ip = _Unwind_GetIP(ctx);
-    if (ip != 0) {
-        if (up->num < __BT_SIZE) {
-            up->addr[up->num] = ip;
-            up->num += 1;
-        } else {
-            return _URC_END_OF_STACK;
-        }
+    if (!TT_OK(tt_crash_trace_component_init_ntv(profile))) {
+        TT_ERROR("fail to initialize crash trace native");
+        return TT_FAIL;
     }
-    return _URC_NO_REASON;
+
+    return TT_SUCCESS;
 }

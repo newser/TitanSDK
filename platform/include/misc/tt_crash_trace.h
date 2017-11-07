@@ -17,14 +17,14 @@
  */
 
 /**
-@file tt_backtrace.h
-@brief back trace
+@file tt_crash_trace.h
+@brief crash trace
 
-this file defines back trace APIs
+this file defines crash trace APIs
 */
 
-#ifndef __TT_BACKTRACE__
-#define __TT_BACKTRACE__
+#ifndef __TT_CRASH_TRACE__
+#define __TT_CRASH_TRACE__
 
 ////////////////////////////////////////////////////////////
 // import header files
@@ -49,12 +49,9 @@ this file defines back trace APIs
 ////////////////////////////////////////////////////////////
 
 /**
-@fn void tt_backtrace_component_register()
-register backtrace system
+@fn void tt_crash_trace_component_register()
+register crash trace system
 */
-tt_export void tt_backtrace_component_register();
+tt_export void tt_crash_trace_component_register();
 
-tt_export const tt_char_t *tt_backtrace(IN OPT const tt_char_t *prefix,
-                                        IN OPT const tt_char_t *suffix);
-
-#endif /* __TT_BACKTRACE__ */
+#endif /* __TT_CRASH_TRACE__ */
