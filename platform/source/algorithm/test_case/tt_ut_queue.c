@@ -116,7 +116,7 @@ TT_TEST_ROUTINE_DEFINE(name)
     TT_UT_EQUAL(tt_queue_head(&q), NULL, "");
     TT_UT_EQUAL(tt_queue_tail(&q), NULL, "");
 
-    ret = tt_queue_pop(&q, &i);
+    ret = tt_queue_pop_head(&q, &i);
     TT_UT_FAIL(ret, "");
 
     {
@@ -132,7 +132,7 @@ TT_TEST_ROUTINE_DEFINE(name)
     }
 
     for (i = 0; i < __q_size; ++i) {
-        ret = tt_queue_push(&q, &v[i]);
+        ret = tt_queue_push_tail(&q, &v[i]);
         TT_UT_SUCCESS(ret, "");
         TT_UT_EQUAL(*(tt_u32_t *)tt_queue_head(&q), v[0], "");
         TT_UT_EQUAL(*(tt_u32_t *)tt_queue_tail(&q), v[i], "");
@@ -153,7 +153,7 @@ TT_TEST_ROUTINE_DEFINE(name)
 
     n = tt_rand_u32() % __q_size;
     for (i = 0; i < n; ++i) {
-        ret = tt_queue_pop(&q, &val);
+        ret = tt_queue_pop_head(&q, &val);
         TT_UT_SUCCESS(ret, "");
         TT_UT_EQUAL(val, v[i], "");
         TT_UT_EQUAL(*(tt_u32_t *)tt_queue_head(&q), v[i + 1], "");
@@ -162,7 +162,7 @@ TT_TEST_ROUTINE_DEFINE(name)
     TT_UT_EQUAL(tt_queue_count(&q), __q_size - n, "");
 
     for (i = 0; i < n; ++i) {
-        ret = tt_queue_push(&q, &v[i]);
+        ret = tt_queue_push_tail(&q, &v[i]);
         TT_UT_SUCCESS(ret, "");
         TT_UT_EQUAL(*(tt_u32_t *)tt_queue_head(&q), v[n], "");
         TT_UT_EQUAL(*(tt_u32_t *)tt_queue_tail(&q), v[i], "");
@@ -170,7 +170,7 @@ TT_TEST_ROUTINE_DEFINE(name)
     TT_UT_EQUAL(tt_queue_count(&q), __q_size, "");
 
     for (i = 0; i < __q_size - __qf_size; ++i) {
-        ret = tt_queue_pop(&q, &val);
+        ret = tt_queue_pop_head(&q, &val);
         if (i < (__q_size - n)) {
             TT_UT_EQUAL(val, v[i + n], "");
         } else {
@@ -185,8 +185,78 @@ TT_TEST_ROUTINE_DEFINE(name)
     TT_UT_EQUAL(tt_queue_head(&q), NULL, "");
     TT_UT_EQUAL(tt_queue_tail(&q), NULL, "");
 
-    ret = tt_queue_pop(&q, &i);
+    ret = tt_queue_pop_head(&q, &i);
     TT_UT_FAIL(ret, "");
+
+    {
+        tt_queue_clear(&q);
+
+        for (i = 0; i < __q_size; ++i) {
+            ret = tt_queue_push_tail(&q, &v[i]);
+            TT_UT_SUCCESS(ret, "");
+            TT_UT_EQUAL(*(tt_u32_t *)tt_queue_head(&q), v[0], "");
+            TT_UT_EQUAL(*(tt_u32_t *)tt_queue_tail(&q), v[i], "");
+        }
+        TT_UT_EQUAL(tt_queue_count(&q), __q_size, "");
+
+        n = tt_rand_u32() % __q_size;
+        for (i = 0; i < n; ++i) {
+            tt_u32_t vv;
+            TT_UT_SUCCESS(tt_queue_pop_tail(&q, &vv), "");
+            TT_UT_EQUAL(vv, v[__q_size - 1 - i], "");
+            TT_UT_EQUAL(*(tt_u32_t *)tt_queue_head(&q), v[0], "");
+            TT_UT_EQUAL(*(tt_u32_t *)tt_queue_tail(&q),
+                        v[__q_size - 2 - i],
+                        "");
+        }
+        TT_UT_EQUAL(tt_queue_count(&q), __q_size - n, "");
+    }
+
+    {
+        tt_queue_clear(&q);
+
+        for (i = 0; i < __q_size; ++i) {
+            ret = tt_queue_push_head(&q, &v[i]);
+            TT_UT_SUCCESS(ret, "");
+            TT_UT_EQUAL(*(tt_u32_t *)tt_queue_tail(&q), v[0], "");
+            TT_UT_EQUAL(*(tt_u32_t *)tt_queue_head(&q), v[i], "");
+        }
+        TT_UT_EQUAL(tt_queue_count(&q), __q_size, "");
+
+        n = tt_rand_u32() % __q_size;
+        for (i = 0; i < n; ++i) {
+            tt_u32_t vv;
+            TT_UT_SUCCESS(tt_queue_pop_head(&q, &vv), "");
+            TT_UT_EQUAL(vv, v[__q_size - 1 - i], "");
+            TT_UT_EQUAL(*(tt_u32_t *)tt_queue_tail(&q), v[0], "");
+            TT_UT_EQUAL(*(tt_u32_t *)tt_queue_head(&q),
+                        v[__q_size - 2 - i],
+                        "");
+        }
+        TT_UT_EQUAL(tt_queue_count(&q), __q_size - n, "");
+    }
+
+    {
+        tt_queue_clear(&q);
+
+        for (i = 0; i < __q_size; ++i) {
+            ret = tt_queue_push_tail(&q, &v[i]);
+            TT_UT_SUCCESS(ret, "");
+        }
+        TT_UT_EQUAL(tt_queue_count(&q), __q_size, "");
+
+        for (i = 0; i < __q_size; ++i) {
+            TT_UT_SUCCESS(tt_queue_set(&q, i, &v[__q_size - 1 - i]), "");
+        }
+        TT_UT_EQUAL(tt_queue_count(&q), __q_size, "");
+
+        for (i = 0; i < __q_size; ++i) {
+            tt_u32_t vv;
+            TT_UT_SUCCESS(tt_queue_get(&q, i, &vv), "");
+            TT_UT_EQUAL(vv, v[__q_size - 1 - i], "");
+        }
+        TT_UT_EQUAL(tt_queue_count(&q), __q_size, "");
+    }
 
     tt_queue_destroy(&q);
 

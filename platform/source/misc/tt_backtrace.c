@@ -45,6 +45,8 @@
 // global variant
 ////////////////////////////////////////////////////////////
 
+static tt_ptrq_t tt_s_crash_handler;
+
 ////////////////////////////////////////////////////////////
 // interface declaration
 ////////////////////////////////////////////////////////////
@@ -100,6 +102,16 @@ const tt_char_t *tt_backtrace(IN OPT const tt_char_t *prefix,
     return (tt_char_t *)TT_BUF_RPOS(buf);
 }
 
+tt_result_t tt_push_crash_handler(IN void (*crash_handler)())
+{
+    return tt_ptrq_push_tail(&tt_s_crash_handler, crash_handler);
+}
+
+tt_crash_handler_t tt_pop_crash_handler()
+{
+    return (tt_crash_handler_t)tt_ptrq_pop_tail(&tt_s_crash_handler);
+}
+
 tt_result_t __bt_component_init(IN tt_component_t *comp,
                                 IN tt_profile_t *profile)
 {
@@ -108,6 +120,8 @@ tt_result_t __bt_component_init(IN tt_component_t *comp,
         TT_ERROR("fail to initialize backtrace native");
         return TT_FAIL;
     }
+
+    tt_ptrq_init(&tt_s_crash_handler, NULL);
 
     return TT_SUCCESS;
 }

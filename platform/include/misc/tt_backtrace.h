@@ -40,6 +40,8 @@ this file defines back trace APIs
 // type definition
 ////////////////////////////////////////////////////////////
 
+typedef void (*tt_crash_handler_t)();
+
 ////////////////////////////////////////////////////////////
 // global variants
 ////////////////////////////////////////////////////////////
@@ -56,5 +58,9 @@ tt_export void tt_backtrace_component_register();
 
 tt_export const tt_char_t *tt_backtrace(IN OPT const tt_char_t *prefix,
                                         IN OPT const tt_char_t *suffix);
+
+tt_export tt_result_t tt_push_crash_handler(IN tt_crash_handler_t handler);
+
+tt_export tt_crash_handler_t tt_pop_crash_handler();
 
 #endif /* __TT_BACKTRACE__ */

@@ -54,6 +54,10 @@ typedef struct
 // interface declaration
 ////////////////////////////////////////////////////////////
 
+static __q_frame_t *__alloc_head_frame(IN tt_queue_t *q);
+
+static __q_frame_t *__alloc_tail_frame(IN tt_queue_t *q);
+
 static __q_frame_t *__alloc_frame(IN tt_queue_t *q);
 
 static void __free_frame(IN tt_queue_t *q, IN __q_frame_t *frame);
@@ -116,7 +120,41 @@ void tt_queue_clear(IN tt_queue_t *q)
     q->count = 0;
 }
 
-tt_result_t tt_queue_push(IN tt_queue_t *q, IN void *obj)
+tt_result_t tt_queue_push_head(IN tt_queue_t *q, IN void *obj)
+{
+    tt_dnode_t *dnode;
+    __q_frame_t *frame;
+
+    TT_ASSERT(obj != NULL);
+
+    dnode = tt_dlist_head(&q->frame);
+    if (dnode != NULL) {
+        frame = TT_CONTAINER(dnode, __q_frame_t, node);
+    } else {
+        frame = __alloc_head_frame(q);
+        if (frame == NULL) {
+            return TT_FAIL;
+        }
+        tt_dlist_push_head(&q->frame, &frame->node);
+    }
+
+    if (frame->start == 0) {
+        frame = __alloc_head_frame(q);
+        if (frame == NULL) {
+            return TT_FAIL;
+        }
+        tt_dlist_push_head(&q->frame, &frame->node);
+    }
+    TT_ASSERT(frame->start > 0);
+
+    --frame->start;
+    tt_memcpy(__F_OBJ(frame, q, frame->start), obj, q->obj_size);
+    ++q->count;
+
+    return TT_SUCCESS;
+}
+
+tt_result_t tt_queue_push_tail(IN tt_queue_t *q, IN void *obj)
 {
     tt_dnode_t *dnode;
     __q_frame_t *frame;
@@ -127,7 +165,7 @@ tt_result_t tt_queue_push(IN tt_queue_t *q, IN void *obj)
     if (dnode != NULL) {
         frame = TT_CONTAINER(dnode, __q_frame_t, node);
     } else {
-        frame = __alloc_frame(q);
+        frame = __alloc_tail_frame(q);
         if (frame == NULL) {
             return TT_FAIL;
         }
@@ -135,7 +173,7 @@ tt_result_t tt_queue_push(IN tt_queue_t *q, IN void *obj)
     }
 
     if (frame->end == q->obj_per_frame) {
-        frame = __alloc_frame(q);
+        frame = __alloc_tail_frame(q);
         if (frame == NULL) {
             return TT_FAIL;
         }
@@ -150,7 +188,7 @@ tt_result_t tt_queue_push(IN tt_queue_t *q, IN void *obj)
     return TT_SUCCESS;
 }
 
-tt_result_t tt_queue_pop(IN tt_queue_t *q, OUT void *obj)
+tt_result_t tt_queue_pop_head(IN tt_queue_t *q, OUT void *obj)
 {
     tt_dnode_t *dnode;
     __q_frame_t *frame;
@@ -165,6 +203,30 @@ tt_result_t tt_queue_pop(IN tt_queue_t *q, OUT void *obj)
 
     tt_memcpy(obj, __F_OBJ(frame, q, frame->start), q->obj_size);
     ++frame->start;
+    if (frame->start == frame->end) {
+        tt_dlist_remove(&q->frame, &frame->node);
+        __free_frame(q, frame);
+    }
+    --q->count;
+
+    return TT_SUCCESS;
+}
+
+tt_result_t tt_queue_pop_tail(IN tt_queue_t *q, OUT void *obj)
+{
+    tt_dnode_t *dnode;
+    __q_frame_t *frame;
+
+    dnode = tt_dlist_tail(&q->frame);
+    if (dnode == NULL) {
+        return TT_FAIL;
+    }
+
+    frame = TT_CONTAINER(dnode, __q_frame_t, node);
+    TT_ASSERT(frame->start < frame->end);
+
+    --frame->end;
+    tt_memcpy(obj, __F_OBJ(frame, q, frame->end), q->obj_size);
     if (frame->start == frame->end) {
         tt_dlist_remove(&q->frame, &frame->node);
         __free_frame(q, frame);
@@ -243,6 +305,90 @@ void *tt_queue_iter_next(IN OUT tt_queue_iter_t *iter)
     obj = __F_OBJ(frame, iter->q, frame->start + iter->idx);
     ++iter->idx;
     return obj;
+}
+
+tt_result_t tt_queue_get(IN tt_queue_t *q, IN tt_u32_t idx, OUT void *obj)
+{
+    tt_dnode_t *node;
+
+    if (idx >= q->count) {
+        return TT_FAIL;
+    }
+
+    node = tt_dlist_head(&q->frame);
+    while (node != NULL) {
+        __q_frame_t *frame = TT_CONTAINER(node, __q_frame_t, node);
+        tt_u32_t n = frame->end - frame->start;
+
+        node = node->next;
+
+        if (idx < n) {
+            tt_memcpy(obj, __F_OBJ(frame, q, idx), q->obj_size);
+            return TT_SUCCESS;
+        } else {
+            idx -= n;
+        }
+    }
+    // should not reach here
+    TT_ASSERT(0);
+    return TT_FAIL;
+}
+
+tt_result_t tt_queue_set(IN tt_queue_t *q, IN tt_u32_t idx, IN void *obj)
+{
+    tt_dnode_t *node;
+
+    TT_ASSERT(obj != NULL);
+
+    if (idx >= q->count) {
+        return TT_FAIL;
+    }
+
+    node = tt_dlist_head(&q->frame);
+    while (node != NULL) {
+        __q_frame_t *frame = TT_CONTAINER(node, __q_frame_t, node);
+        tt_u32_t n = frame->end - frame->start;
+
+        node = node->next;
+
+        if (idx < n) {
+            tt_memcpy(__F_OBJ(frame, q, idx), obj, q->obj_size);
+            return TT_SUCCESS;
+        } else {
+            idx -= n;
+        }
+    }
+    // should not reach here
+    TT_ASSERT(0);
+    return TT_FAIL;
+}
+
+__q_frame_t *__alloc_head_frame(IN tt_queue_t *q)
+{
+    __q_frame_t *frame = __alloc_frame(q);
+    if (frame == NULL) {
+        TT_ERROR("no mem for new frame");
+        return NULL;
+    }
+
+    tt_dnode_init(&frame->node);
+    frame->start = q->obj_per_frame;
+    frame->end = q->obj_per_frame;
+    return frame;
+}
+
+__q_frame_t *__alloc_tail_frame(IN tt_queue_t *q)
+{
+    __q_frame_t *frame = __alloc_frame(q);
+    if (frame == NULL) {
+        TT_ERROR("no mem for new frame");
+        return NULL;
+    }
+
+    tt_dnode_init(&frame->node);
+    frame->start = 0;
+    frame->end = 0;
+    return frame;
 }
 
 __q_frame_t *__alloc_frame(IN tt_queue_t *q)
