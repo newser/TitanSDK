@@ -66,6 +66,7 @@ tt_result_t tt_crash_trace_component_init_ntv(IN tt_profile_t *profile)
     sigemptyset(&sa.sa_mask);
     sa.sa_flags = SA_SIGINFO;
 
+#ifdef TT_PLATFORM_ENABLE_BACKTRACE
     if (sigaction(SIGABRT, &sa, NULL) != 0) {
         TT_ERROR("fail to set action of SIGABRT");
     }
@@ -84,6 +85,7 @@ tt_result_t tt_crash_trace_component_init_ntv(IN tt_profile_t *profile)
     if (sigaction(SIGPIPE, &sa, NULL) != 0) {
         TT_ERROR("fail to set action of SIGPIPE");
     }
+#endif
 
     return TT_SUCCESS;
 }
