@@ -331,8 +331,8 @@ TT_TEST_ROUTINE_DEFINE(case_lpatn_time)
         ret = tt_logfld_output(lpf, &entry, &buf);
         TT_UT_SUCCESS(ret, "");
 
-        // default format: "%Y-%m-%d %H:%M:%S"
-        tt_date_render_now("%Y-%m-%d %H:%M:%S", tmp, sizeof(tmp));
+        // default format: "%Y-%N-%D %H:%M:%S"
+        tt_date_render_now("%Y-%N-%D %H:%M:%S", tmp, sizeof(tmp));
         TT_UT_EQUAL(tt_buf_cmp_cstr(&buf, tmp), 0, "");
 
         tt_logfld_destroy(lpf);
@@ -353,8 +353,8 @@ TT_TEST_ROUTINE_DEFINE(case_lpatn_time)
         ret = tt_logfld_output(lpf, &entry, &buf);
         TT_UT_SUCCESS(ret, "");
 
-        // default format: "%Y-%m-%d %H:%M:%S"
-        tt_date_render_now("%Y-%m-%d %H:%M:%S", tmp, sizeof(tmp));
+        // default format: "%Y-%N-%D %H:%M:%S"
+        tt_date_render_now("%Y-%N-%D %H:%M:%S", tmp, sizeof(tmp));
         TT_UT_EQUAL(tt_buf_cmp_cstr(&buf, tmp), 0, "");
 
         tt_logfld_destroy(lpf);

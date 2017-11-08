@@ -265,6 +265,35 @@ TT_TEST_CASE("case_buf_null",
     tt_buf_try_refine(&buf, 0);
     TT_UT_EQUAL(tt_buf_empty(&buf), TT_TRUE, "");
 
+    {
+        tt_u32_t r, r2;
+
+        tt_buf_clear(&buf);
+        TT_UT_TRUE(tt_buf_startwith(&buf, (tt_u8_t *)&r, 0), "");
+        TT_UT_FALSE(tt_buf_startwith(&buf, (tt_u8_t *)&r, 4), "");
+
+        r = ~0;
+        r2 = 0;
+        tt_buf_put_u32(&buf, r);
+        TT_UT_TRUE(tt_buf_startwith(&buf, (tt_u8_t *)&r, 1), "");
+        TT_UT_TRUE(tt_buf_startwith(&buf, (tt_u8_t *)&r, 4), "");
+        TT_UT_FALSE(tt_buf_startwith(&buf, (tt_u8_t *)&r2, 1), "");
+        TT_UT_FALSE(tt_buf_startwith(&buf, (tt_u8_t *)&r2, 4), "");
+
+        tt_buf_clear(&buf);
+        TT_UT_TRUE(tt_buf_endwith(&buf, (tt_u8_t *)&ret, 0), "");
+        TT_UT_FALSE(tt_buf_endwith(&buf,
+                                   (tt_u8_t *)&ret,
+                                   (tt_u32_t)sizeof(ret)),
+                    "");
+
+        tt_buf_put_u32(&buf, r);
+        TT_UT_TRUE(tt_buf_endwith(&buf, (tt_u8_t *)&r, 1), "");
+        TT_UT_TRUE(tt_buf_endwith(&buf, (tt_u8_t *)&r, 4), "");
+        TT_UT_FALSE(tt_buf_endwith(&buf, (tt_u8_t *)&r2, 1), "");
+        TT_UT_FALSE(tt_buf_endwith(&buf, (tt_u8_t *)&r2, 4), "");
+    }
+
     tt_buf_destroy(&buf);
     tt_buf_destroy(&buf2);
 

@@ -55,6 +55,24 @@ tt_export tt_s32_t tt_buf_cmp(IN tt_buf_t *a, IN tt_buf_t *b);
 
 tt_export tt_s32_t tt_buf_cmp_cstr(IN tt_buf_t *a, IN const tt_char_t *cstr);
 
+tt_export tt_bool_t tt_buf_startwith(IN tt_buf_t *buf,
+                                     IN tt_u8_t *p,
+                                     IN tt_u32_t len);
+
+tt_inline tt_bool_t tt_buf_startwith_u8(IN tt_buf_t *buf, IN tt_u8_t v)
+{
+    return tt_buf_startwith(buf, &v, 1);
+}
+
+tt_export tt_bool_t tt_buf_endwith(IN tt_buf_t *buf,
+                                   IN tt_u8_t *p,
+                                   IN tt_u32_t len);
+
+tt_inline tt_bool_t tt_buf_endwith_u8(IN tt_buf_t *buf, IN tt_u8_t v)
+{
+    return tt_buf_endwith(buf, &v, 1);
+}
+
 tt_inline tt_result_t tt_buf_copy(IN tt_buf_t *dst, IN tt_buf_t *src)
 {
     tt_buf_clear(dst);
