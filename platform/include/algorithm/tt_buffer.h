@@ -200,7 +200,7 @@ tt_inline tt_result_t tt_buf_inc_rp(IN tt_buf_t *buf, IN tt_u32_t num)
         buf->rpos += num;
         return TT_SUCCESS;
     } else {
-        return TT_BUFFER_INCOMPLETE;
+        return TT_E_BUF_NOBUFS;
     }
 }
 
@@ -244,7 +244,7 @@ tt_inline tt_result_t tt_buf_inc_wp(IN tt_buf_t *buf, IN tt_u32_t num)
         buf->wpos += num;
         return TT_SUCCESS;
     } else {
-        return TT_BUFFER_INCOMPLETE;
+        return TT_E_BUF_NOBUFS;
     }
 }
 

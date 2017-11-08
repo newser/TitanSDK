@@ -218,15 +218,15 @@ TT_TEST_CASE("case_buf_null",
 
     // get
     ret = tt_buf_get(&buf, bn, 1);
-    TT_UT_EQUAL(ret, TT_BUFFER_INCOMPLETE, "");
+    TT_UT_EQUAL(ret, TT_E_BUF_NOBUFS, "");
     ret = tt_buf_get_nocopy(&buf, &p, 1);
-    TT_UT_EQUAL(ret, TT_BUFFER_INCOMPLETE, "");
+    TT_UT_EQUAL(ret, TT_E_BUF_NOBUFS, "");
     n = tt_buf_get_hexstr(&buf, NULL, 1);
     TT_UT_EQUAL(n, 0, "");
     n = tt_buf_get_hexstr(&buf, (tt_char_t *)bn, 1);
     TT_UT_EQUAL(n, 0, "");
     ret = tt_buf_peek(&buf, bn, 1);
-    TT_UT_EQUAL(ret, TT_BUFFER_INCOMPLETE, "");
+    TT_UT_EQUAL(ret, TT_E_BUF_NOBUFS, "");
 
     ret = tt_buf_compress(&buf);
     TT_UT_EQUAL(ret, TT_SUCCESS, "");
@@ -309,7 +309,7 @@ TT_TEST_ROUTINE_DEFINE(case_buf_get_basic)
 
     // no data
     ret = tt_buf_get_u32(&buf, &v32_ret);
-    TT_UT_EQUAL(ret, TT_BUFFER_INCOMPLETE, "");
+    TT_UT_EQUAL(ret, TT_E_BUF_NOBUFS, "");
     TT_UT_EQUAL(buf.wpos, sizeof(v32), "");
     TT_UT_EQUAL(buf.rpos, sizeof(v32), "");
 
@@ -319,7 +319,7 @@ TT_TEST_ROUTINE_DEFINE(case_buf_get_basic)
     ret = tt_buf_create_copy(&buf, (tt_u8_t *)&v32, sizeof(v32) - 1, NULL);
     TT_UT_EQUAL(ret, TT_SUCCESS, "");
     ret = tt_buf_get_u32(&buf, &v32_ret);
-    TT_UT_EQUAL(ret, TT_BUFFER_INCOMPLETE, "");
+    TT_UT_EQUAL(ret, TT_E_BUF_NOBUFS, "");
     TT_UT_EQUAL(buf.wpos, sizeof(v32) - 1, "");
     TT_UT_EQUAL(buf.rpos, 0, "");
     tt_buf_destroy(&buf);
@@ -339,7 +339,7 @@ TT_TEST_ROUTINE_DEFINE(case_buf_get_basic)
     ret = tt_buf_create_copy(&buf, (tt_u8_t *)&v32, sizeof(v32) - 1, NULL);
     TT_UT_EQUAL(ret, TT_SUCCESS, "");
     ret = tt_buf_get_u32_h(&buf, &v32_ret);
-    TT_UT_EQUAL(ret, TT_BUFFER_INCOMPLETE, "");
+    TT_UT_EQUAL(ret, TT_E_BUF_NOBUFS, "");
     TT_UT_EQUAL(buf.wpos, sizeof(v32) - 1, "");
     TT_UT_EQUAL(buf.rpos, 0, "");
     tt_buf_destroy(&buf);
@@ -359,7 +359,7 @@ TT_TEST_ROUTINE_DEFINE(case_buf_get_basic)
     ret = tt_buf_create_copy(&buf, (tt_u8_t *)&v16, sizeof(v16) - 1, NULL);
     TT_UT_EQUAL(ret, TT_SUCCESS, "");
     ret = tt_buf_get_u16(&buf, &v16_ret);
-    TT_UT_EQUAL(ret, TT_BUFFER_INCOMPLETE, "");
+    TT_UT_EQUAL(ret, TT_E_BUF_NOBUFS, "");
     TT_UT_EQUAL(buf.wpos, sizeof(v16) - 1, "");
     TT_UT_EQUAL(buf.rpos, 0, "");
     tt_buf_destroy(&buf);
@@ -379,7 +379,7 @@ TT_TEST_ROUTINE_DEFINE(case_buf_get_basic)
     ret = tt_buf_create_copy(&buf, (tt_u8_t *)&v16, sizeof(v16) - 1, NULL);
     TT_UT_EQUAL(ret, TT_SUCCESS, "");
     ret = tt_buf_get_u16_h(&buf, &v16_ret);
-    TT_UT_EQUAL(ret, TT_BUFFER_INCOMPLETE, "");
+    TT_UT_EQUAL(ret, TT_E_BUF_NOBUFS, "");
     TT_UT_EQUAL(buf.wpos, sizeof(v16) - 1, "");
     TT_UT_EQUAL(buf.rpos, 0, "");
     tt_buf_destroy(&buf);
@@ -399,7 +399,7 @@ TT_TEST_ROUTINE_DEFINE(case_buf_get_basic)
     ret = tt_buf_create_copy(&buf, v8, sizeof(v8) - 1, NULL);
     TT_UT_EQUAL(ret, TT_SUCCESS, "");
     ret = tt_buf_get(&buf, v8_ret, sizeof(v8));
-    TT_UT_EQUAL(ret, TT_BUFFER_INCOMPLETE, "");
+    TT_UT_EQUAL(ret, TT_E_BUF_NOBUFS, "");
     TT_UT_EQUAL(buf.wpos, sizeof(v8) - 1, "");
     TT_UT_EQUAL(buf.rpos, 0, "");
     tt_buf_destroy(&buf);

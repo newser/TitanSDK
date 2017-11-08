@@ -276,7 +276,7 @@ TT_TEST_ROUTINE_DEFINE(name)
         // raise(SIGILL);
 
         // sigfpe
-        i1 /= i2;
+        // i1 /= i2;
     }
 
     tt_queue_destroy(&q);

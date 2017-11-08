@@ -251,7 +251,7 @@ tt_result_t __verxchg_parse(IN struct tt_sshmsg_s *msg, IN tt_buf_t *data)
 
     data_len = TT_BUF_RLEN(data);
     if (data_len < 4) {
-        return TT_BUFFER_INCOMPLETE;
+        return TT_E_BUF_NOBUFS;
     }
 
     // find "SSH-"
@@ -264,7 +264,7 @@ tt_result_t __verxchg_parse(IN struct tt_sshmsg_s *msg, IN tt_buf_t *data)
         ++pos;
     }
     if (pos > end_pos) {
-        return TT_COND(data_len < 1000, TT_BUFFER_INCOMPLETE, TT_FAIL);
+        return TT_COND(data_len < 1000, TT_E_BUF_NOBUFS, TT_FAIL);
     }
     vx_pos = (tt_char_t *)&data->p[pos];
     pos += 4;
@@ -282,7 +282,7 @@ tt_result_t __verxchg_parse(IN struct tt_sshmsg_s *msg, IN tt_buf_t *data)
     }
     if (pos > end_pos)
     {
-        return TT_COND(data_len < 1000, TT_BUFFER_INCOMPLETE, TT_FAIL);
+        return TT_COND(data_len < 1000, TT_E_BUF_NOBUFS, TT_FAIL);
     }
     data->p[pos] = 0;
     vx_end = (tt_char_t*)&data->p[pos + 2];
@@ -296,7 +296,7 @@ tt_result_t __verxchg_parse(IN struct tt_sshmsg_s *msg, IN tt_buf_t *data)
         ++pos;
     }
     if (pos > end_pos) {
-        return TT_COND(data_len < 1000, TT_BUFFER_INCOMPLETE, TT_FAIL);
+        return TT_COND(data_len < 1000, TT_E_BUF_NOBUFS, TT_FAIL);
     }
     data->p[pos] = 0;
     vx_end = (tt_char_t *)&data->p[pos + 1];

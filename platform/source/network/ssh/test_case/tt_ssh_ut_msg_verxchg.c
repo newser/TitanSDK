@@ -182,17 +182,17 @@ struct __sshvx_parse_vec_t
 struct __sshvx_parse_vec_t __sshvx_parse_vec[] = {
     {
         "SSH", // incomplete
-        TT_BUFFER_INCOMPLETE,
+        TT_E_BUF_NOBUFS,
         TT_SSH_VER_NUM,
     },
     {
         "SSH-", // incomplete
-        TT_BUFFER_INCOMPLETE,
+        TT_E_BUF_NOBUFS,
         TT_SSH_VER_NUM,
     },
     {
         "SSH-\r", // incomplete
-        TT_BUFFER_INCOMPLETE,
+        TT_E_BUF_NOBUFS,
         TT_SSH_VER_NUM,
     },
     {
@@ -202,17 +202,17 @@ struct __sshvx_parse_vec_t __sshvx_parse_vec[] = {
     },
     {
         "123456", // incomplete
-        TT_BUFFER_INCOMPLETE,
+        TT_E_BUF_NOBUFS,
         TT_SSH_VER_NUM,
     },
     {
         "123456\r\n", // incomplete
-        TT_BUFFER_INCOMPLETE,
+        TT_E_BUF_NOBUFS,
         TT_SSH_VER_NUM,
     },
     {
         "123456SSH-2.0-sw comments", // no cr lf
-        TT_BUFFER_INCOMPLETE,
+        TT_E_BUF_NOBUFS,
         TT_SSH_VER_NUM,
     },
     {
@@ -265,8 +265,8 @@ TT_TEST_ROUTINE_DEFINE(case_sshvx_parse)
         TT_UT_SUCCESS(ret, "");
 
         ret = tt_sshmsg_parse_verxchg(&buf, &msg);
-        TT_UT_EXP((ret == TT_BUFFER_INCOMPLETE) || (ret == TT_FAIL), "");
-    } while (ret == TT_BUFFER_INCOMPLETE);
+        TT_UT_EXP((ret == TT_E_BUF_NOBUFS) || (ret == TT_FAIL), "");
+    } while (ret == TT_E_BUF_NOBUFS);
     TT_UT_EQUAL(ret, TT_FAIL, "");
 
     // a long string would finally make tt_sshmsg_parse_verxchg() fail
@@ -277,8 +277,8 @@ TT_TEST_ROUTINE_DEFINE(case_sshvx_parse)
         TT_UT_SUCCESS(ret, "");
 
         ret = tt_sshmsg_parse_verxchg(&buf, &msg);
-        TT_UT_EXP((ret == TT_BUFFER_INCOMPLETE) || (ret == TT_FAIL), "");
-    } while (ret == TT_BUFFER_INCOMPLETE);
+        TT_UT_EXP((ret == TT_E_BUF_NOBUFS) || (ret == TT_FAIL), "");
+    } while (ret == TT_E_BUF_NOBUFS);
     TT_UT_EQUAL(ret, TT_FAIL, "");
 
     for (i = 0; i < sizeof(__sshvx_parse_vec) / sizeof(__sshvx_parse_vec[0]);

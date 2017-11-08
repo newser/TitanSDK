@@ -345,7 +345,7 @@ TT_TEST_ROUTINE_DEFINE(case_sshmsg_u32)
         TT_UT_SUCCESS(ret, "");
 
         ret = tt_ssh_uint32_parse(&buf, &val);
-        TT_UT_EQUAL(ret, TT_BUFFER_INCOMPLETE, "");
+        TT_UT_EQUAL(ret, TT_E_BUF_NOBUFS, "");
         TT_UT_EQUAL(TT_BUF_RLEN(&buf), i + 1, "");
     }
     ret = tt_buf_put_u8(&buf, i + 1);
@@ -397,7 +397,7 @@ TT_TEST_ROUTINE_DEFINE(case_sshmsg_u64)
         TT_UT_SUCCESS(ret, "");
 
         ret = tt_ssh_uint64_parse(&buf, &val);
-        TT_UT_EQUAL(ret, TT_BUFFER_INCOMPLETE, "");
+        TT_UT_EQUAL(ret, TT_E_BUF_NOBUFS, "");
         TT_UT_EQUAL(TT_BUF_RLEN(&buf), i + 1, "");
     }
     ret = tt_buf_put_u8(&buf, i + 1);
@@ -468,12 +468,12 @@ TT_TEST_ROUTINE_DEFINE(case_sshmsg_string)
     // 1. no string
     tt_buf_reset_rwp(&buf);
     ret = tt_ssh_string_parse(&buf, &s, &len);
-    TT_UT_EQUAL(ret, TT_BUFFER_INCOMPLETE, "");
+    TT_UT_EQUAL(ret, TT_E_BUF_NOBUFS, "");
 
     // 2. incomplete string
     tt_buf_put_u32_n(&buf, 10);
     ret = tt_ssh_string_parse(&buf, &s, &len);
-    TT_UT_EQUAL(ret, TT_BUFFER_INCOMPLETE, "");
+    TT_UT_EQUAL(ret, TT_E_BUF_NOBUFS, "");
 
     // 3. normal string
     tt_buf_reset_rwp(&buf);
@@ -489,7 +489,7 @@ TT_TEST_ROUTINE_DEFINE(case_sshmsg_string)
     tt_buf_put_u32_n(&buf, ~0);
     tt_buf_put(&buf, (tt_u8_t *)"123456789a", 10);
     ret = tt_ssh_string_parse(&buf, &s, &len);
-    TT_UT_EQUAL(ret, TT_BUFFER_INCOMPLETE, "");
+    TT_UT_EQUAL(ret, TT_E_BUF_NOBUFS, "");
 
     tt_buf_destroy(&buf);
 
@@ -596,12 +596,12 @@ TT_TEST_ROUTINE_DEFINE(case_sshmsg_mpint)
     // 1. no mpint
     tt_buf_reset_rwp(&buf);
     ret = tt_ssh_mpint_parse(&buf, &s, &len);
-    TT_UT_EQUAL(ret, TT_BUFFER_INCOMPLETE, "");
+    TT_UT_EQUAL(ret, TT_E_BUF_NOBUFS, "");
 
     // 2. incomplete mpint
     tt_buf_put_u32_n(&buf, 10);
     ret = tt_ssh_mpint_parse(&buf, &s, &len);
-    TT_UT_EQUAL(ret, TT_BUFFER_INCOMPLETE, "");
+    TT_UT_EQUAL(ret, TT_E_BUF_NOBUFS, "");
 
     // 3. normal mpint
     tt_buf_reset_rwp(&buf);
@@ -617,7 +617,7 @@ TT_TEST_ROUTINE_DEFINE(case_sshmsg_mpint)
     tt_buf_put_u32_n(&buf, ~0);
     tt_buf_put(&buf, cbuf, 10);
     ret = tt_ssh_mpint_parse(&buf, &s, &len);
-    TT_UT_EQUAL(ret, TT_BUFFER_INCOMPLETE, "");
+    TT_UT_EQUAL(ret, TT_E_BUF_NOBUFS, "");
 
     tt_buf_destroy(&buf);
 
@@ -741,7 +741,7 @@ TT_TEST_ROUTINE_DEFINE(case_sshmsg_namelist)
         tt_buf_put(&buf, (tt_u8_t *)"12345", 5);
 
         ret = tt_ssh_namelist_parse(&buf, __nl_cb, NULL);
-        TT_UT_EQUAL(ret, TT_BUFFER_INCOMPLETE, "");
+        TT_UT_EQUAL(ret, TT_E_BUF_NOBUFS, "");
     }
 
     {
@@ -848,9 +848,9 @@ static tt_u8_t __incomp_7[] = {
 };
 
 static struct __sshmsg_parse_vec_t __sshmsg_parse_vec[] = {
-    {__incomp_1, sizeof(__incomp_1), TT_BUFFER_INCOMPLETE, sizeof(__incomp_1)},
+    {__incomp_1, sizeof(__incomp_1), TT_E_BUF_NOBUFS, sizeof(__incomp_1)},
     {__incomp_2, sizeof(__incomp_2), TT_FAIL, sizeof(__incomp_2)},
-    {__incomp_3, sizeof(__incomp_3), TT_BUFFER_INCOMPLETE, sizeof(__incomp_3)},
+    {__incomp_3, sizeof(__incomp_3), TT_E_BUF_NOBUFS, sizeof(__incomp_3)},
     {__incomp_4, sizeof(__incomp_4), TT_FAIL, sizeof(__incomp_4)},
     {__incomp_5, sizeof(__incomp_5), TT_FAIL, sizeof(__incomp_5)},
     {__incomp_6, sizeof(__incomp_6), TT_FAIL, sizeof(__incomp_7)},

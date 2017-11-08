@@ -291,7 +291,7 @@ tt_result_t tt_sshmsg_parse(IN tt_buf_t *msg_buf, OUT tt_sshmsg_t **p_msg)
         return TT_FAIL;
     }
     if (packet_length > TT_BUF_RLEN(msg_buf)) {
-        return TT_BUFFER_INCOMPLETE;
+        return TT_E_BUF_NOBUFS;
     }
 
     // padding_length
@@ -347,7 +347,7 @@ tt_result_t tt_sshmsg_parse_verxchg(IN tt_buf_t *msg_buf,
 
     // behavior of parsing verxchg is different with other msg:
     // all other msg has a packet_length field, while verxchg, so
-    // we must care what the parse() return, which may be TT_BUFFER_INCOMPLETE
+    // we must care what the parse() return, which may be TT_E_BUF_NOBUFS
     result = msg->itf->parse(msg, msg_buf);
     if (TT_OK(result)) {
         msg_len = (tt_u32_t)(TT_BUF_RPOS(msg_buf) - msg_data);
@@ -387,7 +387,7 @@ tt_result_t tt_sshmsg_peek_payload(IN tt_buf_t *msg_buf,
     }
     len -= (pad_len + 1);
     if (TT_BUF_RLEN(msg_buf) < len) {
-        result = TT_BUFFER_INCOMPLETE;
+        result = TT_E_BUF_NOBUFS;
         goto s_out;
     }
 

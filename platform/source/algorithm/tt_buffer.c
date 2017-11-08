@@ -421,7 +421,7 @@ tt_result_t tt_buf_get_nocopy(IN tt_buf_t *buf,
                               IN tt_u32_t len)
 {
     if (TT_BUF_RLEN(buf) < len) {
-        return TT_BUFFER_INCOMPLETE;
+        return TT_E_BUF_NOBUFS;
     }
 
     *p = TT_BUF_RPOS(buf);
@@ -464,7 +464,7 @@ tt_u32_t tt_buf_get_hexstr(IN tt_buf_t *buf,
 tt_result_t tt_buf_peek(IN tt_buf_t *buf, IN tt_u8_t *p, IN tt_u32_t len)
 {
     if (TT_BUF_RLEN(buf) < len) {
-        return TT_BUFFER_INCOMPLETE;
+        return TT_E_BUF_NOBUFS;
     }
 
     tt_memcpy(p, TT_BUF_RPOS(buf), len);

@@ -493,13 +493,13 @@ void __svrconn_on_recv(IN tt_skt_t *skt,
         }
 
         if (TT_BUF_RLEN(recv_buf) == 0) {
-            result = TT_BUFFER_INCOMPLETE;
+            result = TT_E_BUF_NOBUFS;
             break;
         }
     }
 
     TT_ASSERT(!TT_OK(result));
-    if (result == TT_BUFFER_INCOMPLETE) {
+    if (result == TT_E_BUF_NOBUFS) {
         if ((TT_BUF_RLEN(recv_buf) == 0) ||
             (TT_BUF_REFINABLE(recv_buf) > 1000)) {
             tt_buf_refine(recv_buf);
@@ -553,8 +553,8 @@ tt_result_t __svrconn_parse(IN tt_sshsvrconn_t *svrconn, OUT tt_sshmsg_t **msg)
                 // be either TT_SUCCESS or TT_FAIL
                 return TT_FAIL;
             }
-        } else if (result == TT_BUFFER_INCOMPLETE) {
-            return TT_BUFFER_INCOMPLETE;
+        } else if (result == TT_E_BUF_NOBUFS) {
+            return TT_E_BUF_NOBUFS;
         } else {
             return TT_FAIL;
         }
@@ -573,9 +573,9 @@ tt_result_t __svrconn_parse(IN tt_sshsvrconn_t *svrconn, OUT tt_sshmsg_t **msg)
             // recv_buf's pos should have been correctly updated when
             // parsing api returned TT_SUCCESS
             return TT_SUCCESS;
-        } else if (result == TT_BUFFER_INCOMPLETE) {
+        } else if (result == TT_E_BUF_NOBUFS) {
             tt_buf_restore_rwp(recv_buf, &rd_pos, &wr_pos);
-            return TT_BUFFER_INCOMPLETE;
+            return TT_E_BUF_NOBUFS;
         } else {
             return TT_FAIL;
         }
@@ -584,7 +584,7 @@ tt_result_t __svrconn_parse(IN tt_sshsvrconn_t *svrconn, OUT tt_sshmsg_t **msg)
 
 // return:
 //  - TT_SUCCESS, if decryption and verification is done successfully
-//  - TT_BUFFER_INCOMPLETE, if data in buf is not complete
+//  - TT_E_BUF_NOBUFS, if data in buf is not complete
 //  - TT_FAIL, error occurred
 tt_result_t __svrconn_decrypt(IN tt_sshsvrconn_t *svrconn,
                               OUT tt_buf_t *msg_buf)
@@ -600,7 +600,7 @@ tt_result_t __svrconn_decrypt(IN tt_sshsvrconn_t *svrconn,
     if (svrconn->plaintext_len == 0) {
         if ((recv_buf->rpos + block_len) > recv_buf->wpos) {
             // less than 1 block
-            return TT_BUFFER_INCOMPLETE;
+            return TT_E_BUF_NOBUFS;
         }
 
         if (!TT_OK(
@@ -634,13 +634,13 @@ tt_result_t __svrconn_decrypt(IN tt_sshsvrconn_t *svrconn,
     }
 
     if (svrconn->plaintext_len < pkt_len) {
-        return TT_BUFFER_INCOMPLETE;
+        return TT_E_BUF_NOBUFS;
     }
     TT_ASSERT_SSH(svrconn->plaintext_len == pkt_len);
 
     // mac
     if ((svrconn->plaintext_len + mac_len) > data_len) {
-        return TT_BUFFER_INCOMPLETE;
+        return TT_E_BUF_NOBUFS;
     }
 
     result = tt_sshctx_verify(sshctx,
