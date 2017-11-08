@@ -131,6 +131,10 @@ tt_result_t tt_fopen(IN tt_file_t *file,
         attr = &__attr;
     }
 
+    if ((flag & TT_FO_RLOCK) & (flag & TT_FO_WLOCK)) {
+        flag &= ~TT_FO_RLOCK;
+    }
+
     if ((flag & TT_FO_CREAT_DIR) && ((parent = __parent_dir(path)) != NULL)) {
         result = tt_dcreate(parent, NULL);
         tt_free(parent);
