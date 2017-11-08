@@ -102,7 +102,7 @@ LONG CALLBACK __on_crash(IN PEXCEPTION_POINTERS ExceptionInfo)
     }
     TT_INFO("%s", ecstr);
 
-    // address
+// address
 #if TT_ENV_IS_64BIT
     addr = ExceptionInfo->ContextRecord->Rip;
 #else
