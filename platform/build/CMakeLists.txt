@@ -310,23 +310,23 @@ set(LIBZIP_LIB)
 add_subdirectory(${PLATFORM_PATH}/library/zip zip)
 target_link_libraries(platform ${ZLIB_LIB} ${LIBZIP_LIB})
 
-include(${PLATFORM_PATH}/build/generate_header.cmake)
-
-# test link
-add_custom_target(test_link_debug
-                  COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_BINARY_DIR}/test_link/test_link_debug
-                  COMMAND ${CMAKE_COMMAND} -E copy_directory ${ROOT_PATH}/program/test_link ${CMAKE_BINARY_DIR}/test_link_debug
-                  COMMAND ${CMAKE_COMMAND} -E copy_directory ${PLATFORM_OUTPATH}/debug/static ${CMAKE_BINARY_DIR}/test_link_debug/static
-                  COMMAND ${CMAKE_COMMAND} -E copy_directory ${PLATFORM_OUTPATH}/debug/shared ${CMAKE_BINARY_DIR}/test_link_debug/shared
-                  COMMAND ${CMAKE_COMMAND} -E copy_directory ${PLATFORM_OUTPATH}/debug/program ${CMAKE_BINARY_DIR}/test_link_debug/program
-                  COMMAND ${CMAKE_COMMAND} -E copy_directory ${PLATFORM_OUTPATH}/include ${CMAKE_BINARY_DIR}/test_link_debug/include)
-add_dependencies(test_link_debug generate_header)
-
-add_custom_target(test_link_release
-                  COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_BINARY_DIR}/test_link/test_link_release
-                  COMMAND ${CMAKE_COMMAND} -E copy_directory ${ROOT_PATH}/program/test_link ${CMAKE_BINARY_DIR}/test_link_release
-                  COMMAND ${CMAKE_COMMAND} -E copy_directory ${PLATFORM_OUTPATH}/debug/static ${CMAKE_BINARY_DIR}/test_link_release/static
-                  COMMAND ${CMAKE_COMMAND} -E copy_directory ${PLATFORM_OUTPATH}/debug/shared ${CMAKE_BINARY_DIR}/test_link_release/shared
-                  COMMAND ${CMAKE_COMMAND} -E copy_directory ${PLATFORM_OUTPATH}/debug/program ${CMAKE_BINARY_DIR}/test_link_release/program
-                  COMMAND ${CMAKE_COMMAND} -E copy_directory ${PLATFORM_OUTPATH}/include ${CMAKE_BINARY_DIR}/test_link_release/include)
-add_dependencies(test_link_release generate_header)
+#include(${PLATFORM_PATH}/build/generate_header.cmake)
+#
+## test link
+#add_custom_target(test_link_debug
+#                  COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_BINARY_DIR}/test_link/test_link_debug
+#                  COMMAND ${CMAKE_COMMAND} -E copy_directory ${ROOT_PATH}/program/test_link ${CMAKE_BINARY_DIR}/test_link_debug
+#                  COMMAND ${CMAKE_COMMAND} -E copy_directory ${PLATFORM_OUTPATH}/debug/static ${CMAKE_BINARY_DIR}/test_link_debug/static
+#                  COMMAND ${CMAKE_COMMAND} -E copy_directory ${PLATFORM_OUTPATH}/debug/shared ${CMAKE_BINARY_DIR}/test_link_debug/shared
+#                  COMMAND ${CMAKE_COMMAND} -E copy_directory ${PLATFORM_OUTPATH}/debug/program ${CMAKE_BINARY_DIR}/test_link_debug/program
+#                  COMMAND ${CMAKE_COMMAND} -E copy_directory ${PLATFORM_OUTPATH}/include ${CMAKE_BINARY_DIR}/test_link_debug/include)
+#add_dependencies(test_link_debug generate_header)
+#
+#add_custom_target(test_link_release
+#                  COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_BINARY_DIR}/test_link/test_link_release
+#                  COMMAND ${CMAKE_COMMAND} -E copy_directory ${ROOT_PATH}/program/test_link ${CMAKE_BINARY_DIR}/test_link_release
+#                  COMMAND ${CMAKE_COMMAND} -E copy_directory ${PLATFORM_OUTPATH}/debug/static ${CMAKE_BINARY_DIR}/test_link_release/static
+#                  COMMAND ${CMAKE_COMMAND} -E copy_directory ${PLATFORM_OUTPATH}/debug/shared ${CMAKE_BINARY_DIR}/test_link_release/shared
+#                  COMMAND ${CMAKE_COMMAND} -E copy_directory ${PLATFORM_OUTPATH}/debug/program ${CMAKE_BINARY_DIR}/test_link_release/program
+#                  COMMAND ${CMAKE_COMMAND} -E copy_directory ${PLATFORM_OUTPATH}/include ${CMAKE_BINARY_DIR}/test_link_release/include)
+#add_dependencies(test_link_release generate_header)
