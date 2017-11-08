@@ -1028,7 +1028,8 @@ TT_TEST_ROUTINE_DEFINE(case_log_syslog3164)
 
     p = (const tt_char_t *)TT_BUF_RPOS(&buf);
     TT_UT_EQUAL(tt_strncmp(p, "<50>", 4), 0, "");
-    TT_UT_NOT_NULL(tt_strstr(p, "testhost unit_test: DEBUG log content"), "");
+    TT_UT_NOT_NULL(tt_strstr(p, "testhost unit_test"), "");
+    TT_UT_NOT_NULL(tt_strstr(p, "DEBUG log content"), "");
 
     tt_date_render_now("%b %d %H:", dn, sizeof(dn) - 1);
     TT_UT_NOT_NULL(tt_strstr(p, dn), "");
