@@ -4,13 +4,13 @@ matrix:
           os: linux
           dist: trusty
           env:
-              global:
-                  - JOB='Linux'
-                  - GENERATOR='Unix Makefiles'
-                  - CMAKE_FLAGS='-DPLATFORM_BUILD_SHARED=TRUE -DPLATFORM_ENABLE_DEBUG=FALSE'
-                  - BUILD_CMD='cmake --build . --target unit_test --config Debug'
-                  - OS=linux
-                  - UT=unit_test/unit_test
+              global: >
+                  JOB='Linux'
+                  GENERATOR='Unix Makefiles'
+                  CMAKE_FLAGS='-DPLATFORM_BUILD_SHARED=TRUE -DPLATFORM_ENABLE_DEBUG=FALSE'
+                  BUILD_CMD='cmake --build . --target unit_test --config Debug'
+                  OS=linux
+                  UT=unit_test/unit_test
         - language: c
           os: linux
           dist: trusty
