@@ -1028,7 +1028,12 @@ TT_TEST_ROUTINE_DEFINE(case_log_syslog3164)
 
     p = (const tt_char_t *)TT_BUF_RPOS(&buf);
     TT_UT_EQUAL(tt_strncmp(p, "<50>", 4), 0, "");
+#if TT_ENV_OS_IS_ANDROID
+    // android can not get process name until 21
+    TT_UT_NOT_NULL(tt_strstr(p, "testhost"), "");
+#else
     TT_UT_NOT_NULL(tt_strstr(p, "testhost unit_test"), "");
+#endif
     TT_UT_NOT_NULL(tt_strstr(p, "DEBUG log content"), "");
 
     tt_date_render_now("%b %d %H:", dn, sizeof(dn) - 1);

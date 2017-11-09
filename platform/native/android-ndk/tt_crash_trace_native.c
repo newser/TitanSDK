@@ -118,7 +118,11 @@ void __on_crash(IN int signum, IN siginfo_t *info, IN void *p)
     // address
     uctx = (ucontext_t *)p;
 #if TT_ENV_CPU_IS_ARM
+#if TT_ENV_IS_64BIT
+    addr = uctx->uc_mcontext.pc;
+#else
     addr = uctx->uc_mcontext.arm_pc;
+#endif
 #elif TT_ENV_CPU_IS_X86
 #if TT_ENV_IS_64BIT
     addr = uctx->uc_mcontext.gregs[REG_RIP];
