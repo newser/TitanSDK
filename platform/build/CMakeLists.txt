@@ -21,7 +21,7 @@
 set(PLATFORM_VERSION_MAJOR 0 CACHE STRING "major version number")
 mark_as_advanced(FORCE PLATFORM_VERSION_MAJOR)
 # minor version number
-set(PLATFORM_VERSION_MINOR 1 CACHE STRING "minor version number")
+set(PLATFORM_VERSION_MINOR 2 CACHE STRING "minor version number")
 mark_as_advanced(FORCE PLATFORM_VERSION_MINOR)
 # revision version number
 set(PLATFORM_VERSION_REVISION 0 CACHE STRING "revision version number")
