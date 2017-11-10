@@ -309,7 +309,15 @@ tt_result_t tt_dcreate(IN const tt_char_t *path, IN tt_dir_attr_t *attr)
     while ((s = tt_strchr(s, sep)) != NULL) {
         tt_u32_t n;
 
-        if ((s == path) || ((s == (path + 2)) && (path[1] == ':'))) {
+        // unix absolute path: /a/b/...
+        if (s == path) {
+            s += 1;
+            continue;
+        }
+
+        // windows absolute path: c:/...
+        if ((s == (path + 2)) && (path[1] == ':')) {
+            s += 3;
             continue;
         }
 
