@@ -20,23 +20,29 @@ public class MainActivity extends AppCompatActivity {
         utResult = (TextView) findViewById(R.id.ut_text);
         utResult.setMovementMethod(new ScrollingMovementMethod());
 
-        Button btn = (Button)findViewById(R.id.ut_run);
-        btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                utResult.setText("Running unit test, please wait...");
-                view.setEnabled(false);
-                new UTTask().execute();
-            }
-        });
+        String tt_case = getIntent().getStringExtra("TT_CASE");
+        if (tt_case != null) {
+            String[] name = { tt_case };
+            new UTTask().execute(name);
+        } else {
+            final String[] name = { "case_rbtree" };
+            Button btn = (Button)findViewById(R.id.ut_run);
+            btn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    utResult.setText("Running unit test, please wait...");
+                    view.setEnabled(false);
+                    new UTTask().execute(name);
+                }
+            });
+        }
     }
 
-    private class UTTask extends AsyncTask<Void, Void, String> {
+    private class UTTask extends AsyncTask<String, Void, String> {
 
         @Override
-        protected String doInBackground(Void... voids) {
+        protected String doInBackground(String... name) {
             String r = "";
-            String[] name = { "XML_UT_XPATH" };
             for (int i = 0; i < name.length; ++i) {
                 r += TTUnitTestJNI.runUT(name[i]);
             }
