@@ -256,7 +256,7 @@ install:
       if [ ${OS} == "android-simulator" ]
       then
           cp -r ../program/android_lib_unit_test/ ./
-          cp output/platform/0.1.0/debug/shared/libplatform.so android_lib_unit_test/TitanSDKUnitTest/app/src/main/jniLibs/armeabi-v7a/
+          cp output/platform/0.2.0/debug/shared/libplatform.so android_lib_unit_test/TitanSDKUnitTest/app/src/main/jniLibs/armeabi-v7a/ || exit -1
 
           cd android_lib_unit_test/TitanSDKUnitTest && \
           ./gradlew clean assembleDebug && \
