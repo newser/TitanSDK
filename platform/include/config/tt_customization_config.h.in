@@ -1,4 +1,6 @@
-/* Licensed to the Apache Software Foundation (ASF) under one or more
+/* Copyright (C) 2017 haniu (niuhao.cn@gmail.com)
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
@@ -58,6 +60,15 @@ defined if NUMA is enabled
 #cmakedefine PLATFORM_ENABLE_NUMA
 #ifdef PLATFORM_ENABLE_NUMA
 #define TT_PLATFORM_ENABLE_NUMA
+#endif
+
+/**
+@def TT_PLATFORM_ENABLE_BACKTRACE
+defined if backtrace is enabled
+*/
+#cmakedefine PLATFORM_ENABLE_BACKTRACE
+#ifdef PLATFORM_ENABLE_BACKTRACE
+#define TT_PLATFORM_ENABLE_BACKTRACE
 #endif
 
 // ========================================

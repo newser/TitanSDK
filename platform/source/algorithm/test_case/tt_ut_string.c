@@ -1,4 +1,6 @@
-/* Licensed to the Apache Software Foundation (ASF) under one or more
+/* Copyright (C) 2017 haniu (niuhao.cn@gmail.com)
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
@@ -94,7 +96,7 @@ TT_TEST_CASE("case_str_null",
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("case_str_copy_swap",
+    TT_TEST_CASE("case_str_cpswap",
                  "testing basic string copy&swap",
                  case_str_cpswap,
                  NULL,
@@ -373,6 +375,30 @@ TT_TEST_ROUTINE_DEFINE(case_str_basic)
     ret = __ut_str_checknull(&s);
     TT_UT_EQUAL(ret, TT_FAIL, "");
 
+    {
+        tt_string_t ss;
+
+        tt_string_init(&ss, NULL);
+        tt_string_set(&ss, "0123456789");
+
+        ret = tt_string_set_range(&ss, 7, 3, "xxx");
+        TT_UT_SUCCESS(ret, "");
+        TT_UT_EQUAL(tt_string_cmp(&ss, "0123456xxx"), 0, "");
+
+        ret = tt_string_set_range(&ss, 7, 4, "yyy");
+        TT_UT_FAIL(ret, "");
+
+        ret = tt_string_set_range(&ss, 0, 1, "abcd");
+        TT_UT_SUCCESS(ret, "");
+        TT_UT_EQUAL(tt_string_cmp(&ss, "abcd123456xxx"), 0, "");
+
+        ret = tt_string_set_range(&ss, 1, 3, "0");
+        TT_UT_SUCCESS(ret, "");
+        TT_UT_EQUAL(tt_string_cmp(&ss, "a0123456xxx"), 0, "");
+
+        tt_string_destroy(&ss);
+    }
+
     tt_string_destroy(&s);
 
     // test end
@@ -580,6 +606,22 @@ TT_TEST_ROUTINE_DEFINE(case_str_cpswap)
     cmp_ret = tt_string_cmp(&s, "");
     TT_UT_EQUAL(cmp_ret, 0, "");
 
+    {
+        tt_string_remove_headto(&s, 0);
+        TT_UT_EQUAL(tt_string_cmp(&s, ""), 0, "");
+        tt_string_remove_headto(&s, 1);
+        TT_UT_EQUAL(tt_string_cmp(&s, ""), 0, "");
+        tt_string_remove_headto(&s, 1000);
+        TT_UT_EQUAL(tt_string_cmp(&s, ""), 0, "");
+
+        tt_string_remove_tailfrom(&s, 0);
+        TT_UT_EQUAL(tt_string_cmp(&s, ""), 0, "");
+        tt_string_remove_tailfrom(&s, 1);
+        TT_UT_EQUAL(tt_string_cmp(&s, ""), 0, "");
+        tt_string_remove_tailfrom(&s, 10000);
+        TT_UT_EQUAL(tt_string_cmp(&s, ""), 0, "");
+    }
+
     tt_string_remove_range(&s, 0, 0);
     cmp_ret = tt_string_cmp(&s, "");
     TT_UT_EQUAL(cmp_ret, 0, "");
@@ -646,6 +688,44 @@ TT_TEST_ROUTINE_DEFINE(case_str_cpswap)
     cmp_ret = tt_string_cmp(&s, "");
     TT_UT_EQUAL(cmp_ret, 0, "");
 
+    {
+        tt_string_set(&s, "1234567890");
+        tt_string_remove_headto(&s, 0);
+        TT_UT_EQUAL(tt_string_cmp(&s, "1234567890"), 0, "");
+        tt_string_remove_headto(&s, 1);
+        TT_UT_EQUAL(tt_string_cmp(&s, "234567890"), 0, "");
+        tt_string_remove_headto(&s, 1000);
+        TT_UT_EQUAL(tt_string_cmp(&s, ""), 0, "");
+
+        tt_string_set(&s, "1234567890");
+        tt_string_remove_head(&s, 0);
+        TT_UT_EQUAL(tt_string_cmp(&s, "1234567890"), 0, "");
+        tt_string_remove_head(&s, 1);
+        TT_UT_EQUAL(tt_string_cmp(&s, "234567890"), 0, "");
+        tt_string_remove_head(&s, 1000);
+        TT_UT_EQUAL(tt_string_cmp(&s, ""), 0, "");
+
+        tt_string_set(&s, "1234567890");
+        tt_string_remove_tailfrom(&s, 10);
+        TT_UT_EQUAL(tt_string_cmp(&s, "1234567890"), 0, "");
+        tt_string_remove_tailfrom(&s, 9);
+        TT_UT_EQUAL(tt_string_cmp(&s, "123456789"), 0, "");
+        tt_string_remove_tailfrom(&s, 7);
+        TT_UT_EQUAL(tt_string_cmp(&s, "1234567"), 0, "");
+        tt_string_remove_tailfrom(&s, 0);
+        TT_UT_EQUAL(tt_string_cmp(&s, ""), 0, "");
+
+        tt_string_set(&s, "1234567890");
+        tt_string_remove_tail(&s, 0);
+        TT_UT_EQUAL(tt_string_cmp(&s, "1234567890"), 0, "");
+        tt_string_remove_tail(&s, 1);
+        TT_UT_EQUAL(tt_string_cmp(&s, "123456789"), 0, "");
+        tt_string_remove_tail(&s, 2);
+        TT_UT_EQUAL(tt_string_cmp(&s, "1234567"), 0, "");
+        tt_string_remove_tail(&s, 1000);
+        TT_UT_EQUAL(tt_string_cmp(&s, ""), 0, "");
+    }
+
     tt_string_destroy(&s);
     tt_string_destroy(&s2);
 
@@ -681,6 +761,22 @@ TT_TEST_ROUTINE_DEFINE(case_str_find)
     pos = tt_string_find_c(&s, 'a');
     TT_UT_EQUAL(pos, TT_POS_NULL, "");
 
+    pos = tt_string_rfind_c(&s, 0);
+    TT_UT_EQUAL(pos, 0, "");
+    pos = tt_string_rfind_c(&s, 'a');
+    TT_UT_EQUAL(pos, TT_POS_NULL, "");
+
+    pos = tt_string_rfindfrom_c(&s, 0, 0);
+    TT_UT_EQUAL(pos, TT_POS_NULL, "");
+    pos = tt_string_rfindfrom_c(&s, 1, 0);
+    TT_UT_EQUAL(pos, TT_POS_NULL, "");
+    pos = tt_string_rfindfrom_c(&s, 10, 0);
+    TT_UT_EQUAL(pos, TT_POS_NULL, "");
+    pos = tt_string_rfindfrom_c(&s, 0, 'a');
+    TT_UT_EQUAL(pos, TT_POS_NULL, "");
+    pos = tt_string_rfindfrom_c(&s, 10, 'a');
+    TT_UT_EQUAL(pos, TT_POS_NULL, "");
+
     pos = tt_string_findfrom_c(&s, 0, 0);
     TT_UT_EQUAL(pos, 0, "");
     pos = tt_string_findfrom_c(&s, 1, 0);
@@ -695,6 +791,26 @@ TT_TEST_ROUTINE_DEFINE(case_str_find)
     // string
     tt_string_init(&s, NULL);
     tt_string_set(&s, "0123456789abcdef0123456789abcdefg"); // 33 bytes
+
+    {
+        pos = tt_string_rfind_c(&s, 'f');
+        TT_UT_EQUAL(pos, 31, "");
+        pos = tt_string_rfind_c(&s, 'x');
+        TT_UT_EQUAL(pos, TT_POS_NULL, "");
+
+        pos = tt_string_rfindfrom_c(&s, 0, 'f');
+        TT_UT_EQUAL(pos, TT_POS_NULL, "");
+
+        pos = tt_string_rfindfrom_c(&s, 1000, 'f');
+        TT_UT_EQUAL(pos, 31, "");
+        pos = tt_string_rfindfrom_c(&s, pos, 'f');
+        TT_UT_EQUAL(pos, 15, "");
+        pos = tt_string_rfindfrom_c(&s, pos, 'f');
+        TT_UT_EQUAL(pos, TT_POS_NULL, "");
+
+        pos = tt_string_rfindfrom_c(&s, 1000, 'x');
+        TT_UT_EQUAL(pos, TT_POS_NULL, "");
+    }
 
     pos = tt_string_find(&s, "");
     TT_UT_EQUAL(pos, 0, "");

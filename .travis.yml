@@ -4,113 +4,113 @@ matrix:
           os: linux
           dist: trusty
           env:
-              global:
-                  - JOB='Linux'
-                  - GENERATOR='Unix Makefiles'
-                  - CMAKE_FLAGS='-DPLATFORM_BUILD_SHARED=TRUE -DPLATFORM_ENABLE_DEBUG=FALSE'
-                  - BUILD_CMD='cmake --build . --target unit_test --config Debug'
-                  - OS=linux
-                  - UT=unit_test/unit_test
+              global: >
+                  JOB='Linux'
+                  GENERATOR='Unix Makefiles'
+                  CMAKE_FLAGS='-DPLATFORM_BUILD_SHARED=TRUE -DPLATFORM_ENABLE_DEBUG=FALSE'
+                  BUILD_CMD='cmake --build . --target unit_test --config Debug'
+                  OS=linux
+                  UT=unit_test/unit_test
         - language: c
           os: linux
           dist: trusty
           language: c
           env:
-              global:
-                  - JOB='Linux'
-                  - GENERATOR='Unix Makefiles'
-                  - CMAKE_FLAGS='-DPLATFORM_BUILD_SHARED=TRUE -DPLATFORM_ENABLE_DEBUG=TRUE'
-                  - BUILD_CMD='cmake --build . --target unit_test --config Release'
-                  - OS=linux
-                  - UT=unit_test/unit_test
+              global: >
+                  JOB='Linux'
+                  GENERATOR='Unix Makefiles'
+                  CMAKE_FLAGS='-DPLATFORM_BUILD_SHARED=TRUE -DPLATFORM_ENABLE_DEBUG=TRUE'
+                  BUILD_CMD='cmake --build . --target unit_test --config Release'
+                  OS=linux
+                  UT=unit_test/unit_test
         - language: c
           os: osx
           osx_image: xcode7.3.1
           env:
-              global:
-                  - JOB='macOS Xcode7'
-                  - GENERATOR=Xcode
-                  - CMAKE_FLAGS='-DPLATFORM_BUILD_SHARED=FALSE -DPLATFORM_ENABLE_DEBUG=FALSE'
-                  - BUILD_CMD='cmake --build . --target unit_test --config Debug'
-                  - OS=macos
-                  - UT=unit_test/Debug/unit_test
+              global: >
+                  JOB='macOS Xcode7'
+                  GENERATOR=Xcode
+                  CMAKE_FLAGS='-DPLATFORM_BUILD_SHARED=FALSE -DPLATFORM_ENABLE_DEBUG=FALSE'
+                  BUILD_CMD='cmake --build . --target unit_test --config Debug'
+                  OS=macos
+                  UT=unit_test/Debug/unit_test
         - language: c
           os: osx
           osx_image: xcode8.3
           env:
-              global:
-                  - JOB='macOS Xcode8'
-                  - GENERATOR=Xcode
-                  - CMAKE_FLAGS='-DPLATFORM_BUILD_SHARED=FALSE -DPLATFORM_ENABLE_DEBUG=TRUE'
-                  - BUILD_CMD='cmake --build . --target unit_test --config Release'
-                  - OS=macos
-                  - UT=unit_test/Release/unit_test
+              global: >
+                  JOB='macOS Xcode8'
+                  GENERATOR=Xcode
+                  CMAKE_FLAGS='-DPLATFORM_BUILD_SHARED=FALSE -DPLATFORM_ENABLE_DEBUG=TRUE'
+                  BUILD_CMD='cmake --build . --target unit_test --config Release'
+                  OS=macos
+                  UT=unit_test/Release/unit_test
         - language: c
           os: osx
           osx_image: xcode9
           env:
-              global:
-                  - JOB='macOS Xcode9'
-                  - GENERATOR=Xcode
-                  - CMAKE_FLAGS='-DPLATFORM_BUILD_SHARED=TRUE -DPLATFORM_ENABLE_DEBUG=FALSE'
-                  - BUILD_CMD='cmake --build . --target unit_test --config Debug'
-                  - OS=macos
-                  - UT=unit_test/Debug/unit_test
+              global: >
+                  JOB='macOS Xcode9'
+                  GENERATOR=Xcode
+                  CMAKE_FLAGS='-DPLATFORM_BUILD_SHARED=TRUE -DPLATFORM_ENABLE_DEBUG=FALSE'
+                  BUILD_CMD='cmake --build . --target unit_test --config Debug'
+                  OS=macos
+                  UT=unit_test/Debug/unit_test
         - language: c
           os: osx
           osx_image: xcode7.3.1
           env:
-              global:
-                  - JOB='iOS9 Xcode7'
-                  - GENERATOR=Xcode
-                  - CMAKE_FLAGS='-DPLATFORM_BUILD_SHARED=TRUE -DPLATFORM_ENABLE_DEBUG=TRUE'
-                  - CMAKE_FLAGS2='-DPLATFORM_IOS=TRUE -DPLATFORM_IOS_SIMULATOR=FALSE -DPLATFORM_ARM_ARCH=armv7'
-                  - BUILD_CMD='xcodebuild -project TitanSDK.xcodeproj -target unit_test -arch armv7 -sdk iphoneos9.3 -configuration Debug CODE_SIGN_IDENTITY= CODE_SIGNING_REQUIRED=NO'
-                  - OS=ios
-                  - UT=dummy
+              global: >
+                  JOB='iOS9 Xcode7'
+                  GENERATOR=Xcode
+                  CMAKE_FLAGS='-DPLATFORM_BUILD_SHARED=TRUE -DPLATFORM_ENABLE_DEBUG=TRUE'
+                  CMAKE_FLAGS2='-DPLATFORM_IOS=TRUE -DPLATFORM_IOS_SIMULATOR=FALSE -DPLATFORM_ARM_ARCH=armv7'
+                  BUILD_CMD='xcodebuild -project TitanSDK.xcodeproj -target unit_test -arch armv7 -sdk iphoneos9.3 -configuration Debug CODE_SIGN_IDENTITY= CODE_SIGNING_REQUIRED=NO'
+                  OS=ios
+                  UT=dummy
         - language: c
           os: osx
           osx_image: xcode8.3
           env:
-              global:
-                  - JOB='iOS10 Xcode8'
-                  - GENERATOR=Xcode
-                  - CMAKE_FLAGS='-DPLATFORM_BUILD_SHARED=TRUE -DPLATFORM_ENABLE_DEBUG=FALSE'
-                  - CMAKE_FLAGS2='-DPLATFORM_IOS=TRUE -DPLATFORM_IOS_SIMULATOR=FALSE -DPLATFORM_ARM_ARCH=armv7s'
-                  - BUILD_CMD='xcodebuild -project TitanSDK.xcodeproj -target unit_test -arch armv7s -sdk iphoneos10.3 -configuration Release CODE_SIGN_IDENTITY= CODE_SIGNING_REQUIRED=NO'
-                  - OS=ios
-                  - UT=dummy
+              global: >
+                  JOB='iOS10 Xcode8'
+                  GENERATOR=Xcode
+                  CMAKE_FLAGS='-DPLATFORM_BUILD_SHARED=TRUE -DPLATFORM_ENABLE_DEBUG=FALSE'
+                  CMAKE_FLAGS2='-DPLATFORM_IOS=TRUE -DPLATFORM_IOS_SIMULATOR=FALSE -DPLATFORM_ARM_ARCH=armv7s'
+                  BUILD_CMD='xcodebuild -project TitanSDK.xcodeproj -target unit_test -arch armv7s -sdk iphoneos10.3 -configuration Release CODE_SIGN_IDENTITY= CODE_SIGNING_REQUIRED=NO'
+                  OS=ios
+                  UT=dummy
         - language: c
           os: osx
           osx_image: xcode9
           env:
-              global:
-                  - JOB='iOS11 Xcode9'
-                  - GENERATOR=Xcode
-                  - CMAKE_FLAGS='-DPLATFORM_BUILD_SHARED=FALSE -DPLATFORM_ENABLE_DEBUG=TRUE'
-                  - CMAKE_FLAGS2='-DPLATFORM_IOS=TRUE -DPLATFORM_IOS_SIMULATOR=FALSE -DPLATFORM_ARM_ARCH=arm64'
-                  - BUILD_CMD='xcodebuild -project TitanSDK.xcodeproj -target unit_test -arch arm64 -sdk iphoneos11.0 -configuration Debug CODE_SIGN_IDENTITY= CODE_SIGNING_REQUIRED=NO'
-                  - OS=ios
-                  - UT=dummy
+              global: >
+                  JOB='iOS11 Xcode9'
+                  GENERATOR=Xcode
+                  CMAKE_FLAGS='-DPLATFORM_BUILD_SHARED=FALSE -DPLATFORM_ENABLE_DEBUG=TRUE'
+                  CMAKE_FLAGS2='-DPLATFORM_IOS=TRUE -DPLATFORM_IOS_SIMULATOR=FALSE -DPLATFORM_ARM_ARCH=arm64'
+                  BUILD_CMD='xcodebuild -project TitanSDK.xcodeproj -target unit_test -arch arm64 -sdk iphoneos11.0 -configuration Debug CODE_SIGN_IDENTITY= CODE_SIGNING_REQUIRED=NO'
+                  OS=ios
+                  UT=dummy
         - language: c
           os: osx
           osx_image: xcode8.3
           env:
-              global:
-                  - JOB='Simulator iOS10 Xcode8'
-                  - GENERATOR=Xcode
-                  - CMAKE_FLAGS='-DPLATFORM_BUILD_SHARED=FALSE -DPLATFORM_ENABLE_DEBUG=TRUE'
-                  - CMAKE_FLAGS2='-DPLATFORM_IOS=TRUE -DPLATFORM_IOS_SIMULATOR=TRUE'
-                  - BUILD_CMD='xcodebuild -project TitanSDK.xcodeproj -target unit_test -arch x86_64 -sdk iphonesimulator10.3 -configuration Debug'
-                  - OS=ios-simulator
-                  - UT=unit_test/Debug-iphonesimulator/unit_test.app
+              global: >
+                  JOB='Simulator iOS10 Xcode8'
+                  GENERATOR=Xcode
+                  CMAKE_FLAGS='-DPLATFORM_BUILD_SHARED=FALSE -DPLATFORM_ENABLE_DEBUG=TRUE'
+                  CMAKE_FLAGS2='-DPLATFORM_IOS=TRUE -DPLATFORM_IOS_SIMULATOR=TRUE'
+                  BUILD_CMD='xcodebuild -project TitanSDK.xcodeproj -target unit_test -arch x86_64 -sdk iphonesimulator10.3 -configuration Debug'
+                  OS=ios-simulator
+                  UT=unit_test/Debug-iphonesimulator/unit_test.app
         - language: c
           os: linux
           dist: trusty
           env:
-              global:
-                  - JOB='Android Build'
-                  - OS=android
+              global: >
+                  JOB='Android Build'
+                  OS=android
         - language: android
           dist: trusty
           android:
@@ -123,13 +123,13 @@ matrix:
                   - extra
                   - sys-img-armeabi-v7a-android-21
           env:
-              global:
-                  - JOB='Android Simulator'
-                  - GENERATOR='Unix Makefiles'
-                  - CMAKE_FLAGS='-DCMAKE_TOOLCHAIN_FILE=toolchain.cmake -DPLATFORM_ENABLE_DEBUG=TRUE -DPLATFORM_UNIT_TEST_LITE=TRUE'
-                  - BUILD_CMD='cmake --build . --target platform --config Debug'
-                  - OS=android-simulator
-                  - UT=dummy
+              global: >
+                  JOB='Android Simulator'
+                  GENERATOR='Unix Makefiles'
+                  CMAKE_FLAGS='-DCMAKE_TOOLCHAIN_FILE=toolchain.cmake -DPLATFORM_ENABLE_DEBUG=TRUE -DPLATFORM_UNIT_TEST_LITE=TRUE'
+                  BUILD_CMD='cmake --build . --target platform --config Debug'
+                  OS=android-simulator
+                  UT=dummy
 
 before_install:
     - |
@@ -256,7 +256,7 @@ install:
       if [ ${OS} == "android-simulator" ]
       then
           cp -r ../program/android_lib_unit_test/ ./
-          cp output/platform/0.1.0/debug/shared/libplatform.so android_lib_unit_test/TitanSDKUnitTest/app/src/main/jniLibs/armeabi-v7a/
+          cp output/platform/0.2.0/debug/shared/libplatform.so android_lib_unit_test/TitanSDKUnitTest/app/src/main/jniLibs/armeabi-v7a/ || exit -1
 
           cd android_lib_unit_test/TitanSDKUnitTest && \
           ./gradlew clean assembleDebug && \
@@ -275,6 +275,15 @@ script:
     - chmod u+x run_case.sh
     - export TT_CASE=case_log_context; ./run_case.sh
     - export TT_CASE=case_log_manager; ./run_case.sh
+    - export TT_CASE=case_log_io_file_index; ./run_case.sh
+    - export TT_CASE=case_log_io_file_date; ./run_case.sh
+    - export TT_CASE=case_log_io_file_archive; ./run_case.sh
+    - export TT_CASE=case_log_io_syslog; ./run_case.sh
+    - export TT_CASE=case_log_io_udp; ./run_case.sh
+    - export TT_CASE=case_log_io_tcp; ./run_case.sh
+    - export TT_CASE=case_log_io_async; ./run_case.sh
+    - export TT_CASE=case_log_io_winev; ./run_case.sh
+    - export TT_CASE=case_log_io_oslog; ./run_case.sh
     - export TT_CASE=case_lpatn_sn; ./run_case.sh
     - export TT_CASE=case_lpatn_time; ./run_case.sh
     - export TT_CASE=case_lpatn_logger; ./run_case.sh
@@ -282,6 +291,7 @@ script:
     - export TT_CASE=case_lpatn_func; ./run_case.sh
     - export TT_CASE=case_lpatn_line; ./run_case.sh
     - export TT_CASE=case_log_pattern; ./run_case.sh
+    - export TT_CASE=case_log_syslog3164; ./run_case.sh
     - export TT_CASE=case_mutex_basic; ./run_case.sh
     - export TT_CASE=case_mutex_mt; ./run_case.sh
     - export TT_CASE=case_atomic_basic; ./run_case.sh
@@ -306,6 +316,7 @@ script:
     - export TT_CASE=case_worker_group; ./run_case.sh
     - export TT_CASE=case_task; ./run_case.sh
     - export TT_CASE=case_fiber_event; ./run_case.sh
+    - export TT_CASE=case_fiber_event_cross; ./run_case.sh
     - export TT_CASE=case_sem_basic; ./run_case.sh
     - export TT_CASE=case_sem_mt; ./run_case.sh
     - export TT_CASE=case_sem_pc; ./run_case.sh
@@ -321,10 +332,24 @@ script:
     - export TT_CASE=case_date_def; ./run_case.sh
     - export TT_CASE=case_date_render; ./run_case.sh
     - export TT_CASE=case_date_parse; ./run_case.sh
+    - export TT_CASE=case_date_year; ./run_case.sh
+    - export TT_CASE=case_date_month; ./run_case.sh
+    - export TT_CASE=case_date_day; ./run_case.sh
+    - export TT_CASE=case_date_time; ./run_case.sh
+    - export TT_CASE=case_date_cjdn; ./run_case.sh
+    - export TT_CASE=case_date_inc_dec; ./run_case.sh
+    - export TT_CASE=case_date_julian; ./run_case.sh
+    - export TT_CASE=case_date_diff; ./run_case.sh
     - export TT_CASE=case_tmr_basic; ./run_case.sh
     - export TT_CASE=case_tmr_fiber; ./run_case.sh
     - export TT_CASE=case_tmr_accuracy; ./run_case.sh
     - export TT_CASE=case_tmr_stable; ./run_case.sh
+    - export TT_CASE=case_fpath_basic; ./run_case.sh
+    - export TT_CASE=case_fpath_file; ./run_case.sh
+    - export TT_CASE=case_fpath_parent; ./run_case.sh
+    - export TT_CASE=case_fpath_root; ./run_case.sh
+    - export TT_CASE=case_fpath_move; ./run_case.sh
+    - export TT_CASE=case_fpath_name; ./run_case.sh
     - export TT_CASE=case_version; ./run_case.sh
     - export TT_CASE=case_high_bit_1; ./run_case.sh
     - export TT_CASE=case_low_bit_1; ./run_case.sh
@@ -333,6 +358,7 @@ script:
     - export TT_CASE=case_strtol; ./run_case.sh
     - export TT_CASE=case_c2h; ./run_case.sh
     - export TT_CASE=case_align; ./run_case.sh
+    - export TT_CASE=case_console_color; ./run_case.sh
     - export TT_CASE=case_charset_gb2312_utf8; ./run_case.sh
     - export TT_CASE=case_charset_utf16le_utf8; ./run_case.sh
     - export TT_CASE=case_charset_utf16be_utf8; ./run_case.sh
@@ -415,6 +441,7 @@ script:
     - export TT_CASE=case_buf_put_basic; ./run_case.sh
     - export TT_CASE=case_buf_put_rand; ./run_case.sh
     - export TT_CASE=case_buf_remove; ./run_case.sh
+    - export TT_CASE=case_buf_set; ./run_case.sh
     - export TT_CASE=case_buf_get_hexstr; ./run_case.sh
     - export TT_CASE=case_buftok; ./run_case.sh
     - export TT_CASE=case_blob; ./run_case.sh
@@ -422,7 +449,7 @@ script:
     - export TT_CASE=case_str_basic; ./run_case.sh
     - export TT_CASE=case_str_getchar; ./run_case.sh
     - export TT_CASE=case_str_cmp; ./run_case.sh
-    - export TT_CASE=case_str_copy_swap; ./run_case.sh
+    - export TT_CASE=case_str_cpswap; ./run_case.sh
     - export TT_CASE=case_str_find; ./run_case.sh
     - export TT_CASE=case_str_join; ./run_case.sh
     - export TT_CASE=case_str_case; ./run_case.sh
@@ -481,3 +508,17 @@ script:
     - export TT_CASE=case_cli_stress; ./run_case.sh
     - export TT_CASE=case_cli_ac; ./run_case.sh
     - export TT_CASE=case_cli_readline; ./run_case.sh
+    - export TT_CASE=case_zip_def; ./run_case.sh
+    - export TT_CASE=case_zip_def_null; ./run_case.sh
+    - export TT_CASE=case_zip_gzipdef; ./run_case.sh
+    - export TT_CASE=case_zip_gzipdef_null; ./run_case.sh
+    - export TT_CASE=case_zip_zlibdef; ./run_case.sh
+    - export TT_CASE=case_zip_zlibdef_null; ./run_case.sh
+    - export TT_CASE=case_zsrc_blob; ./run_case.sh
+    - export TT_CASE=case_zsrc_readfile; ./run_case.sh
+    - export TT_CASE=case_zsrc_readfile_off; ./run_case.sh
+    - export TT_CASE=case_zsrc_writefile; ./run_case.sh
+    - export TT_CASE=case_zsrc_writefile_off; ./run_case.sh
+    - export TT_CASE=case_zarc_write_blob; ./run_case.sh
+    - export TT_CASE=case_zarc_write_file; ./run_case.sh
+    - export TT_CASE=case_dtn_blob; ./run_case.sh

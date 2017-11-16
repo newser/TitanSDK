@@ -1,4 +1,6 @@
-/* Licensed to the Apache Software Foundation (ASF) under one or more
+/* Copyright (C) 2017 haniu (niuhao.cn@gmail.com)
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
@@ -102,7 +104,7 @@ void __svr_kexdone_packet(IN tt_sshsvrconn_t *svrconn,
             result = __svr_kexdone_pkt_servreq(svrconn, msg);
             if (TT_OK(result)) {
                 svract->new_event = TT_SSHSVREV_SERVICE_ACCEPT;
-            } else if (result == TT_PROCEEDING) {
+            } else if (result == TT_E_PROCEED) {
                 TT_SSH_MSGID_IGNORED(TT_SSHSVRST_KEX_DONE, msg->msg_id);
             } else {
                 svract->new_event = TT_SSHSVREV_DISCONNECT;

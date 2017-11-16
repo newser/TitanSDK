@@ -1,4 +1,6 @@
-/* Licensed to the Apache Software Foundation (ASF) under one or more
+/* Copyright (C) 2017 haniu (niuhao.cn@gmail.com)
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
@@ -294,17 +296,37 @@ used when a pointer in code need be assigned if it's not null
 #define TT_DONN_G(lable, ...) __TT_NOT_NULL(goto lable, __VA_ARGS__)
 #define TT_DONN_R(result, ...) __TT_NOT_NULL(return (result), __VA_ARGS__)
 
+#define TT_LIMIT_MAX(v, max)                                                   \
+    do {                                                                       \
+        if ((v) > (max)) {                                                     \
+            (v) = (max);                                                       \
+        }                                                                      \
+    } while (0)
+
+#define TT_LIMIT_MIN(v, min)                                                   \
+    do {                                                                       \
+        if ((v) < (min)) {                                                     \
+            (v) = (min);                                                       \
+        }                                                                      \
+    } while (0)
+
+#define TT_LIMIT_RANGE(v, min, max)                                            \
+    do {                                                                       \
+        TT_LIMIT_MIN(v, min);                                                  \
+        TT_LIMIT_MAX(v, max);                                                  \
+    } while (0)
+
 ////////////////////////////////////////////////////////////
 // type definition
 ////////////////////////////////////////////////////////////
 
 typedef enum {
-    TT_ENDIAN_INVALID,
+    TT_E_ENDIAN_INVALID,
 
-    TT_ENDIAN_BIG,
-    TT_ENDIAN_LITTLE,
+    TT_E_ENDIAN_BIG,
+    TT_E_ENDIAN_LITTLE,
 
-    TT_ENDIAN_NUM
+    TT_E_ENDIAN_NUM
 } tt_endian_type_t;
 
 ////////////////////////////////////////////////////////////
@@ -428,9 +450,9 @@ tt_inline tt_endian_type_t tt_endian()
 
     t.__u16 = 0x0A0B;
     if (t.__u8[0] == 0x0B) {
-        return TT_ENDIAN_LITTLE;
+        return TT_E_ENDIAN_LITTLE;
     } else {
-        return TT_ENDIAN_BIG;
+        return TT_E_ENDIAN_BIG;
     }
 }
 

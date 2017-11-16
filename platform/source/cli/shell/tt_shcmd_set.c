@@ -1,4 +1,6 @@
-/* Licensed to the Apache Software Foundation (ASF) under one or more
+/* Copyright (C) 2017 haniu (niuhao.cn@gmail.com)
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
@@ -95,7 +97,7 @@ tt_u32_t __set_run(IN tt_shell_t *sh,
         return TT_CLIOC_NOOUT;
     } else {
         tt_buf_restore_rwp(output, &rp, &wp);
-        if (result == TT_NOT_SUPPORT) {
+        if (result == TT_E_UNSUPPORT) {
             tt_buf_putf(output, "not supported operation");
         } else {
             tt_buf_putf(output, "internal error");

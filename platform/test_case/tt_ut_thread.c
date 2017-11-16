@@ -458,6 +458,16 @@ TT_TEST_ROUTINE_DEFINE(case_process_basic)
 
     TT_TEST_CASE_ENTER()
 
+    path = tt_current_path(TT_TRUE);
+    TT_UT_NOT_NULL(path, "");
+    TT_INFO("cwd: %s", path);
+    tt_free(path);
+
+    path = tt_current_path(TT_FALSE);
+    TT_UT_NOT_NULL(path, "");
+    TT_INFO("cwd: %s", path);
+    tt_free(path);
+
     path = tt_process_path(NULL);
     TT_UT_NOT_EQUAL(path, NULL, "");
 
@@ -507,7 +517,7 @@ TT_TEST_ROUTINE_DEFINE(case_process_basic)
         if (TT_OK(ret)) {
             break;
         } else {
-            TT_UT_EQUAL(ret, TT_TIME_OUT, "");
+            TT_UT_EQUAL(ret, TT_E_TIMEOUT, "");
             TT_INFO("waiting for child process");
             tt_sleep(500);
         }

@@ -1,4 +1,6 @@
-/* Licensed to the Apache Software Foundation (ASF) under one or more
+/* Copyright (C) 2017 haniu (niuhao.cn@gmail.com)
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
@@ -53,6 +55,24 @@ tt_export tt_s32_t tt_buf_cmp(IN tt_buf_t *a, IN tt_buf_t *b);
 
 tt_export tt_s32_t tt_buf_cmp_cstr(IN tt_buf_t *a, IN const tt_char_t *cstr);
 
+tt_export tt_bool_t tt_buf_startwith(IN tt_buf_t *buf,
+                                     IN tt_u8_t *p,
+                                     IN tt_u32_t len);
+
+tt_inline tt_bool_t tt_buf_startwith_u8(IN tt_buf_t *buf, IN tt_u8_t v)
+{
+    return tt_buf_startwith(buf, &v, 1);
+}
+
+tt_export tt_bool_t tt_buf_endwith(IN tt_buf_t *buf,
+                                   IN tt_u8_t *p,
+                                   IN tt_u32_t len);
+
+tt_inline tt_bool_t tt_buf_endwith_u8(IN tt_buf_t *buf, IN tt_u8_t v)
+{
+    return tt_buf_endwith(buf, &v, 1);
+}
+
 tt_inline tt_result_t tt_buf_copy(IN tt_buf_t *dst, IN tt_buf_t *src)
 {
     tt_buf_clear(dst);
@@ -64,6 +84,21 @@ tt_export void tt_buf_remove(IN tt_buf_t *buf, IN tt_u32_t pos);
 tt_export void tt_buf_remove_range(IN tt_buf_t *buf,
                                    IN tt_u32_t from,
                                    IN tt_u32_t to);
+
+tt_export void tt_buf_remove_headto(IN tt_buf_t *buf, IN tt_u32_t to);
+
+tt_inline void tt_buf_remove_head(IN tt_buf_t *buf, IN tt_u32_t len)
+{
+    tt_buf_remove_headto(buf, len);
+}
+
+tt_export void tt_buf_remove_tailfrom(IN tt_buf_t *buf, IN tt_u32_t from);
+
+tt_inline void tt_buf_remove_tail(IN tt_buf_t *buf, IN tt_u32_t len)
+{
+    tt_u32_t rlen = TT_BUF_RLEN(buf);
+    tt_buf_remove_tailfrom(buf, TT_COND(len <= rlen, rlen - len, 0));
+}
 
 tt_export tt_result_t tt_buf_insert(IN tt_buf_t *buf,
                                     IN tt_u32_t idx,

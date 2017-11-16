@@ -1,4 +1,6 @@
-/* Licensed to the Apache Software Foundation (ASF) under one or more
+/* Copyright (C) 2017 haniu (niuhao.cn@gmail.com)
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
@@ -183,7 +185,7 @@ static tt_result_t __ut_dec(IN tt_buf_t *raw,
         tt_buf_inc_rp(raw, n);
         return TT_SUCCESS;
     } else {
-        return TT_PROCEEDING;
+        return TT_E_PROCEED;
     }
 }
 
@@ -239,7 +241,7 @@ static tt_result_t __ut_par(IN tt_buf_t *buf,
         *parse_ret = (void *)ret;
         return TT_SUCCESS;
     } else {
-        return TT_PROCEEDING;
+        return TT_E_PROCEED;
     }
 }
 
@@ -314,7 +316,7 @@ TT_TEST_ROUTINE_DEFINE(case_rbuf)
         tt_rbuf_get_wptr(&rbuf, &p, &n);
         tt_memcpy(p, TT_BUF_RPOS(&enc) + i, s);
         ret = tt_rbuf_inc_wp(&rbuf, s);
-        TT_UT_EXP(TT_OK(ret) || (ret == TT_BUFFER_INCOMPLETE), "");
+        TT_UT_EXP(TT_OK(ret) || (ret == TT_E_BUF_NOBUFS), "");
 
         i += s;
     }
@@ -383,7 +385,7 @@ TT_TEST_ROUTINE_DEFINE(case_rbuf_stress)
             TT_ASSERT(n >= s);
             tt_memcpy(p, TT_BUF_RPOS(&enc) + k, s);
             ret = tt_rbuf_inc_wp(&rbuf, s);
-            TT_UT_EXP(TT_OK(ret) || (ret == TT_BUFFER_INCOMPLETE), "");
+            TT_UT_EXP(TT_OK(ret) || (ret == TT_E_BUF_NOBUFS), "");
 
             k += s;
         }
@@ -530,7 +532,7 @@ static tt_result_t __ut_enc_pre(IN tt_buf_t *raw,
         *len = s;
         return TT_SUCCESS;
     } else {
-        return TT_BUFFER_INCOMPLETE;
+        return TT_E_BUF_NOBUFS;
     }
 }
 
@@ -596,7 +598,7 @@ TT_TEST_ROUTINE_DEFINE(case_wbuf)
                 TT_UT_EQUAL(rendered[len - 2], i, "");
             }
         } else {
-            TT_UT_EQUAL(ret, TT_BUFFER_INCOMPLETE, "");
+            TT_UT_EQUAL(ret, TT_E_BUF_NOBUFS, "");
         }
     }
 
@@ -633,8 +635,8 @@ TT_TEST_ROUTINE_DEFINE(case_wbuf)
         tt_rbuf_get_wptr(&rbuf, &p, &n);
         tt_memcpy(p, wp + i, s);
         ret = tt_rbuf_inc_wp(&rbuf, s);
-        if (ret != TT_SUCCESS && ret != TT_BUFFER_INCOMPLETE) {
-            TT_UT_EXP(TT_OK(ret) || (ret == TT_BUFFER_INCOMPLETE), "");
+        if (ret != TT_SUCCESS && ret != TT_E_BUF_NOBUFS) {
+            TT_UT_EXP(TT_OK(ret) || (ret == TT_E_BUF_NOBUFS), "");
         }
 
         i += s;
@@ -706,13 +708,13 @@ TT_TEST_ROUTINE_DEFINE(case_rwbuf)
             tt_memcpy(p, wp, wlen);
 
             ret = tt_rbuf_inc_wp(&rbuf, wlen);
-            TT_UT_EXP(TT_OK(ret) || (ret == TT_BUFFER_INCOMPLETE), "");
+            TT_UT_EXP(TT_OK(ret) || (ret == TT_E_BUF_NOBUFS), "");
             TT_UT_SUCCESS(__ut_ret, "");
 
             // after data in wbuf is processed, inc rp
             tt_wbuf_inc_rp(&wbuf, wlen);
         } else {
-            TT_UT_EQUAL(ret, TT_BUFFER_INCOMPLETE, "");
+            TT_UT_EQUAL(ret, TT_E_BUF_NOBUFS, "");
         }
     }
 
@@ -782,13 +784,13 @@ TT_TEST_ROUTINE_DEFINE(case_rwbuf_raw)
             tt_memcpy(p, wp, wlen);
 
             ret = tt_rbuf_inc_wp(&rbuf, wlen);
-            TT_UT_EXP(TT_OK(ret) || (ret == TT_BUFFER_INCOMPLETE), "");
+            TT_UT_EXP(TT_OK(ret) || (ret == TT_E_BUF_NOBUFS), "");
             TT_UT_SUCCESS(__ut_ret, "");
 
             // after data in wbuf is processed, inc rp
             tt_wbuf_inc_rp(&wbuf, wlen);
         } else {
-            TT_UT_EQUAL(ret, TT_BUFFER_INCOMPLETE, "");
+            TT_UT_EQUAL(ret, TT_E_BUF_NOBUFS, "");
         }
     }
 
@@ -805,7 +807,7 @@ TT_TEST_ROUTINE_DEFINE(case_rwbuf_raw)
     __ut_ret = TT_SUCCESS;
     __ut_seq = 0;
     ret = tt_rbuf_inc_wp(&rbuf, wlen);
-    TT_UT_EXP(TT_OK(ret) || (ret == TT_BUFFER_INCOMPLETE), "");
+    TT_UT_EXP(TT_OK(ret) || (ret == TT_E_BUF_NOBUFS), "");
     TT_UT_SUCCESS(__ut_ret, "");
 
     tt_rbuf_destroy(&rbuf);

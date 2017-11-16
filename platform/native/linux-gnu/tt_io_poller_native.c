@@ -1,4 +1,6 @@
-/* Licensed to the Apache Software Foundation (ASF) under one or more
+/* Copyright (C) 2017 haniu (niuhao.cn@gmail.com)
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
@@ -78,7 +80,15 @@ static tt_bool_t __ipc_io(IN tt_io_ev_t *io_ev, IN tt_io_poller_ntv_t *sys_iop);
 static tt_bool_t __dns_io(IN tt_io_ev_t *io_ev, IN tt_io_poller_ntv_t *sys_iop);
 
 static __io_handler_t __io_handler[TT_IO_NUM] = {
-    __worker_io, __poller_io, NULL, __skt_io, __ipc_io, NULL, __dns_io,
+    __worker_io,
+    __poller_io,
+    NULL,
+    __skt_io,
+    __ipc_io,
+    NULL,
+    __dns_io,
+    NULL,
+    NULL,
 };
 
 static tt_io_ev_t __s_poller_io_ev;
@@ -244,6 +254,15 @@ tt_bool_t tt_io_poller_run_ntv(IN tt_io_poller_ntv_t *sys_iop,
         int i;
         for (i = 0; i < nev; ++i) {
             tt_io_ev_t *io_ev = (tt_io_ev_t *)ev[i].data.ptr;
+            uint32_t events = ev[i].events;
+
+            if (events & EPOLLERR) {
+                io_ev->io_result = TT_FAIL;
+            } else if (events & EPOLLHUP) {
+                io_ev->io_result = TT_E_END;
+            } else {
+                io_ev->io_result = TT_SUCCESS;
+            }
 
             io_ev->epev = &ev[i];
             if (!__io_handler[io_ev->io](io_ev, sys_iop)) {
@@ -377,19 +396,27 @@ tt_bool_t __poller_io(IN tt_io_ev_t *dummy, IN tt_io_poller_ntv_t *sys_iop)
     while ((node = tt_dlist_pop_head(&dl)) != NULL) {
         tt_io_ev_t *io_ev = TT_CONTAINER(node, tt_io_ev_t, node);
 
-        if ((io_ev->io == TT_IO_POLLER) && (io_ev->ev == __POLLER_EXIT)) {
-            tt_free(io_ev);
-            return TT_FALSE;
-        }
+        if (io_ev->io == TT_IO_POLLER) {
+            if (io_ev->ev == __POLLER_EXIT) {
+                tt_free(io_ev);
+                return TT_FALSE;
+            }
 
-        // a message to this fiber
-        TT_ASSERT(&io_ev->dst->fs->thread->task->iop.sys_iop == sys_iop);
-        // todo: add to fiber and awake the fiber if needed
-
-        if (io_ev->src != NULL) {
-            tt_task_finish(io_ev->dst->fs->thread->task, io_ev);
+            if (io_ev->src != NULL) {
+                tt_task_finish(io_ev->dst->fs->thread->task, io_ev);
+            } else {
+                tt_free(io_ev);
+            }
+        } else if (io_ev->io == TT_IO_FIBER) {
+            tt_fiber_t *dst = io_ev->dst;
+            TT_ASSERT(&dst->fs->thread->task->iop.sys_iop == sys_iop);
+            tt_dlist_push_tail(&dst->ev, &io_ev->node);
+            if (dst->recving) {
+                tt_fiber_resume(dst, TT_FALSE);
+            }
         } else {
-            tt_free(io_ev);
+            TT_ASSERT(io_ev->io == TT_IO_TASK);
+            tt_task_poller_io(io_ev);
         }
     }
 

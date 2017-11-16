@@ -1,4 +1,6 @@
-/* Licensed to the Apache Software Foundation (ASF) under one or more
+/* Copyright (C) 2017 haniu (niuhao.cn@gmail.com)
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
@@ -113,7 +115,7 @@ void tt_sshsvr_state_keyxchg(IN struct tt_sshsvrconn_s *svrconn,
                 if (svrconn->ms_keyinit_out) {
                     svract->new_state = TT_SSHSVRST_KEXDH;
                 }
-            } else if (result == TT_PROCEEDING) {
+            } else if (result == TT_E_PROCEED) {
                 TT_SSH_MSGID_IGNORED(TT_SSHSVRST_KEYXCHG, msg->msg_id);
             } else {
                 svract->new_event = TT_SSHSVREV_DISCONNECT;

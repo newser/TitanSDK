@@ -1,4 +1,6 @@
-/* Licensed to the Apache Software Foundation (ASF) under one or more
+/* Copyright (C) 2017 haniu (niuhao.cn@gmail.com)
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
@@ -31,6 +33,7 @@ this file defines ssl initialization APIs
 #include <log/tt_log.h>
 #include <log/tt_log_manager.h>
 #include <network/ssl/tt_ssl_config.h>
+#include <os/tt_fiber_event.h>
 
 #include <ssl.h>
 
@@ -53,13 +56,12 @@ this file defines ssl initialization APIs
 
 struct tt_skt_s;
 struct tt_ssl_config_s;
-struct tt_fiber_ev_s;
 struct tt_tmr_s;
 
 typedef struct tt_ssl_s
 {
     struct tt_skt_s *skt;
-    struct tt_fiber_ev_s **p_fev;
+    tt_fiber_ev_t **p_fev;
     struct tt_tmr_s **p_tmr;
 
     mbedtls_ssl_context ctx;
@@ -98,7 +100,7 @@ tt_export tt_ssl_t *tt_ssl_create(IN struct tt_skt_s *skt,
 tt_export void tt_ssl_destroy(IN tt_ssl_t *ssl);
 
 tt_export tt_result_t tt_ssl_handshake(IN tt_ssl_t *ssl,
-                                       OUT struct tt_fiber_ev_s **p_fev,
+                                       OUT tt_fiber_ev_t **p_fev,
                                        OUT struct tt_tmr_s **p_tmr);
 
 tt_export tt_result_t tt_ssl_send(IN tt_ssl_t *ssl,
@@ -110,7 +112,7 @@ tt_export tt_result_t tt_ssl_recv(IN tt_ssl_t *ssl,
                                   OUT tt_u8_t *buf,
                                   IN tt_u32_t len,
                                   OUT tt_u32_t *recvd,
-                                  OUT struct tt_fiber_ev_s **p_fev,
+                                  OUT tt_fiber_ev_t **p_fev,
                                   OUT struct tt_tmr_s **p_tmr);
 
 tt_export tt_result_t tt_ssl_shutdown(IN tt_ssl_t *ssl, IN tt_ssl_shut_t shut);

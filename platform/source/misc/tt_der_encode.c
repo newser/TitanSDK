@@ -1,4 +1,6 @@
-/* Licensed to the Apache Software Foundation (ASF) under one or more
+/* Copyright (C) 2017 haniu (niuhao.cn@gmail.com)
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
@@ -61,7 +63,7 @@ tt_result_t tt_der_encode_head(IN tt_buf_t *buf,
     // tag
     if ((tag & 0x1F) == 0x1F) {
         TT_ERROR("high-tag-number form is not supported");
-        return TT_BAD_PARAM;
+        return TT_E_BADARG;
     }
     TT_DO(tt_buf_put_u8(buf, (tt_u8_t)tag));
 

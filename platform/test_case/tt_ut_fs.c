@@ -6,7 +6,9 @@
 
 #include <algorithm/tt_string_common.h>
 #include <io/tt_file_system.h>
+#include <io/tt_fpath.h>
 #include <memory/tt_memory_alloc.h>
+#include <os/tt_process.h>
 #include <os/tt_spinlock.h>
 #include <os/tt_task.h>
 #include <time/tt_time_reference.h>
@@ -36,8 +38,8 @@ TT_TEST_ROUTINE_DECLARE(case_dir_basic)
 
 // =========================================
 
-static tt_string_t __sc_fpath;
-static tt_string_t __sc_dpath;
+static tt_string_t __sc_fpath, __sc_fpath2;
+static tt_string_t __sc_dpath, __sc_dpath1;
 
 static void __fs_enter(void *enter_param)
 {
@@ -150,35 +152,273 @@ TT_TEST_ROUTINE_DEFINE(case_fs_consistency)
 
 #if TT_ENV_OS_IS_WINDOWS
 #define __SC_TEST_FILE "测试"
+#define __SC_TEST_FILE2 "测试2"
+#define __TEST_D1 "测试目录1"
 #elif TT_ENV_OS_IS_IOS
 
 #if (TT_ENV_OS_FEATURE & TT_ENV_OS_FEATURE_IOS_SIMULATOR)
 #define __SC_TEST_FILE "../tmp/测试"
+#define __SC_TEST_FILE2 "../tmp/测试2"
+#define __TEST_D1 "../tmp/测试目录1"
 #else
 #define __SC_TEST_FILE ((const tt_char_t *)tt_string_cstr(&__sc_fpath))
+#define __SC_TEST_FILE2 ((const tt_char_t *)tt_string_cstr(&__sc_fpath2))
+#define __TEST_D1 "todo" //((const tt_char_t *)tt_string_cstr(&__sc_dpath1))
 #endif
 
 #elif TT_ENV_OS_IS_ANDROID
 
 #define APK_PATH "/data/data/com.titansdk.titansdkunittest/"
 #define __SC_TEST_FILE APK_PATH "测试"
+#define __SC_TEST_FILE2 APK_PATH "测试2"
+#define __TEST_D1 APK_PATH "测试目录1"
 
 #else
 #define __SC_TEST_FILE "测试"
+#define __SC_TEST_FILE2 "测试2"
+
+#define __TEST_D1 "测试目录1"
 #endif
+#define __TEST_D2 "测试目录2"
+#define __TEST_F3 "测试文件3"
 
         TT_TEST_ROUTINE_DEFINE(case_fs_basic)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_result_t ret;
+    tt_file_t f;
+    tt_fstat_t fstat;
 
     TT_TEST_CASE_ENTER()
 
     tt_fremove(__SC_TEST_FILE);
 
+    ret = tt_fopen(&f, __SC_TEST_FILE, TT_FO_READ, NULL);
+    TT_UT_EQUAL(ret, TT_E_NOEXIST, "");
+    ret = tt_fstat_path(__SC_TEST_FILE, &fstat);
+    TT_UT_EQUAL(ret, TT_E_NOEXIST, "");
+
     // create
     ret = tt_fcreate(__SC_TEST_FILE, NULL);
     TT_UT_SUCCESS(ret, "");
+
+    ret = tt_fopen(&f, __SC_TEST_FILE, TT_FO_RDWR, NULL);
+    TT_UT_SUCCESS(ret, "");
+
+    {
+        tt_date_t d;
+        tt_fstat_t fstat;
+        tt_date_init(&d, tt_g_local_tmzone);
+        tt_date_now(&d);
+        ret = tt_fstat(&f, &fstat);
+        TT_UT_SUCCESS(ret, "");
+        TT_UT_EQUAL(tt_date_cmp_date(&fstat.created, &d), 0, "");
+#if !TT_ENV_OS_IS_WINDOWS
+        TT_UT_EQUAL(fstat.created.hour, d.hour, "");
+        TT_UT_EQUAL(fstat.created.minute, d.minute, "");
+#endif
+        TT_UT_EQUAL(tt_date_cmp_date(&fstat.accessed, &d), 0, "");
+        TT_UT_EQUAL(fstat.accessed.hour, d.hour, "");
+        TT_UT_EQUAL(fstat.accessed.minute, d.minute, "");
+        TT_UT_EQUAL(tt_date_cmp_date(&fstat.modified, &d), 0, "");
+        TT_UT_EQUAL(fstat.modified.hour, d.hour, "");
+        TT_UT_EQUAL(fstat.modified.minute, d.minute, "");
+        TT_UT_EQUAL(fstat.size, 0, "");
+        TT_UT_EQUAL(fstat.is_dir, TT_FALSE, "");
+        TT_UT_EQUAL(fstat.is_file, TT_TRUE, "");
+        TT_UT_EQUAL(fstat.is_link, TT_FALSE, "");
+        TT_UT_EQUAL(fstat.is_usr_readable, TT_TRUE, "");
+        TT_UT_EQUAL(fstat.is_usr_writable, TT_TRUE, "");
+    }
+
+#if 0
+    ret = tt_ftrylock(&f, TT_FALSE);
+    TT_UT_SUCCESS(ret, "");
+    ret = tt_ftrylock(&f, TT_FALSE);
+    TT_UT_SUCCESS(ret, "");
+    tt_funlock(&f);
+    tt_funlock(&f);
+
+    ret = tt_ftrylock(&f, TT_TRUE);
+    TT_UT_SUCCESS(ret, "");
+    tt_funlock(&f);
+#endif
+
+    tt_fclose(&f);
+
+    // remove
+    ret = tt_fremove(__SC_TEST_FILE);
+    TT_UT_SUCCESS(ret, "");
+
+    // rename
+    {
+        TT_UT_EQUAL(tt_fs_exist(__SC_TEST_FILE), TT_FALSE, "");
+
+        ret = tt_fcreate(__SC_TEST_FILE, NULL);
+        TT_UT_SUCCESS(ret, "");
+        TT_UT_EQUAL(tt_fs_exist(__SC_TEST_FILE), TT_TRUE, "");
+
+        ret = tt_fs_rename(__SC_TEST_FILE, __SC_TEST_FILE2);
+        TT_UT_SUCCESS(ret, "");
+        TT_UT_EQUAL(tt_fs_exist(__SC_TEST_FILE), TT_FALSE, "");
+        TT_UT_EQUAL(tt_fs_exist(__SC_TEST_FILE2), TT_TRUE, "");
+
+        ret = tt_fremove(__SC_TEST_FILE2);
+        TT_UT_SUCCESS(ret, "");
+    }
+
+    // create file with parent paths
+    {
+        tt_dremove(__TEST_D1);
+        TT_UT_FALSE(tt_fs_exist(__TEST_D1), "");
+
+        ret = tt_fcreate(__TEST_D1
+                         "/"__TEST_D2
+                         "/"__TEST_F3,
+                         NULL);
+        TT_UT_SUCCESS(ret, "");
+        TT_UT_TRUE(tt_fs_exist(__TEST_D1 "/"__TEST_D2
+                                         "/"__TEST_F3),
+                   "");
+
+        tt_dremove(__TEST_D1
+                   "/"__TEST_D2
+                   "/");
+        TT_UT_FALSE(tt_fs_exist(__TEST_D1 "/"__TEST_D2), "");
+
+        ret = tt_fcreate(__TEST_D1
+                         "/"__TEST_D2
+                         "/"__TEST_F3,
+                         NULL);
+        TT_UT_SUCCESS(ret, "");
+        TT_UT_TRUE(tt_fs_exist(__TEST_D1 "/"__TEST_D2
+                                         "/"__TEST_F3),
+                   "");
+    }
+
+    // open file with parent paths
+    {
+        tt_dremove(__TEST_D1);
+        TT_UT_FALSE(tt_fs_exist(__TEST_D1), "");
+
+        ret = tt_fopen(&f,
+                       __TEST_D1
+                       "/"__TEST_D2
+                       "/"__TEST_F3,
+                       TT_FO_CREAT_DIR,
+                       NULL);
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_TRUE(tt_fs_exist(__TEST_D1 "/"__TEST_D2
+                                         "/"__TEST_F3),
+                   "");
+        tt_fclose(&f);
+
+        tt_dremove(__TEST_D1
+                   "/"__TEST_D2
+                   "/");
+        TT_UT_TRUE(tt_fs_exist(__TEST_D1), "");
+        TT_UT_FALSE(tt_fs_exist(__TEST_D1 "/"__TEST_D2
+                                          "/"),
+                    "");
+
+        ret = tt_fopen(&f,
+                       __TEST_D1
+                       "/"__TEST_D2
+                       "/"__TEST_F3,
+                       TT_FO_CREAT_DIR,
+                       NULL);
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_TRUE(tt_fs_exist(__TEST_D1 "/"__TEST_D2
+                                         "/"__TEST_F3),
+                   "");
+        tt_fclose(&f);
+    }
+
+    // test end
+    TT_TEST_CASE_LEAVE()
+}
+
+#if 0
+TT_TEST_ROUTINE_DEFINE(case_fs_flock)
+{
+    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+    tt_result_t ret;
+    tt_file_t f;
+    tt_process_t p;
+    tt_char_t *arg[] = {"\"not care\"", "flock", __SC_TEST_FILE, "e", NULL};
+    tt_u8_t r;
+
+    TT_TEST_CASE_ENTER()
+
+#if TT_ENV_OS_IS_IOS
+    return TT_SUCCESS;
+#endif
+
+#if TT_ENV_OS_IS_WINDOWS
+    return TT_SUCCESS;
+#endif
+
+    tt_fremove(__SC_TEST_FILE);
+    tt_fcreate(__SC_TEST_FILE, NULL);
+
+    ret = tt_fopen(&f, __SC_TEST_FILE, TT_FO_RDWR, NULL);
+    TT_UT_SUCCESS(ret, "");
+
+    // share lock first
+    ret = tt_ftrylock(&f, TT_FALSE);
+    TT_UT_SUCCESS(ret, "");
+    ret = tt_ftrylock(&f, TT_FALSE);
+    TT_UT_SUCCESS(ret, "");
+
+    arg[3] = "ex";
+#if 0
+        {
+			    tt_fpath_t fp;
+    tt_fpath_init(&fp, TT_FPATH_AUTO);
+    tt_fpath_set(&fp, tt_current_path(TT_TRUE));
+    tt_fpath_to_dir(&fp);
+    tt_fpath_set_filename(&fp,__SC_TEST_FILE);
+    arg[2] = (tt_char_t*)tt_fpath_cstr(&fp);
+        }
+#endif
+    ret = tt_process_create(&p, tt_process_path(NULL), arg, NULL);
+    TT_UT_SUCCESS(ret, "");
+    ret = tt_process_wait(&p, TT_TRUE, &r);
+    TT_UT_SUCCESS(ret, "");
+    // can not exclusive lock
+    TT_UT_EQUAL(r, 1, "");
+
+    arg[3] = "sh";
+    ret = tt_process_create(&p, tt_process_path(NULL), arg, NULL);
+    TT_UT_SUCCESS(ret, "");
+    ret = tt_process_wait(&p, TT_TRUE, &r);
+    TT_UT_SUCCESS(ret, "");
+    // can share lock
+    TT_UT_EQUAL(r, 0, "");
+
+    tt_funlock(&f);
+
+    // exclusive lock first
+    ret = tt_ftrylock(&f, TT_TRUE);
+    TT_UT_SUCCESS(ret, "");
+
+    arg[3] = "ex";
+    ret = tt_process_create(&p, tt_process_path(NULL), arg, NULL);
+    TT_UT_SUCCESS(ret, "");
+    ret = tt_process_wait(&p, TT_TRUE, &r);
+    TT_UT_SUCCESS(ret, "");
+    // can not exclusive lock
+    TT_UT_EQUAL(r, 1, "");
+
+    arg[3] = "sh";
+    ret = tt_process_create(&p, tt_process_path(NULL), arg, NULL);
+    TT_UT_SUCCESS(ret, "");
+    ret = tt_process_wait(&p, TT_TRUE, &r);
+    TT_UT_SUCCESS(ret, "");
+    // can not share lock
+    TT_UT_EQUAL(r, 1, "");
+
+    tt_funlock(&f);
 
     // remove
     ret = tt_fremove(__SC_TEST_FILE);
@@ -187,6 +427,7 @@ TT_TEST_ROUTINE_DEFINE(case_fs_consistency)
     // test end
     TT_TEST_CASE_LEAVE()
 }
+#endif
 
 TT_TEST_ROUTINE_DEFINE(case_fs_open)
 {
@@ -200,9 +441,11 @@ TT_TEST_ROUTINE_DEFINE(case_fs_open)
 
     tt_fremove(__SC_TEST_FILE);
 
+    TT_UT_EQUAL(tt_fs_exist(__SC_TEST_FILE), TT_FALSE, "");
+
     // fail as it does not exist
     ret = tt_fopen(&tf, __SC_TEST_FILE, 0, NULL);
-    TT_UT_EQUAL(ret, TT_FAIL, "");
+    TT_UT_EQUAL(ret, TT_E_NOEXIST, "");
 
     // open file
     ret = tt_fopen(&tf,
@@ -210,6 +453,8 @@ TT_TEST_ROUTINE_DEFINE(case_fs_open)
                    TT_FO_CREAT | TT_FO_READ | TT_FO_WRITE,
                    NULL);
     TT_UT_SUCCESS(ret, "");
+
+    TT_UT_EQUAL(tt_fs_exist(__SC_TEST_FILE), TT_TRUE, "");
 
     {
         tt_u8_t buf1[100] = "test1";
@@ -220,6 +465,21 @@ TT_TEST_ROUTINE_DEFINE(case_fs_open)
             tt_fwrite(&tf, buf1, (tt_u32_t)strlen((const char *)buf1) + 1, &n);
         TT_UT_SUCCESS(ret, "");
         TT_UT_EQUAL(n, (strlen((const char *)buf1) + 1), "");
+
+        {
+            tt_date_t d;
+            tt_fstat_t fstat;
+            tt_date_init(&d, tt_g_local_tmzone);
+            tt_date_now(&d);
+            ret = tt_fstat(&tf, &fstat);
+            TT_UT_SUCCESS(ret, "");
+            TT_UT_EQUAL(fstat.size, n, "");
+            TT_UT_EQUAL(fstat.is_dir, TT_FALSE, "");
+            TT_UT_EQUAL(fstat.is_file, TT_TRUE, "");
+            TT_UT_EQUAL(fstat.is_link, TT_FALSE, "");
+            TT_UT_EQUAL(fstat.is_usr_readable, TT_TRUE, "");
+            TT_UT_EQUAL(fstat.is_usr_writable, TT_TRUE, "");
+        }
 
         ret = tt_fwrite(&tf, buf1, 0, &n);
         TT_UT_SUCCESS(ret, "");
@@ -234,7 +494,7 @@ TT_TEST_ROUTINE_DEFINE(case_fs_open)
         TT_UT_FAIL(ret, "");
 
         ret = tt_fread(&tf, buf2, 90, &n);
-        TT_UT_EQUAL(ret, TT_END, "");
+        TT_UT_EQUAL(ret, TT_E_END, "");
 
         // write append
         ret = tt_fopen(&tf2, __SC_TEST_FILE, TT_FO_RDWR | TT_FO_APPEND, NULL);
@@ -249,7 +509,7 @@ TT_TEST_ROUTINE_DEFINE(case_fs_open)
         TT_UT_EQUAL(d, (tt_u32_t)strlen((const char *)buf1) + 1, "");
 
         ret = tt_fread(&tf2, buf2, 90, &n);
-        TT_UT_EQUAL(ret, TT_END, "");
+        TT_UT_EQUAL(ret, TT_E_END, "");
 
         ret =
             tt_fwrite(&tf2, buf1, (tt_u32_t)strlen((const char *)buf1) + 1, &n);
@@ -282,7 +542,12 @@ TT_TEST_ROUTINE_DEFINE(case_fs_open)
         TT_UT_FAIL(ret, "");
 
         ret = tt_fread(&tf2, buf2, 90, &n);
-        TT_UT_EQUAL(ret, TT_END, "");
+        TT_UT_EQUAL(ret, TT_E_END, "");
+
+        ret = tt_fseek(&tf2, TT_FSEEK_END, -20000, NULL);
+        TT_UT_FAIL(ret, "");
+        ret = tt_fread(&tf2, buf2, 90, &n);
+        TT_UT_EQUAL(ret, TT_E_END, "");
 
         tt_fclose(&tf2);
     }
@@ -294,7 +559,7 @@ TT_TEST_ROUTINE_DEFINE(case_fs_open)
 
         // truncated
         ret = tt_fread(&tf, buf2, 90, &n);
-        TT_UT_EQUAL(ret, TT_END, "");
+        TT_UT_EQUAL(ret, TT_E_END, "");
 
         tt_fclose(&tf2);
     }
@@ -379,12 +644,12 @@ TT_TEST_ROUTINE_DEFINE(case_fs_rw)
                     "");
     }
 
-    // open should fail
-    ret = tt_fopen(&tf2, __SC_TEST_FILE, TT_FO_READ, NULL);
-    TT_UT_EQUAL(ret, TT_FAIL, "");
-
     // close to delete
     tt_fclose(&tf);
+
+    // open should fail
+    ret = tt_fopen(&tf2, __SC_TEST_FILE, TT_FO_READ, NULL);
+    TT_UT_EQUAL(ret, TT_E_NOEXIST, "");
 
     // test end
     TT_TEST_CASE_LEAVE()
@@ -405,23 +670,33 @@ TT_TEST_ROUTINE_DEFINE(case_dir_basic)
 
 #if (TT_ENV_OS_FEATURE & TT_ENV_OS_FEATURE_IOS_SIMULATOR)
 #define __TEST_DIR "../tmp/test_dir"
+#define __TEST_DIR2 "../tmp/test_dir2"
 #else
-#define __TEST_DIR ((const tt_char_t *)tt_string_cstr(&__sc_dpath))
+//#define __TEST_DIR ((const tt_char_t *)tt_string_cstr(&__sc_dpath))
+#define __TEST_DIR "todo"
+#define __TEST_DIR2 "todo"
 #endif
 
 #elif TT_ENV_OS_IS_ANDROID
 
 #define __TEST_DIR APK_PATH "test_dir"
+#define __TEST_DIR2 APK_PATH "test_dir2"
 
 #else
 //#define __TEST_DIR "./≤‚ ‘ƒø¬º")
 #define __TEST_DIR "./test_dir"
+#define __TEST_DIR2 "./test_dir2"
 #endif
+
+#define __TEST_SUBDIR "一个子目录3"
 
     tt_dremove(__TEST_DIR);
 
+    TT_UT_EQUAL(tt_fs_exist(__TEST_DIR), TT_FALSE, "");
+
     ret = tt_dcreate(__TEST_DIR, NULL);
     TT_UT_SUCCESS(ret, "");
+    TT_UT_EQUAL(tt_fs_exist(__TEST_DIR), TT_TRUE, "");
     ret = tt_dopen(&dir, __TEST_DIR, NULL);
     TT_UT_SUCCESS(ret, "");
 
@@ -454,7 +729,7 @@ TT_TEST_ROUTINE_DEFINE(case_dir_basic)
 
     // nothing else except . and ..
     ret = tt_dread(&dir, &de);
-    TT_UT_EQUAL(ret, TT_END, "");
+    TT_UT_EQUAL(ret, TT_E_END, "");
 
     // could continue read
     ret = tt_dread(&dir2, &de);
@@ -466,7 +741,7 @@ TT_TEST_ROUTINE_DEFINE(case_dir_basic)
     }
 
     ret = tt_dread(&dir2, &de);
-    TT_UT_EQUAL(ret, TT_END, "");
+    TT_UT_EQUAL(ret, TT_E_END, "");
 
     ret = tt_dremove(__TEST_DIR);
     TT_UT_SUCCESS(ret, "");
@@ -503,6 +778,50 @@ TT_TEST_ROUTINE_DEFINE(case_dir_basic)
 
     ret = tt_dopen(&dir, __TEST_DIR, NULL);
     TT_UT_EQUAL(ret, TT_FAIL, "");
+
+    // rename
+    {
+        TT_UT_EQUAL(tt_fs_exist(__TEST_DIR), TT_FALSE, "");
+
+        ret = tt_dcreate(__TEST_DIR, NULL);
+        TT_UT_SUCCESS(ret, "");
+        TT_UT_EQUAL(tt_fs_exist(__TEST_DIR), TT_TRUE, "");
+
+        ret = tt_fs_rename(__TEST_DIR, __TEST_DIR2);
+        TT_UT_SUCCESS(ret, "");
+        TT_UT_EQUAL(tt_fs_exist(__TEST_DIR), TT_FALSE, "");
+        TT_UT_EQUAL(tt_fs_exist(__TEST_DIR2), TT_TRUE, "");
+
+        ret = tt_dremove(__TEST_DIR2);
+        TT_UT_SUCCESS(ret, "");
+    }
+
+    {
+        tt_dremove(__TEST_DIR);
+        TT_UT_FALSE(tt_fs_exist(__TEST_DIR), "");
+
+        ret = tt_dcreate(__TEST_DIR "/" __TEST_SUBDIR "/" __TEST_SUBDIR
+                                    "/" __TEST_SUBDIR,
+                         NULL);
+        TT_UT_SUCCESS(ret, "");
+        TT_UT_TRUE(tt_fs_exist(__TEST_DIR "/" __TEST_SUBDIR "/" __TEST_SUBDIR
+                                          "/" __TEST_SUBDIR),
+                   "");
+
+        tt_dremove(__TEST_DIR "/" __TEST_SUBDIR "/" __TEST_SUBDIR);
+        TT_UT_TRUE(tt_fs_exist(__TEST_DIR), "");
+        TT_UT_TRUE(tt_fs_exist(__TEST_DIR "/" __TEST_SUBDIR), "");
+        TT_UT_FALSE(tt_fs_exist(__TEST_DIR "/" __TEST_SUBDIR "/" __TEST_SUBDIR),
+                    "");
+
+        ret = tt_dcreate(__TEST_DIR "/" __TEST_SUBDIR "/" __TEST_SUBDIR
+                                    "/" __TEST_SUBDIR "/",
+                         NULL);
+        TT_UT_SUCCESS(ret, "");
+        TT_UT_TRUE(tt_fs_exist(__TEST_DIR "/" __TEST_SUBDIR "/" __TEST_SUBDIR
+                                          "/" __TEST_SUBDIR),
+                   "");
+    }
 
     // test end
     TT_TEST_CASE_LEAVE()
@@ -783,7 +1102,7 @@ tt_result_t __rd_fiber(IN void *param)
                 ++last;
                 last %= 10;
             }
-        } else if (ret == TT_END) {
+        } else if (ret == TT_E_END) {
             break;
         } else {
             __err_line = __LINE__;

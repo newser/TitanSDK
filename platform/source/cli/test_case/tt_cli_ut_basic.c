@@ -1,4 +1,6 @@
-/* Licensed to the Apache Software Foundation (ASF) under one or more
+/* Copyright (C) 2017 haniu (niuhao.cn@gmail.com)
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
@@ -417,7 +419,7 @@ TT_TEST_ROUTINE_DEFINE(case_cli)
         __ut_cli_idx = i;
         ret = tt_cli_input(&cli, cli_case[i].in, cli_case[i].in_num);
         if (i == sizeof(cli_case) / sizeof(cli_case[0]) - 1) {
-            TT_UT_EQUAL(ret, TT_END, "");
+            TT_UT_EQUAL(ret, TT_E_END, "");
         } else {
             TT_UT_EQUAL(ret, TT_SUCCESS, "");
         }
@@ -1157,7 +1159,7 @@ TT_TEST_ROUTINE_DEFINE(case_cli_readline)
         __ut_read_more = TT_CLIOR_END;
 
         ret = tt_cli_input(&cli, ev, sizeof(ev));
-        TT_UT_EQUAL(ret, TT_END, "");
+        TT_UT_EQUAL(ret, TT_E_END, "");
         TT_UT_EQUAL(__ut_cli_err, 0, "");
         TT_UT_EQUAL(__ut_read_cb, TT_TRUE, "");
 

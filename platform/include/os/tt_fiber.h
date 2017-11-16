@@ -1,4 +1,6 @@
-/* Licensed to the Apache Software Foundation (ASF) under one or more
+/* Copyright (C) 2017 haniu (niuhao.cn@gmail.com)
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
@@ -142,6 +144,8 @@ tt_export void tt_fiber_destroy(IN tt_fiber_t *fb);
 tt_export void tt_fiber_attr_default(IN tt_fiber_attr_t *attr);
 
 tt_export void tt_fiber_suspend();
+
+tt_export void tt_fiber_yield();
 
 tt_export void tt_fiber_resume(IN tt_fiber_t *fb, IN tt_bool_t suspend);
 

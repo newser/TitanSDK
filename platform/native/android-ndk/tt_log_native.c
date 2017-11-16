@@ -1,4 +1,6 @@
-/* Licensed to the Apache Software Foundation (ASF) under one or more
+/* Copyright (C) 2017 haniu (niuhao.cn@gmail.com)
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
@@ -54,9 +56,9 @@ extern tt_logio_t *tt_s_logio[TT_LOG_LEVEL_NUM];
 // global variant
 ////////////////////////////////////////////////////////////
 
-static tt_u32_t __logcat_output(IN tt_logio_t *lio,
-                                IN const tt_char_t *data,
-                                IN tt_u32_t len);
+static void __logcat_output(IN tt_logio_t *lio,
+                            IN const tt_char_t *data,
+                            IN tt_u32_t len);
 
 static tt_logio_itf_t __logcat_itf = {
     TT_LOGIO_LOGCAT,
@@ -209,12 +211,12 @@ tt_logio_t *__logcat_create(IN int prio, IN OPT const char *tag)
     return lio;
 }
 
-tt_u32_t __logcat_output(IN tt_logio_t *lio,
-                         IN const tt_char_t *data,
-                         IN tt_u32_t len)
+void __logcat_output(IN tt_logio_t *lio,
+                     IN const tt_char_t *data,
+                     IN tt_u32_t len)
 {
     __logcat_t *lc = TT_LOGIO_CAST(lio, __logcat_t);
 
     // tt_logmgr_inputv() guarantees data is a null-terminated string
-    return (tt_u32_t)__android_log_write(lc->prio, lc->tag, data);
+    __android_log_write(lc->prio, lc->tag, data);
 }

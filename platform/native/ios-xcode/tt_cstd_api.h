@@ -1,4 +1,6 @@
-/* Licensed to the Apache Software Foundation (ASF) under one or more
+/* Copyright (C) 2017 haniu (niuhao.cn@gmail.com)
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
@@ -141,7 +143,7 @@ wrapped c strchr()
 
 #define tt_toupper toupper
 
-#define tt_c_qsort qsort
+#define tt_printf printf
 
 ////////////////////////////////////////////////////////////
 // type definition

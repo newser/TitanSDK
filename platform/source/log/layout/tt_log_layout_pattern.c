@@ -1,4 +1,6 @@
-/* Licensed to the Apache Software Foundation (ASF) under one or more
+/* Copyright (C) 2017 haniu (niuhao.cn@gmail.com)
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
@@ -51,7 +53,7 @@ typedef struct
 
 static void __llp_destroy(IN tt_loglyt_t *ll);
 
-static tt_result_t __llp_format(IN struct tt_loglyt_s *ll,
+static tt_result_t __llp_format(IN tt_loglyt_t *ll,
                                 IN tt_log_entry_t *entry,
                                 OUT tt_buf_t *outbuf);
 
@@ -119,7 +121,7 @@ void __llp_destroy(IN tt_loglyt_t *ll)
     tt_free(llp->patn);
 }
 
-tt_result_t __llp_format(IN struct tt_loglyt_s *ll,
+tt_result_t __llp_format(IN tt_loglyt_t *ll,
                          IN tt_log_entry_t *entry,
                          OUT tt_buf_t *outbuf)
 {

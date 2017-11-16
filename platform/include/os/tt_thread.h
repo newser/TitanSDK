@@ -1,4 +1,6 @@
-/* Licensed to the Apache Software Foundation (ASF) under one or more
+/* Copyright (C) 2017 haniu (niuhao.cn@gmail.com)
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
   contributor license agreements.  See the NOTICE file distributed with
   this work for additional information regarding copyright ownership.
   The ASF licenses this file to You under the Apache License, Version 2.0
@@ -45,6 +47,7 @@ struct tt_fiber_sched_s;
 struct tt_task_s;
 struct tt_entropy_s;
 struct tt_ctr_drbg_s;
+struct tt_buf_s;
 
 /**
  @typedef tt_result_t (*tt_thread_routine_t)(IN void *param)
@@ -67,6 +70,15 @@ typedef struct tt_thread_attr_s
     tt_bool_t detached : 1;
     tt_bool_t enable_fiber : 1;
 } tt_thread_attr_t;
+
+typedef enum {
+    TT_THREAD_LOG_DEFAULT,
+    TT_THREAD_LOG_PRINTF,
+    TT_THREAD_LOG_NONE,
+
+    TT_THREAD_LOG_NUM
+} tt_thread_log_t;
+#define TT_THREAD_LOG_VALID(l) ((l) < TT_THREAD_LOG_NUM)
 
 /**
 @struct tt_thread_t
@@ -91,6 +103,7 @@ typedef struct tt_thread_s
     struct tt_task_s *task;
     struct tt_entropy_s *entropy;
     struct tt_ctr_drbg_s *ctr_drbg;
+    struct tt_buf_s *backtrace;
 
     /** system thread handle */
     tt_thread_ntv_t sys_thread;
@@ -99,6 +112,7 @@ typedef struct tt_thread_s
     tt_bool_t detached : 1;
     tt_bool_t local : 1;
     tt_bool_t enable_fiber : 1;
+    tt_thread_log_t log : 2;
 } tt_thread_t;
 
 ////////////////////////////////////////////////////////////
@@ -201,6 +215,28 @@ the current thread struct
 tt_inline tt_thread_t *tt_current_thread()
 {
     return tt_current_thread_ntv();
+}
+
+tt_inline tt_thread_log_t tt_thread_get_log(IN tt_thread_t *thread)
+{
+    if (thread == NULL) {
+        thread = tt_current_thread();
+    }
+    return TT_COND(thread != NULL, thread->log, TT_THREAD_LOG_PRINTF);
+}
+
+tt_inline tt_thread_log_t tt_thread_set_log(IN tt_thread_t *thread,
+                                            IN tt_thread_log_t l)
+{
+    tt_thread_log_t org = TT_THREAD_LOG_PRINTF;
+    if (thread == NULL) {
+        thread = tt_current_thread();
+    }
+    if (thread != NULL) {
+        org = thread->log;
+        thread->log = l;
+    }
+    return org;
 }
 
 /**

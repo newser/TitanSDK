@@ -1,4 +1,6 @@
-/* Licensed to the Apache Software Foundation (ASF) under one or more
+/* Copyright (C) 2017 haniu (niuhao.cn@gmail.com)
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
@@ -29,6 +31,7 @@ this file defines file system APIs
 ////////////////////////////////////////////////////////////
 
 #include <log/tt_log.h>
+#include <time/tt_date.h>
 
 #include <tt_file_system_native.h>
 
@@ -56,7 +59,7 @@ typedef struct tt_file_attr_s
     tt_u32_t reserved;
 } tt_file_attr_t;
 
-typedef struct tt_fs_file_s
+typedef struct tt_file_s
 {
     tt_file_ntv_t sys_file;
 } tt_file_t;
@@ -66,7 +69,7 @@ typedef struct tt_dir_attr_s
     tt_u32_t reserved;
 } tt_dir_attr_t;
 
-typedef struct
+typedef struct tt_dir_s
 {
     tt_dir_ntv_t sys_dir;
 } tt_dir_t;
@@ -76,6 +79,24 @@ typedef struct tt_dirent_s
     tt_fs_type_t type;
     tt_char_t name[TT_MAX_FILE_NAME_LEN + 1];
 } tt_dirent_t;
+
+typedef struct tt_fstat_s
+{
+    tt_u64_t size;
+    tt_date_t created;
+    tt_date_t accessed;
+    tt_date_t modified;
+    tt_u32_t link_num;
+    tt_bool_t is_file : 1;
+    tt_bool_t is_dir : 1;
+    tt_bool_t is_usr_readable : 1;
+    tt_bool_t is_grp_readable : 1;
+    tt_bool_t is_oth_readable : 1;
+    tt_bool_t is_usr_writable : 1;
+    tt_bool_t is_grp_writable : 1;
+    tt_bool_t is_oth_writable : 1;
+    tt_bool_t is_link : 1;
+} tt_fstat_t;
 
 ////////////////////////////////////////////////////////////
 // global variants
@@ -176,6 +197,9 @@ tt_export tt_result_t tt_fopen(OUT tt_file_t *file,
 #define TT_FO_CREAT (1 << 4)
 #define TT_FO_EXCL (1 << 5)
 #define TT_FO_TRUNC (1 << 6)
+#define TT_FO_CREAT_DIR (1 << 7)
+#define TT_FO_RLOCK (1 << 8) // todo
+#define TT_FO_WLOCK (1 << 9) // todo
 
 /**
 @fn tt_result_t tt_fclose(IN tt_file_t *file)
@@ -207,7 +231,7 @@ read a file
 
 @return
 - TT_SUCCESS some content of file is read
-- TT_END none is read and reached file end
+- TT_E_END none is read and reached file end
 - TT_FAIL none is read and some error occured
 
 @note
@@ -308,11 +332,26 @@ tt_inline tt_result_t tt_fseek(IN tt_file_t *file,
 #define TT_FSEEK_CUR (1)
 #define TT_FSEEK_END (2)
 
+tt_inline tt_result_t tt_ftell(IN tt_file_t *file, OUT tt_u64_t *location)
+{
+    return tt_fseek(file, TT_FSEEK_CUR, 0, location);
+}
+
 tt_export tt_u8_t *tt_fcontent(IN const tt_char_t *path,
                                OUT OPT tt_u64_t *size);
 
 tt_export tt_result_t tt_fcontent_buf(IN const tt_char_t *path,
                                       OUT struct tt_buf_s *buf);
+
+tt_export tt_result_t tt_fsize(IN const tt_char_t *path, OUT tt_u64_t *size);
+
+tt_inline tt_result_t tt_fstat(IN tt_file_t *file, OUT tt_fstat_t *fstat)
+{
+    return tt_fstat_ntv(&file->sys_file, fstat);
+}
+
+tt_export tt_result_t tt_fstat_path(IN const tt_char_t *path,
+                                    OUT tt_fstat_t *fstat);
 
 /**
  @fn void tt_dir_attr_default(IN tt_dir_attr_t *attr)
@@ -414,7 +453,7 @@ tt_export void tt_dclose(IN tt_dir_t *dir);
 
  @return
  - TT_SUCCESS if directory is read
- - TT_END if all entried have been returned
+ - TT_E_END if all entried have been returned
  - TT_FAIL otherwise
 
  @note
@@ -429,5 +468,10 @@ tt_inline tt_result_t tt_dread(IN tt_dir_t *dir, OUT tt_dirent_t *entry)
 {
     return tt_dread_ntv(&dir->sys_dir, entry);
 }
+
+tt_export tt_bool_t tt_fs_exist(IN const tt_char_t *path);
+
+tt_export tt_result_t tt_fs_rename(IN const tt_char_t *from,
+                                   IN const tt_char_t *to);
 
 #endif /* __TT_FILE_SYSTEM_FB__ */

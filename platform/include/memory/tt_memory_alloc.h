@@ -1,4 +1,6 @@
-/* Licensed to the Apache Software Foundation (ASF) under one or more
+/* Copyright (C) 2017 haniu (niuhao.cn@gmail.com)
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
@@ -34,9 +36,9 @@ APIs to allocate/free memory
 // macro definition
 ////////////////////////////////////////////////////////////
 
-#define tt_malloc tt_c_malloc
+//#define tt_malloc tt_c_malloc
 
-#define tt_realloc tt_c_realloc
+//#define tt_realloc tt_c_realloc
 
 #define tt_xmalloc tt_malloc
 
@@ -49,6 +51,8 @@ APIs to allocate/free memory
 // type definition
 ////////////////////////////////////////////////////////////
 
+typedef void *(*tt_oom_handler_t)(IN void *param);
+
 ////////////////////////////////////////////////////////////
 // global variants
 ////////////////////////////////////////////////////////////
@@ -56,6 +60,12 @@ APIs to allocate/free memory
 ////////////////////////////////////////////////////////////
 // interface declaration
 ////////////////////////////////////////////////////////////
+
+tt_export void tt_set_oom_handler(IN tt_oom_handler_t handler, IN void *param);
+
+tt_export void *tt_malloc(IN size_t size);
+
+tt_export void *tt_realloc(IN void *ptr, IN size_t size);
 
 tt_inline void *tt_zalloc(IN tt_size_t size)
 {

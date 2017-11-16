@@ -1,4 +1,6 @@
-/* Licensed to the Apache Software Foundation (ASF) under one or more
+/* Copyright (C) 2017 haniu (niuhao.cn@gmail.com)
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
@@ -147,11 +149,11 @@ TT_TEST_CASE("case_rwlock_basic",
 
     // try read acquire
     // ret= tt_rwlock_try_acquire_r(&lock);
-    // TT_UT_EQUAL(ret, TT_TIME_OUT, "");
+    // TT_UT_EQUAL(ret, TT_E_TIMEOUT, "");
 
     // try write acquire
     // ret= tt_rwlock_try_acquire_w(&lock);
-    // TT_UT_EQUAL(ret, TT_TIME_OUT, "");
+    // TT_UT_EQUAL(ret, TT_E_TIMEOUT, "");
 
     // write release
     tt_rwlock_release_w(&lock);

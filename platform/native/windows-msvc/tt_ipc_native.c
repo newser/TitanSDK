@@ -1,4 +1,6 @@
-/* Licensed to the Apache Software Foundation (ASF) under one or more
+/* Copyright (C) 2017 haniu (niuhao.cn@gmail.com)
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
@@ -293,7 +295,7 @@ tt_result_t tt_ipc_accept_ntv(IN tt_ipc_ntv_t *ipc, IN tt_ipc_ntv_t *new_ipc)
     }
 
     // wait for client
-    if (!ConnectNamedPipe(pipe, &ipc_accept.io_ev.ov) &&
+    if (!ConnectNamedPipe(pipe, &ipc_accept.io_ev.u.ov) &&
         (GetLastError() != ERROR_IO_PENDING)) {
         CloseHandle(pipe);
         return TT_FAIL;
@@ -327,7 +329,7 @@ tt_result_t tt_ipc_send_ntv(IN tt_ipc_ntv_t *ipc,
     ipc_send.result = TT_FAIL;
     ipc_send.pos = 0;
 
-    if (WriteFile(ipc->pipe, buf, len, NULL, &ipc_send.io_ev.ov) ||
+    if (WriteFile(ipc->pipe, buf, len, NULL, &ipc_send.io_ev.u.ov) ||
         ((dwError = GetLastError()) == ERROR_IO_PENDING)) {
         tt_fiber_suspend();
         return ipc_send.result;
@@ -335,7 +337,7 @@ tt_result_t tt_ipc_send_ntv(IN tt_ipc_ntv_t *ipc,
 
     if (dwError == ERROR_BROKEN_PIPE) {
         TT_ERROR_NTV("ipc send fail");
-        return TT_END;
+        return TT_E_END;
     } else {
         TT_ERROR_NTV("ipc send fail");
         return TT_FAIL;
@@ -376,7 +378,7 @@ tt_result_t tt_ipc_recv_ntv(IN tt_ipc_ntv_t *ipc,
     ipc_recv.done = TT_FALSE;
     ipc_recv.canceled = TT_FALSE;
 
-    if (ReadFile(ipc->pipe, buf, len, NULL, &ipc_recv.io_ev.ov) ||
+    if (ReadFile(ipc->pipe, buf, len, NULL, &ipc_recv.io_ev.u.ov) ||
         ((dwError = GetLastError()) == ERROR_IO_PENDING)) {
         cfb->recving = TT_TRUE;
         // it should wait until notification comes, but once fiber awake
@@ -390,7 +392,7 @@ tt_result_t tt_ipc_recv_ntv(IN tt_ipc_ntv_t *ipc,
                 // if CancelIoEx() succeeds, wait for notification. or
                 // GetLastError() may be ERROR_NOT_FOUND which means io
                 // is completed and has been queued
-                if (CancelIoEx((HANDLE)ipc->pipe, &ipc_recv.io_ev.ov) ||
+                if (CancelIoEx((HANDLE)ipc->pipe, &ipc_recv.io_ev.u.ov) ||
                     (GetLastError() == ERROR_NOT_FOUND)) {
                     ipc_recv.canceled = TT_TRUE;
                 } else {
@@ -408,7 +410,7 @@ tt_result_t tt_ipc_recv_ntv(IN tt_ipc_ntv_t *ipc,
 
     if (dwError == ERROR_BROKEN_PIPE) {
         TT_ERROR_NTV("ipc recv fail");
-        return TT_END;
+        return TT_E_END;
     } else {
         TT_ERROR_NTV("ipc recv fail");
         return TT_FAIL;
@@ -448,14 +450,8 @@ tt_char_t *__pipe_name(IN const tt_char_t *addr)
 
 HANDLE __ipc_ev_init(IN tt_io_ev_t *io_ev, IN tt_u32_t ev)
 {
+    tt_io_ev_init(io_ev, TT_IO_IPC, ev);
     io_ev->src = tt_current_fiber();
-    io_ev->dst = NULL;
-    tt_dnode_init(&io_ev->node);
-    tt_memset(&io_ev->ov, 0, sizeof(OVERLAPPED));
-    io_ev->io_bytes = 0;
-    io_ev->io_result = TT_FAIL;
-    io_ev->io = TT_IO_IPC;
-    io_ev->ev = ev;
 
     return io_ev->src->fs->thread->task->iop.sys_iop.iocp;
 }
@@ -494,12 +490,12 @@ tt_bool_t __do_send(IN tt_io_ev_t *io_ev)
     }
 
     // send left data
-    tt_memset(&ipc_send->io_ev.ov, 0, sizeof(OVERLAPPED));
+    tt_memset(&ipc_send->io_ev.u.ov, 0, sizeof(OVERLAPPED));
     if (WriteFile(ipc_send->ipc->pipe,
                   TT_PTR_INC(char, ipc_send->buf, ipc_send->pos),
                   ipc_send->len - ipc_send->pos,
                   NULL,
-                  &ipc_send->io_ev.ov) ||
+                  &ipc_send->io_ev.u.ov) ||
         ((dwError = GetLastError()) == ERROR_IO_PENDING)) {
         return TT_FALSE;
     }
@@ -509,7 +505,7 @@ tt_bool_t __do_send(IN tt_io_ev_t *io_ev)
         TT_SAFE_ASSIGN(ipc_send->sent, ipc_send->pos);
         ipc_send->result = TT_SUCCESS;
     } else if (dwError == ERROR_BROKEN_PIPE) {
-        ipc_send->result = TT_END;
+        ipc_send->result = TT_E_END;
     } else {
         TT_ERROR_NTV("ipc send fail");
         ipc_send->result = TT_FAIL;
@@ -527,7 +523,7 @@ tt_bool_t __do_recv(IN tt_io_ev_t *io_ev)
         TT_SAFE_ASSIGN(ipc_recv->recvd, io_ev->io_bytes);
         ipc_recv->result = TT_SUCCESS;
     } else if (TT_OK(io_ev->io_result)) {
-        ipc_recv->result = TT_END;
+        ipc_recv->result = TT_E_END;
     } else {
         ipc_recv->result = io_ev->io_result;
     }

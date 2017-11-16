@@ -1,4 +1,6 @@
-/* Licensed to the Apache Software Foundation (ASF) under one or more
+/* Copyright (C) 2017 haniu (niuhao.cn@gmail.com)
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
@@ -27,6 +29,9 @@
 ////////////////////////////////////////////////////////////
 
 #include <algorithm/tt_double_linked_list.h>
+#include <misc/tt_assert.h>
+
+#include <tt_cstd_api.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
@@ -48,6 +53,8 @@ enum
     TT_IO_IPC,
     TT_IO_TIMER,
     TT_IO_DNS,
+    TT_IO_TASK,
+    TT_IO_FIBER,
 
     TT_IO_NUM
 };
@@ -63,14 +70,14 @@ typedef struct tt_io_ev_s
     {
         OVERLAPPED ov;
         WSAOVERLAPPED wov;
-    };
+    } u;
     tt_u32_t io_bytes;
-    tt_result_t io_result;
 #elif TT_ENV_OS_IS_LINUX || TT_ENV_OS_IS_ANDROID
     struct epoll_event *epev;
 #endif
+    tt_result_t io_result;
+    tt_u32_t ev;
     tt_u16_t io;
-    tt_u16_t ev;
 } tt_io_ev_t;
 
 typedef void (*tt_worker_io_t)(IN tt_io_ev_t *io_ev);
@@ -85,5 +92,23 @@ typedef tt_bool_t (*tt_poller_io_t)(IN tt_io_ev_t *io_ev);
 ////////////////////////////////////////////////////////////
 // interface declaration
 ////////////////////////////////////////////////////////////
+
+tt_inline void tt_io_ev_init(IN tt_io_ev_t *io_ev,
+                             IN tt_u16_t io,
+                             IN tt_u32_t ev)
+{
+    io_ev->src = NULL;
+    io_ev->dst = NULL;
+    tt_dnode_init(&io_ev->node);
+#if TT_ENV_OS_IS_WINDOWS
+    tt_memset(&io_ev->u, 0, sizeof(io_ev->u));
+    io_ev->io_bytes = 0;
+#elif TT_ENV_OS_IS_LINUX || TT_ENV_OS_IS_ANDROID
+    io_ev->epev = NULL;
+#endif
+    io_ev->io_result = TT_FAIL;
+    io_ev->ev = ev;
+    io_ev->io = io;
+}
 
 #endif // __TT_IO_EVENT__

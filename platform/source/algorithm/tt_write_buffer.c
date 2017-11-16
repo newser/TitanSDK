@@ -1,4 +1,6 @@
-/* Licensed to the Apache Software Foundation (ASF) under one or more
+/* Copyright (C) 2017 haniu (niuhao.cn@gmail.com)
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
@@ -201,7 +203,7 @@ tt_result_t __wbuf_encode(IN tt_wbuf_t *wbuf)
         tt_buf_backup_rwp(raw, &rp, &wp);
         result = e_itf->prepare(raw, &len, e_param);
         tt_buf_restore_rwp(raw, &rp, &wp);
-        if (result == TT_BUFFER_INCOMPLETE) {
+        if (result == TT_E_BUF_NOBUFS) {
             // can not return, as there may be data already encoded
             break;
         } else if (!TT_OK(result)) {
@@ -224,6 +226,6 @@ tt_result_t __wbuf_encode(IN tt_wbuf_t *wbuf)
     if (has_enc) {
         return TT_SUCCESS;
     } else {
-        return TT_BUFFER_INCOMPLETE;
+        return TT_E_BUF_NOBUFS;
     }
 }

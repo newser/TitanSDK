@@ -1,4 +1,6 @@
-/* Licensed to the Apache Software Foundation (ASF) under one or more
+/* Copyright (C) 2017 haniu (niuhao.cn@gmail.com)
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
@@ -177,13 +179,13 @@ tt_result_t __ut_dns_query4(IN tt_dns_t d,
 
     dq.src = tt_current_fiber();
     dq.ip = ip;
-    dq.result = TT_PROCEEDING;
+    dq.result = TT_E_PROCEED;
 
     ares_gethostbyname(d, name, AF_INET, __query4_cb, &dq);
-    if (dq.result == TT_PROCEEDING) {
+    if (dq.result == TT_E_PROCEED) {
         tt_fiber_suspend();
     }
-    TT_ASSERT(dq.result != TT_PROCEEDING);
+    TT_ASSERT(dq.result != TT_E_PROCEED);
     return dq.result;
 }
 
@@ -195,13 +197,13 @@ tt_result_t __ut_dns_query6(IN tt_dns_t d,
 
     dq.src = tt_current_fiber();
     dq.ip = ip;
-    dq.result = TT_PROCEEDING;
+    dq.result = TT_E_PROCEED;
 
     ares_gethostbyname(d, name, AF_INET6, __query6_cb, &dq);
-    if (dq.result == TT_PROCEEDING) {
+    if (dq.result == TT_E_PROCEED) {
         tt_fiber_suspend();
     }
-    TT_ASSERT(dq.result != TT_PROCEEDING);
+    TT_ASSERT(dq.result != TT_E_PROCEED);
     return dq.result;
 }
 
@@ -348,7 +350,7 @@ void __query4_cb(IN void *arg,
 {
     __dns_query_t *dq = (__dns_query_t *)arg;
 
-    TT_ASSERT(dq->result == TT_PROCEEDING);
+    TT_ASSERT(dq->result == TT_E_PROCEED);
 
     if ((status == ARES_SUCCESS) && (hostent != NULL) &&
         (hostent->h_addrtype == AF_INET) && (hostent->h_addr_list != NULL) &&
@@ -357,7 +359,7 @@ void __query4_cb(IN void *arg,
         dq->ip->a32.__u32 = ip->s_addr;
         dq->result = TT_SUCCESS;
     } else if (status == ARES_ETIMEOUT) {
-        dq->result = TT_TIME_OUT;
+        dq->result = TT_E_TIMEOUT;
     } else {
         dq->result = TT_FAIL;
     }
@@ -374,7 +376,7 @@ void __query6_cb(IN void *arg,
 {
     __dns_query_t *dq = (__dns_query_t *)arg;
 
-    TT_ASSERT(dq->result == TT_PROCEEDING);
+    TT_ASSERT(dq->result == TT_E_PROCEED);
 
     if ((status == ARES_SUCCESS) && (hostent != NULL) &&
         (hostent->h_addrtype == AF_INET6) && (hostent->h_addr_list != NULL) &&
@@ -383,7 +385,7 @@ void __query6_cb(IN void *arg,
         tt_memcpy(dq->ip->a128.__u8, ip->s6_addr, 16);
         dq->result = TT_SUCCESS;
     } else if (status == ARES_ETIMEOUT) {
-        dq->result = TT_TIME_OUT;
+        dq->result = TT_E_TIMEOUT;
     } else {
         dq->result = TT_FAIL;
     }

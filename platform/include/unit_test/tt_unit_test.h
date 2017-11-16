@@ -1,4 +1,6 @@
-/* Licensed to the Apache Software Foundation (ASF) under one or more
+/* Copyright (C) 2017 haniu (niuhao.cn@gmail.com)
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
@@ -120,6 +122,16 @@ unit test apis
 #define TT_UT_NULL(a, info) TT_UT_EQUAL((a), NULL, (info))
 #define TT_UT_NOT_NULL(a, info) TT_UT_NOT_EQUAL((a), NULL, (info))
 
+#define TT_UT_TRUE(a, info) TT_UT_EQUAL((a), TT_TRUE, (info))
+#define TT_UT_FALSE(a, info) TT_UT_EQUAL((a), TT_FALSE, (info))
+
+#define TT_UT_STREQ(a, b, info)                                                \
+    TT_UT_EQUAL(tt_strcmp((char *)(a), (char *)(b)), 0, (info))
+#define TT_UT_NSTREQ(a, b, n, info)                                            \
+    TT_UT_EQUAL(tt_strncmp((char *)(a), (char *)(b), (n)), 0, (info))
+#define TT_UT_MEMEQ(a, b, n, info)                                             \
+    TT_UT_EQUAL(tt_memcmp((a), (b), (n)), 0, (info))
+
 ////////////////////////////////////////////////////////////
 // type definition
 ////////////////////////////////////////////////////////////
@@ -155,6 +167,7 @@ typedef enum {
     TEST_UNIT_CFGPATH,
     TEST_UNIT_CFGSHELL,
     TEST_UNIT_DATE,
+    TEST_UNIT_FPATH,
 
     TEST_UNIT_NUM // number of test units
 } tt_test_unit_id_t;

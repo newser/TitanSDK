@@ -1,4 +1,6 @@
-/* Licensed to the Apache Software Foundation (ASF) under one or more
+/* Copyright (C) 2017 haniu (niuhao.cn@gmail.com)
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
@@ -105,14 +107,14 @@ enter_fsm:
 
     if (state == TT_SSHSVRST_DISCONNECTED) {
         TT_SSH_EV_IGNORED(state, event);
-        return TT_END;
+        return TT_E_END;
     }
 
     if (event == TT_SSHSVREV_PACKET) {
         tt_sshmsg_t *msg = (tt_sshmsg_t *)param;
         switch (msg->msg_id) {
             case TT_SSH_MSGID_DISCONNECT: {
-                return TT_END;
+                return TT_E_END;
             } break;
             case TT_SSH_MSGID_IGNORE:
             case TT_SSH_MSGID_UNIMPLEMENTED:
@@ -127,7 +129,7 @@ enter_fsm:
         }
     } else if (event == TT_SSHSVREV_DISCONNECT) {
         tt_sshsvr_disconnect(svrconn, TT_SSH_DMRC_BY_APPLICATION, param);
-        return TT_END;
+        return TT_E_END;
     }
 
     // ========================================

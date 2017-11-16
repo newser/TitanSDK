@@ -1,4 +1,6 @@
-/* Licensed to the Apache Software Foundation (ASF) under one or more
+/* Copyright (C) 2017 haniu (niuhao.cn@gmail.com)
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
@@ -20,11 +22,13 @@
 
 #include <os/tt_thread.h>
 
+#include <algorithm/tt_buffer.h>
 #include <algorithm/tt_rng_xorshift.h>
 #include <crypto/tt_ctr_drbg.h>
 #include <crypto/tt_entropy.h>
 #include <init/tt_component.h>
 #include <init/tt_profile.h>
+#include <memory/tt_memory_alloc.h>
 #include <misc/tt_assert.h>
 #include <os/tt_fiber.h>
 
@@ -112,11 +116,13 @@ tt_thread_t *tt_thread_create(IN tt_thread_routine_t routine,
     thread->task = NULL;
     thread->entropy = NULL;
     thread->ctr_drbg = NULL;
+    thread->backtrace = NULL;
 
     thread->last_error = TT_SUCCESS;
     thread->detached = detached;
     thread->local = TT_FALSE;
     thread->enable_fiber = attr->enable_fiber;
+    thread->log = TT_THREAD_LOG_DEFAULT;
 
     if (!TT_OK(tt_thread_create_ntv(thread))) {
         goto tc_fail;
@@ -124,7 +130,6 @@ tt_thread_t *tt_thread_create(IN tt_thread_routine_t routine,
     // now the thread is created, and it may be running or even
     // terminate, so accessing the "thread", either reading or
     // writing is unsafe
-
     if (detached) {
         // do not return the thread to caller
         return (tt_thread_t *)1;
@@ -270,6 +275,11 @@ void __thread_on_exit(IN tt_thread_t *thread)
 
     if (thread->entropy != NULL) {
         tt_entropy_destroy(thread->entropy);
+    }
+
+    if (thread->backtrace != NULL) {
+        tt_buf_destroy(thread->backtrace);
+        tt_free(thread->backtrace);
     }
 
     // for non-detached and non-local thread, the struct will

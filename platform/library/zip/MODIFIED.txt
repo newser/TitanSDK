@@ -1,0 +1,12 @@
+zlib:
+- removed directories: amiga, contrib(kept amd64, asm686), doc, example, msdos, nintendods, old, os400, qnx, test, watcom, zlib.3.pdf
+- removed target: zlib, example, minigzip, example64, minigzip64
+- generated "zconf.h" are put to include dir
+- include_directories() is changed to "include" dir in CMakeLists.txt
+
+libzip:
+- removed directories: man src regress examples
+- removed "for tests" section in CMakeLists.txt
+- generated "libzip_config.h" and "zipconf.h" are put to include dir
+- include_directories() is changed to "include" dir in lib/CMakeLists.txt
+- gladman_fcrypt/sha1.c, removed "#include <stdlib.h>" for compiling android

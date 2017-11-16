@@ -1,4 +1,6 @@
-/* Licensed to the Apache Software Foundation (ASF) under one or more
+/* Copyright (C) 2017 haniu (niuhao.cn@gmail.com)
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
@@ -38,7 +40,7 @@ APIs to show system error information
 #define TT_ERROR_NTV(...)                                                      \
     do {                                                                       \
         TT_ERROR(__VA_ARGS__);                                                 \
-        tt_last_error_show(__FUNCTION__);                                      \
+        tt_sys_err_show(__FUNCTION__);                                         \
     } while (0)
 
 #define TT_NET_ERROR_NTV TT_ERROR_NTV
@@ -46,7 +48,7 @@ APIs to show system error information
 #define TT_ERROR_NTV_DUMP(ptr, owner, member, dump_func, dump_opt, ...)        \
     do {                                                                       \
         TT_ERROR(__VA_ARGS__);                                                 \
-        tt_last_error_show(__FUNCTION__);                                      \
+        tt_sys_err_show(__FUNCTION__);                                         \
         if (ptr != NULL) {                                                     \
             dump_func(TT_CONTAINER((ptr), owner, member), (dump_opt));         \
         }                                                                      \
@@ -64,6 +66,11 @@ APIs to show system error information
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern void tt_last_error_show(IN const tt_char_t *function);
+tt_inline tt_u32_t tt_get_sys_err()
+{
+    return errno;
+}
+
+extern void tt_sys_err_show(IN const tt_char_t *function);
 
 #endif /* __TT_SYS_ERROR__ */

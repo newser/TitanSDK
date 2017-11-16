@@ -1,4 +1,6 @@
-/* Licensed to the Apache Software Foundation (ASF) under one or more
+/* Copyright (C) 2017 haniu (niuhao.cn@gmail.com)
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
@@ -85,9 +87,13 @@ tt_inline tt_bool_t tt_queue_empty(IN tt_queue_t *q)
 
 tt_export void tt_queue_clear(IN tt_queue_t *q);
 
-tt_export tt_result_t tt_queue_push(IN tt_queue_t *q, IN void *obj);
+tt_export tt_result_t tt_queue_push_head(IN tt_queue_t *q, IN void *obj);
 
-tt_export tt_result_t tt_queue_pop(IN tt_queue_t *q, OUT void *obj);
+tt_export tt_result_t tt_queue_push_tail(IN tt_queue_t *q, IN void *obj);
+
+tt_export tt_result_t tt_queue_pop_head(IN tt_queue_t *q, OUT void *obj);
+
+tt_export tt_result_t tt_queue_pop_tail(IN tt_queue_t *q, OUT void *obj);
 
 tt_export void *tt_queue_head(IN tt_queue_t *q);
 
@@ -96,5 +102,13 @@ tt_export void *tt_queue_tail(IN tt_queue_t *q);
 tt_export void tt_queue_iter(IN tt_queue_t *q, OUT tt_queue_iter_t *iter);
 
 tt_export void *tt_queue_iter_next(IN OUT tt_queue_iter_t *iter);
+
+tt_export tt_result_t tt_queue_get(IN tt_queue_t *q,
+                                   IN tt_u32_t idx,
+                                   OUT void *obj);
+
+tt_export tt_result_t tt_queue_set(IN tt_queue_t *q,
+                                   IN tt_u32_t idx,
+                                   IN void *obj);
 
 #endif /* __TT_QUEUE__ */

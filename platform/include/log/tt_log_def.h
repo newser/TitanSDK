@@ -1,4 +1,6 @@
-/* Licensed to the Apache Software Foundation (ASF) under one or more
+/* Copyright (C) 2017 haniu (niuhao.cn@gmail.com)
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
@@ -60,19 +62,26 @@ typedef enum {
 typedef enum {
     TT_LOGIO_STANDARD,
     TT_LOGIO_LOGCAT, // for android
+    TT_LOGIO_FILE,
+    TT_LOGIO_SYSLOG,
+    TT_LOGIO_UDP,
+    TT_LOGIO_TCP,
+    TT_LOGIO_ASYNC,
+    TT_LOGIO_WINDOWS_EVENT,
+    TT_LOGIO_OSLOG,
 
     TT_LOGIO_NUM
 } tt_logio_type_t;
 #define TT_LOGIO_TYPE_VALID(t) ((t) < TT_LOGIO_NUM)
 
 typedef enum {
-    TT_LOGFLD_SEQ_NUM,
-    TT_LOGFLD_TIME,
     TT_LOGFLD_LOGGER,
-    TT_LOGFLD_LEVEL,
-    TT_LOGFLD_CONTENT,
     TT_LOGFLD_FUNC,
+    TT_LOGFLD_CONTENT,
+    TT_LOGFLD_SEQ_NUM,
     TT_LOGFLD_LINE,
+    TT_LOGFLD_LEVEL,
+    TT_LOGFLD_TIME,
 
     TT_LOGFLD_TYPE_NUM,
 } tt_logfld_type_t;
@@ -80,17 +89,13 @@ typedef enum {
 
 typedef struct
 {
-    tt_u32_t seq_num;
-    // todo: time
     const tt_char_t *logger;
-    tt_log_level_t level;
-    const tt_char_t *content;
     const tt_char_t *function;
+    const tt_char_t *content;
+    tt_u32_t seq_num;
     tt_u32_t line;
+    tt_log_level_t level;
 } tt_log_entry_t;
-
-// return false if the entry should be discarded
-typedef tt_bool_t (*tt_log_filter_t)(IN OUT tt_log_entry_t *entry);
 
 ////////////////////////////////////////////////////////////
 // global variants

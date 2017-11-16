@@ -1,4 +1,6 @@
-/* Licensed to the Apache Software Foundation (ASF) under one or more
+/* Copyright (C) 2017 haniu (niuhao.cn@gmail.com)
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
@@ -28,11 +30,13 @@ this file specifies date definitions
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <tt_basic_type.h>
+#include <algorithm/tt_blob.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
 ////////////////////////////////////////////////////////////
+
+#define TT_GREGORIAN_BEGIN 1583
 
 ////////////////////////////////////////////////////////////
 // type definition
@@ -118,18 +122,26 @@ typedef enum {
 // global variants
 ////////////////////////////////////////////////////////////
 
-tt_export const tt_char_t *tt_tmzone_name[TT_TMZONE_NUM];
+tt_export tt_blob_t tt_g_tmzone_name[TT_TMZONE_NUM];
 
-tt_export const tt_char_t *tt_month_name[TT_MONTH_NUM];
+tt_export tt_blob_t tt_g_tmzone_name_rfc1123[TT_TMZONE_NUM];
 
-tt_export const tt_char_t *tt_weekday_name[TT_WEEKDAY_NUM];
+tt_export tt_blob_t tt_g_tmzone_name_iso8601[TT_TMZONE_NUM];
+
+tt_export tt_blob_t tt_g_month_name[TT_MONTH_NUM];
+
+tt_export tt_blob_t tt_g_month_name_abbr[TT_MONTH_NUM];
+
+tt_export tt_blob_t tt_g_weekday_name[TT_WEEKDAY_NUM];
+
+tt_export tt_blob_t tt_g_weekday_name_abbr[TT_WEEKDAY_NUM];
 
 ////////////////////////////////////////////////////////////
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-tt_export tt_s64_t tt_tmzone2offsec(IN tt_tmzone_t tmzone);
+tt_export tt_s32_t tt_tmzone2offsec(IN tt_tmzone_t tmzone);
 
-tt_export tt_tmzone_t tt_offsec2tmzone(IN tt_s64_t offset);
+tt_export tt_tmzone_t tt_offsec2tmzone(IN tt_s32_t offset);
 
 #endif /* __TT_DATE_DEF__ */

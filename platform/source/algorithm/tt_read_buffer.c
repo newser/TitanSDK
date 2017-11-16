@@ -1,4 +1,6 @@
-/* Licensed to the Apache Software Foundation (ASF) under one or more
+/* Copyright (C) 2017 haniu (niuhao.cn@gmail.com)
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
@@ -133,7 +135,7 @@ tt_result_t __rbuf_decode(IN tt_rbuf_t *rbuf, OUT tt_buf_t **data)
         tt_buf_backup_rwp(raw, &rp, &wp);
         result = d_itf->prepare(raw, &len, d_param);
         tt_buf_restore_rwp(raw, &rp, &wp);
-        if (result == TT_BUFFER_INCOMPLETE) {
+        if (result == TT_E_BUF_NOBUFS) {
             // can not return, as there may be data already decoded
             break;
         } else if (!TT_OK(result)) {
@@ -153,7 +155,7 @@ tt_result_t __rbuf_decode(IN tt_rbuf_t *rbuf, OUT tt_buf_t **data)
 
             tt_buf_restore_rwp(dec, &d_rp, &d_wp);
 
-            if (result != TT_PROCEEDING) {
+            if (result != TT_E_PROCEED) {
                 return TT_FAIL;
             }
         }
@@ -165,7 +167,7 @@ tt_result_t __rbuf_decode(IN tt_rbuf_t *rbuf, OUT tt_buf_t **data)
         *data = &rbuf->dec;
         return TT_SUCCESS;
     } else {
-        return TT_BUFFER_INCOMPLETE;
+        return TT_E_BUF_NOBUFS;
     }
 }
 
@@ -183,7 +185,7 @@ tt_result_t __rbuf_parse(IN tt_rbuf_t *rbuf, IN tt_buf_t *data)
         tt_buf_backup_rwp(data, &rp, &wp);
         result = p_itf->prepare(data, &len, p_param);
         tt_buf_restore_rwp(data, &rp, &wp);
-        if (result == TT_BUFFER_INCOMPLETE) {
+        if (result == TT_E_BUF_NOBUFS) {
             // can not return, as there may be data already parsed
             break;
         } else if (!TT_OK(result)) {
@@ -202,7 +204,7 @@ tt_result_t __rbuf_parse(IN tt_rbuf_t *rbuf, IN tt_buf_t *data)
             tt_buf_restore_rwp(data, &rp, &wp);
             tt_buf_inc_rp(data, len);
 
-            if (result != TT_PROCEEDING) {
+            if (result != TT_E_PROCEED) {
                 return TT_FAIL;
             }
         }
@@ -213,6 +215,6 @@ tt_result_t __rbuf_parse(IN tt_rbuf_t *rbuf, IN tt_buf_t *data)
         tt_buf_try_refine(data, rbuf->refine_threshold);
         return TT_SUCCESS;
     } else {
-        return TT_BUFFER_INCOMPLETE;
+        return TT_E_BUF_NOBUFS;
     }
 }

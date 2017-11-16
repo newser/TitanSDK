@@ -1,4 +1,6 @@
-/* Licensed to the Apache Software Foundation (ASF) under one or more
+/* Copyright (C) 2017 haniu (niuhao.cn@gmail.com)
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
@@ -61,15 +63,27 @@ extern "C" {
 #include <algorithm/tt_vector.h>
 #include <algorithm/tt_write_buffer.h>
 #include <cli/shell/tt_console_shell.h>
+#include <cli/shell/tt_shcmd_cd.h>
+#include <cli/shell/tt_shcmd_get.h>
+#include <cli/shell/tt_shcmd_help.h>
+#include <cli/shell/tt_shcmd_ls.h>
+#include <cli/shell/tt_shcmd_pwd.h>
+#include <cli/shell/tt_shcmd_quit.h>
+#include <cli/shell/tt_shcmd_set.h>
 #include <cli/shell/tt_shell.h>
 #include <cli/shell/tt_shell_command.h>
 #include <cli/tt_cli.h>
 #include <cli/tt_cli_def.h>
+#include <cli/tt_cli_demo.h>
 #include <cli/tt_cli_line.h>
 #include <config/tt_algorithm_config.h>
+#include <config/tt_customization_config.h.in>
 #include <config/tt_customization_config.h>
+#include <config/tt_environment_config.h.in>
 #include <config/tt_environment_config.h>
 #include <config/tt_file_system_config.h>
+#include <config/tt_have.h.in>
+#include <config/tt_have.h>
 #include <config/tt_log_config.h>
 #include <config/tt_memory_config.h>
 #include <config/tt_mpn_config.h>
@@ -80,6 +94,7 @@ extern "C" {
 #include <crypto/tt_crypto.h>
 #include <crypto/tt_ctr_drbg.h>
 #include <crypto/tt_dh.h>
+#include <crypto/tt_ec_def.h>
 #include <crypto/tt_ecdh.h>
 #include <crypto/tt_ecdsa.h>
 #include <crypto/tt_entropy.h>
@@ -87,11 +102,14 @@ extern "C" {
 #include <crypto/tt_message_digest.h>
 #include <crypto/tt_public_key.h>
 #include <crypto/tt_rsa.h>
+#include <data/tt_data_node.h>
+#include <data/tt_data_node_blob.h>
 #include <init/tt_component.h>
 #include <init/tt_config_bool.h>
 #include <init/tt_config_directory.h>
 #include <init/tt_config_exe.h>
 #include <init/tt_config_object.h>
+#include <init/tt_config_object_def.h>
 #include <init/tt_config_path.h>
 #include <init/tt_config_s32.h>
 #include <init/tt_config_string.h>
@@ -104,6 +122,10 @@ extern "C" {
 #include <io/tt_console.h>
 #include <io/tt_console_event.h>
 #include <io/tt_file_system.h>
+#include <io/tt_fpath.h>
+#include <io/tt_io_event.h>
+#include <io/tt_io_poller.h>
+#include <io/tt_io_worker.h>
 #include <io/tt_io_worker_group.h>
 #include <io/tt_ipc.h>
 #include <io/tt_ipc_event.h>
@@ -112,15 +134,26 @@ extern "C" {
 #include <io/tt_socket.h>
 #include <io/tt_socket_addr.h>
 #include <io/tt_socket_option.h>
+#include <log/filter/tt_log_filter.h>
 #include <log/io/tt_log_io.h>
+#include <log/io/tt_log_io_async.h>
+#include <log/io/tt_log_io_file.h>
+#include <log/io/tt_log_io_oslog.h>
 #include <log/io/tt_log_io_standard.h>
+#include <log/io/tt_log_io_syslog.h>
+#include <log/io/tt_log_io_tcp.h>
+#include <log/io/tt_log_io_udp.h>
+#include <log/io/tt_log_io_windows_event.h>
 #include <log/layout/tt_log_field.h>
 #include <log/layout/tt_log_layout.h>
 #include <log/layout/tt_log_layout_pattern.h>
+#include <log/layout/tt_log_layout_syslog3164.h>
 #include <log/tt_log.h>
 #include <log/tt_log_context.h>
+#include <log/tt_log_def.h>
 #include <log/tt_log_init.h>
 #include <log/tt_log_manager.h>
+#include <log/tt_syslog_def.h>
 #include <memory/tt_memory_alloc.h>
 #include <memory/tt_memory_pool.h>
 #include <memory/tt_memory_spring.h>
@@ -128,9 +161,11 @@ extern "C" {
 #include <memory/tt_slab.h>
 #include <misc/tt_asn1_def.h>
 #include <misc/tt_assert.h>
+#include <misc/tt_backtrace.h>
 #include <misc/tt_base64.h>
 #include <misc/tt_charset_convert.h>
 #include <misc/tt_charset_def.h>
+#include <misc/tt_crash_trace.h>
 #include <misc/tt_der_decode.h>
 #include <misc/tt_der_encode.h>
 #include <misc/tt_distinguished_name.h>
@@ -154,6 +189,7 @@ extern "C" {
 #include <network/ssh/message/tt_ssh_message.h>
 #include <network/ssh/message/tt_ssh_msg_channel_close.h>
 #include <network/ssh/message/tt_ssh_msg_channel_data.h>
+#include <network/ssh/message/tt_ssh_msg_channel_eof.h>
 #include <network/ssh/message/tt_ssh_msg_channel_failure.h>
 #include <network/ssh/message/tt_ssh_msg_channel_open.h>
 #include <network/ssh/message/tt_ssh_msg_channel_open_confirmation.h>
@@ -193,6 +229,7 @@ extern "C" {
 #include <network/ssh/tt_ssh_channel_manager.h>
 #include <network/ssh/tt_ssh_def.h>
 #include <network/ssl/tt_ssl.h>
+#include <network/ssl/tt_ssl_cache.h>
 #include <network/ssl/tt_ssl_config.h>
 #include <network/ssl/tt_x509_cert.h>
 #include <network/ssl/tt_x509_crl.h>
@@ -208,17 +245,35 @@ extern "C" {
 #include <os/tt_semaphore.h>
 #include <os/tt_spinlock.h>
 #include <os/tt_task.h>
+#include <os/tt_thread.h>
 #include <time/tt_date.h>
+#include <time/tt_date_def.h>
+#include <time/tt_date_format.h>
 #include <time/tt_time_reference.h>
 #include <time/tt_timer.h>
 #include <time/tt_timer_manager.h>
 #include <tt_basic_type.h>
+#include <tt_platform.h>
 #include <unit_test/tt_test_framework.h>
 #include <unit_test/tt_unit_test.h>
 #include <xml/tt_xml_attribute.h>
 #include <xml/tt_xml_document.h>
 #include <xml/tt_xml_node.h>
 #include <xml/tt_xml_path.h>
+#include <xml/tt_xml_util.h>
+#include <zip/tt_deflate.h>
+#include <zip/tt_gzip_deflate.h>
+#include <zip/tt_gzip_inflate.h>
+#include <zip/tt_inflate.h>
+#include <zip/tt_libzip.h>
+#include <zip/tt_zip.h>
+#include <zip/tt_zip_file.h>
+#include <zip/tt_zip_source.h>
+#include <zip/tt_zip_source_blob.h>
+#include <zip/tt_zip_source_file.h>
+#include <zip/tt_zlib.h>
+#include <zip/tt_zlib_deflate.h>
+#include <zip/tt_zlib_inflate.h>
 
 #ifdef __cplusplus
 }

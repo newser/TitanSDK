@@ -1,4 +1,6 @@
-/* Licensed to the Apache Software Foundation (ASF) under one or more
+/* Copyright (C) 2017 haniu (niuhao.cn@gmail.com)
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
@@ -133,7 +135,7 @@ tt_export const tt_char_t *tt_sshsvr_event_name[TT_SSHSVREV_NUM];
 
 // return
 //  - TT_SUCCESS, event has been processed
-//  - TT_END, app should shutdown ssh conn and then destroy
+//  - TT_E_END, app should shutdown ssh conn and then destroy
 //  - TT_FAIL, error occurred, app should destroy ssh conn
 tt_export tt_result_t tt_sshsvr_fsm(IN struct tt_sshsvrconn_s *svrconn,
                                     IN tt_sshsvr_event_t event,

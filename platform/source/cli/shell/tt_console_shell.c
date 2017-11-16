@@ -1,4 +1,6 @@
-/* Licensed to the Apache Software Foundation (ASF) under one or more
+/* Copyright (C) 2017 haniu (niuhao.cn@gmail.com)
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
@@ -155,10 +157,10 @@ tt_result_t __csh_ev_handler(IN void *param,
         }
     }
 
-    if (tt_cli_input(cli, ev_key->key, ev_key->key_num) != TT_END) {
+    if (tt_cli_input(cli, ev_key->key, ev_key->key_num) != TT_E_END) {
         return TT_SUCCESS;
     } else {
         // any failure would result in console exit
-        return TT_END;
+        return TT_E_END;
     }
 }

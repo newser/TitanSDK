@@ -1,4 +1,6 @@
-/* Licensed to the Apache Software Foundation (ASF) under one or more
+/* Copyright (C) 2017 haniu (niuhao.cn@gmail.com)
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
@@ -141,6 +143,12 @@ tt_export tt_result_t tt_buf_set(IN tt_buf_t *buf,
                                  IN tt_u8_t *data,
                                  IN tt_u32_t data_len);
 
+tt_export tt_result_t tt_buf_set_range(IN tt_buf_t *buf,
+                                       IN tt_u32_t pos,
+                                       IN tt_u32_t len,
+                                       IN tt_u8_t *data,
+                                       IN tt_u32_t data_len);
+
 // ========================================
 // memory operation
 // ========================================
@@ -192,7 +200,7 @@ tt_inline tt_result_t tt_buf_inc_rp(IN tt_buf_t *buf, IN tt_u32_t num)
         buf->rpos += num;
         return TT_SUCCESS;
     } else {
-        return TT_BUFFER_INCOMPLETE;
+        return TT_E_BUF_NOBUFS;
     }
 }
 
@@ -236,7 +244,7 @@ tt_inline tt_result_t tt_buf_inc_wp(IN tt_buf_t *buf, IN tt_u32_t num)
         buf->wpos += num;
         return TT_SUCCESS;
     } else {
-        return TT_BUFFER_INCOMPLETE;
+        return TT_E_BUF_NOBUFS;
     }
 }
 

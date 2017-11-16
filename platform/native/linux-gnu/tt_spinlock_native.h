@@ -1,4 +1,6 @@
-/* Licensed to the Apache Software Foundation (ASF) under one or more
+/* Copyright (C) 2017 haniu (niuhao.cn@gmail.com)
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
@@ -29,8 +31,9 @@ section
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <misc/tt_assert.h>
-#include <tt_sys_error.h>
+#include <tt_basic_type.h>
+
+#include <tt_assert_native.h>
 
 #include <errno.h>
 #include <pthread.h>
@@ -73,24 +76,19 @@ tt_inline tt_result_t tt_spinlock_create_ntv(IN tt_spinlock_ntv_t *slock,
     if (ret == 0) {
         return TT_SUCCESS;
     } else {
-        TT_ERROR("fail to create system lock: %d[%s]", ret, strerror(ret));
         return TT_FAIL;
     }
 }
 
 tt_inline void tt_spinlock_destroy_ntv(IN tt_spinlock_ntv_t *slock)
 {
-    int ret = pthread_spin_destroy(&slock->lk);
-    if (ret != 0) {
-        TT_ERROR("fail to destroy system lock: %d[%s]", ret, strerror(ret));
-    }
+    pthread_spin_destroy(&slock->lk);
 }
 
 tt_inline void tt_spinlock_acquire_ntv(IN tt_spinlock_ntv_t *slock)
 {
     int ret = pthread_spin_lock(&slock->lk);
     if (ret != 0) {
-        TT_FATAL("fail to slock system lock: %d[%s]", ret, strerror(ret));
         tt_throw_exception_ntv(NULL);
     }
 }
@@ -103,7 +101,6 @@ tt_inline tt_bool_t tt_spinlock_try_acquire_ntv(IN tt_spinlock_ntv_t *slock)
     } else if (ret == EBUSY) {
         return TT_FALSE;
     } else {
-        TT_FATAL("fail to try slock system lock: %d[%s]", ret, strerror(ret));
         tt_throw_exception_ntv(NULL);
         return TT_FALSE;
     }
@@ -113,7 +110,6 @@ tt_inline void tt_spinlock_release_ntv(IN tt_spinlock_ntv_t *slock)
 {
     int ret = pthread_spin_unlock(&slock->lk);
     if (ret != 0) {
-        TT_FATAL("fail to unlock system lock: %d[%s]", ret, strerror(ret));
         tt_throw_exception_ntv(NULL);
     }
 }

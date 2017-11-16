@@ -1,4 +1,6 @@
-/* Licensed to the Apache Software Foundation (ASF) under one or more
+/* Copyright (C) 2017 haniu (niuhao.cn@gmail.com)
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
@@ -105,12 +107,12 @@ tt_result_t __cfgs32_write(IN tt_cfgobj_t *co,
     tt_s32_t s32_val;
 
     if ((val_len == 0) || (val_len > __MAX_S32_LEN)) {
-        return TT_BAD_PARAM;
+        return TT_E_BADARG;
     }
 
     tt_memcpy(buf, val, val_len);
     if (!TT_OK(tt_strtos32((const char *)buf, NULL, 0, &s32_val))) {
-        return TT_BAD_PARAM;
+        return TT_E_BADARG;
     }
 
     if (cs32->cb.on_set != NULL) {

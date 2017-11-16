@@ -1,4 +1,6 @@
-/* Licensed to the Apache Software Foundation (ASF) under one or more
+/* Copyright (C) 2017 haniu (niuhao.cn@gmail.com)
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
@@ -180,7 +182,7 @@ tt_result_t tt_string_setfrom(IN tt_string_t *str,
         return TT_FAIL;
     }
 
-    str->buf.wpos = str->buf.rpos + from;
+    buf->wpos = buf->rpos + from;
     return tt_buf_put(buf, (tt_u8_t *)cstr, (tt_u32_t)tt_strlen(cstr) + 1);
 }
 
@@ -197,6 +199,25 @@ tt_result_t tt_string_setfrom_c(IN tt_string_t *str,
     TT_BUF_RPOS(buf)[from] = c;
 
     return TT_SUCCESS;
+}
+
+tt_result_t tt_string_set_range(IN tt_string_t *str,
+                                IN tt_u32_t from,
+                                IN tt_u32_t len,
+                                IN const tt_char_t *cstr)
+{
+    tt_u32_t n = tt_string_len(str);
+
+    if ((from + len) > n) {
+        TT_ERROR("invalid from len");
+        return TT_E_BADARG;
+    }
+
+    return tt_buf_set_range(&str->buf,
+                            from,
+                            len,
+                            (tt_u8_t *)cstr,
+                            (tt_u32_t)tt_strlen(cstr));
 }
 
 void tt_string_clear(IN tt_string_t *str)

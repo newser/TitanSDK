@@ -1,4 +1,6 @@
-/* Licensed to the Apache Software Foundation (ASF) under one or more
+/* Copyright (C) 2017 haniu (niuhao.cn@gmail.com)
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
@@ -167,7 +169,7 @@ static tt_result_t __udp_svr1(IN void *param)
     tt_skt_t *s;
     tt_result_t ret;
     tt_u8_t buf[2048];
-    struct tt_fiber_ev_s *fev;
+    tt_fiber_ev_t *fev;
     struct tt_tmr_s *tmr;
     tt_u32_t recvd;
     __svr_param_t *sp = (__svr_param_t *)param;
@@ -224,7 +226,7 @@ static tt_result_t __tcp_acc1(IN void *param)
     tt_skt_t *new_s = sp.s;
     tt_result_t ret;
     tt_u8_t buf[2048];
-    struct tt_fiber_ev_s *fev;
+    tt_fiber_ev_t *fev;
     struct tt_tmr_s *tmr;
     tt_u32_t recvd;
     tt_u32_t i;
@@ -601,7 +603,7 @@ static tt_result_t __dns_query_3(IN void *param)
     for (i = 0; i < n; ++i) {
         ret = __ut_dns_query4(__ut_current_dns_d(), "163.com", &ip);
         DUT_INFO("dns query[%d/%d] done", i, n);
-        if (ret != TT_TIME_OUT) {
+        if (ret != TT_E_TIMEOUT) {
             __dns_errline = __LINE__;
             tt_task_exit(NULL);
             return TT_FAIL;
@@ -687,7 +689,7 @@ static tt_result_t __udp_svr_rand(IN void *param)
     tt_skt_t *s;
     tt_result_t ret;
     tt_u8_t buf[2048];
-    struct tt_fiber_ev_s *fev;
+    tt_fiber_ev_t *fev;
     struct tt_tmr_s *tmr;
     tt_u32_t recvd;
     __svr_param_t *sp = (__svr_param_t *)param;

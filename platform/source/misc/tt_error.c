@@ -1,4 +1,6 @@
-/* Licensed to the Apache Software Foundation (ASF) under one or more
+/* Copyright (C) 2017 haniu (niuhao.cn@gmail.com)
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
@@ -26,14 +28,13 @@
 // internal macro
 ////////////////////////////////////////////////////////////
 
-#define __ERR_RANGE_STRING_START(range)                                        \
-    static const tt_char_t *__ers_##range[] = {
-#define __ERR_STRING(result, str) (str)
-#define __ERR_RANGE_STRING_END(range)                                          \
+#define __ERR_RANGE_STR_START(range) static const tt_char_t *__ers_##range[] = {
+#define __ERR_STR(result, str) (str)
+#define __ERR_RANGE_STR_END(range)                                             \
     }                                                                          \
     ;
 
-#define __ERR_RANGE_STRING_AT(range, idx) __ers_##range[(idx)]
+#define __ERR_RANGE_STR_AT(range, idx) __ers_##range[(idx)]
 
 ////////////////////////////////////////////////////////////
 // internal type
@@ -52,59 +53,52 @@
 // ========================================
 // no error
 // ========================================
-__ERR_RANGE_STRING_START(TT_ERR_RANGE_NO_ERROR)
+__ERR_RANGE_STR_START(TT_ERR_RANGE_NOERR)
 
     // idx: 0
-    __ERR_STRING(TT_SUCCESS, "Success"),
+    __ERR_STR(TT_SUCCESS, "Success"),
 
-__ERR_RANGE_STRING_END(TT_ERR_RANGE_NO_ERROR)
+__ERR_RANGE_STR_END(TT_ERR_RANGE_NOERR)
 
 // ========================================
 // common error
 // ========================================
-__ERR_RANGE_STRING_START(TT_ERR_RANGE_COMMON)
+__ERR_RANGE_STR_START(TT_ERR_RANGE_COMMON)
 
     // idx: 0
-    __ERR_STRING(TT_FAIL, "Fail"),
-    __ERR_STRING(TT_TIME_OUT, "Time out"),
-    __ERR_STRING(TT_END, "Operation ends"),
-    __ERR_STRING(TT_PROCEEDING, "Proceeding"),
-    __ERR_STRING(TT_BAD_PARAM, "Bad parameter"),
+    __ERR_STR(TT_FAIL, "Fail"),
+    __ERR_STR(TT_E_TIMEOUT, "Time out"),
+    __ERR_STR(TT_E_END, "Operation end"),
+    __ERR_STR(TT_E_PROCEED, "Proceed"),
+    __ERR_STR(TT_E_BADARG, "Bad argument"),
 
     // idx: 5
-    __ERR_STRING(TT_NO_RESOURCE, "No resource"),
-    __ERR_STRING(TT_BAD_ENV, "Bad environment"),
-    __ERR_STRING(TT_NOT_EXIST, "Not exist"),
-    __ERR_STRING(TT_ALREADY_EXIST, "Already exsit"),
-    __ERR_STRING(TT_NOT_SUPPORT, "Not support"),
+    __ERR_STR(TT_E_NOMEM, "No memory"),
+    __ERR_STR(TT_E_NOEXIST, "Not exist"),
+    __ERR_STR(TT_E_EXIST, "Already exsit"),
+    __ERR_STR(TT_E_UNSUPPORT, "Not support"),
 
-    // idx: 10
-    __ERR_STRING(TT_CANCELLED, "Operation is cancelled"),
-
-    // below for internal usage
-    __ERR_STRING(TT_UNKNOWN_ERROR, "Unknown error"),
-
-__ERR_RANGE_STRING_END(TT_ERR_RANGE_COMMON)
+__ERR_RANGE_STR_END(TT_ERR_RANGE_COMMON)
 
 // ========================================
 // buffer error
 // ========================================
-__ERR_RANGE_STRING_START(TT_ERR_RANGE_BUFFER)
+__ERR_RANGE_STR_START(TT_ERR_RANGE_BUFFER)
 
     // idx: 0
-    __ERR_STRING(TT_BUFFER_INCOMPLETE, "Buffer incomplete"),
+    __ERR_STR(TT_E_BUF_NOBUFS, "No buffer space"),
 
-__ERR_RANGE_STRING_END(TT_ERR_RANGE_BUFFER)
+__ERR_RANGE_STR_END(TT_ERR_RANGE_BUFFER)
 
 // ========================================
 // native error
 // ========================================
-__ERR_RANGE_STRING_START(TT_ERR_RANGE_NATIVE)
+__ERR_RANGE_STR_START(TT_ERR_RANGE_NATIVE)
 
     // idx: 0
-    __ERR_STRING(TT_NATIVE_FAIL, "Native failure"),
+    __ERR_STR(TT_E_NTV_FAIL, "Native fail"),
 
-__ERR_RANGE_STRING_END(TT_ERR_RANGE_NATIVE)
+__ERR_RANGE_STR_END(TT_ERR_RANGE_NATIVE)
 
 ////////////////////////////////////////////////////////////
 // interface declaration
@@ -123,7 +117,7 @@ __ERR_RANGE_STRING_END(TT_ERR_RANGE_NATIVE)
         return current->last_error;
     } else {
         // not able to get last error
-        return TT_UNKNOWN_ERROR;
+        return TT_SUCCESS;
     }
 }
 
@@ -141,20 +135,19 @@ const tt_char_t *tt_err_string(tt_result_t result)
     case range: {                                                              \
         if (TT_ERR_IN(result, range)) {                                        \
             tt_u32_t idx = TT_ERR_IDX_IN(result, range);                       \
-            return __ERR_RANGE_STRING_AT(range, idx);                          \
+            return __ERR_RANGE_STR_AT(range, idx);                             \
         } else {                                                               \
-            return "Unknown error";                                            \
+            return "Unknown";                                                  \
         }                                                                      \
     } break;
 
     switch (TT_ERR_RANGE(result)) {
-        __ES_ENTRY(result, TT_ERR_RANGE_NO_ERROR);
+        __ES_ENTRY(result, TT_ERR_RANGE_NOERR);
         __ES_ENTRY(result, TT_ERR_RANGE_COMMON);
         __ES_ENTRY(result, TT_ERR_RANGE_NATIVE);
         default: {
-            return "Unknown error";
+            return "Unknown";
         } break;
     }
-
 #undef __ES_ENTRY
 }

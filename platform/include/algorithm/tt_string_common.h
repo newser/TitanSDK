@@ -1,4 +1,6 @@
-/* Licensed to the Apache Software Foundation (ASF) under one or more
+/* Copyright (C) 2017 haniu (niuhao.cn@gmail.com)
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
@@ -82,9 +84,28 @@ tt_export tt_u32_t tt_string_findfrom_c(IN tt_string_t *s,
 
 tt_export tt_u32_t tt_string_rfind_c(IN tt_string_t *s, IN tt_char_t c);
 
+tt_export tt_u32_t tt_string_rfindfrom_c(IN tt_string_t *s,
+                                         IN tt_u32_t from,
+                                         IN tt_char_t c);
+
 tt_export void tt_string_remove_range(IN tt_string_t *s,
                                       IN tt_u32_t from,
                                       IN tt_u32_t len);
+
+tt_export void tt_string_remove_headto(IN tt_string_t *s, IN tt_u32_t to);
+
+tt_inline void tt_string_remove_head(IN tt_string_t *s, IN tt_u32_t len)
+{
+    tt_string_remove_headto(s, len);
+}
+
+tt_export void tt_string_remove_tailfrom(IN tt_string_t *s, IN tt_u32_t from);
+
+tt_inline void tt_string_remove_tail(IN tt_string_t *s, IN tt_u32_t len)
+{
+    tt_u32_t n = tt_string_len(s);
+    tt_string_remove_tailfrom(s, TT_COND(len <= n, n - len, 0));
+}
 
 tt_export tt_result_t tt_string_append(IN OUT tt_string_t *s,
                                        IN const tt_char_t *substr);
@@ -99,6 +120,10 @@ tt_export tt_result_t tt_string_append_sub(IN OUT tt_string_t *s,
                                            IN const tt_char_t *substr,
                                            IN tt_u32_t from,
                                            IN tt_u32_t len);
+
+tt_export tt_result_t tt_string_append_f(IN OUT tt_string_t *s,
+                                         IN const tt_char_t *format,
+                                         ...);
 
 tt_export tt_bool_t tt_string_startwith(IN tt_string_t *s,
                                         IN const tt_char_t *substr);

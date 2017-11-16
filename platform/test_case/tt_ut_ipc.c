@@ -1,4 +1,6 @@
-/* Licensed to the Apache Software Foundation (ASF) under one or more
+/* Copyright (C) 2017 haniu (niuhao.cn@gmail.com)
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
@@ -278,7 +280,7 @@ tt_export tt_result_t __ipc_svr_1(IN void *param)
             }
             TT_INFO_IPC("[%d] svr sent %d", rn, n);
         }
-        if (ret != TT_END) {
+        if (ret != TT_E_END) {
             __err_line = __LINE__;
             return TT_FAIL;
         }
@@ -387,7 +389,7 @@ static tt_result_t __ipc_svr_acc_2(IN void *param)
             return TT_SUCCESS;
         }
     }
-    if (ret != TT_END) {
+    if (ret != TT_E_END) {
         __err_line = __LINE__;
         return TT_FAIL;
     }
@@ -703,7 +705,7 @@ tt_result_t __ipc_svr_fev(IN void *param)
             }
             TT_INFO_IPC("[%d] svr sent %d", rn, n);
         }
-        if (ret != TT_END) {
+        if (ret != TT_E_END) {
             __err_line = __LINE__;
             return TT_FAIL;
         }
@@ -1017,7 +1019,7 @@ tt_result_t __ipc_svr_pev_fev(IN void *param)
             ret = tt_ipc_send_ev(new_ipc, pev);
             if (!TT_OK(ret)) {
                 break; // client may already disconnect
-                if (ret == TT_END) {
+                if (ret == TT_E_END) {
                     break;
                 } else {
                     __err_line = __LINE__;
@@ -1033,7 +1035,7 @@ tt_result_t __ipc_svr_pev_fev(IN void *param)
         }
 // client may already disconnect
 #if 0
-        if (ret != TT_END) {
+        if (ret != TT_E_END) {
             __err_line = __LINE__;
             return TT_FAIL;
         }

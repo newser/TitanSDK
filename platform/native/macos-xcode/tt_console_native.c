@@ -1,4 +1,6 @@
-/* Licensed to the Apache Software Foundation (ASF) under one or more
+/* Copyright (C) 2017 haniu (niuhao.cn@gmail.com)
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
@@ -210,6 +212,59 @@ tt_result_t tt_console_send_ntv(IN tt_cons_ev_t ev,
     return __cons_itf.send(ev, ev_data);
 }
 
+void tt_console_set_color_ntv(IN tt_console_color_t foreground,
+                              IN tt_console_color_t background)
+{
+    static const tt_char_t *__fc_keycode[TT_CONSOLE_COLOR_NUM] = {
+        NULL,
+        "\033[30m",
+        "\033[31m",
+        "\033[32m",
+        "\033[33m",
+        "\033[34m",
+        "\033[35m",
+        "\033[36m",
+        "\033[37m",
+        "\033[1;30m",
+        "\033[1;31m",
+        "\033[1;32m",
+        "\033[1;33m",
+        "\033[1;34m",
+        "\033[1;35m",
+        "\033[1;36m",
+        "\033[1;37m",
+    };
+    static const tt_char_t *__bc_keycode[TT_CONSOLE_COLOR_NUM] = {
+        NULL,
+        "\033[40m",
+        "\033[41m",
+        "\033[42m",
+        "\033[43m",
+        "\033[44m",
+        "\033[45m",
+        "\033[46m",
+        "\033[47m",
+        "\033[100m",
+        "\033[101m",
+        "\033[102m",
+        "\033[103m",
+        "\033[104m",
+        "\033[105m",
+        "\033[106m",
+        "\033[107m",
+    };
+
+    if (foreground != TT_CONSOLE_COLOR_CURRENT) {
+        const tt_char_t *p = __fc_keycode[foreground];
+        write(STDOUT_FILENO, p, tt_strlen(p));
+    }
+
+    if (background != TT_CONSOLE_COLOR_CURRENT) {
+        const tt_char_t *p = __bc_keycode[background];
+        write(STDOUT_FILENO, p, tt_strlen(p));
+    }
+}
+
 void __install_cons_itf(IN tt_console_input_mode_t imode,
                         IN tt_console_output_mode_t omode)
 {
@@ -413,7 +468,7 @@ tt_result_t __def_recv(OUT tt_cons_ev_t *ev, OUT tt_cons_ev_data_t *ev_data)
     len = read(STDIN_FILENO, __stdin_rbuf, sizeof(__stdin_rbuf));
     if (len < 0) {
         if (len == 0) {
-            return TT_END;
+            return TT_E_END;
         } else {
             TT_ERROR_NTV("read fail");
             return TT_FAIL;

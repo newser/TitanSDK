@@ -21,7 +21,7 @@
 set(PLATFORM_VERSION_MAJOR 0 CACHE STRING "major version number")
 mark_as_advanced(FORCE PLATFORM_VERSION_MAJOR)
 # minor version number
-set(PLATFORM_VERSION_MINOR 1 CACHE STRING "minor version number")
+set(PLATFORM_VERSION_MINOR 2 CACHE STRING "minor version number")
 mark_as_advanced(FORCE PLATFORM_VERSION_MINOR)
 # revision version number
 set(PLATFORM_VERSION_REVISION 0 CACHE STRING "revision version number")
@@ -54,6 +54,8 @@ message(STATUS "numa enable: ${PLATFORM_ENABLE_NUMA}")
 set(PLATFORM_UNIT_TEST_LITE 0 CACHE BOOL "lite unit test")
 mark_as_advanced(FORCE PLATFORM_UNIT_TEST_LITE)
 
+set(PLATFORM_ENABLE_BACKTRACE 0 CACHE BOOL "unwind stack")
+
 # generate header file
 configure_file(${PLATFORM_PATH}/include/config/tt_customization_config.h.in
                ${PLATFORM_PATH}/include/config/tt_customization_config.h
@@ -65,6 +67,30 @@ elseif ((PLATFORM_ENV_OS STREQUAL ios) AND NOT PLATFORM_IOS_SIMULATOR)
     set(CMAKE_ASM_COMPILER ${CMAKE_C_COMPILER})
 endif ()
 enable_language(ASM)
+
+# have
+include(CheckSymbolExists)
+
+check_symbol_exists(syslog syslog.h HAVE_SYSLOG)
+check_symbol_exists(ReportEvent windows.h HAVE_WINDOWS_EVENT_LOG)
+check_symbol_exists(os_log os/log.h HAVE_OSLOG)
+
+if (PLATFORM_ENABLE_BACKTRACE)
+    if ((PLATFORM_ENV_OS STREQUAL windows) OR (PLATFORM_ENV_OS STREQUAL android))
+        set(HAVE_LIBUNWIND 0)
+        set(HAVE_BACKTRACE 0)
+    elseif ((PLATFORM_ENV_OS STREQUAL ios) OR (PLATFORM_ENV_OS STREQUAL macos))
+        set(HAVE_LIBUNWIND 1)
+        set(HAVE_BACKTRACE 1)
+    else ()
+        check_symbol_exists(unw_getcontext libunwind.h HAVE_LIBUNWIND)
+        check_symbol_exists(backtrace execinfo.h HAVE_BACKTRACE)
+    endif ()
+endif ()
+
+configure_file(${ROOT_PATH}/platform/include/config/tt_have.h.in
+               ${ROOT_PATH}/platform/include/config/tt_have.h
+               @ONLY)
 
 #
 # component
@@ -78,21 +104,26 @@ enable_language(ASM)
 include_directories(${PLATFORM_PATH}/include)
 include_directories(${PLATFORM_PATH}/native/${PLATFORM_ENV})
 
-# depend: fcontext
-include_directories(${PLATFORM_PATH}/depend/fcontext/include)
-include_directories(${PLATFORM_PATH}/depend/fcontext/boost)
+# library: fcontext
+include_directories(${PLATFORM_PATH}/library/fcontext/include)
+include_directories(${PLATFORM_PATH}/library/fcontext/boost)
 
-# depend: tls
-include_directories(${PLATFORM_PATH}/depend/tls/include)
-include_directories(${PLATFORM_PATH}/depend/tls/mbedtls/include/mbedtls)
+# library: tls
+include_directories(${PLATFORM_PATH}/library/tls/include)
+include_directories(${PLATFORM_PATH}/library/tls/mbedtls/include/mbedtls)
 
-# depend: xml
-include_directories(${PLATFORM_PATH}/depend/xml/include)
-include_directories(${PLATFORM_PATH}/depend/xml/pugixml)
+# library: xml
+include_directories(${PLATFORM_PATH}/library/xml/include)
+include_directories(${PLATFORM_PATH}/library/xml/pugixml)
 
-# depend: dns
-include_directories(${PLATFORM_PATH}/depend/dns/c-ares)
-include_directories(${PLATFORM_PATH}/depend/dns/include)
+# library: dns
+include_directories(${PLATFORM_PATH}/library/dns/c-ares)
+include_directories(${PLATFORM_PATH}/library/dns/include)
+
+# library: zip
+include_directories(${PLATFORM_PATH}/library/zip/zlib)
+include_directories(${PLATFORM_PATH}/library/zip/libzip/lib)
+include_directories(${PLATFORM_PATH}/library/zip/include)
 
 #
 # source file
@@ -133,6 +164,8 @@ add_group_hdr(${PLATFORM_PATH}/include/log/layout log SRC_FILE)
 add_group_src(${PLATFORM_PATH}/source/log/layout log SRC_FILE)
 add_group_hdr(${PLATFORM_PATH}/include/log/io log SRC_FILE)
 add_group_src(${PLATFORM_PATH}/source/log/io log SRC_FILE)
+add_group_hdr(${PLATFORM_PATH}/include/log/filter log SRC_FILE)
+add_group_src(${PLATFORM_PATH}/source/log/filter log SRC_FILE)
 
 add_group_hdr(${PLATFORM_PATH}/include/crypto crypto SRC_FILE)
 add_group_src(${PLATFORM_PATH}/source/crypto crypto SRC_FILE)
@@ -160,6 +193,12 @@ add_group_src(${PLATFORM_PATH}/source/cli cli SRC_FILE)
 add_group_hdr(${PLATFORM_PATH}/include/cli/shell shell SRC_FILE)
 add_group_src(${PLATFORM_PATH}/source/cli/shell shell SRC_FILE)
 
+add_group_hdr(${PLATFORM_PATH}/include/zip zip SRC_FILE)
+add_group_src(${PLATFORM_PATH}/source/zip zip SRC_FILE)
+
+add_group_hdr(${PLATFORM_PATH}/include/data data SRC_FILE)
+add_group_src(${PLATFORM_PATH}/source/data data SRC_FILE)
+
 # test cases
 add_group_src(${PLATFORM_PATH}/source/algorithm/test_case test_case SRC_FILE)
 add_group_src(${PLATFORM_PATH}/test_case test_case SRC_FILE)
@@ -169,6 +208,8 @@ add_group_src(${PLATFORM_PATH}/source/crypto/test_case crypto SRC_FILE)
 add_group_src(${PLATFORM_PATH}/source/network/ssl/test_case ssl SRC_FILE)
 add_group_src(${PLATFORM_PATH}/source/math/mp/test_case mp SRC_FILE)
 add_group_src(${PLATFORM_PATH}/source/network/dns/test_case dns SRC_FILE)
+add_group_src(${PLATFORM_PATH}/source/zip/test_case zip SRC_FILE)
+add_group_src(${PLATFORM_PATH}/source/data/test_case data SRC_FILE)
 
 # native
 add_group_hdr(${PLATFORM_PATH}/native/${PLATFORM_ENV} native SRC_FILE)
@@ -241,45 +282,51 @@ platform_link_libraries()
 # link
 #
 
-# depends
+# library
 set(FCONTEXT_SRC)
-add_subdirectory(${PLATFORM_PATH}/depend/fcontext fcontext)
+add_subdirectory(${PLATFORM_PATH}/library/fcontext fcontext)
 source_group(fcontext FILES ${FCONTEXT_SRC})
 target_sources(platform PRIVATE ${FCONTEXT_SRC})
 
-# depends
+# library
 set(TLS_LIB)
 set(X509_LIB)
 set(CRYPTO_LIB)
-add_subdirectory(${PLATFORM_PATH}/depend/tls tls)
+add_subdirectory(${PLATFORM_PATH}/library/tls tls)
 target_link_libraries(platform ${CRYPTO_LIB} ${X509_LIB} ${TLS_LIB})
 
-# depends
-add_subdirectory(${PLATFORM_PATH}/depend/xml xml)
+# library
+add_subdirectory(${PLATFORM_PATH}/library/xml xml)
 target_link_libraries(platform xml)
 
-# depends
+# library
 set(DNS_LIB)
-add_subdirectory(${PLATFORM_PATH}/depend/dns dns)
+add_subdirectory(${PLATFORM_PATH}/library/dns dns)
 target_link_libraries(platform ${DNS_LIB})
 
-include(${PLATFORM_PATH}/build/generate_header.cmake)
+# library
+set(ZLIB_LIB)
+set(LIBZIP_LIB)
+add_subdirectory(${PLATFORM_PATH}/library/zip zip)
+target_link_libraries(platform ${ZLIB_LIB} ${LIBZIP_LIB})
 
-# test link
-add_custom_target(test_link_debug
-                  COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_BINARY_DIR}/test_link/test_link_debug
-                  COMMAND ${CMAKE_COMMAND} -E copy_directory ${ROOT_PATH}/program/test_link ${CMAKE_BINARY_DIR}/test_link_debug
-                  COMMAND ${CMAKE_COMMAND} -E copy_directory ${PLATFORM_OUTPATH}/debug/static ${CMAKE_BINARY_DIR}/test_link_debug/static
-                  COMMAND ${CMAKE_COMMAND} -E copy_directory ${PLATFORM_OUTPATH}/debug/shared ${CMAKE_BINARY_DIR}/test_link_debug/shared
-                  COMMAND ${CMAKE_COMMAND} -E copy_directory ${PLATFORM_OUTPATH}/debug/program ${CMAKE_BINARY_DIR}/test_link_debug/program
-                  COMMAND ${CMAKE_COMMAND} -E copy_directory ${PLATFORM_OUTPATH}/include ${CMAKE_BINARY_DIR}/test_link_debug/include)
-add_dependencies(test_link_debug generate_header)
-
-add_custom_target(test_link_release
-                  COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_BINARY_DIR}/test_link/test_link_release
-                  COMMAND ${CMAKE_COMMAND} -E copy_directory ${ROOT_PATH}/program/test_link ${CMAKE_BINARY_DIR}/test_link_release
-                  COMMAND ${CMAKE_COMMAND} -E copy_directory ${PLATFORM_OUTPATH}/debug/static ${CMAKE_BINARY_DIR}/test_link_release/static
-                  COMMAND ${CMAKE_COMMAND} -E copy_directory ${PLATFORM_OUTPATH}/debug/shared ${CMAKE_BINARY_DIR}/test_link_release/shared
-                  COMMAND ${CMAKE_COMMAND} -E copy_directory ${PLATFORM_OUTPATH}/debug/program ${CMAKE_BINARY_DIR}/test_link_release/program
-                  COMMAND ${CMAKE_COMMAND} -E copy_directory ${PLATFORM_OUTPATH}/include ${CMAKE_BINARY_DIR}/test_link_release/include)
-add_dependencies(test_link_release generate_header)
+#include(${PLATFORM_PATH}/build/generate_header.cmake)
+#
+## test link
+#add_custom_target(test_link_debug
+#                  COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_BINARY_DIR}/test_link/test_link_debug
+#                  COMMAND ${CMAKE_COMMAND} -E copy_directory ${ROOT_PATH}/program/test_link ${CMAKE_BINARY_DIR}/test_link_debug
+#                  COMMAND ${CMAKE_COMMAND} -E copy_directory ${PLATFORM_OUTPATH}/debug/static ${CMAKE_BINARY_DIR}/test_link_debug/static
+#                  COMMAND ${CMAKE_COMMAND} -E copy_directory ${PLATFORM_OUTPATH}/debug/shared ${CMAKE_BINARY_DIR}/test_link_debug/shared
+#                  COMMAND ${CMAKE_COMMAND} -E copy_directory ${PLATFORM_OUTPATH}/debug/program ${CMAKE_BINARY_DIR}/test_link_debug/program
+#                  COMMAND ${CMAKE_COMMAND} -E copy_directory ${PLATFORM_OUTPATH}/include ${CMAKE_BINARY_DIR}/test_link_debug/include)
+#add_dependencies(test_link_debug generate_header)
+#
+#add_custom_target(test_link_release
+#                  COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_BINARY_DIR}/test_link/test_link_release
+#                  COMMAND ${CMAKE_COMMAND} -E copy_directory ${ROOT_PATH}/program/test_link ${CMAKE_BINARY_DIR}/test_link_release
+#                  COMMAND ${CMAKE_COMMAND} -E copy_directory ${PLATFORM_OUTPATH}/debug/static ${CMAKE_BINARY_DIR}/test_link_release/static
+#                  COMMAND ${CMAKE_COMMAND} -E copy_directory ${PLATFORM_OUTPATH}/debug/shared ${CMAKE_BINARY_DIR}/test_link_release/shared
+#                  COMMAND ${CMAKE_COMMAND} -E copy_directory ${PLATFORM_OUTPATH}/debug/program ${CMAKE_BINARY_DIR}/test_link_release/program
+#                  COMMAND ${CMAKE_COMMAND} -E copy_directory ${PLATFORM_OUTPATH}/include ${CMAKE_BINARY_DIR}/test_link_release/include)
+#add_dependencies(test_link_release generate_header)

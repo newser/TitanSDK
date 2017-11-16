@@ -1,4 +1,6 @@
-/* Licensed to the Apache Software Foundation (ASF) under one or more
+/* Copyright (C) 2017 haniu (niuhao.cn@gmail.com)
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
@@ -465,7 +467,7 @@ tt_bool_t __do_connect(IN tt_io_ev_t *io_ev)
 {
     __ipc_connect_t *ipc_connect = (__ipc_connect_t *)io_ev;
 
-    ipc_connect->result = TT_SUCCESS;
+    ipc_connect->result = io_ev->io_result;
     return TT_TRUE;
 }
 
@@ -504,7 +506,7 @@ again:
     } else if ((errno == ECONNRESET) || (errno == EPIPE)
                // || (errno == ENETDOWN)
                ) {
-        ipc_send->result = TT_END;
+        ipc_send->result = TT_E_END;
     } else {
         TT_ERROR_NTV("send failed");
         ipc_send->result = TT_FAIL;
@@ -525,7 +527,7 @@ again:
         ipc_recv->result = TT_SUCCESS;
         return TT_TRUE;
     } else if (n == 0) {
-        ipc_recv->result = TT_END;
+        ipc_recv->result = TT_E_END;
         return TT_TRUE;
     } else if (errno == EINTR) {
         goto again;
@@ -538,7 +540,7 @@ again:
     if (errno == ECONNRESET
         // || (errno == ENETDOWN)
         ) {
-        ipc_recv->result = TT_END;
+        ipc_recv->result = TT_E_END;
     } else {
         TT_ERROR_NTV("recv failed");
         ipc_recv->result = TT_FAIL;

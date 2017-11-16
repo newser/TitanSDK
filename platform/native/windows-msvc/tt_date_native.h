@@ -1,4 +1,6 @@
-/* Licensed to the Apache Software Foundation (ASF) under one or more
+/* Copyright (C) 2017 haniu (niuhao.cn@gmail.com)
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
@@ -54,14 +56,5 @@ extern tt_result_t tt_date_component_init_ntv(IN struct tt_profile_s *profile);
 extern tt_tmzone_t tt_local_tmzone_ntv();
 
 extern void tt_date_now_ntv(OUT struct tt_date_s *date);
-
-extern tt_u32_t tt_date_render_ntv(IN struct tt_date_s *date,
-                                   IN const tt_char_t *format,
-                                   IN tt_char_t *buf,
-                                   IN tt_u32_t len);
-
-extern tt_u32_t tt_date_parse_ntv(IN struct tt_date_s *date,
-                                  IN const tt_char_t *format,
-                                  IN const tt_char_t *buf);
 
 #endif /* __TT_DATE_NATIVE__ */

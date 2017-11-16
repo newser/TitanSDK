@@ -1,4 +1,6 @@
-/* Licensed to the Apache Software Foundation (ASF) under one or more
+/* Copyright (C) 2017 haniu (niuhao.cn@gmail.com)
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
@@ -59,7 +61,7 @@ error definition
 
 enum
 {
-    TT_ERR_RANGE_NO_ERROR,
+    TT_ERR_RANGE_NOERR,
     TT_ERR_RANGE_COMMON,
     TT_ERR_RANGE_BUFFER,
     TT_ERR_RANGE_NATIVE,
@@ -70,13 +72,13 @@ typedef enum _tt_result_t {
     // no error
     // ========================================
 
-    TT_ERR_RANGE_NO_ERROR_START = TT_ERR_MK(TT_ERR_RANGE_NO_ERROR, 0),
+    TT_ERR_RANGE_NOERR_START = TT_ERR_MK(TT_ERR_RANGE_NOERR, 0),
 
     // idx: 0
     TT_SUCCESS,
     // set TT_SUCCESS to non-zero to distinguish it with TT_FALSE
 
-    TT_ERR_RANGE_NO_ERROR_END,
+    TT_ERR_RANGE_NOERR_END,
 
     // ========================================
     // common error
@@ -86,25 +88,16 @@ typedef enum _tt_result_t {
 
     // idx: 0
     TT_FAIL,
-    TT_TIME_OUT,
-    TT_END,
-    TT_PROCEEDING,
-    TT_BAD_PARAM,
+    TT_E_TIMEOUT,
+    TT_E_END,
+    TT_E_PROCEED,
+    TT_E_BADARG,
 
     // idx: 5
-    TT_NO_RESOURCE,
-    TT_BAD_ENV,
-    TT_NOT_EXIST,
-    TT_ALREADY_EXIST,
-    TT_NOT_SUPPORT,
-
-    // idx: 10
-    TT_CANCELLED,
-
-    // below for internal usage
-    TT_UNKNOWN_ERROR,
-    // TT_UNKNOWN_ERROR is a special error, indicating error value
-    // recorded is not valid, or fail to get last error
+    TT_E_NOMEM,
+    TT_E_NOEXIST,
+    TT_E_EXIST,
+    TT_E_UNSUPPORT,
 
     TT_ERR_RANGE_COMMON_END,
 
@@ -120,7 +113,7 @@ typedef enum _tt_result_t {
     //  - return
     // callee should do:
     //  - update read pos
-    TT_BUFFER_INCOMPLETE,
+    TT_E_BUF_NOBUFS,
 
     TT_ERR_RANGE_BUFFER_END,
 
@@ -131,7 +124,7 @@ typedef enum _tt_result_t {
     TT_ERR_RANGE_NATIVE_START = TT_ERR_MK(TT_ERR_RANGE_NATIVE, 0),
 
     // idx: 0
-    TT_NATIVE_FAIL,
+    TT_E_NTV_FAIL,
 
     TT_ERR_RANGE_NATIVE_END,
 

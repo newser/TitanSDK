@@ -1,4 +1,6 @@
-/* Licensed to the Apache Software Foundation (ASF) under one or more
+/* Copyright (C) 2017 haniu (niuhao.cn@gmail.com)
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
@@ -97,7 +99,7 @@ wait a system semaphore
 
 @return
 - TT_SUCCESS, if the semaphore is waited
-- TT_TIME_OUT, if the time specified expires
+- TT_E_TIMEOUT, if the time specified expires
 - TT_FAIL, otherwise
 */
 tt_inline tt_bool_t tt_sem_acquire_ntv(IN tt_sem_ntv_t *sys_sem,
@@ -128,7 +130,7 @@ wait a system semaphore
 
 @return
 - TT_SUCCESS, if the semaphore is waited
-- TT_TIME_OUT, if sema can not be waited now
+- TT_E_TIMEOUT, if sema can not be waited now
 - TT_FAIL, otherwise
 */
 tt_inline tt_bool_t tt_sem_try_acquire_ntv(IN tt_sem_ntv_t *sys_sem)

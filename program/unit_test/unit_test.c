@@ -57,7 +57,7 @@ tt_result_t __console_ev_handler(IN void *console_param,
         TT_DEBUG("exit console 1");
         TT_DEBUG("exit console 2");
         TT_DEBUG("exit console 3");
-        return TT_END;
+        return TT_E_END;
     }
 #endif
 
@@ -78,6 +78,9 @@ tt_result_t __ut_fiber(IN void *param)
     GetEnvironmentVariableA("TT_CASE", buf, sizeof(buf) - 1);
     name = buf;
     printf("%s|\n", name);
+    if (name[0] == 0) {
+        name = NULL;
+    }
 #else
     name = getenv("TT_CASE");
 #endif
@@ -93,7 +96,13 @@ tt_result_t __ut_fiber(IN void *param)
 #if 1
     else {
         const tt_char_t *names[] = {
-            "case_udp_event",
+            "case_fs_basic",
+            //"TEST_UNIT_LOG",
+            //"TEST_UNIT_FS",
+            //"TEST_UNIT_IPC",
+            //"TEST_UNIT_SOCKET",
+            //"TEST_UNIT_FIBER",
+            //"ZIP_UT_ZLIB",
         };
         tt_u32_t i;
 
@@ -109,6 +118,37 @@ tt_result_t __ut_fiber(IN void *param)
     }
 #endif
 
+    return TT_SUCCESS;
+}
+
+static tt_s32_t tt_g_flock_ret;
+
+tt_result_t __flock_fiber(IN void *param)
+{
+    char **argv = (char **)param;
+    // tt_file_t f;
+    // tt_result_t r;
+    tt_u32_t i = 0;
+
+    printf("testing flock 2\n");
+
+#if 0
+    printf("opening: %s\n", argv[2]);
+    if (!TT_OK(tt_fopen(&f, argv[2], TT_FO_RDWR, NULL))) {
+        tt_g_flock_ret = -1;
+        return TT_FAIL;
+    }
+    printf("flock %d\n", TT_BOOL(strcmp(argv[3], "ex") == 0));
+    r = tt_ftrylock(&f, TT_BOOL(strcmp(argv[3], "ex") == 0));
+    if (TT_OK(r)) {
+        tt_funlock(&f);
+        tt_g_flock_ret = 0;
+    } else if (r == TT_E_TIMEOUT) {
+        tt_g_flock_ret = 1;
+    } else {
+        tt_g_flock_ret = -1;
+    }
+#endif
     return TT_SUCCESS;
 }
 
@@ -166,6 +206,22 @@ int main(int argc, char *argv[])
         extern void tt_test_gen_sh_win();
         tt_test_gen_sh_win();
         return 0;
+    } else if (strcmp(argv[1], "flock") == 0) {
+        tt_task_t t;
+
+        printf("testing flock 1\n");
+
+        if (argc < 4) {
+            return -1;
+        }
+
+        tt_platform_init(NULL);
+        tt_task_create(&t, NULL);
+        tt_task_add_fiber(&t, NULL, __flock_fiber, argv, NULL);
+        tt_task_run(&t);
+        tt_task_wait(&t);
+        printf("exiting\n");
+        return tt_g_flock_ret;
     } else {
         printf("unknown process arg: %s\n", argv[1]);
 

@@ -1,4 +1,6 @@
-/* Licensed to the Apache Software Foundation (ASF) under one or more
+/* Copyright (C) 2017 haniu (niuhao.cn@gmail.com)
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
@@ -76,11 +78,8 @@ tt_export tt_loglyt_t *tt_loglyt_create(IN tt_u32_t size,
 
 tt_export void tt_loglyt_destroy(IN tt_loglyt_t *ll);
 
-tt_inline tt_result_t tt_loglyt_format(IN tt_loglyt_t *ll,
+tt_export tt_result_t tt_loglyt_format(IN tt_loglyt_t *ll,
                                        IN tt_log_entry_t *entry,
-                                       OUT struct tt_buf_s *outbuf)
-{
-    return ll->itf->format(ll, entry, outbuf);
-}
+                                       OUT struct tt_buf_s *outbuf);
 
 #endif /* __TT_LOG_LAYOUT__ */

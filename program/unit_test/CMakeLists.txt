@@ -33,17 +33,22 @@ endif ()
 include_directories(${PLATFORM_PATH}/include)
 include_directories(${PLATFORM_PATH}/native/${PLATFORM_ENV})
 
-# depend: fcontext
-include_directories(${PLATFORM_PATH}/depend/fcontext/include)
-include_directories(${PLATFORM_PATH}/depend/fcontext/boost)
+# library: fcontext
+include_directories(${PLATFORM_PATH}/library/fcontext/include)
+include_directories(${PLATFORM_PATH}/library/fcontext/boost)
 
-# depend: tls
-include_directories(${PLATFORM_PATH}/depend/tls/include)
-include_directories(${PLATFORM_PATH}/depend/tls/mbedtls/include/mbedtls)
+# library: tls
+include_directories(${PLATFORM_PATH}/library/tls/include)
+include_directories(${PLATFORM_PATH}/library/tls/mbedtls/include/mbedtls)
 
-# depend: dns
-include_directories(${PLATFORM_PATH}/depend/dns/c-ares)
-include_directories(${PLATFORM_PATH}/depend/dns/include)
+# library: dns
+include_directories(${PLATFORM_PATH}/library/dns/c-ares)
+include_directories(${PLATFORM_PATH}/library/dns/include)
+
+# library: zip
+include_directories(${PLATFORM_PATH}/library/zip/zlib)
+include_directories(${PLATFORM_PATH}/library/zip/libzip/lib)
+include_directories(${PLATFORM_PATH}/library/zip/include)
 
 #
 # source file

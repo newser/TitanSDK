@@ -1,4 +1,6 @@
-/* Licensed to the Apache Software Foundation (ASF) under one or more
+/* Copyright (C) 2017 haniu (niuhao.cn@gmail.com)
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
@@ -30,6 +32,7 @@ this file specifies socket APIs
 
 #include <io/tt_socket_addr.h>
 #include <os/tt_atomic.h>
+#include <os/tt_fiber_event.h>
 
 #include <tt_socket_native.h>
 
@@ -41,7 +44,6 @@ this file specifies socket APIs
 // type definition
 ////////////////////////////////////////////////////////////
 
-struct tt_fiber_ev_s;
 struct tt_tmr_s;
 
 typedef struct tt_skt_s
@@ -151,11 +153,27 @@ tt_inline tt_result_t tt_skt_send(IN tt_skt_t *skt,
     }
 }
 
+tt_inline tt_result_t tt_skt_send_all(IN tt_skt_t *skt,
+                                      IN tt_u8_t *buf,
+                                      IN tt_u32_t len)
+{
+    tt_u32_t n = 0;
+    while (n < len) {
+        tt_u32_t sent;
+        tt_result_t result;
+        if (!TT_OK(result = tt_skt_send(skt, buf + n, len - n, &sent))) {
+            return result;
+        }
+        n += sent;
+    }
+    return TT_SUCCESS;
+}
+
 tt_inline tt_result_t tt_skt_recv(IN tt_skt_t *skt,
                                   OUT tt_u8_t *buf,
                                   IN tt_u32_t len,
                                   OUT OPT tt_u32_t *recvd,
-                                  OUT struct tt_fiber_ev_s **p_fev,
+                                  OUT tt_fiber_ev_t **p_fev,
                                   OUT struct tt_tmr_s **p_tmr)
 {
     if (len != 0) {
@@ -171,7 +189,7 @@ tt_inline tt_result_t tt_skt_recvfrom(IN tt_skt_t *skt,
                                       IN tt_u32_t len,
                                       OUT OPT tt_u32_t *recvd,
                                       OUT OPT tt_sktaddr_t *addr,
-                                      OUT struct tt_fiber_ev_s **p_fev,
+                                      OUT tt_fiber_ev_t **p_fev,
                                       OUT struct tt_tmr_s **p_tmr)
 {
     if (len != 0) {
@@ -200,6 +218,24 @@ tt_inline tt_result_t tt_skt_sendto(IN tt_skt_t *skt,
         *sent = 0;
         return TT_SUCCESS;
     }
+}
+
+tt_inline tt_result_t tt_skt_sendto_all(IN tt_skt_t *skt,
+                                        IN tt_u8_t *buf,
+                                        IN tt_u32_t len,
+                                        IN tt_sktaddr_t *addr)
+{
+    tt_u32_t n = 0;
+    while (n < len) {
+        tt_u32_t sent;
+        tt_result_t result;
+        if (!TT_OK(result =
+                       tt_skt_sendto(skt, buf + n, len - n, &sent, addr))) {
+            return result;
+        }
+        n += sent;
+    }
+    return TT_SUCCESS;
 }
 
 tt_export tt_result_t tt_skt_local_addr(IN tt_skt_t *skt,

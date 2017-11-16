@@ -1,4 +1,6 @@
-/* Licensed to the Apache Software Foundation (ASF) under one or more
+/* Copyright (C) 2017 haniu (niuhao.cn@gmail.com)
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
@@ -60,6 +62,8 @@ TT_TEST_UNIT_DECLARE(TEST_UNIT_CFGSHELL)
 TT_TEST_UNIT_DECLARE(TEST_UNIT_LOG_PATTERN)
 TT_TEST_UNIT_DECLARE(TEST_UNIT_FIBER)
 TT_TEST_UNIT_DECLARE(TEST_UNIT_DATE)
+TT_TEST_UNIT_DECLARE(TEST_UNIT_FPATH)
+TT_TEST_UNIT_DECLARE(TEST_UNIT_DATA_NODE)
 
 ////////////////////////////////////////////////////////////
 // global variant
@@ -83,6 +87,7 @@ tt_test_unit_t *tt_g_test_unit_list[TEST_UNIT_NUM] = {
     &TT_MAKE_TEST_UNIT_NAME(TEST_UNIT_TIME_REF),
     &TT_MAKE_TEST_UNIT_NAME(TEST_UNIT_DATE),
     &TT_MAKE_TEST_UNIT_NAME(TEST_UNIT_TIMER),
+    &TT_MAKE_TEST_UNIT_NAME(TEST_UNIT_FPATH),
 
     &TT_MAKE_TEST_UNIT_NAME(TEST_UNIT_MISC),
     &TT_MAKE_TEST_UNIT_NAME(TEST_UNIT_CHARSET),
@@ -159,6 +164,16 @@ tt_result_t tt_test_unit_init(IN tt_ptr_t reserved)
     do {
         tt_result_t tt_cli_ut_init(IN tt_ptr_t reserved);
         tt_cli_ut_init(0);
+    } while (0);
+
+    do {
+        tt_result_t tt_zip_ut_init(IN tt_ptr_t reserved);
+        tt_zip_ut_init(0);
+    } while (0);
+
+    do {
+        tt_result_t tt_data_ut_init(IN tt_ptr_t reserved);
+        tt_data_ut_init(0);
     } while (0);
 
     return TT_SUCCESS;

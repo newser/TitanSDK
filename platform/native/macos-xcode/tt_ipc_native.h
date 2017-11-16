@@ -1,4 +1,6 @@
-/* Licensed to the Apache Software Foundation (ASF) under one or more
+/* Copyright (C) 2017 haniu (niuhao.cn@gmail.com)
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
@@ -28,7 +30,7 @@ this file defines ipc native
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <tt_basic_type.h>
+#include <os/tt_fiber_event.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
@@ -40,7 +42,6 @@ this file defines ipc native
 
 struct tt_profile_s;
 struct tt_ipc_attr_s;
-struct tt_fiber_ev_s;
 struct tt_tmr_s;
 struct tt_io_ev_s;
 
@@ -83,7 +84,7 @@ extern tt_result_t tt_ipc_recv_ntv(IN tt_ipc_ntv_t *ipc,
                                    OUT tt_u8_t *buf,
                                    IN tt_u32_t len,
                                    OUT tt_u32_t *recvd,
-                                   OUT struct tt_fiber_ev_s **p_fev,
+                                   OUT tt_fiber_ev_t **p_fev,
                                    OUT struct tt_tmr_s **p_tmr);
 
 extern void tt_ipc_worker_io(IN struct tt_io_ev_s *io_ev);

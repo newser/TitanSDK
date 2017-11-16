@@ -1,4 +1,6 @@
-/* Licensed to the Apache Software Foundation (ASF) under one or more
+/* Copyright (C) 2017 haniu (niuhao.cn@gmail.com)
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
@@ -132,7 +134,7 @@ tt_result_t tt_test_item_add(IN tt_test_class_t *test_class,
     tt_memset(created_item, 0, sizeof(tt_test_item_t));
 
     tt_memcpy(&created_item->entry, entry, sizeof(tt_test_entry_t));
-    created_item->test_result = TT_PROCEEDING;
+    created_item->test_result = TT_E_PROCEED;
     tt_strncpy(created_item->name, name, TT_TEST_ITEM_NAME_LEN);
     if (comment != NULL) {
         tt_strncpy(created_item->comment, comment, TT_TEST_ITEM_COMMENT_LEN);
@@ -208,13 +210,13 @@ tt_result_t tt_test_run(IN const tt_char_t *name)
             }
 
             result = tt_test_run_item_of(test_class, name);
-            if (result != TT_NOT_EXIST) {
+            if (result != TT_E_NOEXIST) {
                 test_class->attribute |= __TCLS_TOUCHED;
                 return result;
             }
             test_class = test_class->next;
         }
-        return TT_NOT_EXIST;
+        return TT_E_NOEXIST;
     }
 }
 
@@ -300,7 +302,7 @@ tt_result_t tt_test_list_item(IN tt_test_item_t *item,
                               IN OUT tt_u32_t *succ_num,
                               IN OUT tt_u32_t *fail_num)
 {
-    if (item->test_result == TT_PROCEEDING) {
+    if (item->test_result == TT_E_PROCEED) {
         return TT_SUCCESS;
     }
 
@@ -366,7 +368,7 @@ tt_result_t tt_test_run_item_of(IN tt_test_class_t *test_class,
         }
         item = item->next;
     }
-    return TT_NOT_EXIST;
+    return TT_E_NOEXIST;
 }
 
 tt_result_t tt_test_run_item(IN tt_test_item_t *item)

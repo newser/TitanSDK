@@ -1,4 +1,6 @@
-/* Licensed to the Apache Software Foundation (ASF) under one or more
+/* Copyright (C) 2017 haniu (niuhao.cn@gmail.com)
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
@@ -47,7 +49,7 @@ typedef struct
 
 typedef struct
 {
-    tt_logio_std_attr_t attr;
+    tt_u32_t reserved;
 } tt_logio_std_t;
 
 ////////////////////////////////////////////////////////////

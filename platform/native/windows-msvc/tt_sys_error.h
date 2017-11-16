@@ -1,4 +1,6 @@
-/* Licensed to the Apache Software Foundation (ASF) under one or more
+/* Copyright (C) 2017 haniu (niuhao.cn@gmail.com)
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
@@ -38,14 +40,14 @@ APIs to show system error information
     do {                                                                       \
         DWORD err_no = GetLastError();                                         \
         TT_ERROR(__VA_ARGS__);                                                 \
-        tt_last_error_show(err_no, __FUNCTION__, __LINE__);                    \
+        tt_sys_err_show(err_no, __FUNCTION__, __LINE__);                       \
     } while (0)
 
 #define TT_NET_ERROR_NTV(...)                                                  \
     do {                                                                       \
         DWORD err_no = WSAGetLastError();                                      \
         TT_ERROR(__VA_ARGS__);                                                 \
-        tt_last_error_show(err_no, __FUNCTION__, __LINE__);                    \
+        tt_sys_err_show(err_no, __FUNCTION__, __LINE__);                       \
     } while (0)
 
 ////////////////////////////////////////////////////////////
@@ -60,8 +62,13 @@ APIs to show system error information
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern void tt_last_error_show(IN DWORD err_no,
-                               IN LPSTR lpszFunction,
-                               IN int line);
+tt_inline tt_u32_t tt_get_sys_err()
+{
+    return GetLastError();
+}
+
+extern void tt_sys_err_show(IN DWORD err_no,
+                            IN LPSTR lpszFunction,
+                            IN int line);
 
 #endif /* __TT_SYS_ERROR__ */

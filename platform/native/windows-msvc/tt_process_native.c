@@ -1,4 +1,6 @@
-/* Licensed to the Apache Software Foundation (ASF) under one or more
+/* Copyright (C) 2017 haniu (niuhao.cn@gmail.com)
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
@@ -28,6 +30,8 @@
 #include <tt_sys_error.h>
 #include <tt_wchar.h>
 
+#include <psapi.h>
+
 ////////////////////////////////////////////////////////////
 // internal macro
 ////////////////////////////////////////////////////////////
@@ -43,6 +47,8 @@
 ////////////////////////////////////////////////////////////
 // global variant
 ////////////////////////////////////////////////////////////
+
+static tt_char_t tt_s_process_name[256];
 
 ////////////////////////////////////////////////////////////
 // interface declaration
@@ -169,7 +175,7 @@ tt_result_t tt_process_wait_ntv(IN tt_process_ntv_t *sys_proc,
         CloseHandle(sys_proc->proc_info.hThread);
         return TT_SUCCESS;
     } else if (ret == WAIT_TIMEOUT) {
-        return TT_TIME_OUT;
+        return TT_E_TIMEOUT;
     } else {
         TT_ERROR_NTV("wait process failed");
         return TT_FAIL;
@@ -217,4 +223,71 @@ tt_char_t *tt_process_path_ntv(IN OPT tt_process_ntv_t *sys_proc)
     WideCharToMultiByte(CP_UTF8, 0, wc_path, -1, path, nc, NULL, NULL);
     // path is null-terminated when using -1
     return path;
+}
+
+tt_char_t *tt_current_path_ntv(IN tt_bool_t end_slash)
+{
+    DWORD len;
+    char *d;
+
+    len = GetCurrentDirectoryA(0, NULL);
+    if (len == 0) {
+        TT_ERROR_NTV("fail to get current directory length");
+        return NULL;
+    }
+
+    d = tt_malloc(len + 2);
+    if (d == NULL) {
+        TT_ERROR("no mem for current directory");
+        return NULL;
+    }
+
+    len = GetCurrentDirectoryA(len + 2, d);
+    if (len == 0) {
+        TT_ERROR_NTV("fail to get current directory");
+        tt_free(d);
+        return NULL;
+    }
+    if (end_slash && (len > 0) && (d[len - 1] != '\\')) {
+        d[len] = '\\';
+        d[len + 1] = 0;
+    }
+
+    return d;
+}
+
+tt_result_t tt_process_name_ntv(IN tt_char_t *name, IN tt_u32_t len)
+{
+    wchar_t wpath[MAX_PATH + 1] = {0};
+    char *upath, *p;
+    tt_u32_t n;
+
+    if (GetProcessImageFileNameW(GetCurrentProcess(), wpath, MAX_PATH) == 0) {
+        TT_ERROR_NTV("fail to get process name");
+        return TT_FAIL;
+    }
+
+    upath = tt_utf8_create(wpath, NULL);
+    if (upath == NULL) {
+        return TT_FAIL;
+    }
+
+    p = tt_strrchr(upath, '\\');
+    if (p != NULL) {
+        p += 1;
+    } else {
+        p = upath;
+    }
+
+    n = (tt_u32_t)tt_strlen(p);
+    if (n >= len) {
+        TT_WARN("process name may be truncated");
+        n = len - 1;
+    }
+
+    tt_memcpy(name, p, n);
+    name[n] = 0;
+
+    tt_free(upath);
+    return TT_SUCCESS;
 }

@@ -1,4 +1,6 @@
-/* Licensed to the Apache Software Foundation (ASF) under one or more
+/* Copyright (C) 2017 haniu (niuhao.cn@gmail.com)
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
@@ -458,7 +460,7 @@ tt_result_t tt_skt_remote_addr_ntv(IN tt_skt_ntv_t *skt, OUT tt_sktaddr_t *addr)
 tt_result_t tt_skt_recvfrom_ntv(IN tt_skt_ntv_t *skt,
                                 OUT tt_u8_t *buf,
                                 IN tt_u32_t len,
-                                OUT tt_u32_t *recvd,
+                                OUT OPT tt_u32_t *recvd,
                                 OUT OPT tt_sktaddr_t *addr,
                                 OUT tt_fiber_ev_t **p_fev,
                                 OUT tt_tmr_t **p_tmr)
@@ -815,7 +817,7 @@ tt_bool_t __do_connect(IN tt_io_ev_t *io_ev)
 {
     __skt_connect_t *skt_connect = (__skt_connect_t *)io_ev;
 
-    skt_connect->result = TT_SUCCESS;
+    skt_connect->result = io_ev->io_result;
     return TT_TRUE;
 }
 
@@ -854,7 +856,7 @@ again:
     } else if ((errno == ECONNRESET) || (errno == EPIPE)
                // || (errno == ENETDOWN)
                ) {
-        skt_send->result = TT_END;
+        skt_send->result = TT_E_END;
     } else {
         TT_ERROR_NTV("send failed");
         skt_send->result = TT_FAIL;
@@ -876,7 +878,7 @@ again:
         skt_recv->done = TT_TRUE;
         return TT_TRUE;
     } else if (n == 0) {
-        skt_recv->result = TT_END;
+        skt_recv->result = TT_E_END;
         skt_recv->done = TT_TRUE;
         return TT_TRUE;
     } else if (errno == EINTR) {
@@ -890,7 +892,7 @@ again:
     if (errno == ECONNRESET
         // || (errno == ENETDOWN)
         ) {
-        skt_recv->result = TT_END;
+        skt_recv->result = TT_E_END;
     } else {
         TT_ERROR_NTV("recv failed");
         skt_recv->result = TT_FAIL;
@@ -936,7 +938,7 @@ again:
     } else if ((errno == ECONNRESET) || (errno == EPIPE)
                // || (errno == ENETDOWN)
                ) {
-        skt_sendto->result = TT_END;
+        skt_sendto->result = TT_E_END;
     } else {
         TT_ERROR_NTV("sendto failed");
         skt_sendto->result = TT_FAIL;
@@ -964,7 +966,7 @@ again:
         skt_recvfrom->done = TT_TRUE;
         return TT_TRUE;
     } else if (n == 0) {
-        skt_recvfrom->result = TT_END;
+        skt_recvfrom->result = TT_E_END;
         skt_recvfrom->done = TT_TRUE;
         return TT_TRUE;
     } else if (errno == EINTR) {
@@ -978,7 +980,7 @@ again:
     if (errno == ECONNRESET
         // || (errno == ENETDOWN)
         ) {
-        skt_recvfrom->result = TT_END;
+        skt_recvfrom->result = TT_E_END;
     } else {
         TT_ERROR_NTV("recvfrom failed");
         skt_recvfrom->result = TT_FAIL;

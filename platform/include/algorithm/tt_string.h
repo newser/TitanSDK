@@ -1,4 +1,6 @@
-/* Licensed to the Apache Software Foundation (ASF) under one or more
+/* Copyright (C) 2017 haniu (niuhao.cn@gmail.com)
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
@@ -103,6 +105,11 @@ tt_export tt_result_t tt_string_setfrom(IN tt_string_t *str,
 tt_export tt_result_t tt_string_setfrom_c(IN tt_string_t *str,
                                           IN tt_u32_t from,
                                           IN tt_char_t c);
+
+tt_export tt_result_t tt_string_set_range(IN tt_string_t *str,
+                                          IN tt_u32_t from,
+                                          IN tt_u32_t len,
+                                          IN const tt_char_t *cstr);
 
 tt_export void tt_string_clear(IN tt_string_t *str);
 

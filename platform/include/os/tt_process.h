@@ -1,4 +1,6 @@
-/* Licensed to the Apache Software Foundation (ASF) under one or more
+/* Copyright (C) 2017 haniu (niuhao.cn@gmail.com)
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
@@ -83,5 +85,12 @@ tt_export void tt_process_attr_default(IN tt_process_attr_t *attr);
 tt_export void tt_process_exit(IN tt_u8_t exit_code);
 
 tt_export tt_char_t *tt_process_path(IN OPT tt_process_t *proc);
+
+tt_inline tt_char_t *tt_current_path(IN tt_bool_t end_slash)
+{
+    return tt_current_path_ntv(end_slash);
+}
+
+tt_export const tt_char_t *tt_process_name();
 
 #endif /* __TT_PROCESS__ */

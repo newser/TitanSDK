@@ -16,12 +16,12 @@ tt_result_t __ut_fiber(IN void *param)
 {
     const tt_char_t *name = NULL;
     const tt_char_t buf[200] = {0};
-    
+
     tt_test_framework_init(0);
     tt_test_unit_init(NULL);
 
 #if TT_ENV_OS_IS_WINDOWS
-    GetEnvironmentVariableA("TT_CASE", buf, sizeof(buf)-1);
+    GetEnvironmentVariableA("TT_CASE", buf, sizeof(buf) - 1);
     name = buf;
 #else
     name = getenv("TT_CASE");
@@ -34,9 +34,30 @@ tt_result_t __ut_fiber(IN void *param)
         } else if (TT_OK(tt_test_unit_run(name))) {
             tt_ut_ok = TT_TRUE;
         }
-    } else {
+    }
+#if 1
+    else {
+        const tt_char_t *names[] = {
+            "case_queue",
+            //"TEST_UNIT_LOG",
+            //"TEST_UNIT_FIBER",
+            //"TEST_UNIT_FS",
+            //"TEST_UNIT_SOCKET",
+            //"TEST_UNIT_IPC"
+        };
+        tt_u32_t i;
+
+        for (i = 0; i < sizeof(names) / sizeof(names[0]); ++i) {
+            tt_test_unit_run(names[i]);
+        }
+        tt_test_unit_list(NULL);
+        tt_ut_ok = TT_TRUE;
+    }
+#else
+    else {
         printf("unit_test <case name> | all");
     }
+#endif
 
     return TT_SUCCESS;
 }

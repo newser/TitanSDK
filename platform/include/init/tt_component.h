@@ -1,4 +1,6 @@
-/* Licensed to the Apache Software Foundation (ASF) under one or more
+/* Copyright (C) 2017 haniu (niuhao.cn@gmail.com)
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
@@ -47,6 +49,8 @@ typedef enum {
 
     // log
     TT_COMPONENT_LOG,
+    TT_COMPONENT_BACKTRACE,
+    TT_COMPONENT_CRASH_TRACE,
 
     // config
     TT_COMPONENT_CONFIG,
@@ -106,6 +110,10 @@ typedef enum {
     TT_COMPONENT_MODULE_ADNS,
     TT_COMPONENT_DNS,
     TT_COMPONENT_DNS_CACHE,
+
+    // ========================================
+    // can init application from now on
+    // ========================================
 
     // log manager
     TT_COMPONENT_LOG_MANAGER,

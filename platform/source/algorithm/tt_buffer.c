@@ -1,4 +1,6 @@
-/* Licensed to the Apache Software Foundation (ASF) under one or more
+/* Copyright (C) 2017 haniu (niuhao.cn@gmail.com)
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
@@ -207,6 +209,50 @@ tt_result_t tt_buf_set(IN tt_buf_t *buf,
     return TT_SUCCESS;
 }
 
+tt_result_t tt_buf_set_range(IN tt_buf_t *buf,
+                             IN tt_u32_t pos,
+                             IN tt_u32_t len,
+                             IN tt_u8_t *data,
+                             IN tt_u32_t data_len)
+{
+    if (TT_ADD_WOULD_OVFL(tt_u32_t, buf->rpos, pos, tt_u64_t) ||
+        TT_ADD_WOULD_OVFL(tt_u32_t, buf->rpos, pos + len, tt_u64_t)) {
+        TT_ERROR("overflow");
+        return TT_FAIL;
+    }
+
+    // [buf->rpos + pos, buf->rpos + pos + data_len) must be
+    // in readable area
+    if ((buf->rpos + pos) > buf->wpos) {
+        TT_ERROR("invalid pos");
+        return TT_FAIL;
+    }
+    if ((buf->rpos + pos + len) > buf->wpos) {
+        TT_ERROR("invalid len");
+        return TT_FAIL;
+    }
+
+    if (len < data_len) {
+        tt_u8_t *p;
+        tt_u32_t n = data_len - len;
+        TT_DO(tt_buf_reserve(buf, n));
+        p = &buf->p[buf->rpos + pos];
+        tt_memmove(p + data_len, p + len, TT_BUF_RLEN(buf) - pos - len);
+        tt_memcpy(p, data, data_len);
+        buf->wpos += n;
+    } else if (len == data_len) {
+        tt_memcpy(&buf->p[buf->rpos + pos], data, data_len);
+    } else {
+        tt_u8_t *p = &buf->p[buf->rpos + pos];
+        tt_u32_t n = len - data_len;
+        tt_memmove(p + data_len, p + len, TT_BUF_RLEN(buf) - pos - len);
+        tt_memcpy(p, data, data_len);
+        buf->wpos -= n;
+    }
+
+    return TT_SUCCESS;
+}
+
 // ========================================
 // memory operation
 // ========================================
@@ -375,7 +421,7 @@ tt_result_t tt_buf_get_nocopy(IN tt_buf_t *buf,
                               IN tt_u32_t len)
 {
     if (TT_BUF_RLEN(buf) < len) {
-        return TT_BUFFER_INCOMPLETE;
+        return TT_E_BUF_NOBUFS;
     }
 
     *p = TT_BUF_RPOS(buf);
@@ -418,7 +464,7 @@ tt_u32_t tt_buf_get_hexstr(IN tt_buf_t *buf,
 tt_result_t tt_buf_peek(IN tt_buf_t *buf, IN tt_u8_t *p, IN tt_u32_t len)
 {
     if (TT_BUF_RLEN(buf) < len) {
-        return TT_BUFFER_INCOMPLETE;
+        return TT_E_BUF_NOBUFS;
     }
 
     tt_memcpy(p, TT_BUF_RPOS(buf), len);

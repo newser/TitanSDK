@@ -1,4 +1,6 @@
-/* Licensed to the Apache Software Foundation (ASF) under one or more
+/* Copyright (C) 2017 haniu (niuhao.cn@gmail.com)
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
@@ -119,7 +121,11 @@ TT_TEST_ROUTINE_DEFINE(case_rbtree)
     do {
         tt_u32_t i = 0;
 
+#ifdef __UT_LITE__
         array_num = tt_rand_u32() % 10000 + 20;
+#else
+        array_num = tt_rand_u32() % 100 + 20;
+#endif
         // array_num = 20;
 
         array = (tt_u32_t *)tt_malloc(sizeof(tt_u32_t) * array_num);

@@ -1,4 +1,6 @@
-/* Licensed to the Apache Software Foundation (ASF) under one or more
+/* Copyright (C) 2017 haniu (niuhao.cn@gmail.com)
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
@@ -209,6 +211,27 @@ tt_u32_t tt_string_rfind_c(IN tt_string_t *s, IN tt_char_t c)
     return (tt_u32_t)(pos - TT_BUF_RPOS(buf));
 }
 
+tt_u32_t tt_string_rfindfrom_c(IN tt_string_t *s,
+                               IN tt_u32_t from,
+                               IN tt_char_t c)
+{
+    tt_u32_t n;
+    const tt_char_t *cs;
+
+    n = tt_string_len(s);
+    if (from > n) {
+        from = n;
+    }
+
+    cs = tt_string_cstr(s);
+    while (--from != ~0) {
+        if (cs[from] == c) {
+            return from;
+        }
+    }
+    return TT_POS_NULL;
+}
+
 void tt_string_remove_range(IN tt_string_t *s,
                             IN tt_u32_t from,
                             IN tt_u32_t len)
@@ -225,6 +248,31 @@ void tt_string_remove_range(IN tt_string_t *s,
     }
 
     tt_buf_remove_range(&s->buf, from, from + len);
+}
+
+void tt_string_remove_headto(IN tt_string_t *s, IN tt_u32_t to)
+{
+    tt_u32_t n;
+
+    n = tt_string_len(s);
+    if (to >= n) {
+        to = n;
+    }
+
+    tt_buf_remove_headto(&s->buf, to);
+}
+
+void tt_string_remove_tailfrom(IN tt_string_t *s, IN tt_u32_t from)
+{
+    tt_u32_t n;
+
+    n = tt_string_len(s);
+    if (from >= n) {
+        return;
+    }
+
+    tt_buf_remove_tailfrom(&s->buf, from);
+    tt_buf_put_u8(&s->buf, 0);
 }
 
 tt_result_t tt_string_append(IN OUT tt_string_t *s, IN const tt_char_t *substr)
@@ -302,6 +350,26 @@ tt_result_t tt_string_append_sub(IN OUT tt_string_t *s,
     return TT_SUCCESS;
 }
 
+tt_result_t tt_string_append_f(IN OUT tt_string_t *s,
+                               IN const tt_char_t *format,
+                               ...)
+{
+    tt_buf_t *buf = &s->buf;
+    va_list args;
+    tt_result_t result;
+
+    TT_ASSERT(buf->wpos > 0);
+    --buf->wpos;
+
+    va_start(args, format);
+    result = tt_buf_putv(buf, format, args);
+    va_end(args);
+    (void)result;
+
+    TT_DO(tt_buf_put_u8(buf, 0));
+    return TT_SUCCESS;
+}
+
 tt_bool_t tt_string_startwith(IN tt_string_t *s, IN const tt_char_t *substr)
 {
     tt_u32_t n = (tt_u32_t)tt_strlen(substr);
@@ -353,6 +421,26 @@ tt_result_t tt_string_substr(IN tt_string_t *s,
     TT_DO(tt_buf_put(buf, p, len));
     TT_DO(tt_buf_put_u8(buf, 0));
     return TT_SUCCESS;
+}
+
+tt_s32_t tt_string_replace_c(IN OUT tt_string_t *s,
+                             IN tt_char_t oldchar,
+                             IN tt_char_t newchar)
+{
+    tt_char_t *p;
+    tt_s32_t n;
+
+    p = (tt_char_t *)tt_string_cstr(s);
+    n = 0;
+    while (*p != 0) {
+        if (*p == oldchar) {
+            *p = newchar;
+            ++n;
+        }
+        ++p;
+    }
+
+    return n;
 }
 
 void tt_string_tolower(IN OUT tt_string_t *s)

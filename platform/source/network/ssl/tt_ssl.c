@@ -1,4 +1,6 @@
-/* Licensed to the Apache Software Foundation (ASF) under one or more
+/* Copyright (C) 2017 haniu (niuhao.cn@gmail.com)
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
@@ -154,7 +156,7 @@ void tt_ssl_destroy(IN tt_ssl_t *ssl)
 }
 
 tt_result_t tt_ssl_handshake(IN tt_ssl_t *ssl,
-                             OUT struct tt_fiber_ev_s **p_fev,
+                             OUT tt_fiber_ev_t **p_fev,
                              OUT struct tt_tmr_s **p_tmr)
 {
     tt_ssl_config_t *sc;
@@ -173,7 +175,7 @@ tt_result_t tt_ssl_handshake(IN tt_ssl_t *ssl,
     while ((e = mbedtls_ssl_handshake(&ssl->ctx)) != 0) {
         if (e == MBEDTLS_ERR_SSL_WANT_READ) {
             if ((*p_fev != NULL) || (*p_tmr != NULL)) {
-                return TT_PROCEEDING;
+                return TT_E_PROCEED;
             } else {
                 continue;
             }
@@ -215,7 +217,7 @@ tt_result_t tt_ssl_recv(IN tt_ssl_t *ssl,
                         OUT tt_u8_t *buf,
                         IN tt_u32_t len,
                         OUT tt_u32_t *recvd,
-                        OUT struct tt_fiber_ev_s **p_fev,
+                        OUT tt_fiber_ev_t **p_fev,
                         OUT struct tt_tmr_s **p_tmr)
 {
     int e;
@@ -231,11 +233,11 @@ tt_result_t tt_ssl_recv(IN tt_ssl_t *ssl,
             if ((*p_fev != NULL) || (*p_tmr != NULL)) {
                 break;
             } else {
-                return TT_END;
+                return TT_E_END;
             }
         } else if ((e == MBEDTLS_ERR_SSL_CONN_EOF) ||
                    (e == MBEDTLS_ERR_NET_CONN_RESET)) {
-            return TT_END;
+            return TT_E_END;
         } else {
             tt_ssl_error("ssl send fail");
             return TT_FAIL;
@@ -404,7 +406,7 @@ int __ssl_recv(void *ctx, unsigned char *buf, size_t len)
                          ssl->p_tmr);
     if (TT_OK(result)) {
         return (int)recvd;
-    } else if (result == TT_END) {
+    } else if (result == TT_E_END) {
         return 0;
     } else {
         return MBEDTLS_ERR_NET_RECV_FAILED;

@@ -1,4 +1,6 @@
-/* Licensed to the Apache Software Foundation (ASF) under one or more
+/* Copyright (C) 2017 haniu (niuhao.cn@gmail.com)
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
@@ -112,7 +114,7 @@ tt_export tt_result_t tt_cli_update_prefix(IN tt_cli_t *cli,
                                            IN OPT const tt_char_t *sub_title,
                                            IN OPT tt_char_t seperator);
 
-// return TT_END, when cli should exit
+// return TT_E_END, when cli should exit
 tt_export tt_result_t tt_cli_input(IN tt_cli_t *cli,
                                    IN tt_u8_t *ev,
                                    IN tt_u32_t ev_num);

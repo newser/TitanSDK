@@ -1,4 +1,6 @@
-/* Licensed to the Apache Software Foundation (ASF) under one or more
+/* Copyright (C) 2017 haniu (niuhao.cn@gmail.com)
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
@@ -20,7 +22,6 @@
 
 #include <tt_process_native.h>
 
-#include <memory/tt_memory_alloc.h>
 #include <misc/tt_util.h>
 #include <os/tt_process.h>
 
@@ -31,6 +32,7 @@
 #include <stdlib.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <unistd.h>
 
 ////////////////////////////////////////////////////////////
 // internal macro
@@ -105,7 +107,7 @@ __wait_ag:
         }
         return TT_SUCCESS;
     } else if (ret == 0) {
-        return TT_TIME_OUT;
+        return TT_E_TIMEOUT;
     }
 
     // failed
@@ -147,4 +149,55 @@ tt_char_t *tt_process_path_ntv(IN OPT tt_process_ntv_t *sys_proc)
     // path is already null-terminated
 
     return path;
+}
+
+tt_char_t *tt_current_path_ntv(IN tt_bool_t end_slash)
+{
+    char *cwd, *d;
+    tt_u32_t len, append_slash;
+
+    cwd = getcwd(NULL, 0);
+    if (cwd == NULL) {
+        TT_ERROR_NTV("fail to get current working directory");
+        return NULL;
+    }
+
+    len = (tt_u32_t)tt_strlen(cwd);
+    if (end_slash && (len > 0) && (cwd[len - 1] != '/')) {
+        append_slash = 1;
+    } else {
+        append_slash = 0;
+    }
+
+    d = tt_malloc(len + append_slash + 1);
+    if (d == NULL) {
+        TT_ERROR("no mem for current working directory");
+        free(cwd);
+        return NULL;
+    }
+
+    tt_memcpy(d, cwd, len);
+    free(cwd);
+    if (append_slash == 1) {
+        d[len] = '/';
+    }
+    d[len + append_slash] = 0;
+
+    return d;
+}
+
+tt_result_t tt_process_name_ntv(IN tt_char_t *name, IN tt_u32_t len)
+{
+    const char *p = getprogname();
+    if (p != NULL) {
+        tt_u32_t n = (tt_u32_t)tt_strlen(p);
+        if (n >= len) {
+            n = len - 1;
+        }
+        tt_memcpy(name, p, n);
+        name[n] = 0;
+        return TT_SUCCESS;
+    } else {
+        return TT_FAIL;
+    }
 }

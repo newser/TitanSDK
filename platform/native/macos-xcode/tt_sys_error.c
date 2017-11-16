@@ -1,4 +1,6 @@
-/* Licensed to the Apache Software Foundation (ASF) under one or more
+/* Copyright (C) 2017 haniu (niuhao.cn@gmail.com)
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
@@ -49,7 +51,7 @@
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-void tt_last_error_show(IN const tt_char_t *function)
+void tt_sys_err_show(IN const tt_char_t *function)
 {
     TT_ERROR("%s failed with error %d: %s", function, errno, strerror(errno));
 }

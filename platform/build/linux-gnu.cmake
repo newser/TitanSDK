@@ -40,6 +40,10 @@ function(platform_link_libraries)
 
     target_link_libraries(platform dl)
 
+    if (HAVE_LIBUNWIND)
+        target_link_libraries(platform unwind)
+    endif ()
+
 endfunction(platform_link_libraries)
 
 # platform properties

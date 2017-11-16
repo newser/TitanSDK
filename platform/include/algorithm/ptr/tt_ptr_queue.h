@@ -1,4 +1,6 @@
-/* Licensed to the Apache Software Foundation (ASF) under one or more
+/* Copyright (C) 2017 haniu (niuhao.cn@gmail.com)
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
@@ -82,9 +84,13 @@ tt_inline tt_bool_t tt_ptrq_empty(IN tt_ptrq_t *pq)
 
 tt_export void tt_ptrq_clear(IN tt_ptrq_t *pq);
 
-tt_export tt_result_t tt_ptrq_push(IN tt_ptrq_t *pq, IN tt_ptr_t p);
+tt_export tt_result_t tt_ptrq_push_head(IN tt_ptrq_t *pq, IN tt_ptr_t p);
 
-tt_export tt_ptr_t tt_ptrq_pop(IN tt_ptrq_t *pq);
+tt_export tt_result_t tt_ptrq_push_tail(IN tt_ptrq_t *pq, IN tt_ptr_t p);
+
+tt_export tt_ptr_t tt_ptrq_pop_head(IN tt_ptrq_t *pq);
+
+tt_export tt_ptr_t tt_ptrq_pop_tail(IN tt_ptrq_t *pq);
 
 tt_export tt_ptr_t tt_ptrq_head(IN tt_ptrq_t *pq);
 
@@ -93,5 +99,11 @@ tt_export tt_ptr_t tt_ptrq_tail(IN tt_ptrq_t *pq);
 tt_export void tt_ptrq_iter(IN tt_ptrq_t *pq, OUT tt_ptrq_iter_t *iter);
 
 tt_export tt_ptr_t tt_ptrq_iter_next(IN OUT tt_ptrq_iter_t *iter);
+
+tt_export tt_ptr_t tt_ptrq_get(IN tt_ptrq_t *pq, IN tt_u32_t idx);
+
+tt_export tt_ptr_t tt_ptrq_set(IN tt_ptrq_t *pq,
+                               IN tt_u32_t idx,
+                               IN tt_ptr_t p);
 
 #endif /* __TT_PTR_QUEUE__ */

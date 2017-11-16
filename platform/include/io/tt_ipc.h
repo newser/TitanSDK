@@ -1,4 +1,6 @@
-/* Licensed to the Apache Software Foundation (ASF) under one or more
+/* Copyright (C) 2017 haniu (niuhao.cn@gmail.com)
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
@@ -29,6 +31,7 @@ this file defines IPC APIs
 ////////////////////////////////////////////////////////////
 
 #include <algorithm/tt_buffer.h>
+#include <os/tt_fiber_event.h>
 
 #include <tt_ipc_native.h>
 
@@ -40,7 +43,6 @@ this file defines IPC APIs
 // type definition
 ////////////////////////////////////////////////////////////
 
-struct tt_fiber_ev_s;
 struct tt_tmr_s;
 
 typedef struct tt_ipc_attr_s
@@ -111,7 +113,7 @@ tt_inline tt_result_t tt_ipc_recv(IN tt_ipc_t *ipc,
                                   OUT tt_u8_t *buf,
                                   IN tt_u32_t len,
                                   OUT OPT tt_u32_t *recvd,
-                                  OUT struct tt_fiber_ev_s **p_fev,
+                                  OUT tt_fiber_ev_t **p_fev,
                                   OUT struct tt_tmr_s **p_tmr)
 {
     if (len != 0) {

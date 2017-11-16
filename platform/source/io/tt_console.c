@@ -1,4 +1,6 @@
-/* Licensed to the Apache Software Foundation (ASF) under one or more
+/* Copyright (C) 2017 haniu (niuhao.cn@gmail.com)
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
@@ -135,6 +137,15 @@ tt_result_t tt_console_send(IN tt_cons_ev_t ev, IN tt_cons_ev_data_t *ev_data)
     TT_ASSERT(TT_CONS_EV_VALID(ev));
 
     return tt_console_send_ntv(ev, ev_data);
+}
+
+void tt_console_set_color(IN tt_console_color_t foreground,
+                          IN tt_console_color_t background)
+{
+    TT_ASSERT(TT_CONSOLE_COLOR_VALID(foreground));
+    TT_ASSERT(TT_CONSOLE_COLOR_VALID(background));
+
+    tt_console_set_color_ntv(foreground, background);
 }
 
 tt_result_t __console_component_init(IN tt_component_t *comp,

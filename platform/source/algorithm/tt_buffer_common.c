@@ -1,4 +1,6 @@
-/* Licensed to the Apache Software Foundation (ASF) under one or more
+/* Copyright (C) 2017 haniu (niuhao.cn@gmail.com)
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
@@ -89,15 +91,49 @@ tt_s32_t tt_buf_cmp(IN tt_buf_t *a, IN tt_buf_t *b)
 
 tt_s32_t tt_buf_cmp_cstr(IN tt_buf_t *a, IN const tt_char_t *cstr)
 {
-    tt_u32_t a_len, cstr_len;
+    tt_u32_t a_len, cstr_len, i;
+    tt_u8_t *p;
+    tt_s32_t r;
 
     a_len = TT_BUF_RLEN(a);
     cstr_len = (tt_u32_t)tt_strlen(cstr);
-    if ((a_len != cstr_len) || (a_len == 0)) {
+    if (a_len < cstr_len) {
         return (tt_s32_t)(a_len - cstr_len);
     }
 
-    return tt_memcmp(TT_BUF_RPOS(a), cstr, a_len);
+    p = TT_BUF_RPOS(a);
+    if ((r = tt_memcmp(p, cstr, cstr_len)) != 0) {
+        return r;
+    }
+
+    for (i = cstr_len; i < a_len; ++i) {
+        if (p[i] != 0) {
+            return (tt_s32_t)(i - cstr_len);
+        }
+    }
+
+    return 0;
+}
+
+tt_bool_t tt_buf_startwith(IN tt_buf_t *buf, IN tt_u8_t *p, IN tt_u32_t len)
+{
+    if ((len == 0) || ((TT_BUF_RLEN(buf) >= len) &&
+                       (tt_memcmp(TT_BUF_RPOS(buf), p, len) == 0))) {
+        return TT_TRUE;
+    } else {
+        return TT_FALSE;
+    }
+}
+
+tt_bool_t tt_buf_endwith(IN tt_buf_t *buf, IN tt_u8_t *p, IN tt_u32_t len)
+{
+    tt_u32_t n = TT_BUF_RLEN(buf);
+    if ((len == 0) ||
+        ((n >= len) && (tt_memcmp(TT_BUF_RPOS(buf) + n - len, p, len) == 0))) {
+        return TT_TRUE;
+    } else {
+        return TT_FALSE;
+    }
 }
 
 void tt_buf_remove(IN tt_buf_t *buf, IN tt_u32_t idx)
@@ -125,6 +161,28 @@ void tt_buf_remove_range(IN tt_buf_t *buf, IN tt_u32_t from, IN tt_u32_t to)
 
     tt_memmove(&buf->p[buf->rpos + from], &buf->p[buf->rpos + to], len - to);
     buf->wpos -= (to - from);
+}
+
+void tt_buf_remove_headto(IN tt_buf_t *buf, IN tt_u32_t to)
+{
+    tt_u32_t len = TT_BUF_RLEN(buf);
+
+    if (to >= len) {
+        to = len;
+    }
+
+    buf->rpos += to;
+}
+
+void tt_buf_remove_tailfrom(IN tt_buf_t *buf, IN tt_u32_t from)
+{
+    tt_u32_t len = TT_BUF_RLEN(buf);
+
+    if (from >= len) {
+        return;
+    }
+
+    buf->wpos -= (len - from);
 }
 
 tt_result_t tt_buf_insert(IN tt_buf_t *buf,
@@ -174,7 +232,7 @@ tt_result_t tt_buf_tok(IN tt_buf_t *buf,
         if (pos < end) {
             ++pos;
         } else {
-            return TT_END;
+            return TT_E_END;
         }
     } else {
         pos = TT_BUF_RPOS(buf);
@@ -210,7 +268,7 @@ tt_result_t tt_buf_tok(IN tt_buf_t *buf,
         *last_len = (tt_u32_t)(pos - tstart);
         return TT_SUCCESS;
     }
-    return TT_END;
+    return TT_E_END;
 }
 
 void tt_buf_trim_sp(IN tt_buf_t *buf)

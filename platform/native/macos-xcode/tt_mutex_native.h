@@ -1,4 +1,6 @@
-/* Licensed to the Apache Software Foundation (ASF) under one or more
+/* Copyright (C) 2017 haniu (niuhao.cn@gmail.com)
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
@@ -119,7 +121,7 @@ try to acquire a system mutex
 
 @return
 - TT_SUCCESS, if locking done
-- TT_TIME_OUT, if can not lock the mutex this time
+- TT_E_TIMEOUT, if can not lock the mutex this time
 - TT_FAIL, otherwise
 
 @note

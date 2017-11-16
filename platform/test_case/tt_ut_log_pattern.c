@@ -1,4 +1,6 @@
-/* Licensed to the Apache Software Foundation (ASF) under one or more
+/* Copyright (C) 2017 haniu (niuhao.cn@gmail.com)
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
@@ -46,6 +48,8 @@ TT_TEST_ROUTINE_DECLARE(case_lpatn_content)
 TT_TEST_ROUTINE_DECLARE(case_lpatn_func)
 TT_TEST_ROUTINE_DECLARE(case_lpatn_line)
 TT_TEST_ROUTINE_DECLARE(case_log_pattern)
+
+TT_TEST_ROUTINE_DECLARE(case_log_syslog3164)
 // =========================================
 
 // === test case list ======================
@@ -115,6 +119,15 @@ TT_TEST_CASE("case_lpatn_sn",
                  NULL,
                  NULL),
 
+    TT_TEST_CASE("case_log_syslog3164",
+                 "testing log layout: syslog3164",
+                 case_log_syslog3164,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL),
+
     TT_TEST_CASE_LIST_DEFINE_END(lpatn_case)
     // =========================================
 
@@ -129,7 +142,7 @@ TT_TEST_CASE("case_lpatn_sn",
     ////////////////////////////////////////////////////////////
 
     /*
-    TT_TEST_ROUTINE_DEFINE(case_log_pattern)
+    TT_TEST_ROUTINE_DEFINE(case_log_syslog3164)
     {
         //tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
 
@@ -318,8 +331,8 @@ TT_TEST_ROUTINE_DEFINE(case_lpatn_time)
         ret = tt_logfld_output(lpf, &entry, &buf);
         TT_UT_SUCCESS(ret, "");
 
-        // default format: "%Y-%m-%d %H:%M:%S"
-        tt_date_render_now("%Y-%m-%d %H:%M:%S", tmp, sizeof(tmp));
+        // default format: "%Y-%N-%D %H:%M:%S"
+        tt_date_render_now("%Y-%N-%D %H:%M:%S", tmp, sizeof(tmp));
         TT_UT_EQUAL(tt_buf_cmp_cstr(&buf, tmp), 0, "");
 
         tt_logfld_destroy(lpf);
@@ -340,8 +353,8 @@ TT_TEST_ROUTINE_DEFINE(case_lpatn_time)
         ret = tt_logfld_output(lpf, &entry, &buf);
         TT_UT_SUCCESS(ret, "");
 
-        // default format: "%Y-%m-%d %H:%M:%S"
-        tt_date_render_now("%Y-%m-%d %H:%M:%S", tmp, sizeof(tmp));
+        // default format: "%Y-%N-%D %H:%M:%S"
+        tt_date_render_now("%Y-%N-%D %H:%M:%S", tmp, sizeof(tmp));
         TT_UT_EQUAL(tt_buf_cmp_cstr(&buf, tmp), 0, "");
 
         tt_logfld_destroy(lpf);
@@ -980,6 +993,75 @@ TT_TEST_ROUTINE_DEFINE(case_log_pattern)
         tt_loglyt_destroy(ll);
     }
 
+    tt_buf_destroy(&buf);
+
+    // test end
+    TT_TEST_CASE_LEAVE()
+}
+
+TT_TEST_ROUTINE_DEFINE(case_log_syslog3164)
+{
+    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+    tt_loglyt_t *ll;
+    tt_result_t ret;
+    tt_buf_t buf;
+    tt_log_entry_t le = {0};
+    const tt_char_t *p;
+    tt_char_t dn[16] = {0};
+
+    TT_TEST_CASE_ENTER()
+    // test start
+
+    tt_buf_init(&buf, NULL);
+
+    ll = tt_loglyt_syslog3164_create(TT_SYSLOG_LPR,
+                                     TT_SYSLOG_CRIT,
+                                     "testhost",
+                                     NULL,
+                                     "${level} ${content}\n");
+    TT_UT_NOT_NULL(ll, "");
+
+    le.content = "log content";
+    le.level = TT_LOG_DEBUG;
+    ret = tt_loglyt_format(ll, &le, &buf);
+    TT_UT_SUCCESS(ret, "");
+
+    p = (const tt_char_t *)TT_BUF_RPOS(&buf);
+    TT_UT_EQUAL(tt_strncmp(p, "<50>", 4), 0, "");
+#if TT_ENV_OS_IS_ANDROID
+    // android can not get process name until 21
+    TT_UT_NOT_NULL(tt_strstr(p, "testhost"), "");
+#else
+    TT_UT_NOT_NULL(tt_strstr(p, "testhost unit_test"), "");
+#endif
+    TT_UT_NOT_NULL(tt_strstr(p, "DEBUG log content"), "");
+
+    tt_date_render_now("%b %d %H:", dn, sizeof(dn) - 1);
+    TT_UT_NOT_NULL(tt_strstr(p, dn), "");
+
+#if 0
+    {
+        tt_sktaddr_t addr;
+        tt_logio_t *lio;
+        tt_u32_t i;
+        
+        tt_sktaddr_init(&addr, TT_NET_AF_INET);
+        tt_sktaddr_set_ip_p(&addr, "192.168.140.170");
+        tt_sktaddr_set_port(&addr, 62000);
+
+        lio = tt_logio_udp_create(TT_NET_AF_INET, &addr, NULL);
+        
+        i = 0;
+        while (i++ < 10) {
+            tt_logio_output(lio, (tt_char_t*)TT_BUF_RPOS(&buf), TT_BUF_RLEN(&buf));
+            tt_sleep(100);
+        }
+        
+        tt_logio_release(lio);
+    }
+#endif
+
+    tt_loglyt_destroy(ll);
     tt_buf_destroy(&buf);
 
     // test end

@@ -1,4 +1,6 @@
-/* Licensed to the Apache Software Foundation (ASF) under one or more
+/* Copyright (C) 2017 haniu (niuhao.cn@gmail.com)
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
@@ -41,6 +43,23 @@ typedef struct
     tt_snode_t node;
 } __task_fiber_t;
 
+enum
+{
+    __TSK_FIND_FIBER,
+
+    __TSK_EV_NUM
+};
+
+typedef struct
+{
+    tt_io_ev_t io_ev;
+
+    tt_task_t *task;
+    const tt_char_t *name;
+
+    tt_fiber_t *fb;
+} __tsk_find_fiber_t;
+
 ////////////////////////////////////////////////////////////
 // extern declaration
 ////////////////////////////////////////////////////////////
@@ -49,11 +68,19 @@ typedef struct
 // global variant
 ////////////////////////////////////////////////////////////
 
+static tt_bool_t __do_find_fiber(IN tt_io_ev_t *io_ev);
+
+static tt_poller_io_t __task_poller_io[__TSK_EV_NUM] = {
+    __do_find_fiber,
+};
+
 ////////////////////////////////////////////////////////////
 // interface declaration
 ////////////////////////////////////////////////////////////
 
 static tt_result_t __task_routine(IN void *param);
+
+static tt_fiber_t *__task_find_fiber(IN tt_task_t *t, IN const tt_char_t *name);
 
 ////////////////////////////////////////////////////////////
 // interface implementation
@@ -141,6 +168,29 @@ tt_result_t tt_task_add_fiber(IN tt_task_t *t,
     return TT_SUCCESS;
 }
 
+tt_fiber_t *tt_task_find_fiber(IN tt_task_t *t, IN const tt_char_t *name)
+{
+    tt_task_t *ct = tt_current_task();
+    if (t == ct) {
+        return __task_find_fiber(t, name);
+    } else {
+        __tsk_find_fiber_t tff;
+
+        tt_io_ev_init(&tff.io_ev, TT_IO_TASK, __TSK_FIND_FIBER);
+        tff.io_ev.src = tt_current_fiber();
+        TT_ASSERT(tff.io_ev.src != NULL);
+
+        tff.task = t;
+        tff.name = name;
+
+        tff.fb = NULL;
+
+        tt_io_poller_send(&t->iop, &tff.io_ev);
+        tt_fiber_suspend();
+        return tff.fb;
+    }
+}
+
 tt_result_t tt_task_run(IN tt_task_t *t)
 {
     TT_ASSERT(t != NULL);
@@ -219,13 +269,15 @@ tt_result_t tt_task_run_local(IN tt_task_t *t)
     return TT_SUCCESS;
 }
 
-void __cfs_run(IN tt_fiber_sched_t *cfs)
+void tt_task_poller_io(IN tt_io_ev_t *io_ev)
 {
-    tt_fiber_t *fb;
-    while ((fb = tt_fiber_sched_next(cfs)) != cfs->__main) {
-        // run until there is no active fiber
-        tt_fiber_resume(fb, TT_FALSE);
-        continue;
+    if (__task_poller_io[io_ev->ev](io_ev)) {
+        if (io_ev->src != NULL) {
+            // these events are generally coming from other task
+            tt_task_finish(io_ev->src->fs->thread->task, io_ev);
+        } else {
+            tt_free(io_ev);
+        }
     }
 }
 
@@ -350,4 +402,26 @@ tt_result_t __task_routine(IN void *param)
 #endif
 
     return TT_SUCCESS;
+}
+
+tt_fiber_t *__task_find_fiber(IN tt_task_t *t, IN const tt_char_t *name)
+{
+    tt_snode_t *node = tt_slist_head(&t->tfl);
+    while (node != NULL) {
+        __task_fiber_t *tf = TT_CONTAINER(node, __task_fiber_t, node);
+        if (tt_strcmp(tf->name, name) == 0) {
+            return tf->fb;
+        }
+
+        node = node->next;
+    }
+    return NULL;
+}
+
+tt_bool_t __do_find_fiber(IN tt_io_ev_t *io_ev)
+{
+    __tsk_find_fiber_t *tff = TT_CONTAINER(io_ev, __tsk_find_fiber_t, io_ev);
+
+    tff->fb = __task_find_fiber(tff->task, tff->name);
+    return TT_TRUE;
 }

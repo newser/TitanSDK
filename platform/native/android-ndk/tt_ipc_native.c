@@ -1,4 +1,6 @@
-/* Licensed to the Apache Software Foundation (ASF) under one or more
+/* Copyright (C) 2017 haniu (niuhao.cn@gmail.com)
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
@@ -17,8 +19,6 @@
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
-
-#define _GNU_SOURCE // accept4
 
 #include <tt_ipc_native.h>
 
@@ -378,7 +378,7 @@ tt_result_t tt_ipc_recv_ntv(IN tt_ipc_ntv_t *ipc,
                             OUT tt_u8_t *buf,
                             IN tt_u32_t len,
                             OUT tt_u32_t *recvd,
-                            OUT struct tt_fiber_ev_s **p_fev,
+                            OUT tt_fiber_ev_t **p_fev,
                             OUT struct tt_tmr_s **p_tmr)
 {
     __ipc_recv_t ipc_recv;
@@ -559,7 +559,7 @@ again:
     } else if ((errno == ECONNRESET) || (errno == EPIPE)
                // || (errno == ENETDOWN)
                ) {
-        ipc_send->result = TT_END;
+        ipc_send->result = TT_E_END;
     } else {
         TT_ERROR_NTV("send failed");
         ipc_send->result = TT_FAIL;
@@ -580,7 +580,7 @@ again:
         ipc_recv->result = TT_SUCCESS;
         return TT_TRUE;
     } else if (n == 0) {
-        ipc_recv->result = TT_END;
+        ipc_recv->result = TT_E_END;
         return TT_TRUE;
     } else if (errno == EINTR) {
         goto again;
@@ -593,7 +593,7 @@ again:
     if (errno == ECONNRESET
         // || (errno == ENETDOWN)
         ) {
-        ipc_recv->result = TT_END;
+        ipc_recv->result = TT_E_END;
     } else {
         TT_ERROR_NTV("recv failed");
         ipc_recv->result = TT_FAIL;

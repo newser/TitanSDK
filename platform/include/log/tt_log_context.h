@@ -1,4 +1,6 @@
-/* Licensed to the Apache Software Foundation (ASF) under one or more
+/* Copyright (C) 2017 haniu (niuhao.cn@gmail.com)
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
@@ -42,22 +44,22 @@ this file declare log context
 
 struct tt_loglyt_s;
 struct tt_logio_s;
+struct tt_logfltr_s;
 
 typedef struct
 {
-    tt_buf_attr_t buf_attr;
     tt_ptrq_attr_t filter_q_attr;
     tt_ptrq_attr_t io_q_attr;
+    tt_buf_attr_t buf_attr;
 } tt_logctx_attr_t;
 
 typedef struct
 {
-    tt_log_level_t level;
     struct tt_loglyt_s *lyt;
-
-    tt_buf_t buf;
     tt_ptrq_t filter_q;
     tt_ptrq_t io_q;
+    tt_buf_t buf;
+    tt_log_level_t level;
 } tt_logctx_t;
 
 ////////////////////////////////////////////////////////////
@@ -77,17 +79,14 @@ tt_export void tt_logctx_destroy(IN tt_logctx_t *lctx);
 
 tt_export void tt_logctx_attr_default(IN tt_logctx_attr_t *attr);
 
-tt_inline void tt_logctx_set_layout(IN tt_logctx_t *lctx,
-                                    IN struct tt_loglyt_s *lyt)
-{
-    lctx->lyt = lyt;
-}
+tt_export void tt_logctx_set_layout(IN tt_logctx_t *lctx,
+                                    IN TO struct tt_loglyt_s *lyt);
 
 tt_export tt_result_t tt_logctx_append_filter(IN tt_logctx_t *lctx,
-                                              IN tt_log_filter_t filter);
+                                              IN struct tt_logfltr_s *filter);
 
 tt_export tt_result_t tt_logctx_append_io(IN tt_logctx_t *lctx,
-                                          IN struct tt_logio_s *lio);
+                                          IN TO struct tt_logio_s *lio);
 
 tt_export tt_result_t tt_logctx_input(IN tt_logctx_t *lctx,
                                       IN tt_log_entry_t *entry);

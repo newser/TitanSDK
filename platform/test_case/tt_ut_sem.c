@@ -1,4 +1,6 @@
-/* Licensed to the Apache Software Foundation (ASF) under one or more
+/* Copyright (C) 2017 haniu (niuhao.cn@gmail.com)
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
@@ -174,7 +176,7 @@ TT_TEST_CASE("case_sem_basic",
 
     // trylock
     ret = tt_sem_try_acquire(&lock);
-    // TT_UT_EQUAL(ret, TT_TIME_OUT, "");
+    // TT_UT_EQUAL(ret, TT_E_TIMEOUT, "");
 
     // unlock, relock
     tt_sem_release(&lock);
