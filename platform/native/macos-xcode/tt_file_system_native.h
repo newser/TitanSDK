@@ -122,6 +122,10 @@ extern void tt_dclose_ntv(OUT tt_dir_ntv_t *dir);
 extern tt_result_t tt_dread_ntv(IN tt_dir_ntv_t *dir,
                                 OUT struct tt_dirent_s *entry);
 
+extern tt_result_t tt_dcopy_ntv(IN const tt_char_t *dst,
+                                IN const tt_char_t *src,
+                                IN tt_u32_t flag);
+
 extern tt_bool_t tt_fs_exist_ntv(IN const tt_char_t *path);
 
 extern tt_result_t tt_fs_rename_ntv(IN const tt_char_t *from,

@@ -97,7 +97,7 @@ tt_result_t tt_fcreate(IN const tt_char_t *path, IN OPT tt_file_attr_t *attr)
     if (parent != NULL) {
         tt_result_t result = tt_dcreate(parent, NULL);
         tt_free(parent);
-        if (TT_OK(result)) {
+        if (TT_OK(result) || (result == TT_E_EXIST)) {
             return tt_fcreate_ntv(path, attr);
         } else {
             return result;
@@ -336,6 +336,11 @@ tt_result_t tt_dcreate(IN const tt_char_t *path, IN tt_dir_attr_t *attr)
         if (!tt_fs_exist(p) && !TT_OK((result = tt_dcreate_ntv(p, attr)))) {
             goto done;
         }
+    }
+
+    if (!TT_OK(result)) {
+        // reaching here but result was not changed, means all dir exist
+        result = TT_E_EXIST;
     }
 
 done:

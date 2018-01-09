@@ -482,6 +482,14 @@ tt_inline tt_result_t tt_dread(IN tt_dir_t *dir, OUT tt_dirent_t *entry)
     return tt_dread_ntv(&dir->sys_dir, entry);
 }
 
+tt_inline tt_result_t tt_dcopy(IN const tt_char_t *dst,
+                               IN const tt_char_t *src,
+                               IN tt_u32_t flag)
+{
+    return tt_dcopy_ntv(dst, src, flag);
+}
+//#define TT_DCOPY_EXCL (1 << 0)
+
 tt_export tt_bool_t tt_fs_exist(IN const tt_char_t *path);
 
 tt_export tt_result_t tt_fs_rename(IN const tt_char_t *from,

@@ -143,6 +143,7 @@ enum
     __DOPEN,
     __DCLOSE,
     __DREAD,
+    __DCOPY,
 
     __FS_EXIST,
     __FS_RENAME,
@@ -306,6 +307,17 @@ typedef struct
 {
     tt_io_ev_t io_ev;
 
+    const tt_char_t *dst;
+    const tt_char_t *src;
+    tt_u32_t flag;
+
+    tt_result_t result;
+} __dcopy_t;
+
+typedef struct
+{
+    tt_io_ev_t io_ev;
+
     const tt_char_t *path;
 
     tt_bool_t result;
@@ -359,6 +371,8 @@ static void __do_dclose(IN tt_io_ev_t *io_ev);
 
 static void __do_dread(IN tt_io_ev_t *io_ev);
 
+static void __do_dcopy(IN tt_io_ev_t *io_ev);
+
 static void __do_fs_exist(IN tt_io_ev_t *io_ev);
 
 static void __do_fs_rename(IN tt_io_ev_t *io_ev);
@@ -380,6 +394,7 @@ static tt_worker_io_t __fs_io_handler[__FS_EV_NUM] = {
     __do_dopen,
     __do_dclose,
     __do_dread,
+    __do_dcopy,
 
     __do_fs_exist,
     __do_fs_rename,
@@ -657,6 +672,25 @@ tt_result_t tt_dread_ntv(IN tt_dir_ntv_t *dir, OUT tt_dirent_t *entry)
     tt_iowg_push_ev(&tt_g_fs_iowg, &dread.io_ev);
     tt_fiber_suspend();
     return dread.result;
+}
+
+tt_result_t tt_dcopy_ntv(IN const tt_char_t *dst,
+                         IN const tt_char_t *src,
+                         IN tt_u32_t flag)
+{
+    __dcopy_t dcopy;
+
+    __fs_ev_init(&dcopy.io_ev, __DCOPY);
+
+    dcopy.dst = dst;
+    dcopy.src = src;
+    dcopy.flag = flag;
+
+    dcopy.result = TT_FAIL;
+
+    tt_iowg_push_ev(&tt_g_fs_iowg, &dcopy.io_ev);
+    tt_fiber_suspend();
+    return dcopy.result;
 }
 
 tt_bool_t tt_fs_exist_ntv(IN const tt_char_t *path)
@@ -974,6 +1008,8 @@ void __do_dcreate(IN tt_io_ev_t *io_ev)
 
     if (mkdir(dcreate->path, mode) == 0) {
         dcreate->result = TT_SUCCESS;
+    } else if (errno == EEXIST) {
+        dcreate->result = TT_E_EXIST;
     } else {
         TT_ERROR_NTV("fail to create directory: %s", dcreate->path);
         dcreate->result = TT_FAIL;
@@ -1118,6 +1154,25 @@ void __do_dread(IN tt_io_ev_t *io_ev)
     } else {
         TT_ERROR_NTV("fail to read dir");
         dread->result = TT_FAIL;
+    }
+}
+
+void __do_dcopy(IN tt_io_ev_t *io_ev)
+{
+    __dcopy_t *dcopy_ev = (__dcopy_t *)io_ev;
+    uint32_t flag = COPYFILE_ALL | COPYFILE_RECURSIVE;
+
+#if 0
+    if (dcopy_ev->flag & TT_DCOPY_EXCL) {
+        flag |= COPYFILE_EXCL;
+    }
+#endif
+
+    if (copyfile(dcopy_ev->src, dcopy_ev->dst, NULL, flag) == 0) {
+        dcopy_ev->result = TT_SUCCESS;
+    } else {
+        dcopy_ev->result = TT_FAIL;
+        TT_ERROR("dcopy failed");
     }
 }
 

@@ -1270,6 +1270,44 @@ TT_TEST_ROUTINE_DEFINE(case_fs_copy)
         TT_UT_FAIL(ret, "");
     }
 
+    // test copying dir
+
+    tt_fremove(__SC_TEST_FILE);
+    tt_fremove(__SC_TEST_FILE2);
+    tt_dremove(__SC_TEST_FILE);
+    tt_dremove(__SC_TEST_FILE2);
+
+    // src not exist
+    {
+        ret = tt_dcopy(__SC_TEST_FILE2, __SC_TEST_FILE, 0);
+        TT_UT_FAIL(ret, "");
+    }
+
+    {
+        tt_dremove("d1");
+        tt_dremove("copied_d1");
+
+        ret = tt_dcreate("d1/d2", NULL);
+        TT_UT_SUCCESS(ret, "");
+        ret = tt_fcreate("d1/f1", NULL);
+        TT_UT_SUCCESS(ret, "");
+        ret = tt_fcreate("d1/d2/f2", NULL);
+        TT_UT_SUCCESS(ret, "");
+
+        ret = tt_dcopy("copied_d1", "d1", 0);
+        TT_UT_SUCCESS(ret, "");
+
+        TT_UT_TRUE(tt_fs_exist("copied_d1"), "");
+        TT_UT_TRUE(tt_fs_exist("copied_d1/f1"), "");
+        TT_UT_TRUE(tt_fs_exist("copied_d1/d2"), "");
+        TT_UT_TRUE(tt_fs_exist("copied_d1/d2/f2"), "");
+
+#if 0
+        ret = tt_dcopy("copied_d1", "d1", TT_DCOPY_EXCL);
+        TT_UT_FAIL(ret, "");
+#endif
+    }
+
     // test end
     TT_TEST_CASE_LEAVE()
 }
