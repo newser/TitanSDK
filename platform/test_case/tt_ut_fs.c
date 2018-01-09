@@ -31,6 +31,7 @@
 TT_TEST_ROUTINE_DECLARE(case_fs_basic)
 TT_TEST_ROUTINE_DECLARE(case_fs_open)
 TT_TEST_ROUTINE_DECLARE(case_fs_rw)
+TT_TEST_ROUTINE_DECLARE(case_fs_copy)
 TT_TEST_ROUTINE_DECLARE(case_fs_multhread)
 TT_TEST_ROUTINE_DECLARE(case_fs_consistency)
 
@@ -94,6 +95,15 @@ TT_TEST_CASE("case_fs_basic",
     TT_TEST_CASE("case_fs_rw",
                  "testing fs read write",
                  case_fs_rw,
+                 NULL,
+                 __fs_enter,
+                 NULL,
+                 NULL,
+                 NULL),
+
+    TT_TEST_CASE("case_fs_copy",
+                 "testing fs copy",
+                 case_fs_copy,
                  NULL,
                  __fs_enter,
                  NULL,
@@ -247,17 +257,23 @@ TT_TEST_ROUTINE_DEFINE(case_fs_consistency)
     {
         tt_u64_t len;
 
-        ret = tt_ftruncate(&f, 0);
+        ret = tt_ftrunc(&f, 0);
         TT_UT_SUCCESS(ret, "");
         ret = tt_fseek(&f, TT_FSEEK_END, 0, &len);
         TT_UT_SUCCESS(ret, "");
         TT_UT_EQUAL(len, 0, "");
 
-        ret = tt_ftruncate(&f, 111);
+        ret = tt_ftrunc(&f, 111);
         TT_UT_SUCCESS(ret, "");
         ret = tt_fseek(&f, TT_FSEEK_END, 0, &len);
         TT_UT_SUCCESS(ret, "");
         TT_UT_EQUAL(len, 111, "");
+
+        ret = tt_ftrunc(&f, 10);
+        TT_UT_SUCCESS(ret, "");
+        ret = tt_fseek(&f, TT_FSEEK_END, 0, &len);
+        TT_UT_SUCCESS(ret, "");
+        TT_UT_EQUAL(len, 10, "");
     }
 
     tt_fclose(&f);
@@ -1192,6 +1208,66 @@ TT_TEST_ROUTINE_DEFINE(case_fs_consistency)
     // remove
     for (j = 0; j < sizeof(fname) / sizeof(fname[0]); ++j) {
         tt_fremove(fname[j]);
+    }
+
+    // test end
+    TT_TEST_CASE_LEAVE()
+}
+
+TT_TEST_ROUTINE_DEFINE(case_fs_copy)
+{
+    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+    tt_result_t ret;
+    tt_file_t f;
+    tt_char_t buf[] = "12345", buf2[10];
+    tt_u32_t n;
+
+    TT_TEST_CASE_ENTER()
+    // test start
+
+    tt_fremove(__SC_TEST_FILE);
+    tt_dremove(__SC_TEST_FILE2);
+
+    // src not exist
+    {
+        ret = tt_fcopy(__SC_TEST_FILE2, __SC_TEST_FILE, 0);
+        TT_UT_FAIL(ret, "");
+    }
+
+    // copied
+    {
+        ret = tt_fopen(&f, __SC_TEST_FILE, TT_FO_CREAT | TT_FO_WRITE, NULL);
+        TT_UT_SUCCESS(ret, "");
+        ret = tt_fwrite(&f, (tt_u8_t *)buf, (tt_u32_t)sizeof(buf), NULL);
+        TT_UT_SUCCESS(ret, "");
+        tt_fclose(&f);
+
+        ret = tt_fcopy(__SC_TEST_FILE2, __SC_TEST_FILE, 0);
+        TT_UT_SUCCESS(ret, "");
+
+        ret = tt_fopen(&f, __SC_TEST_FILE2, TT_FO_READ, NULL);
+        TT_UT_SUCCESS(ret, "");
+        ret = tt_fread(&f, (tt_u8_t *)buf2, sizeof(buf2), &n);
+        TT_UT_SUCCESS(ret, "");
+        TT_UT_EQUAL(n, sizeof(buf), "");
+        tt_fclose(&f);
+    }
+
+    // copy excl
+    {
+        ret = tt_fcopy(__SC_TEST_FILE2, __SC_TEST_FILE, TT_FCOPY_EXCL);
+        TT_UT_FAIL(ret, "");
+        tt_fremove(__SC_TEST_FILE2);
+        ret = tt_fcopy(__SC_TEST_FILE2, __SC_TEST_FILE, TT_FCOPY_EXCL);
+        TT_UT_SUCCESS(ret, "");
+    }
+    tt_fremove(__SC_TEST_FILE2);
+
+    // copy to existing dir
+    {
+        tt_dcreate(__SC_TEST_FILE2, NULL);
+        ret = tt_fcopy(__SC_TEST_FILE2, __SC_TEST_FILE, 0);
+        TT_UT_FAIL(ret, "");
     }
 
     // test end

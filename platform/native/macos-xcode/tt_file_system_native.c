@@ -30,6 +30,7 @@
 
 #include <tt_util_native.h>
 
+#include <copyfile.h>
 #include <fcntl.h>
 #include <fts.h>
 #include <sys/stat.h>
@@ -134,7 +135,8 @@ enum
     __FWRITE,
     __FSEEK,
     __FSTAT,
-    __FTRUNCATE,
+    __FTRUNC,
+    __FCOPY,
 
     __DCREATE,
     __DREMOVE,
@@ -240,7 +242,18 @@ typedef struct
     tt_u64_t len;
 
     tt_result_t result;
-} __ftruncate_t;
+} __ftrunc_t;
+
+typedef struct
+{
+    tt_io_ev_t io_ev;
+
+    const tt_char_t *dst;
+    const tt_char_t *src;
+    tt_u32_t flag;
+
+    tt_result_t result;
+} __fcopy_t;
 
 typedef struct
 {
@@ -332,7 +345,9 @@ static void __do_fseek(IN tt_io_ev_t *io_ev);
 
 static void __do_fstat(IN tt_io_ev_t *io_ev);
 
-static void __do_ftruncate(IN tt_io_ev_t *io_ev);
+static void __do_ftrunc(IN tt_io_ev_t *io_ev);
+
+static void __do_fcopy(IN tt_io_ev_t *io_ev);
 
 static void __do_dcreate(IN tt_io_ev_t *io_ev);
 
@@ -357,7 +372,8 @@ static tt_worker_io_t __fs_io_handler[__FS_EV_NUM] = {
     __do_fwrite,
     __do_fseek,
     __do_fstat,
-    __do_ftruncate,
+    __do_ftrunc,
+    __do_fcopy,
 
     __do_dcreate,
     __do_dremove,
@@ -530,20 +546,39 @@ tt_result_t tt_fstat_ntv(IN tt_file_ntv_t *file, OUT tt_fstat_t *fst)
     return fstat.result;
 }
 
-tt_result_t tt_ftruncate_ntv(IN tt_file_ntv_t *file, IN tt_u64_t len)
+tt_result_t tt_ftrunc_ntv(IN tt_file_ntv_t *file, IN tt_u64_t len)
 {
-    __ftruncate_t ftruncate;
+    __ftrunc_t ftrunc;
 
-    __fs_ev_init(&ftruncate.io_ev, __FTRUNCATE);
+    __fs_ev_init(&ftrunc.io_ev, __FTRUNC);
 
-    ftruncate.file = file;
-    ftruncate.len = len;
+    ftrunc.file = file;
+    ftrunc.len = len;
 
-    ftruncate.result = TT_FAIL;
+    ftrunc.result = TT_FAIL;
 
-    tt_iowg_push_ev(&tt_g_fs_iowg, &ftruncate.io_ev);
+    tt_iowg_push_ev(&tt_g_fs_iowg, &ftrunc.io_ev);
     tt_fiber_suspend();
-    return ftruncate.result;
+    return ftrunc.result;
+}
+
+tt_result_t tt_fcopy_ntv(IN const tt_char_t *dst,
+                         IN const tt_char_t *src,
+                         IN tt_u32_t flag)
+{
+    __fcopy_t fcopy;
+
+    __fs_ev_init(&fcopy.io_ev, __FCOPY);
+
+    fcopy.dst = dst;
+    fcopy.src = src;
+    fcopy.flag = flag;
+
+    fcopy.result = TT_FAIL;
+
+    tt_iowg_push_ev(&tt_g_fs_iowg, &fcopy.io_ev);
+    tt_fiber_suspend();
+    return fcopy.result;
 }
 
 tt_result_t tt_dcreate_ntv(IN const tt_char_t *path, IN tt_dir_attr_t *attr)
@@ -900,15 +935,32 @@ void __do_fstat(IN tt_io_ev_t *io_ev)
     fstat_ev->result = TT_SUCCESS;
 }
 
-void __do_ftruncate(IN tt_io_ev_t *io_ev)
+void __do_ftrunc(IN tt_io_ev_t *io_ev)
 {
-    __ftruncate_t *ftruncate_ev = (__ftruncate_t *)io_ev;
+    __ftrunc_t *ftrunc_ev = (__ftrunc_t *)io_ev;
 
-    if (ftruncate(ftruncate_ev->file->fd, ftruncate_ev->len) == 0) {
-        ftruncate_ev->result = TT_SUCCESS;
+    if (ftruncate(ftrunc_ev->file->fd, ftrunc_ev->len) == 0) {
+        ftrunc_ev->result = TT_SUCCESS;
     } else {
-        ftruncate_ev->result = TT_FAIL;
-        TT_ERROR_NTV("ftruncate failed");
+        ftrunc_ev->result = TT_FAIL;
+        TT_ERROR_NTV("ftrunc failed");
+    }
+}
+
+void __do_fcopy(IN tt_io_ev_t *io_ev)
+{
+    __fcopy_t *fcopy_ev = (__fcopy_t *)io_ev;
+    uint32_t flag = COPYFILE_ALL;
+
+    if (fcopy_ev->flag & TT_FCOPY_EXCL) {
+        flag |= COPYFILE_EXCL;
+    }
+
+    if (copyfile(fcopy_ev->src, fcopy_ev->dst, NULL, flag) == 0) {
+        fcopy_ev->result = TT_SUCCESS;
+    } else {
+        fcopy_ev->result = TT_FAIL;
+        TT_ERROR("fcopy failed");
     }
 }
 

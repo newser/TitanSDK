@@ -353,12 +353,18 @@ tt_inline tt_result_t tt_fstat(IN tt_file_t *file, OUT tt_fstat_t *fstat)
 tt_export tt_result_t tt_fstat_path(IN const tt_char_t *path,
                                     OUT tt_fstat_t *fstat);
 
-tt_inline tt_result_t tt_ftruncate(IN tt_file_t *file, IN tt_u64_t len)
+tt_inline tt_result_t tt_ftrunc(IN tt_file_t *file, IN tt_u64_t len)
 {
-    return tt_ftruncate_ntv(&file->sys_file, len);
+    return tt_ftrunc_ntv(&file->sys_file, len);
 }
 
-tt_export tt_result_t tt_fcopy(IN tt_file_t *dst, IN tt_file_t *src);
+tt_inline tt_result_t tt_fcopy(IN const tt_char_t *dst,
+                               IN const tt_char_t *src,
+                               IN tt_u32_t flag)
+{
+    return tt_fcopy_ntv(dst, src, flag);
+}
+#define TT_FCOPY_EXCL (1 << 0)
 
 /**
  @fn void tt_dir_attr_default(IN tt_dir_attr_t *attr)
