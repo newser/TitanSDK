@@ -86,7 +86,6 @@ extern "C" {
 #include <config/tt_have.h>
 #include <config/tt_log_config.h>
 #include <config/tt_memory_config.h>
-#include <config/tt_mpn_config.h>
 #include <config/tt_os_config.h>
 #include <config/tt_platform_config.h>
 #include <config/tt_platform_optimized_config.h>

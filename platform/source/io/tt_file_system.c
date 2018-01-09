@@ -268,6 +268,15 @@ tt_result_t tt_fstat_path(IN const tt_char_t *path, OUT tt_fstat_t *fstat)
     return TT_SUCCESS;
 }
 
+tt_result_t tt_fcopy(IN tt_file_t *dst, IN tt_file_t *src)
+{
+    TT_ASSERT(dst != NULL);
+    TT_ASSERT(src != NULL);
+
+
+    return TT_SUCCESS;
+}
+
 void tt_dir_attr_default(IN tt_dir_attr_t *attr)
 {
     TT_ASSERT(attr != NULL);

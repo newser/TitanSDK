@@ -64,7 +64,6 @@ this file defines integrate all other configurations
 #include <config/tt_file_system_config.h>
 #include <config/tt_log_config.h>
 #include <config/tt_memory_config.h>
-#include <config/tt_mpn_config.h>
 #include <config/tt_os_config.h>
 
 // ========================================

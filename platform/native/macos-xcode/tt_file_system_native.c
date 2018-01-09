@@ -134,6 +134,7 @@ enum
     __FWRITE,
     __FSEEK,
     __FSTAT,
+    __FTRUNCATE,
 
     __DCREATE,
     __DREMOVE,
@@ -235,6 +236,16 @@ typedef struct
 {
     tt_io_ev_t io_ev;
 
+    tt_file_ntv_t *file;
+    tt_u64_t len;
+
+    tt_result_t result;
+} __ftruncate_t;
+
+typedef struct
+{
+    tt_io_ev_t io_ev;
+
     const tt_char_t *path;
     struct tt_dir_attr_s *attr;
 
@@ -321,6 +332,8 @@ static void __do_fseek(IN tt_io_ev_t *io_ev);
 
 static void __do_fstat(IN tt_io_ev_t *io_ev);
 
+static void __do_ftruncate(IN tt_io_ev_t *io_ev);
+
 static void __do_dcreate(IN tt_io_ev_t *io_ev);
 
 static void __do_dremove(IN tt_io_ev_t *io_ev);
@@ -344,6 +357,7 @@ static tt_worker_io_t __fs_io_handler[__FS_EV_NUM] = {
     __do_fwrite,
     __do_fseek,
     __do_fstat,
+    __do_ftruncate,
 
     __do_dcreate,
     __do_dremove,
@@ -514,6 +528,22 @@ tt_result_t tt_fstat_ntv(IN tt_file_ntv_t *file, OUT tt_fstat_t *fst)
     tt_iowg_push_ev(&tt_g_fs_iowg, &fstat.io_ev);
     tt_fiber_suspend();
     return fstat.result;
+}
+
+tt_result_t tt_ftruncate_ntv(IN tt_file_ntv_t *file, IN tt_u64_t len)
+{
+    __ftruncate_t ftruncate;
+
+    __fs_ev_init(&ftruncate.io_ev, __FTRUNCATE);
+
+    ftruncate.file = file;
+    ftruncate.len = len;
+
+    ftruncate.result = TT_FAIL;
+
+    tt_iowg_push_ev(&tt_g_fs_iowg, &ftruncate.io_ev);
+    tt_fiber_suspend();
+    return ftruncate.result;
 }
 
 tt_result_t tt_dcreate_ntv(IN const tt_char_t *path, IN tt_dir_attr_t *attr)
@@ -868,6 +898,18 @@ void __do_fstat(IN tt_io_ev_t *io_ev)
     fst->is_oth_writable = TT_BOOL(st.st_mode & S_IWOTH);
     fst->is_link = TT_BOOL(S_ISLNK(st.st_mode));
     fstat_ev->result = TT_SUCCESS;
+}
+
+void __do_ftruncate(IN tt_io_ev_t *io_ev)
+{
+    __ftruncate_t *ftruncate_ev = (__ftruncate_t *)io_ev;
+
+    if (ftruncate(ftruncate_ev->file->fd, ftruncate_ev->len) == 0) {
+        ftruncate_ev->result = TT_SUCCESS;
+    } else {
+        ftruncate_ev->result = TT_FAIL;
+        TT_ERROR_NTV("ftruncate failed");
+    }
 }
 
 void __do_dcreate(IN tt_io_ev_t *io_ev)

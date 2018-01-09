@@ -244,6 +244,22 @@ TT_TEST_ROUTINE_DEFINE(case_fs_consistency)
     tt_funlock(&f);
 #endif
 
+    {
+        tt_u64_t len;
+
+        ret = tt_ftruncate(&f, 0);
+        TT_UT_SUCCESS(ret, "");
+        ret = tt_fseek(&f, TT_FSEEK_END, 0, &len);
+        TT_UT_SUCCESS(ret, "");
+        TT_UT_EQUAL(len, 0, "");
+
+        ret = tt_ftruncate(&f, 111);
+        TT_UT_SUCCESS(ret, "");
+        ret = tt_fseek(&f, TT_FSEEK_END, 0, &len);
+        TT_UT_SUCCESS(ret, "");
+        TT_UT_EQUAL(len, 111, "");
+    }
+
     tt_fclose(&f);
 
     // remove
