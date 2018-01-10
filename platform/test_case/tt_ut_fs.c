@@ -211,6 +211,8 @@ TT_TEST_ROUTINE_DEFINE(case_fs_consistency)
     // create
     ret = tt_fcreate(__SC_TEST_FILE, NULL);
     TT_UT_SUCCESS(ret, "");
+    ret = tt_fcreate(__SC_TEST_FILE, NULL);
+    TT_UT_EQUAL(ret, TT_E_EXIST, "");
 
     ret = tt_fopen(&f, __SC_TEST_FILE, TT_FO_RDWR, NULL);
     TT_UT_SUCCESS(ret, "");
@@ -364,6 +366,24 @@ TT_TEST_ROUTINE_DEFINE(case_fs_consistency)
                                          "/"__TEST_F3),
                    "");
         tt_fclose(&f);
+    }
+
+    {
+        char path[20] = "";
+
+        ret = tt_fcreate_temp(path, NULL);
+
+        tt_strncpy(path, "tttmp/1.xXXX", sizeof("tttmp/1.xXXX"));
+        ret = tt_fcreate_temp(path, NULL);
+        TT_UT_SUCCESS(ret, "");
+        TT_UT_NSTREQ(path, "tttmp/1.x", sizeof("tttmp/1.x") - 1, "");
+
+        tt_strncpy(path, "tttmp/XXXXX", sizeof("tttmp/XXXXX"));
+        ret = tt_fcreate_temp(path, NULL);
+        TT_INFO("path: %s", path);
+        TT_UT_SUCCESS(ret, "");
+
+        tt_dremove("tttmp");
     }
 
     // test end
@@ -729,6 +749,8 @@ TT_TEST_ROUTINE_DEFINE(case_dir_basic)
     ret = tt_dcreate(__TEST_DIR, NULL);
     TT_UT_SUCCESS(ret, "");
     TT_UT_EQUAL(tt_fs_exist(__TEST_DIR), TT_TRUE, "");
+    ret = tt_dcreate(__TEST_DIR, NULL);
+    TT_UT_EQUAL(ret, TT_E_EXIST, "");
     ret = tt_dopen(&dir, __TEST_DIR, NULL);
     TT_UT_SUCCESS(ret, "");
 
@@ -853,6 +875,24 @@ TT_TEST_ROUTINE_DEFINE(case_dir_basic)
         TT_UT_TRUE(tt_fs_exist(__TEST_DIR "/" __TEST_SUBDIR "/" __TEST_SUBDIR
                                           "/" __TEST_SUBDIR),
                    "");
+    }
+
+    {
+        char path[20] = "";
+
+        ret = tt_dcreate_temp(path, NULL);
+
+        tt_strncpy(path, "dtttmp/2.xXXX", sizeof("dtttmp/2.xXXX"));
+        ret = tt_dcreate_temp(path, NULL);
+        TT_UT_SUCCESS(ret, "");
+        TT_UT_NSTREQ(path, "dtttmp/2.x", sizeof("dtttmp/2.x") - 1, "");
+
+        tt_strncpy(path, "dtttmp/XXXXX", sizeof("dtttmp/XXXXX"));
+        ret = tt_dcreate_temp(path, NULL);
+        TT_INFO("path: %s", path);
+        TT_UT_SUCCESS(ret, "");
+
+        tt_dremove("dtttmp");
     }
 
     // test end

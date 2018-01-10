@@ -145,6 +145,9 @@ create a file
 tt_export tt_result_t tt_fcreate(IN const tt_char_t *path,
                                  IN OPT tt_file_attr_t *attr);
 
+tt_export tt_result_t tt_fcreate_temp(IN OUT tt_char_t *path,
+                                      IN OPT tt_file_attr_t *attr);
+
 /**
 @fn tt_result_t tt_fremove(IN const tt_char_t *path)
 delete a file
@@ -393,6 +396,9 @@ tt_export void tt_dir_attr_default(IN tt_dir_attr_t *attr);
 tt_export tt_result_t tt_dcreate(IN const tt_char_t *path,
                                  IN tt_dir_attr_t *attr);
 
+tt_export tt_result_t tt_dcreate_temp(IN OUT tt_char_t *path,
+                                      IN OPT tt_dir_attr_t *attr);
+
 /**
  @fn tt_result_t tt_dremove(IN const tt_char_t *path,
  IN tt_u32_t flag)
@@ -494,5 +500,7 @@ tt_export tt_bool_t tt_fs_exist(IN const tt_char_t *path);
 
 tt_export tt_result_t tt_fs_rename(IN const tt_char_t *from,
                                    IN const tt_char_t *to);
+
+tt_export tt_result_t tt_fs_mktemp(IN OUT tt_char_t *path);
 
 #endif /* __TT_FILE_SYSTEM_FB__ */

@@ -758,6 +758,8 @@ again:
         fcreate->result = TT_SUCCESS;
     } else if (errno == EINTR) {
         goto again;
+    } else if (errno == EEXIST) {
+        fcreate->result = TT_E_EXIST;
     } else {
         TT_ERROR_NTV("fail to create file: %s", fcreate->path);
         fcreate->result = TT_FAIL;

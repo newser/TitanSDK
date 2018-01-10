@@ -107,6 +107,48 @@ tt_result_t tt_fcreate(IN const tt_char_t *path, IN OPT tt_file_attr_t *attr)
     }
 }
 
+tt_result_t tt_fcreate_temp(IN OUT tt_char_t *path, IN OPT tt_file_attr_t *attr)
+{
+    tt_char_t *x;
+
+    TT_ASSERT(path != NULL);
+
+    x = path + tt_strlen(path) - 1;
+    while ((x >= path) && (*x == 'X')) {
+        --x;
+    }
+    ++x;
+
+    if (*x == 'X') {
+        static tt_char_t t[62] =
+            "0123456789"
+            "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+            "abcdefghijklmnopqrstuvwxyz";
+
+        tt_char_t *p;
+        tt_u32_t ntry;
+        tt_result_t result;
+
+        p = x;
+        ntry = 3;
+        while (ntry-- != 0) {
+            while (*p == 'X') {
+                *p++ = t[tt_rand_u32() % sizeof(t)];
+            }
+
+            result = tt_fcreate(path, attr);
+            if (TT_OK(result)) {
+                return TT_SUCCESS;
+            } else if (result != TT_E_EXIST) {
+                break;
+            }
+        }
+        return result;
+    } else {
+        return tt_fcreate(path, attr);
+    }
+}
+
 tt_result_t tt_fremove(IN const tt_char_t *path)
 {
     TT_ASSERT(path != NULL);
@@ -346,6 +388,48 @@ tt_result_t tt_dcreate(IN const tt_char_t *path, IN tt_dir_attr_t *attr)
 done:
     tt_free(p);
     return result;
+}
+
+tt_result_t tt_dcreate_temp(IN OUT tt_char_t *path, IN OPT tt_dir_attr_t *attr)
+{
+    tt_char_t *x;
+
+    TT_ASSERT(path != NULL);
+
+    x = path + tt_strlen(path) - 1;
+    while ((x >= path) && (*x == 'X')) {
+        --x;
+    }
+    ++x;
+
+    if (*x == 'X') {
+        static tt_char_t t[62] =
+            "0123456789"
+            "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+            "abcdefghijklmnopqrstuvwxyz";
+
+        tt_char_t *p;
+        tt_u32_t ntry;
+        tt_result_t result;
+
+        p = x;
+        ntry = 3;
+        while (ntry-- != 0) {
+            while (*p == 'X') {
+                *p++ = t[tt_rand_u32() % sizeof(t)];
+            }
+
+            result = tt_dcreate(path, attr);
+            if (TT_OK(result)) {
+                return TT_SUCCESS;
+            } else if (result != TT_E_EXIST) {
+                break;
+            }
+        }
+        return result;
+    } else {
+        return tt_dcreate(path, attr);
+    }
 }
 
 tt_result_t tt_dremove(IN const tt_char_t *path)
