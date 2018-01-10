@@ -107,6 +107,14 @@ extern tt_result_t tt_fcopy_ntv(IN const tt_char_t *dst,
                                 IN const tt_char_t *src,
                                 IN tt_u32_t flag);
 
+extern tt_result_t tt_fsync_ntv(IN tt_file_ntv_t *file);
+
+tt_inline tt_result_t tt_fdatasync_ntv(IN tt_file_ntv_t *file)
+{
+    // macos does not have fdatasync
+    return tt_fsync_ntv(file);
+}
+
 extern tt_result_t tt_dcreate_ntv(IN const tt_char_t *path,
                                   IN struct tt_dir_attr_s *attr);
 

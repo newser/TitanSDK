@@ -137,6 +137,7 @@ enum
     __FSTAT,
     __FTRUNC,
     __FCOPY,
+    __FSYNC,
 
     __DCREATE,
     __DREMOVE,
@@ -260,6 +261,15 @@ typedef struct
 {
     tt_io_ev_t io_ev;
 
+    tt_file_ntv_t *file;
+
+    tt_result_t result;
+} __fsync_t;
+
+typedef struct
+{
+    tt_io_ev_t io_ev;
+
     const tt_char_t *path;
     struct tt_dir_attr_s *attr;
 
@@ -361,6 +371,8 @@ static void __do_ftrunc(IN tt_io_ev_t *io_ev);
 
 static void __do_fcopy(IN tt_io_ev_t *io_ev);
 
+static void __do_fsync(IN tt_io_ev_t *io_ev);
+
 static void __do_dcreate(IN tt_io_ev_t *io_ev);
 
 static void __do_dremove(IN tt_io_ev_t *io_ev);
@@ -378,26 +390,14 @@ static void __do_fs_exist(IN tt_io_ev_t *io_ev);
 static void __do_fs_rename(IN tt_io_ev_t *io_ev);
 
 static tt_worker_io_t __fs_io_handler[__FS_EV_NUM] = {
-    __do_fcreate,
-    __do_fremove,
-    __do_fopen,
-    __do_fclose,
-    __do_fread,
-    __do_fwrite,
-    __do_fseek,
-    __do_fstat,
-    __do_ftrunc,
-    __do_fcopy,
+    __do_fcreate,  __do_fremove,   __do_fopen, __do_fclose,
+    __do_fread,    __do_fwrite,    __do_fseek, __do_fstat,
+    __do_ftrunc,   __do_fcopy,     __do_fsync,
 
-    __do_dcreate,
-    __do_dremove,
-    __do_dopen,
-    __do_dclose,
-    __do_dread,
-    __do_dcopy,
+    __do_dcreate,  __do_dremove,   __do_dopen, __do_dclose,
+    __do_dread,    __do_dcopy,
 
-    __do_fs_exist,
-    __do_fs_rename,
+    __do_fs_exist, __do_fs_rename,
 };
 
 ////////////////////////////////////////////////////////////
@@ -594,6 +594,21 @@ tt_result_t tt_fcopy_ntv(IN const tt_char_t *dst,
     tt_iowg_push_ev(&tt_g_fs_iowg, &fcopy.io_ev);
     tt_fiber_suspend();
     return fcopy.result;
+}
+
+tt_result_t tt_fsync_ntv(IN tt_file_ntv_t *file)
+{
+    __fsync_t fsync;
+
+    __fs_ev_init(&fsync.io_ev, __FSYNC);
+
+    fsync.file = file;
+
+    fsync.result = TT_FAIL;
+
+    tt_iowg_push_ev(&tt_g_fs_iowg, &fsync.io_ev);
+    tt_fiber_suspend();
+    return fsync.result;
 }
 
 tt_result_t tt_dcreate_ntv(IN const tt_char_t *path, IN tt_dir_attr_t *attr)
@@ -997,6 +1012,21 @@ void __do_fcopy(IN tt_io_ev_t *io_ev)
     } else {
         fcopy_ev->result = TT_FAIL;
         TT_ERROR("fcopy failed");
+    }
+}
+
+void __do_fsync(IN tt_io_ev_t *io_ev)
+{
+    __fsync_t *fsync_ev = (__fsync_t *)io_ev;
+
+again:
+    if (fsync(fsync_ev->file->fd) == 0) {
+        fsync_ev->result = TT_SUCCESS;
+    } else if (errno == EINTR) {
+        goto again;
+    } else {
+        fsync_ev->result = TT_FAIL;
+        TT_ERROR("fsync failed");
     }
 }
 

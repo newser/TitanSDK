@@ -369,6 +369,16 @@ tt_inline tt_result_t tt_fcopy(IN const tt_char_t *dst,
 }
 #define TT_FCOPY_EXCL (1 << 0)
 
+tt_inline tt_result_t tt_fsync(IN tt_file_t *file)
+{
+    return tt_fsync_ntv(&file->sys_file);
+}
+
+tt_inline tt_result_t tt_fdatasync(IN tt_file_t *file)
+{
+    return tt_fdatasync_ntv(&file->sys_file);
+}
+
 /**
  @fn void tt_dir_attr_default(IN tt_dir_attr_t *attr)
  get default directory attribute

@@ -674,6 +674,13 @@ TT_TEST_ROUTINE_DEFINE(case_fs_rw)
             ret = tt_fwrite(&tf, buf + n, sizeof(buf) - n, &wn);
             TT_UT_SUCCESS(ret, "");
             n += wn;
+
+            if (tt_rand_u32() & 1) {
+                ret = tt_fsync(&tf);
+            } else {
+                ret = tt_fdatasync(&tf);
+            }
+            TT_UT_SUCCESS(ret, "");
         }
         TT_UT_EXP(n == sizeof(buf), "");
 
