@@ -144,6 +144,12 @@ extern tt_bool_t tt_fs_exist_ntv(IN const tt_char_t *path);
 extern tt_result_t tt_fs_rename_ntv(IN const tt_char_t *from,
                                     IN const tt_char_t *to);
 
+extern tt_result_t tt_fs_link_ntv(IN const tt_char_t *path,
+                                  IN const tt_char_t *link);
+
+extern tt_result_t tt_fs_symlink_ntv(IN const tt_char_t *path,
+                                     IN const tt_char_t *link);
+
 extern void tt_fs_worker_io(IN struct tt_io_ev_s *ev);
 
 #endif

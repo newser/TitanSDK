@@ -532,6 +532,10 @@ tt_export tt_bool_t tt_fs_exist(IN const tt_char_t *path);
 tt_export tt_result_t tt_fs_rename(IN const tt_char_t *from,
                                    IN const tt_char_t *to);
 
-tt_export tt_result_t tt_fs_mktemp(IN OUT tt_char_t *path);
+tt_export tt_result_t tt_fs_link(IN const tt_char_t *path,
+                                 IN const tt_char_t *link);
+
+tt_export tt_result_t tt_fs_symlink(IN const tt_char_t *path,
+                                    IN const tt_char_t *link);
 
 #endif /* __TT_FILE_SYSTEM_FB__ */

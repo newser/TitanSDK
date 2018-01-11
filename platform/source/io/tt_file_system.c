@@ -478,6 +478,22 @@ tt_result_t tt_fs_rename(IN const tt_char_t *from, IN const tt_char_t *to)
     return tt_fs_rename_ntv(from, to);
 }
 
+tt_result_t tt_fs_link(IN const tt_char_t *path, IN const tt_char_t *link)
+{
+    TT_ASSERT(path != NULL);
+    TT_ASSERT(link != NULL);
+
+    return tt_fs_link_ntv(path, link);
+}
+
+tt_result_t tt_fs_symlink(IN const tt_char_t *path, IN const tt_char_t *link)
+{
+    TT_ASSERT(path != NULL);
+    TT_ASSERT(link != NULL);
+
+    return tt_fs_symlink_ntv(path, link);
+}
+
 tt_result_t __fs_component_init(IN tt_component_t *comp,
                                 IN tt_profile_t *profile)
 {

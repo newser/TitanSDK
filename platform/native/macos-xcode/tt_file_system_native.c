@@ -150,6 +150,8 @@ enum
 
     __FS_EXIST,
     __FS_RENAME,
+    __FS_LINK,
+    __FS_SYMLINK,
 
     __FS_EV_NUM,
 };
@@ -356,6 +358,26 @@ typedef struct
     tt_result_t result;
 } __fs_rename_t;
 
+typedef struct
+{
+    tt_io_ev_t io_ev;
+
+    const tt_char_t *path;
+    const tt_char_t *link;
+
+    tt_result_t result;
+} __fs_link_t;
+
+typedef struct
+{
+    tt_io_ev_t io_ev;
+
+    const tt_char_t *path;
+    const tt_char_t *link;
+
+    tt_result_t result;
+} __fs_symlink_t;
+
 ////////////////////////////////////////////////////////////
 // extern declaration
 ////////////////////////////////////////////////////////////
@@ -404,15 +426,19 @@ static void __do_fs_exist(IN tt_io_ev_t *io_ev);
 
 static void __do_fs_rename(IN tt_io_ev_t *io_ev);
 
-static tt_worker_io_t __fs_io_handler[__FS_EV_NUM] = {
-    __do_fcreate,  __do_fremove,   __do_fopen, __do_fclose,
-    __do_fread,    __do_fwrite,    __do_fseek, __do_fstat,
-    __do_ftrunc,   __do_fcopy,     __do_fsync, __do_futime,
+static void __do_fs_link(IN tt_io_ev_t *io_ev);
 
-    __do_dcreate,  __do_dremove,   __do_dopen, __do_dclose,
+static void __do_fs_symlink(IN tt_io_ev_t *io_ev);
+
+static tt_worker_io_t __fs_io_handler[__FS_EV_NUM] = {
+    __do_fcreate,  __do_fremove,   __do_fopen,   __do_fclose,
+    __do_fread,    __do_fwrite,    __do_fseek,   __do_fstat,
+    __do_ftrunc,   __do_fcopy,     __do_fsync,   __do_futime,
+
+    __do_dcreate,  __do_dremove,   __do_dopen,   __do_dclose,
     __do_dread,    __do_dcopy,
 
-    __do_fs_exist, __do_fs_rename,
+    __do_fs_exist, __do_fs_rename, __do_fs_link, __do_fs_symlink,
 };
 
 ////////////////////////////////////////////////////////////
@@ -773,6 +799,39 @@ tt_result_t tt_fs_rename_ntv(IN const tt_char_t *from, IN const tt_char_t *to)
     tt_iowg_push_ev(&tt_g_fs_iowg, &fs_rename.io_ev);
     tt_fiber_suspend();
     return fs_rename.result;
+}
+
+tt_result_t tt_fs_link_ntv(IN const tt_char_t *path, IN const tt_char_t *link)
+{
+    __fs_link_t fs_link;
+
+    __fs_ev_init(&fs_link.io_ev, __FS_LINK);
+
+    fs_link.path = path;
+    fs_link.link = link;
+
+    fs_link.result = TT_FAIL;
+
+    tt_iowg_push_ev(&tt_g_fs_iowg, &fs_link.io_ev);
+    tt_fiber_suspend();
+    return fs_link.result;
+}
+
+tt_result_t tt_fs_symlink_ntv(IN const tt_char_t *path,
+                              IN const tt_char_t *link)
+{
+    __fs_symlink_t fs_symlink;
+
+    __fs_ev_init(&fs_symlink.io_ev, __FS_SYMLINK);
+
+    fs_symlink.path = path;
+    fs_symlink.link = link;
+
+    fs_symlink.result = TT_FAIL;
+
+    tt_iowg_push_ev(&tt_g_fs_iowg, &fs_symlink.io_ev);
+    tt_fiber_suspend();
+    return fs_symlink.result;
 }
 
 void tt_fs_worker_io(IN tt_io_ev_t *io_ev)
@@ -1282,6 +1341,34 @@ void __do_fs_rename(IN tt_io_ev_t *io_ev)
                      fs_rename->from,
                      fs_rename->to);
         fs_rename->result = TT_FAIL;
+    }
+}
+
+void __do_fs_link(IN tt_io_ev_t *io_ev)
+{
+    __fs_link_t *fs_link = (__fs_link_t *)io_ev;
+
+    if (link(fs_link->path, fs_link->link) == 0) {
+        fs_link->result = TT_SUCCESS;
+    } else {
+        TT_ERROR_NTV("fail to link from %s to %s",
+                     fs_link->path,
+                     fs_link->link);
+        fs_link->result = TT_FAIL;
+    }
+}
+
+void __do_fs_symlink(IN tt_io_ev_t *io_ev)
+{
+    __fs_symlink_t *fs_symlink = (__fs_symlink_t *)io_ev;
+
+    if (symlink(fs_symlink->path, fs_symlink->link) == 0) {
+        fs_symlink->result = TT_SUCCESS;
+    } else {
+        TT_ERROR_NTV("fail to symlink from %s to %s",
+                     fs_symlink->path,
+                     fs_symlink->link);
+        fs_symlink->result = TT_FAIL;
     }
 }
 

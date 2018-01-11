@@ -372,8 +372,11 @@ TT_TEST_ROUTINE_DEFINE(case_fs_consistency)
         tt_date_t a, m;
         tt_fstat_t fst;
 
-        ret = tt_fopen(&f, __SC_TEST_FILE, TT_FO_CREAT, NULL);
+        ret = tt_fopen(&f, __SC_TEST_FILE, TT_FO_CREAT | TT_FO_WRITE, NULL);
         TT_UT_SUCCESS(ret, "");
+
+        tt_ftrunc(&f, 0);
+        tt_fwrite(&f, (tt_u8_t *)"123", 3, NULL);
 
         tt_date_init(&a, tt_g_local_tmzone);
         tt_date_init(&m, tt_g_local_tmzone);
@@ -388,6 +391,50 @@ TT_TEST_ROUTINE_DEFINE(case_fs_consistency)
         ret = tt_fstat_path(__SC_TEST_FILE, &fst);
         TT_UT_EQUAL(tt_date_cmp(&a, &fst.accessed), 0, "");
         TT_UT_EQUAL(tt_date_cmp(&m, &fst.modified), 0, "");
+    }
+
+    {
+        tt_u8_t *data;
+        tt_u64_t n;
+
+        // link
+        tt_fremove(__SC_TEST_FILE2);
+
+        ret = tt_fs_link(__SC_TEST_FILE, __SC_TEST_FILE2);
+        TT_UT_SUCCESS(ret, "");
+        TT_UT_TRUE(tt_fs_exist(__SC_TEST_FILE2), "");
+        data = tt_fcontent(__SC_TEST_FILE2, &n);
+        TT_UT_EQUAL(n, 3, "");
+        TT_UT_MEMEQ(data, "123", 3, "");
+        tt_free(data);
+
+        // hard link, still exist
+        tt_fremove(__SC_TEST_FILE);
+        data = tt_fcontent(__SC_TEST_FILE2, &n);
+        TT_UT_EQUAL(n, 3, "");
+        TT_UT_MEMEQ(data, "123", 3, "");
+        tt_free(data);
+
+        ret = tt_fs_link(__SC_TEST_FILE, "123");
+        TT_UT_FAIL(ret, "");
+    }
+
+    {
+        tt_u8_t *data;
+        tt_u64_t n;
+
+        // symlink
+        ret = tt_fs_symlink(__SC_TEST_FILE2, __SC_TEST_FILE);
+        TT_UT_SUCCESS(ret, "");
+        data = tt_fcontent(__SC_TEST_FILE, &n);
+        TT_UT_EQUAL(n, 3, "");
+        TT_UT_MEMEQ(data, "123", 3, "");
+        tt_free(data);
+
+        // sym link, not exist
+        tt_fremove(__SC_TEST_FILE2);
+        data = tt_fcontent(__SC_TEST_FILE, &n);
+        TT_UT_NULL(data, "");
     }
 
     {
