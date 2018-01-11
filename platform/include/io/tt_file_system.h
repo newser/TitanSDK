@@ -365,18 +365,36 @@ tt_inline tt_result_t tt_fcopy(IN const tt_char_t *dst,
                                IN const tt_char_t *src,
                                IN tt_u32_t flag)
 {
+    TT_ASSERT(dst != NULL);
+    TT_ASSERT(src != NULL);
+
     return tt_fcopy_ntv(dst, src, flag);
 }
 #define TT_FCOPY_EXCL (1 << 0)
 
 tt_inline tt_result_t tt_fsync(IN tt_file_t *file)
 {
+    TT_ASSERT(file != NULL);
+
     return tt_fsync_ntv(&file->sys_file);
 }
 
 tt_inline tt_result_t tt_fdatasync(IN tt_file_t *file)
 {
+    TT_ASSERT(file != NULL);
+
     return tt_fdatasync_ntv(&file->sys_file);
+}
+
+tt_inline tt_result_t tt_futime(IN tt_file_t *file,
+                                IN tt_date_t *accessed,
+                                IN tt_date_t *modified)
+{
+    TT_ASSERT(file != NULL);
+    TT_ASSERT(accessed != NULL);
+    TT_ASSERT(modified != NULL);
+
+    return tt_futime_ntv(&file->sys_file, accessed, modified);
 }
 
 /**
@@ -502,6 +520,9 @@ tt_inline tt_result_t tt_dcopy(IN const tt_char_t *dst,
                                IN const tt_char_t *src,
                                IN tt_u32_t flag)
 {
+    TT_ASSERT(dst != NULL);
+    TT_ASSERT(src != NULL);
+
     return tt_dcopy_ntv(dst, src, flag);
 }
 //#define TT_DCOPY_EXCL (1 << 0)

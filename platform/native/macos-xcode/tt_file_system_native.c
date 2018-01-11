@@ -27,6 +27,7 @@
 #include <io/tt_io_worker_group.h>
 #include <memory/tt_memory_alloc.h>
 #include <os/tt_task.h>
+#include <time/tt_date.h>
 
 #include <tt_util_native.h>
 
@@ -138,6 +139,7 @@ enum
     __FTRUNC,
     __FCOPY,
     __FSYNC,
+    __FUTIME,
 
     __DCREATE,
     __DREMOVE,
@@ -270,6 +272,17 @@ typedef struct
 {
     tt_io_ev_t io_ev;
 
+    tt_file_ntv_t *file;
+    tt_date_t *accessed;
+    tt_date_t *modified;
+
+    tt_result_t result;
+} __futime_t;
+
+typedef struct
+{
+    tt_io_ev_t io_ev;
+
     const tt_char_t *path;
     struct tt_dir_attr_s *attr;
 
@@ -373,6 +386,8 @@ static void __do_fcopy(IN tt_io_ev_t *io_ev);
 
 static void __do_fsync(IN tt_io_ev_t *io_ev);
 
+static void __do_futime(IN tt_io_ev_t *io_ev);
+
 static void __do_dcreate(IN tt_io_ev_t *io_ev);
 
 static void __do_dremove(IN tt_io_ev_t *io_ev);
@@ -392,7 +407,7 @@ static void __do_fs_rename(IN tt_io_ev_t *io_ev);
 static tt_worker_io_t __fs_io_handler[__FS_EV_NUM] = {
     __do_fcreate,  __do_fremove,   __do_fopen, __do_fclose,
     __do_fread,    __do_fwrite,    __do_fseek, __do_fstat,
-    __do_ftrunc,   __do_fcopy,     __do_fsync,
+    __do_ftrunc,   __do_fcopy,     __do_fsync, __do_futime,
 
     __do_dcreate,  __do_dremove,   __do_dopen, __do_dclose,
     __do_dread,    __do_dcopy,
@@ -407,6 +422,8 @@ static tt_worker_io_t __fs_io_handler[__FS_EV_NUM] = {
 static void __fs_ev_init(IN tt_io_ev_t *io_ev, IN tt_u32_t ev);
 
 static void __time2date(IN time_t *t, IN tt_date_t *d);
+
+static void __date2timeval(IN tt_date_t *d, IN struct timeval *tv);
 
 ////////////////////////////////////////////////////////////
 // interface implementation
@@ -609,6 +626,25 @@ tt_result_t tt_fsync_ntv(IN tt_file_ntv_t *file)
     tt_iowg_push_ev(&tt_g_fs_iowg, &fsync.io_ev);
     tt_fiber_suspend();
     return fsync.result;
+}
+
+tt_result_t tt_futime_ntv(IN tt_file_ntv_t *file,
+                          IN tt_date_t *accessed,
+                          IN tt_date_t *modified)
+{
+    __futime_t futime;
+
+    __fs_ev_init(&futime.io_ev, __FUTIME);
+
+    futime.file = file;
+    futime.accessed = accessed;
+    futime.modified = modified;
+
+    futime.result = TT_FAIL;
+
+    tt_iowg_push_ev(&tt_g_fs_iowg, &futime.io_ev);
+    tt_fiber_suspend();
+    return futime.result;
 }
 
 tt_result_t tt_dcreate_ntv(IN const tt_char_t *path, IN tt_dir_attr_t *attr)
@@ -1030,6 +1066,22 @@ again:
     }
 }
 
+void __do_futime(IN tt_io_ev_t *io_ev)
+{
+    __futime_t *futime_ev = (__futime_t *)io_ev;
+    struct timeval times[2];
+
+    __date2timeval(futime_ev->accessed, &times[0]);
+    __date2timeval(futime_ev->modified, &times[1]);
+
+    if (futimes(futime_ev->file->fd, times) == 0) {
+        futime_ev->result = TT_SUCCESS;
+    } else {
+        futime_ev->result = TT_FAIL;
+        TT_ERROR("futime failed");
+    }
+}
+
 void __do_dcreate(IN tt_io_ev_t *io_ev)
 {
     __dcreate_t *dcreate = (__dcreate_t *)io_ev;
@@ -1243,6 +1295,12 @@ void __time2date(IN time_t *t, IN tt_date_t *d)
     tt_date_set_hour(d, tm.tm_hour);
     tt_date_set_minute(d, tm.tm_min);
     tt_date_set_second(d, TT_COND(tm.tm_sec < 60, tm.tm_sec, 59));
+}
+
+void __date2timeval(IN tt_date_t *d, IN struct timeval *tv)
+{
+    tv->tv_sec = tt_date_diff_epoch_second(d);
+    tv->tv_usec = 0;
 }
 
 #ifdef open

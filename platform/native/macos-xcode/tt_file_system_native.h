@@ -48,6 +48,7 @@ struct tt_fstat_s;
 struct tt_dir_attr_s;
 struct tt_dirent_s;
 struct tt_io_ev_s;
+struct tt_date_s;
 
 typedef struct
 {
@@ -114,6 +115,10 @@ tt_inline tt_result_t tt_fdatasync_ntv(IN tt_file_ntv_t *file)
     // macos does not have fdatasync
     return tt_fsync_ntv(file);
 }
+
+extern tt_result_t tt_futime_ntv(IN tt_file_ntv_t *file,
+                                 IN struct tt_date_s *accessed,
+                                 IN struct tt_date_s *modified);
 
 extern tt_result_t tt_dcreate_ntv(IN const tt_char_t *path,
                                   IN struct tt_dir_attr_s *attr);

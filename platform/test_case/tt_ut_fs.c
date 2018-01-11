@@ -369,6 +369,28 @@ TT_TEST_ROUTINE_DEFINE(case_fs_consistency)
     }
 
     {
+        tt_date_t a, m;
+        tt_fstat_t fst;
+
+        ret = tt_fopen(&f, __SC_TEST_FILE, TT_FO_CREAT, NULL);
+        TT_UT_SUCCESS(ret, "");
+
+        tt_date_init(&a, tt_g_local_tmzone);
+        tt_date_init(&m, tt_g_local_tmzone);
+
+        tt_date_set(&a, 1980, TT_OCTOBER, 10, 1, 2, 3);
+        tt_date_set(&m, 2980, TT_NOVEMBER, 30, 4, 5, 6);
+        ret = tt_futime(&f, &a, &m);
+        TT_UT_SUCCESS(ret, "");
+
+        tt_fclose(&f);
+
+        ret = tt_fstat_path(__SC_TEST_FILE, &fst);
+        TT_UT_EQUAL(tt_date_cmp(&a, &fst.accessed), 0, "");
+        TT_UT_EQUAL(tt_date_cmp(&m, &fst.modified), 0, "");
+    }
+
+    {
         char path[20] = "";
 
         ret = tt_fcreate_temp(path, NULL);
