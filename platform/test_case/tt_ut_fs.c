@@ -396,6 +396,7 @@ TT_TEST_ROUTINE_DEFINE(case_fs_consistency)
     {
         tt_u8_t *data;
         tt_u64_t n;
+        tt_char_t name[1024];
 
         // link
         tt_fremove(__SC_TEST_FILE2);
@@ -407,6 +408,12 @@ TT_TEST_ROUTINE_DEFINE(case_fs_consistency)
         TT_UT_EQUAL(n, 3, "");
         TT_UT_MEMEQ(data, "123", 3, "");
         tt_free(data);
+
+        ret = tt_fs_readlink(__SC_TEST_FILE2, name, sizeof(name));
+        TT_UT_FAIL(ret, ""); // not a symlink
+
+        ret = tt_fs_realpath(__SC_TEST_FILE2, name, sizeof(name));
+        TT_UT_SUCCESS(ret, "");
 
         // hard link, still exist
         tt_fremove(__SC_TEST_FILE);
@@ -422,6 +429,7 @@ TT_TEST_ROUTINE_DEFINE(case_fs_consistency)
     {
         tt_u8_t *data;
         tt_u64_t n;
+        tt_char_t name[1024];
 
         // symlink
         ret = tt_fs_symlink(__SC_TEST_FILE2, __SC_TEST_FILE);
@@ -431,10 +439,25 @@ TT_TEST_ROUTINE_DEFINE(case_fs_consistency)
         TT_UT_MEMEQ(data, "123", 3, "");
         tt_free(data);
 
+        ret = tt_fs_readlink(__SC_TEST_FILE, name, sizeof(name));
+        TT_UT_SUCCESS(ret, "");
+        TT_UT_STREQ(name, __SC_TEST_FILE2, "");
+
+        ret = tt_fs_realpath(__SC_TEST_FILE2, name, sizeof(name));
+        TT_UT_SUCCESS(ret, "");
+
         // sym link, not exist
         tt_fremove(__SC_TEST_FILE2);
         data = tt_fcontent(__SC_TEST_FILE, &n);
         TT_UT_NULL(data, "");
+
+        // still readable?
+        ret = tt_fs_readlink(__SC_TEST_FILE, name, sizeof(name));
+        TT_UT_SUCCESS(ret, "");
+        TT_UT_STREQ(name, __SC_TEST_FILE2, "");
+
+        ret = tt_fs_realpath(__SC_TEST_FILE2, name, sizeof(name));
+        TT_UT_FAIL(ret, "");
     }
 
     {

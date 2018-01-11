@@ -152,6 +152,8 @@ enum
     __FS_RENAME,
     __FS_LINK,
     __FS_SYMLINK,
+    __FS_READLINK,
+    __FS_REALPATH,
 
     __FS_EV_NUM,
 };
@@ -378,6 +380,28 @@ typedef struct
     tt_result_t result;
 } __fs_symlink_t;
 
+typedef struct
+{
+    tt_io_ev_t io_ev;
+
+    const tt_char_t *link;
+    tt_char_t *path;
+    tt_u32_t len;
+
+    tt_result_t result;
+} __fs_readlink_t;
+
+typedef struct
+{
+    tt_io_ev_t io_ev;
+
+    const tt_char_t *path;
+    tt_char_t *resolved;
+    tt_u32_t len;
+
+    tt_result_t result;
+} __fs_realpath_t;
+
 ////////////////////////////////////////////////////////////
 // extern declaration
 ////////////////////////////////////////////////////////////
@@ -430,15 +454,20 @@ static void __do_fs_link(IN tt_io_ev_t *io_ev);
 
 static void __do_fs_symlink(IN tt_io_ev_t *io_ev);
 
+static void __do_fs_readlink(IN tt_io_ev_t *io_ev);
+
+static void __do_fs_realpath(IN tt_io_ev_t *io_ev);
+
 static tt_worker_io_t __fs_io_handler[__FS_EV_NUM] = {
-    __do_fcreate,  __do_fremove,   __do_fopen,   __do_fclose,
-    __do_fread,    __do_fwrite,    __do_fseek,   __do_fstat,
-    __do_ftrunc,   __do_fcopy,     __do_fsync,   __do_futime,
+    __do_fcreate,     __do_fremove,     __do_fopen,   __do_fclose,
+    __do_fread,       __do_fwrite,      __do_fseek,   __do_fstat,
+    __do_ftrunc,      __do_fcopy,       __do_fsync,   __do_futime,
 
-    __do_dcreate,  __do_dremove,   __do_dopen,   __do_dclose,
-    __do_dread,    __do_dcopy,
+    __do_dcreate,     __do_dremove,     __do_dopen,   __do_dclose,
+    __do_dread,       __do_dcopy,
 
-    __do_fs_exist, __do_fs_rename, __do_fs_link, __do_fs_symlink,
+    __do_fs_exist,    __do_fs_rename,   __do_fs_link, __do_fs_symlink,
+    __do_fs_readlink, __do_fs_realpath,
 };
 
 ////////////////////////////////////////////////////////////
@@ -832,6 +861,44 @@ tt_result_t tt_fs_symlink_ntv(IN const tt_char_t *path,
     tt_iowg_push_ev(&tt_g_fs_iowg, &fs_symlink.io_ev);
     tt_fiber_suspend();
     return fs_symlink.result;
+}
+
+tt_result_t tt_fs_readlink_ntv(IN const tt_char_t *link,
+                               OUT tt_char_t *path,
+                               IN tt_u32_t len)
+{
+    __fs_readlink_t fs_readlink;
+
+    __fs_ev_init(&fs_readlink.io_ev, __FS_READLINK);
+
+    fs_readlink.link = link;
+    fs_readlink.path = path;
+    fs_readlink.len = len;
+
+    fs_readlink.result = TT_FAIL;
+
+    tt_iowg_push_ev(&tt_g_fs_iowg, &fs_readlink.io_ev);
+    tt_fiber_suspend();
+    return fs_readlink.result;
+}
+
+tt_result_t tt_fs_realpath_ntv(IN const tt_char_t *path,
+                               OUT tt_char_t *resolved,
+                               IN tt_u32_t len)
+{
+    __fs_realpath_t fs_realpath;
+
+    __fs_ev_init(&fs_realpath.io_ev, __FS_REALPATH);
+
+    fs_realpath.path = path;
+    fs_realpath.resolved = resolved;
+    fs_realpath.len = len;
+
+    fs_realpath.result = TT_FAIL;
+
+    tt_iowg_push_ev(&tt_g_fs_iowg, &fs_realpath.io_ev);
+    tt_fiber_suspend();
+    return fs_realpath.result;
 }
 
 void tt_fs_worker_io(IN tt_io_ev_t *io_ev)
@@ -1369,6 +1436,44 @@ void __do_fs_symlink(IN tt_io_ev_t *io_ev)
                      fs_symlink->path,
                      fs_symlink->link);
         fs_symlink->result = TT_FAIL;
+    }
+}
+
+void __do_fs_readlink(IN tt_io_ev_t *io_ev)
+{
+    __fs_readlink_t *fs_readlink = (__fs_readlink_t *)io_ev;
+    ssize_t n;
+
+    n = readlink(fs_readlink->link, fs_readlink->path, fs_readlink->len);
+    if (n >= 0) {
+        fs_readlink->path[n] = 0;
+        fs_readlink->result = TT_SUCCESS;
+    } else {
+        TT_ERROR_NTV("readlink fail");
+        fs_readlink->result = TT_FAIL;
+    }
+}
+
+void __do_fs_realpath(IN tt_io_ev_t *io_ev)
+{
+    __fs_realpath_t *fs_realpath = (__fs_realpath_t *)io_ev;
+    char *name;
+
+    name = realpath(fs_realpath->path, NULL);
+    if (name != NULL) {
+        tt_u32_t len = (tt_u32_t)tt_strlen(name);
+        if (len < fs_realpath->len) {
+            memcpy(fs_realpath->resolved, name, len);
+            fs_realpath->resolved[len] = 0;
+            fs_realpath->result = TT_SUCCESS;
+        } else {
+            TT_ERROR("not enough space");
+            fs_realpath->result = TT_E_NOSPC;
+        }
+        free(name);
+    } else {
+        TT_ERROR_NTV("realpath fail");
+        fs_realpath->result = TT_FAIL;
     }
 }
 

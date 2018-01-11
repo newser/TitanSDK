@@ -150,6 +150,14 @@ extern tt_result_t tt_fs_link_ntv(IN const tt_char_t *path,
 extern tt_result_t tt_fs_symlink_ntv(IN const tt_char_t *path,
                                      IN const tt_char_t *link);
 
+extern tt_result_t tt_fs_readlink_ntv(IN const tt_char_t *link,
+                                      OUT tt_char_t *path,
+                                      IN tt_u32_t len);
+
+extern tt_result_t tt_fs_realpath_ntv(IN const tt_char_t *path,
+                                      OUT tt_char_t *resolved,
+                                      IN tt_u32_t len);
+
 extern void tt_fs_worker_io(IN struct tt_io_ev_s *ev);
 
 #endif

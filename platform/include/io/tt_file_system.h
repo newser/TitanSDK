@@ -538,4 +538,12 @@ tt_export tt_result_t tt_fs_link(IN const tt_char_t *path,
 tt_export tt_result_t tt_fs_symlink(IN const tt_char_t *path,
                                     IN const tt_char_t *link);
 
+tt_export tt_result_t tt_fs_readlink(IN const tt_char_t *link,
+                                     OUT tt_char_t *path,
+                                     IN tt_u32_t len);
+
+tt_export tt_result_t tt_fs_realpath(IN const tt_char_t *path,
+                                     OUT tt_char_t *resolved,
+                                     IN tt_u32_t len);
+
 #endif /* __TT_FILE_SYSTEM_FB__ */

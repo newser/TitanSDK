@@ -494,6 +494,31 @@ tt_result_t tt_fs_symlink(IN const tt_char_t *path, IN const tt_char_t *link)
     return tt_fs_symlink_ntv(path, link);
 }
 
+tt_result_t tt_fs_readlink(IN const tt_char_t *link,
+                           OUT tt_char_t *path,
+                           IN tt_u32_t len)
+{
+    TT_ASSERT(link != NULL);
+    TT_ASSERT(path != NULL);
+
+    return tt_fs_readlink_ntv(link, path, len);
+}
+
+tt_result_t tt_fs_realpath(IN const tt_char_t *path,
+                           OUT tt_char_t *resolved,
+                           IN tt_u32_t len)
+{
+    TT_ASSERT(path != NULL);
+    TT_ASSERT(resolved != NULL);
+
+    if (len != 0) {
+        return tt_fs_realpath_ntv(path, resolved, len);
+    } else {
+        TT_ERROR("len can not be 0");
+        return TT_E_BADARG;
+    }
+}
+
 tt_result_t __fs_component_init(IN tt_component_t *comp,
                                 IN tt_profile_t *profile)
 {
