@@ -463,21 +463,42 @@ TT_TEST_ROUTINE_DEFINE(case_fs_consistency)
 #endif
 
     {
+#if TT_ENV_OS_IS_IOS
+
+#if (TT_ENV_OS_FEATURE & TT_ENV_OS_FEATURE_IOS_SIMULATOR)
+#define __TT1 "../tmp/tttmp/1.xXXX"
+#define __TT2 "../tmp/tttmp/XXXXX"
+#define __TTD "../tmp/tttmp"
+#else
+#endif
+
+#elif TT_ENV_OS_IS_ANDROID
+
+#define __TT1 APK_PATH "tttmp/1.xXXX"
+#define __TT2 APK_PATH "tttmp/XXXXX"
+#define __TTD APK_PATH "tttmp"
+
+#else
+#define __TT1 "tttmp/1.xXXX"
+#define __TT2 "tttmp/XXXXX"
+#define __TTD "tttmp"
+#endif
+
         char path[20] = "";
 
         ret = tt_fcreate_temp(path, NULL);
 
-        tt_strncpy(path, "tttmp/1.xXXX", sizeof("tttmp/1.xXXX"));
+        tt_strncpy(path, __TT1, sizeof(__TT1));
         ret = tt_fcreate_temp(path, NULL);
         TT_UT_SUCCESS(ret, "");
-        TT_UT_NSTREQ(path, "tttmp/1.x", sizeof("tttmp/1.x") - 1, "");
+        TT_UT_NSTREQ(path, __TT1, sizeof(__TT1) - 4, "");
 
-        tt_strncpy(path, "tttmp/XXXXX", sizeof("tttmp/XXXXX"));
+        tt_strncpy(path, __TT2, sizeof(__TT2));
         ret = tt_fcreate_temp(path, NULL);
         TT_INFO("path: %s", path);
         TT_UT_SUCCESS(ret, "");
 
-        tt_dremove("tttmp");
+        tt_dremove(__TTD);
     }
 
     // test end
@@ -985,21 +1006,42 @@ TT_TEST_ROUTINE_DEFINE(case_dir_basic)
     }
 
     {
-        char path[20] = "";
+#if TT_ENV_OS_IS_IOS
+
+#if (TT_ENV_OS_FEATURE & TT_ENV_OS_FEATURE_IOS_SIMULATOR)
+#define __DTT1 "../tmp/dtttmp/1.xXXX"
+#define __DTT2 "../tmp/dtttmp/XXXXX"
+#define __DTTD "../tmp/dtttmp"
+#else
+#endif
+
+#elif TT_ENV_OS_IS_ANDROID
+
+#define __DTT1 APK_PATH "dtttmp/1.xXXX"
+#define __DTT2 APK_PATH "dtttmp/XXXXX"
+#define __DTTD APK_PATH "dtttmp"
+
+#else
+#define __DTT1 "dtttmp/1.xXXX"
+#define __DTT2 "dtttmp/XXXXX"
+#define __DTTD "dtttmp"
+#endif
+
+        char path[128] = "";
 
         ret = tt_dcreate_temp(path, NULL);
 
-        tt_strncpy(path, "dtttmp/2.xXXX", sizeof("dtttmp/2.xXXX"));
+        tt_strncpy(path, __DTT1, sizeof(__DTT1));
         ret = tt_dcreate_temp(path, NULL);
         TT_UT_SUCCESS(ret, "");
-        TT_UT_NSTREQ(path, "dtttmp/2.x", sizeof("dtttmp/2.x") - 1, "");
+        TT_UT_NSTREQ(path, __DTT1, sizeof(__DTT1) - 4, "");
 
-        tt_strncpy(path, "dtttmp/XXXXX", sizeof("dtttmp/XXXXX"));
+        tt_strncpy(path, __DTT2, sizeof(__DTT2));
         ret = tt_dcreate_temp(path, NULL);
         TT_INFO("path: %s", path);
         TT_UT_SUCCESS(ret, "");
 
-        tt_dremove("dtttmp");
+        tt_dremove(__DTTD);
     }
 
     // test end
@@ -1431,23 +1473,62 @@ TT_TEST_ROUTINE_DEFINE(case_fs_copy)
     }
 
     {
-        tt_dremove("d1");
-        tt_dremove("copied_d1");
+#if TT_ENV_OS_IS_IOS
 
-        ret = tt_dcreate("d1/d2", NULL);
+#if (TT_ENV_OS_FEATURE & TT_ENV_OS_FEATURE_IOS_SIMULATOR)
+#define __CD_D1 "../tmp/d1"
+#define __CD_D1_D2 "../tmp/d1/d2"
+#define __CD_D1_F1 "../tmp/d1/f1"
+#define __CD_D1_D2_F2 "../tmp/d1/d2/f2"
+
+#define __COPIED_D1 "../tmp/copied_d1"
+#define __COPIED_D1_D2 "../tmp/copied_d1/d2"
+#define __COPIED_D1_F1 "../tmp/copied_d1/f1"
+#define __COPIED_D1_D2_F2 "../tmp/copied_d1/d2/f2"
+#else
+#endif
+
+#elif TT_ENV_OS_IS_ANDROID
+
+#define __CD_D1 APK_PATH "../tmp/d1"
+#define __CD_D1_D2 APK_PATH "../tmp/d1/d2"
+#define __CD_D1_F1 APK_PATH "../tmp/d1/f1"
+#define __CD_D1_D2_F2 APK_PATH "../tmp/d1/d2/f2"
+
+#define __COPIED_D1 APK_PATH "../tmp/copied_d1"
+#define __COPIED_D1_D2 APK_PATH "../tmp/copied_d1/d2"
+#define __COPIED_D1_F1 APK_PATH "../tmp/copied_d1/f1"
+#define __COPIED_D1_D2_F2 APK_PATH "../tmp/copied_d1/d2/f2"
+
+#else
+#define __CD_D1 "d1"
+#define __CD_D1_D2 "d1/d2"
+#define __CD_D1_F1 "d1/f1"
+#define __CD_D1_D2_F2 "d1/d2/f2"
+
+#define __COPIED_D1 "copied_d1"
+#define __COPIED_D1_D2 "copied_d1/d2"
+#define __COPIED_D1_F1 "copied_d1/f1"
+#define __COPIED_D1_D2_F2 "copied_d1/d2/f2"
+#endif
+
+        tt_dremove(__CD_D1);
+        tt_dremove(__COPIED_D1);
+
+        ret = tt_dcreate(__CD_D1_D2, NULL);
         TT_UT_SUCCESS(ret, "");
-        ret = tt_fcreate("d1/f1", NULL);
+        ret = tt_fcreate(__CD_D1_F1, NULL);
         TT_UT_SUCCESS(ret, "");
-        ret = tt_fcreate("d1/d2/f2", NULL);
+        ret = tt_fcreate(__CD_D1_D2_F2, NULL);
         TT_UT_SUCCESS(ret, "");
 
-        ret = tt_dcopy("copied_d1", "d1", 0);
+        ret = tt_dcopy(__COPIED_D1, __CD_D1, 0);
         TT_UT_SUCCESS(ret, "");
 
-        TT_UT_TRUE(tt_fs_exist("copied_d1"), "");
-        TT_UT_TRUE(tt_fs_exist("copied_d1/f1"), "");
-        TT_UT_TRUE(tt_fs_exist("copied_d1/d2"), "");
-        TT_UT_TRUE(tt_fs_exist("copied_d1/d2/f2"), "");
+        TT_UT_TRUE(tt_fs_exist(__COPIED_D1), "");
+        TT_UT_TRUE(tt_fs_exist(__COPIED_D1_F1), "");
+        TT_UT_TRUE(tt_fs_exist(__COPIED_D1_D2), "");
+        TT_UT_TRUE(tt_fs_exist(__COPIED_D1_D2_F2), "");
 
 #if 0
         ret = tt_dcopy("copied_d1", "d1", TT_DCOPY_EXCL);

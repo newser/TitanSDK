@@ -48,6 +48,7 @@ struct tt_fstat_s;
 struct tt_dir_attr_s;
 struct tt_dirent_s;
 struct tt_io_ev_s;
+struct tt_date_s;
 
 typedef struct
 {
@@ -99,7 +100,25 @@ extern tt_result_t tt_fwrite_ntv(IN tt_file_ntv_t *file,
                                  OUT tt_u32_t *write_len);
 
 extern tt_result_t tt_fstat_ntv(IN tt_file_ntv_t *file,
-                                OUT struct tt_fstat_s *fstat);
+                                IN struct tt_fstat_s *fstat);
+
+extern tt_result_t tt_ftrunc_ntv(IN tt_file_ntv_t *file, IN tt_u64_t len);
+
+extern tt_result_t tt_fcopy_ntv(IN const tt_char_t *dst,
+                                IN const tt_char_t *src,
+                                IN tt_u32_t flag);
+
+extern tt_result_t tt_fsync_ntv(IN tt_file_ntv_t *file);
+
+tt_inline tt_result_t tt_fdatasync_ntv(IN tt_file_ntv_t *file)
+{
+    // macos does not have fdatasync
+    return tt_fsync_ntv(file);
+}
+
+extern tt_result_t tt_futime_ntv(IN tt_file_ntv_t *file,
+                                 IN struct tt_date_s *accessed,
+                                 IN struct tt_date_s *modified);
 
 extern tt_result_t tt_dcreate_ntv(IN const tt_char_t *path,
                                   IN struct tt_dir_attr_s *attr);
@@ -116,10 +135,28 @@ extern void tt_dclose_ntv(OUT tt_dir_ntv_t *dir);
 extern tt_result_t tt_dread_ntv(IN tt_dir_ntv_t *dir,
                                 OUT struct tt_dirent_s *entry);
 
+extern tt_result_t tt_dcopy_ntv(IN const tt_char_t *dst,
+                                IN const tt_char_t *src,
+                                IN tt_u32_t flag);
+
 extern tt_bool_t tt_fs_exist_ntv(IN const tt_char_t *path);
 
 extern tt_result_t tt_fs_rename_ntv(IN const tt_char_t *from,
                                     IN const tt_char_t *to);
+
+extern tt_result_t tt_fs_link_ntv(IN const tt_char_t *path,
+                                  IN const tt_char_t *link);
+
+extern tt_result_t tt_fs_symlink_ntv(IN const tt_char_t *path,
+                                     IN const tt_char_t *link);
+
+extern tt_result_t tt_fs_readlink_ntv(IN const tt_char_t *link,
+                                      OUT tt_char_t *path,
+                                      IN tt_u32_t len);
+
+extern tt_result_t tt_fs_realpath_ntv(IN const tt_char_t *path,
+                                      OUT tt_char_t *resolved,
+                                      IN tt_u32_t len);
 
 extern void tt_fs_worker_io(IN struct tt_io_ev_s *ev);
 
