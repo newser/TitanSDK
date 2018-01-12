@@ -416,6 +416,38 @@ typedef struct
     tt_result_t result;
 } __fs_realpath_t;
 
+// REPARSE_DATA_BUFFER is missing, we have to define it
+typedef struct _REPARSE_DATA_BUFFER
+{
+    ULONG ReparseTag;
+    USHORT ReparseDataLength;
+    USHORT Reserved;
+    union
+    {
+        struct
+        {
+            USHORT SubstituteNameOffset;
+            USHORT SubstituteNameLength;
+            USHORT PrintNameOffset;
+            USHORT PrintNameLength;
+            ULONG Flags;
+            WCHAR PathBuffer[1];
+        } SymbolicLinkReparseBuffer;
+        struct
+        {
+            USHORT SubstituteNameOffset;
+            USHORT SubstituteNameLength;
+            USHORT PrintNameOffset;
+            USHORT PrintNameLength;
+            WCHAR PathBuffer[1];
+        } MountPointReparseBuffer;
+        struct
+        {
+            UCHAR DataBuffer[1];
+        } GenericReparseBuffer;
+    };
+} REPARSE_DATA_BUFFER, *PREPARSE_DATA_BUFFER;
+
 ////////////////////////////////////////////////////////////
 // extern declaration
 ////////////////////////////////////////////////////////////
@@ -487,6 +519,7 @@ static tt_worker_io_t __fs_worker_io[__FS_EV_NUM] = {
     __do_dopen,
     __do_dclose,
     __do_dread,
+    __do_dcopy,
 
     __do_fs_exist,
     __do_fs_rename,
@@ -501,23 +534,12 @@ static tt_bool_t __do_fread(IN tt_io_ev_t *io_ev);
 static tt_bool_t __do_fwrite(IN tt_io_ev_t *io_ev);
 
 static tt_poller_io_t __fs_poller_io[__FS_EV_NUM] = {
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    __do_fread,
-    __do_fwrite,
-    NULL,
-    NULL,
+    NULL, NULL, NULL, NULL, __do_fread, __do_fwrite,
+    NULL, NULL, NULL, NULL, NULL,       NULL,
 
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
+    NULL, NULL, NULL, NULL, NULL,
 
-    NULL,
-    NULL,
+    NULL, NULL, NULL, NULL, NULL,       NULL,
 };
 
 ////////////////////////////////////////////////////////////
@@ -1024,16 +1046,18 @@ void __filetime2date(IN FILETIME *t, IN tt_date_t *d)
 
 void __date2filetime(IN tt_date_t *d, IN FILETIME *t)
 {
+    tt_date_t __d;
     SYSTEMTIME stUTC;
 
-    tt_date_change_tmzone(d, TT_UTC_00_00);
-    stUTC.wYear = tt_date_get_year(d);
-    stUTC.wMonth = tt_date_get_month(d) + 1;
-    stUTC.wDayOfWeek = tt_date_get_weekday(d);
-    stUTC.wDay = tt_date_get_monthday(d);
-    stUTC.wHour = tt_date_get_hour(d);
-    stUTC.wMinute = tt_date_get_minute(d);
-    stUTC.wSecond = tt_date_get_second(d);
+    tt_date_copy(&__d, d);
+    tt_date_change_tmzone(&__d, TT_UTC_00_00);
+    stUTC.wYear = tt_date_get_year(&__d);
+    stUTC.wMonth = tt_date_get_month(&__d) + 1;
+    stUTC.wDayOfWeek = tt_date_get_weekday(&__d);
+    stUTC.wDay = tt_date_get_monthday(&__d);
+    stUTC.wHour = tt_date_get_hour(&__d);
+    stUTC.wMinute = tt_date_get_minute(&__d);
+    stUTC.wSecond = tt_date_get_second(&__d);
     stUTC.wMilliseconds = 0;
 
     SystemTimeToFileTime(&stUTC, t);
@@ -1046,7 +1070,7 @@ void __do_fcreate(IN tt_io_ev_t *io_ev)
     HANDLE hf;
     wchar_t *w_path;
 
-    w_path = tt_wchar_create(fcreate->path, NULL);
+    w_path = tt_wchar_create(fcreate->path, 0, NULL);
     if (w_path == NULL) {
         fcreate->result = TT_FAIL;
         return;
@@ -1063,8 +1087,13 @@ void __do_fcreate(IN tt_io_ev_t *io_ev)
         CloseHandle(hf);
         fcreate->result = TT_SUCCESS;
     } else {
-        TT_ERROR_NTV("fail to create file: %ls", w_path);
-        fcreate->result = TT_FAIL;
+        DWORD e = GetLastError();
+        if (e == ERROR_FILE_EXISTS) {
+            fcreate->result = TT_E_EXIST;
+        } else {
+            TT_ERROR_NTV("fail to create file: %ls", w_path);
+            fcreate->result = TT_FAIL;
+        }
     }
 
     tt_wchar_destroy(w_path);
@@ -1076,7 +1105,7 @@ void __do_fremove(IN tt_io_ev_t *io_ev)
 
     wchar_t *w_path;
 
-    w_path = tt_wchar_create(fremove->path, NULL);
+    w_path = tt_wchar_create(fremove->path, 0, NULL);
     if (w_path == NULL) {
         fremove->result = TT_FAIL;
         return;
@@ -1149,7 +1178,7 @@ void __do_fopen(IN tt_io_ev_t *io_ev)
         dwFlagsAndAttributes |= FILE_ATTRIBUTE_READONLY;
     }
 
-    w_path = tt_wchar_create(fopen->path, NULL);
+    w_path = tt_wchar_create(fopen->path, 0, NULL);
     if (w_path == NULL) {
         fopen->result = TT_FAIL;
         return;
@@ -1423,14 +1452,14 @@ void __do_fcopy(IN tt_io_ev_t *io_ev)
     wchar_t *src, *dst;
     BOOL bFailIfExists;
 
-    src = tt_wchar_create(fcopy_ev->src, NULL);
+    src = tt_wchar_create(fcopy_ev->src, 0, NULL);
     if (src == NULL) {
         TT_ERROR("no mem for src path");
         fcopy_ev->result = TT_E_NOMEM;
         return;
     }
 
-    dst = tt_wchar_create(fcopy_ev->dst, NULL);
+    dst = tt_wchar_create(fcopy_ev->dst, 0, NULL);
     if (dst == NULL) {
         TT_ERROR("no mem for dst path");
         tt_wchar_destroy(src);
@@ -1444,11 +1473,11 @@ void __do_fcopy(IN tt_io_ev_t *io_ev)
         bFailIfExists = FALSE;
     }
 
-    if (CopyFileW(src, dst, bFailIfExists) == 0) {
+    if (CopyFileW(src, dst, bFailIfExists)) {
         fcopy_ev->result = TT_SUCCESS;
     } else {
         fcopy_ev->result = TT_FAIL;
-        TT_ERROR("fcopy failed");
+        TT_ERROR_NTV("fcopy failed");
     }
 
     tt_wchar_destroy(src);
@@ -1463,7 +1492,7 @@ void __do_fsync(IN tt_io_ev_t *io_ev)
         fsync_ev->result = TT_SUCCESS;
     } else {
         fsync_ev->result = TT_FAIL;
-        TT_ERROR("fsync failed");
+        TT_ERROR_NTV("fsync failed");
     }
 }
 
@@ -1479,7 +1508,7 @@ void __do_futime(IN tt_io_ev_t *io_ev)
         futime_ev->result = TT_SUCCESS;
     } else {
         futime_ev->result = TT_FAIL;
-        TT_ERROR("futime failed");
+        TT_ERROR_NTV("futime failed");
     }
 }
 
@@ -1489,7 +1518,7 @@ void __do_dcreate(IN tt_io_ev_t *io_ev)
 
     wchar_t *w_path;
 
-    w_path = tt_wchar_create(dcreate->path, NULL);
+    w_path = tt_wchar_create(dcreate->path, 0, NULL);
     if (w_path == NULL) {
         dcreate->result = TT_FAIL;
         return;
@@ -1498,8 +1527,13 @@ void __do_dcreate(IN tt_io_ev_t *io_ev)
     if (CreateDirectoryW(w_path, NULL)) {
         dcreate->result = TT_SUCCESS;
     } else {
-        TT_ERROR_NTV("fail to create directory: %ls", w_path);
-        dcreate->result = TT_FAIL;
+        DWORD e = GetLastError();
+        if (e == ERROR_ALREADY_EXISTS) {
+            dcreate->result = TT_E_EXIST;
+        } else {
+            TT_ERROR_NTV("fail to create directory: %ls", w_path);
+            dcreate->result = TT_FAIL;
+        }
     }
 
     tt_wchar_destroy(w_path);
@@ -1513,6 +1547,7 @@ void __do_dremove(IN tt_io_ev_t *io_ev)
     SHFILEOPSTRUCTW FileOp;
 
     w_path = tt_wchar_create_ex(dremove->path,
+                                0,
                                 NULL,
                                 TT_WCHAR_CREATE_LONGER,
                                 (void *)1);
@@ -1552,7 +1587,7 @@ void __do_dopen(IN tt_io_ev_t *io_ev)
     wchar_t *path = NULL;
     tt_u32_t path_len;
 
-    w_path = tt_wchar_create(dopen->path, NULL);
+    w_path = tt_wchar_create(dopen->path, 0, NULL);
     if (w_path == NULL) {
         goto out;
     }
@@ -1631,7 +1666,7 @@ void __do_dread(IN tt_io_ev_t *io_ev)
         return;
     }
 
-    utf8_name = tt_utf8_create(dir->find_data.cFileName, NULL);
+    utf8_name = tt_utf8_create(dir->find_data.cFileName, 0, NULL);
     if (utf8_name == NULL) {
         dread->result = TT_FAIL;
         return;
@@ -1678,6 +1713,7 @@ void __do_dcopy(IN tt_io_ev_t *io_ev)
 #endif
 
     from = tt_wchar_create_ex(dcopy_ev->src,
+                              0,
                               NULL,
                               TT_WCHAR_CREATE_LONGER,
                               (void *)2);
@@ -1688,6 +1724,7 @@ void __do_dcopy(IN tt_io_ev_t *io_ev)
     }
 
     to = tt_wchar_create_ex(dcopy_ev->dst,
+                            0,
                             NULL,
                             TT_WCHAR_CREATE_LONGER,
                             (void *)2);
@@ -1721,7 +1758,7 @@ void __do_fs_exist(IN tt_io_ev_t *io_ev)
     wchar_t *w_path;
     DWORD attr;
 
-    w_path = tt_wchar_create(fs_exist->path, NULL);
+    w_path = tt_wchar_create(fs_exist->path, 0, NULL);
     if (w_path == NULL) {
         fs_exist->result = TT_FALSE;
         return;
@@ -1743,13 +1780,13 @@ void __do_fs_rename(IN tt_io_ev_t *io_ev)
     wchar_t *w_from, *w_to;
     BOOL ret;
 
-    w_from = tt_wchar_create(fs_rename->from, NULL);
+    w_from = tt_wchar_create(fs_rename->from, 0, NULL);
     if (w_from == NULL) {
         fs_rename->result = TT_FAIL;
         return;
     }
 
-    w_to = tt_wchar_create(fs_rename->to, NULL);
+    w_to = tt_wchar_create(fs_rename->to, 0, NULL);
     if (w_to == NULL) {
         tt_wchar_destroy(w_from);
         fs_rename->result = TT_FAIL;
@@ -1774,19 +1811,22 @@ void __do_fs_link(IN tt_io_ev_t *io_ev)
     __fs_link_t *fs_link = (__fs_link_t *)io_ev;
     wchar_t *w_path, *w_link;
 
-    w_path = tt_wchar_create(fs_link->path, NULL);
+    w_path = tt_wchar_create(fs_link->path, 0, NULL);
     if (w_path == NULL) {
-        fs_link->result = TT_FAIL;
+        TT_ERROR("no mem for path");
+        fs_link->result = TT_E_NOMEM;
         return;
     }
 
-    w_link = tt_wchar_create(fs_link->link, NULL);
-    if (w_path == NULL) {
-        fs_link->result = TT_FAIL;
+    w_link = tt_wchar_create(fs_link->link, 0, NULL);
+    if (w_link == NULL) {
+        TT_ERROR("no mem for link");
+        tt_wchar_destroy(w_path);
+        fs_link->result = TT_E_NOMEM;
         return;
     }
 
-    if (CreateHardLinkW(w_link, w_path, NULL) == 0) {
+    if (CreateHardLinkW(w_link, w_path, NULL)) {
         fs_link->result = TT_SUCCESS;
     } else {
         TT_ERROR_NTV("link fail");
@@ -1801,20 +1841,39 @@ void __do_fs_symlink(IN tt_io_ev_t *io_ev)
 {
     __fs_symlink_t *fs_symlink = (__fs_symlink_t *)io_ev;
     wchar_t *w_path, *w_link;
+    DWORD attr, dwFlags = 0;
 
-    w_path = tt_wchar_create(fs_symlink->path, NULL);
+    w_path = tt_wchar_create(fs_symlink->path, 0, NULL);
     if (w_path == NULL) {
-        fs_symlink->result = TT_FAIL;
+        TT_ERROR("no mem for path");
+        fs_symlink->result = TT_E_NOMEM;
         return;
     }
 
-    w_link = tt_wchar_create(fs_symlink->link, NULL);
-    if (w_path == NULL) {
-        fs_symlink->result = TT_FAIL;
+    w_link = tt_wchar_create(fs_symlink->link, 0, NULL);
+    if (w_link == NULL) {
+        TT_ERROR("no mem for link");
+        tt_wchar_destroy(w_path);
+        fs_symlink->result = TT_E_NOMEM;
         return;
     }
 
-    if (CreateSymbolicLinkW(w_link, w_path, 0) == 0) {
+    attr = GetFileAttributesW(w_path);
+    if (attr == INVALID_FILE_ATTRIBUTES) {
+        TT_ERROR_NTV("fail to get attr");
+        tt_wchar_destroy(w_path);
+        tt_wchar_destroy(w_link);
+        fs_symlink->result = TT_FAIL;
+        return;
+    } else if (attr & FILE_ATTRIBUTE_DIRECTORY) {
+        dwFlags |= SYMBOLIC_LINK_FLAG_DIRECTORY;
+    } else {
+#ifdef SYMBOLIC_LINK_FLAG_ALLOW_UNPRIVILEGED_CREATE
+        dwFlags |= SYMBOLIC_LINK_FLAG_ALLOW_UNPRIVILEGED_CREATE;
+#endif
+    }
+
+    if (CreateSymbolicLinkW(w_link, w_path, dwFlags)) {
         fs_symlink->result = TT_SUCCESS;
     } else {
         TT_ERROR_NTV("symlink fail");
@@ -1828,42 +1887,205 @@ void __do_fs_symlink(IN tt_io_ev_t *io_ev)
 void __do_fs_readlink(IN tt_io_ev_t *io_ev)
 {
     __fs_readlink_t *fs_readlink = (__fs_readlink_t *)io_ev;
+    wchar_t *w_link, *target;
+    HANDLE h;
+    unsigned char buf[MAXIMUM_REPARSE_DATA_BUFFER_SIZE];
+    REPARSE_DATA_BUFFER *rdb = (REPARSE_DATA_BUFFER *)buf;
+    DWORD len;
 
-#if 0
-    n = readlink(fs_readlink->link, fs_readlink->path, fs_readlink->len);
-    if (n >= 0) {
-        fs_readlink->path[n] = 0;
-        fs_readlink->result = TT_SUCCESS;
+    w_link = tt_wchar_create(fs_readlink->link, 0, NULL);
+    if (w_link == NULL) {
+        TT_ERROR("no mem for link");
+        fs_readlink->result = TT_E_NOMEM;
+        return;
+    }
+
+    h = CreateFileW(w_link,
+                    0,
+                    0,
+                    NULL,
+                    OPEN_EXISTING,
+                    FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OPEN_REPARSE_POINT,
+                    NULL);
+    tt_wchar_destroy(w_link);
+    if (h == INVALID_HANDLE_VALUE) {
+        TT_ERROR_NTV("fail to open link");
+        fs_readlink->result = TT_FAIL;
+        return;
+    }
+
+    if (!DeviceIoControl(h,
+                         FSCTL_GET_REPARSE_POINT,
+                         NULL,
+                         0,
+                         buf,
+                         sizeof(buf),
+                         NULL,
+                         NULL)) {
+        TT_ERROR_NTV("fail to get reparse poing");
+        CloseHandle(h);
+        fs_readlink->result = TT_FAIL;
+        return;
+    }
+    CloseHandle(h);
+
+    if (rdb->ReparseTag == IO_REPARSE_TAG_SYMLINK) {
+        target = rdb->SymbolicLinkReparseBuffer.PathBuffer +
+                 (rdb->SymbolicLinkReparseBuffer.SubstituteNameOffset /
+                  sizeof(WCHAR));
+        len =
+            rdb->SymbolicLinkReparseBuffer.SubstituteNameLength / sizeof(WCHAR);
+
+        if ((len >= 4) && (target[0] == L'\\') && (target[1] == L'\?') &&
+            (target[2] == L'?') && (target[3] == L'\\')) {
+            if ((len >= 6) && (((target[4] >= L'A') && (target[4] <= L'Z')) ||
+                               ((target[4] >= L'a') && (target[4] <= L'z'))) &&
+                (target[5] == L':') && ((len == 6) || (target[6] == L'\\'))) {
+                /* \\?\<drive>:\ */
+                target += 4;
+                len -= 4;
+            } else if ((len >= 8) &&
+                       ((target[4] == L'U') || (target[4] == L'u')) &&
+                       ((target[5] == L'N') || (target[5] == L'n')) &&
+                       ((target[6] == L'C') || (target[6] == L'c')) &&
+                       (target[7] == L'\\')) {
+                /* \??\UNC\<server>\<share>\ => \\<server>\<share>\ */
+                target += 6;
+                target[0] = L'\\';
+                len -= 6;
+            }
+        }
+    } else if (rdb->ReparseTag == IO_REPARSE_TAG_MOUNT_POINT) {
+        // junction
+        target =
+            rdb->MountPointReparseBuffer.PathBuffer +
+            (rdb->MountPointReparseBuffer.SubstituteNameOffset / sizeof(WCHAR));
+        len = rdb->MountPointReparseBuffer.SubstituteNameLength / sizeof(WCHAR);
+
+        if ((len >= 6) && (target[0] == L'\\') && (target[1] == L'\?') &&
+            (target[2] == L'?') && (target[3] == L'\\') &&
+            (((target[4] >= L'A') && (target[4] <= L'Z')) ||
+             ((target[4] >= L'a') && (target[4] <= L'z'))) &&
+            (target[5] == L':') && ((len == 6) || (target[6] == L'\\'))) {
+            /* \??\<drive>:\ */
+            target += 4;
+            len -= 4;
+        } else {
+            // other format are not link
+            target = NULL;
+        }
     } else {
-        TT_ERROR_NTV("readlink fail");
+        target = NULL;
+    }
+
+    if (target != NULL) {
+        tt_char_t *p;
+        tt_u32_t n;
+
+        p = tt_utf8_create(target, len, &n);
+        if (p == NULL) {
+            TT_ERROR("no mem for link target");
+            fs_readlink->result = TT_E_NOMEM;
+        } else if (fs_readlink->len <= n) {
+            TT_ERROR("no space for link target");
+            fs_readlink->result = TT_E_NOSPC;
+        } else {
+            memcpy(fs_readlink->path, target, n);
+            fs_readlink->path[n] = 0;
+            fs_readlink->result = TT_SUCCESS;
+        }
+        tt_utf8_destroy(p);
+    } else {
         fs_readlink->result = TT_FAIL;
     }
-#endif
 }
 
 void __do_fs_realpath(IN tt_io_ev_t *io_ev)
 {
     __fs_realpath_t *fs_realpath = (__fs_realpath_t *)io_ev;
-    char *name;
+    wchar_t *w_path, *w_buf;
+    HANDLE h;
+    DWORD len;
 
-#if 0
-    name = realpath(fs_realpath->path, NULL);
-    if (name != NULL) {
-        tt_u32_t len = (tt_u32_t)tt_strlen(name);
-        if (len < fs_realpath->len) {
-            memcpy(fs_realpath->resolved, name, len);
-            fs_realpath->resolved[len] = 0;
-            fs_realpath->result = TT_SUCCESS;
-        } else {
-            TT_ERROR("not enough space");
-            fs_realpath->result = TT_E_NOSPC;
-        }
-        free(name);
+    w_path = tt_wchar_create(fs_realpath->path, 0, NULL);
+    if (w_path == NULL) {
+        TT_ERROR("no mem for path");
+        fs_realpath->result = TT_E_NOMEM;
+        return;
+    }
+
+    h = CreateFileW(w_path,
+                    0,
+                    0,
+                    NULL,
+                    OPEN_EXISTING,
+                    FILE_FLAG_BACKUP_SEMANTICS | FILE_ATTRIBUTE_NORMAL,
+                    NULL);
+    tt_wchar_destroy(w_path);
+    if (h == INVALID_HANDLE_VALUE) {
+        TT_ERROR_NTV("fail to open path");
+        fs_realpath->result = TT_FAIL;
+        return;
+    }
+
+    len = GetFinalPathNameByHandle(h, NULL, 0, 0);
+    if (len == 0) {
+        TT_ERROR_NTV("fail to get final name length");
+        CloseHandle(h);
+        fs_realpath->result = TT_FAIL;
+        return;
+    }
+
+    w_buf = tt_malloc((len + 1) * sizeof(wchar_t));
+    if (w_buf == NULL) {
+        TT_ERROR_NTV("no mem for final name");
+        CloseHandle(h);
+        fs_realpath->result = TT_E_NOMEM;
+        return;
+    }
+
+    len = GetFinalPathNameByHandleW(h, w_buf, len, 0);
+    CloseHandle(h);
+    if (len == 0) {
+        TT_ERROR("fail to get final name");
+        tt_free(w_buf);
+        fs_realpath->result = TT_FAIL;
+        return;
+    }
+
+    if (wcsncmp(w_buf, L"\\\\?\\UNC\\", 8) == 0) {
+        w_path = w_buf + 6;
+        *w_path = L'\\';
+        len -= 6;
+    } else if (wcsncmp(w_buf, L"\\\\?\\", 4) == 0) {
+        w_path = w_buf + 4;
+        len -= 4;
     } else {
-        TT_ERROR_NTV("realpath fail");
+        w_path = NULL;
+    }
+
+    if (w_path != NULL) {
+        tt_char_t *p;
+        tt_u32_t n;
+
+        p = tt_utf8_create(w_path, len, &n);
+        if (p == NULL) {
+            TT_ERROR("no mem for final path");
+            fs_realpath->result = TT_E_NOMEM;
+        } else if (fs_realpath->len <= n) {
+            TT_ERROR("no space for final path");
+            fs_realpath->result = TT_E_NOSPC;
+        } else {
+            memcpy(fs_realpath->resolved, w_path, n);
+            fs_realpath->resolved[n] = 0;
+            fs_realpath->result = TT_SUCCESS;
+        }
+        tt_utf8_destroy(p);
+    } else {
         fs_realpath->result = TT_FAIL;
     }
-#endif
+
+    tt_free(w_buf);
 }
 
 #ifdef CreateFileW

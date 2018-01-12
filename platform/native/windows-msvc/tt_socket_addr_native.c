@@ -223,7 +223,7 @@ void tt_sktaddr_set_scope_p_ntv(IN tt_sktaddr_ntv_t *addr,
         return;
     }
 
-    InterfaceName = tt_wchar_create(scope_name, NULL);
+    InterfaceName = tt_wchar_create(scope_name, 0, NULL);
     if (InterfaceName == NULL) {
         return;
     }

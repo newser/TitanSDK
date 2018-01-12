@@ -70,7 +70,7 @@ tt_result_t tt_process_create_ntv(IN tt_process_ntv_t *sys_proc,
     DWORD dwCreationFlags = 0;
     STARTUPINFOW si;
 
-    wc_file = tt_wchar_create(file, NULL);
+    wc_file = tt_wchar_create(file, 0, NULL);
     if (wc_file == NULL) {
         TT_ERROR("no mem for converting file name");
         goto __pc_out;
@@ -114,7 +114,7 @@ tt_result_t tt_process_create_ntv(IN tt_process_ntv_t *sys_proc,
         utf8_cli[len++] = 0; // terminating null
 
         // to wchar string
-        lpCommandLine = tt_wchar_create(utf8_cli, NULL);
+        lpCommandLine = tt_wchar_create(utf8_cli, 0, NULL);
         tt_free(utf8_cli);
         if (lpCommandLine == NULL) {
             TT_ERROR("no mem for process cmd line");
@@ -267,7 +267,7 @@ tt_result_t tt_process_name_ntv(IN tt_char_t *name, IN tt_u32_t len)
         return TT_FAIL;
     }
 
-    upath = tt_utf8_create(wpath, NULL);
+    upath = tt_utf8_create(wpath, 0, NULL);
     if (upath == NULL) {
         return TT_FAIL;
     }

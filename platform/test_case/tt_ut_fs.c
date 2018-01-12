@@ -426,6 +426,7 @@ TT_TEST_ROUTINE_DEFINE(case_fs_consistency)
         TT_UT_FAIL(ret, "");
     }
 
+#if !TT_ENV_OS_IS_WINDOWS
     {
         tt_u8_t *data;
         tt_u64_t n;
@@ -459,6 +460,7 @@ TT_TEST_ROUTINE_DEFINE(case_fs_consistency)
         ret = tt_fs_realpath(__SC_TEST_FILE2, name, sizeof(name));
         TT_UT_FAIL(ret, "");
     }
+#endif
 
     {
         char path[20] = "";
@@ -842,6 +844,7 @@ TT_TEST_ROUTINE_DEFINE(case_dir_basic)
 #define __TEST_SUBDIR "一个子目录3"
 
     tt_dremove(__TEST_DIR);
+    tt_dremove(__TEST_DIR2);
 
     TT_UT_EQUAL(tt_fs_exist(__TEST_DIR), TT_FALSE, "");
 
@@ -944,6 +947,11 @@ TT_TEST_ROUTINE_DEFINE(case_dir_basic)
         TT_UT_SUCCESS(ret, "");
         TT_UT_EQUAL(tt_fs_exist(__TEST_DIR), TT_FALSE, "");
         TT_UT_EQUAL(tt_fs_exist(__TEST_DIR2), TT_TRUE, "");
+
+#if !TT_ENV_OS_IS_WINDOWS
+        ret = tt_fs_symlink(__TEST_DIR2, __TEST_DIR);
+        TT_UT_SUCCESS(ret, "");
+#endif
 
         ret = tt_dremove(__TEST_DIR2);
         TT_UT_SUCCESS(ret, "");
@@ -1365,7 +1373,7 @@ TT_TEST_ROUTINE_DEFINE(case_fs_copy)
     // test start
 
     tt_fremove(__SC_TEST_FILE);
-    tt_dremove(__SC_TEST_FILE2);
+    tt_fremove(__SC_TEST_FILE2);
 
     // src not exist
     {

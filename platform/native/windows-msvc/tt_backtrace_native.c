@@ -117,7 +117,7 @@ tt_result_t tt_backtrace_ntv(IN tt_buf_t *buf,
                                 sym->Name,
                                 addr_disp));
         } else {
-            tt_char_t *fname = tt_utf8_create(line.FileName, NULL);
+            tt_char_t *fname = tt_utf8_create(line.FileName, 0, NULL);
             if (fname != NULL) {
                 tt_result_t result;
                 result = tt_buf_putf(buf,

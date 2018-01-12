@@ -228,6 +228,7 @@ tt_u8_t *tt_fcontent(IN const tt_char_t *path, OUT OPT tt_u64_t *size)
         tt_fclose(&f);
         return NULL;
     }
+    tt_fclose(&f);
 
     TT_SAFE_ASSIGN(size, len);
     return buf;

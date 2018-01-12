@@ -171,7 +171,7 @@ void __addr2sym(IN tt_uintptr_t addr, IN tt_char_t *buf, IN tt_u32_t len)
     if (!SymFromAddr(proc, addr, &addr_disp, sym)) {
         tt_snprintf(buf, len - 1, "%p", addr);
     } else if (!SymGetLineFromAddrW64(proc, addr, &disp2, &line) ||
-               ((fname = tt_utf8_create(line.FileName, NULL)) == NULL)) {
+               ((fname = tt_utf8_create(line.FileName, 0, NULL)) == NULL)) {
         tt_snprintf(buf,
                     len - 1,
                     "%p in %s(+0x%x)",

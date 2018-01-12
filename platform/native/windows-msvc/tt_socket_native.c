@@ -930,7 +930,7 @@ tt_result_t __addr_to_mreq(IN tt_sktaddr_ip_t *addr,
         NETIO_STATUS ns;
         NET_IFINDEX ifidx;
 
-        InterfaceName = tt_wchar_create(itf, NULL);
+        InterfaceName = tt_wchar_create(itf, 0, NULL);
         if (InterfaceName == NULL) {
             return TT_FAIL;
         }
@@ -975,7 +975,7 @@ tt_result_t __addr_to_mreq6(IN tt_sktaddr_ip_t *addr,
         NETIO_STATUS ns;
         NET_IFINDEX ifidx;
 
-        InterfaceName = tt_wchar_create(itf, NULL);
+        InterfaceName = tt_wchar_create(itf, 0, NULL);
         if (InterfaceName == NULL) {
             return TT_FAIL;
         }
