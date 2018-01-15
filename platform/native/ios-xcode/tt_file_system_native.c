@@ -1491,7 +1491,11 @@ void __time2date(IN time_t *t, IN tt_date_t *d)
 
 void __date2timeval(IN tt_date_t *d, IN struct timeval *tv)
 {
-    tv->tv_sec = tt_date_diff_epoch_second(d);
+    tt_date_t __d;
+
+    tt_date_copy(&__d, d);
+    tt_date_change_tmzone(&__d, TT_UTC_00_00);
+    tv->tv_sec = tt_date_diff_epoch_second(&__d);
     tv->tv_usec = 0;
 }
 

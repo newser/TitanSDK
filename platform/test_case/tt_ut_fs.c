@@ -1490,11 +1490,13 @@ TT_TEST_ROUTINE_DEFINE(case_fs_copy)
 
 #if (TT_ENV_OS_FEATURE & TT_ENV_OS_FEATURE_IOS_SIMULATOR)
 #define __CD_D1 "../tmp/d1"
+#define __CD_D1S "../tmp/d1/"
 #define __CD_D1_D2 "../tmp/d1/d2"
 #define __CD_D1_F1 "../tmp/d1/f1"
 #define __CD_D1_D2_F2 "../tmp/d1/d2/f2"
 
 #define __COPIED_D1 "../tmp/copied_d1"
+#define __COPIED_D1S "../tmp/copied_d1/"
 #define __COPIED_D1_D2 "../tmp/copied_d1/d2"
 #define __COPIED_D1_F1 "../tmp/copied_d1/f1"
 #define __COPIED_D1_D2_F2 "../tmp/copied_d1/d2/f2"
@@ -1504,11 +1506,13 @@ TT_TEST_ROUTINE_DEFINE(case_fs_copy)
 #elif TT_ENV_OS_IS_ANDROID
 
 #define __CD_D1 APK_PATH "../tmp/d1"
+#define __CD_D1S APK_PATH "../tmp/d1/"
 #define __CD_D1_D2 APK_PATH "../tmp/d1/d2"
 #define __CD_D1_F1 APK_PATH "../tmp/d1/f1"
 #define __CD_D1_D2_F2 APK_PATH "../tmp/d1/d2/f2"
 
 #define __COPIED_D1 APK_PATH "../tmp/copied_d1"
+#define __COPIED_D1S APK_PATH "../tmp/copied_d1/"
 #define __COPIED_D1_D2 APK_PATH "../tmp/copied_d1/d2"
 #define __COPIED_D1_F1 APK_PATH "../tmp/copied_d1/f1"
 #define __COPIED_D1_D2_F2 APK_PATH "../tmp/copied_d1/d2/f2"
