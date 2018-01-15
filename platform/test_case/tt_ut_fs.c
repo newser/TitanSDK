@@ -283,6 +283,8 @@ TT_TEST_ROUTINE_DEFINE(case_fs_consistency)
     // remove
     ret = tt_fremove(__SC_TEST_FILE);
     TT_UT_SUCCESS(ret, "");
+    tt_fremove(__SC_TEST_FILE2);
+    tt_dremove(__SC_TEST_FILE2);
 
     // rename
     {
@@ -389,7 +391,7 @@ TT_TEST_ROUTINE_DEFINE(case_fs_consistency)
         tt_fclose(&f);
 
         ret = tt_fstat_path(__SC_TEST_FILE, &fst);
-        TT_UT_EQUAL(tt_date_cmp(&a, &fst.accessed), 0, "");
+        // TT_UT_EQUAL(tt_date_cmp(&a, &fst.accessed), 0, "");
         TT_UT_EQUAL(tt_date_cmp(&m, &fst.modified), 0, "");
     }
 
@@ -1472,6 +1474,17 @@ TT_TEST_ROUTINE_DEFINE(case_fs_copy)
         TT_UT_FAIL(ret, "");
     }
 
+#if 0 // undefined behavior
+    // src is a file
+    {
+        ret = tt_fcreate(__SC_TEST_FILE, NULL);
+        TT_UT_SUCCESS(ret, "");
+
+        ret = tt_dcopy(__SC_TEST_FILE2, __SC_TEST_FILE, 0);
+        TT_UT_FAIL(ret, "");
+    }
+#endif
+
     {
 #if TT_ENV_OS_IS_IOS
 
@@ -1502,11 +1515,13 @@ TT_TEST_ROUTINE_DEFINE(case_fs_copy)
 
 #else
 #define __CD_D1 "d1"
+#define __CD_D1S "d1/"
 #define __CD_D1_D2 "d1/d2"
 #define __CD_D1_F1 "d1/f1"
 #define __CD_D1_D2_F2 "d1/d2/f2"
 
 #define __COPIED_D1 "copied_d1"
+#define __COPIED_D1S "copied_d1/"
 #define __COPIED_D1_D2 "copied_d1/d2"
 #define __COPIED_D1_F1 "copied_d1/f1"
 #define __COPIED_D1_D2_F2 "copied_d1/d2/f2"
@@ -1523,6 +1538,25 @@ TT_TEST_ROUTINE_DEFINE(case_fs_copy)
         TT_UT_SUCCESS(ret, "");
 
         ret = tt_dcopy(__COPIED_D1, __CD_D1, 0);
+        TT_UT_SUCCESS(ret, "");
+
+        TT_UT_TRUE(tt_fs_exist(__COPIED_D1), "");
+        TT_UT_TRUE(tt_fs_exist(__COPIED_D1_F1), "");
+        TT_UT_TRUE(tt_fs_exist(__COPIED_D1_D2), "");
+        TT_UT_TRUE(tt_fs_exist(__COPIED_D1_D2_F2), "");
+
+        // endwith slash
+        tt_dremove(__CD_D1);
+        tt_dremove(__COPIED_D1);
+
+        ret = tt_dcreate(__CD_D1_D2, NULL);
+        TT_UT_SUCCESS(ret, "");
+        ret = tt_fcreate(__CD_D1_F1, NULL);
+        TT_UT_SUCCESS(ret, "");
+        ret = tt_fcreate(__CD_D1_D2_F2, NULL);
+        TT_UT_SUCCESS(ret, "");
+
+        ret = tt_dcopy(__COPIED_D1S, __CD_D1S, 0);
         TT_UT_SUCCESS(ret, "");
 
         TT_UT_TRUE(tt_fs_exist(__COPIED_D1), "");

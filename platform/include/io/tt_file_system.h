@@ -520,8 +520,8 @@ tt_inline tt_result_t tt_dcopy(IN const tt_char_t *dst,
                                IN const tt_char_t *src,
                                IN tt_u32_t flag)
 {
-    TT_ASSERT(dst != NULL);
-    TT_ASSERT(src != NULL);
+    TT_ASSERT((dst != NULL) && (*dst != 0));
+    TT_ASSERT((src != NULL) && (*src != 0));
 
     return tt_dcopy_ntv(dst, src, flag);
 }
