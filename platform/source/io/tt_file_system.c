@@ -311,6 +311,27 @@ tt_result_t tt_fstat_path(IN const tt_char_t *path, OUT tt_fstat_t *fstat)
     return TT_SUCCESS;
 }
 
+tt_result_t tt_futime(IN tt_file_t *file,
+                      IN OPT tt_date_t *accessed,
+                      IN OPT tt_date_t *modified)
+{
+    tt_date_t a, m;
+
+    TT_ASSERT(file != NULL);
+
+    if (accessed == NULL) {
+        tt_date_now(&a);
+        accessed = &a;
+    }
+
+    if (modified == NULL) {
+        tt_date_now(&m);
+        modified = &m;
+    }
+
+    return tt_futime_ntv(&file->sys_file, accessed, modified);
+}
+
 void tt_dir_attr_default(IN tt_dir_attr_t *attr)
 {
     TT_ASSERT(attr != NULL);

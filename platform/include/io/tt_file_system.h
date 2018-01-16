@@ -386,16 +386,9 @@ tt_inline tt_result_t tt_fdatasync(IN tt_file_t *file)
     return tt_fdatasync_ntv(&file->sys_file);
 }
 
-tt_inline tt_result_t tt_futime(IN tt_file_t *file,
-                                IN tt_date_t *accessed,
-                                IN tt_date_t *modified)
-{
-    TT_ASSERT(file != NULL);
-    TT_ASSERT(accessed != NULL);
-    TT_ASSERT(modified != NULL);
-
-    return tt_futime_ntv(&file->sys_file, accessed, modified);
-}
+tt_export tt_result_t tt_futime(IN tt_file_t *file,
+                                IN OPT tt_date_t *accessed,
+                                IN OPT tt_date_t *modified);
 
 /**
  @fn void tt_dir_attr_default(IN tt_dir_attr_t *attr)

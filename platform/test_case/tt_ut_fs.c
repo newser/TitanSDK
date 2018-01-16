@@ -396,6 +396,9 @@ TT_TEST_ROUTINE_DEFINE(case_fs_consistency)
         tt_ftrunc(&f, 0);
         tt_fwrite(&f, (tt_u8_t *)"123", 3, NULL);
 
+        ret = tt_futime(&f, NULL, NULL);
+        TT_UT_SUCCESS(ret, "");
+
         tt_date_init(&a, tt_g_local_tmzone);
         tt_date_init(&m, tt_g_local_tmzone);
 
