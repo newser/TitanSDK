@@ -34,6 +34,8 @@
 
 #include <fcntl.h>
 #include <fts.h>
+#include <linux/version.h>
+#include <sys/sendfile.h>
 #include <sys/stat.h>
 #include <sys/time.h>
 #include <sys/types.h>
@@ -1547,6 +1549,34 @@ tt_result_t __copy_f(IN const tt_char_t *dst,
         return TT_FAIL;
     }
 
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 33)
+    {
+        off_t count, offset = 0;
+        ssize_t n = 0;
+
+        if ((count = lseek(ifd, 0, SEEK_END)) < 0) {
+            result = TT_FAIL;
+            goto out;
+        }
+    s_ag:
+        n = sendfile(ofd, ifd, &offset, count);
+        if (n >= 0) {
+            assert(n <= count);
+            count -= n;
+            if (count > 0) {
+                // offset was updated
+                goto s_ag;
+            } else {
+                result = TT_SUCCESS;
+            }
+        } /*else if (errno == EINTR) {
+            goto s_ag;
+        }*/ else {
+            TT_ERROR_NTV("fail to sendfile dst");
+            result = TT_FAIL;
+        }
+    }
+#else
     {
         char buf[4096];
         ssize_t rn;
@@ -1577,7 +1607,9 @@ tt_result_t __copy_f(IN const tt_char_t *dst,
             result = TT_FAIL;
         }
     }
+#endif
 
+out:
     close(ifd);
     close(ofd);
     return result;

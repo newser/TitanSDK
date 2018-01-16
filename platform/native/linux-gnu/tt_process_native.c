@@ -188,6 +188,16 @@ tt_char_t *tt_current_path_ntv(IN tt_bool_t end_slash)
     return d;
 }
 
+tt_result_t tt_set_current_path_ntv(IN const tt_char_t *path)
+{
+    if (chdir(path) == 0) {
+        return TT_SUCCESS;
+    } else {
+        TT_ERROR_NTV("fail to chdir");
+        return TT_FAIL;
+    }
+}
+
 tt_result_t tt_process_name_ntv(IN tt_char_t *name, IN tt_u32_t len)
 {
     const char *p = program_invocation_short_name;
