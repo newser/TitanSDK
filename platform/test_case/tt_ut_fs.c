@@ -39,12 +39,20 @@ TT_TEST_ROUTINE_DECLARE(case_dir_basic)
 
 // =========================================
 
+static tt_string_t __wpath;
 static tt_string_t __sc_fpath, __sc_fpath2;
 static tt_string_t __sc_dpath, __sc_dpath1;
 
 static void __fs_enter(void *enter_param)
 {
-#if TT_ENV_OS_IS_IOS && !(TT_ENV_OS_FEATURE & TT_ENV_OS_FEATURE_IOS_SIMULATOR)
+#if TT_ENV_OS_IS_IOS
+#if (TT_ENV_OS_FEATURE & TT_ENV_OS_FEATURE_IOS_SIMULATOR)
+    tt_char_t *pwd = tt_current_path(TT_FALSE);
+    tt_string_create(&__wpath, pwd, NULL);
+    tt_free(pwd);
+
+    tt_set_current_path("../tmp");
+#else
     static tt_bool_t done = TT_FALSE;
     tt_char_t *s;
 
@@ -66,6 +74,14 @@ static void __fs_enter(void *enter_param)
         done = TT_TRUE;
     }
 #endif
+#endif
+}
+
+static void __fs_exit(void *enter_param)
+{
+#if TT_ENV_OS_IS_IOS
+    tt_set_current_path(tt_string_cstr(&__wpath));
+#endif
 }
 
 static void __fs_enter_consis(void *enter_param);
@@ -79,7 +95,7 @@ TT_TEST_CASE("case_fs_basic",
              NULL,
              __fs_enter,
              NULL,
-             NULL,
+             __fs_exit,
              NULL)
 ,
 
@@ -89,7 +105,7 @@ TT_TEST_CASE("case_fs_basic",
                  NULL,
                  __fs_enter,
                  NULL,
-                 NULL,
+                 __fs_exit,
                  NULL),
 
     TT_TEST_CASE("case_fs_rw",
@@ -98,7 +114,7 @@ TT_TEST_CASE("case_fs_basic",
                  NULL,
                  __fs_enter,
                  NULL,
-                 NULL,
+                 __fs_exit,
                  NULL),
 
     TT_TEST_CASE("case_fs_copy",
@@ -107,7 +123,7 @@ TT_TEST_CASE("case_fs_basic",
                  NULL,
                  __fs_enter,
                  NULL,
-                 NULL,
+                 __fs_exit,
                  NULL),
 
     TT_TEST_CASE("case_dir_basic",
@@ -116,7 +132,7 @@ TT_TEST_CASE("case_fs_basic",
                  NULL,
                  __fs_enter_consis,
                  NULL,
-                 NULL,
+                 __fs_exit,
                  NULL),
 
     TT_TEST_CASE("case_fs_multhread",
@@ -125,7 +141,7 @@ TT_TEST_CASE("case_fs_basic",
                  NULL,
                  __fs_enter,
                  NULL,
-                 NULL,
+                 __fs_exit,
                  NULL),
 
     TT_TEST_CASE("case_fs_consistency",
@@ -134,7 +150,7 @@ TT_TEST_CASE("case_fs_basic",
                  NULL,
                  __fs_enter,
                  NULL,
-                 NULL,
+                 __fs_exit,
                  NULL),
 
     TT_TEST_CASE_LIST_DEFINE_END(fs_case)
@@ -167,9 +183,9 @@ TT_TEST_ROUTINE_DEFINE(case_fs_consistency)
 #elif TT_ENV_OS_IS_IOS
 
 #if (TT_ENV_OS_FEATURE & TT_ENV_OS_FEATURE_IOS_SIMULATOR)
-#define __SC_TEST_FILE "../tmp/测试"
-#define __SC_TEST_FILE2 "../tmp/测试2"
-#define __TEST_D1 "../tmp/测试目录1"
+#define __SC_TEST_FILE "测试"
+#define __SC_TEST_FILE2 "测试2"
+#define __TEST_D1 "测试目录1"
 #else
 #define __SC_TEST_FILE ((const tt_char_t *)tt_string_cstr(&__sc_fpath))
 #define __SC_TEST_FILE2 ((const tt_char_t *)tt_string_cstr(&__sc_fpath2))
