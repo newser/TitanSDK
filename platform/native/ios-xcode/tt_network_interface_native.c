@@ -158,6 +158,39 @@ void tt_netif_destroy_ntv(IN tt_netif_ntv_t *sys_netif)
     }
 }
 
+tt_result_t tt_netif_name2idx_ntv(IN const tt_char_t *name, OUT tt_u32_t *idx)
+{
+    unsigned int val = if_nametoindex(name);
+    if (val != 0) {
+        *idx = val;
+        return TT_SUCCESS;
+    } else {
+        TT_ERROR_NTV("invalid interface name: %s", name);
+        return TT_E_BADARG;
+    }
+}
+
+tt_result_t tt_netif_idx2name_ntv(IN tt_u32_t idx,
+                                  OUT tt_char_t *name,
+                                  IN tt_u32_t len)
+{
+    char ifname[IFNAMSIZ + 1] = {0};
+    if (if_indextoname(idx, ifname) != NULL) {
+        tt_u32_t n = (tt_u32_t)strlen(ifname);
+        if (len > n) {
+            tt_memcpy(name, ifname, n);
+            name[n] = 0;
+            return TT_SUCCESS;
+        } else {
+            TT_ERROR("not enough space for ifname");
+            return TT_E_NOSPC;
+        }
+    } else {
+        TT_ERROR_NTV("fail to get interface name: %d", idx);
+        return TT_E_BADARG;
+    }
+}
+
 tt_result_t __netif_update(IN tt_netif_t *netif, IN struct ifaddrs *ifa)
 {
     tt_netif_addr_t *netif_addr;

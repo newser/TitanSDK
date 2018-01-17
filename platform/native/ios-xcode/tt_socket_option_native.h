@@ -30,8 +30,6 @@ this file specifies apis to get or set socket option
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <misc/tt_util.h>
-
 #include <tt_socket_native.h>
 #include <tt_sys_error.h>
 
@@ -71,7 +69,7 @@ tt_inline tt_result_t tt_skt_get_ipv6only_ntv(IN tt_skt_ntv_t *skt,
                                               OUT tt_bool_t *ipv6only)
 {
     int val = 0;
-    socklen_t len = sizeof(int);
+    socklen_t len = (int)sizeof(int);
     if (getsockopt(skt->s, IPPROTO_IPV6, IPV6_V6ONLY, &val, &len) == 0) {
         *ipv6only = TT_BOOL(val);
         return TT_SUCCESS;
@@ -97,7 +95,7 @@ tt_inline tt_result_t tt_skt_get_reuseaddr_ntv(IN tt_skt_ntv_t *skt,
                                                OUT tt_bool_t *reuse_addr)
 {
     int val = 0;
-    socklen_t len = sizeof(int);
+    socklen_t len = (int)sizeof(int);
     if (getsockopt(skt->s, SOL_SOCKET, SO_REUSEADDR, &val, &len) == 0) {
         *reuse_addr = TT_BOOL(val);
         return TT_SUCCESS;
@@ -123,7 +121,7 @@ tt_inline tt_result_t tt_skt_get_reuseport_ntv(IN tt_skt_ntv_t *skt,
                                                OUT tt_bool_t *reuse_port)
 {
     int val = 0;
-    socklen_t len = sizeof(int);
+    socklen_t len = (int)sizeof(int);
     if (getsockopt(skt->s, SOL_SOCKET, SO_REUSEPORT, &val, &len) == 0) {
         *reuse_port = TT_BOOL(val);
         return TT_SUCCESS;
@@ -149,7 +147,7 @@ tt_inline tt_result_t tt_skt_get_tcp_nodelay_ntv(IN tt_skt_ntv_t *skt,
                                                  OUT tt_bool_t *nodelay)
 {
     int val = 0;
-    socklen_t len = sizeof(int);
+    socklen_t len = (int)sizeof(int);
     if (getsockopt(skt->s, IPPROTO_TCP, TCP_NODELAY, &val, &len) == 0) {
         *nodelay = TT_BOOL(val);
         return TT_SUCCESS;
@@ -201,5 +199,33 @@ tt_inline tt_result_t tt_skt_set_linger_ntv(IN tt_skt_ntv_t *skt,
         return TT_FAIL;
     }
 }
+
+extern tt_result_t tt_skt_set_mcast_loop_ntv(IN tt_skt_ntv_t *skt,
+                                             IN tt_net_family_t family,
+                                             IN tt_bool_t loop);
+
+extern tt_result_t tt_skt_get_mcast_loop_ntv(IN tt_skt_ntv_t *skt,
+                                             IN tt_net_family_t family,
+                                             OUT tt_bool_t *loop);
+
+extern tt_result_t tt_skt_set_mcast_ttl_ntv(IN tt_skt_ntv_t *skt,
+                                            IN tt_net_family_t family,
+                                            IN tt_u8_t ttl);
+
+extern tt_result_t tt_skt_get_mcast_ttl_ntv(IN tt_skt_ntv_t *skt,
+                                            IN tt_net_family_t family,
+                                            OUT tt_u8_t *ttl);
+
+extern tt_result_t tt_skt_set_mcast_if_ntv(IN tt_skt_ntv_t *skt,
+                                           IN tt_sktaddr_ip_t *addr);
+
+extern tt_result_t tt_skt_get_mcast_if_ntv(IN tt_skt_ntv_t *skt,
+                                           OUT tt_sktaddr_ip_t *addr);
+
+extern tt_result_t tt_skt_set_mcast_ifidx_ntv(IN tt_skt_ntv_t *skt,
+                                              IN tt_u32_t ifidx);
+
+extern tt_result_t tt_skt_get_mcast_ifidx_ntv(IN tt_skt_ntv_t *skt,
+                                              OUT tt_u32_t *ifidx);
 
 #endif // __TT_SOCKET_OPTION_NATIVE__
