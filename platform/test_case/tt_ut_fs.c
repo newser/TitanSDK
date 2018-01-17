@@ -80,7 +80,11 @@ static void __fs_enter(void *enter_param)
 static void __fs_exit(void *enter_param)
 {
 #if TT_ENV_OS_IS_IOS
+#if (TT_ENV_OS_FEATURE & TT_ENV_OS_FEATURE_IOS_SIMULATOR)
     tt_set_current_path(tt_string_cstr(&__wpath));
+#else
+    todo
+#endif
 #endif
 }
 

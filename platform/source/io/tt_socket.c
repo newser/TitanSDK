@@ -24,6 +24,7 @@
 
 #include <init/tt_component.h>
 #include <init/tt_profile.h>
+#include <io/tt_file_system.h>
 #include <io/tt_socket_option.h>
 #include <memory/tt_memory_alloc.h>
 #include <misc/tt_util.h>
@@ -235,6 +236,22 @@ tt_result_t tt_skt_connect_p(IN tt_skt_t *skt,
     tt_sktaddr_set_port(&addr, port);
 
     return tt_skt_connect(skt, &addr);
+}
+
+tt_result_t tt_skt_sendfile_path(IN tt_skt_t *skt, IN const tt_char_t *path)
+{
+    tt_file_t f;
+    tt_result_t result;
+
+    TT_ASSERT(path != NULL);
+
+    if (!TT_OK(tt_fopen(&f, path, TT_FO_READ, NULL))) {
+        return TT_FAIL;
+    }
+
+    result = tt_skt_sendfile(skt, &f);
+    tt_fclose(&f);
+    return result;
 }
 
 tt_result_t tt_skt_local_addr(IN tt_skt_t *skt, IN tt_sktaddr_t *addr)

@@ -23,6 +23,7 @@
 #include "tt_unit_test_case_config.h"
 #include <unit_test/tt_unit_test.h>
 
+#include <io/tt_file_system.h>
 #include <io/tt_socket.h>
 #include <io/tt_socket_addr.h>
 #include <io/tt_socket_option.h>
@@ -81,6 +82,7 @@ TT_TEST_ROUTINE_DECLARE(case_udp_basic)
 
 TT_TEST_ROUTINE_DECLARE(case_tcp4_stress)
 TT_TEST_ROUTINE_DECLARE(case_tcp6_close)
+TT_TEST_ROUTINE_DECLARE(case_tcp4_sendfile)
 
 TT_TEST_ROUTINE_DECLARE(case_tcp_event)
 TT_TEST_ROUTINE_DECLARE(case_udp_event)
@@ -243,6 +245,28 @@ static void __ut_skt_enter(void *enter_param)
     TT_INFO("ipv6 mapped: %s", __ut_skt_local_ip6_mapped);
     TT_INFO("interface: %s", __ut_skt_local_itf);
     TT_INFO("========================================");
+
+#if TT_ENV_OS_IS_IOS
+#if (TT_ENV_OS_FEATURE & TT_ENV_OS_FEATURE_IOS_SIMULATOR)
+    tt_char_t *pwd = tt_current_path(TT_FALSE);
+    tt_string_create(&__wpath, pwd, NULL);
+    tt_free(pwd);
+
+    tt_set_current_path("../tmp");
+#else
+#endif
+#endif
+}
+
+static void __ut_skt_exit(void *enter_param)
+{
+#if TT_ENV_OS_IS_IOS
+#if (TT_ENV_OS_FEATURE & TT_ENV_OS_FEATURE_IOS_SIMULATOR)
+    tt_set_current_path(tt_string_cstr(&__wpath));
+#else
+    todo
+#endif
+#endif
 }
 
 // === test case list ======================
@@ -254,7 +278,7 @@ TT_TEST_CASE("case_sk_addr",
              NULL,
              __ut_skt_enter,
              NULL,
-             NULL,
+             __ut_skt_exit,
              NULL)
 ,
 
@@ -264,7 +288,7 @@ TT_TEST_CASE("case_sk_addr",
                  NULL,
                  __ut_skt_enter,
                  NULL,
-                 NULL,
+                 __ut_skt_exit,
                  NULL),
 
     TT_TEST_CASE("case_bind_basic",
@@ -273,7 +297,7 @@ TT_TEST_CASE("case_sk_addr",
                  NULL,
                  __ut_skt_enter,
                  NULL,
-                 NULL,
+                 __ut_skt_exit,
                  NULL),
 
     TT_TEST_CASE("case_tcp_basic",
@@ -282,7 +306,7 @@ TT_TEST_CASE("case_sk_addr",
                  NULL,
                  __ut_skt_enter,
                  NULL,
-                 NULL,
+                 __ut_skt_exit,
                  NULL),
 
     TT_TEST_CASE("case_udp_basic",
@@ -291,7 +315,7 @@ TT_TEST_CASE("case_sk_addr",
                  NULL,
                  __ut_skt_enter,
                  NULL,
-                 NULL,
+                 __ut_skt_exit,
                  NULL),
 
     TT_TEST_CASE("case_tcp6_close",
@@ -300,7 +324,16 @@ TT_TEST_CASE("case_sk_addr",
                  NULL,
                  __ut_skt_enter,
                  NULL,
+                 __ut_skt_exit,
+                 NULL),
+
+    TT_TEST_CASE("case_tcp4_sendfile",
+                 "testing socket tcp sendfile",
+                 case_tcp4_sendfile,
                  NULL,
+                 __ut_skt_enter,
+                 NULL,
+                 __ut_skt_exit,
                  NULL),
 
     TT_TEST_CASE("case_tcp4_stress",
@@ -309,7 +342,7 @@ TT_TEST_CASE("case_sk_addr",
                  NULL,
                  __ut_skt_enter,
                  NULL,
-                 NULL,
+                 __ut_skt_exit,
                  NULL),
 
     TT_TEST_CASE("case_tcp_event",
@@ -318,7 +351,7 @@ TT_TEST_CASE("case_sk_addr",
                  NULL,
                  __ut_skt_enter,
                  NULL,
-                 NULL,
+                 __ut_skt_exit,
                  NULL),
 
     TT_TEST_CASE("case_udp_event",
@@ -327,7 +360,7 @@ TT_TEST_CASE("case_sk_addr",
                  NULL,
                  __ut_skt_enter,
                  NULL,
-                 NULL,
+                 __ut_skt_exit,
                  NULL),
 
 #if 0
@@ -335,7 +368,7 @@ TT_TEST_CASE("case_sk_addr",
                  "testing socket test with apache benchmark", 
                  case_ab, NULL, 
                  __ut_skt_enter, NULL,
-                 NULL, NULL),
+                 __ut_skt_exit, NULL),
 #endif
 
     TT_TEST_CASE_LIST_DEFINE_END(sk_case)
@@ -1289,6 +1322,160 @@ TT_TEST_ROUTINE_DEFINE(case_tcp6_close)
 
     tt_task_add_fiber(&t, NULL, __f_svr_tcp6_close, NULL, NULL);
     tt_task_add_fiber(&t, NULL, __f_cli_tcp6_close, NULL, NULL);
+
+    __ut_skt_err_line = 0;
+
+    ret = tt_task_run(&t);
+    TT_UT_SUCCESS(ret, "");
+
+    tt_task_wait(&t);
+    TT_UT_EQUAL(__ut_skt_err_line, 0, "");
+
+    // test end
+    TT_TEST_CASE_LEAVE()
+}
+
+#define __SSF_F1 "ssf1"
+#define __SSF_F2 "ssf2"
+
+static tt_result_t __f_svr_tcp4_sendfile(IN void *param)
+{
+    tt_skt_t *s, *new_s;
+    tt_u8_t buf[200];
+    tt_u32_t n, len;
+    tt_result_t ret;
+    tt_fiber_ev_t *fev;
+    tt_tmr_t *tmr;
+
+    s = tt_skt_create(TT_NET_AF_INET, TT_NET_PROTO_TCP, NULL);
+    if (s == NULL) {
+        __ut_skt_err_line = __LINE__;
+        goto fail;
+    }
+
+    tt_skt_set_reuseaddr(s, TT_TRUE);
+    if (!TT_OK(tt_skt_bind_p(s, TT_NET_AF_INET, "127.0.0.1", 56786))) {
+        __ut_skt_err_line = __LINE__;
+        goto fail;
+    }
+
+    if (!TT_OK(tt_skt_listen(s))) {
+        __ut_skt_err_line = __LINE__;
+        goto fail;
+    }
+
+    new_s = tt_skt_accept(s, NULL, NULL);
+    if (s == NULL) {
+        __ut_skt_err_line = __LINE__;
+        goto fail;
+    }
+
+    len = 0;
+    while (((ret = tt_skt_recv(new_s, buf, sizeof(buf), &n, &fev, &tmr)) !=
+            TT_E_END)) {
+        len += n;
+    }
+    if (len != 110) {
+        __ut_skt_err_line = __LINE__;
+        goto fail;
+    }
+    for (n = 0; n < 110; n += 11) {
+        if (tt_strncmp((tt_char_t *)buf + n, "0123456789", 11) != 0) {
+            __ut_skt_err_line = __LINE__;
+            goto fail;
+        }
+    }
+
+    if (!TT_OK(tt_skt_shutdown(new_s, TT_SKT_SHUT_WR))) {
+        __ut_skt_err_line = __LINE__;
+        goto fail;
+    }
+
+    tt_skt_destroy(new_s);
+    tt_skt_destroy(s);
+
+    return TT_SUCCESS;
+
+fail:
+    tt_task_exit(NULL);
+    return TT_FAIL;
+}
+
+static tt_result_t __f_cli_tcp4_sendfile(IN void *param)
+{
+    tt_skt_t *s;
+    tt_u8_t buf[10];
+    tt_u32_t n;
+    tt_result_t ret;
+    tt_fiber_ev_t *fev;
+    tt_tmr_t *tmr;
+
+    s = tt_skt_create(TT_NET_AF_INET, TT_NET_PROTO_TCP, NULL);
+    if (s == NULL) {
+        __ut_skt_err_line = __LINE__;
+        goto fail;
+    }
+
+    if (!TT_OK(tt_skt_connect_p(s, TT_NET_AF_INET, "127.0.0.1", 56786))) {
+        __ut_skt_err_line = __LINE__;
+        goto fail;
+    }
+
+    if (!TT_OK(tt_skt_sendfile_path(s, __SSF_F1))) {
+        __ut_skt_err_line = __LINE__;
+        goto fail;
+    }
+    if (!TT_OK(tt_skt_sendfile_path(s, __SSF_F2))) {
+        __ut_skt_err_line = __LINE__;
+        goto fail;
+    }
+
+    if (!TT_OK(tt_skt_shutdown(s, TT_SKT_SHUT_WR))) {
+        __ut_skt_err_line = __LINE__;
+        goto fail;
+    }
+    while (((ret = tt_skt_recv(s, buf, sizeof(buf), &n, &fev, &tmr)) !=
+            TT_E_END)) {
+    }
+
+    tt_skt_destroy(s);
+
+    return TT_SUCCESS;
+
+fail:
+    tt_task_exit(NULL);
+    return TT_FAIL;
+}
+
+TT_TEST_ROUTINE_DEFINE(case_tcp4_sendfile)
+{
+    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+    tt_result_t ret;
+    tt_task_t t;
+    tt_file_t f;
+    tt_char_t buf[] = "0123456789";
+    tt_u32_t i;
+
+    TT_TEST_CASE_ENTER()
+    // test start
+
+    tt_fremove(__SSF_F1);
+    tt_fremove(__SSF_F2);
+
+    ret = tt_fcreate(__SSF_F1, NULL);
+    TT_UT_SUCCESS(ret, "");
+    ret = tt_fopen(&f, __SSF_F2, TT_FO_WRITE | TT_FO_CREAT, NULL);
+    TT_UT_SUCCESS(ret, "");
+    for (i = 0; i < 10; ++i) {
+        TT_UT_SUCCESS(tt_fwrite_all(&f, (tt_u8_t *)buf, sizeof(buf)), "");
+    }
+    tt_fclose(&f);
+
+    ret = tt_task_create(&t, NULL);
+    TT_UT_SUCCESS(ret, "");
+
+    tt_task_add_fiber(&t, NULL, __f_svr_tcp4_sendfile, NULL, NULL);
+    tt_task_add_fiber(&t, NULL, __f_cli_tcp4_sendfile, NULL, NULL);
 
     __ut_skt_err_line = 0;
 

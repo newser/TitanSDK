@@ -45,6 +45,7 @@ this file specifies socket APIs
 ////////////////////////////////////////////////////////////
 
 struct tt_tmr_s;
+struct tt_file_s;
 
 typedef struct tt_skt_s
 {
@@ -168,6 +169,14 @@ tt_inline tt_result_t tt_skt_send_all(IN tt_skt_t *skt,
     }
     return TT_SUCCESS;
 }
+
+tt_inline tt_result_t tt_skt_sendfile(IN tt_skt_t *skt, IN struct tt_file_s *f)
+{
+    return tt_skt_sendfile_ntv(&skt->sys_skt, f);
+}
+
+tt_export tt_result_t tt_skt_sendfile_path(IN tt_skt_t *skt,
+                                           IN const tt_char_t *path);
 
 tt_inline tt_result_t tt_skt_recv(IN tt_skt_t *skt,
                                   OUT tt_u8_t *buf,

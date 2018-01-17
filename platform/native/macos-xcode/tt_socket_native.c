@@ -24,6 +24,7 @@
 
 #include <init/tt_component.h>
 #include <init/tt_profile.h>
+#include <io/tt_file_system.h>
 #include <io/tt_io_event.h>
 #include <io/tt_socket.h>
 #include <log/tt_log.h>
@@ -140,6 +141,7 @@ enum
     __SKT_RECV,
     __SKT_SENDTO,
     __SKT_RECVFROM,
+    __SKT_SENDFILE,
 
     __SKT_EV_NUM,
 };
@@ -223,6 +225,19 @@ typedef struct
     tt_bool_t done : 1;
 } __skt_recvfrom_t;
 
+typedef struct
+{
+    tt_io_ev_t io_ev;
+
+    tt_skt_ntv_t *skt;
+    tt_file_t *f;
+
+    tt_u64_t offset;
+    tt_u64_t len;
+    tt_result_t result;
+    tt_u32_t kq;
+} __skt_sendfile_t;
+
 ////////////////////////////////////////////////////////////
 // extern declaration
 ////////////////////////////////////////////////////////////
@@ -243,8 +258,16 @@ static tt_bool_t __do_sendto(IN tt_io_ev_t *io_ev);
 
 static tt_bool_t __do_recvfrom(IN tt_io_ev_t *io_ev);
 
+static tt_bool_t __do_sendfile(IN tt_io_ev_t *io_ev);
+
 static tt_poller_io_t __skt_poller_io[__SKT_EV_NUM] = {
-    __do_accept, __do_connect, __do_send, __do_recv, __do_sendto, __do_recvfrom,
+    __do_accept,
+    __do_connect,
+    __do_send,
+    __do_recv,
+    __do_sendto,
+    __do_recvfrom,
+    __do_sendfile,
 };
 
 ////////////////////////////////////////////////////////////
@@ -555,6 +578,29 @@ tt_result_t tt_skt_send_ntv(IN tt_skt_ntv_t *skt,
     tt_kq_write(kq, skt->s, &skt_send.io_ev);
     tt_fiber_suspend();
     return skt_send.result;
+}
+
+tt_result_t tt_skt_sendfile_ntv(IN tt_skt_ntv_t *skt, IN tt_file_t *f)
+{
+    __skt_sendfile_t skt_sendfile;
+    int kq;
+
+    kq = __skt_ev_init(&skt_sendfile.io_ev, __SKT_SENDFILE);
+
+    skt_sendfile.skt = skt;
+    skt_sendfile.f = f;
+
+    skt_sendfile.offset = 0;
+    if (!TT_OK(
+            tt_fseek_ntv(&f->sys_file, TT_FSEEK_END, 0, &skt_sendfile.len))) {
+        return TT_FAIL;
+    }
+    skt_sendfile.result = TT_FAIL;
+    skt_sendfile.kq = kq;
+
+    tt_kq_write(kq, skt->s, &skt_sendfile.io_ev);
+    tt_fiber_suspend();
+    return skt_sendfile.result;
 }
 
 tt_result_t tt_skt_recv_ntv(IN tt_skt_ntv_t *skt,
@@ -987,6 +1033,50 @@ again:
     }
     skt_recvfrom->done = TT_TRUE;
     return TT_TRUE;
+}
+
+tt_bool_t __do_sendfile(IN tt_io_ev_t *io_ev)
+{
+    __skt_sendfile_t *skt_sendfile = (__skt_sendfile_t *)io_ev;
+
+    off_t n;
+
+again:
+    n = skt_sendfile->len;
+    if (sendfile(skt_sendfile->f->sys_file.fd,
+                 skt_sendfile->skt->s,
+                 (off_t)skt_sendfile->offset,
+                 &n,
+                 NULL,
+                 0) == 0) {
+        if (n != 0) {
+            TT_ASSERT(n <= skt_sendfile->len);
+            skt_sendfile->offset += n;
+            skt_sendfile->len -= n;
+            if (skt_sendfile->len == 0) {
+                skt_sendfile->result = TT_SUCCESS;
+                return TT_TRUE;
+            } else {
+                goto again;
+            }
+        } else {
+            skt_sendfile->result = TT_SUCCESS;
+            return TT_TRUE;
+        }
+    } else if (errno == EINTR) {
+        skt_sendfile->offset += n;
+        skt_sendfile->len -= n;
+        goto again;
+    } else if (errno == EAGAIN) {
+        skt_sendfile->offset += n;
+        skt_sendfile->len -= n;
+        tt_kq_write(skt_sendfile->kq, skt_sendfile->skt->s, io_ev);
+        return TT_FALSE;
+    } else {
+        TT_ERROR_NTV("sendfile failed");
+        skt_sendfile->result = TT_FAIL;
+        return TT_TRUE;
+    }
 }
 
 #ifdef __SIMU_FAIL_SOCKET
