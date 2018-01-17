@@ -48,3 +48,140 @@
 ////////////////////////////////////////////////////////////
 // interface implementation
 ////////////////////////////////////////////////////////////
+
+tt_result_t tt_skt_set_mcast_loop_ntv(IN tt_skt_ntv_t *skt,
+                                      IN tt_net_family_t family,
+                                      IN tt_bool_t loop)
+{
+    int val = loop ? 1 : 0;
+    if (setsockopt(skt->s,
+                   TT_COND(family == TT_NET_AF_INET, IPPROTO_IP, IPPROTO_IPV6),
+                   TT_COND(family == TT_NET_AF_INET,
+                           IP_MULTICAST_LOOP,
+                           IPV6_MULTICAST_LOOP),
+                   &val,
+                   sizeof(val)) == 0) {
+        return TT_SUCCESS;
+    } else {
+        TT_ERROR_NTV("fail to set mcast loop to %d", loop);
+        return TT_FAIL;
+    }
+}
+
+tt_result_t tt_skt_get_mcast_loop_ntv(IN tt_skt_ntv_t *skt,
+                                      IN tt_net_family_t family,
+                                      OUT tt_bool_t *loop)
+{
+    int val;
+    socklen_t len = sizeof(val);
+    if (getsockopt(skt->s,
+                   TT_COND(family == TT_NET_AF_INET, IPPROTO_IP, IPPROTO_IPV6),
+                   TT_COND(family == TT_NET_AF_INET,
+                           IP_MULTICAST_LOOP,
+                           IPV6_MULTICAST_LOOP),
+                   &val,
+                   &len) == 0) {
+        *loop = TT_BOOL(val);
+        return TT_SUCCESS;
+    } else {
+        TT_ERROR_NTV("fail to get mcast loop");
+        return TT_FAIL;
+    }
+}
+
+tt_result_t tt_skt_set_mcast_ttl_ntv(IN tt_skt_ntv_t *skt,
+                                     IN tt_net_family_t family,
+                                     IN tt_u8_t ttl)
+{
+    int val = ttl;
+    if (setsockopt(skt->s,
+                   TT_COND(family == TT_NET_AF_INET, IPPROTO_IP, IPPROTO_IPV6),
+                   TT_COND(family == TT_NET_AF_INET,
+                           IP_MULTICAST_TTL,
+                           IPV6_MULTICAST_HOPS),
+                   &val,
+                   sizeof(val)) == 0) {
+        return TT_SUCCESS;
+    } else {
+        TT_ERROR_NTV("fail to set mcast ttl to %d", ttl);
+        return TT_FAIL;
+    }
+}
+
+tt_result_t tt_skt_get_mcast_ttl_ntv(IN tt_skt_ntv_t *skt,
+                                     IN tt_net_family_t family,
+                                     OUT tt_u8_t *ttl)
+{
+    int val;
+    socklen_t len = sizeof(val);
+    if (getsockopt(skt->s,
+                   TT_COND(family == TT_NET_AF_INET, IPPROTO_IP, IPPROTO_IPV6),
+                   TT_COND(family == TT_NET_AF_INET,
+                           IP_MULTICAST_TTL,
+                           IPV6_MULTICAST_HOPS),
+                   &val,
+                   &len) == 0) {
+        *ttl = (tt_u8_t)val;
+        return TT_SUCCESS;
+    } else {
+        TT_ERROR_NTV("fail to get mcast ttl");
+        return TT_FAIL;
+    }
+}
+
+tt_result_t tt_skt_set_mcast_if_ntv(IN tt_skt_ntv_t *skt,
+                                    IN tt_sktaddr_ip_t *addr)
+{
+    struct in_addr a;
+    a.s_addr = addr->a32.__u32;
+
+    if (setsockopt(skt->s, IPPROTO_IP, IP_MULTICAST_IF, &a, sizeof(a)) == 0) {
+        return TT_SUCCESS;
+    } else {
+        TT_ERROR_NTV("fail to set mcast interface");
+        return TT_FAIL;
+    }
+}
+
+tt_result_t tt_skt_get_mcast_if_ntv(IN tt_skt_ntv_t *skt,
+                                    OUT tt_sktaddr_ip_t *addr)
+{
+    struct in_addr a;
+    socklen_t len = sizeof(a);
+    if (getsockopt(skt->s, IPPROTO_IP, IP_MULTICAST_IF, &a, &len) == 0) {
+        addr->a32.__u32 = a.s_addr;
+        return TT_SUCCESS;
+    } else {
+        TT_ERROR_NTV("fail to get mcast interface");
+        return TT_FAIL;
+    }
+}
+
+tt_result_t tt_skt_set_mcast_ifidx_ntv(IN tt_skt_ntv_t *skt, IN tt_u32_t ifidx)
+{
+    int val = (int)ifidx;
+    if (setsockopt(skt->s,
+                   IPPROTO_IPV6,
+                   IPV6_MULTICAST_IF,
+                   &val,
+                   sizeof(val)) == 0) {
+        return TT_SUCCESS;
+    } else {
+        TT_ERROR_NTV("fail to set mcast interface idx");
+        return TT_FAIL;
+    }
+}
+
+tt_result_t tt_skt_get_mcast_ifidx_ntv(IN tt_skt_ntv_t *skt,
+                                       OUT tt_u32_t *ifidx)
+{
+    int val;
+    socklen_t len = sizeof(val);
+    if (getsockopt(skt->s, IPPROTO_IPV6, IPV6_MULTICAST_IF, &val, &len) == 0) {
+        *ifidx = val;
+        return TT_SUCCESS;
+    } else {
+        TT_ERROR_NTV("fail to get mcast interface idx");
+        return TT_FAIL;
+    }
+}

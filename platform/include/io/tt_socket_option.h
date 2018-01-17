@@ -30,7 +30,7 @@ this file specifies apis to get or set socket option
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <tt_basic_type.h>
+#include <io/tt_socket_addr.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
@@ -110,5 +110,41 @@ tt_export tt_result_t tt_skt_set_nonblock(IN struct tt_skt_s *skt,
 tt_export tt_result_t tt_skt_set_linger(IN struct tt_skt_s *skt,
                                         IN tt_bool_t enable,
                                         IN tt_u16_t linger_sec);
+
+// ========================================
+// multicast
+// ========================================
+
+tt_export tt_result_t tt_skt_set_mcast_loop(IN struct tt_skt_s *skt,
+                                            IN tt_net_family_t family,
+                                            IN tt_bool_t loop);
+
+tt_export tt_result_t tt_skt_get_mcast_loop(IN struct tt_skt_s *skt,
+                                            IN tt_net_family_t family,
+                                            OUT tt_bool_t *loop);
+
+tt_export tt_result_t tt_skt_set_mcast_ttl(IN struct tt_skt_s *skt,
+                                           IN tt_net_family_t family,
+                                           IN tt_u8_t ttl);
+
+tt_export tt_result_t tt_skt_get_mcast_ttl(IN struct tt_skt_s *skt,
+                                           IN tt_net_family_t family,
+                                           OUT tt_u8_t *ttl);
+
+// only ipv4
+tt_export tt_result_t tt_skt_set_mcast_if(IN struct tt_skt_s *skt,
+                                          IN tt_sktaddr_ip_t *addr);
+
+// only ipv4
+tt_export tt_result_t tt_skt_get_mcast_if(IN struct tt_skt_s *skt,
+                                          OUT tt_sktaddr_ip_t *addr);
+
+// only ipv6
+tt_export tt_result_t tt_skt_set_mcast_ifidx(IN struct tt_skt_s *skt,
+                                             IN tt_u32_t ifidx);
+
+// only ipv6
+tt_export tt_result_t tt_skt_get_mcast_ifidx(IN struct tt_skt_s *skt,
+                                             OUT tt_u32_t *ifidx);
 
 #endif // __TT_SOCKET_OPTION__

@@ -146,6 +146,19 @@ tt_inline tt_netif_t *tt_netif_group_next(IN tt_netif_group_t *group,
     return TT_CONTAINER(node, tt_netif_t, node);
 }
 
+tt_inline tt_result_t tt_netif_name2idx(IN const tt_char_t *name,
+                                        OUT tt_u32_t *idx)
+{
+    return tt_netif_name2idx_ntv(name, idx);
+}
+
+tt_inline tt_result_t tt_netif_idx2name(IN tt_u32_t idx,
+                                        OUT tt_char_t *name,
+                                        IN tt_u32_t len)
+{
+    return tt_netif_idx2name_ntv(idx, name, len);
+}
+
 // ========================================
 // netif, auxiliary functions
 // ========================================

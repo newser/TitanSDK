@@ -109,6 +109,7 @@ static tt_char_t __ut_skt_local_ip[40];
 static tt_char_t __ut_skt_local_ip6[180];
 static tt_char_t __ut_skt_local_itf[40];
 static tt_char_t __ut_skt_local_ip6_mapped[180];
+static tt_char_t __ut_local_ifname[64];
 
 static void __ut_skt_enter(void *enter_param)
 {
@@ -181,6 +182,10 @@ static void __ut_skt_enter(void *enter_param)
     tt_netif_group_refresh_done(&netif_group);
 
     while ((nif = tt_netif_group_next(&netif_group, nif)) != NULL) {
+        if (__ut_local_ifname[0] == 0) {
+            tt_strncpy(__ut_local_ifname, nif->name, sizeof(__ut_local_ifname));
+        }
+
         if (nif->status == TT_NETIF_STATUS_ACTIVE) {
             tt_lnode_t *node = tt_list_head(&nif->addr_list);
             while (node != NULL) {
@@ -497,9 +502,26 @@ TT_TEST_ROUTINE_DEFINE(case_sk_opt)
     tt_skt_t *s;
     tt_result_t ret;
     tt_bool_t v;
+    tt_u8_t v_u8;
+    tt_u32_t ifidx;
+    tt_char_t ifname[100];
 
     TT_TEST_CASE_ENTER()
     // test start
+
+    // interface
+    TT_UT_EXP(__ut_local_ifname[0] != 0, "");
+
+    ret = tt_netif_name2idx(__ut_local_ifname, &ifidx);
+    TT_UT_SUCCESS(ret, "");
+
+    ret = tt_netif_idx2name(ifidx, ifname, sizeof(ifname));
+    TT_UT_SUCCESS(ret, "");
+    TT_UT_STREQ(ifname, __ut_local_ifname, "");
+    ret = tt_netif_idx2name(ifidx, ifname, 1);
+    TT_UT_EQUAL(ret, TT_E_NOSPC, "");
+    ret = tt_netif_idx2name(~0, ifname, sizeof(ifname));
+    TT_UT_FAIL(ret, "");
 
     // udp ipv4
 
@@ -525,6 +547,37 @@ TT_TEST_ROUTINE_DEFINE(case_sk_opt)
     TT_UT_SUCCESS(ret, "");
     TT_UT_EQUAL(v, TT_FALSE, "");
 
+    // multicast loop
+    ret = tt_skt_set_mcast_loop(s, TT_NET_AF_INET, TT_TRUE);
+    TT_UT_SUCCESS(ret, "");
+    ret = tt_skt_get_mcast_loop(s, TT_NET_AF_INET, &v);
+    TT_UT_SUCCESS(ret, "");
+    TT_UT_EQUAL(v, TT_TRUE, "");
+
+    ret = tt_skt_set_mcast_loop(s, TT_NET_AF_INET, TT_FALSE);
+    TT_UT_SUCCESS(ret, "");
+    ret = tt_skt_get_mcast_loop(s, TT_NET_AF_INET, &v);
+    TT_UT_SUCCESS(ret, "");
+    TT_UT_EQUAL(v, TT_FALSE, "");
+
+    // multicast ttl
+    ret = tt_skt_set_mcast_ttl(s, TT_NET_AF_INET, 199);
+    TT_UT_SUCCESS(ret, "");
+    ret = tt_skt_get_mcast_ttl(s, TT_NET_AF_INET, &v_u8);
+    TT_UT_SUCCESS(ret, "");
+    TT_UT_EQUAL(v_u8, 199, "");
+
+    // multicast ttl
+    {
+        tt_sktaddr_ip_t ip, ip2;
+        tt_sktaddr_ip_p2n(TT_NET_AF_INET, __ut_skt_local_ip, &ip);
+        ret = tt_skt_set_mcast_if(s, &ip);
+        TT_UT_SUCCESS(ret, "");
+        ret = tt_skt_get_mcast_if(s, &ip2);
+        TT_UT_SUCCESS(ret, "");
+        TT_UT_MEMEQ(&ip, &ip2, sizeof(ip.a32), "");
+    }
+
 // android can not set this opt for udp
 #if !TT_ENV_OS_IS_ANDROID
     // reuse port
@@ -542,6 +595,44 @@ TT_TEST_ROUTINE_DEFINE(case_sk_opt)
     TT_UT_EQUAL(v, TT_FALSE, "");
 #endif
 #endif
+
+    tt_skt_destroy(s);
+
+    // udp ipv6
+
+    s = tt_skt_create(TT_NET_AF_INET6, TT_NET_PROTO_UDP, NULL);
+    TT_UT_NOT_EQUAL(s, NULL, "");
+
+    // multicast loop
+    ret = tt_skt_set_mcast_loop(s, TT_NET_AF_INET6, TT_TRUE);
+    TT_UT_SUCCESS(ret, "");
+    ret = tt_skt_get_mcast_loop(s, TT_NET_AF_INET6, &v);
+    TT_UT_SUCCESS(ret, "");
+    TT_UT_EQUAL(v, TT_TRUE, "");
+
+    ret = tt_skt_set_mcast_loop(s, TT_NET_AF_INET6, TT_FALSE);
+    TT_UT_SUCCESS(ret, "");
+    ret = tt_skt_get_mcast_loop(s, TT_NET_AF_INET6, &v);
+    TT_UT_SUCCESS(ret, "");
+    TT_UT_EQUAL(v, TT_FALSE, "");
+
+    // multicast ttl
+    ret = tt_skt_set_mcast_ttl(s, TT_NET_AF_INET6, 199);
+    TT_UT_SUCCESS(ret, "");
+    ret = tt_skt_get_mcast_ttl(s, TT_NET_AF_INET6, &v_u8);
+    TT_UT_SUCCESS(ret, "");
+    TT_UT_EQUAL(v_u8, 199, "");
+
+    // multicast ttl
+    {
+        tt_u32_t idx, idx2;
+        tt_netif_name2idx(__ut_local_ifname, &idx);
+        ret = tt_skt_set_mcast_ifidx(s, idx);
+        TT_UT_SUCCESS(ret, "");
+        ret = tt_skt_get_mcast_ifidx(s, &idx2);
+        TT_UT_SUCCESS(ret, "");
+        TT_UT_EQUAL(idx, idx2, "");
+    }
 
     tt_skt_destroy(s);
 

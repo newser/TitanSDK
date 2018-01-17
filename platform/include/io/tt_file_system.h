@@ -390,6 +390,18 @@ tt_export tt_result_t tt_futime(IN tt_file_t *file,
                                 IN OPT tt_date_t *accessed,
                                 IN OPT tt_date_t *modified);
 
+#if TT_ENV_OS_IS_WINDOWS
+tt_inline HANDLE tt_file_handle(IN tt_file_t *file)
+{
+    return file->sys_file.hf;
+}
+#else
+tt_inline int tt_file_fd(IN tt_file_t *file)
+{
+    return file->sys_file.fd;
+}
+#endif
+
 /**
  @fn void tt_dir_attr_default(IN tt_dir_attr_t *attr)
  get default directory attribute
