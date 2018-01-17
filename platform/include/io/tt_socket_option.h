@@ -112,6 +112,28 @@ tt_export tt_result_t tt_skt_set_linger(IN struct tt_skt_s *skt,
                                         IN tt_u16_t linger_sec);
 
 // ========================================
+// ttl
+// ========================================
+
+tt_export tt_result_t tt_skt_set_ttl(IN struct tt_skt_s *skt,
+                                     IN tt_net_family_t family,
+                                     IN tt_u8_t ttl);
+
+tt_export tt_result_t tt_skt_get_ttl(IN struct tt_skt_s *skt,
+                                     IN tt_net_family_t family,
+                                     OUT tt_u8_t *ttl);
+
+// ========================================
+// broadcast
+// ========================================
+
+tt_export tt_result_t tt_skt_set_broadcast(IN struct tt_skt_s *skt,
+                                           IN tt_bool_t broadcast);
+
+tt_export tt_result_t tt_skt_get_broadcast(IN struct tt_skt_s *skt,
+                                           OUT tt_bool_t *broadcast);
+
+// ========================================
 // multicast
 // ========================================
 

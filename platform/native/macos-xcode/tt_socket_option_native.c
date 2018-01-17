@@ -49,6 +49,68 @@
 // interface implementation
 ////////////////////////////////////////////////////////////
 
+tt_result_t tt_skt_set_ttl_ntv(IN tt_skt_ntv_t *skt,
+                               IN tt_net_family_t family,
+                               IN tt_u8_t ttl)
+{
+    int val = ttl;
+    if (setsockopt(skt->s,
+                   TT_COND(family == TT_NET_AF_INET, IPPROTO_IP, IPPROTO_IPV6),
+                   TT_COND(family == TT_NET_AF_INET, IP_TTL, IPV6_UNICAST_HOPS),
+                   &val,
+                   sizeof(val)) == 0) {
+        return TT_SUCCESS;
+    } else {
+        TT_ERROR_NTV("fail to set ttl to %d", ttl);
+        return TT_FAIL;
+    }
+}
+
+tt_result_t tt_skt_get_ttl_ntv(IN tt_skt_ntv_t *skt,
+                               IN tt_net_family_t family,
+                               OUT tt_u8_t *ttl)
+{
+    int val;
+    socklen_t len = sizeof(val);
+    if (getsockopt(skt->s,
+                   TT_COND(family == TT_NET_AF_INET, IPPROTO_IP, IPPROTO_IPV6),
+                   TT_COND(family == TT_NET_AF_INET, IP_TTL, IPV6_UNICAST_HOPS),
+                   &val,
+                   &len) == 0) {
+        *ttl = (tt_u8_t)val;
+        return TT_SUCCESS;
+    } else {
+        TT_ERROR_NTV("fail to get ttl");
+        return TT_FAIL;
+    }
+}
+
+tt_result_t tt_skt_set_broadcast_ntv(IN tt_skt_ntv_t *skt,
+                                     IN tt_bool_t broadcast)
+{
+    int val = broadcast ? 1 : 0;
+    if (setsockopt(skt->s, SOL_SOCKET, SO_BROADCAST, &val, sizeof(int)) == 0) {
+        return TT_SUCCESS;
+    } else {
+        TT_ERROR_NTV("fail to set broadcast to %d", broadcast);
+        return TT_FAIL;
+    }
+}
+
+tt_result_t tt_skt_get_broadcast_ntv(IN tt_skt_ntv_t *skt,
+                                     OUT tt_bool_t *broadcast)
+{
+    int val;
+    socklen_t len = sizeof(val);
+    if (getsockopt(skt->s, SOL_SOCKET, SO_BROADCAST, &val, &len) == 0) {
+        *broadcast = TT_BOOL(val);
+        return TT_SUCCESS;
+    } else {
+        TT_ERROR_NTV("fail to get broadcast");
+        return TT_FAIL;
+    }
+}
+
 tt_result_t tt_skt_set_mcast_loop_ntv(IN tt_skt_ntv_t *skt,
                                       IN tt_net_family_t family,
                                       IN tt_bool_t loop)

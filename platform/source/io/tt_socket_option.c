@@ -127,6 +127,40 @@ tt_result_t tt_skt_set_linger(IN tt_skt_t *skt,
     return tt_skt_set_linger_ntv(&skt->sys_skt, enable, linger_sec);
 }
 
+tt_result_t tt_skt_set_ttl(IN tt_skt_t *skt,
+                           IN tt_net_family_t family,
+                           IN tt_u8_t ttl)
+{
+    TT_ASSERT(skt != NULL);
+    TT_ASSERT(TT_NET_AF_VALID(family));
+
+    return tt_skt_set_ttl_ntv(&skt->sys_skt, family, ttl);
+}
+
+tt_result_t tt_skt_get_ttl(IN tt_skt_t *skt,
+                           IN tt_net_family_t family,
+                           OUT tt_u8_t *ttl)
+{
+    TT_ASSERT(skt != NULL);
+    TT_ASSERT(TT_NET_AF_VALID(family));
+
+    return tt_skt_get_ttl_ntv(&skt->sys_skt, family, ttl);
+}
+
+tt_result_t tt_skt_set_broadcast(IN tt_skt_t *skt, IN tt_bool_t broadcast)
+{
+    TT_ASSERT(skt != NULL);
+
+    return tt_skt_set_broadcast_ntv(&skt->sys_skt, broadcast);
+}
+
+tt_result_t tt_skt_get_broadcast(IN tt_skt_t *skt, OUT tt_bool_t *broadcast)
+{
+    TT_ASSERT(skt != NULL);
+
+    return tt_skt_get_broadcast_ntv(&skt->sys_skt, broadcast);
+}
+
 tt_result_t tt_skt_set_mcast_loop(IN tt_skt_t *skt,
                                   IN tt_net_family_t family,
                                   IN tt_bool_t loop)

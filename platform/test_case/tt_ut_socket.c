@@ -547,6 +547,26 @@ TT_TEST_ROUTINE_DEFINE(case_sk_opt)
     TT_UT_SUCCESS(ret, "");
     TT_UT_EQUAL(v, TT_FALSE, "");
 
+    // broadcast
+    ret = tt_skt_set_broadcast(s, TT_TRUE);
+    TT_UT_SUCCESS(ret, "");
+    ret = tt_skt_get_broadcast(s, &v);
+    TT_UT_SUCCESS(ret, "");
+    TT_UT_EQUAL(v, TT_TRUE, "");
+
+    ret = tt_skt_set_broadcast(s, TT_FALSE);
+    TT_UT_SUCCESS(ret, "");
+    ret = tt_skt_get_broadcast(s, &v);
+    TT_UT_SUCCESS(ret, "");
+    TT_UT_EQUAL(v, TT_FALSE, "");
+
+    // ttl
+    ret = tt_skt_set_ttl(s, TT_NET_AF_INET, 123);
+    TT_UT_SUCCESS(ret, "");
+    ret = tt_skt_get_ttl(s, TT_NET_AF_INET, &v_u8);
+    TT_UT_SUCCESS(ret, "");
+    TT_UT_EQUAL(v_u8, 123, "");
+
     // multicast loop
     ret = tt_skt_set_mcast_loop(s, TT_NET_AF_INET, TT_TRUE);
     TT_UT_SUCCESS(ret, "");
@@ -567,7 +587,7 @@ TT_TEST_ROUTINE_DEFINE(case_sk_opt)
     TT_UT_SUCCESS(ret, "");
     TT_UT_EQUAL(v_u8, 199, "");
 
-    // multicast ttl
+    // multicast interface
     {
         tt_sktaddr_ip_t ip, ip2;
         tt_sktaddr_ip_p2n(TT_NET_AF_INET, __ut_skt_local_ip, &ip);
@@ -602,6 +622,13 @@ TT_TEST_ROUTINE_DEFINE(case_sk_opt)
 
     s = tt_skt_create(TT_NET_AF_INET6, TT_NET_PROTO_UDP, NULL);
     TT_UT_NOT_EQUAL(s, NULL, "");
+
+    // ttl
+    ret = tt_skt_set_ttl(s, TT_NET_AF_INET6, 145);
+    TT_UT_SUCCESS(ret, "");
+    ret = tt_skt_get_ttl(s, TT_NET_AF_INET6, &v_u8);
+    TT_UT_SUCCESS(ret, "");
+    TT_UT_EQUAL(v_u8, 145, "");
 
     // multicast loop
     ret = tt_skt_set_mcast_loop(s, TT_NET_AF_INET6, TT_TRUE);
