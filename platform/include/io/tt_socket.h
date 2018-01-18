@@ -257,6 +257,18 @@ tt_export void tt_skt_stat_inc_num();
 
 tt_export void tt_skt_stat_dec_num();
 
+#if TT_ENV_OS_IS_WINDOWS
+tt_inline HANDLE tt_skt_handle(IN tt_skt_t *skt)
+{
+    return skt->sys_skt.hf;
+}
+#else
+tt_inline int tt_skt_fd(IN tt_skt_t *skt)
+{
+    return skt->sys_skt.s;
+}
+#endif
+
 // ========================================
 // multicast
 // ========================================
