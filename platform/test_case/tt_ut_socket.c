@@ -48,7 +48,7 @@
 
 #define __CHECK_IO
 
-#define __TCP_DETAIL
+//#define __TCP_DETAIL
 
 #if 0
 #define __SKT_DETAIL TT_DEBUG
@@ -1028,7 +1028,7 @@ static tt_result_t __f_svr(IN void *param)
         return TT_FAIL;
     }
 
-    new_s = tt_skt_accept(s, NULL, NULL);
+    new_s = tt_skt_accept(s, NULL, NULL, &fev, &tmr);
     if (new_s == NULL) {
         __ut_skt_err_line = __LINE__;
         return TT_FAIL;
@@ -1261,7 +1261,7 @@ static tt_result_t __f_svr_tcp6_close(IN void *param)
         return TT_FAIL;
     }
 
-    new_s = tt_skt_accept(s, NULL, NULL);
+    new_s = tt_skt_accept(s, NULL, NULL, &fev, &tmr);
     if (s == NULL) {
         __ut_skt_err_line = __LINE__;
         return TT_FAIL;
@@ -1364,7 +1364,7 @@ static tt_result_t __f_svr_tcp4_sendfile(IN void *param)
         goto fail;
     }
 
-    new_s = tt_skt_accept(s, NULL, NULL);
+    new_s = tt_skt_accept(s, NULL, NULL, &fev, &tmr);
     if (s == NULL) {
         __ut_skt_err_line = __LINE__;
         goto fail;
@@ -1757,6 +1757,8 @@ static tt_result_t __f_svr_t4(IN void *param)
 {
     tt_skt_t *s, *new_s;
     tt_u32_t n, i = (tt_u32_t)(tt_uintptr_t)param;
+    tt_fiber_ev_t *fev;
+    tt_tmr_t *tmr;
 
     s = tt_skt_create(TT_NET_AF_INET, TT_NET_PROTO_TCP, NULL);
     if (s == NULL) {
@@ -1781,7 +1783,7 @@ static tt_result_t __f_svr_t4(IN void *param)
     while (n++ < __CON_PER_TASK) {
         tt_fiber_t *fb;
 
-        new_s = tt_skt_accept(s, NULL, NULL);
+        new_s = tt_skt_accept(s, NULL, NULL, &fev, &tmr);
         if (new_s == NULL) {
             __ut_skt_err_line = __LINE__;
             return TT_FAIL;
@@ -1957,10 +1959,20 @@ static tt_result_t __f_svr_ev(IN void *param)
         return TT_FAIL;
     }
 
-    new_s = tt_skt_accept(s, NULL, NULL);
-    if (new_s == NULL) {
-        __ut_skt_err_line = __LINE__;
-        return TT_FAIL;
+    while ((new_s = tt_skt_accept(s, NULL, NULL, &fev, &tmr)) == NULL) {
+        if (fev != NULL) {
+            if ((fev->src == NULL) && (fev->ev != 0x87654321)) {
+                __ut_skt_err_line = __LINE__;
+            }
+            if ((fev->src != NULL) && (fev->ev != 0x12345678)) {
+                __ut_skt_err_line = __LINE__;
+            }
+            ++__ut_ev_rcv;
+            tt_fiber_finish(fev);
+        } else {
+            __ut_skt_err_line = __LINE__;
+            return TT_FAIL;
+        }
     }
 
     __SKT_DETAIL("=> svr recv");
@@ -2159,6 +2171,26 @@ static tt_result_t __f_cli_ev(IN void *param)
     }
 
     tt_skt_set_reuseaddr(s, TT_TRUE);
+
+    n = 0;
+    while (n++ < 20) {
+        if (tt_rand_u32() % 5 == 0) {
+            tt_u32_t r = tt_rand_u32() % 2;
+            if (r == 0) {
+                tt_fiber_ev_t e;
+                tt_fiber_ev_init(&e, 0x12345678);
+                __SKT_DETAIL("=> cli send ev wait");
+                tt_fiber_send_ev(svr, &e, TT_TRUE);
+                __SKT_DETAIL("<= cli send ev wait");
+            } else {
+                tt_fiber_ev_t *e = tt_fiber_ev_create(0x87654321, 0);
+                __SKT_DETAIL("=> cli send ev");
+                tt_fiber_send_ev(svr, e, TT_FALSE);
+                __SKT_DETAIL("<= cli send ev");
+            }
+            ++__ut_ev_snd;
+        }
+    }
 
     if (!TT_OK(tt_skt_connect_p(s, TT_NET_AF_INET, "127.0.0.1", 56556))) {
         __ut_skt_err_line = __LINE__;

@@ -104,7 +104,9 @@ tt_export tt_result_t tt_skt_listen(IN tt_skt_t *skt);
 // should explicitly set options by api defined in tt_socket_option.h
 tt_export tt_skt_t *tt_skt_accept(IN tt_skt_t *skt,
                                   IN OPT tt_skt_attr_t *new_attr,
-                                  OUT OPT tt_sktaddr_t *addr);
+                                  OUT OPT tt_sktaddr_t *addr,
+                                  OUT tt_fiber_ev_t **p_fev,
+                                  OUT struct tt_tmr_s **p_tmr);
 
 tt_export tt_result_t tt_skt_connect(IN tt_skt_t *skt, IN tt_sktaddr_t *addr);
 

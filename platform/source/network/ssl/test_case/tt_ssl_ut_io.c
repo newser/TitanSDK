@@ -266,6 +266,8 @@ static tt_ssl_t *__ut_ssl_accept(const tt_char_t *addr, tt_u16_t port)
 {
     tt_skt_t *s, *new_s;
     tt_ssl_t *ssl;
+    tt_fiber_ev_t *p_fev;
+    tt_tmr_t *p_tmr;
 
     s = tt_skt_create(TT_NET_AF_INET, TT_NET_PROTO_TCP, NULL);
     if (s == NULL) {
@@ -287,7 +289,7 @@ static tt_ssl_t *__ut_ssl_accept(const tt_char_t *addr, tt_u16_t port)
         return NULL;
     }
 
-    new_s = tt_skt_accept(s, NULL, NULL);
+    new_s = tt_skt_accept(s, NULL, NULL, &p_fev, &p_tmr);
     if (new_s == NULL) {
         __ssl_err_line = __LINE__;
         tt_skt_destroy(s);
@@ -321,6 +323,8 @@ static tt_result_t __f_svr(IN void *param)
     tt_fiber_ev_t *fev;
     tt_tmr_t *tmr, *e_tmr;
     tt_ssl_t *ssl;
+    tt_fiber_ev_t *p_fev;
+    tt_tmr_t *p_tmr;
 
     s = tt_skt_create(TT_NET_AF_INET, TT_NET_PROTO_TCP, NULL);
     if (s == NULL) {
@@ -340,7 +344,7 @@ static tt_result_t __f_svr(IN void *param)
         return TT_FAIL;
     }
 
-    new_s = tt_skt_accept(s, NULL, NULL);
+    new_s = tt_skt_accept(s, NULL, NULL, &p_fev, &p_tmr);
     if (new_s == NULL) {
         __ssl_err_line = __LINE__;
         return TT_FAIL;
@@ -1211,6 +1215,8 @@ static tt_result_t __f_svr_mul(IN void *param)
     tt_skt_t *s, *new_s;
     tt_u32_t n = (tt_u32_t)(tt_uintptr_t)param;
     tt_fiber_t *f;
+    tt_fiber_ev_t *p_fev;
+    tt_tmr_t *p_tmr;
 
     s = tt_skt_create(TT_NET_AF_INET, TT_NET_PROTO_TCP, NULL);
     if (s == NULL) {
@@ -1231,7 +1237,7 @@ static tt_result_t __f_svr_mul(IN void *param)
     }
 
     while (n-- != 0) {
-        new_s = tt_skt_accept(s, NULL, NULL);
+        new_s = tt_skt_accept(s, NULL, NULL, &p_fev, &p_tmr);
         if (new_s == NULL) {
             __ssl_err_line = __LINE__;
             return TT_FAIL;

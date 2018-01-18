@@ -151,10 +151,10 @@ typedef struct
     tt_io_ev_t io_ev;
 
     tt_skt_ntv_t *skt;
-    tt_skt_ntv_t *new_skt;
     tt_sktaddr_t *addr;
 
-    tt_result_t result;
+    tt_skt_t *new_skt;
+    tt_bool_t done : 1;
 } __skt_accept_t;
 
 typedef struct
@@ -404,24 +404,44 @@ tt_result_t tt_skt_listen_ntv(IN tt_skt_ntv_t *skt)
     }
 }
 
-tt_result_t tt_skt_accept_ntv(IN tt_skt_ntv_t *skt,
-                              OUT tt_skt_ntv_t *new_skt,
-                              OUT tt_sktaddr_t *addr)
+tt_skt_t *tt_skt_accept_ntv(IN tt_skt_ntv_t *skt,
+                            OUT tt_sktaddr_t *addr,
+                            OUT tt_fiber_ev_t **p_fev,
+                            OUT tt_tmr_t **p_tmr)
 {
     __skt_accept_t skt_accept;
     int kq;
+    tt_fiber_t *cfb;
+
+    *p_fev = NULL;
+    *p_tmr = NULL;
 
     kq = __skt_ev_init(&skt_accept.io_ev, __SKT_ACCEPT);
+    cfb = skt_accept.io_ev.src;
+
+    if (tt_fiber_recv(cfb, TT_FALSE, p_fev, p_tmr)) {
+        return NULL;
+    }
 
     skt_accept.skt = skt;
-    skt_accept.new_skt = new_skt;
     skt_accept.addr = addr;
 
-    skt_accept.result = TT_FAIL;
+    skt_accept.new_skt = NULL;
+    skt_accept.done = TT_FALSE;
 
     tt_kq_read(kq, skt->s, &skt_accept.io_ev);
+
+    cfb->recving = TT_TRUE;
     tt_fiber_suspend();
-    return skt_accept.result;
+    cfb->recving = TT_FALSE;
+
+    if (!skt_accept.done) {
+        tt_kq_unread(kq, skt->s, &skt_accept.io_ev);
+    }
+
+    tt_fiber_recv(cfb, TT_FALSE, p_fev, p_tmr);
+
+    return skt_accept.new_skt;
 }
 
 tt_result_t tt_skt_connect_ntv(IN tt_skt_ntv_t *skt, IN tt_sktaddr_t *addr)
@@ -821,6 +841,15 @@ tt_bool_t __do_accept(IN tt_io_ev_t *io_ev)
     socklen_t len = sizeof(struct sockaddr_storage);
     int s, flag;
 
+    // tell caller that kq returned
+    skt_accept->done = TT_TRUE;
+
+    skt_accept->new_skt = tt_malloc(sizeof(tt_skt_t));
+    if (skt_accept->new_skt == NULL) {
+        TT_ERROR("no mem for new skt");
+        return TT_TRUE;
+    }
+
 again:
     s = accept(skt_accept->skt->s, (struct sockaddr *)skt_accept->addr, &len);
     if (s == -1) {
@@ -844,9 +873,8 @@ again:
         goto fail;
     }
 
-    skt_accept->new_skt->s = s;
+    skt_accept->new_skt->sys_skt.s = s;
 
-    skt_accept->result = TT_SUCCESS;
     return TT_TRUE;
 
 fail:
@@ -855,7 +883,9 @@ fail:
         __RETRY_IF_EINTR(close(s));
     }
 
-    skt_accept->result = TT_FAIL;
+    tt_free(skt_accept->new_skt);
+    skt_accept->new_skt = NULL;
+
     return TT_TRUE;
 }
 

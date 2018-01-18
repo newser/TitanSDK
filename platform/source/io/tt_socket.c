@@ -175,29 +175,19 @@ tt_result_t tt_skt_listen(IN tt_skt_t *skt)
 
 tt_skt_t *tt_skt_accept(IN tt_skt_t *skt,
                         IN OPT tt_skt_attr_t *new_attr,
-                        IN OPT tt_sktaddr_t *addr)
+                        IN OPT tt_sktaddr_t *addr,
+                        OUT tt_fiber_ev_t **p_fev,
+                        OUT struct tt_tmr_s **p_tmr)
 {
-    tt_skt_t *new_skt;
     tt_sktaddr_t __addr;
 
     TT_ASSERT(skt != NULL);
-
-    new_skt = tt_malloc(sizeof(tt_skt_t));
-    if (new_skt == NULL) {
-        TT_ERROR("no mem for accept skt");
-        return NULL;
-    }
 
     if (addr == NULL) {
         addr = &__addr;
     }
 
-    if (!TT_OK(tt_skt_accept_ntv(&skt->sys_skt, &new_skt->sys_skt, addr))) {
-        tt_free(new_skt);
-        return NULL;
-    }
-
-    return new_skt;
+    return tt_skt_accept_ntv(&skt->sys_skt, addr, p_fev, p_tmr);
 }
 
 tt_result_t tt_skt_connect(IN tt_skt_t *skt, IN tt_sktaddr_t *addr)

@@ -46,6 +46,7 @@ struct tt_skt_attr_s;
 struct tt_io_ev_s;
 struct tt_tmr_s;
 struct tt_file_s;
+struct tt_skt_s;
 
 typedef struct tt_skt_ntv_s
 {
@@ -76,9 +77,10 @@ extern tt_result_t tt_skt_bind_ntv(IN tt_skt_ntv_t *skt, IN tt_sktaddr_t *addr);
 
 extern tt_result_t tt_skt_listen_ntv(IN tt_skt_ntv_t *skt);
 
-extern tt_result_t tt_skt_accept_ntv(IN tt_skt_ntv_t *skt,
-                                     OUT tt_skt_ntv_t *new_skt,
-                                     OUT tt_sktaddr_t *addr);
+extern struct tt_skt_s *tt_skt_accept_ntv(IN tt_skt_ntv_t *skt,
+                                          OUT tt_sktaddr_t *addr,
+                                          OUT tt_fiber_ev_t **p_fev,
+                                          OUT struct tt_tmr_s **p_tmr);
 
 extern tt_result_t tt_skt_connect_ntv(IN tt_skt_ntv_t *skt,
                                       IN tt_sktaddr_t *addr);

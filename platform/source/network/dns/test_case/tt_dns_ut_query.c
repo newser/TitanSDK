@@ -273,6 +273,8 @@ tt_result_t __tcp_svr1(IN void *param)
     __svr_param_t *sp = (__svr_param_t *)param;
     tt_fiber_t *fb;
     tt_u32_t i;
+    tt_fiber_ev_t *p_fev;
+    tt_tmr_t *p_tmr;
 
     s = tt_tcp_server_p(sp->af, NULL, sp->name, sp->port);
     if (s == NULL) {
@@ -285,7 +287,7 @@ tt_result_t __tcp_svr1(IN void *param)
         __svr_param_t *sp2;
 
         DUT_INFO("try to accept new tcp skt");
-        new_s = tt_skt_accept(s, NULL, NULL);
+        new_s = tt_skt_accept(s, NULL, NULL, &p_fev, &p_tmr);
         DUT_INFO("accept new tcp skt");
         if (s == NULL) {
             __dns_errline = __LINE__;

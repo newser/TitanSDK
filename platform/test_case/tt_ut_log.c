@@ -1026,7 +1026,7 @@ static tt_result_t __tcp_log_svr(IN void *param)
     }
     tt_atomic_s32_set(&__svr_ok, 1);
 
-    as = tt_skt_accept(s, NULL, NULL);
+    as = tt_skt_accept(s, NULL, NULL, &fev, &tmr);
     if (as == NULL) {
         __err_line = __LINE__;
         return TT_FAIL;

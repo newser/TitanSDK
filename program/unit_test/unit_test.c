@@ -97,7 +97,7 @@ tt_result_t __ut_fiber(IN void *param)
     else {
         const tt_char_t *names[] = {
             //"case_fs_basic", "case_dir_basic",
-            "case_tcp4_sendfile",
+            "case_tcp_event",
             //"TEST_UNIT_LOG",
             //"TEST_UNIT_FS",
             //"TEST_UNIT_IPC",
