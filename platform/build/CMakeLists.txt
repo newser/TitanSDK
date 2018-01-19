@@ -173,8 +173,8 @@ add_group_src(${PLATFORM_PATH}/source/crypto crypto SRC_FILE)
 add_group_hdr(${PLATFORM_PATH}/include/xml xml SRC_FILE)
 add_group_src(${PLATFORM_PATH}/source/xml xml SRC_FILE)
 
-add_group_hdr(${PLATFORM_PATH}/include/network network SRC_FILE)
-add_group_src(${PLATFORM_PATH}/source/network network SRC_FILE)
+add_group_hdr(${PLATFORM_PATH}/include/network/netif netif SRC_FILE)
+add_group_src(${PLATFORM_PATH}/source/network/netif netif SRC_FILE)
 
 add_group_hdr(${PLATFORM_PATH}/include/network/dns dns SRC_FILE)
 add_group_src(${PLATFORM_PATH}/source/network/dns dns SRC_FILE)

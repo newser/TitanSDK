@@ -128,6 +128,7 @@ extern "C" {
 #include <io/tt_io_worker_group.h>
 #include <io/tt_ipc.h>
 #include <io/tt_ipc_event.h>
+#include <io/tt_mac_addr.h>
 #include <io/tt_network_io_def.h>
 #include <io/tt_network_io_init.h>
 #include <io/tt_socket.h>
@@ -176,6 +177,9 @@ extern "C" {
 #include <network/dns/tt_dns_cache.h>
 #include <network/dns/tt_dns_entry.h>
 #include <network/dns/tt_dns_rr.h>
+#include <network/netif/tt_netif.h>
+#include <network/netif/tt_netif_addr.h>
+#include <network/netif/tt_netif_group.h>
 #include <network/ssh/context/tt_ssh_context.h>
 #include <network/ssh/context/tt_ssh_encrypt.h>
 #include <network/ssh/context/tt_ssh_encrypt_aes.h>
@@ -232,8 +236,6 @@ extern "C" {
 #include <network/ssl/tt_ssl_config.h>
 #include <network/ssl/tt_x509_cert.h>
 #include <network/ssl/tt_x509_crl.h>
-#include <network/tt_network_def.h>
-#include <network/tt_network_interface.h>
 #include <os/tt_atomic.h>
 #include <os/tt_dll.h>
 #include <os/tt_fiber.h>

@@ -17,14 +17,14 @@
  */
 
 /**
-@file tt_network_interface_native.h
-@brief network interface native
+@file tt_mac_addr.h
+@brief mac addr
 
-this file includes network interface native
+mac addr
 */
 
-#ifndef __TT_NETWORK_INTERFACE_NATIVE__
-#define __TT_NETWORK_INTERFACE_NATIVE__
+#ifndef __TT_MAC_ADDR__
+#define __TT_MAC_ADDR__
 
 ////////////////////////////////////////////////////////////
 // import header files
@@ -36,16 +36,16 @@ this file includes network interface native
 // macro definition
 ////////////////////////////////////////////////////////////
 
+#define TT_MACADDR_LEN 6
+
 ////////////////////////////////////////////////////////////
 // type definition
 ////////////////////////////////////////////////////////////
 
-struct tt_netif_group_s;
-
-typedef struct
+typedef struct tt_macaddr_s
 {
-    int skt;
-} tt_netif_ntv_t;
+    tt_u8_t addr[TT_MACADDR_LEN];
+} tt_macaddr_t;
 
 ////////////////////////////////////////////////////////////
 // global variants
@@ -55,23 +55,15 @@ typedef struct
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-tt_inline tt_result_t tt_network_interface_init_ntv()
-{
-    return TT_SUCCESS;
-}
+// addr must has TT_MACADDR_LEN bytes
+tt_export void tt_macaddr_init(IN tt_macaddr_t *ma, IN OPT tt_u8_t *addr);
 
-extern tt_result_t tt_netif_group_refresh_ntv(IN struct tt_netif_group_s *group,
-                                              IN tt_u32_t flag);
+tt_export tt_result_t tt_macaddr_p2n(IN tt_macaddr_t *ma,
+                                     IN const tt_char_t *cstr);
 
-extern tt_result_t tt_netif_create_ntv(IN tt_netif_ntv_t *sys_netif);
+tt_export tt_result_t tt_macaddr_n2p(IN tt_macaddr_t *ma,
+                                     OUT tt_char_t *cstr,
+                                     IN tt_u32_t len,
+                                     IN tt_u32_t flag);
 
-extern void tt_netif_destroy_ntv(IN tt_netif_ntv_t *sys_netif);
-
-extern tt_result_t tt_netif_name2idx_ntv(IN const tt_char_t *name,
-                                         OUT tt_u32_t *idx);
-
-extern tt_result_t tt_netif_idx2name_ntv(IN tt_u32_t idx,
-                                         OUT tt_char_t *name,
-                                         IN tt_u32_t len);
-
-#endif /* __TT_NETWORK_INTERFACE_NATIVE__ */
+#endif // __TT_MAC_ADDR__

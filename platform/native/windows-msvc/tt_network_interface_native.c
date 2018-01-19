@@ -45,19 +45,17 @@
 
 #define __INIT_ADPT_ADDR_SIZE (3 * 1024)
 
-#define __cmp_netif_addr(na, sa)                                               \
+#define __cmp_addr(na, sa)                                                     \
     tt_memcmp(&((SOCKADDR_IN *)&(na)->addr)->sin_addr,                         \
               &((SOCKADDR_IN *)(sa))->sin_addr,                                \
               sizeof(IN_ADDR))
-#define __copy_netif_addr(na, sa)                                              \
-    tt_memcpy(&(na)->addr, (sa), sizeof(SOCKADDR_IN))
+#define __copy_addr(na, sa) tt_memcpy(&(na)->addr, (sa), sizeof(SOCKADDR_IN))
 
-#define __cmp_netif_addr6(na, sa)                                              \
+#define __cmp_addr6(na, sa)                                                    \
     tt_memcmp(&((SOCKADDR_IN6 *)&(na)->addr)->sin6_addr,                       \
               &((SOCKADDR_IN6 *)(sa))->sin6_addr,                              \
               sizeof(IN6_ADDR))
-#define __copy_netif_addr6(na, sa)                                             \
-    tt_memcpy(&(na)->addr, (sa), sizeof(SOCKADDR_IN6))
+#define __copy_addr6(na, sa) tt_memcpy(&(na)->addr, (sa), sizeof(SOCKADDR_IN6))
 
 ////////////////////////////////////////////////////////////
 // internal type
@@ -87,7 +85,7 @@ static tt_result_t __netif_update(IN tt_netif_t *netif,
                                   IN tt_u32_t flag);
 #define __NIF_UPDT_NO_IPV6_LINK_LOCAL (1 << 0)
 
-static tt_netif_addr_t *__netif_find_addr(
+static tt_netif_addr_t *tt_netif_group_find_addr(
     IN tt_netif_t *netif, IN PIP_ADAPTER_UNICAST_ADDRESS uni_addr);
 
 // netif addr
@@ -135,7 +133,7 @@ tt_result_t tt_netif_group_refresh_ntv(IN struct tt_netif_group_s *group,
         }
         TT_INFO("netif: %s", itf_name);
 
-        netif = __netif_find(group, itf_name);
+        netif = tt_netif_group_find(group, itf_name);
         if (netif == NULL) {
             continue;
         }
@@ -144,7 +142,7 @@ tt_result_t tt_netif_group_refresh_ntv(IN struct tt_netif_group_s *group,
             TT_ERROR("netif[%s] is removed due to updating failed",
                      netif->name);
             tt_list_remove(&netif->node);
-            __netif_destroy(netif);
+            tt_netif_destroy(netif);
 
             continue;
         }
@@ -240,26 +238,26 @@ tt_result_t __netif_update(IN tt_netif_t *netif,
             }
         }
 
-        netif_addr = __netif_find_addr(netif, uni_addr);
+        netif_addr = tt_netif_group_find_addr(netif, uni_addr);
         if (netif_addr != NULL) {
             if (!TT_OK(__netif_addr_update(netif_addr, adpt, uni_addr))) {
                 tt_list_remove(&netif_addr->node);
-                __netif_addr_destroy(netif_addr);
+                tt_netif_addr_destroy(netif_addr);
                 return TT_FAIL;
             }
         } else {
             if (sockaddr->sa_family == AF_INET) {
-                netif_addr = __netif_addr_create(TT_NET_AF_INET);
+                netif_addr = tt_netif_addr_create(TT_NET_AF_INET);
             } else {
                 TT_ASSERT(sockaddr->sa_family == AF_INET6);
-                netif_addr = __netif_addr_create(TT_NET_AF_INET6);
+                netif_addr = tt_netif_addr_create(TT_NET_AF_INET6);
             }
             if (netif_addr == NULL) {
                 return TT_FAIL;
             }
 
             if (!TT_OK(__netif_addr_update(netif_addr, adpt, uni_addr))) {
-                __netif_addr_destroy(netif_addr);
+                tt_netif_addr_destroy(netif_addr);
                 return TT_FAIL;
             }
 
@@ -277,8 +275,8 @@ tt_result_t __netif_update(IN tt_netif_t *netif,
     return TT_SUCCESS;
 }
 
-tt_netif_addr_t *__netif_find_addr(IN tt_netif_t *netif,
-                                   IN PIP_ADAPTER_UNICAST_ADDRESS uni_addr)
+tt_netif_addr_t *tt_netif_group_find_addr(
+    IN tt_netif_t *netif, IN PIP_ADAPTER_UNICAST_ADDRESS uni_addr)
 {
     SOCKADDR *sockaddr = uni_addr->Address.lpSockaddr;
     tt_lnode_t *node = tt_list_head(&netif->addr_list);
@@ -291,7 +289,7 @@ tt_netif_addr_t *__netif_find_addr(IN tt_netif_t *netif,
         if (sockaddr->sa_family == AF_INET) {
             // ipv4, compare:
             //  - ip
-            if (__cmp_netif_addr(cur_adpt, sockaddr) == 0) {
+            if (__cmp_addr(cur_adpt, sockaddr) == 0) {
                 return cur_adpt;
             }
         } else {
@@ -300,7 +298,7 @@ tt_netif_addr_t *__netif_find_addr(IN tt_netif_t *netif,
             // ipv6, compare:
             //  - ip
             //  - scope id??
-            if (__cmp_netif_addr6(cur_adpt, sockaddr) == 0) {
+            if (__cmp_addr6(cur_adpt, sockaddr) == 0) {
                 return cur_adpt;
             }
         }
@@ -318,8 +316,8 @@ tt_result_t __netif_addr_update(IN tt_netif_addr_t *netif_addr,
     netif_addr->internal_flag |= __NETIF_INTERNAL_TOUCHED;
 
     if (sockaddr->sa_family == AF_INET) {
-        if (__cmp_netif_addr(netif_addr, sockaddr) != 0) {
-            __copy_netif_addr(netif_addr, sockaddr);
+        if (__cmp_addr(netif_addr, sockaddr) != 0) {
+            __copy_addr(netif_addr, sockaddr);
             netif_addr->internal_flag |= TT_NETIF_DIFF_ADDR;
         }
 
@@ -327,8 +325,8 @@ tt_result_t __netif_addr_update(IN tt_netif_addr_t *netif_addr,
     } else {
         TT_ASSERT(sockaddr->sa_family == AF_INET6);
 
-        if (__cmp_netif_addr6(netif_addr, sockaddr) != 0) {
-            __copy_netif_addr6(netif_addr, sockaddr);
+        if (__cmp_addr6(netif_addr, sockaddr) != 0) {
+            __copy_addr6(netif_addr, sockaddr);
             netif_addr->internal_flag |= TT_NETIF_DIFF_ADDR;
         }
 

@@ -42,18 +42,18 @@
 
 #define __NLINK_MAX_SIZE (1 << 20)
 
-#define __cmp_netif_addr(na, sa)                                               \
+#define __cmp_addr(na, sa)                                                     \
     tt_memcmp(&((struct sockaddr_in *)&(na)->addr)->sin_addr,                  \
               &((struct sockaddr_in *)(sa))->sin_addr,                         \
               sizeof(struct in_addr))
-#define __copy_netif_addr(na, sa)                                              \
+#define __copy_addr(na, sa)                                                    \
     tt_memcpy(&(na)->addr, (sa), sizeof(struct sockaddr_in))
 
-#define __cmp_netif_addr6(na, sa)                                              \
+#define __cmp_addr6(na, sa)                                                    \
     tt_memcmp(&((struct sockaddr_in6 *)&(na)->addr)->sin6_addr,                \
               &((struct sockaddr_in6 *)(sa))->sin6_addr,                       \
               sizeof(struct in6_addr))
-#define __copy_netif_addr6(na, sa)                                             \
+#define __copy_addr6(na, sa)                                                   \
     tt_memcpy(&(na)->addr, (sa), sizeof(struct sockaddr_in6))
 
 ////////////////////////////////////////////////////////////
@@ -121,8 +121,8 @@ static tt_result_t __netif_make_addr6(IN tt_netif_t *netif,
                                       IN tt_u32_t len,
                                       OUT struct sockaddr_in6 *addr);
 
-static tt_netif_addr_t *__netif_find_addr(IN tt_netif_t *netif,
-                                          IN struct sockaddr *addr);
+static tt_netif_addr_t *tt_netif_group_find_addr(IN tt_netif_t *netif,
+                                                 IN struct sockaddr *addr);
 
 static void __netif_addr_update(IN tt_netif_addr_t *netif_addr,
                                 IN struct sockaddr *addr);
@@ -329,7 +329,7 @@ tt_result_t __netlink_update_link(IN tt_netif_group_t *group,
          a = RTA_NEXT(a, len)) {
         if ((a->rta_type == IFLA_IFNAME) &&
             (RTA_PAYLOAD(a) <= TT_NETIF_MAX_NAME_LEN)) {
-            netif = __netif_find(group, (tt_char_t *)RTA_DATA(a));
+            netif = tt_netif_group_find(group, (tt_char_t *)RTA_DATA(a));
             if (netif != NULL) {
                 return __netif_update_link(netif, ifi, len);
             }
@@ -360,7 +360,7 @@ tt_result_t __netlink_update_addr(IN tt_netif_group_t *group,
          a = RTA_NEXT(a, len)) {
         if ((a->rta_type == IFA_LABEL) &&
             (RTA_PAYLOAD(a) <= TT_NETIF_MAX_NAME_LEN)) {
-            netif = __netif_find(group, (tt_char_t *)RTA_DATA(a));
+            netif = tt_netif_group_find(group, (tt_char_t *)RTA_DATA(a));
             break;
         }
     }
@@ -379,13 +379,13 @@ tt_result_t __netlink_update_addr(IN tt_netif_group_t *group,
         return TT_FAIL;
     }
 
-    netif_addr = __netif_find_addr(netif, (struct sockaddr *)&addr);
+    netif_addr = tt_netif_group_find_addr(netif, (struct sockaddr *)&addr);
     if (netif_addr != NULL) {
         __netif_addr_update(netif_addr, (struct sockaddr *)&addr);
     } else {
-        netif_addr = __netif_addr_create(TT_COND(ifa->ifa_family == AF_INET,
-                                                 TT_NET_AF_INET,
-                                                 TT_NET_AF_INET6));
+        netif_addr = tt_netif_addr_create(TT_COND(ifa->ifa_family == AF_INET,
+                                                  TT_NET_AF_INET,
+                                                  TT_NET_AF_INET6));
         if (netif_addr == NULL) {
             return TT_FAIL;
         }
@@ -569,8 +569,8 @@ tt_result_t __netif_make_addr6(IN tt_netif_t *netif,
     return TT_SUCCESS;
 }
 
-tt_netif_addr_t *__netif_find_addr(IN tt_netif_t *netif,
-                                   IN struct sockaddr *addr)
+tt_netif_addr_t *tt_netif_group_find_addr(IN tt_netif_t *netif,
+                                          IN struct sockaddr *addr)
 {
     tt_lnode_t *node = tt_list_head(&netif->addr_list);
     while (node != NULL) {
@@ -581,7 +581,7 @@ tt_netif_addr_t *__netif_find_addr(IN tt_netif_t *netif,
         if (addr->sa_family == AF_INET) {
             // ipv4, compare:
             //  - ip
-            if (__cmp_netif_addr(cur_addr, addr) == 0) {
+            if (__cmp_addr(cur_addr, addr) == 0) {
                 return cur_addr;
             }
         } else {
@@ -590,7 +590,7 @@ tt_netif_addr_t *__netif_find_addr(IN tt_netif_t *netif,
             // ipv6, compare:
             //  - ip
             //  - scope id??
-            if (__cmp_netif_addr6(cur_addr, addr) == 0) {
+            if (__cmp_addr6(cur_addr, addr) == 0) {
                 return cur_addr;
             }
         }
@@ -607,15 +607,15 @@ void __netif_addr_update(IN tt_netif_addr_t *netif_addr,
     netif_addr->internal_flag |= __NETIF_INTERNAL_TOUCHED;
 
     if (family == AF_INET) {
-        if (__cmp_netif_addr(netif_addr, addr) != 0) {
-            __copy_netif_addr(netif_addr, addr);
+        if (__cmp_addr(netif_addr, addr) != 0) {
+            __copy_addr(netif_addr, addr);
             netif_addr->internal_flag |= TT_NETIF_DIFF_ADDR;
         }
     } else {
         TT_ASSERT(family == AF_INET6);
 
-        if (__cmp_netif_addr6(netif_addr, addr) != 0) {
-            __copy_netif_addr6(netif_addr, addr);
+        if (__cmp_addr6(netif_addr, addr) != 0) {
+            __copy_addr6(netif_addr, addr);
             netif_addr->internal_flag |= TT_NETIF_DIFF_ADDR;
         }
 

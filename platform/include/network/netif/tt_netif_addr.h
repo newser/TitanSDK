@@ -17,23 +17,23 @@
  */
 
 /**
-@file tt_network_def.h
-@brief network def
+@file tt_netif_addr.h
+@brief network interface address
 
-this file defines network things
+this file defines network interface address APIs
 */
 
-#ifndef __TT_NETWORK_DEF__
-#define __TT_NETWORK_DEF__
+#ifndef __TT_NETIF_ADDR__
+#define __TT_NETIF_ADDR__
 
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <io/tt_network_io_def.h>
+#include <algorithm/tt_list.h>
 #include <io/tt_socket_addr.h>
 
-//  //////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////
 // macro definition
 ////////////////////////////////////////////////////////////
 
@@ -41,15 +41,17 @@ this file defines network things
 // type definition
 ////////////////////////////////////////////////////////////
 
-typedef struct tt_netaddr_s
-{
-    tt_net_protocol_t protocol;
+struct tt_netif_s;
 
-    union
-    {
-        tt_sktaddr_t sktaddr;
-    };
-} tt_netaddr_t;
+typedef struct tt_netif_addr_s
+{
+    tt_lnode_t node;
+    tt_u32_t internal_flag;
+
+    tt_sktaddr_t addr;
+    tt_sktaddr_t netmask;
+    tt_sktaddr_t dstaddr;
+} tt_netif_addr_t;
 
 ////////////////////////////////////////////////////////////
 // global variants
@@ -59,4 +61,12 @@ typedef struct tt_netaddr_s
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-#endif /* __TT_NETWORK_DEF__ */
+tt_export tt_netif_addr_t *tt_netif_addr_create(IN tt_net_family_t family);
+
+tt_export void tt_netif_addr_destroy(IN tt_netif_addr_t *netif_addr);
+
+tt_export void tt_netif_addr_dump(IN struct tt_netif_s *netif,
+                                  IN tt_netif_addr_t *netif_addr,
+                                  IN const tt_char_t *prefix);
+
+#endif /* __TT_NETIF_ADDR__ */

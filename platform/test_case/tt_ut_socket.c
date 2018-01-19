@@ -24,12 +24,15 @@
 #include <unit_test/tt_unit_test.h>
 
 #include <io/tt_file_system.h>
+#include <io/tt_mac_addr.h>
 #include <io/tt_socket.h>
 #include <io/tt_socket_addr.h>
 #include <io/tt_socket_option.h>
 #include <memory/tt_memory_alloc.h>
 #include <memory/tt_slab.h>
-#include <network/tt_network_interface.h>
+#include <network/netif/tt_netif.h>
+#include <network/netif/tt_netif_addr.h>
+#include <network/netif/tt_netif_group.h>
 #include <os/tt_fiber_event.h>
 #include <os/tt_task.h>
 #include <time/tt_time_reference.h>
@@ -90,6 +93,8 @@ TT_TEST_ROUTINE_DECLARE(case_udp_event)
 TT_TEST_ROUTINE_DECLARE(case_ab)
 TT_TEST_ROUTINE_DECLARE(case_ab_nc)
 
+TT_TEST_ROUTINE_DECLARE(case_mac_addr)
+
 // =========================================
 
 // sometimes local ip can not be retrieved in __ut_skt_enter, as
@@ -136,6 +141,13 @@ static void __ut_skt_enter(void *enter_param)
     tt_netif_group_add(&netif_group, "en8");
     tt_netif_group_add(&netif_group, "en9");
     tt_netif_group_add(&netif_group, "lo");
+#if 1
+    tt_netif_group_add(&netif_group, "p2p0");
+    tt_netif_group_add(&netif_group, "awdl0");
+    tt_netif_group_add(&netif_group, "bridge0");
+    tt_netif_group_add(&netif_group, "utun0");
+    tt_netif_group_add(&netif_group, "utun1");
+#endif
 #elif TT_ENV_OS_IS_LINUX
     tt_netif_group_add(&netif_group, "eth0");
     tt_netif_group_add(&netif_group, "eth1");
@@ -182,6 +194,7 @@ static void __ut_skt_enter(void *enter_param)
     tt_netif_group_refresh_prepare(&netif_group);
     tt_netif_group_refresh(&netif_group, 0);
     tt_netif_group_refresh_done(&netif_group);
+    tt_netif_group_dump(&netif_group);
 
     while ((nif = tt_netif_group_next(&netif_group, nif)) != NULL) {
         if (__ut_local_ifname[0] == 0) {
@@ -272,15 +285,24 @@ static void __ut_skt_exit(void *enter_param)
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(sk_case)
 
-TT_TEST_CASE("case_sk_addr",
-             "testing socket addr api",
-             case_sk_addr,
+TT_TEST_CASE("case_mac_addr",
+             "testing mac addr api",
+             case_mac_addr,
              NULL,
-             __ut_skt_enter,
              NULL,
-             __ut_skt_exit,
+             NULL,
+             NULL,
              NULL)
 ,
+
+    TT_TEST_CASE("case_sk_addr",
+                 "testing socket addr api",
+                 case_sk_addr,
+                 NULL,
+                 __ut_skt_enter,
+                 NULL,
+                 __ut_skt_exit,
+                 NULL),
 
     TT_TEST_CASE("case_sk_opt",
                  "testing socket option api",
@@ -385,7 +407,7 @@ TT_TEST_CASE("case_sk_addr",
     ////////////////////////////////////////////////////////////
 
     /*
-    TT_TEST_ROUTINE_DEFINE(case_tcp_basic)
+    TT_TEST_ROUTINE_DEFINE(case_mac_addr)
     {
         //tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
 
@@ -2747,3 +2769,69 @@ TT_TEST_ROUTINE_DEFINE(case_udp_event)
 }
 
 #endif
+
+TT_TEST_ROUTINE_DEFINE(case_mac_addr)
+{
+    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+    tt_macaddr_t ma;
+    tt_result_t ret;
+    tt_u8_t a[6] = {1, 2, 3, 4, 5, 6};
+    tt_char_t buf[20];
+
+    TT_TEST_CASE_ENTER()
+    // test start
+
+    tt_macaddr_init(&ma, NULL);
+    TT_UT_EQUAL(ma.addr[0], 0, "");
+    TT_UT_EQUAL(ma.addr[5], 0, "");
+
+    tt_macaddr_init(&ma, a);
+    TT_UT_EQUAL(ma.addr[0], 1, "");
+    TT_UT_EQUAL(ma.addr[5], 6, "");
+
+    ret = tt_macaddr_n2p(&ma, buf, 2, 0);
+    TT_UT_EQUAL(ret, TT_E_NOSPC, "");
+    ret = tt_macaddr_n2p(&ma, buf, 18, 0);
+    TT_UT_SUCCESS(ret, "");
+    TT_UT_STREQ(buf, "01:02:03:04:05:06", "");
+    ret = tt_macaddr_n2p(&ma, buf, 20, 0);
+    TT_UT_SUCCESS(ret, "");
+    TT_UT_STREQ(buf, "01:02:03:04:05:06", "");
+
+    ret = tt_macaddr_p2n(&ma, "");
+    TT_UT_FAIL(ret, "");
+    ret = tt_macaddr_p2n(&ma, "12");
+    TT_UT_FAIL(ret, "");
+    ret = tt_macaddr_p2n(&ma, "123");
+    TT_UT_FAIL(ret, "");
+    ret = tt_macaddr_p2n(&ma, "12:");
+    TT_UT_FAIL(ret, "");
+    ret = tt_macaddr_p2n(&ma, "12:34:56:78:90:aa:bb:cc");
+    TT_UT_FAIL(ret, "");
+
+    tt_strncpy(buf, "12:34:56:78:90:ab", sizeof(buf));
+    ret = tt_macaddr_p2n(&ma, buf);
+    TT_UT_SUCCESS(ret, "");
+    TT_UT_EQUAL(ma.addr[0], 0x12, "");
+    TT_UT_EQUAL(ma.addr[5], 0xab, "");
+
+    tt_strncpy(buf, "1:34:05:78:90:a", sizeof(buf));
+    ret = tt_macaddr_p2n(&ma, buf);
+    TT_UT_SUCCESS(ret, "");
+    TT_UT_EQUAL(ma.addr[0], 0x1, "");
+    TT_UT_EQUAL(ma.addr[2], 0x5, "");
+    TT_UT_EQUAL(ma.addr[4], 0x90, "");
+    TT_UT_EQUAL(ma.addr[5], 0xa, "");
+
+    buf[0] = 1;
+    ret = tt_macaddr_p2n(&ma, buf);
+    TT_UT_FAIL(ret, "");
+    buf[0] = '1';
+
+    buf[2] = 1;
+    ret = tt_macaddr_p2n(&ma, buf);
+    TT_UT_FAIL(ret, "");
+
+    // test end
+    TT_TEST_CASE_LEAVE()
+}
