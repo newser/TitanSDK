@@ -82,6 +82,7 @@ TT_TEST_ROUTINE_DECLARE(case_sk_opt)
 TT_TEST_ROUTINE_DECLARE(case_bind_basic)
 TT_TEST_ROUTINE_DECLARE(case_tcp_basic)
 TT_TEST_ROUTINE_DECLARE(case_udp_basic)
+TT_TEST_ROUTINE_DECLARE(case_tcp_oob)
 
 TT_TEST_ROUTINE_DECLARE(case_tcp4_stress)
 TT_TEST_ROUTINE_DECLARE(case_tcp6_close)
@@ -325,6 +326,15 @@ TT_TEST_CASE("case_mac_addr",
     TT_TEST_CASE("case_tcp_basic",
                  "testing socket tcp api",
                  case_tcp_basic,
+                 NULL,
+                 __ut_skt_enter,
+                 NULL,
+                 __ut_skt_exit,
+                 NULL),
+
+    TT_TEST_CASE("case_tcp_oob",
+                 "testing socket tcp oob",
+                 case_tcp_oob,
                  NULL,
                  __ut_skt_enter,
                  NULL,
@@ -2895,6 +2905,152 @@ TT_TEST_ROUTINE_DEFINE(case_mac_addr)
     buf[2] = 1;
     ret = tt_macaddr_p2n(&ma, buf);
     TT_UT_FAIL(ret, "");
+
+    // test end
+    TT_TEST_CASE_LEAVE()
+}
+
+static tt_bool_t __oob_recvd;
+
+static tt_result_t __f_svr_oob(IN void *param)
+{
+    tt_skt_t *s, *new_s;
+    tt_u8_t buf[100];
+    tt_u32_t n;
+    tt_result_t ret;
+    tt_fiber_ev_t *fev;
+    tt_tmr_t *tmr;
+
+    s = tt_skt_create(TT_NET_AF_INET, TT_NET_PROTO_TCP, NULL);
+    if (s == NULL) {
+        __ut_skt_err_line = __LINE__;
+        return TT_FAIL;
+    }
+
+    tt_skt_set_reuseaddr(s, TT_TRUE);
+
+    if (!TT_OK(tt_skt_bind_p(s, TT_NET_AF_INET, "127.0.0.1", 44556))) {
+        __ut_skt_err_line = __LINE__;
+        return TT_FAIL;
+    }
+
+    if (!TT_OK(tt_skt_listen(s))) {
+        __ut_skt_err_line = __LINE__;
+        return TT_FAIL;
+    }
+
+    new_s = tt_skt_accept(s, NULL, NULL, &fev, &tmr);
+    if (new_s == NULL) {
+        __ut_skt_err_line = __LINE__;
+        return TT_FAIL;
+    }
+
+#if 1
+    if (!TT_OK(tt_skt_set_oobinline(new_s, TT_TRUE))) {
+        __ut_skt_err_line = __LINE__;
+        return TT_FAIL;
+    }
+#endif
+
+    while ((ret = tt_skt_recv(new_s, buf, sizeof(buf), &n, &fev, &tmr)) !=
+           TT_E_END) {
+        tt_u32_t i;
+        for (i = 0; i < n; ++i) {
+            if (buf[i] == '2') {
+                __oob_recvd = TT_TRUE;
+                goto done;
+            }
+        }
+    }
+
+done:
+
+    tt_skt_destroy(new_s);
+    tt_skt_destroy(s);
+
+    return TT_SUCCESS;
+}
+
+static tt_result_t __f_cli_oob(IN void *param)
+{
+    tt_skt_t *s;
+    tt_u8_t buf[100];
+    tt_u32_t n;
+    tt_fiber_ev_t *fev;
+    tt_tmr_t *tmr;
+
+    // valid address
+    s = tt_skt_create(TT_NET_AF_INET, TT_NET_PROTO_TCP, NULL);
+    if (s == NULL) {
+        __ut_skt_err_line = __LINE__;
+        return TT_FAIL;
+    }
+
+    tt_skt_set_reuseaddr(s, TT_TRUE);
+    tt_skt_set_oobinline(s, TT_TRUE);
+
+    if (!TT_OK(tt_skt_connect_p(s, TT_NET_AF_INET, "127.0.0.1", 44556))) {
+        __ut_skt_err_line = __LINE__;
+        goto fail;
+    }
+
+    if (!TT_OK(tt_skt_send(s, (tt_u8_t *)"111", 3, &n))) {
+        __ut_skt_err_line = __LINE__;
+        goto fail;
+    }
+
+    if (!TT_OK(tt_skt_send_oob(s, (tt_u8_t)'2'))) {
+        __ut_skt_err_line = __LINE__;
+        goto fail;
+    }
+
+    if (!TT_OK(tt_skt_send(s, (tt_u8_t *)"3333", 4, &n))) {
+        __ut_skt_err_line = __LINE__;
+        goto fail;
+    }
+
+#if 1
+    if (!TT_OK(tt_skt_shutdown(s, TT_SKT_SHUT_WR))) {
+        __ut_skt_err_line = __LINE__;
+        goto fail;
+    }
+#endif
+
+    while (tt_skt_recv(s, buf, sizeof(buf), &n, &fev, &tmr) != TT_E_END) {
+    }
+
+    tt_skt_destroy(s);
+
+    return TT_SUCCESS;
+
+fail:
+    tt_task_exit(NULL);
+    return TT_FAIL;
+}
+
+TT_TEST_ROUTINE_DEFINE(case_tcp_oob)
+{
+    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+    tt_result_t ret;
+    tt_task_t t;
+    tt_s64_t start, end, dur;
+
+    TT_TEST_CASE_ENTER()
+    // test start
+
+    ret = tt_task_create(&t, NULL);
+    TT_UT_SUCCESS(ret, "");
+
+    __oob_recvd = TT_FALSE;
+    tt_task_add_fiber(&t, NULL, __f_svr_oob, NULL, NULL);
+    tt_task_add_fiber(&t, NULL, __f_cli_oob, NULL, NULL);
+
+    ret = tt_task_run(&t);
+    TT_UT_SUCCESS(ret, "");
+
+    tt_task_wait(&t);
+    TT_UT_EQUAL(__ut_skt_err_line, 0, "");
+    TT_UT_EQUAL(__oob_recvd, TT_TRUE, "");
 
     // test end
     TT_TEST_CASE_LEAVE()

@@ -78,6 +78,9 @@ typedef struct tt_io_ev_s
     tt_result_t io_result;
     tt_u32_t ev;
     tt_u16_t io;
+#if TT_ENV_OS_IS_MACOS || TT_ENV_OS_IS_IOS
+    tt_u16_t kev_flags;
+#endif
 } tt_io_ev_t;
 
 typedef void (*tt_worker_io_t)(IN tt_io_ev_t *io_ev);
@@ -109,6 +112,9 @@ tt_inline void tt_io_ev_init(IN tt_io_ev_t *io_ev,
     io_ev->io_result = TT_FAIL;
     io_ev->ev = ev;
     io_ev->io = io;
+#if TT_ENV_OS_IS_MACOS || TT_ENV_OS_IS_IOS
+    io_ev->kev_flags = 0;
+#endif
 }
 
 #endif // __TT_IO_EVENT__

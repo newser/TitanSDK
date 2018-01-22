@@ -156,6 +156,11 @@ tt_inline tt_result_t tt_skt_send(IN tt_skt_t *skt,
     }
 }
 
+tt_inline tt_result_t tt_skt_send_oob(IN tt_skt_t *skt, IN tt_u8_t b)
+{
+    return tt_skt_send_oob_ntv(&skt->sys_skt, b);
+}
+
 tt_inline tt_result_t tt_skt_send_all(IN tt_skt_t *skt,
                                       IN tt_u8_t *buf,
                                       IN tt_u32_t len)

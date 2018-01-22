@@ -175,6 +175,7 @@ typedef struct
     tt_u8_t *buf;
     tt_u32_t *sent;
     tt_u32_t len;
+    int flags;
 
     tt_result_t result;
     tt_u32_t kq;
@@ -590,6 +591,29 @@ tt_result_t tt_skt_send_ntv(IN tt_skt_ntv_t *skt,
     skt_send.buf = buf;
     skt_send.len = len;
     skt_send.sent = sent;
+    skt_send.flags = 0;
+
+    skt_send.result = TT_FAIL;
+    skt_send.kq = kq;
+    skt_send.pos = 0;
+
+    tt_kq_write(kq, skt->s, &skt_send.io_ev);
+    tt_fiber_suspend();
+    return skt_send.result;
+}
+
+tt_result_t tt_skt_send_oob_ntv(IN tt_skt_ntv_t *skt, IN tt_u8_t b)
+{
+    __skt_send_t skt_send;
+    int kq;
+
+    kq = __skt_ev_init(&skt_send.io_ev, __SKT_SEND);
+
+    skt_send.skt = skt;
+    skt_send.buf = &b;
+    skt_send.len = 1;
+    skt_send.sent = NULL;
+    skt_send.flags = MSG_OOB;
 
     skt_send.result = TT_FAIL;
     skt_send.kq = kq;
@@ -907,7 +931,7 @@ again:
     n = send(skt_send->skt->s,
              TT_PTR_INC(void, skt_send->buf, skt_send->pos),
              skt_send->len - skt_send->pos,
-             0);
+             skt_send->flags);
     if (n > 0) {
         skt_send->pos += n;
         TT_ASSERT_SKT(skt_send->pos <= skt_send->len);

@@ -123,6 +123,8 @@ extern tt_result_t tt_skt_send_ntv(IN tt_skt_ntv_t *skt,
                                    IN tt_u32_t len,
                                    OUT OPT tt_u32_t *sent);
 
+extern tt_result_t tt_skt_send_oob_ntv(IN tt_skt_ntv_t *skt, IN tt_u8_t b);
+
 extern tt_result_t tt_skt_sendfile_ntv(IN tt_skt_ntv_t *skt,
                                        IN struct tt_file_s *f);
 
