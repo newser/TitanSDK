@@ -89,11 +89,11 @@ tt_export tt_result_t tt_skt_get_reuseport(IN struct tt_skt_s *skt,
 // tcp no delay
 // ========================================
 
-tt_export tt_result_t tt_skt_set_tcp_nodelay(IN struct tt_skt_s *skt,
-                                             IN tt_bool_t nodelay);
+tt_export tt_result_t tt_skt_set_nodelay(IN struct tt_skt_s *skt,
+                                         IN tt_bool_t nodelay);
 
-tt_export tt_result_t tt_skt_get_tcp_nodelay(IN struct tt_skt_s *skt,
-                                             OUT tt_bool_t *nodelay);
+tt_export tt_result_t tt_skt_get_nodelay(IN struct tt_skt_s *skt,
+                                         OUT tt_bool_t *nodelay);
 
 // ========================================
 // non-block
@@ -110,6 +110,20 @@ tt_export tt_result_t tt_skt_set_nonblock(IN struct tt_skt_s *skt,
 tt_export tt_result_t tt_skt_set_linger(IN struct tt_skt_s *skt,
                                         IN tt_bool_t enable,
                                         IN tt_u16_t linger_sec);
+
+tt_export tt_result_t tt_skt_get_linger(IN struct tt_skt_s *skt,
+                                        OUT tt_bool_t *enable,
+                                        OUT tt_u16_t *linger_sec);
+
+// ========================================
+// reuse address
+// ========================================
+
+tt_export tt_result_t tt_skt_set_keepalive(IN struct tt_skt_s *skt,
+                                           IN tt_bool_t keepalive);
+
+tt_export tt_result_t tt_skt_get_keepalive(IN struct tt_skt_s *skt,
+                                           OUT tt_bool_t *keepalive);
 
 // ========================================
 // ttl
@@ -132,6 +146,56 @@ tt_export tt_result_t tt_skt_set_broadcast(IN struct tt_skt_s *skt,
 
 tt_export tt_result_t tt_skt_get_broadcast(IN struct tt_skt_s *skt,
                                            OUT tt_bool_t *broadcast);
+
+// ========================================
+// oob inline
+// ========================================
+
+tt_export tt_result_t tt_skt_set_oobinline(IN struct tt_skt_s *skt,
+                                           IN tt_bool_t oobinline);
+
+tt_export tt_result_t tt_skt_get_oobinline(IN struct tt_skt_s *skt,
+                                           OUT tt_bool_t *oobinline);
+
+// ========================================
+// send buf size
+// ========================================
+
+tt_export tt_result_t tt_skt_set_sendbuf(IN struct tt_skt_s *skt,
+                                         IN tt_u32_t size);
+
+tt_export tt_result_t tt_skt_get_sendbuf(IN struct tt_skt_s *skt,
+                                         OUT tt_u32_t *size);
+
+// ========================================
+// recv buf size
+// ========================================
+
+tt_export tt_result_t tt_skt_set_recvbuf(IN struct tt_skt_s *skt,
+                                         IN tt_u32_t size);
+
+tt_export tt_result_t tt_skt_get_recvbuf(IN struct tt_skt_s *skt,
+                                         OUT tt_u32_t *size);
+
+// ========================================
+// recv buf size
+// ========================================
+
+tt_export tt_result_t tt_skt_set_sendtime(IN struct tt_skt_s *skt,
+                                          IN tt_u32_t ms);
+
+tt_export tt_result_t tt_skt_get_sendtime(IN struct tt_skt_s *skt,
+                                          OUT tt_u32_t *ms);
+
+// ========================================
+// recv buf size
+// ========================================
+
+tt_export tt_result_t tt_skt_set_recvtime(IN struct tt_skt_s *skt,
+                                          IN tt_u32_t ms);
+
+tt_export tt_result_t tt_skt_get_recvtime(IN struct tt_skt_s *skt,
+                                          OUT tt_u32_t *ms);
 
 // ========================================
 // multicast

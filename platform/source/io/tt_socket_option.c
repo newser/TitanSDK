@@ -96,19 +96,19 @@ tt_result_t tt_skt_get_reuseport(IN tt_skt_t *skt, OUT tt_bool_t *reuse_port)
     return tt_skt_get_reuseport_ntv(&skt->sys_skt, reuse_port);
 }
 
-tt_result_t tt_skt_set_tcp_nodelay(IN tt_skt_t *skt, IN tt_bool_t nodelay)
+tt_result_t tt_skt_set_nodelay(IN tt_skt_t *skt, IN tt_bool_t nodelay)
 {
     TT_ASSERT(skt != NULL);
 
-    return tt_skt_set_tcp_nodelay_ntv(&skt->sys_skt, nodelay);
+    return tt_skt_set_nodelay_ntv(&skt->sys_skt, nodelay);
 }
 
-tt_result_t tt_skt_get_tcp_nodelay(IN tt_skt_t *skt, OUT tt_bool_t *nodelay)
+tt_result_t tt_skt_get_nodelay(IN tt_skt_t *skt, OUT tt_bool_t *nodelay)
 {
     TT_ASSERT(skt != NULL);
     TT_ASSERT(nodelay != NULL);
 
-    return tt_skt_get_tcp_nodelay_ntv(&skt->sys_skt, nodelay);
+    return tt_skt_get_nodelay_ntv(&skt->sys_skt, nodelay);
 }
 
 tt_result_t tt_skt_set_nonblock(IN tt_skt_t *skt, IN tt_bool_t nonblock)
@@ -125,6 +125,30 @@ tt_result_t tt_skt_set_linger(IN tt_skt_t *skt,
     TT_ASSERT(skt != NULL);
 
     return tt_skt_set_linger_ntv(&skt->sys_skt, enable, linger_sec);
+}
+
+tt_result_t tt_skt_get_linger(IN tt_skt_t *skt,
+                              OUT tt_bool_t *enable,
+                              OUT tt_u16_t *linger_sec)
+{
+    TT_ASSERT(skt != NULL);
+
+    return tt_skt_get_linger_ntv(&skt->sys_skt, enable, linger_sec);
+}
+
+tt_result_t tt_skt_set_keepalive(IN tt_skt_t *skt, IN tt_bool_t keepalive)
+{
+    TT_ASSERT(skt != NULL);
+
+    return tt_skt_set_keepalive_ntv(&skt->sys_skt, keepalive);
+}
+
+tt_result_t tt_skt_get_keepalive(IN tt_skt_t *skt, OUT tt_bool_t *keepalive)
+{
+    TT_ASSERT(skt != NULL);
+    TT_ASSERT(keepalive != NULL);
+
+    return tt_skt_get_keepalive_ntv(&skt->sys_skt, keepalive);
 }
 
 tt_result_t tt_skt_set_ttl(IN tt_skt_t *skt,
@@ -159,6 +183,79 @@ tt_result_t tt_skt_get_broadcast(IN tt_skt_t *skt, OUT tt_bool_t *broadcast)
     TT_ASSERT(skt != NULL);
 
     return tt_skt_get_broadcast_ntv(&skt->sys_skt, broadcast);
+}
+
+tt_result_t tt_skt_set_oobinline(IN tt_skt_t *skt, IN tt_bool_t oobinline)
+{
+    TT_ASSERT(skt != NULL);
+
+    return tt_skt_set_oobinline_ntv(&skt->sys_skt, oobinline);
+}
+
+tt_result_t tt_skt_get_oobinline(IN tt_skt_t *skt, OUT tt_bool_t *oobinline)
+{
+    TT_ASSERT(skt != NULL);
+
+    return tt_skt_get_oobinline_ntv(&skt->sys_skt, oobinline);
+}
+
+tt_result_t tt_skt_set_sendbuf(IN tt_skt_t *skt, IN tt_u32_t size)
+{
+    TT_ASSERT(skt != NULL);
+
+    return tt_skt_set_sendbuf_ntv(&skt->sys_skt, size);
+}
+
+tt_result_t tt_skt_get_sendbuf(IN tt_skt_t *skt, OUT tt_u32_t *size)
+{
+    TT_ASSERT(skt != NULL);
+    TT_ASSERT(size != NULL);
+
+    return tt_skt_get_sendbuf_ntv(&skt->sys_skt, size);
+}
+
+tt_result_t tt_skt_set_recvbuf(IN tt_skt_t *skt, IN tt_u32_t size)
+{
+    TT_ASSERT(skt != NULL);
+
+    return tt_skt_set_recvbuf_ntv(&skt->sys_skt, size);
+}
+
+tt_result_t tt_skt_get_recvbuf(IN tt_skt_t *skt, OUT tt_u32_t *size)
+{
+    TT_ASSERT(skt != NULL);
+
+    return tt_skt_get_recvbuf_ntv(&skt->sys_skt, size);
+}
+
+tt_result_t tt_skt_set_sendtime(IN tt_skt_t *skt, IN tt_u32_t ms)
+{
+    TT_ASSERT(skt != NULL);
+
+    return tt_skt_set_sendtime_ntv(&skt->sys_skt, ms);
+}
+
+tt_result_t tt_skt_get_sendtime(IN tt_skt_t *skt, OUT tt_u32_t *ms)
+{
+    TT_ASSERT(skt != NULL);
+    TT_ASSERT(ms != NULL);
+
+    return tt_skt_get_sendtime_ntv(&skt->sys_skt, ms);
+}
+
+tt_result_t tt_skt_set_recvtime(IN tt_skt_t *skt, IN tt_u32_t ms)
+{
+    TT_ASSERT(skt != NULL);
+
+    return tt_skt_set_recvtime_ntv(&skt->sys_skt, ms);
+}
+
+tt_result_t tt_skt_get_recvtime(IN tt_skt_t *skt, OUT tt_u32_t *ms)
+{
+    TT_ASSERT(skt != NULL);
+    TT_ASSERT(ms != NULL);
+
+    return tt_skt_get_recvtime_ntv(&skt->sys_skt, ms);
 }
 
 tt_result_t tt_skt_set_mcast_loop(IN tt_skt_t *skt,

@@ -559,6 +559,8 @@ TT_TEST_ROUTINE_DEFINE(case_sk_opt)
     tt_bool_t v;
     tt_u8_t v_u8;
     tt_u32_t ifidx;
+    tt_u16_t v_u16;
+    tt_u32_t v_u32;
     tt_char_t ifname[100];
 
     TT_TEST_CASE_ENTER()
@@ -723,6 +725,68 @@ TT_TEST_ROUTINE_DEFINE(case_sk_opt)
     s = tt_skt_create(TT_NET_AF_INET6, TT_NET_PROTO_TCP, NULL);
     TT_UT_NOT_EQUAL(s, NULL, "");
 
+    // keep alive
+    ret = tt_skt_set_keepalive(s, TT_TRUE);
+    TT_UT_SUCCESS(ret, "");
+    ret = tt_skt_get_keepalive(s, &v);
+    TT_UT_SUCCESS(ret, "");
+    TT_UT_EQUAL(v, TT_TRUE, "");
+
+    ret = tt_skt_set_keepalive(s, TT_FALSE);
+    TT_UT_SUCCESS(ret, "");
+    ret = tt_skt_get_keepalive(s, &v);
+    TT_UT_SUCCESS(ret, "");
+    TT_UT_EQUAL(v, TT_FALSE, "");
+
+    // oob
+    ret = tt_skt_set_oobinline(s, TT_TRUE);
+    TT_UT_SUCCESS(ret, "");
+    ret = tt_skt_get_oobinline(s, &v);
+    TT_UT_SUCCESS(ret, "");
+    TT_UT_EQUAL(v, TT_TRUE, "");
+
+    ret = tt_skt_set_oobinline(s, TT_FALSE);
+    TT_UT_SUCCESS(ret, "");
+    ret = tt_skt_get_oobinline(s, &v);
+    TT_UT_SUCCESS(ret, "");
+    TT_UT_EQUAL(v, TT_FALSE, "");
+
+    // sendbuf
+    ret = tt_skt_set_sendbuf(s, 65432);
+    TT_UT_SUCCESS(ret, "");
+    ret = tt_skt_get_sendbuf(s, &v_u32);
+    TT_UT_SUCCESS(ret, "");
+    TT_UT_EQUAL(v_u32, 65432, "");
+
+    // sendbuf
+    ret = tt_skt_set_recvbuf(s, 23456);
+    TT_UT_SUCCESS(ret, "");
+    ret = tt_skt_get_recvbuf(s, &v_u32);
+    TT_UT_SUCCESS(ret, "");
+    TT_UT_EQUAL(v_u32, 23456, "");
+
+    // sendtime
+    ret = tt_skt_set_sendtime(s, 11111);
+    TT_UT_SUCCESS(ret, "");
+    ret = tt_skt_get_sendtime(s, &v_u32);
+    TT_UT_SUCCESS(ret, "");
+    TT_UT_EQUAL(v_u32, 11111, "");
+
+    // recvtime
+    ret = tt_skt_set_recvtime(s, 22222);
+    TT_UT_SUCCESS(ret, "");
+    ret = tt_skt_get_recvtime(s, &v_u32);
+    TT_UT_SUCCESS(ret, "");
+    TT_UT_EQUAL(v_u32, 22222, "");
+
+    // linger
+    ret = tt_skt_set_linger(s, TT_TRUE, 5);
+    TT_UT_SUCCESS(ret, "");
+    ret = tt_skt_get_linger(s, &v, &v_u16);
+    TT_UT_SUCCESS(ret, "");
+    TT_UT_EQUAL(v, TT_TRUE, "");
+    TT_UT_EQUAL(v_u16, 5, "");
+
     // nonblock
     ret = tt_skt_set_nonblock(s, TT_TRUE);
     TT_UT_SUCCESS(ret, "");
@@ -743,15 +807,15 @@ TT_TEST_ROUTINE_DEFINE(case_sk_opt)
     TT_UT_EQUAL(v, TT_FALSE, "");
 
     // tcp nodelay
-    ret = tt_skt_set_tcp_nodelay(s, TT_TRUE);
+    ret = tt_skt_set_nodelay(s, TT_TRUE);
     TT_UT_SUCCESS(ret, "");
-    ret = tt_skt_get_tcp_nodelay(s, &v);
+    ret = tt_skt_get_nodelay(s, &v);
     TT_UT_SUCCESS(ret, "");
     TT_UT_EQUAL(v, TT_TRUE, "");
 
-    ret = tt_skt_set_tcp_nodelay(s, TT_FALSE);
+    ret = tt_skt_set_nodelay(s, TT_FALSE);
     TT_UT_SUCCESS(ret, "");
-    ret = tt_skt_get_tcp_nodelay(s, &v);
+    ret = tt_skt_get_nodelay(s, &v);
     TT_UT_SUCCESS(ret, "");
     TT_UT_EQUAL(v, TT_FALSE, "");
 

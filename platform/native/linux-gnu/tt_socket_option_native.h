@@ -133,8 +133,8 @@ tt_inline tt_result_t tt_skt_get_reuseport_ntv(IN tt_skt_ntv_t *skt,
     }
 }
 
-tt_inline tt_result_t tt_skt_set_tcp_nodelay_ntv(IN tt_skt_ntv_t *skt,
-                                                 IN tt_bool_t nodelay)
+tt_inline tt_result_t tt_skt_set_nodelay_ntv(IN tt_skt_ntv_t *skt,
+                                             IN tt_bool_t nodelay)
 {
     int val = nodelay ? 1 : 0;
     if (setsockopt(skt->s, IPPROTO_TCP, TCP_NODELAY, &val, sizeof(int)) == 0) {
@@ -145,8 +145,8 @@ tt_inline tt_result_t tt_skt_set_tcp_nodelay_ntv(IN tt_skt_ntv_t *skt,
     }
 }
 
-tt_inline tt_result_t tt_skt_get_tcp_nodelay_ntv(IN tt_skt_ntv_t *skt,
-                                                 OUT tt_bool_t *nodelay)
+tt_inline tt_result_t tt_skt_get_nodelay_ntv(IN tt_skt_ntv_t *skt,
+                                             OUT tt_bool_t *nodelay)
 {
     int val = 0;
     socklen_t len = (int)sizeof(int);

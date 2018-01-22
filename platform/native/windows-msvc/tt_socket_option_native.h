@@ -129,8 +129,8 @@ tt_inline tt_result_t tt_skt_get_reuseport_ntv(IN tt_skt_ntv_t *skt,
     return TT_SUCCESS;
 }
 
-tt_inline tt_result_t tt_skt_set_tcp_nodelay_ntv(IN tt_skt_ntv_t *skt,
-                                                 IN tt_bool_t nodelay)
+tt_inline tt_result_t tt_skt_set_nodelay_ntv(IN tt_skt_ntv_t *skt,
+                                             IN tt_bool_t nodelay)
 {
     BOOL val = nodelay ? TRUE : FALSE;
     if (setsockopt(skt->s,
@@ -145,8 +145,8 @@ tt_inline tt_result_t tt_skt_set_tcp_nodelay_ntv(IN tt_skt_ntv_t *skt,
     }
 }
 
-tt_inline tt_result_t tt_skt_get_tcp_nodelay_ntv(IN tt_skt_ntv_t *skt,
-                                                 OUT tt_bool_t *nodelay)
+tt_inline tt_result_t tt_skt_get_nodelay_ntv(IN tt_skt_ntv_t *skt,
+                                             OUT tt_bool_t *nodelay)
 {
     BOOL val = 0;
     int len = (int)sizeof(BOOL);
