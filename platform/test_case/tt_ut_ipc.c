@@ -161,6 +161,7 @@ tt_export tt_result_t __ipc_cli_1(IN void *param)
     tt_u32_t n, len, cn, rn;
     tt_fiber_ev_t *fev;
     tt_tmr_t *tmr;
+    tt_char_t addr[200];
 
     cn = 0;
     while (cn++ < __CONN_NUM) {
@@ -173,12 +174,45 @@ tt_export tt_result_t __ipc_cli_1(IN void *param)
             return TT_FAIL;
         }
 
+        // not connected yet, local: empty
+        if (!TT_OK(tt_ipc_local_addr(ipc, NULL, sizeof(addr), &n)) ||
+            (n != 0)) {
+            __err_line = __LINE__;
+            return TT_FAIL;
+        }
+        // not connected yet, remote: none
+        if (TT_OK(tt_ipc_remote_addr(ipc, NULL, sizeof(addr), &n))) {
+            __err_line = __LINE__;
+            return TT_FAIL;
+        }
+
 #if TT_ENV_OS_IS_WINDOWS
         tt_sleep(50);
 #endif
         if (!TT_OK(tt_ipc_connect_retry(ipc, __IPC_PATH, 100, 10))) {
             __err_line = __LINE__;
             TT_INFO_IPC("err: %d", __err_line);
+            return TT_FAIL;
+        }
+
+        // not connected yet, local: empty
+        if (!TT_OK(tt_ipc_local_addr(ipc, NULL, sizeof(addr), &n)) ||
+            (n != 0)) {
+            __err_line = __LINE__;
+            return TT_FAIL;
+        }
+        if (!TT_OK(tt_ipc_remote_addr(ipc, NULL, sizeof(addr), &n)) ||
+            (n != tt_strlen(__IPC_PATH))) {
+            __err_line = __LINE__;
+            return TT_FAIL;
+        }
+        if (tt_ipc_remote_addr(ipc, addr, 1, &n) != TT_E_NOSPC) {
+            __err_line = __LINE__;
+            return TT_FAIL;
+        }
+        if (!TT_OK(tt_ipc_remote_addr(ipc, addr, sizeof(addr), NULL)) ||
+            (tt_strcmp(addr, __IPC_PATH) != 0)) {
+            __err_line = __LINE__;
             return TT_FAIL;
         }
 
@@ -231,11 +265,35 @@ tt_export tt_result_t __ipc_svr_1(IN void *param)
     tt_result_t ret;
     tt_fiber_ev_t *fev;
     tt_tmr_t *tmr;
+    tt_char_t addr[200];
 
     (void)rn;
 
     ipc = tt_ipc_create(__IPC_PATH, NULL);
     if (ipc == NULL) {
+        __err_line = __LINE__;
+        return TT_FAIL;
+    }
+
+    // binded, locad: path
+    if (!TT_OK(tt_ipc_local_addr(ipc, NULL, sizeof(addr), &n)) ||
+        (n != tt_strlen(__IPC_PATH))) {
+        __err_line = __LINE__;
+        return TT_FAIL;
+    }
+    if (tt_ipc_local_addr(ipc, addr, 1, &n) != TT_E_NOSPC) {
+        __err_line = __LINE__;
+        return TT_FAIL;
+    }
+    if (!TT_OK(tt_ipc_local_addr(ipc, addr, sizeof(addr), NULL)) ||
+        (tt_strcmp(addr, __IPC_PATH) != 0)) {
+        __err_line = __LINE__;
+        return TT_FAIL;
+    }
+
+    // binded, remote: none
+    if (TT_OK(tt_ipc_remote_addr(ipc, addr, sizeof(addr), &n))) {
+        // not connected yet
         __err_line = __LINE__;
         return TT_FAIL;
     }
@@ -246,6 +304,28 @@ tt_export tt_result_t __ipc_svr_1(IN void *param)
 
         new_ipc = tt_ipc_accept(ipc, NULL);
         if (new_ipc == NULL) {
+            __err_line = __LINE__;
+            return TT_FAIL;
+        }
+
+        // accepted, local: path
+        if (!TT_OK(tt_ipc_local_addr(new_ipc, NULL, sizeof(addr), &n)) ||
+            (n != tt_strlen(__IPC_PATH))) {
+            __err_line = __LINE__;
+            return TT_FAIL;
+        }
+        if (tt_ipc_local_addr(new_ipc, addr, 1, &n) != TT_E_NOSPC) {
+            __err_line = __LINE__;
+            return TT_FAIL;
+        }
+        if (!TT_OK(tt_ipc_local_addr(new_ipc, addr, sizeof(addr), NULL)) ||
+            (tt_strcmp(addr, __IPC_PATH) != 0)) {
+            __err_line = __LINE__;
+            return TT_FAIL;
+        }
+
+        // accepted, remote: empty
+        if (!TT_OK(tt_ipc_remote_addr(new_ipc, addr, sizeof(addr), &n))) {
             __err_line = __LINE__;
             return TT_FAIL;
         }

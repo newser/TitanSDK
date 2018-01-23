@@ -124,4 +124,14 @@ tt_inline tt_result_t tt_ipc_recv(IN tt_ipc_t *ipc,
     }
 }
 
+tt_export tt_result_t tt_ipc_local_addr(IN tt_ipc_t *ipc,
+                                        OUT OPT tt_char_t *addr,
+                                        IN tt_u32_t size,
+                                        OUT OPT tt_u32_t *len);
+
+tt_export tt_result_t tt_ipc_remote_addr(IN tt_ipc_t *ipc,
+                                         OUT OPT tt_char_t *addr,
+                                         IN tt_u32_t size,
+                                         OUT OPT tt_u32_t *len);
+
 #endif /* __TT_IPC__ */

@@ -173,6 +173,26 @@ tt_ipc_t *tt_ipc_accept(IN tt_ipc_t *ipc, IN OPT tt_ipc_attr_t *new_attr)
     return new_ipc;
 }
 
+tt_result_t tt_ipc_local_addr(IN tt_ipc_t *ipc,
+                              OUT OPT tt_char_t *addr,
+                              IN tt_u32_t size,
+                              OUT OPT tt_u32_t *len)
+{
+    TT_ASSERT(ipc != NULL);
+
+    return tt_ipc_local_addr_ntv(&ipc->sys_ipc, addr, size, len);
+}
+
+tt_result_t tt_ipc_remote_addr(IN tt_ipc_t *ipc,
+                               OUT OPT tt_char_t *addr,
+                               IN tt_u32_t size,
+                               OUT OPT tt_u32_t *len)
+{
+    TT_ASSERT(ipc != NULL);
+
+    return tt_ipc_remote_addr_ntv(&ipc->sys_ipc, addr, size, len);
+}
+
 tt_result_t __ipc_component_init(IN tt_component_t *comp,
                                  IN tt_profile_t *profile)
 {
