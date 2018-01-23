@@ -91,4 +91,14 @@ extern void tt_ipc_worker_io(IN struct tt_io_ev_s *io_ev);
 
 extern tt_bool_t tt_ipc_poller_io(IN struct tt_io_ev_s *io_ev);
 
+extern tt_result_t tt_ipc_local_addr_ntv(IN tt_ipc_ntv_t *ipc,
+                                         OUT tt_char_t *addr,
+                                         IN tt_u32_t size,
+                                         OUT OPT tt_u32_t *len);
+
+extern tt_result_t tt_ipc_remote_addr_ntv(IN tt_ipc_ntv_t *ipc,
+                                          OUT tt_char_t *addr,
+                                          IN tt_u32_t size,
+                                          OUT OPT tt_u32_t *len);
+
 #endif /* __TT_IPC_NATIVE__ */

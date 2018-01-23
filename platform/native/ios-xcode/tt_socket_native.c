@@ -24,6 +24,7 @@
 
 #include <init/tt_component.h>
 #include <init/tt_profile.h>
+#include <io/tt_file_system.h>
 #include <io/tt_io_event.h>
 #include <io/tt_socket.h>
 #include <log/tt_log.h>
@@ -140,6 +141,7 @@ enum
     __SKT_RECV,
     __SKT_SENDTO,
     __SKT_RECVFROM,
+    __SKT_SENDFILE,
 
     __SKT_EV_NUM,
 };
@@ -149,10 +151,10 @@ typedef struct
     tt_io_ev_t io_ev;
 
     tt_skt_ntv_t *skt;
-    tt_skt_ntv_t *new_skt;
     tt_sktaddr_t *addr;
 
-    tt_result_t result;
+    tt_skt_t *new_skt;
+    tt_bool_t done : 1;
 } __skt_accept_t;
 
 typedef struct
@@ -173,6 +175,7 @@ typedef struct
     tt_u8_t *buf;
     tt_u32_t *sent;
     tt_u32_t len;
+    int flags;
 
     tt_result_t result;
     tt_u32_t kq;
@@ -223,6 +226,19 @@ typedef struct
     tt_bool_t done : 1;
 } __skt_recvfrom_t;
 
+typedef struct
+{
+    tt_io_ev_t io_ev;
+
+    tt_skt_ntv_t *skt;
+    tt_file_t *f;
+
+    tt_u64_t offset;
+    tt_u64_t len;
+    tt_result_t result;
+    tt_u32_t kq;
+} __skt_sendfile_t;
+
 ////////////////////////////////////////////////////////////
 // extern declaration
 ////////////////////////////////////////////////////////////
@@ -243,8 +259,16 @@ static tt_bool_t __do_sendto(IN tt_io_ev_t *io_ev);
 
 static tt_bool_t __do_recvfrom(IN tt_io_ev_t *io_ev);
 
+static tt_bool_t __do_sendfile(IN tt_io_ev_t *io_ev);
+
 static tt_poller_io_t __skt_poller_io[__SKT_EV_NUM] = {
-    __do_accept, __do_connect, __do_send, __do_recv, __do_sendto, __do_recvfrom,
+    __do_accept,
+    __do_connect,
+    __do_send,
+    __do_recv,
+    __do_sendto,
+    __do_recvfrom,
+    __do_sendfile,
 };
 
 ////////////////////////////////////////////////////////////
@@ -381,24 +405,44 @@ tt_result_t tt_skt_listen_ntv(IN tt_skt_ntv_t *skt)
     }
 }
 
-tt_result_t tt_skt_accept_ntv(IN tt_skt_ntv_t *skt,
-                              OUT tt_skt_ntv_t *new_skt,
-                              OUT tt_sktaddr_t *addr)
+tt_skt_t *tt_skt_accept_ntv(IN tt_skt_ntv_t *skt,
+                            OUT tt_sktaddr_t *addr,
+                            OUT tt_fiber_ev_t **p_fev,
+                            OUT tt_tmr_t **p_tmr)
 {
     __skt_accept_t skt_accept;
     int kq;
+    tt_fiber_t *cfb;
+
+    *p_fev = NULL;
+    *p_tmr = NULL;
 
     kq = __skt_ev_init(&skt_accept.io_ev, __SKT_ACCEPT);
+    cfb = skt_accept.io_ev.src;
+
+    if (tt_fiber_recv(cfb, TT_FALSE, p_fev, p_tmr)) {
+        return NULL;
+    }
 
     skt_accept.skt = skt;
-    skt_accept.new_skt = new_skt;
     skt_accept.addr = addr;
 
-    skt_accept.result = TT_FAIL;
+    skt_accept.new_skt = NULL;
+    skt_accept.done = TT_FALSE;
 
     tt_kq_read(kq, skt->s, &skt_accept.io_ev);
+
+    cfb->recving = TT_TRUE;
     tt_fiber_suspend();
-    return skt_accept.result;
+    cfb->recving = TT_FALSE;
+
+    if (!skt_accept.done) {
+        tt_kq_unread(kq, skt->s, &skt_accept.io_ev);
+    }
+
+    tt_fiber_recv(cfb, TT_FALSE, p_fev, p_tmr);
+
+    return skt_accept.new_skt;
 }
 
 tt_result_t tt_skt_connect_ntv(IN tt_skt_ntv_t *skt, IN tt_sktaddr_t *addr)
@@ -547,6 +591,7 @@ tt_result_t tt_skt_send_ntv(IN tt_skt_ntv_t *skt,
     skt_send.buf = buf;
     skt_send.len = len;
     skt_send.sent = sent;
+    skt_send.flags = 0;
 
     skt_send.result = TT_FAIL;
     skt_send.kq = kq;
@@ -555,6 +600,51 @@ tt_result_t tt_skt_send_ntv(IN tt_skt_ntv_t *skt,
     tt_kq_write(kq, skt->s, &skt_send.io_ev);
     tt_fiber_suspend();
     return skt_send.result;
+}
+
+tt_result_t tt_skt_send_oob_ntv(IN tt_skt_ntv_t *skt, IN tt_u8_t b)
+{
+    __skt_send_t skt_send;
+    int kq;
+
+    kq = __skt_ev_init(&skt_send.io_ev, __SKT_SEND);
+
+    skt_send.skt = skt;
+    skt_send.buf = &b;
+    skt_send.len = 1;
+    skt_send.sent = NULL;
+    skt_send.flags = MSG_OOB;
+
+    skt_send.result = TT_FAIL;
+    skt_send.kq = kq;
+    skt_send.pos = 0;
+
+    tt_kq_write(kq, skt->s, &skt_send.io_ev);
+    tt_fiber_suspend();
+    return skt_send.result;
+}
+
+tt_result_t tt_skt_sendfile_ntv(IN tt_skt_ntv_t *skt, IN tt_file_t *f)
+{
+    __skt_sendfile_t skt_sendfile;
+    int kq;
+
+    kq = __skt_ev_init(&skt_sendfile.io_ev, __SKT_SENDFILE);
+
+    skt_sendfile.skt = skt;
+    skt_sendfile.f = f;
+
+    skt_sendfile.offset = 0;
+    if (!TT_OK(
+            tt_fseek_ntv(&f->sys_file, TT_FSEEK_END, 0, &skt_sendfile.len))) {
+        return TT_FAIL;
+    }
+    skt_sendfile.result = TT_FAIL;
+    skt_sendfile.kq = kq;
+
+    tt_kq_write(kq, skt->s, &skt_sendfile.io_ev);
+    tt_fiber_suspend();
+    return skt_sendfile.result;
 }
 
 tt_result_t tt_skt_recv_ntv(IN tt_skt_ntv_t *skt,
@@ -775,6 +865,15 @@ tt_bool_t __do_accept(IN tt_io_ev_t *io_ev)
     socklen_t len = sizeof(struct sockaddr_storage);
     int s, flag;
 
+    // tell caller that kq returned
+    skt_accept->done = TT_TRUE;
+
+    skt_accept->new_skt = tt_malloc(sizeof(tt_skt_t));
+    if (skt_accept->new_skt == NULL) {
+        TT_ERROR("no mem for new skt");
+        return TT_TRUE;
+    }
+
 again:
     s = accept(skt_accept->skt->s, (struct sockaddr *)skt_accept->addr, &len);
     if (s == -1) {
@@ -798,9 +897,8 @@ again:
         goto fail;
     }
 
-    skt_accept->new_skt->s = s;
+    skt_accept->new_skt->sys_skt.s = s;
 
-    skt_accept->result = TT_SUCCESS;
     return TT_TRUE;
 
 fail:
@@ -809,7 +907,9 @@ fail:
         __RETRY_IF_EINTR(close(s));
     }
 
-    skt_accept->result = TT_FAIL;
+    tt_free(skt_accept->new_skt);
+    skt_accept->new_skt = NULL;
+
     return TT_TRUE;
 }
 
@@ -831,7 +931,7 @@ again:
     n = send(skt_send->skt->s,
              TT_PTR_INC(void, skt_send->buf, skt_send->pos),
              skt_send->len - skt_send->pos,
-             0);
+             skt_send->flags);
     if (n > 0) {
         skt_send->pos += n;
         TT_ASSERT_SKT(skt_send->pos <= skt_send->len);
@@ -987,6 +1087,50 @@ again:
     }
     skt_recvfrom->done = TT_TRUE;
     return TT_TRUE;
+}
+
+tt_bool_t __do_sendfile(IN tt_io_ev_t *io_ev)
+{
+    __skt_sendfile_t *skt_sendfile = (__skt_sendfile_t *)io_ev;
+
+    off_t n;
+
+again:
+    n = skt_sendfile->len;
+    if (sendfile(skt_sendfile->f->sys_file.fd,
+                 skt_sendfile->skt->s,
+                 (off_t)skt_sendfile->offset,
+                 &n,
+                 NULL,
+                 0) == 0) {
+        if (n != 0) {
+            TT_ASSERT(n <= skt_sendfile->len);
+            skt_sendfile->offset += n;
+            skt_sendfile->len -= n;
+            if (skt_sendfile->len == 0) {
+                skt_sendfile->result = TT_SUCCESS;
+                return TT_TRUE;
+            } else {
+                goto again;
+            }
+        } else {
+            skt_sendfile->result = TT_SUCCESS;
+            return TT_TRUE;
+        }
+    } else if (errno == EINTR) {
+        skt_sendfile->offset += n;
+        skt_sendfile->len -= n;
+        goto again;
+    } else if (errno == EAGAIN) {
+        skt_sendfile->offset += n;
+        skt_sendfile->len -= n;
+        tt_kq_write(skt_sendfile->kq, skt_sendfile->skt->s, io_ev);
+        return TT_FALSE;
+    } else {
+        TT_ERROR_NTV("sendfile failed");
+        skt_sendfile->result = TT_FAIL;
+        return TT_TRUE;
+    }
 }
 
 #ifdef __SIMU_FAIL_SOCKET

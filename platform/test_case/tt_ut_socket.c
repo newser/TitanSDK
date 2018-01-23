@@ -23,6 +23,7 @@
 #include "tt_unit_test_case_config.h"
 #include <unit_test/tt_unit_test.h>
 
+#include <algorithm/tt_string.h>
 #include <io/tt_file_system.h>
 #include <io/tt_mac_addr.h>
 #include <io/tt_socket.h>
@@ -34,6 +35,7 @@
 #include <network/netif/tt_netif_addr.h>
 #include <network/netif/tt_netif_group.h>
 #include <os/tt_fiber_event.h>
+#include <os/tt_process.h>
 #include <os/tt_task.h>
 #include <time/tt_time_reference.h>
 #include <time/tt_timer.h>
@@ -119,10 +121,23 @@ static tt_char_t __ut_skt_local_itf[40];
 static tt_char_t __ut_skt_local_ip6_mapped[180];
 static tt_char_t __ut_local_ifname[64];
 
+static tt_string_t __wpath;
+
 static void __ut_skt_enter(void *enter_param)
 {
     tt_netif_group_t netif_group;
     tt_netif_t *nif = NULL;
+
+#if TT_ENV_OS_IS_IOS
+#if (TT_ENV_OS_FEATURE & TT_ENV_OS_FEATURE_IOS_SIMULATOR)
+    tt_char_t *pwd = tt_current_path(TT_FALSE);
+    tt_string_create(&__wpath, pwd, NULL);
+    tt_free(pwd);
+
+    tt_set_current_path("../tmp");
+#else
+#endif
+#endif
 
     if (__ut_skt_inited) {
         return;
@@ -259,17 +274,6 @@ static void __ut_skt_enter(void *enter_param)
     TT_INFO("ipv6 mapped: %s", __ut_skt_local_ip6_mapped);
     TT_INFO("interface: %s", __ut_skt_local_itf);
     TT_INFO("========================================");
-
-#if TT_ENV_OS_IS_IOS
-#if (TT_ENV_OS_FEATURE & TT_ENV_OS_FEATURE_IOS_SIMULATOR)
-    tt_char_t *pwd = tt_current_path(TT_FALSE);
-    tt_string_create(&__wpath, pwd, NULL);
-    tt_free(pwd);
-
-    tt_set_current_path("../tmp");
-#else
-#endif
-#endif
 }
 
 static void __ut_skt_exit(void *enter_param)

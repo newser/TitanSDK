@@ -153,7 +153,7 @@ tt_result_t tt_skt_get_sendtime_ntv(IN tt_skt_ntv_t *skt, OUT tt_u32_t *ms)
     struct timeval val;
     socklen_t len = sizeof(val);
     if (getsockopt(skt->s, SOL_SOCKET, SO_SNDTIMEO, &val, &len) == 0) {
-        *ms = val.tv_sec * 1000 + val.tv_usec / 1000;
+        *ms = (tt_u32_t)(val.tv_sec * 1000 + val.tv_usec / 1000);
         return TT_SUCCESS;
     } else {
         TT_ERROR_NTV("fail to get send time out");
@@ -177,7 +177,7 @@ tt_result_t tt_skt_get_recvtime_ntv(IN tt_skt_ntv_t *skt, OUT tt_u32_t *ms)
     struct timeval val;
     socklen_t len = sizeof(val);
     if (getsockopt(skt->s, SOL_SOCKET, SO_RCVTIMEO, &val, &len) == 0) {
-        *ms = val.tv_sec * 1000 + val.tv_usec / 1000;
+        *ms = (tt_u32_t)(val.tv_sec * 1000 + val.tv_usec / 1000);
         return TT_SUCCESS;
     } else {
         TT_ERROR_NTV("fail to get recv time out");

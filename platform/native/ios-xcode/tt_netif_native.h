@@ -17,14 +17,14 @@
  */
 
 /**
-@file tt_network_interface_native.h
+@file tt_neif_native.h
 @brief network interface native
 
 this file includes network interface native
 */
 
-#ifndef __TT_NETWORK_INTERFACE_NATIVE__
-#define __TT_NETWORK_INTERFACE_NATIVE__
+#ifndef __TT_NETIF_NATIVE__
+#define __TT_NETIF_NATIVE__
 
 ////////////////////////////////////////////////////////////
 // import header files
@@ -74,4 +74,4 @@ extern tt_result_t tt_netif_idx2name_ntv(IN tt_u32_t idx,
                                          OUT tt_char_t *name,
                                          IN tt_u32_t len);
 
-#endif /* __TT_NETWORK_INTERFACE_NATIVE__ */
+#endif /* __TT_NETIF_NATIVE__ */

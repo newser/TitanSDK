@@ -397,7 +397,7 @@ tt_result_t tt_ipc_local_addr_ntv(IN tt_ipc_ntv_t *ipc,
         return TT_FAIL;
     }
 
-    n = tt_strlen(saun.sun_path);
+    n = (socklen_t)tt_strlen(saun.sun_path);
     TT_SAFE_ASSIGN(len, (tt_u32_t)n);
     if (addr == NULL) {
         return TT_SUCCESS;
@@ -426,7 +426,7 @@ tt_result_t tt_ipc_remote_addr_ntv(IN tt_ipc_ntv_t *ipc,
         return TT_FAIL;
     }
 
-    n = tt_strlen(saun.sun_path);
+    n = (socklen_t)tt_strlen(saun.sun_path);
     TT_SAFE_ASSIGN(len, (tt_u32_t)n);
     if (addr == NULL) {
         return TT_SUCCESS;
@@ -445,7 +445,7 @@ tt_result_t tt_ipc_remote_addr_ntv(IN tt_ipc_ntv_t *ipc,
 tt_result_t __init_ipc_addr(IN struct sockaddr_un *saun,
                             IN const tt_char_t *addr)
 {
-    int len = strlen(addr);
+    int len = (int)strlen(addr);
 
     memset(saun, 0, sizeof(struct sockaddr_un));
 
