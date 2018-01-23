@@ -48,7 +48,7 @@ extern const char *get_app_path();
 #define __CONN_NUM 10
 #define __ROUND_NUM 100
 
-#if 0
+#if 1
 #define TT_INFO_IPC TT_INFO
 #else
 #define TT_INFO_IPC(...)
@@ -162,6 +162,7 @@ tt_export tt_result_t __ipc_cli_1(IN void *param)
     tt_fiber_ev_t *fev;
     tt_tmr_t *tmr;
     tt_char_t addr[200];
+    tt_result_t ret;
 
     cn = 0;
     while (cn++ < __CONN_NUM) {
@@ -175,14 +176,21 @@ tt_export tt_result_t __ipc_cli_1(IN void *param)
         }
 
         // not connected yet, local: empty
-        if (!TT_OK(tt_ipc_local_addr(ipc, NULL, sizeof(addr), &n)) ||
-            (n != 0)) {
+        ret = tt_ipc_local_addr(ipc, NULL, sizeof(addr), &n);
+        if (!TT_OK(ret)) {
             __err_line = __LINE__;
+            TT_INFO_IPC("err: %d", __err_line);
             return TT_FAIL;
-        }
+        } /* // linux abstract socket...
+        else if (n != 0) {
+            __err_line = __LINE__;
+            TT_INFO_IPC("err: %d, n: %d, addr[0]: %x", __err_line, n, addr[0]);
+            return TT_FAIL;
+        }*/
         // not connected yet, remote: none
         if (TT_OK(tt_ipc_remote_addr(ipc, NULL, sizeof(addr), &n))) {
             __err_line = __LINE__;
+            TT_INFO_IPC("err: %d", __err_line);
             return TT_FAIL;
         }
 
@@ -195,24 +203,28 @@ tt_export tt_result_t __ipc_cli_1(IN void *param)
             return TT_FAIL;
         }
 
-        // not connected yet, local: empty
-        if (!TT_OK(tt_ipc_local_addr(ipc, NULL, sizeof(addr), &n)) ||
-            (n != 0)) {
+        // connected, local: empty
+        if (!TT_OK(tt_ipc_local_addr(ipc, NULL, sizeof(addr), &n)) /*||
+            (n != 0)*/) {
             __err_line = __LINE__;
+            TT_INFO_IPC("err: %d", __err_line);
             return TT_FAIL;
         }
         if (!TT_OK(tt_ipc_remote_addr(ipc, NULL, sizeof(addr), &n)) ||
             (n != tt_strlen(__IPC_PATH))) {
             __err_line = __LINE__;
+            TT_INFO_IPC("err: %d", __err_line);
             return TT_FAIL;
         }
         if (tt_ipc_remote_addr(ipc, addr, 1, &n) != TT_E_NOSPC) {
             __err_line = __LINE__;
+            TT_INFO_IPC("err: %d", __err_line);
             return TT_FAIL;
         }
         if (!TT_OK(tt_ipc_remote_addr(ipc, addr, sizeof(addr), NULL)) ||
             (tt_strcmp(addr, __IPC_PATH) != 0)) {
             __err_line = __LINE__;
+            TT_INFO_IPC("err: %d", __err_line);
             return TT_FAIL;
         }
 

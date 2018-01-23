@@ -780,18 +780,18 @@ TT_TEST_ROUTINE_DEFINE(case_sk_opt)
     TT_UT_EQUAL(v_u32, 23456, "");
 
     // sendtime
-    ret = tt_skt_set_sendtime(s, 11111);
+    ret = tt_skt_set_sendtime(s, 11000);
     TT_UT_SUCCESS(ret, "");
     ret = tt_skt_get_sendtime(s, &v_u32);
     TT_UT_SUCCESS(ret, "");
-    TT_UT_EQUAL(v_u32, 11111, "");
+    TT_UT_EQUAL(v_u32, 11000, "");
 
     // recvtime
-    ret = tt_skt_set_recvtime(s, 22222);
+    ret = tt_skt_set_recvtime(s, 22000);
     TT_UT_SUCCESS(ret, "");
     ret = tt_skt_get_recvtime(s, &v_u32);
     TT_UT_SUCCESS(ret, "");
-    TT_UT_EQUAL(v_u32, 22222, "");
+    TT_UT_EQUAL(v_u32, 22000, "");
 
     // linger
     ret = tt_skt_set_linger(s, TT_TRUE, 5);
@@ -2061,6 +2061,7 @@ static tt_result_t __f_svr_ev(IN void *param)
 
     while ((new_s = tt_skt_accept(s, NULL, NULL, &fev, &tmr)) == NULL) {
         if (fev != NULL) {
+            __SKT_DETAIL("=> svr acc recv ev");
             if ((fev->src == NULL) && (fev->ev != 0x87654321)) {
                 __ut_skt_err_line = __LINE__;
             }
@@ -3013,15 +3014,12 @@ static tt_result_t __f_cli_oob(IN void *param)
         goto fail;
     }
 
-#if 1
-    if (!TT_OK(tt_skt_shutdown(s, TT_SKT_SHUT_WR))) {
-        __ut_skt_err_line = __LINE__;
-        goto fail;
+    // shutdown may fail as server may already closed
+    if (TT_OK(tt_skt_shutdown(s, TT_SKT_SHUT_WR))) {
+        while (tt_skt_recv(s, buf, sizeof(buf), &n, &fev, &tmr) != TT_E_END) {
+        }
     }
-#endif
 
-    while (tt_skt_recv(s, buf, sizeof(buf), &n, &fev, &tmr) != TT_E_END) {
-    }
 
     tt_skt_destroy(s);
 

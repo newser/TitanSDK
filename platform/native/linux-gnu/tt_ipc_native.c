@@ -427,10 +427,89 @@ tt_bool_t tt_ipc_poller_io(IN tt_io_ev_t *io_ev)
     return __ipc_poller_io[io_ev->ev](io_ev);
 }
 
+tt_result_t tt_ipc_local_addr_ntv(IN tt_ipc_ntv_t *ipc,
+                                  OUT OPT tt_char_t *addr,
+                                  IN tt_u32_t size,
+                                  OUT OPT tt_u32_t *len)
+{
+    struct sockaddr_un saun;
+    socklen_t n = sizeof(struct sockaddr_un);
+
+    if (getsockname(ipc->s, (struct sockaddr *)&saun, &n) != 0) {
+        TT_ERROR_NTV("fail to get ipc local addr");
+        return TT_FAIL;
+    }
+
+    if (saun.sun_path[0] == 0) {
+        n -= TT_OFFSET(struct sockaddr_un, sun_path);
+    } else {
+        n = (socklen_t)tt_strlen(saun.sun_path);
+    }
+    TT_SAFE_ASSIGN(len, (tt_u32_t)n);
+    if (addr == NULL) {
+        return TT_SUCCESS;
+    }
+
+    if (saun.sun_path[0] == 0) {
+        if (size >= n) {
+            memcpy(addr, saun.sun_path, n);
+            return TT_SUCCESS;
+        }
+    } else {
+        if (size > n) {
+            memcpy(addr, saun.sun_path, n);
+            addr[n] = 0;
+            return TT_SUCCESS;
+        }
+    }
+    TT_ERROR("not enough space for ipc addr");
+    return TT_E_NOSPC;
+}
+
+tt_result_t tt_ipc_remote_addr_ntv(IN tt_ipc_ntv_t *ipc,
+                                   OUT tt_char_t *addr,
+                                   IN tt_u32_t size,
+                                   OUT OPT tt_u32_t *len)
+{
+    struct sockaddr_un saun;
+    socklen_t n = sizeof(struct sockaddr_un);
+
+    if (getpeername(ipc->s, (struct sockaddr *)&saun, &n) != 0) {
+        TT_ERROR_NTV("fail to get ipc local addr");
+        return TT_FAIL;
+    }
+
+    if (saun.sun_path[0] == 0) {
+        n -= TT_OFFSET(struct sockaddr_un, sun_path);
+    } else {
+        n = (socklen_t)tt_strlen(saun.sun_path);
+    }
+    TT_SAFE_ASSIGN(len, (tt_u32_t)n);
+    if (addr == NULL) {
+        return TT_SUCCESS;
+    }
+
+    if (saun.sun_path[0] == 0) {
+        if (size >= n) {
+            memcpy(addr, saun.sun_path, n);
+            return TT_SUCCESS;
+        }
+    } else {
+        if (size > n) {
+            memcpy(addr, saun.sun_path, n);
+            addr[n] = 0;
+            return TT_SUCCESS;
+        }
+    }
+    TT_ERROR("not enough space for ipc addr");
+    return TT_E_NOSPC;
+}
+
+
 tt_result_t __init_ipc_addr(IN struct sockaddr_un *saun,
                             IN const tt_char_t *addr)
 {
-    int len = strlen(addr);
+    int len = (int)strlen(addr);
 
     memset(saun, 0, sizeof(struct sockaddr_un));
 

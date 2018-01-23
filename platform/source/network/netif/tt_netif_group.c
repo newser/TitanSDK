@@ -22,6 +22,8 @@
 
 #include <network/netif/tt_netif_group.h>
 
+#include <algorithm/tt_algorithm_def.h>
+
 ////////////////////////////////////////////////////////////
 // internal macro
 ////////////////////////////////////////////////////////////
@@ -79,15 +81,19 @@ tt_result_t tt_netif_group_add(IN tt_netif_group_t *group,
         return TT_FAIL;
     }
 
-    if (!TT_OK(tt_netif_name2idx(netif_name, &idx))) {
-        TT_ERROR("invalid interface name: %s", netif_name);
-        return TT_E_BADARG;
-    }
-
     netif = tt_netif_group_find(group, netif_name);
     if (netif != NULL) {
         TT_ERROR("netif[%s] already in group", netif_name);
         return TT_E_EXIST;
+    }
+
+    if (!TT_OK(tt_netif_name2idx(netif_name, &idx))) {
+#if 0
+        TT_ERROR("invalid interface name: %s", netif_name);
+        return TT_E_BADARG;
+#else
+        idx = TT_POS_NULL;
+#endif
     }
 
     netif = tt_netif_create(netif_name, idx);

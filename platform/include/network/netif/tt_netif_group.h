@@ -49,6 +49,7 @@ struct tt_netif_s;
 typedef struct tt_netif_group_s
 {
     tt_list_t netif_list;
+    tt_netif_group_ntv_t sys_group;
 
     tt_u32_t flag;
 #define TT_NIFGRP_NO_IPV6_LINK_LOCAL (1 << 0)
