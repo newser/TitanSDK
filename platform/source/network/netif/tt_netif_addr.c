@@ -93,8 +93,10 @@ void tt_netif_addr_dump(IN tt_netif_t *netif,
         if (af == TT_NET_AF_INET) {
             TT_INFO("%sinet %s --> %s netmask %s", prefix, buf1, buf3, buf2);
         } else if (af == TT_NET_AF_INET6) {
-            struct sockaddr_in6 *sa6 = (struct sockaddr_in6 *)&netif_addr->addr;
-            TT_INFO("%sinet6 %s scopeid %x", prefix, buf1, sa6->sin6_scope_id);
+            TT_INFO("%sinet6 %s scopeid %x",
+                    prefix,
+                    buf1,
+                    tt_sktaddr_get_scope(&netif_addr->addr));
         }
     } else {
         if (af == TT_NET_AF_INET) {
@@ -104,8 +106,10 @@ void tt_netif_addr_dump(IN tt_netif_t *netif,
                     buf2,
                     buf3);
         } else if (af == TT_NET_AF_INET6) {
-            struct sockaddr_in6 *sa6 = (struct sockaddr_in6 *)&netif_addr->addr;
-            TT_INFO("%sinet6 %s scopeid %x", prefix, buf1, sa6->sin6_scope_id);
+            TT_INFO("%sinet6 %s scopeid %x",
+                    prefix,
+                    buf1,
+                    tt_sktaddr_get_scope(&netif_addr->addr));
         }
     }
 }

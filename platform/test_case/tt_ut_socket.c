@@ -120,6 +120,7 @@ static tt_char_t __ut_skt_local_ip6[180];
 static tt_char_t __ut_skt_local_itf[40];
 static tt_char_t __ut_skt_local_ip6_mapped[180];
 static tt_char_t __ut_local_ifname[64];
+static tt_char_t __ut_loopback_ifname[64];
 
 static tt_string_t __wpath;
 
@@ -212,6 +213,15 @@ static void __ut_skt_enter(void *enter_param)
     tt_netif_group_refresh_done(&netif_group);
     tt_netif_group_dump(&netif_group);
 
+    nif = NULL;
+    while ((nif = tt_netif_group_next(&netif_group, nif)) != NULL) {
+        if (nif->loopback && __ut_loopback_ifname[0] == 0) {
+            tt_strncpy(__ut_loopback_ifname, nif->name, sizeof(__ut_local_ifname));
+            break;
+        }
+    }
+    
+    nif = NULL;
     while ((nif = tt_netif_group_next(&netif_group, nif)) != NULL) {
         if (__ut_local_ifname[0] == 0) {
             tt_strncpy(__ut_local_ifname, nif->name, sizeof(__ut_local_ifname));
@@ -561,6 +571,9 @@ TT_TEST_ROUTINE_DEFINE(case_sk_addr)
 
     TT_UT_EQUAL(tt_sktaddr_get_port(&sa6), 1234, "");
 
+    tt_sktaddr_set_scope(&sa6, 12);
+    TT_UT_EQUAL(tt_sktaddr_get_scope(&sa6), 12, "");
+
     // test end
     TT_TEST_CASE_LEAVE()
 }
@@ -661,7 +674,7 @@ TT_TEST_ROUTINE_DEFINE(case_sk_opt)
     // multicast interface
     {
         tt_sktaddr_ip_t ip, ip2;
-        tt_sktaddr_ip_p2n(TT_NET_AF_INET, __ut_skt_local_ip, &ip);
+        tt_sktaddr_ip_p2n(TT_NET_AF_INET, "127.0.0.1", &ip);
         ret = tt_skt_set_mcast_if(s, &ip);
         TT_UT_SUCCESS(ret, "");
         ret = tt_skt_get_mcast_if(s, &ip2);
@@ -724,7 +737,7 @@ TT_TEST_ROUTINE_DEFINE(case_sk_opt)
     // multicast ttl
     {
         tt_u32_t idx, idx2;
-        tt_netif_name2idx(__ut_local_ifname, &idx);
+        tt_netif_name2idx(__ut_loopback_ifname, &idx);
         ret = tt_skt_set_mcast_ifidx(s, idx);
         TT_UT_SUCCESS(ret, "");
         ret = tt_skt_get_mcast_ifidx(s, &idx2);
@@ -3035,7 +3048,6 @@ TT_TEST_ROUTINE_DEFINE(case_tcp_oob)
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_result_t ret;
     tt_task_t t;
-    tt_s64_t start, end, dur;
 
     TT_TEST_CASE_ENTER()
     // test start

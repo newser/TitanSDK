@@ -461,6 +461,7 @@ TT_TEST_ROUTINE_DEFINE(case_process_basic)
     path = tt_current_path(TT_TRUE);
     TT_UT_NOT_NULL(path, "");
     TT_INFO("cwd: %s", path);
+    tt_set_current_path(path);
     tt_free(path);
 
     path = tt_current_path(TT_FALSE);

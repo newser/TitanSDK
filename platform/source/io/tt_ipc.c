@@ -145,32 +145,22 @@ tt_result_t tt_ipc_connect_retry(IN tt_ipc_t *ipc,
     return result;
 }
 
-tt_ipc_t *tt_ipc_accept(IN tt_ipc_t *ipc, IN OPT tt_ipc_attr_t *new_attr)
+tt_ipc_t *tt_ipc_accept(IN tt_ipc_t *ipc,
+                        IN OPT tt_ipc_attr_t *new_attr,
+                        OUT tt_fiber_ev_t **p_fev,
+                        OUT struct tt_tmr_s **p_tmr)
 {
-    tt_ipc_t *new_ipc;
     tt_ipc_attr_t __attr;
 
     TT_ASSERT(ipc != NULL);
-
-    new_ipc = tt_malloc(sizeof(tt_ipc_t));
-    if (new_ipc == NULL) {
-        TT_ERROR("no mem for accept ipc");
-        return NULL;
-    }
 
     if (new_attr == NULL) {
         tt_ipc_attr_default(&__attr);
         new_attr = &__attr;
     }
 
-    if (!TT_OK(tt_ipc_accept_ntv(&ipc->sys_ipc, &new_ipc->sys_ipc))) {
-        tt_free(new_ipc);
-        return NULL;
-    }
-
-    tt_buf_init(&new_ipc->buf, &new_attr->recv_buf_attr);
-
-    return new_ipc;
+    return tt_ipc_accept_ntv(&ipc->sys_ipc, new_attr, p_fev, p_tmr);
+    // tt_buf_init(&new_ipc->buf, &new_attr->recv_buf_attr);
 }
 
 tt_result_t tt_ipc_local_addr(IN tt_ipc_t *ipc,

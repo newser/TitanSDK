@@ -96,11 +96,11 @@ tt_result_t __ut_fiber(IN void *param)
 #if 1
     else {
         const tt_char_t *names[] = {
-            //"case_fs_basic", "case_dir_basic",
-            "case_tcp_event",
+            //"case_ipc_client",
+            //"case_ipc_fiber_ev",
             //"TEST_UNIT_LOG",
             //"TEST_UNIT_FS",
-            //"TEST_UNIT_IPC",
+            "TEST_UNIT_IPC",
             //"TEST_UNIT_SOCKET",
             //"TEST_UNIT_FIBER",
             //"ZIP_UT_ZLIB",
@@ -245,6 +245,7 @@ tt_task_create(&t, NULL);
 tt_task_add_fiber(&t, NULL, __ut_fiber, NULL, NULL);
 tt_task_run(&t);
 tt_task_wait(&t);
+while (1) tt_sleep(10000);
 printf("exiting\n");
 return TT_COND(tt_ut_ok, 0, -1);
 #if TT_ENV_OS_IS_WINDOWS

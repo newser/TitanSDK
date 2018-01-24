@@ -228,32 +228,56 @@ tt_char_t *tt_process_path_ntv(IN OPT tt_process_ntv_t *sys_proc)
 tt_char_t *tt_current_path_ntv(IN tt_bool_t end_slash)
 {
     DWORD len;
-    char *d;
+    wchar_t *wp;
+    tt_char_t *p;
 
-    len = GetCurrentDirectoryA(0, NULL);
+    len = GetCurrentDirectoryW(0, NULL);
     if (len == 0) {
         TT_ERROR_NTV("fail to get current directory length");
         return NULL;
     }
 
-    d = tt_malloc(len + 2);
-    if (d == NULL) {
+    wp = tt_malloc(sizeof(wchar_t) * (len + 2));
+    if (wp == NULL) {
         TT_ERROR("no mem for current directory");
         return NULL;
     }
 
-    len = GetCurrentDirectoryA(len + 2, d);
+    len = GetCurrentDirectoryW(sizeof(wchar_t) * (len + 2), wp);
     if (len == 0) {
         TT_ERROR_NTV("fail to get current directory");
-        tt_free(d);
+        tt_free(wp);
         return NULL;
     }
-    if (end_slash && (len > 0) && (d[len - 1] != '\\')) {
-        d[len] = '\\';
-        d[len + 1] = 0;
+    if (end_slash && (len > 0) && (wp[len - 1] != L'\\')) {
+        wp[len] = L'\\';
+        wp[len + 1] = 0;
     }
 
-    return d;
+    p = tt_utf8_create(wp, 0, NULL);
+    tt_free(wp);
+    return p;
+}
+
+tt_result_t tt_set_current_path_ntv(IN const tt_char_t *path)
+{
+    wchar_t *wp;
+    BOOL r;
+
+    wp = tt_wchar_create(path, 0, NULL);
+    if (wp == NULL) {
+        TT_ERROR("no mem to set current path");
+        return TT_E_NOMEM;
+    }
+
+    r = SetCurrentDirectoryW(wp);
+    tt_wchar_destroy(wp);
+    if (r) {
+        return TT_SUCCESS;
+    } else {
+        TT_ERROR_NTV("fail to set current path");
+        return TT_FAIL;
+    }
 }
 
 tt_result_t tt_process_name_ntv(IN tt_char_t *name, IN tt_u32_t len)

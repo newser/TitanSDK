@@ -73,6 +73,8 @@ extern tt_u16_t tt_sktaddr_get_port_ntv(IN tt_sktaddr_ntv_t *addr);
 extern void tt_sktaddr_set_scope_ntv(IN tt_sktaddr_ntv_t *addr,
                                      IN tt_u32_t scope_id);
 
+extern tt_u32_t tt_sktaddr_get_scope_ntv(IN tt_sktaddr_ntv_t *addr);
+
 extern void tt_sktaddr_set_scope_p_ntv(IN tt_sktaddr_ntv_t *addr,
                                        IN tt_char_t *scope_name);
 

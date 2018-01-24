@@ -93,8 +93,10 @@ tt_export tt_result_t tt_ipc_connect_retry(IN tt_ipc_t *ipc,
                                            IN tt_u32_t interval_ms,
                                            IN tt_u32_t retry_count);
 
-tt_export tt_ipc_t *tt_ipc_accept(IN tt_ipc_t *ipc,
-                                  IN OPT tt_ipc_attr_t *new_attr);
+tt_export tt_ipc_t *tt_ipc_accept(IN tt_ipc_t *ipc, 
+                                  IN OPT tt_ipc_attr_t *new_attr,
+                                  OUT tt_fiber_ev_t **p_fev,
+                                  OUT struct tt_tmr_s **p_tmr);
 
 tt_inline tt_result_t tt_ipc_send(IN tt_ipc_t *ipc,
                                   IN tt_u8_t *buf,
