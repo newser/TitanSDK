@@ -32,16 +32,11 @@
 #include <tt_sys_error.h>
 #include <tt_util_native.h>
 
-#include <arpa/inet.h>
 #include <ifaddrs.h>
-#include <net/ethernet.h>
 #include <net/if.h>
 #include <net/if_arp.h>
-#include <netdb.h>
-#include <netpacket/packet.h>
 #include <sys/ioctl.h>
 #include <sys/socket.h>
-#include <sys/types.h>
 
 ////////////////////////////////////////////////////////////
 // internal macro
@@ -85,7 +80,7 @@ static tt_result_t __netif_inet_update(IN tt_netif_t *netif,
 static tt_result_t __netif_inet6_update(IN tt_netif_t *netif,
                                         IN struct ifaddrs *ifa);
 
-static tt_netif_type_t __type_map(IN int hw_af);
+static tt_netif_type_t __type_map(IN sa_family_t hw_af);
 
 // inet
 static tt_netif_addr_t *__find_addr(IN tt_netif_t *netif,
@@ -255,45 +250,39 @@ tt_result_t __netif_group_link_update(IN tt_netif_group_t *group)
 
 tt_result_t __netif_link_update(IN tt_netif_t *netif, IN int skt)
 {
-#if 0
-    unsigned int flags = ifa->ifa_flags;
-    struct sockaddr_ll *sll = (struct sockaddr_ll *)ifa->ifa_addr;
-    struct if_data *ifd = (struct if_data *)ifa->ifa_data;
-    tt_u32_t status;
-
-    netif->mtu = ifd->ifi_mtu;
-
-    if (sll->sll_alen >= TT_MACADDR_LEN) {
-        tt_macaddr_init(&netif->macaddr, (tt_u8_t *)LLADDR(sll));
-    }
-
-    netif->type = __type_map(sll->sdl_type);
-
-    if (flags & IFF_RUNNING) {
-        status = TT_NETIF_STATUS_ACTIVE;
-    } else if (flags & IFF_UP) {
-        status = TT_NETIF_STATUS_UP;
-    } else {
-        status = TT_NETIF_STATUS_DOWN;
-    }
-    if (netif->status != status) {
-        netif->internal_flag |= TT_NETIF_DIFF_STATUS;
-    }
-    netif->status = status;
-
-    netif->multicast = TT_BOOL(flags & IFF_MULTICAST);
-    netif->loopback = TT_BOOL(flags & IFF_LOOPBACK);
-    netif->broadcast = TT_BOOL(flags & IFF_BROADCAST);
-    netif->p2p = TT_BOOL(flags & IFF_POINTOPOINT);
-
-    return TT_SUCCESS;
-#endif
     struct ifreq ifr;
 
     tt_strncpy(ifr.ifr_name, netif->name, sizeof(ifr.ifr_name) - 1);
 
     if (ioctl(skt, SIOCGIFMTU, &ifr, sizeof(ifr)) >= 0) {
         netif->mtu = ifr.ifr_mtu;
+    }
+
+    if (ioctl(skt, SIOCGIFHWADDR, &ifr, sizeof(ifr)) >= 0) {
+        netif->type = __type_map(ifr.ifr_hwaddr.sa_family);
+        tt_macaddr_init(&netif->macaddr, (tt_u8_t *)ifr.ifr_hwaddr.sa_data);
+    }
+
+    if (ioctl(skt, SIOCGIFFLAGS, &ifr, sizeof(ifr)) >= 0) {
+        short flags = ifr.ifr_flags;
+        tt_u32_t status;
+
+        if (flags & IFF_RUNNING) {
+            status = TT_NETIF_STATUS_ACTIVE;
+        } else if (flags & IFF_UP) {
+            status = TT_NETIF_STATUS_UP;
+        } else {
+            status = TT_NETIF_STATUS_DOWN;
+        }
+        if (netif->status != status) {
+            netif->internal_flag |= TT_NETIF_DIFF_STATUS;
+        }
+        netif->status = status;
+
+        netif->multicast = TT_BOOL(flags & IFF_MULTICAST);
+        netif->loopback = TT_BOOL(flags & IFF_LOOPBACK);
+        netif->broadcast = TT_BOOL(flags & IFF_BROADCAST);
+        netif->p2p = TT_BOOL(flags & IFF_POINTOPOINT);
     }
 
     return TT_SUCCESS;
@@ -347,7 +336,7 @@ tt_result_t __netif_inet6_update(IN tt_netif_t *netif, IN struct ifaddrs *ifa)
     return TT_SUCCESS;
 }
 
-tt_netif_type_t __type_map(IN int hw_af)
+tt_netif_type_t __type_map(IN sa_family_t hw_af)
 {
     switch (hw_af) {
         case ARPHRD_ETHER:

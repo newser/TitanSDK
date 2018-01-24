@@ -48,13 +48,19 @@
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-void tt_netif_group_init(OUT tt_netif_group_t *group, IN tt_u32_t flag)
+tt_result_t tt_netif_group_create(OUT tt_netif_group_t *group, IN tt_u32_t flag)
 {
     TT_ASSERT(group != NULL);
+
+    if (!TT_OK(tt_netif_group_create_ntv(&group->sys_group))) {
+        return TT_FAIL;
+    }
 
     tt_list_init(&group->netif_list);
 
     group->flag = flag;
+
+    return TT_SUCCESS;
 }
 
 void tt_netif_group_destroy(IN tt_netif_group_t *group)
@@ -62,6 +68,8 @@ void tt_netif_group_destroy(IN tt_netif_group_t *group)
     tt_lnode_t *node;
 
     TT_ASSERT(group != NULL);
+
+    tt_netif_group_destroy_ntv(&group->sys_group);
 
     while ((node = tt_list_pop_head(&group->netif_list)) != NULL) {
         tt_netif_destroy(TT_CONTAINER(node, tt_netif_t, node));

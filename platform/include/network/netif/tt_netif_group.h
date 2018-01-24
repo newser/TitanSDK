@@ -64,8 +64,8 @@ typedef struct tt_netif_group_s
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-tt_export void tt_netif_group_init(OUT tt_netif_group_t *group,
-                                   IN tt_u32_t flag);
+tt_export tt_result_t tt_netif_group_create(OUT tt_netif_group_t *group,
+                                            IN tt_u32_t flag);
 
 tt_export void tt_netif_group_destroy(IN tt_netif_group_t *group);
 

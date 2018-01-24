@@ -143,7 +143,7 @@ static void __ut_skt_enter(void *enter_param)
         return;
     }
 
-    tt_netif_group_init(&netif_group, TT_NIFGRP_NO_IPV6_LINK_LOCAL);
+    tt_netif_group_create(&netif_group, TT_NIFGRP_NO_IPV6_LINK_LOCAL);
 
 #if TT_ENV_OS_IS_MACOS || TT_ENV_OS_IS_IOS
     tt_netif_group_add(&netif_group, "en0");
