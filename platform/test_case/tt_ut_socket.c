@@ -216,11 +216,13 @@ static void __ut_skt_enter(void *enter_param)
     nif = NULL;
     while ((nif = tt_netif_group_next(&netif_group, nif)) != NULL) {
         if (nif->loopback && __ut_loopback_ifname[0] == 0) {
-            tt_strncpy(__ut_loopback_ifname, nif->name, sizeof(__ut_local_ifname));
+            tt_strncpy(__ut_loopback_ifname,
+                       nif->name,
+                       sizeof(__ut_local_ifname));
             break;
         }
     }
-    
+
     nif = NULL;
     while ((nif = tt_netif_group_next(&netif_group, nif)) != NULL) {
         if (__ut_local_ifname[0] == 0) {

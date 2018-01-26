@@ -319,7 +319,7 @@ tt_export tt_result_t __ipc_svr_1(IN void *param)
                 __err_line = __LINE__;
                 return TT_FAIL;
             }
-            
+
             if (fev != NULL) {
                 tt_fiber_finish(fev);
             }
@@ -542,7 +542,7 @@ static tt_result_t __ipc_svr_2(IN void *param)
                 __err_line = __LINE__;
                 return TT_FAIL;
             }
-            
+
             if (fev != NULL) {
                 tt_fiber_finish(fev);
             }
@@ -745,15 +745,15 @@ tt_result_t __ipc_svr_fev(IN void *param)
     while (cn++ < __CONN_NUM) {
         TT_INFO_IPC("svr acc %d", cn);
 
-        do { 
+        do {
             new_ipc = tt_ipc_accept(ipc, NULL, &fev, &tmr);
-            
+
             if (new_ipc == NULL && fev == NULL && tmr == NULL) {
                 __err_line = __LINE__;
                 return TT_FAIL;
             }
-            
-            if (fev != NULL) {                
+
+            if (fev != NULL) {
                 TT_INFO_IPC("svr acc event");
                 if (fev->src != NULL) {
                     if (fev->ev != 0xaabbccdd) {
@@ -1064,15 +1064,15 @@ tt_result_t __ipc_svr_pev_fev(IN void *param)
     while (cn++ < __CONN_NUM) {
         tt_fiber_ev_t *fev;
 
-        do { 
+        do {
             new_ipc = tt_ipc_accept(ipc, NULL, &fev, &tmr);
-            
+
             if (new_ipc == NULL && fev == NULL && tmr == NULL) {
                 __err_line = __LINE__;
                 return TT_FAIL;
             }
-            
-            if (fev != NULL) {                
+
+            if (fev != NULL) {
                 TT_INFO_IPC("svr acc event");
                 if (fev->src != NULL) {
                     if (fev->ev != 0xaabbccdd) {
@@ -1088,7 +1088,7 @@ tt_result_t __ipc_svr_pev_fev(IN void *param)
                 tt_fiber_finish(fev);
             }
         } while (new_ipc == NULL);
-        TT_INFO_IPC("ipc accepted %d", cn);        
+        TT_INFO_IPC("ipc accepted %d", cn);
 
         rn = 0;
         while (TT_OK((ret = tt_ipc_recv_ev(new_ipc, &pev, &fev, &e_tmr)))) {

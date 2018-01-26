@@ -196,7 +196,7 @@ tt_inline tt_result_t tt_skt_get_linger_ntv(IN tt_skt_ntv_t *skt,
 {
     LINGER linger;
     int len = (int)sizeof(LINGER);
-    if (getsockopt(skt->s, SOL_SOCKET, SO_LINGER, (char*)&linger, &len) == 0) {
+    if (getsockopt(skt->s, SOL_SOCKET, SO_LINGER, (char *)&linger, &len) == 0) {
         *enable = TT_BOOL(linger.l_onoff);
         *linger_sec = (tt_u16_t)linger.l_linger;
         return TT_SUCCESS;
@@ -210,7 +210,11 @@ tt_inline tt_result_t tt_skt_set_keepalive_ntv(IN tt_skt_ntv_t *skt,
                                                IN tt_bool_t keepalive)
 {
     int val = keepalive ? 1 : 0;
-    if (setsockopt(skt->s, SOL_SOCKET, SO_KEEPALIVE, (char*)&val, sizeof(int)) == 0) {
+    if (setsockopt(skt->s,
+                   SOL_SOCKET,
+                   SO_KEEPALIVE,
+                   (char *)&val,
+                   sizeof(int)) == 0) {
         return TT_SUCCESS;
     } else {
         TT_ERROR_NTV("fail to set keep alive to %d", keepalive);
@@ -223,7 +227,7 @@ tt_inline tt_result_t tt_skt_get_keepalive_ntv(IN tt_skt_ntv_t *skt,
 {
     int val = 0;
     int len = (int)sizeof(int);
-    if (getsockopt(skt->s, SOL_SOCKET, SO_KEEPALIVE, (char*)&val, &len) == 0) {
+    if (getsockopt(skt->s, SOL_SOCKET, SO_KEEPALIVE, (char *)&val, &len) == 0) {
         *keepalive = TT_BOOL(val);
         return TT_SUCCESS;
     } else {

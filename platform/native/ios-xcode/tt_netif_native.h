@@ -44,6 +44,11 @@ struct tt_netif_group_s;
 
 typedef struct
 {
+    tt_u32_t reserved;
+} tt_netif_group_ntv_t;
+
+typedef struct
+{
     int skt;
 } tt_netif_ntv_t;
 
