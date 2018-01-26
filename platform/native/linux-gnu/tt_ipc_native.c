@@ -27,6 +27,7 @@
 #include <init/tt_component.h>
 #include <init/tt_profile.h>
 #include <io/tt_io_event.h>
+#include <io/tt_ipc.h>
 #include <os/tt_fiber.h>
 #include <os/tt_fiber_event.h>
 #include <os/tt_task.h>
@@ -132,11 +133,12 @@ typedef struct
     tt_io_ev_t io_ev;
 
     tt_ipc_ntv_t *ipc;
-    tt_ipc_ntv_t *new_ipc;
+    tt_ipc_attr_t *new_attr;
     struct sockaddr_un *saun;
 
-    tt_result_t result;
+    tt_ipc_t *new_ipc;
     int ep;
+    tt_bool_t done : 1;
 } __ipc_accept_t;
 
 typedef struct
@@ -164,6 +166,7 @@ typedef struct
 
     tt_result_t result;
     int ep;
+    tt_bool_t done : 1;
 } __ipc_recv_t;
 
 ////////////////////////////////////////////////////////////
@@ -331,24 +334,47 @@ again:
     return ipc_connect.result;
 }
 
-tt_result_t tt_ipc_accept_ntv(IN tt_ipc_ntv_t *ipc, IN tt_ipc_ntv_t *new_ipc)
+tt_ipc_t *tt_ipc_accept_ntv(IN tt_ipc_ntv_t *ipc,
+                            IN tt_ipc_attr_t *new_attr,
+                            OUT tt_fiber_ev_t **p_fev,
+                            OUT tt_tmr_t **p_tmr)
 {
     __ipc_accept_t ipc_accept;
     int ep;
+    tt_fiber_t *cfb;
     struct sockaddr_un saun;
 
+    *p_fev = NULL;
+    *p_tmr = NULL;
+
     ep = __ipc_ev_init(&ipc_accept.io_ev, __IPC_ACCEPT);
+    cfb = ipc_accept.io_ev.src;
+
+    if (tt_fiber_recv(cfb, TT_FALSE, p_fev, p_tmr)) {
+        return NULL;
+    }
 
     ipc_accept.ipc = ipc;
-    ipc_accept.new_ipc = new_ipc;
+    ipc_accept.new_attr = new_attr;
     ipc_accept.saun = &saun;
 
-    ipc_accept.result = TT_FAIL;
+    ipc_accept.new_ipc = NULL;
     ipc_accept.ep = ep;
+    ipc_accept.done = TT_FALSE;
 
     tt_ep_read(ep, ipc->s, &ipc_accept.io_ev);
+
+    cfb->recving = TT_TRUE;
     tt_fiber_suspend();
-    return ipc_accept.result;
+    cfb->recving = TT_FALSE;
+
+    if (!ipc_accept.done) {
+        tt_ep_unread(ep, ipc->s, &__s_null_io_ev);
+    }
+
+    tt_fiber_recv(cfb, TT_FALSE, p_fev, p_tmr);
+
+    return ipc_accept.new_ipc;
 }
 
 tt_result_t tt_ipc_send_ntv(IN tt_ipc_ntv_t *ipc,
@@ -404,12 +430,17 @@ tt_result_t tt_ipc_recv_ntv(IN tt_ipc_ntv_t *ipc,
 
     ipc_recv.result = TT_FAIL;
     ipc_recv.ep = ep;
+    ipc_recv.done = TT_FALSE;
 
     tt_ep_read(ep, ipc->s, &ipc_recv.io_ev);
 
     cfb->recving = TT_TRUE;
     tt_fiber_suspend();
     cfb->recving = TT_FALSE;
+
+    if (!ipc_recv.done) {
+        tt_ep_unread(ep, ipc->s, &__s_null_io_ev);
+    }
 
     if (tt_fiber_recv(cfb, TT_FALSE, p_fev, p_tmr)) {
         ipc_recv.result = TT_SUCCESS;
@@ -443,27 +474,20 @@ tt_result_t tt_ipc_local_addr_ntv(IN tt_ipc_ntv_t *ipc,
     if (saun.sun_path[0] == 0) {
         n -= TT_OFFSET(struct sockaddr_un, sun_path);
     } else {
-        n = (socklen_t)tt_strlen(saun.sun_path);
+        n = (socklen_t)tt_strlen(saun.sun_path) + 1;
     }
     TT_SAFE_ASSIGN(len, (tt_u32_t)n);
     if (addr == NULL) {
         return TT_SUCCESS;
     }
 
-    if (saun.sun_path[0] == 0) {
-        if (size >= n) {
-            memcpy(addr, saun.sun_path, n);
-            return TT_SUCCESS;
-        }
-    } else {
-        if (size > n) {
-            memcpy(addr, saun.sun_path, n);
-            addr[n] = 0;
-            return TT_SUCCESS;
-        }
+    if (size < n) {
+        TT_ERROR("not enough space for ipc addr");
+        return TT_E_NOSPC;
     }
-    TT_ERROR("not enough space for ipc addr");
-    return TT_E_NOSPC;
+
+    memcpy(addr, saun.sun_path, n);
+    return TT_SUCCESS;
 }
 
 tt_result_t tt_ipc_remote_addr_ntv(IN tt_ipc_ntv_t *ipc,
@@ -482,27 +506,20 @@ tt_result_t tt_ipc_remote_addr_ntv(IN tt_ipc_ntv_t *ipc,
     if (saun.sun_path[0] == 0) {
         n -= TT_OFFSET(struct sockaddr_un, sun_path);
     } else {
-        n = (socklen_t)tt_strlen(saun.sun_path);
+        n = (socklen_t)tt_strlen(saun.sun_path) + 1;
     }
     TT_SAFE_ASSIGN(len, (tt_u32_t)n);
     if (addr == NULL) {
         return TT_SUCCESS;
     }
 
-    if (saun.sun_path[0] == 0) {
-        if (size >= n) {
-            memcpy(addr, saun.sun_path, n);
-            return TT_SUCCESS;
-        }
-    } else {
-        if (size > n) {
-            memcpy(addr, saun.sun_path, n);
-            addr[n] = 0;
-            return TT_SUCCESS;
-        }
+    if (size < n) {
+        TT_ERROR("not enough space for ipc addr");
+        return TT_E_NOSPC;
     }
-    TT_ERROR("not enough space for ipc addr");
-    return TT_E_NOSPC;
+
+    memcpy(addr, saun.sun_path, n);
+    return TT_SUCCESS;
 }
 
 
@@ -551,6 +568,15 @@ tt_bool_t __do_accept(IN tt_io_ev_t *io_ev)
     int s, flag;
     struct epoll_event event;
 
+    // tell caller that ep returned
+    ipc_accept->done = TT_TRUE;
+
+    ipc_accept->new_ipc = tt_malloc(sizeof(tt_ipc_t));
+    if (ipc_accept->new_ipc == NULL) {
+        TT_ERROR("no mem for new ipc");
+        return TT_TRUE;
+    }
+
 again:
     s = accept4(ipc_accept->ipc->s,
                 (struct sockaddr *)ipc_accept->saun,
@@ -586,9 +612,11 @@ again:
         goto fail;
     }
 
-    ipc_accept->new_ipc->s = s;
+    ipc_accept->new_ipc->sys_ipc.s = s;
 
-    ipc_accept->result = TT_SUCCESS;
+    tt_buf_init(&ipc_accept->new_ipc->buf,
+                &ipc_accept->new_attr->recv_buf_attr);
+
     return TT_TRUE;
 
 fail:
@@ -597,7 +625,9 @@ fail:
         __RETRY_IF_EINTR(close(s));
     }
 
-    ipc_accept->result = TT_FAIL;
+    tt_free(ipc_accept->new_ipc);
+    ipc_accept->new_ipc = NULL;
+
     return TT_TRUE;
 }
 
@@ -663,9 +693,11 @@ again:
     if (n > 0) {
         TT_SAFE_ASSIGN(ipc_recv->recvd, (tt_u32_t)n);
         ipc_recv->result = TT_SUCCESS;
+        ipc_recv->done = TT_TRUE;
         return TT_TRUE;
     } else if (n == 0) {
         ipc_recv->result = TT_E_END;
+        ipc_recv->done = TT_TRUE;
         return TT_TRUE;
     } else if (errno == EINTR) {
         goto again;
@@ -683,6 +715,7 @@ again:
         TT_ERROR_NTV("recv failed");
         ipc_recv->result = TT_FAIL;
     }
+    ipc_recv->done = TT_TRUE;
     return TT_TRUE;
 }
 

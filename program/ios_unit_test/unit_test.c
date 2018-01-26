@@ -39,10 +39,10 @@ tt_result_t __ut_fiber(IN void *param)
     else {
         tt_u32_t i;
         const tt_char_t *names[] = {
-            "case_sk_opt",
+            //"case_sk_opt",
             //"TEST_UNIT_LOG",
-            //"TEST_UNIT_FIBER",
-            //"TEST_UNIT_FS",
+            "TEST_UNIT_FIBER",
+            "TEST_UNIT_FS",
             //"TEST_UNIT_SOCKET",
             //"TEST_UNIT_IPC"
         };
