@@ -124,6 +124,7 @@ typedef struct
     tt_io_ev_t io_ev;
 
     tt_ipc_ntv_t *ipc;
+    tt_ipc_attr_t *new_attr;
     struct sockaddr_un *saun;
 
     tt_ipc_t *new_ipc;
@@ -298,8 +299,8 @@ tt_ipc_t *tt_ipc_accept_ntv(IN tt_ipc_ntv_t *ipc,
 {
     __ipc_accept_t ipc_accept;
     int kq;
-    struct sockaddr_un saun;
     tt_fiber_t *cfb;
+    struct sockaddr_un saun;
 
     *p_fev = NULL;
     *p_tmr = NULL;
@@ -312,6 +313,7 @@ tt_ipc_t *tt_ipc_accept_ntv(IN tt_ipc_ntv_t *ipc,
     }
 
     ipc_accept.ipc = ipc;
+    ipc_accept.new_attr = new_attr;
     ipc_accept.saun = &saun;
 
     ipc_accept.new_ipc = NULL;
@@ -426,19 +428,18 @@ tt_result_t tt_ipc_local_addr_ntv(IN tt_ipc_ntv_t *ipc,
         return TT_FAIL;
     }
 
-    n = (socklen_t)tt_strlen(saun.sun_path);
+    n = (socklen_t)tt_strlen(saun.sun_path) + 1;
     TT_SAFE_ASSIGN(len, (tt_u32_t)n);
     if (addr == NULL) {
         return TT_SUCCESS;
     }
 
-    if (size <= n) {
+    if (size < n) {
         TT_ERROR("not enough space for ipc addr");
         return TT_E_NOSPC;
     }
 
     memcpy(addr, saun.sun_path, n);
-    addr[n] = 0;
     return TT_SUCCESS;
 }
 
@@ -455,19 +456,18 @@ tt_result_t tt_ipc_remote_addr_ntv(IN tt_ipc_ntv_t *ipc,
         return TT_FAIL;
     }
 
-    n = (socklen_t)tt_strlen(saun.sun_path);
+    n = (socklen_t)tt_strlen(saun.sun_path) + 1;
     TT_SAFE_ASSIGN(len, (tt_u32_t)n);
     if (addr == NULL) {
         return TT_SUCCESS;
     }
 
-    if (size <= n) {
+    if (size < n) {
         TT_ERROR("not enough space for ipc addr");
         return TT_E_NOSPC;
     }
 
     memcpy(addr, saun.sun_path, n);
-    addr[n] = 0;
     return TT_SUCCESS;
 }
 
@@ -546,6 +546,9 @@ again:
 
     ipc_accept->new_ipc->sys_ipc.s = s;
 
+    tt_buf_init(&ipc_accept->new_ipc->buf,
+                &ipc_accept->new_attr->recv_buf_attr);
+
     return TT_TRUE;
 
 fail:
@@ -622,11 +625,11 @@ again:
     if (n > 0) {
         TT_SAFE_ASSIGN(ipc_recv->recvd, (tt_u32_t)n);
         ipc_recv->result = TT_SUCCESS;
-        ipc_recv->done = TT_FALSE;
+        ipc_recv->done = TT_TRUE;
         return TT_TRUE;
     } else if (n == 0) {
         ipc_recv->result = TT_E_END;
-        ipc_recv->done = TT_FALSE;
+        ipc_recv->done = TT_TRUE;
         return TT_TRUE;
     } else if (errno == EINTR) {
         goto again;
@@ -644,7 +647,7 @@ again:
         TT_ERROR_NTV("recv failed");
         ipc_recv->result = TT_FAIL;
     }
-    ipc_recv->done = TT_FALSE;
+    ipc_recv->done = TT_TRUE;
     return TT_TRUE;
 }
 

@@ -37,13 +37,15 @@ tt_result_t __ut_fiber(IN void *param)
     }
 #if 1
     else {
-        const tt_char_t *names[] = {//"case_sk_opt",
-                                    //"TEST_UNIT_LOG",
-                                    //"TEST_UNIT_FIBER",
-                                    //"TEST_UNIT_FS",
-                                    //"TEST_UNIT_SOCKET",
-                                    "TEST_UNIT_IPC"};
         tt_u32_t i;
+        const tt_char_t *names[] = {
+            "case_sk_opt",
+            //"TEST_UNIT_LOG",
+            //"TEST_UNIT_FIBER",
+            //"TEST_UNIT_FS",
+            //"TEST_UNIT_SOCKET",
+            //"TEST_UNIT_IPC"
+        };
 
         for (i = 0; i < sizeof(names) / sizeof(names[0]); ++i) {
             tt_test_unit_run(names[i]);

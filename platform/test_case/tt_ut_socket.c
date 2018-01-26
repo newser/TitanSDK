@@ -158,6 +158,7 @@ static void __ut_skt_enter(void *enter_param)
     tt_netif_group_add(&netif_group, "en8");
     tt_netif_group_add(&netif_group, "en9");
     tt_netif_group_add(&netif_group, "lo");
+    tt_netif_group_add(&netif_group, "lo0");
 #if 1
     tt_netif_group_add(&netif_group, "p2p0");
     tt_netif_group_add(&netif_group, "awdl0");
