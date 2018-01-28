@@ -129,8 +129,6 @@ tt_result_t tt_thread_create_ntv(IN struct tt_thread_s *thread)
     }
 #endif
 
-    sys_thread->nlink = NULL;
-
     return TT_SUCCESS;
 }
 
@@ -168,11 +166,6 @@ tt_result_t tt_thread_wait_ntv(IN struct tt_thread_s *thread)
     if (ret != 0) {
         TT_ERROR("fail to wait thread: %d[%s]", ret, strerror(ret));
         return TT_FAIL;
-    }
-
-    if (thread->sys_thread.nlink != NULL) {
-        extern void __netlink_destroy(IN struct __netlink_s * nlink);
-        __netlink_destroy(thread->sys_thread.nlink);
     }
 
     return TT_SUCCESS;

@@ -138,6 +138,13 @@ static void __ut_skt_enter(void *enter_param)
     tt_set_current_path("../tmp");
 #else
 #endif
+
+#elif TT_ENV_OS_IS_ANDROID
+    tt_char_t *pwd = tt_current_path(TT_FALSE);
+    tt_string_create(&__wpath, pwd, NULL);
+    tt_free(pwd);
+
+    tt_set_current_path("/data/data/com.titansdk.titansdkunittest/");
 #endif
 
     if (__ut_skt_inited) {
@@ -205,6 +212,7 @@ static void __ut_skt_enter(void *enter_param)
     tt_netif_group_add(&netif_group, "wlan0");
     tt_netif_group_add(&netif_group, "eth0");
     tt_netif_group_add(&netif_group, "lo");
+    tt_netif_group_add(&netif_group, "lo0");
 #else
 #warn no netif added
 #endif
@@ -219,7 +227,7 @@ static void __ut_skt_enter(void *enter_param)
         if (nif->loopback && __ut_loopback_ifname[0] == 0) {
             tt_strncpy(__ut_loopback_ifname,
                        nif->name,
-                       sizeof(__ut_local_ifname));
+                       sizeof(__ut_loopback_ifname));
             break;
         }
     }
@@ -297,6 +305,9 @@ static void __ut_skt_exit(void *enter_param)
 #else
     todo
 #endif
+
+#elif TT_ENV_OS_IS_ANDROID
+    tt_set_current_path(tt_string_cstr(&__wpath));
 #endif
 }
 
@@ -597,14 +608,14 @@ TT_TEST_ROUTINE_DEFINE(case_sk_opt)
     // test start
 
     // interface
-    TT_UT_EXP(__ut_local_ifname[0] != 0, "");
+    TT_UT_EXP(__ut_loopback_ifname[0] != 0, "");
 
-    ret = tt_netif_name2idx(__ut_local_ifname, &ifidx);
+    ret = tt_netif_name2idx(__ut_loopback_ifname, &ifidx);
     TT_UT_SUCCESS(ret, "");
 
     ret = tt_netif_idx2name(ifidx, ifname, sizeof(ifname));
     TT_UT_SUCCESS(ret, "");
-    TT_UT_STREQ(ifname, __ut_local_ifname, "");
+    TT_UT_STREQ(ifname, __ut_loopback_ifname, "");
     ret = tt_netif_idx2name(ifidx, ifname, 1);
     TT_UT_EQUAL(ret, TT_E_NOSPC, "");
     ret = tt_netif_idx2name(~0, ifname, sizeof(ifname));

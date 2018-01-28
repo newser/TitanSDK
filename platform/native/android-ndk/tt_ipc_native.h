@@ -44,6 +44,8 @@ struct tt_profile_s;
 struct tt_ipc_attr_s;
 struct tt_tmr_s;
 struct tt_io_ev_s;
+struct tt_ipc_s;
+struct tt_ipc_attr_s;
 
 typedef struct
 {
@@ -69,8 +71,10 @@ extern void tt_ipc_destroy_ntv(IN tt_ipc_ntv_t *ipc);
 extern tt_result_t tt_ipc_connect_ntv(IN tt_ipc_ntv_t *ipc,
                                       IN const tt_char_t *addr);
 
-extern tt_result_t tt_ipc_accept_ntv(IN tt_ipc_ntv_t *ipc,
-                                     IN tt_ipc_ntv_t *new_ipc);
+extern struct tt_ipc_s *tt_ipc_accept_ntv(IN tt_ipc_ntv_t *ipc,
+                                          IN struct tt_ipc_attr_s *new_attr,
+                                          OUT tt_fiber_ev_t **p_fev,
+                                          OUT struct tt_tmr_s **p_tmr);
 
 extern tt_result_t tt_ipc_send_ntv(IN tt_ipc_ntv_t *ipc,
                                    IN tt_u8_t *buf,
@@ -87,5 +91,15 @@ extern tt_result_t tt_ipc_recv_ntv(IN tt_ipc_ntv_t *ipc,
 extern void tt_ipc_worker_io(IN struct tt_io_ev_s *io_ev);
 
 extern tt_bool_t tt_ipc_poller_io(IN struct tt_io_ev_s *io_ev);
+
+extern tt_result_t tt_ipc_local_addr_ntv(IN tt_ipc_ntv_t *ipc,
+                                         OUT tt_char_t *addr,
+                                         IN tt_u32_t size,
+                                         OUT OPT tt_u32_t *len);
+
+extern tt_result_t tt_ipc_remote_addr_ntv(IN tt_ipc_ntv_t *ipc,
+                                          OUT tt_char_t *addr,
+                                          IN tt_u32_t size,
+                                          OUT OPT tt_u32_t *len);
 
 #endif /* __TT_IPC_NATIVE__ */

@@ -74,6 +74,12 @@ static void __fs_enter(void *enter_param)
         done = TT_TRUE;
     }
 #endif
+#elif TT_ENV_OS_IS_ANDROID
+    tt_char_t *pwd = tt_current_path(TT_FALSE);
+    tt_string_create(&__wpath, pwd, NULL);
+    tt_free(pwd);
+
+    tt_set_current_path("/data/data/com.titansdk.titansdkunittest/");
 #endif
 }
 
@@ -85,6 +91,8 @@ static void __fs_exit(void *enter_param)
 #else
     todo
 #endif
+#elif TT_ENV_OS_IS_ANDROID
+    tt_set_current_path(tt_string_cstr(&__wpath));
 #endif
 }
 
@@ -199,9 +207,9 @@ TT_TEST_ROUTINE_DEFINE(case_fs_consistency)
 #elif TT_ENV_OS_IS_ANDROID
 
 #define APK_PATH "/data/data/com.titansdk.titansdkunittest/"
-#define __SC_TEST_FILE APK_PATH "测试"
-#define __SC_TEST_FILE2 APK_PATH "测试2"
-#define __TEST_D1 APK_PATH "测试目录1"
+#define __SC_TEST_FILE "测试"
+#define __SC_TEST_FILE2 "测试2"
+#define __TEST_D1 "测试目录1"
 
 #else
 #define __SC_TEST_FILE "测试"
@@ -407,7 +415,8 @@ TT_TEST_ROUTINE_DEFINE(case_fs_consistency)
         tt_date_init(&m, tt_g_local_tmzone);
 
         tt_date_set(&a, 1980, TT_OCTOBER, 10, 1, 2, 3);
-        tt_date_set(&m, 2980, TT_NOVEMBER, 30, 4, 5, 6);
+        // 2038 overflow
+        tt_date_set(&m, 2010, TT_NOVEMBER, 30, 4, 5, 6);
         ret = tt_futime(&f, &a, &m);
         TT_UT_SUCCESS(ret, "");
 
@@ -418,6 +427,8 @@ TT_TEST_ROUTINE_DEFINE(case_fs_consistency)
         TT_UT_EQUAL(tt_date_cmp(&m, &fst.modified), 0, "");
     }
 
+// do not test link on android
+#if !TT_ENV_OS_IS_ANDROID
     {
         tt_u8_t *data;
         tt_u64_t n;
@@ -450,8 +461,9 @@ TT_TEST_ROUTINE_DEFINE(case_fs_consistency)
         ret = tt_fs_link(__SC_TEST_FILE, "123");
         TT_UT_FAIL(ret, "");
     }
+#endif
 
-#if !TT_ENV_OS_IS_WINDOWS
+#if !TT_ENV_OS_IS_WINDOWS && !TT_ENV_OS_IS_ANDROID
     {
         tt_u8_t *data;
         tt_u64_t n;
@@ -496,12 +508,6 @@ TT_TEST_ROUTINE_DEFINE(case_fs_consistency)
 #define __TTD "../tmp/tttmp"
 #else
 #endif
-
-#elif TT_ENV_OS_IS_ANDROID
-
-#define __TT1 APK_PATH "tttmp/1.xXXX"
-#define __TT2 APK_PATH "tttmp/XXXXX"
-#define __TTD APK_PATH "tttmp"
 
 #else
 #define __TT1 "tttmp/1.xXXX"
@@ -1525,20 +1531,6 @@ TT_TEST_ROUTINE_DEFINE(case_fs_copy)
 #define __COPIED_D1_D2_F2 "../tmp/copied_d1/d2/f2"
 #else
 #endif
-
-#elif TT_ENV_OS_IS_ANDROID
-
-#define __CD_D1 APK_PATH "../tmp/d1"
-#define __CD_D1S APK_PATH "../tmp/d1/"
-#define __CD_D1_D2 APK_PATH "../tmp/d1/d2"
-#define __CD_D1_F1 APK_PATH "../tmp/d1/f1"
-#define __CD_D1_D2_F2 APK_PATH "../tmp/d1/d2/f2"
-
-#define __COPIED_D1 APK_PATH "../tmp/copied_d1"
-#define __COPIED_D1S APK_PATH "../tmp/copied_d1/"
-#define __COPIED_D1_D2 APK_PATH "../tmp/copied_d1/d2"
-#define __COPIED_D1_F1 APK_PATH "../tmp/copied_d1/f1"
-#define __COPIED_D1_D2_F2 APK_PATH "../tmp/copied_d1/d2/f2"
 
 #else
 #define __CD_D1 "d1"

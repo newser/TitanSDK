@@ -44,12 +44,10 @@ this file specifies interfaces for system specific thread operations.
 ////////////////////////////////////////////////////////////
 
 struct tt_thread_s;
-struct __netlink_skt_s;
 
 typedef struct
 {
     pthread_t handle;
-    struct __netlink_s *nlink;
 } tt_thread_ntv_t;
 
 ////////////////////////////////////////////////////////////

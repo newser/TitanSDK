@@ -129,7 +129,7 @@ tt_inline tt_result_t tt_skt_get_reuseport_ntv(IN tt_skt_ntv_t *skt,
 {
 #ifdef SO_REUSEPORT
     int val = 0;
-    socklen_t len = (int)sizeof(int);
+    socklen_t len = sizeof(int);
     if (getsockopt(skt->s, SOL_SOCKET, SO_REUSEPORT, &val, &len) == 0) {
         *reuse_port = TT_BOOL(val);
         return TT_SUCCESS;
@@ -212,5 +212,123 @@ tt_inline tt_result_t tt_skt_set_linger_ntv(IN tt_skt_ntv_t *skt,
         return TT_FAIL;
     }
 }
+
+tt_inline tt_result_t tt_skt_get_linger_ntv(IN tt_skt_ntv_t *skt,
+                                            OUT tt_bool_t *enable,
+                                            OUT tt_u16_t *linger_sec)
+{
+    struct linger linger;
+    socklen_t len = (int)sizeof(struct linger);
+    if (getsockopt(skt->s, SOL_SOCKET, SO_LINGER, &linger, &len) == 0) {
+        *enable = TT_BOOL(linger.l_onoff);
+        *linger_sec = (tt_u16_t)linger.l_linger;
+        return TT_SUCCESS;
+    } else {
+        TT_NET_ERROR_NTV("fail to get linger");
+        return TT_FAIL;
+    }
+}
+
+tt_inline tt_result_t tt_skt_set_keepalive_ntv(IN tt_skt_ntv_t *skt,
+                                               IN tt_bool_t keepalive)
+{
+    int val = keepalive ? 1 : 0;
+    if (setsockopt(skt->s, SOL_SOCKET, SO_KEEPALIVE, &val, sizeof(int)) == 0) {
+        return TT_SUCCESS;
+    } else {
+        TT_ERROR_NTV("fail to set keep alive to %d", keepalive);
+        return TT_FAIL;
+    }
+}
+
+tt_inline tt_result_t tt_skt_get_keepalive_ntv(IN tt_skt_ntv_t *skt,
+                                               OUT tt_bool_t *keepalive)
+{
+    int val = 0;
+    socklen_t len = sizeof(int);
+    if (getsockopt(skt->s, SOL_SOCKET, SO_KEEPALIVE, &val, &len) == 0) {
+        *keepalive = TT_BOOL(val);
+        return TT_SUCCESS;
+    } else {
+        TT_ERROR_NTV("fail to get keep alive");
+        return TT_FAIL;
+    }
+}
+
+extern tt_result_t tt_skt_set_ttl_ntv(IN tt_skt_ntv_t *skt,
+                                      IN tt_net_family_t family,
+                                      IN tt_u8_t ttl);
+
+extern tt_result_t tt_skt_get_ttl_ntv(IN tt_skt_ntv_t *skt,
+                                      IN tt_net_family_t family,
+                                      OUT tt_u8_t *ttl);
+
+extern tt_result_t tt_skt_set_sendbuf_ntv(IN tt_skt_ntv_t *skt,
+                                          IN tt_u32_t size);
+
+extern tt_result_t tt_skt_get_sendbuf_ntv(IN tt_skt_ntv_t *skt,
+                                          OUT tt_u32_t *size);
+
+extern tt_result_t tt_skt_set_recvbuf_ntv(IN tt_skt_ntv_t *skt,
+                                          IN tt_u32_t size);
+
+extern tt_result_t tt_skt_get_recvbuf_ntv(IN tt_skt_ntv_t *skt,
+                                          OUT tt_u32_t *size);
+
+extern tt_result_t tt_skt_set_broadcast_ntv(IN tt_skt_ntv_t *skt,
+                                            IN tt_bool_t broadcast);
+
+extern tt_result_t tt_skt_get_broadcast_ntv(IN tt_skt_ntv_t *skt,
+                                            OUT tt_bool_t *broadcast);
+
+extern tt_result_t tt_skt_set_oobinline_ntv(IN tt_skt_ntv_t *skt,
+                                            IN tt_bool_t oobinline);
+
+extern tt_result_t tt_skt_get_oobinline_ntv(IN tt_skt_ntv_t *skt,
+                                            OUT tt_bool_t *oobinline);
+
+extern tt_result_t tt_skt_set_sendtime_ntv(IN tt_skt_ntv_t *skt,
+                                           IN tt_u32_t ms);
+
+extern tt_result_t tt_skt_get_sendtime_ntv(IN tt_skt_ntv_t *skt,
+                                           OUT tt_u32_t *ms);
+
+extern tt_result_t tt_skt_set_recvtime_ntv(IN tt_skt_ntv_t *skt,
+                                           IN tt_u32_t ms);
+
+extern tt_result_t tt_skt_get_recvtime_ntv(IN tt_skt_ntv_t *skt,
+                                           OUT tt_u32_t *ms);
+
+extern tt_result_t tt_skt_set_mcast_loop_ntv(IN tt_skt_ntv_t *skt,
+                                             IN tt_net_family_t family,
+                                             IN tt_bool_t loop);
+
+extern tt_result_t tt_skt_set_mcast_loop_ntv(IN tt_skt_ntv_t *skt,
+                                             IN tt_net_family_t family,
+                                             IN tt_bool_t loop);
+
+extern tt_result_t tt_skt_get_mcast_loop_ntv(IN tt_skt_ntv_t *skt,
+                                             IN tt_net_family_t family,
+                                             OUT tt_bool_t *loop);
+
+extern tt_result_t tt_skt_set_mcast_ttl_ntv(IN tt_skt_ntv_t *skt,
+                                            IN tt_net_family_t family,
+                                            IN tt_u8_t ttl);
+
+extern tt_result_t tt_skt_get_mcast_ttl_ntv(IN tt_skt_ntv_t *skt,
+                                            IN tt_net_family_t family,
+                                            OUT tt_u8_t *ttl);
+
+extern tt_result_t tt_skt_set_mcast_if_ntv(IN tt_skt_ntv_t *skt,
+                                           IN tt_sktaddr_ip_t *addr);
+
+extern tt_result_t tt_skt_get_mcast_if_ntv(IN tt_skt_ntv_t *skt,
+                                           OUT tt_sktaddr_ip_t *addr);
+
+extern tt_result_t tt_skt_set_mcast_ifidx_ntv(IN tt_skt_ntv_t *skt,
+                                              IN tt_u32_t ifidx);
+
+extern tt_result_t tt_skt_get_mcast_ifidx_ntv(IN tt_skt_ntv_t *skt,
+                                              OUT tt_u32_t *ifidx);
 
 #endif // __TT_SOCKET_OPTION_NATIVE__
