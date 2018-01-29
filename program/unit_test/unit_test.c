@@ -10,6 +10,7 @@ extern tt_result_t __ipc_cli_1(IN void *param);
 extern tt_result_t __ipc_cli_oneshot(IN void *param);
 extern tt_result_t __ipc_svr_1(IN void *param);
 extern tt_result_t __ipc_cli_pev(IN void *param);
+extern tt_result_t __ipc_skt(IN void *param);
 
 extern tt_result_t tt_cli_demo_run();
 
@@ -96,7 +97,7 @@ tt_result_t __ut_fiber(IN void *param)
 #if 1
     else {
         const tt_char_t *names[] = {
-            "case_fs_basic",
+            "case_ipc_skt",
             //"case_ipc_fiber_ev",
             //"TEST_UNIT_LOG",
             //"TEST_UNIT_FS",
@@ -187,6 +188,8 @@ int main(int argc, char *argv[])
                 tt_task_add_fiber(&t, NULL, __ipc_svr_1, NULL, NULL);
             } else if (strcmp(argv[1], "ipc-pev") == 0) {
                 tt_task_add_fiber(&t, NULL, __ipc_cli_pev, NULL, NULL);
+            } else if (strcmp(argv[1], "ipc-skt") == 0) {
+                tt_task_add_fiber(&t, NULL, __ipc_skt, NULL, NULL);
             }
             tt_task_run(&t);
             tt_task_wait(&t);

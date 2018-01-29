@@ -44,6 +44,7 @@ this file defines IPC APIs
 ////////////////////////////////////////////////////////////
 
 struct tt_tmr_s;
+struct tt_skt_s;
 
 typedef struct tt_ipc_attr_s
 {
@@ -111,6 +112,12 @@ tt_inline tt_result_t tt_ipc_send(IN tt_ipc_t *ipc,
     }
 }
 
+tt_inline tt_result_t tt_ipc_sendskt(IN tt_ipc_t *ipc,
+                                     IN TO struct tt_skt_s *skt)
+{
+    return tt_ipc_sendskt_ntv(&ipc->sys_ipc, skt);
+}
+
 tt_inline tt_result_t tt_ipc_recv(IN tt_ipc_t *ipc,
                                   OUT tt_u8_t *buf,
                                   IN tt_u32_t len,
@@ -126,6 +133,27 @@ tt_inline tt_result_t tt_ipc_recv(IN tt_ipc_t *ipc,
     }
 }
 
+tt_inline tt_result_t tt_ipc_recvskt(IN tt_ipc_t *ipc,
+                                     OUT tt_u8_t *buf,
+                                     IN tt_u32_t len,
+                                     OUT OPT tt_u32_t *recvd,
+                                     OUT tt_fiber_ev_t **p_fev,
+                                     OUT struct tt_tmr_s **p_tmr,
+                                     OUT FROM struct tt_skt_s **p_skt)
+{
+    if (len != 0) {
+        return tt_ipc_recvskt_ntv(&ipc->sys_ipc,
+                                  buf,
+                                  len,
+                                  recvd,
+                                  p_fev,
+                                  p_tmr,
+                                  p_skt);
+    } else {
+        TT_ERROR("ipc recv buf len can not be 0");
+        return TT_FAIL;
+    }
+}
 
 // note linux abstract socket, returned addr may not be a null-terminated string
 tt_export tt_result_t tt_ipc_local_addr(IN tt_ipc_t *ipc,

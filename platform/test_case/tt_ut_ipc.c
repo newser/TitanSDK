@@ -72,6 +72,7 @@ TT_TEST_ROUTINE_DECLARE(case_ipc_client)
 TT_TEST_ROUTINE_DECLARE(case_ipc_stress)
 TT_TEST_ROUTINE_DECLARE(case_ipc_fiber_ev)
 TT_TEST_ROUTINE_DECLARE(case_ipc_ev)
+TT_TEST_ROUTINE_DECLARE(case_ipc_skt)
 // =========================================
 
 // === test case list ======================
@@ -117,6 +118,15 @@ TT_TEST_CASE("case_ipc_basic",
     TT_TEST_CASE("case_ipc_ev",
                  "testing ipc event",
                  case_ipc_ev,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL),
+
+    TT_TEST_CASE("case_ipc_skt",
+                 "testing ipc sendskt",
+                 case_ipc_skt,
                  NULL,
                  NULL,
                  NULL,
@@ -1271,6 +1281,225 @@ TT_TEST_ROUTINE_DEFINE(case_ipc_ev)
     TT_UT_EQUAL(__err_line, 0, "");
     TT_UT_EQUAL(__ipc_fev_num, __fiber_num * __ev_per_fiber, "");
     TT_RECORD_INFO("max diff: %d", __ipc_max_diff);
+
+    // test end
+    TT_TEST_CASE_LEAVE()
+}
+
+static tt_result_t __ipc_tcp_svr1(IN void *param)
+{
+    tt_skt_t *s, *new_s;
+    tt_fiber_t *fb;
+    tt_u32_t i;
+    tt_fiber_ev_t *p_fev;
+    tt_tmr_t *p_tmr;
+    tt_ipc_t *ipc;
+
+    s = tt_tcp_server_p(TT_NET_AF_INET, NULL, "127.0.0.1", 63639);
+    if (s == NULL) {
+        __err_line = __LINE__;
+        goto out;
+    }
+
+    new_s = tt_skt_accept(s, NULL, NULL, &p_fev, &p_tmr);
+    if (new_s == NULL) {
+        __err_line = __LINE__;
+        goto out;
+    }
+
+    ipc = tt_ipc_create(NULL, NULL);
+    if (ipc == NULL) {
+        __err_line = __LINE__;
+        goto out;
+    }
+
+#if TT_ENV_OS_IS_WINDOWS
+    tt_sleep(50);
+#endif
+    if (!TT_OK(tt_ipc_connect_retry(ipc, __IPC_PATH, 100, 10))) {
+        __err_line = __LINE__;
+        goto out;
+    }
+
+    if (!TT_OK(tt_ipc_sendskt(ipc, new_s))) {
+        __err_line = __LINE__;
+        goto out;
+    }
+
+out:
+    if (s != NULL) {
+        tt_skt_destroy(s);
+    }
+
+    return TT_SUCCESS;
+}
+
+static tt_result_t __ipc_tcp_cli1(IN void *param)
+{
+    tt_skt_t *s;
+    tt_u8_t buf[20];
+    tt_u32_t n, len;
+    tt_result_t ret;
+    tt_fiber_ev_t *fev;
+    tt_tmr_t *tmr;
+
+    s = tt_skt_create(TT_NET_AF_INET, TT_NET_PROTO_TCP, NULL);
+    if (s == NULL) {
+        __err_line = __LINE__;
+        goto fail;
+    }
+
+    if (!TT_OK(tt_skt_connect_p(s, TT_NET_AF_INET, "127.0.0.1", 63639))) {
+        __err_line = __LINE__;
+        goto fail;
+    }
+
+    if (!TT_OK(tt_skt_send(s, (tt_u8_t *)"0123456789", 10, NULL))) {
+        __err_line = __LINE__;
+        goto fail;
+    }
+    if (!TT_OK(tt_skt_shutdown(s, TT_SKT_SHUT_WR))) {
+        __err_line = __LINE__;
+        goto fail;
+    }
+
+    len = 0;
+    while (
+        (len < sizeof(buf)) &&
+        TT_OK(
+            ret =
+                tt_skt_recv(s, buf + len, sizeof(buf) - len, &n, &fev, &tmr))) {
+        len += n;
+    }
+    if (ret != TT_E_END) {
+        __err_line = __LINE__;
+        goto fail;
+    }
+
+    if (len != 10 || tt_memcmp(buf, "0123456789", 10) != 0) {
+        __err_line = __LINE__;
+        goto fail;
+    }
+
+    tt_skt_destroy(s);
+    return TT_SUCCESS;
+
+fail:
+    tt_task_exit(NULL);
+    return TT_FAIL;
+}
+
+tt_export tt_result_t __ipc_skt(IN void *param)
+{
+    tt_ipc_t *ipc, *new_ipc;
+    tt_u8_t buf[20];
+    tt_u32_t n, len;
+    tt_result_t ret;
+    tt_fiber_ev_t *fev;
+    tt_tmr_t *tmr;
+    tt_skt_t *tcp = NULL;
+
+    ipc = tt_ipc_create(__IPC_PATH, NULL);
+    if (ipc == NULL) {
+        __err_line = __LINE__;
+        return TT_FAIL;
+    }
+
+    new_ipc = tt_ipc_accept(ipc, NULL, &fev, &tmr);
+    if (new_ipc == NULL) {
+        __err_line = __LINE__;
+        return TT_FAIL;
+    }
+    TT_INFO("accept an ipc");
+
+    ret = tt_ipc_recvskt(new_ipc, buf, sizeof(buf), NULL, &fev, &tmr, &tcp);
+    TT_INFO("tt_ipc_recvskt returned: %d", ret);
+    if (!TT_OK(ret)) {
+        __err_line = __LINE__;
+        return TT_FAIL;
+    }
+    if (tcp == NULL) {
+        __err_line = __LINE__;
+        return TT_FAIL;
+    }
+    TT_INFO("received skt");
+
+    len = 0;
+    while ((len < sizeof(buf)) && TT_OK(ret = tt_skt_recv(tcp,
+                                                          buf + len,
+                                                          sizeof(buf) - len,
+                                                          &n,
+                                                          &fev,
+                                                          &tmr))) {
+        len += n;
+    }
+    if (ret != TT_E_END) {
+        __err_line = __LINE__;
+        return TT_FAIL;
+    }
+
+    if (!TT_OK(tt_skt_send(tcp, buf, len, NULL))) {
+        __err_line = __LINE__;
+        return TT_FAIL;
+    }
+    if (!TT_OK(tt_skt_shutdown(tcp, TT_SKT_SHUT_WR))) {
+        __err_line = __LINE__;
+        return TT_FAIL;
+    }
+    tt_skt_destroy(tcp);
+
+    tt_ipc_destroy(new_ipc);
+    tt_ipc_destroy(ipc);
+    return TT_SUCCESS;
+}
+
+TT_TEST_ROUTINE_DEFINE(case_ipc_skt)
+{
+    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+    tt_task_t t;
+    tt_result_t ret;
+    tt_process_t proc;
+    tt_char_t *argv[20] = {0};
+    tt_char_t *path;
+
+    TT_TEST_CASE_ENTER()
+
+#if TT_ENV_OS_IS_IOS || TT_ENV_OS_IS_ANDROID
+    return TT_SUCCESS;
+#endif
+
+#if TT_ENV_OS_IS_WINDOWS
+    tt_fcreate(__IPC_PATH, NULL);
+#endif
+
+    __err_line = 0;
+
+    ret = tt_task_create(&t, NULL);
+    TT_UT_SUCCESS(ret, "");
+
+    tt_task_add_fiber(&t, "svr", __ipc_tcp_svr1, NULL, NULL);
+    tt_task_add_fiber(&t, "cli", __ipc_tcp_cli1, NULL, NULL);
+
+    ret = tt_task_run(&t);
+    TT_UT_SUCCESS(ret, "");
+
+    path = tt_process_path(NULL);
+    TT_UT_NOT_EQUAL(path, NULL, "");
+    argv[0] = "unit_test";
+    argv[1] = "ipc-skt";
+    argv[2] = __IPC_PATH;
+
+    ret = tt_process_create(&proc, __app_file, argv, NULL);
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+
+    tt_free(path);
+
+    tt_task_wait(&t);
+
+    ret = tt_process_wait(&proc, TT_TRUE, NULL);
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+
+    TT_UT_EQUAL(__err_line, 0, "");
 
     // test end
     TT_TEST_CASE_LEAVE()
