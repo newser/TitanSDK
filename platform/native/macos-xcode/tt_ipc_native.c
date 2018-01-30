@@ -409,7 +409,9 @@ tt_result_t tt_ipc_sendskt_ntv(IN tt_ipc_ntv_t *ipc, IN TO tt_skt_t *skt)
 
     tt_kq_write(kq, ipc->s, &ipc_sendskt.io_ev);
     tt_fiber_suspend();
-    // todo destroy skt
+    if (TT_OK(ipc_sendskt.result)) {
+        tt_skt_destroy(skt);
+    }
     return ipc_sendskt.result;
 }
 
