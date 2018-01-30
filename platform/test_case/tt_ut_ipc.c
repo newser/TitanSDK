@@ -1412,7 +1412,7 @@ tt_export tt_result_t __ipc_skt(IN void *param)
     }
     TT_INFO("accept an ipc");
 
-    ret = tt_ipc_recvskt(new_ipc, buf, sizeof(buf), NULL, &fev, &tmr, &tcp);
+    ret = tt_ipc_recvskt(new_ipc, &fev, &tmr, &tcp);
     TT_INFO("tt_ipc_recvskt returned: %d", ret);
     if (!TT_OK(ret)) {
         __err_line = __LINE__;

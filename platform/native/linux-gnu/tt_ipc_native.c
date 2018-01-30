@@ -28,6 +28,7 @@
 #include <init/tt_profile.h>
 #include <io/tt_io_event.h>
 #include <io/tt_ipc.h>
+#include <io/tt_socket.h>
 #include <os/tt_fiber.h>
 #include <os/tt_fiber_event.h>
 #include <os/tt_task.h>
@@ -114,6 +115,8 @@ enum
     __IPC_CONNECT,
     __IPC_SEND,
     __IPC_RECV,
+    __IPC_SENDSKT,
+    __IPC_RECVSKT,
 
     __IPC_EV_NUM,
 };
@@ -169,6 +172,29 @@ typedef struct
     tt_bool_t done : 1;
 } __ipc_recv_t;
 
+typedef struct
+{
+    tt_io_ev_t io_ev;
+
+    tt_ipc_ntv_t *ipc;
+    tt_skt_t *skt;
+
+    tt_result_t result;
+    int ep;
+} __ipc_sendskt_t;
+
+typedef struct
+{
+    tt_io_ev_t io_ev;
+
+    tt_ipc_ntv_t *ipc;
+    tt_skt_t **p_skt;
+
+    tt_result_t result;
+    int ep;
+    tt_bool_t done : 1;
+} __ipc_recvskt_t;
+
 ////////////////////////////////////////////////////////////
 // extern declaration
 ////////////////////////////////////////////////////////////
@@ -187,8 +213,18 @@ static tt_bool_t __do_send(IN tt_io_ev_t *io_ev);
 
 static tt_bool_t __do_recv(IN tt_io_ev_t *io_ev);
 
+static tt_bool_t __do_sendskt(IN tt_io_ev_t *io_ev);
+
+static tt_bool_t __do_recvskt(IN tt_io_ev_t *io_ev);
+
 static tt_poller_io_t __ipc_poller_io[__IPC_EV_NUM] = {
-    __do_null, __do_accept, __do_connect, __do_send, __do_recv,
+    __do_null,
+    __do_accept,
+    __do_connect,
+    __do_send,
+    __do_recv,
+    __do_sendskt,
+    __do_recvskt,
 };
 
 static tt_io_ev_t __s_null_io_ev;
@@ -201,6 +237,9 @@ static tt_result_t __init_ipc_addr(IN struct sockaddr_un *saun,
                                    IN const tt_char_t *addr);
 
 static int __ipc_ev_init(IN tt_io_ev_t *io_ev, IN tt_u32_t ev);
+
+static void __handle_cmsg(IN __ipc_recvskt_t *ipc_recvskt,
+                          IN struct msghdr *msg);
 
 ////////////////////////////////////////////////////////////
 // interface implementation
@@ -406,7 +445,7 @@ tt_result_t tt_ipc_recv_ntv(IN tt_ipc_ntv_t *ipc,
                             IN tt_u32_t len,
                             OUT tt_u32_t *recvd,
                             OUT tt_fiber_ev_t **p_fev,
-                            OUT struct tt_tmr_s **p_tmr)
+                            OUT tt_tmr_t **p_tmr)
 {
     __ipc_recv_t ipc_recv;
     int ep;
@@ -447,6 +486,71 @@ tt_result_t tt_ipc_recv_ntv(IN tt_ipc_ntv_t *ipc,
     }
 
     return ipc_recv.result;
+}
+
+tt_result_t tt_ipc_sendskt_ntv(IN tt_ipc_ntv_t *ipc, IN TO tt_skt_t *skt)
+{
+    __ipc_sendskt_t ipc_sendskt;
+    int ep;
+
+    ep = __ipc_ev_init(&ipc_sendskt.io_ev, __IPC_SENDSKT);
+
+    ipc_sendskt.ipc = ipc;
+    ipc_sendskt.skt = skt;
+
+    ipc_sendskt.result = TT_FAIL;
+    ipc_sendskt.ep = ep;
+
+    tt_ep_write(ep, ipc->s, &ipc_sendskt.io_ev);
+    tt_fiber_suspend();
+    if (TT_OK(ipc_sendskt.result)) {
+        tt_skt_destroy(skt);
+    }
+    return ipc_sendskt.result;
+}
+
+tt_result_t tt_ipc_recvskt_ntv(IN tt_ipc_ntv_t *ipc,
+                               OUT tt_fiber_ev_t **p_fev,
+                               OUT tt_tmr_t **p_tmr,
+                               OUT tt_skt_t **p_skt)
+{
+    __ipc_recvskt_t ipc_recvskt;
+    int ep;
+    tt_fiber_t *cfb;
+
+    *p_fev = NULL;
+    *p_tmr = NULL;
+    *p_skt = NULL;
+
+    ep = __ipc_ev_init(&ipc_recvskt.io_ev, __IPC_RECVSKT);
+    cfb = ipc_recvskt.io_ev.src;
+
+    if (tt_fiber_recv(cfb, TT_FALSE, p_fev, p_tmr)) {
+        return TT_SUCCESS;
+    }
+
+    ipc_recvskt.ipc = ipc;
+    ipc_recvskt.p_skt = p_skt;
+
+    ipc_recvskt.result = TT_FAIL;
+    ipc_recvskt.ep = ep;
+    ipc_recvskt.done = TT_FALSE;
+
+    tt_ep_read(ep, ipc->s, &ipc_recvskt.io_ev);
+
+    cfb->recving = TT_TRUE;
+    tt_fiber_suspend();
+    cfb->recving = TT_FALSE;
+
+    if (!ipc_recvskt.done) {
+        tt_ep_unread(ep, ipc->s, &__s_null_io_ev);
+    }
+
+    if (tt_fiber_recv(cfb, TT_FALSE, p_fev, p_tmr)) {
+        ipc_recvskt.result = TT_SUCCESS;
+    }
+
+    return ipc_recvskt.result;
 }
 
 void tt_ipc_worker_io(IN tt_io_ev_t *io_ev)
@@ -717,6 +821,166 @@ again:
     }
     ipc_recv->done = TT_TRUE;
     return TT_TRUE;
+}
+
+tt_bool_t __do_sendskt(IN tt_io_ev_t *io_ev)
+{
+    __ipc_sendskt_t *ipc_sendskt = (__ipc_sendskt_t *)io_ev;
+
+    struct msghdr msg = {0};
+    char c = '$';
+    struct iovec iov;
+    tt_u8_t buf[CMSG_SPACE(sizeof(int))];
+    struct cmsghdr *cmsg;
+    ssize_t n;
+
+    // linux even does not allow 0 length iov
+    iov.iov_base = &c;
+    iov.iov_len = sizeof(c);
+    msg.msg_iov = &iov;
+    msg.msg_iovlen = 1;
+
+    msg.msg_control = &buf;
+    msg.msg_controllen = sizeof(buf);
+    cmsg = CMSG_FIRSTHDR(&msg);
+    cmsg->cmsg_len = CMSG_LEN(sizeof(int));
+    cmsg->cmsg_level = SOL_SOCKET;
+    cmsg->cmsg_type = SCM_RIGHTS;
+    *(int *)CMSG_DATA(cmsg) = ipc_sendskt->skt->sys_skt.s;
+
+again:
+    n = sendmsg(ipc_sendskt->ipc->s, &msg, 0);
+    if (n > 0) {
+        // returning 0 would be an error
+        ipc_sendskt->result = TT_SUCCESS;
+        return TT_TRUE;
+    } else if (errno == EINTR) {
+        goto again;
+    } else if ((errno == EAGAIN) || (errno == EWOULDBLOCK)) {
+        tt_ep_write(ipc_sendskt->ep, ipc_sendskt->ipc->s, io_ev);
+        return TT_FALSE;
+    }
+
+    // error
+    TT_ERROR_NTV("ipc sendmsg failed");
+    ipc_sendskt->result = TT_FAIL;
+    return TT_TRUE;
+}
+
+tt_bool_t __do_recvskt(IN tt_io_ev_t *io_ev)
+{
+    __ipc_recvskt_t *ipc_recvskt = (__ipc_recvskt_t *)io_ev;
+
+    struct msghdr msg = {0};
+    char c;
+    struct iovec iov;
+    tt_u8_t buf[CMSG_SPACE(sizeof(int))];
+    ssize_t n;
+
+    iov.iov_base = &c;
+    iov.iov_len = sizeof(c);
+    msg.msg_iov = &iov;
+    msg.msg_iovlen = 1;
+
+    msg.msg_control = &buf;
+    msg.msg_controllen = sizeof(buf);
+
+again:
+    n = recvmsg(ipc_recvskt->ipc->s, &msg, 0);
+    if (n > 0) {
+        __handle_cmsg(ipc_recvskt, &msg);
+        ipc_recvskt->result =
+            TT_COND(*ipc_recvskt->p_skt != NULL, TT_SUCCESS, TT_FAIL);
+        ipc_recvskt->done = TT_TRUE;
+        return TT_TRUE;
+    } else if (n == 0) {
+        __handle_cmsg(ipc_recvskt, &msg);
+        ipc_recvskt->result =
+            TT_COND(*ipc_recvskt->p_skt != NULL, TT_SUCCESS, TT_E_END);
+        ipc_recvskt->done = TT_TRUE;
+        return TT_TRUE;
+    } else if (errno == EINTR) {
+        goto again;
+    } else if ((errno == EAGAIN) || (errno == EWOULDBLOCK)) {
+        tt_ep_read(ipc_recvskt->ep, ipc_recvskt->ipc->s, io_ev);
+        return TT_FALSE;
+    }
+
+    // error
+    if (errno == ECONNRESET
+        // || (errno == ENETDOWN)
+        ) {
+        ipc_recvskt->result = TT_E_END;
+    } else {
+        TT_ERROR_NTV("ipc recvmsg failed");
+        ipc_recvskt->result = TT_FAIL;
+    }
+    ipc_recvskt->done = TT_TRUE;
+    return TT_TRUE;
+}
+
+void __handle_cmsg(IN __ipc_recvskt_t *ipc_recvskt, IN struct msghdr *msg)
+{
+    struct cmsghdr *cmsg;
+
+    TT_ASSERT(*ipc_recvskt->p_skt == NULL);
+
+    for (cmsg = CMSG_FIRSTHDR(msg); cmsg != NULL;
+         cmsg = CMSG_NXTHDR(msg, cmsg)) {
+        int s;
+        tt_skt_t *skt;
+        int flag;
+        struct epoll_event event;
+
+        if ((cmsg->cmsg_len < CMSG_LEN(sizeof(int))) ||
+            (cmsg->cmsg_level != SOL_SOCKET) ||
+            (cmsg->cmsg_type != SCM_RIGHTS)) {
+            continue;
+        }
+
+        s = *(int *)CMSG_DATA(cmsg);
+
+        if (*ipc_recvskt->p_skt != NULL) {
+            // actually it may not come here, as msg_controllen passed
+            // to recvmsg is only enough for receiving 1 socket
+            TT_ERROR("ipc recved skt was lost");
+            __RETRY_IF_EINTR(close(s));
+            continue;
+        }
+
+        // refer tt_skt_create_ntv()
+        if (((flag = fcntl(s, F_GETFL, 0)) == -1) ||
+            (fcntl(s, F_SETFL, flag | O_NONBLOCK) == -1)) {
+            TT_ERROR_NTV("fail to set O_NONBLOCK");
+            __RETRY_IF_EINTR(close(s));
+            continue;
+        }
+
+        if (((flag = fcntl(s, F_GETFD, 0)) == -1) ||
+            (fcntl(s, F_SETFD, flag | FD_CLOEXEC) == -1)) {
+            TT_ERROR_NTV("fail to set FD_CLOEXEC");
+            __RETRY_IF_EINTR(close(s));
+            continue;
+        }
+
+        event.events = EPOLLRDHUP | EPOLLONESHOT;
+        event.data.ptr = &__s_null_io_ev;
+        if (epoll_ctl(ipc_recvskt->ep, EPOLL_CTL_ADD, s, &event) != 0) {
+            TT_ERROR_NTV("fail to add skt to epoll");
+            __RETRY_IF_EINTR(close(s));
+            continue;
+        }
+
+        skt = tt_malloc(sizeof(tt_skt_t));
+        if (skt == NULL) {
+            TT_ERROR("no mem for new skt");
+            __RETRY_IF_EINTR(close(s));
+            continue;
+        }
+        skt->sys_skt.s = s;
+
+        *ipc_recvskt->p_skt = skt;
+    }
 }
 
 #ifdef __SIMU_FAIL_SOCKET
