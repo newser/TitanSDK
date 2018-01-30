@@ -85,9 +85,6 @@ extern tt_result_t tt_ipc_send_ntv(IN tt_ipc_ntv_t *ipc,
                                    IN tt_u32_t len,
                                    OUT OPT tt_u32_t *sent);
 
-extern tt_result_t tt_ipc_sendskt_ntv(IN tt_ipc_ntv_t *ipc,
-                                      IN TO struct tt_skt_s *skt);
-
 extern tt_result_t tt_ipc_recv_ntv(IN tt_ipc_ntv_t *ipc,
                                    OUT tt_u8_t *buf,
                                    IN tt_u32_t len,
@@ -95,13 +92,13 @@ extern tt_result_t tt_ipc_recv_ntv(IN tt_ipc_ntv_t *ipc,
                                    OUT tt_fiber_ev_t **p_fev,
                                    OUT struct tt_tmr_s **p_tmr);
 
+extern tt_result_t tt_ipc_sendskt_ntv(IN tt_ipc_ntv_t *ipc,
+                                      IN TO struct tt_skt_s *skt);
+
 extern tt_result_t tt_ipc_recvskt_ntv(IN tt_ipc_ntv_t *ipc,
-                                      OUT tt_u8_t *buf,
-                                      IN tt_u32_t len,
-                                      OUT OPT tt_u32_t *recvd,
                                       OUT tt_fiber_ev_t **p_fev,
                                       OUT struct tt_tmr_s **p_tmr,
-                                      OUT FROM struct tt_skt_s **p_skt);
+                                      OUT struct tt_skt_s **p_skt);
 
 extern void tt_ipc_worker_io(IN struct tt_io_ev_s *io_ev);
 

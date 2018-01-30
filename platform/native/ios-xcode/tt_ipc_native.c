@@ -153,17 +153,6 @@ typedef struct
     tt_io_ev_t io_ev;
 
     tt_ipc_ntv_t *ipc;
-    tt_skt_t *skt;
-
-    tt_result_t result;
-    tt_u32_t kq;
-} __ipc_sendskt_t;
-
-typedef struct
-{
-    tt_io_ev_t io_ev;
-
-    tt_ipc_ntv_t *ipc;
     tt_u8_t *buf;
     tt_u32_t *recvd;
     tt_u32_t len;
@@ -178,10 +167,18 @@ typedef struct
     tt_io_ev_t io_ev;
 
     tt_ipc_ntv_t *ipc;
-    tt_u8_t *buf;
-    tt_u32_t *recvd;
+    tt_skt_t *skt;
+
+    tt_result_t result;
+    tt_u32_t kq;
+} __ipc_sendskt_t;
+
+typedef struct
+{
+    tt_io_ev_t io_ev;
+
+    tt_ipc_ntv_t *ipc;
     tt_skt_t **p_skt;
-    tt_u32_t len;
 
     tt_result_t result;
     tt_u32_t kq;
@@ -394,27 +391,6 @@ tt_result_t tt_ipc_send_ntv(IN tt_ipc_ntv_t *ipc,
     return ipc_send.result;
 }
 
-tt_result_t tt_ipc_sendskt_ntv(IN tt_ipc_ntv_t *ipc, IN TO tt_skt_t *skt)
-{
-    __ipc_sendskt_t ipc_sendskt;
-    int kq;
-
-    kq = __ipc_ev_init(&ipc_sendskt.io_ev, __IPC_SENDSKT);
-
-    ipc_sendskt.ipc = ipc;
-    ipc_sendskt.skt = skt;
-
-    ipc_sendskt.result = TT_FAIL;
-    ipc_sendskt.kq = kq;
-
-    tt_kq_write(kq, ipc->s, &ipc_sendskt.io_ev);
-    tt_fiber_suspend();
-    if (TT_OK(ipc_sendskt.result)) {
-        tt_skt_destroy(skt);
-    }
-    return ipc_sendskt.result;
-}
-
 tt_result_t tt_ipc_recv_ntv(IN tt_ipc_ntv_t *ipc,
                             OUT tt_u8_t *buf,
                             IN tt_u32_t len,
@@ -463,19 +439,36 @@ tt_result_t tt_ipc_recv_ntv(IN tt_ipc_ntv_t *ipc,
     return ipc_recv.result;
 }
 
+tt_result_t tt_ipc_sendskt_ntv(IN tt_ipc_ntv_t *ipc, IN TO tt_skt_t *skt)
+{
+    __ipc_sendskt_t ipc_sendskt;
+    int kq;
+
+    kq = __ipc_ev_init(&ipc_sendskt.io_ev, __IPC_SENDSKT);
+
+    ipc_sendskt.ipc = ipc;
+    ipc_sendskt.skt = skt;
+
+    ipc_sendskt.result = TT_FAIL;
+    ipc_sendskt.kq = kq;
+
+    tt_kq_write(kq, ipc->s, &ipc_sendskt.io_ev);
+    tt_fiber_suspend();
+    if (TT_OK(ipc_sendskt.result)) {
+        tt_skt_destroy(skt);
+    }
+    return ipc_sendskt.result;
+}
+
 tt_result_t tt_ipc_recvskt_ntv(IN tt_ipc_ntv_t *ipc,
-                               OUT tt_u8_t *buf,
-                               IN tt_u32_t len,
-                               OUT OPT tt_u32_t *recvd,
                                OUT tt_fiber_ev_t **p_fev,
                                OUT tt_tmr_t **p_tmr,
-                               OUT FROM tt_skt_t **p_skt)
+                               OUT tt_skt_t **p_skt)
 {
     __ipc_recvskt_t ipc_recvskt;
     int kq;
     tt_fiber_t *cfb;
 
-    TT_SAFE_ASSIGN(recvd, 0);
     *p_fev = NULL;
     *p_tmr = NULL;
     *p_skt = NULL;
@@ -488,9 +481,6 @@ tt_result_t tt_ipc_recvskt_ntv(IN tt_ipc_ntv_t *ipc,
     }
 
     ipc_recvskt.ipc = ipc;
-    ipc_recvskt.buf = buf;
-    ipc_recvskt.len = len;
-    ipc_recvskt.recvd = recvd;
     ipc_recvskt.p_skt = p_skt;
 
     ipc_recvskt.result = TT_FAIL;
@@ -764,14 +754,15 @@ tt_bool_t __do_sendskt(IN tt_io_ev_t *io_ev)
     __ipc_sendskt_t *ipc_sendskt = (__ipc_sendskt_t *)io_ev;
 
     struct msghdr msg = {0};
+    char c = '$';
     struct iovec iov;
     tt_u8_t buf[CMSG_SPACE(sizeof(int))];
     struct cmsghdr *cmsg;
     ssize_t n;
 
-    // sendmsg require an iov, set len to 0 as no data to be sent
-    iov.iov_base = &n;
-    iov.iov_len = 0;
+    // send a byte for safety
+    iov.iov_base = &c;
+    iov.iov_len = sizeof(c);
     msg.msg_iov = &iov;
     msg.msg_iovlen = 1;
 
@@ -785,7 +776,8 @@ tt_bool_t __do_sendskt(IN tt_io_ev_t *io_ev)
 
 again:
     n = sendmsg(ipc_sendskt->ipc->s, &msg, 0);
-    if (n >= 0) {
+    if (n > 0) {
+        // returning 0 would be an error
         ipc_sendskt->result = TT_SUCCESS;
         return TT_TRUE;
     } else if (errno == EINTR) {
@@ -806,12 +798,13 @@ tt_bool_t __do_recvskt(IN tt_io_ev_t *io_ev)
     __ipc_recvskt_t *ipc_recvskt = (__ipc_recvskt_t *)io_ev;
 
     struct msghdr msg = {0};
+    char c;
     struct iovec iov;
     tt_u8_t buf[CMSG_SPACE(sizeof(int))];
     ssize_t n;
 
-    iov.iov_base = ipc_recvskt->buf;
-    iov.iov_len = ipc_recvskt->len;
+    iov.iov_base = &c;
+    iov.iov_len = sizeof(c);
     msg.msg_iov = &iov;
     msg.msg_iovlen = 1;
 
@@ -821,10 +814,10 @@ tt_bool_t __do_recvskt(IN tt_io_ev_t *io_ev)
 again:
     n = recvmsg(ipc_recvskt->ipc->s, &msg, 0);
     if (n > 0) {
-        TT_SAFE_ASSIGN(ipc_recvskt->recvd, (tt_u32_t)n);
-        ipc_recvskt->result = TT_SUCCESS;
-        ipc_recvskt->done = TT_TRUE;
         __handle_cmsg(ipc_recvskt, &msg);
+        ipc_recvskt->result =
+            TT_COND(*ipc_recvskt->p_skt != NULL, TT_SUCCESS, TT_FAIL);
+        ipc_recvskt->done = TT_TRUE;
         return TT_TRUE;
     } else if (n == 0) {
         __handle_cmsg(ipc_recvskt, &msg);
@@ -845,7 +838,7 @@ again:
         ) {
         ipc_recvskt->result = TT_E_END;
     } else {
-        TT_ERROR_NTV("recvmsg failed");
+        TT_ERROR_NTV("ipc recvmsg failed");
         ipc_recvskt->result = TT_FAIL;
     }
     ipc_recvskt->done = TT_TRUE;
@@ -862,6 +855,8 @@ void __handle_cmsg(IN __ipc_recvskt_t *ipc_recvskt, IN struct msghdr *msg)
          cmsg = CMSG_NXTHDR(msg, cmsg)) {
         int s;
         tt_skt_t *skt;
+        int nosigpipe = 1;
+        int flag;
 
         if ((cmsg->cmsg_len < CMSG_LEN(sizeof(int))) ||
             (cmsg->cmsg_level != SOL_SOCKET) ||
@@ -872,10 +867,34 @@ void __handle_cmsg(IN __ipc_recvskt_t *ipc_recvskt, IN struct msghdr *msg)
         s = *(int *)CMSG_DATA(cmsg);
 
         if (*ipc_recvskt->p_skt != NULL) {
-            // actually it may not come here, as msg_controllen passed to
-            // recvmsg
-            // is only enough for receiving 1 socket
+            // actually it may not come here, as msg_controllen passed
+            // to recvmsg is only enough for receiving 1 socket
             TT_ERROR("ipc recved skt was lost");
+            __RETRY_IF_EINTR(close(s));
+            continue;
+        }
+
+        // refer tt_skt_create_ntv()
+        if (setsockopt(s,
+                       SOL_SOCKET,
+                       SO_NOSIGPIPE,
+                       &nosigpipe,
+                       sizeof(nosigpipe)) != 0) {
+            TT_ERROR_NTV("fail to set SO_NOSIGPIPE");
+            __RETRY_IF_EINTR(close(s));
+            continue;
+        }
+
+        if (((flag = fcntl(s, F_GETFL, 0)) == -1) ||
+            (fcntl(s, F_SETFL, flag | O_NONBLOCK) == -1)) {
+            TT_ERROR_NTV("fail to set O_NONBLOCK");
+            __RETRY_IF_EINTR(close(s));
+            continue;
+        }
+
+        if (((flag = fcntl(s, F_GETFD, 0)) == -1) ||
+            (fcntl(s, F_SETFD, flag | FD_CLOEXEC) == -1)) {
+            TT_ERROR_NTV("fail to set FD_CLOEXEC");
             __RETRY_IF_EINTR(close(s));
             continue;
         }
