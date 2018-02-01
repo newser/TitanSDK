@@ -112,33 +112,27 @@ tt_inline tt_result_t tt_ipc_send(IN tt_ipc_t *ipc,
     }
 }
 
+// windows can not receive skt via this function, try tt_ipc_recv_ev() instead
 tt_inline tt_result_t tt_ipc_recv(IN tt_ipc_t *ipc,
                                   OUT tt_u8_t *buf,
                                   IN tt_u32_t len,
                                   OUT OPT tt_u32_t *recvd,
                                   OUT tt_fiber_ev_t **p_fev,
-                                  OUT struct tt_tmr_s **p_tmr)
+                                  OUT struct tt_tmr_s **p_tmr,
+                                  OUT struct tt_skt_s **p_skt)
 {
     if (len != 0) {
-        return tt_ipc_recv_ntv(&ipc->sys_ipc, buf, len, recvd, p_fev, p_tmr);
+        return tt_ipc_recv_ntv(&ipc->sys_ipc,
+                               buf,
+                               len,
+                               recvd,
+                               p_fev,
+                               p_tmr,
+                               p_skt);
     } else {
         TT_ERROR("ipc recv buf len can not be 0");
         return TT_FAIL;
     }
-}
-
-tt_inline tt_result_t tt_ipc_sendskt(IN tt_ipc_t *ipc,
-                                     IN TO struct tt_skt_s *skt)
-{
-    return tt_ipc_sendskt_ntv(&ipc->sys_ipc, skt);
-}
-
-tt_inline tt_result_t tt_ipc_recvskt(IN tt_ipc_t *ipc,
-                                     OUT tt_fiber_ev_t **p_fev,
-                                     OUT struct tt_tmr_s **p_tmr,
-                                     OUT struct tt_skt_s **p_skt)
-{
-    return tt_ipc_recvskt_ntv(&ipc->sys_ipc, p_fev, p_tmr, p_skt);
 }
 
 // note linux abstract socket, returned addr may not be a null-terminated string

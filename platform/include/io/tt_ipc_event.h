@@ -42,12 +42,20 @@
 
 struct tt_ipc_s;
 struct tt_tmr_s;
+struct tt_skt_s;
 
 typedef struct tt_ipc_ev_s
 {
     tt_u32_t ev;
     tt_u32_t size;
 } tt_ipc_ev_t;
+
+enum
+{
+    __IPC_INTERNAL_EV = (0x3 << 30),
+
+    __IPC_INTERNAL_EV_SKT,
+};
 
 ////////////////////////////////////////////////////////////
 // global variants
@@ -75,6 +83,10 @@ tt_export tt_result_t tt_ipc_send_ev(IN struct tt_ipc_s *dst,
 tt_export tt_result_t tt_ipc_recv_ev(IN struct tt_ipc_s *ipc,
                                      OUT tt_ipc_ev_t **p_pev,
                                      OUT tt_fiber_ev_t **p_fev,
-                                     OUT struct tt_tmr_s **p_tmr);
+                                     OUT struct tt_tmr_s **p_tmr,
+                                     OUT struct tt_skt_s **p_skt);
+
+tt_export tt_result_t tt_ipc_send_skt(IN struct tt_ipc_s *ipc,
+                                      IN TO struct tt_skt_s *skt);
 
 #endif // __TT_IPC_EVENT__

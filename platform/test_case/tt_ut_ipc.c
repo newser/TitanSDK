@@ -173,6 +173,7 @@ tt_export tt_result_t __ipc_cli_1(IN void *param)
     tt_tmr_t *tmr;
     tt_char_t addr[200];
     tt_result_t ret;
+    tt_skt_t *skt;
 
     cn = 0;
     while (cn++ < __CONN_NUM) {
@@ -258,7 +259,7 @@ tt_export tt_result_t __ipc_cli_1(IN void *param)
                                        sizeof(rbuf) - len,
                                        &n,
                                        &fev,
-                                       &tmr))) {
+                                       &tmr, &skt))) {
                     TT_INFO_IPC("err %d", __LINE__);
                     __err_line = __LINE__;
                     return TT_FAIL;
@@ -288,6 +289,7 @@ tt_export tt_result_t __ipc_svr_1(IN void *param)
     tt_fiber_ev_t *fev;
     tt_tmr_t *tmr;
     tt_char_t addr[200];
+    tt_skt_t *skt;
 
     (void)rn;
 
@@ -367,7 +369,7 @@ tt_export tt_result_t __ipc_svr_1(IN void *param)
                                         sizeof(rbuf) - len,
                                         &n,
                                         &fev,
-                                        &tmr)))) {
+                                        &tmr, &skt)))) {
             len += n;
             if (len < sizeof(rbuf)) {
                 continue;
@@ -462,6 +464,7 @@ static tt_result_t __ipc_svr_acc_2(IN void *param)
     tt_result_t ret;
     tt_fiber_ev_t *fev;
     tt_tmr_t *tmr;
+    tt_skt_t *skt;
 
     rn = 0;
     (void)rn;
@@ -470,7 +473,7 @@ static tt_result_t __ipc_svr_acc_2(IN void *param)
                                     sizeof(rbuf) - len,
                                     &n,
                                     &fev,
-                                    &tmr)))) {
+                                    &tmr, &skt)))) {
         len += n;
         if (len < sizeof(rbuf)) {
             continue;
@@ -631,6 +634,7 @@ tt_export tt_result_t __ipc_cli_oneshot(IN void *param)
     tt_u32_t n, len, rn;
     tt_fiber_ev_t *fev;
     tt_tmr_t *tmr;
+    tt_skt_t *skt;
 
     ipc = tt_ipc_create(NULL, NULL);
     if (ipc == NULL) {
@@ -660,7 +664,7 @@ tt_export tt_result_t __ipc_cli_oneshot(IN void *param)
 
         len = 0;
         while (len < sizeof(rbuf)) {
-            if (!TT_OK(tt_ipc_recv(ipc, rbuf, sizeof(rbuf), &n, &fev, &tmr))) {
+            if (!TT_OK(tt_ipc_recv(ipc, rbuf, sizeof(rbuf), &n, &fev, &tmr, &skt))) {
                 __err_line = __LINE__;
                 return TT_FAIL;
             }
@@ -742,6 +746,7 @@ tt_result_t __ipc_svr_fev(IN void *param)
     tt_fiber_ev_t *fev;
     tt_fiber_t *cfb = tt_current_fiber();
     tt_tmr_t *tmr, *e_tmr;
+    tt_skt_t *skt;
 
     (void)rn;
 
@@ -796,7 +801,7 @@ tt_result_t __ipc_svr_fev(IN void *param)
                                         sizeof(rbuf) - len,
                                         &n,
                                         &fev,
-                                        &e_tmr)))) {
+                                        &e_tmr, &skt)))) {
             if (fev != NULL) {
                 if (fev->src != NULL) {
                     if (fev->ev != 0xaabbccdd) {
@@ -974,6 +979,7 @@ tt_export tt_result_t __ipc_cli_pev(IN void *param)
     tt_result_t ret;
     tt_fiber_ev_t *fev;
     tt_tmr_t *tmr;
+    tt_skt_t *skt;
 
     cn = 0;
     while (cn++ < __CONN_NUM) {
@@ -1022,7 +1028,7 @@ tt_export tt_result_t __ipc_cli_pev(IN void *param)
                         n,
                         ___ipc_cli_sent);
 
-            if (TT_OK((ret = tt_ipc_recv_ev(ipc, &pev, &fev, &tmr)))) {
+            if (TT_OK((ret = tt_ipc_recv_ev(ipc, &pev, &fev, &tmr, &skt)))) {
                 if (pev != NULL) {
                     tt_u8_t *pev_data = TT_IPC_EV_CAST(pev, tt_u8_t);
                     tt_u32_t i;
@@ -1061,6 +1067,7 @@ tt_result_t __ipc_svr_pev_fev(IN void *param)
     tt_fiber_t *cfb = tt_current_fiber();
     tt_ipc_ev_t *pev;
     tt_tmr_t *tmr, *e_tmr;
+    tt_skt_t *skt;
 
     (void)rn;
 
@@ -1101,7 +1108,7 @@ tt_result_t __ipc_svr_pev_fev(IN void *param)
         TT_INFO_IPC("ipc accepted %d", cn);
 
         rn = 0;
-        while (TT_OK((ret = tt_ipc_recv_ev(new_ipc, &pev, &fev, &e_tmr)))) {
+        while (TT_OK((ret = tt_ipc_recv_ev(new_ipc, &pev, &fev, &e_tmr, &skt)))) {
             if (fev != NULL) {
                 TT_INFO_IPC("[%d:%d] svr recv fiber ev %x", cn, rn, fev->ev);
                 if (fev->src != NULL) {
@@ -1289,8 +1296,6 @@ TT_TEST_ROUTINE_DEFINE(case_ipc_ev)
 static tt_result_t __ipc_tcp_svr1(IN void *param)
 {
     tt_skt_t *s, *new_s;
-    tt_fiber_t *fb;
-    tt_u32_t i;
     tt_fiber_ev_t *p_fev;
     tt_tmr_t *p_tmr;
     tt_ipc_t *ipc;
@@ -1321,7 +1326,7 @@ static tt_result_t __ipc_tcp_svr1(IN void *param)
         goto out;
     }
 
-    if (!TT_OK(tt_ipc_sendskt(ipc, new_s))) {
+    if (!TT_OK(tt_ipc_send_skt(ipc, new_s))) {
         __err_line = __LINE__;
         goto out;
     }
@@ -1398,6 +1403,7 @@ tt_export tt_result_t __ipc_skt(IN void *param)
     tt_fiber_ev_t *fev;
     tt_tmr_t *tmr;
     tt_skt_t *tcp = NULL;
+    tt_ipc_ev_t *pev;
 
     ipc = tt_ipc_create(__IPC_PATH, NULL);
     if (ipc == NULL) {
@@ -1412,8 +1418,9 @@ tt_export tt_result_t __ipc_skt(IN void *param)
     }
     TT_INFO("accept an ipc");
 
-    ret = tt_ipc_recvskt(new_ipc, &fev, &tmr, &tcp);
+    ret = tt_ipc_recv_ev(new_ipc, &pev, &fev, &tmr, &tcp);
     TT_INFO("tt_ipc_recvskt returned: %d", ret);
+    //tt_sleep(5000);
     if (!TT_OK(ret)) {
         __err_line = __LINE__;
         return TT_FAIL;

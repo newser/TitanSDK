@@ -23,6 +23,7 @@
 #include <io/tt_ipc_event.h>
 
 #include <io/tt_ipc.h>
+#include <io/tt_socket.h>
 #include <memory/tt_memory_alloc.h>
 #include <os/tt_fiber_event.h>
 #include <time/tt_timer.h>
@@ -79,16 +80,30 @@ void tt_ipc_ev_destroy(IN tt_ipc_ev_t *pev)
 
 tt_result_t tt_ipc_send_ev(IN tt_ipc_t *dst, IN tt_ipc_ev_t *pev)
 {
-    return tt_ipc_send(dst,
-                       (tt_u8_t *)pev,
-                       sizeof(tt_ipc_ev_t) + pev->size,
-                       NULL);
+    tt_u32_t n, len, sent;
+
+    n = 0;
+    len = (tt_u32_t)sizeof(tt_ipc_ev_t) + pev->size;
+    while (TT_OK(tt_ipc_send_ntv(&dst->sys_ipc,
+                                 TT_PTR_INC(tt_u8_t, pev, n),
+                                 len - n,
+                                 &sent)) &&
+           ((n += sent) < len)) {
+    }
+    TT_ASSERT(n <= len);
+    if (n == len) {
+        return TT_SUCCESS;
+    } else {
+        TT_FATAL("ipc data flow may be inconsistent");
+        return TT_FAIL;
+    }
 }
 
 tt_result_t tt_ipc_recv_ev(IN tt_ipc_t *ipc,
                            OUT tt_ipc_ev_t **p_pev,
                            OUT tt_fiber_ev_t **p_fev,
-                           OUT struct tt_tmr_s **p_tmr)
+                           OUT tt_tmr_t **p_tmr,
+                           OUT tt_skt_t **p_skt)
 {
     tt_buf_t *buf = &ipc->buf;
     tt_u8_t *p;
@@ -98,9 +113,13 @@ tt_result_t tt_ipc_recv_ev(IN tt_ipc_t *ipc,
     *p_pev = NULL;
     *p_fev = NULL;
     *p_tmr = NULL;
+    *p_skt = NULL;
 
-    // must first try parsing an ev, as all data may alreay arrive
-    if ((*p_pev = __parse_ipc_ev(buf)) != NULL) {
+    // - must first try parsing an ev, as all data may alreay arrive
+    // - should keep parsing if tt_ipc_handle_internal_ev() fail, as
+    //   the it must be an internal event and should not return to caller
+    while (((*p_pev = __parse_ipc_ev(buf)) != NULL) &&
+           TT_OK(tt_ipc_handle_internal_ev(p_pev, p_skt))) {
         return TT_SUCCESS;
     }
 
@@ -112,16 +131,18 @@ tt_result_t tt_ipc_recv_ev(IN tt_ipc_t *ipc,
         return TT_FAIL;
     }
     tt_buf_get_wptr(buf, &p, &len);
-    while (TT_OK(result = tt_ipc_recv(ipc, p, len, &recvd, p_fev, p_tmr))) {
+    while (
+        TT_OK(result = tt_ipc_recv(ipc, p, len, &recvd, p_fev, p_tmr, p_skt))) {
         if (recvd != 0) {
             tt_buf_inc_wp(buf, recvd);
-            if ((*p_pev = __parse_ipc_ev(buf)) != NULL) {
+            if (((*p_pev = __parse_ipc_ev(buf)) != NULL) &&
+                TT_OK(tt_ipc_handle_internal_ev(p_pev, p_skt))) {
                 // p_fev and p_tmr may already be set
                 return TT_SUCCESS;
             }
         }
 
-        if ((*p_fev != NULL) || (*p_tmr != NULL)) {
+        if ((*p_fev != NULL) || (*p_tmr != NULL) || (*p_skt != NULL)) {
             return TT_SUCCESS;
         }
 
@@ -137,6 +158,17 @@ tt_result_t tt_ipc_recv_ev(IN tt_ipc_t *ipc,
         TT_ERROR("ipc data may be broken");
     }
     return result;
+}
+
+tt_result_t tt_ipc_send_skt(IN tt_ipc_t *ipc, IN TO tt_skt_t *skt)
+{
+    tt_result_t result = tt_ipc_send_skt_ntv(&ipc->sys_ipc, skt);
+    if (TT_OK(result)) {
+        tt_skt_destroy(skt);
+        return TT_SUCCESS;
+    } else {
+        return result;
+    }
 }
 
 tt_ipc_ev_t *__parse_ipc_ev(IN tt_buf_t *buf)

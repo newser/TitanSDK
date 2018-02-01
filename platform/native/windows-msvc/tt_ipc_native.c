@@ -24,6 +24,8 @@
 
 #include <io/tt_io_event.h>
 #include <io/tt_ipc.h>
+#include <io/tt_socket.h>
+#include <io/tt_ipc_event.h>
 #include <memory/tt_memory_alloc.h>
 #include <os/tt_fiber.h>
 #include <os/tt_fiber_event.h>
@@ -150,6 +152,14 @@ typedef struct
     tt_bool_t canceled : 1;
 } __ipc_recv_t;
 
+typedef struct
+{
+    tt_ipc_ev_t pev;
+
+    WSAPROTOCOL_INFOW info;
+    int af;
+} __pev_skt_t;
+
 ////////////////////////////////////////////////////////////
 // extern declaration
 ////////////////////////////////////////////////////////////
@@ -201,6 +211,7 @@ tt_result_t tt_ipc_create_ntv(IN tt_ipc_ntv_t *ipc,
     }
 
     ipc->pipe = INVALID_HANDLE_VALUE;
+    ipc->peer_pid = 0;
 
     // TODO: change attr
     ipc->in_buf_size = (1 << attr->recv_buf_attr.max_extend);
@@ -389,7 +400,8 @@ tt_result_t tt_ipc_recv_ntv(IN tt_ipc_ntv_t *ipc,
                             IN tt_u32_t len,
                             OUT tt_u32_t *recvd,
                             OUT tt_fiber_ev_t **p_fev,
-                            OUT tt_tmr_t **p_tmr)
+                            OUT tt_tmr_t **p_tmr,
+                            OUT tt_skt_t **p_skt)
 {
     __ipc_recv_t ipc_recv;
     tt_fiber_t *cfb;
@@ -398,6 +410,7 @@ tt_result_t tt_ipc_recv_ntv(IN tt_ipc_ntv_t *ipc,
     *recvd = 0;
     *p_fev = NULL;
     *p_tmr = NULL;
+    *p_skt = NULL;
 
     __ipc_ev_init(&ipc_recv.io_ev, __IPC_RECV);
     cfb = ipc_recv.io_ev.src;
@@ -454,6 +467,73 @@ tt_result_t tt_ipc_recv_ntv(IN tt_ipc_ntv_t *ipc,
         TT_ERROR_NTV("ipc recv fail");
         return TT_FAIL;
     }
+}
+
+tt_result_t tt_ipc_send_skt_ntv(IN tt_ipc_ntv_t *ipc, IN TO tt_skt_t *skt)
+{
+    __pev_skt_t pev_skt;
+
+    tt_ipc_ev_init(&pev_skt.pev,
+                   __IPC_INTERNAL_EV_SKT,
+                   sizeof(__pev_skt_t) - sizeof(tt_ipc_ev_t));
+
+    if ((ipc->peer_pid == 0) &&
+        !TT_COND(ipc->accepted,
+                 GetNamedPipeClientProcessId(ipc->pipe, &ipc->peer_pid),
+                 GetNamedPipeServerProcessId(ipc->pipe, &ipc->peer_pid))) {
+        TT_ERROR_NTV("fail to get pipe peer pid");
+        return TT_FAIL;
+    }
+    
+    if (WSADuplicateSocketW(skt->sys_skt.s, ipc->peer_pid, &pev_skt.info) != 0) {
+        TT_ERROR_NTV("fail to duplicate socket");
+        return TT_FAIL;
+    }
+
+    pev_skt.af = skt->sys_skt.af;
+
+    return tt_ipc_send_ev(TT_CONTAINER(ipc, tt_ipc_t, sys_ipc), &pev_skt.pev);
+}
+
+tt_result_t tt_ipc_handle_internal_ev(IN OUT tt_ipc_ev_t **p_pev,
+                                      OUT tt_skt_t **p_skt)
+{
+    __pev_skt_t *pev_skt;
+    SOCKET s;
+    tt_skt_t *skt;
+
+    *p_skt= NULL;
+
+    if ((*p_pev)->ev != __IPC_INTERNAL_EV_SKT) {
+        return TT_SUCCESS;
+    }
+
+    pev_skt = (__pev_skt_t*)*p_pev;
+    *p_pev = NULL;
+
+    s = WSASocketW(pev_skt->af, 
+                   SOCK_STREAM,
+                   IPPROTO_TCP,
+                   &pev_skt->info,
+                   0,
+                   WSA_FLAG_OVERLAPPED);
+    if (s == INVALID_SOCKET) {
+        TT_NET_ERROR_NTV("fail to create socket");
+        return TT_FAIL;
+    }
+
+    skt = tt_malloc(sizeof(tt_skt_t));
+    if (skt == NULL) {
+        TT_ERROR("no mem for new skt");
+        closesocket(s);
+        return TT_E_NOMEM;
+    }    
+    skt->sys_skt.s = s;
+    skt->sys_skt.af = pev_skt->af;
+    skt->sys_skt.iocp = TT_FALSE;
+
+    *p_skt = skt;
+    return TT_SUCCESS;
 }
 
 void tt_ipc_worker_io(IN tt_io_ev_t *io_ev)

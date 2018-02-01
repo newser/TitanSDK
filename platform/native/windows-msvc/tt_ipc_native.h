@@ -46,11 +46,14 @@ struct tt_tmr_s;
 struct tt_io_ev_s;
 struct tt_ipc_attr_s;
 struct tt_ipc_s;
+struct tt_skt_s;
+struct tt_ipc_ev_s;
 
 typedef struct
 {
     wchar_t *name;
     HANDLE pipe;
+    ULONG peer_pid;
     DWORD in_buf_size;
     DWORD out_buf_size;
     tt_bool_t accepted : 1;
@@ -93,7 +96,14 @@ extern tt_result_t tt_ipc_recv_ntv(IN tt_ipc_ntv_t *ipc,
                                    IN tt_u32_t len,
                                    OUT tt_u32_t *recvd,
                                    OUT tt_fiber_ev_t **p_fev,
-                                   OUT struct tt_tmr_s **p_tmr);
+                                   OUT struct tt_tmr_s **p_tmr,
+                                   OUT struct tt_skt_s **p_skt);
+
+extern tt_result_t tt_ipc_send_skt_ntv(IN tt_ipc_ntv_t *ipc,
+                                       IN TO struct tt_skt_s *skt);
+
+extern tt_result_t tt_ipc_handle_internal_ev(IN OUT struct tt_ipc_ev_s **p_pev,
+                                             OUT struct tt_skt_s **p_skt);
 
 extern void tt_ipc_worker_io(IN struct tt_io_ev_s *io_ev);
 

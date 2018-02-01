@@ -52,6 +52,7 @@ typedef struct tt_skt_ntv_s
 {
     SOCKET s;
     int af;
+    tt_bool_t iocp:1;
 } tt_skt_ntv_t;
 
 ////////////////////////////////////////////////////////////
