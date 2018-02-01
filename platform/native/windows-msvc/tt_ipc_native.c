@@ -24,8 +24,8 @@
 
 #include <io/tt_io_event.h>
 #include <io/tt_ipc.h>
-#include <io/tt_socket.h>
 #include <io/tt_ipc_event.h>
+#include <io/tt_socket.h>
 #include <memory/tt_memory_alloc.h>
 #include <os/tt_fiber.h>
 #include <os/tt_fiber_event.h>
@@ -484,8 +484,9 @@ tt_result_t tt_ipc_send_skt_ntv(IN tt_ipc_ntv_t *ipc, IN TO tt_skt_t *skt)
         TT_ERROR_NTV("fail to get pipe peer pid");
         return TT_FAIL;
     }
-    
-    if (WSADuplicateSocketW(skt->sys_skt.s, ipc->peer_pid, &pev_skt.info) != 0) {
+
+    if (WSADuplicateSocketW(skt->sys_skt.s, ipc->peer_pid, &pev_skt.info) !=
+        0) {
         TT_ERROR_NTV("fail to duplicate socket");
         return TT_FAIL;
     }
@@ -502,16 +503,16 @@ tt_result_t tt_ipc_handle_internal_ev(IN OUT tt_ipc_ev_t **p_pev,
     SOCKET s;
     tt_skt_t *skt;
 
-    *p_skt= NULL;
+    *p_skt = NULL;
 
     if ((*p_pev)->ev != __IPC_INTERNAL_EV_SKT) {
         return TT_SUCCESS;
     }
 
-    pev_skt = (__pev_skt_t*)*p_pev;
+    pev_skt = (__pev_skt_t *)*p_pev;
     *p_pev = NULL;
 
-    s = WSASocketW(pev_skt->af, 
+    s = WSASocketW(pev_skt->af,
                    SOCK_STREAM,
                    IPPROTO_TCP,
                    &pev_skt->info,
@@ -527,7 +528,7 @@ tt_result_t tt_ipc_handle_internal_ev(IN OUT tt_ipc_ev_t **p_pev,
         TT_ERROR("no mem for new skt");
         closesocket(s);
         return TT_E_NOMEM;
-    }    
+    }
     skt->sys_skt.s = s;
     skt->sys_skt.af = pev_skt->af;
     skt->sys_skt.iocp = TT_FALSE;

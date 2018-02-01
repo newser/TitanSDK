@@ -142,7 +142,7 @@ tt_result_t tt_process_create_ntv(IN tt_process_ntv_t *sys_proc,
         goto __pc_out;
     }
     TT_DEBUG("new process pid: %x", sys_proc->proc_info.dwProcessId);
-    
+
     result = TT_SUCCESS;
 
 __pc_out:

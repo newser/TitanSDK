@@ -488,7 +488,7 @@ tt_skt_t *tt_skt_accept_ntv(IN tt_skt_ntv_t *skt,
     if (!TT_OK(__bind_iocp(skt, iocp))) {
         return NULL;
     }
-    
+
     cfb = skt_accept.io_ev.src;
     if (tt_fiber_recv(cfb, TT_FALSE, p_fev, p_tmr)) {
         return NULL;
@@ -642,7 +642,7 @@ tt_result_t tt_skt_recvfrom_ntv(IN tt_skt_ntv_t *skt,
     if (!TT_OK(__bind_iocp(skt, iocp))) {
         return TT_FAIL;
     }
-    
+
     cfb = skt_recvfrom.io_ev.src;
     if (tt_fiber_recv(cfb, TT_FALSE, p_fev, p_tmr)) {
         return TT_SUCCESS;
@@ -1168,7 +1168,7 @@ tt_bool_t __do_accept(IN tt_io_ev_t *io_ev)
     new_skt->sys_skt.s = new_s;
     new_skt->sys_skt.af = skt_accept->skt->af;
     new_skt->sys_skt.iocp = TT_FALSE;
-    
+
     skt_accept->new_skt = new_skt;
 
     LocalSockaddrLength = sizeof(tt_sktaddr_ntv_t);
@@ -1442,8 +1442,9 @@ tt_result_t __bind_iocp(IN tt_skt_ntv_t *skt, IN HANDLE iocp)
     if (iocp == NULL) {
         iocp = tt_current_fiber()->fs->thread->task->iop.sys_iop.iocp;
     }
-    
-    if (CreateIoCompletionPort((HANDLE)skt->s, iocp, (ULONG_PTR)skt, 0) != NULL) {
+
+    if (CreateIoCompletionPort((HANDLE)skt->s, iocp, (ULONG_PTR)skt, 0) !=
+        NULL) {
         skt->iocp = TT_TRUE;
         return TT_SUCCESS;
     } else {
