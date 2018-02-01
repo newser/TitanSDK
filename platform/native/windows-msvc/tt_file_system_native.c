@@ -1178,6 +1178,10 @@ void __do_fopen(IN tt_io_ev_t *io_ev)
         dwFlagsAndAttributes |= FILE_ATTRIBUTE_READONLY;
     }
 
+    if (fopen->flag & TT_FO_SEQUENTIAL) {
+        dwFlagsAndAttributes |= FILE_FLAG_SEQUENTIAL_SCAN;
+    }
+
     w_path = tt_wchar_create(fopen->path, 0, NULL);
     if (w_path == NULL) {
         fopen->result = TT_FAIL;

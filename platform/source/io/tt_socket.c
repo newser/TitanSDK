@@ -235,7 +235,7 @@ tt_result_t tt_skt_sendfile_path(IN tt_skt_t *skt, IN const tt_char_t *path)
 
     TT_ASSERT(path != NULL);
 
-    if (!TT_OK(tt_fopen(&f, path, TT_FO_READ, NULL))) {
+    if (!TT_OK(tt_fopen(&f, path, TT_FO_READ | TT_FO_SEQUENTIAL, NULL))) {
         return TT_FAIL;
     }
 

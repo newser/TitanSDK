@@ -203,6 +203,7 @@ tt_export tt_result_t tt_fopen(OUT tt_file_t *file,
 #define TT_FO_CREAT_DIR (1 << 7)
 #define TT_FO_RLOCK (1 << 8) // todo
 #define TT_FO_WLOCK (1 << 9) // todo
+#define TT_FO_SEQUENTIAL (1 << 10)
 
 /**
 @fn tt_result_t tt_fclose(IN tt_file_t *file)
