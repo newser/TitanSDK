@@ -189,6 +189,8 @@ tt_result_t tt_thread_create_local(IN OPT tt_thread_attr_t *attr)
     thread->last_error = TT_SUCCESS;
     thread->detached = TT_FALSE;
     thread->local = TT_TRUE;
+    thread->enable_fiber = attr->enable_fiber;
+    thread->log = TT_THREAD_LOG_DEFAULT;
 
     if (!TT_OK(tt_thread_create_local_ntv(thread))) {
         goto tcl_fail;
@@ -229,6 +231,17 @@ tt_result_t tt_thread_wait(IN tt_thread_t *thread)
     tt_c_free(thread);
 
     return TT_SUCCESS;
+}
+
+tt_result_t tt_thread_wait_local()
+{
+    tt_thread_t *thread = tt_current_thread();
+
+    TT_ASSERT((thread != NULL) && (thread->local));
+
+    // structure thread would be released in __thread_on_exit called by
+    // tt_thread_wait_local_ntv()
+    return tt_thread_wait_local_ntv(thread);
 }
 
 tt_result_t __thread_component_init(IN tt_component_t *comp,

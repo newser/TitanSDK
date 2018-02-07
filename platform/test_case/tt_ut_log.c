@@ -199,7 +199,7 @@ TT_TEST_CASE("case_log_context",
     tt_logctx_input(&ctx, &entry);
 
     tt_logctx_destroy(&ctx);
-    // tt_loglyt_destroy(lyt);
+    // tt_loglyt_release(lyt);
     tt_logio_release(lio);
 
     // invalid cases
@@ -394,17 +394,15 @@ TT_TEST_ROUTINE_DEFINE(case_log_manager)
         tt_logfltr_release(lf3);
     }
 
-#if 0
-    tt_loglyt_destroy(lyt[TT_LOG_DEBUG]);
-    tt_loglyt_destroy(lyt[TT_LOG_INFO]);
-    tt_loglyt_destroy(lyt[TT_LOG_WARN]);
-    tt_loglyt_destroy(lyt[TT_LOG_ERROR]);
-    tt_loglyt_destroy(lyt[TT_LOG_FATAL]);
-#endif
-
     tt_logio_release(lio);
 
     tt_logmgr_destroy(&lm);
+
+    tt_loglyt_release(lyt[TT_LOG_DEBUG]);
+    tt_loglyt_release(lyt[TT_LOG_INFO]);
+    tt_loglyt_release(lyt[TT_LOG_WARN]);
+    tt_loglyt_release(lyt[TT_LOG_ERROR]);
+    tt_loglyt_release(lyt[TT_LOG_FATAL]);
 
     // test end
     TT_TEST_CASE_LEAVE()
@@ -815,7 +813,7 @@ TT_TEST_ROUTINE_DEFINE(case_log_io_file_archive)
         if (found) {
             break;
         } else {
-            TT_UT_FALSE(oneshot, "");
+            // TT_UT_FALSE(oneshot, "");
             oneshot = TT_TRUE;
         }
     }

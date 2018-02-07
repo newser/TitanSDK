@@ -131,7 +131,7 @@ void tt_logmgr_set_layout(IN tt_logmgr_t *lmgr,
                           IN TO struct tt_loglyt_s *lyt)
 {
     if (TT_LOG_LEVEL_VALID(level)) {
-        lmgr->ctx[level].lyt = lyt;
+        tt_logctx_set_layout(&lmgr->ctx[level], lyt);
     } else {
         tt_u32_t i;
         TT_ASSERT(level == TT_LOG_LEVEL_NUM);

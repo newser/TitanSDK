@@ -97,11 +97,13 @@ tt_result_t __ut_fiber(IN void *param)
 #if 1
     else {
         const tt_char_t *names[] = {
-            //"case_ipc_skt",
-            //"case_ipc_fiber_ev",
+            "case_log_io_file_date",
+            //"case_log_io_file_archive",
+            //"TEST_UNIT_LOG",
+            //"TEST_UNIT_LOG_PATTERN",
             //"TEST_UNIT_LOG",
             //"TEST_UNIT_FS",
-            "TEST_UNIT_IPC",
+            //"TEST_UNIT_IPC",
             //"TEST_UNIT_SOCKET",
             //"TEST_UNIT_FIBER",
             //"ZIP_UT_ZLIB",
@@ -120,6 +122,7 @@ tt_result_t __ut_fiber(IN void *param)
     }
 #endif
 
+    tt_test_framework_exit();
     return TT_SUCCESS;
 }
 
@@ -237,17 +240,26 @@ int main(int argc, char *argv[])
 
 // init platform
 tt_platform_init(NULL);
-
-tt_thread_create_local(NULL);
+// tt_thread_create_local(NULL);
 
 // run
 #define AUT_MODE 0
 
 #if AUT_MODE == 0
-tt_task_create(&t, NULL);
-tt_task_add_fiber(&t, NULL, __ut_fiber, NULL, NULL);
-tt_task_run(&t);
-tt_task_wait(&t);
+{
+    tt_task_t t;
+    tt_task_create(&t, NULL);
+    tt_task_add_fiber(&t, NULL, __ut_fiber, NULL, NULL);
+#if 1
+    tt_task_run_local(&t);
+#else
+    tt_task_run(&t);
+    tt_task_wait(&t);
+#endif
+}
+
+// tt_thread_wait_local();
+tt_platform_exit();
 while (1)
     tt_sleep(10000);
 printf("exiting\n");

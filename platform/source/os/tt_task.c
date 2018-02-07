@@ -266,6 +266,10 @@ tt_result_t tt_task_run_local(IN tt_task_t *t)
     t->thread = NULL;
     tt_task_wait(t);
 
+    if (!TT_OK(tt_thread_wait_local())) {
+        TT_FATAL("fail to wait local task");
+    }
+
     return TT_SUCCESS;
 }
 
@@ -326,20 +330,11 @@ tt_result_t __task_routine(IN void *param)
 
         wait_ms = tt_tmr_mgr_run(tmr_mgr);
 
-#if 0
-        if ((t->dns_cache != NULL) &&
-            ((dns_ms = tt_dns_run(t->dns_cache)) != TT_TIME_INFINITE) &&
-            ((wait_ms == TT_TIME_INFINITE) || (dns_ms < wait_ms))) {
-            wait_ms = dns_ms;
-            // TT_INFO("wait: %d", dns_ms);
-        }
-#else
         if ((t->dns_cache != NULL) &&
             (wait_ms > (dns_ms = tt_dns_cache_run(t->dns_cache)))) {
             wait_ms = dns_ms;
             // TT_INFO("wait: %d", dns_ms);
         }
-#endif
 
         fb = tt_fiber_sched_next(cfs);
         if (fb != cfs->__main) {
@@ -366,40 +361,6 @@ tt_result_t __task_routine(IN void *param)
             break;
         }
     };
-
-#if 0 // old implementation, to be removed
-    // run untill all fibers exit
-    while (!tt_fiber_sched_empty(cfs)) {
-        tt_fiber_t *fb = tt_fiber_sched_next(cfs);
-        if (fb != cfs->__main) {
-            // if there is any active fiber other than the main fiber, run it
-            tt_fiber_resume(fb, TT_FALSE);
-        } else {
-            tt_s64_t wait_ms, dns_ms;
-
-            wait_ms = tt_tmr_mgr_run(tmr_mgr);
-
-            if ((t->dns_cache != NULL) &&
-                ((dns_ms = tt_dns_run(t->dns_cache)) != TT_TIME_INFINITE) &&
-                ((wait_ms == TT_TIME_INFINITE) || (dns_ms < wait_ms))) {
-                wait_ms = dns_ms;
-                TT_INFO("wait: %d", dns_ms);
-            }
-
-            // tt_tmr_mgr_run() may awake some fiber so need check if all fibers
-            // are terminated, otherwise the main fiber would hang in
-            // tt_io_poller_run()
-            if (tt_fiber_sched_empty(cfs)) {
-                break;
-            }
-
-            if (!tt_io_poller_run(&t->iop, wait_ms)) {
-                // main fiber indicates exit
-                break;
-            }
-        }
-    }
-#endif
 
     return TT_SUCCESS;
 }

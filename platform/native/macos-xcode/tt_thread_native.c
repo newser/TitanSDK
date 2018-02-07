@@ -175,6 +175,20 @@ tt_result_t tt_thread_wait_ntv(IN struct tt_thread_s *thread)
     return TT_SUCCESS;
 }
 
+tt_result_t tt_thread_wait_local_ntv(IN struct tt_thread_s *thread)
+{
+    __thread_on_exit(thread);
+
+    // todo: restore sigmask
+
+    if (pthread_setspecific(tt_g_thread_key, NULL) != 0) {
+        TT_ERROR("fail to clear thread specific data");
+        return TT_FAIL;
+    }
+
+    return TT_SUCCESS;
+}
+
 void tt_sleep_ntv(IN tt_u32_t millisec)
 {
     struct timespec req = {0};

@@ -64,6 +64,7 @@ tt_loglyt_t *tt_loglyt_create(IN tt_u32_t size, IN tt_loglyt_itf_t *itf)
     }
 
     ll->itf = itf;
+    tt_atomic_s32_set(&ll->ref, 1);
 
     if ((ll->itf->create != NULL) && !TT_OK(ll->itf->create(ll))) {
         tt_free(ll);
@@ -73,13 +74,9 @@ tt_loglyt_t *tt_loglyt_create(IN tt_u32_t size, IN tt_loglyt_itf_t *itf)
     return ll;
 }
 
-void tt_loglyt_destroy(IN tt_loglyt_t *ll)
+void __loglyt_destroy(IN tt_loglyt_t *ll)
 {
-    if (ll == NULL) {
-        return;
-    }
-
-    if (ll->itf->destroy != NULL) {
+    if ((ll != NULL) && (ll->itf != NULL) && (ll->itf->destroy != NULL)) {
         ll->itf->destroy(ll);
     }
 

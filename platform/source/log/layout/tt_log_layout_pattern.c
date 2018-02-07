@@ -103,10 +103,10 @@ tt_loglyt_t *tt_loglyt_pattern_create(IN const tt_char_t *pattern)
     }
     llp->patn_len = 0;
     tt_list_init(&llp->fields);
-    // init done, can use tt_loglyt_destroy() now
+    // init done, can use tt_loglyt_release() now
 
     if (!TT_OK(__llp_parse(llp, pattern, llp->patn, &llp->patn_len))) {
-        tt_loglyt_destroy(ll);
+        tt_loglyt_release(ll);
         return NULL;
     }
 

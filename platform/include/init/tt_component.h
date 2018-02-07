@@ -123,9 +123,12 @@ typedef enum {
 typedef tt_result_t (*tt_component_init_t)(IN struct tt_component_s *comp,
                                            IN struct tt_profile_s *profile);
 
+typedef void (*tt_component_exit_t)(IN struct tt_component_s *comp);
+
 typedef struct
 {
     tt_component_init_t init;
+    tt_component_exit_t exit;
 } tt_component_itf_t;
 
 typedef struct tt_component_s
@@ -161,6 +164,8 @@ tt_export void tt_component_register(IN tt_component_t *comp);
   uninitialized.
 */
 tt_export tt_result_t tt_component_start(IN struct tt_profile_s *profile);
+
+tt_export void tt_component_stop();
 
 tt_export tt_component_t *tt_component_find_id(IN tt_component_id_t cid);
 

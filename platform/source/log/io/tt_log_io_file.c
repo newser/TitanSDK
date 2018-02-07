@@ -221,6 +221,10 @@ void __lio_fidx_destroy(IN tt_logio_t *lio)
 {
     tt_logio_file_t *lf = TT_LOGIO_CAST(lio, tt_logio_file_t);
 
+    if (lf->f_opened) {
+        tt_fclose(&lf->f);
+    }
+
     if (lf->worker_running) {
         __liof_w_exit(&lf->worker);
     }
@@ -316,6 +320,10 @@ tt_result_t __fidx_next(IN tt_logio_file_t *lf)
 void __lio_fdate_destroy(IN tt_logio_t *lio)
 {
     tt_logio_file_t *lf = TT_LOGIO_CAST(lio, tt_logio_file_t);
+
+    if (lf->f_opened) {
+        tt_fclose(&lf->f);
+    }
 
     if (lf->worker_running) {
         __liof_w_exit(&lf->worker);

@@ -173,6 +173,8 @@ typedef struct tt_test_class_struct
  */
 tt_export tt_result_t tt_test_framework_init(IN tt_ptr_t attribute);
 
+tt_export void tt_test_framework_exit();
+
 /*
  * name:
  *   tt_test_class_create
@@ -198,6 +200,8 @@ tt_export tt_result_t tt_test_framework_init(IN tt_ptr_t attribute);
 tt_export tt_result_t tt_test_class_create(IN const tt_char_t *name,
                                            IN tt_u32_t attribute,
                                            OUT tt_test_class_t **test_class);
+
+tt_export void tt_test_class_destroy(IN tt_test_class_t *test_class);
 
 /*
  * name:

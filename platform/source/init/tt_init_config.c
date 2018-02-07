@@ -52,6 +52,8 @@ tt_cfgobj_t *tt_g_config_platform;
 static tt_result_t __config_component_init(IN tt_component_t *comp,
                                            IN tt_profile_t *profile);
 
+static void __config_component_exit(IN tt_component_t *comp);
+
 ////////////////////////////////////////////////////////////
 // interface implementation
 ////////////////////////////////////////////////////////////
@@ -61,7 +63,7 @@ void tt_config_component_register()
     static tt_component_t comp;
 
     tt_component_itf_t itf = {
-        __config_component_init,
+        __config_component_init, __config_component_exit,
     };
 
     // init component
@@ -103,4 +105,9 @@ tt_result_t __config_component_init(IN tt_component_t *comp,
     }
 
     return TT_SUCCESS;
+}
+
+void __config_component_exit(IN tt_component_t *comp)
+{
+    tt_cfgobj_destroy(tt_g_config_root);
 }

@@ -121,6 +121,8 @@ wait for a specific system thread ending
 */
 extern tt_result_t tt_thread_wait_ntv(IN struct tt_thread_s *thread);
 
+extern tt_result_t tt_thread_wait_local_ntv(IN struct tt_thread_s *thread);
+
 /**
 @fn void tt_thread_exit_ntv()
 exit current thread

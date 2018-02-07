@@ -53,6 +53,8 @@ tt_iowg_t tt_g_fs_iowg;
 static tt_result_t __iowg_component_init(IN tt_component_t *comp,
                                          IN tt_profile_t *profile);
 
+static void __iowg_component_exit(IN tt_component_t *comp);
+
 static void __iowg_destroy_worker(IN tt_iowg_t *wg);
 
 ////////////////////////////////////////////////////////////
@@ -64,7 +66,7 @@ void tt_iowg_component_register()
     static tt_component_t comp;
 
     tt_component_itf_t itf = {
-        __iowg_component_init,
+        __iowg_component_init, __iowg_component_exit,
     };
 
     // init component
@@ -229,6 +231,11 @@ tt_result_t __iowg_component_init(IN tt_component_t *comp,
     }
 
     return TT_SUCCESS;
+}
+
+void __iowg_component_exit(IN tt_component_t *comp)
+{
+    tt_iowg_destroy(&tt_g_fs_iowg);
 }
 
 void __iowg_destroy_worker(IN tt_iowg_t *wg)
