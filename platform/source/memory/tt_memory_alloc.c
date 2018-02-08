@@ -22,6 +22,11 @@
 
 #include <memory/tt_memory_alloc.h>
 
+#include <algorithm/tt_hashmap.h>
+#include <init/tt_component.h>
+#include <init/tt_profile.h>
+#include <os/tt_mutex.h>
+
 ////////////////////////////////////////////////////////////
 // internal macro
 ////////////////////////////////////////////////////////////
@@ -38,17 +43,45 @@
 // global variant
 ////////////////////////////////////////////////////////////
 
-////////////////////////////////////////////////////////////
-// interface declaration
-////////////////////////////////////////////////////////////
+static tt_mutex_t __malloc_lock;
+
+static tt_hashmap_t __malloc_map;
 
 static tt_oom_handler_t __s_oom_handler;
 
 static void *__s_oom_param;
 
 ////////////////////////////////////////////////////////////
+// interface declaration
+////////////////////////////////////////////////////////////
+
+static tt_result_t __malloc_component_init(IN tt_component_t *comp,
+                                           IN tt_profile_t *profile);
+
+static void __malloc_component_exit(IN tt_component_t *comp);
+
+////////////////////////////////////////////////////////////
 // interface implementation
 ////////////////////////////////////////////////////////////
+
+void tt_memory_alloc_component_register()
+{
+    static tt_component_t comp;
+
+    tt_component_itf_t itf = {
+        __malloc_component_init, __malloc_component_exit,
+    };
+
+    // init component
+    tt_component_init(&comp,
+                      TT_COMPONENT_MEMORY_ALLOC,
+                      "Memory Alloc",
+                      NULL,
+                      &itf);
+
+    // register component
+    tt_component_register(&comp);
+}
 
 void tt_set_oom_handler(IN tt_oom_handler_t handler, IN void *param)
 {
@@ -56,7 +89,13 @@ void tt_set_oom_handler(IN tt_oom_handler_t handler, IN void *param)
     __s_oom_param = param;
 }
 
-void *tt_malloc(IN size_t size)
+void *tt_malloc_tag(IN size_t size,
+#ifdef TT_MEMORY_TAG_ENABLE
+                    IN const tt_char_t *file,
+                    IN const tt_char_t *function,
+                    IN const tt_u32_t line
+#endif
+                    )
 {
     void *p = tt_c_malloc(size);
     if ((p == NULL) && (__s_oom_handler != NULL)) {
@@ -72,4 +111,27 @@ void *tt_realloc(IN void *ptr, IN size_t size)
         __s_oom_handler(__s_oom_param);
     }
     return p;
+}
+
+tt_result_t __malloc_component_init(IN tt_component_t *comp,
+                                    IN tt_profile_t *profile)
+{
+#ifdef TT_MEMORY_TAG_ENABLE
+    if (tt_mutex_create(&__malloc_lock, NULL)) {
+        TT_ERROR("fail to create malloc lock");
+        return TT_FAIL;
+    }
+
+    if (!TT_OK(tt_hmap_create(&__malloc_map, 127, NULL))) {
+        TT_ERROR("fail to create malloc map");
+        tt_mutex_destroy(&__malloc_lock);
+        return TT_FAIL;
+    }
+#endif
+
+    return TT_SUCCESS;
+}
+
+void __malloc_component_exit(IN tt_component_t *comp)
+{
 }

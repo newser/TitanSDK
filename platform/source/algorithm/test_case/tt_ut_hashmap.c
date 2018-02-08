@@ -259,6 +259,14 @@ tt_bool_t __hm_count(IN tt_u8_t *key,
     return TT_TRUE;
 }
 
+static tt_u32_t __hn_destroy_count;
+void __hn_destroy(IN tt_hnode_t *hnode)
+{
+    TT_ASSERT(hnode != NULL);
+    tt_free(hnode);
+    ++__hn_destroy_count;
+}
+
 TT_TEST_ROUTINE_DEFINE(case_map_basic)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
@@ -275,10 +283,18 @@ TT_TEST_ROUTINE_DEFINE(case_map_basic)
     // 10000 => 97 slots
     ret = tt_hmap_create(&hmap, 97, &attr);
     TT_UT_SUCCESS(ret, "");
-    tt_hmap_clear((&hmap));
+    tt_hmap_clear((&hmap), NULL);
     TT_UT_EQUAL(tt_hmap_count(&hmap), 0, "");
     TT_UT_EQUAL(tt_hmap_empty(&hmap), TT_TRUE, "");
     TT_UT_EQUAL(tt_hmap_find(&hmap, (tt_u8_t *)&i, 1), NULL, "");
+
+    // iter empty hmap
+    {
+        tt_hmap_iter_t hi;
+        tt_hmap_iter(&hmap, &hi);
+        TT_UT_EQUAL(hi.hmap, &hmap, "");
+        TT_UT_EQUAL(tt_hmap_iter_next(&hi), NULL, "");
+    }
 
     base = tt_rand_u32() % 100 + 1;
     for (i = 0; i < __h2_num; ++i) {
@@ -305,6 +321,16 @@ TT_TEST_ROUTINE_DEFINE(case_map_basic)
                           __h2_cases[i].key_len,
                           &__h2_cases[i].hnode);
         TT_UT_SUCCESS(ret, "");
+
+        // iter hmap with 1 node
+        if (i == 0) {
+            tt_hmap_iter_t hi;
+            tt_hmap_iter(&hmap, &hi);
+            TT_UT_EQUAL(hi.hmap, &hmap, "");
+            TT_UT_EQUAL(tt_hmap_iter_next(&hi), &__h2_cases[i].hnode, "");
+            TT_UT_EQUAL(tt_hmap_iter_next(&hi), NULL, "");
+        }
+
         if (i % 100 == 0) {
             tt_hnode_t *node = NULL;
             struct __h2_case_t *hc;
@@ -335,6 +361,18 @@ TT_TEST_ROUTINE_DEFINE(case_map_basic)
         }
     }
 
+    // iter hmap with lots of nodes
+    {
+        tt_hmap_iter_t hi;
+        tt_hnode_t *hn;
+        tt_hmap_iter(&hmap, &hi);
+        tt_u32_t n = 0;
+        while ((hn = tt_hmap_iter_next(&hi)) != NULL) {
+            ++n;
+        }
+        TT_UT_EQUAL(n, __h2_num, "");
+    }
+
     // for each
     i = 0;
     tt_hmap_foreach(&hmap, __hm_count, &i);
@@ -363,7 +401,7 @@ TT_TEST_ROUTINE_DEFINE(case_map_basic)
                     "");
     }
 
-    tt_hmap_clear(&hmap);
+    tt_hmap_clear(&hmap, NULL);
     TT_UT_EQUAL(tt_hmap_count(&hmap), 0, "");
     TT_UT_EQUAL(tt_hmap_empty(&hmap), TT_TRUE, "");
 
@@ -371,7 +409,25 @@ TT_TEST_ROUTINE_DEFINE(case_map_basic)
         tt_free(__h2_cases[i].key);
     }
 
-    tt_hmap_destroy(&hmap);
+    {
+        tt_u32_t key[100] = {0};
+        for (i = 0; i < 100; ++i) {
+            tt_hnode_t *hn = tt_malloc(sizeof(tt_hnode_t));
+            TT_UT_NOT_NULL(hn, "");
+            tt_hnode_init(hn);
+            key[i] = tt_rand_u32();
+            ret = tt_hmap_add(&hmap, (tt_u8_t *)&key[i], sizeof(tt_u32_t), hn);
+            TT_UT_SUCCESS(ret, "");
+        }
+        TT_UT_EQUAL(tt_hmap_count(&hmap), 100, "");
+
+        __hn_destroy_count = 0;
+        tt_hmap_clear(&hmap, __hn_destroy);
+        TT_UT_EQUAL(tt_hmap_count(&hmap), 0, "");
+        TT_UT_EQUAL(__hn_destroy_count, 100, "");
+    }
+
+    tt_hmap_destroy(&hmap, NULL);
 
     // test end
     TT_TEST_CASE_LEAVE()
@@ -409,7 +465,7 @@ TT_TEST_ROUTINE_DEFINE(case_map_share_key)
     // 10000 => 97 slots
     ret = tt_hmap_create(&hmap, 197, &attr);
     TT_UT_SUCCESS(ret, "");
-    tt_hmap_clear((&hmap));
+    tt_hmap_clear((&hmap), NULL);
     TT_UT_EQUAL(tt_hmap_count(&hmap), 0, "");
     TT_UT_EQUAL(tt_hmap_empty(&hmap), TT_TRUE, "");
     TT_UT_EQUAL(tt_hmap_find(&hmap, (tt_u8_t *)&i, 1), NULL, "");
@@ -486,11 +542,11 @@ TT_TEST_ROUTINE_DEFINE(case_map_share_key)
                     "");
     }
 
-    tt_hmap_clear(&hmap);
+    tt_hmap_clear(&hmap, NULL);
     TT_UT_EQUAL(tt_hmap_count(&hmap), 0, "");
     TT_UT_EQUAL(tt_hmap_empty(&hmap), TT_TRUE, "");
 
-    tt_hmap_destroy(&hmap);
+    tt_hmap_destroy(&hmap, NULL);
 
     // test end
     TT_TEST_CASE_LEAVE()

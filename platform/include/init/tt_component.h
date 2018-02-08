@@ -70,6 +70,7 @@ typedef enum {
 
     // memory
     TT_COMPONENT_PAGE,
+    TT_COMPONENT_MEMORY_ALLOC,
     TT_COMPONENT_MEMORY_POOL,
     TT_COMPONENT_SLAB,
 

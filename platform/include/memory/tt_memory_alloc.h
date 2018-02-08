@@ -36,6 +36,16 @@ APIs to allocate/free memory
 // macro definition
 ////////////////////////////////////////////////////////////
 
+#ifdef TT_MEMORY_TAG_ENABLE
+
+#define tt_malloc(s) tt_malloc_tag(s, __FILE__, __FUNCTION__, __LINE__)
+
+#else
+
+#define tt_malloc tt_malloc_tag
+
+#endif
+
 //#define tt_malloc tt_c_malloc
 
 //#define tt_realloc tt_c_realloc
@@ -61,9 +71,17 @@ typedef void *(*tt_oom_handler_t)(IN void *param);
 // interface declaration
 ////////////////////////////////////////////////////////////
 
+tt_export void tt_memory_alloc_component_register();
+
 tt_export void tt_set_oom_handler(IN tt_oom_handler_t handler, IN void *param);
 
-tt_export void *tt_malloc(IN size_t size);
+tt_export void *tt_malloc_tag(IN size_t size,
+#ifdef TT_MEMORY_TAG_ENABLE
+                              IN const tt_char_t *file,
+                              IN const tt_char_t *function,
+                              IN const tt_u32_t line
+#endif
+                              );
 
 tt_export void *tt_realloc(IN void *ptr, IN size_t size);
 
