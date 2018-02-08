@@ -665,6 +665,8 @@ TT_TEST_ROUTINE_DEFINE(case_der_enc)
         TT_UT_EQUAL(buf.p[buf.rpos + 2], 0x80, "");
     } while (0);
 
+    tt_buf_destroy(&buf);
+
     // test end
     TT_TEST_CASE_LEAVE()
 }

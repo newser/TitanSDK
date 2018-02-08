@@ -233,7 +233,8 @@ void __mtag_component_exit(IN tt_component_t *comp)
     tt_memory_tag_dump(TT_MEMORY_TAG_EACH | TT_MEMORY_TAG_TOTAL);
     __mtag_initialized = TT_FALSE;
 
-    tt_hmap_destroy(&__mtag_map, __mtag_destroy);
+    // do not destroy hnode so that other detector can show leaked memory
+    tt_hmap_destroy(&__mtag_map, NULL);
 
     tt_mutex_destroy(&__mtag_lock);
 #endif

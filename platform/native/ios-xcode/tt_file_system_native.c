@@ -1256,6 +1256,7 @@ retry1:
                 goto retry2;
             } else {
                 TT_ERROR_NTV("fail to read fts");
+                __RETRY_IF_EINTR(fts_close(fts) != 0);
                 dremove->result = TT_FAIL;
                 return;
             }
@@ -1270,6 +1271,7 @@ retry1:
                 // remove file
                 if (unlink(ftse->fts_accpath) != 0) {
                     TT_ERROR_NTV("fail to remove file[%s]", ftse->fts_accpath);
+                    __RETRY_IF_EINTR(fts_close(fts) != 0);
                     dremove->result = TT_FAIL;
                     return;
                 }
@@ -1279,6 +1281,7 @@ retry1:
                 if (rmdir(ftse->fts_accpath) != 0) {
                     TT_ERROR_NTV("fail to remove directory[%s]",
                                  ftse->fts_accpath);
+                    __RETRY_IF_EINTR(fts_close(fts) != 0);
                     dremove->result = TT_FAIL;
                     return;
                 }
@@ -1289,23 +1292,14 @@ retry1:
             default: {
                 // something unexpected
                 TT_ERROR("expected fts info: %d", ftse->fts_info);
+                __RETRY_IF_EINTR(fts_close(fts) != 0);
                 dremove->result = TT_FAIL;
                 return;
             } break;
         }
     }
 
-__retry3:
-    if (fts_close(fts) != 0) {
-        if (errno == EINTR) {
-            goto __retry3;
-        } else {
-            TT_ERROR_NTV("fail to close fts");
-            // dremove->result = TT_FAIL;
-            // return;
-        }
-    }
-
+    __RETRY_IF_EINTR(fts_close(fts) != 0);
     dremove->result = TT_SUCCESS;
 }
 

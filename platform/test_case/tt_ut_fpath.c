@@ -204,6 +204,7 @@ TT_TEST_CASE("case_fpath_basic",
     TT_UT_EQUAL(tt_strcmp(tt_fpath_cstr(&fp), "c:\\"), 0, "");
     TT_UT_EQUAL(tt_strcmp(tt_fpath_get_root(&fp), "c:\\"), 0, "");
 
+    tt_fpath_destroy(&fp);
     tt_fpath_destroy(&fp2);
 
     // test end
@@ -660,6 +661,7 @@ TT_TEST_ROUTINE_DEFINE(case_fpath_parent)
     }
 
     tt_fpath_destroy(&fp);
+    tt_fpath_destroy(&fp2);
 
     // test end
     TT_TEST_CASE_LEAVE()

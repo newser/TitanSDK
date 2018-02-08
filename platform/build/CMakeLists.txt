@@ -56,6 +56,8 @@ mark_as_advanced(FORCE PLATFORM_UNIT_TEST_LITE)
 
 set(PLATFORM_ENABLE_BACKTRACE 0 CACHE BOOL "unwind stack")
 
+set(PLATFORM_ENABLE_MEMORY_TAG 0 CACHE BOOL "memory tag")
+
 # generate header file
 configure_file(${PLATFORM_PATH}/include/config/tt_customization_config.h.in
                ${PLATFORM_PATH}/include/config/tt_customization_config.h

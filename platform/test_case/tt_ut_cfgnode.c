@@ -861,6 +861,9 @@ TT_TEST_ROUTINE_DEFINE(case_cfgnode_dir)
 
     tt_cfgobj_destroy(co);
 
+    tt_string_destroy(&str_val);
+    tt_buf_destroy(&output);
+
     // test end
     TT_TEST_CASE_LEAVE()
 }
@@ -1147,6 +1150,9 @@ TT_TEST_ROUTINE_DEFINE(case_cfgnode_grp_ar)
     }
 
     tt_cfgobj_destroy(cgrp);
+
+    tt_buf_destroy(&output);
+    tt_string_destroy(&__ut_str);
 
     // test end
     TT_TEST_CASE_LEAVE()
