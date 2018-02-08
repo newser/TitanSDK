@@ -98,6 +98,7 @@ tt_result_t tt_platform_init(IN OPT const tt_char_t *profile_path)
     tt_page_component_register();
     tt_mempool_component_register();
     tt_slab_component_register();
+    tt_memory_tag_component_register();
 
     // thread
     tt_thread_component_register();

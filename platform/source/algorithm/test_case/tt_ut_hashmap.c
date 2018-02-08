@@ -278,6 +278,12 @@ TT_TEST_ROUTINE_DEFINE(case_map_basic)
     TT_TEST_CASE_ENTER()
     // test start
 
+    {
+        void *p;
+        p = tt_malloc(1);
+        p = tt_malloc(2);
+        p = tt_malloc(3);
+    }
     tt_hmap_attr_default(&attr);
 
     // 10000 => 97 slots

@@ -748,6 +748,7 @@ TT_TEST_ROUTINE_DEFINE(case_log_io_file_archive)
         tt_zip_t *z;
         tt_bool_t found = TT_FALSE;
 
+        // tt_sleep(4000);
         tt_sleep(4000);
 
         ret = tt_dopen(&d, __LIOF_P_ARCH, NULL);
@@ -935,6 +936,7 @@ static tt_result_t __udp_log_svr(IN void *param)
         ++i;
     }
 
+    tt_skt_destroy(s);
     return TT_SUCCESS;
 }
 
