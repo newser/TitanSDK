@@ -53,7 +53,11 @@ void tt_hashctx_init(IN tt_hashctx_t *hctx)
 {
     TT_ASSERT(hctx != NULL);
 
-    hctx->seed = tt_rand_u32();
+    if (tt_current_thread() != NULL) {
+        hctx->seed = tt_rand_u32();
+    } else {
+        hctx->seed = (tt_u32_t)tt_c_rand();
+    }
 }
 
 tt_hashcode_t tt_hash_murmur3(IN const tt_u8_t *key,

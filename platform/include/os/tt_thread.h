@@ -256,13 +256,7 @@ tt_inline void tt_sleep(IN tt_u32_t millisec)
 // can only be used in tt thread
 tt_inline tt_u64_t tt_rand_u64()
 {
-    tt_thread_t *t = tt_current_thread();
-    if (t != NULL) {
-        return tt_rng_u64(tt_current_thread()->rng);
-    } else {
-        // an workaround for non tt thread
-        return tt_c_rand();
-    }
+    return tt_rng_u64(tt_current_thread()->rng);
 }
 #define tt_rand_u32() ((tt_u32_t)tt_rand_u64())
 
