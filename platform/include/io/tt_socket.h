@@ -75,6 +75,13 @@ register socket system
 */
 tt_export void tt_skt_component_register();
 
+tt_export void tt_skt_status_dump(IN tt_u32_t flag);
+#define TT_SKT_STATUS_COUNT (1 << 0)
+#define TT_SKT_STATUS_PEEK (1 << 1)
+#define TT_SKT_STATUS_PREFIX (1 << 2)
+#define TT_SKT_STATUS_NATIVE (1 << 3)
+#define TT_SKT_STATUS_ALL (~0)
+
 tt_export tt_skt_t *tt_skt_create(IN tt_net_family_t family,
                                   IN tt_net_protocol_t protocol,
                                   IN OPT tt_skt_attr_t *attr);
@@ -259,10 +266,6 @@ tt_export tt_result_t tt_skt_local_addr(IN tt_skt_t *skt,
 
 tt_export tt_result_t tt_skt_remote_addr(IN tt_skt_t *skt,
                                          IN tt_sktaddr_t *addr);
-
-tt_export void tt_skt_stat_inc_num();
-
-tt_export void tt_skt_stat_dec_num();
 
 #if TT_ENV_OS_IS_WINDOWS
 tt_inline SOCKET tt_skt_handle(IN tt_skt_t *skt)

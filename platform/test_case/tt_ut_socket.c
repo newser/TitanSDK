@@ -295,6 +295,8 @@ static void __ut_skt_enter(void *enter_param)
     TT_INFO("ipv6 mapped: %s", __ut_skt_local_ip6_mapped);
     TT_INFO("interface: %s", __ut_skt_local_itf);
     TT_INFO("========================================");
+
+    tt_netif_group_destroy(&netif_group);
 }
 
 static void __ut_skt_exit(void *enter_param)

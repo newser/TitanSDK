@@ -46,9 +46,9 @@
 // global variant
 ////////////////////////////////////////////////////////////
 
-tt_atomic_s64_t tt_skt_stat_num;
+static tt_atomic_s32_t __skt_num;
 
-tt_atomic_s64_t tt_skt_stat_peek;
+static tt_atomic_s32_t __skt_peek_num;
 
 ////////////////////////////////////////////////////////////
 // interface declaration
@@ -58,6 +58,10 @@ static tt_result_t __skt_component_init(IN tt_component_t *comp,
                                         IN tt_profile_t *profile);
 
 static void __skt_component_exit(IN tt_component_t *comp);
+
+static void __skt_inc_num();
+
+static void __skt_dec_num();
 
 ////////////////////////////////////////////////////////////
 // interface implementation
@@ -74,6 +78,25 @@ void tt_skt_component_register()
 
     // register component
     tt_component_register(&comp);
+}
+
+void tt_skt_status_dump(IN tt_u32_t flag)
+{
+    if (flag & TT_SKT_STATUS_COUNT) {
+        tt_printf("%s[%d sockets] are opened\n",
+                  TT_COND(flag & TT_SKT_STATUS_PREFIX, "<<Socket>> ", ""),
+                  tt_atomic_s32_get(&__skt_num));
+    }
+
+    if (flag & TT_SKT_STATUS_PEEK) {
+        tt_printf("%s[%d sockets] are opened at most\n",
+                  TT_COND(flag & TT_SKT_STATUS_PREFIX, "<<Socket>> ", ""),
+                  tt_atomic_s32_get(&__skt_peek_num));
+    }
+
+    if (flag & TT_SKT_STATUS_NATIVE) {
+        tt_skt_status_dump_ntv(flag);
+    }
 }
 
 tt_skt_t *tt_skt_create(IN tt_net_family_t family,
@@ -102,6 +125,7 @@ tt_skt_t *tt_skt_create(IN tt_net_family_t family,
         return NULL;
     }
 
+    __skt_inc_num();
     return skt;
 }
 
@@ -112,6 +136,8 @@ void tt_skt_destroy(IN tt_skt_t *skt)
     tt_skt_destroy_ntv(&skt->sys_skt);
 
     tt_free(skt);
+
+    __skt_dec_num();
 }
 
 void tt_skt_attr_default(IN tt_skt_attr_t *attr)
@@ -180,6 +206,7 @@ tt_skt_t *tt_skt_accept(IN tt_skt_t *skt,
                         OUT struct tt_tmr_s **p_tmr)
 {
     tt_sktaddr_t __addr;
+    tt_skt_t *new_skt;
 
     TT_ASSERT(skt != NULL);
 
@@ -187,7 +214,11 @@ tt_skt_t *tt_skt_accept(IN tt_skt_t *skt,
         addr = &__addr;
     }
 
-    return tt_skt_accept_ntv(&skt->sys_skt, addr, p_fev, p_tmr);
+    new_skt = tt_skt_accept_ntv(&skt->sys_skt, addr, p_fev, p_tmr);
+    if (new_skt != NULL) {
+        __skt_inc_num();
+    }
+    return new_skt;
 }
 
 tt_result_t tt_skt_connect(IN tt_skt_t *skt, IN tt_sktaddr_t *addr)
@@ -260,19 +291,20 @@ tt_result_t tt_skt_remote_addr(IN tt_skt_t *skt, IN tt_sktaddr_t *addr)
     return tt_skt_remote_addr_ntv(&skt->sys_skt, addr);
 }
 
-void tt_skt_stat_inc_num()
+void __skt_inc_num()
 {
-    tt_s64_t skt_num = tt_atomic_s64_inc(&tt_skt_stat_num);
+    tt_s64_t skt_num = tt_atomic_s32_inc(&__skt_num);
 
     // the peek value is not accurate, just for reference
-    if (skt_num > tt_atomic_s64_get(&tt_skt_stat_peek)) {
-        tt_atomic_s64_set(&tt_skt_stat_peek, skt_num);
+    if (skt_num > tt_atomic_s32_get(&__skt_peek_num)) {
+        tt_atomic_s32_set(&__skt_peek_num, skt_num);
     }
 }
 
-void tt_skt_stat_dec_num()
+void __skt_dec_num()
 {
-    tt_atomic_s64_dec(&tt_skt_stat_num);
+    tt_s32_t n = tt_atomic_s32_dec(&__skt_num);
+    TT_ASSERT(n >= 0);
 }
 
 tt_result_t tt_skt_join_mcast(IN tt_skt_t *skt,
@@ -378,8 +410,8 @@ tt_result_t __skt_component_init(IN tt_component_t *comp,
         return TT_FAIL;
     }
 
-    tt_atomic_s64_set(&tt_skt_stat_num, 0);
-    tt_atomic_s64_set(&tt_skt_stat_peek, 0);
+    tt_atomic_s32_set(&__skt_num, 0);
+    tt_atomic_s32_set(&__skt_peek_num, 0);
 
     return TT_SUCCESS;
 }
@@ -387,4 +419,6 @@ tt_result_t __skt_component_init(IN tt_component_t *comp,
 void __skt_component_exit(IN tt_component_t *comp)
 {
     tt_skt_component_exit_ntv();
+
+    tt_skt_status_dump(TT_SKT_STATUS_ALL);
 }

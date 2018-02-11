@@ -86,14 +86,14 @@ void tt_fs_component_register()
 void tt_fs_status_dump(IN tt_u32_t flag)
 {
     if (flag & TT_FS_STATUS_FILE) {
-        tt_printf("<<%s>> [%d files] are opened\n",
-                  TT_COND(flag & TT_FS_STATUS_PREFIX, "FS", ""),
+        tt_printf("%s[%d files] are opened\n",
+                  TT_COND(flag & TT_FS_STATUS_PREFIX, "<<FS>> ", ""),
                   tt_atomic_s32_get(&__file_opened));
     }
 
     if (flag & TT_FS_STATUS_DIR) {
-        tt_printf("<<%s>> [%d directories] are opened\n",
-                  TT_COND(flag & TT_FS_STATUS_PREFIX, "FS", ""),
+        tt_printf("%s[%d directories] are opened\n",
+                  TT_COND(flag & TT_FS_STATUS_PREFIX, "<<FS>> ", ""),
                   tt_atomic_s32_get(&__dir_opened));
     }
 

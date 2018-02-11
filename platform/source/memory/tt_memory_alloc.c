@@ -118,8 +118,10 @@ void tt_memory_status_dump(IN tt_u32_t flag)
         TT_ASSERT(__MTAG_OK(mtag));
 
         if (flag & TT_MEMORY_STATUS_TAG) {
-            tt_printf("<<%s>> [%p][%d bytes] from [%s:%d]\n",
-                      TT_COND(flag & TT_MEMORY_STATUS_PREFIX, "Memory", ""),
+            tt_printf("%s[%p][%d bytes] from [%s:%d]\n",
+                      TT_COND(flag & TT_MEMORY_STATUS_PREFIX,
+                              "<<Memory>> ",
+                              ""),
                       mtag->addr,
                       (tt_s32_t)mtag->size,
                       // mtag->file,
@@ -133,8 +135,8 @@ void tt_memory_status_dump(IN tt_u32_t flag)
     tt_mutex_release(&__mtag_lock);
 
     if (flag & TT_MEMORY_STATUS_TOTAL) {
-        tt_printf("<<%s>> [%d bytes] are allocated\n",
-                  TT_COND(flag & TT_MEMORY_STATUS_PREFIX, "Memory", ""),
+        tt_printf("%s[%d bytes] are allocated\n",
+                  TT_COND(flag & TT_MEMORY_STATUS_PREFIX, "<<Memory>> ", ""),
                   (tt_s32_t)size);
     }
 #endif

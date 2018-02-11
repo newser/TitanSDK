@@ -522,8 +522,10 @@ void tt_fs_status_dump_ntv(IN tt_u32_t flag)
                                         &vi,
                                         PROC_PIDFDVNODEPATHINFO_SIZE);
                 if (vs == PROC_PIDFDVNODEPATHINFO_SIZE) {
-                    tt_printf("<<%s>> [fd: %d] [%s]\n",
-                              TT_COND(flag & TT_FS_STATUS_PREFIX, "FS", ""),
+                    tt_printf("%s[fd: %d] [%s]\n",
+                              TT_COND(flag & TT_FS_STATUS_PREFIX,
+                                      "<<FS>> ",
+                                      ""),
                               fdinfo[i].proc_fd,
                               vi.pvip.vip_path);
                 }
