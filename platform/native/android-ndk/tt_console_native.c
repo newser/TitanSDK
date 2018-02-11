@@ -48,7 +48,7 @@
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-tt_result_t tt_console_init_ntv()
+tt_result_t tt_console_component_init_ntv()
 {
     return TT_SUCCESS;
 }

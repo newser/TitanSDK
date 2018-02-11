@@ -58,6 +58,8 @@ static void *tt_s_console_param;
 static tt_result_t __console_component_init(IN tt_component_t *comp,
                                             IN tt_profile_t *profile);
 
+static void __console_component_exit(IN tt_component_t *comp);
+
 static void __console_run();
 
 static tt_result_t __console_thread(IN void *param);
@@ -68,11 +70,11 @@ static tt_result_t __console_thread(IN void *param);
 
 void tt_console_component_register()
 {
-#if !TT_ENV_OS_IS_IOS
+#if !TT_ENV_OS_IS_IOS && !TT_ENV_OS_IS_ANDROID
     static tt_component_t comp;
 
     tt_component_itf_t itf = {
-        __console_component_init,
+        __console_component_init, __console_component_exit,
     };
 
     // init component
@@ -151,7 +153,7 @@ void tt_console_set_color(IN tt_console_color_t foreground,
 tt_result_t __console_component_init(IN tt_component_t *comp,
                                      IN tt_profile_t *profile)
 {
-    if (!TT_OK(tt_console_init_ntv())) {
+    if (!TT_OK(tt_console_component_init_ntv())) {
         return TT_FAIL;
     }
 
@@ -161,6 +163,11 @@ tt_result_t __console_component_init(IN tt_component_t *comp,
     tt_s_console_param = NULL;
 
     return TT_SUCCESS;
+}
+
+void __console_component_exit(IN tt_component_t *comp)
+{
+    tt_console_component_exit_ntv();
 }
 
 void __console_run()

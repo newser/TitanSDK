@@ -79,9 +79,11 @@ typedef void *(*tt_oom_handler_t)(IN void *param);
 
 tt_export void tt_memory_tag_component_register();
 
-tt_export void tt_memory_tag_dump(IN tt_u32_t flag);
-#define TT_MEMORY_TAG_EACH (1 << 0)
-#define TT_MEMORY_TAG_TOTAL (1 << 1)
+tt_export void tt_memory_status_dump(IN tt_u32_t flag);
+#define TT_MEMORY_STATUS_TAG (1 << 0)
+#define TT_MEMORY_STATUS_TOTAL (1 << 1)
+#define TT_MEMORY_STATUS_PREFIX (1 << 2)
+#define TT_MEMORY_STATUS_ALL (~0)
 
 tt_export void tt_set_oom_handler(IN tt_oom_handler_t handler, IN void *param);
 

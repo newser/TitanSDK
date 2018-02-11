@@ -64,6 +64,10 @@ initialize ts time reference system
 */
 extern tt_result_t tt_time_ref_component_init_ntv();
 
+tt_inline void tt_time_ref_component_exit_ntv()
+{
+}
+
 tt_inline tt_s64_t tt_time_ref_ntv()
 {
     // force converting to tt_s64_t

@@ -59,6 +59,8 @@ typedef struct tt_io_poller_ntv_s
 
 extern tt_result_t tt_io_poller_component_init_ntv();
 
+extern void tt_io_poller_component_exit_ntv();
+
 extern tt_result_t tt_io_poller_create_ntv(IN tt_io_poller_ntv_t *sys_iop);
 
 extern void tt_io_poller_destroy_ntv(IN tt_io_poller_ntv_t *sys_iop);

@@ -128,9 +128,8 @@ void tt_logmgr_config_component_register()
 {
     static tt_component_t comp;
 
-    tt_component_itf_t itf = {
-        __logmgr_config_component_init,
-    };
+    tt_component_itf_t itf = {__logmgr_config_component_init,
+                              __logmgr_config_component_exit};
 
     // init component
     tt_component_init(&comp,
@@ -216,13 +215,22 @@ tt_result_t __logmgr_component_init(IN tt_component_t *comp,
 
     // log layout
     if (!TT_OK(__create_log_layout(profile))) {
+        tt_logmgr_destroy(&tt_g_logmgr);
         return TT_FAIL;
     }
     tt_logmgr_layout_default(&tt_g_logmgr);
 
     // log io
-    if (!TT_OK(__create_log_io(profile)) ||
-        !TT_OK(tt_logmgr_io_default(&tt_g_logmgr))) {
+    if (!TT_OK(__create_log_io(profile))) {
+        __destroy_log_layout();
+        tt_logmgr_destroy(&tt_g_logmgr);
+        return TT_FAIL;
+    }
+
+    if (!TT_OK(tt_logmgr_io_default(&tt_g_logmgr))) {
+        __destroy_log_io();
+        __destroy_log_layout();
+        tt_logmgr_destroy(&tt_g_logmgr);
         return TT_FAIL;
     }
 
@@ -277,6 +285,10 @@ tt_result_t __logmgr_config_component_init(IN tt_component_t *comp,
 #endif
 
     return TT_SUCCESS;
+}
+
+void __logmgr_config_component_exit(IN tt_component_t *comp)
+{
 }
 
 tt_result_t __create_log_layout(IN tt_profile_t *profile)

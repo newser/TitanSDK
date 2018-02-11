@@ -27,6 +27,7 @@
 #include <init/tt_profile.h>
 #include <io/tt_io_worker_group.h>
 #include <misc/tt_assert.h>
+#include <os/tt_atomic.h>
 
 ////////////////////////////////////////////////////////////
 // internal macro
@@ -51,7 +52,13 @@
 static tt_result_t __fs_component_init(IN tt_component_t *comp,
                                        IN tt_profile_t *profile);
 
+static void __fs_component_exit(IN tt_component_t *comp);
+
 static tt_char_t *__parent_dir(IN const tt_char_t *path);
+
+static tt_atomic_s32_t __file_opened;
+
+static tt_atomic_s32_t __dir_opened;
 
 ////////////////////////////////////////////////////////////
 // interface implementation
@@ -62,7 +69,7 @@ void tt_fs_component_register()
     static tt_component_t comp;
 
     tt_component_itf_t itf = {
-        __fs_component_init,
+        __fs_component_init, __fs_component_exit,
     };
 
     // init component
@@ -74,6 +81,25 @@ void tt_fs_component_register()
 
     // register component
     tt_component_register(&comp);
+}
+
+void tt_fs_status_dump(IN tt_u32_t flag)
+{
+    if (flag & TT_FS_STATUS_FILE) {
+        tt_printf("<<%s>> [%d files] are opened\n",
+                  TT_COND(flag & TT_FS_STATUS_PREFIX, "FS", ""),
+                  tt_atomic_s32_get(&__file_opened));
+    }
+
+    if (flag & TT_FS_STATUS_DIR) {
+        tt_printf("<<%s>> [%d directories] are opened\n",
+                  TT_COND(flag & TT_FS_STATUS_PREFIX, "FS", ""),
+                  tt_atomic_s32_get(&__dir_opened));
+    }
+
+    if (flag & TT_FS_STATUS_NATIVE) {
+        tt_fs_status_dump_ntv(flag);
+    }
 }
 
 void tt_file_attr_default(IN tt_file_attr_t *attr)
@@ -182,20 +208,30 @@ tt_result_t tt_fopen(IN tt_file_t *file,
         tt_free(parent);
         if (TT_OK(result)) {
             flag |= TT_FO_CREAT;
-            return tt_fopen_ntv(&file->sys_file, path, flag, attr);
-        } else {
-            return result;
+            result = tt_fopen_ntv(&file->sys_file, path, flag, attr);
         }
     } else {
-        return tt_fopen_ntv(&file->sys_file, path, flag, attr);
+        result = tt_fopen_ntv(&file->sys_file, path, flag, attr);
+    }
+
+    if (TT_OK(result)) {
+        tt_atomic_s32_inc(&__file_opened);
+        return TT_SUCCESS;
+    } else {
+        return result;
     }
 }
 
 void tt_fclose(IN tt_file_t *file)
 {
+    tt_s32_t n;
+
     TT_ASSERT(file != NULL);
 
     tt_fclose_ntv(&file->sys_file);
+
+    n = tt_atomic_s32_dec(&__file_opened);
+    TT_ASSERT(n >= 0);
 }
 
 tt_u8_t *tt_fcontent(IN const tt_char_t *path, OUT OPT tt_u64_t *size)
@@ -548,7 +584,17 @@ tt_result_t __fs_component_init(IN tt_component_t *comp,
         return TT_FAIL;
     }
 
+    tt_atomic_s32_set(&__file_opened, 0);
+    tt_atomic_s32_set(&__dir_opened, 0);
+
     return TT_SUCCESS;
+}
+
+void __fs_component_exit(IN tt_component_t *comp)
+{
+    tt_fs_status_dump(TT_FS_STATUS_ALL);
+
+    tt_fs_component_exit_ntv();
 }
 
 tt_char_t *__parent_dir(IN const tt_char_t *path)

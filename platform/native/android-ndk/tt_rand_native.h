@@ -17,14 +17,14 @@
  */
 
 /**
-@file tt_rand_native.h
+@file tt_rng_native.h
 @brief native random generator
 
 this file defines native random number generator
 */
 
-#ifndef __TT_RAND_NATIVE__
-#define __TT_RAND_NATIVE__
+#ifndef __TT_RNG_NATIVE__
+#define __TT_RNG_NATIVE__
 
 ////////////////////////////////////////////////////////////
 // import header files
@@ -52,4 +52,4 @@ extern tt_result_t tt_rng_component_init_ntv();
 
 extern tt_result_t tt_rng_ntv(IN tt_u8_t *data, IN tt_u32_t data_len);
 
-#endif /* __TT_RAND_NATIVE__ */
+#endif /* __TT_RNG_NATIVE__ */

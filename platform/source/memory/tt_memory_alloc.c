@@ -99,7 +99,7 @@ void tt_memory_tag_component_register()
     tt_component_register(&comp);
 }
 
-void tt_memory_tag_dump(IN tt_u32_t flag)
+void tt_memory_status_dump(IN tt_u32_t flag)
 {
 #ifdef TT_MEMORY_TAG_ENABLE
     tt_hmap_iter_t iter;
@@ -117,8 +117,9 @@ void tt_memory_tag_dump(IN tt_u32_t flag)
         __mtag_t *mtag = TT_CONTAINER(hnode, __mtag_t, hnode);
         TT_ASSERT(__MTAG_OK(mtag));
 
-        if (flag & TT_MEMORY_TAG_EACH) {
-            tt_printf("[%p][%dbytes] from [%s:%d]\n",
+        if (flag & TT_MEMORY_STATUS_TAG) {
+            tt_printf("<<%s>> [%p][%d bytes] from [%s:%d]\n",
+                      TT_COND(flag & TT_MEMORY_STATUS_PREFIX, "Memory", ""),
                       mtag->addr,
                       (tt_s32_t)mtag->size,
                       // mtag->file,
@@ -131,8 +132,10 @@ void tt_memory_tag_dump(IN tt_u32_t flag)
 
     tt_mutex_release(&__mtag_lock);
 
-    if (flag & TT_MEMORY_TAG_EACH) {
-        tt_printf("[%dbytes] allocated\n", (tt_s32_t)size);
+    if (flag & TT_MEMORY_STATUS_TOTAL) {
+        tt_printf("<<%s>> [%d bytes] are allocated\n",
+                  TT_COND(flag & TT_MEMORY_STATUS_PREFIX, "Memory", ""),
+                  (tt_s32_t)size);
     }
 #endif
 }
@@ -230,7 +233,7 @@ tt_result_t __mtag_component_init(IN tt_component_t *comp,
 void __mtag_component_exit(IN tt_component_t *comp)
 {
 #ifdef TT_MEMORY_TAG_ENABLE
-    tt_memory_tag_dump(TT_MEMORY_TAG_EACH | TT_MEMORY_TAG_TOTAL);
+    tt_memory_status_dump(TT_MEMORY_STATUS_ALL);
     __mtag_initialized = TT_FALSE;
 
     // do not destroy hnode so that other detector can show leaked memory

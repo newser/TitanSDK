@@ -20,7 +20,7 @@
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <tt_rand_native.h>
+#include <tt_rng_native.h>
 
 #include <tt_sys_error.h>
 

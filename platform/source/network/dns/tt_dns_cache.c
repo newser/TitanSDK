@@ -61,6 +61,8 @@ static tt_s64_t __s_inuse_limit;
 static tt_result_t __dc_component_init(IN tt_component_t *comp,
                                        IN tt_profile_t *profile);
 
+static void __dc_component_exit(IN tt_component_t *comp);
+
 void __dc_check_inuse(IN tt_dns_cache_t *dc, IN tt_s64_t now);
 
 static tt_s32_t __de_cmp(IN void *l, IN void *r);
@@ -88,7 +90,7 @@ void tt_dns_cache_component_register()
     static tt_component_t comp;
 
     tt_component_itf_t itf = {
-        __dc_component_init,
+        __dc_component_init, __dc_component_exit,
     };
 
     // init component
@@ -220,6 +222,13 @@ tt_result_t __dc_component_init(IN tt_component_t *comp,
     __s_inuse_limit = tt_time_ms2ref(__INUSE_LIMIT);
 
     return TT_SUCCESS;
+}
+
+void __dc_component_exit(IN tt_component_t *comp)
+{
+    TT_ASSERT(tt_dns_rrlist_empty(&__empty_rrlist_a));
+
+    TT_ASSERT(tt_dns_rrlist_empty(&__empty_rrlist_aaaa));
 }
 
 void __dc_check_inuse(IN tt_dns_cache_t *dc, IN tt_s64_t now)

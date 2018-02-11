@@ -109,5 +109,6 @@ tt_result_t __config_component_init(IN tt_component_t *comp,
 
 void __config_component_exit(IN tt_component_t *comp)
 {
+    // destroying root would destroy all nodes
     tt_cfgobj_destroy(tt_g_config_root);
 }

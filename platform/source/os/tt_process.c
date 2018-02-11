@@ -54,6 +54,8 @@ static tt_char_t tt_s_process_name[128];
 static tt_result_t __process_component_init(IN tt_component_t *comp,
                                             IN tt_profile_t *profile);
 
+static void __process_component_exit(IN tt_component_t *comp);
+
 ////////////////////////////////////////////////////////////
 // interface implementation
 ////////////////////////////////////////////////////////////
@@ -63,7 +65,7 @@ void tt_process_component_register()
     static tt_component_t comp;
 
     tt_component_itf_t itf = {
-        __process_component_init,
+        __process_component_init, __process_component_exit,
     };
 
     // init component
@@ -131,4 +133,8 @@ tt_result_t __process_component_init(IN tt_component_t *comp,
     }
 
     return TT_SUCCESS;
+}
+
+void __process_component_exit(IN tt_component_t *comp)
+{
 }

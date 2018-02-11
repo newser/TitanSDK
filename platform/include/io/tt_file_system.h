@@ -112,6 +112,13 @@ register os file system wrapper
 */
 tt_export void tt_fs_component_register();
 
+tt_export void tt_fs_status_dump(IN tt_u32_t flag);
+#define TT_FS_STATUS_FILE (1 << 0)
+#define TT_FS_STATUS_DIR (1 << 1)
+#define TT_FS_STATUS_PREFIX (1 << 2)
+#define TT_FS_STATUS_NATIVE (1 << 3)
+#define TT_FS_STATUS_ALL (~0)
+
 // ========================================
 // file operations
 // ========================================

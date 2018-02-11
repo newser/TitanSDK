@@ -57,6 +57,8 @@ tt_atomic_s64_t tt_skt_stat_peek;
 static tt_result_t __skt_component_init(IN tt_component_t *comp,
                                         IN tt_profile_t *profile);
 
+static void __skt_component_exit(IN tt_component_t *comp);
+
 ////////////////////////////////////////////////////////////
 // interface implementation
 ////////////////////////////////////////////////////////////
@@ -65,9 +67,7 @@ void tt_skt_component_register()
 {
     static tt_component_t comp;
 
-    tt_component_itf_t itf = {
-        __skt_component_init,
-    };
+    tt_component_itf_t itf = {__skt_component_init, __skt_component_exit};
 
     // init component
     tt_component_init(&comp, TT_COMPONENT_SOCKET, "Socket", NULL, &itf);
@@ -382,4 +382,9 @@ tt_result_t __skt_component_init(IN tt_component_t *comp,
     tt_atomic_s64_set(&tt_skt_stat_peek, 0);
 
     return TT_SUCCESS;
+}
+
+void __skt_component_exit(IN tt_component_t *comp)
+{
+    tt_skt_component_exit_ntv();
 }

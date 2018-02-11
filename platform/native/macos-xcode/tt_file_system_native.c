@@ -34,6 +34,8 @@
 #include <copyfile.h>
 #include <fcntl.h>
 #include <fts.h>
+#include <libproc.h>
+#include <sys/proc_info.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 
@@ -487,6 +489,49 @@ static void __date2timeval(IN tt_date_t *d, IN struct timeval *tv);
 tt_result_t tt_fs_component_init_ntv()
 {
     return TT_SUCCESS;
+}
+
+void tt_fs_status_dump_ntv(IN tt_u32_t flag)
+{
+    pid_t pid;
+    int size;
+    struct proc_fdinfo *fdinfo;
+
+    pid = getpid();
+    size = proc_pidinfo(pid, PROC_PIDLISTFDS, 0, NULL, 0);
+    if (size <= 0) {
+        return;
+    }
+
+    fdinfo = (struct proc_fdinfo *)malloc(size);
+    if (fdinfo == NULL) {
+        return;
+    }
+
+    size = proc_pidinfo(pid, PROC_PIDLISTFDS, 0, fdinfo, size);
+    if (size > 0) {
+        int n, i;
+
+        n = size / PROC_PIDLISTFD_SIZE;
+        for (i = 0; i < n; ++i) {
+            if (fdinfo[i].proc_fdtype == PROX_FDTYPE_VNODE) {
+                struct vnode_fdinfowithpath vi;
+                int vs = proc_pidfdinfo(pid,
+                                        fdinfo[i].proc_fd,
+                                        PROC_PIDFDVNODEPATHINFO,
+                                        &vi,
+                                        PROC_PIDFDVNODEPATHINFO_SIZE);
+                if (vs == PROC_PIDFDVNODEPATHINFO_SIZE) {
+                    tt_printf("<<%s>> [fd: %d] [%s]\n",
+                              TT_COND(flag & TT_FS_STATUS_PREFIX, "FS", ""),
+                              fdinfo[i].proc_fd,
+                              vi.pvip.vip_path);
+                }
+            }
+        }
+    }
+
+    free(fdinfo);
 }
 
 tt_result_t tt_fcreate_ntv(IN const tt_char_t *path,

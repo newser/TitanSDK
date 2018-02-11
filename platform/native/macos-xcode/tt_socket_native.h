@@ -63,6 +63,10 @@ typedef struct tt_skt_ntv_s
 
 extern tt_result_t tt_skt_component_init_ntv(IN struct tt_profile_s *profile);
 
+tt_inline void tt_skt_component_exit_ntv()
+{
+}
+
 extern tt_result_t tt_skt_create_ntv(IN tt_skt_ntv_t *skt,
                                      IN tt_net_family_t family,
                                      IN tt_net_protocol_t protocol,

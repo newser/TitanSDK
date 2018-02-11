@@ -50,6 +50,8 @@
 static tt_result_t __net_itf_component_init(IN tt_component_t *comp,
                                             IN tt_profile_t *profile);
 
+static void __net_itf_component_exit(IN tt_component_t *comp);
+
 ////////////////////////////////////////////////////////////
 // interface implementation
 ////////////////////////////////////////////////////////////
@@ -59,7 +61,7 @@ void tt_network_interface_component_register()
     static tt_component_t comp;
 
     tt_component_itf_t itf = {
-        __net_itf_component_init,
+        __net_itf_component_init, __net_itf_component_exit,
     };
 
     // init component
@@ -81,6 +83,11 @@ tt_result_t __net_itf_component_init(IN tt_component_t *comp,
     }
 
     return TT_SUCCESS;
+}
+
+void __net_itf_component_exit(IN tt_component_t *comp)
+{
+    tt_network_interface_exit_ntv();
 }
 
 tt_netif_t *tt_netif_create(IN const tt_char_t *netif_name, IN tt_u32_t index)

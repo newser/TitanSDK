@@ -81,6 +81,8 @@ static tt_u32_t tt_s_objtag_size;
 static tt_result_t __slab_component_init(IN tt_component_t *comp,
                                          IN tt_profile_t *profile);
 
+static void __slab_component_exit(IN tt_component_t *comp);
+
 static tt_result_t __slab_attr_check(IN tt_slab_attr_t *attr);
 
 static tt_result_t __slab_alloc_frame(IN tt_slab_t *slab);
@@ -96,7 +98,7 @@ void tt_slab_component_register()
     static tt_component_t comp;
 
     tt_component_itf_t itf = {
-        __slab_component_init,
+        __slab_component_init, __slab_component_exit,
     };
 
     // init component
@@ -278,6 +280,10 @@ tt_result_t __slab_component_init(IN tt_component_t *comp,
     tt_s_objtag_size = sizeof(__slab_objtag_t);
 
     return TT_SUCCESS;
+}
+
+void __slab_component_exit(IN tt_component_t *comp)
+{
 }
 
 tt_result_t __slab_alloc_frame(IN tt_slab_t *slab)

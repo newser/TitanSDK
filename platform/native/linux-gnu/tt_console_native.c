@@ -147,7 +147,7 @@ static tt_result_t __send_keycode(IN tt_u8_t *key,
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-tt_result_t tt_console_init_ntv()
+tt_result_t tt_console_component_init_ntv()
 {
     // default send/recv
     __cons_imode = TT_CONSOLE_IMODE_DEFAULT;

@@ -82,6 +82,7 @@ void tt_component_register(IN tt_component_t *comp)
 {
     TT_ASSERT(TT_COMPONENT_ID_VALID(comp->cid));
     TT_ASSERT(comp->itf.init != NULL);
+    TT_ASSERT(comp->itf.exit != NULL);
 
     if (!__comp_table_initialized) {
         tt_u32_t i;
@@ -109,8 +110,7 @@ tt_result_t tt_component_start(IN tt_profile_t *profile)
         __comp_status_t *comp_status = &__comp_table[i];
         tt_component_t *comp = comp_status->comp;
 
-        if (!comp_status->started && (comp != NULL) &&
-            (comp->itf.init != NULL)) {
+        if (!comp_status->started && (comp != NULL)) {
             if (TT_OK(comp->itf.init(comp, profile))) {
                 __comp_table[i].started = TT_TRUE;
                 tt_printf("Initializing %-32s [Done]\n", comp->name);
@@ -133,8 +133,7 @@ void tt_component_stop()
         __comp_status_t *comp_status = &__comp_table[i];
         tt_component_t *comp = comp_status->comp;
 
-        if (comp_status->started && (comp != NULL) &&
-            (comp->itf.exit != NULL)) {
+        if (comp_status->started && (comp != NULL)) {
             comp->itf.exit(comp);
             __comp_table[i].started = TT_FALSE;
             tt_printf("Exitting %-32s [Done]\n", comp->name);

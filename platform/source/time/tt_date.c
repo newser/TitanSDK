@@ -81,6 +81,8 @@ static tt_u32_t __s_min_cjdn;
 static tt_result_t __date_component_init(IN tt_component_t *comp,
                                          IN tt_profile_t *profile);
 
+static void __date_component_exit(IN tt_component_t *comp);
+
 static tt_bool_t __date_valid(IN tt_u16_t year,
                               IN tt_month_t month,
                               IN tt_u8_t day);
@@ -103,7 +105,7 @@ void tt_date_component_register()
     static tt_component_t comp;
 
     tt_component_itf_t itf = {
-        __date_component_init,
+        __date_component_init, __date_component_exit,
     };
 
     // init component
@@ -720,6 +722,11 @@ tt_result_t __date_component_init(IN tt_component_t *comp,
     __s_min_cjdn = __ymd2cjdn(__Y_IN(__GC), TT_JANUARY, 1);
 
     return TT_SUCCESS;
+}
+
+void __date_component_exit(IN tt_component_t *comp)
+{
+    tt_date_component_exit_ntv();
 }
 
 tt_bool_t __date_valid(IN tt_u16_t year, IN tt_month_t month, IN tt_u8_t day)

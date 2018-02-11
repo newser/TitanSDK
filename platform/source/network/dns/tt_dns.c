@@ -67,6 +67,8 @@ typedef struct __dns_query4_s
 static tt_result_t __dns_component_init(IN tt_component_t *comp,
                                         IN tt_profile_t *profile);
 
+static void __dns_component_exit(IN tt_component_t *comp);
+
 static void __dns_attr2option(IN tt_dns_attr_t *attr,
                               OUT struct ares_options *options,
                               OUT int *optmask);
@@ -98,7 +100,7 @@ void tt_dns_component_register()
     static tt_component_t comp;
 
     tt_component_itf_t itf = {
-        __dns_component_init,
+        __dns_component_init, __dns_component_exit,
     };
 
     // init component
@@ -223,10 +225,18 @@ tt_result_t __dns_component_init(IN tt_component_t *comp,
     }
 
     if (!TT_OK(tt_dns_component_init_ntv(profile))) {
+        ares_library_cleanup();
         return TT_FAIL;
     }
 
     return TT_SUCCESS;
+}
+
+void __dns_component_exit(IN tt_component_t *comp)
+{
+    tt_dns_component_exit_ntv();
+
+    ares_library_cleanup();
 }
 
 void __dns_attr2option(IN tt_dns_attr_t *attr,

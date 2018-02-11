@@ -70,6 +70,8 @@ initialize ts thread portlayer system
 */
 extern tt_result_t tt_thread_component_init_ntv();
 
+extern void tt_thread_component_exit_ntv();
+
 /**
 @fn
 tt_result_t tt_thread_create_ntv(IN struct tt_thread_s *thread)

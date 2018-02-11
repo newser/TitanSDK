@@ -17,7 +17,7 @@
  */
 
 /**
-@file tt_rand_native.h
+@file tt_rng_native.h
 @brief native random generator
 
 this file defines native random generator

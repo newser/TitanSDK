@@ -75,6 +75,11 @@ tt_result_t tt_thread_component_init_ntv()
     return TT_SUCCESS;
 }
 
+void tt_thread_component_exit_ntv()
+{
+    pthread_key_delete(tt_g_thread_key);
+}
+
 tt_result_t tt_thread_create_ntv(IN struct tt_thread_s *thread)
 {
     tt_thread_ntv_t *sys_thread = &thread->sys_thread;
