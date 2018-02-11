@@ -71,6 +71,12 @@ register socket system
 */
 tt_export void tt_ipc_component_register();
 
+tt_export void tt_ipc_status_dump(IN tt_u32_t flag);
+#define TT_IPC_STATUS_COUNT (1 << 0)
+#define TT_IPC_STATUS_PREFIX (1 << 1)
+#define TT_IPC_STATUS_NATIVE (1 << 2)
+#define TT_IPC_STATUS_ALL (~0)
+
 // - for server ipc, addr must be set to a path. and for client,
 //   addr must be null
 tt_export tt_ipc_t *tt_ipc_create(IN OPT const tt_char_t *addr,

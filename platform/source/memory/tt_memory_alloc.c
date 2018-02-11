@@ -104,6 +104,7 @@ void tt_memory_status_dump(IN tt_u32_t flag)
 #ifdef TT_MEMORY_TAG_ENABLE
     tt_hmap_iter_t iter;
     tt_hnode_t *hnode;
+    tt_u32_t block = 0;
     tt_size_t size = 0;
 
     if (!__mtag_initialized) {
@@ -129,14 +130,16 @@ void tt_memory_status_dump(IN tt_u32_t flag)
                       mtag->line);
         }
 
+        ++block;
         size += mtag->size;
     }
 
     tt_mutex_release(&__mtag_lock);
 
     if (flag & TT_MEMORY_STATUS_TOTAL) {
-        tt_printf("%s[%d bytes] are allocated\n",
+        tt_printf("%s[%d blocks][%d bytes] are allocated\n",
                   TT_COND(flag & TT_MEMORY_STATUS_PREFIX, "<<Memory>> ", ""),
+                  block,
                   (tt_s32_t)size);
     }
 #endif

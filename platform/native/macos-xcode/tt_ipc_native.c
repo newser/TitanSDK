@@ -33,6 +33,8 @@
 
 #include <tt_util_native.h>
 
+#include <libproc.h>
+#include <sys/proc_info.h>
 #include <sys/socket.h>
 #include <sys/un.h>
 
@@ -194,9 +196,53 @@ static int __ipc_ev_init(IN tt_io_ev_t *io_ev, IN tt_u32_t ev);
 
 static void __handle_cmsg(IN __ipc_recv_t *ipc_recv, IN struct msghdr *msg);
 
+static void __dump_ipc_fdinfo(IN struct proc_fdinfo *fi,
+                              IN struct socket_fdinfo *si,
+                              IN tt_u32_t flag);
+
 ////////////////////////////////////////////////////////////
 // interface implementation
 ////////////////////////////////////////////////////////////
+
+void tt_ipc_status_dump_ntv(IN tt_u32_t flag)
+{
+    pid_t pid;
+    int size;
+    struct proc_fdinfo *fdinfo;
+
+    pid = getpid();
+    size = proc_pidinfo(pid, PROC_PIDLISTFDS, 0, NULL, 0);
+    if (size <= 0) {
+        return;
+    }
+
+    fdinfo = (struct proc_fdinfo *)malloc(size);
+    if (fdinfo == NULL) {
+        return;
+    }
+
+    size = proc_pidinfo(pid, PROC_PIDLISTFDS, 0, fdinfo, size);
+    if (size > 0) {
+        int n, i;
+
+        n = size / PROC_PIDLISTFD_SIZE;
+        for (i = 0; i < n; ++i) {
+            if (fdinfo[i].proc_fdtype == PROX_FDTYPE_SOCKET) {
+                struct socket_fdinfo si;
+                int vs = proc_pidfdinfo(pid,
+                                        fdinfo[i].proc_fd,
+                                        PROC_PIDFDSOCKETINFO,
+                                        &si,
+                                        PROC_PIDFDSOCKETINFO_SIZE);
+                if (vs == PROC_PIDFDSOCKETINFO_SIZE) {
+                    __dump_ipc_fdinfo(&fdinfo[i], &si, flag);
+                }
+            }
+        }
+    }
+
+    free(fdinfo);
+}
 
 tt_result_t tt_ipc_create_ntv(IN tt_ipc_ntv_t *ipc,
                               IN OPT const tt_char_t *addr,
@@ -798,6 +844,21 @@ void __handle_cmsg(IN __ipc_recv_t *ipc_recv, IN struct msghdr *msg)
         skt->sys_skt.s = s;
 
         *ipc_recv->p_skt = skt;
+    }
+}
+
+void __dump_ipc_fdinfo(IN struct proc_fdinfo *fi,
+                       IN struct socket_fdinfo *si,
+                       IN tt_u32_t flag)
+{
+    if (si->psi.soi_kind == SOCKINFO_UN) {
+        struct un_sockinfo *usi = &si->psi.soi_proto.pri_un;
+
+        tt_printf("%s[fd: %d] [%s --> %s]\n",
+                  TT_COND(flag & TT_IPC_STATUS_PREFIX, "<<IPC>> ", ""),
+                  fi->proc_fd,
+                  usi->unsi_addr.ua_sun.sun_path,
+                  usi->unsi_caddr.ua_sun.sun_path);
     }
 }
 

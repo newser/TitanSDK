@@ -1310,7 +1310,7 @@ static tt_result_t __ipc_tcp_svr1(IN void *param)
     tt_skt_t *s, *new_s;
     tt_fiber_ev_t *p_fev;
     tt_tmr_t *p_tmr;
-    tt_ipc_t *ipc;
+    tt_ipc_t *ipc = NULL;
 
     s = tt_tcp_server_p(TT_NET_AF_INET, NULL, "127.0.0.1", 63639);
     if (s == NULL) {
@@ -1346,6 +1346,10 @@ static tt_result_t __ipc_tcp_svr1(IN void *param)
 out:
     if (s != NULL) {
         tt_skt_destroy(s);
+    }
+
+    if (ipc != NULL) {
+        tt_ipc_destroy(ipc);
     }
 
     return TT_SUCCESS;

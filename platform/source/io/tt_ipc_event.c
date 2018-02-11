@@ -90,6 +90,8 @@ tt_result_t tt_ipc_send_ev(IN tt_ipc_t *dst, IN tt_ipc_ev_t *pev)
                                  &sent)) &&
            ((n += sent) < len)) {
     }
+    tt_free(pev);
+
     TT_ASSERT(n <= len);
     if (n == len) {
         return TT_SUCCESS;

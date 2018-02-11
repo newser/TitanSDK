@@ -26,6 +26,7 @@
 #include <init/tt_profile.h>
 #include <memory/tt_memory_alloc.h>
 #include <misc/tt_assert.h>
+#include <os/tt_atomic.h>
 #include <os/tt_thread.h>
 
 ////////////////////////////////////////////////////////////
@@ -43,6 +44,8 @@
 ////////////////////////////////////////////////////////////
 // global variant
 ////////////////////////////////////////////////////////////
+
+static tt_atomic_s32_t __ipc_num;
 
 ////////////////////////////////////////////////////////////
 // interface declaration
@@ -72,6 +75,19 @@ void tt_ipc_component_register()
     tt_component_register(&comp);
 }
 
+void tt_ipc_status_dump(IN tt_u32_t flag)
+{
+    if (flag & TT_IPC_STATUS_COUNT) {
+        tt_printf("%s[%d ipc] are opened\n",
+                  TT_COND(flag & TT_IPC_STATUS_PREFIX, "<<IPC>> ", ""),
+                  tt_atomic_s32_get(&__ipc_num));
+    }
+
+    if (flag & TT_IPC_STATUS_NATIVE) {
+        tt_ipc_status_dump_ntv(flag);
+    }
+}
+
 tt_ipc_t *tt_ipc_create(IN OPT const tt_char_t *addr,
                         IN OPT tt_ipc_attr_t *attr)
 {
@@ -96,11 +112,14 @@ tt_ipc_t *tt_ipc_create(IN OPT const tt_char_t *addr,
 
     tt_buf_init(&ipc->buf, &attr->recv_buf_attr);
 
+    tt_atomic_s32_inc(&__ipc_num);
     return ipc;
 }
 
 void tt_ipc_destroy(IN tt_ipc_t *ipc)
 {
+    tt_s32_t n;
+
     TT_ASSERT(ipc != NULL);
 
     tt_ipc_destroy_ntv(&ipc->sys_ipc);
@@ -108,6 +127,9 @@ void tt_ipc_destroy(IN tt_ipc_t *ipc)
     tt_buf_destroy(&ipc->buf);
 
     tt_free(ipc);
+
+    n = tt_atomic_s32_dec(&__ipc_num);
+    TT_ASSERT(n >= 0);
 }
 
 void tt_ipc_attr_default(IN tt_ipc_attr_t *attr)
@@ -153,6 +175,7 @@ tt_ipc_t *tt_ipc_accept(IN tt_ipc_t *ipc,
                         OUT struct tt_tmr_s **p_tmr)
 {
     tt_ipc_attr_t __attr;
+    tt_ipc_t *new_ipc;
 
     TT_ASSERT(ipc != NULL);
 
@@ -161,8 +184,11 @@ tt_ipc_t *tt_ipc_accept(IN tt_ipc_t *ipc,
         new_attr = &__attr;
     }
 
-    return tt_ipc_accept_ntv(&ipc->sys_ipc, new_attr, p_fev, p_tmr);
-    // tt_buf_init(&new_ipc->buf, &new_attr->recv_buf_attr);
+    new_ipc = tt_ipc_accept_ntv(&ipc->sys_ipc, new_attr, p_fev, p_tmr);
+    if (new_ipc != NULL) {
+        tt_atomic_s32_inc(&__ipc_num);
+    }
+    return new_ipc;
 }
 
 tt_result_t tt_ipc_local_addr(IN tt_ipc_t *ipc,
@@ -194,10 +220,14 @@ tt_result_t __ipc_component_init(IN tt_component_t *comp,
         return TT_FAIL;
     }
 
+    tt_atomic_s32_set(&__ipc_num, 0);
+
     return TT_SUCCESS;
 }
 
 void __ipc_component_exit(IN tt_component_t *comp)
 {
     tt_ipc_component_exit_ntv();
+
+    tt_ipc_status_dump(TT_IPC_STATUS_ALL);
 }

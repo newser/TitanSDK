@@ -938,7 +938,7 @@ void __dump_socket_fdinfo(IN struct proc_fdinfo *fi,
         }
 
         tt_printf("%s[fd: %d] udp [%s]\n",
-                  TT_COND(flag & TT_FS_STATUS_PREFIX, "<<Socket>> ", ""),
+                  TT_COND(flag & TT_SKT_STATUS_PREFIX, "<<Socket>> ", ""),
                   fi->proc_fd,
                   local);
     } else if (si->psi.soi_kind == SOCKINFO_TCP) {
@@ -994,7 +994,7 @@ void __dump_socket_fdinfo(IN struct proc_fdinfo *fi,
         }
 
         tt_printf("%s[fd: %d] tcp [%s --> %s]\n",
-                  TT_COND(flag & TT_FS_STATUS_PREFIX, "<<Socket>> ", ""),
+                  TT_COND(flag & TT_SKT_STATUS_PREFIX, "<<Socket>> ", ""),
                   fi->proc_fd,
                   local,
                   remote);
