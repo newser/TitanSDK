@@ -100,10 +100,11 @@ tt_result_t __ut_fiber(IN void *param)
             //"case_ipc_ev",
             //"case_fs_basic",
             //"TEST_UNIT_FS",
-            "TEST_UNIT_IPC",
+            //"TEST_UNIT_IPC",
             //"TEST_UNIT_SOCKET",
             //"TEST_UNIT_FIBER",
             //"ZIP_UT_ZLIB",
+            "ALG_UT_STRING",
         };
         tt_u32_t i;
 
