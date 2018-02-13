@@ -1027,6 +1027,7 @@ TT_TEST_ROUTINE_DEFINE(case_ssl_auth)
     tt_x509cert_destroy(&cert);
     tt_x509cert_destroy(&cert2);
     tt_pk_destroy(&pk);
+    tt_pk_destroy(&pk2);
     tt_ssl_config_destroy(&sc_cli_1);
     tt_ssl_config_destroy(&sc_svr_1);
 

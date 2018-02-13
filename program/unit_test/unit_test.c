@@ -104,7 +104,7 @@ tt_result_t __ut_fiber(IN void *param)
             //"TEST_UNIT_SOCKET",
             //"TEST_UNIT_FIBER",
             //"ZIP_UT_ZLIB",
-            "case_dc_exception",
+            "SSL_UT_IO",
         };
         tt_u32_t i;
 
