@@ -964,7 +964,7 @@ void __dump_socket_fdinfo(IN struct proc_fdinfo *fi,
                         sizeof(remote) - 1,
                         "%s|%d",
                         addr,
-                        tsi->tcpsi_ini.insi_lport);
+                        tsi->tcpsi_ini.insi_fport);
         } else if (si->psi.soi_family == AF_INET6) {
             tt_sktaddr_ip_t ip;
             char addr[64] = {0};
@@ -987,7 +987,7 @@ void __dump_socket_fdinfo(IN struct proc_fdinfo *fi,
                         sizeof(remote) - 1,
                         "%s|%d",
                         addr,
-                        tsi->tcpsi_ini.insi_lport);
+                        tsi->tcpsi_ini.insi_fport);
         } else {
             tt_snprintf(local, sizeof(local) - 1, "?|?");
             tt_snprintf(remote, sizeof(remote) - 1, "?|?");

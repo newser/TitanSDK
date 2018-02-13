@@ -209,8 +209,21 @@ fail:
 
 void tt_io_poller_destroy_ntv(IN tt_io_poller_ntv_t *sys_iop)
 {
-    if (!tt_dlist_empty(&sys_iop->poller_ev)) {
-        TT_FATAL("poller poller_ev list is not empty");
+    tt_u32_t n;
+    tt_dnode_t *node;
+
+    n = 0;
+    while ((node = tt_dlist_pop_head(&sys_iop->poller_ev)) != NULL) {
+        tt_io_ev_t *io_ev = TT_CONTAINER(node, tt_io_ev_t, node);
+
+        if ((io_ev->io == TT_IO_POLLER) && (io_ev->ev == __POLLER_EXIT)) {
+            // safe to free __POLLER_EXIT
+            tt_free(io_ev);
+        }
+        // we do not know how to handle other events
+    }
+    if (n != 0) {
+        TT_FATAL("%d poller_ev list is lost", n);
     }
 
     if (!tt_dlist_empty(&sys_iop->worker_ev)) {

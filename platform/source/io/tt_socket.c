@@ -342,6 +342,8 @@ tt_skt_t *tt_tcp_server(IN tt_net_family_t family,
         return NULL;
     }
 
+    tt_skt_set_reuseaddr(skt, TT_TRUE);
+
     if (!TT_OK(tt_skt_bind(skt, addr)) || !TT_OK(tt_skt_listen(skt))) {
         tt_skt_destroy(skt);
         return NULL;
@@ -376,6 +378,8 @@ tt_skt_t *tt_udp_server(IN tt_net_family_t family,
     if (skt == NULL) {
         return NULL;
     }
+
+    tt_skt_set_reuseaddr(skt, TT_TRUE);
 
     if (!TT_OK(tt_skt_bind(skt, addr))) {
         tt_skt_destroy(skt);
