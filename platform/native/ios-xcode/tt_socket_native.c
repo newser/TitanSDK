@@ -35,9 +35,11 @@
 #include <tt_cstd_api.h>
 #include <tt_util_native.h>
 
+#include <libproc.h>
 #include <net/if.h>
 #include <poll.h>
 #include <sys/ioctl.h>
+#include <sys/proc_info.h>
 #include <unistd.h>
 
 ////////////////////////////////////////////////////////////
@@ -285,6 +287,10 @@ static tt_result_t __addr_to_mreq6(IN tt_sktaddr_ip_t *addr,
                                    IN const tt_char_t *itf,
                                    OUT struct ipv6_mreq *mreq);
 
+static void __dump_socket_fdinfo(IN struct proc_fdinfo *fi,
+                                 IN struct socket_fdinfo *si,
+                                 IN tt_u32_t flag);
+
 ////////////////////////////////////////////////////////////
 // interface implementation
 ////////////////////////////////////////////////////////////
@@ -292,6 +298,46 @@ static tt_result_t __addr_to_mreq6(IN tt_sktaddr_ip_t *addr,
 tt_result_t tt_skt_component_init_ntv(IN tt_profile_t *profile)
 {
     return TT_SUCCESS;
+}
+
+void tt_skt_status_dump_ntv(IN tt_u32_t flag)
+{
+    pid_t pid;
+    int size;
+    struct proc_fdinfo *fdinfo;
+
+    pid = getpid();
+    size = proc_pidinfo(pid, PROC_PIDLISTFDS, 0, NULL, 0);
+    if (size <= 0) {
+        return;
+    }
+
+    fdinfo = (struct proc_fdinfo *)malloc(size);
+    if (fdinfo == NULL) {
+        return;
+    }
+
+    size = proc_pidinfo(pid, PROC_PIDLISTFDS, 0, fdinfo, size);
+    if (size > 0) {
+        int n, i;
+
+        n = size / PROC_PIDLISTFD_SIZE;
+        for (i = 0; i < n; ++i) {
+            if (fdinfo[i].proc_fdtype == PROX_FDTYPE_SOCKET) {
+                struct socket_fdinfo si;
+                int vs = proc_pidfdinfo(pid,
+                                        fdinfo[i].proc_fd,
+                                        PROC_PIDFDSOCKETINFO,
+                                        &si,
+                                        PROC_PIDFDSOCKETINFO_SIZE);
+                if (vs == PROC_PIDFDSOCKETINFO_SIZE) {
+                    __dump_socket_fdinfo(&fdinfo[i], &si, flag);
+                }
+            }
+        }
+    }
+
+    free(fdinfo);
 }
 
 tt_result_t tt_skt_create_ntv(IN tt_skt_ntv_t *skt,
@@ -347,7 +393,6 @@ tt_result_t tt_skt_create_ntv(IN tt_skt_ntv_t *skt,
 
     skt->s = s;
 
-    tt_skt_stat_inc_num();
     return TT_SUCCESS;
 
 fail:
@@ -856,6 +901,104 @@ tt_result_t __addr_to_mreq6(IN tt_sktaddr_ip_t *addr,
     }
 
     return TT_SUCCESS;
+}
+
+void __dump_socket_fdinfo(IN struct proc_fdinfo *fi,
+                          IN struct socket_fdinfo *si,
+                          IN tt_u32_t flag)
+{
+    if (si->psi.soi_kind == SOCKINFO_IN) {
+        struct in_sockinfo *isi = &si->psi.soi_proto.pri_in;
+        char local[128] = {0};
+
+        if (si->psi.soi_family == AF_INET) {
+            tt_sktaddr_ip_t ip;
+            char addr[64] = {0};
+
+            ip.a32.__u32 = isi->insi_laddr.ina_46.i46a_addr4.s_addr;
+            tt_sktaddr_ip_n2p(TT_NET_AF_INET, &ip, addr, sizeof(addr) - 1);
+            tt_snprintf(local,
+                        sizeof(local) - 1,
+                        "%s|%d",
+                        addr,
+                        isi->insi_lport);
+        } else if (si->psi.soi_family == AF_INET6) {
+            tt_sktaddr_ip_t ip;
+            char addr[64] = {0};
+
+            tt_memcpy(ip.a128.__u8, isi->insi_laddr.ina_6.s6_addr, 16);
+            tt_sktaddr_ip_n2p(TT_NET_AF_INET6, &ip, addr, sizeof(addr) - 1);
+            tt_snprintf(local,
+                        sizeof(local) - 1,
+                        "%s|%d",
+                        addr,
+                        isi->insi_lport);
+        } else {
+            tt_snprintf(local, sizeof(local) - 1, "?|?");
+        }
+
+        tt_printf("%s[fd: %d] udp [%s]\n",
+                  TT_COND(flag & TT_SKT_STATUS_PREFIX, "<<Socket>> ", ""),
+                  fi->proc_fd,
+                  local);
+    } else if (si->psi.soi_kind == SOCKINFO_TCP) {
+        struct tcp_sockinfo *tsi = &si->psi.soi_proto.pri_tcp;
+        char local[128] = {0};
+        char remote[128] = {0};
+
+        if (si->psi.soi_family == AF_INET) {
+            tt_sktaddr_ip_t ip;
+            char addr[64] = {0};
+
+            ip.a32.__u32 = tsi->tcpsi_ini.insi_laddr.ina_46.i46a_addr4.s_addr;
+            tt_sktaddr_ip_n2p(TT_NET_AF_INET, &ip, addr, sizeof(addr) - 1);
+            tt_snprintf(local,
+                        sizeof(local) - 1,
+                        "%s|%d",
+                        addr,
+                        tsi->tcpsi_ini.insi_lport);
+
+            ip.a32.__u32 = tsi->tcpsi_ini.insi_faddr.ina_46.i46a_addr4.s_addr;
+            tt_sktaddr_ip_n2p(TT_NET_AF_INET, &ip, addr, sizeof(addr) - 1);
+            tt_snprintf(remote,
+                        sizeof(remote) - 1,
+                        "%s|%d",
+                        addr,
+                        tsi->tcpsi_ini.insi_fport);
+        } else if (si->psi.soi_family == AF_INET6) {
+            tt_sktaddr_ip_t ip;
+            char addr[64] = {0};
+
+            tt_memcpy(ip.a128.__u8,
+                      tsi->tcpsi_ini.insi_laddr.ina_6.s6_addr,
+                      16);
+            tt_sktaddr_ip_n2p(TT_NET_AF_INET6, &ip, addr, sizeof(addr) - 1);
+            tt_snprintf(local,
+                        sizeof(local) - 1,
+                        "%s|%d",
+                        addr,
+                        tsi->tcpsi_ini.insi_lport);
+
+            tt_memcpy(ip.a128.__u8,
+                      tsi->tcpsi_ini.insi_faddr.ina_6.s6_addr,
+                      16);
+            tt_sktaddr_ip_n2p(TT_NET_AF_INET6, &ip, addr, sizeof(addr) - 1);
+            tt_snprintf(remote,
+                        sizeof(remote) - 1,
+                        "%s|%d",
+                        addr,
+                        tsi->tcpsi_ini.insi_fport);
+        } else {
+            tt_snprintf(local, sizeof(local) - 1, "?|?");
+            tt_snprintf(remote, sizeof(remote) - 1, "?|?");
+        }
+
+        tt_printf("%s[fd: %d] tcp [%s --> %s]\n",
+                  TT_COND(flag & TT_SKT_STATUS_PREFIX, "<<Socket>> ", ""),
+                  fi->proc_fd,
+                  local,
+                  remote);
+    }
 }
 
 tt_bool_t __do_accept(IN tt_io_ev_t *io_ev)

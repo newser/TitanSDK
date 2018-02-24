@@ -67,6 +67,12 @@ tt_inline tt_result_t tt_ipc_component_init_ntv(IN struct tt_profile_s *profile)
     return TT_SUCCESS;
 }
 
+tt_inline void tt_ipc_component_exit_ntv()
+{
+}
+
+extern void tt_ipc_status_dump_ntv();
+
 extern tt_result_t tt_ipc_create_ntv(IN tt_ipc_ntv_t *ipc,
                                      IN OPT const tt_char_t *addr,
                                      IN OPT struct tt_ipc_attr_s *attr);

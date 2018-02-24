@@ -39,12 +39,34 @@ tt_result_t __ut_fiber(IN void *param)
     else {
         tt_u32_t i;
         const tt_char_t *names[] = {
-            //"case_sk_opt",
-            //"TEST_UNIT_LOG",
-            "TEST_UNIT_FIBER",
-            "TEST_UNIT_FS",
-            //"TEST_UNIT_SOCKET",
-            //"TEST_UNIT_IPC"
+//"case_sk_opt",
+//"TEST_UNIT_LOG",
+//"TEST_UNIT_FS",
+//"TEST_UNIT_IPC"
+#if 0
+            "ALG_UT_BASIC_ALG",
+            "ALG_UT_HEAP",
+            "ALG_UT_VECTOR",
+            "ALG_UT_LIST",
+            "ALG_UT_HASHMAP",
+            "ALG_UT_QUEUE",
+            "ALG_UT_RBTREE",
+            "ALG_UT_STACK",
+            "ALG_UT_RBUF",
+            "ALG_UT_BUF",
+            "ALG_UT_STRING",
+#endif
+
+#if 0
+            "DNS_UT_QUERY",
+            "DNS_UT_RR",
+            "DNS_UT_CACHE",
+#endif
+
+#if 1
+            "SSL_UT_X509",
+            "SSL_UT_IO",
+#endif
         };
 
         for (i = 0; i < sizeof(names) / sizeof(names[0]); ++i) {
@@ -123,8 +145,9 @@ tt_task_add_fiber(&t, NULL, __ut_fiber, NULL, NULL);
 tt_task_run(&t);
 tt_task_wait(&t);
 printf("exiting\n");
+tt_platform_exit();
 
-exit(0);
+// exit(0);
 return 0;
 
 // tt_page_os_stat_show(0);

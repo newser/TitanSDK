@@ -177,7 +177,7 @@ tt_inline int tt_vsnprintf(IN char *str,
 {
     int n = vsnprintf(str, size, format, ap);
     if ((n < 0) || (n >= size)) {
-        n = size - 1;
+        n = (int)size - 1;
     }
     return n;
 }

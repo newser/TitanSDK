@@ -304,12 +304,14 @@ static void __ut_skt_exit(void *enter_param)
 #if TT_ENV_OS_IS_IOS
 #if (TT_ENV_OS_FEATURE & TT_ENV_OS_FEATURE_IOS_SIMULATOR)
     tt_set_current_path(tt_string_cstr(&__wpath));
+    tt_string_destroy(&__wpath);
 #else
     todo
 #endif
 
 #elif TT_ENV_OS_IS_ANDROID
     tt_set_current_path(tt_string_cstr(&__wpath));
+    tt_string_destroy(&__wpath);
 #endif
 }
 
@@ -426,7 +428,7 @@ TT_TEST_CASE("case_mac_addr",
                  NULL),
 
 #if 0
-    TT_TEST_CASE("case_ab", 
+    TT_TEST_CASE("case_ab",
                  "testing socket test with apache benchmark", 
                  case_ab, NULL, 
                  __ut_skt_enter, NULL,

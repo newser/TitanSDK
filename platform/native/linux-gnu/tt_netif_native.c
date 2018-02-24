@@ -177,7 +177,7 @@ tt_result_t tt_netif_group_refresh_ntv(IN tt_netif_group_t *group,
         }
     }
 
-    freeifaddrs(ifa);
+    freeifaddrs(ifaddrs);
 
     return TT_SUCCESS;
 }

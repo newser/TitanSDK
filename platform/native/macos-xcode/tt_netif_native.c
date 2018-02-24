@@ -160,7 +160,7 @@ tt_result_t tt_netif_group_refresh_ntv(IN struct tt_netif_group_s *group,
         }
     }
 
-    freeifaddrs(ifa);
+    freeifaddrs(ifaddrs);
 
     return TT_SUCCESS;
 }

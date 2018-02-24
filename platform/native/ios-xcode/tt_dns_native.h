@@ -55,6 +55,10 @@ tt_inline tt_result_t tt_dns_component_init_ntv(IN struct tt_profile_s *profile)
     return TT_SUCCESS;
 }
 
+tt_inline void tt_dns_component_exit_ntv()
+{
+}
+
 extern tt_result_t tt_dns_create_ntv(IN struct ares_channeldata *ch);
 
 extern void tt_dns_destroy_ntv(IN struct ares_channeldata *ch);
