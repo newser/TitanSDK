@@ -63,4 +63,8 @@ tt_inline tt_result_t tt_network_io_component_init_ntv()
     return TT_SUCCESS;
 }
 
+tt_inline void tt_network_io_component_exit_ntv()
+{
+}
+
 #endif /* __TT_IO_NETWORK_INIT_NATIVE__ */

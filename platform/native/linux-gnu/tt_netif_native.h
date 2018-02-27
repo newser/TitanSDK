@@ -65,6 +65,10 @@ tt_inline tt_result_t tt_network_interface_init_ntv()
     return TT_SUCCESS;
 }
 
+tt_inline void tt_network_interface_exit_ntv()
+{
+}
+
 extern tt_result_t tt_netif_group_create_ntv(IN tt_netif_group_ntv_t *group);
 
 extern void tt_netif_group_destroy_ntv(IN tt_netif_group_ntv_t *group);

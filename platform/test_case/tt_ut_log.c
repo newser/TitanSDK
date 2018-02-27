@@ -716,6 +716,8 @@ TT_TEST_ROUTINE_DEFINE(case_log_io_file_archive)
     TT_TEST_CASE_ENTER()
     // test start
 
+    (void)oneshot;
+
     tt_logio_file_attr_default(&a);
     a.log_name = "mylog";
     a.max_log_size_order = 6; // 64 bytes

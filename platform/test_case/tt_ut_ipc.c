@@ -1028,6 +1028,7 @@ tt_export tt_result_t __ipc_cli_pev(IN void *param)
                 __ipc_err_line = __LINE__;
             }
 
+            TT_INFO_IPC("cli to send ev %d", n);
             if (!TT_OK(tt_ipc_send_ev(ipc, pev))) {
                 __ipc_err_line = __LINE__;
                 return TT_FAIL;
@@ -1121,6 +1122,7 @@ tt_result_t __ipc_svr_pev_fev(IN void *param)
         rn = 0;
         while (
             TT_OK((ret = tt_ipc_recv_ev(new_ipc, &pev, &fev, &e_tmr, &skt)))) {
+            TT_INFO_IPC("ipc recv %p, %p, %p, %p", pev, fev, e_tmr, skt);
             if (fev != NULL) {
                 TT_INFO_IPC("[%d:%d] svr recv fiber ev %x", cn, rn, fev->ev);
                 if (fev->src != NULL) {
@@ -1206,7 +1208,8 @@ tt_result_t __ipc_svr_pev_fev(IN void *param)
                     return TT_FAIL;
                 }
             }
-            __ipc_svr_sent += sizeof(tt_ipc_ev_t) + pev->size;
+            //__ipc_svr_sent += sizeof(tt_ipc_ev_t) + pev->size;
+            __ipc_svr_sent += sizeof(tt_ipc_ev_t) + n;
             TT_INFO_IPC("[%d:%d] svr sent ev %d, total: %d",
                         cn,
                         rn,

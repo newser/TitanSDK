@@ -59,7 +59,7 @@ static tt_result_t __skt_component_init(IN tt_component_t *comp,
 
 static void __skt_component_exit(IN tt_component_t *comp);
 
-static void __skt_inc_num();
+void __skt_inc_num();
 
 static void __skt_dec_num();
 

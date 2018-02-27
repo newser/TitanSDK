@@ -75,6 +75,11 @@ tt_result_t tt_thread_component_init_ntv()
     return TT_SUCCESS;
 }
 
+void tt_thread_component_exit_ntv()
+{
+    pthread_key_delete(tt_g_thread_key);
+}
+
 tt_result_t tt_thread_create_ntv(IN struct tt_thread_s *thread)
 {
     tt_thread_ntv_t *sys_thread = &thread->sys_thread;
@@ -169,6 +174,20 @@ tt_result_t tt_thread_wait_ntv(IN struct tt_thread_s *thread)
     ret = pthread_join(thread->sys_thread.handle, NULL);
     if (ret != 0) {
         TT_ERROR("fail to wait thread: %d[%s]", ret, strerror(ret));
+        return TT_FAIL;
+    }
+
+    return TT_SUCCESS;
+}
+
+tt_result_t tt_thread_wait_local_ntv(IN struct tt_thread_s *thread)
+{
+    __thread_on_exit(thread);
+
+    // todo: restore sigmask
+
+    if (pthread_setspecific(tt_g_thread_key, NULL) != 0) {
+        TT_ERROR("fail to clear thread specific data");
         return TT_FAIL;
     }
 

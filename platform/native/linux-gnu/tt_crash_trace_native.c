@@ -90,6 +90,11 @@ tt_result_t tt_crash_trace_component_init_ntv(IN tt_profile_t *profile)
     return TT_SUCCESS;
 }
 
+void tt_crash_trace_component_exit_ntv()
+{
+    // todo: restore sigaction??
+}
+
 void __on_crash(IN int signum, IN siginfo_t *info, IN void *p)
 {
     tt_date_t d;

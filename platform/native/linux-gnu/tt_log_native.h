@@ -55,4 +55,8 @@ tt_inline tt_result_t tt_log_component_init_ntv(IN struct tt_profile_s *profile)
     return TT_SUCCESS;
 }
 
+tt_inline void tt_log_component_exit_ntv()
+{
+}
+
 #endif /* __TT_LOG_NATIVE__ */
