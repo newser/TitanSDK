@@ -82,21 +82,29 @@ tt_result_t __ut_fiber(IN void *param)
     return TT_SUCCESS;
 }
 
+JNIEXPORT void JNICALL
+Java_com_titansdk_titansdkunittest_TTUnitTestJNI_init(JNIEnv *env, jobject obj)
+{
+    tt_platform_init(NULL);
+
+    tt_thread_create_local(NULL);
+}
+
+JNIEXPORT void JNICALL
+Java_com_titansdk_titansdkunittest_TTUnitTestJNI_exit(JNIEnv *env, jobject obj)
+{
+    tt_thread_wait_local();
+
+    tt_platform_exit();
+}
+
 JNIEXPORT jstring JNICALL
 Java_com_titansdk_titansdkunittest_TTUnitTestJNI_runUT(JNIEnv *env,
                                                        jobject obj,
                                                        jstring name)
 {
-    static tt_bool_t initialized = TT_FALSE;
     tt_task_t t;
-
-    if (!initialized) {
-        tt_platform_init(NULL);
-
-        tt_thread_create_local(NULL);
-
-        initialized = TT_TRUE;
-    }
+    jstring ret;
 
     tt_buf_init(&tt_g_jni_buf, NULL);
 
@@ -111,7 +119,9 @@ Java_com_titansdk_titansdkunittest_TTUnitTestJNI_runUT(JNIEnv *env,
     TT_INFO("exiting");
 
     tt_buf_put_u8(&tt_g_jni_buf, 0);
-    return (*env)->NewStringUTF(env, (const char *)TT_BUF_RPOS(&tt_g_jni_buf));
+    ret = (*env)->NewStringUTF(env, (const char *)TT_BUF_RPOS(&tt_g_jni_buf));
+    tt_buf_destroy(&tt_g_jni_buf);
+    return ret;
 }
 
 #endif

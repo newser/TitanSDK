@@ -70,6 +70,11 @@ tt_result_t tt_rng_component_init_ntv()
     return TT_SUCCESS;
 }
 
+void tt_rng_component_exit_ntv()
+{
+    close(__rand_fd);
+}
+
 tt_result_t tt_rng_ntv(IN tt_u8_t *data, IN tt_u32_t data_len)
 {
     tt_u32_t n = 0;

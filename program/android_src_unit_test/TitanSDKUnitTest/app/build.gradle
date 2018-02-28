@@ -12,7 +12,7 @@ android {
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         externalNativeBuild {
             cmake {
-                arguments "-DANDROID_STUDIO=TRUE"
+                arguments "-DANDROID_STUDIO=TRUE", "-DPLATFORM_ENABLE_MEMORY_TAG=TRUE", "-DSANITIZE_ADDRESS=TRUE"
                 targets "platform"
             }
         }

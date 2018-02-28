@@ -53,6 +53,11 @@ tt_result_t tt_console_component_init_ntv()
     return TT_SUCCESS;
 }
 
+void tt_console_component_exit_ntv()
+{
+    // restore console??
+}
+
 tt_result_t tt_console_enter_ntv()
 {
     return TT_FAIL;

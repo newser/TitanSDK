@@ -498,6 +498,52 @@ tt_result_t tt_fs_component_init_ntv()
     return TT_SUCCESS;
 }
 
+void tt_fs_status_dump_ntv(IN tt_u32_t flag)
+{
+    char path[PATH_MAX + 1];
+    int len;
+    DIR *d;
+    struct dirent entry;
+    struct dirent *result = NULL;
+
+    len = snprintf(path, PATH_MAX, "/proc/%d/fd/", getpid());
+
+    d = opendir(path);
+    if (d == NULL) {
+        tt_printf("fail to open %s", path);
+        return;
+    }
+
+    while ((readdir_r(d, &entry, &result) == 0) && (result != NULL)) {
+        char link[PATH_MAX + 1];
+        ssize_t n;
+
+        if ((strcmp(entry.d_name, ".") == 0) ||
+            (strcmp(entry.d_name, "..") == 0)) {
+            continue;
+        }
+
+        path[len] = 0;
+        strncat(path, entry.d_name, PATH_MAX);
+        if ((n = readlink(path, link, PATH_MAX)) < 0) {
+            continue;
+        }
+        link[n] = 0;
+
+        if (link[0] != '/') {
+            // only show files
+            continue;
+        }
+
+        tt_printf("%s[fd: %s] [%s]\n",
+                  TT_COND(flag & TT_FS_STATUS_PREFIX, "<<FS>> ", ""),
+                  entry.d_name,
+                  link);
+    }
+
+    closedir(d);
+}
+
 tt_result_t tt_fcreate_ntv(IN const tt_char_t *path,
                            IN struct tt_file_attr_s *attr)
 {

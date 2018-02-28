@@ -50,6 +50,8 @@ this file defines native random number generator
 
 extern tt_result_t tt_rng_component_init_ntv();
 
+extern void tt_rng_component_exit_ntv();
+
 extern tt_result_t tt_rng_ntv(IN tt_u8_t *data, IN tt_u32_t data_len);
 
 #endif /* __TT_RNG_NATIVE__ */

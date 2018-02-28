@@ -295,6 +295,8 @@ static tt_result_t __addr_to_mreq6(IN tt_sktaddr_ip_t *addr,
                                    IN const tt_char_t *itf,
                                    OUT struct ipv6_mreq *mreq);
 
+static void __dump_socket_fdinfo(IN int s, IN tt_u32_t flag);
+
 ////////////////////////////////////////////////////////////
 // interface implementation
 ////////////////////////////////////////////////////////////
@@ -308,6 +310,94 @@ tt_result_t tt_skt_component_init_ntv(IN tt_profile_t *profile)
     __s_null_io_ev.ev = __SKT_NULL;
 
     return TT_SUCCESS;
+}
+
+void tt_skt_component_exit_ntv()
+{
+}
+
+void tt_skt_status_dump_ntv(IN tt_u32_t flag)
+{
+    char path[PATH_MAX + 1];
+    int len;
+    DIR *d;
+    struct dirent entry;
+    struct dirent *result = NULL;
+
+    len = snprintf(path, PATH_MAX, "/proc/%d/fd/", getpid());
+
+    d = opendir(path);
+    if (d == NULL) {
+        tt_printf("fail to open %s", path);
+        return;
+    }
+
+    while ((readdir_r(d, &entry, &result) == 0) && (result != NULL)) {
+        char link[PATH_MAX + 1];
+        ssize_t n;
+        int s;
+
+        if ((strcmp(entry.d_name, ".") == 0) ||
+            (strcmp(entry.d_name, "..") == 0)) {
+            continue;
+        }
+
+        path[len] = 0;
+        strncat(path, entry.d_name, PATH_MAX);
+        if ((n = readlink(path, link, PATH_MAX)) < 0) {
+            continue;
+        }
+        link[n] = 0;
+
+        if (strncmp(link, "socket", 6) != 0) {
+            // only show socket
+            continue;
+        }
+
+        s = strtol(entry.d_name, NULL, 10);
+        __dump_socket_fdinfo(s, flag);
+    }
+
+    closedir(d);
+
+#if 0
+    pid_t pid;
+    int size;
+    struct proc_fdinfo *fdinfo;
+
+    pid = getpid();
+    size = proc_pidinfo(pid, PROC_PIDLISTFDS, 0, NULL, 0);
+    if (size <= 0) {
+        return;
+    }
+
+    fdinfo = (struct proc_fdinfo *)malloc(size);
+    if (fdinfo == NULL) {
+        return;
+    }
+
+    size = proc_pidinfo(pid, PROC_PIDLISTFDS, 0, fdinfo, size);
+    if (size > 0) {
+        int n, i;
+
+        n = size / PROC_PIDLISTFD_SIZE;
+        for (i = 0; i < n; ++i) {
+            if (fdinfo[i].proc_fdtype == PROX_FDTYPE_SOCKET) {
+                struct socket_fdinfo si;
+                int vs = proc_pidfdinfo(pid,
+                                        fdinfo[i].proc_fd,
+                                        PROC_PIDFDSOCKETINFO,
+                                        &si,
+                                        PROC_PIDFDSOCKETINFO_SIZE);
+                if (vs == PROC_PIDFDSOCKETINFO_SIZE) {
+                    __dump_socket_fdinfo(&fdinfo[i], &si, flag);
+                }
+            }
+        }
+    }
+
+    free(fdinfo);
+#endif
 }
 
 tt_result_t tt_skt_create_ntv(IN tt_skt_ntv_t *skt,
@@ -374,7 +464,6 @@ tt_result_t tt_skt_create_ntv(IN tt_skt_ntv_t *skt,
 
     skt->s = s;
 
-    tt_skt_stat_inc_num();
     return TT_SUCCESS;
 
 fail:
@@ -1158,6 +1247,141 @@ again:
     }
 
     return TT_TRUE;
+}
+
+void __dump_socket_fdinfo(IN int s, IN tt_u32_t flag)
+{
+    int val;
+    socklen_t len = sizeof(val);
+    const char *type = "?";
+    char local[128] = {0};
+    char remote[128] = {0};
+
+    if (getsockopt(s, SOL_SOCKET, SO_TYPE, &val, &len) != 0) {
+        tt_printf("%s[fd: %d] ?\n",
+                  TT_COND(flag & TT_SKT_STATUS_PREFIX, "<<Socket>> ", ""),
+                  s);
+    } else if (val == SOCK_STREAM) {
+        struct sockaddr_storage a;
+        socklen_t alen = sizeof(a);
+        char local[128] = {0};
+        char remote[128] = {0};
+
+        if (getsockname(s, (struct sockaddr *)&a, &alen) != 0) {
+            tt_snprintf(local, sizeof(local) - 1, "?|?");
+        } else if (a.ss_family == AF_INET) {
+            struct sockaddr_in *a4 = (struct sockaddr_in *)&a;
+            tt_sktaddr_ip_t ip;
+            char addr[64] = {0};
+
+            ip.a32.__u32 = a4->sin_addr.s_addr;
+            tt_sktaddr_ip_n2p(TT_NET_AF_INET, &ip, addr, sizeof(addr) - 1);
+            tt_snprintf(local,
+                        sizeof(local) - 1,
+                        "%s|%d",
+                        addr,
+                        ntohs(a4->sin_port));
+        } else if (a.ss_family == AF_INET6) {
+            struct sockaddr_in6 *a6 = (struct sockaddr_in6 *)&a;
+            tt_sktaddr_ip_t ip;
+            char addr[64] = {0};
+
+            tt_memcpy(ip.a128.__u8, a6->sin6_addr.s6_addr, 16);
+            tt_sktaddr_ip_n2p(TT_NET_AF_INET6, &ip, addr, sizeof(addr) - 1);
+            tt_snprintf(local,
+                        sizeof(local) - 1,
+                        "%s|%d",
+                        addr,
+                        ntohs(a6->sin6_port));
+        } else if (a.ss_family == AF_LOCAL) {
+            return;
+        } else {
+            tt_snprintf(local, sizeof(local) - 1, "?|?");
+        }
+
+        if (getpeername(s, (struct sockaddr *)&a, &alen) != 0) {
+            tt_snprintf(remote, sizeof(remote) - 1, "?|?");
+        } else if (a.ss_family == AF_INET) {
+            struct sockaddr_in *a4 = (struct sockaddr_in *)&a;
+            tt_sktaddr_ip_t ip;
+            char addr[64] = {0};
+
+            ip.a32.__u32 = a4->sin_addr.s_addr;
+            tt_sktaddr_ip_n2p(TT_NET_AF_INET, &ip, addr, sizeof(addr) - 1);
+            tt_snprintf(remote,
+                        sizeof(remote) - 1,
+                        "%s|%d",
+                        addr,
+                        ntohs(a4->sin_port));
+        } else if (a.ss_family == AF_INET6) {
+            struct sockaddr_in6 *a6 = (struct sockaddr_in6 *)&a;
+            tt_sktaddr_ip_t ip;
+            char addr[64] = {0};
+
+            tt_memcpy(ip.a128.__u8, a6->sin6_addr.s6_addr, 16);
+            tt_sktaddr_ip_n2p(TT_NET_AF_INET6, &ip, addr, sizeof(addr) - 1);
+            tt_snprintf(remote,
+                        sizeof(remote) - 1,
+                        "%s|%d",
+                        addr,
+                        ntohs(a6->sin6_port));
+        } else if (a.ss_family == AF_LOCAL) {
+            return;
+        } else {
+            tt_snprintf(remote, sizeof(local) - 1, "?|?");
+        }
+
+        tt_printf("%s[fd: %d] tcp [%s --> %s]\n",
+                  TT_COND(flag & TT_SKT_STATUS_PREFIX, "<<Socket>> ", ""),
+                  s,
+                  local,
+                  remote);
+    } else if (val == SOCK_DGRAM) {
+        struct sockaddr_storage a;
+        socklen_t alen = sizeof(a);
+        char local[128] = {0};
+
+        if (getsockname(s, (struct sockaddr *)&a, &alen) != 0) {
+            tt_snprintf(local, sizeof(local) - 1, "?|?");
+        } else if (a.ss_family == AF_INET) {
+            struct sockaddr_in *a4 = (struct sockaddr_in *)&a;
+            tt_sktaddr_ip_t ip;
+            char addr[64] = {0};
+
+            ip.a32.__u32 = a4->sin_addr.s_addr;
+            tt_sktaddr_ip_n2p(TT_NET_AF_INET, &ip, addr, sizeof(addr) - 1);
+            tt_snprintf(local,
+                        sizeof(local) - 1,
+                        "%s|%d",
+                        addr,
+                        ntohs(a4->sin_port));
+        } else if (a.ss_family == AF_INET6) {
+            struct sockaddr_in6 *a6 = (struct sockaddr_in6 *)&a;
+            tt_sktaddr_ip_t ip;
+            char addr[64] = {0};
+
+            tt_memcpy(ip.a128.__u8, a6->sin6_addr.s6_addr, 16);
+            tt_sktaddr_ip_n2p(TT_NET_AF_INET6, &ip, addr, sizeof(addr) - 1);
+            tt_snprintf(local,
+                        sizeof(local) - 1,
+                        "%s|%d",
+                        addr,
+                        ntohs(a6->sin6_port));
+        } else if (a.ss_family == AF_LOCAL) {
+            return;
+        } else {
+            tt_snprintf(local, sizeof(local) - 1, "?|?");
+        }
+
+        tt_printf("%s[fd: %d] udp [%s]\n",
+                  TT_COND(flag & TT_SKT_STATUS_PREFIX, "<<Socket>> ", ""),
+                  s,
+                  local);
+    } /*else {
+        tt_printf("%s[fd: %d] ?\n",
+                  TT_COND(flag & TT_SKT_STATUS_PREFIX, "<<Socket>> ", ""),
+                  s);
+    }*/
 }
 
 #ifdef __SIMU_FAIL_SOCKET

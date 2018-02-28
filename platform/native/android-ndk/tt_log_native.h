@@ -67,4 +67,6 @@ struct tt_profile_s;
 
 extern tt_result_t tt_log_component_init_ntv(IN struct tt_profile_s *profile);
 
+extern void tt_log_component_exit_ntv();
+
 #endif /* __TT_LOG_NATIVE__ */

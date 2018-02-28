@@ -300,7 +300,7 @@ tt_result_t __create_log_layout(IN tt_profile_t *profile)
         lyt = tt_loglyt_pattern_create("${content} <${function} - ${line}>\n");
         if (lyt == NULL) {
             TT_ERROR("fail to create debug log pattern\n");
-            return TT_FAIL;
+            goto fail;
         }
         tt_s_loglyt[TT_LOG_DEBUG] = lyt;
     }
@@ -310,7 +310,7 @@ tt_result_t __create_log_layout(IN tt_profile_t *profile)
         lyt = tt_loglyt_pattern_create("${content}\n");
         if (lyt == NULL) {
             TT_ERROR("fail to create info log pattern\n");
-            return TT_FAIL;
+            goto fail;
         }
         tt_s_loglyt[TT_LOG_INFO] = lyt;
     }
@@ -321,7 +321,7 @@ tt_result_t __create_log_layout(IN tt_profile_t *profile)
             "${time} ${level:%-6.6s} ${content} <${function} - ${line}>\n");
         if (lyt == NULL) {
             TT_ERROR("fail to create warn log pattern\n");
-            return TT_FAIL;
+            goto fail;
         }
         tt_s_loglyt[TT_LOG_WARN] = lyt;
     }
@@ -332,7 +332,7 @@ tt_result_t __create_log_layout(IN tt_profile_t *profile)
             "${time} ${level:%-6.6s} ${content} <${function} - ${line}>\n");
         if (lyt == NULL) {
             TT_ERROR("fail to create error log pattern\n");
-            return TT_FAIL;
+            goto fail;
         }
         tt_s_loglyt[TT_LOG_ERROR] = lyt;
     }
@@ -343,12 +343,36 @@ tt_result_t __create_log_layout(IN tt_profile_t *profile)
             "${time} ${level:%-6.6s} ${content} <${function} - ${line}>\n");
         if (lyt == NULL) {
             TT_ERROR("fail to create fatal log pattern\n");
-            return TT_FAIL;
+            goto fail;
         }
         tt_s_loglyt[TT_LOG_FATAL] = lyt;
     }
 
     return TT_SUCCESS;
+
+fail:
+
+    if (tt_s_loglyt[TT_LOG_DEBUG] != NULL) {
+        tt_loglyt_release(tt_s_loglyt[TT_LOG_DEBUG]);
+    }
+
+    if (tt_s_loglyt[TT_LOG_INFO] != NULL) {
+        tt_loglyt_release(tt_s_loglyt[TT_LOG_INFO]);
+    }
+
+    if (tt_s_loglyt[TT_LOG_WARN] != NULL) {
+        tt_loglyt_release(tt_s_loglyt[TT_LOG_WARN]);
+    }
+
+    if (tt_s_loglyt[TT_LOG_ERROR] != NULL) {
+        tt_loglyt_release(tt_s_loglyt[TT_LOG_ERROR]);
+    }
+
+    if (tt_s_loglyt[TT_LOG_FATAL] != NULL) {
+        tt_loglyt_release(tt_s_loglyt[TT_LOG_FATAL]);
+    }
+
+    return TT_FAIL;
 }
 
 void __destroy_log_layout()

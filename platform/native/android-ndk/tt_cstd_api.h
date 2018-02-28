@@ -34,6 +34,7 @@ this file wraps neccesary c standard library operations for purpose:
 
 #include <tt_basic_type.h>
 
+#include <android/log.h>
 #include <ctype.h>
 #include <memory.h>
 #include <stdarg.h>
@@ -144,7 +145,13 @@ wrapped c strchr()
 
 #define tt_toupper toupper
 
-#define tt_printf printf
+//#define tt_printf printf
+#define tt_printf(...)                                                         \
+    do {                                                                       \
+        __android_log_print(ANDROID_LOG_INFO, "platform", __VA_ARGS__);        \
+    } while (0)
+
+#define tt_c_rand rand
 
 ////////////////////////////////////////////////////////////
 // type definition

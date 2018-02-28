@@ -25,7 +25,12 @@ public class MainActivity extends AppCompatActivity {
             String[] name = { tt_case };
             new UTTask().execute(name);
         } else {
-            final String[] name = { "case_rbtree" };
+            final String[] name = {
+                "TEST_UNIT_LOG",
+                //"TEST_UNIT_LOG_PATTERN",
+                //"TEST_UNIT_SOCKET",
+                //"TEST_UNIT_IPC",
+            };
             Button btn = (Button)findViewById(R.id.ut_run);
             btn.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -42,10 +47,15 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected String doInBackground(String... name) {
+            TTUnitTestJNI.init();
+
             String r = "";
             for (int i = 0; i < name.length; ++i) {
                 r += TTUnitTestJNI.runUT(name[i]);
             }
+
+            TTUnitTestJNI.exit();
+
             return r;
         }
 

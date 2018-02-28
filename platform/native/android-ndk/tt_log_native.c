@@ -95,15 +95,25 @@ tt_result_t tt_log_component_init_ntv(IN tt_profile_t *profile)
     return TT_SUCCESS;
 }
 
+void tt_log_component_exit_ntv()
+{
+}
+
 tt_result_t __create_log_layout_ntv(IN tt_profile_t *profile)
 {
     tt_loglyt_t *lyt;
+
+    tt_s_loglyt[TT_LOG_DEBUG] = NULL;
+    tt_s_loglyt[TT_LOG_INFO] = NULL;
+    tt_s_loglyt[TT_LOG_WARN] = NULL;
+    tt_s_loglyt[TT_LOG_ERROR] = NULL;
+    tt_s_loglyt[TT_LOG_FATAL] = NULL;
 
     // debug log layout
     lyt = tt_loglyt_pattern_create("${content} <${function} - ${line}>");
     if (lyt == NULL) {
         TT_ERROR("fail to create debug log pattern");
-        return TT_FAIL;
+        goto fail;
     }
     tt_s_loglyt[TT_LOG_DEBUG] = lyt;
 
@@ -111,7 +121,7 @@ tt_result_t __create_log_layout_ntv(IN tt_profile_t *profile)
     lyt = tt_loglyt_pattern_create("${content}");
     if (lyt == NULL) {
         TT_ERROR("fail to create info log pattern");
-        return TT_FAIL;
+        goto fail;
     }
     tt_s_loglyt[TT_LOG_INFO] = lyt;
 
@@ -119,7 +129,7 @@ tt_result_t __create_log_layout_ntv(IN tt_profile_t *profile)
     lyt = tt_loglyt_pattern_create("${content} <${function} - ${line}>");
     if (lyt == NULL) {
         TT_ERROR("fail to create warn log pattern");
-        return TT_FAIL;
+        goto fail;
     }
     tt_s_loglyt[TT_LOG_WARN] = lyt;
 
@@ -127,7 +137,7 @@ tt_result_t __create_log_layout_ntv(IN tt_profile_t *profile)
     lyt = tt_loglyt_pattern_create("${content} <${function} - ${line}>");
     if (lyt == NULL) {
         TT_ERROR("fail to create error log pattern");
-        return TT_FAIL;
+        goto fail;
     }
     tt_s_loglyt[TT_LOG_ERROR] = lyt;
 
@@ -135,22 +145,52 @@ tt_result_t __create_log_layout_ntv(IN tt_profile_t *profile)
     lyt = tt_loglyt_pattern_create("${content} <${function} - ${line}>");
     if (lyt == NULL) {
         TT_ERROR("fail to create fatal log pattern");
-        return TT_FAIL;
+        goto fail;
     }
     tt_s_loglyt[TT_LOG_FATAL] = lyt;
 
     return TT_SUCCESS;
+
+fail:
+
+    if (tt_s_loglyt[TT_LOG_DEBUG] != NULL) {
+        tt_loglyt_release(tt_s_loglyt[TT_LOG_DEBUG]);
+    }
+
+    if (tt_s_loglyt[TT_LOG_INFO] != NULL) {
+        tt_loglyt_release(tt_s_loglyt[TT_LOG_INFO]);
+    }
+
+    if (tt_s_loglyt[TT_LOG_WARN] != NULL) {
+        tt_loglyt_release(tt_s_loglyt[TT_LOG_WARN]);
+    }
+
+    if (tt_s_loglyt[TT_LOG_ERROR] != NULL) {
+        tt_loglyt_release(tt_s_loglyt[TT_LOG_ERROR]);
+    }
+
+    if (tt_s_loglyt[TT_LOG_FATAL] != NULL) {
+        tt_loglyt_release(tt_s_loglyt[TT_LOG_FATAL]);
+    }
+
+    return TT_FAIL;
 }
 
 tt_result_t __create_log_io_ntv(IN tt_profile_t *profile)
 {
     tt_logio_t *lio;
 
+    tt_s_logio[TT_LOG_DEBUG] = NULL;
+    tt_s_logio[TT_LOG_INFO] = NULL;
+    tt_s_logio[TT_LOG_WARN] = NULL;
+    tt_s_logio[TT_LOG_ERROR] = NULL;
+    tt_s_logio[TT_LOG_FATAL] = NULL;
+
     // debug log layout
     lio = __logcat_create(ANDROID_LOG_DEBUG, "platform");
     if (lio == NULL) {
         TT_ERROR("fail to create debug log io");
-        return TT_FAIL;
+        goto fail;
     }
     tt_s_logio[TT_LOG_DEBUG] = lio;
 
@@ -158,7 +198,7 @@ tt_result_t __create_log_io_ntv(IN tt_profile_t *profile)
     lio = __logcat_create(ANDROID_LOG_INFO, "platform");
     if (lio == NULL) {
         TT_ERROR("fail to create info log io");
-        return TT_FAIL;
+        goto fail;
     }
     tt_s_logio[TT_LOG_INFO] = lio;
 
@@ -166,7 +206,7 @@ tt_result_t __create_log_io_ntv(IN tt_profile_t *profile)
     lio = __logcat_create(ANDROID_LOG_WARN, "platform");
     if (lio == NULL) {
         TT_ERROR("fail to create warn log io");
-        return TT_FAIL;
+        goto fail;
     }
     tt_s_logio[TT_LOG_WARN] = lio;
 
@@ -174,7 +214,7 @@ tt_result_t __create_log_io_ntv(IN tt_profile_t *profile)
     lio = __logcat_create(ANDROID_LOG_ERROR, "platform");
     if (lio == NULL) {
         TT_ERROR("fail to create error log io");
-        return TT_FAIL;
+        goto fail;
     }
     tt_s_logio[TT_LOG_ERROR] = lio;
 
@@ -182,11 +222,35 @@ tt_result_t __create_log_io_ntv(IN tt_profile_t *profile)
     lio = __logcat_create(ANDROID_LOG_FATAL, "platform");
     if (lio == NULL) {
         TT_ERROR("fail to create fatal log io");
-        return TT_FAIL;
+        goto fail;
     }
     tt_s_logio[TT_LOG_FATAL] = lio;
 
     return TT_SUCCESS;
+
+fail:
+
+    if (tt_s_logio[TT_LOG_DEBUG] != NULL) {
+        tt_logio_release(tt_s_logio[TT_LOG_DEBUG]);
+    }
+
+    if (tt_s_logio[TT_LOG_INFO] != NULL) {
+        tt_logio_release(tt_s_logio[TT_LOG_INFO]);
+    }
+
+    if (tt_s_logio[TT_LOG_WARN] != NULL) {
+        tt_logio_release(tt_s_logio[TT_LOG_WARN]);
+    }
+
+    if (tt_s_logio[TT_LOG_ERROR] != NULL) {
+        tt_logio_release(tt_s_logio[TT_LOG_ERROR]);
+    }
+
+    if (tt_s_logio[TT_LOG_FATAL] != NULL) {
+        tt_logio_release(tt_s_logio[TT_LOG_FATAL]);
+    }
+
+    return TT_FAIL;
 }
 
 // ========================================
