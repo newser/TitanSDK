@@ -358,45 +358,6 @@ void tt_skt_status_dump_ntv(IN tt_u32_t flag)
     }
 
     closedir(d);
-
-#if 0
-    pid_t pid;
-    int size;
-    struct proc_fdinfo *fdinfo;
-
-    pid = getpid();
-    size = proc_pidinfo(pid, PROC_PIDLISTFDS, 0, NULL, 0);
-    if (size <= 0) {
-        return;
-    }
-
-    fdinfo = (struct proc_fdinfo *)malloc(size);
-    if (fdinfo == NULL) {
-        return;
-    }
-
-    size = proc_pidinfo(pid, PROC_PIDLISTFDS, 0, fdinfo, size);
-    if (size > 0) {
-        int n, i;
-
-        n = size / PROC_PIDLISTFD_SIZE;
-        for (i = 0; i < n; ++i) {
-            if (fdinfo[i].proc_fdtype == PROX_FDTYPE_SOCKET) {
-                struct socket_fdinfo si;
-                int vs = proc_pidfdinfo(pid,
-                                        fdinfo[i].proc_fd,
-                                        PROC_PIDFDSOCKETINFO,
-                                        &si,
-                                        PROC_PIDFDSOCKETINFO_SIZE);
-                if (vs == PROC_PIDFDSOCKETINFO_SIZE) {
-                    __dump_socket_fdinfo(&fdinfo[i], &si, flag);
-                }
-            }
-        }
-    }
-
-    free(fdinfo);
-#endif
 }
 
 tt_result_t tt_skt_create_ntv(IN tt_skt_ntv_t *skt,
@@ -1297,6 +1258,8 @@ void __dump_socket_fdinfo(IN int s, IN tt_u32_t flag)
                         "%s|%d",
                         addr,
                         ntohs(a6->sin6_port));
+        } else if (a.ss_family == AF_LOCAL) {
+            return;
         } else {
             tt_snprintf(local, sizeof(local) - 1, "?|?");
         }
@@ -1327,6 +1290,8 @@ void __dump_socket_fdinfo(IN int s, IN tt_u32_t flag)
                         "%s|%d",
                         addr,
                         ntohs(a6->sin6_port));
+        } else if (a.ss_family == AF_LOCAL) {
+            return;
         } else {
             tt_snprintf(remote, sizeof(local) - 1, "?|?");
         }
@@ -1367,6 +1332,8 @@ void __dump_socket_fdinfo(IN int s, IN tt_u32_t flag)
                         "%s|%d",
                         addr,
                         ntohs(a6->sin6_port));
+        } else if (a.ss_family == AF_LOCAL) {
+            return;
         } else {
             tt_snprintf(local, sizeof(local) - 1, "?|?");
         }
@@ -1375,11 +1342,11 @@ void __dump_socket_fdinfo(IN int s, IN tt_u32_t flag)
                   TT_COND(flag & TT_SKT_STATUS_PREFIX, "<<Socket>> ", ""),
                   s,
                   local);
-    } else {
+    } /*else {
         tt_printf("%s[fd: %d] ?\n",
                   TT_COND(flag & TT_SKT_STATUS_PREFIX, "<<Socket>> ", ""),
                   s);
-    }
+    }*/
 }
 
 #ifdef __SIMU_FAIL_SOCKET

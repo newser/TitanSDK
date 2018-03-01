@@ -37,9 +37,11 @@
 
 #include <tt_util_native.h>
 
+#include <dirent.h>
 #include <fcntl.h>
 #include <sys/epoll.h>
 #include <sys/socket.h>
+#include <sys/types.h>
 #include <sys/un.h>
 #include <unistd.h>
 
@@ -208,6 +210,8 @@ static int __ipc_ev_init(IN tt_io_ev_t *io_ev, IN tt_u32_t ev);
 
 static void __handle_cmsg(IN __ipc_recv_t *ipc_recv, IN struct msghdr *msg);
 
+static void __dump_ipc_fdinfo(IN int s, IN tt_u32_t flag);
+
 ////////////////////////////////////////////////////////////
 // interface implementation
 ////////////////////////////////////////////////////////////
@@ -229,45 +233,49 @@ void tt_ipc_component_exit_ntv()
 
 void tt_ipc_status_dump_ntv(IN tt_u32_t flag)
 {
-#if 0
-    pid_t pid;
-    int size;
-    struct proc_fdinfo *fdinfo;
+    char path[PATH_MAX + 1];
+    int len;
+    DIR *d;
+    struct dirent entry;
+    struct dirent *result = NULL;
 
-    pid = getpid();
-    size = proc_pidinfo(pid, PROC_PIDLISTFDS, 0, NULL, 0);
-    if (size <= 0) {
+    len = snprintf(path, PATH_MAX, "/proc/%d/fd/", getpid());
+
+    d = opendir(path);
+    if (d == NULL) {
+        tt_printf("fail to open %s", path);
         return;
     }
 
-    fdinfo = (struct proc_fdinfo *)malloc(size);
-    if (fdinfo == NULL) {
-        return;
-    }
+    while ((readdir_r(d, &entry, &result) == 0) && (result != NULL)) {
+        char link[PATH_MAX + 1];
+        ssize_t n;
+        int s;
 
-    size = proc_pidinfo(pid, PROC_PIDLISTFDS, 0, fdinfo, size);
-    if (size > 0) {
-        int n, i;
-
-        n = size / PROC_PIDLISTFD_SIZE;
-        for (i = 0; i < n; ++i) {
-            if (fdinfo[i].proc_fdtype == PROX_FDTYPE_SOCKET) {
-                struct socket_fdinfo si;
-                int vs = proc_pidfdinfo(pid,
-                                        fdinfo[i].proc_fd,
-                                        PROC_PIDFDSOCKETINFO,
-                                        &si,
-                                        PROC_PIDFDSOCKETINFO_SIZE);
-                if (vs == PROC_PIDFDSOCKETINFO_SIZE) {
-                    __dump_ipc_fdinfo(&fdinfo[i], &si, flag);
-                }
-            }
+        if ((strcmp(entry.d_name, ".") == 0) ||
+            (strcmp(entry.d_name, "..") == 0)) {
+            continue;
         }
+
+        path[len] = 0;
+        strncat(path, entry.d_name, PATH_MAX);
+        if ((n = readlink(path, link, PATH_MAX)) < 0) {
+            continue;
+        }
+        link[n] = 0;
+
+        if (strncmp(link, "socket", 6) != 0) {
+            // only show socket
+            continue;
+        }
+
+        s = strtol(entry.d_name, NULL, 10);
+        __dump_ipc_fdinfo(s, flag);
     }
 
-    free(fdinfo);
-#endif
+    closedir(d);
 }
+
 
 tt_result_t tt_ipc_create_ntv(IN tt_ipc_ntv_t *ipc,
                               IN OPT const tt_char_t *addr,
@@ -910,6 +918,38 @@ void __handle_cmsg(IN __ipc_recv_t *ipc_recv, IN struct msghdr *msg)
         skt->sys_skt.s = s;
 
         *ipc_recv->p_skt = skt;
+    }
+}
+
+void __dump_ipc_fdinfo(IN int s, IN tt_u32_t flag)
+{
+    int val;
+    socklen_t len = sizeof(val);
+
+    if ((getsockopt(s, SOL_SOCKET, SO_TYPE, &val, &len) == 0) &&
+        ((val == SOCK_STREAM) || (val == SOCK_DGRAM))) {
+        struct sockaddr_storage local, remote;
+        socklen_t alen;
+
+        alen = sizeof(struct sockaddr_un);
+        if ((getsockname(s, (struct sockaddr *)&local, &alen) != 0) ||
+            (local.ss_family != AF_LOCAL)) {
+            // not a ipc socket
+            return;
+        }
+
+        alen = sizeof(struct sockaddr_un);
+        if ((getpeername(s, (struct sockaddr *)&remote, &alen) != 0) ||
+            (remote.ss_family != AF_LOCAL)) {
+            // it's possible that it has no remote addr
+            ((struct sockaddr_un *)&remote)->sun_path[0] = 0;
+        }
+
+        tt_printf("%s[fd: %d] [%s --> %s]\n",
+                  TT_COND(flag & TT_IPC_STATUS_PREFIX, "<<IPC>> ", ""),
+                  s,
+                  ((struct sockaddr_un *)&local)->sun_path,
+                  ((struct sockaddr_un *)&remote)->sun_path);
     }
 }
 
