@@ -96,21 +96,11 @@ tt_export void *tt_malloc_tag(IN size_t size,
 
 tt_export void tt_free_tag(IN void *p);
 
-tt_inline void *tt_realloc_tag(IN OPT void *ptr,
+tt_export void *tt_realloc_tag(IN OPT void *ptr,
                                IN size_t size,
                                IN const tt_char_t *file,
                                IN const tt_char_t *function,
-                               IN const tt_u32_t line)
-{
-    void *p = tt_malloc_tag(size, file, function, line);
-    if (p != NULL) {
-        if (ptr != NULL) {
-            tt_memcpy(p, ptr, size);
-            tt_free_tag(ptr);
-        }
-    }
-    return p;
-}
+                               IN const tt_u32_t line);
 
 tt_inline void *tt_zalloc_tag(IN tt_size_t size,
                               IN const tt_char_t *file,
@@ -138,17 +128,7 @@ tt_inline void *tt_xmalloc_tag(IN size_t size,
 
 tt_export void *tt_malloc_tag(IN size_t size);
 
-tt_inline void *tt_realloc_tag(IN void *ptr, IN size_t size)
-{
-    void *p = tt_malloc_tag(size);
-    if (p != NULL) {
-        if (ptr != NULL) {
-            tt_memcpy(p, ptr, size);
-            tt_free(ptr);
-        }
-    }
-    return p;
-}
+tt_export void *tt_realloc_tag(IN OPT void *ptr, IN size_t size);
 
 tt_inline void *tt_zalloc_tag(IN tt_size_t size)
 {

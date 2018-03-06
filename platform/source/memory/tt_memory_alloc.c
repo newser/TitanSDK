@@ -201,11 +201,37 @@ void tt_free_tag(IN void *p)
     }
 }
 
+void *tt_realloc_tag(IN OPT void *ptr,
+                     IN size_t size,
+                     IN const tt_char_t *file,
+                     IN const tt_char_t *function,
+                     IN const tt_u32_t line)
+{
+    void *p = tt_malloc_tag(size, file, function, line);
+    if (p != NULL) {
+        if (ptr != NULL) {
+            __mtag_t *mtag = TT_PTR_DEC(__mtag_t, ptr, sizeof(__mtag_t));
+            tt_memcpy(p, ptr, mtag->size);
+            tt_free_tag(ptr);
+        }
+    }
+    return p;
+}
+
 #else
 
 void *tt_malloc_tag(IN size_t size)
 {
-    void *p = tt_c_malloc(sizeof(__mtag_t) + size);
+    void *p = tt_c_malloc(size);
+    if ((p == NULL) && (__s_oom_handler != NULL)) {
+        __s_oom_handler(__s_oom_param);
+    }
+    return p;
+}
+
+void *tt_realloc_tag(IN OPT void *ptr, IN size_t size)
+{
+    void *p = tt_c_realloc(ptr, size);
     if ((p == NULL) && (__s_oom_handler != NULL)) {
         __s_oom_handler(__s_oom_param);
     }
