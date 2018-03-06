@@ -48,6 +48,7 @@ typedef struct tt_ipc_ev_s
 {
     tt_u32_t ev;
     tt_u32_t size;
+    tt_bool_t free:1;
 } tt_ipc_ev_t;
 
 enum
@@ -71,6 +72,7 @@ tt_inline void tt_ipc_ev_init(IN tt_ipc_ev_t *pev,
 {
     pev->ev = ev;
     pev->size = size;
+    pev->free = TT_FALSE;
 }
 
 tt_export tt_ipc_ev_t *tt_ipc_ev_create(IN tt_u32_t ev, IN tt_u32_t size);

@@ -68,6 +68,7 @@ tt_ipc_ev_t *tt_ipc_ev_create(IN tt_u32_t ev, IN tt_u32_t size)
     if (pev != NULL) {
         pev->ev = ev;
         pev->size = size;
+        pev->free = TT_TRUE;
     }
 
     return pev;
@@ -90,7 +91,9 @@ tt_result_t tt_ipc_send_ev(IN tt_ipc_t *dst, IN tt_ipc_ev_t *pev)
                                  &sent)) &&
            ((n += sent) < len)) {
     }
-    tt_free(pev);
+    if (pev->free) {
+        tt_free(pev);
+    }
 
     TT_ASSERT(n <= len);
     if (n == len) {
@@ -108,6 +111,7 @@ tt_result_t tt_ipc_recv_ev(IN tt_ipc_t *ipc,
                            OUT tt_skt_t **p_skt)
 {
     tt_buf_t *buf = &ipc->buf;
+    tt_ipc_ev_t *pev;
     tt_u8_t *p;
     tt_u32_t len, recvd;
     tt_result_t result;
@@ -117,12 +121,20 @@ tt_result_t tt_ipc_recv_ev(IN tt_ipc_t *ipc,
     *p_tmr = NULL;
     *p_skt = NULL;
 
-    // - must first try parsing an ev, as all data may alreay arrive
-    // - should keep parsing if tt_ipc_handle_internal_ev() fail, as
-    //   the it must be an internal event and should not return to caller
-    while (((*p_pev = __parse_ipc_ev(buf)) != NULL) &&
-           TT_OK(tt_ipc_handle_internal_ev(p_pev, p_skt))) {
-        return TT_SUCCESS;
+    // must first try parsing an ev, as there may be data left in
+    // ipc recv buf since last tt_ipc_recv_ev
+    while ((pev = __parse_ipc_ev(buf)) != NULL) {
+        if (pev->ev == __IPC_INTERNAL_EV_SKT) {
+            tt_skt_t *skt = tt_ipc_handle_ev_skt(pev);
+            if (skt != NULL) {
+                *p_skt = skt;
+                return TT_SUCCESS;
+            }
+            // else to handle next ev
+        } else {
+            *p_pev = pev;
+            return TT_SUCCESS;
+        }
     }
 
     // ev may be parsed in last call and buf has available space in front
@@ -137,14 +149,25 @@ tt_result_t tt_ipc_recv_ev(IN tt_ipc_t *ipc,
         TT_OK(result = tt_ipc_recv(ipc, p, len, &recvd, p_fev, p_tmr, p_skt))) {
         if (recvd != 0) {
             tt_buf_inc_wp(buf, recvd);
-            if (((*p_pev = __parse_ipc_ev(buf)) != NULL) &&
-                TT_OK(tt_ipc_handle_internal_ev(p_pev, p_skt))) {
-                // p_fev and p_tmr may already be set
-                return TT_SUCCESS;
+
+            while ((pev = __parse_ipc_ev(buf)) != NULL) {
+                if (pev->ev == __IPC_INTERNAL_EV_SKT) {
+                    tt_skt_t *skt = tt_ipc_handle_ev_skt(pev);
+                    if (skt != NULL) {
+                        *p_skt = skt;
+                        break;
+                    }
+                    // else to handle next ev
+                } else {
+                    *p_pev = pev;
+                    break;
+                }
             }
+            // either we get a ev or a socket
         }
 
-        if ((*p_fev != NULL) || (*p_tmr != NULL) || (*p_skt != NULL)) {
+        if ((*p_pev != NULL) || (*p_fev != NULL) || (*p_tmr != NULL) ||
+            (*p_skt != NULL)) {
             return TT_SUCCESS;
         }
 

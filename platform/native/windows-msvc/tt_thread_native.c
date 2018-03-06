@@ -82,6 +82,11 @@ tt_result_t tt_thread_component_init_ntv()
     return TT_SUCCESS;
 }
 
+void tt_thread_component_exit_ntv()
+{
+    FlsFree(tt_g_thread_fls_index);
+}
+
 tt_result_t tt_thread_create_ntv(IN tt_thread_t *thread)
 {
     tt_thread_ntv_t *sys_thread = &thread->sys_thread;
@@ -121,6 +126,7 @@ tt_result_t tt_thread_create_local_ntv(IN tt_thread_t *thread)
                            (USHORT)tt_g_numa_node_id_thread);
     }
 
+    TT_ASSERT(FlsGetValue(tt_g_thread_fls_index) == NULL);
     if (FlsSetValue(tt_g_thread_fls_index, (LPVOID)thread) == 0) {
         TT_ERROR_NTV("fail to set thread private data");
         return TT_FAIL;
@@ -142,6 +148,18 @@ tt_result_t tt_thread_wait_ntv(IN tt_thread_t *thread)
 
     if (!CloseHandle(sys_thread->h_thread)) {
         TT_ERROR_NTV("fail to close thread handle");
+    }
+
+    return TT_SUCCESS;
+}
+
+tt_result_t tt_thread_wait_local_ntv(IN struct tt_thread_s *thread)
+{
+    __thread_on_exit(thread);
+
+    if (!FlsSetValue(tt_g_thread_fls_index, NULL)) {
+        TT_ERROR_NTV("fail to clear thread specific data");
+        //return TT_FAIL;
     }
 
     return TT_SUCCESS;

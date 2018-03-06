@@ -293,7 +293,7 @@ tt_result_t tt_skt_remote_addr(IN tt_skt_t *skt, IN tt_sktaddr_t *addr)
 
 void __skt_inc_num()
 {
-    tt_s64_t skt_num = tt_atomic_s32_inc(&__skt_num);
+    tt_s32_t skt_num = tt_atomic_s32_inc(&__skt_num);
 
     // the peek value is not accurate, just for reference
     if (skt_num > tt_atomic_s32_get(&__skt_peek_num)) {

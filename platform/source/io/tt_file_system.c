@@ -502,7 +502,8 @@ tt_result_t tt_dopen(IN tt_dir_t *dir,
                      IN tt_dir_attr_t *attr)
 {
     tt_dir_attr_t __attr;
-
+    tt_result_t result;
+    
     TT_ASSERT(dir != NULL);
     TT_ASSERT(path != NULL);
 
@@ -511,14 +512,26 @@ tt_result_t tt_dopen(IN tt_dir_t *dir,
         attr = &__attr;
     }
 
-    return tt_dopen_ntv(&dir->sys_dir, path, attr);
+    result = tt_dopen_ntv(&dir->sys_dir, path, attr);
+
+    if (TT_OK(result)) {
+        tt_atomic_s32_inc(&__dir_opened);
+        return TT_SUCCESS;
+    } else {
+        return result;
+    }
 }
 
 void tt_dclose(IN tt_dir_t *dir)
 {
+    tt_s32_t n;
+    
     TT_ASSERT(dir != NULL);
 
     tt_dclose_ntv(&dir->sys_dir);
+
+    n = tt_atomic_s32_dec(&__dir_opened);
+    TT_ASSERT(n >= 0);
 }
 
 tt_bool_t tt_fs_exist(IN const tt_char_t *path)

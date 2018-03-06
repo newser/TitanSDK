@@ -365,8 +365,9 @@ TT_TEST_ROUTINE_DEFINE(case_map_basic)
     {
         tt_hmap_iter_t hi;
         tt_hnode_t *hn;
-        tt_hmap_iter(&hmap, &hi);
         tt_u32_t n = 0;
+
+		tt_hmap_iter(&hmap, &hi);
         while ((hn = tt_hmap_iter_next(&hi)) != NULL) {
             ++n;
         }

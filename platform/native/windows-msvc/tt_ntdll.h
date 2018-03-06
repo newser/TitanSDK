@@ -17,14 +17,14 @@
  */
 
 /**
-@file tt_rng_native.h
-@brief native random generator
+@file tt_ntdll.h
+@brief ntdll
 
-this file defines native random generator
+this file defines ntdll APIs
 */
 
-#ifndef __TT_RNG_NATIVE__
-#define __TT_RNG_NATIVE__
+#ifndef __TT_NTDLL__
+#define __TT_NTDLL__
 
 ////////////////////////////////////////////////////////////
 // import header files
@@ -48,8 +48,15 @@ this file defines native random generator
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern tt_result_t tt_rng_component_init_ntv();
+extern tt_result_t tt_ntdll_component_init_ntv();
 
-extern tt_result_t tt_rng_ntv(IN tt_u8_t *addr, IN tt_u32_t len);
+extern void tt_ntdll_component_exit_ntv();
 
-#endif /* __TT_RNG_NATIVE__ */
+extern void tt_ntdll_dump_fs(IN tt_u32_t flag);
+
+extern void tt_ntdll_dump_ipc(IN tt_u32_t flag);
+
+extern void tt_ntdll_dump_skt(IN tt_u32_t flag);
+
+#endif /* __TT_NTDLL__ */
+

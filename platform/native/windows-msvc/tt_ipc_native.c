@@ -35,6 +35,7 @@
 #include <tt_sys_error.h>
 #include <tt_util_native.h>
 #include <tt_wchar.h>
+#include <tt_ntdll.h>
 
 ////////////////////////////////////////////////////////////
 // internal macro
@@ -164,6 +165,8 @@ typedef struct
 // extern declaration
 ////////////////////////////////////////////////////////////
 
+extern void __skt_inc_num();
+
 ////////////////////////////////////////////////////////////
 // global variant
 ////////////////////////////////////////////////////////////
@@ -196,6 +199,11 @@ static tt_result_t __utf8_addr(IN wchar_t *name,
 ////////////////////////////////////////////////////////////
 // interface implementation
 ////////////////////////////////////////////////////////////
+
+void tt_ipc_status_dump_ntv(IN tt_u32_t flag)
+{
+    tt_ntdll_dump_ipc(flag);
+}
 
 tt_result_t tt_ipc_create_ntv(IN tt_ipc_ntv_t *ipc,
                               IN OPT const tt_char_t *addr,
@@ -496,21 +504,14 @@ tt_result_t tt_ipc_send_skt_ntv(IN tt_ipc_ntv_t *ipc, IN TO tt_skt_t *skt)
     return tt_ipc_send_ev(TT_CONTAINER(ipc, tt_ipc_t, sys_ipc), &pev_skt.pev);
 }
 
-tt_result_t tt_ipc_handle_internal_ev(IN OUT tt_ipc_ev_t **p_pev,
-                                      OUT tt_skt_t **p_skt)
+tt_skt_t *tt_ipc_handle_ev_skt(IN tt_ipc_ev_t *pev)
 {
     __pev_skt_t *pev_skt;
     SOCKET s;
     tt_skt_t *skt;
 
-    *p_skt = NULL;
-
-    if ((*p_pev)->ev != __IPC_INTERNAL_EV_SKT) {
-        return TT_SUCCESS;
-    }
-
-    pev_skt = (__pev_skt_t *)*p_pev;
-    *p_pev = NULL;
+    TT_ASSERT(pev->ev == __IPC_INTERNAL_EV_SKT);
+    pev_skt = (__pev_skt_t *)pev;
 
     s = WSASocketW(pev_skt->af,
                    SOCK_STREAM,
@@ -520,21 +521,21 @@ tt_result_t tt_ipc_handle_internal_ev(IN OUT tt_ipc_ev_t **p_pev,
                    WSA_FLAG_OVERLAPPED);
     if (s == INVALID_SOCKET) {
         TT_NET_ERROR_NTV("fail to create socket");
-        return TT_FAIL;
+        return NULL;
     }
 
     skt = tt_malloc(sizeof(tt_skt_t));
     if (skt == NULL) {
         TT_ERROR("no mem for new skt");
         closesocket(s);
-        return TT_E_NOMEM;
+        return NULL;
     }
     skt->sys_skt.s = s;
     skt->sys_skt.af = pev_skt->af;
     skt->sys_skt.iocp = TT_FALSE;
 
-    *p_skt = skt;
-    return TT_SUCCESS;
+    __skt_inc_num();
+    return skt;
 }
 
 void tt_ipc_worker_io(IN tt_io_ev_t *io_ev)

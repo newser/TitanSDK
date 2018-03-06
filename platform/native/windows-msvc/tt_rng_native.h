@@ -16,59 +16,42 @@
  * limitations under the License.
  */
 
+/**
+@file tt_rng_native.h
+@brief native random generator
+
+this file defines native random generator
+*/
+
+#ifndef __TT_RNG_NATIVE__
+#define __TT_RNG_NATIVE__
+
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <tt_rng_native.h>
-
-#include <tt_sys_error.h>
+#include <tt_basic_type.h>
 
 ////////////////////////////////////////////////////////////
-// internal macro
+// macro definition
 ////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////
-// internal type
+// type definition
 ////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////
-// extern declaration
+// global variants
 ////////////////////////////////////////////////////////////
-
-////////////////////////////////////////////////////////////
-// global variant
-////////////////////////////////////////////////////////////
-
-static HCRYPTPROV hProvider;
 
 ////////////////////////////////////////////////////////////
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-////////////////////////////////////////////////////////////
-// interface implementation
-////////////////////////////////////////////////////////////
+extern tt_result_t tt_rng_component_init_ntv();
 
-tt_result_t tt_rng_component_init_ntv()
-{
-    if (!CryptAcquireContext(&hProvider,
-                             NULL,
-                             NULL,
-                             PROV_RSA_FULL,
-                             CRYPT_VERIFYCONTEXT)) {
-        TT_ERROR_NTV("fail to accquire crypto provider");
-        return TT_FAIL;
-    }
+extern void tt_rng_component_exit_ntv();
 
-    return TT_SUCCESS;
-}
+extern tt_result_t tt_rng_ntv(IN tt_u8_t *addr, IN tt_u32_t len);
 
-tt_result_t tt_rng_ntv(IN tt_u8_t *addr, IN tt_u32_t len)
-{
-    if (CryptGenRandom(hProvider, len, (BYTE *)addr)) {
-        return TT_SUCCESS;
-    } else {
-        return TT_FAIL;
-    }
-}
+#endif /* __TT_RNG_NATIVE__ */

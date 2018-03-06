@@ -83,6 +83,10 @@ initialize atomic native
 extern tt_result_t tt_atomic_component_init_ntv(
     IN struct tt_profile_s *profile);
 
+tt_inline void tt_atomic_component_exit_ntv()
+{
+}
+
 /**
 @fn tt_s32_t tt_atomic_s32_get_ntv(IN tt_atomic_s32_ntv_t *a)
 read value of an atomic variant

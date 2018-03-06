@@ -69,8 +69,7 @@ this file defines system specific type.
 // import header files
 ////////////////////////////////////////////////////////////
 
-//#define TT_WINDOWS_CRT_DUMP
-#ifdef TT_WINDOWS_CRT_DUMP
+#ifdef PLATFORM_ENABLE_MEMORY_TAG
 #define _CRTDBG_MAP_ALLOC
 #include <crtdbg.h>
 #include <stdlib.h>

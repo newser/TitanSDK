@@ -72,6 +72,12 @@ tt_inline tt_result_t tt_ipc_component_init_ntv(IN struct tt_profile_s *profile)
     return TT_SUCCESS;
 }
 
+tt_inline void tt_ipc_component_exit_ntv()
+{
+}
+
+extern void tt_ipc_status_dump_ntv();
+
 extern tt_result_t tt_ipc_create_ntv(IN tt_ipc_ntv_t *ipc,
                                      IN OPT const tt_char_t *addr,
                                      IN OPT struct tt_ipc_attr_s *attr);
@@ -102,8 +108,7 @@ extern tt_result_t tt_ipc_recv_ntv(IN tt_ipc_ntv_t *ipc,
 extern tt_result_t tt_ipc_send_skt_ntv(IN tt_ipc_ntv_t *ipc,
                                        IN TO struct tt_skt_s *skt);
 
-extern tt_result_t tt_ipc_handle_internal_ev(IN OUT struct tt_ipc_ev_s **p_pev,
-                                             OUT struct tt_skt_s **p_skt);
+extern struct tt_skt_s *tt_ipc_handle_ev_skt(IN struct tt_ipc_ev_s *pev);
 
 extern void tt_ipc_worker_io(IN struct tt_io_ev_s *io_ev);
 

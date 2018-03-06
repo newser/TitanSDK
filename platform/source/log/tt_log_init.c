@@ -377,8 +377,6 @@ fail:
 
 void __destroy_log_layout()
 {
-    tt_loglyt_t *lyt;
-
     // debug log layout
     if (tt_s_loglyt[TT_LOG_DEBUG] != NULL) {
         tt_loglyt_release(tt_s_loglyt[TT_LOG_DEBUG]);

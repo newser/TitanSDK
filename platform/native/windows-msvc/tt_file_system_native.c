@@ -30,6 +30,7 @@
 
 #include <tt_util_native.h>
 #include <tt_wchar.h>
+#include <tt_ntdll.h>
 
 #include <io.h>
 #include <sys/stat.h>
@@ -558,7 +559,21 @@ static void __date2filetime(IN tt_date_t *d, IN FILETIME *t);
 
 tt_result_t tt_fs_component_init_ntv()
 {
+    if (!TT_OK(tt_ntdll_component_init_ntv())) {
+        return TT_FAIL;
+    }
+    
     return TT_SUCCESS;
+}
+
+void tt_fs_component_exit_ntv()
+{
+    tt_ntdll_component_exit_ntv();
+}
+
+void tt_fs_status_dump_ntv(IN tt_u32_t flag)
+{
+    tt_ntdll_dump_fs(flag);
 }
 
 tt_result_t tt_fcreate_ntv(IN const tt_char_t *path,

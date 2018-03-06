@@ -127,20 +127,13 @@ tt_inline tt_result_t tt_ipc_recv(IN tt_ipc_t *ipc,
                                   OUT struct tt_tmr_s **p_tmr,
                                   OUT struct tt_skt_s **p_skt)
 {
-    tt_result_t result;
-
     if (len == 0) {
         TT_ERROR("ipc recv buf len can not be 0");
         return TT_FAIL;
     }
 
-    result =
+    return
         tt_ipc_recv_ntv(&ipc->sys_ipc, buf, len, recvd, p_fev, p_tmr, p_skt);
-    if (TT_OK(result) && (*p_skt != NULL)) {
-        extern void __skt_inc_num();
-        __skt_inc_num();
-    }
-    return result;
 }
 
 // note linux abstract socket, returned addr may not be a null-terminated string

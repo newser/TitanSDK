@@ -16,58 +16,64 @@
  * limitations under the License.
  */
 
-/**
-@file tt_console_native.h
-@brief console io native
-
-this file specifies console native APIs
-*/
-
-#ifndef __TT_CONSOLE_NATIVE__
-#define __TT_CONSOLE_NATIVE__
-
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <io/tt_console.h>
-#include <io/tt_console_event.h>
+#include <tt_rng_native.h>
+
+#include <tt_sys_error.h>
 
 ////////////////////////////////////////////////////////////
-// macro definition
-////////////////////////////////////////////////////////////
-
-struct tt_console_attr_s;
-
-////////////////////////////////////////////////////////////
-// type definition
+// internal macro
 ////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////
-// global variants
+// internal type
 ////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////
+// extern declaration
+////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////
+// global variant
+////////////////////////////////////////////////////////////
+
+static HCRYPTPROV hProvider;
 
 ////////////////////////////////////////////////////////////
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern tt_result_t tt_console_component_init_ntv();
+////////////////////////////////////////////////////////////
+// interface implementation
+////////////////////////////////////////////////////////////
 
-extern void tt_console_component_exit_ntv();
+tt_result_t tt_rng_component_init_ntv()
+{
+    if (!CryptAcquireContext(&hProvider,
+                             NULL,
+                             NULL,
+                             PROV_RSA_FULL,
+                             CRYPT_VERIFYCONTEXT)) {
+        TT_ERROR_NTV("fail to accquire crypto provider");
+        return TT_FAIL;
+    }
 
-extern tt_result_t tt_console_enter_ntv();
+    return TT_SUCCESS;
+}
 
-extern void tt_console_exit_ntv();
+void tt_rng_component_exit_ntv()
+{
+    CryptReleaseContext(hProvider, 0);
+}
 
-extern tt_result_t tt_console_config_ntv(IN struct tt_console_attr_s *attr);
-
-extern tt_result_t tt_console_recv_ntv(OUT tt_cons_ev_t *ev,
-                                       OUT tt_cons_ev_data_t *ev_data);
-
-extern tt_result_t tt_console_send_ntv(IN tt_cons_ev_t ev,
-                                       IN tt_cons_ev_data_t *ev_data);
-
-extern void tt_console_set_color_ntv(IN tt_console_color_t foreground,
-                                     IN tt_console_color_t background);
-
-#endif // __TT_CONSOLE_NATIVE__
+tt_result_t tt_rng_ntv(IN tt_u8_t *addr, IN tt_u32_t len)
+{
+    if (CryptGenRandom(hProvider, len, (BYTE *)addr)) {
+        return TT_SUCCESS;
+    } else {
+        return TT_FAIL;
+    }
+}

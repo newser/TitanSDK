@@ -48,6 +48,8 @@
 // global variant
 ////////////////////////////////////////////////////////////
 
+static PVOID __exception_handler;
+
 ////////////////////////////////////////////////////////////
 // interface declaration
 ////////////////////////////////////////////////////////////
@@ -67,12 +69,22 @@ static void __addr2sym(IN tt_uintptr_t addr,
 tt_result_t tt_crash_trace_component_init_ntv(IN tt_profile_t *profile)
 {
 #ifdef TT_PLATFORM_ENABLE_BACKTRACE
-    if (AddVectoredExceptionHandler(1, __on_crash) == NULL) {
+    __exception_handler = AddVectoredExceptionHandler(1, __on_crash);
+    if (__exception_handler == NULL) {
         TT_ERROR("fail to add exception handler");
     }
 #endif
 
     return TT_SUCCESS;
+}
+
+void tt_crash_trace_component_exit_ntv()
+{
+#ifdef TT_PLATFORM_ENABLE_BACKTRACE
+    if (__exception_handler != NULL) {
+        RemoveVectoredExceptionHandler(__exception_handler);
+    }
+#endif
 }
 
 LONG CALLBACK __on_crash(IN PEXCEPTION_POINTERS ExceptionInfo)

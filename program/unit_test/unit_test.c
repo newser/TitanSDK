@@ -4,7 +4,9 @@
 
 #include "app_unit_test_process.h"
 
-//#include <locale.h>
+#if TT_ENV_OS_IS_WINDOWS
+#include <locale.h>
+#endif
 
 extern tt_result_t __ipc_cli_1(IN void *param);
 extern tt_result_t __ipc_cli_oneshot(IN void *param);
@@ -97,6 +99,7 @@ tt_result_t __ut_fiber(IN void *param)
 #if 1
     else {
         const tt_char_t *names[] = {
+            //"case_fs_basic",
 #if 0
             "TEST_UNIT_LOG",
             "TEST_UNIT_LOG_PATTERN",
@@ -133,7 +136,7 @@ tt_result_t __ut_fiber(IN void *param)
 #endif
 
 //"TEST_UNIT_FS",
-"TEST_UNIT_IPC",
+//"TEST_UNIT_IPC",
 //"TEST_UNIT_SOCKET",
 
 #if 0
@@ -156,7 +159,7 @@ tt_result_t __ut_fiber(IN void *param)
             "DNS_UT_CACHE",
 #endif
 
-#if 0
+#if 1
             "SSL_UT_X509",
             "SSL_UT_IO",
 #endif
@@ -214,7 +217,9 @@ int main(int argc, char *argv[])
 {
     tt_task_t t;
 
-// setlocale(LC_ALL, "chs");
+#if TT_ENV_OS_IS_WINDOWS
+    setlocale(LC_ALL, "chs");
+#endif
 
 #if 0
     for (i = 0; i < argc; ++i) {

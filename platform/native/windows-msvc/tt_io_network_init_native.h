@@ -50,4 +50,6 @@ io network module native initialization
 
 extern tt_result_t tt_network_io_component_init_ntv();
 
+extern void tt_network_io_component_exit_ntv();
+
 #endif // __TT_IO_NETWORK_INIT_NATIVE__

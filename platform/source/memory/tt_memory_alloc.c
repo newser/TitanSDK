@@ -27,6 +27,8 @@
 #include <init/tt_profile.h>
 #include <os/tt_mutex.h>
 
+#include <tt_memory_native.h>
+
 ////////////////////////////////////////////////////////////
 // internal macro
 ////////////////////////////////////////////////////////////
@@ -244,14 +246,21 @@ tt_result_t __mtag_component_init(IN tt_component_t *comp,
                                   IN tt_profile_t *profile)
 {
 #ifdef TT_MEMORY_TAG_ENABLE
+    if (!TT_OK(tt_memory_tag_component_init_ntv(profile))) {
+        TT_ERROR("fail to initialize socket system native");
+        return TT_FAIL;
+    }
+
     if (!TT_OK(tt_mutex_create(&__mtag_lock, NULL))) {
         TT_ERROR("fail to create malloc lock");
+        tt_memory_tag_component_exit_ntv();
         return TT_FAIL;
     }
 
     if (!TT_OK(tt_hmap_create(&__mtag_map, 127, NULL))) {
         TT_ERROR("fail to create malloc map");
         tt_mutex_destroy(&__mtag_lock);
+        tt_memory_tag_component_exit_ntv();
         return TT_FAIL;
     }
 
@@ -271,6 +280,9 @@ void __mtag_component_exit(IN tt_component_t *comp)
     tt_hmap_destroy(&__mtag_map, NULL);
 
     tt_mutex_destroy(&__mtag_lock);
+
+    tt_memory_status_dump_ntv(TT_MEMORY_STATUS_ALL);
+    tt_memory_tag_component_exit_ntv();
 #endif
 }
 

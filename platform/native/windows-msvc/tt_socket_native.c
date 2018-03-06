@@ -33,6 +33,7 @@
 #include <time/tt_timer.h>
 
 #include <tt_cstd_api.h>
+#include <tt_ntdll.h>
 #include <tt_util_native.h>
 #include <tt_wchar.h>
 
@@ -367,6 +368,15 @@ tt_result_t tt_skt_component_init_ntv(IN tt_profile_t *profile)
     return TT_SUCCESS;
 }
 
+void tt_skt_component_exit_ntv()
+{
+}
+
+void tt_skt_status_dump_ntv(IN tt_u32_t flag)
+{
+    tt_ntdll_dump_skt(flag);
+}
+
 tt_result_t tt_skt_create_ntv(IN tt_skt_ntv_t *skt,
                               IN tt_net_family_t family,
                               IN tt_net_protocol_t protocol,
@@ -418,7 +428,6 @@ tt_result_t tt_skt_create_ntv(IN tt_skt_ntv_t *skt,
     skt->af = af;
     skt->iocp = TT_FALSE;
 
-    tt_skt_stat_inc_num();
     return TT_SUCCESS;
 }
 

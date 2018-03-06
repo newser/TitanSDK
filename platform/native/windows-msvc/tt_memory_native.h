@@ -17,27 +17,27 @@
  */
 
 /**
-@file tt_console_native.h
-@brief console io native
+@file tt_memory_native.h
+@brief memory native
 
-this file specifies console native APIs
+this file defines native memory APIs
 */
 
-#ifndef __TT_CONSOLE_NATIVE__
-#define __TT_CONSOLE_NATIVE__
+#ifndef __TT_MEMORY_NATIVE__
+#define __TT_MEMORY_NATIVE__
 
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <io/tt_console.h>
-#include <io/tt_console_event.h>
+#include <tt_basic_type.h>
+
+#include <crtdbg.h>
+#include <errno.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
 ////////////////////////////////////////////////////////////
-
-struct tt_console_attr_s;
 
 ////////////////////////////////////////////////////////////
 // type definition
@@ -51,23 +51,37 @@ struct tt_console_attr_s;
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern tt_result_t tt_console_component_init_ntv();
+tt_inline tt_result_t tt_memory_tag_component_init_ntv(IN tt_profile_t *profile)
+{
+    _CrtSetReportMode(_CRT_WARN, _CRTDBG_MODE_FILE);
+    _CrtSetReportFile(_CRT_WARN, _CRTDBG_FILE_STDOUT);
 
-extern void tt_console_component_exit_ntv();
+    _CrtSetReportMode(_CRT_ERROR, _CRTDBG_MODE_FILE);
+    _CrtSetReportFile(_CRT_ERROR, _CRTDBG_FILE_STDOUT);
 
-extern tt_result_t tt_console_enter_ntv();
+    _CrtSetReportMode(_CRT_ASSERT, _CRTDBG_MODE_FILE);
+    _CrtSetReportFile(_CRT_ASSERT, _CRTDBG_FILE_STDOUT);
 
-extern void tt_console_exit_ntv();
+    _CrtSetBreakAlloc(70);
 
-extern tt_result_t tt_console_config_ntv(IN struct tt_console_attr_s *attr);
+    return TT_SUCCESS;
+}
 
-extern tt_result_t tt_console_recv_ntv(OUT tt_cons_ev_t *ev,
-                                       OUT tt_cons_ev_data_t *ev_data);
+tt_inline void tt_memory_tag_component_exit_ntv()
+{
+}
 
-extern tt_result_t tt_console_send_ntv(IN tt_cons_ev_t ev,
-                                       IN tt_cons_ev_data_t *ev_data);
+tt_inline void tt_memory_status_dump_ntv(IN tt_u32_t flag)
+{
+#if 0
+    if (_CrtDumpMemoryLeaks()) {
+        tt_printf("%sfound memory leak\n",
+                  TT_COND(flag & TT_MEMORY_STATUS_PREFIX, "<<Memory>> ", ""));
+    }
+#else
+    _CrtDumpMemoryLeaks();
+#endif
+}
 
-extern void tt_console_set_color_ntv(IN tt_console_color_t foreground,
-                                     IN tt_console_color_t background);
+#endif /* __TT_MEMORY_NATIVE__ */
 
-#endif // __TT_CONSOLE_NATIVE__

@@ -170,6 +170,11 @@ fail:
     return TT_SUCCESS;
 }
 
+void tt_console_component_exit_ntv()
+{
+    // close console handles??
+}
+
 tt_result_t tt_console_enter_ntv()
 {
     if (!TT_OK(__stdin_config())) {

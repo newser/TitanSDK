@@ -69,6 +69,10 @@ typedef struct
 
 extern tt_result_t tt_fs_component_init_ntv();
 
+extern void tt_fs_component_exit_ntv();
+
+extern void tt_fs_status_dump_ntv(IN tt_u32_t flag);
+
 // - should call tt_fclose_portlayer(file) later
 // - flag is ignored if file is null
 extern tt_result_t tt_fcreate_ntv(IN const tt_char_t *path,
