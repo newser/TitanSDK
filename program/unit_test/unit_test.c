@@ -135,8 +135,8 @@ tt_result_t __ut_fiber(IN void *param)
             "TEST_UNIT_CFGSHELL",
 #endif
 
-//"TEST_UNIT_FS",
-//"TEST_UNIT_IPC",
+            //"TEST_UNIT_FS",
+            "TEST_UNIT_IPC",
 //"TEST_UNIT_SOCKET",
 
 #if 0
@@ -153,7 +153,7 @@ tt_result_t __ut_fiber(IN void *param)
             "ALG_UT_STRING",
 #endif
 
-#if 1
+#if 0
             "DNS_UT_QUERY",
             "DNS_UT_RR",
             "DNS_UT_CACHE",
