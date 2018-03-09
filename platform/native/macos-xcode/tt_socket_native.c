@@ -919,7 +919,7 @@ void __dump_socket_fdinfo(IN struct proc_fdinfo *fi,
             tt_sktaddr_ip_n2p(TT_NET_AF_INET, &ip, addr, sizeof(addr) - 1);
             tt_snprintf(local,
                         sizeof(local) - 1,
-                        "%s|%d",
+                        "%s@%d",
                         addr,
                         isi->insi_lport);
         } else if (si->psi.soi_family == AF_INET6) {
@@ -930,7 +930,7 @@ void __dump_socket_fdinfo(IN struct proc_fdinfo *fi,
             tt_sktaddr_ip_n2p(TT_NET_AF_INET6, &ip, addr, sizeof(addr) - 1);
             tt_snprintf(local,
                         sizeof(local) - 1,
-                        "%s|%d",
+                        "%s@%d",
                         addr,
                         isi->insi_lport);
         } else {
@@ -954,7 +954,7 @@ void __dump_socket_fdinfo(IN struct proc_fdinfo *fi,
             tt_sktaddr_ip_n2p(TT_NET_AF_INET, &ip, addr, sizeof(addr) - 1);
             tt_snprintf(local,
                         sizeof(local) - 1,
-                        "%s|%d",
+                        "%s@%d",
                         addr,
                         tsi->tcpsi_ini.insi_lport);
 
@@ -962,7 +962,7 @@ void __dump_socket_fdinfo(IN struct proc_fdinfo *fi,
             tt_sktaddr_ip_n2p(TT_NET_AF_INET, &ip, addr, sizeof(addr) - 1);
             tt_snprintf(remote,
                         sizeof(remote) - 1,
-                        "%s|%d",
+                        "%s@%d",
                         addr,
                         tsi->tcpsi_ini.insi_fport);
         } else if (si->psi.soi_family == AF_INET6) {
@@ -975,7 +975,7 @@ void __dump_socket_fdinfo(IN struct proc_fdinfo *fi,
             tt_sktaddr_ip_n2p(TT_NET_AF_INET6, &ip, addr, sizeof(addr) - 1);
             tt_snprintf(local,
                         sizeof(local) - 1,
-                        "%s|%d",
+                        "%s@%d",
                         addr,
                         tsi->tcpsi_ini.insi_lport);
 
@@ -985,7 +985,7 @@ void __dump_socket_fdinfo(IN struct proc_fdinfo *fi,
             tt_sktaddr_ip_n2p(TT_NET_AF_INET6, &ip, addr, sizeof(addr) - 1);
             tt_snprintf(remote,
                         sizeof(remote) - 1,
-                        "%s|%d",
+                        "%s@%d",
                         addr,
                         tsi->tcpsi_ini.insi_fport);
         } else {

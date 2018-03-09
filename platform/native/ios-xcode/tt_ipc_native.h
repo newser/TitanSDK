@@ -103,8 +103,10 @@ extern tt_result_t tt_ipc_recv_ntv(IN tt_ipc_ntv_t *ipc,
 extern tt_result_t tt_ipc_send_skt_ntv(IN tt_ipc_ntv_t *ipc,
                                        IN TO struct tt_skt_s *skt);
 
-extern tt_result_t tt_ipc_handle_internal_ev(IN OUT struct tt_ipc_ev_s **p_pev,
-                                             OUT struct tt_skt_s **p_skt);
+tt_inline struct tt_skt_s *tt_ipc_handle_ev_skt(IN struct tt_ipc_ev_s *pev)
+{
+    return NULL;
+}
 
 extern void tt_ipc_worker_io(IN struct tt_io_ev_s *io_ev);
 

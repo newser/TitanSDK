@@ -503,7 +503,7 @@ tt_result_t tt_dopen(IN tt_dir_t *dir,
 {
     tt_dir_attr_t __attr;
     tt_result_t result;
-    
+
     TT_ASSERT(dir != NULL);
     TT_ASSERT(path != NULL);
 
@@ -525,7 +525,7 @@ tt_result_t tt_dopen(IN tt_dir_t *dir,
 void tt_dclose(IN tt_dir_t *dir)
 {
     tt_s32_t n;
-    
+
     TT_ASSERT(dir != NULL);
 
     tt_dclose_ntv(&dir->sys_dir);

@@ -76,7 +76,14 @@ tt_ipc_ev_t *tt_ipc_ev_create(IN tt_u32_t ev, IN tt_u32_t size)
 
 void tt_ipc_ev_destroy(IN tt_ipc_ev_t *pev)
 {
+#if 0
+    if (pev->free) {
+        tt_free(pev);
+    }
+#else
+    TT_ASSERT(pev->free);
     tt_free(pev);
+#endif
 }
 
 tt_result_t tt_ipc_send_ev(IN tt_ipc_t *dst, IN tt_ipc_ev_t *pev)
@@ -211,6 +218,7 @@ tt_ipc_ev_t *__parse_ipc_ev(IN tt_buf_t *buf)
     if (len < (sizeof(tt_ipc_ev_t) + pev->size)) {
         return NULL;
     }
+    pev->free = TT_FALSE;
 
     tt_buf_inc_rp(buf, (sizeof(tt_ipc_ev_t) + pev->size));
     return pev;

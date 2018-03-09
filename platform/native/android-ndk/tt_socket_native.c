@@ -1278,7 +1278,7 @@ void __dump_socket_fdinfo(IN int s, IN tt_u32_t flag)
             tt_sktaddr_ip_n2p(TT_NET_AF_INET, &ip, addr, sizeof(addr) - 1);
             tt_snprintf(local,
                         sizeof(local) - 1,
-                        "%s|%d",
+                        "%s@%d",
                         addr,
                         ntohs(a4->sin_port));
         } else if (a.ss_family == AF_INET6) {
@@ -1290,7 +1290,7 @@ void __dump_socket_fdinfo(IN int s, IN tt_u32_t flag)
             tt_sktaddr_ip_n2p(TT_NET_AF_INET6, &ip, addr, sizeof(addr) - 1);
             tt_snprintf(local,
                         sizeof(local) - 1,
-                        "%s|%d",
+                        "%s@%d",
                         addr,
                         ntohs(a6->sin6_port));
         } else if (a.ss_family == AF_LOCAL) {
@@ -1310,7 +1310,7 @@ void __dump_socket_fdinfo(IN int s, IN tt_u32_t flag)
             tt_sktaddr_ip_n2p(TT_NET_AF_INET, &ip, addr, sizeof(addr) - 1);
             tt_snprintf(remote,
                         sizeof(remote) - 1,
-                        "%s|%d",
+                        "%s@%d",
                         addr,
                         ntohs(a4->sin_port));
         } else if (a.ss_family == AF_INET6) {
@@ -1322,7 +1322,7 @@ void __dump_socket_fdinfo(IN int s, IN tt_u32_t flag)
             tt_sktaddr_ip_n2p(TT_NET_AF_INET6, &ip, addr, sizeof(addr) - 1);
             tt_snprintf(remote,
                         sizeof(remote) - 1,
-                        "%s|%d",
+                        "%s@%d",
                         addr,
                         ntohs(a6->sin6_port));
         } else if (a.ss_family == AF_LOCAL) {
@@ -1352,7 +1352,7 @@ void __dump_socket_fdinfo(IN int s, IN tt_u32_t flag)
             tt_sktaddr_ip_n2p(TT_NET_AF_INET, &ip, addr, sizeof(addr) - 1);
             tt_snprintf(local,
                         sizeof(local) - 1,
-                        "%s|%d",
+                        "%s@%d",
                         addr,
                         ntohs(a4->sin_port));
         } else if (a.ss_family == AF_INET6) {
@@ -1364,7 +1364,7 @@ void __dump_socket_fdinfo(IN int s, IN tt_u32_t flag)
             tt_sktaddr_ip_n2p(TT_NET_AF_INET6, &ip, addr, sizeof(addr) - 1);
             tt_snprintf(local,
                         sizeof(local) - 1,
-                        "%s|%d",
+                        "%s@%d",
                         addr,
                         ntohs(a6->sin6_port));
         } else if (a.ss_family == AF_LOCAL) {

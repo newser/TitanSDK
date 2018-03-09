@@ -32,10 +32,10 @@
 #include <os/tt_task.h>
 #include <time/tt_timer.h>
 
+#include <tt_ntdll.h>
 #include <tt_sys_error.h>
 #include <tt_util_native.h>
 #include <tt_wchar.h>
-#include <tt_ntdll.h>
 
 ////////////////////////////////////////////////////////////
 // internal macro

@@ -132,8 +132,7 @@ tt_inline tt_result_t tt_ipc_recv(IN tt_ipc_t *ipc,
         return TT_FAIL;
     }
 
-    return
-        tt_ipc_recv_ntv(&ipc->sys_ipc, buf, len, recvd, p_fev, p_tmr, p_skt);
+    return tt_ipc_recv_ntv(&ipc->sys_ipc, buf, len, recvd, p_fev, p_tmr, p_skt);
 }
 
 // note linux abstract socket, returned addr may not be a null-terminated string

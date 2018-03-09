@@ -159,7 +159,7 @@ tt_result_t tt_thread_wait_local_ntv(IN struct tt_thread_s *thread)
 
     if (!FlsSetValue(tt_g_thread_fls_index, NULL)) {
         TT_ERROR_NTV("fail to clear thread specific data");
-        //return TT_FAIL;
+        // return TT_FAIL;
     }
 
     return TT_SUCCESS;

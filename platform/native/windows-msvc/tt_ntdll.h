@@ -59,4 +59,3 @@ extern void tt_ntdll_dump_ipc(IN tt_u32_t flag);
 extern void tt_ntdll_dump_skt(IN tt_u32_t flag);
 
 #endif /* __TT_NTDLL__ */
-

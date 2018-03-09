@@ -48,7 +48,7 @@ typedef struct tt_ipc_ev_s
 {
     tt_u32_t ev;
     tt_u32_t size;
-    tt_bool_t free:1;
+    tt_bool_t free : 1;
 } tt_ipc_ev_t;
 
 enum

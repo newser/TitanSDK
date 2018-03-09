@@ -28,9 +28,9 @@
 #include <memory/tt_memory_alloc.h>
 #include <os/tt_task.h>
 
+#include <tt_ntdll.h>
 #include <tt_util_native.h>
 #include <tt_wchar.h>
-#include <tt_ntdll.h>
 
 #include <io.h>
 #include <sys/stat.h>
@@ -562,7 +562,7 @@ tt_result_t tt_fs_component_init_ntv()
     if (!TT_OK(tt_ntdll_component_init_ntv())) {
         return TT_FAIL;
     }
-    
+
     return TT_SUCCESS;
 }
 

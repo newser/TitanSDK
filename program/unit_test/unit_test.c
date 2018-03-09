@@ -99,7 +99,7 @@ tt_result_t __ut_fiber(IN void *param)
 #if 1
     else {
         const tt_char_t *names[] = {
-            //"case_fs_basic",
+//"case_fs_basic",
 #if 0
             "TEST_UNIT_LOG",
             "TEST_UNIT_LOG_PATTERN",
@@ -153,13 +153,13 @@ tt_result_t __ut_fiber(IN void *param)
             "ALG_UT_STRING",
 #endif
 
-#if 0
+#if 1
             "DNS_UT_QUERY",
             "DNS_UT_RR",
             "DNS_UT_CACHE",
 #endif
 
-#if 1
+#if 0
             "SSL_UT_X509",
             "SSL_UT_IO",
 #endif
