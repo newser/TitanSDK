@@ -530,19 +530,6 @@ tt_result_t tt_ipc_send_skt_ntv(IN tt_ipc_ntv_t *ipc, IN TO tt_skt_t *skt)
     return ipc_send.result;
 }
 
-tt_result_t tt_ipc_handle_internal_ev(IN OUT tt_ipc_ev_t **p_pev,
-                                      OUT tt_skt_t **p_skt)
-{
-    tt_ipc_ev_t *pev = *p_pev;
-    if (pev->ev == __IPC_INTERNAL_EV_SKT) {
-        // absorbed
-        *p_pev = NULL;
-        return TT_FAIL;
-    } else {
-        return TT_SUCCESS;
-    }
-}
-
 void tt_ipc_worker_io(IN tt_io_ev_t *io_ev)
 {
 }
