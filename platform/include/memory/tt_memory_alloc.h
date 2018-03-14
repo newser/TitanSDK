@@ -85,6 +85,8 @@ tt_export void tt_memory_status_dump(IN tt_u32_t flag);
 #define TT_MEMORY_STATUS_PREFIX (1 << 2)
 #define TT_MEMORY_STATUS_ALL (~0)
 
+tt_export void tt_memory_status_dump_enable(IN tt_bool_t enable);
+
 tt_export void tt_set_oom_handler(IN tt_oom_handler_t handler, IN void *param);
 
 #ifdef TT_MEMORY_TAG_ENABLE

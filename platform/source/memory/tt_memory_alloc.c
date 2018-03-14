@@ -63,6 +63,8 @@ static tt_hashmap_t __mtag_map;
 
 static tt_bool_t __mtag_initialized;
 
+static tt_bool_t __memdump_enable;
+
 static tt_oom_handler_t __s_oom_handler;
 
 static void *__s_oom_param;
@@ -109,6 +111,11 @@ void tt_memory_status_dump(IN tt_u32_t flag)
     tt_u32_t block = 0;
     tt_size_t size = 0;
 
+    if (__memdump_enable) {
+        tt_printf("%s[0 blocks][0 bytes] are allocated\n",
+                  TT_COND(flag & TT_MEMORY_STATUS_PREFIX, "<<Memory>> ", ""));
+    }
+
     if (!__mtag_initialized) {
         return;
     }
@@ -145,6 +152,11 @@ void tt_memory_status_dump(IN tt_u32_t flag)
                   (tt_s32_t)size);
     }
 #endif
+}
+
+void tt_memory_status_dump_enable(IN tt_bool_t enable)
+{
+    __memdump_enable = enable;
 }
 
 void tt_set_oom_handler(IN tt_oom_handler_t handler, IN void *param)
@@ -266,6 +278,8 @@ tt_result_t __mtag_component_init(IN tt_component_t *comp,
 
     __mtag_initialized = TT_TRUE;
 #endif
+
+    __memdump_enable = TT_TRUE;
 
     return TT_SUCCESS;
 }

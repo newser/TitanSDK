@@ -318,7 +318,7 @@ tt_platform_init(NULL);
 
 // tt_thread_wait_local();
 tt_platform_exit();
-while (1)
+while (0)
     tt_sleep(10000);
 printf("exiting\n");
 return TT_COND(tt_ut_ok, 0, -1);
