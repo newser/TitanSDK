@@ -89,6 +89,34 @@ else
         cat ${TT_CASE}.log
         exit 1
     fi
+    
+    grep '\[0 ipc\] are opened' ${TT_CASE}.log
+    if [ $? -ne 0 ]
+    then
+        cat ${TT_CASE}.log
+        exit 1
+    fi
+
+    grep '\[0 ipc\] are opened' ${TT_CASE}.log
+    if [ $? -ne 0 ]
+    then
+        cat ${TT_CASE}.log
+        exit 1
+    fi
+
+    grep '\[0 sockets\] are opened' ${TT_CASE}.log
+    if [ $? -ne 0 ]
+    then
+        cat ${TT_CASE}.log
+        exit 1
+    fi
+
+    grep '\[0 blocks\]\[0 bytes\] are allocated' ${TT_CASE}.log
+    if [ $? -ne 0 ]
+    then
+        cat ${TT_CASE}.log
+        exit 1
+    fi
 fi
 
 exit 0
