@@ -111,9 +111,10 @@ void tt_memory_status_dump(IN tt_u32_t flag)
     tt_u32_t block = 0;
     tt_size_t size = 0;
 
-    if (__memdump_enable) {
+    if (!__memdump_enable) {
         tt_printf("%s[0 blocks][0 bytes] are allocated\n",
                   TT_COND(flag & TT_MEMORY_STATUS_PREFIX, "<<Memory>> ", ""));
+        return;
     }
 
     if (!__mtag_initialized) {
@@ -151,6 +152,9 @@ void tt_memory_status_dump(IN tt_u32_t flag)
                   block,
                   (tt_s32_t)size);
     }
+#else
+    tt_printf("%s[0 blocks][0 bytes] are allocated\n",
+              TT_COND(flag & TT_MEMORY_STATUS_PREFIX, "<<Memory>> ", ""));
 #endif
 }
 
