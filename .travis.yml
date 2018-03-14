@@ -30,7 +30,7 @@ matrix:
               global: >
                   JOB='macOS Xcode7'
                   GENERATOR=Xcode
-                  CMAKE_FLAGS='-DPLATFORM_BUILD_SHARED=FALSE -DPLATFORM_ENABLE_DEBUG=FALSE'
+                  CMAKE_FLAGS='-DPLATFORM_BUILD_SHARED=FALSE -DPLATFORM_ENABLE_DEBUG=FALSE -DSANITIZE_ADDRESS=TRUE -DPLATFORM_ENABLE_MEMORY_TAG=TRUE'
                   BUILD_CMD='cmake --build . --target unit_test --config Debug'
                   OS=macos
                   UT=unit_test/Debug/unit_test
@@ -52,7 +52,7 @@ matrix:
               global: >
                   JOB='macOS Xcode9'
                   GENERATOR=Xcode
-                  CMAKE_FLAGS='-DPLATFORM_BUILD_SHARED=TRUE -DPLATFORM_ENABLE_DEBUG=FALSE'
+                  CMAKE_FLAGS='-DPLATFORM_BUILD_SHARED=TRUE -DPLATFORM_ENABLE_DEBUG=FALSE -DSANITIZE_ADDRESS=TRUE -DPLATFORM_ENABLE_MEMORY_TAG=TRUE'
                   BUILD_CMD='cmake --build . --target unit_test --config Debug'
                   OS=macos
                   UT=unit_test/Debug/unit_test
