@@ -90,33 +90,40 @@ else
         exit 1
     fi
     
+    leak=0
+
     grep '\[0 ipc\] are opened' ${TT_CASE}.log > /dev/null
     if [ $? -ne 0 ]
     then
-		echo "===================================="
-		echo "ipc leak:"
-		grep "<<IPC>>" ${TT_CASE}.log
-		echo "===================================="
-        exit 1
+        echo "===================================="
+        echo "ipc leak:"
+        grep "<<IPC>>" ${TT_CASE}.log
+        echo "===================================="
+        leak=1
     fi
 
     grep '\[0 sockets\] are opened' ${TT_CASE}.log > /dev/null
     if [ $? -ne 0 ]
     then
-		echo "===================================="
-		echo "socket leak:"
-		grep "<<Socket>>" ${TT_CASE}.log
-		echo "===================================="
-        exit 1
+        echo "===================================="
+        echo "socket leak:"
+        grep "<<Socket>>" ${TT_CASE}.log
+        echo "===================================="
+        leak=1
     fi
 
     grep '\[0 blocks\]\[0 bytes\] are allocated' ${TT_CASE}.log > /dev/null
     if [ $? -ne 0 ]
     then
-		echo "===================================="
-		echo "memory leak:"
-		grep "<<Memory>>" ${TT_CASE}.log
-		echo "===================================="
+        echo "===================================="
+        echo "memory leak:"
+        grep "<<Memory>>" ${TT_CASE}.log
+        echo "===================================="
+        leak=1
+    fi
+
+    if [ $leak -ne 0 ]
+    then
         exit 1
     fi
 fi

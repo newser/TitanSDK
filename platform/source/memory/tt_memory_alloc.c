@@ -291,6 +291,7 @@ tt_result_t __mtag_component_init(IN tt_component_t *comp,
 void __mtag_component_exit(IN tt_component_t *comp)
 {
     tt_memory_status_dump(TT_MEMORY_STATUS_ALL);
+
 #ifdef TT_MEMORY_TAG_ENABLE
     __mtag_initialized = TT_FALSE;
 

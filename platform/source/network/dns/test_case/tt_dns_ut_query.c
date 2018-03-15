@@ -900,6 +900,9 @@ TT_TEST_ROUTINE_DEFINE(case_dns_query_exception)
     TT_TEST_CASE_ENTER()
 // test start
 
+    tt_memory_status_dump_enable(TT_FALSE);
+    tt_skt_status_dump_enable(TT_FALSE);
+
 #ifdef __UT_LITE__
     return TT_SUCCESS;
 #endif

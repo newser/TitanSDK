@@ -82,6 +82,8 @@ tt_export void tt_skt_status_dump(IN tt_u32_t flag);
 #define TT_SKT_STATUS_NATIVE (1 << 3)
 #define TT_SKT_STATUS_ALL (~0)
 
+tt_export void tt_skt_status_dump_enable(IN tt_bool_t enable);
+
 tt_export tt_skt_t *tt_skt_create(IN tt_net_family_t family,
                                   IN tt_net_protocol_t protocol,
                                   IN OPT tt_skt_attr_t *attr);

@@ -50,6 +50,8 @@ static tt_atomic_s32_t __skt_num;
 
 static tt_atomic_s32_t __skt_peek_num;
 
+static tt_bool_t __sktdump_enable;
+
 ////////////////////////////////////////////////////////////
 // interface declaration
 ////////////////////////////////////////////////////////////
@@ -82,6 +84,12 @@ void tt_skt_component_register()
 
 void tt_skt_status_dump(IN tt_u32_t flag)
 {
+    if (!__sktdump_enable) {
+        tt_printf("%s[0 sockets] are opened\n",
+                  TT_COND(flag & TT_SKT_STATUS_PREFIX, "<<Socket>> ", ""));
+        return;
+    }
+
     if (flag & TT_SKT_STATUS_COUNT) {
         tt_printf("%s[%d sockets] are opened\n",
                   TT_COND(flag & TT_SKT_STATUS_PREFIX, "<<Socket>> ", ""),
@@ -97,6 +105,11 @@ void tt_skt_status_dump(IN tt_u32_t flag)
     if (flag & TT_SKT_STATUS_NATIVE) {
         tt_skt_status_dump_ntv(flag);
     }
+}
+
+void tt_skt_status_dump_enable(IN tt_bool_t enable)
+{
+    __sktdump_enable = enable;
 }
 
 tt_skt_t *tt_skt_create(IN tt_net_family_t family,
