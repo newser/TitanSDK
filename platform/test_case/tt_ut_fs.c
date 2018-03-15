@@ -53,26 +53,20 @@ static void __fs_enter(void *enter_param)
 
     tt_set_current_path("../tmp");
 #else
-    static tt_bool_t done = TT_FALSE;
     tt_char_t *s;
-
-    if (done) {
-        return;
-    }
-
-    tt_string_init(&__sc_fpath, NULL);
-    tt_string_init(&__sc_dpath, NULL);
 
     s = getenv("HOME");
     if (s != NULL) {
-        tt_string_append(&__sc_fpath, s);
-        tt_string_append(&__sc_fpath, "/Library/Caches/测试");
-
-        tt_string_append(&__sc_dpath, s);
-        tt_string_append(&__sc_dpath, "/Library/Caches/test_dir");
-
-        done = TT_TRUE;
+        tt_string_init(&__wpath, NULL);
+        tt_string_append(&__wpath, s);
+        tt_string_append(&__wpath, "/Library/Caches");
+        tt_set_current_path(tt_string_cstr(&__wpath));
+        tt_string_destroy(&__wpath);
     }
+
+    s = tt_current_path(TT_FALSE);
+    tt_string_create(&__wpath, s, NULL);
+    tt_free(s);
 #endif
 #elif TT_ENV_OS_IS_ANDROID
     tt_char_t *pwd = tt_current_path(TT_FALSE);
@@ -85,15 +79,8 @@ static void __fs_enter(void *enter_param)
 
 static void __fs_exit(void *enter_param)
 {
-#if TT_ENV_OS_IS_IOS
-#if (TT_ENV_OS_FEATURE & TT_ENV_OS_FEATURE_IOS_SIMULATOR)
     tt_set_current_path(tt_string_cstr(&__wpath));
-#else
-    todo
-#endif
-#elif TT_ENV_OS_IS_ANDROID
-    tt_set_current_path(tt_string_cstr(&__wpath));
-#endif
+    tt_string_destroy(&__wpath);
 }
 
 static void __fs_enter_consis(void *enter_param);
@@ -188,35 +175,10 @@ TT_TEST_ROUTINE_DEFINE(case_fs_consistency)
 }
 */
 
-#if TT_ENV_OS_IS_WINDOWS
-#define __SC_TEST_FILE "测试"
-#define __SC_TEST_FILE2 "测试2"
-#define __TEST_D1 "测试目录1"
-#elif TT_ENV_OS_IS_IOS
-
-#if (TT_ENV_OS_FEATURE & TT_ENV_OS_FEATURE_IOS_SIMULATOR)
-#define __SC_TEST_FILE "测试"
-#define __SC_TEST_FILE2 "测试2"
-#define __TEST_D1 "测试目录1"
-#else
-#define __SC_TEST_FILE ((const tt_char_t *)tt_string_cstr(&__sc_fpath))
-#define __SC_TEST_FILE2 ((const tt_char_t *)tt_string_cstr(&__sc_fpath2))
-#define __TEST_D1 "todo" //((const tt_char_t *)tt_string_cstr(&__sc_dpath1))
-#endif
-
-#elif TT_ENV_OS_IS_ANDROID
-
 #define APK_PATH "/data/data/com.titansdk.titansdkunittest/"
 #define __SC_TEST_FILE "测试"
 #define __SC_TEST_FILE2 "测试2"
 #define __TEST_D1 "测试目录1"
-
-#else
-#define __SC_TEST_FILE "测试"
-#define __SC_TEST_FILE2 "测试2"
-
-#define __TEST_D1 "测试目录1"
-#endif
 #define __TEST_D2 "测试目录2"
 #define __TEST_F3 "测试文件3"
 
@@ -500,15 +462,10 @@ TT_TEST_ROUTINE_DEFINE(case_fs_consistency)
 #endif
 
     {
-#if TT_ENV_OS_IS_IOS
-
-#if (TT_ENV_OS_FEATURE & TT_ENV_OS_FEATURE_IOS_SIMULATOR)
+#if TT_ENV_OS_IS_IOS && (TT_ENV_OS_FEATURE & TT_ENV_OS_FEATURE_IOS_SIMULATOR)
 #define __TT1 "../tmp/tttmp/1.xXXX"
 #define __TT2 "../tmp/tttmp/XXXXX"
 #define __TTD "../tmp/tttmp"
-#else
-#endif
-
 #else
 #define __TT1 "tttmp/1.xXXX"
 #define __TT2 "tttmp/XXXXX"
@@ -871,16 +828,10 @@ TT_TEST_ROUTINE_DEFINE(case_dir_basic)
     TT_TEST_CASE_ENTER()
 // test start
 
-#if TT_ENV_OS_IS_IOS
+#if TT_ENV_OS_IS_IOS && (TT_ENV_OS_FEATURE & TT_ENV_OS_FEATURE_IOS_SIMULATOR)
 
-#if (TT_ENV_OS_FEATURE & TT_ENV_OS_FEATURE_IOS_SIMULATOR)
 #define __TEST_DIR "../tmp/test_dir"
 #define __TEST_DIR2 "../tmp/test_dir2"
-#else
-//#define __TEST_DIR ((const tt_char_t *)tt_string_cstr(&__sc_dpath))
-#define __TEST_DIR "todo"
-#define __TEST_DIR2 "todo"
-#endif
 
 #elif TT_ENV_OS_IS_ANDROID
 
@@ -888,9 +839,10 @@ TT_TEST_ROUTINE_DEFINE(case_dir_basic)
 #define __TEST_DIR2 APK_PATH "test_dir2"
 
 #else
-//#define __TEST_DIR "./≤‚ ‘ƒø¬º")
+
 #define __TEST_DIR "./test_dir"
 #define __TEST_DIR2 "./test_dir2"
+
 #endif
 
 #define __TEST_SUBDIR "一个子目录3"
@@ -1037,14 +989,11 @@ TT_TEST_ROUTINE_DEFINE(case_dir_basic)
     }
 
     {
-#if TT_ENV_OS_IS_IOS
+#if TT_ENV_OS_IS_IOS && (TT_ENV_OS_FEATURE & TT_ENV_OS_FEATURE_IOS_SIMULATOR)
 
-#if (TT_ENV_OS_FEATURE & TT_ENV_OS_FEATURE_IOS_SIMULATOR)
 #define __DTT1 "../tmp/dtttmp/1.xXXX"
 #define __DTT2 "../tmp/dtttmp/XXXXX"
 #define __DTTD "../tmp/dtttmp"
-#else
-#endif
 
 #elif TT_ENV_OS_IS_ANDROID
 
@@ -1053,9 +1002,11 @@ TT_TEST_ROUTINE_DEFINE(case_dir_basic)
 #define __DTTD APK_PATH "dtttmp"
 
 #else
+
 #define __DTT1 "dtttmp/1.xXXX"
 #define __DTT2 "dtttmp/XXXXX"
 #define __DTTD "dtttmp"
+
 #endif
 
         char path[128] = "";
@@ -1079,18 +1030,10 @@ TT_TEST_ROUTINE_DEFINE(case_dir_basic)
     TT_TEST_CASE_LEAVE()
 }
 
-#if TT_ENV_OS_IS_IOS
-
-#if (TT_ENV_OS_FEATURE & TT_ENV_OS_FEATURE_IOS_SIMULATOR)
+#if TT_ENV_OS_IS_IOS && (TT_ENV_OS_FEATURE & TT_ENV_OS_FEATURE_IOS_SIMULATOR)
 #define __ut_fname "../tmp/a.txt"
-#else
-#define __ut_fname ((const tt_char_t *)tt_string_cstr(&__sc_fpath))
-#endif
-
 #elif TT_ENV_OS_IS_ANDROID
-
 #define __ut_fname APK_PATH "a.txt"
-
 #else
 #define __ut_fname "a.txt"
 #endif
@@ -1515,9 +1458,8 @@ TT_TEST_ROUTINE_DEFINE(case_fs_copy)
 #endif
 
     {
-#if TT_ENV_OS_IS_IOS
+#if TT_ENV_OS_IS_IOS && (TT_ENV_OS_FEATURE & TT_ENV_OS_FEATURE_IOS_SIMULATOR)
 
-#if (TT_ENV_OS_FEATURE & TT_ENV_OS_FEATURE_IOS_SIMULATOR)
 #define __CD_D1 "../tmp/d1"
 #define __CD_D1S "../tmp/d1/"
 #define __CD_D1_D2 "../tmp/d1/d2"
@@ -1529,10 +1471,9 @@ TT_TEST_ROUTINE_DEFINE(case_fs_copy)
 #define __COPIED_D1_D2 "../tmp/copied_d1/d2"
 #define __COPIED_D1_F1 "../tmp/copied_d1/f1"
 #define __COPIED_D1_D2_F2 "../tmp/copied_d1/d2/f2"
-#else
-#endif
 
 #else
+
 #define __CD_D1 "d1"
 #define __CD_D1S "d1/"
 #define __CD_D1_D2 "d1/d2"
@@ -1544,6 +1485,7 @@ TT_TEST_ROUTINE_DEFINE(case_fs_copy)
 #define __COPIED_D1_D2 "copied_d1/d2"
 #define __COPIED_D1_F1 "copied_d1/f1"
 #define __COPIED_D1_D2_F2 "copied_d1/d2/f2"
+
 #endif
 
         tt_dremove(__CD_D1);

@@ -898,7 +898,7 @@ TT_TEST_ROUTINE_DEFINE(case_dns_query_exception)
     __svr_param_t sp[4];
 
     TT_TEST_CASE_ENTER()
-// test start
+    // test start
 
     tt_memory_status_dump_enable(TT_FALSE);
     tt_skt_status_dump_enable(TT_FALSE);

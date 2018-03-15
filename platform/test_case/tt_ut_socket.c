@@ -24,6 +24,7 @@
 #include <unit_test/tt_unit_test.h>
 
 #include <algorithm/tt_string.h>
+#include <algorithm/tt_string_common.h>
 #include <io/tt_file_system.h>
 #include <io/tt_mac_addr.h>
 #include <io/tt_socket.h>
@@ -137,6 +138,20 @@ static void __ut_skt_enter(void *enter_param)
 
     tt_set_current_path("../tmp");
 #else
+    tt_char_t *s;
+
+    s = getenv("HOME");
+    if (s != NULL) {
+        tt_string_init(&__wpath, NULL);
+        tt_string_append(&__wpath, s);
+        tt_string_append(&__wpath, "/Library/Caches");
+        tt_set_current_path(tt_string_cstr(&__wpath));
+        tt_string_destroy(&__wpath);
+    }
+
+    s = tt_current_path(TT_FALSE);
+    tt_string_create(&__wpath, s, NULL);
+    tt_free(s);
 #endif
 
 #elif TT_ENV_OS_IS_ANDROID
@@ -306,7 +321,8 @@ static void __ut_skt_exit(void *enter_param)
     tt_set_current_path(tt_string_cstr(&__wpath));
     tt_string_destroy(&__wpath);
 #else
-    todo
+    tt_set_current_path(tt_string_cstr(&__wpath));
+    tt_string_destroy(&__wpath);
 #endif
 
 #elif TT_ENV_OS_IS_ANDROID

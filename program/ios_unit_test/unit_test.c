@@ -39,10 +39,46 @@ tt_result_t __ut_fiber(IN void *param)
     else {
         tt_u32_t i;
         const tt_char_t *names[] = {
-//"case_sk_opt",
-//"TEST_UNIT_LOG",
-//"TEST_UNIT_FS",
-//"TEST_UNIT_IPC"
+//"case_fs_basic",
+#if 0
+            "TEST_UNIT_LOG",
+            "TEST_UNIT_LOG_PATTERN",
+#endif
+
+#if 0
+            "TEST_UNIT_ATOMIC",
+            "TEST_UNIT_THREAD",
+            "TEST_UNIT_FIBER",
+            "TEST_UNIT_SEM",
+            "TEST_UNIT_RWLOCK",
+            "TEST_UNIT_SPIN_LOCK",
+            "TEST_UNIT_MUTEX",
+#endif
+
+#if 0
+            "TEST_UNIT_SLAB",
+            "TEST_UNIT_MEMPOOL",
+#endif
+
+#if 0
+            "TEST_UNIT_TIME_REF",
+            "TEST_UNIT_DATE",
+            "TEST_UNIT_TIMER",
+            "TEST_UNIT_FPATH",
+#endif
+
+#if 0
+            "TEST_UNIT_MISC",
+            "TEST_UNIT_CHARSET",
+            "TEST_UNIT_CFGNODE",
+            "TEST_UNIT_CFGPATH",
+            "TEST_UNIT_CFGSHELL",
+#endif
+
+            "TEST_UNIT_FS",
+//"TEST_UNIT_IPC",
+//"TEST_UNIT_SOCKET",
+
 #if 0
             "ALG_UT_BASIC_ALG",
             "ALG_UT_HEAP",
@@ -57,7 +93,7 @@ tt_result_t __ut_fiber(IN void *param)
             "ALG_UT_STRING",
 #endif
 
-#if 1
+#if 0
             "DNS_UT_QUERY",
             "DNS_UT_RR",
             "DNS_UT_CACHE",
