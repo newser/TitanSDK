@@ -79,8 +79,10 @@ static void __fs_enter(void *enter_param)
 
 static void __fs_exit(void *enter_param)
 {
+#if TT_ENV_OS_IS_IOS || TT_ENV_OS_IS_ANDROID
     tt_set_current_path(tt_string_cstr(&__wpath));
     tt_string_destroy(&__wpath);
+#endif
 }
 
 static void __fs_enter_consis(void *enter_param);
