@@ -273,11 +273,9 @@ install:
       fi
 
 before_script:
-    # Add an IPv6 config - see the corresponding Travis issue
-    # https://github.com/travis-ci/travis-ci/issues/8361
-    - if [ "${OS}" == "linux" ]
+    - if [ ${OS} == "linux" ]
 	  then
-          sudo sh -c 'echo 0 > /proc/sys/net/ipv6/conf/all/disable_ipv6';
+          sudo sh -c 'echo 0 > /proc/sys/net/ipv6/conf/all/disable_ipv6'
       fi
     - cp ../misc/run_case.sh ./run_case.sh
     - chmod u+x run_case.sh
