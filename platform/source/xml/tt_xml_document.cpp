@@ -276,6 +276,7 @@ tt_result_t tt_xdoc_parse_file(IN tt_xdoc_t *xd,
                        TT_BUF_RLEN(&buf),
                        __parse_option(attr),
                        __encoding_map[attr->encoding]);
+    tt_buf_destroy(&buf);
     if (!r) {
         TT_ERROR("fail to parse xml: %s", r.description());
         p->reset();
