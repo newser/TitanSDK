@@ -78,7 +78,7 @@ check_symbol_exists(syslog syslog.h HAVE_SYSLOG)
 check_symbol_exists(ReportEvent windows.h HAVE_WINDOWS_EVENT_LOG)
 check_symbol_exists(os_log os/log.h HAVE_OSLOG)
 
-check_include_file(net/if_types.h HAVE_IFTYPES)
+#check_include_file(net/if_types.h HAVE_IFTYPES)
 
 if (PLATFORM_ENABLE_BACKTRACE)
     if ((PLATFORM_ENV_OS STREQUAL windows) OR (PLATFORM_ENV_OS STREQUAL android))

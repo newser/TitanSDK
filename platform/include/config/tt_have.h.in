@@ -79,6 +79,7 @@ defined if has backtrace
 #define TT_HAVE_BACKTRACE
 #endif
 
+#if 0
 /**
 @def HAVE_IFTYPES
 defined if has net/if_types.h
@@ -86,6 +87,7 @@ defined if has net/if_types.h
 #cmakedefine HAVE_IFTYPES
 #ifdef HAVE_IFTYPES
 #define TT_HAVE_IFTYPES
+#endif
 #endif
 
 ////////////////////////////////////////////////////////////

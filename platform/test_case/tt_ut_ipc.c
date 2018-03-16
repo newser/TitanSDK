@@ -1462,22 +1462,27 @@ tt_export tt_result_t __ipc_skt(IN void *param)
                                                           &n,
                                                           &fev,
                                                           &tmr))) {
+        TT_INFO("received %d bytes", n);
         len += n;
     }
     if (ret != TT_E_END) {
         __ipc_err_line = __LINE__;
         return TT_FAIL;
     }
+    TT_INFO("ipc skt end", n);
 
     if (!TT_OK(tt_skt_send(tcp, buf, len, NULL))) {
         __ipc_err_line = __LINE__;
         return TT_FAIL;
     }
+    TT_INFO("ipc skt sent");
     if (!TT_OK(tt_skt_shutdown(tcp, TT_SKT_SHUT_WR))) {
         __ipc_err_line = __LINE__;
         return TT_FAIL;
     }
+    TT_INFO("ipc skt shutdown");
     tt_skt_destroy(tcp);
+    TT_INFO("ipc skt destroy");
 
     tt_ipc_destroy(new_ipc);
     tt_ipc_destroy(ipc);
@@ -1530,6 +1535,9 @@ TT_TEST_ROUTINE_DEFINE(case_ipc_skt)
     ret = tt_process_wait(&proc, TT_TRUE, NULL);
     TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
+    if (__ipc_err_line != 0) {
+        TT_INFO("__ipc_err_line: %d", __ipc_err_line);
+    }
     TT_UT_EQUAL(__ipc_err_line, 0, "");
 
     // test end
