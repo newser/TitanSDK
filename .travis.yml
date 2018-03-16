@@ -271,17 +271,10 @@ install:
           adb shell echo echo from adb shell!!!
           adb install android_lib_unit_test/TitanSDKUnitTest/app/build/outputs/apk/app-debug.apk || exit -1
       fi
-    - |
-      # Add an IPv6 config - see the corresponding Travis issue
-      # https://github.com/travis-ci/travis-ci/issues/8361
-      if [ "${OS}" == "android" ]
-	  then
-          sudo sh -c 'echo 0 > /proc/sys/net/ipv6/conf/all/disable_ipv6';
-      fi
-    - cp ../misc/run_case.sh ./run_case.sh
-    - chmod u+x run_case.sh
 
 script:
+    - cp ../misc/run_case.sh ./run_case.sh
+    - chmod u+x run_case.sh
     - export TT_CASE=case_log_context; ./run_case.sh
     - export TT_CASE=case_log_manager; ./run_case.sh
     - export TT_CASE=case_log_io_file_index; ./run_case.sh
