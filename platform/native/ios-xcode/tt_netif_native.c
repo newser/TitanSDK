@@ -35,14 +35,53 @@
 #include <ifaddrs.h>
 #include <net/if.h>
 #include <net/if_dl.h>
-#include <net/if_types.h>
 #include <sys/ioctl.h>
 #include <sys/socket.h>
 #include <sys/types.h>
 
+#ifdef HAVE_IFTYPES
+#include <net/if_types.h>
+#endif
+
 ////////////////////////////////////////////////////////////
 // internal macro
 ////////////////////////////////////////////////////////////
+
+#ifndef IFT_ETHER
+#define IFT_ETHER 0x6 /* Ethernet CSMACD */
+#endif
+
+#ifndef IFT_ISO88023
+#define IFT_ISO88023 0x7 /* CMSA CD */
+#endif
+
+#ifndef IFT_ISO88025
+#define IFT_ISO88025 0x9 /* Token Ring */
+#endif
+
+#ifndef IFT_FRELAY
+#define IFT_FRELAY 0x20 /* Frame Relay DTE only */
+#endif
+
+#ifndef IFT_FDDI
+#define IFT_FDDI 0xf
+#endif
+
+#ifndef IFT_PPP
+#define IFT_PPP 0x17 /* RFC 1331 */
+#endif
+
+#ifndef IFT_LOOP
+#define IFT_LOOP 0x18 /* loopback */
+#endif
+
+#ifndef IFT_ATM
+#define IFT_ATM 0x25 /* ATM cells */
+#endif
+
+#ifndef IFT_IEEE1394
+#define IFT_IEEE1394 0x90 /* IEEE1394 High Performance SerialBus*/
+#endif
 
 #define __cmp_addr(na, sa)                                                     \
     tt_memcmp(&((struct sockaddr_in *)(na))->sin_addr,                         \

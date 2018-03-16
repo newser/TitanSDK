@@ -8,7 +8,7 @@ matrix:
               global: >
                   JOB='Linux'
                   GENERATOR='Unix Makefiles'
-                  CMAKE_FLAGS='-DPLATFORM_BUILD_SHARED=TRUE -DPLATFORM_ENABLE_DEBUG=FALSE'
+                  CMAKE_FLAGS='-DPLATFORM_BUILD_SHARED=TRUE -DPLATFORM_ENABLE_DEBUG=FALSE -DSANITIZE_ADDRESS=TRUE -DPLATFORM_ENABLE_MEMORY_TAG=TRUE'
                   BUILD_CMD='cmake --build . --target unit_test --config Debug'
                   OS=linux
                   UT=unit_test/unit_test
@@ -21,7 +21,7 @@ matrix:
               global: >
                   JOB='Linux'
                   GENERATOR='Unix Makefiles'
-                  CMAKE_FLAGS='-DPLATFORM_BUILD_SHARED=TRUE -DPLATFORM_ENABLE_DEBUG=TRUE'
+                  CMAKE_FLAGS='-DPLATFORM_BUILD_SHARED=TRUE -DPLATFORM_ENABLE_DEBUG=TRUE -DSANITIZE_ADDRESS=TRUE -DPLATFORM_ENABLE_MEMORY_TAG=TRUE'
                   BUILD_CMD='cmake --build . --target unit_test --config Release'
                   OS=linux
                   UT=unit_test/unit_test
@@ -236,13 +236,6 @@ before_install:
           echo yes | sdkmanager "extras;m2repository;com;android;support;constraint;constraint-layout-solver;1.0.2"
       fi
 
-before_script:
-    # Add an IPv6 config - see the corresponding Travis issue
-    # https://github.com/travis-ci/travis-ci/issues/8361
-    - if [ "${TRAVIS_OS_NAME}" == "linux" ]; then
-          sudo sh -c 'echo 0 > /proc/sys/net/ipv6/conf/all/disable_ipv6';
-      fi
-
 install:
     - if [ "${OS}" == "android" ]; then exit 0; fi
     - mkdir titansdk_build
@@ -278,10 +271,17 @@ install:
           adb shell echo echo from adb shell!!!
           adb install android_lib_unit_test/TitanSDKUnitTest/app/build/outputs/apk/app-debug.apk || exit -1
       fi
-
-script:
+    - |
+      # Add an IPv6 config - see the corresponding Travis issue
+      # https://github.com/travis-ci/travis-ci/issues/8361
+      if [ "${OS}" == "android" ]
+	  then
+          sudo sh -c 'echo 0 > /proc/sys/net/ipv6/conf/all/disable_ipv6';
+      fi
     - cp ../misc/run_case.sh ./run_case.sh
     - chmod u+x run_case.sh
+
+script:
     - export TT_CASE=case_log_context; ./run_case.sh
     - export TT_CASE=case_log_manager; ./run_case.sh
     - export TT_CASE=case_log_io_file_index; ./run_case.sh
