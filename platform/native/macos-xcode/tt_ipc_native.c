@@ -169,6 +169,8 @@ typedef struct
 // extern declaration
 ////////////////////////////////////////////////////////////
 
+extern void __skt_inc_num();
+
 ////////////////////////////////////////////////////////////
 // global variant
 ////////////////////////////////////////////////////////////
@@ -831,6 +833,7 @@ void __handle_cmsg(IN __ipc_recv_t *ipc_recv, IN struct msghdr *msg)
         skt->sys_skt.s = s;
 
         *ipc_recv->p_skt = skt;
+        __skt_inc_num();
     }
 }
 

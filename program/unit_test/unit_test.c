@@ -98,8 +98,8 @@ tt_result_t __ut_fiber(IN void *param)
     }
 #if 1
     else {
-        const tt_char_t *names[] = {
-//"case_fs_basic",
+        const tt_char_t *names[] =
+        { "case_ipc_skt",
 #if 0
             "TEST_UNIT_LOG",
             "TEST_UNIT_LOG_PATTERN",
@@ -135,8 +135,8 @@ tt_result_t __ut_fiber(IN void *param)
             "TEST_UNIT_CFGSHELL",
 #endif
 
-            //"TEST_UNIT_FS",
-            "TEST_UNIT_IPC",
+//"TEST_UNIT_FS",
+//            "TEST_UNIT_IPC",
 //"TEST_UNIT_SOCKET",
 
 #if 0
