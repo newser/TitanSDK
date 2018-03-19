@@ -21,7 +21,7 @@
 set(PLATFORM_VERSION_MAJOR 0 CACHE STRING "major version number")
 mark_as_advanced(FORCE PLATFORM_VERSION_MAJOR)
 # minor version number
-set(PLATFORM_VERSION_MINOR 2 CACHE STRING "minor version number")
+set(PLATFORM_VERSION_MINOR 3 CACHE STRING "minor version number")
 mark_as_advanced(FORCE PLATFORM_VERSION_MINOR)
 # revision version number
 set(PLATFORM_VERSION_REVISION 0 CACHE STRING "revision version number")
@@ -34,7 +34,7 @@ include(${BUILD_PATH}/util.cmake)
 # do some configuration here
 
 # platform debug
-set(PLATFORM_ENABLE_DEBUG 1 CACHE BOOL "set to non zero to enable platform debug")
+set(PLATFORM_ENABLE_DEBUG 0 CACHE BOOL "set to non zero to enable platform debug")
 message(STATUS "debug mode: ${PLATFORM_ENABLE_DEBUG}")
 
 # build platform as a dynamic library

@@ -1471,6 +1471,7 @@ tt_export tt_result_t __ipc_skt(IN void *param)
     }
     TT_INFO("ipc skt end", n);
 
+    TT_INFO("tt_skt_send(%p, %p, %d, NULL)", tcp, buf, len);
     if (!TT_OK(tt_skt_send(tcp, buf, len, NULL))) {
         __ipc_err_line = __LINE__;
         return TT_FAIL;

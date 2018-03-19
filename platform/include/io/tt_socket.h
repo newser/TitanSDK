@@ -160,7 +160,7 @@ tt_inline tt_result_t tt_skt_send(IN tt_skt_t *skt,
     if (len != 0) {
         return tt_skt_send_ntv(&skt->sys_skt, buf, len, sent);
     } else {
-        *sent = 0;
+        TT_SAFE_ASSIGN(sent, 0);
         return TT_SUCCESS;
     }
 }
