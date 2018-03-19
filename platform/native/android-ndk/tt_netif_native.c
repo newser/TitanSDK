@@ -392,7 +392,7 @@ again:
     msgvec.msg_len = 0;
     timeout.tv_sec = 3; // congfiguable?
     timeout.tv_nsec = 0;
-    n = recvmmsg(nlink->s, &msgvec, 1, 0, &timeout);
+    n = recvmmsg(sys_group->s, &msgvec, 1, 0, &timeout);
     if (n > 0) {
         n = msgvec.msg_len;
     }
