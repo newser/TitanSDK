@@ -80,6 +80,15 @@ defined if memory tag is enabled
 #define TT_PLATFORM_ENABLE_MEMORY_TAG
 #endif
 
+/**
+@def TT_SANITIZE_ADDRESS
+defined if doing sanitizing address
+*/
+#cmakedefine SANITIZE_ADDRESS
+#ifdef SANITIZE_ADDRESS
+#define TT_SANITIZE_ADDRESS
+#endif
+
 // ========================================
 // version
 // ========================================

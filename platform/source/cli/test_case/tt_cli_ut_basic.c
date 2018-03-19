@@ -1169,6 +1169,8 @@ TT_TEST_ROUTINE_DEFINE(case_cli_readline)
 
     tt_cli_destroy(&cli);
 
+    tt_buf_destroy(&__ut_cli_obuf);
+
     // test end
     TT_TEST_CASE_LEAVE()
 }
