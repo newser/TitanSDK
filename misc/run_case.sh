@@ -25,8 +25,8 @@ elif [ "${OS}" = "ios-simulator" ]
 then
     echo testing ${TT_CASE}
     export SIMCTL_CHILD_TT_CASE=${TT_CASE}
-    xcrun simctl launch --console ${DEV} com.titansdk.unit-test #> ${TT_CASE}.log 2>&1
-    grep "|   result:  OK" ${TT_CASE}.log #> /dev/null 2>&1
+    xcrun simctl launch --console ${DEV} com.titansdk.unit-test > ${TT_CASE}.log 2>&1
+    grep "|   result:  OK" ${TT_CASE}.log > /dev/null 2>&1
     if [ $? -ne 0 ]
     then
         cat ${TT_CASE}.log
@@ -46,6 +46,44 @@ then
         then
             echo WARNING!!! ${TT_CASE} may failed
             cat ${TT_CASE}.log
+        else
+            # check leak only when log is generated
+            leak=0
+
+            grep '\[0 ipc\] are opened' ${TT_CASE}.log > /dev/null
+            if [ $? -ne 0 ]
+            then
+                echo "===================================="
+                echo "ipc leak:"
+                grep "<<IPC>>" ${TT_CASE}.log
+                echo "===================================="
+                leak=1
+            fi
+
+            grep '\[0 sockets\] are opened' ${TT_CASE}.log > /dev/null
+            if [ $? -ne 0 ]
+            then
+                echo "===================================="
+                echo "socket leak:"
+                grep "<<Socket>>" ${TT_CASE}.log
+                echo "===================================="
+                leak=1
+            fi
+
+            grep '\[0 blocks\]\[0 bytes\] are allocated' ${TT_CASE}.log > /dev/null
+            if [ $? -ne 0 ]
+            then
+                echo "===================================="
+                echo "memory leak:"
+                grep "<<Memory>>" ${TT_CASE}.log
+                echo "===================================="
+                leak=1
+            fi
+
+            if [ $leak -ne 0 ]
+            then
+                exit 1
+            fi
         fi
     fi
 elif [ "${OS}" = "android-simulator" ]

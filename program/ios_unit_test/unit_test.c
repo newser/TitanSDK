@@ -183,7 +183,8 @@ tt_task_wait(&t);
 printf("exiting\n");
 tt_platform_exit();
 
-// exit(0);
+// disable below for travis CI
+exit(0);
 return 0;
 
 // tt_page_os_stat_show(0);
