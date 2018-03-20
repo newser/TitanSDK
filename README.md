@@ -176,6 +176,8 @@ tt_result_t fiber_core(IN void *param)
 
 # Release
 
+- [2018-03-20] 0.3.0
+- [2017-12-20] 0.2.0
 - [2017-09-12] 0.1.0
 
 # License
