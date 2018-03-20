@@ -3,23 +3,37 @@ matrix:
         - language: c
           os: linux
           dist: trusty
+          sudo: required
           env:
               global: >
                   JOB='Linux'
                   GENERATOR='Unix Makefiles'
-                  CMAKE_FLAGS='-DPLATFORM_BUILD_SHARED=TRUE -DPLATFORM_ENABLE_DEBUG=FALSE'
+                  CMAKE_FLAGS='-DPLATFORM_BUILD_SHARED=FALSE -DSANITIZE_ADDRESS=TRUE -DPLATFORM_ENABLE_MEMORY_TAG=TRUE'
                   BUILD_CMD='cmake --build . --target unit_test --config Debug'
                   OS=linux
                   UT=unit_test/unit_test
         - language: c
           os: linux
           dist: trusty
+          sudo: required
+          env:
+              global: >
+                  JOB='Linux'
+                  GENERATOR='Unix Makefiles'
+                  CMAKE_FLAGS='-DPLATFORM_BUILD_SHARED=TRUE DSANITIZE_ADDRESS=TRUE -DPLATFORM_ENABLE_MEMORY_TAG=TRUE'
+                  BUILD_CMD='cmake --build . --target unit_test --config Debug'
+                  OS=linux
+                  UT=unit_test/unit_test
+        - language: c
+          os: linux
+          dist: trusty
+          sudo: required
           language: c
           env:
               global: >
                   JOB='Linux'
                   GENERATOR='Unix Makefiles'
-                  CMAKE_FLAGS='-DPLATFORM_BUILD_SHARED=TRUE -DPLATFORM_ENABLE_DEBUG=TRUE'
+                  CMAKE_FLAGS='-DPLATFORM_BUILD_SHARED=TRUE'
                   BUILD_CMD='cmake --build . --target unit_test --config Release'
                   OS=linux
                   UT=unit_test/unit_test
@@ -58,7 +72,7 @@ matrix:
                   UT=unit_test/Debug/unit_test
         - language: c
           os: osx
-          osx_image: xcode7.3.1
+          osx_image: xcode7.3
           env:
               global: >
                   JOB='iOS9 Xcode7'
@@ -111,25 +125,25 @@ matrix:
               global: >
                   JOB='Android Build'
                   OS=android
-        - language: android
-          dist: trusty
-          android:
-              components:
-                  - tools
-                  - platform-tools
-                  - tools
-                  - build-tools-25.0.0
-                  - android-21
-                  - extra
-                  - sys-img-armeabi-v7a-android-21
-          env:
-              global: >
-                  JOB='Android Simulator'
-                  GENERATOR='Unix Makefiles'
-                  CMAKE_FLAGS='-DCMAKE_TOOLCHAIN_FILE=toolchain.cmake -DPLATFORM_ENABLE_DEBUG=TRUE -DPLATFORM_UNIT_TEST_LITE=TRUE'
-                  BUILD_CMD='cmake --build . --target platform --config Debug'
-                  OS=android-simulator
-                  UT=dummy
+#        - language: android
+#          dist: trusty
+#          android:
+#              components:
+#                  - tools
+#                  - platform-tools
+#                  - tools
+#                  - build-tools-25.0.0
+#                  - android-21
+#                  - extra
+#                  - sys-img-armeabi-v7a-android-21
+#          env:
+#              global: >
+#                  JOB='Android Simulator'
+#                  GENERATOR='Unix Makefiles'
+#                  CMAKE_FLAGS='-DCMAKE_TOOLCHAIN_FILE=toolchain.cmake -DPLATFORM_ENABLE_DEBUG=TRUE -DPLATFORM_UNIT_TEST_LITE=TRUE'
+#                  BUILD_CMD='cmake --build . --target platform --config Debug'
+#                  OS=android-simulator
+#                  UT=dummy
 
 before_install:
     - |
@@ -256,7 +270,7 @@ install:
       if [ ${OS} == "android-simulator" ]
       then
           cp -r ../program/android_lib_unit_test/ ./
-          cp output/platform/0.2.0/debug/shared/libplatform.so android_lib_unit_test/TitanSDKUnitTest/app/src/main/jniLibs/armeabi-v7a/ || exit -1
+          cp output/platform/0.3.0/debug/shared/libplatform.so android_lib_unit_test/TitanSDKUnitTest/app/src/main/jniLibs/armeabi-v7a/ || exit -1
 
           cd android_lib_unit_test/TitanSDKUnitTest && \
           ./gradlew clean assembleDebug && \
@@ -270,6 +284,13 @@ install:
           adb install android_lib_unit_test/TitanSDKUnitTest/app/build/outputs/apk/app-debug.apk || exit -1
       fi
 
-script:
+before_script:
+    - |
+      if [ ${OS} == "linux" ]
+      then
+          sudo sh -c 'echo 0 > /proc/sys/net/ipv6/conf/all/disable_ipv6'
+      fi
     - cp ../misc/run_case.sh ./run_case.sh
     - chmod u+x run_case.sh
+
+script:

@@ -125,25 +125,25 @@ matrix:
               global: >
                   JOB='Android Build'
                   OS=android
-        - language: android
-          dist: trusty
-          android:
-              components:
-                  - tools
-                  - platform-tools
-                  - tools
-                  - build-tools-25.0.0
-                  - android-21
-                  - extra
-                  - sys-img-armeabi-v7a-android-21
-          env:
-              global: >
-                  JOB='Android Simulator'
-                  GENERATOR='Unix Makefiles'
-                  CMAKE_FLAGS='-DCMAKE_TOOLCHAIN_FILE=toolchain.cmake -DPLATFORM_ENABLE_DEBUG=TRUE -DPLATFORM_UNIT_TEST_LITE=TRUE'
-                  BUILD_CMD='cmake --build . --target platform --config Debug'
-                  OS=android-simulator
-                  UT=dummy
+#        - language: android
+#          dist: trusty
+#          android:
+#              components:
+#                  - tools
+#                  - platform-tools
+#                  - tools
+#                  - build-tools-25.0.0
+#                  - android-21
+#                  - extra
+#                  - sys-img-armeabi-v7a-android-21
+#          env:
+#              global: >
+#                  JOB='Android Simulator'
+#                  GENERATOR='Unix Makefiles'
+#                  CMAKE_FLAGS='-DCMAKE_TOOLCHAIN_FILE=toolchain.cmake -DPLATFORM_ENABLE_DEBUG=TRUE -DPLATFORM_UNIT_TEST_LITE=TRUE'
+#                  BUILD_CMD='cmake --build . --target platform --config Debug'
+#                  OS=android-simulator
+#                  UT=dummy
 
 before_install:
     - |

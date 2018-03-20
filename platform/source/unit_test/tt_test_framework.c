@@ -215,13 +215,6 @@ tt_result_t tt_test_run(IN const tt_char_t *name)
 {
     tt_test_class_t *test_class = s_test_class_head;
 
-#if TT_ENV_OS_IS_ANDROID && defined(__UT_CI__)
-    if (tt_rand_u32() % 10 != 0) {
-        // for run android simu on travis, only run 10% cases
-        return TT_SUCCESS;
-    }
-#endif
-
     if (test_class == NULL) {
         // no class
         return TT_SUCCESS;
