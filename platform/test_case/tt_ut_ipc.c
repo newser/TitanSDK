@@ -1510,7 +1510,7 @@ TT_TEST_ROUTINE_DEFINE(case_ipc_skt)
     return TT_SUCCESS;
 #endif
 
-#if TT_ENV_OS_IS_MACOS && defined(__UT_LITE__)
+#if TT_ENV_OS_IS_MACOS && defined(__UT_CI__)
     // not stable on travis ci
     return TT_SUCCESS;
 #endif

@@ -54,6 +54,9 @@ message(STATUS "numa enable: ${PLATFORM_ENABLE_NUMA}")
 set(PLATFORM_UNIT_TEST_LITE 0 CACHE BOOL "lite unit test")
 mark_as_advanced(FORCE PLATFORM_UNIT_TEST_LITE)
 
+set(UNIT_TEST_CI 0 CACHE BOOL "nit test on CI")
+mark_as_advanced(FORCE UNIT_TEST_CI)
+
 set(PLATFORM_ENABLE_BACKTRACE 0 CACHE BOOL "unwind stack")
 
 set(PLATFORM_ENABLE_MEMORY_TAG 0 CACHE BOOL "memory tag")
@@ -277,6 +280,11 @@ endif ()
 if (PLATFORM_UNIT_TEST_LITE)
     target_compile_definitions(platform PRIVATE "-D__UT_LITE__")
     message(STATUS "lite unit test")
+endif ()
+
+if (UNIT_TEST_CI)
+    target_compile_definitions(platform PRIVATE "-D__UT_CI__")
+    message(STATUS "unit test on CI")
 endif ()
 
 # set specific properties
