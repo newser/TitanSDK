@@ -303,13 +303,14 @@ static void(PASCAL FAR *tt_GetAcceptExSockaddrs)(PVOID lpOutputBuffer,
                                                  LPSOCKADDR *RemoteSockaddr,
                                                  LPINT RemoteSockaddrLength);
 
-static BOOL (*tt_TransmitFile)(SOCKET hSocket,
-                               HANDLE hFile,
-                               DWORD nNumberOfBytesToWrite,
-                               DWORD nNumberOfBytesPerSend,
-                               LPOVERLAPPED lpOverlapped,
-                               LPTRANSMIT_FILE_BUFFERS lpTransmitBuffers,
-                               DWORD dwFlags);
+static BOOL(PASCAL FAR *tt_TransmitFile)(
+    SOCKET hSocket,
+    HANDLE hFile,
+    DWORD nNumberOfBytesToWrite,
+    DWORD nNumberOfBytesPerSend,
+    LPOVERLAPPED lpOverlapped,
+    LPTRANSMIT_FILE_BUFFERS lpTransmitBuffers,
+    DWORD dwFlags);
 
 static tt_bool_t __do_accept(IN tt_io_ev_t *io_ev);
 
