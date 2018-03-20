@@ -47,6 +47,8 @@ struct tt_buf_s;
 extern tt_result_t tt_backtrace_component_init_ntv(
     IN struct tt_profile_s *profile);
 
+extern void tt_backtrace_component_exit_ntv();
+
 extern tt_result_t tt_backtrace_ntv(IN struct tt_buf_s *buf,
                                     IN OPT const tt_char_t *prefix,
                                     IN OPT const tt_char_t *suffix);

@@ -208,6 +208,7 @@ void __lio_async_destroy(IN tt_logio_t *lio)
     while ((l = (tt_logio_t *)tt_ptrq_pop_head(&lio_async->io_q)) != NULL) {
         tt_logio_release(l);
     }
+    tt_ptrq_destroy(&lio_async->io_q);
 
     tt_buf_destroy(&lio_async->ibuf);
     tt_buf_destroy(&lio_async->obuf);

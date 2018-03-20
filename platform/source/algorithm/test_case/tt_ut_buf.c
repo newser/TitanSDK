@@ -1299,6 +1299,7 @@ TT_TEST_ROUTINE_DEFINE(case_buf_get_hexstr)
 
     tt_buf_print_hexstr(&buf, 0);
     tt_buf_destroy(&buf);
+    tt_buf_destroy(&buf2);
 
     // test end
     TT_TEST_CASE_LEAVE()

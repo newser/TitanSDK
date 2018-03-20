@@ -50,4 +50,6 @@ this file specifies interfaces for platform initialization.
 
 tt_export tt_result_t tt_platform_init(IN OPT const tt_char_t *profile_path);
 
+tt_export void tt_platform_exit();
+
 #endif /* __TT_PLATFORM_INIT__ */

@@ -211,6 +211,11 @@ void tt_sktaddr_set_scope_ntv(IN tt_sktaddr_ntv_t *addr, IN tt_u32_t scope_id)
     ((SOCKADDR_IN6 *)addr)->sin6_scope_id = scope_id;
 }
 
+tt_u32_t tt_sktaddr_get_scope_ntv(IN tt_sktaddr_ntv_t *addr)
+{
+    return (tt_u32_t)((SOCKADDR_IN6 *)addr)->sin6_scope_id;
+}
+
 void tt_sktaddr_set_scope_p_ntv(IN tt_sktaddr_ntv_t *addr,
                                 IN tt_char_t *scope_name)
 {
@@ -223,7 +228,7 @@ void tt_sktaddr_set_scope_p_ntv(IN tt_sktaddr_ntv_t *addr,
         return;
     }
 
-    InterfaceName = tt_wchar_create(scope_name, NULL);
+    InterfaceName = tt_wchar_create(scope_name, 0, NULL);
     if (InterfaceName == NULL) {
         return;
     }

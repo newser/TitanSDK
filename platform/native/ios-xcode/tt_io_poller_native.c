@@ -118,6 +118,10 @@ tt_result_t tt_io_poller_component_init_ntv()
     return TT_SUCCESS;
 }
 
+void tt_io_poller_component_exit_ntv()
+{
+}
+
 tt_result_t tt_io_poller_create_ntv(IN tt_io_poller_ntv_t *sys_iop)
 {
     int kq;
@@ -205,8 +209,21 @@ fail:
 
 void tt_io_poller_destroy_ntv(IN tt_io_poller_ntv_t *sys_iop)
 {
-    if (!tt_dlist_empty(&sys_iop->poller_ev)) {
-        TT_FATAL("poller poller_ev list is not empty");
+    tt_u32_t n;
+    tt_dnode_t *node;
+
+    n = 0;
+    while ((node = tt_dlist_pop_head(&sys_iop->poller_ev)) != NULL) {
+        tt_io_ev_t *io_ev = TT_CONTAINER(node, tt_io_ev_t, node);
+
+        if ((io_ev->io == TT_IO_POLLER) && (io_ev->ev == __POLLER_EXIT)) {
+            // safe to free __POLLER_EXIT
+            tt_free(io_ev);
+        }
+        // we do not know how to handle other events
+    }
+    if (n != 0) {
+        TT_FATAL("%d poller_ev list is lost", n);
     }
 
     if (!tt_dlist_empty(&sys_iop->worker_ev)) {
@@ -240,7 +257,7 @@ tt_bool_t tt_io_poller_run_ntv(IN tt_io_poller_ntv_t *sys_iop,
         tt_u32_t i;
         for (i = 0; i < nev; ++i) {
             tt_io_ev_t *io_ev = (tt_io_ev_t *)kev[i].udata;
-            tt_u32_t flags = kev[i].flags;
+            tt_u16_t flags = kev[i].flags;
 
             if (flags & EV_ERROR) {
                 io_ev->io_result = TT_FAIL;
@@ -249,6 +266,8 @@ tt_bool_t tt_io_poller_run_ntv(IN tt_io_poller_ntv_t *sys_iop,
             } else {
                 io_ev->io_result = TT_SUCCESS;
             }
+
+            io_ev->kev_flags = flags;
 
             if (!__io_handler[io_ev->io](io_ev, sys_iop)) {
                 return TT_FALSE;

@@ -31,12 +31,18 @@ this file defines log layout
 ////////////////////////////////////////////////////////////
 
 #include <log/tt_log_def.h>
+#include <misc/tt_reference_counter.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
 ////////////////////////////////////////////////////////////
 
 #define TT_LOGLYT_CAST(ll, type) TT_PTR_INC(type, ll, sizeof(tt_loglyt_t))
+
+#define tt_loglyt_ref(ll) TT_REF_ADD(tt_loglyt_t, ll, ref)
+
+#define tt_loglyt_release(ll)                                                  \
+    TT_REF_RELEASE(tt_loglyt_t, ll, ref, __loglyt_destroy)
 
 ////////////////////////////////////////////////////////////
 // type definition
@@ -63,6 +69,7 @@ typedef struct
 typedef struct tt_loglyt_s
 {
     tt_loglyt_itf_t *itf;
+    tt_atomic_s32_t ref;
 } tt_loglyt_t;
 
 ////////////////////////////////////////////////////////////
@@ -76,7 +83,7 @@ typedef struct tt_loglyt_s
 tt_export tt_loglyt_t *tt_loglyt_create(IN tt_u32_t size,
                                         IN tt_loglyt_itf_t *itf);
 
-tt_export void tt_loglyt_destroy(IN tt_loglyt_t *ll);
+tt_export void __loglyt_destroy(IN tt_loglyt_t *ll);
 
 tt_export tt_result_t tt_loglyt_format(IN tt_loglyt_t *ll,
                                        IN tt_log_entry_t *entry,

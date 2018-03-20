@@ -50,9 +50,17 @@ choose_compiler_flag(CMAKE_CXX_FLAGS_RELEASE FALSE -finline-functions)
 # .cmake_choose_compiler_flag(CMAKE_CXX_FLAGS TRUE -g)
 #endif ()
 
-if (SANITIZE STREQUAL address)
-    set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -fsanitize=address -fno-omit-frame-pointer")
-    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -fsanitize=address -fno-omit-frame-pointer")
+# more debug info
+if (SANITIZE_ADDRESS)
+    choose_compiler_flag(CMAKE_C_FLAGS_DEBUG FALSE -fno-omit-frame-pointer)
+    choose_compiler_flag(CMAKE_CXX_FLAGS_DEBUG FALSE -fno-omit-frame-pointer)
+
+    choose_compiler_flag(CMAKE_C_FLAGS_DEBUG FALSE -fno-optimize-sibling-calls)
+    choose_compiler_flag(CMAKE_CXX_FLAGS_DEBUG FALSE -fno-optimize-sibling-calls)
+
+    set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -fsanitize=address")
+    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fsanitize=address")
+    set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -fsanitize=address")
 endif ()
 
 #

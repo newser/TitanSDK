@@ -38,7 +38,9 @@ this file includes definitions in macros for ts memory
 @def TT_MEMORY_TAG_ENABLE
 record position where memory is allocated
 */
+#ifdef TT_PLATFORM_ENABLE_MEMORY_TAG
 #define TT_MEMORY_TAG_ENABLE
+#endif
 
 // ========================================
 // slab

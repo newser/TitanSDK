@@ -61,6 +61,8 @@ typedef tt_bool_t (*tt_hmap_action_t)(IN tt_u8_t *key,
                                       IN tt_hnode_t *hnode,
                                       IN void *param);
 
+typedef void (*tt_hnode_destroy_t)(IN tt_hnode_t *hnode);
+
 typedef struct
 {
     tt_hash_alg_t hash_alg;
@@ -74,6 +76,13 @@ typedef struct tt_hashmap_s
     tt_u32_t sll_num;
     tt_u32_t count;
 } tt_hashmap_t;
+
+typedef struct
+{
+    tt_hashmap_t *hmap;
+    tt_hnode_t *hnode;
+    tt_u32_t sll_idx;
+} tt_hmap_iter_t;
 
 ////////////////////////////////////////////////////////////
 // global variants
@@ -94,11 +103,13 @@ tt_export tt_result_t tt_hmap_create(IN tt_hashmap_t *hmap,
                                      IN tt_u32_t slot_num,
                                      IN OPT tt_hmap_attr_t *attr);
 
-tt_export void tt_hmap_destroy(IN tt_hashmap_t *hmap);
+tt_export void tt_hmap_destroy(IN tt_hashmap_t *hmap,
+                               IN OPT tt_hnode_destroy_t hnode_destroy);
 
 tt_export void tt_hmap_attr_default(IN tt_hmap_attr_t *attr);
 
-tt_export void tt_hmap_clear(IN tt_hashmap_t *hmap);
+tt_export void tt_hmap_clear(IN tt_hashmap_t *hmap,
+                             IN OPT tt_hnode_destroy_t hnode_destroy);
 
 tt_inline tt_u32_t tt_hmap_count(IN tt_hashmap_t *hmap)
 {
@@ -138,5 +149,9 @@ tt_export tt_bool_t tt_hmap_remove_key(IN tt_hashmap_t *hmap,
 tt_export void tt_hmap_foreach(IN tt_hashmap_t *hmap,
                                IN tt_hmap_action_t action,
                                IN void *param);
+
+tt_export void tt_hmap_iter(IN tt_hashmap_t *hmap, OUT tt_hmap_iter_t *iter);
+
+tt_export tt_hnode_t *tt_hmap_iter_next(IN OUT tt_hmap_iter_t *iter);
 
 #endif /* __TT_MAP__ */

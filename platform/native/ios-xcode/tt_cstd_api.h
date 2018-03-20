@@ -143,7 +143,11 @@ wrapped c strchr()
 
 #define tt_toupper toupper
 
+#define tt_c_qsort qsort
+
 #define tt_printf printf
+
+#define tt_c_rand rand
 
 ////////////////////////////////////////////////////////////
 // type definition

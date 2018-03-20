@@ -112,6 +112,13 @@ register os file system wrapper
 */
 tt_export void tt_fs_component_register();
 
+tt_export void tt_fs_status_dump(IN tt_u32_t flag);
+#define TT_FS_STATUS_FILE (1 << 0)
+#define TT_FS_STATUS_DIR (1 << 1)
+#define TT_FS_STATUS_PREFIX (1 << 2)
+#define TT_FS_STATUS_NATIVE (1 << 3)
+#define TT_FS_STATUS_ALL (~0)
+
 // ========================================
 // file operations
 // ========================================
@@ -144,6 +151,9 @@ create a file
 */
 tt_export tt_result_t tt_fcreate(IN const tt_char_t *path,
                                  IN OPT tt_file_attr_t *attr);
+
+tt_export tt_result_t tt_fcreate_temp(IN OUT tt_char_t *path,
+                                      IN OPT tt_file_attr_t *attr);
 
 /**
 @fn tt_result_t tt_fremove(IN const tt_char_t *path)
@@ -200,6 +210,7 @@ tt_export tt_result_t tt_fopen(OUT tt_file_t *file,
 #define TT_FO_CREAT_DIR (1 << 7)
 #define TT_FO_RLOCK (1 << 8) // todo
 #define TT_FO_WLOCK (1 << 9) // todo
+#define TT_FO_SEQUENTIAL (1 << 10)
 
 /**
 @fn tt_result_t tt_fclose(IN tt_file_t *file)
@@ -353,6 +364,52 @@ tt_inline tt_result_t tt_fstat(IN tt_file_t *file, OUT tt_fstat_t *fstat)
 tt_export tt_result_t tt_fstat_path(IN const tt_char_t *path,
                                     OUT tt_fstat_t *fstat);
 
+tt_inline tt_result_t tt_ftrunc(IN tt_file_t *file, IN tt_u64_t len)
+{
+    return tt_ftrunc_ntv(&file->sys_file, len);
+}
+
+tt_inline tt_result_t tt_fcopy(IN const tt_char_t *dst,
+                               IN const tt_char_t *src,
+                               IN tt_u32_t flag)
+{
+    TT_ASSERT(dst != NULL);
+    TT_ASSERT(src != NULL);
+
+    return tt_fcopy_ntv(dst, src, flag);
+}
+#define TT_FCOPY_EXCL (1 << 0)
+
+tt_inline tt_result_t tt_fsync(IN tt_file_t *file)
+{
+    TT_ASSERT(file != NULL);
+
+    return tt_fsync_ntv(&file->sys_file);
+}
+
+tt_inline tt_result_t tt_fdatasync(IN tt_file_t *file)
+{
+    TT_ASSERT(file != NULL);
+
+    return tt_fdatasync_ntv(&file->sys_file);
+}
+
+tt_export tt_result_t tt_futime(IN tt_file_t *file,
+                                IN OPT tt_date_t *accessed,
+                                IN OPT tt_date_t *modified);
+
+#if TT_ENV_OS_IS_WINDOWS
+tt_inline HANDLE tt_file_handle(IN tt_file_t *file)
+{
+    return file->sys_file.hf;
+}
+#else
+tt_inline int tt_file_fd(IN tt_file_t *file)
+{
+    return file->sys_file.fd;
+}
+#endif
+
 /**
  @fn void tt_dir_attr_default(IN tt_dir_attr_t *attr)
  get default directory attribute
@@ -379,6 +436,9 @@ tt_export void tt_dir_attr_default(IN tt_dir_attr_t *attr);
  */
 tt_export tt_result_t tt_dcreate(IN const tt_char_t *path,
                                  IN tt_dir_attr_t *attr);
+
+tt_export tt_result_t tt_dcreate_temp(IN OUT tt_char_t *path,
+                                      IN OPT tt_dir_attr_t *attr);
 
 /**
  @fn tt_result_t tt_dremove(IN const tt_char_t *path,
@@ -469,9 +529,34 @@ tt_inline tt_result_t tt_dread(IN tt_dir_t *dir, OUT tt_dirent_t *entry)
     return tt_dread_ntv(&dir->sys_dir, entry);
 }
 
+tt_inline tt_result_t tt_dcopy(IN const tt_char_t *dst,
+                               IN const tt_char_t *src,
+                               IN tt_u32_t flag)
+{
+    TT_ASSERT((dst != NULL) && (*dst != 0));
+    TT_ASSERT((src != NULL) && (*src != 0));
+
+    return tt_dcopy_ntv(dst, src, flag);
+}
+//#define TT_DCOPY_EXCL (1 << 0)
+
 tt_export tt_bool_t tt_fs_exist(IN const tt_char_t *path);
 
 tt_export tt_result_t tt_fs_rename(IN const tt_char_t *from,
                                    IN const tt_char_t *to);
+
+tt_export tt_result_t tt_fs_link(IN const tt_char_t *path,
+                                 IN const tt_char_t *link);
+
+tt_export tt_result_t tt_fs_symlink(IN const tt_char_t *path,
+                                    IN const tt_char_t *link);
+
+tt_export tt_result_t tt_fs_readlink(IN const tt_char_t *link,
+                                     OUT tt_char_t *path,
+                                     IN tt_u32_t len);
+
+tt_export tt_result_t tt_fs_realpath(IN const tt_char_t *path,
+                                     OUT tt_char_t *resolved,
+                                     IN tt_u32_t len);
 
 #endif /* __TT_FILE_SYSTEM_FB__ */

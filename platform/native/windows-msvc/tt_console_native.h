@@ -51,7 +51,9 @@ struct tt_console_attr_s;
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern tt_result_t tt_console_init_ntv();
+extern tt_result_t tt_console_component_init_ntv();
+
+extern void tt_console_component_exit_ntv();
 
 extern tt_result_t tt_console_enter_ntv();
 

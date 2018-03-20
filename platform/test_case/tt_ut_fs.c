@@ -31,6 +31,7 @@
 TT_TEST_ROUTINE_DECLARE(case_fs_basic)
 TT_TEST_ROUTINE_DECLARE(case_fs_open)
 TT_TEST_ROUTINE_DECLARE(case_fs_rw)
+TT_TEST_ROUTINE_DECLARE(case_fs_copy)
 TT_TEST_ROUTINE_DECLARE(case_fs_multhread)
 TT_TEST_ROUTINE_DECLARE(case_fs_consistency)
 
@@ -38,32 +39,49 @@ TT_TEST_ROUTINE_DECLARE(case_dir_basic)
 
 // =========================================
 
+static tt_string_t __wpath;
 static tt_string_t __sc_fpath, __sc_fpath2;
 static tt_string_t __sc_dpath, __sc_dpath1;
 
 static void __fs_enter(void *enter_param)
 {
-#if TT_ENV_OS_IS_IOS && !(TT_ENV_OS_FEATURE & TT_ENV_OS_FEATURE_IOS_SIMULATOR)
-    static tt_bool_t done = TT_FALSE;
+#if TT_ENV_OS_IS_IOS
+#if (TT_ENV_OS_FEATURE & TT_ENV_OS_FEATURE_IOS_SIMULATOR)
+    tt_char_t *pwd = tt_current_path(TT_FALSE);
+    tt_string_create(&__wpath, pwd, NULL);
+    tt_free(pwd);
+
+    tt_set_current_path("../tmp");
+#else
     tt_char_t *s;
-
-    if (done) {
-        return;
-    }
-
-    tt_string_init(&__sc_fpath, NULL);
-    tt_string_init(&__sc_dpath, NULL);
 
     s = getenv("HOME");
     if (s != NULL) {
-        tt_string_append(&__sc_fpath, s);
-        tt_string_append(&__sc_fpath, "/Library/Caches/测试");
-
-        tt_string_append(&__sc_dpath, s);
-        tt_string_append(&__sc_dpath, "/Library/Caches/test_dir");
-
-        done = TT_TRUE;
+        tt_string_init(&__wpath, NULL);
+        tt_string_append(&__wpath, s);
+        tt_string_append(&__wpath, "/Library/Caches");
+        tt_set_current_path(tt_string_cstr(&__wpath));
+        tt_string_destroy(&__wpath);
     }
+
+    s = tt_current_path(TT_FALSE);
+    tt_string_create(&__wpath, s, NULL);
+    tt_free(s);
+#endif
+#elif TT_ENV_OS_IS_ANDROID
+    tt_char_t *pwd = tt_current_path(TT_FALSE);
+    tt_string_create(&__wpath, pwd, NULL);
+    tt_free(pwd);
+
+    tt_set_current_path("/data/data/com.titansdk.titansdkunittest/");
+#endif
+}
+
+static void __fs_exit(void *enter_param)
+{
+#if TT_ENV_OS_IS_IOS || TT_ENV_OS_IS_ANDROID
+    tt_set_current_path(tt_string_cstr(&__wpath));
+    tt_string_destroy(&__wpath);
 #endif
 }
 
@@ -78,7 +96,7 @@ TT_TEST_CASE("case_fs_basic",
              NULL,
              __fs_enter,
              NULL,
-             NULL,
+             __fs_exit,
              NULL)
 ,
 
@@ -88,7 +106,7 @@ TT_TEST_CASE("case_fs_basic",
                  NULL,
                  __fs_enter,
                  NULL,
-                 NULL,
+                 __fs_exit,
                  NULL),
 
     TT_TEST_CASE("case_fs_rw",
@@ -97,7 +115,16 @@ TT_TEST_CASE("case_fs_basic",
                  NULL,
                  __fs_enter,
                  NULL,
+                 __fs_exit,
+                 NULL),
+
+    TT_TEST_CASE("case_fs_copy",
+                 "testing fs copy",
+                 case_fs_copy,
                  NULL,
+                 __fs_enter,
+                 NULL,
+                 __fs_exit,
                  NULL),
 
     TT_TEST_CASE("case_dir_basic",
@@ -106,7 +133,7 @@ TT_TEST_CASE("case_fs_basic",
                  NULL,
                  __fs_enter_consis,
                  NULL,
-                 NULL,
+                 __fs_exit,
                  NULL),
 
     TT_TEST_CASE("case_fs_multhread",
@@ -115,7 +142,7 @@ TT_TEST_CASE("case_fs_basic",
                  NULL,
                  __fs_enter,
                  NULL,
-                 NULL,
+                 __fs_exit,
                  NULL),
 
     TT_TEST_CASE("case_fs_consistency",
@@ -124,7 +151,7 @@ TT_TEST_CASE("case_fs_basic",
                  NULL,
                  __fs_enter,
                  NULL,
-                 NULL,
+                 __fs_exit,
                  NULL),
 
     TT_TEST_CASE_LIST_DEFINE_END(fs_case)
@@ -150,35 +177,10 @@ TT_TEST_ROUTINE_DEFINE(case_fs_consistency)
 }
 */
 
-#if TT_ENV_OS_IS_WINDOWS
-#define __SC_TEST_FILE "测试"
-#define __SC_TEST_FILE2 "测试2"
-#define __TEST_D1 "测试目录1"
-#elif TT_ENV_OS_IS_IOS
-
-#if (TT_ENV_OS_FEATURE & TT_ENV_OS_FEATURE_IOS_SIMULATOR)
-#define __SC_TEST_FILE "../tmp/测试"
-#define __SC_TEST_FILE2 "../tmp/测试2"
-#define __TEST_D1 "../tmp/测试目录1"
-#else
-#define __SC_TEST_FILE ((const tt_char_t *)tt_string_cstr(&__sc_fpath))
-#define __SC_TEST_FILE2 ((const tt_char_t *)tt_string_cstr(&__sc_fpath2))
-#define __TEST_D1 "todo" //((const tt_char_t *)tt_string_cstr(&__sc_dpath1))
-#endif
-
-#elif TT_ENV_OS_IS_ANDROID
-
 #define APK_PATH "/data/data/com.titansdk.titansdkunittest/"
-#define __SC_TEST_FILE APK_PATH "测试"
-#define __SC_TEST_FILE2 APK_PATH "测试2"
-#define __TEST_D1 APK_PATH "测试目录1"
-
-#else
 #define __SC_TEST_FILE "测试"
 #define __SC_TEST_FILE2 "测试2"
-
 #define __TEST_D1 "测试目录1"
-#endif
 #define __TEST_D2 "测试目录2"
 #define __TEST_F3 "测试文件3"
 
@@ -201,6 +203,8 @@ TT_TEST_ROUTINE_DEFINE(case_fs_consistency)
     // create
     ret = tt_fcreate(__SC_TEST_FILE, NULL);
     TT_UT_SUCCESS(ret, "");
+    ret = tt_fcreate(__SC_TEST_FILE, NULL);
+    TT_UT_EQUAL(ret, TT_E_EXIST, "");
 
     ret = tt_fopen(&f, __SC_TEST_FILE, TT_FO_RDWR, NULL);
     TT_UT_SUCCESS(ret, "");
@@ -244,11 +248,35 @@ TT_TEST_ROUTINE_DEFINE(case_fs_consistency)
     tt_funlock(&f);
 #endif
 
+    {
+        tt_u64_t len;
+
+        ret = tt_ftrunc(&f, 0);
+        TT_UT_SUCCESS(ret, "");
+        ret = tt_fseek(&f, TT_FSEEK_END, 0, &len);
+        TT_UT_SUCCESS(ret, "");
+        TT_UT_EQUAL(len, 0, "");
+
+        ret = tt_ftrunc(&f, 111);
+        TT_UT_SUCCESS(ret, "");
+        ret = tt_fseek(&f, TT_FSEEK_END, 0, &len);
+        TT_UT_SUCCESS(ret, "");
+        TT_UT_EQUAL(len, 111, "");
+
+        ret = tt_ftrunc(&f, 10);
+        TT_UT_SUCCESS(ret, "");
+        ret = tt_fseek(&f, TT_FSEEK_END, 0, &len);
+        TT_UT_SUCCESS(ret, "");
+        TT_UT_EQUAL(len, 10, "");
+    }
+
     tt_fclose(&f);
 
     // remove
     ret = tt_fremove(__SC_TEST_FILE);
     TT_UT_SUCCESS(ret, "");
+    tt_fremove(__SC_TEST_FILE2);
+    tt_dremove(__SC_TEST_FILE2);
 
     // rename
     {
@@ -332,6 +360,135 @@ TT_TEST_ROUTINE_DEFINE(case_fs_consistency)
                                          "/"__TEST_F3),
                    "");
         tt_fclose(&f);
+    }
+
+    {
+        tt_date_t a, m;
+        tt_fstat_t fst;
+
+        ret = tt_fopen(&f, __SC_TEST_FILE, TT_FO_CREAT | TT_FO_WRITE, NULL);
+        TT_UT_SUCCESS(ret, "");
+
+        tt_ftrunc(&f, 0);
+        tt_fwrite(&f, (tt_u8_t *)"123", 3, NULL);
+
+        ret = tt_futime(&f, NULL, NULL);
+        TT_UT_SUCCESS(ret, "");
+
+        tt_date_init(&a, tt_g_local_tmzone);
+        tt_date_init(&m, tt_g_local_tmzone);
+
+        tt_date_set(&a, 1980, TT_OCTOBER, 10, 1, 2, 3);
+        // 2038 overflow
+        tt_date_set(&m, 2010, TT_NOVEMBER, 30, 4, 5, 6);
+        ret = tt_futime(&f, &a, &m);
+        TT_UT_SUCCESS(ret, "");
+
+        tt_fclose(&f);
+
+        ret = tt_fstat_path(__SC_TEST_FILE, &fst);
+        // TT_UT_EQUAL(tt_date_cmp(&a, &fst.accessed), 0, "");
+        TT_UT_EQUAL(tt_date_cmp(&m, &fst.modified), 0, "");
+    }
+
+// do not test link on android
+#if !TT_ENV_OS_IS_ANDROID
+    {
+        tt_u8_t *data;
+        tt_u64_t n;
+        tt_char_t name[1024];
+
+        // link
+        tt_fremove(__SC_TEST_FILE2);
+
+        ret = tt_fs_link(__SC_TEST_FILE, __SC_TEST_FILE2);
+        TT_UT_SUCCESS(ret, "");
+        TT_UT_TRUE(tt_fs_exist(__SC_TEST_FILE2), "");
+        data = tt_fcontent(__SC_TEST_FILE2, &n);
+        TT_UT_EQUAL(n, 3, "");
+        TT_UT_MEMEQ(data, "123", 3, "");
+        tt_free(data);
+
+        ret = tt_fs_readlink(__SC_TEST_FILE2, name, sizeof(name));
+        TT_UT_FAIL(ret, ""); // not a symlink
+
+        ret = tt_fs_realpath(__SC_TEST_FILE2, name, sizeof(name));
+        TT_UT_SUCCESS(ret, "");
+
+        // hard link, still exist
+        tt_fremove(__SC_TEST_FILE);
+        data = tt_fcontent(__SC_TEST_FILE2, &n);
+        TT_UT_EQUAL(n, 3, "");
+        TT_UT_MEMEQ(data, "123", 3, "");
+        tt_free(data);
+
+        ret = tt_fs_link(__SC_TEST_FILE, "123");
+        TT_UT_FAIL(ret, "");
+    }
+#endif
+
+#if !TT_ENV_OS_IS_WINDOWS && !TT_ENV_OS_IS_ANDROID
+    {
+        tt_u8_t *data;
+        tt_u64_t n;
+        tt_char_t name[1024];
+
+        // symlink
+        ret = tt_fs_symlink(__SC_TEST_FILE2, __SC_TEST_FILE);
+        TT_UT_SUCCESS(ret, "");
+        data = tt_fcontent(__SC_TEST_FILE, &n);
+        TT_UT_EQUAL(n, 3, "");
+        TT_UT_MEMEQ(data, "123", 3, "");
+        tt_free(data);
+
+        ret = tt_fs_readlink(__SC_TEST_FILE, name, sizeof(name));
+        TT_UT_SUCCESS(ret, "");
+        TT_UT_STREQ(name, __SC_TEST_FILE2, "");
+
+        ret = tt_fs_realpath(__SC_TEST_FILE2, name, sizeof(name));
+        TT_UT_SUCCESS(ret, "");
+
+        // sym link, not exist
+        tt_fremove(__SC_TEST_FILE2);
+        data = tt_fcontent(__SC_TEST_FILE, &n);
+        TT_UT_NULL(data, "");
+
+        // still readable?
+        ret = tt_fs_readlink(__SC_TEST_FILE, name, sizeof(name));
+        TT_UT_SUCCESS(ret, "");
+        TT_UT_STREQ(name, __SC_TEST_FILE2, "");
+
+        ret = tt_fs_realpath(__SC_TEST_FILE2, name, sizeof(name));
+        TT_UT_FAIL(ret, "");
+    }
+#endif
+
+    {
+#if TT_ENV_OS_IS_IOS && (TT_ENV_OS_FEATURE & TT_ENV_OS_FEATURE_IOS_SIMULATOR)
+#define __TT1 "../tmp/tttmp/1.xXXX"
+#define __TT2 "../tmp/tttmp/XXXXX"
+#define __TTD "../tmp/tttmp"
+#else
+#define __TT1 "tttmp/1.xXXX"
+#define __TT2 "tttmp/XXXXX"
+#define __TTD "tttmp"
+#endif
+
+        char path[20] = "";
+
+        ret = tt_fcreate_temp(path, NULL);
+
+        tt_strncpy(path, __TT1, sizeof(__TT1));
+        ret = tt_fcreate_temp(path, NULL);
+        TT_UT_SUCCESS(ret, "");
+        TT_UT_NSTREQ(path, __TT1, sizeof(__TT1) - 4, "");
+
+        tt_strncpy(path, __TT2, sizeof(__TT2));
+        ret = tt_fcreate_temp(path, NULL);
+        TT_INFO("path: %s", path);
+        TT_UT_SUCCESS(ret, "");
+
+        tt_dremove(__TTD);
     }
 
     // test end
@@ -622,6 +779,13 @@ TT_TEST_ROUTINE_DEFINE(case_fs_rw)
             ret = tt_fwrite(&tf, buf + n, sizeof(buf) - n, &wn);
             TT_UT_SUCCESS(ret, "");
             n += wn;
+
+            if (tt_rand_u32() & 1) {
+                ret = tt_fsync(&tf);
+            } else {
+                ret = tt_fdatasync(&tf);
+            }
+            TT_UT_SUCCESS(ret, "");
         }
         TT_UT_EXP(n == sizeof(buf), "");
 
@@ -666,16 +830,10 @@ TT_TEST_ROUTINE_DEFINE(case_dir_basic)
     TT_TEST_CASE_ENTER()
 // test start
 
-#if TT_ENV_OS_IS_IOS
+#if TT_ENV_OS_IS_IOS && (TT_ENV_OS_FEATURE & TT_ENV_OS_FEATURE_IOS_SIMULATOR)
 
-#if (TT_ENV_OS_FEATURE & TT_ENV_OS_FEATURE_IOS_SIMULATOR)
 #define __TEST_DIR "../tmp/test_dir"
 #define __TEST_DIR2 "../tmp/test_dir2"
-#else
-//#define __TEST_DIR ((const tt_char_t *)tt_string_cstr(&__sc_dpath))
-#define __TEST_DIR "todo"
-#define __TEST_DIR2 "todo"
-#endif
 
 #elif TT_ENV_OS_IS_ANDROID
 
@@ -683,20 +841,24 @@ TT_TEST_ROUTINE_DEFINE(case_dir_basic)
 #define __TEST_DIR2 APK_PATH "test_dir2"
 
 #else
-//#define __TEST_DIR "./≤‚ ‘ƒø¬º")
+
 #define __TEST_DIR "./test_dir"
 #define __TEST_DIR2 "./test_dir2"
+
 #endif
 
 #define __TEST_SUBDIR "一个子目录3"
 
     tt_dremove(__TEST_DIR);
+    tt_dremove(__TEST_DIR2);
 
     TT_UT_EQUAL(tt_fs_exist(__TEST_DIR), TT_FALSE, "");
 
     ret = tt_dcreate(__TEST_DIR, NULL);
     TT_UT_SUCCESS(ret, "");
     TT_UT_EQUAL(tt_fs_exist(__TEST_DIR), TT_TRUE, "");
+    ret = tt_dcreate(__TEST_DIR, NULL);
+    TT_UT_EQUAL(ret, TT_E_EXIST, "");
     ret = tt_dopen(&dir, __TEST_DIR, NULL);
     TT_UT_SUCCESS(ret, "");
 
@@ -792,6 +954,11 @@ TT_TEST_ROUTINE_DEFINE(case_dir_basic)
         TT_UT_EQUAL(tt_fs_exist(__TEST_DIR), TT_FALSE, "");
         TT_UT_EQUAL(tt_fs_exist(__TEST_DIR2), TT_TRUE, "");
 
+#if !TT_ENV_OS_IS_WINDOWS
+        ret = tt_fs_symlink(__TEST_DIR2, __TEST_DIR);
+        TT_UT_SUCCESS(ret, "");
+#endif
+
         ret = tt_dremove(__TEST_DIR2);
         TT_UT_SUCCESS(ret, "");
     }
@@ -823,22 +990,52 @@ TT_TEST_ROUTINE_DEFINE(case_dir_basic)
                    "");
     }
 
+    {
+#if TT_ENV_OS_IS_IOS && (TT_ENV_OS_FEATURE & TT_ENV_OS_FEATURE_IOS_SIMULATOR)
+
+#define __DTT1 "../tmp/dtttmp/1.xXXX"
+#define __DTT2 "../tmp/dtttmp/XXXXX"
+#define __DTTD "../tmp/dtttmp"
+
+#elif TT_ENV_OS_IS_ANDROID
+
+#define __DTT1 APK_PATH "dtttmp/1.xXXX"
+#define __DTT2 APK_PATH "dtttmp/XXXXX"
+#define __DTTD APK_PATH "dtttmp"
+
+#else
+
+#define __DTT1 "dtttmp/1.xXXX"
+#define __DTT2 "dtttmp/XXXXX"
+#define __DTTD "dtttmp"
+
+#endif
+
+        char path[128] = "";
+
+        ret = tt_dcreate_temp(path, NULL);
+
+        tt_strncpy(path, __DTT1, sizeof(__DTT1));
+        ret = tt_dcreate_temp(path, NULL);
+        TT_UT_SUCCESS(ret, "");
+        TT_UT_NSTREQ(path, __DTT1, sizeof(__DTT1) - 4, "");
+
+        tt_strncpy(path, __DTT2, sizeof(__DTT2));
+        ret = tt_dcreate_temp(path, NULL);
+        TT_INFO("path: %s", path);
+        TT_UT_SUCCESS(ret, "");
+
+        tt_dremove(__DTTD);
+    }
+
     // test end
     TT_TEST_CASE_LEAVE()
 }
 
-#if TT_ENV_OS_IS_IOS
-
-#if (TT_ENV_OS_FEATURE & TT_ENV_OS_FEATURE_IOS_SIMULATOR)
+#if TT_ENV_OS_IS_IOS && (TT_ENV_OS_FEATURE & TT_ENV_OS_FEATURE_IOS_SIMULATOR)
 #define __ut_fname "../tmp/a.txt"
-#else
-#define __ut_fname ((const tt_char_t *)tt_string_cstr(&__sc_fpath))
-#endif
-
 #elif TT_ENV_OS_IS_ANDROID
-
 #define __ut_fname APK_PATH "a.txt"
-
 #else
 #define __ut_fname "a.txt"
 #endif
@@ -1176,6 +1373,164 @@ TT_TEST_ROUTINE_DEFINE(case_fs_consistency)
     // remove
     for (j = 0; j < sizeof(fname) / sizeof(fname[0]); ++j) {
         tt_fremove(fname[j]);
+    }
+
+    // test end
+    TT_TEST_CASE_LEAVE()
+}
+
+TT_TEST_ROUTINE_DEFINE(case_fs_copy)
+{
+    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+    tt_result_t ret;
+    tt_file_t f;
+    tt_char_t buf[] = "12345", buf2[10];
+    tt_u32_t n;
+
+    TT_TEST_CASE_ENTER()
+    // test start
+
+    tt_fremove(__SC_TEST_FILE);
+    tt_fremove(__SC_TEST_FILE2);
+
+    // src not exist
+    {
+        ret = tt_fcopy(__SC_TEST_FILE2, __SC_TEST_FILE, 0);
+        TT_UT_FAIL(ret, "");
+    }
+
+    // copied
+    {
+        ret = tt_fopen(&f, __SC_TEST_FILE, TT_FO_CREAT | TT_FO_WRITE, NULL);
+        TT_UT_SUCCESS(ret, "");
+        ret = tt_fwrite(&f, (tt_u8_t *)buf, (tt_u32_t)sizeof(buf), NULL);
+        TT_UT_SUCCESS(ret, "");
+        tt_fclose(&f);
+
+        ret = tt_fcopy(__SC_TEST_FILE2, __SC_TEST_FILE, 0);
+        TT_UT_SUCCESS(ret, "");
+
+        ret = tt_fopen(&f, __SC_TEST_FILE2, TT_FO_READ, NULL);
+        TT_UT_SUCCESS(ret, "");
+        ret = tt_fread(&f, (tt_u8_t *)buf2, sizeof(buf2), &n);
+        TT_UT_SUCCESS(ret, "");
+        TT_UT_EQUAL(n, sizeof(buf), "");
+        tt_fclose(&f);
+    }
+
+    // copy excl
+    {
+        ret = tt_fcopy(__SC_TEST_FILE2, __SC_TEST_FILE, TT_FCOPY_EXCL);
+        TT_UT_FAIL(ret, "");
+        tt_fremove(__SC_TEST_FILE2);
+        ret = tt_fcopy(__SC_TEST_FILE2, __SC_TEST_FILE, TT_FCOPY_EXCL);
+        TT_UT_SUCCESS(ret, "");
+    }
+    tt_fremove(__SC_TEST_FILE2);
+
+    // copy to existing dir
+    {
+        tt_dcreate(__SC_TEST_FILE2, NULL);
+        ret = tt_fcopy(__SC_TEST_FILE2, __SC_TEST_FILE, 0);
+        TT_UT_FAIL(ret, "");
+    }
+
+    // test copying dir
+
+    tt_fremove(__SC_TEST_FILE);
+    tt_fremove(__SC_TEST_FILE2);
+    tt_dremove(__SC_TEST_FILE);
+    tt_dremove(__SC_TEST_FILE2);
+
+    // src not exist
+    {
+        ret = tt_dcopy(__SC_TEST_FILE2, __SC_TEST_FILE, 0);
+        TT_UT_FAIL(ret, "");
+    }
+
+#if 0 // undefined behavior
+    // src is a file
+    {
+        ret = tt_fcreate(__SC_TEST_FILE, NULL);
+        TT_UT_SUCCESS(ret, "");
+
+        ret = tt_dcopy(__SC_TEST_FILE2, __SC_TEST_FILE, 0);
+        TT_UT_FAIL(ret, "");
+    }
+#endif
+
+    {
+#if TT_ENV_OS_IS_IOS && (TT_ENV_OS_FEATURE & TT_ENV_OS_FEATURE_IOS_SIMULATOR)
+
+#define __CD_D1 "../tmp/d1"
+#define __CD_D1S "../tmp/d1/"
+#define __CD_D1_D2 "../tmp/d1/d2"
+#define __CD_D1_F1 "../tmp/d1/f1"
+#define __CD_D1_D2_F2 "../tmp/d1/d2/f2"
+
+#define __COPIED_D1 "../tmp/copied_d1"
+#define __COPIED_D1S "../tmp/copied_d1/"
+#define __COPIED_D1_D2 "../tmp/copied_d1/d2"
+#define __COPIED_D1_F1 "../tmp/copied_d1/f1"
+#define __COPIED_D1_D2_F2 "../tmp/copied_d1/d2/f2"
+
+#else
+
+#define __CD_D1 "d1"
+#define __CD_D1S "d1/"
+#define __CD_D1_D2 "d1/d2"
+#define __CD_D1_F1 "d1/f1"
+#define __CD_D1_D2_F2 "d1/d2/f2"
+
+#define __COPIED_D1 "copied_d1"
+#define __COPIED_D1S "copied_d1/"
+#define __COPIED_D1_D2 "copied_d1/d2"
+#define __COPIED_D1_F1 "copied_d1/f1"
+#define __COPIED_D1_D2_F2 "copied_d1/d2/f2"
+
+#endif
+
+        tt_dremove(__CD_D1);
+        tt_dremove(__COPIED_D1);
+
+        ret = tt_dcreate(__CD_D1_D2, NULL);
+        TT_UT_SUCCESS(ret, "");
+        ret = tt_fcreate(__CD_D1_F1, NULL);
+        TT_UT_SUCCESS(ret, "");
+        ret = tt_fcreate(__CD_D1_D2_F2, NULL);
+        TT_UT_SUCCESS(ret, "");
+
+        ret = tt_dcopy(__COPIED_D1, __CD_D1, 0);
+        TT_UT_SUCCESS(ret, "");
+
+        TT_UT_TRUE(tt_fs_exist(__COPIED_D1), "");
+        TT_UT_TRUE(tt_fs_exist(__COPIED_D1_F1), "");
+        TT_UT_TRUE(tt_fs_exist(__COPIED_D1_D2), "");
+        TT_UT_TRUE(tt_fs_exist(__COPIED_D1_D2_F2), "");
+
+        // endwith slash
+        tt_dremove(__CD_D1);
+        tt_dremove(__COPIED_D1);
+
+        ret = tt_dcreate(__CD_D1_D2, NULL);
+        TT_UT_SUCCESS(ret, "");
+        ret = tt_fcreate(__CD_D1_F1, NULL);
+        TT_UT_SUCCESS(ret, "");
+        ret = tt_fcreate(__CD_D1_D2_F2, NULL);
+        TT_UT_SUCCESS(ret, "");
+
+        ret = tt_dcopy(__COPIED_D1S, __CD_D1S, 0);
+        TT_UT_SUCCESS(ret, "");
+
+        TT_UT_TRUE(tt_fs_exist(__COPIED_D1), "");
+        TT_UT_TRUE(tt_fs_exist(__COPIED_D1_F1), "");
+        TT_UT_TRUE(tt_fs_exist(__COPIED_D1_D2), "");
+        TT_UT_TRUE(tt_fs_exist(__COPIED_D1_D2_F2), "");
+
+#if 0
+        ret = tt_dcopy("copied_d1", "d1", TT_DCOPY_EXCL);
+        TT_UT_FAIL(ret, "");
+#endif
     }
 
     // test end

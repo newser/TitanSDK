@@ -62,6 +62,8 @@ typedef struct
 static tt_result_t __mp_component_init(IN tt_component_t *comp,
                                        IN tt_profile_t *profile);
 
+static void __mp_component_exit(IN tt_component_t *comp);
+
 static tt_u8_t *__mp_alloc(IN tt_mempool_t *mp, IN tt_u32_t size);
 
 static __mp_frame_t *__mp_expand(IN tt_mempool_t *mp);
@@ -75,7 +77,7 @@ void tt_mempool_component_register()
     static tt_component_t comp;
 
     tt_component_itf_t itf = {
-        __mp_component_init,
+        __mp_component_init, __mp_component_exit,
     };
 
     // init component
@@ -159,6 +161,10 @@ tt_result_t __mp_component_init(IN tt_component_t *comp,
                                 IN tt_profile_t *profile)
 {
     return TT_SUCCESS;
+}
+
+void __mp_component_exit(IN tt_component_t *comp)
+{
 }
 
 tt_u8_t *__mp_alloc(IN tt_mempool_t *mp, IN tt_u32_t size)

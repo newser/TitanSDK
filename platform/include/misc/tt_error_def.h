@@ -98,6 +98,7 @@ typedef enum _tt_result_t {
     TT_E_NOEXIST,
     TT_E_EXIST,
     TT_E_UNSUPPORT,
+    TT_E_NOSPC,
 
     TT_ERR_RANGE_COMMON_END,
 

@@ -66,6 +66,19 @@ choose_compiler_flag(CMAKE_CXX_FLAGS_RELEASE FALSE -finline-functions)
 # specify gnu99 for some c api
 choose_compiler_flag(CMAKE_C_FLAGS FALSE -std=gnu99)
 
+# more debug info
+if (SANITIZE_ADDRESS)
+    choose_compiler_flag(CMAKE_C_FLAGS_DEBUG FALSE -fno-omit-frame-pointer)
+    choose_compiler_flag(CMAKE_CXX_FLAGS_DEBUG FALSE -fno-omit-frame-pointer)
+
+    choose_compiler_flag(CMAKE_C_FLAGS_DEBUG FALSE -fno-optimize-sibling-calls)
+    choose_compiler_flag(CMAKE_CXX_FLAGS_DEBUG FALSE -fno-optimize-sibling-calls)
+
+    set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -fsanitize=address")
+    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fsanitize=address")
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fsanitize=address")
+endif ()
+
 #
 # linker options
 #

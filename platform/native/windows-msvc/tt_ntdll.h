@@ -17,14 +17,14 @@
  */
 
 /**
-@file tt_network_interface_native.h
-@brief network interface native
+@file tt_ntdll.h
+@brief ntdll
 
-this file includes network interface native
+this file defines ntdll APIs
 */
 
-#ifndef __TT_NETWORK_INTERFACE_NATIVE__
-#define __TT_NETWORK_INTERFACE_NATIVE__
+#ifndef __TT_NTDLL__
+#define __TT_NTDLL__
 
 ////////////////////////////////////////////////////////////
 // import header files
@@ -40,13 +40,6 @@ this file includes network interface native
 // type definition
 ////////////////////////////////////////////////////////////
 
-struct tt_netif_group_s;
-
-typedef struct
-{
-    int skt;
-} tt_netif_ntv_t;
-
 ////////////////////////////////////////////////////////////
 // global variants
 ////////////////////////////////////////////////////////////
@@ -55,16 +48,14 @@ typedef struct
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-tt_inline tt_result_t tt_network_interface_init_ntv()
-{
-    return TT_SUCCESS;
-}
+extern tt_result_t tt_ntdll_component_init_ntv();
 
-extern tt_result_t tt_netif_group_refresh_ntv(IN struct tt_netif_group_s *group,
-                                              IN tt_u32_t flag);
+extern void tt_ntdll_component_exit_ntv();
 
-extern tt_result_t tt_netif_create_ntv(IN tt_netif_ntv_t *sys_netif);
+extern void tt_ntdll_dump_fs(IN tt_u32_t flag);
 
-extern void tt_netif_destroy_ntv(IN tt_netif_ntv_t *sys_netif);
+extern void tt_ntdll_dump_ipc(IN tt_u32_t flag);
 
-#endif /* __TT_NETWORK_INTERFACE_NATIVE__ */
+extern void tt_ntdll_dump_skt(IN tt_u32_t flag);
+
+#endif /* __TT_NTDLL__ */

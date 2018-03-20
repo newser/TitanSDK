@@ -21,7 +21,7 @@
 set(PLATFORM_VERSION_MAJOR 0 CACHE STRING "major version number")
 mark_as_advanced(FORCE PLATFORM_VERSION_MAJOR)
 # minor version number
-set(PLATFORM_VERSION_MINOR 2 CACHE STRING "minor version number")
+set(PLATFORM_VERSION_MINOR 3 CACHE STRING "minor version number")
 mark_as_advanced(FORCE PLATFORM_VERSION_MINOR)
 # revision version number
 set(PLATFORM_VERSION_REVISION 0 CACHE STRING "revision version number")
@@ -34,7 +34,7 @@ include(${BUILD_PATH}/util.cmake)
 # do some configuration here
 
 # platform debug
-set(PLATFORM_ENABLE_DEBUG 1 CACHE BOOL "set to non zero to enable platform debug")
+set(PLATFORM_ENABLE_DEBUG 0 CACHE BOOL "set to non zero to enable platform debug")
 message(STATUS "debug mode: ${PLATFORM_ENABLE_DEBUG}")
 
 # build platform as a dynamic library
@@ -54,7 +54,12 @@ message(STATUS "numa enable: ${PLATFORM_ENABLE_NUMA}")
 set(PLATFORM_UNIT_TEST_LITE 0 CACHE BOOL "lite unit test")
 mark_as_advanced(FORCE PLATFORM_UNIT_TEST_LITE)
 
+set(UNIT_TEST_CI 0 CACHE BOOL "nit test on CI")
+mark_as_advanced(FORCE UNIT_TEST_CI)
+
 set(PLATFORM_ENABLE_BACKTRACE 0 CACHE BOOL "unwind stack")
+
+set(PLATFORM_ENABLE_MEMORY_TAG 0 CACHE BOOL "memory tag")
 
 # generate header file
 configure_file(${PLATFORM_PATH}/include/config/tt_customization_config.h.in
@@ -70,10 +75,13 @@ enable_language(ASM)
 
 # have
 include(CheckSymbolExists)
+include(CheckIncludeFile)
 
 check_symbol_exists(syslog syslog.h HAVE_SYSLOG)
 check_symbol_exists(ReportEvent windows.h HAVE_WINDOWS_EVENT_LOG)
 check_symbol_exists(os_log os/log.h HAVE_OSLOG)
+
+#check_include_file(net/if_types.h HAVE_IFTYPES)
 
 if (PLATFORM_ENABLE_BACKTRACE)
     if ((PLATFORM_ENV_OS STREQUAL windows) OR (PLATFORM_ENV_OS STREQUAL android))
@@ -137,6 +145,8 @@ add_group_src(${PLATFORM_PATH}/source/algorithm algorithm SRC_FILE)
 add_group_hdr(${PLATFORM_PATH}/include/algorithm/ptr algorithm SRC_FILE)
 add_group_src(${PLATFORM_PATH}/source/algorithm/ptr algorithm SRC_FILE)
 
+add_group_hdr(${PLATFORM_PATH}/include/config config SRC_FILE)
+
 add_group_hdr(${PLATFORM_PATH}/include/init init SRC_FILE)
 add_group_src(${PLATFORM_PATH}/source/init init SRC_FILE)
 
@@ -173,8 +183,8 @@ add_group_src(${PLATFORM_PATH}/source/crypto crypto SRC_FILE)
 add_group_hdr(${PLATFORM_PATH}/include/xml xml SRC_FILE)
 add_group_src(${PLATFORM_PATH}/source/xml xml SRC_FILE)
 
-add_group_hdr(${PLATFORM_PATH}/include/network network SRC_FILE)
-add_group_src(${PLATFORM_PATH}/source/network network SRC_FILE)
+add_group_hdr(${PLATFORM_PATH}/include/network/netif netif SRC_FILE)
+add_group_src(${PLATFORM_PATH}/source/network/netif netif SRC_FILE)
 
 add_group_hdr(${PLATFORM_PATH}/include/network/dns dns SRC_FILE)
 add_group_src(${PLATFORM_PATH}/source/network/dns dns SRC_FILE)
@@ -270,6 +280,11 @@ endif ()
 if (PLATFORM_UNIT_TEST_LITE)
     target_compile_definitions(platform PRIVATE "-D__UT_LITE__")
     message(STATUS "lite unit test")
+endif ()
+
+if (UNIT_TEST_CI)
+    target_compile_definitions(platform PRIVATE "-D__UT_CI__")
+    message(STATUS "unit test on CI")
 endif ()
 
 # set specific properties

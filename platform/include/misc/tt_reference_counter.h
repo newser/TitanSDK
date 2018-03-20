@@ -81,11 +81,13 @@ this file defines reference counter utilities
 #define TT_REF_ADD(__var_type, __var_ptr, __ref_name)                          \
     do {                                                                       \
         tt_s32_t __nr = tt_atomic_s32_inc(&(__var_ptr)->__ref_name);           \
+        TT_ASSERT(__nr > 0);                                                   \
         TT_INFO("%s[%p] ref add: [%x]", #__var_type, __var_ptr, __nr);         \
     } while (0)
 #define TT_REF_RELEASE(__var_type, __var_ptr, __ref_name, __destroy_api)       \
     do {                                                                       \
         tt_s32_t __nr = tt_atomic_s32_dec(&(__var_ptr)->__ref_name);           \
+        TT_ASSERT(__nr >= 0);                                                  \
         TT_INFO("%s[%p] ref release[%x]", #__var_type, __var_ptr, __nr);       \
         if (__nr == 0) {                                                       \
             __destroy_api(__var_ptr);                                          \

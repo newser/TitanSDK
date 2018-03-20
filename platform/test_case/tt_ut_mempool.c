@@ -416,6 +416,7 @@ TT_TEST_ROUTINE_DEFINE(case_mem_spg)
     for (; i < size; ++i) {
         TT_UT_EQUAL(p[i], 0, "");
     }
+    tt_free(p);
 
     // test end
     TT_TEST_CASE_LEAVE()

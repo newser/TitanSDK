@@ -17,11 +17,11 @@
  */
 
 /**
- @file tt_console_native.h
- @brief console io native
+@file tt_console_native.h
+@brief console io native
 
- this file specifies console native APIs
- */
+this file specifies console native APIs
+*/
 
 #ifndef __TT_CONSOLE_NATIVE__
 #define __TT_CONSOLE_NATIVE__
@@ -51,7 +51,11 @@ struct tt_console_attr_s;
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern tt_result_t tt_console_init_ntv();
+extern tt_result_t tt_console_component_init_ntv();
+
+tt_inline void tt_console_component_exit_ntv()
+{
+}
 
 extern tt_result_t tt_console_enter_ntv();
 

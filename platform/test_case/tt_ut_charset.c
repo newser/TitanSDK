@@ -1307,7 +1307,7 @@ TT_TEST_ROUTINE_DEFINE(case_charset_utf32be_utf8)
         tt_chsetconv_output(&csconv, ret_utf8, &ret_utf8_len);
         TT_UT_EQUAL(ret_utf8_len, 0, "");
 
-        tt_chsetconv_reset(&csconv);
+        tt_chsetconv_destroy(&csconv);
 
         // random test
         ret = tt_chsetconv_create(&csconv,

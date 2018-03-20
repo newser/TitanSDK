@@ -123,7 +123,7 @@ static tt_result_t __cons_send_key(IN tt_u8_t *key, IN tt_u32_t key_num);
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-tt_result_t tt_console_init_ntv()
+tt_result_t tt_console_component_init_ntv()
 {
     __stdin_hdl = GetStdHandle(STD_INPUT_HANDLE);
     if (__stdin_hdl == INVALID_HANDLE_VALUE) {
@@ -168,6 +168,11 @@ tt_result_t tt_console_init_ntv()
 fail:
     // ignore it if fail to get console handle
     return TT_SUCCESS;
+}
+
+void tt_console_component_exit_ntv()
+{
+    // close console handles??
 }
 
 tt_result_t tt_console_enter_ntv()

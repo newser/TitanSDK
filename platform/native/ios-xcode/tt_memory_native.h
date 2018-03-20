@@ -16,59 +16,49 @@
  * limitations under the License.
  */
 
+/**
+@file tt_memory_native.h
+@brief memory native
+
+this file defines native memory APIs
+*/
+
+#ifndef __TT_MEMORY_NATIVE__
+#define __TT_MEMORY_NATIVE__
+
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <tt_rand_native.h>
-
-#include <tt_sys_error.h>
+#include <tt_basic_type.h>
 
 ////////////////////////////////////////////////////////////
-// internal macro
+// macro definition
 ////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////
-// internal type
+// type definition
 ////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////
-// extern declaration
+// global variants
 ////////////////////////////////////////////////////////////
-
-////////////////////////////////////////////////////////////
-// global variant
-////////////////////////////////////////////////////////////
-
-static HCRYPTPROV hProvider;
 
 ////////////////////////////////////////////////////////////
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-////////////////////////////////////////////////////////////
-// interface implementation
-////////////////////////////////////////////////////////////
-
-tt_result_t tt_rng_component_init_ntv()
+tt_inline tt_result_t tt_memory_tag_component_init_ntv(IN tt_profile_t *profile)
 {
-    if (!CryptAcquireContext(&hProvider,
-                             NULL,
-                             NULL,
-                             PROV_RSA_FULL,
-                             CRYPT_VERIFYCONTEXT)) {
-        TT_ERROR_NTV("fail to accquire crypto provider");
-        return TT_FAIL;
-    }
-
     return TT_SUCCESS;
 }
 
-tt_result_t tt_rng_ntv(IN tt_u8_t *addr, IN tt_u32_t len)
+tt_inline void tt_memory_tag_component_exit_ntv()
 {
-    if (CryptGenRandom(hProvider, len, (BYTE *)addr)) {
-        return TT_SUCCESS;
-    } else {
-        return TT_FAIL;
-    }
 }
+
+tt_inline void tt_memory_status_dump_ntv(IN tt_u32_t flag)
+{
+}
+
+#endif /* __TT_MEMORY_NATIVE__ */

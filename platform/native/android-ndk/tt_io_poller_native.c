@@ -122,6 +122,10 @@ tt_result_t tt_io_poller_component_init_ntv()
     return TT_SUCCESS;
 }
 
+void tt_io_poller_component_exit_ntv()
+{
+}
+
 tt_result_t tt_io_poller_create_ntv(IN tt_io_poller_ntv_t *sys_iop)
 {
     int ep, evfd;

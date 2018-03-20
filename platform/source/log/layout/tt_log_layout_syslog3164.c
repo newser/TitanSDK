@@ -88,7 +88,7 @@ tt_loglyt_t *tt_loglyt_syslog3164_create(IN tt_syslog_facility_t f,
 
     ll = tt_loglyt_create(sizeof(tt_loglyt_syslog3164_t), &__lls_itf);
     if (ll == NULL) {
-        tt_loglyt_destroy(llp);
+        tt_loglyt_release(llp);
         return NULL;
     }
 
@@ -120,7 +120,7 @@ void __lls_destroy(IN tt_loglyt_t *ll)
 {
     tt_loglyt_syslog3164_t *lls = TT_LOGLYT_CAST(ll, tt_loglyt_syslog3164_t);
 
-    tt_loglyt_destroy(lls->pattern);
+    tt_loglyt_release(lls->pattern);
 }
 
 tt_result_t __lls_format(IN tt_loglyt_t *ll,

@@ -461,6 +461,7 @@ TT_TEST_ROUTINE_DEFINE(case_process_basic)
     path = tt_current_path(TT_TRUE);
     TT_UT_NOT_NULL(path, "");
     TT_INFO("cwd: %s", path);
+    tt_set_current_path(path);
     tt_free(path);
 
     path = tt_current_path(TT_FALSE);
@@ -474,11 +475,13 @@ TT_TEST_ROUTINE_DEFINE(case_process_basic)
 #if TT_ENV_OS_IS_IOS
     extern const char *get_app_path();
 #define __app_file get_app_path()
+    tt_free(path);
     return TT_SUCCESS;
 
 #elif TT_ENV_OS_IS_ANDROID
 #define __app_file path
     //#define __app_file_sc "./测试"
+    tt_free(path);
     return TT_SUCCESS;
 
 #else

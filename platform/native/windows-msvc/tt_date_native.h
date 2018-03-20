@@ -53,6 +53,10 @@ struct tt_date_s;
 
 extern tt_result_t tt_date_component_init_ntv(IN struct tt_profile_s *profile);
 
+tt_inline void tt_date_component_exit_ntv()
+{
+}
+
 extern tt_tmzone_t tt_local_tmzone_ntv();
 
 extern void tt_date_now_ntv(OUT struct tt_date_s *date);

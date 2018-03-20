@@ -16,78 +16,54 @@
  * limitations under the License.
  */
 
+/**
+@file tt_mac_addr.h
+@brief mac addr
+
+mac addr
+*/
+
+#ifndef __TT_MAC_ADDR__
+#define __TT_MAC_ADDR__
+
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <tt_rand_native.h>
-
-#include <tt_sys_error.h>
-
-#include <errno.h>
-#include <fcntl.h>
-#include <sys/types.h>
-#include <sys/uio.h>
-#include <unistd.h>
+#include <tt_basic_type.h>
 
 ////////////////////////////////////////////////////////////
-// internal macro
+// macro definition
 ////////////////////////////////////////////////////////////
 
-//#define __RAND_DEV "/dev/random"
-#define __RAND_DEV "/dev/urandom"
+#define TT_MACADDR_LEN 6
 
 ////////////////////////////////////////////////////////////
-// internal type
+// type definition
 ////////////////////////////////////////////////////////////
 
-////////////////////////////////////////////////////////////
-// extern declaration
-////////////////////////////////////////////////////////////
+typedef struct tt_macaddr_s
+{
+    tt_u8_t addr[TT_MACADDR_LEN];
+} tt_macaddr_t;
 
 ////////////////////////////////////////////////////////////
-// global variant
+// global variants
 ////////////////////////////////////////////////////////////
-
-static int __rand_fd = -1;
 
 ////////////////////////////////////////////////////////////
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-////////////////////////////////////////////////////////////
-// interface implementation
-////////////////////////////////////////////////////////////
+// addr must has TT_MACADDR_LEN bytes
+tt_export void tt_macaddr_init(IN tt_macaddr_t *ma, IN OPT tt_u8_t *addr);
 
-tt_result_t tt_rng_component_init_ntv()
-{
-    __rand_fd = open(__RAND_DEV, O_RDONLY);
-    if (__rand_fd < 0) {
-        TT_ERROR_NTV("fail to open %s", __RAND_DEV);
-        return TT_FAIL;
-    }
+tt_export tt_result_t tt_macaddr_p2n(IN tt_macaddr_t *ma,
+                                     IN const tt_char_t *cstr);
 
-    return TT_SUCCESS;
-}
+tt_export tt_result_t tt_macaddr_n2p(IN tt_macaddr_t *ma,
+                                     OUT tt_char_t *cstr,
+                                     IN tt_u32_t len,
+                                     IN tt_u32_t flag);
 
-tt_result_t tt_rng_ntv(IN tt_u8_t *data, IN tt_u32_t data_len)
-{
-    tt_u32_t n = 0;
-    tt_u32_t ret;
-
-rag:
-    ret = read(__rand_fd, data + n, data_len - n);
-    if (ret > 0) {
-        n += ret;
-        if (n < data_len) {
-            goto rag;
-        } else {
-            return TT_SUCCESS;
-        }
-    } else if (errno == EINTR) {
-        goto rag;
-    } else {
-        TT_ERROR_NTV("fail to read random data");
-        return TT_FAIL;
-    }
-}
+#endif // __TT_MAC_ADDR__

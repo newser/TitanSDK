@@ -98,11 +98,12 @@ tt_result_t tt_hmap_create(IN tt_hashmap_t *hmap,
     return TT_SUCCESS;
 }
 
-void tt_hmap_destroy(IN tt_hashmap_t *hmap)
+void tt_hmap_destroy(IN tt_hashmap_t *hmap,
+                     IN OPT tt_hnode_destroy_t hnode_destroy)
 {
     TT_ASSERT(hmap != NULL);
 
-    tt_hmap_clear(hmap);
+    tt_hmap_clear(hmap, hnode_destroy);
 
     tt_free(hmap->sll);
 }
@@ -114,12 +115,17 @@ void tt_hmap_attr_default(IN tt_hmap_attr_t *attr)
     attr->hash_alg = TT_HASH_ALG_MURMUR3;
 }
 
-void tt_hmap_clear(IN tt_hashmap_t *hmap)
+void tt_hmap_clear(IN tt_hashmap_t *hmap,
+                   IN OPT tt_hnode_destroy_t hnode_destroy)
 {
     tt_u32_t i;
     for (i = 0; i < hmap->sll_num; ++i) {
-        while (tt_slist_pop_head(&hmap->sll[i]) != NULL)
-            ;
+        tt_snode_t *sn;
+        while ((sn = tt_slist_pop_head(&hmap->sll[i])) != NULL) {
+            if (hnode_destroy != NULL) {
+                hnode_destroy(TT_CONTAINER(sn, tt_hnode_t, snode));
+            }
+        }
     }
     hmap->count = 0;
 }
@@ -232,4 +238,52 @@ void tt_hmap_foreach(IN tt_hashmap_t *hmap,
             }
         }
     }
+}
+
+void tt_hmap_iter(IN tt_hashmap_t *hmap, OUT tt_hmap_iter_t *iter)
+{
+    iter->hmap = hmap;
+    iter->hnode = NULL;
+    iter->sll_idx = 0;
+
+    // find first node
+    for (; iter->sll_idx < hmap->sll_num; ++iter->sll_idx) {
+        tt_slist_t *sll = &hmap->sll[iter->sll_idx];
+        if (!tt_slist_empty(sll)) {
+            tt_snode_t *sn = tt_slist_head(sll);
+            iter->hnode = TT_CONTAINER(sn, tt_hnode_t, snode);
+            break;
+        }
+    }
+}
+
+tt_hnode_t *tt_hmap_iter_next(IN OUT tt_hmap_iter_t *iter)
+{
+    tt_hnode_t *hnode;
+    tt_snode_t *sn;
+
+    if (iter->hnode == NULL) {
+        TT_ASSERT(iter->sll_idx == iter->hmap->sll_num);
+        return NULL;
+    }
+    TT_ASSERT(iter->sll_idx < iter->hmap->sll_num);
+    hnode = iter->hnode;
+
+    sn = hnode->snode.next;
+    if (sn != NULL) {
+        iter->hnode = TT_CONTAINER(sn, tt_hnode_t, snode);
+    } else {
+        iter->hnode = NULL;
+        for (++iter->sll_idx; iter->sll_idx < iter->hmap->sll_num;
+             ++iter->sll_idx) {
+            tt_slist_t *sll = &iter->hmap->sll[iter->sll_idx];
+            if (!tt_slist_empty(sll)) {
+                sn = tt_slist_head(sll);
+                iter->hnode = TT_CONTAINER(sn, tt_hnode_t, snode);
+                break;
+            }
+        }
+    }
+
+    return hnode;
 }

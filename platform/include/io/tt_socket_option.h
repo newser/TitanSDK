@@ -30,7 +30,7 @@ this file specifies apis to get or set socket option
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <tt_basic_type.h>
+#include <io/tt_socket_addr.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
@@ -89,11 +89,11 @@ tt_export tt_result_t tt_skt_get_reuseport(IN struct tt_skt_s *skt,
 // tcp no delay
 // ========================================
 
-tt_export tt_result_t tt_skt_set_tcp_nodelay(IN struct tt_skt_s *skt,
-                                             IN tt_bool_t nodelay);
+tt_export tt_result_t tt_skt_set_nodelay(IN struct tt_skt_s *skt,
+                                         IN tt_bool_t nodelay);
 
-tt_export tt_result_t tt_skt_get_tcp_nodelay(IN struct tt_skt_s *skt,
-                                             OUT tt_bool_t *nodelay);
+tt_export tt_result_t tt_skt_get_nodelay(IN struct tt_skt_s *skt,
+                                         OUT tt_bool_t *nodelay);
 
 // ========================================
 // non-block
@@ -110,5 +110,127 @@ tt_export tt_result_t tt_skt_set_nonblock(IN struct tt_skt_s *skt,
 tt_export tt_result_t tt_skt_set_linger(IN struct tt_skt_s *skt,
                                         IN tt_bool_t enable,
                                         IN tt_u16_t linger_sec);
+
+tt_export tt_result_t tt_skt_get_linger(IN struct tt_skt_s *skt,
+                                        OUT tt_bool_t *enable,
+                                        OUT tt_u16_t *linger_sec);
+
+// ========================================
+// reuse address
+// ========================================
+
+tt_export tt_result_t tt_skt_set_keepalive(IN struct tt_skt_s *skt,
+                                           IN tt_bool_t keepalive);
+
+tt_export tt_result_t tt_skt_get_keepalive(IN struct tt_skt_s *skt,
+                                           OUT tt_bool_t *keepalive);
+
+// ========================================
+// ttl
+// ========================================
+
+tt_export tt_result_t tt_skt_set_ttl(IN struct tt_skt_s *skt,
+                                     IN tt_net_family_t family,
+                                     IN tt_u8_t ttl);
+
+tt_export tt_result_t tt_skt_get_ttl(IN struct tt_skt_s *skt,
+                                     IN tt_net_family_t family,
+                                     OUT tt_u8_t *ttl);
+
+// ========================================
+// broadcast
+// ========================================
+
+tt_export tt_result_t tt_skt_set_broadcast(IN struct tt_skt_s *skt,
+                                           IN tt_bool_t broadcast);
+
+tt_export tt_result_t tt_skt_get_broadcast(IN struct tt_skt_s *skt,
+                                           OUT tt_bool_t *broadcast);
+
+// ========================================
+// oob inline
+// ========================================
+
+tt_export tt_result_t tt_skt_set_oobinline(IN struct tt_skt_s *skt,
+                                           IN tt_bool_t oobinline);
+
+tt_export tt_result_t tt_skt_get_oobinline(IN struct tt_skt_s *skt,
+                                           OUT tt_bool_t *oobinline);
+
+// ========================================
+// send buf size
+// ========================================
+
+tt_export tt_result_t tt_skt_set_sendbuf(IN struct tt_skt_s *skt,
+                                         IN tt_u32_t size);
+
+tt_export tt_result_t tt_skt_get_sendbuf(IN struct tt_skt_s *skt,
+                                         OUT tt_u32_t *size);
+
+// ========================================
+// recv buf size
+// ========================================
+
+tt_export tt_result_t tt_skt_set_recvbuf(IN struct tt_skt_s *skt,
+                                         IN tt_u32_t size);
+
+tt_export tt_result_t tt_skt_get_recvbuf(IN struct tt_skt_s *skt,
+                                         OUT tt_u32_t *size);
+
+// ========================================
+// recv buf size
+// ========================================
+
+tt_export tt_result_t tt_skt_set_sendtime(IN struct tt_skt_s *skt,
+                                          IN tt_u32_t ms);
+
+tt_export tt_result_t tt_skt_get_sendtime(IN struct tt_skt_s *skt,
+                                          OUT tt_u32_t *ms);
+
+// ========================================
+// recv buf size
+// ========================================
+
+tt_export tt_result_t tt_skt_set_recvtime(IN struct tt_skt_s *skt,
+                                          IN tt_u32_t ms);
+
+tt_export tt_result_t tt_skt_get_recvtime(IN struct tt_skt_s *skt,
+                                          OUT tt_u32_t *ms);
+
+// ========================================
+// multicast
+// ========================================
+
+tt_export tt_result_t tt_skt_set_mcast_loop(IN struct tt_skt_s *skt,
+                                            IN tt_net_family_t family,
+                                            IN tt_bool_t loop);
+
+tt_export tt_result_t tt_skt_get_mcast_loop(IN struct tt_skt_s *skt,
+                                            IN tt_net_family_t family,
+                                            OUT tt_bool_t *loop);
+
+tt_export tt_result_t tt_skt_set_mcast_ttl(IN struct tt_skt_s *skt,
+                                           IN tt_net_family_t family,
+                                           IN tt_u8_t ttl);
+
+tt_export tt_result_t tt_skt_get_mcast_ttl(IN struct tt_skt_s *skt,
+                                           IN tt_net_family_t family,
+                                           OUT tt_u8_t *ttl);
+
+// only ipv4
+tt_export tt_result_t tt_skt_set_mcast_if(IN struct tt_skt_s *skt,
+                                          IN tt_sktaddr_ip_t *addr);
+
+// only ipv4
+tt_export tt_result_t tt_skt_get_mcast_if(IN struct tt_skt_s *skt,
+                                          OUT tt_sktaddr_ip_t *addr);
+
+// only ipv6
+tt_export tt_result_t tt_skt_set_mcast_ifidx(IN struct tt_skt_s *skt,
+                                             IN tt_u32_t ifidx);
+
+// only ipv6
+tt_export tt_result_t tt_skt_get_mcast_ifidx(IN struct tt_skt_s *skt,
+                                             OUT tt_u32_t *ifidx);
 
 #endif // __TT_SOCKET_OPTION__

@@ -24,6 +24,7 @@
 
 #include <init/tt_component.h>
 #include <init/tt_profile.h>
+#include <io/tt_file_system.h>
 #include <io/tt_io_event.h>
 #include <io/tt_socket.h>
 #include <log/tt_log.h>
@@ -32,6 +33,7 @@
 #include <time/tt_timer.h>
 
 #include <tt_cstd_api.h>
+#include <tt_ntdll.h>
 #include <tt_util_native.h>
 #include <tt_wchar.h>
 
@@ -171,6 +173,7 @@ enum
     __SKT_RECV,
     __SKT_SENDTO,
     __SKT_RECVFROM,
+    __SKT_SENDFILE,
 
     __SKT_EV_NUM,
 };
@@ -180,12 +183,14 @@ typedef struct
     tt_io_ev_t io_ev;
 
     tt_skt_ntv_t *skt;
-    tt_skt_ntv_t *new_skt;
+    SOCKET new_s;
     tt_sktaddr_t *addr;
 
-    tt_result_t result;
+    tt_skt_t *new_skt;
     HANDLE iocp;
     tt_u8_t buf[(sizeof(SOCKADDR_STORAGE) + 16) << 1];
+    tt_bool_t done : 1;
+    tt_bool_t canceled : 1;
 } __skt_accept_t;
 
 typedef struct
@@ -210,6 +215,13 @@ typedef struct
     tt_result_t result;
     tt_u32_t pos;
 } __skt_send_t;
+
+typedef struct
+{
+    tt_io_ev_t io_ev;
+
+    tt_result_t result;
+} __skt_sendfile_t;
 
 typedef struct
 {
@@ -291,6 +303,15 @@ static void(PASCAL FAR *tt_GetAcceptExSockaddrs)(PVOID lpOutputBuffer,
                                                  LPSOCKADDR *RemoteSockaddr,
                                                  LPINT RemoteSockaddrLength);
 
+static BOOL(PASCAL FAR *tt_TransmitFile)(
+    SOCKET hSocket,
+    HANDLE hFile,
+    DWORD nNumberOfBytesToWrite,
+    DWORD nNumberOfBytesPerSend,
+    LPOVERLAPPED lpOverlapped,
+    LPTRANSMIT_FILE_BUFFERS lpTransmitBuffers,
+    DWORD dwFlags);
+
 static tt_bool_t __do_accept(IN tt_io_ev_t *io_ev);
 
 static tt_bool_t __do_connect(IN tt_io_ev_t *io_ev);
@@ -303,8 +324,16 @@ static tt_bool_t __do_sendto(IN tt_io_ev_t *io_ev);
 
 static tt_bool_t __do_recvfrom(IN tt_io_ev_t *io_ev);
 
+static tt_bool_t __do_sendfile(IN tt_io_ev_t *io_ev);
+
 static tt_poller_io_t __skt_poller_io[__SKT_EV_NUM] = {
-    __do_accept, __do_connect, __do_send, __do_recv, __do_sendto, __do_recvfrom,
+    __do_accept,
+    __do_connect,
+    __do_send,
+    __do_recv,
+    __do_sendto,
+    __do_recvfrom,
+    __do_sendfile,
 };
 
 ////////////////////////////////////////////////////////////
@@ -325,6 +354,8 @@ static tt_result_t __addr_to_mreq6(IN tt_sktaddr_ip_t *addr,
                                    IN const tt_char_t *itf,
                                    OUT struct ipv6_mreq *mreq);
 
+static tt_result_t __bind_iocp(IN tt_skt_ntv_t *skt, IN HANDLE iocp);
+
 ////////////////////////////////////////////////////////////
 // interface implementation
 ////////////////////////////////////////////////////////////
@@ -338,6 +369,15 @@ tt_result_t tt_skt_component_init_ntv(IN tt_profile_t *profile)
     return TT_SUCCESS;
 }
 
+void tt_skt_component_exit_ntv()
+{
+}
+
+void tt_skt_status_dump_ntv(IN tt_u32_t flag)
+{
+    tt_ntdll_dump_skt(flag);
+}
+
 tt_result_t tt_skt_create_ntv(IN tt_skt_ntv_t *skt,
                               IN tt_net_family_t family,
                               IN tt_net_protocol_t protocol,
@@ -345,7 +385,6 @@ tt_result_t tt_skt_create_ntv(IN tt_skt_ntv_t *skt,
 {
     int af, type, proto;
     SOCKET s;
-    HANDLE iocp;
 
     if (family == TT_NET_AF_INET) {
         af = AF_INET;
@@ -386,22 +425,11 @@ tt_result_t tt_skt_create_ntv(IN tt_skt_ntv_t *skt,
         }
     }
 
-    iocp = tt_current_fiber_sched()->thread->task->iop.sys_iop.iocp;
-    if (CreateIoCompletionPort((HANDLE)s, iocp, (ULONG_PTR)skt, 0) == NULL) {
-        TT_NET_ERROR_NTV("fail to bind socket to iocp");
-        goto fail;
-    }
-
     skt->s = s;
     skt->af = af;
+    skt->iocp = TT_FALSE;
 
-    tt_skt_stat_inc_num();
     return TT_SUCCESS;
-
-fail:
-
-    closesocket(s);
-    return TT_FAIL;
 }
 
 void tt_skt_destroy_ntv(IN tt_skt_ntv_t *skt)
@@ -452,14 +480,29 @@ tt_result_t tt_skt_listen_ntv(IN tt_skt_ntv_t *skt)
     }
 }
 
-tt_result_t tt_skt_accept_ntv(IN tt_skt_ntv_t *skt,
-                              OUT tt_skt_ntv_t *new_skt,
-                              OUT tt_sktaddr_t *addr)
+tt_skt_t *tt_skt_accept_ntv(IN tt_skt_ntv_t *skt,
+                            OUT tt_sktaddr_t *addr,
+                            OUT tt_fiber_ev_t **p_fev,
+                            OUT tt_tmr_t **p_tmr)
 {
-    SOCKET new_s;
     __skt_accept_t skt_accept;
     HANDLE iocp;
+    tt_fiber_t *cfb;
+    SOCKET new_s;
     DWORD dwBytesReceived;
+
+    *p_fev = NULL;
+    *p_tmr = NULL;
+
+    iocp = __skt_ev_init(&skt_accept.io_ev, __SKT_ACCEPT);
+    if (!TT_OK(__bind_iocp(skt, iocp))) {
+        return NULL;
+    }
+
+    cfb = skt_accept.io_ev.src;
+    if (tt_fiber_recv(cfb, TT_FALSE, p_fev, p_tmr)) {
+        return NULL;
+    }
 
     new_s = WSASocketW(skt->af,
                        SOCK_STREAM,
@@ -469,36 +512,50 @@ tt_result_t tt_skt_accept_ntv(IN tt_skt_ntv_t *skt,
                        WSA_FLAG_OVERLAPPED);
     if (new_s == INVALID_SOCKET) {
         TT_NET_ERROR_NTV("fail to create accept socket");
-        return TT_FAIL;
+        return NULL;
     }
-    new_skt->s = new_s;
-    new_skt->af = skt->af;
-
-    iocp = __skt_ev_init(&skt_accept.io_ev, __SKT_ACCEPT);
 
     skt_accept.skt = skt;
-    skt_accept.new_skt = new_skt;
+    skt_accept.new_s = new_s;
     skt_accept.addr = addr;
 
-    skt_accept.result = TT_FAIL;
+    skt_accept.new_skt = NULL;
     skt_accept.iocp = iocp;
+    skt_accept.done = TT_FALSE;
+    skt_accept.canceled = TT_FALSE;
 
-    if (!tt_AcceptEx(skt->s,
-                     new_s,
-                     skt_accept.buf,
-                     0,
-                     sizeof(SOCKADDR_STORAGE) + 16,
-                     sizeof(SOCKADDR_STORAGE) + 16,
-                     &dwBytesReceived,
-                     &skt_accept.io_ev.u.wov) &&
-        (WSAGetLastError() != ERROR_IO_PENDING)) {
-        TT_NET_ERROR_NTV("AcceptEx failed");
-        closesocket(new_s);
-        return TT_FAIL;
+    if (tt_AcceptEx(skt->s,
+                    new_s,
+                    skt_accept.buf,
+                    0,
+                    sizeof(SOCKADDR_STORAGE) + 16,
+                    sizeof(SOCKADDR_STORAGE) + 16,
+                    &dwBytesReceived,
+                    &skt_accept.io_ev.u.wov) ||
+        (WSAGetLastError() == ERROR_IO_PENDING)) {
+        cfb->recving = TT_TRUE;
+        while (!skt_accept.done) {
+            tt_fiber_suspend();
+            cfb->recving = TT_FALSE;
+
+            if (!skt_accept.done && !skt_accept.canceled) {
+                if (CancelIoEx((HANDLE)skt->s, &skt_accept.io_ev.u.wov) ||
+                    (GetLastError() == ERROR_NOT_FOUND)) {
+                    skt_accept.canceled = TT_TRUE;
+                } else {
+                    TT_ERROR("fail to cancel AcceptEx");
+                }
+            }
+        }
+
+        tt_fiber_recv(cfb, TT_FALSE, p_fev, p_tmr);
+
+        return skt_accept.new_skt;
     }
 
-    tt_fiber_suspend();
-    return skt_accept.result;
+    TT_NET_ERROR_NTV("AcceptEx failed");
+    closesocket(new_s);
+    return NULL;
 }
 
 tt_result_t tt_skt_connect_ntv(IN tt_skt_ntv_t *skt, IN tt_sktaddr_t *addr)
@@ -521,6 +578,9 @@ tt_result_t tt_skt_connect_ntv(IN tt_skt_ntv_t *skt, IN tt_sktaddr_t *addr)
     }
 
     iocp = __skt_ev_init(&skt_connect.io_ev, __SKT_CONNECT);
+    if (!TT_OK(__bind_iocp(skt, iocp))) {
+        return TT_FAIL;
+    }
 
     skt_connect.skt = skt;
     skt_connect.addr = addr;
@@ -578,6 +638,7 @@ tt_result_t tt_skt_recvfrom_ntv(IN tt_skt_ntv_t *skt,
                                 OUT tt_tmr_t **p_tmr)
 {
     __skt_recvfrom_t skt_recvfrom;
+    HANDLE iocp;
     tt_fiber_t *cfb;
     WSABUF Buffers;
     DWORD Flags = 0;
@@ -587,9 +648,12 @@ tt_result_t tt_skt_recvfrom_ntv(IN tt_skt_ntv_t *skt,
     *p_fev = NULL;
     *p_tmr = NULL;
 
-    __skt_ev_init(&skt_recvfrom.io_ev, __SKT_RECVFROM);
-    cfb = skt_recvfrom.io_ev.src;
+    iocp = __skt_ev_init(&skt_recvfrom.io_ev, __SKT_RECVFROM);
+    if (!TT_OK(__bind_iocp(skt, iocp))) {
+        return TT_FAIL;
+    }
 
+    cfb = skt_recvfrom.io_ev.src;
     if (tt_fiber_recv(cfb, TT_FALSE, p_fev, p_tmr)) {
         return TT_SUCCESS;
     }
@@ -632,7 +696,7 @@ tt_result_t tt_skt_recvfrom_ntv(IN tt_skt_ntv_t *skt,
             tt_fiber_suspend();
             cfb->recving = TT_FALSE;
 
-            if (!skt_recvfrom.canceled) {
+            if (!skt_recvfrom.done && !skt_recvfrom.canceled) {
                 if (CancelIoEx((HANDLE)skt->s, &skt_recvfrom.io_ev.u.wov) ||
                     (GetLastError() == ERROR_NOT_FOUND)) {
                     skt_recvfrom.canceled = TT_TRUE;
@@ -660,9 +724,13 @@ tt_result_t tt_skt_sendto_ntv(IN tt_skt_ntv_t *skt,
                               IN tt_sktaddr_t *addr)
 {
     __skt_sendto_t skt_sendto;
+    HANDLE iocp;
     WSABUF Buffers;
 
-    __skt_ev_init(&skt_sendto.io_ev, __SKT_SENDTO);
+    iocp = __skt_ev_init(&skt_sendto.io_ev, __SKT_SENDTO);
+    if (!TT_OK(__bind_iocp(skt, iocp))) {
+        return TT_FAIL;
+    }
 
     skt_sendto.skt = skt;
     skt_sendto.buf = buf;
@@ -704,10 +772,14 @@ tt_result_t tt_skt_send_ntv(IN tt_skt_ntv_t *skt,
                             OUT OPT tt_u32_t *sent)
 {
     __skt_send_t skt_send;
+    HANDLE iocp;
     WSABUF Buffers;
     DWORD dwError;
 
-    __skt_ev_init(&skt_send.io_ev, __SKT_SEND);
+    iocp = __skt_ev_init(&skt_send.io_ev, __SKT_SEND);
+    if (!TT_OK(__bind_iocp(skt, iocp))) {
+        return TT_FAIL;
+    }
 
     skt_send.skt = skt;
     skt_send.buf = buf;
@@ -734,6 +806,77 @@ tt_result_t tt_skt_send_ntv(IN tt_skt_ntv_t *skt,
     }
 }
 
+tt_result_t tt_skt_send_oob_ntv(IN tt_skt_ntv_t *skt, IN tt_u8_t b)
+{
+    __skt_send_t skt_send;
+    HANDLE iocp;
+    WSABUF Buffers;
+    DWORD dwError;
+
+    iocp = __skt_ev_init(&skt_send.io_ev, __SKT_SEND);
+    if (!TT_OK(__bind_iocp(skt, iocp))) {
+        return TT_FAIL;
+    }
+
+    skt_send.skt = skt;
+    skt_send.buf = &b;
+    skt_send.sent = NULL;
+    skt_send.len = 1;
+
+    skt_send.result = TT_FAIL;
+    skt_send.pos = 0;
+
+    Buffers.buf = (char *)&b;
+    Buffers.len = 1;
+    if ((WSASend(skt->s,
+                 &Buffers,
+                 1,
+                 NULL,
+                 MSG_OOB,
+                 &skt_send.io_ev.u.wov,
+                 NULL) == 0) ||
+        ((dwError = WSAGetLastError()) == WSA_IO_PENDING)) {
+        tt_fiber_suspend();
+        return skt_send.result;
+    }
+
+    if ((dwError == WSAECONNABORTED) || (dwError == WSAECONNRESET)) {
+        return TT_E_END;
+    } else {
+        TT_NET_ERROR_NTV("WSASend fail");
+        return TT_FAIL;
+    }
+}
+
+tt_result_t tt_skt_sendfile_ntv(IN tt_skt_ntv_t *skt, IN tt_file_t *f)
+{
+    __skt_sendfile_t skt_sendfile;
+    HANDLE iocp;
+    DWORD dwError;
+
+    iocp = __skt_ev_init(&skt_sendfile.io_ev, __SKT_SENDFILE);
+    if (!TT_OK(__bind_iocp(skt, iocp))) {
+        return TT_FAIL;
+    }
+
+    skt_sendfile.result = TT_FAIL;
+
+    if (tt_TransmitFile(skt->s,
+                        f->sys_file.hf,
+                        0,
+                        0,
+                        &skt_sendfile.io_ev.u.wov,
+                        NULL,
+                        0) ||
+        ((dwError = WSAGetLastError()) == WSA_IO_PENDING)) {
+        tt_fiber_suspend();
+        return skt_sendfile.result;
+    }
+
+    TT_NET_ERROR_NTV("TransmitFile fail");
+    return TT_FAIL;
+}
+
 tt_result_t tt_skt_recv_ntv(IN tt_skt_ntv_t *skt,
                             OUT tt_u8_t *buf,
                             IN tt_u32_t len,
@@ -742,6 +885,7 @@ tt_result_t tt_skt_recv_ntv(IN tt_skt_ntv_t *skt,
                             OUT tt_tmr_t **p_tmr)
 {
     __skt_recv_t skt_recv;
+    HANDLE iocp;
     tt_fiber_t *cfb;
     WSABUF Buffers;
     DWORD Flags = 0, dwError;
@@ -750,9 +894,12 @@ tt_result_t tt_skt_recv_ntv(IN tt_skt_ntv_t *skt,
     *p_fev = NULL;
     *p_tmr = NULL;
 
-    __skt_ev_init(&skt_recv.io_ev, __SKT_RECV);
-    cfb = skt_recv.io_ev.src;
+    iocp = __skt_ev_init(&skt_recv.io_ev, __SKT_RECV);
+    if (!TT_OK(__bind_iocp(skt, iocp))) {
+        return TT_FAIL;
+    }
 
+    cfb = skt_recv.io_ev.src;
     if (tt_fiber_recv(cfb, TT_FALSE, p_fev, p_tmr)) {
         return TT_SUCCESS;
     }
@@ -781,7 +928,7 @@ tt_result_t tt_skt_recv_ntv(IN tt_skt_ntv_t *skt,
             tt_fiber_suspend();
             cfb->recving = TT_FALSE;
 
-            if (!skt_recv.canceled) {
+            if (!skt_recv.done && !skt_recv.canceled) {
                 // if CancelIoEx() succeeds, wait for notification. or
                 // GetLastError() may be ERROR_NOT_FOUND which means io
                 // is completed and has been queued
@@ -930,7 +1077,7 @@ tt_result_t __addr_to_mreq(IN tt_sktaddr_ip_t *addr,
         NETIO_STATUS ns;
         NET_IFINDEX ifidx;
 
-        InterfaceName = tt_wchar_create(itf, NULL);
+        InterfaceName = tt_wchar_create(itf, 0, NULL);
         if (InterfaceName == NULL) {
             return TT_FAIL;
         }
@@ -975,7 +1122,7 @@ tt_result_t __addr_to_mreq6(IN tt_sktaddr_ip_t *addr,
         NETIO_STATUS ns;
         NET_IFINDEX ifidx;
 
-        InterfaceName = tt_wchar_create(itf, NULL);
+        InterfaceName = tt_wchar_create(itf, 0, NULL);
         if (InterfaceName == NULL) {
             return TT_FAIL;
         }
@@ -1003,9 +1150,12 @@ tt_bool_t __do_accept(IN tt_io_ev_t *io_ev)
 {
     __skt_accept_t *skt_accept = (__skt_accept_t *)io_ev;
 
-    SOCKET new_s = skt_accept->new_skt->s;
+    SOCKET new_s = skt_accept->new_s;
+    tt_skt_t *new_skt = NULL;
     LPSOCKADDR LocalSockaddr, RemoteSockaddr;
     INT LocalSockaddrLength, RemoteSockaddrLength;
+
+    skt_accept->done = TT_TRUE;
 
     if (!TT_OK(io_ev->io_result)) {
         goto fail;
@@ -1020,13 +1170,16 @@ tt_bool_t __do_accept(IN tt_io_ev_t *io_ev)
         goto fail;
     }
 
-    if (CreateIoCompletionPort((HANDLE)new_s,
-                               skt_accept->iocp,
-                               (ULONG_PTR)skt_accept->new_skt,
-                               0) == NULL) {
-        TT_NET_ERROR_NTV("fail to bind accept socket to iocp");
+    new_skt = tt_malloc(sizeof(tt_skt_t));
+    if (new_skt == NULL) {
+        TT_ERROR("no mem for new skt");
         goto fail;
     }
+    new_skt->sys_skt.s = new_s;
+    new_skt->sys_skt.af = skt_accept->skt->af;
+    new_skt->sys_skt.iocp = TT_FALSE;
+
+    skt_accept->new_skt = new_skt;
 
     LocalSockaddrLength = sizeof(tt_sktaddr_ntv_t);
     RemoteSockaddrLength = sizeof(tt_sktaddr_t);
@@ -1042,14 +1195,16 @@ tt_bool_t __do_accept(IN tt_io_ev_t *io_ev)
     TT_ASSERT_SKT(RemoteSockaddrLength <= sizeof(tt_sktaddr_t));
     tt_memcpy(skt_accept->addr, RemoteSockaddr, RemoteSockaddrLength);
 
-    skt_accept->result = TT_SUCCESS;
     return TT_TRUE;
 
 fail:
 
     closesocket(new_s);
 
-    skt_accept->result = TT_FAIL;
+    if (new_skt != NULL) {
+        tt_free(new_skt);
+    }
+
     return TT_TRUE;
 }
 
@@ -1220,6 +1375,19 @@ tt_bool_t __do_recvfrom(IN tt_io_ev_t *io_ev)
     return TT_TRUE;
 }
 
+tt_bool_t __do_sendfile(IN tt_io_ev_t *io_ev)
+{
+    __skt_sendfile_t *skt_sendfile = (__skt_sendfile_t *)io_ev;
+
+    if (TT_OK(io_ev->io_result)) {
+        skt_sendfile->result = TT_SUCCESS;
+    } else {
+        skt_sendfile->result = TT_FAIL;
+    }
+
+    return TT_TRUE;
+}
+
 tt_result_t __init_api()
 {
     SOCKET s;
@@ -1227,6 +1395,7 @@ tt_result_t __init_api()
     const GUID guid_AcceptEx = WSAID_ACCEPTEX;
     const GUID guid_GetAcceptExSockaddrs = WSAID_GETACCEPTEXSOCKADDRS;
     const GUID guid_DisconnectEx = WSAID_DISCONNECTEX;
+    const GUID guid_TransmitFile = WSAID_TRANSMITFILE;
 
     s = WSASocketW(AF_INET, SOCK_DGRAM, IPPROTO_UDP, NULL, 0, 0);
     if (s == INVALID_SOCKET) {
@@ -1238,7 +1407,8 @@ tt_result_t __init_api()
         !TT_OK(__load_api(s, &guid_AcceptEx, (void **)&tt_AcceptEx)) ||
         !TT_OK(__load_api(s,
                           &guid_GetAcceptExSockaddrs,
-                          (void **)&tt_GetAcceptExSockaddrs))) {
+                          (void **)&tt_GetAcceptExSockaddrs)) ||
+        !TT_OK(__load_api(s, &guid_TransmitFile, (void **)&tt_TransmitFile))) {
         closesocket(s);
         return TT_FAIL;
     }
@@ -1269,6 +1439,26 @@ tt_result_t __load_api(IN SOCKET s, const IN GUID *guid, IN void **pfn)
         return TT_SUCCESS;
     } else {
         TT_NET_ERROR_NTV("fail to load winsock api");
+        return TT_FAIL;
+    }
+}
+
+tt_result_t __bind_iocp(IN tt_skt_ntv_t *skt, IN HANDLE iocp)
+{
+    if (skt->iocp) {
+        return TT_SUCCESS;
+    }
+
+    if (iocp == NULL) {
+        iocp = tt_current_fiber()->fs->thread->task->iop.sys_iop.iocp;
+    }
+
+    if (CreateIoCompletionPort((HANDLE)skt->s, iocp, (ULONG_PTR)skt, 0) !=
+        NULL) {
+        skt->iocp = TT_TRUE;
+        return TT_SUCCESS;
+    } else {
+        TT_NET_ERROR_NTV("fail to bind socket to iocp");
         return TT_FAIL;
     }
 }

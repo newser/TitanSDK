@@ -74,6 +74,8 @@ extern tt_char_t *tt_process_path_ntv(IN OPT tt_process_ntv_t *sys_proc);
 
 extern tt_char_t *tt_current_path_ntv(IN tt_bool_t end_slash);
 
+extern tt_result_t tt_set_current_path_ntv(IN const tt_char_t *path);
+
 extern tt_result_t tt_process_name_ntv(IN tt_char_t *name, IN tt_u32_t len);
 
 #endif /* __TT_PROCESS_NATIVE__ */

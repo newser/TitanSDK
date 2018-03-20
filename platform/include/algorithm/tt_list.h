@@ -41,6 +41,7 @@ this file defines list data structure and related operations.
 ////////////////////////////////////////////////////////////
 
 #include <algorithm/tt_compare.h>
+#include <misc/tt_util.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
@@ -288,5 +289,10 @@ tt_export void tt_list_insert_after(IN tt_lnode_t *pos, IN tt_lnode_t *node);
  - NULL if the pos is the tail
  */
 tt_export tt_lnode_t *tt_list_remove(IN tt_lnode_t *node);
+
+tt_inline tt_bool_t tt_list_contain(IN tt_list_t *lst, IN tt_lnode_t *node)
+{
+    return TT_BOOL(lst == node->lst);
+}
 
 #endif /* __TT_LIST__ */

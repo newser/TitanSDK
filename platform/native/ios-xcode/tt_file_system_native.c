@@ -27,11 +27,15 @@
 #include <io/tt_io_worker_group.h>
 #include <memory/tt_memory_alloc.h>
 #include <os/tt_task.h>
+#include <time/tt_date.h>
 
 #include <tt_util_native.h>
 
+#include <copyfile.h>
 #include <fcntl.h>
 #include <fts.h>
+#include <libproc.h>
+#include <sys/proc_info.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 
@@ -134,15 +138,24 @@ enum
     __FWRITE,
     __FSEEK,
     __FSTAT,
+    __FTRUNC,
+    __FCOPY,
+    __FSYNC,
+    __FUTIME,
 
     __DCREATE,
     __DREMOVE,
     __DOPEN,
     __DCLOSE,
     __DREAD,
+    __DCOPY,
 
     __FS_EXIST,
     __FS_RENAME,
+    __FS_LINK,
+    __FS_SYMLINK,
+    __FS_READLINK,
+    __FS_REALPATH,
 
     __FS_EV_NUM,
 };
@@ -235,6 +248,47 @@ typedef struct
 {
     tt_io_ev_t io_ev;
 
+    tt_file_ntv_t *file;
+    tt_u64_t len;
+
+    tt_result_t result;
+} __ftrunc_t;
+
+typedef struct
+{
+    tt_io_ev_t io_ev;
+
+    const tt_char_t *dst;
+    const tt_char_t *src;
+    tt_u32_t flag;
+
+    tt_result_t result;
+} __fcopy_t;
+
+typedef struct
+{
+    tt_io_ev_t io_ev;
+
+    tt_file_ntv_t *file;
+
+    tt_result_t result;
+} __fsync_t;
+
+typedef struct
+{
+    tt_io_ev_t io_ev;
+
+    tt_file_ntv_t *file;
+    tt_date_t *accessed;
+    tt_date_t *modified;
+
+    tt_result_t result;
+} __futime_t;
+
+typedef struct
+{
+    tt_io_ev_t io_ev;
+
     const tt_char_t *path;
     struct tt_dir_attr_s *attr;
 
@@ -282,6 +336,17 @@ typedef struct
 {
     tt_io_ev_t io_ev;
 
+    const tt_char_t *dst;
+    const tt_char_t *src;
+    tt_u32_t flag;
+
+    tt_result_t result;
+} __dcopy_t;
+
+typedef struct
+{
+    tt_io_ev_t io_ev;
+
     const tt_char_t *path;
 
     tt_bool_t result;
@@ -296,6 +361,48 @@ typedef struct
 
     tt_result_t result;
 } __fs_rename_t;
+
+typedef struct
+{
+    tt_io_ev_t io_ev;
+
+    const tt_char_t *path;
+    const tt_char_t *link;
+
+    tt_result_t result;
+} __fs_link_t;
+
+typedef struct
+{
+    tt_io_ev_t io_ev;
+
+    const tt_char_t *path;
+    const tt_char_t *link;
+
+    tt_result_t result;
+} __fs_symlink_t;
+
+typedef struct
+{
+    tt_io_ev_t io_ev;
+
+    const tt_char_t *link;
+    tt_char_t *path;
+    tt_u32_t len;
+
+    tt_result_t result;
+} __fs_readlink_t;
+
+typedef struct
+{
+    tt_io_ev_t io_ev;
+
+    const tt_char_t *path;
+    tt_char_t *resolved;
+    tt_u32_t len;
+
+    tt_result_t result;
+} __fs_realpath_t;
 
 ////////////////////////////////////////////////////////////
 // extern declaration
@@ -321,6 +428,14 @@ static void __do_fseek(IN tt_io_ev_t *io_ev);
 
 static void __do_fstat(IN tt_io_ev_t *io_ev);
 
+static void __do_ftrunc(IN tt_io_ev_t *io_ev);
+
+static void __do_fcopy(IN tt_io_ev_t *io_ev);
+
+static void __do_fsync(IN tt_io_ev_t *io_ev);
+
+static void __do_futime(IN tt_io_ev_t *io_ev);
+
 static void __do_dcreate(IN tt_io_ev_t *io_ev);
 
 static void __do_dremove(IN tt_io_ev_t *io_ev);
@@ -331,28 +446,30 @@ static void __do_dclose(IN tt_io_ev_t *io_ev);
 
 static void __do_dread(IN tt_io_ev_t *io_ev);
 
+static void __do_dcopy(IN tt_io_ev_t *io_ev);
+
 static void __do_fs_exist(IN tt_io_ev_t *io_ev);
 
 static void __do_fs_rename(IN tt_io_ev_t *io_ev);
 
+static void __do_fs_link(IN tt_io_ev_t *io_ev);
+
+static void __do_fs_symlink(IN tt_io_ev_t *io_ev);
+
+static void __do_fs_readlink(IN tt_io_ev_t *io_ev);
+
+static void __do_fs_realpath(IN tt_io_ev_t *io_ev);
+
 static tt_worker_io_t __fs_io_handler[__FS_EV_NUM] = {
-    __do_fcreate,
-    __do_fremove,
-    __do_fopen,
-    __do_fclose,
-    __do_fread,
-    __do_fwrite,
-    __do_fseek,
-    __do_fstat,
+    __do_fcreate,     __do_fremove,     __do_fopen,   __do_fclose,
+    __do_fread,       __do_fwrite,      __do_fseek,   __do_fstat,
+    __do_ftrunc,      __do_fcopy,       __do_fsync,   __do_futime,
 
-    __do_dcreate,
-    __do_dremove,
-    __do_dopen,
-    __do_dclose,
-    __do_dread,
+    __do_dcreate,     __do_dremove,     __do_dopen,   __do_dclose,
+    __do_dread,       __do_dcopy,
 
-    __do_fs_exist,
-    __do_fs_rename,
+    __do_fs_exist,    __do_fs_rename,   __do_fs_link, __do_fs_symlink,
+    __do_fs_readlink, __do_fs_realpath,
 };
 
 ////////////////////////////////////////////////////////////
@@ -363,6 +480,8 @@ static void __fs_ev_init(IN tt_io_ev_t *io_ev, IN tt_u32_t ev);
 
 static void __time2date(IN time_t *t, IN tt_date_t *d);
 
+static void __date2timeval(IN tt_date_t *d, IN struct timeval *tv);
+
 ////////////////////////////////////////////////////////////
 // interface implementation
 ////////////////////////////////////////////////////////////
@@ -370,6 +489,51 @@ static void __time2date(IN time_t *t, IN tt_date_t *d);
 tt_result_t tt_fs_component_init_ntv()
 {
     return TT_SUCCESS;
+}
+
+void tt_fs_status_dump_ntv(IN tt_u32_t flag)
+{
+    pid_t pid;
+    int size;
+    struct proc_fdinfo *fdinfo;
+
+    pid = getpid();
+    size = proc_pidinfo(pid, PROC_PIDLISTFDS, 0, NULL, 0);
+    if (size <= 0) {
+        return;
+    }
+
+    fdinfo = (struct proc_fdinfo *)malloc(size);
+    if (fdinfo == NULL) {
+        return;
+    }
+
+    size = proc_pidinfo(pid, PROC_PIDLISTFDS, 0, fdinfo, size);
+    if (size > 0) {
+        int n, i;
+
+        n = size / PROC_PIDLISTFD_SIZE;
+        for (i = 0; i < n; ++i) {
+            if (fdinfo[i].proc_fdtype == PROX_FDTYPE_VNODE) {
+                struct vnode_fdinfowithpath vi;
+                int vs = proc_pidfdinfo(pid,
+                                        fdinfo[i].proc_fd,
+                                        PROC_PIDFDVNODEPATHINFO,
+                                        &vi,
+                                        PROC_PIDFDVNODEPATHINFO_SIZE);
+                if (vs == PROC_PIDFDVNODEPATHINFO_SIZE) {
+                    tt_printf("%s[fd: %d] [%s]\n",
+                              TT_COND(flag & TT_FS_STATUS_PREFIX,
+                                      "<<FS>> ",
+                                      ""),
+                              fdinfo[i].proc_fd,
+                              vi.pvip.vip_path);
+                }
+            }
+        }
+    }
+
+    free(fdinfo);
 }
 
 tt_result_t tt_fcreate_ntv(IN const tt_char_t *path,
@@ -516,6 +680,75 @@ tt_result_t tt_fstat_ntv(IN tt_file_ntv_t *file, OUT tt_fstat_t *fst)
     return fstat.result;
 }
 
+tt_result_t tt_ftrunc_ntv(IN tt_file_ntv_t *file, IN tt_u64_t len)
+{
+    __ftrunc_t ftrunc;
+
+    __fs_ev_init(&ftrunc.io_ev, __FTRUNC);
+
+    ftrunc.file = file;
+    ftrunc.len = len;
+
+    ftrunc.result = TT_FAIL;
+
+    tt_iowg_push_ev(&tt_g_fs_iowg, &ftrunc.io_ev);
+    tt_fiber_suspend();
+    return ftrunc.result;
+}
+
+tt_result_t tt_fcopy_ntv(IN const tt_char_t *dst,
+                         IN const tt_char_t *src,
+                         IN tt_u32_t flag)
+{
+    __fcopy_t fcopy;
+
+    __fs_ev_init(&fcopy.io_ev, __FCOPY);
+
+    fcopy.dst = dst;
+    fcopy.src = src;
+    fcopy.flag = flag;
+
+    fcopy.result = TT_FAIL;
+
+    tt_iowg_push_ev(&tt_g_fs_iowg, &fcopy.io_ev);
+    tt_fiber_suspend();
+    return fcopy.result;
+}
+
+tt_result_t tt_fsync_ntv(IN tt_file_ntv_t *file)
+{
+    __fsync_t fsync;
+
+    __fs_ev_init(&fsync.io_ev, __FSYNC);
+
+    fsync.file = file;
+
+    fsync.result = TT_FAIL;
+
+    tt_iowg_push_ev(&tt_g_fs_iowg, &fsync.io_ev);
+    tt_fiber_suspend();
+    return fsync.result;
+}
+
+tt_result_t tt_futime_ntv(IN tt_file_ntv_t *file,
+                          IN tt_date_t *accessed,
+                          IN tt_date_t *modified)
+{
+    __futime_t futime;
+
+    __fs_ev_init(&futime.io_ev, __FUTIME);
+
+    futime.file = file;
+    futime.accessed = accessed;
+    futime.modified = modified;
+
+    futime.result = TT_FAIL;
+
+    tt_iowg_push_ev(&tt_g_fs_iowg, &futime.io_ev);
+    tt_fiber_suspend();
+    return futime.result;
+}
+
 tt_result_t tt_dcreate_ntv(IN const tt_char_t *path, IN tt_dir_attr_t *attr)
 {
     __dcreate_t dcreate;
@@ -594,6 +827,25 @@ tt_result_t tt_dread_ntv(IN tt_dir_ntv_t *dir, OUT tt_dirent_t *entry)
     return dread.result;
 }
 
+tt_result_t tt_dcopy_ntv(IN const tt_char_t *dst,
+                         IN const tt_char_t *src,
+                         IN tt_u32_t flag)
+{
+    __dcopy_t dcopy;
+
+    __fs_ev_init(&dcopy.io_ev, __DCOPY);
+
+    dcopy.dst = dst;
+    dcopy.src = src;
+    dcopy.flag = flag;
+
+    dcopy.result = TT_FAIL;
+
+    tt_iowg_push_ev(&tt_g_fs_iowg, &dcopy.io_ev);
+    tt_fiber_suspend();
+    return dcopy.result;
+}
+
 tt_bool_t tt_fs_exist_ntv(IN const tt_char_t *path)
 {
     __fs_exist_t fs_exist;
@@ -623,6 +875,77 @@ tt_result_t tt_fs_rename_ntv(IN const tt_char_t *from, IN const tt_char_t *to)
     tt_iowg_push_ev(&tt_g_fs_iowg, &fs_rename.io_ev);
     tt_fiber_suspend();
     return fs_rename.result;
+}
+
+tt_result_t tt_fs_link_ntv(IN const tt_char_t *path, IN const tt_char_t *link)
+{
+    __fs_link_t fs_link;
+
+    __fs_ev_init(&fs_link.io_ev, __FS_LINK);
+
+    fs_link.path = path;
+    fs_link.link = link;
+
+    fs_link.result = TT_FAIL;
+
+    tt_iowg_push_ev(&tt_g_fs_iowg, &fs_link.io_ev);
+    tt_fiber_suspend();
+    return fs_link.result;
+}
+
+tt_result_t tt_fs_symlink_ntv(IN const tt_char_t *path,
+                              IN const tt_char_t *link)
+{
+    __fs_symlink_t fs_symlink;
+
+    __fs_ev_init(&fs_symlink.io_ev, __FS_SYMLINK);
+
+    fs_symlink.path = path;
+    fs_symlink.link = link;
+
+    fs_symlink.result = TT_FAIL;
+
+    tt_iowg_push_ev(&tt_g_fs_iowg, &fs_symlink.io_ev);
+    tt_fiber_suspend();
+    return fs_symlink.result;
+}
+
+tt_result_t tt_fs_readlink_ntv(IN const tt_char_t *link,
+                               OUT tt_char_t *path,
+                               IN tt_u32_t len)
+{
+    __fs_readlink_t fs_readlink;
+
+    __fs_ev_init(&fs_readlink.io_ev, __FS_READLINK);
+
+    fs_readlink.link = link;
+    fs_readlink.path = path;
+    fs_readlink.len = len;
+
+    fs_readlink.result = TT_FAIL;
+
+    tt_iowg_push_ev(&tt_g_fs_iowg, &fs_readlink.io_ev);
+    tt_fiber_suspend();
+    return fs_readlink.result;
+}
+
+tt_result_t tt_fs_realpath_ntv(IN const tt_char_t *path,
+                               OUT tt_char_t *resolved,
+                               IN tt_u32_t len)
+{
+    __fs_realpath_t fs_realpath;
+
+    __fs_ev_init(&fs_realpath.io_ev, __FS_REALPATH);
+
+    fs_realpath.path = path;
+    fs_realpath.resolved = resolved;
+    fs_realpath.len = len;
+
+    fs_realpath.result = TT_FAIL;
+
+    tt_iowg_push_ev(&tt_g_fs_iowg, &fs_realpath.io_ev);
+    tt_fiber_suspend();
+    return fs_realpath.result;
 }
 
 void tt_fs_worker_io(IN tt_io_ev_t *io_ev)
@@ -659,6 +982,8 @@ again:
         fcreate->result = TT_SUCCESS;
     } else if (errno == EINTR) {
         goto again;
+    } else if (errno == EEXIST) {
+        fcreate->result = TT_E_EXIST;
     } else {
         TT_ERROR_NTV("fail to create file: %s", fcreate->path);
         fcreate->result = TT_FAIL;
@@ -870,6 +1195,66 @@ void __do_fstat(IN tt_io_ev_t *io_ev)
     fstat_ev->result = TT_SUCCESS;
 }
 
+void __do_ftrunc(IN tt_io_ev_t *io_ev)
+{
+    __ftrunc_t *ftrunc_ev = (__ftrunc_t *)io_ev;
+
+    if (ftruncate(ftrunc_ev->file->fd, ftrunc_ev->len) == 0) {
+        ftrunc_ev->result = TT_SUCCESS;
+    } else {
+        ftrunc_ev->result = TT_FAIL;
+        TT_ERROR_NTV("ftrunc failed");
+    }
+}
+
+void __do_fcopy(IN tt_io_ev_t *io_ev)
+{
+    __fcopy_t *fcopy_ev = (__fcopy_t *)io_ev;
+    uint32_t flag = COPYFILE_ALL;
+
+    if (fcopy_ev->flag & TT_FCOPY_EXCL) {
+        flag |= COPYFILE_EXCL;
+    }
+
+    if (copyfile(fcopy_ev->src, fcopy_ev->dst, NULL, flag) == 0) {
+        fcopy_ev->result = TT_SUCCESS;
+    } else {
+        fcopy_ev->result = TT_FAIL;
+        TT_ERROR("fcopy failed");
+    }
+}
+
+void __do_fsync(IN tt_io_ev_t *io_ev)
+{
+    __fsync_t *fsync_ev = (__fsync_t *)io_ev;
+
+again:
+    if (fsync(fsync_ev->file->fd) == 0) {
+        fsync_ev->result = TT_SUCCESS;
+    } else if (errno == EINTR) {
+        goto again;
+    } else {
+        fsync_ev->result = TT_FAIL;
+        TT_ERROR("fsync failed");
+    }
+}
+
+void __do_futime(IN tt_io_ev_t *io_ev)
+{
+    __futime_t *futime_ev = (__futime_t *)io_ev;
+    struct timeval times[2];
+
+    __date2timeval(futime_ev->accessed, &times[0]);
+    __date2timeval(futime_ev->modified, &times[1]);
+
+    if (futimes(futime_ev->file->fd, times) == 0) {
+        futime_ev->result = TT_SUCCESS;
+    } else {
+        futime_ev->result = TT_FAIL;
+        TT_ERROR("futime failed");
+    }
+}
+
 void __do_dcreate(IN tt_io_ev_t *io_ev)
 {
     __dcreate_t *dcreate = (__dcreate_t *)io_ev;
@@ -880,6 +1265,8 @@ void __do_dcreate(IN tt_io_ev_t *io_ev)
 
     if (mkdir(dcreate->path, mode) == 0) {
         dcreate->result = TT_SUCCESS;
+    } else if (errno == EEXIST) {
+        dcreate->result = TT_E_EXIST;
     } else {
         TT_ERROR_NTV("fail to create directory: %s", dcreate->path);
         dcreate->result = TT_FAIL;
@@ -916,6 +1303,7 @@ retry1:
                 goto retry2;
             } else {
                 TT_ERROR_NTV("fail to read fts");
+                __RETRY_IF_EINTR(fts_close(fts) != 0);
                 dremove->result = TT_FAIL;
                 return;
             }
@@ -930,6 +1318,7 @@ retry1:
                 // remove file
                 if (unlink(ftse->fts_accpath) != 0) {
                     TT_ERROR_NTV("fail to remove file[%s]", ftse->fts_accpath);
+                    __RETRY_IF_EINTR(fts_close(fts) != 0);
                     dremove->result = TT_FAIL;
                     return;
                 }
@@ -939,6 +1328,7 @@ retry1:
                 if (rmdir(ftse->fts_accpath) != 0) {
                     TT_ERROR_NTV("fail to remove directory[%s]",
                                  ftse->fts_accpath);
+                    __RETRY_IF_EINTR(fts_close(fts) != 0);
                     dremove->result = TT_FAIL;
                     return;
                 }
@@ -949,23 +1339,14 @@ retry1:
             default: {
                 // something unexpected
                 TT_ERROR("expected fts info: %d", ftse->fts_info);
+                __RETRY_IF_EINTR(fts_close(fts) != 0);
                 dremove->result = TT_FAIL;
                 return;
             } break;
         }
     }
 
-__retry3:
-    if (fts_close(fts) != 0) {
-        if (errno == EINTR) {
-            goto __retry3;
-        } else {
-            TT_ERROR_NTV("fail to close fts");
-            // dremove->result = TT_FAIL;
-            // return;
-        }
-    }
-
+    __RETRY_IF_EINTR(fts_close(fts) != 0);
     dremove->result = TT_SUCCESS;
 }
 
@@ -1027,6 +1408,25 @@ void __do_dread(IN tt_io_ev_t *io_ev)
     }
 }
 
+void __do_dcopy(IN tt_io_ev_t *io_ev)
+{
+    __dcopy_t *dcopy_ev = (__dcopy_t *)io_ev;
+    uint32_t flag = COPYFILE_ALL | COPYFILE_RECURSIVE;
+
+#if 0
+    if (dcopy_ev->flag & TT_DCOPY_EXCL) {
+        flag |= COPYFILE_EXCL;
+    }
+#endif
+
+    if (copyfile(dcopy_ev->src, dcopy_ev->dst, NULL, flag) == 0) {
+        dcopy_ev->result = TT_SUCCESS;
+    } else {
+        dcopy_ev->result = TT_FAIL;
+        TT_ERROR("dcopy failed");
+    }
+}
+
 void __do_fs_exist(IN tt_io_ev_t *io_ev)
 {
     __fs_exist_t *fs_exist = (__fs_exist_t *)io_ev;
@@ -1052,6 +1452,72 @@ void __do_fs_rename(IN tt_io_ev_t *io_ev)
     }
 }
 
+void __do_fs_link(IN tt_io_ev_t *io_ev)
+{
+    __fs_link_t *fs_link = (__fs_link_t *)io_ev;
+
+    if (link(fs_link->path, fs_link->link) == 0) {
+        fs_link->result = TT_SUCCESS;
+    } else {
+        TT_ERROR_NTV("fail to link from %s to %s",
+                     fs_link->path,
+                     fs_link->link);
+        fs_link->result = TT_FAIL;
+    }
+}
+
+void __do_fs_symlink(IN tt_io_ev_t *io_ev)
+{
+    __fs_symlink_t *fs_symlink = (__fs_symlink_t *)io_ev;
+
+    if (symlink(fs_symlink->path, fs_symlink->link) == 0) {
+        fs_symlink->result = TT_SUCCESS;
+    } else {
+        TT_ERROR_NTV("fail to symlink from %s to %s",
+                     fs_symlink->path,
+                     fs_symlink->link);
+        fs_symlink->result = TT_FAIL;
+    }
+}
+
+void __do_fs_readlink(IN tt_io_ev_t *io_ev)
+{
+    __fs_readlink_t *fs_readlink = (__fs_readlink_t *)io_ev;
+    ssize_t n;
+
+    n = readlink(fs_readlink->link, fs_readlink->path, fs_readlink->len);
+    if (n >= 0) {
+        fs_readlink->path[n] = 0;
+        fs_readlink->result = TT_SUCCESS;
+    } else {
+        TT_ERROR_NTV("readlink fail");
+        fs_readlink->result = TT_FAIL;
+    }
+}
+
+void __do_fs_realpath(IN tt_io_ev_t *io_ev)
+{
+    __fs_realpath_t *fs_realpath = (__fs_realpath_t *)io_ev;
+    char *name;
+
+    name = realpath(fs_realpath->path, NULL);
+    if (name != NULL) {
+        tt_u32_t len = (tt_u32_t)tt_strlen(name);
+        if (len < fs_realpath->len) {
+            memcpy(fs_realpath->resolved, name, len);
+            fs_realpath->resolved[len] = 0;
+            fs_realpath->result = TT_SUCCESS;
+        } else {
+            TT_ERROR("not enough space");
+            fs_realpath->result = TT_E_NOSPC;
+        }
+        free(name);
+    } else {
+        TT_ERROR_NTV("realpath fail");
+        fs_realpath->result = TT_FAIL;
+    }
+}
+
 void __time2date(IN time_t *t, IN tt_date_t *d)
 {
     struct tm tm;
@@ -1062,6 +1528,16 @@ void __time2date(IN time_t *t, IN tt_date_t *d)
     tt_date_set_hour(d, tm.tm_hour);
     tt_date_set_minute(d, tm.tm_min);
     tt_date_set_second(d, TT_COND(tm.tm_sec < 60, tm.tm_sec, 59));
+}
+
+void __date2timeval(IN tt_date_t *d, IN struct timeval *tv)
+{
+    tt_date_t __d;
+
+    tt_date_copy(&__d, d);
+    tt_date_change_tmzone(&__d, TT_UTC_00_00);
+    tv->tv_sec = tt_date_diff_epoch_second(&__d);
+    tv->tv_usec = 0;
 }
 
 #ifdef open
@@ -1080,7 +1556,7 @@ int __sf_unlink(const char *path)
     if (tt_rand_u32() % 2) {
         return -1;
     } else {
-        unlink(path);
+        return unlink(path);
     }
 }
 #endif

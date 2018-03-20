@@ -45,6 +45,7 @@ this file specifies socket APIs
 ////////////////////////////////////////////////////////////
 
 struct tt_tmr_s;
+struct tt_file_s;
 
 typedef struct tt_skt_s
 {
@@ -73,6 +74,15 @@ tt_export tt_atomic_s64_t tt_skt_stat_peek;
 register socket system
 */
 tt_export void tt_skt_component_register();
+
+tt_export void tt_skt_status_dump(IN tt_u32_t flag);
+#define TT_SKT_STATUS_COUNT (1 << 0)
+#define TT_SKT_STATUS_PEEK (1 << 1)
+#define TT_SKT_STATUS_PREFIX (1 << 2)
+#define TT_SKT_STATUS_NATIVE (1 << 3)
+#define TT_SKT_STATUS_ALL (~0)
+
+tt_export void tt_skt_status_dump_enable(IN tt_bool_t enable);
 
 tt_export tt_skt_t *tt_skt_create(IN tt_net_family_t family,
                                   IN tt_net_protocol_t protocol,
@@ -103,7 +113,9 @@ tt_export tt_result_t tt_skt_listen(IN tt_skt_t *skt);
 // should explicitly set options by api defined in tt_socket_option.h
 tt_export tt_skt_t *tt_skt_accept(IN tt_skt_t *skt,
                                   IN OPT tt_skt_attr_t *new_attr,
-                                  OUT OPT tt_sktaddr_t *addr);
+                                  OUT OPT tt_sktaddr_t *addr,
+                                  OUT tt_fiber_ev_t **p_fev,
+                                  OUT struct tt_tmr_s **p_tmr);
 
 tt_export tt_result_t tt_skt_connect(IN tt_skt_t *skt, IN tt_sktaddr_t *addr);
 
@@ -148,9 +160,14 @@ tt_inline tt_result_t tt_skt_send(IN tt_skt_t *skt,
     if (len != 0) {
         return tt_skt_send_ntv(&skt->sys_skt, buf, len, sent);
     } else {
-        *sent = 0;
+        TT_SAFE_ASSIGN(sent, 0);
         return TT_SUCCESS;
     }
+}
+
+tt_inline tt_result_t tt_skt_send_oob(IN tt_skt_t *skt, IN tt_u8_t b)
+{
+    return tt_skt_send_oob_ntv(&skt->sys_skt, b);
 }
 
 tt_inline tt_result_t tt_skt_send_all(IN tt_skt_t *skt,
@@ -168,6 +185,14 @@ tt_inline tt_result_t tt_skt_send_all(IN tt_skt_t *skt,
     }
     return TT_SUCCESS;
 }
+
+tt_inline tt_result_t tt_skt_sendfile(IN tt_skt_t *skt, IN struct tt_file_s *f)
+{
+    return tt_skt_sendfile_ntv(&skt->sys_skt, f);
+}
+
+tt_export tt_result_t tt_skt_sendfile_path(IN tt_skt_t *skt,
+                                           IN const tt_char_t *path);
 
 tt_inline tt_result_t tt_skt_recv(IN tt_skt_t *skt,
                                   OUT tt_u8_t *buf,
@@ -244,9 +269,17 @@ tt_export tt_result_t tt_skt_local_addr(IN tt_skt_t *skt,
 tt_export tt_result_t tt_skt_remote_addr(IN tt_skt_t *skt,
                                          IN tt_sktaddr_t *addr);
 
-tt_export void tt_skt_stat_inc_num();
-
-tt_export void tt_skt_stat_dec_num();
+#if TT_ENV_OS_IS_WINDOWS
+tt_inline SOCKET tt_skt_handle(IN tt_skt_t *skt)
+{
+    return skt->sys_skt.s;
+}
+#else
+tt_inline int tt_skt_fd(IN tt_skt_t *skt)
+{
+    return skt->sys_skt.s;
+}
+#endif
 
 // ========================================
 // multicast

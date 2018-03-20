@@ -16,78 +16,71 @@
  * limitations under the License.
  */
 
+/**
+@file tt_memory_native.h
+@brief memory native
+
+this file defines native memory APIs
+*/
+
+#ifndef __TT_MEMORY_NATIVE__
+#define __TT_MEMORY_NATIVE__
+
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <tt_rand_native.h>
+#include <tt_basic_type.h>
 
-#include <tt_sys_error.h>
-
+#include <crtdbg.h>
 #include <errno.h>
-#include <fcntl.h>
-#include <sys/types.h>
-#include <sys/uio.h>
-#include <unistd.h>
 
 ////////////////////////////////////////////////////////////
-// internal macro
-////////////////////////////////////////////////////////////
-
-//#define __RAND_DEV "/dev/random"
-#define __RAND_DEV "/dev/urandom"
-
-////////////////////////////////////////////////////////////
-// internal type
+// macro definition
 ////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////
-// extern declaration
+// type definition
 ////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////
-// global variant
+// global variants
 ////////////////////////////////////////////////////////////
-
-static int __rand_fd = -1;
 
 ////////////////////////////////////////////////////////////
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-////////////////////////////////////////////////////////////
-// interface implementation
-////////////////////////////////////////////////////////////
-
-tt_result_t tt_rng_component_init_ntv()
+tt_inline tt_result_t tt_memory_tag_component_init_ntv(IN tt_profile_t *profile)
 {
-    __rand_fd = open(__RAND_DEV, O_RDONLY);
-    if (__rand_fd < 0) {
-        TT_ERROR_NTV("fail to open %s", __RAND_DEV);
-        return TT_FAIL;
-    }
+    _CrtSetReportMode(_CRT_WARN, _CRTDBG_MODE_FILE);
+    _CrtSetReportFile(_CRT_WARN, _CRTDBG_FILE_STDOUT);
+
+    _CrtSetReportMode(_CRT_ERROR, _CRTDBG_MODE_FILE);
+    _CrtSetReportFile(_CRT_ERROR, _CRTDBG_FILE_STDOUT);
+
+    _CrtSetReportMode(_CRT_ASSERT, _CRTDBG_MODE_FILE);
+    _CrtSetReportFile(_CRT_ASSERT, _CRTDBG_FILE_STDOUT);
+
+    _CrtSetBreakAlloc(70);
 
     return TT_SUCCESS;
 }
 
-tt_result_t tt_rng_ntv(IN tt_u8_t *data, IN tt_u32_t data_len)
+tt_inline void tt_memory_tag_component_exit_ntv()
 {
-    tt_u32_t n = 0;
-    tt_u32_t ret;
-
-rag:
-    ret = read(__rand_fd, data + n, data_len - n);
-    if (ret > 0) {
-        n += ret;
-        if (n < data_len) {
-            goto rag;
-        } else {
-            return TT_SUCCESS;
-        }
-    } else if (errno == EINTR) {
-        goto rag;
-    } else {
-        TT_ERROR_NTV("fail to read random data");
-        return TT_FAIL;
-    }
 }
+
+tt_inline void tt_memory_status_dump_ntv(IN tt_u32_t flag)
+{
+#if 0
+    if (_CrtDumpMemoryLeaks()) {
+        tt_printf("%sfound memory leak\n",
+                  TT_COND(flag & TT_MEMORY_STATUS_PREFIX, "<<Memory>> ", ""));
+    }
+#else
+    _CrtDumpMemoryLeaks();
+#endif
+}
+
+#endif /* __TT_MEMORY_NATIVE__ */

@@ -17,37 +17,28 @@
  */
 
 /**
-@file tt_network_interface.h
-@brief network interface
+@file tt_netif_group.h
+@brief network interface group
 
-this file defines network interface APIs
+this file defines network interface group APIs
 */
 
-#ifndef __TT_NETWORK_INTERFACE__
-#define __TT_NETWORK_INTERFACE__
+#ifndef __TT_NETIF_GROUP__
+#define __TT_NETIF_GROUP__
 
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
 #include <algorithm/tt_list.h>
-#include <io/tt_socket_addr.h>
 #include <misc/tt_util.h>
+#include <network/netif/tt_netif.h>
 
-#include <tt_network_interface_native.h>
+#include <tt_netif_native.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
 ////////////////////////////////////////////////////////////
-
-#define TT_NETIF_MAX_NAME_LEN 23
-
-#define TT_NETIF_DIFF_STATUS (1 << 0)
-#define TT_NETIF_DIFF_ADDR (1 << 1)
-#define TT_NETIF_DIFF(c) ((c)&0xFFFFFF)
-
-#define __NETIF_INTERNAL_TOUCHED (1 << 24)
-#define __NETIF_INTERNAL_UP (1 << 25)
 
 ////////////////////////////////////////////////////////////
 // type definition
@@ -55,45 +46,10 @@ this file defines network interface APIs
 
 struct tt_netif_s;
 
-// netif status
-typedef enum {
-    TT_NETIF_STATUS_NOT_EXIST,
-    TT_NETIF_STATUS_NOT_CONFIGURED, // exist, but not configured
-    TT_NETIF_STATUS_DOWN, // configured, not enabled
-    TT_NETIF_STATUS_UP, // enabled, not operating
-    TT_NETIF_STATUS_ACTIVE,
-
-    TT_NETIF_STATUS_NUM
-} tt_netif_status_t;
-#define TT_NETIF_STATUS_VALID(s) ((s) < TT_NETIF_STATUS_NUM)
-
-// netif address, this includes ip address information of
-// a netif, e.g. ip, netmask or dns server
-typedef struct tt_netif_addr_s
-{
-    tt_lnode_t node;
-    tt_u32_t internal_flag;
-
-    tt_sktaddr_t addr;
-    // may add more info such as netmask, gateway, dns, etc.
-} tt_netif_addr_t;
-
-// network interface
-typedef struct tt_netif_s
-{
-    tt_lnode_t node;
-    tt_u32_t internal_flag;
-    tt_netif_ntv_t sys_netif;
-
-    // info
-    tt_char_t name[TT_NETIF_MAX_NAME_LEN + 1];
-    tt_netif_status_t status;
-    tt_list_t addr_list;
-} tt_netif_t;
-
 typedef struct tt_netif_group_s
 {
     tt_list_t netif_list;
+    tt_netif_group_ntv_t sys_group;
 
     tt_u32_t flag;
 #define TT_NIFGRP_NO_IPV6_LINK_LOCAL (1 << 0)
@@ -108,22 +64,16 @@ typedef struct tt_netif_group_s
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-tt_export void tt_network_interface_component_register();
-
-// ========================================
-// netif group
-// ========================================
-
-tt_export void tt_netif_group_init(OUT tt_netif_group_t *group,
-                                   IN tt_u32_t flag);
+tt_export tt_result_t tt_netif_group_create(OUT tt_netif_group_t *group,
+                                            IN tt_u32_t flag);
 
 tt_export void tt_netif_group_destroy(IN tt_netif_group_t *group);
 
 tt_export tt_result_t tt_netif_group_add(IN tt_netif_group_t *group,
-                                         IN const tt_char_t *netif_name);
+                                         IN OPT const tt_char_t *netif_name);
 
 tt_export void tt_netif_group_remove(IN tt_netif_group_t *group,
-                                     IN const tt_char_t *netif_name);
+                                     IN OPT const tt_char_t *netif_name);
 
 tt_export void tt_netif_group_refresh_prepare(IN tt_netif_group_t *group);
 
@@ -146,28 +96,7 @@ tt_inline tt_netif_t *tt_netif_group_next(IN tt_netif_group_t *group,
     return TT_CONTAINER(node, tt_netif_t, node);
 }
 
-// ========================================
-// netif, auxiliary functions
-// ========================================
+extern tt_netif_t *tt_netif_group_find(IN tt_netif_group_t *group,
+                                       IN const tt_char_t *netif_name);
 
-extern tt_netif_t *__netif_create(IN const tt_char_t *netif_name);
-
-extern void __netif_destroy(IN tt_netif_t *netif);
-
-extern tt_netif_t *__netif_find(IN tt_netif_group_t *group,
-                                IN const tt_char_t *netif_name);
-
-extern void __netif_refresh_prepare(IN tt_netif_t *netif);
-extern void __netif_refresh_done(IN tt_netif_t *netif);
-
-extern void __netif_dump(IN tt_netif_t *netif, IN const tt_char_t *prefix);
-
-// netif address
-extern tt_netif_addr_t *__netif_addr_create(IN tt_net_family_t family);
-
-extern void __netif_addr_destroy(IN tt_netif_addr_t *netif_addr);
-
-extern void __netif_addr_dump(IN tt_netif_addr_t *netif_addr,
-                              IN const tt_char_t *prefix);
-
-#endif /* __TT_NETWORK_INTERFACE__ */
+#endif /* __TT_NETIF_GROUP__ */

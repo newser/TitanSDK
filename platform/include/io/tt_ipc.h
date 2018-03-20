@@ -44,6 +44,7 @@ this file defines IPC APIs
 ////////////////////////////////////////////////////////////
 
 struct tt_tmr_s;
+struct tt_skt_s;
 
 typedef struct tt_ipc_attr_s
 {
@@ -70,6 +71,12 @@ register socket system
 */
 tt_export void tt_ipc_component_register();
 
+tt_export void tt_ipc_status_dump(IN tt_u32_t flag);
+#define TT_IPC_STATUS_COUNT (1 << 0)
+#define TT_IPC_STATUS_PREFIX (1 << 1)
+#define TT_IPC_STATUS_NATIVE (1 << 2)
+#define TT_IPC_STATUS_ALL (~0)
+
 // - for server ipc, addr must be set to a path. and for client,
 //   addr must be null
 tt_export tt_ipc_t *tt_ipc_create(IN OPT const tt_char_t *addr,
@@ -94,7 +101,9 @@ tt_export tt_result_t tt_ipc_connect_retry(IN tt_ipc_t *ipc,
                                            IN tt_u32_t retry_count);
 
 tt_export tt_ipc_t *tt_ipc_accept(IN tt_ipc_t *ipc,
-                                  IN OPT tt_ipc_attr_t *new_attr);
+                                  IN OPT tt_ipc_attr_t *new_attr,
+                                  OUT tt_fiber_ev_t **p_fev,
+                                  OUT struct tt_tmr_s **p_tmr);
 
 tt_inline tt_result_t tt_ipc_send(IN tt_ipc_t *ipc,
                                   IN tt_u8_t *buf,
@@ -109,19 +118,33 @@ tt_inline tt_result_t tt_ipc_send(IN tt_ipc_t *ipc,
     }
 }
 
+// windows can not receive skt via this function, try tt_ipc_recv_ev() instead
 tt_inline tt_result_t tt_ipc_recv(IN tt_ipc_t *ipc,
                                   OUT tt_u8_t *buf,
                                   IN tt_u32_t len,
                                   OUT OPT tt_u32_t *recvd,
                                   OUT tt_fiber_ev_t **p_fev,
-                                  OUT struct tt_tmr_s **p_tmr)
+                                  OUT struct tt_tmr_s **p_tmr,
+                                  OUT struct tt_skt_s **p_skt)
 {
-    if (len != 0) {
-        return tt_ipc_recv_ntv(&ipc->sys_ipc, buf, len, recvd, p_fev, p_tmr);
-    } else {
+    if (len == 0) {
         TT_ERROR("ipc recv buf len can not be 0");
         return TT_FAIL;
     }
+
+    return tt_ipc_recv_ntv(&ipc->sys_ipc, buf, len, recvd, p_fev, p_tmr, p_skt);
 }
+
+// note linux abstract socket, returned addr may not be a null-terminated string
+tt_export tt_result_t tt_ipc_local_addr(IN tt_ipc_t *ipc,
+                                        OUT OPT tt_char_t *addr,
+                                        IN tt_u32_t size,
+                                        OUT OPT tt_u32_t *len);
+
+// note linux abstract socket, returned addr may not be a null-terminated string
+tt_export tt_result_t tt_ipc_remote_addr(IN tt_ipc_t *ipc,
+                                         OUT OPT tt_char_t *addr,
+                                         IN tt_u32_t size,
+                                         OUT OPT tt_u32_t *len);
 
 #endif /* __TT_IPC__ */

@@ -98,6 +98,7 @@ tt_result_t tt_platform_init(IN OPT const tt_char_t *profile_path)
     tt_page_component_register();
     tt_mempool_component_register();
     tt_slab_component_register();
+    tt_memory_tag_component_register();
 
     // thread
     tt_thread_component_register();
@@ -125,7 +126,6 @@ tt_result_t tt_platform_init(IN OPT const tt_char_t *profile_path)
     // network application
     tt_ssl_component_register();
     tt_ssl_log_component_register();
-    // tt_adns_component_register();
     tt_dns_component_register();
     tt_dns_cache_component_register();
 
@@ -139,4 +139,9 @@ tt_result_t tt_platform_init(IN OPT const tt_char_t *profile_path)
     }
 
     return TT_SUCCESS;
+}
+
+void tt_platform_exit()
+{
+    tt_component_stop();
 }

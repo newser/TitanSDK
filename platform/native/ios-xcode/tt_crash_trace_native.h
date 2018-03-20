@@ -46,4 +46,6 @@ struct tt_profile_s;
 extern tt_result_t tt_crash_trace_component_init_ntv(
     IN struct tt_profile_s *profile);
 
+extern void tt_crash_trace_component_exit_ntv();
+
 #endif /* __TT_CRASH_TRACE_NTV__ */

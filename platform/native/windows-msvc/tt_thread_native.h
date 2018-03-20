@@ -68,6 +68,8 @@ initialize ts thread ntv system
 */
 extern tt_result_t tt_thread_component_init_ntv();
 
+extern void tt_thread_component_exit_ntv();
+
 /**
 @fn
 tt_result_t tt_thread_create_ntv(IN struct tt_thread_s *thread)
@@ -115,6 +117,8 @@ wait for a specific system thread ending
   destroyed
 */
 extern tt_result_t tt_thread_wait_ntv(IN struct tt_thread_s *thread);
+
+extern tt_result_t tt_thread_wait_local_ntv(IN struct tt_thread_s *thread);
 
 /**
 @fn void tt_thread_exit_ntv()

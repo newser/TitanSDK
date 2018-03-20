@@ -20,10 +20,12 @@
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <tt_network_interface_native.h>
+#include <tt_netif_native.h>
 
 #include <algorithm/tt_buffer.h>
-#include <network/tt_network_interface.h>
+#include <network/netif/tt_netif.h>
+#include <network/netif/tt_netif_addr.h>
+#include <network/netif/tt_netif_group.h>
 #include <os/tt_atomic.h>
 #include <os/tt_thread.h>
 
@@ -42,18 +44,18 @@
 
 #define __NLINK_MAX_SIZE (1 << 20)
 
-#define __cmp_netif_addr(na, sa)                                               \
+#define __cmp_addr(na, sa)                                                     \
     tt_memcmp(&((struct sockaddr_in *)&(na)->addr)->sin_addr,                  \
               &((struct sockaddr_in *)(sa))->sin_addr,                         \
               sizeof(struct in_addr))
-#define __copy_netif_addr(na, sa)                                              \
+#define __copy_addr(na, sa)                                                    \
     tt_memcpy(&(na)->addr, (sa), sizeof(struct sockaddr_in))
 
-#define __cmp_netif_addr6(na, sa)                                              \
+#define __cmp_addr6(na, sa)                                                    \
     tt_memcmp(&((struct sockaddr_in6 *)&(na)->addr)->sin6_addr,                \
               &((struct sockaddr_in6 *)(sa))->sin6_addr,                       \
               sizeof(struct in6_addr))
-#define __copy_netif_addr6(na, sa)                                             \
+#define __copy_addr6(na, sa)                                                   \
     tt_memcpy(&(na)->addr, (sa), sizeof(struct sockaddr_in6))
 
 ////////////////////////////////////////////////////////////
@@ -83,13 +85,21 @@ static tt_atomic_s32_t __s_netlink_pid;
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-static __netlink_t *__netlink_get();
-
-static tt_result_t __netlink_req(IN __netlink_t *nlink,
+static tt_result_t __netlink_req(IN tt_netif_group_ntv_t *sys_group,
                                  IN __u16 type,
                                  IN tt_buf_t *buf,
                                  OUT struct nlmsghdr **hdr,
                                  OUT tt_u32_t *len);
+
+static tt_result_t __netlink_send(IN tt_netif_group_ntv_t *sys_group,
+                                  IN __u16 type);
+
+static tt_u32_t __netlink_recv(IN tt_netif_group_ntv_t *sys_group,
+                               IN tt_buf_t *buf);
+#define __NLRECV_OK 0
+#define __NLRECV_ERROR 1
+#define __NLRECV_AGAIN 2
+#define __NLRECV_CONTINUE 3
 
 static tt_result_t __netlink_update_link(IN tt_netif_group_t *group,
                                          IN struct ifinfomsg *ifi,
@@ -98,14 +108,6 @@ static tt_result_t __netlink_update_link(IN tt_netif_group_t *group,
 static tt_result_t __netlink_update_addr(IN tt_netif_group_t *group,
                                          IN struct ifaddrmsg *ifa,
                                          IN tt_u32_t len);
-
-static tt_result_t __netlink_send(IN __netlink_t *nlink, IN __u16 type);
-
-static tt_u32_t __netlink_recv(IN __netlink_t *nlink, IN tt_buf_t *buf);
-#define __NLRECV_OK 0
-#define __NLRECV_ERROR 1
-#define __NLRECV_AGAIN 2
-#define __NLRECV_CONTINUE 3
 
 static tt_result_t __netif_update_link(IN tt_netif_t *netif,
                                        IN struct ifinfomsg *ifi,
@@ -121,8 +123,8 @@ static tt_result_t __netif_make_addr6(IN tt_netif_t *netif,
                                       IN tt_u32_t len,
                                       OUT struct sockaddr_in6 *addr);
 
-static tt_netif_addr_t *__netif_find_addr(IN tt_netif_t *netif,
-                                          IN struct sockaddr *addr);
+static tt_netif_addr_t *tt_netif_group_find_addr(IN tt_netif_t *netif,
+                                                 IN struct sockaddr *addr);
 
 static void __netif_addr_update(IN tt_netif_addr_t *netif_addr,
                                 IN struct sockaddr *addr);
@@ -138,30 +140,75 @@ tt_result_t tt_network_interface_init_ntv()
     return TT_SUCCESS;
 }
 
+tt_result_t tt_netif_group_create_ntv(IN tt_netif_group_ntv_t *group)
+{
+    tt_buf_attr_t buf_attr;
+    struct sockaddr_nl addr;
+
+    tt_buf_attr_default(&buf_attr);
+    buf_attr.max_limit = __NLINK_MAX_SIZE;
+    if (!TT_OK(
+            tt_buf_create(&group->link_buf, __NLINK_FRAME_SIZE, &buf_attr))) {
+        return TT_FAIL;
+    }
+    if (!TT_OK(
+            tt_buf_create(&group->addr_buf, __NLINK_FRAME_SIZE, &buf_attr))) {
+        tt_buf_destroy(&group->link_buf);
+        return TT_FAIL;
+    }
+
+    group->s = socket(AF_NETLINK, SOCK_DGRAM, NETLINK_ROUTE);
+    if (group->s < 0) {
+        TT_ERROR_NTV("fail to create socket");
+        tt_buf_destroy(&group->addr_buf);
+        tt_buf_destroy(&group->link_buf);
+        return TT_FAIL;
+    }
+
+    group->pid = tt_atomic_s32_inc(&__s_netlink_pid);
+    group->seq = 0;
+
+    memset(&addr, 0, sizeof(addr));
+    addr.nl_family = AF_NETLINK;
+    addr.nl_pid = group->pid;
+    if (bind(group->s, (struct sockaddr *)&addr, sizeof(addr)) != 0) {
+        TT_ERROR_NTV("binding fail");
+        __RETRY_IF_EINTR(close(group->s));
+        tt_buf_destroy(&group->addr_buf);
+        tt_buf_destroy(&group->link_buf);
+        return TT_FAIL;
+    }
+
+    return TT_SUCCESS;
+}
+
+void tt_netif_group_destroy_ntv(IN tt_netif_group_ntv_t *group)
+{
+    tt_buf_destroy(&group->link_buf);
+    tt_buf_destroy(&group->addr_buf);
+
+    __RETRY_IF_EINTR(close(group->s));
+}
+
 tt_result_t tt_netif_group_refresh_ntv(IN tt_netif_group_t *group,
                                        IN tt_u32_t flag)
 {
-    __netlink_t *nlink;
+    tt_netif_group_ntv_t *sys_group = &group->sys_group;
     struct nlmsghdr *link_hdr, *addr_hdr, *h;
     tt_u32_t link_len, addr_len;
 
     // a good reference: https://github.com/morristech/android-ifaddrs
 
-    nlink = __netlink_get();
-    if (nlink == NULL) {
-        return TT_FAIL;
-    }
-
-    if (!TT_OK(__netlink_req(nlink,
+    if (!TT_OK(__netlink_req(sys_group,
                              RTM_GETLINK,
-                             &nlink->link_buf,
+                             &sys_group->link_buf,
                              &link_hdr,
                              &link_len))) {
         return TT_FAIL;
     }
-    if (!TT_OK(__netlink_req(nlink,
+    if (!TT_OK(__netlink_req(sys_group,
                              RTM_GETADDR,
-                             &nlink->addr_buf,
+                             &sys_group->addr_buf,
                              &addr_hdr,
                              &addr_len))) {
         return TT_FAIL;
@@ -214,76 +261,40 @@ void tt_netif_destroy_ntv(IN tt_netif_ntv_t *sys_netif)
     }
 }
 
-__netlink_t *__netlink_get()
+tt_result_t tt_netif_name2idx_ntv(IN const tt_char_t *name, OUT tt_u32_t *idx)
 {
-    tt_thread_t *t = tt_current_thread();
-
-    if (t->sys_thread.nlink == NULL) {
-        __netlink_t *nlink;
-        tt_buf_attr_t buf_attr;
-        struct sockaddr_nl addr;
-
-        nlink = tt_malloc(sizeof(__netlink_t));
-        if (nlink == NULL) {
-            TT_ERROR("no mem for new netlink");
-            return NULL;
-        }
-
-        tt_buf_attr_default(&buf_attr);
-        buf_attr.max_limit = __NLINK_MAX_SIZE;
-        if (!TT_OK(tt_buf_create(&nlink->link_buf,
-                                 __NLINK_FRAME_SIZE,
-                                 &buf_attr))) {
-            tt_free(nlink);
-            return NULL;
-        }
-        if (!TT_OK(tt_buf_create(&nlink->addr_buf,
-                                 __NLINK_FRAME_SIZE,
-                                 &buf_attr))) {
-            tt_buf_destroy(&nlink->link_buf);
-            tt_free(nlink);
-            return NULL;
-        }
-
-        nlink->s = socket(AF_NETLINK, SOCK_DGRAM, NETLINK_ROUTE);
-        if (nlink->s < 0) {
-            TT_ERROR_NTV("fail to create socket");
-            tt_buf_destroy(&nlink->addr_buf);
-            tt_buf_destroy(&nlink->link_buf);
-            tt_free(nlink);
-            return NULL;
-        }
-
-        nlink->pid = tt_atomic_s32_inc(&__s_netlink_pid);
-        nlink->seq = 0;
-
-        memset(&addr, 0, sizeof(addr));
-        addr.nl_family = AF_NETLINK;
-        addr.nl_pid = nlink->pid;
-        if (bind(nlink->s, (struct sockaddr *)&addr, sizeof(addr)) != 0) {
-            TT_ERROR_NTV("binding fail");
-            __RETRY_IF_EINTR(close(nlink->s));
-            tt_buf_destroy(&nlink->addr_buf);
-            tt_buf_destroy(&nlink->link_buf);
-            tt_free(nlink);
-            return NULL;
-        }
-
-        t->sys_thread.nlink = nlink;
+    unsigned int val = if_nametoindex(name);
+    if (val != 0) {
+        *idx = val;
+        return TT_SUCCESS;
+    } else {
+        TT_ERROR_NTV("invalid interface name: %s", name);
+        return TT_E_BADARG;
     }
-
-    return t->sys_thread.nlink;
 }
 
-void __netlink_destroy(IN __netlink_t *nlink)
+tt_result_t tt_netif_idx2name_ntv(IN tt_u32_t idx,
+                                  OUT tt_char_t *name,
+                                  IN tt_u32_t len)
 {
-    tt_buf_destroy(&nlink->link_buf);
-    tt_buf_destroy(&nlink->addr_buf);
-    __RETRY_IF_EINTR(close(nlink->s));
-    tt_free(nlink);
+    char ifname[IFNAMSIZ + 1] = {0};
+    if (if_indextoname(idx, ifname) != NULL) {
+        tt_u32_t n = (tt_u32_t)strlen(ifname);
+        if (len > n) {
+            tt_memcpy(name, ifname, n);
+            name[n] = 0;
+            return TT_SUCCESS;
+        } else {
+            TT_ERROR("not enough space for ifname");
+            return TT_E_NOSPC;
+        }
+    } else {
+        TT_ERROR_NTV("fail to get interface name: %d", idx);
+        return TT_E_BADARG;
+    }
 }
 
-tt_result_t __netlink_req(IN __netlink_t *nlink,
+tt_result_t __netlink_req(IN tt_netif_group_ntv_t *sys_group,
                           IN __u16 type,
                           IN tt_buf_t *buf,
                           OUT struct nlmsghdr **hdr,
@@ -292,13 +303,13 @@ tt_result_t __netlink_req(IN __netlink_t *nlink,
     tt_u32_t result;
 
 send:
-    if (!TT_OK(__netlink_send(nlink, type))) {
+    if (!TT_OK(__netlink_send(sys_group, type))) {
         return TT_FAIL;
     }
 
     tt_buf_clear(buf);
 recv:
-    result = __netlink_recv(nlink, buf);
+    result = __netlink_recv(sys_group, buf);
     if (result == __NLRECV_ERROR) {
         return TT_FAIL;
     } else if (result == __NLRECV_AGAIN) {
@@ -315,88 +326,7 @@ recv:
     return TT_SUCCESS;
 }
 
-tt_result_t __netlink_update_link(IN tt_netif_group_t *group,
-                                  IN struct ifinfomsg *ifi,
-                                  IN tt_u32_t len)
-{
-    struct rtattr *a;
-    tt_netif_t *netif = NULL;
-
-    for (a = TT_PTR_INC(struct rtattr,
-                        ifi,
-                        NLMSG_ALIGN(sizeof(struct ifinfomsg)));
-         RTA_OK(a, len);
-         a = RTA_NEXT(a, len)) {
-        if ((a->rta_type == IFLA_IFNAME) &&
-            (RTA_PAYLOAD(a) <= TT_NETIF_MAX_NAME_LEN)) {
-            netif = __netif_find(group, (tt_char_t *)RTA_DATA(a));
-            if (netif != NULL) {
-                return __netif_update_link(netif, ifi, len);
-            }
-        }
-    }
-    return TT_SUCCESS;
-}
-
-tt_result_t __netlink_update_addr(IN tt_netif_group_t *group,
-                                  IN struct ifaddrmsg *ifa,
-                                  IN tt_u32_t len)
-{
-    struct rtattr *a;
-    tt_netif_t *netif;
-    struct sockaddr_storage addr;
-    tt_result_t result;
-    tt_netif_addr_t *netif_addr;
-
-    if ((ifa->ifa_family != AF_INET) && (ifa->ifa_family != AF_INET6)) {
-        return TT_SUCCESS;
-    }
-
-    netif = NULL;
-    for (a = TT_PTR_INC(struct rtattr,
-                        ifa,
-                        NLMSG_ALIGN(sizeof(struct ifaddrmsg)));
-         RTA_OK(a, len);
-         a = RTA_NEXT(a, len)) {
-        if ((a->rta_type == IFA_LABEL) &&
-            (RTA_PAYLOAD(a) <= TT_NETIF_MAX_NAME_LEN)) {
-            netif = __netif_find(group, (tt_char_t *)RTA_DATA(a));
-            break;
-        }
-    }
-    if (netif == NULL) {
-        return TT_SUCCESS;
-    }
-
-    if (ifa->ifa_family == AF_INET) {
-        result =
-            __netif_make_addr4(netif, ifa, len, (struct sockaddr_in *)&addr);
-    } else {
-        result =
-            __netif_make_addr6(netif, ifa, len, (struct sockaddr_in6 *)&addr);
-    }
-    if (!TT_OK(result)) {
-        return TT_FAIL;
-    }
-
-    netif_addr = __netif_find_addr(netif, (struct sockaddr *)&addr);
-    if (netif_addr != NULL) {
-        __netif_addr_update(netif_addr, (struct sockaddr *)&addr);
-    } else {
-        netif_addr = __netif_addr_create(TT_COND(ifa->ifa_family == AF_INET,
-                                                 TT_NET_AF_INET,
-                                                 TT_NET_AF_INET6));
-        if (netif_addr == NULL) {
-            return TT_FAIL;
-        }
-
-        __netif_addr_update(netif_addr, (struct sockaddr *)&addr);
-        tt_list_push_tail(&netif->addr_list, &netif_addr->node);
-    }
-    return TT_SUCCESS;
-}
-
-tt_result_t __netlink_send(IN __netlink_t *nlink, IN __u16 type)
+tt_result_t __netlink_send(IN tt_netif_group_ntv_t *sys_group, IN __u16 type)
 {
     struct sockaddr_nl addr;
     tt_u8_t buf[NLMSG_ALIGN(sizeof(struct nlmsghdr)) +
@@ -411,12 +341,12 @@ tt_result_t __netlink_send(IN __netlink_t *nlink, IN __u16 type)
     hdr->nlmsg_len = NLMSG_LENGTH(sizeof(struct rtgenmsg));
     hdr->nlmsg_type = type;
     hdr->nlmsg_flags = NLM_F_REQUEST | NLM_F_ROOT | NLM_F_MATCH;
-    hdr->nlmsg_seq = nlink->seq++;
-    hdr->nlmsg_pid = nlink->pid;
+    hdr->nlmsg_seq = sys_group->seq++;
+    hdr->nlmsg_pid = sys_group->pid;
     msg->rtgen_family = AF_UNSPEC;
 
 again:
-    if (sendto(nlink->s,
+    if (sendto(sys_group->s,
                hdr,
                hdr->nlmsg_len,
                0,
@@ -431,7 +361,7 @@ again:
     }
 }
 
-tt_u32_t __netlink_recv(IN __netlink_t *nlink, IN tt_buf_t *buf)
+tt_u32_t __netlink_recv(IN tt_netif_group_ntv_t *sys_group, IN tt_buf_t *buf)
 {
     struct iovec iov;
     struct sockaddr_nl addr;
@@ -462,13 +392,13 @@ again:
     msgvec.msg_len = 0;
     timeout.tv_sec = 3; // congfiguable?
     timeout.tv_nsec = 0;
-    n = recvmmsg(nlink->s, &msgvec, 1, 0, &timeout);
+    n = recvmmsg(sys_group->s, &msgvec, 1, 0, &timeout);
     if (n > 0) {
         n = msgvec.msg_len;
     }
 #else
     (void)timeout;
-    n = recvmsg(nlink->s, msg, 0);
+    n = recvmsg(sys_group->s, msg, 0);
 #endif
     if (n <= 0) {
         if (errno == EINTR) {
@@ -490,8 +420,8 @@ again:
 
     for (hdr = (struct nlmsghdr *)iov.iov_base; NLMSG_OK(hdr, n);
          hdr = NLMSG_NEXT(hdr, n)) {
-        if ((hdr->nlmsg_pid != nlink->pid) ||
-            (hdr->nlmsg_seq != (nlink->seq - 1))) {
+        if ((hdr->nlmsg_pid != sys_group->pid) ||
+            (hdr->nlmsg_seq != (sys_group->seq - 1))) {
             continue;
         }
 
@@ -507,14 +437,127 @@ again:
     return __NLRECV_CONTINUE;
 }
 
+tt_result_t __netlink_update_link(IN tt_netif_group_t *group,
+                                  IN struct ifinfomsg *ifi,
+                                  IN tt_u32_t len)
+{
+    struct rtattr *a;
+    tt_netif_t *netif = NULL;
+
+    for (a = TT_PTR_INC(struct rtattr,
+                        ifi,
+                        NLMSG_ALIGN(sizeof(struct ifinfomsg)));
+         RTA_OK(a, len);
+         a = RTA_NEXT(a, len)) {
+        if ((a->rta_type == IFLA_IFNAME) &&
+            (RTA_PAYLOAD(a) <= TT_NETIF_MAX_NAME_LEN)) {
+            netif = tt_netif_group_find(group, (tt_char_t *)RTA_DATA(a));
+            if (netif != NULL) {
+                return __netif_update_link(netif, ifi, len);
+            }
+        }
+    }
+    return TT_SUCCESS;
+}
+
+tt_result_t __netlink_update_addr(IN tt_netif_group_t *group,
+                                  IN struct ifaddrmsg *ifa,
+                                  IN tt_u32_t len)
+{
+    struct rtattr *a;
+    tt_netif_t *netif;
+    struct sockaddr_storage addr;
+    tt_result_t result;
+    tt_netif_addr_t *netif_addr;
+
+    if ((ifa->ifa_family != AF_INET) && (ifa->ifa_family != AF_INET6)) {
+        return TT_SUCCESS;
+    }
+
+    netif = NULL;
+    for (a = TT_PTR_INC(struct rtattr,
+                        ifa,
+                        NLMSG_ALIGN(sizeof(struct ifaddrmsg)));
+         RTA_OK(a, len);
+         a = RTA_NEXT(a, len)) {
+        if ((a->rta_type == IFA_LABEL) &&
+            (RTA_PAYLOAD(a) <= TT_NETIF_MAX_NAME_LEN)) {
+            netif = tt_netif_group_find(group, (tt_char_t *)RTA_DATA(a));
+            break;
+        }
+    }
+    if (netif == NULL) {
+        return TT_SUCCESS;
+    }
+
+    if (ifa->ifa_family == AF_INET) {
+        result =
+            __netif_make_addr4(netif, ifa, len, (struct sockaddr_in *)&addr);
+    } else {
+        result =
+            __netif_make_addr6(netif, ifa, len, (struct sockaddr_in6 *)&addr);
+    }
+    if (!TT_OK(result)) {
+        return TT_FAIL;
+    }
+
+    netif_addr = tt_netif_group_find_addr(netif, (struct sockaddr *)&addr);
+    if (netif_addr != NULL) {
+        __netif_addr_update(netif_addr, (struct sockaddr *)&addr);
+    } else {
+        netif_addr = tt_netif_addr_create(TT_COND(ifa->ifa_family == AF_INET,
+                                                  TT_NET_AF_INET,
+                                                  TT_NET_AF_INET6));
+        if (netif_addr == NULL) {
+            return TT_FAIL;
+        }
+
+        __netif_addr_update(netif_addr, (struct sockaddr *)&addr);
+        tt_list_push_tail(&netif->addr_list, &netif_addr->node);
+    }
+    return TT_SUCCESS;
+}
+
 tt_result_t __netif_update_link(IN tt_netif_t *netif,
                                 IN struct ifinfomsg *ifi,
                                 IN tt_u32_t len)
 {
-    if (ifi->ifi_flags & IFF_UP) {
-        netif->internal_flag |= __NETIF_INTERNAL_UP;
+    unsigned flags = ifi->ifi_flags;
+    tt_u32_t status;
+    struct rtattr *a;
+
+    if (flags & IFF_RUNNING) {
+        status = TT_NETIF_STATUS_ACTIVE;
+    } else if (flags & IFF_UP) {
+        status = TT_NETIF_STATUS_UP;
     } else {
-        netif->internal_flag &= ~__NETIF_INTERNAL_UP;
+        status = TT_NETIF_STATUS_DOWN;
+    }
+    if (netif->status != status) {
+        netif->internal_flag |= TT_NETIF_DIFF_STATUS;
+    }
+    netif->status = status;
+
+    netif->multicast = TT_BOOL(flags & IFF_MULTICAST);
+    netif->loopback = TT_BOOL(flags & IFF_LOOPBACK);
+    netif->broadcast = TT_BOOL(flags & IFF_BROADCAST);
+    netif->p2p = TT_BOOL(flags & IFF_POINTOPOINT);
+
+    for (a = TT_PTR_INC(struct rtattr,
+                        ifi,
+                        NLMSG_ALIGN(sizeof(struct ifinfomsg)));
+         RTA_OK(a, len);
+         a = RTA_NEXT(a, len)) {
+        switch (a->rta_type) {
+            case IFLA_ADDRESS: {
+            } break;
+            case IFLA_MTU: {
+            } break;
+            case IFLA_LINK: {
+            } break;
+            default: {
+            } break;
+        }
     }
 
     return TT_SUCCESS;
@@ -569,8 +612,8 @@ tt_result_t __netif_make_addr6(IN tt_netif_t *netif,
     return TT_SUCCESS;
 }
 
-tt_netif_addr_t *__netif_find_addr(IN tt_netif_t *netif,
-                                   IN struct sockaddr *addr)
+tt_netif_addr_t *tt_netif_group_find_addr(IN tt_netif_t *netif,
+                                          IN struct sockaddr *addr)
 {
     tt_lnode_t *node = tt_list_head(&netif->addr_list);
     while (node != NULL) {
@@ -581,7 +624,7 @@ tt_netif_addr_t *__netif_find_addr(IN tt_netif_t *netif,
         if (addr->sa_family == AF_INET) {
             // ipv4, compare:
             //  - ip
-            if (__cmp_netif_addr(cur_addr, addr) == 0) {
+            if (__cmp_addr(cur_addr, addr) == 0) {
                 return cur_addr;
             }
         } else {
@@ -590,7 +633,7 @@ tt_netif_addr_t *__netif_find_addr(IN tt_netif_t *netif,
             // ipv6, compare:
             //  - ip
             //  - scope id??
-            if (__cmp_netif_addr6(cur_addr, addr) == 0) {
+            if (__cmp_addr6(cur_addr, addr) == 0) {
                 return cur_addr;
             }
         }
@@ -607,15 +650,15 @@ void __netif_addr_update(IN tt_netif_addr_t *netif_addr,
     netif_addr->internal_flag |= __NETIF_INTERNAL_TOUCHED;
 
     if (family == AF_INET) {
-        if (__cmp_netif_addr(netif_addr, addr) != 0) {
-            __copy_netif_addr(netif_addr, addr);
+        if (__cmp_addr(netif_addr, addr) != 0) {
+            __copy_addr(netif_addr, addr);
             netif_addr->internal_flag |= TT_NETIF_DIFF_ADDR;
         }
     } else {
         TT_ASSERT(family == AF_INET6);
 
-        if (__cmp_netif_addr6(netif_addr, addr) != 0) {
-            __copy_netif_addr6(netif_addr, addr);
+        if (__cmp_addr6(netif_addr, addr) != 0) {
+            __copy_addr6(netif_addr, addr);
             netif_addr->internal_flag |= TT_NETIF_DIFF_ADDR;
         }
 

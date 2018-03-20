@@ -36,16 +36,32 @@ APIs to allocate/free memory
 // macro definition
 ////////////////////////////////////////////////////////////
 
-//#define tt_malloc tt_c_malloc
+#ifdef TT_MEMORY_TAG_ENABLE
 
-//#define tt_realloc tt_c_realloc
+#define tt_malloc(s) tt_malloc_tag((s), __FILE__, __FUNCTION__, __LINE__)
 
-#define tt_xmalloc tt_malloc
+#define tt_realloc(p, s)                                                       \
+    tt_realloc_tag((p), (s), __FILE__, __FUNCTION__, __LINE__)
+
+#define tt_zalloc(s) tt_zalloc_tag((s), __FILE__, __FUNCTION__, __LINE__)
+
+#define tt_xmalloc(s) tt_xmalloc_tag((s), __FILE__, __FUNCTION__, __LINE__)
+
+#define tt_free(p) tt_free_tag((p))
+
+#else
+
+#define tt_malloc(s) tt_malloc_tag((s))
+
+#define tt_realloc(p, s) tt_realloc_tag((p), (s))
+
+#define tt_zalloc(s) tt_zalloc_tag((s))
+
+#define tt_xmalloc(s) tt_xmalloc_tag((s))
 
 #define tt_free tt_c_free
 
-// real size to be allocated when caller is requiring s bytes
-#define tt_msize(s) (s)
+#endif
 
 ////////////////////////////////////////////////////////////
 // type definition
@@ -61,20 +77,78 @@ typedef void *(*tt_oom_handler_t)(IN void *param);
 // interface declaration
 ////////////////////////////////////////////////////////////
 
+tt_export void tt_memory_tag_component_register();
+
+tt_export void tt_memory_status_dump(IN tt_u32_t flag);
+#define TT_MEMORY_STATUS_TAG (1 << 0)
+#define TT_MEMORY_STATUS_TOTAL (1 << 1)
+#define TT_MEMORY_STATUS_PREFIX (1 << 2)
+#define TT_MEMORY_STATUS_ALL (~0)
+
+tt_export void tt_memory_status_dump_enable(IN tt_bool_t enable);
+
 tt_export void tt_set_oom_handler(IN tt_oom_handler_t handler, IN void *param);
 
-tt_export void *tt_malloc(IN size_t size);
+#ifdef TT_MEMORY_TAG_ENABLE
 
-tt_export void *tt_realloc(IN void *ptr, IN size_t size);
+tt_export void *tt_malloc_tag(IN size_t size,
+                              IN const tt_char_t *file,
+                              IN const tt_char_t *function,
+                              IN const tt_u32_t line);
 
-tt_inline void *tt_zalloc(IN tt_size_t size)
+tt_export void tt_free_tag(IN void *p);
+
+tt_export void *tt_realloc_tag(IN OPT void *ptr,
+                               IN size_t size,
+                               IN const tt_char_t *file,
+                               IN const tt_char_t *function,
+                               IN const tt_u32_t line);
+
+tt_inline void *tt_zalloc_tag(IN tt_size_t size,
+                              IN const tt_char_t *file,
+                              IN const tt_char_t *function,
+                              IN const tt_u32_t line)
 {
-    void *p = tt_malloc(size);
+    void *p = tt_malloc_tag(size, file, function, line);
     if (p != NULL) {
         tt_memset(p, 0, size);
     }
     return p;
 }
+
+tt_inline void *tt_xmalloc_tag(IN size_t size,
+                               IN const tt_char_t *file,
+                               IN const tt_char_t *function,
+                               IN const tt_u32_t line)
+{
+    void *p = tt_malloc_tag(size, file, function, line);
+    TT_ASSERT_ALWAYS(p != NULL);
+    return p;
+}
+
+#else
+
+tt_export void *tt_malloc_tag(IN size_t size);
+
+tt_export void *tt_realloc_tag(IN OPT void *ptr, IN size_t size);
+
+tt_inline void *tt_zalloc_tag(IN tt_size_t size)
+{
+    void *p = tt_malloc_tag(size);
+    if (p != NULL) {
+        tt_memset(p, 0, size);
+    }
+    return p;
+}
+
+tt_inline void *tt_xmalloc_tag(IN size_t size)
+{
+    void *p = tt_malloc_tag(size);
+    TT_ASSERT_ALWAYS(p != NULL);
+    return p;
+}
+
+#endif
 
 tt_inline void *tt_malloc_align(IN tt_size_t size, IN tt_u32_t order)
 {

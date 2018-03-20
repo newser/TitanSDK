@@ -52,6 +52,7 @@ typedef struct
 ////////////////////////////////////////////////////////////
 
 static tt_bool_t __comp_table_initialized = TT_FALSE;
+
 static __comp_status_t __comp_table[TT_COMPONENT_NUM];
 
 ////////////////////////////////////////////////////////////
@@ -81,6 +82,7 @@ void tt_component_register(IN tt_component_t *comp)
 {
     TT_ASSERT(TT_COMPONENT_ID_VALID(comp->cid));
     TT_ASSERT(comp->itf.init != NULL);
+    TT_ASSERT(comp->itf.exit != NULL);
 
     if (!__comp_table_initialized) {
         tt_u32_t i;
@@ -110,16 +112,33 @@ tt_result_t tt_component_start(IN tt_profile_t *profile)
 
         if (!comp_status->started && (comp != NULL)) {
             if (TT_OK(comp->itf.init(comp, profile))) {
-                TT_INFO("Initializing %-32s [Done]", comp->name);
                 __comp_table[i].started = TT_TRUE;
+                tt_printf("Initializing %-32s [Done]\n", comp->name);
             } else {
-                TT_INFO("Initializing %-32s [Fail]", comp->name);
+                tt_printf("Initializing %-32s [Fail]\n", comp->name);
                 return TT_FAIL;
             }
         }
     }
 
     return TT_SUCCESS;
+}
+
+void tt_component_stop()
+{
+    tt_u32_t i;
+
+    TT_ASSERT(TT_COMPONENT_NUM > 0);
+    for (i = TT_COMPONENT_NUM - 1; i != 0; --i) {
+        __comp_status_t *comp_status = &__comp_table[i];
+        tt_component_t *comp = comp_status->comp;
+
+        if (comp_status->started && (comp != NULL)) {
+            comp->itf.exit(comp);
+            __comp_table[i].started = TT_FALSE;
+            tt_printf("Exitting %-32s [Done]\n", comp->name);
+        }
+    }
 }
 
 tt_component_t *tt_component_find_id(IN tt_component_id_t cid)

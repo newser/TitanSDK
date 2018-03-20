@@ -270,6 +270,9 @@ TT_TEST_CASE(
     TT_UT_EQUAL(j, sizeof(ibuf2), "");
     TT_UT_EQUAL(tt_memcmp(ibuf, ibuf2, sizeof(ibuf)), 0, "");
 
+    tt_deflate_destroy(&dfl);
+    tt_inflate_destroy(&ifl);
+
     // test end
     TT_TEST_CASE_LEAVE()
 }
@@ -351,6 +354,9 @@ TT_TEST_ROUTINE_DEFINE(case_zip_def_null)
 
     TT_UT_EQUAL(j, sizeof(ibuf2), "");
     TT_UT_EQUAL(tt_memcmp(ibuf, ibuf2, sizeof(ibuf)), 0, "");
+
+    tt_deflate_destroy(&dfl);
+    tt_inflate_destroy(&ifl);
 
     // test end
     TT_TEST_CASE_LEAVE()
@@ -501,6 +507,9 @@ TT_TEST_ROUTINE_DEFINE(case_zip_gzipdef)
     TT_UT_EQUAL(j, sizeof(ibuf2), "");
     TT_UT_EQUAL(tt_memcmp(ibuf, ibuf2, sizeof(ibuf)), 0, "");
 
+    tt_gzipdef_destroy(&dfl);
+    tt_gzipinf_destroy(&ifl);
+
     // test end
     TT_TEST_CASE_LEAVE()
 }
@@ -582,6 +591,9 @@ TT_TEST_ROUTINE_DEFINE(case_zip_gzipdef_null)
 
     TT_UT_EQUAL(j, sizeof(ibuf2), "");
     TT_UT_EQUAL(tt_memcmp(ibuf, ibuf2, sizeof(ibuf)), 0, "");
+
+    tt_gzipdef_destroy(&dfl);
+    tt_gzipinf_destroy(&ifl);
 
     // test end
     TT_TEST_CASE_LEAVE()
@@ -732,6 +744,9 @@ TT_TEST_ROUTINE_DEFINE(case_zip_zlibdef)
     TT_UT_EQUAL(j, sizeof(ibuf2), "");
     TT_UT_EQUAL(tt_memcmp(ibuf, ibuf2, sizeof(ibuf)), 0, "");
 
+    tt_zlibdef_destroy(&dfl);
+    tt_zlibinf_destroy(&ifl);
+
     // test end
     TT_TEST_CASE_LEAVE()
 }
@@ -813,6 +828,9 @@ TT_TEST_ROUTINE_DEFINE(case_zip_zlibdef_null)
 
     TT_UT_EQUAL(j, sizeof(ibuf2), "");
     TT_UT_EQUAL(tt_memcmp(ibuf, ibuf2, sizeof(ibuf)), 0, "");
+
+    tt_zlibdef_destroy(&dfl);
+    tt_zlibinf_destroy(&ifl);
 
     // test end
     TT_TEST_CASE_LEAVE()

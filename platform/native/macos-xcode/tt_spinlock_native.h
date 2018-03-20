@@ -79,6 +79,10 @@ tt_spinlock_component_init_ntv(IN struct tt_profile_s *profile)
     return TT_SUCCESS;
 }
 
+tt_inline void tt_spinlock_component_exit_ntv()
+{
+}
+
 tt_inline tt_result_t tt_spinlock_create_ntv(IN tt_spinlock_ntv_t *slock,
                                              IN struct tt_spinlock_attr_s *attr)
 {

@@ -17,14 +17,14 @@
  */
 
 /**
-@file tt_network_interface_native.h
-@brief network interface native
+@file tt_memory_native.h
+@brief memory native
 
-this file includes network interface native
+this file defines native memory APIs
 */
 
-#ifndef __TT_NETWORK_INTERFACE_NATIVE__
-#define __TT_NETWORK_INTERFACE_NATIVE__
+#ifndef __TT_MEMORY_NATIVE__
+#define __TT_MEMORY_NATIVE__
 
 ////////////////////////////////////////////////////////////
 // import header files
@@ -40,13 +40,6 @@ this file includes network interface native
 // type definition
 ////////////////////////////////////////////////////////////
 
-struct tt_netif_group_s;
-
-typedef struct
-{
-    int skt;
-} tt_netif_ntv_t;
-
 ////////////////////////////////////////////////////////////
 // global variants
 ////////////////////////////////////////////////////////////
@@ -55,16 +48,17 @@ typedef struct
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-tt_inline tt_result_t tt_network_interface_init_ntv()
+tt_inline tt_result_t tt_memory_tag_component_init_ntv(IN tt_profile_t *profile)
 {
     return TT_SUCCESS;
 }
 
-extern tt_result_t tt_netif_group_refresh_ntv(IN struct tt_netif_group_s *group,
-                                              IN tt_u32_t flag);
+tt_inline void tt_memory_tag_component_exit_ntv()
+{
+}
 
-extern tt_result_t tt_netif_create_ntv(IN tt_netif_ntv_t *sys_netif);
+tt_inline void tt_memory_status_dump_ntv(IN tt_u32_t flag)
+{
+}
 
-extern void tt_netif_destroy_ntv(IN tt_netif_ntv_t *sys_netif);
-
-#endif /* __TT_NETWORK_INTERFACE_NATIVE__ */
+#endif /* __TT_MEMORY_NATIVE__ */

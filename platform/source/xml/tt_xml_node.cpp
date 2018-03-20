@@ -81,6 +81,8 @@ static pugi::xml_node_type __type_t2p[TT_XNODE_TYPE_NUM] = {
 static tt_result_t __xnode_component_init(IN tt_component_t *comp,
                                           IN tt_profile_t *profile);
 
+static void __xnode_component_exit(IN tt_component_t *comp);
+
 ////////////////////////////////////////////////////////////
 // interface implementation
 ////////////////////////////////////////////////////////////
@@ -90,7 +92,7 @@ void tt_xnode_component_register()
     static tt_component_t comp;
 
     tt_component_itf_t itf = {
-        __xnode_component_init,
+        __xnode_component_init, __xnode_component_exit,
     };
 
     // init component
@@ -487,4 +489,8 @@ tt_result_t __xnode_component_init(IN tt_component_t *comp,
     }
 
     return TT_SUCCESS;
+}
+
+void __xnode_component_exit(IN tt_component_t *comp)
+{
 }

@@ -17,14 +17,14 @@
  */
 
 /**
-@file tt_network_interface_native.h
-@brief network interface native
+@file tt_rng_native.h
+@brief native random generator
 
-this file includes network interface native
+this file defines native random number generator
 */
 
-#ifndef __TT_NETWORK_INTERFACE_NATIVE__
-#define __TT_NETWORK_INTERFACE_NATIVE__
+#ifndef __TT_RNG_NATIVE__
+#define __TT_RNG_NATIVE__
 
 ////////////////////////////////////////////////////////////
 // import header files
@@ -40,13 +40,6 @@ this file includes network interface native
 // type definition
 ////////////////////////////////////////////////////////////
 
-struct tt_netif_group_s;
-
-typedef struct
-{
-    tt_u32_t reserved;
-} tt_netif_ntv_t;
-
 ////////////////////////////////////////////////////////////
 // global variants
 ////////////////////////////////////////////////////////////
@@ -55,13 +48,10 @@ typedef struct
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern tt_result_t tt_network_interface_init_ntv();
+extern tt_result_t tt_rng_component_init_ntv();
 
-extern tt_result_t tt_netif_group_refresh_ntv(IN struct tt_netif_group_s *group,
-                                              IN tt_u32_t flag);
+extern void tt_rng_component_exit_ntv();
 
-extern tt_result_t tt_netif_create_ntv(IN tt_netif_ntv_t *sys_netif);
+extern tt_result_t tt_rng_ntv(IN tt_u8_t *data, IN tt_u32_t data_len);
 
-extern void tt_netif_destroy_ntv(IN tt_netif_ntv_t *sys_netif);
-
-#endif /* __TT_NETWORK_INTERFACE_NATIVE__ */
+#endif /* __TT_RNG_NATIVE__ */

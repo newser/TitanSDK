@@ -85,6 +85,7 @@ void __logfltr_destroy(IN tt_logfltr_t *lf)
     while ((lio = (tt_logio_t *)tt_ptrq_pop_head(&lf->io_q)) != NULL) {
         tt_logio_release(lio);
     }
+    tt_ptrq_destroy(&lf->io_q);
 
     tt_free(lf);
 }

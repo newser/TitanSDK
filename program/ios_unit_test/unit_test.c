@@ -37,15 +37,73 @@ tt_result_t __ut_fiber(IN void *param)
     }
 #if 1
     else {
-        const tt_char_t *names[] = {
-            "case_queue",
-            //"TEST_UNIT_LOG",
-            //"TEST_UNIT_FIBER",
-            //"TEST_UNIT_FS",
-            //"TEST_UNIT_SOCKET",
-            //"TEST_UNIT_IPC"
-        };
         tt_u32_t i;
+        const tt_char_t *names[] = {
+//"case_fs_basic",
+#if 0
+            "TEST_UNIT_LOG",
+            "TEST_UNIT_LOG_PATTERN",
+#endif
+
+#if 0
+            "TEST_UNIT_ATOMIC",
+            "TEST_UNIT_THREAD",
+            "TEST_UNIT_FIBER",
+            "TEST_UNIT_SEM",
+            "TEST_UNIT_RWLOCK",
+            "TEST_UNIT_SPIN_LOCK",
+            "TEST_UNIT_MUTEX",
+#endif
+
+#if 0
+            "TEST_UNIT_SLAB",
+            "TEST_UNIT_MEMPOOL",
+#endif
+
+#if 0
+            "TEST_UNIT_TIME_REF",
+            "TEST_UNIT_DATE",
+            "TEST_UNIT_TIMER",
+            "TEST_UNIT_FPATH",
+#endif
+
+#if 0
+            "TEST_UNIT_MISC",
+            "TEST_UNIT_CHARSET",
+            "TEST_UNIT_CFGNODE",
+            "TEST_UNIT_CFGPATH",
+            "TEST_UNIT_CFGSHELL",
+#endif
+
+            "TEST_UNIT_FS",
+//"TEST_UNIT_IPC",
+//"TEST_UNIT_SOCKET",
+
+#if 0
+            "ALG_UT_BASIC_ALG",
+            "ALG_UT_HEAP",
+            "ALG_UT_VECTOR",
+            "ALG_UT_LIST",
+            "ALG_UT_HASHMAP",
+            "ALG_UT_QUEUE",
+            "ALG_UT_RBTREE",
+            "ALG_UT_STACK",
+            "ALG_UT_RBUF",
+            "ALG_UT_BUF",
+            "ALG_UT_STRING",
+#endif
+
+#if 0
+            "DNS_UT_QUERY",
+            "DNS_UT_RR",
+            "DNS_UT_CACHE",
+#endif
+
+#if 0
+            "SSL_UT_X509",
+            "SSL_UT_IO",
+#endif
+        };
 
         for (i = 0; i < sizeof(names) / sizeof(names[0]); ++i) {
             tt_test_unit_run(names[i]);
@@ -123,7 +181,9 @@ tt_task_add_fiber(&t, NULL, __ut_fiber, NULL, NULL);
 tt_task_run(&t);
 tt_task_wait(&t);
 printf("exiting\n");
+tt_platform_exit();
 
+// disable below for travis CI
 exit(0);
 return 0;
 

@@ -69,3 +69,8 @@ tt_result_t tt_network_io_component_init_ntv()
 
     return TT_SUCCESS;
 }
+
+void tt_network_io_component_exit_ntv()
+{
+    WSACleanup();
+}

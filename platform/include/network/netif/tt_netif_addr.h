@@ -17,20 +17,21 @@
  */
 
 /**
-@file tt_rand_native.h
-@brief native random generator
+@file tt_netif_addr.h
+@brief network interface address
 
-this file defines native random generator
+this file defines network interface address APIs
 */
 
-#ifndef __TT_RNG_NATIVE__
-#define __TT_RNG_NATIVE__
+#ifndef __TT_NETIF_ADDR__
+#define __TT_NETIF_ADDR__
 
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <tt_basic_type.h>
+#include <algorithm/tt_list.h>
+#include <io/tt_socket_addr.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
@@ -40,6 +41,18 @@ this file defines native random generator
 // type definition
 ////////////////////////////////////////////////////////////
 
+struct tt_netif_s;
+
+typedef struct tt_netif_addr_s
+{
+    tt_lnode_t node;
+    tt_u32_t internal_flag;
+
+    tt_sktaddr_t addr;
+    tt_sktaddr_t netmask;
+    tt_sktaddr_t dstaddr;
+} tt_netif_addr_t;
+
 ////////////////////////////////////////////////////////////
 // global variants
 ////////////////////////////////////////////////////////////
@@ -48,8 +61,12 @@ this file defines native random generator
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-extern tt_result_t tt_rng_component_init_ntv();
+tt_export tt_netif_addr_t *tt_netif_addr_create(IN tt_net_family_t family);
 
-extern tt_result_t tt_rng_ntv(IN tt_u8_t *addr, IN tt_u32_t len);
+tt_export void tt_netif_addr_destroy(IN tt_netif_addr_t *netif_addr);
 
-#endif /* __TT_RNG_NATIVE__ */
+tt_export void tt_netif_addr_dump(IN struct tt_netif_s *netif,
+                                  IN tt_netif_addr_t *netif_addr,
+                                  IN const tt_char_t *prefix);
+
+#endif /* __TT_NETIF_ADDR__ */

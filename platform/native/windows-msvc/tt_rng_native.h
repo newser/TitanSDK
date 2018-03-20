@@ -16,78 +16,42 @@
  * limitations under the License.
  */
 
+/**
+@file tt_rng_native.h
+@brief native random generator
+
+this file defines native random generator
+*/
+
+#ifndef __TT_RNG_NATIVE__
+#define __TT_RNG_NATIVE__
+
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <tt_rand_native.h>
-
-#include <tt_sys_error.h>
-
-#include <errno.h>
-#include <fcntl.h>
-#include <sys/types.h>
-#include <sys/uio.h>
-#include <unistd.h>
+#include <tt_basic_type.h>
 
 ////////////////////////////////////////////////////////////
-// internal macro
-////////////////////////////////////////////////////////////
-
-//#define __RAND_DEV "/dev/random"
-#define __RAND_DEV "/dev/urandom"
-
-////////////////////////////////////////////////////////////
-// internal type
+// macro definition
 ////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////
-// extern declaration
+// type definition
 ////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////
-// global variant
+// global variants
 ////////////////////////////////////////////////////////////
-
-static int __rand_fd = -1;
 
 ////////////////////////////////////////////////////////////
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-////////////////////////////////////////////////////////////
-// interface implementation
-////////////////////////////////////////////////////////////
+extern tt_result_t tt_rng_component_init_ntv();
 
-tt_result_t tt_rng_component_init_ntv()
-{
-    __rand_fd = open(__RAND_DEV, O_RDONLY);
-    if (__rand_fd < 0) {
-        TT_ERROR_NTV("fail to open %s", __RAND_DEV);
-        return TT_FAIL;
-    }
+extern void tt_rng_component_exit_ntv();
 
-    return TT_SUCCESS;
-}
+extern tt_result_t tt_rng_ntv(IN tt_u8_t *addr, IN tt_u32_t len);
 
-tt_result_t tt_rng_ntv(IN tt_u8_t *data, IN tt_u32_t data_len)
-{
-    tt_u32_t n = 0;
-    tt_u32_t ret;
-
-rag:
-    ret = read(__rand_fd, data + n, data_len - n);
-    if (ret > 0) {
-        n += ret;
-        if (n < data_len) {
-            goto rag;
-        } else {
-            return TT_SUCCESS;
-        }
-    } else if (errno == EINTR) {
-        goto rag;
-    } else {
-        TT_ERROR_NTV("fail to read random data");
-        return TT_FAIL;
-    }
-}
+#endif /* __TT_RNG_NATIVE__ */

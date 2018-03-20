@@ -240,6 +240,11 @@ static tt_result_t __tcp_acc1(IN void *param)
             return TT_FAIL;
         }
 
+        if (fev != NULL) {
+            tt_fiber_finish(fev);
+            break;
+        }
+
         ++i;
         if (i <= sp.ignore_num) {
             continue;
@@ -272,7 +277,10 @@ tt_result_t __tcp_svr1(IN void *param)
     tt_skt_t *s, *new_s;
     __svr_param_t *sp = (__svr_param_t *)param;
     tt_fiber_t *fb;
-    tt_u32_t i;
+    tt_u32_t i, k;
+    tt_fiber_ev_t *p_fev;
+    tt_tmr_t *p_tmr;
+    tt_char_t fname[64];
 
     s = tt_tcp_server_p(sp->af, NULL, sp->name, sp->port);
     if (s == NULL) {
@@ -285,28 +293,51 @@ tt_result_t __tcp_svr1(IN void *param)
         __svr_param_t *sp2;
 
         DUT_INFO("try to accept new tcp skt");
-        new_s = tt_skt_accept(s, NULL, NULL);
-        DUT_INFO("accept new tcp skt");
-        if (s == NULL) {
+        new_s = tt_skt_accept(s, NULL, NULL, &p_fev, &p_tmr);
+        if (p_fev != NULL) {
+            tt_fiber_finish(p_fev);
+            if (new_s != NULL) {
+                tt_skt_destroy(new_s);
+            }
+            break;
+        }
+
+        if (new_s == NULL) {
             __dns_errline = __LINE__;
             return TT_FAIL;
         }
+        DUT_INFO("accept new tcp skt");
 
         sp2 = tt_malloc(sizeof(__svr_param_t));
         *sp2 = *sp;
         sp2->s = new_s;
 
-        fb = tt_fiber_create(NULL, __tcp_acc1, sp2, NULL);
+        tt_memset(fname, 0, sizeof(fname));
+        tt_snprintf(fname, sizeof(fname), "acc%p%d", tt_current_fiber(), i);
+        fb = tt_fiber_create(fname, __tcp_acc1, sp2, NULL);
         tt_fiber_resume(fb, TT_FALSE);
 
         ++i;
+#if 0
         if (i >= sp->acc_num) {
             break;
         }
+#endif
     }
     DUT_INFO("__tcp_svr1 exit");
 
     tt_skt_destroy(s);
+
+    for (k = 0; k < i; ++k) {
+        tt_memset(fname, 0, sizeof(fname));
+        tt_snprintf(fname, sizeof(fname), "acc%p%d", tt_current_fiber(), k);
+        fb = tt_fiber_find(fname);
+        if (fb != NULL) {
+            tt_fiber_ev_t *fev = tt_fiber_ev_create(0, 0);
+            tt_fiber_send_ev(fb, fev, TT_FALSE);
+        }
+    }
+
     return TT_SUCCESS;
 }
 
@@ -402,7 +433,7 @@ static tt_result_t __dns_query_1(IN void *param)
         tt_fiber_send_ev(fb, fev, TT_FALSE);
     }
 
-    tt_task_exit(NULL);
+    // tt_task_exit(NULL);
     return TT_SUCCESS;
 }
 
@@ -522,7 +553,13 @@ static tt_result_t __dns_query_2(IN void *param)
         tt_fiber_send_ev(fb, fev, TT_FALSE);
     }
 
-    tt_task_exit(NULL);
+    fb = tt_fiber_find("tcp1");
+    if (fb != NULL) {
+        tt_fiber_ev_t *fev = tt_fiber_ev_create(0, 0);
+        tt_fiber_send_ev(fb, fev, TT_FALSE);
+    }
+
+    // tt_task_exit(NULL);
     return TT_SUCCESS;
 }
 
@@ -577,7 +614,7 @@ TT_TEST_ROUTINE_DEFINE(case_dns_query_u2t)
     sp[2].on_recv = __tcp_answer;
     sp[2].recv_num = 0;
     sp[2].acc_num = 2;
-    tt_task_add_fiber(&t, NULL, __tcp_svr1, &sp[2], NULL);
+    tt_task_add_fiber(&t, "tcp1", __tcp_svr1, &sp[2], NULL);
     tt_task_add_fiber(&t, NULL, __dns_query_2, NULL, NULL);
 
     ret = tt_task_run(&t);
@@ -833,7 +870,19 @@ static tt_result_t __dns_query_4(IN void *param)
         tt_fiber_send_ev(fb, fev, TT_FALSE);
     }
 
-    tt_task_exit(NULL);
+    fb = tt_fiber_find("tcp1");
+    if (fb != NULL) {
+        tt_fiber_ev_t *fev = tt_fiber_ev_create(0, 0);
+        tt_fiber_send_ev(fb, fev, TT_FALSE);
+    }
+
+    fb = tt_fiber_find("tcp2");
+    if (fb != NULL) {
+        tt_fiber_ev_t *fev = tt_fiber_ev_create(0, 0);
+        tt_fiber_send_ev(fb, fev, TT_FALSE);
+    }
+
+    // tt_task_exit(NULL);
     return TT_SUCCESS;
 }
 
@@ -849,7 +898,10 @@ TT_TEST_ROUTINE_DEFINE(case_dns_query_exception)
     __svr_param_t sp[4];
 
     TT_TEST_CASE_ENTER()
-// test start
+    // test start
+
+    tt_memory_status_dump_enable(TT_FALSE);
+    tt_skt_status_dump_enable(TT_FALSE);
 
 #ifdef __UT_LITE__
     return TT_SUCCESS;

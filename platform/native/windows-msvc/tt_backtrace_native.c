@@ -66,6 +66,13 @@ tt_result_t tt_backtrace_component_init_ntv(IN tt_profile_t *profile)
     return TT_SUCCESS;
 }
 
+void tt_backtrace_component_exit_ntv()
+{
+#ifdef TT_PLATFORM_ENABLE_BACKTRACE
+    SymCleanup(GetCurrentProcess());
+#endif
+}
+
 tt_result_t tt_backtrace_ntv(IN tt_buf_t *buf,
                              IN OPT const tt_char_t *prefix,
                              IN OPT const tt_char_t *suffix)
@@ -117,7 +124,7 @@ tt_result_t tt_backtrace_ntv(IN tt_buf_t *buf,
                                 sym->Name,
                                 addr_disp));
         } else {
-            tt_char_t *fname = tt_utf8_create(line.FileName, NULL);
+            tt_char_t *fname = tt_utf8_create(line.FileName, 0, NULL);
             if (fname != NULL) {
                 tt_result_t result;
                 result = tt_buf_putf(buf,

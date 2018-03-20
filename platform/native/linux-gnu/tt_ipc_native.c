@@ -27,6 +27,9 @@
 #include <init/tt_component.h>
 #include <init/tt_profile.h>
 #include <io/tt_io_event.h>
+#include <io/tt_ipc.h>
+#include <io/tt_ipc_event.h>
+#include <io/tt_socket.h>
 #include <os/tt_fiber.h>
 #include <os/tt_fiber_event.h>
 #include <os/tt_task.h>
@@ -34,9 +37,11 @@
 
 #include <tt_util_native.h>
 
+#include <dirent.h>
 #include <fcntl.h>
 #include <sys/epoll.h>
 #include <sys/socket.h>
+#include <sys/types.h>
 #include <sys/un.h>
 #include <unistd.h>
 
@@ -132,11 +137,12 @@ typedef struct
     tt_io_ev_t io_ev;
 
     tt_ipc_ntv_t *ipc;
-    tt_ipc_ntv_t *new_ipc;
+    tt_ipc_attr_t *new_attr;
     struct sockaddr_un *saun;
 
-    tt_result_t result;
+    tt_ipc_t *new_ipc;
     int ep;
+    tt_bool_t done : 1;
 } __ipc_accept_t;
 
 typedef struct
@@ -146,6 +152,7 @@ typedef struct
     tt_ipc_ntv_t *ipc;
     tt_u8_t *buf;
     tt_u32_t *sent;
+    tt_skt_t *skt;
     tt_u32_t len;
 
     tt_result_t result;
@@ -160,15 +167,19 @@ typedef struct
     tt_ipc_ntv_t *ipc;
     tt_u8_t *buf;
     tt_u32_t *recvd;
+    tt_skt_t **p_skt;
     tt_u32_t len;
 
     tt_result_t result;
     int ep;
+    tt_bool_t done : 1;
 } __ipc_recv_t;
 
 ////////////////////////////////////////////////////////////
 // extern declaration
 ////////////////////////////////////////////////////////////
+
+extern void __skt_inc_num();
 
 ////////////////////////////////////////////////////////////
 // global variant
@@ -199,6 +210,10 @@ static tt_result_t __init_ipc_addr(IN struct sockaddr_un *saun,
 
 static int __ipc_ev_init(IN tt_io_ev_t *io_ev, IN tt_u32_t ev);
 
+static void __handle_cmsg(IN __ipc_recv_t *ipc_recv, IN struct msghdr *msg);
+
+static void __dump_ipc_fdinfo(IN int s, IN tt_u32_t flag);
+
 ////////////////////////////////////////////////////////////
 // interface implementation
 ////////////////////////////////////////////////////////////
@@ -213,6 +228,56 @@ tt_result_t tt_ipc_component_init_ntv(IN tt_profile_t *profile)
 
     return TT_SUCCESS;
 }
+
+void tt_ipc_component_exit_ntv()
+{
+}
+
+void tt_ipc_status_dump_ntv(IN tt_u32_t flag)
+{
+    char path[PATH_MAX + 1];
+    int len;
+    DIR *d;
+    struct dirent entry;
+    struct dirent *result = NULL;
+
+    len = snprintf(path, PATH_MAX, "/proc/%d/fd/", getpid());
+
+    d = opendir(path);
+    if (d == NULL) {
+        tt_printf("fail to open %s", path);
+        return;
+    }
+
+    while ((readdir_r(d, &entry, &result) == 0) && (result != NULL)) {
+        char link[PATH_MAX + 1];
+        ssize_t n;
+        int s;
+
+        if ((strcmp(entry.d_name, ".") == 0) ||
+            (strcmp(entry.d_name, "..") == 0)) {
+            continue;
+        }
+
+        path[len] = 0;
+        strncat(path, entry.d_name, PATH_MAX);
+        if ((n = readlink(path, link, PATH_MAX)) < 0) {
+            continue;
+        }
+        link[n] = 0;
+
+        if (strncmp(link, "socket", 6) != 0) {
+            // only show socket
+            continue;
+        }
+
+        s = strtol(entry.d_name, NULL, 10);
+        __dump_ipc_fdinfo(s, flag);
+    }
+
+    closedir(d);
+}
+
 
 tt_result_t tt_ipc_create_ntv(IN tt_ipc_ntv_t *ipc,
                               IN OPT const tt_char_t *addr,
@@ -331,24 +396,47 @@ again:
     return ipc_connect.result;
 }
 
-tt_result_t tt_ipc_accept_ntv(IN tt_ipc_ntv_t *ipc, IN tt_ipc_ntv_t *new_ipc)
+tt_ipc_t *tt_ipc_accept_ntv(IN tt_ipc_ntv_t *ipc,
+                            IN tt_ipc_attr_t *new_attr,
+                            OUT tt_fiber_ev_t **p_fev,
+                            OUT tt_tmr_t **p_tmr)
 {
     __ipc_accept_t ipc_accept;
     int ep;
+    tt_fiber_t *cfb;
     struct sockaddr_un saun;
 
+    *p_fev = NULL;
+    *p_tmr = NULL;
+
     ep = __ipc_ev_init(&ipc_accept.io_ev, __IPC_ACCEPT);
+    cfb = ipc_accept.io_ev.src;
+
+    if (tt_fiber_recv(cfb, TT_FALSE, p_fev, p_tmr)) {
+        return NULL;
+    }
 
     ipc_accept.ipc = ipc;
-    ipc_accept.new_ipc = new_ipc;
+    ipc_accept.new_attr = new_attr;
     ipc_accept.saun = &saun;
 
-    ipc_accept.result = TT_FAIL;
+    ipc_accept.new_ipc = NULL;
     ipc_accept.ep = ep;
+    ipc_accept.done = TT_FALSE;
 
     tt_ep_read(ep, ipc->s, &ipc_accept.io_ev);
+
+    cfb->recving = TT_TRUE;
     tt_fiber_suspend();
-    return ipc_accept.result;
+    cfb->recving = TT_FALSE;
+
+    if (!ipc_accept.done) {
+        tt_ep_unread(ep, ipc->s, &__s_null_io_ev);
+    }
+
+    tt_fiber_recv(cfb, TT_FALSE, p_fev, p_tmr);
+
+    return ipc_accept.new_ipc;
 }
 
 tt_result_t tt_ipc_send_ntv(IN tt_ipc_ntv_t *ipc,
@@ -365,6 +453,7 @@ tt_result_t tt_ipc_send_ntv(IN tt_ipc_ntv_t *ipc,
     ipc_send.buf = buf;
     ipc_send.len = len;
     ipc_send.sent = sent;
+    ipc_send.skt = NULL;
 
     ipc_send.result = TT_FAIL;
     ipc_send.ep = ep;
@@ -378,9 +467,10 @@ tt_result_t tt_ipc_send_ntv(IN tt_ipc_ntv_t *ipc,
 tt_result_t tt_ipc_recv_ntv(IN tt_ipc_ntv_t *ipc,
                             OUT tt_u8_t *buf,
                             IN tt_u32_t len,
-                            OUT tt_u32_t *recvd,
+                            OUT OPT tt_u32_t *recvd,
                             OUT tt_fiber_ev_t **p_fev,
-                            OUT struct tt_tmr_s **p_tmr)
+                            OUT tt_tmr_t **p_tmr,
+                            OUT tt_skt_t **p_skt)
 {
     __ipc_recv_t ipc_recv;
     int ep;
@@ -389,6 +479,7 @@ tt_result_t tt_ipc_recv_ntv(IN tt_ipc_ntv_t *ipc,
     *recvd = 0;
     *p_fev = NULL;
     *p_tmr = NULL;
+    *p_skt = NULL;
 
     ep = __ipc_ev_init(&ipc_recv.io_ev, __IPC_RECV);
     cfb = ipc_recv.io_ev.src;
@@ -401,9 +492,11 @@ tt_result_t tt_ipc_recv_ntv(IN tt_ipc_ntv_t *ipc,
     ipc_recv.buf = buf;
     ipc_recv.len = len;
     ipc_recv.recvd = recvd;
+    ipc_recv.p_skt = p_skt;
 
     ipc_recv.result = TT_FAIL;
     ipc_recv.ep = ep;
+    ipc_recv.done = TT_FALSE;
 
     tt_ep_read(ep, ipc->s, &ipc_recv.io_ev);
 
@@ -411,11 +504,40 @@ tt_result_t tt_ipc_recv_ntv(IN tt_ipc_ntv_t *ipc,
     tt_fiber_suspend();
     cfb->recving = TT_FALSE;
 
+    if (!ipc_recv.done) {
+        tt_ep_unread(ep, ipc->s, &__s_null_io_ev);
+    }
+
     if (tt_fiber_recv(cfb, TT_FALSE, p_fev, p_tmr)) {
         ipc_recv.result = TT_SUCCESS;
     }
 
     return ipc_recv.result;
+}
+
+tt_result_t tt_ipc_send_skt_ntv(IN tt_ipc_ntv_t *ipc, IN TO tt_skt_t *skt)
+{
+    __ipc_send_t ipc_send;
+    int ep;
+    tt_ipc_ev_t pev;
+
+    ep = __ipc_ev_init(&ipc_send.io_ev, __IPC_SEND);
+
+    tt_ipc_ev_init(&pev, __IPC_INTERNAL_EV_SKT, 0);
+
+    ipc_send.ipc = ipc;
+    ipc_send.buf = (tt_u8_t *)&pev;
+    ipc_send.len = (tt_u32_t)sizeof(tt_ipc_ev_t);
+    ipc_send.sent = NULL;
+    ipc_send.skt = skt;
+
+    ipc_send.result = TT_FAIL;
+    ipc_send.ep = ep;
+    ipc_send.pos = 0;
+
+    tt_ep_write(ep, ipc->s, &ipc_send.io_ev);
+    tt_fiber_suspend();
+    return ipc_send.result;
 }
 
 void tt_ipc_worker_io(IN tt_io_ev_t *io_ev)
@@ -427,10 +549,75 @@ tt_bool_t tt_ipc_poller_io(IN tt_io_ev_t *io_ev)
     return __ipc_poller_io[io_ev->ev](io_ev);
 }
 
+tt_result_t tt_ipc_local_addr_ntv(IN tt_ipc_ntv_t *ipc,
+                                  OUT OPT tt_char_t *addr,
+                                  IN tt_u32_t size,
+                                  OUT OPT tt_u32_t *len)
+{
+    struct sockaddr_un saun;
+    socklen_t n = sizeof(struct sockaddr_un);
+
+    if (getsockname(ipc->s, (struct sockaddr *)&saun, &n) != 0) {
+        TT_ERROR_NTV("fail to get ipc local addr");
+        return TT_FAIL;
+    }
+
+    if (saun.sun_path[0] == 0) {
+        n -= TT_OFFSET(struct sockaddr_un, sun_path);
+    } else {
+        n = (socklen_t)tt_strlen(saun.sun_path) + 1;
+    }
+    TT_SAFE_ASSIGN(len, (tt_u32_t)n);
+    if (addr == NULL) {
+        return TT_SUCCESS;
+    }
+
+    if (size < n) {
+        TT_ERROR("not enough space for ipc addr");
+        return TT_E_NOSPC;
+    }
+
+    memcpy(addr, saun.sun_path, n);
+    return TT_SUCCESS;
+}
+
+tt_result_t tt_ipc_remote_addr_ntv(IN tt_ipc_ntv_t *ipc,
+                                   OUT tt_char_t *addr,
+                                   IN tt_u32_t size,
+                                   OUT OPT tt_u32_t *len)
+{
+    struct sockaddr_un saun;
+    socklen_t n = sizeof(struct sockaddr_un);
+
+    if (getpeername(ipc->s, (struct sockaddr *)&saun, &n) != 0) {
+        TT_ERROR_NTV("fail to get ipc local addr");
+        return TT_FAIL;
+    }
+
+    if (saun.sun_path[0] == 0) {
+        n -= TT_OFFSET(struct sockaddr_un, sun_path);
+    } else {
+        n = (socklen_t)tt_strlen(saun.sun_path) + 1;
+    }
+    TT_SAFE_ASSIGN(len, (tt_u32_t)n);
+    if (addr == NULL) {
+        return TT_SUCCESS;
+    }
+
+    if (size < n) {
+        TT_ERROR("not enough space for ipc addr");
+        return TT_E_NOSPC;
+    }
+
+    memcpy(addr, saun.sun_path, n);
+    return TT_SUCCESS;
+}
+
+
 tt_result_t __init_ipc_addr(IN struct sockaddr_un *saun,
                             IN const tt_char_t *addr)
 {
-    int len = strlen(addr);
+    int len = (int)strlen(addr);
 
     memset(saun, 0, sizeof(struct sockaddr_un));
 
@@ -472,6 +659,15 @@ tt_bool_t __do_accept(IN tt_io_ev_t *io_ev)
     int s, flag;
     struct epoll_event event;
 
+    // tell caller that ep returned
+    ipc_accept->done = TT_TRUE;
+
+    ipc_accept->new_ipc = tt_malloc(sizeof(tt_ipc_t));
+    if (ipc_accept->new_ipc == NULL) {
+        TT_ERROR("no mem for new ipc");
+        return TT_TRUE;
+    }
+
 again:
     s = accept4(ipc_accept->ipc->s,
                 (struct sockaddr *)ipc_accept->saun,
@@ -507,9 +703,11 @@ again:
         goto fail;
     }
 
-    ipc_accept->new_ipc->s = s;
+    ipc_accept->new_ipc->sys_ipc.s = s;
 
-    ipc_accept->result = TT_SUCCESS;
+    tt_buf_init(&ipc_accept->new_ipc->buf,
+                &ipc_accept->new_attr->recv_buf_attr);
+
     return TT_TRUE;
 
 fail:
@@ -518,7 +716,9 @@ fail:
         __RETRY_IF_EINTR(close(s));
     }
 
-    ipc_accept->result = TT_FAIL;
+    tt_free(ipc_accept->new_ipc);
+    ipc_accept->new_ipc = NULL;
+
     return TT_TRUE;
 }
 
@@ -534,14 +734,36 @@ tt_bool_t __do_send(IN tt_io_ev_t *io_ev)
 {
     __ipc_send_t *ipc_send = (__ipc_send_t *)io_ev;
 
+    struct msghdr msg = {0};
+    struct iovec iov;
+    tt_u8_t buf[CMSG_SPACE(sizeof(int))];
+    struct cmsghdr *cmsg;
     ssize_t n;
 
 again:
-    n = send(ipc_send->ipc->s,
-             TT_PTR_INC(void, ipc_send->buf, ipc_send->pos),
-             ipc_send->len - ipc_send->pos,
-             0);
+    iov.iov_base = TT_PTR_INC(void, ipc_send->buf, ipc_send->pos);
+    iov.iov_len = ipc_send->len - ipc_send->pos;
+    msg.msg_iov = &iov;
+    msg.msg_iovlen = 1;
+
+    if (ipc_send->skt != NULL) {
+        msg.msg_control = &buf;
+        msg.msg_controllen = sizeof(buf);
+        cmsg = CMSG_FIRSTHDR(&msg);
+        cmsg->cmsg_len = CMSG_LEN(sizeof(int));
+        cmsg->cmsg_level = SOL_SOCKET;
+        cmsg->cmsg_type = SCM_RIGHTS;
+        *(int *)CMSG_DATA(cmsg) = ipc_send->skt->sys_skt.s;
+    } else {
+        msg.msg_control = NULL;
+        msg.msg_controllen = 0;
+    }
+
+    n = sendmsg(ipc_send->ipc->s, &msg, 0);
     if (n > 0) {
+        // only send skt once
+        ipc_send->skt = NULL;
+
         ipc_send->pos += n;
         TT_ASSERT_IPC(ipc_send->pos <= ipc_send->len);
         if (ipc_send->pos < ipc_send->len) {
@@ -577,16 +799,32 @@ tt_bool_t __do_recv(IN tt_io_ev_t *io_ev)
 {
     __ipc_recv_t *ipc_recv = (__ipc_recv_t *)io_ev;
 
+    struct msghdr msg = {0};
+    struct iovec iov;
+    tt_u8_t buf[CMSG_SPACE(sizeof(int))];
     ssize_t n;
 
+    iov.iov_base = ipc_recv->buf;
+    iov.iov_len = ipc_recv->len;
+    msg.msg_iov = &iov;
+    msg.msg_iovlen = 1;
+
+    msg.msg_control = &buf;
+    msg.msg_controllen = sizeof(buf);
+
 again:
-    n = recv(ipc_recv->ipc->s, ipc_recv->buf, ipc_recv->len, 0);
+    n = recvmsg(ipc_recv->ipc->s, &msg, 0);
     if (n > 0) {
         TT_SAFE_ASSIGN(ipc_recv->recvd, (tt_u32_t)n);
+        __handle_cmsg(ipc_recv, &msg);
         ipc_recv->result = TT_SUCCESS;
+        ipc_recv->done = TT_TRUE;
         return TT_TRUE;
     } else if (n == 0) {
-        ipc_recv->result = TT_E_END;
+        __handle_cmsg(ipc_recv, &msg);
+        ipc_recv->result =
+            TT_COND(*ipc_recv->p_skt != NULL, TT_SUCCESS, TT_E_END);
+        ipc_recv->done = TT_TRUE;
         return TT_TRUE;
     } else if (errno == EINTR) {
         goto again;
@@ -601,10 +839,108 @@ again:
         ) {
         ipc_recv->result = TT_E_END;
     } else {
-        TT_ERROR_NTV("recv failed");
+        TT_ERROR_NTV("ipc recvmsg failed");
         ipc_recv->result = TT_FAIL;
     }
+    ipc_recv->done = TT_TRUE;
     return TT_TRUE;
+}
+
+void __handle_cmsg(IN __ipc_recv_t *ipc_recv, IN struct msghdr *msg)
+{
+    struct cmsghdr *cmsg;
+
+    TT_ASSERT(*ipc_recv->p_skt == NULL);
+
+    for (cmsg = CMSG_FIRSTHDR(msg); cmsg != NULL;
+         cmsg = CMSG_NXTHDR(msg, cmsg)) {
+        int s;
+        tt_skt_t *skt;
+        int flag;
+        struct epoll_event event;
+
+        if ((cmsg->cmsg_len < CMSG_LEN(sizeof(int))) ||
+            (cmsg->cmsg_level != SOL_SOCKET) ||
+            (cmsg->cmsg_type != SCM_RIGHTS)) {
+            continue;
+        }
+
+        s = *(int *)CMSG_DATA(cmsg);
+
+        if (*ipc_recv->p_skt != NULL) {
+            // actually it may not come here, as msg_controllen passed
+            // to recvmsg is only enough for receiving 1 socket
+            TT_ERROR("ipc recved skt was lost");
+            __RETRY_IF_EINTR(close(s));
+            continue;
+        }
+
+        // refer tt_skt_create_ntv()
+        if (((flag = fcntl(s, F_GETFL, 0)) == -1) ||
+            (fcntl(s, F_SETFL, flag | O_NONBLOCK) == -1)) {
+            TT_ERROR_NTV("fail to set O_NONBLOCK");
+            __RETRY_IF_EINTR(close(s));
+            continue;
+        }
+
+        if (((flag = fcntl(s, F_GETFD, 0)) == -1) ||
+            (fcntl(s, F_SETFD, flag | FD_CLOEXEC) == -1)) {
+            TT_ERROR_NTV("fail to set FD_CLOEXEC");
+            __RETRY_IF_EINTR(close(s));
+            continue;
+        }
+
+        event.events = EPOLLRDHUP | EPOLLONESHOT;
+        event.data.ptr = &__s_null_io_ev;
+        if (epoll_ctl(ipc_recv->ep, EPOLL_CTL_ADD, s, &event) != 0) {
+            TT_ERROR_NTV("fail to add skt to epoll");
+            __RETRY_IF_EINTR(close(s));
+            continue;
+        }
+
+        skt = tt_malloc(sizeof(tt_skt_t));
+        if (skt == NULL) {
+            TT_ERROR("no mem for new skt");
+            __RETRY_IF_EINTR(close(s));
+            continue;
+        }
+        skt->sys_skt.s = s;
+
+        *ipc_recv->p_skt = skt;
+        __skt_inc_num();
+    }
+}
+
+void __dump_ipc_fdinfo(IN int s, IN tt_u32_t flag)
+{
+    int val;
+    socklen_t len = sizeof(val);
+
+    if ((getsockopt(s, SOL_SOCKET, SO_TYPE, &val, &len) == 0) &&
+        ((val == SOCK_STREAM) || (val == SOCK_DGRAM))) {
+        struct sockaddr_storage local, remote;
+        socklen_t alen;
+
+        alen = sizeof(struct sockaddr_un);
+        if ((getsockname(s, (struct sockaddr *)&local, &alen) != 0) ||
+            (local.ss_family != AF_LOCAL)) {
+            // not a ipc socket
+            return;
+        }
+
+        alen = sizeof(struct sockaddr_un);
+        if ((getpeername(s, (struct sockaddr *)&remote, &alen) != 0) ||
+            (remote.ss_family != AF_LOCAL)) {
+            // it's possible that it has no remote addr
+            ((struct sockaddr_un *)&remote)->sun_path[0] = 0;
+        }
+
+        tt_printf("%s[fd: %d] [%s --> %s]\n",
+                  TT_COND(flag & TT_IPC_STATUS_PREFIX, "<<IPC>> ", ""),
+                  s,
+                  ((struct sockaddr_un *)&local)->sun_path,
+                  ((struct sockaddr_un *)&remote)->sun_path);
+    }
 }
 
 #ifdef __SIMU_FAIL_SOCKET

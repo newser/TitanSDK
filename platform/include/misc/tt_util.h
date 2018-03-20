@@ -285,6 +285,7 @@ used when a pointer in code need be assigned if it's not null
 #define TT_DO(...) __TT_DO(return __result, __VA_ARGS__)
 #define TT_DO_G(lable, ...) __TT_DO(goto lable, __VA_ARGS__)
 #define TT_DO_R(result, ...) __TT_DO(return (result), __VA_ARGS__)
+#define TT_DO_V(...) __TT_DO(return, __VA_ARGS__)
 
 #define __TT_NOT_NULL(exp, ...)                                                \
     do {                                                                       \

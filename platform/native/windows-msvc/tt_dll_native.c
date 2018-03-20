@@ -66,7 +66,7 @@ tt_result_t tt_dll_create_ntv(IN tt_dll_ntv_t *dll,
     // may set mode according to attr;
     // dwFlags |= ...;
 
-    w_path = tt_wchar_create(path, NULL);
+    w_path = tt_wchar_create(path, 0, NULL);
     if (w_path == NULL) {
         return TT_FAIL;
     }

@@ -188,8 +188,12 @@ TT_TEST_CASE("case_zarc_write_blob",
 
     tt_zipsrc_release(zs);
 
-    // uncompress
+// uncompress
+#ifdef TT_PLATFORM_ENABLE_MEMORY_TAG
+    zs = tt_zipsrc_blob_create(data, (tt_u32_t)zstat.st.size, TT_FALSE);
+#else
     zs = tt_zipsrc_blob_create(data, (tt_u32_t)zstat.st.size, TT_TRUE);
+#endif
     TT_UT_NOT_NULL(zs, "");
 
     za = tt_zip_create(zs, 0, NULL);
@@ -230,6 +234,10 @@ TT_TEST_CASE("case_zarc_write_blob",
     tt_zipfile_close(zf);
 
     tt_zip_destroy(za, TT_FALSE);
+
+#ifdef TT_PLATFORM_ENABLE_MEMORY_TAG
+    tt_free(data);
+#endif
 
     // test end
     TT_TEST_CASE_LEAVE()

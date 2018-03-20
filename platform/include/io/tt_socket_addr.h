@@ -120,6 +120,11 @@ tt_inline void tt_sktaddr_set_scope(IN tt_sktaddr_t *addr, IN tt_u32_t scope_id)
     tt_sktaddr_set_scope_ntv(addr, scope_id);
 }
 
+tt_inline tt_u32_t tt_sktaddr_get_scope(IN tt_sktaddr_t *addr)
+{
+    return tt_sktaddr_get_scope_ntv(addr);
+}
+
 tt_inline void tt_sktaddr_set_scope_p(IN tt_sktaddr_t *addr,
                                       IN tt_char_t *scope_name)
 {

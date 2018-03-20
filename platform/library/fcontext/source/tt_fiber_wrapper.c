@@ -149,7 +149,7 @@ tt_result_t __create_stack(IN tt_fiber_wrap_t *wrap_fb, IN tt_u32_t stack_size)
     void *stack;
 
     TT_U32_ALIGN_INC_PAGE(stack_size);
-    stack = tt_c_malloc(stack_size);
+    stack = tt_malloc(stack_size);
     if (stack == NULL) {
         TT_ERROR_NTV("fail to malloc stack");
         return TT_FAIL;

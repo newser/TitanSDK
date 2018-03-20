@@ -154,6 +154,7 @@ test_script:
     - cmd: set TT_CASE=case_fs_basic& run_case.bat
     - cmd: set TT_CASE=case_fs_open& run_case.bat
     - cmd: set TT_CASE=case_fs_rw& run_case.bat
+    - cmd: set TT_CASE=case_fs_copy& run_case.bat
     - cmd: set TT_CASE=case_dir_basic& run_case.bat
     - cmd: set TT_CASE=case_fs_multhread& run_case.bat
     - cmd: set TT_CASE=case_fs_consistency& run_case.bat
@@ -162,12 +163,16 @@ test_script:
     - cmd: set TT_CASE=case_ipc_stress& run_case.bat
     - cmd: set TT_CASE=case_ipc_fiber_ev& run_case.bat
     - cmd: set TT_CASE=case_ipc_ev& run_case.bat
+    - cmd: set TT_CASE=case_ipc_skt& run_case.bat
+    - cmd: set TT_CASE=case_mac_addr& run_case.bat
     - cmd: set TT_CASE=case_sk_addr& run_case.bat
     - cmd: set TT_CASE=case_sk_opt& run_case.bat
     - cmd: set TT_CASE=case_bind_basic& run_case.bat
     - cmd: set TT_CASE=case_tcp_basic& run_case.bat
+    - cmd: set TT_CASE=case_tcp_oob& run_case.bat
     - cmd: set TT_CASE=case_udp_basic& run_case.bat
     - cmd: set TT_CASE=case_tcp6_close& run_case.bat
+    - cmd: set TT_CASE=case_tcp4_sendfile& run_case.bat
     - cmd: set TT_CASE=case_tcp4_stress& run_case.bat
     - cmd: set TT_CASE=case_tcp_event& run_case.bat
     - cmd: set TT_CASE=case_udp_event& run_case.bat

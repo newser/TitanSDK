@@ -51,6 +51,8 @@
 static tt_result_t __network_io_component_init(IN tt_component_t *comp,
                                                IN tt_profile_t *profile);
 
+static void __network_io_component_exit(IN tt_component_t *comp);
+
 ////////////////////////////////////////////////////////////
 // interface implementation
 ////////////////////////////////////////////////////////////
@@ -60,7 +62,7 @@ void tt_network_io_component_register()
     static tt_component_t comp;
 
     tt_component_itf_t itf = {
-        __network_io_component_init,
+        __network_io_component_init, __network_io_component_exit,
     };
 
     // init component
@@ -79,4 +81,9 @@ tt_result_t __network_io_component_init(IN tt_component_t *comp,
     }
 
     return TT_SUCCESS;
+}
+
+void __network_io_component_exit(IN tt_component_t *comp)
+{
+    tt_network_io_component_exit_ntv();
 }

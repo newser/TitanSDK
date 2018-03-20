@@ -61,14 +61,13 @@ static tt_s64_t __s_inuse_limit;
 static tt_result_t __dc_component_init(IN tt_component_t *comp,
                                        IN tt_profile_t *profile);
 
+static void __dc_component_exit(IN tt_component_t *comp);
+
 void __dc_check_inuse(IN tt_dns_cache_t *dc, IN tt_s64_t now);
 
 static tt_s32_t __de_cmp(IN void *l, IN void *r);
 
-static tt_bool_t __de_destroy(IN tt_u8_t *key,
-                              IN tt_u32_t key_len,
-                              IN tt_hnode_t *hnode,
-                              IN void *param);
+static void __de_destroy(IN tt_hnode_t *hnode);
 
 tt_dns_entry_t *__de_get(IN tt_dns_cache_t *dc,
                          IN const tt_char_t *name,
@@ -88,7 +87,7 @@ void tt_dns_cache_component_register()
     static tt_component_t comp;
 
     tt_component_itf_t itf = {
-        __dc_component_init,
+        __dc_component_init, __dc_component_exit,
     };
 
     // init component
@@ -139,10 +138,14 @@ void tt_dns_cache_destroy(IN tt_dns_cache_t *dc)
 {
     TT_ASSERT(dc != NULL);
 
-    tt_hmap_foreach(&dc->map, __de_destroy, &dc->map);
+    tt_hmap_destroy(&dc->map, __de_destroy);
+
     TT_ASSERT(tt_ptrheap_count(&dc->heap) == 0);
+    tt_ptrheap_destroy(&dc->heap);
 
     tt_dns_destroy(dc->d);
+
+    tt_free(dc);
 }
 
 void tt_dns_cache_attr_default(IN tt_dns_cache_attr_t *attr)
@@ -222,6 +225,13 @@ tt_result_t __dc_component_init(IN tt_component_t *comp,
     return TT_SUCCESS;
 }
 
+void __dc_component_exit(IN tt_component_t *comp)
+{
+    TT_ASSERT(tt_dns_rrlist_empty(&__empty_rrlist_a));
+
+    TT_ASSERT(tt_dns_rrlist_empty(&__empty_rrlist_aaaa));
+}
+
 void __dc_check_inuse(IN tt_dns_cache_t *dc, IN tt_s64_t now)
 {
     tt_hmap_foreach(&dc->map, __de_check_inuse, (void *)&now);
@@ -241,14 +251,9 @@ tt_s32_t __de_cmp(IN void *l, IN void *r)
     }
 }
 
-tt_bool_t __de_destroy(IN tt_u8_t *key,
-                       IN tt_u32_t key_len,
-                       IN tt_hnode_t *hnode,
-                       IN void *param)
+void __de_destroy(IN tt_hnode_t *hnode)
 {
-    // tt_dns_entry_destroy() will remove hnode from hash map
     tt_dns_entry_destroy(TT_CONTAINER(hnode, tt_dns_entry_t, hnode));
-    return TT_TRUE;
 }
 
 tt_dns_entry_t *__de_get(IN tt_dns_cache_t *dc,

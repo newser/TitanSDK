@@ -24,6 +24,7 @@
 
 #include <init/tt_component.h>
 #include <init/tt_profile.h>
+#include <io/tt_file_system.h>
 #include <io/tt_socket_option.h>
 #include <memory/tt_memory_alloc.h>
 #include <misc/tt_util.h>
@@ -45,9 +46,11 @@
 // global variant
 ////////////////////////////////////////////////////////////
 
-tt_atomic_s64_t tt_skt_stat_num;
+static tt_atomic_s32_t __skt_num;
 
-tt_atomic_s64_t tt_skt_stat_peek;
+static tt_atomic_s32_t __skt_peek_num;
+
+static tt_bool_t __sktdump_enable;
 
 ////////////////////////////////////////////////////////////
 // interface declaration
@@ -55,6 +58,12 @@ tt_atomic_s64_t tt_skt_stat_peek;
 
 static tt_result_t __skt_component_init(IN tt_component_t *comp,
                                         IN tt_profile_t *profile);
+
+static void __skt_component_exit(IN tt_component_t *comp);
+
+void __skt_inc_num();
+
+static void __skt_dec_num();
 
 ////////////////////////////////////////////////////////////
 // interface implementation
@@ -64,15 +73,43 @@ void tt_skt_component_register()
 {
     static tt_component_t comp;
 
-    tt_component_itf_t itf = {
-        __skt_component_init,
-    };
+    tt_component_itf_t itf = {__skt_component_init, __skt_component_exit};
 
     // init component
     tt_component_init(&comp, TT_COMPONENT_SOCKET, "Socket", NULL, &itf);
 
     // register component
     tt_component_register(&comp);
+}
+
+void tt_skt_status_dump(IN tt_u32_t flag)
+{
+    if (!__sktdump_enable) {
+        tt_printf("%s[0 sockets] are opened\n",
+                  TT_COND(flag & TT_SKT_STATUS_PREFIX, "<<Socket>> ", ""));
+        return;
+    }
+
+    if (flag & TT_SKT_STATUS_COUNT) {
+        tt_printf("%s[%d sockets] are opened\n",
+                  TT_COND(flag & TT_SKT_STATUS_PREFIX, "<<Socket>> ", ""),
+                  tt_atomic_s32_get(&__skt_num));
+    }
+
+    if (flag & TT_SKT_STATUS_PEEK) {
+        tt_printf("%s[%d sockets] are opened at most\n",
+                  TT_COND(flag & TT_SKT_STATUS_PREFIX, "<<Socket>> ", ""),
+                  tt_atomic_s32_get(&__skt_peek_num));
+    }
+
+    if (flag & TT_SKT_STATUS_NATIVE) {
+        tt_skt_status_dump_ntv(flag);
+    }
+}
+
+void tt_skt_status_dump_enable(IN tt_bool_t enable)
+{
+    __sktdump_enable = enable;
 }
 
 tt_skt_t *tt_skt_create(IN tt_net_family_t family,
@@ -101,6 +138,7 @@ tt_skt_t *tt_skt_create(IN tt_net_family_t family,
         return NULL;
     }
 
+    __skt_inc_num();
     return skt;
 }
 
@@ -111,6 +149,8 @@ void tt_skt_destroy(IN tt_skt_t *skt)
     tt_skt_destroy_ntv(&skt->sys_skt);
 
     tt_free(skt);
+
+    __skt_dec_num();
 }
 
 void tt_skt_attr_default(IN tt_skt_attr_t *attr)
@@ -174,28 +214,23 @@ tt_result_t tt_skt_listen(IN tt_skt_t *skt)
 
 tt_skt_t *tt_skt_accept(IN tt_skt_t *skt,
                         IN OPT tt_skt_attr_t *new_attr,
-                        IN OPT tt_sktaddr_t *addr)
+                        IN OPT tt_sktaddr_t *addr,
+                        OUT tt_fiber_ev_t **p_fev,
+                        OUT struct tt_tmr_s **p_tmr)
 {
-    tt_skt_t *new_skt;
     tt_sktaddr_t __addr;
+    tt_skt_t *new_skt;
 
     TT_ASSERT(skt != NULL);
-
-    new_skt = tt_malloc(sizeof(tt_skt_t));
-    if (new_skt == NULL) {
-        TT_ERROR("no mem for accept skt");
-        return NULL;
-    }
 
     if (addr == NULL) {
         addr = &__addr;
     }
 
-    if (!TT_OK(tt_skt_accept_ntv(&skt->sys_skt, &new_skt->sys_skt, addr))) {
-        tt_free(new_skt);
-        return NULL;
+    new_skt = tt_skt_accept_ntv(&skt->sys_skt, addr, p_fev, p_tmr);
+    if (new_skt != NULL) {
+        __skt_inc_num();
     }
-
     return new_skt;
 }
 
@@ -237,6 +272,22 @@ tt_result_t tt_skt_connect_p(IN tt_skt_t *skt,
     return tt_skt_connect(skt, &addr);
 }
 
+tt_result_t tt_skt_sendfile_path(IN tt_skt_t *skt, IN const tt_char_t *path)
+{
+    tt_file_t f;
+    tt_result_t result;
+
+    TT_ASSERT(path != NULL);
+
+    if (!TT_OK(tt_fopen(&f, path, TT_FO_READ | TT_FO_SEQUENTIAL, NULL))) {
+        return TT_FAIL;
+    }
+
+    result = tt_skt_sendfile(skt, &f);
+    tt_fclose(&f);
+    return result;
+}
+
 tt_result_t tt_skt_local_addr(IN tt_skt_t *skt, IN tt_sktaddr_t *addr)
 {
     TT_ASSERT(skt != NULL);
@@ -253,19 +304,20 @@ tt_result_t tt_skt_remote_addr(IN tt_skt_t *skt, IN tt_sktaddr_t *addr)
     return tt_skt_remote_addr_ntv(&skt->sys_skt, addr);
 }
 
-void tt_skt_stat_inc_num()
+void __skt_inc_num()
 {
-    tt_s64_t skt_num = tt_atomic_s64_inc(&tt_skt_stat_num);
+    tt_s32_t skt_num = tt_atomic_s32_inc(&__skt_num);
 
     // the peek value is not accurate, just for reference
-    if (skt_num > tt_atomic_s64_get(&tt_skt_stat_peek)) {
-        tt_atomic_s64_set(&tt_skt_stat_peek, skt_num);
+    if (skt_num > tt_atomic_s32_get(&__skt_peek_num)) {
+        tt_atomic_s32_set(&__skt_peek_num, skt_num);
     }
 }
 
-void tt_skt_stat_dec_num()
+void __skt_dec_num()
 {
-    tt_atomic_s64_dec(&tt_skt_stat_num);
+    tt_s32_t n = tt_atomic_s32_dec(&__skt_num);
+    TT_ASSERT(n >= 0);
 }
 
 tt_result_t tt_skt_join_mcast(IN tt_skt_t *skt,
@@ -303,6 +355,8 @@ tt_skt_t *tt_tcp_server(IN tt_net_family_t family,
         return NULL;
     }
 
+    tt_skt_set_reuseaddr(skt, TT_TRUE);
+
     if (!TT_OK(tt_skt_bind(skt, addr)) || !TT_OK(tt_skt_listen(skt))) {
         tt_skt_destroy(skt);
         return NULL;
@@ -338,6 +392,8 @@ tt_skt_t *tt_udp_server(IN tt_net_family_t family,
         return NULL;
     }
 
+    tt_skt_set_reuseaddr(skt, TT_TRUE);
+
     if (!TT_OK(tt_skt_bind(skt, addr))) {
         tt_skt_destroy(skt);
         return NULL;
@@ -371,8 +427,15 @@ tt_result_t __skt_component_init(IN tt_component_t *comp,
         return TT_FAIL;
     }
 
-    tt_atomic_s64_set(&tt_skt_stat_num, 0);
-    tt_atomic_s64_set(&tt_skt_stat_peek, 0);
+    tt_atomic_s32_set(&__skt_num, 0);
+    tt_atomic_s32_set(&__skt_peek_num, 0);
 
     return TT_SUCCESS;
+}
+
+void __skt_component_exit(IN tt_component_t *comp)
+{
+    tt_skt_component_exit_ntv();
+
+    tt_skt_status_dump(TT_SKT_STATUS_ALL);
 }

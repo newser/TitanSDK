@@ -86,9 +86,15 @@ tt_export void tt_process_exit(IN tt_u8_t exit_code);
 
 tt_export tt_char_t *tt_process_path(IN OPT tt_process_t *proc);
 
+// returned string should be freed
 tt_inline tt_char_t *tt_current_path(IN tt_bool_t end_slash)
 {
     return tt_current_path_ntv(end_slash);
+}
+
+tt_inline tt_result_t tt_set_current_path(IN const tt_char_t *path)
+{
+    return tt_set_current_path_ntv(path);
 }
 
 tt_export const tt_char_t *tt_process_name();

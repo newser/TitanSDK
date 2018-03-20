@@ -22,7 +22,7 @@
 
 #include <algorithm/tt_rng_xorshift.h>
 
-#include <tt_rand_native.h>
+#include <tt_rng_native.h>
 
 ////////////////////////////////////////////////////////////
 // internal macro

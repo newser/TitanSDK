@@ -962,7 +962,7 @@ TT_TEST_ROUTINE_DEFINE(case_log_pattern)
                                   "1234\n");
         TT_UT_EQUAL(cmp_ret, 0, "");
 
-        tt_loglyt_destroy(ll);
+        tt_loglyt_release(ll);
     }
 
     // wront format
@@ -990,7 +990,7 @@ TT_TEST_ROUTINE_DEFINE(case_log_pattern)
                     0,
                     "");
 
-        tt_loglyt_destroy(ll);
+        tt_loglyt_release(ll);
     }
 
     tt_buf_destroy(&buf);
@@ -1061,7 +1061,7 @@ TT_TEST_ROUTINE_DEFINE(case_log_syslog3164)
     }
 #endif
 
-    tt_loglyt_destroy(ll);
+    tt_loglyt_release(ll);
     tt_buf_destroy(&buf);
 
     // test end

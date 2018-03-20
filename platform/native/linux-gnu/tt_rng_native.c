@@ -16,40 +16,83 @@
  * limitations under the License.
  */
 
-/**
-@file tt_mpn_config.h
-@brief multiple precision integer definition
-
-multiple precision integer definition
-*/
-
-#ifndef __TT_MPN_CONFIG__
-#define __TT_MPN_CONFIG__
-
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
-////////////////////////////////////////////////////////////
-// macro definition
-////////////////////////////////////////////////////////////
+#include <tt_rng_native.h>
 
-/**
-@def TT_MPN_SANITY_CHECK
-enable sanity check in mpn functions
-*/
-#define TT_MPN_SANITY_CHECK
+#include <tt_sys_error.h>
 
-////////////////////////////////////////////////////////////
-// type definition
-////////////////////////////////////////////////////////////
+#include <errno.h>
+#include <fcntl.h>
+#include <sys/types.h>
+#include <sys/uio.h>
+#include <unistd.h>
 
 ////////////////////////////////////////////////////////////
-// global variants
+// internal macro
 ////////////////////////////////////////////////////////////
+
+//#define __RAND_DEV "/dev/random"
+#define __RAND_DEV "/dev/urandom"
+
+////////////////////////////////////////////////////////////
+// internal type
+////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////
+// extern declaration
+////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////
+// global variant
+////////////////////////////////////////////////////////////
+
+static int __rand_fd = -1;
 
 ////////////////////////////////////////////////////////////
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-#endif /* __TT_MPN_CONFIG__ */
+////////////////////////////////////////////////////////////
+// interface implementation
+////////////////////////////////////////////////////////////
+
+tt_result_t tt_rng_component_init_ntv()
+{
+    __rand_fd = open(__RAND_DEV, O_RDONLY);
+    if (__rand_fd < 0) {
+        TT_ERROR_NTV("fail to open %s", __RAND_DEV);
+        return TT_FAIL;
+    }
+
+    return TT_SUCCESS;
+}
+
+void tt_rng_component_exit_ntv()
+{
+    close(__rand_fd);
+}
+
+tt_result_t tt_rng_ntv(IN tt_u8_t *data, IN tt_u32_t data_len)
+{
+    tt_u32_t n = 0;
+    tt_u32_t ret;
+
+rag:
+    ret = read(__rand_fd, data + n, data_len - n);
+    if (ret > 0) {
+        n += ret;
+        if (n < data_len) {
+            goto rag;
+        } else {
+            return TT_SUCCESS;
+        }
+    } else if (errno == EINTR) {
+        goto rag;
+    } else {
+        TT_ERROR_NTV("fail to read random data");
+        return TT_FAIL;
+    }
+}

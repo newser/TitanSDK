@@ -87,16 +87,18 @@ void tt_logctx_destroy(IN tt_logctx_t *lctx)
     }
 
     if (lctx->lyt != NULL) {
-        tt_loglyt_destroy(lctx->lyt);
+        tt_loglyt_release(lctx->lyt);
     }
 
     while ((lf = (tt_logfltr_t *)tt_ptrq_pop_head(&lctx->filter_q)) != NULL) {
         tt_logfltr_release(lf);
     }
+    tt_ptrq_destroy(&lctx->filter_q);
 
     while ((lio = (tt_logio_t *)tt_ptrq_pop_head(&lctx->io_q)) != NULL) {
         tt_logio_release(lio);
     }
+    tt_ptrq_destroy(&lctx->io_q);
 
     tt_buf_destroy(&lctx->buf);
 }
@@ -119,9 +121,11 @@ void tt_logctx_attr_default(IN tt_logctx_attr_t *attr)
 void tt_logctx_set_layout(IN tt_logctx_t *lctx, IN TO tt_loglyt_t *lyt)
 {
     if (lctx->lyt != NULL) {
-        tt_loglyt_destroy(lctx->lyt);
+        tt_loglyt_release(lctx->lyt);
     }
+
     lctx->lyt = lyt;
+    tt_loglyt_ref(lctx->lyt);
 }
 
 tt_result_t tt_logctx_append_filter(IN tt_logctx_t *lctx,

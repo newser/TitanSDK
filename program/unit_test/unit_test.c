@@ -4,12 +4,15 @@
 
 #include "app_unit_test_process.h"
 
-//#include <locale.h>
+#if TT_ENV_OS_IS_WINDOWS
+#include <locale.h>
+#endif
 
 extern tt_result_t __ipc_cli_1(IN void *param);
 extern tt_result_t __ipc_cli_oneshot(IN void *param);
 extern tt_result_t __ipc_svr_1(IN void *param);
 extern tt_result_t __ipc_cli_pev(IN void *param);
+extern tt_result_t __ipc_skt(IN void *param);
 
 extern tt_result_t tt_cli_demo_run();
 
@@ -95,14 +98,71 @@ tt_result_t __ut_fiber(IN void *param)
     }
 #if 1
     else {
-        const tt_char_t *names[] = {
-            "case_fs_basic",
-            //"TEST_UNIT_LOG",
-            //"TEST_UNIT_FS",
-            //"TEST_UNIT_IPC",
-            //"TEST_UNIT_SOCKET",
-            //"TEST_UNIT_FIBER",
-            //"ZIP_UT_ZLIB",
+        const tt_char_t *names[] =
+        { "case_ipc_skt",
+#if 0
+            "TEST_UNIT_LOG",
+            "TEST_UNIT_LOG_PATTERN",
+#endif
+
+#if 0
+            "TEST_UNIT_ATOMIC",
+            "TEST_UNIT_THREAD",
+            "TEST_UNIT_FIBER",
+            "TEST_UNIT_SEM",
+            "TEST_UNIT_RWLOCK",
+            "TEST_UNIT_SPIN_LOCK",
+            "TEST_UNIT_MUTEX",
+#endif
+
+#if 0
+            "TEST_UNIT_SLAB",
+            "TEST_UNIT_MEMPOOL",
+#endif
+
+#if 0                                    
+            "TEST_UNIT_TIME_REF",
+            "TEST_UNIT_DATE",
+            "TEST_UNIT_TIMER",
+            "TEST_UNIT_FPATH",
+#endif
+
+#if 0           
+            "TEST_UNIT_MISC",
+            "TEST_UNIT_CHARSET",
+            "TEST_UNIT_CFGNODE",
+            "TEST_UNIT_CFGPATH",
+            "TEST_UNIT_CFGSHELL",
+#endif
+
+//"TEST_UNIT_FS",
+//            "TEST_UNIT_IPC",
+//"TEST_UNIT_SOCKET",
+
+#if 0
+            "ALG_UT_BASIC_ALG",
+            "ALG_UT_HEAP",
+            "ALG_UT_VECTOR",
+            "ALG_UT_LIST",
+            "ALG_UT_HASHMAP",
+            "ALG_UT_QUEUE",
+            "ALG_UT_RBTREE",
+            "ALG_UT_STACK",
+            "ALG_UT_RBUF",
+            "ALG_UT_BUF",
+            "ALG_UT_STRING",
+#endif
+
+#if 0
+            "DNS_UT_QUERY",
+            "DNS_UT_RR",
+            "DNS_UT_CACHE",
+#endif
+
+#if 0
+            "SSL_UT_X509",
+            "SSL_UT_IO",
+#endif
         };
         tt_u32_t i;
 
@@ -118,6 +178,7 @@ tt_result_t __ut_fiber(IN void *param)
     }
 #endif
 
+    tt_test_framework_exit();
     return TT_SUCCESS;
 }
 
@@ -156,7 +217,9 @@ int main(int argc, char *argv[])
 {
     tt_task_t t;
 
-// setlocale(LC_ALL, "chs");
+#if TT_ENV_OS_IS_WINDOWS
+    setlocale(LC_ALL, "chs");
+#endif
 
 #if 0
     for (i = 0; i < argc; ++i) {
@@ -172,6 +235,7 @@ int main(int argc, char *argv[])
                 printf("app unit test ipc need at least 3 args\n");
                 return -1;
             }
+            printf("argv[1]: %s\n", argv[1]);
 
             // init platform
             tt_platform_init(NULL);
@@ -185,6 +249,8 @@ int main(int argc, char *argv[])
                 tt_task_add_fiber(&t, NULL, __ipc_svr_1, NULL, NULL);
             } else if (strcmp(argv[1], "ipc-pev") == 0) {
                 tt_task_add_fiber(&t, NULL, __ipc_cli_pev, NULL, NULL);
+            } else if (strcmp(argv[1], "ipc-skt") == 0) {
+                tt_task_add_fiber(&t, NULL, __ipc_skt, NULL, NULL);
             }
             tt_task_run(&t);
             tt_task_wait(&t);
@@ -232,17 +298,28 @@ int main(int argc, char *argv[])
 
 // init platform
 tt_platform_init(NULL);
-
-tt_thread_create_local(NULL);
+// tt_thread_create_local(NULL);
 
 // run
 #define AUT_MODE 0
 
 #if AUT_MODE == 0
-tt_task_create(&t, NULL);
-tt_task_add_fiber(&t, NULL, __ut_fiber, NULL, NULL);
-tt_task_run(&t);
-tt_task_wait(&t);
+{
+    tt_task_t t;
+    tt_task_create(&t, NULL);
+    tt_task_add_fiber(&t, NULL, __ut_fiber, NULL, NULL);
+#if 1
+    tt_task_run_local(&t);
+#else
+    tt_task_run(&t);
+    tt_task_wait(&t);
+#endif
+}
+
+// tt_thread_wait_local();
+tt_platform_exit();
+while (0)
+    tt_sleep(10000);
 printf("exiting\n");
 return TT_COND(tt_ut_ok, 0, -1);
 #if TT_ENV_OS_IS_WINDOWS

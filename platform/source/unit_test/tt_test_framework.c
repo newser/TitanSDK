@@ -85,6 +85,20 @@ tt_result_t tt_test_framework_init(IN tt_ptr_t attribute)
     return TT_SUCCESS;
 }
 
+void tt_test_framework_exit()
+{
+    tt_test_class_t *c = s_test_class_head;
+    while (c != NULL) {
+        tt_test_class_t *cur = c;
+        c = c->next;
+        tt_test_class_destroy(cur);
+    }
+
+    // help to check memory leak
+    s_test_class_head = NULL;
+    s_test_class_tail = NULL;
+}
+
 tt_result_t tt_test_class_create(IN const tt_char_t *name,
                                  IN tt_u32_t attribute,
                                  OUT tt_test_class_t **test_class)
@@ -110,6 +124,19 @@ tt_result_t tt_test_class_create(IN const tt_char_t *name,
 
     *test_class = created_class;
     return TT_SUCCESS;
+}
+
+void tt_test_class_destroy(IN tt_test_class_t *test_class)
+{
+    tt_test_item_t *i = test_class->head;
+    while (i != NULL) {
+        tt_test_item_t *cur = i;
+        i = i->next;
+
+        tt_c_free(cur);
+    }
+
+    tt_c_free(test_class);
 }
 
 tt_result_t tt_test_item_add(IN tt_test_class_t *test_class,

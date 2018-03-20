@@ -44,12 +44,10 @@ this file specifies interfaces for system specific thread operations.
 ////////////////////////////////////////////////////////////
 
 struct tt_thread_s;
-struct __netlink_skt_s;
 
 typedef struct
 {
     pthread_t handle;
-    struct __netlink_s *nlink;
 } tt_thread_ntv_t;
 
 ////////////////////////////////////////////////////////////
@@ -71,6 +69,8 @@ initialize ts thread portlayer system
 - TT_FAIL otherwise
 */
 extern tt_result_t tt_thread_component_init_ntv();
+
+extern void tt_thread_component_exit_ntv();
 
 /**
 @fn
@@ -122,6 +122,8 @@ wait for a specific system thread ending
   destroyed
 */
 extern tt_result_t tt_thread_wait_ntv(IN struct tt_thread_s *thread);
+
+extern tt_result_t tt_thread_wait_local_ntv(IN struct tt_thread_s *thread);
 
 /**
 @fn void tt_thread_exit_ntv()

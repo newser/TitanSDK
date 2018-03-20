@@ -187,6 +187,8 @@ wait for a specific thread ending
 */
 tt_export tt_result_t tt_thread_wait(IN tt_thread_t *thread);
 
+tt_export tt_result_t tt_thread_wait_local();
+
 /**
 @fn void tt_thread_exit()
 exit current thread

@@ -17,23 +17,22 @@
  */
 
 /**
-@file tt_network_def.h
-@brief network def
+@file tt_neif_native.h
+@brief network interface native
 
-this file defines network things
+this file includes network interface native
 */
 
-#ifndef __TT_NETWORK_DEF__
-#define __TT_NETWORK_DEF__
+#ifndef __TT_NETIF_NATIVE__
+#define __TT_NETIF_NATIVE__
 
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <io/tt_network_io_def.h>
-#include <io/tt_socket_addr.h>
+#include <tt_basic_type.h>
 
-//  //////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////
 // macro definition
 ////////////////////////////////////////////////////////////
 
@@ -41,15 +40,17 @@ this file defines network things
 // type definition
 ////////////////////////////////////////////////////////////
 
-typedef struct tt_netaddr_s
-{
-    tt_net_protocol_t protocol;
+struct tt_netif_group_s;
 
-    union
-    {
-        tt_sktaddr_t sktaddr;
-    };
-} tt_netaddr_t;
+typedef struct
+{
+    tt_u32_t reserved;
+} tt_netif_group_ntv_t;
+
+typedef struct
+{
+    tt_u32_t reserved;
+} tt_netif_ntv_t;
 
 ////////////////////////////////////////////////////////////
 // global variants
@@ -59,4 +60,33 @@ typedef struct tt_netaddr_s
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-#endif /* __TT_NETWORK_DEF__ */
+extern tt_result_t tt_network_interface_init_ntv();
+
+tt_inline void tt_network_interface_exit_ntv()
+{
+}
+
+tt_inline tt_result_t tt_netif_group_create_ntv(IN tt_netif_group_ntv_t *group)
+{
+    return TT_SUCCESS;
+}
+
+tt_inline void tt_netif_group_destroy_ntv(IN tt_netif_group_ntv_t *group)
+{
+}
+
+extern tt_result_t tt_netif_group_refresh_ntv(IN struct tt_netif_group_s *group,
+                                              IN tt_u32_t flag);
+
+extern tt_result_t tt_netif_create_ntv(IN tt_netif_ntv_t *sys_netif);
+
+extern void tt_netif_destroy_ntv(IN tt_netif_ntv_t *sys_netif);
+
+extern tt_result_t tt_netif_name2idx_ntv(IN const tt_char_t *name,
+                                         OUT tt_u32_t *idx);
+
+extern tt_result_t tt_netif_idx2name_ntv(IN tt_u32_t idx,
+                                         OUT tt_char_t *name,
+                                         IN tt_u32_t len);
+
+#endif /* __TT_NETIF_NATIVE__ */

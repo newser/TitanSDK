@@ -71,6 +71,24 @@ defined if backtrace is enabled
 #define TT_PLATFORM_ENABLE_BACKTRACE
 #endif
 
+/**
+@def TT_PLATFORM_ENABLE_MEMORY_TAG
+defined if memory tag is enabled
+*/
+#cmakedefine PLATFORM_ENABLE_MEMORY_TAG
+#ifdef PLATFORM_ENABLE_MEMORY_TAG
+#define TT_PLATFORM_ENABLE_MEMORY_TAG
+#endif
+
+/**
+@def TT_SANITIZE_ADDRESS
+defined if doing sanitizing address
+*/
+#cmakedefine SANITIZE_ADDRESS
+#ifdef SANITIZE_ADDRESS
+#define TT_SANITIZE_ADDRESS
+#endif
+
 // ========================================
 // version
 // ========================================

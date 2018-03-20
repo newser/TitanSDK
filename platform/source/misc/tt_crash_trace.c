@@ -51,6 +51,8 @@
 static tt_result_t __ct_component_init(IN tt_component_t *comp,
                                        IN tt_profile_t *profile);
 
+static void __ct_component_exit(IN tt_component_t *comp);
+
 ////////////////////////////////////////////////////////////
 // interface implementation
 ////////////////////////////////////////////////////////////
@@ -60,7 +62,7 @@ void tt_crash_trace_component_register()
     static tt_component_t comp;
 
     tt_component_itf_t itf = {
-        __ct_component_init,
+        __ct_component_init, __ct_component_exit,
     };
 
     // init component
@@ -83,4 +85,9 @@ tt_result_t __ct_component_init(IN tt_component_t *comp,
     }
 
     return TT_SUCCESS;
+}
+
+void __ct_component_exit(IN tt_component_t *comp)
+{
+    tt_crash_trace_component_exit_ntv();
 }

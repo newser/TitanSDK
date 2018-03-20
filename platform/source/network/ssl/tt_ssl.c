@@ -64,8 +64,12 @@ tt_logmgr_t tt_g_ssl_logmgr;
 static tt_result_t __ssl_component_init(IN tt_component_t *comp,
                                         IN tt_profile_t *profile);
 
+static void __ssl_component_exit(IN tt_component_t *comp);
+
 static tt_result_t __ssl_log_component_init(IN tt_component_t *comp,
                                             IN tt_profile_t *profile);
+
+static void __ssl_log_component_exit(IN tt_component_t *comp);
 
 static int __ssl_send(void *ctx, const unsigned char *buf, size_t len);
 
@@ -80,7 +84,7 @@ void tt_ssl_component_register()
     static tt_component_t comp;
 
     tt_component_itf_t itf = {
-        __ssl_component_init,
+        __ssl_component_init, __ssl_component_exit,
     };
 
     // init component
@@ -95,7 +99,7 @@ void tt_ssl_log_component_register()
     static tt_component_t comp;
 
     tt_component_itf_t itf = {
-        __ssl_log_component_init,
+        __ssl_log_component_init, __ssl_log_component_exit,
     };
 
     // init component
@@ -351,6 +355,10 @@ tt_result_t __ssl_component_init(IN tt_component_t *comp,
     return TT_SUCCESS;
 }
 
+void __ssl_component_exit(IN tt_component_t *comp)
+{
+}
+
 tt_result_t __ssl_log_component_init(IN tt_component_t *comp,
                                      IN tt_profile_t *profile)
 {
@@ -367,9 +375,11 @@ tt_result_t __ssl_log_component_init(IN tt_component_t *comp,
         return TT_FAIL;
     }
     tt_logmgr_set_layout(&tt_g_ssl_logmgr, TT_LOG_LEVEL_NUM, lyt);
+    tt_loglyt_release(lyt);
 
     if (!TT_OK(tt_logmgr_io_default(&tt_g_ssl_logmgr))) {
         TT_ERROR("fail to set ssl log io");
+        tt_logmgr_destroy(&tt_g_ssl_logmgr);
         return TT_FAIL;
     }
 
@@ -378,6 +388,11 @@ tt_result_t __ssl_log_component_init(IN tt_component_t *comp,
     tt_logmgr_set_level(&tt_g_ssl_logmgr, TT_LOG_DEBUG);
 
     return TT_SUCCESS;
+}
+
+void __ssl_log_component_exit(IN tt_component_t *comp)
+{
+    tt_logmgr_destroy(&tt_g_ssl_logmgr);
 }
 
 int __ssl_send(void *ctx, const unsigned char *buf, size_t len)

@@ -50,6 +50,8 @@ static tt_char_t tt_g_version_cstr[60];
 static tt_result_t __ver_component_init(IN tt_component_t *comp,
                                         IN tt_profile_t *profile);
 
+static void __ver_component_exit(IN tt_component_t *comp);
+
 ////////////////////////////////////////////////////////////
 // interface implementation
 ////////////////////////////////////////////////////////////
@@ -59,7 +61,7 @@ void tt_ver_component_register()
     static tt_component_t comp;
 
     tt_component_itf_t itf = {
-        __ver_component_init,
+        __ver_component_init, __ver_component_exit,
     };
 
     // init component
@@ -144,6 +146,10 @@ tt_result_t __ver_component_init(IN tt_component_t *comp,
     TT_INFO("version: %s", tt_version_cstr());
     TT_INFO("----------------------------------------\n");
     return TT_SUCCESS;
+}
+
+void __ver_component_exit(IN tt_component_t *comp)
+{
 }
 
 tt_result_t tt_ver_require_major(IN tt_ver_t major)
