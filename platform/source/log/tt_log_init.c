@@ -30,8 +30,8 @@
 #include <log/layout/tt_log_layout_pattern.h>
 #include <log/tt_log.h>
 
-#include <init/tt_config_u32.h>
-#include <init/tt_init_config.h>
+#include <param/tt_param.h>
+#include <param/tt_param_u32.h>
 
 #include <tt_log_native.h>
 
@@ -255,7 +255,7 @@ tt_result_t __logmgr_config_component_init(IN tt_component_t *comp,
                                            IN tt_profile_t *profile)
 {
 #if 0
-    tt_cfgobj_t *cnode;
+    tt_param_t *cnode;
     tt_cfgu32_attr_t attr;
 
     // create log level node:

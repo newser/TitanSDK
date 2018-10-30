@@ -24,7 +24,7 @@
 
 #include <algorithm/tt_buffer_format.h>
 #include <cli/shell/tt_shell.h>
-#include <init/tt_config_path.h>
+#include <param/tt_param_path.h>
 
 ////////////////////////////////////////////////////////////
 // internal macro
@@ -77,7 +77,7 @@ tt_u32_t __pwd_run(IN tt_shell_t *sh,
 
     tt_buf_backup_rwp(output, &rp, &wp);
     tt_buf_put_u8(output, '/');
-    if (!TT_OK(tt_cfgpath_n2p(sh->root, sh->current, output))) {
+    if (!TT_OK(tt_param_path_n2p(sh->root, sh->current, output))) {
         tt_buf_restore_rwp(output, &rp, &wp);
 
         tt_buf_putf(output, "internal error");

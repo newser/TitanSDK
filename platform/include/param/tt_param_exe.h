@@ -17,21 +17,20 @@
  */
 
 /**
-@file tt_config_string.h
-@brief config option of string type
+@file tt_param_exe.h
+@brief config option of executable type
 
-this file defines config option of string type
+this file defines config option of executable type
 */
 
-#ifndef __TT_CONFIG_STRING__
-#define __TT_CONFIG_STRING__
+#ifndef __TT_PARAM_EXE__
+#define __TT_PARAM_EXE__
 
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <algorithm/tt_string.h>
-#include <init/tt_config_object.h>
+#include <param/tt_param.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
@@ -41,19 +40,16 @@ this file defines config option of string type
 // type definition
 ////////////////////////////////////////////////////////////
 
-typedef tt_result_t (*tt_cfgstr_on_set_t)(IN struct tt_cfgobj_s *co,
-                                          IN tt_string_t *new_val);
+typedef tt_result_t (*tt_param_exe_run_t)(IN struct tt_param_s *co,
+                                          IN tt_u32_t argc,
+                                          IN tt_char_t *argv[],
+                                          OUT struct tt_buf_s *output,
+                                          OUT tt_u32_t *status);
 
-typedef struct tt_cfgstr_cb_s
+typedef struct
 {
-    tt_cfgstr_on_set_t on_set;
-} tt_cfgstr_cb_t;
-
-typedef struct tt_cfgstr_s
-{
-    tt_cfgstr_cb_t cb;
-    tt_string_t str;
-} tt_cfgstr_t;
+    tt_param_exe_run_t run;
+} tt_param_exe_t;
 
 ////////////////////////////////////////////////////////////
 // global variants
@@ -63,9 +59,17 @@ typedef struct tt_cfgstr_s
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-tt_export tt_cfgobj_t *tt_cfgstr_create(IN const tt_char_t *name,
-                                        IN tt_string_t *p_str,
-                                        IN OPT tt_cfgobj_attr_t *attr,
-                                        IN OPT tt_cfgstr_cb_t *cb);
+tt_export tt_param_t *tt_param_exe_create(IN const tt_char_t *name,
+                                          IN OPT tt_param_attr_t *attr,
+                                          IN tt_param_exe_run_t run);
 
-#endif /* __TT_CONFIG_STRING__ */
+tt_inline tt_result_t tt_param_exe_run(IN tt_param_exe_t *pe,
+                                       IN tt_u32_t argc,
+                                       IN tt_char_t *argv[],
+                                       OUT struct tt_buf_s *output,
+                                       OUT tt_u32_t *status)
+{
+    return pe->run(TT_PARAM_OF(pe), argc, argv, output, status);
+}
+
+#endif /* __TT_PARAM_EXE__ */

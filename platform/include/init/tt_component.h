@@ -53,7 +53,7 @@ typedef enum {
     TT_COMPONENT_CRASH_TRACE,
 
     // config
-    TT_COMPONENT_CONFIG,
+    TT_COMPONENT_PARAM,
 
     // version
     TT_COMPONENT_VERSION_INFO,

@@ -17,20 +17,20 @@
  */
 
 /**
-@file tt_config_object_def.h
-@brief config object definition
+@file tt_param_dir.h
+@brief config option of directory type
 
-this file includes config object definition
+this file defines config option of directory type
 */
 
-#ifndef __TT_CONFIG_OBJECT_DEF__
-#define __TT_CONFIG_OBJECT_DEF__
+#ifndef __TT_PARAM_DIR__
+#define __TT_PARAM_DIR__
 
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <tt_basic_type.h>
+#include <param/tt_param.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
@@ -40,38 +40,11 @@ this file includes config object definition
 // type definition
 ////////////////////////////////////////////////////////////
 
-struct tt_cfgobj_s;
-struct tt_buf_s;
-
-typedef void (*tt_cfgobj_on_destroy_t)(IN struct tt_cfgobj_s *co);
-
-typedef tt_result_t (*tt_cfgobj_read_t)(IN struct tt_cfgobj_s *co,
-                                        IN const tt_char_t *line_sep,
-                                        OUT struct tt_buf_s *output);
-
-typedef tt_result_t (*tt_cfgobj_write_t)(IN struct tt_cfgobj_s *co,
-                                         IN tt_u8_t *val,
-                                         IN tt_u32_t val_len);
-
-typedef struct tt_cfgobj_itf_s
+typedef struct tt_param_dir_s
 {
-    tt_cfgobj_on_destroy_t on_destroy;
-    tt_cfgobj_read_t read;
-    tt_cfgobj_write_t write;
-} tt_cfgobj_itf_t;
-
-typedef enum {
-    TT_CFGOBJ_U32,
-    TT_CFGOBJ_S32,
-    TT_CFGOBJ_DIR,
-    TT_CFGOBJ_STRING,
-    TT_CFGOBJ_BOOL,
-    TT_CFGOBJ_FLOAT,
-    TT_CFGOBJ_EXE,
-
-    TT_CFGOBJ_TYPE_NUM
-} tt_cfgobj_type_t;
-#define TT_CFGOBJ_TYPE_VALID(t) ((t) < TT_CFGOBJ_TYPE_NUM)
+    tt_list_t child;
+    tt_u32_t child_name_len;
+} tt_param_dir_t;
 
 ////////////////////////////////////////////////////////////
 // global variants
@@ -81,4 +54,16 @@ typedef enum {
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-#endif /* __TT_CONFIG_OBJECT_DEF__ */
+tt_export tt_param_t *tt_param_dir_create(IN const tt_char_t *name,
+                                          IN OPT tt_param_attr_t *attr);
+
+tt_export tt_result_t tt_param_dir_add(IN tt_param_dir_t *pd,
+                                       IN tt_param_t *child);
+
+tt_export void tt_param_dir_remove(IN tt_param_dir_t *pd, IN tt_param_t *child);
+
+tt_export tt_param_t *tt_param_dir_find(IN tt_param_dir_t *pd,
+                                        IN const tt_char_t *name,
+                                        IN tt_u32_t name_len);
+
+#endif /* __TT_PARAM_DIR__ */

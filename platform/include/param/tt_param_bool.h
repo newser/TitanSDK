@@ -16,58 +16,54 @@
  * limitations under the License.
  */
 
+/**
+@file tt_param_bool.h
+@brief config option of bool type
+
+this file defines config option of bool type
+*/
+
+#ifndef __TT_PARAM_BOOL__
+#define __TT_PARAM_BOOL__
+
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <init/tt_config_exe.h>
+#include <param/tt_param.h>
 
 ////////////////////////////////////////////////////////////
-// internal macro
-////////////////////////////////////////////////////////////
-
-////////////////////////////////////////////////////////////
-// extern declaration
+// macro definition
 ////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////
-// global variant
+// type definition
 ////////////////////////////////////////////////////////////
 
-static tt_cfgobj_itf_t __cfgexe_itf = {
-    NULL, NULL, NULL,
-};
+typedef tt_result_t (*tt_param_bool_on_set_t)(IN struct tt_param_s *cnode,
+                                              IN tt_bool_t new_val);
+
+typedef struct tt_param_bool_cb_s
+{
+    tt_param_bool_on_set_t on_set;
+} tt_param_bool_cb_t;
+
+typedef struct tt_param_bool_s
+{
+    tt_param_bool_cb_t cb;
+} tt_param_bool_t;
+
+////////////////////////////////////////////////////////////
+// global variants
+////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-////////////////////////////////////////////////////////////
-// interface implementation
-////////////////////////////////////////////////////////////
+tt_export tt_param_t *tt_param_bool_create(IN const tt_char_t *name,
+                                           IN tt_bool_t *p_bool,
+                                           IN OPT tt_param_attr_t *attr,
+                                           IN OPT tt_param_bool_cb_t *cb);
 
-tt_cfgobj_t *tt_cfgexe_create(IN const tt_char_t *name,
-                              IN OPT tt_cfgobj_attr_t *attr,
-                              IN tt_cfgexe_run_t run)
-{
-    tt_cfgobj_t *co;
-    tt_cfgexe_t *ce;
-
-    TT_ASSERT(run != NULL);
-
-    co = tt_cfgobj_create(sizeof(tt_cfgexe_t),
-                          TT_CFGOBJ_EXE,
-                          name,
-                          &__cfgexe_itf,
-                          NULL,
-                          attr);
-    if (co == NULL) {
-        return NULL;
-    }
-
-    ce = TT_CFGOBJ_CAST(co, tt_cfgexe_t);
-
-    ce->run = run;
-
-    return co;
-}
+#endif /* __TT_PARAM_BOOL__ */

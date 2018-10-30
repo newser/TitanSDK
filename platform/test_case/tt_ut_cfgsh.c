@@ -197,17 +197,16 @@ TT_TEST_CASE("case_cfgsh_parse_arg",
 
     static tt_bool_t __cfgsh_ut_init = TT_TRUE;
 
-static tt_cfgobj_t *root, *g1, *g11, *g12, *g121, *c1211, *exec;
-static tt_cfgobj_t *u1, *s1;
+static tt_param_t *root, *g1, *g11, *g12, *g121, *c1211, *exec;
+static tt_param_t *u1, *s1;
 static tt_u32_t __u32_val;
 static tt_s32_t __s32_val;
 static tt_buf_t __ut_buf_out;
 
 static tt_u32_t exec_mode;
-static tt_result_t __exec_run(IN struct tt_cfgobj_s *co,
+static tt_result_t __exec_run(IN struct tt_param_s *co,
                               IN tt_u32_t argc,
                               IN tt_char_t *argv[],
-                              IN const tt_char_t *line_sep,
                               OUT struct tt_buf_s *output,
                               OUT tt_u32_t *status)
 {
@@ -229,10 +228,10 @@ static tt_result_t __exec_run(IN struct tt_cfgobj_s *co,
 
 void __cfgsh_ut_enter(void *enter_param)
 {
-    tt_cfgobj_attr_t g_attr;
-    tt_cfgobj_attr_t u32_attr;
-    tt_cfgobj_attr_t s32_attr;
-    tt_cfgobj_attr_t exec_attr;
+    tt_param_attr_t g_attr;
+    tt_param_attr_t u32_attr;
+    tt_param_attr_t s32_attr;
+    tt_param_attr_t exec_attr;
 
     if (!__cfgsh_ut_init) {
         return;
@@ -251,43 +250,43 @@ void __cfgsh_ut_enter(void *enter_param)
      |- u1
      */
 
-    tt_cfgobj_attr_default(&g_attr);
-    tt_cfgobj_attr_default(&u32_attr);
-    tt_cfgobj_attr_default(&s32_attr);
-    tt_cfgobj_attr_default(&exec_attr);
+    tt_param_attr_default(&g_attr);
+    tt_param_attr_default(&u32_attr);
+    tt_param_attr_default(&s32_attr);
+    tt_param_attr_default(&exec_attr);
 
-    root = tt_cfgdir_create("", &g_attr);
+    root = tt_param_dir_create("", &g_attr);
 
     g_attr.brief = "group 1, testing";
     g_attr.detail = "group 1, usage";
-    g1 = tt_cfgdir_create("g1", &g_attr);
-    tt_cfgdir_add(TT_CFGOBJ_CAST(root, tt_cfgdir_t), g1);
+    g1 = tt_param_dir_create("g1", &g_attr);
+    tt_param_dir_add(TT_PARAM_CAST(root, tt_param_dir_t), g1);
 
     u32_attr.brief = "u32 val under g1";
     u32_attr.can_write = TT_FALSE;
-    u1 = tt_cfgu32_create("u1", &__u32_val, &u32_attr, NULL);
-    tt_cfgdir_add(TT_CFGOBJ_CAST(root, tt_cfgdir_t), u1);
+    u1 = tt_param_u32_create("u1", &__u32_val, &u32_attr, NULL);
+    tt_param_dir_add(TT_PARAM_CAST(root, tt_param_dir_t), u1);
 
     s32_attr.brief = "s32 val under g1";
-    s1 = tt_cfgs32_create("s1", &__s32_val, &s32_attr, NULL);
-    tt_cfgdir_add(TT_CFGOBJ_CAST(root, tt_cfgdir_t), s1);
+    s1 = tt_param_s32_create("s1", &__s32_val, &s32_attr, NULL);
+    tt_param_dir_add(TT_PARAM_CAST(root, tt_param_dir_t), s1);
 
-    g11 = tt_cfgdir_create("g11", &g_attr);
-    g12 = tt_cfgdir_create("g12", &g_attr);
-    g121 = tt_cfgdir_create("g121", &g_attr);
+    g11 = tt_param_dir_create("g11", &g_attr);
+    g12 = tt_param_dir_create("g12", &g_attr);
+    g121 = tt_param_dir_create("g121", &g_attr);
 
     u32_attr.brief = "leaf child";
     u32_attr.detail = "c1211's usage";
     u32_attr.can_write = TT_TRUE;
-    c1211 = tt_cfgu32_create("c1211", &__u32_val, &u32_attr, NULL);
-    tt_cfgdir_add(TT_CFGOBJ_CAST(g121, tt_cfgdir_t), c1211);
+    c1211 = tt_param_u32_create("c1211", &__u32_val, &u32_attr, NULL);
+    tt_param_dir_add(TT_PARAM_CAST(g121, tt_param_dir_t), c1211);
 
-    exec = tt_cfgexe_create("exec", NULL, __exec_run);
-    tt_cfgdir_add(TT_CFGOBJ_CAST(g121, tt_cfgdir_t), exec);
+    exec = tt_param_exe_create("exec", NULL, __exec_run);
+    tt_param_dir_add(TT_PARAM_CAST(g121, tt_param_dir_t), exec);
 
-    tt_cfgdir_add(TT_CFGOBJ_CAST(g1, tt_cfgdir_t), g11);
-    tt_cfgdir_add(TT_CFGOBJ_CAST(g1, tt_cfgdir_t), g12);
-    tt_cfgdir_add(TT_CFGOBJ_CAST(g12, tt_cfgdir_t), g121);
+    tt_param_dir_add(TT_PARAM_CAST(g1, tt_param_dir_t), g11);
+    tt_param_dir_add(TT_PARAM_CAST(g1, tt_param_dir_t), g12);
+    tt_param_dir_add(TT_PARAM_CAST(g12, tt_param_dir_t), g121);
 
     tt_buf_init(&__ut_buf_out, NULL);
 }
@@ -296,7 +295,7 @@ void __cfgsh_ut_exit(void *exit_param)
 {
     __cfgsh_ut_init = TT_TRUE;
 
-    tt_cfgobj_destroy(root);
+    tt_param_destroy(root);
     root = NULL;
 
     tt_buf_destroy(&__ut_buf_out);

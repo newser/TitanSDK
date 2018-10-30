@@ -85,7 +85,7 @@ tt_result_t __ut_fiber(IN void *param)
         name = NULL;
     }
 #else
-    name = getenv("TT_CASE");
+// name = getenv("TT_CASE");
 #endif
     if (name != NULL) {
         if (tt_strcmp(name, "all") == 0) {
@@ -99,7 +99,7 @@ tt_result_t __ut_fiber(IN void *param)
 #if 1
     else {
         const tt_char_t *names[] =
-        { "case_ipc_skt",
+        { "case_fiber_event_cross",
 #if 0
             "TEST_UNIT_LOG",
             "TEST_UNIT_LOG_PATTERN",
@@ -130,10 +130,10 @@ tt_result_t __ut_fiber(IN void *param)
 #if 0           
             "TEST_UNIT_MISC",
             "TEST_UNIT_CHARSET",
-            "TEST_UNIT_CFGNODE",
-            "TEST_UNIT_CFGPATH",
-            "TEST_UNIT_CFGSHELL",
 #endif
+          "TEST_UNIT_CFGNODE",
+          "TEST_UNIT_CFGPATH",
+          "TEST_UNIT_CFGSHELL",
 
 //"TEST_UNIT_FS",
 //            "TEST_UNIT_IPC",

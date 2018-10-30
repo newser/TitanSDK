@@ -17,20 +17,20 @@
  */
 
 /**
-@file tt_init_config.h
-@brief platform config init
+@file tt_param_def.h
+@brief config object definition
 
-this file defines platform config init
+this file includes config object definition
 */
 
-#ifndef __TT_CONFIG_INIT__
-#define __TT_CONFIG_INIT__
+#ifndef __TT_PARAM_DEF__
+#define __TT_PARAM_DEF__
 
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <init/tt_config_directory.h>
+#include <tt_basic_type.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
@@ -40,28 +40,44 @@ this file defines platform config init
 // type definition
 ////////////////////////////////////////////////////////////
 
+struct tt_param_s;
+struct tt_buf_s;
+
+typedef void (*tt_param_on_destroy_t)(IN struct tt_param_s *p);
+
+typedef tt_result_t (*tt_param_read_t)(IN struct tt_param_s *p,
+                                       OUT struct tt_buf_s *output);
+
+typedef tt_result_t (*tt_param_write_t)(IN struct tt_param_s *p,
+                                        IN tt_u8_t *val,
+                                        IN tt_u32_t val_len);
+
+typedef struct tt_param_itf_s
+{
+    tt_param_on_destroy_t on_destroy;
+    tt_param_read_t read;
+    tt_param_write_t write;
+} tt_param_itf_t;
+
+typedef enum {
+    TT_PARAM_U32,
+    TT_PARAM_S32,
+    TT_PARAM_DIR,
+    TT_PARAM_STRING,
+    TT_PARAM_BOOL,
+    TT_PARAM_FLOAT,
+    TT_PARAM_EXE,
+
+    TT_PARAM_TYPE_NUM
+} tt_param_type_t;
+#define TT_PARAM_TYPE_VALID(t) ((t) < TT_PARAM_TYPE_NUM)
+
 ////////////////////////////////////////////////////////////
 // global variants
 ////////////////////////////////////////////////////////////
-
-tt_export tt_cfgobj_t *tt_g_config_root;
-
-tt_export tt_cfgobj_t *tt_g_config_platform;
 
 ////////////////////////////////////////////////////////////
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-tt_export void tt_config_component_register();
-
-tt_inline tt_result_t tt_config_add2root(IN tt_cfgobj_t *co)
-{
-    return tt_cfgdir_add(TT_CFGOBJ_CAST(tt_g_config_root, tt_cfgdir_t), co);
-}
-
-tt_inline tt_result_t tt_config_add2plat(IN tt_cfgobj_t *co)
-{
-    return tt_cfgdir_add(TT_CFGOBJ_CAST(tt_g_config_platform, tt_cfgdir_t), co);
-}
-
-#endif /* __TT_CONFIG_INIT__ */
+#endif /* __TT_PARAM_DEF__ */

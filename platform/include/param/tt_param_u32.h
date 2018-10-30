@@ -17,20 +17,20 @@
  */
 
 /**
-@file tt_config_exe.h
-@brief config option of executable type
+@file tt_param_u32.h
+@brief config option of u32 type
 
-this file defines config option of executable type
+this file defines config option of u32 type
 */
 
-#ifndef __TT_CONFIG_EXE__
-#define __TT_CONFIG_EXE__
+#ifndef __TT_PARAM_U32__
+#define __TT_PARAM_U32__
 
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <init/tt_config_object.h>
+#include <param/tt_param.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
@@ -40,17 +40,20 @@ this file defines config option of executable type
 // type definition
 ////////////////////////////////////////////////////////////
 
-typedef tt_result_t (*tt_cfgexe_run_t)(IN struct tt_cfgobj_s *co,
-                                       IN tt_u32_t argc,
-                                       IN tt_char_t *argv[],
-                                       IN const tt_char_t *line_sep,
-                                       OUT struct tt_buf_s *output,
-                                       OUT tt_u32_t *status);
+struct tt_param_u32_s;
 
-typedef struct
+typedef tt_result_t (*tt_param_u32_on_set_t)(IN struct tt_param_s *cnode,
+                                             IN tt_u32_t new_val);
+
+typedef struct tt_param_u32_cb_s
 {
-    tt_cfgexe_run_t run;
-} tt_cfgexe_t;
+    tt_param_u32_on_set_t on_set;
+} tt_param_u32_cb_t;
+
+typedef struct tt_param_u32_s
+{
+    tt_param_u32_cb_t cb;
+} tt_param_u32_t;
 
 ////////////////////////////////////////////////////////////
 // global variants
@@ -60,18 +63,9 @@ typedef struct
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-tt_export tt_cfgobj_t *tt_cfgexe_create(IN const tt_char_t *name,
-                                        IN OPT tt_cfgobj_attr_t *attr,
-                                        IN tt_cfgexe_run_t run);
+tt_export tt_param_t *tt_param_u32_create(IN const tt_char_t *name,
+                                          IN tt_u32_t *p_u32,
+                                          IN OPT tt_param_attr_t *attr,
+                                          IN OPT tt_param_u32_cb_t *cb);
 
-tt_inline tt_result_t tt_cfgexe_run(IN tt_cfgexe_t *ce,
-                                    IN tt_u32_t argc,
-                                    IN tt_char_t *argv[],
-                                    IN const tt_char_t *line_sep,
-                                    OUT struct tt_buf_s *output,
-                                    OUT tt_u32_t *status)
-{
-    return ce->run(TT_CFGOBJ_OF(ce), argc, argv, line_sep, output, status);
-}
-
-#endif /* __TT_CONFIG_EXE__ */
+#endif /* __TT_PARAM_U32__ */

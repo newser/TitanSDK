@@ -24,7 +24,7 @@
 
 #include <algorithm/tt_buffer_format.h>
 #include <cli/shell/tt_shell.h>
-#include <init/tt_config_path.h>
+#include <param/tt_param_path.h>
 
 ////////////////////////////////////////////////////////////
 // internal macro
@@ -124,7 +124,7 @@ tt_u32_t __help_single(IN tt_shell_t *sh,
                        OUT tt_buf_t *output)
 {
     tt_shcmd_t *cmd;
-    tt_cfgobj_t *co;
+    tt_param_t *co;
 
     cmd = tt_shcmd_find(name);
     if (cmd != NULL) {
@@ -132,9 +132,12 @@ tt_u32_t __help_single(IN tt_shell_t *sh,
         return TT_CLIOC_OUT;
     }
 
-    co = tt_cfgpath_p2n(sh->root, sh->current, name, (tt_u32_t)tt_strlen(name));
+    co = tt_param_path_p2n(sh->root,
+                           sh->current,
+                           name,
+                           (tt_u32_t)tt_strlen(name));
     if (co != NULL) {
-        tt_buf_put_cstr(output, tt_cfgobj_detail(co));
+        tt_buf_put_cstr(output, tt_param_detail(co));
         return TT_CLIOC_OUT;
     }
 

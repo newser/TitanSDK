@@ -17,20 +17,21 @@
  */
 
 /**
-@file tt_config_bool.h
-@brief config option of bool type
+@file tt_param_string.h
+@brief config option of string type
 
-this file defines config option of bool type
+this file defines config option of string type
 */
 
-#ifndef __TT_CONFIG_BOOL__
-#define __TT_CONFIG_BOOL__
+#ifndef __TT_PARAM_STRING__
+#define __TT_PARAM_STRING__
 
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <init/tt_config_object.h>
+#include <algorithm/tt_string.h>
+#include <param/tt_param.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
@@ -40,18 +41,19 @@ this file defines config option of bool type
 // type definition
 ////////////////////////////////////////////////////////////
 
-typedef tt_result_t (*tt_cfgbool_on_set_t)(IN struct tt_cfgobj_s *cnode,
-                                           IN tt_bool_t new_val);
+typedef tt_result_t (*tt_param_str_on_set_t)(IN struct tt_param_s *co,
+                                             IN tt_string_t *new_val);
 
-typedef struct tt_cfgbool_cb_s
+typedef struct tt_param_str_cb_s
 {
-    tt_cfgbool_on_set_t on_set;
-} tt_cfgbool_cb_t;
+    tt_param_str_on_set_t on_set;
+} tt_param_str_cb_t;
 
-typedef struct tt_cfgbool_s
+typedef struct tt_param_str_s
 {
-    tt_cfgbool_cb_t cb;
-} tt_cfgbool_t;
+    tt_param_str_cb_t cb;
+    tt_string_t str;
+} tt_param_str_t;
 
 ////////////////////////////////////////////////////////////
 // global variants
@@ -61,9 +63,9 @@ typedef struct tt_cfgbool_s
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-tt_export tt_cfgobj_t *tt_cfgbool_create(IN const tt_char_t *name,
-                                         IN tt_bool_t *p_bool,
-                                         IN OPT tt_cfgobj_attr_t *attr,
-                                         IN OPT tt_cfgbool_cb_t *cb);
+tt_export tt_param_t *tt_param_str_create(IN const tt_char_t *name,
+                                          IN tt_string_t *p_str,
+                                          IN OPT tt_param_attr_t *attr,
+                                          IN OPT tt_param_str_cb_t *cb);
 
-#endif /* __TT_CONFIG_BOOL__ */
+#endif /* __TT_PARAM_STRING__ */

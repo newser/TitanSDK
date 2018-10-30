@@ -24,8 +24,9 @@
 
 #include <algorithm/tt_buffer_format.h>
 #include <cli/shell/tt_shell.h>
-#include <init/tt_config_directory.h>
-#include <init/tt_config_path.h>
+#include <param/tt_param_dir.h>
+#include <param/tt_param_format_cli.h>
+#include <param/tt_param_path.h>
 
 ////////////////////////////////////////////////////////////
 // internal macro
@@ -69,7 +70,7 @@ static tt_u32_t __get_multiple(IN tt_shell_t *sh,
                                IN tt_u32_t path_num,
                                OUT tt_buf_t *output);
 
-static tt_u32_t __get_val(IN tt_cfgobj_t *co, OUT tt_buf_t *output);
+static tt_u32_t __get_val(IN tt_param_t *co, OUT tt_buf_t *output);
 
 ////////////////////////////////////////////////////////////
 // interface implementation
@@ -94,15 +95,18 @@ tt_u32_t __get_single(IN tt_shell_t *sh,
                       IN tt_char_t *path,
                       OUT tt_buf_t *output)
 {
-    tt_cfgobj_t *co;
+    tt_param_t *co;
 
-    co = tt_cfgpath_p2n(sh->root, sh->current, path, (tt_u32_t)tt_strlen(path));
+    co = tt_param_path_p2n(sh->root,
+                           sh->current,
+                           path,
+                           (tt_u32_t)tt_strlen(path));
     if (co == NULL) {
         tt_buf_putf(output, "not found: %s", path);
         return TT_CLIOC_OUT;
     }
 
-    if (co->type == TT_CFGOBJ_DIR) {
+    if (co->type == TT_PARAM_DIR) {
         tt_buf_putf(output, "get: %s: is a direcoty", path);
         return TT_CLIOC_OUT;
     }
@@ -132,7 +136,7 @@ tt_u32_t __get_multiple(IN tt_shell_t *sh,
     return TT_CLIOC_OUT;
 }
 
-tt_u32_t __get_val(IN tt_cfgobj_t *co, OUT tt_buf_t *output)
+tt_u32_t __get_val(IN tt_param_t *co, OUT tt_buf_t *output)
 {
     tt_u32_t rp, wp;
     tt_result_t result;
@@ -141,7 +145,7 @@ tt_u32_t __get_val(IN tt_cfgobj_t *co, OUT tt_buf_t *output)
     tt_buf_put_cstr(output, ": ");
 
     tt_buf_backup_rwp(output, &rp, &wp);
-    result = tt_cfgobj_read(co, tt_g_sh_line_sep, output);
+    result = tt_param_read(co, output);
     if (!TT_OK(result)) {
         tt_buf_restore_rwp(output, &rp, &wp);
         if (result == TT_E_UNSUPPORT) {

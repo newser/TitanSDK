@@ -209,6 +209,9 @@ add_group_src(${PLATFORM_PATH}/source/zip zip SRC_FILE)
 add_group_hdr(${PLATFORM_PATH}/include/data data SRC_FILE)
 add_group_src(${PLATFORM_PATH}/source/data data SRC_FILE)
 
+add_group_hdr(${PLATFORM_PATH}/include/param param SRC_FILE)
+add_group_src(${PLATFORM_PATH}/source/param param SRC_FILE)
+
 # test cases
 add_group_src(${PLATFORM_PATH}/source/algorithm/test_case test_case SRC_FILE)
 add_group_src(${PLATFORM_PATH}/test_case test_case SRC_FILE)

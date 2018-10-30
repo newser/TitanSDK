@@ -77,8 +77,8 @@ tt_result_t tt_platform_init(IN OPT const tt_char_t *profile_path)
     tt_backtrace_component_register();
     tt_crash_trace_component_register();
 
-    // config
-    tt_config_component_register();
+    // parameter
+    tt_param_component_register();
 
     // version information
     tt_ver_component_register();

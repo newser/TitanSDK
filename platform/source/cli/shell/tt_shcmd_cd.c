@@ -24,7 +24,7 @@
 
 #include <algorithm/tt_buffer_format.h>
 #include <cli/shell/tt_shell.h>
-#include <init/tt_config_path.h>
+#include <param/tt_param_path.h>
 
 ////////////////////////////////////////////////////////////
 // internal macro
@@ -68,7 +68,7 @@ tt_u32_t __cd_run(IN tt_shell_t *sh,
                   IN tt_char_t *argv[],
                   OUT tt_buf_t *output)
 {
-    tt_cfgobj_t *co;
+    tt_param_t *co;
     const tt_char_t *path;
 
     if (argc == 0) {
@@ -76,13 +76,16 @@ tt_u32_t __cd_run(IN tt_shell_t *sh,
     }
 
     path = argv[0];
-    co = tt_cfgpath_p2n(sh->root, sh->current, path, (tt_u32_t)tt_strlen(path));
+    co = tt_param_path_p2n(sh->root,
+                           sh->current,
+                           path,
+                           (tt_u32_t)tt_strlen(path));
     if (co == NULL) {
         tt_buf_putf(output, "not found: %s", path);
         return TT_CLIOC_OUT;
     }
 
-    if (co->type != TT_CFGOBJ_DIR) {
+    if (co->type != TT_PARAM_DIR) {
         tt_buf_putf(output, "not a directory: %s", path);
         return TT_CLIOC_OUT;
     }

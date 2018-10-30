@@ -1,3 +1,0 @@
-- removed directories: tests, visualc
-- disabled find_package(Perl) in mbedtls/CMakeLists.txt
-- removed target apidoc in mbedtls/CMakeLists.txt  

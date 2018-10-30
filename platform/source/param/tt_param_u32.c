@@ -20,7 +20,7 @@
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <init/tt_config_s32.h>
+#include <param/tt_param_u32.h>
 
 #include <algorithm/tt_buffer_format.h>
 
@@ -28,7 +28,7 @@
 // internal macro
 ////////////////////////////////////////////////////////////
 
-#define __MAX_S32_LEN 11
+#define __MAX_U32_LEN 10
 
 ////////////////////////////////////////////////////////////
 // extern declaration
@@ -38,16 +38,14 @@
 // global variant
 ////////////////////////////////////////////////////////////
 
-static tt_result_t __cfgs32_read(IN tt_cfgobj_t *co,
-                                 IN const tt_char_t *line_sep,
-                                 OUT tt_buf_t *output);
+static tt_result_t __u32_read(IN tt_param_t *p, OUT tt_buf_t *output);
 
-static tt_result_t __cfgs32_write(IN tt_cfgobj_t *co,
-                                  IN tt_u8_t *val,
-                                  IN tt_u32_t val_len);
+static tt_result_t __u32_write(IN tt_param_t *p,
+                               IN tt_u8_t *val,
+                               IN tt_u32_t val_len);
 
-static tt_cfgobj_itf_t __cfgs32_itf = {
-    NULL, __cfgs32_read, __cfgs32_write,
+static tt_param_itf_t __u32_itf = {
+    NULL, __u32_read, __u32_write,
 };
 
 ////////////////////////////////////////////////////////////
@@ -58,65 +56,61 @@ static tt_cfgobj_itf_t __cfgs32_itf = {
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-tt_cfgobj_t *tt_cfgs32_create(IN const tt_char_t *name,
-                              IN tt_s32_t *p_s32,
-                              IN OPT tt_cfgobj_attr_t *attr,
-                              IN OPT tt_cfgs32_cb_t *cb)
+tt_param_t *tt_param_u32_create(IN const tt_char_t *name,
+                                IN tt_u32_t *p_u32,
+                                IN OPT tt_param_attr_t *attr,
+                                IN OPT tt_param_u32_cb_t *cb)
 {
-    tt_cfgobj_t *co;
-    tt_cfgs32_t *cs32;
+    tt_param_t *p;
+    tt_param_u32_t *pu;
 
-    co = tt_cfgobj_create(sizeof(tt_cfgs32_t),
-                          TT_CFGOBJ_S32,
-                          name,
-                          &__cfgs32_itf,
-                          p_s32,
-                          attr);
-    if (co == NULL) {
+    p = tt_param_create(sizeof(tt_param_u32_t),
+                        TT_PARAM_U32,
+                        name,
+                        &__u32_itf,
+                        p_u32,
+                        attr);
+    if (p == NULL) {
         return NULL;
     }
 
-    cs32 = TT_CFGOBJ_CAST(co, tt_cfgs32_t);
+    pu = TT_PARAM_CAST(p, tt_param_u32_t);
 
     if (cb != NULL) {
-        tt_memcpy(&cs32->cb, cb, sizeof(tt_cfgs32_cb_t));
+        tt_memcpy(&pu->cb, cb, sizeof(tt_param_u32_cb_t));
     } else {
-        tt_memset(&cs32->cb, 0, sizeof(tt_cfgs32_cb_t));
+        tt_memset(&pu->cb, 0, sizeof(tt_param_u32_cb_t));
     }
 
-    return co;
+    return p;
 }
 
-tt_result_t __cfgs32_read(IN tt_cfgobj_t *co,
-                          IN const tt_char_t *line_sep,
-                          OUT tt_buf_t *output)
+tt_result_t __u32_read(IN tt_param_t *p, OUT tt_buf_t *output)
 {
-    tt_cfgs32_t *cs32 = TT_CFGOBJ_CAST(co, tt_cfgs32_t);
+    tt_param_u32_t *pu = TT_PARAM_CAST(p, tt_param_u32_t);
     tt_char_t buf[32] = {0};
 
-    tt_snprintf(buf, sizeof(buf) - 1, "%d", *(tt_s32_t *)co->opaque);
+    tt_snprintf(buf, sizeof(buf) - 1, "%u", *(tt_u32_t *)p->opaque);
     return tt_buf_put_cstr(output, buf);
 }
 
-tt_result_t __cfgs32_write(IN tt_cfgobj_t *co,
-                           IN tt_u8_t *val,
-                           IN tt_u32_t val_len)
+tt_result_t __u32_write(IN tt_param_t *p, IN tt_u8_t *val, IN tt_u32_t val_len)
 {
-    tt_cfgs32_t *cs32 = TT_CFGOBJ_CAST(co, tt_cfgs32_t);
-    tt_u8_t buf[__MAX_S32_LEN + 1] = {0};
-    tt_s32_t s32_val;
+    tt_param_u32_t *pu = TT_PARAM_CAST(p, tt_param_u32_t);
+    tt_u8_t buf[__MAX_U32_LEN + 1] = {0};
+    tt_u32_t u32_val;
 
-    if ((val_len == 0) || (val_len > __MAX_S32_LEN)) {
+    if ((val_len == 0) || (val_len > __MAX_U32_LEN)) {
         return TT_E_BADARG;
     }
 
     tt_memcpy(buf, val, val_len);
-    if (!TT_OK(tt_strtos32((const char *)buf, NULL, 0, &s32_val))) {
+    if (!TT_OK(tt_strtou32((const char *)buf, NULL, 0, &u32_val))) {
         return TT_E_BADARG;
     }
 
-    if (cs32->cb.on_set != NULL) {
-        cs32->cb.on_set(co, s32_val);
+    if (pu->cb.on_set != NULL) {
+        pu->cb.on_set(p, u32_val);
     }
 
     return TT_SUCCESS;

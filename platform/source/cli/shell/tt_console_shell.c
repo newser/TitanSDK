@@ -22,8 +22,8 @@
 
 #include <cli/shell/tt_console_shell.h>
 
-#include <init/tt_init_config.h>
 #include <io/tt_console.h>
+#include <param/tt_param.h>
 
 ////////////////////////////////////////////////////////////
 // internal macro
@@ -68,7 +68,7 @@ tt_result_t tt_console_sh_create(IN tt_shell_t *sh,
                                  IN tt_cli_mode_t mode,
                                  IN OPT tt_sh_attr_t *attr)
 {
-    return tt_sh_create(sh, tt_g_config_root, mode, &__csh_itf, attr);
+    return tt_sh_create(sh, tt_g_param_root, mode, &__csh_itf, attr);
 }
 
 tt_result_t tt_console_sh_run(IN tt_shell_t *sh, IN tt_bool_t local)

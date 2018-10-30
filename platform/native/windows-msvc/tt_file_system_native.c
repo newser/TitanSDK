@@ -2080,7 +2080,7 @@ void __do_fs_realpath(IN tt_io_ev_t *io_ev)
         w_path = w_buf + 4;
         len -= 4;
     } else {
-        //w_path = NULL;
+        // w_path = NULL;
         w_path = w_buf;
     }
 

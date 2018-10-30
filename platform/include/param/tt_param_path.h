@@ -17,20 +17,20 @@
  */
 
 /**
-@file tt_config_path.h
+@file tt_param_path.h
 @brief path of config node
 
 path of config node
 */
 
-#ifndef __TT_CONFIG_PATH__
-#define __TT_CONFIG_PATH__
+#ifndef __TT_PARAM_PATH__
+#define __TT_PARAM_PATH__
 
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <init/tt_config_object.h>
+#include <param/tt_param.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
@@ -51,38 +51,38 @@ struct tt_buf_s;
 ////////////////////////////////////////////////////////////
 
 // start from root if path begins with '/', otherwise use current
-tt_export tt_cfgobj_t *tt_cfgpath_p2n(IN tt_cfgobj_t *root,
-                                      IN tt_cfgobj_t *current,
-                                      IN const tt_char_t *path,
-                                      IN tt_u32_t len);
+tt_export tt_param_t *tt_param_path_p2n(IN tt_param_t *root,
+                                        IN tt_param_t *current,
+                                        IN const tt_char_t *path,
+                                        IN tt_u32_t len);
 
-tt_inline tt_cfgobj_t *tt_cfgpath_p2n_cstr(IN tt_cfgobj_t *root,
-                                           IN tt_cfgobj_t *current,
-                                           IN const tt_char_t *path)
+tt_inline tt_param_t *tt_param_path_p2n_cstr(IN tt_param_t *root,
+                                             IN tt_param_t *current,
+                                             IN const tt_char_t *path)
 {
-    return tt_cfgpath_p2n(root, current, path, (tt_u32_t)tt_strlen(path));
+    return tt_param_path_p2n(root, current, path, (tt_u32_t)tt_strlen(path));
 }
 
 // print path from root to current:
 //  - if root == current, path would be emtpy
 //  - else if root is a real ancestor of current, print a relative path
 //  - otherwise print an absolute path of current
-tt_export tt_result_t tt_cfgpath_n2p(IN OPT tt_cfgobj_t *root,
-                                     IN tt_cfgobj_t *current,
-                                     OUT struct tt_buf_s *path);
+tt_export tt_result_t tt_param_path_n2p(IN OPT tt_param_t *root,
+                                        IN tt_param_t *current,
+                                        OUT struct tt_buf_s *path);
 
-// - TT_CFGPCP_NONE, none match, @ref completed includes candidates
-// - TT_CFGPCP_PARTIAL, can be partially completed
-// - TT_CFGPCP_FULL, fully completed
-tt_export tt_result_t tt_cfgpath_complete(IN tt_cfgobj_t *root,
-                                          IN tt_cfgobj_t *current,
-                                          IN const tt_char_t *path,
-                                          IN tt_u32_t path_len,
-                                          OUT tt_u32_t *status,
-                                          OUT struct tt_buf_s *output);
-#define TT_CFGPCP_NONE 0
-#define TT_CFGPCP_PARTIAL 1
-#define TT_CFGPCP_FULL 2
-#define TT_CFGPCP_FULL_MORE 3
+// - TT_PPCP_NONE, none match, @ref completed includes candidates
+// - TT_PPCP_PARTIAL, can be partially completed
+// - TT_PPCP_FULL, fully completed
+tt_export tt_result_t tt_param_path_complete(IN tt_param_t *root,
+                                             IN tt_param_t *current,
+                                             IN const tt_char_t *path,
+                                             IN tt_u32_t path_len,
+                                             OUT tt_u32_t *status,
+                                             OUT struct tt_buf_s *output);
+#define TT_PPCP_NONE 0
+#define TT_PPCP_PARTIAL 1
+#define TT_PPCP_FULL 2
+#define TT_PPCP_FULL_MORE 3
 
-#endif /* __TT_CONFIG_PATH__ */
+#endif /* __TT_PARAM_PATH__ */

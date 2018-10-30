@@ -31,7 +31,7 @@ this file defines config sh interface
 ////////////////////////////////////////////////////////////
 
 #include <cli/tt_cli.h>
-#include <init/tt_config_object.h>
+#include <param/tt_param.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
@@ -65,8 +65,8 @@ typedef struct
 
 typedef struct tt_sh_s
 {
-    tt_cfgobj_t *root;
-    tt_cfgobj_t *current;
+    tt_param_t *root;
+    tt_param_t *current;
 
     tt_char_t *i_arg[TT_SH_ARG_NUM];
     tt_char_t **arg;
@@ -89,7 +89,7 @@ tt_export const tt_char_t tt_g_sh_colume_sep[5];
 ////////////////////////////////////////////////////////////
 
 tt_export tt_result_t tt_sh_create(IN tt_shell_t *sh,
-                                   IN tt_cfgobj_t *root,
+                                   IN tt_param_t *root,
                                    IN tt_cli_mode_t mode,
                                    IN tt_cli_itf_t *itf,
                                    IN OPT tt_sh_attr_t *attr);

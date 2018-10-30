@@ -24,9 +24,9 @@
 
 #include <algorithm/tt_buffer_format.h>
 #include <cli/shell/tt_shell_command.h>
-#include <init/tt_config_exe.h>
-#include <init/tt_config_path.h>
 #include <memory/tt_memory_alloc.h>
+#include <param/tt_param_exe.h>
+#include <param/tt_param_path.h>
 
 ////////////////////////////////////////////////////////////
 // internal macro
@@ -77,7 +77,7 @@ static tt_result_t __expand_arg(IN tt_shell_t *sh);
 ////////////////////////////////////////////////////////////
 
 tt_result_t tt_sh_create(IN tt_shell_t *sh,
-                         IN tt_cfgobj_t *root,
+                         IN tt_param_t *root,
                          IN tt_cli_mode_t mode,
                          IN tt_cli_itf_t *itf,
                          IN OPT tt_sh_attr_t *attr)
@@ -143,7 +143,7 @@ tt_u32_t __sh_on_cmd(IN tt_cli_t *cli,
     tt_shell_t *sh = TT_CONTAINER(cli, tt_shell_t, cli);
     const tt_char_t *name;
     tt_shcmd_t *cmd;
-    tt_cfgobj_t *co;
+    tt_param_t *co;
 
     if (line[0] == 0) {
         return TT_CLIOC_NOOUT;
@@ -166,11 +166,14 @@ tt_u32_t __sh_on_cmd(IN tt_cli_t *cli,
     }
 
     // run as a executable object
-    co = tt_cfgpath_p2n(sh->root, sh->current, name, (tt_u32_t)tt_strlen(name));
+    co = tt_param_path_p2n(sh->root,
+                           sh->current,
+                           name,
+                           (tt_u32_t)tt_strlen(name));
     if (co == NULL) {
         tt_buf_putf(output, "not found: %s", name);
         return TT_CLIOC_OUT;
-    } else if (co->type != TT_CFGOBJ_EXE) {
+    } else if (co->type != TT_PARAM_EXE) {
         tt_buf_putf(output, "not executable: %s", name);
         return TT_CLIOC_OUT;
     } else {
@@ -179,12 +182,11 @@ tt_u32_t __sh_on_cmd(IN tt_cli_t *cli,
         tt_u32_t status = TT_CLIOC_NOOUT;
 
         tt_buf_backup_rwp(output, &rp, &wp);
-        result = tt_cfgexe_run(TT_CFGOBJ_CAST(co, tt_cfgexe_t),
-                               sh->arg_num - 1,
-                               &sh->arg[1],
-                               tt_g_sh_line_sep,
-                               output,
-                               &status);
+        result = tt_param_exe_run(TT_PARAM_CAST(co, tt_param_exe_t),
+                                  sh->arg_num - 1,
+                                  &sh->arg[1],
+                                  output,
+                                  &status);
         if (TT_OK(result)) {
             return status;
         } else {
@@ -215,24 +217,24 @@ tt_u32_t __sh_on_complete(IN tt_cli_t *cli,
             status = TT_CLICP_NONE;
         }
     } else {
-        if (TT_OK(tt_cfgpath_complete(sh->root,
-                                      sh->current,
-                                      (tt_char_t *)cur,
-                                      cur_len,
-                                      &status,
-                                      output))) {
+        if (TT_OK(tt_param_path_complete(sh->root,
+                                         sh->current,
+                                         (tt_char_t *)cur,
+                                         cur_len,
+                                         &status,
+                                         output))) {
             switch (status) {
-                case TT_CFGPCP_PARTIAL:
+                case TT_PPCP_PARTIAL:
                     status = TT_CLICP_PARTIAL;
                     break;
-                case TT_CFGPCP_FULL:
+                case TT_PPCP_FULL:
                     status = TT_CLICP_FULL;
                     break;
-                case TT_CFGPCP_FULL_MORE:
+                case TT_PPCP_FULL_MORE:
                     status = TT_CLICP_FULL_MORE;
                     break;
 
-                case TT_CFGPCP_NONE:
+                case TT_PPCP_NONE:
                 default:
                     status = TT_CLICP_NONE;
                     break;

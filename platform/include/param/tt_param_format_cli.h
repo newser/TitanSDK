@@ -17,20 +17,20 @@
  */
 
 /**
-@file tt_config_directory.h
-@brief config option of directory type
+ @file tt_param_format_cli.h
+ @brief param format: cli
 
-this file defines config option of directory type
-*/
+ this file defines config option of s32 type
+ */
 
-#ifndef __TT_CONFIG_DIRECTORY__
-#define __TT_CONFIG_DIRECTORY__
+#ifndef __TT_PARAM_FORMAT_CLI__
+#define __TT_PARAM_FORMAT_CLI__
 
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <init/tt_config_object.h>
+#include <param/tt_param.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
@@ -40,12 +40,6 @@ this file defines config option of directory type
 // type definition
 ////////////////////////////////////////////////////////////
 
-typedef struct tt_cfgdir_s
-{
-    tt_list_t child;
-    tt_u32_t child_name_len;
-} tt_cfgdir_t;
-
 ////////////////////////////////////////////////////////////
 // global variants
 ////////////////////////////////////////////////////////////
@@ -54,20 +48,9 @@ typedef struct tt_cfgdir_s
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-tt_export tt_cfgobj_t *tt_cfgdir_create(IN const tt_char_t *name,
-                                        IN OPT tt_cfgobj_attr_t *attr);
+tt_export tt_result_t tt_param_cli_ls(IN tt_param_t *p,
+                                      IN OPT const tt_char_t *col_sep,
+                                      IN OPT const tt_char_t *line_sep,
+                                      OUT struct tt_buf_s *output);
 
-tt_export tt_result_t tt_cfgdir_add(IN tt_cfgdir_t *cd, IN tt_cfgobj_t *child);
-
-tt_export void tt_cfgdir_remove(IN tt_cfgdir_t *cd, IN tt_cfgobj_t *child);
-
-tt_export tt_cfgobj_t *tt_cfgdir_find(IN tt_cfgdir_t *cd,
-                                      IN const tt_char_t *name,
-                                      IN tt_u32_t name_len);
-
-tt_export tt_result_t tt_cfgdir_ls(IN tt_cfgdir_t *c,
-                                   IN const tt_char_t *col_sep,
-                                   IN const tt_char_t *line_sep,
-                                   OUT struct tt_buf_s *output);
-
-#endif /* __TT_CONFIG_DIRECTORY__ */
+#endif /* __TT_PARAM_FORMAT_CLI__ */

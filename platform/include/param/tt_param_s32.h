@@ -17,20 +17,20 @@
  */
 
 /**
- @file tt_config_s32.h
+ @file tt_param_s32.h
  @brief config option of s32 type
 
  this file defines config option of s32 type
  */
 
-#ifndef __TT_CONFIG_S32__
-#define __TT_CONFIG_S32__
+#ifndef __TT_PARAM_S32__
+#define __TT_PARAM_S32__
 
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <init/tt_config_object.h>
+#include <param/tt_param.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
@@ -40,20 +40,20 @@
 // type definition
 ////////////////////////////////////////////////////////////
 
-struct tt_cfgs32_s;
+struct tt_param_s32_s;
 
-typedef tt_result_t (*tt_cfgs32_on_set_t)(IN struct tt_cfgobj_s *cnode,
-                                          IN tt_s32_t new_val);
+typedef tt_result_t (*tt_param_s32_on_set_t)(IN struct tt_param_s *cnode,
+                                             IN tt_s32_t new_val);
 
-typedef struct tt_cfgs32_cb_s
+typedef struct tt_param_s32_cb_s
 {
-    tt_cfgs32_on_set_t on_set;
-} tt_cfgs32_cb_t;
+    tt_param_s32_on_set_t on_set;
+} tt_param_s32_cb_t;
 
-typedef struct tt_cfgs32_s
+typedef struct tt_param_s32_s
 {
-    tt_cfgs32_cb_t cb;
-} tt_cfgs32_t;
+    tt_param_s32_cb_t cb;
+} tt_param_s32_t;
 
 ////////////////////////////////////////////////////////////
 // global variants
@@ -63,9 +63,9 @@ typedef struct tt_cfgs32_s
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-tt_export tt_cfgobj_t *tt_cfgs32_create(IN const tt_char_t *name,
-                                        IN tt_s32_t *p_s32,
-                                        IN OPT tt_cfgobj_attr_t *attr,
-                                        IN OPT tt_cfgs32_cb_t *cb);
+tt_export tt_param_t *tt_param_s32_create(IN const tt_char_t *name,
+                                          IN tt_s32_t *p_s32,
+                                          IN OPT tt_param_attr_t *attr,
+                                          IN OPT tt_param_s32_cb_t *cb);
 
-#endif /* __TT_CONFIG_S32__ */
+#endif /* __TT_PARAM_S32__ */
