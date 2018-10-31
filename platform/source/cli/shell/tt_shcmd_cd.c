@@ -68,7 +68,7 @@ tt_u32_t __cd_run(IN tt_shell_t *sh,
                   IN tt_char_t *argv[],
                   OUT tt_buf_t *output)
 {
-    tt_param_t *co;
+    tt_param_t *p;
     const tt_char_t *path;
 
     if (argc == 0) {
@@ -76,22 +76,22 @@ tt_u32_t __cd_run(IN tt_shell_t *sh,
     }
 
     path = argv[0];
-    co = tt_param_path_p2n(sh->root,
-                           sh->current,
-                           path,
-                           (tt_u32_t)tt_strlen(path));
-    if (co == NULL) {
+    p = tt_param_path_p2n(sh->root,
+                          sh->current,
+                          path,
+                          (tt_u32_t)tt_strlen(path));
+    if (p == NULL) {
         tt_buf_putf(output, "not found: %s", path);
         return TT_CLIOC_OUT;
     }
 
-    if (co->type != TT_PARAM_DIR) {
+    if (p->type != TT_PARAM_DIR) {
         tt_buf_putf(output, "not a directory: %s", path);
         return TT_CLIOC_OUT;
     }
 
-    sh->current = co;
-    tt_cli_update_prefix(&sh->cli, NULL, co->name, 0);
+    sh->current = p;
+    tt_cli_update_prefix(&sh->cli, NULL, p->name, 0);
 
     return TT_CLIOC_NOOUT;
 }

@@ -41,7 +41,7 @@ this file defines shell command
 #define TT_SHCMD_NAME_HELP "help"
 #define TT_SHCMD_NAME_PWD "pwd"
 #define TT_SHCMD_NAME_QUIT "quit"
-#define TT_SHCMD_NAME_GET "get"
+#define TT_SHCMD_NAME_SHOW "show"
 #define TT_SHCMD_NAME_SET "set"
 
 ////////////////////////////////////////////////////////////
@@ -63,7 +63,7 @@ typedef enum {
     TT_SHCMD_HELP,
     TT_SHCMD_PWD,
     TT_SHCMD_QUIT,
-    TT_SHCMD_GET,
+    TT_SHCMD_SHOW,
     TT_SHCMD_SET,
 
     TT_SHCMD_NUM,

@@ -70,7 +70,7 @@ tt_u32_t __set_run(IN tt_shell_t *sh,
                    OUT tt_buf_t *output)
 {
     const tt_char_t *path, *val;
-    tt_param_t *co;
+    tt_param_t *p;
     tt_u32_t rp, wp;
     tt_result_t result;
 
@@ -80,23 +80,23 @@ tt_u32_t __set_run(IN tt_shell_t *sh,
     }
 
     path = argv[0];
-    co = tt_param_path_p2n(sh->root,
-                           sh->current,
-                           path,
-                           (tt_u32_t)tt_strlen(path));
-    if (co == NULL) {
+    p = tt_param_path_p2n(sh->root,
+                          sh->current,
+                          path,
+                          (tt_u32_t)tt_strlen(path));
+    if (p == NULL) {
         tt_buf_putf(output, "not found: %s", argv[0]);
         return TT_CLIOC_OUT;
     }
 
-    if (co->type == TT_PARAM_DIR) {
+    if (p->type == TT_PARAM_DIR) {
         tt_buf_putf(output, "set: %s: is a direcoty", path);
         return TT_CLIOC_OUT;
     }
 
     val = argv[1];
     tt_buf_backup_rwp(output, &rp, &wp);
-    result = tt_param_write(co, (tt_u8_t *)val, (tt_u32_t)tt_strlen(val));
+    result = tt_param_write(p, (tt_u8_t *)val, (tt_u32_t)tt_strlen(val));
     if (TT_OK(result)) {
         return TT_CLIOC_NOOUT;
     } else {

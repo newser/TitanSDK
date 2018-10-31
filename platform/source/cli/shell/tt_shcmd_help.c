@@ -124,7 +124,7 @@ tt_u32_t __help_single(IN tt_shell_t *sh,
                        OUT tt_buf_t *output)
 {
     tt_shcmd_t *cmd;
-    tt_param_t *co;
+    tt_param_t *p;
 
     cmd = tt_shcmd_find(name);
     if (cmd != NULL) {
@@ -132,12 +132,12 @@ tt_u32_t __help_single(IN tt_shell_t *sh,
         return TT_CLIOC_OUT;
     }
 
-    co = tt_param_path_p2n(sh->root,
-                           sh->current,
-                           name,
-                           (tt_u32_t)tt_strlen(name));
-    if (co != NULL) {
-        tt_buf_put_cstr(output, tt_param_detail(co));
+    p = tt_param_path_p2n(sh->root,
+                          sh->current,
+                          name,
+                          (tt_u32_t)tt_strlen(name));
+    if (p != NULL) {
+        tt_buf_put_cstr(output, tt_param_detail(p));
         return TT_CLIOC_OUT;
     }
 

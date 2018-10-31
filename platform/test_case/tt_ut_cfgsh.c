@@ -998,9 +998,9 @@ TT_TEST_ROUTINE_DEFINE(case_cfgsh_get)
 
     // get single
     {
-        tt_char_t this_in[] = "  get /g1/g12/g121/c1211\x87";
+        tt_char_t this_in[] = "  show /g1/g12/g121/c1211\x87";
         const tt_char_t *this_out =
-            "  get /g1/g12/g121/c1211\n"
+            "  show /g1/g12/g121/c1211\n"
             "c1211: 12300\n"
             "shell$ ";
 
@@ -1014,9 +1014,9 @@ TT_TEST_ROUTINE_DEFINE(case_cfgsh_get)
 
     // get single, invalid path
     {
-        tt_char_t this_in[] = "  get /g1/g12/g121/c12111\x87";
+        tt_char_t this_in[] = "  show /g1/g12/g121/c12111\x87";
         const tt_char_t *this_out =
-            "  get /g1/g12/g121/c12111\n"
+            "  show /g1/g12/g121/c12111\n"
             "not found: /g1/g12/g121/c12111\n"
             "shell$ ";
 
@@ -1030,10 +1030,10 @@ TT_TEST_ROUTINE_DEFINE(case_cfgsh_get)
 
     // get a group
     {
-        tt_char_t this_in[] = "  get g1/g12\x87";
+        tt_char_t this_in[] = "  show g1/g12\x87";
         const tt_char_t *this_out =
-            "  get g1/g12\n"
-            "get: g1/g12: is a direcoty\n"
+            "  show g1/g12\n"
+            "show: g1/g12: is a direcoty\n"
             "shell$ ";
 
         __u32_val = 12300;
@@ -1046,9 +1046,9 @@ TT_TEST_ROUTINE_DEFINE(case_cfgsh_get)
 
     // get multiple
     {
-        tt_char_t this_in[] = "  get s1 /u1\x87";
+        tt_char_t this_in[] = "  show s1 /u1\x87";
         const tt_char_t *this_out =
-            "  get s1 /u1\n"
+            "  show s1 /u1\n"
             "s1:\n"
             "s1: 0\n"
             "\n"
@@ -1066,9 +1066,9 @@ TT_TEST_ROUTINE_DEFINE(case_cfgsh_get)
 
     // get multiple, with some invalid path, some group
     {
-        tt_char_t this_in[] = "  get s1 s1234567890 g1 /u1\x87";
+        tt_char_t this_in[] = "  show s1 s1234567890 g1 /u1\x87";
         const tt_char_t *this_out =
-            "  get s1 s1234567890 g1 /u1\n"
+            "  show s1 s1234567890 g1 /u1\n"
             "s1:\n"
             "s1: 0\n"
             "\n"
@@ -1076,7 +1076,7 @@ TT_TEST_ROUTINE_DEFINE(case_cfgsh_get)
             "not found: s1234567890\n"
             "\n"
             "g1:\n"
-            "get: g1: is a direcoty\n"
+            "show: g1: is a direcoty\n"
             "\n"
             "/u1:\n"
             "u1: 12300\n"
@@ -1092,10 +1092,10 @@ TT_TEST_ROUTINE_DEFINE(case_cfgsh_get)
 
     // get current
     {
-        tt_char_t this_in[] = "  get \x87";
+        tt_char_t this_in[] = "  show \x87";
         const tt_char_t *this_out =
-            "  get \n"
-            "usage: get [name]\n"
+            "  show \n"
+            "usage: show [name]\n"
             "shell$ ";
 
         __u32_val = 12300;

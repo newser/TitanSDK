@@ -17,14 +17,14 @@
  */
 
 /**
-@file tt_shcmd_get.h
-@brief shell command: get
+@file tt_shcmd_show.h
+@brief shell command: show
 
-this file defines shell command: get
+this file defines shell command: show
 */
 
-#ifndef __TT_SHCMD_GET__
-#define __TT_SHCMD_GET__
+#ifndef __TT_SHCMD_SHOW__
+#define __TT_SHCMD_SHOW__
 
 ////////////////////////////////////////////////////////////
 // import header files
@@ -44,10 +44,10 @@ this file defines shell command: get
 // global variants
 ////////////////////////////////////////////////////////////
 
-tt_export tt_shcmd_t tt_g_shcmd_get;
+tt_export tt_shcmd_t tt_g_shcmd_show;
 
 ////////////////////////////////////////////////////////////
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-#endif /* __TT_SHCMD_GET__ */
+#endif /* __TT_SHCMD_SHOW__ */

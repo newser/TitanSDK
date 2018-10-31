@@ -92,18 +92,18 @@ tt_u32_t __ls_run(IN tt_shell_t *sh,
 
 tt_u32_t __ls_current(IN tt_shell_t *sh, OUT tt_buf_t *output)
 {
-    tt_param_t *co;
+    tt_param_t *p;
     tt_u32_t rp, wp;
     tt_result_t result;
 
-    co = sh->current;
-    if (co == NULL) {
+    p = sh->current;
+    if (p == NULL) {
         tt_buf_putf(output, "internal error");
         return TT_CLIOC_OUT;
     }
 
     tt_buf_backup_rwp(output, &rp, &wp);
-    result = tt_param_cli_ls(co, tt_g_sh_colume_sep, tt_g_sh_line_sep, output);
+    result = tt_param_cli_ls(p, tt_g_sh_colume_sep, tt_g_sh_line_sep, output);
     if (!TT_OK(result)) {
         tt_buf_restore_rwp(output, &rp, &wp);
         if (result == TT_E_UNSUPPORT) {
@@ -120,21 +120,21 @@ tt_u32_t __ls_single(IN tt_shell_t *sh,
                      IN tt_char_t *path,
                      OUT tt_buf_t *output)
 {
-    tt_param_t *co;
+    tt_param_t *p;
     tt_u32_t rp, wp;
     tt_result_t result;
 
-    co = tt_param_path_p2n(sh->root,
-                           sh->current,
-                           path,
-                           (tt_u32_t)tt_strlen(path));
-    if (co == NULL) {
+    p = tt_param_path_p2n(sh->root,
+                          sh->current,
+                          path,
+                          (tt_u32_t)tt_strlen(path));
+    if (p == NULL) {
         tt_buf_putf(output, "can not find: %s", path);
         return TT_CLIOC_OUT;
     }
 
     tt_buf_backup_rwp(output, &rp, &wp);
-    result = tt_param_cli_ls(co, tt_g_sh_colume_sep, tt_g_sh_line_sep, output);
+    result = tt_param_cli_ls(p, tt_g_sh_colume_sep, tt_g_sh_line_sep, output);
     if (!TT_OK(result)) {
         tt_buf_restore_rwp(output, &rp, &wp);
         if (result == TT_E_UNSUPPORT) {

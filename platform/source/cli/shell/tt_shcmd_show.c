@@ -20,7 +20,7 @@
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <cli/shell/tt_shcmd_get.h>
+#include <cli/shell/tt_shcmd_show.h>
 
 #include <algorithm/tt_buffer_format.h>
 #include <cli/shell/tt_shell.h>
@@ -44,80 +44,80 @@
 // global variant
 ////////////////////////////////////////////////////////////
 
-static const tt_char_t __get_info[] = "get entry value";
+static const tt_char_t __show_info[] = "show entry value";
 
-static const tt_char_t __get_usage[] = "testing get";
+static const tt_char_t __show_usage[] = "testing get";
 
-static tt_u32_t __get_run(IN tt_shell_t *sh,
-                          IN tt_u32_t argc,
-                          IN tt_char_t *arv[],
-                          OUT tt_buf_t *output);
+static tt_u32_t __show_run(IN tt_shell_t *sh,
+                           IN tt_u32_t argc,
+                           IN tt_char_t *arv[],
+                           OUT tt_buf_t *output);
 
-tt_shcmd_t tt_g_shcmd_get = {
-    TT_SHCMD_NAME_GET, __get_info, __get_usage, __get_run,
+tt_shcmd_t tt_g_shcmd_show = {
+    TT_SHCMD_NAME_SHOW, __show_info, __show_usage, __show_run,
 };
 
 ////////////////////////////////////////////////////////////
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-static tt_u32_t __get_single(IN tt_shell_t *sh,
-                             IN tt_char_t *path,
-                             OUT tt_buf_t *output);
+static tt_u32_t __show_single(IN tt_shell_t *sh,
+                              IN tt_char_t *path,
+                              OUT tt_buf_t *output);
 
-static tt_u32_t __get_multiple(IN tt_shell_t *sh,
-                               IN tt_char_t *path[],
-                               IN tt_u32_t path_num,
-                               OUT tt_buf_t *output);
+static tt_u32_t __show_multiple(IN tt_shell_t *sh,
+                                IN tt_char_t *path[],
+                                IN tt_u32_t path_num,
+                                OUT tt_buf_t *output);
 
-static tt_u32_t __get_val(IN tt_param_t *co, OUT tt_buf_t *output);
+static tt_u32_t __show_val(IN tt_param_t *p, OUT tt_buf_t *output);
 
 ////////////////////////////////////////////////////////////
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-tt_u32_t __get_run(IN tt_shell_t *sh,
-                   IN tt_u32_t argc,
-                   IN tt_char_t *argv[],
-                   OUT tt_buf_t *output)
+tt_u32_t __show_run(IN tt_shell_t *sh,
+                    IN tt_u32_t argc,
+                    IN tt_char_t *argv[],
+                    OUT tt_buf_t *output)
 {
     if (argc == 0) {
-        tt_buf_putf(output, "usage: get [name]");
+        tt_buf_putf(output, "usage: show [name]");
         return TT_CLIOC_OUT;
     } else if (argc == 1) {
-        return __get_single(sh, argv[0], output);
+        return __show_single(sh, argv[0], output);
     } else {
-        return __get_multiple(sh, argv, argc, output);
+        return __show_multiple(sh, argv, argc, output);
     }
 }
 
-tt_u32_t __get_single(IN tt_shell_t *sh,
-                      IN tt_char_t *path,
-                      OUT tt_buf_t *output)
+tt_u32_t __show_single(IN tt_shell_t *sh,
+                       IN tt_char_t *path,
+                       OUT tt_buf_t *output)
 {
-    tt_param_t *co;
+    tt_param_t *p;
 
-    co = tt_param_path_p2n(sh->root,
-                           sh->current,
-                           path,
-                           (tt_u32_t)tt_strlen(path));
-    if (co == NULL) {
+    p = tt_param_path_p2n(sh->root,
+                          sh->current,
+                          path,
+                          (tt_u32_t)tt_strlen(path));
+    if (p == NULL) {
         tt_buf_putf(output, "not found: %s", path);
         return TT_CLIOC_OUT;
     }
 
-    if (co->type == TT_PARAM_DIR) {
-        tt_buf_putf(output, "get: %s: is a direcoty", path);
+    if (p->type == TT_PARAM_DIR) {
+        tt_buf_putf(output, "show: %s: is a direcoty", path);
         return TT_CLIOC_OUT;
     }
 
-    return __get_val(co, output);
+    return __show_val(p, output);
 }
 
-tt_u32_t __get_multiple(IN tt_shell_t *sh,
-                        IN tt_char_t *path[],
-                        IN tt_u32_t path_num,
-                        OUT tt_buf_t *output)
+tt_u32_t __show_multiple(IN tt_shell_t *sh,
+                         IN tt_char_t *path[],
+                         IN tt_u32_t path_num,
+                         OUT tt_buf_t *output)
 {
     tt_u32_t i;
 
@@ -126,7 +126,7 @@ tt_u32_t __get_multiple(IN tt_shell_t *sh,
         tt_buf_put_u8(output, ':');
         TT_SH_NEWLINE(output);
 
-        __get_single(sh, path[i], output);
+        __show_single(sh, path[i], output);
         if (i != (path_num - 1)) {
             TT_SH_NEWLINE(output);
             TT_SH_NEWLINE(output);
@@ -136,16 +136,16 @@ tt_u32_t __get_multiple(IN tt_shell_t *sh,
     return TT_CLIOC_OUT;
 }
 
-tt_u32_t __get_val(IN tt_param_t *co, OUT tt_buf_t *output)
+tt_u32_t __show_val(IN tt_param_t *p, OUT tt_buf_t *output)
 {
     tt_u32_t rp, wp;
     tt_result_t result;
 
-    tt_buf_put_cstr(output, co->name);
+    tt_buf_put_cstr(output, p->name);
     tt_buf_put_cstr(output, ": ");
 
     tt_buf_backup_rwp(output, &rp, &wp);
-    result = tt_param_read(co, output);
+    result = tt_param_read(p, output);
     if (!TT_OK(result)) {
         tt_buf_restore_rwp(output, &rp, &wp);
         if (result == TT_E_UNSUPPORT) {

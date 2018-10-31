@@ -23,12 +23,12 @@
 #include <cli/shell/tt_shell_command.h>
 
 #include <cli/shell/tt_shcmd_cd.h>
-#include <cli/shell/tt_shcmd_get.h>
 #include <cli/shell/tt_shcmd_help.h>
 #include <cli/shell/tt_shcmd_ls.h>
 #include <cli/shell/tt_shcmd_pwd.h>
 #include <cli/shell/tt_shcmd_quit.h>
 #include <cli/shell/tt_shcmd_set.h>
+#include <cli/shell/tt_shcmd_show.h>
 #include <misc/tt_assert.h>
 
 #include <tt_cstd_api.h>
@@ -55,7 +55,7 @@ tt_shcmd_t *tt_g_shcmd[TT_SHCMD_NUM] = {
     &tt_g_shcmd_help, // TT_SHCMD_HELP
     &tt_g_shcmd_pwd, // TT_SHCMD_PWD
     &tt_g_shcmd_quit, // TT_SHCMD_QUIT
-    &tt_g_shcmd_get, // TT_SHCMD_GET
+    &tt_g_shcmd_show, // TT_SHCMD_SHOW
     &tt_g_shcmd_set, // TT_SHCMD_SET
 };
 
@@ -65,7 +65,7 @@ const tt_char_t *tt_g_shcmd_name[TT_SHCMD_NUM] = {
     TT_SHCMD_NAME_HELP, // TT_SHCMD_HELP
     TT_SHCMD_NAME_PWD, // TT_SHCMD_PWD
     TT_SHCMD_NAME_QUIT, // TT_SHCMD_QUIT
-    TT_SHCMD_NAME_GET, // TT_SHCMD_GET
+    TT_SHCMD_NAME_SHOW, // TT_SHCMD_SHOW
     TT_SHCMD_NAME_SET, // TT_SHCMD_SET
 };
 

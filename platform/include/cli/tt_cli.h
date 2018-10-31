@@ -49,7 +49,7 @@ typedef tt_result_t (*tt_cli_newline_t)(IN struct tt_cli_s *cli,
                                         IN tt_bool_t prefix,
                                         IN tt_bool_t line);
 
-// return true to continue reading
+// return TT_CLIOR_MORE to continue reading
 typedef tt_u32_t (*tt_cli_on_readline_t)(IN struct tt_cli_s *cli,
                                          IN const tt_char_t *content,
                                          IN tt_buf_t *output);

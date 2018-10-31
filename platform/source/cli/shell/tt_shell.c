@@ -143,7 +143,7 @@ tt_u32_t __sh_on_cmd(IN tt_cli_t *cli,
     tt_shell_t *sh = TT_CONTAINER(cli, tt_shell_t, cli);
     const tt_char_t *name;
     tt_shcmd_t *cmd;
-    tt_param_t *co;
+    tt_param_t *p;
 
     if (line[0] == 0) {
         return TT_CLIOC_NOOUT;
@@ -166,14 +166,14 @@ tt_u32_t __sh_on_cmd(IN tt_cli_t *cli,
     }
 
     // run as a executable object
-    co = tt_param_path_p2n(sh->root,
-                           sh->current,
-                           name,
-                           (tt_u32_t)tt_strlen(name));
-    if (co == NULL) {
+    p = tt_param_path_p2n(sh->root,
+                          sh->current,
+                          name,
+                          (tt_u32_t)tt_strlen(name));
+    if (p == NULL) {
         tt_buf_putf(output, "not found: %s", name);
         return TT_CLIOC_OUT;
-    } else if (co->type != TT_PARAM_EXE) {
+    } else if (p->type != TT_PARAM_EXE) {
         tt_buf_putf(output, "not executable: %s", name);
         return TT_CLIOC_OUT;
     } else {
@@ -182,7 +182,7 @@ tt_u32_t __sh_on_cmd(IN tt_cli_t *cli,
         tt_u32_t status = TT_CLIOC_NOOUT;
 
         tt_buf_backup_rwp(output, &rp, &wp);
-        result = tt_param_exe_run(TT_PARAM_CAST(co, tt_param_exe_t),
+        result = tt_param_exe_run(TT_PARAM_CAST(p, tt_param_exe_t),
                                   sh->arg_num - 1,
                                   &sh->arg[1],
                                   output,

@@ -64,12 +64,12 @@ extern "C" {
 #include <algorithm/tt_write_buffer.h>
 #include <cli/shell/tt_console_shell.h>
 #include <cli/shell/tt_shcmd_cd.h>
-#include <cli/shell/tt_shcmd_get.h>
 #include <cli/shell/tt_shcmd_help.h>
 #include <cli/shell/tt_shcmd_ls.h>
 #include <cli/shell/tt_shcmd_pwd.h>
 #include <cli/shell/tt_shcmd_quit.h>
 #include <cli/shell/tt_shcmd_set.h>
+#include <cli/shell/tt_shcmd_show.h>
 #include <cli/shell/tt_shell.h>
 #include <cli/shell/tt_shell_command.h>
 #include <cli/tt_cli.h>
