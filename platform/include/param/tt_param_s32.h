@@ -18,9 +18,9 @@
 
 /**
  @file tt_param_s32.h
- @brief config option of s32 type
+ @brief s32 parameter
 
- this file defines config option of s32 type
+ this file defines s32 parameter
  */
 
 #ifndef __TT_PARAM_S32__
@@ -64,7 +64,7 @@ typedef struct tt_param_s32_s
 ////////////////////////////////////////////////////////////
 
 tt_export tt_param_t *tt_param_s32_create(IN const tt_char_t *name,
-                                          IN tt_s32_t *p_s32,
+                                          IN tt_s32_t *p_val,
                                           IN OPT tt_param_attr_t *attr,
                                           IN OPT tt_param_s32_cb_t *cb);
 

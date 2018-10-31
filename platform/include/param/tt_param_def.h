@@ -18,9 +18,9 @@
 
 /**
 @file tt_param_def.h
-@brief config object definition
+@brief parameter definition
 
-this file includes config object definition
+this file includes parameter definition
 */
 
 #ifndef __TT_PARAM_DEF__

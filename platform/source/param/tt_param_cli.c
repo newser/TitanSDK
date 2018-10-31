@@ -20,7 +20,7 @@
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <param/tt_param_format_cli.h>
+#include <param/tt_param_cli.h>
 
 #include <algorithm/tt_buffer_format.h>
 #include <param/tt_param_dir.h>

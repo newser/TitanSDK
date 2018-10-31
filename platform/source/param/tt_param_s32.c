@@ -57,7 +57,7 @@ static tt_param_itf_t __s32_itf = {
 ////////////////////////////////////////////////////////////
 
 tt_param_t *tt_param_s32_create(IN const tt_char_t *name,
-                                IN tt_s32_t *p_s32,
+                                IN tt_s32_t *p_val,
                                 IN OPT tt_param_attr_t *attr,
                                 IN OPT tt_param_s32_cb_t *cb)
 {
@@ -68,7 +68,7 @@ tt_param_t *tt_param_s32_create(IN const tt_char_t *name,
                         TT_PARAM_S32,
                         name,
                         &__s32_itf,
-                        p_s32,
+                        p_val,
                         attr);
     if (p == NULL) {
         return NULL;

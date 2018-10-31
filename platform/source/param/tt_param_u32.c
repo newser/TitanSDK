@@ -57,7 +57,7 @@ static tt_param_itf_t __u32_itf = {
 ////////////////////////////////////////////////////////////
 
 tt_param_t *tt_param_u32_create(IN const tt_char_t *name,
-                                IN tt_u32_t *p_u32,
+                                IN tt_u32_t *p_val,
                                 IN OPT tt_param_attr_t *attr,
                                 IN OPT tt_param_u32_cb_t *cb)
 {
@@ -68,7 +68,7 @@ tt_param_t *tt_param_u32_create(IN const tt_char_t *name,
                         TT_PARAM_U32,
                         name,
                         &__u32_itf,
-                        p_u32,
+                        p_val,
                         attr);
     if (p == NULL) {
         return NULL;

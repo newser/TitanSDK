@@ -100,6 +100,7 @@ tt_inline void tt_cline_reset(IN tt_cline_t *cline)
     cline->cursor = 0;
 }
 
+// get content from cursor to end
 // - return true if cline is waiting for a command: # ad[]
 // - len in @ref data may be 0 when: # [] / # add []
 tt_export tt_bool_t tt_cline_cursor_data(IN tt_cline_t *cline,

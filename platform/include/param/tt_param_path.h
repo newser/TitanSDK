@@ -18,9 +18,9 @@
 
 /**
 @file tt_param_path.h
-@brief path of config node
+@brief path of parameter
 
-path of config node
+path of parameter
 */
 
 #ifndef __TT_PARAM_PATH__

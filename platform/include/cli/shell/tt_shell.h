@@ -110,9 +110,10 @@ tt_inline tt_result_t tt_sh_input(IN tt_shell_t *sh,
     return tt_cli_input(&sh->cli, ev, ev_num);
 }
 
-tt_inline void tt_sh_read_line(IN tt_shell_t *sh, IN tt_cli_on_read_t on_read)
+tt_inline void tt_sh_set_readline(IN tt_shell_t *sh,
+                                  IN tt_cli_on_readline_t on_read)
 {
-    tt_cli_read_line(&sh->cli, on_read);
+    tt_cli_set_readline(&sh->cli, on_read);
 }
 
 #endif /* __TT_SHELL__ */

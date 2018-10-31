@@ -239,10 +239,10 @@ extern "C" {
 #include <os/tt_thread.h>
 #include <param/tt_param.h>
 #include <param/tt_param_bool.h>
+#include <param/tt_param_cli.h>
 #include <param/tt_param_def.h>
 #include <param/tt_param_dir.h>
 #include <param/tt_param_exe.h>
-#include <param/tt_param_format_cli.h>
 #include <param/tt_param_path.h>
 #include <param/tt_param_s32.h>
 #include <param/tt_param_string.h>

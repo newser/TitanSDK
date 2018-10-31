@@ -671,7 +671,8 @@ TT_TEST_ROUTINE_DEFINE(case_cfgnode_str)
     tt_buf_clear(&out);
     ret = tt_param_read(cnode, &out);
     TT_UT_SUCCESS(ret, "");
-    cmp_ret = tt_buf_cmp_cstr(&out, "\"\"");
+    // cmp_ret = tt_buf_cmp_cstr(&out, "\"\"");
+    cmp_ret = tt_buf_cmp_cstr(&out, "");
     TT_UT_EQUAL(cmp_ret, 0, "");
 
     // set
@@ -711,7 +712,8 @@ TT_TEST_ROUTINE_DEFINE(case_cfgnode_str)
     tt_buf_clear(&out);
     ret = tt_param_read(cnode, &out);
     TT_UT_SUCCESS(ret, "");
-    cmp_ret = tt_buf_cmp_cstr(&out, "\"test string\"");
+    // cmp_ret = tt_buf_cmp_cstr(&out, "\"test string\"");
+    cmp_ret = tt_buf_cmp_cstr(&out, "test string");
     TT_UT_EQUAL(cmp_ret, 0, "");
 
     // set
@@ -722,7 +724,8 @@ TT_TEST_ROUTINE_DEFINE(case_cfgnode_str)
     tt_buf_clear(&out);
     ret = tt_param_read(cnode, &out);
     TT_UT_SUCCESS(ret, "");
-    cmp_ret = tt_buf_cmp_cstr(&out, "\"2147483647\"");
+    // cmp_ret = tt_buf_cmp_cstr(&out, "\"2147483647\"");
+    cmp_ret = tt_buf_cmp_cstr(&out, "2147483647");
     TT_UT_EQUAL(cmp_ret, 0, "");
     TT_UT_EQUAL(tt_string_cmp(&val, "2147483647"), 0, "");
 
@@ -733,7 +736,8 @@ TT_TEST_ROUTINE_DEFINE(case_cfgnode_str)
     tt_buf_clear(&out);
     ret = tt_param_read(cnode, &out);
     TT_UT_SUCCESS(ret, "");
-    cmp_ret = tt_buf_cmp_cstr(&out, "\"-2147483649\"");
+    // cmp_ret = tt_buf_cmp_cstr(&out, "\"-2147483649\"");
+    cmp_ret = tt_buf_cmp_cstr(&out, "-2147483649");
     TT_UT_EQUAL(cmp_ret, 0, "");
     TT_UT_EQUAL(tt_string_cmp(&val, invalid_s32_2), 0, "");
 
@@ -744,7 +748,8 @@ TT_TEST_ROUTINE_DEFINE(case_cfgnode_str)
     tt_buf_clear(&out);
     ret = tt_param_read(cnode, &out);
     TT_UT_SUCCESS(ret, "");
-    cmp_ret = tt_buf_cmp_cstr(&out, "\"test string\"");
+    // cmp_ret = tt_buf_cmp_cstr(&out, "\"test string\"");
+    cmp_ret = tt_buf_cmp_cstr(&out, "test string");
     TT_UT_EQUAL(cmp_ret, 0, "");
     TT_UT_EQUAL(tt_string_cmp(&val, "test string"), 0, "");
 
@@ -755,7 +760,8 @@ TT_TEST_ROUTINE_DEFINE(case_cfgnode_str)
     tt_buf_clear(&out);
     ret = tt_param_read(cnode, &out);
     TT_UT_SUCCESS(ret, "");
-    cmp_ret = tt_buf_cmp_cstr(&out, "\"-2147483649\"");
+    // cmp_ret = tt_buf_cmp_cstr(&out, "\"-2147483649\"");
+    cmp_ret = tt_buf_cmp_cstr(&out, "-2147483649");
     TT_UT_EQUAL(cmp_ret, 0, "");
     TT_UT_EQUAL(tt_string_cmp(&val, invalid_s32_2), 0, "");
 

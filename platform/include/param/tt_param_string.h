@@ -18,9 +18,9 @@
 
 /**
 @file tt_param_string.h
-@brief config option of string type
+@brief string parameter
 
-this file defines config option of string type
+this file defines string parameter
 */
 
 #ifndef __TT_PARAM_STRING__
@@ -64,7 +64,7 @@ typedef struct tt_param_str_s
 ////////////////////////////////////////////////////////////
 
 tt_export tt_param_t *tt_param_str_create(IN const tt_char_t *name,
-                                          IN tt_string_t *p_str,
+                                          IN tt_string_t *p_val,
                                           IN OPT tt_param_attr_t *attr,
                                           IN OPT tt_param_str_cb_t *cb);
 

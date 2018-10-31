@@ -23,7 +23,6 @@
 #include <param/tt_param_dir.h>
 
 #include <algorithm/tt_buffer_format.h>
-#include <param/tt_param_format_cli.h>
 
 ////////////////////////////////////////////////////////////
 // internal macro

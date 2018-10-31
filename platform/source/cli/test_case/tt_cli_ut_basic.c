@@ -1055,7 +1055,7 @@ TT_TEST_ROUTINE_DEFINE(case_cli_readline)
     ret = tt_cli_start(&cli);
     TT_UT_EQUAL(ret, TT_SUCCESS, "");
 
-    tt_cli_read_line(&cli, __ut_cli_on_read);
+    tt_cli_set_readline(&cli, __ut_cli_on_read);
 
     // empty
     {
@@ -1150,7 +1150,7 @@ TT_TEST_ROUTINE_DEFINE(case_cli_readline)
     }
 
     // read and exit
-    tt_cli_read_line(&cli, __ut_cli_on_read);
+    tt_cli_set_readline(&cli, __ut_cli_on_read);
     {
         tt_u8_t ev[] = {'e', 'x', 'i', 't', TT_CLI_EV_ENTER};
 

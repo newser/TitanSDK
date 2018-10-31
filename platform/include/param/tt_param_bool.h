@@ -62,7 +62,7 @@ typedef struct tt_param_bool_s
 ////////////////////////////////////////////////////////////
 
 tt_export tt_param_t *tt_param_bool_create(IN const tt_char_t *name,
-                                           IN tt_bool_t *p_bool,
+                                           IN tt_bool_t *p_val,
                                            IN OPT tt_param_attr_t *attr,
                                            IN OPT tt_param_bool_cb_t *cb);
 

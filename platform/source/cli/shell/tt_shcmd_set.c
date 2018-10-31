@@ -24,7 +24,7 @@
 
 #include <algorithm/tt_buffer_format.h>
 #include <cli/shell/tt_shell.h>
-#include <param/tt_param_format_cli.h>
+#include <param/tt_param_cli.h>
 #include <param/tt_param_path.h>
 
 ////////////////////////////////////////////////////////////

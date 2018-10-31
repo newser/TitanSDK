@@ -50,9 +50,9 @@ typedef tt_result_t (*tt_cli_newline_t)(IN struct tt_cli_s *cli,
                                         IN tt_bool_t line);
 
 // return true to continue reading
-typedef tt_u32_t (*tt_cli_on_read_t)(IN struct tt_cli_s *cli,
-                                     IN const tt_char_t *content,
-                                     IN tt_buf_t *output);
+typedef tt_u32_t (*tt_cli_on_readline_t)(IN struct tt_cli_s *cli,
+                                         IN const tt_char_t *content,
+                                         IN tt_buf_t *output);
 #define TT_CLIOR_DONE 0
 #define TT_CLIOR_MORE 1
 #define TT_CLIOR_END 2
@@ -73,7 +73,7 @@ typedef struct tt_cli_s
     tt_cli_itf_t itf;
     tt_cli_on_ev_t on_ev[TT_CLI_EV_NUM];
     tt_cli_newline_t newline;
-    tt_cli_on_read_t on_read;
+    tt_cli_on_readline_t on_readline;
 
     const tt_char_t *title;
     const tt_char_t *sub_title;
@@ -124,11 +124,14 @@ tt_inline tt_result_t tt_cli_input_ev(IN tt_cli_t *cli, IN tt_u8_t ev)
     return tt_cli_input(cli, &ev, 1);
 }
 
-tt_inline void tt_cli_read_line(IN tt_cli_t *cli,
-                                IN OPT tt_cli_on_read_t on_read)
+// on_cmd() is called under default mode when receiving ev_enter, but
+// on_readline()
+// would be called after setting readline mode
+tt_inline void tt_cli_set_readline(IN tt_cli_t *cli,
+                                   IN OPT tt_cli_on_readline_t on_readline)
 {
     cli->read_mode = __CLI_READ_LINE;
-    cli->on_read = on_read;
+    cli->on_readline = on_readline;
 }
 
 tt_export tt_result_t tt_cli_output(IN tt_cli_t *cli,

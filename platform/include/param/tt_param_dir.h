@@ -18,9 +18,9 @@
 
 /**
 @file tt_param_dir.h
-@brief config option of directory type
+@brief parameter directory
 
-this file defines config option of directory type
+this file defines parameter directory
 */
 
 #ifndef __TT_PARAM_DIR__

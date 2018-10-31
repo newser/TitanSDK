@@ -17,14 +17,14 @@
  */
 
 /**
- @file tt_param_format_cli.h
+ @file tt_param_cli.h
  @brief param format: cli
 
- this file defines config option of s32 type
+ this file defines param apis for cli usage
  */
 
-#ifndef __TT_PARAM_FORMAT_CLI__
-#define __TT_PARAM_FORMAT_CLI__
+#ifndef __TT_PARAM_CLI__
+#define __TT_PARAM_CLI__
 
 ////////////////////////////////////////////////////////////
 // import header files
@@ -53,4 +53,4 @@ tt_export tt_result_t tt_param_cli_ls(IN tt_param_t *p,
                                       IN OPT const tt_char_t *line_sep,
                                       OUT struct tt_buf_s *output);
 
-#endif /* __TT_PARAM_FORMAT_CLI__ */
+#endif /* __TT_PARAM_CLI__ */

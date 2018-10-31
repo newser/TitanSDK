@@ -18,9 +18,9 @@
 
 /**
 @file tt_param_exe.h
-@brief config option of executable type
+@brief executable parameter
 
-this file defines config option of executable type
+this file defines executable parameter
 */
 
 #ifndef __TT_PARAM_EXE__
@@ -40,7 +40,7 @@ this file defines config option of executable type
 // type definition
 ////////////////////////////////////////////////////////////
 
-typedef tt_result_t (*tt_param_exe_run_t)(IN struct tt_param_s *co,
+typedef tt_result_t (*tt_param_exe_run_t)(IN struct tt_param_s *p,
                                           IN tt_u32_t argc,
                                           IN tt_char_t *argv[],
                                           OUT struct tt_buf_s *output,

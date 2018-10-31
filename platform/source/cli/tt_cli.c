@@ -117,7 +117,7 @@ tt_result_t tt_cli_create(IN tt_cli_t *cli,
     tt_cli_set_cb(cli, cb);
     tt_cli_set_itf(cli, itf);
     __load_internal_cb(cli, mode);
-    cli->on_read = NULL;
+    cli->on_readline = NULL;
 
     cli->title = attr->title;
     cli->sub_title = attr->sub_title;
@@ -484,8 +484,8 @@ tt_result_t __cli_read_line(IN tt_cli_t *cli,
 
             TT_DO(tt_buf_put_u8(outbuf, TT_CLI_EV_ENTER));
 
-            if (cli->on_read != NULL) {
-                status = cli->on_read(cli, tt_cline_cstr(cline), outbuf);
+            if (cli->on_readline != NULL) {
+                status = cli->on_readline(cli, tt_cline_cstr(cline), outbuf);
             }
             tt_cline_reset(&cli->cline);
 

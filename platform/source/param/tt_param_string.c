@@ -58,7 +58,7 @@ static tt_param_itf_t __str_itf = {
 ////////////////////////////////////////////////////////////
 
 tt_param_t *tt_param_str_create(IN const tt_char_t *name,
-                                IN tt_string_t *p_str,
+                                IN tt_string_t *p_val,
                                 IN OPT tt_param_attr_t *attr,
                                 IN OPT tt_param_str_cb_t *cb)
 {
@@ -69,7 +69,7 @@ tt_param_t *tt_param_str_create(IN const tt_char_t *name,
                         TT_PARAM_STRING,
                         name,
                         &__str_itf,
-                        p_str,
+                        p_val,
                         attr);
     if (p == NULL) {
         return NULL;
@@ -98,9 +98,9 @@ tt_result_t __str_read(IN tt_param_t *p, OUT tt_buf_t *output)
 {
     tt_param_str_t *ps = TT_PARAM_CAST(p, tt_param_str_t);
 
-    TT_DO(tt_buf_put_u8(output, '"'));
+    // TT_DO(tt_buf_put_u8(output, '"'));
     TT_DO(tt_buf_put_cstr(output, tt_string_cstr((tt_string_t *)p->opaque)));
-    TT_DO(tt_buf_put_u8(output, '"'));
+    // TT_DO(tt_buf_put_u8(output, '"'));
 
     return TT_SUCCESS;
 }

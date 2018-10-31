@@ -61,7 +61,7 @@ static tt_param_itf_t __bool_itf = {
 ////////////////////////////////////////////////////////////
 
 tt_param_t *tt_param_bool_create(IN const tt_char_t *name,
-                                 IN tt_bool_t *p_bool,
+                                 IN tt_bool_t *p_val,
                                  IN OPT tt_param_attr_t *attr,
                                  IN OPT tt_param_bool_cb_t *cb)
 {
@@ -72,7 +72,7 @@ tt_param_t *tt_param_bool_create(IN const tt_char_t *name,
                         TT_PARAM_BOOL,
                         name,
                         &__bool_itf,
-                        p_bool,
+                        p_val,
                         attr);
     if (p == NULL) {
         return NULL;
