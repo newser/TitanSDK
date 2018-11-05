@@ -300,33 +300,39 @@ platform_link_libraries()
 # link
 #
 
-# library
+# library: fcontext
 set(FCONTEXT_SRC)
 add_subdirectory(${PLATFORM_PATH}/library/fcontext fcontext)
 source_group(fcontext FILES ${FCONTEXT_SRC})
 target_sources(platform PRIVATE ${FCONTEXT_SRC})
 
-# library
+# library: tls
 set(TLS_LIB)
 set(X509_LIB)
 set(CRYPTO_LIB)
 add_subdirectory(${PLATFORM_PATH}/library/tls tls)
 target_link_libraries(platform ${CRYPTO_LIB} ${X509_LIB} ${TLS_LIB})
 
-# library
+# library: xml
 add_subdirectory(${PLATFORM_PATH}/library/xml xml)
 target_link_libraries(platform xml)
 
-# library
+# library: dns
 set(DNS_LIB)
 add_subdirectory(${PLATFORM_PATH}/library/dns dns)
 target_link_libraries(platform ${DNS_LIB})
 
-# library
+# library: zip
 set(ZLIB_LIB)
 set(LIBZIP_LIB)
 add_subdirectory(${PLATFORM_PATH}/library/zip zip)
 target_link_libraries(platform ${ZLIB_LIB} ${LIBZIP_LIB})
+
+# library: http
+set(HTTP_SRC)
+add_subdirectory(${PLATFORM_PATH}/library/http http)
+source_group(http FILES ${HTTP_SRC})
+target_sources(platform PRIVATE ${HTTP_SRC})
 
 #include(${PLATFORM_PATH}/build/generate_header.cmake)
 #
