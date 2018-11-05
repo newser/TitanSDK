@@ -8,6 +8,7 @@ extern "C" {
 #include <unit_test/tt_unit_test.h>
 
 #include <algorithm/tt_binary_search.h>
+#include <algorithm/tt_blobex.h>
 #include <algorithm/tt_hashmap.h>
 #include <algorithm/tt_list.h>
 #include <algorithm/tt_red_black_tree.h>
@@ -92,6 +93,7 @@ TT_TEST_ROUTINE_DECLARE(case_basic_alg_qsort_random)
 TT_TEST_ROUTINE_DECLARE(case_basic_alg_bsearch)
 TT_TEST_ROUTINE_DECLARE(case_basic_alg_min_larger)
 TT_TEST_ROUTINE_DECLARE(case_basic_alg_max_less)
+TT_TEST_ROUTINE_DECLARE(case_blobex)
 
 TT_TEST_ROUTINE_DECLARE(case_alg_rng)
 // =========================================
@@ -148,6 +150,15 @@ TT_TEST_CASE("case_basic_alg_qsort",
     TT_TEST_CASE("case_alg_rng",
                  "testing random num generator",
                  case_alg_rng,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL),
+
+    TT_TEST_CASE("case_blobex",
+                 "testing blobex",
+                 case_blobex,
                  NULL,
                  NULL,
                  NULL,
@@ -994,6 +1005,104 @@ TT_TEST_ROUTINE_DEFINE(case_alg_rng)
     TT_RECORD_INFO("xorshift, time: %dms, min: %d, max: %d", t, min_n, max_n);
 
     tt_rng_destroy(rng);
+
+    // test end
+    TT_TEST_CASE_LEAVE()
+}
+
+TT_TEST_ROUTINE_DEFINE(case_blobex)
+{
+    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+    tt_blobex_t b, b2, *pb;
+    tt_result_t r;
+    tt_u8_t buf[3] = {'1', '2', '3'};
+    tt_u8_t buf2[2] = {'4', '5'};
+    tt_u8_t *p;
+
+    TT_TEST_CASE_ENTER()
+    // test start
+
+    // create null: reserved space
+    TT_UT_SUCCESS(tt_blobex_create(&b, NULL, 1), "");
+    TT_UT_EQUAL(tt_blobex_len(&b), 1, "");
+    TT_UT_NOT_EQUAL(tt_blobex_addr(&b), NULL, "");
+    TT_UT_EQUAL(TT_BOOL(__BLOBEX_IS_OWNER(&b)), TT_TRUE, "");
+    tt_blobex_destroy(&b);
+
+    // create with data
+    TT_UT_SUCCESS(tt_blobex_create(&b, buf, 3), "");
+    TT_UT_EQUAL(tt_blobex_len(&b), 3, "");
+    p = (tt_u8_t *)tt_blobex_addr(&b);
+    TT_UT_EQUAL(p[0], '1', "");
+    TT_UT_EQUAL(p[1], '2', "");
+    TT_UT_EQUAL(p[2], '3', "");
+    TT_UT_EQUAL(TT_BOOL(__BLOBEX_IS_OWNER(&b)), TT_TRUE, "");
+    tt_blobex_destroy(&b);
+
+    // init null
+    tt_blobex_init(&b, NULL, 3);
+    TT_UT_EQUAL(tt_blobex_addr(&b), NULL, "");
+    TT_UT_EQUAL(tt_blobex_len(&b), 3, "");
+    tt_blobex_destroy(&b);
+
+    // init with data
+    tt_blobex_init(&b, buf, 3);
+    TT_UT_EQUAL(tt_blobex_addr(&b), buf, "");
+    p = (tt_u8_t *)tt_blobex_addr(&b);
+    TT_UT_EQUAL(p[0], '1', "");
+    TT_UT_EQUAL(p[1], '2', "");
+    TT_UT_EQUAL(p[2], '3', "");
+    TT_UT_EQUAL(tt_blobex_len(&b), 3, "");
+    TT_UT_EQUAL(TT_BOOL(__BLOBEX_IS_OWNER(&b)), TT_FALSE, "");
+    tt_blobex_destroy(&b);
+
+    // owner to ref
+    TT_UT_SUCCESS(tt_blobex_create(&b, buf, 3), "");
+    TT_UT_SUCCESS(tt_blobex_set(&b, buf2, 2, TT_FALSE), "");
+    TT_UT_EQUAL(tt_blobex_addr(&b), buf2, "");
+    TT_UT_EQUAL(tt_blobex_len(&b), 2, "");
+    TT_UT_EQUAL(TT_BOOL(__BLOBEX_IS_OWNER(&b)), TT_FALSE, "");
+
+    // ref to owner
+    TT_UT_SUCCESS(tt_blobex_set(&b, buf, 3, TT_TRUE), "");
+    p = (tt_u8_t *)tt_blobex_addr(&b);
+    TT_UT_EQUAL(p[0], '1', "");
+    TT_UT_EQUAL(p[1], '2', "");
+    TT_UT_EQUAL(p[2], '3', "");
+    TT_UT_EQUAL(tt_blobex_len(&b), 3, "");
+    TT_UT_EQUAL(TT_BOOL(__BLOBEX_IS_OWNER(&b)), TT_TRUE, "");
+    tt_blobex_destroy(&b);
+
+    // cmp
+    tt_blobex_create(&b, buf, 2);
+    tt_blobex_init(&b2, buf2, 2);
+    TT_UT_EQUAL(tt_blobex_cmp(&b, &b), 0, "");
+    TT_UT_EXP(tt_blobex_cmp(&b, &b2) < 0, "");
+    TT_UT_EQUAL(tt_blobex_cmp(&b2, &b2), 0, "");
+    TT_UT_EXP(tt_blobex_cmp(&b2, &b) > 0, "");
+
+    TT_UT_EQUAL(tt_blobex_strcmp(&b, "12"), 0, "");
+    TT_UT_EXP(tt_blobex_strcmp(&b, "1") > 0, "");
+    TT_UT_EXP(tt_blobex_strcmp(&b, "123") < 0, "");
+
+    TT_UT_EQUAL(tt_blobex_strcmp(&b2, "45"), 0, "");
+    TT_UT_EXP(tt_blobex_strcmp(&b2, "4") > 0, "");
+    TT_UT_EXP(tt_blobex_strcmp(&b2, "456") < 0, "");
+
+    // per thread
+    pb = tt_thread_alloc_blobex();
+    TT_UT_NOT_NULL(pb, "");
+    tt_thread_free_blobex(pb);
+
+    pb = tt_thread_create_blobex(buf, 3);
+    TT_UT_NOT_NULL(pb, "");
+    TT_UT_EQUAL(tt_blobex_strcmp(pb, "123"), 0, "");
+    tt_thread_free_blobex(pb);
+
+    pb = tt_thread_init_blobex(buf2, 2);
+    TT_UT_NOT_NULL(pb, "");
+    TT_UT_EQUAL(tt_blobex_strcmp(pb, "45"), 0, "");
+    tt_thread_free_blobex(pb);
 
     // test end
     TT_TEST_CASE_LEAVE()

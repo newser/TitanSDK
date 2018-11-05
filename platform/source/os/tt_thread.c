@@ -22,6 +22,7 @@
 
 #include <os/tt_thread.h>
 
+#include <algorithm/tt_blobex.h>
 #include <algorithm/tt_buffer.h>
 #include <algorithm/tt_rng_xorshift.h>
 #include <crypto/tt_ctr_drbg.h>
@@ -29,6 +30,7 @@
 #include <init/tt_component.h>
 #include <init/tt_profile.h>
 #include <memory/tt_memory_alloc.h>
+#include <memory/tt_slab.h>
 #include <misc/tt_assert.h>
 #include <os/tt_fiber.h>
 
@@ -187,6 +189,8 @@ tt_result_t tt_thread_create_local(IN OPT tt_thread_attr_t *attr)
     thread->task = NULL;
     thread->entropy = NULL;
     thread->ctr_drbg = NULL;
+    thread->backtrace = NULL;
+    thread->blobex = NULL;
 
     thread->last_error = TT_SUCCESS;
     thread->detached = TT_FALSE;
@@ -246,6 +250,63 @@ tt_result_t tt_thread_wait_local()
     return tt_thread_wait_local_ntv(thread);
 }
 
+tt_blobex_t *tt_thread_alloc_blobex()
+{
+    tt_thread_t *thread = tt_current_thread();
+
+    if (thread->blobex == NULL) {
+        tt_slab_t *slab;
+        tt_slab_attr_t attr;
+
+        slab = tt_malloc(sizeof(tt_slab_t));
+        if (slab == NULL) {
+            TT_ERROR("no mem for blobex slab");
+            return NULL;
+        }
+
+        tt_slab_attr_default(&attr);
+
+        if (!TT_OK(tt_slab_create(slab, sizeof(tt_blobex_t), &attr))) {
+            tt_free(slab);
+            return NULL;
+        }
+
+        thread->blobex = slab;
+    }
+
+    return (tt_blobex_t *)tt_slab_alloc(thread->blobex);
+}
+
+tt_blobex_t *tt_thread_create_blobex(IN OPT tt_u8_t *addr, IN tt_u32_t len)
+{
+    tt_blobex_t *bex = tt_thread_alloc_blobex();
+    if (bex != NULL) {
+        if (TT_OK(tt_blobex_create(bex, addr, len))) {
+            return bex;
+        } else {
+            tt_thread_free_blobex(bex);
+            return NULL;
+        }
+    } else {
+        return NULL;
+    }
+}
+
+tt_blobex_t *tt_thread_init_blobex(IN OPT tt_u8_t *addr, IN tt_u32_t len)
+{
+    tt_blobex_t *bex = tt_thread_alloc_blobex();
+    if (bex != NULL) {
+        tt_blobex_init(bex, addr, len);
+    }
+    return bex;
+}
+
+void tt_thread_free_blobex(tt_blobex_t *bex)
+{
+    tt_blobex_destroy(bex);
+    tt_slab_free(bex);
+}
+
 tt_result_t __thread_component_init(IN tt_component_t *comp,
                                     IN tt_profile_t *profile)
 {
@@ -300,6 +361,11 @@ void __thread_on_exit(IN tt_thread_t *thread)
     if (thread->backtrace != NULL) {
         tt_buf_destroy(thread->backtrace);
         tt_free(thread->backtrace);
+    }
+
+    if (thread->blobex != NULL) {
+        tt_slab_destroy(thread->blobex);
+        tt_free(thread->blobex);
     }
 
     // for non-detached and non-local thread, the struct will

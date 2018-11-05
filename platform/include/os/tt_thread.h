@@ -48,6 +48,8 @@ struct tt_task_s;
 struct tt_entropy_s;
 struct tt_ctr_drbg_s;
 struct tt_buf_s;
+struct tt_slab_s;
+struct tt_blobex_s;
 
 /**
  @typedef tt_result_t (*tt_thread_routine_t)(IN void *param)
@@ -104,6 +106,7 @@ typedef struct tt_thread_s
     struct tt_entropy_s *entropy;
     struct tt_ctr_drbg_s *ctr_drbg;
     struct tt_buf_s *backtrace;
+    struct tt_slab_s *blobex;
 
     /** system thread handle */
     tt_thread_ntv_t sys_thread;
@@ -259,5 +262,20 @@ tt_inline tt_u64_t tt_rand_u64()
     return tt_rng_u64(tt_current_thread()->rng);
 }
 #define tt_rand_u32() ((tt_u32_t)tt_rand_u64())
+
+// ========================================
+// per thread blobex
+// ========================================
+
+tt_export struct tt_blobex_s *tt_thread_alloc_blobex();
+
+tt_export struct tt_blobex_s *tt_thread_create_blobex(IN OPT tt_u8_t *addr,
+                                                      IN tt_u32_t len);
+
+tt_export struct tt_blobex_s *tt_thread_init_blobex(IN OPT tt_u8_t *addr,
+                                                    IN tt_u32_t len);
+
+tt_export void tt_thread_free_blobex(struct tt_blobex_s *bex);
+
 
 #endif /* __TT_THREAD__ */

@@ -99,7 +99,7 @@ tt_result_t __ut_fiber(IN void *param)
 #if 1
     else {
         const tt_char_t *names[] =
-        { "case_fiber_event_cross",
+        { "case_blobex",
 #if 0
             "TEST_UNIT_LOG",
             "TEST_UNIT_LOG_PATTERN",
@@ -130,10 +130,10 @@ tt_result_t __ut_fiber(IN void *param)
 #if 0           
             "TEST_UNIT_MISC",
             "TEST_UNIT_CHARSET",
-#endif
           "TEST_UNIT_CFGNODE",
           "TEST_UNIT_CFGPATH",
           "TEST_UNIT_CFGSHELL",
+#endif
 
 //"TEST_UNIT_FS",
 //            "TEST_UNIT_IPC",
@@ -301,7 +301,7 @@ tt_platform_init(NULL);
 // tt_thread_create_local(NULL);
 
 // run
-#define AUT_MODE 2
+#define AUT_MODE 0
 
 #if AUT_MODE == 0
 {
