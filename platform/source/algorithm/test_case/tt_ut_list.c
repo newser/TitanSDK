@@ -333,6 +333,31 @@ TT_TEST_ROUTINE_DEFINE(case_dl_list)
     TT_UT_EQUAL(tt_dlist_tail(&l1), &n4, "");
     TT_UT_EQUAL(tt_dlist_empty(&l2), TT_TRUE, "");
 
+    // swap
+    tt_dlist_clear(&l1);
+    tt_dlist_clear(&l2);
+    tt_dlist_swap(&l1, &l2);
+    TT_UT_TRUE(tt_dlist_empty(&l1), "");
+    TT_UT_TRUE(tt_dlist_empty(&l2), "");
+
+    tt_dlist_push_tail(&l1, &n1);
+    tt_dlist_push_tail(&l1, &n2);
+    tt_dlist_push_tail(&l1, &n3);
+    tt_dlist_swap(&l1, &l2);
+    TT_UT_EQUAL(tt_dlist_count(&l2), 3, "");
+    TT_UT_EQUAL(tt_dlist_head(&l2), &n1, "");
+    TT_UT_EQUAL(tt_dlist_tail(&l2), &n3, "");
+    TT_UT_EQUAL(tt_dlist_empty(&l1), TT_TRUE, "");
+
+    tt_dlist_push_tail(&l1, &n4);
+    tt_dlist_swap(&l1, &l2);
+    TT_UT_EQUAL(tt_dlist_count(&l1), 3, "");
+    TT_UT_EQUAL(tt_dlist_head(&l1), &n1, "");
+    TT_UT_EQUAL(tt_dlist_tail(&l1), &n3, "");
+    TT_UT_EQUAL(tt_dlist_count(&l2), 1, "");
+    TT_UT_EQUAL(tt_dlist_head(&l2), &n4, "");
+    TT_UT_EQUAL(tt_dlist_tail(&l2), &n4, "");
+
     // test end
     TT_TEST_CASE_LEAVE()
 }

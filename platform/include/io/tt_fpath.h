@@ -37,18 +37,18 @@ this file defines file system path
 // macro definition
 ////////////////////////////////////////////////////////////
 
+#define TT_FPATH_SEP_WINDOWS '\\'
+#define TT_FPATH_SEP_UNIX '/'
+
+#if TT_ENV_OS_IS_WINDOWS
+#define TT_FPATH_SEP TT_FPATH_SEP_WINDOWS
+#else
+#define TT_FPATH_SEP TT_FPATH_SEP_UNIX
+#endif
+
 ////////////////////////////////////////////////////////////
 // type definition
 ////////////////////////////////////////////////////////////
-
-typedef enum {
-    TT_FPATH_AUTO,
-    TT_FPATH_UNIX,
-    TT_FPATH_WINDOWS,
-
-    TT_FPATH_STYLE_NUM,
-} tt_fpath_style_t;
-#define TT_FPATH_STYLE_VALID(s) ((s) < TT_FPATH_STYLE_NUM)
 
 typedef struct
 {
@@ -75,11 +75,11 @@ typedef struct
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-tt_export void tt_fpath_init(IN tt_fpath_t *fp, IN tt_fpath_style_t style);
+tt_export void tt_fpath_init(IN tt_fpath_t *fp, IN tt_char_t separator);
 
 tt_export tt_result_t tt_fpath_create(IN tt_fpath_t *fp,
                                       const tt_char_t *path,
-                                      IN tt_fpath_style_t style);
+                                      IN tt_char_t separator);
 
 tt_export void tt_fpath_destroy(IN tt_fpath_t *fp);
 
@@ -105,7 +105,8 @@ tt_export tt_bool_t tt_fpath_endwith(IN tt_fpath_t *fp,
 
 tt_inline tt_bool_t tt_fpath_is_file(IN tt_fpath_t *fp)
 {
-    return ((fp->basename != NULL) || (fp->extension != NULL));
+    return (((fp->basename != NULL) && (fp->basename[0] != 0)) ||
+            ((fp->extension != NULL) && (fp->extension[0] != 0)));
 }
 
 tt_export const tt_char_t *tt_fpath_get_filename(IN tt_fpath_t *fp);
@@ -170,11 +171,17 @@ tt_inline tt_bool_t tt_fpath_is_absolute(IN tt_fpath_t *fp)
 tt_export tt_result_t tt_fpath_get_absolute(IN tt_fpath_t *fp,
                                             OUT tt_fpath_t *abs);
 
+// fp must have same separator as returned path by tt_current_path()
 tt_export tt_result_t tt_fpath_to_absolute(IN tt_fpath_t *fp);
 
 tt_inline tt_bool_t tt_fpath_is_relative(IN tt_fpath_t *fp)
 {
     return !tt_fpath_is_absolute(fp);
+}
+
+tt_inline tt_bool_t tt_fpath_is_empty(IN tt_fpath_t *fp)
+{
+    return TT_BOOL(tt_fpath_cstr(fp)[0] == 0);
 }
 
 tt_inline tt_u32_t tt_fpath_count(IN tt_fpath_t *fp)
@@ -206,5 +213,15 @@ tt_export tt_result_t tt_fpath_get_sub(IN tt_fpath_t *fp,
                                        IN tt_u32_t from,
                                        IN tt_u32_t num,
                                        OUT tt_fpath_t *sub);
+
+tt_export tt_result_t tt_fpath_normalize(IN tt_fpath_t *fp);
+
+tt_export tt_result_t tt_fpath_resolve(IN tt_fpath_t *fp,
+                                       IN tt_fpath_t *other,
+                                       OUT tt_fpath_t *resolved);
+
+tt_export tt_result_t tt_fpath_relativize(IN tt_fpath_t *fp,
+                                          IN tt_fpath_t *other,
+                                          OUT tt_fpath_t *relative);
 
 #endif // __TT_FPATH__

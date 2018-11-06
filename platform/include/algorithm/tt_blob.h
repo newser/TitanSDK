@@ -63,7 +63,12 @@ tt_inline tt_result_t tt_blob_create(OUT tt_blob_t *blob,
                                      IN OPT tt_u8_t *addr,
                                      IN tt_u32_t len)
 {
-    tt_u8_t *p = (tt_u8_t *)tt_malloc(len);
+    tt_u8_t *p;
+
+    // len can not be 0, or use tt_blob_init() instead
+    TT_ASSERT(len != 0);
+
+    p = (tt_u8_t *)tt_malloc(len);
     if (p != NULL) {
         if (addr != NULL) {
             tt_memcpy(p, addr, len);

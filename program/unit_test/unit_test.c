@@ -99,7 +99,9 @@ tt_result_t __ut_fiber(IN void *param)
 #if 1
     else {
         const tt_char_t *names[] =
-        { "case_blobex",
+        { "case_dl_list",
+          "case_ptr_queue",
+          "case_fpath_normalize",
 #if 0
             "TEST_UNIT_LOG",
             "TEST_UNIT_LOG_PATTERN",

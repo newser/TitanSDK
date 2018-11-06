@@ -227,6 +227,12 @@ tt_inline void tt_dlist_move(IN tt_dlist_t *dst, IN tt_dlist_t *src)
     tt_dlist_init(src);
 }
 
+tt_inline void tt_dlist_swap(IN tt_dlist_t *a, IN tt_dlist_t *b)
+{
+    TT_SWAP(tt_dnode_t *, a->head, b->head);
+    TT_SWAP(tt_dnode_t *, a->tail, b->tail);
+}
+
 tt_inline void tt_dlist_insert_before(IN tt_dlist_t *dl,
                                       IN tt_dnode_t *pos,
                                       IN tt_dnode_t *dn)

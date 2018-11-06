@@ -611,7 +611,7 @@ TT_TEST_ROUTINE_DEFINE(case_log_io_file_date)
             continue;
         }
 
-        tt_fpath_create(&p, __LIOF_LOG_PATH_D, TT_FPATH_AUTO);
+        tt_fpath_create(&p, __LIOF_LOG_PATH_D, TT_FPATH_SEP);
         tt_fpath_set_filename(&p, de.name);
 
         ret = tt_fopen(&f, tt_fpath_cstr(&p), TT_FO_READ | TT_FO_EXCL, NULL);
@@ -670,7 +670,7 @@ TT_TEST_ROUTINE_DEFINE(case_log_io_file_date)
             continue;
         }
 
-        tt_fpath_create(&p, __LIOF_LOG_PATH_D, TT_FPATH_AUTO);
+        tt_fpath_create(&p, __LIOF_LOG_PATH_D, TT_FPATH_SEP);
         tt_fpath_set_filename(&p, de.name);
 
         ret = tt_fopen(&f, tt_fpath_cstr(&p), TT_FO_READ | TT_FO_EXCL, NULL);
@@ -770,7 +770,7 @@ TT_TEST_ROUTINE_DEFINE(case_log_io_file_archive)
             // this should be the log archive
             found = TT_TRUE;
 
-            tt_fpath_init(&fp, TT_FPATH_AUTO);
+            tt_fpath_init(&fp, TT_FPATH_SEP);
             tt_fpath_set(&fp, __LIOF_P_ARCH);
             tt_fpath_to_dir(&fp);
             tt_fpath_set_filename(&fp, de.name);

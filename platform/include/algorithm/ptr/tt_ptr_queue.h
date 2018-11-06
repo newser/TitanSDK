@@ -38,8 +38,11 @@
 // type definition
 ////////////////////////////////////////////////////////////
 
+typedef void (*tt_ptrq_destroy_ptr_t)(tt_ptr_t p);
+
 typedef struct
 {
+    tt_ptrq_destroy_ptr_t destroy_ptr;
     tt_u32_t ptr_per_frame;
 } tt_ptrq_attr_t;
 
@@ -47,6 +50,7 @@ typedef struct tt_ptrq_s
 {
     tt_dlist_t frame;
     void *cached_frame;
+    tt_ptrq_destroy_ptr_t destroy_ptr;
     tt_u32_t count;
     tt_u32_t ptr_per_frame;
 } tt_ptrq_t;
@@ -92,6 +96,10 @@ tt_export tt_ptr_t tt_ptrq_pop_head(IN tt_ptrq_t *pq);
 
 tt_export tt_ptr_t tt_ptrq_pop_tail(IN tt_ptrq_t *pq);
 
+tt_export void tt_ptrq_remove_head(IN tt_ptrq_t *pq);
+
+tt_export void tt_ptrq_remove_tail(IN tt_ptrq_t *pq);
+
 tt_export tt_ptr_t tt_ptrq_head(IN tt_ptrq_t *pq);
 
 tt_export tt_ptr_t tt_ptrq_tail(IN tt_ptrq_t *pq);
@@ -105,5 +113,12 @@ tt_export tt_ptr_t tt_ptrq_get(IN tt_ptrq_t *pq, IN tt_u32_t idx);
 tt_export tt_ptr_t tt_ptrq_set(IN tt_ptrq_t *pq,
                                IN tt_u32_t idx,
                                IN tt_ptr_t p);
+
+tt_export void tt_ptrq_swap(IN tt_ptrq_t *a, IN tt_ptrq_t *b);
+
+tt_export tt_result_t tt_ptrq_move(IN tt_ptrq_t *dst, IN tt_ptrq_t *src);
+
+// a helper
+tt_export void tt_ptrq_free_ptr(tt_ptr_t p);
 
 #endif /* __TT_PTR_QUEUE__ */

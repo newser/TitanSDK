@@ -268,7 +268,7 @@ tt_result_t __fidx_next(IN tt_logio_file_t *lf)
     }
 
     // construct log file name
-    tt_fpath_init(&path, TT_FPATH_AUTO);
+    tt_fpath_init(&path, TT_FPATH_SEP);
     if (!TT_OK(tt_fpath_set(&path, lf->log_path)) ||
         !TT_OK(tt_fpath_to_dir(&path)) ||
         !TT_OK(tt_fpath_set_basename(&path, lf->log_name))) {
@@ -369,7 +369,7 @@ tt_result_t __fdate_next(IN tt_logio_file_t *lf)
     }
 
     // construct log file name
-    tt_fpath_init(&path, TT_FPATH_AUTO);
+    tt_fpath_init(&path, TT_FPATH_SEP);
     if (!TT_OK(tt_fpath_set(&path, lf->log_path)) ||
         !TT_OK(tt_fpath_to_dir(&path)) ||
         !TT_OK(tt_fpath_set_basename(&path, lf->log_name))) {
@@ -535,7 +535,7 @@ void __liof_w_archive(IN tt_logio_file_t *lf)
     TT_ASSERT(lf->max_log_size != 0);
     TT_ASSERT(lf->keep_log_sec != 0);
 
-    tt_fpath_init(&old_p, TT_FPATH_AUTO);
+    tt_fpath_init(&old_p, TT_FPATH_SEP);
     done |= __LA_OLD_P;
     if (!TT_OK(tt_fpath_set(&old_p, lf->archive_path)) ||
         !TT_OK(tt_fpath_to_dir(&old_p)) ||
@@ -544,17 +544,17 @@ void __liof_w_archive(IN tt_logio_file_t *lf)
         goto done;
     }
 
-    tt_fpath_init(&new_p, TT_FPATH_AUTO);
+    tt_fpath_init(&new_p, TT_FPATH_SEP);
     done |= __LA_NEW_P;
 
-    tt_fpath_init(&tmp_p, TT_FPATH_AUTO);
+    tt_fpath_init(&tmp_p, TT_FPATH_SEP);
     done |= __LA_TMP_P;
     if (!TT_OK(tt_fpath_set(&tmp_p, lf->log_path)) ||
         !TT_OK(tt_fpath_to_dir(&tmp_p))) {
         goto done;
     }
 
-    tt_fpath_init(&tmp_p2, TT_FPATH_AUTO);
+    tt_fpath_init(&tmp_p2, TT_FPATH_SEP);
     done |= __LA_TMP_P2;
     if (!TT_OK(tt_fpath_set(&tmp_p2, lf->log_path)) ||
         !TT_OK(tt_fpath_to_dir(&tmp_p2))) {
@@ -726,7 +726,7 @@ void __liof_w_purge_remove(IN tt_logio_file_t *lf)
 #define __LPR_AP (1 << 0)
 #define __LPR_DIR (1 << 1)
 
-    tt_fpath_init(&ap, TT_FPATH_AUTO);
+    tt_fpath_init(&ap, TT_FPATH_SEP);
     __done |= __LPR_AP;
     TT_DO_G(done, tt_fpath_set(&ap, lf->archive_path));
 

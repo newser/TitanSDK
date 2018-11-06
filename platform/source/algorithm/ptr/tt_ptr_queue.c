@@ -80,19 +80,16 @@ void tt_ptrq_init(IN tt_ptrq_t *pq, IN OPT tt_ptrq_attr_t *attr)
 
     tt_dlist_init(&pq->frame);
     pq->cached_frame = NULL;
+    pq->destroy_ptr = attr->destroy_ptr;
     pq->count = 0;
     pq->ptr_per_frame = attr->ptr_per_frame;
 }
 
 void tt_ptrq_destroy(IN tt_ptrq_t *pq)
 {
-    tt_dnode_t *dnode;
-
     TT_ASSERT(pq != NULL);
 
-    while ((dnode = tt_dlist_pop_head(&pq->frame)) != NULL) {
-        tt_free(TT_CONTAINER(dnode, __q_frame_t, node));
-    }
+    tt_ptrq_clear(pq);
 
     if (pq->cached_frame != NULL) {
         tt_free(pq->cached_frame);
@@ -102,6 +99,8 @@ void tt_ptrq_destroy(IN tt_ptrq_t *pq)
 void tt_ptrq_attr_default(IN tt_ptrq_attr_t *attr)
 {
     TT_ASSERT(attr != NULL);
+
+    attr->destroy_ptr = NULL;
 
     // overhead of each frame is about 24bytes, so set ptr_per_frame
     // to 32 would reduct overhead rate to 10%
@@ -241,6 +240,22 @@ tt_ptr_t tt_ptrq_pop_tail(IN tt_ptrq_t *pq)
     return p;
 }
 
+void tt_ptrq_remove_head(IN tt_ptrq_t *pq)
+{
+    tt_ptr_t p = tt_ptrq_pop_head(pq);
+    if (p != NULL) {
+        tt_free(p);
+    }
+}
+
+void tt_ptrq_remove_tail(IN tt_ptrq_t *pq)
+{
+    tt_ptr_t p = tt_ptrq_pop_tail(pq);
+    if (p != NULL) {
+        tt_free(p);
+    }
+}
+
 tt_ptr_t tt_ptrq_head(IN tt_ptrq_t *pq)
 {
     tt_dnode_t *dnode;
@@ -368,6 +383,34 @@ tt_ptr_t tt_ptrq_set(IN tt_ptrq_t *pq, IN tt_u32_t idx, IN tt_ptr_t p)
     return NULL;
 }
 
+void tt_ptrq_swap(IN tt_ptrq_t *a, IN tt_ptrq_t *b)
+{
+    tt_dlist_swap(&a->frame, &b->frame);
+    TT_SWAP(void *, a->cached_frame, b->cached_frame);
+    TT_SWAP(tt_u32_t, a->count, b->count);
+    TT_SWAP(tt_u32_t, a->ptr_per_frame, b->ptr_per_frame);
+}
+
+tt_result_t tt_ptrq_move(IN tt_ptrq_t *dst, IN tt_ptrq_t *src)
+{
+    tt_ptr_t p;
+
+    TT_ASSERT(dst->destroy_ptr == src->destroy_ptr);
+
+    while ((p = tt_ptrq_pop_head(src)) != NULL) {
+        if (!TT_OK(tt_ptrq_push_tail(dst, p))) {
+            TT_FATAL("ptr queue partail moving");
+            return TT_FAIL;
+        }
+    }
+    return TT_SUCCESS;
+}
+
+void tt_ptrq_free_ptr(tt_ptr_t p)
+{
+    tt_free(p);
+}
+
 __q_frame_t *__alloc_head_frame(IN tt_ptrq_t *pq)
 {
     __q_frame_t *frame = __alloc_frame(pq);
@@ -410,6 +453,15 @@ __q_frame_t *__alloc_frame(IN tt_ptrq_t *pq)
 
 void __free_frame(IN tt_ptrq_t *pq, IN __q_frame_t *frame)
 {
+    if (pq->destroy_ptr != NULL) {
+        tt_u32_t i = frame->start;
+        TT_ASSERT(i <= frame->end);
+        while (i < frame->end) {
+            pq->destroy_ptr(__F_PTR(frame, i));
+            ++i;
+        }
+    }
+
     if (pq->cached_frame != NULL) {
         tt_free(frame);
     } else {

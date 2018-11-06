@@ -83,7 +83,7 @@ tt_inline tt_result_t tt_blobex_create(OUT tt_blobex_t *bex,
 {
     tt_u8_t *p;
 
-    TT_ASSERT(len < __BLOBEX_MAX_LEN);
+    TT_ASSERT((len > 0) && (len < __BLOBEX_MAX_LEN));
     p = (tt_u8_t *)tt_malloc(len);
     if (p != NULL) {
         if (addr != NULL) {
