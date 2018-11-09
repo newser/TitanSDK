@@ -37,6 +37,10 @@
 // extern declaration
 ////////////////////////////////////////////////////////////
 
+extern tt_result_t __percent_decode(IN tt_blobex_t *bex,
+                                    IN tt_char_t *str,
+                                    IN tt_u32_t len);
+
 ////////////////////////////////////////////////////////////
 // global variant
 ////////////////////////////////////////////////////////////
@@ -53,6 +57,10 @@ TT_TEST_ROUTINE_DECLARE(case_strtol)
 TT_TEST_ROUTINE_DECLARE(case_c2h)
 TT_TEST_ROUTINE_DECLARE(case_align)
 TT_TEST_ROUTINE_DECLARE(case_console_color)
+
+TT_TEST_ROUTINE_DECLARE(case_uri)
+TT_TEST_ROUTINE_DECLARE(case_percent_decode)
+
 // =========================================
 
 // === test case list ======================
@@ -134,6 +142,18 @@ TT_TEST_CASE("case_version",
                  NULL,
                  NULL),
 
+    TT_TEST_CASE(
+        "case_uri", "testing uri", case_uri, NULL, NULL, NULL, NULL, NULL),
+
+    TT_TEST_CASE("case_percent_decode",
+                 "testing percent decode",
+                 case_percent_decode,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL),
+
     TT_TEST_CASE_LIST_DEFINE_END(misc_case)
     // =========================================
 
@@ -148,7 +168,7 @@ TT_TEST_CASE("case_version",
     ////////////////////////////////////////////////////////////
 
     /*
-    TT_TEST_ROUTINE_DEFINE(case_console_color)
+    TT_TEST_ROUTINE_DEFINE(case_percent_decode)
     {
         //tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
 
@@ -1117,6 +1137,336 @@ TT_TEST_ROUTINE_DEFINE(case_console_color)
     TT_INFO("bright current - cyan");
     tt_console_set_color(TT_CONSOLE_COLOR_CURRENT, TT_CONSOLE_BRIGHT_WHITE);
     TT_INFO("bright current - white");
+
+    // test end
+    TT_TEST_CASE_LEAVE()
+}
+
+TT_TEST_ROUTINE_DEFINE(case_uri)
+{
+    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+    tt_uri_t u;
+    void *p;
+    char buf[2] = {1, 2};
+    tt_char_t *s;
+    tt_u32_t len;
+
+    TT_TEST_CASE_ENTER()
+    // test start
+
+    p = tt_memchr(buf, 1, 0);
+    TT_UT_NULL(p, "");
+
+    tt_uri_init(&u);
+    tt_uri_destroy(&u);
+
+    // empty
+    TT_UT_SUCCESS(tt_uri_create(&u, "", 0), "");
+    TT_UT_STREQ(tt_uri_get_scheme(&u), "", "");
+    TT_UT_STREQ(tt_uri_get_specific(&u), "", "");
+    TT_UT_STREQ(tt_uri_get_authority(&u), "", "");
+    TT_UT_STREQ(tt_uri_get_userinfo(&u), "", "");
+    TT_UT_STREQ(tt_uri_get_host(&u), "", "");
+    TT_UT_STREQ(tt_uri_get_path(&u), "", "");
+    TT_UT_STREQ(tt_uri_get_query(&u), "", "");
+    TT_UT_STREQ(tt_uri_get_fragment(&u), "", "");
+
+    tt_uri_clear(&u);
+    tt_uri_destroy(&u);
+
+    TT_UT_SUCCESS(tt_uri_create(&u, "", 1), "");
+    TT_UT_STREQ(tt_uri_get_scheme(&u), "", "");
+    TT_UT_STREQ(tt_uri_get_specific(&u), "", "");
+    TT_UT_STREQ(tt_uri_get_authority(&u), "", "");
+    TT_UT_STREQ(tt_uri_get_userinfo(&u), "", "");
+    TT_UT_STREQ(tt_uri_get_host(&u), "", "");
+    TT_UT_STREQ(tt_uri_get_path(&u), "", "");
+    TT_UT_STREQ(tt_uri_get_query(&u), "", "");
+    TT_UT_STREQ(tt_uri_get_fragment(&u), "", "");
+
+    // single scheme
+    TT_UT_SUCCESS(tt_uri_set(&u, "abc:", 4), "");
+    TT_UT_STREQ(tt_uri_get_scheme(&u), "abc", "");
+    TT_UT_STREQ(tt_uri_get_specific(&u), "", "");
+    TT_UT_STREQ(tt_uri_get_authority(&u), "", "");
+    TT_UT_STREQ(tt_uri_get_userinfo(&u), "", "");
+    TT_UT_STREQ(tt_uri_get_host(&u), "", "");
+    TT_UT_STREQ(tt_uri_get_path(&u), "", "");
+    TT_UT_STREQ(tt_uri_get_query(&u), "", "");
+    TT_UT_STREQ(tt_uri_get_fragment(&u), "", "");
+
+    // single fragment
+    TT_UT_SUCCESS(tt_uri_set(&u, "#123", 4), "");
+    TT_UT_STREQ(tt_uri_get_scheme(&u), "", "");
+    TT_UT_STREQ(tt_uri_get_specific(&u), "", "");
+    TT_UT_STREQ(tt_uri_get_authority(&u), "", "");
+    TT_UT_STREQ(tt_uri_get_userinfo(&u), "", "");
+    TT_UT_STREQ(tt_uri_get_host(&u), "", "");
+    TT_UT_STREQ(tt_uri_get_path(&u), "", "");
+    TT_UT_STREQ(tt_uri_get_query(&u), "", "");
+    TT_UT_STREQ(tt_uri_get_fragment(&u), "123", "");
+
+    // empty specific
+    TT_UT_SUCCESS(tt_uri_set(&u, "abc:#123", 8), "");
+    TT_UT_STREQ(tt_uri_get_scheme(&u), "abc", "");
+    TT_UT_STREQ(tt_uri_get_specific(&u), "", "");
+    TT_UT_STREQ(tt_uri_get_authority(&u), "", "");
+    TT_UT_STREQ(tt_uri_get_userinfo(&u), "", "");
+    TT_UT_STREQ(tt_uri_get_host(&u), "", "");
+    TT_UT_STREQ(tt_uri_get_path(&u), "", "");
+    TT_UT_STREQ(tt_uri_get_query(&u), "", "");
+    TT_UT_STREQ(tt_uri_get_fragment(&u), "123", "");
+
+    // opaque
+    TT_UT_SUCCESS(tt_uri_set(&u, "abc:xyz#123", 11), "");
+    TT_UT_STREQ(tt_uri_get_scheme(&u), "abc", "");
+    TT_UT_STREQ(tt_uri_get_specific(&u), "xyz", "");
+    TT_UT_STREQ(tt_uri_get_authority(&u), "", "");
+    TT_UT_STREQ(tt_uri_get_userinfo(&u), "", "");
+    TT_UT_STREQ(tt_uri_get_host(&u), "", "");
+    TT_UT_STREQ(tt_uri_get_path(&u), "", "");
+    TT_UT_STREQ(tt_uri_get_query(&u), "", "");
+    TT_UT_STREQ(tt_uri_get_fragment(&u), "123", "");
+
+    // abs
+    s = "abc://usr:pwd@host.com:65535/xyz?q1=v1&q2=v2#123";
+    TT_UT_SUCCESS(tt_uri_set(&u, s, tt_strlen(s)), "");
+    TT_UT_STREQ(tt_uri_get_scheme(&u), "abc", "");
+    // TT_UT_STREQ(tt_uri_get_specific(&u), "xyz", "");
+    // TT_UT_STREQ(tt_uri_get_authority(&u), "", "");
+    TT_UT_STREQ(tt_uri_get_userinfo(&u), "usr:pwd", "");
+    TT_UT_STREQ(tt_uri_get_host(&u), "host.com", "");
+    TT_UT_STREQ(tt_uri_get_path(&u), "/xyz", "");
+    TT_UT_STREQ(tt_uri_get_query(&u), "q1=v1&q2=v2", "");
+    TT_UT_STREQ(tt_uri_get_fragment(&u), "123", "");
+    TT_UT_EQUAL(tt_uri_get_port(&u), 65535, "");
+
+    // abs, no path
+    s = "abc://usr:pwd@host.com:65535?q1=v1&q2=v2#123";
+    TT_UT_SUCCESS(tt_uri_set(&u, s, tt_strlen(s)), "");
+    TT_UT_STREQ(tt_uri_get_scheme(&u), "abc", "");
+    // TT_UT_STREQ(tt_uri_get_specific(&u), "xyz", "");
+    // TT_UT_STREQ(tt_uri_get_authority(&u), "", "");
+    TT_UT_STREQ(tt_uri_get_userinfo(&u), "usr:pwd", "");
+    TT_UT_STREQ(tt_uri_get_host(&u), "host.com", "");
+    TT_UT_STREQ(tt_uri_get_path(&u), "", "");
+    TT_UT_STREQ(tt_uri_get_query(&u), "q1=v1&q2=v2", "");
+    TT_UT_STREQ(tt_uri_get_fragment(&u), "123", "");
+    TT_UT_EQUAL(tt_uri_get_port(&u), 65535, "");
+
+    // abs, single slash path
+    s = "abc://usr:pwd@host.com:65535/?q1=v1&q2=v2#123";
+    TT_UT_SUCCESS(tt_uri_set(&u, s, tt_strlen(s)), "");
+    TT_UT_STREQ(tt_uri_get_scheme(&u), "abc", "");
+    // TT_UT_STREQ(tt_uri_get_specific(&u), "xyz", "");
+    // TT_UT_STREQ(tt_uri_get_authority(&u), "", "");
+    TT_UT_STREQ(tt_uri_get_userinfo(&u), "usr:pwd", "");
+    TT_UT_STREQ(tt_uri_get_host(&u), "host.com", "");
+    TT_UT_STREQ(tt_uri_get_path(&u), "/", "");
+    TT_UT_STREQ(tt_uri_get_query(&u), "q1=v1&q2=v2", "");
+    TT_UT_STREQ(tt_uri_get_fragment(&u), "123", "");
+    TT_UT_EQUAL(tt_uri_get_port(&u), 65535, "");
+
+    // abs, no query, only path
+    s = "abc://usr:pwd@host.com:65535/";
+    TT_UT_SUCCESS(tt_uri_set(&u, s, tt_strlen(s)), "");
+    TT_UT_STREQ(tt_uri_get_scheme(&u), "abc", "");
+    // TT_UT_STREQ(tt_uri_get_specific(&u), "xyz", "");
+    // TT_UT_STREQ(tt_uri_get_authority(&u), "", "");
+    TT_UT_STREQ(tt_uri_get_userinfo(&u), "usr:pwd", "");
+    TT_UT_STREQ(tt_uri_get_host(&u), "host.com", "");
+    TT_UT_STREQ(tt_uri_get_path(&u), "/", "");
+    TT_UT_STREQ(tt_uri_get_query(&u), "", "");
+    TT_UT_STREQ(tt_uri_get_fragment(&u), "", "");
+    TT_UT_EQUAL(tt_uri_get_port(&u), 65535, "");
+
+    // abs, no query, no path
+    s = "abc://usr:pwd@host.com:65535";
+    TT_UT_SUCCESS(tt_uri_set(&u, s, tt_strlen(s)), "");
+    TT_UT_STREQ(tt_uri_get_scheme(&u), "abc", "");
+    // TT_UT_STREQ(tt_uri_get_specific(&u), "xyz", "");
+    // TT_UT_STREQ(tt_uri_get_authority(&u), "", "");
+    TT_UT_STREQ(tt_uri_get_userinfo(&u), "usr:pwd", "");
+    TT_UT_STREQ(tt_uri_get_host(&u), "host.com", "");
+    TT_UT_STREQ(tt_uri_get_path(&u), "", "");
+    TT_UT_STREQ(tt_uri_get_query(&u), "", "");
+    TT_UT_STREQ(tt_uri_get_fragment(&u), "", "");
+    TT_UT_EQUAL(tt_uri_get_port(&u), 65535, "");
+
+    // abs, no authority, path query, frag
+    s = "abc:///xyz?q1=v1&q2=v2#123";
+    TT_UT_SUCCESS(tt_uri_set(&u, s, tt_strlen(s)), "");
+    TT_UT_STREQ(tt_uri_get_scheme(&u), "abc", "");
+    // TT_UT_STREQ(tt_uri_get_specific(&u), "xyz", "");
+    // TT_UT_STREQ(tt_uri_get_authority(&u), "", "");
+    TT_UT_STREQ(tt_uri_get_userinfo(&u), "", "");
+    TT_UT_STREQ(tt_uri_get_host(&u), "", "");
+    TT_UT_STREQ(tt_uri_get_path(&u), "/xyz", "");
+    TT_UT_STREQ(tt_uri_get_query(&u), "q1=v1&q2=v2", "");
+    TT_UT_STREQ(tt_uri_get_fragment(&u), "123", "");
+    TT_UT_EQUAL(tt_uri_get_port(&u), 0, "");
+
+    // abs, no authority, no path, query, frag
+    s = "abc://?q1=v1&q2=v2#123";
+    TT_UT_SUCCESS(tt_uri_set(&u, s, tt_strlen(s)), "");
+    TT_UT_STREQ(tt_uri_get_scheme(&u), "abc", "");
+    // TT_UT_STREQ(tt_uri_get_specific(&u), "xyz", "");
+    // TT_UT_STREQ(tt_uri_get_authority(&u), "", "");
+    TT_UT_STREQ(tt_uri_get_userinfo(&u), "", "");
+    TT_UT_STREQ(tt_uri_get_host(&u), "", "");
+    TT_UT_STREQ(tt_uri_get_path(&u), "", "");
+    TT_UT_STREQ(tt_uri_get_query(&u), "q1=v1&q2=v2", "");
+    TT_UT_STREQ(tt_uri_get_fragment(&u), "123", "");
+    TT_UT_EQUAL(tt_uri_get_port(&u), 0, "");
+
+    // abs, no authority, empty path, empty query, empty frag
+    s = "abc:///?#";
+    TT_UT_SUCCESS(tt_uri_set(&u, s, tt_strlen(s)), "");
+    TT_UT_STREQ(tt_uri_get_scheme(&u), "abc", "");
+    // TT_UT_STREQ(tt_uri_get_specific(&u), "xyz", "");
+    // TT_UT_STREQ(tt_uri_get_authority(&u), "", "");
+    TT_UT_STREQ(tt_uri_get_userinfo(&u), "", "");
+    TT_UT_STREQ(tt_uri_get_host(&u), "", "");
+    TT_UT_STREQ(tt_uri_get_path(&u), "/", "");
+    TT_UT_STREQ(tt_uri_get_query(&u), "", "");
+    TT_UT_STREQ(tt_uri_get_fragment(&u), "", "");
+    TT_UT_EQUAL(tt_uri_get_port(&u), 0, "");
+
+    // abs, no authority, path, no query, frag
+    s = "abc:///xyz#123";
+    TT_UT_SUCCESS(tt_uri_set(&u, s, tt_strlen(s)), "");
+    TT_UT_STREQ(tt_uri_get_scheme(&u), "abc", "");
+    // TT_UT_STREQ(tt_uri_get_specific(&u), "xyz", "");
+    // TT_UT_STREQ(tt_uri_get_authority(&u), "", "");
+    TT_UT_STREQ(tt_uri_get_userinfo(&u), "", "");
+    TT_UT_STREQ(tt_uri_get_host(&u), "", "");
+    TT_UT_STREQ(tt_uri_get_path(&u), "/xyz", "");
+    TT_UT_STREQ(tt_uri_get_query(&u), "", "");
+    TT_UT_STREQ(tt_uri_get_fragment(&u), "123", "");
+    TT_UT_EQUAL(tt_uri_get_port(&u), 0, "");
+
+    // abs, no userinfo
+    s = "abc://host.com:65535/xyz?q1=v1&q2=v2#123";
+    TT_UT_SUCCESS(tt_uri_set(&u, s, tt_strlen(s)), "");
+    TT_UT_STREQ(tt_uri_get_scheme(&u), "abc", "");
+    // TT_UT_STREQ(tt_uri_get_specific(&u), "xyz", "");
+    // TT_UT_STREQ(tt_uri_get_authority(&u), "", "");
+    TT_UT_STREQ(tt_uri_get_userinfo(&u), "", "");
+    TT_UT_STREQ(tt_uri_get_host(&u), "host.com", "");
+    TT_UT_STREQ(tt_uri_get_path(&u), "/xyz", "");
+    TT_UT_STREQ(tt_uri_get_query(&u), "q1=v1&q2=v2", "");
+    TT_UT_STREQ(tt_uri_get_fragment(&u), "123", "");
+    TT_UT_EQUAL(tt_uri_get_port(&u), 65535, "");
+
+    // abs, empty userinfo
+    s = "abc://@host.com:65535/xyz?q1=v1&q2=v2#123";
+    TT_UT_SUCCESS(tt_uri_set(&u, s, tt_strlen(s)), "");
+    TT_UT_STREQ(tt_uri_get_scheme(&u), "abc", "");
+    // TT_UT_STREQ(tt_uri_get_specific(&u), "xyz", "");
+    // TT_UT_STREQ(tt_uri_get_authority(&u), "", "");
+    TT_UT_STREQ(tt_uri_get_userinfo(&u), "", "");
+    TT_UT_STREQ(tt_uri_get_host(&u), "host.com", "");
+    TT_UT_STREQ(tt_uri_get_path(&u), "/xyz", "");
+    TT_UT_STREQ(tt_uri_get_query(&u), "q1=v1&q2=v2", "");
+    TT_UT_STREQ(tt_uri_get_fragment(&u), "123", "");
+    TT_UT_EQUAL(tt_uri_get_port(&u), 65535, "");
+
+    // abs, empty userinfo, no host
+    s = "abc://@:65535/xyz?q1=v1&q2=v2#123";
+    TT_UT_SUCCESS(tt_uri_set(&u, s, tt_strlen(s)), "");
+    TT_UT_STREQ(tt_uri_get_scheme(&u), "abc", "");
+    // TT_UT_STREQ(tt_uri_get_specific(&u), "xyz", "");
+    // TT_UT_STREQ(tt_uri_get_authority(&u), "", "");
+    TT_UT_STREQ(tt_uri_get_userinfo(&u), "", "");
+    TT_UT_STREQ(tt_uri_get_host(&u), "", "");
+    TT_UT_STREQ(tt_uri_get_path(&u), "/xyz", "");
+    TT_UT_STREQ(tt_uri_get_query(&u), "q1=v1&q2=v2", "");
+    TT_UT_STREQ(tt_uri_get_fragment(&u), "123", "");
+    TT_UT_EQUAL(tt_uri_get_port(&u), 65535, "");
+
+    // abs, no port
+    s = "abc://host.com/xyz?q1=v1&q2=v2#123";
+    TT_UT_SUCCESS(tt_uri_set(&u, s, tt_strlen(s)), "");
+    TT_UT_STREQ(tt_uri_get_scheme(&u), "abc", "");
+    // TT_UT_STREQ(tt_uri_get_specific(&u), "xyz", "");
+    // TT_UT_STREQ(tt_uri_get_authority(&u), "", "");
+    TT_UT_STREQ(tt_uri_get_userinfo(&u), "", "");
+    TT_UT_STREQ(tt_uri_get_host(&u), "host.com", "");
+    TT_UT_STREQ(tt_uri_get_path(&u), "/xyz", "");
+    TT_UT_STREQ(tt_uri_get_query(&u), "q1=v1&q2=v2", "");
+    TT_UT_STREQ(tt_uri_get_fragment(&u), "123", "");
+    TT_UT_EQUAL(tt_uri_get_port(&u), 0, "");
+
+    // abs, empty port
+    s = "abc://@host.com:/xyz?q1=v1&q2=v2#123";
+    TT_UT_FAIL(tt_uri_set(&u, s, tt_strlen(s)), "");
+    // abs, too long port
+    s = "abc://@host.com:655350/xyz?q1=v1&q2=v2#123";
+    TT_UT_FAIL(tt_uri_set(&u, s, tt_strlen(s)), "");
+    // abs, too large port
+    s = "abc://@host.com:65536/xyz?q1=v1&q2=v2#123";
+    TT_UT_FAIL(tt_uri_set(&u, s, tt_strlen(s)), "");
+    // abs, invalid port
+    s = "abc://@host.com:23a/xyz?q1=v1&q2=v2#123";
+    TT_UT_FAIL(tt_uri_set(&u, s, tt_strlen(s)), "");
+
+    // test end
+    TT_TEST_CASE_LEAVE()
+}
+
+TT_TEST_ROUTINE_DEFINE(case_percent_decode)
+{
+    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+    tt_blobex_t b;
+
+    TT_TEST_CASE_ENTER()
+    // test start
+
+    tt_blobex_init(&b, NULL, 0);
+
+    TT_UT_SUCCESS(__percent_decode(&b, "", 0), "");
+
+    TT_UT_SUCCESS(__percent_decode(&b, "", 1), "");
+
+    TT_UT_SUCCESS(__percent_decode(&b, "1", 1), "");
+    TT_UT_STREQ(tt_blobex_addr(&b), "1", "");
+
+    TT_UT_SUCCESS(__percent_decode(&b, "%", 1), "");
+    TT_UT_STREQ(tt_blobex_addr(&b), "%", "");
+
+    TT_UT_SUCCESS(__percent_decode(&b, "%1", 2), "");
+    TT_UT_STREQ(tt_blobex_addr(&b), "%1", "");
+
+    TT_UT_SUCCESS(__percent_decode(&b, "%12", 4), "");
+    TT_UT_EQUAL(tt_blobex_len(&b), 3, "");
+    TT_UT_EQUAL(((tt_u8_t *)tt_blobex_addr(&b))[0], 0x12, "");
+    TT_UT_EQUAL(((tt_u8_t *)tt_blobex_addr(&b))[1], 0, "");
+    TT_UT_EQUAL(((tt_u8_t *)tt_blobex_addr(&b))[2], 0, "");
+
+    TT_UT_SUCCESS(__percent_decode(&b, "1%12", 4), "");
+    TT_UT_EQUAL(tt_blobex_len(&b), 3, "");
+    TT_UT_EQUAL(((tt_u8_t *)tt_blobex_addr(&b))[0], '1', "");
+    TT_UT_EQUAL(((tt_u8_t *)tt_blobex_addr(&b))[1], 0x12, "");
+    TT_UT_EQUAL(((tt_u8_t *)tt_blobex_addr(&b))[2], 0, "");
+
+    TT_UT_SUCCESS(__percent_decode(&b, "12%12", 5), "");
+    TT_UT_EQUAL(tt_blobex_len(&b), 4, "");
+    TT_UT_EQUAL(((tt_u8_t *)tt_blobex_addr(&b))[0], '1', "");
+    TT_UT_EQUAL(((tt_u8_t *)tt_blobex_addr(&b))[1], '2', "");
+    TT_UT_EQUAL(((tt_u8_t *)tt_blobex_addr(&b))[2], 0x12, "");
+    TT_UT_EQUAL(((tt_u8_t *)tt_blobex_addr(&b))[3], 0, "");
+
+    TT_UT_SUCCESS(__percent_decode(&b, "12%1x", 5), "");
+    TT_UT_EQUAL(tt_blobex_len(&b), 6, "");
+    TT_UT_STREQ(tt_blobex_addr(&b), "12%1x", "");
+
+    TT_UT_SUCCESS(__percent_decode(&b, "%%12%1x%%", sizeof("%%12%1x%%") - 1),
+                  "");
+    TT_UT_EQUAL(tt_blobex_len(&b), 8, "");
+    TT_UT_EQUAL(((tt_u8_t *)tt_blobex_addr(&b))[0], '%', "");
+    TT_UT_EQUAL(((tt_u8_t *)tt_blobex_addr(&b))[1], 0x12, "");
+    TT_UT_EQUAL(((tt_u8_t *)tt_blobex_addr(&b))[6], '%', "");
+    TT_UT_EQUAL(((tt_u8_t *)tt_blobex_addr(&b))[7], 0, "");
 
     // test end
     TT_TEST_CASE_LEAVE()

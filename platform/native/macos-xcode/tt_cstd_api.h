@@ -70,6 +70,12 @@ wrapped c memcmp()
 #define tt_memcmp memcmp
 
 /**
+@def tt_memchr
+wrapped c memchr()
+*/
+#define tt_memchr memchr
+
+/**
 @def tt_c_malloc
 wrapped c malloc()
 */
