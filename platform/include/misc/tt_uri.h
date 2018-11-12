@@ -31,6 +31,7 @@ this file defines uri APIs
 ////////////////////////////////////////////////////////////
 
 #include <algorithm/tt_blobex.h>
+#include <algorithm/tt_string.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
@@ -42,8 +43,9 @@ this file defines uri APIs
 
 typedef struct tt_uri_s
 {
+    tt_string_t uri;
     tt_blobex_t scheme;
-    tt_blobex_t specific;
+    tt_blobex_t opaque;
     tt_blobex_t user_info;
     tt_blobex_t authority;
     tt_blobex_t host;
@@ -51,11 +53,15 @@ typedef struct tt_uri_s
     tt_blobex_t query;
     tt_blobex_t fragment;
     tt_u16_t port;
+    tt_bool_t authority_modified : 1;
+    tt_bool_t uri_modified : 1;
 } tt_uri_t;
 
 ////////////////////////////////////////////////////////////
 // global variants
 ////////////////////////////////////////////////////////////
+
+tt_export tt_char_t tt_g_uri_encode_table[256];
 
 ////////////////////////////////////////////////////////////
 // interface declaration
@@ -75,6 +81,13 @@ tt_export tt_result_t tt_uri_set(IN tt_uri_t *uri,
                                  IN tt_char_t *str,
                                  IN tt_u32_t len);
 
+tt_export const tt_char_t *tt_uri_encode(IN tt_uri_t *uri,
+                                         IN OPT tt_char_t *enc_tbl);
+
+tt_export tt_result_t tt_uri_encode2buf(IN tt_uri_t *uri,
+                                        IN struct tt_buf_s *buf,
+                                        IN OPT tt_char_t *enc_tbl);
+
 tt_export const tt_char_t *tt_uri_get_scheme(IN tt_uri_t *uri);
 
 tt_export tt_result_t tt_uri_set_scheme(IN tt_uri_t *uri,
@@ -87,16 +100,18 @@ tt_inline tt_result_t tt_uri_set_scheme_cstr(IN tt_uri_t *uri,
     return tt_uri_set_scheme(uri, scheme, (tt_u32_t)tt_strlen(scheme));
 }
 
-tt_export const tt_char_t *tt_uri_get_specific(IN tt_uri_t *uri);
+// return empty string if uri is hierarchical
+tt_export const tt_char_t *tt_uri_get_opaque(IN tt_uri_t *uri);
 
-tt_export tt_result_t tt_uri_set_specific(IN tt_uri_t *uri,
-                                          IN const tt_char_t *specific,
-                                          IN tt_u32_t len);
+// auth, usr, host, port, path, query will be cleared
+tt_export tt_result_t tt_uri_set_opaque(IN tt_uri_t *uri,
+                                        IN const tt_char_t *specific,
+                                        IN tt_u32_t len);
 
-tt_inline tt_result_t tt_uri_set_specific_cstr(IN tt_uri_t *uri,
-                                               IN const tt_char_t *specific)
+tt_inline tt_result_t tt_uri_set_opaque_cstr(IN tt_uri_t *uri,
+                                             IN const tt_char_t *specific)
 {
-    return tt_uri_set_specific(uri, specific, (tt_u32_t)tt_strlen(specific));
+    return tt_uri_set_opaque(uri, specific, (tt_u32_t)tt_strlen(specific));
 }
 
 tt_export const tt_char_t *tt_uri_get_userinfo(IN tt_uri_t *uri);
@@ -113,14 +128,16 @@ tt_inline tt_result_t tt_uri_set_userinfo_cstr(IN tt_uri_t *uri,
 
 tt_export const tt_char_t *tt_uri_get_authority(IN tt_uri_t *uri);
 
-tt_export tt_result_t tt_uri_set_authority(IN tt_uri_t *uri,
-                                           IN const tt_char_t *authority,
-                                           IN tt_u32_t len);
+tt_export tt_result_t tt_uri_decode_authority(IN tt_uri_t *uri,
+                                              IN const tt_char_t *authority,
+                                              IN tt_u32_t len);
 
-tt_inline tt_result_t tt_uri_set_authority_cstr(IN tt_uri_t *uri,
-                                                IN const tt_char_t *authority)
+tt_inline tt_result_t
+tt_uri_decode_authority_cstr(IN tt_uri_t *uri, IN const tt_char_t *authority)
 {
-    return tt_uri_set_authority(uri, authority, (tt_u32_t)tt_strlen(authority));
+    return tt_uri_decode_authority(uri,
+                                   authority,
+                                   (tt_u32_t)tt_strlen(authority));
 }
 
 tt_export const tt_char_t *tt_uri_get_host(IN tt_uri_t *uri);
@@ -178,6 +195,8 @@ tt_inline tt_u16_t tt_uri_get_port(IN tt_uri_t *uri)
 
 tt_inline void tt_uri_set_port(IN tt_uri_t *uri, IN tt_u16_t port)
 {
+    uri->uri_modified = TT_TRUE;
+    uri->authority_modified = TT_TRUE;
     uri->port = port;
 }
 

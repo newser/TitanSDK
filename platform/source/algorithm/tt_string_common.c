@@ -276,14 +276,34 @@ void tt_string_remove_tailfrom(IN tt_string_t *s, IN tt_u32_t from)
 }
 
 tt_result_t tt_string_append(IN OUT tt_string_t *s, IN const tt_char_t *substr)
+//{
+//    tt_buf_t *buf = &s->buf;
+//
+//    TT_ASSERT(buf->wpos > 0);
+//    --buf->wpos;
+//    if (TT_OK(tt_buf_put(buf,
+//                         (tt_u8_t *)substr,
+//                         (tt_u32_t)tt_strlen(substr) + 1))) {
+//        return TT_SUCCESS;
+//    } else {
+//        ++buf->wpos;
+//        return TT_FAIL;
+//    }
+//}
+{
+    return tt_string_append_n(s, substr, tt_strlen(substr));
+}
+
+tt_result_t tt_string_append_n(IN OUT tt_string_t *s,
+                               IN const tt_char_t *substr,
+                               IN tt_u32_t len)
 {
     tt_buf_t *buf = &s->buf;
 
     TT_ASSERT(buf->wpos > 0);
     --buf->wpos;
-    if (TT_OK(tt_buf_put(buf,
-                         (tt_u8_t *)substr,
-                         (tt_u32_t)tt_strlen(substr) + 1))) {
+    if (TT_OK(tt_buf_put(buf, (tt_u8_t *)substr, (tt_u32_t)len)) &&
+        TT_OK(tt_buf_put_u8(buf, 0))) {
         return TT_SUCCESS;
     } else {
         ++buf->wpos;

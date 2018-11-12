@@ -494,6 +494,9 @@ TT_TEST_ROUTINE_DEFINE(case_ptr_queue)
         TT_UT_EQUAL(tt_ptrq_count(&q2), 0, "");
         TT_UT_EQUAL(tt_ptrq_head(&q1), &v[0], "");
         TT_UT_EQUAL(tt_ptrq_tail(&q1), &v[__q_size - 4], "");
+
+        tt_ptrq_destroy(&q1);
+        tt_ptrq_destroy(&q2);
     }
 
     tt_ptrq_clear(&q);

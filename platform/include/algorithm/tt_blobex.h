@@ -139,6 +139,12 @@ tt_inline tt_result_t tt_blobex_set(IN tt_blobex_t *bex,
     }
 }
 
+tt_inline void tt_blobex_clear(IN tt_blobex_t *bex)
+{
+    tt_blobex_destroy(bex);
+    tt_blobex_init(bex, NULL, 0);
+}
+
 tt_inline tt_s32_t tt_blobex_cmp(IN tt_blobex_t *a, IN tt_blobex_t *b)
 {
     if (a == b) {

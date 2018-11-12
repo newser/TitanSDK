@@ -103,6 +103,8 @@ tt_result_t __ut_fiber(IN void *param)
           "case_ptr_queue",
           "case_fpath_normalize",
           "case_percent_decode",
+          "case_percent_encode",
+          "case_uri_get_set",
 #if 0
             "TEST_UNIT_LOG",
             "TEST_UNIT_LOG_PATTERN",

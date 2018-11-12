@@ -1053,6 +1053,8 @@ TT_TEST_ROUTINE_DEFINE(case_fpath_normalize)
     tt_fpath_init(&fp, TT_FPATH_SEP_UNIX);
     TT_UT_TRUE(tt_fpath_empty(&fp), "");
 
+    tt_fpath_destroy(&fp);
+
     {
         // resolve
         tt_fpath_t a, b, c;
@@ -1077,6 +1079,10 @@ TT_TEST_ROUTINE_DEFINE(case_fpath_normalize)
         TT_UT_SUCCESS(tt_fpath_set(&b, "c/d.exe"), "");
         TT_UT_SUCCESS(tt_fpath_resolve(&a, &b, &c), "");
         TT_UT_EQUAL(tt_strcmp(tt_fpath_cstr(&c), "xxx/yy/c/d.exe"), 0, "");
+
+        tt_fpath_destroy(&a);
+        tt_fpath_destroy(&b);
+        tt_fpath_destroy(&c);
     }
 
     // relativize
@@ -1138,6 +1144,11 @@ TT_TEST_ROUTINE_DEFINE(case_fpath_normalize)
         TT_UT_STREQ(tt_fpath_cstr(&c), "x\\y\\z\\", "");
         TT_UT_SUCCESS(tt_fpath_relativize(&b, &a, &c), "");
         TT_UT_STREQ(tt_fpath_cstr(&c), "..\\..\\..\\", "");
+
+        tt_fpath_destroy(&a);
+        tt_fpath_destroy(&b);
+        tt_fpath_destroy(&c);
+        tt_fpath_destroy(&tmp);
     }
 
     // test end
