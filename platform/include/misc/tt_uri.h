@@ -57,6 +57,13 @@ typedef struct tt_uri_s
     tt_bool_t uri_modified : 1;
 } tt_uri_t;
 
+typedef struct
+{
+    tt_char_t *generic;
+    tt_char_t *path;
+    tt_char_t *query;
+} tt_uri_encode_table_t;
+
 ////////////////////////////////////////////////////////////
 // global variants
 ////////////////////////////////////////////////////////////
@@ -81,12 +88,21 @@ tt_export tt_result_t tt_uri_set(IN tt_uri_t *uri,
                                  IN tt_char_t *str,
                                  IN tt_u32_t len);
 
+tt_inline tt_result_t tt_uri_set_cstr(IN tt_uri_t *uri, IN tt_char_t *str)
+{
+    return tt_uri_set(uri, (tt_char_t *)str, (tt_u32_t)tt_strlen(str));
+}
+
+tt_export void tt_uri_encode_table_default(IN tt_uri_encode_table_t *uet);
+
 tt_export const tt_char_t *tt_uri_encode(IN tt_uri_t *uri,
-                                         IN OPT tt_char_t *enc_tbl);
+                                         IN OPT tt_uri_encode_table_t *uet);
 
 tt_export tt_result_t tt_uri_encode2buf(IN tt_uri_t *uri,
                                         IN struct tt_buf_s *buf,
-                                        IN OPT tt_char_t *enc_tbl);
+                                        IN OPT tt_uri_encode_table_t *uet);
+
+tt_export tt_s32_t tt_uri_cmp(IN tt_uri_t *a, IN tt_uri_t *b);
 
 tt_export const tt_char_t *tt_uri_get_scheme(IN tt_uri_t *uri);
 
@@ -198,6 +214,16 @@ tt_inline void tt_uri_set_port(IN tt_uri_t *uri, IN tt_u16_t port)
     uri->uri_modified = TT_TRUE;
     uri->authority_modified = TT_TRUE;
     uri->port = port;
+}
+
+tt_inline tt_bool_t tt_uri_is_absolute(IN tt_uri_t *uri)
+{
+    return TT_BOOL(tt_uri_get_scheme(uri)[0] != 0);
+}
+
+tt_inline tt_bool_t tt_uri_is_opaque(IN tt_uri_t *uri)
+{
+    return TT_BOOL(tt_uri_get_opaque(uri)[0] != 0);
 }
 
 #endif /* __TT_URI__ */

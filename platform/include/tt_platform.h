@@ -161,6 +161,7 @@ extern "C" {
 #include <misc/tt_distinguished_name.h>
 #include <misc/tt_error.h>
 #include <misc/tt_error_def.h>
+#include <misc/tt_kv.h>
 #include <misc/tt_reference_counter.h>
 #include <misc/tt_uri.h>
 #include <misc/tt_util.h>

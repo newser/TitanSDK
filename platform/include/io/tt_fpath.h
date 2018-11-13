@@ -78,14 +78,30 @@ typedef struct
 tt_export void tt_fpath_init(IN tt_fpath_t *fp, IN tt_char_t separator);
 
 tt_export tt_result_t tt_fpath_create(IN tt_fpath_t *fp,
-                                      const tt_char_t *path,
+                                      IN const tt_char_t *path,
+                                      IN tt_u32_t path_len,
                                       IN tt_char_t separator);
+
+tt_inline tt_result_t tt_fpath_create_cstr(IN tt_fpath_t *fp,
+                                           IN const tt_char_t *path,
+                                           IN tt_char_t separator)
+{
+    return tt_fpath_create(fp, path, tt_strlen(path), separator);
+}
 
 tt_export void tt_fpath_destroy(IN tt_fpath_t *fp);
 
 tt_export void tt_fpath_clear(IN tt_fpath_t *fp);
 
-tt_export tt_result_t tt_fpath_set(IN tt_fpath_t *fp, const tt_char_t *path);
+tt_export tt_result_t tt_fpath_set(IN tt_fpath_t *fp,
+                                   const tt_char_t *path,
+                                   IN tt_u32_t path_len);
+
+tt_inline tt_result_t tt_fpath_set_cstr(IN tt_fpath_t *fp,
+                                        const tt_char_t *path)
+{
+    return tt_fpath_set(fp, path, tt_strlen(path));
+}
 
 tt_export tt_result_t tt_fpath_copy(IN tt_fpath_t *dst, IN tt_fpath_t *src);
 

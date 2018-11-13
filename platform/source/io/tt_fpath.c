@@ -45,7 +45,9 @@
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-static tt_result_t __fpath_parse(IN const tt_char_t *path, OUT tt_fpath_t *fp);
+static tt_result_t __fpath_parse(IN const tt_char_t *path,
+                                 IN tt_u32_t len,
+                                 OUT tt_fpath_t *fp);
 
 static tt_result_t __fpath_parse_move(IN tt_fpath_t *fp,
                                       IN const tt_char_t *path);
@@ -71,7 +73,8 @@ static tt_result_t __dir_move(IN tt_fpath_t *dst, IN tt_fpath_t *src);
 static void __dir_destroy(IN tt_fpath_t *fp);
 
 static tt_result_t __fname_parse(IN tt_fpath_t *fp,
-                                 IN const tt_char_t *filename);
+                                 IN const tt_char_t *filename,
+                                 IN tt_u32_t len);
 
 static void __fname_clear(IN tt_fpath_t *fp);
 
@@ -103,12 +106,13 @@ void tt_fpath_init(IN tt_fpath_t *fp, IN tt_char_t separator)
 }
 
 tt_result_t tt_fpath_create(IN tt_fpath_t *fp,
-                            const tt_char_t *path,
-                            IN tt_char_t sep)
+                            IN const tt_char_t *path,
+                            IN tt_u32_t path_len,
+                            IN tt_char_t separator)
 {
-    tt_fpath_init(fp, sep);
+    tt_fpath_init(fp, separator);
 
-    if (!TT_OK(__fpath_parse(path, fp))) {
+    if (!TT_OK(__fpath_parse(path, path_len, fp))) {
         // must destroy fpath if parsing fail
         tt_fpath_destroy(fp);
         return TT_FAIL;
@@ -135,11 +139,13 @@ void tt_fpath_clear(IN tt_fpath_t *fp)
     fp->modified = TT_FALSE;
 }
 
-tt_result_t tt_fpath_set(IN tt_fpath_t *fp, const tt_char_t *path)
+tt_result_t tt_fpath_set(IN tt_fpath_t *fp,
+                         const tt_char_t *path,
+                         IN tt_u32_t path_len)
 {
     tt_fpath_clear(fp);
 
-    if (!TT_OK(__fpath_parse(path, fp))) {
+    if (!TT_OK(__fpath_parse(path, path_len, fp))) {
         // caller should destroy fp
         return TT_FAIL;
     }
@@ -218,7 +224,7 @@ tt_result_t tt_fpath_set_filename(IN tt_fpath_t *fp,
 {
     __fname_clear(fp);
     if ((filename != NULL) && (filename[0] != 0)) {
-        TT_DO(__fname_parse(fp, filename));
+        TT_DO(__fname_parse(fp, filename, tt_strlen(filename)));
     }
 
     fp->modified = TT_TRUE;
@@ -415,7 +421,7 @@ tt_result_t tt_fpath_to_absolute(IN tt_fpath_t *fp)
         return TT_FAIL;
     }
 
-    result = tt_fpath_create(&tmp, dir, fp->sep);
+    result = tt_fpath_create_cstr(&tmp, dir, fp->sep);
     tt_free(dir);
     if (TT_OK(!result)) {
         return TT_FAIL;
@@ -689,11 +695,12 @@ out:
     return result;
 }
 
-tt_result_t __fpath_parse(IN const tt_char_t *path, OUT tt_fpath_t *fp)
+tt_result_t __fpath_parse(IN const tt_char_t *path,
+                          IN tt_u32_t len,
+                          OUT tt_fpath_t *fp)
 {
-    tt_u32_t len = (tt_u32_t)tt_strlen(path);
     tt_char_t sep = fp->sep;
-    tt_char_t *pos, *prev;
+    tt_char_t *pos, *prev, *end;
 
     if ((len >= 3) && (path[1] == ':') && (path[2] == sep)) {
         // "c:\xxxx" or "c:/xxxx"
@@ -716,7 +723,8 @@ tt_result_t __fpath_parse(IN const tt_char_t *path, OUT tt_fpath_t *fp)
     }
 
     prev = pos;
-    while ((pos = tt_strchr(pos, sep)) != NULL) {
+    end = (tt_char_t *)path + len;
+    while ((pos = tt_memchr(pos, sep, (tt_u32_t)(end - pos))) != NULL) {
         if (!TT_OK(__dir_push_n(fp, prev, (tt_u32_t)(pos - prev)))) {
             return TT_FAIL;
         }
@@ -730,7 +738,7 @@ tt_result_t __fpath_parse(IN const tt_char_t *path, OUT tt_fpath_t *fp)
             return __dir_push_n(fp, prev, n);
         } else {
             // end with a filename
-            return __fname_parse(fp, prev);
+            return __fname_parse(fp, prev, n);
         }
     } else {
         // end with a seperator
@@ -743,7 +751,7 @@ tt_result_t __fpath_parse_move(IN tt_fpath_t *fp, IN const tt_char_t *path)
 {
     tt_fpath_t tmp;
 
-    TT_DO(tt_fpath_create(&tmp, path, fp->sep));
+    TT_DO(tt_fpath_create_cstr(&tmp, path, fp->sep));
     TT_DO_G(fail, __dir_move(fp, &tmp));
     __fname_move(fp, &tmp);
     tt_fpath_destroy(&tmp);
@@ -866,21 +874,24 @@ void __dir_destroy(IN tt_fpath_t *fp)
     tt_ptrq_destroy(&fp->dir);
 }
 
-tt_result_t __fname_parse(IN tt_fpath_t *fp, IN const tt_char_t *filename)
+tt_result_t __fname_parse(IN tt_fpath_t *fp,
+                          IN const tt_char_t *filename,
+                          IN tt_u32_t len)
 {
-    tt_char_t *pos, *b = NULL, *e = NULL;
+    tt_char_t *pos, *end = (tt_char_t *)filename + len, *b = NULL, *e = NULL;
 
-    pos = tt_strrchr(filename, '.');
+    pos = tt_memrchr(filename, '.', len);
     if (pos != NULL) {
         TT_DONN_G(fail,
                   b = tt_cstr_copy_n(filename, (tt_u32_t)(pos - filename)));
 
         ++pos;
-        if (*pos != 0) {
-            TT_DONN_G(fail, e = tt_cstr_copy(pos));
+        if (pos < end) {
+            TT_DONN_G(fail, e = tt_cstr_copy_n(pos, (tt_u32_t)(end - pos)));
         }
     } else {
-        TT_DONN_G(fail, b = tt_cstr_copy(filename));
+        TT_DONN_G(fail,
+                  b = tt_cstr_copy_n(filename, (tt_u32_t)(end - filename)));
     }
 
     fp->basename = b;

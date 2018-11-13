@@ -216,4 +216,6 @@ extern tt_result_t tt_strtos32(IN const char *str,
 
 extern char *tt_strrstr(const char *haystack, const char *needle);
 
+extern void *tt_memrchr(const void *s, int c, size_t n);
+
 #endif /* __TT_CSTD_AIP__ */

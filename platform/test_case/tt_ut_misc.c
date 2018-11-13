@@ -1092,6 +1092,28 @@ TT_TEST_ROUTINE_DEFINE(case_align)
 
     TT_INFO("backtrace: \n%s", tt_backtrace("    ", "\n"));
 
+    // memrchr
+    {
+        char buf[] = "12345678";
+        char e[] = "";
+        char buf2[] = "1234321";
+
+        TT_UT_NULL(tt_memrchr("a", 'b', 0), "");
+        TT_UT_NULL(tt_memrchr("a", 'b', 1), "");
+        TT_UT_NULL(tt_memrchr("accccc", 'b', 6), "");
+
+        TT_UT_EQUAL(tt_memrchr(e, 0, 1), e, "");
+
+        TT_UT_NULL(tt_memrchr(buf, '8', 7), "");
+        TT_UT_EQUAL(tt_memrchr(buf, '8', 8), buf + 7, "");
+        TT_UT_EQUAL(tt_memrchr(buf, '1', 8), buf, "");
+        TT_UT_EQUAL(tt_memrchr(buf, '1', 1), buf, "");
+        TT_UT_NULL(tt_memrchr(buf + 1, '1', 1), "");
+
+        TT_UT_EQUAL(tt_memrchr(buf2, '2', 7), buf2 + 5, "");
+        TT_UT_EQUAL(tt_memrchr(buf2, '2', 5), buf2 + 1, "");
+    }
+
     // test end
     TT_TEST_CASE_LEAVE()
 }
@@ -1435,6 +1457,15 @@ TT_TEST_ROUTINE_DEFINE(case_uri)
     s = "abc://@host.com:23a/xyz?q1=v1&q2=v2#123";
     TT_UT_FAIL(tt_uri_set(&u, s, tt_strlen(s)), "");
 
+#if 0
+    {
+        s = "/a/b/c?q1=v1&q2=v2#123";
+        TT_UT_SUCCESS(tt_uri_set(&u, s, tt_strlen(s)), "");
+        TT_UT_STREQ(tt_uri_get_path(&u), "/a/b/c", "");
+        TT_UT_STREQ(tt_uri_encode(&u, NULL), "/a/b/c?q1=v1&q2=v2#123", "");
+    }
+#endif
+
     tt_uri_destroy(&u);
 
     // test end
@@ -1540,6 +1571,8 @@ TT_TEST_ROUTINE_DEFINE(case_uri_get_set)
     // test start
 
     tt_uri_init(&u);
+    TT_UT_FALSE(tt_uri_is_absolute(&u), "");
+    TT_UT_FALSE(tt_uri_is_opaque(&u), "");
 
     TT_UT_STREQ(tt_uri_get_authority(&u), "", "");
     TT_UT_STREQ(tt_uri_get_path(&u), "", "");
@@ -1547,6 +1580,7 @@ TT_TEST_ROUTINE_DEFINE(case_uri_get_set)
 
     TT_UT_STREQ(tt_uri_get_scheme(&u), "", "");
     TT_UT_SUCCESS(tt_uri_set_scheme_cstr(&u, "123"), "");
+    TT_UT_TRUE(tt_uri_is_absolute(&u), "");
     TT_UT_STREQ(tt_uri_encode(&u, NULL), "123:", "");
     TT_UT_STREQ(tt_uri_get_scheme(&u), "123", "");
     TT_UT_SUCCESS(tt_uri_set_scheme(&u, "xyzw", 4), "");
@@ -1555,6 +1589,7 @@ TT_TEST_ROUTINE_DEFINE(case_uri_get_set)
     TT_UT_STREQ(tt_uri_get_authority(&u), "", "");
     TT_UT_SUCCESS(tt_uri_set_scheme(&u, NULL, 0), "");
     TT_UT_STREQ(tt_uri_get_scheme(&u), "", "");
+    TT_UT_FALSE(tt_uri_is_absolute(&u), "");
     TT_UT_STREQ(tt_uri_encode(&u, NULL), "", "");
 
     TT_UT_STREQ(tt_uri_get_userinfo(&u), "", "");
@@ -1670,6 +1705,8 @@ TT_TEST_ROUTINE_DEFINE(case_uri_get_set)
     TT_UT_SUCCESS(tt_uri_set_opaque_cstr(&u, "x@163.com"), "");
     TT_UT_STREQ(tt_uri_get_authority(&u), "", "");
     TT_UT_STREQ(tt_uri_get_opaque(&u), "x@163.com", "");
+    TT_UT_TRUE(tt_uri_is_absolute(&u), "");
+    TT_UT_TRUE(tt_uri_is_opaque(&u), "");
 
     TT_UT_SUCCESS(tt_uri_decode_authority_cstr(&u, "u2%3au3@xxx"), "");
     TT_UT_STREQ(tt_uri_get_userinfo(&u), "u2:u3", "");
@@ -1677,7 +1714,111 @@ TT_TEST_ROUTINE_DEFINE(case_uri_get_set)
     TT_UT_EQUAL(tt_uri_get_port(&u), 0, "");
     TT_UT_STREQ(tt_uri_get_opaque(&u), "", "");
 
+    tt_uri_clear(&u);
+
+    // relative
+    TT_UT_SUCCESS(tt_uri_set_cstr(&u,
+                                  "docs/guide/collections/designfaq.html#28"),
+                  "");
+    TT_UT_STREQ(tt_uri_get_scheme(&u), "", "");
+    TT_UT_STREQ(tt_uri_get_opaque(&u), "", "");
+    TT_UT_STREQ(tt_uri_get_userinfo(&u), "", "");
+    TT_UT_STREQ(tt_uri_get_host(&u), "", "");
+    TT_UT_EQUAL(tt_uri_get_port(&u), 0, "");
+    TT_UT_STREQ(tt_uri_get_authority(&u), "", "");
+    TT_UT_STREQ(tt_uri_get_path(&u),
+                "docs/guide/collections/designfaq.html",
+                "");
+    TT_UT_STREQ(tt_uri_get_query(&u), "", "");
+    TT_UT_STREQ(tt_uri_get_fragment(&u), "28", "");
+
+    TT_UT_SUCCESS(tt_uri_set_cstr(&u, "file:///~/calendar"), "");
+    TT_UT_STREQ(tt_uri_get_scheme(&u), "file", "");
+    TT_UT_STREQ(tt_uri_get_opaque(&u), "", "");
+    TT_UT_STREQ(tt_uri_get_userinfo(&u), "", "");
+    TT_UT_STREQ(tt_uri_get_host(&u), "", "");
+    TT_UT_EQUAL(tt_uri_get_port(&u), 0, "");
+    TT_UT_STREQ(tt_uri_get_authority(&u), "", "");
+    TT_UT_STREQ(tt_uri_get_path(&u), "/~/calendar", "");
+    TT_UT_STREQ(tt_uri_get_query(&u), "", "");
+    TT_UT_STREQ(tt_uri_get_fragment(&u), "", "");
+
     tt_uri_destroy(&u);
+
+    {
+        tt_uri_t a, b;
+
+        tt_uri_init(&a);
+        tt_uri_init(&b);
+        TT_UT_EQUAL(tt_uri_cmp(&a, &b), 0, "");
+
+        tt_uri_set_scheme(&a, "1", 1);
+        TT_UT_EXP(tt_uri_cmp(&a, &b) > 0, "");
+        tt_uri_set_scheme(&b, "12", 2);
+        TT_UT_EXP(tt_uri_cmp(&a, &b) < 0, "");
+        tt_uri_set_scheme(&a, "12", 2);
+        TT_UT_EXP(tt_uri_cmp(&a, &b) == 0, "");
+
+        // opaque
+        tt_uri_set_opaque(&a, "1", 1);
+        TT_UT_EXP(tt_uri_cmp(&a, &b) > 0, "");
+        tt_uri_set_opaque(&b, "12", 2);
+        TT_UT_EXP(tt_uri_cmp(&a, &b) < 0, "");
+        tt_uri_set_opaque(&a, "12", 2);
+        TT_UT_EXP(tt_uri_cmp(&a, &b) == 0, "");
+
+        // frag
+        tt_uri_set_fragment(&a, "1", 1);
+        TT_UT_EXP(tt_uri_cmp(&a, &b) > 0, "");
+        tt_uri_set_fragment(&b, "12", 2);
+        TT_UT_EXP(tt_uri_cmp(&a, &b) < 0, "");
+        tt_uri_set_fragment(&a, "12", 2);
+        TT_UT_EXP(tt_uri_cmp(&a, &b) == 0, "");
+
+        // user
+        tt_uri_set_userinfo(&a, "1", 1);
+        tt_uri_set_userinfo(&b, "", 0);
+        TT_UT_EXP(tt_uri_cmp(&a, &b) > 0, "");
+        tt_uri_set_userinfo(&b, "12", 2);
+        TT_UT_EXP(tt_uri_cmp(&a, &b) < 0, "");
+        tt_uri_set_userinfo(&a, "12", 2);
+        TT_UT_EXP(tt_uri_cmp(&a, &b) == 0, "");
+
+        // host
+        tt_uri_set_host(&a, "1", 1);
+        TT_UT_EXP(tt_uri_cmp(&a, &b) > 0, "");
+        tt_uri_set_host(&b, "12", 2);
+        TT_UT_EXP(tt_uri_cmp(&a, &b) < 0, "");
+        tt_uri_set_host(&a, "12", 2);
+        TT_UT_EXP(tt_uri_cmp(&a, &b) == 0, "");
+
+        // port
+        tt_uri_set_port(&a, 1);
+        TT_UT_EXP(tt_uri_cmp(&a, &b) > 0, "");
+        tt_uri_set_port(&b, 2);
+        TT_UT_EXP(tt_uri_cmp(&a, &b) < 0, "");
+        tt_uri_set_port(&a, 2);
+        TT_UT_EXP(tt_uri_cmp(&a, &b) == 0, "");
+
+        // path
+        tt_uri_set_path(&a, "1", 1);
+        TT_UT_EXP(tt_uri_cmp(&a, &b) > 0, "");
+        tt_uri_set_path(&b, "12", 2);
+        TT_UT_EXP(tt_uri_cmp(&a, &b) < 0, "");
+        tt_uri_set_path(&a, "12", 2);
+        TT_UT_EXP(tt_uri_cmp(&a, &b) == 0, "");
+
+        // query
+        tt_uri_set_query(&a, "1", 1);
+        TT_UT_EXP(tt_uri_cmp(&a, &b) > 0, "");
+        tt_uri_set_query(&b, "12", 2);
+        TT_UT_EXP(tt_uri_cmp(&a, &b) < 0, "");
+        tt_uri_set_query(&a, "12", 2);
+        TT_UT_EXP(tt_uri_cmp(&a, &b) == 0, "");
+
+        tt_uri_destroy(&a);
+        tt_uri_destroy(&b);
+    }
 
     // test end
     TT_TEST_CASE_LEAVE()

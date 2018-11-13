@@ -472,6 +472,8 @@ tt_export tt_char_t *tt_cstr_copy(IN const tt_char_t *cstr);
 // whole cstr is copied
 tt_export tt_char_t *tt_cstr_copy_n(IN const tt_char_t *cstr, IN tt_u32_t len);
 
+tt_export tt_u8_t *tt_memdup(IN const tt_u8_t *addr, IN tt_u32_t len);
+
 #if 0
 tt_inline tt_bool_t tt_compare_and_swap_16byte(IN __int128 *a,
                                      IN __int128 *comparand,

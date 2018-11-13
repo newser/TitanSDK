@@ -257,3 +257,12 @@ tt_char_t *tt_cstr_copy_n(IN const tt_char_t *cstr, IN tt_u32_t len)
     }
     return new_cstr;
 }
+
+tt_u8_t *tt_memdup(IN const tt_u8_t *addr, IN tt_u32_t len)
+{
+    tt_u8_t *new_mem = tt_malloc(len);
+    if (new_mem != NULL) {
+        tt_memcpy(new_mem, addr, len);
+    }
+    return new_mem;
+}

@@ -100,11 +100,11 @@ tt_result_t __ut_fiber(IN void *param)
     else {
         const tt_char_t *names[] =
         { "case_uri",
+          "case_blobex",
           "case_ptr_queue",
-          "case_fpath_normalize",
-          "case_percent_decode",
-          "case_percent_encode",
+          //"TEST_UNIT_FPATH",
           "case_uri_get_set",
+          "HTTP_UT_URI",
 #if 0
             "TEST_UNIT_LOG",
             "TEST_UNIT_LOG_PATTERN",

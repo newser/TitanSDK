@@ -113,6 +113,12 @@ tt_export tt_result_t tt_string_set_range(IN tt_string_t *str,
 
 tt_export void tt_string_clear(IN tt_string_t *str);
 
+tt_inline tt_result_t tt_string_reserve(IN tt_string_t *str, IN tt_u32_t size)
+{
+    TT_DO(tt_buf_reserve(&str->buf, size));
+    return TT_SUCCESS;
+}
+
 tt_export void tt_string_print(IN tt_string_t *str, IN tt_u32_t flag);
 
 tt_inline tt_u32_t tt_string_len(IN tt_string_t *str)

@@ -1078,8 +1078,15 @@ TT_TEST_ROUTINE_DEFINE(case_blobex)
     tt_blobex_init(&b2, buf2, 2);
     TT_UT_EQUAL(tt_blobex_cmp(&b, &b), 0, "");
     TT_UT_EXP(tt_blobex_cmp(&b, &b2) < 0, "");
+    TT_UT_EXP(tt_blobex_memcmp(&b, tt_blobex_addr(&b2), tt_blobex_len(&b2)) < 0,
+              "");
     TT_UT_EQUAL(tt_blobex_cmp(&b2, &b2), 0, "");
     TT_UT_EXP(tt_blobex_cmp(&b2, &b) > 0, "");
+    TT_UT_EXP(tt_blobex_memcmp(&b2, tt_blobex_addr(&b), tt_blobex_len(&b)) > 0,
+              "");
+    TT_UT_EXP(tt_blobex_memcmp(&b2, tt_blobex_addr(&b2), tt_blobex_len(&b2)) ==
+                  0,
+              "");
 
     TT_UT_EQUAL(tt_blobex_strcmp(&b, "12"), 0, "");
     TT_UT_EXP(tt_blobex_strcmp(&b, "1") > 0, "");
@@ -1088,6 +1095,22 @@ TT_TEST_ROUTINE_DEFINE(case_blobex)
     TT_UT_EQUAL(tt_blobex_strcmp(&b2, "45"), 0, "");
     TT_UT_EXP(tt_blobex_strcmp(&b2, "4") > 0, "");
     TT_UT_EXP(tt_blobex_strcmp(&b2, "456") < 0, "");
+
+    {
+        char buf[] = "123";
+        tt_u8_t *addr;
+        tt_blobex_t a;
+        tt_blobex_init(&a, (tt_u8_t *)buf, sizeof(buf) - 1);
+        TT_UT_SUCCESS(tt_blobex_own(&a), "");
+        TT_UT_NOT_EQUAL(__BLOBEX_ADDR(&a), (tt_u8_t *)buf, "");
+        TT_UT_EXP(tt_blobex_strcmp(&a, buf) == 0, "");
+
+        addr = __BLOBEX_ADDR(&a);
+        TT_UT_SUCCESS(tt_blobex_own(&a), "");
+        TT_UT_EQUAL(__BLOBEX_ADDR(&a), addr, "");
+
+        tt_blobex_destroy(&a);
+    }
 
     // per thread
     pb = tt_thread_alloc_blobex();
