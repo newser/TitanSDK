@@ -26,6 +26,7 @@
 #include <algorithm/tt_algorithm_def.h>
 #include <io/tt_fpath.h>
 #include <log/tt_log.h>
+#include <misc/tt_uri.h>
 #include <os/tt_atomic.h>
 #include <os/tt_thread.h>
 
@@ -208,7 +209,7 @@ TT_TEST_CASE("case_fpath_basic",
     TT_UT_EQUAL(tt_strcmp(tt_fpath_cstr(&fp), "c:\\a\\b\\c\\"), 0, "");
     TT_UT_EQUAL(tt_strcmp(tt_fpath_get_root(&fp), "c:\\"), 0, "");
 
-    ret = tt_fpath_set_cstr(&fp, "c:\\");
+    ret = tt_fpath_parse(&fp, "c:\\");
     TT_UT_SUCCESS(ret, "");
     TT_UT_EQUAL(tt_fpath_empty(&fp), TT_TRUE, "");
     TT_UT_EQUAL(tt_strcmp(tt_fpath_cstr(&fp), "c:\\"), 0, "");
@@ -220,27 +221,27 @@ TT_TEST_CASE("case_fpath_basic",
     {
         tt_fpath_init(&fp, TT_FPATH_SEP_UNIX);
 
-        TT_UT_SUCCESS(tt_fpath_set_cstr(&fp, "c:/"), "");
+        TT_UT_SUCCESS(tt_fpath_parse(&fp, "c:/"), "");
         TT_UT_EQUAL(tt_fpath_count(&fp), 0, "");
         TT_UT_STREQ(tt_fpath_get_root(&fp), "c:/", "");
 
-        TT_UT_SUCCESS(tt_fpath_set_cstr(&fp, "c:"), "");
+        TT_UT_SUCCESS(tt_fpath_parse(&fp, "c:"), "");
         TT_UT_EQUAL(tt_fpath_count(&fp), 0, "");
         TT_UT_STREQ(tt_fpath_get_root(&fp), "c:/", "");
 
-        TT_UT_SUCCESS(tt_fpath_set_cstr(&fp, "c:abc"), "");
+        TT_UT_SUCCESS(tt_fpath_parse(&fp, "c:abc"), "");
         TT_UT_EQUAL(tt_fpath_count(&fp), 1, "");
         TT_UT_STREQ(tt_fpath_get_root(&fp), "c:/", "");
         TT_UT_STREQ(tt_fpath_get_name(&fp, 0), "abc", "");
 
-        TT_UT_SUCCESS(tt_fpath_set_cstr(&fp, "/a/b/c"), "");
+        TT_UT_SUCCESS(tt_fpath_parse(&fp, "/a/b/c"), "");
         TT_UT_EQUAL(tt_fpath_count(&fp), 3, "");
         TT_UT_STREQ(tt_fpath_get_root(&fp), "/", "");
         TT_UT_STREQ(tt_fpath_get_name(&fp, 0), "a", "");
         TT_UT_STREQ(tt_fpath_get_name(&fp, 2), "c", "");
 
         // do not gurantee ok, but should not crash
-        tt_fpath_set_cstr(&fp, "c:\\abc");
+        tt_fpath_parse(&fp, "c:\\abc");
         tt_fpath_destroy(&fp);
     }
 
@@ -250,28 +251,28 @@ TT_TEST_CASE("case_fpath_basic",
         TT_UT_STREQ(tt_fpath_cstr(&fp), "a/b/c.ex", "");
         TT_UT_STREQ(tt_fpath_get_filename(&fp), "c.ex", "");
 
-        TT_UT_SUCCESS(tt_fpath_set(&fp, "a/b/c.exe", 8), "");
+        TT_UT_SUCCESS(tt_fpath_parse_n(&fp, "a/b/c.exe", 8), "");
         TT_UT_STREQ(tt_fpath_cstr(&fp), "a/b/c.ex", "");
         TT_UT_STREQ(tt_fpath_get_filename(&fp), "c.ex", "");
 
-        TT_UT_SUCCESS(tt_fpath_set(&fp, "a/b/c.exe", 5), "");
+        TT_UT_SUCCESS(tt_fpath_parse_n(&fp, "a/b/c.exe", 5), "");
         TT_UT_STREQ(tt_fpath_cstr(&fp), "a/b/c", "");
         TT_UT_STREQ(tt_fpath_get_filename(&fp), "c", "");
         TT_UT_STREQ(tt_fpath_get_basename(&fp), "c", "");
         TT_UT_STREQ(tt_fpath_get_extension(&fp), "", "");
 
-        TT_UT_SUCCESS(tt_fpath_set(&fp, "a/b/c.exe", 4), "");
+        TT_UT_SUCCESS(tt_fpath_parse_n(&fp, "a/b/c.exe", 4), "");
         TT_UT_STREQ(tt_fpath_cstr(&fp), "a/b/", "");
         TT_UT_EQUAL(tt_fpath_count(&fp), 2, "");
         TT_UT_STREQ(tt_fpath_get_filename(&fp), "", "");
 
-        TT_UT_SUCCESS(tt_fpath_set(&fp, "a/b.xy/c.exe", 5), "");
+        TT_UT_SUCCESS(tt_fpath_parse_n(&fp, "a/b.xy/c.exe", 5), "");
         TT_UT_STREQ(tt_fpath_cstr(&fp), "a/b.x", "");
         TT_UT_STREQ(tt_fpath_get_filename(&fp), "b.x", "");
         TT_UT_STREQ(tt_fpath_get_basename(&fp), "b", "");
         TT_UT_STREQ(tt_fpath_get_extension(&fp), "x", "");
 
-        TT_UT_SUCCESS(tt_fpath_set(&fp, "/aa.zzz/b.xy/c.exe", 6), "");
+        TT_UT_SUCCESS(tt_fpath_parse_n(&fp, "/aa.zzz/b.xy/c.exe", 6), "");
         TT_UT_STREQ(tt_fpath_cstr(&fp), "/aa.zz", "");
         TT_UT_STREQ(tt_fpath_get_filename(&fp), "aa.zz", "");
         TT_UT_STREQ(tt_fpath_get_basename(&fp), "aa", "");
@@ -312,7 +313,7 @@ TT_TEST_ROUTINE_DEFINE(case_fpath_file)
     TT_UT_EQUAL(tt_strcmp(tt_fpath_cstr(&fp), "base.ext"), 0, "");
 
     // absolute file
-    ret = tt_fpath_set_cstr(&fp, "/a/b1/c22/cc.ext1.ext2");
+    ret = tt_fpath_parse(&fp, "/a/b1/c22/cc.ext1.ext2");
     TT_UT_SUCCESS(ret, "");
     TT_UT_EQUAL(tt_fpath_is_file(&fp), TT_TRUE, "");
     TT_UT_EQUAL(tt_fpath_is_dir(&fp), TT_FALSE, "");
@@ -329,7 +330,7 @@ TT_TEST_ROUTINE_DEFINE(case_fpath_file)
     TT_UT_EQUAL(tt_strcmp(tt_fpath_cstr(&fp), "/a/b1/c22/base.3"), 0, "");
 
     // relative file
-    ret = tt_fpath_set_cstr(&fp, "b1/c22/ccname");
+    ret = tt_fpath_parse(&fp, "b1/c22/ccname");
     TT_UT_SUCCESS(ret, "");
     TT_UT_EQUAL(tt_fpath_is_file(&fp), TT_TRUE, "");
     TT_UT_EQUAL(tt_fpath_is_dir(&fp), TT_FALSE, "");
@@ -346,7 +347,7 @@ TT_TEST_ROUTINE_DEFINE(case_fpath_file)
     TT_UT_EQUAL(tt_strcmp(tt_fpath_cstr(&fp), "b1/c22/base.a.b.c.ext3"), 0, "");
 
     // single file
-    ret = tt_fpath_set_cstr(&fp, "a.b1.c22.d333");
+    ret = tt_fpath_parse(&fp, "a.b1.c22.d333");
     TT_UT_SUCCESS(ret, "");
     TT_UT_EQUAL(tt_fpath_is_file(&fp), TT_TRUE, "");
     TT_UT_EQUAL(tt_strcmp(tt_fpath_get_filename(&fp), "a.b1.c22.d333"), 0, "");
@@ -362,7 +363,7 @@ TT_TEST_ROUTINE_DEFINE(case_fpath_file)
     TT_UT_EQUAL(tt_strcmp(tt_fpath_cstr(&fp), "e.f1.g22.h4444"), 0, "");
 
     // single file, no ext
-    ret = tt_fpath_set_cstr(&fp, "abcdef");
+    ret = tt_fpath_parse(&fp, "abcdef");
     TT_UT_SUCCESS(ret, "");
     TT_UT_EQUAL(tt_fpath_is_file(&fp), TT_TRUE, "");
     TT_UT_EQUAL(tt_strcmp(tt_fpath_get_filename(&fp), "abcdef"), 0, "");
@@ -378,7 +379,7 @@ TT_TEST_ROUTINE_DEFINE(case_fpath_file)
     TT_UT_EQUAL(tt_strcmp(tt_fpath_cstr(&fp), "efg.h4444"), 0, "");
 
     {
-        tt_fpath_set_cstr(&fp, "/a/b/../c/.");
+        tt_fpath_parse(&fp, "/a/b/../c/.");
         TT_UT_EQUAL(tt_fpath_is_file(&fp), TT_FALSE, "");
         TT_UT_EQUAL(tt_fpath_is_dir(&fp), TT_TRUE, "");
         TT_UT_EQUAL(tt_strlen(tt_fpath_get_filename(&fp)), 0, "");
@@ -398,7 +399,7 @@ TT_TEST_ROUTINE_DEFINE(case_fpath_file)
     }
 
     {
-        tt_fpath_set_cstr(&fp, "..");
+        tt_fpath_parse(&fp, "..");
         TT_UT_EQUAL(tt_fpath_is_file(&fp), TT_FALSE, "");
         TT_UT_EQUAL(tt_fpath_is_dir(&fp), TT_TRUE, "");
         TT_UT_EQUAL(tt_strlen(tt_fpath_get_filename(&fp)), 0, "");
@@ -416,7 +417,7 @@ TT_TEST_ROUTINE_DEFINE(case_fpath_file)
 
     {
         // relative dir
-        ret = tt_fpath_set_cstr(&fp, "b1/c22/ccname/");
+        ret = tt_fpath_parse(&fp, "b1/c22/ccname/");
         TT_UT_SUCCESS(ret, "");
         TT_UT_EQUAL(tt_fpath_is_file(&fp), TT_FALSE, "");
         TT_UT_EQUAL(tt_fpath_is_dir(&fp), TT_TRUE, "");
@@ -439,7 +440,7 @@ TT_TEST_ROUTINE_DEFINE(case_fpath_file)
 
     {
         // absolute dir
-        ret = tt_fpath_set_cstr(&fp, "/a/b1/c22/../ccname/.");
+        ret = tt_fpath_parse(&fp, "/a/b1/c22/../ccname/.");
         TT_UT_SUCCESS(ret, "");
         TT_UT_EQUAL(tt_fpath_is_file(&fp), TT_FALSE, "");
         TT_UT_EQUAL(tt_fpath_is_dir(&fp), TT_TRUE, "");
@@ -514,7 +515,7 @@ TT_TEST_ROUTINE_DEFINE(case_fpath_move)
 
     // single file
     {
-        tt_fpath_set_cstr(&fp, "123");
+        tt_fpath_parse(&fp, "123");
 
         ret = tt_fpath_get_sibling(&fp, "sib1/sib2/sib3", &fp2);
         TT_UT_SUCCESS(ret, "");
@@ -534,7 +535,7 @@ TT_TEST_ROUTINE_DEFINE(case_fpath_move)
         TT_UT_SUCCESS(ret, "");
         TT_UT_EQUAL(tt_fpath_cmp(&fp, "sib1"), 0, "");
         tt_fpath_clear(&fp);
-        tt_fpath_set_cstr(&fp, "123");
+        tt_fpath_parse(&fp, "123");
         ret = tt_fpath_to_child(&fp, "child1");
         TT_UT_SUCCESS(ret, "");
         TT_UT_EQUAL(tt_fpath_cmp(&fp, "123/child1"), 0, "");
@@ -549,7 +550,7 @@ TT_TEST_ROUTINE_DEFINE(case_fpath_move)
 
     // absolute directory
     {
-        tt_fpath_set_cstr(&fp, "/a/b/c/d/e/");
+        tt_fpath_parse(&fp, "/a/b/c/d/e/");
 
         ret = tt_fpath_get_sibling(&fp, "sib1", &fp2);
         TT_UT_SUCCESS(ret, "");
@@ -569,7 +570,7 @@ TT_TEST_ROUTINE_DEFINE(case_fpath_move)
         ret = tt_fpath_to_sibling(&fp, "sib1/");
         TT_UT_SUCCESS(ret, "");
         TT_UT_EQUAL(tt_fpath_cmp(&fp, "/a/b/c/d/sib1/"), 0, "");
-        tt_fpath_set_cstr(&fp, "/a/b/c/d/e/");
+        tt_fpath_parse(&fp, "/a/b/c/d/e/");
         ret = tt_fpath_to_child(&fp, "child1/child2/child3");
         TT_UT_SUCCESS(ret, "");
         TT_UT_EQUAL(tt_fpath_cmp(&fp, "/a/b/c/d/e/child1/child2/child3"),
@@ -586,7 +587,7 @@ TT_TEST_ROUTINE_DEFINE(case_fpath_move)
 
     // root directory
     {
-        tt_fpath_set_cstr(&fp, "/");
+        tt_fpath_parse(&fp, "/");
 
         ret = tt_fpath_get_sibling(&fp, "sib1", &fp2);
         TT_UT_SUCCESS(ret, "");
@@ -596,11 +597,11 @@ TT_TEST_ROUTINE_DEFINE(case_fpath_move)
         TT_UT_SUCCESS(ret, "");
         TT_UT_EQUAL(tt_fpath_cmp(&fp2, "/child1/"), 0, "");
 
-        tt_fpath_set_cstr(&fp, "/");
+        tt_fpath_parse(&fp, "/");
         ret = tt_fpath_to_sibling(&fp, "sib1/sib2");
         TT_UT_SUCCESS(ret, "");
         TT_UT_EQUAL(tt_fpath_cmp(&fp, "/sib1/sib2"), 0, "");
-        tt_fpath_set_cstr(&fp, "/");
+        tt_fpath_parse(&fp, "/");
         ret = tt_fpath_to_child(&fp, "child1/.");
         TT_UT_SUCCESS(ret, "");
         TT_UT_EQUAL(tt_fpath_cmp(&fp, "/child1/./"), 0, "");
@@ -635,7 +636,7 @@ TT_TEST_ROUTINE_DEFINE(case_fpath_parent)
     }
 
     {
-        tt_fpath_set_cstr(&fp, "/");
+        tt_fpath_parse(&fp, "/");
 
         ret = tt_fpath_get_parent(&fp, &fp2);
         TT_UT_SUCCESS(ret, "");
@@ -646,7 +647,7 @@ TT_TEST_ROUTINE_DEFINE(case_fpath_parent)
     }
 
     {
-        tt_fpath_set_cstr(&fp, "ab");
+        tt_fpath_parse(&fp, "ab");
 
         ret = tt_fpath_get_parent(&fp, &fp2);
         TT_UT_SUCCESS(ret, "");
@@ -657,7 +658,7 @@ TT_TEST_ROUTINE_DEFINE(case_fpath_parent)
     }
 
     {
-        tt_fpath_set_cstr(&fp, "/ab");
+        tt_fpath_parse(&fp, "/ab");
 
         ret = tt_fpath_get_parent(&fp, &fp2);
         TT_UT_SUCCESS(ret, "");
@@ -668,7 +669,7 @@ TT_TEST_ROUTINE_DEFINE(case_fpath_parent)
     }
 
     {
-        tt_fpath_set_cstr(&fp, "/ab/./");
+        tt_fpath_parse(&fp, "/ab/./");
 
         ret = tt_fpath_get_parent(&fp, &fp2);
         TT_UT_SUCCESS(ret, "");
@@ -679,7 +680,7 @@ TT_TEST_ROUTINE_DEFINE(case_fpath_parent)
     }
 
     {
-        tt_fpath_set_cstr(&fp, "/ab/././.");
+        tt_fpath_parse(&fp, "/ab/././.");
 
         ret = tt_fpath_get_parent(&fp, &fp2);
         TT_UT_SUCCESS(ret, "");
@@ -690,7 +691,7 @@ TT_TEST_ROUTINE_DEFINE(case_fpath_parent)
     }
 
     {
-        tt_fpath_set_cstr(&fp, "ab/cde/f/g/h");
+        tt_fpath_parse(&fp, "ab/cde/f/g/h");
 
         ret = tt_fpath_get_parent(&fp, &fp2);
         TT_UT_SUCCESS(ret, "");
@@ -701,7 +702,7 @@ TT_TEST_ROUTINE_DEFINE(case_fpath_parent)
     }
 
     {
-        tt_fpath_set_cstr(&fp, "/ab/cd/../h");
+        tt_fpath_parse(&fp, "/ab/cd/../h");
 
         ret = tt_fpath_get_parent(&fp, &fp2);
         TT_UT_SUCCESS(ret, "");
@@ -712,7 +713,7 @@ TT_TEST_ROUTINE_DEFINE(case_fpath_parent)
     }
 
     {
-        tt_fpath_set_cstr(&fp, "ab/../../..");
+        tt_fpath_parse(&fp, "ab/../../..");
 
         ret = tt_fpath_get_parent(&fp, &fp2);
         TT_UT_SUCCESS(ret, "");
@@ -723,7 +724,7 @@ TT_TEST_ROUTINE_DEFINE(case_fpath_parent)
     }
 
     {
-        tt_fpath_set_cstr(&fp, "a/b/c/../");
+        tt_fpath_parse(&fp, "a/b/c/../");
 
         ret = tt_fpath_get_parent(&fp, &fp2);
         TT_UT_SUCCESS(ret, "");
@@ -760,7 +761,7 @@ TT_TEST_ROUTINE_DEFINE(case_fpath_root)
     }
 
     {
-        tt_fpath_set_cstr(&fp, "/");
+        tt_fpath_parse(&fp, "/");
 
         TT_UT_EQUAL(tt_strcmp(tt_fpath_get_root(&fp), "/"), 0, "");
 
@@ -769,7 +770,7 @@ TT_TEST_ROUTINE_DEFINE(case_fpath_root)
     }
 
     {
-        tt_fpath_set_cstr(&fp, "ab");
+        tt_fpath_parse(&fp, "ab");
 
         TT_UT_EQUAL(tt_fpath_get_root(&fp)[0], 0, "");
 
@@ -778,7 +779,7 @@ TT_TEST_ROUTINE_DEFINE(case_fpath_root)
     }
 
     {
-        tt_fpath_set_cstr(&fp, "/ab");
+        tt_fpath_parse(&fp, "/ab");
 
         TT_UT_EQUAL(tt_strcmp(tt_fpath_get_root(&fp), "/"), 0, "");
 
@@ -787,7 +788,7 @@ TT_TEST_ROUTINE_DEFINE(case_fpath_root)
     }
 
     {
-        tt_fpath_set_cstr(&fp, "/ab/./");
+        tt_fpath_parse(&fp, "/ab/./");
 
         TT_UT_EQUAL(tt_strcmp(tt_fpath_get_root(&fp), "/"), 0, "");
 
@@ -796,7 +797,7 @@ TT_TEST_ROUTINE_DEFINE(case_fpath_root)
     }
 
     {
-        tt_fpath_set_cstr(&fp, "/ab/././.");
+        tt_fpath_parse(&fp, "/ab/././.");
 
         TT_UT_EQUAL(tt_strcmp(tt_fpath_get_root(&fp), "/"), 0, "");
 
@@ -805,7 +806,7 @@ TT_TEST_ROUTINE_DEFINE(case_fpath_root)
     }
 
     {
-        tt_fpath_set_cstr(&fp, "ab/cde/f/g/h");
+        tt_fpath_parse(&fp, "ab/cde/f/g/h");
 
         TT_UT_EQUAL(tt_fpath_get_root(&fp)[0], 0, "");
 
@@ -814,7 +815,7 @@ TT_TEST_ROUTINE_DEFINE(case_fpath_root)
     }
 
     {
-        tt_fpath_set_cstr(&fp, "/ab/cd/../h");
+        tt_fpath_parse(&fp, "/ab/cd/../h");
 
         TT_UT_EQUAL(tt_strcmp(tt_fpath_get_root(&fp), "/"), 0, "");
 
@@ -864,7 +865,7 @@ TT_TEST_ROUTINE_DEFINE(case_fpath_name)
     TT_UT_FAIL(ret, "");
 
     // root dir
-    tt_fpath_set_cstr(&fp, "c:/");
+    tt_fpath_parse(&fp, "c:/");
     TT_UT_EQUAL(tt_fpath_count(&fp), 0, "");
     TT_UT_NULL(tt_fpath_get_name(&fp, 0), "");
     TT_UT_NULL(tt_fpath_get_name(&fp, 1), "");
@@ -887,7 +888,7 @@ TT_TEST_ROUTINE_DEFINE(case_fpath_name)
     TT_UT_FAIL(ret, "");
 
     // single file
-    tt_fpath_set_cstr(&fp, "abc");
+    tt_fpath_parse(&fp, "abc");
     TT_UT_EQUAL(tt_fpath_count(&fp), 1, "");
     TT_UT_EQUAL(tt_strcmp(tt_fpath_get_name(&fp, 0), "abc"), 0, "");
     TT_UT_NULL(tt_fpath_get_name(&fp, 1), "");
@@ -915,7 +916,7 @@ TT_TEST_ROUTINE_DEFINE(case_fpath_name)
     TT_UT_FAIL(ret, "");
 
     // single dir
-    tt_fpath_set_cstr(&fp, "/abc/");
+    tt_fpath_parse(&fp, "/abc/");
     TT_UT_EQUAL(tt_fpath_count(&fp), 1, "");
     TT_UT_EQUAL(tt_strcmp(tt_fpath_get_name(&fp, 0), "abc"), 0, "");
     TT_UT_NULL(tt_fpath_get_name(&fp, 1), "");
@@ -943,7 +944,7 @@ TT_TEST_ROUTINE_DEFINE(case_fpath_name)
     TT_UT_FAIL(ret, "");
 
     // multiple level file
-    tt_fpath_set_cstr(&fp, "a/b/c/d");
+    tt_fpath_parse(&fp, "a/b/c/d");
     TT_UT_EQUAL(tt_fpath_count(&fp), 4, "");
     TT_UT_EQUAL(tt_strcmp(tt_fpath_get_name(&fp, 0), "a"), 0, "");
     TT_UT_EQUAL(tt_strcmp(tt_fpath_get_name(&fp, 1), "b"), 0, "");
@@ -981,7 +982,7 @@ TT_TEST_ROUTINE_DEFINE(case_fpath_name)
     TT_UT_FAIL(ret, "");
 
     // multiple level dir
-    tt_fpath_set_cstr(&fp, "a/b/c/d/");
+    tt_fpath_parse(&fp, "a/b/c/d/");
     TT_UT_EQUAL(tt_fpath_count(&fp), 4, "");
     TT_UT_EQUAL(tt_strcmp(tt_fpath_get_name(&fp, 0), "a"), 0, "");
     TT_UT_EQUAL(tt_strcmp(tt_fpath_get_name(&fp, 1), "b"), 0, "");
@@ -1038,53 +1039,73 @@ TT_TEST_ROUTINE_DEFINE(case_fpath_normalize)
     tt_fpath_normalize(&fp);
     TT_UT_STREQ(tt_fpath_cstr(&fp), "", "");
     TT_UT_TRUE(tt_fpath_empty(&fp), "");
+    {
+        tt_char_t buf[128] = {0};
+        TT_UT_EQUAL(tt_fpath_pctencode_len(&fp, tt_g_uri_encode_table), 0, "");
+        TT_UT_EQUAL(tt_fpath_pctencode(&fp, tt_g_uri_encode_table, buf), 0, "");
+    }
 
     // "."
-    TT_UT_SUCCESS(tt_fpath_set_cstr(&fp, "."), "");
+    TT_UT_SUCCESS(tt_fpath_parse(&fp, "."), "");
     tt_fpath_normalize(&fp);
     TT_UT_STREQ(tt_fpath_cstr(&fp), "./", "");
     TT_UT_FALSE(tt_fpath_empty(&fp), "");
+    {
+        tt_char_t buf[128] = {0};
+        TT_UT_EQUAL(tt_fpath_pctencode_len(&fp, tt_g_uri_encode_table), 2, "");
+        TT_UT_EQUAL(tt_fpath_pctencode(&fp, tt_g_uri_encode_table, buf), 2, "");
+        TT_UT_STREQ(buf, "./", "");
+    }
 
-    TT_UT_SUCCESS(tt_fpath_set_cstr(&fp, "/."), "");
+    TT_UT_SUCCESS(tt_fpath_parse(&fp, "/."), "");
     tt_fpath_normalize(&fp);
     TT_UT_STREQ(tt_fpath_cstr(&fp), "/", "");
 
-    TT_UT_SUCCESS(tt_fpath_set_cstr(&fp, "/././././."), "");
+    TT_UT_SUCCESS(tt_fpath_parse(&fp, "/././././."), "");
     tt_fpath_normalize(&fp);
     TT_UT_STREQ(tt_fpath_cstr(&fp), "/", "");
 
-    TT_UT_SUCCESS(tt_fpath_set_cstr(&fp, "/./a/./"), "");
+    TT_UT_SUCCESS(tt_fpath_parse(&fp, "/./a/./"), "");
     tt_fpath_normalize(&fp);
     TT_UT_STREQ(tt_fpath_cstr(&fp), "/a/", "");
 
-    TT_UT_SUCCESS(tt_fpath_set_cstr(&fp, "/./a/./b/."), "");
+    TT_UT_SUCCESS(tt_fpath_parse(&fp, "/./a/./b/."), "");
     tt_fpath_normalize(&fp);
     TT_UT_STREQ(tt_fpath_cstr(&fp), "/a/b/", "");
 
-    TT_UT_SUCCESS(tt_fpath_set_cstr(&fp, "././a/./b/./c"), "");
+    TT_UT_SUCCESS(tt_fpath_parse(&fp, "././a/./b/./c"), "");
     tt_fpath_normalize(&fp);
     TT_UT_STREQ(tt_fpath_cstr(&fp), "a/b/c", "");
 
     // ".."
-    TT_UT_SUCCESS(tt_fpath_set_cstr(&fp, ".."), "");
+    TT_UT_SUCCESS(tt_fpath_parse(&fp, ".."), "");
     tt_fpath_normalize(&fp);
     TT_UT_STREQ(tt_fpath_cstr(&fp), "../", "");
 
-    TT_UT_SUCCESS(tt_fpath_set_cstr(&fp, "../../.."), "");
+    TT_UT_SUCCESS(tt_fpath_parse(&fp, "../../.."), "");
     tt_fpath_normalize(&fp);
     TT_UT_STREQ(tt_fpath_cstr(&fp), "../../../", "");
 
-    TT_UT_SUCCESS(tt_fpath_set_cstr(&fp, "/../a/../b"), "");
+    TT_UT_SUCCESS(tt_fpath_parse(&fp, "/../a/../b"), "");
     tt_fpath_normalize(&fp);
     TT_UT_STREQ(tt_fpath_cstr(&fp), "/b", "");
 
-    TT_UT_SUCCESS(tt_fpath_set_cstr(&fp, "/.././a/./.././b/./.././../../c/"),
-                  "");
+    TT_UT_SUCCESS(tt_fpath_parse(&fp, "/.././a/./.././b/./.././../../c/"), "");
     tt_fpath_normalize(&fp);
     TT_UT_STREQ(tt_fpath_cstr(&fp), "/c/", "");
 
     tt_fpath_clear(&fp);
     TT_UT_TRUE(tt_fpath_empty(&fp), "");
+
+    TT_UT_SUCCESS(tt_fpath_parse(&fp, "/a=b/c;d/e.f"), "");
+    {
+        tt_char_t buf[128] = {0};
+        TT_UT_EQUAL(tt_fpath_pctencode_len(&fp, tt_g_uri_encode_table), 16, "");
+        TT_UT_EQUAL(tt_fpath_pctencode(&fp, tt_g_uri_encode_table, buf),
+                    16,
+                    "");
+        TT_UT_STREQ(buf, "/a%3db/c%3bd/e.f", "");
+    }
 
     tt_fpath_destroy(&fp);
 
@@ -1100,8 +1121,8 @@ TT_TEST_ROUTINE_DEFINE(case_fpath_normalize)
         tt_fpath_init(&b, TT_FPATH_SEP_UNIX);
         tt_fpath_init(&c, TT_FPATH_SEP_UNIX);
 
-        TT_UT_SUCCESS(tt_fpath_set_cstr(&a, "/a/b/c"), "");
-        TT_UT_SUCCESS(tt_fpath_set_cstr(&b, "/c/d/"), "");
+        TT_UT_SUCCESS(tt_fpath_parse(&a, "/a/b/c"), "");
+        TT_UT_SUCCESS(tt_fpath_parse(&b, "/c/d/"), "");
         TT_UT_SUCCESS(tt_fpath_resolve(&a, &b, &c), "");
         TT_UT_EQUAL(tt_strcmp(tt_fpath_cstr(&c), "/c/d/"), 0, "");
 
@@ -1109,12 +1130,12 @@ TT_TEST_ROUTINE_DEFINE(case_fpath_normalize)
         TT_UT_SUCCESS(tt_fpath_resolve(&a, &b, &c), "");
         TT_UT_EQUAL(tt_strcmp(tt_fpath_cstr(&c), "/a/b/c"), 0, "");
 
-        TT_UT_SUCCESS(tt_fpath_set_cstr(&b, "c/d/"), "");
+        TT_UT_SUCCESS(tt_fpath_parse(&b, "c/d/"), "");
         TT_UT_SUCCESS(tt_fpath_resolve(&a, &b, &c), "");
         TT_UT_EQUAL(tt_strcmp(tt_fpath_cstr(&c), "/a/b/c/d/"), 0, "");
 
-        TT_UT_SUCCESS(tt_fpath_set_cstr(&a, "xxx/yy/"), "");
-        TT_UT_SUCCESS(tt_fpath_set_cstr(&b, "c/d.exe"), "");
+        TT_UT_SUCCESS(tt_fpath_parse(&a, "xxx/yy/"), "");
+        TT_UT_SUCCESS(tt_fpath_parse(&b, "c/d.exe"), "");
         TT_UT_SUCCESS(tt_fpath_resolve(&a, &b, &c), "");
         TT_UT_EQUAL(tt_strcmp(tt_fpath_cstr(&c), "xxx/yy/c/d.exe"), 0, "");
 
@@ -1135,21 +1156,21 @@ TT_TEST_ROUTINE_DEFINE(case_fpath_normalize)
         TT_UT_FAIL(tt_fpath_relativize(&a, &b, &c), "");
 
         tt_fpath_init(&a, TT_FPATH_SEP_WINDOWS);
-        tt_fpath_set_cstr(&a, "c:\\a\b");
-        tt_fpath_set_cstr(&b, "x\\y\\");
+        tt_fpath_parse(&a, "c:\\a\b");
+        tt_fpath_parse(&b, "x\\y\\");
         TT_UT_FAIL(tt_fpath_relativize(&a, &b, &c), "");
 
-        tt_fpath_set_cstr(&a, "c:\\a\b");
-        tt_fpath_set_cstr(&b, "d:\\x\\y\\");
+        tt_fpath_parse(&a, "c:\\a\b");
+        tt_fpath_parse(&b, "d:\\x\\y\\");
         TT_UT_FAIL(tt_fpath_relativize(&a, &b, &c), "");
 
         // absolute
-        tt_fpath_set_cstr(&a, "c:");
-        tt_fpath_set_cstr(&b, "c:");
+        tt_fpath_parse(&a, "c:");
+        tt_fpath_parse(&b, "c:");
         TT_UT_SUCCESS(tt_fpath_relativize(&a, &b, &c), "");
         TT_UT_STREQ(tt_fpath_cstr(&c), "", "");
 
-        tt_fpath_set_cstr(&b, "c:x\\y\\z");
+        tt_fpath_parse(&b, "c:x\\y\\z");
         TT_UT_SUCCESS(tt_fpath_relativize(&a, &b, &c), "");
         TT_UT_STREQ(tt_fpath_cstr(&c), "x\\y\\z", "");
         TT_UT_SUCCESS(tt_fpath_relativize(&b, &a, &c), "");
@@ -1157,7 +1178,7 @@ TT_TEST_ROUTINE_DEFINE(case_fpath_normalize)
         TT_UT_SUCCESS(tt_fpath_resolve(&b, &c, &tmp), "");
         TT_UT_STREQ(tt_fpath_cstr(&tmp), "c:\\x\\y\\..\\..\\", "");
 
-        tt_fpath_set_cstr(&b, "c:x\\y\\z\\");
+        tt_fpath_parse(&b, "c:x\\y\\z\\");
         TT_UT_SUCCESS(tt_fpath_relativize(&a, &b, &c), "");
         TT_UT_STREQ(tt_fpath_cstr(&c), "x\\y\\z\\", "");
         TT_UT_SUCCESS(tt_fpath_relativize(&b, &a, &c), "");
@@ -1169,7 +1190,7 @@ TT_TEST_ROUTINE_DEFINE(case_fpath_normalize)
         TT_UT_SUCCESS(tt_fpath_relativize(&a, &b, &c), "");
         TT_UT_STREQ(tt_fpath_cstr(&c), "", "");
 
-        tt_fpath_set_cstr(&b, "x\\y\\z");
+        tt_fpath_parse(&b, "x\\y\\z");
         TT_UT_SUCCESS(tt_fpath_relativize(&a, &b, &c), "");
         TT_UT_STREQ(tt_fpath_cstr(&c), "x\\y\\z", "");
         TT_UT_SUCCESS(tt_fpath_relativize(&b, &a, &c), "");
@@ -1177,7 +1198,7 @@ TT_TEST_ROUTINE_DEFINE(case_fpath_normalize)
         TT_UT_SUCCESS(tt_fpath_resolve(&b, &c, &tmp), "");
         TT_UT_STREQ(tt_fpath_cstr(&tmp), "x\\y\\..\\..\\", "");
 
-        tt_fpath_set_cstr(&b, "x\\y\\z\\");
+        tt_fpath_parse(&b, "x\\y\\z\\");
         TT_UT_SUCCESS(tt_fpath_relativize(&a, &b, &c), "");
         TT_UT_STREQ(tt_fpath_cstr(&c), "x\\y\\z\\", "");
         TT_UT_SUCCESS(tt_fpath_relativize(&b, &a, &c), "");

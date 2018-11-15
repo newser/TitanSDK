@@ -532,7 +532,7 @@ TT_TEST_ROUTINE_DEFINE(case_fs_flock)
         {
 			    tt_fpath_t fp;
     tt_fpath_init(&fp, TT_FPATH_AUTO);
-    tt_fpath_set(&fp, tt_current_path(TT_TRUE));
+    tt_fpath_parse_n(&fp, tt_current_path(TT_TRUE));
     tt_fpath_to_dir(&fp);
     tt_fpath_set_filename(&fp,__SC_TEST_FILE);
     arg[2] = (tt_char_t*)tt_fpath_cstr(&fp);

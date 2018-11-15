@@ -93,14 +93,13 @@ tt_export void tt_fpath_destroy(IN tt_fpath_t *fp);
 
 tt_export void tt_fpath_clear(IN tt_fpath_t *fp);
 
-tt_export tt_result_t tt_fpath_set(IN tt_fpath_t *fp,
-                                   const tt_char_t *path,
-                                   IN tt_u32_t path_len);
+tt_export tt_result_t tt_fpath_parse_n(IN tt_fpath_t *fp,
+                                       const tt_char_t *path,
+                                       IN tt_u32_t path_len);
 
-tt_inline tt_result_t tt_fpath_set_cstr(IN tt_fpath_t *fp,
-                                        const tt_char_t *path)
+tt_inline tt_result_t tt_fpath_parse(IN tt_fpath_t *fp, const tt_char_t *path)
 {
-    return tt_fpath_set(fp, path, tt_strlen(path));
+    return tt_fpath_parse_n(fp, path, tt_strlen(path));
 }
 
 tt_export tt_result_t tt_fpath_copy(IN tt_fpath_t *dst, IN tt_fpath_t *src);
@@ -239,5 +238,12 @@ tt_export tt_result_t tt_fpath_resolve(IN tt_fpath_t *fp,
 tt_export tt_result_t tt_fpath_relativize(IN tt_fpath_t *fp,
                                           IN tt_fpath_t *other,
                                           OUT tt_fpath_t *relative);
+
+tt_export tt_u32_t tt_fpath_pctencode_len(IN tt_fpath_t *fp,
+                                          IN tt_char_t *enc_tbl);
+
+tt_export tt_u32_t tt_fpath_pctencode(IN tt_fpath_t *fp,
+                                      IN tt_char_t *enc_tbl,
+                                      OUT tt_char_t *dst);
 
 #endif // __TT_FPATH__

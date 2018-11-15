@@ -22,6 +22,8 @@
 
 #include <network/http/tt_http_uri.h>
 
+#include <misc/tt_percent_encode.h>
+
 ////////////////////////////////////////////////////////////
 // internal macro
 ////////////////////////////////////////////////////////////
@@ -40,16 +42,6 @@ typedef struct __hu_param_s
 // extern declaration
 ////////////////////////////////////////////////////////////
 
-// from tt_uri.c
-extern tt_u32_t __percent_encode_len(IN tt_char_t *str,
-                                     IN tt_u32_t len,
-                                     IN tt_char_t *enc_tbl);
-
-extern tt_u32_t __percent_encode(IN tt_char_t *str,
-                                 IN tt_u32_t len,
-                                 IN tt_char_t *enc_tbl,
-                                 OUT tt_char_t *dst);
-
 ////////////////////////////////////////////////////////////
 // global variant
 ////////////////////////////////////////////////////////////
@@ -66,10 +58,14 @@ static tt_char_t tt_s_http_generic_enc_tbl[256] = {
     'x', 'y', 'z', 0,   0,   0,   '~', 0,
 };
 
+// do not encode "/;=&%" thus the http path can not include these chars. a path
+// like "/a&/b;/%c=" won't be encoded correctly, the thorough solution is
+// implement
+// a fpath api to do path encoding
 static tt_char_t tt_s_http_path_enc_tbl[256] = {
     0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
     0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
-    0,   0,   0,   0,   0,   0,   0,   0,   '&', 0,   0,   0,   0,   0,   0,
+    0,   0,   0,   0,   0,   0,   0,   '%', '&', 0,   0,   0,   0,   0,   0,
     '-', '.', '/', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 0,   ';',
     0,   '=', 0,   0,   0,   'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J',
     'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y',
@@ -81,7 +77,7 @@ static tt_char_t tt_s_http_path_enc_tbl[256] = {
 static tt_char_t tt_s_http_query_enc_tbl[256] = {
     0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
     0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
-    0,   0,   0,   0,   0,   0,   0,   0,   '&', 0,   0,   0,   0,   0,   0,
+    0,   0,   0,   0,   0,   0,   0,   '%', '&', 0,   0,   0,   0,   0,   0,
     '-', '.', 0,   '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 0,   0,
     0,   '=', 0,   0,   0,   'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J',
     'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y',
@@ -204,7 +200,6 @@ void tt_http_uri_init(IN tt_http_uri_t *hu)
     tt_queue_init(&hu->query_param, sizeof(__hu_param_t), &q_attr);
     tt_uri_init(&hu->u);
     tt_fpath_init(&hu->path, '/');
-    hu->scheme = TT_HTTP_SCHEME_UNDEFINED; // default
     hu->path_modified = TT_FALSE;
     hu->query_modified = TT_FALSE;
 }
@@ -218,11 +213,9 @@ tt_result_t tt_http_uri_create(IN tt_http_uri_t *hu,
 
     TT_DO(tt_uri_create(u, str, len));
 
-    hu->scheme = __hu_parse_scheme(u);
-    if (!TT_HTTP_SCHEME_VALID(hu->scheme)) {
+    if (!TT_HTTP_SCHEME_VALID(__hu_parse_scheme(u))) {
         // must destroy as it's a create function
-        tt_uri_destroy(u);
-        return TT_E_BADARG;
+        goto fail;
     }
 
     tt_queue_attr_default(&q_attr);
@@ -273,14 +266,13 @@ void tt_http_uri_clear(IN tt_http_uri_t *hu)
     __hupq_clear(&hu->path_param);
     tt_uri_clear(&hu->u);
     tt_fpath_clear(&hu->path);
-    hu->scheme = TT_HTTP_SCHEME_UNDEFINED;
     hu->path_modified = TT_FALSE;
     hu->query_modified = TT_FALSE;
 }
 
-tt_result_t tt_http_uri_set(IN tt_http_uri_t *hu,
-                            IN tt_char_t *str,
-                            IN tt_u32_t len)
+tt_result_t tt_http_uri_parse_n(IN tt_http_uri_t *hu,
+                                IN tt_char_t *str,
+                                IN tt_u32_t len)
 {
     tt_result_t result;
 
@@ -294,28 +286,44 @@ tt_result_t tt_http_uri_set(IN tt_http_uri_t *hu,
     return result;
 }
 
-const tt_char_t *tt_http_uri_encode(IN tt_http_uri_t *hu)
+const tt_char_t *tt_http_uri_render(IN tt_http_uri_t *hu)
 {
     tt_uri_encode_table_t uet;
 
     __hu_update_path(hu);
+    __hu_update_query(hu);
 
     tt_uri_encode_table_default(&uet);
     uet.generic = tt_s_http_generic_enc_tbl;
     uet.path = tt_s_http_path_enc_tbl;
     uet.query = tt_s_http_query_enc_tbl;
 
-    return tt_uri_encode(&hu->u, &uet);
+    return tt_uri_render(&hu->u, &uet);
 }
 
-tt_result_t tt_http_uri_encode2buf(IN tt_http_uri_t *hu, IN tt_buf_t *buf)
+tt_result_t tt_http_uri_render2buf(IN tt_http_uri_t *hu, IN tt_buf_t *buf)
 {
     tt_uri_encode_table_t uet;
 
     __hu_update_path(hu);
+    __hu_update_query(hu);
 
     tt_uri_encode_table_default(&uet);
-    return tt_uri_encode2buf(&hu->u, buf, &uet);
+    return tt_uri_render2buf(&hu->u, buf, &uet);
+}
+
+tt_http_scheme_t tt_http_uri_get_scheme(IN tt_http_uri_t *hu)
+{
+    // uri guarantee hu->u.scheme is a string
+    if (tt_blobex_empty(&hu->u.scheme)) {
+        return TT_HTTP_SCHEME_UNDEFINED;
+    } else if (tt_strcmp(tt_blobex_addr(&hu->u.scheme), "http") == 0) {
+        return TT_HTTP_SCHEME_HTTP;
+    } else if (tt_strcmp(tt_blobex_addr(&hu->u.scheme), "https") == 0) {
+        return TT_HTTP_SCHEME_HTTPS;
+    } else {
+        return TT_HTTP_SCHEME_NUM;
+    }
 }
 
 tt_result_t tt_http_uri_set_scheme(IN tt_http_uri_t *hu,
@@ -324,6 +332,7 @@ tt_result_t tt_http_uri_set_scheme(IN tt_http_uri_t *hu,
     TT_ASSERT(TT_HTTP_SCHEME_VALID(scheme));
 
     if (scheme == TT_HTTP_SCHEME_HTTP) {
+        // must including ending 0, so use sizeof()
         tt_blobex_set(&hu->u.scheme,
                       (tt_u8_t *)"http",
                       sizeof("http"),
@@ -334,15 +343,14 @@ tt_result_t tt_http_uri_set_scheme(IN tt_http_uri_t *hu,
                       sizeof("https"),
                       TT_FALSE);
     } else {
-        tt_blobex_set(&hu->u.scheme, NULL, 0, TT_FALSE);
+        tt_blobex_clear(&hu->u.scheme);
     }
+    hu->u.uri_modified = TT_TRUE;
 
-    hu->scheme = scheme;
     return TT_SUCCESS;
 }
 
-tt_kv_t *tt_http_uri_find_path_param(IN tt_http_uri_t *hu,
-                                     IN const tt_char_t *name)
+tt_kv_t *tt_http_uri_find_pparam(IN tt_http_uri_t *hu, IN const tt_char_t *name)
 {
     __hu_param_t *hp;
 
@@ -360,8 +368,8 @@ tt_kv_t *tt_http_uri_find_path_param(IN tt_http_uri_t *hu,
     }
 }
 
-tt_result_t tt_http_uri_add_path_param(IN tt_http_uri_t *hu,
-                                       IN const tt_char_t *name)
+tt_result_t tt_http_uri_add_pparam(IN tt_http_uri_t *hu,
+                                   IN const tt_char_t *name)
 {
     hu->path_modified = TT_TRUE;
     return __hupq_add_n(&hu->path_param,
@@ -370,9 +378,9 @@ tt_result_t tt_http_uri_add_path_param(IN tt_http_uri_t *hu,
                         TT_TRUE);
 }
 
-tt_result_t tt_http_uri_add_path_param_nv(IN tt_http_uri_t *hu,
-                                          IN const tt_char_t *name,
-                                          IN const tt_char_t *value)
+tt_result_t tt_http_uri_add_pparam_nv(IN tt_http_uri_t *hu,
+                                      IN const tt_char_t *name,
+                                      IN const tt_char_t *value)
 {
     hu->path_modified = TT_TRUE;
     return __hupq_add_nv(&hu->path_param,
@@ -384,8 +392,8 @@ tt_result_t tt_http_uri_add_path_param_nv(IN tt_http_uri_t *hu,
                          TT_TRUE);
 }
 
-tt_bool_t tt_http_uri_remove_path_param(IN tt_http_uri_t *hu,
-                                        IN const tt_char_t *name)
+tt_bool_t tt_http_uri_remove_pparam(IN tt_http_uri_t *hu,
+                                    IN const tt_char_t *name)
 {
     __hu_param_t *hp = __hupq_find_n(&hu->path_param,
                                      (tt_char_t *)name,
@@ -399,9 +407,9 @@ tt_bool_t tt_http_uri_remove_path_param(IN tt_http_uri_t *hu,
     }
 }
 
-tt_bool_t tt_http_uri_remove_path_param_nv(IN tt_http_uri_t *hu,
-                                           IN const tt_char_t *name,
-                                           IN const tt_char_t *value)
+tt_bool_t tt_http_uri_remove_pparam_nv(IN tt_http_uri_t *hu,
+                                       IN const tt_char_t *name,
+                                       IN const tt_char_t *value)
 {
     __hu_param_t *hp = __hupq_find_nv(&hu->path_param,
                                       (tt_char_t *)name,
@@ -417,8 +425,7 @@ tt_bool_t tt_http_uri_remove_path_param_nv(IN tt_http_uri_t *hu,
     }
 }
 
-tt_kv_t *tt_http_uri_find_query_param(IN tt_http_uri_t *hu,
-                                      IN const tt_char_t *name)
+tt_kv_t *tt_http_uri_find_qparam(IN tt_http_uri_t *hu, IN const tt_char_t *name)
 {
     __hu_param_t *hp;
 
@@ -436,8 +443,8 @@ tt_kv_t *tt_http_uri_find_query_param(IN tt_http_uri_t *hu,
     }
 }
 
-tt_result_t tt_http_uri_add_query_param(IN tt_http_uri_t *hu,
-                                        IN const tt_char_t *name)
+tt_result_t tt_http_uri_add_qparam(IN tt_http_uri_t *hu,
+                                   IN const tt_char_t *name)
 {
     hu->query_modified = TT_TRUE;
     return __hupq_add_n(&hu->query_param,
@@ -446,9 +453,9 @@ tt_result_t tt_http_uri_add_query_param(IN tt_http_uri_t *hu,
                         TT_TRUE);
 }
 
-tt_result_t tt_http_uri_add_query_param_nv(IN tt_http_uri_t *hu,
-                                           IN const tt_char_t *name,
-                                           IN const tt_char_t *value)
+tt_result_t tt_http_uri_add_qparam_nv(IN tt_http_uri_t *hu,
+                                      IN const tt_char_t *name,
+                                      IN const tt_char_t *value)
 {
     hu->query_modified = TT_TRUE;
     return __hupq_add_nv(&hu->query_param,
@@ -460,8 +467,8 @@ tt_result_t tt_http_uri_add_query_param_nv(IN tt_http_uri_t *hu,
                          TT_TRUE);
 }
 
-tt_bool_t tt_http_uri_remove_query_param(IN tt_http_uri_t *hu,
-                                         IN const tt_char_t *name)
+tt_bool_t tt_http_uri_remove_qparam(IN tt_http_uri_t *hu,
+                                    IN const tt_char_t *name)
 {
     __hu_param_t *hp = __hupq_find_n(&hu->query_param,
                                      (tt_char_t *)name,
@@ -475,9 +482,9 @@ tt_bool_t tt_http_uri_remove_query_param(IN tt_http_uri_t *hu,
     }
 }
 
-tt_bool_t tt_http_uri_remove_query_param_nv(IN tt_http_uri_t *hu,
-                                            IN const tt_char_t *name,
-                                            IN const tt_char_t *value)
+tt_bool_t tt_http_uri_remove_qparam_nv(IN tt_http_uri_t *hu,
+                                       IN const tt_char_t *name,
+                                       IN const tt_char_t *value)
 {
     __hu_param_t *hp = __hupq_find_nv(&hu->query_param,
                                       (tt_char_t *)name,
@@ -527,9 +534,9 @@ tt_result_t __hu_parse_path(IN tt_http_uri_t *hu,
 
     p = tt_memchr(path, ';', path_len);
     if (p == NULL) {
-        TT_DO(tt_fpath_set(&hu->path, path, path_len));
+        TT_DO(tt_fpath_parse_n(&hu->path, path, path_len));
     } else if (p > path) {
-        TT_DO(tt_fpath_set(&hu->path, path, (tt_u32_t)(p - path)));
+        TT_DO(tt_fpath_parse_n(&hu->path, path, (tt_u32_t)(p - path)));
         ++p;
     } else {
         // empty path
@@ -705,7 +712,7 @@ void __hupg_own(IN tt_queue_t *q)
             tt_kv_clear(&hp->name_val);
         } else {
             if (!TT_OK(tt_kv_own(&hp->name_val))) {
-                TT_FATAL("lost a param");
+                TT_FATAL("lost a http uri param");
             }
         }
     }
@@ -715,33 +722,33 @@ tt_result_t __hu_update_path(IN tt_http_uri_t *hu)
 {
     tt_char_t *p, *dst;
     tt_u32_t n = 0, len;
-    tt_queue_t *q;
+    tt_bool_t q_len;
 
     if (!hu->path_modified) {
+        // this measn both hu->path_param and hu->path are not modified
         return TT_SUCCESS;
     }
 
+    // must tell uri that content is changed
     hu->u.uri_modified = TT_TRUE;
 
+    // must own all path param first as this function would release hu->u.path
     __hupg_own(&hu->path_param);
 
     // ========================================
     // compute encode length
     // ========================================
 
-    p = (tt_char_t *)tt_fpath_cstr(&hu->path);
-    if (p[0] != 0) {
-        len = tt_string_len(&hu->path.path);
-        n += __percent_encode_len(p, len, tt_s_http_path_enc_tbl);
-    }
+    n += tt_fpath_pctencode_len(&hu->path, tt_g_uri_encode_table);
 
-    q = &hu->path_param;
-    if (!tt_queue_empty(q)) {
+    q_len = __encode_q_len(&hu->path_param, tt_g_uri_encode_table);
+    if (q_len > 0) {
         n += 1; // ";"
-        n += __encode_q_len(q, tt_s_http_path_enc_tbl);
+        n += q_len;
     }
 
     if (n > 0) {
+        // note uri's all member are stored as string, i.e. including ending 0
         TT_DO(tt_blobex_set(&hu->u.path, NULL, n + 1, TT_TRUE));
     } else {
         tt_blobex_clear(&hu->u.path);
@@ -754,16 +761,11 @@ tt_result_t __hu_update_path(IN tt_http_uri_t *hu)
 
     dst = (tt_char_t *)__BLOBEX_ADDR(&hu->u.path);
 
-    p = (tt_char_t *)tt_fpath_cstr(&hu->path);
-    if (p[0] != 0) {
-        len = tt_string_len(&hu->path.path);
-        dst += __percent_encode(p, len, tt_s_http_path_enc_tbl, dst);
-    }
+    dst += tt_fpath_pctencode(&hu->path, tt_g_uri_encode_table, dst);
 
-    q = &hu->path_param;
-    if (!tt_queue_empty(q)) {
+    if (q_len > 0) {
         *dst++ = ';';
-        dst += __encode_q(q, tt_s_http_path_enc_tbl, dst);
+        dst += __encode_q(&hu->path_param, tt_g_uri_encode_table, dst);
     }
 
     *dst++ = 0;
@@ -777,9 +779,47 @@ tt_result_t __hu_update_path(IN tt_http_uri_t *hu)
 
 tt_result_t __hu_update_query(IN tt_http_uri_t *hu)
 {
+    tt_char_t *p, *dst;
+    tt_u32_t n = 0, len;
+    tt_bool_t q_len;
+
     if (!hu->query_modified) {
         return TT_SUCCESS;
     }
+
+    // must tell uri that content is changed
+    hu->u.uri_modified = TT_TRUE;
+
+    // must own all query param first as this function would release hu->u.query
+    __hupg_own(&hu->query_param);
+
+    // ========================================
+    // compute encode length
+    // ========================================
+
+    n += __encode_q_len(&hu->query_param, tt_g_uri_encode_table);
+
+    if (n > 0) {
+        // note uri's all member are stored as string, i.e. including ending 0
+        TT_DO(tt_blobex_set(&hu->u.query, NULL, n + 1, TT_TRUE));
+    } else {
+        tt_blobex_clear(&hu->u.query);
+        return TT_SUCCESS;
+    }
+
+    // ========================================
+    // encode
+    // ========================================
+
+    dst = (tt_char_t *)__BLOBEX_ADDR(&hu->u.query);
+
+    dst += __encode_q(&hu->query_param, tt_g_uri_encode_table, dst);
+
+    *dst++ = 0;
+
+    TT_ASSERT(dst ==
+              (tt_char_t *)__BLOBEX_ADDR(&hu->u.query) +
+                  __BLOBEX_LEN(&hu->u.query));
 
     return TT_SUCCESS;
 }
@@ -798,18 +838,18 @@ tt_u32_t __encode_q_len(IN tt_queue_t *q, IN tt_char_t *t)
             bex = &hp->name_val.key;
             if (__BLOBEX_ADDR(bex) != NULL) {
                 TT_ASSERT(__BLOBEX_LEN(bex) != 0);
-                n += __percent_encode_len((tt_char_t *)__BLOBEX_ADDR(bex),
-                                          __BLOBEX_LEN(bex),
-                                          t);
+                n += tt_percent_encode_len((tt_char_t *)__BLOBEX_ADDR(bex),
+                                           __BLOBEX_LEN(bex),
+                                           t);
             }
 
             bex = &hp->name_val.val;
             if (__BLOBEX_ADDR(bex) != NULL) {
                 TT_ASSERT(__BLOBEX_LEN(bex) != 0);
                 n += 1; // "="
-                n += __percent_encode_len((tt_char_t *)__BLOBEX_ADDR(bex),
-                                          __BLOBEX_LEN(bex),
-                                          t);
+                n += tt_percent_encode_len((tt_char_t *)__BLOBEX_ADDR(bex),
+                                           __BLOBEX_LEN(bex),
+                                           t);
             }
 
             n += 1; // "&"
@@ -838,20 +878,20 @@ tt_u32_t __encode_q(IN tt_queue_t *q, IN tt_char_t *t, OUT tt_char_t *dst)
             bex = &hp->name_val.key;
             if (__BLOBEX_ADDR(bex) != NULL) {
                 TT_ASSERT(__BLOBEX_LEN(bex) != 0);
-                p += __percent_encode((tt_char_t *)__BLOBEX_ADDR(bex),
-                                      __BLOBEX_LEN(bex),
-                                      t,
-                                      p);
+                p += tt_percent_encode((tt_char_t *)__BLOBEX_ADDR(bex),
+                                       __BLOBEX_LEN(bex),
+                                       t,
+                                       p);
             }
 
             bex = &hp->name_val.val;
             if (__BLOBEX_ADDR(bex) != NULL) {
                 TT_ASSERT(__BLOBEX_LEN(bex) != 0);
                 *p++ = '=';
-                p += __percent_encode((tt_char_t *)__BLOBEX_ADDR(bex),
-                                      __BLOBEX_LEN(bex),
-                                      t,
-                                      p);
+                p += tt_percent_encode((tt_char_t *)__BLOBEX_ADDR(bex),
+                                       __BLOBEX_LEN(bex),
+                                       t,
+                                       p);
             }
 
             *p++ = '&';

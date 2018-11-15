@@ -771,7 +771,7 @@ TT_TEST_ROUTINE_DEFINE(case_log_io_file_archive)
             found = TT_TRUE;
 
             tt_fpath_init(&fp, TT_FPATH_SEP);
-            tt_fpath_set_cstr(&fp, __LIOF_P_ARCH);
+            tt_fpath_parse(&fp, __LIOF_P_ARCH);
             tt_fpath_to_dir(&fp);
             tt_fpath_set_filename(&fp, de.name);
 

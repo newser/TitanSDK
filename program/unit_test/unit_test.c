@@ -104,6 +104,7 @@ tt_result_t __ut_fiber(IN void *param)
           "case_ptr_queue",
           //"TEST_UNIT_FPATH",
           "case_uri_get_set",
+          "case_fpath_normalize",
           "HTTP_UT_URI",
 #if 0
             "TEST_UNIT_LOG",

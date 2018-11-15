@@ -184,10 +184,14 @@ tt_inline tt_s32_t tt_blobex_memcmp(IN tt_blobex_t *a,
     }
 }
 
+tt_inline tt_bool_t tt_blobex_empty(IN tt_blobex_t *bex)
+{
+    return TT_BOOL((__BLOBEX_ADDR(bex) == NULL) || (__BLOBEX_LEN(bex) == 0));
+}
+
 tt_inline tt_result_t tt_blobex_own(IN tt_blobex_t *bex)
 {
-    if (!__BLOBEX_IS_OWNER(bex) && (__BLOBEX_ADDR(bex) != NULL) &&
-        (__BLOBEX_LEN(bex) != 0)) {
+    if (!tt_blobex_empty(bex) && !__BLOBEX_IS_OWNER(bex)) {
         tt_u8_t *p = tt_memdup(__BLOBEX_ADDR(bex), __BLOBEX_LEN(bex));
         if (p == NULL) {
             TT_ERROR("no mem for blobex own");

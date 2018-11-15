@@ -25,6 +25,7 @@
 #include <algorithm/tt_algorithm_def.h>
 #include <algorithm/tt_buffer_format.h>
 #include <algorithm/tt_string_common.h>
+#include <misc/tt_percent_encode.h>
 
 ////////////////////////////////////////////////////////////
 // internal macro
@@ -94,15 +95,6 @@ tt_result_t __percent_decode(IN tt_blobex_t *bex,
                              IN tt_char_t *str,
                              IN tt_u32_t len);
 
-tt_u32_t __percent_encode_len(IN tt_char_t *str,
-                              IN tt_u32_t len,
-                              IN tt_char_t *enc_tbl);
-
-tt_u32_t __percent_encode(IN tt_char_t *str,
-                          IN tt_u32_t len,
-                          IN tt_char_t *enc_tbl,
-                          OUT tt_char_t *dst);
-
 static tt_s32_t __uri_blobex_cmp(IN tt_blobex_t *a, IN tt_blobex_t *b);
 
 ////////////////////////////////////////////////////////////
@@ -121,7 +113,7 @@ void tt_uri_init(IN tt_uri_t *uri)
     tt_blobex_init(&uri->query, NULL, 0);
     tt_blobex_init(&uri->fragment, NULL, 0);
     uri->port = 0;
-    uri->authority_modified = TT_FALSE;
+    uri->auth_modified = TT_FALSE;
     uri->uri_modified = TT_FALSE;
 }
 
@@ -169,11 +161,11 @@ void tt_uri_clear(IN tt_uri_t *uri)
     tt_blobex_init(&uri->query, NULL, 0);
     tt_blobex_init(&uri->fragment, NULL, 0);
     uri->port = 0;
-    uri->authority_modified = TT_FALSE;
+    uri->auth_modified = TT_FALSE;
     uri->uri_modified = TT_FALSE;
 }
 
-tt_result_t tt_uri_set(IN tt_uri_t *uri, IN tt_char_t *str, IN tt_u32_t len)
+tt_result_t tt_uri_parse_n(IN tt_uri_t *uri, IN tt_char_t *str, IN tt_u32_t len)
 {
     tt_uri_clear(uri);
     return TT_COND(len > 0, __parse_uri(uri, str, len), TT_SUCCESS);
@@ -186,12 +178,12 @@ void tt_uri_encode_table_default(IN tt_uri_encode_table_t *uet)
     uet->query = tt_g_uri_encode_table;
 }
 
-const tt_char_t *tt_uri_encode(IN tt_uri_t *uri, IN tt_uri_encode_table_t *uet)
+const tt_char_t *tt_uri_render(IN tt_uri_t *uri, IN tt_uri_encode_table_t *uet)
 {
     if (uri->uri_modified) {
         // must use tt_buf_clear() but not tt_string_clear()
         tt_buf_clear(&uri->uri.buf);
-        if (TT_OK(tt_uri_encode2buf(uri, &uri->uri.buf, uet))) {
+        if (TT_OK(tt_uri_render2buf(uri, &uri->uri.buf, uet))) {
             uri->uri_modified = TT_FALSE;
         } else {
             tt_string_clear(&uri->uri);
@@ -201,21 +193,21 @@ const tt_char_t *tt_uri_encode(IN tt_uri_t *uri, IN tt_uri_encode_table_t *uet)
     return tt_string_cstr(&uri->uri);
 }
 
-tt_result_t tt_uri_encode2buf(IN tt_uri_t *uri,
+tt_result_t tt_uri_render2buf(IN tt_uri_t *uri,
                               IN tt_buf_t *buf,
                               IN OPT tt_uri_encode_table_t *uet)
 {
 #define __ENCODE_LEN(name, t)                                                  \
-    __percent_encode_len(tt_blobex_addr(&uri->name),                           \
-                         tt_blobex_len(&uri->name) - 1,                        \
-                         t)
+    tt_percent_encode_len(tt_blobex_addr(&uri->name),                          \
+                          tt_blobex_len(&uri->name) - 1,                       \
+                          t)
 
 #define __ENCODE(name, t)                                                      \
     do {                                                                       \
-        tt_u32_t en = __percent_encode(tt_blobex_addr(&uri->name),             \
-                                       tt_blobex_len(&uri->name) - 1,          \
-                                       t,                                      \
-                                       (tt_char_t *)TT_BUF_WPOS(buf));         \
+        tt_u32_t en = tt_percent_encode(tt_blobex_addr(&uri->name),            \
+                                        tt_blobex_len(&uri->name) - 1,         \
+                                        t,                                     \
+                                        (tt_char_t *)TT_BUF_WPOS(buf));        \
         tt_buf_inc_wp(buf, en);                                                \
     } while (0)
 
@@ -378,55 +370,15 @@ tt_s32_t __uri_blobex_cmp(IN tt_blobex_t *a, IN tt_blobex_t *b)
     }
 }
 
-tt_s32_t tt_uri_cmp(IN tt_uri_t *a, IN tt_uri_t *b)
-{
-    tt_s32_t n;
-    tt_bool_t a_opq, b_opq;
-
-#define __CMP(name)                                                            \
-    do {                                                                       \
-        n = __uri_blobex_cmp(&a->name, &b->name);                              \
-        if (n != 0) {                                                          \
-            return n;                                                          \
-        }                                                                      \
-    } while (0)
-
-    __CMP(scheme);
-
-    a_opq = tt_uri_is_opaque(a);
-    b_opq = tt_uri_is_opaque(b);
-    if (a_opq != b_opq) {
-        // hierarchical < opaque
-        return TT_COND(a_opq, 1, -1);
-    }
-
-    if (a_opq) {
-        __CMP(opaque);
-    } else {
-        __CMP(user_info);
-        __CMP(host);
-        if (a->port != b->port) {
-            return a->port - b->port;
-        }
-        __CMP(path);
-        __CMP(query);
-    }
-
-    __CMP(fragment);
-
-    return 0;
-#undef __CMP
-}
-
 const tt_char_t *tt_uri_get_scheme(IN tt_uri_t *uri)
 {
     const tt_char_t *p = (const tt_char_t *)tt_blobex_addr(&uri->scheme);
     return TT_COND(p != NULL, p, "");
 }
 
-tt_result_t tt_uri_set_scheme(IN tt_uri_t *uri,
-                              IN const tt_char_t *scheme,
-                              IN tt_u32_t len)
+tt_result_t tt_uri_set_scheme_n(IN tt_uri_t *uri,
+                                IN const tt_char_t *scheme,
+                                IN tt_u32_t len)
 {
     tt_char_t *p;
 
@@ -450,9 +402,9 @@ const tt_char_t *tt_uri_get_opaque(IN tt_uri_t *uri)
     return TT_COND(p != NULL, p, "");
 }
 
-tt_result_t tt_uri_set_opaque(IN tt_uri_t *uri,
-                              IN const tt_char_t *opaque,
-                              IN tt_u32_t len)
+tt_result_t tt_uri_set_opaque_n(IN tt_uri_t *uri,
+                                IN const tt_char_t *opaque,
+                                IN tt_u32_t len)
 {
     tt_char_t *p;
 
@@ -460,7 +412,7 @@ tt_result_t tt_uri_set_opaque(IN tt_uri_t *uri,
 
     // optional: consider as a opaque uri, so clear hierarchical parts
     tt_blobex_clear(&uri->authority);
-    uri->authority_modified = TT_FALSE;
+    uri->auth_modified = TT_FALSE;
     tt_blobex_clear(&uri->user_info);
     tt_blobex_clear(&uri->host);
     uri->port = 0;
@@ -480,14 +432,14 @@ const tt_char_t *tt_uri_get_userinfo(IN tt_uri_t *uri)
     return TT_COND(p != NULL, p, "");
 }
 
-tt_result_t tt_uri_set_userinfo(IN tt_uri_t *uri,
-                                IN const tt_char_t *userinfo,
-                                IN tt_u32_t len)
+tt_result_t tt_uri_set_userinfo_n(IN tt_uri_t *uri,
+                                  IN const tt_char_t *userinfo,
+                                  IN tt_u32_t len)
 {
     tt_char_t *p;
 
     uri->uri_modified = TT_TRUE;
-    uri->authority_modified = TT_TRUE;
+    uri->auth_modified = TT_TRUE;
 
     // consider as a hierarchical uri, so must clear opaque parts
     tt_blobex_clear(&uri->opaque);
@@ -508,7 +460,7 @@ const tt_char_t *tt_uri_get_authority(IN tt_uri_t *uri)
 {
     const tt_char_t *p;
 
-    if (uri->authority_modified) {
+    if (uri->auth_modified) {
         const tt_char_t *usrinfo, *host;
         tt_u32_t usrinfo_len, host_len, port_len, len;
         tt_char_t port[20] = {0}, *p;
@@ -553,19 +505,19 @@ const tt_char_t *tt_uri_get_authority(IN tt_uri_t *uri)
             TT_ASSERT(p == ((tt_char_t *)tt_blobex_addr(&uri->authority) +
                             tt_blobex_len(&uri->authority)));
         }
-        uri->authority_modified = TT_FALSE;
+        uri->auth_modified = TT_FALSE;
     }
 
     p = (const tt_char_t *)tt_blobex_addr(&uri->authority);
     return TT_COND(p != NULL, p, "");
 }
 
-tt_result_t tt_uri_decode_authority(IN tt_uri_t *uri,
-                                    IN const tt_char_t *authority,
-                                    IN tt_u32_t len)
+tt_result_t tt_uri_parse_authority_n(IN tt_uri_t *uri,
+                                     IN const tt_char_t *authority,
+                                     IN tt_u32_t len)
 {
     uri->uri_modified = TT_TRUE;
-    uri->authority_modified = TT_TRUE;
+    uri->auth_modified = TT_TRUE;
 
     // consider as a hierarchical uri, so must clear opaque parts
     tt_blobex_clear(&uri->opaque);
@@ -583,14 +535,14 @@ const tt_char_t *tt_uri_get_host(IN tt_uri_t *uri)
     return TT_COND(p != NULL, p, "");
 }
 
-tt_result_t tt_uri_set_host(IN tt_uri_t *uri,
-                            IN const tt_char_t *host,
-                            IN tt_u32_t len)
+tt_result_t tt_uri_set_host_n(IN tt_uri_t *uri,
+                              IN const tt_char_t *host,
+                              IN tt_u32_t len)
 {
     tt_char_t *p;
 
     uri->uri_modified = TT_TRUE;
-    uri->authority_modified = TT_TRUE;
+    uri->auth_modified = TT_TRUE;
 
     // consider as a hierarchical uri, so must clear opaque parts
     tt_blobex_clear(&uri->opaque);
@@ -613,9 +565,9 @@ const tt_char_t *tt_uri_get_path(IN tt_uri_t *uri)
     return TT_COND(p != NULL, p, "");
 }
 
-tt_result_t tt_uri_set_path(IN tt_uri_t *uri,
-                            IN const tt_char_t *path,
-                            IN tt_u32_t len)
+tt_result_t tt_uri_set_path_n(IN tt_uri_t *uri,
+                              IN const tt_char_t *path,
+                              IN tt_u32_t len)
 {
     tt_char_t *p;
 
@@ -642,9 +594,9 @@ const tt_char_t *tt_uri_get_query(IN tt_uri_t *uri)
     return TT_COND(p != NULL, p, "");
 }
 
-tt_result_t tt_uri_set_query(IN tt_uri_t *uri,
-                             IN const tt_char_t *query,
-                             IN tt_u32_t len)
+tt_result_t tt_uri_set_query_n(IN tt_uri_t *uri,
+                               IN const tt_char_t *query,
+                               IN tt_u32_t len)
 {
     tt_char_t *p;
 
@@ -671,9 +623,9 @@ const tt_char_t *tt_uri_get_fragment(IN tt_uri_t *uri)
     return TT_COND(p != NULL, p, "");
 }
 
-tt_result_t tt_uri_set_fragment(IN tt_uri_t *uri,
-                                IN const tt_char_t *fragment,
-                                IN tt_u32_t len)
+tt_result_t tt_uri_set_fragment_n(IN tt_uri_t *uri,
+                                  IN const tt_char_t *fragment,
+                                  IN tt_u32_t len)
 {
     tt_char_t *p;
 
@@ -691,12 +643,52 @@ tt_result_t tt_uri_set_fragment(IN tt_uri_t *uri,
     return TT_SUCCESS;
 }
 
+tt_s32_t tt_uri_cmp(IN tt_uri_t *a, IN tt_uri_t *b)
+{
+    tt_s32_t n;
+    tt_bool_t a_opq, b_opq;
+
+#define __CMP(name)                                                            \
+    do {                                                                       \
+        n = __uri_blobex_cmp(&a->name, &b->name);                              \
+        if (n != 0) {                                                          \
+            return n;                                                          \
+        }                                                                      \
+    } while (0)
+
+    __CMP(scheme);
+
+    a_opq = tt_uri_is_opaque(a);
+    b_opq = tt_uri_is_opaque(b);
+    if (a_opq != b_opq) {
+        // hierarchical < opaque
+        return TT_COND(a_opq, 1, -1);
+    }
+
+    if (a_opq) {
+        __CMP(opaque);
+    } else {
+        __CMP(user_info);
+        __CMP(host);
+        if (a->port != b->port) {
+            return a->port - b->port;
+        }
+        __CMP(path);
+        __CMP(query);
+    }
+
+    __CMP(fragment);
+
+    return 0;
+#undef __CMP
+}
+
 tt_result_t __parse_uri(IN tt_uri_t *uri, IN tt_char_t *str, IN tt_u32_t len)
 {
     tt_char_t *cur = str, *end = str + len, *scheme, *fragment;
     tt_u32_t n;
 
-    uri->authority_modified = TT_TRUE;
+    uri->auth_modified = TT_TRUE;
     uri->uri_modified = TT_TRUE;
 
     // [scheme:]scheme-opaque-part[#fragment]
@@ -937,42 +929,4 @@ tt_result_t __percent_decode(IN tt_blobex_t *bex,
     TT_ASSERT(dst == ((tt_char_t *)tt_blobex_addr(bex) + tt_blobex_len(bex)));
 
     return TT_SUCCESS;
-}
-
-tt_u32_t __percent_encode_len(IN tt_char_t *str,
-                              IN tt_u32_t len,
-                              IN tt_char_t *enc_tbl)
-{
-    tt_u32_t i, n = 0;
-
-    for (i = 0; i < len; ++i) {
-        // if NULL, do percent encoding: "%xx" otherwise just 1 char
-        n += TT_COND(enc_tbl[(tt_u8_t)str[i]] != 0, 1, 3);
-    }
-
-    return n;
-}
-
-tt_u32_t __percent_encode(IN tt_char_t *str,
-                          IN tt_u32_t len,
-                          IN tt_char_t *enc_tbl,
-                          OUT tt_char_t *dst)
-{
-    static tt_char_t c2s[] = "0123456789abcdef";
-    tt_u32_t i, n = 0;
-    tt_char_t *p = dst;
-
-    for (i = 0; i < len; ++i) {
-        // if NULL, do percent encoding: "%xx" otherwise just 1 char
-        tt_char_t c = str[i];
-        if (enc_tbl[(tt_u8_t)c] != 0) {
-            *p++ = c;
-        } else {
-            *p++ = '%';
-            *p++ = c2s[c >> 4];
-            *p++ = c2s[c & 0xF];
-        }
-    }
-
-    return (tt_u32_t)(p - dst);
 }

@@ -23,6 +23,7 @@
 #include <io/tt_fpath.h>
 
 #include <algorithm/tt_algorithm_def.h>
+#include <misc/tt_percent_encode.h>
 #include <os/tt_process.h>
 
 ////////////////////////////////////////////////////////////
@@ -139,9 +140,9 @@ void tt_fpath_clear(IN tt_fpath_t *fp)
     fp->modified = TT_FALSE;
 }
 
-tt_result_t tt_fpath_set(IN tt_fpath_t *fp,
-                         const tt_char_t *path,
-                         IN tt_u32_t path_len)
+tt_result_t tt_fpath_parse_n(IN tt_fpath_t *fp,
+                             const tt_char_t *path,
+                             IN tt_u32_t path_len)
 {
     tt_fpath_clear(fp);
 
@@ -693,6 +694,83 @@ out:
     tt_fpath_destroy(&f);
     tt_fpath_destroy(&o);
     return result;
+}
+
+tt_u32_t tt_fpath_pctencode_len(IN tt_fpath_t *fp, IN tt_char_t *enc_tbl)
+{
+    tt_u32_t n = 0;
+    tt_ptrq_iter_t iter;
+    tt_char_t *dir;
+
+    // root
+    // currently there are two kind of root: "/" or "x:\", do not escape "/"
+    if ((fp->root[0] == fp->sep) && (fp->root[1] == 0)) {
+        n += 1;
+    } else {
+        n += tt_percent_encode_len(fp->root, tt_strlen(fp->root), enc_tbl);
+    }
+
+    // dir
+    tt_ptrq_iter(&fp->dir, &iter);
+    while ((dir = (tt_char_t *)tt_ptrq_iter_next(&iter)) != NULL) {
+        n += tt_percent_encode_len(dir, tt_strlen(dir), enc_tbl);
+        n += 1;
+    }
+
+    // file
+    if ((fp->basename != NULL) && (fp->basename[0] != 0)) {
+        n += tt_percent_encode_len(fp->basename,
+                                   tt_strlen(fp->basename),
+                                   enc_tbl);
+    }
+    if ((fp->extension != NULL) && (fp->extension[0] != 0)) {
+        n += 1;
+        n += tt_percent_encode_len(fp->extension,
+                                   tt_strlen(fp->extension),
+                                   enc_tbl);
+    }
+
+    return n;
+}
+
+tt_u32_t tt_fpath_pctencode(IN tt_fpath_t *fp,
+                            IN tt_char_t *enc_tbl,
+                            OUT tt_char_t *dst)
+{
+    tt_char_t *p = dst;
+    tt_ptrq_iter_t iter;
+    tt_char_t *dir;
+
+    // root
+    if ((fp->root[0] == fp->sep) && (fp->root[1] == 0)) {
+        *p++ = fp->sep;
+    } else {
+        p += tt_percent_encode(fp->root, tt_strlen(fp->root), enc_tbl, p);
+    }
+
+    // dir
+    tt_ptrq_iter(&fp->dir, &iter);
+    while ((dir = (tt_char_t *)tt_ptrq_iter_next(&iter)) != NULL) {
+        p += tt_percent_encode(dir, tt_strlen(dir), enc_tbl, p);
+        *p++ = fp->sep;
+    }
+
+    // file
+    if ((fp->basename != NULL) && (fp->basename[0] != 0)) {
+        p += tt_percent_encode(fp->basename,
+                               tt_strlen(fp->basename),
+                               enc_tbl,
+                               p);
+    }
+    if ((fp->extension != NULL) && (fp->extension[0] != 0)) {
+        *p++ = '.';
+        p += tt_percent_encode(fp->extension,
+                               tt_strlen(fp->extension),
+                               enc_tbl,
+                               p);
+    }
+
+    return (tt_u32_t)(p - dst);
 }
 
 tt_result_t __fpath_parse(IN const tt_char_t *path,

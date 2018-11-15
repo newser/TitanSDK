@@ -19,6 +19,15 @@
 /**
 @file tt_http_uri.h
 @brief http uri API
+
+ - http uri only itself hold path_param, query_param and scheme, other are
+ all stored in tt_http_uri_t::u
+ - any time changing scheme will also update tt_http_uri_t::u::scheme
+ - after parsing, path_param does not allocate memory but only reference memory
+ stored in tt_http_uri_t::u, adding new param will alloc new mem, removing param
+ only mark param removed. each time rendering, if path or path_param is changed
+ tt_http_uri_t will first OWN all param and then start rendering, otherwise
+ tt_http_uri_t::u::path is returned as nothing is changed
  */
 
 #ifndef __TT_HTTP_URI__
@@ -61,7 +70,6 @@ typedef struct tt_http_uri_s
     tt_queue_t query_param;
     tt_uri_t u;
     tt_fpath_t path;
-    tt_http_scheme_t scheme;
     tt_bool_t path_modified : 1;
     tt_bool_t query_modified : 1;
 } tt_http_uri_t;
@@ -90,161 +98,199 @@ tt_export void tt_http_uri_destroy(IN tt_http_uri_t *hu);
 
 tt_export void tt_http_uri_clear(IN tt_http_uri_t *hu);
 
-tt_export tt_result_t tt_http_uri_set(IN tt_http_uri_t *hu,
-                                      IN tt_char_t *str,
-                                      IN tt_u32_t len);
+// ========================================
+// parse
+// ========================================
 
-tt_inline tt_result_t tt_http_uri_set_cstr(IN tt_http_uri_t *hu,
-                                           IN tt_char_t *str)
+tt_export tt_result_t tt_http_uri_parse_n(IN tt_http_uri_t *hu,
+                                          IN tt_char_t *str,
+                                          IN tt_u32_t len);
+
+tt_inline tt_result_t tt_http_uri_parse(IN tt_http_uri_t *hu, IN tt_char_t *str)
 {
-    return tt_http_uri_set(hu, str, tt_strlen(str));
+    return tt_http_uri_parse_n(hu, str, tt_strlen(str));
 }
 
-tt_export const tt_char_t *tt_http_uri_encode(IN tt_http_uri_t *hu);
+// ========================================
+// render
+// ========================================
 
-tt_export tt_result_t tt_http_uri_encode2buf(IN tt_http_uri_t *hu,
+tt_export const tt_char_t *tt_http_uri_render(IN tt_http_uri_t *hu);
+
+tt_export tt_result_t tt_http_uri_render2buf(IN tt_http_uri_t *hu,
                                              IN struct tt_buf_s *buf);
 
-tt_inline tt_s32_t tt_http_uri_cmp(IN tt_http_uri_t *a, IN tt_http_uri_t *b)
-{
-    return tt_uri_cmp(&a->u, &b->u);
-}
+// ========================================
+// scheme
+// ========================================
 
-tt_inline tt_http_scheme_t tt_http_uri_get_scheme(IN tt_http_uri_t *hu)
-{
-    TT_ASSERT(TT_HTTP_SCHEME_VALID(hu->scheme));
-    return hu->scheme;
-}
+tt_export tt_http_scheme_t tt_http_uri_get_scheme(IN tt_http_uri_t *hu);
 
 tt_export tt_result_t tt_http_uri_set_scheme(IN tt_http_uri_t *hu,
                                              IN tt_http_scheme_t scheme);
+
+// ========================================
+// user info
+// ========================================
 
 tt_inline const tt_char_t *tt_http_uri_get_userinfo(IN tt_http_uri_t *hu)
 {
     return tt_uri_get_userinfo(&hu->u);
 }
 
-tt_inline tt_result_t tt_http_uri_set_userinfo(IN tt_http_uri_t *hu,
-                                               IN const tt_char_t *userinfo,
-                                               IN tt_u32_t len)
+tt_inline tt_result_t tt_http_uri_set_userinfo_n(IN tt_http_uri_t *hu,
+                                                 IN const tt_char_t *userinfo,
+                                                 IN tt_u32_t len)
 {
-    return tt_uri_set_userinfo(&hu->u, userinfo, len);
+    return tt_uri_set_userinfo_n(&hu->u, userinfo, len);
 }
 
-tt_inline tt_result_t tt_http_uri_set_userinfo_cstr(
-    IN tt_http_uri_t *hu, IN const tt_char_t *userinfo)
+tt_inline tt_result_t tt_http_uri_set_userinfo(IN tt_http_uri_t *hu,
+                                               IN const tt_char_t *userinfo)
 {
-    return tt_http_uri_set_userinfo(hu,
-                                    userinfo,
-                                    (tt_u32_t)tt_strlen(userinfo));
+    return tt_http_uri_set_userinfo_n(hu,
+                                      userinfo,
+                                      (tt_u32_t)tt_strlen(userinfo));
 }
+
+// ========================================
+// authority
+// ========================================
 
 tt_inline const tt_char_t *tt_http_uri_get_authority(IN tt_http_uri_t *hu)
 {
     return tt_uri_get_authority(&hu->u);
 }
 
-tt_inline tt_result_t tt_http_uri_decode_authority(
+tt_inline tt_result_t tt_http_uri_parse_authority_n(
     IN tt_http_uri_t *hu, IN const tt_char_t *authority, IN tt_u32_t len)
 {
-    return tt_uri_decode_authority(&hu->u, authority, len);
+    return tt_uri_parse_authority_n(&hu->u, authority, len);
 }
 
-tt_inline tt_result_t tt_http_uri_decode_authority_cstr(
-    IN tt_http_uri_t *hu, IN const tt_char_t *authority)
+tt_inline tt_result_t tt_http_uri_parse_authority(IN tt_http_uri_t *hu,
+                                                  IN const tt_char_t *authority)
 {
-    return tt_http_uri_decode_authority(hu,
-                                        authority,
-                                        (tt_u32_t)tt_strlen(authority));
+    return tt_http_uri_parse_authority_n(hu,
+                                         authority,
+                                         (tt_u32_t)tt_strlen(authority));
 }
+
+// ========================================
+// host
+// ========================================
 
 tt_inline const tt_char_t *tt_http_uri_get_host(IN tt_http_uri_t *hu)
 {
     return tt_uri_get_host(&hu->u);
 }
 
-tt_inline tt_result_t tt_http_uri_set_host(IN tt_http_uri_t *hu,
-                                           IN const tt_char_t *host,
-                                           IN tt_u32_t len)
+tt_inline tt_result_t tt_http_uri_set_host_n(IN tt_http_uri_t *hu,
+                                             IN const tt_char_t *host,
+                                             IN tt_u32_t len)
 {
-    return tt_uri_set_host(&hu->u, host, len);
+    return tt_uri_set_host_n(&hu->u, host, len);
 }
 
-tt_inline tt_result_t tt_http_uri_set_host_cstr(IN tt_http_uri_t *hu,
-                                                IN const tt_char_t *host)
+tt_inline tt_result_t tt_http_uri_set_host(IN tt_http_uri_t *hu,
+                                           IN const tt_char_t *host)
 {
-    return tt_http_uri_set_host(hu, host, (tt_u32_t)tt_strlen(host));
+    return tt_http_uri_set_host_n(hu, host, (tt_u32_t)tt_strlen(host));
 }
+
+// ========================================
+// path
+// ========================================
 
 tt_inline tt_fpath_t *tt_http_uri_get_path(IN tt_http_uri_t *hu)
 {
     return &hu->path;
 }
 
-tt_inline void tt_http_uri_path_param_iter(IN tt_http_uri_t *hu,
-                                           OUT tt_http_uri_param_iter_t *iter)
+// this function must be called if someone changed tt_fpath_t returned by
+// tt_http_uri_get_path()
+tt_inline void tt_http_uri_update_path(IN tt_http_uri_t *hu)
+{
+    hu->path_modified = TT_TRUE;
+}
+
+tt_inline void tt_http_uri_pparam_iter(IN tt_http_uri_t *hu,
+                                       OUT tt_http_uri_param_iter_t *iter)
 {
     tt_queue_iter(&hu->path_param, &iter->iter);
 }
 
-tt_export tt_kv_t *tt_http_uri_find_path_param(IN tt_http_uri_t *hu,
-                                               IN const tt_char_t *name);
+tt_export tt_kv_t *tt_http_uri_find_pparam(IN tt_http_uri_t *hu,
+                                           IN const tt_char_t *name);
 
-tt_export tt_result_t tt_http_uri_add_path_param(IN tt_http_uri_t *hu,
-                                                 IN const tt_char_t *name);
+tt_export tt_result_t tt_http_uri_add_pparam(IN tt_http_uri_t *hu,
+                                             IN const tt_char_t *name);
 
-tt_export tt_result_t tt_http_uri_add_path_param_nv(IN tt_http_uri_t *hu,
-                                                    IN const tt_char_t *name,
-                                                    IN const tt_char_t *value);
+tt_export tt_result_t tt_http_uri_add_pparam_nv(IN tt_http_uri_t *hu,
+                                                IN const tt_char_t *name,
+                                                IN const tt_char_t *value);
 
-tt_export tt_bool_t tt_http_uri_remove_path_param(IN tt_http_uri_t *hu,
-                                                  IN const tt_char_t *name);
+tt_export tt_bool_t tt_http_uri_remove_pparam(IN tt_http_uri_t *hu,
+                                              IN const tt_char_t *name);
 
-tt_export tt_bool_t tt_http_uri_remove_path_param_nv(IN tt_http_uri_t *hu,
-                                                     IN const tt_char_t *name,
-                                                     IN const tt_char_t *value);
+tt_export tt_bool_t tt_http_uri_remove_pparam_nv(IN tt_http_uri_t *hu,
+                                                 IN const tt_char_t *name,
+                                                 IN const tt_char_t *value);
 
-tt_inline void tt_http_uri_query_param_iter(IN tt_http_uri_t *hu,
-                                            OUT tt_http_uri_param_iter_t *iter)
+// ========================================
+// query
+// ========================================
+
+tt_inline void tt_http_uri_qparam_iter(IN tt_http_uri_t *hu,
+                                       OUT tt_http_uri_param_iter_t *iter)
 {
     tt_queue_iter(&hu->query_param, &iter->iter);
 }
 
-tt_export tt_kv_t *tt_http_uri_find_query_param(IN tt_http_uri_t *hu,
-                                                IN const tt_char_t *name);
+tt_export tt_kv_t *tt_http_uri_find_qparam(IN tt_http_uri_t *hu,
+                                           IN const tt_char_t *name);
 
-tt_export tt_result_t tt_http_uri_add_query_param(IN tt_http_uri_t *hu,
-                                                  IN const tt_char_t *name);
+tt_export tt_result_t tt_http_uri_add_qparam(IN tt_http_uri_t *hu,
+                                             IN const tt_char_t *name);
 
-tt_export tt_result_t tt_http_uri_add_query_param_nv(IN tt_http_uri_t *hu,
-                                                     IN const tt_char_t *name,
-                                                     IN const tt_char_t *value);
+tt_export tt_result_t tt_http_uri_add_qparam_nv(IN tt_http_uri_t *hu,
+                                                IN const tt_char_t *name,
+                                                IN const tt_char_t *value);
 
-tt_export tt_bool_t tt_http_uri_remove_query_param(IN tt_http_uri_t *hu,
-                                                   IN const tt_char_t *name);
+tt_export tt_bool_t tt_http_uri_remove_qparam(IN tt_http_uri_t *hu,
+                                              IN const tt_char_t *name);
 
-tt_export tt_bool_t tt_http_uri_remove_query_param_nv(
-    IN tt_http_uri_t *hu, IN const tt_char_t *name, IN const tt_char_t *value);
+tt_export tt_bool_t tt_http_uri_remove_qparam_nv(IN tt_http_uri_t *hu,
+                                                 IN const tt_char_t *name,
+                                                 IN const tt_char_t *value);
+
+// ========================================
+// fragment
+// ========================================
 
 tt_inline const tt_char_t *tt_http_uri_get_fragment(IN tt_http_uri_t *hu)
 {
     return tt_uri_get_fragment(&hu->u);
 }
 
-tt_inline tt_result_t tt_http_uri_set_fragment(IN tt_http_uri_t *hu,
-                                               IN const tt_char_t *fragment,
-                                               IN tt_u32_t len)
+tt_inline tt_result_t tt_http_uri_set_fragment_n(IN tt_http_uri_t *hu,
+                                                 IN const tt_char_t *fragment,
+                                                 IN tt_u32_t len)
 {
-    return tt_uri_set_fragment(&hu->u, fragment, len);
+    return tt_uri_set_fragment_n(&hu->u, fragment, len);
 }
 
-tt_inline tt_result_t tt_http_uri_set_fragment_cstr(
-    IN tt_http_uri_t *hu, IN const tt_char_t *fragment)
+tt_inline tt_result_t tt_http_uri_set_fragment(IN tt_http_uri_t *hu,
+                                               IN const tt_char_t *fragment)
 {
-    return tt_http_uri_set_fragment(hu,
-                                    fragment,
-                                    (tt_u32_t)tt_strlen(fragment));
+    return tt_http_uri_set_fragment_n(hu,
+                                      fragment,
+                                      (tt_u32_t)tt_strlen(fragment));
 }
+
+// ========================================
+// port
+// ========================================
 
 tt_inline tt_u16_t tt_http_uri_get_port(IN tt_http_uri_t *hu)
 {
@@ -254,6 +300,15 @@ tt_inline tt_u16_t tt_http_uri_get_port(IN tt_http_uri_t *hu)
 tt_inline void tt_http_uri_set_port(IN tt_http_uri_t *hu, IN tt_u16_t port)
 {
     return tt_uri_set_port(&hu->u, port);
+}
+
+// ========================================
+// common
+// ========================================
+
+tt_inline tt_s32_t tt_http_uri_cmp(IN tt_http_uri_t *a, IN tt_http_uri_t *b)
+{
+    return tt_uri_cmp(&a->u, &b->u);
 }
 
 tt_inline tt_bool_t tt_http_uri_is_absolute(IN tt_http_uri_t *hu)
