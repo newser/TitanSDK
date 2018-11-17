@@ -16,71 +16,53 @@
  * limitations under the License.
  */
 
+/**
+@file tt_http_def.h
+@brief http def
+
+this file defines http
+*/
+
+#ifndef __TT_HTTP_DEF__
+#define __TT_HTTP_DEF__
+
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <unit_test/tt_unit_test.h>
+#include <tt_basic_type.h>
+
+#include <http_parser.h>
 
 ////////////////////////////////////////////////////////////
-// internal macro
+// macro definition
 ////////////////////////////////////////////////////////////
 
-#define TT_HTTP_UT_DECLARE(name)                                               \
-    extern tt_test_unit_t TT_MAKE_TEST_UNIT_NAME(name);
+#define TT_HTTP_HDR_MAP(__ENTRY) __ENTRY(HOST, Host)
 
 ////////////////////////////////////////////////////////////
-// internal type
+// type definition
 ////////////////////////////////////////////////////////////
 
 typedef enum {
-    HTTP_UT_BEGIN = 0,
+#define __ENTRY(id, str) TT_HTTP_HDR_##id,
+    TT_HTTP_HDR_MAP(__ENTRY)
+#undef __ENTRY
 
-    HTTP_UT_URI = HTTP_UT_BEGIN,
-    HTTP_UT_HDR,
-
-    HTTP_UT_NUM // number of test units
-} tt_http_ut_id_t;
-
-////////////////////////////////////////////////////////////
-// extern declaration
-////////////////////////////////////////////////////////////
-
-TT_HTTP_UT_DECLARE(HTTP_UT_URI)
-TT_HTTP_UT_DECLARE(HTTP_UT_HDR)
+        TT_HTTP_HNAME_NUM
+} tt_http_hname_t;
+#define TT_HTTP_HNAME_VALID(h) ((h) < TT_HTTP_HNAME_NUM)
 
 ////////////////////////////////////////////////////////////
-// global variant
+// global variants
 ////////////////////////////////////////////////////////////
 
-tt_test_unit_t *tt_g_http_ut_list[HTTP_UT_NUM] = {
-    &TT_MAKE_TEST_UNIT_NAME(HTTP_UT_URI), &TT_MAKE_TEST_UNIT_NAME(HTTP_UT_HDR),
-};
+tt_export const tt_char_t *tt_g_http_hname[TT_HTTP_HNAME_NUM];
+
+tt_export tt_u32_t tt_g_http_hname_len[TT_HTTP_HNAME_NUM];
 
 ////////////////////////////////////////////////////////////
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-////////////////////////////////////////////////////////////
-// interface implementation
-////////////////////////////////////////////////////////////
-
-tt_result_t tt_http_ut_init(IN tt_ptr_t reserved)
-{
-    tt_http_ut_id_t unit_id = HTTP_UT_BEGIN;
-    while (unit_id < HTTP_UT_NUM) {
-        tt_result_t result = TT_FAIL;
-
-        if (tt_g_http_ut_list[unit_id] != NULL) {
-            result = tt_test_unit_to_class(tt_g_http_ut_list[unit_id]);
-            if (!TT_OK(result)) {
-                return TT_FAIL;
-            }
-        }
-
-        // next
-        ++unit_id;
-    }
-
-    return TT_SUCCESS;
-}
+#endif /* __TT_HTTP_DEF__ */

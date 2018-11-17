@@ -266,7 +266,9 @@ TT_TEST_ROUTINE_DEFINE(case_dl_list)
     TT_UT_EQUAL(tt_dlist_tail(&l1), &n3, "");
 
     // remove n5: n2,n1,n4,n3
+    TT_UT_TRUE(tt_dnode_in_dlist(&n5), "");
     TT_UT_EQUAL(tt_dlist_remove(&l1, &n5), &n1, "");
+    TT_UT_FALSE(tt_dnode_in_dlist(&n5), "");
     TT_UT_EQUAL(tt_dlist_count(&l1), 4, "");
     TT_UT_EQUAL(tt_dlist_empty(&l1), TT_FALSE, "");
     TT_UT_EQUAL(tt_dlist_head(&l1), &n2, "");

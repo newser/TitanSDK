@@ -76,6 +76,11 @@ tt_inline void tt_dnode_init(IN tt_dnode_t *dn)
     dn->next = NULL;
 }
 
+tt_inline tt_bool_t tt_dnode_in_dlist(IN tt_dnode_t *dn)
+{
+    return TT_BOOL((dn->prev != NULL) || (dn->next != NULL));
+}
+
 tt_inline void tt_dlist_init(IN tt_dlist_t *dl)
 {
     dl->head = NULL;

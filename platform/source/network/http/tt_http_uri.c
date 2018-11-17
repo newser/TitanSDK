@@ -579,7 +579,11 @@ tt_result_t __hu_parse_param(IN tt_queue_t *q,
         if (p == NULL) {
             break;
         }
-        TT_DO(__hupq_parse_add(q, prev, (tt_u32_t)(p - prev)));
+
+        if (p > prev) {
+            TT_DO(__hupq_parse_add(q, prev, (tt_u32_t)(p - prev)));
+        }
+
         ++p;
         prev = p;
         TT_ASSERT(p <= end);

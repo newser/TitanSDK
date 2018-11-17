@@ -20,41 +20,34 @@
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <unit_test/tt_unit_test.h>
+#include <network/http/tt_http_def.h>
 
 ////////////////////////////////////////////////////////////
 // internal macro
 ////////////////////////////////////////////////////////////
 
-#define TT_HTTP_UT_DECLARE(name)                                               \
-    extern tt_test_unit_t TT_MAKE_TEST_UNIT_NAME(name);
-
 ////////////////////////////////////////////////////////////
 // internal type
 ////////////////////////////////////////////////////////////
-
-typedef enum {
-    HTTP_UT_BEGIN = 0,
-
-    HTTP_UT_URI = HTTP_UT_BEGIN,
-    HTTP_UT_HDR,
-
-    HTTP_UT_NUM // number of test units
-} tt_http_ut_id_t;
 
 ////////////////////////////////////////////////////////////
 // extern declaration
 ////////////////////////////////////////////////////////////
 
-TT_HTTP_UT_DECLARE(HTTP_UT_URI)
-TT_HTTP_UT_DECLARE(HTTP_UT_HDR)
-
 ////////////////////////////////////////////////////////////
 // global variant
 ////////////////////////////////////////////////////////////
 
-tt_test_unit_t *tt_g_http_ut_list[HTTP_UT_NUM] = {
-    &TT_MAKE_TEST_UNIT_NAME(HTTP_UT_URI), &TT_MAKE_TEST_UNIT_NAME(HTTP_UT_HDR),
+const tt_char_t *tt_g_http_hname[TT_HTTP_HNAME_NUM] = {
+#define __ENTRY(id, str) #str,
+    TT_HTTP_HDR_MAP(__ENTRY)
+#undef __ENTRY
+};
+
+tt_u32_t tt_g_http_hname_len[TT_HTTP_HNAME_NUM] = {
+#define __ENTRY(id, str) (tt_u32_t)sizeof(#str) - 1,
+    TT_HTTP_HDR_MAP(__ENTRY)
+#undef __ENTRY
 };
 
 ////////////////////////////////////////////////////////////
@@ -64,23 +57,3 @@ tt_test_unit_t *tt_g_http_ut_list[HTTP_UT_NUM] = {
 ////////////////////////////////////////////////////////////
 // interface implementation
 ////////////////////////////////////////////////////////////
-
-tt_result_t tt_http_ut_init(IN tt_ptr_t reserved)
-{
-    tt_http_ut_id_t unit_id = HTTP_UT_BEGIN;
-    while (unit_id < HTTP_UT_NUM) {
-        tt_result_t result = TT_FAIL;
-
-        if (tt_g_http_ut_list[unit_id] != NULL) {
-            result = tt_test_unit_to_class(tt_g_http_ut_list[unit_id]);
-            if (!TT_OK(result)) {
-                return TT_FAIL;
-            }
-        }
-
-        // next
-        ++unit_id;
-    }
-
-    return TT_SUCCESS;
-}

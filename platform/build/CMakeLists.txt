@@ -133,6 +133,9 @@ include_directories(${PLATFORM_PATH}/library/zip/zlib)
 include_directories(${PLATFORM_PATH}/library/zip/libzip/lib)
 include_directories(${PLATFORM_PATH}/library/zip/include)
 
+# library: http
+include_directories(${PLATFORM_PATH}/library/http/http-parser)
+
 #
 # source file
 #
