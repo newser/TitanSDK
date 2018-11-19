@@ -53,6 +53,34 @@ typedef enum {
 } tt_http_hname_t;
 #define TT_HTTP_HNAME_VALID(h) ((h) < TT_HTTP_HNAME_NUM)
 
+typedef enum {
+#define XX(num, name, string) TT_HTTP_MTD_##name,
+    HTTP_METHOD_MAP(XX)
+#undef XX
+
+        TT_HTTP_METHOD_NUM
+} tt_http_method_t;
+#define TT_HTTP_METHOD_VALID(h) ((h) < TT_HTTP_METHOD_NUM)
+
+typedef enum {
+#define XX(num, name, string) TT_HTTP_STATUS_##name = num,
+    HTTP_STATUS_MAP(XX)
+#undef XX
+
+        TT_HTTP_STATUS_INVALID
+} tt_http_status_t;
+#define TT_HTTP_STATUS_VALID(s) ((s) != TT_HTTP_STATUS_INVALID)
+
+typedef enum {
+    TT_HTTP_V0_9,
+    TT_HTTP_V1_0,
+    TT_HTTP_V1_1,
+    TT_HTTP_V2_0,
+
+    TT_HTTP_VER_NUM,
+} tt_http_ver_t;
+#define TT_HTTP_VER_VALID(v) ((v) < TT_HTTP_VER_NUM)
+
 ////////////////////////////////////////////////////////////
 // global variants
 ////////////////////////////////////////////////////////////

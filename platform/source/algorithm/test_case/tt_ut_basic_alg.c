@@ -1096,6 +1096,41 @@ TT_TEST_ROUTINE_DEFINE(case_blobex)
     TT_UT_EXP(tt_blobex_strcmp(&b2, "4") > 0, "");
     TT_UT_EXP(tt_blobex_strcmp(&b2, "456") < 0, "");
 
+    tt_blobex_destroy(&b);
+    tt_blobex_destroy(&b2);
+
+    {
+        tt_blobex_init(&b, NULL, 0);
+
+        TT_UT_SUCCESS(tt_blobex_memcat(&b, NULL, 0), "");
+        TT_UT_EQUAL(tt_blobex_addr(&b), NULL, "");
+        TT_UT_EQUAL(tt_blobex_len(&b), 0, "");
+        TT_UT_SUCCESS(tt_blobex_memcat(&b, (tt_u8_t *)"1", 1), "");
+        TT_UT_NOT_NULL(tt_blobex_addr(&b), "");
+        TT_UT_EQUAL(tt_blobex_len(&b), 1, "");
+        TT_UT_EQUAL(tt_blobex_strcmp(&b, "1"), 0, "");
+        TT_UT_SUCCESS(tt_blobex_memcat(&b, (tt_u8_t *)"23", 2), "");
+        TT_UT_NOT_NULL(tt_blobex_addr(&b), "");
+        TT_UT_EQUAL(tt_blobex_len(&b), 3, "");
+        TT_UT_EQUAL(tt_blobex_strcmp(&b, "123"), 0, "");
+
+        TT_UT_SUCCESS(tt_blobex_set(&b, (tt_u8_t *)"xyz", 3, TT_FALSE), "");
+
+        TT_UT_SUCCESS(tt_blobex_memcat(&b, NULL, 0), "");
+        TT_UT_EQUAL(tt_blobex_len(&b), 3, "");
+        TT_UT_EQUAL(tt_blobex_strcmp(&b, "xyz"), 0, "");
+        TT_UT_SUCCESS(tt_blobex_memcat(&b, (tt_u8_t *)"1", 1), "");
+        TT_UT_NOT_NULL(tt_blobex_addr(&b), "");
+        TT_UT_EQUAL(tt_blobex_len(&b), 4, "");
+        TT_UT_EQUAL(tt_blobex_strcmp(&b, "xyz1"), 0, "");
+        TT_UT_SUCCESS(tt_blobex_memcat(&b, (tt_u8_t *)"23", 2), "");
+        TT_UT_NOT_NULL(tt_blobex_addr(&b), "");
+        TT_UT_EQUAL(tt_blobex_len(&b), 6, "");
+        TT_UT_EQUAL(tt_blobex_strcmp(&b, "xyz123"), 0, "");
+
+        tt_blobex_destroy(&b);
+    }
+
     {
         char buf[] = "123";
         tt_u8_t *addr;

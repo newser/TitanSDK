@@ -52,7 +52,7 @@ tt_http_rawval_t *tt_http_rawval_create(IN tt_slab_t *slab,
                                         IN tt_bool_t owner)
 {
     tt_http_rawval_t *rv = tt_slab_alloc(slab);
-    if (rv != NULL) {
+    if (rv == NULL) {
         return NULL;
     }
     tt_http_rawval_init(rv);
@@ -102,7 +102,7 @@ tt_http_rawhdr_t *tt_http_rawhdr_create(IN tt_slab_t *slab,
                                         IN tt_bool_t owner)
 {
     tt_http_rawhdr_t *rh = tt_slab_alloc(slab);
-    if (rh != NULL) {
+    if (rh == NULL) {
         return NULL;
     }
     tt_http_rawhdr_init(rh);
@@ -128,4 +128,20 @@ void tt_http_rawhdr_destroy(IN tt_http_rawhdr_t *rh)
     tt_blobex_destroy(&rh->name);
 
     tt_slab_free(rh);
+}
+
+tt_http_rawhdr_t *tt_http_rawhdr_find_n(IN tt_dlist_t *dl,
+                                        IN const tt_char_t *name,
+                                        IN tt_u32_t len)
+{
+    tt_dnode_t *node = tt_dlist_head(dl);
+    while (node != NULL) {
+        tt_http_rawhdr_t *rh = TT_CONTAINER(node, tt_http_rawhdr_t, dnode);
+        node = node->next;
+
+        if (tt_blobex_memcmp(&rh->name, (tt_u8_t *)name, len) == 0) {
+            return rh;
+        }
+    }
+    return NULL;
 }

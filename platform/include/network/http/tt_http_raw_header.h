@@ -42,13 +42,13 @@ this file defines raw http header APIs
 // type definition
 ////////////////////////////////////////////////////////////
 
-typedef struct
+typedef struct tt_http_rawval_s
 {
     tt_dnode_t dnode;
     tt_blobex_t val;
 } tt_http_rawval_t;
 
-typedef struct
+typedef struct tt_http_rawhdr_s
 {
     tt_dnode_t dnode;
     tt_dlist_t val;
@@ -83,6 +83,13 @@ tt_inline void tt_http_rawval_destroy(IN tt_http_rawval_t *rv)
     TT_ASSERT(!tt_dnode_in_dlist(&rv->dnode));
     tt_blobex_destroy(&rv->val);
     tt_slab_free(rv);
+}
+
+tt_inline tt_result_t tt_http_rawval_append(IN tt_http_rawval_t *rv,
+                                            IN const tt_char_t *val,
+                                            IN tt_u32_t len)
+{
+    return tt_blobex_memcat(&rv->val, (tt_u8_t *)val, len);
 }
 
 tt_export tt_http_rawval_t *tt_http_rawval_find_n(IN tt_dlist_t *dl,
@@ -135,6 +142,13 @@ tt_export tt_http_rawhdr_t *tt_http_rawhdr_create(IN tt_slab_t *slab,
 
 tt_export void tt_http_rawhdr_destroy(IN tt_http_rawhdr_t *rh);
 
+tt_inline tt_result_t tt_http_rawhdr_append_name(IN tt_http_rawhdr_t *rh,
+                                                 IN const tt_char_t *name,
+                                                 IN tt_u32_t len)
+{
+    return tt_blobex_memcat(&rh->name, (tt_u8_t *)name, len);
+}
+
 tt_export tt_http_rawhdr_t *tt_http_rawhdr_find_n(IN tt_dlist_t *dl,
                                                   IN const tt_char_t *name,
                                                   IN tt_u32_t len);
@@ -153,6 +167,18 @@ tt_inline void tt_http_rawhdr_add(IN tt_dlist_t *dl, IN tt_http_rawhdr_t *rh)
 tt_inline void tt_http_rawhdr_remove(IN tt_dlist_t *dl, IN tt_http_rawhdr_t *rh)
 {
     tt_dlist_remove(dl, &rh->dnode);
+}
+
+tt_inline void tt_http_rawhdr_add_val(IN tt_http_rawhdr_t *rh,
+                                      IN tt_http_rawval_t *rv)
+{
+    tt_dlist_push_tail(&rh->val, &rv->dnode);
+}
+
+tt_inline void tt_http_rawhdr_remove_val(IN tt_http_rawhdr_t *rh,
+                                         IN tt_http_rawval_t *rv)
+{
+    tt_dlist_remove(&rh->val, &rv->dnode);
 }
 
 #endif /* __TT_HTTP_RAW_HEADER__ */

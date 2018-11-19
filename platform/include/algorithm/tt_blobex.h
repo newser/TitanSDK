@@ -184,6 +184,31 @@ tt_inline tt_s32_t tt_blobex_memcmp(IN tt_blobex_t *a,
     }
 }
 
+tt_inline tt_result_t tt_blobex_memcat(IN tt_blobex_t *bex,
+                                       IN const tt_u8_t *addr,
+                                       IN tt_u32_t len)
+{
+    if (len > 0) {
+        tt_u32_t cur_len = __BLOBEX_LEN(bex);
+        tt_u8_t *p = tt_malloc(cur_len + len);
+        if (p == NULL) {
+            TT_ERROR("no mem for blobex memcat");
+            return TT_SUCCESS;
+        }
+        if (cur_len > 0) {
+            tt_memcpy(p, __BLOBEX_ADDR(bex), cur_len);
+        }
+        if (len > 0) {
+            tt_memcpy(p + cur_len, addr, len);
+        }
+        tt_blobex_destroy(bex);
+        bex->addr = p;
+        bex->len = cur_len + len;
+        __BLOBEX_SET_OWNER(bex);
+    }
+    return TT_SUCCESS;
+}
+
 tt_inline tt_bool_t tt_blobex_empty(IN tt_blobex_t *bex)
 {
     return TT_BOOL((__BLOBEX_ADDR(bex) == NULL) || (__BLOBEX_LEN(bex) == 0));
