@@ -1147,21 +1147,6 @@ TT_TEST_ROUTINE_DEFINE(case_blobex)
         tt_blobex_destroy(&a);
     }
 
-    // per thread
-    pb = tt_thread_alloc_blobex();
-    TT_UT_NOT_NULL(pb, "");
-    tt_thread_free_blobex(pb);
-
-    pb = tt_thread_create_blobex(buf, 3);
-    TT_UT_NOT_NULL(pb, "");
-    TT_UT_EQUAL(tt_blobex_strcmp(pb, "123"), 0, "");
-    tt_thread_free_blobex(pb);
-
-    pb = tt_thread_init_blobex(buf2, 2);
-    TT_UT_NOT_NULL(pb, "");
-    TT_UT_EQUAL(tt_blobex_strcmp(pb, "45"), 0, "");
-    tt_thread_free_blobex(pb);
-
     // test end
     TT_TEST_CASE_LEAVE()
 }

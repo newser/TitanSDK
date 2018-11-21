@@ -17,89 +17,66 @@
  */
 
 /**
-@file tt_http_def.h
-@brief http def
+@file tt_http_server_connection.h
+@brief http server connection
 
-this file defines http
+this file defines http server connection
 */
 
-#ifndef __TT_HTTP_DEF__
-#define __TT_HTTP_DEF__
+#ifndef __TT_HTTP_SERVER_CONNECTION__
+#define __TT_HTTP_SERVER_CONNECTION__
 
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <tt_basic_type.h>
-
-#include <http_parser.h>
+#include <network/http/tt_http_parser.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
 ////////////////////////////////////////////////////////////
 
-#define TT_HTTP_HDR_MAP(__ENTRY) __ENTRY(HOST, Host)
-
 ////////////////////////////////////////////////////////////
 // type definition
 ////////////////////////////////////////////////////////////
 
-typedef enum {
-#define __ENTRY(id, str) TT_HTTP_HDR_##id,
-    TT_HTTP_HDR_MAP(__ENTRY)
-#undef __ENTRY
+struct tt_skt_s;
+struct tt_ssl_s;
 
-        TT_HTTP_HNAME_NUM
-} tt_http_hname_t;
-#define TT_HTTP_HNAME_VALID(h) ((h) < TT_HTTP_HNAME_NUM)
+typedef struct tt_http_sconn_s
+{
+    void *itf;
+    void *itf_opaque;
+    tt_http_parser_t parser;
+} tt_http_sconn_t;
 
-typedef enum {
-#define XX(num, name, string) TT_HTTP_MTD_##name,
-    HTTP_METHOD_MAP(XX)
-#undef XX
-
-        TT_HTTP_METHOD_NUM
-} tt_http_method_t;
-#define TT_HTTP_METHOD_VALID(h) ((h) < TT_HTTP_METHOD_NUM)
-
-typedef enum {
-#define XX(num, name, string) TT_HTTP_STATUS_##name = num,
-    HTTP_STATUS_MAP(XX)
-#undef XX
-
-        TT_HTTP_STATUS_INVALID
-} tt_http_status_t;
-#define TT_HTTP_STATUS_VALID(s) ((s) != TT_HTTP_STATUS_INVALID)
-
-typedef enum {
-    TT_HTTP_V0_9,
-    TT_HTTP_V1_0,
-    TT_HTTP_V1_1,
-    TT_HTTP_V2_0,
-
-    TT_HTTP_VER_NUM,
-} tt_http_ver_t;
-#define TT_HTTP_VER_VALID(v) ((v) < TT_HTTP_VER_NUM)
-
-typedef enum {
-    TT_HTTP_SHUT_RD,
-    TT_HTTP_SHUT_WR,
-    TT_HTTP_SHUT_RDWR,
-
-    TT_HTTP_SHUT_NUM
-} tt_http_shut_t;
-#define TT_HTTP_SHUT_VALID(s) ((s) < TT_HTTP_SHUT_NUM)
+typedef struct
+{
+    tt_http_parser_attr_t parser_attr;
+} tt_http_sconn_attr_t;
 
 ////////////////////////////////////////////////////////////
 // global variants
 ////////////////////////////////////////////////////////////
 
-tt_export const tt_char_t *tt_g_http_hname[TT_HTTP_HNAME_NUM];
-
-tt_export tt_u32_t tt_g_http_hname_len[TT_HTTP_HNAME_NUM];
-
 ////////////////////////////////////////////////////////////
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-#endif /* __TT_HTTP_DEF__ */
+tt_export tt_result_t
+tt_http_sconn_create_skt(IN tt_http_sconn_t *c,
+                         IN TO struct tt_skt_s *s,
+                         IN OPT tt_http_sconn_attr_t *attr);
+
+tt_export tt_result_t
+tt_http_sconn_create_ssl(IN tt_http_sconn_t *c,
+                         IN TO struct tt_ssl_s *s,
+                         IN OPT tt_http_sconn_attr_t *attr);
+
+tt_export void tt_http_sconn_destroy(IN tt_http_sconn_t *c);
+
+tt_export void tt_http_sconn_attr_default(IN tt_http_sconn_attr_t *attr);
+
+tt_export tt_result_t tt_http_sconn_run(IN tt_http_sconn_t *c);
+
+#endif /* __TT_HTTP_SERVER_CONNECTION__ */
