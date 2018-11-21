@@ -1014,7 +1014,6 @@ TT_TEST_ROUTINE_DEFINE(case_blobex)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_blobex_t b, b2, *pb;
-    tt_result_t r;
     tt_u8_t buf[3] = {'1', '2', '3'};
     tt_u8_t buf2[2] = {'4', '5'};
     tt_u8_t *p;

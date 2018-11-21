@@ -84,6 +84,7 @@ tt_result_t __ut_fiber(IN void *param)
     if (name[0] == 0) {
         name = NULL;
     }
+    name = NULL;
 #else
 // name = getenv("TT_CASE");
 #endif
@@ -99,7 +100,7 @@ tt_result_t __ut_fiber(IN void *param)
 #if 1
     else {
         const tt_char_t *names[] =
-        { "case_uri",
+        { /*"case_uri",
           "case_dl_list",
           "case_blobex",
           "case_ptr_queue",
@@ -107,7 +108,7 @@ tt_result_t __ut_fiber(IN void *param)
           "case_uri_get_set",
           "case_fpath_normalize",
           "HTTP_UT_URI",
-          "HTTP_UT_HDR",
+          "HTTP_UT_HDR",*/ "TEST_UNIT_SOCKET", //"case_tcp_block",
 #if 0
             "TEST_UNIT_LOG",
             "TEST_UNIT_LOG_PATTERN",
@@ -326,7 +327,7 @@ tt_platform_init(NULL);
 
 // tt_thread_wait_local();
 tt_platform_exit();
-while (0)
+while (1)
     tt_sleep(10000);
 printf("exiting\n");
 return TT_COND(tt_ut_ok, 0, -1);
