@@ -724,8 +724,8 @@ void __hupg_own(IN tt_queue_t *q)
 
 tt_result_t __hu_update_path(IN tt_http_uri_t *hu)
 {
-    tt_char_t *p, *dst;
-    tt_u32_t n = 0, len;
+    tt_char_t *dst;
+    tt_u32_t n = 0;
     tt_bool_t q_len;
 
     if (!hu->path_modified) {
@@ -783,9 +783,8 @@ tt_result_t __hu_update_path(IN tt_http_uri_t *hu)
 
 tt_result_t __hu_update_query(IN tt_http_uri_t *hu)
 {
-    tt_char_t *p, *dst;
-    tt_u32_t n = 0, len;
-    tt_bool_t q_len;
+    tt_char_t *dst;
+    tt_u32_t n = 0;
 
     if (!hu->query_modified) {
         return TT_SUCCESS;

@@ -90,6 +90,7 @@ TT_TEST_ROUTINE_DECLARE(case_tcp_oob)
 TT_TEST_ROUTINE_DECLARE(case_tcp4_stress)
 TT_TEST_ROUTINE_DECLARE(case_tcp6_close)
 TT_TEST_ROUTINE_DECLARE(case_tcp4_sendfile)
+    TT_TEST_ROUTINE_DECLARE(case_tcp_block)
 
 TT_TEST_ROUTINE_DECLARE(case_tcp_event)
 TT_TEST_ROUTINE_DECLARE(case_udp_event)
@@ -379,7 +380,16 @@ TT_TEST_CASE("case_mac_addr",
                  NULL,
                  __ut_skt_exit,
                  NULL),
-
+#if 1
+    TT_TEST_CASE("case_tcp_block",
+                 "testing socket tcp send block behavior",
+                 case_tcp_block,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL),
+#endif
     TT_TEST_CASE("case_tcp_oob",
                  "testing socket tcp oob",
                  case_tcp_oob,
@@ -3103,3 +3113,193 @@ TT_TEST_ROUTINE_DEFINE(case_tcp_oob)
     // test end
     TT_TEST_CASE_LEAVE()
 }
+
+static tt_result_t __f_svr_block(IN void *param)
+{
+    tt_skt_t *s, *new_s;
+    tt_u8_t buf[2345] = "6789";
+    tt_u32_t n, loop, ev_num = 0;
+    tt_result_t ret;
+    tt_fiber_ev_t *fev;
+    tt_tmr_t *tmr;
+
+    s = tt_skt_create(TT_NET_AF_INET, TT_NET_PROTO_TCP, NULL);
+    if (s == NULL) {
+        __ut_skt_err_line = __LINE__;
+        return TT_FAIL;
+    }
+
+    if (!TT_OK(tt_skt_bind_p(s, TT_NET_AF_INET, "127.0.0.1", 56565))) {
+        __ut_skt_err_line = __LINE__;
+        return TT_FAIL;
+    }
+
+    if (!TT_OK(tt_skt_listen(s))) {
+        __ut_skt_err_line = __LINE__;
+        return TT_FAIL;
+    }
+
+        while ((new_s = tt_skt_accept(s, NULL, NULL, &fev, &tmr)) == NULL) {
+            if (fev != NULL) {
+                __SKT_DETAIL("=> svr acc recv ev");
+                if ((fev->src == NULL) && (fev->ev != 0x87654321)) {
+                    __ut_skt_err_line = __LINE__;
+                }
+                if ((fev->src != NULL) && (fev->ev != 0x12345678)) {
+                    __ut_skt_err_line = __LINE__;
+                }
+                ++__ut_ev_rcv;
+                tt_fiber_finish(fev);
+            } else {
+                __ut_skt_err_line = __LINE__;
+                return TT_FAIL;
+            }
+        }
+
+// only send but no receive
+    loop = 0;
+    while (loop++ < TB_NUM) {
+        tt_u32_t total = 0;
+
+        if (!TT_OK(tt_skt_send(new_s, buf, sizeof(buf), &n))) {
+            __ut_skt_err_line = __LINE__;
+            return TT_FAIL;
+        }
+        __svr_sent += n;
+#if 1 // #ifdef __TCP_DETAIL
+            TT_INFO("server sent %d => %d", n, __svr_sent);
+#endif
+
+        if (n == 0) {
+            TT_INFO("tcp blocking");
+            ev_num++;
+            if (ev_num < 10) { 
+                tt_fiber_yield();
+            //tt_sleep(500); // sleep thread
+                } else {break;}
+        }
+    }
+    tt_skt_shutdown(new_s, TT_SKT_SHUT_WR);
+    
+    while ((ret = tt_skt_recv(new_s, buf, sizeof(buf), &n, &fev, &tmr)) !=
+           TT_E_END) {
+           __svr_recvd += n;
+           TT_INFO("server recv %d => %d", n, __svr_recvd);
+    }
+                
+        tt_skt_destroy(new_s);
+        tt_skt_destroy(s);
+    
+        return TT_SUCCESS;
+    }
+
+static tt_result_t __f_cli_block(IN void *param)
+{
+    tt_skt_t *s;
+    tt_u8_t buf[1234] = "123";
+    tt_u32_t n, loop, ev_num = 0;
+    tt_fiber_ev_t *fev;
+    tt_tmr_t *tmr, *p_tmr;
+    tt_result_t ret;
+    
+    // invalid address, should fail
+    s = tt_skt_create(TT_NET_AF_INET, TT_NET_PROTO_TCP, NULL);
+    if (s == NULL) {
+        __ut_skt_err_line = __LINE__;
+        return TT_FAIL;
+    }
+
+    if (TT_OK(tt_skt_connect_p(s, TT_NET_AF_INET, "127.0.0.1", 63333))) {
+        __ut_skt_err_line = __LINE__;
+        return TT_FAIL;
+    }
+    tt_skt_destroy(s);
+
+    // valid address
+    s = tt_skt_create(TT_NET_AF_INET, TT_NET_PROTO_TCP, NULL);
+    if (s == NULL) {
+        __ut_skt_err_line = __LINE__;
+        return TT_FAIL;
+    }
+
+    tt_skt_set_reuseaddr(s, TT_TRUE);
+
+    if (!TT_OK(tt_skt_connect_p(s, TT_NET_AF_INET, "127.0.0.1", 56565))) {
+        __ut_skt_err_line = __LINE__;
+        return TT_FAIL;
+    }
+
+    loop = 0;
+    while (loop++ < TB_NUM) {
+        tt_u32_t total = 0;
+
+        tmr = tt_tmr_create(3000, 0, NULL);
+        tt_tmr_start(tmr);
+        
+        if (!TT_OK(tt_skt_send(s, buf, sizeof(buf), &n))) {
+            __ut_skt_err_line = __LINE__;
+            return TT_FAIL;
+        }
+        __cli_sent += n;
+#if 1 // #ifdef __TCP_DETAIL
+            TT_INFO("client sent %d => %d", n, __cli_sent);
+#endif
+        tt_tmr_stop(tmr);
+
+        if (n == 0) {
+            TT_INFO("tcp blocking");
+            ev_num++;
+            if (ev_num < 10) { 
+                tt_fiber_yield();
+            //tt_sleep(500); // sleep thread
+                } else {break;}
+        }
+    }
+    tt_skt_shutdown(s, TT_SKT_SHUT_WR);
+
+    while ((ret = tt_skt_recv(s, buf, sizeof(buf), &n, &fev, &tmr)) !=
+           TT_E_END) {
+           __cli_recvd += n;
+           TT_INFO("client recv %d => %d", n, __cli_recvd);
+    }
+
+    tt_skt_destroy(s);
+
+    return TT_SUCCESS;
+}
+
+TT_TEST_ROUTINE_DEFINE(case_tcp_block)
+{
+    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+    tt_result_t ret;
+    tt_task_t t;
+
+    TT_TEST_CASE_ENTER()
+    // test start
+
+    ret = tt_task_create(&t, NULL);
+    TT_UT_SUCCESS(ret, "");
+
+    __cli_sent = 0;
+    __cli_recvd = 0;
+    __svr_sent = 0;
+    __svr_recvd = 0;
+
+    tt_task_add_fiber(&t, "s", __f_svr_block, NULL, NULL);
+    tt_task_add_fiber(&t, "c", __f_cli_block, NULL, NULL);
+
+    __ut_skt_err_line = 0;
+    tt_atomic_s64_set(&__io_num, 0);
+
+    ret = tt_task_run(&t);
+    TT_UT_SUCCESS(ret, "");
+
+    tt_task_wait(&t);
+    TT_UT_EQUAL(__ut_skt_err_line, 0, "");
+    TT_UT_EQUAL(__cli_sent, __cli_recvd, "");
+    TT_UT_EQUAL(__svr_sent, __cli_recvd, "");
+
+    // test end
+    TT_TEST_CASE_LEAVE()
+}
+

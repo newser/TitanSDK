@@ -356,6 +356,12 @@ static tt_result_t __addr_to_mreq6(IN tt_sktaddr_ip_t *addr,
 
 static tt_result_t __bind_iocp(IN tt_skt_ntv_t *skt, IN HANDLE iocp);
 
+tt_inline tt_result_t __set_nonblock(IN SOCKET s, IN tt_bool_t nonblock)
+{
+    u_long nbio = TT_COND(nonblock, 1, 0);
+    return TT_COND(ioctlsocket(s, FIONBIO, &nbio) == 0, TT_SUCCESS, TT_FAIL);
+}
+
 ////////////////////////////////////////////////////////////
 // interface implementation
 ////////////////////////////////////////////////////////////
@@ -423,6 +429,12 @@ tt_result_t tt_skt_create_ntv(IN tt_skt_ntv_t *skt,
             TT_NET_ERROR_NTV("fail to disable SIO_UDP_CONNRESET");
             // ignore?
         }
+    }
+
+    if (!TT_OK(__set_nonblock(s, TT_TRUE))) {
+        TT_NET_ERROR_NTV("fail to set nonblock");
+        closesocket(s);
+        return TT_FAIL;
     }
 
     skt->s = s;
@@ -723,6 +735,7 @@ tt_result_t tt_skt_sendto_ntv(IN tt_skt_ntv_t *skt,
                               OUT OPT tt_u32_t *sent,
                               IN tt_sktaddr_t *addr)
 {
+#if 0
     __skt_sendto_t skt_sendto;
     HANDLE iocp;
     WSABUF Buffers;
@@ -764,6 +777,43 @@ tt_result_t tt_skt_sendto_ntv(IN tt_skt_ntv_t *skt,
 
     TT_NET_ERROR_NTV("WSASendTo fail");
     return TT_FAIL;
+#else
+    WSABUF Buffers;
+    int iToLen;
+    DWORD NumberOfBytesSent;
+    DWORD dwError;
+
+    if (tt_sktaddr_get_family(addr) == TT_NET_AF_INET) {
+        iToLen = sizeof(struct sockaddr_in);
+    } else {
+        iToLen = sizeof(struct sockaddr_in6);
+    }
+
+    Buffers.buf = (char *)buf;
+    Buffers.len = len;
+    if (WSASendTo(skt->s,
+                  &Buffers,
+                  1,
+                  &NumberOfBytesSent,
+                  0,
+                  (struct sockaddr *)addr,
+                  iToLen,
+                  NULL,
+                  NULL) == 0) {
+        TT_SAFE_ASSIGN(sent, NumberOfBytesSent);
+        return TT_SUCCESS;
+    }
+
+    dwError = WSAGetLastError();
+    if (dwError == WSAEWOULDBLOCK) {
+        // NumberOfBytesSent is not set when returning WSAEWOULDBLOCK
+        TT_SAFE_ASSIGN(sent, 0);
+        return TT_SUCCESS;
+    } else {
+        TT_NET_ERROR_NTV("WSASendTo fail");
+        return TT_FAIL;
+    }
+#endif
 }
 
 tt_result_t tt_skt_send_ntv(IN tt_skt_ntv_t *skt,
@@ -771,6 +821,7 @@ tt_result_t tt_skt_send_ntv(IN tt_skt_ntv_t *skt,
                             IN tt_u32_t len,
                             OUT OPT tt_u32_t *sent)
 {
+#if 0
     __skt_send_t skt_send;
     HANDLE iocp;
     WSABUF Buffers;
@@ -804,6 +855,60 @@ tt_result_t tt_skt_send_ntv(IN tt_skt_ntv_t *skt,
         TT_NET_ERROR_NTV("WSASend fail");
         return TT_FAIL;
     }
+#else
+    WSABUF Buffers;
+    DWORD NumberOfBytesSent;
+    DWORD dwError;
+
+    /*
+    we do not use iocp to send data, as it's possible that the remote peer
+    had stopped reading, in that case caller(the current fiber) would be
+    blocked at tt_skt_send() forever without any oppotunity to receive fiber
+    and timer events.
+
+    a possible solution is to implement tt_skt_send(..., &fev, &tmr) to
+    enable receiving fiber and timer events during sending but the difficulty
+    is that we are not able to retrieve byte count that are already sent
+    once WSASend() has been called. by experiment, WSASend() can be cancelled
+    by CancelIoEx() and GQCS() then returned with 0 io_bytes BUT those data
+    are actually delivered to tcp stack, if remote peer start receiving those
+    data that are believed "cancelled" would actually arrive at remote peer
+
+    instead we send data in nonblocking mode, just return how many bytes
+    are sent immediately
+
+    refer MSDN:
+    If the socket is non-blocking and stream-oriented, and there is
+    not sufficient space in the transport's buffer, WSASend will return
+    with only part of the application's buffers having been consumed.
+
+    the purpose is prevent from some malicious behaviors, if remote peer
+    is intentionally paused then local fiber hangs and then resources can
+    never be released. for other write() functions like tt_fwrite(), we
+    do not have such consideration as os is trusty.
+
+    for other write() api, like tt_fwrite(), we do not make use of nonblock
+    io
+    */
+
+    Buffers.buf = (char *)buf;
+    Buffers.len = len;
+    if (WSASend(skt->s, &Buffers, 1, &NumberOfBytesSent, 0, NULL, NULL) == 0) {
+        TT_SAFE_ASSIGN(sent, NumberOfBytesSent);
+        return TT_SUCCESS;
+    }
+
+    dwError = WSAGetLastError();
+    if (dwError == WSAEWOULDBLOCK) {
+        // NumberOfBytesSent is not set when returning WSAEWOULDBLOCK
+        TT_SAFE_ASSIGN(sent, 0);
+        return TT_SUCCESS;
+    } else {
+        TT_NET_ERROR_NTV("WSASend fail");
+        return TT_FAIL;
+    }
+
+#endif
 }
 
 tt_result_t tt_skt_send_oob_ntv(IN tt_skt_ntv_t *skt, IN tt_u8_t b)
@@ -1167,6 +1272,11 @@ tt_bool_t __do_accept(IN tt_io_ev_t *io_ev)
                    (char *)&skt_accept->skt->s,
                    sizeof(SOCKET)) != 0) {
         TT_NET_ERROR_NTV("fail to set SO_UPDATE_ACCEPT_CONTEXT");
+        goto fail;
+    }
+
+    if (!TT_OK(__set_nonblock(new_s, TT_TRUE))) {
+        TT_NET_ERROR_NTV("fail to set nonblock");
         goto fail;
     }
 

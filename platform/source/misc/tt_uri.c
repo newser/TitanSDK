@@ -484,7 +484,7 @@ const tt_char_t *tt_uri_get_authority(IN tt_uri_t *uri)
             tt_blobex_clear(&uri->authority);
         } else {
             len += 1;
-            TT_DO(tt_blobex_set(&uri->authority, NULL, len, TT_TRUE));
+            TT_DO_R("", tt_blobex_set(&uri->authority, NULL, len, TT_TRUE));
 
             p = tt_blobex_addr(&uri->authority);
             if (usrinfo_len != 0) {

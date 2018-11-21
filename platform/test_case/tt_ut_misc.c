@@ -1196,7 +1196,6 @@ TT_TEST_ROUTINE_DEFINE(case_uri)
     void *p;
     char buf[2] = {1, 2};
     tt_char_t *s;
-    tt_u32_t len;
 
     TT_TEST_CASE_ENTER()
     // test start

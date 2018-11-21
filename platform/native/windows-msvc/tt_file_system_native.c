@@ -684,6 +684,12 @@ tt_result_t tt_fread_ntv(IN tt_file_ntv_t *file,
     fread.io_ev.u.ov.Offset = (tt_u32_t)file->offset;
     fread.io_ev.u.ov.OffsetHigh = (tt_u32_t)(file->offset >> 32);
 
+    /*
+    reading huge size data may take some time and during which no fiber
+    and timer event can be received but the delay, at least currently,
+    is believed acceptable
+    */
+
     if (!ReadFile(file->hf, buf, buf_len, NULL, &fread.io_ev.u.ov) &&
         ((dwError = GetLastError()) != ERROR_IO_PENDING)) {
         if (dwError == ERROR_HANDLE_EOF) {
@@ -727,6 +733,12 @@ tt_result_t tt_fwrite_ntv(IN tt_file_ntv_t *file,
     }
     fwrite.io_ev.u.ov.Offset = (tt_u32_t)file->offset;
     fwrite.io_ev.u.ov.OffsetHigh = (tt_u32_t)(file->offset >> 32);
+
+    /*
+    writing huge size data may take some time and during which no fiber
+    and timer event can be received but the delay, at least currently,
+    is believed acceptable
+    */
 
     if (!WriteFile(file->hf, buf, buf_len, NULL, &fwrite.io_ev.u.ov) &&
         (GetLastError() != ERROR_IO_PENDING)) {

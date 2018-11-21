@@ -299,7 +299,7 @@ tt_inline tt_u16_t tt_http_uri_get_port(IN tt_http_uri_t *hu)
 
 tt_inline void tt_http_uri_set_port(IN tt_http_uri_t *hu, IN tt_u16_t port)
 {
-    return tt_uri_set_port(&hu->u, port);
+    tt_uri_set_port(&hu->u, port);
 }
 
 // ========================================

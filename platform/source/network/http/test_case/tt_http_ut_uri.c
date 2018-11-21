@@ -556,8 +556,6 @@ TT_TEST_ROUTINE_DEFINE(case_http_uri_encode_query)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_http_uri_t u;
-    const tt_char_t *s;
-    tt_kv_t *kv;
     tt_fpath_t *fp;
 
     TT_TEST_CASE_ENTER()
