@@ -627,6 +627,7 @@ tt_result_t tt_skt_send_ntv(IN tt_skt_ntv_t *skt,
                             IN tt_u32_t len,
                             OUT OPT tt_u32_t *sent)
 {
+#if 0
     __skt_send_t skt_send;
     int kq;
 
@@ -645,8 +646,25 @@ tt_result_t tt_skt_send_ntv(IN tt_skt_ntv_t *skt,
     tt_kq_write(kq, skt->s, &skt_send.io_ev);
     tt_fiber_suspend();
     return skt_send.result;
-}
+#else
+    ssize_t n;
 
+again:
+    n = send(skt->s, buf, len, 0);
+    if (n > 0) {
+        TT_SAFE_ASSIGN(sent, n);
+        return TT_SUCCESS;
+    } else if (errno == EINTR) {
+        goto again;
+    } else if ((errno == EAGAIN) || (errno == EWOULDBLOCK)) {
+        TT_SAFE_ASSIGN(sent, 0);
+        return TT_SUCCESS;
+    } else {
+        TT_ERROR_NTV("socket send failed");
+        return TT_FAIL;
+    }
+#endif
+}
 tt_result_t tt_skt_send_oob_ntv(IN tt_skt_ntv_t *skt, IN tt_u8_t b)
 {
     __skt_send_t skt_send;

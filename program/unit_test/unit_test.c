@@ -99,8 +99,7 @@ tt_result_t __ut_fiber(IN void *param)
     }
 #if 1
     else {
-        const tt_char_t *names[] =
-        { /*"case_uri",
+        const tt_char_t *names[] = { /*"case_uri",
           "case_dl_list",
           "case_blobex",
           "case_ptr_queue",

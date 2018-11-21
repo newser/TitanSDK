@@ -90,7 +90,7 @@ TT_TEST_ROUTINE_DECLARE(case_tcp_oob)
 TT_TEST_ROUTINE_DECLARE(case_tcp4_stress)
 TT_TEST_ROUTINE_DECLARE(case_tcp6_close)
 TT_TEST_ROUTINE_DECLARE(case_tcp4_sendfile)
-    TT_TEST_ROUTINE_DECLARE(case_tcp_block)
+TT_TEST_ROUTINE_DECLARE(case_tcp_block)
 
 TT_TEST_ROUTINE_DECLARE(case_tcp_event)
 TT_TEST_ROUTINE_DECLARE(case_udp_event)
@@ -3139,24 +3139,24 @@ static tt_result_t __f_svr_block(IN void *param)
         return TT_FAIL;
     }
 
-        while ((new_s = tt_skt_accept(s, NULL, NULL, &fev, &tmr)) == NULL) {
-            if (fev != NULL) {
-                __SKT_DETAIL("=> svr acc recv ev");
-                if ((fev->src == NULL) && (fev->ev != 0x87654321)) {
-                    __ut_skt_err_line = __LINE__;
-                }
-                if ((fev->src != NULL) && (fev->ev != 0x12345678)) {
-                    __ut_skt_err_line = __LINE__;
-                }
-                ++__ut_ev_rcv;
-                tt_fiber_finish(fev);
-            } else {
+    while ((new_s = tt_skt_accept(s, NULL, NULL, &fev, &tmr)) == NULL) {
+        if (fev != NULL) {
+            __SKT_DETAIL("=> svr acc recv ev");
+            if ((fev->src == NULL) && (fev->ev != 0x87654321)) {
                 __ut_skt_err_line = __LINE__;
-                return TT_FAIL;
             }
+            if ((fev->src != NULL) && (fev->ev != 0x12345678)) {
+                __ut_skt_err_line = __LINE__;
+            }
+            ++__ut_ev_rcv;
+            tt_fiber_finish(fev);
+        } else {
+            __ut_skt_err_line = __LINE__;
+            return TT_FAIL;
         }
+    }
 
-// only send but no receive
+    // only send but no receive
     loop = 0;
     while (loop++ < TB_NUM) {
         tt_u32_t total = 0;
@@ -3166,32 +3166,36 @@ static tt_result_t __f_svr_block(IN void *param)
             return TT_FAIL;
         }
         __svr_sent += n;
-#if 1 // #ifdef __TCP_DETAIL
-            TT_INFO("server sent %d => %d", n, __svr_sent);
+#ifdef __TCP_DETAIL
+        TT_INFO("server sent %d => %d", n, __svr_sent);
 #endif
 
         if (n == 0) {
             TT_INFO("tcp blocking");
             ev_num++;
-            if (ev_num < 10) { 
+            if (ev_num < 10) {
                 tt_fiber_yield();
-            //tt_sleep(500); // sleep thread
-                } else {break;}
+                // tt_sleep(500); // sleep thread
+            } else {
+                break;
+            }
         }
     }
     tt_skt_shutdown(new_s, TT_SKT_SHUT_WR);
-    
+
     while ((ret = tt_skt_recv(new_s, buf, sizeof(buf), &n, &fev, &tmr)) !=
            TT_E_END) {
-           __svr_recvd += n;
-           TT_INFO("server recv %d => %d", n, __svr_recvd);
+        __svr_recvd += n;
+#ifdef __TCP_DETAIL
+        TT_INFO("server recv %d => %d", n, __svr_recvd);
+#endif
     }
-                
-        tt_skt_destroy(new_s);
-        tt_skt_destroy(s);
-    
-        return TT_SUCCESS;
-    }
+
+    tt_skt_destroy(new_s);
+    tt_skt_destroy(s);
+
+    return TT_SUCCESS;
+}
 
 static tt_result_t __f_cli_block(IN void *param)
 {
@@ -3201,7 +3205,7 @@ static tt_result_t __f_cli_block(IN void *param)
     tt_fiber_ev_t *fev;
     tt_tmr_t *tmr, *p_tmr;
     tt_result_t ret;
-    
+
     // invalid address, should fail
     s = tt_skt_create(TT_NET_AF_INET, TT_NET_PROTO_TCP, NULL);
     if (s == NULL) {
@@ -3235,32 +3239,38 @@ static tt_result_t __f_cli_block(IN void *param)
 
         tmr = tt_tmr_create(3000, 0, NULL);
         tt_tmr_start(tmr);
-        
+
         if (!TT_OK(tt_skt_send(s, buf, sizeof(buf), &n))) {
             __ut_skt_err_line = __LINE__;
             return TT_FAIL;
         }
         __cli_sent += n;
-#if 1 // #ifdef __TCP_DETAIL
-            TT_INFO("client sent %d => %d", n, __cli_sent);
+#ifdef __TCP_DETAIL
+        TT_INFO("client sent %d => %d", n, __cli_sent);
 #endif
         tt_tmr_stop(tmr);
 
         if (n == 0) {
+#ifdef __TCP_DETAIL
             TT_INFO("tcp blocking");
+#endif
             ev_num++;
-            if (ev_num < 10) { 
+            if (ev_num < 10) {
                 tt_fiber_yield();
-            //tt_sleep(500); // sleep thread
-                } else {break;}
+                // tt_sleep(500); // sleep thread
+            } else {
+                break;
+            }
         }
     }
     tt_skt_shutdown(s, TT_SKT_SHUT_WR);
 
     while ((ret = tt_skt_recv(s, buf, sizeof(buf), &n, &fev, &tmr)) !=
            TT_E_END) {
-           __cli_recvd += n;
-           TT_INFO("client recv %d => %d", n, __cli_recvd);
+        __cli_recvd += n;
+#ifdef __TCP_DETAIL
+        TT_INFO("client recv %d => %d", n, __cli_recvd);
+#endif
     }
 
     tt_skt_destroy(s);
@@ -3296,10 +3306,11 @@ TT_TEST_ROUTINE_DEFINE(case_tcp_block)
 
     tt_task_wait(&t);
     TT_UT_EQUAL(__ut_skt_err_line, 0, "");
-    TT_UT_EQUAL(__cli_sent, __cli_recvd, "");
+    TT_INFO("cli sent: %d, svr_recvd: %d", __cli_sent, __svr_recvd);
+    TT_UT_EQUAL(__cli_sent, __svr_recvd, "");
+    TT_INFO("svr sent: %d, cli_recvd: %d", __svr_sent, __cli_recvd);
     TT_UT_EQUAL(__svr_sent, __cli_recvd, "");
 
     // test end
     TT_TEST_CASE_LEAVE()
 }
-
