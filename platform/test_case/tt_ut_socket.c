@@ -1542,6 +1542,7 @@ static tt_result_t __f_svr_tcp4_sendfile(IN void *param)
             TT_E_END)) {
         len += n;
     }
+    TT_INFO("len = %d", len);
     if (len != 110) {
         __ut_skt_err_line = __LINE__;
         goto fail;
@@ -1592,10 +1593,12 @@ static tt_result_t __f_cli_tcp4_sendfile(IN void *param)
         __ut_skt_err_line = __LINE__;
         goto fail;
     }
+    TT_INFO("sendfile 1");
     if (!TT_OK(tt_skt_sendfile_path(s, __SSF_F2))) {
         __ut_skt_err_line = __LINE__;
         goto fail;
     }
+    TT_INFO("sendfile 2");
 
     if (!TT_OK(tt_skt_shutdown(s, TT_SKT_SHUT_WR))) {
         __ut_skt_err_line = __LINE__;
@@ -1650,6 +1653,9 @@ TT_TEST_ROUTINE_DEFINE(case_tcp4_sendfile)
     TT_UT_SUCCESS(ret, "");
 
     tt_task_wait(&t);
+    if (__ut_skt_err_line) {
+        TT_ERROR("err line: %d", __ut_skt_err_line);
+    }
     TT_UT_EQUAL(__ut_skt_err_line, 0, "");
 
     // test end
@@ -3132,6 +3138,7 @@ static tt_result_t __f_svr_block(IN void *param)
     tt_result_t ret;
     tt_fiber_ev_t *fev;
     tt_tmr_t *tmr;
+    tt_u32_t port = (tt_u32_t)(tt_uintptr_t)param;
 
     s = tt_skt_create(TT_NET_AF_INET, TT_NET_PROTO_TCP, NULL);
     if (s == NULL) {
@@ -3139,7 +3146,7 @@ static tt_result_t __f_svr_block(IN void *param)
         return TT_FAIL;
     }
 
-    if (!TT_OK(tt_skt_bind_p(s, TT_NET_AF_INET, "127.0.0.1", 56565))) {
+    if (!TT_OK(tt_skt_bind_p(s, TT_NET_AF_INET, "127.0.0.1", port))) {
         __ut_skt_err_line = __LINE__;
         return TT_FAIL;
     }
@@ -3312,7 +3319,11 @@ TT_TEST_ROUTINE_DEFINE(case_tcp_block)
     __svr_sent = 0;
     __svr_recvd = 0;
 
-    tt_task_add_fiber(&t, "s", __f_svr_block, NULL, NULL);
+    tt_task_add_fiber(&t,
+                      "s",
+                      __f_svr_block,
+                      (void *)(tt_uintptr_t)56565,
+                      NULL);
     tt_task_add_fiber(&t, "c", __f_cli_block, NULL, NULL);
 
     __ut_skt_err_line = 0;
@@ -3381,7 +3392,7 @@ static tt_result_t __f_cli_block_sf(IN void *param)
 
     tt_skt_set_reuseaddr(s, TT_TRUE);
 
-    if (!TT_OK(tt_skt_connect_p(s, TT_NET_AF_INET, "127.0.0.1", 56565))) {
+    if (!TT_OK(tt_skt_connect_p(s, TT_NET_AF_INET, "127.0.0.1", 56566))) {
         __ut_skt_err_line = __LINE__;
         return TT_FAIL;
     }
@@ -3490,7 +3501,11 @@ TT_TEST_ROUTINE_DEFINE(case_tcp_block_sendfile)
     __svr_sent = 0;
     __svr_recvd = 0;
 
-    tt_task_add_fiber(&t, "s", __f_svr_block, NULL, NULL);
+    tt_task_add_fiber(&t,
+                      "s",
+                      __f_svr_block,
+                      (void *)(tt_uintptr_t)56566,
+                      NULL);
     tt_task_add_fiber(&t, "c", __f_cli_block_sf, NULL, NULL);
 
     __ut_skt_err_line = 0;

@@ -218,3 +218,17 @@ char *tt_strrstr(const char *haystack, const char *needle)
 
     return NULL;
 }
+
+void *tt_memrchr(const void *s, int c, size_t n)
+{
+    if (n > 0) {
+        unsigned char *pos = (unsigned char *)s + n - 1;
+        while (pos >= (unsigned char *)s) {
+            if (*pos == c) {
+                return pos;
+            }
+            --pos;
+        }
+    }
+    return NULL;
+}

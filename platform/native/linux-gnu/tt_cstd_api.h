@@ -65,6 +65,12 @@ wrapped c memcmp()
 #define tt_memcmp memcmp
 
 /**
+@def tt_memchr
+wrapped c memchr()
+*/
+#define tt_memchr memchr
+
+/**
 @def tt_memmove
 wrapped c memmove()
 */
@@ -205,5 +211,7 @@ extern tt_result_t tt_strtos32(const char *str,
                                tt_s32_t *val);
 
 extern char *tt_strrstr(const char *haystack, const char *needle);
+
+extern void *tt_memrchr(const void *s, int c, size_t n);
 
 #endif /* __TT_CSTD_AIP__ */
