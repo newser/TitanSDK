@@ -596,7 +596,6 @@ TT_TEST_ROUTINE_DEFINE(case_http_body)
             "\r\n";
 
         tt_u32_t slen = sizeof(p) - 1, i;
-        tt_dnode_t *rhn;
         tt_http_rawhdr_t *rh;
         tt_http_rawval_t *rv;
 

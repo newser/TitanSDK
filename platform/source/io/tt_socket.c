@@ -283,7 +283,7 @@ tt_result_t tt_skt_sendfile_path(IN tt_skt_t *skt, IN const tt_char_t *path)
         return TT_FAIL;
     }
 
-    result = tt_skt_sendfile(skt, &f);
+    result = tt_skt_sendfile(skt, &f, 0, 0, NULL);
     tt_fclose(&f);
     return result;
 }

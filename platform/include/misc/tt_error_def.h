@@ -100,6 +100,9 @@ typedef enum _tt_result_t {
     TT_E_UNSUPPORT,
     TT_E_NOSPC,
 
+    // idx: 10
+    TT_E_AGAIN,
+
     TT_ERR_RANGE_COMMON_END,
 
     // ========================================

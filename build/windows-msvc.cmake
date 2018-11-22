@@ -41,6 +41,12 @@ string(REPLACE "/MDd" "/MTd" CMAKE_CXX_FLAGS_DEBUG ${CMAKE_CXX_FLAGS_DEBUG})
 choose_compiler_flag(CMAKE_C_FLAGS_RELEASE FALSE /Oi)
 choose_compiler_flag(CMAKE_CXX_FLAGS_RELEASE FALSE /Oi)
 
+choose_compiler_flag(CMAKE_C_FLAGS_DEBUG FALSE /wd"4819")
+choose_compiler_flag(CMAKE_C_FLAGS_RELEASE FALSE /wd"4819")
+
+choose_compiler_flag(CMAKE_CXX_FLAGS_DEBUG FALSE /wd"4819")
+choose_compiler_flag(CMAKE_CXX_FLAGS_RELEASE FALSE /wd"4819")
+
 #
 # linker options
 #

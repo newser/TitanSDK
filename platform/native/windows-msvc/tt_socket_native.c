@@ -220,6 +220,8 @@ typedef struct
 {
     tt_io_ev_t io_ev;
 
+    tt_u64_t *sent;
+
     tt_result_t result;
 } __skt_sendfile_t;
 
@@ -808,7 +810,7 @@ tt_result_t tt_skt_sendto_ntv(IN tt_skt_ntv_t *skt,
     if (dwError == WSAEWOULDBLOCK) {
         // NumberOfBytesSent is not set when returning WSAEWOULDBLOCK
         TT_SAFE_ASSIGN(sent, 0);
-        return TT_SUCCESS;
+        return TT_E_AGAIN;
     } else {
         TT_NET_ERROR_NTV("WSASendTo fail");
         return TT_FAIL;
@@ -902,17 +904,17 @@ tt_result_t tt_skt_send_ntv(IN tt_skt_ntv_t *skt,
     if (dwError == WSAEWOULDBLOCK) {
         // NumberOfBytesSent is not set when returning WSAEWOULDBLOCK
         TT_SAFE_ASSIGN(sent, 0);
-        return TT_SUCCESS;
+        return TT_E_AGAIN;
     } else {
         TT_NET_ERROR_NTV("WSASend fail");
         return TT_FAIL;
     }
-
 #endif
 }
 
 tt_result_t tt_skt_send_oob_ntv(IN tt_skt_ntv_t *skt, IN tt_u8_t b)
 {
+#if 0
     __skt_send_t skt_send;
     HANDLE iocp;
     WSABUF Buffers;
@@ -951,9 +953,32 @@ tt_result_t tt_skt_send_oob_ntv(IN tt_skt_ntv_t *skt, IN tt_u8_t b)
         TT_NET_ERROR_NTV("WSASend fail");
         return TT_FAIL;
     }
+#else
+    WSABUF Buffers;
+    DWORD NumberOfBytesSent;
+    DWORD dwError;
+
+    Buffers.buf = (char *)&b;
+    Buffers.len = 1;
+    if (WSASend(skt->s, &Buffers, 1, &NumberOfBytesSent, 0, NULL, NULL) == 0) {
+        return TT_SUCCESS;
+    }
+
+    dwError = WSAGetLastError();
+    if (dwError == WSAEWOULDBLOCK) {
+        return TT_E_AGAIN;
+    } else {
+        TT_NET_ERROR_NTV("WSASend fail");
+        return TT_FAIL;
+    }
+#endif
 }
 
-tt_result_t tt_skt_sendfile_ntv(IN tt_skt_ntv_t *skt, IN tt_file_t *f)
+tt_result_t tt_skt_sendfile_ntv(IN tt_skt_ntv_t *skt,
+                                IN tt_file_t *f,
+                                IN tt_u64_t offset,
+                                IN tt_u32_t len,
+                                OUT tt_u64_t *sent)
 {
     __skt_sendfile_t skt_sendfile;
     HANDLE iocp;
@@ -963,6 +988,11 @@ tt_result_t tt_skt_sendfile_ntv(IN tt_skt_ntv_t *skt, IN tt_file_t *f)
     if (!TT_OK(__bind_iocp(skt, iocp))) {
         return TT_FAIL;
     }
+
+    skt_sendfile.io_ev.u.wov.OffsetHigh = (DWORD)(offset >> 32);
+    skt_sendfile.io_ev.u.wov.Offset = (DWORD)offset;
+
+    skt_sendfile.sent = sent;
 
     skt_sendfile.result = TT_FAIL;
 
@@ -1490,6 +1520,7 @@ tt_bool_t __do_sendfile(IN tt_io_ev_t *io_ev)
     __skt_sendfile_t *skt_sendfile = (__skt_sendfile_t *)io_ev;
 
     if (TT_OK(io_ev->io_result)) {
+        TT_SAFE_ASSIGN(skt_sendfile->sent, io_ev->io_bytes);
         skt_sendfile->result = TT_SUCCESS;
     } else {
         skt_sendfile->result = TT_FAIL;

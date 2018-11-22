@@ -3161,7 +3161,8 @@ static tt_result_t __f_svr_block(IN void *param)
     while (loop++ < TB_NUM) {
         tt_u32_t total = 0;
 
-        if (!TT_OK(tt_skt_send(new_s, buf, sizeof(buf), &n))) {
+        ret = tt_skt_send(new_s, buf, sizeof(buf), &n);
+        if (!TT_OK(ret) && (ret != TT_E_AGAIN)) {
             __ut_skt_err_line = __LINE__;
             return TT_FAIL;
         }
@@ -3170,7 +3171,7 @@ static tt_result_t __f_svr_block(IN void *param)
         TT_INFO("server sent %d => %d", n, __svr_sent);
 #endif
 
-        if (n == 0) {
+        if (ret == TT_E_AGAIN) {
             TT_INFO("tcp blocking");
             ev_num++;
             if (ev_num < 10) {
@@ -3203,7 +3204,7 @@ static tt_result_t __f_cli_block(IN void *param)
     tt_u8_t buf[1234] = "123";
     tt_u32_t n, loop, ev_num = 0;
     tt_fiber_ev_t *fev;
-    tt_tmr_t *tmr, *p_tmr;
+    tt_tmr_t *tmr;
     tt_result_t ret;
 
     // invalid address, should fail
@@ -3240,7 +3241,8 @@ static tt_result_t __f_cli_block(IN void *param)
         tmr = tt_tmr_create(3000, 0, NULL);
         tt_tmr_start(tmr);
 
-        if (!TT_OK(tt_skt_send(s, buf, sizeof(buf), &n))) {
+        ret = tt_skt_send(s, buf, sizeof(buf), &n);
+        if (!TT_OK(ret) && ret != TT_E_AGAIN) {
             __ut_skt_err_line = __LINE__;
             return TT_FAIL;
         }
@@ -3250,7 +3252,7 @@ static tt_result_t __f_cli_block(IN void *param)
 #endif
         tt_tmr_stop(tmr);
 
-        if (n == 0) {
+        if (ret == TT_E_AGAIN) {
 #ifdef __TCP_DETAIL
             TT_INFO("tcp blocking");
 #endif

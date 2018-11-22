@@ -77,6 +77,10 @@ __ERR_RANGE_STR_START(TT_ERR_RANGE_COMMON)
     __ERR_STR(TT_E_NOEXIST, "Not exist"),
     __ERR_STR(TT_E_EXIST, "Already exsit"),
     __ERR_STR(TT_E_UNSUPPORT, "Not support"),
+    __ERR_STR(TT_E_NOSPC, "No space"),
+
+    // idx: 10
+    __ERR_STR(TT_E_AGAIN, "Again"),
 
 __ERR_RANGE_STR_END(TT_ERR_RANGE_COMMON)
 
