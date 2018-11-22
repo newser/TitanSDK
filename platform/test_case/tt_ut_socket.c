@@ -91,6 +91,7 @@ TT_TEST_ROUTINE_DECLARE(case_tcp4_stress)
 TT_TEST_ROUTINE_DECLARE(case_tcp6_close)
 TT_TEST_ROUTINE_DECLARE(case_tcp4_sendfile)
 TT_TEST_ROUTINE_DECLARE(case_tcp_block)
+TT_TEST_ROUTINE_DECLARE(case_tcp_block_sendfile)
 
 TT_TEST_ROUTINE_DECLARE(case_tcp_event)
 TT_TEST_ROUTINE_DECLARE(case_udp_event)
@@ -380,7 +381,7 @@ TT_TEST_CASE("case_mac_addr",
                  NULL,
                  __ut_skt_exit,
                  NULL),
-#if 1
+
     TT_TEST_CASE("case_tcp_block",
                  "testing socket tcp send block behavior",
                  case_tcp_block,
@@ -389,7 +390,16 @@ TT_TEST_CASE("case_mac_addr",
                  NULL,
                  NULL,
                  NULL),
-#endif
+
+    TT_TEST_CASE("case_tcp_block_sendfile",
+                 "testing socket tcp sendfile block behavior",
+                 case_tcp_block_sendfile,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL),
+
     TT_TEST_CASE("case_tcp_oob",
                  "testing socket tcp oob",
                  case_tcp_oob,
@@ -3118,7 +3128,7 @@ static tt_result_t __f_svr_block(IN void *param)
 {
     tt_skt_t *s, *new_s;
     tt_u8_t buf[2345] = "6789";
-    tt_u32_t n, loop, ev_num = 0;
+    tt_u32_t n, loop, ev_num = 0, pos = 0;
     tt_result_t ret;
     tt_fiber_ev_t *fev;
     tt_tmr_t *tmr;
@@ -3184,12 +3194,17 @@ static tt_result_t __f_svr_block(IN void *param)
     }
     tt_skt_shutdown(new_s, TT_SKT_SHUT_WR);
 
-    while ((ret = tt_skt_recv(new_s, buf, sizeof(buf), &n, &fev, &tmr)) !=
+    pos = 0;
+    while ((ret = tt_skt_recv(new_s, buf, sizeof(buf) - 1, &n, &fev, &tmr)) !=
            TT_E_END) {
         __svr_recvd += n;
 #ifdef __TCP_DETAIL
         TT_INFO("server recv %d => %d", n, __svr_recvd);
 #endif
+        if (pos < 500) {
+//            TT_INFO("recvd: %s", buf);
+        }
+        pos += n;
     }
 
     tt_skt_destroy(new_s);
@@ -3316,3 +3331,157 @@ TT_TEST_ROUTINE_DEFINE(case_tcp_block)
     // test end
     TT_TEST_CASE_LEAVE()
 }
+
+static tt_u32_t __fsize;
+
+static tt_result_t __f_cli_block_sf(IN void *param)
+{
+    tt_skt_t *s;
+    tt_u8_t buf[1234] = "123";
+    tt_u32_t n, loop, ev_num = 0;
+    tt_fiber_ev_t *fev;
+    tt_tmr_t *tmr;
+    tt_result_t ret;
+    tt_file_t f;
+	tt_u64_t wlen;
+
+    tt_fremove("a_large_file_xbdsaf");
+    if (!TT_OK(tt_fopen(&f, "a_large_file_xbdsaf", TT_FO_CREAT|TT_FO_WRITE, NULL))) {
+        __ut_skt_err_line = __LINE__;
+        return TT_FAIL;
+    }
+    n = 0;
+    tt_memset(buf, 'f', sizeof(buf));
+    while (n < (1 << 21)) {
+        tt_u32_t wlen;
+        if (!TT_OK(tt_fwrite(&f, buf, sizeof(buf), &wlen))) {
+            __ut_skt_err_line = __LINE__;
+            return TT_FAIL;
+        }
+        n += wlen;
+    }
+    __fsize = n;
+    tt_fclose(&f);
+    if (!TT_OK(tt_fopen(&f, "a_large_file_xbdsaf", TT_FO_READ, NULL))) {
+        __ut_skt_err_line = __LINE__;
+        return TT_FAIL;
+    }
+    tt_memset(buf, 's', sizeof(buf));
+    
+    // valid address
+    s = tt_skt_create(TT_NET_AF_INET, TT_NET_PROTO_TCP, NULL);
+    if (s == NULL) {
+        __ut_skt_err_line = __LINE__;
+        return TT_FAIL;
+    }
+
+    tt_skt_set_reuseaddr(s, TT_TRUE);
+
+    if (!TT_OK(tt_skt_connect_p(s, TT_NET_AF_INET, "127.0.0.1", 56565))) {
+        __ut_skt_err_line = __LINE__;
+        return TT_FAIL;
+    }
+
+    loop = 0;
+    while (loop++ < TB_NUM) {
+        tt_u32_t total = 0;
+
+        tmr = tt_tmr_create(3000, 0, NULL);
+        tt_tmr_start(tmr);
+
+        if (loop == 1) {
+            ret = tt_skt_sendfile(s, &f, 1, 100, &wlen);
+            if (!TT_OK(ret) || wlen != 100) {
+                __ut_skt_err_line = __LINE__;
+                return TT_FAIL;
+            }
+        } else {
+            ret = tt_skt_send(s, buf, sizeof(buf), &n);
+            if (!TT_OK(ret) && ret != TT_E_AGAIN) {
+                __ut_skt_err_line = __LINE__;
+                return TT_FAIL;
+            }
+            __cli_sent += n;
+        }
+        
+#ifdef __TCP_DETAIL
+        TT_INFO("client sent %d => %d", wlen, __cli_sent);
+#endif
+        tt_tmr_stop(tmr);
+
+        if (ret == TT_E_AGAIN) {
+#ifdef __TCP_DETAIL
+            TT_INFO("tcp blocking");
+#endif
+            if (ev_num == 0) {
+                // all
+                ret = tt_skt_sendfile(s, &f, 101, 0, &wlen);
+                if (!TT_OK(ret) && ret != TT_E_AGAIN) {
+                    __ut_skt_err_line = __LINE__;
+                    return TT_FAIL;
+                }
+            }
+            
+            ev_num++;
+            if (ev_num < 10) {
+                tt_fiber_yield();
+                // tt_sleep(500); // sleep thread
+            } else {
+                break;
+            }
+        }
+    }
+    tt_skt_shutdown(s, TT_SKT_SHUT_WR);
+
+    while ((ret = tt_skt_recv(s, buf, sizeof(buf), &n, &fev, &tmr)) !=
+           TT_E_END) {
+        __cli_recvd += n;
+#ifdef __TCP_DETAIL
+        TT_INFO("client recv %d => %d", n, __cli_recvd);
+#endif
+    }
+
+    tt_skt_destroy(s);
+
+    return TT_SUCCESS;
+}
+
+TT_TEST_ROUTINE_DEFINE(case_tcp_block_sendfile)
+{
+    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+    tt_result_t ret;
+    tt_task_t t;
+
+    TT_TEST_CASE_ENTER()
+    // test start
+
+    ret = tt_task_create(&t, NULL);
+    TT_UT_SUCCESS(ret, "");
+
+    __cli_sent = 0;
+    __cli_recvd = 0;
+    __svr_sent = 0;
+    __svr_recvd = 0;
+
+    tt_task_add_fiber(&t, "s", __f_svr_block, NULL, NULL);
+    tt_task_add_fiber(&t, "c", __f_cli_block_sf, NULL, NULL);
+
+    __ut_skt_err_line = 0;
+    tt_atomic_s64_set(&__io_num, 0);
+
+    ret = tt_task_run(&t);
+    TT_UT_SUCCESS(ret, "");
+
+    tt_task_wait(&t);
+    TT_UT_EQUAL(__ut_skt_err_line, 0, "");
+    TT_INFO("cli sent: %d, svr_recvd: %d", __cli_sent, __svr_recvd);
+	// send + file size - heading 1 byte
+    TT_UT_EQUAL(__cli_sent + __fsize - 1, __svr_recvd, "");
+
+	TT_INFO("svr sent: %d, cli_recvd: %d", __svr_sent, __cli_recvd);
+    TT_UT_EQUAL(__svr_sent, __cli_recvd, "");
+
+    // test end
+    TT_TEST_CASE_LEAVE()
+}
+

@@ -107,7 +107,8 @@ tt_result_t __ut_fiber(IN void *param)
           "case_uri_get_set",
           "case_fpath_normalize",
           "HTTP_UT_URI",
-          "HTTP_UT_HDR",*/ "TEST_UNIT_SOCKET", //"case_tcp_block",
+          "HTTP_UT_HDR", "TEST_UNIT_SOCKET",*/ 
+          "case_tcp_block_sendfile",
 #if 0
             "TEST_UNIT_LOG",
             "TEST_UNIT_LOG_PATTERN",

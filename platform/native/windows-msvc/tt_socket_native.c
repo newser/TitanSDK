@@ -996,9 +996,12 @@ tt_result_t tt_skt_sendfile_ntv(IN tt_skt_ntv_t *skt,
 
     skt_sendfile.result = TT_FAIL;
 
+    // by experiment, TransmitFile() does not block even if the local 
+    // socket send buffer was full, but outgoing data order may need
+    // be confirmed in case: send(), sendfile(), send(), ...
     if (tt_TransmitFile(skt->s,
                         f->sys_file.hf,
-                        0,
+                        len,
                         0,
                         &skt_sendfile.io_ev.u.wov,
                         NULL,
