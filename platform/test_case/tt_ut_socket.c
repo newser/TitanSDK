@@ -3202,7 +3202,7 @@ static tt_result_t __f_svr_block(IN void *param)
         TT_INFO("server recv %d => %d", n, __svr_recvd);
 #endif
         if (pos < 500) {
-//            TT_INFO("recvd: %s", buf);
+            //            TT_INFO("recvd: %s", buf);
         }
         pos += n;
     }
@@ -3343,10 +3343,14 @@ static tt_result_t __f_cli_block_sf(IN void *param)
     tt_tmr_t *tmr;
     tt_result_t ret;
     tt_file_t f;
-	tt_u64_t wlen;
+    tt_u64_t wlen;
+    tt_bool_t fsent = TT_FALSE;
 
     tt_fremove("a_large_file_xbdsaf");
-    if (!TT_OK(tt_fopen(&f, "a_large_file_xbdsaf", TT_FO_CREAT|TT_FO_WRITE, NULL))) {
+    if (!TT_OK(tt_fopen(&f,
+                        "a_large_file_xbdsaf",
+                        TT_FO_CREAT | TT_FO_WRITE,
+                        NULL))) {
         __ut_skt_err_line = __LINE__;
         return TT_FAIL;
     }
@@ -3367,7 +3371,7 @@ static tt_result_t __f_cli_block_sf(IN void *param)
         return TT_FAIL;
     }
     tt_memset(buf, 's', sizeof(buf));
-    
+
     // valid address
     s = tt_skt_create(TT_NET_AF_INET, TT_NET_PROTO_TCP, NULL);
     if (s == NULL) {
@@ -3395,6 +3399,7 @@ static tt_result_t __f_cli_block_sf(IN void *param)
                 __ut_skt_err_line = __LINE__;
                 return TT_FAIL;
             }
+            __cli_sent += wlen;
         } else {
             ret = tt_skt_send(s, buf, sizeof(buf), &n);
             if (!TT_OK(ret) && ret != TT_E_AGAIN) {
@@ -3403,7 +3408,7 @@ static tt_result_t __f_cli_block_sf(IN void *param)
             }
             __cli_sent += n;
         }
-        
+
 #ifdef __TCP_DETAIL
         TT_INFO("client sent %d => %d", wlen, __cli_sent);
 #endif
@@ -3416,12 +3421,20 @@ static tt_result_t __f_cli_block_sf(IN void *param)
             if (ev_num == 0) {
                 // all
                 ret = tt_skt_sendfile(s, &f, 101, 0, &wlen);
-                if (!TT_OK(ret) && ret != TT_E_AGAIN) {
+                if (TT_OK(ret)) {
+                    // windows can send it out...
+                    __cli_sent += wlen;
+                    fsent = TT_TRUE;
+                } else if (ret == TT_E_AGAIN) {
+                    // mac can not...
+                    TT_ASSERT(wlen == 0);
+                    fsent = TT_FALSE;
+                } else {
                     __ut_skt_err_line = __LINE__;
                     return TT_FAIL;
                 }
             }
-            
+
             ev_num++;
             if (ev_num < 10) {
                 tt_fiber_yield();
@@ -3431,7 +3444,6 @@ static tt_result_t __f_cli_block_sf(IN void *param)
             }
         }
     }
-    tt_skt_shutdown(s, TT_SKT_SHUT_WR);
 
     while ((ret = tt_skt_recv(s, buf, sizeof(buf), &n, &fev, &tmr)) !=
            TT_E_END) {
@@ -3440,6 +3452,21 @@ static tt_result_t __f_cli_block_sf(IN void *param)
         TT_INFO("client recv %d => %d", n, __cli_recvd);
 #endif
     }
+
+    // try one more time if not ever sent
+    if (!fsent) {
+        ret = tt_skt_sendfile(s, &f, 101, 0, &wlen);
+        if (TT_OK(ret)) {
+            // windows can send it out...
+            __cli_sent += wlen;
+        } else if (ret != TT_E_AGAIN) {
+            // mac can not...
+            TT_ASSERT(wlen == 0);
+            __ut_skt_err_line = __LINE__;
+            return TT_FAIL;
+        }
+    }
+    tt_skt_shutdown(s, TT_SKT_SHUT_WR);
 
     tt_skt_destroy(s);
 
@@ -3475,13 +3502,10 @@ TT_TEST_ROUTINE_DEFINE(case_tcp_block_sendfile)
     tt_task_wait(&t);
     TT_UT_EQUAL(__ut_skt_err_line, 0, "");
     TT_INFO("cli sent: %d, svr_recvd: %d", __cli_sent, __svr_recvd);
-	// send + file size - heading 1 byte
-    TT_UT_EQUAL(__cli_sent + __fsize - 1, __svr_recvd, "");
-
-	TT_INFO("svr sent: %d, cli_recvd: %d", __svr_sent, __cli_recvd);
+    TT_UT_EQUAL(__cli_sent, __svr_recvd, "");
+    TT_INFO("svr sent: %d, cli_recvd: %d", __svr_sent, __cli_recvd);
     TT_UT_EQUAL(__svr_sent, __cli_recvd, "");
 
     // test end
     TT_TEST_CASE_LEAVE()
 }
-

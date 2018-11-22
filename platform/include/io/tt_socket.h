@@ -187,11 +187,11 @@ tt_inline tt_result_t tt_skt_send_all(IN tt_skt_t *skt,
 }
 
 // set len to 0 to send the entire file
-tt_inline tt_result_t tt_skt_sendfile(IN tt_skt_t *skt, 
-IN struct tt_file_s *f,
-                                       IN tt_u64_t offset,
-                                       IN tt_u32_t len,
-                                       OUT tt_u64_t *sent)
+tt_inline tt_result_t tt_skt_sendfile(IN tt_skt_t *skt,
+                                      IN struct tt_file_s *f,
+                                      IN tt_u64_t offset,
+                                      IN tt_u32_t len,
+                                      OUT tt_u64_t *sent)
 {
     return tt_skt_sendfile_ntv(&skt->sys_skt, f, offset, len, sent);
 }

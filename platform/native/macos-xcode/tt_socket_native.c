@@ -602,6 +602,7 @@ tt_result_t tt_skt_sendto_ntv(IN tt_skt_ntv_t *skt,
                               OUT OPT tt_u32_t *sent,
                               IN tt_sktaddr_t *addr)
 {
+#if 0
     __skt_sendto_t skt_sendto;
     int kq;
 
@@ -620,6 +621,24 @@ tt_result_t tt_skt_sendto_ntv(IN tt_skt_ntv_t *skt,
     tt_kq_write(kq, skt->s, &skt_sendto.io_ev);
     tt_fiber_suspend();
     return skt_sendto.result;
+#else
+    ssize_t n;
+
+again:
+    n = sendto(skt->s, buf, len, 0, (struct sockaddr *)addr, addr->ss_len);
+    if (n > 0) {
+        TT_SAFE_ASSIGN(sent, n);
+        return TT_SUCCESS;
+    } else if (errno == EINTR) {
+        goto again;
+    } else if ((errno == EAGAIN) || (errno == EWOULDBLOCK)) {
+        TT_SAFE_ASSIGN(sent, 0);
+        return TT_E_AGAIN;
+    } else {
+        TT_ERROR_NTV("socket send failed");
+        return TT_FAIL;
+    }
+#endif
 }
 
 tt_result_t tt_skt_send_ntv(IN tt_skt_ntv_t *skt,
@@ -658,15 +677,17 @@ again:
         goto again;
     } else if ((errno == EAGAIN) || (errno == EWOULDBLOCK)) {
         TT_SAFE_ASSIGN(sent, 0);
-        return TT_SUCCESS;
+        return TT_E_AGAIN;
     } else {
         TT_ERROR_NTV("socket send failed");
         return TT_FAIL;
     }
 #endif
 }
+
 tt_result_t tt_skt_send_oob_ntv(IN tt_skt_ntv_t *skt, IN tt_u8_t b)
 {
+#if 0
     __skt_send_t skt_send;
     int kq;
 
@@ -685,10 +706,31 @@ tt_result_t tt_skt_send_oob_ntv(IN tt_skt_ntv_t *skt, IN tt_u8_t b)
     tt_kq_write(kq, skt->s, &skt_send.io_ev);
     tt_fiber_suspend();
     return skt_send.result;
+#else
+    ssize_t n;
+
+again:
+    n = send(skt->s, &b, 1, MSG_OOB);
+    if (n > 0) {
+        return TT_SUCCESS;
+    } else if (errno == EINTR) {
+        goto again;
+    } else if ((errno == EAGAIN) || (errno == EWOULDBLOCK)) {
+        return TT_E_AGAIN;
+    } else {
+        TT_ERROR_NTV("socket send failed");
+        return TT_FAIL;
+    }
+#endif
 }
 
-tt_result_t tt_skt_sendfile_ntv(IN tt_skt_ntv_t *skt, IN tt_file_t *f)
+tt_result_t tt_skt_sendfile_ntv(IN tt_skt_ntv_t *skt,
+                                IN tt_file_t *f,
+                                IN tt_u64_t offset,
+                                IN tt_u32_t len,
+                                OUT tt_u64_t *sent)
 {
+#if 0
     __skt_sendfile_t skt_sendfile;
     int kq;
 
@@ -708,6 +750,40 @@ tt_result_t tt_skt_sendfile_ntv(IN tt_skt_ntv_t *skt, IN tt_file_t *f)
     tt_kq_write(kq, skt->s, &skt_sendfile.io_ev);
     tt_fiber_suspend();
     return skt_sendfile.result;
+#else
+    off_t n = len;
+
+    /*
+     Initially the value pointed to by the len argument specifies how many bytes
+     should
+     be sent with 0 having the special meaning to send until the end of file has
+     been
+     reached.
+     */
+    if (sendfile(f->sys_file.fd, skt->s, offset, &n, NULL, 0) == 0) {
+        TT_SAFE_ASSIGN(sent, n);
+        return TT_SUCCESS;
+    } else if ((errno == EINTR) || (errno == EAGAIN)) {
+        /*
+         [EAGAIN]
+         The socket is marked for non-blocking I/O and not all data was sent due
+         to
+         the socket buffer being full.  If specified, the number of bytes
+         successfully
+         sent will be returned in *len.
+
+         [EINTR]
+         A signal interrupted sendfile() before it could be completed. If
+         specified,
+         the number of bytes successfully sent will be returned in *len.
+         */
+        TT_SAFE_ASSIGN(sent, n);
+        return TT_COND(n > 0, TT_SUCCESS, TT_E_AGAIN);
+    } else {
+        TT_ERROR_NTV("sendfile failed");
+        return TT_FAIL;
+    }
+#endif
 }
 
 tt_result_t tt_skt_recv_ntv(IN tt_skt_ntv_t *skt,
