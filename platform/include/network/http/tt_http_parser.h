@@ -49,7 +49,7 @@ struct tt_http_rawhdr_s;
 struct tt_http_rawval_s;
 struct tt_slab_s;
 
-typedef struct
+typedef struct tt_http_parser_s
 {
     struct tt_http_rawhdr_s *rh;
     struct tt_http_rawval_s *rv;

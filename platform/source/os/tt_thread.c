@@ -121,6 +121,8 @@ tt_thread_t *tt_thread_create(IN tt_thread_routine_t routine,
     thread->entropy = NULL;
     thread->ctr_drbg = NULL;
     thread->backtrace = NULL;
+    thread->http_rawhdr = NULL;
+    thread->http_rawval = NULL;
 
     thread->last_error = TT_SUCCESS;
     thread->detached = detached;
@@ -303,6 +305,16 @@ void __thread_on_exit(IN tt_thread_t *thread)
     if (thread->backtrace != NULL) {
         tt_buf_destroy(thread->backtrace);
         tt_free(thread->backtrace);
+    }
+
+    if (thread->http_rawhdr != NULL) {
+        tt_slab_destroy(thread->http_rawhdr);
+        tt_free(thread->http_rawhdr);
+    }
+
+    if (thread->http_rawval != NULL) {
+        tt_slab_destroy(thread->http_rawval);
+        tt_free(thread->http_rawval);
     }
 
     // for non-detached and non-local thread, the struct will

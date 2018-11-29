@@ -38,7 +38,9 @@ this file defines http
 // macro definition
 ////////////////////////////////////////////////////////////
 
-#define TT_HTTP_HDR_MAP(__ENTRY) __ENTRY(HOST, Host)
+#define TT_HTTP_HDR_MAP(__ENTRY)                                               \
+    __ENTRY(HOST, Host)                                                        \
+    __ENTRY(DATE, Date)
 
 ////////////////////////////////////////////////////////////
 // type definition
@@ -98,8 +100,20 @@ tt_export const tt_char_t *tt_g_http_hname[TT_HTTP_HNAME_NUM];
 
 tt_export tt_u32_t tt_g_http_hname_len[TT_HTTP_HNAME_NUM];
 
+tt_export const tt_char_t *tt_g_http_method[TT_HTTP_METHOD_NUM];
+
+tt_export tt_u32_t tt_g_http_method_len[TT_HTTP_METHOD_NUM];
+
+tt_export const tt_char_t *tt_g_http_verion[TT_HTTP_VER_NUM];
+
+tt_export tt_u32_t tt_g_http_verion_len[TT_HTTP_VER_NUM];
+
 ////////////////////////////////////////////////////////////
 // interface declaration
 ////////////////////////////////////////////////////////////
+
+tt_export void tt_http_status_cstr(IN tt_http_status_t status,
+                                   OUT const tt_char_t **s,
+                                   OUT tt_u32_t *len);
 
 #endif /* __TT_HTTP_DEF__ */

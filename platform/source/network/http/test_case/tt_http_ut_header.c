@@ -132,7 +132,7 @@ TT_TEST_CASE("case_http_hdr_basic",
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_http_hval_t *hv;
     tt_u8_t *p;
-    tt_http_hdr_t h;
+    tt_http_hdr_t *h;
     tt_char_t buf[128];
     tt_u32_t n, n2;
 
@@ -159,98 +159,136 @@ TT_TEST_CASE("case_http_hdr_basic",
 
     // header
 
-    tt_http_hdr_init(&h,
-                     TT_HTTP_HDR_HOST,
-                     &tt_g_http_hdr_line_itf,
-                     &tt_g_http_hval_blob_itf);
-    tt_http_hdr_clear(&h);
-    tt_http_hdr_destroy(&h);
+    h = tt_http_hdr_create(0,
+                           TT_HTTP_HDR_HOST,
+                           &tt_g_http_hdr_line_itf,
+                           &tt_g_http_hval_blob_itf);
+    tt_http_hdr_clear(h);
+    tt_http_hdr_destroy(h);
 
     {
-        tt_http_hdr_init(&h,
-                         TT_HTTP_HDR_HOST,
-                         &tt_g_http_hdr_line_itf,
-                         &tt_g_http_hval_blob_itf);
+        h = tt_http_hdr_create(0,
+                               TT_HTTP_HDR_HOST,
+                               &tt_g_http_hdr_line_itf,
+                               &tt_g_http_hval_blob_itf);
 
-        TT_UT_SUCCESS(tt_http_hdr_parse(&h, "a,b,c,d,", sizeof("a,b,c,d,") - 1),
+        TT_UT_SUCCESS(tt_http_hdr_parse(h, "a,b,c,d,", sizeof("a,b,c,d,") - 1),
                       "");
-        TT_UT_EQUAL(tt_dlist_count(&h.val), 1, "");
-        n = tt_http_hdr_render_len(&h);
+        TT_UT_EQUAL(tt_dlist_count(&h->val), 1, "");
+        n = tt_http_hdr_render_len(h);
         TT_UT_EQUAL(n, sizeof("Host: a,b,c,d,\r\n") - 1, "");
-        n2 = tt_http_hdr_render(&h, buf);
+        n2 = tt_http_hdr_render(h, buf);
         buf[n2] = 0;
         TT_UT_EQUAL(n, n2, "");
         TT_UT_STREQ(buf, "Host: a,b,c,d,\r\n", "");
 
-        TT_UT_SUCCESS(tt_http_hdr_parse(&h, ",xx,yy", sizeof(",xx,yy") - 1),
-                      "");
-        TT_UT_EQUAL(tt_dlist_count(&h.val), 2, "");
-        n = tt_http_hdr_render_len(&h);
+        TT_UT_SUCCESS(tt_http_hdr_parse(h, ",xx,yy", sizeof(",xx,yy") - 1), "");
+        TT_UT_EQUAL(tt_dlist_count(&h->val), 2, "");
+        n = tt_http_hdr_render_len(h);
         TT_UT_EQUAL(n, sizeof("Host: a,b,c,d,\r\nHost: ,xx,yy\r\n") - 1, "");
-        n2 = tt_http_hdr_render(&h, buf);
+        n2 = tt_http_hdr_render(h, buf);
         buf[n2] = 0;
         TT_UT_EQUAL(n, n2, "");
         TT_UT_STREQ(buf, "Host: a,b,c,d,\r\nHost: ,xx,yy\r\n", "");
 
         // empty
-        TT_UT_SUCCESS(tt_http_hdr_parse(&h, ",xx,yy", 0), "");
-        TT_UT_EQUAL(tt_dlist_count(&h.val), 2, "");
-        TT_UT_SUCCESS(tt_http_hdr_parse(&h, "", 1), "");
-        TT_UT_EQUAL(tt_dlist_count(&h.val), 2, "");
-        n = tt_http_hdr_render_len(&h);
+        TT_UT_SUCCESS(tt_http_hdr_parse(h, ",xx,yy", 0), "");
+        TT_UT_EQUAL(tt_dlist_count(&h->val), 2, "");
+        TT_UT_SUCCESS(tt_http_hdr_parse(h, "", 1), "");
+        TT_UT_EQUAL(tt_dlist_count(&h->val), 2, "");
+        n = tt_http_hdr_render_len(h);
         TT_UT_EQUAL(n, sizeof("Host: a,b,c,d,\r\nHost: ,xx,yy\r\n") - 1, "");
-        n2 = tt_http_hdr_render(&h, buf);
+        n2 = tt_http_hdr_render(h, buf);
         buf[n2] = 0;
         TT_UT_EQUAL(n, n2, "");
         TT_UT_STREQ(buf, "Host: a,b,c,d,\r\nHost: ,xx,yy\r\n", "");
 
-        tt_http_hdr_destroy(&h);
+        tt_http_hdr_destroy(h);
     }
 
     {
-        tt_http_hdr_init(&h,
-                         TT_HTTP_HDR_HOST,
-                         &tt_g_http_hdr_cs_itf,
-                         &tt_g_http_hval_blob_itf);
+        h = tt_http_hdr_create(0,
+                               TT_HTTP_HDR_HOST,
+                               &tt_g_http_hdr_cs_itf,
+                               &tt_g_http_hval_blob_itf);
 
-        TT_UT_SUCCESS(tt_http_hdr_parse(&h, ",,,,", sizeof(",,,,") - 1), "");
-        TT_UT_EQUAL(tt_dlist_count(&h.val), 0, "");
-        n2 = tt_http_hdr_render(&h, buf);
+        TT_UT_SUCCESS(tt_http_hdr_parse(h, ",,,,", sizeof(",,,,") - 1), "");
+        TT_UT_EQUAL(tt_dlist_count(&h->val), 0, "");
+        n2 = tt_http_hdr_render(h, buf);
         buf[n2] = 0;
         TT_UT_EQUAL(n2, sizeof("Host: \r\n") - 1, "");
         TT_UT_STREQ(buf, "Host: \r\n", "");
 
-        TT_UT_SUCCESS(tt_http_hdr_parse(&h, "a,b,c,d,", sizeof("a,b,c,d,") - 1),
+        TT_UT_SUCCESS(tt_http_hdr_parse(h, "a,b,c,d,", sizeof("a,b,c,d,") - 1),
                       "");
-        TT_UT_EQUAL(tt_dlist_count(&h.val), 4, "");
-        n = tt_http_hdr_render_len(&h);
+        TT_UT_EQUAL(tt_dlist_count(&h->val), 4, "");
+        n = tt_http_hdr_render_len(h);
         TT_UT_EQUAL(n, sizeof("Host: a, b, c, d\r\n") - 1, "");
-        n2 = tt_http_hdr_render(&h, buf);
+        n2 = tt_http_hdr_render(h, buf);
         buf[n2] = 0;
         TT_UT_EQUAL(n, n2, "");
         TT_UT_STREQ(buf, "Host: a, b, c, d\r\n", "");
 
         // append
-        TT_UT_SUCCESS(tt_http_hdr_parse(&h,
+        TT_UT_SUCCESS(tt_http_hdr_parse(h,
                                         ",,xx,,yy,,",
                                         sizeof(",,xx,,yy,,") - 1),
                       "");
-        TT_UT_EQUAL(tt_dlist_count(&h.val), 6, "");
-        n = tt_http_hdr_render_len(&h);
+        TT_UT_EQUAL(tt_dlist_count(&h->val), 6, "");
+        n = tt_http_hdr_render_len(h);
         TT_UT_EQUAL(n, sizeof("Host: a, b, c, d, xx, yy\r\n") - 1, "");
-        n2 = tt_http_hdr_render(&h, buf);
+        n2 = tt_http_hdr_render(h, buf);
         buf[n2] = 0;
         TT_UT_EQUAL(n, n2, "");
         TT_UT_STREQ(buf, "Host: a, b, c, d, xx, yy\r\n", "");
 
         // empty
-        TT_UT_SUCCESS(tt_http_hdr_parse(&h, ",,,,", sizeof(",,,,") - 1), "");
-        TT_UT_EQUAL(tt_dlist_count(&h.val), 6, "");
-        n2 = tt_http_hdr_render(&h, buf);
+        TT_UT_SUCCESS(tt_http_hdr_parse(h, ",,,,", sizeof(",,,,") - 1), "");
+        TT_UT_EQUAL(tt_dlist_count(&h->val), 6, "");
+        n2 = tt_http_hdr_render(h, buf);
         buf[n2] = 0;
         TT_UT_STREQ(buf, "Host: a, b, c, d, xx, yy\r\n", "");
 
-        tt_http_hdr_destroy(&h);
+        tt_http_hdr_destroy(h);
+    }
+
+    {
+        tt_http_hdr_t *p;
+
+        p = tt_http_hdr_create_line(TT_HTTP_HDR_HOST, "1,2, 3--4,");
+        TT_UT_NOT_NULL(p, "");
+
+        n = tt_http_hdr_render_len(p); //"Host: 1,2, 3--4,\r\n"
+        TT_UT_EQUAL(n, sizeof("Host: 1,2, 3--4,\r\n") - 1, "");
+
+        n2 = tt_http_hdr_render(p, buf);
+        buf[n2] = 0;
+        TT_UT_EQUAL(n, n2, "");
+        TT_UT_STREQ(buf, "Host: 1,2, 3--4,\r\n", "");
+
+        tt_http_hdr_destroy(p);
+    }
+
+    {
+        tt_http_hdr_t *p;
+        tt_blobex_t b[3];
+
+        tt_blobex_set(&b[0], (tt_u8_t *)"1", 1, TT_FALSE);
+        tt_blobex_set(&b[1], (tt_u8_t *)"22", 2, TT_FALSE);
+        tt_blobex_set(&b[2], (tt_u8_t *)"333", 3, TT_FALSE);
+
+        p = tt_http_hdr_create_cs(TT_HTTP_HDR_HOST, b, 3);
+        TT_UT_NOT_NULL(p, "");
+
+        n = tt_http_hdr_render_len(p); //"Host: 1, 22, 333\r\n"
+        TT_UT_EQUAL(n, sizeof("Host: 1, 22, 333\r\n") - 1, "");
+
+        n2 = tt_http_hdr_render(p, buf);
+        buf[n2] = 0;
+        TT_UT_EQUAL(n, n2, "");
+        TT_UT_STREQ(buf, "Host: 1, 22, 333\r\n", "");
+
+        tt_http_hdr_destroy(p);
     }
 
     // test end

@@ -23,8 +23,12 @@
 #include <network/http/tt_http_server_connection.h>
 
 #include <io/tt_socket.h>
+#include <memory/tt_slab.h>
+#include <network/http/tt_http_raw_header.h>
 #include <network/ssl/tt_ssl.h>
 #include <os/tt_fiber_event.h>
+#include <os/tt_thread.h>
+#include <time/tt_time_reference.h>
 #include <time/tt_timer.h>
 
 ////////////////////////////////////////////////////////////
@@ -120,9 +124,21 @@ static __sconn_itf_t __sconn_ssl_itf = {
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-static void __sconn_init(IN tt_http_sconn_t *c,
-                         IN __sconn_itf_t *itf,
-                         IN void *itf_opaque);
+static void __sconn_set_itf(IN tt_http_sconn_t *c,
+                            IN __sconn_itf_t *itf,
+                            IN void *itf_opaque);
+
+static tt_result_t __sconn_create(IN tt_http_sconn_t *c,
+                                  IN tt_http_sconn_attr_t *attr);
+
+static void __sconn_destroy(IN tt_http_sconn_t *c);
+
+static tt_slab_t *__local_rawhdr_slab();
+
+static tt_slab_t *__local_rawval_slab();
+
+static tt_bool_t __sconn_on_error(IN tt_http_sconn_t *c,
+                                  IN tt_http_server_error_t e);
 
 ////////////////////////////////////////////////////////////
 // interface implementation
@@ -134,32 +150,19 @@ tt_result_t tt_http_sconn_create_skt(IN tt_http_sconn_t *c,
 {
     tt_http_sconn_attr_t __attr;
 
-    tt_u32_t __done = 0;
-#define __SC_PARSER (1 << 0)
-
     if (attr == NULL) {
         tt_http_sconn_attr_default(&__attr);
         attr = &__attr;
     }
 
-    __sconn_init(c, &__sconn_skt_itf, s);
+    __sconn_set_itf(c, &__sconn_skt_itf, s);
 
-    //    tt_http_parser_create(&c->parser,
-    //                          struct tt_slab_s *rawhdr_slab,
-    //                          struct tt_slab_s *rawval_slab,
-    //                          &attr->parser_attr);
-
-    return TT_SUCCESS;
-
-    // fail:
-
-    if (__done & __SC_PARSER) {
-        tt_http_parser_destroy(&c->parser);
+    if (TT_OK(__sconn_create(c, attr))) {
+        return TT_SUCCESS;
+    } else {
+        tt_skt_destroy(s);
+        return TT_FAIL;
     }
-
-    tt_skt_destroy(s);
-
-    return TT_FAIL;
 }
 
 tt_result_t tt_http_sconn_create_ssl(IN tt_http_sconn_t *c,
@@ -173,15 +176,14 @@ tt_result_t tt_http_sconn_create_ssl(IN tt_http_sconn_t *c,
         attr = &__attr;
     }
 
-    __sconn_init(c, &__sconn_ssl_itf, s);
+    __sconn_set_itf(c, &__sconn_ssl_itf, s);
 
-    return TT_SUCCESS;
-
-    // fail:
-
-    tt_ssl_destroy(s);
-
-    return TT_FAIL;
+    if (TT_OK(__sconn_create(c, attr))) {
+        return TT_SUCCESS;
+    } else {
+        tt_ssl_destroy(s);
+        return TT_FAIL;
+    }
 }
 
 void tt_http_sconn_destroy(IN tt_http_sconn_t *c)
@@ -189,11 +191,15 @@ void tt_http_sconn_destroy(IN tt_http_sconn_t *c)
     __sconn_itf_t *itf = (__sconn_itf_t *)c->itf;
 
     itf->destroy(c);
+
+    __sconn_destroy(c);
 }
 
 void tt_http_sconn_attr_default(IN tt_http_sconn_attr_t *attr)
 {
     TT_ASSERT(attr != NULL);
+
+    attr->on_error = __sconn_on_error;
 
     tt_http_parser_attr_default(&attr->parser_attr);
 }
@@ -208,34 +214,189 @@ tt_result_t tt_http_sconn_run(IN tt_http_sconn_t *c)
         tt_u32_t len, recvd;
         tt_fiber_ev_t *ev;
         tt_tmr_t *tmr;
+        tt_result_t result;
 
         tt_http_parser_wpos(hp, &p, &len);
         if (len == 0) {
-            // send error resp
-            break;
+            c->on_error(c, TT_HTTP_SERVER_NO_SPACE);
+            return TT_FAIL;
         }
 
-        recvd = itf->recv(c, p, len, &recvd, &ev, &tmr);
-        if (recvd > 0) {
-            tt_http_parser_inc_wp(hp, recvd);
-        }
+        TT_CALL_TIMEOUT_START(result = itf->recv(c, p, len, &recvd, &ev, &tmr),
+                              c->tmr,
+                              5000,
+                              result = TT_FAIL)
+        {
+            if (!TT_OK(result)) {
+                // closed or error
+                return result;
+            }
 
-        if (ev != NULL) {
-        }
+            if (recvd > 0) {
+                tt_http_parser_inc_wp(hp, recvd);
 
-        if (tmr != NULL) {
+                while (tt_http_parser_rlen(hp) > 0) {
+                    tt_bool_t prev_uri = hp->complete_line1;
+                    tt_bool_t prev_header = hp->complete_header;
+                    tt_u32_t body_num = hp->body_counter;
+                    tt_bool_t prev_trailing = hp->complete_trailing_header;
+                    tt_bool_t prev_msg = hp->complete_message;
+
+                    if (!TT_OK(tt_http_parser_run(hp))) {
+                        c->on_error(c, TT_HTTP_SERVER_PARSE_FAIL);
+                        return TT_FAIL;
+                    }
+
+                    if (!prev_uri && hp->complete_line1) {
+                    }
+
+                    if (!prev_header && hp->complete_header) {
+                    }
+
+                    if (body_num < hp->body_counter) {
+                    }
+
+                    if (!prev_trailing && hp->complete_trailing_header) {
+                    }
+
+                    if (!prev_msg && hp->complete_message) {
+                    }
+                }
+            }
+
+            if (ev != NULL) {
+            }
+
+            if (tmr != NULL) {
+            }
         }
+        TT_CALL_TIMEOUT_END();
     }
 
     return TT_SUCCESS;
 }
 
-void __sconn_init(IN tt_http_sconn_t *c,
-                  IN __sconn_itf_t *itf,
-                  IN void *itf_opaque)
+tt_result_t tt_http_sconn_send(IN tt_http_sconn_t *c,
+                               IN tt_u8_t *buf,
+                               IN tt_u32_t len,
+                               OUT OPT tt_u32_t *sent)
+{
+    __sconn_itf_t *itf = (__sconn_itf_t *)c->itf;
+    return itf->send(c, buf, len, sent);
+}
+
+void __sconn_set_itf(IN tt_http_sconn_t *c,
+                     IN __sconn_itf_t *itf,
+                     IN void *itf_opaque)
 {
     c->itf = itf;
     c->itf_opaque = itf_opaque;
+}
+
+tt_result_t __sconn_create(IN tt_http_sconn_t *c, IN tt_http_sconn_attr_t *attr)
+{
+    tt_slab_t *rhs, *rvs;
+
+    tt_u32_t __done = 0;
+#define __SC_PARSER (1 << 0)
+#define __SC_TMR (1 << 1)
+
+    c->on_error = attr->on_error;
+
+    c->tmr = tt_tmr_create(0, 0, NULL);
+    if (c->tmr == NULL) {
+        TT_ERROR("fail to create http server timer");
+        goto fail;
+    }
+    __done |= __SC_TMR;
+
+    rhs = __local_rawhdr_slab();
+    rvs = __local_rawval_slab();
+    if ((rhs == NULL) || (rvs == NULL)) {
+        goto fail;
+    }
+
+    if (!TT_OK(
+            tt_http_parser_create(&c->parser, rhs, rvs, &attr->parser_attr))) {
+        goto fail;
+    }
+    __done |= __SC_PARSER;
+
+    return TT_SUCCESS;
+
+fail:
+
+    if (__done & __SC_TMR) {
+        tt_tmr_destroy(c->tmr);
+    }
+
+    if (__done & __SC_PARSER) {
+        tt_http_parser_destroy(&c->parser);
+    }
+
+    return TT_FAIL;
+}
+
+void __sconn_destroy(IN tt_http_sconn_t *c)
+{
+    tt_tmr_destroy(c->tmr);
+
+    tt_http_parser_destroy(&c->parser);
+}
+
+tt_slab_t *__local_rawhdr_slab()
+{
+    tt_thread_t *t = tt_current_thread();
+    if (t->http_rawhdr != NULL) {
+        tt_slab_t *s;
+        tt_slab_attr_t attr;
+
+        s = tt_malloc(sizeof(tt_slab_t));
+        if (s == NULL) {
+            TT_ERROR("no mem for http_rawhdr slab");
+            return NULL;
+        }
+
+        tt_slab_attr_default(&attr);
+        attr.bulk_num = 16; // to be adjusted
+        if (!TT_OK(tt_slab_create(s, sizeof(tt_http_rawhdr_t), &attr))) {
+            tt_free(s);
+            return NULL;
+        }
+
+        t->http_rawhdr = s;
+    }
+    return t->http_rawhdr;
+}
+
+tt_slab_t *__local_rawval_slab()
+{
+    tt_thread_t *t = tt_current_thread();
+    if (t->http_rawval != NULL) {
+        tt_slab_t *s;
+        tt_slab_attr_t attr;
+
+        s = tt_malloc(sizeof(tt_slab_t));
+        if (s == NULL) {
+            TT_ERROR("no mem for http_rawval slab");
+            return NULL;
+        }
+
+        tt_slab_attr_default(&attr);
+        attr.bulk_num = 16; // to be adjusted
+        if (!TT_OK(tt_slab_create(s, sizeof(tt_http_rawval_t), &attr))) {
+            tt_free(s);
+            return NULL;
+        }
+
+        t->http_rawval = s;
+    }
+    return t->http_rawval;
+}
+
+tt_bool_t __sconn_on_error(IN tt_http_sconn_t *c, IN tt_http_server_error_t e)
+{
+    return TT_TRUE;
 }
 
 // ========================================

@@ -49,7 +49,6 @@ struct tt_entropy_s;
 struct tt_ctr_drbg_s;
 struct tt_buf_s;
 struct tt_slab_s;
-struct tt_blobex_s;
 
 /**
  @typedef tt_result_t (*tt_thread_routine_t)(IN void *param)
@@ -106,6 +105,8 @@ typedef struct tt_thread_s
     struct tt_entropy_s *entropy;
     struct tt_ctr_drbg_s *ctr_drbg;
     struct tt_buf_s *backtrace;
+    struct tt_slab_s *http_rawhdr;
+    struct tt_slab_s *http_rawval;
 
     /** system thread handle */
     tt_thread_ntv_t sys_thread;

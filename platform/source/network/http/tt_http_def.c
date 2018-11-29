@@ -22,6 +22,8 @@
 
 #include <network/http/tt_http_def.h>
 
+#include <misc/tt_assert.h>
+
 ////////////////////////////////////////////////////////////
 // internal macro
 ////////////////////////////////////////////////////////////
@@ -50,6 +52,29 @@ tt_u32_t tt_g_http_hname_len[TT_HTTP_HNAME_NUM] = {
 #undef __ENTRY
 };
 
+const tt_char_t *tt_g_http_method[TT_HTTP_METHOD_NUM] = {
+#define XX(num, name, string) #string,
+    HTTP_METHOD_MAP(XX)
+#undef XX
+};
+
+tt_u32_t tt_g_http_method_len[TT_HTTP_METHOD_NUM] = {
+#define XX(num, name, string) sizeof(#string) - 1,
+    HTTP_METHOD_MAP(XX)
+#undef XX
+};
+
+const tt_char_t *tt_g_http_verion[TT_HTTP_VER_NUM] = {
+    "", "HTTP/1.0", "HTTP/1.1", "HTTP/2.0",
+};
+
+tt_u32_t tt_g_http_verion_len[TT_HTTP_VER_NUM] = {
+    sizeof("") - 1,
+    sizeof("HTTP/1.0") - 1,
+    sizeof("HTTP/1.1") - 1,
+    sizeof("HTTP/2.0") - 1,
+};
+
 ////////////////////////////////////////////////////////////
 // interface declaration
 ////////////////////////////////////////////////////////////
@@ -57,3 +82,25 @@ tt_u32_t tt_g_http_hname_len[TT_HTTP_HNAME_NUM] = {
 ////////////////////////////////////////////////////////////
 // interface implementation
 ////////////////////////////////////////////////////////////
+
+void tt_http_status_cstr(IN tt_http_status_t status,
+                         OUT const tt_char_t **s,
+                         OUT tt_u32_t *len)
+{
+    TT_ASSERT(TT_HTTP_STATUS_VALID(status));
+
+    switch (status) {
+#define XX(num, name, string)                                                  \
+    case TT_HTTP_STATUS_##name:                                                \
+        *s = #num " " #string;                                                 \
+        *len = sizeof(#num " " #string) - 1;                                   \
+        break;
+
+        HTTP_STATUS_MAP(XX)
+#undef XX
+
+        default:
+            TT_ASSERT_ALWAYS(0);
+            break;
+    }
+}

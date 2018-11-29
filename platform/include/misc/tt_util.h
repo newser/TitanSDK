@@ -317,6 +317,32 @@ used when a pointer in code need be assigned if it's not null
         TT_LIMIT_MAX(v, max);                                                  \
     } while (0)
 
+#define TT_CALL_TIMEOUT_START(call, tmr, ms, fail)                             \
+    do {                                                                       \
+        tt_s64_t __beg, __end, __t, __left = ms;                               \
+        do {                                                                   \
+            tt_tmr_set_delay(tmr, __left);                                     \
+            if (!TT_OK(tt_tmr_start(tmr))) {                                   \
+                TT_FATAL("fail to start timer");                               \
+                fail;                                                          \
+                break;                                                         \
+            }                                                                  \
+            __beg = tt_time_ref();                                             \
+            call;                                                              \
+            __end = tt_time_ref();
+
+
+#define TT_CALL_TIMEOUT_BREAK() break
+
+#define TT_CALL_TIMEOUT_END()                                                  \
+    __t = tt_time_ref2ms(__end - __beg);                                       \
+    __left = TT_COND(__left > __t, __left - __t, 0);                           \
+    }                                                                          \
+    while (1)                                                                  \
+        ;                                                                      \
+    }                                                                          \
+    while (0)
+
 ////////////////////////////////////////////////////////////
 // type definition
 ////////////////////////////////////////////////////////////

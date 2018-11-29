@@ -132,12 +132,13 @@ void tt_http_hval_destroy(IN tt_http_hval_t *hv)
     tt_free(hv);
 }
 
-void tt_http_hdr_init(IN tt_http_hdr_t *h,
-                      IN tt_http_hname_t name,
-                      IN tt_http_hdr_itf_t *itf,
-                      IN tt_http_hval_itf_t *val_itf)
+tt_http_hdr_t *tt_http_hdr_create(IN tt_u32_t extra_size,
+                                  IN tt_http_hname_t name,
+                                  IN tt_http_hdr_itf_t *itf,
+                                  IN tt_http_hval_itf_t *val_itf)
 {
-    TT_ASSERT(h != NULL);
+    tt_http_hdr_t *h;
+
     TT_ASSERT(TT_HTTP_HNAME_VALID(name));
     TT_ASSERT((itf != NULL) && (itf->parse != NULL) &&
               (itf->render_len != NULL) && (itf->render != NULL));
@@ -145,11 +146,19 @@ void tt_http_hdr_init(IN tt_http_hdr_t *h,
               (val_itf->destroy != NULL) && (val_itf->parse != NULL) &&
               (val_itf->render_len != NULL) && (val_itf->render != NULL));
 
+    h = tt_malloc(sizeof(tt_http_hdr_t) + extra_size);
+    if (h == NULL) {
+        TT_ERROR("no mem for http hdr");
+        return NULL;
+    }
+
     h->itf = itf;
     h->val_itf = val_itf;
     tt_dlist_init(&h->val);
     tt_dnode_init(&h->dnode);
     h->name = name;
+
+    return h;
 }
 
 void tt_http_hdr_destroy(IN tt_http_hdr_t *h)
@@ -158,6 +167,8 @@ void tt_http_hdr_destroy(IN tt_http_hdr_t *h)
     TT_ASSERT(!tt_dnode_in_dlist(&h->dnode));
 
     __clear_hval(h);
+
+    tt_free(h);
 }
 
 void tt_http_hdr_clear(IN tt_http_hdr_t *h)
@@ -165,6 +176,54 @@ void tt_http_hdr_clear(IN tt_http_hdr_t *h)
     TT_ASSERT(h != NULL);
 
     __clear_hval(h);
+}
+
+tt_http_hdr_t *tt_http_hdr_create_line_n(IN tt_http_hname_t name,
+                                         IN tt_char_t *val,
+                                         IN tt_u32_t len)
+{
+    tt_http_hdr_t *h;
+
+    h = tt_http_hdr_create(0,
+                           name,
+                           &tt_g_http_hdr_line_itf,
+                           &tt_g_http_hval_blob_itf);
+    if (h == NULL) {
+        return NULL;
+    }
+
+    if (!TT_OK(__add_hval(h, val, len))) {
+        tt_http_hdr_destroy(h);
+        return NULL;
+    }
+
+    return h;
+}
+
+tt_http_hdr_t *tt_http_hdr_create_cs(IN tt_http_hname_t name,
+                                     IN tt_blobex_t *val,
+                                     IN tt_u32_t num)
+{
+    tt_http_hdr_t *h;
+    tt_u32_t i;
+
+    h = tt_http_hdr_create(0,
+                           name,
+                           &tt_g_http_hdr_cs_itf,
+                           &tt_g_http_hval_blob_itf);
+    if (h == NULL) {
+        return NULL;
+    }
+
+    for (i = 0; i < num; ++i) {
+        tt_blobex_t *bex = &val[i];
+        if (!TT_OK(__add_hval(h, tt_blobex_addr(bex), tt_blobex_len(bex)))) {
+            tt_http_hdr_destroy(h);
+            return NULL;
+        }
+    }
+
+    return h;
 }
 
 void __clear_hval(IN tt_http_hdr_t *h)
