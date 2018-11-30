@@ -20,7 +20,7 @@
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <network/http/tt_http_in_service.h>
+#include <network/http/tt_http_out_service.h>
 
 ////////////////////////////////////////////////////////////
 // internal macro
@@ -46,18 +46,18 @@
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-tt_http_inserv_t *tt_http_inserv_init(IN tt_u32_t extra_size,
-                                      IN tt_http_inserv_itf_t *itf,
-                                      IN tt_http_inserv_cb_t *cb)
+tt_http_outserv_t *tt_http_outserv_init(IN tt_u32_t extra_size,
+                                        IN tt_http_outserv_itf_t *itf,
+                                        IN tt_http_outserv_cb_t *cb)
 {
-    tt_http_inserv_t *s;
+    tt_http_outserv_t *s;
 
     TT_ASSERT(itf != NULL);
     TT_ASSERT(cb != NULL);
 
-    s = tt_malloc(sizeof(tt_http_inserv_t) + extra_size);
+    s = tt_malloc(sizeof(tt_http_outserv_t) + extra_size);
     if (s == NULL) {
-        TT_ERROR("no mem for http inserv");
+        TT_ERROR("no mem for http outserv");
         return NULL;
     }
 

@@ -317,26 +317,30 @@ used when a pointer in code need be assigned if it's not null
         TT_LIMIT_MAX(v, max);                                                  \
     } while (0)
 
-#define TT_CALL_TIMEOUT_START(call, tmr, ms, fail)                             \
+// - must able to receive timer
+// - must check fail_exp and call TT_TIMEOUT_EXIT()
+// - must check if timer expired and call TT_TIMEOUT_EXIT()
+#define TT_TIMEOUT_BEGIN(tmr, ms)                                              \
     do {                                                                       \
-        tt_s64_t __beg, __end, __t, __left = ms;                               \
+        tt_s64_t __beg, __end, __elapsed, __left = ms;                         \
         do {                                                                   \
             tt_tmr_set_delay(tmr, __left);                                     \
-            if (!TT_OK(tt_tmr_start(tmr))) {                                   \
-                TT_FATAL("fail to start timer");                               \
-                fail;                                                          \
-                break;                                                         \
-            }                                                                  \
-            __beg = tt_time_ref();                                             \
-            call;                                                              \
-            __end = tt_time_ref();
+            if (TT_OK(tt_tmr_start(tmr))) {                                    \
+                __beg = tt_time_ref();
 
+#define TT_TIMEOUT_CHECK(fail_exp)                                             \
+    }                                                                          \
+    else                                                                       \
+    {                                                                          \
+        fail_exp;                                                              \
+    }
 
-#define TT_CALL_TIMEOUT_BREAK() break
+#define TT_TIMEOUT_EXIT() break
 
-#define TT_CALL_TIMEOUT_END()                                                  \
-    __t = tt_time_ref2ms(__end - __beg);                                       \
-    __left = TT_COND(__left > __t, __left - __t, 0);                           \
+#define TT_TIMEOUT_END()                                                       \
+    __end = tt_time_ref();                                                     \
+    __elapsed = tt_time_ref2ms(__end - __beg);                                 \
+    __left = TT_COND(__left > __elapsed, __left - __elapsed, 0);               \
     }                                                                          \
     while (1)                                                                  \
         ;                                                                      \

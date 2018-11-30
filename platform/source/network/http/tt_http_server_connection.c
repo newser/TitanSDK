@@ -222,55 +222,55 @@ tt_result_t tt_http_sconn_run(IN tt_http_sconn_t *c)
             return TT_FAIL;
         }
 
-        TT_CALL_TIMEOUT_START(result = itf->recv(c, p, len, &recvd, &ev, &tmr),
-                              c->tmr,
-                              5000,
-                              result = TT_FAIL)
-        {
-            if (!TT_OK(result)) {
-                // closed or error
-                return result;
-            }
+        TT_TIMEOUT_BEGIN(c->tmr, 5000);
+        result = itf->recv(c, p, len, &recvd, &ev, &tmr);
+        TT_TIMEOUT_CHECK(result = TT_FAIL);
+        if (result == TT_E_END) {
+            // remote closed
+        } else if (!TT_OK(result)) {
+            // error
+            return result;
+        }
 
-            if (recvd > 0) {
-                tt_http_parser_inc_wp(hp, recvd);
+        if (recvd > 0) {
+            tt_http_parser_inc_wp(hp, recvd);
 
-                while (tt_http_parser_rlen(hp) > 0) {
-                    tt_bool_t prev_uri = hp->complete_line1;
-                    tt_bool_t prev_header = hp->complete_header;
-                    tt_u32_t body_num = hp->body_counter;
-                    tt_bool_t prev_trailing = hp->complete_trailing_header;
-                    tt_bool_t prev_msg = hp->complete_message;
+            while (tt_http_parser_rlen(hp) > 0) {
+                tt_bool_t prev_uri = hp->complete_line1;
+                tt_bool_t prev_header = hp->complete_header;
+                tt_u32_t body_num = hp->body_counter;
+                tt_bool_t prev_trailing = hp->complete_trailing_header;
+                tt_bool_t prev_msg = hp->complete_message;
 
-                    if (!TT_OK(tt_http_parser_run(hp))) {
-                        c->on_error(c, TT_HTTP_SERVER_PARSE_FAIL);
-                        return TT_FAIL;
-                    }
+                if (!TT_OK(tt_http_parser_run(hp))) {
+                    c->on_error(c, TT_HTTP_SERVER_PARSE_FAIL);
+                    return TT_FAIL;
+                }
 
-                    if (!prev_uri && hp->complete_line1) {
-                    }
+                if (!prev_uri && hp->complete_line1) {
+                }
 
-                    if (!prev_header && hp->complete_header) {
-                    }
+                if (!prev_header && hp->complete_header) {
+                }
 
-                    if (body_num < hp->body_counter) {
-                    }
+                if (body_num < hp->body_counter) {
+                }
 
-                    if (!prev_trailing && hp->complete_trailing_header) {
-                    }
+                if (!prev_trailing && hp->complete_trailing_header) {
+                }
 
-                    if (!prev_msg && hp->complete_message) {
-                    }
+                if (!prev_msg && hp->complete_message) {
                 }
             }
-
-            if (ev != NULL) {
-            }
-
-            if (tmr != NULL) {
-            }
         }
-        TT_CALL_TIMEOUT_END();
+
+        if (ev != NULL) {
+        }
+
+        if (tmr != NULL) {
+        }
+
+        TT_TIMEOUT_END();
     }
 
     return TT_SUCCESS;

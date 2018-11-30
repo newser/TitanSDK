@@ -1,0 +1,119 @@
+/* Copyright (C) 2017 haniu (niuhao.cn@gmail.com)
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/**
+@file tt_http_service_manager.h
+@brief http service manager
+
+this file defines http service manager APIs
+*/
+
+#ifndef __TT_HTTP_SERVICE_MANAGER__
+#define __TT_HTTP_SERVICE_MANAGER__
+
+////////////////////////////////////////////////////////////
+// import header files
+////////////////////////////////////////////////////////////
+
+#include <algorithm/tt_double_linked_list.h>
+#include <network/http/tt_http_in_service.h>
+#include <network/http/tt_http_out_service.h>
+
+////////////////////////////////////////////////////////////
+// macro definition
+////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////
+// type definition
+////////////////////////////////////////////////////////////
+
+struct tt_http_parser_s;
+struct tt_http_resp_render_s;
+
+typedef struct tt_http_svcmgr_s
+{
+    tt_http_inserv_t *owner;
+    tt_dlist_t inserv;
+    tt_dlist_t outserv;
+} tt_http_svcmgr_t;
+
+////////////////////////////////////////////////////////////
+// global variants
+////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////
+// interface declaration
+////////////////////////////////////////////////////////////
+
+tt_export void tt_http_svcmgr_init(IN tt_http_svcmgr_t *sm);
+
+tt_export void tt_http_svcmgr_destroy(IN tt_http_svcmgr_t *sm);
+
+tt_export void tt_http_svcmgr_clear(IN tt_http_svcmgr_t *sm);
+
+tt_inline void tt_http_svcmgr_add_inserv(IN tt_http_svcmgr_t *sm,
+                                         IN tt_http_inserv_t *s)
+{
+    tt_dlist_push_tail(&sm->inserv, &s->dnode);
+}
+
+tt_inline void tt_http_svcmgr_add_outserv(IN tt_http_svcmgr_t *sm,
+                                          IN tt_http_outserv_t *s)
+{
+    tt_dlist_push_tail(&sm->outserv, &s->dnode);
+}
+
+// ========================================
+// incoming request
+// ========================================
+
+tt_export tt_http_inserv_action_t
+tt_http_svcmgr_on_uri(IN tt_http_svcmgr_t *sm,
+                      IN struct tt_http_parser_s *req,
+                      OUT struct tt_http_resp_render_s *resp);
+
+tt_export tt_http_inserv_action_t
+tt_http_svcmgr_on_header(IN tt_http_svcmgr_t *sm,
+                         IN struct tt_http_parser_s *req,
+                         OUT struct tt_http_resp_render_s *resp);
+
+tt_export tt_http_inserv_action_t
+tt_http_svcmgr_on_body(IN tt_http_svcmgr_t *sm,
+                       IN struct tt_http_parser_s *req,
+                       OUT struct tt_http_resp_render_s *resp);
+
+tt_export tt_http_inserv_action_t
+tt_http_svcmgr_on_trailing(IN tt_http_svcmgr_t *sm,
+                           IN struct tt_http_parser_s *req,
+                           OUT struct tt_http_resp_render_s *resp);
+
+tt_export tt_http_inserv_action_t
+tt_http_svcmgr_on_complete(IN tt_http_svcmgr_t *sm,
+                           IN struct tt_http_parser_s *req,
+                           OUT struct tt_http_resp_render_s *resp);
+
+// ========================================
+// outgoing response
+// ========================================
+
+tt_export void tt_http_svcmgr_on_resp(
+    IN tt_http_svcmgr_t *sm,
+    IN struct tt_http_parser_s *req,
+    IN OUT struct tt_http_resp_render_s *resp);
+
+#endif /* __TT_HTTP_SERVICE_MANAGER__ */

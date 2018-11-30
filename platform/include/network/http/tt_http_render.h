@@ -51,7 +51,7 @@ typedef struct
     tt_http_ver_t version;
 } tt_http_render_t;
 
-typedef struct
+typedef struct tt_http_req_render_s
 {
     tt_uri_t uri;
     tt_http_method_t method;
@@ -63,7 +63,7 @@ typedef struct
     tt_buf_attr_t buf_attr;
 } tt_http_req_render_attr_t;
 
-typedef struct
+typedef struct tt_http_resp_render_s
 {
     tt_http_render_t render;
     tt_http_status_t status;

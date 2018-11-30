@@ -31,6 +31,7 @@ this file defines http incoming service APIs
 ////////////////////////////////////////////////////////////
 
 #include <algorithm/tt_double_linked_list.h>
+#include <memory/tt_memory_alloc.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
@@ -45,6 +46,7 @@ this file defines http incoming service APIs
 
 struct tt_http_inserv_s;
 struct tt_http_parser_s;
+struct tt_http_resp_render_s;
 
 typedef enum {
     TT_HTTP_INSERV_ACT_CLOSE,
@@ -69,7 +71,9 @@ typedef struct
 } tt_http_inserv_itf_t;
 
 typedef tt_http_inserv_action_t (*tt_http_inserv_on_ev_t)(
-    IN struct tt_http_inserv_s *s, IN struct tt_http_parser_s *hp);
+    IN struct tt_http_inserv_s *s,
+    IN struct tt_http_parser_s *req,
+    OUT struct tt_http_resp_render_s *resp);
 
 typedef struct
 {
@@ -87,6 +91,13 @@ typedef struct tt_http_inserv_s
     tt_dnode_t dnode;
 } tt_http_inserv_t;
 
+typedef enum {
+    TT_HTTP_INSERV_DEFAULT,
+
+    TT_HTTP_INSERV_ID_NUM
+} tt_http_inserv_id_t;
+#define TT_HTTP_INSERV_ID_VAILID(i) ((i) < TT_HTTP_INSERV_ID_NUM)
+
 ////////////////////////////////////////////////////////////
 // global variants
 ////////////////////////////////////////////////////////////
@@ -95,9 +106,9 @@ typedef struct tt_http_inserv_s
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-tt_export void tt_http_inserv_init(IN tt_http_inserv_t *s,
-                                   IN tt_http_inserv_itf_t *itf,
-                                   IN tt_http_inserv_cb_t *cb);
+tt_export tt_http_inserv_t *tt_http_inserv_init(IN tt_u32_t extra_size,
+                                                IN tt_http_inserv_itf_t *itf,
+                                                IN tt_http_inserv_cb_t *cb);
 
 tt_inline void tt_http_inserv_destroy(IN tt_http_inserv_t *s)
 {
@@ -106,6 +117,8 @@ tt_inline void tt_http_inserv_destroy(IN tt_http_inserv_t *s)
     if (s->itf->destroy != NULL) {
         s->itf->destroy(s);
     }
+
+    tt_free(s);
 }
 
 tt_inline void tt_http_inserv_clear(IN tt_http_inserv_t *s)
@@ -116,50 +129,60 @@ tt_inline void tt_http_inserv_clear(IN tt_http_inserv_t *s)
 }
 
 tt_inline tt_http_inserv_action_t
-tt_http_inserv_on_uri(IN tt_http_inserv_t *s, IN struct tt_http_parser_s *hp)
+tt_http_inserv_on_uri(IN tt_http_inserv_t *s,
+                      IN struct tt_http_parser_s *req,
+                      OUT struct tt_http_resp_render_s *resp)
 {
     if (s->cb->on_uri != NULL) {
-        return s->cb->on_uri(s, hp);
+        return s->cb->on_uri(s, req, resp);
     } else {
         return TT_HTTP_INSERV_ACT_IGNORE;
     }
 }
 
 tt_inline tt_http_inserv_action_t
-tt_http_inserv_on_header(IN tt_http_inserv_t *s, IN struct tt_http_parser_s *hp)
+tt_http_inserv_on_header(IN tt_http_inserv_t *s,
+                         IN struct tt_http_parser_s *req,
+                         OUT struct tt_http_resp_render_s *resp)
 {
     if (s->cb->on_header != NULL) {
-        return s->cb->on_header(s, hp);
+        return s->cb->on_header(s, req, resp);
     } else {
         return TT_HTTP_INSERV_ACT_IGNORE;
     }
 }
 
 tt_inline tt_http_inserv_action_t
-tt_http_inserv_on_body(IN tt_http_inserv_t *s, IN struct tt_http_parser_s *hp)
+tt_http_inserv_on_body(IN tt_http_inserv_t *s,
+                       IN struct tt_http_parser_s *req,
+                       OUT struct tt_http_resp_render_s *resp)
 {
     if (s->cb->on_body != NULL) {
-        return s->cb->on_body(s, hp);
+        return s->cb->on_body(s, req, resp);
     } else {
         return TT_HTTP_INSERV_ACT_IGNORE;
     }
 }
 
-tt_inline tt_http_inserv_action_t tt_http_inserv_on_trailing(
-    IN tt_http_inserv_t *s, IN struct tt_http_parser_s *hp)
+tt_inline tt_http_inserv_action_t
+tt_http_inserv_on_trailing(IN tt_http_inserv_t *s,
+                           IN struct tt_http_parser_s *req,
+                           OUT struct tt_http_resp_render_s *resp)
 {
     if (s->cb->on_trailing != NULL) {
-        return s->cb->on_trailing(s, hp);
+        return s->cb->on_trailing(s, req, resp);
     } else {
         return TT_HTTP_INSERV_ACT_IGNORE;
     }
 }
 
-tt_inline tt_http_inserv_action_t tt_http_inserv_on_complete(
-    IN tt_http_inserv_t *s, IN struct tt_http_parser_s *hp)
+tt_inline tt_http_inserv_action_t
+tt_http_inserv_on_complete(IN tt_http_inserv_t *s,
+                           IN struct tt_http_parser_s *req,
+                           OUT struct tt_http_resp_render_s *resp)
 {
     if (s->cb->on_complete != NULL) {
-        return s->cb->on_complete(s, hp);
+        return s->cb->on_complete(s, req, resp);
     } else {
         return TT_HTTP_INSERV_ACT_IGNORE;
     }
