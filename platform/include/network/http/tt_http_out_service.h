@@ -37,8 +37,8 @@ this file defines http outgoing service APIs
 // macro definition
 ////////////////////////////////////////////////////////////
 
-#define TT_HTTP_OUTSERV_CAST(hv, name)                                         \
-    TT_PTR_INC(name, hv, sizeof(tt_http_outserv_t))
+#define TT_HTTP_OUTSERV_CAST(s, name)                                          \
+    TT_PTR_INC(name, s, sizeof(tt_http_outserv_t))
 
 ////////////////////////////////////////////////////////////
 // type definition
@@ -90,9 +90,10 @@ typedef enum {
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-tt_export tt_http_outserv_t *tt_http_outserv_init(IN tt_u32_t extra_size,
-                                                  IN tt_http_outserv_itf_t *itf,
-                                                  IN tt_http_outserv_cb_t *cb);
+tt_export tt_http_outserv_t *tt_http_outserv_create(
+    IN tt_u32_t extra_size,
+    IN tt_http_outserv_itf_t *itf,
+    IN tt_http_outserv_cb_t *cb);
 
 tt_inline void tt_http_outserv_destroy(IN tt_http_outserv_t *s)
 {

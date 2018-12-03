@@ -50,6 +50,7 @@ typedef struct tt_http_svcmgr_s
     tt_http_inserv_t *owner;
     tt_dlist_t inserv;
     tt_dlist_t outserv;
+    tt_bool_t discarding : 1;
 } tt_http_svcmgr_t;
 
 ////////////////////////////////////////////////////////////
@@ -67,13 +68,13 @@ tt_export void tt_http_svcmgr_destroy(IN tt_http_svcmgr_t *sm);
 tt_export void tt_http_svcmgr_clear(IN tt_http_svcmgr_t *sm);
 
 tt_inline void tt_http_svcmgr_add_inserv(IN tt_http_svcmgr_t *sm,
-                                         IN tt_http_inserv_t *s)
+                                         IN TO tt_http_inserv_t *s)
 {
     tt_dlist_push_tail(&sm->inserv, &s->dnode);
 }
 
 tt_inline void tt_http_svcmgr_add_outserv(IN tt_http_svcmgr_t *sm,
-                                          IN tt_http_outserv_t *s)
+                                          IN TO tt_http_outserv_t *s)
 {
     tt_dlist_push_tail(&sm->outserv, &s->dnode);
 }

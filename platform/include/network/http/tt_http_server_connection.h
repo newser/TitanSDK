@@ -31,6 +31,8 @@ this file defines http server connection
 ////////////////////////////////////////////////////////////
 
 #include <network/http/tt_http_parser.h>
+#include <network/http/tt_http_render.h>
+#include <network/http/tt_http_service_manager.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
@@ -45,30 +47,21 @@ struct tt_skt_s;
 struct tt_ssl_s;
 struct tt_tmr_s;
 
-typedef enum {
-    TT_HTTP_SERVER_NO_SPACE,
-    TT_HTTP_SERVER_PARSE_FAIL,
-
-    TT_HTTP_SERVER_ERROR_NUM
-} tt_http_server_error_t;
-#define TT_HTTP_SERVER_ERROR_VALID(e) ((e) < TT_HTTP_SERVER_ERROR_NUM)
-
-typedef tt_bool_t (*tt_http_sconn_on_error_t)(IN struct tt_http_sconn_s *c,
-                                              IN tt_http_server_error_t e);
-
 typedef struct tt_http_sconn_s
 {
     void *itf;
     void *itf_opaque;
-    tt_http_sconn_on_error_t on_error;
     struct tt_tmr_s *tmr;
+    tt_http_svcmgr_t svcmgr;
     tt_http_parser_t parser;
+    tt_http_resp_render_t render;
+    tt_bool_t discarding : 1;
 } tt_http_sconn_t;
 
 typedef struct
 {
-    tt_http_sconn_on_error_t on_error;
     tt_http_parser_attr_t parser_attr;
+    tt_http_resp_render_attr_t render_attr;
 } tt_http_sconn_attr_t;
 
 ////////////////////////////////////////////////////////////
@@ -93,7 +86,8 @@ tt_export void tt_http_sconn_destroy(IN tt_http_sconn_t *c);
 
 tt_export void tt_http_sconn_attr_default(IN tt_http_sconn_attr_t *attr);
 
-tt_export tt_result_t tt_http_sconn_run(IN tt_http_sconn_t *c);
+// false to close connection
+tt_export tt_bool_t tt_http_sconn_run(IN tt_http_sconn_t *c);
 
 tt_export tt_result_t tt_http_sconn_send(IN tt_http_sconn_t *c,
                                          IN tt_u8_t *buf,

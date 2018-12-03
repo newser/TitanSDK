@@ -328,7 +328,7 @@ used when a pointer in code need be assigned if it's not null
             if (TT_OK(tt_tmr_start(tmr))) {                                    \
                 __beg = tt_time_ref();
 
-#define TT_TIMEOUT_CHECK(fail_exp)                                             \
+#define TT_TIMEOUT_IF_ERROR(fail_exp)                                          \
     }                                                                          \
     else                                                                       \
     {                                                                          \

@@ -46,9 +46,9 @@
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-tt_http_inserv_t *tt_http_inserv_init(IN tt_u32_t extra_size,
-                                      IN tt_http_inserv_itf_t *itf,
-                                      IN tt_http_inserv_cb_t *cb)
+tt_http_inserv_t *tt_http_inserv_create(IN tt_u32_t extra_size,
+                                        IN tt_http_inserv_itf_t *itf,
+                                        IN tt_http_inserv_cb_t *cb)
 {
     tt_http_inserv_t *s;
 
@@ -65,5 +65,5 @@ tt_http_inserv_t *tt_http_inserv_init(IN tt_u32_t extra_size,
     s->cb = cb;
     tt_dnode_init(&s->dnode);
 
-    return NULL;
+    return s;
 }

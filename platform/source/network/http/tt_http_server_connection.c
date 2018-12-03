@@ -39,6 +39,14 @@
 // internal type
 ////////////////////////////////////////////////////////////
 
+typedef enum {
+    TT_HTTP_SERVER_NO_SPACE,
+    TT_HTTP_SERVER_PARSE_FAIL,
+
+    TT_HTTP_SERVER_ERROR_NUM
+} tt_http_server_error_t;
+#define TT_HTTP_SERVER_ERROR_VALID(e) ((e) < TT_HTTP_SERVER_ERROR_NUM)
+
 typedef tt_result_t (*__sconn_send_t)(IN tt_http_sconn_t *c,
                                       IN tt_u8_t *buf,
                                       IN tt_u32_t len,
@@ -137,8 +145,10 @@ static tt_slab_t *__local_rawhdr_slab();
 
 static tt_slab_t *__local_rawval_slab();
 
-static tt_bool_t __sconn_on_error(IN tt_http_sconn_t *c,
-                                  IN tt_http_server_error_t e);
+static void __sconn_on_error(IN tt_http_sconn_t *c,
+                             IN tt_http_server_error_t e);
+
+static tt_result_t __sconn_send_resp(IN tt_http_sconn_t *c);
 
 ////////////////////////////////////////////////////////////
 // interface implementation
@@ -199,12 +209,12 @@ void tt_http_sconn_attr_default(IN tt_http_sconn_attr_t *attr)
 {
     TT_ASSERT(attr != NULL);
 
-    attr->on_error = __sconn_on_error;
-
     tt_http_parser_attr_default(&attr->parser_attr);
+
+    tt_http_resp_render_attr_default(&attr->render_attr);
 }
 
-tt_result_t tt_http_sconn_run(IN tt_http_sconn_t *c)
+tt_bool_t tt_http_sconn_run(IN tt_http_sconn_t *c)
 {
     tt_http_parser_t *hp = &c->parser;
     __sconn_itf_t *itf = (__sconn_itf_t *)c->itf;
@@ -215,21 +225,24 @@ tt_result_t tt_http_sconn_run(IN tt_http_sconn_t *c)
         tt_fiber_ev_t *ev;
         tt_tmr_t *tmr;
         tt_result_t result;
+        tt_http_inserv_action_t action;
 
         tt_http_parser_wpos(hp, &p, &len);
         if (len == 0) {
-            c->on_error(c, TT_HTTP_SERVER_NO_SPACE);
-            return TT_FAIL;
+            __sconn_on_error(c, TT_HTTP_SERVER_NO_SPACE);
+            return TT_FALSE;
         }
 
         TT_TIMEOUT_BEGIN(c->tmr, 5000);
         result = itf->recv(c, p, len, &recvd, &ev, &tmr);
-        TT_TIMEOUT_CHECK(result = TT_FAIL);
+        TT_TIMEOUT_IF_ERROR(result = TT_FAIL);
         if (result == TT_E_END) {
-            // remote closed
+            // remote shutdown write, to close connection
+            itf->shut(c, TT_HTTP_SHUT_WR);
+            return TT_FALSE;
         } else if (!TT_OK(result)) {
-            // error
-            return result;
+            // connection is broken, won't send response
+            return TT_FALSE;
         }
 
         if (recvd > 0) {
@@ -243,11 +256,28 @@ tt_result_t tt_http_sconn_run(IN tt_http_sconn_t *c)
                 tt_bool_t prev_msg = hp->complete_message;
 
                 if (!TT_OK(tt_http_parser_run(hp))) {
-                    c->on_error(c, TT_HTTP_SERVER_PARSE_FAIL);
-                    return TT_FAIL;
+                    __sconn_on_error(c, TT_HTTP_SERVER_PARSE_FAIL);
+                    return TT_FALSE;
                 }
 
                 if (!prev_uri && hp->complete_line1) {
+                    action = tt_http_svcmgr_on_uri(&c->svcmgr, hp, &c->render);
+                    switch (action) {
+                        case TT_HTTP_INSERV_ACT_CLOSE: {
+                            return TT_FALSE;
+                        } break;
+                        case TT_HTTP_INSERV_ACT_SHUTDOWN: {
+                            __sconn_send_resp(c);
+                            itf->shut(c, TT_HTTP_SHUT_WR);
+                            return TT_FALSE;
+                        } break;
+                        case TT_HTTP_INSERV_ACT_DISCARD: {
+                            c->discarding = TT_TRUE;
+                        } break;
+
+                        default:
+                            break;
+                    }
                 }
 
                 if (!prev_header && hp->complete_header) {
@@ -298,10 +328,10 @@ tt_result_t __sconn_create(IN tt_http_sconn_t *c, IN tt_http_sconn_attr_t *attr)
     tt_slab_t *rhs, *rvs;
 
     tt_u32_t __done = 0;
-#define __SC_PARSER (1 << 0)
-#define __SC_TMR (1 << 1)
-
-    c->on_error = attr->on_error;
+#define __SC_TMR (1 << 0)
+#define __SC_SVCMGR (1 << 1)
+#define __SC_PARSER (1 << 2)
+#define __SC_RENDER (1 << 3)
 
     c->tmr = tt_tmr_create(0, 0, NULL);
     if (c->tmr == NULL) {
@@ -309,6 +339,9 @@ tt_result_t __sconn_create(IN tt_http_sconn_t *c, IN tt_http_sconn_attr_t *attr)
         goto fail;
     }
     __done |= __SC_TMR;
+
+    tt_http_svcmgr_init(&c->svcmgr);
+    __done |= __SC_SVCMGR;
 
     rhs = __local_rawhdr_slab();
     rvs = __local_rawval_slab();
@@ -322,6 +355,9 @@ tt_result_t __sconn_create(IN tt_http_sconn_t *c, IN tt_http_sconn_attr_t *attr)
     }
     __done |= __SC_PARSER;
 
+    tt_http_resp_render_init(&c->render, &attr->render_attr);
+    __done |= __SC_RENDER;
+
     return TT_SUCCESS;
 
 fail:
@@ -330,8 +366,16 @@ fail:
         tt_tmr_destroy(c->tmr);
     }
 
+    if (__done & __SC_SVCMGR) {
+        tt_http_svcmgr_destroy(&c->svcmgr);
+    }
+
     if (__done & __SC_PARSER) {
         tt_http_parser_destroy(&c->parser);
+    }
+
+    if (__done & __SC_RENDER) {
+        tt_http_resp_render_destroy(&c->render);
     }
 
     return TT_FAIL;
@@ -341,7 +385,11 @@ void __sconn_destroy(IN tt_http_sconn_t *c)
 {
     tt_tmr_destroy(c->tmr);
 
+    tt_http_svcmgr_destroy(&c->svcmgr);
+
     tt_http_parser_destroy(&c->parser);
+
+    tt_http_resp_render_destroy(&c->render);
 }
 
 tt_slab_t *__local_rawhdr_slab()
@@ -394,9 +442,71 @@ tt_slab_t *__local_rawval_slab()
     return t->http_rawval;
 }
 
-tt_bool_t __sconn_on_error(IN tt_http_sconn_t *c, IN tt_http_server_error_t e)
+void __sconn_on_error(IN tt_http_sconn_t *c, IN tt_http_server_error_t e)
 {
-    return TT_TRUE;
+    tt_http_parser_t *req = &c->parser;
+    tt_http_resp_render_t *resp = &c->render;
+
+    switch (e) {
+        case TT_HTTP_SERVER_NO_SPACE: {
+            if (!req->complete_line1) {
+                tt_http_resp_render_set_status(resp,
+                                               TT_HTTP_STATUS_URI_TOO_LONG);
+            } else if (!req->complete_header) {
+                tt_http_resp_render_set_status(
+                    resp, TT_HTTP_STATUS_REQUEST_HEADER_FIELDS_TOO_LARGE);
+            } else {
+                tt_http_resp_render_set_status(
+                    resp, TT_HTTP_STATUS_PAYLOAD_TOO_LARGE);
+            }
+        } break;
+
+        default: {
+            static tt_http_status_t status_errmap[TT_HTTP_SERVER_ERROR_NUM] = {
+                TT_HTTP_STATUS_INVALID, TT_HTTP_STATUS_BAD_REQUEST,
+            };
+
+            tt_http_resp_render_set_status(resp, status_errmap[e]);
+        } break;
+    }
+
+    __sconn_send_resp(c);
+}
+
+tt_result_t __sconn_send_resp(IN tt_http_sconn_t *c)
+{
+    tt_http_parser_t *req = &c->parser;
+    tt_http_resp_render_t *resp = &c->render;
+    tt_http_status_t status;
+    tt_http_ver_t ver;
+
+    status = tt_http_resp_render_get_status(resp);
+    if (!TT_HTTP_STATUS_VALID(status)) {
+#if 0
+        TT_WARN("no status set, send 500 Internal Server Error");
+        tt_http_resp_render_set_status(resp,
+                                       TT_HTTP_STATUS_INTERNAL_SERVER_ERROR);
+#else
+        // no valid resp status means no need to send response
+        return TT_SUCCESS;
+#endif
+    }
+
+    ver = tt_http_parser_get_version(req);
+    if (TT_HTTP_VER_VALID(ver)) {
+        tt_http_resp_render_set_version(resp, ver);
+    } else {
+        // use default
+        tt_http_resp_render_set_version(resp, TT_HTTP_V1_1);
+    }
+
+    tt_http_svcmgr_on_resp(&c->svcmgr,
+                           TT_COND(req->complete_header, req, NULL),
+                           resp);
+
+    // todo: send resp
+
+    return TT_SUCCESS;
 }
 
 // ========================================

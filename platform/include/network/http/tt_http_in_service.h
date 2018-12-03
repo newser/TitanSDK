@@ -37,8 +37,8 @@ this file defines http incoming service APIs
 // macro definition
 ////////////////////////////////////////////////////////////
 
-#define TT_HTTP_INSERV_CAST(hv, name)                                          \
-    TT_PTR_INC(name, hv, sizeof(tt_http_inserv_t))
+#define TT_HTTP_INSERV_CAST(s, name)                                           \
+    TT_PTR_INC(name, s, sizeof(tt_http_inserv_t))
 
 ////////////////////////////////////////////////////////////
 // type definition
@@ -49,11 +49,38 @@ struct tt_http_parser_s;
 struct tt_http_resp_render_s;
 
 typedef enum {
+    /*
+     service should: n/a
+     caller should: close connection
+     */
     TT_HTTP_INSERV_ACT_CLOSE,
+
+    /*
+     service should: optionally set response status code
+     caller should: send response if set, then shutdown connection
+     */
     TT_HTTP_INSERV_ACT_SHUTDOWN,
+
+    /*
+     service should: optionally set response status code
+     caller should: recv entire request, send response(500 if not set), then
+     shutdown connection
+     */
     TT_HTTP_INSERV_ACT_DISCARD,
+
+    /*
+     service should: n/a
+     caller should: n/a
+     */
     TT_HTTP_INSERV_ACT_IGNORE,
-    TT_HTTP_INSERV_ACT_INTERESTED,
+
+    // TT_HTTP_INSERV_ACT_INTERESTED,
+
+    /*
+     service should: set status code in on_complete()
+     caller should: recv entire request, send response(500 if not set), then
+     shutdown connection
+     */
     TT_HTTP_INSERV_ACT_OWNER,
 
     TT_HTTP_INSERV_ACT_NUM
@@ -106,9 +133,9 @@ typedef enum {
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-tt_export tt_http_inserv_t *tt_http_inserv_init(IN tt_u32_t extra_size,
-                                                IN tt_http_inserv_itf_t *itf,
-                                                IN tt_http_inserv_cb_t *cb);
+tt_export tt_http_inserv_t *tt_http_inserv_create(IN tt_u32_t extra_size,
+                                                  IN tt_http_inserv_itf_t *itf,
+                                                  IN tt_http_inserv_cb_t *cb);
 
 tt_inline void tt_http_inserv_destroy(IN tt_http_inserv_t *s)
 {

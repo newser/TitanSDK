@@ -5,7 +5,7 @@
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * the License.  You may obtain act copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -22,6 +22,7 @@
 
 #include <network/http/tt_http_service_manager.h>
 
+#include <network/http/tt_http_parser.h>
 #include <network/http/tt_http_render.h>
 
 ////////////////////////////////////////////////////////////
@@ -55,6 +56,7 @@ void tt_http_svcmgr_init(IN tt_http_svcmgr_t *sm)
     sm->owner = NULL;
     tt_dlist_init(&sm->inserv);
     tt_dlist_init(&sm->outserv);
+    sm->discarding = TT_FALSE;
 }
 
 void tt_http_svcmgr_destroy(IN tt_http_svcmgr_t *sm)
@@ -91,109 +93,165 @@ void tt_http_svcmgr_clear(IN tt_http_svcmgr_t *sm)
         tt_http_outserv_clear(TT_CONTAINER(dn, tt_http_outserv_t, dnode));
         dn = dn->next;
     }
+
+    sm->discarding = TT_FALSE;
 }
 
 tt_http_inserv_action_t tt_http_svcmgr_on_uri(IN tt_http_svcmgr_t *sm,
-                                              IN struct tt_http_parser_s *req,
+                                              IN tt_http_parser_t *req,
                                               OUT tt_http_resp_render_t *resp)
 {
     tt_dnode_t *dn;
-    tt_http_inserv_action_t a;
+    tt_http_inserv_action_t act = TT_HTTP_INSERV_ACT_IGNORE;
+
+    if (sm->discarding) {
+        return TT_HTTP_INSERV_ACT_DISCARD;
+    }
 
     dn = tt_dlist_head(&sm->inserv);
     while (dn != NULL) {
         tt_http_inserv_t *s = TT_CONTAINER(dn, tt_http_inserv_t, dnode);
+        tt_http_inserv_action_t this_act;
 
         dn = dn->next;
 
-        a = tt_http_inserv_on_uri(s, req, resp);
-        if (a <= TT_HTTP_INSERV_ACT_DISCARD) {
-            // if anyone says close/shutdown/discard, no need to do more things
-            return a;
-        } else if (a == TT_HTTP_INSERV_ACT_OWNER) {
-            TT_ASSERT(sm->owner == NULL);
-            sm->owner = s;
+        this_act = tt_http_inserv_on_uri(s, req, resp);
+        if (this_act <= TT_HTTP_INSERV_ACT_SHUTDOWN) {
+            // if anyone says close/shutdown, no need to do more things,
+            // call should close/shutdown connection
+            return this_act;
+        } else if (this_act == TT_HTTP_INSERV_ACT_DISCARD) {
+            sm->discarding = TT_TRUE;
+            return this_act;
+        } else if (this_act == TT_HTTP_INSERV_ACT_OWNER) {
+            if (sm->owner == NULL) {
+                // can not overwrite previous service which is of higher
+                // priority
+                sm->owner = s;
+            }
+            act = TT_HTTP_INSERV_ACT_OWNER;
         }
     }
 
-    return TT_HTTP_INSERV_ACT_IGNORE;
+    return act;
 }
 
 tt_http_inserv_action_t tt_http_svcmgr_on_header(
     IN tt_http_svcmgr_t *sm,
-    IN struct tt_http_parser_s *req,
+    IN tt_http_parser_t *req,
     OUT tt_http_resp_render_t *resp)
 {
     tt_dnode_t *dn;
-    tt_http_inserv_action_t a;
+    tt_http_inserv_action_t act = TT_HTTP_INSERV_ACT_IGNORE;
+
+    if (sm->discarding) {
+        return TT_HTTP_INSERV_ACT_DISCARD;
+    }
 
     dn = tt_dlist_head(&sm->inserv);
     while (dn != NULL) {
         tt_http_inserv_t *s = TT_CONTAINER(dn, tt_http_inserv_t, dnode);
+        tt_http_inserv_action_t this_act;
 
         dn = dn->next;
 
-        a = tt_http_inserv_on_uri(s, req, resp);
-        if (a <= TT_HTTP_INSERV_ACT_DISCARD) {
-            return a;
-        } else if (a == TT_HTTP_INSERV_ACT_OWNER) {
+        this_act = tt_http_inserv_on_header(s, req, resp);
+        if (this_act <= TT_HTTP_INSERV_ACT_SHUTDOWN) {
+            return this_act;
+        } else if (this_act == TT_HTTP_INSERV_ACT_DISCARD) {
+            sm->discarding = TT_TRUE;
+            return this_act;
+        } else if (this_act == TT_HTTP_INSERV_ACT_OWNER) {
             if (sm->owner == NULL) {
                 sm->owner = s;
-            } else if (sm->owner != s) {
-                TT_WARN("http request owner has been set");
             }
+            act = TT_HTTP_INSERV_ACT_OWNER;
         }
     }
 
-    return TT_HTTP_INSERV_ACT_IGNORE;
+    return act;
 }
 
 tt_http_inserv_action_t tt_http_svcmgr_on_body(IN tt_http_svcmgr_t *sm,
-                                               IN struct tt_http_parser_s *req,
+                                               IN tt_http_parser_t *req,
                                                OUT tt_http_resp_render_t *resp)
 {
-    if (sm->owner != NULL) {
-        return tt_http_inserv_on_body(sm->owner, req, resp);
-    } else {
-        // send 500 resp and discard following data
-        tt_http_resp_render_set_status(resp,
-                                       TT_HTTP_STATUS_INTERNAL_SERVER_ERROR);
+    tt_http_inserv_action_t act;
+
+    if (sm->discarding) {
         return TT_HTTP_INSERV_ACT_DISCARD;
     }
+
+    if (sm->owner == NULL) {
+        // this is unexpected as there should be at least a default service
+        // handling request that all other services are not interested
+        tt_http_resp_render_set_status(resp,
+                                       TT_HTTP_STATUS_INTERNAL_SERVER_ERROR);
+
+        sm->discarding = TT_TRUE;
+        return TT_HTTP_INSERV_ACT_DISCARD;
+    }
+
+    act = tt_http_inserv_on_body(sm->owner, req, resp);
+    if (act == TT_HTTP_INSERV_ACT_DISCARD) {
+        sm->discarding = TT_TRUE;
+    }
+    return act;
 }
 
 tt_http_inserv_action_t tt_http_svcmgr_on_trailing(
     IN tt_http_svcmgr_t *sm,
-    IN struct tt_http_parser_s *req,
+    IN tt_http_parser_t *req,
     OUT tt_http_resp_render_t *resp)
 {
-    if (sm->owner != NULL) {
-        return tt_http_inserv_on_trailing(sm->owner, req, resp);
-    } else {
-        // send 500 resp and discard following data
-        tt_http_resp_render_set_status(resp,
-                                       TT_HTTP_STATUS_INTERNAL_SERVER_ERROR);
+    tt_http_inserv_action_t act;
+
+    if (sm->discarding) {
         return TT_HTTP_INSERV_ACT_DISCARD;
     }
+
+    if (sm->owner == NULL) {
+        tt_http_resp_render_set_status(resp,
+                                       TT_HTTP_STATUS_INTERNAL_SERVER_ERROR);
+
+        sm->discarding = TT_TRUE;
+        return TT_HTTP_INSERV_ACT_DISCARD;
+    }
+
+    act = tt_http_inserv_on_trailing(sm->owner, req, resp);
+    if (act == TT_HTTP_INSERV_ACT_DISCARD) {
+        sm->discarding = TT_TRUE;
+    }
+    return act;
 }
 
 tt_http_inserv_action_t tt_http_svcmgr_on_complete(
     IN tt_http_svcmgr_t *sm,
-    IN struct tt_http_parser_s *req,
+    IN tt_http_parser_t *req,
     OUT tt_http_resp_render_t *resp)
 {
-    if (sm->owner != NULL) {
-        return tt_http_inserv_on_complete(sm->owner, req, resp);
-    } else {
-        // send 500 resp and discard following data
-        tt_http_resp_render_set_status(resp,
-                                       TT_HTTP_STATUS_INTERNAL_SERVER_ERROR);
+    if (sm->discarding) {
+        // if reqeust is completed and discarded, check if resp status is set
+        if (!TT_HTTP_STATUS_VALID(tt_http_resp_render_get_status(resp))) {
+            tt_http_resp_render_set_status(
+                resp, TT_HTTP_STATUS_INTERNAL_SERVER_ERROR);
+        }
         return TT_HTTP_INSERV_ACT_DISCARD;
     }
+
+    if (sm->owner == NULL) {
+        tt_http_resp_render_set_status(resp,
+                                       TT_HTTP_STATUS_INTERNAL_SERVER_ERROR);
+
+        sm->discarding = TT_TRUE;
+        return TT_HTTP_INSERV_ACT_DISCARD;
+    }
+
+    return tt_http_inserv_on_complete(sm->owner, req, resp);
 }
 
 void tt_http_svcmgr_on_resp(IN tt_http_svcmgr_t *sm,
-                            IN struct tt_http_parser_s *req,
+                            IN tt_http_parser_t *req,
                             IN OUT tt_http_resp_render_t *resp)
 {
     tt_dnode_t *dn = tt_dlist_head(&sm->inserv);
