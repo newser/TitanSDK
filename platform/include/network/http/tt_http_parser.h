@@ -129,4 +129,9 @@ tt_export tt_http_ver_t tt_http_parser_get_version(IN tt_http_parser_t *hp);
 
 tt_export tt_http_status_t tt_http_parser_get_status(IN tt_http_parser_t *hp);
 
+tt_inline tt_bool_t tt_http_parser_should_keepalive(IN tt_http_parser_t *hp)
+{
+    return TT_BOOL(http_should_keep_alive(&hp->parser) != 0);
+}
+
 #endif /* __TT_HTTP_PARSER__ */

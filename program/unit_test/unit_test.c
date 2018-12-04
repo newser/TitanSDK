@@ -110,6 +110,7 @@ tt_result_t __ut_fiber(IN void *param)
           "HTTP_UT_URI",
           "HTTP_UT_HDR",
           "HTTP_UT_RENDER",
+          "HTTP_UT_SCONN",
 //"TEST_UNIT_SOCKET",
 //"case_tcp_block_sendfile",
 #if 0

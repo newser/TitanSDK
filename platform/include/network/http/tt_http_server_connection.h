@@ -55,7 +55,6 @@ typedef struct tt_http_sconn_s
     tt_http_svcmgr_t svcmgr;
     tt_http_parser_t parser;
     tt_http_resp_render_t render;
-    tt_bool_t discarding : 1;
 } tt_http_sconn_t;
 
 typedef struct
@@ -72,6 +71,11 @@ typedef struct
 // interface declaration
 ////////////////////////////////////////////////////////////
 
+tt_export tt_result_t tt_http_sconn_create(IN tt_http_sconn_t *c,
+                                           IN void *itf,
+                                           IN void *itf_opaque,
+                                           IN OPT tt_http_sconn_attr_t *attr);
+
 tt_export tt_result_t
 tt_http_sconn_create_skt(IN tt_http_sconn_t *c,
                          IN TO struct tt_skt_s *s,
@@ -86,8 +90,23 @@ tt_export void tt_http_sconn_destroy(IN tt_http_sconn_t *c);
 
 tt_export void tt_http_sconn_attr_default(IN tt_http_sconn_attr_t *attr);
 
-// false to close connection
+tt_inline void tt_http_sconn_add_inserv(IN tt_http_sconn_t *c,
+                                        IN TO tt_http_inserv_t *s)
+{
+    tt_http_svcmgr_add_inserv(&c->svcmgr, s);
+}
+
+tt_inline void tt_http_sconn_add_outserv(IN tt_http_sconn_t *c,
+                                         IN TO tt_http_outserv_t *s)
+{
+    tt_http_svcmgr_add_outserv(&c->svcmgr, s);
+}
+
+// true to wait eof
 tt_export tt_bool_t tt_http_sconn_run(IN tt_http_sconn_t *c);
+
+// true if received eof
+tt_export tt_bool_t tt_http_sconn_wait_eof(IN tt_http_sconn_t *c);
 
 tt_export tt_result_t tt_http_sconn_send(IN tt_http_sconn_t *c,
                                          IN tt_u8_t *buf,

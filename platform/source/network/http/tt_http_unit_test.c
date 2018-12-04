@@ -39,6 +39,7 @@ typedef enum {
     HTTP_UT_URI = HTTP_UT_BEGIN,
     HTTP_UT_HDR,
     HTTP_UT_RENDER,
+    HTTP_UT_SCONN,
 
     HTTP_UT_NUM // number of test units
 } tt_http_ut_id_t;
@@ -50,6 +51,7 @@ typedef enum {
 TT_HTTP_UT_DECLARE(HTTP_UT_URI)
 TT_HTTP_UT_DECLARE(HTTP_UT_HDR)
 TT_HTTP_UT_DECLARE(HTTP_UT_RENDER)
+TT_HTTP_UT_DECLARE(HTTP_UT_SCONN)
 
 ////////////////////////////////////////////////////////////
 // global variant
@@ -59,6 +61,7 @@ tt_test_unit_t *tt_g_http_ut_list[HTTP_UT_NUM] = {
     &TT_MAKE_TEST_UNIT_NAME(HTTP_UT_URI),
     &TT_MAKE_TEST_UNIT_NAME(HTTP_UT_HDR),
     &TT_MAKE_TEST_UNIT_NAME(HTTP_UT_RENDER),
+    &TT_MAKE_TEST_UNIT_NAME(HTTP_UT_SCONN),
 };
 
 ////////////////////////////////////////////////////////////

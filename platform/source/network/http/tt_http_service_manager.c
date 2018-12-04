@@ -254,7 +254,7 @@ void tt_http_svcmgr_on_resp(IN tt_http_svcmgr_t *sm,
                             IN tt_http_parser_t *req,
                             IN OUT tt_http_resp_render_t *resp)
 {
-    tt_dnode_t *dn = tt_dlist_head(&sm->inserv);
+    tt_dnode_t *dn = tt_dlist_head(&sm->outserv);
     while (dn != NULL) {
         tt_http_outserv_on_resp(TT_CONTAINER(dn, tt_http_outserv_t, dnode),
                                 req,
