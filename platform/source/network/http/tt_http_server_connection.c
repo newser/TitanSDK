@@ -329,7 +329,7 @@ tt_bool_t tt_http_sconn_run(IN tt_http_sconn_t *c)
                     }
 
                     if (!tt_http_parser_should_keepalive(req)) {
-                        // todo: add Connection: close to resp
+                        tt_http_resp_render_set_conn(resp, TT_HTTP_CONN_CLOSE);
                     }
 
                     if (!TT_OK(__sconn_send_resp(c))) {

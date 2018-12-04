@@ -187,6 +187,15 @@ tt_result_t tt_http_req_render(IN tt_http_req_render_t *req,
         n += tt_g_http_verion_len[render->version];
 
         // "GET /a/b/c HTTP/1.1\r\n"
+        // "Connection: close\r\n"
+        if (render->conn != TT_HTTP_CONN_NONE) {
+            n += sizeof("Connection: ");
+            n += tt_g_http_conn_len[render->conn];
+            n += 1;
+        }
+
+        // "GET /a/b/c HTTP/1.1\r\n"
+        // "Connection: close\r\n"
         // "Host: aa.com\r\n"
         // "\r\n"
         dn = tt_dlist_head(&render->hdr);
@@ -224,7 +233,19 @@ tt_result_t tt_http_req_render(IN tt_http_req_render_t *req,
         tt_buf_put(buf, (tt_u8_t *)"\r\n", 2);
 
         // "GET /a/b/c HTTP/1.1\r\n"
-        // "Host: aa.com\r\n"
+        // "Connection: close\r\n"
+        if (render->conn != TT_HTTP_CONN_NONE) {
+            tt_buf_put(buf,
+                       (tt_u8_t *)"Connection: ",
+                       sizeof("Connection: ") - 1);
+            tt_buf_put(buf,
+                       (tt_u8_t *)tt_g_http_conn[render->conn],
+                       tt_g_http_conn_len[render->conn]);
+            tt_buf_put(buf, (tt_u8_t *)"\r\n", 2);
+        }
+
+        // "GET /a/b/c HTTP/1.1\r\n"
+        // "Connection: close\r\n"
         // "\r\n"
         dn = tt_dlist_head(&render->hdr);
         while (dn != NULL) {
@@ -332,6 +353,14 @@ tt_result_t tt_http_resp_render(IN tt_http_resp_render_t *resp,
     n += 3;
     n += status_len;
 
+    // "HTTP/1.1 200 OK\r\n"
+    // "Connection: close\r\n"
+    if (render->conn != TT_HTTP_CONN_NONE) {
+        n += sizeof("Connection: ");
+        n += tt_g_http_conn_len[render->conn];
+        n += 1;
+    }
+
     dn = tt_dlist_head(&render->hdr);
     while (dn != NULL) {
         n += tt_http_hdr_render_len(TT_CONTAINER(dn, tt_http_hdr_t, dnode));
@@ -359,6 +388,17 @@ tt_result_t tt_http_resp_render(IN tt_http_resp_render_t *resp,
     tt_buf_put(buf, (tt_u8_t *)"\r\n", 2);
 
     // "HTTP/1.1 200 OK\r\n"
+    // "Connection: close\r\n"
+    if (render->conn != TT_HTTP_CONN_NONE) {
+        tt_buf_put(buf, (tt_u8_t *)"Connection: ", sizeof("Connection: ") - 1);
+        tt_buf_put(buf,
+                   (tt_u8_t *)tt_g_http_conn[render->conn],
+                   tt_g_http_conn_len[render->conn]);
+        tt_buf_put(buf, (tt_u8_t *)"\r\n", 2);
+    }
+
+    // "HTTP/1.1 200 OK\r\n"
+    // "Connection: close\r\n"
     // "Host: aa.com\r\n"
     // "\r\n"
     dn = tt_dlist_head(&render->hdr);
@@ -383,6 +423,7 @@ void __render_init(IN tt_http_render_t *r, IN tt_buf_attr_t *buf_attr)
     tt_buf_init(&r->buf, buf_attr);
 
     r->version = TT_HTTP_VER_NUM;
+    r->conn = TT_HTTP_CONN_NONE;
 }
 
 void __render_destroy(IN tt_http_render_t *r)

@@ -188,6 +188,39 @@ TT_TEST_CASE("case_http_render_req",
         TT_UT_SUCCESS(tt_http_req_render(&r, &data, &len), "");
         TT_UT_EQUAL(len, tt_strlen(msg), "");
         TT_UT_EXP(tt_strncmp(data, msg, len) == 0, "");
+
+        {
+            const tt_char_t *msg =
+                "POST aaa.com HTTP/1.0\r\n"
+                "Connection: close\r\n"
+                "Host: sample\r\n"
+                "Date: 1, 22, 333\r\n"
+                "\r\n";
+
+            tt_http_req_render_set_conn(&r, TT_HTTP_CONN_CLOSE);
+            TT_UT_SUCCESS(tt_http_req_render(&r, &data, &len), "");
+            TT_UT_EQUAL(len, tt_strlen(msg), "");
+            TT_UT_EXP(tt_strncmp(data, msg, len) == 0, "");
+        }
+        {
+            const tt_char_t *msg =
+                "POST aaa.com HTTP/1.0\r\n"
+                "Connection: keep-alive\r\n"
+                "Host: sample\r\n"
+                "Date: 1, 22, 333\r\n"
+                "\r\n";
+
+            tt_http_req_render_set_conn(&r, TT_HTTP_CONN_KEEP_ALIVE);
+            TT_UT_SUCCESS(tt_http_req_render(&r, &data, &len), "");
+            TT_UT_EQUAL(len, tt_strlen(msg), "");
+            TT_UT_EXP(tt_strncmp(data, msg, len) == 0, "");
+        }
+        {
+            tt_http_req_render_set_conn(&r, TT_HTTP_CONN_NONE);
+            TT_UT_SUCCESS(tt_http_req_render(&r, &data, &len), "");
+            TT_UT_EQUAL(len, tt_strlen(msg), "");
+            TT_UT_EXP(tt_strncmp(data, msg, len) == 0, "");
+        }
     }
 
     tt_http_req_render_destroy(&r);
@@ -269,6 +302,39 @@ TT_TEST_ROUTINE_DEFINE(case_http_render_resp)
         TT_UT_SUCCESS(tt_http_resp_render(&r, &data, &len), "");
         TT_UT_EQUAL(len, tt_strlen(msg), "");
         TT_UT_EXP(tt_strncmp(data, msg, len) == 0, "");
+
+        {
+            const tt_char_t *msg =
+                "HTTP/1.0 200 OK\r\n"
+                "Connection: close\r\n"
+                "Host: sample\r\n"
+                "Date: 1, 22, 333\r\n"
+                "\r\n";
+
+            tt_http_resp_render_set_conn(&r, TT_HTTP_CONN_CLOSE);
+            TT_UT_SUCCESS(tt_http_resp_render(&r, &data, &len), "");
+            TT_UT_EQUAL(len, tt_strlen(msg), "");
+            TT_UT_EXP(tt_strncmp(data, msg, len) == 0, "");
+        }
+        {
+            const tt_char_t *msg =
+                "HTTP/1.0 200 OK\r\n"
+                "Connection: keep-alive\r\n"
+                "Host: sample\r\n"
+                "Date: 1, 22, 333\r\n"
+                "\r\n";
+
+            tt_http_resp_render_set_conn(&r, TT_HTTP_CONN_KEEP_ALIVE);
+            TT_UT_SUCCESS(tt_http_resp_render(&r, &data, &len), "");
+            TT_UT_EQUAL(len, tt_strlen(msg), "");
+            TT_UT_EXP(tt_strncmp(data, msg, len) == 0, "");
+        }
+        {
+            tt_http_resp_render_set_conn(&r, TT_HTTP_CONN_NONE);
+            TT_UT_SUCCESS(tt_http_resp_render(&r, &data, &len), "");
+            TT_UT_EQUAL(len, tt_strlen(msg), "");
+            TT_UT_EXP(tt_strncmp(data, msg, len) == 0, "");
+        }
     }
 
     tt_http_resp_render_destroy(&r);

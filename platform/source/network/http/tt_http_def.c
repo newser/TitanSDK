@@ -75,6 +75,14 @@ tt_u32_t tt_g_http_verion_len[TT_HTTP_VER_NUM] = {
     sizeof("HTTP/2.0") - 1,
 };
 
+const tt_char_t *tt_g_http_conn[TT_HTTP_CONN_NUM] = {
+    "", "close", "keep-alive",
+};
+
+tt_u32_t tt_g_http_conn_len[TT_HTTP_CONN_NUM] = {
+    sizeof("") - 1, sizeof("close") - 1, sizeof("keep-alive") - 1,
+};
+
 ////////////////////////////////////////////////////////////
 // interface declaration
 ////////////////////////////////////////////////////////////

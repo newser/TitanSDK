@@ -467,7 +467,7 @@ TT_TEST_ROUTINE_DEFINE(case_http_sconn_basic)
             "Accept-Encoding: gzip,deflate\r\n"
             "Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7\r\n"
             "Keep-Alive: 300\r\n"
-            "Connection: keep-alive\r\n"
+            "Connection: close\r\n"
             "\r\n";
 
         const tt_char_t *bd =
@@ -509,7 +509,7 @@ TT_TEST_ROUTINE_DEFINE(case_http_sconn_basic)
                                               "text/html,application/"
                                               "xhtml+xml,application/"
                                               "xml;q=0.9,*/*;q=0.8"},
-                                             {"Connection", "keep-alive"},
+                                             {"Connection", "close"},
                                              {NULL, NULL}};
 
             __simp1_uri[2] = "/favicon.ico";
@@ -529,6 +529,8 @@ TT_TEST_ROUTINE_DEFINE(case_http_sconn_basic)
         TT_UT_EQUAL(tt_buf_cmp_cstr(&__simp1_body[0], bd), 0, "");
         TT_UT_EQUAL(tt_buf_cmp_cstr(&__simp1_body[1], bd2), 0, "");
         TT_UT_EQUAL(tt_buf_cmp_cstr(&__simp1_body[2], ""), 0, "");
+
+        tt_buf_print_cstr(&__simu_out, 0);
     }
 
     tt_http_sconn_destroy(&c);

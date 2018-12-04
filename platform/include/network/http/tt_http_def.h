@@ -92,6 +92,15 @@ typedef enum {
 } tt_http_shut_t;
 #define TT_HTTP_SHUT_VALID(s) ((s) < TT_HTTP_SHUT_NUM)
 
+typedef enum {
+    TT_HTTP_CONN_NONE,
+    TT_HTTP_CONN_CLOSE,
+    TT_HTTP_CONN_KEEP_ALIVE,
+
+    TT_HTTP_CONN_NUM
+} tt_http_conn_t;
+#define TT_HTTP_CONN_VALID(c) ((c) < TT_HTTP_CONN_NUM)
+
 ////////////////////////////////////////////////////////////
 // global variants
 ////////////////////////////////////////////////////////////
@@ -107,6 +116,10 @@ tt_export tt_u32_t tt_g_http_method_len[TT_HTTP_METHOD_NUM];
 tt_export const tt_char_t *tt_g_http_verion[TT_HTTP_VER_NUM];
 
 tt_export tt_u32_t tt_g_http_verion_len[TT_HTTP_VER_NUM];
+
+tt_export const tt_char_t *tt_g_http_conn[TT_HTTP_CONN_NUM];
+
+tt_export tt_u32_t tt_g_http_conn_len[TT_HTTP_CONN_NUM];
 
 ////////////////////////////////////////////////////////////
 // interface declaration

@@ -48,7 +48,8 @@ typedef struct
 {
     tt_dlist_t hdr;
     tt_buf_t buf;
-    tt_http_ver_t version;
+    tt_http_ver_t version : 3;
+    tt_http_conn_t conn : 2;
 } tt_http_render_t;
 
 typedef struct tt_http_req_render_s
@@ -155,6 +156,13 @@ tt_export tt_result_t tt_http_req_render(IN tt_http_req_render_t *req,
                                          OUT tt_char_t **data,
                                          OUT tt_u32_t *len);
 
+tt_inline void tt_http_req_render_set_conn(IN tt_http_req_render_t *req,
+                                           IN tt_http_conn_t c)
+{
+    TT_ASSERT(TT_HTTP_CONN_VALID(c));
+    req->render.conn = c;
+}
+
 // ========================================
 // response
 // ========================================
@@ -223,5 +231,12 @@ tt_export tt_result_t tt_http_resp_render_add_cs(IN tt_http_resp_render_t *resp,
 tt_export tt_result_t tt_http_resp_render(IN tt_http_resp_render_t *resp,
                                           OUT tt_char_t **data,
                                           OUT tt_u32_t *len);
+
+tt_inline void tt_http_resp_render_set_conn(IN tt_http_resp_render_t *resp,
+                                            IN tt_http_conn_t c)
+{
+    TT_ASSERT(TT_HTTP_CONN_VALID(c));
+    resp->render.conn = c;
+}
 
 #endif /* __TT_HTTP_RENDER__ */
