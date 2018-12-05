@@ -1195,8 +1195,8 @@ static tt_result_t __f_svr(IN void *param)
         return TT_FAIL;
     }
 
-    new_s = tt_skt_accept(s, NULL, NULL, &fev, &tmr);
-    if (new_s == NULL) {
+    ret = tt_skt_accept(s, NULL, NULL, &new_s, &fev, &tmr);
+    if (!TT_OK(ret)) {
         __ut_skt_err_line = __LINE__;
         return TT_FAIL;
     }
@@ -1428,8 +1428,8 @@ static tt_result_t __f_svr_tcp6_close(IN void *param)
         return TT_FAIL;
     }
 
-    new_s = tt_skt_accept(s, NULL, NULL, &fev, &tmr);
-    if (s == NULL) {
+    ret = tt_skt_accept(s, NULL, NULL, &new_s, &fev, &tmr);
+    if (!TT_OK(ret)) {
         __ut_skt_err_line = __LINE__;
         return TT_FAIL;
     }
@@ -1531,8 +1531,8 @@ static tt_result_t __f_svr_tcp4_sendfile(IN void *param)
         goto fail;
     }
 
-    new_s = tt_skt_accept(s, NULL, NULL, &fev, &tmr);
-    if (s == NULL) {
+    ret = tt_skt_accept(s, NULL, NULL, &new_s, &fev, &tmr);
+    if (!TT_OK(ret)) {
         __ut_skt_err_line = __LINE__;
         goto fail;
     }
@@ -1932,6 +1932,7 @@ static tt_result_t __f_svr_t4(IN void *param)
     tt_u32_t n, i = (tt_u32_t)(tt_uintptr_t)param;
     tt_fiber_ev_t *fev;
     tt_tmr_t *tmr;
+    tt_result_t ret;
 
     s = tt_skt_create(TT_NET_AF_INET, TT_NET_PROTO_TCP, NULL);
     if (s == NULL) {
@@ -1956,8 +1957,8 @@ static tt_result_t __f_svr_t4(IN void *param)
     while (n++ < __CON_PER_TASK) {
         tt_fiber_t *fb;
 
-        new_s = tt_skt_accept(s, NULL, NULL, &fev, &tmr);
-        if (new_s == NULL) {
+        ret = tt_skt_accept(s, NULL, NULL, &new_s, &fev, &tmr);
+        if (!TT_OK(ret)) {
             __ut_skt_err_line = __LINE__;
             return TT_FAIL;
         }
@@ -2132,7 +2133,7 @@ static tt_result_t __f_svr_ev(IN void *param)
         return TT_FAIL;
     }
 
-    while ((new_s = tt_skt_accept(s, NULL, NULL, &fev, &tmr)) == NULL) {
+    while (TT_OK(ret = tt_skt_accept(s, NULL, NULL, &new_s, &fev, &tmr))) {
         if (fev != NULL) {
             __SKT_DETAIL("=> svr acc recv ev");
             if ((fev->src == NULL) && (fev->ev != 0x87654321)) {
@@ -2143,10 +2144,23 @@ static tt_result_t __f_svr_ev(IN void *param)
             }
             ++__ut_ev_rcv;
             tt_fiber_finish(fev);
-        } else {
+        } /*else {
             __ut_skt_err_line = __LINE__;
             return TT_FAIL;
+        } */
+
+        if (new_s != NULL) {
+            __SKT_DETAIL("=> svr acc recv skt");
+            break;
         }
+    }
+    if (!TT_OK(ret)) {
+        __ut_skt_err_line = __LINE__;
+        return TT_FAIL;
+    }
+    if (new_s == NULL) {
+        __ut_skt_err_line = __LINE__;
+        return TT_FAIL;
     }
 
     __SKT_DETAIL("=> svr recv");
@@ -3017,8 +3031,8 @@ static tt_result_t __f_svr_oob(IN void *param)
         return TT_FAIL;
     }
 
-    new_s = tt_skt_accept(s, NULL, NULL, &fev, &tmr);
-    if (new_s == NULL) {
+    ret = tt_skt_accept(s, NULL, NULL, &new_s, &fev, &tmr);
+    if (!TT_OK(ret)) {
         __ut_skt_err_line = __LINE__;
         return TT_FAIL;
     }
@@ -3033,6 +3047,7 @@ static tt_result_t __f_svr_oob(IN void *param)
     while ((ret = tt_skt_recv(new_s, buf, sizeof(buf), &n, &fev, &tmr)) !=
            TT_E_END) {
         tt_u32_t i;
+        TT_INFO("oob recv %s", buf);
         for (i = 0; i < n; ++i) {
             if (buf[i] == '2') {
                 __oob_recvd = TT_TRUE;
@@ -3156,7 +3171,7 @@ static tt_result_t __f_svr_block(IN void *param)
         return TT_FAIL;
     }
 
-    while ((new_s = tt_skt_accept(s, NULL, NULL, &fev, &tmr)) == NULL) {
+    while (TT_OK(ret = tt_skt_accept(s, NULL, NULL, &new_s, &fev, &tmr))) {
         if (fev != NULL) {
             __SKT_DETAIL("=> svr acc recv ev");
             if ((fev->src == NULL) && (fev->ev != 0x87654321)) {
@@ -3167,10 +3182,23 @@ static tt_result_t __f_svr_block(IN void *param)
             }
             ++__ut_ev_rcv;
             tt_fiber_finish(fev);
-        } else {
+        } /*else {
             __ut_skt_err_line = __LINE__;
             return TT_FAIL;
+        }*/
+
+        if (new_s != NULL) {
+            __SKT_DETAIL("=> svr acc recv skt");
+            break;
         }
+    }
+    if (!TT_OK(ret)) {
+        __ut_skt_err_line = __LINE__;
+        return TT_FAIL;
+    }
+    if (new_s == NULL) {
+        __ut_skt_err_line = __LINE__;
+        return TT_FAIL;
     }
 
     // only send but no receive

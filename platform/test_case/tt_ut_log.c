@@ -1020,6 +1020,7 @@ static tt_result_t __tcp_log_svr(IN void *param)
     tt_fiber_ev_t *fev;
     tt_tmr_t *tmr;
     tt_u32_t port = (tt_u32_t)(tt_uintptr_t)param;
+    tt_result_t ret;
 
     s = tt_tcp_server_p(TT_NET_AF_INET, NULL, "127.0.0.1", port);
     if (s == NULL) {
@@ -1028,8 +1029,8 @@ static tt_result_t __tcp_log_svr(IN void *param)
     }
     tt_atomic_s32_set(&__svr_ok, 1);
 
-    as = tt_skt_accept(s, NULL, NULL, &fev, &tmr);
-    if (as == NULL) {
+    ret = tt_skt_accept(s, NULL, NULL, &as, &fev, &tmr);
+    if (!TT_OK(ret)) {
         __err_line = __LINE__;
         return TT_FAIL;
     }

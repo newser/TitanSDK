@@ -169,13 +169,14 @@ tt_result_t tt_ipc_connect_retry(IN tt_ipc_t *ipc,
     return result;
 }
 
-tt_ipc_t *tt_ipc_accept(IN tt_ipc_t *ipc,
-                        IN OPT tt_ipc_attr_t *new_attr,
-                        OUT tt_fiber_ev_t **p_fev,
-                        OUT struct tt_tmr_s **p_tmr)
+tt_result_t tt_ipc_accept(IN tt_ipc_t *ipc,
+                          IN OPT tt_ipc_attr_t *new_attr,
+                          OUT tt_ipc_t **new_ipc,
+                          OUT tt_fiber_ev_t **p_fev,
+                          OUT struct tt_tmr_s **p_tmr)
 {
     tt_ipc_attr_t __attr;
-    tt_ipc_t *new_ipc;
+    tt_result_t result;
 
     TT_ASSERT(ipc != NULL);
 
@@ -184,11 +185,11 @@ tt_ipc_t *tt_ipc_accept(IN tt_ipc_t *ipc,
         new_attr = &__attr;
     }
 
-    new_ipc = tt_ipc_accept_ntv(&ipc->sys_ipc, new_attr, p_fev, p_tmr);
-    if (new_ipc != NULL) {
+    result = tt_ipc_accept_ntv(&ipc->sys_ipc, new_attr, new_ipc, p_fev, p_tmr);
+    if (TT_OK(result) && (*new_ipc != NULL)) {
         tt_atomic_s32_inc(&__ipc_num);
     }
-    return new_ipc;
+    return result;
 }
 
 tt_result_t tt_ipc_local_addr(IN tt_ipc_t *ipc,

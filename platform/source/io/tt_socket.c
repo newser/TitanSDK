@@ -212,14 +212,15 @@ tt_result_t tt_skt_listen(IN tt_skt_t *skt)
     return tt_skt_listen_ntv(&skt->sys_skt);
 }
 
-tt_skt_t *tt_skt_accept(IN tt_skt_t *skt,
-                        IN OPT tt_skt_attr_t *new_attr,
-                        IN OPT tt_sktaddr_t *addr,
-                        OUT tt_fiber_ev_t **p_fev,
-                        OUT struct tt_tmr_s **p_tmr)
+tt_result_t tt_skt_accept(IN tt_skt_t *skt,
+                          IN OPT tt_skt_attr_t *new_attr,
+                          IN OPT tt_sktaddr_t *addr,
+                          OUT tt_skt_t **new_skt,
+                          OUT tt_fiber_ev_t **p_fev,
+                          OUT struct tt_tmr_s **p_tmr)
 {
     tt_sktaddr_t __addr;
-    tt_skt_t *new_skt;
+    tt_result_t result;
 
     TT_ASSERT(skt != NULL);
 
@@ -227,11 +228,11 @@ tt_skt_t *tt_skt_accept(IN tt_skt_t *skt,
         addr = &__addr;
     }
 
-    new_skt = tt_skt_accept_ntv(&skt->sys_skt, addr, p_fev, p_tmr);
-    if (new_skt != NULL) {
+    result = tt_skt_accept_ntv(&skt->sys_skt, addr, new_skt, p_fev, p_tmr);
+    if (TT_OK(result) && (*new_skt != NULL)) {
         __skt_inc_num();
     }
-    return new_skt;
+    return result;
 }
 
 tt_result_t tt_skt_connect(IN tt_skt_t *skt, IN tt_sktaddr_t *addr)

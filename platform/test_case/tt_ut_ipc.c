@@ -328,8 +328,8 @@ tt_export tt_result_t __ipc_svr_1(IN void *param)
     while (cn++ < __CONN_NUM) {
         TT_INFO_IPC("svr acc %d", cn);
 
-        while ((new_ipc = tt_ipc_accept(ipc, NULL, &fev, &tmr)) == NULL) {
-            if (fev == NULL && tmr == NULL) {
+        while (TT_OK(ret = tt_ipc_accept(ipc, NULL, &new_ipc, &fev, &tmr))) {
+            if (new_ipc == NULL && fev == NULL && tmr == NULL) {
                 __ipc_err_line = __LINE__;
                 return TT_FAIL;
             }
@@ -337,9 +337,14 @@ tt_export tt_result_t __ipc_svr_1(IN void *param)
             if (fev != NULL) {
                 tt_fiber_finish(fev);
             }
+
+            if (new_ipc != NULL) {
+                break;
+            }
         }
-        if (fev != NULL) {
-            tt_fiber_finish(fev);
+        if (!TT_OK(ret)) {
+            __ipc_err_line = __LINE__;
+            return TT_FAIL;
         }
 
         // accepted, local: path
@@ -554,8 +559,8 @@ static tt_result_t __ipc_svr_2(IN void *param)
             return TT_FAIL;
         }
 
-        while ((new_ipc = tt_ipc_accept(ipc, NULL, &fev, &tmr)) == NULL) {
-            if (fev == NULL && tmr == NULL) {
+        while (TT_OK(ret = tt_ipc_accept(ipc, NULL, &new_ipc, &fev, &tmr))) {
+            if (new_ipc == NULL && fev == NULL && tmr == NULL) {
                 __ipc_err_line = __LINE__;
                 return TT_FAIL;
             }
@@ -563,11 +568,16 @@ static tt_result_t __ipc_svr_2(IN void *param)
             if (fev != NULL) {
                 tt_fiber_finish(fev);
             }
+
+            if (new_ipc != NULL) {
+                break;
+            }
+        }
+        if (!TT_OK(ret)) {
+            __ipc_err_line = __LINE__;
+            return TT_FAIL;
         }
         TT_INFO("new ipc");
-        if (fev != NULL) {
-            tt_fiber_finish(fev);
-        }
 
         fb = tt_fiber_create(NULL, __ipc_svr_acc_2, new_ipc, NULL);
         if (fb == NULL) {
@@ -771,7 +781,11 @@ tt_result_t __ipc_svr_fev(IN void *param)
         TT_INFO_IPC("svr acc %d", cn);
 
         do {
-            new_ipc = tt_ipc_accept(ipc, NULL, &fev, &tmr);
+            ret = tt_ipc_accept(ipc, NULL, &new_ipc, &fev, &tmr);
+            if (!TT_OK(ret)) {
+                __ipc_err_line = __LINE__;
+                return TT_FAIL;
+            }
 
             if (new_ipc == NULL && fev == NULL && tmr == NULL) {
                 __ipc_err_line = __LINE__;
@@ -1094,7 +1108,11 @@ tt_result_t __ipc_svr_pev_fev(IN void *param)
         tt_fiber_ev_t *fev;
 
         do {
-            new_ipc = tt_ipc_accept(ipc, NULL, &fev, &tmr);
+            ret = tt_ipc_accept(ipc, NULL, &new_ipc, &fev, &tmr);
+            if (!TT_OK(ret)) {
+                __ipc_err_line = __LINE__;
+                return TT_FAIL;
+            }
 
             if (new_ipc == NULL && fev == NULL && tmr == NULL) {
                 __ipc_err_line = __LINE__;
@@ -1314,6 +1332,7 @@ static tt_result_t __ipc_tcp_svr1(IN void *param)
     tt_fiber_ev_t *p_fev;
     tt_tmr_t *p_tmr;
     tt_ipc_t *ipc = NULL;
+    tt_result_t ret;
 
     s = tt_tcp_server_p(TT_NET_AF_INET, NULL, "127.0.0.1", 63639);
     if (s == NULL) {
@@ -1321,8 +1340,8 @@ static tt_result_t __ipc_tcp_svr1(IN void *param)
         goto out;
     }
 
-    new_s = tt_skt_accept(s, NULL, NULL, &p_fev, &p_tmr);
-    if (new_s == NULL) {
+    ret = tt_skt_accept(s, NULL, NULL, &new_s, &p_fev, &p_tmr);
+    if (!TT_OK(ret)) {
         __ipc_err_line = __LINE__;
         goto out;
     }
@@ -1378,17 +1397,33 @@ static tt_result_t __ipc_tcp_cli1(IN void *param)
         goto fail;
     }
 
-    if (!TT_OK(tt_skt_send(s, (tt_u8_t *)"0123456789", 10, &n))) {
-        __ipc_err_line = __LINE__;
-        goto fail;
-    }
-    TT_INFO("ipc cli send %d", n);
+    n = 0;
+    do {
+        tt_u32_t sent;
+        if (!TT_OK(tt_skt_send(s, (tt_u8_t *)"0123456789", 10, &sent))) {
+            TT_INFO("--> ipc cli send failed");
+            __ipc_err_line = __LINE__;
+            goto fail;
+        }
+        n += sent;
+        TT_INFO("--> ipc cli send %d = > %d", sent, n);
+
+        // now we found tt_skt_send may return 0
+        tt_sleep(50);
+    } while (n < 10);
+
+#if TT_ENV_OS_IS_MACOS
+    // on macos, send and immediately shutdown write while the remote fiber
+    // is still being created may cause the fiber miss data and directly
+    // recv a TT_E_END... this is abnormal need further investigation
+    tt_sleep(1000);
+#endif
 
     if (!TT_OK(tt_skt_shutdown(s, TT_SKT_SHUT_WR))) {
         __ipc_err_line = __LINE__;
         goto fail;
     }
-    TT_INFO("ipc cli shutdown write");
+    TT_INFO("--> ipc cli shutdown write");
 
     len = 0;
     while (
@@ -1397,13 +1432,13 @@ static tt_result_t __ipc_tcp_cli1(IN void *param)
             ret =
                 tt_skt_recv(s, buf + len, sizeof(buf) - len, &n, &fev, &tmr))) {
         len += n;
-        TT_INFO("ipc cli recv %d", n);
+        TT_INFO("--> ipc cli recv %d", n);
     }
     if (ret != TT_E_END) {
         __ipc_err_line = __LINE__;
         goto fail;
     }
-    TT_INFO("ipc cli recv end");
+    TT_INFO("--> ipc cli recv end");
 
     if (len != 10 || tt_memcmp(buf, "0123456789", 10) != 0) {
         __ipc_err_line = __LINE__;
@@ -1435,7 +1470,12 @@ tt_export tt_result_t __ipc_skt(IN void *param)
         return TT_FAIL;
     }
 
-    new_ipc = tt_ipc_accept(ipc, NULL, &fev, &tmr);
+    ret = tt_ipc_accept(ipc, NULL, &new_ipc, &fev, &tmr);
+    if (!TT_OK(ret)) {
+        __ipc_err_line = __LINE__;
+        return TT_FAIL;
+    }
+
     if (new_ipc == NULL) {
         __ipc_err_line = __LINE__;
         return TT_FAIL;
@@ -1474,7 +1514,7 @@ tt_export tt_result_t __ipc_skt(IN void *param)
         __ipc_err_line = __LINE__;
         return TT_FAIL;
     }
-    TT_INFO("ipc skt end", n);
+    TT_INFO("ipc skt end, total %d", len);
 
     TT_INFO("tt_skt_send(%p, %p, %d, NULL)", tcp, buf, len);
     if (!TT_OK(tt_skt_send(tcp, buf, len, NULL))) {

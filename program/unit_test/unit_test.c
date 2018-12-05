@@ -99,23 +99,22 @@ tt_result_t __ut_fiber(IN void *param)
     }
 #if 1
     else {
-        const tt_char_t *names[] =
-        { "case_uri",
-          //          "case_dl_list",
-          //          "case_blobex",
-          //          "case_ptr_queue",
-          //"TEST_UNIT_FPATH",
-          "case_uri_get_set",
-          "case_fpath_normalize",
-          "HTTP_UT_URI",
-          "HTTP_UT_HDR",
-          "HTTP_UT_RENDER",
-          "HTTP_UT_SCONN",
-//"TEST_UNIT_SOCKET",
-//"case_tcp_block_sendfile",
+        const tt_char_t *names[] = { /*"case_uri",
+                                     //          "case_dl_list",
+                                     //          "case_blobex",
+                                     //          "case_ptr_queue",
+                                     //"TEST_UNIT_FPATH",
+                                     "case_uri_get_set",
+                                     "case_fpath_normalize",
+                                     "HTTP_UT_URI",
+                                     "HTTP_UT_HDR",
+                                     "HTTP_UT_RENDER",
+                                     "HTTP_UT_SCONN",*/
+                                     //"TEST_UNIT_SOCKET",
+                                     "case_ipc_skt",
 #if 0
-            "TEST_UNIT_LOG",
-            "TEST_UNIT_LOG_PATTERN",
+          "TEST_UNIT_LOG",
+          "TEST_UNIT_LOG_PATTERN",
 #endif
 
 #if 0
@@ -149,7 +148,7 @@ tt_result_t __ut_fiber(IN void *param)
 #endif
 
 //"TEST_UNIT_FS",
-//            "TEST_UNIT_IPC",
+//"TEST_UNIT_IPC",
 //"TEST_UNIT_SOCKET",
 
 #if 0
