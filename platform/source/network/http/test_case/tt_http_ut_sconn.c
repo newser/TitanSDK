@@ -48,6 +48,7 @@
 
 // === routine declarations ================
 TT_TEST_ROUTINE_DECLARE(case_http_sconn_basic)
+TT_TEST_ROUTINE_DECLARE(case_http_sconn_cb_error)
 // =========================================
 
 // === test case list ======================
@@ -62,6 +63,15 @@ TT_TEST_CASE("case_http_sconn_basic",
              NULL,
              NULL)
 ,
+
+    TT_TEST_CASE("case_http_sconn_cb_error",
+                 "http server conn callback error",
+                 case_http_sconn_cb_error,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL),
 
     TT_TEST_CASE_LIST_DEFINE_END(http_sconn_case)
     // =========================================
@@ -153,6 +163,7 @@ tt_result_t __simu_send(IN tt_http_sconn_t *c,
 }
 
 static tt_u32_t __simu_recv_num;
+static tt_u32_t __simu_recv_err_idx;
 
 tt_result_t __simu_recv(IN tt_http_sconn_t *c,
                         OUT tt_u8_t *buf,
@@ -163,6 +174,10 @@ tt_result_t __simu_recv(IN tt_http_sconn_t *c,
 {
     tt_u32_t n, rd;
     tt_u8_t *p;
+
+    if (__simu_recv_num >= __simu_recv_err_idx) {
+        return TT_E_AGAIN;
+    }
 
     n = TT_BUF_RLEN(&__simu_in);
     TT_ASSERT(n >= __simu_recv_num);
@@ -210,6 +225,7 @@ void __simu1_start()
     __simu_shut_val = TT_HTTP_SHUT_NUM;
     __simu_destroy_val = TT_FALSE;
     __simu_recv_num = 0;
+    __simu_recv_err_idx = ~0;
 }
 
 void __simu1_clear()
@@ -219,6 +235,7 @@ void __simu1_clear()
     __simu_shut_val = TT_HTTP_SHUT_NUM;
     __simu_destroy_val = TT_FALSE;
     __simu_recv_num = 0;
+    __simu_recv_err_idx = ~0;
 }
 
 void __simu1_end()
@@ -236,6 +253,8 @@ static tt_u32_t __simp1_idx;
 
 static const tt_char_t *__simp1_uri[__MAX_SIMP1_NUM];
 static tt_bool_t __simp1_uri_ok[__MAX_SIMP1_NUM];
+static tt_http_inserv_action_t __simp1_on_uri_ret[__MAX_SIMP1_NUM];
+
 static tt_http_inserv_action_t __simp1_on_uri(
     IN struct tt_http_inserv_s *s,
     IN struct tt_http_parser_s *req,
@@ -247,7 +266,7 @@ static tt_http_inserv_action_t __simp1_on_uri(
         __simp1_uri_ok[__simp1_idx] = TT_FALSE;
     }
 
-    return TT_HTTP_INSERV_ACT_OWNER;
+    return __simp1_on_uri_ret[__simp1_idx];
 }
 
 #define __check(list, n, v, ok)                                                \
@@ -274,6 +293,7 @@ struct simp1_nv
 
 struct simp1_nv *simp1_nv_ar[__MAX_SIMP1_NUM];
 static tt_bool_t simp1_nv_ok[__MAX_SIMP1_NUM];
+static tt_http_inserv_action_t __simp1_on_hdr_ret[__MAX_SIMP1_NUM];
 
 static tt_http_inserv_action_t __simp1_on_header(
     IN struct tt_http_inserv_s *s,
@@ -289,10 +309,11 @@ static tt_http_inserv_action_t __simp1_on_header(
         ++nv;
     }
 
-    return TT_HTTP_INSERV_ACT_OWNER;
+    return __simp1_on_hdr_ret[__simp1_idx];
 }
 
 static tt_buf_t __simp1_body[__MAX_SIMP1_NUM];
+static tt_http_inserv_action_t __simp1_on_bd_ret[__MAX_SIMP1_NUM];
 
 static tt_http_inserv_action_t __simp1_on_body(
     IN struct tt_http_inserv_s *s,
@@ -302,11 +323,13 @@ static tt_http_inserv_action_t __simp1_on_body(
     tt_buf_put(&__simp1_body[__simp1_idx],
                tt_blobex_addr(&req->body),
                tt_blobex_len(&req->body));
-    return TT_HTTP_INSERV_ACT_OWNER;
+    return __simp1_on_bd_ret[__simp1_idx];
 }
 
 struct simp1_nv *simp1_trail_ar[__MAX_SIMP1_NUM];
 static tt_bool_t simp1_trail_ok[__MAX_SIMP1_NUM];
+static tt_http_inserv_action_t __simp1_on_trail_ret[__MAX_SIMP1_NUM];
+
 static tt_http_inserv_action_t __simp1_on_trailing(
     IN struct tt_http_inserv_s *s,
     IN struct tt_http_parser_s *req,
@@ -324,10 +347,11 @@ static tt_http_inserv_action_t __simp1_on_trailing(
         ++nv;
     }
 
-    return TT_HTTP_INSERV_ACT_OWNER;
+    return __simp1_on_trail_ret[__simp1_idx];
 }
 
 static tt_s32_t simp1_comp[__MAX_SIMP1_NUM];
+static tt_http_inserv_action_t __simp1_on_comp_ret[__MAX_SIMP1_NUM];
 
 static tt_http_inserv_action_t __simp1_on_complete(
     IN struct tt_http_inserv_s *s,
@@ -338,7 +362,7 @@ static tt_http_inserv_action_t __simp1_on_complete(
     ++__simp1_idx;
 
     tt_http_resp_render_set_status(resp, TT_HTTP_STATUS_OK);
-    return TT_HTTP_INSERV_ACT_OWNER;
+    return __simp1_on_comp_ret[__simp1_idx];
 }
 
 static tt_http_inserv_cb_t __simp1_cb = {__simp1_on_uri,
@@ -368,6 +392,12 @@ static void __simp1_start()
         simp1_trail_ok[i] = TT_TRUE;
 
         simp1_comp[i] = 0;
+
+        __simp1_on_uri_ret[i] = TT_HTTP_INSERV_ACT_OWNER;
+        __simp1_on_hdr_ret[i] = TT_HTTP_INSERV_ACT_OWNER;
+        __simp1_on_bd_ret[i] = TT_HTTP_INSERV_ACT_OWNER;
+        __simp1_on_trail_ret[i] = TT_HTTP_INSERV_ACT_OWNER;
+        __simp1_on_comp_ret[i] = TT_HTTP_INSERV_ACT_OWNER;
     }
 }
 
@@ -390,6 +420,12 @@ void __simp1_clear()
         simp1_trail_ok[i] = TT_TRUE;
 
         simp1_comp[i] = 0;
+
+        __simp1_on_uri_ret[i] = TT_HTTP_INSERV_ACT_OWNER;
+        __simp1_on_hdr_ret[i] = TT_HTTP_INSERV_ACT_OWNER;
+        __simp1_on_bd_ret[i] = TT_HTTP_INSERV_ACT_OWNER;
+        __simp1_on_trail_ret[i] = TT_HTTP_INSERV_ACT_OWNER;
+        __simp1_on_comp_ret[i] = TT_HTTP_INSERV_ACT_OWNER;
     }
 }
 
@@ -401,6 +437,46 @@ void __simp1_end()
         tt_buf_destroy(&__simp1_body[i]);
     }
 }
+
+static const tt_char_t *h =
+    "POST /a/b/c HTTP/1.1\r\n"
+    "Content-Type: text/plain\r\n"
+    "Transfer-Encoding: chunked\r\n"
+    "\r\n"
+    "25  \r\n"
+    "This is the data in the first chunk\r\n"
+    "\r\n"
+    "1C\r\n"
+    "and this is the second one\r\n"
+    "\r\n"
+    "1C\r\n"
+    "and this is the third1 one\r\n"
+    "\r\n"
+    "0  \r\n"
+    "X-Vary: *\r\n"
+    "X-Content-Type: text/plain\r\n"
+    "X-xxx:\r\n"
+    "\r\n"
+    "PATCH /file.txt HTTP/1.1\r\n"
+    "Host: www.example.com\r\n"
+    "Content-Type: application/example\r\n"
+    "If-Match: \"e0023aa4e\"\r\n"
+    "Content-Length: 10\r\n"
+    "\r\n"
+    "1234567890"
+    "GET /favicon.ico HTTP/1.1\r\n"
+    "Host: 0.0.0.0=5000\r\n"
+    "User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9) "
+    "Gecko/2008061015 Firefox/3.0\r\n"
+    "Accept: "
+    "text/html,application/xhtml+xml,application/xml;q=0.9,*/"
+    "*;q=0.8\r\n"
+    "Accept-Language: en-us,en;q=0.5\r\n"
+    "Accept-Encoding: gzip,deflate\r\n"
+    "Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7\r\n"
+    "Keep-Alive: 300\r\n"
+    "Connection: close\r\n"
+    "\r\n";
 
 TT_TEST_ROUTINE_DEFINE(case_http_sconn_basic)
 {
@@ -430,46 +506,6 @@ TT_TEST_ROUTINE_DEFINE(case_http_sconn_basic)
 
     // put a http request
     {
-        const tt_char_t *h =
-            "POST /a/b/c HTTP/1.1\r\n"
-            "Content-Type: text/plain\r\n"
-            "Transfer-Encoding: chunked\r\n"
-            "\r\n"
-            "25  \r\n"
-            "This is the data in the first chunk\r\n"
-            "\r\n"
-            "1C\r\n"
-            "and this is the second one\r\n"
-            "\r\n"
-            "1C\r\n"
-            "and this is the third1 one\r\n"
-            "\r\n"
-            "0  \r\n"
-            "X-Vary: *\r\n"
-            "X-Content-Type: text/plain\r\n"
-            "X-xxx:\r\n"
-            "\r\n"
-            "PATCH /file.txt HTTP/1.1\r\n"
-            "Host: www.example.com\r\n"
-            "Content-Type: application/example\r\n"
-            "If-Match: \"e0023aa4e\"\r\n"
-            "Content-Length: 10\r\n"
-            "\r\n"
-            "1234567890"
-            "GET /favicon.ico HTTP/1.1\r\n"
-            "Host: 0.0.0.0=5000\r\n"
-            "User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9) "
-            "Gecko/2008061015 Firefox/3.0\r\n"
-            "Accept: "
-            "text/html,application/xhtml+xml,application/xml;q=0.9,*/"
-            "*;q=0.8\r\n"
-            "Accept-Language: en-us,en;q=0.5\r\n"
-            "Accept-Encoding: gzip,deflate\r\n"
-            "Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7\r\n"
-            "Keep-Alive: 300\r\n"
-            "Connection: close\r\n"
-            "\r\n";
-
         const tt_char_t *bd =
             "This is the data in the first chunk\r\n"
             "and this is the second one\r\n"
@@ -530,13 +566,226 @@ TT_TEST_ROUTINE_DEFINE(case_http_sconn_basic)
         TT_UT_EQUAL(tt_buf_cmp_cstr(&__simp1_body[1], bd2), 0, "");
         TT_UT_EQUAL(tt_buf_cmp_cstr(&__simp1_body[2], ""), 0, "");
 
+        TT_UT_EQUAL(__simu_shut_val, TT_HTTP_SHUT_WR, "");
+
         tt_buf_print_cstr(&__simu_out, 0);
     }
 
     tt_http_sconn_destroy(&c);
-
     __simp1_end();
     __simu1_end();
+
+    // test no space
+    {
+        ret = tt_http_sconn_create(&c, &simu_itf1, NULL, NULL);
+        TT_UT_SUCCESS(ret, "");
+
+        __simu1_start();
+        __simp1_start();
+        s = tt_http_inserv_create(0, &s_itf, &__simp1_cb);
+        tt_http_sconn_add_inserv(&c, s);
+
+        tt_buf_put_cstr(&__simu_in, h);
+
+        // minimize parser buf
+        tt_buf_destroy(&c.parser.buf);
+        tt_buf_init(&c.parser.buf, NULL);
+        bret = tt_http_sconn_run(&c);
+        TT_UT_TRUE(bret, "");
+        TT_UT_EQUAL(__simu_shut_val, TT_HTTP_SHUT_WR, "");
+        tt_buf_print_cstr(&__simu_out, 0);
+
+        tt_http_sconn_destroy(&c);
+        __simp1_end();
+        __simu1_end();
+    }
+
+    {
+        ret = tt_http_sconn_create(&c, &simu_itf1, NULL, NULL);
+        TT_UT_SUCCESS(ret, "");
+
+        __simu1_start();
+        __simp1_start();
+        s = tt_http_inserv_create(0, &s_itf, &__simp1_cb);
+        tt_http_sconn_add_inserv(&c, s);
+
+        tt_buf_put_cstr(&__simu_in, h);
+
+        __simu_recv_err_idx = 100;
+        bret = tt_http_sconn_run(&c);
+        // no wait eof, no shutdown, no response
+        TT_UT_FALSE(bret, "");
+        TT_UT_EQUAL(__simu_shut_val, TT_HTTP_SHUT_NUM, "");
+        TT_UT_TRUE(tt_buf_empty(&__simu_out), "");
+
+        tt_http_sconn_destroy(&c);
+        __simp1_end();
+        __simu1_end();
+    }
+
+    // test end
+    TT_TEST_CASE_LEAVE()
+}
+
+TT_TEST_ROUTINE_DEFINE(case_http_sconn_cb_error)
+{
+    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+    tt_http_sconn_t c;
+    tt_result_t ret;
+    tt_http_inserv_t *s;
+    tt_http_inserv_itf_t s_itf = {0};
+    tt_bool_t bret;
+    tt_u32_t i;
+
+    TT_TEST_CASE_ENTER()
+    // test start
+
+    // on uri, close
+    {
+        ret = tt_http_sconn_create(&c, &simu_itf1, NULL, NULL);
+        TT_UT_SUCCESS(ret, "");
+
+        __simu1_start();
+        __simp1_start();
+        s = tt_http_inserv_create(0, &s_itf, &__simp1_cb);
+        tt_http_sconn_add_inserv(&c, s);
+
+        tt_buf_put_cstr(&__simu_in, h);
+
+        __simp1_on_uri_ret[0] = TT_HTTP_INSERV_ACT_CLOSE;
+        bret = tt_http_sconn_run(&c);
+        // no wait eof, no shutdown, no response
+        TT_UT_FALSE(bret, "");
+        TT_UT_EQUAL(__simu_shut_val, TT_HTTP_SHUT_NUM, "");
+        TT_UT_TRUE(tt_buf_empty(&__simu_out), "");
+
+        tt_http_sconn_destroy(&c);
+        __simp1_end();
+        __simu1_end();
+    }
+
+    // on header, shutdown
+    {
+        ret = tt_http_sconn_create(&c, &simu_itf1, NULL, NULL);
+        TT_UT_SUCCESS(ret, "");
+
+        __simu1_start();
+        __simp1_start();
+        s = tt_http_inserv_create(0, &s_itf, &__simp1_cb);
+        tt_http_sconn_add_inserv(&c, s);
+
+        tt_buf_put_cstr(&__simu_in, h);
+
+        __simp1_on_hdr_ret[1] = TT_HTTP_INSERV_ACT_SHUTDOWN;
+        bret = tt_http_sconn_run(&c);
+        // wait eof, shutdown
+        TT_UT_TRUE(bret, "");
+        TT_UT_TRUE(tt_http_sconn_wait_eof(&c), "");
+        TT_UT_EQUAL(__simu_shut_val, TT_HTTP_SHUT_RDWR, "");
+        tt_buf_print_cstr(&__simu_out, 0);
+
+        tt_http_sconn_destroy(&c);
+        __simp1_end();
+        __simu1_end();
+    }
+
+    // on body, discard
+    {
+        ret = tt_http_sconn_create(&c, &simu_itf1, NULL, NULL);
+        TT_UT_SUCCESS(ret, "");
+
+        __simu1_start();
+        __simp1_start();
+        s = tt_http_inserv_create(0, &s_itf, &__simp1_cb);
+        tt_http_sconn_add_inserv(&c, s);
+
+        tt_buf_put_cstr(&__simu_in, h);
+
+        __simp1_on_bd_ret[1] = TT_HTTP_INSERV_ACT_DISCARD;
+        {
+            static struct simp1_nv nv_3[] = {{"Host", "0.0.0.0=5000"},
+                                             {"Accept",
+                                              "text/html,application/"
+                                              "xhtml+xml,application/"
+                                              "xml;q=0.9,*/*;q=0.8"},
+                                             {"Connection", "close"},
+                                             {NULL, NULL}};
+
+            // idx 1 is actually the third reqeust
+            __simp1_uri[1] = "/favicon.ico";
+            simp1_nv_ar[1] = nv_3;
+        }
+
+        bret = tt_http_sconn_run(&c);
+        // wait eof, shutdown
+        TT_UT_TRUE(bret, "");
+        TT_UT_TRUE(tt_http_sconn_wait_eof(&c), "");
+
+        // on complete is not called for the second msg
+        TT_UT_EQUAL(simp1_comp[0], 1, "");
+        TT_UT_EQUAL(simp1_comp[1], 1, "");
+        TT_UT_EQUAL(simp1_comp[2], 0, "");
+        TT_UT_EQUAL(__simp1_idx, 2, "");
+        TT_UT_FALSE(__simp1_uri_ok[0], "");
+        TT_UT_TRUE(__simp1_uri_ok[1], "");
+
+        TT_UT_EQUAL(__simu_shut_val, TT_HTTP_SHUT_WR, "");
+        tt_buf_print_cstr(&__simu_out, 0);
+
+        tt_http_sconn_destroy(&c);
+        __simp1_end();
+        __simu1_end();
+    }
+
+    // on trail, shutdown
+    {
+        ret = tt_http_sconn_create(&c, &simu_itf1, NULL, NULL);
+        TT_UT_SUCCESS(ret, "");
+
+        __simu1_start();
+        __simp1_start();
+        s = tt_http_inserv_create(0, &s_itf, &__simp1_cb);
+        tt_http_sconn_add_inserv(&c, s);
+
+        tt_buf_put_cstr(&__simu_in, h);
+
+        __simp1_on_trail_ret[0] = TT_HTTP_INSERV_ACT_SHUTDOWN;
+        bret = tt_http_sconn_run(&c);
+        // wait eof, shutdown
+        TT_UT_TRUE(bret, "");
+        TT_UT_TRUE(tt_http_sconn_wait_eof(&c), "");
+        TT_UT_EQUAL(__simu_shut_val, TT_HTTP_SHUT_RDWR, "");
+        tt_buf_print_cstr(&__simu_out, 0);
+
+        tt_http_sconn_destroy(&c);
+        __simp1_end();
+        __simu1_end();
+    }
+
+    // on complete, shutdown
+    {
+        ret = tt_http_sconn_create(&c, &simu_itf1, NULL, NULL);
+        TT_UT_SUCCESS(ret, "");
+
+        __simu1_start();
+        __simp1_start();
+        s = tt_http_inserv_create(0, &s_itf, &__simp1_cb);
+        tt_http_sconn_add_inserv(&c, s);
+
+        tt_buf_put_cstr(&__simu_in, h);
+
+        __simp1_on_comp_ret[1] = TT_HTTP_INSERV_ACT_SHUTDOWN;
+        bret = tt_http_sconn_run(&c);
+        // wait eof, shutdown
+        TT_UT_TRUE(bret, "");
+        TT_UT_TRUE(tt_http_sconn_wait_eof(&c), "");
+        TT_UT_EQUAL(__simu_shut_val, TT_HTTP_SHUT_RDWR, "");
+        tt_buf_print_cstr(&__simu_out, 0);
+
+        tt_http_sconn_destroy(&c);
+        __simp1_end();
+        __simu1_end();
+    }
 
     // test end
     TT_TEST_CASE_LEAVE()

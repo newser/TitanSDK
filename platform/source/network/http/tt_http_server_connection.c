@@ -154,6 +154,8 @@ static tt_bool_t __sconn_action(IN tt_http_sconn_t *c,
                                 IN tt_http_inserv_action_t action,
                                 OUT tt_bool_t *wait_eof);
 
+static void __sconn_clear(IN tt_http_sconn_t *c, IN tt_bool_t clear_recv_buf);
+
 ////////////////////////////////////////////////////////////
 // interface implementation
 ////////////////////////////////////////////////////////////
@@ -343,7 +345,7 @@ tt_bool_t tt_http_sconn_run(IN tt_http_sconn_t *c)
                     }
 
                     // clear to process next request
-                    tt_http_parser_clear(&c->parser, TT_FALSE);
+                    __sconn_clear(c, TT_FALSE);
                 }
             }
         }
@@ -575,6 +577,8 @@ tt_bool_t __sconn_on_error(IN tt_http_sconn_t *c, IN tt_http_server_error_t e)
                     resp, TT_HTTP_STATUS_PAYLOAD_TOO_LARGE);
             }
 
+            tt_http_resp_render_set_conn(resp, TT_HTTP_CONN_CLOSE);
+
             shut_wr = TT_TRUE;
             wait_eof = TT_TRUE;
         } break;
@@ -585,6 +589,8 @@ tt_bool_t __sconn_on_error(IN tt_http_sconn_t *c, IN tt_http_server_error_t e)
             };
 
             tt_http_resp_render_set_status(resp, status_errmap[e]);
+
+            tt_http_resp_render_set_conn(resp, TT_HTTP_CONN_CLOSE);
 
             shut_wr = TT_TRUE;
             wait_eof = TT_TRUE;
@@ -668,6 +674,17 @@ tt_bool_t __sconn_action(IN tt_http_sconn_t *c,
     } else {
         return TT_TRUE;
     }
+}
+
+void __sconn_clear(IN tt_http_sconn_t *c, IN tt_bool_t clear_recv_buf)
+{
+    tt_tmr_stop(c->tmr);
+
+    tt_http_svcmgr_clear(&c->svcmgr);
+
+    tt_http_parser_clear(&c->parser, clear_recv_buf);
+
+    tt_http_resp_render_clear(&c->render);
 }
 
 // ========================================

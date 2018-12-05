@@ -31,6 +31,7 @@ this file defines http server
 ////////////////////////////////////////////////////////////
 
 #include <io/tt_socket.h>
+#include <network/ssl/tt_ssl.h>
 #include <os/tt_fiber.h>
 
 ////////////////////////////////////////////////////////////
@@ -43,13 +44,21 @@ this file defines http server
 
 typedef struct
 {
-    tt_skt_t *skt;
-    tt_skt_attr_t accepted_skt_attr;
+    union
+    {
+        tt_skt_t *skt;
+        tt_ssl_t *ssl;
+    };
+    tt_ssl_config_t *ssl_server_cfg;
+    tt_skt_attr_t new_skt_attr;
+    tt_fiber_attr_t conn_fiber_attr;
+    tt_bool_t https : 1;
 } tt_http_server_t;
 
 typedef struct
 {
-    tt_skt_attr_t accepted_skt_attr;
+    tt_skt_attr_t new_skt_attr;
+    tt_fiber_attr_t conn_fiber_attr;
 } tt_http_server_attr_t;
 
 ////////////////////////////////////////////////////////////
@@ -60,12 +69,21 @@ typedef struct
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-tt_export tt_result_t tt_http_server_create(IN tt_http_server_t *svr,
-                                            IN TO tt_skt_t *skt,
-                                            IN OPT tt_http_server_attr_t *attr);
+tt_export tt_result_t
+tt_http_server_create_skt(IN tt_http_server_t *svr,
+                          IN TO tt_skt_t *skt,
+                          IN OPT tt_http_server_attr_t *attr);
+
+tt_export tt_result_t
+tt_http_server_create_ssl(IN tt_http_server_t *svr,
+                          IN TO tt_ssl_t *ssl,
+                          IN tt_ssl_config_t *ssl_server_cfg,
+                          IN OPT tt_http_server_attr_t *attr);
 
 tt_export void tt_http_server_destroy(IN tt_http_server_t *svr);
 
 tt_export void tt_http_server_attr_default(IN tt_http_server_attr_t *attr);
+
+tt_export tt_result_t tt_http_server_run_fiber(IN tt_http_server_t *svr);
 
 #endif /* __TT_HTTP_SERVER__ */

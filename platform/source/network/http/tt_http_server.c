@@ -23,6 +23,7 @@
 #include <network/http/tt_http_server.h>
 
 #include <misc/tt_assert.h>
+#include <network/http/tt_http_server_connection.h>
 #include <time/tt_timer.h>
 
 ////////////////////////////////////////////////////////////
@@ -45,15 +46,15 @@
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-static tt_result_t __http_svr_dispatch2fiber(IN void *param);
+static tt_result_t __sconn_skt_fiber(IN void *param);
 
 ////////////////////////////////////////////////////////////
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-tt_result_t tt_http_server_create(IN tt_http_server_t *svr,
-                                  IN TO tt_skt_t *skt,
-                                  IN OPT tt_http_server_attr_t *attr)
+tt_result_t tt_http_server_create_skt(IN tt_http_server_t *svr,
+                                      IN TO tt_skt_t *skt,
+                                      IN OPT tt_http_server_attr_t *attr)
 {
     tt_http_server_attr_t __attr;
     tt_fiber_t *f;
@@ -66,9 +67,38 @@ tt_result_t tt_http_server_create(IN tt_http_server_t *svr,
     }
 
     svr->skt = skt;
-    tt_memcpy(&svr->accepted_skt_attr,
-              &attr->accepted_skt_attr,
-              sizeof(tt_skt_attr_t));
+    svr->ssl_server_cfg = NULL;
+    tt_memcpy(&svr->new_skt_attr, &attr->new_skt_attr, sizeof(tt_skt_attr_t));
+    tt_memcpy(&svr->conn_fiber_attr,
+              &attr->conn_fiber_attr,
+              sizeof(tt_fiber_attr_t));
+    svr->https = TT_FALSE;
+
+    return TT_SUCCESS;
+}
+
+tt_result_t tt_http_server_create_ssl(IN tt_http_server_t *svr,
+                                      IN TO tt_ssl_t *ssl,
+                                      IN tt_ssl_config_t *ssl_server_cfg,
+                                      IN OPT tt_http_server_attr_t *attr)
+{
+    tt_http_server_attr_t __attr;
+    tt_fiber_t *f;
+
+    TT_ASSERT(svr != NULL);
+
+    if (attr == NULL) {
+        tt_http_server_attr_default(&__attr);
+        attr = &__attr;
+    }
+
+    svr->ssl = ssl;
+    svr->ssl_server_cfg = ssl_server_cfg;
+    tt_memcpy(&svr->new_skt_attr, &attr->new_skt_attr, sizeof(tt_skt_attr_t));
+    tt_memcpy(&svr->conn_fiber_attr,
+              &attr->conn_fiber_attr,
+              sizeof(tt_fiber_attr_t));
+    svr->https = TT_TRUE;
 
     return TT_SUCCESS;
 }
@@ -77,31 +107,48 @@ void tt_http_server_destroy(IN tt_http_server_t *svr)
 {
     TT_ASSERT(svr != NULL);
 
-    tt_skt_destroy(svr->skt);
+    if (svr->https) {
+        tt_ssl_destroy(svr->ssl);
+    } else {
+        tt_skt_destroy(svr->skt);
+    }
 }
 
 void tt_http_server_attr_default(IN tt_http_server_attr_t *attr)
 {
     TT_ASSERT(attr != NULL);
 
-    tt_skt_attr_default(&attr->accepted_skt_attr);
+    tt_skt_attr_default(&attr->new_skt_attr);
+
+    tt_fiber_attr_default(&attr->conn_fiber_attr);
 }
 
-tt_result_t __http_svr_dispatch2fiber(IN void *param)
+tt_result_t tt_http_server_run_fiber(IN tt_http_server_t *svr)
 {
-    tt_http_server_t *svr = (tt_http_server_t *)param;
-    tt_skt_t *server_skt = svr->skt, *client_skt;
     tt_sktaddr_t addr;
+    tt_skt_t *new_skt;
     tt_fiber_ev_t *fev;
     tt_tmr_t *tmr;
+    tt_result_t result = TT_FAIL;
 
-    /*
-    while ((client_skt = tt_skt_accept(server_skt,
-                                       &svr->accepted_skt_attr,
-                                       &addr,
-                                       &client_skt,
-                                       &fev,
-                                       &tmr)) != NULL) {
+    while (TT_OK(tt_skt_accept(svr->skt,
+                               &svr->new_skt_attr,
+                               &addr,
+                               &new_skt,
+                               &fev,
+                               &tmr))) {
+        if (new_skt != NULL) {
+            tt_fiber_t *f = tt_fiber_create(NULL,
+                                            __sconn_skt_fiber,
+                                            new_skt,
+                                            &svr->conn_fiber_attr);
+            if (f != NULL) {
+                tt_fiber_resume(f, TT_FALSE);
+            } else {
+                tt_skt_destroy(new_skt);
+            }
+        }
+
         if (fev != NULL) {
             tt_fiber_finish(fev);
         }
@@ -110,7 +157,28 @@ tt_result_t __http_svr_dispatch2fiber(IN void *param)
             // todo
         }
     }
-*/
+
+    return result;
+}
+
+tt_result_t __sconn_skt_fiber(IN void *param)
+{
+    tt_skt_t *s = (tt_skt_t *)param;
+    tt_http_sconn_t c;
+    tt_http_sconn_attr_t attr;
+
+    tt_http_sconn_attr_default(&attr);
+
+    if (!TT_OK(tt_http_sconn_create_skt(&c, s, &attr))) {
+        tt_skt_destroy(s);
+        return TT_FAIL;
+    }
+
+    if (tt_http_sconn_run(&c)) {
+        tt_http_sconn_wait_eof(&c);
+    }
+
+    tt_http_sconn_destroy(&c);
 
     return TT_SUCCESS;
 }
