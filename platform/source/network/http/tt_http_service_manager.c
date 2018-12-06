@@ -70,7 +70,7 @@ void tt_http_svcmgr_destroy(IN tt_http_svcmgr_t *sm)
     }
 
     while ((dn = tt_dlist_pop_head(&sm->outserv)) != NULL) {
-        tt_http_outserv_destroy(TT_CONTAINER(dn, tt_http_outserv_t, dnode));
+        tt_http_outserv_release(TT_CONTAINER(dn, tt_http_outserv_t, dnode));
     }
 }
 

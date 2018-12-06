@@ -77,6 +77,7 @@ tt_inline void tt_http_svcmgr_add_inserv(IN tt_http_svcmgr_t *sm,
 tt_inline void tt_http_svcmgr_add_outserv(IN tt_http_svcmgr_t *sm,
                                           IN TO tt_http_outserv_t *s)
 {
+    tt_http_outserv_ref(s);
     tt_dlist_push_tail(&sm->outserv, &s->dnode);
 }
 

@@ -785,6 +785,7 @@ TT_TEST_ROUTINE_DEFINE(case_http_svcmgr)
                                                &__os_cb);
                 TT_HTTP_OUTSERV_CAST(os[i], __is_idx_t)->idx = i;
                 tt_http_svcmgr_add_outserv(&sm, os[i]);
+                tt_http_outserv_release(os[i]);
             }
 
             tt_http_svcmgr_on_resp(&sm, NULL, NULL);
