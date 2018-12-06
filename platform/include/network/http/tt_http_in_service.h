@@ -32,6 +32,7 @@ this file defines http incoming service APIs
 
 #include <algorithm/tt_double_linked_list.h>
 #include <memory/tt_memory_alloc.h>
+#include <misc/tt_reference_counter.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
@@ -39,6 +40,11 @@ this file defines http incoming service APIs
 
 #define TT_HTTP_INSERV_CAST(s, name)                                           \
     TT_PTR_INC(name, s, sizeof(tt_http_inserv_t))
+
+#define tt_http_inserv_ref(is) TT_REF_ADD(tt_http_inserv_t, is, ref)
+
+#define tt_http_inserv_release(is)                                             \
+    TT_REF_RELEASE(tt_http_inserv_t, is, ref, __http_inserv_destroy)
 
 ////////////////////////////////////////////////////////////
 // type definition
@@ -116,6 +122,7 @@ typedef struct tt_http_inserv_s
     tt_http_inserv_itf_t *itf;
     tt_http_inserv_cb_t *cb;
     tt_dnode_t dnode;
+    tt_atomic_s32_t ref;
 } tt_http_inserv_t;
 
 typedef enum {
@@ -137,7 +144,7 @@ tt_export tt_http_inserv_t *tt_http_inserv_create(IN tt_u32_t extra_size,
                                                   IN tt_http_inserv_itf_t *itf,
                                                   IN tt_http_inserv_cb_t *cb);
 
-tt_inline void tt_http_inserv_destroy(IN tt_http_inserv_t *s)
+tt_inline void __http_inserv_destroy(IN tt_http_inserv_t *s)
 {
     TT_ASSERT(!tt_dnode_in_dlist(&s->dnode));
 

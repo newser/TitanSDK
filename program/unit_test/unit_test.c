@@ -99,18 +99,17 @@ tt_result_t __ut_fiber(IN void *param)
     }
 #if 1
     else {
-        const tt_char_t *names[] =
-        { "case_http_sconn_cb_error",
-//          "case_dl_list",
-//          "case_blobex",
-//          "case_ptr_queue",
-//"TEST_UNIT_FPATH",
-//          "case_uri_get_set",
-//          "case_fpath_normalize",
-//          "HTTP_UT_URI",
-//          "HTTP_UT_HDR",
-//          "HTTP_UT_RENDER",
-//          "HTTP_UT_SCONN",
+        const tt_char_t *names[] = { //"case_http_server_basic",
+            "case_dl_list",
+            "case_blobex",
+            "case_ptr_queue",
+            "TEST_UNIT_FPATH",
+            "case_uri_get_set",
+            "case_fpath_normalize",
+            "HTTP_UT_URI",
+            "HTTP_UT_HDR",
+            "HTTP_UT_RENDER",
+            "HTTP_UT_SCONN",
 //"TEST_UNIT_SOCKET",
 #if 0
           "TEST_UNIT_LOG",
@@ -330,7 +329,7 @@ tt_platform_init(NULL);
 
 // tt_thread_wait_local();
 tt_platform_exit();
-while (1)
+while (0)
     tt_sleep(10000);
 printf("exiting\n");
 return TT_COND(tt_ut_ok, 0, -1);

@@ -428,14 +428,14 @@ static tt_http_inserv_action_t __is_on_complete(
 static tt_bool_t __os_destroyed[__OS_NUM];
 static void __outserv_destroy(IN struct tt_http_outserv_s *s)
 {
-    __is_idx_t *i = TT_HTTP_INSERV_CAST(s, __is_idx_t);
+    __is_idx_t *i = TT_HTTP_OUTSERV_CAST(s, __is_idx_t);
     __os_destroyed[i->idx] = TT_TRUE;
 }
 
 static tt_bool_t __os_clear[__OS_NUM];
 static void __outserv_clear(IN struct tt_http_outserv_s *s)
 {
-    __is_idx_t *i = TT_HTTP_INSERV_CAST(s, __is_idx_t);
+    __is_idx_t *i = TT_HTTP_OUTSERV_CAST(s, __is_idx_t);
     __os_clear[i->idx] = TT_TRUE;
 }
 
@@ -444,7 +444,7 @@ static void __outserv_on_resp(IN struct tt_http_outserv_s *s,
                               IN struct tt_http_parser_s *req,
                               IN OUT struct tt_http_resp_render_s *resp)
 {
-    __is_idx_t *i = TT_HTTP_INSERV_CAST(s, __is_idx_t);
+    __is_idx_t *i = TT_HTTP_OUTSERV_CAST(s, __is_idx_t);
     __os_on_resp[i->idx] = TT_TRUE;
 }
 
@@ -491,6 +491,8 @@ TT_TEST_ROUTINE_DEFINE(case_http_svcmgr)
             ii->idx = i;
 
             tt_http_svcmgr_add_inserv(&sm, is[i]);
+
+            tt_http_inserv_release(is[i]);
         }
 
         tt_memset(__is_clear, 0, sizeof(__is_clear));

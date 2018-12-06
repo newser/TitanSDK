@@ -64,6 +64,7 @@ tt_http_inserv_t *tt_http_inserv_create(IN tt_u32_t extra_size,
     s->itf = itf;
     s->cb = cb;
     tt_dnode_init(&s->dnode);
+    tt_atomic_s32_set(&s->ref, 1);
 
     return s;
 }

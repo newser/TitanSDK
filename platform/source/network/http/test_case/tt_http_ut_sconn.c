@@ -503,6 +503,7 @@ TT_TEST_ROUTINE_DEFINE(case_http_sconn_basic)
 
     s = tt_http_inserv_create(0, &s_itf, &__simp1_cb);
     tt_http_sconn_add_inserv(&c, s);
+    tt_http_inserv_release(s);
 
     // put a http request
     {
@@ -584,6 +585,7 @@ TT_TEST_ROUTINE_DEFINE(case_http_sconn_basic)
         __simp1_start();
         s = tt_http_inserv_create(0, &s_itf, &__simp1_cb);
         tt_http_sconn_add_inserv(&c, s);
+        tt_http_inserv_release(s);
 
         tt_buf_put_cstr(&__simu_in, h);
 
@@ -608,6 +610,7 @@ TT_TEST_ROUTINE_DEFINE(case_http_sconn_basic)
         __simp1_start();
         s = tt_http_inserv_create(0, &s_itf, &__simp1_cb);
         tt_http_sconn_add_inserv(&c, s);
+        tt_http_inserv_release(s);
 
         tt_buf_put_cstr(&__simu_in, h);
 
@@ -649,6 +652,7 @@ TT_TEST_ROUTINE_DEFINE(case_http_sconn_cb_error)
         __simp1_start();
         s = tt_http_inserv_create(0, &s_itf, &__simp1_cb);
         tt_http_sconn_add_inserv(&c, s);
+        tt_http_inserv_release(s);
 
         tt_buf_put_cstr(&__simu_in, h);
 
@@ -673,6 +677,7 @@ TT_TEST_ROUTINE_DEFINE(case_http_sconn_cb_error)
         __simp1_start();
         s = tt_http_inserv_create(0, &s_itf, &__simp1_cb);
         tt_http_sconn_add_inserv(&c, s);
+        tt_http_inserv_release(s);
 
         tt_buf_put_cstr(&__simu_in, h);
 
@@ -698,6 +703,7 @@ TT_TEST_ROUTINE_DEFINE(case_http_sconn_cb_error)
         __simp1_start();
         s = tt_http_inserv_create(0, &s_itf, &__simp1_cb);
         tt_http_sconn_add_inserv(&c, s);
+        tt_http_inserv_release(s);
 
         tt_buf_put_cstr(&__simu_in, h);
 
@@ -746,6 +752,7 @@ TT_TEST_ROUTINE_DEFINE(case_http_sconn_cb_error)
         __simp1_start();
         s = tt_http_inserv_create(0, &s_itf, &__simp1_cb);
         tt_http_sconn_add_inserv(&c, s);
+        tt_http_inserv_release(s);
 
         tt_buf_put_cstr(&__simu_in, h);
 
@@ -771,6 +778,7 @@ TT_TEST_ROUTINE_DEFINE(case_http_sconn_cb_error)
         __simp1_start();
         s = tt_http_inserv_create(0, &s_itf, &__simp1_cb);
         tt_http_sconn_add_inserv(&c, s);
+        tt_http_inserv_release(s);
 
         tt_buf_put_cstr(&__simu_in, h);
 
