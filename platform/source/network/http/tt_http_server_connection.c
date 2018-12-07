@@ -663,6 +663,11 @@ tt_bool_t __sconn_action(IN tt_http_sconn_t *c,
         *wait_eof = TT_FALSE;
         return TT_FALSE;
     } else if (action == TT_HTTP_INSERV_ACT_SHUTDOWN) {
+        tt_http_resp_render_t *resp = &c->render;
+
+        // set "Connection: close" are we are going to close connection
+        tt_http_resp_render_set_conn(resp, TT_HTTP_CONN_CLOSE);
+
         if (TT_OK(__sconn_send_resp(c))) {
             // stop and wait eof
             ((__sconn_itf_t *)c->itf)->shut(c, TT_HTTP_SHUT_RDWR);

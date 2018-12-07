@@ -110,6 +110,7 @@ tt_result_t __ut_fiber(IN void *param)
             "HTTP_UT_HDR",
             "HTTP_UT_RENDER",
             "HTTP_UT_SCONN",
+            "case_http_rule_basic",
 //"TEST_UNIT_SOCKET",
 #if 0
           "TEST_UNIT_LOG",
