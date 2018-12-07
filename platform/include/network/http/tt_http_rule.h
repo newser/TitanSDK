@@ -86,6 +86,7 @@ typedef struct tt_http_rule_s
     tt_dlist_t child;
     tt_dnode_t dnode;
     tt_atomic_s32_t ref;
+    tt_http_rule_result_t result;
 } tt_http_rule_t;
 
 ////////////////////////////////////////////////////////////
@@ -97,7 +98,8 @@ typedef struct tt_http_rule_s
 ////////////////////////////////////////////////////////////
 
 tt_export tt_http_rule_t *tt_http_rule_create(IN tt_u32_t extra_size,
-                                              IN tt_http_rule_itf_t *itf);
+                                              IN tt_http_rule_itf_t *itf,
+                                              IN tt_http_rule_result_t result);
 
 tt_export void __http_rule_destroy(IN tt_http_rule_t *r);
 

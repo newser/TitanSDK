@@ -197,6 +197,8 @@ add_group_src(${PLATFORM_PATH}/source/network/ssl ssl SRC_FILE)
 
 add_group_hdr(${PLATFORM_PATH}/include/network/http http SRC_FILE)
 add_group_src(${PLATFORM_PATH}/source/network/http http SRC_FILE)
+add_group_hdr(${PLATFORM_PATH}/include/network/http/rule http SRC_FILE)
+add_group_src(${PLATFORM_PATH}/source/network/http/rule http SRC_FILE)
 
 #add_group_src(${PLATFORM_PATH}/source/network/ssh ssh SRC_FILE)
 #add_group_src(${PLATFORM_PATH}/source/network/ssh/message ssh SRC_FILE)

@@ -54,11 +54,13 @@ static tt_http_rule_result_t __rule_process(IN tt_http_rule_t *r,
 ////////////////////////////////////////////////////////////
 
 tt_http_rule_t *tt_http_rule_create(IN tt_u32_t extra_size,
-                                    IN tt_http_rule_itf_t *itf)
+                                    IN tt_http_rule_itf_t *itf,
+                                    IN tt_http_rule_result_t result)
 {
     tt_http_rule_t *r;
 
     TT_ASSERT(itf != NULL);
+    TT_ASSERT(TT_HTTP_RULE_RESULT_VALID(result));
 
     r = tt_malloc(sizeof(tt_http_rule_t) + extra_size);
     if (r == NULL) {
@@ -70,6 +72,7 @@ tt_http_rule_t *tt_http_rule_create(IN tt_u32_t extra_size,
     tt_dlist_init(&r->child);
     tt_dnode_init(&r->dnode);
     tt_atomic_s32_set(&r->ref, 1);
+    r->result = result;
 
     return r;
 }
@@ -154,6 +157,5 @@ tt_http_rule_result_t __rule_process(IN tt_http_rule_t *r,
         return result;
     }
 
-    // no one said return, so next
-    return TT_HTTP_RULE_NEXT;
+    return r->result;
 }

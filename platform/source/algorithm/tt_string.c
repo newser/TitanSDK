@@ -201,10 +201,11 @@ tt_result_t tt_string_setfrom_c(IN tt_string_t *str,
     return TT_SUCCESS;
 }
 
-tt_result_t tt_string_set_range(IN tt_string_t *str,
-                                IN tt_u32_t from,
-                                IN tt_u32_t len,
-                                IN const tt_char_t *cstr)
+tt_result_t tt_string_set_range_n(IN tt_string_t *str,
+                                  IN tt_u32_t from,
+                                  IN tt_u32_t len,
+                                  IN const tt_char_t *cstr,
+                                  IN tt_u32_t cstr_len)
 {
     tt_u32_t n = tt_string_len(str);
 
@@ -213,11 +214,7 @@ tt_result_t tt_string_set_range(IN tt_string_t *str,
         return TT_E_BADARG;
     }
 
-    return tt_buf_set_range(&str->buf,
-                            from,
-                            len,
-                            (tt_u8_t *)cstr,
-                            (tt_u32_t)tt_strlen(cstr));
+    return tt_buf_set_range(&str->buf, from, len, (tt_u8_t *)cstr, cstr_len);
 }
 
 void tt_string_clear(IN tt_string_t *str)

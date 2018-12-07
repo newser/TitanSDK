@@ -106,10 +106,19 @@ tt_export tt_result_t tt_string_setfrom_c(IN tt_string_t *str,
                                           IN tt_u32_t from,
                                           IN tt_char_t c);
 
-tt_export tt_result_t tt_string_set_range(IN tt_string_t *str,
+tt_export tt_result_t tt_string_set_range_n(IN tt_string_t *str,
+                                            IN tt_u32_t from,
+                                            IN tt_u32_t len,
+                                            IN const tt_char_t *cstr,
+                                            IN tt_u32_t cstr_len);
+
+tt_inline tt_result_t tt_string_set_range(IN tt_string_t *str,
                                           IN tt_u32_t from,
                                           IN tt_u32_t len,
-                                          IN const tt_char_t *cstr);
+                                          IN const tt_char_t *cstr)
+{
+    return tt_string_set_range_n(str, from, len, cstr, tt_strlen(cstr));
+}
 
 tt_export void tt_string_clear(IN tt_string_t *str);
 

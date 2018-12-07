@@ -24,6 +24,7 @@
 
 #include <stdlib.h>
 
+#include <network/http/rule/tt_http_rule_prefix.h>
 #include <network/http/tt_http_rule.h>
 #include <network/http/tt_http_server.h>
 
@@ -45,6 +46,7 @@
 
 // === routine declarations ================
 TT_TEST_ROUTINE_DECLARE(case_http_rule_basic)
+TT_TEST_ROUTINE_DECLARE(case_http_rule_prefix)
 
 TT_TEST_ROUTINE_DECLARE(case_http_server_basic)
 // =========================================
@@ -61,6 +63,15 @@ TT_TEST_CASE("case_http_rule_basic",
              NULL,
              NULL)
 ,
+
+    TT_TEST_CASE("case_http_rule_prefix",
+                 "http uri rule: prefix",
+                 case_http_rule_prefix,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL),
 
     TT_TEST_CASE("case_http_server_basic",
                  "http server basic",
@@ -85,7 +96,7 @@ TT_TEST_CASE("case_http_rule_basic",
     ////////////////////////////////////////////////////////////
 
     /*
-    TT_TEST_ROUTINE_DEFINE(case_http_rule_basic)
+    TT_TEST_ROUTINE_DEFINE(case_http_rule_prefix)
     {
         //tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
 
@@ -100,7 +111,7 @@ TT_TEST_CASE("case_http_rule_basic",
     static tt_bool_t __hr1_destroyed[3];
 static void __hr1_destroy(IN struct tt_http_rule_s *r)
 {
-    tt_u32_t idx = TT_HTTP_RULE_CAST(r, tt_u32_t);
+    tt_u32_t idx = *TT_HTTP_RULE_CAST(r, tt_u32_t);
 
     __hr1_destroyed[idx] = TT_TRUE;
 }
@@ -113,7 +124,6 @@ static tt_bool_t __hr1_match(IN struct tt_http_rule_s *r,
 {
     tt_u32_t idx = *TT_HTTP_RULE_CAST(r, tt_u32_t);
 
-    TT_INFO("hr[%d]", idx);
     __hr1_match_called[idx] = TT_TRUE;
     return __hr1_match_ret[idx];
 }
@@ -174,25 +184,27 @@ TT_TEST_ROUTINE_DEFINE(case_http_rule_basic)
     TT_TEST_CASE_ENTER()
     // test start
 
-    r = tt_http_rule_create(0, &i1);
+    r = tt_http_rule_create(0, &i1, TT_HTTP_RULE_ERROR);
     TT_UT_NOT_NULL(r, "");
+    rret = tt_http_rule_process(r, NULL, &pos);
+    TT_UT_EQUAL(rret, TT_HTTP_RULE_ERROR, "");
     tt_http_rule_release(r);
 
-    r = tt_http_rule_create(0, &i1);
+    r = tt_http_rule_create(0, &i1, TT_HTTP_RULE_NEXT);
     TT_UT_NOT_NULL(r, "");
 
     {
-        child = tt_http_rule_create(sizeof(tt_u32_t), &i2);
+        child = tt_http_rule_create(sizeof(tt_u32_t), &i2, TT_HTTP_RULE_NEXT);
         *TT_HTTP_RULE_CAST(child, tt_u32_t) = 0;
         tt_http_rule_add(r, child);
         tt_http_rule_release(child);
 
-        child = tt_http_rule_create(sizeof(tt_u32_t), &i2);
+        child = tt_http_rule_create(sizeof(tt_u32_t), &i2, TT_HTTP_RULE_NEXT);
         *TT_HTTP_RULE_CAST(child, tt_u32_t) = 1;
         tt_http_rule_add(r, child);
         tt_http_rule_release(child);
 
-        child = tt_http_rule_create(sizeof(tt_u32_t), &i2);
+        child = tt_http_rule_create(sizeof(tt_u32_t), &i2, TT_HTTP_RULE_NEXT);
         *TT_HTTP_RULE_CAST(child, tt_u32_t) = 2;
         tt_http_rule_add(r, child);
         tt_http_rule_release(child);
@@ -279,6 +291,112 @@ TT_TEST_ROUTINE_DEFINE(case_http_rule_basic)
     for (i = 0; i < 3; ++i) {
         TT_UT_TRUE(__hr1_destroyed[i], "");
     }
+
+    // test end
+    TT_TEST_CASE_LEAVE()
+}
+
+TT_TEST_ROUTINE_DEFINE(case_http_rule_prefix)
+{
+    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+    tt_http_rule_t *r, *r2;
+    tt_string_t uri;
+    tt_u32_t pos;
+    tt_http_rule_result_t rret;
+
+    TT_TEST_CASE_ENTER()
+    // test start
+
+    tt_string_init(&uri, NULL);
+
+    r = tt_http_rule_prefix_create("/", NULL);
+    TT_UT_NOT_NULL(r, "");
+
+    // not match
+    pos = 0;
+    rret = tt_http_rule_process(r, &uri, &pos);
+    TT_UT_EQUAL(rret, TT_HTTP_RULE_NEXT, "");
+
+    // whole match
+    pos = 0;
+    tt_string_set(&uri, "/");
+    rret = tt_http_rule_process(r, &uri, &pos);
+    TT_UT_EQUAL(rret, TT_HTTP_RULE_BREAK, "");
+
+    // partial match
+    pos = 0;
+    tt_string_set(&uri, "//abc");
+    rret = tt_http_rule_process(r, &uri, &pos);
+    TT_UT_EQUAL(rret, TT_HTTP_RULE_BREAK, "");
+
+    // not match
+    pos = 0;
+    tt_string_set(&uri, "a/");
+    rret = tt_http_rule_process(r, &uri, &pos);
+    TT_UT_EQUAL(rret, TT_HTTP_RULE_NEXT, "");
+
+    {
+        r2 = tt_http_rule_prefix_create("abc", NULL);
+        TT_UT_NOT_NULL(r, "");
+        tt_http_rule_add(r, r2);
+        tt_http_rule_release(r2);
+
+        r2 = tt_http_rule_prefix_create("xyz", "x");
+        TT_UT_NOT_NULL(r, "");
+        tt_http_rule_add(r, r2);
+        tt_http_rule_release(r2);
+
+        r2 = tt_http_rule_prefix_create("123", "12345");
+        TT_UT_NOT_NULL(r, "");
+        tt_http_rule_add(r, r2);
+        tt_http_rule_release(r2);
+
+        // not match
+        pos = 0;
+        tt_string_set(&uri, "a/");
+        rret = tt_http_rule_process(r, &uri, &pos);
+        TT_UT_EQUAL(rret, TT_HTTP_RULE_NEXT, "");
+
+        // match first
+        pos = 0;
+        tt_string_set(&uri, "/ab");
+        rret = tt_http_rule_process(r, &uri, &pos);
+        TT_UT_EQUAL(rret, TT_HTTP_RULE_BREAK, "");
+        TT_UT_EQUAL(pos, 1, "");
+
+        // match second
+        pos = 0;
+        tt_string_set(&uri, "/abc");
+        rret = tt_http_rule_process(r, &uri, &pos);
+        TT_UT_EQUAL(rret, TT_HTTP_RULE_BREAK, "");
+        TT_UT_EQUAL(pos, 4, "");
+
+        // more than matching
+        pos = 0;
+        tt_string_set(&uri, "/abc/");
+        rret = tt_http_rule_process(r, &uri, &pos);
+        TT_UT_EQUAL(rret, TT_HTTP_RULE_BREAK, "");
+        TT_UT_EQUAL(pos, 4, "");
+    }
+
+    // replace
+    {
+        pos = 0;
+        tt_string_set(&uri, "/xyz/");
+        rret = tt_http_rule_process(r, &uri, &pos);
+        TT_UT_EQUAL(rret, TT_HTTP_RULE_BREAK, "");
+        TT_UT_STREQ(tt_string_cstr(&uri), "/x/", "");
+        TT_UT_EQUAL(pos, 2, "");
+
+        pos = 0;
+        tt_string_set(&uri, "/123999/");
+        rret = tt_http_rule_process(r, &uri, &pos);
+        TT_UT_EQUAL(rret, TT_HTTP_RULE_BREAK, "");
+        TT_UT_STREQ(tt_string_cstr(&uri), "/12345999/", "");
+        TT_UT_EQUAL(pos, 6, "");
+    }
+
+    tt_http_rule_release(r);
 
     // test end
     TT_TEST_CASE_LEAVE()
