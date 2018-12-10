@@ -1501,17 +1501,20 @@ TT_TEST_ROUTINE_DEFINE(case_blob)
     TT_UT_EXP(tt_blob_strcmp(&b, "") > 0, "");
     TT_UT_EXP(tt_blob_strcmp(&b, "1234") < 0, "");
 
-    ret = tt_blob_create(&b2, (tt_u8_t *)"", 0);
+    ret = tt_blob_create(&b2, (tt_u8_t *)"", 1);
     TT_UT_EXP(tt_blob_cmp(&b, &b2) > 0, "");
     tt_blob_destroy(&b2);
+    TT_UT_EXP(tt_blob_memcmp(&b, b2.addr, b2.len) > 0, "");
 
     ret = tt_blob_create(&b2, (tt_u8_t *)"1234", 4);
     TT_UT_EXP(tt_blob_cmp(&b, &b2) < 0, "");
     tt_blob_destroy(&b2);
+    TT_UT_EXP(tt_blob_memcmp(&b, (tt_u8_t *)"1234", 4) < 0, "");
 
     ret = tt_blob_create(&b2, (tt_u8_t *)"123", 3);
     TT_UT_EXP(tt_blob_cmp(&b, &b2) == 0, "");
     tt_blob_destroy(&b2);
+    TT_UT_EXP(tt_blob_memcmp(&b, (tt_u8_t *)"123", 3) == 0, "");
 
     tt_blob_destroy(&b);
 

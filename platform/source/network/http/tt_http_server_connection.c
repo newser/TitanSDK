@@ -156,6 +156,8 @@ static tt_bool_t __sconn_action(IN tt_http_sconn_t *c,
 
 static void __sconn_clear(IN tt_http_sconn_t *c, IN tt_bool_t clear_recv_buf);
 
+static tt_http_inserv_action_t __check_header(IN tt_http_sconn_t *c);
+
 ////////////////////////////////////////////////////////////
 // interface implementation
 ////////////////////////////////////////////////////////////
@@ -293,6 +295,12 @@ tt_bool_t tt_http_sconn_run(IN tt_http_sconn_t *c)
                 }
 
                 if (!prev_header && req->complete_header) {
+                    // do some basic check when received all headers
+                    action = __check_header(c);
+                    if (!__sconn_action(c, action, &wait_eof)) {
+                        return wait_eof;
+                    }
+
                     action = tt_http_svcmgr_on_header(&c->svcmgr, req, resp);
                     if (!__sconn_action(c, action, &wait_eof)) {
                         return wait_eof;
@@ -690,6 +698,31 @@ void __sconn_clear(IN tt_http_sconn_t *c, IN tt_bool_t clear_recv_buf)
     tt_http_parser_clear(&c->parser, clear_recv_buf);
 
     tt_http_resp_render_clear(&c->render);
+}
+
+tt_http_inserv_action_t __check_header(IN tt_http_sconn_t *c)
+{
+    tt_http_parser_t *req = &c->parser;
+    tt_http_resp_render_t *resp = &c->render;
+    tt_u32_t n;
+
+    // ========================================
+    // check Host header:
+    //
+    // RFC7230:
+    // A server MUST respond with a 400 (Bad Request) status code to any
+    // HTTP/1.1 request message that lacks a Host header field and to any
+    // request message that contains more than one Host header field or a
+    // Host header field with an invalid field-value.
+    // ========================================
+
+    n = tt_http_rawhdr_count_name(&req->rawhdr, "Host");
+    if (n != 1) {
+        tt_http_resp_render_set_status(resp, TT_HTTP_STATUS_BAD_REQUEST);
+        return TT_HTTP_INSERV_ACT_SHUTDOWN;
+    }
+
+    return TT_HTTP_INSERV_ACT_IGNORE;
 }
 
 // ========================================

@@ -119,4 +119,17 @@ tt_inline tt_s32_t tt_blob_strcmp(IN tt_blob_t *blob, IN const tt_char_t *cstr)
     }
 }
 
+tt_inline tt_s32_t tt_blob_memcmp(IN tt_blob_t *a,
+                                  IN tt_u8_t *addr,
+                                  IN tt_u32_t len)
+{
+    if (a->len < len) {
+        return -1;
+    } else if (a->len > len) {
+        return 1;
+    } else {
+        return tt_memcmp(a->addr, addr, len);
+    }
+}
+
 #endif /* __TT_BLOB__ */

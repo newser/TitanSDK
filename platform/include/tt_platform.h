@@ -169,6 +169,7 @@ extern "C" {
 #include <network/dns/tt_dns_cache.h>
 #include <network/dns/tt_dns_entry.h>
 #include <network/dns/tt_dns_rr.h>
+#include <network/http/tt_http_init.h>
 #include <network/netif/tt_netif.h>
 #include <network/netif/tt_netif_addr.h>
 #include <network/netif/tt_netif_group.h>

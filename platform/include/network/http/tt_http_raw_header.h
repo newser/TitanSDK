@@ -181,4 +181,14 @@ tt_inline void tt_http_rawhdr_remove_val(IN tt_http_rawhdr_t *rh,
     tt_dlist_remove(&rh->val, &rv->dnode);
 }
 
+tt_export tt_u32_t tt_http_rawhdr_count_name_n(IN tt_dlist_t *dl,
+                                               IN tt_char_t *name,
+                                               IN tt_u32_t name_len);
+
+tt_inline tt_u32_t tt_http_rawhdr_count_name(IN tt_dlist_t *dl,
+                                             IN const tt_char_t *name)
+{
+    return tt_http_rawhdr_count_name_n(dl, (tt_char_t *)name, tt_strlen(name));
+}
+
 #endif /* __TT_HTTP_RAW_HEADER__ */

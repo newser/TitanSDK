@@ -205,7 +205,7 @@ tt_result_t tt_ptrhmap_add(IN tt_ptrhmap_t *phm,
     }
     if (sn != NULL) {
         TT_ERROR("duplicated key");
-        return TT_FAIL;
+        return TT_E_EXIST;
     }
 
     sn = tt_slist_pop_head(&phm->cache);

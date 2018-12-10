@@ -145,3 +145,21 @@ tt_http_rawhdr_t *tt_http_rawhdr_find_n(IN tt_dlist_t *dl,
     }
     return NULL;
 }
+
+tt_u32_t tt_http_rawhdr_count_name_n(IN tt_dlist_t *dl,
+                                     IN tt_char_t *name,
+                                     IN tt_u32_t name_len)
+{
+    tt_dnode_t *node = tt_dlist_head(dl);
+    tt_u32_t count = 0;
+    while (node != NULL) {
+        tt_http_rawhdr_t *rh = TT_CONTAINER(node, tt_http_rawhdr_t, dnode);
+        node = node->next;
+
+        if ((tt_blobex_len(&rh->name) == name_len) &&
+            (tt_strnicmp(tt_blobex_addr(&rh->name), name, name_len) == 0)) {
+            ++count;
+        }
+    }
+    return count;
+}

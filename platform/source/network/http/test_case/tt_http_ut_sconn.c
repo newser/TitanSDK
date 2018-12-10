@@ -440,6 +440,7 @@ void __simp1_end()
 
 static const tt_char_t *h =
     "POST /a/b/c HTTP/1.1\r\n"
+    "Host: www.example.com\r\n"
     "Content-Type: text/plain\r\n"
     "Transfer-Encoding: chunked\r\n"
     "\r\n"

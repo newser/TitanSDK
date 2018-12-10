@@ -48,6 +48,7 @@
 TT_TEST_ROUTINE_DECLARE(case_http_hdr_basic)
 TT_TEST_ROUTINE_DECLARE(case_http_test_only)
 TT_TEST_ROUTINE_DECLARE(case_http_hdr_parse1)
+TT_TEST_ROUTINE_DECLARE(case_http_hdr_parse2)
 TT_TEST_ROUTINE_DECLARE(case_http_body)
 TT_TEST_ROUTINE_DECLARE(case_http_body2)
 // =========================================
@@ -77,6 +78,15 @@ TT_TEST_CASE("case_http_hdr_basic",
     TT_TEST_CASE("case_http_hdr_parse1",
                  "http parse header",
                  case_http_hdr_parse1,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL),
+
+    TT_TEST_CASE("case_http_hdr_parse2",
+                 "http parse header 2",
+                 case_http_hdr_parse2,
                  NULL,
                  NULL,
                  NULL,
@@ -115,7 +125,7 @@ TT_TEST_CASE("case_http_hdr_basic",
     ////////////////////////////////////////////////////////////
 
     /*
-    TT_TEST_ROUTINE_DEFINE(case_http_body)
+    TT_TEST_ROUTINE_DEFINE(case_http_hdr_parse2)
     {
         //tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
 
@@ -1154,6 +1164,69 @@ TT_TEST_ROUTINE_DEFINE(case_http_body2)
         }
     }
     TT_ASSERT(i == slen);
+
+    tt_http_parser_destroy(&hp);
+
+    tt_slab_destroy(&rh);
+    tt_slab_destroy(&rv);
+
+    // test end
+    TT_TEST_CASE_LEAVE()
+}
+
+TT_TEST_ROUTINE_DEFINE(case_http_hdr_parse2)
+{
+    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+    tt_http_parser_t hp;
+    tt_slab_t rh, rv;
+    tt_u8_t *wp;
+    tt_u32_t wlen;
+    tt_u32_t slen, i, n;
+
+    // nobody + chunked + len
+    tt_char_t p[] =
+        "GET /favicon.ico HTTP/1.1\r\n"
+        "Host: 0.0.0.0=5000\r\n"
+        "User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9)\r\n"
+        "User-Agent: 1u"
+        "Gecko/2008061015 Firefox/3.0\r\n"
+        "Accept: "
+        "text/html,application/xhtml+xml,application/xml;q=0.9,*/"
+        "*;q=0.8\r\n"
+        "User-Agent: \r\n"
+        "Accept-Language: en-us,en;q=0.5\r\n"
+        "Accept-Encoding: gzip,deflate\r\n"
+        "Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7\r\n"
+        "Keep-Alive: 300\r\n"
+        "Connection: keep-alive\r\n"
+        "\r\n";
+
+    TT_TEST_CASE_ENTER()
+    // test start
+
+    TT_UT_SUCCESS(tt_slab_create(&rh, sizeof(tt_http_rawhdr_t), NULL), "");
+    TT_UT_SUCCESS(tt_slab_create(&rv, sizeof(tt_http_rawval_t), NULL), "");
+
+    TT_UT_SUCCESS(tt_http_parser_create(&hp, &rh, &rv, NULL), "");
+
+    slen = sizeof(p) - 1;
+    tt_http_parser_wpos(&hp, &wp, &wlen);
+    TT_UT_EXP(wlen > slen, "");
+    tt_memcpy(wp, p, slen);
+    tt_http_parser_inc_wp(&hp, slen);
+
+    while (tt_http_parser_rlen(&hp) > 0) {
+        TT_UT_SUCCESS(tt_http_parser_run(&hp), "");
+        if (hp.complete_message) {
+            break;
+        }
+    }
+
+    {
+        TT_UT_EQUAL(tt_http_rawhdr_count_name(&hp.rawhdr, "unexist"), 0, "");
+        TT_UT_EQUAL(tt_http_rawhdr_count_name(&hp.rawhdr, "connection"), 1, "");
+        TT_UT_EQUAL(tt_http_rawhdr_count_name(&hp.rawhdr, "user-AgenT"), 3, "");
+    }
 
     tt_http_parser_destroy(&hp);
 

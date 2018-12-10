@@ -26,6 +26,7 @@
 
 #include <network/http/rule/tt_http_rule_prefix.h>
 #include <network/http/tt_http_host.h>
+#include <network/http/tt_http_host_set.h>
 #include <network/http/tt_http_rule.h>
 #include <network/http/tt_http_server.h>
 
@@ -49,6 +50,7 @@
 TT_TEST_ROUTINE_DECLARE(case_http_rule_basic)
 TT_TEST_ROUTINE_DECLARE(case_http_rule_prefix)
 TT_TEST_ROUTINE_DECLARE(case_http_host)
+TT_TEST_ROUTINE_DECLARE(case_http_hostset)
 
 TT_TEST_ROUTINE_DECLARE(case_http_server_basic)
 // =========================================
@@ -84,6 +86,15 @@ TT_TEST_CASE("case_http_rule_basic",
                  NULL,
                  NULL),
 
+    TT_TEST_CASE("case_http_hostset",
+                 "http host map",
+                 case_http_hostset,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL),
+
     TT_TEST_CASE("case_http_server_basic",
                  "http server basic",
                  case_http_server_basic,
@@ -107,7 +118,7 @@ TT_TEST_CASE("case_http_rule_basic",
     ////////////////////////////////////////////////////////////
 
     /*
-    TT_TEST_ROUTINE_DEFINE(case_http_rule_prefix)
+    TT_TEST_ROUTINE_DEFINE(case_http_hostset)
     {
         //tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
 
@@ -436,25 +447,25 @@ TT_TEST_ROUTINE_DEFINE(case_http_host)
     TT_TEST_CASE_ENTER()
     // test start
 
-    TT_UT_SUCCESS(tt_http_host_create(&hh, "123"), "");
+    TT_UT_SUCCESS(tt_http_host_create(&hh, "123", NULL), "");
     tt_http_host_destroy(&hh);
 
-    TT_UT_SUCCESS(tt_http_host_create(&hh, "123"), "");
+    TT_UT_SUCCESS(tt_http_host_create(&hh, "123", NULL), "");
 
     {
         child = tt_http_rule_create(sizeof(tt_u32_t), &i2, TT_HTTP_RULE_NEXT);
         *TT_HTTP_RULE_CAST(child, tt_u32_t) = 0;
-        tt_http_host_add(&hh, child);
+        tt_http_host_add_rule(&hh, child);
         tt_http_rule_release(child);
 
         child = tt_http_rule_create(sizeof(tt_u32_t), &i2, TT_HTTP_RULE_NEXT);
         *TT_HTTP_RULE_CAST(child, tt_u32_t) = 1;
-        tt_http_host_add(&hh, child);
+        tt_http_host_add_rule(&hh, child);
         tt_http_rule_release(child);
 
         child = tt_http_rule_create(sizeof(tt_u32_t), &i2, TT_HTTP_RULE_NEXT);
         *TT_HTTP_RULE_CAST(child, tt_u32_t) = 2;
-        tt_http_host_add(&hh, child);
+        tt_http_host_add_rule(&hh, child);
         tt_http_rule_release(child);
     }
 
@@ -540,6 +551,16 @@ TT_TEST_ROUTINE_DEFINE(case_http_host)
         TT_UT_TRUE(__hr1_destroyed[i], "");
     }
 
+    // match any
+    {
+        TT_UT_SUCCESS(tt_http_host_create(&hh, "123", tt_http_host_match_any),
+                      "");
+
+        TT_UT_TRUE(hh.match(&hh, NULL, 0), "");
+
+        tt_http_host_destroy(&hh);
+    }
+
     // test end
     TT_TEST_CASE_LEAVE()
 }
@@ -594,6 +615,66 @@ TT_TEST_ROUTINE_DEFINE(case_http_server_basic)
     tt_task_run(&t);
 
     tt_task_wait(&t);
+
+    // test end
+    TT_TEST_CASE_LEAVE()
+}
+
+TT_TEST_ROUTINE_DEFINE(case_http_hostset)
+{
+    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+    tt_http_hostset_t m, *pm;
+    tt_http_host_t h1, h2, h[3];
+
+    TT_TEST_CASE_ENTER()
+    // test start
+
+    tt_http_hostset_init(&m);
+    tt_http_hostset_destroy(&m);
+
+    tt_http_hostset_init(&m);
+
+    // find empty map
+    {
+        TT_UT_NULL(tt_http_hostset_find(&m, ""), "");
+        TT_UT_NULL(tt_http_hostset_find(&m, "1"), "");
+    }
+
+    // add default
+    TT_UT_SUCCESS(tt_http_host_create(&h1, "test.com", NULL), "");
+    tt_http_hostset_set_default(&m, &h1);
+    TT_UT_EQUAL(m.default_host, &h1, "");
+
+    TT_UT_SUCCESS(tt_http_host_create(&h2, "test.com:80", NULL), "");
+    tt_http_hostset_set_default(&m, &h2);
+    TT_UT_EQUAL(m.default_host, &h2, "");
+
+    // find empty map but with default
+    {
+        TT_UT_EQUAL(tt_http_hostset_find(&m, ""), &h2, "");
+        TT_UT_EQUAL(tt_http_hostset_find(&m, "1"), &h2, "");
+        TT_UT_EQUAL(tt_http_hostset_find(&m, "test.com:80"), &h2, "");
+    }
+
+    // add some host
+    TT_UT_SUCCESS(tt_http_host_create(&h[0], "0", NULL), "");
+    tt_http_hostset_add(&m, &h[0]);
+    TT_UT_SUCCESS(tt_http_host_create(&h[1], "1", NULL), "");
+    tt_http_hostset_add(&m, &h[1]);
+    TT_UT_SUCCESS(tt_http_host_create(&h[2], "2", NULL), "");
+    tt_http_hostset_add(&m, &h[2]);
+
+    {
+        TT_UT_EQUAL(tt_http_hostset_find(&m, ""), &h2, "");
+        TT_UT_EQUAL(tt_http_hostset_find(&m, "11"), &h2, "");
+        TT_UT_EQUAL(tt_http_hostset_find(&m, "test.com:80"), &h2, "");
+
+        TT_UT_EQUAL(tt_http_hostset_find(&m, "0"), &h[0], "");
+        TT_UT_EQUAL(tt_http_hostset_find(&m, "1"), &h[1], "");
+        TT_UT_EQUAL(tt_http_hostset_find(&m, "2"), &h[2], "");
+    }
+
+    tt_http_hostset_destroy(&m);
 
     // test end
     TT_TEST_CASE_LEAVE()

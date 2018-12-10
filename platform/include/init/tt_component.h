@@ -100,6 +100,7 @@ typedef enum {
 
     // network
     TT_COMPONENT_SSL,
+    TT_COMPONENT_HTTP,
 
     // dns
     TT_COMPONENT_MODULE_ADNS,
