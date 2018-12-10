@@ -25,6 +25,7 @@
 #include <stdlib.h>
 
 #include <network/http/rule/tt_http_rule_prefix.h>
+#include <network/http/tt_http_host.h>
 #include <network/http/tt_http_rule.h>
 #include <network/http/tt_http_server.h>
 
@@ -47,6 +48,7 @@
 // === routine declarations ================
 TT_TEST_ROUTINE_DECLARE(case_http_rule_basic)
 TT_TEST_ROUTINE_DECLARE(case_http_rule_prefix)
+TT_TEST_ROUTINE_DECLARE(case_http_host)
 
 TT_TEST_ROUTINE_DECLARE(case_http_server_basic)
 // =========================================
@@ -67,6 +69,15 @@ TT_TEST_CASE("case_http_rule_basic",
     TT_TEST_CASE("case_http_rule_prefix",
                  "http uri rule: prefix",
                  case_http_rule_prefix,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL),
+
+    TT_TEST_CASE("case_http_host",
+                 "http host",
+                 case_http_host,
                  NULL,
                  NULL,
                  NULL,
@@ -279,13 +290,21 @@ TT_TEST_ROUTINE_DEFINE(case_http_rule_basic)
     TT_UT_FALSE(__hr1_post_called[2], "");
 
     __hr1_clear();
-    // the infin loop
+    // continue
     for (i = 0; i < 3; ++i) {
         __hr1_match_ret[i] = TT_TRUE;
     }
-    __hr1_post_ret[2] = TT_HTTP_RULE_CONTINUE;
+    __hr1_post_ret[1] = TT_HTTP_RULE_CONTINUE;
     rret = tt_http_rule_process(r, NULL, &pos);
-    TT_UT_EQUAL(rret, TT_HTTP_RULE_ERROR, "");
+    TT_UT_EQUAL(rret, TT_HTTP_RULE_CONTINUE, "");
+    for (i = 0; i < 2; ++i) {
+        TT_UT_TRUE(__hr1_match_called[i], "");
+        TT_UT_TRUE(__hr1_pre_called[i], "");
+        TT_UT_TRUE(__hr1_post_called[i], "");
+    }
+    TT_UT_FALSE(__hr1_match_called[2], "");
+    TT_UT_FALSE(__hr1_pre_called[2], "");
+    TT_UT_FALSE(__hr1_post_called[2], "");
 
     tt_http_rule_release(r);
     for (i = 0; i < 3; ++i) {
@@ -402,6 +421,129 @@ TT_TEST_ROUTINE_DEFINE(case_http_rule_prefix)
     TT_TEST_CASE_LEAVE()
 }
 
+TT_TEST_ROUTINE_DEFINE(case_http_host)
+{
+    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+    tt_http_host_t hh;
+    tt_http_rule_t *child;
+    tt_http_rule_itf_t i2 = {__hr1_destroy,
+                             __hr1_match,
+                             __rule_pre,
+                             __rule_post};
+    tt_http_rule_result_t rret;
+    tt_u32_t pos, i;
+
+    TT_TEST_CASE_ENTER()
+    // test start
+
+    TT_UT_SUCCESS(tt_http_host_create(&hh, "123"), "");
+    tt_http_host_destroy(&hh);
+
+    TT_UT_SUCCESS(tt_http_host_create(&hh, "123"), "");
+
+    {
+        child = tt_http_rule_create(sizeof(tt_u32_t), &i2, TT_HTTP_RULE_NEXT);
+        *TT_HTTP_RULE_CAST(child, tt_u32_t) = 0;
+        tt_http_host_add(&hh, child);
+        tt_http_rule_release(child);
+
+        child = tt_http_rule_create(sizeof(tt_u32_t), &i2, TT_HTTP_RULE_NEXT);
+        *TT_HTTP_RULE_CAST(child, tt_u32_t) = 1;
+        tt_http_host_add(&hh, child);
+        tt_http_rule_release(child);
+
+        child = tt_http_rule_create(sizeof(tt_u32_t), &i2, TT_HTTP_RULE_NEXT);
+        *TT_HTTP_RULE_CAST(child, tt_u32_t) = 2;
+        tt_http_host_add(&hh, child);
+        tt_http_rule_release(child);
+    }
+
+    __hr1_clear();
+    // go through all
+    for (i = 0; i < 3; ++i) {
+        __hr1_match_ret[i] = TT_TRUE;
+    }
+    rret = tt_http_host_process(&hh, NULL, &pos);
+    TT_UT_EQUAL(rret, TT_HTTP_RULE_NEXT, "");
+    for (i = 0; i < 3; ++i) {
+        TT_UT_TRUE(__hr1_match_called[i], "");
+        TT_UT_TRUE(__hr1_pre_called[i], "");
+        TT_UT_TRUE(__hr1_post_called[i], "");
+    }
+
+    __hr1_clear();
+    // the first/third match
+    for (i = 0; i < 3; ++i) {
+        __hr1_match_ret[i] = TT_TRUE;
+    }
+    __hr1_match_ret[1] = TT_FALSE;
+    rret = tt_http_host_process(&hh, NULL, &pos);
+    TT_UT_EQUAL(rret, TT_HTTP_RULE_NEXT, "");
+    for (i = 0; i < 1; ++i) {
+        TT_UT_TRUE(__hr1_match_called[i], "");
+        if (i == 0 || i == 3) {
+            TT_UT_TRUE(__hr1_pre_called[i], "");
+            TT_UT_TRUE(__hr1_post_called[i], "");
+        } else {
+            TT_UT_FALSE(__hr1_pre_called[i], "");
+            TT_UT_FALSE(__hr1_post_called[i], "");
+        }
+    }
+
+    __hr1_clear();
+    // the second pre error
+    for (i = 0; i < 3; ++i) {
+        __hr1_match_ret[i] = TT_TRUE;
+    }
+    __hr1_pre_ret[1] = TT_HTTP_RULE_ERROR;
+    rret = tt_http_host_process(&hh, NULL, &pos);
+    TT_UT_EQUAL(rret, TT_HTTP_RULE_ERROR, "");
+    TT_UT_TRUE(__hr1_match_called[0], "");
+    TT_UT_TRUE(__hr1_pre_called[0], "");
+    TT_UT_TRUE(__hr1_post_called[0], "");
+    TT_UT_TRUE(__hr1_match_called[1], "");
+    TT_UT_TRUE(__hr1_pre_called[1], "");
+    TT_UT_FALSE(__hr1_post_called[1], "");
+    TT_UT_FALSE(__hr1_match_called[2], "");
+    TT_UT_FALSE(__hr1_pre_called[2], "");
+    TT_UT_FALSE(__hr1_post_called[2], "");
+
+    __hr1_clear();
+    // the second post error
+    for (i = 0; i < 3; ++i) {
+        __hr1_match_ret[i] = TT_TRUE;
+    }
+    __hr1_post_ret[1] = TT_HTTP_RULE_ERROR;
+    rret = tt_http_host_process(&hh, NULL, &pos);
+    TT_UT_EQUAL(rret, TT_HTTP_RULE_ERROR, "");
+    TT_UT_TRUE(__hr1_match_called[0], "");
+    TT_UT_TRUE(__hr1_pre_called[0], "");
+    TT_UT_TRUE(__hr1_post_called[0], "");
+    TT_UT_TRUE(__hr1_match_called[1], "");
+    TT_UT_TRUE(__hr1_pre_called[1], "");
+    TT_UT_TRUE(__hr1_post_called[1], "");
+    TT_UT_FALSE(__hr1_match_called[2], "");
+    TT_UT_FALSE(__hr1_pre_called[2], "");
+    TT_UT_FALSE(__hr1_post_called[2], "");
+
+    __hr1_clear();
+    // continue
+    for (i = 0; i < 3; ++i) {
+        __hr1_match_ret[i] = TT_TRUE;
+    }
+    __hr1_post_ret[1] = TT_HTTP_RULE_CONTINUE;
+    rret = tt_http_host_process(&hh, NULL, &pos);
+    TT_UT_EQUAL(rret, TT_HTTP_RULE_ERROR, "");
+
+    tt_http_host_destroy(&hh);
+    for (i = 0; i < 3; ++i) {
+        TT_UT_TRUE(__hr1_destroyed[i], "");
+    }
+
+    // test end
+    TT_TEST_CASE_LEAVE()
+}
+
 static tt_u32_t __hs_err_line;
 
 #define __ck_err(e)                                                            \
@@ -444,6 +586,8 @@ TT_TEST_ROUTINE_DEFINE(case_http_server_basic)
 
     TT_TEST_CASE_ENTER()
     // test start
+
+    return TT_SUCCESS;
 
     tt_task_create(&t, NULL);
     tt_task_add_fiber(&t, NULL, __http_svr_fb, NULL, NULL);

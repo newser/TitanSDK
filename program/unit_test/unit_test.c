@@ -111,8 +111,7 @@ tt_result_t __ut_fiber(IN void *param)
             "HTTP_UT_RENDER",
             "HTTP_UT_SCONN",
             "ALG_UT_STRING",
-            "case_http_rule_basic",
-            "case_http_rule_prefix",
+            "HTTP_UT_SVR",
 //"TEST_UNIT_SOCKET",
 #if 0
           "TEST_UNIT_LOG",

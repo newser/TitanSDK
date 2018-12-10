@@ -98,6 +98,7 @@ tt_http_rule_result_t tt_http_rule_process(IN tt_http_rule_t *r,
                                            IN OUT tt_string_t *uri,
                                            IN OUT tt_u32_t *pos)
 {
+#if 0
     tt_http_rule_result_t result;
     tt_u32_t n = 0;
 
@@ -111,6 +112,9 @@ tt_http_rule_result_t tt_http_rule_process(IN tt_http_rule_t *r,
         *pos = 0;
     }
     return result;
+#else
+    return __rule_process(r, uri, pos);
+#endif
 }
 
 tt_http_rule_result_t __rule_process(IN tt_http_rule_t *r,

@@ -84,16 +84,17 @@ tt_http_rule_t *tt_http_rule_prefix_create_n(IN const tt_char_t *prefix,
 
     p = TT_PTR_INC(tt_u8_t, rp, sizeof(tt_http_rule_prefix_t));
     tt_memcpy(p, prefix, prefix_len);
-    rp->prefix.addr = p;
-    rp->prefix.len = prefix_len;
+    rp->prefix = p;
+    rp->prefix_len = prefix_len;
 
     if (replace != NULL) {
         p = TT_PTR_INC(tt_u8_t, rp, sizeof(tt_http_rule_prefix_t) + prefix_len);
         tt_memcpy(p, replace, replace_len);
-        rp->replace.addr = p;
-        rp->replace.len = replace_len;
+        rp->replace = p;
+        rp->replace_len = replace_len;
     } else {
-        tt_blob_init(&rp->replace);
+        rp->replace = NULL;
+        rp->replace_len = 0;
     }
 
     return r;
@@ -105,13 +106,13 @@ tt_bool_t __rule_prefix_match(IN tt_http_rule_t *r,
 {
     tt_http_rule_prefix_t *rp = TT_HTTP_RULE_CAST(r, tt_http_rule_prefix_t);
     tt_u32_t len = tt_string_len(uri);
-    tt_u32_t n = rp->prefix.len;
+    tt_u32_t n = rp->prefix_len;
 
     TT_ASSERT(pos <= len);
     len -= pos;
 
     if ((n <= len) &&
-        (tt_memcmp(rp->prefix.addr, tt_string_cstr(uri) + pos, n) == 0)) {
+        (tt_memcmp(rp->prefix, tt_string_cstr(uri) + pos, n) == 0)) {
         return TT_TRUE;
     } else {
         return TT_FALSE;
@@ -124,17 +125,17 @@ tt_http_rule_result_t __rule_prefix_pre(IN tt_http_rule_t *r,
 {
     tt_http_rule_prefix_t *rp = TT_HTTP_RULE_CAST(r, tt_http_rule_prefix_t);
 
-    if (rp->replace.addr != NULL) {
+    if (rp->replace != NULL) {
         if (!TT_OK(tt_string_set_range_n(uri,
                                          *pos,
-                                         rp->prefix.len,
-                                         (tt_char_t *)rp->replace.addr,
-                                         rp->replace.len))) {
+                                         rp->prefix_len,
+                                         (tt_char_t *)rp->replace,
+                                         rp->replace_len))) {
             return TT_HTTP_RULE_ERROR;
         }
-        *pos += rp->replace.len;
+        *pos += rp->replace_len;
     } else {
-        *pos += rp->prefix.len;
+        *pos += rp->prefix_len;
     }
 
     // child rule may continue matching
