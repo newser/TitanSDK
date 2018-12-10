@@ -418,6 +418,7 @@ tt_result_t tt_http_resp_render(IN tt_http_resp_render_t *resp,
 
 void __render_init(IN tt_http_render_t *r, IN tt_buf_attr_t *buf_attr)
 {
+    r->c = NULL;
     tt_dlist_init(&r->hdr);
 
     tt_buf_init(&r->buf, buf_attr);
@@ -440,6 +441,8 @@ void __render_destroy(IN tt_http_render_t *r)
 void __render_clear(IN tt_http_render_t *r)
 {
     tt_dnode_t *node;
+
+    // do not change r->c
 
     while ((node = tt_dlist_pop_head(&r->hdr)) != NULL) {
         tt_http_hdr_destroy(TT_CONTAINER(node, tt_http_hdr_t, dnode));

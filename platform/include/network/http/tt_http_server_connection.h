@@ -46,12 +46,14 @@ struct tt_http_sconn_s;
 struct tt_skt_s;
 struct tt_ssl_s;
 struct tt_tmr_s;
+struct tt_http_host_s;
 
 typedef struct tt_http_sconn_s
 {
     void *itf;
     void *itf_opaque;
     struct tt_tmr_s *tmr;
+    struct tt_http_host_s *host;
     tt_http_svcmgr_t svcmgr;
     tt_http_parser_t parser;
     tt_http_resp_render_t render;

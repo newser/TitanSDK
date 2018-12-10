@@ -16,54 +16,50 @@
  * limitations under the License.
  */
 
+/**
+@file tt_http_inserv_host.h
+@brief http service
+
+this file defines http incoming service: host
+*/
+
+#ifndef __TT_HTTP_INSERVICE_HOST__
+#define __TT_HTTP_INSERVICE_HOST__
+
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <network/http/tt_http_out_service.h>
+#include <network/http/tt_http_def.h>
+#include <network/http/tt_http_in_service.h>
 
 ////////////////////////////////////////////////////////////
-// internal macro
-////////////////////////////////////////////////////////////
-
-////////////////////////////////////////////////////////////
-// internal type
+// macro definition
 ////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////
-// extern declaration
+// type definition
 ////////////////////////////////////////////////////////////
 
+typedef struct
+{
+    tt_http_status_t no_host;
+    tt_http_status_t more_host;
+    tt_http_status_t host_not_found;
+} tt_http_inserv_host_attr_t;
+
 ////////////////////////////////////////////////////////////
-// global variant
+// global variants
 ////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-////////////////////////////////////////////////////////////
-// interface implementation
-////////////////////////////////////////////////////////////
+tt_export tt_http_inserv_t *tt_http_inserv_host_create(
+    IN OPT tt_http_inserv_host_attr_t *attr);
 
-tt_http_outserv_t *tt_http_outserv_create(IN tt_u32_t extra_size,
-                                          IN tt_http_outserv_itf_t *itf,
-                                          IN tt_http_outserv_cb_t *cb)
-{
-    tt_http_outserv_t *s;
+tt_export void tt_http_inserv_host_attr_default(
+    IN tt_http_inserv_host_attr_t *attr);
 
-    TT_ASSERT(itf != NULL);
-    TT_ASSERT(cb != NULL);
-
-    s = tt_malloc(sizeof(tt_http_outserv_t) + extra_size);
-    if (s == NULL) {
-        TT_ERROR("no mem for http outserv");
-        return NULL;
-    }
-
-    s->itf = itf;
-    s->cb = cb;
-    tt_atomic_s32_set(&s->ref, 1);
-
-    return s;
-}
+#endif /* __TT_HTTP_INSERVICE_HOST__ */

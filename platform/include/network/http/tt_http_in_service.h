@@ -78,7 +78,7 @@ typedef enum {
      service should: n/a
      caller should: n/a
      */
-    TT_HTTP_INSERV_ACT_IGNORE,
+    TT_HTTP_INSERV_ACT_PASS,
 
     // TT_HTTP_INSERV_ACT_INTERESTED,
 
@@ -121,7 +121,6 @@ typedef struct tt_http_inserv_s
 {
     tt_http_inserv_itf_t *itf;
     tt_http_inserv_cb_t *cb;
-    tt_dnode_t dnode;
     tt_atomic_s32_t ref;
 } tt_http_inserv_t;
 
@@ -146,8 +145,6 @@ tt_export tt_http_inserv_t *tt_http_inserv_create(IN tt_u32_t extra_size,
 
 tt_inline void __http_inserv_destroy(IN tt_http_inserv_t *s)
 {
-    TT_ASSERT(!tt_dnode_in_dlist(&s->dnode));
-
     if (s->itf->destroy != NULL) {
         s->itf->destroy(s);
     }
@@ -170,7 +167,7 @@ tt_http_inserv_on_uri(IN tt_http_inserv_t *s,
     if (s->cb->on_uri != NULL) {
         return s->cb->on_uri(s, req, resp);
     } else {
-        return TT_HTTP_INSERV_ACT_IGNORE;
+        return TT_HTTP_INSERV_ACT_PASS;
     }
 }
 
@@ -182,7 +179,7 @@ tt_http_inserv_on_header(IN tt_http_inserv_t *s,
     if (s->cb->on_header != NULL) {
         return s->cb->on_header(s, req, resp);
     } else {
-        return TT_HTTP_INSERV_ACT_IGNORE;
+        return TT_HTTP_INSERV_ACT_PASS;
     }
 }
 
@@ -194,7 +191,7 @@ tt_http_inserv_on_body(IN tt_http_inserv_t *s,
     if (s->cb->on_body != NULL) {
         return s->cb->on_body(s, req, resp);
     } else {
-        return TT_HTTP_INSERV_ACT_IGNORE;
+        return TT_HTTP_INSERV_ACT_PASS;
     }
 }
 
@@ -206,7 +203,7 @@ tt_http_inserv_on_trailing(IN tt_http_inserv_t *s,
     if (s->cb->on_trailing != NULL) {
         return s->cb->on_trailing(s, req, resp);
     } else {
-        return TT_HTTP_INSERV_ACT_IGNORE;
+        return TT_HTTP_INSERV_ACT_PASS;
     }
 }
 
@@ -218,7 +215,7 @@ tt_http_inserv_on_complete(IN tt_http_inserv_t *s,
     if (s->cb->on_complete != NULL) {
         return s->cb->on_complete(s, req, resp);
     } else {
-        return TT_HTTP_INSERV_ACT_IGNORE;
+        return TT_HTTP_INSERV_ACT_PASS;
     }
 }
 

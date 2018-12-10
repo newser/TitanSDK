@@ -104,7 +104,7 @@ tt_inline tt_result_t tt_fpath_parse(IN tt_fpath_t *fp, const tt_char_t *path)
 
 tt_export tt_result_t tt_fpath_copy(IN tt_fpath_t *dst, IN tt_fpath_t *src);
 
-tt_export const tt_char_t *tt_fpath_cstr(IN tt_fpath_t *fp);
+tt_export const tt_char_t *tt_fpath_render(IN tt_fpath_t *fp);
 
 tt_export tt_string_t *tt_fpath_string(IN tt_fpath_t *fp);
 
@@ -196,7 +196,7 @@ tt_inline tt_bool_t tt_fpath_is_relative(IN tt_fpath_t *fp)
 
 tt_inline tt_bool_t tt_fpath_is_empty(IN tt_fpath_t *fp)
 {
-    return TT_BOOL(tt_fpath_cstr(fp)[0] == 0);
+    return TT_BOOL(tt_fpath_render(fp)[0] == 0);
 }
 
 tt_inline tt_u32_t tt_fpath_count(IN tt_fpath_t *fp)

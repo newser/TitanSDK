@@ -78,7 +78,6 @@ typedef struct tt_http_outserv_s
 {
     tt_http_outserv_itf_t *itf;
     tt_http_outserv_cb_t *cb;
-    tt_dnode_t dnode;
     tt_atomic_s32_t ref;
 } tt_http_outserv_t;
 
@@ -104,8 +103,6 @@ tt_export tt_http_outserv_t *tt_http_outserv_create(
 
 tt_inline void __http_outserv_destroy(IN tt_http_outserv_t *s)
 {
-    TT_ASSERT(!tt_dnode_in_dlist(&s->dnode));
-
     if (s->itf->destroy != NULL) {
         s->itf->destroy(s);
     }

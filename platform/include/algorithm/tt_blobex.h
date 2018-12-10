@@ -125,6 +125,11 @@ tt_inline tt_u32_t tt_blobex_len(IN tt_blobex_t *bex)
     return __BLOBEX_LEN(bex);
 }
 
+tt_inline tt_bool_t tt_blobex_empty(IN tt_blobex_t *bex)
+{
+    return TT_BOOL((tt_blobex_addr(bex) == NULL) || (tt_blobex_len(bex) == 0));
+}
+
 tt_inline tt_result_t tt_blobex_set(IN tt_blobex_t *bex,
                                     IN OPT tt_u8_t *addr,
                                     IN tt_u32_t len,
@@ -207,11 +212,6 @@ tt_inline tt_result_t tt_blobex_memcat(IN tt_blobex_t *bex,
         __BLOBEX_SET_OWNER(bex);
     }
     return TT_SUCCESS;
-}
-
-tt_inline tt_bool_t tt_blobex_empty(IN tt_blobex_t *bex)
-{
-    return TT_BOOL((__BLOBEX_ADDR(bex) == NULL) || (__BLOBEX_LEN(bex) == 0));
 }
 
 tt_inline tt_result_t tt_blobex_own(IN tt_blobex_t *bex)

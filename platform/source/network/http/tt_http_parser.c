@@ -98,6 +98,7 @@ tt_result_t tt_http_parser_create(IN tt_http_parser_t *hp,
         attr = &__attr;
     }
 
+    hp->c = NULL;
     hp->rh = NULL;
     hp->rv = NULL;
 
@@ -105,6 +106,7 @@ tt_result_t tt_http_parser_create(IN tt_http_parser_t *hp,
     hp->rawval_slab = rawval_slab;
     tt_dlist_init(&hp->rawhdr);
     tt_dlist_init(&hp->trailing_rawhdr);
+    hp->host = NULL;
 
     // extend to initial size
     tt_buf_init(&hp->buf, &attr->buf_attr);
@@ -112,7 +114,8 @@ tt_result_t tt_http_parser_create(IN tt_http_parser_t *hp,
         return TT_FAIL;
     }
 
-    tt_blobex_init(&hp->uri, NULL, 0);
+    tt_blobex_init(&hp->rawuri, NULL, 0);
+    tt_http_uri_init(&hp->uri);
     tt_blobex_init(&hp->body, NULL, 0);
 
     http_parser_init(&hp->parser, HTTP_BOTH);
@@ -122,6 +125,8 @@ tt_result_t tt_http_parser_create(IN tt_http_parser_t *hp,
     hp->complete_header = TT_FALSE;
     hp->complete_message = TT_FALSE;
     hp->complete_trailing_header = TT_FALSE;
+    hp->updated_host = TT_FALSE;
+    hp->updated_uri = TT_FALSE;
 
     return TT_SUCCESS;
 }
@@ -138,12 +143,15 @@ void tt_http_parser_destroy(IN tt_http_parser_t *hp)
         tt_http_rawval_destroy(hp->rv);
     }
 
+    // hp->host is a pointer and need not be destroyed
+
     __clear_rawhdr(&hp->rawhdr);
     __clear_rawhdr(&hp->trailing_rawhdr);
 
     tt_buf_destroy(&hp->buf);
 
-    tt_blobex_destroy(&hp->uri);
+    tt_blobex_destroy(&hp->rawuri);
+    tt_http_uri_destroy(&hp->uri);
     tt_blobex_destroy(&hp->body);
 }
 
@@ -164,6 +172,8 @@ void tt_http_parser_clear(IN tt_http_parser_t *hp, IN tt_bool_t clear_recv_buf)
 {
     TT_ASSERT(hp != NULL);
 
+    // do not change hp->c
+
     // not null means stopped during parsing and has not been added to list yet
     if (hp->rh != NULL) {
         tt_http_rawhdr_destroy(hp->rh);
@@ -178,13 +188,16 @@ void tt_http_parser_clear(IN tt_http_parser_t *hp, IN tt_bool_t clear_recv_buf)
     __clear_rawhdr(&hp->rawhdr);
     __clear_rawhdr(&hp->trailing_rawhdr);
 
+    hp->host = NULL;
+
     if (clear_recv_buf) {
         tt_buf_clear(&hp->buf);
     } else if (TT_BUF_RLEN(&hp->buf) == 0) {
         tt_buf_clear(&hp->buf);
     }
 
-    tt_blobex_clear(&hp->uri);
+    tt_blobex_clear(&hp->rawuri);
+    tt_http_uri_clear(&hp->uri);
     tt_blobex_clear(&hp->body);
 
     http_parser_init(&hp->parser, HTTP_BOTH);
@@ -194,6 +207,8 @@ void tt_http_parser_clear(IN tt_http_parser_t *hp, IN tt_bool_t clear_recv_buf)
     hp->complete_header = TT_FALSE;
     hp->complete_message = TT_FALSE;
     hp->complete_trailing_header = TT_FALSE;
+    hp->updated_host = TT_FALSE;
+    hp->updated_uri = TT_FALSE;
 }
 
 tt_result_t tt_http_parser_run(IN tt_http_parser_t *hp)
@@ -239,6 +254,27 @@ tt_http_method_t tt_http_parser_get_method(IN tt_http_parser_t *hp)
     }
 }
 
+tt_http_uri_t *tt_http_parser_get_uri(IN tt_http_parser_t *hp)
+{
+    if (hp->parser.type == HTTP_RESPONSE) {
+        return NULL;
+    }
+
+    if (hp->updated_uri) {
+        return &hp->uri;
+    }
+
+    if (tt_blobex_empty(&hp->rawuri) ||
+        !TT_OK(tt_http_uri_parse_n(&hp->uri,
+                                   tt_blobex_addr(&hp->rawuri),
+                                   tt_blobex_len(&hp->rawuri)))) {
+        return NULL;
+    }
+
+    hp->updated_uri = TT_TRUE;
+    return &hp->uri;
+}
+
 tt_http_ver_t tt_http_parser_get_version(IN tt_http_parser_t *hp)
 {
     http_parser *p = &hp->parser;
@@ -277,6 +313,26 @@ tt_http_status_t tt_http_parser_get_status(IN tt_http_parser_t *hp)
     }
 }
 
+tt_blobex_t *tt_http_parser_get_host(IN tt_http_parser_t *hp)
+{
+    if (!hp->updated_host) {
+        tt_http_rawhdr_t *rh = tt_http_rawhdr_find(&hp->rawhdr, "Host");
+        if (rh != NULL) {
+            tt_http_rawval_t *rv = tt_http_rawval_head(&rh->val);
+            if (rv != NULL) {
+                hp->host = &rv->val;
+                if ((tt_blobex_len(hp->host) == 0) &&
+                    (tt_blobex_addr(hp->host) != NULL)) {
+                    // this is possible when recevied "Host: \r\n"
+                    tt_blobex_clear(hp->host);
+                }
+            }
+        }
+        hp->updated_host = TT_TRUE;
+    }
+    return hp->host;
+}
+
 void __clear_rawhdr(IN tt_dlist_t *dl)
 {
     tt_dnode_t *node;
@@ -292,7 +348,7 @@ void __clear_rawhdr(IN tt_dlist_t *dl)
 int __on_uri(http_parser *p, const char *at, size_t length)
 {
     tt_http_parser_t *hp = TT_CONTAINER(p, tt_http_parser_t, parser);
-    tt_blobex_t *uri = &hp->uri;
+    tt_blobex_t *uri = &hp->rawuri;
 
     if (tt_blobex_len(uri) == 0) {
         tt_blobex_set(uri, (tt_u8_t *)at, length, TT_FALSE);

@@ -166,6 +166,7 @@ tt_result_t __sconn_skt_fiber(IN void *param)
     tt_skt_t *s = (tt_skt_t *)param;
     tt_http_sconn_t c;
     tt_http_sconn_attr_t attr;
+    tt_http_inserv_t *is = NULL;
 
     tt_http_sconn_attr_default(&attr);
 
@@ -173,6 +174,9 @@ tt_result_t __sconn_skt_fiber(IN void *param)
         tt_skt_destroy(s);
         return TT_FAIL;
     }
+
+    // is = tt_http_inserv
+    // tt_http_sconn_add_inserv(&c, is);
 
     if (tt_http_sconn_run(&c)) {
         tt_http_sconn_wait_eof(&c);

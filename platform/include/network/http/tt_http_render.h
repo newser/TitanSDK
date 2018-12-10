@@ -44,8 +44,11 @@ this file defines http
 // type definition
 ////////////////////////////////////////////////////////////
 
+struct tt_http_sconn_s;
+
 typedef struct
 {
+    struct tt_http_sconn_s *c;
     tt_dlist_t hdr;
     tt_buf_t buf;
     tt_http_ver_t version : 3;

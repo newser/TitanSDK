@@ -45,12 +45,14 @@ this file defines http parser APIs
 // type definition
 ////////////////////////////////////////////////////////////
 
+struct tt_http_sconn_s;
 struct tt_http_rawhdr_s;
 struct tt_http_rawval_s;
 struct tt_slab_s;
 
 typedef struct tt_http_parser_s
 {
+    struct tt_http_sconn_s *c;
     struct tt_http_rawhdr_s *rh;
     struct tt_http_rawval_s *rv;
 
@@ -58,9 +60,11 @@ typedef struct tt_http_parser_s
     struct tt_slab_s *rawval_slab;
     tt_dlist_t rawhdr;
     tt_dlist_t trailing_rawhdr;
+    tt_blobex_t *host;
 
     tt_buf_t buf;
-    tt_blobex_t uri;
+    tt_blobex_t rawuri;
+    tt_http_uri_t uri;
     // the body stores a partial of parsed data, always reference buf content
     tt_blobex_t body;
 
@@ -71,6 +75,8 @@ typedef struct tt_http_parser_s
     tt_bool_t complete_header : 1;
     tt_bool_t complete_message : 1;
     tt_bool_t complete_trailing_header : 1;
+    tt_bool_t updated_host : 1;
+    tt_bool_t updated_uri : 1;
 } tt_http_parser_t;
 
 typedef struct
@@ -122,8 +128,10 @@ tt_export tt_http_method_t tt_http_parser_get_method(IN tt_http_parser_t *hp);
 
 tt_inline tt_blobex_t *tt_http_parser_get_rawuri(IN tt_http_parser_t *hp)
 {
-    return &hp->uri;
+    return &hp->rawuri;
 }
+
+tt_export tt_http_uri_t *tt_http_parser_get_uri(IN tt_http_parser_t *hp);
 
 tt_export tt_http_ver_t tt_http_parser_get_version(IN tt_http_parser_t *hp);
 
@@ -133,5 +141,9 @@ tt_inline tt_bool_t tt_http_parser_should_keepalive(IN tt_http_parser_t *hp)
 {
     return TT_BOOL(http_should_keep_alive(&hp->parser) != 0);
 }
+
+// - return NULL if there is no Host
+// - return a empty blobex if Host header is empty
+tt_export tt_blobex_t *tt_http_parser_get_host(IN tt_http_parser_t *hp);
 
 #endif /* __TT_HTTP_PARSER__ */

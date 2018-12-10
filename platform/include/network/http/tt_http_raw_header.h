@@ -92,6 +92,18 @@ tt_inline tt_result_t tt_http_rawval_append(IN tt_http_rawval_t *rv,
     return tt_blobex_memcat(&rv->val, (tt_u8_t *)val, len);
 }
 
+tt_inline tt_http_rawval_t *tt_http_rawval_head(IN tt_dlist_t *dl)
+{
+    tt_dnode_t *dn = tt_dlist_head(dl);
+    return TT_COND(dn != NULL, TT_CONTAINER(dn, tt_http_rawval_t, dnode), NULL);
+}
+
+tt_inline tt_http_rawval_t *tt_http_rawval_next(IN tt_http_rawval_t *rv)
+{
+    tt_dnode_t *dn = rv->dnode.next;
+    return TT_COND(dn != NULL, TT_CONTAINER(dn, tt_http_rawval_t, dnode), NULL);
+}
+
 tt_export tt_http_rawval_t *tt_http_rawval_find_n(IN tt_dlist_t *dl,
                                                   IN const tt_char_t *val,
                                                   IN tt_u32_t len);
@@ -183,7 +195,7 @@ tt_inline void tt_http_rawhdr_remove_val(IN tt_http_rawhdr_t *rh,
 
 tt_export tt_u32_t tt_http_rawhdr_count_name_n(IN tt_dlist_t *dl,
                                                IN tt_char_t *name,
-                                               IN tt_u32_t name_len);
+                                               IN tt_u32_t len);
 
 tt_inline tt_u32_t tt_http_rawhdr_count_name(IN tt_dlist_t *dl,
                                              IN const tt_char_t *name)

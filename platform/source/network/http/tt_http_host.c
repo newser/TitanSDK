@@ -24,6 +24,7 @@
 
 #include <init/tt_component.h>
 #include <init/tt_profile.h>
+#include <network/http/tt_http_uri.h>
 
 ////////////////////////////////////////////////////////////
 // internal macro
@@ -59,10 +60,9 @@ void tt_http_host_component_exit(IN tt_component_t *comp)
 {
 }
 
-tt_result_t tt_http_host_create_n(IN tt_http_host_t *h,
-                                  IN OPT const tt_char_t *name,
-                                  IN tt_u32_t name_len,
-                                  IN OPT tt_http_host_match_t match)
+tt_http_host_t *tt_http_host_create_n(IN OPT const tt_char_t *name,
+                                      IN tt_u32_t name_len,
+                                      IN OPT tt_http_host_match_t match)
 {
     // - no extra destroy
     // - match all uri
@@ -71,20 +71,23 @@ tt_result_t tt_http_host_create_n(IN tt_http_host_t *h,
     // - always return TT_HTTP_RULE_NEXT
     static tt_http_rule_itf_t s_root_itf = {0};
 
-    tt_u32_t __done = 0;
-#define __HH_ROOT (1 << 0)
-#define __HH_NAME (1 << 1)
+    tt_http_host_t *h;
 
-    TT_ASSERT(h != NULL);
+    tt_u32_t __done = 0;
+#define __HH_MEM (1 << 0)
+#define __HH_ROOT (1 << 1)
+#define __HH_NAME (1 << 2)
+
+    h = tt_malloc(sizeof(tt_http_host_t));
+    if (h == NULL) {
+        TT_ERROR("no mem for http host");
+        return NULL;
+    }
+    __done |= __HH_MEM;
 
     tt_dnode_init(&h->dnode);
 
-    if (match != NULL) {
-        h->match = match;
-    } else {
-        // use simple compare by default
-        h->match = tt_http_host_match_cmp;
-    }
+    h->match = match;
 
     h->root = tt_http_rule_create(0, &s_root_itf, TT_HTTP_RULE_NEXT);
     if (h->root == NULL) {
@@ -92,7 +95,7 @@ tt_result_t tt_http_host_create_n(IN tt_http_host_t *h,
     }
     __done |= __HH_ROOT;
 
-    if ((name == NULL) || (match == tt_http_host_match_any)) {
+    if ((name == NULL) || (match == NULL)) {
         tt_blob_init(&h->name);
     } else {
         if (!TT_OK(tt_blob_create(&h->name, (tt_u8_t *)name, name_len))) {
@@ -101,7 +104,7 @@ tt_result_t tt_http_host_create_n(IN tt_http_host_t *h,
     }
     __done |= __HH_NAME;
 
-    return TT_SUCCESS;
+    return h;
 
 fail:
 
@@ -113,7 +116,11 @@ fail:
         tt_http_rule_release(h->root);
     }
 
-    return TT_FAIL;
+    if (__done & __HH_MEM) {
+        tt_free(h);
+    }
+
+    return NULL;
 }
 
 void tt_http_host_destroy(IN tt_http_host_t *h)
@@ -124,26 +131,57 @@ void tt_http_host_destroy(IN tt_http_host_t *h)
     tt_http_rule_release(h->root);
 
     tt_blob_destroy(&h->name);
+
+    tt_free(h);
 }
 
-tt_http_rule_result_t tt_http_host_process(IN tt_http_host_t *h,
-                                           IN OUT struct tt_string_s *uri,
-                                           IN OUT tt_u32_t *pos)
+tt_http_rule_result_t tt_http_host_apply(IN tt_http_host_t *h,
+                                         IN OUT tt_http_uri_t *uri)
 {
+    tt_fpath_t *fpath = tt_http_uri_get_path(uri);
+    tt_string_t *s = tt_fpath_string(fpath);
+    tt_http_rule_ctx_t ctx;
     tt_http_rule_result_t result;
     tt_u32_t n = 0;
 
-    while ((result = tt_http_rule_process(h->root, uri, pos)) ==
-           TT_HTTP_RULE_CONTINUE) {
+    if (tt_http_uri_render(uri) == NULL) {
+        return TT_HTTP_RULE_ERROR;
+    }
+
+again:
+    tt_http_rule_ctx_init(&ctx);
+    result = tt_http_rule_apply(h->root, uri, s, &ctx);
+    if ((result == TT_HTTP_RULE_NEXT) || (result == TT_HTTP_RULE_BREAK)) {
+        // if path is modified, we must have fpath parse modified string again
+        if (ctx.path_modified) {
+            if (TT_OK(tt_fpath_parse_n(fpath,
+                                       tt_string_cstr(s),
+                                       tt_string_len(s)))) {
+                uri->path_modified = TT_TRUE;
+            } else {
+                return TT_HTTP_RULE_ERROR;
+            }
+        }
+        return result;
+    } else if (result == TT_HTTP_RULE_CONTINUE) {
         if (n++ > 10) {
             TT_ERROR("too many rule process loop");
             return TT_HTTP_RULE_ERROR;
         }
 
-        // reset pos before next processing
-        *pos = 0;
+        if (ctx.path_modified) {
+            if (TT_OK(tt_fpath_parse_n(fpath,
+                                       tt_string_cstr(s),
+                                       tt_string_len(s)))) {
+                uri->path_modified = TT_TRUE;
+            } else {
+                return TT_HTTP_RULE_ERROR;
+            }
+        }
+        goto again;
+    } else {
+        return TT_HTTP_RULE_ERROR;
     }
-    return result;
 }
 
 // ========================================
@@ -162,11 +200,4 @@ tt_bool_t tt_http_host_match_cmp(IN tt_http_host_t *h,
     } else {
         return TT_FALSE;
     }
-}
-
-tt_bool_t tt_http_host_match_any(IN tt_http_host_t *h,
-                                 IN tt_char_t *s,
-                                 IN tt_u32_t len)
-{
-    return TT_TRUE;
 }

@@ -24,6 +24,10 @@
 
 #include <stdlib.h>
 
+#include <network/http/rule/tt_http_rule_startwith.h>
+#include <network/http/service/tt_http_inserv_host.h>
+#include <network/http/tt_http_host.h>
+#include <network/http/tt_http_host_set.h>
 #include <network/http/tt_http_parser.h>
 #include <network/http/tt_http_raw_header.h>
 #include <network/http/tt_http_render.h>
@@ -49,6 +53,7 @@
 // === routine declarations ================
 TT_TEST_ROUTINE_DECLARE(case_http_sconn_basic)
 TT_TEST_ROUTINE_DECLARE(case_http_sconn_cb_error)
+TT_TEST_ROUTINE_DECLARE(case_http_inserv_host)
 // =========================================
 
 // === test case list ======================
@@ -67,6 +72,15 @@ TT_TEST_CASE("case_http_sconn_basic",
     TT_TEST_CASE("case_http_sconn_cb_error",
                  "http server conn callback error",
                  case_http_sconn_cb_error,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL),
+
+    TT_TEST_CASE("case_http_inserv_host",
+                 "http in service: host",
+                 case_http_inserv_host,
                  NULL,
                  NULL,
                  NULL,
@@ -260,7 +274,7 @@ static tt_http_inserv_action_t __simp1_on_uri(
     IN struct tt_http_parser_s *req,
     OUT struct tt_http_resp_render_s *resp)
 {
-    if (tt_blobex_strcmp(&req->uri, __simp1_uri[__simp1_idx]) == 0) {
+    if (tt_blobex_strcmp(&req->rawuri, __simp1_uri[__simp1_idx]) == 0) {
         __simp1_uri_ok[__simp1_idx] = TT_TRUE;
     } else {
         __simp1_uri_ok[__simp1_idx] = TT_FALSE;
@@ -488,6 +502,7 @@ TT_TEST_ROUTINE_DEFINE(case_http_sconn_basic)
     tt_http_inserv_itf_t s_itf = {0};
     tt_bool_t bret;
     tt_u32_t i;
+    tt_http_host_t ho;
 
     TT_TEST_CASE_ENTER()
     // test start
@@ -640,6 +655,7 @@ TT_TEST_ROUTINE_DEFINE(case_http_sconn_cb_error)
     tt_http_inserv_itf_t s_itf = {0};
     tt_bool_t bret;
     tt_u32_t i;
+    tt_http_host_t ho;
 
     TT_TEST_CASE_ENTER()
     // test start
@@ -793,6 +809,164 @@ TT_TEST_ROUTINE_DEFINE(case_http_sconn_cb_error)
 
         tt_http_sconn_destroy(&c);
         __simp1_end();
+        __simu1_end();
+    }
+
+    // test end
+    TT_TEST_CASE_LEAVE()
+}
+
+TT_TEST_ROUTINE_DEFINE(case_http_inserv_host)
+{
+    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+    tt_http_inserv_t *s;
+    tt_http_sconn_t c;
+    tt_result_t ret;
+    tt_http_inserv_itf_t s_itf = {0};
+    tt_bool_t bret;
+    tt_http_status_t status;
+    tt_http_hostset_t *hs;
+    tt_http_host_t *h1;
+
+    TT_TEST_CASE_ENTER()
+    // test start
+
+    hs = tt_current_http_hostset(TT_TRUE);
+    TT_UT_NOT_NULL(hs, "");
+
+    {
+        h1 = tt_http_host_create("aaa.com", tt_http_host_match_cmp);
+        TT_UT_NOT_NULL(h1, "");
+        tt_http_hostset_add(hs, h1);
+    }
+
+    {
+        const tt_char_t *msg =
+            "PATCH /file.txt HTTP/1.1\r\n"
+            //"Host: www.example.com\r\n"
+            "Content-Type: application/example\r\n"
+            "If-Match: \"e0023aa4e\"\r\n"
+            "Content-Length: 10\r\n"
+            "\r\n"
+            "1234567890";
+
+        ret = tt_http_sconn_create(&c, &simu_itf1, NULL, NULL);
+        TT_UT_SUCCESS(ret, "");
+
+        __simu1_start();
+        s = tt_http_inserv_host_create(NULL);
+        tt_http_sconn_add_inserv(&c, s);
+        tt_http_inserv_release(s);
+
+        tt_buf_put_cstr(&__simu_in, msg);
+
+        // no host: 400 then shutdown
+        bret = tt_http_sconn_run(&c);
+        TT_UT_TRUE(bret, "");
+        status = tt_http_resp_render_get_status(&c.render);
+        TT_UT_EQUAL(status, TT_HTTP_STATUS_BAD_REQUEST, "");
+
+        tt_http_sconn_destroy(&c);
+        __simu1_end();
+    }
+
+    {
+        const tt_char_t *msg =
+            "PATCH /file.txt HTTP/1.1\r\n"
+            "Host: www.example.com\r\n"
+            "Host: www.example2.com\r\n"
+            "Content-Type: application/example\r\n"
+            "If-Match: \"e0023aa4e\"\r\n"
+            "Content-Length: 10\r\n"
+            "\r\n"
+            "1234567890";
+
+        ret = tt_http_sconn_create(&c, &simu_itf1, NULL, NULL);
+        TT_UT_SUCCESS(ret, "");
+
+        __simu1_start();
+        s = tt_http_inserv_host_create(NULL);
+        tt_http_sconn_add_inserv(&c, s);
+        tt_http_inserv_release(s);
+
+        tt_buf_put_cstr(&__simu_in, msg);
+
+        // more than 1 host: 400 then shutdown
+        bret = tt_http_sconn_run(&c);
+        TT_UT_TRUE(bret, "");
+        status = tt_http_resp_render_get_status(&c.render);
+        TT_UT_EQUAL(status, TT_HTTP_STATUS_BAD_REQUEST, "");
+
+        tt_http_sconn_destroy(&c);
+        __simu1_end();
+    }
+
+    {
+        const tt_char_t *msg =
+            "PATCH /file.txt HTTP/1.1\r\n"
+            "Host: www.example.com\r\n"
+            "Content-Type: application/example\r\n"
+            "If-Match: \"e0023aa4e\"\r\n"
+            "Content-Length: 10\r\n"
+            "\r\n"
+            "1234567890";
+
+        ret = tt_http_sconn_create(&c, &simu_itf1, NULL, NULL);
+        TT_UT_SUCCESS(ret, "");
+
+        __simu1_start();
+        s = tt_http_inserv_host_create(NULL);
+        tt_http_sconn_add_inserv(&c, s);
+        tt_http_inserv_release(s);
+
+        tt_buf_put_cstr(&__simu_in, msg);
+
+        // 1 host but not found: 404 then shutdown
+        bret = tt_http_sconn_run(&c);
+        TT_UT_TRUE(bret, "");
+        status = tt_http_resp_render_get_status(&c.render);
+        TT_UT_EQUAL(status, TT_HTTP_STATUS_NOT_FOUND, "");
+
+        tt_http_sconn_destroy(&c);
+        __simu1_end();
+    }
+
+    {
+        const tt_char_t *msg =
+            "PATCH /file.txt HTTP/1.1\r\n"
+            "Host: www.example.com\r\n"
+            "Content-Type: application/example\r\n"
+            "If-Match: \"e0023aa4e\"\r\n"
+            "Content-Length: 10\r\n"
+            "\r\n"
+            "1234567890";
+        tt_http_rule_t *rule;
+
+        h1 = tt_http_host_create("www.example.com", tt_http_host_match_cmp);
+        TT_UT_NOT_NULL(h1, "");
+        tt_http_hostset_add(hs, h1);
+
+        rule = tt_http_rule_startwith_create("/",
+                                             "/usr/local/",
+                                             TT_HTTP_RULE_BREAK);
+        TT_UT_NOT_NULL(h1, "");
+        tt_http_host_add_rule(h1, rule);
+        tt_http_rule_release(rule);
+
+        ret = tt_http_sconn_create(&c, &simu_itf1, NULL, NULL);
+        TT_UT_SUCCESS(ret, "");
+
+        __simu1_start();
+        s = tt_http_inserv_host_create(NULL);
+        tt_http_sconn_add_inserv(&c, s);
+        tt_http_inserv_release(s);
+
+        tt_buf_put_cstr(&__simu_in, msg);
+
+        // 1 host and found: but there are no owner
+        bret = tt_http_sconn_run(&c);
+
+        tt_http_sconn_destroy(&c);
         __simu1_end();
     }
 

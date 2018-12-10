@@ -247,7 +247,7 @@ TT_TEST_ROUTINE_DEFINE(case_http_uri_parse)
     TT_UT_STREQ(tt_http_uri_get_userinfo(&u), "u:p", "");
     TT_UT_STREQ(tt_http_uri_get_host(&u), "host", "");
     fp = tt_http_uri_get_path(&u);
-    TT_UT_STREQ(tt_fpath_cstr(fp), "/", "");
+    TT_UT_STREQ(tt_fpath_render(fp), "/", "");
     {
         tt_http_uri_param_iter_t pi;
         tt_http_uri_pparam_iter(&u, &pi);
@@ -264,7 +264,7 @@ TT_TEST_ROUTINE_DEFINE(case_http_uri_parse)
     }
 
     TT_UT_SUCCESS(tt_http_uri_parse(&u, "http://u:p@host/;"), "");
-    TT_UT_STREQ(tt_fpath_cstr(fp), "/", "");
+    TT_UT_STREQ(tt_fpath_render(fp), "/", "");
     {
         tt_http_uri_param_iter_t pi;
         tt_http_uri_pparam_iter(&u, &pi);
@@ -277,7 +277,7 @@ TT_TEST_ROUTINE_DEFINE(case_http_uri_parse)
     }
 
     TT_UT_SUCCESS(tt_http_uri_parse(&u, "http://u:p@host;/"), "");
-    TT_UT_STREQ(tt_fpath_cstr(fp), "/", "");
+    TT_UT_STREQ(tt_fpath_render(fp), "/", "");
     {
         tt_http_uri_param_iter_t pi;
         tt_http_uri_pparam_iter(&u, &pi);
@@ -285,7 +285,7 @@ TT_TEST_ROUTINE_DEFINE(case_http_uri_parse)
     }
 
     TT_UT_SUCCESS(tt_http_uri_parse(&u, "http://u:p@host;/a/b/c"), "");
-    TT_UT_STREQ(tt_fpath_cstr(fp), "/a/b/c", "");
+    TT_UT_STREQ(tt_fpath_render(fp), "/a/b/c", "");
     {
         tt_http_uri_param_iter_t pi;
         tt_http_uri_pparam_iter(&u, &pi);
@@ -294,7 +294,7 @@ TT_TEST_ROUTINE_DEFINE(case_http_uri_parse)
 
     TT_UT_SUCCESS(tt_http_uri_parse(&u, "http://u:p@host;/a/b/c;k1=v1&k2=v2"),
                   "");
-    TT_UT_STREQ(tt_fpath_cstr(fp), "/a/b/c", "");
+    TT_UT_STREQ(tt_fpath_render(fp), "/a/b/c", "");
     {
         tt_http_uri_param_iter_t pi;
         tt_kv_t *kvb;
@@ -348,7 +348,7 @@ TT_TEST_ROUTINE_DEFINE(case_http_uri_parse)
 
     TT_UT_SUCCESS(tt_http_uri_parse(&u, "/a/b/c;k1"), "");
     TT_UT_EQUAL(tt_http_uri_get_scheme(&u), TT_HTTP_SCHEME_UNDEFINED, "");
-    TT_UT_STREQ(tt_fpath_cstr(fp), "/a/b/c", "");
+    TT_UT_STREQ(tt_fpath_render(fp), "/a/b/c", "");
     {
         tt_http_uri_param_iter_t pi;
         tt_kv_t *kvb;
@@ -373,7 +373,7 @@ TT_TEST_ROUTINE_DEFINE(case_http_uri_parse)
 
     TT_UT_SUCCESS(tt_http_uri_parse(&u, "a/b/c/;"), "");
     TT_UT_EQUAL(tt_http_uri_get_scheme(&u), TT_HTTP_SCHEME_UNDEFINED, "");
-    TT_UT_STREQ(tt_fpath_cstr(fp), "a/b/c/", "");
+    TT_UT_STREQ(tt_fpath_render(fp), "a/b/c/", "");
     {
         tt_http_uri_param_iter_t pi;
         tt_http_uri_pparam_iter(&u, &pi);

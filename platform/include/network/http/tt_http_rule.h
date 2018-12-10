@@ -49,7 +49,21 @@ this file defines http rule
 ////////////////////////////////////////////////////////////
 
 struct tt_http_rule_s;
+struct tt_http_uri_s;
 struct tt_string_s;
+
+typedef void (*tt_http_rule_destroy_t)(IN struct tt_http_rule_s *r);
+
+typedef struct
+{
+    tt_u32_t path_pos;
+    tt_bool_t path_modified;
+} tt_http_rule_ctx_t;
+
+typedef tt_bool_t (*tt_http_rule_match_t)(IN struct tt_http_rule_s *r,
+                                          IN struct tt_http_uri_s *uri,
+                                          IN struct tt_string_s *path,
+                                          IN tt_http_rule_ctx_t *ctx);
 
 typedef enum {
     TT_HTTP_RULE_NEXT,
@@ -61,23 +75,21 @@ typedef enum {
 } tt_http_rule_result_t;
 #define TT_HTTP_RULE_RESULT_VALID(r) ((r) < TT_HTTP_RULE_RESULT_NUM)
 
-typedef void (*tt_http_rule_destroy_t)(IN struct tt_http_rule_s *r);
-
-typedef tt_bool_t (*tt_http_rule_match_t)(IN struct tt_http_rule_s *r,
-                                          IN struct tt_string_s *uri,
-                                          IN tt_u32_t pos);
-
-typedef tt_http_rule_result_t (*tt_http_rule_do_t)(
+// - use @path when accessing uri path, use @uri for other part
+// - can operation on uri->path, but do not modify uri->path and @path at same
+//   time otherwise uri->path would be overwritten by @path
+typedef tt_http_rule_result_t (*tt_http_rule_apply_t)(
     IN struct tt_http_rule_s *r,
-    IN OUT struct tt_string_s *uri,
-    IN OUT tt_u32_t *pos);
+    IN OUT struct tt_http_uri_s *uri,
+    IN OUT struct tt_string_s *path,
+    IN OUT tt_http_rule_ctx_t *ctx);
 
 typedef struct
 {
     tt_http_rule_destroy_t destroy;
     tt_http_rule_match_t match;
-    tt_http_rule_do_t pre;
-    tt_http_rule_do_t post;
+    tt_http_rule_apply_t pre;
+    tt_http_rule_apply_t post;
 } tt_http_rule_itf_t;
 
 typedef struct tt_http_rule_s
@@ -86,7 +98,7 @@ typedef struct tt_http_rule_s
     tt_dlist_t child;
     tt_dnode_t dnode;
     tt_atomic_s32_t ref;
-    tt_http_rule_result_t result;
+    tt_http_rule_result_t default_result;
 } tt_http_rule_t;
 
 ////////////////////////////////////////////////////////////
@@ -99,17 +111,36 @@ typedef struct tt_http_rule_s
 
 tt_export tt_http_rule_t *tt_http_rule_create(IN tt_u32_t extra_size,
                                               IN tt_http_rule_itf_t *itf,
-                                              IN tt_http_rule_result_t result);
+                                              IN tt_http_rule_result_t
+                                                  default_result);
 
 tt_export void __http_rule_destroy(IN tt_http_rule_t *r);
 
-tt_export tt_http_rule_result_t tt_http_rule_process(
-    IN tt_http_rule_t *r, IN OUT struct tt_string_s *uri, IN OUT tt_u32_t *pos);
+tt_export tt_http_rule_result_t
+tt_http_rule_apply(IN tt_http_rule_t *r,
+                   IN OUT struct tt_http_uri_s *uri,
+                   IN OUT struct tt_string_s *path,
+                   IN OUT tt_http_rule_ctx_t *ctx);
 
 tt_inline void tt_http_rule_add(IN tt_http_rule_t *r, IN tt_http_rule_t *child)
 {
     tt_dlist_push_tail(&r->child, &child->dnode);
     tt_http_rule_ref(child);
+}
+
+// ========================================
+// rule context
+// ========================================
+
+tt_inline void tt_http_rule_ctx_init(IN tt_http_rule_ctx_t *ctx)
+{
+    ctx->path_pos = 0;
+    ctx->path_modified = TT_FALSE;
+}
+
+tt_inline void tt_http_rule_ctx_clear(IN tt_http_rule_ctx_t *ctx)
+{
+    tt_http_rule_ctx_init(ctx);
 }
 
 #endif /* __TT_HTTP_RULE__ */

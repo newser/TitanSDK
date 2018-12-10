@@ -44,6 +44,7 @@ this file defines http host
 struct tt_component_s;
 struct tt_profile_s;
 struct tt_http_host_s;
+struct tt_http_uri_s;
 
 typedef tt_bool_t (*tt_http_host_match_t)(IN struct tt_http_host_s *h,
                                           IN tt_char_t *s,
@@ -70,22 +71,22 @@ tt_export tt_result_t tt_http_host_component_init(
 
 tt_export void tt_http_host_component_exit(IN struct tt_component_s *comp);
 
-tt_export tt_result_t tt_http_host_create_n(IN tt_http_host_t *h,
-                                            IN OPT const tt_char_t *name,
-                                            IN tt_u32_t name_len,
-                                            IN OPT tt_http_host_match_t match);
+// set match to NULL to match any
+tt_export tt_http_host_t *tt_http_host_create_n(IN OPT const tt_char_t *name,
+                                                IN tt_u32_t name_len,
+                                                IN OPT tt_http_host_match_t
+                                                    match);
 
-tt_inline tt_result_t tt_http_host_create(IN tt_http_host_t *h,
-                                          IN const tt_char_t *name,
-                                          IN OPT tt_http_host_match_t match)
+tt_inline tt_http_host_t *tt_http_host_create(IN const tt_char_t *name,
+                                              IN OPT tt_http_host_match_t match)
 {
-    return tt_http_host_create_n(h, name, tt_strlen(name), match);
+    return tt_http_host_create_n(name, tt_strlen(name), match);
 }
 
 tt_export void tt_http_host_destroy(IN tt_http_host_t *h);
 
-tt_export tt_http_rule_result_t tt_http_host_process(
-    IN tt_http_host_t *h, IN OUT struct tt_string_s *uri, IN OUT tt_u32_t *pos);
+tt_export tt_http_rule_result_t
+tt_http_host_apply(IN tt_http_host_t *h, IN OUT struct tt_http_uri_s *uri);
 
 tt_inline void tt_http_host_add_rule(IN tt_http_host_t *h,
                                      IN tt_http_rule_t *rule)
@@ -93,15 +94,19 @@ tt_inline void tt_http_host_add_rule(IN tt_http_host_t *h,
     tt_http_rule_add(h->root, rule);
 }
 
+tt_inline tt_bool_t tt_http_host_match(IN tt_http_host_t *h,
+                                       IN tt_char_t *s,
+                                       IN tt_u32_t len)
+{
+    // NULL match always return true
+    return TT_COND(h->match != NULL, h->match(h, s, len), TT_TRUE);
+}
+
 // ========================================
-// host matching helper
+// host matcher
 // ========================================
 
 tt_export tt_bool_t tt_http_host_match_cmp(IN tt_http_host_t *h,
-                                           IN tt_char_t *s,
-                                           IN tt_u32_t len);
-
-tt_export tt_bool_t tt_http_host_match_any(IN tt_http_host_t *h,
                                            IN tt_char_t *s,
                                            IN tt_u32_t len);
 

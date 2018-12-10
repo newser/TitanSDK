@@ -30,13 +30,16 @@ this file defines http service manager APIs
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <algorithm/tt_double_linked_list.h>
 #include <network/http/tt_http_in_service.h>
 #include <network/http/tt_http_out_service.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
 ////////////////////////////////////////////////////////////
+
+#define TT_HTTP_INLINE_INSERV_NUM 16
+
+#define TT_HTTP_INLINE_OUTSERV_NUM 16
 
 ////////////////////////////////////////////////////////////
 // type definition
@@ -48,8 +51,14 @@ struct tt_http_resp_render_s;
 typedef struct tt_http_svcmgr_s
 {
     tt_http_inserv_t *owner;
-    tt_dlist_t inserv;
-    tt_dlist_t outserv;
+    tt_http_inserv_t **inserv;
+    tt_http_inserv_t *inline_inserv[TT_HTTP_INLINE_INSERV_NUM];
+    tt_http_outserv_t **outserv;
+    tt_http_outserv_t *inline_outserv[TT_HTTP_INLINE_OUTSERV_NUM];
+    tt_u16_t inserv_num;
+    tt_u16_t inserv_max;
+    tt_u16_t outserv_num;
+    tt_u16_t outserv_max;
     tt_bool_t discarding : 1;
 } tt_http_svcmgr_t;
 
@@ -67,19 +76,11 @@ tt_export void tt_http_svcmgr_destroy(IN tt_http_svcmgr_t *sm);
 
 tt_export void tt_http_svcmgr_clear(IN tt_http_svcmgr_t *sm);
 
-tt_inline void tt_http_svcmgr_add_inserv(IN tt_http_svcmgr_t *sm,
-                                         IN TO tt_http_inserv_t *s)
-{
-    tt_http_inserv_ref(s);
-    tt_dlist_push_tail(&sm->inserv, &s->dnode);
-}
+tt_export tt_result_t tt_http_svcmgr_add_inserv(IN tt_http_svcmgr_t *sm,
+                                                IN TO tt_http_inserv_t *s);
 
-tt_inline void tt_http_svcmgr_add_outserv(IN tt_http_svcmgr_t *sm,
-                                          IN TO tt_http_outserv_t *s)
-{
-    tt_http_outserv_ref(s);
-    tt_dlist_push_tail(&sm->outserv, &s->dnode);
-}
+tt_export tt_result_t tt_http_svcmgr_add_outserv(IN tt_http_svcmgr_t *sm,
+                                                 IN TO tt_http_outserv_t *s);
 
 // ========================================
 // incoming request

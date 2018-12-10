@@ -170,7 +170,7 @@ tt_result_t tt_fpath_copy(IN tt_fpath_t *dst, IN tt_fpath_t *src)
     return TT_SUCCESS;
 }
 
-const tt_char_t *tt_fpath_cstr(IN tt_fpath_t *fp)
+const tt_char_t *tt_fpath_render(IN tt_fpath_t *fp)
 {
     __fpath_render(fp);
     return tt_string_cstr(&fp->path);
@@ -549,7 +549,7 @@ tt_result_t tt_fpath_normalize(IN tt_fpath_t *fp)
     tt_char_t *d;
     tt_result_t result = TT_FAIL;
 
-    if (tt_strcmp(tt_fpath_cstr(fp), "./") == 0) {
+    if (tt_strcmp(tt_fpath_render(fp), "./") == 0) {
         return TT_SUCCESS;
     }
 

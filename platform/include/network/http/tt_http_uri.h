@@ -98,6 +98,11 @@ tt_export void tt_http_uri_destroy(IN tt_http_uri_t *hu);
 
 tt_export void tt_http_uri_clear(IN tt_http_uri_t *hu);
 
+tt_inline tt_string_t *tt_http_uri_str(IN tt_http_uri_t *hu)
+{
+    return &hu->u.uri;
+}
+
 // ========================================
 // parse
 // ========================================

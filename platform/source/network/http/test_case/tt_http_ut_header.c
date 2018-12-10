@@ -646,6 +646,7 @@ TT_TEST_ROUTINE_DEFINE(case_http_body)
         tt_u32_t slen = sizeof(p) - 1, i;
         tt_http_rawhdr_t *rh;
         tt_http_rawval_t *rv;
+        tt_blobex_t *ho;
 
         tt_http_parser_wpos(&hp, &wp, &wlen);
         TT_UT_EXP(wlen > sizeof(p), "");
@@ -676,7 +677,7 @@ TT_TEST_ROUTINE_DEFINE(case_http_body)
         TT_UT_NOT_NULL(rv, "");                                                \
     } while (0)
 
-        __check("Host", "0.0.0.0=5000");
+        __check("host", "0.0.0.0=5000");
         __check("User-Agent",
                 "Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9) "
                 "Gecko/2008061015 Firefox/3.0");
@@ -692,6 +693,22 @@ TT_TEST_ROUTINE_DEFINE(case_http_body)
         TT_UT_TRUE(hp.complete_line1, "");
         TT_UT_TRUE(hp.complete_header, "");
         TT_UT_TRUE(hp.complete_message, "");
+
+        ho = tt_http_parser_get_host(&hp);
+        TT_UT_NOT_NULL(ho, "");
+        TT_UT_EQUAL(tt_blobex_strcmp(ho, "0.0.0.0=5000"), 0, "");
+        ho = tt_http_parser_get_host(&hp);
+        TT_UT_NOT_NULL(ho, "");
+        TT_UT_EQUAL(tt_blobex_strcmp(ho, "0.0.0.0=5000"), 0, "");
+
+        {
+            tt_http_uri_t *u = tt_http_parser_get_uri(&hp);
+            TT_UT_NOT_NULL(u, "");
+            TT_UT_STREQ(tt_http_uri_render(u), "/favicon.ico", "");
+            TT_UT_EQUAL(tt_http_uri_get_scheme(u),
+                        TT_HTTP_SCHEME_UNDEFINED,
+                        "");
+        }
     }
 
     // with body request
@@ -829,6 +846,9 @@ TT_TEST_ROUTINE_DEFINE(case_http_body)
         TT_UT_EQUAL(tt_http_parser_get_method(&hp), TT_HTTP_METHOD_NUM, "");
         TT_UT_EQUAL(tt_http_parser_get_status(&hp), TT_HTTP_STATUS_OK, "");
         TT_UT_EQUAL(tt_http_parser_get_version(&hp), TT_HTTP_V1_1, "");
+
+        TT_UT_NULL(tt_http_parser_get_host(&hp), "");
+        TT_UT_NULL(tt_http_parser_get_host(&hp), "");
 
         __check("Content-Type", "text/plain");
         __check("Transfer-Encoding", "chunked");
@@ -1100,7 +1120,7 @@ TT_TEST_ROUTINE_DEFINE(case_http_body2)
                     TT_UT_EQUAL(tt_http_parser_get_method(&hp),
                                 TT_HTTP_MTD_GET,
                                 "");
-                    TT_UT_EQUAL(tt_blobex_strcmp(&hp.uri, "/favicon.ico"),
+                    TT_UT_EQUAL(tt_blobex_strcmp(&hp.rawuri, "/favicon.ico"),
                                 0,
                                 "");
                 } else if ((msg_num == 1) || (msg_num == 4)) {
@@ -1111,7 +1131,9 @@ TT_TEST_ROUTINE_DEFINE(case_http_body2)
                     TT_UT_EQUAL(tt_http_parser_get_method(&hp),
                                 TT_HTTP_MTD_PATCH,
                                 "");
-                    TT_UT_EQUAL(tt_blobex_strcmp(&hp.uri, "/file.txt"), 0, "");
+                    TT_UT_EQUAL(tt_blobex_strcmp(&hp.rawuri, "/file.txt"),
+                                0,
+                                "");
                 }
             }
 
@@ -1186,7 +1208,7 @@ TT_TEST_ROUTINE_DEFINE(case_http_hdr_parse2)
     // nobody + chunked + len
     tt_char_t p[] =
         "GET /favicon.ico HTTP/1.1\r\n"
-        "Host: 0.0.0.0=5000\r\n"
+        "Host:   \r\n"
         "User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9)\r\n"
         "User-Agent: 1u"
         "Gecko/2008061015 Firefox/3.0\r\n"
@@ -1226,6 +1248,13 @@ TT_TEST_ROUTINE_DEFINE(case_http_hdr_parse2)
         TT_UT_EQUAL(tt_http_rawhdr_count_name(&hp.rawhdr, "unexist"), 0, "");
         TT_UT_EQUAL(tt_http_rawhdr_count_name(&hp.rawhdr, "connection"), 1, "");
         TT_UT_EQUAL(tt_http_rawhdr_count_name(&hp.rawhdr, "user-AgenT"), 3, "");
+    }
+
+    {
+        tt_blobex_t *ho = tt_http_parser_get_host(&hp);
+        TT_UT_NOT_NULL(ho, "");
+        TT_UT_EQUAL(tt_blobex_addr(ho), NULL, "");
+        TT_UT_EQUAL(tt_blobex_len(ho), 0, "");
     }
 
     tt_http_parser_destroy(&hp);

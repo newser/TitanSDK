@@ -101,8 +101,8 @@ tt_result_t __ut_fiber(IN void *param)
     else {
         const tt_char_t *names[] = { //"case_http_server_basic",
             "case_dl_list",
-            //            "case_blobex",
-            //            "case_blob",
+            "case_blobex",
+            "case_blob",
             "case_ptr_queue",
             "TEST_UNIT_FPATH",
             "case_uri_get_set",
@@ -113,6 +113,7 @@ tt_result_t __ut_fiber(IN void *param)
             "HTTP_UT_SCONN",
             "ALG_UT_STRING",
             "HTTP_UT_SVR",
+
 //"TEST_UNIT_SOCKET",
 #if 0
           "TEST_UNIT_LOG",

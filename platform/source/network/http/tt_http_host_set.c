@@ -22,6 +22,8 @@
 
 #include <network/http/tt_http_host_set.h>
 
+#include <os/tt_thread.h>
+
 ////////////////////////////////////////////////////////////
 // internal macro
 ////////////////////////////////////////////////////////////
@@ -68,9 +70,9 @@ void tt_http_hostset_destroy(IN tt_http_hostset_t *hs)
     __destroy_hosts(&hs->hosts);
 }
 
-tt_http_host_t *tt_http_hostset_find_n(IN tt_http_hostset_t *hs,
-                                       IN tt_char_t *name,
-                                       IN tt_u32_t name_len)
+tt_http_host_t *tt_http_hostset_match_n(IN tt_http_hostset_t *hs,
+                                        IN tt_char_t *name,
+                                        IN tt_u32_t name_len)
 {
     tt_dnode_t *dn = tt_dlist_head(&hs->hosts);
     while (dn != NULL) {
@@ -78,11 +80,30 @@ tt_http_host_t *tt_http_hostset_find_n(IN tt_http_hostset_t *hs,
 
         dn = dn->next;
 
-        if (h->match(h, name, name_len)) {
+        if (tt_http_host_match(h, name, name_len)) {
             return h;
         }
     }
     return hs->default_host;
+}
+
+tt_http_hostset_t *tt_current_http_hostset(IN tt_bool_t create)
+{
+    tt_thread_t *t = tt_current_thread();
+    if ((t->http_hostset == NULL) && create) {
+        tt_http_hostset_t *hs;
+
+        hs = tt_malloc(sizeof(tt_http_hostset_t));
+        if (hs == NULL) {
+            TT_ERROR("no mem for local http hostset");
+            return NULL;
+        }
+
+        tt_http_hostset_init(hs);
+
+        t->http_hostset = hs;
+    }
+    return t->http_hostset;
 }
 
 void __destroy_hosts(IN tt_dlist_t *dl)

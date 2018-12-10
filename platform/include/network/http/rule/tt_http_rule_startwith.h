@@ -17,20 +17,19 @@
  */
 
 /**
-@file tt_http_rule_prefix.h
-@brief http rule prefix
+@file tt_http_rule_startwith.h
+@brief http rule startwith
 
-this file defines http rule prefix
+this file defines http rule startwith
 */
 
-#ifndef __TT_HTTP_RULE_PREFIX__
-#define __TT_HTTP_RULE_PREFIX__
+#ifndef __TT_HTTP_RULE_STARTWITH__
+#define __TT_HTTP_RULE_STARTWITH__
 
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <algorithm/tt_blob.h>
 #include <network/http/tt_http_rule.h>
 
 ////////////////////////////////////////////////////////////
@@ -41,13 +40,13 @@ this file defines http rule prefix
 // type definition
 ////////////////////////////////////////////////////////////
 
-typedef struct tt_http_rule_prefix_s
+typedef struct tt_http_rule_startwith_s
 {
     tt_u8_t *prefix;
     tt_u8_t *replace;
     tt_u32_t prefix_len;
     tt_u32_t replace_len;
-} tt_http_rule_prefix_t;
+} tt_http_rule_startwith_t;
 
 ////////////////////////////////////////////////////////////
 // global variants
@@ -57,21 +56,25 @@ typedef struct tt_http_rule_prefix_s
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-tt_export tt_http_rule_t *tt_http_rule_prefix_create_n(
+tt_export tt_http_rule_t *tt_http_rule_startwith_create_n(
     IN const tt_char_t *prefix,
     IN tt_u32_t prefix_len,
     IN OPT const tt_char_t *replace,
-    IN tt_u32_t replace_len);
+    IN tt_u32_t replace_len,
+    IN tt_http_rule_result_t default_result);
 
-tt_inline tt_http_rule_t *tt_http_rule_prefix_create(
-    IN const tt_char_t *prefix, IN OPT const tt_char_t *replace)
+tt_inline tt_http_rule_t *tt_http_rule_startwith_create(
+    IN const tt_char_t *prefix,
+    IN OPT const tt_char_t *replace,
+    IN tt_http_rule_result_t default_result)
 {
-    return tt_http_rule_prefix_create_n(prefix,
-                                        tt_strlen(prefix),
-                                        replace,
-                                        TT_COND(replace != NULL,
-                                                tt_strlen(replace),
-                                                0));
+    return tt_http_rule_startwith_create_n(prefix,
+                                           tt_strlen(prefix),
+                                           replace,
+                                           TT_COND(replace != NULL,
+                                                   tt_strlen(replace),
+                                                   0),
+                                           default_result);
 }
 
-#endif /* __TT_HTTP_RULE_PREFIX__ */
+#endif /* __TT_HTTP_RULE_STARTWITH__ */

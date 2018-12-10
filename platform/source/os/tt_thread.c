@@ -32,6 +32,7 @@
 #include <memory/tt_memory_alloc.h>
 #include <memory/tt_slab.h>
 #include <misc/tt_assert.h>
+#include <network/http/tt_http_host_set.h>
 #include <os/tt_fiber.h>
 
 #include <tt_cstd_api.h>
@@ -123,6 +124,7 @@ tt_thread_t *tt_thread_create(IN tt_thread_routine_t routine,
     thread->backtrace = NULL;
     thread->http_rawhdr = NULL;
     thread->http_rawval = NULL;
+    thread->http_hostset = NULL;
 
     thread->last_error = TT_SUCCESS;
     thread->detached = detached;
@@ -315,6 +317,11 @@ void __thread_on_exit(IN tt_thread_t *thread)
     if (thread->http_rawval != NULL) {
         tt_slab_destroy(thread->http_rawval);
         tt_free(thread->http_rawval);
+    }
+
+    if (thread->http_hostset != NULL) {
+        tt_http_hostset_destroy(thread->http_hostset);
+        tt_free(thread->http_hostset);
     }
 
     // for non-detached and non-local thread, the struct will

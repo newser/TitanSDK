@@ -51,69 +51,134 @@
 
 void tt_http_svcmgr_init(IN tt_http_svcmgr_t *sm)
 {
+    tt_u32_t i;
+
     TT_ASSERT(sm != NULL);
 
     sm->owner = NULL;
-    tt_dlist_init(&sm->inserv);
-    tt_dlist_init(&sm->outserv);
+
+    for (i = 0; i < TT_HTTP_INLINE_INSERV_NUM; ++i) {
+        sm->inline_inserv[i] = NULL;
+    }
+    sm->inserv = sm->inline_inserv;
+    sm->inserv_num = 0;
+    sm->inserv_max = TT_HTTP_INLINE_INSERV_NUM;
+
+    for (i = 0; i < TT_HTTP_INLINE_OUTSERV_NUM; ++i) {
+        sm->inline_outserv[i] = NULL;
+    }
+    sm->outserv = sm->inline_outserv;
+    sm->outserv_num = 0;
+    sm->outserv_max = TT_HTTP_INLINE_OUTSERV_NUM;
+
     sm->discarding = TT_FALSE;
 }
 
 void tt_http_svcmgr_destroy(IN tt_http_svcmgr_t *sm)
 {
-    tt_dnode_t *dn;
+    tt_u32_t i;
 
     TT_ASSERT(sm != NULL);
 
-    while ((dn = tt_dlist_pop_head(&sm->inserv)) != NULL) {
-        tt_http_inserv_release(TT_CONTAINER(dn, tt_http_inserv_t, dnode));
+    for (i = 0; i < sm->inserv_num; ++i) {
+        tt_http_inserv_release(sm->inserv[i]);
+    }
+    if (sm->inserv != sm->inline_inserv) {
+        tt_free(sm->inserv);
     }
 
-    while ((dn = tt_dlist_pop_head(&sm->outserv)) != NULL) {
-        tt_http_outserv_release(TT_CONTAINER(dn, tt_http_outserv_t, dnode));
+    for (i = 0; i < sm->outserv_num; ++i) {
+        tt_http_outserv_release(sm->outserv[i]);
+    }
+    if (sm->outserv != sm->inline_outserv) {
+        tt_free(sm->outserv);
     }
 }
 
 void tt_http_svcmgr_clear(IN tt_http_svcmgr_t *sm)
 {
-    tt_dnode_t *dn;
+    tt_u32_t i;
 
     TT_ASSERT(sm != NULL);
 
     sm->owner = NULL;
 
-    dn = tt_dlist_head(&sm->inserv);
-    while (dn != NULL) {
-        tt_http_inserv_clear(TT_CONTAINER(dn, tt_http_inserv_t, dnode));
-        dn = dn->next;
+    for (i = 0; i < sm->inserv_num; ++i) {
+        tt_http_inserv_clear(sm->inserv[i]);
     }
 
-    dn = tt_dlist_head(&sm->outserv);
-    while (dn != NULL) {
-        tt_http_outserv_clear(TT_CONTAINER(dn, tt_http_outserv_t, dnode));
-        dn = dn->next;
+    for (i = 0; i < sm->outserv_num; ++i) {
+        tt_http_outserv_clear(sm->outserv[i]);
     }
 
     sm->discarding = TT_FALSE;
+}
+
+tt_result_t tt_http_svcmgr_add_inserv(IN tt_http_svcmgr_t *sm,
+                                      IN TO tt_http_inserv_t *s)
+{
+    if (sm->inserv_num == sm->inserv_max) {
+        tt_u32_t new_num = sm->inserv_num + TT_HTTP_INLINE_INSERV_NUM;
+        tt_http_inserv_t **s = tt_malloc(sizeof(tt_http_inserv_t *) * new_num);
+        if (s == NULL) {
+            TT_ERROR("fail to expand inserv array");
+            return TT_E_NOMEM;
+        }
+        tt_memcpy(s, sm->inserv, sizeof(tt_http_inserv_t *) * sm->inserv_num);
+
+        if (sm->inserv != sm->inline_inserv) {
+            tt_free(sm->inserv);
+        }
+        sm->inserv = s;
+        sm->inserv_max = new_num;
+    }
+
+    sm->inserv[sm->inserv_num++] = s;
+    tt_http_inserv_ref(s);
+    return TT_SUCCESS;
+}
+
+tt_result_t tt_http_svcmgr_add_outserv(IN tt_http_svcmgr_t *sm,
+                                       IN TO tt_http_outserv_t *s)
+{
+    if (sm->outserv_num == sm->outserv_max) {
+        tt_u32_t new_num = sm->outserv_num + TT_HTTP_INLINE_OUTSERV_NUM;
+        tt_http_outserv_t **s =
+            tt_malloc(sizeof(tt_http_outserv_t *) * new_num);
+        if (s == NULL) {
+            TT_ERROR("fail to expand outserv array");
+            return TT_E_NOMEM;
+        }
+        tt_memcpy(s,
+                  sm->outserv,
+                  sizeof(tt_http_outserv_t *) * sm->outserv_num);
+
+        if (sm->outserv != sm->inline_outserv) {
+            tt_free(sm->outserv);
+        }
+        sm->outserv = s;
+        sm->outserv_max = new_num;
+    }
+
+    sm->outserv[sm->outserv_num++] = s;
+    tt_http_outserv_ref(s);
+    return TT_SUCCESS;
 }
 
 tt_http_inserv_action_t tt_http_svcmgr_on_uri(IN tt_http_svcmgr_t *sm,
                                               IN tt_http_parser_t *req,
                                               OUT tt_http_resp_render_t *resp)
 {
-    tt_dnode_t *dn;
-    tt_http_inserv_action_t act = TT_HTTP_INSERV_ACT_IGNORE;
+    tt_u32_t i;
+    tt_http_inserv_action_t act = TT_HTTP_INSERV_ACT_PASS;
 
     if (sm->discarding) {
         return TT_HTTP_INSERV_ACT_DISCARD;
     }
 
-    dn = tt_dlist_head(&sm->inserv);
-    while (dn != NULL) {
-        tt_http_inserv_t *s = TT_CONTAINER(dn, tt_http_inserv_t, dnode);
+    for (i = 0; i < sm->inserv_num; ++i) {
+        tt_http_inserv_t *s = sm->inserv[i];
         tt_http_inserv_action_t this_act;
-
-        dn = dn->next;
 
         this_act = tt_http_inserv_on_uri(s, req, resp);
         if (this_act <= TT_HTTP_INSERV_ACT_SHUTDOWN) {
@@ -141,19 +206,16 @@ tt_http_inserv_action_t tt_http_svcmgr_on_header(
     IN tt_http_parser_t *req,
     OUT tt_http_resp_render_t *resp)
 {
-    tt_dnode_t *dn;
-    tt_http_inserv_action_t act = TT_HTTP_INSERV_ACT_IGNORE;
+    tt_u32_t i;
+    tt_http_inserv_action_t act = TT_HTTP_INSERV_ACT_PASS;
 
     if (sm->discarding) {
         return TT_HTTP_INSERV_ACT_DISCARD;
     }
 
-    dn = tt_dlist_head(&sm->inserv);
-    while (dn != NULL) {
-        tt_http_inserv_t *s = TT_CONTAINER(dn, tt_http_inserv_t, dnode);
+    for (i = 0; i < sm->inserv_num; ++i) {
+        tt_http_inserv_t *s = sm->inserv[i];
         tt_http_inserv_action_t this_act;
-
-        dn = dn->next;
 
         this_act = tt_http_inserv_on_header(s, req, resp);
         if (this_act <= TT_HTTP_INSERV_ACT_SHUTDOWN) {
@@ -240,6 +302,7 @@ tt_http_inserv_action_t tt_http_svcmgr_on_complete(
     }
 
     if (sm->owner == NULL) {
+        // 404, 500?
         tt_http_resp_render_set_status(resp,
                                        TT_HTTP_STATUS_INTERNAL_SERVER_ERROR);
 
@@ -254,11 +317,9 @@ void tt_http_svcmgr_on_resp(IN tt_http_svcmgr_t *sm,
                             IN tt_http_parser_t *req,
                             IN OUT tt_http_resp_render_t *resp)
 {
-    tt_dnode_t *dn = tt_dlist_head(&sm->outserv);
-    while (dn != NULL) {
-        tt_http_outserv_on_resp(TT_CONTAINER(dn, tt_http_outserv_t, dnode),
-                                req,
-                                resp);
-        dn = dn->next;
+    tt_u32_t i;
+
+    for (i = 0; i < sm->outserv_num; ++i) {
+        tt_http_outserv_on_resp(sm->outserv[i], req, resp);
     }
 }

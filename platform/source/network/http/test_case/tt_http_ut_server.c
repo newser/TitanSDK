@@ -24,11 +24,12 @@
 
 #include <stdlib.h>
 
-#include <network/http/rule/tt_http_rule_prefix.h>
+#include <network/http/rule/tt_http_rule_startwith.h>
 #include <network/http/tt_http_host.h>
 #include <network/http/tt_http_host_set.h>
 #include <network/http/tt_http_rule.h>
 #include <network/http/tt_http_server.h>
+#include <network/http/tt_http_uri.h>
 
 ////////////////////////////////////////////////////////////
 // internal macro
@@ -48,7 +49,7 @@
 
 // === routine declarations ================
 TT_TEST_ROUTINE_DECLARE(case_http_rule_basic)
-TT_TEST_ROUTINE_DECLARE(case_http_rule_prefix)
+TT_TEST_ROUTINE_DECLARE(case_http_rule_startwith)
 TT_TEST_ROUTINE_DECLARE(case_http_host)
 TT_TEST_ROUTINE_DECLARE(case_http_hostset)
 
@@ -68,9 +69,9 @@ TT_TEST_CASE("case_http_rule_basic",
              NULL)
 ,
 
-    TT_TEST_CASE("case_http_rule_prefix",
+    TT_TEST_CASE("case_http_rule_startwith",
                  "http uri rule: prefix",
-                 case_http_rule_prefix,
+                 case_http_rule_startwith,
                  NULL,
                  NULL,
                  NULL,
@@ -141,8 +142,9 @@ static void __hr1_destroy(IN struct tt_http_rule_s *r)
 static tt_bool_t __hr1_match_called[3];
 static tt_bool_t __hr1_match_ret[3];
 static tt_bool_t __hr1_match(IN struct tt_http_rule_s *r,
-                             IN struct tt_string_s *uri,
-                             IN tt_u32_t pos)
+                             IN struct tt_http_uri_s *uri,
+                             IN OUT struct tt_string_s *path,
+                             IN tt_http_rule_ctx_t *ctx)
 {
     tt_u32_t idx = *TT_HTTP_RULE_CAST(r, tt_u32_t);
 
@@ -153,8 +155,9 @@ static tt_bool_t __hr1_match(IN struct tt_http_rule_s *r,
 static tt_bool_t __hr1_pre_called[3];
 static tt_bool_t __hr1_pre_ret[3];
 static tt_http_rule_result_t __rule_pre(IN struct tt_http_rule_s *r,
-                                        IN OUT struct tt_string_s *uri,
-                                        IN OUT tt_u32_t *pos)
+                                        IN struct tt_http_uri_s *uri,
+                                        IN OUT struct tt_string_s *path,
+                                        IN tt_http_rule_ctx_t *ctx)
 {
     tt_u32_t idx = *TT_HTTP_RULE_CAST(r, tt_u32_t);
 
@@ -165,8 +168,9 @@ static tt_http_rule_result_t __rule_pre(IN struct tt_http_rule_s *r,
 static tt_bool_t __hr1_post_called[3];
 static tt_bool_t __hr1_post_ret[3];
 static tt_http_rule_result_t __rule_post(IN struct tt_http_rule_s *r,
-                                         IN OUT struct tt_string_s *uri,
-                                         IN OUT tt_u32_t *pos)
+                                         IN struct tt_http_uri_s *uri,
+                                         IN OUT struct tt_string_s *path,
+                                         IN tt_http_rule_ctx_t *ctx)
 {
     tt_u32_t idx = *TT_HTTP_RULE_CAST(r, tt_u32_t);
 
@@ -202,13 +206,16 @@ TT_TEST_ROUTINE_DEFINE(case_http_rule_basic)
                              __rule_post};
     tt_http_rule_result_t rret;
     tt_u32_t pos, i;
+    tt_http_rule_ctx_t ctx;
 
     TT_TEST_CASE_ENTER()
     // test start
 
+    tt_http_rule_ctx_init(&ctx);
+
     r = tt_http_rule_create(0, &i1, TT_HTTP_RULE_ERROR);
     TT_UT_NOT_NULL(r, "");
-    rret = tt_http_rule_process(r, NULL, &pos);
+    rret = tt_http_rule_apply(r, NULL, NULL, &ctx);
     TT_UT_EQUAL(rret, TT_HTTP_RULE_ERROR, "");
     tt_http_rule_release(r);
 
@@ -237,7 +244,7 @@ TT_TEST_ROUTINE_DEFINE(case_http_rule_basic)
     for (i = 0; i < 3; ++i) {
         __hr1_match_ret[i] = TT_TRUE;
     }
-    rret = tt_http_rule_process(r, NULL, &pos);
+    rret = tt_http_rule_apply(r, NULL, NULL, &ctx);
     TT_UT_EQUAL(rret, TT_HTTP_RULE_NEXT, "");
     for (i = 0; i < 3; ++i) {
         TT_UT_TRUE(__hr1_match_called[i], "");
@@ -251,7 +258,7 @@ TT_TEST_ROUTINE_DEFINE(case_http_rule_basic)
         __hr1_match_ret[i] = TT_TRUE;
     }
     __hr1_match_ret[1] = TT_FALSE;
-    rret = tt_http_rule_process(r, NULL, &pos);
+    rret = tt_http_rule_apply(r, NULL, NULL, &ctx);
     TT_UT_EQUAL(rret, TT_HTTP_RULE_NEXT, "");
     for (i = 0; i < 1; ++i) {
         TT_UT_TRUE(__hr1_match_called[i], "");
@@ -270,7 +277,7 @@ TT_TEST_ROUTINE_DEFINE(case_http_rule_basic)
         __hr1_match_ret[i] = TT_TRUE;
     }
     __hr1_pre_ret[1] = TT_HTTP_RULE_ERROR;
-    rret = tt_http_rule_process(r, NULL, &pos);
+    rret = tt_http_rule_apply(r, NULL, NULL, &ctx);
     TT_UT_EQUAL(rret, TT_HTTP_RULE_ERROR, "");
     TT_UT_TRUE(__hr1_match_called[0], "");
     TT_UT_TRUE(__hr1_pre_called[0], "");
@@ -288,7 +295,7 @@ TT_TEST_ROUTINE_DEFINE(case_http_rule_basic)
         __hr1_match_ret[i] = TT_TRUE;
     }
     __hr1_post_ret[1] = TT_HTTP_RULE_ERROR;
-    rret = tt_http_rule_process(r, NULL, &pos);
+    rret = tt_http_rule_apply(r, NULL, NULL, &ctx);
     TT_UT_EQUAL(rret, TT_HTTP_RULE_ERROR, "");
     TT_UT_TRUE(__hr1_match_called[0], "");
     TT_UT_TRUE(__hr1_pre_called[0], "");
@@ -306,7 +313,7 @@ TT_TEST_ROUTINE_DEFINE(case_http_rule_basic)
         __hr1_match_ret[i] = TT_TRUE;
     }
     __hr1_post_ret[1] = TT_HTTP_RULE_CONTINUE;
-    rret = tt_http_rule_process(r, NULL, &pos);
+    rret = tt_http_rule_apply(r, NULL, NULL, &ctx);
     TT_UT_EQUAL(rret, TT_HTTP_RULE_CONTINUE, "");
     for (i = 0; i < 2; ++i) {
         TT_UT_TRUE(__hr1_match_called[i], "");
@@ -326,104 +333,116 @@ TT_TEST_ROUTINE_DEFINE(case_http_rule_basic)
     TT_TEST_CASE_LEAVE()
 }
 
-TT_TEST_ROUTINE_DEFINE(case_http_rule_prefix)
+TT_TEST_ROUTINE_DEFINE(case_http_rule_startwith)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_http_rule_t *r, *r2;
-    tt_string_t uri;
-    tt_u32_t pos;
+    tt_http_uri_t uri;
     tt_http_rule_result_t rret;
+    tt_http_rule_ctx_t ctx;
+    tt_string_t s;
 
     TT_TEST_CASE_ENTER()
     // test start
 
-    tt_string_init(&uri, NULL);
+    tt_http_uri_init(&uri);
+    tt_string_init(&s, NULL);
 
-    r = tt_http_rule_prefix_create("/", NULL);
+    r = tt_http_rule_startwith_create("/", NULL, TT_HTTP_RULE_BREAK);
+    TT_UT_EQUAL(r->default_result, TT_HTTP_RULE_BREAK, "");
     TT_UT_NOT_NULL(r, "");
 
     // not match
-    pos = 0;
-    rret = tt_http_rule_process(r, &uri, &pos);
+    tt_http_rule_ctx_init(&ctx);
+    rret = tt_http_rule_apply(r, &uri, &s, &ctx);
     TT_UT_EQUAL(rret, TT_HTTP_RULE_NEXT, "");
+    TT_UT_FALSE(ctx.path_modified, "");
 
     // whole match
-    pos = 0;
-    tt_string_set(&uri, "/");
-    rret = tt_http_rule_process(r, &uri, &pos);
+    tt_string_set(&s, "/");
+    tt_http_rule_ctx_init(&ctx);
+    rret = tt_http_rule_apply(r, &uri, &s, &ctx);
     TT_UT_EQUAL(rret, TT_HTTP_RULE_BREAK, "");
+    TT_UT_FALSE(ctx.path_modified, "");
 
     // partial match
-    pos = 0;
-    tt_string_set(&uri, "//abc");
-    rret = tt_http_rule_process(r, &uri, &pos);
+    tt_string_set(&s, "//abc");
+    tt_http_rule_ctx_init(&ctx);
+    rret = tt_http_rule_apply(r, &uri, &s, &ctx);
     TT_UT_EQUAL(rret, TT_HTTP_RULE_BREAK, "");
+    TT_UT_FALSE(ctx.path_modified, "");
 
     // not match
-    pos = 0;
-    tt_string_set(&uri, "a/");
-    rret = tt_http_rule_process(r, &uri, &pos);
+    tt_string_set(&s, "a/");
+    tt_http_rule_ctx_init(&ctx);
+    rret = tt_http_rule_apply(r, &uri, &s, &ctx);
     TT_UT_EQUAL(rret, TT_HTTP_RULE_NEXT, "");
+    TT_UT_FALSE(ctx.path_modified, "");
 
     {
-        r2 = tt_http_rule_prefix_create("abc", NULL);
+        r2 = tt_http_rule_startwith_create("abc", NULL, TT_HTTP_RULE_BREAK);
         TT_UT_NOT_NULL(r, "");
         tt_http_rule_add(r, r2);
         tt_http_rule_release(r2);
 
-        r2 = tt_http_rule_prefix_create("xyz", "x");
+        r2 = tt_http_rule_startwith_create("xyz", "x", TT_HTTP_RULE_BREAK);
         TT_UT_NOT_NULL(r, "");
         tt_http_rule_add(r, r2);
         tt_http_rule_release(r2);
 
-        r2 = tt_http_rule_prefix_create("123", "12345");
+        r2 = tt_http_rule_startwith_create("123", "12345", TT_HTTP_RULE_BREAK);
         TT_UT_NOT_NULL(r, "");
         tt_http_rule_add(r, r2);
         tt_http_rule_release(r2);
 
         // not match
-        pos = 0;
-        tt_string_set(&uri, "a/");
-        rret = tt_http_rule_process(r, &uri, &pos);
+        tt_string_set(&s, "a/");
+        tt_http_rule_ctx_init(&ctx);
+        rret = tt_http_rule_apply(r, &uri, &s, &ctx);
         TT_UT_EQUAL(rret, TT_HTTP_RULE_NEXT, "");
+        TT_UT_FALSE(ctx.path_modified, "");
 
         // match first
-        pos = 0;
-        tt_string_set(&uri, "/ab");
-        rret = tt_http_rule_process(r, &uri, &pos);
+        tt_string_set(&s, "/ab");
+        tt_http_rule_ctx_init(&ctx);
+        rret = tt_http_rule_apply(r, &uri, &s, &ctx);
         TT_UT_EQUAL(rret, TT_HTTP_RULE_BREAK, "");
-        TT_UT_EQUAL(pos, 1, "");
+        TT_UT_EQUAL(ctx.path_pos, 1, "");
+        TT_UT_FALSE(ctx.path_modified, "");
 
         // match second
-        pos = 0;
-        tt_string_set(&uri, "/abc");
-        rret = tt_http_rule_process(r, &uri, &pos);
+        tt_string_set(&s, "/abc");
+        tt_http_rule_ctx_init(&ctx);
+        rret = tt_http_rule_apply(r, &uri, &s, &ctx);
         TT_UT_EQUAL(rret, TT_HTTP_RULE_BREAK, "");
-        TT_UT_EQUAL(pos, 4, "");
+        TT_UT_EQUAL(ctx.path_pos, 4, "");
+        TT_UT_FALSE(ctx.path_modified, "");
 
         // more than matching
-        pos = 0;
-        tt_string_set(&uri, "/abc/");
-        rret = tt_http_rule_process(r, &uri, &pos);
+        tt_string_set(&s, "/abc/");
+        tt_http_rule_ctx_init(&ctx);
+        rret = tt_http_rule_apply(r, &uri, &s, &ctx);
         TT_UT_EQUAL(rret, TT_HTTP_RULE_BREAK, "");
-        TT_UT_EQUAL(pos, 4, "");
+        TT_UT_EQUAL(ctx.path_pos, 4, "");
     }
 
     // replace
     {
-        pos = 0;
-        tt_string_set(&uri, "/xyz/");
-        rret = tt_http_rule_process(r, &uri, &pos);
+        tt_string_set(&s, "/xyz/");
+        tt_http_rule_ctx_init(&ctx);
+        rret = tt_http_rule_apply(r, &uri, &s, &ctx);
         TT_UT_EQUAL(rret, TT_HTTP_RULE_BREAK, "");
-        TT_UT_STREQ(tt_string_cstr(&uri), "/x/", "");
-        TT_UT_EQUAL(pos, 2, "");
+        TT_UT_STREQ(tt_string_cstr(&s), "/x/", "");
+        TT_UT_EQUAL(ctx.path_pos, 2, "");
+        TT_UT_TRUE(ctx.path_modified, "");
 
-        pos = 0;
-        tt_string_set(&uri, "/123999/");
-        rret = tt_http_rule_process(r, &uri, &pos);
+        tt_string_set(&s, "/123999/");
+        tt_http_rule_ctx_init(&ctx);
+        rret = tt_http_rule_apply(r, &uri, &s, &ctx);
         TT_UT_EQUAL(rret, TT_HTTP_RULE_BREAK, "");
-        TT_UT_STREQ(tt_string_cstr(&uri), "/12345999/", "");
-        TT_UT_EQUAL(pos, 6, "");
+        TT_UT_STREQ(tt_string_cstr(&s), "/12345999/", "");
+        TT_UT_EQUAL(ctx.path_pos, 6, "");
+        TT_UT_TRUE(ctx.path_modified, "");
     }
 
     tt_http_rule_release(r);
@@ -435,7 +454,7 @@ TT_TEST_ROUTINE_DEFINE(case_http_rule_prefix)
 TT_TEST_ROUTINE_DEFINE(case_http_host)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
-    tt_http_host_t hh;
+    tt_http_host_t *hh;
     tt_http_rule_t *child;
     tt_http_rule_itf_t i2 = {__hr1_destroy,
                              __hr1_match,
@@ -443,29 +462,34 @@ TT_TEST_ROUTINE_DEFINE(case_http_host)
                              __rule_post};
     tt_http_rule_result_t rret;
     tt_u32_t pos, i;
+    tt_http_uri_t uri;
 
     TT_TEST_CASE_ENTER()
     // test start
 
-    TT_UT_SUCCESS(tt_http_host_create(&hh, "123", NULL), "");
-    tt_http_host_destroy(&hh);
+    tt_http_uri_init(&uri);
 
-    TT_UT_SUCCESS(tt_http_host_create(&hh, "123", NULL), "");
+    hh = tt_http_host_create("123", tt_http_host_match_cmp);
+    TT_UT_NOT_NULL(hh, "");
+    tt_http_host_destroy(hh);
+
+    hh = tt_http_host_create("123", NULL);
+    TT_UT_NOT_NULL(hh, "");
 
     {
         child = tt_http_rule_create(sizeof(tt_u32_t), &i2, TT_HTTP_RULE_NEXT);
         *TT_HTTP_RULE_CAST(child, tt_u32_t) = 0;
-        tt_http_host_add_rule(&hh, child);
+        tt_http_host_add_rule(hh, child);
         tt_http_rule_release(child);
 
         child = tt_http_rule_create(sizeof(tt_u32_t), &i2, TT_HTTP_RULE_NEXT);
         *TT_HTTP_RULE_CAST(child, tt_u32_t) = 1;
-        tt_http_host_add_rule(&hh, child);
+        tt_http_host_add_rule(hh, child);
         tt_http_rule_release(child);
 
         child = tt_http_rule_create(sizeof(tt_u32_t), &i2, TT_HTTP_RULE_NEXT);
         *TT_HTTP_RULE_CAST(child, tt_u32_t) = 2;
-        tt_http_host_add_rule(&hh, child);
+        tt_http_host_add_rule(hh, child);
         tt_http_rule_release(child);
     }
 
@@ -474,7 +498,7 @@ TT_TEST_ROUTINE_DEFINE(case_http_host)
     for (i = 0; i < 3; ++i) {
         __hr1_match_ret[i] = TT_TRUE;
     }
-    rret = tt_http_host_process(&hh, NULL, &pos);
+    rret = tt_http_host_apply(hh, &uri);
     TT_UT_EQUAL(rret, TT_HTTP_RULE_NEXT, "");
     for (i = 0; i < 3; ++i) {
         TT_UT_TRUE(__hr1_match_called[i], "");
@@ -488,7 +512,7 @@ TT_TEST_ROUTINE_DEFINE(case_http_host)
         __hr1_match_ret[i] = TT_TRUE;
     }
     __hr1_match_ret[1] = TT_FALSE;
-    rret = tt_http_host_process(&hh, NULL, &pos);
+    rret = tt_http_host_apply(hh, &uri);
     TT_UT_EQUAL(rret, TT_HTTP_RULE_NEXT, "");
     for (i = 0; i < 1; ++i) {
         TT_UT_TRUE(__hr1_match_called[i], "");
@@ -507,7 +531,7 @@ TT_TEST_ROUTINE_DEFINE(case_http_host)
         __hr1_match_ret[i] = TT_TRUE;
     }
     __hr1_pre_ret[1] = TT_HTTP_RULE_ERROR;
-    rret = tt_http_host_process(&hh, NULL, &pos);
+    rret = tt_http_host_apply(hh, &uri);
     TT_UT_EQUAL(rret, TT_HTTP_RULE_ERROR, "");
     TT_UT_TRUE(__hr1_match_called[0], "");
     TT_UT_TRUE(__hr1_pre_called[0], "");
@@ -525,7 +549,7 @@ TT_TEST_ROUTINE_DEFINE(case_http_host)
         __hr1_match_ret[i] = TT_TRUE;
     }
     __hr1_post_ret[1] = TT_HTTP_RULE_ERROR;
-    rret = tt_http_host_process(&hh, NULL, &pos);
+    rret = tt_http_host_apply(hh, &uri);
     TT_UT_EQUAL(rret, TT_HTTP_RULE_ERROR, "");
     TT_UT_TRUE(__hr1_match_called[0], "");
     TT_UT_TRUE(__hr1_pre_called[0], "");
@@ -543,23 +567,25 @@ TT_TEST_ROUTINE_DEFINE(case_http_host)
         __hr1_match_ret[i] = TT_TRUE;
     }
     __hr1_post_ret[1] = TT_HTTP_RULE_CONTINUE;
-    rret = tt_http_host_process(&hh, NULL, &pos);
+    rret = tt_http_host_apply(hh, &uri);
     TT_UT_EQUAL(rret, TT_HTTP_RULE_ERROR, "");
 
-    tt_http_host_destroy(&hh);
+    tt_http_host_destroy(hh);
     for (i = 0; i < 3; ++i) {
         TT_UT_TRUE(__hr1_destroyed[i], "");
     }
 
     // match any
     {
-        TT_UT_SUCCESS(tt_http_host_create(&hh, "123", tt_http_host_match_any),
-                      "");
+        hh = tt_http_host_create("123", NULL);
+        TT_UT_NOT_NULL(hh, "");
 
-        TT_UT_TRUE(hh.match(&hh, NULL, 0), "");
+        TT_UT_TRUE(tt_http_host_match(hh, NULL, 0), "");
 
-        tt_http_host_destroy(&hh);
+        tt_http_host_destroy(hh);
     }
+
+    tt_http_uri_destroy(&uri);
 
     // test end
     TT_TEST_CASE_LEAVE()
@@ -581,10 +607,33 @@ static tt_result_t __http_svr_fb(IN void *param)
     tt_skt_t *s;
     tt_http_server_t svr;
     tt_result_t ret;
+    tt_http_hostset_t *hs;
+    tt_http_host_t *ho;
 
     tt_sktaddr_init(&addr, TT_NET_AF_INET);
     tt_sktaddr_set_ip_p(&addr, "127.0.0.1");
     tt_sktaddr_set_port(&addr, 12399);
+
+    // set host
+    {
+        tt_http_rule_t *r;
+
+        ho = tt_http_host_create("does not matter", NULL);
+        __ck_err(ho != NULL);
+
+        r = tt_http_rule_startwith_create("/",
+                                          "/index.html",
+                                          TT_HTTP_RULE_BREAK);
+        __ck_err(r != NULL);
+        tt_http_host_add_rule(ho, r);
+    }
+
+    {
+        hs = tt_current_http_hostset(TT_TRUE);
+        __ck_err(hs != NULL);
+
+        tt_http_hostset_add(hs, ho);
+    }
 
     s = tt_tcp_server(TT_NET_AF_INET, NULL, &addr);
     __ck_err(s != NULL);
@@ -624,7 +673,7 @@ TT_TEST_ROUTINE_DEFINE(case_http_hostset)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_http_hostset_t m, *pm;
-    tt_http_host_t h1, h2, h[3];
+    tt_http_host_t *h1, *h2, *h[3];
 
     TT_TEST_CASE_ENTER()
     // test start
@@ -636,42 +685,49 @@ TT_TEST_ROUTINE_DEFINE(case_http_hostset)
 
     // find empty map
     {
-        TT_UT_NULL(tt_http_hostset_find(&m, ""), "");
-        TT_UT_NULL(tt_http_hostset_find(&m, "1"), "");
+        TT_UT_NULL(tt_http_hostset_match(&m, ""), "");
+        TT_UT_NULL(tt_http_hostset_match(&m, "1"), "");
     }
 
     // add default
-    TT_UT_SUCCESS(tt_http_host_create(&h1, "test.com", NULL), "");
-    tt_http_hostset_set_default(&m, &h1);
-    TT_UT_EQUAL(m.default_host, &h1, "");
+    h1 = tt_http_host_create("test.com", NULL);
+    TT_UT_NOT_NULL(h1, "");
+    tt_http_hostset_set_default(&m, h1);
+    TT_UT_EQUAL(m.default_host, h1, "");
 
-    TT_UT_SUCCESS(tt_http_host_create(&h2, "test.com:80", NULL), "");
-    tt_http_hostset_set_default(&m, &h2);
-    TT_UT_EQUAL(m.default_host, &h2, "");
+    h2 = tt_http_host_create("test.com:80", NULL);
+    TT_UT_NOT_NULL(h2, "");
+    tt_http_hostset_set_default(&m, h2);
+    TT_UT_EQUAL(m.default_host, h2, "");
 
     // find empty map but with default
     {
-        TT_UT_EQUAL(tt_http_hostset_find(&m, ""), &h2, "");
-        TT_UT_EQUAL(tt_http_hostset_find(&m, "1"), &h2, "");
-        TT_UT_EQUAL(tt_http_hostset_find(&m, "test.com:80"), &h2, "");
+        TT_UT_EQUAL(tt_http_hostset_match(&m, ""), h2, "");
+        TT_UT_EQUAL(tt_http_hostset_match(&m, "1"), h2, "");
+        TT_UT_EQUAL(tt_http_hostset_match(&m, "test.com:80"), h2, "");
     }
 
     // add some host
-    TT_UT_SUCCESS(tt_http_host_create(&h[0], "0", NULL), "");
-    tt_http_hostset_add(&m, &h[0]);
-    TT_UT_SUCCESS(tt_http_host_create(&h[1], "1", NULL), "");
-    tt_http_hostset_add(&m, &h[1]);
-    TT_UT_SUCCESS(tt_http_host_create(&h[2], "2", NULL), "");
-    tt_http_hostset_add(&m, &h[2]);
+    h[0] = tt_http_host_create("0", tt_http_host_match_cmp);
+    TT_UT_NOT_NULL(h[0], "");
+    tt_http_hostset_add(&m, h[0]);
+
+    h[1] = tt_http_host_create("1", tt_http_host_match_cmp);
+    TT_UT_NOT_NULL(h[1], "");
+    tt_http_hostset_add(&m, h[1]);
+
+    h[2] = tt_http_host_create("2", tt_http_host_match_cmp);
+    TT_UT_NOT_NULL(h[2], "");
+    tt_http_hostset_add(&m, h[2]);
 
     {
-        TT_UT_EQUAL(tt_http_hostset_find(&m, ""), &h2, "");
-        TT_UT_EQUAL(tt_http_hostset_find(&m, "11"), &h2, "");
-        TT_UT_EQUAL(tt_http_hostset_find(&m, "test.com:80"), &h2, "");
+        TT_UT_EQUAL(tt_http_hostset_match(&m, ""), h2, "");
+        TT_UT_EQUAL(tt_http_hostset_match(&m, "11"), h2, "");
+        TT_UT_EQUAL(tt_http_hostset_match(&m, "test.com:80"), h2, "");
 
-        TT_UT_EQUAL(tt_http_hostset_find(&m, "0"), &h[0], "");
-        TT_UT_EQUAL(tt_http_hostset_find(&m, "1"), &h[1], "");
-        TT_UT_EQUAL(tt_http_hostset_find(&m, "2"), &h[2], "");
+        TT_UT_EQUAL(tt_http_hostset_match(&m, "0"), h[0], "");
+        TT_UT_EQUAL(tt_http_hostset_match(&m, "1"), h[1], "");
+        TT_UT_EQUAL(tt_http_hostset_match(&m, "2"), h[2], "");
     }
 
     tt_http_hostset_destroy(&m);

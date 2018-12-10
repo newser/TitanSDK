@@ -614,7 +614,7 @@ TT_TEST_ROUTINE_DEFINE(case_log_io_file_date)
         tt_fpath_create_cstr(&p, __LIOF_LOG_PATH_D, TT_FPATH_SEP);
         tt_fpath_set_filename(&p, de.name);
 
-        ret = tt_fopen(&f, tt_fpath_cstr(&p), TT_FO_READ | TT_FO_EXCL, NULL);
+        ret = tt_fopen(&f, tt_fpath_render(&p), TT_FO_READ | TT_FO_EXCL, NULL);
         tt_fpath_destroy(&p);
         TT_UT_SUCCESS(ret, "");
         ret = tt_fread(&f, (tt_u8_t *)buf, sizeof(buf), &n);
@@ -673,7 +673,7 @@ TT_TEST_ROUTINE_DEFINE(case_log_io_file_date)
         tt_fpath_create_cstr(&p, __LIOF_LOG_PATH_D, TT_FPATH_SEP);
         tt_fpath_set_filename(&p, de.name);
 
-        ret = tt_fopen(&f, tt_fpath_cstr(&p), TT_FO_READ | TT_FO_EXCL, NULL);
+        ret = tt_fopen(&f, tt_fpath_render(&p), TT_FO_READ | TT_FO_EXCL, NULL);
         tt_fpath_destroy(&p);
         TT_UT_SUCCESS(ret, "");
         ret = tt_fread(&f, (tt_u8_t *)buf, sizeof(buf), &n);
@@ -775,7 +775,7 @@ TT_TEST_ROUTINE_DEFINE(case_log_io_file_archive)
             tt_fpath_to_dir(&fp);
             tt_fpath_set_filename(&fp, de.name);
 
-            z = tt_zip_create_file(tt_fpath_cstr(&fp), 0, 0, 0, NULL);
+            z = tt_zip_create_file(tt_fpath_render(&fp), 0, 0, 0, NULL);
             tt_fpath_destroy(&fp);
             TT_UT_NOT_NULL(z, "");
             TT_UT_EQUAL(tt_zip_count(z, 0), 2, "");

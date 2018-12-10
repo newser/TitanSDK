@@ -289,7 +289,7 @@ tt_result_t __fidx_next(IN tt_logio_file_t *lf)
         }
 
         if (!TT_OK(tt_fopen(&lf->f,
-                            tt_fpath_cstr(&path),
+                            tt_fpath_render(&path),
                             TT_FO_WRITE | TT_FO_APPEND | TT_FO_CREAT,
                             NULL))) {
             break;
@@ -396,7 +396,7 @@ tt_result_t __fdate_next(IN tt_logio_file_t *lf)
         }
 
         if (!TT_OK(tt_fopen(&lf->f,
-                            tt_fpath_cstr(&path),
+                            tt_fpath_render(&path),
                             TT_FO_WRITE | TT_FO_APPEND | TT_FO_CREAT,
                             NULL))) {
             break;
@@ -565,7 +565,7 @@ void __liof_w_archive(IN tt_logio_file_t *lf)
     tt_date_set(&max, 1900, TT_JANUARY, 1, 0, 0, 0);
 
     // first use old_p as zip file name, as we don't know date range yet
-    TT_DONN_G(done, zs = tt_zipsrc_file_create(tt_fpath_cstr(&old_p), 0, 0));
+    TT_DONN_G(done, zs = tt_zipsrc_file_create(tt_fpath_render(&old_p), 0, 0));
     done |= __LA_ZS;
 
     TT_DONN_G(done, z = tt_zip_create(zs, TT_ZA_CREAT | TT_ZA_EXCL, 0));
@@ -590,7 +590,7 @@ void __liof_w_archive(IN tt_logio_file_t *lf)
         // - size should already exceed max_log_size
         // - time of last modification should be before keep_log_sec seconds
         if (!TT_OK(tt_fpath_set_basename(&tmp_p, entry.name)) ||
-            !TT_OK(tt_fstat_path(tt_fpath_cstr(&tmp_p), &fst)) ||
+            !TT_OK(tt_fstat_path(tt_fpath_render(&tmp_p), &fst)) ||
             !fst.is_file || (fst.size < lf->max_log_size) ||
             (-tt_date_diff_now_second(&fst.modified) <
              (tt_s64_t)lf->keep_log_sec)) {
@@ -611,11 +611,11 @@ void __liof_w_archive(IN tt_logio_file_t *lf)
             //   archived to next zip file
             if (!TT_OK(tt_fpath_set_basename(&tmp_p2, entry.name)) ||
                 !TT_OK(tt_fpath_set_extension(&tmp_p2, "ttarctmp")) ||
-                !TT_OK(tt_fs_rename(tt_fpath_cstr(&tmp_p),
-                                    tt_fpath_cstr(&tmp_p2)))) {
+                !TT_OK(tt_fs_rename(tt_fpath_render(&tmp_p),
+                                    tt_fpath_render(&tmp_p2)))) {
                 continue;
             }
-            p = (tt_char_t *)tt_fpath_cstr(&tmp_p2);
+            p = (tt_char_t *)tt_fpath_render(&tmp_p2);
         }
         if ((__zs = tt_zipsrc_file_create(p, 0, 0)) == NULL) {
             continue;
@@ -688,7 +688,7 @@ done:
 
     if (flush) {
         TT_ASSERT(!(done & (__LA_OLD_P | __LA_NEW_P | __LA_TMP_P)));
-        tt_fs_rename(tt_fpath_cstr(&old_p), tt_fpath_cstr(&new_p));
+        tt_fs_rename(tt_fpath_render(&old_p), tt_fpath_render(&new_p));
         tt_fpath_destroy(&old_p);
         tt_fpath_destroy(&new_p);
 
@@ -703,7 +703,7 @@ done:
                 }
 
                 if (!TT_OK(tt_fpath_set_filename(&tmp_p, entry.name)) ||
-                    !TT_OK(tt_fremove(tt_fpath_cstr(&tmp_p)))) {
+                    !TT_OK(tt_fremove(tt_fpath_render(&tmp_p)))) {
                     entry.name[n - 9] = 0;
                     TT_ERROR("fail to remove %s, would be redundant log files",
                              entry.name);
@@ -742,13 +742,13 @@ void __liof_w_purge_remove(IN tt_logio_file_t *lf)
         }
 
         if (!TT_OK(tt_fpath_set_filename(&ap, entry.name)) ||
-            !TT_OK(tt_fstat_path(tt_fpath_cstr(&ap), &fst)) || !fst.is_file ||
+            !TT_OK(tt_fstat_path(tt_fpath_render(&ap), &fst)) || !fst.is_file ||
             (-tt_date_diff_now_second(&fst.modified) <
              (tt_s64_t)lf->keep_archive_sec)) {
             continue;
         }
 
-        tt_fremove(tt_fpath_cstr(&ap));
+        tt_fremove(tt_fpath_render(&ap));
     }
 
 done:

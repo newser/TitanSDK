@@ -74,14 +74,16 @@ tt_inline void tt_http_hostset_set_default(IN tt_http_hostset_t *hs,
     hs->default_host = host;
 }
 
-tt_export tt_http_host_t *tt_http_hostset_find_n(IN tt_http_hostset_t *hs,
-                                                 IN tt_char_t *name,
-                                                 IN tt_u32_t name_len);
+tt_export tt_http_host_t *tt_http_hostset_match_n(IN tt_http_hostset_t *hs,
+                                                  IN tt_char_t *name,
+                                                  IN tt_u32_t name_len);
 
-tt_inline tt_http_host_t *tt_http_hostset_find(IN tt_http_hostset_t *hs,
-                                               IN const tt_char_t *name)
+tt_inline tt_http_host_t *tt_http_hostset_match(IN tt_http_hostset_t *hs,
+                                                IN const tt_char_t *name)
 {
-    return tt_http_hostset_find_n(hs, (tt_char_t *)name, tt_strlen(name));
+    return tt_http_hostset_match_n(hs, (tt_char_t *)name, tt_strlen(name));
 }
+
+tt_export tt_http_hostset_t *tt_current_http_hostset(IN tt_bool_t create);
 
 #endif /* __TT_HTTP_HOST_SET__ */
