@@ -53,6 +53,7 @@ this file defines http incoming service APIs
 struct tt_http_inserv_s;
 struct tt_http_parser_s;
 struct tt_http_resp_render_s;
+struct tt_buf_s;
 
 typedef enum {
     /*
@@ -89,6 +90,12 @@ typedef enum {
      */
     TT_HTTP_INSERV_ACT_OWNER,
 
+    /*
+     service should: set status code in on_complete()
+     caller should: send response(500 if not set), then send body
+     */
+    TT_HTTP_INSERV_ACT_GET_BODY,
+
     TT_HTTP_INSERV_ACT_NUM
 } tt_http_inserv_action_t;
 #define TT_HTTP_INSERV_ACT_VALID(a) ((a) < TT_HTTP_INSERV_ACT_NUM)
@@ -108,6 +115,13 @@ typedef tt_http_inserv_action_t (*tt_http_inserv_on_ev_t)(
     IN struct tt_http_parser_s *req,
     OUT struct tt_http_resp_render_s *resp);
 
+// return TT_HTTP_INSERV_ACT_GET_BODY if there are more data
+typedef tt_http_inserv_action_t (*tt_http_inserv_get_body_t)(
+    IN struct tt_http_inserv_s *s,
+    IN struct tt_http_parser_s *req,
+    IN struct tt_http_resp_render_s *resp,
+    OUT struct tt_buf_s *buf);
+
 typedef struct
 {
     tt_http_inserv_on_ev_t on_uri;
@@ -115,6 +129,7 @@ typedef struct
     tt_http_inserv_on_ev_t on_body;
     tt_http_inserv_on_ev_t on_trailing;
     tt_http_inserv_on_ev_t on_complete;
+    tt_http_inserv_get_body_t get_body;
 } tt_http_inserv_cb_t;
 
 typedef struct tt_http_inserv_s
@@ -214,6 +229,19 @@ tt_http_inserv_on_complete(IN tt_http_inserv_t *s,
 {
     if (s->cb->on_complete != NULL) {
         return s->cb->on_complete(s, req, resp);
+    } else {
+        return TT_HTTP_INSERV_ACT_PASS;
+    }
+}
+
+tt_inline tt_http_inserv_action_t
+tt_http_inserv_get_body(IN tt_http_inserv_t *s,
+                        IN struct tt_http_parser_s *req,
+                        IN struct tt_http_resp_render_s *resp,
+                        OUT struct tt_buf_s *buf)
+{
+    if (s->cb->get_body != NULL) {
+        return s->cb->get_body(s, req, resp, buf);
     } else {
         return TT_HTTP_INSERV_ACT_PASS;
     }

@@ -425,6 +425,19 @@ static tt_http_inserv_action_t __is_on_complete(
     return __is_on_complete_act[i->idx];
 }
 
+static tt_http_inserv_action_t __is_send_body_act[__IS_NUM];
+static tt_bool_t __is_send_body_called[__IS_NUM];
+static tt_http_inserv_action_t __is_get_body(
+    IN struct tt_http_inserv_s *s,
+    IN struct tt_http_parser_s *req,
+    OUT struct tt_http_resp_render_s *resp,
+    OUT struct tt_buf_s *buf)
+{
+    __is_idx_t *i = TT_HTTP_INSERV_CAST(s, __is_idx_t);
+    __is_send_body_called[i->idx] = TT_TRUE;
+    return __is_send_body_act[i->idx];
+}
+
 static tt_bool_t __os_destroyed[__OS_NUM];
 static void __outserv_destroy(IN struct tt_http_outserv_s *s)
 {
@@ -439,13 +452,34 @@ static void __outserv_clear(IN struct tt_http_outserv_s *s)
     __os_clear[i->idx] = TT_TRUE;
 }
 
+static tt_result_t __os_on_resp_ret[__OS_NUM];
 static tt_bool_t __os_on_resp[__OS_NUM];
-static void __outserv_on_resp(IN struct tt_http_outserv_s *s,
-                              IN struct tt_http_parser_s *req,
-                              IN OUT struct tt_http_resp_render_s *resp)
+static tt_result_t __outserv_on_resp(IN struct tt_http_outserv_s *s,
+                                     IN struct tt_http_parser_s *req,
+                                     IN OUT struct tt_http_resp_render_s *resp)
 {
     __is_idx_t *i = TT_HTTP_OUTSERV_CAST(s, __is_idx_t);
     __os_on_resp[i->idx] = TT_TRUE;
+    return __os_on_resp_ret[i->idx];
+}
+
+static tt_result_t __os_on_body_ret[__OS_NUM];
+static tt_bool_t __os_on_body[__OS_NUM];
+static tt_buf_t __os_buf[__OS_NUM];
+static tt_result_t __outserv_on_body(IN struct tt_http_outserv_s *s,
+                                     IN struct tt_http_parser_s *req,
+                                     IN OUT struct tt_http_resp_render_s *resp,
+                                     IN tt_buf_t *input,
+                                     OUT tt_buf_t **output)
+{
+    __is_idx_t *i = TT_HTTP_OUTSERV_CAST(s, __is_idx_t);
+    __os_on_body[i->idx] = TT_TRUE;
+
+    TT_ASSERT((i->idx == 0) || (input == &__os_buf[i->idx - 1]));
+
+    *output = &__os_buf[i->idx];
+
+    return __os_on_body_ret[i->idx];
 }
 
 TT_TEST_ROUTINE_DEFINE(case_http_svcmgr)
@@ -456,16 +490,19 @@ TT_TEST_ROUTINE_DEFINE(case_http_svcmgr)
     tt_http_inserv_itf_t is_itf = {
         __inserv_destroy, __inserv_clear,
     };
-    tt_http_inserv_cb_t is_cb = {__is_on_uri,
-                                 __is_on_header,
-                                 __is_on_body,
-                                 __is_on_trailing,
-                                 __is_on_complete};
+    tt_http_inserv_cb_t is_cb = {
+        __is_on_uri,
+        __is_on_header,
+        __is_on_body,
+        __is_on_trailing,
+        __is_on_complete,
+        __is_get_body,
+    };
     tt_http_outserv_itf_t __os_itf = {
         __outserv_destroy, __outserv_clear,
     };
     tt_http_outserv_cb_t __os_cb = {
-        __outserv_on_resp,
+        __outserv_on_resp, __outserv_on_body,
     };
 
     tt_http_parser_t req;
@@ -547,6 +584,9 @@ TT_TEST_ROUTINE_DEFINE(case_http_svcmgr)
                         TT_HTTP_INSERV_ACT_DISCARD,
                         "");
             TT_UT_EQUAL(tt_http_svcmgr_on_complete(&sm, NULL, &resp),
+                        TT_HTTP_INSERV_ACT_DISCARD,
+                        "");
+            TT_UT_EQUAL(tt_http_svcmgr_get_body(&sm, NULL, NULL, NULL),
                         TT_HTTP_INSERV_ACT_DISCARD,
                         "");
 
@@ -661,6 +701,20 @@ TT_TEST_ROUTINE_DEFINE(case_http_svcmgr)
                     TT_UT_TRUE(__is_on_complete_called[i], "");
                 } else {
                     TT_UT_FALSE(__is_on_complete_called[i], "");
+                }
+            }
+
+            // send body
+            tt_memset(__is_send_body_called, 0, sizeof(__is_send_body_called));
+            __is_send_body_act[1] = TT_HTTP_INSERV_ACT_GET_BODY;
+            TT_UT_EQUAL(tt_http_svcmgr_get_body(&sm, NULL, NULL, NULL),
+                        TT_HTTP_INSERV_ACT_GET_BODY,
+                        "");
+            for (i = 0; i < __IS_NUM; ++i) {
+                if (i == 1) {
+                    TT_UT_TRUE(__is_send_body_called[i], "");
+                } else {
+                    TT_UT_FALSE(__is_send_body_called[i], "");
                 }
             }
         }
@@ -784,13 +838,36 @@ TT_TEST_ROUTINE_DEFINE(case_http_svcmgr)
             TT_UT_TRUE(TT_HTTP_STATUS_VALID(
                            tt_http_resp_render_get_status(&resp)),
                        "");
+
+            tt_http_svcmgr_clear(&sm);
+            tt_http_resp_render_clear(&resp);
+            TT_UT_EQUAL(tt_http_svcmgr_get_body(&sm, NULL, NULL, NULL),
+                        TT_HTTP_INSERV_ACT_DISCARD,
+                        "");
+            TT_UT_TRUE(sm.discarding, "");
+            // send_body won't set status
+            TT_UT_TRUE(!TT_HTTP_STATUS_VALID(
+                           tt_http_resp_render_get_status(&resp)),
+                       "");
         }
 
         // test on resp
-        tt_http_svcmgr_on_resp(&sm, NULL, NULL);
+        tt_http_svcmgr_on_header(&sm, NULL, NULL);
         {
             tt_http_outserv_t *os[__OS_NUM];
             tt_u32_t k;
+
+            {
+                tt_buf_t *pbuf;
+                tt_buf_t buf0;
+                TT_UT_SUCCESS(tt_http_svcmgr_on_resp_body(&sm,
+                                                          NULL,
+                                                          NULL,
+                                                          &buf0,
+                                                          &pbuf),
+                              "");
+                TT_UT_EQUAL(pbuf, &buf0, "");
+            }
 
             for (k = 0; k < TT_HTTP_INLINE_OUTSERV_NUM; ++k) {
                 for (i = 0; i < __OS_NUM; ++i) {
@@ -803,7 +880,51 @@ TT_TEST_ROUTINE_DEFINE(case_http_svcmgr)
                 }
             }
 
-            tt_http_svcmgr_on_resp(&sm, NULL, NULL);
+            // all ok
+            for (i = 0; i < __OS_NUM; ++i) {
+                __os_on_resp_ret[i] = TT_SUCCESS;
+            }
+            tt_memset(__os_on_resp, 0, sizeof(__os_on_resp));
+            TT_UT_SUCCESS(tt_http_svcmgr_on_resp_header(&sm, NULL, NULL), "");
+            for (i = 0; i < __OS_NUM; ++i) {
+                TT_UT_TRUE(__os_on_resp[i], "");
+            }
+
+            {
+                tt_buf_t *pbuf;
+                tt_buf_t buf0;
+                for (i = 0; i < __OS_NUM; ++i) {
+                    __os_on_body_ret[i] = TT_SUCCESS;
+                }
+                tt_memset(__os_on_body, 0, sizeof(__os_on_body));
+                TT_UT_SUCCESS(tt_http_svcmgr_on_resp_body(&sm,
+                                                          NULL,
+                                                          NULL,
+                                                          &buf0,
+                                                          &pbuf),
+                              "");
+                for (i = 0; i < __OS_NUM; ++i) {
+                    TT_UT_TRUE(__os_on_body_ret[i], "");
+                }
+
+                TT_UT_EQUAL(pbuf, &__os_buf[__OS_NUM - 1], "");
+            }
+
+            // 1 fail
+            for (i = 0; i < __OS_NUM; ++i) {
+                __os_on_resp_ret[i] = TT_SUCCESS;
+            }
+            __os_on_resp_ret[1] = TT_E_END;
+            tt_memset(__os_on_resp, 0, sizeof(__os_on_resp));
+            TT_UT_EQUAL(tt_http_svcmgr_on_resp_header(&sm, NULL, NULL),
+                        TT_E_END,
+                        "");
+            for (i = 0; i <= 1; ++i) {
+                TT_UT_TRUE(__os_on_resp[i], "");
+            }
+            for (; i < __OS_NUM; ++i) {
+                TT_UT_FALSE(__os_on_resp[i], "");
+            }
 
             tt_memset(__os_clear, 0, sizeof(__os_clear));
             tt_http_svcmgr_clear(&sm);

@@ -155,6 +155,25 @@ tt_result_t tt_fpath_parse_n(IN tt_fpath_t *fp,
     return TT_SUCCESS;
 }
 
+tt_result_t tt_fpath_parse_self(IN tt_fpath_t *fp)
+{
+    __fname_clear(fp);
+    __dir_clear(fp);
+    // tt_string_clear(&fp->path);
+    fp->root[0] = 0;
+    // keep fp->sep;
+    fp->modified = TT_FALSE;
+
+    if (!TT_OK(__fpath_parse(tt_string_cstr(&fp->path),
+                             tt_string_len(&fp->path),
+                             fp))) {
+        // caller should destroy fp
+        return TT_FAIL;
+    }
+
+    return TT_SUCCESS;
+}
+
 tt_result_t tt_fpath_copy(IN tt_fpath_t *dst, IN tt_fpath_t *src)
 {
     if (!TT_OK(__fname_copy(dst, src))) {

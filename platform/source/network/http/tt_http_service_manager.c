@@ -293,7 +293,7 @@ tt_http_inserv_action_t tt_http_svcmgr_on_complete(
     OUT tt_http_resp_render_t *resp)
 {
     if (sm->discarding) {
-        // if reqeust is completed and discarded, check if resp status is set
+        // if request is completed and discarded, check if resp status is set
         if (!TT_HTTP_STATUS_VALID(tt_http_resp_render_get_status(resp))) {
             tt_http_resp_render_set_status(
                 resp, TT_HTTP_STATUS_INTERNAL_SERVER_ERROR);
@@ -313,13 +313,63 @@ tt_http_inserv_action_t tt_http_svcmgr_on_complete(
     return tt_http_inserv_on_complete(sm->owner, req, resp);
 }
 
-void tt_http_svcmgr_on_resp(IN tt_http_svcmgr_t *sm,
-                            IN tt_http_parser_t *req,
-                            IN OUT tt_http_resp_render_t *resp)
+tt_http_inserv_action_t tt_http_svcmgr_get_body(IN tt_http_svcmgr_t *sm,
+                                                IN tt_http_parser_t *req,
+                                                IN tt_http_resp_render_t *resp,
+                                                OUT struct tt_buf_s *buf)
+{
+    // no need to set response status
+
+    if (sm->discarding) {
+        return TT_HTTP_INSERV_ACT_DISCARD;
+    }
+
+    if (sm->owner == NULL) {
+        sm->discarding = TT_TRUE;
+        return TT_HTTP_INSERV_ACT_DISCARD;
+    }
+
+    return tt_http_inserv_get_body(sm->owner, req, resp, buf);
+}
+
+tt_result_t tt_http_svcmgr_on_resp_header(IN tt_http_svcmgr_t *sm,
+                                          IN tt_http_parser_t *req,
+                                          IN OUT tt_http_resp_render_t *resp)
 {
     tt_u32_t i;
 
     for (i = 0; i < sm->outserv_num; ++i) {
-        tt_http_outserv_on_resp(sm->outserv[i], req, resp);
+        tt_result_t result =
+            tt_http_outserv_on_header(sm->outserv[i], req, resp);
+        if (!TT_OK(result)) {
+            return result;
+        }
     }
+
+    return TT_SUCCESS;
+}
+
+tt_result_t tt_http_svcmgr_on_resp_body(IN tt_http_svcmgr_t *sm,
+                                        IN tt_http_parser_t *req,
+                                        IN OUT tt_http_resp_render_t *resp,
+                                        IN OUT struct tt_buf_s *input,
+                                        OUT struct tt_buf_s **output)
+{
+    tt_u32_t i;
+
+    // copy input if there is no outserv
+    *output = input;
+
+    for (i = 0; i < sm->outserv_num; ++i) {
+        tt_result_t result;
+
+        input = *output;
+        result =
+            tt_http_outserv_on_body(sm->outserv[i], req, resp, input, output);
+        if (!TT_OK(result)) {
+            return result;
+        }
+    }
+
+    return TT_SUCCESS;
 }

@@ -47,6 +47,7 @@ this file defines http service manager APIs
 
 struct tt_http_parser_s;
 struct tt_http_resp_render_s;
+struct tt_buf_s;
 
 typedef struct tt_http_svcmgr_s
 {
@@ -111,13 +112,26 @@ tt_http_svcmgr_on_complete(IN tt_http_svcmgr_t *sm,
                            IN struct tt_http_parser_s *req,
                            OUT struct tt_http_resp_render_s *resp);
 
+tt_export tt_http_inserv_action_t
+tt_http_svcmgr_get_body(IN tt_http_svcmgr_t *sm,
+                        IN struct tt_http_parser_s *req,
+                        IN struct tt_http_resp_render_s *resp,
+                        OUT struct tt_buf_s *buf);
+
 // ========================================
 // outgoing response
 // ========================================
 
-tt_export void tt_http_svcmgr_on_resp(
-    IN tt_http_svcmgr_t *sm,
-    IN struct tt_http_parser_s *req,
-    IN OUT struct tt_http_resp_render_s *resp);
+tt_export tt_result_t
+tt_http_svcmgr_on_resp_header(IN tt_http_svcmgr_t *sm,
+                              IN struct tt_http_parser_s *req,
+                              IN OUT struct tt_http_resp_render_s *resp);
+
+tt_export tt_result_t
+tt_http_svcmgr_on_resp_body(IN tt_http_svcmgr_t *sm,
+                            IN struct tt_http_parser_s *req,
+                            IN OUT struct tt_http_resp_render_s *resp,
+                            IN OUT struct tt_buf_s *input,
+                            OUT struct tt_buf_s **output);
 
 #endif /* __TT_HTTP_SERVICE_MANAGER__ */

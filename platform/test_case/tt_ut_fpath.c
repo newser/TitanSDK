@@ -240,6 +240,13 @@ TT_TEST_CASE("case_fpath_basic",
         TT_UT_STREQ(tt_fpath_get_name(&fp, 0), "a", "");
         TT_UT_STREQ(tt_fpath_get_name(&fp, 2), "c", "");
 
+        tt_string_set(tt_fpath_string(&fp), "/a/b/c/d");
+        TT_UT_SUCCESS(tt_fpath_parse_self(&fp), "");
+        TT_UT_EQUAL(tt_fpath_count(&fp), 4, "");
+        TT_UT_STREQ(tt_fpath_get_root(&fp), "/", "");
+        TT_UT_STREQ(tt_fpath_get_name(&fp, 0), "a", "");
+        TT_UT_STREQ(tt_fpath_get_name(&fp, 3), "d", "");
+
         // do not gurantee ok, but should not crash
         tt_fpath_parse(&fp, "c:\\abc");
         tt_fpath_destroy(&fp);

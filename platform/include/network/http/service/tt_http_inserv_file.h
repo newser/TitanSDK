@@ -17,20 +17,19 @@
  */
 
 /**
-@file tt_http_inserv_host.h
+@file tt_http_inserv_file.h
 @brief http service
 
-this file defines http incoming service: host
+this file defines http incoming service: get file
 */
 
-#ifndef __TT_HTTP_INSERVICE_HOST__
-#define __TT_HTTP_INSERVICE_HOST__
+#ifndef __TT_HTTP_INSERVICE_FILE__
+#define __TT_HTTP_INSERVICE_FILE__
 
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <network/http/tt_http_def.h>
 #include <network/http/tt_http_in_service.h>
 
 ////////////////////////////////////////////////////////////
@@ -41,36 +40,24 @@ this file defines http incoming service: host
 // type definition
 ////////////////////////////////////////////////////////////
 
-struct tt_component_s;
-struct tt_profile_s;
-
 typedef struct
 {
-    tt_http_status_t no_host;
-    tt_http_status_t more_host;
-    tt_http_status_t host_not_found;
-} tt_http_inserv_host_attr_t;
+    tt_bool_t can_have_path_param : 1;
+    tt_bool_t can_have_query_param : 1;
+} tt_http_inserv_file_attr_t;
 
 ////////////////////////////////////////////////////////////
 // global variants
 ////////////////////////////////////////////////////////////
 
-tt_export tt_http_inserv_t *tt_g_http_inserv_host;
-
 ////////////////////////////////////////////////////////////
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-tt_export tt_result_t tt_http_inserv_host_component_init(
-    IN struct tt_component_s *comp, IN struct tt_profile_s *profile);
+tt_export tt_http_inserv_t *tt_http_inserv_file_create(
+    IN OPT tt_http_inserv_file_attr_t *attr);
 
-tt_export void tt_http_inserv_host_component_exit(
-    IN struct tt_component_s *comp);
+tt_export void tt_http_inserv_file_attr_default(
+    IN tt_http_inserv_file_attr_t *attr);
 
-tt_export tt_http_inserv_t *tt_http_inserv_host_create(
-    IN OPT tt_http_inserv_host_attr_t *attr);
-
-tt_export void tt_http_inserv_host_attr_default(
-    IN tt_http_inserv_host_attr_t *attr);
-
-#endif /* __TT_HTTP_INSERVICE_HOST__ */
+#endif /* __TT_HTTP_INSERVICE_FILE__ */

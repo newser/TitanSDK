@@ -622,7 +622,7 @@ static tt_result_t __http_svr_fb(IN void *param)
         __ck_err(ho != NULL);
 
         r = tt_http_rule_startwith_create("/",
-                                          "/index.html",
+                                          "/tmp/testfile.txt",
                                           TT_HTTP_RULE_BREAK);
         __ck_err(r != NULL);
         tt_http_host_add_rule(ho, r);

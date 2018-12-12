@@ -302,7 +302,29 @@ tt_result_t tt_fcontent_buf(IN const tt_char_t *path, OUT tt_buf_t *buf)
     return TT_SUCCESS;
 }
 
-tt_result_t tt_fsize(IN const tt_char_t *path, OUT tt_u64_t *size)
+tt_result_t tt_fsize(IN tt_file_t *file, OUT tt_u64_t *size)
+{
+    tt_u64_t pos;
+
+    // to be investigated whether a fstat is slower than 3 fseek...
+
+    if (!TT_OK(tt_fseek(file, TT_FSEEK_CUR, 0, &pos))) {
+        return TT_FAIL;
+    }
+
+    if (!TT_OK(tt_fseek(file, TT_FSEEK_END, 0, size))) {
+        return TT_FAIL;
+    }
+
+    // restore the pos
+    if (!TT_OK(tt_fseek(file, TT_FSEEK_BEGIN, pos, NULL))) {
+        return TT_FAIL;
+    }
+
+    return TT_SUCCESS;
+}
+
+tt_result_t tt_fsize_path(IN const tt_char_t *path, OUT tt_u64_t *size)
 {
     tt_file_t f;
     tt_u64_t len;

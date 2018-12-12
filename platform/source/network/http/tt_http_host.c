@@ -154,9 +154,7 @@ again:
     if ((result == TT_HTTP_RULE_NEXT) || (result == TT_HTTP_RULE_BREAK)) {
         // if path is modified, we must have fpath parse modified string again
         if (ctx.path_modified) {
-            if (TT_OK(tt_fpath_parse_n(fpath,
-                                       tt_string_cstr(s),
-                                       tt_string_len(s)))) {
+            if (TT_OK(tt_fpath_parse_self(fpath))) {
                 uri->path_modified = TT_TRUE;
             } else {
                 return TT_HTTP_RULE_ERROR;
@@ -170,9 +168,7 @@ again:
         }
 
         if (ctx.path_modified) {
-            if (TT_OK(tt_fpath_parse_n(fpath,
-                                       tt_string_cstr(s),
-                                       tt_string_len(s)))) {
+            if (TT_OK(tt_fpath_parse_self(fpath))) {
                 uri->path_modified = TT_TRUE;
             } else {
                 return TT_HTTP_RULE_ERROR;

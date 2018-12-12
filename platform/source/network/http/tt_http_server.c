@@ -23,6 +23,8 @@
 #include <network/http/tt_http_server.h>
 
 #include <misc/tt_assert.h>
+#include <network/http/service/tt_http_inserv_file.h>
+#include <network/http/service/tt_http_inserv_host.h>
 #include <network/http/tt_http_server_connection.h>
 #include <time/tt_timer.h>
 
@@ -47,6 +49,8 @@
 ////////////////////////////////////////////////////////////
 
 static tt_result_t __sconn_skt_fiber(IN void *param);
+
+static tt_result_t __sconn_add_default_serv(IN tt_http_sconn_t *c);
 
 ////////////////////////////////////////////////////////////
 // interface implementation
@@ -175,14 +179,38 @@ tt_result_t __sconn_skt_fiber(IN void *param)
         return TT_FAIL;
     }
 
-    // is = tt_http_inserv
-    // tt_http_sconn_add_inserv(&c, is);
+    if (!TT_OK(__sconn_add_default_serv(&c))) {
+        tt_http_sconn_destroy(&c);
+        return TT_FAIL;
+    }
 
     if (tt_http_sconn_run(&c)) {
         tt_http_sconn_wait_eof(&c);
     }
 
     tt_http_sconn_destroy(&c);
+
+    return TT_SUCCESS;
+}
+
+tt_result_t __sconn_add_default_serv(IN tt_http_sconn_t *c)
+{
+    tt_http_inserv_t *ins;
+
+    // for loading host
+    if (!TT_OK(tt_http_sconn_add_inserv(c, tt_g_http_inserv_host))) {
+        return TT_FAIL;
+    }
+
+    // for basic file retrieving
+    ins = tt_http_inserv_file_create(NULL);
+    if (ins == NULL) {
+        return TT_FAIL;
+    }
+    if (!TT_OK(tt_http_sconn_add_inserv(c, ins))) {
+        tt_http_inserv_release(ins);
+        return TT_FAIL;
+    }
 
     return TT_SUCCESS;
 }

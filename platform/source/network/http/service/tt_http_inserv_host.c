@@ -22,6 +22,8 @@
 
 #include <network/http/service/tt_http_inserv_host.h>
 
+#include <init/tt_component.h>
+#include <init/tt_profile.h>
 #include <network/http/tt_http_host_set.h>
 #include <network/http/tt_http_parser.h>
 #include <network/http/tt_http_raw_header.h>
@@ -46,6 +48,8 @@ typedef tt_http_inserv_host_attr_t tt_http_inserv_host_t;
 // global variant
 ////////////////////////////////////////////////////////////
 
+tt_http_inserv_t *tt_g_http_inserv_host;
+
 static tt_http_inserv_itf_t s_inserv_host_itf = {0};
 
 static tt_http_inserv_action_t __inserv_host_on_hdr(
@@ -54,7 +58,7 @@ static tt_http_inserv_action_t __inserv_host_on_hdr(
     OUT tt_http_resp_render_t *resp);
 
 static tt_http_inserv_cb_t s_inserv_host_cb = {
-    NULL, __inserv_host_on_hdr, NULL, NULL,
+    NULL, __inserv_host_on_hdr, NULL, NULL, NULL, NULL,
 };
 
 ////////////////////////////////////////////////////////////
@@ -65,11 +69,32 @@ static tt_http_inserv_cb_t s_inserv_host_cb = {
 // interface implementation
 ////////////////////////////////////////////////////////////
 
+tt_result_t tt_http_inserv_host_component_init(IN tt_component_t *comp,
+                                               IN tt_profile_t *profile)
+{
+    tt_http_inserv_host_attr_t attr;
+
+    tt_http_inserv_host_attr_default(&attr);
+
+    tt_g_http_inserv_host = tt_http_inserv_host_create(&attr);
+    if (tt_g_http_inserv_host == NULL) {
+        return TT_FAIL;
+    }
+
+    return TT_SUCCESS;
+}
+
+void tt_http_inserv_host_component_exit(IN tt_component_t *comp)
+{
+    tt_http_inserv_release(tt_g_http_inserv_host);
+}
+
 tt_http_inserv_t *tt_http_inserv_host_create(
     IN OPT tt_http_inserv_host_attr_t *attr)
 {
     tt_http_inserv_host_attr_t __attr;
     tt_http_inserv_t *s;
+    tt_http_inserv_host_t *sh;
 
     if (attr == NULL) {
         tt_http_inserv_host_attr_default(&__attr);
@@ -83,7 +108,7 @@ tt_http_inserv_t *tt_http_inserv_host_create(
         return NULL;
     }
 
-    tt_http_inserv_host_t *sh = TT_HTTP_INSERV_CAST(s, tt_http_inserv_host_t);
+    sh = TT_HTTP_INSERV_CAST(s, tt_http_inserv_host_t);
     tt_memcpy(sh, attr, sizeof(tt_http_inserv_host_t));
 
     return s;

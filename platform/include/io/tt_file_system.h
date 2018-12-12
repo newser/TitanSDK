@@ -354,7 +354,10 @@ tt_export tt_u8_t *tt_fcontent(IN const tt_char_t *path,
 tt_export tt_result_t tt_fcontent_buf(IN const tt_char_t *path,
                                       OUT struct tt_buf_s *buf);
 
-tt_export tt_result_t tt_fsize(IN const tt_char_t *path, OUT tt_u64_t *size);
+tt_export tt_result_t tt_fsize(IN tt_file_t *file, OUT tt_u64_t *size);
+
+tt_export tt_result_t tt_fsize_path(IN const tt_char_t *path,
+                                    OUT tt_u64_t *size);
 
 tt_inline tt_result_t tt_fstat(IN tt_file_t *file, OUT tt_fstat_t *fstat)
 {

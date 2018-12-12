@@ -219,6 +219,11 @@ tt_inline void tt_http_uri_update_path(IN tt_http_uri_t *hu)
     hu->path_modified = TT_TRUE;
 }
 
+tt_inline tt_bool_t tt_http_uri_pparam_empty(IN tt_http_uri_t *hu)
+{
+    return tt_queue_empty(&hu->path_param);
+}
+
 tt_inline void tt_http_uri_pparam_iter(IN tt_http_uri_t *hu,
                                        OUT tt_http_uri_param_iter_t *iter)
 {
@@ -245,6 +250,11 @@ tt_export tt_bool_t tt_http_uri_remove_pparam_nv(IN tt_http_uri_t *hu,
 // ========================================
 // query
 // ========================================
+
+tt_inline tt_bool_t tt_http_uri_qparam_empty(IN tt_http_uri_t *hu)
+{
+    return tt_queue_empty(&hu->query_param);
+}
 
 tt_inline void tt_http_uri_qparam_iter(IN tt_http_uri_t *hu,
                                        OUT tt_http_uri_param_iter_t *iter)

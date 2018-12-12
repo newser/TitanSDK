@@ -57,12 +57,14 @@ typedef struct tt_http_sconn_s
     tt_http_svcmgr_t svcmgr;
     tt_http_parser_t parser;
     tt_http_resp_render_t render;
+    tt_buf_t body;
 } tt_http_sconn_t;
 
 typedef struct
 {
     tt_http_parser_attr_t parser_attr;
     tt_http_resp_render_attr_t render_attr;
+    tt_buf_attr_t body_attr;
 } tt_http_sconn_attr_t;
 
 ////////////////////////////////////////////////////////////
@@ -92,16 +94,16 @@ tt_export void tt_http_sconn_destroy(IN tt_http_sconn_t *c);
 
 tt_export void tt_http_sconn_attr_default(IN tt_http_sconn_attr_t *attr);
 
-tt_inline void tt_http_sconn_add_inserv(IN tt_http_sconn_t *c,
-                                        IN TO tt_http_inserv_t *s)
+tt_inline tt_result_t tt_http_sconn_add_inserv(IN tt_http_sconn_t *c,
+                                               IN TO tt_http_inserv_t *s)
 {
-    tt_http_svcmgr_add_inserv(&c->svcmgr, s);
+    return tt_http_svcmgr_add_inserv(&c->svcmgr, s);
 }
 
-tt_inline void tt_http_sconn_add_outserv(IN tt_http_sconn_t *c,
-                                         IN TO tt_http_outserv_t *s)
+tt_inline tt_result_t tt_http_sconn_add_outserv(IN tt_http_sconn_t *c,
+                                                IN TO tt_http_outserv_t *s)
 {
-    tt_http_svcmgr_add_outserv(&c->svcmgr, s);
+    return tt_http_svcmgr_add_outserv(&c->svcmgr, s);
 }
 
 // true to wait eof

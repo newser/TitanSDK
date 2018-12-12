@@ -102,6 +102,11 @@ tt_inline tt_result_t tt_fpath_parse(IN tt_fpath_t *fp, const tt_char_t *path)
     return tt_fpath_parse_n(fp, path, tt_strlen(path));
 }
 
+// parse string stored in fp->path, some application may not want to hold a
+// string itself, so just use the string returned by tt_fpath_string() and
+// modifiy it and then call tt_fpath_parse_self()
+tt_export tt_result_t tt_fpath_parse_self(IN tt_fpath_t *fp);
+
 tt_export tt_result_t tt_fpath_copy(IN tt_fpath_t *dst, IN tt_fpath_t *src);
 
 tt_export const tt_char_t *tt_fpath_render(IN tt_fpath_t *fp);
