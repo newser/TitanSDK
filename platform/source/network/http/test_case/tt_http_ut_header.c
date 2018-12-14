@@ -24,6 +24,7 @@
 
 #include <stdlib.h>
 
+#include <network/http/tt_http_content_type_map.h>
 #include <network/http/tt_http_header.h>
 #include <network/http/tt_http_parser.h>
 #include <network/http/tt_http_raw_header.h>
@@ -51,6 +52,7 @@ TT_TEST_ROUTINE_DECLARE(case_http_hdr_parse1)
 TT_TEST_ROUTINE_DECLARE(case_http_hdr_parse2)
 TT_TEST_ROUTINE_DECLARE(case_http_body)
 TT_TEST_ROUTINE_DECLARE(case_http_body2)
+TT_TEST_ROUTINE_DECLARE(case_http_contype_map)
 // =========================================
 
 // === test case list ======================
@@ -111,6 +113,15 @@ TT_TEST_CASE("case_http_hdr_basic",
                  NULL,
                  NULL),
 
+    TT_TEST_CASE("case_http_contype_map",
+                 "http content map ops",
+                 case_http_contype_map,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL),
+
     TT_TEST_CASE_LIST_DEFINE_END(http_hdr_case)
     // =========================================
 
@@ -125,7 +136,7 @@ TT_TEST_CASE("case_http_hdr_basic",
     ////////////////////////////////////////////////////////////
 
     /*
-    TT_TEST_ROUTINE_DEFINE(case_http_hdr_parse2)
+    TT_TEST_ROUTINE_DEFINE(case_http_contype_map)
     {
         //tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
 
@@ -716,7 +727,7 @@ TT_TEST_ROUTINE_DEFINE(case_http_body)
         tt_char_t p2[] =
             "PATCH /file.txt HTTP/1.1\r\n"
             "Host: www.example.com\r\n"
-            "Content-Type: application/example\r\n"
+            "Content-Type: application/javascript\r\n"
             "If-Match: \"e0023aa4e\"\r\n"
             "Content-Length: 10\r\n"
             "\r\n";
@@ -751,8 +762,15 @@ TT_TEST_ROUTINE_DEFINE(case_http_body)
         TT_UT_EQUAL(tt_http_parser_get_method(&hp), TT_HTTP_MTD_PATCH, "");
         TT_UT_EQUAL(tt_http_parser_get_version(&hp), TT_HTTP_V1_1, "");
 
+        TT_UT_EQUAL(tt_http_parser_get_contype(&hp),
+                    TT_HTTP_CONTYPE_APP_JS,
+                    "");
+        TT_UT_EQUAL(tt_http_parser_get_contype(&hp),
+                    TT_HTTP_CONTYPE_APP_JS,
+                    "");
+
         __check("Host", "www.example.com");
-        __check("Content-Type", "application/example");
+        __check("Content-Type", "application/javascript");
         __check("If-Match", "\"e0023aa4e\"");
         __check("Content-Length", "10");
 
@@ -801,7 +819,7 @@ TT_TEST_ROUTINE_DEFINE(case_http_body)
     {
         tt_char_t p2[] =
             "HTTP/1.1 200 OK\r\n"
-            "Content-Type: text/plain\r\n"
+            "Content-Type: text/plain1\r\n"
             "Transfer-Encoding: chunked\r\n"
             "\r\n";
 
@@ -850,7 +868,10 @@ TT_TEST_ROUTINE_DEFINE(case_http_body)
         TT_UT_NULL(tt_http_parser_get_host(&hp), "");
         TT_UT_NULL(tt_http_parser_get_host(&hp), "");
 
-        __check("Content-Type", "text/plain");
+        TT_UT_EQUAL(tt_http_parser_get_contype(&hp), TT_HTTP_CONTYPE_NUM, "");
+        TT_UT_EQUAL(tt_http_parser_get_contype(&hp), TT_HTTP_CONTYPE_NUM, "");
+
+        __check("Content-Type", "text/plain1");
         __check("Transfer-Encoding", "chunked");
 
         TT_UT_TRUE(hp.complete_line1, "");
@@ -1251,6 +1272,11 @@ TT_TEST_ROUTINE_DEFINE(case_http_hdr_parse2)
     }
 
     {
+        TT_UT_EQUAL(tt_http_parser_get_contype(&hp), TT_HTTP_CONTYPE_NUM, "");
+        TT_UT_EQUAL(tt_http_parser_get_contype(&hp), TT_HTTP_CONTYPE_NUM, "");
+    }
+
+    {
         tt_blobex_t *ho = tt_http_parser_get_host(&hp);
         TT_UT_NOT_NULL(ho, "");
         TT_UT_EQUAL(tt_blobex_addr(ho), NULL, "");
@@ -1261,6 +1287,212 @@ TT_TEST_ROUTINE_DEFINE(case_http_hdr_parse2)
 
     tt_slab_destroy(&rh);
     tt_slab_destroy(&rv);
+
+    // test end
+    TT_TEST_CASE_LEAVE()
+}
+
+TT_TEST_ROUTINE_DEFINE(case_http_contype_map)
+{
+    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+    tt_http_contype_map_t m;
+    tt_http_contype_entry_t *e;
+
+    TT_TEST_CASE_ENTER()
+    // test start
+
+    TT_UT_SUCCESS(tt_http_contype_map_create(&m, NULL), "");
+    tt_http_contype_map_clear_static(&m);
+    tt_http_contype_map_clear_dynamic(&m);
+    tt_http_contype_map_clear(&m);
+    tt_http_contype_map_destroy(&m);
+
+    TT_UT_SUCCESS(tt_http_contype_map_create(&m, NULL), "");
+
+    // null ext
+    {
+        TT_UT_SUCCESS(tt_http_contype_map_add(&m,
+                                              TT_HTTP_CONTYPE_TXT_HTML,
+                                              "app/html",
+                                              NULL),
+                      "");
+
+        e = tt_http_contype_map_find_type(&m, TT_HTTP_CONTYPE_TXT_HTML);
+        TT_UT_NOT_NULL(e, "");
+        TT_UT_STREQ(e->name, "app/html", "");
+        TT_UT_NULL(e->ext, "");
+
+        e = tt_http_contype_map_find_type(&m, TT_HTTP_CONTYPE_TXT_PLAIN);
+        TT_UT_NULL(e, "");
+
+        // find the default
+        tt_http_contype_map_set_default(&m, TT_HTTP_CONTYPE_TXT_HTML);
+        e = tt_http_contype_map_find_type(&m, TT_HTTP_CONTYPE_TXT_PLAIN);
+        TT_UT_NOT_NULL(e, "");
+        TT_UT_STREQ(e->name, "app/html", "");
+        TT_UT_NULL(e->ext, "");
+
+        e = tt_http_contype_map_find_name(&m, "app/html");
+        TT_UT_NOT_NULL(e, "");
+        TT_UT_STREQ(e->name, "app/html", "");
+        TT_UT_NULL(e->ext, "");
+
+        e = tt_http_contype_map_find_ext(&m, "htm");
+        // come from default
+        TT_UT_NOT_NULL(e, "");
+        TT_UT_EQUAL(e->type, TT_HTTP_CONTYPE_TXT_HTML, "");
+
+        // clear dynamic
+        tt_http_contype_map_clear_dynamic(&m);
+        TT_UT_NULL(tt_http_contype_map_find_type(&m, TT_HTTP_CONTYPE_TXT_PLAIN),
+                   "");
+        TT_UT_NULL(tt_http_contype_map_find_type(&m, TT_HTTP_CONTYPE_TXT_HTML),
+                   "");
+
+        tt_http_contype_map_clear_static(&m);
+        tt_http_contype_map_clear_dynamic(&m);
+        tt_http_contype_map_clear(&m);
+    }
+
+    // some ext
+    {
+        TT_UT_SUCCESS(tt_http_contype_map_add(&m,
+                                              TT_HTTP_CONTYPE_TXT_HTML,
+                                              "html",
+                                              ";"),
+                      "");
+        TT_UT_SUCCESS(tt_http_contype_map_add(&m,
+                                              TT_HTTP_CONTYPE_TXT_PLAIN,
+                                              "plain",
+                                              ";a;b;c;"),
+                      "");
+        TT_UT_SUCCESS(tt_http_contype_map_add(&m,
+                                              TT_HTTP_CONTYPE_APP_JS,
+                                              "js",
+                                              "1;2;3"),
+                      "");
+        TT_UT_SUCCESS(tt_http_contype_map_add(&m,
+                                              TT_HTTP_CONTYPE_TXT_CSS,
+                                              "css",
+                                              "xxx"),
+                      "");
+
+        e = tt_http_contype_map_find_name(&m, "js");
+        TT_UT_NOT_NULL(e, "");
+        TT_UT_STREQ(e->name, "js", "");
+        TT_UT_STREQ(e->ext, "1;2;3", "");
+
+        e = tt_http_contype_map_find_ext(&m, "a");
+        TT_UT_NOT_NULL(e, "");
+        TT_UT_STREQ(e->name, "plain", "");
+        e = tt_http_contype_map_find_ext(&m, "c");
+        TT_UT_NOT_NULL(e, "");
+        TT_UT_STREQ(e->name, "plain", "");
+
+        e = tt_http_contype_map_find_ext(&m, "1");
+        TT_UT_NOT_NULL(e, "");
+        TT_UT_STREQ(e->name, "js", "");
+        e = tt_http_contype_map_find_ext(&m, "3");
+        TT_UT_NOT_NULL(e, "");
+        TT_UT_STREQ(e->name, "js", "");
+
+        e = tt_http_contype_map_find_ext(&m, "xxx");
+        TT_UT_NOT_NULL(e, "");
+        TT_UT_STREQ(e->name, "css", "");
+        e = tt_http_contype_map_find_ext(&m, "xx");
+        TT_UT_NULL(e, "");
+
+        // remove some
+        tt_http_contype_map_remove(&m, TT_HTTP_CONTYPE_TXT_CSS);
+        e = tt_http_contype_map_find_type(&m, TT_HTTP_CONTYPE_TXT_CSS);
+        TT_UT_NULL(e, "");
+        e = tt_http_contype_map_find_ext(&m, "xxx");
+        TT_UT_NULL(e, "");
+
+        tt_http_contype_map_remove(&m, TT_HTTP_CONTYPE_APP_JS);
+        e = tt_http_contype_map_find_type(&m, TT_HTTP_CONTYPE_APP_JS);
+        TT_UT_NULL(e, "");
+        e = tt_http_contype_map_find_ext(&m, "1");
+        TT_UT_NULL(e, "");
+        e = tt_http_contype_map_find_ext(&m, "3");
+        TT_UT_NULL(e, "");
+
+        tt_http_contype_map_remove(&m, TT_HTTP_CONTYPE_TXT_PLAIN);
+        e = tt_http_contype_map_find_type(&m, TT_HTTP_CONTYPE_TXT_PLAIN);
+        TT_UT_NULL(e, "");
+        e = tt_http_contype_map_find_ext(&m, "a");
+        TT_UT_NULL(e, "");
+        e = tt_http_contype_map_find_ext(&m, "c");
+        TT_UT_NULL(e, "");
+
+        tt_http_contype_map_clear_dynamic(&m);
+        e = tt_http_contype_map_find_type(&m, TT_HTTP_CONTYPE_TXT_HTML);
+        TT_UT_NULL(e, "");
+        e = tt_http_contype_map_find_name(&m, "html");
+        TT_UT_NULL(e, "");
+    }
+
+    // static
+    {
+        tt_http_contype_map_set_static(&m, tt_g_http_contype_static);
+
+        e = tt_http_contype_map_find_type(&m, TT_HTTP_CONTYPE_TXT_PLAIN);
+        TT_UT_NOT_NULL(e, "");
+        TT_UT_STREQ(e->name, "text/plain", "");
+        TT_UT_STREQ(e->ext, "txt", "");
+
+        e = tt_http_contype_map_find_name(&m, "text/css");
+        TT_UT_NOT_NULL(e, "");
+        TT_UT_STREQ(e->name, "text/css", "");
+        TT_UT_STREQ(e->ext, "css", "");
+
+        e = tt_http_contype_map_find_ext(&m, "html");
+        TT_UT_NOT_NULL(e, "");
+        TT_UT_STREQ(e->name, "text/html", "");
+        TT_UT_STREQ(e->ext, "htm;html;htx;xhtml", "");
+    }
+
+    // dynamic then static
+    {
+        tt_http_contype_map_clear(&m);
+
+        TT_UT_SUCCESS(tt_http_contype_map_add(&m,
+                                              TT_HTTP_CONTYPE_TXT_HTML,
+                                              "text/html",
+                                              "htm;html;htx;xhtml"),
+                      "");
+
+        tt_http_contype_map_set_static(&m, tt_g_http_contype_static);
+
+        e = tt_http_contype_map_find_type(&m, TT_HTTP_CONTYPE_TXT_HTML);
+        TT_UT_EQUAL(e, &m.dynamic_entry[TT_HTTP_CONTYPE_TXT_HTML], "");
+        e = tt_http_contype_map_find_name(&m, "text/html");
+        TT_UT_EQUAL(e, &m.dynamic_entry[TT_HTTP_CONTYPE_TXT_HTML], "");
+        e = tt_http_contype_map_find_ext(&m, "xhtml");
+        TT_UT_EQUAL(e, &m.dynamic_entry[TT_HTTP_CONTYPE_TXT_HTML], "");
+    }
+
+    // static THEN dynamic
+    {
+        tt_http_contype_map_clear(&m);
+
+        tt_http_contype_map_set_static(&m, tt_g_http_contype_static);
+
+        TT_UT_SUCCESS(tt_http_contype_map_add(&m,
+                                              TT_HTTP_CONTYPE_TXT_HTML,
+                                              "text/html",
+                                              "htm;html;htx;xhtml"),
+                      "");
+
+        e = tt_http_contype_map_find_type(&m, TT_HTTP_CONTYPE_TXT_HTML);
+        TT_UT_EQUAL(e, &m.dynamic_entry[TT_HTTP_CONTYPE_TXT_HTML], "");
+        e = tt_http_contype_map_find_name(&m, "text/html");
+        TT_UT_EQUAL(e, &m.dynamic_entry[TT_HTTP_CONTYPE_TXT_HTML], "");
+        e = tt_http_contype_map_find_ext(&m, "xhtml");
+        TT_UT_EQUAL(e, &m.dynamic_entry[TT_HTTP_CONTYPE_TXT_HTML], "");
+    }
+
+    tt_http_contype_map_destroy(&m);
 
     // test end
     TT_TEST_CASE_LEAVE()

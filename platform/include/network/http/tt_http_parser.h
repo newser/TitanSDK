@@ -32,7 +32,8 @@ this file defines http parser APIs
 
 #include <algorithm/tt_buffer.h>
 #include <algorithm/tt_double_linked_list.h>
-#include <network/http/tt_http_def.h>
+#include <network/http/def/tt_http_def.h>
+#include <network/http/tt_http_content_type_map.h>
 #include <network/http/tt_http_uri.h>
 
 #include <http_parser.h>
@@ -61,6 +62,7 @@ typedef struct tt_http_parser_s
     tt_dlist_t rawhdr;
     tt_dlist_t trailing_rawhdr;
     tt_blobex_t *host;
+    tt_http_contype_map_t *contype_map;
 
     tt_buf_t buf;
     tt_blobex_t rawuri;
@@ -71,6 +73,7 @@ typedef struct tt_http_parser_s
     http_parser parser;
 
     tt_u32_t body_counter;
+    tt_http_contype_t contype;
     tt_bool_t complete_line1 : 1;
     tt_bool_t complete_header : 1;
     tt_bool_t complete_message : 1;
@@ -81,6 +84,7 @@ typedef struct tt_http_parser_s
 
 typedef struct
 {
+    tt_http_contype_map_t *contype_map;
     tt_buf_attr_t buf_attr;
 } tt_http_parser_attr_t;
 
@@ -145,5 +149,7 @@ tt_inline tt_bool_t tt_http_parser_should_keepalive(IN tt_http_parser_t *hp)
 // - return NULL if there is no Host
 // - return a empty blobex if Host header is empty
 tt_export tt_blobex_t *tt_http_parser_get_host(IN tt_http_parser_t *hp);
+
+tt_export tt_http_contype_t tt_http_parser_get_contype(IN tt_http_parser_t *hp);
 
 #endif /* __TT_HTTP_PARSER__ */

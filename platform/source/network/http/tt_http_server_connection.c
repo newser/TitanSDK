@@ -153,6 +153,8 @@ static tt_result_t __sconn_send_resp_hdr(IN tt_http_sconn_t *c);
 
 static tt_result_t __sconn_send_resp_body(IN tt_http_sconn_t *c);
 
+static tt_result_t __sconn_send_resp_body_end(IN tt_http_sconn_t *c);
+
 static tt_bool_t __sconn_action(IN tt_http_sconn_t *c,
                                 IN tt_http_inserv_action_t action,
                                 OUT tt_bool_t *wait_eof);
@@ -361,6 +363,10 @@ tt_bool_t tt_http_sconn_run(IN tt_http_sconn_t *c)
                                 return TT_FALSE;
                             }
                         } while (action == TT_HTTP_INSERV_ACT_GET_BODY);
+
+                        if (!TT_OK(__sconn_send_resp_body_end(c))) {
+                            return TT_FALSE;
+                        }
                     }
 
                     if (!tt_http_parser_should_keepalive(req)) {
@@ -710,6 +716,27 @@ tt_result_t __sconn_send_resp_body(IN tt_http_sconn_t *c)
     // todo: send timeout
     ((__sconn_itf_t *)c->itf)
         ->send(c, TT_BUF_RPOS(output), TT_BUF_RLEN(output), NULL);
+
+    return TT_SUCCESS;
+}
+
+tt_result_t __sconn_send_resp_body_end(IN tt_http_sconn_t *c)
+{
+    tt_buf_t *output;
+
+    if (TT_OK(tt_http_svcmgr_on_resp_body(&c->svcmgr,
+                                          &c->parser,
+                                          &c->render,
+                                          NULL,
+                                          &output))) {
+        return TT_FAIL;
+    }
+
+    if ((output != NULL) && !tt_buf_empty(output)) {
+        // todo: send timeout
+        ((__sconn_itf_t *)c->itf)
+            ->send(c, TT_BUF_RPOS(output), TT_BUF_RLEN(output), NULL);
+    }
 
     return TT_SUCCESS;
 }

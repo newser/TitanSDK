@@ -58,11 +58,12 @@ static tt_char_t tt_s_path_enc_tbl[256] = {
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-static void __render_init(IN tt_http_render_t *r, IN tt_buf_attr_t *buf_attr);
+static void __render_init(IN tt_http_render_t *r,
+                          IN tt_http_render_attr_t *attr);
 
 static void __render_destroy(IN tt_http_render_t *r);
 
-static void __render_attr_default(IN tt_http_req_render_attr_t *attr);
+static void __render_attr_default(IN tt_http_render_attr_t *attr);
 
 static void __render_clear(IN tt_http_render_t *r);
 
@@ -77,6 +78,10 @@ static tt_result_t __render_add_cs(IN tt_http_render_t *r,
                                    IN tt_http_hname_t name,
                                    IN tt_blobex_t *val,
                                    IN tt_u32_t num);
+
+static tt_u32_t __common_render_len(IN tt_http_render_t *render);
+
+static void __common_render(IN tt_http_render_t *render, IN tt_buf_t *buf);
 
 ////////////////////////////////////////////////////////////
 // interface implementation
@@ -98,7 +103,7 @@ void tt_http_req_render_init(IN tt_http_req_render_t *req,
 
     req->method = TT_HTTP_METHOD_NUM;
 
-    __render_init(&req->render, &attr->buf_attr);
+    __render_init(&req->render, &attr->render_attr);
 }
 
 void tt_http_req_render_destroy(IN tt_http_req_render_t *req)
@@ -110,7 +115,7 @@ void tt_http_req_render_destroy(IN tt_http_req_render_t *req)
 
 void tt_http_req_render_attr_default(IN tt_http_req_render_attr_t *attr)
 {
-    tt_buf_attr_default(&attr->buf_attr);
+    __render_attr_default(&attr->render_attr);
 }
 
 void tt_http_req_render_clear(IN tt_http_req_render_t *req)
@@ -186,25 +191,7 @@ tt_result_t tt_http_req_render(IN tt_http_req_render_t *req,
         n += 3;
         n += tt_g_http_verion_len[render->version];
 
-        // "GET /a/b/c HTTP/1.1\r\n"
-        // "Connection: close\r\n"
-        if (render->conn != TT_HTTP_CONN_NONE) {
-            n += sizeof("Connection: ");
-            n += tt_g_http_conn_len[render->conn];
-            n += 1;
-        }
-
-        // "GET /a/b/c HTTP/1.1\r\n"
-        // "Connection: close\r\n"
-        // "Host: aa.com\r\n"
-        // "\r\n"
-        dn = tt_dlist_head(&render->hdr);
-        while (dn != NULL) {
-            n += tt_http_hdr_render_len(TT_CONTAINER(dn, tt_http_hdr_t, dnode));
-
-            dn = dn->next;
-        }
-        n += 2;
+        n += __common_render_len(render);
     }
 
     if (!TT_OK(tt_buf_reserve(buf, n))) {
@@ -232,30 +219,7 @@ tt_result_t tt_http_req_render(IN tt_http_req_render_t *req,
                    tt_g_http_verion_len[render->version]);
         tt_buf_put(buf, (tt_u8_t *)"\r\n", 2);
 
-        // "GET /a/b/c HTTP/1.1\r\n"
-        // "Connection: close\r\n"
-        if (render->conn != TT_HTTP_CONN_NONE) {
-            tt_buf_put(buf,
-                       (tt_u8_t *)"Connection: ",
-                       sizeof("Connection: ") - 1);
-            tt_buf_put(buf,
-                       (tt_u8_t *)tt_g_http_conn[render->conn],
-                       tt_g_http_conn_len[render->conn]);
-            tt_buf_put(buf, (tt_u8_t *)"\r\n", 2);
-        }
-
-        // "GET /a/b/c HTTP/1.1\r\n"
-        // "Connection: close\r\n"
-        // "\r\n"
-        dn = tt_dlist_head(&render->hdr);
-        while (dn != NULL) {
-            n = tt_http_hdr_render(TT_CONTAINER(dn, tt_http_hdr_t, dnode),
-                                   (tt_char_t *)TT_BUF_WPOS(buf));
-            tt_buf_inc_wp(buf, n);
-
-            dn = dn->next;
-        }
-        tt_buf_put(buf, (tt_u8_t *)"\r\n", 2);
+        __common_render(render, buf);
     }
 
     *data = (tt_char_t *)TT_BUF_RPOS(buf);
@@ -277,7 +241,7 @@ void tt_http_resp_render_init(IN tt_http_resp_render_t *resp,
 
     resp->status = TT_HTTP_STATUS_INVALID;
 
-    __render_init(&resp->render, &attr->buf_attr);
+    __render_init(&resp->render, &attr->render_attr);
 }
 
 void tt_http_resp_render_destroy(IN tt_http_resp_render_t *resp)
@@ -287,7 +251,7 @@ void tt_http_resp_render_destroy(IN tt_http_resp_render_t *resp)
 
 void tt_http_resp_render_attr_default(IN tt_http_resp_render_attr_t *attr)
 {
-    tt_buf_attr_default(&attr->buf_attr);
+    __render_attr_default(&attr->render_attr);
 }
 
 void tt_http_resp_render_clear(IN tt_http_resp_render_t *resp)
@@ -328,7 +292,6 @@ tt_result_t tt_http_resp_render(IN tt_http_resp_render_t *resp,
     tt_u32_t n;
     const tt_char_t *status;
     tt_u32_t status_len;
-    tt_dnode_t *dn;
 
     TT_ASSERT(TT_HTTP_STATUS_VALID(resp->status));
     TT_ASSERT(TT_HTTP_VER_VALID(resp->render.version) &&
@@ -353,21 +316,7 @@ tt_result_t tt_http_resp_render(IN tt_http_resp_render_t *resp,
     n += 3;
     n += status_len;
 
-    // "HTTP/1.1 200 OK\r\n"
-    // "Connection: close\r\n"
-    if (render->conn != TT_HTTP_CONN_NONE) {
-        n += sizeof("Connection: ");
-        n += tt_g_http_conn_len[render->conn];
-        n += 1;
-    }
-
-    dn = tt_dlist_head(&render->hdr);
-    while (dn != NULL) {
-        n += tt_http_hdr_render_len(TT_CONTAINER(dn, tt_http_hdr_t, dnode));
-
-        dn = dn->next;
-    }
-    n += 2;
+    n += __common_render_len(render);
 
     if (!TT_OK(tt_buf_reserve(buf, n))) {
         return TT_E_NOMEM;
@@ -387,42 +336,22 @@ tt_result_t tt_http_resp_render(IN tt_http_resp_render_t *resp,
     tt_buf_put(buf, (tt_u8_t *)status, status_len);
     tt_buf_put(buf, (tt_u8_t *)"\r\n", 2);
 
-    // "HTTP/1.1 200 OK\r\n"
-    // "Connection: close\r\n"
-    if (render->conn != TT_HTTP_CONN_NONE) {
-        tt_buf_put(buf, (tt_u8_t *)"Connection: ", sizeof("Connection: ") - 1);
-        tt_buf_put(buf,
-                   (tt_u8_t *)tt_g_http_conn[render->conn],
-                   tt_g_http_conn_len[render->conn]);
-        tt_buf_put(buf, (tt_u8_t *)"\r\n", 2);
-    }
-
-    // "HTTP/1.1 200 OK\r\n"
-    // "Connection: close\r\n"
-    // "Host: aa.com\r\n"
-    // "\r\n"
-    dn = tt_dlist_head(&render->hdr);
-    while (dn != NULL) {
-        n = tt_http_hdr_render(TT_CONTAINER(dn, tt_http_hdr_t, dnode),
-                               (tt_char_t *)TT_BUF_WPOS(buf));
-        tt_buf_inc_wp(buf, n);
-
-        dn = dn->next;
-    }
-    tt_buf_put(buf, (tt_u8_t *)"\r\n", 2);
+    __common_render(render, buf);
 
     *data = (tt_char_t *)TT_BUF_RPOS(buf);
     *len = TT_BUF_RLEN(buf);
     return TT_SUCCESS;
 }
 
-void __render_init(IN tt_http_render_t *r, IN tt_buf_attr_t *buf_attr)
+void __render_init(IN tt_http_render_t *r, IN tt_http_render_attr_t *attr)
 {
     r->c = NULL;
+    r->contype_map = attr->contype_map;
     tt_dlist_init(&r->hdr);
 
-    tt_buf_init(&r->buf, buf_attr);
+    tt_buf_init(&r->buf, &attr->buf_attr);
 
+    r->contype = TT_HTTP_CONTYPE_NUM;
     r->version = TT_HTTP_VER_NUM;
     r->conn = TT_HTTP_CONN_NONE;
 }
@@ -438,6 +367,12 @@ void __render_destroy(IN tt_http_render_t *r)
     tt_buf_destroy(&r->buf);
 }
 
+void __render_attr_default(IN tt_http_render_attr_t *attr)
+{
+    attr->contype_map = &tt_g_http_contype_map;
+    tt_buf_attr_default(&attr->buf_attr);
+}
+
 void __render_clear(IN tt_http_render_t *r)
 {
     tt_dnode_t *node;
@@ -450,7 +385,9 @@ void __render_clear(IN tt_http_render_t *r)
 
     tt_buf_clear(&r->buf);
 
+    r->contype = TT_HTTP_CONTYPE_NUM;
     r->version = TT_HTTP_VER_NUM;
+    r->conn = TT_HTTP_CONN_NONE;
 }
 
 void __render_add_hdr(IN tt_http_render_t *r, IN tt_http_hdr_t *h)
@@ -490,4 +427,80 @@ tt_result_t __render_add_cs(IN tt_http_render_t *r,
     __render_add_hdr(r, h);
 
     return TT_SUCCESS;
+}
+
+tt_u32_t __common_render_len(IN tt_http_render_t *render)
+{
+    tt_u32_t n = 0;
+    tt_dnode_t *dn;
+
+    // "Connection: close\r\n"
+    if (render->conn != TT_HTTP_CONN_NONE) {
+        n += sizeof("Connection: ") - 1;
+        n += tt_g_http_conn_len[render->conn];
+        n += 2;
+    }
+
+    // "Content-Type: xx\r\n"
+    if (render->contype != TT_HTTP_CONTYPE_NUM) {
+        tt_http_contype_entry_t *e =
+            tt_http_contype_map_find_type(render->contype_map, render->contype);
+        TT_ASSERT(e != NULL);
+
+        n += sizeof("Content-Type: ") - 1;
+        n += e->name_len;
+        n += 2;
+    }
+
+    // "Host: aa.com\r\n"
+    // "\r\n"
+    dn = tt_dlist_head(&render->hdr);
+    while (dn != NULL) {
+        n += tt_http_hdr_render_len(TT_CONTAINER(dn, tt_http_hdr_t, dnode));
+
+        dn = dn->next;
+    }
+    n += 2;
+
+    return n;
+}
+
+void __common_render(IN tt_http_render_t *render, IN tt_buf_t *buf)
+{
+    tt_dnode_t *dn;
+
+    // "Connection: close\r\n"
+    if (render->conn != TT_HTTP_CONN_NONE) {
+        tt_buf_put(buf, (tt_u8_t *)"Connection: ", sizeof("Connection: ") - 1);
+        tt_buf_put(buf,
+                   (tt_u8_t *)tt_g_http_conn[render->conn],
+                   tt_g_http_conn_len[render->conn]);
+        tt_buf_put(buf, (tt_u8_t *)"\r\n", 2);
+    }
+
+    // "Content-Type: xx\r\n"
+    if (render->contype != TT_HTTP_CONTYPE_NUM) {
+        tt_http_contype_entry_t *e =
+            tt_http_contype_map_find_type(render->contype_map, render->contype);
+        TT_ASSERT(e != NULL);
+
+        tt_buf_put(buf,
+                   (tt_u8_t *)"Content-Type: ",
+                   sizeof("Content-Type: ") - 1);
+        tt_buf_put(buf, (tt_u8_t *)e->name, e->name_len);
+        tt_buf_put(buf, (tt_u8_t *)"\r\n", 2);
+    }
+
+    // "Connection: close\r\n"
+    // "Host: aa.com\r\n"
+    // "\r\n"
+    dn = tt_dlist_head(&render->hdr);
+    while (dn != NULL) {
+        tt_u32_t n = tt_http_hdr_render(TT_CONTAINER(dn, tt_http_hdr_t, dnode),
+                                        (tt_char_t *)TT_BUF_WPOS(buf));
+        tt_buf_inc_wp(buf, n);
+
+        dn = dn->next;
+    }
+    tt_buf_put(buf, (tt_u8_t *)"\r\n", 2);
 }

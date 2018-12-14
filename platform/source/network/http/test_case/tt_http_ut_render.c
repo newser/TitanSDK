@@ -193,14 +193,18 @@ TT_TEST_CASE("case_http_render_req",
             const tt_char_t *msg =
                 "POST aaa.com HTTP/1.0\r\n"
                 "Connection: close\r\n"
+                "Content-Type: application/javascript\r\n"
                 "Host: sample\r\n"
                 "Date: 1, 22, 333\r\n"
                 "\r\n";
 
             tt_http_req_render_set_conn(&r, TT_HTTP_CONN_CLOSE);
+            tt_http_req_render_set_contype(&r, TT_HTTP_CONTYPE_APP_JS);
             TT_UT_SUCCESS(tt_http_req_render(&r, &data, &len), "");
             TT_UT_EQUAL(len, tt_strlen(msg), "");
             TT_UT_EXP(tt_strncmp(data, msg, len) == 0, "");
+
+            tt_http_req_render_set_contype(&r, TT_HTTP_CONTYPE_NUM);
         }
         {
             const tt_char_t *msg =
@@ -320,14 +324,18 @@ TT_TEST_ROUTINE_DEFINE(case_http_render_resp)
             const tt_char_t *msg =
                 "HTTP/1.0 200 OK\r\n"
                 "Connection: keep-alive\r\n"
+                "Content-Type: text/css\r\n"
                 "Host: sample\r\n"
                 "Date: 1, 22, 333\r\n"
                 "\r\n";
 
             tt_http_resp_render_set_conn(&r, TT_HTTP_CONN_KEEP_ALIVE);
+            tt_http_resp_render_set_contype(&r, TT_HTTP_CONTYPE_TXT_CSS);
             TT_UT_SUCCESS(tt_http_resp_render(&r, &data, &len), "");
             TT_UT_EQUAL(len, tt_strlen(msg), "");
             TT_UT_EXP(tt_strncmp(data, msg, len) == 0, "");
+
+            tt_http_resp_render_set_contype(&r, TT_HTTP_CONTYPE_NUM);
         }
         {
             tt_http_resp_render_set_conn(&r, TT_HTTP_CONN_NONE);
@@ -869,6 +877,16 @@ TT_TEST_ROUTINE_DEFINE(case_http_svcmgr)
                 TT_UT_EQUAL(pbuf, &buf0, "");
             }
 
+            {
+                tt_buf_t *pbuf;
+                TT_UT_SUCCESS(tt_http_svcmgr_on_resp_body(&sm,
+                                                          NULL,
+                                                          NULL,
+                                                          NULL,
+                                                          &pbuf),
+                              "");
+            }
+
             for (k = 0; k < TT_HTTP_INLINE_OUTSERV_NUM; ++k) {
                 for (i = 0; i < __OS_NUM; ++i) {
                     os[i] = tt_http_outserv_create(sizeof(__is_idx_t),
@@ -930,6 +948,16 @@ TT_TEST_ROUTINE_DEFINE(case_http_svcmgr)
             tt_http_svcmgr_clear(&sm);
             for (i = 0; i < __OS_NUM; ++i) {
                 TT_UT_TRUE(__os_clear[i], "");
+            }
+
+            {
+                tt_buf_t *pbuf;
+                TT_UT_SUCCESS(tt_http_svcmgr_on_resp_body(&sm,
+                                                          NULL,
+                                                          NULL,
+                                                          NULL,
+                                                          &pbuf),
+                              "");
             }
         }
 

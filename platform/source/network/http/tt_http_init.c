@@ -25,6 +25,7 @@
 #include <init/tt_component.h>
 #include <init/tt_profile.h>
 #include <network/http/service/tt_http_inserv_host.h>
+#include <network/http/tt_http_content_type_map.h>
 #include <network/http/tt_http_host.h>
 
 ////////////////////////////////////////////////////////////
@@ -82,11 +83,17 @@ tt_result_t __http_component_init(IN tt_component_t *comp,
         return TT_FAIL;
     }
 
+    if (!TT_OK(tt_http_contype_map_component_init(comp, profile))) {
+        return TT_FAIL;
+    }
+
     return TT_SUCCESS;
 }
 
 void __http_component_exit(IN tt_component_t *comp)
 {
+    tt_http_contype_map_component_exit(comp);
+
     tt_http_inserv_host_component_exit(comp);
 
     tt_http_host_component_exit(comp);

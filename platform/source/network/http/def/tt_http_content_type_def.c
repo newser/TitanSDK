@@ -16,61 +16,39 @@
  * limitations under the License.
  */
 
-/**
-@file tt_http_inserv_host.h
-@brief http service
-
-this file defines http incoming service: host
-*/
-
-#ifndef __TT_HTTP_INSERVICE_HOST__
-#define __TT_HTTP_INSERVICE_HOST__
-
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <network/http/def/tt_http_def.h>
-#include <network/http/tt_http_in_service.h>
+#include <network/http/def/tt_http_content_type_def.h>
 
 ////////////////////////////////////////////////////////////
-// macro definition
+// internal macro
 ////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////
-// type definition
+// internal type
 ////////////////////////////////////////////////////////////
 
-struct tt_component_s;
-struct tt_profile_s;
-
-typedef struct
-{
-    tt_http_status_t no_host;
-    tt_http_status_t more_host;
-    tt_http_status_t host_not_found;
-} tt_http_inserv_host_attr_t;
-
 ////////////////////////////////////////////////////////////
-// global variants
+// extern declaration
 ////////////////////////////////////////////////////////////
 
-tt_export tt_http_inserv_t *tt_g_http_inserv_host;
+////////////////////////////////////////////////////////////
+// global variant
+////////////////////////////////////////////////////////////
+
+tt_http_contype_entry_t tt_g_http_contype_static[TT_HTTP_CONTYPE_NUM] = {
+#define __ENTRY(id, name, ext)                                                 \
+    {TT_HTTP_CONTYPE_##id, name, ext, sizeof(name) - 1, sizeof(ext) - 1},
+    TT_HTTP_CONTYPE_MAP(__ENTRY)
+#undef __ENTRY
+};
 
 ////////////////////////////////////////////////////////////
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-tt_export tt_result_t tt_http_inserv_host_component_init(
-    IN struct tt_component_s *comp, IN struct tt_profile_s *profile);
-
-tt_export void tt_http_inserv_host_component_exit(
-    IN struct tt_component_s *comp);
-
-tt_export tt_http_inserv_t *tt_http_inserv_host_create(
-    IN OPT tt_http_inserv_host_attr_t *attr);
-
-tt_export void tt_http_inserv_host_attr_default(
-    IN tt_http_inserv_host_attr_t *attr);
-
-#endif /* __TT_HTTP_INSERVICE_HOST__ */
+////////////////////////////////////////////////////////////
+// interface implementation
+////////////////////////////////////////////////////////////

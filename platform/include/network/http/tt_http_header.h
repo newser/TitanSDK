@@ -31,7 +31,7 @@ this file defines http header APIs
 ////////////////////////////////////////////////////////////
 
 #include <algorithm/tt_double_linked_list.h>
-#include <network/http/tt_http_def.h>
+#include <network/http/def/tt_http_def.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition

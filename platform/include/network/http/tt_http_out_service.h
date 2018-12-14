@@ -72,6 +72,8 @@ typedef tt_result_t (*tt_http_outserv_on_header_t)(
 
 // - need not to consume all data in @input, just update consumed bytes
 // - must set output if returning TT_SUCCESS, do *output = input if no operation
+// - note null @input means all data source has been sent, some outserv may need
+//   sending eof similar things
 typedef tt_result_t (*tt_http_outserv_on_body_t)(
     IN struct tt_http_outserv_s *s,
     IN struct tt_http_parser_s *req,
@@ -144,7 +146,7 @@ tt_inline tt_result_t
 tt_http_outserv_on_body(IN tt_http_outserv_t *s,
                         IN struct tt_http_parser_s *req,
                         IN OUT struct tt_http_resp_render_s *resp,
-                        IN OUT struct tt_buf_s *input,
+                        IN OUT OPT struct tt_buf_s *input,
                         OUT struct tt_buf_s **output)
 {
     if (s->cb->on_body != NULL) {

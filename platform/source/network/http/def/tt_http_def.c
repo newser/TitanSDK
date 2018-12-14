@@ -20,7 +20,7 @@
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <network/http/tt_http_def.h>
+#include <network/http/def/tt_http_def.h>
 
 #include <misc/tt_assert.h>
 

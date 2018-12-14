@@ -33,7 +33,8 @@ this file defines http
 #include <algorithm/tt_buffer.h>
 #include <algorithm/tt_double_linked_list.h>
 #include <misc/tt_uri.h>
-#include <network/http/tt_http_def.h>
+#include <network/http/def/tt_http_def.h>
+#include <network/http/tt_http_content_type_map.h>
 #include <network/http/tt_http_header.h>
 
 ////////////////////////////////////////////////////////////
@@ -49,11 +50,19 @@ struct tt_http_sconn_s;
 typedef struct
 {
     struct tt_http_sconn_s *c;
+    tt_http_contype_map_t *contype_map;
     tt_dlist_t hdr;
     tt_buf_t buf;
+    tt_http_contype_t contype;
     tt_http_ver_t version : 3;
     tt_http_conn_t conn : 2;
 } tt_http_render_t;
+
+typedef struct
+{
+    tt_http_contype_map_t *contype_map;
+    tt_buf_attr_t buf_attr;
+} tt_http_render_attr_t;
 
 typedef struct tt_http_req_render_s
 {
@@ -64,7 +73,7 @@ typedef struct tt_http_req_render_s
 
 typedef struct
 {
-    tt_buf_attr_t buf_attr;
+    tt_http_render_attr_t render_attr;
 } tt_http_req_render_attr_t;
 
 typedef struct tt_http_resp_render_s
@@ -75,7 +84,7 @@ typedef struct tt_http_resp_render_s
 
 typedef struct
 {
-    tt_buf_attr_t buf_attr;
+    tt_http_render_attr_t render_attr;
 } tt_http_resp_render_attr_t;
 
 ////////////////////////////////////////////////////////////
@@ -162,8 +171,15 @@ tt_export tt_result_t tt_http_req_render(IN tt_http_req_render_t *req,
 tt_inline void tt_http_req_render_set_conn(IN tt_http_req_render_t *req,
                                            IN tt_http_conn_t c)
 {
-    TT_ASSERT(TT_HTTP_CONN_VALID(c));
+    TT_ASSERT(TT_HTTP_CONN_VALID(c) || (c == TT_HTTP_CONN_NUM));
     req->render.conn = c;
+}
+
+tt_inline void tt_http_req_render_set_contype(IN tt_http_req_render_t *req,
+                                              IN tt_http_contype_t t)
+{
+    TT_ASSERT(TT_HTTP_CONTYPE_VALID(t) || (t == TT_HTTP_CONTYPE_NUM));
+    req->render.contype = t;
 }
 
 // ========================================
@@ -238,8 +254,15 @@ tt_export tt_result_t tt_http_resp_render(IN tt_http_resp_render_t *resp,
 tt_inline void tt_http_resp_render_set_conn(IN tt_http_resp_render_t *resp,
                                             IN tt_http_conn_t c)
 {
-    TT_ASSERT(TT_HTTP_CONN_VALID(c));
+    TT_ASSERT(TT_HTTP_CONN_VALID(c) || (c == TT_HTTP_CONN_NUM));
     resp->render.conn = c;
+}
+
+tt_inline void tt_http_resp_render_set_contype(IN tt_http_resp_render_t *resp,
+                                               IN tt_http_contype_t t)
+{
+    TT_ASSERT(TT_HTTP_CONTYPE_VALID(t) || (t == TT_HTTP_CONTYPE_NUM));
+    resp->render.contype = t;
 }
 
 #endif /* __TT_HTTP_RENDER__ */

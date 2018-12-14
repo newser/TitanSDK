@@ -1067,7 +1067,7 @@ again:
     } else if (errno == EINTR) {
         goto again;
     } else if (errno == ENOENT) {
-        TT_ERROR_NTV("fail to open file: %s", fopen->path);
+        // TT_ERROR_NTV("fail to open file: %s", fopen->path);
         fopen->result = TT_E_NOEXIST;
     } else {
         TT_ERROR_NTV("fail to open file: %s", fopen->path);

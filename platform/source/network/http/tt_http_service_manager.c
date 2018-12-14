@@ -352,7 +352,7 @@ tt_result_t tt_http_svcmgr_on_resp_header(IN tt_http_svcmgr_t *sm,
 tt_result_t tt_http_svcmgr_on_resp_body(IN tt_http_svcmgr_t *sm,
                                         IN tt_http_parser_t *req,
                                         IN OUT tt_http_resp_render_t *resp,
-                                        IN OUT struct tt_buf_s *input,
+                                        IN OUT OPT struct tt_buf_s *input,
                                         OUT struct tt_buf_s **output)
 {
     tt_u32_t i;

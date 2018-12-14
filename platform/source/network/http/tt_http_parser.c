@@ -107,6 +107,7 @@ tt_result_t tt_http_parser_create(IN tt_http_parser_t *hp,
     tt_dlist_init(&hp->rawhdr);
     tt_dlist_init(&hp->trailing_rawhdr);
     hp->host = NULL;
+    hp->contype_map = attr->contype_map;
 
     // extend to initial size
     tt_buf_init(&hp->buf, &attr->buf_attr);
@@ -121,6 +122,7 @@ tt_result_t tt_http_parser_create(IN tt_http_parser_t *hp,
     http_parser_init(&hp->parser, HTTP_BOTH);
 
     hp->body_counter = 0;
+    hp->contype = TT_HTTP_CONTYPE_NUM;
     hp->complete_line1 = TT_FALSE;
     hp->complete_header = TT_FALSE;
     hp->complete_message = TT_FALSE;
@@ -160,6 +162,8 @@ void tt_http_parser_attr_default(IN tt_http_parser_attr_t *attr)
     tt_buf_attr_t *buf_attr;
 
     TT_ASSERT(attr != NULL);
+
+    attr->contype_map = &tt_g_http_contype_map;
 
     buf_attr = &attr->buf_attr;
     tt_buf_attr_default(buf_attr);
@@ -203,6 +207,7 @@ void tt_http_parser_clear(IN tt_http_parser_t *hp, IN tt_bool_t clear_recv_buf)
     http_parser_init(&hp->parser, HTTP_BOTH);
 
     hp->body_counter = 0;
+    hp->contype = TT_HTTP_CONTYPE_NUM;
     hp->complete_line1 = TT_FALSE;
     hp->complete_header = TT_FALSE;
     hp->complete_message = TT_FALSE;
@@ -331,6 +336,26 @@ tt_blobex_t *tt_http_parser_get_host(IN tt_http_parser_t *hp)
         hp->updated_host = TT_TRUE;
     }
     return hp->host;
+}
+
+tt_http_contype_t tt_http_parser_get_contype(IN tt_http_parser_t *hp)
+{
+    if (!TT_HTTP_CONTYPE_VALID(hp->contype)) {
+        tt_http_rawhdr_t *rh = tt_http_rawhdr_find(&hp->rawhdr, "Content-Type");
+        if (rh != NULL) {
+            tt_http_rawval_t *rv = tt_http_rawval_head(&rh->val);
+            if (rv != NULL) {
+                tt_http_contype_entry_t *e =
+                    tt_http_contype_map_find_name_n(hp->contype_map,
+                                                    tt_blobex_addr(&rv->val),
+                                                    tt_blobex_len(&rv->val));
+                if (e != NULL) {
+                    hp->contype = e->type;
+                }
+            }
+        }
+    }
+    return hp->contype;
 }
 
 void __clear_rawhdr(IN tt_dlist_t *dl)
