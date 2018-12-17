@@ -205,6 +205,7 @@ TT_TEST_CASE("case_http_render_req",
                 "Connection: close\r\n"
                 "Content-Type: application/javascript\r\n"
                 "Transfer-Encoding: gzip, deflate, chunked\r\n"
+                "Content-Length: 0\r\n"
                 "Host: sample\r\n"
                 "Date: 1, 22, 333\r\n"
                 "\r\n";
@@ -219,12 +220,14 @@ TT_TEST_CASE("case_http_render_req",
             tt_http_req_render_set_conn(&r, TT_HTTP_CONN_CLOSE);
             tt_http_req_render_set_contype(&r, TT_HTTP_CONTYPE_APP_JS);
             tt_http_req_render_set_txenc(&r, txe, 5);
+            tt_http_req_render_set_content_len(&r, 0);
             TT_UT_SUCCESS(tt_http_req_render(&r, &data, &len), "");
             TT_UT_EQUAL(len, tt_strlen(msg), "");
             TT_UT_EXP(tt_strncmp(data, msg, len) == 0, "");
 
             tt_http_req_render_set_contype(&r, TT_HTTP_CONTYPE_NUM);
             tt_http_req_render_set_txenc(&r, NULL, 5);
+            tt_http_req_render_set_content_len(&r, -1);
         }
         {
             const tt_char_t *msg =
@@ -346,6 +349,7 @@ TT_TEST_ROUTINE_DEFINE(case_http_render_resp)
                 "Connection: keep-alive\r\n"
                 "Content-Type: text/css\r\n"
                 "Transfer-Encoding: chunked\r\n"
+                "Content-Length: 100\r\n"
                 "Host: sample\r\n"
                 "Date: 1, 22, 333\r\n"
                 "\r\n";
@@ -356,12 +360,14 @@ TT_TEST_ROUTINE_DEFINE(case_http_render_resp)
             tt_http_resp_render_set_conn(&r, TT_HTTP_CONN_KEEP_ALIVE);
             tt_http_resp_render_set_contype(&r, TT_HTTP_CONTYPE_TXT_CSS);
             tt_http_resp_render_set_txenc(&r, txe, 1);
+            tt_http_resp_render_set_content_len(&r, 100);
             TT_UT_SUCCESS(tt_http_resp_render(&r, &data, &len), "");
             TT_UT_EQUAL(len, tt_strlen(msg), "");
             TT_UT_EXP(tt_strncmp(data, msg, len) == 0, "");
 
             tt_http_resp_render_set_contype(&r, TT_HTTP_CONTYPE_NUM);
             tt_http_resp_render_set_txenc(&r, NULL, 0);
+            tt_http_resp_render_set_content_len(&r, -2);
         }
         {
             tt_http_resp_render_set_conn(&r, TT_HTTP_CONN_NONE);

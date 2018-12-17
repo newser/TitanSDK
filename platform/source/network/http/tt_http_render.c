@@ -365,6 +365,7 @@ void __render_init(IN tt_http_render_t *r, IN tt_http_render_attr_t *attr)
 {
     tt_u32_t i;
 
+    r->content_len = -1;
     r->c = NULL;
     r->contype_map = attr->contype_map;
     tt_dlist_init(&r->hdr);
@@ -403,6 +404,8 @@ void __render_clear(IN tt_http_render_t *r)
 {
     tt_dnode_t *node;
     tt_u32_t i;
+
+    r->content_len = -1;
 
     // do not change r->c
 
@@ -485,6 +488,7 @@ tt_u32_t __common_render_len(IN tt_http_render_t *render)
         n += 2;
     }
 
+    // "Transfer-Encoding: gzip, deflate\r\n"
     if (render->txenc_num != 0) {
         tt_u32_t i;
 
@@ -494,6 +498,12 @@ tt_u32_t __common_render_len(IN tt_http_render_t *render)
             n += tt_g_http_txenc_len[render->txenc[i]] + 2;
         }
         // ", " would be replaced by "\r\n"
+    }
+
+    // "Content-Length: xxx\r\n"
+    if (render->content_len >= 0) {
+        // give a estimated value, max: 2,147,483,647
+        n += 13;
     }
 
     // "Host: aa.com\r\n"
@@ -553,7 +563,17 @@ void __common_render(IN tt_http_render_t *render, IN tt_buf_t *buf)
         tt_buf_put(buf, (tt_u8_t *)"\r\n", 2);
     }
 
-    // "Connection: close\r\n"
+    // "Content-Length: xxx\r\n"
+    if (render->content_len >= 0) {
+        tt_char_t s[11] = {0};
+        tt_buf_put(buf,
+                   (tt_u8_t *)"Content-Length: ",
+                   sizeof("Content-Length: ") - 1);
+        tt_snprintf(s, sizeof(s) - 1, "%d", render->content_len);
+        tt_buf_put_cstr(buf, s);
+        tt_buf_put(buf, (tt_u8_t *)"\r\n", 2);
+    }
+
     // "Host: aa.com\r\n"
     // "\r\n"
     dn = tt_dlist_head(&render->hdr);
