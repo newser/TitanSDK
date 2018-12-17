@@ -284,8 +284,7 @@ tt_http_inserv_action_t tt_http_svcmgr_on_body(IN tt_http_svcmgr_t *sm,
     if (sm->owner == NULL) {
         // this is unexpected as there should be at least a default service
         // handling request that all other services are not interested
-        tt_http_resp_render_set_status(resp,
-                                       TT_HTTP_STATUS_INTERNAL_SERVER_ERROR);
+        tt_http_resp_render_set_status(resp, TT_HTTP_STATUS_NOT_FOUND);
 
         sm->discarding = TT_TRUE;
         return TT_HTTP_INSERV_ACT_DISCARD;
@@ -310,8 +309,7 @@ tt_http_inserv_action_t tt_http_svcmgr_on_trailing(
     }
 
     if (sm->owner == NULL) {
-        tt_http_resp_render_set_status(resp,
-                                       TT_HTTP_STATUS_INTERNAL_SERVER_ERROR);
+        tt_http_resp_render_set_status(resp, TT_HTTP_STATUS_NOT_FOUND);
 
         sm->discarding = TT_TRUE;
         return TT_HTTP_INSERV_ACT_DISCARD;
@@ -340,8 +338,7 @@ tt_http_inserv_action_t tt_http_svcmgr_on_complete(
 
     if (sm->owner == NULL) {
         // 404, 500?
-        tt_http_resp_render_set_status(resp,
-                                       TT_HTTP_STATUS_INTERNAL_SERVER_ERROR);
+        tt_http_resp_render_set_status(resp, TT_HTTP_STATUS_NOT_FOUND);
 
         sm->discarding = TT_TRUE;
         return TT_HTTP_INSERV_ACT_DISCARD;

@@ -30,6 +30,7 @@ this file defines http incoming service: get file
 // import header files
 ////////////////////////////////////////////////////////////
 
+#include <algorithm/tt_blob.h>
 #include <network/http/tt_http_in_service.h>
 
 ////////////////////////////////////////////////////////////
@@ -42,8 +43,12 @@ this file defines http incoming service: get file
 
 typedef struct
 {
+    tt_char_t *def_name;
+    tt_u32_t def_name_len;
+    tt_s32_t chunk_size;
     tt_bool_t can_have_path_param : 1;
     tt_bool_t can_have_query_param : 1;
+    tt_bool_t process_post : 1;
 } tt_http_inserv_file_attr_t;
 
 ////////////////////////////////////////////////////////////

@@ -698,7 +698,7 @@ tt_result_t __sconn_send_resp_body(IN tt_http_sconn_t *c)
     if (!TT_OK(tt_http_svcmgr_pre_body(sm, req, resp, &buf))) {
         return TT_FAIL;
     }
-    if (buf != NULL) {
+    if ((buf != NULL) && !tt_buf_empty(buf)) {
         if (TT_OK(__sconn_send(c, TT_BUF_RPOS(buf), TT_BUF_RLEN(buf)))) {
             // __sconn_send guarantees all are sent
             tt_buf_clear(buf);
@@ -715,14 +715,15 @@ tt_result_t __sconn_send_resp_body(IN tt_http_sconn_t *c)
             return TT_FAIL;
         }
 
-        if (TT_OK(tt_http_svcmgr_on_resp_body(&c->svcmgr,
-                                              &c->parser,
-                                              &c->render,
-                                              &c->body,
-                                              &buf))) {
+        if (!tt_buf_empty(&c->body) &&
+            !TT_OK(tt_http_svcmgr_on_resp_body(&c->svcmgr,
+                                               &c->parser,
+                                               &c->render,
+                                               &c->body,
+                                               &buf))) {
             return TT_FAIL;
         }
-        if (buf != NULL) {
+        if ((buf != NULL) && !tt_buf_empty(buf)) {
             if (TT_OK(__sconn_send(c, TT_BUF_RPOS(buf), TT_BUF_RLEN(buf)))) {
                 tt_buf_clear(buf);
             } else {
@@ -735,7 +736,7 @@ tt_result_t __sconn_send_resp_body(IN tt_http_sconn_t *c)
     if (!TT_OK(tt_http_svcmgr_post_body(sm, req, resp, &buf))) {
         return TT_FAIL;
     }
-    if (buf != NULL) {
+    if ((buf != NULL) && !tt_buf_empty(buf)) {
         if (TT_OK(__sconn_send(c, TT_BUF_RPOS(buf), TT_BUF_RLEN(buf)))) {
             tt_buf_clear(buf);
         } else {
