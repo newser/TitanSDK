@@ -42,6 +42,13 @@ this file defines http
     __ENTRY(HOST, Host)                                                        \
     __ENTRY(DATE, Date)
 
+#define TT_HTTP_TXENC_MAP(__ENTRY)                                             \
+    __ENTRY(CHUNKED, "chunked")                                                \
+    __ENTRY(COMPRESS, "compress")                                              \
+    __ENTRY(DEFLATE, "deflate")                                                \
+    __ENTRY(GZIP, "gzip")                                                      \
+    __ENTRY(IDENTITY, "identity")
+
 ////////////////////////////////////////////////////////////
 // type definition
 ////////////////////////////////////////////////////////////
@@ -101,6 +108,15 @@ typedef enum {
 } tt_http_conn_t;
 #define TT_HTTP_CONN_VALID(c) ((c) < TT_HTTP_CONN_NUM)
 
+typedef enum {
+#define __ENTRY(id, str) TT_HTTP_TXENC_##id,
+    TT_HTTP_TXENC_MAP(__ENTRY)
+#undef __ENTRY
+
+        TT_HTTP_TXENC_NUM
+} tt_http_txenc_t;
+#define TT_HTTP_TXENC_VALID(h) ((h) < TT_HTTP_TXENC_NUM)
+
 ////////////////////////////////////////////////////////////
 // global variants
 ////////////////////////////////////////////////////////////
@@ -120,6 +136,10 @@ tt_export tt_u32_t tt_g_http_verion_len[TT_HTTP_VER_NUM];
 tt_export const tt_char_t *tt_g_http_conn[TT_HTTP_CONN_NUM];
 
 tt_export tt_u32_t tt_g_http_conn_len[TT_HTTP_CONN_NUM];
+
+tt_export const tt_char_t *tt_g_http_txenc[TT_HTTP_TXENC_NUM];
+
+tt_export tt_u32_t tt_g_http_txenc_len[TT_HTTP_TXENC_NUM];
 
 ////////////////////////////////////////////////////////////
 // interface declaration

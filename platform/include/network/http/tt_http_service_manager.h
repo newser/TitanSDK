@@ -30,6 +30,8 @@ this file defines http service manager APIs
 // import header files
 ////////////////////////////////////////////////////////////
 
+#include <network/http/def/tt_http_def.h>
+#include <network/http/tt_http_encoding_service.h>
 #include <network/http/tt_http_in_service.h>
 #include <network/http/tt_http_out_service.h>
 
@@ -56,6 +58,7 @@ typedef struct tt_http_svcmgr_s
     tt_http_inserv_t *inline_inserv[TT_HTTP_INLINE_INSERV_NUM];
     tt_http_outserv_t **outserv;
     tt_http_outserv_t *inline_outserv[TT_HTTP_INLINE_OUTSERV_NUM];
+    tt_http_encserv_t *encserv[TT_HTTP_TXENC_NUM];
     tt_u16_t inserv_num;
     tt_u16_t inserv_max;
     tt_u16_t outserv_num;
@@ -128,10 +131,33 @@ tt_http_svcmgr_on_resp_header(IN tt_http_svcmgr_t *sm,
                               IN OUT struct tt_http_resp_render_s *resp);
 
 tt_export tt_result_t
+tt_http_svcmgr_on_resp_body_todo(IN tt_http_svcmgr_t *sm,
+                                 IN struct tt_http_parser_s *req,
+                                 IN OUT struct tt_http_resp_render_s *resp,
+                                 IN OUT OPT struct tt_buf_s *input,
+                                 OUT struct tt_buf_s **output);
+
+// ========================================
+// encoding response body
+// ========================================
+
+tt_export tt_result_t
+tt_http_svcmgr_pre_body(IN tt_http_svcmgr_t *sm,
+                        IN struct tt_http_parser_s *req,
+                        IN struct tt_http_resp_render_s *resp,
+                        OUT struct tt_buf_s **output);
+
+tt_export tt_result_t
 tt_http_svcmgr_on_resp_body(IN tt_http_svcmgr_t *sm,
                             IN struct tt_http_parser_s *req,
-                            IN OUT struct tt_http_resp_render_s *resp,
-                            IN OUT OPT struct tt_buf_s *input,
+                            IN struct tt_http_resp_render_s *resp,
+                            IN struct tt_buf_s *input,
                             OUT struct tt_buf_s **output);
+
+tt_export tt_result_t
+tt_http_svcmgr_post_body(IN tt_http_svcmgr_t *sm,
+                         IN struct tt_http_parser_s *req,
+                         IN struct tt_http_resp_render_s *resp,
+                         OUT struct tt_buf_s **output);
 
 #endif /* __TT_HTTP_SERVICE_MANAGER__ */

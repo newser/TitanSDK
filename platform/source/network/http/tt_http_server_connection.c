@@ -346,7 +346,7 @@ tt_bool_t tt_http_sconn_run(IN tt_http_sconn_t *c)
                         return TT_FALSE;
                     }
 
-                    if (action == TT_HTTP_INSERV_ACT_GET_BODY) {
+                    if (action == TT_HTTP_INSERV_ACT_BODY) {
                         tt_buf_clear(&c->body);
                         do {
                             // get body data from inserv owner
@@ -354,15 +354,14 @@ tt_bool_t tt_http_sconn_run(IN tt_http_sconn_t *c)
                                                              req,
                                                              resp,
                                                              &c->body);
-                            if (!__sconn_action(c, action, &wait_eof)) {
-                                return wait_eof;
+                            if (action <= TT_HTTP_INSERV_ACT_SHUTDOWN) {
+                                return TT_FALSE;
                             }
 
                             if (!TT_OK(__sconn_send_resp_body(c))) {
-                                // close connection if fail
                                 return TT_FALSE;
                             }
-                        } while (action == TT_HTTP_INSERV_ACT_GET_BODY);
+                        } while (action == TT_HTTP_INSERV_ACT_BODY);
 
                         if (!TT_OK(__sconn_send_resp_body_end(c))) {
                             return TT_FALSE;
@@ -705,11 +704,11 @@ tt_result_t __sconn_send_resp_body(IN tt_http_sconn_t *c)
 {
     tt_buf_t *output;
 
-    if (TT_OK(tt_http_svcmgr_on_resp_body(&c->svcmgr,
-                                          &c->parser,
-                                          &c->render,
-                                          &c->body,
-                                          &output))) {
+    if (TT_OK(tt_http_svcmgr_on_resp_body_todo(&c->svcmgr,
+                                               &c->parser,
+                                               &c->render,
+                                               &c->body,
+                                               &output))) {
         return TT_FAIL;
     }
 
@@ -724,11 +723,11 @@ tt_result_t __sconn_send_resp_body_end(IN tt_http_sconn_t *c)
 {
     tt_buf_t *output;
 
-    if (TT_OK(tt_http_svcmgr_on_resp_body(&c->svcmgr,
-                                          &c->parser,
-                                          &c->render,
-                                          NULL,
-                                          &output))) {
+    if (TT_OK(tt_http_svcmgr_on_resp_body_todo(&c->svcmgr,
+                                               &c->parser,
+                                               &c->render,
+                                               NULL,
+                                               &output))) {
         return TT_FAIL;
     }
 

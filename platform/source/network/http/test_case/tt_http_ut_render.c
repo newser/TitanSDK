@@ -194,17 +194,27 @@ TT_TEST_CASE("case_http_render_req",
                 "POST aaa.com HTTP/1.0\r\n"
                 "Connection: close\r\n"
                 "Content-Type: application/javascript\r\n"
+                "Transfer-Encoding: gzip, deflate, chunked\r\n"
                 "Host: sample\r\n"
                 "Date: 1, 22, 333\r\n"
                 "\r\n";
+            tt_http_txenc_t txe[5] = {
+                TT_HTTP_TXENC_GZIP,
+                TT_HTTP_TXENC_DEFLATE,
+                TT_HTTP_TXENC_GZIP,
+                TT_HTTP_TXENC_CHUNKED,
+                TT_HTTP_TXENC_GZIP,
+            };
 
             tt_http_req_render_set_conn(&r, TT_HTTP_CONN_CLOSE);
             tt_http_req_render_set_contype(&r, TT_HTTP_CONTYPE_APP_JS);
+            tt_http_req_render_set_txenc(&r, txe, 5);
             TT_UT_SUCCESS(tt_http_req_render(&r, &data, &len), "");
             TT_UT_EQUAL(len, tt_strlen(msg), "");
             TT_UT_EXP(tt_strncmp(data, msg, len) == 0, "");
 
             tt_http_req_render_set_contype(&r, TT_HTTP_CONTYPE_NUM);
+            tt_http_req_render_set_txenc(&r, NULL, 5);
         }
         {
             const tt_char_t *msg =
@@ -325,17 +335,23 @@ TT_TEST_ROUTINE_DEFINE(case_http_render_resp)
                 "HTTP/1.0 200 OK\r\n"
                 "Connection: keep-alive\r\n"
                 "Content-Type: text/css\r\n"
+                "Transfer-Encoding: chunked\r\n"
                 "Host: sample\r\n"
                 "Date: 1, 22, 333\r\n"
                 "\r\n";
+            tt_http_txenc_t txe[5] = {
+                TT_HTTP_TXENC_CHUNKED,
+            };
 
             tt_http_resp_render_set_conn(&r, TT_HTTP_CONN_KEEP_ALIVE);
             tt_http_resp_render_set_contype(&r, TT_HTTP_CONTYPE_TXT_CSS);
+            tt_http_resp_render_set_txenc(&r, txe, 1);
             TT_UT_SUCCESS(tt_http_resp_render(&r, &data, &len), "");
             TT_UT_EQUAL(len, tt_strlen(msg), "");
             TT_UT_EXP(tt_strncmp(data, msg, len) == 0, "");
 
             tt_http_resp_render_set_contype(&r, TT_HTTP_CONTYPE_NUM);
+            tt_http_resp_render_set_txenc(&r, NULL, 0);
         }
         {
             tt_http_resp_render_set_conn(&r, TT_HTTP_CONN_NONE);
@@ -714,9 +730,9 @@ TT_TEST_ROUTINE_DEFINE(case_http_svcmgr)
 
             // send body
             tt_memset(__is_send_body_called, 0, sizeof(__is_send_body_called));
-            __is_send_body_act[1] = TT_HTTP_INSERV_ACT_GET_BODY;
+            __is_send_body_act[1] = TT_HTTP_INSERV_ACT_BODY;
             TT_UT_EQUAL(tt_http_svcmgr_get_body(&sm, NULL, NULL, NULL),
-                        TT_HTTP_INSERV_ACT_GET_BODY,
+                        TT_HTTP_INSERV_ACT_BODY,
                         "");
             for (i = 0; i < __IS_NUM; ++i) {
                 if (i == 1) {
@@ -868,22 +884,22 @@ TT_TEST_ROUTINE_DEFINE(case_http_svcmgr)
             {
                 tt_buf_t *pbuf;
                 tt_buf_t buf0;
-                TT_UT_SUCCESS(tt_http_svcmgr_on_resp_body(&sm,
-                                                          NULL,
-                                                          NULL,
-                                                          &buf0,
-                                                          &pbuf),
+                TT_UT_SUCCESS(tt_http_svcmgr_on_resp_body_todo(&sm,
+                                                               NULL,
+                                                               NULL,
+                                                               &buf0,
+                                                               &pbuf),
                               "");
                 TT_UT_EQUAL(pbuf, &buf0, "");
             }
 
             {
                 tt_buf_t *pbuf;
-                TT_UT_SUCCESS(tt_http_svcmgr_on_resp_body(&sm,
-                                                          NULL,
-                                                          NULL,
-                                                          NULL,
-                                                          &pbuf),
+                TT_UT_SUCCESS(tt_http_svcmgr_on_resp_body_todo(&sm,
+                                                               NULL,
+                                                               NULL,
+                                                               NULL,
+                                                               &pbuf),
                               "");
             }
 
@@ -915,11 +931,11 @@ TT_TEST_ROUTINE_DEFINE(case_http_svcmgr)
                     __os_on_body_ret[i] = TT_SUCCESS;
                 }
                 tt_memset(__os_on_body, 0, sizeof(__os_on_body));
-                TT_UT_SUCCESS(tt_http_svcmgr_on_resp_body(&sm,
-                                                          NULL,
-                                                          NULL,
-                                                          &buf0,
-                                                          &pbuf),
+                TT_UT_SUCCESS(tt_http_svcmgr_on_resp_body_todo(&sm,
+                                                               NULL,
+                                                               NULL,
+                                                               &buf0,
+                                                               &pbuf),
                               "");
                 for (i = 0; i < __OS_NUM; ++i) {
                     TT_UT_TRUE(__os_on_body_ret[i], "");
@@ -952,11 +968,11 @@ TT_TEST_ROUTINE_DEFINE(case_http_svcmgr)
 
             {
                 tt_buf_t *pbuf;
-                TT_UT_SUCCESS(tt_http_svcmgr_on_resp_body(&sm,
-                                                          NULL,
-                                                          NULL,
-                                                          NULL,
-                                                          &pbuf),
+                TT_UT_SUCCESS(tt_http_svcmgr_on_resp_body_todo(&sm,
+                                                               NULL,
+                                                               NULL,
+                                                               NULL,
+                                                               &pbuf),
                               "");
             }
         }

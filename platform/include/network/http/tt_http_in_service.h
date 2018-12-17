@@ -94,7 +94,7 @@ typedef enum {
      service should: set status code in on_complete()
      caller should: send response(500 if not set), then send body
      */
-    TT_HTTP_INSERV_ACT_GET_BODY,
+    TT_HTTP_INSERV_ACT_BODY,
 
     TT_HTTP_INSERV_ACT_NUM
 } tt_http_inserv_action_t;
@@ -115,7 +115,7 @@ typedef tt_http_inserv_action_t (*tt_http_inserv_on_ev_t)(
     IN struct tt_http_parser_s *req,
     OUT struct tt_http_resp_render_s *resp);
 
-// return TT_HTTP_INSERV_ACT_GET_BODY if there are more data
+// return TT_HTTP_INSERV_ACT_BODY if there are more data
 typedef tt_http_inserv_action_t (*tt_http_inserv_get_body_t)(
     IN struct tt_http_inserv_s *s,
     IN struct tt_http_parser_s *req,

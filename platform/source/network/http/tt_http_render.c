@@ -83,6 +83,10 @@ static tt_u32_t __common_render_len(IN tt_http_render_t *render);
 
 static void __common_render(IN tt_http_render_t *render, IN tt_buf_t *buf);
 
+static void __render_set_txenc(IN tt_http_render_t *render,
+                               IN OPT tt_http_txenc_t *txenc,
+                               IN tt_u32_t txenc_num);
+
 ////////////////////////////////////////////////////////////
 // interface implementation
 ////////////////////////////////////////////////////////////
@@ -227,6 +231,13 @@ tt_result_t tt_http_req_render(IN tt_http_req_render_t *req,
     return TT_SUCCESS;
 }
 
+void tt_http_req_render_set_txenc(IN tt_http_req_render_t *req,
+                                  IN OPT tt_http_txenc_t *txenc,
+                                  IN tt_u32_t txenc_num)
+{
+    __render_set_txenc(&req->render, txenc, txenc_num);
+}
+
 void tt_http_resp_render_init(IN tt_http_resp_render_t *resp,
                               IN OPT tt_http_resp_render_attr_t *attr)
 {
@@ -343,8 +354,17 @@ tt_result_t tt_http_resp_render(IN tt_http_resp_render_t *resp,
     return TT_SUCCESS;
 }
 
+void tt_http_resp_render_set_txenc(IN tt_http_resp_render_t *resp,
+                                   IN OPT tt_http_txenc_t *txenc,
+                                   IN tt_u32_t txenc_num)
+{
+    __render_set_txenc(&resp->render, txenc, txenc_num);
+}
+
 void __render_init(IN tt_http_render_t *r, IN tt_http_render_attr_t *attr)
 {
+    tt_u32_t i;
+
     r->c = NULL;
     r->contype_map = attr->contype_map;
     tt_dlist_init(&r->hdr);
@@ -352,6 +372,12 @@ void __render_init(IN tt_http_render_t *r, IN tt_http_render_attr_t *attr)
     tt_buf_init(&r->buf, &attr->buf_attr);
 
     r->contype = TT_HTTP_CONTYPE_NUM;
+
+    r->txenc_num = 0;
+    for (i = 0; i < TT_HTTP_TXENC_NUM; ++i) {
+        r->txenc[i] = TT_HTTP_TXENC_NUM;
+    }
+
     r->version = TT_HTTP_VER_NUM;
     r->conn = TT_HTTP_CONN_NONE;
 }
@@ -376,6 +402,7 @@ void __render_attr_default(IN tt_http_render_attr_t *attr)
 void __render_clear(IN tt_http_render_t *r)
 {
     tt_dnode_t *node;
+    tt_u32_t i;
 
     // do not change r->c
 
@@ -386,6 +413,12 @@ void __render_clear(IN tt_http_render_t *r)
     tt_buf_clear(&r->buf);
 
     r->contype = TT_HTTP_CONTYPE_NUM;
+
+    r->txenc_num = 0;
+    for (i = 0; i < TT_HTTP_TXENC_NUM; ++i) {
+        r->txenc[i] = TT_HTTP_TXENC_NUM;
+    }
+
     r->version = TT_HTTP_VER_NUM;
     r->conn = TT_HTTP_CONN_NONE;
 }
@@ -452,6 +485,17 @@ tt_u32_t __common_render_len(IN tt_http_render_t *render)
         n += 2;
     }
 
+    if (render->txenc_num != 0) {
+        tt_u32_t i;
+
+        n += sizeof("Transfer-Encoding: ") - 1;
+        for (i = 0; i < render->txenc_num; ++i) {
+            // "chunked, "
+            n += tt_g_http_txenc_len[render->txenc[i]] + 2;
+        }
+        // ", " would be replaced by "\r\n"
+    }
+
     // "Host: aa.com\r\n"
     // "\r\n"
     dn = tt_dlist_head(&render->hdr);
@@ -491,6 +535,24 @@ void __common_render(IN tt_http_render_t *render, IN tt_buf_t *buf)
         tt_buf_put(buf, (tt_u8_t *)"\r\n", 2);
     }
 
+    if (render->txenc_num != 0) {
+        tt_u32_t i;
+
+        tt_buf_put(buf,
+                   (tt_u8_t *)"Transfer-Encoding: ",
+                   sizeof("Transfer-Encoding: ") - 1);
+        for (i = 0; i < render->txenc_num; ++i) {
+            // "chunked, "
+            tt_buf_put(buf,
+                       (tt_u8_t *)tt_g_http_txenc[render->txenc[i]],
+                       tt_g_http_txenc_len[render->txenc[i]]);
+            if (i != (render->txenc_num - 1)) {
+                tt_buf_put(buf, (tt_u8_t *)", ", 2);
+            }
+        }
+        tt_buf_put(buf, (tt_u8_t *)"\r\n", 2);
+    }
+
     // "Connection: close\r\n"
     // "Host: aa.com\r\n"
     // "\r\n"
@@ -503,4 +565,35 @@ void __common_render(IN tt_http_render_t *render, IN tt_buf_t *buf)
         dn = dn->next;
     }
     tt_buf_put(buf, (tt_u8_t *)"\r\n", 2);
+}
+
+void __render_set_txenc(IN tt_http_render_t *render,
+                        IN OPT tt_http_txenc_t *txenc,
+                        IN tt_u32_t txenc_num)
+{
+    tt_u32_t num, i, k;
+
+    TT_ASSERT(txenc_num <= TT_HTTP_TXENC_NUM);
+
+    if (txenc == NULL) {
+        render->txenc_num = 0;
+        return;
+    }
+
+    num = 0;
+    for (i = 0; i < txenc_num; ++i) {
+        TT_ASSERT(TT_HTTP_TXENC_VALID(txenc[i]));
+
+        for (k = 0; k < i; ++k) {
+            if (render->txenc[k] == txenc[i]) {
+                TT_WARN("txenc[%d] already exist", i);
+                break;
+            }
+        }
+
+        if (k == i) {
+            render->txenc[num++] = (tt_u8_t)txenc[i];
+        }
+    }
+    render->txenc_num = num;
 }

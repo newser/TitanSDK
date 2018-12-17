@@ -69,8 +69,19 @@ static tt_http_inserv_action_t __inserv_file_on_complete(
     IN tt_http_parser_t *req,
     OUT tt_http_resp_render_t *resp);
 
+static tt_http_inserv_action_t __inserv_file_get_body(
+    IN tt_http_inserv_t *s,
+    IN tt_http_parser_t *req,
+    IN tt_http_resp_render_t *resp,
+    OUT tt_buf_t *buf);
+
 static tt_http_inserv_cb_t s_inserv_file_cb = {
-    NULL, __inserv_file_on_hdr, NULL, NULL, __inserv_file_on_complete,
+    NULL,
+    __inserv_file_on_hdr,
+    NULL,
+    NULL,
+    __inserv_file_on_complete,
+    __inserv_file_get_body,
 };
 
 ////////////////////////////////////////////////////////////
@@ -144,8 +155,8 @@ tt_http_inserv_action_t __inserv_file_on_hdr(IN tt_http_inserv_t *s,
     tt_http_inserv_file_t *sf = TT_HTTP_INSERV_CAST(s, tt_http_inserv_file_t);
 
     tt_http_uri_t *uri;
-    const tt_char_t *path;
     tt_http_status_t status = TT_HTTP_STATUS_INTERNAL_SERVER_ERROR;
+    const tt_char_t *path;
 
     uri = tt_http_parser_get_uri(req);
     if (uri == NULL) {
@@ -211,8 +222,31 @@ tt_http_inserv_action_t __inserv_file_on_complete(
                                        TT_HTTP_STATUS_INTERNAL_SERVER_ERROR);
         return TT_HTTP_INSERV_ACT_DISCARD;
     }
+    sf->size = (tt_s64_t)size;
 
-    sf->size = size;
+    // todo: set content-length
 
-    return TT_HTTP_INSERV_ACT_OWNER;
+    return TT_COND(sf->size > 0,
+                   TT_HTTP_INSERV_ACT_BODY,
+                   TT_HTTP_INSERV_ACT_PASS);
+}
+
+tt_http_inserv_action_t __inserv_file_get_body(IN tt_http_inserv_t *s,
+                                               IN tt_http_parser_t *req,
+                                               IN tt_http_resp_render_t *resp,
+                                               OUT tt_buf_t *buf)
+{
+    tt_http_inserv_file_t *sf = TT_HTTP_INSERV_CAST(s, tt_http_inserv_file_t);
+    tt_u32_t read_len;
+    tt_result_t result;
+
+    result = tt_fread(&sf->f, TT_BUF_WPOS(buf), TT_BUF_WLEN(buf), &read_len);
+    if (TT_OK(result)) {
+        tt_buf_inc_rp(buf, read_len);
+        return TT_HTTP_INSERV_ACT_PASS;
+    } else if (result == TT_E_END) {
+        return TT_HTTP_INSERV_ACT_PASS;
+    } else {
+        return TT_HTTP_INSERV_ACT_CLOSE;
+    }
 }

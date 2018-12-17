@@ -71,6 +71,10 @@ void tt_http_svcmgr_init(IN tt_http_svcmgr_t *sm)
     sm->outserv_num = 0;
     sm->outserv_max = TT_HTTP_INLINE_OUTSERV_NUM;
 
+    for (i = 0; i < TT_HTTP_TXENC_NUM; ++i) {
+        sm->encserv[i] = NULL;
+    }
+
     sm->discarding = TT_FALSE;
 }
 
@@ -93,6 +97,12 @@ void tt_http_svcmgr_destroy(IN tt_http_svcmgr_t *sm)
     if (sm->outserv != sm->inline_outserv) {
         tt_free(sm->outserv);
     }
+
+    for (i = 0; i < TT_HTTP_TXENC_NUM; ++i) {
+        if (sm->encserv[i] != NULL) {
+            tt_http_encserv_release(sm->encserv[i]);
+        }
+    }
 }
 
 void tt_http_svcmgr_clear(IN tt_http_svcmgr_t *sm)
@@ -109,6 +119,12 @@ void tt_http_svcmgr_clear(IN tt_http_svcmgr_t *sm)
 
     for (i = 0; i < sm->outserv_num; ++i) {
         tt_http_outserv_clear(sm->outserv[i]);
+    }
+
+    for (i = 0; i < TT_HTTP_TXENC_NUM; ++i) {
+        if (sm->encserv[i] != NULL) {
+            tt_http_encserv_clear(sm->encserv[i]);
+        }
     }
 
     sm->discarding = TT_FALSE;
@@ -349,11 +365,11 @@ tt_result_t tt_http_svcmgr_on_resp_header(IN tt_http_svcmgr_t *sm,
     return TT_SUCCESS;
 }
 
-tt_result_t tt_http_svcmgr_on_resp_body(IN tt_http_svcmgr_t *sm,
-                                        IN tt_http_parser_t *req,
-                                        IN OUT tt_http_resp_render_t *resp,
-                                        IN OUT OPT struct tt_buf_s *input,
-                                        OUT struct tt_buf_s **output)
+tt_result_t tt_http_svcmgr_on_resp_body_todo(IN tt_http_svcmgr_t *sm,
+                                             IN tt_http_parser_t *req,
+                                             IN OUT tt_http_resp_render_t *resp,
+                                             IN OUT OPT struct tt_buf_s *input,
+                                             OUT struct tt_buf_s **output)
 {
     tt_u32_t i;
 
@@ -371,5 +387,30 @@ tt_result_t tt_http_svcmgr_on_resp_body(IN tt_http_svcmgr_t *sm,
         }
     }
 
+    return TT_SUCCESS;
+}
+
+tt_result_t tt_http_svcmgr_pre_body(IN tt_http_svcmgr_t *sm,
+                                    IN tt_http_parser_t *req,
+                                    IN tt_http_resp_render_t *resp,
+                                    OUT struct tt_buf_s **output)
+{
+    return TT_SUCCESS;
+}
+
+tt_result_t tt_http_svcmgr_on_resp_body(IN tt_http_svcmgr_t *sm,
+                                        IN tt_http_parser_t *req,
+                                        IN tt_http_resp_render_t *resp,
+                                        IN struct tt_buf_s *input,
+                                        OUT struct tt_buf_s **output)
+{
+    return TT_SUCCESS;
+}
+
+tt_result_t tt_http_svcmgr_post_body(IN tt_http_svcmgr_t *sm,
+                                     IN tt_http_parser_t *req,
+                                     IN tt_http_resp_render_t *resp,
+                                     OUT struct tt_buf_s **output)
+{
     return TT_SUCCESS;
 }

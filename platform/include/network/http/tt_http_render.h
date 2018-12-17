@@ -54,6 +54,8 @@ typedef struct
     tt_dlist_t hdr;
     tt_buf_t buf;
     tt_http_contype_t contype;
+    tt_u32_t txenc_num;
+    tt_u8_t txenc[TT_HTTP_TXENC_NUM];
     tt_http_ver_t version : 3;
     tt_http_conn_t conn : 2;
 } tt_http_render_t;
@@ -182,6 +184,10 @@ tt_inline void tt_http_req_render_set_contype(IN tt_http_req_render_t *req,
     req->render.contype = t;
 }
 
+tt_export void tt_http_req_render_set_txenc(IN tt_http_req_render_t *req,
+                                            IN OPT tt_http_txenc_t *txenc,
+                                            IN tt_u32_t txenc_num);
+
 // ========================================
 // response
 // ========================================
@@ -264,5 +270,9 @@ tt_inline void tt_http_resp_render_set_contype(IN tt_http_resp_render_t *resp,
     TT_ASSERT(TT_HTTP_CONTYPE_VALID(t) || (t == TT_HTTP_CONTYPE_NUM));
     resp->render.contype = t;
 }
+
+tt_export void tt_http_resp_render_set_txenc(IN tt_http_resp_render_t *resp,
+                                             IN tt_http_txenc_t *txenc,
+                                             IN tt_u32_t txenc_num);
 
 #endif /* __TT_HTTP_RENDER__ */

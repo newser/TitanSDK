@@ -83,6 +83,18 @@ tt_u32_t tt_g_http_conn_len[TT_HTTP_CONN_NUM] = {
     sizeof("") - 1, sizeof("close") - 1, sizeof("keep-alive") - 1,
 };
 
+const tt_char_t *tt_g_http_txenc[TT_HTTP_TXENC_NUM] = {
+#define __ENTRY(id, str) str,
+    TT_HTTP_TXENC_MAP(__ENTRY)
+#undef __ENTRY
+};
+
+tt_u32_t tt_g_http_txenc_len[TT_HTTP_TXENC_NUM] = {
+#define __ENTRY(id, str) sizeof(str) - 1,
+    TT_HTTP_TXENC_MAP(__ENTRY)
+#undef __ENTRY
+};
+
 ////////////////////////////////////////////////////////////
 // interface declaration
 ////////////////////////////////////////////////////////////
