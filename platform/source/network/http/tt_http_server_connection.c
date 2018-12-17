@@ -153,13 +153,15 @@ static tt_result_t __sconn_send_resp_hdr(IN tt_http_sconn_t *c);
 
 static tt_result_t __sconn_send_resp_body(IN tt_http_sconn_t *c);
 
-static tt_result_t __sconn_send_resp_body_end(IN tt_http_sconn_t *c);
-
 static tt_bool_t __sconn_action(IN tt_http_sconn_t *c,
                                 IN tt_http_inserv_action_t action,
                                 OUT tt_bool_t *wait_eof);
 
 static void __sconn_clear(IN tt_http_sconn_t *c, IN tt_bool_t clear_recv_buf);
+
+static tt_result_t __sconn_send(IN tt_http_sconn_t *c,
+                                IN tt_u8_t *data,
+                                IN tt_u32_t len);
 
 ////////////////////////////////////////////////////////////
 // interface implementation
@@ -281,6 +283,7 @@ tt_bool_t tt_http_sconn_run(IN tt_http_sconn_t *c)
             tt_http_parser_inc_wp(req, recvd);
 
             while (tt_http_parser_rlen(req) > 0) {
+                tt_http_svcmgr_t *sm = &c->svcmgr;
                 tt_bool_t prev_uri = req->complete_line1;
                 tt_bool_t prev_header = req->complete_header;
                 tt_u32_t body_num = req->body_counter;
@@ -293,28 +296,28 @@ tt_bool_t tt_http_sconn_run(IN tt_http_sconn_t *c)
                 }
 
                 if (!prev_uri && req->complete_line1) {
-                    action = tt_http_svcmgr_on_uri(&c->svcmgr, req, resp);
+                    action = tt_http_svcmgr_on_uri(sm, req, resp);
                     if (!__sconn_action(c, action, &wait_eof)) {
                         return wait_eof;
                     }
                 }
 
                 if (!prev_header && req->complete_header) {
-                    action = tt_http_svcmgr_on_header(&c->svcmgr, req, resp);
+                    action = tt_http_svcmgr_on_header(sm, req, resp);
                     if (!__sconn_action(c, action, &wait_eof)) {
                         return wait_eof;
                     }
                 }
 
                 if (body_num < req->body_counter) {
-                    action = tt_http_svcmgr_on_body(&c->svcmgr, req, resp);
+                    action = tt_http_svcmgr_on_body(sm, req, resp);
                     if (!__sconn_action(c, action, &wait_eof)) {
                         return wait_eof;
                     }
                 }
 
                 if (!prev_trailing && req->complete_trailing_header) {
-                    action = tt_http_svcmgr_on_trailing(&c->svcmgr, req, resp);
+                    action = tt_http_svcmgr_on_trailing(sm, req, resp);
                     if (!__sconn_action(c, action, &wait_eof)) {
                         return wait_eof;
                     }
@@ -323,7 +326,7 @@ tt_bool_t tt_http_sconn_run(IN tt_http_sconn_t *c)
                 if (!prev_msg && req->complete_message) {
                     tt_http_status_t status;
 
-                    action = tt_http_svcmgr_on_complete(&c->svcmgr, req, resp);
+                    action = tt_http_svcmgr_on_complete(sm, req, resp);
                     if (!__sconn_action(c, action, &wait_eof)) {
                         return wait_eof;
                     }
@@ -346,26 +349,9 @@ tt_bool_t tt_http_sconn_run(IN tt_http_sconn_t *c)
                         return TT_FALSE;
                     }
 
-                    if (action == TT_HTTP_INSERV_ACT_BODY) {
-                        tt_buf_clear(&c->body);
-                        do {
-                            // get body data from inserv owner
-                            action = tt_http_svcmgr_get_body(&c->svcmgr,
-                                                             req,
-                                                             resp,
-                                                             &c->body);
-                            if (action <= TT_HTTP_INSERV_ACT_SHUTDOWN) {
-                                return TT_FALSE;
-                            }
-
-                            if (!TT_OK(__sconn_send_resp_body(c))) {
-                                return TT_FALSE;
-                            }
-                        } while (action == TT_HTTP_INSERV_ACT_BODY);
-
-                        if (!TT_OK(__sconn_send_resp_body_end(c))) {
-                            return TT_FALSE;
-                        }
+                    if ((action == TT_HTTP_INSERV_ACT_BODY) &&
+                        !TT_OK(__sconn_send_resp_body(c))) {
+                        return TT_FALSE;
                     }
 
                     if (!tt_http_parser_should_keepalive(req)) {
@@ -702,46 +688,66 @@ tt_result_t __sconn_send_resp_hdr(IN tt_http_sconn_t *c)
 
 tt_result_t __sconn_send_resp_body(IN tt_http_sconn_t *c)
 {
-    tt_buf_t *output;
+    tt_http_svcmgr_t *sm = &c->svcmgr;
+    tt_http_parser_t *req = &c->parser;
+    tt_http_resp_render_t *resp = &c->render;
+    tt_buf_t *buf;
+    tt_http_inserv_action_t action;
 
-    if (TT_OK(tt_http_svcmgr_on_resp_body_todo(&c->svcmgr,
-                                               &c->parser,
-                                               &c->render,
-                                               &c->body,
-                                               &output))) {
+    // body begin
+    if (!TT_OK(tt_http_svcmgr_pre_body(sm, req, resp, &buf))) {
         return TT_FAIL;
     }
+    if (buf != NULL) {
+        if (TT_OK(__sconn_send(c, TT_BUF_RPOS(buf), TT_BUF_RLEN(buf)))) {
+            // __sconn_send guarantees all are sent
+            tt_buf_clear(buf);
+        } else {
+            return TT_FAIL;
+        }
+    }
 
-    // todo: send timeout
-    ((__sconn_itf_t *)c->itf)
-        ->send(c, TT_BUF_RPOS(output), TT_BUF_RLEN(output), NULL);
+    // body data
+    tt_buf_clear(&c->body);
+    do {
+        action = tt_http_svcmgr_get_body(&c->svcmgr, req, resp, &c->body);
+        if (action <= TT_HTTP_INSERV_ACT_SHUTDOWN) {
+            return TT_FAIL;
+        }
+
+        if (TT_OK(tt_http_svcmgr_on_resp_body(&c->svcmgr,
+                                              &c->parser,
+                                              &c->render,
+                                              &c->body,
+                                              &buf))) {
+            return TT_FAIL;
+        }
+        if (buf != NULL) {
+            if (TT_OK(__sconn_send(c, TT_BUF_RPOS(buf), TT_BUF_RLEN(buf)))) {
+                tt_buf_clear(buf);
+            } else {
+                return TT_FAIL;
+            }
+        }
+    } while (action == TT_HTTP_INSERV_ACT_BODY);
+
+    // body end
+    if (!TT_OK(tt_http_svcmgr_post_body(sm, req, resp, &buf))) {
+        return TT_FAIL;
+    }
+    if (buf != NULL) {
+        if (TT_OK(__sconn_send(c, TT_BUF_RPOS(buf), TT_BUF_RLEN(buf)))) {
+            tt_buf_clear(buf);
+        } else {
+            return TT_FAIL;
+        }
+    }
 
     return TT_SUCCESS;
 }
 
-tt_result_t __sconn_send_resp_body_end(IN tt_http_sconn_t *c)
-{
-    tt_buf_t *output;
-
-    if (TT_OK(tt_http_svcmgr_on_resp_body_todo(&c->svcmgr,
-                                               &c->parser,
-                                               &c->render,
-                                               NULL,
-                                               &output))) {
-        return TT_FAIL;
-    }
-
-    if ((output != NULL) && !tt_buf_empty(output)) {
-        // todo: send timeout
-        ((__sconn_itf_t *)c->itf)
-            ->send(c, TT_BUF_RPOS(output), TT_BUF_RLEN(output), NULL);
-    }
-
-    return TT_SUCCESS;
-}
-
-// return TT_TRUE to continue, TT_FALSE to stop running and wait_eof indicats
-// whether should wait for eof
+// return TT_TRUE to continue, TT_FALSE to stop running and wait_eof
+// indicats whether should wait for eof
 tt_bool_t __sconn_action(IN tt_http_sconn_t *c,
                          IN tt_http_inserv_action_t action,
                          OUT tt_bool_t *wait_eof)
@@ -780,6 +786,18 @@ void __sconn_clear(IN tt_http_sconn_t *c, IN tt_bool_t clear_recv_buf)
     tt_http_parser_clear(&c->parser, clear_recv_buf);
 
     tt_http_resp_render_clear(&c->render);
+}
+
+tt_result_t __sconn_send(IN tt_http_sconn_t *c,
+                         IN tt_u8_t *data,
+                         IN tt_u32_t len)
+{
+    __sconn_itf_t *itf = (__sconn_itf_t *)c->itf;
+
+    // todo: time out
+    itf->send(c, data, len, NULL);
+
+    return TT_SUCCESS;
 }
 
 // ========================================

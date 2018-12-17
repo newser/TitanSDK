@@ -70,21 +70,9 @@ typedef tt_result_t (*tt_http_outserv_on_header_t)(
     IN struct tt_http_parser_s *req,
     IN OUT struct tt_http_resp_render_s *resp);
 
-// - need not to consume all data in @input, just update consumed bytes
-// - must set output if returning TT_SUCCESS, do *output = input if no operation
-// - note null @input means all data source has been sent, some outserv may need
-//   sending eof similar things
-typedef tt_result_t (*tt_http_outserv_on_body_t)(
-    IN struct tt_http_outserv_s *s,
-    IN struct tt_http_parser_s *req,
-    IN OUT struct tt_http_resp_render_s *resp,
-    IN OUT struct tt_buf_s *input,
-    OUT struct tt_buf_s **output);
-
 typedef struct
 {
     tt_http_outserv_on_header_t on_header;
-    tt_http_outserv_on_body_t on_body;
 } tt_http_outserv_cb_t;
 
 typedef struct tt_http_outserv_s
@@ -138,21 +126,6 @@ tt_http_outserv_on_header(IN tt_http_outserv_t *s,
     if (s->cb->on_header != NULL) {
         return s->cb->on_header(s, req, resp);
     } else {
-        return TT_SUCCESS;
-    }
-}
-
-tt_inline tt_result_t
-tt_http_outserv_on_body(IN tt_http_outserv_t *s,
-                        IN struct tt_http_parser_s *req,
-                        IN OUT struct tt_http_resp_render_s *resp,
-                        IN OUT OPT struct tt_buf_s *input,
-                        OUT struct tt_buf_s **output)
-{
-    if (s->cb->on_body != NULL) {
-        return s->cb->on_body(s, req, resp, input, output);
-    } else {
-        *output = input;
         return TT_SUCCESS;
     }
 }

@@ -17,7 +17,7 @@
  */
 
 /**
-@file tt_http_encoding_service.s
+@file tt_http_encoding_service.h
 @brief http encoding service
 
 this file defines http encoding service APIs
@@ -37,8 +37,8 @@ this file defines http encoding service APIs
 // macro definition
 ////////////////////////////////////////////////////////////
 
-#define TT_HTTP_ENCSERV_CAST(s, name)                                          \
-    TT_PTR_INC(name, s, sizeof(tt_http_encserv_t))
+#define TT_HTTP_ENCSERV_CAST(s, type)                                          \
+    TT_PTR_INC(type, s, sizeof(tt_http_encserv_t))
 
 #define tt_http_encserv_ref(es) TT_REF_ADD(tt_http_encserv_t, es, ref)
 
@@ -64,32 +64,21 @@ typedef struct
     tt_http_encserv_clear_t clear;
 } tt_http_encserv_itf_t;
 
-typedef tt_result_t (*tt_http_encserv_pre_body_t)(
-    IN struct tt_http_encserv_s *s,
-    IN struct tt_http_parser_s *req,
-    IN OUT struct tt_http_resp_render_s *resp,
-    OUT struct tt_buf_s **output);
-
 // - need not to consume all data in @input, just update consumed bytes
 // - must set output if returning TT_SUCCESS, do *output = input if no operation
+// - input may be NULL when called as pre_body and post_body
 typedef tt_result_t (*tt_http_encserv_on_body_t)(
     IN struct tt_http_encserv_s *s,
     IN struct tt_http_parser_s *req,
-    IN OUT struct tt_http_resp_render_s *resp,
+    IN struct tt_http_resp_render_s *resp,
     IN OUT struct tt_buf_s *input,
-    OUT struct tt_buf_s **output);
-
-typedef tt_result_t (*tt_http_encserv_post_body_t)(
-    IN struct tt_http_encserv_s *s,
-    IN struct tt_http_parser_s *req,
-    IN OUT struct tt_http_resp_render_s *resp,
     OUT struct tt_buf_s **output);
 
 typedef struct
 {
-    tt_http_encserv_pre_body_t pre_body;
+    tt_http_encserv_on_body_t pre_body;
     tt_http_encserv_on_body_t on_body;
-    tt_http_encserv_post_body_t post_body;
+    tt_http_encserv_on_body_t post_body;
 } tt_http_encserv_cb_t;
 
 typedef struct tt_http_encserv_s
@@ -132,12 +121,13 @@ tt_inline tt_result_t
 tt_http_encserv_pre_body(IN tt_http_encserv_t *s,
                          IN struct tt_http_parser_s *req,
                          IN struct tt_http_resp_render_s *resp,
+                         IN OUT OPT struct tt_buf_s *input,
                          OUT struct tt_buf_s **output)
 {
     if (s->cb->pre_body != NULL) {
-        return s->cb->pre_body(s, req, resp, output);
+        return s->cb->pre_body(s, req, resp, input, output);
     } else {
-        *output = NULL;
+        *output = input;
         return TT_SUCCESS;
     }
 }
@@ -161,12 +151,13 @@ tt_inline tt_result_t
 tt_http_encserv_post_body(IN tt_http_encserv_t *s,
                           IN struct tt_http_parser_s *req,
                           IN struct tt_http_resp_render_s *resp,
+                          IN OUT OPT struct tt_buf_s *input,
                           OUT struct tt_buf_s **output)
 {
     if (s->cb->post_body != NULL) {
-        return s->cb->post_body(s, req, resp, output);
+        return s->cb->post_body(s, req, resp, input, output);
     } else {
-        *output = NULL;
+        *output = input;
         return TT_SUCCESS;
     }
 }

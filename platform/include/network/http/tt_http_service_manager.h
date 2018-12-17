@@ -86,6 +86,10 @@ tt_export tt_result_t tt_http_svcmgr_add_inserv(IN tt_http_svcmgr_t *sm,
 tt_export tt_result_t tt_http_svcmgr_add_outserv(IN tt_http_svcmgr_t *sm,
                                                  IN TO tt_http_outserv_t *s);
 
+tt_export void tt_http_svcmgr_set_encserv(IN tt_http_svcmgr_t *sm,
+                                          IN tt_http_txenc_t txenc,
+                                          IN TO tt_http_encserv_t *s);
+
 // ========================================
 // incoming request
 // ========================================
@@ -129,13 +133,6 @@ tt_export tt_result_t
 tt_http_svcmgr_on_resp_header(IN tt_http_svcmgr_t *sm,
                               IN struct tt_http_parser_s *req,
                               IN OUT struct tt_http_resp_render_s *resp);
-
-tt_export tt_result_t
-tt_http_svcmgr_on_resp_body_todo(IN tt_http_svcmgr_t *sm,
-                                 IN struct tt_http_parser_s *req,
-                                 IN OUT struct tt_http_resp_render_s *resp,
-                                 IN OUT OPT struct tt_buf_s *input,
-                                 OUT struct tt_buf_s **output);
 
 // ========================================
 // encoding response body

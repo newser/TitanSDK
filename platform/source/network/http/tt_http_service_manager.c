@@ -45,6 +45,11 @@
 // interface declaration
 ////////////////////////////////////////////////////////////
 
+static tt_result_t __mk_txenc(IN tt_http_svcmgr_t *sm,
+                              IN tt_http_resp_render_t *resp,
+                              OUT tt_http_encserv_t *es[],
+                              OUT tt_u32_t *es_num);
+
 ////////////////////////////////////////////////////////////
 // interface implementation
 ////////////////////////////////////////////////////////////
@@ -179,6 +184,22 @@ tt_result_t tt_http_svcmgr_add_outserv(IN tt_http_svcmgr_t *sm,
     sm->outserv[sm->outserv_num++] = s;
     tt_http_outserv_ref(s);
     return TT_SUCCESS;
+}
+
+void tt_http_svcmgr_set_encserv(IN tt_http_svcmgr_t *sm,
+                                IN tt_http_txenc_t txenc,
+                                IN TO tt_http_encserv_t *s)
+{
+    TT_ASSERT(TT_HTTP_TXENC_VALID(txenc));
+
+    if (sm->encserv[txenc] != NULL) {
+        tt_http_encserv_release(sm->encserv[txenc]);
+    }
+
+    sm->encserv[txenc] = s;
+    if (s != NULL) {
+        tt_http_encserv_ref(s);
+    }
 }
 
 tt_http_inserv_action_t tt_http_svcmgr_on_uri(IN tt_http_svcmgr_t *sm,
@@ -365,36 +386,33 @@ tt_result_t tt_http_svcmgr_on_resp_header(IN tt_http_svcmgr_t *sm,
     return TT_SUCCESS;
 }
 
-tt_result_t tt_http_svcmgr_on_resp_body_todo(IN tt_http_svcmgr_t *sm,
-                                             IN tt_http_parser_t *req,
-                                             IN OUT tt_http_resp_render_t *resp,
-                                             IN OUT OPT struct tt_buf_s *input,
-                                             OUT struct tt_buf_s **output)
-{
-    tt_u32_t i;
-
-    // copy input if there is no outserv
-    *output = input;
-
-    for (i = 0; i < sm->outserv_num; ++i) {
-        tt_result_t result;
-
-        input = *output;
-        result =
-            tt_http_outserv_on_body(sm->outserv[i], req, resp, input, output);
-        if (!TT_OK(result)) {
-            return result;
-        }
-    }
-
-    return TT_SUCCESS;
-}
-
 tt_result_t tt_http_svcmgr_pre_body(IN tt_http_svcmgr_t *sm,
                                     IN tt_http_parser_t *req,
                                     IN tt_http_resp_render_t *resp,
                                     OUT struct tt_buf_s **output)
 {
+    tt_http_encserv_t *es[TT_HTTP_TXENC_NUM] = {0};
+    tt_u32_t num, i;
+    struct tt_buf_s *input;
+    tt_result_t result;
+
+    result = __mk_txenc(sm, resp, es, &num);
+    if (!TT_OK(result)) {
+        return TT_FAIL;
+    }
+
+    // if there is no service, just copy input to output
+    input = NULL;
+    *output = input;
+    for (i = 0; i < num; ++i) {
+        // last output becomes this input
+        input = *output;
+        result = tt_http_encserv_pre_body(es[i], req, resp, input, output);
+        if (!TT_OK(result)) {
+            return result;
+        }
+    }
+
     return TT_SUCCESS;
 }
 
@@ -404,6 +422,26 @@ tt_result_t tt_http_svcmgr_on_resp_body(IN tt_http_svcmgr_t *sm,
                                         IN struct tt_buf_s *input,
                                         OUT struct tt_buf_s **output)
 {
+    tt_http_encserv_t *es[TT_HTTP_TXENC_NUM] = {0};
+    tt_u32_t num, i;
+    tt_result_t result;
+
+    result = __mk_txenc(sm, resp, es, &num);
+    if (!TT_OK(result)) {
+        return TT_FAIL;
+    }
+
+    // if there is no service, just copy input to output
+    *output = input;
+    for (i = 0; i < num; ++i) {
+        // last output becomes this input
+        input = *output;
+        result = tt_http_encserv_on_body(es[i], req, resp, input, output);
+        if (!TT_OK(result)) {
+            return result;
+        }
+    }
+
     return TT_SUCCESS;
 }
 
@@ -412,5 +450,47 @@ tt_result_t tt_http_svcmgr_post_body(IN tt_http_svcmgr_t *sm,
                                      IN tt_http_resp_render_t *resp,
                                      OUT struct tt_buf_s **output)
 {
+    tt_http_encserv_t *es[TT_HTTP_TXENC_NUM] = {0};
+    tt_u32_t num, i;
+    struct tt_buf_s *input;
+    tt_result_t result;
+
+    result = __mk_txenc(sm, resp, es, &num);
+    if (!TT_OK(result)) {
+        return TT_FAIL;
+    }
+
+    // if there is no service, just copy input to output
+    input = NULL;
+    *output = input;
+    for (i = 0; i < num; ++i) {
+        // last output becomes this input
+        input = *output;
+        result = tt_http_encserv_post_body(es[i], req, resp, input, output);
+        if (!TT_OK(result)) {
+            return result;
+        }
+    }
+
+    return TT_SUCCESS;
+}
+
+tt_result_t __mk_txenc(IN tt_http_svcmgr_t *sm,
+                       IN tt_http_resp_render_t *resp,
+                       OUT tt_http_encserv_t *es[],
+                       OUT tt_u32_t *es_num)
+{
+    tt_u32_t i, num = 0;
+    for (i = 0; i < resp->render.txenc_num; ++i) {
+        tt_http_encserv_t *s = sm->encserv[resp->render.txenc[i]];
+        if (s != NULL) {
+            es[num++] = s;
+        } else {
+            TT_ERROR("encoding service[%d] does not exit",
+                     resp->render.txenc[i]);
+            return TT_E_NOEXIST;
+        }
+    }
+    *es_num = num;
     return TT_SUCCESS;
 }
