@@ -23,13 +23,19 @@
 #include <network/http/tt_http_parser.h>
 
 #include <memory/tt_slab.h>
+#include <network/http/header/tt_http_hdr_transfer_encoding.h>
 #include <network/http/tt_http_raw_header.h>
-
-#include <limits.h>
 
 ////////////////////////////////////////////////////////////
 // internal macro
 ////////////////////////////////////////////////////////////
+
+#define __FOREACH_RV(rh, rv, name)                                             \
+    for (rh = tt_http_rawhdr_find(&hp->rawhdr, name); rh != NULL;              \
+         rh = tt_http_rawhdr_next(rh, name)) {                                 \
+        for (rv = tt_http_rawval_head(&rh->val); rv != NULL;                   \
+             rv = tt_http_rawval_next(rv))
+#define __FOREACH_RV_END() }
 
 ////////////////////////////////////////////////////////////
 // internal type
@@ -76,6 +82,10 @@ static http_parser_settings tt_s_hp_setting = {
 
 static void __clear_rawhdr(IN tt_dlist_t *dl);
 
+static tt_http_rawval_t *__hp_first_rv(IN tt_http_parser_t *hp,
+                                       IN tt_char_t *name,
+                                       IN tt_u32_t len);
+
 ////////////////////////////////////////////////////////////
 // interface implementation
 ////////////////////////////////////////////////////////////
@@ -86,6 +96,7 @@ tt_result_t tt_http_parser_create(IN tt_http_parser_t *hp,
                                   IN OPT tt_http_parser_attr_t *attr)
 {
     tt_http_parser_attr_t __attr;
+    tt_u32_t i;
 
     TT_ASSERT(hp != NULL);
     TT_ASSERT(rawhdr_slab != NULL);
@@ -123,12 +134,25 @@ tt_result_t tt_http_parser_create(IN tt_http_parser_t *hp,
 
     hp->body_counter = 0;
     hp->contype = TT_HTTP_CONTYPE_NUM;
+    hp->content_len = -1;
+
+    hp->txenc_num = 0;
+    for (i = 0; i < TT_HTTP_TXENC_NUM; ++i) {
+        hp->txenc[i] = TT_HTTP_TXENC_NUM;
+    }
+
     hp->complete_line1 = TT_FALSE;
     hp->complete_header = TT_FALSE;
     hp->complete_message = TT_FALSE;
     hp->complete_trailing_header = TT_FALSE;
     hp->updated_host = TT_FALSE;
     hp->updated_uri = TT_FALSE;
+    hp->updated_content_len = TT_FALSE;
+    hp->updated_contype = TT_FALSE;
+    hp->updated_txenc = TT_FALSE;
+    hp->miss_txenc = TT_FALSE;
+    hp->miss_contype = TT_FALSE;
+    hp->miss_content_len = TT_FALSE;
 
     return TT_SUCCESS;
 }
@@ -174,6 +198,8 @@ void tt_http_parser_attr_default(IN tt_http_parser_attr_t *attr)
 
 void tt_http_parser_clear(IN tt_http_parser_t *hp, IN tt_bool_t clear_recv_buf)
 {
+    tt_u32_t i;
+
     TT_ASSERT(hp != NULL);
 
     // do not change hp->c
@@ -207,6 +233,13 @@ void tt_http_parser_clear(IN tt_http_parser_t *hp, IN tt_bool_t clear_recv_buf)
     http_parser_init(&hp->parser, HTTP_BOTH);
 
     hp->body_counter = 0;
+    hp->content_len = -1;
+
+    hp->txenc_num = 0;
+    for (i = 0; i < TT_HTTP_TXENC_NUM; ++i) {
+        hp->txenc[i] = TT_HTTP_TXENC_NUM;
+    }
+
     hp->contype = TT_HTTP_CONTYPE_NUM;
     hp->complete_line1 = TT_FALSE;
     hp->complete_header = TT_FALSE;
@@ -214,6 +247,12 @@ void tt_http_parser_clear(IN tt_http_parser_t *hp, IN tt_bool_t clear_recv_buf)
     hp->complete_trailing_header = TT_FALSE;
     hp->updated_host = TT_FALSE;
     hp->updated_uri = TT_FALSE;
+    hp->updated_contype = TT_FALSE;
+    hp->updated_content_len = TT_FALSE;
+    hp->updated_txenc = TT_FALSE;
+    hp->miss_txenc = TT_FALSE;
+    hp->miss_contype = TT_FALSE;
+    hp->miss_content_len = TT_FALSE;
 }
 
 tt_result_t tt_http_parser_run(IN tt_http_parser_t *hp)
@@ -321,18 +360,16 @@ tt_http_status_t tt_http_parser_get_status(IN tt_http_parser_t *hp)
 tt_blobex_t *tt_http_parser_get_host(IN tt_http_parser_t *hp)
 {
     if (!hp->updated_host) {
-        tt_http_rawhdr_t *rh = tt_http_rawhdr_find(&hp->rawhdr, "Host");
-        if (rh != NULL) {
-            tt_http_rawval_t *rv = tt_http_rawval_head(&rh->val);
-            if (rv != NULL) {
-                hp->host = &rv->val;
-                if ((tt_blobex_len(hp->host) == 0) &&
-                    (tt_blobex_addr(hp->host) != NULL)) {
-                    // this is possible when recevied "Host: \r\n"
-                    tt_blobex_clear(hp->host);
-                }
+        tt_http_rawval_t *rv = __hp_first_rv(hp, "Host", sizeof("Host") - 1);
+        if (rv != NULL) {
+            hp->host = &rv->val;
+            if ((tt_blobex_len(hp->host) == 0) &&
+                (tt_blobex_addr(hp->host) != NULL)) {
+                // this is possible when recevied "Host: \r\n"
+                tt_blobex_clear(hp->host);
             }
         }
+
         hp->updated_host = TT_TRUE;
     }
     return hp->host;
@@ -340,22 +377,105 @@ tt_blobex_t *tt_http_parser_get_host(IN tt_http_parser_t *hp)
 
 tt_http_contype_t tt_http_parser_get_contype(IN tt_http_parser_t *hp)
 {
-    if (!TT_HTTP_CONTYPE_VALID(hp->contype)) {
-        tt_http_rawhdr_t *rh = tt_http_rawhdr_find(&hp->rawhdr, "Content-Type");
-        if (rh != NULL) {
-            tt_http_rawval_t *rv = tt_http_rawval_head(&rh->val);
-            if (rv != NULL) {
-                tt_http_contype_entry_t *e =
-                    tt_http_contype_map_find_name_n(hp->contype_map,
-                                                    tt_blobex_addr(&rv->val),
-                                                    tt_blobex_len(&rv->val));
-                if (e != NULL) {
-                    hp->contype = e->type;
-                }
+    if (!hp->updated_contype) {
+        tt_http_rawval_t *rv =
+            __hp_first_rv(hp, "Content-Type", sizeof("Content-Type") - 1);
+        if (rv != NULL) {
+            tt_http_contype_entry_t *e =
+                tt_http_contype_map_find_name_n(hp->contype_map,
+                                                tt_blobex_addr(&rv->val),
+                                                tt_blobex_len(&rv->val));
+            if (e != NULL) {
+                hp->contype = e->type;
+            } else {
+                // unknown type
+                hp->miss_contype = TT_TRUE;
             }
         }
+
+        if (!hp->miss_contype &&
+            (tt_http_rawhdr_count_name_n(&hp->rawhdr,
+                                         "Content-Type",
+                                         sizeof("Content-Type") - 1) > 1)) {
+            // more than 1 content type
+            hp->miss_contype = TT_TRUE;
+        }
+
+        hp->updated_contype = TT_TRUE;
     }
     return hp->contype;
+}
+
+tt_s32_t tt_http_parser_get_content_len(IN tt_http_parser_t *hp)
+{
+    if (!hp->updated_content_len) {
+        tt_http_rawval_t *rv =
+            __hp_first_rv(hp, "Content-Length", sizeof("Content-Length") - 1);
+        if (rv != NULL) {
+            tt_char_t tmp[12] = {0};
+            tt_s32_t len;
+
+            if (tt_blobex_len(&rv->val) >= sizeof(tmp)) {
+                hp->miss_content_len = TT_TRUE;
+                goto done;
+            }
+
+            tt_memcpy(tmp, tt_blobex_addr(&rv->val), tt_blobex_len(&rv->val));
+            if (!TT_OK(tt_strtos32(tmp, NULL, 10, &len))) {
+                hp->content_len = -1;
+                hp->miss_content_len = TT_TRUE;
+                goto done;
+            }
+
+            if (tt_http_rawhdr_count_name_n(&hp->rawhdr,
+                                            "Content-Length",
+                                            sizeof("Content-Length") - 1) > 1) {
+                hp->miss_content_len = TT_TRUE;
+            }
+
+            hp->content_len = len;
+        }
+
+    done:
+        hp->updated_content_len = TT_TRUE;
+    }
+    return hp->content_len;
+}
+
+tt_u32_t tt_http_parser_get_txenc(IN tt_http_parser_t *hp,
+                                  OUT tt_http_txenc_t *txenc)
+{
+    tt_u32_t i;
+
+    if (!hp->updated_txenc) {
+        tt_http_hdr_t *h;
+        tt_http_rawhdr_t *rh;
+        tt_http_rawval_t *rv;
+
+        h = tt_http_hdr_txenc_create();
+        if (h == NULL) {
+            return 0;
+        }
+
+        __FOREACH_RV(rh, rv, "Transfer-Encoding")
+        {
+            tt_http_hdr_parse_n(h,
+                                tt_blobex_addr(&rv->val),
+                                tt_blobex_len(&rv->val));
+        }
+        __FOREACH_RV_END()
+
+        hp->txenc_num = tt_http_hdr_txenc_get(h, hp->txenc);
+        hp->miss_txenc = h->missed_field;
+        tt_http_hdr_destroy(h);
+
+        hp->updated_txenc = TT_TRUE;
+    }
+
+    for (i = 0; i < hp->txenc_num; ++i) {
+        txenc[i] = hp->txenc[i];
+    }
+    return hp->txenc_num;
 }
 
 void __clear_rawhdr(IN tt_dlist_t *dl)
@@ -364,6 +484,14 @@ void __clear_rawhdr(IN tt_dlist_t *dl)
     while ((node = tt_dlist_pop_head(dl)) != NULL) {
         tt_http_rawhdr_destroy(TT_CONTAINER(node, tt_http_rawhdr_t, dnode));
     }
+}
+
+tt_http_rawval_t *__hp_first_rv(IN tt_http_parser_t *hp,
+                                IN tt_char_t *name,
+                                IN tt_u32_t len)
+{
+    tt_http_rawhdr_t *rh = tt_http_rawhdr_find(&hp->rawhdr, name);
+    return TT_COND(rh != NULL, tt_http_rawval_head(&rh->val), NULL);
 }
 
 // ========================================

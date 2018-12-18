@@ -504,6 +504,19 @@ tt_export tt_char_t *tt_cstr_copy_n(IN const tt_char_t *cstr, IN tt_u32_t len);
 
 tt_export tt_u8_t *tt_memdup(IN const tt_u8_t *addr, IN tt_u32_t len);
 
+// return true if all are trimmed
+tt_export tt_bool_t tt_trim_l(IN OUT tt_u8_t **p,
+                              IN OUT tt_u32_t *len,
+                              IN tt_u8_t b);
+
+tt_export tt_bool_t tt_trim_r(IN OUT tt_u8_t **p,
+                              IN OUT tt_u32_t *len,
+                              IN tt_u8_t b);
+
+tt_export tt_bool_t tt_trim_lr(IN OUT tt_u8_t **p,
+                               IN OUT tt_u32_t *len,
+                               IN tt_u8_t b);
+
 #if 0
 tt_inline tt_bool_t tt_compare_and_swap_16byte(IN __int128 *a,
                                      IN __int128 *comparand,

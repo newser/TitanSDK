@@ -68,13 +68,13 @@ tt_http_hval_itf_t tt_g_http_hval_blob_itf = {__hv_bex_create,
 // header: whole line
 // ========================================
 
-static tt_result_t __h_line_parse(IN tt_http_hdr_t *h,
-                                  IN const tt_char_t *val,
-                                  IN tt_u32_t len);
+tt_result_t __h_line_parse(IN tt_http_hdr_t *h,
+                           IN const tt_char_t *val,
+                           IN tt_u32_t len);
 
-static tt_u32_t __h_line_render_len(IN tt_http_hdr_t *h);
+tt_u32_t __h_line_render_len(IN tt_http_hdr_t *h);
 
-static tt_u32_t __h_line_render(IN tt_http_hdr_t *h, IN tt_char_t *dst);
+tt_u32_t __h_line_render(IN tt_http_hdr_t *h, IN tt_char_t *dst);
 
 tt_http_hdr_itf_t tt_g_http_hdr_line_itf = {__h_line_parse,
                                             __h_line_render_len,
@@ -84,13 +84,13 @@ tt_http_hdr_itf_t tt_g_http_hdr_line_itf = {__h_line_parse,
 // header: comma separated
 // ========================================
 
-static tt_result_t __h_cs_parse(IN tt_http_hdr_t *h,
-                                IN const tt_char_t *val,
-                                IN tt_u32_t len);
+tt_result_t __h_cs_parse(IN tt_http_hdr_t *h,
+                         IN const tt_char_t *val,
+                         IN tt_u32_t len);
 
-static tt_u32_t __h_cs_render_len(IN tt_http_hdr_t *h);
+tt_u32_t __h_cs_render_len(IN tt_http_hdr_t *h);
 
-static tt_u32_t __h_cs_render(IN tt_http_hdr_t *h, IN tt_char_t *dst);
+tt_u32_t __h_cs_render(IN tt_http_hdr_t *h, IN tt_char_t *dst);
 
 tt_http_hdr_itf_t tt_g_http_hdr_cs_itf = {__h_cs_parse,
                                           __h_cs_render_len,
@@ -154,9 +154,11 @@ tt_http_hdr_t *tt_http_hdr_create(IN tt_u32_t extra_size,
 
     h->itf = itf;
     h->val_itf = val_itf;
+    h->final_val_itf = NULL;
     tt_dlist_init(&h->val);
     tt_dnode_init(&h->dnode);
     h->name = name;
+    h->missed_field = TT_FALSE;
 
     return h;
 }
@@ -178,13 +180,13 @@ void tt_http_hdr_clear(IN tt_http_hdr_t *h)
     __clear_hval(h);
 }
 
-tt_http_hdr_t *tt_http_hdr_create_line_n(IN tt_http_hname_t name,
-                                         IN tt_char_t *val,
-                                         IN tt_u32_t len)
+tt_http_hdr_t *tt_http_hdr_create_line(IN tt_u32_t extra_size,
+                                       IN tt_http_hname_t name,
+                                       IN OPT tt_http_hdr_itf_t *val_itf)
 {
     tt_http_hdr_t *h;
 
-    h = tt_http_hdr_create(0,
+    h = tt_http_hdr_create(extra_size,
                            name,
                            &tt_g_http_hdr_line_itf,
                            &tt_g_http_hval_blob_itf);
@@ -192,22 +194,18 @@ tt_http_hdr_t *tt_http_hdr_create_line_n(IN tt_http_hname_t name,
         return NULL;
     }
 
-    if (!TT_OK(__add_hval(h, val, len))) {
-        tt_http_hdr_destroy(h);
-        return NULL;
-    }
+    h->final_val_itf = val_itf;
 
     return h;
 }
 
-tt_http_hdr_t *tt_http_hdr_create_cs(IN tt_http_hname_t name,
-                                     IN tt_blobex_t *val,
-                                     IN tt_u32_t num)
+tt_http_hdr_t *tt_http_hdr_create_cs(IN tt_u32_t extra_size,
+                                     IN tt_http_hname_t name,
+                                     IN OPT tt_http_hdr_itf_t *val_itf)
 {
     tt_http_hdr_t *h;
-    tt_u32_t i;
 
-    h = tt_http_hdr_create(0,
+    h = tt_http_hdr_create(extra_size,
                            name,
                            &tt_g_http_hdr_cs_itf,
                            &tt_g_http_hval_blob_itf);
@@ -215,13 +213,7 @@ tt_http_hdr_t *tt_http_hdr_create_cs(IN tt_http_hname_t name,
         return NULL;
     }
 
-    for (i = 0; i < num; ++i) {
-        tt_blobex_t *bex = &val[i];
-        if (!TT_OK(__add_hval(h, tt_blobex_addr(bex), tt_blobex_len(bex)))) {
-            tt_http_hdr_destroy(h);
-            return NULL;
-        }
-    }
+    h->final_val_itf = val_itf;
 
     return h;
 }
@@ -238,7 +230,18 @@ tt_result_t __add_hval(IN tt_http_hdr_t *h,
                        IN const tt_char_t *val,
                        IN tt_u32_t len)
 {
-    tt_http_hval_t *hv = h->val_itf->create(h);
+    tt_http_hval_t *hv;
+
+    if ((val == NULL) || (len == 0) ||
+        tt_trim_lr((tt_u8_t **)&val, &len, ' ')) {
+        return TT_SUCCESS;
+    }
+
+    if ((h->final_val_itf != NULL) && (h->final_val_itf->parse != NULL)) {
+        return h->final_val_itf->parse(h, val, len);
+    }
+
+    hv = h->val_itf->create(h);
     if (hv == NULL) {
         return TT_FAIL;
     }

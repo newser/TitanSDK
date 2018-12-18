@@ -69,16 +69,6 @@ static void __render_clear(IN tt_http_render_t *r);
 
 static void __render_add_hdr(IN tt_http_render_t *r, IN tt_http_hdr_t *h);
 
-static tt_result_t __render_add_line_n(IN tt_http_render_t *r,
-                                       IN tt_http_hname_t name,
-                                       IN tt_char_t *val,
-                                       IN tt_u32_t len);
-
-static tt_result_t __render_add_cs(IN tt_http_render_t *r,
-                                   IN tt_http_hname_t name,
-                                   IN tt_blobex_t *val,
-                                   IN tt_u32_t num);
-
 static tt_u32_t __common_render_len(IN tt_http_render_t *render);
 
 static void __common_render(IN tt_http_render_t *render, IN tt_buf_t *buf);
@@ -135,22 +125,6 @@ void tt_http_req_render_add_hdr(IN tt_http_req_render_t *req,
                                 IN tt_http_hdr_t *h)
 {
     __render_add_hdr(&req->render, h);
-}
-
-tt_result_t tt_http_req_render_add_line_n(IN tt_http_req_render_t *req,
-                                          IN tt_http_hname_t name,
-                                          IN tt_char_t *val,
-                                          IN tt_u32_t len)
-{
-    return __render_add_line_n(&req->render, name, val, len);
-}
-
-tt_result_t tt_http_req_render_add_cs(IN tt_http_req_render_t *req,
-                                      IN tt_http_hname_t name,
-                                      IN tt_blobex_t *val,
-                                      IN tt_u32_t num)
-{
-    return __render_add_cs(&req->render, name, val, num);
 }
 
 tt_result_t tt_http_req_render(IN tt_http_req_render_t *req,
@@ -276,22 +250,6 @@ void tt_http_resp_render_add_hdr(IN tt_http_resp_render_t *resp,
                                  IN tt_http_hdr_t *h)
 {
     __render_add_hdr(&resp->render, h);
-}
-
-tt_result_t tt_http_resp_render_add_line_n(IN tt_http_resp_render_t *resp,
-                                           IN tt_http_hname_t name,
-                                           IN tt_char_t *val,
-                                           IN tt_u32_t len)
-{
-    return __render_add_line_n(&resp->render, name, val, len);
-}
-
-tt_result_t tt_http_resp_render_add_cs(IN tt_http_resp_render_t *resp,
-                                       IN tt_http_hname_t name,
-                                       IN tt_blobex_t *val,
-                                       IN tt_u32_t num)
-{
-    return __render_add_cs(&resp->render, name, val, num);
 }
 
 tt_result_t tt_http_resp_render(IN tt_http_resp_render_t *resp,
@@ -429,40 +387,6 @@ void __render_clear(IN tt_http_render_t *r)
 void __render_add_hdr(IN tt_http_render_t *r, IN tt_http_hdr_t *h)
 {
     tt_dlist_push_tail(&r->hdr, &h->dnode);
-}
-
-tt_result_t __render_add_line_n(IN tt_http_render_t *r,
-                                IN tt_http_hname_t name,
-                                IN tt_char_t *val,
-                                IN tt_u32_t len)
-{
-    tt_http_hdr_t *h;
-
-    h = tt_http_hdr_create_line_n(name, val, len);
-    if (h == NULL) {
-        return TT_E_NOMEM;
-    }
-
-    __render_add_hdr(r, h);
-
-    return TT_SUCCESS;
-}
-
-tt_result_t __render_add_cs(IN tt_http_render_t *r,
-                            IN tt_http_hname_t name,
-                            IN tt_blobex_t *val,
-                            IN tt_u32_t num)
-{
-    tt_http_hdr_t *h;
-
-    h = tt_http_hdr_create_cs(name, val, num);
-    if (h == NULL) {
-        return TT_E_NOMEM;
-    }
-
-    __render_add_hdr(r, h);
-
-    return TT_SUCCESS;
 }
 
 tt_u32_t __common_render_len(IN tt_http_render_t *render)

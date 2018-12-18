@@ -266,3 +266,36 @@ tt_u8_t *tt_memdup(IN const tt_u8_t *addr, IN tt_u32_t len)
     }
     return new_mem;
 }
+
+tt_bool_t tt_trim_l(IN OUT tt_u8_t **p, IN OUT tt_u32_t *len, IN tt_u8_t b)
+{
+    tt_u8_t *beg = *p, *end = *p + *len;
+    while ((beg < end) && (*beg == b)) {
+        ++beg;
+    }
+    *p = beg;
+    *len = end - beg;
+
+    TT_ASSERT(beg <= end);
+    return TT_BOOL(end == beg);
+}
+
+tt_bool_t tt_trim_r(IN OUT tt_u8_t **p, IN OUT tt_u32_t *len, IN tt_u8_t b)
+{
+    tt_u8_t *beg = *p, *end = *p + *len;
+    --end;
+    while ((end >= beg) && (*end == b)) {
+        --end;
+    }
+    ++end;
+    *p = beg;
+    *len = end - beg;
+
+    TT_ASSERT(beg <= end);
+    return TT_BOOL(end == beg);
+}
+
+tt_bool_t tt_trim_lr(IN OUT tt_u8_t **p, IN OUT tt_u32_t *len, IN tt_u8_t b)
+{
+    return tt_trim_l(p, len, b) || tt_trim_r(p, len, b);
+}

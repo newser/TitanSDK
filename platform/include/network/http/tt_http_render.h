@@ -146,27 +146,6 @@ tt_inline void tt_http_req_render_set_version(IN tt_http_req_render_t *req,
 tt_export void tt_http_req_render_add_hdr(IN tt_http_req_render_t *req,
                                           IN tt_http_hdr_t *h);
 
-tt_export tt_result_t
-tt_http_req_render_add_line_n(IN tt_http_req_render_t *req,
-                              IN tt_http_hname_t name,
-                              IN tt_char_t *val,
-                              IN tt_u32_t len);
-
-tt_inline tt_result_t tt_http_req_render_add_line(IN tt_http_req_render_t *req,
-                                                  IN tt_http_hname_t name,
-                                                  IN const tt_char_t *val)
-{
-    return tt_http_req_render_add_line_n(req,
-                                         name,
-                                         (tt_char_t *)val,
-                                         tt_strlen(val));
-}
-
-tt_export tt_result_t tt_http_req_render_add_cs(IN tt_http_req_render_t *req,
-                                                IN tt_http_hname_t name,
-                                                IN struct tt_blobex_s *val,
-                                                IN tt_u32_t num);
-
 tt_export tt_result_t tt_http_req_render(IN tt_http_req_render_t *req,
                                          OUT tt_char_t **data,
                                          OUT tt_u32_t *len);
@@ -237,28 +216,6 @@ tt_inline void tt_http_resp_render_set_version(IN tt_http_resp_render_t *resp,
 
 tt_export void tt_http_resp_render_add_hdr(IN tt_http_resp_render_t *resp,
                                            IN tt_http_hdr_t *h);
-
-tt_export tt_result_t
-tt_http_resp_render_add_line_n(IN tt_http_resp_render_t *resp,
-                               IN tt_http_hname_t name,
-                               IN tt_char_t *val,
-                               IN tt_u32_t len);
-
-tt_inline tt_result_t
-tt_http_resp_render_add_line(IN tt_http_resp_render_t *resp,
-                             IN tt_http_hname_t name,
-                             IN const tt_char_t *val)
-{
-    return tt_http_resp_render_add_line_n(resp,
-                                          name,
-                                          (tt_char_t *)val,
-                                          tt_strlen(val));
-}
-
-tt_export tt_result_t tt_http_resp_render_add_cs(IN tt_http_resp_render_t *resp,
-                                                 IN tt_http_hname_t name,
-                                                 IN struct tt_blobex_s *val,
-                                                 IN tt_u32_t num);
 
 tt_export tt_result_t tt_http_resp_render(IN tt_http_resp_render_t *resp,
                                           OUT tt_char_t **data,

@@ -40,6 +40,7 @@ this file defines http
 
 #define TT_HTTP_HDR_MAP(__ENTRY)                                               \
     __ENTRY(HOST, Host)                                                        \
+    __ENTRY(TXENC, Transfer - Encoding)                                        \
     __ENTRY(DATE, Date)
 
 #define TT_HTTP_TXENC_MAP(__ENTRY)                                             \

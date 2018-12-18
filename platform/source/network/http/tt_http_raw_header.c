@@ -42,6 +42,10 @@
 // interface declaration
 ////////////////////////////////////////////////////////////
 
+static tt_http_rawhdr_t *__rawhdr_find(IN tt_dnode_t *node,
+                                       IN const tt_char_t *name,
+                                       IN tt_u32_t len);
+
 ////////////////////////////////////////////////////////////
 // interface implementation
 ////////////////////////////////////////////////////////////
@@ -134,17 +138,14 @@ tt_http_rawhdr_t *tt_http_rawhdr_find_n(IN tt_dlist_t *dl,
                                         IN const tt_char_t *name,
                                         IN tt_u32_t len)
 {
-    tt_dnode_t *node = tt_dlist_head(dl);
-    while (node != NULL) {
-        tt_http_rawhdr_t *rh = TT_CONTAINER(node, tt_http_rawhdr_t, dnode);
-        node = node->next;
+    return __rawhdr_find(tt_dlist_head(dl), name, len);
+}
 
-        if ((tt_blobex_len(&rh->name) == len) &&
-            (tt_strnicmp(tt_blobex_addr(&rh->name), name, len) == 0)) {
-            return rh;
-        }
-    }
-    return NULL;
+tt_http_rawhdr_t *tt_http_rawhdr_next_n(IN tt_http_rawhdr_t *rh,
+                                        IN const tt_char_t *name,
+                                        IN tt_u32_t len)
+{
+    return __rawhdr_find(rh->dnode.next, name, len);
 }
 
 tt_u32_t tt_http_rawhdr_count_name_n(IN tt_dlist_t *dl,
@@ -163,4 +164,20 @@ tt_u32_t tt_http_rawhdr_count_name_n(IN tt_dlist_t *dl,
         }
     }
     return count;
+}
+
+tt_http_rawhdr_t *__rawhdr_find(IN tt_dnode_t *node,
+                                IN const tt_char_t *name,
+                                IN tt_u32_t len)
+{
+    while (node != NULL) {
+        tt_http_rawhdr_t *rh = TT_CONTAINER(node, tt_http_rawhdr_t, dnode);
+        node = node->next;
+
+        if ((tt_blobex_len(&rh->name) == len) &&
+            (tt_strnicmp(tt_blobex_addr(&rh->name), name, len) == 0)) {
+            return rh;
+        }
+    }
+    return NULL;
 }

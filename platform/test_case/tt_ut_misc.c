@@ -62,6 +62,7 @@ TT_TEST_ROUTINE_DECLARE(case_strtol)
 TT_TEST_ROUTINE_DECLARE(case_c2h)
 TT_TEST_ROUTINE_DECLARE(case_align)
 TT_TEST_ROUTINE_DECLARE(case_console_color)
+TT_TEST_ROUTINE_DECLARE(case_trim)
 
 TT_TEST_ROUTINE_DECLARE(case_uri)
 TT_TEST_ROUTINE_DECLARE(case_percent_decode)
@@ -179,6 +180,15 @@ TT_TEST_CASE("case_version",
                  NULL,
                  NULL),
 
+    TT_TEST_CASE("case_trim",
+                 "testing case_trim()",
+                 case_trim,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL),
+
     TT_TEST_CASE_LIST_DEFINE_END(misc_case)
     // =========================================
 
@@ -193,7 +203,7 @@ TT_TEST_CASE("case_version",
     ////////////////////////////////////////////////////////////
 
     /*
-    TT_TEST_ROUTINE_DEFINE(case_uri_get_set)
+    TT_TEST_ROUTINE_DEFINE(case_trim)
     {
         //tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
 
@@ -1816,6 +1826,92 @@ TT_TEST_ROUTINE_DEFINE(case_uri_get_set)
 
         tt_uri_destroy(&a);
         tt_uri_destroy(&b);
+    }
+
+    // test end
+    TT_TEST_CASE_LEAVE()
+}
+
+TT_TEST_ROUTINE_DEFINE(case_trim)
+{
+    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+    tt_char_t buf[] = "xx123xx";
+    tt_u8_t *p;
+    tt_u32_t len;
+
+    TT_TEST_CASE_ENTER()
+    // test start
+
+    {
+        p = (tt_u8_t *)buf;
+        len = 0;
+        TT_UT_TRUE(tt_trim_l(&p, &len, 'x'), "");
+        TT_UT_EQUAL(p, (tt_u8_t *)buf, "");
+        TT_UT_EQUAL(len, 0, "");
+
+        p = (tt_u8_t *)buf;
+        len = 1;
+        TT_UT_TRUE(tt_trim_l(&p, &len, 'x'), "");
+        TT_UT_EQUAL(p, (tt_u8_t *)&buf[1], "");
+        TT_UT_EQUAL(len, 0, "");
+
+        p = (tt_u8_t *)buf;
+        len = 8;
+        TT_UT_FALSE(tt_trim_l(&p, &len, 'x'), "");
+        TT_UT_EQUAL(p, (tt_u8_t *)&buf[2], "");
+        TT_UT_EQUAL(len, 6, "");
+
+        p = (tt_u8_t *)buf;
+        len = 3;
+        TT_UT_FALSE(tt_trim_l(&p, &len, 'x'), "");
+        TT_UT_EQUAL(p, (tt_u8_t *)&buf[2], "");
+        TT_UT_EQUAL(len, 1, "");
+    }
+
+    {
+        p = (tt_u8_t *)buf;
+        len = 0;
+        TT_UT_TRUE(tt_trim_r(&p, &len, 'x'), "");
+        TT_UT_EQUAL(p, (tt_u8_t *)buf, "");
+        TT_UT_EQUAL(len, 0, "");
+
+        p = (tt_u8_t *)buf;
+        len = 1;
+        TT_UT_TRUE(tt_trim_r(&p, &len, 'x'), "");
+        TT_UT_EQUAL(p, (tt_u8_t *)&buf[0], "");
+        TT_UT_EQUAL(len, 0, "");
+
+        p = (tt_u8_t *)buf;
+        len = 2;
+        TT_UT_TRUE(tt_trim_r(&p, &len, 'x'), "");
+        TT_UT_EQUAL(p, (tt_u8_t *)&buf[0], "");
+        TT_UT_EQUAL(len, 0, "");
+
+        p = (tt_u8_t *)buf;
+        len = 7;
+        TT_UT_FALSE(tt_trim_r(&p, &len, 'x'), "");
+        TT_UT_EQUAL(p, (tt_u8_t *)&buf[0], "");
+        TT_UT_EQUAL(len, 5, "");
+    }
+
+    {
+        p = (tt_u8_t *)buf;
+        len = 0;
+        TT_UT_TRUE(tt_trim_lr(&p, &len, 'x'), "");
+        TT_UT_EQUAL(p, (tt_u8_t *)buf, "");
+        TT_UT_EQUAL(len, 0, "");
+
+        p = (tt_u8_t *)buf;
+        len = 1;
+        TT_UT_TRUE(tt_trim_lr(&p, &len, 'x'), "");
+        TT_UT_EQUAL(p, (tt_u8_t *)&buf[1], "");
+        TT_UT_EQUAL(len, 0, "");
+
+        p = (tt_u8_t *)buf;
+        len = 7;
+        TT_UT_FALSE(tt_trim_lr(&p, &len, 'x'), "");
+        TT_UT_EQUAL(p, (tt_u8_t *)&buf[2], "");
+        TT_UT_EQUAL(len, 3, "");
     }
 
     // test end

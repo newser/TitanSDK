@@ -39,6 +39,8 @@ this file defines http header APIs
 
 #define TT_HTTP_HVAL_CAST(hv, name) TT_PTR_INC(name, hv, sizeof(tt_http_hval_t))
 
+#define TT_HTTP_HDR_CAST(hv, name) TT_PTR_INC(name, hv, sizeof(tt_http_hdr_t))
+
 ////////////////////////////////////////////////////////////
 // type definition
 ////////////////////////////////////////////////////////////
@@ -103,9 +105,13 @@ typedef struct tt_http_hdr_s
 {
     tt_http_hdr_itf_t *itf;
     tt_http_hval_itf_t *val_itf;
+    // @final_val_itf is a private field
+    tt_http_hdr_itf_t *final_val_itf;
     tt_dlist_t val;
     tt_dnode_t dnode;
-    tt_http_hname_t name;
+    tt_http_hname_t name : 8;
+    // can be set if saw unknown field during parsing
+    tt_bool_t missed_field : 1;
 } tt_http_hdr_t;
 
 ////////////////////////////////////////////////////////////
@@ -153,9 +159,9 @@ tt_inline void tt_http_hdr_remove(IN tt_http_hdr_t *h, IN tt_http_hval_t *hv)
     tt_dlist_remove(&h->val, &hv->dnode);
 }
 
-tt_inline tt_result_t tt_http_hdr_parse(IN tt_http_hdr_t *h,
-                                        IN const tt_char_t *val,
-                                        IN tt_u32_t len)
+tt_inline tt_result_t tt_http_hdr_parse_n(IN tt_http_hdr_t *h,
+                                          IN const tt_char_t *val,
+                                          IN tt_u32_t len)
 {
     if ((val[0] != 0) && (len != 0)) {
         return h->itf->parse(h, val, len);
@@ -164,32 +170,44 @@ tt_inline tt_result_t tt_http_hdr_parse(IN tt_http_hdr_t *h,
     }
 }
 
+tt_inline tt_result_t tt_http_hdr_parse(IN tt_http_hdr_t *h,
+                                        IN const tt_char_t *val)
+{
+    return TT_COND(val[0] != 0,
+                   tt_http_hdr_parse_n(h, val, tt_strlen(val)),
+                   TT_SUCCESS);
+}
+
 tt_inline tt_u32_t tt_http_hdr_render_len(IN tt_http_hdr_t *h)
 {
-    return h->itf->render_len(h);
+    if ((h->final_val_itf != NULL) && (h->final_val_itf->render_len != NULL)) {
+        return h->final_val_itf->render_len(h);
+    } else {
+        return h->itf->render_len(h);
+    }
 }
 
 tt_inline tt_u32_t tt_http_hdr_render(IN tt_http_hdr_t *h, IN tt_char_t *dst)
 {
-    return h->itf->render(h, dst);
+    if ((h->final_val_itf != NULL) && (h->final_val_itf->render != NULL)) {
+        return h->final_val_itf->render(h, dst);
+    } else {
+        return h->itf->render(h, dst);
+    }
 }
 
 // ========================================
 // helper
 // ========================================
 
-tt_export tt_http_hdr_t *tt_http_hdr_create_line_n(IN tt_http_hname_t name,
-                                                   IN tt_char_t *val,
-                                                   IN tt_u32_t len);
+tt_export tt_http_hdr_t *tt_http_hdr_create_line(
+    IN tt_u32_t extra_size,
+    IN tt_http_hname_t name,
+    IN OPT tt_http_hdr_itf_t *val_itf);
 
-tt_inline tt_http_hdr_t *tt_http_hdr_create_line(IN tt_http_hname_t name,
-                                                 IN const tt_char_t *val)
-{
-    return tt_http_hdr_create_line_n(name, (tt_char_t *)val, tt_strlen(val));
-}
-
-tt_export tt_http_hdr_t *tt_http_hdr_create_cs(IN tt_http_hname_t name,
-                                               IN struct tt_blobex_s *val,
-                                               IN tt_u32_t num);
+tt_export tt_http_hdr_t *tt_http_hdr_create_cs(IN tt_u32_t extra_size,
+                                               IN tt_http_hname_t name,
+                                               IN OPT
+                                                   tt_http_hdr_itf_t *val_itf);
 
 #endif /* __TT_HTTP_HEADER__ */

@@ -171,6 +171,18 @@ tt_inline tt_http_rawhdr_t *tt_http_rawhdr_find(IN tt_dlist_t *dl,
     return tt_http_rawhdr_find_n(dl, name, tt_strlen(name));
 }
 
+tt_export tt_http_rawhdr_t *tt_http_rawhdr_next_n(IN tt_http_rawhdr_t *rh,
+                                                  IN const tt_char_t *name,
+                                                  IN tt_u32_t len);
+
+tt_inline tt_http_rawhdr_t *tt_http_rawhdr_next(IN tt_http_rawhdr_t *rh,
+                                                IN const tt_char_t *name)
+{
+    return tt_http_rawhdr_next_n(rh,
+                                 name,
+                                 TT_COND(name != NULL, tt_strlen(name), 0));
+}
+
 tt_inline void tt_http_rawhdr_add(IN tt_dlist_t *dl, IN tt_http_rawhdr_t *rh)
 {
     tt_dlist_push_tail(dl, &rh->dnode);

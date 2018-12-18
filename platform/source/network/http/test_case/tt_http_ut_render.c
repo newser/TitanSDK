@@ -163,8 +163,12 @@ TT_TEST_CASE("case_http_render_req",
     TT_UT_SUCCESS(tt_uri_set_path(u, "aaa.com"), "");
 
     // add a header
-    TT_UT_SUCCESS(tt_http_req_render_add_line(&r, TT_HTTP_HDR_HOST, "sample"),
-                  "");
+    {
+        h = tt_http_hdr_create_line(0, TT_HTTP_HDR_HOST, NULL);
+        TT_UT_NOT_NULL(h, "");
+        TT_UT_SUCCESS(tt_http_hdr_parse(h, "sample"), "");
+        tt_http_req_render_add_hdr(&r, h);
+    }
     {
         const tt_char_t *msg =
             "POST aaa.com HTTP/1.0\r\n"
@@ -192,8 +196,12 @@ TT_TEST_CASE("case_http_render_req",
         tt_blobex_set(&b[0], (tt_u8_t *)"1", 1, TT_FALSE);
         tt_blobex_set(&b[1], (tt_u8_t *)"22", 2, TT_FALSE);
         tt_blobex_set(&b[2], (tt_u8_t *)"333", 3, TT_FALSE);
-        TT_UT_SUCCESS(tt_http_req_render_add_cs(&r, TT_HTTP_HDR_DATE, b, 3),
-                      "");
+        {
+            h = tt_http_hdr_create_cs(0, TT_HTTP_HDR_DATE, NULL);
+            TT_UT_NOT_NULL(h, "");
+            TT_UT_SUCCESS(tt_http_hdr_parse(h, "1, 22, 333 "), "");
+            tt_http_req_render_add_hdr(&r, h);
+        }
 
         TT_UT_SUCCESS(tt_http_req_render(&r, &data, &len), "");
         TT_UT_EQUAL(len, tt_strlen(msg), "");
@@ -294,8 +302,12 @@ TT_TEST_ROUTINE_DEFINE(case_http_render_resp)
     tt_http_resp_render_set_version(&r, TT_HTTP_V1_0);
 
     // add a header
-    TT_UT_SUCCESS(tt_http_resp_render_add_line(&r, TT_HTTP_HDR_HOST, "sample"),
-                  "");
+    {
+        h = tt_http_hdr_create_line(0, TT_HTTP_HDR_HOST, NULL);
+        TT_UT_NOT_NULL(h, "");
+        TT_UT_SUCCESS(tt_http_hdr_parse(h, "sample"), "");
+        tt_http_resp_render_add_hdr(&r, h);
+    }
     {
         const tt_char_t *msg =
             "HTTP/1.0 200 OK\r\n"
@@ -323,8 +335,13 @@ TT_TEST_ROUTINE_DEFINE(case_http_render_resp)
         tt_blobex_set(&b[0], (tt_u8_t *)"1", 1, TT_FALSE);
         tt_blobex_set(&b[1], (tt_u8_t *)"22", 2, TT_FALSE);
         tt_blobex_set(&b[2], (tt_u8_t *)"333", 3, TT_FALSE);
-        TT_UT_SUCCESS(tt_http_resp_render_add_cs(&r, TT_HTTP_HDR_DATE, b, 3),
-                      "");
+        {
+            h = tt_http_hdr_create_cs(0, TT_HTTP_HDR_DATE, NULL);
+            TT_UT_NOT_NULL(h, "");
+            TT_UT_SUCCESS(tt_http_hdr_parse(h, "1 , 22,"), "");
+            TT_UT_SUCCESS(tt_http_hdr_parse(h, " 333 "), "");
+            tt_http_resp_render_add_hdr(&r, h);
+        }
 
         TT_UT_SUCCESS(tt_http_resp_render(&r, &data, &len), "");
         TT_UT_EQUAL(len, tt_strlen(msg), "");
