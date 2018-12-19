@@ -24,6 +24,7 @@
 
 #include <io/tt_socket.h>
 #include <memory/tt_slab.h>
+#include <network/http/service/tt_http_encserv_chunked.h>
 #include <network/http/tt_http_host_set.h>
 #include <network/http/tt_http_raw_header.h>
 #include <network/ssl/tt_ssl.h>
@@ -471,6 +472,11 @@ tt_result_t __sconn_create(IN tt_http_sconn_t *c, IN tt_http_sconn_attr_t *attr)
     tt_http_svcmgr_init(&c->svcmgr);
     __done |= __SC_SVCMGR;
 
+    // by default, we add a chunked encoding service
+    tt_http_svcmgr_set_encserv(&c->svcmgr,
+                               TT_HTTP_TXENC_CHUNKED,
+                               tt_g_http_encserv_chunked);
+
     rhs = __local_rawhdr_slab();
     rvs = __local_rawval_slab();
     if ((rhs == NULL) || (rvs == NULL)) {
@@ -733,7 +739,8 @@ tt_result_t __sconn_send_resp_body(IN tt_http_sconn_t *c)
     } while (action == TT_HTTP_INSERV_ACT_BODY);
 
     // body end
-    if (!TT_OK(tt_http_svcmgr_post_body(sm, req, resp, &buf))) {
+    tt_buf_clear(&c->body);
+    if (!TT_OK(tt_http_svcmgr_post_body(sm, req, resp, &c->body, &buf))) {
         return TT_FAIL;
     }
     if ((buf != NULL) && !tt_buf_empty(buf)) {

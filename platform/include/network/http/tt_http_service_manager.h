@@ -155,6 +155,7 @@ tt_export tt_result_t
 tt_http_svcmgr_post_body(IN tt_http_svcmgr_t *sm,
                          IN struct tt_http_parser_s *req,
                          IN struct tt_http_resp_render_s *resp,
+                         IN struct tt_buf_s *input,
                          OUT struct tt_buf_s **output);
 
 #endif /* __TT_HTTP_SERVICE_MANAGER__ */

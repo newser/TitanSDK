@@ -1046,9 +1046,9 @@ TT_TEST_ROUTINE_DEFINE(case_http_svcmgr_encserv)
     ret = tt_http_svcmgr_on_resp_body(&sm, NULL, &resp, &ibuf, &pbuf);
     TT_UT_SUCCESS(ret, "");
     TT_UT_EQUAL(pbuf, &ibuf, "");
-    ret = tt_http_svcmgr_post_body(&sm, NULL, &resp, &pbuf);
+    ret = tt_http_svcmgr_post_body(&sm, NULL, &resp, &ibuf, &pbuf);
     TT_UT_SUCCESS(ret, "");
-    TT_UT_NULL(pbuf, "");
+    TT_UT_EQUAL(pbuf, &ibuf, "");
 
     // requrie enc, but no service
     tt_http_resp_render_set_txenc(&resp, txe, sizeof(txe) / sizeof(txe[0]));
@@ -1056,7 +1056,7 @@ TT_TEST_ROUTINE_DEFINE(case_http_svcmgr_encserv)
     TT_UT_FAIL(ret, "");
     ret = tt_http_svcmgr_on_resp_body(&sm, NULL, &resp, &ibuf, &pbuf);
     TT_UT_FAIL(ret, "");
-    ret = tt_http_svcmgr_post_body(&sm, NULL, &resp, &pbuf);
+    ret = tt_http_svcmgr_post_body(&sm, NULL, &resp, &ibuf, &pbuf);
     TT_UT_FAIL(ret, "");
 
     {
@@ -1100,7 +1100,7 @@ TT_TEST_ROUTINE_DEFINE(case_http_svcmgr_encserv)
             TT_UT_TRUE(__es_on_bodyed[i], "");
         }
 
-        ret = tt_http_svcmgr_post_body(&sm, NULL, &resp, &pbuf);
+        ret = tt_http_svcmgr_post_body(&sm, NULL, &resp, &ibuf, &pbuf);
         TT_UT_SUCCESS(ret, "");
         TT_UT_EQUAL(pbuf, &__es_post_buf[1], "");
         for (i = 0; i < __ES_NUM; ++i) {
@@ -1140,7 +1140,7 @@ TT_TEST_ROUTINE_DEFINE(case_http_svcmgr_encserv)
         TT_UT_TRUE(__es_on_bodyed[2], "");
 
         __es_post_body_ret[2] = TT_E_END; //
-        ret = tt_http_svcmgr_post_body(&sm, NULL, &resp, &pbuf);
+        ret = tt_http_svcmgr_post_body(&sm, NULL, &resp, &ibuf, &pbuf);
         TT_UT_FAIL(ret, "");
         TT_UT_FALSE(__es_post_bodyed[0], "");
         TT_UT_FALSE(__es_post_bodyed[1], "");

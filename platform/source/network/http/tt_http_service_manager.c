@@ -445,11 +445,11 @@ tt_result_t tt_http_svcmgr_on_resp_body(IN tt_http_svcmgr_t *sm,
 tt_result_t tt_http_svcmgr_post_body(IN tt_http_svcmgr_t *sm,
                                      IN tt_http_parser_t *req,
                                      IN tt_http_resp_render_t *resp,
+                                     IN struct tt_buf_s *input,
                                      OUT struct tt_buf_s **output)
 {
     tt_http_encserv_t *es[TT_HTTP_TXENC_NUM] = {0};
     tt_u32_t num, i;
-    struct tt_buf_s *input;
     tt_result_t result;
 
     result = __mk_txenc(sm, resp, es, &num);
@@ -458,7 +458,6 @@ tt_result_t tt_http_svcmgr_post_body(IN tt_http_svcmgr_t *sm,
     }
 
     // if there is no service, just copy input to output
-    input = NULL;
     *output = input;
     for (i = 0; i < num; ++i) {
         // last output becomes this input

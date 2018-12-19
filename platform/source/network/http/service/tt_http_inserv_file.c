@@ -309,21 +309,25 @@ tt_http_inserv_action_t __inserv_file_get_body(IN tt_http_inserv_t *s,
                                                OUT tt_buf_t *buf)
 {
     tt_http_inserv_file_t *sf = TT_HTTP_INSERV_CAST(s, tt_http_inserv_file_t);
-    tt_u32_t len, n;
+    tt_u32_t len, n, chunk_head;
     tt_result_t result;
 
     if (sf->size >= 0) {
         TT_ASSERT(sf->size > 0);
         TT_ASSERT((sf->chunk_size == 0) || (sf->size < sf->chunk_size));
         len = sf->size;
+        chunk_head = 0;
     } else {
         TT_ASSERT(sf->chunk_size != 0);
         len = sf->chunk_size;
+        chunk_head = 16; // "1C\r\n...\r\n"
     }
-    if (!TT_OK(tt_buf_reserve(buf, len))) {
+    if (!TT_OK(tt_buf_reserve(buf, len + chunk_head))) {
         // close or continue?
         return TT_HTTP_INSERV_ACT_CLOSE;
     }
+    // put hole so that chunk-size can be put by tt_buf_put_head()
+    tt_buf_put_hole(buf, chunk_head);
 
     // limit how many bytes to read
     n = TT_BUF_WLEN(buf);
