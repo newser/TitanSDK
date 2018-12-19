@@ -44,7 +44,7 @@ this file defines http content type
 struct tt_component_s;
 struct tt_profile_s;
 
-typedef struct
+typedef struct tt_http_contype_map_s
 {
     tt_http_contype_entry_t *static_entry;
     tt_ptrhmap_t name_map;

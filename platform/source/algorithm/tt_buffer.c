@@ -364,6 +364,38 @@ tt_result_t tt_buf_put(IN tt_buf_t *buf,
     return TT_SUCCESS;
 }
 
+tt_result_t tt_buf_put_head(IN tt_buf_t *buf,
+                            IN const tt_u8_t *data,
+                            IN tt_u32_t data_len)
+{
+    if (buf->readonly) {
+        TT_ERROR("readonly buf");
+        return TT_FAIL;
+    }
+
+    if (buf->rpos < data_len) {
+        tt_u32_t n;
+
+        // reserve data_len or (data_len - rpos)?
+        // n = data_len - buf->rpos;
+        n = data_len;
+
+        if (!TT_OK(tt_buf_reserve(buf, n))) {
+            return TT_FAIL;
+        }
+
+        tt_memmove(TT_BUF_RPOS(buf) + n, TT_BUF_RPOS(buf), TT_BUF_RLEN(buf));
+        buf->rpos += n;
+        buf->wpos += n;
+    }
+
+    TT_ASSERT(buf->rpos >= data_len);
+    tt_memcpy(TT_BUF_RPOS(buf) - data_len, data, data_len);
+    buf->rpos -= data_len;
+
+    return TT_SUCCESS;
+}
+
 tt_result_t tt_buf_put_rep(IN tt_buf_t *buf,
                            IN tt_u8_t byte,
                            IN tt_u32_t rep_num)

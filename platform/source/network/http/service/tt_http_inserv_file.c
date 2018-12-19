@@ -23,6 +23,7 @@
 #include <network/http/service/tt_http_inserv_file.h>
 
 #include <io/tt_file_system.h>
+#include <network/http/tt_http_content_type_map.h>
 #include <network/http/tt_http_parser.h>
 #include <network/http/tt_http_render.h>
 
@@ -36,6 +37,7 @@
 
 typedef struct
 {
+    tt_http_contype_map_t *contype_map;
     tt_char_t *def_name;
     tt_file_t f;
     tt_s32_t size;
@@ -127,6 +129,7 @@ tt_http_inserv_t *tt_http_inserv_file_create(
         sf->def_name = NULL;
     }
 
+    sf->contype_map = attr->contype_map;
     sf->size = -1;
     sf->chunk_size = attr->chunk_size;
     sf->can_have_path_param = attr->can_have_path_param;
@@ -139,9 +142,10 @@ tt_http_inserv_t *tt_http_inserv_file_create(
 
 void tt_http_inserv_file_attr_default(IN tt_http_inserv_file_attr_t *attr)
 {
+    attr->contype_map = &tt_g_http_contype_map;
     attr->def_name = (tt_char_t *)"index.html";
     attr->def_name_len = sizeof("index.html") - 1;
-    attr->chunk_size = 1 << 14; // 16k
+    attr->chunk_size = 0; // 1 << 14; // 16k
     attr->can_have_path_param = TT_FALSE;
     attr->can_have_path_param = TT_FALSE;
     attr->process_post = TT_FALSE;
@@ -268,7 +272,7 @@ tt_http_inserv_action_t __inserv_file_on_complete(
         return TT_HTTP_INSERV_ACT_DISCARD;
     }
 
-    if (size >= sf->chunk_size) {
+    if ((sf->chunk_size != 0) && (size >= sf->chunk_size)) {
         tt_http_txenc_t txenc[1] = {TT_HTTP_TXENC_CHUNKED};
         tt_http_resp_render_set_txenc(resp,
                                       txenc,
@@ -280,6 +284,21 @@ tt_http_inserv_action_t __inserv_file_on_complete(
     }
 
     tt_http_resp_render_set_status(resp, TT_HTTP_STATUS_OK);
+
+    if (sf->contype_map != NULL) {
+        tt_http_uri_t *uri;
+        tt_fpath_t *fp;
+        const tt_char_t *ext;
+        tt_http_contype_entry_t *e;
+
+        uri = tt_http_parser_get_uri(req);
+        fp = TT_COND(uri != NULL, tt_http_uri_get_path(uri), NULL);
+        ext = TT_COND(fp != NULL, tt_fpath_get_extension(fp), "");
+        e = tt_http_contype_map_find_ext(sf->contype_map, ext);
+        if (e != NULL) {
+            tt_http_resp_render_set_contype(resp, e->type);
+        }
+    }
 
     return TT_COND(size > 0, TT_HTTP_INSERV_ACT_BODY, TT_HTTP_INSERV_ACT_PASS);
 }
@@ -295,9 +314,10 @@ tt_http_inserv_action_t __inserv_file_get_body(IN tt_http_inserv_t *s,
 
     if (sf->size >= 0) {
         TT_ASSERT(sf->size > 0);
-        TT_ASSERT(sf->size < sf->chunk_size);
+        TT_ASSERT((sf->chunk_size == 0) || (sf->size < sf->chunk_size));
         len = sf->size;
     } else {
+        TT_ASSERT(sf->chunk_size != 0);
         len = sf->chunk_size;
     }
     if (!TT_OK(tt_buf_reserve(buf, len))) {

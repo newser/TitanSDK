@@ -1533,6 +1533,68 @@ TT_TEST_ROUTINE_DEFINE(case_buf_set)
     TT_TEST_CASE_ENTER()
     // test start
 
+    {
+        tt_buf_init(&buf, NULL);
+
+        // put 0b hole
+        TT_UT_SUCCESS(tt_buf_put_hole(&buf, 0), "");
+        TT_UT_EQUAL(TT_BUF_RLEN(&buf), 0, "");
+        // put 1b hole
+        TT_UT_SUCCESS(tt_buf_put_hole(&buf, 1), "");
+        TT_UT_EQUAL(TT_BUF_RLEN(&buf), 0, "");
+        // put nb hole
+        TT_UT_SUCCESS(tt_buf_put_hole(&buf, 100), "");
+        TT_UT_EQUAL(TT_BUF_RLEN(&buf), 0, "");
+
+        TT_UT_SUCCESS(tt_buf_put_rep(&buf, 1, 200), "");
+
+        // put 0b hole
+        TT_UT_SUCCESS(tt_buf_put_hole(&buf, 0), "");
+        TT_UT_EQUAL(TT_BUF_RLEN(&buf), 200, "");
+        // put 1b hole
+        TT_UT_SUCCESS(tt_buf_put_hole(&buf, 1), "");
+        TT_UT_EQUAL(TT_BUF_RLEN(&buf), 200, "");
+        // put nb hole
+        TT_UT_SUCCESS(tt_buf_put_hole(&buf, 100), "");
+        TT_UT_EQUAL(TT_BUF_RLEN(&buf), 200, "");
+
+        tt_buf_destroy(&buf);
+    }
+
+    {
+        tt_char_t s[] = "1234567890abcdef1234567890abcdef";
+
+        tt_buf_init(&buf, NULL);
+
+        TT_UT_SUCCESS(tt_buf_put_head(&buf, (tt_u8_t *)s, 0), "");
+        TT_UT_EQUAL(TT_BUF_RLEN(&buf), 0, "");
+
+        TT_UT_SUCCESS(tt_buf_put_head(&buf, (tt_u8_t *)s, 1), "");
+        TT_UT_EQUAL(tt_buf_cmp_cstr(&buf, "1"), 0, "");
+
+        TT_UT_SUCCESS(tt_buf_put_head(&buf, (tt_u8_t *)s, 3), "");
+        TT_UT_EQUAL(tt_buf_cmp_cstr(&buf, "1231"), 0, "");
+
+        TT_UT_SUCCESS(tt_buf_put_head(&buf, (tt_u8_t *)s, sizeof(s) - 1), "");
+        TT_UT_EQUAL(tt_buf_cmp_cstr(&buf,
+                                    "1234567890abcdef1234567890abcdef1231"),
+                    0,
+                    "");
+
+        tt_buf_inc_rp(&buf, 10);
+        TT_UT_SUCCESS(tt_buf_put_head(&buf, (tt_u8_t *)s, 5), "");
+        TT_UT_EQUAL(tt_buf_cmp_cstr(&buf, "12345abcdef1234567890abcdef1231"),
+                    0,
+                    "");
+        TT_UT_SUCCESS(tt_buf_put_head(&buf, (tt_u8_t *)s, 6), "");
+        TT_UT_EQUAL(tt_buf_cmp_cstr(&buf,
+                                    "12345612345abcdef1234567890abcdef1231"),
+                    0,
+                    "");
+
+        tt_buf_destroy(&buf);
+    }
+
     tt_buf_init(&buf, NULL);
 
     ret = tt_buf_set_range(&buf, 0, 1, (tt_u8_t *)cs, (tt_u32_t)sizeof(cs) - 1);

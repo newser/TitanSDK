@@ -41,8 +41,11 @@ this file defines http incoming service: get file
 // type definition
 ////////////////////////////////////////////////////////////
 
+struct tt_http_contype_map_s;
+
 typedef struct
 {
+    struct tt_http_contype_map_s *contype_map;
     tt_char_t *def_name;
     tt_u32_t def_name_len;
     tt_s32_t chunk_size;

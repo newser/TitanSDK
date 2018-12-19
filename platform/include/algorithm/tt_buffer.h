@@ -309,9 +309,24 @@ tt_export tt_result_t tt_buf_put(IN tt_buf_t *buf,
                                  IN const tt_u8_t *data,
                                  IN tt_u32_t data_len);
 
+tt_export tt_result_t tt_buf_put_head(IN tt_buf_t *buf,
+                                      IN const tt_u8_t *data,
+                                      IN tt_u32_t data_len);
+
 tt_export tt_result_t tt_buf_put_rep(IN tt_buf_t *buf,
                                      IN tt_u8_t byte,
                                      IN tt_u32_t rep_num);
+
+tt_inline tt_result_t tt_buf_put_hole(IN tt_buf_t *buf, IN tt_u32_t len)
+{
+    if (TT_OK(tt_buf_reserve(buf, len))) {
+        buf->wpos += len;
+        buf->rpos += len;
+        return TT_SUCCESS;
+    } else {
+        return TT_FAIL;
+    }
+}
 
 tt_export tt_result_t tt_buf_put_rand(IN tt_buf_t *buf, IN tt_u32_t len);
 
