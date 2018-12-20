@@ -83,6 +83,8 @@ static http_parser_settings tt_s_hp_setting = {
 
 static void __clear_rawhdr(IN tt_dlist_t *dl);
 
+static void __clear_hdr(IN tt_dlist_t *dl);
+
 static tt_http_rawval_t *__hp_first_rv(IN tt_http_parser_t *hp,
                                        IN tt_char_t *name,
                                        IN tt_u32_t len);
@@ -120,6 +122,7 @@ tt_result_t tt_http_parser_create(IN tt_http_parser_t *hp,
     tt_dlist_init(&hp->trailing_rawhdr);
     hp->host = NULL;
     hp->contype_map = attr->contype_map;
+    tt_dlist_init(&hp->hdr);
 
     // extend to initial size
     tt_buf_init(&hp->buf, &attr->buf_attr);
@@ -136,6 +139,7 @@ tt_result_t tt_http_parser_create(IN tt_http_parser_t *hp,
     hp->body_counter = 0;
     hp->contype = TT_HTTP_CONTYPE_NUM;
     hp->content_len = -1;
+    tt_http_accenc_init(&hp->accenc);
 
     hp->txenc_num = 0;
     for (i = 0; i < TT_HTTP_TXENC_NUM; ++i) {
@@ -157,6 +161,7 @@ tt_result_t tt_http_parser_create(IN tt_http_parser_t *hp,
     hp->updated_contype = TT_FALSE;
     hp->updated_txenc = TT_FALSE;
     hp->updated_contenc = TT_FALSE;
+    hp->updated_accenc = TT_FALSE;
     hp->miss_txenc = TT_FALSE;
     hp->miss_contype = TT_FALSE;
     hp->miss_content_len = TT_FALSE;
@@ -181,6 +186,7 @@ void tt_http_parser_destroy(IN tt_http_parser_t *hp)
 
     __clear_rawhdr(&hp->rawhdr);
     __clear_rawhdr(&hp->trailing_rawhdr);
+    __clear_hdr(&hp->hdr);
 
     tt_buf_destroy(&hp->buf);
 
@@ -225,6 +231,7 @@ void tt_http_parser_clear(IN tt_http_parser_t *hp, IN tt_bool_t clear_recv_buf)
 
     __clear_rawhdr(&hp->rawhdr);
     __clear_rawhdr(&hp->trailing_rawhdr);
+    __clear_hdr(&hp->hdr);
 
     hp->host = NULL;
 
@@ -242,6 +249,7 @@ void tt_http_parser_clear(IN tt_http_parser_t *hp, IN tt_bool_t clear_recv_buf)
 
     hp->body_counter = 0;
     hp->content_len = -1;
+    tt_http_accenc_init(&hp->accenc);
 
     hp->txenc_num = 0;
     for (i = 0; i < TT_HTTP_TXENC_NUM; ++i) {
@@ -264,6 +272,7 @@ void tt_http_parser_clear(IN tt_http_parser_t *hp, IN tt_bool_t clear_recv_buf)
     hp->updated_content_len = TT_FALSE;
     hp->updated_txenc = TT_FALSE;
     hp->updated_contenc = TT_FALSE;
+    hp->updated_accenc = TT_FALSE;
     hp->miss_txenc = TT_FALSE;
     hp->miss_contype = TT_FALSE;
     hp->miss_content_len = TT_FALSE;
@@ -388,6 +397,19 @@ tt_blobex_t *tt_http_parser_get_host(IN tt_http_parser_t *hp)
         hp->updated_host = TT_TRUE;
     }
     return hp->host;
+}
+
+tt_http_hdr_t *tt_http_parser_find_hdr(IN tt_http_parser_t *hp,
+                                       IN tt_http_hname_t hname)
+{
+    tt_dnode_t *dn;
+    for (dn = tt_dlist_head(&hp->hdr); dn != NULL; dn = dn->next) {
+        tt_http_hdr_t *h = TT_CONTAINER(dn, tt_http_hdr_t, dnode);
+        if (h->name == hname) {
+            return h;
+        }
+    }
+    return NULL;
 }
 
 tt_http_contype_t tt_http_parser_get_contype(IN tt_http_parser_t *hp)
@@ -529,11 +551,54 @@ tt_u32_t tt_http_parser_get_contenc(IN tt_http_parser_t *hp,
     return hp->contenc_num;
 }
 
+tt_http_accenc_t *tt_http_parser_get_accenc(IN tt_http_parser_t *hp)
+{
+    tt_u32_t i;
+
+    if (!hp->updated_accenc) {
+        tt_http_hdr_t *h;
+        tt_http_rawhdr_t *rh;
+        tt_http_rawval_t *rv;
+
+        h = tt_http_hdr_accenc_create();
+        if (h == NULL) {
+            goto out;
+        }
+
+        __FOREACH_RV(rh, rv, "Accept-Encoding")
+        {
+            tt_http_hdr_parse_n(h,
+                                tt_blobex_addr(&rv->val),
+                                tt_blobex_len(&rv->val));
+        }
+        __FOREACH_RV_END()
+
+        tt_memcpy(&hp->accenc,
+                  tt_http_hdr_accenc_get(h),
+                  sizeof(tt_http_accenc_t));
+
+        tt_http_hdr_destroy(h);
+
+        hp->updated_accenc = TT_TRUE;
+    }
+
+out:
+    return &hp->accenc;
+}
+
 void __clear_rawhdr(IN tt_dlist_t *dl)
 {
     tt_dnode_t *node;
     while ((node = tt_dlist_pop_head(dl)) != NULL) {
         tt_http_rawhdr_destroy(TT_CONTAINER(node, tt_http_rawhdr_t, dnode));
+    }
+}
+
+void __clear_hdr(IN tt_dlist_t *dl)
+{
+    tt_dnode_t *node;
+    while ((node = tt_dlist_pop_head(dl)) != NULL) {
+        tt_http_hdr_destroy(TT_CONTAINER(node, tt_http_hdr_t, dnode));
     }
 }
 
@@ -717,9 +782,9 @@ int __on_msg_end(http_parser *p)
 // helper
 // ========================================
 
-void tt_http_parse_q(IN OUT tt_char_t **s,
-                     IN OUT tt_u32_t *len,
-                     OUT tt_float_t *q)
+void tt_http_parse_weight(IN OUT tt_char_t **s,
+                          IN OUT tt_u32_t *len,
+                          OUT tt_float_t *q)
 {
     tt_char_t *pos, *end, *sep;
     tt_u32_t n;

@@ -25,6 +25,8 @@
 
 #include <tt_platform.h>
 
+#include <math.h>
+
 ////////////////////////////////////////////////////////////
 // internal macro
 ////////////////////////////////////////////////////////////
@@ -877,6 +879,92 @@ TT_TEST_ROUTINE_DEFINE(case_strtol)
 
         p = tt_strrstr(p3, "1234");
         TT_UT_EQUAL(p, &p3[4], "");
+    }
+
+    //////////////////////////////////////////////
+
+    {
+        const tt_char_t *p;
+        tt_float_t fv;
+        tt_char_t *ep;
+
+        p = "";
+        TT_UT_FAIL(tt_strtof(p, &ep, &fv), "");
+        p = " ";
+        TT_UT_FAIL(tt_strtof(p, &ep, &fv), "");
+        p = "  ";
+        TT_UT_FAIL(tt_strtof(p, &ep, &fv), "");
+
+        p = "X";
+        TT_UT_FAIL(tt_strtof(p, &ep, &fv), "");
+        p = "1.X";
+        TT_UT_FAIL(tt_strtof(p, &ep, &fv), "");
+
+        p = "0";
+        TT_UT_SUCCESS(tt_strtof(p, &ep, &fv), "");
+        TT_UT_EQUAL(fv, 0, "");
+
+        p = "0.";
+        TT_UT_SUCCESS(tt_strtof(p, &ep, &fv), "");
+        TT_UT_EQUAL(fv, 0, "");
+        p = "0.0";
+        TT_UT_SUCCESS(tt_strtof(p, &ep, &fv), "");
+        TT_UT_EQUAL(fv, 0, "");
+        p = "0.1";
+        TT_UT_SUCCESS(tt_strtof(p, &ep, &fv), "");
+        TT_UT_EXP(fabs(fv - 0.1) < 0.01, "");
+
+        p = "1";
+        TT_UT_SUCCESS(tt_strtof(p, &ep, &fv), "");
+        TT_UT_EQUAL(fv, 1, "");
+        p = "1.0 ";
+        TT_UT_SUCCESS(tt_strtof(p, &ep, &fv), "");
+        TT_UT_EXP(fabs(fv - 1.0) < 0.01, "");
+        p = "1.1  ";
+        TT_UT_SUCCESS(tt_strtof(p, &ep, &fv), "");
+        TT_UT_EXP(fabs(fv - 1.1) < 0.01, "");
+    }
+
+    {
+        const tt_char_t *p;
+        tt_double_t fv;
+        tt_char_t *ep;
+
+        p = "";
+        TT_UT_FAIL(tt_strtod(p, &ep, &fv), "");
+        p = " ";
+        TT_UT_FAIL(tt_strtod(p, &ep, &fv), "");
+        p = "  ";
+        TT_UT_FAIL(tt_strtod(p, &ep, &fv), "");
+
+        p = "X";
+        TT_UT_FAIL(tt_strtod(p, &ep, &fv), "");
+        p = "1.X";
+        TT_UT_FAIL(tt_strtod(p, &ep, &fv), "");
+
+        p = "0";
+        TT_UT_SUCCESS(tt_strtod(p, &ep, &fv), "");
+        TT_UT_EQUAL(fv, 0, "");
+
+        p = "0.";
+        TT_UT_SUCCESS(tt_strtod(p, &ep, &fv), "");
+        TT_UT_EQUAL(fv, 0, "");
+        p = "0.0";
+        TT_UT_SUCCESS(tt_strtod(p, &ep, &fv), "");
+        TT_UT_EQUAL(fv, 0, "");
+        p = "0.1";
+        TT_UT_SUCCESS(tt_strtod(p, &ep, &fv), "");
+        TT_UT_EXP(fabs(fv - 0.1) < 0.01, "");
+
+        p = "1";
+        TT_UT_SUCCESS(tt_strtod(p, &ep, &fv), "");
+        TT_UT_EQUAL(fv, 1, "");
+        p = "1.0 ";
+        TT_UT_SUCCESS(tt_strtod(p, &ep, &fv), "");
+        TT_UT_EXP(fabs(fv - 1.0) < 0.01, "");
+        p = "1.1  ";
+        TT_UT_SUCCESS(tt_strtod(p, &ep, &fv), "");
+        TT_UT_EXP(fabs(fv - 1.1) < 0.01, "");
     }
 
     // test end

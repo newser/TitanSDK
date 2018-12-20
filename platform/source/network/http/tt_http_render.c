@@ -23,6 +23,7 @@
 #include <network/http/tt_http_render.h>
 
 #include <algorithm/tt_buffer_format.h>
+#include <network/http/header/tt_http_hdr_accept_encoding.h>
 #include <network/http/header/tt_http_hdr_content_encoding.h>
 #include <network/http/tt_http_header.h>
 
@@ -70,8 +71,11 @@ static void __render_clear(IN tt_http_render_t *r);
 
 static void __render_add_hdr(IN tt_http_render_t *r, IN tt_http_hdr_t *h);
 
-static tt_http_hdr_t *__rend_find_hdr(IN tt_http_render_t *render,
-                                      IN tt_http_hname_t name);
+static tt_http_hdr_t *__render_find_hdr(IN tt_http_render_t *render,
+                                        IN tt_http_hname_t name);
+
+static void __render_remove_all(IN tt_http_render_t *render,
+                                IN tt_http_hname_t name);
 
 static tt_u32_t __common_render_len(IN tt_http_render_t *render);
 
@@ -84,6 +88,9 @@ static void __render_set_txenc(IN tt_http_render_t *render,
 static tt_result_t __render_set_contenc(IN tt_http_render_t *render,
                                         IN OPT tt_http_enc_t *enc,
                                         IN tt_u32_t enc_num);
+
+static tt_result_t __render_set_accenc(IN tt_http_render_t *render,
+                                       IN OPT tt_http_accenc_t *accenc);
 
 ////////////////////////////////////////////////////////////
 // interface implementation
@@ -227,6 +234,12 @@ tt_result_t tt_http_req_render_set_contenc(IN tt_http_req_render_t *req,
     return __render_set_contenc(&req->render, enc, enc_num);
 }
 
+tt_result_t tt_http_req_render_set_accenc(IN tt_http_req_render_t *req,
+                                          IN OPT tt_http_accenc_t *accenc)
+{
+    return __render_set_accenc(&req->render, accenc);
+}
+
 void tt_http_resp_render_init(IN tt_http_resp_render_t *resp,
                               IN OPT tt_http_resp_render_attr_t *attr)
 {
@@ -341,6 +354,12 @@ tt_result_t tt_http_resp_render_set_contenc(IN tt_http_resp_render_t *resp,
     return __render_set_contenc(&resp->render, enc, enc_num);
 }
 
+tt_result_t tt_http_resp_render_set_accenc(IN tt_http_resp_render_t *resp,
+                                           IN OPT tt_http_accenc_t *accenc)
+{
+    return __render_set_accenc(&resp->render, accenc);
+}
+
 void __render_init(IN tt_http_render_t *r, IN tt_http_render_attr_t *attr)
 {
     tt_u32_t i;
@@ -411,8 +430,8 @@ void __render_add_hdr(IN tt_http_render_t *r, IN tt_http_hdr_t *h)
     tt_dlist_push_tail(&r->hdr, &h->dnode);
 }
 
-tt_http_hdr_t *__rend_find_hdr(IN tt_http_render_t *render,
-                               IN tt_http_hname_t name)
+tt_http_hdr_t *__render_find_hdr(IN tt_http_render_t *render,
+                                 IN tt_http_hname_t name)
 {
     tt_dnode_t *dn = tt_dlist_head(&render->hdr);
     while (dn != NULL) {
@@ -423,6 +442,22 @@ tt_http_hdr_t *__rend_find_hdr(IN tt_http_render_t *render,
         dn = dn->next;
     }
     return NULL;
+}
+
+void __render_remove_all(IN tt_http_render_t *render, IN tt_http_hname_t name)
+{
+    tt_dnode_t *dn = tt_dlist_head(&render->hdr);
+    while (dn != NULL) {
+        tt_http_hdr_t *h = TT_CONTAINER(dn, tt_http_hdr_t, dnode);
+
+        dn = dn->next;
+
+        if (h->name == name) {
+            tt_dlist_remove(&render->hdr, &h->dnode);
+            tt_http_hdr_destroy(h);
+            // continue to move next
+        }
+    }
 }
 
 tt_u32_t __common_render_len(IN tt_http_render_t *render)
@@ -582,7 +617,7 @@ tt_result_t __render_set_contenc(IN tt_http_render_t *render,
                                  IN OPT tt_http_enc_t *enc,
                                  IN tt_u32_t enc_num)
 {
-    tt_http_hdr_t *h = __rend_find_hdr(render, TT_HTTP_HDR_CONTENC);
+    tt_http_hdr_t *h = __render_find_hdr(render, TT_HTTP_HDR_CONTENC);
     if (h == NULL) {
         h = tt_http_hdr_contenc_create();
         if (h == NULL) {
@@ -593,4 +628,25 @@ tt_result_t __render_set_contenc(IN tt_http_render_t *render,
 
     tt_http_hdr_contenc_set(h, enc, enc_num);
     return TT_SUCCESS;
+}
+
+tt_result_t __render_set_accenc(IN tt_http_render_t *render,
+                                IN OPT tt_http_accenc_t *accenc)
+{
+    if (accenc != NULL) {
+        tt_http_hdr_t *h = __render_find_hdr(render, TT_HTTP_HDR_ACCENC);
+        if (h == NULL) {
+            h = tt_http_hdr_accenc_create();
+            if (h == NULL) {
+                return TT_FAIL;
+            }
+            __render_add_hdr(render, h);
+        }
+
+        tt_http_hdr_accenc_set(h, accenc);
+        return TT_SUCCESS;
+    } else {
+        __render_remove_all(render, TT_HTTP_HDR_ACCENC);
+        return TT_SUCCESS;
+    }
 }

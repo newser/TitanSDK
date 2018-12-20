@@ -217,6 +217,7 @@ TT_TEST_CASE("case_http_render_req",
                 "Host: sample\r\n"
                 "Date: 1, 22, 333\r\n"
                 "Content-Encoding: compress, compress\r\n"
+                "Accept-Encoding: compress;q=0.999, *;q=0\r\n"
                 "\r\n";
             tt_http_txenc_t txe[5] = {
                 TT_HTTP_TXENC_GZIP,
@@ -234,6 +235,13 @@ TT_TEST_CASE("case_http_render_req",
             tt_http_req_render_set_txenc(&r, txe, 5);
             tt_http_req_render_set_content_len(&r, 0);
             TT_UT_SUCCESS(tt_http_req_render_set_contenc(&r, cte, 2), "");
+            {
+                tt_http_accenc_t ae;
+                tt_http_accenc_init(&ae);
+                tt_http_accenc_set(&ae, TT_HTTP_ENC_COMPRESS, TT_TRUE, 0.9999);
+                tt_http_accenc_set_aster(&ae, TT_TRUE, 0.0001);
+                TT_UT_SUCCESS(tt_http_req_render_set_accenc(&r, &ae), "");
+            }
             TT_UT_SUCCESS(tt_http_req_render(&r, &data, &len), "");
             TT_UT_EQUAL(len, tt_strlen(msg), "");
             TT_UT_EXP(tt_strncmp(data, msg, len) == 0, "");
@@ -242,6 +250,7 @@ TT_TEST_CASE("case_http_render_req",
             tt_http_req_render_set_txenc(&r, NULL, 5);
             tt_http_req_render_set_content_len(&r, -1);
             TT_UT_SUCCESS(tt_http_req_render_set_contenc(&r, NULL, 0), "");
+            TT_UT_SUCCESS(tt_http_req_render_set_accenc(&r, NULL), "");
         }
         {
             const tt_char_t *msg =
@@ -372,6 +381,7 @@ TT_TEST_ROUTINE_DEFINE(case_http_render_resp)
                 "Host: sample\r\n"
                 "Date: 1, 22, 333\r\n"
                 "Content-Encoding: identity, compress\r\n"
+                "Accept-Encoding: compress;q=0.999, *\r\n"
                 "\r\n";
             tt_http_txenc_t txe[5] = {
                 TT_HTTP_TXENC_CHUNKED,
@@ -385,6 +395,13 @@ TT_TEST_ROUTINE_DEFINE(case_http_render_resp)
             tt_http_resp_render_set_txenc(&r, txe, 1);
             tt_http_resp_render_set_content_len(&r, 100);
             TT_UT_SUCCESS(tt_http_resp_render_set_contenc(&r, conte, 2), "");
+            {
+                tt_http_accenc_t ae;
+                tt_http_accenc_init(&ae);
+                tt_http_accenc_set(&ae, TT_HTTP_ENC_COMPRESS, TT_TRUE, 0.9999);
+                tt_http_accenc_set_aster(&ae, TT_TRUE, -1);
+                TT_UT_SUCCESS(tt_http_resp_render_set_accenc(&r, &ae), "");
+            }
             TT_UT_SUCCESS(tt_http_resp_render(&r, &data, &len), "");
             TT_UT_EQUAL(len, tt_strlen(msg), "");
             TT_UT_EXP(tt_strncmp(data, msg, len) == 0, "");
@@ -393,6 +410,7 @@ TT_TEST_ROUTINE_DEFINE(case_http_render_resp)
             tt_http_resp_render_set_txenc(&r, NULL, 0);
             tt_http_resp_render_set_content_len(&r, -2);
             TT_UT_SUCCESS(tt_http_resp_render_set_contenc(&r, NULL, 0), "");
+            TT_UT_SUCCESS(tt_http_resp_render_set_accenc(&r, NULL), "");
         }
         {
             tt_http_resp_render_set_conn(&r, TT_HTTP_CONN_NONE);

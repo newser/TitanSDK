@@ -214,6 +214,14 @@ extern tt_result_t tt_strtos32(IN const char *str,
                                IN int base,
                                IN tt_s32_t *val);
 
+extern tt_result_t tt_strtof(IN const char *str,
+                             IN char **endptr,
+                             IN tt_float_t *val);
+
+extern tt_result_t tt_strtod(IN const char *str,
+                             IN char **endptr,
+                             IN tt_double_t *val);
+
 extern char *tt_strrstr(const char *haystack, const char *needle);
 
 extern void *tt_memrchr(const void *s, int c, size_t n);

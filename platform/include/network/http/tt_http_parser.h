@@ -33,6 +33,7 @@ this file defines http parser APIs
 #include <algorithm/tt_buffer.h>
 #include <algorithm/tt_double_linked_list.h>
 #include <network/http/def/tt_http_def.h>
+#include <network/http/header/tt_http_hdr_accept_encoding.h>
 #include <network/http/tt_http_content_type_map.h>
 #include <network/http/tt_http_uri.h>
 
@@ -63,6 +64,7 @@ typedef struct tt_http_parser_s
     tt_dlist_t trailing_rawhdr;
     tt_blobex_t *host;
     tt_http_contype_map_t *contype_map;
+    tt_dlist_t hdr;
 
     tt_buf_t buf;
     tt_blobex_t rawuri;
@@ -75,6 +77,7 @@ typedef struct tt_http_parser_s
     tt_u32_t body_counter;
     tt_http_contype_t contype;
     tt_s32_t content_len;
+    tt_http_accenc_t accenc;
     tt_u8_t txenc_num;
     tt_u8_t txenc[TT_HTTP_TXENC_NUM];
     tt_u8_t contenc_num;
@@ -89,6 +92,7 @@ typedef struct tt_http_parser_s
     tt_bool_t updated_content_len : 1;
     tt_bool_t updated_txenc : 1;
     tt_bool_t updated_contenc : 1;
+    tt_bool_t updated_accenc : 1;
     tt_bool_t miss_txenc : 1;
     tt_bool_t miss_contype : 1;
     tt_bool_t miss_content_len : 1;
@@ -163,6 +167,9 @@ tt_inline tt_bool_t tt_http_parser_should_keepalive(IN tt_http_parser_t *hp)
 // - return a empty blobex if Host header is empty
 tt_export tt_blobex_t *tt_http_parser_get_host(IN tt_http_parser_t *hp);
 
+tt_export tt_http_hdr_t *tt_http_parser_find_hdr(IN tt_http_parser_t *hp,
+                                                 IN tt_http_hname_t hname);
+
 tt_export tt_http_contype_t tt_http_parser_get_contype(IN tt_http_parser_t *hp);
 
 tt_export tt_s32_t tt_http_parser_get_content_len(IN tt_http_parser_t *hp);
@@ -173,12 +180,14 @@ tt_export tt_u32_t tt_http_parser_get_txenc(IN tt_http_parser_t *hp,
 tt_export tt_u32_t tt_http_parser_get_contenc(IN tt_http_parser_t *hp,
                                               OUT tt_http_enc_t *contenc);
 
+tt_export tt_http_accenc_t *tt_http_parser_get_accenc(IN tt_http_parser_t *hp);
+
 // ========================================
 // helper
 // ========================================
 
-tt_export void tt_http_parse_q(IN OUT tt_char_t **s,
-                               IN OUT tt_u32_t *len,
-                               OUT tt_float_t *q);
+tt_export void tt_http_parse_weight(IN OUT tt_char_t **s,
+                                    IN OUT tt_u32_t *len,
+                                    OUT tt_float_t *q);
 
 #endif /* __TT_HTTP_PARSER__ */

@@ -25,6 +25,7 @@
 #include <math.h>
 #include <stdlib.h>
 
+#include <network/http/header/tt_http_hdr_accept_encoding.h>
 #include <network/http/header/tt_http_hdr_content_encoding.h>
 #include <network/http/header/tt_http_hdr_transfer_encoding.h>
 #include <network/http/tt_http_content_type_map.h>
@@ -58,6 +59,7 @@ TT_TEST_ROUTINE_DECLARE(case_http_body2)
 TT_TEST_ROUTINE_DECLARE(case_http_contype_map)
 TT_TEST_ROUTINE_DECLARE(case_http_hdr_txenc)
 TT_TEST_ROUTINE_DECLARE(case_http_hdr_contenc)
+TT_TEST_ROUTINE_DECLARE(case_http_hdr_accenc)
 TT_TEST_ROUTINE_DECLARE(case_http_misc)
 // =========================================
 
@@ -146,6 +148,15 @@ TT_TEST_CASE("case_http_hdr_basic",
                  NULL,
                  NULL),
 
+    TT_TEST_CASE("case_http_hdr_accenc",
+                 "http hdr: accept-encoding",
+                 case_http_hdr_accenc,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL),
+
     TT_TEST_CASE("case_http_misc",
                  "http test misc things",
                  case_http_misc,
@@ -169,7 +180,7 @@ TT_TEST_CASE("case_http_hdr_basic",
     ////////////////////////////////////////////////////////////
 
     /*
-    TT_TEST_ROUTINE_DEFINE(case_http_misc)
+    TT_TEST_ROUTINE_DEFINE(case_http_hdr_accenc)
     {
         //tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
 
@@ -826,6 +837,17 @@ TT_TEST_ROUTINE_DEFINE(case_http_body)
         TT_UT_FALSE(hp.miss_contenc, "");
 
         {
+            tt_http_accenc_t *ha = tt_http_parser_get_accenc(&hp);
+            TT_UT_TRUE(ha->has[TT_HTTP_ENC_GZIP], "");
+            TT_UT_EXP(fabs(ha->weight[TT_HTTP_ENC_GZIP] - 1.0) < 0.0001, "");
+            TT_UT_TRUE(ha->has[TT_HTTP_ENC_DEFLATE], "");
+            TT_UT_EXP(fabs(ha->weight[TT_HTTP_ENC_DEFLATE] - 1.0) < 0.0001, "");
+            TT_UT_FALSE(ha->has[TT_HTTP_ENC_COMPRESS], "");
+            TT_UT_FALSE(ha->has[TT_HTTP_ENC_BR], "");
+            TT_UT_FALSE(ha->has[TT_HTTP_ENC_IDENTITY], "");
+        }
+
+        {
             tt_http_uri_t *u = tt_http_parser_get_uri(&hp);
             TT_UT_NOT_NULL(u, "");
             TT_UT_STREQ(tt_http_uri_render(u), "/favicon.ico", "");
@@ -908,6 +930,15 @@ TT_TEST_ROUTINE_DEFINE(case_http_body)
         TT_UT_EQUAL(ce[1], TT_HTTP_ENC_IDENTITY, "");
         TT_UT_EQUAL(ce[2], TT_HTTP_ENC_DEFLATE, "");
         TT_UT_TRUE(hp.miss_txenc, "");
+
+        {
+            tt_http_accenc_t *ha = tt_http_parser_get_accenc(&hp);
+            TT_UT_FALSE(ha->has[TT_HTTP_ENC_GZIP], "");
+            TT_UT_FALSE(ha->has[TT_HTTP_ENC_DEFLATE], "");
+            TT_UT_FALSE(ha->has[TT_HTTP_ENC_COMPRESS], "");
+            TT_UT_FALSE(ha->has[TT_HTTP_ENC_BR], "");
+            TT_UT_FALSE(ha->has[TT_HTTP_ENC_IDENTITY], "");
+        }
 
         __check("Host", "www.example.com");
         __check("Content-Type", "application/javascript");
@@ -1805,7 +1836,7 @@ TT_TEST_ROUTINE_DEFINE(case_http_misc)
         tt_char_t *p = buf;                                                    \
         tt_u32_t n = sizeof(buf) - 1;                                          \
         q = 100;                                                               \
-        tt_http_parse_q(&p, &n, &q);                                           \
+        tt_http_parse_weight(&p, &n, &q);                                      \
         TT_UT_EQUAL(p, buf + pp, "");                                          \
         TT_UT_EQUAL(n, nn, "");                                                \
         TT_UT_EXP(fabs(q - qq) < 0.001, "");                                   \
@@ -1855,6 +1886,203 @@ TT_TEST_ROUTINE_DEFINE(case_http_misc)
     ut_parse_q(" 1.2.3 ; q=0.3333 ", 1, 5, 0.333f);
 
     ut_parse_q(" 1.2.3 ; q=1.3333 ", 1, 5, 1.0f);
+
+    // test end
+    TT_TEST_CASE_LEAVE()
+}
+
+TT_TEST_ROUTINE_DEFINE(case_http_hdr_accenc)
+{
+    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+    tt_http_hdr_t *h;
+    tt_char_t buf[128];
+    tt_http_accenc_t *ha;
+
+    TT_TEST_CASE_ENTER()
+    // test start
+
+    h = tt_http_hdr_accenc_create();
+    TT_UT_NOT_NULL(h, "");
+    TT_UT_EXP(tt_http_hdr_render_len(h) >= sizeof("Accept-Encoding: \r\n") - 1,
+              "");
+    tt_memset(buf, 0, sizeof(buf));
+    TT_UT_EQUAL(tt_http_hdr_render(h, buf),
+                sizeof("Accept-Encoding: \r\n") - 1,
+                "");
+    TT_UT_STREQ(buf, "Accept-Encoding: \r\n", "");
+
+    ha = tt_http_hdr_accenc_get(h);
+    TT_UT_NOT_NULL(ha, "");
+
+    // 1 token
+    ha->has[TT_HTTP_ENC_BR] = TT_TRUE;
+    TT_UT_EXP(tt_http_hdr_render_len(h) >=
+                  sizeof("Accept-Encoding: br\r\n") - 1,
+              "");
+    tt_memset(buf, 0, sizeof(buf));
+    TT_UT_EQUAL(tt_http_hdr_render(h, buf),
+                sizeof("Accept-Encoding: br\r\n") - 1,
+                "");
+    TT_UT_STREQ(buf, "Accept-Encoding: br\r\n", "");
+
+    // 1 token with q
+    ha->has[TT_HTTP_ENC_BR] = TT_TRUE;
+    ha->weight[TT_HTTP_ENC_BR] = 0.2;
+    TT_UT_EXP(tt_http_hdr_render_len(h) >=
+                  sizeof("Accept-Encoding: br;q=0.2\r\n") - 1,
+              "");
+    tt_memset(buf, 0, sizeof(buf));
+    TT_UT_EQUAL(tt_http_hdr_render(h, buf),
+                sizeof("Accept-Encoding: br;q=0.2\r\n") - 1,
+                "");
+    TT_UT_STREQ(buf, "Accept-Encoding: br;q=0.2\r\n", "");
+
+    // 2 token
+    ha->has[TT_HTTP_ENC_GZIP] = TT_TRUE;
+    // ha->weight[TT_HTTP_ENC_GZIP] = 0.3;
+    ha->weight[TT_HTTP_ENC_DEFLATE] = 0.4;
+    TT_UT_EXP(tt_http_hdr_render_len(h) >=
+                  sizeof("Accept-Encoding: br;q=0.2, gzip\r\n") - 1,
+              "");
+    tt_memset(buf, 0, sizeof(buf));
+    TT_UT_EQUAL(tt_http_hdr_render(h, buf),
+                sizeof("Accept-Encoding: br;q=0.2, gzip\r\n") - 1,
+                "");
+    TT_UT_STREQ(buf, "Accept-Encoding: br;q=0.2, gzip\r\n", "");
+
+    // 3 token
+    ha->has[TT_HTTP_ENC_DEFLATE] = TT_TRUE;
+    TT_UT_EXP(tt_http_hdr_render_len(h) >=
+                  sizeof("Accept-Encoding: deflate;q=0.4, br;q=0.2, gzip\r\n") -
+                      1,
+              "");
+    tt_memset(buf, 0, sizeof(buf));
+    TT_UT_EQUAL(tt_http_hdr_render(h, buf),
+                sizeof("Accept-Encoding: deflate;q=0.4, br;q=0.2, gzip\r\n") -
+                    1,
+                "");
+    TT_UT_STREQ(buf, "Accept-Encoding: deflate;q=0.4, br;q=0.2, gzip\r\n", "");
+
+    // with aster
+    ha->has_aster = TT_TRUE;
+    TT_UT_EXP(tt_http_hdr_render_len(h) >=
+                  sizeof(
+                      "Accept-Encoding: deflate;q=0.4, br;q=0.2, gzip, *\r\n") -
+                      1,
+              "");
+    tt_memset(buf, 0, sizeof(buf));
+    TT_UT_EQUAL(tt_http_hdr_render(h, buf),
+                sizeof(
+                    "Accept-Encoding: deflate;q=0.4, br;q=0.2, gzip, *\r\n") -
+                    1,
+                "");
+    TT_UT_STREQ(buf,
+                "Accept-Encoding: deflate;q=0.4, br;q=0.2, gzip, *\r\n",
+                "");
+
+    // with aster weight
+    ha->has_aster = TT_TRUE;
+    ha->aster_weight = 0;
+    TT_UT_EXP(tt_http_hdr_render_len(h) >=
+                  sizeof("Accept-Encoding: deflate;q=0.4, br;q=0.2, gzip, "
+                         "*;q=0\r\n") -
+                      1,
+              "");
+    tt_memset(buf, 0, sizeof(buf));
+    TT_UT_EQUAL(
+        tt_http_hdr_render(h, buf),
+        sizeof("Accept-Encoding: deflate;q=0.4, br;q=0.2, gzip, *;q=0\r\n") - 1,
+        "");
+    TT_UT_STREQ(buf,
+                "Accept-Encoding: deflate;q=0.4, br;q=0.2, gzip, *;q=0\r\n",
+                "");
+
+    tt_http_hdr_destroy(h);
+
+    h = tt_http_hdr_accenc_create();
+    TT_UT_NOT_NULL(h, "");
+
+    // a single aster
+    ha = tt_http_hdr_accenc_get(h);
+
+    tt_http_accenc_set_aster(ha, TT_TRUE, 1.2);
+
+    TT_UT_EXP(tt_http_hdr_render_len(h) >=
+                  sizeof("Accept-Encoding: *;q=1\r\n") - 1,
+              "");
+    tt_memset(buf, 0, sizeof(buf));
+    TT_UT_EQUAL(tt_http_hdr_render(h, buf),
+                sizeof("Accept-Encoding: *;q=1\r\n") - 1,
+                "");
+    TT_UT_STREQ(buf, "Accept-Encoding: *;q=1\r\n", "");
+
+    // remove aster weight
+    tt_http_accenc_set_aster(ha, TT_TRUE, -1.2);
+    tt_memset(buf, 0, sizeof(buf));
+    TT_UT_EQUAL(tt_http_hdr_render(h, buf),
+                sizeof("Accept-Encoding: *\r\n") - 1,
+                "");
+    TT_UT_STREQ(buf, "Accept-Encoding: *\r\n", "");
+
+    {
+        tt_http_accenc_t a;
+        tt_http_accenc_init(&a);
+        tt_http_accenc_set(&a, TT_HTTP_ENC_COMPRESS, TT_TRUE, 0.1);
+        tt_http_accenc_set_aster(&a, TT_TRUE, 0.2);
+        tt_http_hdr_accenc_set(h, &a);
+
+        tt_memset(buf, 0, sizeof(buf));
+        TT_UT_EQUAL(tt_http_hdr_render(h, buf),
+                    sizeof("Accept-Encoding: compress;q=0.1, *;q=0.2\r\n") - 1,
+                    "");
+        TT_UT_STREQ(buf, "Accept-Encoding: compress;q=0.1, *;q=0.2\r\n", "");
+    }
+
+    tt_http_hdr_destroy(h);
+
+    /////////////////////////////////////////////////////////////////
+
+    h = tt_http_hdr_accenc_create();
+    TT_UT_NOT_NULL(h, "");
+
+    TT_UT_SUCCESS(tt_http_hdr_parse(h, ""), "");
+    ha = tt_http_hdr_accenc_get(h);
+    //...
+    TT_UT_FALSE(ha->has_aster, "");
+    TT_UT_FALSE(ha->has[TT_HTTP_ENC_GZIP], "");
+    TT_UT_FALSE(ha->has[TT_HTTP_ENC_COMPRESS], "");
+
+    TT_UT_SUCCESS(tt_http_hdr_parse(h, "* ; q=-0.99"), "");
+    ha = tt_http_hdr_accenc_get(h);
+    TT_UT_TRUE(ha->has_aster, "");
+    TT_UT_EXP(fabs(ha->aster_weight - 0) < 0.0001, "");
+
+    TT_UT_SUCCESS(
+        tt_http_hdr_parse(h, " GZIP ; q=1.2, compress;q=0,*;q = 0.5 ,BR; xx;"),
+        "");
+    ha = tt_http_hdr_accenc_get(h);
+    TT_UT_TRUE(ha->has_aster, "");
+    // aster weight "q =" is invalid, and considered missed and use 1.0 as
+    // default
+    TT_UT_EXP(fabs(ha->aster_weight - 1.0) < 0.0001, "");
+    TT_UT_TRUE(ha->has[TT_HTTP_ENC_GZIP], "");
+    TT_UT_EXP(fabs(ha->weight[TT_HTTP_ENC_GZIP] - 1.0) < 0.0001, "");
+    TT_UT_TRUE(ha->has[TT_HTTP_ENC_COMPRESS], "");
+    TT_UT_EXP(fabs(ha->weight[TT_HTTP_ENC_COMPRESS] - 0) < 0.0001, "");
+    TT_UT_TRUE(ha->has[TT_HTTP_ENC_BR], "");
+    TT_UT_EXP(fabs(ha->weight[TT_HTTP_ENC_BR] - 1.0) < 0.0001, "");
+
+    // no q
+    TT_UT_SUCCESS(tt_http_hdr_parse(h, "  xx; ,yy, deflate"), "");
+    TT_UT_TRUE(ha->has[TT_HTTP_ENC_DEFLATE], "");
+    TT_UT_EXP(fabs(ha->weight[TT_HTTP_ENC_DEFLATE] - 1.0) < 0.0001, "");
+
+    // overwrite
+    TT_UT_SUCCESS(tt_http_hdr_parse(h, "deflate;q=0.2a"), "");
+    TT_UT_TRUE(ha->has[TT_HTTP_ENC_DEFLATE], "");
+    TT_UT_EXP(fabs(ha->weight[TT_HTTP_ENC_DEFLATE] - 0.2) < 0.0001, "");
+
+    tt_http_hdr_destroy(h);
 
     // test end
     TT_TEST_CASE_LEAVE()

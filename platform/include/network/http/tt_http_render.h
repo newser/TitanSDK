@@ -46,6 +46,7 @@ this file defines http
 ////////////////////////////////////////////////////////////
 
 struct tt_http_sconn_s;
+struct tt_http_accenc_s;
 
 typedef struct
 {
@@ -179,6 +180,9 @@ tt_http_req_render_set_contenc(IN tt_http_req_render_t *req,
                                IN OPT tt_http_enc_t *enc,
                                IN tt_u32_t enc_num);
 
+tt_export tt_result_t tt_http_req_render_set_accenc(
+    IN tt_http_req_render_t *req, IN OPT struct tt_http_accenc_s *accenc);
+
 // ========================================
 // response
 // ========================================
@@ -254,5 +258,9 @@ tt_export tt_result_t
 tt_http_resp_render_set_contenc(IN tt_http_resp_render_t *resp,
                                 IN OPT tt_http_enc_t *enc,
                                 IN tt_u32_t enc_num);
+
+tt_export tt_result_t tt_http_resp_render_set_accenc(
+    IN tt_http_resp_render_t *resp, IN OPT struct tt_http_accenc_s *accenc);
+
 
 #endif /* __TT_HTTP_RENDER__ */
