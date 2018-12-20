@@ -171,6 +171,14 @@ tt_export tt_u32_t tt_http_parser_get_txenc(IN tt_http_parser_t *hp,
                                             OUT tt_http_txenc_t *txenc);
 
 tt_export tt_u32_t tt_http_parser_get_contenc(IN tt_http_parser_t *hp,
-                                            OUT tt_http_enc_t *contenc);
+                                              OUT tt_http_enc_t *contenc);
+
+// ========================================
+// helper
+// ========================================
+
+tt_export void tt_http_parse_q(IN OUT tt_char_t **s,
+                               IN OUT tt_u32_t *len,
+                               OUT tt_float_t *q);
 
 #endif /* __TT_HTTP_PARSER__ */

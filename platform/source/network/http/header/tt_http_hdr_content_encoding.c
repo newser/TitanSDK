@@ -87,8 +87,7 @@ tt_http_hdr_t *tt_http_hdr_contenc_create()
     return h;
 }
 
-tt_u32_t tt_http_hdr_contenc_get(IN tt_http_hdr_t *h,
-                                 OUT tt_u8_t *contenc)
+tt_u32_t tt_http_hdr_contenc_get(IN tt_http_hdr_t *h, OUT tt_u8_t *contenc)
 {
     __hdr_contenc_t *hc = TT_HTTP_HDR_CAST(h, __hdr_contenc_t);
     tt_u32_t i;

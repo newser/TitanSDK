@@ -23,8 +23,8 @@
 #include <network/http/tt_http_parser.h>
 
 #include <memory/tt_slab.h>
-#include <network/http/header/tt_http_hdr_transfer_encoding.h>
 #include <network/http/header/tt_http_hdr_content_encoding.h>
+#include <network/http/header/tt_http_hdr_transfer_encoding.h>
 #include <network/http/tt_http_raw_header.h>
 
 ////////////////////////////////////////////////////////////
@@ -252,7 +252,7 @@ void tt_http_parser_clear(IN tt_http_parser_t *hp, IN tt_bool_t clear_recv_buf)
     for (i = 0; i < TT_HTTP_ENC_NUM; ++i) {
         hp->contenc[i] = TT_HTTP_ENC_NUM;
     }
-    
+
     hp->contype = TT_HTTP_CONTYPE_NUM;
     hp->complete_line1 = TT_FALSE;
     hp->complete_header = TT_FALSE;
@@ -497,17 +497,17 @@ tt_u32_t tt_http_parser_get_contenc(IN tt_http_parser_t *hp,
                                     OUT tt_http_enc_t *contenc)
 {
     tt_u32_t i;
-    
+
     if (!hp->updated_contenc) {
         tt_http_hdr_t *h;
         tt_http_rawhdr_t *rh;
         tt_http_rawval_t *rv;
-        
+
         h = tt_http_hdr_contenc_create();
         if (h == NULL) {
             return 0;
         }
-        
+
         __FOREACH_RV(rh, rv, "Content-Encoding")
         {
             tt_http_hdr_parse_n(h,
@@ -515,14 +515,14 @@ tt_u32_t tt_http_parser_get_contenc(IN tt_http_parser_t *hp,
                                 tt_blobex_len(&rv->val));
         }
         __FOREACH_RV_END()
-        
+
         hp->contenc_num = tt_http_hdr_contenc_get(h, hp->contenc);
         hp->miss_txenc = h->missed_field;
         tt_http_hdr_destroy(h);
-        
+
         hp->updated_contenc = TT_TRUE;
     }
-    
+
     for (i = 0; i < hp->contenc_num; ++i) {
         contenc[i] = hp->contenc[i];
     }
@@ -598,7 +598,7 @@ int __on_hdr_field(http_parser *p, const char *at, size_t length)
             return -1;
         }
     } else {
-        // found a new header
+        // ok a new header
         tt_http_rawhdr_t *rh = tt_http_rawhdr_create(hp->rawhdr_slab,
                                                      (tt_char_t *)at,
                                                      length,
@@ -711,4 +711,78 @@ int __on_msg_end(http_parser *p)
     http_parser_pause(&hp->parser, 1);
 
     return 0;
+}
+
+// ========================================
+// helper
+// ========================================
+
+void tt_http_parse_q(IN OUT tt_char_t **s,
+                     IN OUT tt_u32_t *len,
+                     OUT tt_float_t *q)
+{
+    tt_char_t *pos, *end, *sep;
+    tt_u32_t n;
+    tt_bool_t ok;
+    tt_float_t weight;
+
+    tt_trim_lr((tt_u8_t **)s, len, ' ');
+    pos = *s;
+    n = *len;
+    end = pos + n;
+
+    // no "q", return trimmed
+    sep = tt_memchr(pos, ';', n);
+    if (sep == NULL) {
+        // If no "q" parameter is present, the default weight is 1.
+        *q = 1.0f;
+        return;
+    }
+
+    // trim value before ";"
+    n = sep - pos;
+    tt_trim_lr((tt_u8_t **)&pos, &n, ' ');
+    //*s = pos;
+    *len = n;
+
+    // parse "q="
+    /*
+     weight = OWS ";" OWS "q=" qvalue
+     qvalue = ( "0" [ "." 0*3DIGIT ] ) / ( "1" [ "." 0*3("0") ] )
+     */
+    ok = TT_FALSE;
+    pos = sep + 1;
+    while ((pos + 2) <= end) {
+        if (((pos[0] == 'q') || (pos[0] == 'Q')) && (pos[1] == '=')) {
+            ok = TT_TRUE;
+            break;
+        }
+        ++pos;
+    }
+    if (!ok) {
+        *q = 1.0f;
+        return;
+    }
+    pos += 2;
+
+    ok = TT_TRUE;
+    weight = 0.0f;
+    if (ok && (pos < end) && (ok = tt_isdigit(pos[0]))) {
+        weight += pos[0] - '0';
+    }
+    if (ok && ((pos + 1) < end) && (ok = (pos[1] == '.'))) {
+    }
+    if (ok && ((pos + 2) < end) && (ok = tt_isdigit(pos[2]))) {
+        weight += (pos[2] - '0') * 0.1;
+    }
+    if (ok && ((pos + 3) < end) && (ok = tt_isdigit(pos[3]))) {
+        weight += (pos[3] - '0') * 0.01;
+    }
+    if (ok && ((pos + 4) < end) && (ok = tt_isdigit(pos[4]))) {
+        weight += (pos[4] - '0') * 0.001;
+    }
+
+    weight = TT_MAX(weight, 0.0f);
+    weight = TT_MIN(weight, 1.0f);
+    *q = weight;
 }

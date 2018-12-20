@@ -22,6 +22,7 @@
 
 #include <tt_platform.h>
 
+#include <math.h>
 #include <stdlib.h>
 
 #include <network/http/header/tt_http_hdr_content_encoding.h>
@@ -57,6 +58,7 @@ TT_TEST_ROUTINE_DECLARE(case_http_body2)
 TT_TEST_ROUTINE_DECLARE(case_http_contype_map)
 TT_TEST_ROUTINE_DECLARE(case_http_hdr_txenc)
 TT_TEST_ROUTINE_DECLARE(case_http_hdr_contenc)
+TT_TEST_ROUTINE_DECLARE(case_http_misc)
 // =========================================
 
 // === test case list ======================
@@ -144,6 +146,15 @@ TT_TEST_CASE("case_http_hdr_basic",
                  NULL,
                  NULL),
 
+    TT_TEST_CASE("case_http_misc",
+                 "http test misc things",
+                 case_http_misc,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL),
+
     TT_TEST_CASE_LIST_DEFINE_END(http_hdr_case)
     // =========================================
 
@@ -158,7 +169,7 @@ TT_TEST_CASE("case_http_hdr_basic",
     ////////////////////////////////////////////////////////////
 
     /*
-    TT_TEST_ROUTINE_DEFINE(case_http_hdr_contenc)
+    TT_TEST_ROUTINE_DEFINE(case_http_misc)
     {
         //tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
 
@@ -1775,6 +1786,75 @@ TT_TEST_ROUTINE_DEFINE(case_http_hdr_contenc)
                 "");
 
     tt_http_hdr_destroy(h);
+
+    // test end
+    TT_TEST_CASE_LEAVE()
+}
+
+TT_TEST_ROUTINE_DEFINE(case_http_misc)
+{
+    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+    tt_float_t q;
+
+    TT_TEST_CASE_ENTER()
+// test start
+
+#define ut_parse_q(ss, pp, nn, qq)                                             \
+    {                                                                          \
+        tt_char_t buf[] = ss;                                                  \
+        tt_char_t *p = buf;                                                    \
+        tt_u32_t n = sizeof(buf) - 1;                                          \
+        q = 100;                                                               \
+        tt_http_parse_q(&p, &n, &q);                                           \
+        TT_UT_EQUAL(p, buf + pp, "");                                          \
+        TT_UT_EQUAL(n, nn, "");                                                \
+        TT_UT_EXP(fabs(q - qq) < 0.001, "");                                   \
+    }
+
+    ut_parse_q("", 0, 0, 1.0f);
+
+    ut_parse_q(" ", 1, 0, 1.0f);
+
+    ut_parse_q(" 1", 1, 1, 1.0f);
+
+    ut_parse_q(" 1.2.3 ", 1, 5, 1.0f);
+
+    ut_parse_q(" 1.2.3 ; ", 1, 5, 1.0f);
+
+    ut_parse_q(" 1.2.3 ; q =", 1, 5, 1.0f);
+
+    // invalid val
+    ut_parse_q(" 1.2.3 ; q= ", 1, 5, 0.0f);
+    ut_parse_q(" 1.2.3 ; q=", 1, 5, 0.0f);
+
+    ut_parse_q(" 1.2.3 ; q= 1", 1, 5, 0.0f);
+
+    ut_parse_q(" 1.2.3 ; q=1", 1, 5, 1.0f);
+    ut_parse_q(" 1.2.3 ; q=a.2", 1, 5, 0.0f);
+    ut_parse_q(" 1.2.3 ; q=-1", 1, 5, 0.0f);
+    ut_parse_q(" 1.2.3 ; q=1 ", 1, 5, 1.0f);
+
+    ut_parse_q(" 1.2.3 ; q=1.", 1, 5, 1.0f);
+    ut_parse_q(" 1.2.3 ; q=1x", 1, 5, 1.0f);
+    ut_parse_q(" 1.2.3 ; q=1. ", 1, 5, 1.0f);
+
+    ut_parse_q(" 1.2.3 ; q=0.2", 1, 5, 0.2f);
+    ut_parse_q(" 1.2.3 ; q=1.x", 1, 5, 1.0f);
+    ut_parse_q(" 1.2.3 ; q=0.3 ", 1, 5, 0.3f);
+
+    ut_parse_q(" 1.2.3 ; q=0.22", 1, 5, 0.22f);
+    ut_parse_q(" 1.2.3 ; q=0.2x", 1, 5, 0.2f);
+    ut_parse_q(" 1.2.3 ; q=0.33 ", 1, 5, 0.33f);
+
+    ut_parse_q(" 1.2.3 ; q=0.222", 1, 5, 0.222f);
+    ut_parse_q(" 1.2.3 ; q=0.22x", 1, 5, 0.22f);
+    ut_parse_q(" 1.2.3 ; q=0.333 ", 1, 5, 0.333f);
+
+    ut_parse_q(" 1.2.3 ; q=0.2222", 1, 5, 0.222f);
+    ut_parse_q(" 1.2.3 ; q=0.222x", 1, 5, 0.222f);
+    ut_parse_q(" 1.2.3 ; q=0.3333 ", 1, 5, 0.333f);
+
+    ut_parse_q(" 1.2.3 ; q=1.3333 ", 1, 5, 1.0f);
 
     // test end
     TT_TEST_CASE_LEAVE()
