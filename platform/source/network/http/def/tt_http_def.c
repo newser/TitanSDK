@@ -41,13 +41,13 @@
 ////////////////////////////////////////////////////////////
 
 const tt_char_t *tt_g_http_hname[TT_HTTP_HNAME_NUM] = {
-#define __ENTRY(id, str) #str,
+#define __ENTRY(id, str) str,
     TT_HTTP_HDR_MAP(__ENTRY)
 #undef __ENTRY
 };
 
 tt_u32_t tt_g_http_hname_len[TT_HTTP_HNAME_NUM] = {
-#define __ENTRY(id, str) (tt_u32_t)sizeof(#str) - 1,
+#define __ENTRY(id, str) (tt_u32_t)sizeof(str) - 1,
     TT_HTTP_HDR_MAP(__ENTRY)
 #undef __ENTRY
 };
@@ -92,6 +92,18 @@ const tt_char_t *tt_g_http_txenc[TT_HTTP_TXENC_NUM] = {
 tt_u32_t tt_g_http_txenc_len[TT_HTTP_TXENC_NUM] = {
 #define __ENTRY(id, str) sizeof(str) - 1,
     TT_HTTP_TXENC_MAP(__ENTRY)
+#undef __ENTRY
+};
+
+const tt_char_t *tt_g_http_enc[TT_HTTP_ENC_NUM] = {
+#define __ENTRY(id, str) str,
+    TT_HTTP_ENC_MAP(__ENTRY)
+#undef __ENTRY
+};
+
+tt_u32_t tt_g_http_enc_len[TT_HTTP_ENC_NUM] = {
+#define __ENTRY(id, str) sizeof(str) - 1,
+    TT_HTTP_ENC_MAP(__ENTRY)
 #undef __ENTRY
 };
 

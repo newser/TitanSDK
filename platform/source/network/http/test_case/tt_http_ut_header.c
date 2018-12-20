@@ -24,6 +24,7 @@
 
 #include <stdlib.h>
 
+#include <network/http/header/tt_http_hdr_content_encoding.h>
 #include <network/http/header/tt_http_hdr_transfer_encoding.h>
 #include <network/http/tt_http_content_type_map.h>
 #include <network/http/tt_http_header.h>
@@ -55,6 +56,7 @@ TT_TEST_ROUTINE_DECLARE(case_http_body)
 TT_TEST_ROUTINE_DECLARE(case_http_body2)
 TT_TEST_ROUTINE_DECLARE(case_http_contype_map)
 TT_TEST_ROUTINE_DECLARE(case_http_hdr_txenc)
+TT_TEST_ROUTINE_DECLARE(case_http_hdr_contenc)
 // =========================================
 
 // === test case list ======================
@@ -133,6 +135,15 @@ TT_TEST_CASE("case_http_hdr_basic",
                  NULL,
                  NULL),
 
+    TT_TEST_CASE("case_http_hdr_contenc",
+                 "http hdr: content-encoding",
+                 case_http_hdr_contenc,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL),
+
     TT_TEST_CASE_LIST_DEFINE_END(http_hdr_case)
     // =========================================
 
@@ -147,7 +158,7 @@ TT_TEST_CASE("case_http_hdr_basic",
     ////////////////////////////////////////////////////////////
 
     /*
-    TT_TEST_ROUTINE_DEFINE(case_http_hdr_txenc)
+    TT_TEST_ROUTINE_DEFINE(case_http_hdr_contenc)
     {
         //tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
 
@@ -734,6 +745,7 @@ TT_TEST_ROUTINE_DEFINE(case_http_body)
         tt_http_rawval_t *rv;
         tt_blobex_t *ho;
         tt_http_txenc_t e[10];
+        tt_http_enc_t ce[10];
 
         tt_http_parser_wpos(&hp, &wp, &wlen);
         TT_UT_EXP(wlen > sizeof(p), "");
@@ -799,6 +811,9 @@ TT_TEST_ROUTINE_DEFINE(case_http_body)
         TT_UT_EQUAL(tt_http_parser_get_txenc(&hp, e), 0, "");
         TT_UT_FALSE(hp.miss_txenc, "");
 
+        TT_UT_EQUAL(tt_http_parser_get_contenc(&hp, ce), 0, "");
+        TT_UT_FALSE(hp.miss_contenc, "");
+
         {
             tt_http_uri_t *u = tt_http_parser_get_uri(&hp);
             TT_UT_NOT_NULL(u, "");
@@ -816,10 +831,13 @@ TT_TEST_ROUTINE_DEFINE(case_http_body)
             "Host: www.example.com\r\n"
             "Content-Type: application/javascript\r\n"
             "Transfer-Encoding:1, chunked, 333, gzip\r\n"
+            "Content-Encoding:1, chunked, 333, gzip\r\n"
             "If-Match: \"e0023aa4e\"\r\n"
             "Transfer-Encoding:gzip, \r\n"
+            "Content-Encoding:, identity\r\n"
             "Content-Length: 10\r\n"
             "Transfer-Encoding:, deflate\r\n"
+            "Content-Encoding:, deflate\r\n"
             "\r\n";
 
         tt_char_t body[] = "1234567890abcd";
@@ -828,6 +846,7 @@ TT_TEST_ROUTINE_DEFINE(case_http_body)
         tt_http_rawhdr_t *rh;
         tt_http_rawval_t *rv;
         tt_http_txenc_t e[10];
+        tt_http_enc_t ce[10];
 
         tt_http_parser_clear(&hp, TT_FALSE);
 
@@ -871,6 +890,12 @@ TT_TEST_ROUTINE_DEFINE(case_http_body)
         TT_UT_EQUAL(e[1], TT_HTTP_TXENC_GZIP, "");
         TT_UT_EQUAL(e[2], TT_HTTP_TXENC_GZIP, "");
         TT_UT_EQUAL(e[3], TT_HTTP_TXENC_DEFLATE, "");
+        TT_UT_TRUE(hp.miss_txenc, "");
+
+        TT_UT_EQUAL(tt_http_parser_get_contenc(&hp, ce), 3, "");
+        TT_UT_EQUAL(ce[0], TT_HTTP_ENC_GZIP, "");
+        TT_UT_EQUAL(ce[1], TT_HTTP_ENC_IDENTITY, "");
+        TT_UT_EQUAL(ce[2], TT_HTTP_ENC_DEFLATE, "");
         TT_UT_TRUE(hp.miss_txenc, "");
 
         __check("Host", "www.example.com");
@@ -1658,6 +1683,96 @@ TT_TEST_ROUTINE_DEFINE(case_http_hdr_txenc)
     TT_UT_EQUAL(e[4], TT_HTTP_TXENC_COMPRESS, "");
     TT_UT_EQUAL(tt_http_hdr_render_len(h), 0, "");
     TT_UT_EQUAL(tt_http_hdr_render(h, NULL), 0, "");
+
+    tt_http_hdr_destroy(h);
+
+    // test end
+    TT_TEST_CASE_LEAVE()
+}
+
+TT_TEST_ROUTINE_DEFINE(case_http_hdr_contenc)
+{
+    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+    tt_http_hdr_t *h;
+    tt_result_t ret;
+    tt_u8_t e[10];
+    tt_http_enc_t e2[10];
+    tt_u32_t len;
+    tt_char_t buf[100];
+
+    TT_TEST_CASE_ENTER()
+    // test start
+
+    h = tt_http_hdr_contenc_create();
+    TT_UT_NOT_NULL(h, "");
+    TT_UT_EQUAL(tt_http_hdr_render_len(h), 0, "");
+    TT_UT_EQUAL(tt_http_hdr_render(h, NULL), 0, "");
+    tt_http_hdr_destroy(h);
+
+    h = tt_http_hdr_contenc_create();
+
+    // 1 token
+    ret = tt_http_hdr_parse(h, ",gZip , ");
+    TT_UT_SUCCESS(ret, "");
+    TT_UT_EQUAL(tt_http_hdr_contenc_get(h, e), 1, "");
+    TT_UT_EQUAL(e[0], TT_HTTP_ENC_GZIP, "");
+    TT_UT_FALSE(h->missed_field, "");
+
+    len = sizeof("Content-Encoding: gzip\r\n") - 1;
+    TT_UT_EQUAL(tt_http_hdr_render_len(h), len, "");
+    tt_memset(buf, 0, sizeof(buf));
+    TT_UT_EQUAL(tt_http_hdr_render(h, buf), len, "");
+    TT_UT_STREQ(buf, "Content-Encoding: gzip\r\n", "");
+
+    // more tokens
+    ret = tt_http_hdr_parse(h, ",aaa, Deflate, bbb,Gzip , ");
+    TT_UT_SUCCESS(ret, "");
+    TT_UT_EQUAL(tt_http_hdr_contenc_get(h, e), 3, "");
+    TT_UT_EQUAL(e[0], TT_HTTP_ENC_GZIP, "");
+    TT_UT_EQUAL(e[1], TT_HTTP_ENC_DEFLATE, "");
+    TT_UT_EQUAL(e[2], TT_HTTP_ENC_GZIP, "");
+    TT_UT_TRUE(h->missed_field, "");
+
+    len = sizeof("Content-Encoding: gzip, deflate, gzip\r\n") - 1;
+    TT_UT_EQUAL(tt_http_hdr_render_len(h), len, "");
+    tt_memset(buf, 0, sizeof(buf));
+    TT_UT_EQUAL(tt_http_hdr_render(h, buf), len, "");
+    TT_UT_STREQ(buf, "Content-Encoding: gzip, deflate, gzip\r\n", "");
+
+    // overflow
+    h->missed_field = TT_TRUE;
+    ret = tt_http_hdr_parse(h, "br, identity, identity,identity , ");
+    TT_UT_SUCCESS(ret, "");
+    TT_UT_EQUAL(tt_http_hdr_contenc_get(h, e), TT_HTTP_ENC_NUM, "");
+    TT_UT_EQUAL(e[0], TT_HTTP_ENC_GZIP, "");
+    TT_UT_EQUAL(e[1], TT_HTTP_ENC_DEFLATE, "");
+    TT_UT_EQUAL(e[2], TT_HTTP_ENC_GZIP, "");
+    TT_UT_EQUAL(e[3], TT_HTTP_ENC_BR, "");
+    TT_UT_EQUAL(e[4], TT_HTTP_ENC_IDENTITY, "");
+    TT_UT_TRUE(h->missed_field, "");
+
+    // clear
+    tt_http_hdr_contenc_set(h, NULL, 0);
+    TT_UT_EQUAL(tt_http_hdr_render_len(h), 0, "");
+    TT_UT_EQUAL(tt_http_hdr_render(h, NULL), 0, "");
+
+    // set
+    e2[0] = TT_HTTP_ENC_GZIP;
+    e2[1] = TT_HTTP_ENC_BR;
+    e2[2] = TT_HTTP_ENC_DEFLATE;
+    e2[3] = TT_HTTP_ENC_IDENTITY;
+    e2[4] = TT_HTTP_ENC_COMPRESS;
+    tt_http_hdr_contenc_set(h, e2, 5);
+
+    len =
+        sizeof("Content-Encoding: gzip, br, deflate, identity, compress\r\n") -
+        1;
+    TT_UT_EQUAL(tt_http_hdr_render_len(h), len, "");
+    tt_memset(buf, 0, sizeof(buf));
+    TT_UT_EQUAL(tt_http_hdr_render(h, buf), len, "");
+    TT_UT_STREQ(buf,
+                "Content-Encoding: gzip, br, deflate, identity, compress\r\n",
+                "");
 
     tt_http_hdr_destroy(h);
 

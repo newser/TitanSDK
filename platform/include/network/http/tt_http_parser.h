@@ -75,8 +75,10 @@ typedef struct tt_http_parser_s
     tt_u32_t body_counter;
     tt_http_contype_t contype;
     tt_s32_t content_len;
-    tt_u32_t txenc_num;
+    tt_u8_t txenc_num;
     tt_u8_t txenc[TT_HTTP_TXENC_NUM];
+    tt_u8_t contenc_num;
+    tt_u8_t contenc[TT_HTTP_ENC_NUM];
     tt_bool_t complete_line1 : 1;
     tt_bool_t complete_header : 1;
     tt_bool_t complete_message : 1;
@@ -86,9 +88,11 @@ typedef struct tt_http_parser_s
     tt_bool_t updated_contype : 1;
     tt_bool_t updated_content_len : 1;
     tt_bool_t updated_txenc : 1;
+    tt_bool_t updated_contenc : 1;
     tt_bool_t miss_txenc : 1;
     tt_bool_t miss_contype : 1;
     tt_bool_t miss_content_len : 1;
+    tt_bool_t miss_contenc : 1;
 } tt_http_parser_t;
 
 typedef struct
@@ -165,5 +169,8 @@ tt_export tt_s32_t tt_http_parser_get_content_len(IN tt_http_parser_t *hp);
 
 tt_export tt_u32_t tt_http_parser_get_txenc(IN tt_http_parser_t *hp,
                                             OUT tt_http_txenc_t *txenc);
+
+tt_export tt_u32_t tt_http_parser_get_contenc(IN tt_http_parser_t *hp,
+                                            OUT tt_http_enc_t *contenc);
 
 #endif /* __TT_HTTP_PARSER__ */

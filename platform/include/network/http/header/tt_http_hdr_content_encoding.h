@@ -17,14 +17,14 @@
  */
 
 /**
-@file tt_http_hdr_transfer_encoding.h
- @brief http header: transfer encoding
+@file tt_http_hdr_content_encoding.h
+ @brief http header: content encoding
 
-this file defines http transfer encoding header
+this file defines http content encoding header
 */
 
-#ifndef __TT_HTTP_HDR_TRANSFER_ENCODING__
-#define __TT_HTTP_HDR_TRANSFER_ENCODING__
+#ifndef __TT_HTTP_HDR_CONTENT_ENCODING__
+#define __TT_HTTP_HDR_CONTENT_ENCODING__
 
 ////////////////////////////////////////////////////////////
 // import header files
@@ -48,9 +48,13 @@ this file defines http transfer encoding header
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-tt_export tt_http_hdr_t *tt_http_hdr_txenc_create();
+tt_export tt_http_hdr_t *tt_http_hdr_contenc_create();
 
-tt_export tt_u32_t tt_http_hdr_txenc_get(IN tt_http_hdr_t *h,
-                                         OUT tt_u8_t *txenc);
+tt_export tt_u32_t tt_http_hdr_contenc_get(IN tt_http_hdr_t *h,
+                                           OUT tt_u8_t *contenc);
 
-#endif /* __TT_HTTP_HDR_TRANSFER_ENCODING__ */
+tt_export void tt_http_hdr_contenc_set(IN tt_http_hdr_t *h,
+                                       IN tt_http_enc_t *contenc,
+                                       IN tt_u32_t num);
+
+#endif /* __TT_HTTP_HDR_CONTENT_ENCODING__ */

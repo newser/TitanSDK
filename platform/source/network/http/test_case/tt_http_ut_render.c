@@ -216,6 +216,7 @@ TT_TEST_CASE("case_http_render_req",
                 "Content-Length: 0\r\n"
                 "Host: sample\r\n"
                 "Date: 1, 22, 333\r\n"
+                "Content-Encoding: compress, compress\r\n"
                 "\r\n";
             tt_http_txenc_t txe[5] = {
                 TT_HTTP_TXENC_GZIP,
@@ -224,11 +225,15 @@ TT_TEST_CASE("case_http_render_req",
                 TT_HTTP_TXENC_CHUNKED,
                 TT_HTTP_TXENC_GZIP,
             };
+            tt_http_enc_t cte[2] = {
+                TT_HTTP_ENC_COMPRESS, TT_HTTP_ENC_COMPRESS,
+            };
 
             tt_http_req_render_set_conn(&r, TT_HTTP_CONN_CLOSE);
             tt_http_req_render_set_contype(&r, TT_HTTP_CONTYPE_APP_JS);
             tt_http_req_render_set_txenc(&r, txe, 5);
             tt_http_req_render_set_content_len(&r, 0);
+            TT_UT_SUCCESS(tt_http_req_render_set_contenc(&r, cte, 2), "");
             TT_UT_SUCCESS(tt_http_req_render(&r, &data, &len), "");
             TT_UT_EQUAL(len, tt_strlen(msg), "");
             TT_UT_EXP(tt_strncmp(data, msg, len) == 0, "");
@@ -236,6 +241,7 @@ TT_TEST_CASE("case_http_render_req",
             tt_http_req_render_set_contype(&r, TT_HTTP_CONTYPE_NUM);
             tt_http_req_render_set_txenc(&r, NULL, 5);
             tt_http_req_render_set_content_len(&r, -1);
+            TT_UT_SUCCESS(tt_http_req_render_set_contenc(&r, NULL, 0), "");
         }
         {
             const tt_char_t *msg =
@@ -323,7 +329,6 @@ TT_TEST_ROUTINE_DEFINE(case_http_render_resp)
 
     // 2 headers
     {
-        tt_blobex_t b[3];
         const tt_char_t *msg =
             "HTTP/1.0 200 OK\r\n"
             "Host: sample\r\n"
@@ -332,9 +337,6 @@ TT_TEST_ROUTINE_DEFINE(case_http_render_resp)
         tt_char_t *data;
         tt_u32_t len;
 
-        tt_blobex_set(&b[0], (tt_u8_t *)"1", 1, TT_FALSE);
-        tt_blobex_set(&b[1], (tt_u8_t *)"22", 2, TT_FALSE);
-        tt_blobex_set(&b[2], (tt_u8_t *)"333", 3, TT_FALSE);
         {
             h = tt_http_hdr_create_cs(0, TT_HTTP_HDR_DATE, NULL);
             TT_UT_NOT_NULL(h, "");
@@ -369,15 +371,20 @@ TT_TEST_ROUTINE_DEFINE(case_http_render_resp)
                 "Content-Length: 100\r\n"
                 "Host: sample\r\n"
                 "Date: 1, 22, 333\r\n"
+                "Content-Encoding: identity, compress\r\n"
                 "\r\n";
             tt_http_txenc_t txe[5] = {
                 TT_HTTP_TXENC_CHUNKED,
+            };
+            tt_http_enc_t conte[5] = {
+                TT_HTTP_ENC_IDENTITY, TT_HTTP_ENC_COMPRESS,
             };
 
             tt_http_resp_render_set_conn(&r, TT_HTTP_CONN_KEEP_ALIVE);
             tt_http_resp_render_set_contype(&r, TT_HTTP_CONTYPE_TXT_CSS);
             tt_http_resp_render_set_txenc(&r, txe, 1);
             tt_http_resp_render_set_content_len(&r, 100);
+            TT_UT_SUCCESS(tt_http_resp_render_set_contenc(&r, conte, 2), "");
             TT_UT_SUCCESS(tt_http_resp_render(&r, &data, &len), "");
             TT_UT_EQUAL(len, tt_strlen(msg), "");
             TT_UT_EXP(tt_strncmp(data, msg, len) == 0, "");
@@ -385,6 +392,7 @@ TT_TEST_ROUTINE_DEFINE(case_http_render_resp)
             tt_http_resp_render_set_contype(&r, TT_HTTP_CONTYPE_NUM);
             tt_http_resp_render_set_txenc(&r, NULL, 0);
             tt_http_resp_render_set_content_len(&r, -2);
+            TT_UT_SUCCESS(tt_http_resp_render_set_contenc(&r, NULL, 0), "");
         }
         {
             tt_http_resp_render_set_conn(&r, TT_HTTP_CONN_NONE);

@@ -55,7 +55,7 @@ typedef struct
     tt_buf_t buf;
     tt_http_contype_t contype;
     tt_s32_t content_len;
-    tt_u32_t txenc_num;
+    tt_u8_t txenc_num;
     tt_u8_t txenc[TT_HTTP_TXENC_NUM];
     tt_http_ver_t version : 3;
     tt_http_conn_t conn : 2;
@@ -174,6 +174,11 @@ tt_inline void tt_http_req_render_set_content_len(IN tt_http_req_render_t *req,
     req->render.content_len = len;
 }
 
+tt_export tt_result_t
+tt_http_req_render_set_contenc(IN tt_http_req_render_t *req,
+                               IN OPT tt_http_enc_t *enc,
+                               IN tt_u32_t enc_num);
+
 // ========================================
 // response
 // ========================================
@@ -244,5 +249,10 @@ tt_inline void tt_http_resp_render_set_content_len(
 {
     resp->render.content_len = len;
 }
+
+tt_export tt_result_t
+tt_http_resp_render_set_contenc(IN tt_http_resp_render_t *resp,
+                                IN OPT tt_http_enc_t *enc,
+                                IN tt_u32_t enc_num);
 
 #endif /* __TT_HTTP_RENDER__ */

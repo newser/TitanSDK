@@ -24,6 +24,7 @@
 
 #include <memory/tt_slab.h>
 #include <network/http/header/tt_http_hdr_transfer_encoding.h>
+#include <network/http/header/tt_http_hdr_content_encoding.h>
 #include <network/http/tt_http_raw_header.h>
 
 ////////////////////////////////////////////////////////////
@@ -141,6 +142,11 @@ tt_result_t tt_http_parser_create(IN tt_http_parser_t *hp,
         hp->txenc[i] = TT_HTTP_TXENC_NUM;
     }
 
+    hp->contenc_num = 0;
+    for (i = 0; i < TT_HTTP_ENC_NUM; ++i) {
+        hp->contenc[i] = TT_HTTP_ENC_NUM;
+    }
+
     hp->complete_line1 = TT_FALSE;
     hp->complete_header = TT_FALSE;
     hp->complete_message = TT_FALSE;
@@ -150,9 +156,11 @@ tt_result_t tt_http_parser_create(IN tt_http_parser_t *hp,
     hp->updated_content_len = TT_FALSE;
     hp->updated_contype = TT_FALSE;
     hp->updated_txenc = TT_FALSE;
+    hp->updated_contenc = TT_FALSE;
     hp->miss_txenc = TT_FALSE;
     hp->miss_contype = TT_FALSE;
     hp->miss_content_len = TT_FALSE;
+    hp->miss_contenc = TT_FALSE;
 
     return TT_SUCCESS;
 }
@@ -240,6 +248,11 @@ void tt_http_parser_clear(IN tt_http_parser_t *hp, IN tt_bool_t clear_recv_buf)
         hp->txenc[i] = TT_HTTP_TXENC_NUM;
     }
 
+    hp->contenc_num = 0;
+    for (i = 0; i < TT_HTTP_ENC_NUM; ++i) {
+        hp->contenc[i] = TT_HTTP_ENC_NUM;
+    }
+    
     hp->contype = TT_HTTP_CONTYPE_NUM;
     hp->complete_line1 = TT_FALSE;
     hp->complete_header = TT_FALSE;
@@ -250,9 +263,11 @@ void tt_http_parser_clear(IN tt_http_parser_t *hp, IN tt_bool_t clear_recv_buf)
     hp->updated_contype = TT_FALSE;
     hp->updated_content_len = TT_FALSE;
     hp->updated_txenc = TT_FALSE;
+    hp->updated_contenc = TT_FALSE;
     hp->miss_txenc = TT_FALSE;
     hp->miss_contype = TT_FALSE;
     hp->miss_content_len = TT_FALSE;
+    hp->miss_contenc = TT_FALSE;
 }
 
 tt_result_t tt_http_parser_run(IN tt_http_parser_t *hp)
@@ -476,6 +491,42 @@ tt_u32_t tt_http_parser_get_txenc(IN tt_http_parser_t *hp,
         txenc[i] = hp->txenc[i];
     }
     return hp->txenc_num;
+}
+
+tt_u32_t tt_http_parser_get_contenc(IN tt_http_parser_t *hp,
+                                    OUT tt_http_enc_t *contenc)
+{
+    tt_u32_t i;
+    
+    if (!hp->updated_contenc) {
+        tt_http_hdr_t *h;
+        tt_http_rawhdr_t *rh;
+        tt_http_rawval_t *rv;
+        
+        h = tt_http_hdr_contenc_create();
+        if (h == NULL) {
+            return 0;
+        }
+        
+        __FOREACH_RV(rh, rv, "Content-Encoding")
+        {
+            tt_http_hdr_parse_n(h,
+                                tt_blobex_addr(&rv->val),
+                                tt_blobex_len(&rv->val));
+        }
+        __FOREACH_RV_END()
+        
+        hp->contenc_num = tt_http_hdr_contenc_get(h, hp->contenc);
+        hp->miss_txenc = h->missed_field;
+        tt_http_hdr_destroy(h);
+        
+        hp->updated_contenc = TT_TRUE;
+    }
+    
+    for (i = 0; i < hp->contenc_num; ++i) {
+        contenc[i] = hp->contenc[i];
+    }
+    return hp->contenc_num;
 }
 
 void __clear_rawhdr(IN tt_dlist_t *dl)

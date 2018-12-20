@@ -32,7 +32,7 @@
 
 typedef struct
 {
-    tt_u32_t txenc_num;
+    tt_u8_t txenc_num;
     tt_u8_t txenc[TT_HTTP_TXENC_NUM];
 } __hdr_txenc_t;
 
@@ -85,20 +85,6 @@ tt_http_hdr_t *tt_http_hdr_txenc_create()
     }
 
     return h;
-}
-
-tt_result_t tt_http_hdr_txenc_add(IN tt_http_hdr_t *h, IN tt_http_txenc_t txenc)
-{
-    __hdr_txenc_t *ht = TT_HTTP_HDR_CAST(h, __hdr_txenc_t);
-
-    TT_ASSERT(h->name == TT_HTTP_HDR_TXENC);
-
-    if (ht->txenc_num < TT_HTTP_TXENC_NUM) {
-        ht->txenc[ht->txenc_num++] = txenc;
-        return TT_SUCCESS;
-    } else {
-        return TT_FAIL;
-    }
 }
 
 tt_u32_t tt_http_hdr_txenc_get(IN tt_http_hdr_t *h, OUT tt_u8_t *txenc)

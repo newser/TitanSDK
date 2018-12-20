@@ -23,6 +23,7 @@
 #include <network/http/tt_http_render.h>
 
 #include <algorithm/tt_buffer_format.h>
+#include <network/http/header/tt_http_hdr_content_encoding.h>
 #include <network/http/tt_http_header.h>
 
 ////////////////////////////////////////////////////////////
@@ -69,6 +70,9 @@ static void __render_clear(IN tt_http_render_t *r);
 
 static void __render_add_hdr(IN tt_http_render_t *r, IN tt_http_hdr_t *h);
 
+static tt_http_hdr_t *__rend_find_hdr(IN tt_http_render_t *render,
+                                      IN tt_http_hname_t name);
+
 static tt_u32_t __common_render_len(IN tt_http_render_t *render);
 
 static void __common_render(IN tt_http_render_t *render, IN tt_buf_t *buf);
@@ -76,6 +80,10 @@ static void __common_render(IN tt_http_render_t *render, IN tt_buf_t *buf);
 static void __render_set_txenc(IN tt_http_render_t *render,
                                IN OPT tt_http_txenc_t *txenc,
                                IN tt_u32_t txenc_num);
+
+static tt_result_t __render_set_contenc(IN tt_http_render_t *render,
+                                        IN OPT tt_http_enc_t *enc,
+                                        IN tt_u32_t enc_num);
 
 ////////////////////////////////////////////////////////////
 // interface implementation
@@ -212,6 +220,13 @@ void tt_http_req_render_set_txenc(IN tt_http_req_render_t *req,
     __render_set_txenc(&req->render, txenc, txenc_num);
 }
 
+tt_result_t tt_http_req_render_set_contenc(IN tt_http_req_render_t *req,
+                                           IN OPT tt_http_enc_t *enc,
+                                           IN tt_u32_t enc_num)
+{
+    return __render_set_contenc(&req->render, enc, enc_num);
+}
+
 void tt_http_resp_render_init(IN tt_http_resp_render_t *resp,
                               IN OPT tt_http_resp_render_attr_t *attr)
 {
@@ -319,6 +334,13 @@ void tt_http_resp_render_set_txenc(IN tt_http_resp_render_t *resp,
     __render_set_txenc(&resp->render, txenc, txenc_num);
 }
 
+tt_result_t tt_http_resp_render_set_contenc(IN tt_http_resp_render_t *resp,
+                                            IN OPT tt_http_enc_t *enc,
+                                            IN tt_u32_t enc_num)
+{
+    return __render_set_contenc(&resp->render, enc, enc_num);
+}
+
 void __render_init(IN tt_http_render_t *r, IN tt_http_render_attr_t *attr)
 {
     tt_u32_t i;
@@ -387,6 +409,20 @@ void __render_clear(IN tt_http_render_t *r)
 void __render_add_hdr(IN tt_http_render_t *r, IN tt_http_hdr_t *h)
 {
     tt_dlist_push_tail(&r->hdr, &h->dnode);
+}
+
+tt_http_hdr_t *__rend_find_hdr(IN tt_http_render_t *render,
+                               IN tt_http_hname_t name)
+{
+    tt_dnode_t *dn = tt_dlist_head(&render->hdr);
+    while (dn != NULL) {
+        tt_http_hdr_t *h = TT_CONTAINER(dn, tt_http_hdr_t, dnode);
+        if (h->name == name) {
+            return h;
+        }
+        dn = dn->next;
+    }
+    return NULL;
 }
 
 tt_u32_t __common_render_len(IN tt_http_render_t *render)
@@ -540,4 +576,21 @@ void __render_set_txenc(IN tt_http_render_t *render,
         }
     }
     render->txenc_num = num;
+}
+
+tt_result_t __render_set_contenc(IN tt_http_render_t *render,
+                                 IN OPT tt_http_enc_t *enc,
+                                 IN tt_u32_t enc_num)
+{
+    tt_http_hdr_t *h = __rend_find_hdr(render, TT_HTTP_HDR_CONTENC);
+    if (h == NULL) {
+        h = tt_http_hdr_contenc_create();
+        if (h == NULL) {
+            return TT_FAIL;
+        }
+        __render_add_hdr(render, h);
+    }
+
+    tt_http_hdr_contenc_set(h, enc, enc_num);
+    return TT_SUCCESS;
 }
