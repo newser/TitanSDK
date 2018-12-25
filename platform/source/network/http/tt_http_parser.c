@@ -24,6 +24,7 @@
 
 #include <memory/tt_slab.h>
 #include <network/http/header/tt_http_hdr_content_encoding.h>
+#include <network/http/header/tt_http_hdr_etag.h>
 #include <network/http/header/tt_http_hdr_transfer_encoding.h>
 #include <network/http/tt_http_raw_header.h>
 
@@ -84,6 +85,11 @@ static http_parser_settings tt_s_hp_setting = {
 static void __clear_rawhdr(IN tt_dlist_t *dl);
 
 static void __clear_hdr(IN tt_dlist_t *dl);
+
+tt_inline void __add_hdr(IN tt_http_parser_t *hp, IN tt_http_hdr_t *h)
+{
+    tt_dlist_push_tail(&hp->hdr, &h->dnode);
+}
 
 static tt_http_rawval_t *__hp_first_rv(IN tt_http_parser_t *hp,
                                        IN tt_char_t *name,
@@ -162,6 +168,9 @@ tt_result_t tt_http_parser_create(IN tt_http_parser_t *hp,
     hp->updated_txenc = TT_FALSE;
     hp->updated_contenc = TT_FALSE;
     hp->updated_accenc = TT_FALSE;
+#define __ENTRY(hdr, name) hp->updated_##hdr = TT_FALSE;
+    TT_HTTP_PARSE_HDR_MAP(__ENTRY)
+#undef __ENTRY
     hp->miss_txenc = TT_FALSE;
     hp->miss_contype = TT_FALSE;
     hp->miss_content_len = TT_FALSE;
@@ -273,6 +282,9 @@ void tt_http_parser_clear(IN tt_http_parser_t *hp, IN tt_bool_t clear_recv_buf)
     hp->updated_txenc = TT_FALSE;
     hp->updated_contenc = TT_FALSE;
     hp->updated_accenc = TT_FALSE;
+#define __ENTRY(hdr, name) hp->updated_##hdr = TT_FALSE;
+    TT_HTTP_PARSE_HDR_MAP(__ENTRY)
+#undef __ENTRY
     hp->miss_txenc = TT_FALSE;
     hp->miss_contype = TT_FALSE;
     hp->miss_content_len = TT_FALSE;
@@ -586,6 +598,48 @@ out:
     return &hp->accenc;
 }
 
+#define __ENTRY(hdr, name)                                                     \
+    tt_http_hdr_t *tt_http_parser_get_##hdr(IN tt_http_parser_t *hp)           \
+    {                                                                          \
+        tt_http_hdr_t *h;                                                      \
+                                                                               \
+        if (!hp->updated_##hdr) {                                              \
+            tt_http_rawhdr_t *rh;                                              \
+            tt_http_rawval_t *rv;                                              \
+            const tt_char_t *name_str = tt_g_http_hname[name];                 \
+            tt_u32_t num = 0;                                                  \
+                                                                               \
+            h = tt_http_hdr_##hdr##_create();                                  \
+            if (h == NULL) {                                                   \
+                return NULL;                                                   \
+            }                                                                  \
+                                                                               \
+            __FOREACH_RV(rh, rv, name_str)                                     \
+            {                                                                  \
+                tt_http_hdr_parse_n(h,                                         \
+                                    tt_blobex_addr(&rv->val),                  \
+                                    tt_blobex_len(&rv->val));                  \
+                ++num;                                                         \
+            }                                                                  \
+            __FOREACH_RV_END()                                                 \
+                                                                               \
+            if (num > 0) {                                                     \
+                __add_hdr(hp, h);                                              \
+            } else {                                                           \
+                tt_http_hdr_destroy(h);                                        \
+                h = NULL;                                                      \
+            }                                                                  \
+                                                                               \
+            hp->updated_##hdr = TT_TRUE;                                       \
+        } else {                                                               \
+            h = tt_http_parser_find_hdr(hp, name);                             \
+        }                                                                      \
+                                                                               \
+        return h;                                                              \
+    }
+TT_HTTP_PARSE_HDR_MAP(__ENTRY)
+#undef __ENTRY
+
 void __clear_rawhdr(IN tt_dlist_t *dl)
 {
     tt_dnode_t *node;
@@ -664,10 +718,12 @@ int __on_hdr_field(http_parser *p, const char *at, size_t length)
         }
     } else {
         // ok a new header
-        tt_http_rawhdr_t *rh = tt_http_rawhdr_create(hp->rawhdr_slab,
-                                                     (tt_char_t *)at,
-                                                     length,
-                                                     TT_FALSE);
+        tt_http_rawhdr_t *rh;
+
+        rh = tt_http_rawhdr_create(hp->rawhdr_slab,
+                                   (tt_char_t *)at,
+                                   length,
+                                   TT_FALSE);
         if (rh != NULL) {
             hp->rh = rh;
             return 0;

@@ -136,6 +136,18 @@ tt_export tt_http_hval_t *tt_http_hval_create(IN tt_u32_t extra_size);
 
 tt_export void tt_http_hval_destroy(IN tt_http_hval_t *hv);
 
+tt_inline tt_http_hval_t *tt_http_hval_head(IN tt_http_hdr_t *h)
+{
+    tt_dnode_t *dn = tt_dlist_head(&h->val);
+    return TT_COND(dn != NULL, TT_CONTAINER(dn, tt_http_hval_t, dnode), NULL);
+}
+
+tt_inline tt_http_hval_t *tt_http_hval_next(IN tt_http_hval_t *hv)
+{
+    tt_dnode_t *dn = hv->dnode.next;
+    return TT_COND(dn != NULL, TT_CONTAINER(dn, tt_http_hval_t, dnode), NULL);
+}
+
 // ========================================
 // header
 // ========================================

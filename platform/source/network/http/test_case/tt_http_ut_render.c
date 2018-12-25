@@ -218,6 +218,9 @@ TT_TEST_CASE("case_http_render_req",
                 "Date: 1, 22, 333\r\n"
                 "Content-Encoding: compress, compress\r\n"
                 "Accept-Encoding: compress;q=0.999, *;q=0\r\n"
+                "ETag: \"123\", W/\"456\"\r\n"
+                "If-Match: \"123\", W/\"456\", *\r\n"
+                "If-None-Match: \"123\", W/\"456\", *\r\n"
                 "\r\n";
             tt_http_txenc_t txe[5] = {
                 TT_HTTP_TXENC_GZIP,
@@ -242,6 +245,34 @@ TT_TEST_CASE("case_http_render_req",
                 tt_http_accenc_set_aster(&ae, TT_TRUE, 0.0001);
                 TT_UT_SUCCESS(tt_http_req_render_set_accenc(&r, &ae), "");
             }
+            {
+                TT_UT_SUCCESS(tt_http_req_render_add_etag(&r, "123", TT_FALSE),
+                              "");
+                TT_UT_SUCCESS(tt_http_req_render_add_etag(&r, "456", TT_TRUE),
+                              "");
+            }
+            {
+                TT_UT_SUCCESS(tt_http_req_render_add_ifmatch(&r,
+                                                             "123",
+                                                             TT_FALSE),
+                              "");
+                TT_UT_SUCCESS(tt_http_req_render_add_ifmatch(&r,
+                                                             "456",
+                                                             TT_TRUE),
+                              "");
+                TT_UT_SUCCESS(tt_http_req_render_add_ifmatch_aster(&r), "");
+            }
+            {
+                TT_UT_SUCCESS(tt_http_req_render_add_ifnmatch(&r,
+                                                              "123",
+                                                              TT_FALSE),
+                              "");
+                TT_UT_SUCCESS(tt_http_req_render_add_ifnmatch(&r,
+                                                              "456",
+                                                              TT_TRUE),
+                              "");
+                TT_UT_SUCCESS(tt_http_req_render_add_ifnmatch_aster(&r), "");
+            }
             TT_UT_SUCCESS(tt_http_req_render(&r, &data, &len), "");
             TT_UT_EQUAL(len, tt_strlen(msg), "");
             TT_UT_EXP(tt_strncmp(data, msg, len) == 0, "");
@@ -251,6 +282,9 @@ TT_TEST_CASE("case_http_render_req",
             tt_http_req_render_set_content_len(&r, -1);
             TT_UT_SUCCESS(tt_http_req_render_set_contenc(&r, NULL, 0), "");
             TT_UT_SUCCESS(tt_http_req_render_set_accenc(&r, NULL), "");
+            tt_http_render_remove_all(&r.render, TT_HTTP_HDR_ETAG);
+            tt_http_render_remove_all(&r.render, TT_HTTP_HDR_IF_MATCH);
+            tt_http_render_remove_all(&r.render, TT_HTTP_HDR_IF_N_MATCH);
         }
         {
             const tt_char_t *msg =

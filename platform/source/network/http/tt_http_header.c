@@ -222,7 +222,8 @@ void __clear_hval(IN tt_http_hdr_t *h)
 {
     tt_dnode_t *node;
     while ((node = tt_dlist_pop_head(&h->val)) != NULL) {
-        h->val_itf->destroy(TT_CONTAINER(node, tt_http_hval_t, dnode));
+        tt_http_hval_t *hv = TT_CONTAINER(node, tt_http_hval_t, dnode);
+        h->val_itf->destroy(hv);
     }
 }
 
@@ -399,7 +400,7 @@ tt_result_t __h_cs_parse(IN tt_http_hdr_t *h,
 
         if ((p > prev) && !TT_OK(__add_hval(h, prev, (tt_u32_t)(p - prev)))) {
             // continue, as there may be successfully parsed hvals
-            TT_FATAL("lost a http value");
+            TT_ERROR("lost a http value");
         }
 
         ++p;
@@ -410,7 +411,7 @@ tt_result_t __h_cs_parse(IN tt_http_hdr_t *h,
     TT_ASSERT(prev <= end);
     if (prev < end) {
         if (!TT_OK(__add_hval(h, prev, (tt_u32_t)(end - prev)))) {
-            TT_FATAL("lost a http value");
+            TT_ERROR("lost a http value");
         }
     }
 
@@ -421,6 +422,7 @@ tt_u32_t __h_cs_render_len(IN tt_http_hdr_t *h)
 {
     tt_u32_t len;
     tt_dnode_t *node;
+    tt_bool_t empty = TT_TRUE;
 
     // "Host" + ": "
     len = tt_g_http_hname_len[h->name] + 2;
@@ -433,10 +435,12 @@ tt_u32_t __h_cs_render_len(IN tt_http_hdr_t *h)
 
         len += h->val_itf->render_len(hv); // => "Host: xxx"
         len += 2; // => "Host: xxx, "
+
+        empty = TT_FALSE;
     }
 
     // final 2 chars(", ") are replaced with "\r\n"
-    return len;
+    return TT_COND(empty, len + 2, len);
 }
 
 tt_u32_t __h_cs_render(IN tt_http_hdr_t *h, IN tt_char_t *dst)

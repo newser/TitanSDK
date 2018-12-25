@@ -43,6 +43,12 @@ this file defines http
     __ENTRY(TXENC, "Transfer-Encoding")                                        \
     __ENTRY(CONTENC, "Content-Encoding")                                       \
     __ENTRY(ACCENC, "Accept-Encoding")                                         \
+    __ENTRY(ETAG, "ETag")                                                      \
+    __ENTRY(IF_MATCH, "If-Match")                                              \
+    __ENTRY(IF_N_MATCH, "If-None-Match")                                       \
+    __ENTRY(LAST_MOD, "Last-Modified")                                         \
+    __ENTRY(IF_MOD, "If-Modified-Since")                                       \
+    __ENTRY(IF_UNMOD, "If-Unmodified-Since")                                   \
     __ENTRY(DATE, "Date")
 
 #define TT_HTTP_TXENC_MAP(__ENTRY)                                             \

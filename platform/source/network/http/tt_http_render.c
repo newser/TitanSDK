@@ -25,6 +25,7 @@
 #include <algorithm/tt_buffer_format.h>
 #include <network/http/header/tt_http_hdr_accept_encoding.h>
 #include <network/http/header/tt_http_hdr_content_encoding.h>
+#include <network/http/header/tt_http_hdr_etag.h>
 #include <network/http/tt_http_header.h>
 
 ////////////////////////////////////////////////////////////
@@ -92,9 +93,34 @@ static tt_result_t __render_set_contenc(IN tt_http_render_t *render,
 static tt_result_t __render_set_accenc(IN tt_http_render_t *render,
                                        IN OPT tt_http_accenc_t *accenc);
 
+static tt_result_t __render_add_etag(IN tt_http_render_t *req,
+                                     IN tt_char_t *etag,
+                                     IN tt_u32_t len,
+                                     IN tt_bool_t weak);
+
+static tt_result_t __render_add_ifmatch(IN tt_http_render_t *req,
+                                        IN tt_char_t *etag,
+                                        IN tt_u32_t len,
+                                        IN tt_bool_t weak);
+
+static tt_result_t __render_add_ifmatch_aster(IN tt_http_render_t *req);
+
+static tt_result_t __render_add_ifnmatch(IN tt_http_render_t *req,
+                                         IN tt_char_t *etag,
+                                         IN tt_u32_t len,
+                                         IN tt_bool_t weak);
+
+static tt_result_t __render_add_ifnmatch_aster(IN tt_http_render_t *req);
+
 ////////////////////////////////////////////////////////////
 // interface implementation
 ////////////////////////////////////////////////////////////
+
+void tt_http_render_remove_all(IN tt_http_render_t *render,
+                               IN tt_http_hname_t hname)
+{
+    return __render_remove_all(render, hname);
+}
 
 void tt_http_req_render_init(IN tt_http_req_render_t *req,
                              IN OPT tt_http_req_render_attr_t *attr)
@@ -240,6 +266,40 @@ tt_result_t tt_http_req_render_set_accenc(IN tt_http_req_render_t *req,
     return __render_set_accenc(&req->render, accenc);
 }
 
+tt_result_t tt_http_req_render_add_etag_n(IN tt_http_req_render_t *req,
+                                          IN tt_char_t *etag,
+                                          IN tt_u32_t len,
+                                          IN tt_bool_t weak)
+{
+    return __render_add_etag(&req->render, etag, len, weak);
+}
+
+tt_result_t tt_http_req_render_add_ifmatch_n(IN tt_http_req_render_t *req,
+                                             IN tt_char_t *etag,
+                                             IN tt_u32_t len,
+                                             IN tt_bool_t weak)
+{
+    return __render_add_ifmatch(&req->render, etag, len, weak);
+}
+
+tt_result_t tt_http_req_render_add_ifmatch_aster(IN tt_http_req_render_t *req)
+{
+    return __render_add_ifmatch_aster(&req->render);
+}
+
+tt_result_t tt_http_req_render_add_ifnmatch_n(IN tt_http_req_render_t *req,
+                                              IN tt_char_t *etag,
+                                              IN tt_u32_t len,
+                                              IN tt_bool_t weak)
+{
+    return __render_add_ifnmatch(&req->render, etag, len, weak);
+}
+
+tt_result_t tt_http_req_render_add_ifnmatch_aster(IN tt_http_req_render_t *req)
+{
+    return __render_add_ifnmatch_aster(&req->render);
+}
+
 void tt_http_resp_render_init(IN tt_http_resp_render_t *resp,
                               IN OPT tt_http_resp_render_attr_t *attr)
 {
@@ -358,6 +418,42 @@ tt_result_t tt_http_resp_render_set_accenc(IN tt_http_resp_render_t *resp,
                                            IN OPT tt_http_accenc_t *accenc)
 {
     return __render_set_accenc(&resp->render, accenc);
+}
+
+tt_result_t tt_http_resp_render_add_etag_n(IN tt_http_resp_render_t *resp,
+                                           IN tt_char_t *etag,
+                                           IN tt_u32_t len,
+                                           IN tt_bool_t weak)
+{
+    return __render_add_etag(&resp->render, etag, len, weak);
+}
+
+tt_result_t tt_http_resp_render_add_ifmatch_n(IN tt_http_resp_render_t *resp,
+                                              IN tt_char_t *etag,
+                                              IN tt_u32_t len,
+                                              IN tt_bool_t weak)
+{
+    return __render_add_ifmatch(&resp->render, etag, len, weak);
+}
+
+tt_result_t tt_http_resp_render_add_ifmatch_aster(
+    IN tt_http_resp_render_t *resp)
+{
+    return __render_add_ifmatch_aster(&resp->render);
+}
+
+tt_result_t tt_http_resp_render_add_ifnmatch_n(IN tt_http_resp_render_t *resp,
+                                               IN tt_char_t *etag,
+                                               IN tt_u32_t len,
+                                               IN tt_bool_t weak)
+{
+    return __render_add_ifnmatch(&resp->render, etag, len, weak);
+}
+
+tt_result_t tt_http_resp_render_add_ifnmatch_aster(
+    IN tt_http_resp_render_t *resp)
+{
+    return __render_add_ifnmatch_aster(&resp->render);
 }
 
 void __render_init(IN tt_http_render_t *r, IN tt_http_render_attr_t *attr)
@@ -649,4 +745,94 @@ tt_result_t __render_set_accenc(IN tt_http_render_t *render,
         __render_remove_all(render, TT_HTTP_HDR_ACCENC);
         return TT_SUCCESS;
     }
+}
+
+tt_result_t __render_add_etag(IN tt_http_render_t *render,
+                              IN tt_char_t *etag,
+                              IN tt_u32_t len,
+                              IN tt_bool_t weak)
+{
+    tt_http_hdr_t *h;
+
+    h = __render_find_hdr(render, TT_HTTP_HDR_ETAG);
+    if (h == NULL) {
+        h = tt_http_hdr_etag_create();
+        if (h == NULL) {
+            return TT_FAIL;
+        }
+        __render_add_hdr(render, h);
+    }
+
+    // if fail, an empty header exists there
+    return tt_http_hdr_etag_add_n(h, etag, len, weak);
+}
+
+tt_result_t __render_add_ifmatch(IN tt_http_render_t *render,
+                                 IN tt_char_t *etag,
+                                 IN tt_u32_t len,
+                                 IN tt_bool_t weak)
+{
+    tt_http_hdr_t *h;
+
+    h = __render_find_hdr(render, TT_HTTP_HDR_IF_MATCH);
+    if (h == NULL) {
+        h = tt_http_hdr_ifmatch_create();
+        if (h == NULL) {
+            return TT_FAIL;
+        }
+        __render_add_hdr(render, h);
+    }
+
+    return tt_http_hdr_ifmatch_add_n(h, etag, len, weak);
+}
+
+tt_result_t __render_add_ifmatch_aster(IN tt_http_render_t *render)
+{
+    tt_http_hdr_t *h;
+
+    h = __render_find_hdr(render, TT_HTTP_HDR_IF_MATCH);
+    if (h == NULL) {
+        h = tt_http_hdr_ifmatch_create();
+        if (h == NULL) {
+            return TT_FAIL;
+        }
+        __render_add_hdr(render, h);
+    }
+
+    return tt_http_hdr_ifmatch_add_aster(h);
+}
+
+tt_result_t __render_add_ifnmatch(IN tt_http_render_t *render,
+                                  IN tt_char_t *etag,
+                                  IN tt_u32_t len,
+                                  IN tt_bool_t weak)
+{
+    tt_http_hdr_t *h;
+
+    h = __render_find_hdr(render, TT_HTTP_HDR_IF_N_MATCH);
+    if (h == NULL) {
+        h = tt_http_hdr_ifnmatch_create();
+        if (h == NULL) {
+            return TT_FAIL;
+        }
+        __render_add_hdr(render, h);
+    }
+
+    return tt_http_hdr_ifnmatch_add_n(h, etag, len, weak);
+}
+
+tt_result_t __render_add_ifnmatch_aster(IN tt_http_render_t *render)
+{
+    tt_http_hdr_t *h;
+
+    h = __render_find_hdr(render, TT_HTTP_HDR_IF_N_MATCH);
+    if (h == NULL) {
+        h = tt_http_hdr_ifnmatch_create();
+        if (h == NULL) {
+            return TT_FAIL;
+        }
+        __render_add_hdr(render, h);
+    }
+
+    return tt_http_hdr_ifnmatch_add_aster(h);
 }

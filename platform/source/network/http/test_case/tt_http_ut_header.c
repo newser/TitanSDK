@@ -27,6 +27,7 @@
 
 #include <network/http/header/tt_http_hdr_accept_encoding.h>
 #include <network/http/header/tt_http_hdr_content_encoding.h>
+#include <network/http/header/tt_http_hdr_etag.h>
 #include <network/http/header/tt_http_hdr_transfer_encoding.h>
 #include <network/http/tt_http_content_type_map.h>
 #include <network/http/tt_http_header.h>
@@ -60,6 +61,9 @@ TT_TEST_ROUTINE_DECLARE(case_http_contype_map)
 TT_TEST_ROUTINE_DECLARE(case_http_hdr_txenc)
 TT_TEST_ROUTINE_DECLARE(case_http_hdr_contenc)
 TT_TEST_ROUTINE_DECLARE(case_http_hdr_accenc)
+TT_TEST_ROUTINE_DECLARE(case_http_hdr_etag)
+TT_TEST_ROUTINE_DECLARE(case_http_hdr_ifmatch)
+TT_TEST_ROUTINE_DECLARE(case_http_hdr_ifnmatch)
 TT_TEST_ROUTINE_DECLARE(case_http_misc)
 // =========================================
 
@@ -157,6 +161,33 @@ TT_TEST_CASE("case_http_hdr_basic",
                  NULL,
                  NULL),
 
+    TT_TEST_CASE("case_http_hdr_etag",
+                 "http hdr: etag",
+                 case_http_hdr_etag,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL),
+
+    TT_TEST_CASE("case_http_hdr_ifmatch",
+                 "http hdr: ifmatch",
+                 case_http_hdr_ifmatch,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL),
+
+    TT_TEST_CASE("case_http_hdr_ifnmatch",
+                 "http hdr: ifnmatch",
+                 case_http_hdr_ifnmatch,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL),
+
     TT_TEST_CASE("case_http_misc",
                  "http test misc things",
                  case_http_misc,
@@ -180,7 +211,7 @@ TT_TEST_CASE("case_http_hdr_basic",
     ////////////////////////////////////////////////////////////
 
     /*
-    TT_TEST_ROUTINE_DEFINE(case_http_hdr_accenc)
+    TT_TEST_ROUTINE_DEFINE(case_http_hdr_etag)
     {
         //tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
 
@@ -759,7 +790,15 @@ TT_TEST_ROUTINE_DEFINE(case_http_body)
             "Accept-Encoding: gzip,deflate\r\n"
             "Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7\r\n"
             "Keep-Alive: 300\r\n"
+            "Etag: \"bfc13a64729c4290ef5b2c2730249c88ca92d82d\"\r\n"
+            "Etag: *\r\n"
+            "If-match: \"abc\"\r\n"
+            "If-match: * \r\n"
+            "If-none-match: *\r\n"
+            "If-none-match: W/\"123\", 789 \r\n"
             "Connection: keep-alive\r\n"
+            "Etag: W/\"67ab43\", \"54ed21, \"7892dd\"\r\n"
+            "If-match: W/\"456\", 789\" \r\n"
             "\r\n";
 
         tt_u32_t slen = sizeof(p) - 1, i;
@@ -848,6 +887,84 @@ TT_TEST_ROUTINE_DEFINE(case_http_body)
         }
 
         {
+            tt_http_hdr_t *h = tt_http_parser_get_etag(&hp);
+            tt_http_etag_t *e;
+            TT_UT_NOT_NULL(h, "");
+            TT_UT_EQUAL(h->name, TT_HTTP_HDR_ETAG, "");
+            TT_UT_TRUE(hp.updated_etag, "");
+
+            e = tt_http_etag_head(h);
+            TT_UT_NOT_NULL(e, "");
+            TT_UT_EQUAL(
+                tt_blobex_strcmp(&e->etag,
+                                 "bfc13a64729c4290ef5b2c2730249c88ca92d82d"),
+                0,
+                "");
+            TT_UT_FALSE(e->weak, "");
+            TT_UT_FALSE(e->aster, "");
+
+            e = tt_http_etag_next(e);
+            TT_UT_NOT_NULL(e, "");
+            TT_UT_TRUE(e->aster, "");
+
+            e = tt_http_etag_next(e);
+            TT_UT_NOT_NULL(e, "");
+
+            e = tt_http_etag_next(e);
+            TT_UT_NOT_NULL(e, "");
+            TT_UT_EQUAL(tt_blobex_strcmp(&e->etag, "7892dd"), 0, "");
+
+            e = tt_http_etag_next(e);
+            TT_UT_NULL(e, "");
+        }
+
+        {
+            tt_http_hdr_t *h = tt_http_parser_get_ifmatch(&hp);
+            tt_http_etag_t *e;
+            TT_UT_NOT_NULL(h, "");
+            TT_UT_EQUAL(h->name, TT_HTTP_HDR_IF_MATCH, "");
+            TT_UT_TRUE(hp.updated_ifmatch, "");
+
+            e = tt_http_etag_head(h);
+            TT_UT_NOT_NULL(e, "");
+            TT_UT_EQUAL(tt_blobex_strcmp(&e->etag, "abc"), 0, "");
+            TT_UT_FALSE(e->weak, "");
+            TT_UT_FALSE(e->aster, "");
+
+            e = tt_http_etag_next(e);
+            TT_UT_NOT_NULL(e, "");
+            TT_UT_TRUE(e->aster, "");
+
+            e = tt_http_etag_next(e);
+            TT_UT_NOT_NULL(e, "");
+            TT_UT_EQUAL(tt_blobex_strcmp(&e->etag, "456"), 0, "");
+
+            e = tt_http_etag_next(e);
+            TT_UT_NULL(e, "");
+        }
+
+        {
+            tt_http_hdr_t *h = tt_http_parser_get_ifnmatch(&hp);
+            tt_http_etag_t *e;
+            TT_UT_NOT_NULL(h, "");
+            TT_UT_EQUAL(h->name, TT_HTTP_HDR_IF_N_MATCH, "");
+            TT_UT_TRUE(hp.updated_ifnmatch, "");
+
+            e = tt_http_etag_head(h);
+            TT_UT_NOT_NULL(e, "");
+            TT_UT_TRUE(e->aster, "");
+
+            e = tt_http_etag_next(e);
+            TT_UT_NOT_NULL(e, "");
+            TT_UT_EQUAL(tt_blobex_strcmp(&e->etag, "123"), 0, "");
+            TT_UT_TRUE(e->weak, "");
+            TT_UT_FALSE(e->aster, "");
+
+            e = tt_http_etag_next(e);
+            TT_UT_NULL(e, "");
+        }
+
+        {
             tt_http_uri_t *u = tt_http_parser_get_uri(&hp);
             TT_UT_NOT_NULL(u, "");
             TT_UT_STREQ(tt_http_uri_render(u), "/favicon.ico", "");
@@ -865,7 +982,6 @@ TT_TEST_ROUTINE_DEFINE(case_http_body)
             "Content-Type: application/javascript\r\n"
             "Transfer-Encoding:1, chunked, 333, gzip\r\n"
             "Content-Encoding:1, chunked, 333, gzip\r\n"
-            "If-Match: \"e0023aa4e\"\r\n"
             "Transfer-Encoding:gzip, \r\n"
             "Content-Encoding:, identity\r\n"
             "Content-Length: 10\r\n"
@@ -940,9 +1056,26 @@ TT_TEST_ROUTINE_DEFINE(case_http_body)
             TT_UT_FALSE(ha->has[TT_HTTP_ENC_IDENTITY], "");
         }
 
+        {
+            tt_http_hdr_t *h = tt_http_parser_get_etag(&hp);
+            TT_UT_NULL(h, "");
+            TT_UT_TRUE(hp.updated_etag, "");
+        }
+
+        {
+            tt_http_hdr_t *h = tt_http_parser_get_ifmatch(&hp);
+            TT_UT_NULL(h, "");
+            TT_UT_TRUE(hp.updated_ifmatch, "");
+        }
+
+        {
+            tt_http_hdr_t *h = tt_http_parser_get_ifnmatch(&hp);
+            TT_UT_NULL(h, "");
+            TT_UT_TRUE(hp.updated_ifnmatch, "");
+        }
+
         __check("Host", "www.example.com");
         __check("Content-Type", "application/javascript");
-        __check("If-Match", "\"e0023aa4e\"");
         __check("Content-Length", "10");
 
         TT_UT_TRUE(hp.complete_line1, "");
@@ -2081,6 +2214,335 @@ TT_TEST_ROUTINE_DEFINE(case_http_hdr_accenc)
     TT_UT_SUCCESS(tt_http_hdr_parse(h, "deflate;q=0.2a"), "");
     TT_UT_TRUE(ha->has[TT_HTTP_ENC_DEFLATE], "");
     TT_UT_EXP(fabs(ha->weight[TT_HTTP_ENC_DEFLATE] - 0.2) < 0.0001, "");
+
+    tt_http_hdr_destroy(h);
+
+    // test end
+    TT_TEST_CASE_LEAVE()
+}
+
+TT_TEST_ROUTINE_DEFINE(case_http_hdr_etag)
+{
+    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+    tt_http_hdr_t *h;
+    tt_http_etag_t *e;
+    tt_char_t tmp[128] = {0};
+    tt_u32_t len;
+
+    TT_TEST_CASE_ENTER()
+    // test start
+
+    h = tt_http_hdr_etag_create();
+    TT_UT_NOT_NULL(h, "");
+    TT_UT_NULL(tt_http_etag_head(h), "");
+    TT_UT_EQUAL(tt_http_hdr_render_len(h), sizeof("ETag: \r\n") - 1, "");
+    tt_memset(tmp, 0, sizeof(tmp));
+    TT_UT_EQUAL(tt_http_hdr_render(h, tmp), sizeof("ETag: \r\n") - 1, "");
+    TT_UT_STREQ(tmp, "ETag: \r\n", "");
+    tt_http_hdr_destroy(h);
+
+    h = tt_http_hdr_etag_create();
+    TT_UT_NOT_NULL(h, "");
+
+    // empty
+    tt_http_hdr_parse(h, "");
+    TT_UT_NULL(tt_http_etag_head(h), "");
+
+    // 1 char: invalid as must wrapped by double quotes
+    tt_http_hdr_parse(h, "a");
+    TT_UT_NULL(tt_http_etag_head(h), "");
+    // invalid as must wrapped by double quotes
+    tt_http_hdr_parse(h, "a , b, c,");
+    TT_UT_NULL(tt_http_etag_head(h), "");
+
+    // empty tag
+    tt_http_hdr_parse(h, "\"\"");
+    TT_UT_NULL(tt_http_etag_head(h), "");
+
+    {
+        // 1 tag
+        tt_http_hdr_parse(h, "\" a  \"");
+
+        e = tt_http_etag_head(h);
+        TT_UT_NOT_NULL(e, "");
+        TT_UT_FALSE(e->weak, "");
+        TT_UT_EQUAL(tt_blobex_strcmp(&e->etag, " a  "), 0, "");
+    }
+
+    {
+        // try more
+        tt_http_hdr_parse(h, " W/\"abc\", \"\" , \"aa, bb\", W/, \"end\"");
+
+        e = tt_http_etag_head(h);
+        TT_UT_NOT_NULL(e, "");
+        e = tt_http_etag_next(e); // 2nd
+        TT_UT_NOT_NULL(e, "");
+        TT_UT_TRUE(e->weak, "");
+        TT_UT_EQUAL(tt_blobex_strcmp(&e->etag, "abc"), 0, "");
+        e = tt_http_etag_next(e); // 3rd
+        TT_UT_NOT_NULL(e, "");
+        TT_UT_FALSE(e->weak, "");
+        TT_UT_EQUAL(tt_blobex_strcmp(&e->etag, "end"), 0, "");
+        e = tt_http_etag_next(e); // 3rd
+        TT_UT_NULL(e, "");
+    }
+
+    tt_http_hdr_destroy(h);
+
+    ///////////// render
+
+    h = tt_http_hdr_etag_create();
+    TT_UT_NOT_NULL(h, "");
+
+    TT_UT_SUCCESS(tt_http_hdr_etag_add(h, "1", TT_FALSE), "");
+    TT_UT_EQUAL(tt_http_hdr_render_len(h), sizeof("ETag: \"1\"\r\n") - 1, "");
+    tt_memset(tmp, 0, sizeof(tmp));
+    TT_UT_EQUAL(tt_http_hdr_render(h, tmp), sizeof("ETag: \"1\"\r\n") - 1, "");
+    TT_UT_STREQ(tmp, "ETag: \"1\"\r\n", "");
+
+    TT_UT_SUCCESS(tt_http_hdr_etag_add(h, "22", TT_TRUE), "");
+    TT_UT_EQUAL(tt_http_hdr_render_len(h),
+                sizeof("ETag: \"1\", W/\"22\"\r\n") - 1,
+                "");
+    tt_memset(tmp, 0, sizeof(tmp));
+    TT_UT_EQUAL(tt_http_hdr_render(h, tmp),
+                sizeof("ETag: \"1\", W/\"22\"\r\n") - 1,
+                "");
+    TT_UT_STREQ(tmp, "ETag: \"1\", W/\"22\"\r\n", "");
+
+    tt_http_hdr_destroy(h);
+
+    // test end
+    TT_TEST_CASE_LEAVE()
+}
+
+TT_TEST_ROUTINE_DEFINE(case_http_hdr_ifmatch)
+{
+    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+    tt_http_hdr_t *h;
+    tt_http_etag_t *e;
+    tt_char_t tmp[128] = {0};
+    tt_u32_t len;
+
+    TT_TEST_CASE_ENTER()
+    // test start
+
+    h = tt_http_hdr_ifmatch_create();
+    TT_UT_NOT_NULL(h, "");
+    TT_UT_NULL(tt_http_etag_head(h), "");
+    TT_UT_EQUAL(tt_http_hdr_render_len(h), sizeof("If-Match: \r\n") - 1, "");
+    tt_memset(tmp, 0, sizeof(tmp));
+    TT_UT_EQUAL(tt_http_hdr_render(h, tmp), sizeof("If-Match: \r\n") - 1, "");
+    TT_UT_STREQ(tmp, "If-Match: \r\n", "");
+    tt_http_hdr_destroy(h);
+
+    h = tt_http_hdr_ifmatch_create();
+    TT_UT_NOT_NULL(h, "");
+
+    // empty
+    tt_http_hdr_parse(h, "");
+    TT_UT_NULL(tt_http_etag_head(h), "");
+
+    // 1 char: invalid as must wrapped by double quotes
+    tt_http_hdr_parse(h, "a");
+    TT_UT_NULL(tt_http_etag_head(h), "");
+    // invalid as must wrapped by double quotes
+    tt_http_hdr_parse(h, "a , b, c,");
+    TT_UT_NULL(tt_http_etag_head(h), "");
+
+    // empty tag
+    tt_http_hdr_parse(h, "\"\"");
+    TT_UT_NULL(tt_http_etag_head(h), "");
+
+    {
+        // 1 tag
+        tt_http_hdr_parse(h, "\" a  \"");
+
+        e = tt_http_etag_head(h);
+        TT_UT_NOT_NULL(e, "");
+        TT_UT_FALSE(e->weak, "");
+        TT_UT_EQUAL(tt_blobex_strcmp(&e->etag, " a  "), 0, "");
+    }
+
+    {
+        // try more
+        tt_http_hdr_parse(h, " W/\"abc\", \"\" , \"aa, bb\", W/, \"end\",  * ");
+
+        e = tt_http_etag_head(h);
+        TT_UT_NOT_NULL(e, "");
+        e = tt_http_etag_next(e); // 2nd
+        TT_UT_NOT_NULL(e, "");
+        TT_UT_TRUE(e->weak, "");
+        TT_UT_EQUAL(tt_blobex_strcmp(&e->etag, "abc"), 0, "");
+        e = tt_http_etag_next(e); // 3rd
+        TT_UT_NOT_NULL(e, "");
+        TT_UT_FALSE(e->weak, "");
+        TT_UT_EQUAL(tt_blobex_strcmp(&e->etag, "end"), 0, "");
+
+        e = tt_http_etag_next(e); // 3rd
+        TT_UT_NOT_NULL(e, "");
+        TT_UT_FALSE(e->weak, "");
+        TT_UT_TRUE(e->aster, "");
+
+        e = tt_http_etag_next(e); // 4th
+        TT_UT_NULL(e, "");
+    }
+
+    tt_http_hdr_destroy(h);
+
+    ///////////// render
+
+    h = tt_http_hdr_ifmatch_create();
+    TT_UT_NOT_NULL(h, "");
+
+    TT_UT_SUCCESS(tt_http_hdr_ifmatch_add(h, "1", TT_FALSE), "");
+    TT_UT_EQUAL(tt_http_hdr_render_len(h),
+                sizeof("If-Match: \"1\"\r\n") - 1,
+                "");
+    tt_memset(tmp, 0, sizeof(tmp));
+    TT_UT_EQUAL(tt_http_hdr_render(h, tmp),
+                sizeof("If-Match: \"1\"\r\n") - 1,
+                "");
+    TT_UT_STREQ(tmp, "If-Match: \"1\"\r\n", "");
+
+    TT_UT_SUCCESS(tt_http_hdr_ifmatch_add(h, "22", TT_TRUE), "");
+    TT_UT_EQUAL(tt_http_hdr_render_len(h),
+                sizeof("If-Match: \"1\", W/\"22\"\r\n") - 1,
+                "");
+    tt_memset(tmp, 0, sizeof(tmp));
+    TT_UT_EQUAL(tt_http_hdr_render(h, tmp),
+                sizeof("If-Match: \"1\", W/\"22\"\r\n") - 1,
+                "");
+    TT_UT_STREQ(tmp, "If-Match: \"1\", W/\"22\"\r\n", "");
+
+    TT_UT_SUCCESS(tt_http_hdr_ifmatch_add_aster(h), "");
+    TT_UT_EQUAL(tt_http_hdr_render_len(h),
+                sizeof("If-Match: \"1\", W/\"22\", *\r\n") - 1,
+                "");
+    tt_memset(tmp, 0, sizeof(tmp));
+    TT_UT_EQUAL(tt_http_hdr_render(h, tmp),
+                sizeof("If-Match: \"1\", W/\"22\", *\r\n") - 1,
+                "");
+    TT_UT_STREQ(tmp, "If-Match: \"1\", W/\"22\", *\r\n", "");
+
+    tt_http_hdr_destroy(h);
+
+    // test end
+    TT_TEST_CASE_LEAVE()
+}
+
+TT_TEST_ROUTINE_DEFINE(case_http_hdr_ifnmatch)
+{
+    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+    tt_http_hdr_t *h;
+    tt_http_etag_t *e;
+    tt_char_t tmp[128] = {0};
+    tt_u32_t len;
+
+    TT_TEST_CASE_ENTER()
+    // test start
+
+    h = tt_http_hdr_ifnmatch_create();
+    TT_UT_NOT_NULL(h, "");
+    TT_UT_NULL(tt_http_etag_head(h), "");
+    TT_UT_EQUAL(tt_http_hdr_render_len(h),
+                sizeof("If-None-Match: \r\n") - 1,
+                "");
+    tt_memset(tmp, 0, sizeof(tmp));
+    TT_UT_EQUAL(tt_http_hdr_render(h, tmp),
+                sizeof("If-None-Match: \r\n") - 1,
+                "");
+    TT_UT_STREQ(tmp, "If-None-Match: \r\n", "");
+    tt_http_hdr_destroy(h);
+
+    h = tt_http_hdr_ifnmatch_create();
+    TT_UT_NOT_NULL(h, "");
+
+    // empty
+    tt_http_hdr_parse(h, "");
+    TT_UT_NULL(tt_http_etag_head(h), "");
+
+    // 1 char: invalid as must wrapped by double quotes
+    tt_http_hdr_parse(h, "a");
+    TT_UT_NULL(tt_http_etag_head(h), "");
+    // invalid as must wrapped by double quotes
+    tt_http_hdr_parse(h, "a , b, c,");
+    TT_UT_NULL(tt_http_etag_head(h), "");
+
+    // empty tag
+    tt_http_hdr_parse(h, "\"\"");
+    TT_UT_NULL(tt_http_etag_head(h), "");
+
+    {
+        // 1 tag
+        tt_http_hdr_parse(h, "\" a  \"");
+
+        e = tt_http_etag_head(h);
+        TT_UT_NOT_NULL(e, "");
+        TT_UT_FALSE(e->weak, "");
+        TT_UT_EQUAL(tt_blobex_strcmp(&e->etag, " a  "), 0, "");
+    }
+
+    {
+        // try more
+        tt_http_hdr_parse(h, " W/\"abc\", \"\" , \"aa, bb\", W/, \"end\",  * ");
+
+        e = tt_http_etag_head(h);
+        TT_UT_NOT_NULL(e, "");
+        e = tt_http_etag_next(e); // 2nd
+        TT_UT_NOT_NULL(e, "");
+        TT_UT_TRUE(e->weak, "");
+        TT_UT_EQUAL(tt_blobex_strcmp(&e->etag, "abc"), 0, "");
+        e = tt_http_etag_next(e); // 3rd
+        TT_UT_NOT_NULL(e, "");
+        TT_UT_FALSE(e->weak, "");
+        TT_UT_EQUAL(tt_blobex_strcmp(&e->etag, "end"), 0, "");
+
+        e = tt_http_etag_next(e); // 3rd
+        TT_UT_NOT_NULL(e, "");
+        TT_UT_FALSE(e->weak, "");
+        TT_UT_TRUE(e->aster, "");
+
+        e = tt_http_etag_next(e); // 4th
+        TT_UT_NULL(e, "");
+    }
+
+    tt_http_hdr_destroy(h);
+
+    ///////////// render
+
+    h = tt_http_hdr_ifnmatch_create();
+    TT_UT_NOT_NULL(h, "");
+
+    TT_UT_SUCCESS(tt_http_hdr_ifnmatch_add(h, "1", TT_FALSE), "");
+    TT_UT_EQUAL(tt_http_hdr_render_len(h),
+                sizeof("If-None-Match: \"1\"\r\n") - 1,
+                "");
+    tt_memset(tmp, 0, sizeof(tmp));
+    TT_UT_EQUAL(tt_http_hdr_render(h, tmp),
+                sizeof("If-None-Match: \"1\"\r\n") - 1,
+                "");
+    TT_UT_STREQ(tmp, "If-None-Match: \"1\"\r\n", "");
+
+    TT_UT_SUCCESS(tt_http_hdr_ifnmatch_add(h, "22", TT_TRUE), "");
+    TT_UT_EQUAL(tt_http_hdr_render_len(h),
+                sizeof("If-None-Match: \"1\", W/\"22\"\r\n") - 1,
+                "");
+    tt_memset(tmp, 0, sizeof(tmp));
+    TT_UT_EQUAL(tt_http_hdr_render(h, tmp),
+                sizeof("If-None-Match: \"1\", W/\"22\"\r\n") - 1,
+                "");
+    TT_UT_STREQ(tmp, "If-None-Match: \"1\", W/\"22\"\r\n", "");
+
+    TT_UT_SUCCESS(tt_http_hdr_ifnmatch_add_aster(h), "");
+    TT_UT_EQUAL(tt_http_hdr_render_len(h),
+                sizeof("If-None-Match: \"1\", W/\"22\", *\r\n") - 1,
+                "");
+    tt_memset(tmp, 0, sizeof(tmp));
+    TT_UT_EQUAL(tt_http_hdr_render(h, tmp),
+                sizeof("If-None-Match: \"1\", W/\"22\", *\r\n") - 1,
+                "");
+    TT_UT_STREQ(tmp, "If-None-Match: \"1\", W/\"22\", *\r\n", "");
 
     tt_http_hdr_destroy(h);
 

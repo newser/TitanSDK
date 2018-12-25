@@ -100,6 +100,13 @@ typedef struct
 ////////////////////////////////////////////////////////////
 
 // ========================================
+// common
+// ========================================
+
+tt_export void tt_http_render_remove_all(IN tt_http_render_t *render,
+                                         IN tt_http_hname_t hname);
+
+// ========================================
 // request
 // ========================================
 
@@ -183,6 +190,49 @@ tt_http_req_render_set_contenc(IN tt_http_req_render_t *req,
 tt_export tt_result_t tt_http_req_render_set_accenc(
     IN tt_http_req_render_t *req, IN OPT struct tt_http_accenc_s *accenc);
 
+tt_export tt_result_t
+tt_http_req_render_add_etag_n(IN tt_http_req_render_t *req,
+                              IN tt_char_t *etag,
+                              IN tt_u32_t len,
+                              IN tt_bool_t weak);
+
+tt_inline tt_result_t tt_http_req_render_add_etag(IN tt_http_req_render_t *req,
+                                                  IN tt_char_t *etag,
+                                                  IN tt_bool_t weak)
+{
+    return tt_http_req_render_add_etag_n(req, etag, tt_strlen(etag), weak);
+}
+
+tt_export tt_result_t
+tt_http_req_render_add_ifmatch_n(IN tt_http_req_render_t *req,
+                                 IN tt_char_t *etag,
+                                 IN tt_u32_t len,
+                                 IN tt_bool_t weak);
+
+tt_inline tt_result_t tt_http_req_render_add_ifmatch(
+    IN tt_http_req_render_t *req, IN tt_char_t *etag, IN tt_bool_t weak)
+{
+    return tt_http_req_render_add_ifmatch_n(req, etag, tt_strlen(etag), weak);
+}
+
+tt_export tt_result_t
+tt_http_req_render_add_ifmatch_aster(IN tt_http_req_render_t *req);
+
+tt_export tt_result_t
+tt_http_req_render_add_ifnmatch_n(IN tt_http_req_render_t *req,
+                                  IN tt_char_t *etag,
+                                  IN tt_u32_t len,
+                                  IN tt_bool_t weak);
+
+tt_inline tt_result_t tt_http_req_render_add_ifnmatch(
+    IN tt_http_req_render_t *req, IN tt_char_t *etag, IN tt_bool_t weak)
+{
+    return tt_http_req_render_add_ifnmatch_n(req, etag, tt_strlen(etag), weak);
+}
+
+tt_export tt_result_t
+tt_http_req_render_add_ifnmatch_aster(IN tt_http_req_render_t *req);
+
 // ========================================
 // response
 // ========================================
@@ -262,5 +312,49 @@ tt_http_resp_render_set_contenc(IN tt_http_resp_render_t *resp,
 tt_export tt_result_t tt_http_resp_render_set_accenc(
     IN tt_http_resp_render_t *resp, IN OPT struct tt_http_accenc_s *accenc);
 
+tt_export tt_result_t
+tt_http_resp_render_add_etag_n(IN tt_http_resp_render_t *resp,
+                               IN tt_char_t *etag,
+                               IN tt_u32_t len,
+                               IN tt_bool_t weak);
+
+tt_inline tt_result_t tt_http_resp_render_add_etag(
+    IN tt_http_resp_render_t *resp, IN tt_char_t *etag, IN tt_bool_t weak)
+{
+    return tt_http_resp_render_add_etag_n(resp, etag, tt_strlen(etag), weak);
+}
+
+tt_export tt_result_t
+tt_http_resp_render_add_ifmatch_n(IN tt_http_resp_render_t *resp,
+                                  IN tt_char_t *etag,
+                                  IN tt_u32_t len,
+                                  IN tt_bool_t weak);
+
+tt_inline tt_result_t tt_http_resp_render_add_ifmatch(
+    IN tt_http_resp_render_t *resp, IN tt_char_t *etag, IN tt_bool_t weak)
+{
+    return tt_http_resp_render_add_ifmatch_n(resp, etag, tt_strlen(etag), weak);
+}
+
+tt_export tt_result_t
+tt_http_resp_render_add_ifmatch_aster(IN tt_http_resp_render_t *resp);
+
+tt_export tt_result_t
+tt_http_resp_render_add_ifnmatch_n(IN tt_http_resp_render_t *resp,
+                                   IN tt_char_t *etag,
+                                   IN tt_u32_t len,
+                                   IN tt_bool_t weak);
+
+tt_inline tt_result_t tt_http_resp_render_add_ifnmatch(
+    IN tt_http_resp_render_t *resp, IN tt_char_t *etag, IN tt_bool_t weak)
+{
+    return tt_http_resp_render_add_ifnmatch_n(resp,
+                                              etag,
+                                              tt_strlen(etag),
+                                              weak);
+}
+
+tt_export tt_result_t
+tt_http_resp_render_add_ifnmatch_aster(IN tt_http_resp_render_t *resp);
 
 #endif /* __TT_HTTP_RENDER__ */

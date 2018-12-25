@@ -43,6 +43,11 @@ this file defines http parser APIs
 // macro definition
 ////////////////////////////////////////////////////////////
 
+#define TT_HTTP_PARSE_HDR_MAP(__ENTRY)                                         \
+    __ENTRY(etag, TT_HTTP_HDR_ETAG)                                            \
+    __ENTRY(ifmatch, TT_HTTP_HDR_IF_MATCH)                                     \
+    __ENTRY(ifnmatch, TT_HTTP_HDR_IF_N_MATCH)
+
 ////////////////////////////////////////////////////////////
 // type definition
 ////////////////////////////////////////////////////////////
@@ -93,6 +98,9 @@ typedef struct tt_http_parser_s
     tt_bool_t updated_txenc : 1;
     tt_bool_t updated_contenc : 1;
     tt_bool_t updated_accenc : 1;
+#define __ENTRY(hdr, name) tt_bool_t updated_##hdr : 1;
+    TT_HTTP_PARSE_HDR_MAP(__ENTRY)
+#undef __ENTRY
     tt_bool_t miss_txenc : 1;
     tt_bool_t miss_contype : 1;
     tt_bool_t miss_content_len : 1;
@@ -181,6 +189,12 @@ tt_export tt_u32_t tt_http_parser_get_contenc(IN tt_http_parser_t *hp,
                                               OUT tt_http_enc_t *contenc);
 
 tt_export tt_http_accenc_t *tt_http_parser_get_accenc(IN tt_http_parser_t *hp);
+
+tt_export tt_http_hdr_t *tt_http_parser_get_etag(IN tt_http_parser_t *hp);
+
+tt_export tt_http_hdr_t *tt_http_parser_get_ifmatch(IN tt_http_parser_t *hp);
+
+tt_export tt_http_hdr_t *tt_http_parser_get_ifnmatch(IN tt_http_parser_t *hp);
 
 // ========================================
 // helper
