@@ -213,6 +213,7 @@ tt_http_inserv_action_t tt_http_svcmgr_on_uri(IN tt_http_svcmgr_t *sm,
         return TT_HTTP_INSERV_ACT_DISCARD;
     }
 
+    TT_ASSERT(sm->owner == NULL);
     for (i = 0; i < sm->inserv_num; ++i) {
         tt_http_inserv_t *s = sm->inserv[i];
         tt_http_inserv_action_t this_act;
@@ -231,7 +232,7 @@ tt_http_inserv_action_t tt_http_svcmgr_on_uri(IN tt_http_svcmgr_t *sm,
                 // priority
                 sm->owner = s;
             }
-            act = TT_HTTP_INSERV_ACT_OWNER;
+            return TT_HTTP_INSERV_ACT_OWNER;
         }
     }
 
@@ -250,6 +251,10 @@ tt_http_inserv_action_t tt_http_svcmgr_on_header(
         return TT_HTTP_INSERV_ACT_DISCARD;
     }
 
+    if (sm->owner != NULL) {
+        return tt_http_inserv_on_header(sm->owner, req, resp);
+    }
+
     for (i = 0; i < sm->inserv_num; ++i) {
         tt_http_inserv_t *s = sm->inserv[i];
         tt_http_inserv_action_t this_act;
@@ -264,7 +269,7 @@ tt_http_inserv_action_t tt_http_svcmgr_on_header(
             if (sm->owner == NULL) {
                 sm->owner = s;
             }
-            act = TT_HTTP_INSERV_ACT_OWNER;
+            return TT_HTTP_INSERV_ACT_OWNER;
         }
     }
 

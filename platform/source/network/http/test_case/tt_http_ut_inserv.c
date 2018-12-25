@@ -170,8 +170,14 @@ TT_TEST_CASE("case_http_inserv_file",
         uri = tt_http_parser_get_uri(&req);
         TT_UT_NOT_NULL(uri, "");
         act = tt_http_inserv_on_header(is, &req, &resp);
-        TT_UT_EQUAL(act, TT_HTTP_INSERV_ACT_PASS, "");
+        TT_UT_EQUAL(act, TT_HTTP_INSERV_ACT_OWNER, "");
         TT_UT_STREQ(tt_fpath_render(&uri->path), "/a/b/i.php", "");
+
+        act = tt_http_inserv_on_complete(is, &req, &resp);
+        TT_UT_EQUAL(act, TT_HTTP_INSERV_ACT_DISCARD, "");
+        TT_UT_EQUAL(tt_http_resp_render_get_status(&resp),
+                    TT_HTTP_STATUS_NOT_FOUND,
+                    "");
     }
 
     // test with existing file

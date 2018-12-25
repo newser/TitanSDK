@@ -698,10 +698,10 @@ TT_TEST_ROUTINE_DEFINE(case_http_svcmgr)
                         "");
             __is_on_uri_act[0] = TT_HTTP_INSERV_ACT_PASS;
             __is_on_uri_act[2] = TT_HTTP_INSERV_ACT_PASS;
-            for (i = 0; i < __IS_NUM; ++i) {
-                TT_UT_TRUE(__is_on_uri_called[i], "");
-            }
             TT_UT_EQUAL(sm.owner, is[0], "");
+            TT_UT_TRUE(__is_on_uri_called[0], "");
+            TT_UT_FALSE(__is_on_uri_called[1], "");
+            TT_UT_FALSE(__is_on_uri_called[2], "");
         }
 
         // on header
@@ -748,11 +748,11 @@ TT_TEST_ROUTINE_DEFINE(case_http_svcmgr)
             TT_UT_EQUAL(tt_http_svcmgr_on_header(&sm, NULL, NULL),
                         TT_HTTP_INSERV_ACT_OWNER,
                         "");
-            __is_on_header_act[1] = TT_HTTP_INSERV_ACT_PASS;
-            __is_on_header_act[2] = TT_HTTP_INSERV_ACT_PASS;
             TT_UT_EQUAL(sm.owner, is[1], "");
-            for (i = 0; i < __IS_NUM; ++i) {
-                TT_UT_TRUE(__is_on_header_called[i], "");
+            TT_UT_TRUE(__is_on_header_called[0], "");
+            TT_UT_TRUE(__is_on_header_called[1], "");
+            for (i = 2; i < __IS_NUM; ++i) {
+                TT_UT_FALSE(__is_on_header_called[i], "");
             }
 
             // a owner

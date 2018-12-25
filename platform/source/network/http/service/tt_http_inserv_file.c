@@ -182,7 +182,7 @@ tt_http_inserv_action_t __inserv_file_on_hdr(IN tt_http_inserv_t *s,
     tt_http_uri_t *uri;
     tt_http_status_t status = TT_HTTP_STATUS_INTERNAL_SERVER_ERROR;
     tt_fpath_t *fp;
-    const tt_char_t *path;
+    // const tt_char_t *path;
 
     mtd = tt_http_parser_get_method(req);
     if (mtd == TT_HTTP_MTD_GET) {
@@ -222,6 +222,9 @@ tt_http_inserv_action_t __inserv_file_on_hdr(IN tt_http_inserv_t *s,
         }
     }
 
+    return TT_HTTP_INSERV_ACT_OWNER;
+
+#if 0
     path = tt_fpath_render(fp);
     if (path == NULL) {
         status = TT_HTTP_STATUS_INTERNAL_SERVER_ERROR;
@@ -250,6 +253,7 @@ tt_http_inserv_action_t __inserv_file_on_hdr(IN tt_http_inserv_t *s,
 
     // will handle this request
     return TT_HTTP_INSERV_ACT_OWNER;
+#endif
 
 fail:
     tt_http_resp_render_set_status(resp, status);
@@ -262,9 +266,27 @@ tt_http_inserv_action_t __inserv_file_on_complete(
     OUT tt_http_resp_render_t *resp)
 {
     tt_http_inserv_file_t *sf = TT_HTTP_INSERV_CAST(s, tt_http_inserv_file_t);
+
+    tt_http_uri_t *uri;
+    tt_fpath_t *fp;
+    const tt_char_t *path;
     tt_u64_t size;
 
-    TT_ASSERT(sf->f_valid);
+    uri = tt_http_parser_get_uri(req);
+    fp = TT_COND(uri != NULL, tt_http_uri_get_path(uri), NULL);
+    path = TT_COND(fp != NULL, tt_fpath_render(fp), NULL);
+    if (path == NULL) {
+        tt_http_resp_render_set_status(resp,
+                                       TT_HTTP_STATUS_INTERNAL_SERVER_ERROR);
+        return TT_HTTP_INSERV_ACT_DISCARD;
+    }
+
+    TT_ASSERT(!sf->f_valid);
+    if (!TT_OK(tt_fopen(&sf->f, path, TT_FO_READ | TT_FO_SEQUENTIAL, NULL))) {
+        tt_http_resp_render_set_status(resp, TT_HTTP_STATUS_NOT_FOUND);
+        return TT_HTTP_INSERV_ACT_DISCARD;
+    }
+    sf->f_valid = TT_TRUE;
 
     if (!TT_OK(tt_fsize(&sf->f, &size))) {
         tt_http_resp_render_set_status(resp,
