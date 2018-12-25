@@ -208,6 +208,7 @@ tt_http_inserv_action_t __inserv_file_on_hdr(IN tt_http_inserv_t *s,
         return TT_HTTP_INSERV_ACT_PASS;
     }
 
+    TT_ASSERT(0); // move uri processing to rule
     fp = tt_http_uri_get_path(uri);
     if (tt_fpath_is_dir(fp)) {
         if (sf->def_name == NULL) {
@@ -222,6 +223,8 @@ tt_http_inserv_action_t __inserv_file_on_hdr(IN tt_http_inserv_t *s,
         }
     }
 
+    // we won't do more things, job of this function is only check if this
+    // serivce can handle the request
     return TT_HTTP_INSERV_ACT_OWNER;
 
 #if 0

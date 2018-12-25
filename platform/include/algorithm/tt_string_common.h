@@ -132,8 +132,12 @@ tt_export tt_result_t tt_string_append_f(IN OUT tt_string_t *s,
 tt_export tt_bool_t tt_string_startwith(IN tt_string_t *s,
                                         IN const tt_char_t *substr);
 
+tt_export tt_bool_t tt_string_startwith_c(IN tt_string_t *s, IN tt_char_t c);
+
 tt_export tt_bool_t tt_string_endwith(IN tt_string_t *s,
                                       IN const tt_char_t *substr);
+
+tt_export tt_bool_t tt_string_endwith_c(IN tt_string_t *s, IN tt_char_t c);
 
 tt_export tt_result_t tt_string_substr(IN tt_string_t *s,
                                        IN tt_u32_t from,

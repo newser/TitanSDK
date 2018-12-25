@@ -390,6 +390,15 @@ tt_bool_t tt_string_startwith(IN tt_string_t *s, IN const tt_char_t *substr)
     return TT_BOOL(tt_strncmp(tt_string_cstr(s), substr, n) == 0);
 }
 
+tt_bool_t tt_string_startwith_c(IN tt_string_t *s, IN tt_char_t c)
+{
+    if (tt_string_empty(s)) {
+        return TT_FALSE;
+    }
+
+    return TT_BOOL(tt_string_cstr(s)[0] == c);
+}
+
 tt_bool_t tt_string_endwith(IN tt_string_t *s, IN const tt_char_t *substr)
 {
     tt_u32_t s_len = tt_string_len(s);
@@ -403,6 +412,15 @@ tt_bool_t tt_string_endwith(IN tt_string_t *s, IN const tt_char_t *substr)
     }
 
     return TT_BOOL(tt_strncmp(tt_string_cstr(s) + s_len - n, substr, n) == 0);
+}
+
+tt_bool_t tt_string_endwith_c(IN tt_string_t *s, IN tt_char_t c)
+{
+    if (tt_string_empty(s)) {
+        return TT_FALSE;
+    }
+
+    return TT_BOOL(tt_string_cstr(s)[tt_string_len(s) - 1] == c);
 }
 
 tt_result_t tt_string_substr(IN tt_string_t *s,

@@ -921,11 +921,19 @@ TT_TEST_ROUTINE_DEFINE(case_str_join)
 
     br = tt_string_startwith(&s, "");
     TT_UT_EQUAL(br, TT_TRUE, "");
+    br = tt_string_startwith_c(&s, 0);
+    TT_UT_EQUAL(br, TT_FALSE, "");
+    br = tt_string_startwith_c(&s, ' ');
+    TT_UT_EQUAL(br, TT_FALSE, "");
     br = tt_string_startwith(&s, "aaaaaaaaaaaaa");
     TT_UT_EQUAL(br, TT_FALSE, "");
 
     br = tt_string_endwith(&s, "");
     TT_UT_EQUAL(br, TT_TRUE, "");
+    br = tt_string_endwith_c(&s, 0);
+    TT_UT_EQUAL(br, TT_FALSE, "");
+    br = tt_string_endwith_c(&s, '0');
+    TT_UT_EQUAL(br, TT_FALSE, "");
     br = tt_string_endwith(&s, "aaaaaaaaaaaaa");
     TT_UT_EQUAL(br, TT_FALSE, "");
 
@@ -960,6 +968,11 @@ TT_TEST_ROUTINE_DEFINE(case_str_join)
     br = tt_string_startwith(&s, "1234567890abcdefxxxxxxxxxy");
     TT_UT_EQUAL(br, TT_FALSE, "");
 
+    br = tt_string_startwith_c(&s, '1');
+    TT_UT_EQUAL(br, TT_TRUE, "");
+    br = tt_string_startwith_c(&s, '2');
+    TT_UT_EQUAL(br, TT_FALSE, "");
+
     br = tt_string_endwith(&s, "");
     TT_UT_EQUAL(br, TT_TRUE, "");
     br = tt_string_startwith(&s, "1");
@@ -969,6 +982,11 @@ TT_TEST_ROUTINE_DEFINE(case_str_join)
     br = tt_string_startwith(&s, "1234567890abcdefxxxxxxxxx");
     TT_UT_EQUAL(br, TT_TRUE, "");
     br = tt_string_startwith(&s, "1234567890abcdefxxxxxxxxxy");
+    TT_UT_EQUAL(br, TT_FALSE, "");
+
+    br = tt_string_endwith_c(&s, 'x');
+    TT_UT_EQUAL(br, TT_TRUE, "");
+    br = tt_string_startwith_c(&s, 'X');
     TT_UT_EQUAL(br, TT_FALSE, "");
 
     // substr from 0
