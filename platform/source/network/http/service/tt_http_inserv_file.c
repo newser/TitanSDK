@@ -38,7 +38,6 @@
 typedef struct
 {
     tt_http_contype_map_t *contype_map;
-    tt_char_t *def_name;
     tt_file_t f;
     tt_s32_t size;
     tt_s32_t chunk_size;
@@ -47,6 +46,7 @@ typedef struct
     // body of POST even process_post is enabled
     tt_bool_t can_have_query_param : 1;
     tt_bool_t process_post : 1;
+    tt_bool_t enable_etag : 1;
     tt_bool_t f_valid : 1;
 } tt_http_inserv_file_t;
 
@@ -111,8 +111,7 @@ tt_http_inserv_t *tt_http_inserv_file_create(
         attr = &__attr;
     }
 
-    s = tt_http_inserv_create(sizeof(tt_http_inserv_file_t) +
-                                  attr->def_name_len + 1,
+    s = tt_http_inserv_create(sizeof(tt_http_inserv_file_t),
                               &s_inserv_file_itf,
                               &s_inserv_file_cb);
     if (s == NULL) {
@@ -121,20 +120,13 @@ tt_http_inserv_t *tt_http_inserv_file_create(
 
     sf = TT_HTTP_INSERV_CAST(s, tt_http_inserv_file_t);
 
-    if (attr->def_name != NULL) {
-        sf->def_name = TT_PTR_INC(tt_char_t, sf, sizeof(tt_http_inserv_file_t));
-        tt_memcpy(sf->def_name, attr->def_name, attr->def_name_len);
-        sf->def_name[attr->def_name_len] = 0;
-    } else {
-        sf->def_name = NULL;
-    }
-
     sf->contype_map = attr->contype_map;
     sf->size = -1;
     sf->chunk_size = attr->chunk_size;
     sf->can_have_path_param = attr->can_have_path_param;
     sf->can_have_query_param = attr->can_have_query_param;
     sf->process_post = attr->process_post;
+    sf->enable_etag = attr->enable_etag;
     sf->f_valid = TT_FALSE;
 
     return s;
@@ -143,12 +135,11 @@ tt_http_inserv_t *tt_http_inserv_file_create(
 void tt_http_inserv_file_attr_default(IN tt_http_inserv_file_attr_t *attr)
 {
     attr->contype_map = &tt_g_http_contype_map;
-    attr->def_name = (tt_char_t *)"index.html";
-    attr->def_name_len = sizeof("index.html") - 1;
     attr->chunk_size = 0; // 1 << 14; // 16k
     attr->can_have_path_param = TT_FALSE;
     attr->can_have_path_param = TT_FALSE;
     attr->process_post = TT_FALSE;
+    attr->enable_etag = TT_TRUE;
 }
 
 void __inserv_file_clear(IN tt_http_inserv_t *s)
@@ -208,55 +199,9 @@ tt_http_inserv_action_t __inserv_file_on_hdr(IN tt_http_inserv_t *s,
         return TT_HTTP_INSERV_ACT_PASS;
     }
 
-    TT_ASSERT(0); // move uri processing to rule
-    fp = tt_http_uri_get_path(uri);
-    if (tt_fpath_is_dir(fp)) {
-        if (sf->def_name == NULL) {
-            return TT_HTTP_INSERV_ACT_PASS;
-        }
-
-        // note the side effect is that all following server would see the
-        // modified uri
-        if (!TT_OK(tt_fpath_set_filename(fp, sf->def_name))) {
-            status = TT_HTTP_STATUS_INTERNAL_SERVER_ERROR;
-            goto fail;
-        }
-    }
-
     // we won't do more things, job of this function is only check if this
     // serivce can handle the request
     return TT_HTTP_INSERV_ACT_OWNER;
-
-#if 0
-    path = tt_fpath_render(fp);
-    if (path == NULL) {
-        status = TT_HTTP_STATUS_INTERNAL_SERVER_ERROR;
-        goto fail;
-    }
-
-#if 0
-    if (sf->f_valid) {
-        tt_fclose(&sf->f);
-        sf->f_valid = TT_FALSE;
-    }
-#else
-    TT_ASSERT(!sf->f_valid);
-#endif
-
-    if (!TT_OK(tt_fopen(&sf->f, path, TT_FO_READ | TT_FO_SEQUENTIAL, NULL))) {
-#if 0
-        // may not exist, ignore or 404?
-        return TT_HTTP_INSERV_ACT_PASS;
-#else
-        status = TT_HTTP_STATUS_NOT_FOUND;
-        goto fail;
-#endif
-    }
-    sf->f_valid = TT_TRUE;
-
-    // will handle this request
-    return TT_HTTP_INSERV_ACT_OWNER;
-#endif
 
 fail:
     tt_http_resp_render_set_status(resp, status);
@@ -322,6 +267,19 @@ tt_http_inserv_action_t __inserv_file_on_complete(
         e = tt_http_contype_map_find_ext(sf->contype_map, ext);
         if (e != NULL) {
             tt_http_resp_render_set_contype(resp, e->type);
+        }
+    }
+
+    if (sf->enable_etag) {
+        tt_fstat_t fstat;
+        if (TT_OK(tt_fstat(&sf->f, &fstat))) {
+            tt_char_t etag[40] = {0};
+            tt_snprintf(etag,
+                        sizeof(etag) - 1,
+                        "%" TT_PRIx64 "%" TT_PRIx64,
+                        tt_date_diff_epoch_second(&fstat.modified),
+                        size);
+            tt_http_resp_render_add_etag(resp, etag, TT_FALSE);
         }
     }
 

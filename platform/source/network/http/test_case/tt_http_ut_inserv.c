@@ -111,8 +111,6 @@ TT_TEST_CASE("case_http_inserv_file",
     tt_http_inserv_file_attr_default(&a);
     a.can_have_path_param = TT_FALSE;
     a.can_have_query_param = TT_FALSE;
-    a.def_name = "i.php";
-    a.def_name_len = sizeof("i.php") - 1;
     a.chunk_size = 16; // test
     a.process_post = TT_TRUE;
 
@@ -171,7 +169,7 @@ TT_TEST_CASE("case_http_inserv_file",
         TT_UT_NOT_NULL(uri, "");
         act = tt_http_inserv_on_header(is, &req, &resp);
         TT_UT_EQUAL(act, TT_HTTP_INSERV_ACT_OWNER, "");
-        TT_UT_STREQ(tt_fpath_render(&uri->path), "/a/b/i.php", "");
+        TT_UT_STREQ(tt_fpath_render(&uri->path), "/a/b/", "");
 
         act = tt_http_inserv_on_complete(is, &req, &resp);
         TT_UT_EQUAL(act, TT_HTTP_INSERV_ACT_DISCARD, "");

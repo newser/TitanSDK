@@ -632,7 +632,11 @@ static tt_result_t __http_svr_fb(IN void *param)
         ho = tt_http_host_create("does not matter", NULL);
         __ck_err(ho != NULL);
 
-        r = tt_http_rule_startwith_create("/", "/tmp/", TT_HTTP_RULE_BREAK);
+        r = tt_http_rule_startwith_create("/", "/tmp/", TT_HTTP_RULE_NEXT);
+        __ck_err(r != NULL);
+        tt_http_host_add_rule(ho, r);
+
+        r = tt_http_rule_index_create("index.html", TT_HTTP_RULE_NEXT);
         __ck_err(r != NULL);
         tt_http_host_add_rule(ho, r);
     }
@@ -666,7 +670,7 @@ TT_TEST_ROUTINE_DEFINE(case_http_server_basic)
     TT_TEST_CASE_ENTER()
     // test start
 
-    return TT_SUCCESS;
+        return TT_SUCCESS;
 
     tt_task_create(&t, NULL);
     tt_task_add_fiber(&t, NULL, __http_svr_fb, NULL, NULL);

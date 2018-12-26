@@ -35,6 +35,7 @@ this file wraps neccesary c standard library operations for purpose:
 #include <tt_basic_type.h>
 
 #include <ctype.h>
+#include <inttypes.h>
 #include <memory.h>
 #include <stdarg.h>
 #include <stdio.h>
@@ -44,6 +45,11 @@ this file wraps neccesary c standard library operations for purpose:
 ////////////////////////////////////////////////////////////
 // macro definition
 ////////////////////////////////////////////////////////////
+
+#define TT_PRId64 PRId64
+#define TT_PRIu64 PRIu64
+#define TT_PRIx64 PRIx64
+#define TT_PRIX64 PRIX64
 
 /**
 @def tt_memset
