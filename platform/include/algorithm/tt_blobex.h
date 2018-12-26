@@ -177,7 +177,7 @@ tt_inline tt_s32_t tt_blobex_strcmp(IN tt_blobex_t *bex,
 }
 
 tt_inline tt_s32_t tt_blobex_memcmp(IN tt_blobex_t *a,
-                                    IN tt_u8_t *addr,
+                                    IN void *addr,
                                     IN tt_u32_t len)
 {
     if (__BLOBEX_LEN(a) < len) {

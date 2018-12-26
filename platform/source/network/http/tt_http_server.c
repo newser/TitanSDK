@@ -23,6 +23,7 @@
 #include <network/http/tt_http_server.h>
 
 #include <misc/tt_assert.h>
+#include <network/http/service/tt_http_inserv_conditional.h>
 #include <network/http/service/tt_http_inserv_file.h>
 #include <network/http/service/tt_http_inserv_host.h>
 #include <network/http/tt_http_server_connection.h>
@@ -199,6 +200,16 @@ tt_result_t __sconn_add_default_serv(IN tt_http_sconn_t *c)
 
     // for loading host
     if (!TT_OK(tt_http_sconn_add_inserv(c, tt_g_http_inserv_host))) {
+        return TT_FAIL;
+    }
+
+    // for file caching
+    ins = tt_http_inserv_cond_create(NULL);
+    if (ins == NULL) {
+        return TT_FAIL;
+    }
+    if (!TT_OK(tt_http_sconn_add_inserv(c, ins))) {
+        tt_http_inserv_release(ins);
         return TT_FAIL;
     }
 

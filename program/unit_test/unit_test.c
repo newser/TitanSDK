@@ -100,15 +100,15 @@ tt_result_t __ut_fiber(IN void *param)
 #if 1
     else {
         const tt_char_t *names[] =
-        { //"case_http_server_basic",
-            "TEST_UNIT_FPATH",
-            "HTTP_UT_URI",
-            "HTTP_UT_HDR",
-            "HTTP_UT_RENDER",
-            "HTTP_UT_SCONN",
-            "ALG_UT_STRING",
-            "HTTP_UT_SVR",
-            "HTTP_UT_INSERV",
+        { "case_http_server_basic",
+//            "TEST_UNIT_FPATH",
+//            "HTTP_UT_URI",
+//            "HTTP_UT_HDR",
+//            "HTTP_UT_RENDER",
+//            "HTTP_UT_SCONN",
+//            "ALG_UT_STRING",
+//            "HTTP_UT_SVR",
+//            "HTTP_UT_INSERV",
 //"TEST_UNIT_SOCKET",
 #if 0
           "TEST_UNIT_LOG",

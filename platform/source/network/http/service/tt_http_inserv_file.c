@@ -26,6 +26,7 @@
 #include <network/http/tt_http_content_type_map.h>
 #include <network/http/tt_http_parser.h>
 #include <network/http/tt_http_render.h>
+#include <network/http/tt_http_util.h>
 
 ////////////////////////////////////////////////////////////
 // internal macro
@@ -271,14 +272,8 @@ tt_http_inserv_action_t __inserv_file_on_complete(
     }
 
     if (sf->enable_etag) {
-        tt_fstat_t fstat;
-        if (TT_OK(tt_fstat(&sf->f, &fstat))) {
-            tt_char_t etag[40] = {0};
-            tt_snprintf(etag,
-                        sizeof(etag) - 1,
-                        "%" TT_PRIx64 "%" TT_PRIx64,
-                        tt_date_diff_epoch_second(&fstat.modified),
-                        size);
+        tt_char_t etag[40] = {0};
+        if (TT_OK(tt_http_file_etag(&sf->f, etag, sizeof(etag)))) {
             tt_http_resp_render_add_etag(resp, etag, TT_FALSE);
         }
     }
