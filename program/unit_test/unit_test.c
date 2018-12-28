@@ -99,8 +99,8 @@ tt_result_t __ut_fiber(IN void *param)
     }
 #if 1
     else {
-        const tt_char_t *names[] =
-        { "case_http_server_basic",
+        const tt_char_t *names[] = { //"case_http_server_basic",
+            "PARAM_UT_HTML",
 //            "TEST_UNIT_FPATH",
 //            "HTTP_UT_URI",
 //            "HTTP_UT_HDR",

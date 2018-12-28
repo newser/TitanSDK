@@ -942,6 +942,7 @@ TT_TEST_ROUTINE_DEFINE(case_cfgnode_grp_ar)
 
     cgrp = tt_param_dir_create("", &attr);
     TT_UT_NOT_EQUAL(cgrp, NULL, "");
+    TT_UT_NULL(tt_param_dir_head(TT_PARAM_CAST(cgrp, tt_param_dir_t)), "");
 
     //////////////////////////////////////////////////////
 
@@ -964,6 +965,12 @@ TT_TEST_ROUTINE_DEFINE(case_cfgnode_grp_ar)
     TT_UT_NOT_NULL(co, "");
     ret = tt_param_dir_add(TT_PARAM_CAST(cgrp, tt_param_dir_t), co);
     TT_UT_SUCCESS(ret, "");
+    {
+        tt_param_t *c = tt_param_dir_head(TT_PARAM_CAST(cgrp, tt_param_dir_t));
+        TT_UT_EQUAL(c, co, "");
+        c = tt_param_dir_next(c);
+        TT_UT_NULL(c, "");
+    }
 
     {
         tt_buf_clear(&output);
@@ -984,6 +991,16 @@ TT_TEST_ROUTINE_DEFINE(case_cfgnode_grp_ar)
     TT_UT_NOT_NULL(co, "");
     ret = tt_param_dir_add(TT_PARAM_CAST(cgrp, tt_param_dir_t), co);
     TT_UT_SUCCESS(ret, "");
+    {
+        tt_param_t *c = tt_param_dir_head(TT_PARAM_CAST(cgrp, tt_param_dir_t));
+        // the s32 becomes head during sorting
+        TT_UT_EQUAL(c, co, "");
+        c = tt_param_dir_next(c);
+        TT_UT_NOT_NULL(c, "");
+        TT_UT_EQUAL(c->type, TT_PARAM_U32, "");
+        c = tt_param_dir_next(c);
+        TT_UT_NULL(c, "");
+    }
 
     {
         const tt_char_t outstr[] =

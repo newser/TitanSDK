@@ -16,66 +16,28 @@
  * limitations under the License.
  */
 
-/**
-@file tt_param_dir.h
-@brief parameter directory
-
-this file defines parameter directory
-*/
-
-#ifndef __TT_PARAM_DIR__
-#define __TT_PARAM_DIR__
-
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <param/tt_param.h>
+#include <param/html/tt_param_render.h>
 
 ////////////////////////////////////////////////////////////
-// macro definition
+// internal macro
 ////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////
-// type definition
+// extern declaration
 ////////////////////////////////////////////////////////////
 
-typedef struct tt_param_dir_s
-{
-    tt_list_t child;
-    tt_u32_t child_name_len;
-} tt_param_dir_t;
-
 ////////////////////////////////////////////////////////////
-// global variants
+// global variant
 ////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-tt_export tt_param_t *tt_param_dir_create(IN const tt_char_t *name,
-                                          IN OPT tt_param_attr_t *attr);
-
-tt_export tt_result_t tt_param_dir_add(IN tt_param_dir_t *pd,
-                                       IN tt_param_t *child);
-
-tt_export void tt_param_dir_remove(IN tt_param_dir_t *pd, IN tt_param_t *child);
-
-tt_export tt_param_t *tt_param_dir_find(IN tt_param_dir_t *pd,
-                                        IN const tt_char_t *name,
-                                        IN tt_u32_t name_len);
-
-tt_inline tt_param_t *tt_param_dir_head(IN tt_param_dir_t *pd)
-{
-    tt_lnode_t *ln = tt_list_head(&pd->child);
-    return TT_COND(ln != NULL, TT_CONTAINER(ln, tt_param_t, node), NULL);
-}
-
-tt_inline tt_param_t *tt_param_dir_next(IN tt_param_t *param)
-{
-    tt_lnode_t *ln = param->node.next;
-    return TT_COND(ln != NULL, TT_CONTAINER(ln, tt_param_t, node), NULL);
-}
-
-#endif /* __TT_PARAM_DIR__ */
+////////////////////////////////////////////////////////////
+// interface implementation
+////////////////////////////////////////////////////////////

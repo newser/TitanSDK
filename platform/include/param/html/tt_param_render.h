@@ -17,20 +17,20 @@
  */
 
 /**
-@file tt_param_dir.h
-@brief parameter directory
+@file tt_param_render.h
+@brief parameter render
 
-this file defines parameter directory
+this file includes parameter render definition
 */
 
-#ifndef __TT_PARAM_DIR__
-#define __TT_PARAM_DIR__
+#ifndef __TT_PARAM_RENDER__
+#define __TT_PARAM_RENDER__
 
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <param/tt_param.h>
+#include <tt_basic_type.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
@@ -40,11 +40,29 @@ this file defines parameter directory
 // type definition
 ////////////////////////////////////////////////////////////
 
-typedef struct tt_param_dir_s
+struct tt_param_s;
+struct tt_buf_s;
+
+typedef tt_result_t (*tt_param_render_run_t)(IN struct tt_param_s *root,
+                                             IN void *ctx,
+                                             OUT struct tt_buf_s *buf);
+
+typedef struct
 {
-    tt_list_t child;
-    tt_u32_t child_name_len;
-} tt_param_dir_t;
+    tt_param_render_run_t header;
+    tt_param_render_run_t main;
+    tt_param_render_run_t footer;
+} tt_param_render_itf_t;
+
+typedef struct
+{
+    tt_param_render_itf_t *itf;
+} tt_param_render_t;
+
+typedef struct
+{
+    tt_u32_t reserved;
+} tt_param_render_attr_t;
 
 ////////////////////////////////////////////////////////////
 // global variants
@@ -54,28 +72,12 @@ typedef struct tt_param_dir_s
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-tt_export tt_param_t *tt_param_dir_create(IN const tt_char_t *name,
-                                          IN OPT tt_param_attr_t *attr);
+tt_export void tt_param_render_init(IN tt_param_render_t *r,
+                                    IN tt_param_render_itf_t *itf,
+                                    OPT tt_param_render_attr_t *attr);
 
-tt_export tt_result_t tt_param_dir_add(IN tt_param_dir_t *pd,
-                                       IN tt_param_t *child);
+tt_export void tt_param_render_destroy(IN tt_param_render_t *r);
 
-tt_export void tt_param_dir_remove(IN tt_param_dir_t *pd, IN tt_param_t *child);
+tt_export void tt_param_render_attr_default(IN tt_param_render_attr_t *attr);
 
-tt_export tt_param_t *tt_param_dir_find(IN tt_param_dir_t *pd,
-                                        IN const tt_char_t *name,
-                                        IN tt_u32_t name_len);
-
-tt_inline tt_param_t *tt_param_dir_head(IN tt_param_dir_t *pd)
-{
-    tt_lnode_t *ln = tt_list_head(&pd->child);
-    return TT_COND(ln != NULL, TT_CONTAINER(ln, tt_param_t, node), NULL);
-}
-
-tt_inline tt_param_t *tt_param_dir_next(IN tt_param_t *param)
-{
-    tt_lnode_t *ln = param->node.next;
-    return TT_COND(ln != NULL, TT_CONTAINER(ln, tt_param_t, node), NULL);
-}
-
-#endif /* __TT_PARAM_DIR__ */
+#endif /* __TT_PARAM_RENDER__ */

@@ -225,6 +225,8 @@ add_group_src(${PLATFORM_PATH}/source/data data SRC_FILE)
 
 add_group_hdr(${PLATFORM_PATH}/include/param param SRC_FILE)
 add_group_src(${PLATFORM_PATH}/source/param param SRC_FILE)
+add_group_hdr(${PLATFORM_PATH}/include/param/html param SRC_FILE)
+add_group_src(${PLATFORM_PATH}/source/param/html param SRC_FILE)
 
 # test cases
 add_group_src(${PLATFORM_PATH}/source/algorithm/test_case test_case SRC_FILE)
@@ -237,6 +239,7 @@ add_group_src(${PLATFORM_PATH}/source/network/http/test_case http SRC_FILE)
 add_group_src(${PLATFORM_PATH}/source/network/dns/test_case dns SRC_FILE)
 add_group_src(${PLATFORM_PATH}/source/zip/test_case zip SRC_FILE)
 add_group_src(${PLATFORM_PATH}/source/data/test_case data SRC_FILE)
+add_group_src(${PLATFORM_PATH}/source/param/test_case param SRC_FILE)
 
 # native
 add_group_hdr(${PLATFORM_PATH}/native/${PLATFORM_ENV} native SRC_FILE)

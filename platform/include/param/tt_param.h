@@ -40,6 +40,7 @@ this file defines config object
 ////////////////////////////////////////////////////////////
 
 #define TT_PARAM_CAST(p, type) TT_PTR_INC(type, p, sizeof(tt_param_t))
+
 #define TT_PARAM_OF(p) TT_PTR_DEC(tt_param_t, p, sizeof(tt_param_t))
 
 ////////////////////////////////////////////////////////////

@@ -346,7 +346,7 @@ tt_u32_t tt_buf_refine(IN tt_buf_t *buf)
 // ========================================
 
 tt_result_t tt_buf_put(IN tt_buf_t *buf,
-                       IN const tt_u8_t *data,
+                       IN const void *data,
                        IN tt_u32_t data_len)
 {
     if (buf->readonly) {
@@ -365,7 +365,7 @@ tt_result_t tt_buf_put(IN tt_buf_t *buf,
 }
 
 tt_result_t tt_buf_put_head(IN tt_buf_t *buf,
-                            IN const tt_u8_t *data,
+                            IN const void *data,
                             IN tt_u32_t data_len)
 {
     if (buf->readonly) {

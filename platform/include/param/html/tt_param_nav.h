@@ -2,14 +2,14 @@
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
+ * this work for additional information hpegarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
+ * Unless hpequired by ahnavlicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
@@ -17,20 +17,20 @@
  */
 
 /**
-@file tt_param_dir.h
-@brief parameter directory
+@file tt_param_hnav.h
+@brief parameter render a html nav
 
-this file defines parameter directory
+this file includes parameter render definition
 */
 
-#ifndef __TT_PARAM_DIR__
-#define __TT_PARAM_DIR__
+#ifndef __TT_PARAM_NAV__
+#define __TT_PARAM_NAV__
 
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <param/tt_param.h>
+#include <tt_basic_type.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
@@ -40,11 +40,16 @@ this file defines parameter directory
 // type definition
 ////////////////////////////////////////////////////////////
 
-typedef struct tt_param_dir_s
+struct tt_param_s;
+struct tt_buf_s;
+
+typedef struct
 {
-    tt_list_t child;
-    tt_u32_t child_name_len;
-} tt_param_dir_t;
+    const tt_char_t *nav_class;
+    const tt_char_t *usr_class;
+    const tt_char_t *usr_href;
+    const tt_char_t *usr_text;
+} tt_param_hnav_t;
 
 ////////////////////////////////////////////////////////////
 // global variants
@@ -54,28 +59,11 @@ typedef struct tt_param_dir_s
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-tt_export tt_param_t *tt_param_dir_create(IN const tt_char_t *name,
-                                          IN OPT tt_param_attr_t *attr);
+tt_export void tt_param_hnav_init(IN tt_param_hnav_t *hnav);
 
-tt_export tt_result_t tt_param_dir_add(IN tt_param_dir_t *pd,
-                                       IN tt_param_t *child);
+tt_export tt_result_t tt_param_hnav_render(IN tt_param_hnav_t *hnav,
+                                           IN OPT struct tt_param_s *root,
+                                           IN struct tt_param_s *param,
+                                           OUT struct tt_buf_s *buf);
 
-tt_export void tt_param_dir_remove(IN tt_param_dir_t *pd, IN tt_param_t *child);
-
-tt_export tt_param_t *tt_param_dir_find(IN tt_param_dir_t *pd,
-                                        IN const tt_char_t *name,
-                                        IN tt_u32_t name_len);
-
-tt_inline tt_param_t *tt_param_dir_head(IN tt_param_dir_t *pd)
-{
-    tt_lnode_t *ln = tt_list_head(&pd->child);
-    return TT_COND(ln != NULL, TT_CONTAINER(ln, tt_param_t, node), NULL);
-}
-
-tt_inline tt_param_t *tt_param_dir_next(IN tt_param_t *param)
-{
-    tt_lnode_t *ln = param->node.next;
-    return TT_COND(ln != NULL, TT_CONTAINER(ln, tt_param_t, node), NULL);
-}
-
-#endif /* __TT_PARAM_DIR__ */
+#endif /* __TT_PARAM_NAV__ */

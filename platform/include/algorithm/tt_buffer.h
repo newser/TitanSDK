@@ -306,11 +306,11 @@ tt_inline tt_u32_t tt_buf_try_refine(IN tt_buf_t *buf, IN tt_u32_t threshold)
 // ========================================
 
 tt_export tt_result_t tt_buf_put(IN tt_buf_t *buf,
-                                 IN const tt_u8_t *data,
+                                 IN const void *data,
                                  IN tt_u32_t data_len);
 
 tt_export tt_result_t tt_buf_put_head(IN tt_buf_t *buf,
-                                      IN const tt_u8_t *data,
+                                      IN const void *data,
                                       IN tt_u32_t data_len);
 
 tt_export tt_result_t tt_buf_put_rep(IN tt_buf_t *buf,
