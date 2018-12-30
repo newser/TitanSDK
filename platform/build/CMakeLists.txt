@@ -227,6 +227,8 @@ add_group_hdr(${PLATFORM_PATH}/include/param param SRC_FILE)
 add_group_src(${PLATFORM_PATH}/source/param param SRC_FILE)
 add_group_hdr(${PLATFORM_PATH}/include/param/html param SRC_FILE)
 add_group_src(${PLATFORM_PATH}/source/param/html param SRC_FILE)
+add_group_hdr(${PLATFORM_PATH}/include/param/html/bootstrap4 param SRC_FILE)
+add_group_src(${PLATFORM_PATH}/source/param/html/bootstrap4 param SRC_FILE)
 
 # test cases
 add_group_src(${PLATFORM_PATH}/source/algorithm/test_case test_case SRC_FILE)

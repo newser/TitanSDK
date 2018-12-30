@@ -16,43 +16,53 @@
  * limitations under the License.
  */
 
+/**
+@file tt_param_bs4_content.h
+@brief parameter bootstrap4 content
+
+this file includes parameter render definition
+*/
+
+#ifndef __TT_PARAM_BS4_CONTENT__
+#define __TT_PARAM_BS4_CONTENT__
+
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <param/html/tt_param_render_page.h>
+#include <tt_basic_type.h>
 
 ////////////////////////////////////////////////////////////
-// internal macro
-////////////////////////////////////////////////////////////
-
-////////////////////////////////////////////////////////////
-// extern declaration
+// macro definition
 ////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////
-// global variant
+// type definition
+////////////////////////////////////////////////////////////
+
+struct tt_param_s;
+struct tt_buf_s;
+
+typedef struct
+{
+    const tt_char_t *group_class;
+    const tt_char_t *title_class;
+    const tt_char_t *name_class;
+    const tt_char_t *val_class;
+} tt_param_bs4_content_t;
+
+////////////////////////////////////////////////////////////
+// global variants
 ////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-////////////////////////////////////////////////////////////
-// interface implementation
-////////////////////////////////////////////////////////////
+tt_export void tt_param_bs4_content_init(IN tt_param_bs4_content_t *ct);
 
-void tt_param_page_init(IN tt_param_page_t *pp)
-{
-    pp->head = NULL;
-    pp->tail = NULL;
-}
+tt_export tt_result_t tt_param_bs4_content_render(IN tt_param_bs4_content_t *ct,
+                                                  IN struct tt_param_s *param,
+                                                  OUT struct tt_buf_s *buf);
 
-void tt_param_page_destroy(IN tt_param_page_t *pp)
-{
-}
-
-void tt_param_page_attr_default(IN tt_param_page_attr_t *attr)
-{
-    attr->reserved = 0;
-}
+#endif /* __TT_PARAM_BS4_CONTENT__ */

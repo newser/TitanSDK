@@ -9,7 +9,7 @@
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by ahnavlicable law or agreed to in writing, software
+ * Unless required by anavlicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
@@ -20,11 +20,14 @@
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <param/html/tt_param_nav.h>
+#include <param/html/bootstrap4/tt_param_bs4_nav.h>
 
 #include <algorithm/tt_buffer_format.h>
 #include <param/tt_param_dir.h>
 #include <param/tt_param_path.h>
+
+#define TT_PARAM_BS4_INTERNAL_USAGE
+#include <param/html/bootstrap4/tt_param_bs4_internal_util.h>
 
 ////////////////////////////////////////////////////////////
 // internal macro
@@ -52,8 +55,6 @@
 
 #define __DEFAULT_NAV_TAIL "</ul></div></nav>"
 
-#define __NULL_EMPTY(s) TT_COND(s != NULL, s, "")
-
 ////////////////////////////////////////////////////////////
 // extern declaration
 ////////////////////////////////////////////////////////////
@@ -66,33 +67,31 @@
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-static const tt_char_t *__param_display(IN tt_param_t *p);
-
 ////////////////////////////////////////////////////////////
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-void tt_param_hnav_init(IN tt_param_hnav_t *pnav)
+void tt_param_bs4_nav_init(IN tt_param_bs4_nav_t *nav)
 {
-    pnav->nav_class = NULL;
-    pnav->usr_class = NULL;
-    pnav->usr_href = NULL;
-    pnav->usr_text = NULL;
+    nav->nav_class = NULL;
+    nav->usr_class = NULL;
+    nav->usr_href = NULL;
+    nav->usr_text = NULL;
 }
 
-tt_result_t tt_param_hnav_render(IN tt_param_hnav_t *pnav,
-                                 IN OPT tt_param_t *root,
-                                 IN tt_param_t *param,
-                                 OUT tt_buf_t *buf)
+tt_result_t tt_param_bs4_nav_render(IN tt_param_bs4_nav_t *nav,
+                                    IN OPT tt_param_t *root,
+                                    IN tt_param_t *param,
+                                    OUT tt_buf_t *buf)
 {
     const tt_char_t *display;
 
     TT_DO(tt_buf_putf(buf,
                       __DEFAULT_NAV_HEAD,
-                      __NULL_EMPTY(pnav->nav_class),
-                      __NULL_EMPTY(pnav->usr_class),
-                      __NULL_EMPTY(pnav->usr_href),
-                      __NULL_EMPTY(pnav->usr_text)));
+                      __NULL_EMPTY(nav->nav_class),
+                      __NULL_EMPTY(nav->usr_class),
+                      __NULL_EMPTY(nav->usr_href),
+                      __NULL_EMPTY(nav->usr_text)));
 
     if (param->type == TT_PARAM_DIR) {
         tt_param_dir_t *dir = TT_PARAM_CAST(param, tt_param_dir_t);
@@ -133,23 +132,6 @@ tt_result_t tt_param_hnav_render(IN tt_param_hnav_t *pnav,
     TT_DO(tt_buf_put(buf, __DEFAULT_NAV_TAIL, sizeof(__DEFAULT_NAV_TAIL) - 1));
 
     return TT_SUCCESS;
-}
-
-const tt_char_t *__param_display(IN tt_param_t *p)
-{
-    const tt_char_t *disp;
-
-    disp = tt_param_display(p);
-    if (disp[0] != 0) {
-        return disp;
-    }
-
-    disp = tt_param_name(p);
-    if (disp[0] != 0) {
-        return disp;
-    }
-
-    return "?";
 }
 
 /*
