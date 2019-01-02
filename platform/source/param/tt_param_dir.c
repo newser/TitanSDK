@@ -92,6 +92,7 @@ tt_result_t tt_param_dir_add(IN tt_param_dir_t *pd, IN tt_param_t *child)
         pd->child_name_len = n;
     }
 
+#if 0
     if (child->type == TT_PARAM_DIR) {
         tt_lnode_t *node;
 
@@ -141,6 +142,9 @@ tt_result_t tt_param_dir_add(IN tt_param_dir_t *pd, IN tt_param_t *child)
         }
         tt_list_push_tail(&pd->child, &child->node);
     }
+#else
+    tt_list_push_tail(&pd->child, &child->node);
+#endif
 
     return TT_SUCCESS;
 }

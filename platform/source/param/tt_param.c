@@ -188,6 +188,18 @@ tt_result_t tt_param_write(IN tt_param_t *p,
     return p->itf->write(p, val, val_len);
 }
 
+tt_param_t *tt_param_parent(IN tt_param_t *p)
+{
+    tt_param_dir_t *cdir;
+
+    if (p->node.lst == NULL) {
+        return NULL;
+    }
+    cdir = TT_CONTAINER(p->node.lst, tt_param_dir_t, child);
+
+    return TT_PARAM_OF(cdir);
+}
+
 tt_result_t __param_component_init(IN tt_component_t *comp,
                                    IN tt_profile_t *profile)
 {

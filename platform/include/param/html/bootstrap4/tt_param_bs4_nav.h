@@ -46,9 +46,12 @@ struct tt_buf_s;
 typedef struct
 {
     const tt_char_t *nav_class;
-    const tt_char_t *usr_class;
-    const tt_char_t *usr_href;
-    const tt_char_t *usr_text;
+    const tt_char_t *account_class;
+    const tt_char_t *account_href;
+    const tt_char_t *account_text;
+    const tt_char_t *brand_class;
+    const tt_char_t *brand_href;
+    const tt_char_t *brand_text;
 } tt_param_bs4_nav_t;
 
 ////////////////////////////////////////////////////////////
@@ -63,7 +66,7 @@ tt_export void tt_param_bs4_nav_init(IN tt_param_bs4_nav_t *nav);
 
 tt_export tt_result_t tt_param_bs4_nav_render(IN tt_param_bs4_nav_t *nav,
                                               IN OPT struct tt_param_s *root,
+                                              IN struct tt_param_s *parent,
                                               IN struct tt_param_s *param,
                                               OUT struct tt_buf_s *buf);
-
 #endif /* __TT_PARAM_BS4_NAV__ */

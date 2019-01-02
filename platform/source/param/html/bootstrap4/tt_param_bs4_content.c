@@ -32,31 +32,31 @@
 // internal macro
 ////////////////////////////////////////////////////////////
 
-#define __C_START "<div class=\"col-md-10\">"
+#define __C_START "<div class=\"col-md-10 p-0\">"
 
 #define __C_END "</div>"
 
 #define __GROUP_START                                                          \
-    "<div class=\"container-fluid p-3 border-bottom %s\" id=\"%s\">"
+    "<div class=\"container-fluid border-bottom p-4 %s %s\" id=\"%s\">"
 
 #define __GROUP_END "</div>"
 
 #define __GROUP_TITLE                                                          \
-    "<div class=\"row h2 %s\"><label class=\"col-12\">%s</label></div>"
+    "<div class=\"row h5 %s\"><label class=\"col-12\">%s</label></div>"
 
 #define __ROW_START "<div class=\"row\">"
 
 #define __ROW_END "</div>"
 
-#define __C_2_ENTRY_HEAD                                                       \
+#define __2_ENTRY_START                                                        \
     "<label class=\"col-4 col-md-2 text-right pr-0 %s\" id=\"%s\">%s "         \
     ":</label><label class=\"col-8 col-md-4 %s\">"
 
-#define __C_1_ENTRY_HEAD                                                       \
+#define __1_ENTRY_START                                                        \
     "<label class=\"col-4 col-md-2 text-right pr-0 %s\" id=\"%s\">%s "         \
     ":</label><label class=\"col-8 col-md-10 %s\">"
 
-#define __C_ENTRY_TAIL "</label>"
+#define __ENTRY_END "</label>"
 
 ////////////////////////////////////////////////////////////
 // extern declaration
@@ -72,6 +72,7 @@
 
 static tt_result_t __render_dir(IN tt_param_bs4_content_t *ct,
                                 IN tt_param_t *p,
+                                IN OUT tt_bool_t *group0,
                                 OUT tt_buf_t *buf);
 
 static tt_result_t __render_2param(IN tt_param_bs4_content_t *ct,
@@ -100,10 +101,12 @@ static tt_bool_t __param_pair(IN tt_param_t *pos,
 
 void tt_param_bs4_content_init(IN tt_param_bs4_content_t *ct)
 {
-    ct->group_class = NULL;
-    ct->title_class = NULL;
-    ct->name_class = NULL;
-    ct->val_class = NULL;
+    ct->group_class = "";
+    ct->group0_class = "bg-light";
+    ct->group1_class = "";
+    ct->title_class = "";
+    ct->name_class = "";
+    ct->val_class = "";
 }
 
 tt_result_t tt_param_bs4_content_render(IN tt_param_bs4_content_t *ct,
@@ -112,6 +115,7 @@ tt_result_t tt_param_bs4_content_render(IN tt_param_bs4_content_t *ct,
 {
     tt_param_dir_t *dir;
     tt_param_t *p;
+    tt_bool_t group0 = TT_TRUE;
 
     // only render content for directory
     if (param->type != TT_PARAM_DIR) {
@@ -122,12 +126,12 @@ tt_result_t tt_param_bs4_content_render(IN tt_param_bs4_content_t *ct,
     TT_DO(tt_buf_put(buf, __C_START, sizeof(__C_START) - 1));
 
     // render child non-dir params
-    TT_DO(__render_dir(ct, param, buf));
+    TT_DO(__render_dir(ct, param, &group0, buf));
 
     // render child dir params
     for (p = tt_param_dir_head(dir); p != NULL; p = tt_param_dir_next(p)) {
         if (p->type == TT_PARAM_DIR) {
-            TT_DO(__render_dir(ct, p, buf));
+            TT_DO(__render_dir(ct, p, &group0, buf));
         }
     }
 
@@ -138,29 +142,37 @@ tt_result_t tt_param_bs4_content_render(IN tt_param_bs4_content_t *ct,
 
 tt_result_t __render_dir(IN tt_param_bs4_content_t *ct,
                          IN tt_param_t *p,
+                         IN OUT tt_bool_t *group0,
                          OUT tt_buf_t *buf)
 {
     tt_param_dir_t *dir;
+    tt_bool_t g0 = *group0;
     tt_param_t *p1, *p2;
 
-    if (p->type != TT_PARAM_DIR) {
-        return TT_SUCCESS;
-    }
+    TT_ASSERT(p->type == TT_PARAM_DIR);
     dir = TT_PARAM_CAST(p, tt_param_dir_t);
 
     if (!__param_group_head(dir, &p1, &p2)) {
+        // no data param
         return TT_SUCCESS;
     }
 
-    TT_DO(tt_buf_putf(buf,
-                      __GROUP_START,
-                      __NULL_EMPTY(ct->group_class),
-                      tt_param_name(p)));
+    if ((ct->group0_class != NULL) && (ct->group1_class != NULL)) {
+        TT_DO(tt_buf_putf(buf,
+                          __GROUP_START,
+                          ct->group_class,
+                          TT_COND(g0, ct->group0_class, ct->group1_class),
+                          tt_param_name(p)));
+    } else {
+        TT_DO(tt_buf_putf(buf,
+                          __GROUP_START,
+                          ct->group_class,
+                          "",
+                          tt_param_name(p)));
+    }
+    *group0 = !g0;
 
-    TT_DO(tt_buf_putf(buf,
-                      __GROUP_TITLE,
-                      __NULL_EMPTY(ct->title_class),
-                      __param_display(p)));
+    TT_DO(tt_buf_putf(buf, __GROUP_TITLE, ct->title_class, __param_display(p)));
 
     do {
         TT_ASSERT(p1 != NULL);
@@ -185,23 +197,23 @@ tt_result_t __render_2param(IN tt_param_bs4_content_t *ct,
 
     // left
     TT_DO(tt_buf_putf(buf,
-                      __C_2_ENTRY_HEAD,
-                      __NULL_EMPTY(ct->name_class),
+                      __2_ENTRY_START,
+                      ct->name_class,
                       tt_param_name(p1),
                       __param_display(p1),
-                      __NULL_EMPTY(ct->val_class)));
+                      ct->val_class));
     TT_DO(tt_param_read(p1, buf));
-    TT_DO(tt_buf_put(buf, __C_ENTRY_TAIL, sizeof(__C_ENTRY_TAIL) - 1));
+    TT_DO(tt_buf_put(buf, __ENTRY_END, sizeof(__ENTRY_END) - 1));
 
     // right
     TT_DO(tt_buf_putf(buf,
-                      __C_2_ENTRY_HEAD,
-                      __NULL_EMPTY(ct->name_class),
+                      __2_ENTRY_START,
+                      ct->name_class,
                       tt_param_name(p2),
                       __param_display(p2),
-                      __NULL_EMPTY(ct->val_class)));
+                      ct->val_class));
     TT_DO(tt_param_read(p2, buf));
-    TT_DO(tt_buf_put(buf, __C_ENTRY_TAIL, sizeof(__C_ENTRY_TAIL) - 1));
+    TT_DO(tt_buf_put(buf, __ENTRY_END, sizeof(__ENTRY_END) - 1));
 
     TT_DO(tt_buf_put(buf, __ROW_END, sizeof(__ROW_END) - 1));
 
@@ -215,13 +227,13 @@ tt_result_t __render_1param(IN tt_param_bs4_content_t *ct,
     TT_DO(tt_buf_put(buf, __ROW_START, sizeof(__ROW_START) - 1));
 
     TT_DO(tt_buf_putf(buf,
-                      __C_1_ENTRY_HEAD,
-                      __NULL_EMPTY(ct->name_class),
+                      __1_ENTRY_START,
+                      ct->name_class,
                       tt_param_name(p),
                       __param_display(p),
-                      __NULL_EMPTY(ct->val_class)));
+                      ct->val_class));
     TT_DO(tt_param_read(p, buf));
-    TT_DO(tt_buf_put(buf, __C_ENTRY_TAIL, sizeof(__C_ENTRY_TAIL) - 1));
+    TT_DO(tt_buf_put(buf, __ENTRY_END, sizeof(__ENTRY_END) - 1));
 
     TT_DO(tt_buf_put(buf, __ROW_END, sizeof(__ROW_END) - 1));
 

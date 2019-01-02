@@ -46,6 +46,8 @@ struct tt_buf_s;
 typedef struct
 {
     const tt_char_t *group_class;
+    const tt_char_t *group0_class;
+    const tt_char_t *group1_class;
     const tt_char_t *title_class;
     const tt_char_t *name_class;
     const tt_char_t *val_class;

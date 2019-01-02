@@ -47,8 +47,6 @@ static tt_param_t *__param_goto(IN tt_param_t *root,
                                 IN const tt_char_t *name,
                                 IN tt_u32_t len);
 
-static tt_param_t *__param_parent(IN tt_param_t *p);
-
 ////////////////////////////////////////////////////////////
 // interface implementation
 ////////////////////////////////////////////////////////////
@@ -124,7 +122,7 @@ tt_result_t tt_param_path_n2p(IN OPT tt_param_t *root,
     TT_DO(tt_buf_insert_cstr(path, pos, current->name));
 
     p = current;
-    while ((p = __param_parent(p)) != NULL) {
+    while ((p = tt_param_parent(p)) != NULL) {
         if (p == root) {
             break;
         }
@@ -324,23 +322,10 @@ tt_param_t *__param_goto(IN tt_param_t *root,
     if ((len == 1) && (tt_strncmp(name, ".", 1) == 0)) {
         return current;
     } else if ((len == 2) && (tt_strncmp(name, "..", 2) == 0)) {
-        return __param_parent(current);
+        return tt_param_parent(current);
     } else {
         return tt_param_dir_find(TT_PARAM_CAST(current, tt_param_dir_t),
                                  name,
                                  len);
     }
-}
-
-tt_param_t *__param_parent(IN tt_param_t *p)
-{
-    tt_param_dir_t *cdir;
-
-    if (p->node.lst == NULL) {
-        return NULL;
-    }
-    // be sure the p is not a uncommitted node
-    cdir = TT_CONTAINER(p->node.lst, tt_param_dir_t, child);
-
-    return TT_PARAM_OF(cdir);
 }

@@ -33,14 +33,15 @@
 // internal macro
 ////////////////////////////////////////////////////////////
 
-#define __DEFAULT_SIDEBAR_HEAD                                                 \
-    "<nav class=\"d-none d-md-block col-2 navbar %s\"><ul "                    \
-    "class=\"navbar-nav\">"
+#define __SIDEBAR_START                                                        \
+    "<nav class=\"d-none d-md-block col-2 navbar text-center border-right "    \
+    "%s\">"                                                                    \
+    "<ul class=\"navbar-nav\">"
 
-#define __DEFAULT_SIDEBAR_ENTRY                                                \
+#define __SIDEBAR_ENTRY                                                        \
     "<li class=\"nav-item\"><a class=\"nav-link\" href=\"#%s\">%s</a></li>"
 
-#define __DEFAULT_SIDEBAR_TAIL "</ul></nav>"
+#define __SIDEBAR_END "</ul></nav>"
 
 ////////////////////////////////////////////////////////////
 // extern declaration
@@ -60,7 +61,7 @@
 
 void tt_param_bs4_sidebar_init(IN tt_param_bs4_sidebar_t *nav)
 {
-    nav->nav_class = NULL;
+    nav->nav_class = "";
 }
 
 tt_result_t tt_param_bs4_sidebar_render(IN tt_param_bs4_sidebar_t *nav,
@@ -90,21 +91,18 @@ tt_result_t tt_param_bs4_sidebar_render(IN tt_param_bs4_sidebar_t *nav,
         return TT_SUCCESS;
     }
 
-    TT_DO(
-        tt_buf_putf(buf, __DEFAULT_SIDEBAR_HEAD, __NULL_EMPTY(nav->nav_class)));
+    TT_DO(tt_buf_putf(buf, __SIDEBAR_START, nav->nav_class));
 
     for (p = tt_param_dir_head(dir); p != NULL; p = tt_param_dir_next(p)) {
         if (p->type == TT_PARAM_DIR) {
             TT_DO(tt_buf_putf(buf,
-                              __DEFAULT_SIDEBAR_ENTRY,
+                              __SIDEBAR_ENTRY,
                               tt_param_name(p),
                               __param_display(p)));
         }
     }
 
-    TT_DO(tt_buf_put(buf,
-                     __DEFAULT_SIDEBAR_TAIL,
-                     sizeof(__DEFAULT_SIDEBAR_TAIL) - 1));
+    TT_DO(tt_buf_put(buf, __SIDEBAR_END, sizeof(__SIDEBAR_END) - 1));
 
     return TT_SUCCESS;
 }

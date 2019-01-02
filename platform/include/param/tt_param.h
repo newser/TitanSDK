@@ -132,4 +132,6 @@ tt_export tt_result_t tt_param_write(IN tt_param_t *p,
                                      IN tt_u8_t *val,
                                      IN tt_u32_t val_len);
 
+tt_export tt_param_t *tt_param_parent(IN tt_param_t *p);
+
 #endif /* __TT_PARAM__ */
