@@ -74,6 +74,7 @@ TT_TEST_CASE("case_param_html_bs4_nav",
                  NULL,
                  NULL),
 
+#if 0
     TT_TEST_CASE("case_param_html_bs4_content",
                  "param html: content",
                  case_param_html_bs4_content,
@@ -82,6 +83,7 @@ TT_TEST_CASE("case_param_html_bs4_nav",
                  NULL,
                  NULL,
                  NULL),
+#endif
 
     TT_TEST_CASE("case_param_html_bs4_page",
                  "param html: page",
@@ -252,9 +254,11 @@ TT_TEST_ROUTINE_DEFINE(case_param_html_bs4_sidebar)
     TT_UT_TRUE(tt_buf_empty(&b), "");
 
 #define __t1_2child                                                            \
-    "<nav class=\"d-none d-md-block col-2 navbar text-center border-right \">" \
+    "<nav class=\"d-none d-md-block col-2 navbar bg-light \">"                 \
     "<ul class=\"navbar-nav\">"                                                \
-    "<li class=\"nav-item\"><a class=\"nav-link\" href=\"#aaa\">aaa</a></li>"  \
+    "<li class=\"nav-item\">"                                                  \
+    "<a class=\"nav-link text-dark\" href=\"#aaa\">aaa</a>"                    \
+    "</li>"                                                                    \
     "</ul>"                                                                    \
     "</nav>"
     c = tt_param_u32_create("uuu", NULL, NULL, NULL);
@@ -266,11 +270,15 @@ TT_TEST_ROUTINE_DEFINE(case_param_html_bs4_sidebar)
     TT_UT_EQUAL(tt_buf_cmp_cstr(&b, __t1_2child), 0, "");
 
 #define __t1_2child_cus                                                        \
-    "<nav class=\"d-none d-md-block col-2 navbar text-center border-right "    \
+    "<nav class=\"d-none d-md-block col-2 navbar bg-light "                    \
     "111\">"                                                                   \
     "<ul class=\"navbar-nav\">"                                                \
-    "<li class=\"nav-item\"><a class=\"nav-link\" href=\"#aaa\">aaa</a></li>"  \
-    "<li class=\"nav-item\"><a class=\"nav-link\" href=\"#bbb\">bbb</a></li>"  \
+    "<li class=\"nav-item\">"                                                  \
+    "<a class=\"nav-link text-dark\" href=\"#aaa\">aaa</a>"                    \
+    "</li>"                                                                    \
+    "<li class=\"nav-item\">"                                                  \
+    "<a class=\"nav-link text-dark\" href=\"#bbb\">bbb</a>"                    \
+    "</li>"                                                                    \
     "</ul>"                                                                    \
     "</nav>"
     h.nav_class = "111";
@@ -297,6 +305,7 @@ TT_TEST_ROUTINE_DEFINE(case_param_html_bs4_content)
     tt_s32_t val_s32 = 65536;
     tt_float_t val_float = 3.1415926;
     tt_string_t s;
+    tt_param_bs4_level_t lv = TT_PARAM_BS4_LV_ADMIN;
 
     TT_TEST_CASE_ENTER()
     // test start
@@ -312,20 +321,20 @@ TT_TEST_ROUTINE_DEFINE(case_param_html_bs4_content)
 
     // non-dir
     tt_buf_clear(&b);
-    TT_UT_SUCCESS(tt_param_bs4_content_render(&h, pm, &b), "");
+    TT_UT_SUCCESS(tt_param_bs4_content_render(&h, pm, lv, &b), "");
     TT_UT_TRUE(tt_buf_empty(&b), "");
 
 // empty dir
-#define __c1_empty "<div class=\"col-md-10 p-0\"></div>"
+#define __c1_empty "<div class=\"col-md-10 px-4\"></div>"
     tt_param_destroy(pm);
     pm = tt_param_dir_create("te", NULL);
     tt_buf_clear(&b);
-    TT_UT_SUCCESS(tt_param_bs4_content_render(&h, pm, &b), "");
+    TT_UT_SUCCESS(tt_param_bs4_content_render(&h, pm, lv, &b), "");
     TT_UT_EQUAL(tt_buf_cmp_cstr(&b, __c1_empty), 0, "");
 
 #define __c2_1val                                                              \
-    "<div class=\"col-md-10 p-0\">"                                            \
-    "<div class=\"container-fluid border-bottom p-4  bg-light\" id=\"te\">"    \
+    "<div class=\"col-md-10 px-4\">"                                           \
+    "<div class=\"container-fluid border-bottom p-4  \" id=\"te\">"            \
     "<div class=\"row h5 \">"                                                  \
     "<label class=\"col-12\">te</label>"                                       \
     "</div>"                                                                   \
@@ -337,11 +346,11 @@ TT_TEST_ROUTINE_DEFINE(case_param_html_bs4_content)
     c = tt_param_u32_create("u32", &val_u32, NULL, NULL);
     tt_param_dir_add(TT_PARAM_CAST(pm, tt_param_dir_t), c);
     tt_buf_clear(&b);
-    TT_UT_SUCCESS(tt_param_bs4_content_render(&h, pm, &b), "");
+    TT_UT_SUCCESS(tt_param_bs4_content_render(&h, pm, lv, &b), "");
     TT_UT_EQUAL(tt_buf_cmp_cstr(&b, __c2_1val), 0, "");
 
 #define __c3_2val                                                              \
-    "<div class=\"col-md-10 p-0\">"                                            \
+    "<div class=\"col-md-10 px-4\">"                                           \
     "<div class=\"container-fluid border-bottom p-4 11 22\" id=\"te\">"        \
     "<div class=\"row h5 44\">"                                                \
     "<label class=\"col-12\">te</label>"                                       \
@@ -366,14 +375,15 @@ TT_TEST_ROUTINE_DEFINE(case_param_html_bs4_content)
     h.title_class = "44";
     h.name_class = "55";
     h.val_class = "66";
-    TT_UT_SUCCESS(tt_param_bs4_content_render(&h, pm, &b), "");
+    TT_UT_SUCCESS(tt_param_bs4_content_render(&h, pm, lv, &b), "");
     TT_UT_EQUAL(tt_buf_cmp_cstr(&b, __c3_2val), 0, "");
 
     tt_param_bs4_content_init(&h);
 
 #define __c4_xx                                                                \
-    "<div class=\"col-md-10 p-0\"><div class=\"container-fluid border-bottom " \
-    "p-4  bg-light\" id=\"te\"><div class=\"row h5 \"><label "                 \
+    "<div class=\"col-md-10 px-4\"><div class=\"container-fluid "              \
+    "border-bottom "                                                           \
+    "p-4  \" id=\"te\"><div class=\"row h5 \"><label "                         \
     "class=\"col-12\">te</label></div><div class=\"row\"><label "              \
     "class=\"col-4 col-md-2 text-right pr-0 \" id=\"u32\">u32 "                \
     ":</label><label class=\"col-8 col-md-10 \">1024</label></div><div "       \
@@ -390,7 +400,7 @@ TT_TEST_ROUTINE_DEFINE(case_param_html_bs4_content)
     c = tt_param_s32_create("x-last-s32-2", &val_s32, NULL, NULL);
     tt_param_dir_add(TT_PARAM_CAST(pm, tt_param_dir_t), c);
     tt_buf_clear(&b);
-    TT_UT_SUCCESS(tt_param_bs4_content_render(&h, pm, &b), "");
+    TT_UT_SUCCESS(tt_param_bs4_content_render(&h, pm, lv, &b), "");
     TT_UT_EQUAL(tt_buf_cmp_cstr(&b, __c4_xx), 0, "");
 
     d2 = tt_param_dir_create("the-second-directory", NULL);
@@ -400,12 +410,13 @@ TT_TEST_ROUTINE_DEFINE(case_param_html_bs4_content)
     tt_param_dir_add(TT_PARAM_CAST(d2, tt_param_dir_t), c);
     tt_param_dir_add(TT_PARAM_CAST(pm, tt_param_dir_t), d2);
     tt_buf_clear(&b);
-    TT_UT_SUCCESS(tt_param_bs4_content_render(&h, pm, &b), "");
+    TT_UT_SUCCESS(tt_param_bs4_content_render(&h, pm, lv, &b), "");
 // TT_UT_EQUAL(tt_buf_cmp_cstr(&b, __c4_xx), 0, "");
 
 #define __c5_2dir                                                              \
-    "<div class=\"col-md-10 p-0\"><div class=\"container-fluid border-bottom " \
-    "p-4  bg-light\" id=\"te\"><div class=\"row h5 \"><label "                 \
+    "<div class=\"col-md-10 px-4\"><div class=\"container-fluid "              \
+    "border-bottom "                                                           \
+    "p-4  \" id=\"te\"><div class=\"row h5 \"><label "                         \
     "class=\"col-12\">te</label></div><div class=\"row\"><label "              \
     "class=\"col-4 col-md-2 text-right pr-0 \" id=\"u32\">u32 "                \
     ":</label><label class=\"col-8 col-md-10 \">1024</label></div><div "       \
@@ -425,7 +436,7 @@ TT_TEST_ROUTINE_DEFINE(case_param_html_bs4_content)
     "\">65536</label><label class=\"col-4 col-md-2 text-right pr-0 \" "        \
     "id=\"x-last-s32-2\">x-last-s32-2 :</label><label class=\"col-8 col-md-4 " \
     "\">65536</label></div></div><div class=\"container-fluid border-bottom "  \
-    "p-4  bg-light\" id=\"the-third-directory\"><div class=\"row h5 "          \
+    "p-4  \" id=\"the-third-directory\"><div class=\"row h5 "                  \
     "\"><label class=\"col-12\">the-third-directory</label></div><div "        \
     "class=\"row\"><label class=\"col-4 col-md-2 text-right pr-0 \" "          \
     "id=\"x-last-s32-1\">x-last-s32-1 :</label><label class=\"col-8 col-md-4 " \
@@ -439,7 +450,7 @@ TT_TEST_ROUTINE_DEFINE(case_param_html_bs4_content)
     tt_param_dir_add(TT_PARAM_CAST(d2, tt_param_dir_t), c);
     tt_param_dir_add(TT_PARAM_CAST(pm, tt_param_dir_t), d2);
     tt_buf_clear(&b);
-    TT_UT_SUCCESS(tt_param_bs4_content_render(&h, pm, &b), "");
+    TT_UT_SUCCESS(tt_param_bs4_content_render(&h, pm, lv, &b), "");
     TT_UT_EQUAL(tt_buf_cmp_cstr(&b, __c5_2dir), 0, "");
 
     tt_buf_destroy(&b);
@@ -479,7 +490,8 @@ TT_TEST_ROUTINE_DEFINE(case_param_html_bs4_page)
 
     p2 = tt_param_dir_create("Platform", NULL);
     tt_param_dir_add(TT_PARAM_CAST(p1, tt_param_dir_t), p2);
-    c = tt_param_u32_create("Val-U32", &val_u32, NULL, NULL);
+    c = tt_param_u32_create("Val-U32-Secure", &val_u32, NULL, NULL);
+    c->level = TT_PARAM_LV_SECURE_INFO;
     tt_param_dir_add(TT_PARAM_CAST(p2, tt_param_dir_t), c);
     c = tt_param_s32_create("a-S32-var", &val_s32, NULL, NULL);
     tt_param_dir_add(TT_PARAM_CAST(p2, tt_param_dir_t), c);
@@ -506,7 +518,20 @@ TT_TEST_ROUTINE_DEFINE(case_param_html_bs4_page)
 
     tt_param_bs4_page_init(&pg);
     tt_buf_clear(&b);
-    TT_UT_SUCCESS(tt_param_bs4_page_render(&pg, pm, p1, &b), "");
+    TT_UT_SUCCESS(tt_param_bs4_page_render(&pg,
+                                           pm,
+                                           p1,
+                                           TT_PARAM_BS4_LV_USER,
+                                           &b),
+                  "");
+
+    tt_buf_clear(&b);
+    TT_UT_SUCCESS(tt_param_bs4_page_render(&pg,
+                                           pm,
+                                           p1,
+                                           TT_PARAM_BS4_LV_ADMIN,
+                                           &b),
+                  "");
 
     tt_buf_destroy(&b);
     tt_param_destroy(pm);

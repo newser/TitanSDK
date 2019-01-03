@@ -132,6 +132,7 @@ tt_param_t *tt_param_create(IN tt_u32_t len,
     p->need_reboot = attr->need_reboot;
     p->can_read = attr->can_read;
     p->can_write = attr->can_write;
+    p->level = attr->level;
 
     return p;
 }
@@ -158,6 +159,7 @@ void tt_param_attr_default(IN tt_param_attr_t *attr)
     attr->need_reboot = TT_FALSE;
     attr->can_read = TT_TRUE;
     attr->can_write = TT_TRUE;
+    attr->level = TT_PARAM_LV_ADMIN;
 }
 
 tt_result_t tt_param_read(IN tt_param_t *p, OUT tt_buf_t *output)

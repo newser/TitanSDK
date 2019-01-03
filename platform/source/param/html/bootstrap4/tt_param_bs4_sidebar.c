@@ -34,12 +34,12 @@
 ////////////////////////////////////////////////////////////
 
 #define __SIDEBAR_START                                                        \
-    "<nav class=\"d-none d-md-block col-2 navbar text-center border-right "    \
-    "%s\">"                                                                    \
+    "<nav class=\"d-none d-md-block col-2 navbar bg-light %s\">"               \
     "<ul class=\"navbar-nav\">"
 
 #define __SIDEBAR_ENTRY                                                        \
-    "<li class=\"nav-item\"><a class=\"nav-link\" href=\"#%s\">%s</a></li>"
+    "<li class=\"nav-item\"><a class=\"nav-link text-dark\" "                  \
+    "href=\"#%s\">%s</a></li>"
 
 #define __SIDEBAR_END "</ul></nav>"
 
@@ -102,7 +102,7 @@ tt_result_t tt_param_bs4_sidebar_render(IN tt_param_bs4_sidebar_t *nav,
         }
     }
 
-    TT_DO(tt_buf_put(buf, __SIDEBAR_END, sizeof(__SIDEBAR_END) - 1));
+    TT_DO(__PUT_CSTR(buf, __SIDEBAR_END));
 
     return TT_SUCCESS;
 }

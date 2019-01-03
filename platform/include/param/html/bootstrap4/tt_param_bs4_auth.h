@@ -2,14 +2,14 @@
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
+ * this work for additional information hpegarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
+ * Unless hpequired by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
@@ -17,20 +17,20 @@
  */
 
 /**
-@file tt_param_bs4_content.h
-@brief parameter bootstrap4 content
+@file tt_param_bs4_display.h
+@brief parameter html bs4 authorize
 
 this file includes parameter render definition
 */
 
-#ifndef __TT_PARAM_BS4_CONTENT__
-#define __TT_PARAM_BS4_CONTENT__
+#ifndef __TT_PARAM_BS4_AUTH__
+#define __TT_PARAM_BS4_AUTH__
 
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <param/html/bootstrap4/tt_param_bs4_auth.h>
+#include <param/tt_param.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
@@ -40,19 +40,22 @@ this file includes parameter render definition
 // type definition
 ////////////////////////////////////////////////////////////
 
-struct tt_param_s;
-struct tt_buf_s;
+typedef enum {
+    TT_PARAM_BS4_LV_USER,
+    TT_PARAM_BS4_LV_ADMIN,
 
-typedef struct
-{
-    const tt_char_t *group_class;
-    const tt_char_t *group0_class;
-    const tt_char_t *group1_class;
-    const tt_char_t *title_class;
-    const tt_char_t *name_class;
-    const tt_char_t *val_class;
-    tt_bool_t writable : 1;
-} tt_param_bs4_content_t;
+    TT_PARAM_BS4_LV_NUM
+} tt_param_bs4_level_t;
+#define TT_PARAM_BS4_LV_VALID(l) ((l) < TT_PARAM_BS4_LV_NUM)
+
+typedef enum {
+    TT_PARAM_BS4_DISP_HIDE,
+    TT_PARAM_BS4_DISP_RD,
+    TT_PARAM_BS4_DISP_WR,
+
+    TT_PARAM_BS4_DISP_NUM
+} tt_param_bs4_display_t;
+#define TT_PARAM_BS4_DISP_VALID(l) ((l) < TT_PARAM_BS4_DISP_NUM)
 
 ////////////////////////////////////////////////////////////
 // global variants
@@ -62,11 +65,7 @@ typedef struct
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-tt_export void tt_param_bs4_content_init(IN tt_param_bs4_content_t *ct);
+tt_export tt_param_bs4_display_t
+tt_param_bs4_display(IN tt_param_t *p, IN tt_param_bs4_level_t l);
 
-tt_export tt_result_t tt_param_bs4_content_render(IN tt_param_bs4_content_t *ct,
-                                                  IN struct tt_param_s *param,
-                                                  IN tt_param_bs4_level_t lv,
-                                                  OUT struct tt_buf_s *buf);
-
-#endif /* __TT_PARAM_BS4_CONTENT__ */
+#endif /* __TT_PARAM_BS4_AUTH__ */

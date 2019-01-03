@@ -40,7 +40,7 @@ this file includes parameter render definition
 // macro definition
 ////////////////////////////////////////////////////////////
 
-#define __NULL_EMPTY(s) TT_COND(s != NULL, s, "")
+#define __PUT_CSTR(buf, cstr) tt_buf_put(buf, cstr, sizeof(cstr) - 1)
 
 ////////////////////////////////////////////////////////////
 // type definition

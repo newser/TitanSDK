@@ -9,22 +9,12 @@
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
+ * Unless required by anavlicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-/**
-@file tt_param_bs4_content.h
-@brief parameter bootstrap4 content
-
-this file includes parameter render definition
-*/
-
-#ifndef __TT_PARAM_BS4_CONTENT__
-#define __TT_PARAM_BS4_CONTENT__
 
 ////////////////////////////////////////////////////////////
 // import header files
@@ -33,40 +23,49 @@ this file includes parameter render definition
 #include <param/html/bootstrap4/tt_param_bs4_auth.h>
 
 ////////////////////////////////////////////////////////////
-// macro definition
+// internal macro
 ////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////
-// type definition
+// extern declaration
 ////////////////////////////////////////////////////////////
 
-struct tt_param_s;
-struct tt_buf_s;
-
-typedef struct
-{
-    const tt_char_t *group_class;
-    const tt_char_t *group0_class;
-    const tt_char_t *group1_class;
-    const tt_char_t *title_class;
-    const tt_char_t *name_class;
-    const tt_char_t *val_class;
-    tt_bool_t writable : 1;
-} tt_param_bs4_content_t;
-
 ////////////////////////////////////////////////////////////
-// global variants
+// global variant
 ////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-tt_export void tt_param_bs4_content_init(IN tt_param_bs4_content_t *ct);
+////////////////////////////////////////////////////////////
+// interface implementation
+////////////////////////////////////////////////////////////
 
-tt_export tt_result_t tt_param_bs4_content_render(IN tt_param_bs4_content_t *ct,
-                                                  IN struct tt_param_s *param,
-                                                  IN tt_param_bs4_level_t lv,
-                                                  OUT struct tt_buf_s *buf);
+tt_param_bs4_display_t tt_param_bs4_display(IN tt_param_t *p,
+                                            IN tt_param_bs4_level_t l)
+{
+    static tt_param_bs4_level_t map[TT_PARAM_BS4_LV_NUM][TT_PARAM_LV_NUM] = {
+        // TT_PARAM_BS4_LV_USER
+        {
+            TT_PARAM_BS4_DISP_RD,
+            TT_PARAM_BS4_DISP_WR,
+            TT_PARAM_BS4_DISP_WR,
+            TT_PARAM_BS4_DISP_RD,
+            TT_PARAM_BS4_DISP_HIDE,
+            TT_PARAM_BS4_DISP_HIDE,
+        },
 
-#endif /* __TT_PARAM_BS4_CONTENT__ */
+        // TT_PARAM_BS4_LV_ADMIN
+        {
+            TT_PARAM_BS4_DISP_RD,
+            TT_PARAM_BS4_DISP_WR,
+            TT_PARAM_BS4_DISP_WR,
+            TT_PARAM_BS4_DISP_WR,
+            TT_PARAM_BS4_DISP_RD,
+            TT_PARAM_BS4_DISP_WR,
+        },
+    };
+
+    return map[l][p->level];
+}

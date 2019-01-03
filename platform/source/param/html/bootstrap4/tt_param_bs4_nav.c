@@ -156,7 +156,7 @@ tt_result_t tt_param_bs4_nav_render(IN tt_param_bs4_nav_t *nav,
     }
     tt_buf_destroy(&path);
 
-    TT_DO(tt_buf_put(buf, __NAV_END, sizeof(__NAV_END) - 1));
+    TT_DO(__PUT_CSTR(buf, __NAV_END));
 
     return TT_SUCCESS;
 

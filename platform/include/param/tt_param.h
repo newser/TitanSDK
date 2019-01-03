@@ -47,6 +47,18 @@ this file defines config object
 // type definition
 ////////////////////////////////////////////////////////////
 
+typedef enum {
+    TT_PARAM_LV_INFO, // always read only
+    TT_PARAM_LV_GUEST, // configurable by guest
+    TT_PARAM_LV_USER, // configurable by guest
+    TT_PARAM_LV_ADMIN, // configurable by admin
+    TT_PARAM_LV_SECURE_INFO, // can only be seen by admin
+    TT_PARAM_LV_SECURE, // can only configurable by admin
+
+    TT_PARAM_LV_NUM
+} tt_param_level_t;
+#define TT_PARAM_LV_VALID(l) ((l) < TT_PARAM_LV_NUM)
+
 typedef struct
 {
     const tt_char_t *display;
@@ -56,6 +68,7 @@ typedef struct
     tt_bool_t need_reboot : 1;
     tt_bool_t can_read : 1;
     tt_bool_t can_write : 1;
+    tt_param_level_t level : 2;
 } tt_param_attr_t;
 
 typedef struct tt_param_s
@@ -73,6 +86,7 @@ typedef struct tt_param_s
     tt_bool_t need_reboot : 1;
     tt_bool_t can_read : 1;
     tt_bool_t can_write : 1;
+    tt_param_level_t level : 3;
 } tt_param_t;
 
 ////////////////////////////////////////////////////////////

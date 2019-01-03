@@ -30,6 +30,7 @@ this file includes parameter render definition
 // import header files
 ////////////////////////////////////////////////////////////
 
+#include <param/html/bootstrap4/tt_param_bs4_auth.h>
 #include <param/html/bootstrap4/tt_param_bs4_content.h>
 #include <param/html/bootstrap4/tt_param_bs4_nav.h>
 #include <param/html/bootstrap4/tt_param_bs4_sidebar.h>
@@ -68,6 +69,7 @@ tt_export void tt_param_bs4_page_init(IN tt_param_bs4_page_t *pg);
 tt_export tt_result_t tt_param_bs4_page_render(IN tt_param_bs4_page_t *pg,
                                                IN OPT struct tt_param_s *root,
                                                IN struct tt_param_s *param,
+                                               IN tt_param_bs4_level_t lv,
                                                OUT struct tt_buf_s *buf);
 
 #endif /* __TT_PARAM_BS4_PAGE__ */

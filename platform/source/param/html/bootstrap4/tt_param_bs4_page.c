@@ -92,6 +92,7 @@ static tt_result_t __render_head(IN tt_param_bs4_page_t *pg, OUT tt_buf_t *buf);
 static tt_result_t __render_body(IN tt_param_bs4_page_t *pg,
                                  IN OPT tt_param_t *root,
                                  IN tt_param_t *param,
+                                 IN tt_param_bs4_level_t lv,
                                  OUT tt_buf_t *buf);
 
 static tt_result_t __render_body_header(IN tt_param_bs4_page_t *pg,
@@ -102,6 +103,7 @@ static tt_result_t __render_body_header(IN tt_param_bs4_page_t *pg,
 static tt_result_t __render_body_main(IN tt_param_bs4_page_t *pg,
                                       IN OPT tt_param_t *root,
                                       IN tt_param_t *param,
+                                      IN tt_param_bs4_level_t lv,
                                       OUT tt_buf_t *buf);
 
 static tt_result_t __render_body_footer(IN tt_param_bs4_page_t *pg,
@@ -128,6 +130,7 @@ void tt_param_bs4_page_init(IN tt_param_bs4_page_t *pg)
 tt_result_t tt_param_bs4_page_render(IN tt_param_bs4_page_t *pg,
                                      IN OPT tt_param_t *root,
                                      IN tt_param_t *param,
+                                     IN tt_param_bs4_level_t lv,
                                      OUT tt_buf_t *buf)
 {
     // only render page for directory
@@ -139,9 +142,9 @@ tt_result_t tt_param_bs4_page_render(IN tt_param_bs4_page_t *pg,
 
     TT_DO(__render_head(pg, buf));
 
-    TT_DO(__render_body(pg, root, param, buf));
+    TT_DO(__render_body(pg, root, param, lv, buf));
 
-    TT_DO(tt_buf_put(buf, __PG_END, sizeof(__PG_END) - 1));
+    TT_DO(__PUT_CSTR(buf, __PG_END));
 
     return TT_SUCCESS;
 }
@@ -156,17 +159,18 @@ tt_result_t __render_head(IN tt_param_bs4_page_t *pg, OUT tt_buf_t *buf)
 tt_result_t __render_body(IN tt_param_bs4_page_t *pg,
                           IN OPT tt_param_t *root,
                           IN tt_param_t *param,
+                          IN tt_param_bs4_level_t lv,
                           OUT tt_buf_t *buf)
 {
-    TT_DO(tt_buf_put(buf, __PG_BODY_START, sizeof(__PG_BODY_START) - 1));
+    TT_DO(__PUT_CSTR(buf, __PG_BODY_START));
 
     TT_DO(__render_body_header(pg, root, param, buf));
 
-    TT_DO(__render_body_main(pg, root, param, buf));
+    TT_DO(__render_body_main(pg, root, param, lv, buf));
 
     TT_DO(__render_body_footer(pg, buf));
 
-    TT_DO(tt_buf_putf(buf, __PG_BODY_END, pg->js));
+    TT_DO(__PUT_CSTR(buf, __PG_BODY_END));
 
     return TT_SUCCESS;
 }
@@ -176,7 +180,7 @@ tt_result_t __render_body_header(IN tt_param_bs4_page_t *pg,
                                  IN tt_param_t *param,
                                  OUT tt_buf_t *buf)
 {
-    TT_DO(tt_buf_put(buf, "<header>", sizeof("<header>") - 1));
+    TT_DO(__PUT_CSTR(buf, "<header>"));
 
     TT_DO(tt_param_bs4_nav_render(&pg->nav,
                                   root,
@@ -184,7 +188,7 @@ tt_result_t __render_body_header(IN tt_param_bs4_page_t *pg,
                                   param,
                                   buf));
 
-    TT_DO(tt_buf_put(buf, "</header>", sizeof("</header>") - 1));
+    TT_DO(__PUT_CSTR(buf, "</header>"));
 
     return TT_SUCCESS;
 }
@@ -192,15 +196,17 @@ tt_result_t __render_body_header(IN tt_param_bs4_page_t *pg,
 tt_result_t __render_body_main(IN tt_param_bs4_page_t *pg,
                                IN OPT tt_param_t *root,
                                IN tt_param_t *param,
+                               IN tt_param_bs4_level_t lv,
                                OUT tt_buf_t *buf)
 {
-    TT_DO(tt_buf_put(buf, __PG_MAIN_START, sizeof(__PG_MAIN_START) - 1));
+    TT_DO(__PUT_CSTR(buf, __PG_MAIN_START));
 
     TT_DO(tt_param_bs4_sidebar_render(&pg->sidebar, root, param, buf));
 
-    TT_DO(tt_param_bs4_content_render(&pg->content, param, buf));
+    // TT_ASSERT(0);
+    TT_DO(tt_param_bs4_content_render(&pg->content, param, lv, buf));
 
-    TT_DO(tt_buf_put(buf, __PG_MAIN_END, sizeof(__PG_MAIN_END) - 1));
+    TT_DO(__PUT_CSTR(buf, __PG_MAIN_END));
 
     return TT_SUCCESS;
 }
