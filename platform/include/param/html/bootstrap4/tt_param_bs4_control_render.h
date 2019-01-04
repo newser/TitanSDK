@@ -17,14 +17,14 @@
  */
 
 /**
-@file tt_param_bs4_control.h
-@brief parameter bootstrap4 control
+@file tt_param_bs4_control_render.h
+@brief parameter bootstrap4 control render
 
 this file includes parameter render definition
 */
 
-#ifndef __TT_PARAM_BS4_CONTROL__
-#define __TT_PARAM_BS4_CONTROL__
+#ifndef __TT_PARAM_BS4_CONTROL_RENDER__
+#define __TT_PARAM_BS4_CONTROL_RENDER__
 
 ////////////////////////////////////////////////////////////
 // import header files
@@ -63,4 +63,4 @@ tt_param_bs4_ctrl_render_pair(IN struct tt_param_bs4_content_s *ct,
                               IN tt_param_bs4_level_t lv,
                               OUT struct tt_buf_s *buf);
 
-#endif /* __TT_PARAM_BS4_CONTROL__ */
+#endif /* __TT_PARAM_BS4_CONTROL_RENDER__ */

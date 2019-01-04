@@ -25,6 +25,7 @@
 #include <math.h>
 
 #include <param/html/bootstrap4/tt_param_bs4_content.h>
+#include <param/html/bootstrap4/tt_param_bs4_control_render.h>
 #include <param/html/bootstrap4/tt_param_bs4_nav.h>
 #include <param/html/bootstrap4/tt_param_bs4_page.h>
 #include <param/html/bootstrap4/tt_param_bs4_sidebar.h>
@@ -51,6 +52,7 @@ TT_TEST_ROUTINE_DECLARE(case_param_html_bs4_sidebar)
 TT_TEST_ROUTINE_DECLARE(case_param_html_bs4_content)
 TT_TEST_ROUTINE_DECLARE(case_param_html_bs4_page)
 TT_TEST_ROUTINE_DECLARE(case_param_html_bs4_ctrl)
+TT_TEST_ROUTINE_DECLARE(case_param_html_bs4_ctrl_render)
 // =========================================
 
 // === test case list ======================
@@ -104,6 +106,15 @@ TT_TEST_CASE("case_param_html_bs4_nav",
                  NULL,
                  NULL),
 
+    TT_TEST_CASE("case_param_html_bs4_ctrl_render",
+                 "param html: contrl render",
+                 case_param_html_bs4_ctrl_render,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL),
+
     TT_TEST_CASE_LIST_DEFINE_END(param_html_case)
     // =========================================
 
@@ -118,7 +129,7 @@ TT_TEST_CASE("case_param_html_bs4_nav",
     ////////////////////////////////////////////////////////////
 
     /*
-    TT_TEST_ROUTINE_DEFINE(case_param_html_bs4_ctrl)
+    TT_TEST_ROUTINE_DEFINE(case_param_html_bs4_ctrl_render)
     {
         //tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
 
@@ -598,6 +609,85 @@ TT_TEST_ROUTINE_DEFINE(case_param_html_bs4_ctrl)
     TT_UT_STREQ(bi.step, "0.1", "");
     tt_param_bs4_input_set_step(&bi, 0);
     TT_UT_EQUAL(bi.step[0], 0, "");
+
+    // test end
+    TT_TEST_CASE_LEAVE()
+}
+
+TT_TEST_ROUTINE_DEFINE(case_param_html_bs4_ctrl_render)
+{
+    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+    tt_param_t *p1, *p2;
+    tt_u32_t val_u32 = 1;
+    tt_s32_t val_s32 = 2;
+    tt_param_bs4_input_t *i;
+    tt_buf_t b;
+    tt_param_bs4_content_t ct;
+    const tt_char_t *s;
+
+    TT_TEST_CASE_ENTER()
+    // test start
+
+    p1 = tt_param_s32_create("s32", &val_s32, NULL, NULL);
+    TT_UT_NOT_NULL(p1, "");
+    p2 = tt_param_u32_create("u32", &val_u32, NULL, NULL);
+    TT_UT_NOT_NULL(p1, "");
+
+    tt_param_bs4_content_init(&ct);
+    tt_buf_init(&b, NULL);
+
+    p1->bs4_ctrl.type = TT_PARAM_BS4_INPUT;
+    i = &p1->bs4_ctrl.input;
+    tt_param_bs4_input_set_pattern(i, "123|234");
+    tt_param_bs4_input_set_min(i, 1);
+    tt_param_bs4_input_set_max(i, 999);
+    tt_param_bs4_input_set_minlen(i, 1);
+    tt_param_bs4_input_set_maxlen(i, 1999);
+    tt_param_bs4_input_set_step(i, 1);
+
+    tt_buf_clear(&b);
+    TT_UT_SUCCESS(tt_param_bs4_ctrl_render_pair(&ct,
+                                                p1,
+                                                p2,
+                                                TT_PARAM_BS4_LV_ADMIN,
+                                                &b),
+                  "");
+    tt_buf_put_u8(&b, 0);
+    s = (tt_char_t *)TT_BUF_RPOS(&b);
+    TT_UT_NOT_NULL(tt_strstr(s, "pattern=\"123|234\""), "");
+    TT_UT_NOT_NULL(tt_strstr(s, "min=\"1\""), "");
+    TT_UT_NOT_NULL(tt_strstr(s, "max=\"999\""), "");
+    TT_UT_NOT_NULL(tt_strstr(s, "minlength=\"1\""), "");
+    TT_UT_NOT_NULL(tt_strstr(s, "maxlength=\"1999\""), "");
+    TT_UT_NOT_NULL(tt_strstr(s, "step=\"0.1\""), "");
+
+    tt_buf_clear(&b);
+    TT_UT_SUCCESS(tt_param_bs4_ctrl_render(&ct, p1, TT_PARAM_BS4_LV_ADMIN, &b),
+                  "");
+    tt_buf_put_u8(&b, 0);
+    s = (tt_char_t *)TT_BUF_RPOS(&b);
+    TT_UT_NOT_NULL(tt_strstr(s, "pattern=\"123|234\""), "");
+    TT_UT_NOT_NULL(tt_strstr(s, "min=\"1\""), "");
+    TT_UT_NOT_NULL(tt_strstr(s, "max=\"999\""), "");
+    TT_UT_NOT_NULL(tt_strstr(s, "minlength=\"1\""), "");
+    TT_UT_NOT_NULL(tt_strstr(s, "maxlength=\"1999\""), "");
+    TT_UT_NOT_NULL(tt_strstr(s, "step=\"0.1\""), "");
+
+    tt_buf_clear(&b);
+    TT_UT_SUCCESS(tt_param_bs4_ctrl_render(&ct, p2, TT_PARAM_BS4_LV_ADMIN, &b),
+                  NULL);
+    tt_buf_put_u8(&b, 0);
+    s = (tt_char_t *)TT_BUF_RPOS(&b);
+    TT_UT_NULL(tt_strstr(s, "pattern="), "");
+    TT_UT_NULL(tt_strstr(s, "min="), "");
+    TT_UT_NULL(tt_strstr(s, "max="), "");
+    TT_UT_NULL(tt_strstr(s, "minlength="), "");
+    TT_UT_NULL(tt_strstr(s, "maxlength="), "");
+    TT_UT_NULL(tt_strstr(s, "step="), "");
+
+    tt_buf_destroy(&b);
+    tt_param_destroy(p1);
+    tt_param_destroy(p2);
 
     // test end
     TT_TEST_CASE_LEAVE()
