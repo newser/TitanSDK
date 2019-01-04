@@ -17,14 +17,14 @@
  */
 
 /**
-@file tt_param_bs4_content.h
-@brief parameter bootstrap4 content
+@file tt_param_bs4_control.h
+@brief parameter bootstrap4 control
 
 this file includes parameter render definition
 */
 
-#ifndef __TT_PARAM_BS4_CONTENT__
-#define __TT_PARAM_BS4_CONTENT__
+#ifndef __TT_PARAM_BS4_CONTROL__
+#define __TT_PARAM_BS4_CONTROL__
 
 ////////////////////////////////////////////////////////////
 // import header files
@@ -40,18 +40,7 @@ this file includes parameter render definition
 // type definition
 ////////////////////////////////////////////////////////////
 
-struct tt_param_s;
-struct tt_buf_s;
-
-typedef struct tt_param_bs4_content_s
-{
-    const tt_char_t *group_class;
-    const tt_char_t *group0_class;
-    const tt_char_t *group1_class;
-    const tt_char_t *title_class;
-    const tt_char_t *name_class;
-    const tt_char_t *val_class;
-} tt_param_bs4_content_t;
+struct tt_param_bs4_content_s;
 
 ////////////////////////////////////////////////////////////
 // global variants
@@ -61,11 +50,17 @@ typedef struct tt_param_bs4_content_s
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-tt_export void tt_param_bs4_content_init(IN tt_param_bs4_content_t *ct);
+tt_export tt_result_t
+tt_param_bs4_ctrl_render(IN struct tt_param_bs4_content_s *ct,
+                         IN struct tt_param_s *param,
+                         IN tt_param_bs4_level_t lv,
+                         OUT struct tt_buf_s *buf);
 
-tt_export tt_result_t tt_param_bs4_content_render(IN tt_param_bs4_content_t *ct,
-                                                  IN struct tt_param_s *param,
-                                                  IN tt_param_bs4_level_t lv,
-                                                  OUT struct tt_buf_s *buf);
+tt_export tt_result_t
+tt_param_bs4_ctrl_render_pair(IN struct tt_param_bs4_content_s *ct,
+                              IN struct tt_param_s *p1,
+                              IN struct tt_param_s *p2,
+                              IN tt_param_bs4_level_t lv,
+                              OUT struct tt_buf_s *buf);
 
-#endif /* __TT_PARAM_BS4_CONTENT__ */
+#endif /* __TT_PARAM_BS4_CONTROL__ */

@@ -50,6 +50,7 @@ TT_TEST_ROUTINE_DECLARE(case_param_html_bs4_nav)
 TT_TEST_ROUTINE_DECLARE(case_param_html_bs4_sidebar)
 TT_TEST_ROUTINE_DECLARE(case_param_html_bs4_content)
 TT_TEST_ROUTINE_DECLARE(case_param_html_bs4_page)
+TT_TEST_ROUTINE_DECLARE(case_param_html_bs4_ctrl)
 // =========================================
 
 // === test case list ======================
@@ -94,6 +95,15 @@ TT_TEST_CASE("case_param_html_bs4_nav",
                  NULL,
                  NULL),
 
+    TT_TEST_CASE("case_param_html_bs4_ctrl",
+                 "param html: contrl",
+                 case_param_html_bs4_ctrl,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL),
+
     TT_TEST_CASE_LIST_DEFINE_END(param_html_case)
     // =========================================
 
@@ -108,7 +118,7 @@ TT_TEST_CASE("case_param_html_bs4_nav",
     ////////////////////////////////////////////////////////////
 
     /*
-    TT_TEST_ROUTINE_DEFINE(case_param_html_bs4_page)
+    TT_TEST_ROUTINE_DEFINE(case_param_html_bs4_ctrl)
     {
         //tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
 
@@ -536,6 +546,58 @@ TT_TEST_ROUTINE_DEFINE(case_param_html_bs4_page)
     tt_buf_destroy(&b);
     tt_param_destroy(pm);
     tt_string_destroy(&val_str);
+
+    // test end
+    TT_TEST_CASE_LEAVE()
+}
+
+TT_TEST_ROUTINE_DEFINE(case_param_html_bs4_ctrl)
+{
+    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+    tt_param_bs4_input_t bi;
+
+    TT_TEST_CASE_ENTER()
+    // test start
+
+    tt_param_bs4_input_init(&bi);
+    TT_UT_EQUAL(bi.pattern, NULL, "");
+    TT_UT_EQUAL(bi.min[0], 0, "");
+    TT_UT_EQUAL(bi.max[0], 0, "");
+    TT_UT_EQUAL(bi.minlen[0], 0, "");
+    TT_UT_EQUAL(bi.maxlen[0], 0, "");
+    TT_UT_EQUAL(bi.step[0], 0, "");
+
+    tt_param_bs4_input_set_pattern(&bi, "123");
+    TT_UT_STREQ(bi.pattern, "123", "");
+    tt_param_bs4_input_clear_pattern(&bi);
+    TT_UT_EQUAL(bi.pattern, NULL, "");
+
+    tt_param_bs4_input_set_minlen(&bi, 99999);
+    TT_UT_STREQ(bi.minlen, "99999", "");
+    tt_param_bs4_input_clear_minlen(&bi);
+    TT_UT_EQUAL(bi.minlen[0], 0, "");
+
+    tt_param_bs4_input_set_maxlen(&bi, 99999);
+    TT_UT_STREQ(bi.maxlen, "99999", "");
+    tt_param_bs4_input_clear_maxlen(&bi);
+    TT_UT_EQUAL(bi.maxlen[0], 0, "");
+
+    tt_param_bs4_input_set_min(&bi, 0x80000000);
+    TT_UT_STREQ(bi.min, "-2147483648", "");
+    tt_param_bs4_input_clear_min(&bi);
+    TT_UT_EQUAL(bi.min[0], 0, "");
+
+    tt_param_bs4_input_set_max(&bi, 0x7fffffff);
+    TT_UT_STREQ(bi.max, "2147483647", "");
+    tt_param_bs4_input_clear_max(&bi);
+    TT_UT_EQUAL(bi.max[0], 0, "");
+
+    tt_param_bs4_input_set_step(&bi, 5);
+    TT_UT_STREQ(bi.step, "0.00001", "");
+    tt_param_bs4_input_set_step(&bi, 1);
+    TT_UT_STREQ(bi.step, "0.1", "");
+    tt_param_bs4_input_set_step(&bi, 0);
+    TT_UT_EQUAL(bi.step[0], 0, "");
 
     // test end
     TT_TEST_CASE_LEAVE()

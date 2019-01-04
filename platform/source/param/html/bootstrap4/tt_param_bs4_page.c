@@ -170,7 +170,7 @@ tt_result_t __render_body(IN tt_param_bs4_page_t *pg,
 
     TT_DO(__render_body_footer(pg, buf));
 
-    TT_DO(__PUT_CSTR(buf, __PG_BODY_END));
+    TT_DO(tt_buf_putf(buf, __PG_BODY_END, pg->js));
 
     return TT_SUCCESS;
 }

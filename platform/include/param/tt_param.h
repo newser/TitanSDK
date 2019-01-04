@@ -33,6 +33,7 @@ this file defines config object
 #include <algorithm/tt_list.h>
 #include <misc/tt_assert.h>
 #include <misc/tt_util.h>
+#include <param/html/bootstrap4/tt_param_bs4_control.h>
 #include <param/tt_param_def.h>
 
 ////////////////////////////////////////////////////////////
@@ -82,6 +83,7 @@ typedef struct tt_param_s
     void *opaque;
     tt_lnode_t node;
     tt_param_type_t type;
+    tt_param_bs4_ctrl_t bs4_ctrl;
 
     tt_bool_t need_reboot : 1;
     tt_bool_t can_read : 1;

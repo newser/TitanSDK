@@ -134,10 +134,9 @@ void tt_param_bs4_content_init(IN tt_param_bs4_content_t *ct)
     ct->group_class = "";
     ct->group0_class = NULL;
     ct->group1_class = NULL;
-    ct->title_class = "";
-    ct->name_class = "";
-    ct->val_class = "";
-    ct->writable = TT_FALSE;
+    ct->title_class = "text-dark";
+    ct->name_class = "text-dark";
+    ct->val_class = "text-dark";
 }
 
 tt_result_t tt_param_bs4_content_render(IN tt_param_bs4_content_t *ct,
