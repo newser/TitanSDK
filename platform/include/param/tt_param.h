@@ -83,7 +83,7 @@ typedef struct tt_param_s
     void *opaque;
     tt_lnode_t node;
     tt_param_type_t type;
-    tt_param_bs4_ctrl_t bs4_ctrl;
+    tt_param_bs4ctrl_t bs4_ctrl;
 
     tt_bool_t need_reboot : 1;
     tt_bool_t can_read : 1;

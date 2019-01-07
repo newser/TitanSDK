@@ -128,7 +128,7 @@ tt_param_t *tt_param_create(IN tt_u32_t len,
     p->opaque = opaque;
     tt_lnode_init(&p->node);
     p->type = type;
-    tt_param_bs4_ctrl_init(&p->bs4_ctrl);
+    tt_param_bs4ctrl_init(&p->bs4_ctrl);
 
     p->need_reboot = attr->need_reboot;
     p->can_read = attr->can_read;

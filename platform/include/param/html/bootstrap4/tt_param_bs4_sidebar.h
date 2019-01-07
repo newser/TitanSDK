@@ -17,7 +17,7 @@
  */
 
 /**
-@file tt_param_bs4_sidebar.h
+@file tt_param_bs4sidebar.h
 @brief parameter bootstrap4 sidebar
 
 this file includes parameter render definition
@@ -46,7 +46,8 @@ struct tt_buf_s;
 typedef struct
 {
     const tt_char_t *nav_class;
-} tt_param_bs4_sidebar_t;
+    tt_bool_t hide : 1;
+} tt_param_bs4sidebar_t;
 
 ////////////////////////////////////////////////////////////
 // global variants
@@ -56,12 +57,10 @@ typedef struct
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-tt_export void tt_param_bs4_sidebar_init(IN tt_param_bs4_sidebar_t *nav);
+tt_export void tt_param_bs4sidebar_init(IN tt_param_bs4sidebar_t *nav);
 
-tt_export tt_result_t
-tt_param_bs4_sidebar_render(IN tt_param_bs4_sidebar_t *nav,
-                            IN OPT struct tt_param_s *root,
-                            IN struct tt_param_s *param,
-                            OUT struct tt_buf_s *buf);
+tt_export tt_result_t tt_param_bs4sidebar_render(IN tt_param_bs4sidebar_t *nav,
+                                                 IN struct tt_param_s *param,
+                                                 OUT struct tt_buf_s *buf);
 
 #endif /* __TT_PARAM_BS4_SIDEBAR__ */

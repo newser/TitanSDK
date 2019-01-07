@@ -69,7 +69,7 @@ tt_param_t *tt_param_bool_create(IN const tt_char_t *name,
 
     tt_param_t *p;
     tt_param_bool_t *pb;
-    tt_param_bs4_select_t *bs4_sel;
+    tt_param_bs4select_t *bs4_sel;
 
     p = tt_param_create(sizeof(tt_param_bool_t),
                         TT_PARAM_BOOL,
@@ -89,9 +89,9 @@ tt_param_t *tt_param_bool_create(IN const tt_char_t *name,
         tt_memset(&pb->cb, 0, sizeof(tt_param_bool_cb_t));
     }
 
-    tt_param_bs4_ctrl_set_type(&p->bs4_ctrl, TT_PARAM_BS4_SELECT);
+    tt_param_bs4ctrl_set_type(&p->bs4_ctrl, TT_PARAM_BS4_SELECT);
     bs4_sel = &p->bs4_ctrl.select;
-    tt_param_bs4_select_set_option(bs4_sel, bs4_opt, 2);
+    tt_param_bs4select_set_option(bs4_sel, bs4_opt, 2);
 
     return p;
 }

@@ -42,10 +42,10 @@
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-tt_param_bs4_display_t tt_param_bs4_display(IN tt_param_t *p,
-                                            IN tt_param_bs4_level_t l)
+tt_param_bs4display_t tt_param_bs4display(IN tt_param_t *p,
+                                          IN tt_param_bs4level_t l)
 {
-    static tt_param_bs4_level_t map[TT_PARAM_BS4_LV_NUM][TT_PARAM_LV_NUM] = {
+    static tt_param_bs4level_t map[TT_PARAM_BS4_LV_NUM][TT_PARAM_LV_NUM] = {
         // TT_PARAM_BS4_LV_USER
         {
             TT_PARAM_BS4_DISP_RD,

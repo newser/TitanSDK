@@ -46,15 +46,15 @@
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-void tt_param_bs4_ctrl_init(IN tt_param_bs4_ctrl_t *ctrl)
+void tt_param_bs4ctrl_init(IN tt_param_bs4ctrl_t *ctrl)
 {
-    tt_memset(ctrl, 0, sizeof(tt_param_bs4_ctrl_t));
+    tt_memset(ctrl, 0, sizeof(tt_param_bs4ctrl_t));
 
     ctrl->type = TT_PARAM_BS4_INPUT;
 }
 
-void tt_param_bs4_ctrl_set_type(IN tt_param_bs4_ctrl_t *ctrl,
-                                IN tt_param_bs4_type_t type)
+void tt_param_bs4ctrl_set_type(IN tt_param_bs4ctrl_t *ctrl,
+                               IN tt_param_bs4type_t type)
 {
     TT_ASSERT(TT_PARAM_BS4_TYPE_VALID(type));
     ctrl->type = type;
@@ -64,45 +64,45 @@ void tt_param_bs4_ctrl_set_type(IN tt_param_bs4_ctrl_t *ctrl,
 // param bs4 control: input
 // ========================================
 
-void tt_param_bs4_input_init(IN tt_param_bs4_input_t *i)
+void tt_param_bs4input_init(IN tt_param_bs4input_t *i)
 {
-    tt_memset(i, 0, sizeof(tt_param_bs4_input_t));
+    tt_memset(i, 0, sizeof(tt_param_bs4input_t));
 }
 
-void tt_param_bs4_input_set_pattern(IN tt_param_bs4_input_t *i,
-                                    IN const tt_char_t *pattern)
+void tt_param_bs4input_set_pattern(IN tt_param_bs4input_t *i,
+                                   IN const tt_char_t *pattern)
 {
     i->pattern = pattern;
 }
 
-void tt_param_bs4_input_clear_pattern(IN tt_param_bs4_input_t *i)
+void tt_param_bs4input_clear_pattern(IN tt_param_bs4input_t *i)
 {
     i->pattern = NULL;
 }
 
-void tt_param_bs4_input_set_min(IN tt_param_bs4_input_t *i, IN tt_s32_t min)
+void tt_param_bs4input_set_min(IN tt_param_bs4input_t *i, IN tt_s32_t min)
 {
     tt_memset(i->min, 0, sizeof(i->min));
     tt_snprintf(i->min, sizeof(i->min) - 1, "%d", min);
 }
 
-void tt_param_bs4_input_clear_min(IN tt_param_bs4_input_t *i)
+void tt_param_bs4input_clear_min(IN tt_param_bs4input_t *i)
 {
     i->min[0] = 0;
 }
 
-void tt_param_bs4_input_set_max(IN tt_param_bs4_input_t *i, IN tt_s32_t max)
+void tt_param_bs4input_set_max(IN tt_param_bs4input_t *i, IN tt_s32_t max)
 {
     tt_memset(i->max, 0, sizeof(i->max));
     tt_snprintf(i->max, sizeof(i->max) - 1, "%d", max);
 }
 
-void tt_param_bs4_input_clear_max(IN tt_param_bs4_input_t *i)
+void tt_param_bs4input_clear_max(IN tt_param_bs4input_t *i)
 {
     i->max[0] = 0;
 }
 
-void tt_param_bs4_input_set_minlen(IN tt_param_bs4_input_t *i, IN tt_u32_t len)
+void tt_param_bs4input_set_minlen(IN tt_param_bs4input_t *i, IN tt_u32_t len)
 {
     TT_ASSERT(len <= 99999);
 
@@ -110,24 +110,24 @@ void tt_param_bs4_input_set_minlen(IN tt_param_bs4_input_t *i, IN tt_u32_t len)
     tt_snprintf(i->minlen, sizeof(i->minlen) - 1, "%u", len);
 }
 
-void tt_param_bs4_input_clear_minlen(IN tt_param_bs4_input_t *i)
+void tt_param_bs4input_clear_minlen(IN tt_param_bs4input_t *i)
 {
     i->minlen[0] = 0;
 }
 
-void tt_param_bs4_input_set_maxlen(IN tt_param_bs4_input_t *i, IN tt_u32_t len)
+void tt_param_bs4input_set_maxlen(IN tt_param_bs4input_t *i, IN tt_u32_t len)
 {
     TT_ASSERT(len <= 99999);
     tt_memset(i->maxlen, 0, sizeof(i->maxlen));
     tt_snprintf(i->maxlen, sizeof(i->maxlen) - 1, "%u", len);
 }
 
-void tt_param_bs4_input_clear_maxlen(IN tt_param_bs4_input_t *i)
+void tt_param_bs4input_clear_maxlen(IN tt_param_bs4input_t *i)
 {
     i->maxlen[0] = 0;
 }
 
-void tt_param_bs4_input_set_step(IN tt_param_bs4_input_t *i, IN tt_u8_t step)
+void tt_param_bs4input_set_step(IN tt_param_bs4input_t *i, IN tt_u8_t step)
 {
     if (step > 0) {
         tt_u8_t n;
@@ -143,65 +143,65 @@ void tt_param_bs4_input_set_step(IN tt_param_bs4_input_t *i, IN tt_u8_t step)
         i->step[n++] = '1';
         i->step[n] = 0;
     } else {
-        tt_param_bs4_input_clear_step(i);
+        tt_param_bs4input_clear_step(i);
     }
 }
 
-void tt_param_bs4_input_clear_step(IN tt_param_bs4_input_t *i)
+void tt_param_bs4input_clear_step(IN tt_param_bs4input_t *i)
 {
     i->step[0] = 0;
 }
 
-void tt_param_bs4_input_clear(IN tt_param_bs4_input_t *i)
+void tt_param_bs4input_clear(IN tt_param_bs4input_t *i)
 {
-    tt_param_bs4_input_clear_pattern(i);
-    tt_param_bs4_input_clear_min(i);
-    tt_param_bs4_input_clear_max(i);
-    tt_param_bs4_input_clear_minlen(i);
-    tt_param_bs4_input_clear_maxlen(i);
-    tt_param_bs4_input_clear_step(i);
+    tt_param_bs4input_clear_pattern(i);
+    tt_param_bs4input_clear_min(i);
+    tt_param_bs4input_clear_max(i);
+    tt_param_bs4input_clear_minlen(i);
+    tt_param_bs4input_clear_maxlen(i);
+    tt_param_bs4input_clear_step(i);
 }
 
 // ========================================
 // param bs4 control: select
 // ========================================
 
-void tt_param_bs4_select_init(IN tt_param_bs4_select_t *s)
+void tt_param_bs4select_init(IN tt_param_bs4select_t *s)
 {
-    tt_memset(s, 0, sizeof(tt_param_bs4_select_t));
+    tt_memset(s, 0, sizeof(tt_param_bs4select_t));
 }
 
-void tt_param_bs4_select_set_selected(IN tt_param_bs4_select_t *s,
-                                      IN const tt_char_t *selected)
+void tt_param_bs4select_set_selected(IN tt_param_bs4select_t *s,
+                                     IN const tt_char_t *selected)
 {
     s->selected = selected;
 }
 
-void tt_param_bs4_select_set_option(IN tt_param_bs4_select_t *s,
-                                    IN const tt_char_t **option,
-                                    IN tt_u8_t num)
+void tt_param_bs4select_set_option(IN tt_param_bs4select_t *s,
+                                   IN const tt_char_t **option,
+                                   IN tt_u8_t num)
 {
     s->option = option;
     s->option_num = num;
 }
 
-void tt_param_bs4_select_set_multiple(IN tt_param_bs4_select_t *s,
-                                      IN tt_bool_t multiple)
+void tt_param_bs4select_set_multiple(IN tt_param_bs4select_t *s,
+                                     IN tt_bool_t multiple)
 {
     s->multiple = multiple;
 }
 
-void tt_param_bs4_select_clear(IN tt_param_bs4_select_t *s)
+void tt_param_bs4select_clear(IN tt_param_bs4select_t *s)
 {
-    tt_param_bs4_select_init(s);
+    tt_param_bs4select_init(s);
 }
 
 // ========================================
 // param bs4 control: textarea
 // ========================================
 
-void tt_param_bs4_textarea_set_rows(IN tt_param_bs4_textarea_t *t,
-                                    IN tt_u8_t rows)
+void tt_param_bs4textarea_set_rows(IN tt_param_bs4textarea_t *t,
+                                   IN tt_u8_t rows)
 {
     tt_snprintf(t->rows, sizeof(t->rows), "%u", rows);
 }

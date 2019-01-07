@@ -33,16 +33,17 @@
 ////////////////////////////////////////////////////////////
 
 #define __1ENTRY_DIV_START                                                     \
-    "<div class=\"form-group row col-12 px-0 py-1\">"                          \
-    "<label class=\"col-4 col-lg-2 text-right pr-0 col-form-label %s\">%s "    \
-    ":</label>"                                                                \
+    "<div class=\"form-group row col-12 px-0\">"                               \
+    "<label class=\"col-4 col-lg-2 text-right pr-0 col-form-label"             \
+    " col-form-label-sm %s\">%s :</label>"                                     \
     "<div class=\"%s\">"
 
 #define __1ENTRY_DIV_END "</div></div>"
 
 #define __2ENTRY_DIV_START                                                     \
-    "<div class=\"form-group row col-12 col-lg-6 px-0 py-1\">"                 \
-    "<label class=\"col-4 text-right pr-0 col-form-label %s\">%s :</label>"    \
+    "<div class=\"form-group row col-12 col-lg-6 px-0\">"                      \
+    "<label class=\"col-4 text-right pr-0 col-form-label col-form-label-sm"    \
+    " %s\">%s :</label>"                                                       \
     "<div class=\"%s\">"
 
 #define __2ENTRY_DIV_END "</div></div>"
@@ -56,17 +57,16 @@
 
 #define __1ENTRY_INPUT_RD                                                      \
     __1ENTRY_DIV_START                                                         \
-    "<input type=\"text\" class=\"form-control-plaintext %s\" id=\"%s\" "      \
-    "readonly />"                                                              \
-    "</div></div>"
+    "<input type=\"text\" class=\"form-control-plaintext form-control-sm "     \
+    "%s\" id=\"%s\" readonly />" __1ENTRY_DIV_END
 
 #define __2ENTRY_INPUT_RD                                                      \
     __2ENTRY_DIV_START                                                         \
-    "<input type=\"text\" class=\"form-control-plaintext %s\" id=\"%s\" "      \
-    "readonly />" __2ENTRY_DIV_END
+    "<input type=\"text\" class=\"form-control-plaintext form-control-sm "     \
+    "%s\" id=\"%s\" readonly />" __2ENTRY_DIV_END
 
 #define __INPUT_WR_START                                                       \
-    "<input type=\"text\" class=\"form-control %s\" id=\"%s\""
+    "<input type=\"text\" class=\"form-control form-control-sm %s\" id=\"%s\""
 
 #define __INPUT_WR_END " />"
 
@@ -82,7 +82,8 @@
 // param bs4 control: select
 // ========================================
 
-#define __SELECT_WR_START "<select class=\"custom-select %s\" id=\"%s\">"
+#define __SELECT_WR_START                                                      \
+    "<select class=\"custom-select custom-select-sm %s\" id=\"%s\">"
 
 #define __SELECT_END "</select>"
 
@@ -98,7 +99,8 @@
 // param bs4 control: textarea
 // ========================================
 
-#define __TEXTAREA_WR_START "<textarea class=\"form-control %s\" %s id=\"%s\">"
+#define __TEXTAREA_WR_START                                                    \
+    "<textarea class=\"form-control form-control-sm %s\" %s id=\"%s\">"
 
 #define __TEXTAREA_END "</textarea>"
 
@@ -139,43 +141,43 @@ enum
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-static tt_result_t __render_param(IN tt_param_bs4_content_t *ct,
+static tt_result_t __render_param(IN tt_param_bs4content_t *ct,
                                   IN tt_param_t *p,
-                                  IN tt_param_bs4_level_t lv,
+                                  IN tt_param_bs4level_t lv,
                                   OUT tt_buf_t *buf,
                                   IN const tt_char_t **ptn);
 
-static tt_result_t __render_input(IN tt_param_bs4_content_t *ct,
+static tt_result_t __render_input(IN tt_param_bs4content_t *ct,
                                   IN tt_param_t *p,
-                                  IN tt_param_bs4_level_t lv,
+                                  IN tt_param_bs4level_t lv,
                                   OUT tt_buf_t *buf,
-                                  IN tt_param_bs4_input_t *i,
+                                  IN tt_param_bs4input_t *i,
                                   IN const tt_char_t **ptn);
 
 static const tt_char_t *__input_type(IN tt_param_t *p);
 
-static tt_result_t __render_select(IN tt_param_bs4_content_t *ct,
+static tt_result_t __render_select(IN tt_param_bs4content_t *ct,
                                    IN tt_param_t *p,
-                                   IN tt_param_bs4_level_t lv,
+                                   IN tt_param_bs4level_t lv,
                                    OUT tt_buf_t *buf,
-                                   IN tt_param_bs4_select_t *s,
+                                   IN tt_param_bs4select_t *s,
                                    IN const tt_char_t **ptn);
 
-static tt_result_t __render_textarea(IN tt_param_bs4_content_t *ct,
+static tt_result_t __render_textarea(IN tt_param_bs4content_t *ct,
                                      IN tt_param_t *p,
-                                     IN tt_param_bs4_level_t lv,
+                                     IN tt_param_bs4level_t lv,
                                      OUT tt_buf_t *buf,
-                                     IN tt_param_bs4_textarea_t *t,
+                                     IN tt_param_bs4textarea_t *t,
                                      IN const tt_char_t **ptn);
 
 ////////////////////////////////////////////////////////////
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-tt_result_t tt_param_bs4_ctrl_render(IN tt_param_bs4_content_t *ct,
-                                     IN tt_param_t *param,
-                                     IN tt_param_bs4_level_t lv,
-                                     OUT tt_buf_t *buf)
+tt_result_t tt_param_bs4ctrl_render(IN tt_param_bs4content_t *ct,
+                                    IN tt_param_t *param,
+                                    IN tt_param_bs4level_t lv,
+                                    OUT tt_buf_t *buf)
 {
     static const tt_char_t *ptn[PTN_NUM] = {
         __1ENTRY_INPUT_RD,
@@ -192,11 +194,11 @@ tt_result_t tt_param_bs4_ctrl_render(IN tt_param_bs4_content_t *ct,
     return TT_SUCCESS;
 }
 
-tt_result_t tt_param_bs4_ctrl_render_pair(IN tt_param_bs4_content_t *ct,
-                                          IN tt_param_t *p1,
-                                          IN tt_param_t *p2,
-                                          IN tt_param_bs4_level_t lv,
-                                          OUT tt_buf_t *buf)
+tt_result_t tt_param_bs4ctrl_render_pair(IN tt_param_bs4content_t *ct,
+                                         IN tt_param_t *p1,
+                                         IN tt_param_t *p2,
+                                         IN tt_param_bs4level_t lv,
+                                         OUT tt_buf_t *buf)
 {
     static const tt_char_t *ptn[PTN_NUM] = {
         __2ENTRY_INPUT_RD,
@@ -215,15 +217,15 @@ tt_result_t tt_param_bs4_ctrl_render_pair(IN tt_param_bs4_content_t *ct,
     return TT_SUCCESS;
 }
 
-tt_result_t __render_param(IN tt_param_bs4_content_t *ct,
+tt_result_t __render_param(IN tt_param_bs4content_t *ct,
                            IN tt_param_t *p,
-                           IN tt_param_bs4_level_t lv,
+                           IN tt_param_bs4level_t lv,
                            OUT tt_buf_t *buf,
                            IN const tt_char_t **ptn)
 {
-    tt_param_bs4_display_t disp;
+    tt_param_bs4display_t disp;
 
-    disp = tt_param_bs4_display(p, lv);
+    disp = tt_param_bs4display(p, lv);
     if (disp == TT_PARAM_BS4_DISP_RD) {
         // always show readonly param as an input control
         TT_DO(tt_buf_putf(buf,
@@ -234,7 +236,7 @@ tt_result_t __render_param(IN tt_param_bs4_content_t *ct,
                           ct->val_class,
                           tt_param_name(p)));
     } else if (disp == TT_PARAM_BS4_DISP_WR) {
-        tt_param_bs4_ctrl_t *ctrl;
+        tt_param_bs4ctrl_t *ctrl;
 
         ctrl = &p->bs4_ctrl;
         if (ctrl->type == TT_PARAM_BS4_INPUT) {
@@ -249,11 +251,11 @@ tt_result_t __render_param(IN tt_param_bs4_content_t *ct,
     return TT_SUCCESS;
 }
 
-tt_result_t __render_input(IN tt_param_bs4_content_t *ct,
+tt_result_t __render_input(IN tt_param_bs4content_t *ct,
                            IN tt_param_t *p,
-                           IN tt_param_bs4_level_t lv,
+                           IN tt_param_bs4level_t lv,
                            OUT tt_buf_t *buf,
-                           IN tt_param_bs4_input_t *i,
+                           IN tt_param_bs4input_t *i,
                            IN const tt_char_t **ptn)
 {
     TT_DO(tt_buf_putf(buf,
@@ -304,11 +306,11 @@ const tt_char_t *__input_type(IN tt_param_t *p)
     return TT_COND(t != NULL, t, "text");
 }
 
-tt_result_t __render_select(IN tt_param_bs4_content_t *ct,
+tt_result_t __render_select(IN tt_param_bs4content_t *ct,
                             IN tt_param_t *p,
-                            IN tt_param_bs4_level_t lv,
+                            IN tt_param_bs4level_t lv,
                             OUT tt_buf_t *buf,
-                            IN tt_param_bs4_select_t *s,
+                            IN tt_param_bs4select_t *s,
                             IN const tt_char_t **ptn)
 {
     tt_u8_t n;
@@ -337,11 +339,11 @@ tt_result_t __render_select(IN tt_param_bs4_content_t *ct,
     return TT_SUCCESS;
 }
 
-tt_result_t __render_textarea(IN tt_param_bs4_content_t *ct,
+tt_result_t __render_textarea(IN tt_param_bs4content_t *ct,
                               IN tt_param_t *p,
-                              IN tt_param_bs4_level_t lv,
+                              IN tt_param_bs4level_t lv,
                               OUT tt_buf_t *buf,
-                              IN tt_param_bs4_textarea_t *t,
+                              IN tt_param_bs4textarea_t *t,
                               IN const tt_char_t **ptn)
 {
     tt_char_t rows[16] = {0};

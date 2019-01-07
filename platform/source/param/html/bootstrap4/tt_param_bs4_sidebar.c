@@ -34,12 +34,13 @@
 ////////////////////////////////////////////////////////////
 
 #define __SIDEBAR_START                                                        \
-    "<nav class=\"d-none d-lg-block col-2 navbar bg-light %s\">"               \
+    "<nav class=\"%s col-2 navbar bg-light %s\" id=\"sb-%s\">"                 \
     "<ul class=\"navbar-nav\">"
 
 #define __SIDEBAR_ENTRY                                                        \
-    "<li class=\"nav-item\"><a class=\"nav-link text-dark\" "                  \
-    "href=\"#%s\">%s</a></li>"
+    "<li class=\"nav-item\">"                                                  \
+    "<a class=\"nav-link text-dark\" href=\"#%s\">%s</a>"                      \
+    "</li>"
 
 #define __SIDEBAR_END "</ul></nav>"
 
@@ -59,39 +60,27 @@
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-void tt_param_bs4_sidebar_init(IN tt_param_bs4_sidebar_t *nav)
+void tt_param_bs4sidebar_init(IN tt_param_bs4sidebar_t *sb)
 {
-    nav->nav_class = "";
+    sb->nav_class = "";
+    sb->hide = TT_FALSE;
 }
 
-tt_result_t tt_param_bs4_sidebar_render(IN tt_param_bs4_sidebar_t *nav,
-                                        IN OPT tt_param_t *root,
-                                        IN tt_param_t *param,
-                                        OUT tt_buf_t *buf)
+tt_result_t tt_param_bs4sidebar_render(IN tt_param_bs4sidebar_t *sb,
+                                       IN tt_param_t *param,
+                                       OUT tt_buf_t *buf)
 {
     tt_param_dir_t *dir;
-    tt_bool_t has_dir_child;
     tt_param_t *p;
 
-    // only render sidebar for directory
-    if (param->type != TT_PARAM_DIR) {
-        return TT_SUCCESS;
-    }
+    TT_ASSERT(param->type == TT_PARAM_DIR);
     dir = TT_PARAM_CAST(param, tt_param_dir_t);
 
-    // only render sidebar for dir with child directories
-    has_dir_child = TT_FALSE;
-    for (p = tt_param_dir_head(dir); p != NULL; p = tt_param_dir_next(p)) {
-        if (p->type == TT_PARAM_DIR) {
-            has_dir_child = TT_TRUE;
-            break;
-        }
-    }
-    if (!has_dir_child) {
-        return TT_SUCCESS;
-    }
-
-    TT_DO(tt_buf_putf(buf, __SIDEBAR_START, nav->nav_class));
+    TT_DO(tt_buf_putf(buf,
+                      __SIDEBAR_START,
+                      TT_COND(sb->hide, "d-none", "d-none d-lg-block"),
+                      sb->nav_class,
+                      tt_param_name(param)));
 
     for (p = tt_param_dir_head(dir); p != NULL; p = tt_param_dir_next(p)) {
         if (p->type == TT_PARAM_DIR) {
@@ -108,10 +97,10 @@ tt_result_t tt_param_bs4_sidebar_render(IN tt_param_bs4_sidebar_t *nav,
 }
 
 /*
- <nav class="d-none d-md-block col-2 navbar">
+ <sb class="d-none d-md-block col-2 navbar">
  <ul class="navbar-nav">
  <li class="nav-item"><a class="nav-link" href="#platform">platform</a></li>
  <li class="nav-item"><a class="nav-link" href="#app1">app1</a></li>
  </ul>
- </nav>
+ </sb>
  */

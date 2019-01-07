@@ -17,7 +17,7 @@
  */
 
 /**
-@file tt_param_bs4_content.h
+@file tt_param_bs4content.h
 @brief parameter bootstrap4 content
 
 this file includes parameter render definition
@@ -43,7 +43,7 @@ this file includes parameter render definition
 struct tt_param_s;
 struct tt_buf_s;
 
-typedef struct tt_param_bs4_content_s
+typedef struct tt_param_bs4content_s
 {
     const tt_char_t *group_class;
     const tt_char_t *group0_class;
@@ -52,7 +52,8 @@ typedef struct tt_param_bs4_content_s
     const tt_char_t *name_class;
     const tt_char_t *val_class;
     const tt_char_t *btn_class;
-} tt_param_bs4_content_t;
+    tt_bool_t hide : 1;
+} tt_param_bs4content_t;
 
 ////////////////////////////////////////////////////////////
 // global variants
@@ -62,11 +63,11 @@ typedef struct tt_param_bs4_content_s
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-tt_export void tt_param_bs4_content_init(IN tt_param_bs4_content_t *ct);
+tt_export void tt_param_bs4content_init(IN tt_param_bs4content_t *ct);
 
-tt_export tt_result_t tt_param_bs4_content_render(IN tt_param_bs4_content_t *ct,
-                                                  IN struct tt_param_s *param,
-                                                  IN tt_param_bs4_level_t lv,
-                                                  OUT struct tt_buf_s *buf);
+tt_export tt_result_t tt_param_bs4content_render(IN tt_param_bs4content_t *ct,
+                                                 IN struct tt_param_s *param,
+                                                 IN tt_param_bs4level_t lv,
+                                                 OUT struct tt_buf_s *buf);
 
 #endif /* __TT_PARAM_BS4_CONTENT__ */

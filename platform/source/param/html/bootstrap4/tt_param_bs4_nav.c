@@ -50,19 +50,24 @@
 
 #define __NAV_BRAND "<span class=\"navbar-brand %s\">%s</span>"
 
-#define __NAV_ENTRY                                                            \
+#define __NAV_LINK                                                             \
     "<li class=\"nav-item\">"                                                  \
     "<a class=\"nav-link\" href=\"%s\">%s</a>"                                 \
     "</li>"
 
-#define __NAV_ENTRY_ACTIVE                                                     \
+#define __NAV_LINK_ACTIVE                                                      \
     "<li class=\"nav-item\">"                                                  \
     "<a class=\"nav-link active\" href=\"%s\">%s</a>"                          \
     "</li>"
 
-#define __NAV_ENTRY_UNCLICKABLE                                                \
+#define __NAV_BUTTON                                                           \
     "<li class=\"nav-item\">"                                                  \
-    "<a class=\"nav-link\">%s</a>"                                             \
+    "<a class=\"nav-link\" href=\"#\" id=\"nav-%s\">%s</a>"                    \
+    "</li>"
+
+#define __NAV_BUTTON_ACTIVE                                                    \
+    "<li class=\"nav-item\">"                                                  \
+    "<a class=\"nav-link active\" href=\"#\" id=\"nav-%s\">%s</a>"             \
     "</li>"
 
 #define __NAV_END "</ul></div></nav>"
@@ -87,7 +92,7 @@
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-void tt_param_bs4_nav_init(IN tt_param_bs4_nav_t *nav)
+void tt_param_bs4nav_init(IN tt_param_bs4nav_t *nav)
 {
     nav->nav_class = "navbar-dark bg-dark";
     nav->account_class = "btn-success";
@@ -96,25 +101,22 @@ void tt_param_bs4_nav_init(IN tt_param_bs4_nav_t *nav)
     nav->brand_class = "";
     nav->brand_href = NULL;
     nav->brand_text = NULL;
+    nav->button_style = TT_FALSE;
 }
 
-tt_result_t tt_param_bs4_nav_render(IN tt_param_bs4_nav_t *nav,
-                                    IN OPT tt_param_t *root,
-                                    IN tt_param_t *parent,
-                                    IN tt_param_t *param,
-                                    OUT tt_buf_t *buf)
+tt_result_t tt_param_bs4nav_render(IN tt_param_bs4nav_t *nav,
+                                   IN OPT tt_param_t *root,
+                                   IN tt_param_t *parent,
+                                   IN OPT tt_param_t *active,
+                                   OUT tt_buf_t *buf)
 {
     tt_param_dir_t *dir;
     tt_param_t *p;
     tt_buf_t path;
 
-    if (param->type != TT_PARAM_DIR) {
-        return TT_SUCCESS;
-    }
-
     TT_ASSERT((parent != NULL) && (parent->type == TT_PARAM_DIR));
     dir = TT_PARAM_CAST(parent, tt_param_dir_t);
-    TT_ASSERT(tt_list_contain(&dir->child, &param->node));
+    TT_ASSERT((active == NULL) || tt_list_contain(&dir->child, &active->node));
 
     TT_DO(tt_buf_putf(buf,
                       __NAV_START,
@@ -144,19 +146,29 @@ tt_result_t tt_param_bs4_nav_render(IN tt_param_bs4_nav_t *nav,
             continue;
         }
 
-        tt_buf_clear(&path);
-        TT_DO_G(fail, tt_param_path_n2p(root, p, &path));
-        TT_DO_G(fail, tt_buf_put_u8(&path, 0));
+        if (nav->button_style) {
+            TT_DO_G(fail,
+                    tt_buf_putf(buf,
+                                TT_COND(p == active,
+                                        __NAV_BUTTON_ACTIVE,
+                                        __NAV_BUTTON),
+                                tt_param_name(p),
+                                __param_display(p)));
+        } else {
+            tt_buf_clear(&path);
+            TT_DO_G(fail, tt_param_path_n2p(root, p, &path));
+            TT_DO_G(fail, tt_buf_put_u8(&path, 0));
 
-        TT_DO_G(fail,
-                tt_buf_putf(buf,
-                            TT_COND(p == param,
-                                    __NAV_ENTRY_ACTIVE,
-                                    __NAV_ENTRY),
-                            TT_COND(tt_buf_empty(&path),
-                                    "#",
-                                    (tt_char_t *)TT_BUF_RPOS(&path)),
-                            __param_display(p)));
+            TT_DO_G(fail,
+                    tt_buf_putf(buf,
+                                TT_COND(p == active,
+                                        __NAV_LINK_ACTIVE,
+                                        __NAV_LINK),
+                                TT_COND(tt_buf_empty(&path),
+                                        "#",
+                                        (tt_char_t *)TT_BUF_RPOS(&path)),
+                                __param_display(p)));
+        }
     }
     tt_buf_destroy(&path);
 

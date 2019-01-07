@@ -17,7 +17,7 @@
  */
 
 /**
-@file tt_param_bs4_nav.h
+@file tt_param_bs4nav.h
 @brief parameter render a html nav
 
 this file includes parameter render definition
@@ -52,7 +52,8 @@ typedef struct
     const tt_char_t *brand_class;
     const tt_char_t *brand_href;
     const tt_char_t *brand_text;
-} tt_param_bs4_nav_t;
+    tt_bool_t button_style : 1;
+} tt_param_bs4nav_t;
 
 ////////////////////////////////////////////////////////////
 // global variants
@@ -62,11 +63,11 @@ typedef struct
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-tt_export void tt_param_bs4_nav_init(IN tt_param_bs4_nav_t *nav);
+tt_export void tt_param_bs4nav_init(IN tt_param_bs4nav_t *nav);
 
-tt_export tt_result_t tt_param_bs4_nav_render(IN tt_param_bs4_nav_t *nav,
-                                              IN OPT struct tt_param_s *root,
-                                              IN struct tt_param_s *parent,
-                                              IN struct tt_param_s *param,
-                                              OUT struct tt_buf_s *buf);
+tt_export tt_result_t tt_param_bs4nav_render(IN tt_param_bs4nav_t *nav,
+                                             IN OPT struct tt_param_s *root,
+                                             IN struct tt_param_s *parent,
+                                             IN OPT struct tt_param_s *active,
+                                             OUT struct tt_buf_s *buf);
 #endif /* __TT_PARAM_BS4_NAV__ */

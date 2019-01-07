@@ -58,7 +58,7 @@
 
 #define __PG_BODY_START "<body>"
 
-#define __PG_BODY_END "%s</body>"
+#define __PG_BODY_END "%s%s</body>"
 
 #define __PG_MAIN_START                                                        \
     "<main class=\"container-fluid\">"                                         \
@@ -87,51 +87,52 @@
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-static tt_result_t __render_head(IN tt_param_bs4_page_t *pg, OUT tt_buf_t *buf);
+static tt_result_t __render_head(IN tt_param_bs4page_t *pg, OUT tt_buf_t *buf);
 
-static tt_result_t __render_body(IN tt_param_bs4_page_t *pg,
+static tt_result_t __render_body(IN tt_param_bs4page_t *pg,
                                  IN OPT tt_param_t *root,
                                  IN tt_param_t *param,
-                                 IN tt_param_bs4_level_t lv,
+                                 IN tt_param_bs4level_t lv,
                                  OUT tt_buf_t *buf);
 
-static tt_result_t __render_body_header(IN tt_param_bs4_page_t *pg,
+static tt_result_t __render_body_header(IN tt_param_bs4page_t *pg,
                                         IN OPT tt_param_t *root,
                                         IN tt_param_t *param,
                                         OUT tt_buf_t *buf);
 
-static tt_result_t __render_body_main(IN tt_param_bs4_page_t *pg,
+static tt_result_t __render_body_main(IN tt_param_bs4page_t *pg,
                                       IN OPT tt_param_t *root,
                                       IN tt_param_t *param,
-                                      IN tt_param_bs4_level_t lv,
+                                      IN tt_param_bs4level_t lv,
                                       OUT tt_buf_t *buf);
 
-static tt_result_t __render_body_footer(IN tt_param_bs4_page_t *pg,
+static tt_result_t __render_body_footer(IN tt_param_bs4page_t *pg,
                                         OUT tt_buf_t *buf);
 
 ////////////////////////////////////////////////////////////
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-void tt_param_bs4_page_init(IN tt_param_bs4_page_t *pg)
+void tt_param_bs4page_init(IN tt_param_bs4page_t *pg)
 {
-    tt_param_bs4_nav_init(&pg->nav);
-    tt_param_bs4_sidebar_init(&pg->sidebar);
-    tt_param_bs4_content_init(&pg->content);
+    tt_param_bs4nav_init(&pg->nav);
+    tt_param_bs4sidebar_init(&pg->sidebar);
+    tt_param_bs4content_init(&pg->content);
 
     pg->lang = __DEFAULT_LANG;
     pg->css = __DEFAULT_CSS;
     pg->js = __DEFAULT_JS;
+    pg->js_extra = "";
     pg->head_extra = "";
     pg->footer_class = "bg-dark text-white";
     pg->footer_text = __DEFAULT_FOOTER_TEXT;
 }
 
-tt_result_t tt_param_bs4_page_render(IN tt_param_bs4_page_t *pg,
-                                     IN OPT tt_param_t *root,
-                                     IN tt_param_t *param,
-                                     IN tt_param_bs4_level_t lv,
-                                     OUT tt_buf_t *buf)
+tt_result_t tt_param_bs4page_render(IN tt_param_bs4page_t *pg,
+                                    IN OPT tt_param_t *root,
+                                    IN tt_param_t *param,
+                                    IN tt_param_bs4level_t lv,
+                                    OUT tt_buf_t *buf)
 {
     // only render page for directory
     if (param->type != TT_PARAM_DIR) {
@@ -149,17 +150,17 @@ tt_result_t tt_param_bs4_page_render(IN tt_param_bs4_page_t *pg,
     return TT_SUCCESS;
 }
 
-tt_result_t __render_head(IN tt_param_bs4_page_t *pg, OUT tt_buf_t *buf)
+tt_result_t __render_head(IN tt_param_bs4page_t *pg, OUT tt_buf_t *buf)
 {
     TT_DO(tt_buf_putf(buf, __PG_HEAD, pg->head_extra, pg->css));
 
     return TT_SUCCESS;
 }
 
-tt_result_t __render_body(IN tt_param_bs4_page_t *pg,
+tt_result_t __render_body(IN tt_param_bs4page_t *pg,
                           IN OPT tt_param_t *root,
                           IN tt_param_t *param,
-                          IN tt_param_bs4_level_t lv,
+                          IN tt_param_bs4level_t lv,
                           OUT tt_buf_t *buf)
 {
     TT_DO(__PUT_CSTR(buf, __PG_BODY_START));
@@ -170,48 +171,48 @@ tt_result_t __render_body(IN tt_param_bs4_page_t *pg,
 
     TT_DO(__render_body_footer(pg, buf));
 
-    TT_DO(tt_buf_putf(buf, __PG_BODY_END, pg->js));
+    TT_DO(tt_buf_putf(buf, __PG_BODY_END, pg->js, pg->js_extra));
 
     return TT_SUCCESS;
 }
 
-tt_result_t __render_body_header(IN tt_param_bs4_page_t *pg,
+tt_result_t __render_body_header(IN tt_param_bs4page_t *pg,
                                  IN OPT tt_param_t *root,
                                  IN tt_param_t *param,
                                  OUT tt_buf_t *buf)
 {
     TT_DO(__PUT_CSTR(buf, "<header>"));
 
-    TT_DO(tt_param_bs4_nav_render(&pg->nav,
-                                  root,
-                                  tt_param_parent(param),
-                                  param,
-                                  buf));
+    TT_DO(tt_param_bs4nav_render(&pg->nav,
+                                 root,
+                                 tt_param_parent(param),
+                                 param,
+                                 buf));
 
     TT_DO(__PUT_CSTR(buf, "</header>"));
 
     return TT_SUCCESS;
 }
 
-tt_result_t __render_body_main(IN tt_param_bs4_page_t *pg,
+tt_result_t __render_body_main(IN tt_param_bs4page_t *pg,
                                IN OPT tt_param_t *root,
                                IN tt_param_t *param,
-                               IN tt_param_bs4_level_t lv,
+                               IN tt_param_bs4level_t lv,
                                OUT tt_buf_t *buf)
 {
     TT_DO(__PUT_CSTR(buf, __PG_MAIN_START));
 
-    TT_DO(tt_param_bs4_sidebar_render(&pg->sidebar, root, param, buf));
+    TT_DO(tt_param_bs4sidebar_render(&pg->sidebar, param, buf));
 
     // TT_ASSERT(0);
-    TT_DO(tt_param_bs4_content_render(&pg->content, param, lv, buf));
+    TT_DO(tt_param_bs4content_render(&pg->content, param, lv, buf));
 
     TT_DO(__PUT_CSTR(buf, __PG_MAIN_END));
 
     return TT_SUCCESS;
 }
 
-tt_result_t __render_body_footer(IN tt_param_bs4_page_t *pg, OUT tt_buf_t *buf)
+tt_result_t __render_body_footer(IN tt_param_bs4page_t *pg, OUT tt_buf_t *buf)
 {
     if (pg->footer_text != NULL) {
         TT_DO(tt_buf_putf(buf, __PG_FOOTER, pg->footer_class, pg->footer_text));
