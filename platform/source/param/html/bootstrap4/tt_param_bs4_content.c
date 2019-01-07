@@ -23,6 +23,7 @@
 #include <param/html/bootstrap4/tt_param_bs4_content.h>
 
 #include <algorithm/tt_buffer_format.h>
+#include <param/html/bootstrap4/tt_param_bs4_control_render.h>
 #include <param/tt_param_dir.h>
 
 #define TT_PARAM_BS4_INTERNAL_USAGE
@@ -46,42 +47,6 @@
 
 #define __GROUP_DATA_END "</div>"
 
-#define __2_ENTRY_RD_START                                                     \
-    "<div class=\"form-group row col-12 col-md-6 px-0 py-1\">"                 \
-    "<label class=\"col-4 text-right pr-0 col-form-label %s\">%s :</label>"    \
-    "<div class=\"col-6\">"                                                    \
-    "<input type=\"text\" class=\"form-control-plaintext %s\" id=\"%s\" "      \
-    "readonly value=\""
-
-#define __2_ENTRY_WR_START                                                     \
-    "<div class=\"form-group row col-12 col-md-6 px-0 py-1\">"                 \
-    "<label class=\"col-4 text-right pr-0 col-form-label %s\">%s :</label>"    \
-    "<div class=\"col-6\">"                                                    \
-    "<input type=\"text\" class=\"form-control %s\" id=\"%s\" value=\""
-
-#define __2_ENTRY_END "\" /></div></div>"
-
-#define __2_ENTRY_START                                                        \
-    "<label class=\"col-4 col-md-2 text-right pr-0 %s\" id=\"%s\">%s "         \
-    ":</label><label class=\"col-8 col-md-4 %s\">"
-
-#define __1_ENTRY_RD_START                                                     \
-    "<div class=\"form-group row col-12 px-0 py-1\">"                          \
-    "<label class=\"col-4 col-md-2 text-right pr-0 col-form-label %s\">%s "    \
-    ":</label>"                                                                \
-    "<div class=\"col-8 col-md-8\">"                                           \
-    "<input type=\"text\" class=\"form-control-plaintext %s\" id=\"%s\" "      \
-    "readonly value=\""
-
-#define __1_ENTRY_WR_START                                                     \
-    "<div class=\"form-group row col-12 px-0 py-1\">"                          \
-    "<label class=\"col-4 col-md-2 text-right pr-0 col-form-label %s\">%s "    \
-    ":</label>"                                                                \
-    "<div class=\"col-8 col-md-8\">"                                           \
-    "<input type=\"text\" class=\"form-control %s\" id=\"%s\" value=\""
-
-#define __1_ENTRY_END "\" /></div></div>"
-
 ////////////////////////////////////////////////////////////
 // extern declaration
 ////////////////////////////////////////////////////////////
@@ -99,17 +64,6 @@ static tt_result_t __render_dir(IN tt_param_bs4_content_t *ct,
                                 IN tt_param_bs4_level_t lv,
                                 IN OUT tt_bool_t *group0,
                                 OUT tt_buf_t *buf);
-
-static tt_result_t __render_2param(IN tt_param_bs4_content_t *ct,
-                                   IN tt_param_t *p1,
-                                   IN tt_param_t *p2,
-                                   IN tt_param_bs4_level_t lv,
-                                   OUT tt_buf_t *buf);
-
-static tt_result_t __render_1param(IN tt_param_bs4_content_t *ct,
-                                   IN tt_param_t *p,
-                                   IN tt_param_bs4_level_t lv,
-                                   OUT tt_buf_t *buf);
 
 static tt_bool_t __param_group_head(IN tt_param_dir_t *dir,
                                     OUT tt_param_t **pp1,
@@ -211,105 +165,15 @@ tt_result_t __render_dir(IN tt_param_bs4_content_t *ct,
     do {
         TT_ASSERT(p1 != NULL);
         if (p2 != NULL) {
-            TT_DO(__render_2param(ct, p1, p2, lv, buf));
+            TT_DO(tt_param_bs4_ctrl_render_pair(ct, p1, p2, lv, buf));
         } else {
-            TT_DO(__render_1param(ct, p1, lv, buf));
+            TT_DO(tt_param_bs4_ctrl_render(ct, p1, lv, buf));
         }
     } while (__param_group_next(&p1, &p2, lv));
 
     TT_DO(__PUT_CSTR(buf, __GROUP_DATA_END));
 
     TT_DO(__PUT_CSTR(buf, __GROUP_END));
-
-    return TT_SUCCESS;
-}
-
-tt_result_t __render_2param(IN tt_param_bs4_content_t *ct,
-                            IN tt_param_t *p1,
-                            IN tt_param_t *p2,
-                            IN tt_param_bs4_level_t lv,
-                            OUT tt_buf_t *buf)
-{
-    tt_param_bs4_display_t disp;
-
-    disp = tt_param_bs4_display(p1, lv);
-    if (disp == TT_PARAM_BS4_DISP_RD) {
-        TT_DO(tt_buf_putf(buf,
-                          __2_ENTRY_RD_START,
-                          ct->name_class,
-                          __param_display(p1),
-                          ct->val_class,
-                          tt_param_name(p1)));
-        TT_DO(tt_param_read(p1, buf));
-        __PUT_CSTR(buf, __2_ENTRY_END);
-    } else {
-        TT_ASSERT(disp == TT_PARAM_BS4_DISP_WR);
-
-        TT_DO(tt_buf_putf(buf,
-                          __2_ENTRY_WR_START,
-                          ct->name_class,
-                          __param_display(p1),
-                          ct->val_class,
-                          tt_param_name(p1)));
-        TT_DO(tt_param_read(p1, buf));
-        __PUT_CSTR(buf, __2_ENTRY_END);
-    }
-
-    disp = tt_param_bs4_display(p2, lv);
-    if (disp == TT_PARAM_BS4_DISP_RD) {
-        TT_DO(tt_buf_putf(buf,
-                          __2_ENTRY_RD_START,
-                          ct->name_class,
-                          __param_display(p2),
-                          ct->val_class,
-                          tt_param_name(p2)));
-        TT_DO(tt_param_read(p2, buf));
-        __PUT_CSTR(buf, __2_ENTRY_END);
-    } else {
-        TT_ASSERT(disp == TT_PARAM_BS4_DISP_WR);
-
-        TT_DO(tt_buf_putf(buf,
-                          __2_ENTRY_WR_START,
-                          ct->name_class,
-                          __param_display(p2),
-                          ct->val_class,
-                          tt_param_name(p2)));
-        TT_DO(tt_param_read(p2, buf));
-        __PUT_CSTR(buf, __2_ENTRY_END);
-    }
-
-    return TT_SUCCESS;
-}
-
-tt_result_t __render_1param(IN tt_param_bs4_content_t *ct,
-                            IN tt_param_t *p,
-                            IN tt_param_bs4_level_t lv,
-                            OUT tt_buf_t *buf)
-{
-    tt_param_bs4_display_t disp;
-
-    disp = tt_param_bs4_display(p, lv);
-    if (disp == TT_PARAM_BS4_DISP_RD) {
-        TT_DO(tt_buf_putf(buf,
-                          __1_ENTRY_RD_START,
-                          ct->name_class,
-                          __param_display(p),
-                          ct->val_class,
-                          tt_param_name(p)));
-        TT_DO(tt_param_read(p, buf));
-        __PUT_CSTR(buf, __1_ENTRY_END);
-    } else {
-        TT_ASSERT(disp == TT_PARAM_BS4_DISP_WR);
-
-        TT_DO(tt_buf_putf(buf,
-                          __1_ENTRY_WR_START,
-                          ct->name_class,
-                          __param_display(p),
-                          ct->val_class,
-                          tt_param_name(p)));
-        TT_DO(tt_param_read(p, buf));
-        __PUT_CSTR(buf, __1_ENTRY_END);
-    }
 
     return TT_SUCCESS;
 }
@@ -364,8 +228,7 @@ tt_bool_t __param_pair(IN tt_param_t *pos,
         return TT_FALSE;
     }
 
-    if (p1->type == TT_PARAM_STRING) {
-        // string will be occupy a whole line
+    if (p1->bs4_ctrl.whole_line) {
         *pp1 = p1;
         *pp2 = NULL;
         return TT_TRUE;
@@ -376,7 +239,7 @@ tt_bool_t __param_pair(IN tt_param_t *pos,
                             (p2->type == TT_PARAM_EXE) || __HIDDEN(p2, lv))) {
         p2 = tt_param_dir_next(p2);
     }
-    if ((p2 == NULL) || (p2->type == TT_PARAM_STRING)) {
+    if ((p2 == NULL) || p2->bs4_ctrl.whole_line) {
         *pp1 = p1;
         *pp2 = NULL;
         return TT_TRUE;

@@ -53,8 +53,8 @@ void tt_param_bs4_ctrl_init(IN tt_param_bs4_ctrl_t *ctrl)
     ctrl->type = TT_PARAM_BS4_INPUT;
 }
 
-void tt_param_bs4_ctrl_set_typ(IN tt_param_bs4_ctrl_t *ctrl,
-                               IN tt_param_bs4_type_t type)
+void tt_param_bs4_ctrl_set_type(IN tt_param_bs4_ctrl_t *ctrl,
+                                IN tt_param_bs4_type_t type)
 {
     TT_ASSERT(TT_PARAM_BS4_TYPE_VALID(type));
     ctrl->type = type;
@@ -160,4 +160,48 @@ void tt_param_bs4_input_clear(IN tt_param_bs4_input_t *i)
     tt_param_bs4_input_clear_minlen(i);
     tt_param_bs4_input_clear_maxlen(i);
     tt_param_bs4_input_clear_step(i);
+}
+
+// ========================================
+// param bs4 control: select
+// ========================================
+
+void tt_param_bs4_select_init(IN tt_param_bs4_select_t *s)
+{
+    tt_memset(s, 0, sizeof(tt_param_bs4_select_t));
+}
+
+void tt_param_bs4_select_set_selected(IN tt_param_bs4_select_t *s,
+                                      IN const tt_char_t *selected)
+{
+    s->selected = selected;
+}
+
+void tt_param_bs4_select_set_option(IN tt_param_bs4_select_t *s,
+                                    IN const tt_char_t **option,
+                                    IN tt_u8_t num)
+{
+    s->option = option;
+    s->option_num = num;
+}
+
+void tt_param_bs4_select_set_multiple(IN tt_param_bs4_select_t *s,
+                                      IN tt_bool_t multiple)
+{
+    s->multiple = multiple;
+}
+
+void tt_param_bs4_select_clear(IN tt_param_bs4_select_t *s)
+{
+    tt_param_bs4_select_init(s);
+}
+
+// ========================================
+// param bs4 control: textarea
+// ========================================
+
+void tt_param_bs4_textarea_set_rows(IN tt_param_bs4_textarea_t *t,
+                                    IN tt_u8_t rows)
+{
+    tt_snprintf(t->rows, sizeof(t->rows), "%u", rows);
 }

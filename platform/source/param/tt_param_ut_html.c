@@ -491,6 +491,7 @@ TT_TEST_ROUTINE_DEFINE(case_param_html_bs4_page)
     tt_s32_t val_s32 = 101;
     tt_string_t val_str;
     tt_param_bs4_page_t pg;
+    tt_bool_t t = TT_TRUE, f = TT_FALSE;
 
     TT_TEST_CASE_ENTER()
     // test start
@@ -518,6 +519,10 @@ TT_TEST_ROUTINE_DEFINE(case_param_html_bs4_page)
     tt_param_dir_add(TT_PARAM_CAST(p2, tt_param_dir_t), c);
     c = tt_param_str_create("Status", &val_str, NULL, NULL);
     tt_param_dir_add(TT_PARAM_CAST(p2, tt_param_dir_t), c);
+    c = tt_param_bool_create("bool-val", &t, NULL, NULL);
+    tt_param_dir_add(TT_PARAM_CAST(p2, tt_param_dir_t), c);
+    c = tt_param_bool_create("bool-f", &f, NULL, NULL);
+    tt_param_dir_add(TT_PARAM_CAST(p2, tt_param_dir_t), c);
 
     p2 = tt_param_dir_create("Http-Server", NULL);
     tt_param_dir_add(TT_PARAM_CAST(p1, tt_param_dir_t), p2);
@@ -535,6 +540,17 @@ TT_TEST_ROUTINE_DEFINE(case_param_html_bs4_page)
     c = tt_param_s32_create("a-S32-var", &val_s32, NULL, NULL);
     tt_param_dir_add(TT_PARAM_CAST(p2, tt_param_dir_t), c);
     c = tt_param_str_create("Status", &val_str, NULL, NULL);
+    c->bs4_ctrl.whole_line = TT_TRUE;
+    tt_param_dir_add(TT_PARAM_CAST(p2, tt_param_dir_t), c);
+    c = tt_param_bool_create("bool-f", &f, NULL, NULL);
+    tt_param_dir_add(TT_PARAM_CAST(p2, tt_param_dir_t), c);
+    c = tt_param_str_create("Status-2", &val_str, NULL, NULL);
+    tt_param_bs4_ctrl_set_type(&c->bs4_ctrl, TT_PARAM_BS4_TEXTAREA);
+    tt_param_bs4_textarea_set_rows(&c->bs4_ctrl.textarea, 2);
+    tt_param_dir_add(TT_PARAM_CAST(p2, tt_param_dir_t), c);
+    c = tt_param_str_create("Status-3", &val_str, NULL, NULL);
+    c->bs4_ctrl.whole_line = TT_TRUE;
+    tt_param_bs4_ctrl_set_type(&c->bs4_ctrl, TT_PARAM_BS4_TEXTAREA);
     tt_param_dir_add(TT_PARAM_CAST(p2, tt_param_dir_t), c);
 
     tt_param_bs4_page_init(&pg);
@@ -684,6 +700,61 @@ TT_TEST_ROUTINE_DEFINE(case_param_html_bs4_ctrl_render)
     TT_UT_NULL(tt_strstr(s, "minlength="), "");
     TT_UT_NULL(tt_strstr(s, "maxlength="), "");
     TT_UT_NULL(tt_strstr(s, "step="), "");
+
+    {
+        const tt_char_t *opt[3] = {"1", "22", "333"};
+        tt_param_bs4_select_t *sl;
+
+        p2->bs4_ctrl.type = TT_PARAM_BS4_SELECT;
+        sl = &p2->bs4_ctrl.select;
+        tt_param_bs4_select_set_selected(sl, "choose...");
+        tt_param_bs4_select_set_option(sl, opt, 3);
+
+        tt_buf_clear(&b);
+        TT_UT_SUCCESS(tt_param_bs4_ctrl_render(&ct,
+                                               p2,
+                                               TT_PARAM_BS4_LV_ADMIN,
+                                               &b),
+                      NULL);
+        tt_buf_put_u8(&b, 0);
+        s = (tt_char_t *)TT_BUF_RPOS(&b);
+        TT_UT_NOT_NULL(tt_strstr(s, "<select class=\"custom-select"), "");
+        TT_UT_NOT_NULL(tt_strstr(s, "<option selected>choose..."), "");
+        TT_UT_NOT_NULL(tt_strstr(s, "<option value=\"0\">1"), "");
+        TT_UT_NOT_NULL(tt_strstr(s, "<option value=\"1\">22"), "");
+        TT_UT_NOT_NULL(tt_strstr(s, "<option value=\"2\">333"), "");
+    }
+
+    {
+        tt_param_bs4_textarea_t *ta;
+
+        tt_param_bs4_ctrl_init(&p2->bs4_ctrl);
+        p2->bs4_ctrl.type = TT_PARAM_BS4_TEXTAREA;
+        ta = &p2->bs4_ctrl.textarea;
+
+        tt_buf_clear(&b);
+        TT_UT_SUCCESS(tt_param_bs4_ctrl_render(&ct,
+                                               p2,
+                                               TT_PARAM_BS4_LV_ADMIN,
+                                               &b),
+                      NULL);
+        tt_buf_put_u8(&b, 0);
+        s = (tt_char_t *)TT_BUF_RPOS(&b);
+        TT_UT_NOT_NULL(tt_strstr(s, "<textarea class=\"form-control"), "");
+        TT_UT_NULL(tt_strstr(s, "rows="), "");
+
+        tt_param_bs4_textarea_set_rows(ta, 255);
+        tt_buf_clear(&b);
+        TT_UT_SUCCESS(tt_param_bs4_ctrl_render(&ct,
+                                               p2,
+                                               TT_PARAM_BS4_LV_ADMIN,
+                                               &b),
+                      NULL);
+        tt_buf_put_u8(&b, 0);
+        s = (tt_char_t *)TT_BUF_RPOS(&b);
+        TT_UT_NOT_NULL(tt_strstr(s, "<textarea class=\"form-control"), "");
+        TT_UT_NOT_NULL(tt_strstr(s, "rows=\"255\""), "");
+    }
 
     tt_buf_destroy(&b);
     tt_param_destroy(p1);

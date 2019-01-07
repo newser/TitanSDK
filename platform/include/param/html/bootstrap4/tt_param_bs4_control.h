@@ -43,6 +43,7 @@ this file includes parameter bootstrap4 control
 typedef enum {
     TT_PARAM_BS4_INPUT,
     TT_PARAM_BS4_SELECT,
+    TT_PARAM_BS4_TEXTAREA,
 
     TT_PARAM_BS4_TYPE_NUM
 } tt_param_bs4_type_t;
@@ -60,11 +61,27 @@ typedef struct
 
 typedef struct
 {
+    const tt_char_t *selected;
+    const tt_char_t **option;
+    tt_u8_t option_num;
+    tt_bool_t multiple : 1;
+} tt_param_bs4_select_t;
+
+typedef struct
+{
+    tt_char_t rows[4];
+} tt_param_bs4_textarea_t;
+
+typedef struct
+{
     tt_param_bs4_type_t type;
     union
     {
         tt_param_bs4_input_t input;
+        tt_param_bs4_select_t select;
+        tt_param_bs4_textarea_t textarea;
     };
+    tt_bool_t whole_line : 1;
 } tt_param_bs4_ctrl_t;
 
 ////////////////////////////////////////////////////////////
@@ -77,8 +94,8 @@ typedef struct
 
 tt_export void tt_param_bs4_ctrl_init(IN tt_param_bs4_ctrl_t *ctrl);
 
-tt_export void tt_param_bs4_ctrl_set_typ(IN tt_param_bs4_ctrl_t *ctrl,
-                                         IN tt_param_bs4_type_t type);
+tt_export void tt_param_bs4_ctrl_set_type(IN tt_param_bs4_ctrl_t *ctrl,
+                                          IN tt_param_bs4_type_t type);
 
 // ========================================
 // param bs4 control: input
@@ -117,5 +134,30 @@ tt_export void tt_param_bs4_input_set_step(IN tt_param_bs4_input_t *i,
 tt_export void tt_param_bs4_input_clear_step(IN tt_param_bs4_input_t *i);
 
 tt_export void tt_param_bs4_input_clear(IN tt_param_bs4_input_t *i);
+
+// ========================================
+// param bs4 control: select
+// ========================================
+
+tt_export void tt_param_bs4_select_init(IN tt_param_bs4_select_t *s);
+
+tt_export void tt_param_bs4_select_set_selected(IN tt_param_bs4_select_t *s,
+                                                IN const tt_char_t *selected);
+
+tt_export void tt_param_bs4_select_set_option(IN tt_param_bs4_select_t *s,
+                                              IN const tt_char_t **option,
+                                              IN tt_u8_t num);
+
+tt_export void tt_param_bs4_select_set_multiple(IN tt_param_bs4_select_t *s,
+                                                IN tt_bool_t multiple);
+
+tt_export void tt_param_bs4_select_clear(IN tt_param_bs4_select_t *s);
+
+// ========================================
+// param bs4 control: textarea
+// ========================================
+
+tt_export void tt_param_bs4_textarea_set_rows(IN tt_param_bs4_textarea_t *t,
+                                              IN tt_u8_t rows);
 
 #endif /* __TT_PARAM_BS4_CONTROL__ */

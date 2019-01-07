@@ -32,39 +32,83 @@
 // internal macro
 ////////////////////////////////////////////////////////////
 
-#define __1ENTRY_INPUT_RD                                                      \
+#define __1ENTRY_DIV_START                                                     \
     "<div class=\"form-group row col-12 px-0 py-1\">"                          \
     "<label class=\"col-4 col-md-2 text-right pr-0 col-form-label %s\">%s "    \
     ":</label>"                                                                \
-    "<div class=\"col-8 col-md-8\">"                                           \
+    "<div class=\"%s\">"
+
+#define __1ENTRY_DIV_END "</div></div>"
+
+#define __2ENTRY_DIV_START                                                     \
+    "<div class=\"form-group row col-12 col-md-6 px-0 py-1\">"                 \
+    "<label class=\"col-4 text-right pr-0 col-form-label %s\">%s :</label>"    \
+    "<div class=\"%s\">"
+
+#define __2ENTRY_DIV_END "</div></div>"
+
+#define __WHOLE_LINE(p)                                                        \
+    TT_COND(p->bs4_ctrl.whole_line, "col-auto col-md-8", "col-auto")
+
+// ========================================
+// param bs4 control: input
+// ========================================
+
+#define __1ENTRY_INPUT_RD                                                      \
+    __1ENTRY_DIV_START                                                         \
     "<input type=\"text\" class=\"form-control-plaintext %s\" id=\"%s\" "      \
     "readonly />"                                                              \
     "</div></div>"
-
-#define __1ENTRY_INPUT_WR_START                                                \
-    "<div class=\"form-group row col-12 px-0 py-1\">"                          \
-    "<label class=\"col-4 col-md-2 text-right pr-0 col-form-label %s\">%s "    \
-    ":</label>"                                                                \
-    "<div class=\"col-8 col-md-8\">"                                           \
-    "<input type=\"text\" class=\"form-control %s\" id=\"%s\""
-
-#define __1ENTRY_INPUT_WR_END "\" /></div></div>"
 
 #define __2ENTRY_INPUT_RD                                                      \
-    "<div class=\"form-group row col-12 col-md-6 px-0 py-1\">"                 \
-    "<label class=\"col-4 text-right pr-0 col-form-label %s\">%s :</label>"    \
-    "<div class=\"col-6\">"                                                    \
+    __2ENTRY_DIV_START                                                         \
     "<input type=\"text\" class=\"form-control-plaintext %s\" id=\"%s\" "      \
-    "readonly />"                                                              \
-    "</div></div>"
+    "readonly />" __2ENTRY_DIV_END
 
-#define __2ENTRY_INPUT_WR_START                                                \
-    "<div class=\"form-group row col-12 col-md-6 px-0 py-1\">"                 \
-    "<label class=\"col-4 text-right pr-0 col-form-label %s\">%s :</label>"    \
-    "<div class=\"col-6\">"                                                    \
-    "<input type=\"%s\" class=\"form-control %s\" id=\"%s\" "
+#define __INPUT_WR_START                                                       \
+    "<input type=\"text\" class=\"form-control %s\" id=\"%s\""
 
-#define __2ENTRY_INPUT_WR_END "/></div></div>"
+#define __INPUT_WR_END " />"
+
+#define __1ENTRY_INPUT_WR_START __1ENTRY_DIV_START __INPUT_WR_START
+
+#define __1ENTRY_INPUT_WR_END __INPUT_WR_END __1ENTRY_DIV_END
+
+#define __2ENTRY_INPUT_WR_START __2ENTRY_DIV_START __INPUT_WR_START
+
+#define __2ENTRY_INPUT_WR_END __INPUT_WR_END __2ENTRY_DIV_END
+
+// ========================================
+// param bs4 control: select
+// ========================================
+
+#define __SELECT_WR_START "<select class=\"custom-select %s\" id=\"%s\">"
+
+#define __SELECT_END "</select>"
+
+#define __1ENTRY_SELECT_WR_START __1ENTRY_DIV_START __SELECT_WR_START
+
+#define __1ENTRY_SELECT_WR_END __SELECT_END __1ENTRY_DIV_END
+
+#define __2ENTRY_SELECT_WR_START __2ENTRY_DIV_START __SELECT_WR_START
+
+#define __2ENTRY_SELECT_WR_END __SELECT_END __2ENTRY_DIV_END
+
+// ========================================
+// param bs4 control: textarea
+// ========================================
+
+#define __TEXTAREA_WR_START "<textarea class=\"form-control %s\" %s id=\"%s\">"
+
+#define __TEXTAREA_END "</textarea>"
+
+#define __1ENTRY_TEXTAREA_WR_START __1ENTRY_DIV_START __TEXTAREA_WR_START
+
+#define __1ENTRY_TEXTAREA_WR_END __TEXTAREA_END __1ENTRY_DIV_END
+
+#define __2ENTRY_TEXTAREA_WR_START __2ENTRY_DIV_START __TEXTAREA_WR_START
+
+#define __2ENTRY_TEXTAREA_WR_END __TEXTAREA_END __2ENTRY_DIV_END
 
 ////////////////////////////////////////////////////////////
 // internal type
@@ -75,6 +119,10 @@ enum
     PTN_RD,
     PTN_INPUT_WR_START,
     PTN_INPUT_WR_END,
+    PTN_SELECT_WR_START,
+    PTN_SELECT_WR_END,
+    PTN_TEXTAREA_WR_START,
+    PTN_TEXTAREA_WR_END,
 
     PTN_NUM
 };
@@ -106,6 +154,20 @@ static tt_result_t __render_input(IN tt_param_bs4_content_t *ct,
 
 static const tt_char_t *__input_type(IN tt_param_t *p);
 
+static tt_result_t __render_select(IN tt_param_bs4_content_t *ct,
+                                   IN tt_param_t *p,
+                                   IN tt_param_bs4_level_t lv,
+                                   OUT tt_buf_t *buf,
+                                   IN tt_param_bs4_select_t *s,
+                                   IN const tt_char_t **ptn);
+
+static tt_result_t __render_textarea(IN tt_param_bs4_content_t *ct,
+                                     IN tt_param_t *p,
+                                     IN tt_param_bs4_level_t lv,
+                                     OUT tt_buf_t *buf,
+                                     IN tt_param_bs4_textarea_t *t,
+                                     IN const tt_char_t **ptn);
+
 ////////////////////////////////////////////////////////////
 // interface implementation
 ////////////////////////////////////////////////////////////
@@ -116,7 +178,13 @@ tt_result_t tt_param_bs4_ctrl_render(IN tt_param_bs4_content_t *ct,
                                      OUT tt_buf_t *buf)
 {
     static const tt_char_t *ptn[PTN_NUM] = {
-        __1ENTRY_INPUT_RD, __1ENTRY_INPUT_WR_START, __1ENTRY_INPUT_WR_END,
+        __1ENTRY_INPUT_RD,
+        __1ENTRY_INPUT_WR_START,
+        __1ENTRY_INPUT_WR_END,
+        __1ENTRY_SELECT_WR_START,
+        __1ENTRY_SELECT_WR_END,
+        __1ENTRY_TEXTAREA_WR_START,
+        __1ENTRY_TEXTAREA_WR_END,
     };
 
     TT_DO(__render_param(ct, param, lv, buf, ptn));
@@ -131,7 +199,13 @@ tt_result_t tt_param_bs4_ctrl_render_pair(IN tt_param_bs4_content_t *ct,
                                           OUT tt_buf_t *buf)
 {
     static const tt_char_t *ptn[PTN_NUM] = {
-        __2ENTRY_INPUT_RD, __2ENTRY_INPUT_WR_START, __2ENTRY_INPUT_WR_END,
+        __2ENTRY_INPUT_RD,
+        __2ENTRY_INPUT_WR_START,
+        __2ENTRY_INPUT_WR_END,
+        __2ENTRY_SELECT_WR_START,
+        __2ENTRY_SELECT_WR_END,
+        __2ENTRY_TEXTAREA_WR_START,
+        __2ENTRY_TEXTAREA_WR_END,
     };
 
     TT_DO(__render_param(ct, p1, lv, buf, ptn));
@@ -156,7 +230,7 @@ tt_result_t __render_param(IN tt_param_bs4_content_t *ct,
                           ptn[PTN_RD],
                           ct->name_class,
                           __param_display(p),
-                          __input_type(p),
+                          __WHOLE_LINE(p),
                           ct->val_class,
                           tt_param_name(p)));
     } else if (disp == TT_PARAM_BS4_DISP_WR) {
@@ -165,6 +239,10 @@ tt_result_t __render_param(IN tt_param_bs4_content_t *ct,
         ctrl = &p->bs4_ctrl;
         if (ctrl->type == TT_PARAM_BS4_INPUT) {
             TT_DO(__render_input(ct, p, lv, buf, &ctrl->input, ptn));
+        } else if (ctrl->type == TT_PARAM_BS4_SELECT) {
+            TT_DO(__render_select(ct, p, lv, buf, &ctrl->select, ptn));
+        } else if (ctrl->type == TT_PARAM_BS4_TEXTAREA) {
+            TT_DO(__render_textarea(ct, p, lv, buf, &ctrl->textarea, ptn));
         }
     }
 
@@ -182,6 +260,7 @@ tt_result_t __render_input(IN tt_param_bs4_content_t *ct,
                       ptn[PTN_INPUT_WR_START],
                       ct->name_class,
                       __param_display(p),
+                      __WHOLE_LINE(p),
                       __input_type(p),
                       ct->val_class,
                       tt_param_name(p)));
@@ -223,4 +302,65 @@ const tt_char_t *__input_type(IN tt_param_t *p)
 
     const tt_char_t *t = map[p->type];
     return TT_COND(t != NULL, t, "text");
+}
+
+tt_result_t __render_select(IN tt_param_bs4_content_t *ct,
+                            IN tt_param_t *p,
+                            IN tt_param_bs4_level_t lv,
+                            OUT tt_buf_t *buf,
+                            IN tt_param_bs4_select_t *s,
+                            IN const tt_char_t **ptn)
+{
+    tt_u8_t n;
+
+    TT_DO(tt_buf_putf(buf,
+                      ptn[PTN_SELECT_WR_START],
+                      ct->name_class,
+                      __param_display(p),
+                      __WHOLE_LINE(p),
+                      ct->val_class,
+                      tt_param_name(p)));
+
+    if (s->selected != NULL) {
+        TT_DO(tt_buf_putf(buf, "<option selected>%s</option>", s->selected));
+    }
+
+    for (n = 0; n < s->option_num; ++n) {
+        TT_DO(tt_buf_putf(buf,
+                          "<option value=\"%d\">%s</option>",
+                          n,
+                          s->option[n]));
+    }
+
+    TT_DO(tt_buf_put_cstr(buf, ptn[PTN_SELECT_WR_END]));
+
+    return TT_SUCCESS;
+}
+
+tt_result_t __render_textarea(IN tt_param_bs4_content_t *ct,
+                              IN tt_param_t *p,
+                              IN tt_param_bs4_level_t lv,
+                              OUT tt_buf_t *buf,
+                              IN tt_param_bs4_textarea_t *t,
+                              IN const tt_char_t **ptn)
+{
+    tt_char_t rows[16] = {0};
+    tt_u8_t n;
+
+    if (t->rows[0] != 0) {
+        tt_snprintf(rows, sizeof(rows), "rows=\"%s\"", t->rows);
+    }
+
+    TT_DO(tt_buf_putf(buf,
+                      ptn[PTN_TEXTAREA_WR_START],
+                      ct->name_class,
+                      __param_display(p),
+                      __WHOLE_LINE(p),
+                      ct->val_class,
+                      rows,
+                      tt_param_name(p)));
+
+    TT_DO(tt_buf_put_cstr(buf, ptn[PTN_TEXTAREA_WR_END]));
+
+    return TT_SUCCESS;
 }

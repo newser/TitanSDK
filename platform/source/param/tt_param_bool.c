@@ -65,8 +65,11 @@ tt_param_t *tt_param_bool_create(IN const tt_char_t *name,
                                  IN OPT tt_param_attr_t *attr,
                                  IN OPT tt_param_bool_cb_t *cb)
 {
+    static const tt_char_t *bs4_opt[2] = {"No", "Yes"};
+
     tt_param_t *p;
     tt_param_bool_t *pb;
+    tt_param_bs4_select_t *bs4_sel;
 
     p = tt_param_create(sizeof(tt_param_bool_t),
                         TT_PARAM_BOOL,
@@ -80,7 +83,15 @@ tt_param_t *tt_param_bool_create(IN const tt_char_t *name,
 
     pb = TT_PARAM_CAST(p, tt_param_bool_t);
 
-    tt_memcpy(&pb->cb, cb, sizeof(tt_param_bool_cb_t));
+    if (cb != NULL) {
+        tt_memcpy(&pb->cb, cb, sizeof(tt_param_bool_cb_t));
+    } else {
+        tt_memset(&pb->cb, 0, sizeof(tt_param_bool_cb_t));
+    }
+
+    tt_param_bs4_ctrl_set_type(&p->bs4_ctrl, TT_PARAM_BS4_SELECT);
+    bs4_sel = &p->bs4_ctrl.select;
+    tt_param_bs4_select_set_option(bs4_sel, bs4_opt, 2);
 
     return p;
 }
