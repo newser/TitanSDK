@@ -34,7 +34,7 @@
 ////////////////////////////////////////////////////////////
 
 #define __SIDEBAR_START                                                        \
-    "<nav class=\"d-none d-md-block col-2 navbar bg-light %s\">"               \
+    "<nav class=\"d-none d-lg-block col-2 navbar bg-light %s\">"               \
     "<ul class=\"navbar-nav\">"
 
 #define __SIDEBAR_ENTRY                                                        \

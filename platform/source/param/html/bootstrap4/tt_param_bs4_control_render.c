@@ -34,21 +34,21 @@
 
 #define __1ENTRY_DIV_START                                                     \
     "<div class=\"form-group row col-12 px-0 py-1\">"                          \
-    "<label class=\"col-4 col-md-2 text-right pr-0 col-form-label %s\">%s "    \
+    "<label class=\"col-4 col-lg-2 text-right pr-0 col-form-label %s\">%s "    \
     ":</label>"                                                                \
     "<div class=\"%s\">"
 
 #define __1ENTRY_DIV_END "</div></div>"
 
 #define __2ENTRY_DIV_START                                                     \
-    "<div class=\"form-group row col-12 col-md-6 px-0 py-1\">"                 \
+    "<div class=\"form-group row col-12 col-lg-6 px-0 py-1\">"                 \
     "<label class=\"col-4 text-right pr-0 col-form-label %s\">%s :</label>"    \
     "<div class=\"%s\">"
 
 #define __2ENTRY_DIV_END "</div></div>"
 
 #define __WHOLE_LINE(p)                                                        \
-    TT_COND(p->bs4_ctrl.whole_line, "col-auto col-md-8", "col-auto")
+    TT_COND(p->bs4_ctrl.whole_line, "col-auto col-lg-8", "col-auto")
 
 // ========================================
 // param bs4 control: input

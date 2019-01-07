@@ -51,6 +51,7 @@ typedef struct tt_param_bs4_content_s
     const tt_char_t *title_class;
     const tt_char_t *name_class;
     const tt_char_t *val_class;
+    const tt_char_t *btn_class;
 } tt_param_bs4_content_t;
 
 ////////////////////////////////////////////////////////////

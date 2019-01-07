@@ -33,7 +33,7 @@
 // internal macro
 ////////////////////////////////////////////////////////////
 
-#define __C_START "<div class=\"col-md-10\">"
+#define __C_START "<div class=\"col-12 col-lg-10\">"
 
 #define __C_END "</div>"
 
@@ -46,6 +46,19 @@
 #define __GROUP_DATA_START "<div class=\"d-flex flex-wrap\">"
 
 #define __GROUP_DATA_END "</div>"
+
+#define __BUTTONS                                                              \
+    "<form class=\"form col-12 col-lg-10 p-4\">"                               \
+    "<div class=\"d-flex\">"                                                   \
+    "<div class=\"col-4 col-lg-2 mr-auto\">"                                   \
+    "<input type=\"button\" class=\"btn btn-block %s\" value=\"Refresh\" />"   \
+    "</div>"                                                                   \
+    "<div class=\"col-4 col-lg-2 \">"                                          \
+    "<input type=\"button\" class=\"btn btn-block %s\" value=\"Undo\" />"      \
+    "</div>"                                                                   \
+    "<div class=\"col-4 col-lg-2 \">"                                          \
+    "<input type=\"button\" class=\"btn btn-block %s\" value=\"Submit\" />"    \
+    "</div>"
 
 ////////////////////////////////////////////////////////////
 // extern declaration
@@ -91,6 +104,7 @@ void tt_param_bs4_content_init(IN tt_param_bs4_content_t *ct)
     ct->title_class = "text-dark";
     ct->name_class = "text-dark";
     ct->val_class = "text-dark";
+    ct->btn_class = "btn-primary";
 }
 
 tt_result_t tt_param_bs4_content_render(IN tt_param_bs4_content_t *ct,
@@ -119,6 +133,12 @@ tt_result_t tt_param_bs4_content_render(IN tt_param_bs4_content_t *ct,
             TT_DO(__render_dir(ct, p, lv, &group0, buf));
         }
     }
+
+    TT_DO(tt_buf_putf(buf,
+                      __BUTTONS,
+                      ct->btn_class,
+                      ct->btn_class,
+                      ct->btn_class));
 
     TT_DO(__PUT_CSTR(buf, __C_END));
 
