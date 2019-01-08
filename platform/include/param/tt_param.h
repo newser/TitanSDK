@@ -83,6 +83,7 @@ typedef struct tt_param_s
     void *opaque;
     tt_lnode_t node;
     tt_param_type_t type;
+    tt_s32_t tid;
     tt_param_bs4ctrl_t bs4_ctrl;
 
     tt_bool_t need_reboot : 1;
@@ -149,5 +150,10 @@ tt_export tt_result_t tt_param_write(IN tt_param_t *p,
                                      IN tt_u32_t val_len);
 
 tt_export tt_param_t *tt_param_parent(IN tt_param_t *p);
+
+tt_inline tt_s32_t tt_param_tid(IN tt_param_t *p)
+{
+    return p->tid;
+}
 
 #endif /* __TT_PARAM__ */

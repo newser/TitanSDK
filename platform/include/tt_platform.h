@@ -124,6 +124,7 @@ extern "C" {
 #include <io/tt_socket.h>
 #include <io/tt_socket_addr.h>
 #include <io/tt_socket_option.h>
+#include <json/tt_json_init.h>
 #include <log/filter/tt_log_filter.h>
 #include <log/io/tt_log_io.h>
 #include <log/io/tt_log_io_async.h>

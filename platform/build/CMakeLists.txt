@@ -136,6 +136,10 @@ include_directories(${PLATFORM_PATH}/library/zip/include)
 # library: http
 include_directories(${PLATFORM_PATH}/library/http/http-parser)
 
+# library: json
+# including json header must begin with "json/xxx.h"
+include_directories(${PLATFORM_PATH}/library/json/)
+
 #
 # source file
 #
@@ -230,6 +234,9 @@ add_group_src(${PLATFORM_PATH}/source/param/html param SRC_FILE)
 add_group_hdr(${PLATFORM_PATH}/include/param/html/bootstrap4 param SRC_FILE)
 add_group_src(${PLATFORM_PATH}/source/param/html/bootstrap4 param SRC_FILE)
 
+add_group_hdr(${PLATFORM_PATH}/include/json json SRC_FILE)
+add_group_src(${PLATFORM_PATH}/source/json json SRC_FILE)
+
 # test cases
 add_group_src(${PLATFORM_PATH}/source/algorithm/test_case test_case SRC_FILE)
 add_group_src(${PLATFORM_PATH}/test_case test_case SRC_FILE)
@@ -242,6 +249,7 @@ add_group_src(${PLATFORM_PATH}/source/network/dns/test_case dns SRC_FILE)
 add_group_src(${PLATFORM_PATH}/source/zip/test_case zip SRC_FILE)
 add_group_src(${PLATFORM_PATH}/source/data/test_case data SRC_FILE)
 add_group_src(${PLATFORM_PATH}/source/param/test_case param SRC_FILE)
+add_group_src(${PLATFORM_PATH}/source/json/test_case json SRC_FILE)
 
 # native
 add_group_hdr(${PLATFORM_PATH}/native/${PLATFORM_ENV} native SRC_FILE)
@@ -352,6 +360,12 @@ set(HTTP_SRC)
 add_subdirectory(${PLATFORM_PATH}/library/http http)
 source_group(http FILES ${HTTP_SRC})
 target_sources(platform PRIVATE ${HTTP_SRC})
+
+# library: json
+set(JSON_SRC)
+add_subdirectory(${PLATFORM_PATH}/library/json json)
+source_group(json FILES ${JSON_SRC})
+target_sources(platform PRIVATE ${JSON_SRC})
 
 #include(${PLATFORM_PATH}/build/generate_header.cmake)
 #

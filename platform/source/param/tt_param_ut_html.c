@@ -679,10 +679,10 @@ TT_TEST_ROUTINE_DEFINE(case_param_html_bs4_spa)
                   "");
 
     tt_buf_clear(&b);
-    TT_UT_SUCCESS(tt_param_bs4spa_render_display(&pg,
-                                                 pm,
-                                                 TT_PARAM_BS4_LV_ADMIN,
-                                                 &b),
+    TT_UT_SUCCESS(tt_param_bs4spa_render_display_js(&pg,
+                                                    pm,
+                                                    TT_PARAM_BS4_LV_ADMIN,
+                                                    &b),
                   "");
 
     tt_buf_destroy(&b);

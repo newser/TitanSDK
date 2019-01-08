@@ -54,11 +54,11 @@
     "<input type=\"button\" class=\"btn btn-sm btn-block %s\" "                \
     "value=\"Refresh\" />"                                                     \
     "</div>"                                                                   \
-    "<div class=\"col-4 col-lg-2 \">"                                          \
+    "<div class=\"col-4 col-lg-2\">"                                           \
     "<input type=\"button\" class=\"btn btn-sm btn-block %s\" value=\"Undo\" " \
     "/>"                                                                       \
     "</div>"                                                                   \
-    "<div class=\"col-4 col-lg-2 \">"                                          \
+    "<div class=\"col-4 col-lg-2\">"                                           \
     "<input type=\"button\" class=\"btn btn-sm btn-block %s\" "                \
     "value=\"Submit\" />"                                                      \
     "</div>"                                                                   \

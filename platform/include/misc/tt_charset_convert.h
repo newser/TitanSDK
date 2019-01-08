@@ -85,13 +85,13 @@ tt_export void tt_chsetconv_destroy(IN tt_chsetconv_t *csconv);
 tt_export void tt_chsetconv_attr_default(IN tt_chsetconv_attr_t *attr);
 
 tt_export tt_result_t tt_chsetconv_input(IN tt_chsetconv_t *csconv,
-                                         IN tt_u8_t *input,
+                                         IN void *input,
                                          IN tt_u32_t input_len);
 
 // - set output to NULL to get output_len
 // - output stored in csconv is discarded when it returned
 tt_export void tt_chsetconv_output(IN tt_chsetconv_t *csconv,
-                                   OUT OPT tt_u8_t *output,
+                                   OUT OPT void *output,
                                    IN OUT tt_u32_t *output_len);
 
 // - caller can directly access converted data stored in csconv

@@ -17,23 +17,20 @@
  */
 
 /**
-@file tt_param_bs4spa.h
-@brief parameter bootstrap4 spa
+@file tt_json_init.h
+@brief json init
 
-this file includes parameter render definition
+this file specifies json init api
 */
 
-#ifndef __TT_PARAM_BS4_SPA__
-#define __TT_PARAM_BS4_SPA__
+#ifndef __TT_JSON_INIT__
+#define __TT_JSON_INIT__
 
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <param/html/bootstrap4/tt_param_bs4_auth.h>
-#include <param/html/bootstrap4/tt_param_bs4_content.h>
-#include <param/html/bootstrap4/tt_param_bs4_nav.h>
-#include <param/html/bootstrap4/tt_param_bs4_sidebar.h>
+#include <tt_basic_type.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
@@ -43,20 +40,6 @@ this file includes parameter render definition
 // type definition
 ////////////////////////////////////////////////////////////
 
-typedef struct
-{
-    tt_param_bs4nav_t nav;
-    tt_param_bs4sidebar_t sidebar;
-    tt_param_bs4content_t content;
-    const tt_char_t *lang;
-    const tt_char_t *css;
-    const tt_char_t *js;
-    const tt_char_t *js_extra;
-    const tt_char_t *head_extra;
-    const tt_char_t *footer_class;
-    const tt_char_t *footer_text;
-} tt_param_bs4spa_t;
-
 ////////////////////////////////////////////////////////////
 // global variants
 ////////////////////////////////////////////////////////////
@@ -65,17 +48,6 @@ typedef struct
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-tt_export void tt_param_bs4spa_init(IN tt_param_bs4spa_t *spa);
+tt_export void tt_json_component_register();
 
-tt_export tt_result_t tt_param_bs4spa_render(IN tt_param_bs4spa_t *spa,
-                                             IN struct tt_param_s *param,
-                                             IN tt_param_bs4level_t lv,
-                                             OUT struct tt_buf_s *buf);
-
-tt_export tt_result_t
-tt_param_bs4spa_render_display_js(IN tt_param_bs4spa_t *spa,
-                                  IN struct tt_param_s *param,
-                                  IN tt_param_bs4level_t lv,
-                                  OUT struct tt_buf_s *buf);
-
-#endif /* __TT_PARAM_BS4_SPA__ */
+#endif /* __TT_JSON_INIT__ */

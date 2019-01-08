@@ -78,6 +78,7 @@
 #define __JS_START                                                             \
     "var cur=\"\";"                                                            \
     "function activate(n){"                                                    \
+    "if(n==cur){return;}"                                                      \
     "if(cur.length>0){"                                                        \
     "$(\"#nav-\".concat(cur)).removeClass(\"active\");"                        \
     "$(\"#sb-\".concat(cur)).removeClass(\"d-lg-block\");"                     \
@@ -172,10 +173,10 @@ tt_result_t tt_param_bs4spa_render(IN tt_param_bs4spa_t *spa,
     return TT_SUCCESS;
 }
 
-tt_result_t tt_param_bs4spa_render_display(IN tt_param_bs4spa_t *spa,
-                                           IN struct tt_param_s *param,
-                                           IN tt_param_bs4level_t lv,
-                                           OUT struct tt_buf_s *buf)
+tt_result_t tt_param_bs4spa_render_display_js(IN tt_param_bs4spa_t *spa,
+                                              IN struct tt_param_s *param,
+                                              IN tt_param_bs4level_t lv,
+                                              OUT struct tt_buf_s *buf)
 {
     tt_param_dir_t *dir;
     tt_param_t *p;

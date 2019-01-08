@@ -186,6 +186,11 @@ tt_result_t tt_test_unit_init(IN tt_ptr_t reserved)
         tt_http_ut_init(0);
     } while (0);
 
+    do {
+        tt_result_t tt_json_ut_init(IN tt_ptr_t reserved);
+        tt_json_ut_init(0);
+    } while (0);
+
     return TT_SUCCESS;
 }
 

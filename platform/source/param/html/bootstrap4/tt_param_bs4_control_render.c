@@ -58,15 +58,16 @@
 #define __1ENTRY_INPUT_RD                                                      \
     __1ENTRY_DIV_START                                                         \
     "<input type=\"text\" class=\"form-control-plaintext form-control-sm "     \
-    "%s\" id=\"%s\" readonly />" __1ENTRY_DIV_END
+    "%s\" id=\"%s\" tid=\"%d\" readonly />" __1ENTRY_DIV_END
 
 #define __2ENTRY_INPUT_RD                                                      \
     __2ENTRY_DIV_START                                                         \
     "<input type=\"text\" class=\"form-control-plaintext form-control-sm "     \
-    "%s\" id=\"%s\" readonly />" __2ENTRY_DIV_END
+    "%s\" id=\"%s\" tid=\"%d\" readonly />" __2ENTRY_DIV_END
 
 #define __INPUT_WR_START                                                       \
-    "<input type=\"text\" class=\"form-control form-control-sm %s\" id=\"%s\""
+    "<input type=\"%s\" class=\"form-control form-control-sm %s\" "            \
+    "id=\"%s\" tid=\"%d\""
 
 #define __INPUT_WR_END " />"
 
@@ -83,7 +84,8 @@
 // ========================================
 
 #define __SELECT_WR_START                                                      \
-    "<select class=\"custom-select custom-select-sm %s\" id=\"%s\">"
+    "<select class=\"custom-select custom-select-sm %s\" id=\"%s\" "           \
+    "tid=\"%d\">"
 
 #define __SELECT_END "</select>"
 
@@ -100,7 +102,8 @@
 // ========================================
 
 #define __TEXTAREA_WR_START                                                    \
-    "<textarea class=\"form-control form-control-sm %s\" %s id=\"%s\">"
+    "<textarea class=\"form-control form-control-sm %s\" %s id=\"%s\" "        \
+    "tid=\"%d\">"
 
 #define __TEXTAREA_END "</textarea>"
 
@@ -234,7 +237,8 @@ tt_result_t __render_param(IN tt_param_bs4content_t *ct,
                           __param_display(p),
                           __WHOLE_LINE(p),
                           ct->val_class,
-                          tt_param_name(p)));
+                          tt_param_name(p),
+                          tt_param_tid(p)));
     } else if (disp == TT_PARAM_BS4_DISP_WR) {
         tt_param_bs4ctrl_t *ctrl;
 
@@ -265,7 +269,8 @@ tt_result_t __render_input(IN tt_param_bs4content_t *ct,
                       __WHOLE_LINE(p),
                       __input_type(p),
                       ct->val_class,
-                      tt_param_name(p)));
+                      tt_param_name(p),
+                      tt_param_tid(p)));
 
     if (i->pattern != NULL) {
         TT_DO(tt_buf_putf(buf, "pattern=\"%s\" ", i->pattern));
@@ -321,7 +326,8 @@ tt_result_t __render_select(IN tt_param_bs4content_t *ct,
                       __param_display(p),
                       __WHOLE_LINE(p),
                       ct->val_class,
-                      tt_param_name(p)));
+                      tt_param_name(p),
+                      tt_param_tid(p)));
 
     if (s->selected != NULL) {
         TT_DO(tt_buf_putf(buf, "<option selected>%s</option>", s->selected));
@@ -360,7 +366,8 @@ tt_result_t __render_textarea(IN tt_param_bs4content_t *ct,
                       __WHOLE_LINE(p),
                       ct->val_class,
                       rows,
-                      tt_param_name(p)));
+                      tt_param_name(p),
+                      tt_param_tid(p)));
 
     TT_DO(tt_buf_put_cstr(buf, ptn[PTN_TEXTAREA_WR_END]));
 

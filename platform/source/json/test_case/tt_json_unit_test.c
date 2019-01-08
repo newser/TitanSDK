@@ -16,66 +16,69 @@
  * limitations under the License.
  */
 
-/**
-@file tt_param_bs4spa.h
-@brief parameter bootstrap4 spa
-
-this file includes parameter render definition
-*/
-
-#ifndef __TT_PARAM_BS4_SPA__
-#define __TT_PARAM_BS4_SPA__
-
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <param/html/bootstrap4/tt_param_bs4_auth.h>
-#include <param/html/bootstrap4/tt_param_bs4_content.h>
-#include <param/html/bootstrap4/tt_param_bs4_nav.h>
-#include <param/html/bootstrap4/tt_param_bs4_sidebar.h>
+#include <unit_test/tt_unit_test.h>
 
 ////////////////////////////////////////////////////////////
-// macro definition
+// internal macro
 ////////////////////////////////////////////////////////////
 
-////////////////////////////////////////////////////////////
-// type definition
-////////////////////////////////////////////////////////////
-
-typedef struct
-{
-    tt_param_bs4nav_t nav;
-    tt_param_bs4sidebar_t sidebar;
-    tt_param_bs4content_t content;
-    const tt_char_t *lang;
-    const tt_char_t *css;
-    const tt_char_t *js;
-    const tt_char_t *js_extra;
-    const tt_char_t *head_extra;
-    const tt_char_t *footer_class;
-    const tt_char_t *footer_text;
-} tt_param_bs4spa_t;
+#define TT_JSON_UT_DECLARE(name)                                               \
+    extern tt_test_unit_t TT_MAKE_TEST_UNIT_NAME(name);
 
 ////////////////////////////////////////////////////////////
-// global variants
+// internal type
 ////////////////////////////////////////////////////////////
+
+typedef enum {
+    JSON_UT_BEGIN = 0,
+
+    JSON_UT_JDOC = JSON_UT_BEGIN,
+
+    JSON_UT_NUM // number of test units
+} tt_json_ut_id_t;
+
+////////////////////////////////////////////////////////////
+// extern declaration
+////////////////////////////////////////////////////////////
+
+TT_JSON_UT_DECLARE(JSON_UT_JDOC)
+
+////////////////////////////////////////////////////////////
+// global variant
+////////////////////////////////////////////////////////////
+
+tt_test_unit_t *tt_g_json_ut_list[JSON_UT_NUM] = {
+    &TT_MAKE_TEST_UNIT_NAME(JSON_UT_JDOC),
+};
 
 ////////////////////////////////////////////////////////////
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-tt_export void tt_param_bs4spa_init(IN tt_param_bs4spa_t *spa);
+////////////////////////////////////////////////////////////
+// interface implementation
+////////////////////////////////////////////////////////////
 
-tt_export tt_result_t tt_param_bs4spa_render(IN tt_param_bs4spa_t *spa,
-                                             IN struct tt_param_s *param,
-                                             IN tt_param_bs4level_t lv,
-                                             OUT struct tt_buf_s *buf);
+tt_result_t tt_json_ut_init(IN tt_ptr_t reserved)
+{
+    tt_json_ut_id_t unit_id = JSON_UT_BEGIN;
+    while (unit_id < JSON_UT_NUM) {
+        tt_result_t result = TT_FAIL;
 
-tt_export tt_result_t
-tt_param_bs4spa_render_display_js(IN tt_param_bs4spa_t *spa,
-                                  IN struct tt_param_s *param,
-                                  IN tt_param_bs4level_t lv,
-                                  OUT struct tt_buf_s *buf);
+        if (tt_g_json_ut_list[unit_id] != NULL) {
+            result = tt_test_unit_to_class(tt_g_json_ut_list[unit_id]);
+            if (!TT_OK(result)) {
+                return TT_FAIL;
+            }
+        }
 
-#endif /* __TT_PARAM_BS4_SPA__ */
+        // next
+        ++unit_id;
+    }
+
+    return TT_SUCCESS;
+}

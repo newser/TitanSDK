@@ -25,6 +25,7 @@
 #include <algorithm/tt_buffer.h>
 #include <init/tt_component.h>
 #include <init/tt_profile.h>
+#include <os/tt_atomic.h>
 #include <param/tt_param_dir.h>
 
 #include <tt_cstd_api.h>
@@ -48,6 +49,8 @@
 tt_param_t *tt_g_param_root;
 
 tt_param_t *tt_g_param_platform;
+
+static tt_atomic_s32_t tt_s_param_tid;
 
 ////////////////////////////////////////////////////////////
 // interface declaration
@@ -128,6 +131,7 @@ tt_param_t *tt_param_create(IN tt_u32_t len,
     p->opaque = opaque;
     tt_lnode_init(&p->node);
     p->type = type;
+    p->tid = tt_atomic_s32_inc(&tt_s_param_tid);
     tt_param_bs4ctrl_init(&p->bs4_ctrl);
 
     p->need_reboot = attr->need_reboot;
@@ -207,6 +211,10 @@ tt_result_t __param_component_init(IN tt_component_t *comp,
                                    IN tt_profile_t *profile)
 {
     tt_param_attr_t attr;
+
+    // althouth TT_COMPONENT_ATOMIC is initialized after TT_COMPONENT_PARAM,
+    // tt_atomic_s32_set() does not depends on any initialization
+    tt_atomic_s32_set(&tt_s_param_tid, 0);
 
     // create root config node
     tt_param_attr_default(&attr);

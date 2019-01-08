@@ -41,7 +41,7 @@
 //  - put ending bytes to csconv->head if from ends with some
 //    incomplete multibyte char
 typedef tt_result_t (*__parse_prepare_t)(IN tt_chsetconv_t *csconv,
-                                         IN OUT tt_u8_t **input,
+                                         IN OUT void **input,
                                          IN OUT tt_u32_t *input_len);
 
 ////////////////////////////////////////////////////////////
@@ -53,16 +53,16 @@ typedef tt_result_t (*__parse_prepare_t)(IN tt_chsetconv_t *csconv,
 ////////////////////////////////////////////////////////////
 
 static tt_result_t __parse_prepare_utf8(IN tt_chsetconv_t *csconv,
-                                        IN OUT tt_u8_t **from,
+                                        IN OUT void **from,
                                         IN OUT tt_u32_t *from_len);
 static tt_result_t __parse_prepare_utf16le(IN tt_chsetconv_t *csconv,
-                                           IN OUT tt_u8_t **from,
+                                           IN OUT void **from,
                                            IN OUT tt_u32_t *from_len);
 static tt_result_t __parse_prepare_utf16be(IN tt_chsetconv_t *csconv,
-                                           IN OUT tt_u8_t **from,
+                                           IN OUT void **from,
                                            IN OUT tt_u32_t *from_len);
 static tt_result_t __parse_prepare_utf32(IN tt_chsetconv_t *csconv,
-                                         IN OUT tt_u8_t **from,
+                                         IN OUT void **from,
                                          IN OUT tt_u32_t *from_len);
 
 static __parse_prepare_t __parse_prepare[TT_CHARSET_NUM] = {
@@ -145,7 +145,7 @@ void tt_chsetconv_attr_default(IN tt_chsetconv_attr_t *attr)
 }
 
 tt_result_t tt_chsetconv_input(IN tt_chsetconv_t *csconv,
-                               IN tt_u8_t *input,
+                               IN void *input,
                                IN tt_u32_t input_len)
 {
     TT_ASSERT(csconv != NULL);
@@ -188,7 +188,7 @@ tt_result_t tt_chsetconv_input(IN tt_chsetconv_t *csconv,
 }
 
 void tt_chsetconv_output(IN tt_chsetconv_t *csconv,
-                         OUT OPT tt_u8_t *output,
+                         OUT OPT void *output,
                          IN OUT tt_u32_t *output_len)
 {
     TT_ASSERT(csconv != NULL);
@@ -271,7 +271,7 @@ tt_u32_t __utf8_len(tt_u8_t first_byte)
 }
 
 tt_result_t __parse_prepare_utf8(IN tt_chsetconv_t *csconv,
-                                 IN OUT tt_u8_t **from,
+                                 IN OUT void **from,
                                  IN OUT tt_u32_t *from_len)
 {
     tt_u8_t *__from = *from, *pos;
@@ -355,7 +355,7 @@ static tt_u32_t __utf16le_len(tt_u8_t first_byte, tt_u8_t second_byte)
 }
 
 tt_result_t __parse_prepare_utf16le(IN tt_chsetconv_t *csconv,
-                                    IN OUT tt_u8_t **from,
+                                    IN OUT void **from,
                                     IN OUT tt_u32_t *from_len)
 {
     tt_u8_t *__from = *from;
@@ -443,7 +443,7 @@ static tt_u32_t __utf16be_len(tt_u8_t first_byte, tt_u8_t second_byte)
 }
 
 tt_result_t __parse_prepare_utf16be(IN tt_chsetconv_t *csconv,
-                                    IN OUT tt_u8_t **from,
+                                    IN OUT void **from,
                                     IN OUT tt_u32_t *from_len)
 {
     tt_u8_t *__from = *from;
@@ -523,7 +523,7 @@ done:
 }
 
 tt_result_t __parse_prepare_utf32(IN tt_chsetconv_t *csconv,
-                                  IN OUT tt_u8_t **from,
+                                  IN OUT void **from,
                                   IN OUT tt_u32_t *from_len)
 {
     tt_u8_t *__from = *from;

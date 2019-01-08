@@ -95,6 +95,9 @@ typedef enum {
     TT_COMPONENT_XML_ATTR,
     TT_COMPONENT_XML_PATH,
 
+    // json
+    TT_COMPONENT_JSON,
+
     // crypto
     TT_COMPONENT_CRYPTO,
 
