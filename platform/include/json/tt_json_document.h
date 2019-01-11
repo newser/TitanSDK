@@ -67,6 +67,7 @@ typedef struct
 typedef struct
 {
     tt_jdoc_encoding_t encoding;
+    tt_bool_t bom : 1;
 } tt_jdoc_render_attr_t;
 
 ////////////////////////////////////////////////////////////
@@ -82,6 +83,10 @@ tt_export tt_result_t tt_jdoc_create(IN tt_jdoc_t *jd);
 tt_export void tt_jdoc_destroy(IN tt_jdoc_t *jd);
 
 tt_export void tt_jdoc_parse_attr_default(IN tt_jdoc_parse_attr_t *attr);
+
+tt_export tt_jval_t *tt_jdoc_get_root(IN tt_jdoc_t *jd);
+
+tt_export void tt_jdoc_set_root(IN tt_jdoc_t *jd, IN TO tt_jval_t *jv);
 
 tt_export tt_result_t tt_jdoc_parse(IN tt_jdoc_t *jd,
                                     IN void *buf,
@@ -101,13 +106,5 @@ tt_export tt_result_t tt_jdoc_render(IN tt_jdoc_t *jd,
 tt_export tt_result_t tt_jdoc_render_file(IN tt_jdoc_t *jd,
                                           IN const tt_char_t *path,
                                           IN OPT tt_jdoc_render_attr_t *attr);
-
-// ========================================
-// json val
-// ========================================
-
-tt_export tt_bool_t tt_jdoc_contain(IN tt_jdoc_t *jd, IN const tt_char_t *name);
-
-tt_export tt_jval_t *tt_jdoc_find(IN tt_jdoc_t *jd, IN const tt_char_t *name);
 
 #endif /* __TT_JSON_DOCUMENT__ */

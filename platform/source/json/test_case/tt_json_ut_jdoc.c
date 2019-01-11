@@ -162,8 +162,6 @@ TT_TEST_CASE("case_jdoc_basic",
     // test start
 
     TT_UT_SUCCESS(tt_jdoc_create(&jd), "");
-    TT_UT_FALSE(tt_jdoc_contain(&jd, "hello"), "");
-    TT_UT_NULL(tt_jdoc_find(&jd, "hello"), "");
     tt_jdoc_destroy(&jd);
 
     tt_jdoc_parse_attr_default(&pa);
@@ -172,8 +170,13 @@ TT_TEST_CASE("case_jdoc_basic",
     {
         TT_UT_SUCCESS(tt_jdoc_create(&jd), "");
         TT_UT_SUCCESS(tt_jdoc_parse(&jd, text, sizeof(text) - 1, NULL), "");
-        TT_UT_TRUE(tt_jdoc_contain(&jd, "hello"), "");
-        TT_UT_NOT_NULL(tt_jdoc_find(&jd, "hello"), "");
+        tt_jdoc_destroy(&jd);
+    }
+
+    {
+        tt_char_t test[] = "{123";
+        TT_UT_SUCCESS(tt_jdoc_create(&jd), "");
+        TT_UT_FAIL(tt_jdoc_parse(&jd, test, sizeof(test), NULL), "");
         tt_jdoc_destroy(&jd);
     }
 
@@ -193,8 +196,6 @@ TT_TEST_CASE("case_jdoc_basic",
         TT_UT_SUCCESS(tt_jdoc_create(&jd), "");
         pa.encoding = TT_JDOC_UTF16_LE;
         TT_UT_SUCCESS(tt_jdoc_parse(&jd, buf, n, &pa), "");
-        TT_UT_TRUE(tt_jdoc_contain(&jd, "hello"), "");
-        TT_UT_NOT_NULL(tt_jdoc_find(&jd, "hello"), "");
         tt_jdoc_destroy(&jd);
 
         tt_chsetconv_destroy(&c);
@@ -217,8 +218,6 @@ TT_TEST_CASE("case_jdoc_basic",
         TT_UT_SUCCESS(tt_jdoc_create(&jd), "");
         pa.encoding = TT_JDOC_UTF16_BE;
         TT_UT_SUCCESS(tt_jdoc_parse(&jd, buf, n, &pa), "");
-        TT_UT_TRUE(tt_jdoc_contain(&jd, "hello"), "");
-        TT_UT_NOT_NULL(tt_jdoc_find(&jd, "hello"), "");
         tt_jdoc_destroy(&jd);
 
         tt_chsetconv_destroy(&c);
@@ -240,8 +239,6 @@ TT_TEST_CASE("case_jdoc_basic",
         TT_UT_SUCCESS(tt_jdoc_create(&jd), "");
         pa.encoding = TT_JDOC_UTF32_LE;
         TT_UT_SUCCESS(tt_jdoc_parse(&jd, buf, n, &pa), "");
-        TT_UT_TRUE(tt_jdoc_contain(&jd, "hello"), "");
-        TT_UT_NOT_NULL(tt_jdoc_find(&jd, "hello"), "");
         tt_jdoc_destroy(&jd);
 
         tt_chsetconv_destroy(&c);
@@ -263,8 +260,6 @@ TT_TEST_CASE("case_jdoc_basic",
         TT_UT_SUCCESS(tt_jdoc_create(&jd), "");
         pa.encoding = TT_JDOC_UTF32_BE;
         TT_UT_SUCCESS(tt_jdoc_parse(&jd, buf, n, &pa), "");
-        TT_UT_TRUE(tt_jdoc_contain(&jd, "hello"), "");
-        TT_UT_NOT_NULL(tt_jdoc_find(&jd, "hello"), "");
         tt_jdoc_destroy(&jd);
 
         tt_chsetconv_destroy(&c);
@@ -292,6 +287,7 @@ TT_TEST_ROUTINE_DEFINE(case_jval_basic)
     {
         tt_jval_init(&jv);
         TT_UT_TRUE(tt_jval_is_null(&jv), "");
+        TT_UT_EQUAL(tt_jval_get_type(&jv), TT_JVAL_NULL, "");
         TT_UT_FALSE(tt_jval_is_bool(&jv), "");
         TT_UT_FALSE(tt_jval_is_number(&jv), "");
         TT_UT_FALSE(tt_jval_is_u32(&jv), "");
@@ -312,10 +308,12 @@ TT_TEST_ROUTINE_DEFINE(case_jval_basic)
     // bool
     {
         tt_jval_init_bool(&jv, TT_TRUE);
+        TT_UT_EQUAL(tt_jval_get_type(&jv), TT_JVAL_BOOL, "");
         TT_UT_TRUE(tt_jval_is_bool(&jv), "");
         TT_UT_EQUAL(tt_jval_get_bool(&jv), TT_TRUE, "");
 
         tt_jval_set_bool(&jv, TT_FALSE);
+        TT_UT_EQUAL(tt_jval_get_type(&jv), TT_JVAL_BOOL, "");
         TT_UT_TRUE(tt_jval_is_bool(&jv), "");
         TT_UT_EQUAL(tt_jval_get_bool(&jv), TT_FALSE, "");
 
@@ -329,6 +327,7 @@ TT_TEST_ROUTINE_DEFINE(case_jval_basic)
     // 32bit
     {
         tt_jval_init_u32(&jv, 0xffffffff);
+        TT_UT_EQUAL(tt_jval_get_type(&jv), TT_JVAL_NUMBER, "");
         TT_UT_TRUE(tt_jval_is_u32(&jv), "");
         TT_UT_EQUAL(tt_jval_get_u32(&jv), 0xffffffff, "");
 
@@ -346,6 +345,7 @@ TT_TEST_ROUTINE_DEFINE(case_jval_basic)
     // s32bit
     {
         tt_jval_init_s32(&jv, 0xffffffff);
+        TT_UT_EQUAL(tt_jval_get_type(&jv), TT_JVAL_NUMBER, "");
         TT_UT_TRUE(tt_jval_is_s32(&jv), "");
         TT_UT_EQUAL(tt_jval_get_s32(&jv), 0xffffffff, "");
 
@@ -363,6 +363,7 @@ TT_TEST_ROUTINE_DEFINE(case_jval_basic)
     // u64
     {
         tt_jval_init_u64(&jv, ~0);
+        TT_UT_EQUAL(tt_jval_get_type(&jv), TT_JVAL_NUMBER, "");
         TT_UT_TRUE(tt_jval_is_u64(&jv), "");
         TT_UT_EQUAL(tt_jval_get_u64(&jv), 0xffffffffffffffff, "");
 
@@ -380,6 +381,7 @@ TT_TEST_ROUTINE_DEFINE(case_jval_basic)
     // s64
     {
         tt_jval_init_s64(&jv, ~0);
+        TT_UT_EQUAL(tt_jval_get_type(&jv), TT_JVAL_NUMBER, "");
         TT_UT_TRUE(tt_jval_is_s64(&jv), "");
         TT_UT_EQUAL(tt_jval_get_s64(&jv), -1, "");
 
@@ -397,6 +399,7 @@ TT_TEST_ROUTINE_DEFINE(case_jval_basic)
     // double
     {
         tt_jval_init_double(&jv, 1.1);
+        TT_UT_EQUAL(tt_jval_get_type(&jv), TT_JVAL_NUMBER, "");
         TT_UT_TRUE(tt_jval_is_double(&jv), "");
         TT_UT_EQUAL(tt_jval_get_double(&jv), 1.1, "");
 
@@ -408,12 +411,24 @@ TT_TEST_ROUTINE_DEFINE(case_jval_basic)
         TT_UT_TRUE(tt_jval_is_double(&jv), "");
         TT_UT_EQUAL(tt_jval_get_double(&jv), 2.2, "");
 
+        {
+            tt_jval_t v2;
+            tt_jval_init_str(&v2, "1111", &jd);
+            tt_jval_swap(&jv, &v2);
+
+            TT_UT_TRUE(tt_jval_is_str(&jv), "");
+            TT_UT_STREQ(tt_jval_get_str(&jv), "1111", "");
+            TT_UT_TRUE(tt_jval_is_double(&v2), "");
+            TT_UT_EQUAL(tt_jval_get_double(&v2), 2.2, "");
+        }
+
         tt_jval_destroy(&jv);
     }
 
     // string
     {
         tt_jval_init_str(&jv, "123", &jd);
+        TT_UT_EQUAL(tt_jval_get_type(&jv), TT_JVAL_STRING, "");
         TT_UT_TRUE(tt_jval_is_str(&jv), "");
         TT_UT_STREQ(tt_jval_get_str(&jv), "123", "");
 
@@ -443,6 +458,7 @@ TT_TEST_ROUTINE_DEFINE(case_jval_basic)
         tt_char_t t[10] = "abc";
 
         tt_jval_create_str(&jv, t, &jd);
+        TT_UT_EQUAL(tt_jval_get_type(&jv), TT_JVAL_STRING, "");
         TT_UT_TRUE(tt_jval_is_str(&jv), "");
         t[0] = "A";
         TT_UT_STREQ(tt_jval_get_str(&jv), "abc", "");
@@ -466,6 +482,7 @@ TT_TEST_ROUTINE_DEFINE(case_jval_array)
     TT_UT_SUCCESS(tt_jdoc_create(&jd), "");
 
     tt_jval_init_array(&jv, &jd);
+    TT_UT_EQUAL(tt_jval_get_type(&jv), TT_JVAL_ARRAY, "");
     tt_jval_is_array(&jv);
     TT_UT_TRUE(tt_jarray_empty(&jv), "");
     TT_UT_EQUAL(tt_jarray_count(&jv), 0, "");
@@ -581,6 +598,7 @@ TT_TEST_ROUTINE_DEFINE(case_jval_object)
     TT_UT_SUCCESS(tt_jdoc_create(&jd), "");
 
     tt_jval_init_obj(&jv, &jd);
+    TT_UT_EQUAL(tt_jval_get_type(&jv), TT_JVAL_OBJECT, "");
     TT_UT_TRUE(tt_jval_is_obj(&jv), "");
     TT_UT_NULL(tt_jobj_find(&jv, "1"), "");
     TT_UT_FALSE(tt_jobj_contain(&jv, "member"), "");
@@ -698,6 +716,143 @@ TT_TEST_ROUTINE_DEFINE(case_jval_object)
                 ++n;
             }
             TT_UT_EQUAL(n, 8, "");
+        }
+
+        {
+            tt_jdoc_render_attr_t ra;
+            tt_buf_t b;
+            tt_jval_t *pv;
+
+            tt_jval_swap(tt_jdoc_get_root(&jd), &jv);
+
+            tt_jdoc_render_attr_default(&ra);
+
+            tt_buf_init(&b, NULL);
+
+            tt_buf_clear(&b);
+            ra.encoding = TT_JDOC_UTF8;
+            TT_UT_SUCCESS(tt_jdoc_render(&jd, &b, &ra), "");
+            // tt_buf_print_cstr(&b, 0);
+            {
+                tt_jdoc_t pjd;
+                tt_jdoc_parse_attr_t dpa;
+
+                tt_jdoc_create(&pjd);
+                tt_jdoc_parse_attr_default(&dpa);
+                dpa.encoding = TT_JDOC_UTF8;
+                TT_UT_SUCCESS(tt_jdoc_parse(&pjd,
+                                            TT_BUF_RPOS(&b),
+                                            TT_BUF_RLEN(&b),
+                                            &dpa),
+                              "");
+
+                pv = tt_jobj_find(tt_jdoc_get_root(&pjd), "str");
+                TT_UT_NOT_NULL(pv, "");
+                TT_UT_STREQ(tt_jval_get_str(pv), "str val", "");
+
+                tt_jdoc_destroy(&pjd);
+            }
+
+            tt_buf_clear(&b);
+            ra.encoding = TT_JDOC_UTF16_LE;
+            TT_UT_SUCCESS(tt_jdoc_render(&jd, &b, &ra), "");
+            {
+                tt_jdoc_t pjd;
+                tt_jdoc_parse_attr_t dpa;
+
+                tt_jdoc_create(&pjd);
+                tt_jdoc_parse_attr_default(&dpa);
+                dpa.encoding = TT_JDOC_UTF16_LE;
+                TT_UT_SUCCESS(tt_jdoc_parse(&pjd,
+                                            TT_BUF_RPOS(&b),
+                                            TT_BUF_RLEN(&b),
+                                            &dpa),
+                              "");
+
+                pv = tt_jobj_find(tt_jdoc_get_root(&pjd), "str");
+                TT_UT_NOT_NULL(pv, "");
+                TT_UT_STREQ(tt_jval_get_str(pv), "str val", "");
+
+                tt_jdoc_destroy(&pjd);
+            }
+
+            tt_buf_clear(&b);
+            ra.encoding = TT_JDOC_UTF16_BE;
+            TT_UT_SUCCESS(tt_jdoc_render(&jd, &b, &ra), "");
+            {
+                tt_jdoc_t pjd;
+                tt_jdoc_parse_attr_t dpa;
+
+                tt_jdoc_create(&pjd);
+                tt_jdoc_parse_attr_default(&dpa);
+                dpa.encoding = TT_JDOC_UTF16_BE;
+                TT_UT_SUCCESS(tt_jdoc_parse(&pjd,
+                                            TT_BUF_RPOS(&b),
+                                            TT_BUF_RLEN(&b),
+                                            &dpa),
+                              "");
+
+                pv = tt_jobj_find(tt_jdoc_get_root(&pjd), "str");
+                TT_UT_NOT_NULL(pv, "");
+                TT_UT_STREQ(tt_jval_get_str(pv), "str val", "");
+
+                tt_jdoc_destroy(&pjd);
+            }
+
+            tt_buf_clear(&b);
+            ra.encoding = TT_JDOC_UTF32_BE;
+            TT_UT_SUCCESS(tt_jdoc_render(&jd, &b, &ra), "");
+            {
+                tt_jdoc_t pjd;
+                tt_jdoc_parse_attr_t dpa;
+
+                tt_jdoc_create(&pjd);
+                tt_jdoc_parse_attr_default(&dpa);
+                dpa.encoding = TT_JDOC_UTF32_BE;
+                TT_UT_SUCCESS(tt_jdoc_parse(&pjd,
+                                            TT_BUF_RPOS(&b),
+                                            TT_BUF_RLEN(&b),
+                                            &dpa),
+                              "");
+
+                pv = tt_jobj_find(tt_jdoc_get_root(&pjd), "str");
+                TT_UT_NOT_NULL(pv, "");
+                TT_UT_STREQ(tt_jval_get_str(pv), "str val", "");
+
+                tt_jdoc_destroy(&pjd);
+            }
+
+            tt_buf_clear(&b);
+            ra.encoding = TT_JDOC_UTF32_LE;
+            TT_UT_SUCCESS(tt_jdoc_render_file(&jd, __UT_JF_PATH, &ra), "");
+            {
+                tt_jdoc_t pjd;
+                tt_jdoc_parse_attr_t dpa;
+
+                tt_jdoc_create(&pjd);
+                tt_jdoc_parse_attr_default(&dpa);
+                // invalid encodingr
+                dpa.encoding = TT_JDOC_UTF32_BE;
+                TT_UT_FAIL(tt_jdoc_parse_file(&pjd, __UT_JF_PATH, &dpa), "");
+                tt_jdoc_destroy(&pjd);
+            }
+            {
+                tt_jdoc_t pjd;
+                tt_jdoc_parse_attr_t dpa;
+
+                tt_jdoc_create(&pjd);
+                tt_jdoc_parse_attr_default(&dpa);
+                dpa.encoding = TT_JDOC_UTF32_LE;
+                TT_UT_SUCCESS(tt_jdoc_parse_file(&pjd, __UT_JF_PATH, &dpa), "");
+
+                pv = tt_jobj_find(tt_jdoc_get_root(&pjd), "str");
+                TT_UT_NOT_NULL(pv, "");
+                TT_UT_STREQ(tt_jval_get_str(pv), "str val", "");
+
+                tt_jdoc_destroy(&pjd);
+            }
+
+            tt_buf_destroy(&b);
         }
     }
 

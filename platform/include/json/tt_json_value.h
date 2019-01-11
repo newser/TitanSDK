@@ -78,6 +78,10 @@ tt_export void tt_jval_destroy(IN tt_jval_t *jv);
 
 tt_export tt_bool_t tt_jval_cmp(IN tt_jval_t *a, IN tt_jval_t *b);
 
+tt_export tt_jval_type_t tt_jval_get_type(IN tt_jval_t *jv);
+
+tt_export void tt_jval_swap(IN tt_jval_t *a, IN tt_jval_t *b);
+
 // ========================================
 // null
 // ========================================
@@ -93,12 +97,7 @@ tt_export void tt_jval_set_null(IN tt_jval_t *jv);
 tt_export void tt_jval_init_bool(IN tt_jval_t *jv, IN tt_bool_t val);
 
 tt_export tt_bool_t tt_jval_is_bool(IN tt_jval_t *jv);
-/*
-tt_inline tt_jbool_t *tt_jval_cast_bool(IN tt_jval_t *jv)
-{
-    return TT_COND(tt_jval_is_bool(jv), (tt_jbool_t *)jv, NULL);
-}
-*/
+
 tt_export tt_bool_t tt_jval_get_bool(IN tt_jval_t *jv);
 
 tt_export void tt_jval_set_bool(IN tt_jval_t *jv, IN tt_bool_t val);
@@ -141,9 +140,9 @@ tt_export tt_s64_t tt_jval_get_s64(IN tt_jval_t *jv);
 
 tt_export void tt_jval_set_s64(IN tt_jval_t *jv, IN tt_s64_t val);
 
-tt_export tt_bool_t tt_jval_is_double(IN tt_jval_t *jv);
-
 tt_export void tt_jval_init_double(IN tt_jval_t *jv, IN tt_double_t val);
+
+tt_export tt_bool_t tt_jval_is_double(IN tt_jval_t *jv);
 
 tt_export tt_double_t tt_jval_get_double(IN tt_jval_t *jv);
 

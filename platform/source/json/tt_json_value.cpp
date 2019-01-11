@@ -100,6 +100,38 @@ tt_bool_t tt_jval_cmp(IN tt_jval_t *a, IN tt_jval_t *b)
     return *v1 == *v2;
 }
 
+tt_jval_type_t tt_jval_get_type(IN tt_jval_t *jv)
+{
+    Value *v = reinterpret_cast<Value *>(jv);
+
+    /*
+     kNullType = 0,      //!< null
+     kFalseType = 1,     //!< false
+     kTrueType = 2,      //!< true
+     kObjectType = 3,    //!< object
+     kArrayType = 4,     //!< array
+     kStringType = 5,    //!< string
+     kNumberType = 6     //!< number
+     */
+    static tt_jval_type_t map[7] = {
+        TT_JVAL_NULL,
+        TT_JVAL_BOOL,
+        TT_JVAL_BOOL,
+        TT_JVAL_OBJECT,
+        TT_JVAL_ARRAY,
+        TT_JVAL_STRING,
+        TT_JVAL_NUMBER,
+    };
+    return map[v->GetType()];
+}
+
+void tt_jval_swap(IN tt_jval_t *a, IN tt_jval_t *b)
+{
+    Value *v1 = reinterpret_cast<Value *>(a);
+    Value *v2 = reinterpret_cast<Value *>(b);
+    v1->Swap(*v2);
+}
+
 // ========================================
 // null
 // ========================================

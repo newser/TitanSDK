@@ -52,6 +52,18 @@ this file specifies json val
 
 DEF_JVAL_TYPE(tt_jval_t);
 
+typedef enum {
+    TT_JVAL_NULL,
+    TT_JVAL_BOOL,
+    TT_JVAL_NUMBER,
+    TT_JVAL_STRING,
+    TT_JVAL_ARRAY,
+    TT_JVAL_OBJECT,
+
+    TT_JVAL_TYPE_NUM
+} tt_jval_type_t;
+#define TT_JVAL_TYPE_VALID(t) ((t) < TT_JVAL_TYPE_NUM)
+
 ////////////////////////////////////////////////////////////
 // global variants
 ////////////////////////////////////////////////////////////

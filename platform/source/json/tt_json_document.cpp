@@ -25,6 +25,7 @@ extern "C" {
 
 #include <algorithm/tt_buffer_format.h>
 #include <io/tt_file_system.h>
+#include <json/tt_json_value.h>
 #include <misc/tt_assert.h>
 
 #include <tt_cstd_api.h>
@@ -91,9 +92,6 @@ class jw_mem
 
     void Flush()
     {
-        if (!err_) {
-            tt_buf_clear(buf_);
-        }
     }
 
     size_t PutEnd(Ch *)
@@ -212,6 +210,9 @@ class jw_file
 // global variant
 ////////////////////////////////////////////////////////////
 
+static UTFType tt_s_utftype_map[TT_JDOC_ENCODING_NUM] =
+    {kUTF8, kUTF8, kUTF16LE, kUTF16BE, kUTF32LE, kUTF32BE};
+
 ////////////////////////////////////////////////////////////
 // interface declaration
 ////////////////////////////////////////////////////////////
@@ -242,6 +243,20 @@ void tt_jdoc_destroy(IN tt_jdoc_t *jd)
     delete (Document *)jd->p;
 }
 
+tt_jval_t *tt_jdoc_get_root(IN tt_jdoc_t *jd)
+{
+    Document *p = static_cast<Document *>(jd->p);
+    return reinterpret_cast<tt_jval_t *>(p);
+}
+
+void tt_jdoc_set_root(IN tt_jdoc_t *jd, IN TO tt_jval_t *jv)
+{
+    Document *p = static_cast<Document *>(jd->p);
+    Value *v = reinterpret_cast<Value *>(jv);
+    p->Swap(*v);
+    tt_jval_destroy(jv);
+}
+
 void tt_jdoc_parse_attr_default(IN tt_jdoc_parse_attr_t *attr)
 {
     TT_ASSERT(attr != nullptr);
@@ -267,27 +282,32 @@ tt_result_t tt_jdoc_parse(IN tt_jdoc_t *jd,
 
     ParseResult pr;
     // clang-format off
+    MemoryStream ms((MemoryStream::Ch *)buf, len);
     switch (attr->encoding) {
         case TT_JDOC_UTF8: {
-            pr = p->Parse<PARSE_FLAG, UTF8<> >((UTF8<>::Ch *)buf, len);
+            EncodedInputStream<UTF8<>, MemoryStream> eis(ms);
+            pr = p->ParseStream<PARSE_FLAG, UTF8<> >(eis);
         } break;
         case TT_JDOC_UTF16_LE: {
-            pr = p->Parse<PARSE_FLAG, UTF16LE<> >((UTF16LE<>::Ch *)buf, len);
+            EncodedInputStream<UTF16LE<>, MemoryStream> eis(ms);
+            pr = p->ParseStream<PARSE_FLAG, UTF16LE<> >(eis);
         } break;
         case TT_JDOC_UTF16_BE: {
-            pr = p->Parse<PARSE_FLAG, UTF16BE<> >((UTF16BE<>::Ch *)buf, len);
+            EncodedInputStream<UTF16BE<>, MemoryStream> eis(ms);
+            pr = p->ParseStream<PARSE_FLAG, UTF16BE<> >(eis);
         } break;
         case TT_JDOC_UTF32_LE: {
-            pr = p->Parse<PARSE_FLAG, UTF32LE<> >((UTF32LE<>::Ch *)buf, len);
+            EncodedInputStream<UTF32LE<>, MemoryStream> eis(ms);
+            pr = p->ParseStream<PARSE_FLAG, UTF32LE<> >(eis);
         } break;
         case TT_JDOC_UTF32_BE: {
-            pr = p->Parse<PARSE_FLAG, UTF32BE<> >((UTF32BE<>::Ch *)buf, len);
+            EncodedInputStream<UTF32BE<>, MemoryStream> eis(ms);
+            pr = p->ParseStream<PARSE_FLAG, UTF32BE<> >(eis);
         } break;
         case TT_JDOC_AUTO:
         default: {
-            MemoryStream ms((MemoryStream::Ch *)buf, len);
-            AutoUTFInputStream<unsigned int, MemoryStream> auis(ms);
-            pr = p->ParseStream<PARSE_FLAG, AutoUTF<unsigned int> >(auis);
+            AutoUTFInputStream<unsigned int, MemoryStream> ais(ms);
+            pr = p->ParseStream<PARSE_FLAG, AutoUTF<unsigned int> >(ais);
         } break;
     }
     // clang-format on
@@ -321,6 +341,7 @@ void tt_jdoc_render_attr_default(IN tt_jdoc_render_attr_t *attr)
     TT_ASSERT(attr != nullptr);
 
     attr->encoding = TT_JDOC_UTF8;
+    attr->bom = TT_FALSE;
 }
 
 tt_result_t tt_jdoc_render(IN tt_jdoc_t *jd,
@@ -339,10 +360,15 @@ tt_result_t tt_jdoc_render(IN tt_jdoc_t *jd,
         attr = &__attr;
     }
 
-    // todo: transcoding
-
     jw_mem jm(buf);
-    Writer<jw_mem> writer(jm);
+    AutoUTFOutputStream<unsigned int, jw_mem>
+        aos(jm, tt_s_utftype_map[attr->encoding], attr->bom);
+    // clang-format off
+    Writer<AutoUTFOutputStream<unsigned int, jw_mem>,
+           UTF8<>,
+           AutoUTF<unsigned int> >
+        writer(aos);
+    // clang-format on
     if (!p->Accept(writer) || jm.error()) {
         return TT_FAIL;
     }
@@ -367,7 +393,14 @@ tt_result_t tt_jdoc_render_file(IN tt_jdoc_t *jd,
     }
 
     jw_file jf(path);
-    Writer<jw_file> writer(jf);
+    AutoUTFOutputStream<unsigned int, jw_file>
+        aos(jf, tt_s_utftype_map[attr->encoding], attr->bom);
+    // clang-format off
+    Writer<AutoUTFOutputStream<unsigned int, jw_file>,
+           UTF8<>,
+           AutoUTF<unsigned int> >
+        writer(aos);
+    // clang-format on
     if (!p->Accept(writer) || jf.error()) {
         return TT_FAIL;
     }
@@ -379,6 +412,7 @@ tt_result_t tt_jdoc_render_file(IN tt_jdoc_t *jd,
 // json val
 // ========================================
 
+#if 0
 tt_bool_t tt_jdoc_contain(IN tt_jdoc_t *jd, IN const tt_char_t *name)
 {
     Document *p = static_cast<Document *>(jd->p);
@@ -404,6 +438,7 @@ tt_jval_t *tt_jdoc_find(IN tt_jdoc_t *jd, IN const tt_char_t *name)
         return nullptr;
     }
 }
+#endif
 
 const tt_char_t *__pec_str(IN ParseErrorCode pec)
 {
