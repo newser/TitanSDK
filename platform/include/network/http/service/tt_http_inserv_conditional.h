@@ -40,6 +40,9 @@ this file defines http incoming service: conditional
 // type definition
 ////////////////////////////////////////////////////////////
 
+struct tt_component_s;
+struct tt_profile_s *profile;
+
 typedef struct
 {
     tt_u32_t reserved;
@@ -49,9 +52,17 @@ typedef struct
 // global variants
 ////////////////////////////////////////////////////////////
 
+tt_export tt_http_inserv_t *tt_g_http_inserv_cond;
+
 ////////////////////////////////////////////////////////////
 // interface declaration
 ////////////////////////////////////////////////////////////
+
+tt_export tt_result_t tt_http_inserv_cond_component_init(
+    IN struct tt_component_s *comp, IN struct tt_profile_s *profile);
+
+tt_export void tt_http_inserv_cond_component_exit(
+    IN struct tt_component_s *comp);
 
 tt_export tt_http_inserv_t *tt_http_inserv_cond_create(
     IN OPT tt_http_inserv_cond_attr_t *attr);

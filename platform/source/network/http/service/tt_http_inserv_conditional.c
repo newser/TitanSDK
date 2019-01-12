@@ -23,6 +23,7 @@
 #include <network/http/service/tt_http_inserv_conditional.h>
 
 #include <io/tt_file_system.h>
+#include <network/http/def/tt_http_service_def.h>
 #include <network/http/header/tt_http_hdr_etag.h>
 #include <network/http/tt_http_parser.h>
 #include <network/http/tt_http_render.h>
@@ -38,7 +39,7 @@
 
 typedef struct
 {
-    tt_http_status_t status;
+    tt_u32_t reserved;
 } tt_http_inserv_cond_t;
 
 ////////////////////////////////////////////////////////////
@@ -49,19 +50,27 @@ typedef struct
 // global variant
 ////////////////////////////////////////////////////////////
 
-static void __inserv_cond_clear(IN tt_http_inserv_t *s);
+tt_http_inserv_t *tt_g_http_inserv_cond;
 
-static tt_http_inserv_itf_t s_inserv_cond_itf = {
-    NULL, __inserv_cond_clear,
-};
+static tt_result_t __create_ctx(IN tt_http_inserv_t *s, IN OPT void *ctx);
+
+static void __clear_ctx(IN tt_http_inserv_t *s, IN void *ctx);
+
+static tt_http_inserv_itf_t s_inserv_cond_itf = {NULL,
+                                                 NULL,
+                                                 __create_ctx,
+                                                 NULL,
+                                                 __clear_ctx};
 
 static tt_http_inserv_action_t __inserv_cond_on_hdr(
     IN tt_http_inserv_t *s,
+    IN void *ctx,
     IN tt_http_parser_t *req,
     OUT tt_http_resp_render_t *resp);
 
 static tt_http_inserv_action_t __inserv_cond_on_complete(
     IN tt_http_inserv_t *s,
+    IN void *ctx,
     IN tt_http_parser_t *req,
     OUT tt_http_resp_render_t *resp);
 
@@ -85,6 +94,26 @@ static tt_result_t __if_none_match(IN const tt_char_t *path,
 // interface implementation
 ////////////////////////////////////////////////////////////
 
+tt_result_t tt_http_inserv_cond_component_init(IN struct tt_component_s *comp,
+                                               IN struct tt_profile_s *profile)
+{
+    tt_http_inserv_cond_attr_t attr;
+
+    tt_http_inserv_cond_attr_default(&attr);
+
+    tt_g_http_inserv_cond = tt_http_inserv_cond_create(&attr);
+    if (tt_g_http_inserv_cond == NULL) {
+        return TT_FAIL;
+    }
+
+    return TT_SUCCESS;
+}
+
+void tt_http_inserv_cond_component_exit(IN struct tt_component_s *comp)
+{
+    tt_http_inserv_release(tt_g_http_inserv_cond);
+}
+
 tt_http_inserv_t *tt_http_inserv_cond_create(
     IN OPT tt_http_inserv_cond_attr_t *attr)
 {
@@ -106,8 +135,6 @@ tt_http_inserv_t *tt_http_inserv_cond_create(
 
     sc = TT_HTTP_INSERV_CAST(s, tt_http_inserv_cond_t);
 
-    sc->status = TT_HTTP_STATUS_INVALID;
-
     return s;
 }
 
@@ -116,26 +143,34 @@ void tt_http_inserv_cond_attr_default(IN tt_http_inserv_cond_attr_t *attr)
     attr->reserved = 0;
 }
 
-void __inserv_cond_clear(IN tt_http_inserv_t *s)
+tt_result_t __create_ctx(IN tt_http_inserv_t *s, IN OPT void *ctx)
 {
-    tt_http_inserv_cond_t *sc = TT_HTTP_INSERV_CAST(s, tt_http_inserv_cond_t);
+    tt_http_inserv_cond_ctx_t *c = (tt_http_inserv_cond_ctx_t *)ctx;
 
-    sc->status = TT_HTTP_STATUS_INVALID;
+    c->status = TT_HTTP_STATUS_INVALID;
+
+    return TT_SUCCESS;
+}
+
+static void __clear_ctx(IN tt_http_inserv_t *s, IN void *ctx)
+{
+    tt_http_inserv_cond_ctx_t *c = (tt_http_inserv_cond_ctx_t *)ctx;
+
+    c->status = TT_HTTP_STATUS_INVALID;
 }
 
 tt_http_inserv_action_t __inserv_cond_on_hdr(IN tt_http_inserv_t *s,
+                                             IN void *ctx,
                                              IN tt_http_parser_t *req,
                                              OUT tt_http_resp_render_t *resp)
 {
     tt_http_inserv_cond_t *sc = TT_HTTP_INSERV_CAST(s, tt_http_inserv_cond_t);
+    tt_http_inserv_cond_ctx_t *c = (tt_http_inserv_cond_ctx_t *)ctx;
 
     tt_http_uri_t *uri;
     tt_fpath_t *fp;
     const tt_char_t *path;
     tt_http_hdr_t *h;
-
-    tt_http_status_t status = TT_HTTP_STATUS_INTERNAL_SERVER_ERROR;
-    // const tt_char_t *path;
 
     uri = tt_http_parser_get_uri(req);
     fp = TT_COND(uri != NULL, tt_http_uri_get_path(uri), NULL);
@@ -165,9 +200,9 @@ tt_http_inserv_action_t __inserv_cond_on_hdr(IN tt_http_inserv_t *s,
              */
             tt_http_method_t mtd = tt_http_parser_get_method(req);
             if ((mtd == TT_HTTP_MTD_GET) || (mtd == TT_HTTP_MTD_HEAD)) {
-                sc->status = TT_HTTP_STATUS_NOT_MODIFIED;
+                c->status = TT_HTTP_STATUS_NOT_MODIFIED;
             } else {
-                sc->status = TT_HTTP_STATUS_PRECONDITION_FAILED;
+                c->status = TT_HTTP_STATUS_PRECONDITION_FAILED;
             }
             return TT_HTTP_INSERV_ACT_OWNER;
         }
@@ -188,7 +223,7 @@ tt_http_inserv_action_t __inserv_cond_on_hdr(IN tt_http_inserv_t *s,
              (Precondition Failed) status code or b) one of the 2xx
              (Successful) status codes if...
              */
-            sc->status = TT_HTTP_STATUS_PRECONDITION_FAILED;
+            c->status = TT_HTTP_STATUS_PRECONDITION_FAILED;
             return TT_HTTP_INSERV_ACT_OWNER;
         }
     } else {
@@ -198,13 +233,15 @@ tt_http_inserv_action_t __inserv_cond_on_hdr(IN tt_http_inserv_t *s,
 
 tt_http_inserv_action_t __inserv_cond_on_complete(
     IN tt_http_inserv_t *s,
+    IN void *ctx,
     IN tt_http_parser_t *req,
     OUT tt_http_resp_render_t *resp)
 {
     tt_http_inserv_cond_t *sc = TT_HTTP_INSERV_CAST(s, tt_http_inserv_cond_t);
+    tt_http_inserv_cond_ctx_t *c = (tt_http_inserv_cond_ctx_t *)ctx;
 
-    TT_ASSERT(TT_HTTP_STATUS_VALID(sc->status));
-    tt_http_resp_render_set_status(resp, sc->status);
+    TT_ASSERT(TT_HTTP_STATUS_VALID(c->status));
+    tt_http_resp_render_set_status(resp, c->status);
     return TT_HTTP_INSERV_ACT_PASS;
 }
 

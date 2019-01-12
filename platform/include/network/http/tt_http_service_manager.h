@@ -51,11 +51,17 @@ struct tt_http_parser_s;
 struct tt_http_resp_render_s;
 struct tt_buf_s;
 
+typedef struct
+{
+    tt_http_inserv_t *s;
+    void *ctx;
+} tt_http_inserv_ctx_t;
+
 typedef struct tt_http_svcmgr_s
 {
-    tt_http_inserv_t *owner;
-    tt_http_inserv_t **inserv;
-    tt_http_inserv_t *inline_inserv[TT_HTTP_INLINE_INSERV_NUM];
+    tt_http_inserv_ctx_t *owner;
+    tt_http_inserv_ctx_t *inserv;
+    tt_http_inserv_ctx_t inline_inserv[TT_HTTP_INLINE_INSERV_NUM];
     tt_http_outserv_t **outserv;
     tt_http_outserv_t *inline_outserv[TT_HTTP_INLINE_OUTSERV_NUM];
     tt_http_encserv_t *encserv[TT_HTTP_TXENC_NUM];
@@ -81,7 +87,8 @@ tt_export void tt_http_svcmgr_destroy(IN tt_http_svcmgr_t *sm);
 tt_export void tt_http_svcmgr_clear(IN tt_http_svcmgr_t *sm);
 
 tt_export tt_result_t tt_http_svcmgr_add_inserv(IN tt_http_svcmgr_t *sm,
-                                                IN TO tt_http_inserv_t *s);
+                                                IN TO tt_http_inserv_t *s,
+                                                IN OPT void *ctx);
 
 tt_export tt_result_t tt_http_svcmgr_add_outserv(IN tt_http_svcmgr_t *sm,
                                                  IN TO tt_http_outserv_t *s);

@@ -54,6 +54,7 @@ static tt_http_inserv_itf_t s_inserv_host_itf = {0};
 
 static tt_http_inserv_action_t __inserv_host_on_hdr(
     IN tt_http_inserv_t *s,
+    IN void *ctx,
     IN tt_http_parser_t *req,
     OUT tt_http_resp_render_t *resp);
 
@@ -122,6 +123,7 @@ void tt_http_inserv_host_attr_default(IN tt_http_inserv_host_attr_t *attr)
 }
 
 tt_http_inserv_action_t __inserv_host_on_hdr(IN tt_http_inserv_t *s,
+                                             IN void *ctx,
                                              IN tt_http_parser_t *req,
                                              OUT tt_http_resp_render_t *resp)
 {

@@ -30,6 +30,7 @@ this file defines http server connection
 // import header files
 ////////////////////////////////////////////////////////////
 
+#include <network/http/def/tt_http_service_def.h>
 #include <network/http/tt_http_parser.h>
 #include <network/http/tt_http_render.h>
 #include <network/http/tt_http_service_manager.h>
@@ -58,6 +59,8 @@ typedef struct tt_http_sconn_s
     tt_http_parser_t parser;
     tt_http_resp_render_t render;
     tt_buf_t body;
+    tt_http_inserv_cond_ctx_t cond_ctx;
+    tt_http_inserv_file_ctx_t file_ctx;
 } tt_http_sconn_t;
 
 typedef struct
@@ -95,9 +98,10 @@ tt_export void tt_http_sconn_destroy(IN tt_http_sconn_t *c);
 tt_export void tt_http_sconn_attr_default(IN tt_http_sconn_attr_t *attr);
 
 tt_inline tt_result_t tt_http_sconn_add_inserv(IN tt_http_sconn_t *c,
-                                               IN TO tt_http_inserv_t *s)
+                                               IN TO tt_http_inserv_t *s,
+                                               IN OPT void *ctx)
 {
-    return tt_http_svcmgr_add_inserv(&c->svcmgr, s);
+    return tt_http_svcmgr_add_inserv(&c->svcmgr, s, ctx);
 }
 
 tt_inline tt_result_t tt_http_sconn_add_outserv(IN tt_http_sconn_t *c,

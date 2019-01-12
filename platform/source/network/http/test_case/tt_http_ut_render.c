@@ -482,15 +482,40 @@ static void __inserv_clear(IN struct tt_http_inserv_s *s)
     __is_clear[i->idx] = TT_TRUE;
 }
 
+static tt_u32_t __create_ctx_cnt;
+static tt_result_t __inserv_create_ctx(IN struct tt_http_inserv_s *s,
+                                       IN void *ctx)
+{
+    __is_idx_t *i = TT_HTTP_INSERV_CAST(s, __is_idx_t);
+    __create_ctx_cnt += (tt_u32_t)(tt_uintptr_t)ctx;
+    return TT_SUCCESS;
+}
+
+static tt_u32_t __destroy_ctx_cnt;
+static void __inserv_destroy_ctx(IN struct tt_http_inserv_s *s, IN void *ctx)
+{
+    __is_idx_t *i = TT_HTTP_INSERV_CAST(s, __is_idx_t);
+    __destroy_ctx_cnt += ((tt_u32_t)(tt_uintptr_t)ctx) * 2;
+}
+
+static tt_u32_t __clear_ctx_cnt;
+static void __inserv_clear_ctx(IN struct tt_http_inserv_s *s, IN void *ctx)
+{
+    __is_idx_t *i = TT_HTTP_INSERV_CAST(s, __is_idx_t);
+    __clear_ctx_cnt += ((tt_u32_t)(tt_uintptr_t)ctx) * 3;
+}
+
 static tt_http_inserv_action_t __is_on_uri_act[__IS_NUM];
 static tt_bool_t __is_on_uri_called[__IS_NUM];
 static tt_http_inserv_action_t __is_on_uri(
     IN struct tt_http_inserv_s *s,
+    IN void *ctx,
     IN struct tt_http_parser_s *req,
     OUT struct tt_http_resp_render_s *resp)
 {
     __is_idx_t *i = TT_HTTP_INSERV_CAST(s, __is_idx_t);
     __is_on_uri_called[i->idx] = TT_TRUE;
+    TT_ASSERT_ALWAYS((tt_uintptr_t)ctx == i->idx);
     return __is_on_uri_act[i->idx];
 }
 
@@ -498,11 +523,13 @@ static tt_http_inserv_action_t __is_on_header_act[__IS_NUM];
 static tt_bool_t __is_on_header_called[__IS_NUM];
 static tt_http_inserv_action_t __is_on_header(
     IN struct tt_http_inserv_s *s,
+    IN void *ctx,
     IN struct tt_http_parser_s *req,
     OUT struct tt_http_resp_render_s *resp)
 {
     __is_idx_t *i = TT_HTTP_INSERV_CAST(s, __is_idx_t);
     __is_on_header_called[i->idx] = TT_TRUE;
+    TT_ASSERT_ALWAYS((tt_uintptr_t)ctx == i->idx);
     return __is_on_header_act[i->idx];
 }
 
@@ -510,11 +537,13 @@ static tt_http_inserv_action_t __is_on_body_act[__IS_NUM];
 static tt_bool_t __is_on_body_called[__IS_NUM];
 static tt_http_inserv_action_t __is_on_body(
     IN struct tt_http_inserv_s *s,
+    IN void *ctx,
     IN struct tt_http_parser_s *req,
     OUT struct tt_http_resp_render_s *resp)
 {
     __is_idx_t *i = TT_HTTP_INSERV_CAST(s, __is_idx_t);
     __is_on_body_called[i->idx] = TT_TRUE;
+    TT_ASSERT_ALWAYS((tt_uintptr_t)ctx == i->idx);
     return __is_on_body_act[i->idx];
 }
 
@@ -522,11 +551,13 @@ static tt_http_inserv_action_t __is_on_trailing_act[__IS_NUM];
 static tt_bool_t __is_on_trailing_called[__IS_NUM];
 static tt_http_inserv_action_t __is_on_trailing(
     IN struct tt_http_inserv_s *s,
+    IN void *ctx,
     IN struct tt_http_parser_s *req,
     OUT struct tt_http_resp_render_s *resp)
 {
     __is_idx_t *i = TT_HTTP_INSERV_CAST(s, __is_idx_t);
     __is_on_trailing_called[i->idx] = TT_TRUE;
+    TT_ASSERT_ALWAYS((tt_uintptr_t)ctx == i->idx);
     return __is_on_trailing_act[i->idx];
 }
 
@@ -534,11 +565,13 @@ static tt_http_inserv_action_t __is_on_complete_act[__IS_NUM];
 static tt_bool_t __is_on_complete_called[__IS_NUM];
 static tt_http_inserv_action_t __is_on_complete(
     IN struct tt_http_inserv_s *s,
+    IN void *ctx,
     IN struct tt_http_parser_s *req,
     OUT struct tt_http_resp_render_s *resp)
 {
     __is_idx_t *i = TT_HTTP_INSERV_CAST(s, __is_idx_t);
     __is_on_complete_called[i->idx] = TT_TRUE;
+    TT_ASSERT_ALWAYS((tt_uintptr_t)ctx == i->idx);
     return __is_on_complete_act[i->idx];
 }
 
@@ -546,12 +579,14 @@ static tt_http_inserv_action_t __is_send_body_act[__IS_NUM];
 static tt_bool_t __is_send_body_called[__IS_NUM];
 static tt_http_inserv_action_t __is_get_body(
     IN struct tt_http_inserv_s *s,
+    IN void *ctx,
     IN struct tt_http_parser_s *req,
     OUT struct tt_http_resp_render_s *resp,
     OUT struct tt_buf_s *buf)
 {
     __is_idx_t *i = TT_HTTP_INSERV_CAST(s, __is_idx_t);
     __is_send_body_called[i->idx] = TT_TRUE;
+    TT_ASSERT_ALWAYS((tt_uintptr_t)ctx == i->idx);
     return __is_send_body_act[i->idx];
 }
 
@@ -585,9 +620,11 @@ TT_TEST_ROUTINE_DEFINE(case_http_svcmgr)
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_http_svcmgr_t sm;
     tt_http_inserv_t *is[3];
-    tt_http_inserv_itf_t is_itf = {
-        __inserv_destroy, __inserv_clear,
-    };
+    tt_http_inserv_itf_t is_itf = {__inserv_destroy,
+                                   __inserv_clear,
+                                   __inserv_create_ctx,
+                                   __inserv_destroy_ctx,
+                                   __inserv_clear_ctx};
     tt_http_inserv_cb_t is_cb = {
         __is_on_uri,
         __is_on_header,
@@ -619,9 +656,11 @@ TT_TEST_ROUTINE_DEFINE(case_http_svcmgr)
     TT_HTTP_INSERV_CAST(s, __is_idx_t)->idx = 0;
     TT_UT_NOT_NULL(s, "");
     for (i = 0; i < TT_HTTP_INLINE_INSERV_NUM * 3; ++i) {
-        tt_http_svcmgr_add_inserv(&sm, s);
+        tt_http_svcmgr_add_inserv(&sm, s, NULL);
     }
+    __destroy_ctx_cnt = 0;
     tt_http_svcmgr_destroy(&sm);
+    TT_UT_EQUAL(__destroy_ctx_cnt, 0, "");
     tt_http_inserv_release(s);
     TT_UT_TRUE(__is_destroyed[0], "");
     // restore
@@ -632,18 +671,22 @@ TT_TEST_ROUTINE_DEFINE(case_http_svcmgr)
 
         tt_http_svcmgr_init(&sm);
 
+        __create_ctx_cnt = 0;
         for (i = 0; i < __IS_NUM; ++i) {
             is[i] = tt_http_inserv_create(sizeof(__is_idx_t), &is_itf, &is_cb);
             __is_idx_t *ii = TT_HTTP_INSERV_CAST(is[i], __is_idx_t);
             ii->idx = i;
 
-            tt_http_svcmgr_add_inserv(&sm, is[i]);
+            tt_http_svcmgr_add_inserv(&sm, is[i], (void *)(tt_uintptr_t)i);
 
             tt_http_inserv_release(is[i]);
         }
+        TT_UT_EQUAL(__create_ctx_cnt, 3, "");
 
         tt_memset(__is_clear, 0, sizeof(__is_clear));
+        __clear_ctx_cnt = 0;
         tt_http_svcmgr_clear(&sm);
+        TT_UT_EQUAL(__clear_ctx_cnt, 9, "");
         for (i = 0; i < __IS_NUM; ++i) {
             TT_UT_TRUE(__is_clear[i], "");
         }
@@ -698,7 +741,7 @@ TT_TEST_ROUTINE_DEFINE(case_http_svcmgr)
                         "");
             __is_on_uri_act[0] = TT_HTTP_INSERV_ACT_PASS;
             __is_on_uri_act[2] = TT_HTTP_INSERV_ACT_PASS;
-            TT_UT_EQUAL(sm.owner, is[0], "");
+            TT_UT_EQUAL(sm.owner->s, is[0], "");
             TT_UT_TRUE(__is_on_uri_called[0], "");
             TT_UT_FALSE(__is_on_uri_called[1], "");
             TT_UT_FALSE(__is_on_uri_called[2], "");
@@ -748,7 +791,7 @@ TT_TEST_ROUTINE_DEFINE(case_http_svcmgr)
             TT_UT_EQUAL(tt_http_svcmgr_on_header(&sm, NULL, NULL),
                         TT_HTTP_INSERV_ACT_OWNER,
                         "");
-            TT_UT_EQUAL(sm.owner, is[1], "");
+            TT_UT_EQUAL(sm.owner->s, is[1], "");
             TT_UT_TRUE(__is_on_header_called[0], "");
             TT_UT_TRUE(__is_on_header_called[1], "");
             for (i = 2; i < __IS_NUM; ++i) {
@@ -1001,7 +1044,9 @@ TT_TEST_ROUTINE_DEFINE(case_http_svcmgr)
 
         tt_memset(__is_destroyed, 0, sizeof(__is_destroyed));
         tt_memset(__os_destroyed, 0, sizeof(__os_destroyed));
+        __destroy_ctx_cnt = 0;
         tt_http_svcmgr_destroy(&sm);
+        TT_UT_EQUAL(__destroy_ctx_cnt, 6, "");
         for (i = 0; i < __IS_NUM; ++i) {
             TT_UT_TRUE(__is_destroyed[i], "");
             TT_UT_TRUE(__os_destroyed[i], "");

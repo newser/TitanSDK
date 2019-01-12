@@ -17,21 +17,21 @@
  */
 
 /**
-@file tt_http_inserv_file.h
-@brief http service
+@file tt_http_service_def.h
+@brief http service type def
 
-this file defines http incoming service: get file
+this file defines http service type
 */
 
-#ifndef __TT_HTTP_INSERVICE_FILE__
-#define __TT_HTTP_INSERVICE_FILE__
+#ifndef __TT_HTTP_SERVICE_DEF__
+#define __TT_HTTP_SERVICE_DEF__
 
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <algorithm/tt_blob.h>
-#include <network/http/tt_http_in_service.h>
+#include <io/tt_file_system.h>
+#include <network/http/def/tt_http_def.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
@@ -41,40 +41,26 @@ this file defines http incoming service: get file
 // type definition
 ////////////////////////////////////////////////////////////
 
-struct tt_component_s;
-struct tt_profile_s;
 struct tt_http_contype_map_s;
 
 typedef struct
 {
-    struct tt_http_contype_map_s *contype_map;
-    tt_s32_t chunk_size;
-    tt_bool_t can_have_path_param : 1;
-    tt_bool_t can_have_query_param : 1;
-    tt_bool_t process_post : 1;
-    tt_bool_t enable_etag : 1;
-} tt_http_inserv_file_attr_t;
+    tt_http_status_t status;
+} tt_http_inserv_cond_ctx_t;
+
+typedef struct
+{
+    tt_file_t f;
+    tt_s32_t size;
+    tt_bool_t f_valid : 1;
+} tt_http_inserv_file_ctx_t;
 
 ////////////////////////////////////////////////////////////
 // global variants
 ////////////////////////////////////////////////////////////
 
-tt_export tt_http_inserv_t *tt_g_http_inserv_file;
-
 ////////////////////////////////////////////////////////////
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-tt_export tt_result_t tt_http_inserv_file_component_init(
-    IN struct tt_component_s *comp, IN struct tt_profile_s *profile);
-
-tt_export void tt_http_inserv_file_component_exit(
-    IN struct tt_component_s *comp);
-
-tt_export tt_http_inserv_t *tt_http_inserv_file_create(
-    IN OPT tt_http_inserv_file_attr_t *attr);
-
-tt_export void tt_http_inserv_file_attr_default(
-    IN tt_http_inserv_file_attr_t *attr);
-
-#endif /* __TT_HTTP_INSERVICE_FILE__ */
+#endif /* __TT_HTTP_SERVICE_DEF__ */

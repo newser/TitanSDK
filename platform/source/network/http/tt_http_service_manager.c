@@ -29,6 +29,36 @@
 // internal macro
 ////////////////////////////////////////////////////////////
 
+#define DEFINE_CTX_API(name)                                                   \
+    tt_inline void __##name##_ctx_init(IN tt_http_##name##_ctx_t *c)           \
+    {                                                                          \
+        c->s = NULL;                                                           \
+        c->ctx = NULL;                                                         \
+    }                                                                          \
+                                                                               \
+    tt_inline void __##name##_ctx_set(IN tt_http_##name##_ctx_t *c,            \
+                                      IN tt_http_##name##_t *s,                \
+                                      IN void *ctx)                            \
+    {                                                                          \
+        tt_http_##name##_ref(s);                                               \
+        c->s = s;                                                              \
+        c->ctx = ctx;                                                          \
+    }                                                                          \
+                                                                               \
+    tt_inline void __##name##_ctx_destroy(IN tt_http_##name##_ctx_t *c)        \
+    {                                                                          \
+        tt_http_##name##_destroy_ctx(c->s, c->ctx);                            \
+        tt_http_##name##_release(c->s);                                        \
+    }                                                                          \
+                                                                               \
+    tt_inline void __##name##_ctx_clear(IN tt_http_##name##_ctx_t *c)          \
+    {                                                                          \
+        tt_http_##name##_clear_ctx(c->s, c->ctx);                              \
+        tt_http_##name##_clear(c->s);                                          \
+    }
+
+DEFINE_CTX_API(inserv)
+
 ////////////////////////////////////////////////////////////
 // internal type
 ////////////////////////////////////////////////////////////
@@ -63,7 +93,7 @@ void tt_http_svcmgr_init(IN tt_http_svcmgr_t *sm)
     sm->owner = NULL;
 
     for (i = 0; i < TT_HTTP_INLINE_INSERV_NUM; ++i) {
-        sm->inline_inserv[i] = NULL;
+        __inserv_ctx_init(&sm->inline_inserv[i]);
     }
     sm->inserv = sm->inline_inserv;
     sm->inserv_num = 0;
@@ -90,7 +120,7 @@ void tt_http_svcmgr_destroy(IN tt_http_svcmgr_t *sm)
     TT_ASSERT(sm != NULL);
 
     for (i = 0; i < sm->inserv_num; ++i) {
-        tt_http_inserv_release(sm->inserv[i]);
+        __inserv_ctx_destroy(&sm->inserv[i]);
     }
     if (sm->inserv != sm->inline_inserv) {
         tt_free(sm->inserv);
@@ -119,7 +149,7 @@ void tt_http_svcmgr_clear(IN tt_http_svcmgr_t *sm)
     sm->owner = NULL;
 
     for (i = 0; i < sm->inserv_num; ++i) {
-        tt_http_inserv_clear(sm->inserv[i]);
+        __inserv_ctx_clear(&sm->inserv[i]);
     }
 
     for (i = 0; i < sm->outserv_num; ++i) {
@@ -136,26 +166,32 @@ void tt_http_svcmgr_clear(IN tt_http_svcmgr_t *sm)
 }
 
 tt_result_t tt_http_svcmgr_add_inserv(IN tt_http_svcmgr_t *sm,
-                                      IN TO tt_http_inserv_t *s)
+                                      IN TO tt_http_inserv_t *s,
+                                      IN OPT void *ctx)
 {
+    tt_http_inserv_ctx_t *c;
+
     if (sm->inserv_num == sm->inserv_max) {
         tt_u32_t new_num = sm->inserv_num + TT_HTTP_INLINE_INSERV_NUM;
-        tt_http_inserv_t **s = tt_malloc(sizeof(tt_http_inserv_t *) * new_num);
-        if (s == NULL) {
+
+        c = tt_malloc(sizeof(tt_http_inserv_ctx_t) * new_num);
+        if (c == NULL) {
             TT_ERROR("fail to expand inserv array");
             return TT_E_NOMEM;
         }
-        tt_memcpy(s, sm->inserv, sizeof(tt_http_inserv_t *) * sm->inserv_num);
+        tt_memcpy(c, sm->inserv, sizeof(tt_http_inserv_ctx_t) * sm->inserv_num);
 
         if (sm->inserv != sm->inline_inserv) {
             tt_free(sm->inserv);
         }
-        sm->inserv = s;
+        sm->inserv = c;
         sm->inserv_max = new_num;
     }
 
-    sm->inserv[sm->inserv_num++] = s;
-    tt_http_inserv_ref(s);
+    if (!TT_OK(tt_http_inserv_create_ctx(s, ctx))) {
+        return TT_FAIL;
+    }
+    __inserv_ctx_set(&sm->inserv[sm->inserv_num++], s, ctx);
     return TT_SUCCESS;
 }
 
@@ -215,10 +251,11 @@ tt_http_inserv_action_t tt_http_svcmgr_on_uri(IN tt_http_svcmgr_t *sm,
 
     TT_ASSERT(sm->owner == NULL);
     for (i = 0; i < sm->inserv_num; ++i) {
-        tt_http_inserv_t *s = sm->inserv[i];
+        tt_http_inserv_ctx_t *c = &sm->inserv[i];
+        tt_http_inserv_t *s = c->s;
         tt_http_inserv_action_t this_act;
 
-        this_act = tt_http_inserv_on_uri(s, req, resp);
+        this_act = tt_http_inserv_on_uri(s, c->ctx, req, resp);
         if (this_act <= TT_HTTP_INSERV_ACT_SHUTDOWN) {
             // if anyone says close/shutdown, no need to do more things,
             // call should close/shutdown connection
@@ -230,7 +267,7 @@ tt_http_inserv_action_t tt_http_svcmgr_on_uri(IN tt_http_svcmgr_t *sm,
             if (sm->owner == NULL) {
                 // can not overwrite previous service which is of higher
                 // priority
-                sm->owner = s;
+                sm->owner = c;
             }
             return TT_HTTP_INSERV_ACT_OWNER;
         }
@@ -252,14 +289,18 @@ tt_http_inserv_action_t tt_http_svcmgr_on_header(
     }
 
     if (sm->owner != NULL) {
-        return tt_http_inserv_on_header(sm->owner, req, resp);
+        return tt_http_inserv_on_header(sm->owner->s,
+                                        sm->owner->ctx,
+                                        req,
+                                        resp);
     }
 
     for (i = 0; i < sm->inserv_num; ++i) {
-        tt_http_inserv_t *s = sm->inserv[i];
+        tt_http_inserv_ctx_t *c = &sm->inserv[i];
+        tt_http_inserv_t *s = c->s;
         tt_http_inserv_action_t this_act;
 
-        this_act = tt_http_inserv_on_header(s, req, resp);
+        this_act = tt_http_inserv_on_header(s, c->ctx, req, resp);
         if (this_act <= TT_HTTP_INSERV_ACT_SHUTDOWN) {
             return this_act;
         } else if (this_act == TT_HTTP_INSERV_ACT_DISCARD) {
@@ -267,7 +308,7 @@ tt_http_inserv_action_t tt_http_svcmgr_on_header(
             return this_act;
         } else if (this_act == TT_HTTP_INSERV_ACT_OWNER) {
             if (sm->owner == NULL) {
-                sm->owner = s;
+                sm->owner = c;
             }
             return TT_HTTP_INSERV_ACT_OWNER;
         }
@@ -295,7 +336,7 @@ tt_http_inserv_action_t tt_http_svcmgr_on_body(IN tt_http_svcmgr_t *sm,
         return TT_HTTP_INSERV_ACT_DISCARD;
     }
 
-    act = tt_http_inserv_on_body(sm->owner, req, resp);
+    act = tt_http_inserv_on_body(sm->owner->s, sm->owner->ctx, req, resp);
     if (act == TT_HTTP_INSERV_ACT_DISCARD) {
         sm->discarding = TT_TRUE;
     }
@@ -320,7 +361,7 @@ tt_http_inserv_action_t tt_http_svcmgr_on_trailing(
         return TT_HTTP_INSERV_ACT_DISCARD;
     }
 
-    act = tt_http_inserv_on_trailing(sm->owner, req, resp);
+    act = tt_http_inserv_on_trailing(sm->owner->s, sm->owner->ctx, req, resp);
     if (act == TT_HTTP_INSERV_ACT_DISCARD) {
         sm->discarding = TT_TRUE;
     }
@@ -349,7 +390,7 @@ tt_http_inserv_action_t tt_http_svcmgr_on_complete(
         return TT_HTTP_INSERV_ACT_DISCARD;
     }
 
-    return tt_http_inserv_on_complete(sm->owner, req, resp);
+    return tt_http_inserv_on_complete(sm->owner->s, sm->owner->ctx, req, resp);
 }
 
 tt_http_inserv_action_t tt_http_svcmgr_get_body(IN tt_http_svcmgr_t *sm,
@@ -368,7 +409,11 @@ tt_http_inserv_action_t tt_http_svcmgr_get_body(IN tt_http_svcmgr_t *sm,
         return TT_HTTP_INSERV_ACT_DISCARD;
     }
 
-    return tt_http_inserv_get_body(sm->owner, req, resp, buf);
+    return tt_http_inserv_get_body(sm->owner->s,
+                                   sm->owner->ctx,
+                                   req,
+                                   resp,
+                                   buf);
 }
 
 tt_result_t tt_http_svcmgr_on_resp_header(IN tt_http_svcmgr_t *sm,
