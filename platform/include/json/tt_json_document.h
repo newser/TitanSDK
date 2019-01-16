@@ -82,6 +82,8 @@ tt_export tt_result_t tt_jdoc_create(IN tt_jdoc_t *jd);
 
 tt_export void tt_jdoc_destroy(IN tt_jdoc_t *jd);
 
+tt_export void tt_jdoc_clear(IN tt_jdoc_t *jd);
+
 tt_export void tt_jdoc_parse_attr_default(IN tt_jdoc_parse_attr_t *attr);
 
 tt_export tt_jval_t *tt_jdoc_get_root(IN tt_jdoc_t *jd);

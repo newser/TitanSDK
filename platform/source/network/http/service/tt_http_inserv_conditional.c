@@ -152,7 +152,7 @@ tt_result_t __create_ctx(IN tt_http_inserv_t *s, IN OPT void *ctx)
     return TT_SUCCESS;
 }
 
-static void __clear_ctx(IN tt_http_inserv_t *s, IN void *ctx)
+void __clear_ctx(IN tt_http_inserv_t *s, IN void *ctx)
 {
     tt_http_inserv_cond_ctx_t *c = (tt_http_inserv_cond_ctx_t *)ctx;
 

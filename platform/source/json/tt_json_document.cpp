@@ -243,6 +243,12 @@ void tt_jdoc_destroy(IN tt_jdoc_t *jd)
     delete (Document *)jd->p;
 }
 
+void tt_jdoc_clear(IN tt_jdoc_t *jd)
+{
+    Document *p = static_cast<Document *>(jd->p);
+    p->SetNull();
+}
+
 tt_jval_t *tt_jdoc_get_root(IN tt_jdoc_t *jd)
 {
     Document *p = static_cast<Document *>(jd->p);

@@ -31,6 +31,7 @@ this file defines http service type
 ////////////////////////////////////////////////////////////
 
 #include <io/tt_file_system.h>
+#include <json/tt_json_document.h>
 #include <network/http/def/tt_http_def.h>
 
 ////////////////////////////////////////////////////////////
@@ -54,6 +55,11 @@ typedef struct
     tt_s32_t size;
     tt_bool_t f_valid : 1;
 } tt_http_inserv_file_ctx_t;
+
+typedef struct
+{
+    tt_jdoc_t jdoc;
+} tt_http_inserv_param_ctx_t;
 
 ////////////////////////////////////////////////////////////
 // global variants

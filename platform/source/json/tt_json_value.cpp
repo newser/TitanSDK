@@ -317,8 +317,6 @@ void tt_jval_init_strn(IN tt_jval_t *jv,
 {
     Value *v = reinterpret_cast<Value *>(jv);
     new (v) Value(val, len);
-
-    jv->extra = (tt_ptr_t)jd->p;
 }
 
 void tt_jval_create_strn(IN tt_jval_t *jv,
@@ -329,8 +327,6 @@ void tt_jval_create_strn(IN tt_jval_t *jv,
     Value *v = reinterpret_cast<Value *>(jv);
     Document *d = (Document *)jd->p;
     new (v) Value(val, len, d->GetAllocator());
-
-    jv->extra = (tt_ptr_t)jd->p;
 }
 
 tt_bool_t tt_jval_is_str(IN tt_jval_t *jv)
@@ -355,11 +351,11 @@ void tt_jval_set_strn(IN tt_jval_t *jv,
 
 void tt_jval_copy_strn(IN tt_jval_t *jv,
                        IN const tt_char_t *val,
-                       IN tt_u32_t len)
+                       IN tt_u32_t len,
+                       IN tt_jdoc_t *jd)
 {
     Value *v = reinterpret_cast<Value *>(jv);
-    Document *d = (Document *)jv->extra;
-
+    Document *d = (Document *)jd->p;
     v->SetString(val, len, d->GetAllocator());
 }
 
@@ -371,8 +367,6 @@ void tt_jval_init_array(IN tt_jval_t *jv, IN tt_jdoc_t *jd)
 {
     Value *v = reinterpret_cast<Value *>(jv);
     new (v) Value(kArrayType);
-
-    jv->extra = (tt_ptr_t)jd->p;
 }
 
 tt_bool_t tt_jval_is_array(IN tt_jval_t *jv)
@@ -411,19 +405,19 @@ tt_u32_t tt_jarray_capacity(IN tt_jval_t *jv)
     return v->Capacity();
 }
 
-void tt_jarray_reserve(IN tt_jval_t *jv, IN tt_u32_t num)
+void tt_jarray_reserve(IN tt_jval_t *jv, IN tt_u32_t num, IN tt_jdoc_t *jd)
 {
     Value *v = reinterpret_cast<Value *>(jv);
-    Document *d = (Document *)jv->extra;
+    Document *d = (Document *)jd->p;
 
     v->Reserve(v->Size() + num, d->GetAllocator());
 }
 
-void tt_jarray_push(IN tt_jval_t *jv, IN TO tt_jval_t *val)
+void tt_jarray_push(IN tt_jval_t *jv, IN TO tt_jval_t *val, IN tt_jdoc_t *jd)
 {
     Value *v = reinterpret_cast<Value *>(jv);
-    Document *d = (Document *)jv->extra;
     Value *child = reinterpret_cast<Value *>(val);
+    Document *d = (Document *)jd->p;
 
     v->PushBack(*child, d->GetAllocator());
     tt_jval_destroy(val);
@@ -473,80 +467,79 @@ void tt_jarray_remove(IN tt_jval_t *jv, IN OUT tt_jarray_iter_t *iter)
     iter->i = v->Erase(i);
 }
 
-void tt_jarray_push_null(IN tt_jval_t *jv)
+void tt_jarray_push_null(IN tt_jval_t *jv, IN tt_jdoc_t *jd)
 {
     Value *v = reinterpret_cast<Value *>(jv);
-    Document *d = (Document *)jv->extra;
+    Document *d = (Document *)jd->p;
 
     v->PushBack(Value(kNullType).Move(), d->GetAllocator());
 }
 
-void tt_jarray_push_bool(IN tt_jval_t *jv, IN tt_bool_t val)
+void tt_jarray_push_bool(IN tt_jval_t *jv, IN tt_bool_t val, IN tt_jdoc_t *jd)
 {
     Value *v = reinterpret_cast<Value *>(jv);
-    Document *d = (Document *)jv->extra;
+    Document *d = (Document *)jd->p;
 
     v->PushBack(Value((bool)val).Move(), d->GetAllocator());
 }
 
-void tt_jarray_push_u32(IN tt_jval_t *jv, IN tt_u32_t val)
+void tt_jarray_push_u32(IN tt_jval_t *jv, IN tt_u32_t val, IN tt_jdoc_t *jd)
 {
     Value *v = reinterpret_cast<Value *>(jv);
-    Document *d = (Document *)jv->extra;
+    Document *d = (Document *)jd->p;
 
     v->PushBack(Value((unsigned int)val).Move(), d->GetAllocator());
 }
 
-void tt_jarray_push_s32(IN tt_jval_t *jv, IN tt_s32_t val)
+void tt_jarray_push_s32(IN tt_jval_t *jv, IN tt_s32_t val, IN tt_jdoc_t *jd)
 {
     Value *v = reinterpret_cast<Value *>(jv);
-    Document *d = (Document *)jv->extra;
+    Document *d = (Document *)jd->p;
 
     v->PushBack(Value((int)val).Move(), d->GetAllocator());
 }
 
-void tt_jarray_push_u64(IN tt_jval_t *jv, IN tt_u64_t val)
+void tt_jarray_push_u64(IN tt_jval_t *jv, IN tt_u64_t val, IN tt_jdoc_t *jd)
 {
     Value *v = reinterpret_cast<Value *>(jv);
-    Document *d = (Document *)jv->extra;
+    Document *d = (Document *)jd->p;
 
     v->PushBack(Value((uint64_t)val).Move(), d->GetAllocator());
 }
 
-void tt_jarray_push_s64(IN tt_jval_t *jv, IN tt_s64_t val)
+void tt_jarray_push_s64(IN tt_jval_t *jv, IN tt_s64_t val, IN tt_jdoc_t *jd)
 {
     Value *v = reinterpret_cast<Value *>(jv);
-    Document *d = (Document *)jv->extra;
+    Document *d = (Document *)jd->p;
 
     v->PushBack(Value((int64_t)val).Move(), d->GetAllocator());
 }
 
-void tt_jarray_push_double(IN tt_jval_t *jv, IN tt_double_t val)
+void tt_jarray_push_double(IN tt_jval_t *jv,
+                           IN tt_double_t val,
+                           IN tt_jdoc_t *jd)
 {
     Value *v = reinterpret_cast<Value *>(jv);
-    Document *d = (Document *)jv->extra;
+    Document *d = (Document *)jd->p;
 
     v->PushBack(Value((double)val).Move(), d->GetAllocator());
 }
 
 void tt_jarray_push_strn(IN tt_jval_t *jv,
                          IN const tt_char_t *val,
-                         IN tt_u32_t len)
+                         IN tt_u32_t len,
+                         IN tt_bool_t copy,
+                         IN tt_jdoc_t *jd)
 {
     Value *v = reinterpret_cast<Value *>(jv);
-    Document *d = (Document *)jv->extra;
+    Document *d = (Document *)jd->p;
 
-    v->PushBack(Value(val, len).Move(), d->GetAllocator());
-}
-
-void tt_jarray_copy_strn(IN tt_jval_t *jv,
-                         IN const tt_char_t *val,
-                         IN tt_u32_t len)
-{
-    Value *v = reinterpret_cast<Value *>(jv);
-    Document *d = (Document *)jv->extra;
-
-    v->PushBack(Value(val, len, d->GetAllocator()).Move(), d->GetAllocator());
+    if (copy) {
+        v->PushBack(Value(val, len, d->GetAllocator()).Move(),
+                    d->GetAllocator());
+    } else {
+        v->PushBack(Value(val, len).Move(), d->GetAllocator());
+    }
 }
 
 // ========================================
@@ -557,8 +550,6 @@ void tt_jval_init_obj(IN tt_jval_t *jv, IN tt_jdoc_t *jd)
 {
     Value *v = reinterpret_cast<Value *>(jv);
     new (v) Value(kObjectType);
-
-    jv->extra = (tt_ptr_t)jd->p;
 }
 
 tt_bool_t tt_jval_is_obj(IN tt_jval_t *jv)
@@ -597,10 +588,10 @@ tt_u32_t tt_jobj_capacity(IN tt_jval_t *jv)
     return v->MemberCapacity();
 }
 
-void tt_jobj_reserve(IN tt_jval_t *jv, IN tt_u32_t num)
+void tt_jobj_reserve(IN tt_jval_t *jv, IN tt_u32_t num, IN tt_jdoc_t *jd)
 {
     Value *v = reinterpret_cast<Value *>(jv);
-    Document *d = (Document *)jv->extra;
+    Document *d = (Document *)jd->p;
     v->MemberReserve(v->MemberCapacity() + num, d->GetAllocator());
 }
 
@@ -624,136 +615,218 @@ tt_bool_t tt_jobj_contain(IN tt_jval_t *jv, IN const tt_char_t *name)
 
 void tt_jobj_add(IN tt_jval_t *jv,
                  IN const tt_char_t *name,
-                 IN TO tt_jval_t *val)
+                 IN tt_u32_t name_len,
+                 IN tt_bool_t copy_name,
+                 IN TO tt_jval_t *val,
+                 IN tt_jdoc_t *jd)
 {
     Value *o = reinterpret_cast<Value *>(jv);
     Value *v = reinterpret_cast<Value *>(val);
-    Document *d = (Document *)jv->extra;
+    Document *d = (Document *)jd->p;
 
-    o->AddMember(Value(name, tt_strlen(name)).Move(), *v, d->GetAllocator());
+    if (copy_name) {
+        o->AddMember(Value(name, name_len, d->GetAllocator()).Move(),
+                     *v,
+                     d->GetAllocator());
+    } else {
+        o->AddMember(Value(name, name_len).Move(), *v, d->GetAllocator());
+    }
     tt_jval_destroy(val);
 }
 
 void tt_jobj_add_nv(IN tt_jval_t *jv,
                     IN TO tt_jval_t *name,
-                    IN TO tt_jval_t *val)
+                    IN TO tt_jval_t *val,
+                    IN tt_jdoc_t *jd)
 {
     Value *o = reinterpret_cast<Value *>(jv);
     Value *n = reinterpret_cast<Value *>(name);
     Value *v = reinterpret_cast<Value *>(val);
-    Document *d = (Document *)jv->extra;
+    Document *d = (Document *)jd->p;
 
     o->AddMember(*n, *v, d->GetAllocator());
     tt_jval_destroy(name);
     tt_jval_destroy(val);
 }
 
-void tt_jobj_add_null(IN tt_jval_t *jv, IN const tt_char_t *name)
+void tt_jobj_add_null(IN tt_jval_t *jv,
+                      IN const tt_char_t *name,
+                      IN tt_u32_t name_len,
+                      IN tt_bool_t copy_name,
+                      IN tt_jdoc_t *jd)
 {
     Value *o = reinterpret_cast<Value *>(jv);
-    Document *d = (Document *)jv->extra;
+    Document *d = (Document *)jd->p;
 
-    o->AddMember(Value(name, tt_strlen(name)).Move(),
-                 Value(kNullType).Move(),
-                 d->GetAllocator());
+    if (copy_name) {
+        o->AddMember(Value(name, name_len, d->GetAllocator()).Move(),
+                     Value(kNullType).Move(),
+                     d->GetAllocator());
+    } else {
+        o->AddMember(Value(name, name_len).Move(),
+                     Value(kNullType).Move(),
+                     d->GetAllocator());
+    }
 }
 
 void tt_jobj_add_bool(IN tt_jval_t *jv,
                       IN const tt_char_t *name,
-                      IN tt_bool_t val)
+                      IN tt_u32_t name_len,
+                      IN tt_bool_t copy_name,
+                      IN tt_bool_t val,
+                      IN tt_jdoc_t *jd)
 {
     Value *o = reinterpret_cast<Value *>(jv);
-    Document *d = (Document *)jv->extra;
+    Document *d = (Document *)jd->p;
 
-    o->AddMember(Value(name, tt_strlen(name)).Move(),
-                 Value((bool)val).Move(),
-                 d->GetAllocator());
+    if (copy_name) {
+        o->AddMember(Value(name, name_len, d->GetAllocator()).Move(),
+                     Value((bool)val).Move(),
+                     d->GetAllocator());
+    } else {
+        o->AddMember(Value(name, name_len).Move(),
+                     Value((bool)val).Move(),
+                     d->GetAllocator());
+    }
 }
 
 void tt_jobj_add_u32(IN tt_jval_t *jv,
                      IN const tt_char_t *name,
-                     IN tt_u32_t val)
+                     IN tt_u32_t name_len,
+                     IN tt_bool_t copy_name,
+                     IN tt_u32_t val,
+                     IN tt_jdoc_t *jd)
 {
     Value *o = reinterpret_cast<Value *>(jv);
-    Document *d = (Document *)jv->extra;
+    Document *d = (Document *)jd->p;
 
-    o->AddMember(Value(name, tt_strlen(name)).Move(),
-                 Value((unsigned int)val).Move(),
-                 d->GetAllocator());
+    if (copy_name) {
+        o->AddMember(Value(name, name_len, d->GetAllocator()).Move(),
+                     Value((unsigned int)val).Move(),
+                     d->GetAllocator());
+    } else {
+        o->AddMember(Value(name, name_len).Move(),
+                     Value((unsigned int)val).Move(),
+                     d->GetAllocator());
+    }
 }
 
 void tt_jobj_add_s32(IN tt_jval_t *jv,
                      IN const tt_char_t *name,
-                     IN tt_s32_t val)
+                     IN tt_u32_t name_len,
+                     IN tt_bool_t copy_name,
+                     IN tt_s32_t val,
+                     IN tt_jdoc_t *jd)
 {
     Value *o = reinterpret_cast<Value *>(jv);
-    Document *d = (Document *)jv->extra;
+    Document *d = (Document *)jd->p;
 
-    o->AddMember(Value(name, tt_strlen(name)).Move(),
-                 Value((int)val).Move(),
-                 d->GetAllocator());
+    if (copy_name) {
+        o->AddMember(Value(name, name_len, d->GetAllocator()).Move(),
+                     Value((int)val).Move(),
+                     d->GetAllocator());
+    } else {
+        o->AddMember(Value(name, name_len).Move(),
+                     Value((int)val).Move(),
+                     d->GetAllocator());
+    }
 }
 
 void tt_jobj_add_u64(IN tt_jval_t *jv,
                      IN const tt_char_t *name,
-                     IN tt_u64_t val)
+                     IN tt_u32_t name_len,
+                     IN tt_bool_t copy_name,
+                     IN tt_u64_t val,
+                     IN tt_jdoc_t *jd)
 {
     Value *o = reinterpret_cast<Value *>(jv);
-    Document *d = (Document *)jv->extra;
-
-    o->AddMember(Value(name, tt_strlen(name)).Move(),
-                 Value((uint64_t)val).Move(),
-                 d->GetAllocator());
+    Document *d = (Document *)jd->p;
+    if (copy_name) {
+        o->AddMember(Value(name, name_len, d->GetAllocator()).Move(),
+                     Value((uint64_t)val).Move(),
+                     d->GetAllocator());
+    } else {
+        o->AddMember(Value(name, name_len).Move(),
+                     Value((uint64_t)val).Move(),
+                     d->GetAllocator());
+    }
 }
 
 void tt_jobj_add_s64(IN tt_jval_t *jv,
                      IN const tt_char_t *name,
-                     IN tt_s64_t val)
+                     IN tt_u32_t name_len,
+                     IN tt_bool_t copy_name,
+                     IN tt_s64_t val,
+                     IN tt_jdoc_t *jd)
 {
     Value *o = reinterpret_cast<Value *>(jv);
-    Document *d = (Document *)jv->extra;
+    Document *d = (Document *)jd->p;
 
-    o->AddMember(Value(name, tt_strlen(name)).Move(),
-                 Value((int64_t)val).Move(),
-                 d->GetAllocator());
+    if (copy_name) {
+        o->AddMember(Value(name, name_len, d->GetAllocator()).Move(),
+                     Value((int64_t)val).Move(),
+                     d->GetAllocator());
+    } else {
+        o->AddMember(Value(name, name_len).Move(),
+                     Value((int64_t)val).Move(),
+                     d->GetAllocator());
+    }
 }
 
 void tt_jobj_add_double(IN tt_jval_t *jv,
                         IN const tt_char_t *name,
-                        IN tt_double_t val)
+                        IN tt_u32_t name_len,
+                        IN tt_bool_t copy_name,
+                        IN tt_double_t val,
+                        IN tt_jdoc_t *jd)
 {
     Value *o = reinterpret_cast<Value *>(jv);
-    Document *d = (Document *)jv->extra;
+    Document *d = (Document *)jd->p;
 
-    o->AddMember(Value(name, tt_strlen(name)).Move(),
-                 Value((double)val).Move(),
-                 d->GetAllocator());
+    if (copy_name) {
+        o->AddMember(Value(name, name_len, d->GetAllocator()).Move(),
+                     Value((double)val).Move(),
+                     d->GetAllocator());
+    } else {
+        o->AddMember(Value(name, name_len).Move(),
+                     Value((double)val).Move(),
+                     d->GetAllocator());
+    }
 }
 
 void tt_jobj_add_strn(IN tt_jval_t *jv,
                       IN const tt_char_t *name,
+                      IN tt_u32_t name_len,
+                      IN tt_bool_t copy_name,
                       IN const tt_char_t *val,
-                      IN tt_u32_t len)
+                      IN tt_u32_t val_len,
+                      IN tt_bool_t copy_val,
+                      IN struct tt_jdoc_s *jd)
 {
     Value *o = reinterpret_cast<Value *>(jv);
-    Document *d = (Document *)jv->extra;
+    Document *d = (Document *)jd->p;
 
-    o->AddMember(Value(name, tt_strlen(name)).Move(),
-                 Value(val, len).Move(),
-                 d->GetAllocator());
-}
-
-void tt_jobj_copy_strn(IN tt_jval_t *jv,
-                       IN const tt_char_t *name,
-                       IN const tt_char_t *val,
-                       IN tt_u32_t len)
-{
-    Value *o = reinterpret_cast<Value *>(jv);
-    Document *d = (Document *)jv->extra;
-
-    o->AddMember(Value(name, tt_strlen(name)).Move(),
-                 Value(name, tt_strlen(name), d->GetAllocator()).Move(),
-                 d->GetAllocator());
+    if (copy_name) {
+        if (copy_val) {
+            o->AddMember(Value(name, name_len, d->GetAllocator()).Move(),
+                         Value(val, val_len, d->GetAllocator()).Move(),
+                         d->GetAllocator());
+        } else {
+            o->AddMember(Value(name, name_len, d->GetAllocator()).Move(),
+                         Value(val, val_len).Move(),
+                         d->GetAllocator());
+        }
+    } else {
+        if (copy_val) {
+            o->AddMember(Value(name, name_len).Move(),
+                         Value(val, val_len, d->GetAllocator()).Move(),
+                         d->GetAllocator());
+        } else {
+            o->AddMember(Value(name, name_len).Move(),
+                         Value(val, val_len).Move(),
+                         d->GetAllocator());
+        }
+    }
 }
 
 void tt_jobj_remove(IN tt_jval_t *jv, IN const tt_char_t *name)

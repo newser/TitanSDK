@@ -17,63 +17,59 @@
  */
 
 /**
-@file tt_http_content_type_def.h
-@brief http content type def
+@file tt_http_inserv_param.h
+@brief http service param
 
-this file defines http content type
+this file defines http incoming service: param
 */
 
-#ifndef __TT_HTTP_CONTENT_TYPE_DEF__
-#define __TT_HTTP_CONTENT_TYPE_DEF__
+#ifndef __TT_HTTP_INSERVICE_PARAM__
+#define __TT_HTTP_INSERVICE_PARAM__
 
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <tt_basic_type.h>
+#include <network/http/tt_http_in_service.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
 ////////////////////////////////////////////////////////////
 
-#define TT_HTTP_CONTYPE_MAP(__ENTRY)                                           \
-    __ENTRY(APP_JSON, "application/json", "json")                              \
-    __ENTRY(APP_JS, "application/javascript", "js")                            \
-    __ENTRY(APP_OCTET, "application/octet-stream", NULL)                       \
-    __ENTRY(TXT_PLAIN, "text/plain", "txt")                                    \
-    __ENTRY(TXT_CSS, "text/css", "css")                                        \
-    __ENTRY(TXT_HTML, "text/html", "htm;html;htx;xhtml")
-
 ////////////////////////////////////////////////////////////
 // type definition
 ////////////////////////////////////////////////////////////
 
-typedef enum {
-#define __ENTRY(id, str, ext) TT_HTTP_CONTYPE_##id,
-    TT_HTTP_CONTYPE_MAP(__ENTRY)
-#undef __ENTRY
-
-        TT_HTTP_CONTYPE_NUM
-} tt_http_contype_t;
-#define TT_HTTP_CONTYPE_VALID(h) ((h) < TT_HTTP_CONTYPE_NUM)
+struct tt_component_s;
+struct tt_profile_s *profile;
+struct tt_param_s;
 
 typedef struct
 {
-    tt_http_contype_t type;
-    const tt_char_t *name;
-    const tt_char_t *ext;
-    tt_u32_t name_len;
-    tt_u32_t ext_len;
-} tt_http_contype_entry_t;
+    const tt_char_t *path;
+    tt_u32_t path_len;
+} tt_http_inserv_param_attr_t;
 
 ////////////////////////////////////////////////////////////
 // global variants
 ////////////////////////////////////////////////////////////
 
-tt_export tt_http_contype_entry_t tt_g_http_contype_static[TT_HTTP_CONTYPE_NUM];
+tt_export tt_http_inserv_t *tt_g_http_inserv_param;
 
 ////////////////////////////////////////////////////////////
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-#endif /* __TT_HTTP_CONTENT_TYPE_DEF__ */
+tt_export tt_result_t tt_http_inserv_param_component_init(
+    IN struct tt_component_s *comp, IN struct tt_profile_s *profile);
+
+tt_export void tt_http_inserv_param_component_exit(
+    IN struct tt_component_s *comp);
+
+tt_export tt_http_inserv_t *tt_http_inserv_param_create(
+    IN struct tt_param_s *root, IN OPT tt_http_inserv_param_attr_t *attr);
+
+tt_export void tt_http_inserv_param_attr_default(
+    IN tt_http_inserv_param_attr_t *attr);
+
+#endif /* __TT_HTTP_INSERVICE_PARAM__ */

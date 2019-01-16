@@ -440,6 +440,10 @@ TT_TEST_ROUTINE_DEFINE(case_jval_basic)
         TT_UT_TRUE(tt_jval_is_str(&jv), "");
         TT_UT_STREQ(tt_jval_get_str(&jv), "123", "");
 
+        tt_jval_copy_strn(&jv, "123", 3, &jd);
+        TT_UT_TRUE(tt_jval_is_str(&jv), "");
+        TT_UT_STREQ(tt_jval_get_str(&jv), "123", "");
+
         tt_jval_init_strn(&jv2, "456", 3, &jd);
         TT_UT_TRUE(tt_jval_is_str(&jv2), "");
         TT_UT_STREQ(tt_jval_get_str(&jv2), "456", "");
@@ -448,6 +452,9 @@ TT_TEST_ROUTINE_DEFINE(case_jval_basic)
         TT_UT_TRUE(tt_jval_cmp(&jv, &jv), "");
 
         tt_jval_set_strn(&jv2, "123", 3);
+        TT_UT_TRUE(tt_jval_cmp(&jv, &jv2), "");
+
+        tt_jval_copy_strn(&jv2, "123", 3, &jd);
         TT_UT_TRUE(tt_jval_cmp(&jv, &jv2), "");
 
         tt_jval_destroy(&jv);
@@ -486,7 +493,7 @@ TT_TEST_ROUTINE_DEFINE(case_jval_array)
     tt_jval_is_array(&jv);
     TT_UT_TRUE(tt_jarray_empty(&jv), "");
     TT_UT_EQUAL(tt_jarray_count(&jv), 0, "");
-    tt_jarray_reserve(&jv, 10);
+    tt_jarray_reserve(&jv, 10, &jd);
     TT_UT_TRUE(tt_jarray_empty(&jv), "");
     TT_UT_EQUAL(tt_jarray_count(&jv), 0, "");
     TT_UT_EQUAL(tt_jarray_capacity(&jv), 10, "");
@@ -508,13 +515,13 @@ TT_TEST_ROUTINE_DEFINE(case_jval_array)
         pv = tt_jarray_iter_next(&iter);
         TT_UT_NULL(pv, "");
 
-        tt_jarray_push(&jv, &v1);
-        tt_jarray_push(&jv, &v2);
-        tt_jarray_push(&jv, &v3);
+        tt_jarray_push(&jv, &v1, &jd);
+        tt_jarray_push(&jv, &v2, &jd);
+        tt_jarray_push(&jv, &v3, &jd);
         TT_UT_FALSE(tt_jarray_empty(&jv), "");
         TT_UT_EQUAL(tt_jarray_count(&jv), 3, "");
 
-        tt_jarray_reserve(&jv, 10);
+        tt_jarray_reserve(&jv, 10, &jd);
         TT_UT_EXP(tt_jarray_capacity(&jv) >= 13, "");
 
         pv = tt_jarray_get(&jv, 0);
@@ -544,15 +551,15 @@ TT_TEST_ROUTINE_DEFINE(case_jval_array)
         tt_jarray_clear(&jv);
         TT_UT_EQUAL(tt_jarray_count(&jv), 0, "");
 
-        tt_jarray_push_null(&jv);
-        tt_jarray_push_bool(&jv, TT_TRUE);
-        tt_jarray_push_u32(&jv, 0xffffffff);
-        tt_jarray_push_s32(&jv, -3);
-        tt_jarray_push_u64(&jv, ~0);
-        tt_jarray_push_s64(&jv, -4);
-        tt_jarray_push_double(&jv, 3.14);
-        tt_jarray_push_str(&jv, "123");
-        tt_jarray_copy_str(&jv, "xy");
+        tt_jarray_push_null(&jv, &jd);
+        tt_jarray_push_bool(&jv, TT_TRUE, &jd);
+        tt_jarray_push_u32(&jv, 0xffffffff, &jd);
+        tt_jarray_push_s32(&jv, -3, &jd);
+        tt_jarray_push_u64(&jv, ~0, &jd);
+        tt_jarray_push_s64(&jv, -4, &jd);
+        tt_jarray_push_double(&jv, 3.14, &jd);
+        tt_jarray_push_str(&jv, "123", TT_TRUE, &jd);
+        tt_jarray_push_str(&jv, "456", TT_FALSE, &jd);
         TT_UT_EQUAL(tt_jarray_count(&jv), 9, "");
 
         pv = tt_jarray_get(&jv, 0);
@@ -572,7 +579,7 @@ TT_TEST_ROUTINE_DEFINE(case_jval_array)
         pv = tt_jarray_get(&jv, 7);
         TT_UT_STREQ(tt_jval_get_str(pv), "123", "");
         pv = tt_jarray_get(&jv, 8);
-        TT_UT_STREQ(tt_jval_get_str(pv), "xy", "");
+        TT_UT_STREQ(tt_jval_get_str(pv), "456", "");
     }
 
     tt_jval_init_array(&jv, &jd);
@@ -617,11 +624,11 @@ TT_TEST_ROUTINE_DEFINE(case_jval_object)
         tt_jval_t name, val;
         tt_jval_init_str(&name, "name", &jd);
         tt_jval_init_str(&val, "val", &jd);
-        tt_jobj_add_nv(&jv, &name, &val);
+        tt_jobj_add_nv(&jv, &name, &val, &jd);
         TT_UT_FALSE(tt_jobj_empty(&jv), "");
         TT_UT_EQUAL(tt_jobj_member_count(&jv), 1, "");
 
-        tt_jobj_reserve(&jv, 3);
+        tt_jobj_reserve(&jv, 3, &jd);
         TT_UT_EXP(tt_jobj_capacity(&jv) >= 4, "");
 
         pv = tt_jobj_find(&jv, "nam");
@@ -650,14 +657,46 @@ TT_TEST_ROUTINE_DEFINE(case_jval_object)
         pv = tt_jobj_find(&jv, "nam");
         TT_UT_NULL(pv, "");
 
-        tt_jobj_add_null(&jv, "null");
-        tt_jobj_add_bool(&jv, "bool", TT_FALSE);
-        tt_jobj_add_u32(&jv, "u32", 0xfffffffe);
-        tt_jobj_add_s32(&jv, "s32", -1);
-        tt_jobj_add_u64(&jv, "u64", 0xfffffffefffffffe);
-        tt_jobj_add_s64(&jv, "s64", 0xfffffffeffffffff);
-        tt_jobj_add_double(&jv, "double", 1.23);
-        tt_jobj_add_str(&jv, "str", "str val");
+        tt_jobj_add_null(&jv, "null", sizeof("null") - 1, TT_TRUE, &jd);
+        tt_jobj_add_bool(&jv,
+                         "bool",
+                         sizeof("bool") - 1,
+                         TT_FALSE,
+                         TT_FALSE,
+                         &jd);
+        tt_jobj_add_u32(&jv,
+                        "u32",
+                        sizeof("u32") - 1,
+                        TT_TRUE,
+                        0xfffffffe,
+                        &jd);
+        tt_jobj_add_s32(&jv, "s32", sizeof("s32") - 1, TT_FALSE, -1, &jd);
+        tt_jobj_add_u64(&jv,
+                        "u64",
+                        sizeof("u64") - 1,
+                        TT_TRUE,
+                        0xfffffffefffffffe,
+                        &jd);
+        tt_jobj_add_s64(&jv,
+                        "s64",
+                        sizeof("s64") - 1,
+                        TT_FALSE,
+                        0xfffffffeffffffff,
+                        &jd);
+        tt_jobj_add_double(&jv,
+                           "double",
+                           sizeof("double") - 1,
+                           TT_TRUE,
+                           1.23,
+                           &jd);
+        tt_jobj_add_strn(&jv,
+                         "str",
+                         sizeof("str") - 1,
+                         TT_FALSE,
+                         "str val",
+                         sizeof("str val") - 1,
+                         TT_TRUE,
+                         &jd);
         TT_UT_EQUAL(tt_jobj_member_count(&jv), 8, "");
 
         pv = tt_jobj_find(&jv, "null");

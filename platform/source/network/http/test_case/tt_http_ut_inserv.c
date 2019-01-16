@@ -27,6 +27,7 @@
 #include <network/http/def/tt_http_service_def.h>
 #include <network/http/service/tt_http_inserv_conditional.h>
 #include <network/http/service/tt_http_inserv_file.h>
+#include <network/http/service/tt_http_inserv_param.h>
 #include <network/http/tt_http_parser.h>
 #include <network/http/tt_http_raw_header.h>
 #include <network/http/tt_http_render.h>
@@ -51,6 +52,7 @@
 // === routine declarations ================
 TT_TEST_ROUTINE_DECLARE(case_http_inserv_file)
 TT_TEST_ROUTINE_DECLARE(case_http_inserv_cond)
+TT_TEST_ROUTINE_DECLARE(case_http_inserv_param)
 // =========================================
 
 // === test case list ======================
@@ -75,6 +77,15 @@ TT_TEST_CASE("case_http_inserv_file",
                  NULL,
                  NULL),
 
+    TT_TEST_CASE("case_http_inserv_param",
+                 "http uri service: parameter",
+                 case_http_inserv_param,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL),
+
     TT_TEST_CASE_LIST_DEFINE_END(http_inserv_case)
     // =========================================
 
@@ -89,7 +100,7 @@ TT_TEST_CASE("case_http_inserv_file",
     ////////////////////////////////////////////////////////////
 
     /*
-    TT_TEST_ROUTINE_DEFINE(case_http_inserv_cond)
+    TT_TEST_ROUTINE_DEFINE(case_http_inserv_param)
     {
         //tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
 
@@ -642,6 +653,98 @@ TT_TEST_ROUTINE_DEFINE(case_http_inserv_cond)
     tt_http_inserv_destroy_ctx(is, &cond_ctx);
 
     tt_http_inserv_release(is);
+
+    tt_http_parser_destroy(&req);
+    tt_http_resp_render_destroy(&resp);
+
+    tt_slab_destroy(&rh);
+    tt_slab_destroy(&rv);
+
+    // test end
+    TT_TEST_CASE_LEAVE()
+}
+
+TT_TEST_ROUTINE_DEFINE(case_http_inserv_param)
+{
+    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+    tt_http_inserv_t *is;
+    tt_param_t *dir, *p, *d2;
+    tt_u32_t u32_val = 999;
+    tt_http_inserv_param_attr_t a;
+    tt_http_inserv_param_ctx_t c;
+    tt_string_t s2;
+    tt_http_inserv_action_t act;
+
+    tt_http_parser_t req;
+    tt_http_resp_render_t resp;
+    tt_slab_t rh, rv;
+
+    TT_TEST_CASE_ENTER()
+    // test start
+
+    tt_string_init(&s2, NULL);
+    TT_UT_SUCCESS(tt_slab_create(&rh, sizeof(tt_http_rawhdr_t), NULL), "");
+    TT_UT_SUCCESS(tt_slab_create(&rv, sizeof(tt_http_rawval_t), NULL), "");
+    TT_UT_SUCCESS(tt_http_parser_create(&req, &rh, &rv, NULL), "");
+    tt_http_resp_render_init(&resp, NULL);
+
+    d2 = tt_param_dir_create("d2", NULL);
+    p = tt_param_u32_create("u32-1", &u32_val, NULL, NULL);
+    tt_param_dir_add(TT_PARAM_CAST(d2, tt_param_dir_t), p);
+
+    dir = tt_param_dir_create("dir", NULL);
+    tt_param_dir_add(TT_PARAM_CAST(dir, tt_param_dir_t), d2);
+    p = tt_param_u32_create("u32-2", &u32_val, NULL, NULL);
+    tt_param_dir_add(TT_PARAM_CAST(dir, tt_param_dir_t), p);
+
+    tt_http_inserv_param_attr_default(&a);
+    a.path = "/config";
+    a.path_len = sizeof("/config") - 1;
+
+    is = tt_http_inserv_param_create(dir, &a);
+    TT_UT_NOT_NULL(is, "");
+    tt_http_inserv_release(is);
+
+    is = tt_http_inserv_param_create(dir, &a);
+    TT_UT_NOT_NULL(is, "");
+
+    TT_UT_SUCCESS(tt_http_inserv_create_ctx(is, &c), "");
+
+    {
+        tt_string_clear(&s2);
+        tt_string_append(&s2, "GET /confi HTTP/1.1\r\n\r\n");
+
+        TT_UT_TRUE(__mk_parser(&req, tt_string_cstr(&s2)), "");
+
+        tt_http_resp_render_clear(&resp);
+
+        act = tt_http_inserv_on_header(is, &c, &req, &resp);
+        TT_UT_EQUAL(act, TT_HTTP_INSERV_ACT_PASS, "");
+    }
+
+    {
+        tt_http_inserv_clear(is);
+        tt_http_inserv_clear_ctx(is, &c);
+
+        tt_string_clear(&s2);
+        tt_string_append(&s2, "GET /config HTTP/1.1\r\n\r\n");
+
+        TT_UT_TRUE(__mk_parser(&req, tt_string_cstr(&s2)), "");
+
+        tt_http_resp_render_clear(&resp);
+
+        act = tt_http_inserv_on_header(is, &c, &req, &resp);
+        TT_UT_EQUAL(act, TT_HTTP_INSERV_ACT_OWNER, "");
+        act = tt_http_inserv_on_complete(is, &c, &req, &resp);
+        TT_UT_EQUAL(act, TT_HTTP_INSERV_ACT_BODY, "");
+    }
+
+    tt_http_inserv_destroy_ctx(is, &c);
+    tt_http_inserv_release(is);
+
+    tt_param_destroy(dir);
+
+    tt_string_destroy(&s2);
 
     tt_http_parser_destroy(&req);
     tt_http_resp_render_destroy(&resp);

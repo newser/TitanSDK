@@ -43,7 +43,6 @@ this file specifies json val
     typedef struct                                                             \
     {                                                                          \
         tt_u8_t reserved[TT_JVAL_SIZE];                                        \
-        tt_ptr_t extra;                                                        \
     } t
 
 ////////////////////////////////////////////////////////////
