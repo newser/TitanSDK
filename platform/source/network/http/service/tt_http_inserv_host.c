@@ -102,7 +102,8 @@ tt_http_inserv_t *tt_http_inserv_host_create(
         attr = &__attr;
     }
 
-    s = tt_http_inserv_create(sizeof(tt_http_inserv_host_attr_t),
+    s = tt_http_inserv_create(TT_HTTP_INSERV_HOST,
+                              sizeof(tt_http_inserv_host_attr_t),
                               &s_inserv_host_itf,
                               &s_inserv_host_cb);
     if (s == NULL) {
@@ -129,7 +130,7 @@ tt_http_inserv_action_t __inserv_host_on_hdr(IN tt_http_inserv_t *s,
 {
     tt_http_inserv_host_t *sh = TT_HTTP_INSERV_CAST(s, tt_http_inserv_host_t);
 
-    tt_http_sconn_t *c = req->c;
+    tt_http_svcmgr_t *sm = &req->c->svcmgr;
     tt_http_uri_t *uri;
     tt_http_rule_result_t rule_result;
     tt_http_status_t status = TT_HTTP_STATUS_INTERNAL_SERVER_ERROR;
@@ -138,7 +139,7 @@ tt_http_inserv_action_t __inserv_host_on_hdr(IN tt_http_inserv_t *s,
     //  - install host for req
     //  - let host process the req
 
-    if (c->host == NULL) {
+    if (sm->host == NULL) {
         tt_u32_t n;
         tt_blobex_t *name;
         tt_http_hostset_t *hostset;
@@ -178,9 +179,9 @@ tt_http_inserv_action_t __inserv_host_on_hdr(IN tt_http_inserv_t *s,
             goto fail;
         }
 
-        c->host = host;
+        sm->host = host;
     }
-    TT_ASSERT(c->host != NULL);
+    TT_ASSERT(sm->host != NULL);
 
     uri = tt_http_parser_get_uri(req);
     if (uri == NULL) {
@@ -188,7 +189,7 @@ tt_http_inserv_action_t __inserv_host_on_hdr(IN tt_http_inserv_t *s,
         goto fail;
     }
 
-    rule_result = tt_http_host_apply(c->host, uri);
+    rule_result = tt_http_host_apply(sm->host, uri);
     if (rule_result == TT_HTTP_RULE_ERROR) {
         status = TT_HTTP_STATUS_INTERNAL_SERVER_ERROR;
         goto fail;

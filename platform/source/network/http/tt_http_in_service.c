@@ -46,12 +46,14 @@
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-tt_http_inserv_t *tt_http_inserv_create(IN tt_u32_t extra_size,
+tt_http_inserv_t *tt_http_inserv_create(IN tt_http_inserv_type_t type,
+                                        IN tt_u32_t extra_size,
                                         IN tt_http_inserv_itf_t *itf,
                                         IN tt_http_inserv_cb_t *cb)
 {
     tt_http_inserv_t *s;
 
+    TT_ASSERT(TT_HTTP_INSERV_TYPE_VALID(type));
     TT_ASSERT(itf != NULL);
     TT_ASSERT(cb != NULL);
 
@@ -64,6 +66,7 @@ tt_http_inserv_t *tt_http_inserv_create(IN tt_u32_t extra_size,
     s->itf = itf;
     s->cb = cb;
     tt_atomic_s32_set(&s->ref, 1);
+    s->type = type;
 
     return s;
 }

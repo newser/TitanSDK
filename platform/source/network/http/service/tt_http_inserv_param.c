@@ -27,6 +27,7 @@
 #include <network/http/def/tt_http_service_def.h>
 #include <network/http/tt_http_parser.h>
 #include <network/http/tt_http_render.h>
+#include <param/tt_param_bool.h>
 #include <param/tt_param_dir.h>
 #include <param/tt_param_path.h>
 
@@ -69,7 +70,7 @@ static tt_http_inserv_itf_t s_inserv_param_itf = {NULL,
                                                   __destroy_ctx,
                                                   __clear_ctx};
 
-static tt_http_inserv_action_t __inserv_param_on_hdr(
+static tt_http_inserv_action_t __inserv_param_on_uri(
     IN tt_http_inserv_t *s,
     IN void *ctx,
     IN tt_http_parser_t *req,
@@ -89,8 +90,8 @@ static tt_http_inserv_action_t __inserv_param_get_body(
     OUT tt_buf_t *buf);
 
 static tt_http_inserv_cb_t s_inserv_param_cb = {
+    __inserv_param_on_uri,
     NULL,
-    __inserv_param_on_hdr,
     NULL,
     NULL,
     __inserv_param_on_complete,
@@ -144,7 +145,8 @@ tt_http_inserv_t *tt_http_inserv_param_create(
         attr = &__attr;
     }
 
-    s = tt_http_inserv_create(sizeof(tt_http_inserv_param_t) + attr->path_len +
+    s = tt_http_inserv_create(TT_HTTP_INSERV_PARAM,
+                              sizeof(tt_http_inserv_param_t) + attr->path_len +
                                   1,
                               &s_inserv_param_itf,
                               &s_inserv_param_cb);
@@ -201,7 +203,7 @@ void __clear_ctx(IN tt_http_inserv_t *s, IN void *ctx)
     tt_jval_set_obj(tt_jdoc_get_root(jd));
 }
 
-tt_http_inserv_action_t __inserv_param_on_hdr(IN tt_http_inserv_t *s,
+tt_http_inserv_action_t __inserv_param_on_uri(IN tt_http_inserv_t *s,
                                               IN void *ctx,
                                               IN tt_http_parser_t *req,
                                               OUT tt_http_resp_render_t *resp)
@@ -243,6 +245,7 @@ tt_http_inserv_action_t __inserv_param_on_complete(
     tt_param_t *param;
     tt_buf_t buf;
     tt_result_t result;
+    tt_http_txenc_t txenc = TT_HTTP_TXENC_CHUNKED;
 
     uri = tt_http_parser_get_uri(req);
     fp = TT_COND(uri != NULL, tt_http_uri_get_path(uri), NULL);
@@ -275,7 +278,10 @@ tt_http_inserv_action_t __inserv_param_on_complete(
         return TT_HTTP_INSERV_ACT_DISCARD;
     }
 
+    tt_http_resp_render_set_status(resp, TT_HTTP_STATUS_OK);
     tt_http_resp_render_set_contype(resp, TT_HTTP_CONTYPE_APP_JSON);
+    // content length is unknown
+    tt_http_resp_render_set_txenc(resp, &txenc, 1);
 
     return TT_HTTP_INSERV_ACT_BODY;
 }
@@ -303,28 +309,42 @@ tt_result_t __param2json(IN tt_param_t *param,
                          IN tt_buf_t *buf)
 {
     switch (param->type) {
-        case TT_PARAM_BOOL:
+        case TT_PARAM_BOOL: {
+            tt_char_t tid[12] = {0};
+
+            tt_snprintf(tid, sizeof(tid), "%d", tt_param_tid(param));
+
+            // refer tt_param_bool_create(), bool param has two options:
+            // "0" and "1"
+            tt_jobj_add_strn(tt_jdoc_get_root(jd),
+                             tid,
+                             tt_strlen(tid),
+                             TT_TRUE,
+                             TT_COND(tt_param_get_bool(param), "1", "0"),
+                             1,
+                             TT_FALSE,
+                             jd);
+        } break;
+
         case TT_PARAM_U32:
         case TT_PARAM_S32:
         case TT_PARAM_STRING:
         case TT_PARAM_FLOAT: {
             tt_char_t tid[12] = {0};
-            tt_jval_t name, val;
 
             tt_snprintf(tid, sizeof(tid), "%d", tt_param_tid(param));
-            tt_jval_create_str(&name, tid, jd);
 
             tt_buf_clear(buf);
-            if (!TT_OK(tt_param_read(param, buf))) {
-                tt_jval_destroy(&name);
-                return TT_FAIL;
-            }
-            tt_jval_create_strn(&val,
-                                (tt_char_t *)TT_BUF_RPOS(buf),
-                                TT_BUF_RLEN(buf),
-                                jd);
+            TT_DO(tt_param_read(param, buf));
 
-            tt_jobj_add_nv(tt_jdoc_get_root(jd), &name, &val, jd);
+            tt_jobj_add_strn(tt_jdoc_get_root(jd),
+                             tid,
+                             tt_strlen(tid),
+                             TT_TRUE,
+                             (tt_char_t *)TT_BUF_RPOS(buf),
+                             TT_BUF_RLEN(buf),
+                             TT_TRUE,
+                             jd);
         } break;
 
         case TT_PARAM_DIR: {

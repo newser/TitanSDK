@@ -44,6 +44,12 @@
 // extern declaration
 ////////////////////////////////////////////////////////////
 
+extern tt_param_t *__html_spa_param;
+
+extern void __ut_html_spa_enter(void *enter_param);
+
+extern void __ut_html_spa_exit(void *enter_param);
+
 ////////////////////////////////////////////////////////////
 // global variant
 ////////////////////////////////////////////////////////////
@@ -111,9 +117,9 @@ TT_TEST_CASE("case_http_rule_basic",
                  "http server basic",
                  case_http_server_basic,
                  NULL,
+                 __ut_html_spa_enter,
                  NULL,
-                 NULL,
-                 NULL,
+                 __ut_html_spa_exit,
                  NULL),
 
     TT_TEST_CASE_LIST_DEFINE_END(http_svr_case)
@@ -480,11 +486,11 @@ TT_TEST_ROUTINE_DEFINE(case_http_host)
 
     tt_http_uri_init(&uri);
 
-    hh = tt_http_host_create("123", tt_http_host_match_cmp);
+    hh = tt_http_host_create("123", tt_http_host_match_cmp, NULL);
     TT_UT_NOT_NULL(hh, "");
     tt_http_host_destroy(hh);
 
-    hh = tt_http_host_create("123", NULL);
+    hh = tt_http_host_create("123", NULL, NULL);
     TT_UT_NOT_NULL(hh, "");
 
     {
@@ -588,7 +594,7 @@ TT_TEST_ROUTINE_DEFINE(case_http_host)
 
     // match any
     {
-        hh = tt_http_host_create("123", NULL);
+        hh = tt_http_host_create("123", NULL, NULL);
         TT_UT_NOT_NULL(hh, "");
 
         TT_UT_TRUE(tt_http_host_match(hh, NULL, 0), "");
@@ -629,7 +635,7 @@ static tt_result_t __http_svr_fb(IN void *param)
     {
         tt_http_rule_t *r;
 
-        ho = tt_http_host_create("does not matter", NULL);
+        ho = tt_http_host_create("does not matter", NULL, NULL);
         __ck_err(ho != NULL);
 
         r = tt_http_rule_startwith_create("/",
@@ -672,7 +678,7 @@ TT_TEST_ROUTINE_DEFINE(case_http_server_basic)
     TT_TEST_CASE_ENTER()
     // test start
 
-    return TT_SUCCESS;
+    // return TT_SUCCESS;
 
     tt_task_create(&t, NULL);
     tt_task_add_fiber(&t, NULL, __http_svr_fb, NULL, NULL);
@@ -705,12 +711,12 @@ TT_TEST_ROUTINE_DEFINE(case_http_hostset)
     }
 
     // add default
-    h1 = tt_http_host_create("test.com", NULL);
+    h1 = tt_http_host_create("test.com", NULL, NULL);
     TT_UT_NOT_NULL(h1, "");
     tt_http_hostset_set_default(&m, h1);
     TT_UT_EQUAL(m.default_host, h1, "");
 
-    h2 = tt_http_host_create("test.com:80", NULL);
+    h2 = tt_http_host_create("test.com:80", NULL, NULL);
     TT_UT_NOT_NULL(h2, "");
     tt_http_hostset_set_default(&m, h2);
     TT_UT_EQUAL(m.default_host, h2, "");
@@ -723,15 +729,15 @@ TT_TEST_ROUTINE_DEFINE(case_http_hostset)
     }
 
     // add some host
-    h[0] = tt_http_host_create("0", tt_http_host_match_cmp);
+    h[0] = tt_http_host_create("0", tt_http_host_match_cmp, NULL);
     TT_UT_NOT_NULL(h[0], "");
     tt_http_hostset_add(&m, h[0]);
 
-    h[1] = tt_http_host_create("1", tt_http_host_match_cmp);
+    h[1] = tt_http_host_create("1", tt_http_host_match_cmp, NULL);
     TT_UT_NOT_NULL(h[1], "");
     tt_http_hostset_add(&m, h[1]);
 
-    h[2] = tt_http_host_create("2", tt_http_host_match_cmp);
+    h[2] = tt_http_host_create("2", tt_http_host_match_cmp, NULL);
     TT_UT_NOT_NULL(h[2], "");
     tt_http_hostset_add(&m, h[2]);
 

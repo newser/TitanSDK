@@ -43,6 +43,14 @@
 // extern declaration
 ////////////////////////////////////////////////////////////
 
+tt_param_t *__html_spa_param;
+
+tt_string_t val_str;
+
+void __ut_html_spa_enter(void *enter_param);
+
+void __ut_html_spa_exit(void *enter_param);
+
 ////////////////////////////////////////////////////////////
 // global variant
 ////////////////////////////////////////////////////////////
@@ -103,9 +111,9 @@ TT_TEST_CASE("case_param_html_bs4_nav",
                  "param html: single page app",
                  case_param_html_bs4_spa,
                  NULL,
+                 __ut_html_spa_enter,
                  NULL,
-                 NULL,
-                 NULL,
+                 __ut_html_spa_exit,
                  NULL),
 
     TT_TEST_CASE("case_param_html_bs4_ctrl",
@@ -577,21 +585,13 @@ TT_TEST_ROUTINE_DEFINE(case_param_html_bs4_page)
     TT_TEST_CASE_LEAVE()
 }
 
-TT_TEST_ROUTINE_DEFINE(case_param_html_bs4_spa)
+void __ut_html_spa_enter(void *enter_param)
 {
-    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
-    tt_buf_t b;
     tt_param_t *pm, *p1, *p2, *c, *status, *plat, *http, *myapp;
-    tt_u32_t val_u32 = 100;
-    tt_s32_t val_s32 = 101;
-    tt_string_t val_str;
-    tt_param_bs4spa_t pg;
-    tt_bool_t t = TT_TRUE, f = TT_FALSE;
+    static tt_u32_t val_u32 = 100;
+    static tt_s32_t val_s32 = 101;
+    static tt_bool_t t = TT_TRUE, f = TT_FALSE;
 
-    TT_TEST_CASE_ENTER()
-    // test start
-
-    tt_buf_init(&b, NULL);
     tt_string_init(&val_str, NULL);
     tt_string_set(&val_str, "this is a string variable");
 
@@ -661,6 +661,34 @@ TT_TEST_ROUTINE_DEFINE(case_param_html_bs4_spa)
     tt_param_bs4ctrl_set_type(&c->bs4_ctrl, TT_PARAM_BS4_TEXTAREA);
     tt_param_dir_add(TT_PARAM_CAST(myapp, tt_param_dir_t), c);
 
+    __html_spa_param = pm;
+}
+
+void __ut_html_spa_exit(void *enter_param)
+{
+    if (__html_spa_param != NULL) {
+        tt_param_destroy(__html_spa_param);
+    }
+
+    tt_string_destroy(&val_str);
+}
+
+TT_TEST_ROUTINE_DEFINE(case_param_html_bs4_spa)
+{
+    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+    tt_buf_t b;
+    tt_param_t *pm;
+    tt_param_bs4spa_t pg;
+
+    TT_TEST_CASE_ENTER()
+    // test start
+
+    tt_buf_init(&b, NULL);
+
+    // root and children
+    pm = __html_spa_param;
+    TT_UT_NOT_NULL(pm, "");
+
     tt_param_bs4spa_init(&pg);
     tt_buf_clear(&b);
     TT_UT_SUCCESS(tt_param_bs4spa_render(&pg, pm, TT_PARAM_BS4_LV_USER, &b),
@@ -686,8 +714,6 @@ TT_TEST_ROUTINE_DEFINE(case_param_html_bs4_spa)
                   "");
 
     tt_buf_destroy(&b);
-    tt_param_destroy(pm);
-    tt_string_destroy(&val_str);
 
     // test end
     TT_TEST_CASE_LEAVE()

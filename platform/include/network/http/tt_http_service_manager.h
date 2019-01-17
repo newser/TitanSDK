@@ -31,6 +31,7 @@ this file defines http service manager APIs
 ////////////////////////////////////////////////////////////
 
 #include <network/http/def/tt_http_def.h>
+#include <network/http/def/tt_http_service_def.h>
 #include <network/http/tt_http_encoding_service.h>
 #include <network/http/tt_http_in_service.h>
 #include <network/http/tt_http_out_service.h>
@@ -38,8 +39,6 @@ this file defines http service manager APIs
 ////////////////////////////////////////////////////////////
 // macro definition
 ////////////////////////////////////////////////////////////
-
-#define TT_HTTP_INLINE_INSERV_NUM 16
 
 #define TT_HTTP_INLINE_OUTSERV_NUM 16
 
@@ -59,17 +58,24 @@ typedef struct
 
 typedef struct tt_http_svcmgr_s
 {
+    struct tt_http_host_s *host;
     tt_http_inserv_ctx_t *owner;
-    tt_http_inserv_ctx_t *inserv;
-    tt_http_inserv_ctx_t inline_inserv[TT_HTTP_INLINE_INSERV_NUM];
+    tt_http_inserv_ctx_t inserv[TT_HTTP_INSERV_TYPE_NUM];
+    tt_http_inserv_ctx_t dynamic_inserv[TT_HTTP_INSERV_TYPE_NUM];
     tt_http_outserv_t **outserv;
     tt_http_outserv_t *inline_outserv[TT_HTTP_INLINE_OUTSERV_NUM];
     tt_http_encserv_t *encserv[TT_HTTP_TXENC_NUM];
+    tt_http_inserv_param_ctx_t param_ctx;
+    tt_http_inserv_cond_ctx_t cond_ctx;
+    tt_http_inserv_file_ctx_t file_ctx;
     tt_u16_t inserv_num;
-    tt_u16_t inserv_max;
+    tt_u16_t dynamic_inserv_num;
     tt_u16_t outserv_num;
     tt_u16_t outserv_max;
+    tt_bool_t created_cond_ctx;
+    tt_bool_t created_file_ctx;
     tt_bool_t discarding : 1;
+    tt_bool_t loaded_dynamic_inserv : 1;
 } tt_http_svcmgr_t;
 
 ////////////////////////////////////////////////////////////
@@ -89,6 +95,16 @@ tt_export void tt_http_svcmgr_clear(IN tt_http_svcmgr_t *sm);
 tt_export tt_result_t tt_http_svcmgr_add_inserv(IN tt_http_svcmgr_t *sm,
                                                 IN TO tt_http_inserv_t *s,
                                                 IN OPT void *ctx);
+
+tt_export tt_result_t
+tt_http_svcmgr_add_dynamic_inserv(IN tt_http_svcmgr_t *sm,
+                                  IN TO tt_http_inserv_t *s,
+                                  IN OPT void *ctx,
+                                  IN OUT tt_bool_t *ctx_created);
+
+tt_export tt_result_t tt_http_svcmgr_add_inserv_host(IN tt_http_svcmgr_t *sm);
+
+tt_export tt_result_t tt_http_svcmgr_add_inserv_param(IN tt_http_svcmgr_t *sm);
 
 tt_export tt_result_t tt_http_svcmgr_add_outserv(IN tt_http_svcmgr_t *sm,
                                                  IN TO tt_http_outserv_t *s);

@@ -23,9 +23,7 @@
 #include <network/http/tt_http_server.h>
 
 #include <misc/tt_assert.h>
-#include <network/http/service/tt_http_inserv_conditional.h>
-#include <network/http/service/tt_http_inserv_file.h>
-#include <network/http/service/tt_http_inserv_host.h>
+#include <network/http/service/tt_http_inserv_param.h>
 #include <network/http/tt_http_server_connection.h>
 #include <time/tt_timer.h>
 
@@ -196,22 +194,28 @@ tt_result_t __sconn_skt_fiber(IN void *param)
 
 tt_result_t __sconn_add_default_serv(IN tt_http_sconn_t *c)
 {
-    // for loading host
-    if (!TT_OK(tt_http_sconn_add_inserv(c, tt_g_http_inserv_host, NULL))) {
+    if (!TT_OK(tt_http_svcmgr_add_inserv_host(&c->svcmgr))) {
         return TT_FAIL;
     }
 
-    // for file caching
-    if (!TT_OK(
-            tt_http_sconn_add_inserv(c, tt_g_http_inserv_cond, &c->cond_ctx))) {
+#if 0
+    // todo: configurable
+    if (!TT_OK(tt_http_svcmgr_add_inserv_param(&c->svcmgr))) {
         return TT_FAIL;
     }
+#else
+    {
+        static tt_http_inserv_t *inserv_param;
+        extern struct tt_param_s *__html_spa_param;
 
-    // for basic file retrieving
-    if (!TT_OK(
-            tt_http_sconn_add_inserv(c, tt_g_http_inserv_file, &c->file_ctx))) {
-        return TT_FAIL;
+        if (inserv_param == NULL) {
+            inserv_param = tt_http_inserv_param_create(__html_spa_param, NULL);
+        }
+        tt_http_svcmgr_add_inserv(&c->svcmgr,
+                                  inserv_param,
+                                  &c->svcmgr.param_ctx);
     }
+#endif
 
     return TT_SUCCESS;
 }

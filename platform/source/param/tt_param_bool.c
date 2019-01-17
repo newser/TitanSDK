@@ -96,6 +96,12 @@ tt_param_t *tt_param_bool_create(IN const tt_char_t *name,
     return p;
 }
 
+tt_bool_t tt_param_get_bool(IN tt_param_t *p)
+{
+    TT_ASSERT(p->type == TT_PARAM_BOOL);
+    return *(tt_bool_t *)p->opaque;
+}
+
 tt_result_t __bool_read(IN tt_param_t *p, OUT tt_buf_t *output)
 {
     tt_param_bool_t *pb = TT_PARAM_CAST(p, tt_param_bool_t);

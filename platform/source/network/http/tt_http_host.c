@@ -62,7 +62,8 @@ void tt_http_host_component_exit(IN tt_component_t *comp)
 
 tt_http_host_t *tt_http_host_create_n(IN OPT const tt_char_t *name,
                                       IN tt_u32_t name_len,
-                                      IN OPT tt_http_host_match_t match)
+                                      IN OPT tt_http_host_match_t match,
+                                      IN OPT tt_http_host_attr_t *attr)
 {
     // - no extra destroy
     // - match all uri
@@ -71,12 +72,18 @@ tt_http_host_t *tt_http_host_create_n(IN OPT const tt_char_t *name,
     // - always return TT_HTTP_RULE_NEXT
     static tt_http_rule_itf_t s_root_itf = {0};
 
+    tt_http_host_attr_t __attr;
     tt_http_host_t *h;
 
     tt_u32_t __done = 0;
 #define __HH_MEM (1 << 0)
 #define __HH_ROOT (1 << 1)
 #define __HH_NAME (1 << 2)
+
+    if (attr == NULL) {
+        tt_http_host_attr_default(&__attr);
+        attr = &__attr;
+    }
 
     h = tt_malloc(sizeof(tt_http_host_t));
     if (h == NULL) {
@@ -104,6 +111,9 @@ tt_http_host_t *tt_http_host_create_n(IN OPT const tt_char_t *name,
     }
     __done |= __HH_NAME;
 
+    h->enable_inserv_file = attr->enable_inserv_file;
+    h->enable_inserv_cache = attr->enable_inserv_cache;
+
     return h;
 
 fail:
@@ -121,6 +131,12 @@ fail:
     }
 
     return NULL;
+}
+
+void tt_http_host_attr_default(IN tt_http_host_attr_t *attr)
+{
+    attr->enable_inserv_file = TT_TRUE;
+    attr->enable_inserv_cache = TT_TRUE;
 }
 
 void tt_http_host_destroy(IN tt_http_host_t *h)

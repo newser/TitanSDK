@@ -33,6 +33,7 @@ this file defines http incoming service APIs
 #include <algorithm/tt_double_linked_list.h>
 #include <memory/tt_memory_alloc.h>
 #include <misc/tt_reference_counter.h>
+#include <network/http/def/tt_http_service_def.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
@@ -152,14 +153,8 @@ typedef struct tt_http_inserv_s
     tt_http_inserv_itf_t *itf;
     tt_http_inserv_cb_t *cb;
     tt_atomic_s32_t ref;
+    tt_http_inserv_type_t type : 8;
 } tt_http_inserv_t;
-
-typedef enum {
-    TT_HTTP_INSERV_DEFAULT,
-
-    TT_HTTP_INSERV_ID_NUM
-} tt_http_inserv_id_t;
-#define TT_HTTP_INSERV_ID_VAILID(i) ((i) < TT_HTTP_INSERV_ID_NUM)
 
 ////////////////////////////////////////////////////////////
 // global variants
@@ -169,7 +164,8 @@ typedef enum {
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-tt_export tt_http_inserv_t *tt_http_inserv_create(IN tt_u32_t extra_size,
+tt_export tt_http_inserv_t *tt_http_inserv_create(IN tt_http_inserv_type_t type,
+                                                  IN tt_u32_t extra_size,
                                                   IN tt_http_inserv_itf_t *itf,
                                                   IN tt_http_inserv_cb_t *cb);
 
@@ -192,7 +188,7 @@ tt_inline void tt_http_inserv_clear(IN tt_http_inserv_t *s)
 tt_inline tt_result_t tt_http_inserv_create_ctx(IN tt_http_inserv_t *s,
                                                 IN OPT void *ctx)
 {
-    if (s->itf->create_ctx != NULL) {
+    if ((s->itf->create_ctx != NULL) && (ctx != NULL)) {
         return s->itf->create_ctx(s, ctx);
     } else {
         return TT_SUCCESS;
@@ -201,14 +197,14 @@ tt_inline tt_result_t tt_http_inserv_create_ctx(IN tt_http_inserv_t *s,
 
 tt_inline void tt_http_inserv_destroy_ctx(IN tt_http_inserv_t *s, IN void *ctx)
 {
-    if (s->itf->destroy_ctx != NULL) {
+    if ((s->itf->destroy_ctx != NULL) && (ctx != NULL)) {
         s->itf->destroy_ctx(s, ctx);
     }
 }
 
 tt_inline void tt_http_inserv_clear_ctx(IN tt_http_inserv_t *s, IN void *ctx)
 {
-    if (s->itf->clear_ctx != NULL) {
+    if ((s->itf->clear_ctx != NULL) && (ctx != NULL)) {
         s->itf->clear_ctx(s, ctx);
     }
 }

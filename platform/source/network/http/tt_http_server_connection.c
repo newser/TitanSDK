@@ -467,8 +467,6 @@ tt_result_t __sconn_create(IN tt_http_sconn_t *c, IN tt_http_sconn_attr_t *attr)
     }
     __done |= __SC_TMR;
 
-    c->host = NULL;
-
     tt_http_svcmgr_init(&c->svcmgr);
     __done |= __SC_SVCMGR;
 
@@ -785,8 +783,6 @@ tt_bool_t __sconn_action(IN tt_http_sconn_t *c,
 
 void __sconn_clear(IN tt_http_sconn_t *c, IN tt_bool_t clear_recv_buf)
 {
-    c->host = NULL;
-
     tt_tmr_stop(c->tmr);
 
     tt_http_svcmgr_clear(&c->svcmgr);

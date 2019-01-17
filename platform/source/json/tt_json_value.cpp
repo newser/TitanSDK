@@ -801,7 +801,7 @@ void tt_jobj_add_strn(IN tt_jval_t *jv,
                       IN const tt_char_t *val,
                       IN tt_u32_t val_len,
                       IN tt_bool_t copy_val,
-                      IN struct tt_jdoc_s *jd)
+                      IN tt_jdoc_t *jd)
 {
     Value *o = reinterpret_cast<Value *>(jv);
     Document *d = (Document *)jd->p;

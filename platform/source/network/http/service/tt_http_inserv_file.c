@@ -139,7 +139,8 @@ tt_http_inserv_t *tt_http_inserv_file_create(
         attr = &__attr;
     }
 
-    s = tt_http_inserv_create(sizeof(tt_http_inserv_file_t),
+    s = tt_http_inserv_create(TT_HTTP_INSERV_FILE,
+                              sizeof(tt_http_inserv_file_t),
                               &s_inserv_file_itf,
                               &s_inserv_file_cb);
     if (s == NULL) {

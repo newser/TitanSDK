@@ -25,6 +25,7 @@
 #include <stdlib.h>
 
 #include <network/http/def/tt_http_service_def.h>
+#include <network/http/service/tt_http_encserv_chunked.h>
 #include <network/http/service/tt_http_inserv_conditional.h>
 #include <network/http/service/tt_http_inserv_file.h>
 #include <network/http/service/tt_http_inserv_param.h>
@@ -53,6 +54,8 @@
 TT_TEST_ROUTINE_DECLARE(case_http_inserv_file)
 TT_TEST_ROUTINE_DECLARE(case_http_inserv_cond)
 TT_TEST_ROUTINE_DECLARE(case_http_inserv_param)
+
+TT_TEST_ROUTINE_DECLARE(case_http_encserv_chunked)
 // =========================================
 
 // === test case list ======================
@@ -86,6 +89,15 @@ TT_TEST_CASE("case_http_inserv_file",
                  NULL,
                  NULL),
 
+    TT_TEST_CASE("case_http_encserv_chunked",
+                 "http encoding service: chunked",
+                 case_http_encserv_chunked,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL),
+
     TT_TEST_CASE_LIST_DEFINE_END(http_inserv_case)
     // =========================================
 
@@ -100,7 +112,7 @@ TT_TEST_CASE("case_http_inserv_file",
     ////////////////////////////////////////////////////////////
 
     /*
-    TT_TEST_ROUTINE_DEFINE(case_http_inserv_param)
+    TT_TEST_ROUTINE_DEFINE(case_http_encserv_chunked)
     {
         //tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
 
@@ -674,6 +686,7 @@ TT_TEST_ROUTINE_DEFINE(case_http_inserv_param)
     tt_http_inserv_param_ctx_t c;
     tt_string_t s2;
     tt_http_inserv_action_t act;
+    tt_buf_t b;
 
     tt_http_parser_t req;
     tt_http_resp_render_t resp;
@@ -683,6 +696,7 @@ TT_TEST_ROUTINE_DEFINE(case_http_inserv_param)
     // test start
 
     tt_string_init(&s2, NULL);
+    tt_buf_init(&b, NULL);
     TT_UT_SUCCESS(tt_slab_create(&rh, sizeof(tt_http_rawhdr_t), NULL), "");
     TT_UT_SUCCESS(tt_slab_create(&rv, sizeof(tt_http_rawval_t), NULL), "");
     TT_UT_SUCCESS(tt_http_parser_create(&req, &rh, &rv, NULL), "");
@@ -733,10 +747,23 @@ TT_TEST_ROUTINE_DEFINE(case_http_inserv_param)
 
         tt_http_resp_render_clear(&resp);
 
-        act = tt_http_inserv_on_header(is, &c, &req, &resp);
+        act = tt_http_inserv_on_uri(is, &c, &req, &resp);
         TT_UT_EQUAL(act, TT_HTTP_INSERV_ACT_OWNER, "");
+
+        act = tt_http_inserv_on_header(is, &c, &req, &resp);
+        TT_UT_EQUAL(act, TT_HTTP_INSERV_ACT_PASS, "");
+
         act = tt_http_inserv_on_complete(is, &c, &req, &resp);
         TT_UT_EQUAL(act, TT_HTTP_INSERV_ACT_BODY, "");
+        TT_UT_EQUAL(tt_http_resp_render_get_status(&resp),
+                    TT_HTTP_STATUS_OK,
+                    "");
+        TT_UT_EQUAL(resp.render.contype, TT_HTTP_CONTYPE_APP_JSON, "");
+
+        tt_buf_clear(&b);
+        act = tt_http_inserv_get_body(is, &c, &req, &resp, &b);
+        tt_buf_print_cstr(&b, 0);
+        TT_UT_EQUAL(act, TT_HTTP_INSERV_ACT_PASS, "");
     }
 
     tt_http_inserv_destroy_ctx(is, &c);
@@ -745,12 +772,66 @@ TT_TEST_ROUTINE_DEFINE(case_http_inserv_param)
     tt_param_destroy(dir);
 
     tt_string_destroy(&s2);
+    tt_buf_destroy(&b);
 
     tt_http_parser_destroy(&req);
     tt_http_resp_render_destroy(&resp);
-
     tt_slab_destroy(&rh);
     tt_slab_destroy(&rv);
+
+    // test end
+    TT_TEST_CASE_LEAVE()
+}
+
+TT_TEST_ROUTINE_DEFINE(case_http_encserv_chunked)
+{
+    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+    tt_http_encserv_t *es;
+    tt_buf_t b, *outb;
+
+    TT_TEST_CASE_ENTER()
+    // test start
+
+    tt_buf_init(&b, NULL);
+
+    es = tt_http_encserv_chunked_create();
+    TT_UT_NOT_NULL(es, "");
+    tt_http_encserv_clear(es);
+    tt_http_encserv_release(es);
+
+    es = tt_http_encserv_chunked_create();
+    TT_UT_NOT_NULL(es, "");
+
+    tt_buf_clear(&b);
+    TT_UT_SUCCESS(tt_http_encserv_pre_body(es, NULL, NULL, &b, &outb), "");
+    TT_UT_EQUAL(outb, &b, "");
+
+    tt_buf_clear(&b);
+    TT_UT_SUCCESS(tt_http_encserv_on_body(es, NULL, NULL, &b, &outb), "");
+    TT_UT_EQUAL(outb, &b, "");
+    TT_UT_EQUAL(tt_buf_cmp_cstr(outb, "0\r\n\r\n"), 0, "");
+
+    tt_buf_clear(&b);
+    tt_buf_put_u8(&b, 'x');
+    TT_UT_SUCCESS(tt_http_encserv_on_body(es, NULL, NULL, &b, &outb), "");
+    TT_UT_EQUAL(outb, &b, "");
+    TT_UT_EQUAL(tt_buf_cmp_cstr(outb, "1\r\nx\r\n"), 0, "");
+
+    tt_buf_clear(&b);
+    tt_buf_put(&b, "yz", 2);
+    TT_UT_SUCCESS(tt_http_encserv_on_body(es, NULL, NULL, &b, &outb), "");
+    TT_UT_EQUAL(outb, &b, "");
+    TT_UT_EQUAL(tt_buf_cmp_cstr(outb, "2\r\nyz\r\n"), 0, "");
+
+    tt_buf_clear(&b);
+    TT_UT_SUCCESS(tt_http_encserv_post_body(es, NULL, NULL, &b, &outb), "");
+    TT_UT_EQUAL(outb, &b, "");
+    TT_UT_EQUAL(tt_buf_cmp_cstr(outb, "0\r\n\r\n"), 0, "");
+
+    tt_http_encserv_clear(es);
+    tt_http_encserv_release(es);
+
+    tt_buf_clear(&b);
 
     // test end
     TT_TEST_CASE_LEAVE()

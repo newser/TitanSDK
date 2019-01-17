@@ -22,8 +22,14 @@
 
 #include <network/http/tt_http_service_manager.h>
 
+#include <network/http/service/tt_http_inserv_conditional.h>
+#include <network/http/service/tt_http_inserv_file.h>
+#include <network/http/service/tt_http_inserv_host.h>
+#include <network/http/service/tt_http_inserv_param.h>
+#include <network/http/tt_http_host.h>
 #include <network/http/tt_http_parser.h>
 #include <network/http/tt_http_render.h>
+#include <network/http/tt_http_server_connection.h>
 
 ////////////////////////////////////////////////////////////
 // internal macro
@@ -47,14 +53,32 @@
                                                                                \
     tt_inline void __##name##_ctx_destroy(IN tt_http_##name##_ctx_t *c)        \
     {                                                                          \
-        tt_http_##name##_destroy_ctx(c->s, c->ctx);                            \
-        tt_http_##name##_release(c->s);                                        \
+        if (c->s != NULL) {                                                    \
+            if (c->ctx != NULL) {                                              \
+                tt_http_##name##_destroy_ctx(c->s, c->ctx);                    \
+            }                                                                  \
+            tt_http_##name##_release(c->s);                                    \
+        }                                                                      \
     }                                                                          \
                                                                                \
     tt_inline void __##name##_ctx_clear(IN tt_http_##name##_ctx_t *c)          \
     {                                                                          \
-        tt_http_##name##_clear_ctx(c->s, c->ctx);                              \
-        tt_http_##name##_clear(c->s);                                          \
+        if (c->s != NULL) {                                                    \
+            if (c->ctx != NULL) {                                              \
+                tt_http_##name##_clear_ctx(c->s, c->ctx);                      \
+            }                                                                  \
+            tt_http_##name##_clear(c->s);                                      \
+        }                                                                      \
+    }                                                                          \
+                                                                               \
+    tt_inline void __##name##_ctx_clear_dynamic(IN tt_http_##name##_ctx_t *c)  \
+    {                                                                          \
+        if (c->s != NULL) {                                                    \
+            if (c->ctx != NULL) {                                              \
+                tt_http_##name##_clear_ctx(c->s, c->ctx);                      \
+            }                                                                  \
+            tt_http_##name##_release(c->s);                                    \
+        }                                                                      \
     }
 
 DEFINE_CTX_API(inserv)
@@ -75,6 +99,8 @@ DEFINE_CTX_API(inserv)
 // interface declaration
 ////////////////////////////////////////////////////////////
 
+static tt_result_t __load_dynamic_inserv(IN tt_http_svcmgr_t *sm);
+
 static tt_result_t __mk_txenc(IN tt_http_svcmgr_t *sm,
                               IN tt_http_resp_render_t *resp,
                               OUT tt_http_encserv_t *es[],
@@ -90,14 +116,18 @@ void tt_http_svcmgr_init(IN tt_http_svcmgr_t *sm)
 
     TT_ASSERT(sm != NULL);
 
+    sm->host = NULL;
     sm->owner = NULL;
 
-    for (i = 0; i < TT_HTTP_INLINE_INSERV_NUM; ++i) {
-        __inserv_ctx_init(&sm->inline_inserv[i]);
+    for (i = 0; i < TT_HTTP_INSERV_TYPE_NUM; ++i) {
+        __inserv_ctx_init(&sm->inserv[i]);
     }
-    sm->inserv = sm->inline_inserv;
     sm->inserv_num = 0;
-    sm->inserv_max = TT_HTTP_INLINE_INSERV_NUM;
+
+    for (i = 0; i < TT_HTTP_INSERV_TYPE_NUM; ++i) {
+        __inserv_ctx_init(&sm->dynamic_inserv[i]);
+    }
+    sm->dynamic_inserv_num = 0;
 
     for (i = 0; i < TT_HTTP_INLINE_OUTSERV_NUM; ++i) {
         sm->inline_outserv[i] = NULL;
@@ -110,7 +140,10 @@ void tt_http_svcmgr_init(IN tt_http_svcmgr_t *sm)
         sm->encserv[i] = NULL;
     }
 
+    sm->created_cond_ctx = TT_FALSE;
+    sm->created_file_ctx = TT_FALSE;
     sm->discarding = TT_FALSE;
+    sm->loaded_dynamic_inserv = TT_FALSE;
 }
 
 void tt_http_svcmgr_destroy(IN tt_http_svcmgr_t *sm)
@@ -122,8 +155,9 @@ void tt_http_svcmgr_destroy(IN tt_http_svcmgr_t *sm)
     for (i = 0; i < sm->inserv_num; ++i) {
         __inserv_ctx_destroy(&sm->inserv[i]);
     }
-    if (sm->inserv != sm->inline_inserv) {
-        tt_free(sm->inserv);
+
+    for (i = 0; i < sm->dynamic_inserv_num; ++i) {
+        __inserv_ctx_destroy(&sm->dynamic_inserv[i]);
     }
 
     for (i = 0; i < sm->outserv_num; ++i) {
@@ -146,11 +180,17 @@ void tt_http_svcmgr_clear(IN tt_http_svcmgr_t *sm)
 
     TT_ASSERT(sm != NULL);
 
+    sm->host = NULL;
     sm->owner = NULL;
 
     for (i = 0; i < sm->inserv_num; ++i) {
         __inserv_ctx_clear(&sm->inserv[i]);
     }
+
+    for (i = 0; i < sm->dynamic_inserv_num; ++i) {
+        __inserv_ctx_clear_dynamic(&sm->dynamic_inserv[i]);
+    }
+    sm->dynamic_inserv_num = 0;
 
     for (i = 0; i < sm->outserv_num; ++i) {
         tt_http_outserv_clear(sm->outserv[i]);
@@ -162,7 +202,10 @@ void tt_http_svcmgr_clear(IN tt_http_svcmgr_t *sm)
         }
     }
 
+    // DO NOT modify created_xxx_ctx
+
     sm->discarding = TT_FALSE;
+    sm->loaded_dynamic_inserv = TT_FALSE;
 }
 
 tt_result_t tt_http_svcmgr_add_inserv(IN tt_http_svcmgr_t *sm,
@@ -171,21 +214,9 @@ tt_result_t tt_http_svcmgr_add_inserv(IN tt_http_svcmgr_t *sm,
 {
     tt_http_inserv_ctx_t *c;
 
-    if (sm->inserv_num == sm->inserv_max) {
-        tt_u32_t new_num = sm->inserv_num + TT_HTTP_INLINE_INSERV_NUM;
-
-        c = tt_malloc(sizeof(tt_http_inserv_ctx_t) * new_num);
-        if (c == NULL) {
-            TT_ERROR("fail to expand inserv array");
-            return TT_E_NOMEM;
-        }
-        tt_memcpy(c, sm->inserv, sizeof(tt_http_inserv_ctx_t) * sm->inserv_num);
-
-        if (sm->inserv != sm->inline_inserv) {
-            tt_free(sm->inserv);
-        }
-        sm->inserv = c;
-        sm->inserv_max = new_num;
+    if (sm->inserv_num == TT_HTTP_INSERV_TYPE_NUM) {
+        TT_ERROR("no space for new inserv");
+        return TT_FAIL;
     }
 
     if (!TT_OK(tt_http_inserv_create_ctx(s, ctx))) {
@@ -193,6 +224,40 @@ tt_result_t tt_http_svcmgr_add_inserv(IN tt_http_svcmgr_t *sm,
     }
     __inserv_ctx_set(&sm->inserv[sm->inserv_num++], s, ctx);
     return TT_SUCCESS;
+}
+
+tt_result_t tt_http_svcmgr_add_dynamic_inserv(IN tt_http_svcmgr_t *sm,
+                                              IN TO tt_http_inserv_t *s,
+                                              IN OPT void *ctx,
+                                              IN OUT tt_bool_t *ctx_created)
+{
+    tt_http_inserv_ctx_t *c;
+
+    if (sm->dynamic_inserv_num == TT_HTTP_INSERV_TYPE_NUM) {
+        TT_ERROR("no space for new dynamic inserv");
+        return TT_FAIL;
+    }
+
+    if (!*ctx_created) {
+        if (!TT_OK(tt_http_inserv_create_ctx(s, ctx))) {
+            return TT_FAIL;
+        }
+        *ctx_created = TT_TRUE;
+    }
+    __inserv_ctx_set(&sm->dynamic_inserv[sm->dynamic_inserv_num++], s, ctx);
+    return TT_SUCCESS;
+}
+
+tt_result_t tt_http_svcmgr_add_inserv_host(IN tt_http_svcmgr_t *sm)
+{
+    return tt_http_svcmgr_add_inserv(sm, tt_g_http_inserv_host, NULL);
+}
+
+tt_result_t tt_http_svcmgr_add_inserv_param(IN tt_http_svcmgr_t *sm)
+{
+    return tt_http_svcmgr_add_inserv(sm,
+                                     tt_g_http_inserv_param,
+                                     &sm->param_ctx);
 }
 
 tt_result_t tt_http_svcmgr_add_outserv(IN tt_http_svcmgr_t *sm,
@@ -273,6 +338,29 @@ tt_http_inserv_action_t tt_http_svcmgr_on_uri(IN tt_http_svcmgr_t *sm,
         }
     }
 
+    if (!TT_OK(__load_dynamic_inserv(sm))) {
+        return TT_HTTP_INSERV_ACT_CLOSE;
+    }
+
+    for (i = 0; i < sm->dynamic_inserv_num; ++i) {
+        tt_http_inserv_ctx_t *c = &sm->dynamic_inserv[i];
+        tt_http_inserv_t *s = c->s;
+        tt_http_inserv_action_t this_act;
+
+        this_act = tt_http_inserv_on_uri(s, c->ctx, req, resp);
+        if (this_act <= TT_HTTP_INSERV_ACT_SHUTDOWN) {
+            return this_act;
+        } else if (this_act == TT_HTTP_INSERV_ACT_DISCARD) {
+            sm->discarding = TT_TRUE;
+            return this_act;
+        } else if (this_act == TT_HTTP_INSERV_ACT_OWNER) {
+            if (sm->owner == NULL) {
+                sm->owner = c;
+            }
+            return TT_HTTP_INSERV_ACT_OWNER;
+        }
+    }
+
     return act;
 }
 
@@ -297,6 +385,29 @@ tt_http_inserv_action_t tt_http_svcmgr_on_header(
 
     for (i = 0; i < sm->inserv_num; ++i) {
         tt_http_inserv_ctx_t *c = &sm->inserv[i];
+        tt_http_inserv_t *s = c->s;
+        tt_http_inserv_action_t this_act;
+
+        this_act = tt_http_inserv_on_header(s, c->ctx, req, resp);
+        if (this_act <= TT_HTTP_INSERV_ACT_SHUTDOWN) {
+            return this_act;
+        } else if (this_act == TT_HTTP_INSERV_ACT_DISCARD) {
+            sm->discarding = TT_TRUE;
+            return this_act;
+        } else if (this_act == TT_HTTP_INSERV_ACT_OWNER) {
+            if (sm->owner == NULL) {
+                sm->owner = c;
+            }
+            return TT_HTTP_INSERV_ACT_OWNER;
+        }
+    }
+
+    if (!TT_OK(__load_dynamic_inserv(sm))) {
+        return TT_HTTP_INSERV_ACT_CLOSE;
+    }
+
+    for (i = 0; i < sm->dynamic_inserv_num; ++i) {
+        tt_http_inserv_ctx_t *c = &sm->dynamic_inserv[i];
         tt_http_inserv_t *s = c->s;
         tt_http_inserv_action_t this_act;
 
@@ -516,6 +627,35 @@ tt_result_t tt_http_svcmgr_post_body(IN tt_http_svcmgr_t *sm,
         if (!TT_OK(result)) {
             return result;
         }
+    }
+
+    return TT_SUCCESS;
+}
+
+tt_result_t __load_dynamic_inserv(IN tt_http_svcmgr_t *sm)
+{
+    if (!sm->loaded_dynamic_inserv && (sm->host != NULL)) {
+        tt_http_host_t *host = sm->host;
+
+        // note the order of adding inserv
+
+        if ((host->enable_inserv_cache) &&
+            !TT_OK(tt_http_svcmgr_add_dynamic_inserv(sm,
+                                                     tt_g_http_inserv_cond,
+                                                     &sm->cond_ctx,
+                                                     &sm->created_cond_ctx))) {
+            return TT_FAIL;
+        }
+
+        if ((host->enable_inserv_file) &&
+            !TT_OK(tt_http_svcmgr_add_dynamic_inserv(sm,
+                                                     tt_g_http_inserv_file,
+                                                     &sm->file_ctx,
+                                                     &sm->created_file_ctx))) {
+            return TT_FAIL;
+        }
+
+        sm->loaded_dynamic_inserv = TT_TRUE;
     }
 
     return TT_SUCCESS;

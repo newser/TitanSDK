@@ -522,7 +522,8 @@ TT_TEST_ROUTINE_DEFINE(case_http_sconn_basic)
     ret = tt_http_sconn_create(&c, &simu_itf1, NULL, NULL);
     TT_UT_SUCCESS(ret, "");
 
-    s = tt_http_inserv_create(0, &s_itf, &__simp1_cb);
+    s = tt_http_inserv_create(1, 0, &s_itf, &__simp1_cb);
+    TT_UT_EQUAL(s->type, 1, "");
     tt_http_sconn_add_inserv(&c, s, NULL);
     tt_http_inserv_release(s);
 
@@ -604,7 +605,7 @@ TT_TEST_ROUTINE_DEFINE(case_http_sconn_basic)
 
         __simu1_start();
         __simp1_start();
-        s = tt_http_inserv_create(0, &s_itf, &__simp1_cb);
+        s = tt_http_inserv_create(0, 0, &s_itf, &__simp1_cb);
         tt_http_sconn_add_inserv(&c, s, NULL);
         tt_http_inserv_release(s);
 
@@ -629,7 +630,7 @@ TT_TEST_ROUTINE_DEFINE(case_http_sconn_basic)
 
         __simu1_start();
         __simp1_start();
-        s = tt_http_inserv_create(0, &s_itf, &__simp1_cb);
+        s = tt_http_inserv_create(0, 0, &s_itf, &__simp1_cb);
         tt_http_sconn_add_inserv(&c, s, NULL);
         tt_http_inserv_release(s);
 
@@ -672,7 +673,7 @@ TT_TEST_ROUTINE_DEFINE(case_http_sconn_cb_error)
 
         __simu1_start();
         __simp1_start();
-        s = tt_http_inserv_create(0, &s_itf, &__simp1_cb);
+        s = tt_http_inserv_create(0, 0, &s_itf, &__simp1_cb);
         tt_http_sconn_add_inserv(&c, s, NULL);
         tt_http_inserv_release(s);
 
@@ -697,7 +698,7 @@ TT_TEST_ROUTINE_DEFINE(case_http_sconn_cb_error)
 
         __simu1_start();
         __simp1_start();
-        s = tt_http_inserv_create(0, &s_itf, &__simp1_cb);
+        s = tt_http_inserv_create(0, 0, &s_itf, &__simp1_cb);
         tt_http_sconn_add_inserv(&c, s, NULL);
         tt_http_inserv_release(s);
 
@@ -723,7 +724,7 @@ TT_TEST_ROUTINE_DEFINE(case_http_sconn_cb_error)
 
         __simu1_start();
         __simp1_start();
-        s = tt_http_inserv_create(0, &s_itf, &__simp1_cb);
+        s = tt_http_inserv_create(0, 0, &s_itf, &__simp1_cb);
         tt_http_sconn_add_inserv(&c, s, NULL);
         tt_http_inserv_release(s);
 
@@ -772,7 +773,7 @@ TT_TEST_ROUTINE_DEFINE(case_http_sconn_cb_error)
 
         __simu1_start();
         __simp1_start();
-        s = tt_http_inserv_create(0, &s_itf, &__simp1_cb);
+        s = tt_http_inserv_create(0, 0, &s_itf, &__simp1_cb);
         tt_http_sconn_add_inserv(&c, s, NULL);
         tt_http_inserv_release(s);
 
@@ -798,7 +799,7 @@ TT_TEST_ROUTINE_DEFINE(case_http_sconn_cb_error)
 
         __simu1_start();
         __simp1_start();
-        s = tt_http_inserv_create(0, &s_itf, &__simp1_cb);
+        s = tt_http_inserv_create(0, 0, &s_itf, &__simp1_cb);
         tt_http_sconn_add_inserv(&c, s, NULL);
         tt_http_inserv_release(s);
 
@@ -840,7 +841,7 @@ TT_TEST_ROUTINE_DEFINE(case_http_inserv_host)
     TT_UT_NOT_NULL(hs, "");
 
     {
-        h1 = tt_http_host_create("aaa.com", tt_http_host_match_cmp);
+        h1 = tt_http_host_create("aaa.com", tt_http_host_match_cmp, NULL);
         TT_UT_NOT_NULL(h1, "");
         tt_http_hostset_add(hs, h1);
     }
@@ -947,7 +948,9 @@ TT_TEST_ROUTINE_DEFINE(case_http_inserv_host)
             "1234567890";
         tt_http_rule_t *rule;
 
-        h1 = tt_http_host_create("www.example.com", tt_http_host_match_cmp);
+        h1 = tt_http_host_create("www.example.com",
+                                 tt_http_host_match_cmp,
+                                 NULL);
         TT_UT_NOT_NULL(h1, "");
         tt_http_hostset_add(hs, h1);
 

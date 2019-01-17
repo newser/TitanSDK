@@ -108,7 +108,7 @@ tt_s32_t tt_buf_cmp_cstr(IN tt_buf_t *a, IN const tt_char_t *cstr)
 
     for (i = cstr_len; i < a_len; ++i) {
         if (p[i] != 0) {
-            return (tt_s32_t)(i - cstr_len);
+            return (tt_s32_t)i;
         }
     }
 

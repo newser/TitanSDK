@@ -56,7 +56,15 @@ typedef struct tt_http_host_s
     tt_http_host_match_t match;
     tt_http_rule_t *root;
     tt_blob_t name;
+    tt_bool_t enable_inserv_file : 1;
+    tt_bool_t enable_inserv_cache : 1;
 } tt_http_host_t;
+
+typedef struct
+{
+    tt_bool_t enable_inserv_file : 1;
+    tt_bool_t enable_inserv_cache : 1;
+} tt_http_host_attr_t;
 
 ////////////////////////////////////////////////////////////
 // global variants
@@ -72,16 +80,20 @@ tt_export tt_result_t tt_http_host_component_init(
 tt_export void tt_http_host_component_exit(IN struct tt_component_s *comp);
 
 // set match to NULL to match any
-tt_export tt_http_host_t *tt_http_host_create_n(IN OPT const tt_char_t *name,
-                                                IN tt_u32_t name_len,
-                                                IN OPT tt_http_host_match_t
-                                                    match);
+tt_export tt_http_host_t *tt_http_host_create_n(
+    IN OPT const tt_char_t *name,
+    IN tt_u32_t name_len,
+    IN OPT tt_http_host_match_t match,
+    IN OPT tt_http_host_attr_t *attr);
 
 tt_inline tt_http_host_t *tt_http_host_create(IN const tt_char_t *name,
-                                              IN OPT tt_http_host_match_t match)
+                                              IN OPT tt_http_host_match_t match,
+                                              IN OPT tt_http_host_attr_t *attr)
 {
-    return tt_http_host_create_n(name, tt_strlen(name), match);
+    return tt_http_host_create_n(name, tt_strlen(name), match, attr);
 }
+
+tt_export void tt_http_host_attr_default(IN tt_http_host_attr_t *attr);
 
 tt_export void tt_http_host_destroy(IN tt_http_host_t *h);
 

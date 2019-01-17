@@ -126,7 +126,8 @@ tt_http_inserv_t *tt_http_inserv_cond_create(
         attr = &__attr;
     }
 
-    s = tt_http_inserv_create(sizeof(tt_http_inserv_cond_t),
+    s = tt_http_inserv_create(TT_HTTP_INSERV_CONDITIONAL,
+                              sizeof(tt_http_inserv_cond_t),
                               &s_inserv_cond_itf,
                               &s_inserv_cond_cb);
     if (s == NULL) {

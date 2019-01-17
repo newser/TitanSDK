@@ -90,7 +90,8 @@
     "cur=n;"                                                                   \
     "}"                                                                        \
     "$(document).ready(function(){"                                            \
-    "$('[data-toggle=\"tooltip\"]').tooltip();"
+    "$('[data-toggle=\"tooltip\"]').tooltip();"                                \
+    "refresh();"
 
 #define __JS_END "});"
 

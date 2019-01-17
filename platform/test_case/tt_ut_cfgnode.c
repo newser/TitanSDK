@@ -852,13 +852,13 @@ TT_TEST_ROUTINE_DEFINE(case_cfgnode_dir)
     {
         const tt_char_t *this_out =
             "--    dir       sub-group/      \r\n"
-            "--    dir       sub-group1/     \r\n"
-            "--    dir       sub-group21/    \r\n"
-            "--    dir       sub-group22/    \r\n"
             "rw    u32       c1              \r\n"
+            "--    dir       sub-group1/     \r\n"
             "rw    s32       c22             \r\n"
-            "rw    string    c322            \r\n"
-            "rw    string    c333            ";
+            "--    dir       sub-group22/    \r\n"
+            "rw    string    c333            \r\n"
+            "--    dir       sub-group21/    \r\n"
+            "rw    string    c322            ";
 
         tt_buf_clear(&output);
         ret = __param_cli_dir_ls(cgrp, NULL, "\r\n", &output);
@@ -993,19 +993,18 @@ TT_TEST_ROUTINE_DEFINE(case_cfgnode_grp_ar)
     TT_UT_SUCCESS(ret, "");
     {
         tt_param_t *c = tt_param_dir_head(TT_PARAM_CAST(cgrp, tt_param_dir_t));
-        // the s32 becomes head during sorting
-        TT_UT_EQUAL(c, co, "");
+        TT_UT_STREQ(c->name, "n-u32", "");
         c = tt_param_dir_next(c);
         TT_UT_NOT_NULL(c, "");
-        TT_UT_EQUAL(c->type, TT_PARAM_U32, "");
+        TT_UT_STREQ(c->name, "n-s32", "");
         c = tt_param_dir_next(c);
         TT_UT_NULL(c, "");
     }
 
     {
         const tt_char_t outstr[] =
-            "rw>>>s32   >>>n-s32>>>\r\n"
-            "rw>>>u32   >>>n-u32>>>";
+            "rw>>>u32   >>>n-u32>>>\r\n"
+            "rw>>>s32   >>>n-s32>>>";
 
         tt_buf_clear(&output);
         ret = tt_param_cli_ls(cgrp, ">>>", "\r\n", &output);
@@ -1022,9 +1021,9 @@ TT_TEST_ROUTINE_DEFINE(case_cfgnode_grp_ar)
 
     {
         const tt_char_t outstr[] =
-            "--    dir       dir1/    \r\n"
+            "rw    u32       n-u32    \r\n"
             "rw    s32       n-s32    \r\n"
-            "rw    u32       n-u32    ";
+            "--    dir       dir1/    ";
 
         tt_buf_clear(&output);
         ret = tt_param_cli_ls(cgrp, NULL, "\r\n", &output);
@@ -1054,11 +1053,11 @@ TT_TEST_ROUTINE_DEFINE(case_cfgnode_grp_ar)
 
     {
         const tt_char_t outstr[] =
-            "--    dir       dir0/      \r\n"
-            "--    dir       dir1/      \r\n"
-            "--    dir       dir222/    \r\n"
+            "rw    u32       n-u32      \r\n"
             "rw    s32       n-s32      \r\n"
-            "rw    u32       n-u32      ";
+            "--    dir       dir1/      \r\n"
+            "--    dir       dir0/      \r\n"
+            "--    dir       dir222/    ";
 
         tt_buf_clear(&output);
         ret = tt_param_cli_ls(cgrp, NULL, "\r\n", &output);
@@ -1094,12 +1093,12 @@ TT_TEST_ROUTINE_DEFINE(case_cfgnode_grp_ar)
 
     {
         const tt_char_t outstr[] =
-            "--    dir       dir0/        \r\n"
+            "rw    u32       n-u32        \r\n"
+            "rw    s32       n-s32        \r\n"
             "--    dir       dir1/        \r\n"
+            "--    dir       dir0/        \r\n"
             "--    dir       dir222/      \r\n"
             "rw    s32       n-s0         \r\n"
-            "rw    s32       n-s32        \r\n"
-            "rw    u32       n-u32        \r\n"
             "rw    s32       n-z666666    ";
 
         tt_buf_clear(&output);
@@ -1125,11 +1124,11 @@ TT_TEST_ROUTINE_DEFINE(case_cfgnode_grp_ar)
 
     {
         const tt_char_t outstr[] =
+            "rw    u32       n-u32        \r\n"
+            "rw    s32       n-s32        \r\n"
             "--    dir       dir1/        \r\n"
             "--    dir       dir222/      \r\n"
             "rw    s32       n-s0         \r\n"
-            "rw    s32       n-s32        \r\n"
-            "rw    u32       n-u32        \r\n"
             "rw    s32       n-z666666    ";
 
         tt_buf_clear(&output);
@@ -1147,11 +1146,11 @@ TT_TEST_ROUTINE_DEFINE(case_cfgnode_grp_ar)
 
     {
         const tt_char_t outstr[] =
+            "rw    u32       n-u32        \r\n"
+            "rw    s32       n-s32        \r\n"
             "--    dir       dir1/        \r\n"
             "--    dir       dir222/      \r\n"
-            "rw    s32       n-s0         \r\n"
-            "rw    s32       n-s32        \r\n"
-            "rw    u32       n-u32        ";
+            "rw    s32       n-s0         ";
 
         tt_buf_clear(&output);
         ret = tt_param_cli_ls(cgrp, NULL, "\r\n", &output);
@@ -1168,10 +1167,10 @@ TT_TEST_ROUTINE_DEFINE(case_cfgnode_grp_ar)
 
     {
         const tt_char_t outstr[] =
-            "--    dir       dir1/        \r\n"
-            "--    dir       dir222/      \r\n"
+            "rw    u32       n-u32        \r\n"
             "rw    s32       n-s32        \r\n"
-            "rw    u32       n-u32        ";
+            "--    dir       dir1/        \r\n"
+            "--    dir       dir222/      ";
 
         tt_buf_clear(&output);
         ret = tt_param_cli_ls(cgrp, NULL, "\r\n", &output);
@@ -1213,6 +1212,10 @@ TT_TEST_ROUTINE_DEFINE(case_cfgnode_bool)
 
     cnode = tt_param_bool_create("", &val, &attr, &cb);
     TT_UT_NOT_EQUAL(cnode, NULL, "");
+    val = TT_TRUE;
+    TT_UT_TRUE(tt_param_get_bool(cnode), "");
+    val = TT_FALSE;
+    TT_UT_FALSE(tt_param_get_bool(cnode), "");
 
     // ls
     {
