@@ -207,6 +207,17 @@ tt_param_t *tt_param_parent(IN tt_param_t *p)
     return TT_PARAM_OF(cdir);
 }
 
+tt_param_t *tt_param_find_tid(IN tt_param_t *p, IN tt_s32_t tid)
+{
+    if (p->tid == tid) {
+        return p;
+    }
+
+    return TT_COND(p->type == TT_PARAM_DIR,
+                   tt_param_dir_find_tid(TT_PARAM_CAST(p, tt_param_dir_t), tid),
+                   NULL);
+}
+
 tt_result_t __param_component_init(IN tt_component_t *comp,
                                    IN tt_profile_t *profile)
 {

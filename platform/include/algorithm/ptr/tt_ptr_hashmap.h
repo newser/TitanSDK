@@ -56,7 +56,7 @@ typedef tt_bool_t (*tt_ptrhmap_action_t)(IN tt_u8_t *key,
                                          IN tt_ptr_t ptr,
                                          IN void *param);
 
-typedef struct
+typedef struct tt_ptrhmap_attr_s
 {
     tt_hash_alg_t hash_alg;
     tt_u32_t cache_threshold;

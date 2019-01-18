@@ -1092,6 +1092,17 @@ TT_TEST_ROUTINE_DEFINE(case_cfgnode_grp_ar)
     TT_UT_SUCCESS(ret, "");
 
     {
+        TT_UT_EQUAL(co,
+                    tt_param_dir_find_tid(TT_PARAM_CAST(cgrp, tt_param_dir_t),
+                                          co->tid),
+                    "");
+        TT_UT_EQUAL(NULL,
+                    tt_param_dir_find_tid(TT_PARAM_CAST(cgrp, tt_param_dir_t),
+                                          ~0),
+                    "");
+    }
+
+    {
         const tt_char_t outstr[] =
             "rw    u32       n-u32        \r\n"
             "rw    s32       n-s32        \r\n"

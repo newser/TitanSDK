@@ -69,7 +69,7 @@ typedef struct
     tt_bool_t need_reboot : 1;
     tt_bool_t can_read : 1;
     tt_bool_t can_write : 1;
-    tt_param_level_t level : 2;
+    tt_param_level_t level : 3;
 } tt_param_attr_t;
 
 typedef struct tt_param_s
@@ -155,5 +155,7 @@ tt_inline tt_s32_t tt_param_tid(IN tt_param_t *p)
 {
     return p->tid;
 }
+
+tt_export tt_param_t *tt_param_find_tid(IN tt_param_t *p, IN tt_s32_t tid);
 
 #endif /* __TT_PARAM__ */

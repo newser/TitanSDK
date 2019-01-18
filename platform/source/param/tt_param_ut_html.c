@@ -591,12 +591,15 @@ void __ut_html_spa_enter(void *enter_param)
     static tt_u32_t val_u32 = 100;
     static tt_s32_t val_s32 = 101;
     static tt_bool_t t = TT_TRUE, f = TT_FALSE;
+    tt_param_attr_t attr;
 
     tt_string_init(&val_str, NULL);
     tt_string_set(&val_str, "this is a string variable");
 
     // root and children
-    pm = tt_param_dir_create("root", NULL);
+    tt_param_attr_default(&attr);
+    pm = tt_param_dir_create("root", &attr);
+
     status = tt_param_dir_create("Status", NULL);
     tt_param_dir_add(TT_PARAM_CAST(pm, tt_param_dir_t), status);
     plat = tt_param_dir_create("Platform", NULL);
@@ -688,6 +691,24 @@ TT_TEST_ROUTINE_DEFINE(case_param_html_bs4_spa)
     // root and children
     pm = __html_spa_param;
     TT_UT_NOT_NULL(pm, "");
+
+    {
+        tt_param_t *p;
+        tt_param_dir_t *pd = TT_PARAM_CAST(pm, tt_param_dir_t);
+
+        TT_UT_EQUAL(tt_param_find_tid(pm, pm->tid), pm, "");
+
+        TT_UT_EQUAL(pd->tidmap_updated, TT_FALSE, "");
+        p = tt_param_dir_find(pd, "Status-3", sizeof("Status-3") - 1);
+        TT_UT_NOT_NULL(p, "");
+        TT_UT_EQUAL(tt_param_find_tid(pm, p->tid), p, "");
+        TT_UT_EQUAL(tt_param_find_tid(pm, ~0), NULL, "");
+
+        TT_UT_SUCCESS(tt_param_dir_build_tidmap(pd, 11, NULL), "");
+        TT_UT_EQUAL(pd->tidmap_updated, TT_TRUE, "");
+        TT_UT_EQUAL(tt_param_find_tid(pm, p->tid), p, "");
+        TT_UT_EQUAL(tt_param_find_tid(pm, ~0), NULL, "");
+    }
 
     tt_param_bs4spa_init(&pg);
     tt_buf_clear(&b);
