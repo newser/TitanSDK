@@ -178,11 +178,13 @@ void tt_param_bs4select_set_selected(IN tt_param_bs4select_t *s,
 }
 
 void tt_param_bs4select_set_option(IN tt_param_bs4select_t *s,
-                                   IN const tt_char_t **option,
+                                   IN const tt_char_t **value,
+                                   IN const tt_char_t **display,
                                    IN tt_u8_t num)
 {
-    s->option = option;
-    s->option_num = num;
+    s->value = value;
+    s->display = display;
+    s->num = num;
 }
 
 void tt_param_bs4select_set_multiple(IN tt_param_bs4select_t *s,

@@ -109,6 +109,8 @@ tt_result_t __u32_write(IN tt_param_t *p, IN tt_u8_t *val, IN tt_u32_t val_len)
         return TT_E_BADARG;
     }
 
+    *((tt_u32_t *)p->opaque) = u32_val;
+
     if (pu->cb.on_set != NULL) {
         pu->cb.on_set(p, u32_val);
     }

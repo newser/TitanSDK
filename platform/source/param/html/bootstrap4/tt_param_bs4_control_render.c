@@ -333,11 +333,11 @@ tt_result_t __render_select(IN tt_param_bs4content_t *ct,
         TT_DO(tt_buf_putf(buf, "<option selected>%s</option>", s->selected));
     }
 
-    for (n = 0; n < s->option_num; ++n) {
+    for (n = 0; n < s->num; ++n) {
         TT_DO(tt_buf_putf(buf,
-                          "<option value=\"%d\">%s</option>",
-                          n,
-                          s->option[n]));
+                          "<option value=\"%s\">%s</option>",
+                          s->value[n],
+                          s->display[n]));
     }
 
     TT_DO(tt_buf_put_cstr(buf, ptn[PTN_SELECT_WR_END]));

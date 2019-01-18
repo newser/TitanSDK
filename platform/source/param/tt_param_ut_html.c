@@ -864,13 +864,14 @@ TT_TEST_ROUTINE_DEFINE(case_param_html_bs4_ctrl_render)
     TT_UT_NULL(tt_strstr(s, "step="), "");
 
     {
+        const tt_char_t *opt_val[3] = {"a", "bb", "ccc"};
         const tt_char_t *opt[3] = {"1", "22", "333"};
         tt_param_bs4select_t *sl;
 
         p2->bs4_ctrl.type = TT_PARAM_BS4_SELECT;
         sl = &p2->bs4_ctrl.select;
         tt_param_bs4select_set_selected(sl, "choose...");
-        tt_param_bs4select_set_option(sl, opt, 3);
+        tt_param_bs4select_set_option(sl, opt_val, opt, 3);
 
         tt_buf_clear(&b);
         TT_UT_SUCCESS(tt_param_bs4ctrl_render(&ct,
@@ -882,9 +883,9 @@ TT_TEST_ROUTINE_DEFINE(case_param_html_bs4_ctrl_render)
         s = (tt_char_t *)TT_BUF_RPOS(&b);
         TT_UT_NOT_NULL(tt_strstr(s, "<select class=\"custom-select"), "");
         TT_UT_NOT_NULL(tt_strstr(s, "<option selected>choose..."), "");
-        TT_UT_NOT_NULL(tt_strstr(s, "<option value=\"0\">1"), "");
-        TT_UT_NOT_NULL(tt_strstr(s, "<option value=\"1\">22"), "");
-        TT_UT_NOT_NULL(tt_strstr(s, "<option value=\"2\">333"), "");
+        TT_UT_NOT_NULL(tt_strstr(s, "<option value=\"a\">1"), "");
+        TT_UT_NOT_NULL(tt_strstr(s, "<option value=\"bb\">22"), "");
+        TT_UT_NOT_NULL(tt_strstr(s, "<option value=\"ccc\">333"), "");
     }
 
     {

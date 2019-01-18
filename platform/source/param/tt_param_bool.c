@@ -65,7 +65,8 @@ tt_param_t *tt_param_bool_create(IN const tt_char_t *name,
                                  IN OPT tt_param_attr_t *attr,
                                  IN OPT tt_param_bool_cb_t *cb)
 {
-    static const tt_char_t *bs4_opt[2] = {"No", "Yes"};
+    static const tt_char_t *bs4_value[2] = {__PARBOOL_FALSE, __PARBOOL_TRUE};
+    static const tt_char_t *bs4_display[2] = {"No", "Yes"};
 
     tt_param_t *p;
     tt_param_bool_t *pb;
@@ -91,7 +92,7 @@ tt_param_t *tt_param_bool_create(IN const tt_char_t *name,
 
     tt_param_bs4ctrl_set_type(&p->bs4_ctrl, TT_PARAM_BS4_SELECT);
     bs4_sel = &p->bs4_ctrl.select;
-    tt_param_bs4select_set_option(bs4_sel, bs4_opt, 2);
+    tt_param_bs4select_set_option(bs4_sel, bs4_value, bs4_display, 2);
 
     return p;
 }
@@ -106,8 +107,11 @@ tt_result_t __bool_read(IN tt_param_t *p, OUT tt_buf_t *output)
 {
     tt_param_bool_t *pb = TT_PARAM_CAST(p, tt_param_bool_t);
 
-    return tt_buf_put_cstr(output,
-                           TT_COND(*(tt_bool_t *)p->opaque, "true", "false"));
+    if (*(tt_bool_t *)p->opaque) {
+        return tt_buf_put(output, __PARBOOL_TRUE, __PARBOOL_TRUE_LEN);
+    } else {
+        return tt_buf_put(output, __PARBOOL_FALSE, __PARBOOL_FALSE_LEN);
+    }
 }
 
 tt_result_t __bool_write(IN tt_param_t *p, IN tt_u8_t *val, IN tt_u32_t val_len)
@@ -127,6 +131,8 @@ tt_result_t __bool_write(IN tt_param_t *p, IN tt_u8_t *val, IN tt_u32_t val_len)
     } else {
         return TT_E_BADARG;
     }
+
+    *(tt_bool_t *)p->opaque = bool_val;
 
     if (pb->cb.on_set != NULL) {
         pb->cb.on_set(p, bool_val);

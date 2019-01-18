@@ -116,6 +116,13 @@ tt_result_t __str_write(IN tt_param_t *p, IN tt_u8_t *val, IN tt_u32_t val_len)
         return TT_SUCCESS;
     }
 
+    if (!TT_OK(tt_string_set_sub((tt_string_t *)p->opaque,
+                                 (tt_char_t *)val,
+                                 0,
+                                 val_len))) {
+        return TT_FAIL;
+    }
+
     if (ps->cb.on_set != NULL) {
         ps->cb.on_set(p, &ps->str);
     }

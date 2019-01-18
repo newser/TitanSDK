@@ -40,6 +40,7 @@ this file defines http content type
     __ENTRY(APP_JSON, "application/json", "json")                              \
     __ENTRY(APP_JS, "application/javascript", "js")                            \
     __ENTRY(APP_OCTET, "application/octet-stream", NULL)                       \
+    __ENTRY(APP_URLENC, "application/x-www-form-urlencoded", NULL)             \
     __ENTRY(TXT_PLAIN, "text/plain", "txt")                                    \
     __ENTRY(TXT_CSS, "text/css", "css")                                        \
     __ENTRY(TXT_HTML, "text/html", "htm;html;htx;xhtml")

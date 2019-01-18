@@ -30,6 +30,7 @@ this file defines http service type
 // import header files
 ////////////////////////////////////////////////////////////
 
+#include <algorithm/tt_string.h>
 #include <io/tt_file_system.h>
 #include <json/tt_json_document.h>
 #include <network/http/def/tt_http_def.h>
@@ -69,6 +70,8 @@ typedef struct
 typedef struct
 {
     tt_jdoc_t jdoc;
+    tt_string_t body;
+    tt_buf_t buf;
 } tt_http_inserv_param_ctx_t;
 
 ////////////////////////////////////////////////////////////

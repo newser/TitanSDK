@@ -62,8 +62,9 @@ typedef struct
 typedef struct
 {
     const tt_char_t *selected;
-    const tt_char_t **option;
-    tt_u8_t option_num;
+    const tt_char_t **value;
+    const tt_char_t **display;
+    tt_u8_t num;
     tt_bool_t multiple : 1;
 } tt_param_bs4select_t;
 
@@ -145,7 +146,8 @@ tt_export void tt_param_bs4select_set_selected(IN tt_param_bs4select_t *s,
                                                IN const tt_char_t *selected);
 
 tt_export void tt_param_bs4select_set_option(IN tt_param_bs4select_t *s,
-                                             IN const tt_char_t **option,
+                                             IN const tt_char_t **value,
+                                             IN const tt_char_t **display,
                                              IN tt_u8_t num);
 
 tt_export void tt_param_bs4select_set_multiple(IN tt_param_bs4select_t *s,

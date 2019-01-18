@@ -54,6 +54,7 @@
 TT_TEST_ROUTINE_DECLARE(case_http_inserv_file)
 TT_TEST_ROUTINE_DECLARE(case_http_inserv_cond)
 TT_TEST_ROUTINE_DECLARE(case_http_inserv_param)
+TT_TEST_ROUTINE_DECLARE(case_http_post_param)
 
 TT_TEST_ROUTINE_DECLARE(case_http_encserv_chunked)
 // =========================================
@@ -89,6 +90,15 @@ TT_TEST_CASE("case_http_inserv_file",
                  NULL,
                  NULL),
 
+    TT_TEST_CASE("case_http_post_param",
+                 "http post parameter",
+                 case_http_post_param,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL),
+
     TT_TEST_CASE("case_http_encserv_chunked",
                  "http encoding service: chunked",
                  case_http_encserv_chunked,
@@ -112,7 +122,7 @@ TT_TEST_CASE("case_http_inserv_file",
     ////////////////////////////////////////////////////////////
 
     /*
-    TT_TEST_ROUTINE_DEFINE(case_http_encserv_chunked)
+    TT_TEST_ROUTINE_DEFINE(case_http_post_param)
     {
         //tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
 
@@ -705,11 +715,15 @@ TT_TEST_ROUTINE_DEFINE(case_http_inserv_param)
     d2 = tt_param_dir_create("d2", NULL);
     p = tt_param_u32_create("u32-1", &u32_val, NULL, NULL);
     tt_param_dir_add(TT_PARAM_CAST(d2, tt_param_dir_t), p);
+    // test
+    p->tid = 101;
 
     dir = tt_param_dir_create("dir", NULL);
     tt_param_dir_add(TT_PARAM_CAST(dir, tt_param_dir_t), d2);
     p = tt_param_u32_create("u32-2", &u32_val, NULL, NULL);
     tt_param_dir_add(TT_PARAM_CAST(dir, tt_param_dir_t), p);
+    // test
+    p->tid = 201;
 
     tt_http_inserv_param_attr_default(&a);
     a.path = "/config";
@@ -724,6 +738,21 @@ TT_TEST_ROUTINE_DEFINE(case_http_inserv_param)
 
     TT_UT_SUCCESS(tt_http_inserv_create_ctx(is, &c), "");
 
+    // unsupported method
+    {
+        tt_string_clear(&s2);
+        tt_string_append(&s2, "DELETE /confi HTTP/1.1\r\n\r\n");
+
+        TT_UT_TRUE(__mk_parser(&req, tt_string_cstr(&s2)), "");
+
+        tt_http_resp_render_clear(&resp);
+
+        act = tt_http_inserv_on_uri(is, &c, &req, &resp);
+        TT_UT_EQUAL(act, TT_HTTP_INSERV_ACT_PASS, "");
+        act = tt_http_inserv_on_header(is, &c, &req, &resp);
+        TT_UT_EQUAL(act, TT_HTTP_INSERV_ACT_PASS, "");
+    }
+
     {
         tt_string_clear(&s2);
         tt_string_append(&s2, "GET /confi HTTP/1.1\r\n\r\n");
@@ -732,7 +761,7 @@ TT_TEST_ROUTINE_DEFINE(case_http_inserv_param)
 
         tt_http_resp_render_clear(&resp);
 
-        act = tt_http_inserv_on_header(is, &c, &req, &resp);
+        act = tt_http_inserv_on_uri(is, &c, &req, &resp);
         TT_UT_EQUAL(act, TT_HTTP_INSERV_ACT_PASS, "");
     }
 
@@ -742,6 +771,101 @@ TT_TEST_ROUTINE_DEFINE(case_http_inserv_param)
 
         tt_string_clear(&s2);
         tt_string_append(&s2, "GET /config HTTP/1.1\r\n\r\n");
+
+        TT_UT_TRUE(__mk_parser(&req, tt_string_cstr(&s2)), "");
+
+        tt_http_resp_render_clear(&resp);
+
+        act = tt_http_inserv_on_uri(is, &c, &req, &resp);
+        TT_UT_EQUAL(act, TT_HTTP_INSERV_ACT_OWNER, "");
+
+        act = tt_http_inserv_on_header(is, &c, &req, &resp);
+        TT_UT_EQUAL(act, TT_HTTP_INSERV_ACT_PASS, "");
+
+        act = tt_http_inserv_on_complete(is, &c, &req, &resp);
+        TT_UT_EQUAL(act, TT_HTTP_INSERV_ACT_BODY, "");
+        TT_UT_EQUAL(tt_http_resp_render_get_status(&resp),
+                    TT_HTTP_STATUS_OK,
+                    "");
+        TT_UT_EQUAL(resp.render.contype, TT_HTTP_CONTYPE_APP_JSON, "");
+
+        tt_buf_clear(&b);
+        act = tt_http_inserv_get_body(is, &c, &req, &resp, &b);
+        tt_buf_print_cstr(&b, 0);
+        TT_UT_EQUAL(act, TT_HTTP_INSERV_ACT_PASS, "");
+    }
+
+    {
+        const tt_char_t *h =
+            "PUT /config HTTP/1.1\r\n"
+            "Content-Type: text/html\r\n\r\n";
+
+        tt_http_inserv_clear(is);
+        tt_http_inserv_clear_ctx(is, &c);
+
+        tt_string_clear(&s2);
+        tt_string_append(&s2, h);
+
+        TT_UT_TRUE(__mk_parser(&req, tt_string_cstr(&s2)), "");
+
+        tt_http_resp_render_clear(&resp);
+
+        act = tt_http_inserv_on_uri(is, &c, &req, &resp);
+        TT_UT_EQUAL(act, TT_HTTP_INSERV_ACT_OWNER, "");
+
+        act = tt_http_inserv_on_header(is, &c, &req, &resp);
+        TT_UT_EQUAL(act, TT_HTTP_INSERV_ACT_DISCARD, "");
+        TT_UT_EQUAL(tt_http_resp_render_get_status(&resp),
+                    TT_HTTP_STATUS_UNSUPPORTED_MEDIA_TYPE,
+                    "");
+    }
+
+    {
+        const tt_char_t *h =
+            "PUT /config HTTP/1.1\r\n"
+            "Content-Type: application/x-www-form-urlencoded\r\n"
+            "Content-length: 22\r\n\r\n"
+            "101 = 1234 & 201= 4567";
+
+        tt_http_inserv_clear(is);
+        tt_http_inserv_clear_ctx(is, &c);
+
+        tt_string_clear(&s2);
+        tt_string_append(&s2, h);
+
+        TT_UT_TRUE(__mk_parser(&req, tt_string_cstr(&s2)), "");
+
+        tt_http_resp_render_clear(&resp);
+
+        act = tt_http_inserv_on_uri(is, &c, &req, &resp);
+        TT_UT_EQUAL(act, TT_HTTP_INSERV_ACT_OWNER, "");
+
+        act = tt_http_inserv_on_header(is, &c, &req, &resp);
+        TT_UT_EQUAL(act, TT_HTTP_INSERV_ACT_PASS, "");
+
+        act = tt_http_inserv_on_body(is, &c, &req, &resp);
+        TT_UT_EQUAL(act, TT_HTTP_INSERV_ACT_PASS, "");
+        TT_UT_EQUAL(tt_string_cmp(&c.body, "101 = 1234 & 201= 4567"), 0, "");
+
+        act = tt_http_inserv_on_complete(is, &c, &req, &resp);
+        TT_UT_EQUAL(act, TT_HTTP_INSERV_ACT_BODY, "");
+        TT_UT_EQUAL(tt_http_resp_render_get_status(&resp),
+                    TT_HTTP_STATUS_OK,
+                    "");
+
+        tt_buf_clear(&b);
+        act = tt_http_inserv_get_body(is, &c, &req, &resp, &b);
+        tt_buf_print_cstr(&b, 0);
+        TT_UT_EQUAL(act, TT_HTTP_INSERV_ACT_PASS, "");
+    }
+
+    {
+        tt_http_inserv_clear(is);
+        tt_http_inserv_clear_ctx(is, &c);
+
+        tt_string_clear(&s2);
+        tt_string_append(
+            &s2, "GET /config HTTP/1.1\r\nContent-Type: text/html\r\n\r\n");
 
         TT_UT_TRUE(__mk_parser(&req, tt_string_cstr(&s2)), "");
 
@@ -832,6 +956,236 @@ TT_TEST_ROUTINE_DEFINE(case_http_encserv_chunked)
     tt_http_encserv_release(es);
 
     tt_buf_clear(&b);
+
+    // test end
+    TT_TEST_CASE_LEAVE()
+}
+
+extern tt_result_t __post_param(IN tt_http_inserv_t *s,
+                                IN tt_http_inserv_param_ctx_t *c,
+                                IN tt_http_parser_t *req,
+                                OUT tt_http_resp_render_t *resp,
+                                IN tt_param_t *p);
+
+TT_TEST_ROUTINE_DEFINE(case_http_post_param)
+{
+    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+    tt_http_inserv_param_ctx_t c;
+    tt_http_resp_render_t resp;
+    tt_param_t *root;
+    tt_param_t *dir, *p, *d2;
+    tt_u32_t u32_val = 999;
+    tt_s32_t s32_val = 8888;
+    tt_http_inserv_t *is;
+
+    TT_TEST_CASE_ENTER()
+    // test start
+
+    tt_http_resp_render_init(&resp, NULL);
+
+    d2 = tt_param_dir_create("d2", NULL);
+    p = tt_param_u32_create("u32-1", &u32_val, NULL, NULL);
+    tt_param_dir_add(TT_PARAM_CAST(d2, tt_param_dir_t), p);
+    // test
+    p->tid = 1010;
+
+    dir = tt_param_dir_create("dir", NULL);
+    tt_param_dir_add(TT_PARAM_CAST(dir, tt_param_dir_t), d2);
+    p = tt_param_s32_create("s32-2", &s32_val, NULL, NULL);
+    tt_param_dir_add(TT_PARAM_CAST(dir, tt_param_dir_t), p);
+    // test
+    p->tid = 20199;
+
+    is = tt_http_inserv_param_create(dir, NULL);
+    TT_UT_NOT_NULL(is, "");
+
+    TT_UT_SUCCESS(tt_http_inserv_create_ctx(is, &c), "");
+
+    // empty body
+    {
+        tt_http_inserv_clear_ctx(is, &c);
+        tt_http_resp_render_clear(&resp);
+
+        tt_string_clear(&c.body);
+        TT_UT_EQUAL(__post_param(is, &c, NULL, &resp, dir),
+                    TT_HTTP_INSERV_ACT_BODY,
+                    "");
+
+        TT_UT_EQUAL(tt_http_resp_render_get_status(&resp),
+                    TT_HTTP_STATUS_OK,
+                    "");
+        TT_UT_EQUAL(resp.render.contype, TT_HTTP_CONTYPE_APP_JSON, "");
+        TT_UT_EQUAL(resp.render.txenc[0], TT_HTTP_TXENC_CHUNKED, "");
+        TT_UT_EQUAL(resp.render.txenc_num, 1, "");
+    }
+
+    // 1 entry
+    {
+        tt_http_inserv_clear_ctx(is, &c);
+        tt_http_resp_render_clear(&resp);
+
+        tt_string_set(&c.body, "1010 = 8080");
+        TT_UT_EQUAL(__post_param(is, &c, NULL, &resp, dir),
+                    TT_HTTP_INSERV_ACT_BODY,
+                    "");
+
+        TT_UT_EQUAL(tt_http_resp_render_get_status(&resp),
+                    TT_HTTP_STATUS_OK,
+                    "");
+        TT_UT_EQUAL(resp.render.contype, TT_HTTP_CONTYPE_APP_JSON, "");
+        TT_UT_EQUAL(resp.render.txenc[0], TT_HTTP_TXENC_CHUNKED, "");
+        TT_UT_EQUAL(resp.render.txenc_num, 1, "");
+
+        TT_UT_EQUAL(u32_val, 8080, "");
+
+        tt_buf_clear(&c.buf);
+        tt_jdoc_render(&c.jdoc, &c.buf, NULL);
+        TT_UT_EQUAL(tt_buf_cmp_cstr(&c.buf, "{\"1010\":\"8080\"}"), 0, "");
+    }
+
+    // 1 entry, invalid format
+    u32_val = 6767;
+    {
+        tt_http_inserv_clear_ctx(is, &c);
+        tt_http_resp_render_clear(&resp);
+
+        tt_string_set(&c.body, "1010-8080");
+        TT_UT_EQUAL(__post_param(is, &c, NULL, &resp, dir),
+                    TT_HTTP_INSERV_ACT_BODY,
+                    "");
+
+        TT_UT_EQUAL(tt_http_resp_render_get_status(&resp),
+                    TT_HTTP_STATUS_ACCEPTED,
+                    "");
+        TT_UT_EQUAL(resp.render.contype, TT_HTTP_CONTYPE_APP_JSON, "");
+        TT_UT_EQUAL(resp.render.txenc[0], TT_HTTP_TXENC_CHUNKED, "");
+        TT_UT_EQUAL(resp.render.txenc_num, 1, "");
+
+        TT_UT_EQUAL(u32_val, 6767, "");
+
+        tt_buf_clear(&c.buf);
+        tt_jdoc_render(&c.jdoc, &c.buf, NULL);
+        TT_UT_EQUAL(tt_buf_cmp_cstr(&c.buf, "{}"), 0, "");
+    }
+
+    // 1 entry, invalid format
+    {
+        tt_http_inserv_clear_ctx(is, &c);
+        tt_http_resp_render_clear(&resp);
+
+        tt_string_set(&c.body, "  2147683477=8080  ");
+        TT_UT_EQUAL(__post_param(is, &c, NULL, &resp, dir),
+                    TT_HTTP_INSERV_ACT_BODY,
+                    "");
+
+        TT_UT_EQUAL(tt_http_resp_render_get_status(&resp),
+                    TT_HTTP_STATUS_ACCEPTED,
+                    "");
+
+        TT_UT_EQUAL(u32_val, 6767, "");
+
+        tt_buf_clear(&c.buf);
+        tt_jdoc_render(&c.jdoc, &c.buf, NULL);
+        TT_UT_EQUAL(tt_buf_cmp_cstr(&c.buf, "{}"), 0, "");
+    }
+
+    // 1 entry, tid unexist
+    {
+        tt_http_inserv_clear_ctx(is, &c);
+        tt_http_resp_render_clear(&resp);
+
+        tt_string_set(&c.body, "  89899 =8080  ");
+        TT_UT_EQUAL(__post_param(is, &c, NULL, &resp, dir),
+                    TT_HTTP_INSERV_ACT_BODY,
+                    "");
+
+        TT_UT_EQUAL(tt_http_resp_render_get_status(&resp),
+                    TT_HTTP_STATUS_ACCEPTED,
+                    "");
+
+        TT_UT_EQUAL(u32_val, 6767, "");
+
+        tt_buf_clear(&c.buf);
+        tt_jdoc_render(&c.jdoc, &c.buf, NULL);
+        TT_UT_EQUAL(tt_buf_cmp_cstr(&c.buf, "{}"), 0, "");
+    }
+
+    // 1 entry, invalid value
+    {
+        tt_http_inserv_clear_ctx(is, &c);
+        tt_http_resp_render_clear(&resp);
+
+        tt_string_set(&c.body, "1010=8080808080808080  ");
+        TT_UT_EQUAL(__post_param(is, &c, NULL, &resp, dir),
+                    TT_HTTP_INSERV_ACT_BODY,
+                    "");
+
+        TT_UT_EQUAL(tt_http_resp_render_get_status(&resp),
+                    TT_HTTP_STATUS_ACCEPTED,
+                    "");
+
+        TT_UT_EQUAL(u32_val, 6767, "");
+
+        tt_buf_clear(&c.buf);
+        tt_jdoc_render(&c.jdoc, &c.buf, NULL);
+        TT_UT_EQUAL(tt_buf_cmp_cstr(&c.buf, "{\"1010\":\"6767\"}"), 0, "");
+    }
+
+    // 2 entry, both valid
+    {
+        tt_http_inserv_clear_ctx(is, &c);
+        tt_http_resp_render_clear(&resp);
+
+        tt_string_set(&c.body, " & 1010 = 9876 && &&&  20199= -333&  & &&&");
+        TT_UT_EQUAL(__post_param(is, &c, NULL, &resp, dir),
+                    TT_HTTP_INSERV_ACT_BODY,
+                    "");
+
+        TT_UT_EQUAL(tt_http_resp_render_get_status(&resp),
+                    TT_HTTP_STATUS_ACCEPTED,
+                    "");
+
+        TT_UT_EQUAL(u32_val, 9876, "");
+        TT_UT_EQUAL(s32_val, -333, "");
+
+        tt_buf_clear(&c.buf);
+        tt_jdoc_render(&c.jdoc, &c.buf, NULL);
+        TT_UT_EQUAL(tt_buf_cmp_cstr(&c.buf,
+                                    "{\"1010\":\"9876\",\"20199\":\"-333\"}"),
+                    0,
+                    "");
+    }
+
+    // 2 entry, 1 invalid
+    {
+        tt_http_inserv_clear_ctx(is, &c);
+        tt_http_resp_render_clear(&resp);
+
+        tt_string_set(&c.body, "1010=-1111&20199=2222");
+        TT_UT_EQUAL(__post_param(is, &c, NULL, &resp, dir),
+                    TT_HTTP_INSERV_ACT_BODY,
+                    "");
+
+        TT_UT_EQUAL(tt_http_resp_render_get_status(&resp),
+                    TT_HTTP_STATUS_ACCEPTED,
+                    "");
+
+        TT_UT_EQUAL(u32_val, 9876, "");
+        TT_UT_EQUAL(s32_val, 2222, "");
+
+        tt_buf_clear(&c.buf);
+        tt_jdoc_render(&c.jdoc, &c.buf, NULL);
+        TT_UT_EQUAL(tt_buf_cmp_cstr(&c.buf,
+                                    "{\"1010\":\"9876\",\"20199\":\"2222\"}"),
+                    0,
+                    "");
+    }
+
+    tt_http_inserv_destroy_ctx(is, &c);
+
+    tt_http_inserv_release(is);
+
+    tt_param_destroy(dir);
 
     // test end
     TT_TEST_CASE_LEAVE()
