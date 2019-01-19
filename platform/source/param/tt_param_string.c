@@ -116,6 +116,11 @@ tt_result_t __str_write(IN tt_param_t *p, IN tt_u8_t *val, IN tt_u32_t val_len)
         return TT_SUCCESS;
     }
 
+    if ((ps->cb.pre_set != NULL) &&
+        !ps->cb.pre_set(p, (tt_char_t *)val, val_len)) {
+        return TT_E_UNSUPPORT;
+    }
+
     if (!TT_OK(tt_string_set_sub((tt_string_t *)p->opaque,
                                  (tt_char_t *)val,
                                  0,
@@ -123,8 +128,8 @@ tt_result_t __str_write(IN tt_param_t *p, IN tt_u8_t *val, IN tt_u32_t val_len)
         return TT_FAIL;
     }
 
-    if (ps->cb.on_set != NULL) {
-        ps->cb.on_set(p, &ps->str);
+    if (ps->cb.post_set != NULL) {
+        ps->cb.post_set(p, (tt_char_t *)val, val_len);
     }
 
     return TT_SUCCESS;

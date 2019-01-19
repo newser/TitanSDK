@@ -41,12 +41,14 @@ this file defines string parameter
 // type definition
 ////////////////////////////////////////////////////////////
 
-typedef tt_result_t (*tt_param_str_on_set_t)(IN struct tt_param_s *co,
-                                             IN tt_string_t *new_val);
-
 typedef struct tt_param_str_cb_s
 {
-    tt_param_str_on_set_t on_set;
+    tt_bool_t (*pre_set)(IN struct tt_param_s *p,
+                         IN tt_char_t *new_val,
+                         IN tt_u32_t len);
+    void (*post_set)(IN struct tt_param_s *p,
+                     IN tt_char_t *new_val,
+                     IN tt_u32_t len);
 } tt_param_str_cb_t;
 
 typedef struct tt_param_str_s

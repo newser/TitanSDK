@@ -132,10 +132,14 @@ tt_result_t __bool_write(IN tt_param_t *p, IN tt_u8_t *val, IN tt_u32_t val_len)
         return TT_E_BADARG;
     }
 
+    if ((pb->cb.pre_set != NULL) && !pb->cb.pre_set(p, bool_val)) {
+        return TT_E_UNSUPPORT;
+    }
+
     *(tt_bool_t *)p->opaque = bool_val;
 
-    if (pb->cb.on_set != NULL) {
-        pb->cb.on_set(p, bool_val);
+    if (pb->cb.post_set != NULL) {
+        pb->cb.post_set(p, bool_val);
     }
 
     return TT_SUCCESS;

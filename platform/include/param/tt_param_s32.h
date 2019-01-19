@@ -42,12 +42,10 @@
 
 struct tt_param_s32_s;
 
-typedef tt_result_t (*tt_param_s32_on_set_t)(IN struct tt_param_s *cnode,
-                                             IN tt_s32_t new_val);
-
 typedef struct tt_param_s32_cb_s
 {
-    tt_param_s32_on_set_t on_set;
+    tt_bool_t (*pre_set)(IN struct tt_param_s *cnode, IN tt_s32_t new_val);
+    void (*post_set)(IN struct tt_param_s *cnode, IN tt_s32_t new_val);
 } tt_param_s32_cb_t;
 
 typedef struct tt_param_s32_s

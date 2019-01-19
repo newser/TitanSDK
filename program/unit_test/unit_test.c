@@ -99,8 +99,8 @@ tt_result_t __ut_fiber(IN void *param)
     }
 #if 1
     else {
-        const tt_char_t *names[] =
-        { "case_http_server_basic",
+        const tt_char_t *names[] = { //"case_http_server_basic",
+            "TEST_UNIT_CFGNODE",
 //            "case_http_inserv_param",
 //            "case_http_post_param",
 //"case_param_html_bs4_spa",

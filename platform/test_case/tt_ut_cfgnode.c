@@ -245,7 +245,9 @@ TT_TEST_CASE(
 
 static tt_u32_t __ut_err_line;
 static tt_bool_t __ut_on_destroy_ok;
+static tt_bool_t __ut_cb_allow = TT_TRUE;
 static tt_bool_t __ut_cb_called;
+static tt_bool_t __ut_cb_post_called;
 
 static tt_u32_t __ut_u32_set;
 static tt_string_t __ut_str_set;
@@ -268,44 +270,68 @@ static void __val_on_destroy(IN struct tt_param_s *cnode,
     __ut_on_destroy_ok = TT_TRUE;
 }
 
-static tt_result_t __u32_on_set(IN struct tt_param_s *cnode,
-                                IN tt_u32_t new_val)
+static tt_bool_t __u32_pre_set(IN struct tt_param_s *cnode, IN tt_u32_t new_val)
 {
-    *(tt_u32_t *)cnode->opaque = new_val;
+    //*(tt_u32_t *)cnode->opaque = new_val;
     __ut_cb_called = TT_TRUE;
     __ut_u32_set = new_val;
-    return TT_SUCCESS;
+    return __ut_cb_allow;
 }
 
-static tt_result_t __s32_on_set(IN struct tt_param_s *cnode,
-                                IN tt_s32_t new_val)
+static void __u32_post_set(IN struct tt_param_s *cnode, IN tt_u32_t new_val)
 {
-    *(tt_s32_t *)cnode->opaque = new_val;
+    //*(tt_u32_t *)cnode->opaque = new_val;
+    __ut_cb_post_called = TT_TRUE;
+}
+
+static tt_bool_t __s32_pre_set(IN struct tt_param_s *cnode, IN tt_s32_t new_val)
+{
+    //*(tt_s32_t *)cnode->opaque = new_val;
     __ut_cb_called = TT_TRUE;
     __ut_s32_set = new_val;
-    return TT_SUCCESS;
+    return __ut_cb_allow;
 }
 
-static tt_result_t __str_on_set(IN struct tt_param_s *cnode,
-                                IN tt_string_t *new_val)
+static void __s32_post_set(IN struct tt_param_s *cnode, IN tt_s32_t new_val)
 {
-    tt_string_t *s = (tt_string_t *)cnode->opaque;
+    //*(tt_u32_t *)cnode->opaque = new_val;
+    __ut_cb_post_called = TT_TRUE;
+}
 
-    tt_string_clear(s);
-    tt_string_copy(s, new_val);
+static tt_bool_t __str_pre_set(IN struct tt_param_s *cnode,
+                               IN tt_char_t *new_val,
+                               tt_u32_t len)
+{
+    //    tt_string_t *s = (tt_string_t *)cnode->opaque;
+    //
+    //    tt_string_clear(s);
+    //    tt_string_copy(s, new_val);
 
     __ut_cb_called = TT_TRUE;
-    tt_string_copy(&__ut_str_set, new_val);
-    return TT_SUCCESS;
+    tt_string_set_sub(&__ut_str_set, new_val, 0, len);
+    return __ut_cb_allow;
 }
 
-static tt_result_t __bool_on_set(IN struct tt_param_s *cnode,
-                                 IN tt_bool_t new_val)
+static void __str_post_set(IN struct tt_param_s *cnode,
+                           IN tt_char_t *new_val,
+                           tt_u32_t len)
 {
-    *(tt_bool_t *)cnode->opaque = new_val;
+    __ut_cb_post_called = TT_TRUE;
+}
+
+static tt_bool_t __bool_pre_set(IN struct tt_param_s *cnode,
+                                IN tt_bool_t new_val)
+{
+    //*(tt_bool_t *)cnode->opaque = new_val;
     __ut_cb_called = TT_TRUE;
     __ut_bool_set = new_val;
-    return TT_TRUE;
+    return __ut_cb_allow;
+}
+
+static void __bool_post_set(IN struct tt_param_s *cnode, IN tt_bool_t new_val)
+{
+    *(tt_bool_t *)cnode->opaque = new_val;
+    __ut_cb_post_called = TT_TRUE;
 }
 
 TT_TEST_ROUTINE_DEFINE(case_cfgnode_u32)
@@ -323,7 +349,7 @@ TT_TEST_ROUTINE_DEFINE(case_cfgnode_u32)
     const tt_char_t *u32_0 = "0";
     tt_blob_t n = {c, sizeof(c)}, v = {c, sizeof(c)};
     tt_param_attr_t attr;
-    tt_param_u32_cb_t cb = {__u32_on_set};
+    tt_param_u32_cb_t cb = {__u32_pre_set, __u32_post_set};
 
     TT_TEST_CASE_ENTER()
     // test start
@@ -357,6 +383,36 @@ TT_TEST_ROUTINE_DEFINE(case_cfgnode_u32)
     // set, can not set
     ret = tt_param_write(cnode, v.addr, v.len);
     TT_UT_EQUAL(ret, TT_E_UNSUPPORT, "");
+
+    tt_param_destroy(cnode);
+
+    cnode = tt_param_u32_create("node2", &val, NULL, &cb);
+    TT_UT_NOT_EQUAL(cnode, NULL, "");
+
+    {
+        val = 11;
+
+        __ut_cb_allow = TT_TRUE;
+        __ut_cb_called = TT_FALSE;
+        __ut_cb_post_called = TT_FALSE;
+        ret = tt_param_write(cnode, (tt_u8_t *)"123", 3);
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_TRUE(__ut_cb_called, "");
+        TT_UT_TRUE(__ut_cb_post_called, "");
+        TT_UT_EQUAL(val, 123, "");
+
+        __ut_cb_allow = TT_FALSE;
+        __ut_cb_called = TT_FALSE;
+        __ut_cb_post_called = TT_FALSE;
+        ret = tt_param_write(cnode, (tt_u8_t *)"45", 2);
+        TT_UT_FAIL(ret, "");
+        TT_UT_TRUE(__ut_cb_called, "");
+        TT_UT_FALSE(__ut_cb_post_called, "");
+        TT_UT_EQUAL(val, 123, "");
+
+        __ut_cb_allow = TT_TRUE;
+        val = 0;
+    }
 
     tt_param_destroy(cnode);
 
@@ -468,7 +524,7 @@ TT_TEST_ROUTINE_DEFINE(case_cfgnode_s32)
     const tt_char_t *s32_n1 = "  -1";
     tt_blob_t n = {c, sizeof(c)}, v = {c, sizeof(c)};
     tt_param_attr_t attr;
-    tt_param_s32_cb_t cb = {__s32_on_set};
+    tt_param_s32_cb_t cb = {__s32_pre_set, __s32_post_set};
 
     TT_TEST_CASE_ENTER()
     // test start
@@ -501,6 +557,36 @@ TT_TEST_ROUTINE_DEFINE(case_cfgnode_s32)
     // set
     ret = tt_param_write(cnode, v.addr, v.len);
     TT_UT_EQUAL(ret, TT_E_UNSUPPORT, "");
+
+    tt_param_destroy(cnode);
+
+    cnode = tt_param_s32_create("node2", &val, NULL, &cb);
+    TT_UT_NOT_EQUAL(cnode, NULL, "");
+
+    {
+        val = 11;
+
+        __ut_cb_allow = TT_TRUE;
+        __ut_cb_called = TT_FALSE;
+        __ut_cb_post_called = TT_FALSE;
+        ret = tt_param_write(cnode, (tt_u8_t *)"-123", 4);
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_TRUE(__ut_cb_called, "");
+        TT_UT_TRUE(__ut_cb_post_called, "");
+        TT_UT_EQUAL(val, -123, "");
+
+        __ut_cb_allow = TT_FALSE;
+        __ut_cb_called = TT_FALSE;
+        __ut_cb_post_called = TT_FALSE;
+        ret = tt_param_write(cnode, (tt_u8_t *)"45", 2);
+        TT_UT_FAIL(ret, "");
+        TT_UT_TRUE(__ut_cb_called, "");
+        TT_UT_FALSE(__ut_cb_post_called, "");
+        TT_UT_EQUAL(val, -123, "");
+
+        __ut_cb_allow = TT_TRUE;
+        val = 0;
+    }
 
     tt_param_destroy(cnode);
 
@@ -642,7 +728,7 @@ TT_TEST_ROUTINE_DEFINE(case_cfgnode_str)
     const tt_char_t *test_str = "test string";
     tt_blob_t n = {c, sizeof(c)}, v = {c, sizeof(c)};
     tt_param_attr_t attr;
-    tt_param_str_cb_t cb = {__str_on_set};
+    tt_param_str_cb_t cb = {__str_pre_set, __str_post_set};
 
     TT_TEST_CASE_ENTER()
     // test start
@@ -678,6 +764,36 @@ TT_TEST_ROUTINE_DEFINE(case_cfgnode_str)
     // set
     ret = tt_param_write(cnode, v.addr, v.len);
     TT_UT_EQUAL(ret, TT_E_UNSUPPORT, "");
+
+    tt_param_destroy(cnode);
+
+    cnode = tt_param_str_create("node2", &val, NULL, &cb);
+    TT_UT_NOT_EQUAL(cnode, NULL, "");
+
+    {
+        tt_string_set(&val, "1234");
+
+        __ut_cb_allow = TT_TRUE;
+        __ut_cb_called = TT_FALSE;
+        __ut_cb_post_called = TT_FALSE;
+        ret = tt_param_write(cnode, (tt_u8_t *)"xyz", 3);
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_TRUE(__ut_cb_called, "");
+        TT_UT_TRUE(__ut_cb_post_called, "");
+        TT_UT_EQUAL(tt_string_cmp(&val, "xyz"), 0, "");
+
+        __ut_cb_allow = TT_FALSE;
+        __ut_cb_called = TT_FALSE;
+        __ut_cb_post_called = TT_FALSE;
+        ret = tt_param_write(cnode, (tt_u8_t *)"xx", 2);
+        TT_UT_FAIL(ret, "");
+        TT_UT_TRUE(__ut_cb_called, "");
+        TT_UT_FALSE(__ut_cb_post_called, "");
+        TT_UT_EQUAL(tt_string_cmp(&val, "xyz"), 0, "");
+
+        __ut_cb_allow = TT_TRUE;
+        tt_string_clear(&val);
+    }
 
     tt_param_destroy(cnode);
 
@@ -1210,7 +1326,7 @@ TT_TEST_ROUTINE_DEFINE(case_cfgnode_bool)
     tt_s32_t cmp_ret;
     tt_blob_t n = {c, sizeof(c)}, v = {c, sizeof(c)};
     tt_param_attr_t attr;
-    tt_param_bool_cb_t cb = {__bool_on_set};
+    tt_param_bool_cb_t cb = {__bool_pre_set, __bool_post_set};
 
     TT_TEST_CASE_ENTER()
     // test start
@@ -1261,6 +1377,35 @@ TT_TEST_ROUTINE_DEFINE(case_cfgnode_bool)
     // set
     ret = tt_param_write(cnode, v.addr, v.len);
     TT_UT_EQUAL(ret, TT_E_UNSUPPORT, "");
+
+    tt_param_destroy(cnode);
+
+    cnode = tt_param_bool_create("node-bool", &val, NULL, &cb);
+    TT_UT_NOT_EQUAL(cnode, NULL, "");
+
+    {
+        val = TT_FALSE;
+
+        __ut_cb_allow = TT_TRUE;
+        __ut_cb_called = TT_FALSE;
+        __ut_cb_post_called = TT_FALSE;
+        ret = tt_param_write(cnode, (tt_u8_t *)"true", 4);
+        TT_UT_EQUAL(ret, TT_SUCCESS, "");
+        TT_UT_TRUE(__ut_cb_called, "");
+        TT_UT_TRUE(__ut_cb_post_called, "");
+        TT_UT_TRUE(val, "");
+
+        __ut_cb_allow = TT_FALSE;
+        __ut_cb_called = TT_FALSE;
+        __ut_cb_post_called = TT_FALSE;
+        ret = tt_param_write(cnode, (tt_u8_t *)"false", 5);
+        TT_UT_FAIL(ret, "");
+        TT_UT_TRUE(__ut_cb_called, "");
+        TT_UT_FALSE(__ut_cb_post_called, "");
+        TT_UT_TRUE(val, "");
+
+        __ut_cb_allow = TT_TRUE;
+    }
 
     tt_param_destroy(cnode);
 

@@ -109,10 +109,14 @@ tt_result_t __s32_write(IN tt_param_t *p, IN tt_u8_t *val, IN tt_u32_t val_len)
         return TT_E_BADARG;
     }
 
+    if ((ps->cb.pre_set != NULL) && !ps->cb.pre_set(p, s32_val)) {
+        return TT_E_UNSUPPORT;
+    }
+
     *((tt_s32_t *)p->opaque) = s32_val;
 
-    if (ps->cb.on_set != NULL) {
-        ps->cb.on_set(p, s32_val);
+    if (ps->cb.post_set != NULL) {
+        ps->cb.post_set(p, s32_val);
     }
 
     return TT_SUCCESS;
