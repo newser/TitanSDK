@@ -24,6 +24,7 @@
 
 #include <json/tt_json_document.h>
 #include <json/tt_json_value.h>
+#include <misc/tt_percent_encode.h>
 #include <network/http/def/tt_http_service_def.h>
 #include <network/http/tt_http_parser.h>
 #include <network/http/tt_http_render.h>
@@ -537,6 +538,20 @@ tt_result_t __post_single_param(IN const tt_char_t *beg,
     TT_ASSERT(val <= (beg + len));
     val_len = beg + len - val;
     // tt_trim_lr((tt_u8_t**)&val, &val_len, ' ');
+
+    // must do percent decoding for string parameters
+    if (p->type == TT_PARAM_STRING) {
+        tt_u32_t n = tt_percent_decode_len(val, val_len);
+        TT_ASSERT(n <= val_len);
+        tt_buf_clear(buf);
+        TT_DO(tt_buf_reserve(buf, n));
+        n = tt_percent_decode(val,
+                              val_len,
+                              TT_TRUE,
+                              (tt_char_t *)TT_BUF_RPOS(buf));
+        val = (tt_char_t *)TT_BUF_RPOS(buf);
+        val_len = n;
+    }
 
     result = tt_param_write(p, (tt_u8_t *)val, val_len);
     // should return the param value to caller

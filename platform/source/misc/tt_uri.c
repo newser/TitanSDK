@@ -80,7 +80,8 @@ static tt_result_t __parse_authority(IN tt_uri_t *uri,
 
 tt_result_t __percent_decode(IN tt_blobex_t *bex,
                              IN tt_char_t *str,
-                             IN tt_u32_t len);
+                             IN tt_u32_t len,
+                             IN tt_bool_t plus2sp);
 
 static tt_s32_t __uri_blobex_cmp(IN tt_blobex_t *a, IN tt_blobex_t *b);
 
@@ -684,7 +685,7 @@ tt_result_t __parse_uri(IN tt_uri_t *uri, IN tt_char_t *str, IN tt_u32_t len)
     if ((scheme = tt_memchr(cur, ':', len)) != NULL) {
         n = (tt_u32_t)(scheme - cur);
         if (n > 0) {
-            TT_DO(__percent_decode(&uri->scheme, cur, n));
+            TT_DO(__percent_decode(&uri->scheme, cur, n, TT_FALSE));
         }
         cur = scheme + 1;
         len -= (n + 1);
@@ -698,7 +699,7 @@ tt_result_t __parse_uri(IN tt_uri_t *uri, IN tt_char_t *str, IN tt_u32_t len)
         fragment += 1;
         n = (tt_u32_t)(end - fragment);
         if (n > 0) {
-            TT_DO(__percent_decode(&uri->fragment, fragment, n));
+            TT_DO(__percent_decode(&uri->fragment, fragment, n, TT_FALSE));
         }
         len -= (n + 1);
     }
@@ -722,7 +723,7 @@ tt_result_t __parse_absolute(IN tt_uri_t *uri,
     if (*cur != '/') {
         // opaque uri
         return TT_COND(len > 0,
-                       __percent_decode(&uri->opaque, cur, len),
+                       __percent_decode(&uri->opaque, cur, len, TT_FALSE),
                        TT_SUCCESS);
     }
     // hierarchical uri: [user-info@]host[:port][path][?query]
@@ -781,11 +782,12 @@ tt_result_t __parse_absolute(IN tt_uri_t *uri,
     }
 
     if ((path != NULL) && (path_len != 0)) {
-        TT_DO(__percent_decode(&uri->path, path, path_len));
+        TT_DO(__percent_decode(&uri->path, path, path_len, TT_FALSE));
     }
 
     if ((query != NULL) && (query_len != 0)) {
-        TT_DO(__percent_decode(&uri->query, query, query_len));
+        // note we can decode '+' to ' ' in query part
+        TT_DO(__percent_decode(&uri->query, query, query_len, TT_TRUE));
     }
 
     return TT_SUCCESS;
@@ -812,11 +814,11 @@ tt_result_t __parse_relative(IN tt_uri_t *uri,
     }
 
     if ((path != NULL) && (path_len != 0)) {
-        TT_DO(__percent_decode(&uri->path, path, path_len));
+        TT_DO(__percent_decode(&uri->path, path, path_len, TT_FALSE));
     }
 
     if ((query != NULL) && (query_len != 0)) {
-        TT_DO(__percent_decode(&uri->query, query, query_len));
+        TT_DO(__percent_decode(&uri->query, query, query_len, TT_TRUE));
     }
 
     return TT_SUCCESS;
@@ -835,7 +837,7 @@ tt_result_t __parse_authority(IN tt_uri_t *uri,
     if ((at = tt_memchr(cur, '@', len)) != NULL) {
         n = (tt_u32_t)(at - cur);
         if (n > 0) {
-            TT_DO(__percent_decode(&uri->user_info, cur, n));
+            TT_DO(__percent_decode(&uri->user_info, cur, n, TT_FALSE));
         }
         cur = at + 1;
         len -= (n + 1);
@@ -873,7 +875,7 @@ tt_result_t __parse_authority(IN tt_uri_t *uri,
 
     // left are considered as host part
     if (len > 0) {
-        TT_DO(__percent_decode(&uri->host, cur, len));
+        TT_DO(__percent_decode(&uri->host, cur, len, TT_FALSE));
     }
 
     return TT_SUCCESS;
@@ -881,39 +883,19 @@ tt_result_t __parse_authority(IN tt_uri_t *uri,
 
 tt_result_t __percent_decode(IN tt_blobex_t *bex,
                              IN tt_char_t *str,
-                             IN tt_u32_t len)
+                             IN tt_u32_t len,
+                             IN tt_bool_t plus2sp)
 {
-    tt_char_t *p, *end = str + len, *dst;
-    tt_u32_t n = 0;
+    tt_u32_t n;
+    tt_char_t *dst;
 
-    p = str;
-    while (p < end) {
-        if ((*p == '%') && ((p + 2) < end) && tt_isxdigit(p[1]) &&
-            tt_isxdigit(p[2])) {
-            p += 3;
-        } else {
-            ++p;
-        }
-        ++n;
-    }
-    TT_ASSERT(p == end);
-    // reserve space
+    n = tt_percent_decode_len(str, len);
     TT_DO(tt_blobex_set(bex, NULL, n + 1, TT_TRUE));
 
-    p = str;
-    dst = tt_blobex_addr(bex);
-    while (p < end) {
-        if ((*p == '%') && ((p + 2) < end) && tt_isxdigit(p[1]) &&
-            tt_isxdigit(p[2])) {
-            *dst++ = (tt_c2h(p[1], 0) << 4) | tt_c2h(p[2], 0);
-            p += 3;
-        } else {
-            *dst++ = *p;
-            ++p;
-        }
-    }
-    *dst++ = 0;
-    TT_ASSERT(dst == ((tt_char_t *)tt_blobex_addr(bex) + tt_blobex_len(bex)));
+    dst = (tt_char_t *)tt_blobex_addr(bex);
+    n = tt_percent_decode(str, len, plus2sp, dst);
+    TT_ASSERT(n == (tt_blobex_len(bex) - 1));
+    dst[n] = 0;
 
     return TT_SUCCESS;
 }

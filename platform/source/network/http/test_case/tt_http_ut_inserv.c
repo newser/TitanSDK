@@ -1043,6 +1043,42 @@ TT_TEST_ROUTINE_DEFINE(case_http_post_param)
         TT_UT_EQUAL(tt_buf_cmp_cstr(&c.buf, "{\"1010\":\"8080\"}"), 0, "");
     }
 
+    // 1 entry
+    {
+        tt_string_t ss;
+        tt_param_t *ps;
+
+        tt_string_init(&ss, NULL);
+
+        ps = tt_param_str_create("haha", &ss, NULL, NULL);
+        TT_UT_NOT_NULL(ps, "");
+        ps->tid = 666;
+
+        tt_http_inserv_clear_ctx(is, &c);
+        tt_http_resp_render_clear(&resp);
+
+        tt_string_set(&c.body, "666= 1%2022+333");
+        TT_UT_EQUAL(__post_param(is, &c, NULL, &resp, ps),
+                    TT_HTTP_INSERV_ACT_BODY,
+                    "");
+
+        TT_UT_EQUAL(tt_http_resp_render_get_status(&resp),
+                    TT_HTTP_STATUS_OK,
+                    "");
+        TT_UT_EQUAL(resp.render.contype, TT_HTTP_CONTYPE_APP_JSON, "");
+        TT_UT_EQUAL(resp.render.txenc[0], TT_HTTP_TXENC_CHUNKED, "");
+        TT_UT_EQUAL(resp.render.txenc_num, 1, "");
+
+        TT_UT_EQUAL(tt_string_cmp(&ss, " 1 22 333"), 0, "");
+
+        tt_buf_clear(&c.buf);
+        tt_jdoc_render(&c.jdoc, &c.buf, NULL);
+        TT_UT_EQUAL(tt_buf_cmp_cstr(&c.buf, "{\"666\":\" 1 22 333\"}"), 0, "");
+
+        tt_param_destroy(ps);
+        tt_string_destroy(&ss);
+    }
+
     // 1 entry, invalid format
     u32_val = 6767;
     {

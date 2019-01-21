@@ -23,6 +23,7 @@
 //#define TT_VERSION_REQUIRE_MAJOR 256
 //#define TT_VERSION_REQUIRE_MINOR 256
 
+#include <misc/tt_percent_encode.h>
 #include <tt_platform.h>
 
 #include <math.h>
@@ -42,11 +43,6 @@
 extern tt_result_t __percent_decode(IN tt_blobex_t *bex,
                                     IN tt_char_t *str,
                                     IN tt_u32_t len);
-
-extern tt_result_t tt_percent_encode(IN tt_blobex_t *bex,
-                                     IN tt_char_t *str,
-                                     IN tt_u32_t len,
-                                     IN tt_char_t *encode_table);
 
 ////////////////////////////////////////////////////////////
 // global variant
@@ -1631,29 +1627,63 @@ TT_TEST_ROUTINE_DEFINE(case_percent_decode)
 
 TT_TEST_ROUTINE_DEFINE(case_percent_encode)
 {
-    tt_blobex_t b;
+    tt_buf_t b;
 
     TT_TEST_CASE_ENTER()
     // test start
 
-    tt_blobex_init(&b, NULL, 0);
+    tt_buf_init(&b, NULL);
 
-    TT_UT_SUCCESS(tt_percent_encode(&b, "", 0, tt_g_uri_encode_table), "");
-    TT_UT_STREQ(tt_blobex_addr(&b), "", "");
+    TT_UT_EQUAL(tt_percent_encode_len("", 0, tt_g_uri_encode_table), 0, "");
+    tt_buf_clear(&b);
+    TT_UT_EQUAL(tt_percent_encode("",
+                                  0,
+                                  tt_g_uri_encode_table,
+                                  (tt_char_t *)TT_BUF_RPOS(&b)),
+                0,
+                "");
+    TT_UT_EQUAL(TT_BUF_RLEN(&b), 0, "");
 
-    TT_UT_SUCCESS(tt_percent_encode(&b, "a", 0, tt_g_uri_encode_table), "");
-    TT_UT_STREQ(tt_blobex_addr(&b), "", "");
+    tt_buf_clear(&b);
+    TT_UT_EQUAL(0,
+                tt_percent_encode("a",
+                                  0,
+                                  tt_g_uri_encode_table,
+                                  (tt_char_t *)TT_BUF_WPOS(&b)),
+                "");
+    TT_UT_EQUAL(tt_buf_empty(&b), TT_TRUE, "");
 
-    TT_UT_SUCCESS(tt_percent_encode(&b, "", 1, tt_g_uri_encode_table), "");
-    TT_UT_STREQ(tt_blobex_addr(&b), "%00", "");
+    tt_buf_clear(&b);
+    TT_UT_EQUAL(3,
+                tt_percent_encode("",
+                                  1,
+                                  tt_g_uri_encode_table,
+                                  (tt_char_t *)TT_BUF_WPOS(&b)),
+                "");
+    tt_buf_inc_wp(&b, 3);
+    TT_UT_EQUAL(tt_buf_cmp_cstr(&b, "%00"), 0, "");
 
-    TT_UT_SUCCESS(tt_percent_encode(&b, "a", 1, tt_g_uri_encode_table), "");
-    TT_UT_STREQ(tt_blobex_addr(&b), "a", "");
+    tt_buf_clear(&b);
+    TT_UT_EQUAL(1,
+                tt_percent_encode("a",
+                                  1,
+                                  tt_g_uri_encode_table,
+                                  (tt_char_t *)TT_BUF_WPOS(&b)),
+                "");
+    tt_buf_inc_wp(&b, 1);
+    TT_UT_EQUAL(tt_buf_cmp_cstr(&b, "a"), 0, "");
 
-    TT_UT_SUCCESS(tt_percent_encode(&b, "%a% ", 4, tt_g_uri_encode_table), "");
-    TT_UT_STREQ(tt_blobex_addr(&b), "%25a%25%20", "");
+    tt_buf_clear(&b);
+    TT_UT_EQUAL(sizeof("%25a%25%20") - 1,
+                tt_percent_encode("%a% ",
+                                  4,
+                                  tt_g_uri_encode_table,
+                                  (tt_char_t *)TT_BUF_WPOS(&b)),
+                "");
+    tt_buf_inc_wp(&b, sizeof("%25a%25%20") - 1);
+    TT_UT_EQUAL(tt_buf_cmp_cstr(&b, "%25a%25%20"), 0, "");
 
-    tt_blobex_destroy(&b);
+    tt_buf_destroy(&b);
 
     // test end
     TT_TEST_CASE_LEAVE()
@@ -1838,6 +1868,13 @@ TT_TEST_ROUTINE_DEFINE(case_uri_get_set)
     TT_UT_STREQ(tt_uri_get_path(&u), "/~/calendar", "");
     TT_UT_STREQ(tt_uri_get_query(&u), "", "");
     TT_UT_STREQ(tt_uri_get_fragment(&u), "", "");
+
+    TT_UT_SUCCESS(tt_uri_parse(&u,
+                               "http://www.example.com/path/foo+bar/"
+                               "path?query+name=query+value"),
+                  "");
+    TT_UT_STREQ(tt_uri_get_path(&u), "/path/foo+bar/path", "");
+    TT_UT_STREQ(tt_uri_get_query(&u), "query name=query value", "");
 
     tt_uri_destroy(&u);
 

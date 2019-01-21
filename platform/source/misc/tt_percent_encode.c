@@ -85,3 +85,53 @@ tt_u32_t tt_percent_encode(IN const tt_char_t *str,
 
     return (tt_u32_t)(p - dst);
 }
+
+tt_u32_t tt_percent_decode_len(IN const tt_char_t *str, IN tt_u32_t len)
+{
+    const tt_char_t *p, *end;
+    tt_u32_t n;
+
+    p = str;
+    end = str + len;
+    n = 0;
+    while (p < end) {
+        if ((*p == '%') && ((p + 2) < end) && tt_isxdigit(p[1]) &&
+            tt_isxdigit(p[2])) {
+            p += 3;
+        } else {
+            ++p;
+        }
+        ++n;
+    }
+    TT_ASSERT(p == end);
+
+    return n;
+}
+
+tt_u32_t tt_percent_decode(IN const tt_char_t *str,
+                           IN tt_u32_t len,
+                           IN tt_bool_t plus2sp,
+                           OUT tt_char_t *dst)
+{
+    const tt_char_t *p, *end;
+    tt_char_t *d;
+
+    p = str;
+    end = str + len;
+    d = dst;
+    while (p < end) {
+        if ((*p == '%') && ((p + 2) < end) && tt_isxdigit(p[1]) &&
+            tt_isxdigit(p[2])) {
+            *d++ = (tt_c2h(p[1], 0) << 4) | tt_c2h(p[2], 0);
+            p += 3;
+        } else if (plus2sp && (*p == '+')) {
+            *d++ = ' ';
+            ++p;
+        } else {
+            *d++ = *p;
+            ++p;
+        }
+    }
+
+    return d - dst;
+}
