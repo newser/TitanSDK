@@ -38,7 +38,7 @@
     "<link rel=\"stylesheet\" href=\"/css/bootstrap.min.css\" />"
 
 #define __DEFAULT_JS                                                           \
-    "<script src=\"/js/jquery.slim.min.js\"></script>"                         \
+    "<script src=\"/js/jquery.min.js\"></script>"                              \
     "<script src=\"/js/popper.min.js\"></script>"                              \
     "<script src=\"/js/bootstrap.min.js\"></script>"
 
@@ -75,25 +75,27 @@
 
 #define __DEFAULT_FOOTER_TEXT "TitanSDK HTTP Module"
 
-#define __JS_START                                                             \
+#define __JS_MAIN_START                                                        \
     "var cur=\"\";"                                                            \
     "function activate(n){"                                                    \
     "if(n==cur){return;}"                                                      \
     "if(cur.length>0){"                                                        \
     "$(\"#nav-\".concat(cur)).removeClass(\"active\");"                        \
-    "$(\"#sb-\".concat(cur)).removeClass(\"d-lg-block\");"                     \
-    "$(\"#ct-\".concat(cur)).addClass(\"d-none\");"                            \
+    "$(\"#sb-\".concat(cur)).removeClass(\"d-none d-lg-block\").hide();"       \
+    "$(\"#ct-\".concat(cur)).hide();"                                          \
     "}"                                                                        \
     "$(\"#nav-\".concat(n)).addClass(\"active\");"                             \
-    "$(\"#sb-\".concat(n)).addClass(\"d-lg-block\");"                          \
-    "$(\"#ct-\".concat(n)).removeClass(\"d-none\");"                           \
+    "$(\"#sb-\".concat(n)).fadeIn().addClass(\"d-none d-lg-block\");"          \
+    "$(\"#ct-\".concat(n)).fadeIn();"                                          \
     "cur=n;"                                                                   \
     "}"                                                                        \
     "$(document).ready(function(){"                                            \
     "$('[data-toggle=\"tooltip\"]').tooltip();"                                \
+    "$(\"[id^=sb-]\").hide();"                                                 \
+    "$(\"[id^=ct-]\").hide();"                                                 \
     "refresh();"
 
-#define __JS_END "});"
+#define __JS_MAIN_END "});"
 
 #define __JS_ACTIVE "activate(\"%s\");"
 
@@ -120,6 +122,9 @@ static tt_result_t __render_body(IN tt_param_bs4spa_t *spa,
                                  IN tt_param_bs4level_t lv,
                                  OUT tt_buf_t *buf);
 
+static tt_result_t __render_body_modal(IN tt_param_bs4spa_t *spa,
+                                       OUT tt_buf_t *buf);
+
 static tt_result_t __render_body_header(IN tt_param_bs4spa_t *spa,
                                         IN tt_param_t *param,
                                         OUT tt_buf_t *buf);
@@ -131,6 +136,18 @@ static tt_result_t __render_body_main(IN tt_param_bs4spa_t *spa,
 
 static tt_result_t __render_body_footer(IN tt_param_bs4spa_t *spa,
                                         OUT tt_buf_t *buf);
+
+static tt_result_t __put_js_pprompt(IN void *reserved, OUT tt_buf_t *buf);
+
+static tt_result_t __put_js_refresh(IN void *reserved, OUT tt_buf_t *buf);
+
+static tt_result_t __put_js_click_refresh(IN void *reserved, OUT tt_buf_t *buf);
+
+static tt_result_t __put_js_click_undo(IN void *reserved, OUT tt_buf_t *buf);
+
+static tt_result_t __put_js_submit(IN void *reserved, OUT tt_buf_t *buf);
+
+static tt_result_t __put_js_click_submit(IN void *reserved, OUT tt_buf_t *buf);
 
 ////////////////////////////////////////////////////////////
 // interface implementation
@@ -174,10 +191,10 @@ tt_result_t tt_param_bs4spa_render(IN tt_param_bs4spa_t *spa,
     return TT_SUCCESS;
 }
 
-tt_result_t tt_param_bs4spa_render_display_js(IN tt_param_bs4spa_t *spa,
-                                              IN struct tt_param_s *param,
-                                              IN tt_param_bs4level_t lv,
-                                              OUT struct tt_buf_s *buf)
+tt_result_t tt_param_bs4spa_render_js(IN tt_param_bs4spa_t *spa,
+                                      IN struct tt_param_s *param,
+                                      IN tt_param_bs4level_t lv,
+                                      OUT struct tt_buf_s *buf)
 {
     tt_param_dir_t *dir;
     tt_param_t *p;
@@ -190,7 +207,14 @@ tt_result_t tt_param_bs4spa_render_display_js(IN tt_param_bs4spa_t *spa,
 
     __prepare_render(spa);
 
-    __PUT_CSTR(buf, __JS_START);
+    TT_DO(__put_js_pprompt(NULL, buf));
+    TT_DO(__put_js_refresh(NULL, buf));
+    TT_DO(__put_js_submit(NULL, buf));
+    TT_DO(__put_js_click_refresh(NULL, buf));
+    TT_DO(__put_js_click_undo(NULL, buf));
+    TT_DO(__put_js_click_submit(NULL, buf));
+
+    __PUT_CSTR(buf, __JS_MAIN_START);
 
     p = tt_param_dir_head(dir);
     if (p != NULL) {
@@ -201,7 +225,7 @@ tt_result_t tt_param_bs4spa_render_display_js(IN tt_param_bs4spa_t *spa,
         TT_DO(tt_buf_putf(buf, __JS_CLICK, tt_param_name(p), tt_param_name(p)));
     }
 
-    __PUT_CSTR(buf, __JS_END);
+    __PUT_CSTR(buf, __JS_MAIN_END);
 
     return TT_SUCCESS;
 }
@@ -236,6 +260,8 @@ tt_result_t __render_body(IN tt_param_bs4spa_t *spa,
 {
     TT_DO(__PUT_CSTR(buf, __SPA_BODY_START));
 
+    TT_DO(__render_body_modal(spa, buf));
+
     TT_DO(__render_body_header(spa, param, buf));
 
     TT_DO(__render_body_main(spa, param, lv, buf));
@@ -244,6 +270,25 @@ tt_result_t __render_body(IN tt_param_bs4spa_t *spa,
 
     TT_DO(tt_buf_putf(buf, __SPA_BODY_END, spa->js, spa->js_extra));
 
+    return TT_SUCCESS;
+}
+
+tt_result_t __render_body_modal(IN tt_param_bs4spa_t *spa, OUT tt_buf_t *buf)
+{
+#define __SPA_BODY_MODAL                                                       \
+    "<div class=\"modal fade\" id=\"p-prompt\" tabindex=\"-1\" "               \
+    "role=\"dialog\" aria-hidden=\"true\">"                                    \
+    "<div class=\"modal-dialog modal-dialog-centered\">"                       \
+    "<div class=\"modal-content\">"                                            \
+    "<div class=\"modal-header\">"                                             \
+    "<h5 class=\"modal-title\" id=\"p-prompt-title\">"                         \
+    "Refreshing Parameters</h5></div>"                                         \
+    "<div class=\"modal-body\" id=\"p-prompt-text\"></div>"                    \
+    "<div class=\"modal-footer\">"                                             \
+    "<button type=\"button\" class=\"btn btn-primary\" "                       \
+    "data-dismiss=\"modal\">Close</button></div></div></div></div>"
+
+    TT_DO(__PUT_CSTR(buf, __SPA_BODY_MODAL));
     return TT_SUCCESS;
 }
 
@@ -300,5 +345,112 @@ tt_result_t __render_body_footer(IN tt_param_bs4spa_t *spa, OUT tt_buf_t *buf)
                           spa->footer_text));
     }
 
+    return TT_SUCCESS;
+}
+
+tt_result_t __put_js_pprompt(IN void *reserved, OUT tt_buf_t *buf)
+{
+#define __JS_P_PROMPT                                                          \
+    "function p_prompt(title,text){"                                           \
+    "$(\"#p-prompt-title\").html(title);"                                      \
+    "$(\"#p-prompt-text\").html(text);"                                        \
+    "$(\"#p-prompt\").modal();}"
+
+    TT_DO(__PUT_CSTR(buf, __JS_P_PROMPT));
+    return TT_SUCCESS;
+}
+
+tt_result_t __put_js_refresh(IN void *reserved, OUT tt_buf_t *buf)
+{
+#define __JS_REFRESH                                                           \
+    "function refresh(modal){"                                                 \
+    "$.ajax({"                                                                 \
+    "type:\"GET\","                                                            \
+    "url:\"param\","                                                           \
+    "dataType:\"json\","                                                       \
+    "async:false,"                                                             \
+    "cache:false,"                                                             \
+    "timeout:3000,"                                                            \
+    "success:function(data,status,xhr){"                                       \
+    "$(\"[tid]\").each(function(i,e){"                                         \
+    "e.defaultValue=data[$(this).attr(\"tid\")];"                              \
+    "e.value=e.defaultValue;});"                                               \
+    "if(modal){"                                                               \
+    "p_prompt(\"Refreshing Parameters\","                                      \
+    "\"<p>All parameters are successfully refreshed.</p>\");}},"               \
+    "error:function(xhr,status,err){"                                          \
+    "if(modal){"                                                               \
+    "p_prompt(\"Refreshing Parameters\","                                      \
+    "\"<p>Failed:\"+status+\"</p>\");}},});}"
+
+    TT_DO(__PUT_CSTR(buf, __JS_REFRESH));
+    return TT_SUCCESS;
+}
+
+tt_result_t __put_js_click_refresh(IN void *reserved, OUT tt_buf_t *buf)
+{
+#define __JS_CLICK_REFRESH                                                     \
+    "$(\"input[type='button'][value='Refresh']\").click("                      \
+    "function(){refresh(true);});"
+
+    TT_DO(__PUT_CSTR(buf, __JS_CLICK_REFRESH));
+    return TT_SUCCESS;
+}
+
+tt_result_t __put_js_click_undo(IN void *reserved, OUT tt_buf_t *buf)
+{
+#define __JS_CLICK_UNDO                                                        \
+    "$(\"input[type='button'][value='Undo']\").click(function(){"              \
+    "$(\"#ct-\".concat(cur)).fadeOut(\"fast\",function(){"                     \
+    "$(\"[tid]\").each(function(i,e){"                                         \
+    "if(e.value!=e.defaultValue){"                                             \
+    "e.value=e.defaultValue;"                                                  \
+    "}});});"                                                                  \
+    "$(\"#ct-\".concat(cur)).fadeIn(\"fast\");});"
+
+    TT_DO(__PUT_CSTR(buf, __JS_CLICK_UNDO));
+    return TT_SUCCESS;
+}
+
+tt_result_t __put_js_submit(IN void *reserved, OUT tt_buf_t *buf)
+{
+#define __JS_SUBMIT                                                            \
+    "function submit(){"                                                       \
+    "var o={};"                                                                \
+    "$(\"[tid]\").each(function(i,e){"                                         \
+    "if(e.value!=e.defaultValue){"                                             \
+    "o[$(this).attr(\"tid\")]=e.value;}});"                                    \
+    "if($.isEmptyObject(o)){"                                                  \
+    "p_prompt(\"Submitting Parameters\",\"<p>No parameter is changed.</p>\");" \
+    "}else{"                                                                   \
+    "$.ajax({"                                                                 \
+    "type:\"POST\","                                                           \
+    "url:\"param\","                                                           \
+    "dataType:\"json\","                                                       \
+    "data:o,"                                                                  \
+    "async:false,"                                                             \
+    "cache:false,"                                                             \
+    "timeout:3000,"                                                            \
+    "success:function(data,status,xhr){"                                       \
+    "$.each(data,function(k,v){"                                               \
+    "var e=$(\"[tid=\"+k+\"]\")[0];"                                           \
+    "e.defaultValue=v;"                                                        \
+    "e.value=e.defaultValue;});"                                               \
+    "p_prompt(\"Submitting Parameters\","                                      \
+    "\"<p>All parameters are successfully submitted.</p>\");},"                \
+    "error:function(xhr,status,err){"                                          \
+    "p_prompt(\"Submitting Parameters\","                                      \
+    "\"<p>Failed: \"+status+\"</p>\");},});}}"
+
+    TT_DO(__PUT_CSTR(buf, __JS_SUBMIT));
+    return TT_SUCCESS;
+}
+
+tt_result_t __put_js_click_submit(IN void *reserved, OUT tt_buf_t *buf)
+{
+#define __JS_CLICK_SUMBIT                                                      \
+    "$(\"input[type='button'][value='Submit']\").click(submit);"
+
+    TT_DO(__PUT_CSTR(buf, __JS_CLICK_SUMBIT));
     return TT_SUCCESS;
 }

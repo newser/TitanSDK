@@ -34,7 +34,7 @@
 ////////////////////////////////////////////////////////////
 
 #define __SIDEBAR_START                                                        \
-    "<nav class=\"%s col-2 navbar bg-light %s\" id=\"sb-%s\">"                 \
+    "<nav class=\"col-2 navbar bg-light %s\" id=\"sb-%s\" %s>"                 \
     "<ul class=\"navbar-nav\">"
 
 #define __SIDEBAR_ENTRY                                                        \
@@ -78,9 +78,9 @@ tt_result_t tt_param_bs4sidebar_render(IN tt_param_bs4sidebar_t *sb,
 
     TT_DO(tt_buf_putf(buf,
                       __SIDEBAR_START,
-                      TT_COND(sb->hide, "d-none", "d-none d-lg-block"),
                       sb->nav_class,
-                      tt_param_name(param)));
+                      tt_param_name(param),
+                      TT_COND(sb->hide, "style=\"display:none\"", "")));
 
     for (p = tt_param_dir_head(dir); p != NULL; p = tt_param_dir_next(p)) {
         if (p->type == TT_PARAM_DIR) {

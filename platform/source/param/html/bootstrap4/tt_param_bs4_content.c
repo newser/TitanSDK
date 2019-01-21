@@ -33,7 +33,7 @@
 // internal macro
 ////////////////////////////////////////////////////////////
 
-#define __C_START "<div class=\"%s col-12 col-lg-10\" id=\"ct-%s\">"
+#define __C_START "<div class=\"col-12 col-lg-10\" id=\"ct-%s\" %s>"
 
 #define __C_END "</div>"
 
@@ -130,8 +130,8 @@ tt_result_t tt_param_bs4content_render(IN tt_param_bs4content_t *ct,
 
     TT_DO(tt_buf_putf(buf,
                       __C_START,
-                      TT_COND(ct->hide, "d-none", ""),
-                      tt_param_name(param)));
+                      tt_param_name(param),
+                      TT_COND(ct->hide, "style=\"display:none\"", "")));
 
     // render child non-dir params
     TT_DO(__render_dir(ct, param, lv, &group0, buf));

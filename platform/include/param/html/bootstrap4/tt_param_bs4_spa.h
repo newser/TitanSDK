@@ -72,10 +72,9 @@ tt_export tt_result_t tt_param_bs4spa_render(IN tt_param_bs4spa_t *spa,
                                              IN tt_param_bs4level_t lv,
                                              OUT struct tt_buf_s *buf);
 
-tt_export tt_result_t
-tt_param_bs4spa_render_display_js(IN tt_param_bs4spa_t *spa,
-                                  IN struct tt_param_s *param,
-                                  IN tt_param_bs4level_t lv,
-                                  OUT struct tt_buf_s *buf);
+tt_export tt_result_t tt_param_bs4spa_render_js(IN tt_param_bs4spa_t *spa,
+                                                IN struct tt_param_s *param,
+                                                IN tt_param_bs4level_t lv,
+                                                OUT struct tt_buf_s *buf);
 
 #endif /* __TT_PARAM_BS4_SPA__ */
