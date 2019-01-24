@@ -22,6 +22,8 @@
 
 #include <tt_platform.h>
 
+#include <param/tt_param_manager.h>
+
 ////////////////////////////////////////////////////////////
 // internal macro
 ////////////////////////////////////////////////////////////
@@ -44,85 +46,102 @@ tt_export tt_result_t __param_cli_dir_ls(IN tt_param_dir_t *pd,
                                          IN const tt_char_t *line_sep,
                                          OUT tt_buf_t *output);
 
+extern tt_param_t *__html_spa_param;
+
+extern void __ut_html_spa_enter(void *enter_param);
+
+extern void __ut_html_spa_exit(void *enter_param);
+
 ////////////////////////////////////////////////////////////
 // global variant
 ////////////////////////////////////////////////////////////
 
 // === routine declarations ================
-TT_TEST_ROUTINE_DECLARE(case_cfgnode)
-TT_TEST_ROUTINE_DECLARE(case_cfgnode_u32)
-TT_TEST_ROUTINE_DECLARE(case_cfgnode_s32)
-TT_TEST_ROUTINE_DECLARE(case_cfgnode_str)
-TT_TEST_ROUTINE_DECLARE(case_cfgnode_dir)
-TT_TEST_ROUTINE_DECLARE(case_cfgnode_grp_ar)
-TT_TEST_ROUTINE_DECLARE(case_cfgnode_bool)
+TT_TEST_ROUTINE_DECLARE(case_param)
+TT_TEST_ROUTINE_DECLARE(case_param_u32)
+TT_TEST_ROUTINE_DECLARE(case_param_s32)
+TT_TEST_ROUTINE_DECLARE(case_param_str)
+TT_TEST_ROUTINE_DECLARE(case_param_dir)
+TT_TEST_ROUTINE_DECLARE(case_param_grp_ar)
+TT_TEST_ROUTINE_DECLARE(case_param_bool)
+
+TT_TEST_ROUTINE_DECLARE(case_param_mgr)
 // =========================================
 
 // === test case list ======================
-TT_TEST_CASE_LIST_DEFINE_BEGIN(cli_node_case)
+TT_TEST_CASE_LIST_DEFINE_BEGIN(param_case)
 
 TT_TEST_CASE(
-    "case_clinode", "config node", case_cfgnode, NULL, NULL, NULL, NULL, NULL)
+    "case_clinode", "config node", case_param, NULL, NULL, NULL, NULL, NULL)
 ,
 
-    TT_TEST_CASE("case_cfgnode_u32",
+    TT_TEST_CASE("case_param_u32",
                  "config node, u32",
-                 case_cfgnode_u32,
+                 case_param_u32,
                  NULL,
                  NULL,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("case_cfgnode_s32",
+    TT_TEST_CASE("case_param_s32",
                  "config node, s32",
-                 case_cfgnode_s32,
+                 case_param_s32,
                  NULL,
                  NULL,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("case_cfgnode_str",
+    TT_TEST_CASE("case_param_str",
                  "config node, string",
-                 case_cfgnode_str,
+                 case_param_str,
                  NULL,
                  NULL,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("case_cfgnode_dir",
+    TT_TEST_CASE("case_param_dir",
                  "config node, group",
-                 case_cfgnode_dir,
+                 case_param_dir,
                  NULL,
                  NULL,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("case_cfgnode_grp_ar",
+    TT_TEST_CASE("case_param_grp_ar",
                  "config node, group add/rm",
-                 case_cfgnode_grp_ar,
+                 case_param_grp_ar,
                  NULL,
                  NULL,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE("case_cfgnode_bool",
+    TT_TEST_CASE("case_param_bool",
                  "config node, bool",
-                 case_cfgnode_bool,
+                 case_param_bool,
                  NULL,
                  NULL,
                  NULL,
                  NULL,
                  NULL),
 
-    TT_TEST_CASE_LIST_DEFINE_END(cli_node_case)
+    TT_TEST_CASE("case_param_mgr",
+                 "param manger",
+                 case_param_mgr,
+                 NULL,
+                 __ut_html_spa_enter,
+                 NULL,
+                 __ut_html_spa_exit,
+                 NULL),
+
+    TT_TEST_CASE_LIST_DEFINE_END(param_case)
     // =========================================
 
-    TT_TEST_UNIT_DEFINE(TEST_UNIT_CFGNODE, 0, cli_node_case)
+    TT_TEST_UNIT_DEFINE(TEST_UNIT_CFGNODE, 0, param_case)
 
     ////////////////////////////////////////////////////////////
     // interface declaration
@@ -133,7 +152,7 @@ TT_TEST_CASE(
     ////////////////////////////////////////////////////////////
 
     /*
-    TT_TEST_ROUTINE_DEFINE(case_cfgpath_basic)
+    TT_TEST_ROUTINE_DEFINE(case_param_mgr)
     {
         //tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
 
@@ -145,7 +164,7 @@ TT_TEST_CASE(
     }
     */
 
-    TT_TEST_ROUTINE_DEFINE(case_cfgnode)
+    TT_TEST_ROUTINE_DEFINE(case_param)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_param_t *cnode;
@@ -334,7 +353,7 @@ static void __bool_post_set(IN struct tt_param_s *cnode, IN tt_bool_t new_val)
     __ut_cb_post_called = TT_TRUE;
 }
 
-TT_TEST_ROUTINE_DEFINE(case_cfgnode_u32)
+TT_TEST_ROUTINE_DEFINE(case_param_u32)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_param_t *cnode;
@@ -362,6 +381,11 @@ TT_TEST_ROUTINE_DEFINE(case_cfgnode_u32)
 
     cnode = tt_param_u32_create("", &val, &attr, &cb);
     TT_UT_NOT_EQUAL(cnode, NULL, "");
+    TT_UT_EQUAL(tt_param_get_u32(cnode), val, "");
+    tt_param_set_u32(cnode, 123);
+    TT_UT_EQUAL(tt_param_get_u32(cnode), 123, "");
+    tt_param_set_u32(cnode, 0);
+    TT_UT_EQUAL(tt_param_get_u32(cnode), 0, "");
 
     // ls
     {
@@ -400,6 +424,7 @@ TT_TEST_ROUTINE_DEFINE(case_cfgnode_u32)
         TT_UT_TRUE(__ut_cb_called, "");
         TT_UT_TRUE(__ut_cb_post_called, "");
         TT_UT_EQUAL(val, 123, "");
+        TT_UT_EQUAL(tt_param_get_u32(cnode), val, "");
 
         __ut_cb_allow = TT_FALSE;
         __ut_cb_called = TT_FALSE;
@@ -508,7 +533,7 @@ TT_TEST_ROUTINE_DEFINE(case_cfgnode_u32)
     TT_TEST_CASE_LEAVE()
 }
 
-TT_TEST_ROUTINE_DEFINE(case_cfgnode_s32)
+TT_TEST_ROUTINE_DEFINE(case_param_s32)
 {
     // tt_s32_t param = TT_TEST_ROUTINE_PARAM(tt_s32_t);
     tt_param_t *cnode;
@@ -537,6 +562,11 @@ TT_TEST_ROUTINE_DEFINE(case_cfgnode_s32)
 
     cnode = tt_param_s32_create("", &val, &attr, &cb);
     TT_UT_NOT_EQUAL(cnode, NULL, "");
+    TT_UT_EQUAL(tt_param_get_s32(cnode), val, "");
+    tt_param_set_s32(cnode, -99);
+    TT_UT_EQUAL(tt_param_get_s32(cnode), -99, "");
+    tt_param_set_s32(cnode, 0);
+    TT_UT_EQUAL(tt_param_get_s32(cnode), val, "");
 
     // ls
     {
@@ -574,6 +604,7 @@ TT_TEST_ROUTINE_DEFINE(case_cfgnode_s32)
         TT_UT_TRUE(__ut_cb_called, "");
         TT_UT_TRUE(__ut_cb_post_called, "");
         TT_UT_EQUAL(val, -123, "");
+        TT_UT_EQUAL(tt_param_get_s32(cnode), val, "");
 
         __ut_cb_allow = TT_FALSE;
         __ut_cb_called = TT_FALSE;
@@ -710,14 +741,14 @@ TT_TEST_ROUTINE_DEFINE(case_cfgnode_s32)
     TT_TEST_CASE_LEAVE()
 }
 
-TT_TEST_ROUTINE_DEFINE(case_cfgnode_str)
+TT_TEST_ROUTINE_DEFINE(case_param_str)
 {
     // tt_s32_t param = TT_TEST_ROUTINE_PARAM(tt_s32_t);
     tt_param_t *cnode;
     tt_result_t ret;
     tt_u8_t c[] = "s32";
     tt_buf_t out;
-    tt_string_t val;
+    tt_string_t val, tmp;
     tt_s32_t cmp_ret;
     const tt_char_t *max_s32 = "2147483647";
     const tt_char_t *min_s32 = "-2147483648";
@@ -735,6 +766,7 @@ TT_TEST_ROUTINE_DEFINE(case_cfgnode_str)
 
     tt_buf_init(&out, NULL);
     tt_string_init(&val, NULL);
+    tt_string_init(&tmp, NULL);
     tt_string_init(&__ut_str_set, NULL);
 
     tt_param_attr_default(&attr);
@@ -743,6 +775,14 @@ TT_TEST_ROUTINE_DEFINE(case_cfgnode_str)
 
     cnode = tt_param_str_create("", &val, &attr, &cb);
     TT_UT_NOT_EQUAL(cnode, NULL, "");
+
+    tt_string_set(&tmp, "x");
+    TT_UT_EQUAL(tt_param_get_str(cnode, &tmp)[0], 0, "");
+
+    tt_param_set_str(cnode, "abcd");
+    TT_UT_STREQ(tt_param_get_str(cnode, &tmp), "abcd", "");
+    tt_param_set_str(cnode, "");
+    TT_UT_STREQ(tt_param_get_str(cnode, &tmp), "", "");
 
     // ls
     {
@@ -781,6 +821,9 @@ TT_TEST_ROUTINE_DEFINE(case_cfgnode_str)
         TT_UT_TRUE(__ut_cb_called, "");
         TT_UT_TRUE(__ut_cb_post_called, "");
         TT_UT_EQUAL(tt_string_cmp(&val, "xyz"), 0, "");
+
+        tt_string_set(&tmp, "1234");
+        TT_UT_STREQ(tt_param_get_str(cnode, &tmp), "xyz", "");
 
         __ut_cb_allow = TT_FALSE;
         __ut_cb_called = TT_FALSE;
@@ -884,11 +927,14 @@ TT_TEST_ROUTINE_DEFINE(case_cfgnode_str)
     tt_param_destroy(cnode);
     tt_buf_destroy(&out);
 
+    tt_string_destroy(&val);
+    tt_string_destroy(&tmp);
+
     // test end
     TT_TEST_CASE_LEAVE()
 }
 
-TT_TEST_ROUTINE_DEFINE(case_cfgnode_dir)
+TT_TEST_ROUTINE_DEFINE(case_param_dir)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_param_t *co, *subg, *subg1, *subg2, *subg3, *subg_c, *c1, *c2, *c3, *c4,
@@ -1032,7 +1078,7 @@ static tt_param_t *__ut_create_child(IN struct tt_param_dir_s *cgrp,
     return cnode;
 }
 
-TT_TEST_ROUTINE_DEFINE(case_cfgnode_grp_ar)
+TT_TEST_ROUTINE_DEFINE(case_param_grp_ar)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_param_t *cgrp, *co;
@@ -1315,7 +1361,7 @@ TT_TEST_ROUTINE_DEFINE(case_cfgnode_grp_ar)
     TT_TEST_CASE_LEAVE()
 }
 
-TT_TEST_ROUTINE_DEFINE(case_cfgnode_bool)
+TT_TEST_ROUTINE_DEFINE(case_param_bool)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_param_t *cnode;
@@ -1342,6 +1388,10 @@ TT_TEST_ROUTINE_DEFINE(case_cfgnode_bool)
     val = TT_TRUE;
     TT_UT_TRUE(tt_param_get_bool(cnode), "");
     val = TT_FALSE;
+    TT_UT_FALSE(tt_param_get_bool(cnode), "");
+    tt_param_set_bool(cnode, TT_TRUE);
+    TT_UT_TRUE(tt_param_get_bool(cnode), "");
+    tt_param_set_bool(cnode, TT_FALSE);
     TT_UT_FALSE(tt_param_get_bool(cnode), "");
 
     // ls
@@ -1485,6 +1535,168 @@ TT_TEST_ROUTINE_DEFINE(case_cfgnode_bool)
     tt_param_destroy(cnode);
 
     tt_buf_destroy(&out);
+
+    // test end
+    TT_TEST_CASE_LEAVE()
+}
+
+TT_TEST_ROUTINE_DEFINE(case_param_mgr)
+{
+    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+    tt_param_mgr_t pm;
+    tt_param_t *p;
+
+    TT_TEST_CASE_ENTER()
+    // test start
+
+    TT_UT_SUCCESS(tt_param_mgr_create(&pm, __html_spa_param, NULL), "");
+    tt_param_mgr_destroy(&pm);
+
+    TT_UT_SUCCESS(tt_param_mgr_create(&pm, __html_spa_param, NULL), "");
+
+    // find unexist
+    p = tt_param_mgr_find(&pm, "");
+    TT_UT_NULL(p, "");
+
+    // find exist
+    p = tt_param_mgr_find(&pm, "/Platform/a-S32-var");
+    TT_UT_NOT_NULL(p, "");
+    TT_UT_EQUAL(p->type, TT_PARAM_S32, "");
+
+#define __PM_SET_S32(path, val)                                                \
+    tt_param_mgr_set_s32(&pm, path, sizeof(path) - 1, val)
+#define __PM_GET_S32(path, val)                                                \
+    tt_param_mgr_get_s32(&pm, path, sizeof(path) - 1, val)
+    {
+        tt_s32_t v;
+        TT_UT_FAIL(__PM_SET_S32("/Platform/xxx", -11), "");
+        TT_UT_FAIL(__PM_SET_S32("/Platform/Val-U32-Secure", -11), "");
+        TT_UT_SUCCESS(__PM_SET_S32("/Platform/a-S32-var", -11), "");
+
+        TT_UT_FAIL(__PM_GET_S32("/Platform/xxx", &v), "");
+        TT_UT_FAIL(__PM_GET_S32("/Platform/Val-U32-Secure", &v), "");
+        TT_UT_SUCCESS(__PM_GET_S32("/Platform/a-S32-var", &v), "");
+        TT_UT_EQUAL(v, -11, "");
+    }
+
+#define __PM_SET_U32(path, val)                                                \
+    tt_param_mgr_set_u32(&pm, path, sizeof(path) - 1, val)
+#define __PM_GET_U32(path, val)                                                \
+    tt_param_mgr_get_u32(&pm, path, sizeof(path) - 1, val)
+    {
+        tt_u32_t v;
+        TT_UT_FAIL(__PM_SET_U32("/Platform/xxx", -11), "");
+        TT_UT_FAIL(__PM_SET_U32("/Platform/a-S32-var", -11), "");
+        TT_UT_SUCCESS(__PM_SET_U32("/Platform/Val-U32-Secure", 0xffffeeee), "");
+
+        TT_UT_FAIL(__PM_GET_U32("/Platform/xxx", &v), "");
+        TT_UT_FAIL(__PM_GET_U32("/Platform/a-S32-var", &v), "");
+        TT_UT_SUCCESS(__PM_GET_U32("/Platform/Val-U32-Secure", &v), "");
+        TT_UT_EQUAL(v, 0xffffeeee, "");
+    }
+
+#define __PM_SET_BOOL(path, val)                                               \
+    tt_param_mgr_set_bool(&pm, path, sizeof(path) - 1, val)
+#define __PM_GET_BOOL(path, val)                                               \
+    tt_param_mgr_get_bool(&pm, path, sizeof(path) - 1, val)
+    {
+        tt_bool_t v;
+        TT_UT_FAIL(__PM_SET_BOOL("/Platform/xxx", -11), "");
+        TT_UT_FAIL(__PM_SET_BOOL("/Platform/a-S32-var", -11), "");
+        TT_UT_SUCCESS(__PM_SET_BOOL("/Platform/bool-val", TT_TRUE), "");
+
+        TT_UT_FAIL(__PM_GET_BOOL("/Platform/xxx", &v), "");
+        TT_UT_FAIL(__PM_GET_BOOL("/Platform/a-S32-var", &v), "");
+        TT_UT_SUCCESS(__PM_GET_BOOL("/Platform/bool-val", &v), "");
+        TT_UT_EQUAL(v, TT_TRUE, "");
+    }
+
+#define __PM_SET_STR(path, val)                                                \
+    tt_param_mgr_set_str(&pm, path, sizeof(path) - 1, val, sizeof(val) - 1)
+#define __PM_GET_STR(path, val)                                                \
+    tt_param_mgr_get_str(&pm, path, sizeof(path) - 1, val)
+    {
+        tt_string_t v;
+        tt_string_init(&v, NULL);
+
+        TT_UT_FAIL(__PM_SET_STR("/Platform/xxx", "test string"), "");
+        TT_UT_FAIL(__PM_SET_STR("/Platform/a-S32-var", "test string"), "");
+        TT_UT_SUCCESS(__PM_SET_STR("/Platform/Status", "test string"), "");
+
+        TT_UT_FAIL(__PM_GET_STR("/Platform/xxx", &v), "");
+        TT_UT_FAIL(__PM_GET_STR("/Platform/a-S32-var", &v), "");
+        TT_UT_SUCCESS(__PM_GET_STR("/Platform/Status", &v), "");
+        TT_UT_STREQ(tt_string_cstr(&v), "test string", "");
+
+        tt_string_destroy(&v);
+    }
+
+    {
+        tt_bool_t vb = TT_FALSE, vb2;
+        tt_u32_t vu32 = 0xfefefefe, vu32_2;
+        tt_s32_t vs32 = -1, vs32_2;
+        tt_string_t vstr, vstr2;
+        tt_param_t *p1, *p2, *p3, *p4;
+
+        tt_task_t tsk;
+
+        tt_string_init(&vstr, NULL);
+        tt_string_init(&vstr2, NULL);
+
+        p1 = tt_param_bool_create("vb", &vb, NULL, NULL);
+        tt_param_add2platform(p1);
+        p2 = tt_param_u32_create("vu32", &vu32, NULL, NULL);
+        tt_param_add2platform(p2);
+        p3 = tt_param_s32_create("vs32", &vs32, NULL, NULL);
+        tt_param_add2platform(p3);
+        p4 = tt_param_str_create("vstr", &vstr, NULL, NULL);
+        tt_param_add2platform(p4);
+
+#define __PLEN(path) path, sizeof(path) - 1
+        TT_UT_SUCCESS(tt_get_param_bool(__PLEN("/platform/vb"), &vb2), "");
+        TT_UT_EQUAL(vb2, vb, "");
+        TT_UT_SUCCESS(tt_set_param_bool(__PLEN("/platform/vb"), TT_TRUE), "");
+        TT_UT_SUCCESS(tt_get_param_bool(__PLEN("/platform/vb"), &vb2), "");
+        TT_UT_EQUAL(vb2, TT_TRUE, "");
+
+        TT_UT_SUCCESS(tt_get_param_u32(__PLEN("/platform/vu32"), &vu32_2), "");
+        TT_UT_EQUAL(vu32_2, vu32, "");
+        TT_UT_SUCCESS(tt_set_param_u32(__PLEN("/platform/vu32"), 0xabababab),
+                      "");
+        TT_UT_SUCCESS(tt_get_param_u32(__PLEN("/platform/vu32"), &vu32_2), "");
+        TT_UT_EQUAL(vu32_2, 0xabababab, "");
+
+        TT_UT_SUCCESS(tt_get_param_s32(__PLEN("/platform/vs32"), &vs32_2), "");
+        TT_UT_EQUAL(vs32_2, vs32, "");
+        TT_UT_SUCCESS(tt_set_param_s32(__PLEN("/platform/vs32"), -123), "");
+        TT_UT_SUCCESS(tt_get_param_s32(__PLEN("/platform/vs32"), &vs32_2), "");
+        TT_UT_EQUAL(vs32_2, -123, "");
+
+        TT_UT_SUCCESS(tt_get_param_str(__PLEN("/platform/vstr"), &vstr2), "");
+        TT_UT_EQUAL(tt_string_cmp(&vstr2, tt_string_cstr(&vstr)), 0, "");
+        TT_UT_SUCCESS(tt_set_param_str(__PLEN("/platform/vstr"), "0987", 4),
+                      "");
+        TT_UT_SUCCESS(tt_get_param_str(__PLEN("/platform/vstr"), &vstr2), "");
+        TT_UT_EQUAL(tt_string_cmp(&vstr2, "0987"), 0, "");
+
+        tt_param_dir_remove(TT_PARAM_CAST(tt_g_param_platform, tt_param_dir_t),
+                            p1);
+        tt_param_destroy(p1);
+        tt_param_dir_remove(TT_PARAM_CAST(tt_g_param_platform, tt_param_dir_t),
+                            p2);
+        tt_param_destroy(p2);
+        tt_param_dir_remove(TT_PARAM_CAST(tt_g_param_platform, tt_param_dir_t),
+                            p3);
+        tt_param_destroy(p3);
+        tt_param_dir_remove(TT_PARAM_CAST(tt_g_param_platform, tt_param_dir_t),
+                            p4);
+        tt_param_destroy(p4);
+
+        tt_string_destroy(&vstr);
+        tt_string_destroy(&vstr2);
+    }
+
+    tt_param_mgr_destroy(&pm);
 
     // test end
     TT_TEST_CASE_LEAVE()

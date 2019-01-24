@@ -66,4 +66,6 @@ tt_export tt_param_t *tt_param_bool_create(IN const tt_char_t *name,
 
 tt_export tt_bool_t tt_param_get_bool(IN tt_param_t *p);
 
+tt_export void tt_param_set_bool(IN tt_param_t *p, IN tt_bool_t val);
+
 #endif /* __TT_PARAM_BOOL__ */

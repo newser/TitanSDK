@@ -66,4 +66,8 @@ tt_export tt_param_t *tt_param_s32_create(IN const tt_char_t *name,
                                           IN OPT tt_param_attr_t *attr,
                                           IN OPT tt_param_s32_cb_t *cb);
 
+tt_export tt_s32_t tt_param_get_s32(IN tt_param_t *p);
+
+tt_export void tt_param_set_s32(IN tt_param_t *p, IN tt_s32_t val);
+
 #endif /* __TT_PARAM_S32__ */

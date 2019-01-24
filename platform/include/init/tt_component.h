@@ -114,6 +114,9 @@ typedef enum {
     // can init application from now on
     // ========================================
 
+    // param manager, before all applications
+    TT_COMPONENT_PARAM_MANAGER,
+
     // log manager
     TT_COMPONENT_LOG_MANAGER,
     TT_COMPONENT_LOGMGR_CONFIG,

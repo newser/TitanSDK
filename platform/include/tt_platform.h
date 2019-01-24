@@ -247,6 +247,7 @@ extern "C" {
 #include <param/tt_param_def.h>
 #include <param/tt_param_dir.h>
 #include <param/tt_param_exe.h>
+#include <param/tt_param_manager.h>
 #include <param/tt_param_path.h>
 #include <param/tt_param_s32.h>
 #include <param/tt_param_string.h>

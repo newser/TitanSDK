@@ -103,6 +103,12 @@ tt_bool_t tt_param_get_bool(IN tt_param_t *p)
     return *(tt_bool_t *)p->opaque;
 }
 
+void tt_param_set_bool(IN tt_param_t *p, IN tt_bool_t val)
+{
+    TT_ASSERT(p->type == TT_PARAM_BOOL);
+    *(tt_bool_t *)p->opaque = val;
+}
+
 tt_result_t __bool_read(IN tt_param_t *p, OUT tt_buf_t *output)
 {
     tt_param_bool_t *pb = TT_PARAM_CAST(p, tt_param_bool_t);

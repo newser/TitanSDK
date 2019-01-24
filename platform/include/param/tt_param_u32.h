@@ -66,4 +66,8 @@ tt_export tt_param_t *tt_param_u32_create(IN const tt_char_t *name,
                                           IN OPT tt_param_attr_t *attr,
                                           IN OPT tt_param_u32_cb_t *cb);
 
+tt_export tt_u32_t tt_param_get_u32(IN tt_param_t *p);
+
+tt_export void tt_param_set_u32(IN tt_param_t *p, IN tt_u32_t val);
+
 #endif /* __TT_PARAM_U32__ */

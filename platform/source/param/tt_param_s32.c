@@ -85,6 +85,18 @@ tt_param_t *tt_param_s32_create(IN const tt_char_t *name,
     return p;
 }
 
+tt_s32_t tt_param_get_s32(IN tt_param_t *p)
+{
+    TT_ASSERT(p->type == TT_PARAM_S32);
+    return *(tt_s32_t *)p->opaque;
+}
+
+void tt_param_set_s32(IN tt_param_t *p, IN tt_s32_t val)
+{
+    TT_ASSERT(p->type == TT_PARAM_S32);
+    *(tt_s32_t *)p->opaque = val;
+}
+
 tt_result_t __s32_read(IN tt_param_t *p, OUT tt_buf_t *output)
 {
     tt_param_s32_t *ps = TT_PARAM_CAST(p, tt_param_s32_t);

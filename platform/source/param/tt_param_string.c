@@ -87,6 +87,29 @@ tt_param_t *tt_param_str_create(IN const tt_char_t *name,
     return p;
 }
 
+const tt_char_t *tt_param_get_str(IN tt_param_t *p, OUT tt_string_t *val)
+{
+    tt_string_t *s;
+
+    TT_ASSERT(p->type == TT_PARAM_STRING);
+    s = (tt_string_t *)p->opaque;
+
+    tt_string_clear(val);
+    if (TT_OK(tt_string_copy(val, s))) {
+        return tt_string_cstr(val);
+    } else {
+        return NULL;
+    }
+}
+
+tt_result_t tt_param_set_str_n(IN tt_param_t *p,
+                               IN const tt_char_t *val,
+                               IN tt_u32_t len)
+{
+    TT_ASSERT(p->type == TT_PARAM_STRING);
+    return tt_string_set_sub((tt_string_t *)p->opaque, val, 0, len);
+}
+
 void __str_on_destroy(IN tt_param_t *p)
 {
     tt_param_str_t *ps = TT_PARAM_CAST(p, tt_param_str_t);

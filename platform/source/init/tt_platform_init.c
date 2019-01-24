@@ -79,6 +79,7 @@ tt_result_t tt_platform_init(IN OPT const tt_char_t *profile_path)
 
     // parameter
     tt_param_component_register();
+    tt_param_mgr_component_register();
 
     // version information
     tt_ver_component_register();
