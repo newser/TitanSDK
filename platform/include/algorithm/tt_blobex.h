@@ -229,7 +229,7 @@ tt_inline tt_result_t tt_blobex_own(IN tt_blobex_t *bex)
     return TT_SUCCESS;
 }
 
-#if 0
+#if 1
 tt_inline void tt_blobex_take(IN tt_blobex_t *bex,
                               IN TO tt_u8_t *addr,
                               IN tt_u32_t len)
@@ -238,6 +238,13 @@ tt_inline void tt_blobex_take(IN tt_blobex_t *bex,
     tt_blobex_init(bex, addr, len);
     // take the ownership
     __BLOBEX_SET_OWNER(bex);
+}
+
+tt_inline void tt_blobex_take_blobex(IN tt_blobex_t *dst, IN tt_blobex_t *src)
+{
+    tt_blobex_destroy(dst);
+    tt_memcpy(dst, src, sizeof(tt_blobex_t));
+    tt_blobex_init(src, NULL, 0);
 }
 #endif
 

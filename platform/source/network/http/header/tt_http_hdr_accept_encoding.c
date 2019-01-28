@@ -49,7 +49,7 @@ static tt_u32_t __accenc_render_len(IN tt_http_hdr_t *h);
 static tt_u32_t __accenc_render(IN tt_http_hdr_t *h, IN tt_char_t *dst);
 
 static tt_http_hdr_itf_t __accenc_itf = {
-    __accenc_parse, __accenc_render_len, __accenc_render,
+    NULL, __accenc_parse, __accenc_render_len, __accenc_render,
 };
 
 ////////////////////////////////////////////////////////////

@@ -234,7 +234,7 @@ static tt_result_t __hdr_cs_add_val(IN struct tt_http_hdr_s *h,
 }
 
 static tt_http_hdr_itf_t __hdr_cs_i = {
-    __hdr_cs_add_val, NULL, NULL,
+    NULL, __hdr_cs_add_val, NULL, NULL,
 };
 
 TT_TEST_ROUTINE_DEFINE(case_http_hdr_basic)

@@ -76,7 +76,8 @@ tt_u32_t __h_line_render_len(IN tt_http_hdr_t *h);
 
 tt_u32_t __h_line_render(IN tt_http_hdr_t *h, IN tt_char_t *dst);
 
-tt_http_hdr_itf_t tt_g_http_hdr_line_itf = {__h_line_parse,
+tt_http_hdr_itf_t tt_g_http_hdr_line_itf = {NULL,
+                                            __h_line_parse,
                                             __h_line_render_len,
                                             __h_line_render};
 
@@ -92,7 +93,8 @@ tt_u32_t __h_cs_render_len(IN tt_http_hdr_t *h);
 
 tt_u32_t __h_cs_render(IN tt_http_hdr_t *h, IN tt_char_t *dst);
 
-tt_http_hdr_itf_t tt_g_http_hdr_cs_itf = {__h_cs_parse,
+tt_http_hdr_itf_t tt_g_http_hdr_cs_itf = {NULL,
+                                          __h_cs_parse,
                                           __h_cs_render_len,
                                           __h_cs_render};
 
@@ -169,6 +171,14 @@ void tt_http_hdr_destroy(IN tt_http_hdr_t *h)
     TT_ASSERT(!tt_dnode_in_dlist(&h->dnode));
 
     __clear_hval(h);
+
+    if ((h->final_val_itf != NULL) && (h->final_val_itf->destroy != NULL)) {
+        h->final_val_itf->destroy(h);
+    }
+
+    if (h->itf->destroy != NULL) {
+        h->itf->destroy(h);
+    }
 
     tt_free(h);
 }

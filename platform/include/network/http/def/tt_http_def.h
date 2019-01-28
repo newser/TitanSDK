@@ -49,6 +49,8 @@ this file defines http
     __ENTRY(LAST_MOD, "Last-Modified")                                         \
     __ENTRY(IF_MOD, "If-Modified-Since")                                       \
     __ENTRY(IF_UNMOD, "If-Unmodified-Since")                                   \
+    __ENTRY(AUTH, "Authorization")                                             \
+    __ENTRY(WWW_AUTH, "WWW-Authenticate")                                      \
     __ENTRY(DATE, "Date")
 
 #define TT_HTTP_TXENC_MAP(__ENTRY)                                             \

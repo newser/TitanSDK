@@ -53,7 +53,7 @@ static tt_u32_t __contenc_render_len(IN tt_http_hdr_t *h);
 static tt_u32_t __contenc_render(IN tt_http_hdr_t *h, IN tt_char_t *dst);
 
 static tt_http_hdr_itf_t __contenc_itf = {
-    __contenc_parse, __contenc_render_len, __contenc_render,
+    NULL, __contenc_parse, __contenc_render_len, __contenc_render,
 };
 
 ////////////////////////////////////////////////////////////

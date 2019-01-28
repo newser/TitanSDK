@@ -85,6 +85,8 @@ typedef struct tt_http_hval_s
 // header
 // ========================================
 
+typedef void (*tt_http_hdr_destroy_t)(IN struct tt_http_hdr_s *h);
+
 typedef tt_result_t (*tt_http_hdr_parse_t)(IN struct tt_http_hdr_s *h,
                                            IN const tt_char_t *val,
                                            IN tt_u32_t len);
@@ -96,6 +98,7 @@ typedef tt_u32_t (*tt_http_hdr_render_t)(IN struct tt_http_hdr_s *h,
 
 typedef struct
 {
+    tt_http_hdr_destroy_t destroy;
     tt_http_hdr_parse_t parse;
     tt_http_hdr_render_len_t render_len;
     tt_http_hdr_render_t render;
