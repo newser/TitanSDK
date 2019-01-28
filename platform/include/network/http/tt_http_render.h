@@ -47,6 +47,7 @@ this file defines http
 
 struct tt_http_sconn_s;
 struct tt_http_accenc_s;
+struct tt_http_auth_s;
 
 typedef struct
 {
@@ -105,6 +106,18 @@ typedef struct
 
 tt_export void tt_http_render_remove_all(IN tt_http_render_t *render,
                                          IN tt_http_hname_t hname);
+
+tt_export tt_result_t tt_http_render_add_auth(IN tt_http_render_t *r,
+                                              IN TO struct tt_http_auth_s *ha);
+
+tt_export tt_result_t tt_http_render_add_www_auth(
+    IN tt_http_render_t *r, IN TO struct tt_http_auth_s *ha);
+
+tt_export tt_result_t tt_http_render_add_proxy_authorization(
+    IN tt_http_render_t *r, IN TO struct tt_http_auth_s *ha);
+
+tt_export tt_result_t tt_http_render_add_proxy_authenticate(
+    IN tt_http_render_t *r, IN TO struct tt_http_auth_s *ha);
 
 // ========================================
 // request

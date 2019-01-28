@@ -23,6 +23,7 @@
 #include <network/http/tt_http_parser.h>
 
 #include <memory/tt_slab.h>
+#include <network/http/header/tt_http_hdr_auth.h>
 #include <network/http/header/tt_http_hdr_content_encoding.h>
 #include <network/http/header/tt_http_hdr_etag.h>
 #include <network/http/header/tt_http_hdr_transfer_encoding.h>

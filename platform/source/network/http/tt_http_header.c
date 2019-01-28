@@ -98,6 +98,19 @@ tt_http_hdr_itf_t tt_g_http_hdr_cs_itf = {NULL,
                                           __h_cs_render_len,
                                           __h_cs_render};
 
+// ========================================
+// header: comma separated, ignore comma in quotes
+// ========================================
+
+tt_result_t __h_csq_parse(IN tt_http_hdr_t *h,
+                          IN const tt_char_t *val,
+                          IN tt_u32_t len);
+
+tt_http_hdr_itf_t tt_g_http_hdr_csq_itf = {NULL,
+                                           __h_csq_parse,
+                                           __h_cs_render_len,
+                                           __h_cs_render};
+
 ////////////////////////////////////////////////////////////
 // interface declaration
 ////////////////////////////////////////////////////////////
@@ -218,6 +231,25 @@ tt_http_hdr_t *tt_http_hdr_create_cs(IN tt_u32_t extra_size,
     h = tt_http_hdr_create(extra_size,
                            name,
                            &tt_g_http_hdr_cs_itf,
+                           &tt_g_http_hval_blob_itf);
+    if (h == NULL) {
+        return NULL;
+    }
+
+    h->final_val_itf = val_itf;
+
+    return h;
+}
+
+tt_http_hdr_t *tt_http_hdr_create_csq(IN tt_u32_t extra_size,
+                                      IN tt_http_hname_t name,
+                                      IN OPT tt_http_hdr_itf_t *val_itf)
+{
+    tt_http_hdr_t *h;
+
+    h = tt_http_hdr_create(extra_size,
+                           name,
+                           &tt_g_http_hdr_csq_itf,
                            &tt_g_http_hval_blob_itf);
     if (h == NULL) {
         return NULL;
@@ -486,4 +518,54 @@ tt_u32_t __h_cs_render(IN tt_http_hdr_t *h, IN tt_char_t *dst)
     *p++ = '\n';
 
     return (tt_u32_t)(p - dst);
+}
+
+// ========================================
+// header: comma separated, ignore comma in quotes
+// ========================================
+
+tt_result_t __h_csq_parse(IN tt_http_hdr_t *h,
+                          IN const tt_char_t *val,
+                          IN tt_u32_t len)
+{
+    tt_char_t *p, *end, *prev;
+    tt_u32_t n;
+    tt_bool_t inq;
+
+    p = (tt_char_t *)val;
+    end = (tt_char_t *)val + len;
+    prev = p;
+    n = len;
+    inq = TT_FALSE;
+    while (p < end) {
+        tt_char_t c = *p;
+        if (c == '"') {
+            // how about "a quote\" in quotes"...
+            inq = TT_COND(inq, TT_FALSE, TT_TRUE);
+            ++p;
+            continue;
+        } else if (inq || (c != ',')) {
+            ++p;
+            continue;
+        }
+        // found a comma not in quotes
+
+        if ((p > prev) && !TT_OK(__add_hval(h, prev, (tt_u32_t)(p - prev)))) {
+            // continue, as there may be successfully parsed hvals
+            TT_ERROR("lost a http value");
+        }
+
+        ++p;
+        prev = p;
+        TT_ASSERT(p <= end);
+        n = (tt_u32_t)(end - p);
+    }
+    TT_ASSERT(prev <= end);
+    if (prev < end) {
+        if (!TT_OK(__add_hval(h, prev, (tt_u32_t)(end - prev)))) {
+            TT_ERROR("lost a http value");
+        }
+    }
+
+    return TT_SUCCESS;
 }

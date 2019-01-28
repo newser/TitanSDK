@@ -46,7 +46,11 @@ this file defines http parser APIs
 #define TT_HTTP_PARSE_HDR_MAP(__ENTRY)                                         \
     __ENTRY(etag, TT_HTTP_HDR_ETAG)                                            \
     __ENTRY(ifmatch, TT_HTTP_HDR_IF_MATCH)                                     \
-    __ENTRY(ifnmatch, TT_HTTP_HDR_IF_N_MATCH)
+    __ENTRY(ifnmatch, TT_HTTP_HDR_IF_N_MATCH)                                  \
+    __ENTRY(auth, TT_HTTP_HDR_AUTH)                                            \
+    __ENTRY(www_auth, TT_HTTP_HDR_WWW_AUTH)                                    \
+    __ENTRY(proxy_authorization, TT_HTTP_HDR_PROXY_AUTHORIZATION)              \
+    __ENTRY(proxy_authenticate, TT_HTTP_HDR_PROXY_AUTHENTICATE)
 
 ////////////////////////////////////////////////////////////
 // type definition
@@ -195,6 +199,16 @@ tt_export tt_http_hdr_t *tt_http_parser_get_etag(IN tt_http_parser_t *hp);
 tt_export tt_http_hdr_t *tt_http_parser_get_ifmatch(IN tt_http_parser_t *hp);
 
 tt_export tt_http_hdr_t *tt_http_parser_get_ifnmatch(IN tt_http_parser_t *hp);
+
+tt_export tt_http_hdr_t *tt_http_parser_get_auth(IN tt_http_parser_t *hp);
+
+tt_export tt_http_hdr_t *tt_http_parser_get_www_auth(IN tt_http_parser_t *hp);
+
+tt_export tt_http_hdr_t *tt_http_parser_get_proxy_authorization(
+    IN tt_http_parser_t *hp);
+
+tt_export tt_http_hdr_t *tt_http_parser_get_proxy_authenticate(
+    IN tt_http_parser_t *hp);
 
 // ========================================
 // helper

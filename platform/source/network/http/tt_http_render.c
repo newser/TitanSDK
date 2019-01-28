@@ -24,6 +24,7 @@
 
 #include <algorithm/tt_buffer_format.h>
 #include <network/http/header/tt_http_hdr_accept_encoding.h>
+#include <network/http/header/tt_http_hdr_auth.h>
 #include <network/http/header/tt_http_hdr_content_encoding.h>
 #include <network/http/header/tt_http_hdr_etag.h>
 #include <network/http/tt_http_header.h>
@@ -120,6 +121,78 @@ void tt_http_render_remove_all(IN tt_http_render_t *render,
                                IN tt_http_hname_t hname)
 {
     return __render_remove_all(render, hname);
+}
+
+tt_result_t tt_http_render_add_auth(IN tt_http_render_t *r,
+                                    IN TO tt_http_auth_t *ha)
+{
+    tt_http_hdr_t *h;
+
+    h = __render_find_hdr(r, TT_HTTP_HDR_AUTH);
+    if (h == NULL) {
+        h = tt_http_hdr_auth_create();
+        if (h == NULL) {
+            return TT_FAIL;
+        }
+        __render_add_hdr(r, h);
+    }
+
+    tt_http_hdr_auth_set(h, ha);
+    return TT_SUCCESS;
+}
+
+tt_result_t tt_http_render_add_www_auth(IN tt_http_render_t *r,
+                                        IN TO tt_http_auth_t *ha)
+{
+    tt_http_hdr_t *h;
+
+    h = __render_find_hdr(r, TT_HTTP_HDR_WWW_AUTH);
+    if (h == NULL) {
+        h = tt_http_hdr_www_auth_create();
+        if (h == NULL) {
+            return TT_FAIL;
+        }
+        __render_add_hdr(r, h);
+    }
+
+    tt_http_hdr_auth_set(h, ha);
+    return TT_SUCCESS;
+}
+
+tt_result_t tt_http_render_add_proxy_authorization(IN tt_http_render_t *r,
+                                                   IN TO tt_http_auth_t *ha)
+{
+    tt_http_hdr_t *h;
+
+    h = __render_find_hdr(r, TT_HTTP_HDR_PROXY_AUTHORIZATION);
+    if (h == NULL) {
+        h = tt_http_hdr_proxy_authorization_create();
+        if (h == NULL) {
+            return TT_FAIL;
+        }
+        __render_add_hdr(r, h);
+    }
+
+    tt_http_hdr_auth_set(h, ha);
+    return TT_SUCCESS;
+}
+
+tt_result_t tt_http_render_add_proxy_authenticate(IN tt_http_render_t *r,
+                                                  IN TO tt_http_auth_t *ha)
+{
+    tt_http_hdr_t *h;
+
+    h = __render_find_hdr(r, TT_HTTP_HDR_PROXY_AUTHENTICATE);
+    if (h == NULL) {
+        h = tt_http_hdr_proxy_authenticate_create();
+        if (h == NULL) {
+            return TT_FAIL;
+        }
+        __render_add_hdr(r, h);
+    }
+
+    tt_http_hdr_auth_set(h, ha);
+    return TT_SUCCESS;
 }
 
 void tt_http_req_render_init(IN tt_http_req_render_t *req,

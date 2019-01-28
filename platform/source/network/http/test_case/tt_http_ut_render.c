@@ -24,6 +24,7 @@
 
 #include <stdlib.h>
 
+#include <network/http/header/tt_http_hdr_auth.h>
 #include <network/http/tt_http_parser.h>
 #include <network/http/tt_http_render.h>
 #include <network/http/tt_http_service_manager.h>
@@ -416,6 +417,10 @@ TT_TEST_ROUTINE_DEFINE(case_http_render_resp)
                 "Date: 1, 22, 333\r\n"
                 "Content-Encoding: identity, compress\r\n"
                 "Accept-Encoding: compress;q=0.999, *\r\n"
+                "Authorization: Digest realm=\"1\"\r\n"
+                "WWW-Authenticate: Digest realm=\"2\"\r\n"
+                "Proxy-Authorization: Digest realm=\"3\"\r\n"
+                "Proxy-Authenticate: Digest realm=\"4\"\r\n"
                 "\r\n";
             tt_http_txenc_t txe[5] = {
                 TT_HTTP_TXENC_CHUNKED,
@@ -436,6 +441,28 @@ TT_TEST_ROUTINE_DEFINE(case_http_render_resp)
                 tt_http_accenc_set_aster(&ae, TT_TRUE, -1);
                 TT_UT_SUCCESS(tt_http_resp_render_set_accenc(&r, &ae), "");
             }
+            {
+                tt_http_auth_t ha;
+                tt_http_auth_init(&ha);
+                ha.scheme = TT_HTTP_AUTH_DIGEST;
+                tt_blobex_set(&ha.realm, (tt_u8_t *)"1", 1, TT_FALSE);
+                tt_http_render_add_auth(&r.render, &ha);
+
+                tt_http_auth_init(&ha);
+                ha.scheme = TT_HTTP_AUTH_DIGEST;
+                tt_blobex_set(&ha.realm, (tt_u8_t *)"2", 1, TT_FALSE);
+                tt_http_render_add_www_auth(&r.render, &ha);
+
+                tt_http_auth_init(&ha);
+                ha.scheme = TT_HTTP_AUTH_DIGEST;
+                tt_blobex_set(&ha.realm, (tt_u8_t *)"3", 1, TT_FALSE);
+                tt_http_render_add_proxy_authorization(&r.render, &ha);
+
+                tt_http_auth_init(&ha);
+                ha.scheme = TT_HTTP_AUTH_DIGEST;
+                tt_blobex_set(&ha.realm, (tt_u8_t *)"4", 1, TT_FALSE);
+                tt_http_render_add_proxy_authenticate(&r.render, &ha);
+            }
             TT_UT_SUCCESS(tt_http_resp_render(&r, &data, &len), "");
             TT_UT_EQUAL(len, tt_strlen(msg), "");
             TT_UT_EXP(tt_strncmp(data, msg, len) == 0, "");
@@ -445,6 +472,12 @@ TT_TEST_ROUTINE_DEFINE(case_http_render_resp)
             tt_http_resp_render_set_content_len(&r, -2);
             TT_UT_SUCCESS(tt_http_resp_render_set_contenc(&r, NULL, 0), "");
             TT_UT_SUCCESS(tt_http_resp_render_set_accenc(&r, NULL), "");
+            tt_http_render_remove_all(&r.render, TT_HTTP_HDR_AUTH);
+            tt_http_render_remove_all(&r.render, TT_HTTP_HDR_WWW_AUTH);
+            tt_http_render_remove_all(&r.render,
+                                      TT_HTTP_HDR_PROXY_AUTHORIZATION);
+            tt_http_render_remove_all(&r.render,
+                                      TT_HTTP_HDR_PROXY_AUTHENTICATE);
         }
         {
             tt_http_resp_render_set_conn(&r, TT_HTTP_CONN_NONE);

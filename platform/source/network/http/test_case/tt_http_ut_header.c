@@ -26,6 +26,7 @@
 #include <stdlib.h>
 
 #include <network/http/header/tt_http_hdr_accept_encoding.h>
+#include <network/http/header/tt_http_hdr_auth.h>
 #include <network/http/header/tt_http_hdr_content_encoding.h>
 #include <network/http/header/tt_http_hdr_etag.h>
 #include <network/http/header/tt_http_hdr_transfer_encoding.h>
@@ -64,6 +65,7 @@ TT_TEST_ROUTINE_DECLARE(case_http_hdr_accenc)
 TT_TEST_ROUTINE_DECLARE(case_http_hdr_etag)
 TT_TEST_ROUTINE_DECLARE(case_http_hdr_ifmatch)
 TT_TEST_ROUTINE_DECLARE(case_http_hdr_ifnmatch)
+TT_TEST_ROUTINE_DECLARE(case_http_hdr_auth)
 TT_TEST_ROUTINE_DECLARE(case_http_misc)
 // =========================================
 
@@ -182,6 +184,15 @@ TT_TEST_CASE("case_http_hdr_basic",
     TT_TEST_CASE("case_http_hdr_ifnmatch",
                  "http hdr: ifnmatch",
                  case_http_hdr_ifnmatch,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL),
+
+    TT_TEST_CASE("case_http_hdr_auth",
+                 "http hdr: authorization",
+                 case_http_hdr_auth,
                  NULL,
                  NULL,
                  NULL,
@@ -401,6 +412,43 @@ TT_TEST_ROUTINE_DEFINE(case_http_hdr_basic)
         p = tt_http_hdr_create_cs(sizeof(tt_u32_t),
                                   TT_HTTP_HDR_HOST,
                                   &__hdr_cs_i);
+        TT_UT_NOT_NULL(p, "");
+        *TT_PTR_INC(tt_u32_t, p, sizeof(tt_http_hdr_t)) = 0;
+
+        TT_UT_SUCCESS(tt_http_hdr_parse(p, " 1 "), "");
+        TT_UT_SUCCESS(tt_http_hdr_parse(p, "22 "), "");
+        TT_UT_SUCCESS(tt_http_hdr_parse(p, " 333"), "");
+        TT_UT_EQUAL(*TT_PTR_INC(tt_u32_t, p, sizeof(tt_http_hdr_t)),
+                    1 + 2 + 3,
+                    "");
+
+        tt_http_hdr_destroy(p);
+    }
+
+    {
+        tt_http_hdr_t *p;
+
+        p = tt_http_hdr_create_csq(sizeof(tt_u32_t),
+                                   TT_HTTP_HDR_HOST,
+                                   &__hdr_cs_i);
+        TT_UT_NOT_NULL(p, "");
+        *TT_PTR_INC(tt_u32_t, p, sizeof(tt_http_hdr_t)) = 0;
+        TT_UT_SUCCESS(tt_http_hdr_parse(p, " "), "");
+        TT_UT_EQUAL(*TT_PTR_INC(tt_u32_t, p, sizeof(tt_http_hdr_t)), 0, "");
+        TT_UT_SUCCESS(tt_http_hdr_parse(p, "  \"  ,   \" "), "");
+        // 8 chars: ["  ,   "]
+        TT_UT_EQUAL(*TT_PTR_INC(tt_u32_t, p, sizeof(tt_http_hdr_t)), 8, "");
+        TT_UT_SUCCESS(tt_http_hdr_parse(p, " \",\" ,, , \",,,   "), "");
+        // 3 chars: [","]
+        // 4 chars: [",,,], ending ws are trimned
+        TT_UT_EQUAL(*TT_PTR_INC(tt_u32_t, p, sizeof(tt_http_hdr_t)),
+                    8 + 3 + 4,
+                    "");
+        tt_http_hdr_destroy(p);
+
+        p = tt_http_hdr_create_csq(sizeof(tt_u32_t),
+                                   TT_HTTP_HDR_HOST,
+                                   &__hdr_cs_i);
         TT_UT_NOT_NULL(p, "");
         *TT_PTR_INC(tt_u32_t, p, sizeof(tt_http_hdr_t)) = 0;
 
@@ -796,6 +844,10 @@ TT_TEST_ROUTINE_DEFINE(case_http_body)
             "If-match: * \r\n"
             "If-none-match: *\r\n"
             "If-none-match: W/\"123\", 789 \r\n"
+            "Authorization: Digest realm=\"Authorization\"\r\n"
+            "WWW-Authenticate: Digest realm=\"WWW-Authenticate\"\r\n"
+            "Proxy-Authorization: Digest realm=\"Proxy-Authorization\"\r\n"
+            "Proxy-Authenticate: Digest realm=\"Proxy-Authenticate\"\r\n"
             "Connection: keep-alive\r\n"
             "Etag: W/\"67ab43\", \"54ed21, \"7892dd\"\r\n"
             "If-match: W/\"456\", 789\" \r\n"
@@ -962,6 +1014,41 @@ TT_TEST_ROUTINE_DEFINE(case_http_body)
 
             e = tt_http_etag_next(e);
             TT_UT_NULL(e, "");
+        }
+
+        {
+            tt_http_hdr_t *h;
+            tt_http_auth_t *ha;
+
+            h = tt_http_parser_get_auth(&hp);
+            TT_UT_NOT_NULL(h, "");
+            ha = tt_http_hdr_auth_get(h);
+            TT_UT_NOT_NULL(ha, "");
+            TT_UT_EQUAL(tt_blobex_strcmp(&ha->realm, "Authorization"), 0, "");
+
+            h = tt_http_parser_get_www_auth(&hp);
+            TT_UT_NOT_NULL(h, "");
+            ha = tt_http_hdr_auth_get(h);
+            TT_UT_NOT_NULL(ha, "");
+            TT_UT_EQUAL(tt_blobex_strcmp(&ha->realm, "WWW-Authenticate"),
+                        0,
+                        "");
+
+            h = tt_http_parser_get_proxy_authorization(&hp);
+            TT_UT_NOT_NULL(h, "");
+            ha = tt_http_hdr_auth_get(h);
+            TT_UT_NOT_NULL(ha, "");
+            TT_UT_EQUAL(tt_blobex_strcmp(&ha->realm, "Proxy-Authorization"),
+                        0,
+                        "");
+
+            h = tt_http_parser_get_proxy_authenticate(&hp);
+            TT_UT_NOT_NULL(h, "");
+            ha = tt_http_hdr_auth_get(h);
+            TT_UT_NOT_NULL(ha, "");
+            TT_UT_EQUAL(tt_blobex_strcmp(&ha->realm, "Proxy-Authenticate"),
+                        0,
+                        "");
         }
 
         {
@@ -2545,6 +2632,327 @@ TT_TEST_ROUTINE_DEFINE(case_http_hdr_ifnmatch)
     TT_UT_STREQ(tmp, "If-None-Match: \"1\", W/\"22\", *\r\n", "");
 
     tt_http_hdr_destroy(h);
+
+    // test end
+    TT_TEST_CASE_LEAVE()
+}
+
+TT_TEST_ROUTINE_DEFINE(case_http_hdr_auth)
+{
+    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+    tt_http_hdr_t *h;
+    tt_http_auth_t *ha;
+    tt_char_t tmp[128] = {0};
+    tt_u32_t len;
+
+    TT_TEST_CASE_ENTER()
+    // test start
+
+    h = tt_http_hdr_auth_create();
+    TT_UT_NOT_NULL(h, "");
+
+    ha = tt_http_hdr_auth_get(h);
+    TT_UT_NOT_NULL(ha, "");
+    TT_UT_NULL(tt_blobex_addr(&ha->cnonce), "");
+    TT_UT_NULL(tt_blobex_addr(&ha->nc), "");
+    TT_UT_NULL(tt_blobex_addr(&ha->nonce), "");
+    TT_UT_NULL(tt_blobex_addr(&ha->realm), "");
+    TT_UT_NULL(tt_blobex_addr(&ha->opaque), "");
+    TT_UT_NULL(tt_blobex_addr(&ha->response), "");
+    TT_UT_NULL(tt_blobex_addr(&ha->username), "");
+    TT_UT_NULL(tt_blobex_addr(&ha->uri), "");
+    TT_UT_NULL(tt_blobex_addr(&ha->domain), "");
+    TT_UT_EQUAL(ha->alg, TT_HTTP_AUTH_ALG_NUM, "");
+    TT_UT_EQUAL(ha->qop_mask, 0, "");
+    TT_UT_EQUAL(ha->stale, TT_HTTP_STALE_NUM, "");
+    TT_UT_EQUAL(ha->scheme, TT_HTTP_AUTH_SCHEME_NUM, "");
+
+    tt_http_hdr_destroy(h);
+
+    h = tt_http_hdr_auth_create();
+    TT_UT_NOT_NULL(h, "");
+
+    // empty
+    tt_http_hdr_parse(h, "");
+    ha = tt_http_hdr_auth_get(h);
+    TT_UT_NOT_NULL(ha, "");
+    TT_UT_NULL(tt_blobex_addr(&ha->cnonce), "");
+    TT_UT_NULL(tt_blobex_addr(&ha->nc), "");
+    TT_UT_NULL(tt_blobex_addr(&ha->nonce), "");
+    TT_UT_NULL(tt_blobex_addr(&ha->realm), "");
+    TT_UT_NULL(tt_blobex_addr(&ha->opaque), "");
+    TT_UT_NULL(tt_blobex_addr(&ha->response), "");
+    TT_UT_NULL(tt_blobex_addr(&ha->username), "");
+    TT_UT_NULL(tt_blobex_addr(&ha->uri), "");
+    TT_UT_NULL(tt_blobex_addr(&ha->domain), "");
+    TT_UT_EQUAL(ha->alg, TT_HTTP_AUTH_ALG_NUM, "");
+    TT_UT_EQUAL(ha->qop_mask, 0, "");
+    TT_UT_EQUAL(ha->stale, TT_HTTP_STALE_NUM, "");
+    TT_UT_EQUAL(ha->scheme, TT_HTTP_AUTH_SCHEME_NUM, "");
+    tt_http_hdr_destroy(h);
+
+    // 1 char
+    h = tt_http_hdr_auth_create();
+    tt_http_hdr_parse(h, "a");
+    ha = tt_http_hdr_auth_get(h);
+    TT_UT_EQUAL(ha->scheme, TT_HTTP_AUTH_SCHEME_NUM, "");
+    tt_http_hdr_destroy(h);
+
+    // incomplete scheme
+    h = tt_http_hdr_auth_create();
+    tt_http_hdr_parse(h, " diges");
+    ha = tt_http_hdr_auth_get(h);
+    TT_UT_EQUAL(ha->scheme, TT_HTTP_AUTH_SCHEME_NUM, "");
+    tt_http_hdr_destroy(h);
+
+    h = tt_http_hdr_auth_create();
+    tt_http_hdr_parse(h, " basic ");
+    ha = tt_http_hdr_auth_get(h);
+    TT_UT_EQUAL(ha->scheme, TT_HTTP_AUTH_BASIC, "");
+    tt_http_hdr_destroy(h);
+
+    // scheme with 1 param
+    h = tt_http_hdr_auth_create();
+    tt_http_hdr_parse(h, " digest realm=\"abc\" ,");
+    ha = tt_http_hdr_auth_get(h);
+    TT_UT_EQUAL(ha->scheme, TT_HTTP_AUTH_DIGEST, "");
+    TT_UT_EQUAL(tt_blobex_strcmp(&ha->realm, "abc"), 0, "");
+    tt_http_hdr_destroy(h);
+
+    // scheme with more param
+    {
+        const tt_char_t *s =
+            "  Digest  "
+            " Domain=\"dmdm\",  "
+            "username=\"us\",  "
+            "  realm=\"  api@example.org  \","
+            "uri=\"/doe.json\", "
+            "algorithm=md5-sess,  "
+            " nonce=\"ncnc \","
+            "   nc=00000001,"
+            "cnonce=\"cncn\","
+            "qop=\" , , ,,, auth,  auth-int \","
+            "response=\" resp \","
+            "opaque=\"opqrst  \","
+            "stale=false,"
+            "userhash=true";
+        const tt_char_t *s2 =
+            "Authorization: Digest "
+            "realm=\"  api@example.org  \", "
+            "nonce=\"ncnc \", "
+            "opaque=\"opqrst  \", "
+            "response=\" resp \", "
+            "username=\"us\", "
+            "uri=\"/doe.json\", "
+            "cnonce=\"cncn\", "
+            "nc=00000001, "
+            "qop=auth, "
+            "algorithm=MD5-sess\r\n";
+        tt_char_t buf[256] = {0};
+        tt_u32_t n;
+
+        h = tt_http_hdr_auth_create();
+        tt_http_hdr_parse(h, s);
+        ha = tt_http_hdr_auth_get(h);
+        TT_UT_EQUAL(ha->scheme, TT_HTTP_AUTH_DIGEST, "");
+        TT_UT_EQUAL(tt_blobex_strcmp(&ha->realm, "  api@example.org  "), 0, "");
+        TT_UT_EQUAL(tt_blobex_len(&ha->domain), 0, "");
+        TT_UT_EQUAL(tt_blobex_strcmp(&ha->nonce, "ncnc "), 0, "");
+        TT_UT_EQUAL(tt_blobex_strcmp(&ha->opaque, "opqrst  "), 0, "");
+        TT_UT_EQUAL(tt_blobex_strcmp(&ha->response, " resp "), 0, "");
+        TT_UT_EQUAL(tt_blobex_strcmp(&ha->username, "us"), 0, "");
+        TT_UT_EQUAL(tt_blobex_strcmp(&ha->uri, "/doe.json"), 0, "");
+        TT_UT_EQUAL(tt_blobex_strcmp(&ha->cnonce, "cncn"), 0, "");
+        TT_UT_EQUAL(tt_blobex_strcmp(&ha->nc, "00000001"), 0, "");
+        TT_UT_EQUAL(ha->scheme, TT_HTTP_AUTH_DIGEST, "");
+        TT_UT_EQUAL(ha->stale, TT_HTTP_STALE_NUM, "");
+        TT_UT_EQUAL(ha->alg, TT_HTTP_AUTH_MD5_SESS, "");
+        TT_UT_EQUAL(ha->qop_mask, TT_HTTP_QOP_AUTH | TT_HTTP_QOP_AUTH_INT, "");
+
+        len = tt_http_hdr_render_len(h);
+        TT_UT_EQUAL(len, tt_strlen(s2), "");
+
+        n = tt_http_hdr_render(h, buf);
+        TT_UT_EQUAL(n, len, "");
+        TT_UT_STREQ(buf, s2, "");
+
+        tt_http_hdr_destroy(h);
+    }
+
+    // www auth
+    {
+        const tt_char_t *s =
+            "  Basic  "
+            " Domain=\"dmdm\",  "
+            "username=\"us\",  "
+            "  realm=\"  api@example.org  \","
+            "uri=\"/doe.json\", "
+            "algorithm=md5,  "
+            " nonce=\"ncnc \","
+            "   nc=00000001,"
+            "cnonce=\"cncn\","
+            "qop=\" , , ,,, auth,  auth-int \","
+            "response=\" resp \","
+            "opaque=\"opqrst  \","
+            "stale=true,"
+            "userhash=true";
+        const tt_char_t *s2 =
+            "WWW-Authenticate: Basic "
+            "realm=\"  api@example.org  \", "
+            "domain=\"dmdm\", "
+            "nonce=\"ncnc \", "
+            "opaque=\"opqrst  \", "
+            "qop=\"auth,auth-int\", "
+            "stale=true, "
+            "algorithm=MD5\r\n";
+        tt_char_t buf[256] = {0};
+        tt_u32_t n;
+
+        h = tt_http_hdr_www_auth_create();
+        tt_http_hdr_parse(h, s);
+        ha = tt_http_hdr_auth_get(h);
+        TT_UT_EQUAL(ha->scheme, TT_HTTP_AUTH_BASIC, "");
+        TT_UT_EQUAL(tt_blobex_strcmp(&ha->realm, "  api@example.org  "), 0, "");
+        TT_UT_EQUAL(tt_blobex_strcmp(&ha->domain, "dmdm"), 0, "");
+        TT_UT_EQUAL(tt_blobex_strcmp(&ha->nonce, "ncnc "), 0, "");
+        TT_UT_EQUAL(tt_blobex_strcmp(&ha->opaque, "opqrst  "), 0, "");
+        TT_UT_EQUAL(tt_blobex_len(&ha->response), 0, "");
+        TT_UT_EQUAL(tt_blobex_len(&ha->username), 0, "");
+        TT_UT_EQUAL(tt_blobex_len(&ha->uri), 0, "");
+        TT_UT_EQUAL(tt_blobex_len(&ha->cnonce), 0, "");
+        TT_UT_EQUAL(tt_blobex_len(&ha->nc), 0, "");
+        TT_UT_EQUAL(ha->scheme, TT_HTTP_AUTH_BASIC, "");
+        TT_UT_EQUAL(ha->stale, TT_HTTP_STALE_TRUE, "");
+        TT_UT_EQUAL(ha->alg, TT_HTTP_AUTH_MD5, "");
+        TT_UT_EQUAL(ha->qop_mask, TT_HTTP_QOP_AUTH | TT_HTTP_QOP_AUTH_INT, "");
+
+        len = tt_http_hdr_render_len(h);
+        TT_UT_EQUAL(len, tt_strlen(s2), "");
+
+        n = tt_http_hdr_render(h, buf);
+        TT_INFO("%s", buf);
+        TT_UT_EQUAL(n, len, "");
+        TT_UT_STREQ(buf, s2, "");
+
+        tt_http_hdr_destroy(h);
+    }
+
+    // proxy auth
+    {
+        const tt_char_t *s =
+            "  Digest  "
+            " Domain=\"dmdm\",  "
+            "username=\"us\",  "
+            "  realm=\"  api@example.org  \","
+            "uri=\"/doe.json\", "
+            "algorithm=md5-sess,  "
+            " nonce=\"ncnc \","
+            "   nc=00000001,"
+            "cnonce=\"cncn\","
+            "qop=\" , , ,,, auth,  auth-int \","
+            "response=\" resp \","
+            "opaque=\"opqrst  \","
+            "stale=false,"
+            "userhash=true";
+        const tt_char_t *s2 =
+            "Proxy-Authorization: Digest "
+            "realm=\"  api@example.org  \", "
+            "nonce=\"ncnc \", "
+            "opaque=\"opqrst  \", "
+            "response=\" resp \", "
+            "username=\"us\", "
+            "uri=\"/doe.json\", "
+            "cnonce=\"cncn\", "
+            "nc=00000001, "
+            "qop=auth, "
+            "algorithm=MD5-sess\r\n";
+        tt_char_t buf[256] = {0};
+        tt_u32_t n;
+
+        h = tt_http_hdr_proxy_authorization_create();
+        tt_http_hdr_parse(h, s);
+        ha = tt_http_hdr_auth_get(h);
+        TT_UT_EQUAL(ha->scheme, TT_HTTP_AUTH_DIGEST, "");
+        TT_UT_EQUAL(tt_blobex_strcmp(&ha->realm, "  api@example.org  "), 0, "");
+        TT_UT_EQUAL(tt_blobex_len(&ha->domain), 0, "");
+        TT_UT_EQUAL(tt_blobex_strcmp(&ha->nonce, "ncnc "), 0, "");
+        TT_UT_EQUAL(tt_blobex_strcmp(&ha->opaque, "opqrst  "), 0, "");
+        TT_UT_EQUAL(tt_blobex_strcmp(&ha->response, " resp "), 0, "");
+        TT_UT_EQUAL(tt_blobex_strcmp(&ha->username, "us"), 0, "");
+        TT_UT_EQUAL(tt_blobex_strcmp(&ha->uri, "/doe.json"), 0, "");
+        TT_UT_EQUAL(tt_blobex_strcmp(&ha->cnonce, "cncn"), 0, "");
+        TT_UT_EQUAL(tt_blobex_strcmp(&ha->nc, "00000001"), 0, "");
+        TT_UT_EQUAL(ha->scheme, TT_HTTP_AUTH_DIGEST, "");
+        TT_UT_EQUAL(ha->stale, TT_HTTP_STALE_NUM, "");
+        TT_UT_EQUAL(ha->alg, TT_HTTP_AUTH_MD5_SESS, "");
+        TT_UT_EQUAL(ha->qop_mask, TT_HTTP_QOP_AUTH | TT_HTTP_QOP_AUTH_INT, "");
+
+        len = tt_http_hdr_render_len(h);
+        TT_UT_EQUAL(len, tt_strlen(s2), "");
+
+        n = tt_http_hdr_render(h, buf);
+        TT_UT_EQUAL(n, len, "");
+        TT_UT_STREQ(buf, s2, "");
+
+        tt_http_hdr_destroy(h);
+    }
+
+    {
+        const tt_char_t *s =
+            "  Basic  "
+            " Domain=\"dmdm\",  "
+            "username=\"us\",  "
+            "  realm=\"  api@example.org  \","
+            "uri=\"/doe.json\", "
+            "algorithm=md5,  "
+            " nonce=\"ncnc \","
+            "   nc=00000001,"
+            "cnonce=\"cncn\","
+            "qop=\" , , ,,, auth,  auth-int \","
+            "response=\" resp \","
+            "opaque=\"opqrst  \","
+            "stale=true,"
+            "userhash=true";
+        const tt_char_t *s2 =
+            "Proxy-Authenticate: Basic "
+            "realm=\"  api@example.org  \", "
+            "domain=\"dmdm\", "
+            "nonce=\"ncnc \", "
+            "opaque=\"opqrst  \", "
+            "qop=\"auth,auth-int\", "
+            "stale=true, "
+            "algorithm=MD5\r\n";
+        tt_char_t buf[256] = {0};
+        tt_u32_t n;
+
+        h = tt_http_hdr_proxy_authenticate_create();
+        tt_http_hdr_parse(h, s);
+        ha = tt_http_hdr_auth_get(h);
+        TT_UT_EQUAL(ha->scheme, TT_HTTP_AUTH_BASIC, "");
+        TT_UT_EQUAL(tt_blobex_strcmp(&ha->realm, "  api@example.org  "), 0, "");
+        TT_UT_EQUAL(tt_blobex_strcmp(&ha->domain, "dmdm"), 0, "");
+        TT_UT_EQUAL(tt_blobex_strcmp(&ha->nonce, "ncnc "), 0, "");
+        TT_UT_EQUAL(tt_blobex_strcmp(&ha->opaque, "opqrst  "), 0, "");
+        TT_UT_EQUAL(tt_blobex_len(&ha->response), 0, "");
+        TT_UT_EQUAL(tt_blobex_len(&ha->username), 0, "");
+        TT_UT_EQUAL(tt_blobex_len(&ha->uri), 0, "");
+        TT_UT_EQUAL(tt_blobex_len(&ha->cnonce), 0, "");
+        TT_UT_EQUAL(tt_blobex_len(&ha->nc), 0, "");
+        TT_UT_EQUAL(ha->scheme, TT_HTTP_AUTH_BASIC, "");
+        TT_UT_EQUAL(ha->stale, TT_HTTP_STALE_TRUE, "");
+        TT_UT_EQUAL(ha->alg, TT_HTTP_AUTH_MD5, "");
+        TT_UT_EQUAL(ha->qop_mask, TT_HTTP_QOP_AUTH | TT_HTTP_QOP_AUTH_INT, "");
+
+        len = tt_http_hdr_render_len(h);
+        TT_UT_EQUAL(len, tt_strlen(s2), "");
+
+        n = tt_http_hdr_render(h, buf);
+        TT_INFO("%s", buf);
+        TT_UT_EQUAL(n, len, "");
+        TT_UT_STREQ(buf, s2, "");
+
+        tt_http_hdr_destroy(h);
+    }
 
     // test end
     TT_TEST_CASE_LEAVE()

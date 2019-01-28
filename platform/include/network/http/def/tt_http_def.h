@@ -51,6 +51,8 @@ this file defines http
     __ENTRY(IF_UNMOD, "If-Unmodified-Since")                                   \
     __ENTRY(AUTH, "Authorization")                                             \
     __ENTRY(WWW_AUTH, "WWW-Authenticate")                                      \
+    __ENTRY(PROXY_AUTHORIZATION, "Proxy-Authorization")                        \
+    __ENTRY(PROXY_AUTHENTICATE, "Proxy-Authenticate")                          \
     __ENTRY(DATE, "Date")
 
 #define TT_HTTP_TXENC_MAP(__ENTRY)                                             \

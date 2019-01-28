@@ -37,6 +37,9 @@ this file defines http auth headers
 // macro definition
 ////////////////////////////////////////////////////////////
 
+#define TT_HTTP_QOP_AUTH (1 << 0)
+#define TT_HTTP_QOP_AUTH_INT (1 << 1)
+
 ////////////////////////////////////////////////////////////
 // type definition
 ////////////////////////////////////////////////////////////
@@ -58,14 +61,6 @@ typedef enum {
 #define TT_HTTP_AUTH_ALG_VALID(a) ((a) < TT_HTTP_AUTH_ALG_NUM)
 
 typedef enum {
-    TT_HTTP_QOP_AUTH,
-    TT_HTTP_QOP_AUTH_INT,
-
-    TT_HTTP_QOP_NUM
-} tt_http_qop_t;
-#define TT_HTTP_QOP_VALID(a) ((a) < TT_HTTP_QOP_NUM)
-
-typedef enum {
     TT_HTTP_STALE_FALSE,
     TT_HTTP_STALE_TRUE,
 
@@ -84,10 +79,10 @@ typedef struct tt_http_auth_s
     tt_blobex_t uri;
     tt_blobex_t cnonce;
     tt_blobex_t nc;
+    tt_u8_t qop_mask;
     tt_http_auth_scheme_t scheme : 2;
     tt_http_stale_t stale : 2;
     tt_http_auth_alg_t alg : 4;
-    tt_http_qop_t qop : 2;
 } tt_http_auth_t;
 
 ////////////////////////////////////////////////////////////
@@ -98,9 +93,21 @@ typedef struct tt_http_auth_s
 // interface declaration
 ////////////////////////////////////////////////////////////
 
+tt_export tt_http_hdr_t *tt_http_hdr_www_auth_create();
+
 tt_export tt_http_hdr_t *tt_http_hdr_auth_create();
 
+tt_export tt_http_hdr_t *tt_http_hdr_proxy_authenticate_create();
+
+tt_export tt_http_hdr_t *tt_http_hdr_proxy_authorization_create();
+
+// ========================================
+// http auth structure
+// ========================================
+
 tt_export void tt_http_auth_init(IN tt_http_auth_t *ha);
+
+tt_export void tt_http_auth_destroy(IN tt_http_auth_t *ha);
 
 tt_export tt_http_auth_t *tt_http_hdr_auth_get(IN tt_http_hdr_t *h);
 
