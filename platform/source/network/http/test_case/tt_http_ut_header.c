@@ -2764,6 +2764,9 @@ TT_TEST_ROUTINE_DEFINE(case_http_hdr_auth)
         TT_UT_EQUAL(tt_blobex_strcmp(&ha->uri, "/doe.json"), 0, "");
         TT_UT_EQUAL(tt_blobex_strcmp(&ha->cnonce, "cncn"), 0, "");
         TT_UT_EQUAL(tt_blobex_strcmp(&ha->nc, "00000001"), 0, "");
+        TT_UT_EQUAL(tt_blobex_strcmp(&ha->raw_qop, " , , ,,, auth,  auth-int "),
+                    0,
+                    "");
         TT_UT_EQUAL(ha->scheme, TT_HTTP_AUTH_DIGEST, "");
         TT_UT_EQUAL(ha->stale, TT_HTTP_STALE_NUM, "");
         TT_UT_EQUAL(ha->alg, TT_HTTP_AUTH_MD5_SESS, "");
@@ -2821,6 +2824,9 @@ TT_TEST_ROUTINE_DEFINE(case_http_hdr_auth)
         TT_UT_EQUAL(tt_blobex_len(&ha->uri), 0, "");
         TT_UT_EQUAL(tt_blobex_len(&ha->cnonce), 0, "");
         TT_UT_EQUAL(tt_blobex_len(&ha->nc), 0, "");
+        TT_UT_EQUAL(tt_blobex_strcmp(&ha->raw_qop, " , , ,,, auth,  auth-int "),
+                    0,
+                    "");
         TT_UT_EQUAL(ha->scheme, TT_HTTP_AUTH_BASIC, "");
         TT_UT_EQUAL(ha->stale, TT_HTTP_STALE_TRUE, "");
         TT_UT_EQUAL(ha->alg, TT_HTTP_AUTH_MD5, "");
@@ -2830,7 +2836,6 @@ TT_TEST_ROUTINE_DEFINE(case_http_hdr_auth)
         TT_UT_EQUAL(len, tt_strlen(s2), "");
 
         n = tt_http_hdr_render(h, buf);
-        TT_INFO("%s", buf);
         TT_UT_EQUAL(n, len, "");
         TT_UT_STREQ(buf, s2, "");
 
@@ -2882,6 +2887,9 @@ TT_TEST_ROUTINE_DEFINE(case_http_hdr_auth)
         TT_UT_EQUAL(tt_blobex_strcmp(&ha->uri, "/doe.json"), 0, "");
         TT_UT_EQUAL(tt_blobex_strcmp(&ha->cnonce, "cncn"), 0, "");
         TT_UT_EQUAL(tt_blobex_strcmp(&ha->nc, "00000001"), 0, "");
+        TT_UT_EQUAL(tt_blobex_strcmp(&ha->raw_qop, " , , ,,, auth,  auth-int "),
+                    0,
+                    "");
         TT_UT_EQUAL(ha->scheme, TT_HTTP_AUTH_DIGEST, "");
         TT_UT_EQUAL(ha->stale, TT_HTTP_STALE_NUM, "");
         TT_UT_EQUAL(ha->alg, TT_HTTP_AUTH_MD5_SESS, "");
@@ -2938,6 +2946,9 @@ TT_TEST_ROUTINE_DEFINE(case_http_hdr_auth)
         TT_UT_EQUAL(tt_blobex_len(&ha->uri), 0, "");
         TT_UT_EQUAL(tt_blobex_len(&ha->cnonce), 0, "");
         TT_UT_EQUAL(tt_blobex_len(&ha->nc), 0, "");
+        TT_UT_EQUAL(tt_blobex_strcmp(&ha->raw_qop, " , , ,,, auth,  auth-int "),
+                    0,
+                    "");
         TT_UT_EQUAL(ha->scheme, TT_HTTP_AUTH_BASIC, "");
         TT_UT_EQUAL(ha->stale, TT_HTTP_STALE_TRUE, "");
         TT_UT_EQUAL(ha->alg, TT_HTTP_AUTH_MD5, "");
@@ -2947,9 +2958,63 @@ TT_TEST_ROUTINE_DEFINE(case_http_hdr_auth)
         TT_UT_EQUAL(len, tt_strlen(s2), "");
 
         n = tt_http_hdr_render(h, buf);
-        TT_INFO("%s", buf);
         TT_UT_EQUAL(n, len, "");
         TT_UT_STREQ(buf, s2, "");
+
+        tt_http_hdr_destroy(h);
+    }
+
+    {
+        const tt_char_t *s =
+            "Digest username=\"Mufasa\","
+            "realm=\"testrealm@host.com\","
+            "uri=\"/dir/index.html\","
+            "algorithm=MD5,"
+            "nonce=\"dcd98b7102dd2f0e8b11d0f600bfb0c093\","
+            "nc=00000001,"
+            "cnonce=\"0a4f113b\","
+            "qop=auth,"
+            "response=\"6629fae49393a05397450978507c4ef1\","
+            "opaque=\"5ccc069c403ebaf9f0171e9517f40e41\"";
+        const tt_char_t *pwd = "Circle Of Life";
+        const tt_char_t *mtd = "GET";
+        tt_char_t resp[33] = {0};
+
+        tt_http_auth_ctx_t c;
+
+        h = tt_http_hdr_auth_create();
+        tt_http_hdr_parse(h, s);
+        ha = tt_http_hdr_auth_get(h);
+
+        tt_http_auth_ctx_init(&c);
+        tt_http_auth_ctx_destroy(&c);
+
+        TT_UT_SUCCESS(tt_http_auth_ctx_calc(&c,
+                                            ha,
+                                            (tt_char_t *)pwd,
+                                            tt_strlen(pwd),
+                                            TT_HTTP_QOP_AUTH,
+                                            (tt_char_t *)mtd,
+                                            tt_strlen(mtd),
+                                            NULL,
+                                            0,
+                                            resp),
+                      "");
+        TT_UT_STREQ(resp, "6629fae49393a05397450978507c4ef1", "");
+
+        // again
+        TT_UT_SUCCESS(tt_http_auth_ctx_calc(&c,
+                                            ha,
+                                            (tt_char_t *)pwd,
+                                            tt_strlen(pwd),
+                                            TT_HTTP_QOP_AUTH,
+                                            (tt_char_t *)mtd,
+                                            tt_strlen(mtd),
+                                            NULL,
+                                            0,
+                                            resp),
+                      "");
+        TT_UT_STREQ(resp, "6629fae49393a05397450978507c4ef1", "");
 
         tt_http_hdr_destroy(h);
     }

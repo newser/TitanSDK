@@ -495,6 +495,15 @@ tt_export tt_u8_t tt_c2h(IN tt_char_t c, IN tt_u8_t h_if_fail);
 
 tt_export tt_char_t tt_h2c(IN tt_u8_t h, IN tt_u8_t c_if_fail);
 
+// str size must be twice of hex_num
+tt_export void tt_hex2str(IN void *hex,
+                          IN tt_u32_t hex_num,
+                          OUT tt_char_t *str);
+
+tt_export void tt_str2hex(IN tt_char_t *str,
+                          IN tt_u32_t str_num,
+                          OUT void *hex);
+
 // copy a null terminated string
 tt_export tt_char_t *tt_cstr_copy(IN const tt_char_t *cstr);
 

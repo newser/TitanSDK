@@ -234,6 +234,25 @@ tt_char_t tt_h2c(IN tt_u8_t h, IN tt_u8_t c_if_fail)
     }
 }
 
+void tt_hex2str(IN void *hex, IN tt_u32_t hex_num, OUT tt_char_t *str)
+{
+    tt_u32_t i, k;
+    for (i = 0, k = 0; i < hex_num; ++i) {
+        tt_u8_t h = ((tt_u8_t *)hex)[i];
+        str[k++] = tt_h2c(h >> 4, 0);
+        str[k++] = tt_h2c(h & 0xF, 0);
+    }
+}
+
+void tt_str2hex(IN tt_char_t *str, IN tt_u32_t str_num, OUT void *hex)
+{
+    tt_u32_t i, k;
+    for (i = 0, k = 0; (i + 1) < str_num; i += 2) {
+        ((tt_u8_t *)hex)[k++] =
+            (tt_c2h(str[i], 0) << 4) | (tt_c2h(str[i + 1], 0));
+    }
+}
+
 tt_char_t *tt_cstr_copy(IN const tt_char_t *cstr)
 {
     tt_u32_t len = (tt_u32_t)tt_strlen(cstr);

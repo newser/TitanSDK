@@ -31,6 +31,7 @@ this file defines http auth headers
 ////////////////////////////////////////////////////////////
 
 #include <algorithm/tt_blobex.h>
+#include <crypto/tt_message_digest.h>
 #include <network/http/tt_http_header.h>
 
 ////////////////////////////////////////////////////////////
@@ -79,11 +80,18 @@ typedef struct tt_http_auth_s
     tt_blobex_t uri;
     tt_blobex_t cnonce;
     tt_blobex_t nc;
+    tt_blobex_t raw_qop;
     tt_u8_t qop_mask;
     tt_http_auth_scheme_t scheme : 2;
     tt_http_stale_t stale : 2;
     tt_http_auth_alg_t alg : 4;
 } tt_http_auth_t;
+
+typedef struct
+{
+    tt_md_type_t type;
+    tt_md_t md;
+} tt_http_auth_ctx_t;
 
 ////////////////////////////////////////////////////////////
 // global variants
@@ -102,16 +110,41 @@ tt_export tt_http_hdr_t *tt_http_hdr_proxy_authenticate_create();
 tt_export tt_http_hdr_t *tt_http_hdr_proxy_authorization_create();
 
 // ========================================
-// http auth structure
+// http auth
 // ========================================
 
 tt_export void tt_http_auth_init(IN tt_http_auth_t *ha);
 
 tt_export void tt_http_auth_destroy(IN tt_http_auth_t *ha);
 
+tt_export tt_bool_t tt_http_auth_valid(IN tt_http_auth_t *ha);
+
 tt_export tt_http_auth_t *tt_http_hdr_auth_get(IN tt_http_hdr_t *h);
 
 tt_export void tt_http_hdr_auth_set(IN tt_http_hdr_t *h,
                                     IN TO tt_http_auth_t *auth);
+
+// ========================================
+// http auth context
+// ========================================
+
+tt_export void tt_http_auth_ctx_init(IN tt_http_auth_ctx_t *ctx);
+
+tt_export void tt_http_auth_ctx_destroy(IN tt_http_auth_ctx_t *ctx);
+
+// - qop can be specfied, although ha has raw_qop and qop_mask. set qop
+//   to 0 if wanna calc resp as qop param is not provided
+// - response must have enough size, e.g., md5 require 16bytes,
+//   sha512 require 64bytes
+tt_export tt_result_t tt_http_auth_ctx_calc(IN tt_http_auth_ctx_t *ctx,
+                                            IN tt_http_auth_t *ha,
+                                            IN void *password,
+                                            IN tt_u32_t password_len,
+                                            IN tt_u32_t qop,
+                                            IN void *method,
+                                            IN tt_u32_t method_len,
+                                            IN OPT void *body,
+                                            IN tt_u32_t body_len,
+                                            OUT tt_char_t *response);
 
 #endif /* __TT_HTTP_HDR_AUTH__ */
