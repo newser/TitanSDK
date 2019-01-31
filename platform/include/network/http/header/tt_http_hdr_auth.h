@@ -90,7 +90,9 @@ typedef struct tt_http_auth_s
 typedef struct
 {
     tt_md_type_t type;
+    tt_u32_t nonce_len;
     tt_md_t md;
+    tt_char_t nonce[24];
 } tt_http_auth_ctx_t;
 
 ////////////////////////////////////////////////////////////
@@ -109,6 +111,14 @@ tt_export tt_http_hdr_t *tt_http_hdr_proxy_authenticate_create();
 
 tt_export tt_http_hdr_t *tt_http_hdr_proxy_authorization_create();
 
+tt_export tt_http_auth_t *tt_http_hdr_auth_get(IN tt_http_hdr_t *h);
+
+// if @ auth is not a temporay, e.g. on stack, caller can set @shallow_copy to
+// TT_TRUE and then there won't be new memory allocated
+tt_export tt_result_t tt_http_hdr_auth_set(IN tt_http_hdr_t *h,
+                                           IN tt_http_auth_t *auth,
+                                           IN tt_bool_t shallow_copy);
+
 // ========================================
 // http auth
 // ========================================
@@ -119,10 +129,12 @@ tt_export void tt_http_auth_destroy(IN tt_http_auth_t *ha);
 
 tt_export tt_bool_t tt_http_auth_valid(IN tt_http_auth_t *ha);
 
-tt_export tt_http_auth_t *tt_http_hdr_auth_get(IN tt_http_hdr_t *h);
+// the @dst simply reference memory of @src
+tt_export void tt_http_auth_shallow_copy(IN tt_http_auth_t *dst,
+                                         IN tt_http_auth_t *src);
 
-tt_export void tt_http_hdr_auth_set(IN tt_http_hdr_t *h,
-                                    IN TO tt_http_auth_t *auth);
+tt_export tt_result_t tt_http_auth_smart_copy(IN tt_http_auth_t *dst,
+                                              IN tt_http_auth_t *src);
 
 // ========================================
 // http auth context
@@ -131,6 +143,10 @@ tt_export void tt_http_hdr_auth_set(IN tt_http_hdr_t *h,
 tt_export void tt_http_auth_ctx_init(IN tt_http_auth_ctx_t *ctx);
 
 tt_export void tt_http_auth_ctx_destroy(IN tt_http_auth_ctx_t *ctx);
+
+tt_export void tt_http_auth_ctx_new_nonce(IN tt_http_auth_ctx_t *ctx);
+
+tt_export tt_u32_t tt_http_auth_ctx_digest_len(IN tt_http_auth_ctx_t *ctx);
 
 // - qop can be specfied, although ha has raw_qop and qop_mask. set qop
 //   to 0 if wanna calc resp as qop param is not provided

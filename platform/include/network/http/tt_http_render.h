@@ -108,16 +108,35 @@ tt_export void tt_http_render_remove_all(IN tt_http_render_t *render,
                                          IN tt_http_hname_t hname);
 
 tt_export tt_result_t tt_http_render_add_auth(IN tt_http_render_t *r,
-                                              IN TO struct tt_http_auth_s *ha);
+                                              IN struct tt_http_auth_s *auth,
+                                              IN tt_bool_t shallow_copy);
 
-tt_export tt_result_t tt_http_render_add_www_auth(
-    IN tt_http_render_t *r, IN TO struct tt_http_auth_s *ha);
+tt_export struct tt_http_auth_s *tt_http_render_get_auth(
+    IN tt_http_render_t *r);
 
-tt_export tt_result_t tt_http_render_add_proxy_authorization(
-    IN tt_http_render_t *r, IN TO struct tt_http_auth_s *ha);
+tt_export tt_result_t
+tt_http_render_add_www_auth(IN tt_http_render_t *r,
+                            IN struct tt_http_auth_s *auth,
+                            IN tt_bool_t shallow_copy);
 
-tt_export tt_result_t tt_http_render_add_proxy_authenticate(
-    IN tt_http_render_t *r, IN TO struct tt_http_auth_s *ha);
+tt_export struct tt_http_auth_s *tt_http_render_get_www_auth(
+    IN tt_http_render_t *r);
+
+tt_export tt_result_t
+tt_http_render_add_proxy_authorization(IN tt_http_render_t *r,
+                                       IN struct tt_http_auth_s *auth,
+                                       IN tt_bool_t shallow_copy);
+
+tt_export struct tt_http_auth_s *tt_http_render_get_proxy_authorization(
+    IN tt_http_render_t *r);
+
+tt_export tt_result_t
+tt_http_render_add_proxy_authenticate(IN tt_http_render_t *r,
+                                      IN struct tt_http_auth_s *auth,
+                                      IN tt_bool_t shallow_copy);
+
+tt_export struct tt_http_auth_s *tt_http_render_get_proxy_authenticate(
+    IN tt_http_render_t *r);
 
 // ========================================
 // request

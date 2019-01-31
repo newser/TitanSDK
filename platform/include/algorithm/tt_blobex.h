@@ -229,6 +229,17 @@ tt_inline tt_result_t tt_blobex_own(IN tt_blobex_t *bex)
     return TT_SUCCESS;
 }
 
+// if src is owner, dst will alloc new memory, as src's memory must be
+// dynamically allocated, else dst simply refer src's memory
+tt_inline tt_result_t tt_blobex_smart_copy(IN tt_blobex_t *dst,
+                                           IN tt_blobex_t *src)
+{
+    return tt_blobex_set(dst,
+                         tt_blobex_addr(src),
+                         tt_blobex_len(src),
+                         TT_BOOL(__BLOBEX_IS_OWNER(src)));
+}
+
 #if 1
 tt_inline void tt_blobex_take(IN tt_blobex_t *bex,
                               IN TO tt_u8_t *addr,

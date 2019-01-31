@@ -23,6 +23,7 @@
 #include <network/http/tt_http_rule.h>
 
 #include <memory/tt_memory_alloc.h>
+#include <network/http/tt_http_in_service.h>
 #include <network/http/tt_http_uri.h>
 
 ////////////////////////////////////////////////////////////
@@ -134,4 +135,24 @@ tt_http_rule_result_t tt_http_rule_apply(IN tt_http_rule_t *r,
     }
 
     return r->default_result;
+}
+
+// ========================================
+// rule context
+// ========================================
+
+void tt_http_rule_ctx_destroy(IN tt_http_rule_ctx_t *ctx)
+{
+    // same with clear() currently
+    tt_http_rule_ctx_clear(ctx);
+}
+
+void tt_http_rule_ctx_clear(IN tt_http_rule_ctx_t *ctx)
+{
+    if (ctx->inserv_auth != NULL) {
+        tt_http_inserv_release(ctx->inserv_auth);
+        ctx->inserv_auth = NULL;
+    }
+
+    tt_http_rule_ctx_init(ctx);
 }

@@ -26,6 +26,7 @@
 
 #include <network/http/def/tt_http_service_def.h>
 #include <network/http/service/tt_http_encserv_chunked.h>
+#include <network/http/service/tt_http_inserv_auth.h>
 #include <network/http/service/tt_http_inserv_conditional.h>
 #include <network/http/service/tt_http_inserv_file.h>
 #include <network/http/service/tt_http_inserv_param.h>
@@ -54,6 +55,7 @@
 TT_TEST_ROUTINE_DECLARE(case_http_inserv_file)
 TT_TEST_ROUTINE_DECLARE(case_http_inserv_cond)
 TT_TEST_ROUTINE_DECLARE(case_http_inserv_param)
+TT_TEST_ROUTINE_DECLARE(case_http_inserv_auth)
 TT_TEST_ROUTINE_DECLARE(case_http_post_param)
 
 TT_TEST_ROUTINE_DECLARE(case_http_encserv_chunked)
@@ -84,6 +86,15 @@ TT_TEST_CASE("case_http_inserv_file",
     TT_TEST_CASE("case_http_inserv_param",
                  "http uri service: parameter",
                  case_http_inserv_param,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL),
+
+    TT_TEST_CASE("case_http_inserv_auth",
+                 "http uri service: auth",
+                 case_http_inserv_auth,
                  NULL,
                  NULL,
                  NULL,
@@ -122,7 +133,7 @@ TT_TEST_CASE("case_http_inserv_file",
     ////////////////////////////////////////////////////////////
 
     /*
-    TT_TEST_ROUTINE_DEFINE(case_http_post_param)
+    TT_TEST_ROUTINE_DEFINE(case_http_inserv_auth)
     {
         //tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
 
@@ -1222,6 +1233,255 @@ TT_TEST_ROUTINE_DEFINE(case_http_post_param)
     tt_http_inserv_release(is);
 
     tt_param_destroy(dir);
+
+    // test end
+    TT_TEST_CASE_LEAVE()
+}
+
+TT_TEST_ROUTINE_DEFINE(case_http_inserv_auth)
+{
+    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+    tt_http_inserv_t *is;
+    tt_http_inserv_auth_attr_t a;
+    tt_http_inserv_auth_ctx_t c;
+    tt_string_t s2;
+    tt_http_inserv_action_t act;
+    tt_buf_t b;
+
+    tt_http_parser_t req;
+    tt_http_resp_render_t resp;
+    tt_slab_t rh, rv;
+    tt_http_auth_t *ha;
+
+    const tt_char_t *msg =
+        "GET /confi HTTP/1.1\r\n"
+        "Authorization: Digest username=\"Mufasa\","
+        "realm=\"testrealm@host.com\","
+        "uri=\"/dir/index.html\","
+        "algorithm=MD5,"
+        "nonce=\"dcd98b7102dd2f0e8b11d0f600bfb0c093\","
+        "nc=00000001,"
+        "cnonce=\"0a4f113b\","
+        "qop=auth,"
+        "response=\"6629fae49393a05397450978507c4ef1\","
+        "opaque=\"5ccc069c403ebaf9f0171e9517f40e41\"\r\n\r\n";
+
+    TT_TEST_CASE_ENTER()
+    // test start
+
+    tt_string_init(&s2, NULL);
+    tt_buf_init(&b, NULL);
+    TT_UT_SUCCESS(tt_slab_create(&rh, sizeof(tt_http_rawhdr_t), NULL), "");
+    TT_UT_SUCCESS(tt_slab_create(&rv, sizeof(tt_http_rawval_t), NULL), "");
+    TT_UT_SUCCESS(tt_http_parser_create(&req, &rh, &rv, NULL), "");
+    tt_http_resp_render_init(&resp, NULL);
+
+    tt_http_inserv_auth_attr_default(&a);
+
+    is = tt_http_inserv_auth_create(&a);
+    TT_UT_NOT_NULL(is, "");
+    tt_http_inserv_release(is);
+
+    a.get_pwd = NULL;
+    a.get_pwd_param = NULL;
+    is = tt_http_inserv_auth_create(&a);
+    TT_UT_NULL(is, "");
+
+    a.realm = "testrealm@host.com";
+    a.realm_len = sizeof("testrealm@host.com") - 1;
+    a.domain = "domain";
+    a.domain_len = sizeof("domain") - 1;
+    a.get_pwd = NULL;
+    a.get_pwd_param = "Circle Of Life";
+    a.fixed_nonce = "dcd98b7102dd2f0e8b11d0f600bfb0c093";
+    is = tt_http_inserv_auth_create(&a);
+    TT_UT_NOT_NULL(is, "");
+
+    TT_UT_SUCCESS(tt_http_inserv_create_ctx(is, &c), "");
+
+    {
+        tt_string_clear(&s2);
+        tt_string_append(&s2, "DELETE /confi HTTP/1.1\r\n\r\n");
+
+        TT_UT_TRUE(__mk_parser(&req, tt_string_cstr(&s2)), "");
+
+        tt_http_resp_render_clear(&resp);
+
+        act = tt_http_inserv_on_uri(is, &c, &req, &resp);
+        TT_UT_EQUAL(act, TT_HTTP_INSERV_ACT_PASS, "");
+        // no auth
+        act = tt_http_inserv_on_header(is, &c, &req, &resp);
+        TT_UT_EQUAL(act, TT_HTTP_INSERV_ACT_DISCARD, "");
+
+        TT_UT_EQUAL(tt_http_resp_render_get_status(&resp),
+                    TT_HTTP_STATUS_UNAUTHORIZED,
+                    "");
+        ha = tt_http_render_get_auth(&resp.render);
+        TT_UT_NOT_NULL(ha, "");
+        TT_UT_EQUAL(tt_blobex_strcmp(&ha->realm, "testrealm@host.com"), 0, "");
+        TT_UT_EQUAL(tt_blobex_strcmp(&ha->domain, "domain"), 0, "");
+        TT_UT_NOT_NULL(tt_blobex_addr(&ha->nonce), "");
+    }
+
+    {
+        const tt_char_t *msg =
+            "GET /confi HTTP/1.1\r\n"
+            "Authorization: Digest username=\"Mufasa\","
+            "realm=\"realm\","
+            "uri=\"/dir/index.html\","
+            "algorithm=MD5,"
+            "nonce=\"dcd98b7102dd2f0e8b11d0f600bfb0c093\","
+            "nc=00000001,"
+            "cnonce=\"0a4f113b\","
+            "qop=auth,"
+            "response=\"6629fae49393a05397450978507c4ef1\","
+            "opaque=\"5ccc069c403ebaf9f0171e9517f40e41\"\r\n\r\n";
+
+        tt_string_clear(&s2);
+        tt_string_append(&s2, msg);
+
+        TT_UT_TRUE(__mk_parser(&req, tt_string_cstr(&s2)), "");
+
+        tt_http_resp_render_clear(&resp);
+
+        act = tt_http_inserv_on_uri(is, &c, &req, &resp);
+        TT_UT_EQUAL(act, TT_HTTP_INSERV_ACT_PASS, "");
+        // different realm
+        act = tt_http_inserv_on_header(is, &c, &req, &resp);
+        TT_UT_EQUAL(act, TT_HTTP_INSERV_ACT_DISCARD, "");
+
+        TT_UT_EQUAL(tt_http_resp_render_get_status(&resp),
+                    TT_HTTP_STATUS_UNAUTHORIZED,
+                    "");
+        ha = tt_http_render_get_auth(&resp.render);
+        TT_UT_NOT_NULL(ha, "");
+    }
+
+    {
+        const tt_char_t *msg =
+            "GET /confi HTTP/1.1\r\n"
+            "Authorization: Digest username=\"Mufasa\","
+            "realm=\"testrealm@host.com\","
+            "uri=\"/dir/index.html\","
+            "algorithm=MD5,"
+            "nonce=\"nonce\","
+            "nc=00000001,"
+            "cnonce=\"0a4f113b\","
+            "qop=auth,"
+            "response=\"6629fae49393a05397450978507c4ef1\","
+            "opaque=\"5ccc069c403ebaf9f0171e9517f40e41\"\r\n\r\n";
+
+        tt_string_clear(&s2);
+        tt_string_append(&s2, msg);
+
+        TT_UT_TRUE(__mk_parser(&req, tt_string_cstr(&s2)), "");
+
+        tt_http_resp_render_clear(&resp);
+
+        act = tt_http_inserv_on_uri(is, &c, &req, &resp);
+        TT_UT_EQUAL(act, TT_HTTP_INSERV_ACT_PASS, "");
+        // different nonce
+        act = tt_http_inserv_on_header(is, &c, &req, &resp);
+        TT_UT_EQUAL(act, TT_HTTP_INSERV_ACT_DISCARD, "");
+
+        TT_UT_EQUAL(tt_http_resp_render_get_status(&resp),
+                    TT_HTTP_STATUS_UNAUTHORIZED,
+                    "");
+        ha = tt_http_render_get_auth(&resp.render);
+        TT_UT_NOT_NULL(ha, "");
+    }
+
+    {
+        tt_string_clear(&s2);
+        tt_string_append(&s2, msg);
+
+        TT_UT_TRUE(__mk_parser(&req, tt_string_cstr(&s2)), "");
+
+        tt_http_resp_render_clear(&resp);
+
+        act = tt_http_inserv_on_uri(is, &c, &req, &resp);
+        TT_UT_EQUAL(act, TT_HTTP_INSERV_ACT_PASS, "");
+        act = tt_http_inserv_on_header(is, &c, &req, &resp);
+        TT_UT_EQUAL(act, TT_HTTP_INSERV_ACT_PASS, "");
+    }
+
+    {
+        const tt_char_t *msg =
+            "GET /confi HTTP/1.1\r\n"
+            "Authorization: Digest username=\"Mufasa\","
+            "realm=\"testrealm@host.com\","
+            "uri=\"/dir/index.html\","
+            "algorithm=MD5,"
+            "nonce=\"dcd98b7102dd2f0e8b11d0f600bfb0c093\","
+            "nc=00000001,"
+            "cnonce=\"0a4f113b\","
+            "qop=auth-int,"
+            "response=\"6629fae49393a05397450978507c4ef1\","
+            "opaque=\"5ccc069c403ebaf9f0171e9517f40e41\"\r\n\r\n";
+
+        tt_string_clear(&s2);
+        tt_string_append(&s2, msg);
+
+        TT_UT_TRUE(__mk_parser(&req, tt_string_cstr(&s2)), "");
+
+        tt_http_resp_render_clear(&resp);
+
+        act = tt_http_inserv_on_uri(is, &c, &req, &resp);
+        TT_UT_EQUAL(act, TT_HTTP_INSERV_ACT_PASS, "");
+        // auth-int is not implemented yet
+        act = tt_http_inserv_on_header(is, &c, &req, &resp);
+        TT_UT_EQUAL(act, TT_HTTP_INSERV_ACT_DISCARD, "");
+
+        TT_UT_EQUAL(tt_http_resp_render_get_status(&resp),
+                    TT_HTTP_STATUS_NOT_IMPLEMENTED,
+                    "");
+    }
+
+    // invalid response
+    {
+        const tt_char_t *msg =
+            "GET /confi HTTP/1.1\r\n"
+            "Authorization: Digest username=\"Mufasa\","
+            "realm=\"testrealm@host.com\","
+            "uri=\"/dir/index.html\","
+            "algorithm=MD5,"
+            "nonce=\"dcd98b7102dd2f0e8b11d0f600bfb0c093\","
+            "nc=00000001,"
+            "cnonce=\"0a4f113b\","
+            "qop=auth,"
+            "response=\"response\","
+            "opaque=\"5ccc069c403ebaf9f0171e9517f40e41\"\r\n\r\n";
+
+        tt_string_clear(&s2);
+        tt_string_append(&s2, msg);
+
+        TT_UT_TRUE(__mk_parser(&req, tt_string_cstr(&s2)), "");
+
+        tt_http_resp_render_clear(&resp);
+
+        act = tt_http_inserv_on_uri(is, &c, &req, &resp);
+        TT_UT_EQUAL(act, TT_HTTP_INSERV_ACT_PASS, "");
+        // auth-int is not implemented yet
+        act = tt_http_inserv_on_header(is, &c, &req, &resp);
+        TT_UT_EQUAL(act, TT_HTTP_INSERV_ACT_DISCARD, "");
+
+        TT_UT_EQUAL(tt_http_resp_render_get_status(&resp),
+                    TT_HTTP_STATUS_UNAUTHORIZED,
+                    "");
+        ha = tt_http_render_get_auth(&resp.render);
+        TT_UT_NOT_NULL(ha, "");
+    }
+
+    tt_http_inserv_destroy_ctx(is, &c);
+    tt_http_inserv_release(is);
+
+    tt_string_destroy(&s2);
+    tt_buf_destroy(&b);
+
+    tt_http_parser_destroy(&req);
+    tt_http_resp_render_destroy(&resp);
+    tt_slab_destroy(&rh);
+    tt_slab_destroy(&rv);
 
     // test end
     TT_TEST_CASE_LEAVE()

@@ -124,7 +124,8 @@ void tt_http_render_remove_all(IN tt_http_render_t *render,
 }
 
 tt_result_t tt_http_render_add_auth(IN tt_http_render_t *r,
-                                    IN TO tt_http_auth_t *ha)
+                                    IN tt_http_auth_t *auth,
+                                    IN tt_bool_t shallow_copy)
 {
     tt_http_hdr_t *h;
 
@@ -137,12 +138,18 @@ tt_result_t tt_http_render_add_auth(IN tt_http_render_t *r,
         __render_add_hdr(r, h);
     }
 
-    tt_http_hdr_auth_set(h, ha);
-    return TT_SUCCESS;
+    return tt_http_hdr_auth_set(h, auth, shallow_copy);
+}
+
+tt_http_auth_t *tt_http_render_get_auth(IN tt_http_render_t *r)
+{
+    tt_http_hdr_t *h = __render_find_hdr(r, TT_HTTP_HDR_AUTH);
+    return TT_COND(h != NULL, tt_http_hdr_auth_get(h), NULL);
 }
 
 tt_result_t tt_http_render_add_www_auth(IN tt_http_render_t *r,
-                                        IN TO tt_http_auth_t *ha)
+                                        IN tt_http_auth_t *auth,
+                                        IN tt_bool_t shallow_copy)
 {
     tt_http_hdr_t *h;
 
@@ -155,12 +162,18 @@ tt_result_t tt_http_render_add_www_auth(IN tt_http_render_t *r,
         __render_add_hdr(r, h);
     }
 
-    tt_http_hdr_auth_set(h, ha);
-    return TT_SUCCESS;
+    return tt_http_hdr_auth_set(h, auth, shallow_copy);
+}
+
+tt_http_auth_t *tt_http_render_get_www_auth(IN tt_http_render_t *r)
+{
+    tt_http_hdr_t *h = __render_find_hdr(r, TT_HTTP_HDR_WWW_AUTH);
+    return TT_COND(h != NULL, tt_http_hdr_auth_get(h), NULL);
 }
 
 tt_result_t tt_http_render_add_proxy_authorization(IN tt_http_render_t *r,
-                                                   IN TO tt_http_auth_t *ha)
+                                                   IN tt_http_auth_t *auth,
+                                                   IN tt_bool_t shallow_copy)
 {
     tt_http_hdr_t *h;
 
@@ -173,12 +186,18 @@ tt_result_t tt_http_render_add_proxy_authorization(IN tt_http_render_t *r,
         __render_add_hdr(r, h);
     }
 
-    tt_http_hdr_auth_set(h, ha);
-    return TT_SUCCESS;
+    return tt_http_hdr_auth_set(h, auth, shallow_copy);
+}
+
+tt_http_auth_t *tt_http_render_get_proxy_authorization(IN tt_http_render_t *r)
+{
+    tt_http_hdr_t *h = __render_find_hdr(r, TT_HTTP_HDR_PROXY_AUTHORIZATION);
+    return TT_COND(h != NULL, tt_http_hdr_auth_get(h), NULL);
 }
 
 tt_result_t tt_http_render_add_proxy_authenticate(IN tt_http_render_t *r,
-                                                  IN TO tt_http_auth_t *ha)
+                                                  IN tt_http_auth_t *auth,
+                                                  IN tt_bool_t shallow_copy)
 {
     tt_http_hdr_t *h;
 
@@ -191,8 +210,13 @@ tt_result_t tt_http_render_add_proxy_authenticate(IN tt_http_render_t *r,
         __render_add_hdr(r, h);
     }
 
-    tt_http_hdr_auth_set(h, ha);
-    return TT_SUCCESS;
+    return tt_http_hdr_auth_set(h, auth, shallow_copy);
+}
+
+tt_http_auth_t *tt_http_render_get_proxy_authenticate(IN tt_http_render_t *r)
+{
+    tt_http_hdr_t *h = __render_find_hdr(r, TT_HTTP_HDR_PROXY_AUTHENTICATE);
+    return TT_COND(h != NULL, tt_http_hdr_auth_get(h), NULL);
 }
 
 void tt_http_req_render_init(IN tt_http_req_render_t *req,

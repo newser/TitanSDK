@@ -1133,8 +1133,13 @@ TT_TEST_ROUTINE_DEFINE(case_blobex)
     {
         char buf[] = "123";
         tt_u8_t *addr;
-        tt_blobex_t a;
+        tt_blobex_t a, b;
         tt_blobex_init(&a, (tt_u8_t *)buf, sizeof(buf) - 1);
+
+        tt_blobex_init(&b, NULL, 0);
+        TT_UT_SUCCESS(tt_blobex_smart_copy(&b, &a), "");
+        TT_UT_EQUAL(tt_blobex_addr(&b), buf, "");
+
         TT_UT_SUCCESS(tt_blobex_own(&a), "");
         TT_UT_NOT_EQUAL(__BLOBEX_ADDR(&a), (tt_u8_t *)buf, "");
         TT_UT_EXP(tt_blobex_strcmp(&a, buf) == 0, "");
@@ -1143,7 +1148,12 @@ TT_TEST_ROUTINE_DEFINE(case_blobex)
         TT_UT_SUCCESS(tt_blobex_own(&a), "");
         TT_UT_EQUAL(__BLOBEX_ADDR(&a), addr, "");
 
+        TT_UT_SUCCESS(tt_blobex_smart_copy(&b, &a), "");
+        TT_UT_NOT_EQUAL(tt_blobex_addr(&b), buf, "");
+        TT_UT_NOT_EQUAL(tt_blobex_addr(&b), tt_blobex_addr(&a), "");
+
         tt_blobex_destroy(&a);
+        tt_blobex_destroy(&b);
     }
 
     // test end

@@ -164,8 +164,10 @@ tt_http_rule_result_t tt_http_host_apply(IN tt_http_host_t *h,
         return TT_HTTP_RULE_ERROR;
     }
 
-again:
     tt_http_rule_ctx_init(&ctx);
+
+again:
+    tt_http_rule_ctx_clear(&ctx);
     result = tt_http_rule_apply(h->root, uri, s, &ctx);
     if ((result == TT_HTTP_RULE_NEXT) || (result == TT_HTTP_RULE_BREAK)) {
         // if path is modified, we must have fpath parse modified string again
@@ -173,27 +175,33 @@ again:
             if (TT_OK(tt_fpath_parse_self(fpath))) {
                 uri->path_modified = TT_TRUE;
             } else {
-                return TT_HTTP_RULE_ERROR;
+                goto error;
             }
         }
+
+        tt_http_rule_ctx_destroy(&ctx);
         return result;
     } else if (result == TT_HTTP_RULE_CONTINUE) {
         if (n++ > 10) {
             TT_ERROR("too many rule process loop");
-            return TT_HTTP_RULE_ERROR;
+            goto error;
         }
 
         if (ctx.path_modified) {
             if (TT_OK(tt_fpath_parse_self(fpath))) {
                 uri->path_modified = TT_TRUE;
             } else {
-                return TT_HTTP_RULE_ERROR;
+                goto error;
             }
         }
         goto again;
     } else {
-        return TT_HTTP_RULE_ERROR;
+        goto error;
     }
+
+error:
+    tt_http_rule_ctx_destroy(&ctx);
+    return TT_HTTP_RULE_ERROR;
 }
 
 // ========================================

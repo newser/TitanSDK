@@ -22,7 +22,8 @@
 
 #include <network/http/header/tt_http_hdr_auth.h>
 
-#include <network/http/tt_http_parser.h>
+#include <os/tt_thread.h>
+#include <time/tt_time_reference.h>
 
 ////////////////////////////////////////////////////////////
 // internal macro
@@ -294,6 +295,33 @@ tt_http_hdr_t *tt_http_hdr_proxy_authorization_create()
     return h;
 }
 
+tt_http_auth_t *tt_http_hdr_auth_get(IN tt_http_hdr_t *h)
+{
+    __auth_int_t *ai = TT_HTTP_HDR_CAST(h, __auth_int_t);
+
+    TT_ASSERT((h->name >= TT_HTTP_HDR_AUTH) &&
+              (h->name <= TT_HTTP_HDR_PROXY_AUTHENTICATE));
+
+    return &ai->auth;
+}
+
+tt_result_t tt_http_hdr_auth_set(IN tt_http_hdr_t *h,
+                                 IN tt_http_auth_t *auth,
+                                 IN tt_bool_t shallow_copy)
+{
+    __auth_int_t *ai = TT_HTTP_HDR_CAST(h, __auth_int_t);
+
+    TT_ASSERT((h->name >= TT_HTTP_HDR_AUTH) &&
+              (h->name <= TT_HTTP_HDR_PROXY_AUTHENTICATE));
+
+    if (shallow_copy) {
+        tt_http_auth_shallow_copy(&ai->auth, auth);
+        return TT_SUCCESS;
+    } else {
+        return tt_http_auth_smart_copy(&ai->auth, auth);
+    }
+}
+
 void tt_http_auth_init(IN tt_http_auth_t *ha)
 {
     tt_blobex_init(&ha->realm, NULL, 0);
@@ -331,29 +359,57 @@ tt_bool_t tt_http_auth_valid(IN tt_http_auth_t *ha)
     return __check_auth(ha);
 }
 
-tt_http_auth_t *tt_http_hdr_auth_get(IN tt_http_hdr_t *h)
+void tt_http_auth_shallow_copy(IN tt_http_auth_t *dst, IN tt_http_auth_t *src)
 {
-    __auth_int_t *ai = TT_HTTP_HDR_CAST(h, __auth_int_t);
-
-    TT_ASSERT((h->name >= TT_HTTP_HDR_AUTH) &&
-              (h->name <= TT_HTTP_HDR_PROXY_AUTHENTICATE));
-
-    return &ai->auth;
+#define __SHALLOW_CP(member)                                                   \
+    tt_blobex_set(&dst->member,                                                \
+                  tt_blobex_addr(&src->member),                                \
+                  tt_blobex_len(&src->member),                                 \
+                  TT_FALSE)
+    __SHALLOW_CP(realm);
+    __SHALLOW_CP(domain);
+    __SHALLOW_CP(nonce);
+    __SHALLOW_CP(opaque);
+    __SHALLOW_CP(response);
+    __SHALLOW_CP(username);
+    __SHALLOW_CP(uri);
+    __SHALLOW_CP(cnonce);
+    __SHALLOW_CP(nc);
+    __SHALLOW_CP(raw_qop);
+    dst->qop_mask = src->qop_mask;
+    dst->scheme = src->scheme;
+    dst->stale = src->stale;
+    dst->alg = src->alg;
+#undef __SHALLOW_CP
 }
 
-void tt_http_hdr_auth_set(IN tt_http_hdr_t *h, IN TO tt_http_auth_t *auth)
+tt_result_t tt_http_auth_smart_copy(IN tt_http_auth_t *dst,
+                                    IN tt_http_auth_t *src)
 {
-    __auth_int_t *ai = TT_HTTP_HDR_CAST(h, __auth_int_t);
-
-    TT_ASSERT((h->name >= TT_HTTP_HDR_AUTH) &&
-              (h->name <= TT_HTTP_HDR_PROXY_AUTHENTICATE));
-
-    __set_auth(&ai->auth, auth);
+#define __SMART_CP(member)                                                     \
+    TT_DO(tt_blobex_smart_copy(&dst->member, &src->member))
+    __SMART_CP(realm);
+    __SMART_CP(domain);
+    __SMART_CP(nonce);
+    __SMART_CP(opaque);
+    __SMART_CP(response);
+    __SMART_CP(username);
+    __SMART_CP(uri);
+    __SMART_CP(cnonce);
+    __SMART_CP(nc);
+    __SMART_CP(raw_qop);
+    dst->qop_mask = src->qop_mask;
+    dst->scheme = src->scheme;
+    dst->stale = src->stale;
+    dst->alg = src->alg;
+    return TT_SUCCESS;
+#undef __SMART_CP
 }
 
 void tt_http_auth_ctx_init(IN tt_http_auth_ctx_t *ctx)
 {
     ctx->type = TT_MD_TYPE_NUM;
+    ctx->nonce_len = 0;
 }
 
 void tt_http_auth_ctx_destroy(IN tt_http_auth_ctx_t *ctx)
@@ -361,6 +417,22 @@ void tt_http_auth_ctx_destroy(IN tt_http_auth_ctx_t *ctx)
     if (ctx->type != TT_MD_TYPE_NUM) {
         tt_md_destroy(&ctx->md);
     }
+}
+
+void tt_http_auth_ctx_new_nonce(IN tt_http_auth_ctx_t *ctx)
+{
+    tt_snprintf(ctx->nonce,
+                sizeof(ctx->nonce),
+                "%x%x",
+                tt_rand_u32(),
+                (tt_u32_t)tt_time_ref());
+    ctx->nonce_len = tt_strlen(ctx->nonce);
+}
+
+tt_u32_t tt_http_auth_ctx_digest_len(IN tt_http_auth_ctx_t *ctx)
+{
+    TT_ASSERT(TT_MD_TYPE_VALID(ctx->type));
+    return tt_md_size(&ctx->md);
 }
 
 tt_result_t tt_http_auth_ctx_calc(IN tt_http_auth_ctx_t *ctx,

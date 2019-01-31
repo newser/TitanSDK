@@ -48,6 +48,7 @@ this file defines http rule
 // type definition
 ////////////////////////////////////////////////////////////
 
+struct tt_http_inserv_s;
 struct tt_http_rule_s;
 struct tt_http_uri_s;
 struct tt_string_s;
@@ -56,6 +57,7 @@ typedef void (*tt_http_rule_destroy_t)(IN struct tt_http_rule_s *r);
 
 typedef struct
 {
+    struct tt_http_inserv_s *inserv_auth;
     tt_u32_t path_pos;
     tt_bool_t path_modified;
 } tt_http_rule_ctx_t;
@@ -66,9 +68,13 @@ typedef tt_bool_t (*tt_http_rule_match_t)(IN struct tt_http_rule_s *r,
                                           IN tt_http_rule_ctx_t *ctx);
 
 typedef enum {
+    // match next
     TT_HTTP_RULE_NEXT,
+    // stop matching
     TT_HTTP_RULE_BREAK,
+    // error, return
     TT_HTTP_RULE_ERROR,
+    // again
     TT_HTTP_RULE_CONTINUE,
 
     TT_HTTP_RULE_RESULT_NUM
@@ -134,13 +140,13 @@ tt_inline void tt_http_rule_add(IN tt_http_rule_t *r, IN tt_http_rule_t *child)
 
 tt_inline void tt_http_rule_ctx_init(IN tt_http_rule_ctx_t *ctx)
 {
+    ctx->inserv_auth = NULL;
     ctx->path_pos = 0;
     ctx->path_modified = TT_FALSE;
 }
 
-tt_inline void tt_http_rule_ctx_clear(IN tt_http_rule_ctx_t *ctx)
-{
-    tt_http_rule_ctx_init(ctx);
-}
+tt_export void tt_http_rule_ctx_destroy(IN tt_http_rule_ctx_t *ctx);
+
+tt_export void tt_http_rule_ctx_clear(IN tt_http_rule_ctx_t *ctx);
 
 #endif /* __TT_HTTP_RULE__ */

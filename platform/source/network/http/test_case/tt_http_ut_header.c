@@ -2987,6 +2987,8 @@ TT_TEST_ROUTINE_DEFINE(case_http_hdr_auth)
         ha = tt_http_hdr_auth_get(h);
 
         tt_http_auth_ctx_init(&c);
+        tt_http_auth_ctx_new_nonce(&c);
+        TT_INFO("nonce: %s", c.nonce);
         tt_http_auth_ctx_destroy(&c);
 
         TT_UT_SUCCESS(tt_http_auth_ctx_calc(&c,

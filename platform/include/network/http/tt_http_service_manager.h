@@ -32,6 +32,7 @@ this file defines http service manager APIs
 
 #include <network/http/def/tt_http_def.h>
 #include <network/http/def/tt_http_service_def.h>
+#include <network/http/service/tt_http_inserv_auth.h>
 #include <network/http/tt_http_encoding_service.h>
 #include <network/http/tt_http_in_service.h>
 #include <network/http/tt_http_out_service.h>
@@ -68,6 +69,7 @@ typedef struct tt_http_svcmgr_s
     tt_http_inserv_param_ctx_t param_ctx;
     tt_http_inserv_cond_ctx_t cond_ctx;
     tt_http_inserv_file_ctx_t file_ctx;
+    tt_http_inserv_auth_ctx_t auth_ctx;
     tt_u16_t inserv_num;
     tt_u16_t dynamic_inserv_num;
     tt_u16_t outserv_num;

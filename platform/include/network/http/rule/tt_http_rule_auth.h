@@ -10,30 +10,27 @@
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
+ * distributed under the License r distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
 
 /**
-@file tt_http_service_def.h
-@brief http service type def
+@file tt_http_rule_auth.h
+@brief http rule auth
 
-this file defines http service type
+this file defines http rule auth
 */
 
-#ifndef __TT_HTTP_SERVICE_DEF__
-#define __TT_HTTP_SERVICE_DEF__
+#ifndef __TT_HTTP_RULE_AUTH__
+#define __TT_HTTP_RULE_AUTH__
 
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <algorithm/tt_string.h>
-#include <io/tt_file_system.h>
-#include <json/tt_json_document.h>
-#include <network/http/def/tt_http_def.h>
+#include <network/http/tt_http_rule.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
@@ -43,37 +40,14 @@ this file defines http service type
 // type definition
 ////////////////////////////////////////////////////////////
 
-struct tt_http_contype_map_s;
+struct tt_http_inserv_s;
 
-typedef enum {
-    TT_HTTP_INSERV_HOST,
-    TT_HTTP_INSERV_FILE,
-    TT_HTTP_INSERV_CONDITIONAL,
-    TT_HTTP_INSERV_PARAM,
-    TT_HTTP_INSERV_AUTH,
-
-    TT_HTTP_INSERV_TYPE_NUM
-} tt_http_inserv_type_t;
-#define TT_HTTP_INSERV_TYPE_VALID(t) ((t) < TT_HTTP_INSERV_TYPE_NUM)
-
-typedef struct
+typedef struct tt_http_rule_auth_s
 {
-    tt_http_status_t status;
-} tt_http_inserv_cond_ctx_t;
-
-typedef struct
-{
-    tt_file_t f;
-    tt_s32_t size;
-    tt_bool_t f_valid : 1;
-} tt_http_inserv_file_ctx_t;
-
-typedef struct
-{
-    tt_jdoc_t jdoc;
-    tt_string_t body;
-    tt_buf_t buf;
-} tt_http_inserv_param_ctx_t;
+    struct tt_http_inserv_s *auth;
+    tt_u8_t *prefix;
+    tt_u32_t prefix_len;
+} tt_http_rule_auth_t;
 
 ////////////////////////////////////////////////////////////
 // global variants
@@ -83,4 +57,15 @@ typedef struct
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-#endif /* __TT_HTTP_SERVICE_DEF__ */
+tt_export tt_http_rule_t *tt_http_rule_auth_create_n(
+    IN const tt_char_t *prefix,
+    IN tt_u32_t prefix_len,
+    IN struct tt_http_inserv_s *auth);
+
+tt_inline tt_http_rule_t *tt_http_rule_auth_create(
+    IN const tt_char_t *prefix, IN struct tt_http_inserv_s *auth)
+{
+    return tt_http_rule_auth_create_n(prefix, tt_strlen(prefix), auth);
+}
+
+#endif /* __TT_HTTP_RULE_AUTH__ */

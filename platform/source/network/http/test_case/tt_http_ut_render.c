@@ -442,26 +442,43 @@ TT_TEST_ROUTINE_DEFINE(case_http_render_resp)
                 TT_UT_SUCCESS(tt_http_resp_render_set_accenc(&r, &ae), "");
             }
             {
-                tt_http_auth_t ha;
+                tt_http_auth_t ha, *pa;
+
                 tt_http_auth_init(&ha);
                 ha.scheme = TT_HTTP_AUTH_DIGEST;
                 tt_blobex_set(&ha.realm, (tt_u8_t *)"1", 1, TT_FALSE);
-                tt_http_render_add_auth(&r.render, &ha);
+                tt_http_render_add_auth(&r.render, &ha, TT_TRUE);
+                pa = tt_http_render_get_auth(&r.render);
+                TT_UT_NOT_NULL(pa, "");
+                TT_UT_EQUAL(tt_blobex_strcmp(&pa->realm, "1"), 0, "");
+                tt_http_auth_destroy(&ha);
 
                 tt_http_auth_init(&ha);
                 ha.scheme = TT_HTTP_AUTH_DIGEST;
                 tt_blobex_set(&ha.realm, (tt_u8_t *)"2", 1, TT_FALSE);
-                tt_http_render_add_www_auth(&r.render, &ha);
+                tt_http_render_add_www_auth(&r.render, &ha, TT_FALSE);
+                pa = tt_http_render_get_www_auth(&r.render);
+                TT_UT_NOT_NULL(pa, "");
+                TT_UT_EQUAL(tt_blobex_strcmp(&pa->realm, "2"), 0, "");
+                tt_http_auth_destroy(&ha);
 
                 tt_http_auth_init(&ha);
                 ha.scheme = TT_HTTP_AUTH_DIGEST;
                 tt_blobex_set(&ha.realm, (tt_u8_t *)"3", 1, TT_FALSE);
-                tt_http_render_add_proxy_authorization(&r.render, &ha);
+                tt_http_render_add_proxy_authorization(&r.render, &ha, TT_TRUE);
+                pa = tt_http_render_get_proxy_authorization(&r.render);
+                TT_UT_NOT_NULL(pa, "");
+                TT_UT_EQUAL(tt_blobex_strcmp(&pa->realm, "3"), 0, "");
+                tt_http_auth_destroy(&ha);
 
                 tt_http_auth_init(&ha);
                 ha.scheme = TT_HTTP_AUTH_DIGEST;
                 tt_blobex_set(&ha.realm, (tt_u8_t *)"4", 1, TT_FALSE);
-                tt_http_render_add_proxy_authenticate(&r.render, &ha);
+                tt_http_render_add_proxy_authenticate(&r.render, &ha, TT_FALSE);
+                pa = tt_http_render_get_proxy_authenticate(&r.render);
+                TT_UT_NOT_NULL(pa, "");
+                TT_UT_EQUAL(tt_blobex_strcmp(&pa->realm, "4"), 0, "");
+                tt_http_auth_destroy(&ha);
             }
             TT_UT_SUCCESS(tt_http_resp_render(&r, &data, &len), "");
             TT_UT_EQUAL(len, tt_strlen(msg), "");

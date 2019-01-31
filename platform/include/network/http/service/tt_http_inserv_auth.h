@@ -17,23 +17,21 @@
  */
 
 /**
-@file tt_http_service_def.h
-@brief http service type def
+@file tt_http_inserv_auth.h
+@brief http service
 
-this file defines http service type
+this file defines http incoming service: auth auth
 */
 
-#ifndef __TT_HTTP_SERVICE_DEF__
-#define __TT_HTTP_SERVICE_DEF__
+#ifndef __TT_HTTP_INSERVICE_DIGEST__
+#define __TT_HTTP_INSERVICE_DIGEST__
 
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <algorithm/tt_string.h>
-#include <io/tt_file_system.h>
-#include <json/tt_json_document.h>
-#include <network/http/def/tt_http_def.h>
+#include <network/http/header/tt_http_hdr_auth.h>
+#include <network/http/tt_http_in_service.h>
 
 ////////////////////////////////////////////////////////////
 // macro definition
@@ -43,37 +41,38 @@ this file defines http service type
 // type definition
 ////////////////////////////////////////////////////////////
 
-struct tt_http_contype_map_s;
+typedef struct
+{
+    tt_result_t (*get_pwd)(IN tt_char_t *username,
+                           IN tt_u32_t username_len,
+                           IN void *param,
+                           OUT tt_char_t **pwd,
+                           OUT tt_u32_t *pwd_len);
+    union
+    {
+        void *get_pwd_param;
+        const tt_char_t *pwd;
+    };
 
-typedef enum {
-    TT_HTTP_INSERV_HOST,
-    TT_HTTP_INSERV_FILE,
-    TT_HTTP_INSERV_CONDITIONAL,
-    TT_HTTP_INSERV_PARAM,
-    TT_HTTP_INSERV_AUTH,
+#if 1 // test
+    const tt_char_t *fixed_nonce;
+#endif
 
-    TT_HTTP_INSERV_TYPE_NUM
-} tt_http_inserv_type_t;
-#define TT_HTTP_INSERV_TYPE_VALID(t) ((t) < TT_HTTP_INSERV_TYPE_NUM)
+    tt_char_t *realm;
+    tt_char_t *domain;
+    tt_u32_t realm_len;
+    tt_u32_t domain_len;
+    tt_http_auth_alg_t alg;
+    tt_u8_t qop_mask;
+    tt_bool_t realm_cstr : 1;
+    tt_bool_t domain_cstr : 1;
+    tt_bool_t new_nonce : 1;
+} tt_http_inserv_auth_attr_t;
 
 typedef struct
 {
-    tt_http_status_t status;
-} tt_http_inserv_cond_ctx_t;
-
-typedef struct
-{
-    tt_file_t f;
-    tt_s32_t size;
-    tt_bool_t f_valid : 1;
-} tt_http_inserv_file_ctx_t;
-
-typedef struct
-{
-    tt_jdoc_t jdoc;
-    tt_string_t body;
-    tt_buf_t buf;
-} tt_http_inserv_param_ctx_t;
+    tt_http_auth_ctx_t auth_ctx;
+} tt_http_inserv_auth_ctx_t;
 
 ////////////////////////////////////////////////////////////
 // global variants
@@ -83,4 +82,10 @@ typedef struct
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-#endif /* __TT_HTTP_SERVICE_DEF__ */
+tt_export tt_http_inserv_t *tt_http_inserv_auth_create(
+    IN OPT tt_http_inserv_auth_attr_t *attr);
+
+tt_export void tt_http_inserv_auth_attr_default(
+    IN tt_http_inserv_auth_attr_t *attr);
+
+#endif /* __TT_HTTP_INSERVICE_DIGEST__ */
