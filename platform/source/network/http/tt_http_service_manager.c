@@ -142,6 +142,7 @@ void tt_http_svcmgr_init(IN tt_http_svcmgr_t *sm)
 
     sm->created_cond_ctx = TT_FALSE;
     sm->created_file_ctx = TT_FALSE;
+    sm->created_auth_ctx = TT_FALSE;
     sm->discarding = TT_FALSE;
     sm->loaded_dynamic_inserv = TT_FALSE;
 }
@@ -250,7 +251,7 @@ tt_result_t tt_http_svcmgr_add_dynamic_inserv(IN tt_http_svcmgr_t *sm,
 
 tt_result_t tt_http_svcmgr_add_inserv_host(IN tt_http_svcmgr_t *sm)
 {
-    return tt_http_svcmgr_add_inserv(sm, tt_g_http_inserv_host, NULL);
+    return tt_http_svcmgr_add_inserv(sm, tt_g_http_inserv_host, &sm->host_ctx);
 }
 
 tt_result_t tt_http_svcmgr_add_inserv_param(IN tt_http_svcmgr_t *sm)
@@ -371,6 +372,7 @@ tt_http_inserv_action_t tt_http_svcmgr_on_header(
 {
     tt_u32_t i;
     tt_http_inserv_action_t act = TT_HTTP_INSERV_ACT_PASS;
+    tt_http_uri_t *uri;
 
     if (sm->discarding) {
         return TT_HTTP_INSERV_ACT_DISCARD;
@@ -636,8 +638,17 @@ tt_result_t __load_dynamic_inserv(IN tt_http_svcmgr_t *sm)
 {
     if (!sm->loaded_dynamic_inserv && (sm->host != NULL)) {
         tt_http_host_t *host = sm->host;
+        tt_http_inserv_host_ctx_t *hc = &sm->host_ctx;
 
         // note the order of adding inserv
+
+        if ((hc->auth != NULL) &&
+            !TT_OK(tt_http_svcmgr_add_dynamic_inserv(sm,
+                                                     hc->auth,
+                                                     &sm->auth_ctx,
+                                                     &sm->created_auth_ctx))) {
+            return TT_FAIL;
+        }
 
         if ((host->enable_inserv_cache) &&
             !TT_OK(tt_http_svcmgr_add_dynamic_inserv(sm,

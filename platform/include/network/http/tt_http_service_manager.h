@@ -66,6 +66,7 @@ typedef struct tt_http_svcmgr_s
     tt_http_outserv_t **outserv;
     tt_http_outserv_t *inline_outserv[TT_HTTP_INLINE_OUTSERV_NUM];
     tt_http_encserv_t *encserv[TT_HTTP_TXENC_NUM];
+    tt_http_inserv_host_ctx_t host_ctx;
     tt_http_inserv_param_ctx_t param_ctx;
     tt_http_inserv_cond_ctx_t cond_ctx;
     tt_http_inserv_file_ctx_t file_ctx;
@@ -76,6 +77,7 @@ typedef struct tt_http_svcmgr_s
     tt_u16_t outserv_max;
     tt_bool_t created_cond_ctx;
     tt_bool_t created_file_ctx;
+    tt_bool_t created_auth_ctx;
     tt_bool_t discarding : 1;
     tt_bool_t loaded_dynamic_inserv : 1;
 } tt_http_svcmgr_t;

@@ -22,7 +22,7 @@
 
 #include <network/http/rule/tt_http_rule_auth.h>
 
-#include <network/http/tt_http_in_service.h>
+#include <network/http/service/tt_http_inserv_host.h>
 #include <network/http/tt_http_uri.h>
 
 ////////////////////////////////////////////////////////////
@@ -41,20 +41,21 @@
 // global variant
 ////////////////////////////////////////////////////////////
 
-static void __rauth_destroy(IN tt_http_rule_t *r);
+static void __r_auth_destroy(IN tt_http_rule_t *r);
 
-static tt_bool_t __rauth_match(IN tt_http_rule_t *r,
-                               IN tt_http_uri_t *uri,
-                               IN tt_string_t *path,
-                               IN tt_http_rule_ctx_t *ctx);
+static tt_bool_t __r_auth_match(IN tt_http_rule_t *r,
+                                IN tt_http_uri_t *uri,
+                                IN tt_string_t *path,
+                                IN tt_http_inserv_host_ctx_t *ctx);
 
-static tt_http_rule_result_t __rauth_pre(IN tt_http_rule_t *r,
-                                         IN OUT tt_http_uri_t *uri,
-                                         IN OUT tt_string_t *path,
-                                         IN OUT tt_http_rule_ctx_t *ctx);
+static tt_http_rule_result_t __r_auth_pre(IN tt_http_rule_t *r,
+                                          IN OUT tt_http_uri_t *uri,
+                                          IN OUT tt_string_t *path,
+                                          IN OUT
+                                              tt_http_inserv_host_ctx_t *ctx);
 
-static tt_http_rule_itf_t __rauth_itf = {
-    __rauth_destroy, __rauth_match, __rauth_pre, NULL,
+static tt_http_rule_itf_t __r_auth_itf = {
+    __r_auth_destroy, __r_auth_match, __r_auth_pre, NULL,
 };
 
 ////////////////////////////////////////////////////////////
@@ -77,7 +78,7 @@ tt_http_rule_t *tt_http_rule_auth_create_n(IN const tt_char_t *prefix,
     TT_ASSERT((auth != NULL) && (auth->type == TT_HTTP_INSERV_AUTH));
 
     r = tt_http_rule_create(sizeof(tt_http_rule_auth_t) + prefix_len,
-                            &__rauth_itf,
+                            &__r_auth_itf,
                             TT_HTTP_RULE_NEXT);
     if (r == NULL) {
         return NULL;
@@ -96,17 +97,17 @@ tt_http_rule_t *tt_http_rule_auth_create_n(IN const tt_char_t *prefix,
     return r;
 }
 
-void __rauth_destroy(IN tt_http_rule_t *r)
+void __r_auth_destroy(IN tt_http_rule_t *r)
 {
     tt_http_rule_auth_t *ra = TT_HTTP_RULE_CAST(r, tt_http_rule_auth_t);
 
     tt_http_inserv_release(ra->auth);
 }
 
-tt_bool_t __rauth_match(IN tt_http_rule_t *r,
-                        IN tt_http_uri_t *uri,
-                        IN tt_string_t *path,
-                        IN tt_http_rule_ctx_t *ctx)
+tt_bool_t __r_auth_match(IN tt_http_rule_t *r,
+                         IN tt_http_uri_t *uri,
+                         IN tt_string_t *path,
+                         IN tt_http_inserv_host_ctx_t *ctx)
 {
     tt_http_rule_auth_t *ra = TT_HTTP_RULE_CAST(r, tt_http_rule_auth_t);
     tt_u32_t pos, len, prefix_len;
@@ -125,22 +126,14 @@ tt_bool_t __rauth_match(IN tt_http_rule_t *r,
     }
 }
 
-tt_http_rule_result_t __rauth_pre(IN tt_http_rule_t *r,
-                                  IN OUT tt_http_uri_t *uri,
-                                  IN OUT tt_string_t *path,
-                                  IN OUT tt_http_rule_ctx_t *ctx)
+tt_http_rule_result_t __r_auth_pre(IN tt_http_rule_t *r,
+                                   IN OUT tt_http_uri_t *uri,
+                                   IN OUT tt_string_t *path,
+                                   IN OUT tt_http_inserv_host_ctx_t *ctx)
 {
     tt_http_rule_auth_t *ra = TT_HTTP_RULE_CAST(r, tt_http_rule_auth_t);
 
-    if (ctx->inserv_auth != ra->auth) {
-        if (ctx->inserv_auth != NULL) {
-            tt_http_inserv_release(ctx->inserv_auth);
-            ctx->inserv_auth = NULL;
-        }
-
-        tt_http_inserv_ref(ra->auth);
-        ctx->inserv_auth = ra->auth;
-    }
+    tt_http_inserv_host_ctx_set_auth(ctx, ra->auth);
 
     return TT_HTTP_RULE_NEXT;
 }

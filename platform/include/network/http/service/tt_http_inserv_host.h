@@ -73,4 +73,9 @@ tt_export tt_http_inserv_t *tt_http_inserv_host_create(
 tt_export void tt_http_inserv_host_attr_default(
     IN tt_http_inserv_host_attr_t *attr);
 
+tt_export void tt_http_inserv_host_ctx_clear(IN tt_http_inserv_host_ctx_t *ctx);
+
+tt_export void tt_http_inserv_host_ctx_set_auth(
+    IN tt_http_inserv_host_ctx_t *ctx, IN tt_http_inserv_t *auth);
+
 #endif /* __TT_HTTP_INSERVICE_HOST__ */

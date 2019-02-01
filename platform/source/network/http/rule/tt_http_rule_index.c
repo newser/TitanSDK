@@ -22,6 +22,7 @@
 
 #include <network/http/rule/tt_http_rule_index.h>
 
+#include <network/http/service/tt_http_inserv_host.h>
 #include <network/http/tt_http_uri.h>
 
 ////////////////////////////////////////////////////////////
@@ -40,18 +41,18 @@
 // global variant
 ////////////////////////////////////////////////////////////
 
-static tt_bool_t __rule_idx_match(IN tt_http_rule_t *r,
-                                  IN tt_http_uri_t *uri,
-                                  IN tt_string_t *path,
-                                  IN tt_http_rule_ctx_t *ctx);
+static tt_bool_t __r_idx_match(IN tt_http_rule_t *r,
+                               IN tt_http_uri_t *uri,
+                               IN tt_string_t *path,
+                               IN tt_http_inserv_host_ctx_t *ctx);
 
-static tt_http_rule_result_t __rule_idx_pre(IN tt_http_rule_t *r,
-                                            IN OUT tt_http_uri_t *uri,
-                                            IN OUT tt_string_t *path,
-                                            IN OUT tt_http_rule_ctx_t *ctx);
+static tt_http_rule_result_t __r_idx_pre(IN tt_http_rule_t *r,
+                                         IN OUT tt_http_uri_t *uri,
+                                         IN OUT tt_string_t *path,
+                                         IN OUT tt_http_inserv_host_ctx_t *ctx);
 
-static tt_http_rule_itf_t __rule_idx_itf = {
-    NULL, __rule_idx_match, __rule_idx_pre, NULL,
+static tt_http_rule_itf_t __r_idx_itf = {
+    NULL, __r_idx_match, __r_idx_pre, NULL,
 };
 
 ////////////////////////////////////////////////////////////
@@ -74,7 +75,7 @@ tt_http_rule_t *tt_http_rule_index_create_n(IN const tt_char_t *name,
     TT_ASSERT((name != NULL) && (name_len != 0));
 
     r = tt_http_rule_create(sizeof(tt_http_rule_index_t) + name_len,
-                            &__rule_idx_itf,
+                            &__r_idx_itf,
                             default_result);
     if (r == NULL) {
         return NULL;
@@ -90,18 +91,18 @@ tt_http_rule_t *tt_http_rule_index_create_n(IN const tt_char_t *name,
     return r;
 }
 
-tt_bool_t __rule_idx_match(IN tt_http_rule_t *r,
-                           IN tt_http_uri_t *uri,
-                           IN tt_string_t *path,
-                           IN tt_http_rule_ctx_t *ctx)
+tt_bool_t __r_idx_match(IN tt_http_rule_t *r,
+                        IN tt_http_uri_t *uri,
+                        IN tt_string_t *path,
+                        IN tt_http_inserv_host_ctx_t *ctx)
 {
     return tt_string_endwith_c(path, '/');
 }
 
-tt_http_rule_result_t __rule_idx_pre(IN tt_http_rule_t *r,
-                                     IN OUT tt_http_uri_t *uri,
-                                     IN OUT tt_string_t *path,
-                                     IN OUT tt_http_rule_ctx_t *ctx)
+tt_http_rule_result_t __r_idx_pre(IN tt_http_rule_t *r,
+                                  IN OUT tt_http_uri_t *uri,
+                                  IN OUT tt_string_t *path,
+                                  IN OUT tt_http_inserv_host_ctx_t *ctx)
 {
     tt_http_rule_index_t *ri = TT_HTTP_RULE_CAST(r, tt_http_rule_index_t);
 

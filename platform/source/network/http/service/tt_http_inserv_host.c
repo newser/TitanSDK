@@ -38,7 +38,12 @@
 // internal type
 ////////////////////////////////////////////////////////////
 
-typedef tt_http_inserv_host_attr_t tt_http_inserv_host_t;
+typedef struct
+{
+    tt_http_status_t no_host;
+    tt_http_status_t more_host;
+    tt_http_status_t host_not_found;
+} tt_http_inserv_host_t;
 
 ////////////////////////////////////////////////////////////
 // extern declaration
@@ -50,16 +55,25 @@ typedef tt_http_inserv_host_attr_t tt_http_inserv_host_t;
 
 tt_http_inserv_t *tt_g_http_inserv_host;
 
-static tt_http_inserv_itf_t s_inserv_host_itf = {0};
+static tt_result_t __create_ctx(IN tt_http_inserv_t *s, IN OPT void *ctx);
 
-static tt_http_inserv_action_t __inserv_host_on_hdr(
-    IN tt_http_inserv_t *s,
-    IN void *ctx,
-    IN tt_http_parser_t *req,
-    OUT tt_http_resp_render_t *resp);
+static void __destroy_ctx(IN tt_http_inserv_t *s, IN void *ctx);
 
-static tt_http_inserv_cb_t s_inserv_host_cb = {
-    NULL, __inserv_host_on_hdr, NULL, NULL, NULL, NULL,
+static void __clear_ctx(IN tt_http_inserv_t *s, IN void *ctx);
+
+static tt_http_inserv_itf_t s_host_itf = {NULL,
+                                          NULL,
+                                          __create_ctx,
+                                          __destroy_ctx,
+                                          __clear_ctx};
+
+static tt_http_inserv_action_t __s_host_on_hdr(IN tt_http_inserv_t *s,
+                                               IN void *ctx,
+                                               IN tt_http_parser_t *req,
+                                               OUT tt_http_resp_render_t *resp);
+
+static tt_http_inserv_cb_t s_host_cb = {
+    NULL, __s_host_on_hdr, NULL, NULL, NULL, NULL,
 };
 
 ////////////////////////////////////////////////////////////
@@ -103,15 +117,18 @@ tt_http_inserv_t *tt_http_inserv_host_create(
     }
 
     s = tt_http_inserv_create(TT_HTTP_INSERV_HOST,
-                              sizeof(tt_http_inserv_host_attr_t),
-                              &s_inserv_host_itf,
-                              &s_inserv_host_cb);
+                              sizeof(tt_http_inserv_host_t),
+                              &s_host_itf,
+                              &s_host_cb);
     if (s == NULL) {
         return NULL;
     }
 
     sh = TT_HTTP_INSERV_CAST(s, tt_http_inserv_host_t);
-    tt_memcpy(sh, attr, sizeof(tt_http_inserv_host_t));
+
+    sh->no_host = attr->no_host;
+    sh->more_host = attr->more_host;
+    sh->host_not_found = attr->host_not_found;
 
     return s;
 }
@@ -123,12 +140,70 @@ void tt_http_inserv_host_attr_default(IN tt_http_inserv_host_attr_t *attr)
     attr->host_not_found = TT_HTTP_STATUS_NOT_FOUND;
 }
 
-tt_http_inserv_action_t __inserv_host_on_hdr(IN tt_http_inserv_t *s,
-                                             IN void *ctx,
-                                             IN tt_http_parser_t *req,
-                                             OUT tt_http_resp_render_t *resp)
+void tt_http_inserv_host_ctx_clear(IN tt_http_inserv_host_ctx_t *ctx)
+{
+    if (ctx->auth != NULL) {
+        tt_http_inserv_release(ctx->auth);
+        ctx->auth = NULL;
+    }
+
+    ctx->path_pos = 0;
+    ctx->path_modified = TT_FALSE;
+}
+
+void tt_http_inserv_host_ctx_set_auth(IN tt_http_inserv_host_ctx_t *ctx,
+                                      IN tt_http_inserv_t *auth)
+{
+    TT_ASSERT((auth == NULL) || (auth->type == TT_HTTP_INSERV_AUTH));
+
+    if (ctx->auth != auth) {
+        if (ctx->auth != NULL) {
+            tt_http_inserv_release(ctx->auth);
+            ctx->auth = NULL;
+        }
+
+        if (auth != NULL) {
+            tt_http_inserv_ref(auth);
+            ctx->auth = auth;
+        }
+    }
+}
+
+tt_result_t __create_ctx(IN tt_http_inserv_t *s, IN OPT void *ctx)
+{
+    tt_http_inserv_host_ctx_t *c = (tt_http_inserv_host_ctx_t *)ctx;
+
+    c->auth = NULL;
+
+    c->path_pos = 0;
+    c->path_modified = TT_FALSE;
+
+    return TT_SUCCESS;
+}
+
+void __destroy_ctx(IN tt_http_inserv_t *s, IN void *ctx)
+{
+    tt_http_inserv_host_ctx_t *c = (tt_http_inserv_host_ctx_t *)ctx;
+
+    if (c->auth != NULL) {
+        tt_http_inserv_release(c->auth);
+    }
+}
+
+void __clear_ctx(IN tt_http_inserv_t *s, IN void *ctx)
+{
+    tt_http_inserv_host_ctx_t *c = (tt_http_inserv_host_ctx_t *)ctx;
+
+    tt_http_inserv_host_ctx_clear(c);
+}
+
+tt_http_inserv_action_t __s_host_on_hdr(IN tt_http_inserv_t *s,
+                                        IN void *ctx,
+                                        IN tt_http_parser_t *req,
+                                        OUT tt_http_resp_render_t *resp)
 {
     tt_http_inserv_host_t *sh = TT_HTTP_INSERV_CAST(s, tt_http_inserv_host_t);
+    tt_http_inserv_host_ctx_t *c = (tt_http_inserv_host_ctx_t *)ctx;
 
     tt_http_svcmgr_t *sm = &req->c->svcmgr;
     tt_http_uri_t *uri;
@@ -189,7 +264,7 @@ tt_http_inserv_action_t __inserv_host_on_hdr(IN tt_http_inserv_t *s,
         goto fail;
     }
 
-    rule_result = tt_http_host_apply(sm->host, uri);
+    rule_result = tt_http_host_apply(sm->host, uri, c);
     if (rule_result == TT_HTTP_RULE_ERROR) {
         status = TT_HTTP_STATUS_INTERNAL_SERVER_ERROR;
         goto fail;

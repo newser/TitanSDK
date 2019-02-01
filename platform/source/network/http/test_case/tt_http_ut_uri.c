@@ -24,6 +24,7 @@
 
 #include <stdlib.h>
 
+#include <network/http/service/tt_http_inserv_auth.h>
 #include <network/http/tt_http_uri.h>
 
 ////////////////////////////////////////////////////////////
@@ -129,6 +130,7 @@ TT_TEST_CASE("case_http_uri_basic",
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
     tt_http_uri_t u;
+    tt_http_inserv_t *is, *is2;
 
     TT_TEST_CASE_ENTER()
     // test start

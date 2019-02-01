@@ -23,6 +23,7 @@
 #include <network/http/tt_http_uri.h>
 
 #include <misc/tt_percent_encode.h>
+#include <network/http/tt_http_in_service.h>
 
 ////////////////////////////////////////////////////////////
 // internal macro

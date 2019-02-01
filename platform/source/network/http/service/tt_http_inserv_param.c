@@ -65,50 +65,50 @@ static void __destroy_ctx(IN tt_http_inserv_t *s, IN void *ctx);
 
 static void __clear_ctx(IN tt_http_inserv_t *s, IN void *ctx);
 
-static tt_http_inserv_itf_t s_inserv_param_itf = {NULL,
-                                                  NULL,
-                                                  __create_ctx,
-                                                  __destroy_ctx,
-                                                  __clear_ctx};
+static tt_http_inserv_itf_t s_param_itf = {NULL,
+                                           NULL,
+                                           __create_ctx,
+                                           __destroy_ctx,
+                                           __clear_ctx};
 
-static tt_http_inserv_action_t __inserv_param_on_uri(
+static tt_http_inserv_action_t __s_param_on_uri(
     IN tt_http_inserv_t *s,
     IN void *ctx,
     IN tt_http_parser_t *req,
     OUT tt_http_resp_render_t *resp);
 
-static tt_http_inserv_action_t __inserv_param_on_header(
+static tt_http_inserv_action_t __s_param_on_header(
     IN tt_http_inserv_t *s,
     IN void *ctx,
     IN tt_http_parser_t *req,
     OUT tt_http_resp_render_t *resp);
 
-static tt_http_inserv_action_t __inserv_param_on_body(
+static tt_http_inserv_action_t __s_param_on_body(
     IN tt_http_inserv_t *s,
     IN void *ctx,
     IN tt_http_parser_t *req,
     OUT tt_http_resp_render_t *resp);
 
-static tt_http_inserv_action_t __inserv_param_on_complete(
+static tt_http_inserv_action_t __s_param_on_complete(
     IN tt_http_inserv_t *s,
     IN void *ctx,
     IN tt_http_parser_t *req,
     OUT tt_http_resp_render_t *resp);
 
-static tt_http_inserv_action_t __inserv_param_get_body(
+static tt_http_inserv_action_t __s_param_get_body(
     IN tt_http_inserv_t *s,
     IN void *ctx,
     IN tt_http_parser_t *req,
     IN tt_http_resp_render_t *resp,
     OUT tt_buf_t *buf);
 
-static tt_http_inserv_cb_t s_inserv_param_cb = {
-    __inserv_param_on_uri,
-    __inserv_param_on_header,
-    __inserv_param_on_body,
+static tt_http_inserv_cb_t s_param_cb = {
+    __s_param_on_uri,
+    __s_param_on_header,
+    __s_param_on_body,
     NULL,
-    __inserv_param_on_complete,
-    __inserv_param_get_body,
+    __s_param_on_complete,
+    __s_param_get_body,
 };
 
 ////////////////////////////////////////////////////////////
@@ -180,8 +180,8 @@ tt_http_inserv_t *tt_http_inserv_param_create(
     s = tt_http_inserv_create(TT_HTTP_INSERV_PARAM,
                               sizeof(tt_http_inserv_param_t) + attr->path_len +
                                   1,
-                              &s_inserv_param_itf,
-                              &s_inserv_param_cb);
+                              &s_param_itf,
+                              &s_param_cb);
     if (s == NULL) {
         return NULL;
     }
@@ -247,10 +247,10 @@ void __clear_ctx(IN tt_http_inserv_t *s, IN void *ctx)
     tt_buf_clear(&c->buf);
 }
 
-tt_http_inserv_action_t __inserv_param_on_uri(IN tt_http_inserv_t *s,
-                                              IN void *ctx,
-                                              IN tt_http_parser_t *req,
-                                              OUT tt_http_resp_render_t *resp)
+tt_http_inserv_action_t __s_param_on_uri(IN tt_http_inserv_t *s,
+                                         IN void *ctx,
+                                         IN tt_http_parser_t *req,
+                                         OUT tt_http_resp_render_t *resp)
 {
     tt_http_inserv_param_t *sp = TT_HTTP_INSERV_CAST(s, tt_http_inserv_param_t);
 
@@ -274,18 +274,24 @@ tt_http_inserv_action_t __inserv_param_on_uri(IN tt_http_inserv_t *s,
         return TT_HTTP_INSERV_ACT_DISCARD;
     }
 
+#if 0
     if (tt_strncmp(path, sp->path, sp->path_len) == 0) {
         return TT_HTTP_INSERV_ACT_OWNER;
     }
+#else
+    // both of path and sp->path are null-terminated
+    if (tt_strcmp(path, sp->path) == 0) {
+        return TT_HTTP_INSERV_ACT_OWNER;
+    }
+#endif
 
     return TT_HTTP_INSERV_ACT_PASS;
 }
 
-tt_http_inserv_action_t __inserv_param_on_header(
-    IN tt_http_inserv_t *s,
-    IN void *ctx,
-    IN tt_http_parser_t *req,
-    OUT tt_http_resp_render_t *resp)
+tt_http_inserv_action_t __s_param_on_header(IN tt_http_inserv_t *s,
+                                            IN void *ctx,
+                                            IN tt_http_parser_t *req,
+                                            OUT tt_http_resp_render_t *resp)
 {
     tt_http_method_t mtd;
 
@@ -305,10 +311,10 @@ tt_http_inserv_action_t __inserv_param_on_header(
     return TT_HTTP_INSERV_ACT_PASS;
 }
 
-tt_http_inserv_action_t __inserv_param_on_body(IN tt_http_inserv_t *s,
-                                               IN void *ctx,
-                                               IN tt_http_parser_t *req,
-                                               OUT tt_http_resp_render_t *resp)
+tt_http_inserv_action_t __s_param_on_body(IN tt_http_inserv_t *s,
+                                          IN void *ctx,
+                                          IN tt_http_parser_t *req,
+                                          OUT tt_http_resp_render_t *resp)
 {
     tt_http_inserv_param_t *sp = TT_HTTP_INSERV_CAST(s, tt_http_inserv_param_t);
     tt_http_inserv_param_ctx_t *c = (tt_http_inserv_param_ctx_t *)ctx;
@@ -324,11 +330,10 @@ tt_http_inserv_action_t __inserv_param_on_body(IN tt_http_inserv_t *s,
     return TT_HTTP_INSERV_ACT_PASS;
 }
 
-tt_http_inserv_action_t __inserv_param_on_complete(
-    IN tt_http_inserv_t *s,
-    IN void *ctx,
-    IN tt_http_parser_t *req,
-    OUT tt_http_resp_render_t *resp)
+tt_http_inserv_action_t __s_param_on_complete(IN tt_http_inserv_t *s,
+                                              IN void *ctx,
+                                              IN tt_http_parser_t *req,
+                                              OUT tt_http_resp_render_t *resp)
 {
     tt_http_inserv_param_t *sp = TT_HTTP_INSERV_CAST(s, tt_http_inserv_param_t);
     tt_http_inserv_param_ctx_t *c = (tt_http_inserv_param_ctx_t *)ctx;
@@ -370,11 +375,11 @@ tt_http_inserv_action_t __inserv_param_on_complete(
     }
 }
 
-tt_http_inserv_action_t __inserv_param_get_body(IN tt_http_inserv_t *s,
-                                                IN void *ctx,
-                                                IN tt_http_parser_t *req,
-                                                IN tt_http_resp_render_t *resp,
-                                                OUT tt_buf_t *buf)
+tt_http_inserv_action_t __s_param_get_body(IN tt_http_inserv_t *s,
+                                           IN void *ctx,
+                                           IN tt_http_parser_t *req,
+                                           IN tt_http_resp_render_t *resp,
+                                           OUT tt_buf_t *buf)
 {
     tt_http_inserv_param_ctx_t *c = (tt_http_inserv_param_ctx_t *)ctx;
     tt_jdoc_render_attr_t attr;

@@ -94,7 +94,7 @@ void __http_rule_destroy(IN tt_http_rule_t *r)
 tt_http_rule_result_t tt_http_rule_apply(IN tt_http_rule_t *r,
                                          IN OUT tt_http_uri_t *uri,
                                          IN OUT tt_string_t *path,
-                                         IN OUT tt_http_rule_ctx_t *ctx)
+                                         IN OUT tt_http_inserv_host_ctx_t *ctx)
 {
     tt_http_rule_itf_t *itf = r->itf;
     tt_bool_t matched;
@@ -135,24 +135,4 @@ tt_http_rule_result_t tt_http_rule_apply(IN tt_http_rule_t *r,
     }
 
     return r->default_result;
-}
-
-// ========================================
-// rule context
-// ========================================
-
-void tt_http_rule_ctx_destroy(IN tt_http_rule_ctx_t *ctx)
-{
-    // same with clear() currently
-    tt_http_rule_ctx_clear(ctx);
-}
-
-void tt_http_rule_ctx_clear(IN tt_http_rule_ctx_t *ctx)
-{
-    if (ctx->inserv_auth != NULL) {
-        tt_http_inserv_release(ctx->inserv_auth);
-        ctx->inserv_auth = NULL;
-    }
-
-    tt_http_rule_ctx_init(ctx);
 }

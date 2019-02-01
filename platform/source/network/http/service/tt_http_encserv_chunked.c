@@ -42,23 +42,23 @@
 
 tt_http_encserv_t *tt_g_http_encserv_chunked;
 
-static tt_http_encserv_itf_t s_encserv_chunked_itf = {NULL, NULL};
+static tt_http_encserv_itf_t s_chunked_itf = {NULL, NULL};
 
-static tt_result_t __es_chunked_on_body(IN tt_http_encserv_t *s,
-                                        IN struct tt_http_parser_s *req,
-                                        IN struct tt_http_resp_render_s *resp,
-                                        IN OUT tt_buf_t *input,
-                                        OUT tt_buf_t **output);
+static tt_result_t __s_chunked_on_body(IN tt_http_encserv_t *s,
+                                       IN struct tt_http_parser_s *req,
+                                       IN struct tt_http_resp_render_s *resp,
+                                       IN OUT tt_buf_t *input,
+                                       OUT tt_buf_t **output);
 
-static tt_result_t __es_chunked_post_body(IN tt_http_encserv_t *s,
-                                          IN struct tt_http_parser_s *req,
-                                          IN struct tt_http_resp_render_s *resp,
-                                          IN OUT tt_buf_t *input,
-                                          OUT tt_buf_t **output);
+static tt_result_t __s_chunked_post_body(IN tt_http_encserv_t *s,
+                                         IN struct tt_http_parser_s *req,
+                                         IN struct tt_http_resp_render_s *resp,
+                                         IN OUT tt_buf_t *input,
+                                         OUT tt_buf_t **output);
 
-static tt_http_encserv_cb_t s_encserv_chunked_cb = {NULL,
-                                                    __es_chunked_on_body,
-                                                    __es_chunked_post_body};
+static tt_http_encserv_cb_t s_chunked_cb = {NULL,
+                                            __s_chunked_on_body,
+                                            __s_chunked_post_body};
 
 ////////////////////////////////////////////////////////////
 // interface declaration
@@ -86,16 +86,14 @@ void tt_http_encserv_chunked_component_exit(IN struct tt_component_s *comp)
 
 tt_http_encserv_t *tt_http_encserv_chunked_create()
 {
-    return tt_http_encserv_create(0,
-                                  &s_encserv_chunked_itf,
-                                  &s_encserv_chunked_cb);
+    return tt_http_encserv_create(0, &s_chunked_itf, &s_chunked_cb);
 }
 
-tt_result_t __es_chunked_on_body(IN tt_http_encserv_t *s,
-                                 IN struct tt_http_parser_s *req,
-                                 IN struct tt_http_resp_render_s *resp,
-                                 IN OUT tt_buf_t *input,
-                                 OUT tt_buf_t **output)
+tt_result_t __s_chunked_on_body(IN tt_http_encserv_t *s,
+                                IN struct tt_http_parser_s *req,
+                                IN struct tt_http_resp_render_s *resp,
+                                IN OUT tt_buf_t *input,
+                                OUT tt_buf_t **output)
 {
     tt_char_t tmp[20] = {0};
 
@@ -109,11 +107,11 @@ tt_result_t __es_chunked_on_body(IN tt_http_encserv_t *s,
     return TT_SUCCESS;
 }
 
-tt_result_t __es_chunked_post_body(IN tt_http_encserv_t *s,
-                                   IN struct tt_http_parser_s *req,
-                                   IN struct tt_http_resp_render_s *resp,
-                                   IN OUT tt_buf_t *input,
-                                   OUT tt_buf_t **output)
+tt_result_t __s_chunked_post_body(IN tt_http_encserv_t *s,
+                                  IN struct tt_http_parser_s *req,
+                                  IN struct tt_http_resp_render_s *resp,
+                                  IN OUT tt_buf_t *input,
+                                  OUT tt_buf_t **output)
 {
     TT_DO(tt_buf_put_head(input, (tt_u8_t *)"0\r\n\r\n", 5));
 

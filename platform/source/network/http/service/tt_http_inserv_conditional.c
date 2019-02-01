@@ -56,26 +56,25 @@ static tt_result_t __create_ctx(IN tt_http_inserv_t *s, IN OPT void *ctx);
 
 static void __clear_ctx(IN tt_http_inserv_t *s, IN void *ctx);
 
-static tt_http_inserv_itf_t s_inserv_cond_itf = {NULL,
-                                                 NULL,
-                                                 __create_ctx,
-                                                 NULL,
-                                                 __clear_ctx};
+static tt_http_inserv_itf_t s_cond_itf = {NULL,
+                                          NULL,
+                                          __create_ctx,
+                                          NULL,
+                                          __clear_ctx};
 
-static tt_http_inserv_action_t __inserv_cond_on_hdr(
+static tt_http_inserv_action_t __s_cond_on_hdr(IN tt_http_inserv_t *s,
+                                               IN void *ctx,
+                                               IN tt_http_parser_t *req,
+                                               OUT tt_http_resp_render_t *resp);
+
+static tt_http_inserv_action_t __s_cond_on_complete(
     IN tt_http_inserv_t *s,
     IN void *ctx,
     IN tt_http_parser_t *req,
     OUT tt_http_resp_render_t *resp);
 
-static tt_http_inserv_action_t __inserv_cond_on_complete(
-    IN tt_http_inserv_t *s,
-    IN void *ctx,
-    IN tt_http_parser_t *req,
-    OUT tt_http_resp_render_t *resp);
-
-static tt_http_inserv_cb_t s_inserv_cond_cb = {
-    NULL, __inserv_cond_on_hdr, NULL, NULL, __inserv_cond_on_complete, NULL,
+static tt_http_inserv_cb_t s_cond_cb = {
+    NULL, __s_cond_on_hdr, NULL, NULL, __s_cond_on_complete, NULL,
 };
 
 ////////////////////////////////////////////////////////////
@@ -128,8 +127,8 @@ tt_http_inserv_t *tt_http_inserv_cond_create(
 
     s = tt_http_inserv_create(TT_HTTP_INSERV_CONDITIONAL,
                               sizeof(tt_http_inserv_cond_t),
-                              &s_inserv_cond_itf,
-                              &s_inserv_cond_cb);
+                              &s_cond_itf,
+                              &s_cond_cb);
     if (s == NULL) {
         return NULL;
     }
@@ -160,10 +159,10 @@ void __clear_ctx(IN tt_http_inserv_t *s, IN void *ctx)
     c->status = TT_HTTP_STATUS_INVALID;
 }
 
-tt_http_inserv_action_t __inserv_cond_on_hdr(IN tt_http_inserv_t *s,
-                                             IN void *ctx,
-                                             IN tt_http_parser_t *req,
-                                             OUT tt_http_resp_render_t *resp)
+tt_http_inserv_action_t __s_cond_on_hdr(IN tt_http_inserv_t *s,
+                                        IN void *ctx,
+                                        IN tt_http_parser_t *req,
+                                        OUT tt_http_resp_render_t *resp)
 {
     tt_http_inserv_cond_t *sc = TT_HTTP_INSERV_CAST(s, tt_http_inserv_cond_t);
     tt_http_inserv_cond_ctx_t *c = (tt_http_inserv_cond_ctx_t *)ctx;
@@ -232,11 +231,10 @@ tt_http_inserv_action_t __inserv_cond_on_hdr(IN tt_http_inserv_t *s,
     }
 }
 
-tt_http_inserv_action_t __inserv_cond_on_complete(
-    IN tt_http_inserv_t *s,
-    IN void *ctx,
-    IN tt_http_parser_t *req,
-    OUT tt_http_resp_render_t *resp)
+tt_http_inserv_action_t __s_cond_on_complete(IN tt_http_inserv_t *s,
+                                             IN void *ctx,
+                                             IN tt_http_parser_t *req,
+                                             OUT tt_http_resp_render_t *resp)
 {
     tt_http_inserv_cond_t *sc = TT_HTTP_INSERV_CAST(s, tt_http_inserv_cond_t);
     tt_http_inserv_cond_ctx_t *c = (tt_http_inserv_cond_ctx_t *)ctx;

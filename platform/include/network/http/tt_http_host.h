@@ -45,6 +45,7 @@ struct tt_component_s;
 struct tt_profile_s;
 struct tt_http_host_s;
 struct tt_http_uri_s;
+struct tt_http_inserv_host_ctx_s;
 
 typedef tt_bool_t (*tt_http_host_match_t)(IN struct tt_http_host_s *h,
                                           IN tt_char_t *s,
@@ -98,7 +99,9 @@ tt_export void tt_http_host_attr_default(IN tt_http_host_attr_t *attr);
 tt_export void tt_http_host_destroy(IN tt_http_host_t *h);
 
 tt_export tt_http_rule_result_t
-tt_http_host_apply(IN tt_http_host_t *h, IN OUT struct tt_http_uri_s *uri);
+tt_http_host_apply(IN tt_http_host_t *h,
+                   IN OUT struct tt_http_uri_s *uri,
+                   OUT struct tt_http_inserv_host_ctx_s *ctx);
 
 tt_inline void tt_http_host_add_rule(IN tt_http_host_t *h,
                                      IN tt_http_rule_t *rule)

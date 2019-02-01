@@ -65,38 +65,31 @@ static void __destroy_ctx(IN tt_http_inserv_t *s, IN void *ctx);
 
 static void __clear_ctx(IN tt_http_inserv_t *s, IN void *ctx);
 
-static tt_http_inserv_itf_t s_inserv_file_itf = {NULL,
-                                                 NULL,
-                                                 __create_ctx,
-                                                 __destroy_ctx,
-                                                 __clear_ctx};
+static tt_http_inserv_itf_t s_file_itf = {NULL,
+                                          NULL,
+                                          __create_ctx,
+                                          __destroy_ctx,
+                                          __clear_ctx};
 
-static tt_http_inserv_action_t __inserv_file_on_hdr(
+static tt_http_inserv_action_t __s_file_on_hdr(IN tt_http_inserv_t *s,
+                                               IN void *ctx,
+                                               IN tt_http_parser_t *req,
+                                               OUT tt_http_resp_render_t *resp);
+
+static tt_http_inserv_action_t __s_file_on_complete(
     IN tt_http_inserv_t *s,
     IN void *ctx,
     IN tt_http_parser_t *req,
     OUT tt_http_resp_render_t *resp);
 
-static tt_http_inserv_action_t __inserv_file_on_complete(
-    IN tt_http_inserv_t *s,
-    IN void *ctx,
-    IN tt_http_parser_t *req,
-    OUT tt_http_resp_render_t *resp);
+static tt_http_inserv_action_t __s_file_get_body(IN tt_http_inserv_t *s,
+                                                 IN void *ctx,
+                                                 IN tt_http_parser_t *req,
+                                                 IN tt_http_resp_render_t *resp,
+                                                 OUT tt_buf_t *buf);
 
-static tt_http_inserv_action_t __inserv_file_get_body(
-    IN tt_http_inserv_t *s,
-    IN void *ctx,
-    IN tt_http_parser_t *req,
-    IN tt_http_resp_render_t *resp,
-    OUT tt_buf_t *buf);
-
-static tt_http_inserv_cb_t s_inserv_file_cb = {
-    NULL,
-    __inserv_file_on_hdr,
-    NULL,
-    NULL,
-    __inserv_file_on_complete,
-    __inserv_file_get_body,
+static tt_http_inserv_cb_t s_file_cb = {
+    NULL, __s_file_on_hdr, NULL, NULL, __s_file_on_complete, __s_file_get_body,
 };
 
 ////////////////////////////////////////////////////////////
@@ -141,8 +134,8 @@ tt_http_inserv_t *tt_http_inserv_file_create(
 
     s = tt_http_inserv_create(TT_HTTP_INSERV_FILE,
                               sizeof(tt_http_inserv_file_t),
-                              &s_inserv_file_itf,
-                              &s_inserv_file_cb);
+                              &s_file_itf,
+                              &s_file_cb);
     if (s == NULL) {
         return NULL;
     }
@@ -200,10 +193,10 @@ void __clear_ctx(IN tt_http_inserv_t *s, IN void *ctx)
     }
 }
 
-tt_http_inserv_action_t __inserv_file_on_hdr(IN tt_http_inserv_t *s,
-                                             IN void *ctx,
-                                             IN tt_http_parser_t *req,
-                                             OUT tt_http_resp_render_t *resp)
+tt_http_inserv_action_t __s_file_on_hdr(IN tt_http_inserv_t *s,
+                                        IN void *ctx,
+                                        IN tt_http_parser_t *req,
+                                        OUT tt_http_resp_render_t *resp)
 {
     tt_http_inserv_file_t *sf = TT_HTTP_INSERV_CAST(s, tt_http_inserv_file_t);
     tt_http_inserv_file_ctx_t *c = (tt_http_inserv_file_ctx_t *)ctx;
@@ -247,11 +240,10 @@ fail:
     return TT_HTTP_INSERV_ACT_PASS;
 }
 
-tt_http_inserv_action_t __inserv_file_on_complete(
-    IN tt_http_inserv_t *s,
-    IN void *ctx,
-    IN tt_http_parser_t *req,
-    OUT tt_http_resp_render_t *resp)
+tt_http_inserv_action_t __s_file_on_complete(IN tt_http_inserv_t *s,
+                                             IN void *ctx,
+                                             IN tt_http_parser_t *req,
+                                             OUT tt_http_resp_render_t *resp)
 {
     tt_http_inserv_file_t *sf = TT_HTTP_INSERV_CAST(s, tt_http_inserv_file_t);
     tt_http_inserv_file_ctx_t *c = (tt_http_inserv_file_ctx_t *)ctx;
@@ -321,11 +313,11 @@ tt_http_inserv_action_t __inserv_file_on_complete(
     return TT_COND(size > 0, TT_HTTP_INSERV_ACT_BODY, TT_HTTP_INSERV_ACT_PASS);
 }
 
-tt_http_inserv_action_t __inserv_file_get_body(IN tt_http_inserv_t *s,
-                                               IN void *ctx,
-                                               IN tt_http_parser_t *req,
-                                               IN tt_http_resp_render_t *resp,
-                                               OUT tt_buf_t *buf)
+tt_http_inserv_action_t __s_file_get_body(IN tt_http_inserv_t *s,
+                                          IN void *ctx,
+                                          IN tt_http_parser_t *req,
+                                          IN tt_http_resp_render_t *resp,
+                                          OUT tt_buf_t *buf)
 {
     tt_http_inserv_file_t *sf = TT_HTTP_INSERV_CAST(s, tt_http_inserv_file_t);
     tt_http_inserv_file_ctx_t *c = (tt_http_inserv_file_ctx_t *)ctx;

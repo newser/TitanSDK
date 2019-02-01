@@ -64,26 +64,26 @@ typedef struct
 // global variant
 ////////////////////////////////////////////////////////////
 
-static void __destroy_isauth(IN tt_http_inserv_t *s);
+static void __destroy_s_auth(IN tt_http_inserv_t *s);
 
 static tt_result_t __create_ctx(IN tt_http_inserv_t *s, IN OPT void *ctx);
 
 static void __destroy_ctx(IN tt_http_inserv_t *s, IN void *ctx);
 
 // __clear_ctx() is not nessary, the service can handle it
-static tt_http_inserv_itf_t s_isauth_itf = {__destroy_isauth,
-                                            NULL,
-                                            __create_ctx,
-                                            __destroy_ctx,
-                                            NULL};
+static tt_http_inserv_itf_t s_auth_itf = {__destroy_s_auth,
+                                          NULL,
+                                          __create_ctx,
+                                          __destroy_ctx,
+                                          NULL};
 
-static tt_http_inserv_action_t __isauth_on_hdr(IN tt_http_inserv_t *s,
+static tt_http_inserv_action_t __s_auth_on_hdr(IN tt_http_inserv_t *s,
                                                IN void *ctx,
                                                IN tt_http_parser_t *req,
                                                OUT tt_http_resp_render_t *resp);
 
-static tt_http_inserv_cb_t s_isauth_cb = {
-    NULL, __isauth_on_hdr, NULL, NULL, NULL, NULL,
+static tt_http_inserv_cb_t s_auth_cb = {
+    NULL, __s_auth_on_hdr, NULL, NULL, NULL, NULL,
 };
 
 ////////////////////////////////////////////////////////////
@@ -92,12 +92,6 @@ static tt_http_inserv_cb_t s_isauth_cb = {
 
 static void __new_nonce(IN tt_http_inserv_auth_t *sa,
                         IN tt_http_auth_ctx_t *ac);
-
-static tt_result_t __default_pwd(IN tt_char_t *username,
-                                 IN tt_u32_t username_len,
-                                 IN void *param,
-                                 OUT tt_char_t **pwd,
-                                 OUT tt_u32_t *pwd_len);
 
 ////////////////////////////////////////////////////////////
 // interface implementation
@@ -123,8 +117,8 @@ tt_http_inserv_t *tt_http_inserv_auth_create(
 
     s = tt_http_inserv_create(TT_HTTP_INSERV_AUTH,
                               sizeof(tt_http_inserv_auth_t),
-                              &s_isauth_itf,
-                              &s_isauth_cb);
+                              &s_auth_itf,
+                              &s_auth_cb);
     if (s == NULL) {
         return NULL;
     }
@@ -168,8 +162,8 @@ fail:
 
 void tt_http_inserv_auth_attr_default(IN tt_http_inserv_auth_attr_t *attr)
 {
-    attr->get_pwd = __default_pwd;
-    attr->get_pwd_param = NULL;
+    attr->get_pwd = NULL;
+    attr->pwd = __DEFAULT_DIGEST_PWD;
 
     attr->fixed_nonce = NULL;
 
@@ -186,7 +180,7 @@ void tt_http_inserv_auth_attr_default(IN tt_http_inserv_auth_attr_t *attr)
     attr->new_nonce = TT_FALSE;
 }
 
-void __destroy_isauth(IN tt_http_inserv_t *s)
+void __destroy_s_auth(IN tt_http_inserv_t *s)
 {
     tt_http_inserv_auth_t *sa = TT_HTTP_INSERV_CAST(s, tt_http_inserv_auth_t);
 
@@ -209,7 +203,7 @@ void __destroy_ctx(IN tt_http_inserv_t *s, IN void *ctx)
     tt_http_auth_ctx_destroy(&c->auth_ctx);
 }
 
-tt_http_inserv_action_t __isauth_on_hdr(IN tt_http_inserv_t *s,
+tt_http_inserv_action_t __s_auth_on_hdr(IN tt_http_inserv_t *s,
                                         IN void *ctx,
                                         IN tt_http_parser_t *req,
                                         OUT tt_http_resp_render_t *resp)
@@ -236,9 +230,13 @@ tt_http_inserv_action_t __isauth_on_hdr(IN tt_http_inserv_t *s,
     remote_auth = tt_http_hdr_auth_get(h);
     TT_ASSERT(remote_auth != NULL);
 
-    // must have same realm, domain, nonce
-    if ((tt_blobex_cmp(&remote_auth->realm, &local_auth->realm) != 0) ||
-        (tt_blobex_cmp(&remote_auth->nonce, &local_auth->nonce) != 0)) {
+    // must have same realm, nonce
+    if (tt_blobex_cmp(&remote_auth->realm, &local_auth->realm) != 0) {
+        goto auth_fail;
+    }
+
+    // note nonce is saved in ac but not local_auth
+    if (tt_blobex_memcmp(&remote_auth->nonce, ac->nonce, ac->nonce_len) != 0) {
         goto auth_fail;
     }
 
@@ -310,10 +308,10 @@ tt_http_inserv_action_t __isauth_on_hdr(IN tt_http_inserv_t *s,
     return TT_HTTP_INSERV_ACT_PASS;
 
 auth_fail:
-    if (TT_OK(tt_http_render_add_auth(&resp->render, &sa->auth, TT_TRUE))) {
+    if (TT_OK(tt_http_render_add_www_auth(&resp->render, &sa->auth, TT_TRUE))) {
         tt_http_auth_t *ha;
 
-        ha = tt_http_render_get_auth(&resp->render);
+        ha = tt_http_render_get_www_auth(&resp->render);
         TT_ASSERT(ha != NULL);
         __new_nonce(sa, ac);
         tt_blobex_set(&ha->nonce,
@@ -322,6 +320,7 @@ auth_fail:
                       TT_FALSE);
 
         tt_http_resp_render_set_status(resp, TT_HTTP_STATUS_UNAUTHORIZED);
+        tt_http_resp_render_set_content_len(resp, 0);
     } else {
         tt_http_resp_render_set_status(resp,
                                        TT_HTTP_STATUS_INTERNAL_SERVER_ERROR);
@@ -333,29 +332,13 @@ void __new_nonce(IN tt_http_inserv_auth_t *sa, IN tt_http_auth_ctx_t *ac)
 {
 #if 1
     if (sa->fixed_nonce != NULL) {
-        tt_blobex_set(&sa->auth.nonce,
-                      (tt_u8_t *)sa->fixed_nonce,
-                      tt_strlen(sa->fixed_nonce),
-                      TT_FALSE);
+        ac->nonce_len = tt_strlen(sa->fixed_nonce);
+        TT_ASSERT(ac->nonce_len < (sizeof(ac->nonce) - 1));
+        tt_memcpy(ac->nonce, sa->fixed_nonce, ac->nonce_len);
+        ac->nonce[ac->nonce_len] = 0;
         return;
     }
 #endif
 
     tt_http_auth_ctx_new_nonce(ac);
-
-    tt_blobex_set(&sa->auth.nonce,
-                  (tt_u8_t *)ac->nonce,
-                  ac->nonce_len,
-                  TT_FALSE);
-}
-
-tt_result_t __default_pwd(IN tt_char_t *username,
-                          IN tt_u32_t username_len,
-                          IN void *param,
-                          OUT tt_char_t **pwd,
-                          OUT tt_u32_t *pwd_len)
-{
-    *pwd = (tt_char_t *)__DEFAULT_DIGEST_PWD;
-    *pwd_len = sizeof(__DEFAULT_DIGEST_PWD) - 1;
-    return TT_SUCCESS;
 }

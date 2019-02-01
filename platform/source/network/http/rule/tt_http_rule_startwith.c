@@ -22,6 +22,7 @@
 
 #include <network/http/rule/tt_http_rule_startwith.h>
 
+#include <network/http/service/tt_http_inserv_host.h>
 #include <network/http/tt_http_uri.h>
 
 ////////////////////////////////////////////////////////////
@@ -40,18 +41,19 @@
 // global variant
 ////////////////////////////////////////////////////////////
 
-static tt_bool_t __rule_prefix_match(IN tt_http_rule_t *r,
-                                     IN tt_http_uri_t *uri,
-                                     IN tt_string_t *path,
-                                     IN tt_http_rule_ctx_t *ctx);
+static tt_bool_t __r_prefix_match(IN tt_http_rule_t *r,
+                                  IN tt_http_uri_t *uri,
+                                  IN tt_string_t *path,
+                                  IN tt_http_inserv_host_ctx_t *ctx);
 
-static tt_http_rule_result_t __rule_prefix_pre(IN tt_http_rule_t *r,
-                                               IN OUT tt_http_uri_t *uri,
-                                               IN OUT tt_string_t *path,
-                                               IN OUT tt_http_rule_ctx_t *ctx);
+static tt_http_rule_result_t __r_prefix_pre(IN tt_http_rule_t *r,
+                                            IN OUT tt_http_uri_t *uri,
+                                            IN OUT tt_string_t *path,
+                                            IN OUT
+                                                tt_http_inserv_host_ctx_t *ctx);
 
-static tt_http_rule_itf_t __rule_prefix_itf = {
-    NULL, __rule_prefix_match, __rule_prefix_pre, NULL,
+static tt_http_rule_itf_t __r_prefix_itf = {
+    NULL, __r_prefix_match, __r_prefix_pre, NULL,
 };
 
 ////////////////////////////////////////////////////////////
@@ -78,7 +80,7 @@ tt_http_rule_t *tt_http_rule_startwith_create_n(IN const tt_char_t *prefix,
 
     r = tt_http_rule_create(sizeof(tt_http_rule_startwith_t) + prefix_len +
                                 replace_len,
-                            &__rule_prefix_itf,
+                            &__r_prefix_itf,
                             default_result);
     if (r == NULL) {
         return NULL;
@@ -106,10 +108,10 @@ tt_http_rule_t *tt_http_rule_startwith_create_n(IN const tt_char_t *prefix,
     return r;
 }
 
-tt_bool_t __rule_prefix_match(IN tt_http_rule_t *r,
-                              IN tt_http_uri_t *uri,
-                              IN tt_string_t *path,
-                              IN tt_http_rule_ctx_t *ctx)
+tt_bool_t __r_prefix_match(IN tt_http_rule_t *r,
+                           IN tt_http_uri_t *uri,
+                           IN tt_string_t *path,
+                           IN tt_http_inserv_host_ctx_t *ctx)
 {
     tt_http_rule_startwith_t *rp =
         TT_HTTP_RULE_CAST(r, tt_http_rule_startwith_t);
@@ -129,10 +131,10 @@ tt_bool_t __rule_prefix_match(IN tt_http_rule_t *r,
     }
 }
 
-tt_http_rule_result_t __rule_prefix_pre(IN tt_http_rule_t *r,
-                                        IN OUT tt_http_uri_t *uri,
-                                        IN OUT tt_string_t *path,
-                                        IN OUT tt_http_rule_ctx_t *ctx)
+tt_http_rule_result_t __r_prefix_pre(IN tt_http_rule_t *r,
+                                     IN OUT tt_http_uri_t *uri,
+                                     IN OUT tt_string_t *path,
+                                     IN OUT tt_http_inserv_host_ctx_t *ctx)
 {
     tt_http_rule_startwith_t *rp =
         TT_HTTP_RULE_CAST(r, tt_http_rule_startwith_t);

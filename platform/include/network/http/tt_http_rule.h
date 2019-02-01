@@ -48,24 +48,18 @@ this file defines http rule
 // type definition
 ////////////////////////////////////////////////////////////
 
-struct tt_http_inserv_s;
 struct tt_http_rule_s;
 struct tt_http_uri_s;
 struct tt_string_s;
+struct tt_http_inserv_host_ctx_s;
 
 typedef void (*tt_http_rule_destroy_t)(IN struct tt_http_rule_s *r);
 
-typedef struct
-{
-    struct tt_http_inserv_s *inserv_auth;
-    tt_u32_t path_pos;
-    tt_bool_t path_modified;
-} tt_http_rule_ctx_t;
-
-typedef tt_bool_t (*tt_http_rule_match_t)(IN struct tt_http_rule_s *r,
-                                          IN struct tt_http_uri_s *uri,
-                                          IN struct tt_string_s *path,
-                                          IN tt_http_rule_ctx_t *ctx);
+typedef tt_bool_t (*tt_http_rule_match_t)(
+    IN struct tt_http_rule_s *r,
+    IN struct tt_http_uri_s *uri,
+    IN struct tt_string_s *path,
+    IN struct tt_http_inserv_host_ctx_s *ctx);
 
 typedef enum {
     // match next
@@ -88,7 +82,7 @@ typedef tt_http_rule_result_t (*tt_http_rule_apply_t)(
     IN struct tt_http_rule_s *r,
     IN OUT struct tt_http_uri_s *uri,
     IN OUT struct tt_string_s *path,
-    IN OUT tt_http_rule_ctx_t *ctx);
+    IN OUT struct tt_http_inserv_host_ctx_s *ctx);
 
 typedef struct
 {
@@ -126,27 +120,12 @@ tt_export tt_http_rule_result_t
 tt_http_rule_apply(IN tt_http_rule_t *r,
                    IN OUT struct tt_http_uri_s *uri,
                    IN OUT struct tt_string_s *path,
-                   IN OUT tt_http_rule_ctx_t *ctx);
+                   IN OUT struct tt_http_inserv_host_ctx_s *ctx);
 
 tt_inline void tt_http_rule_add(IN tt_http_rule_t *r, IN tt_http_rule_t *child)
 {
     tt_dlist_push_tail(&r->child, &child->dnode);
     tt_http_rule_ref(child);
 }
-
-// ========================================
-// rule context
-// ========================================
-
-tt_inline void tt_http_rule_ctx_init(IN tt_http_rule_ctx_t *ctx)
-{
-    ctx->inserv_auth = NULL;
-    ctx->path_pos = 0;
-    ctx->path_modified = TT_FALSE;
-}
-
-tt_export void tt_http_rule_ctx_destroy(IN tt_http_rule_ctx_t *ctx);
-
-tt_export void tt_http_rule_ctx_clear(IN tt_http_rule_ctx_t *ctx);
 
 #endif /* __TT_HTTP_RULE__ */

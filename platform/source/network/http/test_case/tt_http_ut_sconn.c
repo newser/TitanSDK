@@ -833,6 +833,7 @@ TT_TEST_ROUTINE_DEFINE(case_http_inserv_host)
     tt_http_status_t status;
     tt_http_hostset_t *hs;
     tt_http_host_t *h1;
+    tt_http_inserv_host_ctx_t ctx;
 
     TT_TEST_CASE_ENTER()
     // test start
@@ -861,7 +862,7 @@ TT_TEST_ROUTINE_DEFINE(case_http_inserv_host)
 
         __simu1_start();
         s = tt_http_inserv_host_create(NULL);
-        tt_http_sconn_add_inserv(&c, s, NULL);
+        tt_http_sconn_add_inserv(&c, s, &ctx);
         tt_http_inserv_release(s);
 
         tt_buf_put_cstr(&__simu_in, msg);
@@ -892,7 +893,7 @@ TT_TEST_ROUTINE_DEFINE(case_http_inserv_host)
 
         __simu1_start();
         s = tt_http_inserv_host_create(NULL);
-        tt_http_sconn_add_inserv(&c, s, NULL);
+        tt_http_sconn_add_inserv(&c, s, &ctx);
         tt_http_inserv_release(s);
 
         tt_buf_put_cstr(&__simu_in, msg);
@@ -922,7 +923,7 @@ TT_TEST_ROUTINE_DEFINE(case_http_inserv_host)
 
         __simu1_start();
         s = tt_http_inserv_host_create(NULL);
-        tt_http_sconn_add_inserv(&c, s, NULL);
+        tt_http_sconn_add_inserv(&c, s, &ctx);
         tt_http_inserv_release(s);
 
         tt_buf_put_cstr(&__simu_in, msg);
@@ -965,9 +966,8 @@ TT_TEST_ROUTINE_DEFINE(case_http_inserv_host)
         TT_UT_SUCCESS(ret, "");
 
         __simu1_start();
-        s = tt_http_inserv_host_create(NULL);
-        tt_http_sconn_add_inserv(&c, s, NULL);
-        tt_http_inserv_release(s);
+
+        tt_http_svcmgr_add_inserv_host(&c.svcmgr);
 
         tt_buf_put_cstr(&__simu_in, msg);
 

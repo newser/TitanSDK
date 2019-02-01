@@ -43,6 +43,7 @@ this file defines http service type
 // type definition
 ////////////////////////////////////////////////////////////
 
+struct tt_http_inserv_s;
 struct tt_http_contype_map_s;
 
 typedef enum {
@@ -55,6 +56,13 @@ typedef enum {
     TT_HTTP_INSERV_TYPE_NUM
 } tt_http_inserv_type_t;
 #define TT_HTTP_INSERV_TYPE_VALID(t) ((t) < TT_HTTP_INSERV_TYPE_NUM)
+
+typedef struct tt_http_inserv_host_ctx_s
+{
+    struct tt_http_inserv_s *auth;
+    tt_u32_t path_pos;
+    tt_bool_t path_modified;
+} tt_http_inserv_host_ctx_t;
 
 typedef struct
 {

@@ -24,6 +24,8 @@
 
 #include <init/tt_component.h>
 #include <init/tt_profile.h>
+#include <network/http/def/tt_http_service_def.h>
+#include <network/http/service/tt_http_inserv_host.h>
 #include <network/http/tt_http_uri.h>
 
 ////////////////////////////////////////////////////////////
@@ -152,11 +154,11 @@ void tt_http_host_destroy(IN tt_http_host_t *h)
 }
 
 tt_http_rule_result_t tt_http_host_apply(IN tt_http_host_t *h,
-                                         IN OUT tt_http_uri_t *uri)
+                                         IN OUT tt_http_uri_t *uri,
+                                         OUT tt_http_inserv_host_ctx_t *ctx)
 {
     tt_fpath_t *fpath = tt_http_uri_get_path(uri);
     tt_string_t *s = tt_fpath_string(fpath);
-    tt_http_rule_ctx_t ctx;
     tt_http_rule_result_t result;
     tt_u32_t n = 0;
 
@@ -164,44 +166,37 @@ tt_http_rule_result_t tt_http_host_apply(IN tt_http_host_t *h,
         return TT_HTTP_RULE_ERROR;
     }
 
-    tt_http_rule_ctx_init(&ctx);
-
 again:
-    tt_http_rule_ctx_clear(&ctx);
-    result = tt_http_rule_apply(h->root, uri, s, &ctx);
+    result = tt_http_rule_apply(h->root, uri, s, ctx);
     if ((result == TT_HTTP_RULE_NEXT) || (result == TT_HTTP_RULE_BREAK)) {
         // if path is modified, we must have fpath parse modified string again
-        if (ctx.path_modified) {
+        if (ctx->path_modified) {
             if (TT_OK(tt_fpath_parse_self(fpath))) {
                 uri->path_modified = TT_TRUE;
             } else {
-                goto error;
+                return TT_HTTP_RULE_ERROR;
             }
         }
-
-        tt_http_rule_ctx_destroy(&ctx);
         return result;
     } else if (result == TT_HTTP_RULE_CONTINUE) {
         if (n++ > 10) {
             TT_ERROR("too many rule process loop");
-            goto error;
+            return TT_HTTP_RULE_ERROR;
         }
 
-        if (ctx.path_modified) {
+        if (ctx->path_modified) {
             if (TT_OK(tt_fpath_parse_self(fpath))) {
                 uri->path_modified = TT_TRUE;
             } else {
-                goto error;
+                return TT_HTTP_RULE_ERROR;
             }
         }
+
+        tt_http_inserv_host_ctx_clear(ctx);
         goto again;
     } else {
-        goto error;
+        return TT_HTTP_RULE_ERROR;
     }
-
-error:
-    tt_http_rule_ctx_destroy(&ctx);
-    return TT_HTTP_RULE_ERROR;
 }
 
 // ========================================

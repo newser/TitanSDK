@@ -1316,7 +1316,7 @@ TT_TEST_ROUTINE_DEFINE(case_http_inserv_auth)
         TT_UT_EQUAL(tt_http_resp_render_get_status(&resp),
                     TT_HTTP_STATUS_UNAUTHORIZED,
                     "");
-        ha = tt_http_render_get_auth(&resp.render);
+        ha = tt_http_render_get_www_auth(&resp.render);
         TT_UT_NOT_NULL(ha, "");
         TT_UT_EQUAL(tt_blobex_strcmp(&ha->realm, "testrealm@host.com"), 0, "");
         TT_UT_EQUAL(tt_blobex_strcmp(&ha->domain, "domain"), 0, "");
@@ -1353,7 +1353,7 @@ TT_TEST_ROUTINE_DEFINE(case_http_inserv_auth)
         TT_UT_EQUAL(tt_http_resp_render_get_status(&resp),
                     TT_HTTP_STATUS_UNAUTHORIZED,
                     "");
-        ha = tt_http_render_get_auth(&resp.render);
+        ha = tt_http_render_get_www_auth(&resp.render);
         TT_UT_NOT_NULL(ha, "");
     }
 
@@ -1387,7 +1387,7 @@ TT_TEST_ROUTINE_DEFINE(case_http_inserv_auth)
         TT_UT_EQUAL(tt_http_resp_render_get_status(&resp),
                     TT_HTTP_STATUS_UNAUTHORIZED,
                     "");
-        ha = tt_http_render_get_auth(&resp.render);
+        ha = tt_http_render_get_www_auth(&resp.render);
         TT_UT_NOT_NULL(ha, "");
     }
 
@@ -1468,7 +1468,7 @@ TT_TEST_ROUTINE_DEFINE(case_http_inserv_auth)
         TT_UT_EQUAL(tt_http_resp_render_get_status(&resp),
                     TT_HTTP_STATUS_UNAUTHORIZED,
                     "");
-        ha = tt_http_render_get_auth(&resp.render);
+        ha = tt_http_render_get_www_auth(&resp.render);
         TT_UT_NOT_NULL(ha, "");
     }
 

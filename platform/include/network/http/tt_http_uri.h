@@ -50,6 +50,8 @@
 // type definition
 ////////////////////////////////////////////////////////////
 
+struct tt_http_inserv_s;
+
 typedef struct
 {
     tt_queue_iter_t iter;

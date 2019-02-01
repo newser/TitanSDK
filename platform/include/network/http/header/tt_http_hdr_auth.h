@@ -92,7 +92,7 @@ typedef struct
     tt_md_type_t type;
     tt_u32_t nonce_len;
     tt_md_t md;
-    tt_char_t nonce[24];
+    tt_char_t nonce[40]; // can be 24b, 40b is for ut(fixed nonce)
 } tt_http_auth_ctx_t;
 
 ////////////////////////////////////////////////////////////
