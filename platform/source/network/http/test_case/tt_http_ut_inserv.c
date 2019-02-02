@@ -1394,7 +1394,9 @@ TT_TEST_ROUTINE_DEFINE(case_http_inserv_auth)
     {
         tt_string_clear(&s2);
         tt_string_append(&s2, msg);
+        tt_u32_t i = 0;
 
+    ag:
         TT_UT_TRUE(__mk_parser(&req, tt_string_cstr(&s2)), "");
 
         tt_http_resp_render_clear(&resp);
@@ -1403,6 +1405,12 @@ TT_TEST_ROUTINE_DEFINE(case_http_inserv_auth)
         TT_UT_EQUAL(act, TT_HTTP_INSERV_ACT_PASS, "");
         act = tt_http_inserv_on_header(is, &c, &req, &resp);
         TT_UT_EQUAL(act, TT_HTTP_INSERV_ACT_PASS, "");
+
+        tt_http_inserv_clear(is);
+        if (i++ < 5) {
+            // repeat, all ok as fixed_nonce
+            goto ag;
+        }
     }
 
     {

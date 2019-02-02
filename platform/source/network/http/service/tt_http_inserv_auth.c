@@ -236,7 +236,9 @@ tt_http_inserv_action_t __s_auth_on_hdr(IN tt_http_inserv_t *s,
     }
 
     // note nonce is saved in ac but not local_auth
-    if (tt_blobex_memcmp(&remote_auth->nonce, ac->nonce, ac->nonce_len) != 0) {
+    if ((ac->nonce_len == 0) ||
+        (tt_blobex_memcmp(&remote_auth->nonce, ac->nonce, ac->nonce_len) !=
+         0)) {
         goto auth_fail;
     }
 
