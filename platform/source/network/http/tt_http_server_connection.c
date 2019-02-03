@@ -680,6 +680,14 @@ tt_result_t __sconn_send_resp_hdr(IN tt_http_sconn_t *c)
                                        TT_HTTP_STATUS_INTERNAL_SERVER_ERROR);
     }
 
+    // help to set content length to 0 if:
+    // - content length is not set
+    // - transfer-encoding: chuncked is not set
+    if ((resp->render.content_len < 0) &&
+        !(tt_http_render_has_txenc_chunked(&resp->render))) {
+        tt_http_resp_render_set_content_len(resp, 0);
+    }
+
     if (!TT_OK(tt_http_resp_render(resp, &data, &len))) {
         return TT_FAIL;
     }

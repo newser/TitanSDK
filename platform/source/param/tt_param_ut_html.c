@@ -711,6 +711,11 @@ TT_TEST_ROUTINE_DEFINE(case_param_html_bs4_spa)
     }
 
     tt_param_bs4spa_init(&pg);
+    pg.nav.button_style = TT_TRUE;
+    pg.sidebar.hide = TT_TRUE;
+    pg.js_extra = "<script src=\"/js/tt.js\"></script>";
+    pg.content.hide = TT_TRUE;
+
     tt_buf_clear(&b);
     TT_UT_SUCCESS(tt_param_bs4spa_render(&pg, pm, TT_PARAM_BS4_LV_USER, &b),
                   "");
@@ -719,10 +724,6 @@ TT_TEST_ROUTINE_DEFINE(case_param_html_bs4_spa)
     TT_UT_SUCCESS(tt_param_bs4spa_render(&pg, pm, TT_PARAM_BS4_LV_ADMIN, &b),
                   "");
 
-    pg.nav.button_style = TT_TRUE;
-    pg.sidebar.hide = TT_TRUE;
-    pg.js_extra = "<script src=\"/js/tt.js\"></script>";
-    pg.content.hide = TT_TRUE;
     tt_buf_clear(&b);
     TT_UT_SUCCESS(tt_param_bs4spa_render(&pg, pm, TT_PARAM_BS4_LV_ADMIN, &b),
                   "");

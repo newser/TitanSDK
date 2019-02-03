@@ -322,7 +322,6 @@ auth_fail:
                       TT_FALSE);
 
         tt_http_resp_render_set_status(resp, TT_HTTP_STATUS_UNAUTHORIZED);
-        tt_http_resp_render_set_content_len(resp, 0);
     } else {
         tt_http_resp_render_set_status(resp,
                                        TT_HTTP_STATUS_INTERNAL_SERVER_ERROR);

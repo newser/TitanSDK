@@ -219,6 +219,17 @@ tt_http_auth_t *tt_http_render_get_proxy_authenticate(IN tt_http_render_t *r)
     return TT_COND(h != NULL, tt_http_hdr_auth_get(h), NULL);
 }
 
+tt_bool_t tt_http_render_has_txenc_chunked(IN tt_http_render_t *r)
+{
+    tt_u32_t i;
+    for (i = 0; i < r->txenc_num; ++i) {
+        if (r->txenc[i] == TT_HTTP_TXENC_CHUNKED) {
+            return TT_TRUE;
+        }
+    }
+    return TT_FALSE;
+}
+
 void tt_http_req_render_init(IN tt_http_req_render_t *req,
                              IN OPT tt_http_req_render_attr_t *attr)
 {
