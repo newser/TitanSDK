@@ -53,6 +53,8 @@ this file defines http
     __ENTRY(WWW_AUTH, "WWW-Authenticate")                                      \
     __ENTRY(PROXY_AUTHORIZATION, "Proxy-Authorization")                        \
     __ENTRY(PROXY_AUTHENTICATE, "Proxy-Authenticate")                          \
+    __ENTRY(COOKIE, "Cookie")                                                  \
+    __ENTRY(SET_COOKIE, "Set-Cookie")                                          \
     __ENTRY(DATE, "Date")
 
 #define TT_HTTP_TXENC_MAP(__ENTRY)                                             \

@@ -484,6 +484,28 @@ TT_TEST_ROUTINE_DEFINE(case_http_hdr_basic)
         tt_http_hdr_destroy(p);
     }
 
+    {
+        tt_http_hdr_t *p;
+
+        p = tt_http_hdr_create_scs(sizeof(tt_u32_t),
+                                   TT_HTTP_HDR_HOST,
+                                   &__hdr_cs_i);
+        TT_UT_NOT_NULL(p, "");
+        tt_http_hdr_destroy(p);
+
+        p = tt_http_hdr_create_scs(sizeof(tt_u32_t),
+                                   TT_HTTP_HDR_HOST,
+                                   &__hdr_cs_i);
+        TT_UT_NOT_NULL(p, "");
+        *TT_PTR_INC(tt_u32_t, p, sizeof(tt_http_hdr_t)) = 0;
+
+        TT_UT_SUCCESS(tt_http_hdr_parse(p, " 1;22; "), "");
+        TT_UT_SUCCESS(tt_http_hdr_parse(p, "333; 4444; "), "");
+        TT_UT_EQUAL(*TT_PTR_INC(tt_u32_t, p, sizeof(tt_http_hdr_t)), 10, "");
+
+        tt_http_hdr_destroy(p);
+    }
+
 #if 0
     {
         tt_http_hdr_t *p;

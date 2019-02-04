@@ -129,6 +129,8 @@ tt_export tt_http_hdr_itf_t tt_g_http_hdr_cs_itf;
 
 tt_export tt_http_hdr_itf_t tt_g_http_hdr_csq_itf;
 
+tt_export tt_http_hdr_itf_t tt_g_http_hdr_scs_itf;
+
 ////////////////////////////////////////////////////////////
 // interface declaration
 ////////////////////////////////////////////////////////////
@@ -228,6 +230,11 @@ tt_export tt_http_hdr_t *tt_http_hdr_create_cs(IN tt_u32_t extra_size,
                                                    tt_http_hdr_itf_t *val_itf);
 
 tt_export tt_http_hdr_t *tt_http_hdr_create_csq(IN tt_u32_t extra_size,
+                                                IN tt_http_hname_t name,
+                                                IN OPT
+                                                    tt_http_hdr_itf_t *val_itf);
+
+tt_export tt_http_hdr_t *tt_http_hdr_create_scs(IN tt_u32_t extra_size,
                                                 IN tt_http_hname_t name,
                                                 IN OPT
                                                     tt_http_hdr_itf_t *val_itf);

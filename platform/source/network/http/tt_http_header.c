@@ -111,6 +111,21 @@ tt_http_hdr_itf_t tt_g_http_hdr_csq_itf = {NULL,
                                            __h_cs_render_len,
                                            __h_cs_render};
 
+// ========================================
+// header: semi-colon separated
+// ========================================
+
+tt_result_t __h_scs_parse(IN tt_http_hdr_t *h,
+                          IN const tt_char_t *val,
+                          IN tt_u32_t len);
+
+tt_u32_t __h_scs_render(IN tt_http_hdr_t *h, IN tt_char_t *dst);
+
+tt_http_hdr_itf_t tt_g_http_hdr_scs_itf = {NULL,
+                                           __h_scs_parse,
+                                           __h_cs_render_len,
+                                           __h_scs_render};
+
 ////////////////////////////////////////////////////////////
 // interface declaration
 ////////////////////////////////////////////////////////////
@@ -120,6 +135,15 @@ static void __clear_hval(IN tt_http_hdr_t *h);
 static tt_result_t __add_hval(IN tt_http_hdr_t *h,
                               IN const tt_char_t *val,
                               IN tt_u32_t len);
+
+static tt_result_t __parse_sep(IN tt_http_hdr_t *h,
+                               IN const tt_char_t *val,
+                               IN tt_u32_t len,
+                               IN tt_char_t sep);
+
+static tt_u32_t __render_sep(IN tt_http_hdr_t *h,
+                             IN tt_char_t *dst,
+                             IN tt_char_t sep);
 
 ////////////////////////////////////////////////////////////
 // interface implementation
@@ -260,6 +284,25 @@ tt_http_hdr_t *tt_http_hdr_create_csq(IN tt_u32_t extra_size,
     return h;
 }
 
+tt_http_hdr_t *tt_http_hdr_create_scs(IN tt_u32_t extra_size,
+                                      IN tt_http_hname_t name,
+                                      IN OPT tt_http_hdr_itf_t *val_itf)
+{
+    tt_http_hdr_t *h;
+
+    h = tt_http_hdr_create(extra_size,
+                           name,
+                           &tt_g_http_hdr_scs_itf,
+                           &tt_g_http_hval_blob_itf);
+    if (h == NULL) {
+        return NULL;
+    }
+
+    h->final_val_itf = val_itf;
+
+    return h;
+}
+
 void __clear_hval(IN tt_http_hdr_t *h)
 {
     tt_dnode_t *node;
@@ -296,6 +339,79 @@ tt_result_t __add_hval(IN tt_http_hdr_t *h,
 
     tt_http_hdr_add(h, hv);
     return TT_SUCCESS;
+}
+
+tt_result_t __parse_sep(IN tt_http_hdr_t *h,
+                        IN const tt_char_t *val,
+                        IN tt_u32_t len,
+                        IN tt_char_t sep)
+{
+    tt_char_t *p, *end, *prev;
+    tt_u32_t n;
+
+    p = (tt_char_t *)val;
+    end = (tt_char_t *)val + len;
+    prev = p;
+    n = len;
+    while (p < end) {
+        p = tt_memchr(p, sep, n);
+        if (p == NULL) {
+            break;
+        }
+
+        if ((p > prev) && !TT_OK(__add_hval(h, prev, (tt_u32_t)(p - prev)))) {
+            // continue, as there may be successfully parsed hvals
+            TT_ERROR("lost a http value");
+        }
+
+        ++p;
+        prev = p;
+        TT_ASSERT(p <= end);
+        n = (tt_u32_t)(end - p);
+    }
+    TT_ASSERT(prev <= end);
+    if (prev < end) {
+        if (!TT_OK(__add_hval(h, prev, (tt_u32_t)(end - prev)))) {
+            TT_ERROR("lost a http value");
+        }
+    }
+
+    return TT_SUCCESS;
+}
+
+tt_u32_t __render_sep(IN tt_http_hdr_t *h, IN tt_char_t *dst, IN tt_char_t sep)
+{
+    tt_u32_t namelen;
+    tt_dnode_t *node;
+    tt_char_t *p = dst;
+    tt_bool_t first = TT_TRUE;
+
+    namelen = tt_g_http_hname_len[h->name];
+    tt_memcpy(p, tt_g_http_hname[h->name], namelen);
+    p += namelen; // => "Host"
+
+    *p++ = ':';
+    *p++ = ' '; // => "Host: "
+
+    node = tt_dlist_head(&h->val);
+    while (node != NULL) {
+        tt_http_hval_t *hv = TT_CONTAINER(node, tt_http_hval_t, dnode);
+
+        node = node->next;
+
+        if (first) {
+            first = TT_FALSE;
+        } else {
+            *p++ = sep;
+            *p++ = ' ';
+        }
+        p += h->val_itf->render(hv, p); // => "Host: xxx, yyy"
+    }
+
+    *p++ = '\r';
+    *p++ = '\n';
+
+    return (tt_u32_t)(p - dst);
 }
 
 // ========================================
@@ -427,37 +543,7 @@ tt_result_t __h_cs_parse(IN tt_http_hdr_t *h,
                          IN const tt_char_t *val,
                          IN tt_u32_t len)
 {
-    tt_char_t *p, *end, *prev;
-    tt_u32_t n;
-
-    p = (tt_char_t *)val;
-    end = (tt_char_t *)val + len;
-    prev = p;
-    n = len;
-    while (p < end) {
-        p = tt_memchr(p, ',', n);
-        if (p == NULL) {
-            break;
-        }
-
-        if ((p > prev) && !TT_OK(__add_hval(h, prev, (tt_u32_t)(p - prev)))) {
-            // continue, as there may be successfully parsed hvals
-            TT_ERROR("lost a http value");
-        }
-
-        ++p;
-        prev = p;
-        TT_ASSERT(p <= end);
-        n = (tt_u32_t)(end - p);
-    }
-    TT_ASSERT(prev <= end);
-    if (prev < end) {
-        if (!TT_OK(__add_hval(h, prev, (tt_u32_t)(end - prev)))) {
-            TT_ERROR("lost a http value");
-        }
-    }
-
-    return TT_SUCCESS;
+    return __parse_sep(h, val, len, ',');
 }
 
 tt_u32_t __h_cs_render_len(IN tt_http_hdr_t *h)
@@ -487,37 +573,7 @@ tt_u32_t __h_cs_render_len(IN tt_http_hdr_t *h)
 
 tt_u32_t __h_cs_render(IN tt_http_hdr_t *h, IN tt_char_t *dst)
 {
-    tt_u32_t namelen;
-    tt_dnode_t *node;
-    tt_char_t *p = dst;
-    tt_bool_t first = TT_TRUE;
-
-    namelen = tt_g_http_hname_len[h->name];
-    tt_memcpy(p, tt_g_http_hname[h->name], namelen);
-    p += namelen; // => "Host"
-
-    *p++ = ':';
-    *p++ = ' '; // => "Host: "
-
-    node = tt_dlist_head(&h->val);
-    while (node != NULL) {
-        tt_http_hval_t *hv = TT_CONTAINER(node, tt_http_hval_t, dnode);
-
-        node = node->next;
-
-        if (first) {
-            first = TT_FALSE;
-        } else {
-            *p++ = ',';
-            *p++ = ' ';
-        }
-        p += h->val_itf->render(hv, p); // => "Host: xxx, yyy"
-    }
-
-    *p++ = '\r';
-    *p++ = '\n';
-
-    return (tt_u32_t)(p - dst);
+    return __render_sep(h, dst, ',');
 }
 
 // ========================================
@@ -568,4 +624,20 @@ tt_result_t __h_csq_parse(IN tt_http_hdr_t *h,
     }
 
     return TT_SUCCESS;
+}
+
+// ========================================
+// header: semi-colon separated
+// ========================================
+
+tt_result_t __h_scs_parse(IN tt_http_hdr_t *h,
+                          IN const tt_char_t *val,
+                          IN tt_u32_t len)
+{
+    return __parse_sep(h, val, len, ';');
+}
+
+tt_u32_t __h_scs_render(IN tt_http_hdr_t *h, IN tt_char_t *dst)
+{
+    return __render_sep(h, dst, ';');
 }

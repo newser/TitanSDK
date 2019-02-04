@@ -100,7 +100,8 @@ tt_result_t __ut_fiber(IN void *param)
 #if 1
     else {
         const tt_char_t *names[] =
-        { "case_http_server_basic",
+        { "case_http_hdr_basic",
+//            "case_http_server_basic",
 //          "case_http_inserv_auth",
 //          "case_blobex",
 //          "TEST_UNIT_CFGNODE",
