@@ -26,6 +26,7 @@
 #include <network/http/header/tt_http_hdr_accept_encoding.h>
 #include <network/http/header/tt_http_hdr_auth.h>
 #include <network/http/header/tt_http_hdr_content_encoding.h>
+#include <network/http/header/tt_http_hdr_cookie.h>
 #include <network/http/header/tt_http_hdr_etag.h>
 #include <network/http/tt_http_header.h>
 
@@ -228,6 +229,42 @@ tt_bool_t tt_http_render_has_txenc_chunked(IN tt_http_render_t *r)
         }
     }
     return TT_FALSE;
+}
+
+tt_result_t tt_http_render_add_cookie(IN tt_http_render_t *r,
+                                      IN tt_http_cookie_t *c)
+{
+    tt_http_hdr_t *h;
+
+    h = __render_find_hdr(r, TT_HTTP_HDR_COOKIE);
+    if (h == NULL) {
+        h = tt_http_hdr_cookie_create();
+        if (h == NULL) {
+            return TT_FAIL;
+        }
+        __render_add_hdr(r, h);
+    }
+
+    tt_http_hdr_add_cookie(h, c);
+    return TT_SUCCESS;
+}
+
+tt_result_t tt_http_render_add_set_cookie(IN tt_http_render_t *r,
+                                          IN tt_http_cookie_t *c)
+{
+    tt_http_hdr_t *h;
+
+    h = __render_find_hdr(r, TT_HTTP_HDR_SET_COOKIE);
+    if (h == NULL) {
+        h = tt_http_hdr_set_cookie_create();
+        if (h == NULL) {
+            return TT_FAIL;
+        }
+        __render_add_hdr(r, h);
+    }
+
+    tt_http_hdr_add_cookie(h, c);
+    return TT_SUCCESS;
 }
 
 void tt_http_req_render_init(IN tt_http_req_render_t *req,

@@ -28,6 +28,7 @@
 #include <network/http/header/tt_http_hdr_accept_encoding.h>
 #include <network/http/header/tt_http_hdr_auth.h>
 #include <network/http/header/tt_http_hdr_content_encoding.h>
+#include <network/http/header/tt_http_hdr_cookie.h>
 #include <network/http/header/tt_http_hdr_etag.h>
 #include <network/http/header/tt_http_hdr_transfer_encoding.h>
 #include <network/http/tt_http_content_type_map.h>
@@ -66,6 +67,8 @@ TT_TEST_ROUTINE_DECLARE(case_http_hdr_etag)
 TT_TEST_ROUTINE_DECLARE(case_http_hdr_ifmatch)
 TT_TEST_ROUTINE_DECLARE(case_http_hdr_ifnmatch)
 TT_TEST_ROUTINE_DECLARE(case_http_hdr_auth)
+TT_TEST_ROUTINE_DECLARE(case_http_hdr_cookie)
+TT_TEST_ROUTINE_DECLARE(case_http_hdr_set_cookie)
 TT_TEST_ROUTINE_DECLARE(case_http_misc)
 // =========================================
 
@@ -199,6 +202,24 @@ TT_TEST_CASE("case_http_hdr_basic",
                  NULL,
                  NULL),
 
+    TT_TEST_CASE("case_http_hdr_cookie",
+                 "http hdr: cookie",
+                 case_http_hdr_cookie,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL),
+
+    TT_TEST_CASE("case_http_hdr_set_cookie",
+                 "http hdr: set-cookie",
+                 case_http_hdr_set_cookie,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL,
+                 NULL),
+
     TT_TEST_CASE("case_http_misc",
                  "http test misc things",
                  case_http_misc,
@@ -222,7 +243,7 @@ TT_TEST_CASE("case_http_hdr_basic",
     ////////////////////////////////////////////////////////////
 
     /*
-    TT_TEST_ROUTINE_DEFINE(case_http_hdr_etag)
+    TT_TEST_ROUTINE_DEFINE(case_http_hdr_cookie)
     {
         //tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
 
@@ -245,7 +266,7 @@ static tt_result_t __hdr_cs_add_val(IN struct tt_http_hdr_s *h,
 }
 
 static tt_http_hdr_itf_t __hdr_cs_i = {
-    NULL, __hdr_cs_add_val, NULL, NULL,
+    NULL, NULL, __hdr_cs_add_val, NULL, NULL, NULL,
 };
 
 TT_TEST_ROUTINE_DEFINE(case_http_hdr_basic)
@@ -871,6 +892,10 @@ TT_TEST_ROUTINE_DEFINE(case_http_body)
             "Proxy-Authorization: Digest realm=\"Proxy-Authorization\"\r\n"
             "Proxy-Authenticate: Digest realm=\"Proxy-Authenticate\"\r\n"
             "Connection: keep-alive\r\n"
+            "COOKIE: a=1; b; cc=ddd;\r\n"
+            "SET-COOKIE: x; yy=2; zz=333\r\n"
+            "SET-COOKIE: yy=2; zz=333\r\n"
+            "SET-COOKIE: zz=333\r\n"
             "Etag: W/\"67ab43\", \"54ed21, \"7892dd\"\r\n"
             "If-match: W/\"456\", 789\" \r\n"
             "\r\n";
@@ -1071,6 +1096,46 @@ TT_TEST_ROUTINE_DEFINE(case_http_body)
             TT_UT_EQUAL(tt_blobex_strcmp(&ha->realm, "Proxy-Authenticate"),
                         0,
                         "");
+        }
+
+        {
+            tt_http_hdr_t *h;
+            tt_http_cookie_t *bx;
+
+            h = tt_http_parser_get_cookie(&hp);
+            TT_UT_NOT_NULL(h, "");
+
+            bx = tt_http_hdr_find_cookie(h, "a");
+            TT_UT_NOT_NULL(bx, "");
+            TT_UT_EQUAL(tt_blobex_strcmp(&bx->val, "1"), 0, "");
+
+            bx = tt_http_hdr_find_cookie(h, "b");
+            TT_UT_NOT_NULL(bx, "");
+            TT_UT_EQUAL(tt_blobex_len(&bx->val), 0, "");
+
+            bx = tt_http_hdr_find_cookie(h, "cc");
+            TT_UT_NOT_NULL(bx, "");
+            TT_UT_EQUAL(tt_blobex_strcmp(&bx->val, "ddd"), 0, "");
+        }
+
+        {
+            tt_http_hdr_t *h;
+            tt_http_cookie_t *bx;
+
+            h = tt_http_parser_get_set_cookie(&hp);
+            TT_UT_NOT_NULL(h, "");
+
+            bx = tt_http_hdr_find_cookie(h, "yy");
+            TT_UT_NOT_NULL(bx, "");
+            TT_UT_EQUAL(tt_blobex_strcmp(&bx->val, "2"), 0, "");
+
+            bx = tt_http_hdr_find_cookie(h, "x");
+            TT_UT_NOT_NULL(bx, "");
+            TT_UT_EQUAL(tt_blobex_len(&bx->val), 0, "");
+
+            bx = tt_http_hdr_find_cookie(h, "zz");
+            TT_UT_NOT_NULL(bx, "");
+            TT_UT_EQUAL(tt_blobex_strcmp(&bx->val, "333"), 0, "");
         }
 
         {
@@ -3042,6 +3107,371 @@ TT_TEST_ROUTINE_DEFINE(case_http_hdr_auth)
 
         tt_http_hdr_destroy(h);
     }
+
+    // test end
+    TT_TEST_CASE_LEAVE()
+}
+
+TT_TEST_ROUTINE_DEFINE(case_http_hdr_cookie)
+{
+    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+    tt_http_hdr_t *h;
+    tt_char_t tmp[128] = {0};
+    tt_u32_t len, len2;
+    tt_blobex_t *bx, *name, *val;
+    tt_http_cookie_t *c;
+
+    TT_TEST_CASE_ENTER()
+    // test start
+
+    {
+        c = tt_http_cookie_create();
+        TT_UT_NOT_NULL(c, "");
+        tt_http_cookie_destroy(c);
+    }
+
+    h = tt_http_hdr_cookie_create();
+    TT_UT_NOT_NULL(h, "");
+    c = tt_http_hdr_find_cookie(h, "1");
+    TT_UT_NULL(c, "");
+    c = tt_http_cookie_head(h);
+    TT_UT_NULL(c, "");
+    {
+        tt_http_cookie_t *c;
+
+        c = tt_http_cookie_create();
+        TT_UT_NOT_NULL(c, "");
+        TT_UT_SUCCESS(tt_blobex_set(&c->name, (tt_u8_t *)"n", 1, TT_FALSE), "");
+        TT_UT_SUCCESS(tt_blobex_set(&c->val, (tt_u8_t *)"vv", 2, TT_TRUE), "");
+        tt_http_hdr_add_cookie(h, c);
+
+        c = tt_http_cookie_create();
+        TT_UT_NOT_NULL(c, "");
+        TT_UT_SUCCESS(tt_blobex_set(&c->name, (tt_u8_t *)"n2", 2, TT_FALSE),
+                      "");
+        TT_UT_SUCCESS(tt_blobex_set(&c->val, (tt_u8_t *)"vv2", 3, TT_TRUE), "");
+        tt_http_hdr_add_cookie(h, c);
+
+        c = tt_http_cookie_create();
+        TT_UT_NOT_NULL(c, "");
+        TT_UT_SUCCESS(tt_blobex_set(&c->name, (tt_u8_t *)"n3", 2, TT_FALSE),
+                      "");
+        tt_http_hdr_add_cookie(h, c);
+
+        c = tt_http_cookie_head(h);
+        TT_UT_NOT_NULL(c, "");
+        TT_UT_EQUAL(tt_blobex_strcmp(&c->name, "n"), 0, "");
+        TT_UT_EQUAL(tt_blobex_strcmp(&c->val, "vv"), 0, "");
+
+        c = tt_http_cookie_next(c);
+        TT_UT_NOT_NULL(c, "");
+        TT_UT_EQUAL(tt_blobex_strcmp(&c->name, "n2"), 0, "");
+        TT_UT_EQUAL(tt_blobex_strcmp(&c->val, "vv2"), 0, "");
+
+        c = tt_http_cookie_next(c);
+        TT_UT_NOT_NULL(c, "");
+        TT_UT_EQUAL(tt_blobex_strcmp(&c->name, "n3"), 0, "");
+        TT_UT_EQUAL(tt_blobex_len(&c->val), 0, "");
+
+        c = tt_http_cookie_next(c);
+        TT_UT_NULL(c, "");
+    }
+    tt_http_hdr_destroy(h);
+
+    // empty
+    h = tt_http_hdr_cookie_create();
+    tt_http_hdr_parse(h, "");
+    len = tt_http_hdr_render_len(h);
+    TT_UT_EQUAL(len, sizeof("Cookie: \r\n") - 1, "");
+    tt_memset(tmp, 0, sizeof(tmp));
+    len2 = tt_http_hdr_render(h, tmp);
+    TT_UT_EQUAL(len2, len, "");
+    TT_UT_STREQ(tmp, "Cookie: \r\n", "");
+    tt_http_hdr_destroy(h);
+
+    // spaces
+    h = tt_http_hdr_cookie_create();
+    tt_http_hdr_parse(h, "  ; ");
+    c = tt_http_cookie_head(h);
+    TT_UT_NULL(c, "");
+    tt_http_hdr_destroy(h);
+
+    // 1 char
+    h = tt_http_hdr_cookie_create();
+    tt_http_hdr_parse(h, "a");
+    c = tt_http_hdr_find_cookie(h, "a");
+    TT_UT_NOT_NULL(c, "");
+    TT_UT_NULL(tt_blobex_addr(&c->val), "");
+    {
+        len = tt_http_hdr_render_len(h);
+        TT_UT_EQUAL(len, sizeof("Cookie: a\r\n") - 1, "");
+        tt_memset(tmp, 0, sizeof(tmp));
+        len2 = tt_http_hdr_render(h, tmp);
+        TT_UT_EQUAL(len2, len, "");
+        TT_UT_STREQ(tmp, "Cookie: a\r\n", "");
+    }
+    tt_http_hdr_destroy(h);
+
+    h = tt_http_hdr_cookie_create();
+    tt_http_hdr_parse(h, "=");
+    c = tt_http_cookie_head(h);
+    TT_UT_NULL(c, "");
+    tt_http_hdr_destroy(h);
+
+    h = tt_http_hdr_cookie_create();
+    tt_http_hdr_parse(h, "a=");
+    c = tt_http_hdr_find_cookie(h, "a");
+    TT_UT_NOT_NULL(c, "");
+    TT_UT_NULL(tt_blobex_addr(&c->val), "");
+    tt_http_hdr_destroy(h);
+
+    h = tt_http_hdr_cookie_create();
+    tt_http_hdr_parse(h, "=v");
+    c = tt_http_cookie_head(h);
+    TT_UT_NULL(c, "");
+    tt_http_hdr_destroy(h);
+
+    // mixed
+    h = tt_http_hdr_cookie_create();
+    tt_http_hdr_parse(h, "a = 11 ; xyz ; ");
+    c = tt_http_hdr_find_cookie(h, "a ");
+    TT_UT_NOT_NULL(c, "");
+    TT_UT_EQUAL(tt_blobex_strcmp(&c->val, " 11"), 0, "");
+    c = tt_http_hdr_find_cookie(h, "x");
+    TT_UT_NULL(c, "");
+    c = tt_http_hdr_find_cookie(h, "xyz");
+    TT_UT_NOT_NULL(c, "");
+    {
+        c = tt_http_cookie_head(h);
+        TT_UT_NOT_NULL(c, "");
+        TT_UT_EQUAL(tt_blobex_strcmp(&c->name, "a "), 0, "");
+        TT_UT_EQUAL(tt_blobex_strcmp(&c->val, " 11"), 0, "");
+
+        c = tt_http_cookie_next(c);
+        TT_UT_NOT_NULL(c, "");
+        TT_UT_EQUAL(tt_blobex_strcmp(&c->name, "xyz"), 0, "");
+        TT_UT_EQUAL(tt_blobex_addr(&c->val), NULL, "");
+
+        c = tt_http_cookie_next(c);
+        TT_UT_NULL(c, "");
+    }
+    {
+        len = tt_http_hdr_render_len(h);
+        TT_UT_EQUAL(len, sizeof("Cookie: a = 11; xyz\r\n") - 1, "");
+        tt_memset(tmp, 0, sizeof(tmp));
+        len2 = tt_http_hdr_render(h, tmp);
+        TT_UT_EQUAL(len2, len, "");
+        TT_UT_STREQ(tmp, "Cookie: a = 11; xyz\r\n", "");
+    }
+    {
+        c = tt_http_cookie_create();
+        TT_UT_NOT_NULL(c, "");
+        tt_blobex_set(&c->val, (tt_u8_t *)"val", 3, TT_TRUE);
+        tt_http_hdr_add_cookie(h, c);
+
+        c = tt_http_cookie_create();
+        TT_UT_NOT_NULL(c, "");
+        tt_blobex_set(&c->name, (tt_u8_t *)"name", 4, TT_TRUE);
+        tt_blobex_set(&c->val, (tt_u8_t *)"val2", 4, TT_TRUE);
+        tt_http_hdr_add_cookie(h, c);
+
+        len = tt_http_hdr_render_len(h);
+        TT_UT_EQUAL(len, sizeof("Cookie: a = 11; xyz; name=val2\r\n") - 1, "");
+        tt_memset(tmp, 0, sizeof(tmp));
+        len2 = tt_http_hdr_render(h, tmp);
+        TT_UT_EQUAL(len2, len, "");
+        TT_UT_STREQ(tmp, "Cookie: a = 11; xyz; name=val2\r\n", "");
+    }
+    tt_http_hdr_destroy(h);
+
+    // test end
+    TT_TEST_CASE_LEAVE()
+}
+
+TT_TEST_ROUTINE_DEFINE(case_http_hdr_set_cookie)
+{
+    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+    tt_http_hdr_t *h;
+    tt_char_t tmp[1024] = {0};
+    tt_u32_t len, len2;
+    tt_blobex_t *bx, *name, *val;
+    tt_http_cookie_t *c;
+
+    TT_TEST_CASE_ENTER()
+    // test start
+
+    h = tt_http_hdr_set_cookie_create();
+    TT_UT_NOT_NULL(h, "");
+    c = tt_http_hdr_find_cookie(h, "1");
+    TT_UT_NULL(c, "");
+    c = tt_http_cookie_head(h);
+    TT_UT_NULL(c, "");
+    tt_http_hdr_destroy(h);
+
+    // empty
+    h = tt_http_hdr_set_cookie_create();
+    tt_http_hdr_parse(h, "");
+    len = tt_http_hdr_render_len(h);
+    TT_UT_EQUAL(len, 0, "");
+    len2 = tt_http_hdr_render(h, tmp);
+    TT_UT_EQUAL(len2, len, "");
+    tt_http_hdr_destroy(h);
+
+    // spaces
+    h = tt_http_hdr_set_cookie_create();
+    TT_UT_SUCCESS(tt_http_hdr_pre_parse(h), "");
+    tt_http_hdr_parse(h, "  ; ");
+    TT_UT_SUCCESS(tt_http_hdr_post_parse(h), "");
+    c = tt_http_cookie_head(h);
+    TT_UT_NULL(c, "");
+    tt_http_hdr_destroy(h);
+
+    // 1 char
+    h = tt_http_hdr_set_cookie_create();
+    TT_UT_SUCCESS(tt_http_hdr_pre_parse(h), "");
+    tt_http_hdr_parse(h, "a");
+    TT_UT_SUCCESS(tt_http_hdr_post_parse(h), "");
+    c = tt_http_hdr_find_cookie(h, "a");
+    TT_UT_NOT_NULL(c, "");
+    TT_UT_NULL(tt_blobex_addr(&c->val), "");
+    {
+        len = tt_http_hdr_render_len(h);
+        TT_UT_EQUAL(len, sizeof("Set-Cookie: a\r\n") - 1, "");
+        tt_memset(tmp, 0, sizeof(tmp));
+        len2 = tt_http_hdr_render(h, tmp);
+        TT_UT_EQUAL(len2, len, "");
+        TT_UT_STREQ(tmp, "Set-Cookie: a\r\n", "");
+    }
+    tt_http_hdr_destroy(h);
+
+    h = tt_http_hdr_set_cookie_create();
+    TT_UT_SUCCESS(tt_http_hdr_pre_parse(h), "");
+    tt_http_hdr_parse(h, "=");
+    TT_UT_SUCCESS(tt_http_hdr_post_parse(h), "");
+    c = tt_http_cookie_head(h);
+    TT_UT_NULL(c, "");
+    tt_http_hdr_destroy(h);
+
+    h = tt_http_hdr_set_cookie_create();
+    TT_UT_SUCCESS(tt_http_hdr_pre_parse(h), "");
+    tt_http_hdr_parse(h, "a=");
+    TT_UT_SUCCESS(tt_http_hdr_post_parse(h), "");
+    c = tt_http_hdr_find_cookie(h, "a");
+    TT_UT_NOT_NULL(c, "");
+    TT_UT_NULL(tt_blobex_addr(&c->val), "");
+    tt_http_hdr_destroy(h);
+
+    h = tt_http_hdr_set_cookie_create();
+    TT_UT_SUCCESS(tt_http_hdr_pre_parse(h), "");
+    tt_http_hdr_parse(h, "=v");
+    TT_UT_SUCCESS(tt_http_hdr_post_parse(h), "");
+    c = tt_http_cookie_head(h);
+    TT_UT_NULL(c, "");
+    tt_http_hdr_destroy(h);
+
+    // mixed
+    h = tt_http_hdr_set_cookie_create();
+    TT_UT_SUCCESS(tt_http_hdr_pre_parse(h), "");
+    tt_http_hdr_parse(h,
+                      "a = 11 ; expires=1 ; max-age=22;domain=333; "
+                      "path=4444;secure;httponly");
+    TT_UT_SUCCESS(tt_http_hdr_post_parse(h), "");
+    c = tt_http_hdr_find_cookie(h, "a ");
+    TT_UT_NOT_NULL(c, "");
+    TT_UT_EQUAL(tt_blobex_strcmp(&c->val, " 11"), 0, "");
+    TT_UT_EQUAL(tt_blobex_strcmp(&c->expires, "1"), 0, "");
+    TT_UT_EQUAL(c->max_age, 22, "");
+    TT_UT_TRUE(c->secure, "");
+    TT_UT_TRUE(c->httponly, "");
+    TT_UT_EQUAL(tt_blobex_strcmp(&c->domain, "333"), 0, "");
+    TT_UT_EQUAL(tt_blobex_strcmp(&c->path, "4444"), 0, "");
+
+    // 1 cookie
+    {
+        const tt_char_t *msg =
+            "Set-Cookie: a = 11; Expires=1; Max-Age=22; Domain=333; Path=4444; "
+            "Secure; HttpOnly\r\n";
+
+        len = tt_http_hdr_render_len(h);
+        len2 = tt_http_hdr_render(h, tmp);
+        TT_UT_EXP(len >= len2, "");
+        TT_UT_EQUAL(len2, tt_strlen(msg), "");
+        TT_UT_EQUAL(tt_strcmp(tmp, msg), 0, "");
+    }
+
+    TT_UT_SUCCESS(tt_http_hdr_pre_parse(h), "");
+    tt_http_hdr_parse(h,
+                      "b ; expires=x ; max-age=yy;domain=zzz; "
+                      "path=rrrr;");
+    TT_UT_SUCCESS(tt_http_hdr_post_parse(h), "");
+    c = tt_http_hdr_find_cookie(h, "b");
+    TT_UT_NOT_NULL(c, "");
+    TT_UT_EQUAL(tt_blobex_len(&c->val), 0, "");
+    TT_UT_EQUAL(tt_blobex_strcmp(&c->expires, "x"), 0, "");
+    TT_UT_EQUAL(c->max_age, 0, "");
+    TT_UT_FALSE(c->secure, "");
+    TT_UT_FALSE(c->httponly, "");
+    TT_UT_EQUAL(tt_blobex_strcmp(&c->domain, "zzz"), 0, "");
+    TT_UT_EQUAL(tt_blobex_strcmp(&c->path, "rrrr"), 0, "");
+
+    // 2 cookies
+    {
+        const tt_char_t *msg =
+            "Set-Cookie: a = 11; Expires=1; Max-Age=22; Domain=333; Path=4444; "
+            "Secure; HttpOnly\r\n"
+            "Set-Cookie: b; Expires=x; Domain=zzz; Path=rrrr\r\n";
+
+        len = tt_http_hdr_render_len(h);
+        len2 = tt_http_hdr_render(h, tmp);
+        TT_UT_EXP(len >= len2, "");
+        TT_UT_EQUAL(len2, tt_strlen(msg), "");
+        TT_UT_EQUAL(tt_strcmp(tmp, msg), 0, "");
+    }
+
+    // add a cookie
+    {
+        const tt_char_t *msg =
+            "Set-Cookie: a = 11; Expires=1; Max-Age=22; Domain=333; Path=4444; "
+            "Secure; HttpOnly\r\n"
+            "Set-Cookie: b; Expires=x; Domain=zzz; Path=rrrr\r\n"
+            "Set-Cookie: name=val2\r\n";
+
+        c = tt_http_cookie_create();
+        TT_UT_NOT_NULL(c, "");
+        tt_blobex_set(&c->val, (tt_u8_t *)"val", 3, TT_TRUE);
+        tt_http_hdr_add_cookie(h, c);
+
+        c = tt_http_cookie_create();
+        TT_UT_NOT_NULL(c, "");
+        tt_blobex_set(&c->name, (tt_u8_t *)"name", 4, TT_TRUE);
+        tt_blobex_set(&c->val, (tt_u8_t *)"val2", 4, TT_TRUE);
+        tt_http_hdr_add_cookie(h, c);
+
+        len = tt_http_hdr_render_len(h);
+        len2 = tt_http_hdr_render(h, tmp);
+        TT_UT_EXP(len >= len2, "");
+        TT_UT_EQUAL(len2, tt_strlen(msg), "");
+        TT_UT_EQUAL(tt_strcmp(tmp, msg), 0, "");
+    }
+    tt_http_hdr_destroy(h);
+
+    h = tt_http_hdr_set_cookie_create();
+    TT_UT_SUCCESS(tt_http_hdr_pre_parse(h), "");
+    tt_http_hdr_parse(h, "n=v;Max-Age=12345678901234");
+    TT_UT_SUCCESS(tt_http_hdr_post_parse(h), "");
+    c = tt_http_cookie_head(h);
+    TT_UT_NOT_NULL(c, "");
+    TT_UT_EQUAL(c->max_age, 0, "");
+    tt_http_hdr_destroy(h);
+
+    h = tt_http_hdr_set_cookie_create();
+    TT_UT_SUCCESS(tt_http_hdr_pre_parse(h), "");
+    tt_http_hdr_parse(h, "n=v;Max-Age=abcd");
+    TT_UT_SUCCESS(tt_http_hdr_post_parse(h), "");
+    c = tt_http_cookie_head(h);
+    TT_UT_NOT_NULL(c, "");
+    TT_UT_EQUAL(c->max_age, 0, "");
+    tt_http_hdr_destroy(h);
 
     // test end
     TT_TEST_CASE_LEAVE()

@@ -44,6 +44,8 @@ this file defines http parser APIs
 ////////////////////////////////////////////////////////////
 
 #define TT_HTTP_PARSE_HDR_MAP(__ENTRY)                                         \
+    __ENTRY(cookie, TT_HTTP_HDR_COOKIE)                                        \
+    __ENTRY(set_cookie, TT_HTTP_HDR_SET_COOKIE)                                \
     __ENTRY(etag, TT_HTTP_HDR_ETAG)                                            \
     __ENTRY(ifmatch, TT_HTTP_HDR_IF_MATCH)                                     \
     __ENTRY(ifnmatch, TT_HTTP_HDR_IF_N_MATCH)                                  \
@@ -209,6 +211,10 @@ tt_export tt_http_hdr_t *tt_http_parser_get_proxy_authorization(
 
 tt_export tt_http_hdr_t *tt_http_parser_get_proxy_authenticate(
     IN tt_http_parser_t *hp);
+
+tt_export tt_http_hdr_t *tt_http_parser_get_cookie(IN tt_http_parser_t *hp);
+
+tt_export tt_http_hdr_t *tt_http_parser_get_set_cookie(IN tt_http_parser_t *hp);
 
 // ========================================
 // helper

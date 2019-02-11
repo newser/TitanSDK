@@ -99,7 +99,9 @@ typedef tt_u32_t (*tt_http_hdr_render_t)(IN struct tt_http_hdr_s *h,
 typedef struct
 {
     tt_http_hdr_destroy_t destroy;
+    tt_result_t (*pre_parse)(IN struct tt_http_hdr_s *h);
     tt_http_hdr_parse_t parse;
+    tt_result_t (*post_parse)(IN struct tt_http_hdr_s *h);
     tt_http_hdr_render_len_t render_len;
     tt_http_hdr_render_t render;
 } tt_http_hdr_itf_t;
@@ -178,12 +180,30 @@ tt_inline void tt_http_hdr_remove(IN tt_http_hdr_t *h, IN tt_http_hval_t *hv)
     tt_dlist_remove(&h->val, &hv->dnode);
 }
 
+tt_inline tt_result_t tt_http_hdr_pre_parse(IN tt_http_hdr_t *h)
+{
+    if (h->itf->pre_parse != NULL) {
+        return h->itf->pre_parse(h);
+    } else {
+        return TT_SUCCESS;
+    }
+}
+
 tt_inline tt_result_t tt_http_hdr_parse_n(IN tt_http_hdr_t *h,
                                           IN const tt_char_t *val,
                                           IN tt_u32_t len)
 {
     if ((val[0] != 0) && (len != 0)) {
         return h->itf->parse(h, val, len);
+    } else {
+        return TT_SUCCESS;
+    }
+}
+
+tt_inline tt_result_t tt_http_hdr_post_parse(IN tt_http_hdr_t *h)
+{
+    if (h->itf->post_parse != NULL) {
+        return h->itf->post_parse(h);
     } else {
         return TT_SUCCESS;
     }

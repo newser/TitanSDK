@@ -102,7 +102,7 @@ static tt_u32_t __auth_render_len(IN tt_http_hdr_t *h);
 static tt_u32_t __auth_render(IN tt_http_hdr_t *h, IN tt_char_t *dst);
 
 static tt_http_hdr_itf_t __auth_itf = {
-    __auth_destroy, __auth_parse, __auth_render_len, __auth_render,
+    __auth_destroy, NULL, __auth_parse, NULL, __auth_render_len, __auth_render,
 };
 
 ////////////////////////////////////////////////////////////

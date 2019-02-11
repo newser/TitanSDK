@@ -48,6 +48,7 @@ this file defines http
 struct tt_http_sconn_s;
 struct tt_http_accenc_s;
 struct tt_http_auth_s;
+struct tt_http_cookie_s;
 
 typedef struct
 {
@@ -139,6 +140,12 @@ tt_export struct tt_http_auth_s *tt_http_render_get_proxy_authenticate(
     IN tt_http_render_t *r);
 
 tt_export tt_bool_t tt_http_render_has_txenc_chunked(IN tt_http_render_t *r);
+
+tt_export tt_result_t tt_http_render_add_cookie(IN tt_http_render_t *r,
+                                                IN struct tt_http_cookie_s *c);
+
+tt_export tt_result_t tt_http_render_add_set_cookie(
+    IN tt_http_render_t *r, IN struct tt_http_cookie_s *c);
 
 // ========================================
 // request

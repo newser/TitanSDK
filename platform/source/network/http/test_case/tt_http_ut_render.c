@@ -25,6 +25,7 @@
 #include <stdlib.h>
 
 #include <network/http/header/tt_http_hdr_auth.h>
+#include <network/http/header/tt_http_hdr_cookie.h>
 #include <network/http/tt_http_parser.h>
 #include <network/http/tt_http_render.h>
 #include <network/http/tt_http_service_manager.h>
@@ -421,6 +422,9 @@ TT_TEST_ROUTINE_DEFINE(case_http_render_resp)
                 "WWW-Authenticate: Digest realm=\"2\"\r\n"
                 "Proxy-Authorization: Digest realm=\"3\"\r\n"
                 "Proxy-Authenticate: Digest realm=\"4\"\r\n"
+                "Cookie: 1; 22=333\r\n"
+                "Set-Cookie: x\r\n"
+                "Set-Cookie: yy=zzz\r\n"
                 "\r\n";
             tt_http_txenc_t txe[5] = {
                 TT_HTTP_TXENC_CHUNKED,
@@ -480,6 +484,25 @@ TT_TEST_ROUTINE_DEFINE(case_http_render_resp)
                 TT_UT_EQUAL(tt_blobex_strcmp(&pa->realm, "4"), 0, "");
                 tt_http_auth_destroy(&ha);
             }
+            {
+                tt_http_cookie_t *c;
+
+                c = tt_http_cookie_create();
+                tt_blobex_set(&c->name, (tt_u8_t *)"1", 1, TT_FALSE);
+                TT_UT_SUCCESS(tt_http_render_add_cookie(&r.render, c), "");
+
+                c = tt_http_cookie_create();
+                tt_blobex_set(&c->name, (tt_u8_t *)"22=333", 6, TT_FALSE);
+                TT_UT_SUCCESS(tt_http_render_add_cookie(&r.render, c), "");
+
+                c = tt_http_cookie_create();
+                tt_blobex_set(&c->name, (tt_u8_t *)"x", 1, TT_FALSE);
+                TT_UT_SUCCESS(tt_http_render_add_set_cookie(&r.render, c), "");
+
+                c = tt_http_cookie_create();
+                tt_blobex_set(&c->name, (tt_u8_t *)"yy=zzz", 6, TT_FALSE);
+                TT_UT_SUCCESS(tt_http_render_add_set_cookie(&r.render, c), "");
+            }
             TT_UT_SUCCESS(tt_http_resp_render(&r, &data, &len), "");
             TT_UT_EQUAL(len, tt_strlen(msg), "");
             TT_UT_EXP(tt_strncmp(data, msg, len) == 0, "");
@@ -495,6 +518,8 @@ TT_TEST_ROUTINE_DEFINE(case_http_render_resp)
                                       TT_HTTP_HDR_PROXY_AUTHORIZATION);
             tt_http_render_remove_all(&r.render,
                                       TT_HTTP_HDR_PROXY_AUTHENTICATE);
+            tt_http_render_remove_all(&r.render, TT_HTTP_HDR_COOKIE);
+            tt_http_render_remove_all(&r.render, TT_HTTP_HDR_SET_COOKIE);
         }
         {
             tt_http_resp_render_set_conn(&r, TT_HTTP_CONN_NONE);

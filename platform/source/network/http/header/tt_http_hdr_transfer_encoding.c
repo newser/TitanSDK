@@ -53,7 +53,7 @@ static tt_u32_t __txenc_render_len(IN tt_http_hdr_t *h);
 static tt_u32_t __txenc_render(IN tt_http_hdr_t *h, IN tt_char_t *dst);
 
 static tt_http_hdr_itf_t __txenc_itf = {
-    NULL, __txenc_parse, __txenc_render_len, __txenc_render,
+    NULL, NULL, __txenc_parse, NULL, __txenc_render_len, __txenc_render,
 };
 
 ////////////////////////////////////////////////////////////

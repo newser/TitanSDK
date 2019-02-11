@@ -25,6 +25,7 @@
 #include <memory/tt_slab.h>
 #include <network/http/header/tt_http_hdr_auth.h>
 #include <network/http/header/tt_http_hdr_content_encoding.h>
+#include <network/http/header/tt_http_hdr_cookie.h>
 #include <network/http/header/tt_http_hdr_etag.h>
 #include <network/http/header/tt_http_hdr_transfer_encoding.h>
 #include <network/http/tt_http_raw_header.h>
@@ -617,9 +618,12 @@ out:
                                                                                \
             __FOREACH_RV(rh, rv, name_str)                                     \
             {                                                                  \
-                tt_http_hdr_parse_n(h,                                         \
-                                    tt_blobex_addr(&rv->val),                  \
-                                    tt_blobex_len(&rv->val));                  \
+                TT_DO_G(fail, tt_http_hdr_pre_parse(h));                       \
+                TT_DO_G(fail,                                                  \
+                        tt_http_hdr_parse_n(h,                                 \
+                                            tt_blobex_addr(&rv->val),          \
+                                            tt_blobex_len(&rv->val)));         \
+                TT_DO_G(fail, tt_http_hdr_post_parse(h));                      \
                 ++num;                                                         \
             }                                                                  \
             __FOREACH_RV_END()                                                 \
@@ -637,6 +641,10 @@ out:
         }                                                                      \
                                                                                \
         return h;                                                              \
+                                                                               \
+    fail:                                                                      \
+        tt_http_hdr_destroy(h);                                                \
+        return NULL;                                                           \
     }
 TT_HTTP_PARSE_HDR_MAP(__ENTRY)
 #undef __ENTRY

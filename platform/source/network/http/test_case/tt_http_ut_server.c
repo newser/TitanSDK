@@ -737,7 +737,7 @@ TT_TEST_ROUTINE_DEFINE(case_http_server_basic)
     TT_TEST_CASE_ENTER()
     // test start
 
-    return TT_SUCCESS;
+    //    return TT_SUCCESS;
 
     tt_task_create(&t, NULL);
     tt_task_add_fiber(&t, NULL, __http_svr_fb, NULL, NULL);

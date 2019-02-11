@@ -64,6 +64,10 @@ tt_http_hval_itf_t tt_g_http_hval_blob_itf = {__hv_bex_create,
                                               __hv_bex_render_len,
                                               __hv_bex_render};
 
+static tt_result_t __pre_parse(IN tt_http_hdr_t *h);
+
+static tt_result_t __post_parse(IN tt_http_hdr_t *h);
+
 // ========================================
 // header: whole line
 // ========================================
@@ -77,7 +81,9 @@ tt_u32_t __h_line_render_len(IN tt_http_hdr_t *h);
 tt_u32_t __h_line_render(IN tt_http_hdr_t *h, IN tt_char_t *dst);
 
 tt_http_hdr_itf_t tt_g_http_hdr_line_itf = {NULL,
+                                            __pre_parse,
                                             __h_line_parse,
+                                            __post_parse,
                                             __h_line_render_len,
                                             __h_line_render};
 
@@ -94,7 +100,9 @@ tt_u32_t __h_cs_render_len(IN tt_http_hdr_t *h);
 tt_u32_t __h_cs_render(IN tt_http_hdr_t *h, IN tt_char_t *dst);
 
 tt_http_hdr_itf_t tt_g_http_hdr_cs_itf = {NULL,
+                                          __pre_parse,
                                           __h_cs_parse,
+                                          __post_parse,
                                           __h_cs_render_len,
                                           __h_cs_render};
 
@@ -107,7 +115,9 @@ tt_result_t __h_csq_parse(IN tt_http_hdr_t *h,
                           IN tt_u32_t len);
 
 tt_http_hdr_itf_t tt_g_http_hdr_csq_itf = {NULL,
+                                           __pre_parse,
                                            __h_csq_parse,
+                                           __post_parse,
                                            __h_cs_render_len,
                                            __h_cs_render};
 
@@ -122,7 +132,9 @@ tt_result_t __h_scs_parse(IN tt_http_hdr_t *h,
 tt_u32_t __h_scs_render(IN tt_http_hdr_t *h, IN tt_char_t *dst);
 
 tt_http_hdr_itf_t tt_g_http_hdr_scs_itf = {NULL,
+                                           __pre_parse,
                                            __h_scs_parse,
+                                           __post_parse,
                                            __h_cs_render_len,
                                            __h_scs_render};
 
@@ -468,6 +480,24 @@ tt_u32_t __hv_bex_render(IN tt_http_hval_t *hv, IN tt_char_t *dst)
 
     tt_memcpy(dst, tt_blobex_addr(&hvb->bex), len);
     return len;
+}
+
+tt_result_t __pre_parse(IN tt_http_hdr_t *h)
+{
+    if ((h->final_val_itf != NULL) && (h->final_val_itf->pre_parse != NULL)) {
+        return h->final_val_itf->pre_parse(h);
+    } else {
+        return TT_SUCCESS;
+    }
+}
+
+tt_result_t __post_parse(IN tt_http_hdr_t *h)
+{
+    if ((h->final_val_itf != NULL) && (h->final_val_itf->post_parse != NULL)) {
+        return h->final_val_itf->post_parse(h);
+    } else {
+        return TT_SUCCESS;
+    }
 }
 
 // ========================================

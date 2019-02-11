@@ -30,6 +30,8 @@ this file defines http cookie header
 // import header files
 ////////////////////////////////////////////////////////////
 
+#include <algorithm/tt_blobex.h>
+#include <algorithm/tt_double_linked_list.h>
 #include <network/http/tt_http_header.h>
 
 ////////////////////////////////////////////////////////////
@@ -40,6 +42,20 @@ this file defines http cookie header
 // type definition
 ////////////////////////////////////////////////////////////
 
+typedef struct tt_http_cookie_s
+{
+    tt_dnode_t node;
+    tt_blobex_t name;
+    tt_blobex_t val;
+    tt_blobex_t expires;
+    tt_u32_t max_age;
+    tt_bool_t secure : 1;
+    tt_bool_t httponly : 1;
+    tt_blobex_t domain;
+    tt_blobex_t path;
+    tt_blobex_t extension;
+} tt_http_cookie_t;
+
 ////////////////////////////////////////////////////////////
 // global variants
 ////////////////////////////////////////////////////////////
@@ -49,5 +65,35 @@ this file defines http cookie header
 ////////////////////////////////////////////////////////////
 
 tt_export tt_http_hdr_t *tt_http_hdr_cookie_create();
+
+tt_export tt_http_hdr_t *tt_http_hdr_set_cookie_create();
+
+// return null if no matching name, return an empty blobex if no value
+tt_export tt_http_cookie_t *tt_http_hdr_find_cookie_n(IN tt_http_hdr_t *h,
+                                                      IN const tt_char_t *name,
+                                                      IN tt_u32_t name_len);
+
+tt_inline tt_http_cookie_t *tt_http_hdr_find_cookie(IN tt_http_hdr_t *h,
+                                                    IN const tt_char_t *name)
+{
+    return tt_http_hdr_find_cookie_n(h, name, tt_strlen(name));
+}
+
+tt_export void tt_http_hdr_add_cookie(IN tt_http_hdr_t *h,
+                                      IN TO tt_http_cookie_t *c);
+
+// ========================================
+// http cookie api
+// ========================================
+
+tt_export tt_http_cookie_t *tt_http_cookie_create();
+
+tt_export void tt_http_cookie_destroy(IN tt_http_cookie_t *c);
+
+tt_export void tt_http_cookie_clear(IN tt_http_cookie_t *c);
+
+tt_export tt_http_cookie_t *tt_http_cookie_head(IN tt_http_hdr_t *h);
+
+tt_export tt_http_cookie_t *tt_http_cookie_next(IN tt_http_cookie_t *c);
 
 #endif /* __TT_HTTP_HDR_COOKIE__ */
