@@ -75,6 +75,10 @@
 
 #define __DEFAULT_FOOTER_TEXT "TitanSDK HTTP Module"
 
+#define __DEFAULT_ADMIN_TEXT "Admin Login"
+
+#define __DEFAULT_ADMIN_LINK "#"
+
 #define __JS_MAIN_START                                                        \
     "var cur=\"\";"                                                            \
     "function activate(n){"                                                    \
