@@ -300,10 +300,10 @@ tt_result_t tt_http_parser_run(IN tt_http_parser_t *hp)
     tt_u32_t n;
     enum http_errno e;
 
-    n = http_parser_execute(p,
-                            &tt_s_hp_setting,
-                            (char *)TT_BUF_RPOS(buf),
-                            TT_BUF_RLEN(buf));
+    n = (tt_u32_t)http_parser_execute(p,
+                                      &tt_s_hp_setting,
+                                      (char *)TT_BUF_RPOS(buf),
+                                      TT_BUF_RLEN(buf));
     TT_ASSERT(n <= TT_BUF_RLEN(buf));
     tt_buf_inc_rp(buf, n);
 
@@ -683,9 +683,9 @@ int __on_uri(http_parser *p, const char *at, size_t length)
     tt_blobex_t *uri = &hp->rawuri;
 
     if (tt_blobex_len(uri) == 0) {
-        tt_blobex_set(uri, (tt_u8_t *)at, length, TT_FALSE);
+        tt_blobex_set(uri, (tt_u8_t *)at, (tt_u32_t)length, TT_FALSE);
         return 0;
-    } else if (TT_OK(tt_blobex_memcat(uri, (tt_u8_t *)at, length))) {
+    } else if (TT_OK(tt_blobex_memcat(uri, (tt_u8_t *)at, (tt_u32_t)length))) {
         return 0;
     } else {
         // fail to merge uri
@@ -720,7 +720,7 @@ int __on_hdr_field(http_parser *p, const char *at, size_t length)
 
     if (hp->rh != NULL) {
         // it's parsing a header name
-        if (TT_OK(tt_http_rawhdr_append_name(hp->rh, at, length))) {
+        if (TT_OK(tt_http_rawhdr_append_name(hp->rh, at, (tt_u32_t)length))) {
             return 0;
         } else {
             return -1;
@@ -731,7 +731,7 @@ int __on_hdr_field(http_parser *p, const char *at, size_t length)
 
         rh = tt_http_rawhdr_create(hp->rawhdr_slab,
                                    (tt_char_t *)at,
-                                   length,
+                                   (tt_u32_t)length,
                                    TT_FALSE);
         if (rh != NULL) {
             hp->rh = rh;
@@ -752,7 +752,7 @@ int __on_hdr_value(http_parser *p, const char *at, size_t length)
 
     if (hp->rv != NULL) {
         // it's parsing a header value
-        if (TT_OK(tt_http_rawval_append(hp->rv, at, length))) {
+        if (TT_OK(tt_http_rawval_append(hp->rv, at, (tt_u32_t)length))) {
             return 0;
         } else {
             return -1;
@@ -761,7 +761,7 @@ int __on_hdr_value(http_parser *p, const char *at, size_t length)
         // see header value
         tt_http_rawval_t *rv = tt_http_rawval_create(hp->rawval_slab,
                                                      (tt_char_t *)at,
-                                                     length,
+                                                     (tt_u32_t)length,
                                                      TT_FALSE);
         if (rv != NULL) {
             hp->rv = rv;
@@ -806,7 +806,7 @@ int __on_body(http_parser *p, const char *at, size_t length)
 {
     tt_http_parser_t *hp = TT_CONTAINER(p, tt_http_parser_t, parser);
 
-    tt_blobex_set(&hp->body, (tt_u8_t *)at, length, TT_FALSE);
+    tt_blobex_set(&hp->body, (tt_u8_t *)at, (tt_u32_t)length, TT_FALSE);
     ++hp->body_counter;
 
     if (!http_body_is_final(p)) {
@@ -870,7 +870,7 @@ void tt_http_parse_weight(IN OUT tt_char_t **s,
     }
 
     // trim value before ";"
-    n = sep - pos;
+    n = (tt_u32_t)(sep - pos);
     tt_trim_lr((tt_u8_t **)&pos, &n, ' ');
     //*s = pos;
     *len = n;

@@ -39,6 +39,62 @@
 // internal macro
 ////////////////////////////////////////////////////////////
 
+#if TT_ENV_OS_IS_IOS
+
+#if (TT_ENV_OS_FEATURE & TT_ENV_OS_FEATURE_IOS_SIMULATOR)
+#define __A_TXT_PATH "/tmp/a.txt"
+#else
+static tt_string_t atxt_path;
+#define __A_TXT_PATH tt_string_cstr(&atxt_path)
+#endif
+
+#elif TT_ENV_OS_IS_ANDROID
+#define __A_TXT_PATH "/data/data/com.titansdk.titansdkunittest/a.txt"
+#else
+static tt_string_t atxt_path;
+#define __A_TXT_PATH tt_string_cstr(&atxt_path)
+#endif
+
+static void __atxt_enter(void *p)
+{
+#if TT_ENV_OS_IS_IOS
+
+#if (TT_ENV_OS_FEATURE & TT_ENV_OS_FEATURE_IOS_SIMULATOR)
+#else
+    tt_char_t *cp = tt_current_path(TT_TRUE);
+
+    tt_string_init(&atxt_path, NULL);
+    tt_string_append(&atxt_path, cp);
+    tt_free(cp);
+    tt_string_append(&atxt_path, "a.txt");
+#endif
+
+#elif TT_ENV_OS_IS_ANDROID
+#else
+    tt_char_t *cp = tt_current_path(TT_TRUE);
+
+    tt_string_init(&atxt_path, NULL);
+    tt_string_append(&atxt_path, cp);
+    tt_free(cp);
+    tt_string_append(&atxt_path, "a.txt");
+#endif
+}
+
+static void __atxt_exit(void *p)
+{
+#if TT_ENV_OS_IS_IOS
+
+#if (TT_ENV_OS_FEATURE & TT_ENV_OS_FEATURE_IOS_SIMULATOR)
+#else
+    tt_string_destroy(&atxt_path);
+#endif
+
+#elif TT_ENV_OS_IS_ANDROID
+#else
+    tt_string_destroy(&atxt_path);
+#endif
+}
+
 ////////////////////////////////////////////////////////////
 // internal type
 ////////////////////////////////////////////////////////////
@@ -68,9 +124,9 @@ TT_TEST_CASE("case_http_inserv_file",
              "http uri service: file",
              case_http_inserv_file,
              NULL,
+             __atxt_enter,
              NULL,
-             NULL,
-             NULL,
+             __atxt_exit,
              NULL)
 ,
 
@@ -78,9 +134,9 @@ TT_TEST_CASE("case_http_inserv_file",
                  "http uri service: conditional",
                  case_http_inserv_cond,
                  NULL,
+                 __atxt_enter,
                  NULL,
-                 NULL,
-                 NULL,
+                 __atxt_exit,
                  NULL),
 
     TT_TEST_CASE("case_http_inserv_param",
@@ -256,9 +312,9 @@ TT_TEST_CASE("case_http_inserv_file",
         tt_free(cp);
         tt_string_append(&s, "a.txt");
 
-        tt_fremove(tt_string_cstr(&s));
+        tt_fremove(__A_TXT_PATH);
         TT_UT_SUCCESS(tt_fopen(&f,
-                               tt_string_cstr(&s),
+                               __A_TXT_PATH,
                                TT_FO_WRITE | TT_FO_CREAT | TT_FO_EXCL,
                                NULL),
                       "");
@@ -268,8 +324,8 @@ TT_TEST_CASE("case_http_inserv_file",
         tt_http_inserv_clear_ctx(is, &fctx);
 
         tt_blobex_set(&req.rawuri,
-                      (tt_u8_t *)tt_string_cstr(&s),
-                      tt_string_len(&s),
+                      (tt_u8_t *)__A_TXT_PATH,
+                      tt_strlen(__A_TXT_PATH),
                       TT_FALSE);
         req.updated_uri = TT_FALSE;
         uri = tt_http_parser_get_uri(&req);
@@ -327,9 +383,9 @@ TT_TEST_CASE("case_http_inserv_file",
         tt_free(cp);
         tt_string_append(&s, "a2.txt");
 
-        tt_fremove(tt_string_cstr(&s));
+        tt_fremove(__A_TXT_PATH);
         TT_UT_SUCCESS(tt_fopen(&f,
-                               tt_string_cstr(&s),
+                               __A_TXT_PATH,
                                TT_FO_WRITE | TT_FO_CREAT | TT_FO_EXCL,
                                NULL),
                       "");
@@ -337,8 +393,8 @@ TT_TEST_CASE("case_http_inserv_file",
         tt_fclose(&f);
 
         tt_blobex_set(&req.rawuri,
-                      (tt_u8_t *)tt_string_cstr(&s),
-                      tt_string_len(&s),
+                      (tt_u8_t *)__A_TXT_PATH,
+                      tt_strlen(__A_TXT_PATH),
                       TT_FALSE);
         req.updated_uri = TT_FALSE;
         uri = tt_http_parser_get_uri(&req);
@@ -404,7 +460,7 @@ static tt_bool_t __mk_parser(tt_http_parser_t *p, const tt_char_t *msg)
     tt_http_parser_clear(p, TT_TRUE);
 
     tt_http_parser_wpos(p, &addr, &len);
-    msglen = tt_strlen(msg);
+    msglen = (tt_u32_t)tt_strlen(msg);
     if (msglen > len) {
         return TT_FALSE;
     }
@@ -466,16 +522,16 @@ TT_TEST_ROUTINE_DEFINE(case_http_inserv_cond)
         tt_free(cp);
         tt_string_append(&s, "a2.txt");
 
-        tt_fremove(tt_string_cstr(&s));
+        tt_fremove(__A_TXT_PATH);
         TT_UT_SUCCESS(tt_fopen(&f,
-                               tt_string_cstr(&s),
+                               __A_TXT_PATH,
                                TT_FO_WRITE | TT_FO_CREAT | TT_FO_EXCL,
                                NULL),
                       "");
         TT_UT_SUCCESS(tt_fwrite(&f, (tt_u8_t *)b, sizeof(b), NULL), "");
         tt_fclose(&f);
 
-        TT_UT_SUCCESS(tt_fopen(&f, tt_string_cstr(&s), TT_FO_READ, NULL), "");
+        TT_UT_SUCCESS(tt_fopen(&f, __A_TXT_PATH, TT_FO_READ, NULL), "");
         TT_UT_SUCCESS(tt_http_file_etag(&f, etag, sizeof(etag)), "");
         tt_fclose(&f);
 
@@ -489,8 +545,8 @@ TT_TEST_ROUTINE_DEFINE(case_http_inserv_cond)
             TT_UT_TRUE(__mk_parser(&req, tt_string_cstr(&s2)), "");
             // set uri
             tt_blobex_set(&req.rawuri,
-                          (tt_u8_t *)tt_string_cstr(&s),
-                          tt_string_len(&s),
+                          (tt_u8_t *)__A_TXT_PATH,
+                          tt_strlen(__A_TXT_PATH),
                           TT_FALSE);
             req.updated_uri = TT_FALSE;
             uri = tt_http_parser_get_uri(&req);
@@ -513,8 +569,8 @@ TT_TEST_ROUTINE_DEFINE(case_http_inserv_cond)
             TT_UT_TRUE(__mk_parser(&req, tt_string_cstr(&s2)), "");
             // set uri
             tt_blobex_set(&req.rawuri,
-                          (tt_u8_t *)tt_string_cstr(&s),
-                          tt_string_len(&s),
+                          (tt_u8_t *)__A_TXT_PATH,
+                          tt_strlen(__A_TXT_PATH),
                           TT_FALSE);
             req.updated_uri = TT_FALSE;
             uri = tt_http_parser_get_uri(&req);
@@ -538,8 +594,8 @@ TT_TEST_ROUTINE_DEFINE(case_http_inserv_cond)
             TT_UT_TRUE(__mk_parser(&req, tt_string_cstr(&s2)), "");
             // set uri
             tt_blobex_set(&req.rawuri,
-                          (tt_u8_t *)tt_string_cstr(&s),
-                          tt_string_len(&s),
+                          (tt_u8_t *)__A_TXT_PATH,
+                          tt_strlen(__A_TXT_PATH),
                           TT_FALSE);
             req.updated_uri = TT_FALSE;
             uri = tt_http_parser_get_uri(&req);
@@ -563,8 +619,8 @@ TT_TEST_ROUTINE_DEFINE(case_http_inserv_cond)
             TT_UT_TRUE(__mk_parser(&req, tt_string_cstr(&s2)), "");
             // set uri
             tt_blobex_set(&req.rawuri,
-                          (tt_u8_t *)tt_string_cstr(&s),
-                          tt_string_len(&s),
+                          (tt_u8_t *)__A_TXT_PATH,
+                          tt_strlen(__A_TXT_PATH),
                           TT_FALSE);
             req.updated_uri = TT_FALSE;
             uri = tt_http_parser_get_uri(&req);
@@ -589,8 +645,8 @@ TT_TEST_ROUTINE_DEFINE(case_http_inserv_cond)
             TT_UT_TRUE(__mk_parser(&req, tt_string_cstr(&s2)), "");
             // set uri
             tt_blobex_set(&req.rawuri,
-                          (tt_u8_t *)tt_string_cstr(&s),
-                          tt_string_len(&s),
+                          (tt_u8_t *)__A_TXT_PATH,
+                          tt_strlen(__A_TXT_PATH),
                           TT_FALSE);
             req.updated_uri = TT_FALSE;
             uri = tt_http_parser_get_uri(&req);
@@ -615,8 +671,8 @@ TT_TEST_ROUTINE_DEFINE(case_http_inserv_cond)
             TT_UT_TRUE(__mk_parser(&req, tt_string_cstr(&s2)), "");
             // set uri
             tt_blobex_set(&req.rawuri,
-                          (tt_u8_t *)tt_string_cstr(&s),
-                          tt_string_len(&s),
+                          (tt_u8_t *)__A_TXT_PATH,
+                          tt_strlen(__A_TXT_PATH),
                           TT_FALSE);
             req.updated_uri = TT_FALSE;
             uri = tt_http_parser_get_uri(&req);

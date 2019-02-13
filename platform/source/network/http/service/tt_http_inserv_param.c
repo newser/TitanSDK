@@ -360,7 +360,8 @@ tt_http_inserv_action_t __s_param_on_complete(IN tt_http_inserv_t *s,
         pos = "/";
     }
 
-    param = tt_param_path_p2n(sp->root, sp->root, pos, tt_strlen(pos));
+    param =
+        tt_param_path_p2n(sp->root, sp->root, pos, (tt_u32_t)tt_strlen(pos));
     if (param == NULL) {
         tt_http_resp_render_set_status(resp, TT_HTTP_STATUS_NOT_FOUND);
         return TT_HTTP_INSERV_ACT_DISCARD;
@@ -430,8 +431,11 @@ tt_result_t __post_param(IN tt_http_inserv_t *s,
 
     prev = body;
     while ((pos = tt_strchr(prev, '&')) != NULL) {
-        if (!TT_OK(
-                __post_single_param(prev, pos - prev, p, &c->jdoc, &c->buf))) {
+        if (!TT_OK(__post_single_param(prev,
+                                       (tt_u32_t)(pos - prev),
+                                       p,
+                                       &c->jdoc,
+                                       &c->buf))) {
             all_done = TT_FALSE;
         }
 
@@ -439,8 +443,11 @@ tt_result_t __post_param(IN tt_http_inserv_t *s,
     }
     TT_ASSERT(prev <= end);
     if (prev < end) {
-        if (!TT_OK(
-                __post_single_param(prev, end - prev, p, &c->jdoc, &c->buf))) {
+        if (!TT_OK(__post_single_param(prev,
+                                       (tt_u32_t)(end - prev),
+                                       p,
+                                       &c->jdoc,
+                                       &c->buf))) {
             all_done = TT_FALSE;
         }
     }
@@ -477,7 +484,7 @@ tt_result_t __param2json(IN tt_param_t *param,
 
             tt_jobj_add_strn(tt_jdoc_get_root(jd),
                              tid,
-                             tt_strlen(tid),
+                             (tt_u32_t)tt_strlen(tid),
                              TT_TRUE,
                              (tt_char_t *)TT_BUF_RPOS(buf),
                              TT_BUF_RLEN(buf),
@@ -523,7 +530,7 @@ tt_result_t __post_single_param(IN const tt_char_t *beg,
     }
 
     name = beg;
-    name_len = eq - beg;
+    name_len = (tt_u32_t)(eq - beg);
     tt_trim_lr((tt_u8_t **)&name, &name_len, ' ');
 
     if (name_len >= sizeof(name_buf)) {
@@ -541,7 +548,7 @@ tt_result_t __post_single_param(IN const tt_char_t *beg,
 
     val = eq + 1;
     TT_ASSERT(val <= (beg + len));
-    val_len = beg + len - val;
+    val_len = (tt_u32_t)(beg + len - val);
     // tt_trim_lr((tt_u8_t**)&val, &val_len, ' ');
 
     // must do percent decoding for string parameters

@@ -244,7 +244,7 @@ tt_result_t tt_fpath_set_filename(IN tt_fpath_t *fp,
 {
     __fname_clear(fp);
     if ((filename != NULL) && (filename[0] != 0)) {
-        TT_DO(__fname_parse(fp, filename, tt_strlen(filename)));
+        TT_DO(__fname_parse(fp, filename, (tt_u32_t)tt_strlen(filename)));
     }
 
     fp->modified = TT_TRUE;
@@ -726,26 +726,28 @@ tt_u32_t tt_fpath_pctencode_len(IN tt_fpath_t *fp, IN tt_char_t *enc_tbl)
     if ((fp->root[0] == fp->sep) && (fp->root[1] == 0)) {
         n += 1;
     } else {
-        n += tt_percent_encode_len(fp->root, tt_strlen(fp->root), enc_tbl);
+        n += tt_percent_encode_len(fp->root,
+                                   (tt_u32_t)tt_strlen(fp->root),
+                                   enc_tbl);
     }
 
     // dir
     tt_ptrq_iter(&fp->dir, &iter);
     while ((dir = (tt_char_t *)tt_ptrq_iter_next(&iter)) != NULL) {
-        n += tt_percent_encode_len(dir, tt_strlen(dir), enc_tbl);
+        n += tt_percent_encode_len(dir, (tt_u32_t)tt_strlen(dir), enc_tbl);
         n += 1;
     }
 
     // file
     if ((fp->basename != NULL) && (fp->basename[0] != 0)) {
         n += tt_percent_encode_len(fp->basename,
-                                   tt_strlen(fp->basename),
+                                   (tt_u32_t)tt_strlen(fp->basename),
                                    enc_tbl);
     }
     if ((fp->extension != NULL) && (fp->extension[0] != 0)) {
         n += 1;
         n += tt_percent_encode_len(fp->extension,
-                                   tt_strlen(fp->extension),
+                                   (tt_u32_t)tt_strlen(fp->extension),
                                    enc_tbl);
     }
 
@@ -764,27 +766,30 @@ tt_u32_t tt_fpath_pctencode(IN tt_fpath_t *fp,
     if ((fp->root[0] == fp->sep) && (fp->root[1] == 0)) {
         *p++ = fp->sep;
     } else {
-        p += tt_percent_encode(fp->root, tt_strlen(fp->root), enc_tbl, p);
+        p += tt_percent_encode(fp->root,
+                               (tt_u32_t)tt_strlen(fp->root),
+                               enc_tbl,
+                               p);
     }
 
     // dir
     tt_ptrq_iter(&fp->dir, &iter);
     while ((dir = (tt_char_t *)tt_ptrq_iter_next(&iter)) != NULL) {
-        p += tt_percent_encode(dir, tt_strlen(dir), enc_tbl, p);
+        p += tt_percent_encode(dir, (tt_u32_t)tt_strlen(dir), enc_tbl, p);
         *p++ = fp->sep;
     }
 
     // file
     if ((fp->basename != NULL) && (fp->basename[0] != 0)) {
         p += tt_percent_encode(fp->basename,
-                               tt_strlen(fp->basename),
+                               (tt_u32_t)tt_strlen(fp->basename),
                                enc_tbl,
                                p);
     }
     if ((fp->extension != NULL) && (fp->extension[0] != 0)) {
         *p++ = '.';
         p += tt_percent_encode(fp->extension,
-                               tt_strlen(fp->extension),
+                               (tt_u32_t)tt_strlen(fp->extension),
                                enc_tbl,
                                p);
     }

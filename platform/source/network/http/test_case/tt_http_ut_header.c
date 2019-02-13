@@ -677,7 +677,7 @@ TT_TEST_ROUTINE_DEFINE(case_http_test_only)
     //    "Connection: close\r\n"
     //    "\r\n";
 
-    slen = tt_strlen(s);
+    slen = (tt_u32_t)tt_strlen(s);
 
     //    http_parser_init(&hp, HTTP_REQUEST);
     http_parser_init(&hp, HTTP_BOTH);
@@ -3081,10 +3081,10 @@ TT_TEST_ROUTINE_DEFINE(case_http_hdr_auth)
         TT_UT_SUCCESS(tt_http_auth_ctx_calc(&c,
                                             ha,
                                             (tt_char_t *)pwd,
-                                            tt_strlen(pwd),
+                                            (tt_u32_t)tt_strlen(pwd),
                                             TT_HTTP_QOP_AUTH,
                                             (tt_char_t *)mtd,
-                                            tt_strlen(mtd),
+                                            (tt_u32_t)tt_strlen(mtd),
                                             NULL,
                                             0,
                                             resp),
@@ -3095,10 +3095,10 @@ TT_TEST_ROUTINE_DEFINE(case_http_hdr_auth)
         TT_UT_SUCCESS(tt_http_auth_ctx_calc(&c,
                                             ha,
                                             (tt_char_t *)pwd,
-                                            tt_strlen(pwd),
+                                            (tt_u32_t)tt_strlen(pwd),
                                             TT_HTTP_QOP_AUTH,
                                             (tt_char_t *)mtd,
-                                            tt_strlen(mtd),
+                                            (tt_u32_t)tt_strlen(mtd),
                                             NULL,
                                             0,
                                             resp),

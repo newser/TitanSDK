@@ -117,7 +117,11 @@ tt_inline tt_result_t tt_string_set_range(IN tt_string_t *str,
                                           IN tt_u32_t len,
                                           IN const tt_char_t *cstr)
 {
-    return tt_string_set_range_n(str, from, len, cstr, tt_strlen(cstr));
+    return tt_string_set_range_n(str,
+                                 from,
+                                 len,
+                                 cstr,
+                                 (tt_u32_t)tt_strlen(cstr));
 }
 
 tt_export void tt_string_clear(IN tt_string_t *str);

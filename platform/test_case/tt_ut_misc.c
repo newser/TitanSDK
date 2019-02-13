@@ -1370,7 +1370,7 @@ TT_TEST_ROUTINE_DEFINE(case_uri)
 
     // abs
     s = "abc://usr:pwd@host.com:65535/xyz?q1=v1&q2=v2#123";
-    TT_UT_SUCCESS(tt_uri_parse_n(&u, s, tt_strlen(s)), "");
+    TT_UT_SUCCESS(tt_uri_parse_n(&u, s, (tt_u32_t)tt_strlen(s)), "");
     TT_UT_STREQ(tt_uri_get_scheme(&u), "abc", "");
     // TT_UT_STREQ(tt_uri_get_opaque(&u), "xyz", "");
     // TT_UT_STREQ(tt_uri_get_authority(&u), "", "");
@@ -1383,7 +1383,7 @@ TT_TEST_ROUTINE_DEFINE(case_uri)
 
     // abs, no path
     s = "abc://usr:pwd@host.com:65535?q1=v1&q2=v2#123";
-    TT_UT_SUCCESS(tt_uri_parse_n(&u, s, tt_strlen(s)), "");
+    TT_UT_SUCCESS(tt_uri_parse_n(&u, s, (tt_u32_t)tt_strlen(s)), "");
     TT_UT_STREQ(tt_uri_get_scheme(&u), "abc", "");
     // TT_UT_STREQ(tt_uri_get_opaque(&u), "xyz", "");
     // TT_UT_STREQ(tt_uri_get_authority(&u), "", "");
@@ -1396,7 +1396,7 @@ TT_TEST_ROUTINE_DEFINE(case_uri)
 
     // abs, single slash path
     s = "abc://usr:pwd@host.com:65535/?q1=v1&q2=v2#123";
-    TT_UT_SUCCESS(tt_uri_parse_n(&u, s, tt_strlen(s)), "");
+    TT_UT_SUCCESS(tt_uri_parse_n(&u, s, (tt_u32_t)tt_strlen(s)), "");
     TT_UT_STREQ(tt_uri_get_scheme(&u), "abc", "");
     // TT_UT_STREQ(tt_uri_get_opaque(&u), "xyz", "");
     // TT_UT_STREQ(tt_uri_get_authority(&u), "", "");
@@ -1409,7 +1409,7 @@ TT_TEST_ROUTINE_DEFINE(case_uri)
 
     // abs, no query, only path
     s = "abc://usr:pwd@host.com:65535/";
-    TT_UT_SUCCESS(tt_uri_parse_n(&u, s, tt_strlen(s)), "");
+    TT_UT_SUCCESS(tt_uri_parse_n(&u, s, (tt_u32_t)tt_strlen(s)), "");
     TT_UT_STREQ(tt_uri_get_scheme(&u), "abc", "");
     // TT_UT_STREQ(tt_uri_get_opaque(&u), "xyz", "");
     // TT_UT_STREQ(tt_uri_get_authority(&u), "", "");
@@ -1422,7 +1422,7 @@ TT_TEST_ROUTINE_DEFINE(case_uri)
 
     // abs, no query, no path
     s = "abc://usr:pwd@host.com:65535";
-    TT_UT_SUCCESS(tt_uri_parse_n(&u, s, tt_strlen(s)), "");
+    TT_UT_SUCCESS(tt_uri_parse_n(&u, s, (tt_u32_t)tt_strlen(s)), "");
     TT_UT_STREQ(tt_uri_get_scheme(&u), "abc", "");
     // TT_UT_STREQ(tt_uri_get_opaque(&u), "xyz", "");
     // TT_UT_STREQ(tt_uri_get_authority(&u), "", "");
@@ -1435,7 +1435,7 @@ TT_TEST_ROUTINE_DEFINE(case_uri)
 
     // abs, no authority, path query, frag
     s = "abc:///xyz?q1=v1&q2=v2#123";
-    TT_UT_SUCCESS(tt_uri_parse_n(&u, s, tt_strlen(s)), "");
+    TT_UT_SUCCESS(tt_uri_parse_n(&u, s, (tt_u32_t)tt_strlen(s)), "");
     TT_UT_STREQ(tt_uri_get_scheme(&u), "abc", "");
     // TT_UT_STREQ(tt_uri_get_opaque(&u), "xyz", "");
     // TT_UT_STREQ(tt_uri_get_authority(&u), "", "");
@@ -1448,7 +1448,7 @@ TT_TEST_ROUTINE_DEFINE(case_uri)
 
     // abs, no authority, no path, query, frag
     s = "abc://?q1=v1&q2=v2#123";
-    TT_UT_SUCCESS(tt_uri_parse_n(&u, s, tt_strlen(s)), "");
+    TT_UT_SUCCESS(tt_uri_parse_n(&u, s, (tt_u32_t)tt_strlen(s)), "");
     TT_UT_STREQ(tt_uri_get_scheme(&u), "abc", "");
     // TT_UT_STREQ(tt_uri_get_opaque(&u), "xyz", "");
     // TT_UT_STREQ(tt_uri_get_authority(&u), "", "");
@@ -1461,7 +1461,7 @@ TT_TEST_ROUTINE_DEFINE(case_uri)
 
     // abs, no authority, empty path, empty query, empty frag
     s = "abc:///?#";
-    TT_UT_SUCCESS(tt_uri_parse_n(&u, s, tt_strlen(s)), "");
+    TT_UT_SUCCESS(tt_uri_parse_n(&u, s, (tt_u32_t)tt_strlen(s)), "");
     TT_UT_STREQ(tt_uri_get_scheme(&u), "abc", "");
     // TT_UT_STREQ(tt_uri_get_opaque(&u), "xyz", "");
     // TT_UT_STREQ(tt_uri_get_authority(&u), "", "");
@@ -1474,7 +1474,7 @@ TT_TEST_ROUTINE_DEFINE(case_uri)
 
     // abs, no authority, path, no query, frag
     s = "abc:///xyz#123";
-    TT_UT_SUCCESS(tt_uri_parse_n(&u, s, tt_strlen(s)), "");
+    TT_UT_SUCCESS(tt_uri_parse_n(&u, s, (tt_u32_t)tt_strlen(s)), "");
     TT_UT_STREQ(tt_uri_get_scheme(&u), "abc", "");
     // TT_UT_STREQ(tt_uri_get_opaque(&u), "xyz", "");
     // TT_UT_STREQ(tt_uri_get_authority(&u), "", "");
@@ -1487,7 +1487,7 @@ TT_TEST_ROUTINE_DEFINE(case_uri)
 
     // abs, no userinfo
     s = "abc://host.com:65535/xyz?q1=v1&q2=v2#123";
-    TT_UT_SUCCESS(tt_uri_parse_n(&u, s, tt_strlen(s)), "");
+    TT_UT_SUCCESS(tt_uri_parse_n(&u, s, (tt_u32_t)tt_strlen(s)), "");
     TT_UT_STREQ(tt_uri_get_scheme(&u), "abc", "");
     // TT_UT_STREQ(tt_uri_get_opaque(&u), "xyz", "");
     // TT_UT_STREQ(tt_uri_get_authority(&u), "", "");
@@ -1500,7 +1500,7 @@ TT_TEST_ROUTINE_DEFINE(case_uri)
 
     // abs, empty userinfo
     s = "abc://@host.com:65535/xyz?q1=v1&q2=v2#123";
-    TT_UT_SUCCESS(tt_uri_parse_n(&u, s, tt_strlen(s)), "");
+    TT_UT_SUCCESS(tt_uri_parse_n(&u, s, (tt_u32_t)tt_strlen(s)), "");
     TT_UT_STREQ(tt_uri_get_scheme(&u), "abc", "");
     // TT_UT_STREQ(tt_uri_get_opaque(&u), "xyz", "");
     // TT_UT_STREQ(tt_uri_get_authority(&u), "", "");
@@ -1513,7 +1513,7 @@ TT_TEST_ROUTINE_DEFINE(case_uri)
 
     // abs, empty userinfo, no host
     s = "abc://@:65535/xyz?q1=v1&q2=v2#123";
-    TT_UT_SUCCESS(tt_uri_parse_n(&u, s, tt_strlen(s)), "");
+    TT_UT_SUCCESS(tt_uri_parse_n(&u, s, (tt_u32_t)tt_strlen(s)), "");
     TT_UT_STREQ(tt_uri_get_scheme(&u), "abc", "");
     // TT_UT_STREQ(tt_uri_get_opaque(&u), "xyz", "");
     // TT_UT_STREQ(tt_uri_get_authority(&u), "", "");
@@ -1526,7 +1526,7 @@ TT_TEST_ROUTINE_DEFINE(case_uri)
 
     // abs, no port
     s = "abc://host.com/xyz?q1=v1&q2=v2#123";
-    TT_UT_SUCCESS(tt_uri_parse_n(&u, s, tt_strlen(s)), "");
+    TT_UT_SUCCESS(tt_uri_parse_n(&u, s, (tt_u32_t)tt_strlen(s)), "");
     TT_UT_STREQ(tt_uri_get_scheme(&u), "abc", "");
     // TT_UT_STREQ(tt_uri_get_opaque(&u), "xyz", "");
     // TT_UT_STREQ(tt_uri_get_authority(&u), "", "");
@@ -1539,21 +1539,21 @@ TT_TEST_ROUTINE_DEFINE(case_uri)
 
     // abs, empty port
     s = "abc://@host.com:/xyz?q1=v1&q2=v2#123";
-    TT_UT_FAIL(tt_uri_parse_n(&u, s, tt_strlen(s)), "");
+    TT_UT_FAIL(tt_uri_parse_n(&u, s, (tt_u32_t)tt_strlen(s)), "");
     // abs, too long port
     s = "abc://@host.com:655350/xyz?q1=v1&q2=v2#123";
-    TT_UT_FAIL(tt_uri_parse_n(&u, s, tt_strlen(s)), "");
+    TT_UT_FAIL(tt_uri_parse_n(&u, s, (tt_u32_t)tt_strlen(s)), "");
     // abs, too large port
     s = "abc://@host.com:65536/xyz?q1=v1&q2=v2#123";
-    TT_UT_FAIL(tt_uri_parse_n(&u, s, tt_strlen(s)), "");
+    TT_UT_FAIL(tt_uri_parse_n(&u, s, (tt_u32_t)tt_strlen(s)), "");
     // abs, invalid port
     s = "abc://@host.com:23a/xyz?q1=v1&q2=v2#123";
-    TT_UT_FAIL(tt_uri_parse_n(&u, s, tt_strlen(s)), "");
+    TT_UT_FAIL(tt_uri_parse_n(&u, s, (tt_u32_t)tt_strlen(s)), "");
 
 #if 0
     {
         s = "/a/b/c?q1=v1&q2=v2#123";
-        TT_UT_SUCCESS(tt_uri_parse_n(&u, s, tt_strlen(s)), "");
+        TT_UT_SUCCESS(tt_uri_parse_n(&u, s, (tt_u32_t)tt_strlen(s)), "");
         TT_UT_STREQ(tt_uri_get_path(&u), "/a/b/c", "");
         TT_UT_STREQ(tt_uri_render(&u, NULL), "/a/b/c?q1=v1&q2=v2#123", "");
     }

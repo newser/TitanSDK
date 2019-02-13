@@ -502,8 +502,8 @@ TT_TEST_ROUTINE_DEFINE(case_cfgsh_ls)
         const tt_char_t *this_out =
             "ls\n"
             "--    dir       g1/    group 1, testing\n"
-            "rw    s32       s1     s32 val under g1\n"
             "r-    u32       u1     u32 val under g1\n"
+            "rw    s32       s1     s32 val under g1\n"
             "shell$ ";
 
         tt_buf_clear(&__ut_buf_out);

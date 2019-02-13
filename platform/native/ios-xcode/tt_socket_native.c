@@ -450,15 +450,18 @@ tt_result_t tt_skt_listen_ntv(IN tt_skt_ntv_t *skt)
     }
 }
 
-tt_skt_t *tt_skt_accept_ntv(IN tt_skt_ntv_t *skt,
-                            OUT tt_sktaddr_t *addr,
-                            OUT tt_fiber_ev_t **p_fev,
-                            OUT tt_tmr_t **p_tmr)
+tt_result_t tt_skt_accept_ntv(IN tt_skt_ntv_t *skt,
+                              OUT tt_sktaddr_t *addr,
+                              OUT tt_skt_t **new_skt,
+                              OUT tt_fiber_ev_t **p_fev,
+                              OUT tt_tmr_t **p_tmr)
 {
     __skt_accept_t skt_accept;
     int kq;
     tt_fiber_t *cfb;
+    tt_result_t result;
 
+    *new_skt = NULL;
     *p_fev = NULL;
     *p_tmr = NULL;
 
@@ -466,7 +469,7 @@ tt_skt_t *tt_skt_accept_ntv(IN tt_skt_ntv_t *skt,
     cfb = skt_accept.io_ev.src;
 
     if (tt_fiber_recv(cfb, TT_FALSE, p_fev, p_tmr)) {
-        return NULL;
+        return TT_SUCCESS;
     }
 
     skt_accept.skt = skt;
@@ -485,9 +488,18 @@ tt_skt_t *tt_skt_accept_ntv(IN tt_skt_ntv_t *skt,
         tt_kq_unread(kq, skt->s, &skt_accept.io_ev);
     }
 
-    tt_fiber_recv(cfb, TT_FALSE, p_fev, p_tmr);
+    if (skt_accept.new_skt != NULL) {
+        *new_skt = skt_accept.new_skt;
+        result = TT_SUCCESS;
+    } else {
+        result = TT_FAIL;
+    }
 
-    return skt_accept.new_skt;
+    if (tt_fiber_recv(cfb, TT_FALSE, p_fev, p_tmr)) {
+        result = TT_SUCCESS;
+    }
+
+    return result;
 }
 
 tt_result_t tt_skt_connect_ntv(IN tt_skt_ntv_t *skt, IN tt_sktaddr_t *addr)
@@ -669,8 +681,13 @@ tt_result_t tt_skt_send_oob_ntv(IN tt_skt_ntv_t *skt, IN tt_u8_t b)
     return skt_send.result;
 }
 
-tt_result_t tt_skt_sendfile_ntv(IN tt_skt_ntv_t *skt, IN tt_file_t *f)
+tt_result_t tt_skt_sendfile_ntv(IN tt_skt_ntv_t *skt,
+                                IN struct tt_file_s *f,
+                                IN tt_u64_t offset,
+                                IN tt_u32_t len,
+                                OUT tt_u64_t *sent)
 {
+#if 0
     __skt_sendfile_t skt_sendfile;
     int kq;
 
@@ -690,6 +707,38 @@ tt_result_t tt_skt_sendfile_ntv(IN tt_skt_ntv_t *skt, IN tt_file_t *f)
     tt_kq_write(kq, skt->s, &skt_sendfile.io_ev);
     tt_fiber_suspend();
     return skt_sendfile.result;
+#else
+    off_t n = len;
+
+    /*
+     Initially the value pointed to by the len argument specifies how many bytes
+     should be sent with 0 having the special meaning to send until the end of
+     file has been reached.
+     */
+    if (sendfile(f->sys_file.fd, skt->s, offset, &n, NULL, 0) == 0) {
+        TT_SAFE_ASSIGN(sent, n);
+        return TT_SUCCESS;
+    } else if ((errno == EINTR) || (errno == EAGAIN)) {
+        /*
+         [EAGAIN]
+         The socket is marked for non-blocking I/O and not all data was sent due
+         to
+         the socket buffer being full.  If specified, the number of bytes
+         successfully
+         sent will be returned in *len.
+
+         [EINTR]
+         A signal interrupted sendfile() before it could be completed. If
+         specified,
+         the number of bytes successfully sent will be returned in *len.
+         */
+        TT_SAFE_ASSIGN(sent, n);
+        return TT_COND(n > 0, TT_SUCCESS, TT_E_AGAIN);
+    } else {
+        TT_ERROR_NTV("sendfile failed");
+        return TT_FAIL;
+    }
+#endif
 }
 
 tt_result_t tt_skt_recv_ntv(IN tt_skt_ntv_t *skt,

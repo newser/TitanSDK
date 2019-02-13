@@ -86,7 +86,7 @@ tt_inline tt_result_t tt_fpath_create_cstr(IN tt_fpath_t *fp,
                                            IN const tt_char_t *path,
                                            IN tt_char_t separator)
 {
-    return tt_fpath_create(fp, path, tt_strlen(path), separator);
+    return tt_fpath_create(fp, path, (tt_u32_t)tt_strlen(path), separator);
 }
 
 tt_export void tt_fpath_destroy(IN tt_fpath_t *fp);
@@ -99,7 +99,7 @@ tt_export tt_result_t tt_fpath_parse_n(IN tt_fpath_t *fp,
 
 tt_inline tt_result_t tt_fpath_parse(IN tt_fpath_t *fp, const tt_char_t *path)
 {
-    return tt_fpath_parse_n(fp, path, tt_strlen(path));
+    return tt_fpath_parse_n(fp, path, (tt_u32_t)tt_strlen(path));
 }
 
 // parse string stored in fp->path, some application may not want to hold a

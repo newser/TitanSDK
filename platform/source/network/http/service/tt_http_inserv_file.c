@@ -282,8 +282,8 @@ tt_http_inserv_action_t __s_file_on_complete(IN tt_http_inserv_t *s,
                                       sizeof(txenc) / sizeof(txenc[0]));
         // keep sf->size -1 to indicate it's not using content-length
     } else {
-        c->size = size;
-        tt_http_resp_render_set_content_len(resp, size);
+        c->size = (tt_u32_t)size;
+        tt_http_resp_render_set_content_len(resp, (tt_u32_t)size);
     }
 
     tt_http_resp_render_set_status(resp, TT_HTTP_STATUS_OK);

@@ -253,5 +253,5 @@ tt_u32_t __accenc_render(IN tt_http_hdr_t *h, IN tt_char_t *dst)
     *p++ = '\r';
     *p++ = '\n';
 
-    return p - dst;
+    return (tt_u32_t)(p - dst);
 }

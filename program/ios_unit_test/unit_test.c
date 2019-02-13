@@ -75,9 +75,11 @@ tt_result_t __ut_fiber(IN void *param)
             "TEST_UNIT_CFGSHELL",
 #endif
 
+#if 0
             "TEST_UNIT_FS",
-//"TEST_UNIT_IPC",
-//"TEST_UNIT_SOCKET",
+"TEST_UNIT_IPC",
+"TEST_UNIT_SOCKET",
+#endif
 
 #if 0
             "ALG_UT_BASIC_ALG",
@@ -102,6 +104,15 @@ tt_result_t __ut_fiber(IN void *param)
 #if 0
             "SSL_UT_X509",
             "SSL_UT_IO",
+#endif
+
+#if 1
+            "HTTP_UT_URI",
+            "HTTP_UT_HDR",
+            "HTTP_UT_RENDER",
+            "HTTP_UT_SCONN",
+            "HTTP_UT_SVR",
+            "HTTP_UT_INSERV",
 #endif
         };
 

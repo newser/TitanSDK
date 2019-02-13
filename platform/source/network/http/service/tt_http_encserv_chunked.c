@@ -100,7 +100,7 @@ tt_result_t __s_chunked_on_body(IN tt_http_encserv_t *s,
     tt_snprintf(tmp, sizeof(tmp) - 1, "%x", TT_BUF_RLEN(input));
 
     TT_DO(tt_buf_put_head(input, (tt_u8_t *)"\r\n", 2));
-    TT_DO(tt_buf_put_head(input, (tt_u8_t *)tmp, tt_strlen(tmp)));
+    TT_DO(tt_buf_put_head(input, (tt_u8_t *)tmp, (tt_u32_t)tt_strlen(tmp)));
     TT_DO(tt_buf_put(input, (tt_u8_t *)"\r\n", 2));
 
     *output = input;

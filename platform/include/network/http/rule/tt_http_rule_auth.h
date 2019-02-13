@@ -65,7 +65,9 @@ tt_export tt_http_rule_t *tt_http_rule_auth_create_n(
 tt_inline tt_http_rule_t *tt_http_rule_auth_create(
     IN const tt_char_t *prefix, IN struct tt_http_inserv_s *auth)
 {
-    return tt_http_rule_auth_create_n(prefix, tt_strlen(prefix), auth);
+    return tt_http_rule_auth_create_n(prefix,
+                                      (tt_u32_t)tt_strlen(prefix),
+                                      auth);
 }
 
 #endif /* __TT_HTTP_RULE_AUTH__ */

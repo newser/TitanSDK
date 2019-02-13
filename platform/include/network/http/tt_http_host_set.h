@@ -81,7 +81,9 @@ tt_export tt_http_host_t *tt_http_hostset_match_n(IN tt_http_hostset_t *hs,
 tt_inline tt_http_host_t *tt_http_hostset_match(IN tt_http_hostset_t *hs,
                                                 IN const tt_char_t *name)
 {
-    return tt_http_hostset_match_n(hs, (tt_char_t *)name, tt_strlen(name));
+    return tt_http_hostset_match_n(hs,
+                                   (tt_char_t *)name,
+                                   (tt_u32_t)tt_strlen(name));
 }
 
 tt_export tt_http_hostset_t *tt_current_http_hostset(IN tt_bool_t create);

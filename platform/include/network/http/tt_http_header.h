@@ -213,7 +213,7 @@ tt_inline tt_result_t tt_http_hdr_parse(IN tt_http_hdr_t *h,
                                         IN const tt_char_t *val)
 {
     return TT_COND(val[0] != 0,
-                   tt_http_hdr_parse_n(h, val, tt_strlen(val)),
+                   tt_http_hdr_parse_n(h, val, (tt_u32_t)tt_strlen(val)),
                    TT_SUCCESS);
 }
 

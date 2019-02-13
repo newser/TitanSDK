@@ -163,7 +163,7 @@ tt_result_t __hc_parse(IN tt_http_hdr_t *h,
     n = val;
     v = tt_memchr(n, '=', len);
     if (v != NULL) {
-        nlen = v - n;
+        nlen = (tt_u32_t)(v - n);
         ++v;
         TT_ASSERT(len >= (nlen + 1));
         vlen = len - nlen - 1;
@@ -296,7 +296,7 @@ tt_u32_t __hc_render(IN tt_http_hdr_t *h, IN tt_char_t *dst)
     *p++ = '\r';
     *p++ = '\n';
 
-    return p - dst;
+    return (tt_u32_t)(p - dst);
 }
 
 tt_result_t __hsc_pre_parse(IN tt_http_hdr_t *h)
@@ -328,7 +328,7 @@ tt_result_t __hsc_parse(IN tt_http_hdr_t *h,
     n = val;
     v = tt_memchr(n, '=', len);
     if (v != NULL) {
-        nlen = v - n;
+        nlen = (tt_u32_t)(v - n);
         ++v;
         TT_ASSERT(len >= (nlen + 1));
         vlen = len - nlen - 1;
@@ -569,7 +569,7 @@ tt_u32_t __hsc_render(IN tt_http_hdr_t *h, IN tt_char_t *dst)
         *p++ = '\n';
     }
 
-    return p - dst;
+    return (tt_u32_t)(p - dst);
 }
 
 tt_http_hdr_t *__hdr_create(IN tt_http_hname_t name, IN tt_http_hdr_itf_t *itf)

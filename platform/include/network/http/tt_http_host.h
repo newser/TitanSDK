@@ -91,7 +91,7 @@ tt_inline tt_http_host_t *tt_http_host_create(IN const tt_char_t *name,
                                               IN OPT tt_http_host_match_t match,
                                               IN OPT tt_http_host_attr_t *attr)
 {
-    return tt_http_host_create_n(name, tt_strlen(name), match, attr);
+    return tt_http_host_create_n(name, (tt_u32_t)tt_strlen(name), match, attr);
 }
 
 tt_export void tt_http_host_attr_default(IN tt_http_host_attr_t *attr);

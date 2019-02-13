@@ -109,9 +109,11 @@ tt_inline tt_result_t tt_http_contype_map_add(IN tt_http_contype_map_t *cm,
     return tt_http_contype_map_add_n(cm,
                                      type,
                                      name,
-                                     tt_strlen(name),
+                                     (tt_u32_t)tt_strlen(name),
                                      ext,
-                                     TT_COND(ext != NULL, tt_strlen(ext), 0));
+                                     TT_COND(ext != NULL,
+                                             (tt_u32_t)tt_strlen(ext),
+                                             0));
 }
 
 tt_export void tt_http_contype_map_remove(IN tt_http_contype_map_t *cm,
@@ -135,7 +137,7 @@ tt_export tt_http_contype_entry_t *tt_http_contype_map_find_name_n(
 tt_inline tt_http_contype_entry_t *tt_http_contype_map_find_name(
     IN tt_http_contype_map_t *cm, IN const tt_char_t *name)
 {
-    return tt_http_contype_map_find_name_n(cm, name, tt_strlen(name));
+    return tt_http_contype_map_find_name_n(cm, name, (tt_u32_t)tt_strlen(name));
 }
 
 tt_export tt_http_contype_entry_t *tt_http_contype_map_find_ext_n(
@@ -144,7 +146,7 @@ tt_export tt_http_contype_entry_t *tt_http_contype_map_find_ext_n(
 tt_inline tt_http_contype_entry_t *tt_http_contype_map_find_ext(
     IN tt_http_contype_map_t *cm, IN const tt_char_t *ext)
 {
-    return tt_http_contype_map_find_ext_n(cm, ext, tt_strlen(ext));
+    return tt_http_contype_map_find_ext_n(cm, ext, (tt_u32_t)tt_strlen(ext));
 }
 
 #endif /* __TT_HTTP_CONTENT_TYPE_MAP__ */

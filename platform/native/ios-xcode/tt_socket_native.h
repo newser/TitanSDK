@@ -83,10 +83,11 @@ extern tt_result_t tt_skt_bind_ntv(IN tt_skt_ntv_t *skt, IN tt_sktaddr_t *addr);
 
 extern tt_result_t tt_skt_listen_ntv(IN tt_skt_ntv_t *skt);
 
-extern struct tt_skt_s *tt_skt_accept_ntv(IN tt_skt_ntv_t *skt,
-                                          OUT tt_sktaddr_t *addr,
-                                          OUT tt_fiber_ev_t **p_fev,
-                                          OUT struct tt_tmr_s **p_tmr);
+extern tt_result_t tt_skt_accept_ntv(IN tt_skt_ntv_t *skt,
+                                     OUT tt_sktaddr_t *addr,
+                                     OUT struct tt_skt_s **new_skt,
+                                     OUT tt_fiber_ev_t **p_fev,
+                                     OUT struct tt_tmr_s **p_tmr);
 
 extern tt_result_t tt_skt_connect_ntv(IN tt_skt_ntv_t *skt,
                                       IN tt_sktaddr_t *addr);
@@ -132,7 +133,10 @@ extern tt_result_t tt_skt_send_ntv(IN tt_skt_ntv_t *skt,
 extern tt_result_t tt_skt_send_oob_ntv(IN tt_skt_ntv_t *skt, IN tt_u8_t b);
 
 extern tt_result_t tt_skt_sendfile_ntv(IN tt_skt_ntv_t *skt,
-                                       IN struct tt_file_s *f);
+                                       IN struct tt_file_s *f,
+                                       IN tt_u64_t offset,
+                                       IN tt_u32_t len,
+                                       OUT tt_u64_t *sent);
 
 extern tt_result_t tt_skt_join_mcast_ntv(IN tt_skt_ntv_t *skt,
                                          IN tt_net_family_t family,

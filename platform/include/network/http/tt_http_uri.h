@@ -93,7 +93,7 @@ tt_export tt_result_t tt_http_uri_create(IN tt_http_uri_t *hu,
 tt_inline tt_result_t tt_http_uri_create_cstr(IN tt_http_uri_t *hu,
                                               IN tt_char_t *str)
 {
-    return tt_http_uri_create(hu, str, tt_strlen(str));
+    return tt_http_uri_create(hu, str, (tt_u32_t)tt_strlen(str));
 }
 
 tt_export void tt_http_uri_destroy(IN tt_http_uri_t *hu);
@@ -115,7 +115,7 @@ tt_export tt_result_t tt_http_uri_parse_n(IN tt_http_uri_t *hu,
 
 tt_inline tt_result_t tt_http_uri_parse(IN tt_http_uri_t *hu, IN tt_char_t *str)
 {
-    return tt_http_uri_parse_n(hu, str, tt_strlen(str));
+    return tt_http_uri_parse_n(hu, str, (tt_u32_t)tt_strlen(str));
 }
 
 // ========================================

@@ -69,10 +69,10 @@ tt_inline tt_http_rule_t *tt_http_rule_startwith_create(
     IN tt_http_rule_result_t default_result)
 {
     return tt_http_rule_startwith_create_n(prefix,
-                                           tt_strlen(prefix),
+                                           (tt_u32_t)tt_strlen(prefix),
                                            replace,
                                            TT_COND(replace != NULL,
-                                                   tt_strlen(replace),
+                                                   (tt_u32_t)tt_strlen(replace),
                                                    0),
                                            default_result);
 }

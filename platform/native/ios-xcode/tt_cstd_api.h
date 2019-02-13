@@ -35,6 +35,7 @@ this file wraps neccesary c standard library operations for purpose:
 #include <tt_basic_type.h>
 
 #include <ctype.h>
+#include <inttypes.h>
 #include <memory.h>
 #include <stdarg.h>
 #include <stdio.h>
@@ -44,6 +45,11 @@ this file wraps neccesary c standard library operations for purpose:
 ////////////////////////////////////////////////////////////
 // macro definition
 ////////////////////////////////////////////////////////////
+
+#define TT_PRId64 PRId64
+#define TT_PRIu64 PRIu64
+#define TT_PRIx64 PRIx64
+#define TT_PRIX64 PRIX64
 
 /**
 @def tt_memset
@@ -68,6 +74,12 @@ wrapped c memmove()
 wrapped c memcmp()
 */
 #define tt_memcmp memcmp
+
+/**
+ @def tt_memchr
+ wrapped c memchr()
+ */
+#define tt_memchr memchr
 
 /**
 @def tt_c_malloc
@@ -208,6 +220,16 @@ extern tt_result_t tt_strtos32(IN const char *str,
                                IN int base,
                                IN tt_s32_t *val);
 
+extern tt_result_t tt_strtof(IN const char *str,
+                             IN char **endptr,
+                             IN tt_float_t *val);
+
+extern tt_result_t tt_strtod(IN const char *str,
+                             IN char **endptr,
+                             IN tt_double_t *val);
+
 extern char *tt_strrstr(const char *haystack, const char *needle);
+
+extern void *tt_memrchr(const void *s, int c, size_t n);
 
 #endif /* __TT_CSTD_AIP__ */

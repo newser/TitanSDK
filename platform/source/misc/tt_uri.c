@@ -245,7 +245,7 @@ tt_result_t tt_uri_render2buf(IN tt_uri_t *uri,
             // port
             if (uri->port != 0) {
                 tt_snprintf(port, sizeof(port) - 1, "%d", uri->port);
-                port_len = tt_strlen(port);
+                port_len = (tt_u32_t)tt_strlen(port);
 
                 n += 1; // ":"
                 n += port_len;
@@ -454,15 +454,15 @@ const tt_char_t *tt_uri_get_authority(IN tt_uri_t *uri)
         tt_char_t port[20] = {0}, *p;
 
         usrinfo = tt_uri_get_userinfo(uri);
-        usrinfo_len = tt_strlen(usrinfo);
+        usrinfo_len = (tt_u32_t)tt_strlen(usrinfo);
 
         host = tt_uri_get_host(uri);
-        host_len = tt_strlen(host);
+        host_len = (tt_u32_t)tt_strlen(host);
 
         if (uri->port != 0) {
             tt_snprintf(port, sizeof(port) - 1, "%d", uri->port);
         }
-        port_len = tt_strlen(port);
+        port_len = (tt_u32_t)tt_strlen(port);
 
         // "userinfo@host:port"
         len = usrinfo_len + TT_COND(usrinfo_len != 0, 1, 0);

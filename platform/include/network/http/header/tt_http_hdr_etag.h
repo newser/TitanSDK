@@ -71,7 +71,7 @@ tt_inline tt_result_t tt_http_hdr_etag_add(IN tt_http_hdr_t *h,
                                            IN tt_char_t *etag,
                                            IN tt_bool_t weak)
 {
-    return tt_http_hdr_etag_add_n(h, etag, tt_strlen(etag), weak);
+    return tt_http_hdr_etag_add_n(h, etag, (tt_u32_t)tt_strlen(etag), weak);
 }
 
 tt_inline tt_http_etag_t *tt_http_etag_head(IN tt_http_hdr_t *h)
@@ -108,7 +108,7 @@ tt_inline tt_result_t tt_http_hdr_ifmatch_add(IN tt_http_hdr_t *h,
                                               IN tt_char_t *etag,
                                               IN tt_bool_t weak)
 {
-    return tt_http_hdr_ifmatch_add_n(h, etag, tt_strlen(etag), weak);
+    return tt_http_hdr_ifmatch_add_n(h, etag, (tt_u32_t)tt_strlen(etag), weak);
 }
 
 tt_export tt_result_t tt_http_hdr_ifmatch_add_aster(IN tt_http_hdr_t *h);
@@ -128,7 +128,7 @@ tt_inline tt_result_t tt_http_hdr_ifnmatch_add(IN tt_http_hdr_t *h,
                                                IN tt_char_t *etag,
                                                IN tt_bool_t weak)
 {
-    return tt_http_hdr_ifnmatch_add_n(h, etag, tt_strlen(etag), weak);
+    return tt_http_hdr_ifnmatch_add_n(h, etag, (tt_u32_t)tt_strlen(etag), weak);
 }
 
 tt_export tt_result_t tt_http_hdr_ifnmatch_add_aster(IN tt_http_hdr_t *h);

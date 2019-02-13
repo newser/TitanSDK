@@ -473,37 +473,58 @@ TT_TEST_ROUTINE_DEFINE(case_http_uri_encode)
 
     // path
     s = "/a/b/c";
-    TT_UT_SUCCESS(tt_http_uri_parse_n(&u, (tt_char_t *)s, tt_strlen(s)), "");
+    TT_UT_SUCCESS(tt_http_uri_parse_n(&u,
+                                      (tt_char_t *)s,
+                                      (tt_u32_t)tt_strlen(s)),
+                  "");
     TT_UT_STREQ(tt_http_uri_render(&u), "/a/b/c", "");
 
     s = "a/b/c/";
-    TT_UT_SUCCESS(tt_http_uri_parse_n(&u, (tt_char_t *)s, tt_strlen(s)), "");
+    TT_UT_SUCCESS(tt_http_uri_parse_n(&u,
+                                      (tt_char_t *)s,
+                                      (tt_u32_t)tt_strlen(s)),
+                  "");
     TT_UT_STREQ(tt_http_uri_render(&u), "a/b/c/", "");
 
     // path with 0 params
     s = "/a/b/c;?";
-    TT_UT_SUCCESS(tt_http_uri_parse_n(&u, (tt_char_t *)s, tt_strlen(s)), "");
+    TT_UT_SUCCESS(tt_http_uri_parse_n(&u,
+                                      (tt_char_t *)s,
+                                      (tt_u32_t)tt_strlen(s)),
+                  "");
     TT_UT_STREQ(tt_http_uri_render(&u), "/a/b/c;", "");
 
     // path with 1 params
     s = "a/b/c/;a?";
-    TT_UT_SUCCESS(tt_http_uri_parse_n(&u, (tt_char_t *)s, tt_strlen(s)), "");
+    TT_UT_SUCCESS(tt_http_uri_parse_n(&u,
+                                      (tt_char_t *)s,
+                                      (tt_u32_t)tt_strlen(s)),
+                  "");
     TT_UT_STREQ(tt_http_uri_render(&u), "a/b/c/;a", "");
 
     s = "a/b/c/;a=1?";
-    TT_UT_SUCCESS(tt_http_uri_parse_n(&u, (tt_char_t *)s, tt_strlen(s)), "");
+    TT_UT_SUCCESS(tt_http_uri_parse_n(&u,
+                                      (tt_char_t *)s,
+                                      (tt_u32_t)tt_strlen(s)),
+                  "");
     TT_UT_STREQ(tt_http_uri_render(&u), "a/b/c/;a=1", "");
 
     // path with 2 params
     s = "/a/b/c;a=1&b=2?";
-    TT_UT_SUCCESS(tt_http_uri_parse_n(&u, (tt_char_t *)s, tt_strlen(s)), "");
+    TT_UT_SUCCESS(tt_http_uri_parse_n(&u,
+                                      (tt_char_t *)s,
+                                      (tt_u32_t)tt_strlen(s)),
+                  "");
     TT_UT_STREQ(tt_http_uri_render(&u), "/a/b/c;a=1&b=2", "");
     kv = tt_http_uri_find_pparam(&u, "b");
     TT_UT_NOT_NULL(kv, "");
     TT_UT_EQUAL(tt_blobex_strcmp(&kv->val, "2"), 0, "");
 
     s = "/a/b/c/;a=1&b=2&";
-    TT_UT_SUCCESS(tt_http_uri_parse_n(&u, (tt_char_t *)s, tt_strlen(s)), "");
+    TT_UT_SUCCESS(tt_http_uri_parse_n(&u,
+                                      (tt_char_t *)s,
+                                      (tt_u32_t)tt_strlen(s)),
+                  "");
     TT_UT_STREQ(tt_http_uri_render(&u), "/a/b/c/;a=1&b=2&", "");
     kv = tt_http_uri_find_pparam(&u, "b");
     TT_UT_NOT_NULL(kv, "");

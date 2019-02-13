@@ -354,5 +354,5 @@ tt_u32_t __etag_val_render(IN tt_http_hval_t *hv, IN tt_char_t *dst)
     p += n;
     *p++ = '"';
 
-    return p - dst;
+    return (tt_u32_t)(p - dst);
 }

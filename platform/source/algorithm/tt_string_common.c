@@ -277,7 +277,7 @@ void tt_string_remove_tailfrom(IN tt_string_t *s, IN tt_u32_t from)
 
 tt_result_t tt_string_append(IN OUT tt_string_t *s, IN const tt_char_t *substr)
 {
-    return tt_string_append_n(s, substr, tt_strlen(substr));
+    return tt_string_append_n(s, substr, (tt_u32_t)tt_strlen(substr));
 }
 
 tt_result_t tt_string_append_n(IN OUT tt_string_t *s,

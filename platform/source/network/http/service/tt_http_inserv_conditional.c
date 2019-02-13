@@ -262,7 +262,7 @@ tt_result_t __if_match(IN const tt_char_t *path,
             tt_fclose(&f);
             return TT_FAIL;
         }
-        len = tt_strlen(etag);
+        len = (tt_u32_t)tt_strlen(etag);
 
         // can return true if one of etag matches:
         //  - file existence matches *
@@ -324,7 +324,7 @@ tt_result_t __if_none_match(IN const tt_char_t *path,
             tt_fclose(&f);
             return TT_FAIL;
         }
-        len = tt_strlen(etag);
+        len = (tt_u32_t)tt_strlen(etag);
 
         b = TT_TRUE;
         he = tt_http_etag_head(h);

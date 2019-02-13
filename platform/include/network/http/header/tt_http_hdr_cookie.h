@@ -76,7 +76,7 @@ tt_export tt_http_cookie_t *tt_http_hdr_find_cookie_n(IN tt_http_hdr_t *h,
 tt_inline tt_http_cookie_t *tt_http_hdr_find_cookie(IN tt_http_hdr_t *h,
                                                     IN const tt_char_t *name)
 {
-    return tt_http_hdr_find_cookie_n(h, name, tt_strlen(name));
+    return tt_http_hdr_find_cookie_n(h, name, (tt_u32_t)tt_strlen(name));
 }
 
 tt_export void tt_http_hdr_add_cookie(IN tt_http_hdr_t *h,

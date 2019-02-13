@@ -293,7 +293,7 @@ tt_bool_t tt_trim_l(IN OUT tt_u8_t **p, IN OUT tt_u32_t *len, IN tt_u8_t b)
         ++beg;
     }
     *p = beg;
-    *len = end - beg;
+    *len = (tt_u32_t)(end - beg);
 
     TT_ASSERT(beg <= end);
     return TT_BOOL(end == beg);
@@ -308,7 +308,7 @@ tt_bool_t tt_trim_r(IN OUT tt_u8_t **p, IN OUT tt_u32_t *len, IN tt_u8_t b)
     }
     ++end;
     *p = beg;
-    *len = end - beg;
+    *len = (tt_u32_t)(end - beg);
 
     TT_ASSERT(beg <= end);
     return TT_BOOL(end == beg);

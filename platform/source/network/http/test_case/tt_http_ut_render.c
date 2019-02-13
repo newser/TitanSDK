@@ -195,9 +195,9 @@ TT_TEST_CASE("case_http_render_req",
         tt_char_t *data;
         tt_u32_t len;
 
-        tt_blobex_set(&b[0], (tt_u8_t *)"1", 1, TT_FALSE);
-        tt_blobex_set(&b[1], (tt_u8_t *)"22", 2, TT_FALSE);
-        tt_blobex_set(&b[2], (tt_u8_t *)"333", 3, TT_FALSE);
+        tt_blobex_create(&b[0], (tt_u8_t *)"1", 1);
+        tt_blobex_create(&b[1], (tt_u8_t *)"22", 2);
+        tt_blobex_create(&b[2], (tt_u8_t *)"333", 3);
         {
             h = tt_http_hdr_create_cs(0, TT_HTTP_HDR_DATE, NULL);
             TT_UT_NOT_NULL(h, "");

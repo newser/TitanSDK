@@ -426,7 +426,7 @@ void tt_http_auth_ctx_new_nonce(IN tt_http_auth_ctx_t *ctx)
                 "%x%x",
                 tt_rand_u32(),
                 (tt_u32_t)tt_time_ref());
-    ctx->nonce_len = tt_strlen(ctx->nonce);
+    ctx->nonce_len = (tt_u32_t)tt_strlen(ctx->nonce);
 }
 
 tt_u32_t tt_http_auth_ctx_digest_len(IN tt_http_auth_ctx_t *ctx)
@@ -602,7 +602,7 @@ tt_result_t __parse_qop(IN __auth_int_t *ai,
 
     end = val + val_len;
     while ((val < end) && ((p = tt_memchr(val, ',', end - val)) != NULL)) {
-        n = p - val;
+        n = (tt_u32_t)(p - val);
         tt_trim_lr((tt_u8_t **)&val, &n, ' ');
 
         if (__VIEQ(val, n, __QOP_AUTH)) {
@@ -614,7 +614,7 @@ tt_result_t __parse_qop(IN __auth_int_t *ai,
         val = p + 1;
     }
     if (val < end) {
-        n = end - val;
+        n = (tt_u32_t)(end - val);
         tt_trim_lr((tt_u8_t **)&val, &n, ' ');
 
         if (__VIEQ(val, n, __QOP_AUTH)) {
@@ -653,7 +653,7 @@ tt_result_t __auth_parse(IN tt_http_hdr_t *h,
         n = val;
         p = tt_memchr(n, ' ', len);
         if (p != NULL) {
-            nlen = p - val;
+            nlen = (tt_u32_t)(p - val);
         } else {
             nlen = len;
         }
@@ -677,7 +677,7 @@ tt_result_t __auth_parse(IN tt_http_hdr_t *h,
     n = val;
     p = tt_memchr(val, '=', len);
     if (p != NULL) {
-        nlen = p - val;
+        nlen = (tt_u32_t)(p - val);
         val = p + 1;
         TT_ASSERT(len >= (nlen + 1));
         len -= (nlen + 1);
@@ -945,7 +945,7 @@ tt_u32_t __auth_render(IN tt_http_hdr_t *h, IN tt_char_t *dst)
     *p++ = '\r';
     *p++ = '\n';
 
-    return p - dst;
+    return (tt_u32_t)(p - dst);
 }
 
 tt_result_t __calc_md5(IN tt_md_t *md,

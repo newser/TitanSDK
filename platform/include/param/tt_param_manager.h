@@ -84,7 +84,9 @@ tt_export struct tt_param_s *tt_param_mgr_find_n(IN tt_param_mgr_t *pm,
 tt_inline struct tt_param_s *tt_param_mgr_find(IN tt_param_mgr_t *pm,
                                                IN const tt_char_t *path)
 {
-    return tt_param_mgr_find_n(pm, (tt_char_t *)path, tt_strlen(path));
+    return tt_param_mgr_find_n(pm,
+                               (tt_char_t *)path,
+                               (tt_u32_t)tt_strlen(path));
 }
 
 tt_export tt_result_t tt_param_mgr_fiber_routine(IN void *param);

@@ -346,16 +346,19 @@ again:
     return ipc_connect.result;
 }
 
-tt_ipc_t *tt_ipc_accept_ntv(IN tt_ipc_ntv_t *ipc,
-                            IN tt_ipc_attr_t *new_attr,
-                            OUT tt_fiber_ev_t **p_fev,
-                            OUT tt_tmr_t **p_tmr)
+tt_result_t tt_ipc_accept_ntv(IN tt_ipc_ntv_t *ipc,
+                              IN OPT tt_ipc_attr_t *new_attr,
+                              OUT tt_ipc_t **new_ipc,
+                              OUT tt_fiber_ev_t **p_fev,
+                              OUT struct tt_tmr_s **p_tmr)
 {
     __ipc_accept_t ipc_accept;
     int kq;
     tt_fiber_t *cfb;
     struct sockaddr_un saun;
+    tt_result_t result;
 
+    *new_ipc = NULL;
     *p_fev = NULL;
     *p_tmr = NULL;
 
@@ -363,7 +366,7 @@ tt_ipc_t *tt_ipc_accept_ntv(IN tt_ipc_ntv_t *ipc,
     cfb = ipc_accept.io_ev.src;
 
     if (tt_fiber_recv(cfb, TT_FALSE, p_fev, p_tmr)) {
-        return NULL;
+        return TT_SUCCESS;
     }
 
     ipc_accept.ipc = ipc;
@@ -383,9 +386,18 @@ tt_ipc_t *tt_ipc_accept_ntv(IN tt_ipc_ntv_t *ipc,
         tt_kq_unread(kq, ipc->s, &ipc_accept.io_ev);
     }
 
-    tt_fiber_recv(cfb, TT_FALSE, p_fev, p_tmr);
+    if (ipc_accept.new_ipc != NULL) {
+        *new_ipc = ipc_accept.new_ipc;
+        result = TT_SUCCESS;
+    } else {
+        result = TT_FAIL;
+    }
 
-    return ipc_accept.new_ipc;
+    if (tt_fiber_recv(cfb, TT_FALSE, p_fev, p_tmr)) {
+        result = TT_SUCCESS;
+    }
+
+    return result;
 }
 
 tt_result_t tt_ipc_send_ntv(IN tt_ipc_ntv_t *ipc,

@@ -133,5 +133,5 @@ tt_u32_t tt_percent_decode(IN const tt_char_t *str,
         }
     }
 
-    return d - dst;
+    return (tt_u32_t)(d - dst);
 }

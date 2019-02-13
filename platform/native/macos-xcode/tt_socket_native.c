@@ -767,10 +767,8 @@ tt_result_t tt_skt_sendfile_ntv(IN tt_skt_ntv_t *skt,
 
     /*
      Initially the value pointed to by the len argument specifies how many bytes
-     should
-     be sent with 0 having the special meaning to send until the end of file has
-     been
-     reached.
+     should be sent with 0 having the special meaning to send until the end of
+     file has been reached.
      */
     if (sendfile(f->sys_file.fd, skt->s, offset, &n, NULL, 0) == 0) {
         TT_SAFE_ASSIGN(sent, n);

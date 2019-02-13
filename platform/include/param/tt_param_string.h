@@ -80,7 +80,7 @@ tt_export tt_result_t tt_param_set_str_n(IN tt_param_t *p,
 tt_inline tt_result_t tt_param_set_str(IN tt_param_t *p,
                                        IN const tt_char_t *val)
 {
-    return tt_param_set_str_n(p, val, tt_strlen(val));
+    return tt_param_set_str_n(p, val, (tt_u32_t)tt_strlen(val));
 }
 
 #endif /* __TT_PARAM_STRING__ */

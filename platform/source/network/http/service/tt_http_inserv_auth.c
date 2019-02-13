@@ -245,7 +245,7 @@ tt_http_inserv_action_t __s_auth_on_hdr(IN tt_http_inserv_t *s,
     if (sa->get_pwd == NULL) {
         TT_ASSERT(sa->pwd != NULL);
         pwd = (tt_char_t *)sa->pwd;
-        pwd_len = tt_strlen(sa->pwd);
+        pwd_len = (tt_u32_t)tt_strlen(sa->pwd);
     } else if (!TT_OK(sa->get_pwd(tt_blobex_addr(&remote_auth->username),
                                   tt_blobex_len(&remote_auth->username),
                                   sa->get_pwd_param,
@@ -333,7 +333,7 @@ void __new_nonce(IN tt_http_inserv_auth_t *sa, IN tt_http_auth_ctx_t *ac)
 {
 #if 1
     if (sa->fixed_nonce != NULL) {
-        ac->nonce_len = tt_strlen(sa->fixed_nonce);
+        ac->nonce_len = (tt_u32_t)tt_strlen(sa->fixed_nonce);
         TT_ASSERT(ac->nonce_len < (sizeof(ac->nonce) - 1));
         tt_memcpy(ac->nonce, sa->fixed_nonce, ac->nonce_len);
         ac->nonce[ac->nonce_len] = 0;
