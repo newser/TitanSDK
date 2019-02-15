@@ -66,6 +66,10 @@ choose_compiler_flag(CMAKE_CXX_FLAGS_RELEASE FALSE -finline-functions)
 # specify gnu99 for some c api
 choose_compiler_flag(CMAKE_C_FLAGS FALSE -std=gnu99)
 
+# enable c++11
+#choose_compiler_flag(CMAKE_CXX_FLAGS TRUE -std=c++11)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+
 # more debug info
 if (SANITIZE_ADDRESS)
     choose_compiler_flag(CMAKE_C_FLAGS_DEBUG FALSE -fno-omit-frame-pointer)

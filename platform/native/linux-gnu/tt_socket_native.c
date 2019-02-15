@@ -481,14 +481,18 @@ tt_result_t tt_skt_listen_ntv(IN tt_skt_ntv_t *skt)
     }
 }
 
-tt_skt_t *tt_skt_accept_ntv(IN tt_skt_ntv_t *skt,
-                            OUT tt_sktaddr_t *addr,
-                            OUT tt_fiber_ev_t **p_fev,
-                            OUT tt_tmr_t **p_tmr)
+tt_result_t tt_skt_accept_ntv(IN tt_skt_ntv_t *skt,
+                              OUT tt_sktaddr_t *addr,
+                              OUT struct tt_skt_s **new_skt,
+                              OUT tt_fiber_ev_t **p_fev,
+                              OUT struct tt_tmr_s **p_tmr)
 {
     __skt_accept_t skt_accept;
     int ep;
     tt_fiber_t *cfb;
+    tt_result_t result;
+
+    *new_skt = NULL;
 
     *p_fev = NULL;
     *p_tmr = NULL;
@@ -497,7 +501,7 @@ tt_skt_t *tt_skt_accept_ntv(IN tt_skt_ntv_t *skt,
     cfb = skt_accept.io_ev.src;
 
     if (tt_fiber_recv(cfb, TT_FALSE, p_fev, p_tmr)) {
-        return NULL;
+        return TT_SUCCESS;
     }
 
     skt_accept.skt = skt;
@@ -517,9 +521,18 @@ tt_skt_t *tt_skt_accept_ntv(IN tt_skt_ntv_t *skt,
         tt_ep_unread(ep, skt->s, &__s_null_io_ev);
     }
 
-    tt_fiber_recv(cfb, TT_FALSE, p_fev, p_tmr);
+    if (skt_accept.new_skt != NULL) {
+        *new_skt = skt_accept.new_skt;
+        result = TT_SUCCESS;
+    } else {
+        result = TT_FAIL;
+    }
 
-    return skt_accept.new_skt;
+    if (tt_fiber_recv(cfb, TT_FALSE, p_fev, p_tmr)) {
+        result = TT_SUCCESS;
+    }
+
+    return result;
 }
 
 tt_result_t tt_skt_connect_ntv(IN tt_skt_ntv_t *skt, IN tt_sktaddr_t *addr)

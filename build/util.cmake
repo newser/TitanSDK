@@ -14,6 +14,7 @@
 # limitations under the License.
 
 include(CheckCCompilerFlag)
+include(CheckCXXCompilerFlag)
 
 # add source files under "dir" to "src_list" and group them as "group"
 # @dir: source file directory
@@ -61,7 +62,11 @@ function(choose_compiler_flag compiler_flag mandatory option_list)
         message(STATUS "option [${option}] in [${option_list}]")
 
         string(REGEX REPLACE "[-=]" "_" name ${option})
-        check_c_compiler_flag(${option} has_${name})
+        if ("${compiler_flag}" STREQUAL "CMAKE_CXX_FLAGS")
+            check_cxx_compiler_flag(${option} has_${name})
+        else ()
+            check_c_compiler_flag(${option} has_${name})
+        endif ()
         if (has_${name})
             set(${compiler_flag} "${${compiler_flag}} ${option}" PARENT_SCOPE)
             message(STATUS "adding compiler flag[${option}] to ${compiler_flag}")

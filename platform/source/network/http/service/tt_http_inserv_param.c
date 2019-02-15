@@ -122,11 +122,11 @@ static tt_result_t __get_param(IN tt_http_inserv_t *s,
                                IN tt_param_t *p);
 
 // static
-tt_result_t __post_param(IN tt_http_inserv_t *s,
-                         IN tt_http_inserv_param_ctx_t *c,
-                         IN tt_http_parser_t *req,
-                         OUT tt_http_resp_render_t *resp,
-                         IN tt_param_t *p);
+tt_http_inserv_action_t __post_param(IN tt_http_inserv_t *s,
+                                     IN tt_http_inserv_param_ctx_t *c,
+                                     IN tt_http_parser_t *req,
+                                     OUT tt_http_resp_render_t *resp,
+                                     IN tt_param_t *p);
 
 static tt_result_t __param2json(IN tt_param_t *param,
                                 IN tt_jdoc_t *jd,
@@ -416,11 +416,11 @@ tt_result_t __get_param(IN tt_http_inserv_t *s,
     return TT_HTTP_INSERV_ACT_BODY;
 }
 
-tt_result_t __post_param(IN tt_http_inserv_t *s,
-                         IN tt_http_inserv_param_ctx_t *c,
-                         IN tt_http_parser_t *req,
-                         OUT tt_http_resp_render_t *resp,
-                         IN tt_param_t *p)
+tt_http_inserv_action_t __post_param(IN tt_http_inserv_t *s,
+                                     IN tt_http_inserv_param_ctx_t *c,
+                                     IN tt_http_parser_t *req,
+                                     OUT tt_http_resp_render_t *resp,
+                                     IN tt_param_t *p)
 {
     const tt_char_t *body, *end, *prev, *pos;
     tt_bool_t all_done = TT_TRUE;

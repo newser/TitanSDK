@@ -615,13 +615,11 @@ tt_result_t __h_csq_parse(IN tt_http_hdr_t *h,
                           IN tt_u32_t len)
 {
     tt_char_t *p, *end, *prev;
-    tt_u32_t n;
     tt_bool_t inq;
 
     p = (tt_char_t *)val;
     end = (tt_char_t *)val + len;
     prev = p;
-    n = len;
     inq = TT_FALSE;
     while (p < end) {
         tt_char_t c = *p;
@@ -644,7 +642,6 @@ tt_result_t __h_csq_parse(IN tt_http_hdr_t *h,
         ++p;
         prev = p;
         TT_ASSERT(p <= end);
-        n = (tt_u32_t)(end - p);
     }
     TT_ASSERT(prev <= end);
     if (prev < end) {

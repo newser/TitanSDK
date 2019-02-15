@@ -467,7 +467,7 @@ TT_TEST_ROUTINE_DEFINE(case_jval_basic)
         tt_jval_create_str(&jv, t, &jd);
         TT_UT_EQUAL(tt_jval_get_type(&jv), TT_JVAL_STRING, "");
         TT_UT_TRUE(tt_jval_is_str(&jv), "");
-        t[0] = "A";
+        t[0] = 'A';
         TT_UT_STREQ(tt_jval_get_str(&jv), "abc", "");
     }
 

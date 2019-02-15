@@ -134,6 +134,7 @@ tt_http_inserv_t *tt_http_inserv_cond_create(
     }
 
     sc = TT_HTTP_INSERV_CAST(s, tt_http_inserv_cond_t);
+    (void)sc;
 
     return s;
 }

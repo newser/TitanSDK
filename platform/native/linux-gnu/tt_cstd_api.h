@@ -35,6 +35,7 @@ this file wraps neccesary c standard library operations for purpose:
 #include <tt_basic_type.h>
 
 #include <ctype.h>
+#include <inttypes.h>
 #include <memory.h>
 #include <stdarg.h>
 #include <stdarg.h>
@@ -45,6 +46,11 @@ this file wraps neccesary c standard library operations for purpose:
 ////////////////////////////////////////////////////////////
 // macro definition
 ////////////////////////////////////////////////////////////
+
+#define TT_PRId64 PRId64
+#define TT_PRIu64 PRIu64
+#define TT_PRIx64 PRIx64
+#define TT_PRIX64 PRIX64
 
 /**
 @def tt_memset
@@ -209,6 +215,14 @@ extern tt_result_t tt_strtos32(const char *str,
                                char **endptr,
                                int base,
                                tt_s32_t *val);
+
+extern tt_result_t tt_strtof(IN const char *str,
+                             IN char **endptr,
+                             IN tt_float_t *val);
+
+extern tt_result_t tt_strtod(IN const char *str,
+                             IN char **endptr,
+                             IN tt_double_t *val);
 
 extern char *tt_strrstr(const char *haystack, const char *needle);
 

@@ -1028,11 +1028,11 @@ TT_TEST_ROUTINE_DEFINE(case_http_encserv_chunked)
     TT_TEST_CASE_LEAVE()
 }
 
-extern tt_result_t __post_param(IN tt_http_inserv_t *s,
-                                IN tt_http_inserv_param_ctx_t *c,
-                                IN tt_http_parser_t *req,
-                                OUT tt_http_resp_render_t *resp,
-                                IN tt_param_t *p);
+extern tt_http_inserv_action_t __post_param(IN tt_http_inserv_t *s,
+                                            IN tt_http_inserv_param_ctx_t *c,
+                                            IN tt_http_parser_t *req,
+                                            OUT tt_http_resp_render_t *resp,
+                                            IN tt_param_t *p);
 
 TT_TEST_ROUTINE_DEFINE(case_http_post_param)
 {

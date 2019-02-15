@@ -28,6 +28,7 @@
 #include <ctype.h>
 #include <errno.h>
 #include <limits.h>
+#include <math.h>
 
 ////////////////////////////////////////////////////////////
 // internal macro
@@ -188,6 +189,86 @@ tt_result_t tt_strtos32(const char *str, char **endptr, int base, tt_s32_t *val)
     }
 
     *val = (tt_s32_t)l_val;
+    return TT_SUCCESS;
+}
+
+tt_result_t tt_strtof(IN const char *str, IN char **endptr, IN tt_float_t *val)
+{
+    const char *__str;
+    char *__endptr;
+    float f_val;
+
+    // check if it's an empty string
+    __str = str;
+    while ((*__str != 0) && isspace(*__str)) {
+        ++__str;
+    }
+    if (*__str == 0) {
+        return TT_FAIL;
+    }
+
+    f_val = strtof(__str, &__endptr);
+
+    if (f_val == 0.0) {
+        if (__endptr == __str) {
+            /*
+             If no conversion is performed, zero is returned and the value of
+             nptr
+             is stored in the location referenced by endptr.
+             */
+            return TT_FAIL;
+        }
+    } else if (!isnormal(f_val)) {
+        return TT_FAIL;
+    }
+
+    // check if any unexpected char found
+    if ((*__endptr != 0) && (isspace(*__endptr) == 0)) {
+        return TT_FAIL;
+    }
+    TT_SAFE_ASSIGN(endptr, __endptr);
+
+    *val = f_val;
+    return TT_SUCCESS;
+}
+
+tt_result_t tt_strtod(IN const char *str, IN char **endptr, IN tt_double_t *val)
+{
+    const char *__str;
+    char *__endptr;
+    double d_val;
+
+    // check if it's an empty string
+    __str = str;
+    while ((*__str != 0) && isspace(*__str)) {
+        ++__str;
+    }
+    if (*__str == 0) {
+        return TT_FAIL;
+    }
+
+    d_val = strtod(__str, &__endptr);
+
+    if (d_val == 0.0) {
+        if (__endptr == __str) {
+            /*
+             If no conversion is performed, zero is returned and the value of
+             nptr
+             is stored in the location referenced by endptr.
+             */
+            return TT_FAIL;
+        }
+    } else if (!isnormal(d_val)) {
+        return TT_FAIL;
+    }
+
+    // check if any unexpected char found
+    if ((*__endptr != 0) && (isspace(*__endptr) == 0)) {
+        return TT_FAIL;
+    }
+    TT_SAFE_ASSIGN(endptr, __endptr);
+
+    *val = d_val;
     return TT_SUCCESS;
 }
 

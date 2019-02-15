@@ -300,10 +300,7 @@ tt_result_t __render_body_header(IN tt_param_bs4spa_t *spa,
                                  IN tt_param_t *param,
                                  OUT tt_buf_t *buf)
 {
-    tt_param_dir_t *dir;
-
     TT_ASSERT(param->type == TT_PARAM_DIR);
-    dir = TT_PARAM_CAST(param, tt_param_dir_t);
 
     TT_DO(__PUT_CSTR(buf, "<header>"));
 
