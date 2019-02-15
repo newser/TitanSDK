@@ -78,7 +78,7 @@ tt_result_t __ut_fiber(IN void *param)
 #if 0
             "TEST_UNIT_FS",
 "TEST_UNIT_IPC",
-"TEST_UNIT_SOCKET",
+//"TEST_UNIT_SOCKET",
 #endif
 
 #if 0

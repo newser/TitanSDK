@@ -325,7 +325,7 @@ TT_TEST_CASE("case_http_inserv_file",
 
         tt_blobex_set(&req.rawuri,
                       (tt_u8_t *)__A_TXT_PATH,
-                      tt_strlen(__A_TXT_PATH),
+                      (tt_u32_t)tt_strlen(__A_TXT_PATH),
                       TT_FALSE);
         req.updated_uri = TT_FALSE;
         uri = tt_http_parser_get_uri(&req);
@@ -394,7 +394,7 @@ TT_TEST_CASE("case_http_inserv_file",
 
         tt_blobex_set(&req.rawuri,
                       (tt_u8_t *)__A_TXT_PATH,
-                      tt_strlen(__A_TXT_PATH),
+                      (tt_u32_t)tt_strlen(__A_TXT_PATH),
                       TT_FALSE);
         req.updated_uri = TT_FALSE;
         uri = tt_http_parser_get_uri(&req);
@@ -546,7 +546,7 @@ TT_TEST_ROUTINE_DEFINE(case_http_inserv_cond)
             // set uri
             tt_blobex_set(&req.rawuri,
                           (tt_u8_t *)__A_TXT_PATH,
-                          tt_strlen(__A_TXT_PATH),
+                          (tt_u32_t)tt_strlen(__A_TXT_PATH),
                           TT_FALSE);
             req.updated_uri = TT_FALSE;
             uri = tt_http_parser_get_uri(&req);
@@ -570,7 +570,7 @@ TT_TEST_ROUTINE_DEFINE(case_http_inserv_cond)
             // set uri
             tt_blobex_set(&req.rawuri,
                           (tt_u8_t *)__A_TXT_PATH,
-                          tt_strlen(__A_TXT_PATH),
+                          (tt_u32_t)tt_strlen(__A_TXT_PATH),
                           TT_FALSE);
             req.updated_uri = TT_FALSE;
             uri = tt_http_parser_get_uri(&req);
@@ -595,7 +595,7 @@ TT_TEST_ROUTINE_DEFINE(case_http_inserv_cond)
             // set uri
             tt_blobex_set(&req.rawuri,
                           (tt_u8_t *)__A_TXT_PATH,
-                          tt_strlen(__A_TXT_PATH),
+                          (tt_u32_t)tt_strlen(__A_TXT_PATH),
                           TT_FALSE);
             req.updated_uri = TT_FALSE;
             uri = tt_http_parser_get_uri(&req);
@@ -620,7 +620,7 @@ TT_TEST_ROUTINE_DEFINE(case_http_inserv_cond)
             // set uri
             tt_blobex_set(&req.rawuri,
                           (tt_u8_t *)__A_TXT_PATH,
-                          tt_strlen(__A_TXT_PATH),
+                          (tt_u32_t)tt_strlen(__A_TXT_PATH),
                           TT_FALSE);
             req.updated_uri = TT_FALSE;
             uri = tt_http_parser_get_uri(&req);
@@ -646,7 +646,7 @@ TT_TEST_ROUTINE_DEFINE(case_http_inserv_cond)
             // set uri
             tt_blobex_set(&req.rawuri,
                           (tt_u8_t *)__A_TXT_PATH,
-                          tt_strlen(__A_TXT_PATH),
+                          (tt_u32_t)tt_strlen(__A_TXT_PATH),
                           TT_FALSE);
             req.updated_uri = TT_FALSE;
             uri = tt_http_parser_get_uri(&req);
@@ -672,7 +672,7 @@ TT_TEST_ROUTINE_DEFINE(case_http_inserv_cond)
             // set uri
             tt_blobex_set(&req.rawuri,
                           (tt_u8_t *)__A_TXT_PATH,
-                          tt_strlen(__A_TXT_PATH),
+                          (tt_u32_t)tt_strlen(__A_TXT_PATH),
                           TT_FALSE);
             req.updated_uri = TT_FALSE;
             uri = tt_http_parser_get_uri(&req);
