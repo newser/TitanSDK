@@ -18,8 +18,7 @@ extern tt_result_t tt_cli_demo_run();
 
 tt_buf_t console_output;
 
-tt_result_t __console_ev_handler(IN void *console_param,
-                                 IN tt_cons_ev_t ev,
+tt_result_t __console_ev_handler(IN void *console_param, IN tt_cons_ev_t ev,
                                  IN tt_cons_ev_data_t *ev_data)
 {
 #if 0
@@ -81,9 +80,7 @@ tt_result_t __ut_fiber(IN void *param)
     GetEnvironmentVariableA("TT_CASE", buf, sizeof(buf) - 1);
     name = buf;
     printf("%s|\n", name);
-    if (name[0] == 0) {
-        name = NULL;
-    }
+    if (name[0] == 0) { name = NULL; }
     name = NULL;
 #else
 // name = getenv("TT_CASE");
@@ -101,7 +98,9 @@ tt_result_t __ut_fiber(IN void *param)
     else {
         const tt_char_t *names[] = { //"case_http_server_basic",
             //          "TEST_UNIT_CFGNODE",
-            "case_param_html_bs4_spa",
+            "case_memspg_cpp",
+        //"ALG_UT_BUF",
+//            "case_param_html_bs4_spa",
 //          "TEST_UNIT_CFGNODE",
 //          "JSON_UT_JDOC",
 //          "PARAM_UT_HTML",
@@ -150,9 +149,9 @@ tt_result_t __ut_fiber(IN void *param)
           "TEST_UNIT_CFGSHELL",
 #endif
 
-//"TEST_UNIT_FS",
-//"TEST_UNIT_IPC",
-//"TEST_UNIT_SOCKET",
+        //"TEST_UNIT_FS",
+        //"TEST_UNIT_IPC",
+        //"TEST_UNIT_SOCKET",
 
 #if 0
             "ALG_UT_BASIC_ALG",
@@ -292,9 +291,7 @@ int main(int argc, char *argv[])
 
         printf("testing flock 1\n");
 
-        if (argc < 4) {
-            return -1;
-        }
+        if (argc < 4) { return -1; }
 
         tt_platform_init(NULL);
         tt_task_create(&t, NULL);
@@ -333,8 +330,7 @@ tt_platform_init(NULL);
 
 // tt_thread_wait_local();
 tt_platform_exit();
-while (0)
-    tt_sleep(10000);
+while (0) tt_sleep(10000);
 printf("exiting\n");
 return TT_COND(tt_ut_ok, 0, -1);
 #if TT_ENV_OS_IS_WINDOWS

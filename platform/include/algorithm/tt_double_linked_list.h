@@ -23,7 +23,7 @@ this file defines apis of doulbe linked dl data structure.
 
  - push_tail/push_head/pop_tail/pop_head
  - head/tail
- - insert_before/insert_after
+ - insert_front/insert_back
  - move
  - empty
  - clear
@@ -179,9 +179,7 @@ tt_inline tt_bool_t tt_dlist_contain(IN tt_dlist_t *dl, IN tt_dnode_t *dn)
 {
     tt_dnode_t *node = dl->head;
     while (node != NULL) {
-        if (node == dn) {
-            return TT_TRUE;
-        }
+        if (node == dn) { return TT_TRUE; }
         node = node->next;
     }
     return TT_FALSE;
@@ -217,9 +215,7 @@ tt_inline tt_dnode_t *tt_dlist_remove(IN tt_dlist_t *dl, IN tt_dnode_t *dn)
 
 tt_inline void tt_dlist_move(IN tt_dlist_t *dst, IN tt_dlist_t *src)
 {
-    if (tt_dlist_empty(src)) {
-        return;
-    }
+    if (tt_dlist_empty(src)) { return; }
 
     if (dst->tail != NULL) {
         dst->tail->next = src->head;
@@ -238,8 +234,7 @@ tt_inline void tt_dlist_swap(IN tt_dlist_t *a, IN tt_dlist_t *b)
     TT_SWAP(tt_dnode_t *, a->tail, b->tail);
 }
 
-tt_inline void tt_dlist_insert_before(IN tt_dlist_t *dl,
-                                      IN tt_dnode_t *pos,
+tt_inline void tt_dlist_insert_before(IN tt_dlist_t *dl, IN tt_dnode_t *pos,
                                       IN tt_dnode_t *dn)
 {
     TT_ASSERT((dn->prev == NULL) && (dn->next == NULL));
@@ -255,8 +250,7 @@ tt_inline void tt_dlist_insert_before(IN tt_dlist_t *dl,
     pos->prev = dn;
 }
 
-tt_inline void tt_dlist_insert_after(IN tt_dlist_t *dl,
-                                     IN tt_dnode_t *pos,
+tt_inline void tt_dlist_insert_after(IN tt_dlist_t *dl, IN tt_dnode_t *pos,
                                      IN tt_dnode_t *dn)
 {
     TT_ASSERT((dn->prev == NULL) && (dn->next == NULL));

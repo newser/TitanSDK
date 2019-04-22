@@ -22,6 +22,8 @@
 
 #include <tt_platform.h>
 
+#include <tt/algorithm/buffer.h>
+
 ////////////////////////////////////////////////////////////
 // internal macro
 ////////////////////////////////////////////////////////////
@@ -40,6 +42,7 @@
 
 // === routine declarations ================
 TT_TEST_ROUTINE_DECLARE(case_buf_null)
+TT_TEST_ROUTINE_DECLARE(case_buf_null_cpp)
 
 TT_TEST_ROUTINE_DECLARE(case_buf_get_basic)
 TT_TEST_ROUTINE_DECLARE(case_buf_get_rand)
@@ -62,96 +65,39 @@ TT_TEST_ROUTINE_DECLARE(case_blob)
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(buf_case)
 
-TT_TEST_CASE("case_buf_null",
-             "testing basic buf api, null buff",
-             case_buf_null,
-             NULL,
-             NULL,
-             NULL,
-             NULL,
-             NULL)
+TT_TEST_CASE("case_buf_null", "testing basic buf api, null buff", case_buf_null,
+             NULL, NULL, NULL, NULL, NULL)
 ,
 
-    TT_TEST_CASE("case_buf_get_basic",
-                 "testing basic buf parser API",
-                 case_buf_get_basic,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_buf_null_cpp", "testing basic buf api, null buff",
+                 case_buf_null_cpp, NULL, NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_buf_get_rand",
-                 "testing buf parser random input",
-                 case_buf_get_rand,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_buf_get_basic", "testing basic buf parser API",
+                 case_buf_get_basic, NULL, NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_buf_put_basic",
-                 "testing basic buf put API",
-                 case_buf_put_basic,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_buf_get_rand", "testing buf parser random input",
+                 case_buf_get_rand, NULL, NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_buf_put_rand",
-                 "testing buf put random input",
-                 case_buf_put_rand,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_buf_put_basic", "testing basic buf put API",
+                 case_buf_put_basic, NULL, NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_buf_remove",
-                 "testing buf remove",
-                 case_buf_remove,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_buf_put_rand", "testing buf put random input",
+                 case_buf_put_rand, NULL, NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_buf_set",
-                 "testing buf set",
-                 case_buf_set,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_buf_remove", "testing buf remove", case_buf_remove, NULL,
+                 NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_buf_get_hexstr",
-                 "testing buf get hex string",
-                 case_buf_get_hexstr,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_buf_set", "testing buf set", case_buf_set, NULL, NULL,
+                 NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_buftok",
-                 "testing buf tokenize",
-                 case_buftok,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_buf_get_hexstr", "testing buf get hex string",
+                 case_buf_get_hexstr, NULL, NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_blob",
-                 "testing blob api",
-                 case_blob,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_buftok", "testing buf tokenize", case_buftok, NULL, NULL,
+                 NULL, NULL, NULL),
+
+    TT_TEST_CASE("case_blob", "testing blob api", case_blob, NULL, NULL, NULL,
+                 NULL, NULL),
 
     TT_TEST_CASE_LIST_DEFINE_END(buf_case)
     // =========================================
@@ -282,8 +228,7 @@ TT_TEST_CASE("case_buf_null",
 
         tt_buf_clear(&buf);
         TT_UT_TRUE(tt_buf_endwith(&buf, (tt_u8_t *)&ret, 0), "");
-        TT_UT_FALSE(tt_buf_endwith(&buf,
-                                   (tt_u8_t *)&ret,
+        TT_UT_FALSE(tt_buf_endwith(&buf, (tt_u8_t *)&ret,
                                    (tt_u32_t)sizeof(ret)),
                     "");
 
@@ -296,6 +241,139 @@ TT_TEST_CASE("case_buf_null",
 
     tt_buf_destroy(&buf);
     tt_buf_destroy(&buf2);
+
+    // test end
+    TT_TEST_CASE_LEAVE()
+}
+
+TT_TEST_ROUTINE_DEFINE(case_buf_null_cpp)
+{
+    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+    tt_buf_t buf, buf2;
+    tt_result_t ret;
+    tt_u8_t *p;
+    tt_u32_t n;
+    tt_u8_t bn[20] = {0};
+
+    TT_TEST_CASE_ENTER()
+    // test start
+
+    {
+        tt::buf<> buf;
+        TT_UT_TRUE(buf.empty(), "");
+
+        TT_UT_NOT_NULL(buf.r_addr(), "");
+        TT_UT_HAS_EXCEPT(buf.r_addr(&n));
+        TT_UT_HAS_EXCEPT(buf.r_addr((void *)~0));
+        TT_UT_EQUAL(buf.r_len(), 0, "");
+        TT_UT_HAS_EXCEPT(buf.r_inc(100));
+        TT_UT_HAS_EXCEPT(buf.r_dec(1));
+        buf.r_clear();
+
+        TT_UT_NOT_NULL(buf.w_addr(), "");
+        TT_UT_HAS_EXCEPT(buf.w_addr(&n));
+        TT_UT_HAS_EXCEPT(buf.w_addr((void *)~0));
+        TT_UT_EQUAL(buf.w_len(), 0, "");
+        TT_UT_HAS_EXCEPT(buf.w_inc(100));
+        TT_UT_HAS_EXCEPT(buf.w_dec(1));
+        buf.clear();
+
+        tt::buf<>::rwpos pos = buf.pos();
+        TT_UT_EQUAL(pos.first, 0, "");
+        TT_UT_EQUAL(pos.second, 0, "");
+        buf.pos(pos);
+
+        TT_UT_EQUAL(buf.refinable(), 0, "");
+        buf.refine();
+        buf.refine(100);
+        TT_UT_EQUAL(buf.refinable(), 0, "");
+
+        TT_UT_HAS_EXCEPT(buf.replace(0, &n, sizeof(n)));
+        buf.replace(0, 0, &n, sizeof(n));
+        TT_UT_EQUAL(buf.r_len(), sizeof(n), "");
+    }
+
+#if 0
+    // get
+    ret = tt_buf_get(&buf, bn, 1);
+    TT_UT_EQUAL(ret, TT_E_BUF_NOBUFS, "");
+    ret = tt_buf_get_nocopy(&buf, &p, 1);
+    TT_UT_EQUAL(ret, TT_E_BUF_NOBUFS, "");
+    n = tt_buf_get_hexstr(&buf, NULL, 1);
+    TT_UT_EQUAL(n, 0, "");
+    n = tt_buf_get_hexstr(&buf, (tt_char_t *)bn, 1);
+    TT_UT_EQUAL(n, 0, "");
+    ret = tt_buf_peek(&buf, bn, 1);
+    TT_UT_EQUAL(ret, TT_E_BUF_NOBUFS, "");
+
+    ret = tt_buf_compress(&buf);
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(buf.p, buf.initbuf, "");
+    TT_UT_EQUAL(buf.rpos, 0, "");
+    TT_UT_EQUAL(buf.wpos, 0, "");
+
+    // common
+    n = tt_buf_cmp(&buf, &buf);
+    TT_UT_EQUAL(n, 0, "");
+    n = tt_buf_cmp(&buf, &buf2);
+    TT_UT_EQUAL(n, 0, "");
+
+    tt_buf_remove(&buf, 0);
+    tt_buf_remove_range(&buf, 0, 1);
+    tt_buf_remove_headto(&buf, 0);
+    TT_UT_EQUAL(tt_buf_empty(&buf), TT_TRUE, "");
+    tt_buf_remove_headto(&buf, 10000);
+    TT_UT_EQUAL(tt_buf_empty(&buf), TT_TRUE, "");
+    tt_buf_remove_tailfrom(&buf, 0);
+    TT_UT_EQUAL(tt_buf_empty(&buf), TT_TRUE, "");
+    tt_buf_remove_tailfrom(&buf, 10000);
+    TT_UT_EQUAL(tt_buf_empty(&buf), TT_TRUE, "");
+
+    // format
+    ret = tt_buf_put_cstr2hex(&buf, "");
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+    TT_UT_EQUAL(tt_buf_empty(&buf), TT_TRUE, "");
+
+    ret = tt_buf_put_hex2cstr(&buf, bn, 0);
+    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+
+    tt_buf_clear(&buf);
+    TT_UT_EQUAL(tt_buf_empty(&buf), TT_TRUE, "");
+
+    tt_buf_try_refine(&buf, 0);
+    TT_UT_EQUAL(tt_buf_empty(&buf), TT_TRUE, "");
+
+    {
+        tt_u32_t r, r2;
+
+        tt_buf_clear(&buf);
+        TT_UT_TRUE(tt_buf_startwith(&buf, (tt_u8_t *)&r, 0), "");
+        TT_UT_FALSE(tt_buf_startwith(&buf, (tt_u8_t *)&r, 4), "");
+
+        r = ~0;
+        r2 = 0;
+        tt_buf_put_u32(&buf, r);
+        TT_UT_TRUE(tt_buf_startwith(&buf, (tt_u8_t *)&r, 1), "");
+        TT_UT_TRUE(tt_buf_startwith(&buf, (tt_u8_t *)&r, 4), "");
+        TT_UT_FALSE(tt_buf_startwith(&buf, (tt_u8_t *)&r2, 1), "");
+        TT_UT_FALSE(tt_buf_startwith(&buf, (tt_u8_t *)&r2, 4), "");
+
+        tt_buf_clear(&buf);
+        TT_UT_TRUE(tt_buf_endwith(&buf, (tt_u8_t *)&ret, 0), "");
+        TT_UT_FALSE(tt_buf_endwith(&buf, (tt_u8_t *)&ret,
+                                   (tt_u32_t)sizeof(ret)),
+                    "");
+
+        tt_buf_put_u32(&buf, r);
+        TT_UT_TRUE(tt_buf_endwith(&buf, (tt_u8_t *)&r, 1), "");
+        TT_UT_TRUE(tt_buf_endwith(&buf, (tt_u8_t *)&r, 4), "");
+        TT_UT_FALSE(tt_buf_endwith(&buf, (tt_u8_t *)&r2, 1), "");
+        TT_UT_FALSE(tt_buf_endwith(&buf, (tt_u8_t *)&r2, 4), "");
+    }
+
+    tt_buf_destroy(&buf);
+    tt_buf_destroy(&buf2);
+#endif
 
     // test end
     TT_TEST_CASE_LEAVE()
@@ -449,7 +527,7 @@ TT_TEST_ROUTINE_DEFINE(case_buf_get_rand)
 
     for (i = 0; i < test_num; ++i) {
         test_buf_size = tt_rand_u32() % 4000 + 1;
-        test_buf = tt_malloc(test_buf_size);
+        test_buf = (tt_u8_t *)tt_malloc(test_buf_size);
         TT_UT_NOT_EQUAL(test_buf, NULL, "");
 
         for (j = 0; j < test_buf_size; ++j) {
@@ -478,51 +556,44 @@ TT_TEST_ROUTINE_DEFINE(case_buf_get_rand)
                 org_len = TT_BUF_RLEN(&buf);
 
                 switch (__n) {
-                    case 0:
-                        ret = tt_buf_get_u32(&buf, &__r_u32);
-                        if (!TT_OK(ret)) {
-                            goto __gr_out;
-                        }
+                case 0:
+                    ret = tt_buf_get_u32(&buf, &__r_u32);
+                    if (!TT_OK(ret)) { goto __gr_out; }
 
-                        TT_UT_EQUAL(buf.rpos, org_rd_pos + 4, "");
-                        TT_UT_EQUAL(TT_BUF_RLEN(&buf), org_len - 4, "");
-                        break;
-                    case 1:
-                        ret = tt_buf_get_u32_h(&buf, &__r_u32);
-                        if (!TT_OK(ret))
-                            goto __gr_out;
+                    TT_UT_EQUAL(buf.rpos, org_rd_pos + 4, "");
+                    TT_UT_EQUAL(TT_BUF_RLEN(&buf), org_len - 4, "");
+                    break;
+                case 1:
+                    ret = tt_buf_get_u32_h(&buf, &__r_u32);
+                    if (!TT_OK(ret)) goto __gr_out;
 
-                        TT_UT_EQUAL(buf.rpos, org_rd_pos + 4, "");
-                        TT_UT_EQUAL(TT_BUF_RLEN(&buf), org_len - 4, "");
-                        break;
-                    case 2:
-                        ret = tt_buf_get_u16(&buf, &__r_u16);
-                        if (!TT_OK(ret))
-                            goto __gr_out;
+                    TT_UT_EQUAL(buf.rpos, org_rd_pos + 4, "");
+                    TT_UT_EQUAL(TT_BUF_RLEN(&buf), org_len - 4, "");
+                    break;
+                case 2:
+                    ret = tt_buf_get_u16(&buf, &__r_u16);
+                    if (!TT_OK(ret)) goto __gr_out;
 
-                        TT_UT_EQUAL(buf.rpos, org_rd_pos + 2, "");
-                        TT_UT_EQUAL(TT_BUF_RLEN(&buf), org_len - 2, "");
-                        break;
-                    case 3:
-                        ret = tt_buf_get_u16_h(&buf, &__r_u16);
-                        if (!TT_OK(ret))
-                            goto __gr_out;
+                    TT_UT_EQUAL(buf.rpos, org_rd_pos + 2, "");
+                    TT_UT_EQUAL(TT_BUF_RLEN(&buf), org_len - 2, "");
+                    break;
+                case 3:
+                    ret = tt_buf_get_u16_h(&buf, &__r_u16);
+                    if (!TT_OK(ret)) goto __gr_out;
 
-                        TT_UT_EQUAL(buf.rpos, org_rd_pos + 2, "");
-                        TT_UT_EQUAL(TT_BUF_RLEN(&buf), org_len - 2, "");
-                        break;
-                    case 4: {
-                        tt_u32_t __r_len = tt_rand_u32() % 99 + 1;
-                        ret = tt_buf_get(&buf, __r_u8, __r_len);
-                        if (!TT_OK(ret))
-                            goto __gr_out;
+                    TT_UT_EQUAL(buf.rpos, org_rd_pos + 2, "");
+                    TT_UT_EQUAL(TT_BUF_RLEN(&buf), org_len - 2, "");
+                    break;
+                case 4: {
+                    tt_u32_t __r_len = tt_rand_u32() % 99 + 1;
+                    ret = tt_buf_get(&buf, __r_u8, __r_len);
+                    if (!TT_OK(ret)) goto __gr_out;
 
-                        TT_UT_EQUAL(buf.rpos, org_rd_pos + __r_len, "");
-                        TT_UT_EQUAL(TT_BUF_RLEN(&buf), org_len - __r_len, "");
-                    } break;
+                    TT_UT_EQUAL(buf.rpos, org_rd_pos + __r_len, "");
+                    TT_UT_EQUAL(TT_BUF_RLEN(&buf), org_len - __r_len, "");
+                } break;
 
-                    default:
-                        break;
+                default: break;
                 }
             }
         __gr_out:
@@ -691,55 +762,49 @@ TT_TEST_ROUTINE_DEFINE(case_buf_put_rand)
                 org_len = TT_BUF_WLEN(&buf);
 
                 switch (__n) {
-                    case 0:
-                        ret = tt_buf_put_u32(&buf, org_len);
-                        if (!TT_OK(ret))
-                            goto __gr_out;
+                case 0:
+                    ret = tt_buf_put_u32(&buf, org_len);
+                    if (!TT_OK(ret)) goto __gr_out;
 
-                        TT_UT_EQUAL(buf.wpos, org_wr_pos + 4, "");
-                        break;
-                    case 1:
-                        ret = tt_buf_put_u32_n(&buf, org_len);
-                        if (!TT_OK(ret))
-                            goto __gr_out;
+                    TT_UT_EQUAL(buf.wpos, org_wr_pos + 4, "");
+                    break;
+                case 1:
+                    ret = tt_buf_put_u32_n(&buf, org_len);
+                    if (!TT_OK(ret)) goto __gr_out;
 
-                        TT_UT_EQUAL(buf.wpos, org_wr_pos + 4, "");
-                        break;
-                    case 2:
-                        ret = tt_buf_put_u16(&buf, (tt_u16_t)org_len);
-                        if (!TT_OK(ret))
-                            goto __gr_out;
+                    TT_UT_EQUAL(buf.wpos, org_wr_pos + 4, "");
+                    break;
+                case 2:
+                    ret = tt_buf_put_u16(&buf, (tt_u16_t)org_len);
+                    if (!TT_OK(ret)) goto __gr_out;
 
-                        TT_UT_EQUAL(buf.wpos, org_wr_pos + 2, "");
-                        break;
-                    case 3:
-                        ret = tt_buf_put_u16_n(&buf, (tt_u16_t)org_len);
-                        if (!TT_OK(ret))
-                            goto __gr_out;
+                    TT_UT_EQUAL(buf.wpos, org_wr_pos + 2, "");
+                    break;
+                case 3:
+                    ret = tt_buf_put_u16_n(&buf, (tt_u16_t)org_len);
+                    if (!TT_OK(ret)) goto __gr_out;
 
-                        TT_UT_EQUAL(buf.wpos, org_wr_pos + 2, "");
-                        break;
-                    case 4: {
-                        tt_u32_t __r_len = tt_rand_u32() % 99 + 1;
-                        ret = tt_buf_put(&buf, __r_u8, __r_len);
-                        if (!TT_OK(ret))
-                            goto __gr_out;
+                    TT_UT_EQUAL(buf.wpos, org_wr_pos + 2, "");
+                    break;
+                case 4: {
+                    tt_u32_t __r_len = tt_rand_u32() % 99 + 1;
+                    ret = tt_buf_put(&buf, __r_u8, __r_len);
+                    if (!TT_OK(ret)) goto __gr_out;
 
-                        TT_UT_EQUAL(buf.wpos, org_wr_pos + __r_len, "");
-                        break;
-                    } break;
-                    case 5: {
-                        tt_u32_t n = TT_BUF_RLEN(&buf);
+                    TT_UT_EQUAL(buf.wpos, org_wr_pos + __r_len, "");
+                    break;
+                } break;
+                case 5: {
+                    tt_u32_t n = TT_BUF_RLEN(&buf);
 
-                        ret = tt_buf_compress(&buf);
-                        TT_UT_EQUAL(ret, TT_SUCCESS, "");
-                        TT_UT_EQUAL(TT_BUF_RLEN(&buf), n, "");
-                        TT_UT_EQUAL(buf.rpos, 0, "");
-                        TT_UT_EQUAL(buf.wpos, n, "");
-                    } break;
+                    ret = tt_buf_compress(&buf);
+                    TT_UT_EQUAL(ret, TT_SUCCESS, "");
+                    TT_UT_EQUAL(TT_BUF_RLEN(&buf), n, "");
+                    TT_UT_EQUAL(buf.rpos, 0, "");
+                    TT_UT_EQUAL(buf.wpos, n, "");
+                } break;
 
-                    default:
-                        break;
+                default: break;
                 }
             }
         __gr_out:
@@ -1281,8 +1346,7 @@ TT_TEST_ROUTINE_DEFINE(case_buf_get_hexstr)
     TT_UT_EQUAL(ret, TT_SUCCESS, "");
     TT_UT_EQUAL(TT_BUF_RLEN(&buf2), (tt_u32_t)tt_strlen(cstr), "");
     TT_UT_EQUAL(tt_memcmp(TT_BUF_RPOS(&buf2), cstr, (tt_u32_t)tt_strlen(cstr)),
-                0,
-                "");
+                0, "");
 
     clen = tt_buf_get_hexstr(&buf, c_buf, 0);
     TT_UT_EQUAL(clen, sizeof(h) * 2, "");
@@ -1413,11 +1477,7 @@ TT_TEST_ROUTINE_DEFINE(case_buftok)
     tok = NULL;
     tok_len = 0;
     i = 0;
-    while (tt_buf_tok(&buf,
-                      (tt_u8_t *)";?.",
-                      3,
-                      TT_BUFTOK_NOEMPTY,
-                      &tok,
+    while (tt_buf_tok(&buf, (tt_u8_t *)";?.", 3, TT_BUFTOK_NOEMPTY, &tok,
                       &tok_len) != TT_E_END) {
         TT_UT_EQUAL(tok_len, 0, "");
 
@@ -1430,11 +1490,7 @@ TT_TEST_ROUTINE_DEFINE(case_buftok)
     tok_len = 0;
     i = 0;
     tt_buf_reset_rwp(&buf);
-    while (tt_buf_tok(&buf,
-                      (tt_u8_t *)";?.",
-                      3,
-                      TT_BUFTOK_NOEMPTY,
-                      &tok,
+    while (tt_buf_tok(&buf, (tt_u8_t *)";?.", 3, TT_BUFTOK_NOEMPTY, &tok,
                       &tok_len) != TT_E_END) {
         ++i;
     }
@@ -1446,11 +1502,7 @@ TT_TEST_ROUTINE_DEFINE(case_buftok)
     i = 0;
     tt_buf_reset_rwp(&buf);
     tt_buf_put_u8(&buf, '.');
-    while (tt_buf_tok(&buf,
-                      (tt_u8_t *)";?.",
-                      3,
-                      TT_BUFTOK_NOEMPTY,
-                      &tok,
+    while (tt_buf_tok(&buf, (tt_u8_t *)";?.", 3, TT_BUFTOK_NOEMPTY, &tok,
                       &tok_len) != TT_E_END) {
         ++i;
     }
@@ -1463,11 +1515,7 @@ TT_TEST_ROUTINE_DEFINE(case_buftok)
     tt_buf_reset_rwp(&buf);
     tt_buf_put_u8(&buf, '?');
     tt_buf_put_u8(&buf, ';');
-    while (tt_buf_tok(&buf,
-                      (tt_u8_t *)";?.",
-                      3,
-                      TT_BUFTOK_NOEMPTY,
-                      &tok,
+    while (tt_buf_tok(&buf, (tt_u8_t *)";?.", 3, TT_BUFTOK_NOEMPTY, &tok,
                       &tok_len) != TT_E_END) {
         ++i;
     }
@@ -1578,19 +1626,16 @@ TT_TEST_ROUTINE_DEFINE(case_buf_set)
         TT_UT_SUCCESS(tt_buf_put_head(&buf, (tt_u8_t *)s, sizeof(s) - 1), "");
         TT_UT_EQUAL(tt_buf_cmp_cstr(&buf,
                                     "1234567890abcdef1234567890abcdef1231"),
-                    0,
-                    "");
+                    0, "");
 
         tt_buf_inc_rp(&buf, 10);
         TT_UT_SUCCESS(tt_buf_put_head(&buf, (tt_u8_t *)s, 5), "");
-        TT_UT_EQUAL(tt_buf_cmp_cstr(&buf, "12345abcdef1234567890abcdef1231"),
-                    0,
+        TT_UT_EQUAL(tt_buf_cmp_cstr(&buf, "12345abcdef1234567890abcdef1231"), 0,
                     "");
         TT_UT_SUCCESS(tt_buf_put_head(&buf, (tt_u8_t *)s, 6), "");
         TT_UT_EQUAL(tt_buf_cmp_cstr(&buf,
                                     "12345612345abcdef1234567890abcdef1231"),
-                    0,
-                    "");
+                    0, "");
 
         tt_buf_destroy(&buf);
     }
@@ -1648,18 +1693,12 @@ TT_TEST_ROUTINE_DEFINE(case_buf_set)
     TT_UT_SUCCESS(ret, "");
     TT_UT_EQUAL(tt_buf_cmp_cstr(&buf, "45656123456789"), 0, "");
 
-    ret = tt_buf_set_range(&buf,
-                           14,
-                           0,
-                           (tt_u8_t *)cs2,
+    ret = tt_buf_set_range(&buf, 14, 0, (tt_u8_t *)cs2,
                            (tt_u32_t)sizeof(cs2) - 1);
     TT_UT_SUCCESS(ret, "");
     TT_UT_EQUAL(tt_buf_cmp_cstr(&buf, "45656123456789456"), 0, "");
 
-    ret = tt_buf_set_range(&buf,
-                           17,
-                           1,
-                           (tt_u8_t *)cs2,
+    ret = tt_buf_set_range(&buf, 17, 1, (tt_u8_t *)cs2,
                            (tt_u32_t)sizeof(cs2) - 1);
     TT_UT_FAIL(ret, "");
 

@@ -1,6 +1,10 @@
 /*
  * import header files
  */
+
+#include <tt/algorithm/blob.h>
+#include <tt/memory/memory_spring.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -39,32 +43,23 @@ extern "C" {
 // == macro
 
 // == extern declaration
-extern void __short_sort(IN void *elem_start,
-                         IN tt_u32_t elem_num,
-                         IN tt_u32_t elem_size,
-                         IN tt_cmp_t comparer);
+extern void __short_sort(IN void *elem_start, IN tt_u32_t elem_num,
+                         IN tt_u32_t elem_size, IN tt_cmp_t comparer);
 
-extern void *__short_bsearch(IN void *key,
-                             IN void *elem_start,
-                             IN tt_u32_t elem_num,
-                             IN tt_u32_t elem_size,
+extern void *__short_bsearch(IN void *key, IN void *elem_start,
+                             IN tt_u32_t elem_num, IN tt_u32_t elem_size,
                              IN tt_cmp_t comparer);
-extern void *__short_bsearch_gteq(IN void *key,
-                                  IN void *elem_start,
-                                  IN tt_u32_t elem_num,
-                                  IN tt_u32_t elem_size,
+extern void *__short_bsearch_gteq(IN void *key, IN void *elem_start,
+                                  IN tt_u32_t elem_num, IN tt_u32_t elem_size,
                                   IN tt_cmp_t comparer);
-extern void *__short_bsearch_lteq(IN void *key,
-                                  IN void *elem_start,
-                                  IN tt_u32_t elem_num,
-                                  IN tt_u32_t elem_size,
+extern void *__short_bsearch_lteq(IN void *key, IN void *elem_start,
+                                  IN tt_u32_t elem_num, IN tt_u32_t elem_size,
                                   IN tt_cmp_t comparer);
 
 extern tt_result_t __rbt_expensive_check(IN tt_rbnode_t *node,
                                          IN OUT tt_u32_t *black_node_num);
 
-static tt_s32_t test_rb_key_comparer(IN void *l,
-                                     IN const tt_u8_t *key,
+static tt_s32_t test_rb_key_comparer(IN void *l, IN const tt_u8_t *key,
                                      tt_u32_t key_len);
 
 // == global variant
@@ -94,6 +89,8 @@ TT_TEST_ROUTINE_DECLARE(case_basic_alg_bsearch)
 TT_TEST_ROUTINE_DECLARE(case_basic_alg_min_larger)
 TT_TEST_ROUTINE_DECLARE(case_basic_alg_max_less)
 TT_TEST_ROUTINE_DECLARE(case_blobex)
+TT_TEST_ROUTINE_DECLARE(case_blobex_cpp)
+TT_TEST_ROUTINE_DECLARE(case_memspg_cpp)
 
 TT_TEST_ROUTINE_DECLARE(case_alg_rng)
 // =========================================
@@ -101,25 +98,14 @@ TT_TEST_ROUTINE_DECLARE(case_alg_rng)
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(basic_alg_case)
 
-TT_TEST_CASE("case_basic_alg_qsort",
-             "testing tt_qsort()",
-             case_basic_alg_qsort,
-             NULL,
-             NULL,
-             NULL,
-             NULL,
-             NULL)
+TT_TEST_CASE("case_basic_alg_qsort", "testing tt_qsort()", case_basic_alg_qsort,
+             NULL, NULL, NULL, NULL, NULL)
 ,
 
-    TT_TEST_CASE("case_basic_alg_qsort_random",
-                 "testing tt_qsort()",
-                 case_basic_alg_qsort_random,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_basic_alg_qsort_random", "testing tt_qsort()",
+                 case_basic_alg_qsort_random, NULL, NULL, NULL, NULL, NULL),
 
+    /*
     TT_TEST_CASE("case_basic_alg_bsearch",
                  "testing tt_bsearch()",
                  case_basic_alg_bsearch,
@@ -146,24 +132,19 @@ TT_TEST_CASE("case_basic_alg_qsort",
                  NULL,
                  NULL,
                  NULL),
+     */
 
-    TT_TEST_CASE("case_alg_rng",
-                 "testing random num generator",
-                 case_alg_rng,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_alg_rng", "testing random num generator", case_alg_rng,
+                 NULL, NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_blobex",
-                 "testing blobex",
-                 case_blobex,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_blobex", "testing blobex", case_blobex, NULL, NULL, NULL,
+                 NULL, NULL),
+
+    TT_TEST_CASE("case_blobex_cpp", "testing blobex", case_blobex_cpp, NULL,
+                 NULL, NULL, NULL, NULL),
+
+    TT_TEST_CASE("case_memspg_cpp", "testing memspg", case_memspg_cpp, NULL,
+                 NULL, NULL, NULL, NULL),
 
     TT_TEST_CASE_LIST_DEFINE_END(basic_alg_case)
     // =========================================
@@ -174,9 +155,8 @@ TT_TEST_CASE("case_basic_alg_qsort",
      * interface implementation
      */
 
-
     /*
-    TT_TEST_ROUTINE_DEFINE(case_alg_rng)
+    TT_TEST_ROUTINE_DEFINE(case_memspg_cpp)
     {
         //tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
 
@@ -268,6 +248,7 @@ TT_TEST_ROUTINE_DEFINE(case_basic_alg_qsort_random)
     TT_TEST_CASE_LEAVE()
 }
 
+#if 0
 TT_TEST_ROUTINE_DEFINE(case_basic_alg_bsearch)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
@@ -606,6 +587,7 @@ TT_TEST_ROUTINE_DEFINE(case_basic_alg_max_less)
     // test end
     TT_TEST_CASE_LEAVE()
 }
+#endif
 
 tt_s32_t test_u8_comparer(IN void *l, IN void *r)
 {
@@ -638,8 +620,7 @@ tt_s32_t test_rb_comparer(IN void *l, IN void *r)
         return 1;
 }
 
-tt_s32_t test_rb_key_comparer(IN void *l,
-                              IN const tt_u8_t *key,
+tt_s32_t test_rb_key_comparer(IN void *l, IN const tt_u8_t *key,
                               tt_u32_t key_len)
 {
     tt_u32_t lv = (TT_CONTAINER(l, rb_item, node))->val;
@@ -652,7 +633,6 @@ tt_s32_t test_rb_key_comparer(IN void *l,
     else
         return 1;
 }
-
 
 tt_s32_t test_lst_comparer(IN void *l, IN void *r)
 {
@@ -688,22 +668,16 @@ static tt_result_t test_routine_rb(IN void *param)
             while ((prbi[i].val = rand()) == 0)
                 ;
 
-            if (mt)
-                tt_spinlock_acquire(&__lock);
-            tt_rbtree_add(&__rbtree,
-                          (tt_u8_t *)&prbi[i].val,
-                          sizeof(&prbi[i].val),
-                          &prbi[i].node);
-            if (mt)
-                tt_spinlock_release(&__lock);
+            if (mt) tt_spinlock_acquire(&__lock);
+            tt_rbtree_add(&__rbtree, (tt_u8_t *)&prbi[i].val,
+                          sizeof(&prbi[i].val), &prbi[i].node);
+            if (mt) tt_spinlock_release(&__lock);
         } else {
             for (; j < i; ++j) {
                 if (prbi[j].val != 0) {
-                    if (mt)
-                        tt_spinlock_acquire(&__lock);
+                    if (mt) tt_spinlock_acquire(&__lock);
                     tt_rbtree_remove(&__rbtree, &prbi[j].node);
-                    if (mt)
-                        tt_spinlock_release(&__lock);
+                    if (mt) tt_spinlock_release(&__lock);
                     prbi[j].val = 0;
                     break;
                 }
@@ -714,11 +688,9 @@ static tt_result_t test_routine_rb(IN void *param)
     // free all
     for (i = 0; i < __RBNODE_NUM; ++i) {
         if (prbi[i].val != 0) {
-            if (mt)
-                tt_spinlock_acquire(&__lock);
+            if (mt) tt_spinlock_acquire(&__lock);
             tt_rbtree_remove(&__rbtree, &prbi[i].node);
-            if (mt)
-                tt_spinlock_release(&__lock);
+            if (mt) tt_spinlock_release(&__lock);
             prbi[i].val = 0;
             break;
         }
@@ -761,8 +733,7 @@ static tt_result_t test_routine_rb2(IN tt_thread_t *thread, IN void *param)
             while ((prbi[i].val = rand()) == 0)
                 ;
 
-            if (mt)
-                tt_spinlock_acquire(&__lock);
+            if (mt) tt_spinlock_acquire(&__lock);
 
             p = &__rbtree2.rb_node;
             while (*p) {
@@ -777,16 +748,13 @@ static tt_result_t test_routine_rb2(IN tt_thread_t *thread, IN void *param)
 
             rb_link_node(&prbi[i].node, parent, p);
 
-            if (mt)
-                tt_spinlock_release(&__lock);
+            if (mt) tt_spinlock_release(&__lock);
         } else {
             for (; j < i; ++j) {
                 if (prbi[j].val != 0) {
-                    if (mt)
-                        tt_spinlock_acquire(&__lock);
+                    if (mt) tt_spinlock_acquire(&__lock);
                     rb_erase(&prbi[j].node, &__rbtree2);
-                    if (mt)
-                        tt_spinlock_release(&__lock);
+                    if (mt) tt_spinlock_release(&__lock);
                     prbi[j].val = 0;
                     break;
                 }
@@ -797,11 +765,9 @@ static tt_result_t test_routine_rb2(IN tt_thread_t *thread, IN void *param)
     // free all
     for (i = 0; i < __RBNODE_NUM; ++i) {
         if (prbi[i].val != 0) {
-            if (mt)
-                tt_spinlock_acquire(&__lock);
+            if (mt) tt_spinlock_acquire(&__lock);
             rb_erase(&prbi[i].node, &__rbtree2);
-            if (mt)
-                tt_spinlock_release(&__lock);
+            if (mt) tt_spinlock_release(&__lock);
             prbi[i].val = 0;
             break;
         }
@@ -840,7 +806,6 @@ static tt_result_t test_routine_rb3(IN tt_thread_t *thread, IN void *param)
     rb_item3 *prbi = __rbi3[idx];
     int mt = sizeof(test_threads) / sizeof(tt_thread_t *) - 1;
 
-
     // TT_ASSERT(thread == &test_threads[idx]);
 
     for (i = 0; i < __RBNODE_NUM; ++i) {
@@ -851,23 +816,19 @@ static tt_result_t test_routine_rb3(IN tt_thread_t *thread, IN void *param)
             while ((prbi[i].val = rand()) == 0)
                 ;
 
-            if (mt)
-                tt_spinlock_acquire(&__lock);
+            if (mt) tt_spinlock_acquire(&__lock);
 
             __rbtree3.insert(make_pair(prbi[i].val, &prbi[i]));
 
-            if (mt)
-                tt_spinlock_release(&__lock);
+            if (mt) tt_spinlock_release(&__lock);
         } else {
             for (; j < i; ++j) {
                 if (prbi[j].val != 0) {
-                    if (mt)
-                        tt_spinlock_acquire(&__lock);
+                    if (mt) tt_spinlock_acquire(&__lock);
 
                     __rbtree3.erase(__rbtree3.find(prbi[j].val));
 
-                    if (mt)
-                        tt_spinlock_release(&__lock);
+                    if (mt) tt_spinlock_release(&__lock);
                     prbi[j].val = 0;
                     break;
                 }
@@ -878,11 +839,9 @@ static tt_result_t test_routine_rb3(IN tt_thread_t *thread, IN void *param)
     // free all
     for (i = 0; i < __RBNODE_NUM; ++i) {
         if (prbi[i].val != 0) {
-            if (mt)
-                tt_spinlock_acquire(&__lock);
+            if (mt) tt_spinlock_acquire(&__lock);
             __rbtree3.erase(__rbtree3.find(prbi[j].val));
-            if (mt)
-                tt_spinlock_release(&__lock);
+            if (mt) tt_spinlock_release(&__lock);
             prbi[i].val = 0;
             break;
         }
@@ -926,10 +885,7 @@ TT_TEST_ROUTINE_DEFINE(case_alg_rbtree_mt)
     __rbtree2.rb_node = NULL;
     start_time = tt_time_ref();
     for (i = 0; i < sizeof(test_threads) / sizeof(tt_thread_t *); ++i) {
-        tt_thread_create(&test_threads[i],
-                         NULL,
-                         test_routine_rb2,
-                         (void *)i,
+        tt_thread_create(&test_threads[i], NULL, test_routine_rb2, (void *)i,
                          NULL);
     }
     for (i = 0; i < sizeof(test_threads) / sizeof(tt_thread_t *); ++i) {
@@ -944,10 +900,7 @@ TT_TEST_ROUTINE_DEFINE(case_alg_rbtree_mt)
 #ifdef TT_VS_RB3
     start_time = tt_time_ref();
     for (i = 0; i < sizeof(test_threads) / sizeof(tt_thread_t *); ++i) {
-        tt_thread_create(&test_threads[i],
-                         NULL,
-                         test_routine_rb3,
-                         (void *)i,
+        tt_thread_create(&test_threads[i], NULL, test_routine_rb3, (void *)i,
                          NULL);
     }
     for (i = 0; i < sizeof(test_threads) / sizeof(tt_thread_t *); ++i) {
@@ -983,24 +936,18 @@ TT_TEST_ROUTINE_DEFINE(case_alg_rng)
 
     // xorshift
     rng = tt_rng_xorshift_create();
-    for (i = 0; i < __RAND_SIZE; ++i) {
-        num[i] = 0;
-    }
+    for (i = 0; i < __RAND_SIZE; ++i) { num[i] = 0; }
     min_n = ~0;
     max_n = 0;
 
     start = tt_time_ref();
-    for (i = 0; i < __RAND_SIZE; ++i) {
-        num[tt_rand_u64() % __RAND_SIZE] += 1;
-    }
+    for (i = 0; i < __RAND_SIZE; ++i) { num[tt_rand_u64() % __RAND_SIZE] += 1; }
     end = tt_time_ref();
     t = tt_time_ref2ms(end - start);
 
     for (i = 0; i < __RAND_SIZE; ++i) {
-        if (num[i] < min_n)
-            min_n = num[i];
-        if (num[i] >= max_n)
-            max_n = num[i];
+        if (num[i] < min_n) min_n = num[i];
+        if (num[i] >= max_n) max_n = num[i];
     }
     TT_RECORD_INFO("xorshift, time: %dms, min: %d, max: %d", t, min_n, max_n);
 
@@ -1154,6 +1101,351 @@ TT_TEST_ROUTINE_DEFINE(case_blobex)
 
         tt_blobex_destroy(&a);
         tt_blobex_destroy(&b);
+    }
+
+    // test end
+    TT_TEST_CASE_LEAVE()
+}
+
+TT_TEST_ROUTINE_DEFINE(case_blobex_cpp)
+{
+    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+    tt::blob b, b2, *pb;
+    tt_u8_t buf[3] = {'1', '2', '3'};
+    tt_u8_t buf2[2] = {'4', '5'};
+    tt_u8_t *p;
+
+    TT_TEST_CASE_ENTER()
+    // test start
+
+    // create null: reserved space
+    {
+        tt::blob b(nullptr, 1, true);
+        TT_UT_EQUAL(b.size(), 1, "");
+        TT_UT_NOT_EQUAL(b.addr(), NULL, "");
+        TT_UT_EQUAL(TT_BOOL(b.is_owner()), true, "");
+        uint8_t *p = (uint8_t *)b.addr();
+        p[0] = 1;
+    }
+
+    // create with data
+    {
+        tt::blob b(buf, 3, true);
+        TT_UT_EQUAL(b.size(), 3, "");
+        p = (tt_u8_t *)b.addr();
+        TT_UT_EQUAL(p[0], '1', "");
+        TT_UT_EQUAL(p[1], '2', "");
+        TT_UT_EQUAL(p[2], '3', "");
+        TT_UT_EQUAL(TT_BOOL(b.is_owner()), true, "");
+        TT_UT_NOT_EQUAL(b.addr(), buf, "");
+    }
+
+    // init null
+    {
+        tt::blob b(NULL, 3, false);
+        TT_UT_EQUAL(b.addr(), NULL, "");
+        TT_UT_EQUAL(b.size(), 3, "");
+        TT_UT_EQUAL(b.is_owner(), false, "");
+    }
+
+    // init with data
+    {
+        tt::blob b(buf, 3, false);
+        TT_UT_EQUAL(b.addr(), buf, "");
+        p = (tt_u8_t *)b.addr();
+        TT_UT_EQUAL(p[0], '1', "");
+        TT_UT_EQUAL(p[1], '2', "");
+        TT_UT_EQUAL(p[2], '3', "");
+        TT_UT_EQUAL(b.size(), 3, "");
+        TT_UT_EQUAL(TT_BOOL(b.is_owner()), false, "");
+    }
+
+    // owner to ref
+    {
+        tt::blob b(buf, 3, true);
+        b.set(buf2, 2, false);
+        TT_UT_EQUAL(b.addr(), buf2, "");
+        TT_UT_EQUAL(b.size(), 2, "");
+        TT_UT_EQUAL(TT_BOOL(b2.is_owner()), false, "");
+
+        // ref to owner
+        b.set(buf, 3, true);
+        p = (tt_u8_t *)b.addr();
+        TT_UT_NOT_EQUAL(b.addr(), buf, "");
+        TT_UT_EQUAL(p[0], '1', "");
+        TT_UT_EQUAL(p[1], '2', "");
+        TT_UT_EQUAL(p[2], '3', "");
+        TT_UT_EQUAL(b.size(), 3, "");
+        TT_UT_EQUAL(TT_BOOL(b.is_owner()), true, "");
+    }
+
+    // cmp
+    {
+        tt::blob b(buf, 2, true);
+        tt::blob b2(buf2, 2, false);
+        TT_UT_EQUAL(b.cmp(b), 0, "");
+        TT_UT_EXP(b.cmp(b2) < 0, "");
+        TT_UT_EXP(b.cmp(b2.addr(), b2.size()) < 0, "");
+        TT_UT_EQUAL(b2.cmp(b2), 0, "");
+        TT_UT_EXP(b2.cmp(b) > 0, "");
+        TT_UT_EXP(b2.cmp(b.addr(), b.size()) > 0, "");
+        TT_UT_EXP(b2.cmp(b2.addr(), b2.size()) == 0, "");
+
+        TT_UT_EQUAL(b.cmp("12"), 0, "");
+        TT_UT_EXP(b.cmp("1") > 0, "");
+        TT_UT_EXP(b.cmp("123") < 0, "");
+
+        TT_UT_EQUAL(b2.cmp("45"), 0, "");
+        TT_UT_EXP(b2.cmp("4") > 0, "");
+        TT_UT_EXP(b2.cmp("456") < 0, "");
+
+        TT_UT_TRUE(b == b, "");
+        TT_UT_TRUE(b != b2, "");
+        TT_UT_TRUE(b < b2, "");
+        TT_UT_TRUE(b <= b2, "");
+        TT_UT_TRUE(b2 > b, "");
+        TT_UT_TRUE(b2 >= b, "");
+
+        TT_UT_TRUE(b == "12", "");
+        TT_UT_TRUE(b != "45", "");
+        TT_UT_TRUE(b < "45", "");
+        TT_UT_TRUE(b <= "45", "");
+        TT_UT_TRUE(b > "11", "");
+        TT_UT_TRUE(b >= "1", "");
+    }
+
+    {
+        tt::blob b(NULL, 0, false);
+
+        b.cat(NULL, 0);
+        TT_UT_EQUAL(b.addr(), NULL, "");
+        TT_UT_EQUAL(b.size(), 0, "");
+        b.cat((tt_u8_t *)"1", 1);
+        TT_UT_NOT_NULL(b.addr(), "");
+        TT_UT_EQUAL(b.size(), 1, "");
+        TT_UT_EQUAL(b.cmp("1"), 0, "");
+        b.cat((tt_u8_t *)"23", 2);
+        TT_UT_NOT_NULL(b.addr(), "");
+        TT_UT_EQUAL(b.size(), 3, "");
+        TT_UT_EQUAL(b.cmp("123"), 0, "");
+
+        b.set((tt_u8_t *)"xyz", 3, false);
+
+        b.cat(NULL, 0);
+        TT_UT_EQUAL(b.size(), 3, "");
+        TT_UT_EQUAL(b.cmp("xyz"), 0, "");
+        b.cat((tt_u8_t *)"1", 1);
+        TT_UT_NOT_NULL(b.addr(), "");
+        TT_UT_EQUAL(b.size(), 4, "");
+        TT_UT_EQUAL(b.cmp("xyz1"), 0, "");
+        b.cat((tt_u8_t *)"23", 2);
+        TT_UT_NOT_NULL(b.addr(), "");
+        TT_UT_EQUAL(b.size(), 6, "");
+        TT_UT_EQUAL(b.cmp("xyz123"), 0, "");
+
+        b.clear();
+        b += "1";
+        b += "22";
+        b += "333";
+
+        tt::blob b2((void *)"4444", 4, false);
+        b += b2;
+        TT_UT_TRUE(b == "1223334444", "");
+    }
+
+    {
+        tt::blob b;
+        b.set("123", false);
+
+        tt::blob b2("4567", true);
+        b.copy(b2);
+        TT_UT_TRUE(b == "4567", "");
+        TT_UT_TRUE(b.is_owner(), "");
+        TT_UT_TRUE(b2 == "4567", "");
+
+        tt::blob b3("abc", false);
+        b.move(b3);
+        TT_UT_TRUE(b == "abc", "");
+        TT_UT_FALSE(b.is_owner(), "");
+        TT_UT_TRUE(b3.empty(), "");
+
+        b.move(tt::blob{"xy", true});
+        TT_UT_TRUE(b == "xy", "");
+        TT_UT_TRUE(b.is_owner(), "");
+
+        tt::blob b4(tt::blob{"xy", true});
+        TT_UT_TRUE(b4 == "xy", "");
+        TT_UT_TRUE(b4.is_owner(), "");
+    }
+
+    // test end
+    TT_TEST_CASE_LEAVE()
+}
+
+TT_TEST_ROUTINE_DEFINE(case_memspg_cpp)
+{
+    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+
+    TT_TEST_CASE_ENTER()
+    // test start
+
+    {
+        using test_memspg = tt::memspg<6, 12>;
+        TT_UT_EQUAL(test_memspg::align_size(0), 1 << 6, "");
+        TT_UT_EQUAL(test_memspg::align_size((1 << 6) - 1), 1 << 6, "");
+        TT_UT_EQUAL(test_memspg::align_size(1 << 6), 1 << 6, "");
+
+        TT_UT_EQUAL(test_memspg::align_size((1 << 6) + 1), 1 << 7, "");
+        TT_UT_EQUAL(test_memspg::align_size((1 << 7) + 1), 1 << 8, "");
+        TT_UT_EQUAL(test_memspg::align_size((1 << 12) - 1), 1 << 12, "");
+        TT_UT_EQUAL(test_memspg::align_size((1 << 12)), 1 << 12, "");
+
+        TT_UT_EQUAL(test_memspg::align_size((1 << 12)), 1 << 12, "");
+        TT_UT_EQUAL(test_memspg::align_size((1 << 12) + 1), 2 << 12, "");
+        TT_UT_EQUAL(test_memspg::align_size((1 << 13) + (1 << 12) + 1),
+                    (1 << 13) + (2 << 12), "");
+    }
+
+    {
+        tt::memspg<> m;
+    }
+
+    {
+        tt::memspg<6, 9> m; // high: 512
+        uint8_t *p = (uint8_t *)m.addr();
+        TT_UT_NOT_EQUAL(p, nullptr, "");
+        TT_UT_EQUAL(m.size(), 1 << 6, "");
+        p[0] = 0;
+        p[63] = 0;
+
+        uint8_t *p2 = (uint8_t *)m.resize(1);
+        TT_UT_EQUAL(p, p2, "");
+        TT_UT_EQUAL(m.size(), 1 << 6, "");
+        p2[0] = 0;
+        p2[63] = 0;
+
+        p2 = (uint8_t *)m.resize(63);
+        TT_UT_EQUAL(p, p2, "");
+        TT_UT_EQUAL(m.size(), 1 << 6, "");
+        p2[0] = 0;
+        p2[63] = 0;
+
+        p2 = (uint8_t *)m.resize(64);
+        TT_UT_EQUAL(p, p2, "");
+        TT_UT_EQUAL(m.size(), 1 << 6, "");
+        p2[0] = 0;
+        p2[63] = 0;
+
+        p2 = (uint8_t *)m.resize(65);
+        TT_UT_NOT_EQUAL(p, p2, "");
+        TT_UT_EQUAL(m.size(), 128, "");
+        p2[0] = 0;
+        p2[127] = 0;
+
+        uint8_t *p3 = (uint8_t *)m.resize(127);
+        TT_UT_EQUAL(p3, p2, "");
+        p3 = (uint8_t *)m.resize(128);
+        TT_UT_EQUAL(p3, p2, "");
+
+        p3 = (uint8_t *)m.resize(129);
+        TT_UT_NOT_EQUAL(p3, p2, "");
+        TT_UT_EQUAL(m.size(), 256, "");
+
+        p2 = (uint8_t *)m.resize(256);
+        TT_UT_EQUAL(p3, p2, "");
+        TT_UT_EQUAL(m.size(), 256, "");
+
+        p3 = (uint8_t *)m.resize(257);
+        TT_UT_NOT_EQUAL(p3, p2, "");
+        TT_UT_EQUAL(m.size(), 512, "");
+
+        p2 = (uint8_t *)m.resize(513);
+        TT_UT_NOT_EQUAL(p3, p2, "");
+        TT_UT_EQUAL(m.size(), 1024, "");
+
+        p3 = (uint8_t *)m.resize(1024);
+        TT_UT_EQUAL(p3, p2, "");
+        TT_UT_EQUAL(m.size(), 1024, "");
+
+        p2 = (uint8_t *)m.resize(1025);
+        TT_UT_NOT_EQUAL(p3, p2, "");
+        TT_UT_EQUAL(m.size(), 1536, "");
+
+        // less
+        void *old_p = p2;
+        p2 = (uint8_t *)m.resize(1535);
+        TT_UT_EQUAL(p2, old_p, "");
+        TT_UT_EQUAL(m.size(), 1536, "");
+
+        old_p = p2;
+        p2 = (uint8_t *)m.resize(1500);
+        TT_UT_EQUAL(p2, old_p, "");
+        TT_UT_EQUAL(m.size(), 1536, "");
+
+        old_p = p2;
+        p2 = (uint8_t *)m.resize(1025);
+        TT_UT_EQUAL(p2, old_p, "");
+        TT_UT_EQUAL(m.size(), 1536, "");
+
+        old_p = p2;
+        p2 = (uint8_t *)m.resize(1024);
+        TT_UT_NOT_EQUAL(p2, old_p, "");
+        TT_UT_EQUAL(m.size(), 1024, "");
+
+        old_p = p2;
+        p2 = (uint8_t *)m.resize(512);
+        TT_UT_NOT_EQUAL(p2, old_p, "");
+        TT_UT_EQUAL(m.size(), 512, "");
+
+        old_p = p2;
+        p2 = (uint8_t *)m.resize(511);
+        TT_UT_EQUAL(p2, old_p, "");
+        TT_UT_EQUAL(m.size(), 512, "");
+
+        old_p = p2;
+        p2 = (uint8_t *)m.resize(64);
+        TT_UT_NOT_EQUAL(p2, old_p, "");
+        TT_UT_EQUAL(m.size(), 64, "");
+    }
+
+    {
+        tt::memspg<6, 8> m; // 64, 256
+        uint8_t *p = (uint8_t *)m.resize(128);
+        for (int i = 0; i < 128; ++i) { p[i] = i; }
+
+        // head
+        p = (uint8_t *)m.resize(250, 0, 120);
+        TT_UT_EQUAL(p[0], 0, "");
+        TT_UT_EQUAL(p[119], 119, "");
+
+        // mid
+        p = (uint8_t *)m.resize(500, 10, 110);
+        TT_UT_EQUAL(p[10], 10, "");
+        TT_UT_EQUAL(p[119], 119, "");
+
+        // mid
+        p = (uint8_t *)m.resize(1000, 20, 80);
+        TT_UT_EQUAL(p[20], 20, "");
+        TT_UT_EQUAL(p[99], 99, "");
+
+        // less
+        p = (uint8_t *)m.resize(600, 20, 70);
+        TT_UT_EQUAL(p[20], 20, "");
+        TT_UT_EQUAL(p[89], 89, "");
+
+        p = (uint8_t *)m.resize(100, 20, 60);
+        TT_UT_EQUAL(p[20], 20, "");
+        TT_UT_EQUAL(p[79], 79, "");
+
+        p = (uint8_t *)m.resize(64, 20, 60);
+        TT_UT_EQUAL(p[20], 20, "");
+        TT_UT_EQUAL(p[63], 63, "");
+
+        // again
+        p = (uint8_t *)m.resize(128);
+        for (int i = 0; i < 128; ++i) { p[i] = i; }
+
+        p = (uint8_t *)m.resize(64, 80, 20);
     }
 
     // test end

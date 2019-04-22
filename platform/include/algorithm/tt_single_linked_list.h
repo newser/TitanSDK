@@ -23,7 +23,7 @@ this file defines apis of simple sl data structure.
 
  - push_head/push_tail/pop_head/pop_tail
  - head/tail
- - insert_before/insert_after
+ - insert_front/insert_back
  - empty
  - clear
  - remove(sn)
@@ -85,9 +85,7 @@ tt_inline tt_snode_t *tt_slist_tail(IN tt_slist_t *sl)
 {
     tt_snode_t *sn = sl->head;
     if (sn != NULL) {
-        while (sn->next != NULL) {
-            sn = sn->next;
-        }
+        while (sn->next != NULL) { sn = sn->next; }
     }
     return sn;
 }
@@ -184,12 +182,8 @@ tt_inline tt_snode_t *tt_slist_remove(IN tt_slist_t *sl, IN tt_snode_t *sn)
     if (node == sn) {
         sl->head = next;
     } else {
-        while ((node != NULL) && (node->next != sn)) {
-            node = node->next;
-        }
-        if (node != NULL) {
-            node->next = next;
-        }
+        while ((node != NULL) && (node->next != sn)) { node = node->next; }
+        if (node != NULL) { node->next = next; }
     }
     sn->next = NULL;
     return next;
@@ -223,16 +217,13 @@ tt_inline void tt_slist_move(IN tt_slist_t *dst, IN tt_slist_t *src)
 }
 
 // returns how many nodes are moved to dst
-tt_inline tt_u32_t tt_slist_move_count(IN tt_slist_t *dst,
-                                       IN tt_slist_t *src,
+tt_inline tt_u32_t tt_slist_move_count(IN tt_slist_t *dst, IN tt_slist_t *src,
                                        IN tt_u32_t count)
 {
     tt_snode_t *prev, *node;
     tt_u32_t n = 0;
 
-    if (dst == src) {
-        return 0;
-    }
+    if (dst == src) { return 0; }
 
     prev = NULL;
     node = src->head;

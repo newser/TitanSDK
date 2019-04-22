@@ -24,7 +24,7 @@ this file defines list data structure and related operations.
 
  - push_tail/push_head/pop_tail/pop_head
  - head/tail
- - insert_before/insert_after
+ - insert_front/insert_back
  - count/empty
  - clear
  - contain/contain_all

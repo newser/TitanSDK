@@ -77,19 +77,11 @@ test framework
     tt_test_error_info((tt_test_item_t *)item, __FUNCTION__, __LINE__, str);
 #if 0
 #define TT_RECORD_INFO(format, ...)                                            \
-    tt_test_info((tt_test_item_t *)item,                                       \
-                 __FUNCTION__,                                                 \
-                 __LINE__,                                                     \
-                 format " <%s:%d>",                                            \
-                 __VA_ARGS__,                                                  \
-                 __FUNCTION__,                                                 \
-                 __LINE__);
+    tt_test_info((tt_test_item_t *)item, __FUNCTION__, __LINE__,               \
+                 format " <%s:%d>", __VA_ARGS__, __FUNCTION__, __LINE__);
 #else
 #define TT_RECORD_INFO(format, ...)                                            \
-    tt_test_info((tt_test_item_t *)item,                                       \
-                 __FUNCTION__,                                                 \
-                 __LINE__,                                                     \
-                 format,                                                       \
+    tt_test_info((tt_test_item_t *)item, __FUNCTION__, __LINE__, format,       \
                  __VA_ARGS__);
 #endif
 
@@ -98,6 +90,11 @@ test framework
 #define TT_TEST_ROUTINE_DEFINE(routine_name)                                   \
     tt_result_t routine_name(void *routine_param, void *test_item)
 #define TT_TEST_ROUTINE_PARAM(type) ((type)routine_param)
+
+#define TT_CPP_TEST_ROUTINE_DECLARE(routine_name)                              \
+    extern "C" tt_result_t routine_name(void *routine_param, void *test_item);
+#define TT_CPP_TEST_ROUTINE_DEFINE(routine_name)                               \
+    extern "C" tt_result_t routine_name(void *routine_param, void *test_item)
 
 ////////////////////////////////////////////////////////////
 // type definition
@@ -294,9 +291,7 @@ tt_export void tt_test_error_info(IN tt_test_item_t *item,
 
 // only final info is recorded, formal info are overwritten
 tt_export void tt_test_info(IN tt_test_item_t *item,
-                            IN const tt_char_t *function,
-                            IN tt_u32_t line,
-                            IN const tt_char_t *format,
-                            ...);
+                            IN const tt_char_t *function, IN tt_u32_t line,
+                            IN const tt_char_t *format, ...);
 
 #endif /* __TT_TEST_FRAMEWORK__ */

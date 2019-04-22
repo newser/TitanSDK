@@ -148,6 +148,7 @@ file(GLOB SRC_FILE "${PLATFORM_PATH}/include/*.h")
 
 # source code
 add_group_hdr(${PLATFORM_PATH}/include/algorithm algorithm SRC_FILE)
+add_group_hdr(${PLATFORM_PATH}/include/tt/algorithm algorithm SRC_FILE)
 add_group_src(${PLATFORM_PATH}/source/algorithm algorithm SRC_FILE)
 add_group_hdr(${PLATFORM_PATH}/include/algorithm/ptr algorithm SRC_FILE)
 add_group_src(${PLATFORM_PATH}/source/algorithm/ptr algorithm SRC_FILE)
@@ -164,12 +165,14 @@ add_group_hdr(${PLATFORM_PATH}/include/os os SRC_FILE)
 add_group_src(${PLATFORM_PATH}/source/os os SRC_FILE)
 
 add_group_hdr(${PLATFORM_PATH}/include/memory memory SRC_FILE)
+add_group_hdr(${PLATFORM_PATH}/include/tt/memory memory SRC_FILE)
 add_group_src(${PLATFORM_PATH}/source/memory memory SRC_FILE)
 
 add_group_hdr(${PLATFORM_PATH}/include/time time SRC_FILE)
 add_group_src(${PLATFORM_PATH}/source/time time SRC_FILE)
 
 add_group_hdr(${PLATFORM_PATH}/include/misc misc SRC_FILE)
+add_group_hdr(${PLATFORM_PATH}/include/tt/misc misc SRC_FILE)
 add_group_src(${PLATFORM_PATH}/source/misc misc SRC_FILE)
 
 add_group_hdr(${PLATFORM_PATH}/include/unit_test unit_test SRC_FILE)

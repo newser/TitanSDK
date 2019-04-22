@@ -78,17 +78,14 @@ typedef struct tt_blobex_s
 
 // if addr is NULL, it only allocated memory of size len
 tt_inline tt_result_t tt_blobex_create(OUT tt_blobex_t *bex,
-                                       IN OPT tt_u8_t *addr,
-                                       IN tt_u32_t len)
+                                       IN OPT tt_u8_t *addr, IN tt_u32_t len)
 {
     tt_u8_t *p;
 
     TT_ASSERT((len > 0) && (len < __BLOBEX_MAX_LEN));
     p = (tt_u8_t *)tt_malloc(len);
     if (p != NULL) {
-        if (addr != NULL) {
-            tt_memcpy(p, addr, len);
-        }
+        if (addr != NULL) { tt_memcpy(p, addr, len); }
         bex->addr = p;
         bex->len = len;
         __BLOBEX_SET_OWNER(bex);
@@ -105,8 +102,7 @@ tt_inline void tt_blobex_destroy(IN tt_blobex_t *bex)
     }
 }
 
-tt_inline void tt_blobex_init(IN tt_blobex_t *bex,
-                              IN OPT tt_u8_t *addr,
+tt_inline void tt_blobex_init(IN tt_blobex_t *bex, IN OPT tt_u8_t *addr,
                               IN tt_u32_t len)
 {
     TT_ASSERT(len < __BLOBEX_MAX_LEN);
@@ -130,10 +126,8 @@ tt_inline tt_bool_t tt_blobex_empty(IN tt_blobex_t *bex)
     return TT_BOOL((tt_blobex_addr(bex) == NULL) || (tt_blobex_len(bex) == 0));
 }
 
-tt_inline tt_result_t tt_blobex_set(IN tt_blobex_t *bex,
-                                    IN OPT tt_u8_t *addr,
-                                    IN tt_u32_t len,
-                                    IN tt_bool_t owner)
+tt_inline tt_result_t tt_blobex_set(IN tt_blobex_t *bex, IN OPT tt_u8_t *addr,
+                                    IN tt_u32_t len, IN tt_bool_t owner)
 {
     tt_blobex_destroy(bex);
     if (owner) {
@@ -176,8 +170,7 @@ tt_inline tt_s32_t tt_blobex_strcmp(IN tt_blobex_t *bex,
     }
 }
 
-tt_inline tt_s32_t tt_blobex_memcmp(IN tt_blobex_t *a,
-                                    IN void *addr,
+tt_inline tt_s32_t tt_blobex_memcmp(IN tt_blobex_t *a, IN void *addr,
                                     IN tt_u32_t len)
 {
     if (__BLOBEX_LEN(a) < len) {
@@ -190,22 +183,17 @@ tt_inline tt_s32_t tt_blobex_memcmp(IN tt_blobex_t *a,
 }
 
 tt_inline tt_result_t tt_blobex_memcat(IN tt_blobex_t *bex,
-                                       IN const tt_u8_t *addr,
-                                       IN tt_u32_t len)
+                                       IN const tt_u8_t *addr, IN tt_u32_t len)
 {
     if (len > 0) {
         tt_u32_t cur_len = __BLOBEX_LEN(bex);
-        tt_u8_t *p = tt_malloc(cur_len + len);
+        tt_u8_t *p = (tt_u8_t *)tt_malloc(cur_len + len);
         if (p == NULL) {
             TT_ERROR("no mem for blobex memcat");
             return TT_SUCCESS;
         }
-        if (cur_len > 0) {
-            tt_memcpy(p, __BLOBEX_ADDR(bex), cur_len);
-        }
-        if (len > 0) {
-            tt_memcpy(p + cur_len, addr, len);
-        }
+        if (cur_len > 0) { tt_memcpy(p, __BLOBEX_ADDR(bex), cur_len); }
+        if (len > 0) { tt_memcpy(p + cur_len, addr, len); }
         tt_blobex_destroy(bex);
         bex->addr = p;
         bex->len = cur_len + len;
@@ -234,15 +222,12 @@ tt_inline tt_result_t tt_blobex_own(IN tt_blobex_t *bex)
 tt_inline tt_result_t tt_blobex_smart_copy(IN tt_blobex_t *dst,
                                            IN tt_blobex_t *src)
 {
-    return tt_blobex_set(dst,
-                         tt_blobex_addr(src),
-                         tt_blobex_len(src),
-                         TT_BOOL(__BLOBEX_IS_OWNER(src)));
+    return tt_blobex_set(dst, (tt_u8_t *)tt_blobex_addr(src),
+                         tt_blobex_len(src), TT_BOOL(__BLOBEX_IS_OWNER(src)));
 }
 
 #if 1
-tt_inline void tt_blobex_take(IN tt_blobex_t *bex,
-                              IN TO tt_u8_t *addr,
+tt_inline void tt_blobex_take(IN tt_blobex_t *bex, IN TO tt_u8_t *addr,
                               IN tt_u32_t len)
 {
     tt_blobex_destroy(bex);

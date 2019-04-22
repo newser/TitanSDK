@@ -48,26 +48,15 @@ unit test apis
     ;
 
 // define a case
-#define TT_TEST_CASE(name,                                                     \
-                     comment,                                                  \
-                     routine,                                                  \
-                     routine_param,                                            \
-                     routine_enter,                                            \
-                     enter_param,                                              \
-                     routine_leave,                                            \
-                     leave_param)                                              \
+#define TT_TEST_CASE(name, comment, routine, routine_param, routine_enter,     \
+                     enter_param, routine_leave, leave_param)                  \
     {                                                                          \
         name, comment, routine, routine_param, routine_enter, enter_param,     \
             routine_leave, leave_param, TT_CASE_SANITY                         \
     }
 
-#define TT_TEST_CASE_ADVANCED(name,                                            \
-                              comment,                                         \
-                              routine,                                         \
-                              routine_param,                                   \
-                              routine_enter,                                   \
-                              enter_param,                                     \
-                              routine_leave,                                   \
+#define TT_TEST_CASE_ADVANCED(name, comment, routine, routine_param,           \
+                              routine_enter, enter_param, routine_leave,       \
                               leave_param)                                     \
     {                                                                          \
         name, comment, routine, routine_param, routine_enter, enter_param,     \
@@ -79,9 +68,7 @@ unit test apis
 // define test unit
 #define TT_TEST_UNIT_DEFINE(name, attribute, case_list)                        \
     tt_test_unit_t TT_MAKE_TEST_UNIT_NAME(                                     \
-        name) = {#name,                                                        \
-                 attribute,                                                    \
-                 TT_MAKE_TEST_CASE_LIST_NAME(case_list),                       \
+        name) = {#name, attribute, TT_MAKE_TEST_CASE_LIST_NAME(case_list),     \
                  sizeof(TT_MAKE_TEST_CASE_LIST_NAME(case_list)) /              \
                      sizeof(tt_test_case_t)};
 
@@ -132,11 +119,23 @@ unit test apis
 #define TT_UT_MEMEQ(a, b, n, info)                                             \
     TT_UT_EQUAL(tt_memcmp((a), (b), (n)), 0, (info))
 
+#define TT_UT_HAS_EXCEPT(e)                                                    \
+    do {                                                                       \
+        bool caught = false;                                                   \
+        try {                                                                  \
+            (e);                                                               \
+        } catch (...) {                                                        \
+            caught = true;                                                     \
+        }                                                                      \
+        TT_UT_TRUE(caught, "");                                                \
+    } while (0)
+
 ////////////////////////////////////////////////////////////
 // type definition
 ////////////////////////////////////////////////////////////
 
-typedef enum {
+typedef enum
+{
     TEST_UNIT_BEGIN = 0,
 
     TEST_UNIT_LOG = TEST_UNIT_BEGIN, // id for tt_trace
@@ -172,7 +171,8 @@ typedef enum {
     TEST_UNIT_NUM // number of test units
 } tt_test_unit_id_t;
 
-typedef enum {
+typedef enum
+{
     TT_CASE_SANITY,
     TT_CASE_ADVANCED,
 } tt_ut_case_level_t;
