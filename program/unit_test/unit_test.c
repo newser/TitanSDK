@@ -99,6 +99,7 @@ tt_result_t __ut_fiber(IN void *param)
         const tt_char_t *names[] = { //"case_http_server_basic",
             //          "TEST_UNIT_CFGNODE",
             "case_buf_null_cpp",
+            "case_memspg_cpp",
         //"ALG_UT_BUF",
 //            "case_param_html_bs4_spa",
 //          "TEST_UNIT_CFGNODE",

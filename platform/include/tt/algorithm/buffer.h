@@ -52,7 +52,7 @@ namespace tt {
 ////////////////////////////////////////////////////////////
 
 template<size_t t_init = 3, size_t t_high = 3, size_t t_max = 0>
-class buf: public memspg<t_init, t_high, t_max>
+class buf: protected memspg<t_init, t_high, t_max>
 {
     using base = memspg<t_init, t_high, t_max>;
 
@@ -65,15 +65,24 @@ public:
     {
         void *p = base::resize_discard(len);
         memcpy(p, addr, len);
+        wp_ = len;
+    }
+    buf(const char *s): buf(s, strlen(s)) {}
+    buf(const buf &b): buf(b.r(), b.r_size()) {}
+    buf(buf &&b): base(static_cast<base &&>(b))
+    {
+        rp_ = b.rp_;
+        wp_ = b.wp_;
+        b.rp_ = 0;
+        b.wp_ = 0;
     }
 
     bool empty() const { return rp_ == wp_; }
 
-    void *r_addr() const { return base::addr_ + rp_; }
-    buf &r_addr(void *addr)
+    void *r() const { return base::addr_ + rp_; }
+    buf &r(void *addr)
     {
-        TT_INVALID_ARG_IF(addr < base::addr_ || addr >= w_addr(),
-                          "invalid r_addr");
+        TT_INVALID_ARG_IF(addr < base::addr_ || addr >= w(), "invalid r_addr");
         rp_ = (uint8_t *)addr - base::addr_;
         return *this;
     }
@@ -96,11 +105,10 @@ public:
         return *this;
     }
 
-    void *w_addr() const { return base::addr_ + wp_; }
-    buf &w_addr(void *addr)
+    void *w() const { return base::addr_ + wp_; }
+    buf &w(void *addr)
     {
-        TT_INVALID_ARG_IF(addr < r_addr() || addr > end_addr(),
-                          "invalid w_addr");
+        TT_INVALID_ARG_IF(addr < r() || addr > end_addr(), "invalid w");
         wp_ = (uint8_t *)addr - base::addr_;
         return *this;
     }
@@ -136,7 +144,7 @@ public:
     buf &refine()
     {
         size_t n = r_size();
-        memmove(base::addr_, r_addr(), n);
+        memmove(base::addr_, r(), n);
         rp_ = 0;
         wp_ = rp_ + n;
         return *this;
@@ -152,7 +160,7 @@ public:
     {
         size_t n = w_size();
         if (n < len) { base::resize(base::size() + len - n, rp_, r_size()); }
-        return w_addr();
+        return w();
     }
     // reserve() always reserves more spaces and thus effient, while
     // reserve_head() only reserves specific @len bytes, caller should
@@ -162,7 +170,7 @@ public:
         if (rp_ < len) {
             base::resize(base::size() + len - rp_, rp_, r_size(), len);
         }
-        return (uint8_t *)r_addr() - len;
+        return (uint8_t *)r() - len;
     }
 
     buf &replace(size_t rwpos, const void *addr, size_t len)
@@ -176,7 +184,7 @@ public:
         TT_INVALID_ARG_IF(rp_ + rwpos > wp_ || rp_ + rwpos + n > wp_,
                           "invalid rwpos to replace");
 
-        uint8_t *p = (uint8_t *)r_addr() + rwpos;
+        uint8_t *p = (uint8_t *)r() + rwpos;
         if (n < len) {
             size_t more_bytes = len - n;
             base::more(more_bytes);
@@ -206,14 +214,14 @@ public:
     // read, write
     ////////////////////////////////////////////////////////////
 
-    buf &write(void *data, size_t len)
+    buf &write(const void *data, size_t len)
     {
         void *p = reserve(len);
         memcpy(p, data, len);
         w_inc(len);
         return *this;
     }
-    buf &write_head(void *data, size_t len)
+    buf &write_head(const void *data, size_t len)
     {
         void *p = reserve_head(len);
         memcpy(p, data, len);
@@ -229,10 +237,26 @@ public:
     }
     buf &write_rand(size_t num);
 
+    template<typename T>
+    buf &write(T val)
+    {
+        write(&val, sizeof(T));
+        return *this;
+    }
+    template<typename T>
+    buf &write_h2n(T val)
+    {
+        T v = h2n(val);
+        write(&v, sizeof(T));
+        return *this;
+    }
+    buf &write(const char *s) { return write(s, strlen(s)); }
+    buf &write(const buf &b) { return write(b.r(), b.r_size()); }
+
     bool read(OUT void *data, size_t len)
     {
         if (r_size() >= len) {
-            memcpy(data, r_addr(), len);
+            memcpy(data, r(), len);
             r_inc(len);
             return true;
         } else {
@@ -241,21 +265,133 @@ public:
     }
     size_t read_hex(OUT void *data, size_t len);
 
-    bool peek(OUT void *data, size_t len) const
+    template<typename T>
+    bool read(T &val)
     {
-        if (r_size() >= len) {
-            memcpy(data, r_addr(), len);
+        return read(&val, sizeof(T));
+    }
+    template<typename T>
+    bool read_n2h(T &val)
+    {
+        T v;
+        if (read(&v, sizeof(T))) {
+            val = n2h(v);
             return true;
         } else {
             return false;
         }
     }
 
+    bool peek(OUT void *data, size_t len) const
+    {
+        if (r_size() >= len) {
+            memcpy(data, r(), len);
+            return true;
+        } else {
+            return false;
+        }
+    }
+    template<typename T>
+    bool peek_n2h(T &val) const
+    {
+        T v;
+        if (peek(&v, sizeof(T))) {
+            val = n2h(v);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    void swap(buf &b)
+    {
+        base::swap((base &)b);
+        std::swap(rp_, b.rp_);
+        std::swap(wp_, b.wp_);
+    }
+
+    buf &set(const void *addr, size_t len)
+    {
+        clear();
+        write(addr, len);
+        return *this;
+    }
+    buf &set(const buf &b)
+    {
+        if (this != &b) { set(b.r(), b.r_size()); }
+        return *this;
+    }
+    buf &set(const char *s) { return set(s, strlen(s)); }
+
+    buf &cat(OPT const void *addr, size_t len)
+    {
+        void *p = reserve(len);
+        memcpy(p, addr, len);
+        w_inc(len);
+        return *this;
+    }
+    buf &cat(const char *s) { return cat(s, strlen(s)); }
+    buf &cat(const buf &b) { return cat(b.r(), b.r_size()); }
+
+    ssize_t cmp(const void *addr, size_t len) const
+    {
+        size_t n = r_size();
+        return n != len ? n - len : memcmp(r(), addr, len);
+    }
+    ssize_t cmp(const char *s) const { return cmp(s, strlen(s)); }
+    ssize_t cmp(const buf &b) const
+    {
+        return this == &b ? 0 : cmp(b.r(), b.r_size());
+    }
+
+    bool startwith(const void *addr, size_t len) const
+    {
+        return r_size() >= len && memcmp(r(), addr, len) == 0;
+    }
+    bool startwith(uint8_t b) const
+    {
+        return r_size() >= 1 && *((uint8_t *)r()) == b;
+    }
+    bool startwith(const char *s) const { return startwith(s, strlen(s)); }
+
+    bool endwith(const void *addr, size_t len) const
+    {
+        return r_size() >= len &&
+               memcmp(((uint8_t *)w() - len), addr, len) == 0;
+    }
+    bool endwith(uint8_t b) const
+    {
+        return r_size() >= 1 && *((uint8_t *)w() - 1) == b;
+    }
+    bool endwith(const char *s) const { return endwith(s, strlen(s)); }
+
+    bool operator==(const buf &b) const { return cmp(b) == 0; }
+    bool operator==(const char *s) const { return cmp(s) == 0; }
+
+    bool operator!=(const buf &b) const { return !(*this == b); }
+    bool operator!=(const char *s) const { return !(*this == s); }
+
+    bool operator<(const buf &b) const { return cmp(b) < 0; }
+    bool operator<(const char *s) const { return cmp(s) < 0; }
+
+    bool operator<=(const buf &b) const { return cmp(b) <= 0; }
+    bool operator<=(const char *s) const { return cmp(s) <= 0; }
+
+    bool operator>(const buf &b) const { return cmp(b) > 0; }
+    bool operator>(const char *s) const { return cmp(s) > 0; }
+
+    bool operator>=(const buf &b) const { return cmp(b) >= 0; }
+    bool operator>=(const char *s) const { return cmp(s) >= 0; }
+
+    buf &operator+=(const buf &b) { return cat(b.r(), b.r_size()); }
+    buf &operator+=(const char *s) { return cat(s, strlen(s)); }
+
+    const buf &operator=(const buf &b) { return set(b); }
+    const buf &operator=(const char *s) { return set(s); }
+
 private:
     size_t rp_{0};
     size_t wp_{0};
-
-    TT_NON_COPYABLE(buf)
 };
 
 ////////////////////////////////////////////////////////////

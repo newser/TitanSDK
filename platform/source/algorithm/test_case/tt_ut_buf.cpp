@@ -288,20 +288,20 @@ TT_TEST_ROUTINE_DEFINE(case_buf_null_cpp)
     }
 
     {
-        tt::buf<3> buf;
+        tt::buf<3> buf, b2;
         TT_UT_TRUE(buf.empty(), "");
 
-        TT_UT_NOT_NULL(buf.r_addr(), "");
-        TT_UT_HAS_EXCEPT(buf.r_addr(&n));
-        TT_UT_HAS_EXCEPT(buf.r_addr((void *)~0));
+        TT_UT_NOT_NULL(buf.r(), "");
+        TT_UT_HAS_EXCEPT(buf.r(&n));
+        TT_UT_HAS_EXCEPT(buf.r((void *)~0));
         TT_UT_EQUAL(buf.r_size(), 0, "");
         TT_UT_HAS_EXCEPT(buf.r_inc(100));
         TT_UT_HAS_EXCEPT(buf.r_dec(1));
         buf.r_clear();
 
-        TT_UT_NOT_NULL(buf.w_addr(), "");
-        TT_UT_HAS_EXCEPT(buf.w_addr(&n));
-        TT_UT_HAS_EXCEPT(buf.w_addr((void *)~0));
+        TT_UT_NOT_NULL(buf.w(), "");
+        TT_UT_HAS_EXCEPT(buf.w(&n));
+        TT_UT_HAS_EXCEPT(buf.w((void *)~0));
         TT_UT_EQUAL(buf.w_size(), 8, "");
         TT_UT_HAS_EXCEPT(buf.w_inc(100));
         TT_UT_HAS_EXCEPT(buf.w_dec(1));
@@ -332,6 +332,25 @@ TT_TEST_ROUTINE_DEFINE(case_buf_null_cpp)
         TT_UT_TRUE(buf.peek(tmp, 0), "");
         TT_UT_FALSE(buf.peek(tmp, 1), "");
         TT_UT_FALSE(buf.peek(tmp, sizeof(tmp)), "");
+
+        TT_UT_TRUE(buf == buf, "");
+        TT_UT_FALSE(buf != buf, "");
+        TT_UT_FALSE(buf > buf, "");
+        TT_UT_TRUE(buf >= buf, "");
+        TT_UT_FALSE(buf < buf, "");
+        TT_UT_TRUE(buf <= buf, "");
+
+        TT_UT_TRUE(buf == b2, "");
+        TT_UT_FALSE(buf != b2, "");
+        TT_UT_FALSE(buf > b2, "");
+        TT_UT_TRUE(buf >= b2, "");
+        TT_UT_FALSE(buf < b2, "");
+        TT_UT_TRUE(buf <= b2, "");
+
+        TT_UT_FALSE(buf.startwith("1"), "");
+        TT_UT_FALSE(buf.startwith(0x30), "");
+        TT_UT_FALSE(buf.endwith("1234567"), "");
+        TT_UT_FALSE(buf.endwith(0x30), "");
     }
 
     {
@@ -366,6 +385,155 @@ TT_TEST_ROUTINE_DEFINE(case_buf_null_cpp)
         TT_UT_TRUE(b.read(tmp2, 20), "");
         TT_UT_STREQ(tmp2, "12345678901234567890", "");
         TT_UT_EQUAL(b.r_size(), 0, "");
+    }
+
+    {
+        tt::buf<> b;
+        b.write((char)0x1)
+            .write((short)0x0304)
+            .write((int32_t)0x05060708)
+            .write((uint64_t)0x090a0b0c0d0e0f06);
+
+        char c;
+        TT_UT_TRUE(b.read(c), "");
+        TT_UT_EQUAL(c, 0x1, "");
+
+        ushort v2;
+        TT_UT_TRUE(b.read(v2), "");
+        TT_UT_EQUAL(v2, 0x0304, "");
+
+        uint32_t v3;
+        TT_UT_TRUE(b.read(v3), "");
+        TT_UT_EQUAL(v3, 0x05060708, "");
+
+        int64_t v4;
+        TT_UT_TRUE(b.read(v4), "");
+        TT_UT_EQUAL(v4, 0x090a0b0c0d0e0f06, "");
+
+        b.write_h2n((char)0x1)
+            .write_h2n((short)0x0304)
+            .write_h2n((int32_t)0x05060708)
+            .write_h2n((uint64_t)0x090a0b0c0d0e0f06);
+
+        TT_UT_TRUE(b.peek_n2h(c), "");
+        TT_UT_EQUAL(c, 0x1, "");
+        c = 0;
+        TT_UT_TRUE(b.read_n2h(c), "");
+        TT_UT_EQUAL(c, 0x1, "");
+
+        TT_UT_TRUE(b.peek_n2h(v2), "");
+        TT_UT_EQUAL(v2, 0x0304, "");
+        v2 = 0;
+        TT_UT_TRUE(b.read_n2h(v2), "");
+        TT_UT_EQUAL(v2, 0x0304, "");
+
+        TT_UT_TRUE(b.peek_n2h(v3), "");
+        TT_UT_EQUAL(v3, 0x05060708, "");
+        v3 = 0;
+        TT_UT_TRUE(b.read_n2h(v3), "");
+        TT_UT_EQUAL(v3, 0x05060708, "");
+
+        TT_UT_TRUE(b.peek_n2h(v4), "");
+        TT_UT_EQUAL(v4, 0x090a0b0c0d0e0f06, "");
+        v4 = 0;
+        TT_UT_TRUE(b.read_n2h(v4), "");
+        TT_UT_EQUAL(v4, 0x090a0b0c0d0e0f06, "");
+    }
+
+    // swap
+    {
+        tt::buf<3> b1, b2;
+        char tmp[10];
+        b1.write("123");
+        b1.read(tmp, 1);
+        b2.write("4567");
+        b2.read(tmp, 1);
+
+        b1.swap(b2);
+        TT_UT_EQUAL(b1, "567", "");
+        TT_UT_EQUAL(b2, "23", "");
+
+        b1.reserve(100);
+        b2.swap(b1);
+        TT_UT_EQUAL(b2, "567", "");
+        TT_UT_EQUAL(b1, "23", "");
+
+        b1.reserve(200);
+        b1.read(tmp, 1); // "3"
+        b2.read(tmp, 2); // "7"
+        b1.swap(b2);
+        TT_UT_EQUAL(b2, "3", "");
+        TT_UT_EQUAL(b1, "7", "");
+
+        b1.swap(b1);
+    }
+
+    {
+        tt::buf<3> b1("1234567890");
+        TT_UT_EQUAL(b1, "1234567890", "");
+        tt::buf<3> b2(std::move(b1));
+        TT_UT_EQUAL(b2, "1234567890", "");
+        TT_UT_EQUAL(b1.r_size(), 0, "");
+        TT_UT_EQUAL(b1.w_size(), 8, "");
+
+        // now b1 is internal
+        b1.write("12345678");
+        TT_UT_EQUAL(b1.r_size(), 8, "");
+        TT_UT_EQUAL(b1.w_size(), 0, "");
+        tt::buf<3> b3(std::move(b1));
+        TT_UT_EQUAL(b3, "12345678", "");
+        TT_UT_EQUAL(b3.r_size(), 8, "");
+        TT_UT_EQUAL(b3.w_size(), 0, "");
+        TT_UT_EQUAL(b1.r_size(), 0, "");
+        TT_UT_EQUAL(b1.w_size(), 8, "");
+    }
+
+    // cat
+    {
+        tt::buf<3> b1, b2;
+        b1.write("123");
+        b2.write("4567");
+
+        b1 += "abc";
+        TT_UT_EQUAL(b1, "123abc", "");
+        b1 += b2;
+        TT_UT_EQUAL(b1, "123abc4567", "");
+
+        TT_UT_TRUE(b1.startwith("1"), "");
+        TT_UT_TRUE(b1.startwith("123abc4567"), "");
+        TT_UT_TRUE(b1.startwith('1'), "");
+        TT_UT_TRUE(b1.endwith("567"), "");
+        TT_UT_TRUE(b1.endwith("123abc4567"), "");
+        TT_UT_TRUE(b1.endwith('7'), "");
+        TT_UT_TRUE(b1.endwith("7"), "");
+
+        TT_UT_FALSE(b1.startwith("2"), "");
+        TT_UT_FALSE(b1.startwith("22"), "");
+        TT_UT_FALSE(b1.startwith('2'), "");
+        TT_UT_FALSE(b1.endwith("x567"), "");
+        TT_UT_FALSE(b1.endwith('x'), "");
+    }
+
+    // cmp
+    {
+        tt::buf<3> b1("123"), b2;
+        b2 = "123";
+        TT_UT_TRUE(b1 == b2, "");
+        TT_UT_TRUE(b1 == b1, "");
+        TT_UT_FALSE(b1 != b2, "");
+        TT_UT_FALSE(b1 > b2, "");
+        TT_UT_TRUE(b1 >= b2, "");
+        TT_UT_FALSE(b1 < b2, "");
+        TT_UT_TRUE(b1 <= b2, "");
+
+        b1 = "12";
+        TT_UT_FALSE(b1 == "123", "");
+        TT_UT_TRUE(b1 == b1, "");
+        TT_UT_TRUE(b1 != "123", "");
+        TT_UT_FALSE(b1 > "123", "");
+        TT_UT_FALSE(b1 >= "123", "");
+        TT_UT_TRUE(b1 < "123", "");
+        TT_UT_TRUE(b1 <= "123", "");
     }
 
 #if 0

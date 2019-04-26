@@ -71,6 +71,18 @@ public:
     }
 
     memspg() = default;
+    memspg(memspg &&m)
+    {
+        if (m.addr_ == m.internal_mem_) {
+            addr_ = internal_mem_;
+            memcpy(addr_, m.addr_, k_init_size);
+        } else {
+            addr_ = m.addr_;
+        }
+        size_ = m.size_;
+        m.addr_ = m.internal_mem_;
+        m.size_ = k_init_size;
+    }
     ~memspg()
     {
         if (addr_ != internal_mem_) { delete addr_; }
@@ -98,10 +110,28 @@ public:
         return resize(new_size);
     }
 
+    void swap(memspg &m)
+    {
+        if (this == &m) { return; }
+
+        std::swap(addr_, m.addr_);
+        std::swap(size_, m.size_);
+
+        if (addr_ == m.internal_mem_ || m.addr_ == internal_mem_) {
+            uint8_t tmp[k_init_size];
+            memcpy(tmp, internal_mem_, k_init_size);
+            memcpy(internal_mem_, m.internal_mem_, k_init_size);
+            memcpy(m.internal_mem_, tmp, k_init_size);
+
+            if (addr_ == m.internal_mem_) { addr_ = internal_mem_; }
+            if (m.addr_ == internal_mem_) { m.addr_ = m.internal_mem_; }
+        }
+    }
+
 protected:
     uint8_t *addr_{internal_mem_};
-    size_t size_{1 << t_init};
-    uint8_t internal_mem_[1 << t_init];
+    size_t size_{k_init_size};
+    uint8_t internal_mem_[k_init_size];
 
     TT_NON_COPYABLE(memspg)
 };

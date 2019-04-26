@@ -1466,6 +1466,54 @@ TT_TEST_ROUTINE_DEFINE(case_memspg_cpp)
         TT_UT_EQUAL(p[99], 149, "");
     }
 
+    // swap
+    {
+        tt::memspg<3> m1, m2;
+        memset(m1.addr(), '1', 8);
+        memset(m2.addr(), '2', 8);
+
+        m1.swap(m2);
+        TT_UT_EQUAL(m1.size(), 8, "");
+        TT_UT_NSTREQ(m1.addr(), "22222222", 8, "");
+        TT_UT_EQUAL(m2.size(), 8, "");
+        TT_UT_NSTREQ(m2.addr(), "11111111", 8, "");
+
+        m1.resize(30);
+        m1.swap(m2);
+        TT_UT_EQUAL(m1.size(), 8, "");
+        TT_UT_NSTREQ(m1.addr(), "11111111", 8, "");
+        TT_UT_EXP(m2.size() >= 30, "");
+        TT_UT_NSTREQ(m2.addr(), "22222222", 8, "");
+
+        m1.swap(m2);
+        TT_UT_EQUAL(m2.size(), 8, "");
+        TT_UT_NSTREQ(m2.addr(), "11111111", 8, "");
+        TT_UT_EXP(m1.size() >= 30, "");
+        TT_UT_NSTREQ(m1.addr(), "22222222", 8, "");
+
+        m2.resize(100);
+        m1.swap(m2);
+        TT_UT_EXP(m1.size() >= 100, "");
+        TT_UT_NSTREQ(m1.addr(), "11111111", 8, "");
+        TT_UT_EXP(m2.size() >= 30, "");
+        TT_UT_NSTREQ(m2.addr(), "22222222", 8, "");
+    }
+
+    {
+        tt::memspg<3> m1;
+        memset(m1.addr(), '1', 8);
+
+        tt::memspg<3> m2(std::move(m1));
+        TT_UT_NSTREQ(m2.addr(), "11111111", 8, "");
+
+        m2.resize(100);
+        TT_UT_NSTREQ(m2.addr(), "11111111", 8, "");
+        tt::memspg<3> m3(std::move(m2));
+        TT_UT_NSTREQ(m3.addr(), "11111111", 8, "");
+
+        TT_UT_EQUAL(m2.size(), 8, "");
+    }
+
     // test end
     TT_TEST_CASE_LEAVE()
 }

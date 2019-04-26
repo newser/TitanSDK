@@ -121,23 +121,27 @@ public:
         return n != len ? n - len : memcmp(addr_, addr, len);
     }
     ssize_t cmp(const char *s) const { return cmp(s, strlen(s)); }
-    ssize_t cmp(const blob &b) const { return cmp(b.addr(), b.size()); }
-
-    bool operator==(const blob &b) const
+    ssize_t cmp(const blob &b) const
     {
-        return cmp(b.addr(), b.size()) == 0;
+        return this == &b ? 0 : cmp(b.addr(), b.size());
     }
-    bool operator!=(const blob &b) const { return !(*this == b); }
-    bool operator<(const blob &b) const { return cmp(b) < 0; }
-    bool operator<=(const blob &b) const { return cmp(b) <= 0; }
-    bool operator>(const blob &b) const { return cmp(b) > 0; }
-    bool operator>=(const blob &b) const { return cmp(b) >= 0; }
 
+    bool operator==(const blob &b) const { return cmp(b); }
     bool operator==(const char *s) const { return cmp(s) == 0; }
+
+    bool operator!=(const blob &b) const { return !(*this == b); }
     bool operator!=(const char *s) const { return !(*this == s); }
+
+    bool operator<(const blob &b) const { return cmp(b) < 0; }
     bool operator<(const char *s) const { return cmp(s) < 0; }
+
+    bool operator<=(const blob &b) const { return cmp(b) <= 0; }
     bool operator<=(const char *s) const { return cmp(s) <= 0; }
+
+    bool operator>(const blob &b) const { return cmp(b) > 0; }
     bool operator>(const char *s) const { return cmp(s) > 0; }
+
+    bool operator>=(const blob &b) const { return cmp(b) >= 0; }
     bool operator>=(const char *s) const { return cmp(s) >= 0; }
 
     blob &operator+=(const blob &b) { return cat(b.addr(), b.size()); }
