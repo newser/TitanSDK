@@ -17,33 +17,27 @@
  */
 
 /**
-@file util.h
+@file def_native.h
 @brief all basic type definitions
 
 this file define all basic types
 
 */
 
-#ifndef __TT_UTIL_CPP__
-#define __TT_UTIL_CPP__
+#ifndef __TT_DEF_NATIVE_CPP__
+#define __TT_DEF_NATIVE_CPP__
 
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <util_native.h>
-
 namespace tt {
+
+namespace native {
 
 ////////////////////////////////////////////////////////////
 // macro definition
 ////////////////////////////////////////////////////////////
-
-#define TT_ENABLE_IF(e) , typename std::enable_if<e, int>::type = 0
-
-#define TT_NON_COPYABLE(class_name)                                            \
-    class_name(const class_name &) = delete;                                   \
-    class_name &operator=(const class_name &) = delete;
 
 ////////////////////////////////////////////////////////////
 // type definition
@@ -59,4 +53,6 @@ namespace tt {
 
 }
 
-#endif /* __TT_UTIL_CPP__ */
+}
+
+#endif /* __TT_DEF_NATIVE_CPP__ */

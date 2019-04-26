@@ -79,7 +79,11 @@ public:
     void *addr() const { return addr_; }
     size_t size() const { return size_; }
 
-    void *resize(size_t new_size, size_t keep, size_t len);
+    void *resize(size_t new_size, size_t from, size_t len, size_t to);
+    void *resize(size_t new_size, size_t from, size_t len)
+    {
+        return resize(new_size, from, len, from);
+    }
     void *resize(size_t new_size) { return resize(new_size, 0, size_); }
     void *resize_discard(size_t new_size) { return resize(new_size, 0, 0); }
 
@@ -111,30 +115,30 @@ protected:
 ////////////////////////////////////////////////////////////
 
 template<size_t t_init, size_t t_high, size_t t_max>
-void *memspg<t_init, t_high, t_max>::resize(size_t new_size, size_t keep,
-                                            size_t len)
+void *memspg<t_init, t_high, t_max>::resize(size_t new_size, size_t from,
+                                            size_t len, size_t to)
 {
-    TT_OVERFLOW_IF(keep + len < keep, "overflowed keep");
-    TT_INVALID_ARG_IF(keep > size_ || (keep + len) > size_, "invalid keep");
+    TT_OVERFLOW_IF(from + len < from, "overflowed from");
+    TT_INVALID_ARG_IF(from > size_ || (from + len) > size_, "invalid from");
     TT_INVALID_ARG_IF(t_max != 0 && new_size > t_max, "new size exceeds t_max");
 
     new_size = align_size(new_size);
     if (new_size == size_) { return addr_; }
 
-    if (keep >= new_size) {
+    if (to >= new_size) {
         len = 0;
-    } else if (keep + len > new_size) {
-        len = new_size - keep;
+    } else if (to + len > new_size) {
+        len = new_size - to;
     }
 
     if (new_size <= k_init_size) {
         TT_ASSERT(addr_ != internal_mem_);
-        if (len != 0) { memcpy(internal_mem_ + keep, addr_ + keep, len); }
+        if (len != 0) { memmove(internal_mem_ + to, addr_ + from, len); }
         delete addr_;
         addr_ = internal_mem_;
     } else {
         uint8_t *p = new uint8_t[new_size];
-        if (len != 0) { memcpy(p + keep, addr_ + keep, len); }
+        if (len != 0) { memmove(p + to, addr_ + from, len); }
         if (addr_ != internal_mem_) { delete addr_; }
         addr_ = p;
     }

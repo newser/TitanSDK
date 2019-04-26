@@ -36,6 +36,7 @@ extern "C" {
 }
 
 #include <tt/memory/memory_spring.h>
+#include <tt/misc/endian.h>
 #include <tt/misc/util.h>
 
 #include <algorithm>
@@ -51,12 +52,12 @@ namespace tt {
 ////////////////////////////////////////////////////////////
 
 template<size_t t_init = 3, size_t t_high = 3, size_t t_max = 0>
-class buf: protected memspg<t_init, t_high, t_max>
+class buf: public memspg<t_init, t_high, t_max>
 {
     using base = memspg<t_init, t_high, t_max>;
 
 public:
-    using rwpos = std::pair<size_t, size_t>;
+    using rwp = std::pair<size_t, size_t>;
 
     buf() = default;
     buf(size_t len) { base::resize_discard(len); }
@@ -76,10 +77,10 @@ public:
         rp_ = (uint8_t *)addr - base::addr_;
         return *this;
     }
-    size_t r_len() const { return wp_ - rp_; }
+    size_t r_size() const { return wp_ - rp_; }
     buf &r_inc(size_t n)
     {
-        TT_INVALID_ARG_IF(n > r_len(), "invalid r_inc");
+        TT_INVALID_ARG_IF(n > r_size(), "invalid r_inc");
         rp_ += n;
         return *this;
     }
@@ -103,16 +104,16 @@ public:
         wp_ = (uint8_t *)addr - base::addr_;
         return *this;
     }
-    size_t w_len() const { return base::size_ - wp_; }
+    size_t w_size() const { return base::size_ - wp_; }
     buf &w_inc(size_t n)
     {
-        TT_INVALID_ARG_IF(n > w_len(), "invalid w_inc");
+        TT_INVALID_ARG_IF(n > w_size(), "invalid w_inc");
         wp_ += n;
         return *this;
     }
     buf &w_dec(size_t n)
     {
-        TT_INVALID_ARG_IF(n > w_len(), "invalid w_dec");
+        TT_INVALID_ARG_IF(n > r_size(), "invalid w_dec");
         wp_ -= n;
         return *this;
     }
@@ -124,8 +125,8 @@ public:
 
     void *end_addr() const { return base::addr_ + base::size_; }
 
-    rwpos pos() const { return std::make_pair(rp_, wp_); }
-    buf &pos(const rwpos &rwp)
+    rwp rwpos() const { return std::make_pair(rp_, wp_); }
+    buf &rwpos(const rwp &rwp)
     {
         rp_ = rwp.first;
         wp_ = rwp.second;
@@ -134,7 +135,7 @@ public:
 
     buf &refine()
     {
-        size_t n = r_len();
+        size_t n = r_size();
         memmove(base::addr_, r_addr(), n);
         rp_ = 0;
         wp_ = rp_ + n;
@@ -147,28 +148,40 @@ public:
     }
     size_t refinable() const { return rp_; }
 
-    buf &reserve(size_t len)
+    void *reserve(size_t len)
     {
-        base::more(len);
-        return *this;
+        size_t n = w_size();
+        if (n < len) { base::resize(base::size() + len - n, rp_, r_size()); }
+        return w_addr();
+    }
+    // reserve() always reserves more spaces and thus effient, while
+    // reserve_head() only reserves specific @len bytes, caller should
+    // reserve enough bytes at one time
+    void *reserve_head(size_t len)
+    {
+        if (rp_ < len) {
+            base::resize(base::size() + len - rp_, rp_, r_size(), len);
+        }
+        return (uint8_t *)r_addr() - len;
     }
 
-    buf &replace(size_t pos, const void *addr, size_t len)
+    buf &replace(size_t rwpos, const void *addr, size_t len)
     {
-        return replace(pos, len, addr, len);
+        return replace(rwpos, len, addr, len);
     }
-    buf &replace(size_t pos, size_t n, const void *addr, size_t len)
+    buf &replace(size_t rwpos, size_t n, const void *addr, size_t len)
     {
-        TT_OVERFLOW_IF(rp_ + pos < pos || rp_ + pos + n < n, "pos overflow");
-        TT_INVALID_ARG_IF(rp_ + pos > wp_ || rp_ + pos + n > wp_,
-                          "invalid pos to replace");
+        TT_OVERFLOW_IF(rp_ + rwpos < rwpos || rp_ + rwpos + n < n,
+                       "rwpos overflow");
+        TT_INVALID_ARG_IF(rp_ + rwpos > wp_ || rp_ + rwpos + n > wp_,
+                          "invalid rwpos to replace");
 
-        uint8_t *p = (uint8_t *)r_addr() + pos;
+        uint8_t *p = (uint8_t *)r_addr() + rwpos;
         if (n < len) {
             size_t more_bytes = len - n;
             base::more(more_bytes);
 
-            memmove(p + len, p + n, r_len() - pos - n);
+            memmove(p + len, p + n, r_size() - rwpos - n);
             memcpy(p, addr, len);
             wp_ += more_bytes;
         } else if (n == len) {
@@ -176,7 +189,7 @@ public:
         } else {
             size_t less_bytes = n - len;
 
-            memmove(p + len, p + n, r_len() - pos - len);
+            memmove(p + len, p + n, r_size() - rwpos - len);
             memcpy(p, addr, len);
             wp_ -= less_bytes;
         }
@@ -193,16 +206,50 @@ public:
     // read, write
     ////////////////////////////////////////////////////////////
 
-    buf &write(void *data, size_t len);
-    buf &write_head(void *data, size_t len);
-    buf &write_rep(size_t num, uint8_t byte);
-    buf &write_hole(size_t num, uint8_t byte);
+    buf &write(void *data, size_t len)
+    {
+        void *p = reserve(len);
+        memcpy(p, data, len);
+        w_inc(len);
+        return *this;
+    }
+    buf &write_head(void *data, size_t len)
+    {
+        void *p = reserve_head(len);
+        memcpy(p, data, len);
+        r_dec(len);
+        return *this;
+    }
+    buf &write_rep(size_t num, uint8_t byte)
+    {
+        void *p = reserve(num);
+        memset(p, byte, num);
+        w_inc(num);
+        return *this;
+    }
     buf &write_rand(size_t num);
 
-    bool read(OUT void *data, size_t len);
+    bool read(OUT void *data, size_t len)
+    {
+        if (r_size() >= len) {
+            memcpy(data, r_addr(), len);
+            r_inc(len);
+            return true;
+        } else {
+            return false;
+        }
+    }
     size_t read_hex(OUT void *data, size_t len);
 
-    bool peek(OUT void *data, size_t len);
+    bool peek(OUT void *data, size_t len) const
+    {
+        if (r_size() >= len) {
+            memcpy(data, r_addr(), len);
+            return true;
+        } else {
+            return false;
+        }
+    }
 
 private:
     size_t rp_{0};

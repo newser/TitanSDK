@@ -111,6 +111,7 @@ configure_file(${ROOT_PATH}/platform/include/config/tt_have.h.in
 # platform
 include_directories(${PLATFORM_PATH}/include)
 include_directories(${PLATFORM_PATH}/native/${PLATFORM_ENV})
+include_directories(${PLATFORM_PATH}/native/${PLATFORM_ENV}/include)
 
 # library: fcontext
 include_directories(${PLATFORM_PATH}/library/fcontext/include)
@@ -255,7 +256,7 @@ add_group_src(${PLATFORM_PATH}/source/param/test_case param SRC_FILE)
 add_group_src(${PLATFORM_PATH}/source/json/test_case json SRC_FILE)
 
 # native
-add_group_hdr(${PLATFORM_PATH}/native/${PLATFORM_ENV} native SRC_FILE)
+add_group_hdr(${PLATFORM_PATH}/native/${PLATFORM_ENV}/include native SRC_FILE)
 add_group_src(${PLATFORM_PATH}/native/${PLATFORM_ENV} native SRC_FILE)
 
 #

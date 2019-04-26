@@ -51,7 +51,7 @@ namespace tt {
 
 class blob
 {
-    constexpr static size_t obit = ((size_t)1) << ((sizeof(size_t) << 3) - 1);
+    constexpr static size_t k_obit = ((size_t)1) << ((sizeof(size_t) << 3) - 1);
 
 public:
     blob() = default;
@@ -67,8 +67,8 @@ public:
     ~blob() { clear(); }
 
     void *addr() const { return addr_; }
-    size_t size() const { return len_ & ~obit; }
-    bool is_owner() const { return len_ & obit; }
+    size_t size() const { return len_ & ~k_obit; }
+    bool is_owner() const { return len_ & k_obit; }
     bool empty() const { return (addr_ == nullptr) || (len_ == 0); }
 
     blob &set(OPT void *addr, size_t len, bool owner)
@@ -151,7 +151,7 @@ private:
 
     void check_len(size_t len)
     {
-        TT_INVALID_ARG_IF(len >= obit, "too long blob");
+        TT_INVALID_ARG_IF(len >= k_obit, "too long blob");
     }
     void do_set(void *addr, size_t len, bool owner);
     void do_move(blob &b);
@@ -161,8 +161,8 @@ private:
         len_ = len;
         if (owner) { set_owner(); }
     }
-    void set_owner() { len_ |= obit; }
-    void clear_owner() { len_ &= ~obit; }
+    void set_owner() { len_ |= k_obit; }
+    void clear_owner() { len_ &= ~k_obit; }
 };
 
 ////////////////////////////////////////////////////////////

@@ -17,33 +17,29 @@
  */
 
 /**
-@file util.h
+@file endian.h
 @brief all basic type definitions
 
 this file define all basic types
 
 */
 
-#ifndef __TT_UTIL_CPP__
-#define __TT_UTIL_CPP__
+#ifndef __TT_ENDIAN_CPP__
+#define __TT_ENDIAN_CPP__
+
+#include <tt/misc/util.h>
+
+#include <endian_native.h>
 
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
-
-#include <util_native.h>
 
 namespace tt {
 
 ////////////////////////////////////////////////////////////
 // macro definition
 ////////////////////////////////////////////////////////////
-
-#define TT_ENABLE_IF(e) , typename std::enable_if<e, int>::type = 0
-
-#define TT_NON_COPYABLE(class_name)                                            \
-    class_name(const class_name &) = delete;                                   \
-    class_name &operator=(const class_name &) = delete;
 
 ////////////////////////////////////////////////////////////
 // type definition
@@ -57,6 +53,44 @@ namespace tt {
 // interface declaration
 ////////////////////////////////////////////////////////////
 
+#if defined(TT_BIG_ENDIAN)
+
+template<typename T TT_ENBALE_IF(std::is_integral<T>::value)>
+T n2h(T val)
+{
+    return val;
 }
 
-#endif /* __TT_UTIL_CPP__ */
+template<typename T TT_ENBALE_IF(std::is_integral<T>::value)>
+T h2n(T val)
+{
+    return val;
+}
+
+#elif defined(TT_LITTLE_ENDIAN)
+
+#define __CAN_N2H(t)                                                           \
+    std::is_integral<T>::value &&                                              \
+        (sizeof(T) == 1 || sizeof(T) == 2 || sizeof(T) == 4 || sizeof(T) == 8)
+
+template<typename T TT_ENABLE_IF(__CAN_N2H(T))>
+T n2h(T val)
+{
+    return native::bswap(val);
+}
+
+template<typename T TT_ENABLE_IF(__CAN_N2H(T))>
+T h2n(T val)
+{
+    return native::bswap(val);
+}
+
+#else
+
+#error unknown endian!
+
+#endif
+
+}
+
+#endif /* __TT_ENDIAN_CPP__ */

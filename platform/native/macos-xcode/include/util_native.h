@@ -17,33 +17,27 @@
  */
 
 /**
-@file util.h
+@file util_native.h
 @brief all basic type definitions
 
 this file define all basic types
 
 */
 
-#ifndef __TT_UTIL_CPP__
-#define __TT_UTIL_CPP__
+#ifndef __TT_UTIL_NATIVE_CPP__
+#define __TT_UTIL_NATIVE_CPP__
 
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <util_native.h>
-
 namespace tt {
+
+namespace native {
 
 ////////////////////////////////////////////////////////////
 // macro definition
 ////////////////////////////////////////////////////////////
-
-#define TT_ENABLE_IF(e) , typename std::enable_if<e, int>::type = 0
-
-#define TT_NON_COPYABLE(class_name)                                            \
-    class_name(const class_name &) = delete;                                   \
-    class_name &operator=(const class_name &) = delete;
 
 ////////////////////////////////////////////////////////////
 // type definition
@@ -57,6 +51,26 @@ namespace tt {
 // interface declaration
 ////////////////////////////////////////////////////////////
 
+template<typename T>
+T bswap(T val)
+{
+    static_assert((sizeof(T) == 1) || (sizeof(T) == 2) || (sizeof(T) == 4) ||
+                      (sizeof(T) == 8),
+                  "invalid type");
+    // rely on compiler to optimize if
+    if (sizeof(T) == 1) {
+        return val;
+    } else if (sizeof(T) == 2) {
+        return __builtin_bswap16(val);
+    } else if (sizeof(T) == 4) {
+        return __builtin_bswap32(val);
+    } else {
+        return __builtin_bswap64(val);
+    }
 }
 
-#endif /* __TT_UTIL_CPP__ */
+}
+
+}
+
+#endif /* __TT_UTIL_NATIVE_CPP__ */

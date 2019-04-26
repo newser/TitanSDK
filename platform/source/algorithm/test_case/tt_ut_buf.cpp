@@ -259,13 +259,42 @@ TT_TEST_ROUTINE_DEFINE(case_buf_null_cpp)
     // test start
 
     {
-        tt::buf<> buf;
+        char c = 1;
+        TT_UT_EQUAL(tt::n2h(c), 1, "");
+
+#if TT_BIG_ENDIAN
+        short s16 = 0x0102;
+        TT_UT_EQUAL(tt::n2h(s16), 0x0102, "");
+
+        uint32_t s32 = 0x01020304;
+        TT_UT_EQUAL(tt::n2h(s32), 0x01020304, "");
+
+        int64_t s64 = 0x0102030405060708;
+        TT_UT_EQUAL(tt::n2h(s64), 0x0102030405060708, "");
+#else
+        short s16 = 0x0102;
+        TT_UT_EQUAL(tt::n2h(s16), 0x0201, "");
+
+        uint32_t s32 = 0x01020304;
+        TT_UT_EQUAL(tt::n2h(s32), 0x04030201, "");
+
+        int64_t s64 = 0x0102030405060708;
+        TT_UT_EQUAL(tt::n2h(s64), 0x0807060504030201, "");
+#endif
+
+        // compile error
+        //        char buf[4];
+        //        tt::n2h(buf);
+    }
+
+    {
+        tt::buf<3> buf;
         TT_UT_TRUE(buf.empty(), "");
 
         TT_UT_NOT_NULL(buf.r_addr(), "");
         TT_UT_HAS_EXCEPT(buf.r_addr(&n));
         TT_UT_HAS_EXCEPT(buf.r_addr((void *)~0));
-        TT_UT_EQUAL(buf.r_len(), 0, "");
+        TT_UT_EQUAL(buf.r_size(), 0, "");
         TT_UT_HAS_EXCEPT(buf.r_inc(100));
         TT_UT_HAS_EXCEPT(buf.r_dec(1));
         buf.r_clear();
@@ -273,15 +302,16 @@ TT_TEST_ROUTINE_DEFINE(case_buf_null_cpp)
         TT_UT_NOT_NULL(buf.w_addr(), "");
         TT_UT_HAS_EXCEPT(buf.w_addr(&n));
         TT_UT_HAS_EXCEPT(buf.w_addr((void *)~0));
-        TT_UT_EQUAL(buf.w_len(), 0, "");
+        TT_UT_EQUAL(buf.w_size(), 8, "");
         TT_UT_HAS_EXCEPT(buf.w_inc(100));
         TT_UT_HAS_EXCEPT(buf.w_dec(1));
+        TT_UT_EQUAL(buf.w_size(), 8, "");
         buf.clear();
 
-        tt::buf<>::rwpos pos = buf.pos();
+        tt::buf<>::rwp pos = buf.rwpos();
         TT_UT_EQUAL(pos.first, 0, "");
         TT_UT_EQUAL(pos.second, 0, "");
-        buf.pos(pos);
+        buf.rwpos(pos);
 
         TT_UT_EQUAL(buf.refinable(), 0, "");
         buf.refine();
@@ -290,7 +320,52 @@ TT_TEST_ROUTINE_DEFINE(case_buf_null_cpp)
 
         TT_UT_HAS_EXCEPT(buf.replace(0, &n, sizeof(n)));
         buf.replace(0, 0, &n, sizeof(n));
-        TT_UT_EQUAL(buf.r_len(), sizeof(n), "");
+        TT_UT_EQUAL(buf.r_size(), sizeof(n), "");
+        buf.clear();
+
+        // read
+        uint8_t tmp[20];
+        TT_UT_TRUE(buf.read(tmp, 0), "");
+        TT_UT_FALSE(buf.read(tmp, 1), "");
+        TT_UT_FALSE(buf.read(tmp, sizeof(tmp)), "");
+
+        TT_UT_TRUE(buf.peek(tmp, 0), "");
+        TT_UT_FALSE(buf.peek(tmp, 1), "");
+        TT_UT_FALSE(buf.peek(tmp, sizeof(tmp)), "");
+    }
+
+    {
+        tt::buf<> b;
+        char tmp[] = "12345678901234567890", tmp2[30];
+        b.write(tmp, sizeof(tmp) - 1)
+            .write(tmp, sizeof(tmp) - 1)
+            .write(tmp, sizeof(tmp) - 1)
+            .write(tmp, sizeof(tmp) - 1);
+
+        memset(tmp2, 0, sizeof(tmp2));
+        TT_UT_TRUE(b.peek(tmp2, sizeof(tmp2)), "");
+        TT_UT_STREQ(tmp2, "123456789012345678901234567890", "");
+        TT_UT_EQUAL(b.r_size(), 80, "");
+
+        memset(tmp2, 0, sizeof(tmp2));
+        TT_UT_TRUE(b.read(tmp2, sizeof(tmp2)), "");
+        TT_UT_STREQ(tmp2, "123456789012345678901234567890", "");
+        TT_UT_EQUAL(b.r_size(), 50, "");
+
+        memset(tmp2, 0, sizeof(tmp2));
+        TT_UT_TRUE(b.read(tmp2, sizeof(tmp2)), "");
+        TT_UT_STREQ(tmp2, "123456789012345678901234567890", "");
+        TT_UT_EQUAL(b.r_size(), 20, "");
+
+        memset(tmp2, 0, sizeof(tmp2));
+        TT_UT_FALSE(b.peek(tmp2, sizeof(tmp2)), "");
+        TT_UT_EQUAL(b.r_size(), 20, "");
+
+        TT_UT_FALSE(b.read(tmp2, sizeof(tmp2)), "");
+        memset(tmp2, 0, sizeof(tmp2));
+        TT_UT_TRUE(b.read(tmp2, 20), "");
+        TT_UT_STREQ(tmp2, "12345678901234567890", "");
+        TT_UT_EQUAL(b.r_size(), 0, "");
     }
 
 #if 0

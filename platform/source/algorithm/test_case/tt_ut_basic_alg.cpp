@@ -1444,8 +1444,26 @@ TT_TEST_ROUTINE_DEFINE(case_memspg_cpp)
         // again
         p = (uint8_t *)m.resize(128);
         for (int i = 0; i < 128; ++i) { p[i] = i; }
-
         p = (uint8_t *)m.resize(64, 80, 20);
+
+        // again
+        p = (uint8_t *)m.resize(128);
+        for (int i = 0; i < 128; ++i) { p[i] = i; }
+        p = (uint8_t *)m.resize(64, 50, 30, 10);
+        TT_UT_EQUAL(p[10], 50, "");
+        TT_UT_EQUAL(p[23], 63, "");
+
+        p = (uint8_t *)m.resize(250);
+        for (int i = 0; i < 250; ++i) { p[i] = i; }
+        p = (uint8_t *)m.resize(128, 200, 50, 100);
+        TT_UT_EQUAL(p[100], 200, "");
+        TT_UT_EQUAL(p[127], 227, "");
+
+        p = (uint8_t *)m.resize(250);
+        for (int i = 0; i < 250; ++i) { p[i] = i; }
+        p = (uint8_t *)m.resize(128, 100, 50, 50);
+        TT_UT_EQUAL(p[50], 100, "");
+        TT_UT_EQUAL(p[99], 149, "");
     }
 
     // test end
