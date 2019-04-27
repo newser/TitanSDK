@@ -23,6 +23,7 @@
 #include <tt_platform.h>
 
 #include <tt/algorithm/buffer.h>
+#include <tt/misc/rollback.h>
 
 ////////////////////////////////////////////////////////////
 // internal macro
@@ -43,6 +44,7 @@
 // === routine declarations ================
 TT_TEST_ROUTINE_DECLARE(case_buf_null)
 TT_TEST_ROUTINE_DECLARE(case_buf_null_cpp)
+TT_TEST_ROUTINE_DECLARE(case_rollback)
 
 TT_TEST_ROUTINE_DECLARE(case_buf_get_basic)
 TT_TEST_ROUTINE_DECLARE(case_buf_get_rand)
@@ -71,6 +73,9 @@ TT_TEST_CASE("case_buf_null", "testing basic buf api, null buff", case_buf_null,
 
     TT_TEST_CASE("case_buf_null_cpp", "testing basic buf api, null buff",
                  case_buf_null_cpp, NULL, NULL, NULL, NULL, NULL),
+
+    TT_TEST_CASE("case_rollback", "testing rollback", case_rollback, NULL, NULL,
+                 NULL, NULL, NULL),
 
     TT_TEST_CASE("case_buf_get_basic", "testing basic buf parser API",
                  case_buf_get_basic, NULL, NULL, NULL, NULL, NULL),
@@ -241,6 +246,48 @@ TT_TEST_CASE("case_buf_null", "testing basic buf api, null buff", case_buf_null,
 
     tt_buf_destroy(&buf);
     tt_buf_destroy(&buf2);
+
+    // test end
+    TT_TEST_CASE_LEAVE()
+}
+
+int __called = 0;
+int __copied = 0;
+int __moved = 0;
+
+class A
+{
+public:
+    A() {}
+    A(const A &) { ++__copied; }
+    A(A &&) { ++__moved; }
+
+    int operator()()
+    {
+        ++__called;
+        return 1;
+    }
+};
+
+TT_TEST_ROUTINE_DEFINE(case_rollback)
+{
+    TT_TEST_CASE_ENTER()
+    // test start
+
+    __called = __moved = __copied = 0;
+    {
+        auto a = tt::make_rollback(A());
+    }
+    TT_UT_TRUE(__called, "");
+    TT_UT_EQUAL(__copied, 0, "");
+
+    __called = __moved = __copied = 0;
+    {
+        auto a = tt::make_rollback(A());
+        a.dismiss();
+    }
+    TT_UT_FALSE(__called, "");
+    TT_UT_EQUAL(__copied, 0, "");
 
     // test end
     TT_TEST_CASE_LEAVE()

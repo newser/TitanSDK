@@ -4,66 +4,83 @@
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
+ * (the "License"); you may not use this file except compliance with
  * the License.  You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
+ * Unless required by applicable law or agreed to writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
 
-/**
-@file throw.h
-@brief all basic type definitions
-
-this file define all basic types
-
-*/
-
-#ifndef __TT_THROW_CPP__
-#define __TT_THROW_CPP__
-
 ////////////////////////////////////////////////////////////
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <stdexcept>
+#include <tt/init/component.h>
+
+#include <tt/algorithm/rng.h>
+#include <tt/misc/rollback.h>
+
+namespace tt {
 
 ////////////////////////////////////////////////////////////
-// macro definition
-////////////////////////////////////////////////////////////
-
-#define TT_EXCEPTION_IF_0(etype, e)                                            \
-    do {                                                                       \
-        if (e) { throw etype(); }                                              \
-    } while (0)
-
-#define TT_EXCEPTION_IF_1(etype, e, info)                                      \
-    do {                                                                       \
-        if (e) { throw etype(info); }                                          \
-    } while (0)
-
-#define TT_INVALID_ARG_IF(e, info)                                             \
-    TT_EXCEPTION_IF_1(std::invalid_argument, e, info)
-
-#define TT_OVERFLOW_IF(e, info) TT_EXCEPTION_IF_1(std::overflow_error, e, info)
-
-#define TT_BAD_CALL_IF(e) TT_EXCEPTION_IF_0(std::bad_function_call, e)
-
-////////////////////////////////////////////////////////////
-// type definition
+// internal macro
 ////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////
-// global variants
+// internal type
+////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////
+// extern declaration
+////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////
+// global variant
 ////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////
 // interface declaration
 ////////////////////////////////////////////////////////////
 
-#endif /* __TT_THROW_CPP__ */
+////////////////////////////////////////////////////////////
+// interface implementation
+////////////////////////////////////////////////////////////
+
+component_mgr::component_mgr()
+{
+#define __INSTALL()
+    components_[component::rng] = &init::rng::instance();
+
+    components_[component::rng]->name_ = "";
+}
+
+bool component_mgr::start(void *reserved)
+{
+    {
+        int i = 0;
+
+        auto rb = make_rollback([this, &i]() {
+            --i;
+            for (; i >= 0; --i) { components_[i]->stop(); }
+        });
+
+        for (; i < component::cid_num; ++i) {
+            if (!components_[i]->start()) { return false; }
+        }
+
+        rb.dismiss();
+    }
+
+    return true;
+}
+
+void component_mgr::stop()
+{
+}
+
+}
