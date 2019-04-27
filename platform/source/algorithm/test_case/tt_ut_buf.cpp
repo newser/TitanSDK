@@ -351,6 +351,49 @@ TT_TEST_ROUTINE_DEFINE(case_buf_null_cpp)
         TT_UT_FALSE(buf.startwith(0x30), "");
         TT_UT_FALSE(buf.endwith("1234567"), "");
         TT_UT_FALSE(buf.endwith(0x30), "");
+
+        TT_UT_EQUAL(buf.remove(0, 0), buf, "");
+        TT_UT_HAS_EXCEPT(buf.remove(0, 1));
+        TT_UT_EQUAL(buf.remove_to(0), buf, "");
+        TT_UT_EQUAL(buf.remove_from(0), buf, "");
+        TT_UT_EQUAL(buf.remove_head(0), buf, "");
+        TT_UT_EQUAL(buf.remove_tail(0), buf, "");
+
+        buf.trim();
+        TT_UT_TRUE(buf.empty(), "");
+
+        buf.trim([](uint8_t b) { return b == '1'; });
+    }
+
+    {
+        tt::buf<> b("012345678");
+        b.remove_from(7);
+        TT_UT_EQUAL(b, "0123456", "");
+        b.remove_to(1);
+        TT_UT_EQUAL(b, "123456", "");
+        b.remove_head(2);
+        TT_UT_EQUAL(b, "3456", "");
+        b.remove_tail(3);
+        TT_UT_EQUAL(b, "3", "");
+
+        b.insert_head("12");
+        TT_UT_EQUAL(b, "123", "");
+        b.insert_tail("456", 3);
+        TT_UT_EQUAL(b, "123456", "");
+        b.insert(2, "abc");
+        TT_UT_EQUAL(b, "12abc3456", "");
+
+        b.insert_head(" ");
+        b.trim();
+        TT_UT_EQUAL(b, "12abc3456", "");
+        b.insert_tail(" ");
+        b.trim();
+        TT_UT_EQUAL(b, "12abc3456", "");
+        b.insert_head("  ").insert_tail("    ");
+        b.trim();
+        TT_UT_EQUAL(b, "12abc3456", "");
+        b.trim();
+        TT_UT_EQUAL(b, "12abc3456", "");
     }
 
     {
@@ -363,17 +406,17 @@ TT_TEST_ROUTINE_DEFINE(case_buf_null_cpp)
 
         memset(tmp2, 0, sizeof(tmp2));
         TT_UT_TRUE(b.peek(tmp2, sizeof(tmp2)), "");
-        TT_UT_STREQ(tmp2, "123456789012345678901234567890", "");
+        TT_UT_NSTREQ(tmp2, "123456789012345678901234567890", sizeof(tmp2), "");
         TT_UT_EQUAL(b.r_size(), 80, "");
 
         memset(tmp2, 0, sizeof(tmp2));
         TT_UT_TRUE(b.read(tmp2, sizeof(tmp2)), "");
-        TT_UT_STREQ(tmp2, "123456789012345678901234567890", "");
+        TT_UT_NSTREQ(tmp2, "123456789012345678901234567890", sizeof(tmp2), "");
         TT_UT_EQUAL(b.r_size(), 50, "");
 
         memset(tmp2, 0, sizeof(tmp2));
         TT_UT_TRUE(b.read(tmp2, sizeof(tmp2)), "");
-        TT_UT_STREQ(tmp2, "123456789012345678901234567890", "");
+        TT_UT_NSTREQ(tmp2, "123456789012345678901234567890", sizeof(tmp2), "");
         TT_UT_EQUAL(b.r_size(), 20, "");
 
         memset(tmp2, 0, sizeof(tmp2));
@@ -383,7 +426,7 @@ TT_TEST_ROUTINE_DEFINE(case_buf_null_cpp)
         TT_UT_FALSE(b.read(tmp2, sizeof(tmp2)), "");
         memset(tmp2, 0, sizeof(tmp2));
         TT_UT_TRUE(b.read(tmp2, 20), "");
-        TT_UT_STREQ(tmp2, "12345678901234567890", "");
+        TT_UT_NSTREQ(tmp2, "12345678901234567890", 20, "");
         TT_UT_EQUAL(b.r_size(), 0, "");
     }
 

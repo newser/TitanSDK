@@ -40,6 +40,7 @@ extern "C" {
 #include <tt/misc/util.h>
 
 #include <algorithm>
+#include <cctype>
 
 namespace tt {
 
@@ -171,38 +172,6 @@ public:
             base::resize(base::size() + len - rp_, rp_, r_size(), len);
         }
         return (uint8_t *)r() - len;
-    }
-
-    buf &replace(size_t rwpos, const void *addr, size_t len)
-    {
-        return replace(rwpos, len, addr, len);
-    }
-    buf &replace(size_t rwpos, size_t n, const void *addr, size_t len)
-    {
-        TT_OVERFLOW_IF(rp_ + rwpos < rwpos || rp_ + rwpos + n < n,
-                       "rwpos overflow");
-        TT_INVALID_ARG_IF(rp_ + rwpos > wp_ || rp_ + rwpos + n > wp_,
-                          "invalid rwpos to replace");
-
-        uint8_t *p = (uint8_t *)r() + rwpos;
-        if (n < len) {
-            size_t more_bytes = len - n;
-            base::more(more_bytes);
-
-            memmove(p + len, p + n, r_size() - rwpos - n);
-            memcpy(p, addr, len);
-            wp_ += more_bytes;
-        } else if (n == len) {
-            memcpy(p, addr, len);
-        } else {
-            size_t less_bytes = n - len;
-
-            memmove(p + len, p + n, r_size() - rwpos - len);
-            memcpy(p, addr, len);
-            wp_ -= less_bytes;
-        }
-
-        return *this;
     }
 
     // debug
@@ -365,6 +334,80 @@ public:
     }
     bool endwith(const char *s) const { return endwith(s, strlen(s)); }
 
+    buf &remove(size_t from, size_t len)
+    {
+        TT_OVERFLOW_IF(from + len < len, "remove overflow");
+        TT_INVALID_ARG_IF(from > r_size() || (from + len) > r_size(),
+                          "invalid from len");
+
+        uint8_t *p = (uint8_t *)r();
+        size_t tail = from + len;
+        memmove(p + from, p + tail, r_size() - tail);
+        w_dec(len);
+        return *this;
+    }
+    buf &remove_to(size_t to) { return remove(0, to); }
+    buf &remove_from(size_t from) { return remove(from, r_size() - from); }
+    buf &remove_head(size_t len) { return remove(0, len); }
+    buf &remove_tail(size_t len) { return remove(r_size() - len, len); }
+
+    buf &replace(size_t from, const void *addr, size_t len)
+    {
+        return replace(from, len, addr, len);
+    }
+    buf &replace(size_t from, size_t n, const void *addr, size_t len);
+
+    buf &insert(size_t from, const void *addr, size_t len)
+    {
+        return replace(from, 0, addr, len);
+    }
+    buf &insert(size_t from, const char *s)
+    {
+        return insert(from, s, strlen(s));
+    }
+    buf &insert_head(const void *addr, size_t len)
+    {
+        return insert(0, addr, len);
+    }
+    buf &insert_head(const char *s) { return insert(0, s); }
+    buf &insert_tail(const void *addr, size_t len)
+    {
+        return insert(r_size(), addr, len);
+    }
+    buf &insert_tail(const char *s) { return insert(r_size(), s); }
+
+    buf &trim_head(const std::function<bool(uint8_t)> &_if = [](uint8_t b) {
+        return std::isspace(b);
+    })
+    {
+        if (rp_ < wp_) {
+            uint8_t *p = (uint8_t *)base::addr();
+            size_t pos = rp_;
+            while ((pos < wp_) && _if(p[pos])) { ++pos; }
+            rp_ = pos;
+        }
+        return *this;
+    }
+    buf &trim_tail(const std::function<bool(uint8_t)> &_if = [](uint8_t b) {
+        return std::isspace(b);
+    })
+    {
+        if (rp_ < wp_) {
+            uint8_t *p = (uint8_t *)base::addr();
+            size_t pos = wp_ - 1;
+            while ((pos > rp_) && _if(p[pos])) { --pos; }
+            wp_ = pos + 1;
+        }
+
+        return *this;
+    }
+    buf &trim(const std::function<bool(uint8_t)> &_if = [](uint8_t b) {
+        return std::isspace(b);
+    })
+    {
+        return trim_head(_if).trim_tail(_if);
+    }
+
     bool operator==(const buf &b) const { return cmp(b) == 0; }
     bool operator==(const char *s) const { return cmp(s) == 0; }
 
@@ -401,6 +444,36 @@ private:
 ////////////////////////////////////////////////////////////
 // interface declaration
 ////////////////////////////////////////////////////////////
+
+template<size_t t_init, size_t t_high, size_t t_max>
+buf<t_init, t_high, t_max> &buf<t_init, t_high, t_max>::replace(
+    size_t from, size_t n, const void *addr, size_t len)
+{
+    TT_OVERFLOW_IF(rp_ + from < from || rp_ + from + n < n, "rwpos overflow");
+    TT_INVALID_ARG_IF(rp_ + from > wp_ || rp_ + from + n > wp_,
+                      "invalid rwpos to replace");
+
+    if (n < len) {
+        size_t more_bytes = len - n;
+        reserve(more_bytes);
+
+        uint8_t *p = (uint8_t *)r() + from;
+        memmove(p + len, p + n, r_size() - from - n);
+        memcpy(p, addr, len);
+        wp_ += more_bytes;
+    } else if (n == len) {
+        memcpy((uint8_t *)r() + from, addr, len);
+    } else {
+        size_t less_bytes = n - len;
+
+        uint8_t *p = (uint8_t *)r() + from;
+        memmove(p + len, p + n, r_size() - from - len);
+        memcpy(p, addr, len);
+        wp_ -= less_bytes;
+    }
+
+    return *this;
+}
 
 }
 
