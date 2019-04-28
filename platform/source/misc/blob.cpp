@@ -20,11 +20,9 @@
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <tt/init/component.h>
+#include <tt/misc/blob.h>
 
-#include <tt/log/manager.h>
-#include <tt/misc/rng.h>
-#include <tt/misc/rollback.h>
+#include <misc/tt_assert.h>
 
 ////////////////////////////////////////////////////////////
 // internal macro
@@ -44,8 +42,6 @@ namespace tt {
 // global variant
 ////////////////////////////////////////////////////////////
 
-component_mgr component_mgr::s_instance;
-
 ////////////////////////////////////////////////////////////
 // interface declaration
 ////////////////////////////////////////////////////////////
@@ -54,32 +50,37 @@ component_mgr component_mgr::s_instance;
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-component_mgr::component_mgr()
+blob &blob::cat(const void *addr, size_t len)
 {
-    components_[component::e_log_mgr] = &log::init::mgr::instance();
-    components_[component::e_rng] = &init::rng::instance();
+    if (len == 0) { return *this; }
+
+    size_t n = this->size();
+    TT_OVERFLOW_IF(n + len < n, "cat overflow");
+    check_len(n + len);
+
+    uint8_t *p = new uint8_t[n + len];
+    memcpy(p, addr_, n);
+    if (addr != nullptr) { memcpy(p + n, addr, len); }
+    return set(p, n + len, true);
 }
 
-bool component_mgr::start(void *reserved)
+void blob::do_set(void *addr, size_t len, bool owner)
 {
-    int i = 0;
-
-    auto _1 = make_rollback([this, &i]() {
-        --i;
-        for (; i >= 0; --i) { components_[i]->stop(); }
-    });
-
-    for (; i < component::cid_num; ++i) {
-        if (!components_[i]->start()) { return false; }
+    if (owner) {
+        void *p = new uint8_t[len];
+        if (addr != nullptr) { memcpy(p, addr, len); }
+        assign(p, len, true);
+    } else {
+        assign(addr, len, false);
     }
-    _1.dismiss();
-
-    return true;
 }
 
-void component_mgr::stop()
+void blob::do_move(blob &b)
 {
-    for (int i = 0; i < component::cid_num; ++i) { components_[i]->stop(); }
+    addr_ = b.addr_;
+    len_ = b.len_;
+    b.addr_ = nullptr;
+    b.len_ = 0;
 }
 
 }

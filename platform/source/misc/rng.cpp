@@ -20,11 +20,7 @@
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <tt/init/component.h>
-
-#include <tt/log/manager.h>
 #include <tt/misc/rng.h>
-#include <tt/misc/rollback.h>
 
 ////////////////////////////////////////////////////////////
 // internal macro
@@ -44,7 +40,7 @@ namespace tt {
 // global variant
 ////////////////////////////////////////////////////////////
 
-component_mgr component_mgr::s_instance;
+init::rng init::rng::s_instance;
 
 ////////////////////////////////////////////////////////////
 // interface declaration
@@ -54,32 +50,18 @@ component_mgr component_mgr::s_instance;
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-component_mgr::component_mgr()
+namespace init {
+
+bool rng::do_start(void *reserved)
 {
-    components_[component::e_log_mgr] = &log::init::mgr::instance();
-    components_[component::e_rng] = &init::rng::instance();
+    return native::rng_start();
 }
 
-bool component_mgr::start(void *reserved)
+void rng::do_stop()
 {
-    int i = 0;
-
-    auto _1 = make_rollback([this, &i]() {
-        --i;
-        for (; i >= 0; --i) { components_[i]->stop(); }
-    });
-
-    for (; i < component::cid_num; ++i) {
-        if (!components_[i]->start()) { return false; }
-    }
-    _1.dismiss();
-
-    return true;
+    native::rng_stop();
 }
 
-void component_mgr::stop()
-{
-    for (int i = 0; i < component::cid_num; ++i) { components_[i]->stop(); }
 }
 
 }

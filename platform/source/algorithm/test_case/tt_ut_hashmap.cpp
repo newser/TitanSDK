@@ -27,6 +27,7 @@ extern "C" {
 }
 
 #include <tt/algorithm/hash.h>
+#include <tt/log/layout.h>
 
 ////////////////////////////////////////////////////////////
 // internal macro
@@ -214,7 +215,7 @@ TT_TEST_ROUTINE_DEFINE(case_hash_cpp)
     // test start
 
     for (i = 0; i < sizeof(__h1_murmur3) / sizeof(__h1_murmur3[0]); ++i) {
-        tt::hash<tt::murmur3> h(__h1_murmur3[i].seed);
+        tt::hash<tt::e_murmur3> h(__h1_murmur3[i].seed);
         uint32_t hc = h.calc(__h1_murmur3[i].key, __h1_murmur3[i].key_len);
         TT_UT_EQUAL(hc, __h1_murmur3[i].hash, "");
     }
@@ -226,7 +227,7 @@ TT_TEST_ROUTINE_DEFINE(case_hash_cpp)
     for (i = 0; i < __TN_NUM; ++i) { num[i] = tt_rand_u32(); }
     for (i = 0; i < __HC_NUM; ++i) { hc[i] = 0; }
 
-    tt::hash<tt::murmur3> h;
+    tt::hash<tt::e_murmur3> h;
     start = tt_time_ref();
     for (i = 0; i < __TN_NUM; ++i) {
         uint32_t c = h.calc((tt_u8_t *)&num[i], 4);
@@ -248,7 +249,7 @@ TT_TEST_ROUTINE_DEFINE(case_hash_cpp)
     for (i = 0; i < __HC_NUM; ++i) { hc[i] = 0; }
 
     // performace: fnv1a
-    tt::hash<tt::fnv1a> h2;
+    tt::hash<tt::e_fnv1a> h2;
     tt_hashctx_init(&hctx);
     start = tt_time_ref();
     for (i = 0; i < __TN_NUM; ++i) {

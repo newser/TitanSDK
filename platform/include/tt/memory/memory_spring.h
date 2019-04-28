@@ -33,9 +33,8 @@ APIs to extend/compress memory
 #include <tt/misc/throw.h>
 #include <tt/misc/util.h>
 
+#include <cassert>
 #include <string.h>
-
-namespace tt {
 
 ////////////////////////////////////////////////////////////
 // macro definition
@@ -44,6 +43,8 @@ namespace tt {
 ////////////////////////////////////////////////////////////
 // type definition
 ////////////////////////////////////////////////////////////
+
+namespace tt {
 
 template<size_t t_init = 6, size_t t_high = 12, size_t t_max = 0>
 class memspg
@@ -104,6 +105,7 @@ public:
         TT_OVERFLOW_IF(size_ + more_bytes < size_, "new size overflow");
         return resize(size_ + more_bytes);
     }
+    void *more() { return resize(align_size(size_ + 1)); }
     void *less(size_t less_bytes)
     {
         size_t new_size = size_ < less_bytes ? 0 : (size_ - less_bytes);
@@ -162,7 +164,7 @@ void *memspg<t_init, t_high, t_max>::resize(size_t new_size, size_t from,
     }
 
     if (new_size <= k_init_size) {
-        TT_ASSERT(addr_ != internal_mem_);
+        assert(addr_ != internal_mem_);
         if (len != 0) { memmove(internal_mem_ + to, addr_ + from, len); }
         delete addr_;
         addr_ = internal_mem_;

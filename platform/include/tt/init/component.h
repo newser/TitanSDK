@@ -36,8 +36,6 @@ this file define all basic types
 
 #include <cassert>
 
-namespace tt {
-
 ////////////////////////////////////////////////////////////
 // macro definition
 ////////////////////////////////////////////////////////////
@@ -45,6 +43,8 @@ namespace tt {
 ////////////////////////////////////////////////////////////
 // type definition
 ////////////////////////////////////////////////////////////
+
+namespace tt {
 
 class component_mgr;
 
@@ -55,7 +55,8 @@ class component
 protected:
     enum
     {
-        rng,
+        e_log_mgr,
+        e_rng,
         cid_num
     };
 
@@ -65,17 +66,20 @@ protected:
         TT_INVALID_ARG_IF(cid_ >= cid_num, "invalid component id");
     }
 
-    ~component() { assert(state_ == stopped); }
+    ~component() { assert(state_ == e_stopped); }
 
     virtual bool do_start(void *reserved) = 0;
     virtual void do_stop() = 0;
 
+    const char *name_;
+    int cid_;
+
 private:
     bool start(void *reserved = nullptr)
     {
-        assert(state_ == stopped);
+        assert(state_ == e_stopped);
         if (do_start(reserved)) {
-            state_ = started;
+            state_ = e_started;
             return true;
         } else {
             return false;
@@ -83,18 +87,16 @@ private:
     }
     void stop()
     {
-        assert(state_ == started);
+        assert(state_ == e_started);
         do_stop();
-        state_ = stopped;
+        state_ = e_stopped;
     }
 
-    const char *name_;
-    int cid_;
     enum state
     {
-        stopped,
-        started,
-    } state_{stopped};
+        e_stopped,
+        e_started,
+    } state_{e_stopped};
 
     TT_NON_COPYABLE(component);
 };
@@ -102,7 +104,7 @@ private:
 class component_mgr
 {
 public:
-    component_mgr &instance() { return s_instance; }
+    static component_mgr &instance() { return s_instance; }
 
     bool start(void *reserved = nullptr);
     void stop();

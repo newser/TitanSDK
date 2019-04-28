@@ -47,11 +47,11 @@ namespace tt {
 
 enum hash_alg
 {
-    murmur3,
-    fnv1a,
+    e_murmur3,
+    e_fnv1a,
 };
 
-template<hash_alg t_alg>
+template<hash_alg t_alg = e_murmur3>
 class hash
 {
 public:
@@ -77,7 +77,7 @@ private:
 ////////////////////////////////////////////////////////////
 
 template<>
-uint32_t hash<murmur3>::calc(const void *addr, size_t size)
+uint32_t hash<e_murmur3>::calc(const void *addr, size_t size)
 {
     static constexpr uint32_t c1 = 0xcc9e2d51;
     static constexpr uint32_t c2 = 0x1b873593;
@@ -130,7 +130,7 @@ uint32_t hash<murmur3>::calc(const void *addr, size_t size)
 }
 
 template<>
-uint32_t hash<fnv1a>::calc(const void *addr, size_t size)
+uint32_t hash<e_fnv1a>::calc(const void *addr, size_t size)
 {
     uint8_t *bp = (uint8_t *)addr;
     uint8_t *be = bp + size;

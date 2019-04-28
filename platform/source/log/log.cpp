@@ -20,11 +20,7 @@
 // import header files
 ////////////////////////////////////////////////////////////
 
-#include <tt/init/component.h>
-
-#include <tt/log/manager.h>
-#include <tt/misc/rng.h>
-#include <tt/misc/rollback.h>
+#include <tt/log/layout/placeholder.h>
 
 ////////////////////////////////////////////////////////////
 // internal macro
@@ -36,6 +32,10 @@
 
 namespace tt {
 
+namespace log {
+
+namespace layout {
+
 ////////////////////////////////////////////////////////////
 // extern declaration
 ////////////////////////////////////////////////////////////
@@ -44,7 +44,9 @@ namespace tt {
 // global variant
 ////////////////////////////////////////////////////////////
 
-component_mgr component_mgr::s_instance;
+const char *level::s_level[level_num] = {
+    "DEBUG", "INFO", "WARN", "ERROR", "FATAL",
+};
 
 ////////////////////////////////////////////////////////////
 // interface declaration
@@ -54,32 +56,46 @@ component_mgr component_mgr::s_instance;
 // interface implementation
 ////////////////////////////////////////////////////////////
 
-component_mgr::component_mgr()
+placeholder *placeholder::parse(const char *p, size_t len)
 {
-    components_[component::e_log_mgr] = &log::init::mgr::instance();
-    components_[component::e_rng] = &init::rng::instance();
-}
+    assert(len >= 2 && p[0] == '{' && p[len - 1] == '}');
+    ++p;
+    len -= 2;
 
-bool component_mgr::start(void *reserved)
-{
-    int i = 0;
-
-    auto _1 = make_rollback([this, &i]() {
-        --i;
-        for (; i >= 0; --i) { components_[i]->stop(); }
-    });
-
-    for (; i < component::cid_num; ++i) {
-        if (!components_[i]->start()) { return false; }
+#define __IS_PH(s) strncmp(p, s, sizeof(s) - 1) == 0
+#define __SKIP_PH(s)                                                           \
+    p += sizeof(s) - 1;                                                        \
+    len -= sizeof(s) - 1;                                                      \
+    if (len >= 1 && *p == ':') {                                               \
+        ++p;                                                                   \
+        --len;                                                                 \
     }
-    _1.dismiss();
 
-    return true;
+    if (__IS_PH("logger")) {
+        __SKIP_PH("logger")
+        return new logger(p, len);
+    } else if (__IS_PH("function")) {
+        __SKIP_PH("function")
+        return new function(p, len);
+    } else if (__IS_PH("content")) {
+        __SKIP_PH("content")
+        return new content(p, len);
+    } else if (__IS_PH("seqno")) {
+        __SKIP_PH("seqno")
+        return new seqno(p, len);
+    } else if (__IS_PH("line")) {
+        __SKIP_PH("line")
+        return new line(p, len);
+    } else if (__IS_PH("level")) {
+        __SKIP_PH("level")
+        return new level(p, len);
+    } else {
+        return nullptr;
+    }
 }
 
-void component_mgr::stop()
-{
-    for (int i = 0; i < component::cid_num; ++i) { components_[i]->stop(); }
+}
+
 }
 
 }

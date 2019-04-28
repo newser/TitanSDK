@@ -2,12 +2,17 @@
 
 #include <tt_cstd_api.h>
 
+#include <tt/init/component.h>
+
+extern "C" {
 #include "app_unit_test_process.h"
+}
 
 #if TT_ENV_OS_IS_WINDOWS
 #include <locale.h>
 #endif
 
+extern "C" {
 extern tt_result_t __ipc_cli_1(IN void *param);
 extern tt_result_t __ipc_cli_oneshot(IN void *param);
 extern tt_result_t __ipc_svr_1(IN void *param);
@@ -15,6 +20,7 @@ extern tt_result_t __ipc_cli_pev(IN void *param);
 extern tt_result_t __ipc_skt(IN void *param);
 
 extern tt_result_t tt_cli_demo_run();
+}
 
 tt_buf_t console_output;
 
@@ -103,6 +109,10 @@ tt_result_t __ut_fiber(IN void *param)
             "case_hash_cpp",
             "case_hash",
             "case_rollback",
+            "case_lpatn_logger_cpp",
+            "case_log_pattern_cpp",
+            "case_log_context_cpp",
+            "case_log_manager_cpp",
         //"ALG_UT_BUF",
 //            "case_param_html_bs4_spa",
 //          "TEST_UNIT_CFGNODE",
@@ -231,6 +241,9 @@ tt_result_t __flock_fiber(IN void *param)
     return TT_SUCCESS;
 }
 
+extern "C" void tt_test_gen_sh_win();
+extern "C" void tt_test_gen_sh_unix();
+
 int main(int argc, char *argv[])
 {
     tt_task_t t;
@@ -257,6 +270,8 @@ int main(int argc, char *argv[])
 
             // init platform
             tt_platform_init(NULL);
+
+            tt::component_mgr::instance().start();
 
             tt_task_create(&t, NULL);
             if (strcmp(argv[1], "ipc-1") == 0) {
@@ -287,7 +302,6 @@ int main(int argc, char *argv[])
         tt_test_gen_sh_unix();
         return 0;
     } else if (strncmp(argv[1], "sh_win", 10) == 0) {
-        extern void tt_test_gen_sh_win();
         tt_test_gen_sh_win();
         return 0;
     } else if (strcmp(argv[1], "flock") == 0) {
@@ -298,6 +312,8 @@ int main(int argc, char *argv[])
         if (argc < 4) { return -1; }
 
         tt_platform_init(NULL);
+        tt::component_mgr::instance().start();
+
         tt_task_create(&t, NULL);
         tt_task_add_fiber(&t, NULL, __flock_fiber, argv, NULL);
         tt_task_run(&t);
@@ -314,6 +330,8 @@ int main(int argc, char *argv[])
 
 // init platform
 tt_platform_init(NULL);
+tt::component_mgr::instance().start();
+
 // tt_thread_create_local(NULL);
 
 // run
@@ -333,6 +351,7 @@ tt_platform_init(NULL);
 }
 
 // tt_thread_wait_local();
+tt::component_mgr::instance().stop();
 tt_platform_exit();
 while (0) tt_sleep(10000);
 printf("exiting\n");

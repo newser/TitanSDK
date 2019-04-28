@@ -32,6 +32,7 @@ endif ()
 # platform
 include_directories(${PLATFORM_PATH}/include)
 include_directories(${PLATFORM_PATH}/native/${PLATFORM_ENV})
+include_directories(${PLATFORM_PATH}/native/${PLATFORM_ENV}/include)
 
 # library: fcontext
 include_directories(${PLATFORM_PATH}/library/fcontext/include)
@@ -54,7 +55,7 @@ include_directories(${PLATFORM_PATH}/library/zip/include)
 # source file
 #
 
-set(SRC_FILE unit_test.c)
+set(SRC_FILE unit_test.cpp)
 set(SRC_FILE ${SRC_FILE} unit_test_process.c)
 
 #

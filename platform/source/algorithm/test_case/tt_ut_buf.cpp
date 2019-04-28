@@ -22,7 +22,7 @@
 
 #include <tt_platform.h>
 
-#include <tt/algorithm/buffer.h>
+#include <tt/misc/buffer.h>
 #include <tt/misc/rollback.h>
 
 ////////////////////////////////////////////////////////////
@@ -335,7 +335,7 @@ TT_TEST_ROUTINE_DEFINE(case_buf_null_cpp)
     }
 
     {
-        tt::buf<3> buf, b2;
+        tt::buf_t<3> buf, b2;
         TT_UT_TRUE(buf.empty(), "");
 
         TT_UT_NOT_NULL(buf.r(), "");
@@ -355,7 +355,7 @@ TT_TEST_ROUTINE_DEFINE(case_buf_null_cpp)
         TT_UT_EQUAL(buf.w_size(), 8, "");
         buf.clear();
 
-        tt::buf<>::rwp pos = buf.rwpos();
+        tt::buf_t<>::rwp pos = buf.rwpos();
         TT_UT_EQUAL(pos.first, 0, "");
         TT_UT_EQUAL(pos.second, 0, "");
         buf.rwpos(pos);
@@ -413,7 +413,7 @@ TT_TEST_ROUTINE_DEFINE(case_buf_null_cpp)
     }
 
     {
-        tt::buf<> b("012345678");
+        tt::buf_t<> b("012345678");
         b.remove_from(7);
         TT_UT_EQUAL(b, "0123456", "");
         b.remove_to(1);
@@ -444,7 +444,7 @@ TT_TEST_ROUTINE_DEFINE(case_buf_null_cpp)
     }
 
     {
-        tt::buf<> b;
+        tt::buf_t<> b;
         char tmp[] = "12345678901234567890", tmp2[30];
         b.write(tmp, sizeof(tmp) - 1)
             .write(tmp, sizeof(tmp) - 1)
@@ -478,7 +478,7 @@ TT_TEST_ROUTINE_DEFINE(case_buf_null_cpp)
     }
 
     {
-        tt::buf<> b;
+        tt::buf_t<> b;
         b.write((char)0x1)
             .write((short)0x0304)
             .write((int32_t)0x05060708)
@@ -532,7 +532,7 @@ TT_TEST_ROUTINE_DEFINE(case_buf_null_cpp)
 
     // swap
     {
-        tt::buf<3> b1, b2;
+        tt::buf_t<3> b1, b2;
         char tmp[10];
         b1.write("123");
         b1.read(tmp, 1);
@@ -559,9 +559,9 @@ TT_TEST_ROUTINE_DEFINE(case_buf_null_cpp)
     }
 
     {
-        tt::buf<3> b1("1234567890");
+        tt::buf_t<3> b1("1234567890");
         TT_UT_EQUAL(b1, "1234567890", "");
-        tt::buf<3> b2(std::move(b1));
+        tt::buf_t<3> b2(std::move(b1));
         TT_UT_EQUAL(b2, "1234567890", "");
         TT_UT_EQUAL(b1.r_size(), 0, "");
         TT_UT_EQUAL(b1.w_size(), 8, "");
@@ -570,7 +570,7 @@ TT_TEST_ROUTINE_DEFINE(case_buf_null_cpp)
         b1.write("12345678");
         TT_UT_EQUAL(b1.r_size(), 8, "");
         TT_UT_EQUAL(b1.w_size(), 0, "");
-        tt::buf<3> b3(std::move(b1));
+        tt::buf_t<3> b3(std::move(b1));
         TT_UT_EQUAL(b3, "12345678", "");
         TT_UT_EQUAL(b3.r_size(), 8, "");
         TT_UT_EQUAL(b3.w_size(), 0, "");
@@ -580,7 +580,7 @@ TT_TEST_ROUTINE_DEFINE(case_buf_null_cpp)
 
     // cat
     {
-        tt::buf<3> b1, b2;
+        tt::buf_t<3> b1, b2;
         b1.write("123");
         b2.write("4567");
 
@@ -606,7 +606,7 @@ TT_TEST_ROUTINE_DEFINE(case_buf_null_cpp)
 
     // cmp
     {
-        tt::buf<3> b1("123"), b2;
+        tt::buf_t<3> b1("123"), b2;
         b2 = "123";
         TT_UT_TRUE(b1 == b2, "");
         TT_UT_TRUE(b1 == b1, "");
@@ -626,87 +626,38 @@ TT_TEST_ROUTINE_DEFINE(case_buf_null_cpp)
         TT_UT_TRUE(b1 <= "123", "");
     }
 
-#if 0
-    // get
-    ret = tt_buf_get(&buf, bn, 1);
-    TT_UT_EQUAL(ret, TT_E_BUF_NOBUFS, "");
-    ret = tt_buf_get_nocopy(&buf, &p, 1);
-    TT_UT_EQUAL(ret, TT_E_BUF_NOBUFS, "");
-    n = tt_buf_get_hexstr(&buf, NULL, 1);
-    TT_UT_EQUAL(n, 0, "");
-    n = tt_buf_get_hexstr(&buf, (tt_char_t *)bn, 1);
-    TT_UT_EQUAL(n, 0, "");
-    ret = tt_buf_peek(&buf, bn, 1);
-    TT_UT_EQUAL(ret, TT_E_BUF_NOBUFS, "");
-
-    ret = tt_buf_compress(&buf);
-    TT_UT_EQUAL(ret, TT_SUCCESS, "");
-    TT_UT_EQUAL(buf.p, buf.initbuf, "");
-    TT_UT_EQUAL(buf.rpos, 0, "");
-    TT_UT_EQUAL(buf.wpos, 0, "");
-
-    // common
-    n = tt_buf_cmp(&buf, &buf);
-    TT_UT_EQUAL(n, 0, "");
-    n = tt_buf_cmp(&buf, &buf2);
-    TT_UT_EQUAL(n, 0, "");
-
-    tt_buf_remove(&buf, 0);
-    tt_buf_remove_range(&buf, 0, 1);
-    tt_buf_remove_headto(&buf, 0);
-    TT_UT_EQUAL(tt_buf_empty(&buf), TT_TRUE, "");
-    tt_buf_remove_headto(&buf, 10000);
-    TT_UT_EQUAL(tt_buf_empty(&buf), TT_TRUE, "");
-    tt_buf_remove_tailfrom(&buf, 0);
-    TT_UT_EQUAL(tt_buf_empty(&buf), TT_TRUE, "");
-    tt_buf_remove_tailfrom(&buf, 10000);
-    TT_UT_EQUAL(tt_buf_empty(&buf), TT_TRUE, "");
-
-    // format
-    ret = tt_buf_put_cstr2hex(&buf, "");
-    TT_UT_EQUAL(ret, TT_SUCCESS, "");
-    TT_UT_EQUAL(tt_buf_empty(&buf), TT_TRUE, "");
-
-    ret = tt_buf_put_hex2cstr(&buf, bn, 0);
-    TT_UT_EQUAL(ret, TT_SUCCESS, "");
-
-    tt_buf_clear(&buf);
-    TT_UT_EQUAL(tt_buf_empty(&buf), TT_TRUE, "");
-
-    tt_buf_try_refine(&buf, 0);
-    TT_UT_EQUAL(tt_buf_empty(&buf), TT_TRUE, "");
-
     {
-        tt_u32_t r, r2;
+        tt::buf_t<3, 6> b;
+        b.write_f("12345678");
+        TT_UT_EQUAL(b.r_size(), 8, "");
+        TT_UT_EQUAL(b, "12345678", "");
 
-        tt_buf_clear(&buf);
-        TT_UT_TRUE(tt_buf_startwith(&buf, (tt_u8_t *)&r, 0), "");
-        TT_UT_FALSE(tt_buf_startwith(&buf, (tt_u8_t *)&r, 4), "");
+        b.clear();
+        TT_UT_TRUE(b.empty(), "");
+        b.write_f("1234567812345678");
+        TT_UT_EQUAL(b.r_size(), 16, "");
+        TT_UT_EQUAL(b, "1234567812345678", "");
 
-        r = ~0;
-        r2 = 0;
-        tt_buf_put_u32(&buf, r);
-        TT_UT_TRUE(tt_buf_startwith(&buf, (tt_u8_t *)&r, 1), "");
-        TT_UT_TRUE(tt_buf_startwith(&buf, (tt_u8_t *)&r, 4), "");
-        TT_UT_FALSE(tt_buf_startwith(&buf, (tt_u8_t *)&r2, 1), "");
-        TT_UT_FALSE(tt_buf_startwith(&buf, (tt_u8_t *)&r2, 4), "");
+        b.clear();
+        b.write_f("%s", "12345678123456781234567812345678");
+        TT_UT_EQUAL(b.r_size(), 32, "");
+        TT_UT_EQUAL(b, "12345678123456781234567812345678", "");
 
-        tt_buf_clear(&buf);
-        TT_UT_TRUE(tt_buf_endwith(&buf, (tt_u8_t *)&ret, 0), "");
-        TT_UT_FALSE(tt_buf_endwith(&buf, (tt_u8_t *)&ret,
-                                   (tt_u32_t)sizeof(ret)),
-                    "");
-
-        tt_buf_put_u32(&buf, r);
-        TT_UT_TRUE(tt_buf_endwith(&buf, (tt_u8_t *)&r, 1), "");
-        TT_UT_TRUE(tt_buf_endwith(&buf, (tt_u8_t *)&r, 4), "");
-        TT_UT_FALSE(tt_buf_endwith(&buf, (tt_u8_t *)&r2, 1), "");
-        TT_UT_FALSE(tt_buf_endwith(&buf, (tt_u8_t *)&r2, 4), "");
+        tt::buf_t<3, 6> b2;
+        b2.write_f("%s", "1234567812345678123456781234");
+        TT_UT_EQUAL(b2.r_size(), 28, "");
+        TT_UT_EQUAL(b2, "1234567812345678123456781234", "");
     }
 
-    tt_buf_destroy(&buf);
-    tt_buf_destroy(&buf2);
-#endif
+    {
+        tt::buf_t<3, 3, 0> b;
+        char tmp[] = "12345678";
+
+        b.write(tmp, 8);
+        TT_UT_EQUAL(b.w_size(), 0, "");
+        b.write_f("%s", tmp);
+        TT_UT_EQUAL(b, "1234567812345678", "");
+    }
 
     // test end
     TT_TEST_CASE_LEAVE()

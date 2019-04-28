@@ -1,12 +1,21 @@
 /*
  * import header files
  */
+
+extern "C" {
 #include "tt_unit_test_case_config.h"
 #include <unit_test/tt_unit_test.h>
 
 #include <log/filter/tt_log_filter.h>
 #include <os/tt_fiber.h>
 #include <tt_platform.h>
+}
+
+#include <tt/log/context.h>
+#include <tt/log/io.h>
+#include <tt/log/io/standard.h>
+#include <tt/log/layout/pattern.h>
+#include <tt/log/manager.h>
 
 /*
  * local definition
@@ -14,7 +23,9 @@
 
 // === routine declarations ================
 TT_TEST_ROUTINE_DECLARE(case_log_context)
+TT_TEST_ROUTINE_DECLARE(case_log_context_cpp)
 TT_TEST_ROUTINE_DECLARE(case_log_manager)
+TT_TEST_ROUTINE_DECLARE(case_log_manager_cpp)
 
 TT_TEST_ROUTINE_DECLARE(case_log_io_file_index)
 TT_TEST_ROUTINE_DECLARE(case_log_io_file_date)
@@ -30,105 +41,45 @@ TT_TEST_ROUTINE_DECLARE(case_log_io_oslog)
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(log_case)
 
-TT_TEST_CASE("case_log_context",
-             "testing log context",
-             case_log_context,
-             NULL,
-             NULL,
-             NULL,
-             NULL,
-             NULL)
+TT_TEST_CASE("case_log_context", "testing log context", case_log_context, NULL,
+             NULL, NULL, NULL, NULL)
 ,
 
-    TT_TEST_CASE("case_log_manager",
-                 "testing log manager",
-                 case_log_manager,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_log_context_cpp", "testing log context",
+                 case_log_context_cpp, NULL, NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_log_io_file_index",
-                 "testing log io file by index",
-                 case_log_io_file_index,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_log_manager", "testing log manager", case_log_manager,
+                 NULL, NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_log_io_file_date",
-                 "testing log io file by date",
-                 case_log_io_file_date,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_log_manager_cpp", "testing log manager",
+                 case_log_manager_cpp, NULL, NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_log_io_file_archive",
-                 "testing log io file archiving",
-                 case_log_io_file_archive,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_log_io_file_index", "testing log io file by index",
+                 case_log_io_file_index, NULL, NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_log_io_syslog",
-                 "testing log io syslog",
-                 case_log_io_syslog,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_log_io_file_date", "testing log io file by date",
+                 case_log_io_file_date, NULL, NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_log_io_udp",
-                 "testing log io udp",
-                 case_log_io_udp,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_log_io_file_archive", "testing log io file archiving",
+                 case_log_io_file_archive, NULL, NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_log_io_tcp",
-                 "testing log io tcp",
-                 case_log_io_tcp,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_log_io_syslog", "testing log io syslog",
+                 case_log_io_syslog, NULL, NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_log_io_async",
-                 "testing log io async",
-                 case_log_io_async,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_log_io_udp", "testing log io udp", case_log_io_udp, NULL,
+                 NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_log_io_winev",
-                 "testing log io windows event",
-                 case_log_io_winev,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_log_io_tcp", "testing log io tcp", case_log_io_tcp, NULL,
+                 NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_log_io_oslog",
-                 "testing log io oslog",
-                 case_log_io_oslog,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_log_io_async", "testing log io async", case_log_io_async,
+                 NULL, NULL, NULL, NULL, NULL),
+
+    TT_TEST_CASE("case_log_io_winev", "testing log io windows event",
+                 case_log_io_winev, NULL, NULL, NULL, NULL, NULL),
+
+    TT_TEST_CASE("case_log_io_oslog", "testing log io oslog", case_log_io_oslog,
+                 NULL, NULL, NULL, NULL, NULL),
 
     TT_TEST_CASE_LIST_DEFINE_END(log_case)
     // =========================================
@@ -138,7 +89,6 @@ TT_TEST_CASE("case_log_context",
     /*
      * interface implementation
      */
-
 
     /*
     TT_TEST_ROUTINE_DEFINE(case_log_io_async)
@@ -230,56 +180,79 @@ TT_TEST_CASE("case_log_context",
     TT_TEST_CASE_LEAVE()
 }
 
+TT_TEST_ROUTINE_DEFINE(case_log_context_cpp)
+{
+    tt_loglyt_t *lyt;
+    tt_logctx_t ctx;
+    tt_result_t ret;
+    tt_logio_t *lio;
+    tt_log_entry_t entry = {0};
+
+    TT_TEST_CASE_ENTER()
+    // test start
+
+    tt::log::layout::pattern *pp = new tt::log::layout::pattern();
+    TT_UT_TRUE(pp->parse("${seqno} ${level} ${logger} ${content} "
+                         "<${function}:${line}>\n"),
+               "");
+
+    tt::log::ctx cc;
+    cc.layout(std::shared_ptr<tt::log::i_layout>(pp));
+
+    tt::log::entry e = {0};
+    cc.write(e);
+
+    e.content = "aabbcc";
+    cc.write(e);
+
+    std::shared_ptr<tt::log::i_io> p1(new tt::log::io::standard());
+    cc.append_io(p1);
+
+    e.function = __FUNCTION__;
+    cc.write(e);
+
+    cc.append_io(p1);
+
+    e.line = 100;
+    cc.write(e);
+    e.logger = "haniu";
+    cc.write(e);
+    e.seqno = 999;
+    e.level = tt::log::e_fatal;
+    cc.write(e);
+
+    // test end
+    TT_TEST_CASE_LEAVE()
+}
+
 static tt_bool_t __test_log(tt_logmgr_t *lm)
 {
-    tt_logmgr_inputf(lm,
-                     TT_LOG_DEBUG,
-                     __FUNCTION__,
-                     __LINE__,
-                     "this is [%s] log",
-                     tt_g_log_level_name[TT_LOG_DEBUG]);
+    tt_logmgr_inputf(lm, TT_LOG_DEBUG, __FUNCTION__, __LINE__,
+                     "this is [%s] log", tt_g_log_level_name[TT_LOG_DEBUG]);
 
-    tt_logmgr_inputf(lm,
-                     TT_LOG_INFO,
-                     __FUNCTION__,
-                     __LINE__,
-                     "this is [%s] log",
-                     tt_g_log_level_name[TT_LOG_INFO]);
+    tt_logmgr_inputf(lm, TT_LOG_INFO, __FUNCTION__, __LINE__,
+                     "this is [%s] log", tt_g_log_level_name[TT_LOG_INFO]);
 
-    tt_logmgr_inputf(lm,
-                     TT_LOG_WARN,
-                     __FUNCTION__,
-                     __LINE__,
-                     "this is [%s] log",
-                     tt_g_log_level_name[TT_LOG_WARN]);
+    tt_logmgr_inputf(lm, TT_LOG_WARN, __FUNCTION__, __LINE__,
+                     "this is [%s] log", tt_g_log_level_name[TT_LOG_WARN]);
 
-    tt_logmgr_inputf(lm,
-                     TT_LOG_ERROR,
-                     __FUNCTION__,
-                     __LINE__,
-                     "this is [%s] log",
-                     tt_g_log_level_name[TT_LOG_ERROR]);
+    tt_logmgr_inputf(lm, TT_LOG_ERROR, __FUNCTION__, __LINE__,
+                     "this is [%s] log", tt_g_log_level_name[TT_LOG_ERROR]);
 
-    tt_logmgr_inputf(lm,
-                     TT_LOG_FATAL,
-                     __FUNCTION__,
-                     __LINE__,
-                     "this is [%s] log",
-                     tt_g_log_level_name[TT_LOG_FATAL]);
+    tt_logmgr_inputf(lm, TT_LOG_FATAL, __FUNCTION__, __LINE__,
+                     "this is [%s] log", tt_g_log_level_name[TT_LOG_FATAL]);
 
     return TT_TRUE;
 }
 
 static tt_u32_t __log_filter_true(IN struct tt_logfltr_s *lf,
-                                  IN tt_log_entry_t *entry,
-                                  IN tt_buf_t *buf)
+                                  IN tt_log_entry_t *entry, IN tt_buf_t *buf)
 {
     return TT_LOGFLTR_PASS | TT_LOGFLTR_SELF;
 }
 
 static tt_u32_t __log_filter_false(IN struct tt_logfltr_s *lf,
-                                   IN tt_log_entry_t *entry,
-                                   IN tt_buf_t *buf)
+                                   IN tt_log_entry_t *entry, IN tt_buf_t *buf)
 {
     return 0;
 }
@@ -351,7 +324,7 @@ TT_TEST_ROUTINE_DEFINE(case_log_manager)
     tt_logmgr_set_level(&lm, TT_LOG_DEBUG);
     __test_log(&lm);
 
-    tt_logmgr_set_level(&lm, 255);
+    tt_logmgr_set_level(&lm, (tt_log_level_t)255);
     __test_log(&lm);
 
     tt_logmgr_set_level(&lm, TT_LOG_LEVEL_NUM);
@@ -371,7 +344,7 @@ TT_TEST_ROUTINE_DEFINE(case_log_manager)
         TT_UT_FAIL(ret, "");
         __test_log(&lm);
 
-        ret = tt_logmgr_append_filter(&lm, 200, lf);
+        ret = tt_logmgr_append_filter(&lm, (tt_log_level_t)200, lf);
         TT_UT_FAIL(ret, "");
         __test_log(&lm);
 
@@ -477,13 +450,10 @@ TT_TEST_ROUTINE_DEFINE(case_log_io_file_index)
     TT_UT_SUCCESS(ret, "");
     TT_UT_EQUAL(n, 80, "");
     TT_UT_EQUAL(tt_memcmp(buf, "123456789 123456789 123456789 123456789 ", 40),
-                0,
-                "");
-    TT_UT_EQUAL(tt_memcmp(buf + 40,
-                          "123456789 123456789 123456789 123456789 ",
+                0, "");
+    TT_UT_EQUAL(tt_memcmp(buf + 40, "123456789 123456789 123456789 123456789 ",
                           40),
-                0,
-                "");
+                0, "");
     tt_fclose(&f);
 
     ret =
@@ -493,13 +463,10 @@ TT_TEST_ROUTINE_DEFINE(case_log_io_file_index)
     TT_UT_SUCCESS(ret, "");
     TT_UT_EQUAL(n, 80, "");
     TT_UT_EQUAL(tt_memcmp(buf, "123456789 123456789 123456789 123456789 ", 40),
-                0,
-                "");
-    TT_UT_EQUAL(tt_memcmp(buf + 40,
-                          "123456789 123456789 123456789 123456789 ",
+                0, "");
+    TT_UT_EQUAL(tt_memcmp(buf + 40, "123456789 123456789 123456789 123456789 ",
                           40),
-                0,
-                "");
+                0, "");
     tt_fclose(&f);
 
     ret =
@@ -531,13 +498,10 @@ TT_TEST_ROUTINE_DEFINE(case_log_io_file_index)
     TT_UT_SUCCESS(ret, "");
     TT_UT_EQUAL(n, 80, "");
     TT_UT_EQUAL(tt_memcmp(buf, "123456789 123456789 123456789 123456789 ", 40),
-                0,
-                "");
-    TT_UT_EQUAL(tt_memcmp(buf + 40,
-                          "123456789 123456789 123456789 123456789 ",
+                0, "");
+    TT_UT_EQUAL(tt_memcmp(buf + 40, "123456789 123456789 123456789 123456789 ",
                           40),
-                0,
-                "");
+                0, "");
     tt_fclose(&f);
 
     ret =
@@ -547,13 +511,10 @@ TT_TEST_ROUTINE_DEFINE(case_log_io_file_index)
     TT_UT_SUCCESS(ret, "");
     TT_UT_EQUAL(n, 80, "");
     TT_UT_EQUAL(tt_memcmp(buf, "123456789 123456789 123456789 123456789 ", 40),
-                0,
-                "");
-    TT_UT_EQUAL(tt_memcmp(buf + 40,
-                          "123456789 123456789 123456789 123456789 ",
+                0, "");
+    TT_UT_EQUAL(tt_memcmp(buf + 40, "123456789 123456789 123456789 123456789 ",
                           40),
-                0,
-                "");
+                0, "");
     tt_fclose(&f);
 
     tt_logio_release(lio);
@@ -604,12 +565,8 @@ TT_TEST_ROUTINE_DEFINE(case_log_io_file_date)
     while (TT_OK(ret = tt_dread(&d, &de))) {
         tt_fpath_t p;
 
-        if (tt_strcmp(de.name, ".") == 0) {
-            continue;
-        }
-        if (tt_strcmp(de.name, "..") == 0) {
-            continue;
-        }
+        if (tt_strcmp(de.name, ".") == 0) { continue; }
+        if (tt_strcmp(de.name, "..") == 0) { continue; }
 
         tt_fpath_create_cstr(&p, __LIOF_LOG_PATH_D, TT_FPATH_SEP);
         tt_fpath_set_filename(&p, de.name);
@@ -623,13 +580,11 @@ TT_TEST_ROUTINE_DEFINE(case_log_io_file_date)
             TT_UT_EQUAL(tt_memcmp(buf,
                                   "123456789 123456789 123456789 123456789 ",
                                   40),
-                        0,
-                        "");
+                        0, "");
             TT_UT_EQUAL(tt_memcmp(buf + 40,
                                   "123456789 123456789 123456789 123456789 ",
                                   40),
-                        0,
-                        "");
+                        0, "");
 
             ++num;
         } else {
@@ -663,12 +618,8 @@ TT_TEST_ROUTINE_DEFINE(case_log_io_file_date)
     while (TT_OK(ret = tt_dread(&d, &de))) {
         tt_fpath_t p;
 
-        if (tt_strcmp(de.name, ".") == 0) {
-            continue;
-        }
-        if (tt_strcmp(de.name, "..") == 0) {
-            continue;
-        }
+        if (tt_strcmp(de.name, ".") == 0) { continue; }
+        if (tt_strcmp(de.name, "..") == 0) { continue; }
 
         tt_fpath_create_cstr(&p, __LIOF_LOG_PATH_D, TT_FPATH_SEP);
         tt_fpath_set_filename(&p, de.name);
@@ -682,13 +633,11 @@ TT_TEST_ROUTINE_DEFINE(case_log_io_file_date)
             TT_UT_EQUAL(tt_memcmp(buf,
                                   "123456789 123456789 123456789 123456789 ",
                                   40),
-                        0,
-                        "");
+                        0, "");
             TT_UT_EQUAL(tt_memcmp(buf + 40,
                                   "123456789 123456789 123456789 123456789 ",
                                   40),
-                        0,
-                        "");
+                        0, "");
 
             ++num;
         } else {
@@ -786,9 +735,7 @@ TT_TEST_ROUTINE_DEFINE(case_log_io_file_archive)
             TT_UT_SUCCESS(ret, "");
             TT_UT_EQUAL(n, 80, "");
             TT_UT_NSTREQ(b, "123456789 123456789 123456789 123456789 ", 40, "");
-            TT_UT_NSTREQ(b + 40,
-                         "123456789 123456789 123456789 123456789 ",
-                         40,
+            TT_UT_NSTREQ(b + 40, "123456789 123456789 123456789 123456789 ", 40,
                          "");
             ret = tt_zipfile_read(zf, (tt_u8_t *)b, sizeof(b), &n);
             TT_UT_EQUAL(ret, TT_E_END, "");
@@ -801,9 +748,7 @@ TT_TEST_ROUTINE_DEFINE(case_log_io_file_archive)
             TT_UT_SUCCESS(ret, "");
             TT_UT_EQUAL(n, 80, "");
             TT_UT_NSTREQ(b, "123456789 123456789 123456789 123456789 ", 40, "");
-            TT_UT_NSTREQ(b + 40,
-                         "123456789 123456789 123456789 123456789 ",
-                         40,
+            TT_UT_NSTREQ(b + 40, "123456789 123456789 123456789 123456789 ", 40,
                          "");
             ret = tt_zipfile_read(zf, (tt_u8_t *)b, sizeof(b), &n);
             TT_UT_EQUAL(ret, TT_E_END, "");
@@ -915,12 +860,7 @@ static tt_result_t __udp_log_svr(IN void *param)
 
     i = 1;
     while (i < 10) {
-        if (!TT_OK(tt_skt_recvfrom(s,
-                                   buf,
-                                   sizeof(buf),
-                                   &recvd,
-                                   NULL,
-                                   &fev,
+        if (!TT_OK(tt_skt_recvfrom(s, buf, sizeof(buf), &recvd, NULL, &fev,
                                    &tmr))) {
             __err_line = __LINE__;
             return TT_FAIL;
@@ -967,9 +907,7 @@ TT_TEST_ROUTINE_DEFINE(case_log_io_udp)
     TT_UT_SUCCESS(ret, "");
     ret = tt_task_run(&t);
     TT_UT_SUCCESS(ret, "");
-    while (tt_atomic_s32_get(&__svr_ok) == 0) {
-        tt_sleep(100);
-    }
+    while (tt_atomic_s32_get(&__svr_ok) == 0) { tt_sleep(100); }
 
     lio = tt_logio_udp_create(TT_NET_AF_INET, &addr, NULL);
     TT_UT_NOT_NULL(lio, "");
@@ -1037,23 +975,16 @@ static tt_result_t __tcp_log_svr(IN void *param)
 
     n = 0;
     while (1) {
-        if (!TT_OK(tt_skt_recv(as,
-                               buf + n,
-                               sizeof(buf) - n,
-                               &recvd,
-                               &fev,
+        if (!TT_OK(tt_skt_recv(as, buf + n, sizeof(buf) - n, &recvd, &fev,
                                &tmr))) {
             __err_line = __LINE__;
             return TT_FAIL;
         }
 
         n += recvd;
-        if (n >= 36) {
-            break;
-        }
+        if (n >= 36) { break; }
     }
-    if (tt_strncmp((tt_char_t *)buf,
-                   "112123123412345123456123456712345678",
+    if (tt_strncmp((tt_char_t *)buf, "112123123412345123456123456712345678",
                    36) != 0) {
         __err_line = __LINE__;
         return TT_FAIL;
@@ -1087,18 +1018,13 @@ TT_TEST_ROUTINE_DEFINE(case_log_io_tcp)
 
     ret = tt_task_create(&t, NULL);
     TT_UT_SUCCESS(ret, "");
-    ret = tt_task_add_fiber(&t,
-                            NULL,
-                            __tcp_log_svr,
-                            (void *)(tt_uintptr_t)port,
+    ret = tt_task_add_fiber(&t, NULL, __tcp_log_svr, (void *)(tt_uintptr_t)port,
                             NULL);
     TT_UT_SUCCESS(ret, "");
     ret = tt_task_run(&t);
     TT_UT_SUCCESS(ret, "");
 #if 1
-    while (tt_atomic_s32_get(&__svr_ok) == 0) {
-        tt_sleep(100);
-    }
+    while (tt_atomic_s32_get(&__svr_ok) == 0) { tt_sleep(100); }
 #endif
 
     lio = tt_logio_tcp_create(TT_NET_AF_INET, &addr, NULL);
@@ -1157,9 +1083,7 @@ static tt_result_t __log_rtn(IN void *param)
     tt_memset(buf, '0' + idx, idx + 1);
     buf[idx + 1] = '\n';
 
-    for (i = 0; i < 20; ++i) {
-        tt_logio_output(lio_async, buf, idx + 3);
-    }
+    for (i = 0; i < 20; ++i) { tt_logio_output(lio_async, buf, idx + 3); }
 
     return TT_SUCCESS;
 }
@@ -1198,20 +1122,15 @@ TT_TEST_ROUTINE_DEFINE(case_log_io_async)
     for (i = 0; i < __LOG_TASK; ++i) {
         ret = tt_task_create(&__log_tsk[i], NULL);
         TT_UT_SUCCESS(ret, "");
-        ret = tt_task_add_fiber(&__log_tsk[i],
-                                NULL,
-                                __log_rtn,
-                                (void *)(tt_uintptr_t)i,
-                                NULL);
+        ret = tt_task_add_fiber(&__log_tsk[i], NULL, __log_rtn,
+                                (void *)(tt_uintptr_t)i, NULL);
         TT_UT_SUCCESS(ret, "");
     }
     for (i = 0; i < __LOG_TASK; ++i) {
         ret = tt_task_run(&__log_tsk[i]);
         TT_UT_SUCCESS(ret, "");
     }
-    for (i = 0; i < __LOG_TASK; ++i) {
-        tt_task_wait(&__log_tsk[i]);
-    }
+    for (i = 0; i < __LOG_TASK; ++i) { tt_task_wait(&__log_tsk[i]); }
 
     tt_logio_release(lio_async);
 
@@ -1268,6 +1187,139 @@ TT_TEST_ROUTINE_DEFINE(case_log_io_oslog)
     tt_logio_output(lio, "12345678", 9);
 
     tt_logio_release(lio);
+
+    // test end
+    TT_TEST_CASE_LEAVE()
+}
+
+static bool __test_log_cpp(tt::log::mgr &lm)
+{
+    lm.debug_f(__FUNCTION__, __LINE__, "this is [%s] log", "debug");
+    lm.debug("this is [%s] log", "debug");
+    lm._TT_DEBUG("this is [%s] log", "debug");
+
+    lm.info_f(__FUNCTION__, __LINE__, "this is [%s] log", "info");
+    lm.info("this is [%s] log", "info");
+    lm._TT_INFO("this is [%s] log", "info");
+
+    lm.warn_f(__FUNCTION__, __LINE__, "this is [%s] log", "warn");
+    lm.warn("this is [%s] log", "warn");
+    lm._TT_WARN("this is [%s] log", "warn");
+
+    lm.error_f(__FUNCTION__, __LINE__, "this is [%s] log", "error");
+    lm.error("this is [%s] log", "error");
+    lm._TT_ERROR("this is [%s] log", "error");
+
+    lm.fatal_f(__FUNCTION__, __LINE__, "this is [%s] log", "fatal");
+    lm.fatal("this is [%s] log", "fatal");
+    lm._TT_FATAL("this is [%s] log", "fatal");
+
+    return TT_TRUE;
+}
+
+TT_TEST_ROUTINE_DEFINE(case_log_manager_cpp)
+{
+    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+
+    TT_TEST_CASE_ENTER()
+    // test start
+
+    auto p_debug = new tt::log::layout::pattern();
+    TT_UT_TRUE(p_debug->parse("${content} <${function} - ${line}>\n"), "");
+    auto p_info = new tt::log::layout::pattern();
+    TT_UT_TRUE(p_info->parse("${content}\n"), "");
+    auto p_warn = new tt::log::layout::pattern();
+    TT_UT_TRUE(p_warn->parse("${level:%-6.6s} ${content}\n"), "");
+    auto p_error = new tt::log::layout::pattern();
+    TT_UT_TRUE(p_error->parse("${level:%-6.6s} ${content}\n"), "");
+    auto p_fatal = new tt::log::layout::pattern();
+    TT_UT_TRUE(p_fatal->parse("${level:%-6.6s} ${content}\n"), "");
+
+    // test
+    tt::log::mgr lm("haniu");
+    lm.layout(tt::log::e_debug, std::shared_ptr<tt::log::i_layout>(p_debug));
+    lm.layout(tt::log::e_info, std::shared_ptr<tt::log::i_layout>(p_info));
+    lm.layout(tt::log::e_warn, std::shared_ptr<tt::log::i_layout>(p_warn));
+    lm.layout(tt::log::e_error, std::shared_ptr<tt::log::i_layout>(p_error));
+    lm.layout(tt::log::e_fatal, std::shared_ptr<tt::log::i_layout>(p_fatal));
+
+    // no io
+    __test_log_cpp(lm);
+
+    auto p_stdout = new tt::log::io::standard();
+    lm.append_io(std::shared_ptr<tt::log::i_io>(p_stdout));
+    __test_log_cpp(lm);
+
+    lm.level(tt::log::e_debug);
+    __test_log_cpp(lm);
+
+    lm.level(tt::log::e_fatal);
+    __test_log_cpp(lm);
+
+    {
+        tt::log::g_log_mgr->level(tt::log::e_debug);
+
+        tt::log::debug_f(__FUNCTION__, __LINE__, "this is default [%s] log",
+                         "debug");
+        tt::log::debug("this is default [%s] log", "debug");
+        tt::log::_TT_DEBUG("this is default [%s] log", "debug");
+
+        tt::log::info_f(__FUNCTION__, __LINE__, "this is default [%s] log",
+                        "info");
+        tt::log::info("this is default [%s] log", "info");
+        tt::log::_TT_INFO("this is default [%s] log", "info");
+
+        tt::log::warn_f(__FUNCTION__, __LINE__, "this is default [%s] log",
+                        "warn");
+        tt::log::warn("this is default [%s] log", "warn");
+        tt::log::_TT_WARN("this is default [%s] log", "warn");
+
+        tt::log::error_f(__FUNCTION__, __LINE__, "this is default [%s] log",
+                         "error");
+        tt::log::error("this is default [%s] log", "error");
+        tt::log::_TT_ERROR("this is default [%s] log", "error");
+
+        tt::log::fatal_f(__FUNCTION__, __LINE__, "this is default [%s] log",
+                         "fatal");
+        tt::log::fatal("this is default [%s] log", "fatal");
+        tt::log::_TT_FATAL("this is default [%s] log", "fatal");
+    }
+
+    //    // test filter
+    //    {
+    //        lf = tt_logfltr_create(0, &lfi);
+    //        TT_UT_NOT_NULL(lf, "");
+    //        lf2 = tt_logfltr_create(0, &lfi2);
+    //        TT_UT_NOT_NULL(lf, "");
+    //        lf3 = tt_logfltr_create(0, &lfi3);
+    //        TT_UT_NOT_NULL(lf, "");
+    //
+    //        ret = tt_logmgr_append_filter(&lm, TT_LOG_DEBUG, NULL);
+    //        TT_UT_FAIL(ret, "");
+    //        __test_log(&lm);
+    //
+    //        ret = tt_logmgr_append_filter(&lm, (tt_log_level_t)200, lf);
+    //        TT_UT_FAIL(ret, "");
+    //        __test_log(&lm);
+    //
+    //        ret = tt_logmgr_append_filter(&lm, TT_LOG_DEBUG, lf2);
+    //        TT_UT_SUCCESS(ret, "");
+    //        ret = tt_logfltr_append_io(lf2, lio);
+    //        TT_UT_SUCCESS(ret, "");
+    //        __test_log(&lm);
+    //
+    //        ret = tt_logmgr_append_filter(&lm, TT_LOG_DEBUG, lf3);
+    //        TT_UT_SUCCESS(ret, "");
+    //        __test_log(&lm);
+    //
+    //        ret = tt_logmgr_append_filter(&lm, TT_LOG_DEBUG, lf3);
+    //        TT_UT_SUCCESS(ret, "");
+    //        __test_log(&lm);
+    //
+    //        tt_logfltr_release(lf);
+    //        tt_logfltr_release(lf2);
+    //        tt_logfltr_release(lf3);
+    //    }
 
     // test end
     TT_TEST_CASE_LEAVE()

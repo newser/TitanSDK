@@ -2,8 +2,9 @@
  * import header files
  */
 
-#include <tt/algorithm/blob.h>
 #include <tt/memory/memory_spring.h>
+#include <tt/misc/blob.h>
+#include <tt/misc/rng.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -93,6 +94,7 @@ TT_TEST_ROUTINE_DECLARE(case_blobex_cpp)
 TT_TEST_ROUTINE_DECLARE(case_memspg_cpp)
 
 TT_TEST_ROUTINE_DECLARE(case_alg_rng)
+TT_TEST_ROUTINE_DECLARE(case_alg_rng_cpp)
 // =========================================
 
 // === test case list ======================
@@ -136,6 +138,9 @@ TT_TEST_CASE("case_basic_alg_qsort", "testing tt_qsort()", case_basic_alg_qsort,
 
     TT_TEST_CASE("case_alg_rng", "testing random num generator", case_alg_rng,
                  NULL, NULL, NULL, NULL, NULL),
+
+    TT_TEST_CASE("case_alg_rng_cpp", "testing random num generator",
+                 case_alg_rng_cpp, NULL, NULL, NULL, NULL, NULL),
 
     TT_TEST_CASE("case_blobex", "testing blobex", case_blobex, NULL, NULL, NULL,
                  NULL, NULL),
@@ -957,6 +962,37 @@ TT_TEST_ROUTINE_DEFINE(case_alg_rng)
     TT_TEST_CASE_LEAVE()
 }
 
+TT_TEST_ROUTINE_DEFINE(case_alg_rng_cpp)
+{
+    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+    static tt_u32_t num[__RAND_SIZE];
+    tt_s64_t start, end, t;
+    tt_u32_t i, min_n, max_n;
+
+    TT_TEST_CASE_ENTER()
+    // test start
+
+    // xorshift
+    tt::rng<> r;
+    for (i = 0; i < __RAND_SIZE; ++i) { num[i] = 0; }
+    min_n = ~0;
+    max_n = 0;
+
+    start = tt_time_ref();
+    for (i = 0; i < __RAND_SIZE; ++i) { num[r.next() % __RAND_SIZE] += 1; }
+    end = tt_time_ref();
+    t = tt_time_ref2ms(end - start);
+
+    for (i = 0; i < __RAND_SIZE; ++i) {
+        if (num[i] < min_n) min_n = num[i];
+        if (num[i] >= max_n) max_n = num[i];
+    }
+    TT_RECORD_INFO("xorshift, time: %dms, min: %d, max: %d", t, min_n, max_n);
+
+    // test end
+    TT_TEST_CASE_LEAVE()
+}
+
 TT_TEST_ROUTINE_DEFINE(case_blobex)
 {
     // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
@@ -1406,6 +1442,17 @@ TT_TEST_ROUTINE_DEFINE(case_memspg_cpp)
         p2 = (uint8_t *)m.resize(64);
         TT_UT_NOT_EQUAL(p2, old_p, "");
         TT_UT_EQUAL(m.size(), 64, "");
+
+        m.more();
+        TT_UT_EQUAL(m.size(), 128, "");
+        m.more();
+        TT_UT_EQUAL(m.size(), 256, "");
+        m.more();
+        TT_UT_EQUAL(m.size(), 512, "");
+        m.more();
+        TT_UT_EQUAL(m.size(), 1024, "");
+        m.more();
+        TT_UT_EQUAL(m.size(), 1536, "");
     }
 
     {

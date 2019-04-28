@@ -20,8 +20,16 @@
 // import header files
 ////////////////////////////////////////////////////////////
 
+extern "C" {
 #include "tt_unit_test_case_config.h"
+}
+
 #include <tt_platform.h>
+
+#include <tt/log/context.h>
+#include <tt/log/layout/pattern.h>
+#include <tt/log/layout/placeholder.h>
+#include <tt/log/manager.h>
 
 ////////////////////////////////////////////////////////////
 // internal macro
@@ -43,11 +51,13 @@
 TT_TEST_ROUTINE_DECLARE(case_lpatn_sn)
 TT_TEST_ROUTINE_DECLARE(case_lpatn_time)
 TT_TEST_ROUTINE_DECLARE(case_lpatn_logger)
-TT_TEST_ROUTINE_DECLARE(case_lpatn_level)
+TT_TEST_ROUTINE_DECLARE(case_lpatn_logger_cpp)
 TT_TEST_ROUTINE_DECLARE(case_lpatn_content)
 TT_TEST_ROUTINE_DECLARE(case_lpatn_func)
 TT_TEST_ROUTINE_DECLARE(case_lpatn_line)
 TT_TEST_ROUTINE_DECLARE(case_log_pattern)
+TT_TEST_ROUTINE_DECLARE(case_log_pattern_cpp)
+TT_TEST_ROUTINE_DECLARE(case_lpatn_cpp)
 
 TT_TEST_ROUTINE_DECLARE(case_log_syslog3164)
 // =========================================
@@ -55,78 +65,36 @@ TT_TEST_ROUTINE_DECLARE(case_log_syslog3164)
 // === test case list ======================
 TT_TEST_CASE_LIST_DEFINE_BEGIN(lpatn_case)
 
-TT_TEST_CASE("case_lpatn_sn",
-             "testing log pattern: seq num",
-             case_lpatn_sn,
-             NULL,
-             NULL,
-             NULL,
-             NULL,
-             NULL)
+TT_TEST_CASE("case_lpatn_sn", "testing log pattern: seq num", case_lpatn_sn,
+             NULL, NULL, NULL, NULL, NULL)
 ,
 
-    TT_TEST_CASE("case_lpatn_time",
-                 "testing log pattern: time",
-                 case_lpatn_time,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_lpatn_time", "testing log pattern: time",
+                 case_lpatn_time, NULL, NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_lpatn_logger",
-                 "testing log pattern: logger",
-                 case_lpatn_logger,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_lpatn_logger", "testing log pattern: logger",
+                 case_lpatn_logger, NULL, NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_lpatn_content",
-                 "testing log pattern: content",
-                 case_lpatn_content,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_lpatn_logger_cpp", "testing log pattern: logger",
+                 case_lpatn_logger_cpp, NULL, NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_lpatn_func",
-                 "testing log pattern: function",
-                 case_lpatn_func,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_lpatn_content", "testing log pattern: content",
+                 case_lpatn_content, NULL, NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_lpatn_line",
-                 "testing log pattern: line",
-                 case_lpatn_line,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_lpatn_func", "testing log pattern: function",
+                 case_lpatn_func, NULL, NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_log_pattern",
-                 "testing log pattern",
-                 case_log_pattern,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_lpatn_line", "testing log pattern: line",
+                 case_lpatn_line, NULL, NULL, NULL, NULL, NULL),
 
-    TT_TEST_CASE("case_log_syslog3164",
-                 "testing log layout: syslog3164",
-                 case_log_syslog3164,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL,
-                 NULL),
+    TT_TEST_CASE("case_log_pattern", "testing log pattern", case_log_pattern,
+                 NULL, NULL, NULL, NULL, NULL),
+
+    TT_TEST_CASE("case_log_pattern_cpp", "testing log pattern",
+                 case_log_pattern_cpp, NULL, NULL, NULL, NULL, NULL),
+
+    TT_TEST_CASE("case_log_syslog3164", "testing log layout: syslog3164",
+                 case_log_syslog3164, NULL, NULL, NULL, NULL, NULL),
 
     TT_TEST_CASE_LIST_DEFINE_END(lpatn_case)
     // =========================================
@@ -142,7 +110,7 @@ TT_TEST_CASE("case_lpatn_sn",
     ////////////////////////////////////////////////////////////
 
     /*
-    TT_TEST_ROUTINE_DEFINE(case_log_syslog3164)
+    TT_TEST_ROUTINE_DEFINE(case_lpatn_logger_cpp)
     {
         //tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
 
@@ -495,16 +463,14 @@ TT_TEST_ROUTINE_DEFINE(case_lpatn_logger)
         tt_buf_clear(&buf);
         ret = tt_logfld_output(lpf, &entry, &buf);
         TT_UT_SUCCESS(ret, "");
-        TT_UT_EQUAL(tt_buf_cmp_cstr(&buf, "at least 7 char: [       ]. end"),
-                    0,
+        TT_UT_EQUAL(tt_buf_cmp_cstr(&buf, "at least 7 char: [       ]. end"), 0,
                     "");
 
         entry.logger = "1";
         tt_buf_clear(&buf);
         ret = tt_logfld_output(lpf, &entry, &buf);
         TT_UT_SUCCESS(ret, "");
-        TT_UT_EQUAL(tt_buf_cmp_cstr(&buf, "at least 7 char: [      1]. end"),
-                    0,
+        TT_UT_EQUAL(tt_buf_cmp_cstr(&buf, "at least 7 char: [      1]. end"), 0,
                     "");
 
         entry.logger = "12345678";
@@ -512,8 +478,7 @@ TT_TEST_ROUTINE_DEFINE(case_lpatn_logger)
         ret = tt_logfld_output(lpf, &entry, &buf);
         TT_UT_SUCCESS(ret, "");
         TT_UT_EQUAL(tt_buf_cmp_cstr(&buf, "at least 7 char: [12345678]. end"),
-                    0,
-                    "");
+                    0, "");
 
         tt_logfld_destroy(lpf);
     }
@@ -631,16 +596,14 @@ TT_TEST_ROUTINE_DEFINE(case_lpatn_content)
         entry.content = "";
         ret = tt_logfld_output(lpf, &entry, &buf);
         TT_UT_SUCCESS(ret, "");
-        TT_UT_EQUAL(tt_buf_cmp_cstr(&buf, "at least 7 char: [       ]. end"),
-                    0,
+        TT_UT_EQUAL(tt_buf_cmp_cstr(&buf, "at least 7 char: [       ]. end"), 0,
                     "");
 
         tt_buf_clear(&buf);
         entry.content = "1";
         ret = tt_logfld_output(lpf, &entry, &buf);
         TT_UT_SUCCESS(ret, "");
-        TT_UT_EQUAL(tt_buf_cmp_cstr(&buf, "at least 7 char: [      1]. end"),
-                    0,
+        TT_UT_EQUAL(tt_buf_cmp_cstr(&buf, "at least 7 char: [      1]. end"), 0,
                     "");
 
         tt_buf_clear(&buf);
@@ -648,8 +611,7 @@ TT_TEST_ROUTINE_DEFINE(case_lpatn_content)
         ret = tt_logfld_output(lpf, &entry, &buf);
         TT_UT_SUCCESS(ret, "");
         TT_UT_EQUAL(tt_buf_cmp_cstr(&buf, "at least 7 char: [12345678]. end"),
-                    0,
-                    "");
+                    0, "");
 
         tt_logfld_destroy(lpf);
     }
@@ -767,16 +729,14 @@ TT_TEST_ROUTINE_DEFINE(case_lpatn_func)
         entry.function = "";
         ret = tt_logfld_output(lpf, &entry, &buf);
         TT_UT_SUCCESS(ret, "");
-        TT_UT_EQUAL(tt_buf_cmp_cstr(&buf, "at least 7 char: [       ]. end"),
-                    0,
+        TT_UT_EQUAL(tt_buf_cmp_cstr(&buf, "at least 7 char: [       ]. end"), 0,
                     "");
 
         tt_buf_clear(&buf);
         entry.function = "1";
         ret = tt_logfld_output(lpf, &entry, &buf);
         TT_UT_SUCCESS(ret, "");
-        TT_UT_EQUAL(tt_buf_cmp_cstr(&buf, "at least 7 char: [      1]. end"),
-                    0,
+        TT_UT_EQUAL(tt_buf_cmp_cstr(&buf, "at least 7 char: [      1]. end"), 0,
                     "");
 
         tt_buf_clear(&buf);
@@ -784,8 +744,7 @@ TT_TEST_ROUTINE_DEFINE(case_lpatn_func)
         ret = tt_logfld_output(lpf, &entry, &buf);
         TT_UT_SUCCESS(ret, "1");
         TT_UT_EQUAL(tt_buf_cmp_cstr(&buf, "at least 7 char: [12345678]. end"),
-                    0,
-                    "");
+                    0, "");
 
         tt_logfld_destroy(lpf);
     }
@@ -987,8 +946,7 @@ TT_TEST_ROUTINE_DEFINE(case_log_pattern)
         ret = tt_loglyt_format(ll, &entry, &buf);
         TT_UT_SUCCESS(ret, "");
         TT_UT_EQUAL(tt_buf_cmp_cstr(&buf, "$FATAL ${${{}} $log content 1234"),
-                    0,
-                    "");
+                    0, "");
 
         tt_loglyt_release(ll);
     }
@@ -1014,11 +972,8 @@ TT_TEST_ROUTINE_DEFINE(case_log_syslog3164)
 
     tt_buf_init(&buf, NULL);
 
-    ll = tt_loglyt_syslog3164_create(TT_SYSLOG_LPR,
-                                     TT_SYSLOG_CRIT,
-                                     "testhost",
-                                     NULL,
-                                     "${level} ${content}\n");
+    ll = tt_loglyt_syslog3164_create(TT_SYSLOG_LPR, TT_SYSLOG_CRIT, "testhost",
+                                     NULL, "${level} ${content}\n");
     TT_UT_NOT_NULL(ll, "");
 
     le.content = "log content";
@@ -1063,6 +1018,162 @@ TT_TEST_ROUTINE_DEFINE(case_log_syslog3164)
 
     tt_loglyt_release(ll);
     tt_buf_destroy(&buf);
+
+    // test end
+    TT_TEST_CASE_LEAVE()
+}
+
+TT_TEST_ROUTINE_DEFINE(case_lpatn_logger_cpp)
+{
+    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+    tt::log::layout::placeholder *f;
+    tt::buf b;
+    tt::log::entry e;
+
+    TT_TEST_CASE_ENTER()
+    // test start
+
+    {
+        f = new tt::log::layout::logger("xxx %s", sizeof("xxx %s") - 1);
+
+        e.logger = nullptr;
+        b.clear();
+        f->render(e, b);
+        TT_UT_TRUE(b.empty(), "");
+
+        e.logger = "logger";
+        b.clear();
+        f->render(e, b);
+        TT_UT_TRUE(b == "xxx logger", "");
+
+        delete f;
+    }
+
+    {
+        f = new tt::log::layout::function("xxx %s", sizeof("xxx %s") - 1);
+
+        e.function = nullptr;
+        b.clear();
+        f->render(e, b);
+        TT_UT_TRUE(b.empty(), "");
+
+        e.function = "ff";
+        b.clear();
+        f->render(e, b);
+        TT_UT_TRUE(b == "xxx ff", "");
+
+        delete f;
+    }
+
+    {
+        f = new tt::log::layout::content("xxx %s", sizeof("xxx %s") - 1);
+
+        e.content = nullptr;
+        b.clear();
+        f->render(e, b);
+        TT_UT_TRUE(b.empty(), "");
+
+        e.content = "ccc";
+        b.clear();
+        f->render(e, b);
+        TT_UT_TRUE(b == "xxx ccc", "");
+
+        delete f;
+    }
+
+    {
+        f = new tt::log::layout::line("xxx %d", sizeof("xxx %d") - 1);
+
+        e.line = 123;
+        b.clear();
+        f->render(e, b);
+        TT_UT_TRUE(b == "xxx 123", "");
+
+        delete f;
+    }
+
+    {
+        f = new tt::log::layout::seqno("xxx %d", sizeof("xxx %d") - 1);
+
+        e.seqno = 456;
+        b.clear();
+        f->render(e, b);
+        TT_UT_TRUE(b == "xxx 456", "");
+
+        delete f;
+    }
+
+    {
+        f = new tt::log::layout::level("xxx %s", sizeof("xxx %s") - 1);
+
+        e.level = tt::log::e_debug;
+        b.clear();
+        f->render(e, b);
+        TT_UT_TRUE(b == "xxx DEBUG", "");
+
+        e.level = tt::log::e_fatal;
+        b.clear();
+        f->render(e, b);
+        TT_UT_TRUE(b == "xxx FATAL", "");
+
+        e.level = tt::log::level_num;
+        b.clear();
+        f->render(e, b);
+        TT_UT_TRUE(b.empty(), "");
+
+        delete f;
+    }
+
+    // test end
+    TT_TEST_CASE_LEAVE()
+}
+
+TT_TEST_ROUTINE_DEFINE(case_log_pattern_cpp)
+{
+    // tt_u32_t param = TT_TEST_ROUTINE_PARAM(tt_u32_t);
+    tt_loglyt_t *ll;
+    tt_result_t ret;
+    tt_log_entry_t entry = {0};
+    tt_buf_t buf;
+    tt_s32_t cmp_ret;
+
+    TT_TEST_CASE_ENTER()
+    // test start
+
+    tt::buf b;
+    tt::log::entry e;
+
+    e.seqno = 100;
+    e.level = tt::log::e_fatal;
+    e.function = "foo";
+    e.content = "log content";
+    e.logger = "me";
+    e.line = 1234;
+
+    tt::log::layout::pattern ptn;
+
+    // basic
+    {
+        TT_UT_TRUE(ptn.parse("$${seqno:%6d} $ ${level:%.2s} $}${function:} "
+                             "${content}"
+                             "${logger:$$%s} ${line}\n"),
+                   "");
+
+        b.clear();
+        ptn.render(e, b);
+        TT_UT_TRUE(b == "$   100 $ FA $}foo log content$$me 1234\n", "");
+    }
+
+    TT_UT_FALSE(ptn.parse("${content} ${level:%d\n"), "");
+    TT_UT_FALSE(ptn.parse("-- ${level} ${ function}\n"), "");
+    TT_UT_FALSE(ptn.parse("-- ${level} ${}\n"), "");
+    // TT_UT_FALSE(ptn.parse("${level } ${function}\n"), "");
+    TT_UT_FALSE(ptn.parse("${content} ${level:%d\n"), "");
+
+    TT_UT_TRUE(ptn.parse("$${level} $${function:{${}{}} $${content} 1234"), "");
+    b.clear();
+    ptn.render(e, b);
+    TT_UT_TRUE(b == "$FATAL ${${{}} $log content 1234", "");
 
     // test end
     TT_TEST_CASE_LEAVE()
